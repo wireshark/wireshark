@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.29 2002/04/28 00:43:16 guy Exp $
+ * $Id: packet-cops.c,v 1.30 2002/05/05 00:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ipv6.h"
-#include "packet-frame.h"
+#include "packet-tcp.h"
 
 #include "asn1.h"
 #include "format-oid.h"
@@ -426,6 +426,7 @@ static gint ett_cops_pdp = -1;
 
 void proto_reg_handoff_cops(void);
 
+static guint get_cops_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree);
@@ -440,115 +441,17 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
 static void
 dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        volatile int offset = 0;
-	int length_remaining;
-	guint32 msg_len;
-	int length;
-	tvbuff_t *next_tvb;
+	tcp_dissect_pdus(tvb, pinfo, tree, cops_desegment, 8,
+	    get_cops_pdu_len, dissect_cops_pdu);
+}
 
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
-		length_remaining = tvb_length_remaining(tvb, offset);
-		if (length_remaining == -1)
-			THROW(BoundsError);
-
-		/*
-		 * Can we do reassembly?
-		 */
-		if (cops_desegment && pinfo->can_desegment) {
-			/*
-			 * Yes - is the COPS header split across segment
-			 * boundaries?
-			 */
-			if (length_remaining < 8) {
-				/*
-				 * Yes.  Tell the TCP dissector where
-				 * the data for this message starts in
-				 * the data it handed us, and how many
-				 * more bytes we need, and return.
-				 */
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len = 8 - length_remaining;
-				return;
-			}
-		}
-
-		/*
-		 * Get the length of the COPS message.
-		 */
-		msg_len = tvb_get_ntohl(tvb, offset + 4);
-
-		/*
-		 * Can we do reassembly?
-		 */
-		if (cops_desegment && pinfo->can_desegment) {
-			/*
-			 * Yes - is the DNS packet split across segment
-			 * boundaries?
-			 */
-			if ((guint32)length_remaining < msg_len) {
-				/*
-				 * Yes.  Tell the TCP dissector where
-				 * the data for this message starts in
-				 * the data it handed us, and how many
-				 * more bytes we need, and return.
-				 */
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len =
-				    msg_len - length_remaining;
-				return;
-			}
-		}
-
-		/*
-		 * Construct a tvbuff containing the amount of the payload
-		 * we have available.  Make its reported length the
-		 * amount of data in the COPS packet.
-		 *
-		 * XXX - if reassembly isn't enabled. the subdissector
-		 * will throw a BoundsError exception, rather than a
-		 * ReportedBoundsError exception.  We really want
-		 * a tvbuff where the length is "length", the reported
-		 * length is "plen + 2", and the "if the snapshot length
-		 * were infinite" length were the minimum of the
-		 * reported length of the tvbuff handed to us and "plen+2",
-		 * with a new type of exception thrown if the offset is
-		 * within the reported length but beyond that third length,
-		 * with that exception getting the "Unreassembled Packet"
-		 * error.
-		 */
-		length = length_remaining;
-		if ((guint32)length > msg_len)
-			length = msg_len;
-		next_tvb = tvb_new_subset(tvb, offset, length, msg_len);
-
-		/*
-		 * Dissect the COPS packet.
-		 *
-		 * Catch the ReportedBoundsError exception; if this
-		 * particular message happens to get a ReportedBoundsError
-		 * exception, that doesn't mean that we should stop
-		 * dissecting COPS messages within this frame or chunk
-		 * of reassembled data.
-		 *
-		 * If it gets a BoundsError, we can stop, as there's nothing
-		 * more to see, so we just re-throw it.
-		 */
-		TRY {
-			dissect_cops_pdu(next_tvb, pinfo, tree);
-		}
-		CATCH(BoundsError) {
-			RETHROW;
-		}
-		CATCH(ReportedBoundsError) {
-			show_reported_bounds_error(tvb, pinfo, tree);
-		}
-		ENDTRY;
-
-		/*
-		 * Skip the COPS packet.
-		 */
-		offset += msg_len;
-	}
+static guint
+get_cops_pdu_len(tvbuff_t *tvb, int offset)
+{
+	/*
+	 * Get the length of the COPS message.
+	 */
+	return tvb_get_ntohl(tvb, offset + 4);
 }
 
 static void

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.8 2001/10/31 10:40:54 guy Exp $
+# $Id: Makefile.am,v 1.9 2002/05/05 00:16:36 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -29,6 +29,7 @@ plugindir = @PLUGIN_DIR@
 EXTRA_DIST = \
 	plugin_api.c	\
 	plugin_api.h	\
+	plugin_api_decls.h	\
 	plugin_api_defs.h	\
 	plugin_table.h	\
 	Makefile.nmake

@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.9 2002/02/18 23:51:55 guy Exp $
+ * $Id: packet-tcp.h,v 1.10 2002/05/05 00:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,29 @@ struct tcpinfo {
 	guint16	urgent_pointer;  /* Urgent pointer value for the current packet. */
 };
 
+/*
+ * Loop for dissecting PDUs within a TCP stream; assumes that a PDU
+ * consists of a fixed-length chunk of data that contains enough information
+ * to determine the length of the PDU, followed by rest of the PDU.
+ *
+ * The first three arguments are the arguments passed to the dissector
+ * that calls this routine.
+ *
+ * "proto_desegment" is the dissector's flag controlling whether it should
+ * desegment PDUs that cross TCP segment boundaries.
+ *
+ * "fixed_len" is the length of the fixed-length part of the PDU.
+ *
+ * "get_pdu_len()" is a routine called to get the length of the PDU from
+ * the fixed-length part of the PDU; it's passed "tvb" and "offset".
+ *
+ * "dissect_pdu()" is the routine to dissect a PDU.
+ */
+extern void
+tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		 gboolean proto_desegment, int fixed_len,
+		 guint (*get_pdu_len)(tvbuff_t *, int),
+		 void (*dissect_pdu)(tvbuff_t *, packet_info *, proto_tree *));
 
 extern void decode_tcp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int);

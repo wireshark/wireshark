@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.32 2002/05/01 06:56:16 guy Exp $
+ * $Id: packet-gryphon.c,v 1.33 2002/05/05 00:16:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@
 #endif
 #include <epan/packet.h>
 #include "packet-gryphon.h"
-#include "packet-frame.h"
+#include "packet-tcp.h"
 #include "prefs.h"
 
 #include "plugins/plugin_api_defs.h"
@@ -154,115 +154,42 @@ static char *frame_type[] = {
 	"Text string"
 };
 
+/*
+ * Length of the frame header.
+ */
+#define FRAME_HEADER_LEN	8
+
+static guint
+get_gryphon_pdu_len(tvbuff_t *tvb, int offset)
+{
+    guint16 plen;
+    int padded_len;
+
+    /*
+     * Get the length of the Gryphon packet, and then get the length as
+     * padded to a 4-byte boundary.
+     */
+    plen = tvb_get_ntohs(tvb, offset + 4);
+    padded_len = plen + 3 - (plen + 3) % 4;
+
+    /*
+     * That length doesn't include the fixed-length part of the header;
+     * add that in.
+     */
+    return padded_len + FRAME_HEADER_LEN;
+}
+
+static void
+dissect_gryphon_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_gryphon_message(tvb, pinfo, tree, FALSE);
+}
+
 static void
 dissect_gryphon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    volatile int offset = 0;
-    int length_remaining;
-    guint16 plen;
-    int padded_len;
-    int length;
-    tvbuff_t *next_tvb;
-
-    offset = 0;
-    while (tvb_reported_length_remaining(tvb, offset) != 0) {
-	length_remaining = tvb_length_remaining(tvb, offset);
-
-	/*
-	 * Can we do reassembly?
-	 */
-	if (gryphon_desegment && pinfo->can_desegment) {
-	    /*
-	     * Yes - is the Gryphon header split across segment boundaries?
-	     */
-	    if (length_remaining < 8) {
-		/*
-		 * Yes.  Tell the TCP dissector where the data for
-		 * this message starts in the data it handed us,
-		 * and how many more bytes we need, and return.
-		 */
-		pinfo->desegment_offset = offset;
-		pinfo->desegment_len = 8 - length_remaining;
-		return;
-	    }
-	}
-
-	/*
-	 * Get the length of the Gryphon packet, and then
-	 * get the length as padded to a 4-byte boundary.
-	 */
-	plen = tvb_get_ntohs(tvb, offset + 4);
-	padded_len = plen + 3 - (plen + 3) % 4;
-
-	/*
-	 * Can we do reassembly?
-	 */
-	if (gryphon_desegment && pinfo->can_desegment) {
-	    /*
-	     * Yes - is the Gryphon packet split across segment boundaries?
-	     */
-	    if (length_remaining < padded_len + 8) {
-		/*
-		 * Yes.  Tell the TCP dissector where the data for
-		 * this message starts in the data it handed us,
-		 * and how many more bytes we need, and return.
-		 */
-		pinfo->desegment_offset = offset;
-		pinfo->desegment_len = (padded_len + 8) - length_remaining;
-		return;
-	    }
-	}
-
-	/*
-	 * Construct a tvbuff containing the amount of the payload
-	 * we have available.  Make its reported length the
-	 * amount of data in the Gryphon packet.
-	 *
-	 * XXX - if reassembly isn't enabled. the subdissector
-	 * will throw a BoundsError exception, rather than a
-	 * ReportedBoundsError exception.  We really want
-	 * a tvbuff where the length is "length", the reported
-	 * length is "plen + 8", and the "if the snapshot length
-	 * were infinite" length is the minimum of the
-	 * reported length of the tvbuff handed to us and "plen+8",
-	 * with a new type of exception thrown if the offset is
-	 * within the reported length but beyond that third length,
-	 * with that exception getting the "Unreassembled Packet"
-	 * error.
-	 */
-	length = length_remaining;
-	if (length > plen + 8)
-	    length = plen + 8;
-	next_tvb = tvb_new_subset(tvb, offset, length, plen + 8);
-
-	/*
-	 * Dissect the Gryphon packet.
-	 *
-	 * Catch the ReportedBoundsError exception; if this
-	 * particular message happens to get a ReportedBoundsError
-	 * exception, that doesn't mean that we should stop
-	 * dissecting Gryphon messages within this frame or
-	 * chunk of reassembled data.
-	 *
-	 * If it gets a BoundsError, we can stop, as there's nothing
-	 * more to see, so we just re-throw it.
-	 */
-	TRY {
-	    dissect_gryphon_message(next_tvb, pinfo, tree, FALSE);
-	}
-	CATCH(BoundsError) {
-	    RETHROW;
-	}
-	CATCH(ReportedBoundsError) {
-	    show_reported_bounds_error(tvb, pinfo, tree);
-	}
-	ENDTRY;
-
-	/*
-	 * Skip the Gryphon header and the payload.
-	 */
-	offset += padded_len + 8;
-    }
+    tcp_dissect_pdus(tvb, pinfo, tree, gryphon_desegment, FRAME_HEADER_LEN,
+	get_gryphon_pdu_len, dissect_gryphon_pdu);
 }
 
 static const value_string src_dest[] = {
@@ -313,6 +240,12 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     frmtyp = flags & ~RESPONSE_FLAGS;
 
     if (!is_msgresp_add) {
+	/*
+	 * This tvbuff includes padding to make its length a multiple
+	 * of 4 bytes; set it to the actual length.
+	 */
+	set_actual_length(tvb, msglen + FRAME_HEADER_LEN);
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    /*
 	     * Indicate what kind of message this is.

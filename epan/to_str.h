@@ -1,7 +1,7 @@
 /* to_str.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id: to_str.h,v 1.5 2001/09/14 07:10:10 guy Exp $
+ * $Id: to_str.h,v 1.6 2002/05/05 00:16:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,28 +51,29 @@ typedef enum {
  * but for which no more specific module applies.  
  */
 
-gchar*     ether_to_str(const guint8 *);
-gchar*     ether_to_str_punct(const guint8 *, char);
-gchar*     ip_to_str(const guint8 *);
-void       ip_to_str_buf(const guint8 *, gchar *);
+extern gchar*	ether_to_str(const guint8 *);
+extern gchar*	ether_to_str_punct(const guint8 *, char);
+extern gchar*	ip_to_str(const guint8 *);
+extern void	ip_to_str_buf(const guint8 *, gchar *);
 struct     e_in6_addr;
-gchar*     ip6_to_str(struct e_in6_addr *);
-gchar*     ipx_addr_to_str(guint32, const guint8 *);
-gchar*     ipxnet_to_string(const guint8 *ad);
-gchar*     ipxnet_to_str_punct(const guint32 ad, char punct);
-gchar*     vines_addr_to_str(const guint8 *addrp);
-gchar*     time_secs_to_str(guint32);
-gchar*     time_msecs_to_str(guint32);
-gchar*	   abs_time_to_str(nstime_t*);
-void       display_signed_time(gchar *, int, gint32, gint32, time_res_t);
-gchar*	   rel_time_to_str(nstime_t*);
-gchar*	   rel_time_to_secs_str(nstime_t*);
+extern char*	ip6_to_str(struct e_in6_addr *);
+extern gchar*	ipx_addr_to_str(guint32, const guint8 *);
+extern gchar*	ipxnet_to_string(const guint8 *ad);
+extern gchar*	ipxnet_to_str_punct(const guint32 ad, char punct);
+extern gchar*	vines_addr_to_str(const guint8 *addrp);
+extern gchar*	time_secs_to_str(guint32);
+extern gchar*	time_msecs_to_str(guint32);
+extern gchar*	abs_time_to_str(nstime_t*);
+extern void	display_signed_time(gchar *, int, gint32, gint32, time_res_t);
+extern gchar*	rel_time_to_str(nstime_t*);
+extern gchar*	rel_time_to_secs_str(nstime_t*);
 
 
-char * decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width);
-const char *decode_boolean_bitfield(guint32 val, guint32 mask, int width,
+extern char	*decode_bitfield_value(char *buf, guint32 val, guint32 mask,
+    int width);
+extern const char *decode_boolean_bitfield(guint32 val, guint32 mask, int width,
   const char *truedesc, const char *falsedesc);
-const char *decode_numeric_bitfield(guint32 val, guint32 mask, int width,
+extern const char *decode_numeric_bitfield(guint32 val, guint32 mask, int width,
   const char *fmt);
 
 #endif /* __TO_STR_H__  */

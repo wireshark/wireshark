@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.50 2002/02/23 02:16:12 guy Exp $
+ * $Id: plugins.c,v 1.51 2002/05/05 00:16:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,7 @@
 #include "conversation.h"
 #include "packet-giop.h"
 #include "packet-tpkt.h"
+#include "packet-tcp.h"
 #include "plugins/plugin_table.h"
 static plugin_address_table_t	patable;
 #endif
@@ -441,6 +442,12 @@ init_plugins(const char *plugin_dir)
 
 	patable.p_is_tpkt			= is_tpkt;
 	patable.p_dissect_tpkt_encap		= dissect_tpkt_encap;
+
+	patable.p_set_actual_length		= set_actual_length;
+	patable.p_tcp_dissect_pdus		= tcp_dissect_pdus;
+	patable.p_decode_boolean_bitfield	= decode_boolean_bitfield;
+	patable.p_decode_numeric_bitfield	= decode_numeric_bitfield;
+	patable.p_decode_enumerated_bitfield	= decode_enumerated_bitfield;
 #endif
 
 #ifdef WIN32

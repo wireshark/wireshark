@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.18 2002/05/03 21:25:43 guy Exp $
+ * $Id: packet-dsi.c,v 1.19 2002/05/05 00:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,7 @@
 #include <epan/packet.h>
 
 #include "prefs.h"
-#include "packet-frame.h"
+#include "packet-tcp.h"
 
 #include "packet-afp.h"
 
@@ -402,120 +402,28 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+static guint
+get_dsi_pdu_len(tvbuff_t *tvb, int offset)
+{
+	guint32 plen;
+
+	/*
+	 * Get the length of the DSI packet.
+	 */
+	plen = tvb_get_ntohl(tvb, offset+8);
+
+	/*
+	 * That length doesn't include the length of the header itself;
+	 * add that in.
+	 */
+	return plen + 16;
+}
+
 static void
 dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	volatile int offset = 0;
-	int length_remaining;
-	guint32 plen;
-	int length;
-	tvbuff_t *next_tvb;
-
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
-		length_remaining = tvb_length_remaining(tvb, offset);
-
-		/*
-		 * Can we do reassembly?
-		 */
-		if (dsi_desegment && pinfo->can_desegment) {
-			/*
-			 * Yes - is the DSI header split across segment
-			 * boundaries?
-			 */
-			if (length_remaining < 12) {
-				/*
-				 * Yes.  Tell the TCP dissector where
-				 * the data for this message starts in
-				 * the data it handed us, and how many
-				 * more bytes we need, and return.
-				 */
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len = 12 - length_remaining;
-				return;
-			}
-		}
-
-		/*
-		 * Get the length of the DSI packet.
-		 */
-		plen = tvb_get_ntohl(tvb, offset+8);
-
-		/*
-		 * Can we do reassembly?
-		 */
-		if (dsi_desegment && pinfo->can_desegment) {
-			/*
-			 * Yes - is the DSI packet split across segment
-			 * boundaries?
-			 */
-			if ((guint32)length_remaining < plen + 16) {
-				/*
-				 * Yes.  Tell the TCP dissector where
-				 * the data for this message starts in
-				 * the data it handed us, and how many
-				 * more bytes we need, and return.
-				 */
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len =
-				    (plen + 16) - length_remaining;
-				return;
-			}
-		}
-
-		/*
-		 * Construct a tvbuff containing the amount of the payload
-		 * we have available.  Make its reported length the
-		 * amount of data in the DSI packet.
-		 *
-		 * XXX - if reassembly isn't enabled. the subdissector
-		 * will throw a BoundsError exception, rather than a
-		 * ReportedBoundsError exception.  We really want
-		 * a tvbuff where the length is "length", the reported
-		 * length is "plen + 16", and the "if the snapshot length
-		 * were infinite" length is the minimum of the
-		 * reported length of the tvbuff handed to us and "plen+16",
-		 * with a new type of exception thrown if the offset is
-		 * within the reported length but beyond that third length,
-		 * with that exception getting the "Unreassembled Packet"
-		 * error.
-		 */
-		if (plen > 0x7fffffff) {
-			show_reported_bounds_error(tvb, pinfo, tree);
-			return;
-		}					
-		length = length_remaining;
-		if ((guint32)length > plen + 16)
-			length = plen + 16;
-		next_tvb = tvb_new_subset(tvb, offset, length, plen + 16);
-
-		/*
-		 * Dissect the DSI packet.
-		 *
-		 * Catch the ReportedBoundsError exception; if this
-		 * particular message happens to get a ReportedBoundsError
-		 * exception, that doesn't mean that we should stop
-		 * dissecting DSI messages within this frame or chunk
-		 * of reassembled data.
-		 *
-		 * If it gets a BoundsError, we can stop, as there's nothing
-		 * more to see, so we just re-throw it.
-		 */
-		TRY {
-			dissect_dsi_packet(next_tvb, pinfo, tree);
-		}
-		CATCH(BoundsError) {
-			RETHROW;
-		}
-		CATCH(ReportedBoundsError) {
-			show_reported_bounds_error(tvb, pinfo, tree);
-		}
-		ENDTRY;
-
-		/*
-		 * Skip the DSI header and the payload.
-		 */
-		offset += plen + 16;
-	}
+	tcp_dissect_pdus(tvb, pinfo, tree, dsi_desegment, 12,
+	    get_dsi_pdu_len, dissect_dsi_packet);
 }
 
 void

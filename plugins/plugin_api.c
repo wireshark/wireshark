@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.37 2002/02/22 08:56:48 guy Exp $
+ * $Id: plugin_api.c,v 1.38 2002/05/05 00:16:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -140,8 +140,6 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_prefs_register_enum_preference	= pat->p_prefs_register_enum_preference;
 	p_prefs_register_string_preference	= pat->p_prefs_register_string_preference;
 
-	/* GIOP Begin */
-
 	p_register_giop_user			= pat->p_register_giop_user;
 	p_is_big_endian				= pat->p_is_big_endian;
 	p_get_CDR_encap_info                    = pat->p_get_CDR_encap_info;
@@ -166,12 +164,12 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_get_CDR_wchar 			= pat->p_get_CDR_wchar;
 	p_get_CDR_wstring 			= pat->p_get_CDR_wstring;
 
-	/* GIOP End */
-
-	/* TPKT Begin */
-
 	p_is_tpkt				= pat->p_is_tpkt;
 	p_dissect_tpkt_encap			= pat->p_dissect_tpkt_encap;
 
-	/* TPKT End */
+	p_set_actual_length			= pat->p_set_actual_length;
+	p_tcp_dissect_pdus			= pat->p_tcp_dissect_pdus;
+	p_decode_boolean_bitfield		= pat->p_decode_boolean_bitfield;
+	p_decode_numeric_bitfield		= pat->p_decode_numeric_bitfield;
+	p_decode_enumerated_bitfield		= pat->p_decode_enumerated_bitfield;
 }

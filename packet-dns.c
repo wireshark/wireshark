@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.84 2002/03/19 09:18:42 guy Exp $
+ * $Id: packet-dns.c,v 1.85 2002/05/05 00:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@
 #include "ipproto.h"
 #include <epan/resolv.h>
 #include "packet-dns.h"
-#include "packet-frame.h"
+#include "packet-tcp.h"
 #include "prefs.h"
 
 static int proto_dns = -1;
@@ -1753,8 +1753,8 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 }
 
 static void
-dissect_dns_common(tvbuff_t *tvb, int msg_len, packet_info *pinfo,
-	proto_tree *tree, gboolean is_tcp)
+dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean is_tcp)
 {
   int offset = is_tcp ? 2 : 0;
   int dns_data_offset;
@@ -1816,7 +1816,7 @@ dissect_dns_common(tvbuff_t *tvb, int msg_len, packet_info *pinfo,
 
     if (is_tcp) {
       /* Put the length indication into the tree. */
-      proto_tree_add_uint(dns_tree, hf_dns_length, tvb, offset - 2, 2, msg_len);
+      proto_tree_add_item(dns_tree, hf_dns_length, tvb, offset - 2, 2, FALSE);
     }
 
     if (flags & F_RESPONSE)
@@ -1946,119 +1946,36 @@ dissect_dns_common(tvbuff_t *tvb, int msg_len, packet_info *pinfo,
 static void
 dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_dns_common(tvb, -1, pinfo, tree, FALSE);
+  dissect_dns_common(tvb, pinfo, tree, FALSE);
+}
+
+static guint
+get_dns_pdu_len(tvbuff_t *tvb, int offset)
+{
+  guint16 plen;
+
+  /*
+   * Get the length of the DNS packet.
+   */
+  plen = tvb_get_ntohs(tvb, offset);
+
+  /*
+   * That length doesn't include the length field itself; add that in.
+   */
+  return plen + 2;
+}
+
+static void
+dissect_dns_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_dns_common(tvb, pinfo, tree, TRUE);
 }
 
 static void
 dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	volatile int offset = 0;
-	int length_remaining;
-	guint16 plen;
-	int length;
-	tvbuff_t *next_tvb;
-
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
-		length_remaining = tvb_length_remaining(tvb, offset);
-
-		/*
-		 * Can we do reassembly?
-		 */
-		if (dns_desegment && pinfo->can_desegment) {
-			/*
-			 * Yes - is the DNS-over-TCP header split across
-			 * segment boundaries?
-			 */
-			if (length_remaining < 2) {
-				/*
-				 * Yes.  Tell the TCP dissector where
-				 * the data for this message starts in
-				 * the data it handed us, and how many
-				 * more bytes we need, and return.
-				 */
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len = 2 - length_remaining;
-				return;
-			}
-		}
-
-		/*
-		 * Get the length of the DNS packet.
-		 */
-		plen = tvb_get_ntohs(tvb, offset);
-
-		/*
-		 * Can we do reassembly?
-		 */
-		if (dns_desegment && pinfo->can_desegment) {
-			/*
-			 * Yes - is the DNS packet split across segment
-			 * boundaries?
-			 */
-			if (length_remaining < plen + 2) {
-				/*
-				 * Yes.  Tell the TCP dissector where
-				 * the data for this message starts in
-				 * the data it handed us, and how many
-				 * more bytes we need, and return.
-				 */
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len =
-				    (plen + 2) - length_remaining;
-				return;
-			}
-		}
-
-		/*
-		 * Construct a tvbuff containing the amount of the payload
-		 * we have available.  Make its reported length the
-		 * amount of data in the DNS-over-TCP packet.
-		 *
-		 * XXX - if reassembly isn't enabled. the subdissector
-		 * will throw a BoundsError exception, rather than a
-		 * ReportedBoundsError exception.  We really want
-		 * a tvbuff where the length is "length", the reported
-		 * length is "plen + 2", and the "if the snapshot length
-		 * were infinite" length is the minimum of the
-		 * reported length of the tvbuff handed to us and "plen+2",
-		 * with a new type of exception thrown if the offset is
-		 * within the reported length but beyond that third length,
-		 * with that exception getting the "Unreassembled Packet"
-		 * error.
-		 */
-		length = length_remaining;
-		if (length > plen + 2)
-			length = plen + 2;
-		next_tvb = tvb_new_subset(tvb, offset, length, plen + 2);
-
-		/*
-		 * Dissect the DNS-over-TCP packet.
-		 *
-		 * Catch the ReportedBoundsError exception; if this
-		 * particular message happens to get a ReportedBoundsError
-		 * exception, that doesn't mean that we should stop
-		 * dissecting DNS-over-TCP messages within this frame or
-		 * chunk of reassembled data.
-		 *
-		 * If it gets a BoundsError, we can stop, as there's nothing
-		 * more to see, so we just re-throw it.
-		 */
-		TRY {
-			dissect_dns_common(next_tvb, plen, pinfo, tree, TRUE);
-		}
-		CATCH(BoundsError) {
-			RETHROW;
-		}
-		CATCH(ReportedBoundsError) {
-			show_reported_bounds_error(tvb, pinfo, tree);
-		}
-		ENDTRY;
-
-		/*
-		 * Skip the DNS-over-TCP header and the payload.
-		 */
-		offset += plen + 2;
-	}
+  tcp_dissect_pdus(tvb, pinfo, tree, dns_desegment, 2, get_dns_pdu_len,
+	dissect_dns_tcp_pdu);
 }
 
 void

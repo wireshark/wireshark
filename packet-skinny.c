@@ -11,7 +11,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.17 2002/03/27 20:29:05 guy Exp $
+ * $Id: packet-skinny.c,v 1.18 2002/05/05 00:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,7 +45,7 @@
 #include <epan/packet.h>
 #include "prefs.h"
 
-#include "packet-frame.h"
+#include "packet-tcp.h"
 
 #define TCP_PORT_SKINNY 2000
 
@@ -828,6 +828,23 @@ static gboolean skinny_desegment = TRUE;
 
 static dissector_handle_t data_handle;
 
+/* Get the length of a single SCCP PDU */
+static guint get_skinny_pdu_len(tvbuff_t *tvb, int offset)
+{
+  guint32 hdr_data_length;
+
+  /*
+   * Get the length of the SCCP packet.
+   */
+  hdr_data_length = tvb_get_letohl(tvb, offset);
+
+  /*
+   * That length doesn't include the length of the header itself;
+   * add that in.
+   */
+  return hdr_data_length + 8;
+}
+
 /* Dissect a single SCCP PDU */
 static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1446,12 +1463,6 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* The general structure of a packet: {IP-Header|TCP-Header|n*SKINNY}
    * SKINNY-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
    */
-  
-  volatile int offset = 0;
-  int length_remaining;
-  int length;
-  tvbuff_t *next_tvb;
-
   /* Header fields */
   volatile guint32 hdr_data_length;
   guint32 hdr_reserved;
@@ -1480,100 +1491,8 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
   }
   
-  while (tvb_reported_length_remaining(tvb, offset) != 0) {
-    length_remaining = tvb_length_remaining(tvb, offset);
-
-    /*
-     * Can we do reassembly?
-     */
-    if (skinny_desegment && pinfo->can_desegment) {
-      /*
-       * Yes - is the length field in the SCCP header split across
-       * segment boundaries?
-       */
-      if (length_remaining < 4) {
-	/*
-	 * Yes.  Tell the TCP dissector where the data for this message
-	 * starts in the data it handed us, and how many more bytes we
-	 * need, and return.
-	 */
-	pinfo->desegment_offset = offset;
-	pinfo->desegment_len = 4 - length_remaining;
-	return;
-      }
-    }
-
-    /*
-     * Get the length of the SCCP packet.
-     */
-    hdr_data_length = tvb_get_letohl(tvb, offset);
-
-    /*
-     * Can we do reassembly?
-     */
-    if (skinny_desegment && pinfo->can_desegment) {
-      /*
-       * Yes - is the SCCP packet split across segment boundaries?
-       */
-      if ((guint32)length_remaining < hdr_data_length + 8) {
-	/*
-	 * Yes.  Tell the TCP dissector where the data for this message
-	 * starts in the data it handed us, and how many more bytes we
-	 * need, and return.
-	 */
-	pinfo->desegment_offset = offset;
-	pinfo->desegment_len = (hdr_data_length + 8) - length_remaining;
-	return;
-      }
-    }
-
-    /*
-     * Construct a tvbuff containing the amount of the payload we have
-     * available.  Make its reported length the amount of data in the
-     * SCCP packet.
-     *
-     * XXX - if reassembly isn't enabled. the subdissector will throw a
-     * BoundsError exception, rather than a ReportedBoundsError exception.
-     * We really want a tvbuff where the length is "length", the reported
-     * length is "hdr_data_length + 8", and the "if the snapshot length
-     * were infinite" length is the minimum of the reported length of
-     * the tvbuff handed to us and "hdr_data_length + 8", with a new type
-     * of exception thrown if the offset is within the reported length but
-     * beyond that third length, with that exception getting the
-     * "Unreassembled Packet" error.
-     */
-    length = length_remaining;
-    if ((guint32)length > hdr_data_length + 8)
-      length = hdr_data_length + 8;
-    next_tvb = tvb_new_subset(tvb, offset, length, hdr_data_length + 8);
-
-    /*
-     * Dissect the SCCP packet.
-     *
-     * Catch the ReportedBoundsError exception; if this particular message
-     * happens to get a ReportedBoundsError exception, that doesn't mean
-     * that we should stop dissecting SCCP messages within this frame or
-     * chunk of reassembled data.
-     *
-     * If it gets a BoundsError, we can stop, as there's nothing more to
-     * see, so we just re-throw it.
-     */
-    TRY {
-      dissect_skinny_pdu(next_tvb, pinfo, tree);
-    }
-    CATCH(BoundsError) {
-      RETHROW;
-    }
-    CATCH(ReportedBoundsError) {
-      show_reported_bounds_error(tvb, pinfo, tree);
-    }
-    ENDTRY;
-
-    /*
-     * Skip the SCCP header and the payload.
-     */
-    offset += hdr_data_length + 8;
-  }
+  tcp_dissect_pdus(tvb, pinfo, tree, skinny_desegment, 4,
+	get_skinny_pdu_len, dissect_skinny_pdu);
 }
 
 /* Register the protocol with Ethereal */

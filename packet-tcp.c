@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.139 2002/05/04 02:54:48 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.140 2002/05/05 00:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@
 #include "prefs.h"
 #include "packet-tcp.h"
 #include "packet-ip.h"
+#include "packet-frame.h"
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include "reassemble.h"
@@ -643,8 +644,142 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	pinfo->desegment_len = 0;
 }
 
+/*
+ * Loop for dissecting PDUs within a TCP stream; assumes that a PDU
+ * consists of a fixed-length chunk of data that contains enough information
+ * to determine the length of the PDU, followed by rest of the PDU.
+ *
+ * The first three arguments are the arguments passed to the dissector
+ * that calls this routine.
+ *
+ * "proto_desegment" is the dissector's flag controlling whether it should
+ * desegment PDUs that cross TCP segment boundaries.
+ *
+ * "fixed_len" is the length of the fixed-length part of the PDU.
+ *
+ * "get_pdu_len()" is a routine called to get the length of the PDU from
+ * the fixed-length part of the PDU; it's passed "tvb" and "offset".
+ *
+ * "dissect_pdu()" is the routine to dissect a PDU.
+ */
+void
+tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		 gboolean proto_desegment, int fixed_len,
+		 guint (*get_pdu_len)(tvbuff_t *, int),
+		 void (*dissect_pdu)(tvbuff_t *, packet_info *, proto_tree *))
+{
+  volatile int offset = 0;
+  int length_remaining;
+  guint plen;
+  int length;
+  tvbuff_t *next_tvb;
 
+  while (tvb_reported_length_remaining(tvb, offset) != 0) {
+    length_remaining = tvb_length_remaining(tvb, offset);
+    if (length_remaining == -1)
+      THROW(BoundsError);
 
+    /*
+     * Can we do reassembly?
+     */
+    if (proto_desegment && pinfo->can_desegment) {
+      /*
+       * Yes - is the fixed-length part of the PDU split across segment
+       * boundaries?
+       */
+      if (length_remaining < fixed_len) {
+	/*
+	 * Yes.  Tell the TCP dissector where the data for this message
+	 * starts in the data it handed us, and how many more bytes we
+	 * need, and return.
+	 */
+	pinfo->desegment_offset = offset;
+	pinfo->desegment_len = fixed_len - length_remaining;
+	return;
+      }
+    }
+
+    /*
+     * Get the length of the PDU.
+     */
+    plen = (*get_pdu_len)(tvb, offset);
+
+    /*
+     * Can we do reassembly?
+     */
+    if (proto_desegment && pinfo->can_desegment) {
+      /*
+       * Yes - is the PDU split across segment boundaries?
+       */
+      if ((guint)length_remaining < plen) {
+	/*
+	 * Yes.  Tell the TCP dissector where the data for this message
+	 * starts in the data it handed us, and how many more bytes we
+	 * need, and return.
+	 */
+	pinfo->desegment_offset = offset;
+	pinfo->desegment_len = plen - length_remaining;
+	return;
+      }
+    }
+
+    /*
+     * Construct a tvbuff containing the amount of the payload we have
+     * available.  Make its reported length the amount of data in the PDU.
+     *
+     * XXX - if reassembly isn't enabled. the subdissector will throw a
+     * BoundsError exception, rather than a ReportedBoundsError exception.
+     * We really want a tvbuff where the length is "length", the reported
+     * length is "plen", and the "if the snapshot length were infinite"
+     * length is the minimum of the reported length of the tvbuff handed
+     * to us and "plen", with a new type of exception thrown if the offset
+     * is within the reported length but beyond that third length, with
+     * that exception getting the "Unreassembled Packet" error.
+     */
+    if (plen < (guint)fixed_len) {
+      /*
+       * The PDU length from the fixed-length portion probably didn't
+       * include the fixed-length portion's length, and was probably so
+       * large that the total length overflowed.
+       *
+       * Report this as an error.
+       */
+      show_reported_bounds_error(tvb, pinfo, tree);
+      return;
+    }
+    length = length_remaining;
+    if ((guint)length > plen)
+	length = plen;
+    next_tvb = tvb_new_subset(tvb, offset, length, plen);
+
+    /*
+     * Dissect the PDU.
+     *
+     * Catch the ReportedBoundsError exception; if this particular message
+     * happens to get a ReportedBoundsError exception, that doesn't mean
+     * that we should stop dissecting PDUs within this frame or chunk of
+     * reassembled data.
+     *
+     * If it gets a BoundsError, we can stop, as there's nothing more to
+     * see, so we just re-throw it.
+     */
+    TRY {
+      (*dissect_pdu)(next_tvb, pinfo, tree);
+    }
+    CATCH(BoundsError) {
+      RETHROW;
+    }
+    CATCH(ReportedBoundsError) {
+      show_reported_bounds_error(tvb, pinfo, tree);
+    }
+    ENDTRY;
+
+    /*
+     * Step to the next PDU.
+     */
+    offset += plen;
+  }
+}
 
 static void
 tcp_info_append_uint(packet_info *pinfo, const char *abbrev, guint32 val)
