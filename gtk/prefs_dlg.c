@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.27 2001/10/13 07:47:30 guy Exp $
+ * $Id: prefs_dlg.c,v 1.28 2001/10/13 07:56:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -307,6 +307,8 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   ct_sb = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ct_sb),
   	GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  set_scrollbar_placement_scrollw(ct_sb, prefs.gui_scrollbar_on_right);
+  remember_scrolled_window(ct_sb);
   gtk_container_add(GTK_CONTAINER(top_hb), ct_sb);
   gtk_widget_show(ct_sb);
 
