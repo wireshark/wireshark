@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.151 2001/06/05 07:38:33 guy Exp $
+ * $Id: capture.c,v 1.152 2001/06/15 01:36:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -536,27 +536,30 @@ do_capture(char *capfile_name)
     } else {
       /* Failure - the child process sent us a message indicating
 	 what the problem was. */
-      msg = g_malloc(byte_count + 1);
-      if (msg == NULL) {
-	simple_dialog(ESD_TYPE_WARN, NULL,
-		"Capture child process failed, but its error message was too big.");
-      } else if (byte_count == 0) {
-      	/* Zero-length message? */
+      if (byte_count == 0) {
+	/* Zero-length message? */
 	simple_dialog(ESD_TYPE_WARN, NULL,
 		"Capture child process failed, but its error message was empty.");
       } else {
-	i = read(sync_pipe[READ], msg, byte_count);
-	if (i < 0) {
+	msg = g_malloc(byte_count + 1);
+	if (msg == NULL) {
 	  simple_dialog(ESD_TYPE_WARN, NULL,
+		"Capture child process failed, but its error message was too big.");
+	} else {
+	  i = read(sync_pipe[READ], msg, byte_count);
+	  msg[byte_count] = '\0';
+	  if (i < 0) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Capture child process failed: Error %s reading its error message.",
 		  strerror(errno));
-	} else if (i == 0) {
-	  simple_dialog(ESD_TYPE_WARN, NULL,
+	  } else if (i == 0) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Capture child process failed: EOF reading its error message.");
-	  wait_for_child(FALSE);
-	} else
-	  simple_dialog(ESD_TYPE_WARN, NULL, msg);
-	g_free(msg);
+	    wait_for_child(FALSE);
+	  } else
+	    simple_dialog(ESD_TYPE_WARN, NULL, msg);
+	  g_free(msg);
+	}
 
 	/* Close the sync pipe. */
 	close(sync_pipe[READ]);
