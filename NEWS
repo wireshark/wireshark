@@ -12,7 +12,7 @@ Overview of changes in Ethereal 0.9.0:
 * Close the handle for the SNMP library after inspecting it on Linux
 	(Guy, Gilbert)
 * EOF check (Guy)
-* Wiretap support for Shomit Survery 3.x, aka "unofficial snoop v4" (Guy)
+* Wiretap support for Shomiti Surveyor 3.x, aka "unofficial snoop v4" (Guy)
 * Wiretap support for reading pppd log files (pppdump format) (Gilbert)
 * Add -l option to tethereal to make stdout line-buffered.  (Guy)
 * Add "Next Sequence number" field to TCP (Guy)
@@ -45,8 +45,9 @@ Overview of changes in Ethereal 0.9.0:
 * Fix for DNS A6 RR decoding (Per Flock)
 * Support for H.261 and TPKT, replacement of RTP and RTCP dissectors, and
 	changes to Q.931 dissector (Andreas Sikkema)
-* Case-insensitive string checsk in HTTP dissector (Isaac Wilcox)
-* RTCP band-aid for allegedly-NTP timestamp (Guy)
+* Case-insensitive string checks in HTTP dissector (Isaac Wilcox)
+* RTCP band-aid for allegedly-NTP timestamp (Guy, from Jason Lango's
+	RTCP dissector)
 * Diameter updates (David Frascone)
 * Capture statistics improvements (Santeri)
 * Check the ICMP checksum (Guy)
@@ -57,7 +58,6 @@ Overview of changes in Ethereal 0.9.0:
 * make-reg-dotc fix (Guy)
 * AFS static-function cleanup (Guy)
 * Filter GUI ease-of-use fixes (Santeri)
- 
 
 Overview of changes in Ethereal 0.8.12:
 * OSPF enhancements (Craig Metz)
