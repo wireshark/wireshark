@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.1 2000/09/27 04:54:46 gram Exp $
+# $Id: Makefile.am,v 1.2 2000/09/27 05:05:32 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -67,7 +67,7 @@ CLEANFILES = \
 	*~
 
 dfilter-scanner.c : dfilter-scanner.l
-	$(LEX) -Pdfilter_ -odfilter-scanner.c $(srcdir)/epan/dfilter-scanner.l
+	$(LEX) -Pdfilter_ -odfilter-scanner.c $(srcdir)/dfilter-scanner.l
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o
 	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o strutil.o `glib-config --libs`
