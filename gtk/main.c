@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.168 2000/12/15 13:53:11 gram Exp $
+ * $Id: main.c,v 1.169 2000/12/22 12:05:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,6 +121,7 @@
 #include "gtkglobals.h"
 #include "plugins.h"
 #include "colors.h"
+#include "strutil.h"
 
 packet_info  pi;
 capture_file cfile;
@@ -265,6 +266,14 @@ match_selected_cb(GtkWidget *w, gpointer data)
 				 finfo_selected->value.string);
 			break;
 
+	        case FT_BYTES:
+		        dfilter_len = finfo_selected->length*3 - 1;
+		        dfilter_len += abbrev_len + 7;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == %s",
+				 hfinfo->abbrev,
+				 bytes_to_str_punct(finfo_selected->value.bytes, finfo_selected->length,':'));
+			break;                       
 		default:
 		    c = cfile.pd + finfo_selected->start;
 		    buf = g_malloc0(32 + finfo_selected->length * 3);

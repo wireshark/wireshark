@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.1 2000/09/27 04:54:48 gram Exp $
+ * $Id: dfilter-int.h,v 1.2 2000/12/22 12:05:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,6 +137,9 @@ typedef struct dfilter_node {
 	/* used for byte-ranges */
 	gint				offset;
 	guint				length;
+
+        /* used to indicate range should go to end of sequence */
+        gboolean                        to_the_end;
 } dfilter_node;
 
 /* lookup an abbreviation in our token hash, returing the ID # */

@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.6 2000/11/13 07:19:32 guy Exp $
+ * $Id: strutil.c,v 1.7 2000/12/22 12:05:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -246,6 +246,14 @@ format_text(const u_char *string, int len)
 #define	N_BYTES_TO_STR_STRINGS	6
 gchar *
 bytes_to_str(const guint8 *bd, int bd_len) {
+  return bytes_to_str_punct(bd,bd_len,'\0');
+}
+
+/* Turn an array of bytes into a string showing the bytes in hex with 
+ * punct as a bytes separator.
+ */
+gchar *
+bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
   static gchar  str[N_BYTES_TO_STR_STRINGS][MAX_BYTE_STR_LEN+3+1];
   static int    cur_idx;
   gchar        *cur;
@@ -266,6 +274,10 @@ bytes_to_str(const guint8 *bd, int bd_len) {
     len -= 2;
     bd++;
     bd_len--;
+    if(punct && bd_len > 0){
+      *p++ = punct;
+      len--;
+    }
   }
   if (bd_len != 0) {
     /* Note that we're not showing the full string.  */

@@ -1,7 +1,7 @@
 /* strutil.h
  * String utility definitions
  *
- * $Id: strutil.h,v 1.5 2000/11/13 07:19:33 guy Exp $
+ * $Id: strutil.h,v 1.6 2000/12/22 12:05:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,5 +42,5 @@ int        get_token_len(const u_char *linep, const u_char *lineend,
     const u_char **next_token);
 gchar*     format_text(const u_char *line, int len);
 gchar*     bytes_to_str(const guint8 *, int);
-
+gchar*     bytes_to_str_punct(const guint8 *, int, gchar punct);
 #endif /* __STRUTIL_H__ */

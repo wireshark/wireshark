@@ -1,9 +1,8 @@
 %{
-
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.1 2000/09/27 04:54:47 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.2 2000/12/22 12:05:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,7 +91,7 @@ static GNode* dfilter_mknode_ipv6_value(char *host);
 static GNode* dfilter_mknode_ipv6_variable(gint id);
 static GNode* dfilter_mknode_existence(gint id);
 static GNode* dfilter_mknode_bytes_value(GByteArray *barray);
-static GNode* dfilter_mknode_bytes_variable(gint id, gint offset, guint length);
+static GNode* dfilter_mknode_bytes_variable(gint id, gint offset, guint length, gboolean to_the_end);
 static GNode* dfilter_mknode_string_value(char *s);
 static GNode* dfilter_mknode_string_variable(gint id);
 
@@ -549,11 +548,22 @@ ipv6_variable:		T_FT_IPv6	{ $$ = dfilter_mknode_ipv6_variable($1.id); }
 string_variable:	T_FT_STRING	{ $$ = dfilter_mknode_string_variable($1.id); }
 	;
 
+bytes_variable:		T_FT_BYTES T_VAL_BYTE_RANGE
+		{
+			$$ = dfilter_mknode_bytes_variable($1.id, $2.offset, $2.length, FALSE);
+		}
+
+        |               T_FT_BYTES      
+                {
+		        $$ = dfilter_mknode_bytes_variable($1.id, 0, 0, TRUE);
+		}
+
+	;
+
 variable_name:		any_variable_type
-	{
+                {
 		GNode	*variable;
 		GNode	*value;
-
 		if ($1.type == T_FT_BOOLEAN) {
 			/* Make "variable == TRUE" for BOOLEAN variable */
 			variable = dfilter_mknode_numeric_variable($1.id);
@@ -564,12 +574,6 @@ variable_name:		any_variable_type
 			$$ = dfilter_mknode_existence($1.id);
 		}
 	}
-	;
-
-bytes_variable:		any_variable_type T_VAL_BYTE_RANGE
-		{
-			$$ = dfilter_mknode_bytes_variable($1.id, $2.offset, $2.length);
-		}
 	;
 
 any_variable_type:	T_FT_UINT8	{ $$ = $1; }
@@ -788,7 +792,7 @@ dfilter_mknode_string_variable(gint id)
 }
 
 static GNode*
-dfilter_mknode_bytes_variable(gint id, gint offset, guint length)
+dfilter_mknode_bytes_variable(gint id, gint offset, guint length, gboolean to_the_end)
 {
 	dfilter_node	*node;
 	GNode		*gnode;
@@ -802,6 +806,7 @@ dfilter_mknode_bytes_variable(gint id, gint offset, guint length)
 	node->value.variable = id;
 	node->offset = offset;
 	node->length = length;
+	node->to_the_end = to_the_end;
 	gnode = g_node_new(node);
 
 	return gnode;

@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.2 2000/09/28 03:16:15 gram Exp $
+ * $Id: dfilter.c,v 1.3 2000/12/22 12:05:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,7 @@ static int g_strcmp(gconstpointer a, gconstpointer b);
 /* Silly global variables used to pass parameter to check_relation_bytes() */
 int bytes_offset = 0;
 int bytes_length = 0;
+gboolean bytes_to_the_end = FALSE;
 
 YYSTYPE yylval;
 
@@ -431,8 +432,6 @@ check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8
 	gboolean	retval;
 
 
-	bytes_length = MIN(node_a->length, node_b->length);
-	bytes_offset = MIN(node_a->offset, node_b->offset);
 	if (node_a->ntype == variable)
 		vals_a = get_values_from_ptree(node_a, ptree, pd);
 	else
@@ -481,6 +480,14 @@ get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd)
 	/* Prepare the array for results */
 	g_assert(dnode->elem_size > 0);
 	result_array = g_array_new(FALSE, FALSE, dnode->elem_size);
+
+	/* Set bytes_offset, bytes_length, and bytes_to_the_end 
+	 * for this dnode
+	 */
+
+	bytes_offset = dnode->offset;
+	bytes_length = dnode->length;
+	bytes_to_the_end = dnode->to_the_end;
 
 	/* Cull the finfos from the proto_tree */
 	finfo_array = proto_get_finfo_ptr_array(ptree, dnode->value.variable);
@@ -544,7 +551,7 @@ void
 fill_array_bytes_variable(field_info *finfo, GArray *array, const guint8 *pd)
 {
 	GByteArray		*barray;
-	guint			read_start, pkt_end;
+	guint			read_start, pkt_end, read_len;
 
 	if (bytes_offset < 0) {
 		/* Handle negative byte offsets */
@@ -561,14 +568,19 @@ fill_array_bytes_variable(field_info *finfo, GArray *array, const guint8 *pd)
 
 	pkt_end = finfo->start + finfo->length;
 	read_start = finfo->start + bytes_offset;
-
+	if(bytes_to_the_end){
+	        read_len = pkt_end - read_start;;
+	}
+	else {
+	        read_len = bytes_length;
+	}
 	/* Check to make sure entire length requested is inside field */
-	if (pkt_end < read_start + bytes_length) {
+	if (pkt_end < read_start + read_len) {
 		return;
 	}
 
 	barray = g_byte_array_new();
-	g_byte_array_append(barray, pd + read_start, bytes_length);
+	g_byte_array_append(barray, pd + read_start, read_len);
 	g_array_append_val(array, barray);
 }
 
@@ -980,7 +992,8 @@ gboolean check_relation_bytes(gint operand, GArray *a, GArray *b)
 			ptr_a = g_array_index(a, GByteArray*, i);
 			for (j = 0; j < len_b; j++) {
 				ptr_b = g_array_index(b, GByteArray*, j);
-				if (memcmp(ptr_a->data, ptr_b->data, bytes_length) == 0)
+				if(ptr_a->len != ptr_b->len)
+				        return FALSE;							       if (memcmp(ptr_a->data, ptr_b->data, ptr_a->len) == 0)
 					return TRUE;
 			}
 		}
@@ -991,7 +1004,9 @@ gboolean check_relation_bytes(gint operand, GArray *a, GArray *b)
 			ptr_a = g_array_index(a, GByteArray*, i);
 			for (j = 0; j < len_b; j++) {
 				ptr_b = g_array_index(b, GByteArray*, j);
-				if (memcmp(ptr_a->data, ptr_b->data, bytes_length) != 0)
+				if(ptr_a->len != ptr_b->len)
+				        return TRUE;
+				if (memcmp(ptr_a->data, ptr_b->data, ptr_a->len) != 0)
 					return TRUE;
 			}
 		}
@@ -1002,7 +1017,11 @@ gboolean check_relation_bytes(gint operand, GArray *a, GArray *b)
 			ptr_a = g_array_index(a, GByteArray*, i);
 			for (j = 0; j < len_b; j++) {
 				ptr_b = g_array_index(b, GByteArray*, j);
-				if (memcmp(ptr_a->data, ptr_b->data, bytes_length) > 0)
+				if(ptr_a->len > ptr_b->len)
+				        return TRUE;
+				if(ptr_a->len < ptr_b->len)
+				        return FALSE;
+				if (memcmp(ptr_a->data, ptr_b->data, ptr_a->len) > 0)
 					return TRUE;
 			}
 		}
@@ -1013,7 +1032,11 @@ gboolean check_relation_bytes(gint operand, GArray *a, GArray *b)
 			ptr_a = g_array_index(a, GByteArray*, i);
 			for (j = 0; j < len_b; j++) {
 				ptr_b = g_array_index(b, GByteArray*, j);
-				if (memcmp(ptr_a->data, ptr_b->data, bytes_length) < 0)
+				if(ptr_a->len < ptr_b->len)
+				        return TRUE;
+				if(ptr_a->len > ptr_b->len)
+				        return FALSE;
+				if (memcmp(ptr_a->data, ptr_b->data, ptr_a->len) < 0)
 					return TRUE;
 			}
 		}
