@@ -218,7 +218,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * (ie none)
      */
     if(tree) {
-        int len, pad, encapsulated_protocol;
+        int len = 0, pad = 0, encapsulated_protocol = 0;
         gboolean auth_decode_ok = FALSE;
 
 	ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, FALSE);

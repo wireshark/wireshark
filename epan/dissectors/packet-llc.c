@@ -217,7 +217,7 @@ llc_add_oui(guint32 oui, const char *table_name, char *table_ui_name,
 		oui_info_table = g_hash_table_new(g_direct_hash,
 		    g_direct_equal);
 	}
-	g_hash_table_insert(oui_info_table, (gpointer)oui, new_info);
+	g_hash_table_insert(oui_info_table, GUINT_TO_POINTER(oui), new_info);
 }
 
 void
@@ -570,7 +570,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * Do we have information for this OUI?
 		 */
-		oui_info = g_hash_table_lookup(oui_info_table, (gpointer)oui);
+		oui_info = g_hash_table_lookup(oui_info_table, GUINT_TO_POINTER(oui));
 		if (oui_info != NULL) {
 			/*
 			 * Yes - use it.

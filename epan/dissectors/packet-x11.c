@@ -2894,7 +2894,7 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
        * ...and we're expecting a reply to it.
        */
       state->sequencenumber = 0;
-      g_hash_table_insert(state->seqtable, (int *)state->sequencenumber,
+      g_hash_table_insert(state->seqtable, GINT_TO_POINTER(state->sequencenumber),
 			  (int *)INITIAL_CONN);
 }
 
@@ -3013,13 +3013,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 			if (state->opcode_vals[i].strptr == NULL) {
 				state->opcode_vals[i].strptr = name;
 				g_hash_table_insert(state->valtable,
-						    (int *)state->sequencenumber, 
+						    GINT_TO_POINTER(state->sequencenumber), 
 						    (int *)&state->opcode_vals[i]);
 				break;
 			} else if (strcmp(state->opcode_vals[i].strptr,
 					  name) == 0) {
 				g_hash_table_insert(state->valtable,
-						    (int *)state->sequencenumber, 
+						    GINT_TO_POINTER(state->sequencenumber), 
 						    (int *)&state->opcode_vals[i]);
 				break;
 			}
@@ -3071,7 +3071,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	     	 * Those requests expect a reply.
 	     	 */
 		g_hash_table_insert(state->seqtable,
-				    (int *)state->sequencenumber, 
+				    GINT_TO_POINTER(state->sequencenumber), 
 				    (int *)opcode);
 
 	    	break;
@@ -3082,7 +3082,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		if (opcode >= X_FirstExtension && opcode <= X_LastExtension) {
 			g_hash_table_insert(state->seqtable,
-					    (int *)state->sequencenumber, 
+					    GINT_TO_POINTER(state->sequencenumber), 
 					    (int *)opcode);
 		}
 
@@ -4168,7 +4168,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 
 	    if (state->iconn_frame == pinfo->fd->num ||
 		(g_hash_table_lookup(state->seqtable,
-		(int *)state->sequencenumber) == (int *)NOTHING_SEEN &&
+		GINT_TO_POINTER(state->sequencenumber)) == (int *)NOTHING_SEEN &&
 	         (opcode == 'B' || opcode == 'l') &&
 	         (plen == 11 || plen == 2816))) {
 		  /*
@@ -4474,7 +4474,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 *	- event (some event occured)
 		 */
 		if (g_hash_table_lookup(state->seqtable,
-		    (int *)state->sequencenumber) == (int *)INITIAL_CONN 
+		    GINT_TO_POINTER(state->sequencenumber)) == (int *)INITIAL_CONN 
 		    || (state->iconn_reply == pinfo->fd->num)) {
 			/*
 			 * Either the connection is in the "initial
@@ -4567,7 +4567,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	sequence_number = VALUE16(tvb, offset + 2);
 	opcode = (int)g_hash_table_lookup(state->seqtable,
-					  (int *)sequence_number);
+					  GINT_TO_POINTER(sequence_number));
 
 	if (state->iconn_frame == 0 &&  state->resync == FALSE) {
 
@@ -4618,12 +4618,12 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 
 			vals_p = g_hash_table_lookup(state->valtable,
-						     (int *)sequence_number);
+						     GINT_TO_POINTER(sequence_number));
 			if (vals_p != NULL) {
 				major_opcode = VALUE8(tvb, offset + 9);
 				vals_p->value = major_opcode;
 				g_hash_table_remove(state->valtable,
-						    (int *)sequence_number); 
+						    GINT_TO_POINTER(sequence_number));
 			}
 			break;
 

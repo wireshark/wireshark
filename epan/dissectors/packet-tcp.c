@@ -436,14 +436,14 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 				tnp->last_frame_time.secs=pinfo->fd->abs_secs;
 				tnp->last_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
 				g_hash_table_insert(tcp_pdu_skipping_table, 
-					(void *)pinfo->fd->num, (void *)tnp);
+					GINT_TO_POINTER(pinfo->fd->num), (void *)tnp);
 				print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp);
 
 				return -1;
 			}			
 			if(seq<tnp->nxtpdu && nxtseq>tnp->nxtpdu){
 				g_hash_table_insert(tcp_pdu_tracking_table, 
-					(void *)pinfo->fd->num, (void *)tnp->nxtpdu);
+					GINT_TO_POINTER(pinfo->fd->num), (void *)tnp->nxtpdu);
 				offset+=tnp->nxtpdu-seq;
 				break;
 			}
@@ -451,7 +451,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 	} else {
 		guint32 pduseq;
 
-		tnp=(struct tcp_next_pdu *)g_hash_table_lookup(tcp_pdu_time_table, (void *)pinfo->fd->num);
+		tnp=(struct tcp_next_pdu *)g_hash_table_lookup(tcp_pdu_time_table, GINT_TO_POINTER(pinfo->fd->num));
 		if(tnp){
 			proto_item *item;
 		 	nstime_t ns;
@@ -472,13 +472,13 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 		}
 
 		/* check if this is a segment in the middle of a pdu */
-		tnp=(struct tcp_next_pdu *)g_hash_table_lookup(tcp_pdu_skipping_table, (void *)pinfo->fd->num);
+		tnp=(struct tcp_next_pdu *)g_hash_table_lookup(tcp_pdu_skipping_table, GINT_TO_POINTER(pinfo->fd->num));
 		if(tnp){
 			print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp);
 			return -1;
 		}
 
-		pduseq=(guint32)g_hash_table_lookup(tcp_pdu_tracking_table, (void *)pinfo->fd->num);
+		pduseq=(guint32)g_hash_table_lookup(tcp_pdu_tracking_table, GINT_TO_POINTER(pinfo->fd->num));
 		if(pduseq){
 			offset+=pduseq-seq;
 		}
@@ -525,7 +525,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	  Add check for ACKs and purge list of sequence numbers
 	  already acked.
 	*/
-	g_hash_table_insert(tcp_pdu_time_table, (void *)pinfo->fd->num, (void *)tnp);
+	g_hash_table_insert(tcp_pdu_time_table, GINT_TO_POINTER(pinfo->fd->num), (void *)tnp);
 }
 
 /* This is called for SYN+ACK packets and the purpose is to verify that we
@@ -576,7 +576,7 @@ tcp_get_relative_seq_ack(guint32 frame, guint32 *seq, guint32 *ack, guint32 *win
 {
 	struct tcp_rel_seq *trs;
 
-	trs=g_hash_table_lookup(tcp_rel_seq_table, (void *)frame);
+	trs=g_hash_table_lookup(tcp_rel_seq_table, GUINT_TO_POINTER(frame));
 	if(!trs){
 		return;
 	}
@@ -593,7 +593,7 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag)
 {
 	struct tcp_acked *ta;
 
-	ta=g_hash_table_lookup(tcp_analyze_acked_table, (void *)frame);
+	ta=g_hash_table_lookup(tcp_analyze_acked_table, GUINT_TO_POINTER(frame));
 	if((!ta) && createflag){
 		ta=g_mem_chunk_alloc(tcp_acked_chunk);
 		ta->frame_acked=0;
@@ -602,7 +602,7 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag)
 		ta->flags=0;
 		ta->dupack_num=0;
 		ta->dupack_frame=0;
-		g_hash_table_insert(tcp_analyze_acked_table, (void *)frame, ta);
+		g_hash_table_insert(tcp_analyze_acked_table, GUINT_TO_POINTER(frame), ta);
 	}
 	return ta;
 }
@@ -1230,7 +1230,7 @@ ack_finished:
 		trs->seq_base=base_seq;
 		trs->ack_base=base_ack;
 		trs->win_scale=win_scale1;
-		g_hash_table_insert(tcp_rel_seq_table, (void *)pinfo->fd->num, trs);
+		g_hash_table_insert(tcp_rel_seq_table, GINT_TO_POINTER(pinfo->fd->num), trs);
 	}
 }
 
@@ -1391,15 +1391,15 @@ free_all_acked(gpointer key_arg _U_, gpointer value _U_, gpointer user_data _U_)
 static guint
 tcp_acked_hash(gconstpointer k)
 {
-	guint32 frame = (guint32)k;
+	guint32 frame = GPOINTER_TO_UINT(k);
 
 	return frame;
 }
 static gint
 tcp_acked_equal(gconstpointer k1, gconstpointer k2)
 {
-	guint32 frame1 = (guint32)k1;
-	guint32 frame2 = (guint32)k2;
+	guint32 frame1 = GPOINTER_TO_UINT(k1);
+	guint32 frame2 = GPOINTER_TO_UINT(k2);
 
 	return frame1==frame2;
 }

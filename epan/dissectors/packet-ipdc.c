@@ -88,7 +88,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *q931_tvb;
 
 	char *des;
-	char *enum_val;
+	char *enum_val = "";
 	char *tmp_str;
 	char tmp_tag_text[IPDC_STR_LEN + 1];
 	const value_string *val_ptr;

@@ -270,7 +270,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		colon_offset;
 	headers_t	headers;
 	int		datalen;
-	int		reported_datalen;
+	int		reported_datalen = -1;
 	dissector_handle_t handle;
 	gboolean	dissected;
 

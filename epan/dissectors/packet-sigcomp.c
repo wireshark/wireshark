@@ -1687,7 +1687,7 @@ dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
  */
 static int
 dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree, 
-							   gint offset, gboolean is_addr, gint *start_offset, guint16 *value, gboolean *is_memory_address )
+							   gint offset, gboolean is_addr _U_, gint *start_offset, guint16 *value, gboolean *is_memory_address )
 {
 	guint bytecode;
 	guint display_bytecode;

@@ -1531,7 +1531,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	/* Return any answer stored from previous dissection */
 	if (pinfo->fd->flags.visited)
 	{
-		return (guint)(p_get_proto_data(pinfo->fd, proto_sip));
+		return GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_sip));
 	}
 
 	/* No packet entry found, consult global hash table */
@@ -1637,7 +1637,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	}
 
 	/* Store return value with this packet */
-	p_add_proto_data(pinfo->fd, proto_sip, (void*)result);
+	p_add_proto_data(pinfo->fd, proto_sip, GUINT_TO_POINTER(result));
 
 	return result;
 }

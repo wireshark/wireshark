@@ -454,15 +454,15 @@ nfs_fhandle_data_free_all(gpointer key_arg _U_, gpointer value, gpointer user_da
 static gint
 nfs_fhandle_frame_equal(gconstpointer k1, gconstpointer k2)
 {
-	guint32 key1 = (guint32)k1;
-	guint32 key2 = (guint32)k2;
+	guint32 key1 = GPOINTER_TO_UINT(k1);
+	guint32 key2 = GPOINTER_TO_UINT(k2);
 
 	return key1==key2;
 }
 static guint
 nfs_fhandle_frame_hash(gconstpointer k)
 {
-	guint32 key = (guint32)k;
+	guint32 key = GPOINTER_TO_UINT(k);
 
 	return key;
 }
@@ -562,15 +562,15 @@ nfs_name_snoop_matched_hash(gconstpointer k)
 static gint
 nfs_name_snoop_unmatched_equal(gconstpointer k1, gconstpointer k2)
 {
-	guint32 key1 = (guint32)k1;
-	guint32 key2 = (guint32)k2;
+	guint32 key1 = GPOINTER_TO_UINT(k1);
+	guint32 key2 = GPOINTER_TO_UINT(k2);
 
 	return key1==key2;
 }
 static guint
 nfs_name_snoop_unmatched_hash(gconstpointer k)
 {
-	guint32 key = (guint32)k;
+	guint32 key = GPOINTER_TO_UINT(k);
 
 	return key;
 }
@@ -699,7 +699,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 	nns->full_name=NULL;
 
 	/* remove any old entry for this */
-	old_nns=g_hash_table_lookup(nfs_name_snoop_unmatched, (gconstpointer)xid);
+	old_nns=g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	if(old_nns){
 		/* if we haven't seen the reply yet, then there are no
 		   matched entries for it, thus we can dealloc the arrays*/
@@ -714,10 +714,10 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 
 			g_mem_chunk_free(nfs_name_snoop_chunk, old_nns);
 		}
-		g_hash_table_remove(nfs_name_snoop_unmatched, (gconstpointer)xid);
+		g_hash_table_remove(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	}
 
-	g_hash_table_insert(nfs_name_snoop_unmatched, (gpointer)xid, nns);
+	g_hash_table_insert(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid), nns);
 }
 
 static void
@@ -728,7 +728,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	nfs_name_snoop_key_t *key;
 
 	/* find which request we correspond to */
-	nns=g_hash_table_lookup(nfs_name_snoop_unmatched, (gconstpointer)xid);
+	nns=g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	if(!nns){
 		/* oops couldnt find matching request, bail out */
 		return;
@@ -756,7 +756,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 		g_hash_table_remove(nfs_name_snoop_matched, key);
 	}
 
-	g_hash_table_remove(nfs_name_snoop_unmatched, (gconstpointer)xid);
+	g_hash_table_remove(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	g_hash_table_insert(nfs_name_snoop_matched, key, nns);
 }
 
@@ -1503,7 +1503,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   	   not work properly with this feature
 			*/
 			g_hash_table_insert(nfs_fhandle_frame_table,
-					(gpointer)pinfo->fd->num,
+					GINT_TO_POINTER(pinfo->fd->num),
 					(gpointer)old_fhd);
 		}
 	}

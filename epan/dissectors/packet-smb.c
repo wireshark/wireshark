@@ -906,14 +906,14 @@ static int smb_saved_info_init_count = 200;
 static gint
 smb_saved_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
-	register guint32 key1 = (guint32)k1;
-	register guint32 key2 = (guint32)k2;
+	register guint32 key1 = GPOINTER_TO_UINT(k1);
+	register guint32 key2 = GPOINTER_TO_UINT(k2);
 	return key1==key2;
 }
 static guint
 smb_saved_info_hash_unmatched(gconstpointer k)
 {
-	register guint32 key = (guint32)k;
+	register guint32 key = GPOINTER_TO_UINT(k);
 	return key;
 }
 
@@ -3259,7 +3259,7 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
 		si = (smb_info_t *)pinfo->private_data;
-		si->sip->extra_info=(void *)fid;
+		si->sip->extra_info=GUINT_TO_POINTER(fid);
 	}
 
 	/* read count */
@@ -3384,7 +3384,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	/* If we have seen the request, then print which FID this refers to */
 	/* first check if we have seen the request */
 	if(si->sip != NULL && si->sip->frame_req>0){
-		fid=(int)si->sip->extra_info;
+		fid=GPOINTER_TO_INT(si->sip->extra_info);
 		add_fid(tvb, pinfo, tree, 0, 0, (guint16) fid);
 	}
 
@@ -5189,7 +5189,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
 		si = (smb_info_t *)pinfo->private_data;
-		si->sip->extra_info=(void *)fid;
+		si->sip->extra_info=GUINT_TO_POINTER(fid);
 	}
 
 	/* offset */
@@ -5299,7 +5299,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* If we have seen the request, then print which FID this refers to */
 	/* first check if we have seen the request */
 	if(si->sip != NULL && si->sip->frame_req>0){
-		fid=(int)si->sip->extra_info;
+		fid=GPOINTER_TO_INT(si->sip->extra_info);
 		add_fid(tvb, pinfo, tree, 0, 0, (guint16) fid);
 	}
 
@@ -5403,7 +5403,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
-		si->sip->extra_info=(void *)fid;
+		si->sip->extra_info=GUINT_TO_POINTER(fid);
 	}
 
 	/* offset */
@@ -5476,10 +5476,10 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 			   so we know that future Read/Writes to this 
 			   TID is (probably) DCERPC.
 			*/
-			if(g_hash_table_lookup(si->ct->tid_service, (void *)si->tid)){
-				g_hash_table_remove(si->ct->tid_service, (void *)si->tid);
+			if(g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))){
+				g_hash_table_remove(si->ct->tid_service, GUINT_TO_POINTER(si->tid));
 			}
-			g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_IPC);
+			g_hash_table_insert(si->ct->tid_service, GUINT_TO_POINTER(si->tid), (void *)TID_IPC);
 		}
 		if(si->sip){
 			si->sip->flags|=SMB_SIF_TID_IS_IPC;
@@ -6334,13 +6334,13 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	   this tree */
 	if(!pinfo->fd->flags.visited){
 		/* Remove any previous entry for this TID */
-		if(g_hash_table_lookup(si->ct->tid_service, (void *)si->tid)){
-			g_hash_table_remove(si->ct->tid_service, (void *)si->tid);
+		if(g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))){
+			g_hash_table_remove(si->ct->tid_service, GUINT_TO_POINTER(si->tid));
 		}
 		if(strcmp(an,"IPC") == 0){
-			g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_IPC);
+			g_hash_table_insert(si->ct->tid_service, GUINT_TO_POINTER(si->tid), (void *)TID_IPC);
 		} else {
-			g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_NORMAL);
+			g_hash_table_insert(si->ct->tid_service, GUINT_TO_POINTER(si->tid), (void *)TID_NORMAL);
 		}
 	}
 
@@ -11516,10 +11516,10 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				   so we know that future Read/Writes to this 
 				   TID is (probably) DCERPC.
 				*/
-				if(g_hash_table_lookup(si->ct->tid_service, (void *)si->tid)){
-					g_hash_table_remove(si->ct->tid_service, (void *)si->tid);
+				if(g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))){
+					g_hash_table_remove(si->ct->tid_service, GUINT_TO_POINTER(si->tid));
 				}
-				g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_IPC);
+				g_hash_table_insert(si->ct->tid_service, GUINT_TO_POINTER(si->tid), (void *)TID_IPC);
 			} else if(strncmp("\\MAILSLOT\\", an, 10) == 0){
 				if (tri != NULL)
 					tri->subcmd=TRANSACTION_MAILSLOT;
@@ -14662,7 +14662,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			   last seen MID matching ours is the right one.
 			   This can fail but is better than nothing
 			*/
-			sip=g_hash_table_lookup(si->ct->unmatched, (void *)pid_mid);
+			sip=g_hash_table_lookup(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 			if(sip!=NULL){
 				new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 				new_key->frame = pinfo->fd->num;
@@ -14724,7 +14724,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			/* first see if we find an unmatched smb "equal" to
 			   the current one
 			*/
-			sip=g_hash_table_lookup(si->ct->unmatched, (void *)pid_mid);
+			sip=g_hash_table_lookup(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 			if(sip!=NULL){
 				gboolean cmd_match=FALSE;
 
@@ -14768,7 +14768,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					   SMBs of different cmds but with identical MID and PID values and
 					   if ethereal lost the first reply and the second request.
 					*/
-					g_hash_table_remove(si->ct->unmatched, (void *)pid_mid);
+					g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 					sip=NULL; /* XXX should free it as well */
 				} else {
 					/* we have found a response to some
@@ -14803,7 +14803,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						 * 4, <- Response MID:5
 						 * We DONT want #4 to be presented as a response to #1
 						 */
-						g_hash_table_remove(si->ct->unmatched, (void *)pid_mid);
+						g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 					} else {
 						/* We have already seen another response to this MID.
 						   Since the MID in reality is only something like 10 bits
@@ -14822,13 +14822,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip->req_time.secs=pinfo->fd->abs_secs;
 				sip->req_time.nsecs=pinfo->fd->abs_usecs*1000;
 				sip->flags = 0;
-				if(g_hash_table_lookup(si->ct->tid_service, (void *)si->tid)
+				if(g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))
 				    == (void *)TID_IPC) {
 					sip->flags |= SMB_SIF_TID_IS_IPC;
 				}
 				sip->cmd = si->cmd;
 				sip->extra_info = NULL;
-				g_hash_table_insert(si->ct->unmatched, (void *)pid_mid, sip);
+				g_hash_table_insert(si->ct->unmatched, GUINT_TO_POINTER(pid_mid), sip);
 				new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 				new_key->frame = sip->frame_req;
 				new_key->pid_mid = pid_mid;

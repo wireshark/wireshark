@@ -1028,7 +1028,7 @@ dissect_tds_col_info_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guint of
  * TODO: check we don't go past end of the token
  */
 static gboolean
-read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset, guint len)
+read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset, guint len _U_)
 {
 	guint name_len;
 	guint cur;
@@ -1206,7 +1206,7 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 }
 
 static void
-dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree)
+dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tree *tree)
 {
 	guint16 msg_len;
 	guint8 srvr_len, proc_len;

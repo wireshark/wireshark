@@ -1944,9 +1944,7 @@ dissect_cmd_Set_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_SensorNumber,
 			    					tvb, (*poffset)++, 1, TRUE);
-		}
-		/* Control Byte */
-		if (tree) {
+			/* Control Byte */
 			ControlByte = tvb_get_guint8(tvb, authtype ? 33 : 17) ;
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Control Byte: %s0x%02x", " ", ControlByte);
@@ -1967,39 +1965,33 @@ dissect_cmd_Set_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 			proto_tree_add_item(field_tree, hf_SetSensorThresholds_datafield_ControlByte_Bit0,
 				    					tvb, *poffset, 1, TRUE);
 			(*poffset)++;
-		}
-		/* lower non-critical threshold */
-		if (tree) {
+
+			/* lower non-critical threshold */
 			if(ControlByte&0x01) 
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_LowerNonCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* lower critical threshold */
-		if (tree) {
+
+			/* lower critical threshold */
 			if(ControlByte&0x02) 
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_LowerCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* lower non-recoverable threshold */
-		if (tree) {
+
+			/* lower non-recoverable threshold */
 			if(ControlByte&0x04) 
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_LowerNonRecoverableThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* upper non-critical threshold */
-		if (tree) {
+
+			/* upper non-critical threshold */
 			if(ControlByte&0x08) 
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_UpperNonCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* upper critical threshold value */
-		if (tree) {
+
+			/* upper critical threshold value */
 			if(ControlByte&0x10) 
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_UpperCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* upper non-recoverable threshold value */
-		if (tree) {
+
+			/* upper non-recoverable threshold value */
 			if(ControlByte&0x20) 
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_UpperNonRecoverableThreshold,
 									tvb, (*poffset)++, 1, TRUE);
@@ -2041,39 +2033,33 @@ dissect_cmd_Get_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 			proto_tree_add_item(field_tree, hf_GetSensorThresholds_datafield_ControlByte_Bit0,
 				    					tvb, *poffset, 1, TRUE);
 			(*poffset)++;
-		}
-		/* lower non-critical threshold */
-		if (tree) {
+
+			/* lower non-critical threshold */
 			if(ControlByte&0x01) 
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_LowerNonCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* lower critical threshold */
-		if (tree) {
+
+			/* lower critical threshold */
 			if(ControlByte&0x02) 
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_LowerCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* lower non-recoverable threshold */
-		if (tree) {
+
+			/* lower non-recoverable threshold */
 			if(ControlByte&0x04) 
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_LowerNonRecoverableThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* upper non-critical threshold */
-		if (tree) {
+
+			/* upper non-critical threshold */
 			if(ControlByte&0x08) 
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_UpperNonCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* upper critical threshold value */
-		if (tree) {
+
+			/* upper critical threshold value */
 			if(ControlByte&0x10) 
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_UpperCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
-		}
-		/* upper non-recoverable threshold value */
-		if (tree) {
+
+			/* upper non-recoverable threshold value */
 			if(ControlByte&0x20) 
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_UpperNonRecoverableThreshold,
 									tvb, (*poffset)++, 1, TRUE);

@@ -44,8 +44,8 @@
 
 static int proto_aim_oft = -1;
 
-static int ett_aim_recvfile = -1;
-static int ett_aim_sendfile = -1;
+/*static int ett_aim_recvfile = -1;
+static int ett_aim_sendfile = -1;*/
 
 /* 
  * cookie (8 chars)

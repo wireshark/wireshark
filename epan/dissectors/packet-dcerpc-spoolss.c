@@ -3256,7 +3256,7 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	dcv->private_data = (void *)level;
+	dcv->private_data = GUINT_TO_POINTER(level);
 
 	offset = dissect_spoolss_buffer(
 		tvb, offset, pinfo, tree, drep, NULL);
@@ -3275,7 +3275,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	BUFFER buffer;
-	gint16 level = (guint32)dcv->private_data;
+	gint16 level = GPOINTER_TO_INT(dcv->private_data);
 	proto_item *item;
 	proto_tree *subtree = NULL;
 
@@ -3601,7 +3601,7 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_ndr_uint32(
                 tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = (void *)level;
+	dcv->private_data = GUINT_TO_POINTER(level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -3621,7 +3621,7 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	BUFFER buffer;
-	guint32 level = (guint32)dcv->private_data, i, count;
+	guint32 level = GPOINTER_TO_UINT(dcv->private_data), i, count;
 	int buffer_offset;
 
 	proto_tree_add_uint_hidden(
@@ -4127,7 +4127,7 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Store info level to match with reply packet */
 
-	dcv->private_data = (void *)level;
+	dcv->private_data = GUINT_TO_POINTER(level);
 
 	offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, drep);
 
@@ -4276,7 +4276,7 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_form_level, &level);
 
-	dcv->private_data = (void *)level;
+	dcv->private_data = GUINT_TO_POINTER(level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d",
@@ -4296,7 +4296,7 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	BUFFER buffer;
-	guint32 level = (guint32)dcv->private_data;
+	guint32 level = GPOINTER_TO_UINT(dcv->private_data);
 
 	proto_tree_add_uint_hidden(
 		tree, hf_form, tvb, offset, 0, 1);
@@ -4575,7 +4575,7 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = (void *)level;
+	dcv->private_data = GUINT_TO_POINTER(level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -4593,7 +4593,7 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	gint16 level = (guint32)dcv->private_data;
+	gint16 level = GPOINTER_TO_UINT(dcv->private_data);
 	BUFFER buffer;
 	guint32 num_jobs, i;
 	int buffer_offset;
@@ -4717,7 +4717,7 @@ static int SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = (void *)level;
+	dcv->private_data = GUINT_TO_POINTER(level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d, jobid %d",
@@ -4736,7 +4736,7 @@ static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	gint32 level = (guint32)dcv->private_data;
+	gint32 level = GPOINTER_TO_UINT(dcv->private_data);
 	BUFFER buffer;
 
 	/* Parse packet */
@@ -5287,7 +5287,7 @@ static int SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = (void *)level;
+	dcv->private_data = GUINT_TO_POINTER(level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -5306,7 +5306,7 @@ static int SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 level = (guint32)dcv->private_data, num_drivers, i;
+	guint32 level = GPOINTER_TO_UINT(dcv->private_data), num_drivers, i;
 	int buffer_offset;
 	BUFFER buffer;
 
@@ -5385,7 +5385,7 @@ static int SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	dcv->private_data = (void *)level;
+	dcv->private_data = GUINT_TO_POINTER(level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -5410,7 +5410,7 @@ static int SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 level = (guint32)dcv->private_data;
+	guint32 level = GPOINTER_TO_UINT(dcv->private_data);
 	BUFFER buffer;
 
 	/* Parse packet */

@@ -121,7 +121,7 @@ static int dissect_aim_snac_signon_signon_reply(tvbuff_t *tvb,
 	return offset;
 }
 
-static int dissect_aim_tlv_value_registration(proto_item *ti _U_, guint16 value_id _U_, tvbuff_t *tvb _U_, packet_info *pinfo)
+static int dissect_aim_tlv_value_registration(proto_item *ti _U_, guint16 value_id _U_, tvbuff_t *tvb _U_, packet_info *pinfo _U_)
 {
 	/* FIXME */
 	return 0;

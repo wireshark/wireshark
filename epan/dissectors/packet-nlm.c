@@ -153,7 +153,7 @@ nlm_msg_res_unmatched_hash(gconstpointer k)
 static guint
 nlm_msg_res_matched_hash(gconstpointer k)
 {
-	guint hash = (guint)k;
+	guint hash = GPOINTER_TO_UINT(k);
 
 	return hash;
 }
@@ -173,8 +173,8 @@ nlm_msg_res_unmatched_equal(gconstpointer k1, gconstpointer k2)
 static gint
 nlm_msg_res_matched_equal(gconstpointer k1, gconstpointer k2)
 {
-	guint mk1 = (guint)k1;
-	guint mk2 = (guint)k2;
+	guint mk1 = GPOINTER_TO_UINT(k1);
+	guint mk2 = GPOINTER_TO_UINT(k2);
 
 	return( mk1==mk2 );
 }
@@ -204,7 +204,7 @@ nlm_print_msgres_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=g_hash_table_lookup(nlm_msg_res_matched, (gconstpointer)pinfo->fd->num);
+	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md){
 		nstime_t ns;
 		proto_tree_add_uint(tree, hf_nlm_request_in, tvb, 0, 0, md->req_frame);
@@ -224,7 +224,7 @@ nlm_print_msgres_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=g_hash_table_lookup(nlm_msg_res_matched, (gconstpointer)pinfo->fd->num);
+	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md){
 		proto_tree_add_uint(tree, hf_nlm_reply_in, tvb, 0, 0, md->rep_frame);
 	}
@@ -234,12 +234,12 @@ nlm_match_fhandle_reply(packet_info *pinfo, proto_tree *tree)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=g_hash_table_lookup(nlm_msg_res_matched, (gconstpointer)pinfo->fd->num);
+	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md && md->rep_frame){
 		nfs_fhandle_data_t *fhd;
 		fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
 			nfs_fhandle_frame_table,
-			(gconstpointer)md->req_frame);
+			GINT_TO_POINTER(md->req_frame));
 		if(fhd){
 			dissect_fhandle_hidden(pinfo,
 				tree, fhd);
@@ -251,12 +251,12 @@ nlm_match_fhandle_request(packet_info *pinfo, proto_tree *tree)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=g_hash_table_lookup(nlm_msg_res_matched, (gconstpointer)pinfo->fd->num);
+	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md && md->rep_frame){
 		nfs_fhandle_data_t *fhd;
 		fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
 			nfs_fhandle_frame_table,
-			(gconstpointer)md->rep_frame);
+			GINT_TO_POINTER(md->rep_frame));
 		if(fhd){
 			dissect_fhandle_hidden(pinfo,
 				tree, fhd);
@@ -282,8 +282,8 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 		md->req_frame=old_umd->req_frame;
 		md->rep_frame=pinfo->fd->num;
 		md->ns=old_umd->ns;
-		g_hash_table_insert(nlm_msg_res_matched, (gpointer)md->req_frame, (gpointer)md);
-		g_hash_table_insert(nlm_msg_res_matched, (gpointer)md->rep_frame, (gpointer)md);
+		g_hash_table_insert(nlm_msg_res_matched, GINT_TO_POINTER(md->req_frame), (gpointer)md);
+		g_hash_table_insert(nlm_msg_res_matched, GINT_TO_POINTER(md->rep_frame), (gpointer)md);
 
 		g_hash_table_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
 		g_free((gpointer)old_umd->cookie);

@@ -1729,7 +1729,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 
 	while(offset < eos) {
 		if (ptr)	/* build pointer tree to all asn1 enteties */
-			cur_node = g_node_append_data(ptr, (void *)offset);
+			cur_node = g_node_append_data(ptr, GUINT_TO_POINTER(offset));
 
 		asn1_open(&asn1, tvb, offset);
 		ret = asn1_header_decode(&asn1, &cls, &con, &tag, &def, &len);
@@ -2171,10 +2171,10 @@ define_constraint(GNode *p, GNode *q)
 
 	p = g_node_first_child(p);
 	
-	range->from = get_asn1_int(0, (guint)p->data);
+	range->from = get_asn1_int(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
-	range->to = get_asn1_int(1, (guint)p->data);
+	range->to = get_asn1_int(1, GPOINTER_TO_UINT(p->data));
 
 }
 
@@ -2190,10 +2190,10 @@ define_namednumber(GNode *p, GNode *q)
 	
 	p = g_node_first_child(p);
 	
-	num->name = get_asn1_string(0, (guint)p->data);
+	num->name = get_asn1_string(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
-	num->value = get_asn1_int(1, (guint)p->data);
+	num->value = get_asn1_int(1, GPOINTER_TO_UINT(p->data));
 }
 
 static void
@@ -2208,10 +2208,10 @@ define_typeref(GNode *p, GNode *q)
 
 	p = g_node_first_child(p);
 
-	ref->typeDefId = get_asn1_uint((guint)p->data);
+	ref->typeDefId = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
-	ref->implicit = get_asn1_int(ASN1_BOL, (guint)p->data);
+	ref->implicit = get_asn1_int(ASN1_BOL, GPOINTER_TO_UINT(p->data));
 }
 
 static void
@@ -2226,10 +2226,10 @@ define_tag(GNode *p, GNode *q)
 
 	p = g_node_first_child(p);
 	
-	type->tclass = get_asn1_int(ASN1_ENUM, (guint)p->data);
+	type->tclass = get_asn1_int(ASN1_ENUM, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
-	type->code = get_asn1_int(ASN1_INT, (guint)p->data);
+	type->code = get_asn1_int(ASN1_INT, GPOINTER_TO_UINT(p->data));
 	
 }
 
@@ -2245,13 +2245,13 @@ define_type(GNode *p, GNode *q)
 
 	/* g_message("define_type %p, %p", p, q); */
 
-	type->typeId = get_asn1_int(0, (guint)p->data);
+	type->typeId = get_asn1_int(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
-	type->optional = get_asn1_int(1, (guint)p->data);
+	type->optional = get_asn1_int(1, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
-	if (check_tag(2, (guint)p->data)) { /* optional, need empty node if not there ?*/
+	if (check_tag(2, GPOINTER_TO_UINT(p->data))) { /* optional, need empty node if not there ?*/
 		r = g_node_first_child(p);
 		while (r) {
 			define_tag(r, t);
@@ -2260,15 +2260,15 @@ define_type(GNode *p, GNode *q)
 		p = g_node_next_sibling(p);
 	}
 
-	if (!check_tag(3, (guint)p->data)) {
+	if (!check_tag(3, GPOINTER_TO_UINT(p->data))) {
 		g_warning("expect tag 3, ERROR");
 	}
 	r = g_node_first_child(p);
 		/* a choice ... */
 	type->content = TBLTYPETYPE_None;
-	if (check_tag(0, (guint)r->data)) type->content = TBLTYPETYPE_Primitive;
-	if (check_tag(1, (guint)r->data)) type->content = TBLTYPETYPE_Elements;
-	if (check_tag(2, (guint)r->data)) type->content = TBLTYPETYPE_TypeRef;
+	if (check_tag(0, GPOINTER_TO_UINT(r->data))) type->content = TBLTYPETYPE_Primitive;
+	if (check_tag(1, GPOINTER_TO_UINT(r->data))) type->content = TBLTYPETYPE_Elements;
+	if (check_tag(2, GPOINTER_TO_UINT(r->data))) type->content = TBLTYPETYPE_TypeRef;
 	switch(type->content) {
 		case TBLTYPETYPE_Primitive:
 			break;
@@ -2290,21 +2290,21 @@ define_type(GNode *p, GNode *q)
 
 	type->fieldName = 0;
 	type->anonymous = FALSE;
-	if (p && check_tag(4, (guint)p->data)) {
-		type->fieldName = get_asn1_string(4, (guint)p->data);
+	if (p && check_tag(4, GPOINTER_TO_UINT(p->data))) {
+		type->fieldName = get_asn1_string(4, GPOINTER_TO_UINT(p->data));
 		p = g_node_next_sibling(p);
 	} else {
 		type->anonymous = TRUE;
 	}
 
 	type->constraint = FALSE;
-	if (p && check_tag(5, (guint)p->data)) {
+	if (p && check_tag(5, GPOINTER_TO_UINT(p->data))) {
 		type->constraint = TRUE;
 		define_constraint(p, t);
 		p = g_node_next_sibling(p);
 	}
 	
-	if (p && check_tag(6, (guint)p->data)) {
+	if (p && check_tag(6, GPOINTER_TO_UINT(p->data))) {
 		r =  g_node_first_child(p);
 		while(r) {
 			define_namednumber(r, t);
@@ -2326,10 +2326,10 @@ define_typedef(GNode *p, GNode *q)
 
 	p = g_node_first_child(p);
 	
-	type_def->typeDefId = get_asn1_uint((guint)p->data);
+	type_def->typeDefId = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 	
-	type_def->typeName = get_asn1_string(ASN1_PRNSTR, (guint)p->data);
+	type_def->typeName = get_asn1_string(ASN1_PRNSTR, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 	
 	define_type(g_node_first_child(p), t);
@@ -2351,16 +2351,16 @@ define_module(GNode *p, GNode *q)
 	
 	p = g_node_first_child(p);
 	
-	module->name = get_asn1_string(0, (guint)p->data);
+	module->name = get_asn1_string(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 	
 	module->id = 0;
-	if (check_tag(1, (guint)p->data)) { /* optional */ 
-		module->id = get_asn1_oid(1, (guint)p->data);
+	if (check_tag(1, GPOINTER_TO_UINT(p->data))) { /* optional */ 
+		module->id = get_asn1_oid(1, GPOINTER_TO_UINT(p->data));
 		p = g_node_next_sibling(p);
 	}
 	
-	module->isUseful = get_asn1_int(2, (guint)p->data);
+	module->isUseful = get_asn1_int(2, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
 	p = g_node_first_child(p);
@@ -2527,17 +2527,17 @@ get_values(void)		/* collect values from ASN.1 tree */
 	p = g_node_first_child(asn1_nodes); /* top of the data tree */
 	
 	p = g_node_first_child(p);
-	TT.totalNumModules = get_asn1_uint((guint)p->data);
+	TT.totalNumModules = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
-	TT.totalNumTypeDefs = get_asn1_uint((guint)p->data);
+	TT.totalNumTypeDefs = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
-	TT.totalNumTypes = get_asn1_uint((guint)p->data);
+	TT.totalNumTypes = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
-	TT.totalNumTags = get_asn1_uint((guint)p->data);
+	TT.totalNumTags = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
-	TT.totalNumStrings = get_asn1_uint((guint)p->data);
+	TT.totalNumStrings = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
-	TT.totalLenStrings = get_asn1_uint((guint)p->data);
+	TT.totalLenStrings = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
 	p = g_node_first_child(p);

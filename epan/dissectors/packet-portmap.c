@@ -118,7 +118,7 @@ dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if(!pinfo->fd->flags.visited){
 		rpc_call_info_value *rpc_call=pinfo->private_data;
 		/* only do this for UDP, TCP does not need anything like this */
-		if(rpc_call && ((int)rpc_call->private_data==PT_UDP) ){
+		if(rpc_call && (GPOINTER_TO_UINT(rpc_call->private_data)==PT_UDP) ){
 			guint32 port;
 			port=tvb_get_ntohl(tvb, offset);
 			if(port){

@@ -805,7 +805,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * Process some headers specially.
 			 */
 #define HDR_MATCHES(header) \
-	(linelen > STRLEN_CONST(header) && \
+	( (size_t)linelen > STRLEN_CONST(header) && \
 	 strncasecmp(line, (header), STRLEN_CONST(header)) == 0)
 
 			if (HDR_MATCHES(rtsp_transport)) {

@@ -661,7 +661,7 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 }
 
 static guint 
-dissect_dmp(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* parent_hist, guint max_size)
+dissect_dmp(tvbuff_t *tvb _U_, guint offset _U_, proto_tree *tree _U_, acn_pdu_history_t* parent_hist _U_, guint max_size _U_)
 {
 	return 0;
 }

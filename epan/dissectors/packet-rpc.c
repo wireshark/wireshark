@@ -2589,7 +2589,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if(rpc_call && rpc_call->rep_num){
 				fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
 					nfs_fhandle_frame_table,
-					(gconstpointer)rpc_call->rep_num);
+					GINT_TO_POINTER(rpc_call->rep_num));
 				if(fhd){
 					dissect_fhandle_hidden(pinfo,
 						ptree, fhd);
@@ -2600,7 +2600,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if(rpc_call && rpc_call->req_num){
 				fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
 					nfs_fhandle_frame_table,
-					(gconstpointer)rpc_call->req_num);
+					GINT_TO_POINTER(rpc_call->req_num));
 				if(fhd){
 					dissect_fhandle_hidden(pinfo,
 						ptree, fhd);

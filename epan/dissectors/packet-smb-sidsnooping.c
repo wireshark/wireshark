@@ -147,15 +147,15 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, vo
 		}
 		fi=gp->pdata[0];
 
-		old_ctx=g_hash_table_lookup(ctx_handle_table, (gpointer)pinfo->fd->num);
+		old_ctx=g_hash_table_lookup(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num));
 		if(old_ctx){
-			g_hash_table_remove(ctx_handle_table, (gpointer)pinfo->fd->num);
+			g_hash_table_remove(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num));
 		}
 		if(!old_ctx){
 			old_ctx=g_mem_chunk_alloc(ctx_handle_chunk);
 			memcpy(old_ctx, fi->value.value.bytes->data, 20);
 		}
-		g_hash_table_insert(ctx_handle_table, (gpointer)pinfo->fd->num, old_ctx);
+		g_hash_table_insert(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num), old_ctx);
 
 		return 0;
 	}
@@ -164,7 +164,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, vo
 		return 0;
 	}
 
-	old_ctx=g_hash_table_lookup(ctx_handle_table, (gpointer)ri->call_data->req_frame);
+	old_ctx=g_hash_table_lookup(ctx_handle_table, GINT_TO_POINTER(ri->call_data->req_frame));
 	if(!old_ctx){
 		return 0;
 	}
@@ -313,8 +313,8 @@ free_all_ctx_handle(gpointer key_arg _U_, gpointer value _U_, gpointer user_data
 static gint
 ctx_handle_equal(gconstpointer k1, gconstpointer k2)
 {
-	int sn1 = (int)k1;
-	int sn2 = (int)k2;
+	int sn1 = GPOINTER_TO_INT(k1);
+	int sn2 = GPOINTER_TO_INT(k2);
 	
 	return sn1==sn2;
 }
@@ -322,7 +322,7 @@ ctx_handle_equal(gconstpointer k1, gconstpointer k2)
 static guint
 ctx_handle_hash(gconstpointer k)
 {
-	int sn = (int)k;
+	int sn = GPOINTER_TO_INT(k);
 
 	return sn;
 }

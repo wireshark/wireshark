@@ -304,9 +304,11 @@ static int dissect_filter(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 static int dissect_and_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cmip_CMISFilter(FALSE, tvb, offset, pinfo, tree, hf_cmip_and_item);
 }
+#if 0
 static int dissect_or_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cmip_CMISFilter(FALSE, tvb, offset, pinfo, tree, hf_cmip_or_item);
 }
+#endif
 static int dissect_not(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cmip_CMISFilter(FALSE, tvb, offset, pinfo, tree, hf_cmip_not);
 }
@@ -1849,6 +1851,7 @@ static const ber_sequence_t BaseManagedObjectId_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
+#if 0
 static int
 dissect_cmip_BaseManagedObjectId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
@@ -1856,6 +1859,7 @@ dissect_cmip_BaseManagedObjectId(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
   return offset;
 }
+#endif
 
 static const ber_sequence_t SET_OF_AttributeId_set_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_attributeIdList_item },
@@ -2281,13 +2285,14 @@ static const value_string RejectProblem_vals[] = {
   { 0, NULL }
 };
 
-
+#if 0
 static int
 dissect_cmip_RejectProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
+#endif
 
 
 static const value_string RejectProb_vals[] = {

@@ -268,9 +268,11 @@ static int dissect_hashAlg(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 static int dissect_certId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_crmf_CertId(FALSE, tvb, offset, pinfo, tree, hf_cmp_certId);
 }
+#if 0
 static int dissect_caPubs_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkix1explicit_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_caPubs_item);
 }
+#endif
 static int dissect_privateKey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_crmf_EncryptedValue(FALSE, tvb, offset, pinfo, tree, hf_cmp_privateKey);
 }
@@ -286,9 +288,11 @@ static int dissect_encryptedCert(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 static int dissect_newSigCert(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkix1explicit_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_newSigCert);
 }
+#if 0
 static int dissect_caCerts_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkix1explicit_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_caCerts_item);
 }
+#endif
 static int dissect_certDetails(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_crmf_CertTemplate(FALSE, tvb, offset, pinfo, tree, hf_cmp_certDetails);
 }
