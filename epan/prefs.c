@@ -1989,6 +1989,9 @@ set_pref(gchar *pref_name, gchar *value)
           pref = find_preference(module, "udp_ports");
         else if (strcmp(dotp, "sctp_port") == 0)
           pref = find_preference(module, "sctp_ports");
+      } else if (strcmp(module->name, "llcgprs") == 0) {
+        if (strcmp(dotp, "ignore_cipher_bit") == 0)
+          pref = find_preference(module, "autodetect_cipher_bit");
       }
     }
     if (pref == NULL)
