@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.60 2000/12/03 22:12:18 guy Exp $
+ * $Id: tethereal.c,v 1.61 2001/01/04 00:16:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -127,7 +127,9 @@ capture_file cfile;
 FILE        *data_out_file = NULL;
 guint        main_ctx, file_ctx;
 ts_type timestamp_type = RELATIVE;
+#ifdef HAVE_LIBPCAP
 static int promisc_mode = TRUE;
+#endif
 
 static void 
 print_usage(void)
