@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.29 2000/11/19 08:54:01 guy Exp $
+ * $Id: packet-ospf.c,v 1.30 2000/12/14 22:23:15 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -50,6 +50,7 @@
 #include "packet.h"
 #include "packet-ospf.h"
 #include "packet-ip.h"
+#include "in_cksum.h"
 #include "ieee-float.h"
 
 static int proto_ospf = -1;
@@ -85,6 +86,10 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospfhdr ospfh;
     e_ospf_crypto *crypto;
     int i, saved_len, ospflen;
+    guint length, reported_length;
+    vec_t cksum_vec[2];
+    int cksum_vec_len;
+    guint16 cksum, computed_cksum;
 
     proto_tree *ospf_tree = NULL;
 	proto_item *ti; 
@@ -135,8 +140,44 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	} else {
 	   proto_tree_add_text(ospf_header_tree, NullTVB, offset + 8 , 4, "Area ID: %s", ip_to_str((guint8 *) &(ospfh.area)));
 	}
-	proto_tree_add_text(ospf_header_tree, NullTVB, offset + 12 , 2, "Packet Checksum: 0x%x",
-	      ntohs(ospfh.checksum));
+	cksum = ntohs(ospfh.checksum);
+	length = pi.captured_len - offset;
+	reported_length = pi.len - offset;
+	if (!pi.fragmented && length >= reported_length
+		&& length >= sizeof(e_ospfhdr)) {
+	    /* The packet isn't part of a fragmented datagram and isn't
+	       truncated, so we can checksum it. */
+
+	    /* Header, not including the authentication data (the OSPF
+	       checksum excludes the 64-bit authentication field). */
+	    cksum_vec[0].ptr = &pd[offset];
+	    cksum_vec[0].len = 16;
+	    if (length > sizeof(e_ospfhdr)) {
+		/* Rest of the packet, again not including the
+		   authentication data. */
+		cksum_vec[1].ptr = &pd[offset + sizeof(e_ospfhdr)];
+		cksum_vec[1].len = reported_length - sizeof(e_ospfhdr);
+		cksum_vec_len = 2;
+	    } else {
+		/* There's nothing but a header. */
+		cksum_vec_len = 1;
+	    }
+	    computed_cksum = in_cksum(cksum_vec, cksum_vec_len);
+	    if (computed_cksum == 0) {
+		proto_tree_add_text(ospf_header_tree, NullTVB,
+			offset + 12, 2,
+			"Packet Checksum: 0x%04x (correct)", cksum);
+	    } else {
+		proto_tree_add_text(ospf_header_tree, NullTVB,
+			offset + 12, 2,
+			"Packet Checksum: 0x%04x (incorrect, should be 0x%04x)",
+			cksum, in_cksum_shouldbe(cksum, computed_cksum));
+	    }
+	} else {
+	    proto_tree_add_text(ospf_header_tree, NullTVB, offset + 12 , 2,
+	    	"Packet Checksum: 0x%04x",
+		cksum);
+	}
 	switch( ntohs(ospfh.auth_type) ) {
 	    case OSPF_AUTH_NONE:
 	         proto_tree_add_text(ospf_header_tree, NullTVB, offset + 14 , 2, "Auth Type: none");
