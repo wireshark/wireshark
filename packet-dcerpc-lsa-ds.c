@@ -3,7 +3,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.4 2002/11/15 08:46:42 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.5 2002/11/19 05:28:16 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"DSROLE_BASIC__DOMAIN_INFO:");
+			"DSROLE_BASIC_DOMAIN_INFO:");
 		tree = proto_item_add_subtree(item, 
 					      ett_lsa_ds_basic_domain_info);
 	}
