@@ -1221,6 +1221,10 @@ Kari Heikkila <kari.o.heikkila[AT]nokia.com> {
 	Fix for WTP PDUs not containing user data
 }
 
+Olivier Dreux <Olivier.Dreux[AT]alcatel.fr> {
+	Add PPP support to GTP
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

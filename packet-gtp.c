@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.28 2002/05/10 23:20:38 guy Exp $
+ * $Id: packet-gtp.c,v 1.29 2002/05/29 03:06:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,8 +49,8 @@
 
 #include <epan/packet.h>
 #include "packet-ipv6.h"
+#include "ppptypes.h"
 #include "prefs.h"
-
 /* 
  * All data related to GTP v0 (GPRS) uses "gtpv0" or "GTPv0",
  * all data related to GTP v1 (UMTS) uses "gtpv1" or "GTPv1",
@@ -457,6 +457,10 @@ static const value_string ver_types[] = {
 #define GTP_MSG_DATA_TRANSF_REQ		0xF0
 #define GTP_MSG_DATA_TRANSF_RESP	0xF1
 #define GTP_MSG_TPDU			0xFF
+#define GTP_PPP_0xC0			0xC0
+#define GTP_PPP_0x80			0x80
+#define GTP_PPP_0xC2			0xC2
+#define GTP_PPP_REQ_ERROR		0xFF
 
 static const value_string message_type[] = {
 	{ GTP_MSG_UNKNOWN,		"For future use" },
@@ -4837,7 +4841,7 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_item	*ti, *tf;
 	proto_tree	*gtpv1_tree, *flags_tree;
 	guint16		seq_no;
-	guint8		ext_hdr_val, i, hdr_offset = 4, next_hdr, npdu_no;
+	guint8		ext_hdr_val, i, hdr_offset = 4, next_hdr, npdu_no, sub_proto;
 	tvbuff_t	*next_tvb;
 	int		offset, length, mandatory, checked_field;
 	
@@ -4926,16 +4930,78 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
 	if ((gtpv1_hdr.message == GTP_MSG_TPDU) && gtp_tpdu) {
-	
+			
 		if (gtpv1_hdr.flags & 0x07) {	
-			if (tvb_get_guint8 (tvb, 11)) hdr_offset = 1;		/* if next_hdr != 0 */
-			else hdr_offset = 0;
+			if (tvb_get_guint8 (tvb, 11))
+				hdr_offset = 1;		/* if next_hdr != 0 */
+			else
+				hdr_offset = 0;
 		}
-		
-		next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
-		call_dissector(ip_handle, next_tvb, pinfo, tree);
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
+
+		sub_proto = tvb_get_guint8(tvb,GTPv1_HDR_LENGTH - hdr_offset);
+
+		switch(sub_proto) {
+			case GTP_PPP_0xC0:   
+				next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
+				call_dissector(ppp_handle, next_tvb, pinfo, tree);
+				if (check_col(pinfo->cinfo, COL_PROTOCOL))
+					col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
+				break;
+
+			case GTP_PPP_0x80:   
+				next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
+				call_dissector(ppp_handle, next_tvb, pinfo, tree);
+				if (check_col(pinfo->cinfo, COL_PROTOCOL))
+					col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
+				break;
+
+			case GTP_PPP_0xC2:   
+				next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
+				call_dissector(ppp_handle, next_tvb, pinfo, tree);
+				if (check_col(pinfo->cinfo, COL_PROTOCOL))
+					col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
+				break;
+
+			case GTP_PPP_REQ_ERROR:
+				sub_proto = tvb_get_guint8(tvb,GTPv1_HDR_LENGTH - hdr_offset+2);
+				switch(sub_proto) {
+					case GTP_PPP_0xC0:   
+						next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset+2, -1, -1);
+						call_dissector(ppp_handle, next_tvb, pinfo, tree);
+						if (check_col(pinfo->cinfo, COL_PROTOCOL))
+							col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
+						break;
+
+					case GTP_PPP_0x80:   
+						next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset+2, -1, -1);
+						call_dissector(ppp_handle, next_tvb, pinfo, tree);
+						if (check_col(pinfo->cinfo, COL_PROTOCOL))
+							col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
+						break;
+
+					case GTP_PPP_0xC2:   
+						next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset+2, -1, -1);
+						call_dissector(ppp_handle, next_tvb, pinfo, tree);
+						if (check_col(pinfo->cinfo, COL_PROTOCOL))
+							col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
+						break;
+
+
+					default:
+						next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset+2, -1, -1);
+						call_dissector(ip_handle, next_tvb, pinfo, tree);
+						if (check_col(pinfo->cinfo, COL_PROTOCOL))
+							col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
+						break;
+				}
+				break;
+			default: 
+				next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
+				call_dissector(ip_handle, next_tvb, pinfo, tree);
+				if (check_col(pinfo->cinfo, COL_PROTOCOL))
+					col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
+				break;
+		}	
 	}
 }
 
@@ -5215,6 +5281,7 @@ proto_reg_handoff_gtp(void)
 	dissector_add("tcp.port", g_gtpv1c_port, gtpv1_handle);
 	dissector_add("udp.port", g_gtpv1u_port, gtpv1_handle);
 	dissector_add("tcp.port", g_gtpv1u_port, gtpv1_handle);
+	dissector_add("ppp.protocol", PPP_IP, ip_handle);
 	
 	ip_handle = find_dissector("ip");
 	ppp_handle = find_dissector("ppp");
