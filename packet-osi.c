@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.62 2003/06/10 05:38:52 guy Exp $
+ * $Id: packet-osi.c,v 1.63 2003/09/20 03:31:25 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -224,11 +224,12 @@ const value_string nlpid_vals[] = {
 };
 
 static dissector_table_t osinl_subdissector_table;
-static dissector_handle_t data_handle;
+static dissector_handle_t data_handle, ppp_handle;
 
 static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8 nlpid;
+  tvbuff_t *new_tvb;
 
   pinfo->current_proto = "OSI";
 
@@ -253,6 +254,14 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "IDRP");
       }
       call_dissector(data_handle,tvb, pinfo, tree);
+      break;
+    case NLPID_PPP:
+      /* XXX - we should put the NLPID into the protocol tree.
+         We should also probably have a subdissector table for
+         those protocols whose PDUs *aren't* defined to begin
+         with an NLPID. */
+      new_tvb = tvb_new_subset(tvb, 1, -1, -1);
+      call_dissector(ppp_handle, new_tvb, pinfo, tree);
       break;
     default:
       if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
@@ -292,4 +301,5 @@ proto_reg_handoff_osi(void)
 	dissector_add("null.type", BSD_AF_ISO, osi_handle);
 	dissector_add("gre.proto", SAP_OSINL5, osi_handle);
 	data_handle = find_dissector("data");
+	ppp_handle  = find_dissector("ppp");
 }
