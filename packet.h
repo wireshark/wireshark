@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.91 1999/08/28 08:31:28 guy Exp $
+ * $Id: packet.h,v 1.92 1999/09/02 23:17:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -445,12 +445,12 @@ void dissect_llc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_lpd(const u_char *, int, frame_data *, proto_tree *);
 void dissect_nbdgm(const u_char *, int, frame_data *, proto_tree *);
 void dissect_netbios(const u_char *, int, frame_data *, proto_tree *);
-void dissect_nbipx_ns(const u_char *, int, frame_data *, proto_tree *, int);
+void dissect_nbipx(const u_char *, int, frame_data *, proto_tree *);
 void dissect_nbns(const u_char *, int, frame_data *, proto_tree *);
 void dissect_nbss(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ncp(const u_char *, int, frame_data *, proto_tree *, int);
+void dissect_ncp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_nntp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *, int);
+void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *);
 void dissect_osi(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);

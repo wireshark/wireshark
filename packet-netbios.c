@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.3 1999/08/24 22:36:34 gram Exp $
+ * $Id: packet-netbios.c,v 1.4 1999/09/02 23:17:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dns.h"
+#include "packet-netbios.h"
 #include "util.h"
 
 /* Netbios command numbers */
@@ -194,7 +195,7 @@ static guint get_netbios_name(const u_char *data_ptr, int offset, char *name_ret
 }
 
 
-static void netbios_add_name( char* label, const u_char *pd, int offset,
+void netbios_add_name( char* label, const u_char *pd, int offset,
     int nb_offset, proto_tree *tree)
 
 {/* add a name field display tree. Display the name and station type in sub-tree */

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.25 1999/08/01 04:28:08 gram Exp $
+ * $Id: packet-ipx.c,v 1.26 1999/09/02 23:17:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -66,19 +66,19 @@ static int proto_ipxrip = -1;
 static int proto_sap = -1;
 
 static void
-dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data);
+dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 static void
-dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
-max_data);
+dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 static void
-dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
-max_data);
+dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+
+typedef	void	(dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
 
 struct port_info {
 	guint16	port;
-	void	(*func) (const u_char *, int, frame_data *, proto_tree *, int);
+	dissect_func_t *func;
 	char	*text;
 };
 
@@ -95,18 +95,41 @@ struct server_info {
 /* ================================================================= */
 /* IPX                                                               */
 /* ================================================================= */
+
+#define IPX_SOCKET_NCP			0x0451
+#define IPX_SOCKET_SAP			0x0452
+#define IPX_SOCKET_IPXRIP		0x0453
+#define IPX_SOCKET_NETBIOS		0x0455
+#define IPX_SOCKET_DIAGNOSTIC		0x0456
+#define IPX_SOCKET_SERIALIZATION	0x0457
+#define IPX_SOCKET_NWLINK_SMB_NAMEQUERY	0x0551
+#define IPX_SOCKET_NWLINK_SMB_DGRAM	0x0553
+#define IPX_SOCKET_ATTACHMATE_GW	0x055d
+#define IPX_SOCKET_IPX_MESSAGE		0x4001
+
 static struct port_info	ports[] = {
-	{ 0x0451, dissect_ncp,		"NCP" },
-	{ 0x0452, dissect_sap,		"SAP" },
-	{ 0x0453, dissect_ipxrip, 	"RIP" },
-	{ 0x0455, NULL,			"NetBIOS" },
-	{ 0x0456, NULL,			"Diagnostic" },
-	{ 0x0457, NULL,			"Serialization" },
-	{ 0x0551, NULL,			"NWLink SMB Name Query" },
-	{ 0x0553, dissect_nwlink_dg,	"NWLink SMB Datagram" },
-	{ 0x055d, NULL,			"Attachmate Gateway" },
-	{ 0x4001, NULL,			"IPX Message" },
-	{ 0x0000, NULL,			NULL }
+	{ IPX_SOCKET_NCP,			dissect_ncp,
+				"NCP" },
+	{ IPX_SOCKET_SAP,			dissect_sap,
+				"SAP" },
+	{ IPX_SOCKET_IPXRIP,			dissect_ipxrip,
+				"RIP" },
+	{ IPX_SOCKET_NETBIOS,			NULL,
+				"NetBIOS" },
+	{ IPX_SOCKET_DIAGNOSTIC,		NULL,
+				"Diagnostic" },
+	{ IPX_SOCKET_SERIALIZATION,		NULL,
+				"Serialization" },
+	{ IPX_SOCKET_NWLINK_SMB_NAMEQUERY,	NULL,
+				"NWLink SMB Name Query" },
+	{ IPX_SOCKET_NWLINK_SMB_DGRAM,		dissect_nwlink_dg,
+				"NWLink SMB Datagram" },
+	{ IPX_SOCKET_ATTACHMATE_GW,		NULL,
+				"Attachmate Gateway" },
+	{ IPX_SOCKET_IPX_MESSAGE,		NULL,
+				"IPX Message" },
+	{ 0x0000,				NULL,
+				NULL }
 };
 
 static char*
@@ -122,7 +145,7 @@ port_text(guint16 port) {
 	return "Unknown";
 }
 
-static void*
+static dissect_func_t*
 port_func(guint16 port) {
 	int i=0;
 
@@ -135,26 +158,35 @@ port_func(guint16 port) {
 	return NULL;
 }
 
+#define IPX_PACKET_TYPE_IPX		0
+#define IPX_PACKET_TYPE_IPX_4		4
+#define IPX_PACKET_TYPE_SPX		5
+#define IPX_PACKET_TYPE_NCP		17
+#define IPX_PACKET_TYPE_WANBCAST	20
+
 static const value_string ipx_packet_type_vals[] = {
-	{ 0,	"IPX" },
-	{ 5,	"SPX" },
-	{ 16,	"Experimental Protocol" },
-	{ 17,	"NCP" },
-	{ 18,	"Experimental Protocol" },
-	{ 19,	"Experimental Protocol" },
-	{ 20,	"NetBIOS Broadcast" },
-	{ 21,	"Experimental Protocol" },
-	{ 22,	"Experimental Protocol" },
-	{ 23,	"Experimental Protocol" },
-	{ 24,	"Experimental Protocol" },
-	{ 25,	"Experimental Protocol" },
-	{ 26,	"Experimental Protocol" },
-	{ 27,	"Experimental Protocol" },
-	{ 28,	"Experimental Protocol" },
-	{ 29,	"Experimental Protocol" },
-	{ 30,	"Experimental Protocol" },
-	{ 31,	"Experimental Protocol" },
-	{ 0,	NULL }
+	{ IPX_PACKET_TYPE_IPX,		"IPX" },
+	{ IPX_PACKET_TYPE_IPX_4,	"IPX" },
+				/* NetMon calls it "IPX" */
+	{ IPX_PACKET_TYPE_SPX,		"SPX" },
+	{ 16,				"Experimental Protocol" },
+	{ IPX_PACKET_TYPE_NCP,		"NCP" },
+	{ 18,				"Experimental Protocol" },
+	{ 19,				"Experimental Protocol" },
+	{ IPX_PACKET_TYPE_WANBCAST,	"NetBIOS Broadcast" },
+				/* NetMon calls it "WAN Broadcast" */
+	{ 21,				"Experimental Protocol" },
+	{ 22,				"Experimental Protocol" },
+	{ 23,				"Experimental Protocol" },
+	{ 24,				"Experimental Protocol" },
+	{ 25,				"Experimental Protocol" },
+	{ 26,				"Experimental Protocol" },
+	{ 27,				"Experimental Protocol" },
+	{ 28,				"Experimental Protocol" },
+	{ 29,				"Experimental Protocol" },
+	{ 30,				"Experimental Protocol" },
+	{ 31,				"Experimental Protocol" },
+	{ 0,				NULL }
 };
 
 gchar*
@@ -201,12 +233,12 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_item	*ti;
 	guint8		ipx_type, ipx_hops;
 	guint16		ipx_checksum, ipx_length;
+	int		len;
 	guint8		*ipx_snode, *ipx_dnode, *ipx_snet, *ipx_dnet;
 
 	gchar		*str_dnet, *str_snet;
 	guint16		ipx_dsocket, ipx_ssocket;
-	void		(*dissect) (const u_char *, int, frame_data *, proto_tree *, int);
-	int		max_data;
+	dissect_func_t	*dissect;
 	guint32		ipx_dnet_val, ipx_snet_val;
 
 	/* Calculate here for use in pinfo and in tree */
@@ -222,7 +254,17 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	ipx_snode = (guint8*)&pd[offset+22];
 	ipx_type = pd[offset+5];
 	ipx_length = pntohs(&pd[offset+2]);
-	max_data = ipx_length - 30;
+
+	/* Length of IPX datagram plus headers above it. */
+		len = ipx_length + offset;
+
+	/* Set the payload and captured-payload lengths to the minima of
+	   (the IPX length plus the length of the headers above it) and
+	   the frame lengths. */
+	if (pi.len > len)
+		pi.len = len;
+	if (pi.captured_len > len)
+		pi.captured_len = len;
 
 	if (check_col(fd, COL_RES_DL_DST))
 		col_add_str(fd, COL_RES_DL_DST,
@@ -264,11 +306,11 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	offset += 30;
 
 	switch (ipx_type) {
-		case 5: /* SPX */
-			dissect_spx(pd, offset, fd, tree, max_data);
+		case IPX_PACKET_TYPE_SPX:
+			dissect_spx(pd, offset, fd, tree);
 			break;
 
-		case 17: /* NCP */
+		case IPX_PACKET_TYPE_NCP:
 			/* Is the destination node 00:00:00:00:00:01 ? */
 			if (pntohl(ipx_dnode) == 0 && pntohs(ipx_dnode + 4) == 1)
 				nw_server_address = pntohl(ipx_dnet);
@@ -279,26 +321,29 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			else
 				nw_server_address = 0;
 
-			dissect_ncp(pd, offset, fd, tree, max_data);
+			dissect_ncp(pd, offset, fd, tree);
 			break;
 
-		case 20: /* NetBIOS */
-			if (ipx_dsocket == 0x0455) {
-				dissect_nbipx_ns(pd, offset, fd, tree, max_data);
+		case IPX_PACKET_TYPE_WANBCAST:
+		case IPX_PACKET_TYPE_IPX_4:
+			if (ipx_dsocket == IPX_SOCKET_NETBIOS) {
+				dissect_nbipx(pd, offset, fd, tree);
 				break;
 			}
 			/* else fall through */
 
 		case 0: /* IPX, fall through to default */
+			/* XXX - should type 0's be dissected as NBIPX
+			   if they're aimed at the NetBIOS socket? */
 		default:
 			dissect = port_func(ipx_dsocket);
 			if (dissect) {
-				dissect(pd, offset, fd, tree, max_data);
+				dissect(pd, offset, fd, tree);
 			}
 			else {
 				dissect = port_func(ipx_ssocket);
 				if (dissect) {
-					dissect(pd, offset, fd, tree, max_data);
+					dissect(pd, offset, fd, tree);
 				}
 				else {
 					dissect_data(pd, offset, fd, tree);
@@ -347,9 +392,7 @@ spx_datastream(u_char type)
 }
 
 static void
-dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
-	max_data) {
-
+dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree	*spx_tree;
 	proto_item	*ti;
 
@@ -394,14 +437,12 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 /* IPX RIP                                                           */
 /* ================================================================= */
 static void
-dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-	int max_data) {
-
+dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree	*rip_tree;
 	proto_item	*ti;
 	guint16		operation;
 	struct ipx_rt_def route;
-	int			cursor;
+	int		cursor;
 
 	char		*rip_type[2] = { "Request", "Response" };
 
@@ -512,12 +553,11 @@ server_type(guint16 type)
 }
 
 static void
-dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-	int max_data) {
+dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*sap_tree, *s_tree;
 	proto_item	*ti;
-	int			cursor;
+	int		cursor;
 	struct sap_query query;
 	struct sap_server_ident server;
 

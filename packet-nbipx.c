@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.10 1999/08/25 01:36:21 guy Exp $
+ * $Id: packet-nbipx.c,v 1.11 1999/09/02 23:17:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-ipx.h" /* for ipxnet_to_string() */
+#include "packet-netbios.h"
 
 static int proto_nbipx = -1;
 
@@ -46,21 +47,67 @@ enum nbipx_protocol {
 static void
 nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		enum nbipx_protocol nbipx, int max_data);
+static void
+dissect_nbipx_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+		int max_data);
 
 /* There is no RFC or public specification of Netware or Microsoft
  * NetBIOS over IPX packets. I have had to decode the protocol myself,
  * so there are holes and perhaps errors in this code. (gram)
+ *
+ * A list of "NovelNetBIOS" packet types can be found at
+ *
+ *	http://www.protocols.com/pbook/novel.htm#NetBIOS
+ *
+ * and at least some of those packet types appear to match what's in
+ * some NBIPX packets.
+ *
+ * Note, however, that the offset of the packet type in an NBIPX packet
+ * *DEPENDS ON THE PACKET TYPE*; "Find name" and "Name recognized" have
+ * it at one offset, "Directed datagram" has it at another.  Does the
+ * NBIPX code base it on the length, or what?  Non-broadcast directed
+ * datagram packets have an IPX type of "IPX", just as "Find name" and
+ * "Name recognized" do....  For now, we base it on the length.
  */
-static char *packet_type[] = {
-	"",
-	"Name Query",
-	"SMB",
-	"NetBIOS Datagram"
+#define NBIPX_FIND_NAME		1
+#define NBIPX_NAME_RECOGNIZED	2
+#define NBIPX_CHECK_NAME	3
+#define NBIPX_NAME_IN_USE	4
+#define NBIPX_DEREGISTER_NAME	5
+#define NBIPX_SESSION_DATA	6
+#define NBIPX_SESSION_END	7
+#define NBIPX_SESSION_END_ACK	8
+#define NBIPX_STATUS_QUERY	9
+#define NBIPX_STATUS_RESPONSE	10
+#define NBIPX_DIRECTED_DATAGRAM	11
+
+static const value_string nbipx_data_stream_type_vals[] = {
+	{NBIPX_FIND_NAME,		"Find name"},
+	{NBIPX_NAME_RECOGNIZED,		"Name recognized"},
+	{NBIPX_CHECK_NAME,		"Check name"},
+	{NBIPX_NAME_IN_USE,		"Name in use"},
+	{NBIPX_DEREGISTER_NAME,		"Deregister name"},
+	{NBIPX_SESSION_DATA,		"Session data"},
+	{NBIPX_SESSION_END,		"Session end"},
+	{NBIPX_SESSION_END_ACK,		"Session end ACK"},
+	{NBIPX_STATUS_QUERY,		"Status query"},
+	{NBIPX_STATUS_RESPONSE,		"Status response"},
+	{NBIPX_DIRECTED_DATAGRAM,	"Directed datagram"},
+	{0,				NULL}
 };
 
-#define	N_PACKET_TYPES	(sizeof packet_type / sizeof packet_type[0])
+#define NWLINK_NAME_QUERY	1
+#define	NWLINK_SMB		2
+#define	NWLINK_NETBIOS_DATAGRAM	3
 
-struct nbipx_header {
+static const value_string nwlink_data_stream_type_vals[] = {
+	{NWLINK_NAME_QUERY,		"Name query"},
+	{NWLINK_SMB,			"SMB"},
+	{NWLINK_NETBIOS_DATAGRAM,	"NetBIOS datagram"},
+	{0,				NULL}
+};
+
+struct nbipx_ns_header {
 	/* Netware & NT NetBIOS over IPX */
 	guint32		router[8];
 	guint8		name_type;
@@ -77,16 +124,27 @@ struct nbipx_header {
 
 /* NetWare */
 void
-dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-		int max_data)
+dissect_nbipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	nbipx_ns(pd, offset, fd, tree, NETBIOS_NETWARE, max_data);
+	int	max_data = pi.captured_len - offset;
+
+	/*
+	 * As said above, we look at the length of the packet to decide
+	 * whether to treat it as a name-service packet or a datagram
+	 * (the packet type would tell us, but it's at a *DIFFERENT
+	 * LOCATION* in different types of packet...).
+	 */
+	if (END_OF_FRAME == 50)
+		nbipx_ns(pd, offset, fd, tree, NETBIOS_NETWARE, max_data);
+	else
+		dissect_nbipx_dg(pd, offset, fd, tree, max_data);
 }
 
 void
-dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-		int max_data)
+dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
+	int	max_data = pi.captured_len - offset;
+
 	nbipx_ns(pd, offset, fd, tree, NETBIOS_NWLINK, max_data);
 }
 
@@ -97,7 +155,7 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 {
 	proto_tree			*nbipx_tree;
 	proto_item			*ti;
-	struct nbipx_header	header;
+	struct nbipx_ns_header	header;
 	int					i, rtr_offset;
 	int					name_offset;
 
@@ -121,7 +179,7 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 	if (check_col(fd, COL_PROTOCOL)) {
 		if (nbipx == NETBIOS_NETWARE) {
-			col_add_str(fd, COL_PROTOCOL, "NetBIOS");
+			col_add_str(fd, COL_PROTOCOL, "NBIPX");
 		}
 		else {
 			col_add_str(fd, COL_PROTOCOL, "NWLink");
@@ -129,24 +187,44 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (check_col(fd, COL_INFO)) {
-		switch (header.packet_type) {
-		case 1:
-			col_add_fstr(fd, COL_INFO, "Name Query for %s", header.name);
-			break;
+		if (nbipx == NETBIOS_NETWARE) {
+			switch (header.packet_type) {
+			case NBIPX_FIND_NAME:
+			case NBIPX_NAME_RECOGNIZED:
+			case NBIPX_CHECK_NAME:
+			case NBIPX_NAME_IN_USE:
+			case NBIPX_DEREGISTER_NAME:
+				col_add_fstr(fd, COL_INFO, "%s %s",
+					val_to_str(header.packet_type, nbipx_data_stream_type_vals, "Unknown"),
+					header.name);
+				break;
 
-		case 2:
-			/* Session? */
-			col_add_fstr(fd, COL_INFO, "SMB over NBIPX");
-			break;
+			default:
+				col_add_fstr(fd, COL_INFO, "%s",
+					val_to_str(header.packet_type, nbipx_data_stream_type_vals, "Unknown"));
+				break;
+			}
+		}
+		else {
+			switch (header.packet_type) {
+			case NWLINK_NAME_QUERY:
+				col_add_fstr(fd, COL_INFO, "Name Query for %s", header.name);
+				break;
 
-		case 3:
-			/* Datagram */
-			col_add_fstr(fd, COL_INFO, "NetBIOS datagram over NBIPX");
-			break;
+			case NWLINK_SMB:
+				/* Session? */
+				col_add_fstr(fd, COL_INFO, "SMB over NBIPX");
+				break;
+
+			case NWLINK_NETBIOS_DATAGRAM:
+				/* Datagram? (Where did we see this?) */
+				col_add_fstr(fd, COL_INFO, "NetBIOS datagram over NBIPX");
+				break;
 				
-		default:
-			col_add_str(fd, COL_INFO, "NetBIOS over IPX");
-			break;
+			default:
+				col_add_str(fd, COL_INFO, "NetBIOS over IPX (NWLink)");
+				break;
+			}
 		}
 	}
 
@@ -154,14 +232,16 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		ti = proto_tree_add_item(tree, proto_nbipx, offset, 68, NULL);
 		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
 
-		if (header.packet_type < N_PACKET_TYPES) {
+		if (nbipx == NETBIOS_NETWARE) {
 			proto_tree_add_text(nbipx_tree, offset+33, 1,
-					"Packet Type: %s (%02X)", packet_type[header.packet_type],
-					header.packet_type);
-		}
-		else {
+				"Packet Type: %s (%02X)",
+				val_to_str(header.packet_type, nbipx_data_stream_type_vals, "Unknown"),
+				header.packet_type);
+		} else {
 			proto_tree_add_text(nbipx_tree, offset+33, 1,
-					"Packet Type: Unknown (%02X)", header.packet_type);
+				"Packet Type: %s (%02X)",
+				val_to_str(header.packet_type, nwlink_data_stream_type_vals, "Unknown"),
+				header.packet_type);
 		}
 
 		/* Eight routers are listed */
@@ -178,22 +258,21 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				header.name_type);
 
 		if (nbipx == NETBIOS_NETWARE) {
-			proto_tree_add_text(nbipx_tree, offset+name_offset, 16,
-					"Name String: %s", header.name);
+			netbios_add_name("Name", &pd[offset], offset,
+					name_offset, nbipx_tree);
 		}
 		else {
-			proto_tree_add_text(nbipx_tree, offset+name_offset, 16,
-					"Group Name String: %s", header.name);
-			proto_tree_add_text(nbipx_tree, offset+52, 16,
-					"Node Name String: %s", header.node_name);
-
+			netbios_add_name("Group name", &pd[offset], offset,
+					name_offset, nbipx_tree);
+			netbios_add_name("Node name", &pd[offset], offset,
+					52, nbipx_tree);
 		}
 	}
 
 	if (nbipx == NETBIOS_NWLINK) {
 		switch (header.packet_type) {
-			case 2:
-			case 3:
+			case NWLINK_SMB:
+			case NWLINK_NETBIOS_DATAGRAM:
 				dissect_smb(pd, offset + 68, fd, tree, max_data - 68);
 				break;
 				
@@ -201,6 +280,38 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				dissect_data(pd, offset + 68, fd, tree);
 				break;
 		}
+	}
+}
+
+static void
+dissect_nbipx_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+		int max_data)
+{
+	proto_tree			*nbipx_tree;
+	proto_item			*ti;
+
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "NetBIOS");
+
+	if (check_col(fd, COL_INFO))
+		col_add_fstr(fd, COL_INFO, "NetBIOS datagram over NBIPX");
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_nbipx, offset, 68, NULL);
+		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
+
+		proto_tree_add_text(nbipx_tree, offset+1, 1,
+				"Packet Type: %s (%02X)",
+				val_to_str(pd[offset+1], nbipx_data_stream_type_vals, "Unknown"),
+				pd[offset+1]);
+		proto_tree_add_text(nbipx_tree, offset, 1,
+		    "Connection control: 0x%02x", pd[offset]);
+		netbios_add_name("Receiver's Name", &pd[offset],
+		    offset, 2, nbipx_tree);
+		netbios_add_name("Sender's Name", &pd[offset],
+		    offset, 2+16, nbipx_tree);
+
+		dissect_smb(pd, offset+2+16+16, fd, tree, max_data - 2+16+16);
 	}
 }
 
