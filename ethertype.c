@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.6 1998/10/16 01:18:28 gerald Exp $
+ * $Id: ethertype.c,v 1.7 1998/10/16 06:46:16 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -49,8 +49,6 @@ ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, GtkTree *tree, GtkWidget
 		*fh_tree)
 {
-  gchar      etype_str[][10] = {"IP", "ARP", "RARP", "AppleTalk", "AARP"};
-
   switch (etype) {
     case ETHERTYPE_IP:
       if (tree) {
