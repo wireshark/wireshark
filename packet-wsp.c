@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.96 2003/12/16 22:39:32 obiot Exp $
+ * $Id: packet-wsp.c,v 1.97 2003/12/17 22:43:21 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -261,9 +261,6 @@ static int hf_wsp_server_session_id			= HF_EMPTY;
 static int hf_wsp_header_status				= HF_EMPTY;
 static int hf_wsp_header_length				= HF_EMPTY;
 static int hf_wsp_headers_section			= HF_EMPTY;
-static int hf_wsp_content_type				= HF_EMPTY;
-static int hf_wsp_content_type_str			= HF_EMPTY;
-static int hf_wsp_parameter_well_known_charset		= HF_EMPTY;
 static int hf_wsp_parameter_type			= HF_EMPTY;
 static int hf_wsp_parameter_name			= HF_EMPTY;
 static int hf_wsp_parameter_filename			= HF_EMPTY;
@@ -275,7 +272,6 @@ static int hf_wsp_parameter_path			= HF_EMPTY;
 static int hf_wsp_parameter_sec			= HF_EMPTY;
 static int hf_wsp_parameter_mac			= HF_EMPTY;
 static int hf_wsp_parameter_upart_type			= HF_EMPTY;
-static int hf_wsp_parameter_upart_type_value		= HF_EMPTY;
 static int hf_wsp_parameter_level			= HF_EMPTY;
 static int hf_wsp_reply_data				= HF_EMPTY;
 static int hf_wsp_post_data				= HF_EMPTY;
@@ -293,7 +289,7 @@ static int hf_wsp_redirect_reuse_security_session	= HF_EMPTY;
 static int hf_redirect_addresses					= HF_EMPTY;
 
 /* Address fields */
-static gint hf_address_entry			= HF_EMPTY;
+static int hf_address_entry				= HF_EMPTY;
 static int hf_address_flags_length		= HF_EMPTY;
 static int hf_address_flags_length_bearer_type_included	= HF_EMPTY; /* Subfield */
 static int hf_address_flags_length_port_number_included	= HF_EMPTY; /* Subfield */
@@ -305,16 +301,16 @@ static int hf_address_ipv6_addr			= HF_EMPTY;
 static int hf_address_addr				= HF_EMPTY;
 
 /* Session Initiation Request fields */
-static gint hf_sir_section					= HF_EMPTY;
-static gint hf_sir_version					= HF_EMPTY;
-static gint hf_sir_app_id_list_len			= HF_EMPTY;
-static gint hf_sir_app_id_list				= HF_EMPTY;
-static gint hf_sir_wsp_contact_points_len	= HF_EMPTY;
-static gint hf_sir_wsp_contact_points		= HF_EMPTY;
-static gint hf_sir_contact_points_len		= HF_EMPTY;
-static gint hf_sir_contact_points			= HF_EMPTY;
-static gint hf_sir_protocol_options_len		= HF_EMPTY;
-static gint hf_sir_protocol_options			= HF_EMPTY;
+static int hf_sir_section					= HF_EMPTY;
+static int hf_sir_version					= HF_EMPTY;
+static int hf_sir_app_id_list_len			= HF_EMPTY;
+static int hf_sir_app_id_list				= HF_EMPTY;
+static int hf_sir_wsp_contact_points_len	= HF_EMPTY;
+static int hf_sir_wsp_contact_points		= HF_EMPTY;
+static int hf_sir_contact_points_len		= HF_EMPTY;
+static int hf_sir_contact_points			= HF_EMPTY;
+static int hf_sir_protocol_options_len		= HF_EMPTY;
+static int hf_sir_protocol_options			= HF_EMPTY;
 static int hf_sir_prov_url_len				= HF_EMPTY;
 static int hf_sir_prov_url					= HF_EMPTY;
 static int hf_sir_cpi_tag_len				= HF_EMPTY;
@@ -325,23 +321,23 @@ static int hf_sir_cpi_tag					= HF_EMPTY;
  */
 
 /* WSP tree */
-static gint ett_wsp 					= ETT_EMPTY;
+static int ett_wsp 						= ETT_EMPTY;
 /* WSP headers tree */
-static gint ett_header 					= ETT_EMPTY;
+static int ett_header 					= ETT_EMPTY;
 /* WSP header subtree */
-static gint ett_headers					= ETT_EMPTY;
+static int ett_headers					= ETT_EMPTY;
 /* CO-WSP session capabilities */
-static gint ett_capabilities			= ETT_EMPTY;
-static gint ett_capability				= ETT_EMPTY;
-static gint ett_post					= ETT_EMPTY;
-static gint ett_redirect_flags			= ETT_EMPTY;
-static gint ett_address_flags			= ETT_EMPTY;
-static gint ett_multiparts				= ETT_EMPTY;
-static gint ett_mpartlist				= ETT_EMPTY;
+static int ett_capabilities				= ETT_EMPTY;
+static int ett_capability				= ETT_EMPTY;
+static int ett_post						= ETT_EMPTY;
+static int ett_redirect_flags			= ETT_EMPTY;
+static int ett_address_flags			= ETT_EMPTY;
+static int ett_multiparts				= ETT_EMPTY;
+static int ett_mpartlist				= ETT_EMPTY;
 /* Session Initiation Request tree */
-static gint ett_sir						= ETT_EMPTY;
-static gint ett_addresses				= ETT_EMPTY;
-static gint ett_address					= ETT_EMPTY;
+static int ett_sir						= ETT_EMPTY;
+static int ett_addresses				= ETT_EMPTY;
+static int ett_address					= ETT_EMPTY;
 
 
 
@@ -1201,7 +1197,6 @@ enum {
 	WSP_PDU_PUT				= 0x61,			/* No sample data */
 };
 
-#define VAL_STRING_SIZE 200
 
 /* Dissector tables for handoff */
 static dissector_table_t media_type_table;
@@ -5693,27 +5688,6 @@ proto_register_wsp(void)
 				"Reply Status", HFILL
 			}
 		},
-		{ &hf_wsp_content_type,
-			{ 	"Content Type",
-				"wsp.content_type.integer",
-				 FT_UINT8, BASE_HEX, VALS ( vals_content_types ), 0x00,
-				"Content Type", HFILL
-			}
-		},
-		{ &hf_wsp_content_type_str,
-			{ 	"Content Type",
-				"wsp.content_type.string",
-				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Content Type", HFILL
-			}
-		},
-		{ &hf_wsp_parameter_well_known_charset,
-			{ 	"Charset",
-				"wsp.parameter.charset",
-				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
-				"Charset", HFILL
-			}
-		},
 		{ &hf_wsp_parameter_type,
 			{ 	"Type",
 				"wsp.parameter.type",
@@ -5789,13 +5763,6 @@ proto_register_wsp(void)
 				"wsp.parameter.upart.type",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Multipart type", HFILL
-			}
-		},
-		{ &hf_wsp_parameter_upart_type_value,
-			{ 	"Type",
-				"wsp.parameter.upart.type.int",
-				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Multipart type (int value)", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_level,
