@@ -217,6 +217,7 @@ Heikki Vatiainen <hessu@cs.tut.fi> {
 	SIP (Session Initiation Protocol)
 	BGP tvbuffification
 	IPv6 and ICMPv6 tvbuffification
+	PIM enhancements and fixes
 }
 
 Greg Hankins <gregh@twoguys.org> {

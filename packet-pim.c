@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.27 2001/04/23 17:51:33 guy Exp $
+ * $Id: packet-pim.c,v 1.28 2001/05/07 20:26:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include <netinet/in.h>
 #endif
 
+#include <stddef.h>  /* For offsetof */
 #include <string.h>
 #include <glib.h>
 
@@ -45,6 +46,7 @@
 
 #include "packet.h"
 #include "ipproto.h"
+#include "packet-ipv6.h"
 #include "in_cksum.h"
 
 #define PIM_TYPE(x)	((x) & 0x0f)
@@ -264,13 +266,18 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	if (PIM_VER(pim_typever) == 2) {
 	    /*
 	     * Well, it's PIM v2, so we can check whether this is a Register
-	     * mesage, and thus can figure out how much to checksum.
+	     * message, and thus can figure out how much to checksum and
+	     * whether to make the columns read-only.
 	     */
 	    if (PIM_TYPE(pim_typever) == 1) {
 		/*
 		 * Register message - the PIM header is 8 bytes long.
+		 * Also set the columns non-writable. Otherwise the IPv4 or
+		 * IPv6 dissector for the encapsulated packet that caused
+		 * this register will overwrite the PIM info in the columns.
 		 */
 		pim_length = 8;
+		col_set_writable(pinfo->fd, FALSE);
 	    } else {
 		/*
 		 * Other message - checksum the entire packet.
@@ -370,6 +377,40 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	     */
 	    v_hl = tvb_get_guint8(tvb, offset);
 	    switch((v_hl & 0xf0) >> 4) {
+	    case 0:     /* Null-Register dummy header.
+			 * Has the same address family as the encapsulating PIM packet,
+			 * e.g. an IPv6 data packet is encapsulated in IPv6 PIM packet.
+			 */
+		    if (pinfo->src.type == AT_IPv4) {
+			    proto_tree_add_text(pimopt_tree, tvb, offset,
+						tvb_length_remaining(tvb, offset),
+						"IPv4 dummy header");
+			    proto_tree_add_text(pimopt_tree, tvb, offset + 12, 4,
+						"Source: %s",
+						ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+			    proto_tree_add_text(pimopt_tree, tvb, offset + 16, 4,
+						"Group: %s",
+						ip_to_str(tvb_get_ptr(tvb, offset + 16, 4)));
+		    } else if (pinfo->src.type == AT_IPv6) {
+			    struct ip6_hdr ip6_hdr;
+			    tvb_memcpy(tvb, (guint8 *)&ip6_hdr, offset,
+				       tvb_length_remaining(tvb, offset));
+			    proto_tree_add_text(pimopt_tree, tvb, offset,
+						tvb_length_remaining(tvb, offset),
+						"IPv6 dummy header");
+			    proto_tree_add_text(pimopt_tree, tvb,
+						offset + offsetof(struct ip6_hdr, ip6_src), 16,
+						"Source: %s",
+						ip6_to_str(&ip6_hdr.ip6_src));
+			    proto_tree_add_text(pimopt_tree, tvb,
+						offset + offsetof(struct ip6_hdr, ip6_dst), 16,
+						"Group: %s",
+						ip6_to_str(&ip6_hdr.ip6_dst));
+		    } else
+			    proto_tree_add_text(pimopt_tree, tvb, offset,
+						tvb_length_remaining(tvb, offset),
+						"Dummy header for an unknown protocol");
+		    break;
 	    case 4:	/* IPv4 */
 #if 0
 		    call_dissector(ip_handle, next_tvb, pinfo, tree);
@@ -466,7 +507,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    "Join: %d", njoin);
 		subtree = proto_item_add_subtree(tisub, ett_pim);
 		off = offset + 4;
-		for (j = 0; j < nprune; j++) {
+		for (j = 0; j < njoin; j++) {
 		    s = dissect_pim_addr(tvb, off, pimv2_source,
 			&advance);
 		    if (s == NULL)
