@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * wspstat   2003 Jean-Michel FAYARD
  *
- * $Id: tap-wspstat.c,v 1.2 2003/11/27 22:15:05 guy Exp $
+ * $Id: tap-wspstat.c,v 1.3 2003/12/10 22:27:41 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -201,7 +201,7 @@ wspstat_draw(void *psp)
 	printf("\nStatus code in reply packets\n");
 	printf(		"Status Code    Packets  Description\n");
 	g_hash_table_foreach( sp->hash, (GHFunc) wsp_print_statuscode, 
-			"%11d  %9d  %s\n" ) ;
+			"       0x%02X  %9d  %s\n" ) ;
 	printf("===================================================================\n");
 }
 
