@@ -4,7 +4,7 @@
  *
  * Copied from packet-h225.c and packet-h245.c
  *
- * $Id: packet-h450.c,v 1.9 2004/05/17 20:03:36 sahlberg Exp $
+ * $Id: packet-h450.c,v 1.10 2004/06/24 06:01:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,6 +82,40 @@
 
 /* H.450.6 Call Waiting constants */
 #define CallWaiting                 105
+
+/* H.450.7 Message Waiting Indication constants */
+#define MWIActivate                 80
+#define MWIDeactivate               81
+#define MWIInterrogate              82 
+
+/* H.450.8 Name Identification constants */
+#define NIcallingName               0
+#define NIalertingName              1
+#define NIconnectedName             2
+#define NIbusyName                  3 
+
+/* H.450.9 Call Completion constants */
+#define CCBSRequest                 40
+#define CCNRRequest                 27
+#define CCCancel                    28
+#define CCExecPossible              29
+#define CCRingout                   31
+#define CCSuspend                   32
+#define CCResume                    33 
+
+/* H.450.10 Call Offer constants */
+#define CallOfferRequest            34
+#define RemoteUserAlerting          115
+#define CFBOverride                 49 
+
+/* H.450.11 Call Intrusion constants */
+#define CallIntrusionRequest        43
+#define CallIntrusionGetCIPL        44
+#define CallIntrusionIsolate        45
+#define CallIntrusionForcedRelease  46
+#define CallIntrusionWOBRequest     47
+#define CallIntrusionSilentMonitor  116
+#define CallIntrusionNotification   117
 
 /* TODO - define other H.450.x constants here */
 
@@ -305,6 +339,40 @@ static const value_string localOpcode_vals[] = {
 
    /* H.450.6 Call Waiting opcodes */
    { CallWaiting,             "callWaiting"},
+
+   /* H.450.7 Message Waiting Indication constants */
+   { MWIActivate,             "mwiActivate"},
+   { MWIDeactivate,           "mwiDeactivate"},
+   { MWIInterrogate,          "mwiInterrogate"}, 
+
+   /* H.450.8 Name Identification constants */
+   { NIcallingName,           "niCallingName"},
+   { NIalertingName,          "niAlertingName"},
+   { NIconnectedName,         "niConnectedName"},
+   { NIbusyName,              "niBusyName"}, 
+
+   /* H.450.9 Call Completion constants */
+   { CCBSRequest,             "ccbsRequest"},
+   { CCNRRequest,             "ccnrRequest"},
+   { CCCancel,                "ccCancel"},
+   { CCExecPossible,          "ccExecPossible"},
+   { CCRingout,               "ccRingout"},
+   { CCSuspend,               "ccSuspend"},
+   { CCResume,                "ccResume"}, 
+
+   /* H.450.10 Call Offer constants */
+   { CallOfferRequest,        "callOfferRequest"},
+   { RemoteUserAlerting,      "remoteUserAlerting"},
+   { CFBOverride,             "cfbOverride"}, 
+
+   /* H.450.11 Call Intrusion constants */
+   { CallIntrusionRequest,      "callIntrusionRequest"},
+   { CallIntrusionGetCIPL,      "callIntrusionGetCIPL"},
+   { CallIntrusionIsolate,      "callIntrusionIsolate"},
+   { CallIntrusionForcedRelease,"callIntrusionForcedRelease"},
+   { CallIntrusionWOBRequest,   "callIntrusionWOBRequest"},
+   { CallIntrusionSilentMonitor,"callIntrusionSilentMonitor"},
+   { CallIntrusionNotification, "callIntrusionNotification"},
 
    /* TODO - add other H.450.x invoke opcodes here */
 
@@ -839,6 +907,21 @@ static const value_string localErrorCode_vals[] = {
    /* H.450.5 Call Park and Pickup return errors */
    { 2000, "callPickupIdInvalid"},
    { 2001, "callAlreadyPickedUp"},
+
+   /* H.450.7 Message Waiting Indication return errors */
+   { 1018, "invalidMsgCentreId"},
+   {   31, "notActivated"},    
+
+   /* H.450.9 Call Completion return errors */
+   { 1010, "shortTermRejection"},
+   { 1011, "longTermRejection"},
+   { 1012, "remoteUserBusyAgain"},
+   { 1013, "failureToMatch"},    
+
+   /* H.450.11 Call Intrusion return errors */
+   { 1009, "notBusy"},
+   { 1000, "temporarilyUnavailable"},
+   { 1007, "notAuthorized"},
 
    /* TODO - add other H.450.x error codes here */
 
