@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.28 2004/02/09 18:32:41 ulfl Exp $
+ * $Id: toolbar.c,v 1.29 2004/07/13 07:15:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,6 +154,7 @@ void ethereal_stock_icons(void) {
         { ETHEREAL_STOCK_IMPORT,                ETHEREAL_STOCK_LABEL_IMPORT,                0, 0, NULL },
         { ETHEREAL_STOCK_EDIT,                  ETHEREAL_STOCK_LABEL_EDIT,                  0, 0, NULL },
         { ETHEREAL_STOCK_ADD_EXPRESSION,        ETHEREAL_STOCK_LABEL_ADD_EXPRESSION,        0, 0, NULL },
+        { ETHEREAL_STOCK_DONT_SAVE,             ETHEREAL_STOCK_LABEL_DONT_SAVE,             0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {

@@ -2,7 +2,7 @@
  * Definitions for alert box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.15 2004/06/04 21:12:01 guy Exp $
+ * $Id: simple_dialog.h,v 1.16 2004/07/13 07:15:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,11 @@ typedef enum {
 /** display a "No" button */
 #define ESD_BTN_NO     0x08 
 /** display a "Clear" button */
-#define ESD_BTN_CLEAR  0x10 
+#define ESD_BTN_CLEAR  0x10
+/** display a "Save" button */
+#define ESD_BTN_SAVE   0x20
+/** display a "Continue without Saving" button */
+#define ESD_BTN_DONT_SAVE 0x40 
 
 /** Standard button combination "Ok" + "Cancel". */
 #define ESD_BTNS_OK_CANCEL	(ESD_BTN_OK|ESD_BTN_CANCEL)
@@ -63,6 +67,8 @@ typedef enum {
 #define ESD_BTNS_YES_NO		(ESD_BTN_YES|ESD_BTN_NO)
 /** Standard button combination "Yes" + "No" + "Cancel". */
 #define ESD_BTNS_YES_NO_CANCEL	(ESD_BTN_YES|ESD_BTN_NO|ESD_BTN_CANCEL)
+/** Standard button combination "No" + "Cancel" + "Save". */
+#define ESD_BTNS_SAVE_DONTSAVE_CANCEL (ESD_BTN_DONT_SAVE|ESD_BTN_CANCEL|ESD_BTN_SAVE)
 
 #if __GNUC__ >= 2
 /** Create and show a simple dialog.

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.137 2004/06/30 18:24:56 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.138 2004/07/13 07:15:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1184,11 +1184,11 @@ static void
 capture_prep_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     switch(btn) {
-    case(ESD_BTN_YES):
+    case(ESD_BTN_SAVE):
         /* save file first */
         file_save_as_cmd(after_save_capture_dialog, data);
         break;
-    case(ESD_BTN_NO):
+    case(ESD_BTN_DONT_SAVE):
         capture_prep();
         break;
     case(ESD_BTN_CANCEL):
@@ -1205,9 +1205,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before starting a new capture?" PRIMARY_TEXT_END "\n\n"
-                "If you start a new capture without saving, your current capture data will be discarded.");
+                "If you start a new capture without saving, your current capture data will\nbe discarded.");
     simple_dialog_set_cb(dialog, capture_prep_answered_cb, NULL);
   } else {
     /* unchanged file, just capture a new one */

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.457 2004/07/12 19:10:58 ulfl Exp $
+ * $Id: main.c,v 1.458 2004/07/13 07:15:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -835,15 +835,15 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
     gtk_window_present(GTK_WINDOW(top_level));
 #endif
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
                 "If you quit the program without saving, your capture data will be discarded.");
     simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
     return TRUE;
   } else {
     /* unchanged file, just exit */
-	/* "main_do_quit()" indicates whether the main window should be deleted. */
-	return main_do_quit();
+    /* "main_do_quit()" indicates whether the main window should be deleted. */
+    return main_do_quit();
   }
 }
 
@@ -918,12 +918,12 @@ main_save_window_geometry(GtkWidget *widget)
 static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
     switch(btn) {
-    case(ESD_BTN_YES):
+    case(ESD_BTN_SAVE):
         /* save file first */
         file_save_as_cmd(after_save_exit, NULL);
         break;
-    case(ESD_BTN_NO):
-    	main_do_quit();
+    case(ESD_BTN_DONT_SAVE):
+        main_do_quit();
         break;
     case(ESD_BTN_CANCEL):
         break;
@@ -939,13 +939,13 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
                 "If you quit the program without saving, your capture data will be discarded.");
     simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
   } else {
     /* unchanged file, just exit */
-	main_do_quit();
+    main_do_quit();
   }
 }
 
@@ -1451,11 +1451,11 @@ static void
 dnd_save_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
     switch(btn) {
-    case(ESD_BTN_YES):
+    case(ESD_BTN_SAVE):
         /* save file first */
         file_save_as_cmd(after_save_open_dnd_file, data);
         break;
-    case(ESD_BTN_NO):
+    case(ESD_BTN_DONT_SAVE):
         cf_close(&cfile);
         dnd_open_file_cmd(data);
         break;
@@ -1480,7 +1480,7 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
         if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
             /* user didn't saved his current file, ask him */
             dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
-                        ESD_BTNS_YES_NO_CANCEL,
+                        ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                         PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
                         "If you open a new capture file without saving, your current capture data will be discarded.");
             simple_dialog_set_cb(dialog, dnd_save_file_answered_cb, selection_data);

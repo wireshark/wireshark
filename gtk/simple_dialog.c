@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.39 2004/06/29 22:21:04 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.40 2004/07/13 07:15:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ static GtkWidget *
 display_simple_dialog(gint type, gint btn_mask, char *message)
 {
   GtkWidget   *win, *main_vb, *top_hb, *type_pm, *msg_label,
-              *bbox, *ok_bt, *yes_bt, *bt;
+              *bbox, *ok_bt, *yes_bt, *bt, *save_bt, *dont_save_bt;
   GdkPixmap   *pixmap;
   GdkBitmap   *mask;
   GtkStyle    *style;
@@ -176,6 +176,9 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   case(ESD_BTNS_YES_NO_CANCEL):
     bbox = dlg_button_row_new(GTK_STOCK_YES, GTK_STOCK_NO, GTK_STOCK_CANCEL, NULL);
     break;
+  case(ESD_BTNS_SAVE_DONTSAVE_CANCEL):
+    bbox = dlg_button_row_new(GTK_STOCK_SAVE, ETHEREAL_STOCK_DONT_SAVE, GTK_STOCK_CANCEL, NULL);
+    break;
   case(ESD_BTNS_YES_NO):
     bbox = dlg_button_row_new(GTK_STOCK_YES, GTK_STOCK_NO, NULL);
     break;
@@ -193,6 +196,17 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
       SIGNAL_CONNECT(ok_bt, "clicked", simple_dialog_cancel_cb, win);
   }
 
+  save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
+  if (save_bt) {
+      OBJECT_SET_DATA(save_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_SAVE));
+      SIGNAL_CONNECT(save_bt, "clicked", simple_dialog_cancel_cb, win);
+  }
+  
+  dont_save_bt = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_DONT_SAVE);
+  if (dont_save_bt) {
+      OBJECT_SET_DATA(dont_save_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_DONT_SAVE));
+      SIGNAL_CONNECT(dont_save_bt, "clicked", simple_dialog_cancel_cb, win);  	
+  }      
   bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLEAR);
   if(bt) {
       OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CLEAR));

@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.20 2004/06/17 16:35:23 ulfl Exp $
+ * $Id: compat_macros.h,v 1.21 2004/07/13 07:15:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,6 +198,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define ETHEREAL_STOCK_IMPORT                   "Import..."
 #define ETHEREAL_STOCK_EDIT                     "Edit..."
 #define ETHEREAL_STOCK_ADD_EXPRESSION           "Add Expression..."
+#define ETHEREAL_STOCK_DONT_SAVE                "Continue without Saving"
 
 /** Create a stock button. Will create a "normal" button for GTK1.
  *
@@ -297,6 +298,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_LABEL_IMPORT                   "_Import..."
 #define ETHEREAL_STOCK_LABEL_EDIT                     "_Edit..."
 #define ETHEREAL_STOCK_LABEL_ADD_EXPRESSION           "_Expression..." /* plus sign coming from icon */
+#define ETHEREAL_STOCK_LABEL_DONT_SAVE                "Continue _without Saving"
 
 #ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_CAPTURE_START            "Ethereal_Stock_CaptureStart"
@@ -312,6 +314,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_IMPORT                   "Ethereal_Stock_Import"
 #define ETHEREAL_STOCK_EDIT                     "Ethereal_Stock_Edit"
 #define ETHEREAL_STOCK_ADD_EXPRESSION           "Ethereal_Stock_Edit_Add_Expression"
+#define ETHEREAL_STOCK_DONT_SAVE		"Ethereal_Stock_Continue_without_Saving"
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_from_stock(stock_id);

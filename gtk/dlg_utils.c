@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.41 2004/07/12 20:01:41 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.42 2004/07/13 07:15:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,6 +100,7 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     gchar *ok           = NULL;
     gchar *apply        = NULL;
     gchar *save         = NULL;
+    gchar *dont_save	= NULL;
     gchar *cancel       = NULL;
     gchar *close        = NULL;
     gchar *clear        = NULL;
@@ -125,6 +126,8 @@ dlg_button_row_new(gchar *stock_id_first, ...)
             apply = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_SAVE) == 0) {
             save = stock_id;
+        } else if (strcmp(stock_id, ETHEREAL_STOCK_DONT_SAVE) == 0) {
+        	dont_save = stock_id;  
         } else if (strcmp(stock_id, GTK_STOCK_CANCEL) == 0) {
             cancel = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLOSE) == 0) {
@@ -256,10 +259,16 @@ dlg_button_row_new(gchar *stock_id_first, ...)
             return hbox;
         }
         if (yes && no && cancel) {
-            dlg_button_new(hbox, button_hbox, yes);
             dlg_button_new(hbox, button_hbox, no);
             dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, yes);
             return hbox;
+        }
+        if (save && dont_save && cancel) {
+        	dlg_button_new(hbox, button_hbox, dont_save);
+        	dlg_button_new(hbox, button_hbox, cancel);
+        	dlg_button_new(hbox, button_hbox, save);
+        	return hbox;
         }
     }
     if (buttons == 4) {
@@ -290,6 +299,7 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     if (yes     != NULL) dlg_button_new(hbox, button_hbox, yes);
     if (no      != NULL) dlg_button_new(hbox, button_hbox, no);
     if (save    != NULL) dlg_button_new(hbox, button_hbox, save);
+    if (dont_save != NULL) dlg_button_new(hbox, button_hbox, dont_save);
     if (stop    != NULL) dlg_button_new(hbox, button_hbox, stop);
     if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
     if (clear   != NULL) dlg_button_new(hbox, button_hbox, clear);
