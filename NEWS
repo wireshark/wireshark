@@ -1,3 +1,18 @@
+Overview of changes in Ethereal 0.7.7:
+* Check header length in IP header (Guy)
+* Fix printf formats in packet-rx.c (Guy)
+* NTP changes (Tomislav Vujec)
+* Add conversation mechanism and generalize net/datalink address storage (Guy)
+* Fix ipproto.c bug (Guy)
+* Removed erroneous assert in packet-sna.c (Gilbert)
+* Support for Appletalk DDP, Banyan Vines, and SNA FID type 4 addresses
+	in "address" type code (Guy)
+* Fixes for Appletalk and Vines (Guy)
+* Add ICQ dissector (Kojak)
+* Remove compilation warnings in packet-snmp.c (Tomislav)
+* Remove compilation warnings from packet-smb.c (Richard)
+* Add make-reg-dotc to let non-GNU makes work. (Guy)
+
 Overview of changes in Ethereal 0.7.6:
 * Fix xdlc bug (Guy, Gilbert)
 * Add name resolution option to GUI. (Laurent)
