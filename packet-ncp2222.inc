@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.19 2002/09/22 15:46:42 gerald Exp $
+ * $Id: packet-ncp2222.inc,v 1.20 2002/09/22 17:39:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -724,7 +724,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 	request_value = g_mem_chunk_alloc(ncp_req_hash_values);
 	request_value->ncp_rec = ncp_rec;
 	request_value->req_cond_results = NULL;
-        request_value->req_nds_flags = NULL;
+        request_value->req_nds_flags = 0;
         
         g_hash_table_insert(ncp_req_hash, request_key, request_value);
 
@@ -953,7 +953,7 @@ uint_to_nwtime(guint data, nw_time_t *nwtime)
 char *
 unicode_to_string(char * data, guint32 length)
 {
-        int     i;
+        guint32 i;
 	guint16 character;
         int     offset = 0;
         char *  buffer = "";
@@ -1412,7 +1412,7 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         char *                  sep = NULL;
 	proto_item		*tinew;
 	proto_tree		*flags_tree;
-        int                     i;
+        guint32                 i;
         guint32                 bvalue = 0;
 
         bvalue = 0x00000001;
@@ -1566,7 +1566,7 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 static void
 print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val *vvalues)
 {
-        guint32         value1 = 0;
+        gint            value1 = 0;
         guint32         value2 = 0;
         guint32         value3 = 0;
         guint32         value4 = 0;
@@ -2391,11 +2391,11 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         guint8          r;
         guint8          n;
         guint32         ioffset = 0;
-        guint32         value1 = 0;
+        gint            value1 = 0;
         guint32         value2 = 0;
         guint8          value3 = 0;
         guint32         value4 = 0;
-        guint32         value5 = 0;
+        gint            value5 = 0;
         guint32         value6 = 0;
         guint32         value7 = 0;
         guint32         value8 = 0;
@@ -4159,7 +4159,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	guint16 nw_connection, guint8 sequence, guint16 type,
 	proto_tree *ncp_tree)
 {
-	conversation_t			*conversation;
+	conversation_t			*conversation = NULL;
 	conversation_t			*eid_conversation;
 	ncp_req_hash_value		*request_value = NULL;
 	ncp_req_eid_hash_value		*request_eid_value = NULL;
@@ -5276,7 +5276,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                        			                verb_string = "NDS Continuation Fragment";
                                                         break;
                                         }        
-        			        if(request_value->nds_request_verb != NULL)
+        			        if(request_value->nds_request_verb != 0)
                                         {
                                                 proto_tree_add_uint_format(ncp_tree, hf_ncp_nds_verb, tvb, 6, 0,
 			        	                request_value->nds_request_verb, "NDS Verb: %d, %s",
@@ -5601,7 +5601,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         nw_uni_t                req_buffer;
         char *                  global_object_name="\0";
         guint32                 global_eid=0;
-        boolean                 resolve_eid=FALSE;
+        gboolean                resolve_eid=FALSE;
         guint32                 global_flags=0;
         
         p1values.vtype = 0;
