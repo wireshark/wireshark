@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.18 2002/08/15 18:52:04 guy Exp $
+ * $Id: packet-bgp.h,v 1.19 2002/08/24 10:22:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,6 +166,7 @@ struct bgp_attr {
                                         /* draft-rosen-vpns-ospf-bgp-mpls */
 #define BGP_EXT_COM_OSPF_RTYPE  0X8000  /* OSPF Route Type,Format Area(4B):RouteType(1B):Options(1B) */
 #define BGP_EXT_COM_OSPF_RID    0x8001  /* OSPF Router ID,Format RouterID(4B):Unused(2B) */
+#define BGP_EXT_COM_L2INFO      0x800a  /* draft-kompella-ppvpn-l2vpn */
 
 
 /* OSPF codes for  BGP_EXT_COM_OSPF_RTYPE draft-rosen-vpns-ospf-bgp-mpls  */
@@ -187,7 +188,9 @@ struct bgp_attr {
 #define SAFNUM_MULCAST  2
 #define SAFNUM_UNIMULC  3
 #define SAFNUM_MPLS_LABEL 4     /* rfc3107 */
-#define SAFNUM_LBVPNIP  128     /* Draft-rosen-rfc2547bis-03 */
+#define SAFNUM_LAB_VPNUNICAST  128     /* Draft-rosen-rfc2547bis-03 */
+#define SAFNUM_LAB_VPNMULCAST  129 
+#define SAFNUM_LAB_VPNUNIMULC  130 
 
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))

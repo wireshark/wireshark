@@ -1,7 +1,7 @@
 /* afn.h
  * RFC 1700 address family numbers
  *
- * $Id: afn.h,v 1.1 2001/07/21 10:27:12 guy Exp $
+ * $Id: afn.h,v 1.2 2002/08/24 10:22:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,8 @@
 #define AFNUM_DECNET	13
 #define AFNUM_BANYAN	14
 #define AFNUM_E164NSAP	15
-
+/* draft-kompella-ppvpn-l2vpn */
+#define AFNUM_L2VPN     196
 extern const value_string afn_vals[];
 
 #endif /* __AFN_H__ */
