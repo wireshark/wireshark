@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.26 2003/03/08 08:02:19 guy Exp $
+ * $Id: packet-scsi.c,v 1.27 2003/03/10 02:18:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4963,7 +4963,7 @@ proto_register_scsi (void)
            VALS (scsi_qualifier_val), 0xE0, "", HFILL}},
         { &hf_scsi_inq_devtype,
           {"Peripheral Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
-           VALS (scsi_devtype_val), 0x1F, "", HFILL}},
+           VALS (scsi_devtype_val), SCSI_DEV_BITS, "", HFILL}},
         { & hf_scsi_inq_version,
           {"Version", "scsi.inquiry.version", FT_UINT8, BASE_HEX,
            VALS (scsi_inquiry_vers_val), 0x0, "", HFILL}},
