@@ -96,12 +96,6 @@ static const value_string protocol_version_vals[] = {
 	{ 0,	NULL }
 };
 
-static const value_string message_type_vals[] = {
-	{ 0x00,	"Etheric 1.0" },
-	{ 0x10,	"Etheric 2.0" },
-	{ 0x11,	"Etheric 2.1" },
-	{ 0,	NULL }
-};
 /* Copied from packet-isup */
 /* since length field is 8 Bit long - used in number dissectors;
  * max. number of address digits is 15 digits, but MAXLENGTH used
@@ -373,13 +367,6 @@ static const true_false_string isup_NI_ind_value = {
   "incomplete",
   "complete"
 };
-static const value_string isup_calling_party_nature_of_address_ind_value[] = {
-  { 0,	"Spare"},
-  { 1,	"Reserved"},
-  { 2,	"Reserved"},
-  { 3,	"National (significant) number"},
-  { 4,	"International number"},
-  { 0,	NULL}};
 
   static const value_string etheric_location_number_nature_of_address_ind_value[] = {
   { 0,	"Spare"},
@@ -887,15 +874,6 @@ static const value_string q850_cause_code_vals[] = {
 	{ 0,	NULL }
 };
 
-static void
-dissect_etheric_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ guint length = tvb_reported_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb,0, -1, "Cause indicators (-> Q.850)");
-  dissect_q931_cause_ie(parameter_tvb,0,length,
-					    parameter_tree,
-					    hf_etheric_cause_indicator);
-  proto_item_set_text(parameter_item, "Cause indicators, see Q.850 (%u byte%s length)", length , plurality(length, "", "s"));
-}
 /* ------------------------------------------------------------------
   Dissector Message Type release message
  */
