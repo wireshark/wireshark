@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.80 2002/12/19 02:58:53 guy Exp $
+ * $Id: menu.c,v 1.81 2002/12/19 03:56:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,6 +217,8 @@ static GtkItemFactoryEntry menu_items[] =
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Tools/_Decode As...", NULL, decode_as_cb,
                        0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Tools/_Go To Corresponding Frame", NULL, goto_framenum_cb,
+                       0, NULL, NULL),
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
     ITEM_FACTORY_ENTRY("/_Tools/TCP Stream Analysis", NULL, NULL,
                        0, "<Branch>", NULL),
@@ -312,7 +314,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Go To Specified Frame", NULL, goto_framenum_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/_Go To Corresponding Frame", NULL, goto_framenum_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Protocol Properties...", NULL, properties_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Match", NULL, NULL, 0, "<Branch>", NULL),
@@ -438,6 +440,8 @@ set_menu_sensitivity_meat(GtkItemFactory *ifactory, gchar *path, gint val) {
 /* /menu/path            - old functionality             */
 /* <MenuName>/menu/path  - new functionality             */
 /* MenuName: <Main>, <PacketList>, <TreeView>, <HexDump> */
+/* XXX - is this really supposed to ignore all but the   */
+/* last component of the menu path?                      */
 static void
 set_menu_sensitivity (gchar *path, gint val) {
   GSList *menu_list = popup_menu_list;
@@ -602,8 +606,8 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   set_menu_sensitivity("/Display/Colorize Display...", have_captured_packets);
   set_menu_sensitivity("/Tools/Summary", have_captured_packets);
   set_menu_sensitivity("/Tools/Protocol Hierarchy Statistics", have_captured_packets);
-  set_menu_sensitivity("<PacketList>/Display/Match", have_captured_packets);
-  set_menu_sensitivity("<PacketList>/Display/Prepare", have_captured_packets);
+  set_menu_sensitivity("<PacketList>/Match", have_captured_packets);
+  set_menu_sensitivity("<PacketList>/Prepare", have_captured_packets);
 }
 
 /* Enable or disable menu items based on whether a packet is selected. */
@@ -641,19 +645,28 @@ set_menus_for_selected_tree_row(gboolean have_selected_tree)
 	} else {
 	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
 	}
+	if (hfinfo->type == FT_FRAMENUM) {
+	    set_menu_sensitivity("<Main>/Tools/Go To Corresponding Frame", TRUE);
+	    set_menu_sensitivity("<TreeView>/Go To Corresponding Frame", TRUE);
+	} else {
+	    set_menu_sensitivity("<Main>/Tools/Go To Corresponding Frame", FALSE);
+	    set_menu_sensitivity("<TreeView>/Go To Corresponding Frame", FALSE);
+	}
 	set_menu_sensitivity("<Main>/Display/Match",
 	  proto_can_match_selected(finfo_selected));
-	set_menu_sensitivity("<TreeView>/Display/Match",
+	set_menu_sensitivity("<TreeView>/Match",
 	  proto_can_match_selected(finfo_selected));
 	set_menu_sensitivity("<Main>/Display/Prepare",
 	  proto_can_match_selected(finfo_selected));
-	set_menu_sensitivity("<TreeView>/Display/Prepare",
+	set_menu_sensitivity("<TreeView>/Prepare",
 	  proto_can_match_selected(finfo_selected));
   } else {
 	set_menu_sensitivity("<Main>/Display/Match", FALSE);
-	set_menu_sensitivity("<TreeView>/Display/Match", FALSE);
+	set_menu_sensitivity("<TreeView>/Match", FALSE);
 	set_menu_sensitivity("<Main>/Display/Prepare", FALSE);
-	set_menu_sensitivity("<TreeView>/Display/Prepare", FALSE);
+	set_menu_sensitivity("<TreeView>/Prepare", FALSE);
+	set_menu_sensitivity("<Main>/Tools/Go To Corresponding Frame", FALSE);
+	set_menu_sensitivity("<TreeView>/Go To Corresponding Frame", FALSE);
   }
 
   set_menu_sensitivity("/Protocol Properties...", have_selected_tree && properties);
