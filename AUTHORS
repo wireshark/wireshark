@@ -810,6 +810,7 @@ Jeff Morriss <jeff.morriss[AT]ulticom.com> {
 	M2PA support
 	Support for ANSI flavor of MTP3
 	SCCP support
+	SCCP Management support
 }
 
 Aamer Akhter <aakhter[AT]cisco.com> {
