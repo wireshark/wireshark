@@ -7,7 +7,7 @@
  *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.34 2002/10/02 08:57:32 sahlberg Exp $
+ * $Id: packet-srvloc.c,v 1.35 2003/01/23 10:25:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,6 +109,7 @@ static int hf_srvloc_attrrply_attrauthcount = -1;
 static int hf_srvloc_srvtypereq_prlistlen = -1;
 static int hf_srvloc_srvtypereq_prlist = -1;
 static int hf_srvloc_srvtypereq_authlistlen = -1;
+static int hf_srvloc_srvtypereq_authlistlenall = -1;
 static int hf_srvloc_srvtypereq_authlist = -1;
 static int hf_srvloc_srvtypereq_scopelistlen = -1;
 static int hf_srvloc_srvtypereq_scopelist = -1;
@@ -884,10 +885,15 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, TRUE);
                 offset += length;
                 length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_authlistlen, tvb, offset, 2, length);
-                offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_authlist, tvb, offset, length, TRUE);
-                offset += length;
+		if (0xFFFF == length) {
+		    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_authlistlenall, tvb, offset, 2, length);
+		    offset += 2;
+		} else {
+		    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_authlistlen, tvb, offset, 2, length);
+		    offset += 2;
+		    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_authlist, tvb, offset, length, TRUE);
+		    offset += length;
+		}
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_scopelistlen, tvb, offset, 2, length);
                 offset += 2;
@@ -1268,6 +1274,10 @@ proto_register_srvloc(void)
 	},
 	{ &hf_srvloc_srvtypereq_authlistlen,
 	  { "Naming Authority List Length", "srvloc.srvtypereq.nameauthlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+	    "Length of the Naming Authority List", HFILL}
+	},
+	{ &hf_srvloc_srvtypereq_authlistlenall,
+	  { "Naming Authority List Length (All Naming Authorities)", "srvloc.srvtypereq.nameauthlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
 	    "Length of the Naming Authority List", HFILL}
 	},
 	{ &hf_srvloc_srvtypereq_authlist,
