@@ -7,8 +7,7 @@
  *
  * http://www.ietf.org/rfc/rfc3626.txt
  *
- *
- * $Id: packet-olsr.c,v 1.1 2004/01/16 04:37:54 gerald Exp $
+ * $Id: packet-olsr.c,v 1.2 2004/01/16 22:31:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,7 +97,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         
 	int offset, link_message_size, message_size, message_type, packet_size, position;
 	int high_bits, low_bits, vtime, htime;
-	float Vtime, Htime;
+	double Vtime, Htime;
 	
 	guint16 packet_len;
 	guint16 packet_seq_num;
@@ -161,10 +160,10 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			
 			/*-------------Dissect Validity Time-------------------------*/
 			vtime = tvb_get_guint8(tvb, position+1);
-			high_bits = ((vtime & 240) >> 4);
-			low_bits = (vtime & 15);
+			high_bits = ((vtime & 0xF0) >> 4);
+			low_bits = (vtime & 0x0F);
 			Vtime = ((1<<low_bits)/16.0)*(1+(high_bits/16.0));
-			proto_tree_add_uint_format(olsr_tree, hf_olsr_vtime, tvb, position+1, 1, Vtime, "Validity Time: %.3f (in seconds)", Vtime);
+			proto_tree_add_double_format(olsr_tree, hf_olsr_vtime, tvb, position+1, 1, Vtime, "Validity Time: %.3f (in seconds)", Vtime);
 			
 			/*-------------Dissect Message Size---------------------------*/
 			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, tvb_get_ntohs(tvb, position+2),"Message Size: %u bytes", tvb_get_ntohs(tvb, position+2));
@@ -215,10 +214,10 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else if(message_size>0 && message_type == HELLO)  {
 				/*---------------------Dissect Hello Emission Invertal-------------------*/
 				htime = tvb_get_guint8(tvb, offset+2);
-				high_bits = ((htime & 240) >> 4);
-				low_bits = (htime & 15);
+				high_bits = ((htime & 0xF0) >> 4);
+				low_bits = (htime & 0x0F);
 				Htime = ((1<<low_bits)/16.0)*(1+(high_bits/16.0));
-				proto_tree_add_uint_format(olsr_tree, hf_olsr_htime, tvb, offset+2, 1, Htime, "Hello Emission Interval: %.3f (in seconds)", Htime);
+				proto_tree_add_double_format(olsr_tree, hf_olsr_htime, tvb, offset+2, 1, Htime, "Hello Emission Interval: %.3f (in seconds)", Htime);
 				
 				/*-------------------------Dissect Willingness---------------------------*/
 				switch(tvb_get_guint8(tvb, offset+3))	{
@@ -358,10 +357,10 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/*-------------Dissect Validity Time-------------------------*/
 			vtime = tvb_get_guint8(tvb, position+1);
-			high_bits = ((vtime & 240) >> 4);
-			low_bits = (vtime & 15);
+			high_bits = ((vtime & 0xF0) >> 4);
+			low_bits = (vtime & 0x0F);
 			Vtime = ((1<<low_bits)/16.0)*(1.0+(high_bits/16.0));
-			proto_tree_add_uint_format(olsr_tree, hf_olsr_vtime, tvb, position+1, 1, Vtime, "Validity Time: %.3f (in seconds)", Vtime);
+			proto_tree_add_double_format(olsr_tree, hf_olsr_vtime, tvb, position+1, 1, Vtime, "Validity Time: %.3f (in seconds)", Vtime);
 				 
 			/*--------------------Dissect Message Size-------------------------------*/
 			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, tvb_get_ntohs(tvb, position+2),"Message Size: %u bytes", tvb_get_ntohs(tvb, position+2));
@@ -413,10 +412,10 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else if(message_size>0 && message_type == HELLO)  {
 				/*---------------------Dissect Hellow Emission Invertal-------------------*/
 				htime = tvb_get_guint8(tvb, offset+2);
-				high_bits = ((htime & 240) >> 4);
-				low_bits = (htime & 15);
+				high_bits = ((htime & 0xF0) >> 4);
+				low_bits = (htime & 0x0F);
 				Htime = ((1<<low_bits)/16.0)*(1.0+(high_bits/16.0));
-				proto_tree_add_uint_format(olsr_tree, hf_olsr_htime, tvb, offset+2, 1, Htime, "Hello Emission Interval: %.3f (in seconds)", Htime);
+				proto_tree_add_double_format(olsr_tree, hf_olsr_htime, tvb, offset+2, 1, Htime, "Hello Emission Interval: %.3f (in seconds)", Htime);
 
 				/*---------------------Dissect Willingness----------------------------------*/
 				switch(tvb_get_guint8(tvb, offset+3))	{
@@ -553,7 +552,7 @@ proto_register_olsr(void)
 
 		{ &hf_olsr_vtime,
 			{ "Validity Time", "olsr.vtime",
-			   FT_UINT8, BASE_DEC, NULL, 0,
+			   FT_DOUBLE, BASE_NONE, NULL, 0,
 			  "Validity Time", HFILL }},
 		
 		{ &hf_olsr_ansn,
@@ -563,7 +562,7 @@ proto_register_olsr(void)
 
 		{ &hf_olsr_htime,
 			{ "Hello emission interval", "olsr.htime",
-		 	   FT_UINT8, BASE_DEC, NULL, 0,
+		 	   FT_DOUBLE, BASE_NONE, NULL, 0,
 			  "Hello emission interval", HFILL }},
 
 		{ &hf_olsr_willingness,
@@ -664,4 +663,3 @@ proto_reg_handoff_olsr(void)
 	olsr_handle = create_dissector_handle(dissect_olsr, proto_olsr);
 	dissector_add("udp.port", UDP_PORT_OLSR, olsr_handle);
 }
-
