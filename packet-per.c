@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.26 2004/03/25 23:58:06 guy Exp $
+ * $Id: packet-per.c,v 1.27 2004/04/26 07:34:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -303,7 +303,6 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	}
 
 
-
 	/* xx.x if length is fixed or constrained to be less than or equal to
 	   two bytes, then it will not be byte aligned. */
 	byte_aligned=TRUE;
@@ -311,6 +310,10 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		byte_aligned=FALSE;
 	}
 	if(max_len<2){
+		byte_aligned=FALSE;
+	}
+	if(!length){  
+		/* there is no string at all, so dont do any byte alignment */
 		byte_aligned=FALSE;
 	}
 
