@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.79 2002/10/22 08:22:05 guy Exp $
+ * $Id: packet.c,v 1.80 2002/10/28 23:04:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -337,6 +337,57 @@ struct dissector_handle {
 };
 
 /*
+ * Call a dissector through a handle.
+ * If the protocol for that handle isn't enabled, return 0 without
+ * calling the dissector.
+ * Otherwise, if the handle refers to a new-style dissector, call the
+ * dissector and return its return value, otherwise call it and return
+ * the length of the tvbuff pointed to by the argument.
+ */
+static int
+call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree)
+{
+	const char *saved_proto;
+	guint16 saved_can_desegment;
+	int ret;
+
+	if (handle->proto_index != -1 &&
+	    !proto_is_protocol_enabled(handle->proto_index)) {
+		/*
+		 * The protocol isn't enabled.
+		 */
+		return 0;
+	}
+
+	saved_proto = pinfo->current_proto;
+	saved_can_desegment = pinfo->can_desegment;
+
+	/*
+	 * can_desegment is set to 2 by anyone which offers the
+	 * desegmentation api/service.
+	 * Then everytime a subdissector is called it is decremented
+	 * by one.
+	 * Thus only the subdissector immediately on top of whoever
+	 * offers this service can use it.
+	 */
+	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
+	if (handle->proto_index != -1) {
+		pinfo->current_proto =
+		    proto_get_protocol_short_name(handle->proto_index);
+	}
+	if (handle->is_new)
+		ret = (*handle->dissector.new)(tvb, pinfo, tree);
+	else {
+		(*handle->dissector.old)(tvb, pinfo, tree);
+		ret = tvb_length(tvb);
+	}
+	pinfo->current_proto = saved_proto;
+	pinfo->can_desegment = saved_can_desegment;
+	return ret;
+}
+
+/*
  * An entry in the hash table portion of a dissector table.
  */
 struct dtbl_entry {
@@ -518,9 +569,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 {
 	dtbl_entry_t *dtbl_entry;
 	struct dissector_handle *handle;
-	const char *saved_proto;
 	guint32 saved_match_port;
-	guint16 saved_can_desegment;
 	int ret;
 
 	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
@@ -540,48 +589,14 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		}
 
 		/*
-		 * Yes - is its protocol enabled?
+		 * Save the current value of "pinfo->match_port",
+		 * set it to the port that matched, call the
+		 * dissector, and restore "pinfo->match_port".
 		 */
-		if (handle->proto_index != -1 &&
-		    !proto_is_protocol_enabled(handle->proto_index)) {
-			/*
-			 * No - pretend this dissector didn't exist,
-			 * so that other dissectors might have a chance
-			 * to dissect this packet.
-			 */
-			return FALSE;
-		}
-
-		/*
-		 * Yes, it's enabled.
-		 */
-		saved_proto = pinfo->current_proto;
 		saved_match_port = pinfo->match_port;
-		saved_can_desegment = pinfo->can_desegment;
-
-		/*
-		 * can_desegment is set to 2 by anyone which offers the
-		 * desegmentation api/service.
-		 * Then everytime a subdissector is called it is decremented
-		 * by one.
-		 * Thus only the subdissector immediately on top of whoever
-		 * offers this serveice can use it.
-		 */
-		pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 		pinfo->match_port = port;
-		if (handle->proto_index != -1) {
-			pinfo->current_proto =
-			    proto_get_protocol_short_name(handle->proto_index);
-		}
-		if (handle->is_new)
-			ret = (*handle->dissector.new)(tvb, pinfo, tree);
-		else {
-			(*handle->dissector.old)(tvb, pinfo, tree);
-			ret = 1;
-		}
-		pinfo->current_proto = saved_proto;
+		ret = call_dissector_work(handle, tvb, pinfo, tree);
 		pinfo->match_port = saved_match_port;
-		pinfo->can_desegment = saved_can_desegment;
 
 		/*
 		 * If a new-style dissector returned 0, it means that
@@ -590,8 +605,11 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		 *
 		 * Old-style dissectors can't reject the packet.
 		 *
-		 * If the packet was rejected, we return FALSE, otherwise
-		 * we return TRUE.
+		 * 0 is also returned if the protocol wasn't enabled.
+		 *
+		 * If the packet was rejected, we return FALSE, so that
+		 * other dissectors might have a chance to dissect this
+		 * packet, otherwise we return TRUE.
 		 */
 		return ret != 0;
 	}
@@ -1074,31 +1092,18 @@ int
 call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
 {
-	const char *saved_proto;
 	int ret;
 
-	if (handle->proto_index != -1 &&
-	    !proto_is_protocol_enabled(handle->proto_index)) {
+	ret = call_dissector_work(handle, tvb, pinfo, tree);
+	if (ret == 0) {
 		/*
-		 * No - just dissect this packet as data.
+		 * The protocol was disabled, or the dissector rejected
+		 * it.  Just dissect this packet as data.
 		 */
 	        g_assert(data_handle != NULL);
 		g_assert(data_handle->proto_index != -1);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		return tvb_length(tvb);
 	}
-
-	saved_proto = pinfo->current_proto;
-	if (handle->proto_index != -1) {
-		pinfo->current_proto =
-		    proto_get_protocol_short_name(handle->proto_index);
-	}
-	if (handle->is_new)
-		ret = (*handle->dissector.new)(tvb, pinfo, tree);
-	else {
-		(*handle->dissector.old)(tvb, pinfo, tree);
-		ret = tvb_length(tvb);
-	}
-	pinfo->current_proto = saved_proto;
 	return ret;
 }
