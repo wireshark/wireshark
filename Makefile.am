@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.720 2004/03/13 10:15:35 jmayer Exp $
+# $Id: Makefile.am,v 1.721 2004/03/14 08:07:16 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -340,8 +340,8 @@ dftest_LDADD = \
 	$(dftest_additional_libs)	\
  	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
-	@PCRE_LIBS@ \
-	@GLIB_LIBS@ -lm \
+	@PCRE_LIBS@			\
+	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 
 dftest_LDFLAGS = -export-dynamic
