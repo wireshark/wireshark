@@ -1819,23 +1819,23 @@ in B<Ethereal> see ethereal-filter(4).
 
 =head1 FILES
 
-The F<ethereal.conf> file, which is installed in the F<etc> directory
-under the main installation directory (for example, F</usr/local/etc>)
-on UNIX-compatible systems, and in the main installation directory (for
+The global preferences file, F<preferences>, which is installed in the
+F<ethereal> directory under the F<share> subdirectory of the main
+installation directory (for example, F</usr/local/share/ethereal>) on
+UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, and the
 personal preferences file, which is F<$HOME/.ethereal/preferences> on
 UNIX-compatible systems and F<%APPDATA%\Ethereal\preferences> (or, if
-%APPDATA% isn't defined,
-F<%USERPROFILE%\Application Data\Ethereal\preferences>) on
-Windows systems, contain system-wide and personal preference settings,
-respectively.  The file contains preference settings of the form
-I<prefname>B<:>I<value>, one per line, where I<prefname> is the name of
-the preference (which is the same name that would appear in the
-preference file), and I<value> is the value to which it should be set;
-white space is allowed between B<:> and I<value>.  A preference setting
-can be continued on subsequent lines by indenting the continuation lines
-with white space.  A B<#> character starts a comment that runs to the
-end of the line.
+%APPDATA% isn't defined, F<%USERPROFILE%\Application
+Data\Ethereal\preferences>) on Windows systems, contain system-wide and
+personal preference settings, respectively.  The files contain
+preference settings of the form I<prefname>B<:>I<value>, one per line,
+where I<prefname> is the name of the preference (which is the same name
+that would appear in the preference file), and I<value> is the value to
+which it should be set; white space is allowed between B<:> and
+I<value>.  A preference setting can be continued on subsequent lines by
+indenting the continuation lines with white space.  A B<#> character
+starts a comment that runs to the end of the line.
 
 The system-wide preference file is read first, if it exists, overriding
 B<Ethereal>'s default values; the personal preferences file is then
@@ -1939,15 +1939,15 @@ F<%USERPROFILE%\Application Data\Ethereal\dfilters>) on Windows systems,
 contain personal capture and display filters, respectively.
 
 The global color filters file, F<colorfilters>, which is installed in
-the F<etc> directory under the main installation directory (for example,
-F</usr/local/etc>) on UNIX-compatible systems, and in the main
-installation directory (for example, F<C:\Program Files\Ethereal>) on
-Windows systems, and the personal color filters file, which is
-F<$HOME/.ethereal/colorfilters> on UNIX-compatible systems and
-F<%APPDATA%\Ethereal\colorfilters> (or, if %APPDATA% isn't defined,
-F<%USERPROFILE%\Application Data\Ethereal\color filters>) on Windows
-systems, contain system-wide and personal color filters,
-respectively.
+the F<ethereal> directory under the F<share> subdirectory of the main
+installation directory (for example, F</usr/local/share/ethereal>) on
+UNIX-compatible systems, and in the main installation directory (for
+example, F<C:\Program Files\Ethereal>) on Windows systems, and the
+personal color filters file, which is F<$HOME/.ethereal/colorfilters> on
+UNIX-compatible systems and F<%APPDATA%\Ethereal\colorfilters> (or, if
+%APPDATA% isn't defined, F<%USERPROFILE%\Application
+Data\Ethereal\colorfilters>) on Windows systems, contain system-wide and
+personal color filters, respectively.
 
 =head1 SEE ALSO
 

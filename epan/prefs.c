@@ -60,8 +60,8 @@ static gchar *put_string_list(GList *);
 static void   clear_string_list(GList *);
 static void   free_col_info(e_prefs *);
 
-#define GPF_NAME	"ethereal.conf"
 #define PF_NAME		"preferences"
+#define OLD_GPF_NAME	"ethereal.conf"	/* old name for global preferences file */
 
 static gboolean init_prefs = TRUE;
 static gchar *gpf_path = NULL;
@@ -1065,13 +1065,37 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.name_resolve_concurrency = 500;
   }
 
-  /* Construct the pathname of the global preferences file. */
-  if (! gpf_path)
-    gpf_path = get_datafile_path(GPF_NAME);
+  /*
+   * If we don't already have the pathname of the global preferences
+   * file, construct it.  Then, in either case, try to open the file.
+   */
+  if (gpf_path == NULL) {
+    /*
+     * We don't have the path; try the new path first, and, if that
+     * file doesn't exist, try the old path.
+     */
+    gpf_path = get_datafile_path(PF_NAME);
+    if ((pf = fopen(gpf_path, "r")) == NULL && errno == ENOENT) {
+      /*
+       * It doesn't exist by the new name; try the old name.
+       */
+      gpf_path = get_datafile_path(OLD_GPF_NAME);
+      pf = fopen(gpf_path, "r");
+    }
+  } else {
+    /*
+     * We have the path; try it.
+     */
+    pf = fopen(gpf_path, "r");
+  }
 
-  /* Read the global preferences file, if it exists. */
+  /*
+   * If we were able to open the file, read it.
+   * XXX - if it failed for a reason other than "it doesn't exist",
+   * report the error.
+   */
   *gpf_path_return = NULL;
-  if ((pf = fopen(gpf_path, "r")) != NULL) {
+  if (pf != NULL) {
     /*
      * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
      * seen.
