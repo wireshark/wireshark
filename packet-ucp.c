@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.21 2003/11/25 20:26:40 guy Exp $
+ * $Id: packet-ucp.c,v 1.22 2004/03/05 10:47:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,6 +106,7 @@ static int hf_ucp_parm_NoA	= -1;
 static int hf_ucp_parm_NoB	= -1;
 static int hf_ucp_parm_NAC	= -1;
 static int hf_ucp_parm_PNC	= -1;
+static int hf_ucp_parm_AMsg	= -1;
 static int hf_ucp_parm_LNo	= -1;
 static int hf_ucp_parm_LST	= -1;
 static int hf_ucp_parm_TNo	= -1;
@@ -705,6 +706,55 @@ ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     *offset = tmpoff;
 }
 
+static void
+ucp_handle_IRAstring(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
+{
+    char	 strval[BUFSIZ + 1],
+                *p_dst = strval;
+    guint8       byte;
+    int		 idx = 0;
+    int          tmpoff = *offset;
+
+    while (((byte = tvb_get_guint8(tvb, tmpoff++)) != '/') &&
+           (idx < BUFSIZ))
+    {
+        if (byte >= '0' && byte <= '9')
+        {
+            *p_dst = (byte - '0') * 16;
+        }
+        else
+        {
+            *p_dst = (byte - 'A' + 10) * 16;
+        }
+        if ((byte = tvb_get_guint8(tvb, tmpoff++)) == '/')
+        {
+            break;
+        }
+        if (byte >= '0' && byte <= '9')
+        {
+            *p_dst++ += byte - '0';
+        }
+        else
+        {
+            *p_dst++ += byte - 'A' + 10;
+        }
+        idx++;
+    }
+    strval[idx] = '\0';
+    if (idx == BUFSIZ)
+    {
+        /*
+         * Data clipped, eat rest of field
+         */
+        while ((tvb_get_guint8(tvb, tmpoff++)) != '/')
+            ;
+    }
+    if ((tmpoff - *offset) > 1)
+	proto_tree_add_string(tree, field, tvb, *offset,
+			      tmpoff - *offset - 1, strval);
+    *offset = tmpoff;
+}
+
 static guint
 ucp_handle_byte(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
@@ -798,9 +848,11 @@ ucp_handle_mt(proto_tree *tree, tvbuff_t *tvb, int *offset)
 	    ucp_handle_string(tree, tvb, hf_ucp_parm_NB, offset);
 	    /* fall through here for the data piece	*/
 	case '2':
-	case '3':
 	    ucp_handle_data(tree, tvb, hf_ucp_data_section, offset);
 	    break;
+	case '3':
+            ucp_handle_IRAstring(tree, tvb, hf_ucp_parm_AMsg, offset);
+            break;
 	case '5':
 	    ucp_handle_byte(tree, tvb, hf_ucp_parm_PNC, offset);
 	    ucp_handle_string(tree, tvb, hf_ucp_parm_LNo, offset);
@@ -850,6 +902,9 @@ ucp_handle_XSer(proto_tree *tree, tvbuff_t *tvb)
  * bit more readable instead of summing up all these parameters.
  */
 #define UcpHandleString(field)	ucp_handle_string(tree, tvb, (field), &offset)
+
+#define UcpHandleIRAString(field) \
+                        ucp_handle_IRAstring(tree, tvb, (field), &offset)
 
 #define UcpHandleByte(field)	ucp_handle_byte(tree, tvb, (field), &offset)
 
@@ -1441,9 +1496,12 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleByte(hf_ucp_parm_Dst);
     UcpHandleInt(hf_ucp_parm_Rsn);
     UcpHandleTime(hf_ucp_parm_DSCTS);
-    UcpHandleByte(hf_ucp_parm_MT);
+    intval = UcpHandleByte(hf_ucp_parm_MT);
     UcpHandleString(hf_ucp_parm_NB);
-    UcpHandleData(hf_ucp_data_section);
+    if (intval != '3')
+        UcpHandleData(hf_ucp_data_section);
+    else
+        UcpHandleIRAString(hf_ucp_parm_AMsg);
     UcpHandleByte(hf_ucp_parm_MMS);
     UcpHandleByte(hf_ucp_parm_PR);
     UcpHandleByte(hf_ucp_parm_DCs);
@@ -1492,8 +1550,8 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
     } else {
 	UcpHandleByte(hf_ucp_parm_STYP1);
     }
-    UcpHandleData(hf_ucp_parm_PWD);
-    UcpHandleData(hf_ucp_parm_NPWD);
+    UcpHandleIRAString(hf_ucp_parm_PWD);
+    UcpHandleIRAString(hf_ucp_parm_NPWD);
     UcpHandleString(hf_ucp_parm_VERS);
     UcpHandleString(hf_ucp_parm_LAdC);
     UcpHandleByte(hf_ucp_parm_LTON);
@@ -1509,6 +1567,7 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
  * End of convenient shorthands
  */
 #undef UcpHandleString
+#undef UcpHandleIRAString
 #undef UcpHandleByte
 #undef UcpHandleInt
 #undef UcpHandleTime
@@ -1929,6 +1988,13 @@ proto_register_ucp(void)
 	    { "PNC", "ucp.parm.PNC",
 	      FT_UINT8, BASE_DEC, VALS(vals_parm_PNC), 0x00,
 	      "Paging network controller.",
+	      HFILL
+	    }
+	},
+	{ &hf_ucp_parm_AMsg,
+	    { "AMsg", "ucp.parm.AMsg",
+	      FT_STRING, BASE_NONE, NULL, 0x00,
+	      "The alphanumeric message that is being sent.",
 	      HFILL
 	    }
 	},
@@ -2375,14 +2441,14 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_PWD,
 	    { "PWD", "ucp.parm.PWD",
-	      FT_NONE, BASE_DEC, NULL, 0x00,
+	      FT_STRING, BASE_NONE, NULL, 0x00,
 	      "Current password.",
 	      HFILL
 	    }
 	},
 	{ &hf_ucp_parm_NPWD,
 	    { "NPWD", "ucp.parm.NPWD",
-	      FT_NONE, BASE_DEC, NULL, 0x00,
+	      FT_STRING, BASE_NONE, NULL, 0x00,
 	      "New password.",
 	      HFILL
 	    }
