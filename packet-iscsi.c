@@ -5,7 +5,7 @@
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-06.txt
  * Optionally, supports the protocol described in: draft-ietf-ips-iscsi-03.txt
  *
- * $Id: packet-iscsi.c,v 1.8 2001/07/16 05:16:57 guy Exp $
+ * $Id: packet-iscsi.c,v 1.9 2001/07/16 06:06:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -610,11 +610,12 @@ static gint
 addTextKeys(proto_tree *tt, tvbuff_t *tvb, gint offset, guint32 text_len) {
     const gint limit = offset + text_len;
     while(offset < limit) {
-	const char *p = tvb_get_ptr(tvb, offset, 1);
-	int len = strlen(p) + 1;
-	if((offset + len) >= limit)
+	gint len = tvb_strnlen(tvb, offset, limit - offset);
+	if(len == -1)
 	    len = limit - offset;
-	proto_tree_add_string_format(tt, hf_iscsi_KeyValue, tvb, offset, len, p, "%s", p);
+	else
+	    len = len + 1;
+	proto_tree_add_item(tt, hf_iscsi_KeyValue, tvb, offset, len, FALSE);
 	offset += len;
     }
     return offset;
