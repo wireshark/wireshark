@@ -3,9 +3,11 @@
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-06.txt
+ * but uses the 07 opcodes (as used at the July 2001 UNH plugfest)
+ *
  * Optionally, supports the protocol described in: draft-ietf-ips-iscsi-03.txt
  *
- * $Id: packet-iscsi.c,v 1.9 2001/07/16 06:06:06 guy Exp $
+ * $Id: packet-iscsi.c,v 1.10 2001/07/22 20:02:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,10 +53,12 @@
 #include "packet.h"
 #include "prefs.h"
 
-static int enable_03_mode = TRUE;
+/*#define USE_06_OPCODES*/
+
+static int enable_03_mode = FALSE;
 static int enable_bogosity_filter = TRUE;
-static int bogus_pdu_data_length_threshold = 1024 * 1024;
-static int bogus_pdu_max_digest_padding = 20;
+static guint32 bogus_pdu_data_length_threshold = 1024 * 1024;
+static guint32 bogus_pdu_max_digest_padding = 20;
 
 static int enable_force_header_digest_crc32 = FALSE;
 
@@ -66,10 +70,8 @@ static int hf_iscsi_Opcode = -1;
 static int hf_iscsi_Opcode_03 = -1;
 static int hf_iscsi_Flags = -1;
 static int hf_iscsi_HeaderDigest32 = -1;
-#if 0
 static int hf_iscsi_X = -1;
 static int hf_iscsi_I = -1;
-#endif
 static int hf_iscsi_SCSICommand_X03 = -1;
 static int hf_iscsi_SCSICommand_F = -1;
 static int hf_iscsi_SCSICommand_R = -1;
@@ -161,6 +163,7 @@ static gint ett_iscsi_CDB = -1;
 static gint ett_iscsi_Flags = -1;
 
 static const value_string iscsi_opcodes[] = {
+#ifdef USE_06_OPCODES
   {0x00, "NOP Out"},
   {0x40, "NOP Out (Immediate)"},
   {0x80, "NOP Out (Retry)"},
@@ -198,6 +201,27 @@ static const value_string iscsi_opcodes[] = {
   {0xd0, "Ready To Transfer"},
   {0xd1, "Asynchronous Message"},
   {0xef, "Reject"},
+#else
+  {0x00, "NOP Out"},
+  {0x01, "SCSI Command"},
+  {0x02, "SCSI Task Management Command"},
+  {0x03, "Login Command"},
+  {0x04, "Text Command"},
+  {0x05, "SCSI Write Data"},
+  {0x06, "Logout Command"},
+  {0x10, "SNACK Request"},
+
+  {0xe0, "NOP In"},
+  {0xe1, "SCSI Command Response"},
+  {0xe2, "SCSI Task Management Response"},
+  {0xe3, "Login Response"},
+  {0xe4, "Text Response"},
+  {0xe5, "SCSI Read Data"},
+  {0xe6, "Logout Response"},
+  {0xf1, "Ready To Transfer"},
+  {0xf2, "Asynchronous Message"},
+  {0xff, "Reject"},
+#endif
   {0, NULL},
 };
 
@@ -623,7 +647,7 @@ addTextKeys(proto_tree *tt, tvbuff_t *tvb, gint offset, guint32 text_len) {
 
 static gint
 handleHeaderDigest(proto_item *ti, tvbuff_t *tvb, guint offset, int headerLen) {
-    guint32 packet_len = tvb_length_remaining(tvb, offset);
+    int packet_len = tvb_length_remaining(tvb, offset);
     if(packet_len >= (headerLen + 4)) {
 	guint32 crc = ~calculateCRC32(tvb_get_ptr(tvb, offset, headerLen), headerLen, CRC32C_PRELOAD);
 	guint32 sent = tvb_get_ntohl(tvb, offset + headerLen);
@@ -669,6 +693,13 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	data_segment_len = tvb_get_ntohl(tvb, offset + 4);
     }
     else {
+#ifndef USE_06_OPCODES
+	if((opcode & 0x20) == 0) {
+	    /* initiator -> target */
+	    /* mask out X and I bits */
+	    opcode &= 0x3f;
+	}
+#endif
 	opcode_str = match_strval(opcode, iscsi_opcodes);
 	data_segment_len = tvb_get_ntohl(tvb, offset + 4) & 0x00ffffff;
     }
@@ -714,7 +745,13 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    if(blurb != NULL)
 		col_append_fstr(pinfo->fd, COL_INFO, " (%s)", blurb);
 	}
-	else if(!enable_03_mode && opcode == 0xc1) {
+	else if(!enable_03_mode &&
+#ifdef USE_06_OPCODES
+		opcode == 0xc1
+#else
+		opcode == 0x21
+#endif
+	    ) {
 	    /* SCSI Command Response */
 	    const char *blurb = NULL;
 	    if(tvb_get_guint8(tvb, offset + 1) & 0x01)
@@ -734,19 +771,38 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	ti = proto_tree_add_protocol_format(tree, proto_iscsi, tvb, offset,
 				 packet_len, "iSCSI (%s)", (char *)opcode_str);
 
+	if(enable_03_mode) {
+	    proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
+				offset + 0, 1, opcode);
+	}
+	else {
+	    proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
+				offset + 0, 1, opcode);
+#ifndef USE_06_OPCODES
+	    if((opcode & 0x20) == 0) {
+		/* initiator -> target */
+		gint b = tvb_get_guint8(tvb, offset + 0);
+		if(opcode != 0x05 &&
+		   opcode != 0x06 &&
+		   opcode != 0x10)
+		    proto_tree_add_boolean(ti, hf_iscsi_X, tvb, offset + 0, 1, b);
+		if(opcode != 0x03 &&
+		   opcode != 0x05)
+		    proto_tree_add_boolean(ti, hf_iscsi_I, tvb, offset + 0, 1, b);
+	    }
+#endif
+	}
+
 	if((enable_03_mode && opcode == 0x00) ||
+#ifdef USE_06_OPCODES
 	   (!enable_03_mode && (opcode == 0x00 ||
 				opcode == 0x40 ||
-				opcode == 0x80))) {
+				opcode == 0x80))
+#else
+	   (!enable_03_mode && opcode == 0x00)
+#endif
+	    ) {
 	    /* NOP Out */
-	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
-	    }
-	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
-	    }
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -771,16 +827,13 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x80) ||
-		(!enable_03_mode && opcode == 0xc0)) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && opcode == 0xc0)
+#else
+		(!enable_03_mode && opcode == 0xe0)
+#endif
+	    ) {
 	    /* NOP In */
-	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
-	    }
-	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
-	    }
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -801,13 +854,16 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x01) ||
+#ifdef USE_06_OPCODES
 		(!enable_03_mode && (opcode == 0x01 ||
 				     opcode == 0x41 ||
-				     opcode == 0x81))) {
+				     opcode == 0x81))
+#else
+		(!enable_03_mode && opcode == 0x01)
+#endif
+	    ) {
 	    /* SCSI Command */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		{
 		    gint b = tvb_get_guint8(tvb, offset + 1);
 		    proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -822,8 +878,6 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
 		{
 		    gint b = tvb_get_guint8(tvb, offset + 1);
 		    proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -879,11 +933,14 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    }
 	}
 	else if((enable_03_mode && opcode == 0x81) ||
-		(!enable_03_mode && opcode == 0xc1)) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && opcode == 0xc1)
+#else
+		(!enable_03_mode && opcode == 0xe1)
+#endif
+	    ) {
 	    /* SCSI Response */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		{
 		    gint b = tvb_get_guint8(tvb, offset + 1);
 		    proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -897,8 +954,6 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
 		{
 		    gint b = tvb_get_guint8(tvb, offset + 1);
 		    proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -933,19 +988,16 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x02) ||
+#ifdef USE_06_OPCODES
 		(!enable_03_mode && (opcode == 0x02 ||
 				     opcode == 0x42 ||
-				     opcode == 0x82))) {
+				     opcode == 0x82))
+#else
+		(!enable_03_mode && opcode == 0x02)
+#endif
+	    ) {
 	    /* SCSI Task Command */
-	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
-	    }
-	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
-	    }
-	    proto_tree_add_item(ti, hf_iscsi_SCSITask_Function, tvb, offset + 1, 1, FALSE);
+ 	    proto_tree_add_item(ti, hf_iscsi_SCSITask_Function, tvb, offset + 1, 1, FALSE);
 	    if(enable_03_mode) {
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
@@ -957,16 +1009,15 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x82) ||
-		(!enable_03_mode && opcode == 0xc2)) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && opcode == 0xc2)
+#else
+		(!enable_03_mode && opcode == 0xe2)
+#endif
+) {
 	    /* SCSI Task Response */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
-	    }
-	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
@@ -978,23 +1029,20 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x03) ||
+#ifdef USE_06_OPCODES
 		(!enable_03_mode && (opcode == 0x03 ||
-				     opcode == 0x83))) {
+				     opcode == 0x83))
+#else
+		(!enable_03_mode && opcode == 0x03)
+#endif
+	    ) {
 	    /* Login Command */
-	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
-	    }
-	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
-		{
-		    gint b = tvb_get_guint8(tvb, offset + 1);
-		    proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
-		    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
-
-		    proto_tree_add_boolean(tt, hf_iscsi_Login_F, tvb, offset + 1, 1, b);
-		}
+	    if(!enable_03_mode) {
+		gint b = tvb_get_guint8(tvb, offset + 1);
+		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
+		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
+		
+		proto_tree_add_boolean(tt, hf_iscsi_Login_F, tvb, offset + 1, 1, b);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_VersionMax, tvb, offset + 2, 1, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_VersionMin, tvb, offset + 3, 1, FALSE);
@@ -1029,16 +1077,13 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    }
 	}
 	else if((enable_03_mode && opcode == 0x83) ||
-		(!enable_03_mode && opcode == 0xc3)) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && opcode == 0xc3)
+#else
+		(!enable_03_mode && opcode == 0xe3)
+#endif
+	    ) {
 	    /* Login Response */
-	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
-	    }
-	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
-	    }
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -1080,25 +1125,24 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    }
 	}
 	else if((enable_03_mode && opcode == 0x04) ||
+#ifdef USE_06_OPCODES
 		(!enable_03_mode && (opcode == 0x04 ||
 				     opcode == 0x44 ||
-				     opcode == 0x84))) {
+				     opcode == 0x84))
+#else
+		(!enable_03_mode && opcode == 0x04)
+#endif
+	    ) {
 	    /* Text Command */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
-		{
-		    gint b = tvb_get_guint8(tvb, offset + 1);
-		    proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
-		    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
-
-		    proto_tree_add_boolean(tt, hf_iscsi_Text_F, tvb, offset + 1, 1, b);
-		}
+		gint b = tvb_get_guint8(tvb, offset + 1);
+		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
+		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
+		
+		proto_tree_add_boolean(tt, hf_iscsi_Text_F, tvb, offset + 1, 1, b);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
@@ -1118,23 +1162,22 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    }
 	}
 	else if((enable_03_mode && opcode == 0x84) ||
-		(!enable_03_mode && (opcode == 0xc4))) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && (opcode == 0xc4))
+#else
+		(!enable_03_mode && opcode == 0xe4)
+#endif
+	    ) {
 	    /* Text Response */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
-		{
-		    gint b = tvb_get_guint8(tvb, offset + 1);
-		    proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
-		    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
-
-		    proto_tree_add_boolean(tt, hf_iscsi_Text_F, tvb, offset + 1, 1, b);
-		}
+		gint b = tvb_get_guint8(tvb, offset + 1);
+		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
+		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
+		
+		proto_tree_add_boolean(tt, hf_iscsi_Text_F, tvb, offset + 1, 1, b);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
@@ -1156,14 +1199,6 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	}
 	else if(opcode == 0x05) {
 	    /* SCSI Data (write) */
-	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
-	    }
-	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
-	    }
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -1187,36 +1222,33 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x85) ||
-		(!enable_03_mode && opcode == 0xc5)) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && opcode == 0xc5)
+#else
+		(!enable_03_mode && opcode == 0xe5)
+#endif
+	    ) {
 	    /* SCSI Data (read) */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
-		{
-		    gint b = tvb_get_guint8(tvb, offset + 1);
-		    proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
-		    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
+		gint b = tvb_get_guint8(tvb, offset + 1);
+		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
+		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 
-		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_P03, tvb, offset + 1, 1, b);
-		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_S03, tvb, offset + 1, 1, b);
-		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_O03, tvb, offset + 1, 1, b);
-		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_U03, tvb, offset + 1, 1, b);
-		}
+		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_P03, tvb, offset + 1, 1, b);
+		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_S03, tvb, offset + 1, 1, b);
+		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_O03, tvb, offset + 1, 1, b);
+		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_U03, tvb, offset + 1, 1, b);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
-		{
-		    gint b = tvb_get_guint8(tvb, offset + 1);
-		    proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
-		    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
+		gint b = tvb_get_guint8(tvb, offset + 1);
+		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
+		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 
-		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_F, tvb, offset + 1, 1, b);
-		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_O, tvb, offset + 1, 1, b);
-		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_U, tvb, offset + 1, 1, b);
-		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_S, tvb, offset + 1, 1, b);
-		}
+		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_F, tvb, offset + 1, 1, b);
+		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_O, tvb, offset + 1, 1, b);
+		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_U, tvb, offset + 1, 1, b);
+		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_S, tvb, offset + 1, 1, b);
 		proto_tree_add_item(ti, hf_iscsi_StatusResponse_is_status, tvb, offset + 3, 1, FALSE);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
@@ -1238,16 +1270,17 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x06) ||
-		(!enable_03_mode && (opcode == 0x06 || opcode == 0x46))) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && (opcode == 0x06 || opcode == 0x46))
+#else
+		(!enable_03_mode && opcode == 0x06)
+#endif
+	    ) {
 	    /* Logout Command */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_CID, tvb, offset + 8, 2, FALSE);
@@ -1262,16 +1295,15 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x86) ||
-		(!enable_03_mode && opcode == 0xc6)) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && opcode == 0xc6)
+#else
+		(!enable_03_mode && opcode == 0xe6)
+#endif
+	    ) {
 	    /* Logout Response */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
-	    }
-	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
@@ -1279,11 +1311,15 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    proto_tree_add_item(ti, hf_iscsi_Logout_Response, tvb, offset + 36, 1, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
-	else if((!enable_03_mode && (opcode == 0x10 || opcode == 0x50))) {
+	else if(
+#ifdef USE_06_OPCODES
+	    (!enable_03_mode && (opcode == 0x10 || opcode == 0x50))
+#else
+	    (!enable_03_mode && opcode == 0x10)
+#endif
+	    ) {
 	    int S = 0;
 	    /* SNACK Request */
-	    proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				offset + 0, 1, opcode);
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -1306,16 +1342,15 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x90) ||
-		(!enable_03_mode && opcode == 0xd0)) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && opcode == 0xd0)
+#else
+		(!enable_03_mode && opcode == 0xf1)
+#endif
+	    ) {
 	    /* R2T */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
-	    }
-	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
@@ -1336,16 +1371,17 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x91) || 
-		(!enable_03_mode && opcode == 0xd1)) {
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && opcode == 0xd1)
+#else
+		(!enable_03_mode && opcode == 0xf2)
+#endif
+	    ) {
 	    /* Asynchronous Message */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
@@ -1366,17 +1402,19 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_item(ti, hf_iscsi_Parameter3, tvb, offset + 42, 2, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
-	else if(opcode == 0xef) {
+	else if((enable_03_mode && opcode == 0xef) ||
+#ifdef USE_06_OPCODES
+		(!enable_03_mode && opcode == 0xef)
+#else
+		(!enable_03_mode && opcode == 0xff)
+#endif
+	    ) {
 	    /* Reject */
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 		proto_tree_add_item(ti, hf_iscsi_Reject_Reason03, tvb, offset + 36, 1, FALSE);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
-				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 		proto_tree_add_item(ti, hf_iscsi_Reject_Reason, tvb, offset + 40, 1, FALSE);
 		proto_tree_add_item(ti, hf_iscsi_Reject_FirstBadByte, tvb, offset + 42, 1, FALSE);
@@ -1428,40 +1466,38 @@ proto_register_iscsi(void)
 	    FT_UINT8, BASE_HEX, VALS(iscsi_opcodes_03), 0,          
 	    "Opcode", HFILL }
 	},
-#if 0
 	{ &hf_iscsi_X,
-	  { "X", "iscsi.x",
+	  { "X", "iscsi.X",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_X), 0x80,          
 	    "Command Retry", HFILL }
 	},
 	{ &hf_iscsi_I,
-	  { "I", "iscsi.i",
+	  { "I", "iscsi.I",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_I), 0x40,          
 	    "Immediate delivery", HFILL }
 	},
-#endif
 	{ &hf_iscsi_Flags,
 	  { "Flags", "iscsi.flags",
 	    FT_UINT8, BASE_HEX, NULL, 0,          
 	    "Opcode specific flags", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_X03,
-	  { "X", "iscsi.scsicommand.x",
+	  { "X", "iscsi.scsicommand.X",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_X), 0x80,          
 	    "Command Retry", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_F,
-	  { "F", "iscsi.scsicommand.f",
+	  { "F", "iscsi.scsicommand.F",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
 	    "PDU completes command", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_R,
-	  { "R", "iscsi.scsicommand.r",
+	  { "R", "iscsi.scsicommand.R",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_R), 0x40,          
 	    "Command reads from SCSI target", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_W,
-	  { "W", "iscsi.scsicommand.r",
+	  { "W", "iscsi.scsicommand.W",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_W), 0x20,          
 	    "Command writes to SCSI target", HFILL }
 	},
@@ -1621,17 +1657,17 @@ proto_register_iscsi(void)
 	    "Bi-directional read residual count", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_F,
-	  { "F", "iscsi.scsidata.f",
+	  { "F", "iscsi.scsidata.F",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
 	    "Final PDU", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_P03,
-	  { "P", "iscsi.scsidata.p",
+	  { "P", "iscsi.scsidata.P",
 	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_P), 0x80,          
 	    "Poll requested", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_S03,
-	  { "S", "iscsi.scsidata.s",
+	  { "S", "iscsi.scsidata.S",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_S), 0x04,          
 	    "PDU Contains SCSI command status", HFILL }
 	},
@@ -1646,7 +1682,7 @@ proto_register_iscsi(void)
 	    "Residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_S,
-	  { "S", "iscsi.scsidata.s",
+	  { "S", "iscsi.scsidata.S",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_S), 0x01,          
 	    "PDU Contains SCSI command status", HFILL }
 	},
@@ -1716,7 +1752,7 @@ proto_register_iscsi(void)
 	    "Initial command sequence number", HFILL }
 	},
 	{ &hf_iscsi_Login_F,
-	  { "F", "iscsi.login.f",
+	  { "F", "iscsi.login.F",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
 	    "Final PDU in login sequence", HFILL }
 	},
@@ -1736,22 +1772,22 @@ proto_register_iscsi(void)
 	    "Key/value pair", HFILL }
 	},
 	{ &hf_iscsi_Text_F,
-	  { "F", "iscsi.text.f",
+	  { "F", "iscsi.text.F",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
 	    "Final PDU in text sequence", HFILL }
 	},
 	{ &hf_iscsi_NOP_P,
-	  { "P", "iscsi.nop.p",
+	  { "P", "iscsi.nop.P",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_P), 0x80,          
 	    "Poll requested", HFILL }
 	},
 	{ &hf_iscsi_ExpDataSN,
-	  { "ExpCmdSN", "iscsi.expdatasn",
+	  { "ExpDataSN", "iscsi.expdatasn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    "Next expected data sequence number", HFILL }
 	},
 	{ &hf_iscsi_R2TExpDataSN,
-	  { "R2TExpCmdSN", "iscsi.r2texpdatasn",
+	  { "R2TExpDataSN", "iscsi.r2texpdatasn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    "Next expected R2T data sequence number", HFILL }
 	},
@@ -1841,7 +1877,7 @@ proto_register_iscsi(void)
 	    "Reason for command rejection", HFILL }
 	},
 	{ &hf_iscsi_SNACK_S,
-	  { "S", "iscsi.snack.s",
+	  { "S", "iscsi.snack.S",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_SNACK_S), 0x01,          
 	    "Status not data SNACK requested", HFILL }
 	},
