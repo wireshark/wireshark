@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.7 1999/11/18 21:04:53 guy Exp $
+ * $Id: packet-icq.c,v 1.8 1999/12/01 23:58:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -1031,6 +1031,7 @@ icqv5_cmd_status_change(proto_tree* tree,/* Tree to put the data in */
 					hf_icq_cmd,
 					offset,
 					4,
+					CMD_STATUS_CHANGE,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	if (status!=-1)
