@@ -1,9 +1,9 @@
-/* packet-lapb.c
+/* packet-lapbether.c
  * Routines for lapbether frame disassembly
  * Richard Sharpe <rsharpe@ns.aus.com> based on the lapb module by
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapbether.c,v 1.1 2000/12/29 01:06:24 sharpe Exp $
+ * $Id: packet-lapbether.c,v 1.2 2000/12/29 02:27:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,9 +37,6 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
-#include "packet-lapb.h"
-#include "packet-x25.h"
-#include "xdlc.h"
 #include "etypes.h"
 
 static int proto_lapbether = -1;
@@ -48,7 +45,9 @@ static int hf_lapbether_length = -1;
 
 static gint ett_lapbether = -1;
 
-void
+static dissector_handle_t lapb_handle;
+
+static void
 dissect_lapbether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree		*lapbether_tree, *ti;
@@ -76,7 +75,7 @@ dissect_lapbether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     next_tvb = tvb_new_subset(tvb, 2, len, len);
-    dissect_lapb(next_tvb, pinfo, tree);
+    call_dissector(lapb_handle, next_tvb, pinfo, tree);
 
 }
 
@@ -102,6 +101,11 @@ proto_register_lapbether(void)
 void
 proto_reg_handoff_lapbether(void)
 {
+
+  /*
+   * Get a handle for the LAPB dissector.
+   */
+  lapb_handle = find_dissector("lapb");
 
   dissector_add("ethertype", ETHERTYPE_DEC, dissect_lapbether);
 
