@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.20 2000/01/22 05:49:04 guy Exp $
+ * $Id: packet-nfs.c,v 1.21 2000/01/26 09:52:42 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -803,9 +803,10 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 	offset += 4;
 
 	offset = dissect_filename(pd, offset, fd, entry_tree,
-	    hf_nfs_readdir_entry_name, &name);
-	proto_item_set_text(entry_item, "Entry: file ID %u, name %s",
-	    fileid, name);
+		hf_nfs_readdir_entry_name, &name);
+	if (entry_item)
+		proto_item_set_text(entry_item, "Entry: file ID %u, name %s",
+		fileid, name);
 	g_free(name);
 	
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
@@ -2518,8 +2519,9 @@ dissect_entry3(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 	offset = dissect_fileid3(pd, offset, fd, entry_tree, "fileid");
 
 	offset = dissect_filename3(pd, offset, fd, entry_tree,
-	    hf_nfs_readdir_entry_name, &name);
-	proto_item_set_text(entry_item, "Entry: name %s", name);
+		hf_nfs_readdir_entry_name, &name);
+	if (entry_item)
+		proto_item_set_text(entry_item, "Entry: name %s", name);
 	g_free(name);
 
 	offset = dissect_cookie3(pd, offset, fd, entry_tree, "cookie");
@@ -2608,8 +2610,9 @@ dissect_entryplus3(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 	offset = dissect_fileid3(pd, offset, fd, entry_tree, "fileid");
 
 	offset = dissect_filename3(pd, offset, fd, entry_tree,
-	    hf_nfs_readdirplus_entry_name, &name);
-	proto_item_set_text(entry_item, "Entry: name %s", name);
+		hf_nfs_readdirplus_entry_name, &name);
+	if (entry_item)
+		proto_item_set_text(entry_item, "Entry: name %s", name);
 	g_free(name);
 
 	offset = dissect_cookie3(pd, offset, fd, entry_tree, "cookie");
