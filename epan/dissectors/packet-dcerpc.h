@@ -191,6 +191,15 @@ int dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			proto_tree *tree, guint8 *drep,
 			dcerpc_dissect_fnct_t *fnct, int type, char *text, 
 			int hf_index);
+int dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 *drep);
+int dissect_ndr_embedded_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+			proto_tree *tree, guint8 *drep,
+			dcerpc_dissect_fnct_t *fnct, int type, char *text, 
+			int hf_index);
+int dissect_ndr_toplevel_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+			proto_tree *tree, guint8 *drep,
+			dcerpc_dissect_fnct_t *fnct, int type, char *text, 
+			int hf_index);
 
 /* dissect a NDR unidimensional conformant array */
 int dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,

@@ -1666,7 +1666,7 @@ init_ndr_pointer_list(packet_info *pinfo)
 	pointers_are_top_level=TRUE;
 }
 
-static int
+int
 dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 *drep)
 {
 	int found_new_pointer;
@@ -2055,6 +2055,32 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, fnct, type, text, hf_index,
 		NULL, NULL);
+}
+int
+dissect_ndr_toplevel_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		    proto_tree *tree, guint8 *drep, dcerpc_dissect_fnct_t *fnct,
+		    int type, char *text, int hf_index)
+{
+	int ret;
+
+	pointers_are_top_level=TRUE;
+	ret=dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep, fnct, type, text, hf_index,
+		NULL, NULL);
+	return ret;
+}
+int
+dissect_ndr_embedded_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		    proto_tree *tree, guint8 *drep, dcerpc_dissect_fnct_t *fnct,
+		    int type, char *text, int hf_index)
+{
+	int ret;
+
+	pointers_are_top_level=FALSE;
+	ret=dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep, fnct, type, text, hf_index,
+		NULL, NULL);
+	return ret;
 }
 
 static void

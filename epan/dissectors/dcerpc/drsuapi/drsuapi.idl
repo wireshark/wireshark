@@ -277,7 +277,7 @@ interface drsuapi
 	WERROR drsuapi_DsGetNCChanges(
 		[in,ref] policy_handle *bind_handle,
 		[in,out] int32 level,
-		[in,switch_is(level),ref] drsuapi_DsGetNCChangesRequest *req,
+		[in,switch_is(level)] drsuapi_DsGetNCChangesRequest req,
 		[out,switch_is(level)] drsuapi_DsGetNCChangesCtr ctr
 		);
 
