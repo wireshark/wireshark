@@ -170,6 +170,7 @@ typedef struct {
 	char *media_port[SDP_MAX_RTP_CHANNELS];
 	char *media_proto[SDP_MAX_RTP_CHANNELS];
 	gint8 media_count;
+	guint32 rtp_event_pt;
 } transport_info_t;
 
 /* static functions */
@@ -189,7 +190,7 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti);
 static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item *ti);
 static void dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 			      transport_info_t *transport_info);
-static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item *ti);
+static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item *ti, transport_info_t *transport_info);
 
 static void
 dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -227,6 +228,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Initialise RTP channel info */
 	transport_info.connection_address=NULL;
 	transport_info.connection_type=NULL;
+	transport_info.rtp_event_pt=0;
 	for (n=0; n < SDP_MAX_RTP_CHANNELS; n++)
 	{
 	    transport_info.media_port[n]=NULL;
@@ -415,7 +417,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    src_addr.data=(char *)&ipaddr;
 		    if(rtp_handle){
 				rtp_add_address(pinfo, &src_addr, port, 0,
-	                "SDP", pinfo->fd->num);
+	                "SDP", pinfo->fd->num, transport_info.rtp_event_pt);
 				set_rtp = TRUE;
 		    }
 		    if(rtcp_handle){
@@ -473,7 +475,7 @@ call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti, transport_info_t *t
   } else if ( hf == hf_media ) {
     dissect_sdp_media(tvb,ti,transport_info);
   } else if ( hf == hf_media_attribute ){
-    dissect_sdp_media_attribute(tvb,ti);
+    dissect_sdp_media_attribute(tvb,ti,transport_info);
   }
 }
 
@@ -921,9 +923,12 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
 }
 
-static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti){
+static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transport_info_t *transport_info){
   proto_tree *sdp_media_attribute_tree;
   gint offset, next_offset, tokenlen;
+  guint8 *field_name;
+  guint8 *payload_type;
+  guint8 *encoding_name;
 
   offset = 0;
   next_offset = 0;
@@ -943,11 +948,44 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti){
 		      hf_media_attribute_field,
 		      tvb, offset, tokenlen, FALSE);
 
+  field_name = tvb_get_string(tvb, offset, tokenlen);
+
   offset = next_offset + 1;
   proto_tree_add_item(sdp_media_attribute_tree,
 		      hf_media_attribute_value,
 		      tvb, offset, -1, FALSE);
 
+  /* decode the rtpmap to see if it is DynamicPayload for RTP-Events RFC2833 to dissect them automatic */
+  if (strcmp(field_name, "rtpmap") == 0) {
+	next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+	g_free(field_name);
+
+    if(next_offset == -1)
+		return;
+
+    tokenlen = next_offset - offset;
+
+	payload_type = tvb_get_string(tvb, offset, tokenlen);
+
+    offset = next_offset + 1;
+
+    next_offset = tvb_find_guint8(tvb,offset,-1,'/');
+
+    if(next_offset == -1){
+		g_free(payload_type);
+        return;
+    }
+
+    tokenlen = next_offset - offset;
+
+    encoding_name = tvb_get_string(tvb, offset, tokenlen);
+
+    if (strcmp(encoding_name, "telephone-event") == 0)
+		transport_info->rtp_event_pt = atol(payload_type);
+
+    g_free(payload_type);
+    g_free(encoding_name);
+  } else g_free(field_name);
 }
 
 void

@@ -9866,7 +9866,7 @@ dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info 
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, 0);
 	}
 	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
 		address src_addr;
@@ -12527,7 +12527,7 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_i
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, 0);
 	}
 	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
 		address src_addr;

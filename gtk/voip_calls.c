@@ -10,7 +10,7 @@
  * Copyright 2004, Iskratel, Ltd, Kranj
  * By Miha Jemec <m.jemec@iskratel.si>
  * 
- * H323, RTP, MGCP and Graph Support
+ * H323, RTP, RTP Event, MGCP and Graph Support
  * By Alejandro Vaquero, alejandro.vaquero@verso.com
  * Copyright 2005, Verso Technologies Inc.
  *
@@ -55,6 +55,7 @@
 #include <epan/dissectors/packet-sdp.h>
 #include <plugins/mgcp/packet-mgcp.h>
 #include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-rtp-events.h>
 #include "rtp_pt.h"
 
 #include "alert_box.h"
@@ -87,7 +88,7 @@ static voip_calls_tapinfo_t the_tapinfo_struct =
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
-	{0, NULL, 0};
+	{0, NULL, 0, 0};
 
 /****************************************************************************/
 /* when there is a [re]reading of packet's */
@@ -261,6 +262,88 @@ guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 call_num,
 	return items_changed;
 }
 
+/* XXX just copied from gtk/rpc_stat.c */
+void protect_thread_critical_region(void);
+void unprotect_thread_critical_region(void);
+
+/****************************************************************************/
+/* ***************************TAP for RTP Events*****************************/
+/****************************************************************************/
+
+/****************************************************************************/
+/* whenever a rtp event packet is seen by the tap listener */
+static int 
+rtp_event_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtp_event_info _U_)
+{
+	const struct _rtp_event_info *pi = rtp_event_info;
+	voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
+	voip_rtp_stream_info_t *tmp_listinfo;
+	voip_rtp_stream_info_t *strinfo = NULL;
+	GList* list;
+
+	/* do not consider RTP events packets without a setup frame */
+	if (pi->info_setup_frame_num == 0){
+		return 0;
+	}
+
+	/* check wether we already have a RTP stream with this setup frame in the list */
+	list = g_list_first(tapinfo->list);
+	while (list)
+	{
+		tmp_listinfo=list->data;
+		if ( (tmp_listinfo->setup_frame_number == pi->info_setup_frame_num) 
+			&& (tmp_listinfo->end_stream == FALSE) && (tmp_listinfo->rtp_event == -1)){
+				strinfo = (voip_rtp_stream_info_t*)(list->data);
+				strinfo->rtp_event = pi->info_rtp_evt;
+				break;
+		}
+		list = g_list_next (list);
+	}
+
+
+	return 0;
+}
+
+/****************************************************************************/
+static gboolean have_rtp_event_tap_listener=FALSE;
+
+void
+rtp_event_init_tap(void)
+{
+	GString *error_string;
+
+
+	if(have_rtp_event_tap_listener==FALSE)
+	{
+		error_string = register_tap_listener("rtpevent", &(the_tapinfo_rtp_struct.rtp_event_dummy),
+			NULL,
+			NULL,
+			rtp_event_packet,
+			NULL
+			);
+			
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				      error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+		have_rtp_event_tap_listener=TRUE;
+	}
+}
+
+/****************************************************************************/
+
+void
+remove_tap_listener_rtp_event(void)
+{
+	protect_thread_critical_region();
+	remove_tap_listener(&(the_tapinfo_rtp_struct.rtp_event_dummy));
+	unprotect_thread_critical_region();
+
+	have_rtp_event_tap_listener=FALSE;
+}
+
 /****************************************************************************/
 /* ***************************TAP for RTP **********************************/
 /****************************************************************************/
@@ -335,6 +418,7 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		strinfo->start_rel_sec = pinfo->fd->rel_secs;
 		strinfo->start_rel_usec = pinfo->fd->rel_usecs;
 		strinfo->setup_frame_number = pi->info_setup_frame_num;
+		strinfo->rtp_event = -1;
 		tapinfo->list = g_list_append(tapinfo->list, strinfo);
 	}
 
@@ -394,7 +478,7 @@ void RTP_packet_draw(void *prs _U_)
 						new_gai->port_src = rtp_listinfo->src_port;
 						new_gai->port_dst = rtp_listinfo->dest_port;
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
-						new_gai->frame_label = g_strdup_printf("RTP (%s)", val_to_str(rtp_listinfo->pt, rtp_payload_type_short_vals, "%u"));
+						new_gai->frame_label = g_strdup_printf("RTP (%s) %s", val_to_str(rtp_listinfo->pt, rtp_payload_type_short_vals, "%u"), (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Uknown RTP Event"));
 						new_gai->comment = g_strdup_printf("RTP Num packets:%d  Duration:%d.%03ds ssrc:%d", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						new_gai->conv_num = conv_num;
 						new_gai->display=FALSE;
@@ -439,12 +523,6 @@ rtp_init_tap(void)
 		have_RTP_tap_listener=TRUE;
 	}
 }
-
-
-
-/* XXX just copied from gtk/rpc_stat.c */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 
 /****************************************************************************/
 void
@@ -677,7 +755,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	isup_message_type = pi->message_type;
 	isup_cause_value = pi->cause_value;
 	isup_cic = pinfo->circuit_id;
-
+	isup_frame_num = pinfo->fd->num;
 	isup_frame_num = pinfo->fd->num;
 	
 	return 0;

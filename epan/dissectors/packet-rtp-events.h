@@ -251,3 +251,8 @@ static const value_string rtp_event_type_values[] =
 	{ RTP_NEWMWATTTN,       "New milliwatt tone (1004 Hz)"},
 	{ 0,               NULL },
 };
+
+struct _rtp_event_info {
+	guint8      info_rtp_evt;
+	guint32		info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
+};
