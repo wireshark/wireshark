@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.31 1999/07/13 03:08:03 gram Exp $
+ * $Id: capture.c,v 1.32 1999/07/20 05:07:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -595,7 +595,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   
   cur_time = time(NULL);
   if (cur_time > *sync_time) {
-    /* sync every seconds */
+    /* sync every second */
     *sync_time = cur_time;
     fflush((FILE *)ld->pdh);
     if (sync_mode) 
