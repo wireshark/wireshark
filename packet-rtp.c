@@ -122,27 +122,56 @@ static const value_string rtp_version_vals[] =
 /* 
  * RTP Payload types 
  * Table B.2 / H.225.0
+ * Also RFC 1890
  */
-#define PT_PCMU 0
-#define PT_PCMA 8
-#define PT_G722 9
-#define PT_G723 4
-#define PT_G728 15
-#define PT_G729 18
-#define PT_H261 31
-#define PT_H263 34
+#define PT_PCMU		0
+#define PT_1016		1
+#define PT_G721		2
+#define PT_GSM		3
+#define PT_G723		4
+#define PT_DVI4_8000	5
+#define PT_DVI4_16000	6
+#define PT_LPC		7
+#define PT_PCMA		8
+#define PT_G722		9
+#define PT_L16_STEREO	10
+#define PT_L16_MONO	11
+#define PT_MPA		14
+#define PT_G728		15
+#define PT_G729		18
+#define PT_CELB		25
+#define PT_JPEG		26
+#define PT_NV		28
+#define PT_H261		31
+#define PT_MPV		32
+#define PT_MP2T		33
+#define PT_H263		34
 
 static const value_string rtp_payload_type_vals[] = 
 {
-	{ PT_PCMU, "ITU-T G.711 PCMU" },
-	{ PT_PCMA, "ITU-T G.711 PCMA" },
-	{ PT_G722, "ITU-T G.722" },
-	{ PT_G723, "ITU-T G.723" },
-	{ PT_G728, "ITU-T G.728" },
-	{ PT_G729, "ITU-T G.729" },
-	{ PT_H261, "ITU-T H.261" },
-	{ PT_H263, "ITU-T H.263" },
-	{ 0, NULL },
+	{ PT_PCMU,	"ITU-T G.711 PCMU" },
+	{ PT_1016,	"USA Federal Standard FS-1016" },
+	{ PT_G721,	"ITU-T G.721" },
+	{ PT_GSM,	"GSM 06.10" },
+	{ PT_G723,	"ITU-T G.723" },
+	{ PT_DVI4_8000,	"DVI4 8000 samples/s" },
+	{ PT_DVI4_16000, "DVI4 16000 samples/s" },
+	{ PT_LPC,	"LPC" },
+	{ PT_PCMA,	"ITU-T G.711 PCMA" },
+	{ PT_G722,	"ITU-T G.722" },
+	{ PT_L16_STEREO, "16-bit uncompressed audio, stereo" },
+	{ PT_L16_MONO,	"16-bit uncompressed audio, monaural" },
+	{ PT_MPA,	"MPEG-I/II Audeo"},
+	{ PT_G728,	"ITU-T G.728" },
+	{ PT_G729,	"ITU-T G.729" },
+	{ PT_CELB,	"Sun CELL-B" },
+	{ PT_JPEG,	"JPEG" },
+	{ PT_NV,	"'nv' program" },
+	{ PT_H261,	"ITU-T H.261" },
+	{ PT_MPV,	"MPEG-I/II Video"},
+	{ PT_MP2T,	"MPEG-II transport streams"},
+	{ PT_H263,	"ITU-T H.263" },
+	{ 0,		NULL },
 };
 
 static address fake_addr;
