@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.38 2001/07/25 05:53:30 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.39 2001/09/25 00:34:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,7 @@
 /* ************************************************************************* */
 /*                          Miscellaneous Constants                          */
 /* ************************************************************************* */
-#define SHORT_STR 128
+#define SHORT_STR 256
 
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
