@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.30 2002/05/30 01:56:55 guy Exp $
+ * $Id: packet-tns.c,v 1.31 2002/06/05 17:41:59 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,17 +54,55 @@ static int hf_tns_reserved_byte = -1;
 static int hf_tns_connect = -1;
 static int hf_tns_version = -1;
 static int hf_tns_compat_version = -1;
+
 static int hf_tns_service_options = -1;
+static int hf_tns_sopt_flag_bconn = -1;
+static int hf_tns_sopt_flag_pc = -1;
+static int hf_tns_sopt_flag_hc = -1;
+static int hf_tns_sopt_flag_fd = -1;
+static int hf_tns_sopt_flag_hd = -1;
+static int hf_tns_sopt_flag_dc1 = -1;
+static int hf_tns_sopt_flag_dc2 = -1;
+static int hf_tns_sopt_flag_dio = -1;
+static int hf_tns_sopt_flag_ap = -1;
+static int hf_tns_sopt_flag_ra = -1;
+static int hf_tns_sopt_flag_sa = -1;
+
 static int hf_tns_sdu_size = -1;
 static int hf_tns_max_tdu_size = -1;
+
 static int hf_tns_nt_proto_characteristics = -1;
+static int hf_tns_ntp_flag_hangon = -1;
+static int hf_tns_ntp_flag_crel = -1;
+static int hf_tns_ntp_flag_tduio = -1;
+static int hf_tns_ntp_flag_srun = -1;
+static int hf_tns_ntp_flag_dtest = -1;
+static int hf_tns_ntp_flag_cbio = -1;
+static int hf_tns_ntp_flag_asio = -1;
+static int hf_tns_ntp_flag_pio = -1;
+static int hf_tns_ntp_flag_grant = -1;
+static int hf_tns_ntp_flag_handoff = -1;
+static int hf_tns_ntp_flag_sigio = -1;
+static int hf_tns_ntp_flag_sigpipe = -1;
+static int hf_tns_ntp_flag_sigurg = -1;
+static int hf_tns_ntp_flag_urgentio = -1;
+static int hf_tns_ntp_flag_fdio = -1;
+static int hf_tns_ntp_flag_testop = -1;
+
 static int hf_tns_line_turnaround = -1;
 static int hf_tns_value_of_one = -1;
 static int hf_tns_connect_data_length = -1;
 static int hf_tns_connect_data_offset = -1;
 static int hf_tns_connect_data_max = -1;
+
 static int hf_tns_connect_flags0 = -1;
 static int hf_tns_connect_flags1 = -1;
+static int hf_tns_conn_flag_nareq = -1;
+static int hf_tns_conn_flag_nalink = -1;
+static int hf_tns_conn_flag_enablena = -1;
+static int hf_tns_conn_flag_ichg = -1;
+static int hf_tns_conn_flag_wantna = -1;
+
 static int hf_tns_connect_data = -1;
 static int hf_tns_trace_cf1 = -1;
 static int hf_tns_trace_cf2 = -1;
@@ -122,6 +160,9 @@ static gint ett_tns_attention = -1;
 static gint ett_tns_control = -1;
 static gint ett_tns_data = -1;
 static gint ett_tns_data_flag = -1;
+static gint ett_tns_sopt_flag = -1;
+static gint ett_tns_ntp_flag = -1;
+static gint ett_tns_conn_flag = -1;
 static gint ett_sql = -1;
 
 static dissector_handle_t data_handle;
@@ -270,9 +311,37 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( connect_tree )
 	{
-		/* need to break down w/ bitfield */
-		proto_tree_add_item(connect_tree, hf_tns_service_options, tvb,
+		proto_tree *sopt_tree = NULL;
+		
+		ti = proto_tree_add_item(connect_tree, hf_tns_service_options, tvb,
 			offset, 2, FALSE);
+		
+		sopt_tree = proto_item_add_subtree(ti, ett_tns_sopt_flag);
+
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_bconn, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_pc, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_hc, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_fd, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_hd, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dc1, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dc2, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dio, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_ap, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_ra, tvb,
+			offset, 2, FALSE);
+		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_sa, tvb,
+			offset, 2, FALSE);
+	
+
 	}
 	offset += 2;
 
@@ -292,8 +361,29 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( connect_tree )
 	{
-		proto_tree_add_item(connect_tree, hf_tns_nt_proto_characteristics, tvb,
+		proto_tree *ntp_tree = NULL;
+		
+		ti = proto_tree_add_item(connect_tree, hf_tns_nt_proto_characteristics, tvb,
 			offset, 2, FALSE);
+		
+		ntp_tree = proto_item_add_subtree(ti, ett_tns_ntp_flag);
+
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_hangon, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_crel, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_tduio, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_srun, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_dtest, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_cbio, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_asio, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_pio, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_grant, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_handoff, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_sigio, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_sigpipe, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_sigurg, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_urgentio, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_fdio, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_testop, tvb, offset, 2, FALSE);
 	}
 	offset += 2;
 
@@ -336,15 +426,35 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( connect_tree )
 	{
-		proto_tree_add_item(connect_tree, hf_tns_connect_flags0, tvb,
+		proto_tree *cflag_tree = NULL;
+		
+		ti = proto_tree_add_item(connect_tree, hf_tns_connect_flags0, tvb,
 			offset, 1, FALSE);
+		
+		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
+
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nareq, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nalink, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_enablena, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_ichg, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_wantna, tvb, offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_item(connect_tree, hf_tns_connect_flags1, tvb,
+		proto_tree *cflag_tree = NULL;
+		
+		ti = proto_tree_add_item(connect_tree, hf_tns_connect_flags1, tvb,
 			offset, 1, FALSE);
+		
+		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
+
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nareq, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nalink, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_enablena, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_ichg, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_wantna, tvb, offset, 1, FALSE);
 	}
 	offset += 1;
 
@@ -837,18 +947,108 @@ void proto_register_tns(void)
 		{ &hf_tns_compat_version, { 	
 			"Version (Compatible)", "tns.compat_version", FT_UINT16, BASE_DEC, 
 			NULL, 0x0, "Version (Compatible)", HFILL }},
+
 		{ &hf_tns_service_options, { 	
 			"Service Options", "tns.service_options", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "Service Options", HFILL }},
+
+		{ &hf_tns_sopt_flag_bconn, { 	
+			"Broken Connect Notify", "tns.so_flag.bconn", FT_UINT16, BASE_BIN, 
+			NULL, 0x2000, "Broken Connect Notify", HFILL }},
+		{ &hf_tns_sopt_flag_pc, { 	
+			"Packet Checksum", "tns.so_flag.pc", FT_UINT16, BASE_BIN, 
+			NULL, 0x1000, "Packet Checksum", HFILL }},
+		{ &hf_tns_sopt_flag_hc, { 	
+			"Header Checksum", "tns.so_flag.hc", FT_UINT16, BASE_BIN, 
+			NULL, 0x0800, "Header Checksum", HFILL }},
+		{ &hf_tns_sopt_flag_fd, { 	
+			"Full Duplex", "tns.so_flag.fd", FT_UINT16, BASE_BIN, 
+			NULL, 0x0400, "Full Duplex", HFILL }},
+		{ &hf_tns_sopt_flag_hd, { 	
+			"Half Duplex", "tns.so_flag.hd", FT_UINT16, BASE_BIN, 
+			NULL, 0x0200, "Half Duplex", HFILL }},
+		{ &hf_tns_sopt_flag_dc1, { 	
+			"Don't Care", "tns.so_flag.dc1", FT_UINT16, BASE_BIN, 
+			NULL, 0x0100, "Don't Care", HFILL }},
+		{ &hf_tns_sopt_flag_dc2, { 	
+			"Don't Care", "tns.so_flag.dc2", FT_UINT16, BASE_BIN, 
+			NULL, 0x0080, "Don't Care", HFILL }},		
+		{ &hf_tns_sopt_flag_dio, { 	
+			"Direct IO to Transport", "tns.so_flag.dio", FT_UINT16, BASE_BIN, 
+			NULL, 0x0010, "Direct IO to Transport", HFILL }},
+		{ &hf_tns_sopt_flag_ap, { 	
+			"Attention Processing", "tns.so_flag.ap", FT_UINT16, BASE_BIN, 
+			NULL, 0x0008, "Attention Processing", HFILL }},
+		{ &hf_tns_sopt_flag_ra, { 	
+			"Can Receive Attention", "tns.so_flag.ra", FT_UINT16, BASE_BIN, 
+			NULL, 0x0004, "Can Receive Attention", HFILL }},
+		{ &hf_tns_sopt_flag_sa, { 	
+			"Can Send Attention", "tns.so_flag.sa", FT_UINT16, BASE_BIN, 
+			NULL, 0x0002, "Can Send Attention", HFILL }},
+
+
 		{ &hf_tns_sdu_size, { 	
 			"Session Data Unit Size", "tns.sdu_size", FT_UINT16, BASE_DEC, 
 			NULL, 0x0, "Session Data Unit Size", HFILL }},
 		{ &hf_tns_max_tdu_size, { 	
 			"Maximum Transmission Data Unit Size", "tns.max_tdu_size", FT_UINT16, BASE_DEC, 
 			NULL, 0x0, "Maximum Transmission Data Unit Size", HFILL }},
+
 		{ &hf_tns_nt_proto_characteristics, { 	
 			"NT Protocol Characteristics", "tns.nt_proto_characteristics", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "NT Protocol Characteristics", HFILL }},
+		{ &hf_tns_ntp_flag_hangon, { 	
+			"Hangon to listener connect", "tns.ntp_flag.hangon", FT_UINT16, BASE_BIN, 
+			NULL, 0x8000, "Hangon to listener connect", HFILL }},
+		{ &hf_tns_ntp_flag_crel, { 	
+			"Confirmed release", "tns.ntp_flag.crel", FT_UINT16, BASE_BIN, 
+			NULL, 0x4000, "Confirmed release", HFILL }},
+		{ &hf_tns_ntp_flag_tduio, { 	
+			"TDU based IO", "tns.ntp_flag.tduio", FT_UINT16, BASE_BIN, 
+			NULL, 0x2000, "TDU based IO", HFILL }},
+		{ &hf_tns_ntp_flag_srun, { 	
+			"Spawner running", "tns.ntp_flag.srun", FT_UINT16, BASE_BIN, 
+			NULL, 0x1000, "Spawner running", HFILL }},
+		{ &hf_tns_ntp_flag_dtest, { 	
+			"Data test", "tns.ntp_flag.dtest", FT_UINT16, BASE_BIN, 
+			NULL, 0x0800, "Data Test", HFILL }},
+		{ &hf_tns_ntp_flag_cbio, { 	
+			"Callback IO supported", "tns.ntp_flag.cbio", FT_UINT16, BASE_BIN, 
+			NULL, 0x0400, "Callback IO supported", HFILL }},
+		{ &hf_tns_ntp_flag_asio, { 	
+			"ASync IO Supported", "tns.ntp_flag.asio", FT_UINT16, BASE_BIN, 
+			NULL, 0x0200, "ASync IO Supported", HFILL }},
+		{ &hf_tns_ntp_flag_pio, { 	
+			"Packet oriented IO", "tns.ntp_flag.pio", FT_UINT16, BASE_BIN, 
+			NULL, 0x0100, "Packet oriented IO", HFILL }},
+		{ &hf_tns_ntp_flag_grant, { 	
+			"Can grant connection to another", "tns.ntp_flag.grant", FT_UINT16, BASE_BIN, 
+			NULL, 0x0080, "Can grant connection to another", HFILL }},
+		{ &hf_tns_ntp_flag_handoff, { 	
+			"Can handoff connection to another", "tns.ntp_flag.handoff", FT_UINT16, BASE_BIN, 
+			NULL, 0x0040, "Can handoff connection to another", HFILL }},
+		{ &hf_tns_ntp_flag_sigio, { 	
+			"Generate SIGIO signal", "tns.ntp_flag.sigio", FT_UINT16, BASE_BIN, 
+			NULL, 0x0020, "Generate SIGIO signal", HFILL }},
+		{ &hf_tns_ntp_flag_sigpipe, { 	
+			"Generate SIGPIPE signal", "tns.ntp_flag.sigpipe", FT_UINT16, BASE_BIN, 
+			NULL, 0x0010, "Generate SIGPIPE signal", HFILL }},
+		{ &hf_tns_ntp_flag_sigurg, { 	
+			"Generate SIGURG signal", "tns.ntp_flag.sigurg", FT_UINT16, BASE_BIN, 
+			NULL, 0x0008, "Generate SIGURG signal", HFILL }},
+		{ &hf_tns_ntp_flag_urgentio, { 	
+			"Urgent IO supported", "tns.ntp_flag.urgentio", FT_UINT16, BASE_BIN, 
+			NULL, 0x0004, "Urgent IO supported", HFILL }},
+		{ &hf_tns_ntp_flag_fdio, { 	
+			"Full duplex IO supported", "tns.ntp_flag.dfio", FT_UINT16, BASE_BIN, 
+			NULL, 0x0002, "Full duplex IO supported", HFILL }},
+		{ &hf_tns_ntp_flag_testop, { 	
+			"Test operation", "tns.ntp_flag.testop", FT_UINT16, BASE_BIN, 
+			NULL, 0x0001, "Test operation", HFILL }},
+
+
+
+
 		{ &hf_tns_line_turnaround, { 	
 			"Line Turnaround Value", "tns.line_turnaround", FT_UINT16, BASE_DEC, 
 			NULL, 0x0, "Line Turnaround Value", HFILL }},
@@ -868,12 +1068,31 @@ void proto_register_tns(void)
 		{ &hf_tns_connect_data_max, { 	
 			"Maximum Receivable Connect Data", "tns.connect_data_max", FT_UINT32, BASE_DEC, 
 			NULL, 0x0, "Maximum Receivable Connect Data", HFILL }},
+
 		{ &hf_tns_connect_flags0, { 	
 			"Connect Flags 0", "tns.connect_flags0", FT_UINT8, BASE_HEX, 
 			NULL, 0x0, "Connect Flags 0", HFILL }},
 		{ &hf_tns_connect_flags1, { 	
 			"Connect Flags 1", "tns.connect_flags1", FT_UINT8, BASE_HEX, 
 			NULL, 0x0, "Connect Flags 1", HFILL }},
+
+		{ &hf_tns_conn_flag_nareq, { 	
+			"NA services required", "tns.connect_flags.nareq", FT_UINT8, BASE_BIN, 
+			NULL, 0x10, "NA services required", HFILL }},
+		{ &hf_tns_conn_flag_nalink, { 	
+			"NA services linked in", "tns.connect_flags.nalink", FT_UINT8, BASE_BIN, 
+			NULL, 0x08, "NA services linked in", HFILL }},
+		{ &hf_tns_conn_flag_enablena, { 	
+			"NA services enabled", "tns.connect_flags.enablena", FT_UINT8, BASE_BIN, 
+			NULL, 0x04, "NA services enabled", HFILL }},
+		{ &hf_tns_conn_flag_ichg, { 	
+			"Interchange is involved", "tns.connect_flags.ichg", FT_UINT8, BASE_BIN, 
+			NULL, 0x02, "Interchange is involved", HFILL }},
+		{ &hf_tns_conn_flag_wantna, { 	
+			"NA services wanted", "tns.connect_flags.wantna", FT_UINT8, BASE_BIN, 
+			NULL, 0x01, "NA services wanted", HFILL }},
+
+
 		{ &hf_tns_trace_cf1, { 	
 			"Trace Cross Facility Item 1", "tns.trace_cf1", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "Trace Cross Facility Item 1", HFILL }},
@@ -965,7 +1184,8 @@ void proto_register_tns(void)
 
 		{ &hf_tns_data, { 
 			"Data", "tns.data", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "Data", HFILL }},		
+			NULL, 0x0, "Data", HFILL }},	
+	
 		{ &hf_tns_data_flag, { 	
 			"Data Flag", "tns.data_flag", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "Data Flag", HFILL }},
@@ -1019,6 +1239,9 @@ void proto_register_tns(void)
 		&ett_tns_control,
 		&ett_tns_data,
 		&ett_tns_data_flag,
+		&ett_tns_sopt_flag,
+		&ett_tns_ntp_flag,
+		&ett_tns_conn_flag,
 		&ett_sql
 	};
 	proto_tns = proto_register_protocol(
