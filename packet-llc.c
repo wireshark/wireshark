@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.21 1999/08/23 23:24:35 guy Exp $
+ * $Id: packet-llc.c,v 1.22 1999/09/26 20:31:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -163,7 +163,7 @@ void
 capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 
 	int		is_snap;
-	int		has_payload;
+	guint16		control;
 	guint16		etype;
 	capture_func_t	*capture;
 
@@ -184,10 +184,10 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 	 * extended operation, so we don't need to determine whether
 	 * it's basic or extended operation; is that the case?
 	 */
-	has_payload = get_xdlc_control(pd, offset+2, pd[offset+1] & 0x01, TRUE);
+	control = get_xdlc_control(pd, offset+2, pd[offset+1] & 0x01, TRUE);
 
 	if (is_snap) {
-		if (has_payload) {
+		if (XDLC_HAS_PAYLOAD(control)) {
 			/*
 			 * This frame has a payload to be analyzed.
 			 */
@@ -197,14 +197,14 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 		}
 	}		
 	else {
-		if (has_payload) {
+		if (XDLC_HAS_PAYLOAD(control)) {
 			/*
 			 * This frame has a payload to be analyzed.
 			 */
 			capture = sap_capture_func(pd[offset]);
 
 			/* non-SNAP */
-			offset += 3;
+			offset += XDLC_CONTROL_LEN(control, TRUE);
 
 			if (capture) {
 				capture(pd, offset, cap_len, ld);
@@ -220,9 +220,9 @@ void
 dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*llc_tree = NULL;
-	proto_item	*ti;
+	proto_item	*ti = NULL;
 	int		is_snap;
-	int		has_payload;
+	guint16		control;
 	guint16		etype;
 	dissect_func_t	*dissect;
 
@@ -255,8 +255,10 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	 * extended operation, so we don't need to determine whether
 	 * it's basic or extended operation; is that the case?
 	 */
-	has_payload = dissect_xdlc_control(pd, offset+2, fd, llc_tree,
+	control = dissect_xdlc_control(pd, offset+2, fd, llc_tree,
 				hf_llc_ctrl, pd[offset+1] & 0x01, TRUE);
+	if (tree)
+		proto_item_set_len(ti, XDLC_CONTROL_LEN(control, TRUE));
 
 	/*
 	 * XXX - do we want to append the SAP information to the stuff
@@ -271,7 +273,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			proto_tree_add_item(llc_tree, hf_llc_oui, offset+3, 3,
 				pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5]);
 		}
-		if (has_payload) {
+		if (XDLC_HAS_PAYLOAD(control)) {
 			/*
 			 * This frame has a payload to be analyzed.
 			 */
@@ -288,14 +290,14 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				val_to_str(pd[offset], sap_vals, "%02x"));
 		}
 
-		if (has_payload) {
+		if (XDLC_HAS_PAYLOAD(control)) {
 			/*
 			 * This frame has a payload to be analyzed.
 			 */
 			dissect = sap_dissect_func(pd[offset]);
 
 			/* non-SNAP */
-			offset += 3;
+			offset += XDLC_CONTROL_LEN(control, TRUE);
 
 			if (dissect) {
 				dissect(pd, offset, fd, tree);
