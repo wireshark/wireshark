@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.49 2002/01/28 01:13:48 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.50 2002/02/21 23:34:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -851,7 +851,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	  next_idx = 4;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	      tvb_reported_length_remaining(tvb, next_idx);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
@@ -873,7 +873,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  next_idx = 6;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	      tvb_reported_length_remaining(tvb, next_idx);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
@@ -894,7 +894,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	  next_idx = 10;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	      tvb_reported_length_remaining(tvb, next_idx);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
@@ -914,7 +914,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	  next_idx = 6;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	      tvb_reported_length_remaining(tvb, next_idx);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
@@ -930,7 +930,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	case MGT_PROBE_REQ:
 	  next_idx = 0;
 	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	      tvb_reported_length_remaining(tvb, next_idx);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
@@ -951,7 +951,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	  next_idx = 12;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	      tvb_reported_length_remaining(tvb, next_idx);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
@@ -973,7 +973,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	  next_idx = 12;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	      tvb_reported_length_remaining(tvb, next_idx);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
@@ -1005,7 +1005,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  next_idx = 6;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
-		  tvb_reported_length_remaining(tvb, next_idx + 4);
+		  tvb_reported_length_remaining(tvb, next_idx);
 	  if (tagged_parameter_tree_len != 0)
 	    {
 	      tagged_tree = get_tagged_parameter_tree (mgt_tree,
