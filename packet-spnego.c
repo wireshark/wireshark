@@ -190,8 +190,49 @@ static int
 dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			 proto_tree *tree, ASN1_SCK *hnd)
 {
+	gboolean def;
+	int ret;
+	guint oid_len, len, cls, con, tag, nbytes;
+	tvbuff_t *token_tvb;
 
-  return offset;
+	/*
+	 * This appears to be a simple octet string ...
+	 */
+
+ 	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &nbytes);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, tree,
+				    "SPNEGO sequence header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_OTS)) {
+		proto_tree_add_text(
+			tree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	offset = hnd->offset;
+
+	proto_tree_add_text(tree, tvb, offset, nbytes, "mechToken: %s",
+			    tvb_format_text(tvb, offset, nbytes)); 
+
+	/*
+	 * Now, we should be able to dispatch after creating a new TVB.
+	 */
+
+	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
+	if (next_level_dissector != -1)
+	  call_dissector(next_level_dissector, token_tvb, pinfo, tree);
+
+	hnd->offset += nbytes; /* Update this ... */
+
+ done:
+
+  return offset + nbytes;
 
 }
 
@@ -298,7 +339,7 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	len -= 2; /* Account for the Header above ... */
+	len1 -= 2; /* Account for the Header above ... */
 
 	while (len1) {
 
@@ -335,13 +376,14 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  case SPNEGO_mechToken:
 
+	    offset = dissect_spnego_mechToken(tvb, offset, pinfo, subtree, 
+					      hnd);
 	    break;
 
 	  case SPNEGO_mechListMIC:
 
 	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree,
 						hnd);
-
 	    break;
 
 	  default:
@@ -353,37 +395,6 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	}
 
-	/* Now get the offset. Assume 4 btyes to go ... */
-
-	/* Hand off to subdissector */
-
-	/*
-	if (((value = g_hash_table_lookup(gssapi_oids, oid_string)) == NULL) ||
-	    !proto_is_protocol_enabled(value->proto)) {
-
-		No dissector for this oid
-
-		proto_tree_add_text(
-			subtree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "Token object");
-
-		goto done;
-	}
-
-	sub_item = proto_tree_add_item(subtree, value->proto, tvb, offset,
-				       -1, FALSE);
-
-	oid_subtree = proto_item_add_subtree(sub_item, value->ett);
-
-	handle = find_dissector(value->name);
-
-	if (handle) {
-		tvbuff_t *oid_tvb;
-
-		oid_tvb = tvb_new_subset(tvb, offset + 4, -1, -1);
-		call_dissector(handle, oid_tvb, pinfo, oid_subtree);
-	}
-	*/
  done:
 
 	return offset; /* Not sure this is right */
@@ -491,6 +502,10 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 * Now, we need to save this in per proto info in the
 	 * conversation if it exists. We also should create a 
 	 * conversation if one does not exist. FIXME!
+	 * Hmmm, might need to be smarter, because there can be
+	 * multiple mechTypes in a negTokenInit with one being the
+	 * default used in the Token if present. Then the negTokenTarg
+	 * could override that. :-(
 	 */
 
 	if (conversation = find_conversation(&pinfo->src, &pinfo->dst,
@@ -602,7 +617,7 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	len -= 2; /* Account for the Header above ... */
+	len1 -= 2; /* Account for the Header above ... */
 
 	while (len1) {
 
@@ -656,7 +671,7 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	    break;
 	  }
 
-	  len1 -= len;
+	  len1 -= (len + 2); /* FIXME: The +2 may be wrong */
 
 	}
 
