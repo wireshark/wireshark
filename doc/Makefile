@@ -5,5 +5,7 @@
 	> ../ethereal.1
 
 ethereal.pod: ethereal.pod.template  ../ethereal
-	../ethereal -G | ./dfilter2pod ethereal.pod.template > ethereal.pod
-
+	rm -f ethereal-dump-fields
+	ln ../ethereal ethereal-dump-fields
+	./ethereal-dump-fields | ./dfilter2pod ethereal.pod.template > ethereal.pod
+	rm -f ethereal-dump-fields

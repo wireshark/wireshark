@@ -11,7 +11,6 @@ S<[ B<-b> bold font ]>
 S<[ B<-c> count ]>
 S<[ B<-F> ]>
 S<[ B<-f> filter expression ]>
-S<[ B<-G> ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-k> ]>
@@ -80,10 +79,6 @@ packets actually captured.
 =item -f
 
 Sets the capture filter expression.
-
-=item -G
-
-Dumps a glossary of display filter keywords to stdout and exits.
 
 =item -h
 

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.73 1999/08/04 03:37:44 gram Exp $
+ * $Id: ethereal.c,v 1.74 1999/08/05 06:34:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -958,6 +958,7 @@ print_usage(void) {
 int
 main(int argc, char *argv[])
 {
+  char               *command_name;
   int                  i;
 #ifndef WIN32
   int                  opt;
@@ -979,10 +980,26 @@ main(int argc, char *argv[])
 
   ethereal_path = argv[0];
 
+  /* If invoked as "ethereal-dump-fields", we dump out a glossary of
+     display filter symbols; we specify that by checking the name,
+     so that we can do so before looking at the argument list -
+     we don't want to look at the argument list, because we don't
+     want to call "gtk_init()", because we don't want to have to
+     do any X stuff just to do a build. */
+  command_name = strchr(ethereal_path, '/');
+  if (command_name == NULL)
+    command_name = ethereal_path;
+  else
+    command_name++;
+  if (strcmp(command_name, "ethereal-dump-fields") == 0) {
+    ethereal_proto_init();
+    proto_registrar_dump();
+    exit(0);
+  }
+  
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
   
-
   prefs = read_prefs(&pf_path);
   if (pf_path != NULL) {
     /* The preferences file exists, but couldn't be opened; "pf_path" is
@@ -1029,7 +1046,7 @@ main(int argc, char *argv[])
 
 #ifndef WIN32
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:f:FGhi:km:nP:Qr:Ss:t:T:w:v")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:Ss:t:T:w:v")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -1048,10 +1065,6 @@ main(int argc, char *argv[])
         fork_mode = 1;
         break;
 #endif
-      case 'G':		/* print glossary of display filter symbols */
-	ethereal_proto_init();
-	proto_registrar_dump();
-	exit(0);
       case 'h':        /* Print help and exit */
 	print_usage();
 	exit(0);
