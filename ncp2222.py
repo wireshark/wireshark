@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.61 2003/07/21 09:18:31 guy Exp $
+$Id: ncp2222.py,v 1.62 2003/08/25 22:06:38 guy Exp $
 
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
@@ -5119,6 +5119,7 @@ def define_groups():
 	groups['qms']		= "Queue Management System (QMS)"
 	groups['stats']		= "Server Statistics"
 	groups['nmas']		= "Novell Modular Authentication Service"
+	groups['sss']		= "SecretStore Services"
 	groups['unknown']	= "Unknown"
 
 ##############################################################################
@@ -5130,7 +5131,7 @@ def define_errors():
     	errors[0x0002] = "Ok. The data has been written"
     	errors[0x0003] = "Calling Station is a Manager"
 
-    	errors[0x0100] = "One or more of the ConnectionNumbers in the send list are invalid"
+    	errors[0x0100] = "One or more of the Connection Numbers in the send list are invalid"
     	errors[0x0101] = "Invalid space limit"
     	errors[0x0102] = "Insufficient disk space"
     	errors[0x0103] = "Queue server cannot add jobs"
@@ -5324,7 +5325,8 @@ def define_errors():
     	errors[0xd901] = "The client is not security equivalent to one of the objects in the Q_SERVERS group property of the target queue"
     	errors[0xd902] = "Station is not a server"
     	errors[0xd903] = "Bad EDS Signature"
-
+        errors[0xd904] = "Attempt to log in using an account which has limits on the number of concurrent connections and that number has been reached."
+    
     	errors[0xda00] = "Attempted to login to the file server during a restricted time period"
     	errors[0xda01] = "Queue halted"
     	errors[0xda02] = "EA Space Limit"
@@ -5527,6 +5529,7 @@ def produce_code():
 #include "ptvcursor.h"
 #include "packet-ncp-int.h"
 #include <epan/strutil.h>
+#include "reassemble.h"
 
 /* Function declarations for functions used in proto_register_ncp2222() */
 static void ncp_init_protocol(void);
@@ -5566,7 +5569,6 @@ static int ptvc_struct_int_storage;
 #define NDEPTH  0x00000002
 #define NREV    0x00000004
 #define NFLAGS  0x00000008
-
 
 
 static int hf_ncp_func = -1;
@@ -5991,6 +5993,13 @@ static int hf_bit13siflags = -1;
 static int hf_bit14siflags = -1;
 static int hf_bit15siflags = -1;
 static int hf_bit16siflags = -1;
+static int hf_nds_segments = -1;
+static int hf_nds_segment = -1;
+static int hf_nds_segment_overlap = -1;
+static int hf_nds_segment_overlap_conflict = -1;
+static int hf_nds_segment_multiple_tails = -1;
+static int hf_nds_segment_too_long_segment = -1;
+static int hf_nds_segment_error = -1;
 
 
 	"""
@@ -7701,6 +7710,36 @@ proto_register_ncp2222(void)
         { &hf_bit16siflags,
         { "Not Defined", "ncp.bit16siflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
 
+        { &hf_nds_segment_overlap,
+          { "Segment overlap",	"nds.segment.overlap", FT_BOOLEAN, BASE_NONE,
+    		NULL, 0x0, "Segment overlaps with other segments", HFILL }},
+    
+        { &hf_nds_segment_overlap_conflict,
+          { "Conflicting data in segment overlap", "nds.segment.overlap.conflict",
+    	FT_BOOLEAN, BASE_NONE,
+    		NULL, 0x0, "Overlapping segments contained conflicting data", HFILL }},
+    
+        { &hf_nds_segment_multiple_tails,
+          { "Multiple tail segments found", "nds.segment.multipletails",
+    	FT_BOOLEAN, BASE_NONE,
+    		NULL, 0x0, "Several tails were found when desegmenting the packet", HFILL }},
+    
+        { &hf_nds_segment_too_long_segment,
+          { "Segment too long",	"nds.segment.toolongsegment", FT_BOOLEAN, BASE_NONE,
+    		NULL, 0x0, "Segment contained data past end of packet", HFILL }},
+    
+        { &hf_nds_segment_error,
+          {"Desegmentation error",	"nds.segment.error", FT_FRAMENUM, BASE_NONE,
+    		NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
+    
+        { &hf_nds_segment,
+          { "NDS Fragment",		"nds.fragment", FT_FRAMENUM, BASE_NONE,
+    		NULL, 0x0, "NDPS Fragment", HFILL }},
+    
+        { &hf_nds_segments,
+          { "NDS Fragments",	"nds.fragments", FT_NONE, BASE_NONE,
+    		NULL, 0x0, "NDPS Fragments", HFILL }},
+
 
 
  """
@@ -9049,7 +9088,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0xff00])
 	# 2222/1714, 23/20
-	pkt = NCP(0x1714, "Login Object", 'file')
+	pkt = NCP(0x1714, "Login Object", 'bindery')
 	pkt.Request( (14, 60), [
 		rec( 10, 2, ObjectType, BE ),
 		rec( 12, (1,16), ClientName ),
@@ -9061,7 +9100,7 @@ def define_ncp2222():
 			     0xed00, 0xef00, 0xf001, 0xf100, 0xf200, 0xf600, 0xfb00,
 			     0xfc06, 0xfe07, 0xff00])
 	# 2222/1715, 23/21
-	pkt = NCP(0x1715, "Get Object Connection List", 'file')
+	pkt = NCP(0x1715, "Get Object Connection List", 'bindery')
 	pkt.Request( (13, 28), [
 		rec( 10, 2, ObjectType, BE ),
 		rec( 12, (1,16), ObjectName ),
@@ -9071,7 +9110,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xf001, 0xfc06, 0xfe07, 0xff00])
 	# 2222/1716, 23/22
-	pkt = NCP(0x1716, "Get Station's Logged Info", 'file')
+	pkt = NCP(0x1716, "Get Station's Logged Info", 'bindery')
 	pkt.Request( 11, [
 		rec( 10, 1, TargetConnectionNumber ),
 	])
@@ -9084,21 +9123,21 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x9602, 0xfb0a, 0xfc06, 0xfd00, 0xfe07, 0xff00])
 	# 2222/1717, 23/23
-	pkt = NCP(0x1717, "Get Login Key", 'file')
+	pkt = NCP(0x1717, "Get Login Key", 'bindery')
 	pkt.Request(10)
 	pkt.Reply( 16, [
 		rec( 8, 8, LoginKey ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9602])
 	# 2222/1718, 23/24
-	pkt = NCP(0x1718, "Keyed Object Login", 'file')
+	pkt = NCP(0x1718, "Keyed Object Login", 'bindery')
 	pkt.Request( (21, 68), [
 		rec( 10, 8, LoginKey ),
 		rec( 18, 2, ObjectType, BE ),
 		rec( 20, (1,48), ObjectName ),
 	], info_str=(ObjectName, "Keyed Object Login: %s", ", %s"))
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x9602, 0xc101, 0xc200, 0xc500, 0xd900, 0xda00,
+	pkt.CompletionCodes([0x0000, 0x9602, 0xc101, 0xc200, 0xc500, 0xd904, 0xda00,
 			     0xdb00, 0xdc00, 0xde00, 0xff00])
 	# 2222/171A, 23/26
 	#
@@ -9122,7 +9161,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000])
 	# 2222/171B, 23/27
-	pkt = NCP(0x171B, "Get Object Connection List", 'file')
+	pkt = NCP(0x171B, "Get Object Connection List", 'bindery')
 	pkt.Request( (17,64), [
 		rec( 10, 4, SearchConnNumber ),
 		rec( 14, 2, ObjectType, BE ),
@@ -9134,7 +9173,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xf001, 0xfc06, 0xfe07, 0xff00])
 	# 2222/171C, 23/28
-	pkt = NCP(0x171C, "Get Station's Logged Info", 'file')
+	pkt = NCP(0x171C, "Get Station's Logged Info", 'connection')
 	pkt.Request( 14, [
 		rec( 10, 4, TargetConnectionNumber ),
 	])
@@ -9147,21 +9186,21 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x9602, 0xfb02, 0xfc06, 0xfd00, 0xfe07, 0xff00])
 	# 2222/171D, 23/29
-	pkt = NCP(0x171D, "Change Connection State", 'file')
+	pkt = NCP(0x171D, "Change Connection State", 'connection')
 	pkt.Request( 11, [
 		rec( 10, 1, RequestCode ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0109, 0x7a00, 0x7b00, 0x7c00, 0xe000, 0xfb06, 0xfd00])
 	# 2222/171E, 23/30
-	pkt = NCP(0x171E, "Set Watchdog Delay Interval", 'file')
+	pkt = NCP(0x171E, "Set Watchdog Delay Interval", 'connection')
 	pkt.Request( 14, [
 		rec( 10, 4, NumberOfMinutesToDelay ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0107])
 	# 2222/171F, 23/31
-	pkt = NCP(0x171F, "Get Connection List From Object", 'file')
+	pkt = NCP(0x171F, "Get Connection List From Object", 'bindery')
 	pkt.Request( 18, [
 		rec( 10, 4, ObjectID, BE ),
 		rec( 14, 4, ConnectionNumber ),
@@ -11767,7 +11806,7 @@ def define_ncp2222():
                 srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
-        pkt.CompletionCodes([0x0000, 0x8001, 0x8101, 0x8401, 0x8501,
+        pkt.CompletionCodes([0x0000, 0x7f00, 0x8001, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xa802, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5702, 87/02
@@ -11962,7 +12001,7 @@ def define_ncp2222():
         ])
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x8700, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa802, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5707, 87/07
 	pkt = NCP(0x5707, "Modify File or Subdirectory DOS Information", 'file', has_length=0)
@@ -13292,17 +13331,89 @@ def define_ncp2222():
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
     # 2222/5C, 91
-	pkt = NCP(0x5B, "NMAS Graded Authentication", 'comm')
+	pkt = NCP(0x5B, "NMAS Graded Authentication", 'nmas')
 	#Need info on this packet structure
 	pkt.Request(7)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C, 92
-	pkt = NCP(0x5C, "SecretStore Services", 'file')
+	# 2222/5C00, 9201                                                  
+	pkt = NCP(0x5C01, "SecretStore Services (Ping Server)", 'sss', 0)
 	#Need info on this packet structure and SecretStore Verbs
-	pkt.Request(7)
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+	# 2222/5C01, 9202
+	pkt = NCP(0x5C02, "SecretStore Services", 'sss', 0)
+	#Need info on this packet structure and SecretStore Verbs
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+	# 2222/5C02, 9203
+	pkt = NCP(0x5C03, "SecretStore Services", 'sss', 0)
+	#Need info on this packet structure and SecretStore Verbs
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+	# 2222/5C03, 9204
+	pkt = NCP(0x5C04, "SecretStore Services", 'sss', 0)
+	#Need info on this packet structure and SecretStore Verbs
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+	# 2222/5C04, 9205
+	pkt = NCP(0x5C05, "SecretStore Services", 'sss', 0)
+	#Need info on this packet structure and SecretStore Verbs
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+	# 2222/5C05, 9206
+	pkt = NCP(0x5C06, "SecretStore Services", 'sss', 0)
+	#Need info on this packet structure and SecretStore Verbs
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+	# 2222/5C06, 9207
+	pkt = NCP(0x5C07, "SecretStore Services", 'sss', 0)
+	#Need info on this packet structure and SecretStore Verbs
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+	# 2222/5C07, 9208
+	pkt = NCP(0x5C08, "SecretStore Services", 'sss', 0)
+	#Need info on this packet structure and SecretStore Verbs
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+	# 2222/5C08, 9209
+	pkt = NCP(0x5C09, "SecretStore Services", 'sss', 0)
+	#Need info on this packet structure and SecretStore Verbs
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+	# 2222/5C09, 920a
+	pkt = NCP(0x5C0a, "SecretStore Services", 'sss', 0)
+	#Need info on this packet structure and SecretStore Verbs
+	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
@@ -13389,7 +13500,7 @@ def define_ncp2222():
 	pkt.Request(8)
 	pkt.Reply(8)
         pkt.ReqCondSizeVariable()
-	pkt.CompletionCodes([0x0000])
+	pkt.CompletionCodes([0x0000, 0xfd01])
  	# 2222/6803, 104/03
 	pkt = NCP(0x6803, "Fragment Close", "nds", has_length=0)
 	pkt.Request(12, [
@@ -14429,16 +14540,9 @@ def define_ncp2222():
                 rec(29, 3, Reserved3 ),
                 rec(32, 1, SetCmdFlags ),
                 rec(33, 3, Reserved3 ),
-                rec(36, PROTO_LENGTH_UNKNOWN, SetCmdName ),
-                rec(-1, 4, SetCmdValueNum, req_cond="ncp.start_number>=0x00"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x00"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x01"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x02"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x04"),
-                #srec(SetCmdValueString, req_cond="ncp.set_cmd_type==0x05"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x06"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x07"),
-        ])
+                rec(36, 100, SetCmdName ),
+                rec(136, 4, SetCmdValueNum ),
+        ])                
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B3D, 123/61
@@ -14466,24 +14570,17 @@ def define_ncp2222():
 		rec(12, 1, VConsoleVersion ),
 		rec(13, 1, VConsoleRevision ),
 		rec(14, 2, Reserved2 ),
-                rec(16, 4, TtlNumOfSetCmds ),
-                rec(20, 4, nextStartingNumber ),
-                rec(24, 1, SetCmdType ),
-                rec(25, 3, Reserved3 ),
-                rec(28, 1, SetCmdCategory ),
-                rec(29, 3, Reserved3 ),
-                rec(32, 1, SetCmdFlags ),
-                rec(33, 3, Reserved3 ),
-                rec(36, PROTO_LENGTH_UNKNOWN, SetCmdName ),
-                rec(-1, 4, SetCmdValueNum ),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x00"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x01"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x02"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x04"),
-                #srec(SetCmdValueString, req_cond="ncp.set_cmd_type==0x05"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x06"),
-                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x07"),
-        ])
+        rec(16, 4, TtlNumOfSetCmds ),
+        rec(20, 4, nextStartingNumber ),
+        rec(24, 1, SetCmdType ),
+        rec(25, 3, Reserved3 ),
+        rec(28, 1, SetCmdCategory ),
+        rec(29, 3, Reserved3 ),
+        rec(32, 1, SetCmdFlags ),
+        rec(33, 3, Reserved3 ),
+        rec(36, PROTO_LENGTH_UNKNOWN, SetCmdName ),
+                #rec(136, 4, SetCmdValueNum ),
+        ])                
         pkt.ReqCondSizeVariable()
         pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B46, 123/70
