@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.16 2002/09/20 09:17:38 sahlberg Exp $
+ * $Id: packet-chdlc.c,v 1.17 2003/01/06 22:10:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,14 +144,34 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     addr;
   guint16    proto;
 
-  if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
-  if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CHDLC");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
+
+  switch (pinfo->p2p_dir) {
+
+  case P2P_DIR_SENT:
+    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+    break;
+
+  case P2P_DIR_RECV:
+    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
+    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+    break;
+
+  default:
+    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
+    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
+    break;
+  }
 
   addr = tvb_get_guint8(tvb, 0);
   proto = tvb_get_ntohs(tvb, 2);
