@@ -5,7 +5,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.80 2003/07/15 22:16:51 guy Exp $
+ * $Id: packet-radius.c,v 1.81 2003/11/22 12:02:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2550,7 +2550,8 @@ static gchar *rd_value_to_str_2(gchar *dest, const e_avphdr *avph, tvbuff_t *tvb
   switch(print_type)
   {
         case( RADIUS_STRING ):
-		if ( avph->avp_type == 2 )  { /* User Password */
+		/* User Password, but only, if not inside vsa */
+		if ( avph->avp_type == 2 && vsabuffer[0].str == 0 )  {
 		    rddecryptpass(cont,tvb,offset+2,avph->avp_length-2);
 		} else {
 		    rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
@@ -2966,10 +2967,10 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *radius_tree = NULL, *avptree = NULL;
   proto_item *ti,*avptf;
-  int rhlength;
-  int rhcode;
-  int rhident;
-  int avplength,hdrlength;
+  guint rhlength;
+  guint rhcode;
+  guint rhident;
+  guint avplength,hdrlength;
   e_radiushdr rh;
 
   gchar *codestrval;
@@ -2981,14 +2982,26 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tvb_memcpy(tvb,(guint8 *)&rh,0,sizeof(e_radiushdr));
 
-  rhcode= (int)rh.rh_code;
-  rhident= (int)rh.rh_ident;
-  rhlength= (int)g_ntohs(rh.rh_pktlength);
+  rhcode= rh.rh_code;
+  rhident= rh.rh_ident;
+  rhlength= g_ntohs(rh.rh_pktlength);
   codestrval=  match_strval(rhcode,radius_vals);
   if (codestrval==NULL)
   {
 	codestrval="Unknown Packet";
   }
+  /* XXX Check for valid length value:
+   * Length
+   *
+   *  The Length field is two octets.  It indicates the length of the
+   *  packet including the Code, Identifier, Length, Authenticator and
+   *  Attribute fields.  Octets outside the range of the Length field
+   *  MUST be treated as padding and ignored on reception.  If the
+   *  packet is shorter than the Length field indicates, it MUST be
+   *  silently discarded.  The minimum length is 20 and maximum length
+   *  is 4096.
+   */
+
   if (check_col(pinfo->cinfo, COL_INFO))
   {
         col_add_fstr(pinfo->cinfo,COL_INFO,"%s(%d) (id=%d, l=%d)",
@@ -3037,6 +3050,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     dissect_attribute_value_pairs(tvb, hdrlength, avptree, avplength, pinfo);
   }
+
 }
 /* registration with the filtering engine */
 void
