@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.27 2001/04/20 20:34:31 guy Exp $
+$Id: README.developer,v 1.28 2001/04/20 22:00:27 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -62,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.27 2001/04/20 20:34:31 guy Exp $"
+The "$Id: README.developer,v 1.28 2001/04/20 22:00:27 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,7 +72,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.27 2001/04/20 20:34:31 guy Exp $
+ * $Id: README.developer,v 1.28 2001/04/20 22:00:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -683,6 +683,10 @@ are:
 	BASE_OCT,
 	BASE_BIN
 
+BASE_DEC, BASE_HEX, and BASE_OCT are decimal, hexadecimal, and octal,
+respectively.  BASE_BIN is reserved for binary, although it's currently
+treated as decimal - if you want decimal, use BASE_DEC, not BASE_BIN.
+
 For FT_BOOLEAN fields that are also bitfields, 'display' is used to tell
 the proto_tree how wide the parent bitfield is.  With integers this is
 not needed since the type of integer itself (FT_UINT8, FT_UINT16,
@@ -691,7 +695,7 @@ bitfield is.
 
 Additionally, BASE_NONE is used for 'display' as a NULL-value. That is,
 for non-integers and non-bitfield FT_BOOLEANs, you'll want to use BASE_NONE
-in the 'display' field.
+in the 'display' field.  You may not use BASE_NONE for integers.
 
 It is possible that in the future we will record the endianness of
 integers. If so, it is likely that we'll use a bitmask on the display field
