@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.8 2003/11/09 22:49:08 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.9 2003/11/11 05:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -620,6 +620,103 @@ static gchar *qos_pri_str[] = {
     "Reserved, treat as Priority Level 15"
 };
 
+/*
+ * ANSI A Interface
+ * IOS 4.0.1 element IDs
+ * Used for cdma2000 Handoff Invoke/Response IOS Data
+ *
+ * COPIED FROM packet-ansi_a.c
+ */
+static const value_string ansi_map_ios401_elem_strings[] = {
+    { 0x20,	"Access Network Identifiers" },
+    { 0x3D,	"ADDS User Part" },
+    { 0x25,	"AMPS Hard Handoff Parameters" },
+    { 0x30,	"Anchor PDSN Address" },
+    { 0x7C,	"Anchor P-P Address" },
+    { 0x41,	"Authentication Challenge Parameter" },
+    { 0x28,	"Authentication Confirmation Parameter (RANDC)" },
+    { 0x59,	"Authentication Data" },
+    { 0x4A,	"Authentication Event" },
+    { 0x40,	"Authentication Parameter COUNT" },
+    { 0x42,	"Authentication Response Parameter" },
+    { 0x37,	"Band Class" },
+    { 0x5B,	"Called Party ASCII Number" },
+    { 0x5E,	"Called Party BCD Number" },
+    { 0x4B,	"Calling Party ASCII Number" },
+    { 0x04,	"Cause" },
+    { 0x08,	"Cause Layer 3" },
+    { 0x0C,	"CDMA Serving One Way Delay" },
+    { 0x05,	"Cell Identifier" },
+    { 0x1A,	"Cell Identifier List" },
+    { 0x23,	"Channel Number" },
+    { 0x0B,	"Channel Type" },
+    { 0x19,	"Circuit Group" },
+    { 0x01,	"Circuit Identity Code" },
+    { 0x24,	"Circuit Identity Code Extension" },
+    { 0x12,	"Classmark Information Type 2" },
+    { 0x29,	"Downlink Radio Environment" },
+    { 0x2B,	"Downlink Radio Environment List" },
+    { 0x0A,	"Encryption Information" },
+    { 0x10,	"Extended Handoff Direction Parameters" },
+    { 0x2C,	"Geographic Location" },
+    { 0x5A,	"Special Service Call Indicator" },
+    { 0x26,	"Handoff Power Level" },
+    { 0x16,	"Hard Handoff Parameters" },
+    { 0x2E,	"Information Element Requested" },
+    { 0x09,	"IS-2000 Channel Identity" },
+    { 0x27,	"IS-2000 Channel Identity 3X" },
+    { 0x11,	"IS-2000 Mobile Capabilities" },
+    { 0x0F,	"IS-2000 Non-Negotiable Service Configuration Record" },
+    { 0x0E,	"IS-2000 Service Configuration Record" },
+    { 0x62,	"IS-95/IS-2000 Cause Value" },
+    { 0x67,	"IS-2000 Redirection Record" },
+    { 0x22,	"IS-95 Channel Identity" },
+    { 0x64,	"IS-95 MS Measured Channel Identity" },
+    { 0x17,	"Layer 3 Information" },
+    { 0x13,	"Location Area Information" },
+    { 0x38,	"Message Waiting Indication" },
+    { 0x0D,	"Mobile Identity" },
+    { 0x15,	"MS Information Records" },
+    { 0xA0,	"Origination Continuation Indicator" },
+    { 0x5F,	"PACA Order" },
+    { 0x60,	"PACA Reorigination Indicator" },
+    { 0x4E,	"PACA Timestamp" },
+    { 0x70,	"Packet Session Parameters" },
+    { 0x14,	"PDSN IP Address" },
+    { 0xA2,	"Power Down Indicator" },
+    { 0x06,	"Priority" },
+    { 0x3B,	"Protocol Revision" },
+    { 0x18,	"Protocol Type" },
+    { 0x2D,	"PSMM Count" },
+    { 0x07,	"Quality of Service Parameters" },
+    { 0x1D,	"Radio Environment and Resources" },
+    { 0x1F,	"Registration Type" },
+    { 0x44,	"Reject Cause" },
+    { 0x1B,	"Response Request" },
+    { 0x68,	"Return Cause" },
+    { 0x21,	"RF Channel Identity" },
+    { 0x03,	"Service Option" },
+    { 0x1E,	"Service Option Connection Identifier (SOCI)" },
+    { 0x2A,	"Service Option List" },
+    { 0x69,	"Service Redirection Info" },
+    { 0x71,	"Session Reference Identifier (SR_ID)" },
+    { 0x32,	"SID" },
+    { 0x34,	"Signal" },
+    { 0x35,	"Slot Cycle Index" },
+    { 0x31,	"Software Version" },
+    { 0x39,	"Source RNC to Target RNC Transparent Container" },
+    { 0x14,	"Source PDSN Address" },
+    { 0x33,	"Tag" },
+    { 0x3A,	"Target RNC to Source RNC Transparent Container" },
+    { 0x36,	"Transcoder Mode" }, /* XXX 0x1C in IOS 4.0.1 */
+    { 0x02,	"User Zone ID" },
+    { 0xA1,	"Voice Privacy Request" },
+    { 0, NULL },
+};
+#define	NUM_IOS401_ELEM (sizeof(ansi_map_ios401_elem_strings)/sizeof(value_string))
+static gint ett_ansi_map_ios401_elem[NUM_IOS401_ELEM];
+
+
 /* Initialize the protocol and registered fields */
 static int proto_ansi_map = -1;
 static int hf_ansi_map_tag = -1;
@@ -627,6 +724,7 @@ static int hf_ansi_map_length = -1;
 static int hf_ansi_map_id = -1;
 static int hf_ansi_map_opr_code = -1;
 static int hf_ansi_map_param_id = -1;
+static int hf_ansi_map_ios401_elem_id = -1;
 
 
 /* Initialize the subtree pointers */
@@ -6684,30 +6782,76 @@ param_calling_party_cat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_
 	"Calling Party's Category, Refer to ITU-T Q.763 (Signalling System No. 7 ISDN user part formats and codes) for encoding of this parameter");
 }
 
+/*
+ * Dissect IOS data parameters expected to be in TLV format
+ */
+static void
+dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+{
+    gint32	value;
+    guint	num_elems;
+    guchar	elem_len;
+    guint32	orig_offset, saved_offset;
+    proto_tree	*subtree;
+    proto_item	*item;
+    gchar	*str;
+    gint	idx;
+
+    num_elems = 0;
+    orig_offset = saved_offset = asn1->offset;
+
+    while ((saved_offset - orig_offset + 2) <= len)
+    {
+	num_elems++;
+
+	asn1_int32_value_decode(asn1, 1, &value);
+	str = my_match_strval((guint32) value, ansi_map_ios401_elem_strings, &idx);
+
+	asn1_octet_decode(asn1, &elem_len);
+
+	item =
+	    proto_tree_add_text(tree,
+		asn1->tvb, saved_offset, elem_len + 2,
+		"IOS - %s",
+		str);
+
+	subtree = proto_item_add_subtree(item, ett_ansi_map_ios401_elem[idx]);
+
+	proto_tree_add_none_format(subtree, hf_ansi_map_ios401_elem_id, asn1->tvb,
+	    saved_offset, 1, "Element ID");
+
+	proto_tree_add_uint(subtree, hf_ansi_map_length, asn1->tvb,
+	    saved_offset + 1, 1, elem_len);
+
+	if (elem_len > 0)
+	{
+	    proto_tree_add_text(subtree,
+		asn1->tvb, saved_offset + 2, elem_len,
+		"Element Value");
+
+	    asn1->offset += elem_len;
+	}
+
+	saved_offset += elem_len + 2;
+    }
+
+    sprintf(add_string, " - (%u)", num_elems);
+
+    EXTRANEOUS_DATA_CHECK((len - (saved_offset - orig_offset)), 0);
+}
+
 static void
 param_cdma2000_ho_ivk_ios(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
 
-    add_string = add_string;
-
-    proto_tree_add_text(tree, asn1->tvb,
-	asn1->offset, len,
-	"IOS A1 Element Handoff Invoke Information");
-
-    asn1->offset += len;
+    dissect_cdma2000_ios_data(asn1, tree, len, add_string);
 }
 
 static void
 param_cdma2000_ho_rsp_ios(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
 
-    add_string = add_string;
-
-    proto_tree_add_text(tree, asn1->tvb,
-	asn1->offset, len,
-	"IOS A1 Element Handoff Response Information");
-
-    asn1->offset += len;
+    dissect_cdma2000_ios_data(asn1, tree, len, add_string);
 }
 
 static void
@@ -11918,12 +12062,16 @@ static void
 param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     guint saved_offset;
+    guint num_parms;
 
     add_string = add_string;
+    num_parms = 0;
     saved_offset = asn1->offset;
 
     while (len > (asn1->offset - saved_offset))
     {
+	num_parms++;
+
 	if (!dissect_ansi_param(asn1, tree))
 	{
 	    proto_tree_add_text(tree,
@@ -11934,6 +12082,8 @@ param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	    break;
 	}
     }
+
+    sprintf(add_string, " - (%u)", num_parms);
 }
 
 
@@ -12748,8 +12898,8 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 
     subtree = proto_item_add_subtree(item, ett_param_idx);
 
-    proto_tree_add_none_format(subtree, hf_ansi_map_param_id, asn1->tvb,
-	saved_offset, asn1->offset - saved_offset, "Parameter ID");
+    proto_tree_add_uint_format(subtree, hf_ansi_map_param_id, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset, val, "Parameter ID");
 
     dissect_ansi_map_len(asn1, subtree, &def_len, &len);
 
@@ -12823,7 +12973,15 @@ dissect_ansi_params(ASN1_SCK *asn1, proto_tree *tree)
     dissect_ansi_map_len(asn1, subtree, &def_len, &len);
     proto_item_set_len(item, (asn1->offset - saved_offset) + len);
 
+    ansi_map_add_string[0] = '\0';
+
     param_list(asn1, subtree, len, ansi_map_add_string);
+
+    if (ansi_map_add_string[0] != '\0')
+    {
+	proto_item_append_text(item, ansi_map_add_string);
+	ansi_map_add_string[0] = '\0';
+    }
 }
 
 static void
@@ -13061,6 +13219,7 @@ void
 proto_register_ansi_map(void)
 {
     guint		i;
+    gint		last_offset;
 
     /* Setup list of header fields */
     static hf_register_info hf[] =
@@ -13087,16 +13246,21 @@ proto_register_ansi_map(void)
 	},
 	{ &hf_ansi_map_param_id,
 	    { "Param ID",	"ansi_map.param_id",
-	    FT_NONE, 0, 0, 0,
+	    FT_UINT32, BASE_HEX, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_ansi_map_ios401_elem_id,
+	    { "IOS 4.0.1 Element ID",	"ansi_map.ios401_elem_id",
+	    FT_NONE, 0, NULL, 0,
 	    "", HFILL }
 	},
     };
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARAMS	15
-    static gint *ett[NUM_INDIVIDUAL_PARAMS+NUM_PARAM_1+NUM_PARAM_2+NUM_PARAM_3];
+    gint *ett[NUM_INDIVIDUAL_PARAMS+NUM_PARAM_1+NUM_PARAM_2+NUM_PARAM_3+NUM_IOS401_ELEM];
 
-    memset((void *) ett, 0, sizeof(ett));
+    memset((void *) ett, -1, sizeof(ett));
 
     ett[0] = &ett_ansi_map;
     ett[1] = &ett_opr_code;
@@ -13114,22 +13278,26 @@ proto_register_ansi_map(void)
     ett[13] = &ett_ent_dig_mask;
     ett[14] = &ett_all_dig_mask;
 
-    for (i=0; i < NUM_PARAM_1; i++)
+    last_offset = NUM_INDIVIDUAL_PARAMS;
+
+    for (i=0; i < NUM_PARAM_1; i++, last_offset++)
     {
-	ett_ansi_param_1[i] = -1;
-	ett[NUM_INDIVIDUAL_PARAMS+i] = &ett_ansi_param_1[i];
+	ett[last_offset] = &ett_ansi_param_1[i];
     }
 
-    for (i=0; i < NUM_PARAM_2; i++)
+    for (i=0; i < NUM_PARAM_2; i++, last_offset++)
     {
-	ett_ansi_param_2[i] = -1;
-	ett[NUM_INDIVIDUAL_PARAMS+NUM_PARAM_1+i] = &ett_ansi_param_2[i];
+	ett[last_offset] = &ett_ansi_param_2[i];
     }
 
-    for (i=0; i < NUM_PARAM_3; i++)
+    for (i=0; i < NUM_PARAM_3; i++, last_offset++)
     {
-	ett_ansi_param_3[i] = -1;
-	ett[NUM_INDIVIDUAL_PARAMS+NUM_PARAM_1+NUM_PARAM_2+i] = &ett_ansi_param_3[i];
+	ett[last_offset] = &ett_ansi_param_3[i];
+    }
+
+    for (i=0; i < NUM_IOS401_ELEM; i++, last_offset++)
+    {
+	ett[last_offset] = &ett_ansi_map_ios401_elem[i];
     }
 
     /* Register the protocol name and description */
