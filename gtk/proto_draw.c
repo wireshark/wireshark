@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.90 2004/03/20 06:34:09 guy Exp $
+ * $Id: proto_draw.c,v 1.91 2004/04/23 19:43:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,7 @@
 #include "compat_macros.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
+#include "progress_dlg.h"
 
 
 /* Win32 needs the O_BINARY flag for open() */
@@ -724,6 +725,10 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
   else
         gtk_notebook_set_show_tabs(GTK_NOTEBOOK(byte_nb), TRUE);
 
+  /* set this page (this will print the packet data) */
+  gtk_notebook_set_page(GTK_NOTEBOOK(byte_nb), 
+    gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_nb));
+
   return byte_view;
 }
 
@@ -955,6 +960,9 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	gtk_widget_destroy(GTK_WIDGET(savehex_dlg));
 }
 
+/* Update the progress bar this many times when reading a file. */
+#define N_PROGBAR_UPDATES	100
+
 
 #if GTK_MAJOR_VERSION < 2
 static void
@@ -985,6 +993,14 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
   gsize          newsize;
   GtkTextMark   *mark = NULL;
 #endif
+
+  progdlg_t  *progbar = NULL;
+  float       progbar_val;
+  gboolean    progbar_stop_flag;
+  GTimeVal    progbar_start_time;
+  gchar       progbar_status_str[100];
+  int         progbar_nextstep;
+  int         progbar_quantum;
 
 #if GTK_MAJOR_VERSION < 2
   /* Freeze the text for faster display */
@@ -1022,7 +1038,51 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
   /* Record the number of digits in this text view. */
   OBJECT_SET_DATA(bv, E_BYTE_VIEW_NDIGITS_KEY, GUINT_TO_POINTER(use_digits));
 
+  /* Update the progress bar when it gets to this value. */
+  progbar_nextstep = 0;
+  /* When we reach the value that triggers a progress bar update,
+     bump that value by this amount. */
+  progbar_quantum = len/N_PROGBAR_UPDATES;
+
+  progbar_stop_flag = FALSE;
+  g_get_current_time(&progbar_start_time);
+
   while (i < len) {
+    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+       when we update it, we have to run the GTK+ main loop to get it
+       to repaint what's pending, and doing so may involve an "ioctl()"
+       to see if there's any pending input from an X server, and doing
+       that for every packet can be costly, especially on a big file. */
+    if (i >= progbar_nextstep) {
+      /* let's not divide by zero. I should never be started
+       * with count == 0, so let's assert that
+       */
+      g_assert(len > 0);
+      progbar_val = (gfloat) i / len;
+
+      if (progbar == NULL)
+        /* Create the progress bar if necessary */
+        progbar = delayed_create_progress_dlg("Processing", "Packet Details",
+                                              &progbar_stop_flag,
+                                              &progbar_start_time,
+                                              progbar_val);
+
+      if (progbar != NULL) {
+        g_snprintf(progbar_status_str, sizeof(progbar_status_str),
+                   "%4u of %u bytes", i, len);
+        update_progress_dlg(progbar, progbar_val, progbar_status_str);
+      }
+
+      progbar_nextstep += progbar_quantum;
+    }
+
+    if (progbar_stop_flag) {
+      /* Well, the user decided to abort the operation.  Just stop,
+         and arrange to return TRUE to our caller, so they know it
+         was stopped explicitly. */
+      break;
+    }
+
     /* Print the line number */
     j = use_digits;
     cur = 0;
@@ -1318,6 +1378,11 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
                                              "plain", NULL);
 #endif
   }
+
+  /* We're done printing the packets; destroy the progress bar if
+     it was created. */
+  if (progbar != NULL)
+    destroy_progress_dlg(progbar);
 
   /* scroll text into position */
 #if GTK_MAJOR_VERSION < 2
