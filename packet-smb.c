@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.256 2002/05/08 05:15:10 tpot Exp $
+ * $Id: packet-smb.c,v 1.257 2002/05/10 22:09:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,10 +60,10 @@
  *
  *	ftp://ftp.microsoft.com/developr/drg/CIFS/
  *
- * and a CIFS draft from the Storage Networking Industry Association
+ * and a CIFS specification from the Storage Networking Industry Association
  * can be found on a link from the page at
  *
- *	http://www.snia.org/English/Work_Groups/NAS/CIFS/WG_CIFS_Docs.html
+ *	http://www.snia.org/English/Collaterals/Work_Group_Docs/NAS/CIFS/CIFS_Technical_Reference.pdf
  *
  * (it supercedes the document at
  *
