@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.38 2002/04/30 10:17:53 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.39 2002/04/30 23:48:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,7 +275,7 @@ lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				     hf_lsa_sd_size, &len);
 
-	dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
+	dissect_nt_sec_desc(tvb, offset, tree, len);
 	offset += len;
 
 	return offset;

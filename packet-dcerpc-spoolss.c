@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.22 2002/04/30 01:44:34 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.23 2002/04/30 23:48:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -940,7 +940,7 @@ static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &rel_offset, NULL);
 
-	dissect_nt_sec_desc(tvb, pinfo, struct_start + rel_offset, tree, len);
+	dissect_nt_sec_desc(tvb, struct_start + rel_offset, tree, len);
 	
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Attributes");
 
@@ -974,7 +974,7 @@ static int prs_PRINTER_INFO_3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Flags");
 
-	offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
+	offset = dissect_nt_sec_desc(tvb, offset, tree, len);
 
 	return offset;
 }

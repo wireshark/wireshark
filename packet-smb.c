@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.254 2002/04/30 11:03:04 guy Exp $
+ * $Id: packet-smb.c,v 1.255 2002/04/30 23:48:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7004,21 +7004,8 @@ dissect_nt_sec_desc_type(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	return offset;
 }
 
-/* This function is also called from DCREPC services; it may be that, in
-   some cases, the NDR syntax must be followed, but that's not the case,
-   for example, for the security descriptor inside an LSA Security
-   Descriptor structure.
-
-   A "len" of -1 means that the NDR syntax must be followed.
-   In that case, we assume that owner SID, group SID, SACL, and DACL objects
-   are always stored in order (when present) and that all of them are aligned
-   on a 4 byte boundary, and we no longer use the xxx_offset other than to
-   check that they are non-NULL to be compatible with DCERPC NDR Unique.
-
-   Otherwise, we use the offsets to see where the owner SID, group SID,
-   SACL, and DACL are stored. */
 int
-dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len)
+dissect_nt_sec_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int len)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7076,35 +7063,22 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 
 	  /*group SID*/
 	  if(group_sid_offset){
-	    if (len == -1)
-	      offset = dissect_nt_sid(tvb, offset, tree, "Group");
-	    else
-	      dissect_nt_sid(tvb, old_offset+group_sid_offset, tree, "Group");
+	    dissect_nt_sid(tvb, old_offset+group_sid_offset, tree, "Group");
 	  }
 
 	  /* sacl */
 	  if(sacl_offset){
-	    if (len == -1)
-	      offset = dissect_nt_acl(tvb, offset, tree, "System (SACL)");
-	    else
-	      dissect_nt_acl(tvb, old_offset+sacl_offset, tree, "System (SACL)");
+	    dissect_nt_acl(tvb, old_offset+sacl_offset, tree, "System (SACL)");
 	  }
 
 	  /* dacl */
 	  if(dacl_offset){
-	    if (len == -1)
-	      offset = dissect_nt_acl(tvb, offset, tree, "User (DACL)");
-	    else
-	      dissect_nt_acl(tvb, old_offset+dacl_offset, tree, "User (DACL)");
+	    dissect_nt_acl(tvb, old_offset+dacl_offset, tree, "User (DACL)");
 	  }
 
 	}
 
-	if (len == -1) {
-		proto_item_set_len(item, offset-old_offset);
-		return offset;
-	} else
-		return offset+len;
+	return offset+len;
 }
 
 static int
@@ -7184,7 +7158,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	case NT_TRANS_CREATE:
 		/* security descriptor */
 		if(ntd->sd_len){
-		        offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, ntd->sd_len);
+		        offset = dissect_nt_sec_desc(tvb, offset, tree, ntd->sd_len);
 		}
 
 		/* extended attributes */
@@ -7201,7 +7175,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 		break;
 	case NT_TRANS_SSD:
-		offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, bc);
+		offset = dissect_nt_sec_desc(tvb, offset, tree, bc);
 		break;
 	case NT_TRANS_NOTIFY:
 		break;
@@ -7699,7 +7673,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		 * which may be documented in the Win32 documentation
 		 * somewhere.
 		 */
-		offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
+		offset = dissect_nt_sec_desc(tvb, offset, tree, len);
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
 		bcp=len;
