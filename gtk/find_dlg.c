@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.33 2003/08/29 04:03:46 guy Exp $
+ * $Id: find_dlg.c,v 1.34 2003/08/29 04:56:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -307,8 +307,9 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   glist = g_list_append(glist, "ASCII Non-Unicode");
   glist = g_list_append(glist, "ASCII Unicode");
 
-  /* XXX - make it non-editable - or make this an option menu instead */
   gtk_combo_set_popdown_strings(GTK_COMBO(combo_cb), glist);
+  /* You only get to choose from the options we offer */
+  gtk_entry_set_editable(GTK_ENTRY(GTK_COMBO(combo_cb)->entry), FALSE);
   gtk_container_border_width(GTK_CONTAINER(combo_cb), 1);
   gtk_container_add(GTK_CONTAINER(string_char_frame), combo_cb);
   gtk_widget_show(combo_cb);
