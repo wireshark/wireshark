@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.42 2004/01/20 02:21:17 ulfl Exp $
+ * $Id: find_dlg.c,v 1.43 2004/01/21 21:19:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -287,27 +287,17 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tooltips_set_tip (tooltips, case_cb, ("Search by mixed upper/lower case?"), NULL);
   gtk_widget_show(case_cb);
 
-  /* Button row: OK and cancel buttons */
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  /* Button row */
+  bbox = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL, NULL);
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_FIND);
   SIGNAL_CONNECT(ok_bt, "clicked", find_frame_ok_cb, find_frame_w);
-  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, ok_bt, ("Perform search"), NULL);
   gtk_widget_grab_default(ok_bt);
-  gtk_widget_show(ok_bt);
 
-  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", find_frame_close_cb, find_frame_w);
-  GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, cancel_bt, ("Cancel search and exit"), NULL);
-  gtk_widget_show(cancel_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
   OBJECT_SET_DATA(find_frame_w, E_FIND_FILT_KEY, filter_text_box);

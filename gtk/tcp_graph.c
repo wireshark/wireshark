@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.45 2004/01/21 03:54:31 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.46 2004/01/21 21:19:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@
 #include "compat_macros.h"
 #include "etypes.h"
 #include "ppptypes.h"
+#include "dlg_utils.h"
 
 /* from <net/ethernet.h> */
 struct ether_header {
@@ -853,7 +854,7 @@ static void control_panel_create (struct graph *g)
 {
 	GtkWidget *toplevel, *notebook;
 	GtkWidget *table;
-	GtkWidget *help, *close, *button_box;
+	GtkWidget *help_bt, *close_bt, *bbox;
 #define WINDOW_TITLE_LENGTH 64
 	char window_title[WINDOW_TITLE_LENGTH];
 
@@ -866,13 +867,6 @@ static void control_panel_create (struct graph *g)
 	control_panel_add_cross_page (g, notebook);
 	control_panel_add_graph_type_page (g, notebook);
 
-	/* bottom buttons group */
-    help = BUTTON_NEW_FROM_STOCK(GTK_STOCK_HELP);
-	close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
-	button_box = gtk_hbox_new (TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (button_box), help, TRUE, TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (button_box), close, TRUE, TRUE, 0);
-
 	toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	SIGNAL_CONNECT(toplevel, "realize", window_icon_realize_cb, NULL);
 	SIGNAL_CONNECT(toplevel, "destroy", callback_toplevel_destroy, g);
@@ -882,11 +876,19 @@ static void control_panel_create (struct graph *g)
 
 	gtk_table_attach (GTK_TABLE (table), notebook, 0, 1, 0, 1,
                           GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
-	gtk_table_attach (GTK_TABLE (table), button_box, 0, 1, 1, 2,
-                          GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
 
-	SIGNAL_CONNECT(close, "clicked", callback_close, g);
-	SIGNAL_CONNECT(help, "clicked", callback_create_help, g);
+	/* bottom buttons */
+    bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_CLOSE, NULL);
+    gtk_table_attach (GTK_TABLE (table), bbox, 0, 1, 1, 2,
+                          GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
+    gtk_widget_show(bbox);
+
+    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+	SIGNAL_CONNECT(help_bt, "clicked", callback_create_help, g);
+
+    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    gtk_widget_grab_default(close_bt);
+	SIGNAL_CONNECT(close_bt, "clicked", callback_close, g);
 
 	/* gtk_widget_show_all (table); */
 	/* g->gui.control_panel = table; */
@@ -1006,7 +1008,7 @@ static void callback_close (GtkWidget *widget _U_, gpointer data)
 
 static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 {
-	GtkWidget *toplevel, *box, *text, *scroll, *close;
+	GtkWidget *toplevel, *box, *text, *scroll, *bbox, *close_bt;
 #if GTK_MAJOR_VERSION < 2
 	struct graph *g = (struct graph * )data;
 #else
@@ -1037,9 +1039,14 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 	gtk_text_buffer_set_text(buf, helptext, -1);
 #endif
 	gtk_container_add (GTK_CONTAINER (scroll), text);
-    close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
-	gtk_box_pack_start (GTK_BOX (box), close, FALSE, FALSE, 0);
-	SIGNAL_CONNECT(close, "clicked", callback_close_help, toplevel);
+
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_start (GTK_BOX (box), bbox, FALSE, FALSE, 0);
+    gtk_widget_show(bbox);
+
+    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT(close_bt, "clicked", callback_close_help, toplevel);
+    gtk_widget_grab_default(close_bt);
 
 	gtk_widget_show_all (toplevel);
 }

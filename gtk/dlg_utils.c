@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.15 2004/01/07 00:10:51 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.16 2004/01/21 21:19:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,11 +33,226 @@
 #include "ui_util.h"
 #include "compat_macros.h"
 
+#include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
+
 static void
 dlg_activate (GtkWidget *widget, gpointer ok_button);
 
 static gint
 dlg_key_press (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button);
+
+
+
+/* create a button for the button row (helper for dlg_button_row_new) */
+static GtkWidget *
+dlg_button_new(GtkWidget *button_hbox, gchar *stock_id)
+{
+    GtkWidget *button;
+
+    button = BUTTON_NEW_FROM_STOCK(stock_id);
+    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+    OBJECT_SET_DATA(button_hbox, stock_id, button);
+    gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
+    gtk_widget_show(button);
+    return button;
+}
+
+
+/* create a button row for a dialog */
+
+/* The purpose of this is, to have one place available, where all button rows 
+ * from all dialogs are layouted. This will:
+ *
+ * a.) keep the button layout more consistent over the different dialogs
+ * b.) being able to switch between different button layouts, e.g.:
+ *     GTK1 (e.g. win32) "OK" "Apply" "Cancel"
+ *     GTK2 (e.g. GNOME) "Apply" "Cancel" "OK"
+ */
+GtkWidget *
+dlg_button_row_new(gchar *stock_id_first, ...)
+{
+    gint        buttons = 0;
+    GtkWidget   *button_hbox;
+    va_list     stock_id_list;
+    gchar       *stock_id = stock_id_first;
+
+    gchar *ok           = NULL;
+    gchar *apply        = NULL;
+    gchar *save         = NULL;
+    gchar *cancel       = NULL;
+    gchar *close        = NULL;
+    gchar *clear        = NULL;
+    gchar *stop         = NULL;
+    gchar *create_stat  = NULL;
+    gchar *help         = NULL;
+    gchar *print        = NULL;
+    gchar *find         = NULL;
+    gchar *jump         = NULL;
+
+
+    va_start(stock_id_list, stock_id_first);
+
+    /* get all buttons needed */
+    while(stock_id != NULL) {
+        if (strcmp(stock_id, GTK_STOCK_OK) == 0) {
+            ok = stock_id;
+        } else if (strcmp(stock_id, ETHEREAL_STOCK_CREATE_STAT) == 0) {
+            create_stat = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_APPLY) == 0) {
+            apply = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_SAVE) == 0) {
+            save = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_CANCEL) == 0) {
+            cancel = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_CLOSE) == 0) {
+            close = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_CLEAR) == 0) {
+            clear = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_STOP) == 0) {
+            stop = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_HELP) == 0) {
+            help = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_PRINT) == 0) {
+            print = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_FIND) == 0) {
+            find = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_JUMP_TO) == 0) {
+            jump = stock_id;
+        } else {
+            /* we don't know that button! */
+            g_assert_not_reached();
+        }
+        buttons++;
+        stock_id = va_arg(stock_id_list, gchar *);
+    }
+    va_end(stock_id_list);
+
+    /* we should have at least one button */
+    g_assert(buttons);
+
+    button_hbox = gtk_hbutton_box_new();
+
+    if (buttons == 1) {
+        /* if only one button, simply put it in the middle (default) */
+        dlg_button_new(button_hbox, stock_id_first);
+        return button_hbox;
+    } else {
+        /* if more than one button, sort buttons from left to right /*
+        /* (the whole button cluster will then be right aligned) */
+        gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
+        gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
+    }
+
+#if /*!WIN32 ||*/ GTK_MAJOR_VERSION >= 2
+    /* beware: sequence of buttons are important! */
+
+    /* XXX: this can be implemented more elegant of course, but it works as it should */
+    if (buttons == 2) {
+        if (ok && cancel) {
+            dlg_button_new(button_hbox, cancel);
+            dlg_button_new(button_hbox, ok);
+            return button_hbox;
+        }
+        if (print && cancel) {
+            dlg_button_new(button_hbox, cancel);
+            dlg_button_new(button_hbox, print);
+            return button_hbox;
+        }
+        if (find && cancel) {
+            dlg_button_new(button_hbox, cancel);
+            dlg_button_new(button_hbox, find);
+            return button_hbox;
+        }
+        if (jump && cancel) {
+            dlg_button_new(button_hbox, cancel);
+            dlg_button_new(button_hbox, jump);
+            return button_hbox;
+        }
+        if (save && cancel) {
+            dlg_button_new(button_hbox, cancel);
+            dlg_button_new(button_hbox, save);
+            return button_hbox;
+        }
+        if (ok && clear) {
+            dlg_button_new(button_hbox, clear);
+            dlg_button_new(button_hbox, ok);
+            return button_hbox;
+        }
+        if (save && close) {
+            dlg_button_new(button_hbox, close);
+            dlg_button_new(button_hbox, save);
+            return button_hbox;
+        }
+        if (help && close) {
+            dlg_button_new(button_hbox, help);
+            dlg_button_new(button_hbox, close);
+            return button_hbox;
+        }
+        if (create_stat && cancel) {
+            dlg_button_new(button_hbox, cancel);
+            dlg_button_new(button_hbox, create_stat);
+            return button_hbox;
+        }
+    }
+    if (buttons == 3) {
+        if (ok && save && close) {
+            dlg_button_new(button_hbox, save);
+            dlg_button_new(button_hbox, close);
+            dlg_button_new(button_hbox, ok);
+            return button_hbox;
+        }
+        if (ok && apply && cancel) {
+            dlg_button_new(button_hbox, apply);
+            dlg_button_new(button_hbox, cancel);
+            dlg_button_new(button_hbox, ok);
+            return button_hbox;
+        }
+        if (apply && save && close) {
+            dlg_button_new(button_hbox, save);
+            dlg_button_new(button_hbox, close);
+            dlg_button_new(button_hbox, apply);
+            return button_hbox;
+        }
+    }
+    if (buttons == 4) {
+        if (ok && apply && save && cancel) {
+            dlg_button_new(button_hbox, save);
+            dlg_button_new(button_hbox, apply);
+            dlg_button_new(button_hbox, cancel);
+            dlg_button_new(button_hbox, ok);
+            return button_hbox;
+        }
+        if (ok && apply && save && close) {
+            dlg_button_new(button_hbox, save);
+            dlg_button_new(button_hbox, apply);
+            dlg_button_new(button_hbox, close);
+            dlg_button_new(button_hbox, ok);
+            return button_hbox;
+        }
+    }
+#endif
+
+    /* beware: sequence of buttons is important! */
+    if (help    != NULL) dlg_button_new(button_hbox, help);
+    if (ok      != NULL) dlg_button_new(button_hbox, ok);
+    if (jump    != NULL) dlg_button_new(button_hbox, jump);
+    if (find    != NULL) dlg_button_new(button_hbox, find);
+    if (print   != NULL) dlg_button_new(button_hbox, print);
+    if (create_stat != NULL) dlg_button_new(button_hbox, create_stat);
+    if (apply   != NULL) dlg_button_new(button_hbox, apply);
+    if (save    != NULL) dlg_button_new(button_hbox, save);
+    if (stop    != NULL) dlg_button_new(button_hbox, stop);
+    if (close   != NULL) dlg_button_new(button_hbox, close);
+    if (clear   != NULL) dlg_button_new(button_hbox, clear);
+    if (cancel  != NULL) dlg_button_new(button_hbox, cancel);
+
+    /* GTK2: we don't know that button combination, add it to the above list! */
+    /* g_assert_not_reached(); */
+    return button_hbox;
+}
+
 
 /* Create a dialog box window that belongs to Ethereal's main window. */
 GtkWidget *

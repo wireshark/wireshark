@@ -80,7 +80,7 @@ static GtkWidget *proto_text, *dfilter_text;
 void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 
-  GtkWidget *main_vb, *bbox, *supported_nb, *close_bt, *label, *txt_scrollw,
+  GtkWidget *main_vb, *bbox, *supported_nb, *ok_bt, *label, *txt_scrollw,
     *proto_vb,
 #if GTK_MAJOR_VERSION < 2
     *dfilter_tb, *dfilter_vsb;
@@ -219,24 +219,21 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_widget_show(supported_nb);
 
-  /* Buttons ("Close" only one for now) */
-  bbox = gtk_hbutton_box_new();
-  /*bbox = gtk_hbox_new(FALSE, 1);*/
+  /* Button row */
+  bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
-  close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
-  SIGNAL_CONNECT(close_bt, "clicked", supported_close_cb, supported_w);
-  GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
-  gtk_container_add(GTK_CONTAINER(bbox), close_bt);
-  gtk_widget_grab_default(close_bt);
-  gtk_widget_show(close_bt);
+
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  SIGNAL_CONNECT(ok_bt, "clicked", supported_close_cb, supported_w);
+  gtk_widget_grab_default(ok_bt);
 
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(supported_w));
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had
      been selected. */
-  dlg_set_cancel(supported_w, close_bt);
+  dlg_set_cancel(supported_w, ok_bt);
 
   gtk_widget_show(supported_w);
 

@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to packet" window
  *
- * $Id: goto_dlg.c,v 1.22 2004/01/10 16:27:41 ulfl Exp $
+ * $Id: goto_dlg.c,v 1.23 2004/01/21 21:19:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,24 +74,16 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(fnumber_te);
 
   /* Button row: OK and cancel buttons */
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+  bbox = dlg_button_row_new(GTK_STOCK_JUMP_TO, GTK_STOCK_CANCEL, NULL);
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_JUMP_TO);
   SIGNAL_CONNECT(ok_bt, "clicked", goto_frame_ok_cb, goto_frame_w);
-  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
-  gtk_widget_show(ok_bt);
 
-  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", goto_frame_close_cb, goto_frame_w);
-  GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
-  gtk_widget_show(cancel_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
   OBJECT_SET_DATA(goto_frame_w, E_GOTO_FNUMBER_KEY, fnumber_te);

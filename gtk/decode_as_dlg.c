@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.34 2004/01/10 16:27:40 ulfl Exp $
+ * $Id: decode_as_dlg.c,v 1.35 2004/01/21 21:19:32 ulfl Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -459,7 +459,7 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 void
 decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 {
-    GtkWidget         *main_vb, *bbox, *ok_bt, *button, *scrolled_window;
+    GtkWidget         *main_vb, *bbox, *ok_bt, *clear_bt, *scrolled_window;
     gchar             *titles[E_LIST_D_COLUMNS] = {
         "Table", "Port", "Initial", "Current"
     };
@@ -536,27 +536,25 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 	WIDGET_SET_SIZE(scrolled_window, -1, E_DECODE_MIN_HEIGHT);
     }
 
-    /* Button row: OK and reset buttons */
-    bbox = gtk_hbutton_box_new();
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 10);
+    /* Button row */
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
+    gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+    gtk_widget_show(bbox);
 
-    button = gtk_button_new_with_label("Reset Changes");
-    SIGNAL_CONNECT(button, "clicked", decode_show_reset_cb, decode_show_w);
-    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-    gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
+    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    SIGNAL_CONNECT(ok_bt, "clicked", decode_show_ok_cb, decode_show_w);
+    gtk_widget_grab_default(ok_bt);
+    
+    clear_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLEAR);
+    SIGNAL_CONNECT(clear_bt, "clicked", decode_show_reset_cb, decode_show_w);
+    
 #if GTK_MAJOR_VERSION < 2
-    gtk_widget_set_sensitive(button, (list->rows != 0));
+    gtk_widget_set_sensitive(clear_bt, (list->rows != 0));
 #else
-    gtk_widget_set_sensitive(button,
+    gtk_widget_set_sensitive(clear_bt,
                              gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter));
 #endif
-    ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
-    SIGNAL_CONNECT(ok_bt, "clicked", decode_show_ok_cb, decode_show_w);
-    GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-    gtk_box_pack_start(GTK_BOX(bbox), ok_bt, FALSE, FALSE, 0);
-    gtk_widget_grab_default(ok_bt);
+
     dlg_set_cancel(decode_show_w, ok_bt);
 
     gtk_widget_show_all(decode_show_w);
@@ -1477,35 +1475,28 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 	button_vb = decode_add_yes_no();
 	gtk_box_pack_start(GTK_BOX(format_hb), button_vb, TRUE, TRUE, 10);
 
-	decode_add_notebook(format_hb);
-    }
-
-    /* Button row: OK, Apply and cancel buttons */
-    bbox = gtk_hbutton_box_new();
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 10);
-
-    ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
-    SIGNAL_CONNECT(ok_bt, "clicked", decode_ok_cb, decode_w);
-    GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-    gtk_box_pack_start(GTK_BOX(bbox), ok_bt, FALSE, FALSE, 0);
-    gtk_widget_grab_default(ok_bt);
-
-    apply_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
-    SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
-    GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
-    gtk_box_pack_start(GTK_BOX(bbox), apply_bt, FALSE, FALSE, 0);
-
     button = gtk_button_new_with_label("Show Current");
     SIGNAL_CONNECT(button, "clicked", decode_show_cb, decode_w);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-    gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
 
-    cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+	decode_add_notebook(format_hb);
+    }
+
+    /* Button row */
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
+    gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+    gtk_widget_show(bbox);
+
+    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    SIGNAL_CONNECT(ok_bt, "clicked", decode_ok_cb, decode_w);
+    gtk_widget_grab_default(ok_bt);
+
+    apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
+    SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
+
+    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
     SIGNAL_CONNECT(cancel_bt, "clicked", decode_cancel_cb, decode_w);
-    GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
-    gtk_box_pack_start(GTK_BOX(bbox), cancel_bt, FALSE, FALSE, 0);
 
     /*
      * Catch the "key_press_event" signal in the window, so that

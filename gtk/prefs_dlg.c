@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.73 2004/01/21 12:19:19 oabad Exp $
+ * $Id: prefs_dlg.c,v 1.74 2004/01/21 21:19:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -593,36 +593,22 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   prefs_module_list_foreach(NULL, module_prefs_show, &cts);
 
   /* Button row: OK and cancel buttons */
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
   gtk_container_add(GTK_CONTAINER(cts.main_vb), bbox);
   gtk_widget_show(bbox);
 
-  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", prefs_main_ok_cb, prefs_w);
-  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
-  gtk_widget_show(ok_bt);
 
-  apply_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
+  apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
   SIGNAL_CONNECT(apply_bt, "clicked", prefs_main_apply_cb, prefs_w);
-  GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start(GTK_BOX (bbox), apply_bt, TRUE, TRUE, 0);
-  gtk_widget_show(apply_bt);
 
-  save_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
+  save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
   SIGNAL_CONNECT(save_bt, "clicked", prefs_main_save_cb, prefs_w);
-  GTK_WIDGET_SET_FLAGS(save_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), save_bt, TRUE, TRUE, 0);
-  gtk_widget_show(save_bt);
 
-  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", prefs_main_cancel_cb, prefs_w);
-  GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
-  gtk_widget_show(cancel_bt);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had

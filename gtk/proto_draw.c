@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.80 2004/01/21 03:54:30 ulfl Exp $
+ * $Id: proto_draw.c,v 1.81 2004/01/21 21:19:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -812,26 +812,18 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	gtk_widget_show(file_box);
 
 	/* Now, the button box */
-	bbox=gtk_hbutton_box_new();
-	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_DEFAULT_STYLE);
-	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-	gtk_widget_show(bbox);
+    bbox = dlg_button_row_new(GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
+    gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
+    gtk_widget_show(bbox);
 
 	/* the save button */
-	save_button=BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
+    save_button = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
     SIGNAL_CONNECT_OBJECT(save_button, "clicked",
                               savehex_save_clicked_cb, NULL);
-	gtk_box_pack_start(GTK_BOX(bbox), save_button, TRUE, TRUE, 0);
-	GTK_WIDGET_SET_FLAGS(save_button, GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(save_button);
-	gtk_widget_show(save_button);
 
-	cancel_button=BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+	cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
 	SIGNAL_CONNECT(cancel_button, "clicked", savehex_dlg_cancel_cb, savehex_dlg);
-	GTK_WIDGET_SET_FLAGS(cancel_button, GTK_CAN_DEFAULT);
-	gtk_box_pack_start(GTK_BOX(bbox), cancel_button, TRUE, TRUE, 0);
-	gtk_widget_show(cancel_button);
 
 	/* Catch the "activate" signal on the filter text entry, so that
 	   if the user types Return there, we act as if the "Create Stat"

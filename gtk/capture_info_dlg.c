@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.10 2004/01/21 03:54:29 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.11 2004/01/21 21:19:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,7 +88,7 @@ capture_info    *cinfo)
 {
   unsigned int      i;
   GtkWidget         *main_vb, *stop_bt, *counts_tb;
-  GtkWidget         *counts_fr, *running_tb, *running_label;
+  GtkWidget         *counts_fr, *running_tb, *running_label, *bbox;
   capture_info_ui_t *info;
 
   info = g_malloc0(sizeof(capture_info_ui_t));
@@ -202,17 +202,16 @@ capture_info    *cinfo)
 
   /* allow user to either click a stop button, or the close button on
 	the window to stop a capture in progress. */
-  stop_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_STOP);
+  bbox = dlg_button_row_new(GTK_STOCK_STOP, NULL);
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 3);
+  gtk_widget_show(bbox);
+
+  stop_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_STOP);
+  gtk_widget_grab_default(stop_bt);
   SIGNAL_CONNECT(stop_bt, "clicked", capture_info_stop_cb,
                  cinfo->callback_data);
   SIGNAL_CONNECT(info->cap_w, "delete_event", capture_info_delete_cb,
                  cinfo->callback_data);
-  gtk_box_pack_start(GTK_BOX(main_vb), stop_bt, FALSE, FALSE, 3);
-  GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
-  gtk_widget_grab_default(stop_bt);
-  GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
-  gtk_widget_grab_default(stop_bt);
-  gtk_widget_show(stop_bt);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Stop" button had

@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.29 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: proto_dlg.c,v 1.30 2004/01/21 21:19:33 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -219,37 +219,22 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
   /* Ok, Apply, Cancel Buttons */
-
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+  button = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT(button, "clicked", proto_ok_cb, proto_w);
-  GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-  gtk_box_pack_start(GTK_BOX (bbox), button, TRUE, TRUE, 0);
   gtk_widget_grab_default(button);
-  gtk_widget_show(button);
 
-  button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
+  button = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
   SIGNAL_CONNECT(button, "clicked", proto_apply_cb, proto_w);
-  GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-  gtk_box_pack_start(GTK_BOX (bbox), button, TRUE, TRUE, 0);
-  gtk_widget_show(button);
 
-  button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
+  button = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
   SIGNAL_CONNECT(button, "clicked", proto_save_cb, proto_w);
-  GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-  gtk_box_pack_start(GTK_BOX (bbox), button, TRUE, TRUE, 0);
-  gtk_widget_show(button);
 
-  button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+  button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(button, "clicked", proto_cancel_cb, proto_w);
-  GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-  gtk_box_pack_start(GTK_BOX (bbox), button, TRUE, TRUE, 0);
-  gtk_widget_show(button);
 
   dlg_set_cancel(proto_w, button);
 

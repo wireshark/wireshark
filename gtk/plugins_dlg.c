@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.32 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: plugins_dlg.c,v 1.33 2004/01/21 21:19:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,9 +54,8 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     GtkWidget *frame_hbox;
     GtkWidget *scrolledwindow;
     GtkWidget *plugins_list;
-    GtkWidget *frame_vbnbox;
-    GtkWidget *main_hbnbox;
-    GtkWidget *close_bn;
+    GtkWidget *bbox;
+    GtkWidget *ok_bt;
     gchar     *titles[] = {"Name", "Version"};
 #if GTK_MAJOR_VERSION >= 2
     GtkListStore *store;
@@ -115,31 +114,18 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #endif
     gtk_widget_show(plugins_list);
 
-    frame_vbnbox = gtk_vbutton_box_new();
-    gtk_box_pack_start(GTK_BOX(frame_hbox), frame_vbnbox, FALSE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(frame_vbnbox), 5);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(frame_vbnbox),
-                              GTK_BUTTONBOX_SPREAD);
-    gtk_widget_show(frame_vbnbox);
+    bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+    gtk_box_pack_end(GTK_BOX(main_vbox), bbox, FALSE, FALSE, 3);
+    gtk_widget_show(bbox);
 
-    main_hbnbox = gtk_hbutton_box_new();
-    gtk_box_pack_start(GTK_BOX(main_vbox), main_hbnbox, FALSE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(main_hbnbox), 5);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(main_hbnbox),
-                              GTK_BUTTONBOX_SPREAD);
-    gtk_widget_show(main_hbnbox);
-
-    close_bn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
-    gtk_container_add(GTK_CONTAINER(main_hbnbox), close_bn);
-    GTK_WIDGET_SET_FLAGS(close_bn, GTK_CAN_DEFAULT);
-	gtk_widget_grab_default(close_bn);
-    gtk_widget_show(close_bn);
-    SIGNAL_CONNECT(close_bn, "clicked", plugins_close_cb, plugins_window);
+    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    SIGNAL_CONNECT(ok_bt, "clicked", plugins_close_cb, plugins_window);
+    gtk_widget_grab_default(ok_bt);
 
     /* Catch the "key_press_event" signal in the window, so that we can catch
-       the ESC key being pressed and act as if the "Cancel" button had
+       the ESC key being pressed and act as if the "OK" button had
        been selected. */
-	dlg_set_cancel(plugins_window, close_bn);
+	dlg_set_cancel(plugins_window, ok_bt);
 
     gtk_widget_show(plugins_window);
 

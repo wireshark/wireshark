@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.22 2004/01/21 03:54:31 ulfl Exp $
+ * $Id: summary_dlg.c,v 1.23 2004/01/21 21:19:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -257,21 +257,14 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_box(string_buff, capture_box);
 #endif
 
-  /* Button row: close button.
-     (We put it in an HButtonBox, even though there's only one of them,
-     so that it doesn't expand to the width of the window.  */
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+  /* Button row. */
+  bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  /* Create Close Button */
-  close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+  close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
   SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, sum_open_w);
-  GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start(GTK_BOX(bbox), close_bt, FALSE,FALSE, 0);
   gtk_widget_grab_default(close_bt);
-  gtk_widget_show(close_bt);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Close" button had

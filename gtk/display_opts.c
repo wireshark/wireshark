@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.35 2004/01/19 03:46:42 ulfl Exp $
+ * $Id: display_opts.c,v 1.36 2004/01/21 21:19:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,30 +126,19 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_widget_show(button);
 
   /* Button row: OK, Apply, and Cancel buttons */
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
+  gtk_box_pack_start(GTK_BOX(dialog_action_area), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", display_opt_ok_cb, display_opt_w);
-  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
-  gtk_widget_show(ok_bt);
 
-  apply_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
+  apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
   SIGNAL_CONNECT(apply_bt, "clicked", display_opt_apply_cb, display_opt_w);
-  GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), apply_bt, TRUE, TRUE, 0);
-  gtk_widget_show(apply_bt);
 
-  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", display_opt_close_cb, display_opt_w);
-  GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
-  gtk_widget_show(cancel_bt);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had

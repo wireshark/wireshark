@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.26 2004/01/21 03:54:29 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.27 2004/01/21 21:19:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,7 +218,7 @@ static void
 ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 {
 	GtkWidget	*ifopts_edit_dlg, *cur_scr_win, *if_scr_win, *main_hb, *main_tb,
-				*cur_opts_fr, *ed_opts_fr,
+				*cur_opts_fr, *ed_opts_fr, *main_vb,
 				*if_clist, *if_descr_lb, *if_hide_lb,
 				*bbox, *ok_bt, *cancel_bt;
 	gchar *cur_titles[IFOPTS_CLIST_COLS] = { "dev-nodisp", "Interface", 
@@ -237,18 +237,20 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	}
 	
 	/* create a new dialog */
-	ifopts_edit_dlg = gtk_dialog_new();
-	gtk_window_set_title(GTK_WINDOW(ifopts_edit_dlg), 
-			"Ethereal: Preferences: Interface Options");
+	ifopts_edit_dlg = dlg_window_new("Ethereal: Preferences: Interface Options");
+	/*gtk_window_set_title(GTK_WINDOW(ifopts_edit_dlg), 
+			"Ethereal: Preferences: Interface Options");*/
 	SIGNAL_CONNECT(ifopts_edit_dlg, "destroy", ifopts_edit_destroy_cb, NULL);
 	SIGNAL_CONNECT(ifopts_edit_dlg, "realize", window_icon_realize_cb, NULL);
-	gtk_container_border_width(GTK_CONTAINER(GTK_DIALOG(ifopts_edit_dlg)->vbox),
-			5);
+    main_vb = gtk_vbox_new(FALSE, 1);
+    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_add(GTK_CONTAINER(ifopts_edit_dlg), main_vb);
+    gtk_widget_show(main_vb);
+
 	
 	/* create current options frame */
 	cur_opts_fr = gtk_frame_new("Current options");
-	gtk_container_add(GTK_CONTAINER(GTK_DIALOG(ifopts_edit_dlg)->vbox), 
-			cur_opts_fr);
+	gtk_container_add(GTK_CONTAINER(main_vb), cur_opts_fr);
 	gtk_widget_show(cur_opts_fr);
 	
 	/* create a scrolled window to pack the current options CList widget into */
@@ -276,8 +278,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	
 	/* create edit options frame */
 	ed_opts_fr = gtk_frame_new("Edit interface options");
-	gtk_container_add(GTK_CONTAINER(GTK_DIALOG(ifopts_edit_dlg)->vbox), 
-			ed_opts_fr);
+	gtk_container_add(GTK_CONTAINER(main_vb),  ed_opts_fr);
 	gtk_widget_show(ed_opts_fr);
 	
 	main_hb = gtk_hbox_new(TRUE, 5);
@@ -341,29 +342,16 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(if_hide_cb);
 	
 	/* button row: OK and Cancel buttons */
-	bbox = gtk_hbutton_box_new();
-	gtk_button_box_set_layout(GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
-	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 10);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(ifopts_edit_dlg)->action_area), bbox,
-			TRUE, FALSE, 0);
-	gtk_widget_show(bbox);
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+    gtk_widget_show(bbox);
 
-	ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
-
-	/* Connect the OK button callback */
+    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    gtk_widget_grab_default(ok_bt);
 	SIGNAL_CONNECT(ok_bt, "clicked", ifopts_edit_ok_cb, ifopts_edit_dlg);
-	GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-	gtk_container_add(GTK_CONTAINER(bbox), ok_bt);
-	gtk_widget_grab_default(ok_bt);
-	gtk_widget_show(ok_bt);
 
-	cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
-
-	/* Connect the Cancel button callback to destroy the widget */
+    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
 	SIGNAL_CONNECT(cancel_bt, "clicked", ifopts_edit_close_cb, ifopts_edit_dlg);
-	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
-	gtk_container_add(GTK_CONTAINER(bbox), cancel_bt);
-	gtk_widget_show(cancel_bt);
 
 	/* Call a handler when we're destroyed, so we can inform
 	   our caller, if any, that we've been destroyed. */

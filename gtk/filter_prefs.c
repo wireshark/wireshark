@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.50 2004/01/21 05:35:42 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.51 2004/01/21 21:19:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -594,9 +594,19 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
 
     /* button row */
-    bbox = gtk_hbutton_box_new();
-    gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+    if (parent_filter_te != NULL) {
+        if (construct_args->wants_apply_button) {
+            bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
+        } else {
+            bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
+        }
+    } else {
+        if (construct_args->wants_apply_button) {
+            bbox = dlg_button_row_new(GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
+        } else {
+            bbox = dlg_button_row_new(GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
+        }
+    }
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
@@ -605,12 +615,9 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
          * We have a filter text entry that we can fill in if
          * the "OK" button is clicked, so put in an "OK" button.
          */
-        ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+        ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
         SIGNAL_CONNECT(ok_bt, "clicked", filter_dlg_ok_cb, NULL);
-        GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-        gtk_box_pack_start(GTK_BOX(bbox), ok_bt, TRUE, TRUE, 0);
         gtk_widget_grab_default(ok_bt);
-        gtk_widget_show(ok_bt);
 
         /* Catch the "activate" signal on the filter name and filter
            expression text entries, so that if the user types Return
@@ -622,24 +629,17 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     }
 
     if (construct_args->wants_apply_button) {
-        apply_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
+        apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
         SIGNAL_CONNECT(apply_bt, "clicked", filter_dlg_apply_cb, NULL);
-        GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
-        gtk_box_pack_start(GTK_BOX(bbox), apply_bt, TRUE, TRUE, 0);
-        gtk_widget_show(apply_bt);
     }
 
-    save_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
+    save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
     SIGNAL_CONNECT(save_bt, "clicked", filter_dlg_save_cb, filter_list_p);
-    GTK_WIDGET_SET_FLAGS(save_bt, GTK_CAN_DEFAULT);
-    gtk_box_pack_start(GTK_BOX(bbox), save_bt, TRUE, TRUE, 0);
-    gtk_widget_show(save_bt);
 
-    close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     SIGNAL_CONNECT(close_bt, "clicked", filter_dlg_close_cb, main_w);
-    GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
-    gtk_box_pack_start(GTK_BOX(bbox), close_bt, TRUE, TRUE, 0);
-    gtk_widget_show(close_bt);
+    if (parent_filter_te == NULL)
+        gtk_widget_grab_default(close_bt);
 
     /*
      * Catch the "key_press_event" signal in the window, so that we can

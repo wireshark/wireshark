@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.13 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.14 2004/01/21 21:19:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -270,13 +270,11 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     ph_stats_free(ps);
 }
 
-#define WNAME "Protocol Hierarchy Statistics"
-
 void
 proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	ph_stats_t	*ps;
-	GtkWidget	*dlg, *bt, *vbox, *frame, *bbox;
+	GtkWidget	*dlg, *ok_bt, *vbox, *bbox;
 
 	/* Get the statistics. */
 	ps = ph_stats_new();
@@ -286,36 +284,28 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(dlg), "Ethereal: " WNAME);
-	SIGNAL_CONNECT(dlg, "realize", window_icon_realize_cb, NULL);
+	dlg = dlg_window_new("Ethereal: Protocol Hierarchy Statistics");
 
 	vbox = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(vbox), 5);
 	gtk_container_add(GTK_CONTAINER(dlg), vbox);
 
-	frame = gtk_frame_new(WNAME);
-	/*gtk_container_add(GTK_CONTAINER(vbox), frame);*/
-	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
-
-
 	/* Data section */
-	create_tree(frame, ps);
+	create_tree(vbox, ps);
 
-	/* Button row. We put it in an HButtonBox to
-	 * keep it from expanding to the width of the window. */
-	bbox = gtk_hbutton_box_new();
-	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-	/*gtk_container_add(GTK_CONTAINER(vbox), bbox);*/
-	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+    gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+    gtk_widget_show(bbox);
 
-	/* Close button */
-    bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(bt, "clicked", gtk_widget_destroy, dlg);
-	gtk_container_add(GTK_CONTAINER(bbox), bt);
-	GTK_WIDGET_SET_FLAGS(bt, GTK_CAN_DEFAULT);
-	gtk_widget_grab_default(bt);
-	dlg_set_cancel(dlg, bt);
+    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+	SIGNAL_CONNECT_OBJECT(ok_bt, "clicked", gtk_widget_destroy, dlg);
+    gtk_widget_grab_default(ok_bt);
+
+    /* Catch the "key_press_event" signal in the window, so that we can catch
+       the ESC key being pressed and act as if the "OK" button had
+       been selected. */
+	dlg_set_cancel(dlg, ok_bt);
 
 	gtk_widget_show_all(dlg);
 

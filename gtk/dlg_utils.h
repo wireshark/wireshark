@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.8 2004/01/07 00:10:51 ulfl Exp $
+ * $Id: dlg_utils.h,v 1.9 2004/01/21 21:19:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,10 @@ extern GtkWidget *dlg_window_new(const gchar *);
 /* Create a file selection dialog box window that belongs to Ethereal's
    main window. */
 extern GtkWidget *file_selection_new(const gchar *);
+
+/* Create a button row for a dialog */
+/* the button widgets will be available by OBJECT_GET_DATA(stock_id) */
+extern GtkWidget *dlg_button_row_new(gchar *stock_id_first, ...);
 
 /* Set the "activate" signal for a widget to call a routine to
    activate the "OK" button for a dialog box. */

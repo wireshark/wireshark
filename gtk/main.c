@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.365 2004/01/21 09:00:48 guy Exp $
+ * $Id: main.c,v 1.366 2004/01/21 21:19:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -242,17 +242,13 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
   gtk_widget_show(msg_label);
 
   /* Button row */
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
+  bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  ok_btn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+  ok_btn = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy, win);
-  gtk_container_add(GTK_CONTAINER(bbox), ok_btn);
-  GTK_WIDGET_SET_FLAGS(ok_btn, GTK_CAN_DEFAULT);
   gtk_widget_grab_default(ok_btn);
-  gtk_widget_show(ok_btn);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had
@@ -3241,7 +3237,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Main Toolbar */
     main_tb = toolbar_new();
-    //gtk_box_pack_start(GTK_BOX(main_vbox), main_tb, FALSE, TRUE, 0);
     gtk_widget_show (main_tb);
 
     /* Packet list */

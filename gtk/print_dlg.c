@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.55 2004/01/21 03:54:30 ulfl Exp $
+ * $Id: print_dlg.c,v 1.56 2004/01/21 21:19:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -647,14 +647,12 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 /*****************************************************/
 
 
-  /* Button row: OK and Cancel buttons */
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+  /* Button row */
+  bbox = dlg_button_row_new(GTK_STOCK_PRINT, GTK_STOCK_CANCEL, NULL);
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_PRINT);
   OBJECT_SET_DATA(ok_bt, PRINT_FORMAT_RB_KEY, format_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_DEST_CB_KEY, dest_cb);
 #ifndef _WIN32
@@ -667,18 +665,11 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(ok_bt, PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
   SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, print_w);
-  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-  gtk_tooltips_set_tip (tooltips, ok_bt, ("Perform printing"), NULL);
-  gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
-  gtk_widget_show(ok_bt);
 
-  cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+  cancel_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", print_close_cb, print_w);
-  GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_tooltips_set_tip (tooltips, cancel_bt, ("Cancel print and exit dialog"), NULL);
-  gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
-  gtk_widget_show(cancel_bt);
 
   /* Catch the "activate" signal on the "Command" and "File" text entries,
      so that if the user types Return there, we act as if the "OK" button

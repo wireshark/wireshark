@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_a_stat.c,v 1.8 2004/01/21 03:54:29 ulfl Exp $
+ * $Id: gsm_a_stat.c,v 1.9 2004/01/21 21:19:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -385,7 +385,7 @@ gsm_a_stat_gtk_win_create(
     GtkWidget		*column_lb;
     GtkWidget		*vbox;
     GtkWidget		*bt_close;
-    GtkWidget		*hbuttonbox;
+    GtkWidget		*bbox;
     GtkWidget		*dialog_vbox;
     GtkWidget		*dialog_action_area;
 
@@ -402,22 +402,13 @@ gsm_a_stat_gtk_win_create(
     gtk_widget_show(dialog_action_area);
     gtk_container_set_border_width(GTK_CONTAINER(dialog_action_area), 10);
 
-    hbuttonbox = gtk_hbutton_box_new();
-    gtk_widget_ref(hbuttonbox);
-    OBJECT_SET_DATA_FULL(dlg_p->win, "hbuttonbox", hbuttonbox,
-                         gtk_widget_unref);
-    gtk_widget_show(hbuttonbox);
-    gtk_box_pack_start(GTK_BOX(dialog_action_area), hbuttonbox, FALSE, FALSE, 0);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(hbuttonbox), GTK_BUTTONBOX_END);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(hbuttonbox), 0);
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    gtk_box_pack_start(GTK_BOX(dialog_action_area), bbox, FALSE, FALSE, 0);
+    gtk_widget_show(bbox);
 
-    bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
-    gtk_widget_ref(bt_close);
-    OBJECT_SET_DATA_FULL(dlg_p->win, "bt_close", bt_close, gtk_widget_unref);
-    gtk_widget_show(bt_close);
-    gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_close);
-    GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     SIGNAL_CONNECT(bt_close, "clicked", gsm_a_stat_gtk_dlg_close_cb, dlg_p);
+    gtk_widget_grab_default(bt_close);
 
     vbox = gtk_vbox_new(FALSE, 0);
     gtk_widget_ref(vbox);

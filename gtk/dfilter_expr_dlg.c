@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.45 2004/01/10 16:27:41 ulfl Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.46 2004/01/21 21:19:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1090,7 +1090,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkWidget *range_label, *range_entry;
     GtkWidget *value_vb;
     GtkWidget *value_label, *value_entry, *value_list_scrolled_win, *value_list;
-    GtkWidget *list_bb, *alignment, *accept_bt, *close_bt;
+    GtkWidget *list_bb, *accept_bt, *close_bt;
     header_field_info       *hfinfo;
     int i;
     protocol_t *protocol;
@@ -1414,30 +1414,19 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     gtk_widget_show_all(tree);
 
-    list_bb = gtk_hbutton_box_new();
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(list_bb), GTK_BUTTONBOX_START);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(list_bb), 5);
-    gtk_container_add(GTK_CONTAINER(main_vb), list_bb);
+
+    list_bb = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+	gtk_box_pack_start(GTK_BOX(main_vb), list_bb, FALSE, FALSE, 0);
+    gtk_container_set_border_width  (GTK_CONTAINER (list_bb), 0);
     gtk_widget_show(list_bb);
 
-    accept_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+    accept_bt = OBJECT_GET_DATA(list_bb, GTK_STOCK_OK);
     gtk_widget_set_sensitive(accept_bt, FALSE);
     SIGNAL_CONNECT(accept_bt, "clicked", dfilter_expr_dlg_accept_cb, filter_te);
-    GTK_WIDGET_SET_FLAGS(accept_bt, GTK_CAN_DEFAULT);
-    alignment = gtk_alignment_new(0.0, 0.5, 1.0, 0.0);
-    gtk_container_add(GTK_CONTAINER(alignment), accept_bt);
-    gtk_box_pack_start(GTK_BOX(list_bb), alignment, TRUE, TRUE, 0);
     gtk_widget_grab_default(accept_bt);
-    gtk_widget_show(accept_bt);
-    gtk_widget_show(alignment);
 
-    close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+    close_bt = OBJECT_GET_DATA(list_bb, GTK_STOCK_CANCEL);
     SIGNAL_CONNECT(close_bt, "clicked", dfilter_expr_dlg_cancel_cb, window);
-    alignment = gtk_alignment_new(0.0, 0.5, 1.0, 0.0);
-    gtk_container_add(GTK_CONTAINER(alignment), close_bt);
-    gtk_box_pack_start(GTK_BOX(list_bb), alignment, TRUE, TRUE, 0);
-    gtk_widget_show(close_bt);
-    gtk_widget_show(alignment);
 
     /* Catch the "activate" signal on the range and value text entries,
        so that if the user types Return there, we act as if the "Accept"

@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.33 2004/01/21 03:54:31 ulfl Exp $
+ * $Id: rpc_stat.c,v 1.34 2004/01/21 21:19:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -486,26 +486,17 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(filter_box);
 
 	/* button box */
-	bbox=gtk_hbutton_box_new();
-	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_DEFAULT_STYLE);
-	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+    bbox = dlg_button_row_new(ETHEREAL_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-	gtk_widget_show(bbox);
+    gtk_widget_show(bbox);
 
-	/* the start button */
-	start_button=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CREATE_STAT);
-        SIGNAL_CONNECT_OBJECT(start_button, "clicked",
+    start_button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CREATE_STAT);
+    gtk_widget_grab_default(start_button );
+    SIGNAL_CONNECT_OBJECT(start_button, "clicked",
                               rpcstat_start_button_clicked, NULL);
-	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);
-	GTK_WIDGET_SET_FLAGS(start_button, GTK_CAN_DEFAULT);
-	gtk_widget_grab_default(start_button);
-	gtk_widget_show(start_button);
 
-	cancel_button=BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);
-	GTK_WIDGET_SET_FLAGS(cancel_button, GTK_CAN_DEFAULT);
-	gtk_box_pack_start(GTK_BOX(bbox), cancel_button, TRUE, TRUE, 0);
-	gtk_widget_show(cancel_button);
+    cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);    
 
 	/* Catch the "activate" signal on the filter text entry, so that
 	   if the user types Return there, we act as if the "Create Stat"

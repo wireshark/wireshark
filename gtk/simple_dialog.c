@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.15 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.16 2004/01/21 21:19:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,7 +64,7 @@ static const gchar bm_key[] = "button mask";
 void
 simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   GtkWidget   *win, *main_vb, *top_hb, *type_pm, *msg_label,
-              *bbox, *ok_btn, *cancel_btn;
+              *bbox, *ok_bt, *cancel_bt;
   GdkPixmap   *pixmap;
   GdkBitmap   *mask;
   GtkStyle    *style;
@@ -128,34 +128,31 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   gtk_widget_show(msg_label);
 
   /* Button row */
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
+  if (btn_mask && *btn_mask == ESD_BTN_CANCEL) {
+      bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+  } else {
+      bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+  }
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  ok_btn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
-  SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy, win);
-  gtk_container_add(GTK_CONTAINER(bbox), ok_btn);
-  GTK_WIDGET_SET_FLAGS(ok_btn, GTK_CAN_DEFAULT);
-  gtk_widget_grab_default(ok_btn);
-  gtk_widget_show(ok_btn);
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  SIGNAL_CONNECT_OBJECT(ok_bt, "clicked", gtk_widget_destroy, win);
+  gtk_widget_grab_default(ok_bt);  
 
   if (btn_mask && *btn_mask == ESD_BTN_CANCEL) {
-    cancel_btn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
-    SIGNAL_CONNECT(cancel_btn, "clicked", simple_dialog_cancel_cb, win);
-    gtk_container_add(GTK_CONTAINER(bbox), cancel_btn);
-    GTK_WIDGET_SET_FLAGS(cancel_btn, GTK_CAN_DEFAULT);
-    gtk_widget_show(cancel_btn);
+    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+    SIGNAL_CONNECT(cancel_bt, "clicked", simple_dialog_cancel_cb, win);
 
     /* Catch the "key_press_event" signal in the window, so that we can catch
        the ESC key being pressed and act as if the "Cancel" button had
        been selected. */
-    dlg_set_cancel(win, cancel_btn);
+    dlg_set_cancel(win, cancel_bt);
   } else {
     /* Catch the "key_press_event" signal in the window, so that we can catch
        the ESC key being pressed and act as if the "OK" button had
        been selected. */
-    dlg_set_cancel(win, ok_btn);
+    dlg_set_cancel(win, ok_bt);
   }
 
   if (btn_mask)
