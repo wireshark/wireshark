@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.107 2000/02/29 06:24:37 guy Exp $
+ * $Id: main.c,v 1.108 2000/03/02 07:05:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,7 +118,7 @@ packet_info  pi;
 capture_file cf;
 GtkWidget   *top_level, *file_sel, *packet_list, *tree_view, *byte_view,
             *prog_bar, *info_bar, *tv_scrollw, *pkt_scrollw;
-static GtkWidget	*bv_vscroll_left, *bv_vscroll_right;
+static GtkWidget	*bv_scrollw;
 GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
 gchar        comp_info_str[256];
@@ -139,7 +139,6 @@ static void follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w);
 static void follow_load_text(GtkWidget *text, char *filename, guint8 show_type);
 static void follow_print_stream(GtkWidget *w, gpointer parent_w);
 static char* hfinfo_numeric_format(header_field_info *hfinfo);
-static void set_scrollbar_placement_main_window(int pos); /* 0=left, 1=right */
 static void create_main_window(gint, gint, gint, e_prefs*);
 
 /* About Ethereal window */
@@ -163,8 +162,7 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 void
 follow_stream_cb( GtkWidget *w, gpointer data ) {
   char      filename1[128+1];
-  GtkWidget *streamwindow, *box, *text, *vscrollbar, *table,
-  		*filter_te;
+  GtkWidget *streamwindow, *box, *txt_scrollw, *text, *filter_te;
   GtkWidget *hbox, *close_bt, *print_bt;
   GtkWidget *b_ascii, *b_ebcdic, *b_hexdump;
   int        tmp_fd;
@@ -234,18 +232,20 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     gtk_container_add( GTK_CONTAINER(streamwindow), box );
     gtk_widget_show( box );
 
-    /* set up the table we attach to */
-    table = gtk_table_new( 1, 2, FALSE );
-    gtk_table_set_col_spacing( GTK_TABLE(table), 0, 2);
-    gtk_box_pack_start( GTK_BOX(box), table, TRUE, TRUE, 0 );
-    gtk_widget_show( table );
+    /* create a scrolled window for the text */
+    txt_scrollw = gtk_scrolled_window_new( NULL, NULL );
+    gtk_box_pack_start( GTK_BOX(box), txt_scrollw, TRUE, TRUE, 0 );
+    gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW(txt_scrollw),
+					GTK_POLICY_NEVER,
+					GTK_POLICY_ALWAYS );
+    set_scrollbar_placement_scrollw(txt_scrollw, prefs.gui_scrollbar_on_right);
+    remember_scrolled_window(txt_scrollw);
+    gtk_widget_show( txt_scrollw );
 
     /* create a text box */
     text = gtk_text_new( NULL, NULL );
     gtk_text_set_editable( GTK_TEXT(text), FALSE);
-    gtk_table_attach( GTK_TABLE(table), text, 0, 1, 0, 1,
-		      GTK_EXPAND | GTK_SHRINK | GTK_FILL,
-		      GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0 );
+    gtk_container_add( GTK_CONTAINER(txt_scrollw), text );
     gtk_widget_show(text);
 
     /* Create hbox */
@@ -304,13 +304,6 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
                    GTK_OBJECT(streamwindow));
     gtk_box_pack_end( GTK_BOX(hbox), print_bt, FALSE, FALSE, 0);
     gtk_widget_show( print_bt );
-
-    /* create the scrollbar */
-    vscrollbar = gtk_vscrollbar_new( GTK_TEXT(text)->vadj );
-    gtk_table_attach( GTK_TABLE(table), vscrollbar, 1, 2, 0, 1,
-		      GTK_FILL, GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0 );
-    gtk_widget_show( vscrollbar );
-    gtk_widget_realize( text );
 
     /* Tuck away the filename and textbox into streamwindow */
 #define E_FOLLOW_FILENAME_KEY "follow_filename_key"
@@ -908,38 +901,37 @@ set_scrollbar_placement_scrollw(GtkWidget *scrollw, int pos) /* 0=left, 1=right 
 	}
 }
 
-/* Set the scrollbar placement of a 3-box text window (hex display) based
-   upon pos value: 0 = left, 1 = right */
+/* List of all scrolled windows, so we can globally set the scrollbar
+   placement of them. */
+static GList *scrolled_windows;
+
+/* Add a scrolled window to the list of scrolled windows. */
 void
-set_scrollbar_placement_textw(GtkWidget *vscroll_left, GtkWidget *vscroll_right,
-    int pos)
+remember_scrolled_window(GtkWidget *scrollw)
 {
-	if (pos) {
-		gtk_widget_hide(vscroll_left);
-		gtk_widget_show(vscroll_right);
-	} else {
-		gtk_widget_hide(vscroll_right);
-		gtk_widget_show(vscroll_left);
-	}
+  scrolled_windows = g_list_append(scrolled_windows, scrollw);
 }
 
-/* Set the scrollbar placement of all the subwindows of the main window
-   based on pos value: 0 = left, 1 = right */
+/* Remove a scrolled window from the list of scrolled windows. */
+void
+forget_scrolled_window(GtkWidget *scrollw)
+{
+  scrolled_windows = g_list_remove(scrolled_windows, scrollw);
+}
+
 static void
-set_scrollbar_placement_main_window(int pos)
+set_scrollbar_placement_cb(gpointer data, gpointer user_data)
 {
-	set_scrollbar_placement_scrollw(pkt_scrollw, pos);
-	set_scrollbar_placement_scrollw(tv_scrollw, pos);
-	set_scrollbar_placement_textw(bv_vscroll_left, bv_vscroll_right, pos);
+	set_scrollbar_placement_scrollw((GtkWidget *)data,
+	    *(int *)user_data);
 }
 
-/* Set the scrollbar placement of all windows based on pos value:
+/* Set the scrollbar placement of all scrolled windows based on pos value:
    0 = left, 1 = right */
 void
 set_scrollbar_placement_all(int pos)
 {
-	set_scrollbar_placement_main_window(pos);
-	set_scrollbar_placement_packet_wins(pos);
+	g_list_foreach(scrolled_windows, set_scrollbar_placement_cb, &pos);
 }
 
 /* Set the selection mode of the packet list window. */
@@ -1586,6 +1578,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   pkt_scrollw = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(pkt_scrollw),
     GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  set_scrollbar_placement_scrollw(pkt_scrollw, prefs->gui_scrollbar_on_right);
+  remember_scrolled_window(pkt_scrollw);
   gtk_widget_show(pkt_scrollw);
   gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
 
@@ -1622,7 +1616,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(packet_list);
 
   /* Tree view */
-  create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view);
+  create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view,
+			prefs->gui_scrollbar_on_right);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
     GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
@@ -1636,12 +1631,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   item_style->font = m_r_font;
 
   /* Byte view. */
-  create_byte_view(bv_size, l_pane, &byte_view, &bv_vscroll_left,
-			&bv_vscroll_right);
-
-  /* Now that the 3 panes are created, set the vertical scrollbar
-   * on the left or right according to the user's preference */
-  set_scrollbar_placement_main_window(prefs->gui_scrollbar_on_right);
+  create_byte_view(bv_size, l_pane, &byte_view, &bv_scrollw,
+			prefs->gui_scrollbar_on_right);
 
   /* Progress/filter/info box */
   stat_hbox = gtk_hbox_new(FALSE, 1);

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.2 2000/03/01 06:50:18 guy Exp $
+ * $Id: packet_win.c,v 1.3 2000/03/02 07:05:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,9 +78,8 @@ struct PacketWinData {
 	GtkWidget  *main;
 	GtkWidget  *tv_scrollw;
 	GtkWidget  *tree_view;
+ 	GtkWidget  *bv_scrollw;
  	GtkWidget  *byte_view;
- 	GtkWidget  *bv_vscroll_left;
- 	GtkWidget  *bv_vscroll_right;
 };
 
 /* List of all the packet-detail windows popped up. */
@@ -94,9 +93,6 @@ static void new_tree_view_unselect_row_cb( GtkCTree *ctree, GList *node,
 
 static void create_new_window( char *Title, gint tv_size, gint bv_size);
 static void destroy_new_window(GtkObject *object, gpointer user_data);
-
-static void set_scrollbar_placement_packet_win(struct PacketWinData *DataPtr,
-    int pos);
 
 void new_window_cb(GtkWidget *w){
 
@@ -132,7 +128,7 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
 
   GtkWidget *main_w, *main_vbox, *pane,
                       *tree_view, *byte_view, *tv_scrollw,
-                      *bv_vscroll_left, *bv_vscroll_right;
+                      *bv_scrollw;
   struct PacketWinData *DataPtr;
 	
   main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -153,12 +149,13 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   gtk_widget_show(pane);
 
   /* Tree view */
-  create_tree_view(tv_size, &prefs, pane, &tv_scrollw, &tree_view);
+  create_tree_view(tv_size, &prefs, pane, &tv_scrollw, &tree_view,
+			prefs.gui_scrollbar_on_right);
   gtk_widget_show(tree_view);
 
   /* Byte view */
-  create_byte_view(bv_size, pane, &byte_view, &bv_vscroll_left,
-			&bv_vscroll_right);
+  create_byte_view(bv_size, pane, &byte_view, &bv_scrollw,
+			prefs.gui_scrollbar_on_right);
 
   /* Allocate data structure to represent this window. */
   DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
@@ -173,13 +170,8 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   DataPtr->tv_scrollw = tv_scrollw;
   DataPtr->tree_view = tree_view;
   DataPtr->byte_view = byte_view;
-  DataPtr->bv_vscroll_left = bv_vscroll_left;
-  DataPtr->bv_vscroll_right = bv_vscroll_right;
+  DataPtr->bv_scrollw = bv_scrollw;
   detail_windows = g_list_append(detail_windows, DataPtr);
-
-  /* Now that the 2 panes are created, set the vertical scrollbar
-   * on the left or right according to the user's preference */
-  set_scrollbar_placement_packet_win(DataPtr, prefs.gui_scrollbar_on_right);
 
   /* load callback handlers */
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
@@ -205,6 +197,8 @@ destroy_new_window(GtkObject *object, gpointer user_data)
   struct PacketWinData *DataPtr = user_data;
 
   detail_windows = g_list_remove(detail_windows, DataPtr);
+  forget_scrolled_window(DataPtr->tv_scrollw);
+  forget_scrolled_window(DataPtr->bv_scrollw);
   proto_tree_free(DataPtr->protocol_tree);
   g_free(DataPtr->pd);
   g_free(DataPtr);
@@ -263,31 +257,6 @@ destroy_packet_wins(void)
 		DataPtr = (struct PacketWinData *)(detail_windows->data);
 		gtk_widget_destroy(DataPtr->main);
 	}
-}
-
-/* Set the scrollbar position of a given popup packet window based upon
-   pos value: 0 = left, 1 = right */
-static void
-set_scrollbar_placement_packet_win(struct PacketWinData *DataPtr, int pos)
-{
-	set_scrollbar_placement_scrollw(DataPtr->tv_scrollw, pos);
-	set_scrollbar_placement_textw(DataPtr->bv_vscroll_left,
-	    DataPtr->bv_vscroll_right, pos);
-}
-
-static void
-set_scrollbar_placement_cb(gpointer data, gpointer user_data)
-{
-	set_scrollbar_placement_packet_win((struct PacketWinData *)data,
-	    *(int *)user_data);
-}
-
-/* Set the scrollbar position of all the popup packet windows based upon
-   pos value: 0 = left, 1 = right */
-void
-set_scrollbar_placement_packet_wins(int pos)
-{
-	g_list_foreach(detail_windows, set_scrollbar_placement_cb, &pos);
 }
 
 static void
