@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.3 2002/08/25 19:22:20 sharpe Exp $
+ * $Id: packet-gssapi.c,v 1.4 2002/08/26 18:52:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,10 +117,13 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ASN1_SCK hnd;
 	int ret, offset = 0;
 	gboolean def;
-	guint len1, len, cls, con, tag, nbytes;
+	guint len1, oid_len, cls, con, tag, nbytes;
 	subid_t *oid;
 	gchar *oid_string;
 	gssapi_oid_value *value;
+	int len;
+	unsigned int i;
+	gchar *p;
 	dissector_handle_t handle;
 	proto_item *sub_item;
 	proto_tree *oid_subtree;
@@ -154,7 +157,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Read oid */
 
-	ret = asn1_oid_decode(&hnd, &oid, &len, &nbytes);
+	ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
 
 	if (ret != ASN1_ERR_NOERROR) {
 		dissect_parse_error(tvb, offset, pinfo, subtree,
@@ -162,17 +165,34 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		goto done;
 	}
 
-	oid_string = format_oid(oid, len);
+	oid_string = format_oid(oid, oid_len);
 
 	proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s", 
 			    oid_string);
 
 	offset += nbytes;
 
-	/* Hand off to subdissector */
+	g_free(oid_string);
+
+	/*
+	 * Hand off to subdissector.
+	 * We can't use "oid_string", as it might contain an
+	 * interpretation of the OID after the raw string, so
+	 * we generate our own string for it.
+	 */
+	oid_string = g_malloc(oid_len * 22 + 1);
+	p = oid_string;
+	len = sprintf(p, "%lu", (unsigned long)oid[0]);
+	p += len;
+	for (i = 1; i < oid_len;i++) {
+		len = sprintf(p, ".%lu", (unsigned long)oid[i]);
+		p += len;
+	}
 
 	if (((value = g_hash_table_lookup(gssapi_oids, oid_string)) == NULL) ||
 	    !proto_is_protocol_enabled(value->proto)) {
+
+		g_free(oid_string);
 
 		/* No dissector for this oid */
 
@@ -182,6 +202,8 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		goto done;
 	}
+
+	g_free(oid_string);
 
 	sub_item = proto_tree_add_item(subtree, value->proto, tvb, offset,
 				       -1, FALSE);
