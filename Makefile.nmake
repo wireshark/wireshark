@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.254 2002/11/06 21:49:29 guy Exp $
+# $Id: Makefile.nmake,v 1.255 2002/11/10 20:53:03 gerald Exp $
 
 include config.nmake
 include <win32.mak>
@@ -574,8 +574,9 @@ text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
 
 clean:
-	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) $(PDB_FILE) \
-		tethereal.obj editcap.obj mergecap.obj text2pcap.obj \
+	rm -f $(ethereal_OBJECTS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) \
+		$(EXECUTABLES) $(PDB_FILE) \
+		editcap.obj mergecap.obj text2pcap.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c register.c \
 		rdps.obj rdps.pdb config.h ps.c \
 		rdps.exe rdps.ilk dftest.obj dftest.exe randpkt.obj randpkt.ext \

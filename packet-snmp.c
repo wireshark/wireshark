@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.100 2002/10/24 07:08:22 guy Exp $
+ * $Id: packet-snmp.c,v 1.101 2002/11/10 20:53:03 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@
 #include "packet-ipx.h"
 
 #ifdef HAVE_SOME_SNMP
+
 #ifdef HAVE_NET_SNMP
 # include <net-snmp/net-snmp-config.h>
 # include <net-snmp/mib_api.h>
@@ -74,6 +75,10 @@
 # define NETSNMP_DS_LIB_NO_TOKEN_WARNINGS DS_LIB_NO_TOKEN_WARNINGS
 # define NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY DS_LIB_PRINT_SUFFIX_ONLY
 #endif /* HAVE_NET_SNMP */
+
+#ifdef WIN32
+# include <epan/filesystem.h>
+#endif /* WIN32 */
 
    /*
     * Define values "sprint_realloc_value()" expects.
@@ -2003,7 +2008,12 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_snmp(void)
 {
-        static hf_register_info hf[] = {
+#ifdef WIN32 && HAVE_SOME_SNMP
+	char *mib_path;
+#define MIB_PATH_APPEND "snmp\\mibs"
+#endif
+
+	static hf_register_info hf[] = {
 		{ &hf_snmpv3_flags,
 		{ "SNMPv3 Flags", "snmpv3.flags", FT_UINT8, BASE_HEX, NULL,
 		    0x0, "", HFILL }},
@@ -2028,6 +2038,20 @@ proto_register_snmp(void)
 	};
 
 #ifdef HAVE_SOME_SNMP
+
+#ifdef WIN32
+	/* Set MIBDIRS so that the SNMP library can find its mibs. */
+	/* XXX - Should we set MIBS or MIBFILES as well? */
+
+	mib_path = g_malloc (strlen(get_datafile_dir()) + strlen(MIB_PATH_APPEND) + 20);
+	sprintf (mib_path, "MIBDIRS=%s\\%s", get_datafile_dir(), MIB_PATH_APPEND);
+	/* Amazingly enough, Windows does not provide setenv(). */
+	if (getenv("MIBDIRS") == NULL)
+		_putenv(mib_path);
+	g_free(mib_path);
+
+#endif	/* WIN32 */
+
 	/*
 	 * Suppress warnings about unknown tokens - we aren't initializing
 	 * UCD SNMP in its entirety, we're just initializing the

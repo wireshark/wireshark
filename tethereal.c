@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.169 2002/11/09 00:08:42 guy Exp $
+ * $Id: tethereal.c,v 1.170 2002/11/10 20:53:03 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,11 +348,6 @@ main(int argc, char *argv[])
 
 #ifdef WIN32
   WSADATA		wsaData;
-
-# ifdef HAVE_SOME_SNMP
-  char                *mib_path;
-# define MIB_PATH_APPEND "\\snmp\\mibs"
-# endif	/* HAVE_UCD_SNMP */
 #endif	/* WIN32 */
 
   char                *gpf_path;
@@ -809,19 +804,6 @@ main(int argc, char *argv[])
 #ifdef WIN32
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
-
-# ifdef HAVE_SOME_SNMP
-  /* Set MIBDIRS so that the SNMP library can find its mibs. */
-  /* XXX - Should we set MIBS or MIBFILES as well? */
-
-  mib_path = g_malloc (strlen(get_datafile_dir()) + strlen(MIB_PATH_APPEND) + 20);
-  sprintf (mib_path, "MIBDIRS=%s\\%s", get_datafile_dir(), MIB_PATH_APPEND);
-  /* Amazingly enough, Windows does not provide setenv(). */
-  if (getenv("MIBDIRS") == NULL)
-    _putenv(mib_path);
-  g_free(mib_path);
-
-# endif	/* HAVE_UCD_SNMP */
 #endif	/* WIN32 */
 
   /* Notify all registered modules that have had any of their preferences

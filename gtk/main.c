@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.275 2002/11/10 11:41:45 oabad Exp $
+ * $Id: main.c,v 1.276 2002/11/10 20:53:06 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1378,11 +1378,6 @@ main(int argc, char *argv[])
 
 #ifdef WIN32
   WSADATA 	       wsaData;
-
-# ifdef HAVE_SOME_SNMP
-  char                *mib_path;
-# define MIB_PATH_APPEND "\\snmp\\mibs"
-# endif /* HAVE_SOME_SNMP */
 #endif  /* WIN32 */
 
   char                *gpf_path, *cf_path, *df_path;
@@ -1941,19 +1936,6 @@ main(int argc, char *argv[])
 
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
-
-# ifdef HAVE_SOME_SNMP
-  /* Set MIBDIRS so that the SNMP library can find its mibs. */
-  /* XXX - Should we set MIBS or MIBFILES as well? */
-
-  mib_path = g_malloc (strlen(get_datafile_dir()) + strlen(MIB_PATH_APPEND) + 20);
-  sprintf (mib_path, "MIBDIRS=%s\\%s", get_datafile_dir(), MIB_PATH_APPEND);
-  /* Amazingly enough, Windows does not provide setenv(). */
-  if (getenv("MIBDIRS") == NULL)
-    _putenv(mib_path);
-  g_free(mib_path);
-
-# endif /* HAVE_UCD_SNMP */
 #endif  /* WIN32 */
 
   /* Notify all registered modules that have had any of their preferences
