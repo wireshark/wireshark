@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.30 2002/04/03 13:24:12 girlich Exp $
+ * $Id: packet-mount.c,v 1.31 2002/04/15 08:55:03 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,31 +111,42 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 
 static int
-dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree)
 {
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
 		rpc_call_info_value *civ=pinfo->private_data;
 
 		if(civ->request && (civ->proc==1)){
 			unsigned char *host, *name;
+			unsigned const char *dir;
 			int len;
 
 			host=ip_to_str(pinfo->dst.data);
 			len=tvb_get_ntohl(tvb, offset);
-		
-			name=g_malloc(strlen(host)+1+len+1);
-			sprintf(name,"%s:%*s", host, len, tvb_get_ptr(tvb, offset+4, len));
 
-			nfs_name_snoop_add_name(civ->xid, tvb, -1, strlen(name), 0, 0, name);
+			dir=tvb_get_ptr(tvb, offset+4, len);
+			if(dir){
+				unsigned char *ptr;
+				name=g_malloc(strlen(host)+1+len+1+200);
+				ptr=name;
+				memcpy(ptr, host, strlen(host));
+				ptr+=strlen(host);
+				*ptr++=':';
+				memcpy(ptr, dir, len);
+				ptr+=len;
+				*ptr=0;
+
+				nfs_name_snoop_add_name(civ->xid, tvb, -1, strlen(name), 0, 0, name);
+			}
 		}
 	}
-
 
 	if ( tree )
 	{
 		offset = dissect_rpc_string(tvb,tree,hf_mount_path,offset,NULL);
 	}
-	
+
 	return offset;
 }
 
