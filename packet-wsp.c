@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.74 2003/08/04 23:36:12 guy Exp $
+ * $Id: packet-wsp.c,v 1.75 2003/09/02 22:47:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,10 @@
 #include <epan/conversation.h>
 #include "packet-wap.h"
 #include "packet-wsp.h"
+
+/* Statistics (see doc/README.tapping) */
+#include "tap.h"
+static int wsp_tap = -1;
 
 /* File scoped variables for the protocol and registered fields */
 static int proto_wsp 					= HF_EMPTY;
@@ -221,7 +225,7 @@ static dissector_handle_t wtp_fromudp_handle;
 /* Handle for WBXML dissector */
 static dissector_handle_t wbxml_handle;
 
-static const value_string vals_pdu_type[] = {
+const value_string vals_pdu_type[] = {
 	{ 0x00, "Reserved" },
 	{ 0x01, "Connect" },
 	{ 0x02, "ConnectReply" },
@@ -288,7 +292,7 @@ static const value_string vals_pdu_type[] = {
 
 };
 
-static const value_string vals_status[] = {
+const value_string vals_status[] = {
 	/* 0x00 - 0x0F Reserved */
 
 	{ 0x10, "Continue" },
@@ -1282,6 +1286,10 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *wsp_tree = NULL;
 /*	proto_tree *wsp_header_fixed; */
 
+	wsp_info_value_t *stat_info;
+	stat_info = g_malloc( sizeof(wsp_info_value_t) );
+	stat_info->status_code = 0;
+
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
@@ -1473,6 +1481,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				reply_status = tvb_get_guint8(tvb, offset);
 				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
+ 				stat_info->status_code = (gint) tvb_get_guint8( tvb, offset);				
 				if (check_col(pinfo->cinfo, COL_INFO))
 				{ /* Append status code to INFO column */
 					col_append_fstr(pinfo->cinfo, COL_INFO, ": \"0x%02x %s\"", reply_status,
@@ -1554,6 +1563,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 
 	}
+	stat_info->pdut = pdut ;
+	tap_queue_packet (wsp_tap, pinfo, stat_info);
 }
 
 /*
@@ -5214,6 +5225,11 @@ proto_register_wsp(void)
 						    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
 						  */
 	);
+	wsp_tap = register_tap("wsp");
+	/* Init the hash table */
+/*	wsp_sessions = g_hash_table_new(
+			(GHashFunc) wsp_session_hash,
+			(GEqualFunc)wsp_session_equal);*/
 
 /* Required function calls to register the header fields and subtrees used  */
 	proto_register_field_array(proto_wsp, hf, array_length(hf));
@@ -5227,6 +5243,8 @@ proto_register_wsp(void)
 
 	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
 	    proto_wsp);
+	
+	
 };
 
 void

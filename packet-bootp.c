@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.74 2003/07/29 00:35:55 guy Exp $
+ * $Id: packet-bootp.c,v 1.75 2003/09/02 22:47:57 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -46,6 +46,9 @@
 #include <epan/packet.h>
 #include "packet-arp.h"
 
+#include "tap.h"
+ 
+static int bootp_dhcp_tap = -1;
 static int proto_bootp = -1;
 static int hf_bootp_type = -1;
 static int hf_bootp_hw_type = -1;
@@ -1341,6 +1344,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree)
 			proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp,
 			    tvb, 0, 0, 1);
+		tap_queue_packet( bootp_dhcp_tap, pinfo, (gpointer) dhcp_type);
 	}
 
 	/*
@@ -1475,6 +1479,7 @@ proto_register_bootp(void)
 					"bootp");
   proto_register_field_array(proto_bootp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  bootp_dhcp_tap = register_tap("bootp");
 }
 
 void

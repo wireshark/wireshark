@@ -1814,6 +1814,7 @@ Vincent Jardin <vincent.jardin [AT] 6wind.com> {
 Jean-Michel Fayard <jean-michel.fayard [AT] moufrei.de> {
 	Show in Tools:Summary window statistics about packets that
 	    passed the current display filter
+	BOOTP/DHCP, HTTP, and WSP statistics taps
 }
 
 And assorted fixes and enhancements by the people listed above and by:

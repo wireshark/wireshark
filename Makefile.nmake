@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.329 2003/08/29 22:27:14 guy Exp $
+# $Id: Makefile.nmake,v 1.330 2003/09/02 22:47:56 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -383,7 +383,9 @@ DISSECTOR_SRC = \
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
 TETHEREAL_TAP_SRC = \
+	tap-bootpstat.c		\
 	tap-dcerpcstat.c	\
+	tap-httpstat.c		\
 	tap-iostat.c		\
 	tap-iousers.c		\
 	tap-mgcpstat.c		\
@@ -392,7 +394,8 @@ TETHEREAL_TAP_SRC = \
 	tap-rpcstat.c		\
 	tap-rpcprogs.c		\
 	tap-smbsids.c		\
-	tap-smbstat.c
+	tap-smbstat.c		\
+	tap-wspstat.c
 
 TETHEREAL_TAP_OBJECTS = $(TETHEREAL_TAP_SRC:.c=.obj)
 

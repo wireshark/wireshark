@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.65 2003/06/11 04:25:30 guy Exp $
+ * $Id: packet-http.c,v 1.66 2003/09/02 22:47:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,12 +48,17 @@ typedef enum _http_type {
 	HTTP_OTHERS
 } http_type_t;
 
+#include "tap.h"
+
+static int http_tap = -1;
+
 static int proto_http = -1;
 static int hf_http_notification = -1;
 static int hf_http_response = -1;
 static int hf_http_request = -1;
 static int hf_http_basic = -1;
 static int hf_http_request_method = -1;
+static int hf_http_response_method = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -90,6 +95,7 @@ static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 static dissector_handle_t ntlmssp_handle=NULL;
+
 
 /* Return a tvb that contains the binary representation of a base64
    string */
@@ -189,6 +195,8 @@ check_auth(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
 	return FALSE;
 }
 
+/* TODO: remove this ugly global variable */
+http_info_value_t	*stat_info;
 static void
 dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -209,6 +217,10 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	RequestDissector	req_dissector;
 	int			req_strlen;
 	proto_tree		*req_tree;
+
+	stat_info	=g_malloc( sizeof(http_info_value_t));
+	stat_info->response_method = 0;
+	stat_info->request_method = NULL;
 
 	switch (pinfo->match_port) {
 
@@ -429,6 +441,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    http_tree);
 		}
 	}
+
+	tap_queue_packet( http_tap, pinfo, stat_info) ;
 }
 
 /* This can be used to dissect an HTTP request until such time
@@ -439,6 +453,18 @@ static void
 basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen)
 {
 	proto_tree_add_item(tree, hf_http_request_method, tvb, 0, req_strlen, FALSE);
+}
+static void
+response_method_request_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen _U_ )
+{
+	const guchar *data;
+	int minor, major, status_code;
+	data = tvb_get_ptr(tvb, 0, 12);
+	if (sscanf(data, "HTTP/%d.%d %d", &minor, &major, &status_code)==3) 
+	{
+		proto_tree_add_uint(tree, hf_http_response_method, tvb, 9, 3, status_code);
+		stat_info->response_method = status_code;
+	}
 }
 
 
@@ -473,8 +499,14 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 	 *	SEARCH
 	 */
 	if (linelen >= 5 && strncmp(data, "HTTP/", 5) == 0) {
+
 		*type = HTTP_RESPONSE;
 		isHttpRequestOrReply = TRUE;	/* response */
+		if (req_dissector && (linelen >= 12) ) 
+		{
+			*req_dissector = response_method_request_dissector ;
+			*req_strlen = 3;
+		} else
 		if (req_dissector) {
 			*req_dissector = NULL; /* no dissector for this yet. */
 		}
@@ -587,6 +619,12 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 			*req_dissector = basic_request_dissector;
 			*req_strlen = index + prefix_len;
 		}
+		if (isHttpRequestOrReply && req_dissector) {
+			if (!stat_info->request_method)
+				stat_info->request_method = g_malloc( index+1 );
+				strncpy( stat_info->request_method, data, index);
+				stat_info->request_method[index] = '\0';
+		}
 	}
 
 	return isHttpRequestOrReply;
@@ -615,6 +653,10 @@ proto_register_http(void)
 	      { "Request Method",	"http.request.method",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request Method", HFILL }},
+	    { &hf_http_response_method,
+	      { "Response Method",		"http.response.method",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		"HTTP Response Method", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
@@ -650,6 +692,10 @@ proto_register_http(void)
 
 	register_heur_dissector_list("http",&heur_subdissector_list);
 
+	/*
+	 * Register for tapping
+	 */
+	http_tap = register_tap("http");
 }
 
 /*
