@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.57 1999/11/27 04:01:42 guy Exp $
+ * $Id: packet.c,v 1.58 1999/12/02 01:33:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -438,6 +438,7 @@ format_text(const u_char *string, int len)
        * Put "..." and quit.
        */
       strcpy(fmtbufp, " ...");
+      fmtbufp += 4;
       break;
     }
     c = *string++;
