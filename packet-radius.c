@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.43 2002/02/22 21:31:49 guy Exp $
+ * $Id: packet-radius.c,v 1.44 2002/02/25 07:13:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,7 +223,7 @@ static value_string radius_vals[] = {
  {RADIUS_ACCESS_REJECT, "Access Reject"},
  {RADIUS_ACCOUNTING_REQUEST, "Accounting Request"},
  {RADIUS_ACCOUNTING_RESPONSE, "Accounting Response"},
- {RADIUS_ACCESS_CHALLENGE, "Accounting challenge"},
+ {RADIUS_ACCESS_CHALLENGE, "Access challenge"},
  {RADIUS_STATUS_SERVER, "StatusServer"},
  {RADIUS_STATUS_CLIENT, "StatusClient"},
  {RADIUS_RESERVED, "Reserved"},
