@@ -192,6 +192,12 @@ browser_open_url (const gchar *url)
   /* GLIB version 1.x doesn't support the functions used above,
      so simply do nothing for now, to be able to compile.
      XXX - has to be improved */
+  simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+      PRIMARY_TEXT_START "Web browser access not implemented." PRIMARY_TEXT_END
+      "\n\nThis Ethereal version (using the GLib 1.x toolkit) cannot access web browsers. "
+      "\n\nYou may try to open the following URL in your web browser: \n\n"
+      "%s",
+      url);
   return FALSE;
 #endif
 }
