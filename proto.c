@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.62 2000/04/13 18:18:55 gram Exp $
+ * $Id: proto.c,v 1.63 2000/04/25 21:43:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,6 +121,8 @@ static void
 proto_tree_set_double(field_info *fi, double value);
 static void
 proto_tree_set_uint(field_info *fi, guint32 value);
+static void
+proto_tree_set_int(field_info *fi, gint32 value);
 
 static int proto_register_field_init(header_field_info *hfinfo, int parent);
 
@@ -389,11 +391,14 @@ proto_tree_set_value(field_info *fi, gint length, va_list ap)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+			proto_tree_set_uint(fi, va_arg(ap, unsigned int));
+			break;
+
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
-			proto_tree_set_uint(fi, va_arg(ap, unsigned int));
+			proto_tree_set_int(fi, va_arg(ap, int));
 			break;
 
 		case FT_IPv4:
@@ -810,6 +815,57 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 	}
 }
 
+/* Add any FT_INT* to a proto_tree */
+proto_item *
+proto_tree_add_int_format(proto_tree *tree, int hfindex, gint start, gint length,
+		gint32 value, const char *format, ...)
+{
+	proto_item		*pi = NULL;
+	va_list			ap;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	hfinfo = proto_registrar_get_nth(hfindex);
+	switch(hfinfo->type) {
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			va_start(ap, format);
+			pi = proto_tree_add_pi(tree, hfindex, start, length,
+					format, TRUE, &new_fi, ap);
+			proto_tree_set_int(new_fi, value);
+			va_end(ap);
+			break;
+
+		default:
+			g_assert_not_reached();
+	}
+
+	return pi;
+}
+
+/* Set the FT_INT* value */
+static void
+proto_tree_set_int(field_info *fi, gint32 value)
+{
+	header_field_info *hfinfo;
+
+	hfinfo = fi->hfinfo;
+	fi->value.numeric = (guint32) value;
+	if (hfinfo->bitmask) {
+		/* Mask out irrelevant portions */
+		fi->value.numeric &= hfinfo->bitmask;
+
+		/* Shift bits */
+		if (hfinfo->bitshift > 0) {
+			fi->value.numeric >>= hfinfo->bitshift;
+		}
+	}
+}
 
 
 /* Create a new field_info struct, and initialize it */

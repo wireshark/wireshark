@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.28 2000/04/13 18:18:56 gram Exp $
+ * $Id: proto.h,v 1.29 2000/04/25 21:43:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -305,6 +305,17 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, gint start,
 proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, gint start,
 	gint length, guint32 value, const char *format, ...);
+#endif
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_int_format(proto_tree *tree, int hfindex, gint start,
+	gint length, gint32 value, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_int_format(proto_tree *tree, int hfindex, gint start,
+	gint length, gint32 value, const char *format, ...);
 #endif
 
 
