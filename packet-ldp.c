@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.7 2000/12/02 14:23:04 sharpe Exp $
+ * $Id: packet-ldp.c,v 1.8 2000/12/03 02:37:56 sharpe Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -69,6 +69,11 @@ static int hf_ldp_tlv_val_hold = -1;
 static int hf_ldp_tlv_val_target = -1;
 static int hf_ldp_tlv_val_request = -1;
 static int hf_ldp_tlv_val_res = -1;
+static int hf_ldp_tlv_config_seqno = -1;
+static int hf_ldp_tlv_fec_wc = -1;
+static int hf_ldp_tlv_fec_af = -1;
+static int hf_ldp_tlv_fec_len = -1;
+static int hf_ldp_tlv_fec_pfval = -1;
 
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
@@ -76,6 +81,7 @@ static int ett_ldp_ldpid = -1;
 static int ett_ldp_message = -1;
 static int ett_ldp_tlv = -1;
 static int ett_ldp_tlv_val = -1;
+static int ett_ldp_fec = -1;
 
 static int tcp_port = 0;
 static int udp_port = 0;
@@ -176,6 +182,23 @@ static const true_false_string hello_targeted_vals = {
   "Link Hello"
 };
 
+static const value_string fec_types[] = {
+  {1, "Wildcard FEC"},
+  {2, "Prefix FEC"},
+  {3, "Host Address FEC"},
+  {0, NULL}
+};
+
+static const value_string fec_af_types[] = {
+  {1, "UNIX"},
+  {2, "Internet (IPv4)"},
+  {3, "X25"},
+  {4, "IPX"},
+  {5, "Appletalk"},
+  {10, "IPv6"},
+  {0, NULL}
+};
+
 static const true_false_string hello_requested_vals = {
   "Source requests periodic hellos",
   "Source does not request periodic hellos"
@@ -209,7 +232,7 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
   guint16 message = tvb_get_ntohs(tvb, offset),
           length = tvb_get_ntohs(tvb, offset + 2),
-          pad = 0;
+          pad = 0, fec_len = 0;
   proto_tree *ti = NULL, *tlv_tree = NULL;
 
   /* Hmmm, check for illegal alignment padding */
@@ -240,9 +263,75 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
     switch (message) {
 
+    case TLV_FEC:  /* Process an FEC */
+
+      offset += 4;  /* Skip the TLV header */
+
+      fec_len = length;
+
+      while (fec_len > 0) {
+	proto_tree *fec_tree = NULL;
+
+
+	switch (tvb_get_guint8(tvb, offset)) {
+	case 1:   /* Wild Card */
+
+	  proto_tree_add_item(tlv_tree, hf_ldp_tlv_fec_wc, tvb, offset, 4, FALSE);
+	  fec_len -= 4;
+
+	  offset += 4;
+
+	  break;
+
+	case 2:   /* Prefix    */
+
+	  /* Add a subtree for this ... */
+
+	  ti = proto_tree_add_text(tlv_tree, tvb, offset, 8, "Prefix FEC Element");
+
+	  fec_tree = proto_item_add_subtree(ti, ett_ldp_fec);
+
+	  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, FALSE);
+
+	  offset += 1;
+
+	  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_af, tvb, offset, 2, FALSE);
+	  offset += 2;
+
+
+	  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_len, tvb, offset, 1, FALSE);
+
+	  offset += 1;
+
+	  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pfval, tvb, offset, 4, FALSE);
+
+	  fec_len -= 8;
+
+	  break;
+
+	case 3:   /* Host address */
+
+	  break;
+
+	default:  /* Unknown */
+
+
+	  break;
+
+	}
+
+      }
+
+      break;;
+
     case TLV_COMMON_HELLO_PARMS:
 
       dissect_tlv_common_hello_parms(tvb, offset + 4, tlv_tree, length);
+      break;
+
+    case TLV_CONFIGURATION_SEQNO:
+
+      proto_tree_add_item(tlv_tree, hf_ldp_tlv_config_seqno, tvb, offset + 4, 4, FALSE);
       break;
 
     default:
@@ -643,6 +732,21 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_val_res,
       { "Reserved", "ldp.msg.tlv.hello.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, "Hello Common Parameters Reserved Field"}},
 
+    { &hf_ldp_tlv_config_seqno,
+      { "Configuration Sequence Number", "ldp.msg.tlv.hello.cnf_seqno", FT_UINT32, BASE_HEX, NULL, 0x0, "Hello COnfiguration Sequence Number"}},
+
+    { &hf_ldp_tlv_fec_wc,
+      { "FEC Element Type", "ldp.msg.tlv.fec.type", FT_UINT8, BASE_DEC, VALS(fec_types), 0x0, "Forwarding Equivalence Class Element Types"}},
+
+    { &hf_ldp_tlv_fec_af,
+      { "FEC Element Address Type", "ldp.msg.tlv.fec.af", FT_UINT16, BASE_DEC, VALS(fec_af_types), 0x0, "Forwarding Equivalence Class Element Address Family"}},
+
+    { &hf_ldp_tlv_fec_len,
+      { "FEC Element Length", "ldp.msg.tlv.fec.len", FT_UINT8, BASE_DEC, NULL, 0x0, "Forwarding Equivalence Class Element Length"}},
+
+    { &hf_ldp_tlv_fec_pfval,
+      { "FEC Element Prefix Value", "ldp.msg.tlv.fec.pfval", FT_UINT32, BASE_HEX, NULL, 0x0, "Forwarding Equivalence Class Element Prefix"}},
+
   };
   static gint *ett[] = {
     &ett_ldp,
@@ -651,6 +755,7 @@ proto_register_ldp(void)
     &ett_ldp_message,
     &ett_ldp_tlv,
     &ett_ldp_tlv_val,
+    &ett_ldp_fec,
   };
   module_t *ldp_module; 
 
