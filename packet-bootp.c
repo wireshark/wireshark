@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.14 1998/11/20 17:47:33 gram Exp $
+ * $Id: packet-bootp.c,v 1.15 1999/01/28 21:29:35 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -51,6 +51,7 @@
 #include "etypes.h"
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
+	time_in_secs,
 	val_u_byte, val_u_short, val_u_long,
 	val_s_long };
 
@@ -62,7 +63,7 @@ struct opt_info {
 #define NUM_OPT_INFOS 77
 
 /* returns the number of bytes consumed by this option */
-int
+static int
 bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 {
 	char			*text;
@@ -70,10 +71,11 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 	u_char			code = pd[voff];
 	int				vlen = pd[voff+1];
 	u_char			byte;
-	int				i, consumed = 1; /* if code is unknown, consume 1 byte */
+	int				i, consumed = vlen + 2;
+	u_long			time_secs;
 	GtkWidget		*vti, *v_tree;
 
-	char	*opt53_text[] = {
+	static const char	*opt53_text[] = {
 		"Unknown Message Type",
 		"Discover",
 		"Offer",
@@ -84,6 +86,12 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 		"Release",
 		"Inform"
 	};
+	static const value_string nbnt_vals[] = {
+	    {0x1,   "B-node" },
+	    {0x2,   "P-node" },
+	    {0x4,   "M-node" },
+	    {0x8,   "H-node" },
+	    {0,     NULL     } };
 
 	static struct opt_info opt[] = {
 		/*   0 */ { "Padding",								none },
@@ -110,7 +118,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 		/*  21 */ { "Policy Filter",						special },
 		/*  22 */ { "Maximum Datagram Reassembly Size",		val_u_short },
 		/*  23 */ { "Default IP Time-to-Live",				val_u_byte },
-		/*  24 */ { "Path MTU Aging Timeout",				val_u_long },
+		/*  24 */ { "Path MTU Aging Timeout",				time_in_secs },
 		/*  25 */ { "Path MTU Plateau Table",				val_u_short },
 		/*  26 */ { "Interface MTU",						val_u_short },
 		/*  27 */ { "All Subnets are Local",				yes_no },
@@ -121,10 +129,10 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 		/*  32 */ { "Router Solicitation Address",			ipv4 },
 		/*  33 */ { "Static Route",							special },
 		/*  34 */ { "Trailer Encapsulation",				toggle },
-		/*  35 */ { "ARP Cache Timeout",					val_u_long },
+		/*  35 */ { "ARP Cache Timeout",					time_in_secs },
 		/*  36 */ { "Ethernet Encapsulation",				toggle },
 		/*  37 */ { "TCP Default TTL", 						val_u_byte },
-		/*  38 */ { "TCP Keepalive Interval",				val_u_long },
+		/*  38 */ { "TCP Keepalive Interval",				time_in_secs },
 		/*  39 */ { "TCP Keepalive Garbage",				toggle },
 		/*  40 */ { "Network Information Service Domain",	string },
 		/*  41 */ { "Network Information Service Servers",	ipv4 },
@@ -137,15 +145,15 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 		/*  48 */ { "X Window System Font Server",			ipv4 },
 		/*  49 */ { "X Window System Display Manager",		ipv4 },
 		/*  50 */ { "Requested IP Address",					ipv4 },
-		/*  51 */ { "IP Address Lease Time",				val_u_long },
+		/*  51 */ { "IP Address Lease Time",				time_in_secs },
 		/*  52 */ { "Option Overload",						special },
 		/*  53 */ { "DHCP Message Type",					special },
 		/*  54 */ { "Server Identifier",					ipv4 },
 		/*  55 */ { "Parameter Request List",				special },
 		/*  56 */ { "Message",								string },
 		/*  57 */ { "Maximum DHCP Message Size",			val_u_short },
-		/*  58 */ { "Renewal Time Value",					val_u_long },
-		/*  59 */ { "Rebinding Time Value",					val_u_long },
+		/*  58 */ { "Renewal Time Value",					time_in_secs },
+		/*  59 */ { "Rebinding Time Value",					time_in_secs },
 		/*  60 */ { "Vendor class identifier",				opaque },
 		/*  61 */ { "Client identifier",					special },
 		/*  64 */ { "Network Information Service+ Domain",	string },
@@ -196,7 +204,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 				v_tree = gtk_tree_new();
 				add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
 				for (i = voff + 2; i < voff + consumed; i += 8) {
-					add_item_to_tree(v_tree, i, 4, "IP Address/Mask: %s/%s",
+					add_item_to_tree(v_tree, i, 8, "IP Address/Mask: %s/%s",
 						ip_to_str((guint8*)&pd[i]),
 						ip_to_str((guint8*)&pd[i+4]));
 				}
@@ -220,7 +228,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 				v_tree = gtk_tree_new();
 				add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
 				for (i = voff + 2; i < voff + consumed; i += 8) {
-					add_item_to_tree(v_tree, i, 4,
+					add_item_to_tree(v_tree, i, 8,
 						"Destination IP Address/Router: %s/%s",
 						ip_to_str((guint8*)&pd[i]),
 						ip_to_str((guint8*)&pd[i+4]));
@@ -228,6 +236,21 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 			}
 			break;
 
+		/* Vendor-Specific Info */
+		case 43:
+			add_item_to_tree(bp_tree, voff, consumed,
+					"Option %d: %s", code, text);
+			break;
+
+		/* NetBIOS-over-TCP/IP Node Type */
+		case 46:
+			byte = pd[voff+2];
+			add_item_to_tree(bp_tree, voff, consumed,
+					"Option %d: %s = %s", code, text,
+					val_to_str(byte, nbnt_vals,
+					    "Unknown (0x%02x)"));
+			break;
+				
 		/* DHCP Message Type */
 		case 53:
 			byte = pd[voff+2];
@@ -265,16 +288,19 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 			/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
 				guess that the first is the hwtype, and the last 6 are
 				the hw addr */
-			if (pd[voff+1] == 7) {
+			if (vlen == 7) {
 				vti = add_item_to_tree(GTK_WIDGET(bp_tree), voff,
 					consumed, "Option %d: %s", code, text);
 				v_tree = gtk_tree_new();
 				add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
 				add_item_to_tree(v_tree, voff+2, 1,
-					"Hardware type: 0x%02x", pd[voff+2]);
+					"Hardware type: %s",
+					arphrdtype_to_str(pd[voff+2],
+						"Unknown (0x%02x)"));
 				add_item_to_tree(v_tree, voff+3, 6,
 					"Client hardware address: %s",
-					ether_to_str((guint8*)&pd[voff+3]));
+					arphrdaddr_to_str((guint8*)&pd[voff+3],
+						6, pd[voff+2]));
 			}
 			/* otherwise, it's opaque data */
 			else {
@@ -295,7 +321,6 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 	}
 
 	/* Normal cases */
-	consumed = vlen + 2;
 	if (code < NUM_OPT_INFOS) {
 		text = opt[code].text;
 		ftype = opt[code].ftype;
@@ -398,6 +423,15 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 				}
 				break;
 
+			case time_in_secs:
+				time_secs = pntohl(&pd[voff+2]);
+				add_item_to_tree(bp_tree, voff, consumed,
+					"Option %d: %s = %s", code, text,
+					((time_secs == 0xffffffff) ?
+					    "infinity" :
+					    time_secs_to_str(time_secs)));
+				break;
+
 			default:
 				add_item_to_tree(bp_tree, voff, consumed,
 						"Option %d: %s (%d bytes)", code, text, vlen);
@@ -421,14 +455,13 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 		col_add_str(fd, COL_PROTOCOL, "BOOTP");
 
 	if (check_col(fd, COL_INFO)) {
-		/* if hwaddr is 6 bytes, assume MAC */
-		if (pd[offset] == 1 && pd[offset+2] == 6) {
+		if (pd[offset] == 1) {
 			col_add_fstr(fd, COL_INFO, "Boot Request from %s",
-				ether_to_str((guint8*)&pd[offset+28]));
+				arphrdaddr_to_str((guint8*)&pd[offset+28],
+					pd[offset+2], pd[offset+1]));
 		}
 		else {
-			col_add_str(fd, COL_INFO, pd[offset] == 1 ? "Boot Request" :
-				"Boot Reply");
+			col_add_str(fd, COL_INFO, "Boot Reply");
 		}
 	}
 
@@ -441,7 +474,8 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 		add_item_to_tree(bp_tree, offset, 1, pd[offset] == 1 ?
 			"Boot Request" : "Boot Reply");
 		add_item_to_tree(bp_tree, offset + 1, 1,
-			"Hardware type: 0x%02x", pd[offset+1]);
+			"Hardware type: %s",
+			arphrdtype_to_str(pd[offset+1], "Unknown (0x%02x)"));
 		add_item_to_tree(bp_tree, offset + 2, 1,
 			"Hardware address length: %d", pd[offset+2]);
 		add_item_to_tree(bp_tree, offset + 3, 1,
@@ -461,20 +495,10 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 		add_item_to_tree(bp_tree, offset + 24, 4,
 			"Relay agent IP address: %s", ip_to_str((guint8*)&pd[offset+24]));
 
-		/* If HW address is 6 bytes, assume MAC. */
-		if (pd[offset+2] == 6) {
-			add_item_to_tree(bp_tree, offset + 28, 6,
-				"Client hardware address: %s",
-				ether_to_str((guint8*)&pd[offset+28]));
-		}
-		else {
-			add_item_to_tree(bp_tree, offset + 28, 16,
-				"Client hardware address: %02x:%02x%02x:%02x:%02x:%02x:%02x:%02x%02x:%02x%02x:%02x:%02x:%02x:%02x:%02x",
-				pd[offset+28], pd[offset+29], pd[offset+30], pd[offset+31],
-				pd[offset+32], pd[offset+33], pd[offset+34], pd[offset+35],
-				pd[offset+36], pd[offset+37], pd[offset+38], pd[offset+39],
-				pd[offset+40], pd[offset+41], pd[offset+42], pd[offset+43]);
-		}
+		add_item_to_tree(bp_tree, offset + 28, pd[offset+2],
+			"Client hardware address: %s",
+			arphrdaddr_to_str((guint8*)&pd[offset+28],
+				pd[offset+2], pd[offset+1]));
 
 		/* The server host name is optional */
 		if (pd[offset+44]) {
@@ -496,10 +520,9 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 				"Boot file name not given");
 		}
 
-		if (pntohl(&pd[offset+236]) ==  0x63538263) {
+		if (pntohl(&pd[offset+236]) == 0x63825363) {
 			add_item_to_tree(bp_tree, offset + 236, 4,
-				"Magic cookie: %s (generic)",
-					ip_to_str((guint8*)&pd[offset+236]));
+				"Magic cookie: (OK)");
 		}
 		else {
 			add_item_to_tree(bp_tree, offset + 236, 4,

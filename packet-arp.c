@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.10 1998/11/17 04:28:49 gerald Exp $
+ * $Id: packet-arp.c,v 1.11 1999/01/28 21:29:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -117,10 +117,12 @@ arpaddr_to_str(guint8 *ad, int ad_len) {
   return cur;
 }
 
-static gchar *
+gchar *
 arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
-  if (type == ARPHRD_ETHER && ad_len == 6) {
-    /* Ethernet address.  */
+  if ((type == ARPHRD_ETHER || type == ARPHRD_EETHER || type == ARPHRD_IEEE802)
+  				&& ad_len == 6) {
+    /* Ethernet address (or Experimental 3Mb Ethernet, or IEEE 802.x
+       address, which are the same type of address). */
     return ether_to_str(ad);
   }
   return arpaddr_to_str(ad, ad_len);
@@ -135,30 +137,8 @@ arpproaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
   return arpaddr_to_str(ad, ad_len);
 }
 
-/* Offsets of fields within an ARP packet. */
-#define	AR_HRD		0
-#define	AR_PRO		2
-#define	AR_HLN		4
-#define	AR_PLN		5
-#define	AR_OP		6
-
-void
-dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
-  guint16     ar_hrd;
-  guint16     ar_pro;
-  guint8      ar_hln;
-  guint8      ar_pln;
-  guint16     ar_op;
-  GtkWidget   *arp_tree, *ti;
-  gchar       *op_str;
-  int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
-  static const value_string op_vals[] = {
-    {ARPOP_REQUEST,  "ARP request" },
-    {ARPOP_REPLY,    "ARP reply"   },
-    {ARPOP_RREQUEST, "RARP request"},
-    {ARPOP_RREPLY,   "RARP reply"  },
-    {0,              NULL          } };
+gchar *
+arphrdtype_to_str(guint16 hwtype, const char *fmt) {
   static const value_string hrd_vals[] = {
     {ARPHRD_NETROM,   "NET/ROM pseudo"       },
     {ARPHRD_ETHER,    "Ethernet"             },
@@ -189,6 +169,34 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     {ARPHRD_TWINAX,   "Twinaxial"            },
     {ARPHRD_EUI_64,   "EUI-64"               },
     {0,                NULL                  } };
+
+    return val_to_str(hwtype, hrd_vals, fmt);
+}
+
+/* Offsets of fields within an ARP packet. */
+#define	AR_HRD		0
+#define	AR_PRO		2
+#define	AR_HLN		4
+#define	AR_PLN		5
+#define	AR_OP		6
+
+void
+dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+  guint16     ar_hrd;
+  guint16     ar_pro;
+  guint8      ar_hln;
+  guint8      ar_pln;
+  guint16     ar_op;
+  GtkWidget   *arp_tree, *ti;
+  gchar       *op_str;
+  int         sha_offset, spa_offset, tha_offset, tpa_offset;
+  gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
+  static const value_string op_vals[] = {
+    {ARPOP_REQUEST,  "ARP request" },
+    {ARPOP_REPLY,    "ARP reply"   },
+    {ARPOP_RREQUEST, "RARP request"},
+    {ARPOP_RREPLY,   "RARP reply"  },
+    {0,              NULL          } };
 
   /* To do: Check for {cap len,pkt len} < struct len */
   ar_hrd = pntohs(&pd[offset + AR_HRD]);
@@ -246,7 +254,7 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     arp_tree = gtk_tree_new();
     add_subtree(ti, arp_tree, ETT_ARP);
     add_item_to_tree(arp_tree, offset + AR_HRD, 2,
-      "Hardware type: %s", val_to_str(ar_hrd, hrd_vals, "Unknown (0x%04x)"));
+      "Hardware type: %s", arphrdtype_to_str(ar_hrd, "Unknown (0x%04x)"));
     add_item_to_tree(arp_tree, offset + AR_PRO, 2,
       "Protocol type: %s", ethertype_to_str(ar_pro, "Unknown (0x%04x)"));
     add_item_to_tree(arp_tree, offset + AR_HLN, 1,

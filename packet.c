@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.18 1999/01/07 16:15:35 gram Exp $
+ * $Id: packet.c,v 1.19 1999/01/28 21:29:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,6 +86,56 @@ ip_to_str(const guint8 *ad) {
     cur = &str[0][0];
   }
   sprintf(cur, "%d.%d.%d.%d", ad[0], ad[1], ad[2], ad[3]);
+  return cur;
+}
+
+#define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
+#define	COMMA(do_it)	((do_it) ? ", " : "")
+
+gchar *
+time_secs_to_str(guint32 time)
+{
+  static gchar  str[3][8+1+4+2+2+5+2+2+7+2+2+7+1];
+  static gchar *cur, *p;
+  int hours, mins, secs;
+  int do_comma;
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {  
+    cur = &str[2][0];
+  } else {  
+    cur = &str[0][0];
+  }
+
+  secs = time % 60;
+  time /= 60;
+  mins = time % 60;
+  time /= 60;
+  hours = time % 24;
+  time /= 24;
+
+  p = cur;
+  if (time != 0) {
+    sprintf(p, "%u day%s", time, PLURALIZE(time));
+    p += strlen(p);
+    do_comma = 1;
+  } else
+    do_comma = 0;
+  if (hours != 0) {
+    sprintf(p, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
+    p += strlen(p);
+    do_comma = 1;
+  } else
+    do_comma = 0;
+  if (mins != 0) {
+    sprintf(p, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
+    p += strlen(p);
+    do_comma = 1;
+  } else
+    do_comma = 0;
+  if (secs != 0)
+    sprintf(p, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
   return cur;
 }
 

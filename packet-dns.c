@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.14 1999/01/05 09:01:42 guy Exp $
+ * $Id: packet-dns.c,v 1.15 1999/01/28 21:29:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -341,7 +341,8 @@ add_rr_to_tree(GtkWidget *trr, int rr_type, int offset, const char *name,
   offset += 2;
   add_item_to_tree(rr_tree, offset, 2, "Class: %s", class_name);
   offset += 2;
-  add_item_to_tree(rr_tree, offset, 4, "Time to live: %u", ttl);
+  add_item_to_tree(rr_tree, offset, 4, "Time to live: %s",
+						time_secs_to_str(ttl));
   offset += 4;
   add_item_to_tree(rr_tree, offset, 2, "Data length: %u", data_len);
   return rr_tree;

@@ -574,9 +574,9 @@ va_list args;
           case 'o':  /* octal */
             STAR_ARGS(&data);
             if (data.a_long == FOUND)
-              d = va_arg(args, long);
+              d = va_arg(args, unsigned long);
             else
-              d = va_arg(args, int);
+              d = va_arg(args, unsigned int);
             octal(&data, d);
             state = 0;
             break;
@@ -584,9 +584,9 @@ va_list args;
           case 'X':  /* hexadecimal */
             STAR_ARGS(&data);
             if (data.a_long == FOUND)
-              d = va_arg(args, long);
+              d = va_arg(args, unsigned long);
             else
-              d = va_arg(args, int);
+              d = va_arg(args, unsigned int);
             hexa(&data, d);
             state = 0;
             break;
