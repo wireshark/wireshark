@@ -1635,6 +1635,7 @@ Wayne Parrott <wayne_p [AT] pacific.net.au> {
 
 Laurent Meyer <laurent.meyer [AT] thales-avionics.com> {
 	X.25 reassembly
+	Filterable fields in COTP
 }
 
 Lars Roland <Lars.Roland [AT] gmx.net> {
