@@ -3,7 +3,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.5 2002/11/19 05:28:16 tpot Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.6 2002/11/21 03:45:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,7 @@ lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
 					      ett_lsa_ds_basic_domain_info);
 	}
 
+	ALIGN_TO_4_BYTES;
 	/* role */
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 				    hf_lsa_ds_machine_role, 0);
@@ -222,6 +223,16 @@ static const value_string lsa_ds_dominfo_levels[] = {
 	{ 0, NULL }
 };
 
+static const value_string lsa_ds_role_vals[] = {
+	{ 0, "Standalone Workstation" },
+	{ 1, "Domain Member Workstation" },
+	{ 2, "Standalone Server" },
+	{ 3, "Domain Member Server" },
+	{ 4, "Backup Domain Controller" },
+	{ 5, "Primary Domain Controller" },
+	{ 0, NULL }
+};
+
 static const value_string lsa_ds_upgrade_vals[] = {
 	{ 0, "Not currently upgrading"},
 	{ 1, "Upgrade in progress"},
@@ -231,13 +242,15 @@ static const value_string lsa_ds_upgrade_vals[] = {
 static const value_string lsa_ds_previous_roles[] = {
 	{ 0, "Unknown state" },
 	{ 1, "Primary" },
-	{ 2, "Backup" }
+	{ 2, "Backup" },
+	{ 0, NULL }
 };
 
 static const value_string lsa_ds_op_states[] = {
 	{ 0, "Idle" },
 	{ 1, "Active" },
-	{ 2, "Needs reboot" }
+	{ 2, "Needs reboot" },
+	{ 0, NULL }
 };
 
 void
@@ -256,7 +269,7 @@ proto_register_dcerpc_lsa_ds(void)
 
 	{ &hf_lsa_ds_machine_role,
 	  { "Machine role", "lsa_ds.role", FT_UINT16, BASE_HEX,
-	    NULL, 0x0, "Role of machine in domain", HFILL}},
+	    VALS(lsa_ds_role_vals), 0x0, "Role of machine in domain", HFILL}},
 
 	{ &hf_lsa_ds_dominfo_flags,
 	  { "Flags", "lsa_ds.dominfo.flags", FT_UINT32, BASE_HEX,
