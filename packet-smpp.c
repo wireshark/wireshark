@@ -2,7 +2,7 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-smpp.c,v 1.4 2002/01/21 07:36:43 guy Exp $
+ * $Id: packet-smpp.c,v 1.5 2002/03/10 01:02:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -603,6 +603,7 @@ smpp_mktime(char *datestr, time_t *secs, int *nsecs)
     r_time.tm_hour = 10 * (datestr[6] - '0') + (datestr[7] - '0');
     r_time.tm_min  = 10 * (datestr[8] - '0') + (datestr[9] - '0');
     r_time.tm_sec  = 10 * (datestr[10] - '0') + (datestr[11] - '0');
+    r_time.tm_isdst = -1;
     *secs = mktime(&r_time);
     *nsecs = (datestr[12] - '0') * 100000000;
     t_diff = (10 * (datestr[13] - '0') + (datestr[14] - '0')) * 900;
