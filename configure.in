@@ -1,6 +1,17 @@
-# $Id: configure.in,v 1.61 1999/11/29 05:35:01 gram Exp $
-dnl Process this file with autoconf to produce a configure script.
+# $Id: configure.in,v 1.62 1999/12/03 07:02:48 guy Exp $
+dnl
+dnl Process this file with autoconf 2.13 or later to produce a
+dnl configure script; 2.12 doesn't generate a "configure" script that
+dnl defines SHELL, and "Makefile.in" has
+dnl
+dnl	SHELL = @SHELL@
+dnl
+dnl which requires it to be defined - and there may be other problems
+dnl with pre-2.13 "autoconf" as well.
+dnl
 AC_INIT(etypes.h)
+
+AC_PREREQ(2.13)
 
 AM_INIT_AUTOMAKE(ethereal, 0.7.9)
 
