@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.94 2003/01/28 23:56:40 guy Exp $
+ * $Id: prefs.c,v 1.95 2003/01/29 21:27:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1658,7 +1658,7 @@ set_pref(gchar *pref_name, gchar *value)
           pref = find_preference(module, "desegment");
         else if (strcmp(dotp, "fcip_port") == 0)
           pref = find_preference(module, "target_port");
-      } else if (strncmp(pref_name, "gtp.", 5) == 0) {
+      } else if (strncmp(pref_name, "gtp.", 4) == 0) {
         /* Handle old names for GTP preferences. */
         if (strcmp(dotp, "gtpv0_port") == 0)
           pref = find_preference(module, "v0_port");
@@ -1690,7 +1690,7 @@ set_pref(gchar *pref_name, gchar *value)
         /* Handle old names for MTP3 preferences. */
         if (strcmp(dotp, "mtp3_standard") == 0)
           pref = find_preference(module, "standard");
-      } else if (strncmp(pref_name, "nlm.", 5) == 0) {
+      } else if (strncmp(pref_name, "nlm.", 4) == 0) {
         /* Handle old names for NLM preferences. */
         if (strcmp(dotp, "nlm_msg_res_matching") == 0)
           pref = find_preference(module, "msg_res_matching");
