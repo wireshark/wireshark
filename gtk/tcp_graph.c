@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.11 2002/01/03 20:01:07 guy Exp $
+ * $Id: tcp_graph.c,v 1.12 2002/01/11 07:40:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,9 +44,7 @@
 
 #include "globals.h" 		/* cfile */
 #include "packet.h"		/* frame_data */
-#include "prefs_dlg.h"		/* prefs */
-#include "gtkglobals.h"		/* set_scrollbar_placement_srollw() and
-				 * remember_scrolled_window() */
+#include "gtkglobals.h"		/* packet_list */
 #include "simple_dialog.h"
 #include "ui_util.h"
 #include "tcp_graph.h"
@@ -586,12 +584,10 @@ static void create_text_widget (struct graph *g)
 	gtk_container_add (GTK_CONTAINER (streamwindow), box);
 	gtk_widget_show (box);
 
-	txt_scrollw = gtk_scrolled_window_new (NULL, NULL);
+	txt_scrollw = scrolled_window_new (NULL, NULL);
 	gtk_box_pack_start (GTK_BOX (box), txt_scrollw, TRUE, TRUE, 0);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (txt_scrollw),
 					GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-	set_scrollbar_placement_scrollw (txt_scrollw, prefs.gui_scrollbar_on_right);
-	remember_scrolled_window (txt_scrollw);
 	gtk_widget_show (txt_scrollw);
 
 	g->text = gtk_text_new (NULL, NULL);

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.43 2002/01/11 06:43:18 guy Exp $
+ * $Id: proto_draw.c,v 1.44 2002/01/11 07:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -382,7 +382,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, const guint8 *data, int len,
   gchar *name_ptr;
 
   /* Byte view.  Create a scrolled window for the text. */
-  byte_scrollw = gtk_scrolled_window_new(NULL, NULL);
+  byte_scrollw = scrolled_window_new(NULL, NULL);
   /* Add scrolled pane to tabbed window */
   label = gtk_label_new (name);
   gtk_notebook_append_page (GTK_NOTEBOOK(byte_nb), byte_scrollw, label);
@@ -394,8 +394,6 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, const guint8 *data, int len,
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(byte_scrollw),
 			/* Horizontal */GTK_POLICY_NEVER,
 			/* Vertical*/	GTK_POLICY_ALWAYS);
-  set_scrollbar_placement_scrollw(byte_scrollw,  prefs.gui_scrollbar_on_right);
-  remember_scrolled_window(byte_scrollw);
   gtk_widget_show(byte_scrollw);
 
   byte_view = gtk_text_new(NULL, NULL);
@@ -802,11 +800,9 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   GtkWidget *tv_scrollw, *tree_view;
 
   /* Tree view */
-  tv_scrollw = gtk_scrolled_window_new(NULL, NULL);
+  tv_scrollw = scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(tv_scrollw),
     GTK_POLICY_ALWAYS, GTK_POLICY_ALWAYS);
-  set_scrollbar_placement_scrollw(tv_scrollw, pos);
-  remember_scrolled_window(tv_scrollw);
   gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
   gtk_widget_set_usize(tv_scrollw, -1, tv_size);
   gtk_widget_show(tv_scrollw);

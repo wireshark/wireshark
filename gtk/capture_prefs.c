@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.2 2002/01/10 09:51:23 guy Exp $
+ * $Id: capture_prefs.c,v 1.3 2002/01/11 07:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,6 @@
 #include "globals.h"
 #include "capture_prefs.h"
 #include "gtkglobals.h"
-#include "prefs_dlg.h"
 #include "prefs.h"
 #include "prefs-int.h"
 #include "ui_util.h"

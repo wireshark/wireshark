@@ -1,12 +1,11 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.8 2000/10/20 04:26:40 gram Exp $
+ * $Id: print_prefs.c,v 1.9 2002/01/11 07:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,7 +33,7 @@
 #include "print_prefs.h"
 #include "keys.h"
 #include "print.h"
-#include "prefs_dlg.h"
+#include "prefs.h"
 #include "util.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
@@ -49,7 +48,7 @@ static void printer_opts_toggle_dest(GtkWidget *widget, gpointer data);
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
 
-GtkWidget * printer_prefs_show()
+GtkWidget * printer_prefs_show(void)
 {
 	GtkWidget	*main_vb, *main_tb, *button;
 	GtkWidget	*format_hb, *format_lb;
@@ -59,23 +58,23 @@ GtkWidget * printer_prefs_show()
 	GSList		*format_grp, *dest_grp;
 
 	/* Enclosing containers for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+	main_vb = gtk_vbox_new(FALSE, 5);
+	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
 
 	main_tb = gtk_table_new(4, 2, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-  gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-  gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-  gtk_widget_show(main_tb);
+	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
+	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+	gtk_widget_show(main_tb);
 
 	/* Output format */
 	format_lb = gtk_label_new("Format:");
-  gtk_misc_set_alignment(GTK_MISC(format_lb), 1.0, 0.5);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), format_lb, 0, 1, 0, 1);
+	gtk_misc_set_alignment(GTK_MISC(format_lb), 1.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), format_lb, 0, 1, 0, 1);
 	gtk_widget_show(format_lb);
 
 	format_hb = gtk_hbox_new(FALSE, 0);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), format_hb, 1, 2, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), format_hb, 1, 2, 0, 1);
 	gtk_widget_show(format_hb);
 
 	button = gtk_radio_button_new_with_label(NULL, "Plain Text");
@@ -97,12 +96,12 @@ GtkWidget * printer_prefs_show()
 
 	/* Output destination */
 	dest_lb = gtk_label_new("Print to:");
-  gtk_misc_set_alignment(GTK_MISC(dest_lb), 1.0, 0.5);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), dest_lb, 0, 1, 1, 2);
+	gtk_misc_set_alignment(GTK_MISC(dest_lb), 1.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), dest_lb, 0, 1, 1, 2);
 	gtk_widget_show(dest_lb);
 
 	dest_hb = gtk_hbox_new(FALSE, 0);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), dest_hb, 1, 2, 1, 2);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), dest_hb, 1, 2, 1, 2);
 	gtk_widget_show(dest_hb);
 
 	button = gtk_radio_button_new_with_label(NULL, "Command");
@@ -124,19 +123,19 @@ GtkWidget * printer_prefs_show()
 
 	/* Command text entry */
 	cmd_lb = gtk_label_new("Command:");
-  gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0, 0.5);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_lb, 0, 1, 2, 3);
+	gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_lb, 0, 1, 2, 3);
 	gtk_widget_show(cmd_lb);
 
 	cmd_te = gtk_entry_new();
 	gtk_object_set_data(GTK_OBJECT(main_vb), PRINT_CMD_TE_KEY, cmd_te);
 	if (prefs.pr_cmd) gtk_entry_set_text(GTK_ENTRY(cmd_te), prefs.pr_cmd);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_te, 1, 2, 2, 3);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_te, 1, 2, 2, 3);
 	gtk_widget_show(cmd_te);
 
 	/* File button and text entry */
 	file_bt_hb = gtk_hbox_new(FALSE, 0);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), file_bt_hb, 0, 1, 3, 4);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), file_bt_hb, 0, 1, 3, 4);
 	gtk_widget_show(file_bt_hb);
 
 	file_bt = gtk_button_new_with_label("File:");
@@ -146,7 +145,7 @@ GtkWidget * printer_prefs_show()
 	file_te = gtk_entry_new();
 	gtk_object_set_data(GTK_OBJECT(main_vb), PRINT_FILE_TE_KEY, file_te);
 	if (prefs.pr_file) gtk_entry_set_text(GTK_ENTRY(file_te), prefs.pr_file);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
 	gtk_widget_show(file_te);
 
 	gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",

@@ -1,12 +1,11 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.6 2001/07/22 21:50:47 guy Exp $
+ * $Id: column_prefs.c,v 1.7 2002/01/11 07:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,7 +33,6 @@
 #include "globals.h"
 #include "column_prefs.h"
 #include "gtkglobals.h"
-#include "prefs_dlg.h"
 #include "prefs.h"
 #include "column.h"
 

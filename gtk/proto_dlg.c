@@ -1,11 +1,11 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.8 2001/03/01 21:34:09 gram Exp $
+ * $Id: proto_dlg.c,v 1.9 2002/01/11 07:40:31 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -39,7 +38,6 @@
 
 #include "prefs.h"
 #include "globals.h"
-#include "gtkglobals.h"
 #include "main.h"
 #include "util.h"
 #include "ui_util.h"
@@ -112,13 +110,11 @@ void proto_cb(GtkWidget *w, gpointer data)
   label = gtk_label_new("Button pressed: protocol decoding is enabled");
   gtk_widget_show(label);
   gtk_box_pack_start(GTK_BOX(selection_vb), label, FALSE, FALSE, 0);
-  scrolled_w = gtk_scrolled_window_new(NULL, NULL);         
+  scrolled_w = scrolled_window_new(NULL, NULL);         
   gtk_container_set_border_width(GTK_CONTAINER(scrolled_w), 1);           
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_w),
 				 GTK_POLICY_AUTOMATIC,
 				 GTK_POLICY_ALWAYS);
-  set_scrollbar_placement_scrollw(scrolled_w, prefs.gui_scrollbar_on_right);
-  remember_scrolled_window(scrolled_w);
   gtk_box_pack_start(GTK_BOX(selection_vb), scrolled_w, TRUE, TRUE, 0);
   show_proto_selection(proto_w, scrolled_w);
   gtk_widget_show(scrolled_w);

@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.19 2001/12/12 21:38:58 gerald Exp $
+ * $Id: help_dlg.c,v 1.20 2002/01/11 07:40:31 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -114,13 +114,11 @@ void help_cb(GtkWidget *w, gpointer data)
 
   overview_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(overview_vb), 1);  
-  txt_scrollw = gtk_scrolled_window_new(NULL, NULL);
+  txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_box_pack_start(GTK_BOX(overview_vb), txt_scrollw, TRUE, TRUE, 0);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_NEVER,
 				 GTK_POLICY_ALWAYS);
-  set_scrollbar_placement_scrollw(txt_scrollw, prefs.gui_scrollbar_on_right);
-  remember_scrolled_window(txt_scrollw);
   overview_text = gtk_text_new(NULL, NULL );
   gtk_text_set_editable(GTK_TEXT(overview_text), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(overview_text), TRUE);
@@ -140,13 +138,11 @@ void help_cb(GtkWidget *w, gpointer data)
   proto_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(proto_vb), 1);
   
-  txt_scrollw = gtk_scrolled_window_new(NULL, NULL);
+  txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_box_pack_start(GTK_BOX(proto_vb), txt_scrollw, TRUE, TRUE, 0);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_ALWAYS,
 				 GTK_POLICY_ALWAYS);
-  set_scrollbar_placement_scrollw(txt_scrollw, prefs.gui_scrollbar_on_right);
-  remember_scrolled_window(txt_scrollw);
   proto_text = gtk_text_new(NULL, NULL);
   gtk_text_set_editable(GTK_TEXT(proto_text), FALSE);
   gtk_text_set_line_wrap(GTK_TEXT(proto_text), FALSE);
@@ -169,11 +165,10 @@ void help_cb(GtkWidget *w, gpointer data)
   gtk_table_set_row_spacing (GTK_TABLE (dfilter_tb), 0, 3);
   gtk_container_border_width(GTK_CONTAINER(dfilter_tb), 1);  
 
-  txt_scrollw = gtk_scrolled_window_new(NULL, NULL);
+  txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_ALWAYS,
 				 GTK_POLICY_NEVER);
-  remember_scrolled_window(txt_scrollw);
   dfilter_text = gtk_text_new(NULL, NULL);
   dfilter_vsb = gtk_vscrollbar_new(GTK_TEXT(dfilter_text)->vadj);
   if (prefs.gui_scrollbar_on_right) {
@@ -205,13 +200,11 @@ void help_cb(GtkWidget *w, gpointer data)
 
   cfilter_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(cfilter_vb), 1);  
-  txt_scrollw = gtk_scrolled_window_new(NULL, NULL);
+  txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_box_pack_start(GTK_BOX(cfilter_vb), txt_scrollw, TRUE, TRUE, 0);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_NEVER,
 				 GTK_POLICY_ALWAYS);
-  set_scrollbar_placement_scrollw(txt_scrollw, prefs.gui_scrollbar_on_right);
-  remember_scrolled_window(txt_scrollw);
   cfilter_text = gtk_text_new(NULL, NULL );
   gtk_text_set_editable(GTK_TEXT(cfilter_text), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(cfilter_text), TRUE);

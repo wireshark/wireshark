@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.226 2002/01/11 06:43:17 guy Exp $
+ * $Id: main.c,v 1.227 2002/01/11 07:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,12 +122,12 @@
 #include "summary.h"
 #include "file.h"
 #include "filters.h"
+#include "prefs.h"
 #include "menu.h"
 #include "../menu.h"
 #include "color.h"
 #include "color_utils.h"
 #include "filter_prefs.h"
-#include "prefs_dlg.h"
 #include "file_dlg.h"
 #include "column.h"
 #include "print.h"
@@ -146,7 +146,6 @@
 #include "colors.h"
 #include "strutil.h"
 #include "register.h"
-#include "prefs.h"
 #include "ringbuffer.h"
 #include "ui_util.h"
 #include "image/clist_ascend.xpm"
@@ -1933,11 +1932,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(u_pane);
 
   /* Packet list */
-  pkt_scrollw = gtk_scrolled_window_new(NULL, NULL);
+  pkt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(pkt_scrollw),
     GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  set_scrollbar_placement_scrollw(pkt_scrollw, prefs->gui_scrollbar_on_right);
-  remember_scrolled_window(pkt_scrollw);
   gtk_widget_show(pkt_scrollw);
   gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
 

@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.9 2001/08/21 06:39:18 guy Exp $
+ * $Id: stream_prefs.c,v 1.10 2002/01/11 07:40:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 #include "stream_prefs.h"
 #include "keys.h"
 #include "print.h"
-#include "prefs_dlg.h"
+#include "prefs.h"
 
 static void update_text_color(GtkWidget *, gpointer);
 static void update_current_color(GtkWidget *, gpointer);

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.7 2002/01/11 06:43:18 guy Exp $
+ * $Id: ui_util.c,v 1.8 2002/01/11 07:40:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,16 +134,33 @@ window_icon_realize_cb (GtkWidget *win, gpointer data)
 #endif
 }
 
-/* List of all scrolled windows, so we can globally set the scrollbar
+/* List of all GtkScrolledWindows, so we can globally set the scrollbar
    placement of all of them. */
 static GList *scrolled_windows;
 
+static void setup_scrolled_window(GtkWidget *scrollw);
 static void forget_scrolled_window(GtkWidget *scrollw, gpointer data);
+static void set_scrollbar_placement_scrollw(GtkWidget *scrollw);
 
-/* Add a scrolled window to the list of scrolled windows. */
-void
-remember_scrolled_window(GtkWidget *scrollw)
+/* Create a GtkScrolledWindow, set its scrollbar placement appropriately,
+   and remember it. */
+GtkWidget *
+scrolled_window_new(GtkAdjustment *hadjustment, GtkAdjustment *vadjustment)
 {
+  GtkWidget *scrollw;
+
+  scrollw = gtk_scrolled_window_new(hadjustment, vadjustment);
+  setup_scrolled_window(scrollw);
+  return scrollw;
+}
+
+/* Set a GtkScrolledWindow's scrollbar placement and add it to the list
+   of GtkScrolledWindows. */
+static void
+setup_scrolled_window(GtkWidget *scrollw)
+{
+  set_scrollbar_placement_scrollw(scrollw);
+
   scrolled_windows = g_list_append(scrolled_windows, scrollw);
 
   /* Catch the "destroy" event on the widget, so that we remove it from
@@ -152,19 +169,19 @@ remember_scrolled_window(GtkWidget *scrollw)
 		     GTK_SIGNAL_FUNC(forget_scrolled_window), NULL);
 }
 
-/* Remove a scrolled window from the list of scrolled windows. */
+/* Remove a GtkScrolledWindow from the list of GtkScrolledWindows. */
 static void
 forget_scrolled_window(GtkWidget *scrollw, gpointer data)
 {
   scrolled_windows = g_list_remove(scrolled_windows, scrollw);
 }
 
-/* Set the scrollbar placement of a scrolled window based upon pos value:
-   0 = left, 1 = right */
-void
-set_scrollbar_placement_scrollw(GtkWidget *scrollw, int pos) /* 0=left, 1=right */
+/* Set the scrollbar placement of a GtkScrolledWindow based upon user
+   preference. */
+static void
+set_scrollbar_placement_scrollw(GtkWidget *scrollw)
 {
-  if (pos) {
+  if (prefs.gui_scrollbar_on_right) {
     gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
 				      GTK_CORNER_TOP_LEFT);
   } else {
@@ -176,15 +193,15 @@ set_scrollbar_placement_scrollw(GtkWidget *scrollw, int pos) /* 0=left, 1=right 
 static void
 set_scrollbar_placement_cb(gpointer data, gpointer user_data)
 {
-  set_scrollbar_placement_scrollw((GtkWidget *)data, *(int *)user_data);
+  set_scrollbar_placement_scrollw((GtkWidget *)data);
 }
 
-/* Set the scrollbar placement of all scrolled windows based on pos value:
-   0 = left, 1 = right */
+/* Set the scrollbar placement of all GtkScrolledWindows based on
+   user preference. */
 void
-set_scrollbar_placement_all(int pos)
+set_scrollbar_placement_all(void)
 {
-  g_list_foreach(scrolled_windows, set_scrollbar_placement_cb, &pos);
+  g_list_foreach(scrolled_windows, set_scrollbar_placement_cb, NULL);
 }
 
 /* List of all GtkCTrees, so we can globally set the line and expander style
@@ -193,8 +210,7 @@ static GList *ctrees;
 
 static void setup_ctree(GtkWidget *ctree);
 static void forget_ctree(GtkWidget *ctree, gpointer data);
-static void set_ctree_styles(GtkWidget *ctree, gint line_style,
-			     gint expander_style);
+static void set_ctree_styles(GtkWidget *ctree);
 
 /* Create a GtkCTree, give it the right styles, and remember it. */
 GtkWidget *
@@ -221,8 +237,7 @@ ctree_new_with_titles(gint columns, gint tree_column, gchar *titles[])
 static void
 setup_ctree(GtkWidget *ctree)
 {
-  set_ctree_styles(ctree, prefs.gui_ptree_line_style,
-		   prefs.gui_ptree_expander_style);
+  set_ctree_styles(ctree);
 
   ctrees = g_list_append(ctrees, ctree);
 
@@ -239,39 +254,28 @@ forget_ctree(GtkWidget *ctree, gpointer data)
   ctrees = g_list_remove(ctrees, ctree);
 }
 
-/* Set the styles of a GtkCTree based upon style values. */
-typedef struct {
-	gint	line_style;
-	gint	expander_style;
-} ctree_style_arg_t;
-
+/* Set the styles of a GtkCTree based upon user preferences. */
 static void
-set_ctree_styles(GtkWidget *ctree, gint line_style, gint expander_style)
+set_ctree_styles(GtkWidget *ctree)
 {
-  g_assert(line_style >= GTK_CTREE_LINES_NONE &&
-	   line_style <= GTK_CTREE_LINES_TABBED);
-  gtk_ctree_set_line_style(GTK_CTREE(ctree), line_style);
-  g_assert(expander_style >= GTK_CTREE_EXPANDER_NONE &&
-	   expander_style <= GTK_CTREE_EXPANDER_CIRCULAR);
-  gtk_ctree_set_expander_style(GTK_CTREE(ctree), expander_style);
+  g_assert(prefs.gui_ptree_line_style >= GTK_CTREE_LINES_NONE &&
+	   prefs.gui_ptree_line_style <= GTK_CTREE_LINES_TABBED);
+  gtk_ctree_set_line_style(GTK_CTREE(ctree), prefs.gui_ptree_line_style);
+  g_assert(prefs.gui_ptree_expander_style >= GTK_CTREE_EXPANDER_NONE &&
+	   prefs.gui_ptree_expander_style <= GTK_CTREE_EXPANDER_CIRCULAR);
+  gtk_ctree_set_expander_style(GTK_CTREE(ctree),
+      prefs.gui_ptree_expander_style);
 }
 
 static void
 set_ctree_styles_cb(gpointer data, gpointer user_data)
 {
-  ctree_style_arg_t *styles = user_data;
-
-  set_ctree_styles((GtkWidget *)data, styles->line_style,
-		   styles->expander_style);
+  set_ctree_styles((GtkWidget *)data);
 }
 
 /* Set the styles of all GtkCTrees based upon style values. */
 void
-set_ctree_styles_all(gint line_style, gint expander_style)
+set_ctree_styles_all(void)
 {
-  ctree_style_arg_t styles;
-
-  styles.line_style = line_style;
-  styles.expander_style = expander_style;
-  g_list_foreach(ctrees, set_ctree_styles_cb, &styles);
+  g_list_foreach(ctrees, set_ctree_styles_cb, NULL);
 }

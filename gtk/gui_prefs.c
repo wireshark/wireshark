@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.29 2002/01/11 06:43:17 guy Exp $
+ * $Id: gui_prefs.c,v 1.30 2002/01/11 07:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,6 @@
 #include "globals.h"
 #include "gui_prefs.h"
 #include "gtkglobals.h"
-#include "prefs_dlg.h"
 #include "follow_dlg.h"
 #include "help_dlg.h"
 #include "prefs.h"
@@ -514,11 +513,10 @@ gui_prefs_apply(GtkWidget *w)
 	   or the colors to use changed. */
 	follow_redraw_all();
 
-	set_scrollbar_placement_all(prefs.gui_scrollbar_on_right);
+	set_scrollbar_placement_all();
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
-	set_ctree_styles_all(prefs.gui_ptree_line_style,
-	    prefs.gui_ptree_expander_style);
+	set_ctree_styles_all();
 	if (colors_changed)
 		update_marked_frames();
 

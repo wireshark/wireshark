@@ -1,9 +1,9 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.16 2001/12/18 19:09:07 gram Exp $
+ * $Id: follow_dlg.c,v 1.17 2002/01/11 07:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -243,14 +242,11 @@ follow_stream_cb(GtkWidget * w, gpointer data)
 	gtk_container_add(GTK_CONTAINER(streamwindow), vbox);
 
 	/* create a scrolled window for the text */
-	txt_scrollw = gtk_scrolled_window_new(NULL, NULL);
+	txt_scrollw = scrolled_window_new(NULL, NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), txt_scrollw, TRUE, TRUE, 0);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				       GTK_POLICY_NEVER,
 				       GTK_POLICY_ALWAYS);
-	set_scrollbar_placement_scrollw(txt_scrollw,
-					prefs.gui_scrollbar_on_right);
-	remember_scrolled_window(txt_scrollw);
 
 	/* create a text box */
 	text = gtk_text_new(NULL, NULL);

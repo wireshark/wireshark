@@ -1,12 +1,11 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.12 2001/01/04 04:54:14 gram Exp $
+ * $Id: goto_dlg.c,v 1.13 2002/01/11 07:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,7 +41,6 @@
 #include "globals.h"
 
 #include "goto_dlg.h"
-#include "prefs_dlg.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 

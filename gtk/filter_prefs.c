@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.32 2001/10/24 06:13:06 guy Exp $
+ * $Id: filter_prefs.c,v 1.33 2002/01/11 07:40:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,6 @@
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "simple_dialog.h"
-#include "prefs_dlg.h"
 #include "dfilter_expr_dlg.h"
 
 #define E_FILT_PARENT_FILTER_TE_KEY "filter_parent_filter_te"
