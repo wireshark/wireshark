@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.64 2003/12/16 22:55:28 guy Exp $
+dnl $Id: acinclude.m4,v 1.65 2003/12/17 02:36:56 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -536,7 +536,9 @@ AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
 	  ethereal_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$pcre_dir/include"
 	  ethereal_save_LIBS="$LIBS"
-	  PCRE_LIBS="-L$pcre_dir/lib -lpcre"
+	  LIBS="$LIBS -lpcre"
+	  ethereal_save_LDFLAGS="$LDFLAGS"
+	  LDFLAGS="$LDFLAGS -L$pcre_dir/lib"
 	fi
 
 	#
@@ -587,8 +589,8 @@ AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
 			then
 				#
 				# Put the "-I" and "-L" flags for pcre at
-				# the beginning of CFLAGS, CPPFLAGS, and
-				# LIBS.
+				# the beginning of CFLAGS, CPPFLAGS,
+				# LDFLAGS, and LIBS.
 				#
 				PCRE_LIBS="-L$pcre_dir/lib -lpcre $ethereal_save_LIBS"
 			else
@@ -600,12 +602,14 @@ AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
 			then
 				#
 				# Restore the versions of CFLAGS, CPPFLAGS,
-				# and LIBS before we added the "-with-pcre="
-				# directory, as we didn't actually find
-				# pcre there.
+				# LDFLAGS, and LIBS before we added the
+				# "--with-pcre=" directory, as we didn't
+				# actually find pcre there.
 				#
 				CFLAGS="$ethereal_save_CFLAGS"
 				CPPFLAGS="$ethereal_save_CPPFLAGS"
+				LDFLAGS="$ethereal_save_LDFLAGS"
+				LIBS="$ethereal_save_LIBS"
 				PCRE_LIBS=""
 			fi
 			want_pcre=no
