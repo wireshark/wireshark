@@ -659,7 +659,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		 * Or should it just check against the segment length,
 		 * which is 16 bits?
 		 */
-		if (val_32 + tiff_start < offset + 4) {
+		if (val_32 + tiff_start < (guint32)offset + 4) {
 			proto_tree_add_text(subtree, tvb, offset, 4,
 			    "Start offset of IFD starting from the TIFF header start: %u bytes (bogus, should be >= %u",
 			    val_32, offset + 4 - tiff_start);
@@ -672,7 +672,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		/*
 		 * Skip the following portion
 		 */
-		if (val_32 + tiff_start > offset) {
+		if (val_32 + tiff_start > (guint32)offset) {
 			proto_tree_add_text(subtree, tvb, offset, val_32 + tiff_start - offset,
 			    "Skipped data between end of TIFF header and start of IFD (%u bytes)",
 			    val_32 + tiff_start - offset);
@@ -721,7 +721,8 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 			} else {
 				val_32 = tvb_get_ntohl(tvb, offset);
 			}
-			if (val_32 != 0 && val_32 + tiff_start < offset + 4) {
+			if (val_32 != 0 &&
+			    val_32 + tiff_start < (guint32)offset + 4) {
 				proto_tree_add_text(subtree, tvb, offset, 4,
 				    "Offset to next IFD from start of TIFF header: %u bytes (bogus, should be >= %u)",
 				    val_32, offset + 4 - tiff_start);
