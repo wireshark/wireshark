@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.6 2003/10/30 07:00:18 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.7 2003/10/30 19:38:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -11721,9 +11721,10 @@ param_list(ASN1_SCK *asn1, proto_tree *tree, guint len)
     {
 	if (!dissect_ansi_param(asn1, tree))
 	{
-	    proto_tree_add_none_format(tree, hf_ansi_map_none, asn1->tvb,
-		asn1->offset, len - (asn1->offset - saved_offset),
+	    proto_tree_add_text(tree,
+		asn1->tvb, asn1->offset, len - (asn1->offset - saved_offset),
 		"Unknown Parameter Data");
+
 	    asn1->offset = saved_offset + len;
 	    break;
 	}
@@ -12512,8 +12513,8 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 		}
 		else
 		{
-		    asn1->offset = saved_offset;
-		    return(FALSE);
+		    str = "Unknown Parameter Data";
+		    param_fcn = NULL;
 		}
 
 		ett_param_idx = ett_param;
