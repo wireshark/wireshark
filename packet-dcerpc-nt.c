@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.76 2003/06/17 05:29:46 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.77 2003/07/01 00:59:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -879,6 +879,14 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	if ((end_offset - start_offset) <= 12)
 		return;		/* XXX: Use unistr2 dissector instead? */
 
+	/*
+	 * XXX - need to handle non-printable characters here.
+	 *
+	 * XXX - this is typically called after the string has already
+	 * been fetched and processed by some other routine; is there
+	 * some way we can get that string, rather than duplicating the
+	 * efforts of that routine?
+	 */
 	s = tvb_fake_unicode(
 		tvb, start_offset + 12, (end_offset - start_offset - 12) / 2,
 		TRUE);
@@ -939,7 +947,16 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	if ((end_offset - start_offset) <= 12)
 		return;		/* XXX: Use unistr2 dissector instead? */
 
-	s = tvb_format_text(tvb, start_offset + 12, (end_offset - start_offset - 12) );
+	/*
+	 * XXX - need to handle non-printable characters here.
+	 *
+	 * XXX - this is typically called after the string has already
+	 * been fetched and processed by some other routine; is there
+	 * some way we can get that string, rather than duplicating the
+	 * efforts of that routine?
+	 */
+	s = tvb_get_string(
+		tvb, start_offset + 12, (end_offset - start_offset - 12) );
 
 	/* Append string to COL_INFO */
 
