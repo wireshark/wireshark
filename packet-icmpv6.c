@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.7 1999/07/29 05:46:55 gram Exp $
+ * $Id: packet-icmpv6.c,v 1.8 1999/10/10 16:09:33 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,6 +64,9 @@
 #endif
 
 static int proto_icmpv6 = -1;
+static int hf_icmpv6_type = -1;
+static int hf_icmpv6_code = -1;
+static int hf_icmpv6_checksum = -1;
 
 static void
 dissect_icmpv6opt(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -341,16 +344,19 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_icmpv6, offset, len, NULL);
 	icmp6_tree = proto_item_add_subtree(ti, ETT_ICMPv6);
 
-	proto_tree_add_text(icmp6_tree,
+	proto_tree_add_item_format(icmp6_tree, hf_icmpv6_type,
 	    offset + offsetof(struct icmp6_hdr, icmp6_type), 1,
+	    dp->icmp6_type,
 	    "Type: 0x%02x (%s)", dp->icmp6_type, typename);
 	if (codename) {
-	    proto_tree_add_text(icmp6_tree,
+	    proto_tree_add_item_format(icmp6_tree, hf_icmpv6_code,
 		offset + offsetof(struct icmp6_hdr, icmp6_code), 1,
+		dp->icmp6_code,
 		"Code: 0x%02x (%s)", dp->icmp6_code, codename);
 	}
-	proto_tree_add_text(icmp6_tree,
+	proto_tree_add_item_format(icmp6_tree, hf_icmpv6_checksum,
 	    offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
+	    (guint16)htons(dp->icmp6_cksum),
 	    "Checksum: 0x%04x", (guint16)htons(dp->icmp6_cksum));
 
 	/* decode... */
@@ -570,11 +576,16 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_icmpv6(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "icmpv6.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  static hf_register_info hf[] = {
+    { &hf_icmpv6_type,
+      { "Type",           "icmpv6.type",	FT_UINT8,  NULL }},
+    { &hf_icmpv6_code,
+      { "Code",           "icmpv6.code",	FT_UINT8,  NULL }},
+    { &hf_icmpv6_checksum,
+      { "Checksum",       "icmpv6.checksum",	FT_UINT16, NULL }}
+  };
 
-        proto_icmpv6 = proto_register_protocol("ICMPv6", "icmpv6");
- /*       proto_register_field_array(proto_icmpv6, hf, array_length(hf));*/
+  proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
+					 "icmpv6");
+  proto_register_field_array(proto_icmpv6, hf, array_length(hf));
 }
