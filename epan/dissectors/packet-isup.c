@@ -1528,6 +1528,7 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
       called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
   }
   called_number[i++] = '\0';
+  proto_item_set_text(address_digits_item, "Called Party Number: %s", called_number);
     if ( number_plan == 1 ) {
 	  e164_info.e164_number_type = CALLED_PARTY_NUMBER;
 	  e164_info.nature_of_address = indicators1 & 0x7f;
@@ -1535,12 +1536,14 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
 	  e164_info.E164_number_length = i - 1;
 	  dissect_e164_number(parameter_tvb, address_digits_tree, 2,
 								  (offset - 2), e164_info);
-  }
-  proto_item_set_text(address_digits_item, "Called Party Number: %s", called_number);
+  proto_tree_add_string_hidden(address_digits_tree, hf_isup_called, parameter_tvb,
+	  offset - length, length, called_number);
   
-  proto_tree_add_string_hidden(address_digits_tree, hf_isup_called, parameter_tvb, offset - length, length, called_number);
-  proto_item_set_text(parameter_item, "Called Party Number: %s", called_number);
+  }else{
 
+  proto_tree_add_string(address_digits_tree, hf_isup_called, parameter_tvb, 
+	  offset - length, length, called_number);
+  }
 }
 /* ------------------------------------------------------------------
   Dissector Parameter  Subsequent number
@@ -2934,6 +2937,7 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   }
   calling_number[i++] = '\0';
 
+  proto_item_set_text(address_digits_item, "Calling Party Number: %s", calling_number);
   if ( number_plan == 1 ) {
 	  e164_info.e164_number_type = CALLING_PARTY_NUMBER;
 	  e164_info.nature_of_address = indicators1 & 0x7f;
@@ -2941,12 +2945,15 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
 	  e164_info.E164_number_length = i - 1;
 	  dissect_e164_number(parameter_tvb, address_digits_tree, 2,
 								  (offset - 2), e164_info);
+  proto_tree_add_string_hidden(address_digits_tree, hf_isup_calling, parameter_tvb,
+	  offset - length, length, calling_number);
   }
-  proto_item_set_text(address_digits_item, "Calling Party Number: %s", calling_number);
+  else{
   
-  proto_tree_add_string_hidden(address_digits_tree, hf_isup_calling, parameter_tvb, offset - length, length, calling_number);
+  proto_tree_add_string(address_digits_tree, hf_isup_calling, parameter_tvb,
+	  offset - length, length, calling_number);
 
-  proto_item_set_text(parameter_item, "Calling Party Number: %s", calling_number);
+  }
 
 }
 /* ------------------------------------------------------------------
@@ -3048,8 +3055,7 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   calling_number[i++] = '\0';
 
   proto_item_set_text(address_digits_item, "Redirecting Number: %s", calling_number);
-  proto_item_set_text(parameter_item, "Redirecting Number: %s", calling_number);
-  proto_tree_add_string_hidden(address_digits_tree, hf_isup_redirecting, parameter_tvb, offset - length, length, calling_number);
+  proto_tree_add_string(address_digits_tree, hf_isup_redirecting, parameter_tvb, offset - length, length, calling_number);
   
 }
 /* ------------------------------------------------------------------
