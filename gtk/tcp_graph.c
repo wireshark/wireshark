@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.52 2004/02/22 18:44:03 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.53 2004/02/22 19:48:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,6 @@
 #include "simple_dialog.h"
 #include "ui_util.h"
 #include "color.h"
-#include "tcp_graph.h"
 #include "compat_macros.h"
 #include "etypes.h"
 #include "ppptypes.h"
