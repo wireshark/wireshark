@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h225.c                                                            */
+/* .\packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
@@ -60,6 +60,7 @@
 #include "packet-ber.h"
 #include "packet-h235.h"
 #include "packet-h245.h"
+#include "packet-q931.h"
 
 #define PNAME  "h225"
 #define PSNAME "H225"
@@ -124,7 +125,7 @@ static int hf_h225_setupAcknowledge = -1;         /* SetupAcknowledge_UUIE */
 static int hf_h225_notify = -1;                   /* Notify_UUIE */
 static int hf_h225_nonStandardData = -1;          /* NonStandardParameter */
 static int hf_h225_h4501SupplementaryService = -1;  /* SEQUNCE_OF_OCTET_STRING */
-static int hf_h225_h4501SupplementaryService_item = -1;  /* OCTET_STRING */
+static int hf_h225_h4501SupplementaryService_item = -1;  /* T_h4501SupplementaryService_item */
 static int hf_h225_h245Tunneling = -1;            /* BOOLEAN */
 static int hf_h225_h245Control = -1;              /* H245Control */
 static int hf_h225_nonStandardControl = -1;       /* SEQUNCE_OF_NonStandardParameter */
@@ -2118,9 +2119,6 @@ dissect_h225_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
                                     NULL, NULL);
 
   return offset;
-}
-static int dissect_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OCTET_STRING(tvb, offset, pinfo, tree, hf_h225_h4501SupplementaryService_item);
 }
 static int dissect_messageContent_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_OCTET_STRING(tvb, offset, pinfo, tree, hf_h225_messageContent_item);
@@ -5852,6 +5850,27 @@ static int dissect_h323_message_body(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static int
+dissect_h225_T_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+
+	tvbuff_t *h4501_tvb;
+	guint32 h4501_offset=0;
+	guint32 h4501_len=0;
+
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h4501_offset, &h4501_len);
+
+	if(h4501_len){
+		h4501_tvb = tvb_new_subset(tvb, h4501_offset, h4501_len, h4501_len);
+		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
+	}
+
+  return offset;
+}
+static int dissect_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_T_h4501SupplementaryService_item(tvb, offset, pinfo, tree, hf_h225_h4501SupplementaryService_item);
+}
+
+
+static int
 dissect_h225_SEQUNCE_OF_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
                                    ett_h225_SEQUNCE_OF_OCTET_STRING, dissect_h4501SupplementaryService_item);
@@ -6288,7 +6307,6 @@ static int
 dissect_h225_RequestSeqNum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            1U, 65535U, &(h225_pi.requestSeqNum), NULL, FALSE);
-
 
 
   return offset;
@@ -8785,7 +8803,7 @@ void proto_register_h225(void) {
         "H323-UserInformation/user-data", HFILL }},
     { &hf_h225_protocol_discriminator,
       { "protocol-discriminator", "h225.protocol_discriminator",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(q931_protocol_discriminator_vals), 0,
         "H323-UserInformation/user-data/protocol-discriminator", HFILL }},
     { &hf_h225_user_information,
       { "user-information", "h225.user_information",
