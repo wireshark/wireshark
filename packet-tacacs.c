@@ -5,7 +5,7 @@
  * Full Tacacs+ parsing with decryption by
  *   Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.c,v 1.30 2003/10/19 17:30:43 guy Exp $
+ * $Id: packet-tacacs.c,v 1.31 2003/11/11 19:23:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1003,7 +1003,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-tacplus_pref_cb()
+tacplus_pref_cb(void)
 {
 	parse_tacplus_keys( tacplus_opt_key );
 }
