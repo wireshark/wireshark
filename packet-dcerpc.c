@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.142 2003/09/26 06:30:13 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.143 2003/10/08 12:29:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1314,19 +1314,22 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, char *d
 	int found_new_pointer;
 	dcerpc_info *di;
 	int old_offset;
+	int next_pointer;
 
+	next_pointer=0;
 	di=pinfo->private_data;
 	do{
 		int i, len;
 
 		found_new_pointer=0;
 		len=g_slist_length(ndr_pointer_list);
-		for(i=0;i<len;i++){
+		for(i=next_pointer;i<len;i++){
 			ndr_pointer_data_t *tnpd;
 			tnpd=g_slist_nth_data(ndr_pointer_list, i);
 			if(tnpd->fnct){
 				dcerpc_dissect_fnct_t *fnct;
 
+				next_pointer=i+1;
 				found_new_pointer=1;
 				fnct=tnpd->fnct;
 				tnpd->fnct=NULL;
