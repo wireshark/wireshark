@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.1 2004/02/20 10:04:10 sahlberg Exp $
+ * $Id: packet-ber.c,v 1.2 2004/02/26 12:02:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,7 +183,9 @@ dissect_ber_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 		tree=proto_item_add_subtree(it, ett_ber_octet_string);
 	}
 	if(func){
-		func(pinfo, tree, tvb, offset);
+		tvbuff_t *next_tvb;
+		next_tvb=tvb_new_subset(tvb, offset, len, len);
+		func(pinfo, tree, next_tvb, 0);
 	}
 /*qqq*/
 
