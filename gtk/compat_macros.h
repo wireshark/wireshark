@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.13 2004/01/31 12:13:22 ulfl Exp $
+ * $Id: compat_macros.h,v 1.14 2004/02/24 17:59:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -185,15 +185,15 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER           "_CFilter"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY     "_Capture Filter:"
 #endif
-#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER           "Filter"
-#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY     "Filter:"
+#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER           "_Filter"
+#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY     "_Filter:"
 #define ETHEREAL_STOCK_LABEL_PREFS                    "_Prefs"
 #define ETHEREAL_STOCK_LABEL_BROWSE                   "" /* icon only */
-#define ETHEREAL_STOCK_LABEL_CREATE_STAT              "Create Stat"
-#define ETHEREAL_STOCK_LABEL_EXPORT                   "Export..."
-#define ETHEREAL_STOCK_LABEL_IMPORT                   "Import..."
-#define ETHEREAL_STOCK_LABEL_EDIT                     "Edit..."
-#define ETHEREAL_STOCK_LABEL_ADD_EXPRESSION           "Expression..." /* plus sign coming from icon */
+#define ETHEREAL_STOCK_LABEL_CREATE_STAT              "Create _Stat"
+#define ETHEREAL_STOCK_LABEL_EXPORT                   "_Export..."
+#define ETHEREAL_STOCK_LABEL_IMPORT                   "_Import..."
+#define ETHEREAL_STOCK_LABEL_EDIT                     "_Edit..."
+#define ETHEREAL_STOCK_LABEL_ADD_EXPRESSION           "_Expression..." /* plus sign coming from icon */
 
 #ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_CAPTURE_START            "Ethereal_Stock_CaptureStart"
