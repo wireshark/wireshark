@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.86 2002/02/01 07:07:46 guy Exp $
+ * $Id: packet-rpc.c,v 1.87 2002/02/18 23:51:55 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,10 @@
 #include <epan/conversation.h>
 #include "packet-rpc.h"
 #include "packet-frame.h"
+#include "packet-tcp.h"
 #include "prefs.h"
+#include "reassemble.h"
+#include "rpc_defrag.h"
 
 /*
  * See:
@@ -60,10 +63,11 @@
  *	although we don't currently dissect AUTH_DES or AUTH_KERB.
  */
 
-#define RPC_RM_FRAGLEN  0x7fffffffL
-
 /* desegmentation of RPC over TCP */
 static gboolean rpc_desegment = TRUE;
+
+/* defragmentation of fragmented RPC over TCP records */
+static gboolean rpc_defragment = FALSE;
 
 static struct true_false_string yesno = { "Yes", "No" };
 
@@ -188,6 +192,8 @@ static int hf_rpc_array_len = -1;
 static int hf_rpc_time = -1;
 
 static gint ett_rpc = -1;
+static gint ett_rpc_fragments = -1;
+static gint ett_rpc_fraghdr = -1;
 static gint ett_rpc_string = -1;
 static gint ett_rpc_cred = -1;
 static gint ett_rpc_verf = -1;
@@ -1374,8 +1380,9 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, gboolean use_rm, guint32 rpc_rm)
+dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    tvbuff_t *frag_tvb, fragment_data *ipfd_head, gboolean is_tcp,
+    guint32 rpc_rm)
 {
 	guint32	msg_type;
 	rpc_call_info_key rpc_call_key;
@@ -1408,11 +1415,12 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	unsigned int auth_state;
 
-	proto_item *rpc_item=NULL;
+	proto_item *rpc_item = NULL;
 	proto_tree *rpc_tree = NULL;
 
-	proto_item *pitem=NULL;
+	proto_item *pitem = NULL;
 	proto_tree *ptree = NULL;
+	int offset = (is_tcp && tvb == frag_tvb) ? 4 : 0;
 	int offset_old = offset;
 
 	rpc_call_info_key	*new_rpc_call_key;
@@ -1519,6 +1527,24 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return FALSE;
 	}
 
+	if (is_tcp) {
+		/*
+		 * This is RPC-over-TCP; check if this is the last
+		 * fragment.
+		 */
+		if (!(rpc_rm & RPC_RM_LASTFRAG)) {
+			/*
+			 * This isn't the last fragment.
+			 * If we're doing reassembly, just return
+			 * TRUE to indicate that this looks like
+			 * the beginning of an RPC message,
+			 * and let them do fragment reassembly.
+			 */
+			if (rpc_defragment)
+				return TRUE;
+		}
+	}
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -1526,17 +1552,13 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0, -1,
-				FALSE);
-		if (rpc_item) {
-			rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
-		}
-	}
+		    FALSE);
+		rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
 
-	if (use_rm && rpc_tree) {
-		proto_tree_add_boolean(rpc_tree,hf_rpc_lastfrag, tvb,
-			offset-4, 4, (rpc_rm >> 31) & 0x1);
-		proto_tree_add_uint(rpc_tree,hf_rpc_fraglen, tvb,
-			offset-4, 4, rpc_rm & RPC_RM_FRAGLEN);
+		if (is_tcp) {
+			show_rpc_fraginfo(tvb, frag_tvb, rpc_tree, rpc_rm,
+			    ipfd_head);
+		}
 	}
 
 	xid      = tvb_get_ntohl(tvb, offset + 0);
@@ -2067,14 +2089,522 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gboolean
 dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	return dissect_rpc_message(tvb, 0, pinfo, tree, FALSE, 0);
+	return dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0);
 }
 
 static void
 dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (!dissect_rpc_message(tvb, 0, pinfo, tree, FALSE, 0))
+	if (!dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0))
 		dissect_rpc_continuation(tvb, pinfo, tree);
+}
+
+/* Defragmentation of RPC-over-TCP records */
+/* table to hold defragmented RPC records */
+static GHashTable *rpc_fragment_table = NULL;
+
+static GHashTable *rpc_reassembly_table = NULL;
+static GMemChunk *rpc_fragment_key_chunk = NULL;
+static int rpc_fragment_init_count = 200;
+
+typedef struct _rpc_fragment_key {
+	guint32 conv_id;
+	guint32 seq;
+	guint32 offset;
+	/* xxx */
+	guint32 start_seq;
+} rpc_fragment_key;
+
+static guint
+rpc_fragment_hash(gconstpointer k)
+{
+	rpc_fragment_key *key = (rpc_fragment_key *)k;
+
+	return key->conv_id + key->seq;
+}
+
+static gint
+rpc_fragment_equal(gconstpointer k1, gconstpointer k2)
+{
+	rpc_fragment_key *key1 = (rpc_fragment_key *)k1;
+	rpc_fragment_key *key2 = (rpc_fragment_key *)k2;
+
+	return key1->conv_id == key2->conv_id &&
+	    key1->seq == key2->seq;
+}
+
+static void
+show_rpc_fragheader(tvbuff_t *tvb, proto_tree *tree, guint32 rpc_rm)
+{
+	proto_item *hdr_item;
+	proto_tree *hdr_tree;
+	guint32 fraglen;
+
+	if (tree) {
+		fraglen = rpc_rm & RPC_RM_FRAGLEN;
+
+		hdr_item = proto_tree_add_text(tree, tvb, 0, 4,
+		    "Fragment header: %s%u %s",
+		    (rpc_rm & RPC_RM_LASTFRAG) ? "Last fragment, " : "",
+		    fraglen, plurality(fraglen, "byte", "bytes"));
+		hdr_tree = proto_item_add_subtree(hdr_item, ett_rpc_fraghdr);
+
+		proto_tree_add_boolean(hdr_tree, hf_rpc_lastfrag, tvb, 0, 4,
+		    rpc_rm);
+		proto_tree_add_uint(hdr_tree, hf_rpc_fraglen, tvb, 0, 4,
+		    rpc_rm);
+	}
+}
+
+static void
+show_rpc_fragment(tvbuff_t *tvb, proto_tree *tree, guint32 rpc_rm)
+{
+	if (tree) {
+		/*
+		 * Show the fragment header and the data for the fragment.
+		 */
+		show_rpc_fragheader(tvb, tree, rpc_rm);
+		proto_tree_add_text(tree, tvb, 4, -1, "Fragment Data");
+	}
+}
+
+static void
+make_frag_tree(tvbuff_t *tvb, proto_tree *tree, int proto, gint ett,
+    guint32 rpc_rm)
+{
+	proto_item *frag_item;
+	proto_tree *frag_tree;
+
+	if (tree == NULL)
+		return;		/* nothing to do */
+
+	frag_item = proto_tree_add_protocol_format(tree, proto, tvb, 0, -1,
+	    "%s Fragment", proto_get_protocol_name(proto));
+	frag_tree = proto_item_add_subtree(frag_item, ett);
+	show_rpc_fragment(tvb, frag_tree, rpc_rm);
+}
+
+void
+show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
+    guint32 rpc_rm, fragment_data *ipfd_head)
+{
+	proto_tree *st = NULL;
+	proto_item *si = NULL;
+	fragment_data *ipfd;
+
+	if (tree == NULL)
+		return;		/* don't do any work */
+
+	if (tvb != frag_tvb) {
+		/*
+		 * This message was not all in one fragment,
+		 * so show the fragment header *and* the data
+		 * for the fragment (which is the last fragment),
+		 * and a tree with information about all fragments.
+		 */
+		show_rpc_fragment(frag_tvb, tree, rpc_rm);
+
+		/*
+		 * Show a tree with information about all fragments.
+		 */
+		si = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
+		st = proto_item_add_subtree(si, ett_rpc_fragments);
+		for (ipfd = ipfd_head->next; ipfd != NULL; ipfd = ipfd->next) {
+			proto_tree_add_text(st, tvb, 0, 0,
+			    "Frame:%u [%u-%u]",
+			    ipfd->frame,
+			    ipfd->offset,
+			    ipfd->offset + ipfd->len - 1);
+		}
+	} else {
+		/*
+		 * This message was all in one fragment, so just show
+		 * the fragment header.
+		 */
+		show_rpc_fragheader(tvb, tree, rpc_rm);
+	}
+}
+
+static gboolean
+call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
+    proto_tree *tree, tvbuff_t *frag_tvb, rec_dissector_t dissector,
+    fragment_data *ipfd_head, guint32 rpc_rm)
+{
+	const char *saved_proto;
+	volatile gboolean rpc_succeeded;
+
+	/*
+	 * Catch the ReportedBoundsError exception; if
+	 * this particular message happens to get a
+	 * ReportedBoundsError exception, that doesn't
+	 * mean that we should stop dissecting RPC
+	 * messages within this frame or chunk of
+	 * reassembled data.
+	 *
+	 * If it gets a BoundsError, we can stop, as there's
+	 * nothing more to see, so we just re-throw it.
+	 */
+	saved_proto = pinfo->current_proto;
+	rpc_succeeded = FALSE;
+	TRY {
+		rpc_succeeded = (*dissector)(rec_tvb, pinfo, tree,
+		    frag_tvb, ipfd_head, TRUE, rpc_rm);
+	}
+	CATCH(BoundsError) {
+		RETHROW;
+	}
+	CATCH(ReportedBoundsError) {
+		show_reported_bounds_error(tvb, pinfo, tree);
+		pinfo->current_proto = saved_proto;
+
+		/*
+		 * We treat this as a "successful" dissection of
+		 * an RPC packet, as "dissect_rpc_message()"
+		 * *did* decide it was an RPC packet, throwing
+		 * an exception while dissecting it as such.
+		 */
+		rpc_succeeded = TRUE;
+	}
+	ENDTRY;
+	return rpc_succeeded;
+}
+
+int
+dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
+    int proto, int ett, gboolean defragment)
+{
+	struct tcpinfo *tcpinfo = pinfo->private_data;
+	guint32 seq = tcpinfo->seq + offset;
+	guint32 rpc_rm;
+	volatile gint32 len;
+	gint32 seglen;
+	gint tvb_len, tvb_reported_len;
+	tvbuff_t *frag_tvb;
+	gboolean rpc_succeeded;
+	gboolean save_fragmented;
+	rpc_fragment_key old_rfk, *rfk, *new_rfk;
+	conversation_t *conversation;
+	fragment_data *ipfd_head;
+	tvbuff_t *rec_tvb;
+	fragment_data *ipfd;
+
+	/*
+	 * Get the record mark.
+	 */
+	if (!tvb_bytes_exist(tvb, offset, 4)) {
+		/*
+		 * XXX - we should somehow arrange to handle
+		 * a record mark split across TCP segments.
+		 */
+		return 0;	/* not enough to tell if it's valid */
+	}
+	rpc_rm = tvb_get_ntohl(tvb, offset);
+
+	len = rpc_rm & RPC_RM_FRAGLEN;
+
+	/*
+	 * Do TCP desegmentation, if enabled.
+	 *
+	 * XXX - reject fragments bigger than 2 megabytes.
+	 * This is arbitrary, but should at least prevent
+	 * some crashes from either packets with really
+	 * large RPC-over-TCP fragments or from stuff that's
+	 * not really valid for this protocol.
+	 */
+	if (len > 2*1024*1024)
+		return 0;	/* pretend it's not valid */
+	if (rpc_desegment) {
+		seglen = tvb_length_remaining(tvb, offset + 4);
+
+		if (len > seglen && pinfo->can_desegment) {
+			/*
+			 * This frame doesn't have all of the
+			 * data for this message, but we can do
+			 * reassembly on it.
+			 *
+			 * If this is a heuristic dissector, just
+			 * return 0 - we don't want to try to get
+			 * more data, as that's too likely to cause
+			 * us to misidentify this as valid.
+			 *
+			 * If this isn't a heuristic dissector,
+			 * we've already identified this conversation
+			 * as containing data for this protocol, as we
+			 * saw valid data in previous frames.  Try to
+			 * get more data.
+			 */
+			if (is_heur)
+				return 0;	/* not valid */
+			else {
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len = len - seglen;
+				return -pinfo->desegment_len;
+			}
+		}
+	}
+	len += 4;	/* include record mark */
+	tvb_len = tvb_length_remaining(tvb, offset);
+	tvb_reported_len = tvb_reported_length_remaining(tvb, offset);
+	if (tvb_len > len)
+		tvb_len = len;
+	if (tvb_reported_len > len)
+		tvb_reported_len = len;
+	frag_tvb = tvb_new_subset(tvb, offset, tvb_len,
+	    tvb_reported_len);
+
+	/*
+	 * If we're not defragmenting, just hand this to the
+	 * disssector.
+	 */
+	if (!defragment) {
+		/*
+		 * This is the first fragment we've seen, and it's also
+		 * the last fragment; that means the record wasn't
+		 * fragmented.  Hand the dissector the tvbuff for the
+		 * fragment as the tvbuff for the record.
+		 */
+		rec_tvb = frag_tvb;
+		ipfd_head = NULL;
+
+		/*
+		 * Mark this as fragmented, so if somebody throws an
+		 * exception, we don't report it as a malformed frame.
+		 */
+		save_fragmented = pinfo->fragmented;
+		pinfo->fragmented = TRUE;
+		rpc_succeeded = call_message_dissector(tvb, rec_tvb, pinfo,
+		    tree, frag_tvb, dissector, ipfd_head, rpc_rm);
+		pinfo->fragmented = save_fragmented;
+		if (!rpc_succeeded)
+			return 0;	/* not RPC */
+		return len;
+	}
+
+	/*
+	 * First, we check to see if this fragment is part of a record
+	 * that we're in the process of defragmenting.
+	 *
+	 * The key is the conversation ID for the conversation to which
+	 * the packet belongs and the current sequence number.
+	 * We must first find the conversation and, if we don't find
+	 * one, create it.  We know this is running over TCP, so the
+	 * conversation should not wildcard either address or port.
+	 */
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL) {
+		/*
+		 * It's not part of any conversation - create a new one.
+		 */
+		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	old_rfk.conv_id = conversation->index;
+	old_rfk.seq = seq;
+	rfk = g_hash_table_lookup(rpc_reassembly_table, &old_rfk);
+
+	if (rfk == NULL) {
+		/*
+		 * This fragment was not found in our table, so it doesn't
+		 * contain a continuation of a higher-level PDU.
+		 * Is it the last fragment?
+		 */
+		if (!(rpc_rm & RPC_RM_LASTFRAG)) {
+			/*
+			 * This isn't the last fragment, so we don't
+			 * have the complete record.
+			 *
+			 * It's the first fragment we've seen, so if
+			 * it's truly the first fragment of the record,
+			 * and it has enough data, the dissector can at
+			 * least check whether it looks like a valid
+			 * message, as it contains the start of the
+			 * message.
+			 *
+			 * The dissector should not dissect anything
+			 * if the "last fragment" flag isn't set in
+			 * the record marker, so it shouldn't throw
+			 * an exception.
+			 */
+			if (!(*dissector)(frag_tvb, pinfo, tree, frag_tvb,
+			    NULL, TRUE, rpc_rm))
+				return 0;	/* not valid */
+
+			/*
+			 * OK, now start defragmentation with that
+			 * fragment.  Add this fragment, and set up
+			 * next packet/sequence number as well.
+			 *
+			 * We must remember this fragment.
+			 */
+
+			rfk = g_mem_chunk_alloc(rpc_fragment_key_chunk);
+			rfk->conv_id = conversation->index;
+			rfk->seq = seq;
+			rfk->offset = 0;
+			rfk->start_seq = seq;
+			g_hash_table_insert(rpc_reassembly_table, rfk, rfk);
+
+			/*
+			 * Start defragmentation.
+			 */
+			ipfd_head = fragment_add(tvb, offset + 4, pinfo,
+			    rfk->start_seq, rpc_fragment_table,
+			    rfk->offset, len - 4, TRUE);
+
+			/*
+			 * Make sure that defragmentation isn't complete;
+			 * it shouldn't be, as this is the first fragment
+			 * we've seen, and the "last fragment" bit wasn't
+			 * set on it.
+			 */
+			g_assert(ipfd_head == NULL);
+
+			new_rfk = g_mem_chunk_alloc(rpc_fragment_key_chunk);
+			new_rfk->conv_id = rfk->conv_id;
+			new_rfk->seq = seq + len;
+			new_rfk->offset = rfk->offset + len - 4;
+			new_rfk->start_seq = rfk->start_seq;
+			g_hash_table_insert(rpc_reassembly_table, new_rfk,
+			    new_rfk);
+
+			/*
+			 * This is part of a fragmented record,
+			 * but it's not the first part.
+			 * Show it as a record marker plus data, under
+			 * a top-level tree for this protocol.
+			 */
+			make_frag_tree(frag_tvb, tree, proto, ett,rpc_rm);
+
+			/*
+			 * No more processing need be done, as we don't
+			 * have a complete record.
+			 */
+			return len;
+		}
+
+		/*
+		 * This is the first fragment we've seen, and it's also
+		 * the last fragment; that means the record wasn't
+		 * fragmented.  Hand the dissector the tvbuff for the
+		 * fragment as the tvbuff for the record.
+		 */
+		rec_tvb = frag_tvb;
+		ipfd_head = NULL;
+	} else {
+		/*
+		 * OK, this fragment was found, which means it continues
+		 * a record.  This means we must defragment it.
+		 * Add it to the defragmentation lists.
+		 */
+		ipfd_head = fragment_add(tvb, offset + 4, pinfo,
+		    rfk->start_seq, rpc_fragment_table,
+		    rfk->offset, len - 4, !(rpc_rm & RPC_RM_LASTFRAG));
+
+		if (ipfd_head == NULL) {
+			/*
+			 * fragment_add() returned NULL, This means that 
+			 * defragmentation is not completed yet.
+			 *
+			 * We must add an entry to the hash table with
+			 * the sequence number following this fragment
+			 * as the starting sequence number, so that when
+			 * we see that fragment we'll find that entry.
+			 *
+			 * XXX - as TCP stream data is not currently
+			 * guaranteed to be provided in order to dissectors,
+			 * RPC fragments aren't guaranteed to be provided
+			 * in order, either.
+			 */
+			new_rfk = g_mem_chunk_alloc(rpc_fragment_key_chunk);
+			new_rfk->conv_id = rfk->conv_id;
+			new_rfk->seq = seq + len;
+			new_rfk->offset = rfk->offset + len - 4;
+			new_rfk->start_seq = rfk->start_seq;
+			g_hash_table_insert(rpc_reassembly_table, new_rfk,
+			    new_rfk);
+
+			/*
+			 * This is part of a fragmented record,
+			 * but it's not the first part.
+			 * Show it as a record marker plus data, under
+			 * a top-level tree for this protocol,
+			 * but don't hand it to the dissector
+			 */
+			make_frag_tree(frag_tvb, tree, proto, ett, rpc_rm);
+
+			/*
+			 * No more processing need be done, as we don't
+			 * have a complete record.
+			 */
+			return len;
+		}
+
+		/*
+		 * It's completely defragmented.
+		 *
+		 * We only call subdissector for the last fragment.
+		 * XXX - this assumes in-order delivery of RPC
+		 * fragments, which requires in-order delivery of TCP
+		 * segments.
+		 */
+		if (!(rpc_rm & RPC_RM_LASTFRAG)) {
+			/*
+			 * Well, it's defragmented, but this isn't
+			 * the last fragment; this probably means
+			 * this isn't the first pass, so we don't
+			 * need to start defragmentation.
+			 *
+			 * This is part of a fragmented record,
+			 * but it's not the first part.
+			 * Show it as a record marker plus data, under
+			 * a top-level tree for this protocol,
+			 * but don't show it to the dissector.
+			 */
+			make_frag_tree(frag_tvb, tree, proto, ett, rpc_rm);
+
+			/*
+			 * No more processing need be done, as we
+			 * only disssect the data with the last
+			 * fragment.
+			 */
+			return len;
+		}
+
+		/*
+		 * OK, this is the last segment.
+		 * Create a tvbuff for the defragmented
+		 * record.
+		 */
+
+		/*
+		 * Create a new TVB structure for
+		 * defragmented data.
+		 */
+		rec_tvb = tvb_new_real_data(ipfd_head->data,
+		    ipfd_head->datalen, ipfd_head->datalen);
+
+		/*
+		 * Add this tvb as a child to the original
+		 * one.
+		 */
+		tvb_set_child_real_data_tvbuff(tvb, rec_tvb);
+
+		/*
+		 * Add defragmented data to the data source list.
+		 */
+		add_new_data_source(pinfo->fd, rec_tvb, "Defragmented");
+	}
+
+	/*
+	 * We have something to hand to the RPC message
+	 * dissector.
+	 */
+	if (!call_message_dissector(tvb, rec_tvb, pinfo, tree,
+	    frag_tvb, dissector, ipfd_head, rpc_rm))
+		return 0;	/* not RPC */
+	return len;
 }
 
 /*
@@ -2097,123 +2627,31 @@ static rpc_tcp_return_t
 dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean is_heur)
 {
-	volatile int offset = 0;
-	guint32 rpc_rm;
-	volatile gboolean saw_rpc = FALSE;
-	volatile gint32 len;
-	gint32 seglen;
-	gint tvb_len, tvb_reported_len;
-	tvbuff_t *msg_tvb;
-	const char *saved_proto;
-	volatile gboolean rpc_succeeded;
+	int offset = 0;
+	gboolean saw_rpc = FALSE;
+	int len;
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
-		 * XXX - we need to handle records that don't have the "last
-		 * fragment" bit set, and reassemble fragments.
+		 * Process this fragment.
 		 */
-
-		/* the first 4 bytes are special in "record marking mode" */
-		if (!tvb_bytes_exist(tvb, offset, 4)) {
+		len = dissect_rpc_fragment(tvb, offset, pinfo, tree,
+		    dissect_rpc_message, is_heur, proto_rpc, ett_rpc,
+		    rpc_defragment);
+		if (len < 0) {
 			/*
-			 * XXX - we should somehow arrange to handle
-			 * a record mark split across TCP segments.
+			 * We need more data from the TCP stream for
+			 * this fragment.
 			 */
-			return saw_rpc ? IS_RPC : IS_NOT_RPC;
+			return NEED_MORE_DATA;
 		}
-		rpc_rm = tvb_get_ntohl(tvb, offset);
-
-		len = rpc_rm&RPC_RM_FRAGLEN;
-
-		/*
-		 * XXX - reject fragments bigger than 2 megabytes.
-		 * This is arbitrary, but should at least prevent
-		 * some crashes from either packets with really
-		 * large RPC-over-TCP fragments or from stuff that's
-		 * not really RPC.
-		 */
-		if (len > 2*1024*1024)
-			return saw_rpc ? IS_RPC : IS_NOT_RPC;
-		if (rpc_desegment) {
-			seglen = tvb_length_remaining(tvb, offset + 4);
-
-			if (len > seglen && pinfo->can_desegment) {
-				/*
-				 * This frame doesn't have all of the
-				 * data for this message, but we can do
-				 * reassembly on it.
-				 *
-				 * If this is a heuristic dissector, just
-				 * return IS_NOT_RPC - we don't want to try
-				 * to get more data, as that's too likely
-				 * to cause us to misidentify this as
-				 * RPC.
-				 *
-				 * If this isn't a heuristic dissector,
-				 * we've already identified this conversation
-				 * as containing RPC data, as we saw RPC
-				 * data in previous frames.  Try to get
-				 * more data.
-				 */
-				if (is_heur)
-					return IS_NOT_RPC;
-				else {
-					pinfo->desegment_offset = offset;
-					pinfo->desegment_len = len - seglen;
-					return NEED_MORE_DATA;
-				}
-			}
-		}
-		len += 4;	/* include record mark */
-		tvb_len = tvb_length_remaining(tvb, offset);
-		tvb_reported_len = tvb_reported_length_remaining(tvb, offset);
-		if (tvb_len > len)
-			tvb_len = len;
-		if (tvb_reported_len > len)
-			tvb_reported_len = len;
-		msg_tvb = tvb_new_subset(tvb, offset, tvb_len,
-		    tvb_reported_len);
-
-		/*
-		 * Catch the ReportedBoundsError exception; if this
-		 * particular message happens to get a ReportedBoundsError
-		 * exception, that doesn't mean that we should stop
-		 * dissecting RPC messages within this frame or chunk
-		 * of reassembled data.
-		 *
-		 * If it gets a BoundsError, we can stop, as there's
-		 * nothing more to see, so we just re-throw it.
-		 */
-		saved_proto = pinfo->current_proto;
-		rpc_succeeded = FALSE;
-		TRY {
-			rpc_succeeded = dissect_rpc_message(msg_tvb, 4,
-			    pinfo, tree, TRUE, rpc_rm);
-		}
-		CATCH(BoundsError) {
-			RETHROW;
-		}
-		CATCH(ReportedBoundsError) {
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_str(pinfo->cinfo, COL_INFO,
-				    "[Malformed Packet]");
-			}
-			proto_tree_add_protocol_format(tree, proto_malformed,
-			    tvb, 0, 0, "[Malformed Packet: %s]",
-			    pinfo->current_proto );
-			pinfo->current_proto = saved_proto;
-
+		if (len == 0) {
 			/*
-			 * We treat this as a "successful" dissection of
-			 * an RPC packet, as "dissect_rpc_message()"
-			 * *did* decide it was an RPC packet, throwing
-			 * an exception while dissecting it as such.
+			 * It's not RPC.  Stop processing.
 			 */
-			rpc_succeeded = TRUE;
-		}
-		ENDTRY;
-		if (!rpc_succeeded)
 			break;
+		}
+
 		offset += len;
 		saw_rpc = TRUE;
 	}
@@ -2249,14 +2687,30 @@ dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 rpc_init_protocol(void)
 {
-	if (rpc_calls != NULL)
+	if (rpc_calls != NULL) {
 		g_hash_table_destroy(rpc_calls);
-	if (rpc_indir_calls != NULL)
+		rpc_calls = NULL;
+	}
+	if (rpc_indir_calls != NULL) {
 		g_hash_table_destroy(rpc_indir_calls);
-	if (rpc_call_info_key_chunk != NULL)
+		rpc_indir_calls = NULL;
+	}
+	if (rpc_call_info_key_chunk != NULL) {
 		g_mem_chunk_destroy(rpc_call_info_key_chunk);
-	if (rpc_call_info_value_chunk != NULL)
+		rpc_call_info_key_chunk = NULL;
+	}
+	if (rpc_call_info_value_chunk != NULL) {
 		g_mem_chunk_destroy(rpc_call_info_value_chunk);
+		rpc_call_info_value_chunk = NULL;
+	}
+	if (rpc_fragment_key_chunk != NULL) {
+		g_mem_chunk_destroy(rpc_fragment_key_chunk);
+		rpc_fragment_key_chunk = NULL;
+	}
+	if (rpc_reassembly_table != NULL) {
+		g_hash_table_destroy(rpc_reassembly_table);
+		rpc_reassembly_table = NULL;
+	}
 
 	rpc_calls = g_hash_table_new(rpc_call_hash, rpc_call_equal);
 	rpc_indir_calls = g_hash_table_new(rpc_call_hash, rpc_call_equal);
@@ -2268,6 +2722,14 @@ rpc_init_protocol(void)
 	    sizeof(rpc_call_info_value),
 	    200 * sizeof(rpc_call_info_value),
 	    G_ALLOC_ONLY);
+	rpc_fragment_key_chunk = g_mem_chunk_new("rpc_fragment_key_chunk",
+	    sizeof(rpc_fragment_key),
+	    rpc_fragment_init_count*sizeof(rpc_fragment_key),
+	    G_ALLOC_ONLY);
+	rpc_reassembly_table = g_hash_table_new(rpc_fragment_hash,
+	    rpc_fragment_equal);
+
+	fragment_table_init(&rpc_fragment_table);
 }
 
 /* will be called once from register.c at startup time */
@@ -2276,11 +2738,11 @@ proto_register_rpc(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_rpc_lastfrag, {
-			"Last Fragment", "rpc.lastfrag", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "Last Fragment", HFILL }},
+			"Last Fragment", "rpc.lastfrag", FT_BOOLEAN, 32,
+			&yesno, RPC_RM_LASTFRAG, "Last Fragment", HFILL }},
 		{ &hf_rpc_fraglen, {
 			"Fragment Length", "rpc.fraglen", FT_UINT32, BASE_DEC,
-			NULL, 0, "Fragment Length", HFILL }},
+			NULL, RPC_RM_FRAGLEN, "Fragment Length", HFILL }},
 		{ &hf_rpc_xid, {
 			"XID", "rpc.xid", FT_UINT32, BASE_HEX,
 			NULL, 0, "XID", HFILL }},
@@ -2424,6 +2886,8 @@ proto_register_rpc(void)
 	};
 	static gint *ett[] = {
 		&ett_rpc,
+		&ett_rpc_fragments,
+		&ett_rpc_fraghdr,
 		&ett_rpc_string,
 		&ett_rpc_cred,
 		&ett_rpc_verf,
@@ -2440,11 +2904,16 @@ proto_register_rpc(void)
 	register_init_routine(&rpc_init_protocol);
 	rpc_tcp_handle = create_dissector_handle(dissect_rpc_tcp, proto_rpc);
 	rpc_handle = create_dissector_handle(dissect_rpc, proto_rpc);
+
 	rpc_module = prefs_register_protocol(proto_rpc, NULL);
 	prefs_register_bool_preference(rpc_module, "desegment_rpc_over_tcp",
-		"Desegment all RPC over TCP commands",
-		"Whether the RPC dissector should desegment all RPC over TCP commands",
+		"Desegment all RPC-over-TCP messages",
+		"Whether the RPC dissector should desegment all RPC-over-TCP messages",
 		&rpc_desegment);
+	prefs_register_bool_preference(rpc_module, "defragment_rpc_over_tcp",
+		"Defragment all RPC-over-TCP messages",
+		"Whether the RPC dissector should defragment multi-fragment RPC-over-TCP messages",
+		&rpc_defragment);
 
 	/*
 	 * Init the hash tables.  Dissectors for RPC protocols must

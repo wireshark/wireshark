@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.21 2002/01/24 09:20:47 guy Exp $
+ * $Id: packet-frame.c,v 1.22 2002/02/18 23:51:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,34 +155,39 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_str(pinfo->cinfo, COL_INFO, "[Short Frame]");
 		proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
-				"[Short Frame: %s]", pinfo->current_proto );
+				"[Short Frame: %s]", pinfo->current_proto);
 	}
 	CATCH(ReportedBoundsError) {
-		if (pinfo->fragmented) {
-			/*
-			 * We were dissecting an unreassembled fragmented
-			 * packet when the exception was thrown, so the
-			 * problem isn't that the dissector expected
-			 * something but it wasn't in the packet, the
-			 * problem is that the dissector expected something
-			 * but it wasn't in the fragment we dissected.
-			 */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO,
-				    "[Unreassembled Packet]");
-			proto_tree_add_protocol_format(tree, proto_unreassembled,
-			    tvb, 0, 0, "[Unreassembled Packet: %s]",
-			    pinfo->current_proto );
-		} else {
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO,
-				    "[Malformed Packet]");
-			proto_tree_add_protocol_format(tree, proto_malformed,
-			    tvb, 0, 0, "[Malformed Packet: %s]",
-			    pinfo->current_proto );
-		}
+		show_reported_bounds_error(tvb, pinfo, tree);
 	}
 	ENDTRY;
+}
+
+void
+show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (pinfo->fragmented) {
+		/*
+		 * We were dissecting an unreassembled fragmented
+		 * packet when the exception was thrown, so the
+		 * problem isn't that the dissector expected
+		 * something but it wasn't in the packet, the
+		 * problem is that the dissector expected something
+		 * but it wasn't in the fragment we dissected.
+		 */
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_str(pinfo->cinfo, COL_INFO,
+			    "[Unreassembled Packet]");
+		proto_tree_add_protocol_format(tree, proto_unreassembled,
+		    tvb, 0, 0, "[Unreassembled Packet: %s]",
+		    pinfo->current_proto);
+	} else {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_str(pinfo->cinfo, COL_INFO,
+			    "[Malformed Packet]");
+		proto_tree_add_protocol_format(tree, proto_malformed,
+		    tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+	}
 }
 
 void

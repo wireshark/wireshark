@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.h,v 1.2 2000/12/03 22:32:09 guy Exp $
+ * $Id: packet-frame.h,v 1.3 2002/02/18 23:51:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,5 +27,15 @@
 void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* "Protocol" used for "malformed frame" errors */
+/*
+ * Routine used to add an indication of a ReportedBoundsError exception
+ * to the tree.
+ */
+void
+show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/*
+ * "Protocol" used for "malformed frame" errors (other than
+ * ReportedBoundsError exceptions).
+ */
 extern int proto_malformed;

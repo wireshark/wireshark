@@ -2,7 +2,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.15 2002/02/13 01:17:58 guy Exp $
+ * $Id: packet-ndmp.c,v 1.16 2002/02/18 23:51:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,14 +45,13 @@
 #include "packet-scsi.h"
 #include "packet-frame.h"
 #include "prefs.h"
+#include "reassemble.h"
+#include "rpc_defrag.h"
 
 #define TCP_PORT_NDMP 10000
 
-#define NDMP_FRAGLEN 0x7fffffffL
-
 static int proto_ndmp = -1;
 static int hf_ndmp_version = -1;
-static int hf_ndmp_size = -1;
 static int hf_ndmp_header = -1;
 static int hf_ndmp_sequence = -1;
 static int hf_ndmp_reply_sequence = -1;
@@ -244,7 +243,8 @@ struct ndmp_header {
 /* desegmentation of NDMP packets */
 static gboolean ndmp_desegment = TRUE;
 
-
+/* defragmentation of fragmented NDMP records */
+static gboolean ndmp_defragment = FALSE;
 
 #define NDMP_MESSAGE_REQUEST	0x00
 #define NDMP_MESSAGE_REPLY	0x01
@@ -2568,12 +2568,6 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	int i;
 	proto_item *cmd_item=NULL;
 	proto_tree *cmd_tree=NULL;
-	guint32 size;
-
-	/* the size of the current PDU */
-	size = tvb_get_ntohl(tvb, offset);	
-	proto_tree_add_uint(tree, hf_ndmp_size, tvb, offset, 4, size&NDMP_FRAGLEN);
-	offset += 4;
 
 	offset=dissect_ndmp_header(tvb, offset, pinfo, tree, nh);
 
@@ -2612,121 +2606,119 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
-static void
-dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static gboolean
+dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    tvbuff_t *frag_tvb, fragment_data *ipfd_head, gboolean is_tcp,
+    guint32 rpc_rm)
 {
-	volatile gboolean first = TRUE;
-	volatile int offset = 0;
-	guint32 size, available_bytes;
+	int offset = (is_tcp && tvb == frag_tvb) ? 4 : 0;
+	guint32 size;
 	struct ndmp_header nh;
-	proto_item *item=NULL;
-	proto_tree *volatile tree=NULL;
-	const char *saved_proto;
+	proto_item *ndmp_item = NULL;
+	proto_tree *ndmp_tree = NULL;
 
-	/* loop through the packet, dissecting multiple NDMP pdus*/
-	do {
-		available_bytes = tvb_length_remaining(tvb, offset);
+	/* size of this NDMP PDU */
+	size = tvb_length_remaining(tvb, offset);
+	if (size < 24) {
+		/* too short to be NDMP */
+		return FALSE;
+	}
 
-		/* size of this NDMP PDU */
-		size = (tvb_get_ntohl(tvb, offset)&NDMP_FRAGLEN) + 4;	
-		if(size<28){
-			/* too short to be NDMP */
-			return;
-		}
+	/*
+	 * Check the NDMP header, if we have it.
+	 */
+	nh.seq = tvb_get_ntohl(tvb, offset);
+	nh.time = tvb_get_ntohl(tvb, offset+4);
+	nh.type = tvb_get_ntohl(tvb, offset+8);
+	nh.msg = tvb_get_ntohl(tvb, offset+12);
+	nh.rep_seq = tvb_get_ntohl(tvb, offset+16);
+	nh.err = tvb_get_ntohl(tvb, offset+20);
 
-		/* desegmentation */
-		if(ndmp_desegment){
-			if(pinfo->can_desegment
-			&& size>available_bytes) {
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len = size-available_bytes;
-				return;
-			}
-		}
+	if (nh.type > 1)
+		return FALSE;
+	if (nh.msg > 0xa09 || nh.msg == 0)
+		return FALSE;
+	if (nh.err > 0x17)
+		return FALSE;
 
-		/* check the ndmp header, if we have it */
-		if(available_bytes<28){
-			/* We don't have enough data */
-			return;
-		}
-		nh.seq=tvb_get_ntohl(tvb, offset+4);
-		nh.time=tvb_get_ntohl(tvb, offset+8);
-		nh.type=tvb_get_ntohl(tvb, offset+12);
-		nh.msg=tvb_get_ntohl(tvb, offset+16);
-		nh.rep_seq=tvb_get_ntohl(tvb, offset+20);
-		nh.err=tvb_get_ntohl(tvb, offset+24);
-
-		if(nh.type>1){
-			return;
-		}
-		if((nh.msg>0xa09)||(nh.msg==0)){
-			return;
-		}
-		if(nh.err>0x17){
-			return;
-		}
-
-		if (first) {
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
-			if (check_col(pinfo->cinfo, COL_INFO)) 
-				col_clear(pinfo->cinfo, COL_INFO);
-			first = FALSE;
-		}
-
-		if(parent_tree){
-			item = proto_tree_add_item(parent_tree, proto_ndmp, tvb, offset, size, FALSE);
-			tree = proto_item_add_subtree(item, ett_ndmp);
-		}
-
+	/*
+	 * Check if this is the last fragment.
+	 */
+	if (!(rpc_rm & RPC_RM_LASTFRAG)) {
 		/*
-		 * Catch the ReportedBoundsError exception; if this
-		 * particular message happens to get a ReportedBoundsError
-		 * exception, that doesn't mean that we should stop
-		 * dissecting NDMP messages within this frame or chunk
-		 * of reassembled data.
-		 *
-		 * If it gets a BoundsError, we can stop, as there's
-		 * nothing more to see, so we just re-throw it.
+		 * This isn't the last fragment.
+		 * If we're doing reassembly, just return
+		 * TRUE to indicate that this looks like
+		 * the beginning of an NDMP message,
+		 * and let them do reassembly.
 		 */
-		saved_proto = pinfo->current_proto;
-		TRY {
-			/* We cannot trust what dissect_ndmp_cmd() tells us
-			   since there are implementations which pads some
-			   additional data after the PDU. We MUST use size.
-			*/
-			dissect_ndmp_cmd(tvb, offset, pinfo, tree, &nh);
+		if (ndmp_defragment)
+			return TRUE;
+	}
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	if (tree) {
+		ndmp_item = proto_tree_add_item(tree, proto_ndmp,
+		    tvb, 0, -1, FALSE);
+		ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);
+
+		if (is_tcp) {
+			show_rpc_fraginfo(tvb, frag_tvb, ndmp_tree, rpc_rm,
+			    ipfd_head);
 		}
-		CATCH(BoundsError) {
-			RETHROW;
-		}
-		CATCH(ReportedBoundsError) {
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_str(pinfo->cinfo, COL_INFO,
-				    "[Malformed Packet]");
-			}
-			proto_tree_add_protocol_format(parent_tree,
-			    proto_malformed, tvb, 0, 0,
-			    "[Malformed Packet: %s]", pinfo->current_proto);
-			pinfo->current_proto = saved_proto;
-		}
-		ENDTRY;
-		offset += size;
-	} while(offset<(int)tvb_reported_length(tvb));
+	}
+
+	/*
+	 * We cannot trust what dissect_ndmp_cmd() tells us, as there
+	 * are implementations which pad some additional data after
+	 * the PDU.  We MUST use size.
+	 */
+	dissect_ndmp_cmd(tvb, offset, pinfo, ndmp_tree, &nh);
+	return TRUE;
 }
 
+static void
+dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int offset = 0;
+	int len;
+	proto_item *ndmp_item = NULL;
+	proto_tree *ndmp_tree = NULL;
 
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		/*
+		 * Process this fragment.
+		 */
+		len = dissect_rpc_fragment(tvb, offset, pinfo, tree,
+		    dissect_ndmp_message, FALSE, proto_ndmp, ett_ndmp,
+		    ndmp_defragment);
+		if (len < 0) {
+			/*
+			 * We need more data from the TCP stream for
+			 * this fragment.
+			 */
+			return;
+		}
+		if (len == 0) {
+			/*
+			 * It's not NDMP.  Stop processing.
+			 */
+			break;
+		}
 
+		offset += len;
+	}
+}
 
 void
 proto_register_ndmp(void)
 {
 
   static hf_register_info hf_ndmp[] = {
-	{ &hf_ndmp_size, {
-		"Size", "ndmp.size", FT_UINT32, BASE_DEC,
-		NULL, 0, "Size of this NDMP PDU", HFILL }},
-
 	{ &hf_ndmp_header, {
 		"NDMP Header", "ndmp.header", FT_NONE, 0,
 		NULL, 0, "NDMP Header", HFILL }},
@@ -3370,9 +3362,6 @@ proto_register_ndmp(void)
 	{ &hf_ndmp_data_est_time_remain, {
 		"Est Time Remain", "ndmp.data.est_time_remain", FT_RELATIVE_TIME, BASE_DEC,
 		NULL, 0, "Estimated time remaining", HFILL }},
-
-
-
   };
 
   static gint *ett[] = {
@@ -3390,6 +3379,7 @@ proto_register_ndmp(void)
     &ett_ndmp_addr,
     &ett_ndmp_file,
     &ett_ndmp_file_name,
+    &ett_ndmp_file_stats,
     &ett_ndmp_file_invalids,
     &ett_ndmp_state_invalids,
   };
@@ -3403,8 +3393,14 @@ proto_register_ndmp(void)
 
   /* desegmentation */
   ndmp_module = prefs_register_protocol(proto_ndmp, NULL);
-  prefs_register_bool_preference(ndmp_module, "desegment", "Desegment all NDMP messages spanning multiple TCP segments", "Whether the dissector should desegment NDMP over TCP PDUs or not", &ndmp_desegment);
-
+  prefs_register_bool_preference(ndmp_module, "desegment",
+  	"Desegment all NDMP messages spanning multiple TCP segments",
+  	"Whether the dissector should desegment NDMP messages",
+  	&ndmp_desegment);
+  prefs_register_bool_preference(ndmp_module, "defragment",
+  	"Defragment all multi-fragment NDMP messages",
+  	"Whether the dissector should defragment multi-fragment NDMP messages",
+  	&ndmp_defragment);
 }
 
 void

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.131 2002/02/18 01:08:37 guy Exp $
+ * $Id: packet-tcp.c,v 1.132 2002/02/18 23:51:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,6 +222,14 @@ tcp_segment_equal(gconstpointer k1, gconstpointer k2)
 static void
 tcp_desegment_init(void)
 {
+	if(tcp_segment_key_chunk){
+		g_mem_chunk_destroy(tcp_segment_key_chunk);
+		tcp_segment_key_chunk = NULL;
+	}
+	if(tcp_segment_address_chunk){
+		g_mem_chunk_destroy(tcp_segment_address_chunk);
+		tcp_segment_address_chunk = NULL;
+	}
 
 	/* dont allocate any memory chunks unless the user really
 	   uses this option
@@ -238,17 +246,11 @@ tcp_desegment_init(void)
 			tcp_segment_equal);
 	}
 
-	if(tcp_segment_key_chunk){
-		g_mem_chunk_destroy(tcp_segment_key_chunk);
-	}
 	tcp_segment_key_chunk = g_mem_chunk_new("tcp_segment_key_chunk",
 		sizeof(tcp_segment_key),
 		tcp_segment_init_count*sizeof(tcp_segment_key),
 		G_ALLOC_ONLY);
 
-	if(tcp_segment_address_chunk){
-		g_mem_chunk_destroy(tcp_segment_address_chunk);
-	}
 	tcp_segment_address_chunk = g_mem_chunk_new("tcp_segment_address_chunk",
 		sizeof(address),
 		tcp_segment_address_init_count*sizeof(address),
@@ -390,6 +392,12 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			/* add desegmented data to the data source list */
 			add_new_data_source(pinfo->fd, next_tvb,
 					"Desegmented");
+
+			/*
+			 * Supply the sequence number of the first of the
+			 * reassembled bytes.
+			 */
+			tcpinfo->seq = tsk->start_seq;
 
 			/* indicate that this is reassembled data */
 			tcpinfo->is_reassembled = TRUE;
@@ -1020,6 +1028,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, th_flags);
     proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, th_win);
   }
+
+  /* Supply the sequence number of the first byte. */
+  tcpinfo.seq = th_seq;
 
   /* Assume we'll pass un-reassembled data to subdissectors. */
   tcpinfo.is_reassembled = FALSE;

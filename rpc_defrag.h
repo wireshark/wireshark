@@ -1,6 +1,7 @@
-/* packet-tcp.h
+/* rpc-defrag.h
+ * Declarations for RPC defragmentation
  *
- * $Id: packet-tcp.h,v 1.9 2002/02/18 23:51:55 guy Exp $
+ * $Id: rpc_defrag.h,v 1.1 2002/02/18 23:51:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,21 +22,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_TCP_H__
-#define __PACKET_TCP_H__
+#ifndef __RPC_DEFRAG_H__
+#define __RPC_DEFRAG_H__
 
 /*
- * Private data passed from the TCP dissector to subdissectors.
+ * RPC-over-TCP fragmentation.
  */
-struct tcpinfo {
-	guint32 seq;             /* Sequence number of first byte in the data */
-	gboolean is_reassembled; /* This is reassembled data. */
-	gboolean urgent;         /* TRUE if "urgent_pointer" is valid */
-	guint16	urgent_pointer;  /* Urgent pointer value for the current packet. */
-};
+#define RPC_RM_LASTFRAG	0x80000000L
+#define RPC_RM_FRAGLEN	0x7fffffffL
 
+typedef (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
+	tvbuff_t *, fragment_data *, gboolean, guint32);
 
-extern void decode_tcp_ports(tvbuff_t *, int, packet_info *,
-	proto_tree *, int, int);
+extern void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb,
+	proto_tree *tree, guint32 rpc_rm, fragment_data *ipfd_head);
+extern int dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
+	int proto, int ett, gboolean defragment);
 
-#endif
+#endif /* __RPC_DEFRAG_H__ */
