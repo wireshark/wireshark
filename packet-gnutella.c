@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.4 2001/10/25 21:00:34 gram Exp $
+ * $Id: packet-gnutella.c,v 1.5 2001/10/25 21:25:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -560,76 +560,79 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				GNUTELLA_LONG_LENGTH,
 				size);
 
-			switch(payload_descriptor) {
-				case GNUTELLA_PONG:
-					pi = proto_tree_add_item(
-						gnutella_header_tree,
-						hf_gnutella_pong_payload,
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						size,
-						FALSE);
-					gnutella_pong_tree = proto_item_add_subtree(
-						pi,
-						ett_gnutella);
-					dissect_gnutella_pong(
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						gnutella_pong_tree,
-						size);
-					break;
-				case GNUTELLA_PUSH:
-					pi = proto_tree_add_item(
-						gnutella_header_tree,
-						hf_gnutella_push_payload,
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						size,
-						FALSE);
-					gnutella_push_tree = proto_item_add_subtree(
-						pi,
-						ett_gnutella);
-					dissect_gnutella_push(
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						gnutella_push_tree,
-						size);
-					break;
-				case GNUTELLA_QUERY:
-					pi = proto_tree_add_item(
-						gnutella_header_tree,
-						hf_gnutella_query_payload,
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						size,
-						FALSE);
-					gnutella_query_tree = proto_item_add_subtree(
-						pi,
-						ett_gnutella);
-					dissect_gnutella_query(
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						gnutella_query_tree,
-						size);
-					break;
-				case GNUTELLA_QUERYHIT:
-					pi = proto_tree_add_item(
-						gnutella_header_tree,
-						hf_gnutella_queryhit_payload,
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						size,
-						FALSE);
-					gnutella_queryhit_tree = proto_item_add_subtree(
-						pi,
-						ett_gnutella);
-					dissect_gnutella_queryhit(
-						tvb,
-						offset + GNUTELLA_HEADER_LENGTH,
-						gnutella_queryhit_tree,
-						size);
-					break;
-			}
+            if (size > 0) {
+
+                switch(payload_descriptor) {
+                    case GNUTELLA_PONG:
+                        pi = proto_tree_add_item(
+                            gnutella_header_tree,
+                            hf_gnutella_pong_payload,
+                            tvb,
+                            offset + GNUTELLA_HEADER_LENGTH,
+                            size,
+                            FALSE);
+                        gnutella_pong_tree = proto_item_add_subtree(
+                            pi,
+                            ett_gnutella);
+                        dissect_gnutella_pong(
+                            tvb,
+                            offset + GNUTELLA_HEADER_LENGTH,
+                            gnutella_pong_tree,
+                            size);
+                        break;
+                    case GNUTELLA_PUSH:
+                        pi = proto_tree_add_item(
+                            gnutella_header_tree,
+                            hf_gnutella_push_payload,
+                            tvb,
+                            offset + GNUTELLA_HEADER_LENGTH,
+                            size,
+                            FALSE);
+                        gnutella_push_tree = proto_item_add_subtree(
+                            pi,
+                            ett_gnutella);
+                        dissect_gnutella_push(
+                            tvb,
+                            offset + GNUTELLA_HEADER_LENGTH,
+                            gnutella_push_tree,
+                            size);
+                        break;
+                    case GNUTELLA_QUERY:
+                        pi = proto_tree_add_item(
+                            gnutella_header_tree,
+                            hf_gnutella_query_payload,
+                            tvb,
+                            offset + GNUTELLA_HEADER_LENGTH,
+                            size,
+                            FALSE);
+                        gnutella_query_tree = proto_item_add_subtree(
+                            pi,
+                            ett_gnutella);
+                        dissect_gnutella_query(
+                            tvb,
+                            offset + GNUTELLA_HEADER_LENGTH,
+                            gnutella_query_tree,
+                            size);
+                        break;
+                    case GNUTELLA_QUERYHIT:
+                        pi = proto_tree_add_item(
+                            gnutella_header_tree,
+                            hf_gnutella_queryhit_payload,
+                            tvb,
+                            offset + GNUTELLA_HEADER_LENGTH,
+                            size,
+                            FALSE);
+                        gnutella_queryhit_tree = proto_item_add_subtree(
+                            pi,
+                            ett_gnutella);
+                        dissect_gnutella_queryhit(
+                            tvb,
+                            offset + GNUTELLA_HEADER_LENGTH,
+                            gnutella_queryhit_tree,
+                            size);
+                        break;
+                }
+            }
 
 			offset = offset + GNUTELLA_HEADER_LENGTH + size;
 		}
