@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.h,v 1.17 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-ipx.h,v 1.18 2002/09/10 23:47:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@etheeal.com>
@@ -134,6 +134,7 @@ struct ipx_rip_packet
 	but I guessed based on the content of the packet I saw */
 #define IPX_SOCKET_ATTACHMATE_GW	0x055d
 #define IPX_SOCKET_IPX_MESSAGE		0x4001
+#define IPX_SOCKET_IPX_MESSAGE1		0x4003
 #define IPX_SOCKET_ADSM                 0x8522 /* www.tivoli.com */
 #define IPX_SOCKET_EIGRP                0x85be /* cisco ipx eigrp */
 #define IPX_SOCKET_WIDE_AREA_ROUTER	0x9001

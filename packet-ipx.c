@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.109 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-ipx.c,v 1.110 2002/09/10 23:47:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,6 +132,7 @@ static const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_NWLINK_SMB_BROWSE,		"NWLink SMB Browse" },
 	{ IPX_SOCKET_ATTACHMATE_GW,		"Attachmate Gateway" },
 	{ IPX_SOCKET_IPX_MESSAGE,		"IPX Message" },
+    { IPX_SOCKET_IPX_MESSAGE1,      "IPX Message" },
 	{ IPX_SOCKET_SNMP_AGENT,		"SNMP Agent" },
 	{ IPX_SOCKET_SNMP_SINK,			"SNMP Sink" },
 	{ IPX_SOCKET_PING_NOVELL,		"Novell PING" },
@@ -1034,5 +1035,7 @@ proto_reg_handoff_ipx(void)
 	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
 	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
 	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
+	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
+	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
 	data_handle = find_dissector("data");
 }
