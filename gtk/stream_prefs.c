@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.4 2000/08/21 22:31:04 guy Exp $
+ * $Id: stream_prefs.c,v 1.5 2000/09/09 10:04:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -191,8 +191,10 @@ stream_prefs_fetch(GtkWidget *w)
   copy_color_vals(&prefs.st_server_bg, &tcolors[SBG_IDX]);
 }
 
-/* XXX - should change the colors for any "Follow TCP Stream" windows
-   currently displayed. */
+/* XXX - "gui_prefs_apply()" handles this, as the "Follow TCP Stream"
+   windows may have to be redrawn due to a font change; this means
+   that calling "stream_prefs_apply()" without calling "gui_prefs_apply()"
+   won't work. */
 void
 stream_prefs_apply(GtkWidget *w)
 {
