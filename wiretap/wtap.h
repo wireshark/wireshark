@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.9 1999/01/02 06:10:55 gram Exp $
+ * $Id: wtap.h,v 1.10 1999/01/07 16:15:37 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -32,7 +32,6 @@
 #define WTAP_ENCAP_RAW_IP			6
 #define WTAP_ENCAP_ARCNET			7
 #define WTAP_ENCAP_ATM_RFC1483			8
-#define WTAP_ENCAP_PER_PACKET			9
 
 /* File types that can be read by wiretap */
 #define WTAP_FILE_UNKNOWN			0
@@ -109,7 +108,6 @@ void wtap_loop(wtap *wth, int, wtap_handler, u_char*);
 FILE* wtap_file(wtap *wth);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
-int wtap_encapsulation(wtap *wth); /* per file */
 void wtap_close(wtap *wth);
 
 

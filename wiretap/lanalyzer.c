@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.6 1998/12/13 05:38:13 gram Exp $
+ * $Id: lanalyzer.c,v 1.7 1999/01/07 16:15:35 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -214,6 +214,7 @@ int lanalyzer_read(wtap *wth)
 
 	wth->phdr.len = true_size - 4;
 	wth->phdr.caplen = packet_size;
+	wth->phdr.pkt_encap = wth->encapsulation;
 
 	return data_offset;
 }

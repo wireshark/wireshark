@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.1 1999/01/03 04:30:13 gram Exp $
+ * $Id: iptrace.c,v 1.2 1999/01/07 16:15:35 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -41,7 +41,6 @@ int iptrace_open(wtap *wth)
 	if (strcmp(name, "iptrace 2.0") != 0) {
 		return WTAP_FILE_UNKNOWN;
 	}
-	wth->encapsulation = WTAP_ENCAP_PER_PACKET;
 	wth->subtype_read = iptrace_read;
 
 	return WTAP_FILE_IPTRACE;

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.17 1999/01/03 01:57:24 guy Exp $
+ * $Id: file.c,v 1.18 1999/01/07 16:15:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,7 +114,6 @@ open_cap_file(char *fname, capture_file *cf) {
   /* Next, find out what type of file we're dealing with */
 #ifdef WITH_WIRETAP 
   cf->cd_t  = WTAP_FILE_UNKNOWN;
-  cf->lnk_t = WTAP_ENCAP_NONE;
 #else
   cf->cd_t  = CD_UNKNOWN;
   cf->lnk_t = DLT_NULL;
@@ -185,7 +184,6 @@ open_cap_file(char *fname, capture_file *cf) {
   cf->fh = wtap_file(cf->wth);
   cf->cd_t = wtap_file_type(cf->wth);
   cf->snap = wtap_snapshot_length(cf->wth);
-  cf->lnk_t = wtap_encapsulation(cf->wth);
 #endif
 
   return 0;
@@ -325,14 +323,12 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
   fdata->cap_len  = phdr->caplen;
 #ifdef WITH_WIRETAP
   fdata->file_off = offset;
+  fdata->lnk_t = phdr->pkt_encap;
 #else
   fdata->file_off = ftell(cf->fh) - phdr->caplen;
 #endif
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
-#ifdef WITH_WIRETAP
-  fdata->lnk_t = phdr->pkt_encap;
-#endif
 
   /* If we don't have the time stamp of the first packet, it's because this
      is the first packet.  Save the time stamp of this packet as the time

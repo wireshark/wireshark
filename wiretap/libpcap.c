@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.2 1998/12/17 06:39:10 gram Exp $
+ * $Id: libpcap.c,v 1.3 1999/01/07 16:15:36 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -207,6 +207,7 @@ int libpcap_read(wtap *wth)
 	wth->phdr.ts.tv_usec = hdr.ts_usec;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = hdr.orig_len;
+	wth->phdr.pkt_encap = wth->encapsulation;
 
 	return data_offset;
 }

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.8 1999/01/02 06:10:53 gram Exp $
+ * $Id: file.h,v 1.9 1999/01/07 16:15:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,7 +64,9 @@ typedef struct _capture_file {
   int         swap;      /* Swap data bytes? */
   guint16     cd_t;      /* Capture data type */
   guint32     vers;      /* Version.  For tcpdump minor is appended to major */
+#ifndef WITH_WIRETAP
   guint32     lnk_t;     /* Network link type */
+#endif
   guint32     count;     /* Packet count */
   guint32     drops;     /* Dropped packets */
   guint32     esec;      /* Elapsed seconds */

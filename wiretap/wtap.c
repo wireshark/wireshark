@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.3 1998/11/15 05:29:16 guy Exp $
+ * $Id: wtap.c,v 1.4 1999/01/07 16:15:36 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -33,11 +33,6 @@ int wtap_file_type(wtap *wth)
 	return wth->file_type;
 }
 
-int wtap_encapsulation(wtap *wth)
-{
-	return wth->encapsulation;
-}
-
 
 int wtap_snapshot_length(wtap *wth)
 {
@@ -46,7 +41,27 @@ int wtap_snapshot_length(wtap *wth)
 
 void wtap_close(wtap *wth)
 {
-	/* XXX - free up memory? */
+	/* free up memory. If any capture structure ever allocates
+	 * its own memory, it would be better to make a *close() function
+	 * for each filetype, like pcap_close(0, lanalyzer_close(), etc.
+	 * But for now this will work. */
+	switch(wth->file_type) {
+		case WTAP_FILE_PCAP:
+			free(wth->capture.pcap);
+			break;
+
+		case WTAP_FILE_LANALYZER:
+			free(wth->capture.lanalyzer);
+			break;
+
+		case WTAP_FILE_NGSNIFFER:
+			free(wth->capture.ngsniffer);
+			break;
+
+		default:
+			/* nothing */
+	}
+
 	fclose(wth->fh);
 }
 

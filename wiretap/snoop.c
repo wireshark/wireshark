@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.1 1998/11/15 05:29:14 guy Exp $
+ * $Id: snoop.c,v 1.2 1999/01/07 16:15:36 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -145,6 +145,7 @@ int snoop_read(wtap *wth)
 	wth->phdr.ts.tv_usec = ntohl(hdr.ts_usec);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = ntohl(hdr.orig_len);
+	wth->phdr.pkt_encap = wth->encapsulation;
 
 	/* Skip over the padding. */
 	fseek(wth->fh, ntohl(hdr.rec_len) - (sizeof hdr + packet_size),

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.10 1998/12/17 06:39:12 gram Exp $
+ * $Id: ngsniffer.c,v 1.11 1999/01/07 16:15:36 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -746,5 +746,6 @@ found:
 	wth->phdr.ts.tv_sec = (long)t;
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
 			*1.0e6);
+	wth->phdr.pkt_encap = wth->encapsulation;
 	return data_offset;
 }
