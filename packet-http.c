@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.69 2003/11/04 08:16:02 guy Exp $
+ * $Id: packet-http.c,v 1.70 2003/11/06 08:54:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,10 @@ static int hf_http_request = -1;
 static int hf_http_basic = -1;
 static int hf_http_request_method = -1;
 static int hf_http_response_code = -1;
+static int hf_http_authorization = -1;
+static int hf_http_proxy_authenticate = -1;
+static int hf_http_proxy_authorization = -1;
+static int hf_http_www_authenticate = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -104,6 +108,14 @@ typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
 
 static int is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 		RequestDissector *req_dissector, int *req_strlen);
+static void process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
+    const guchar *line, int linelen, int colon_offset,
+    packet_info *pinfo, proto_tree *tree);
+static gint find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len);
+static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
+    packet_info *pinfo, gchar *value);
+static gboolean check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb,
+    gchar *value);
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -142,73 +154,6 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
 }
 
-/*
- * Some headers that we dissect more deeply:
- *
- *	Microsoft's abomination called NTLMSSP over HTTP
- *	HTTP Basic authorization
- */
-static gboolean
-check_auth(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
-    const char *text)
-{
-	static const char *ntlm_headers[] = {
-		"Authorization: NTLM ",
-		"Authorization: Negotiate ",
-		"WWW-Authenticate: NTLM ",
-		"WWW-Authenticate: Negotiate ",
-		"Proxy-Authenticate: NTLM ",
-		"Proxy-Authorization: NTLM ",
-		NULL
-	};
-	static const char *basic_headers[] = {
-		"Authorization: Basic ",
-		"Proxy-Authorization: Basic ",
-		"Proxy-authorization: Basic ",
-		NULL
-	};
-	const char **header;
-	size_t hdrlen;
-	proto_tree *hdr_tree;
-	char *data;
-	size_t len;
-
-	for (header = &ntlm_headers[0]; *header != NULL; header++) {
-		hdrlen = strlen(*header);
-		if (strncmp(text, *header, hdrlen) == 0) {
-			if (hdr_item != NULL) {
-				hdr_tree = proto_item_add_subtree(hdr_item,
-				    ett_http_ntlmssp);
-			} else
-				hdr_tree = NULL;
-			text += hdrlen;
-			dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
-			return TRUE;
-		}
-	}
-	for (header = &basic_headers[0]; *header != NULL; header++) {
-		hdrlen = strlen(*header);
-		if (strncmp(text, *header, hdrlen) == 0) {
-			if (hdr_item != NULL) {
-				hdr_tree = proto_item_add_subtree(hdr_item,
-				    ett_http_ntlmssp);
-			} else
-				hdr_tree = NULL;
-			text += hdrlen;
-
-			data = g_strdup(text);
-			len = base64_decode(data);
-			data[len] = '\0';
-			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
-			    0, 0, data);
-			g_free(data);
-
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
 /* TODO: remove this ugly global variable */
 http_info_value_t	*stat_info;
 static void
@@ -228,11 +173,11 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guchar		c;
 	http_type_t     http_type;
 	int		datalen;
-	char		*text;
 	proto_item	*hdr_item;
 	RequestDissector req_dissector;
 	int		req_strlen;
 	proto_tree	*req_tree;
+	int		colon_offset;
 	long int	content_length;
 	gboolean	content_length_found = FALSE;
 
@@ -425,12 +370,15 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		line = tvb_get_ptr(tvb, offset, linelen);
 		lineend = line + linelen;
+		colon_offset = -1;
 
 		/*
 		 * OK, does it look like an HTTP request or response?
 		 */
 		req_dissector = NULL;
-		if (is_http_request_or_reply(line, linelen, &http_type, &req_dissector, &req_strlen))
+		is_request_or_reply = is_http_request_or_reply(line, linelen,
+		    &http_type, &req_dissector, &req_strlen);
+		if (is_request_or_reply)
 			goto is_http;
 
 		/*
@@ -444,6 +392,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * No.  Does it look like a MIME header?
 		 */
 		linep = line;
+		colon_offset = offset;
 		while (linep < lineend) {
 			c = *linep++;
 
@@ -501,6 +450,10 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * to be a MIME header.
 				 */
 				goto is_http;
+
+			default:
+				colon_offset++;
+				break;
 			}
 		}
 
@@ -515,19 +468,36 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	is_http:
 		/*
-		 * Put this line.
+		 * Process this line.
 		 */
-		text = tvb_format_text(tvb, offset, next_offset - offset);
-		if (tree) {
-			hdr_item = proto_tree_add_text(http_tree, tvb, offset,
-			    next_offset - offset, "%s", text);
-			if (req_dissector) {
-				req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
-				req_dissector(tvb, req_tree, req_strlen);
+		if (is_request_or_reply) {
+			if (tree) {
+				hdr_item = proto_tree_add_text(http_tree, tvb,
+				    offset, next_offset - offset, "%s",
+				    tvb_format_text(tvb, offset,
+				      next_offset - offset));
+				if (req_dissector) {
+					req_tree = proto_item_add_subtree(
+					    hdr_item, ett_http_request);
+					req_dissector(tvb, req_tree,
+					    req_strlen);
+				}
 			}
-		} else
-			hdr_item = NULL;
-		check_auth(hdr_item, tvb, pinfo, text);
+		} else if (linelen != 0) {
+			/*
+			 * Entity header.
+			 */
+			process_entity_header(tvb, offset, next_offset,
+			    line, linelen, colon_offset, pinfo, http_tree);
+		} else {
+			/*
+			 * Blank line.
+			 */
+			proto_tree_add_text(http_tree, tvb,
+			    offset, next_offset - offset, "%s",
+			    tvb_format_text(tvb, offset,
+			      next_offset - offset));
+		}
 		offset = next_offset;
 	}
 
@@ -768,6 +738,196 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 	return isHttpRequestOrReply;
 }
 
+/*
+ * Process entity-headers.
+ */
+typedef struct {
+	char	*name;
+	gint	*hf;
+	int	special;
+} entity_header_info;
+
+#define EH_NO_SPECIAL		0
+#define EH_AUTHORIZATION	1
+#define EH_AUTHENTICATE		2
+
+static const entity_header_info headers[] = {
+	{ "Authorization", &hf_http_authorization, EH_AUTHORIZATION },
+	{ "Proxy-Authorization", &hf_http_proxy_authorization, EH_AUTHORIZATION },
+	{ "Proxy-Authenticate", &hf_http_proxy_authenticate, EH_AUTHENTICATE },
+	{ "WWW-Authenticate", &hf_http_www_authenticate, EH_AUTHENTICATE },
+};
+
+static void
+process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
+    const guchar *line, int linelen, int colon_offset,
+    packet_info *pinfo, proto_tree *tree)
+{
+	int len;
+	int line_end_offset;
+	int header_len;
+	gint hf_index;
+	guchar c;
+	int value_offset;
+	int value_len;
+	char *value;
+	proto_item *hdr_item;
+
+	len = next_offset - offset;
+	line_end_offset = offset + linelen;
+	header_len = colon_offset - offset;
+	hf_index = find_header_hf_value(tvb, offset, header_len);
+
+	if (hf_index == -1) {
+		/*
+		 * Not a header we know anything about.  Just put it into
+		 * the tree as text.
+		 */
+		if (tree) {
+			proto_tree_add_text(tree, tvb, offset, len,
+			    "%s", format_text(line, len));
+		}
+	} else {
+		/*
+		 * Skip whitespace after the colon.
+		 */
+		value_offset = colon_offset + 1;
+		while (value_offset < line_end_offset
+		    && ((c = line[value_offset - offset]) == ' ' || c == '\t'))
+			value_offset++;
+
+		/*
+		 * Fetch the value.
+		 */
+		value_len = line_end_offset - value_offset;
+		value = g_malloc(value_len + 1);
+		memcpy(value, &line[value_offset - offset], value_len);
+		value[value_len] = '\0';
+		CLEANUP_PUSH(g_free, value);
+
+		/*
+		 * Add it to the protocol tree as a particular field,
+		 * but display the line as is.
+		 */
+		if (tree) {
+			hdr_item = proto_tree_add_string_format(tree,
+			    *headers[hf_index].hf, tvb, offset, len,
+			    value, "%s", format_text(line, len));
+		} else
+			hdr_item = NULL;
+
+		/*
+		 * Do any special processing that particular headers
+		 * require.
+		 */
+		switch (headers[hf_index].special) {
+
+		case EH_AUTHORIZATION:
+			if (check_auth_ntlmssp(hdr_item, tvb, pinfo, value))
+				break;	/* dissected NTLMSSP */
+			check_auth_basic(hdr_item, tvb, value);
+			break;
+
+		case EH_AUTHENTICATE:
+			check_auth_ntlmssp(hdr_item, tvb, pinfo, value);
+			break;
+		}
+
+		/*
+		 * Free the value, by calling and popping the cleanup
+		 * handler for it.
+		 */
+		CLEANUP_CALL_AND_POP;
+	}
+}
+
+/* Returns index of entity-header tag in headers */
+static gint
+find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len)
+{
+        guint i;
+
+        for (i = 0; i < array_length(headers); i++) {
+                if (header_len == strlen(headers[i].name) &&
+                    tvb_strncaseeql(tvb, offset, headers[i].name, header_len) == 0)
+                        return i;
+        }
+
+        return -1;
+}
+
+/*
+ * Dissect Microsoft's abomination called NTLMSSP over HTTP.
+ */
+static gboolean
+check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
+    gchar *value)
+{
+	static const char *ntlm_headers[] = {
+		"NTLM ",
+		"Negotiate ",
+		NULL
+	};
+	const char **header;
+	size_t hdrlen;
+	proto_tree *hdr_tree;
+
+	/*
+	 * Check for NTLM credentials and challenge; those can
+	 * occur with WWW-Authenticate.
+	 */
+	for (header = &ntlm_headers[0]; *header != NULL; header++) {
+		hdrlen = strlen(*header);
+		if (strncmp(value, *header, hdrlen) == 0) {
+			if (hdr_item != NULL) {
+				hdr_tree = proto_item_add_subtree(hdr_item,
+				    ett_http_ntlmssp);
+			} else
+				hdr_tree = NULL;
+			value += hdrlen;
+			dissect_http_ntlmssp(tvb, pinfo, hdr_tree, value);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+/*
+ * Dissect HTTP Basic authorization.
+ */
+static gboolean
+check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
+{
+	static const char *basic_headers[] = {
+		"Basic ",
+		NULL
+	};
+	const char **header;
+	size_t hdrlen;
+	proto_tree *hdr_tree;
+	size_t len;
+
+	for (header = &basic_headers[0]; *header != NULL; header++) {
+		hdrlen = strlen(*header);
+		if (strncmp(value, *header, hdrlen) == 0) {
+			if (hdr_item != NULL) {
+				hdr_tree = proto_item_add_subtree(hdr_item,
+				    ett_http_ntlmssp);
+			} else
+				hdr_tree = NULL;
+			value += hdrlen;
+
+			len = base64_decode(value);
+			value[len] = '\0';
+			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
+			    0, 0, value);
+
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 void
 proto_register_http(void)
 {
@@ -795,6 +955,22 @@ proto_register_http(void)
 	      { "Response Code",	"http.response.code",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
 		"HTTP Response Code", HFILL }},
+	    { &hf_http_authorization,
+	      { "Authorization",	"http.authorization",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Authorization header", HFILL }},
+	    { &hf_http_proxy_authenticate,
+	      { "Proxy-Authenticate",	"http.proxy_authenticate",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Proxy-Authenticate header", HFILL }},
+	    { &hf_http_proxy_authorization,
+	      { "Proxy-Authorization",	"http.proxy_authorization",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Proxy-Authorization header", HFILL }},
+	    { &hf_http_www_authenticate,
+	      { "WWW-Authenticate",	"http.www_authenticate",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP WWW-Authenticate header", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
