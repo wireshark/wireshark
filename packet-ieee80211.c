@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.66 2002/06/18 20:17:17 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.67 2002/06/19 09:18:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1558,30 +1558,31 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       return;
     }
 
-  /*
-   * For WEP-encrypted frames, dissect the WEP parameters and decrypt
-   * the data, if we have a matching key.  Otherwise display it as data.
-   */
   if (IS_WEP(COOK_FLAGS(fcf))) {
+    /*
+     * It's a WEP-encrypted frame; dissect the WEP parameters and decrypt
+     * the data, if we have a matching key.  Otherwise display it as data.
+     */
     gboolean can_decrypt = FALSE;
     proto_tree *wep_tree = NULL;
 
     if (tree) {
       proto_item *wep_fields;
 
-      wep_fields = proto_tree_add_text(tree, tvb, hdr_len, 4,
+      wep_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 4,
 					   "WEP parameters");
 
       wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
       proto_tree_add_item (wep_tree, hf_wep_iv, tvb, hdr_len, 3, TRUE);
 
-      proto_tree_add_uint (wep_tree, hf_wep_key, tvb, hdr_len, 1,
-			   COOK_WEP_KEY (tvb_get_guint8 (tvb, 3)));
+      proto_tree_add_uint (wep_tree, hf_wep_key, tvb, hdr_len + 3, 1,
+			   COOK_WEP_KEY (tvb_get_guint8 (tvb, hdr_len + 3)));
     }
 
-    len = tvb_length_remaining(tvb, 4);
-    reported_len = tvb_reported_length_remaining(tvb, 4);
-    if (len == -1 || reported_len == -1) {
+    /* Subtract out the length of the IV. */
+    len -= 4;
+    reported_len -= 4;
+    if (len < 0 || reported_len < 0) {
       /* We don't have anything beyond the IV. */
       return;
     }
@@ -1624,34 +1625,47 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       len -= 4;
       reported_len -= 4;
       if (tree)
-	proto_tree_add_item (wep_tree, hf_wep_icv, tvb, len, 4,
+	proto_tree_add_item (wep_tree, hf_wep_icv, tvb, hdr_len + 4 + len, 4,
 			     FALSE);
       can_decrypt = TRUE;
     }
 
     if (!can_decrypt || (next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len - hdr_len + 4)) == NULL) {
-      /* WEP decode impossible or failed, treat payload as raw data. */
-      next_tvb = tvb_new_subset(tvb, 4, len, reported_len);
+      /*
+       * WEP decode impossible or failed, treat payload as raw data
+       * and don't attempt fragment reassembly or further dissection.
+       */
+      next_tvb = tvb_new_subset(tvb, hdr_len + 4, len, reported_len);
 
       call_dissector(data_handle, next_tvb, pinfo, tree);
       return; 
     } else {
       add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
-	/*
-	  if (check_col(pinfo->cinfo, COL_INFO))
-	  col_set_str(pinfo->cinfo, COL_INFO, "Decrypted WEP data");
-	*/
     }
-    hdr_len += 4;  /* so we don't include the IV in the fragment payload */
-  }
 
-  if (next_tvb == NULL) {
-    next_tvb = tvb;  /* and WEP decode failed, if attempted.  offsets ok. */
-  } else {  
-    /* WEP decode successful! Lie about offsets as we're using a child skb */
-    reported_len -= hdr_len;
-    len -= hdr_len;
+    /*
+     * WEP decryption successful!
+     *
+     * Use the tvbuff we got back from the decryption; the data starts at
+     * the beginning, and doesn't include the 802.11 header or the WEP
+     * IV, so subtract "hdr_len + 4" from the lengths we computed above,
+     * and set "hdr_len" to 0 so the code below starts at the beginning
+     * of "next_tvb".
+     */
+    reported_len -= hdr_len + 4;
+    len -= hdr_len + 4;
     hdr_len = 0;
+  } else {
+    /*
+     * Not a WEP-encrypted frame; just use the data from the tvbuff
+     * handed to us.
+     *
+     * The payload starts at "hdr_len" (i.e., just past the 802.11
+     * MAC header), the length of data in the tvbuff following the
+     * 802.11 header is "len", and the length of data in the packet
+     * following the 802.11 header is "reported_len".
+     */
+    next_tvb = tvb;
   }
 
   /*
