@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.37 2003/09/12 02:48:20 sahlberg Exp $
+ * $Id: packet-frame.c,v 1.38 2003/09/12 04:52:55 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,17 +235,17 @@ proto_register_frame(void)
 	static hf_register_info hf[] = {
 		{ &hf_frame_arrival_time,
 		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			"Absolute time when this frame was captured", HFILL }},
 
 		{ &hf_frame_time_delta,
 		{ "Time delta from previous packet",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
-			"", HFILL }},
+			"Time delta since previous diplayed frame", HFILL }},
 
 		{ &hf_frame_time_relative,
-		{ "Time relative to first packet",	"frame.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL,
+		{ "Time since reference or first frame",	"frame.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
-			"Time relative to the previous *REF* frame, if any, or the first packet of the capture", HFILL }},
+			"Time relative reference or first frame", HFILL }},
 
 		{ &hf_frame_number,
 		{ "Frame Number",		"frame.number", FT_UINT32, BASE_DEC, NULL, 0x0,
