@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.8 2000/12/03 22:12:19 guy Exp $
+ * $Id: packet.c,v 1.9 2000/12/03 22:26:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,9 +82,6 @@
 #include "resolv.h"
 #include "tvbuff.h"
 #include "plugins.h"
-
-extern capture_file  cfile;
-
 
 extern int proto_malformed;
 
