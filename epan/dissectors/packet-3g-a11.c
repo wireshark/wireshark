@@ -550,6 +550,7 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	case MH_AUTH_EXT:
 	case MF_AUTH_EXT:
 	case FH_AUTH_EXT:
+	case RU_AUTH_EXT:
 	  /* All these extensions look the same.  4 byte SPI followed by a key */
 	  proto_tree_add_item(ext_tree, hf_a11_aext_spi, tvb, offset, 4, FALSE);
 	  proto_tree_add_item(ext_tree, hf_a11_aext_auth, tvb, offset+4, ext_len-4,
