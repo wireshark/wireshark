@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.71 2003/11/07 03:47:20 guy Exp $
+ * $Id: packet-http.c,v 1.72 2003/11/18 07:49:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,18 +107,27 @@ typedef enum {
 
 typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
 
+/*
+ * Structure holding information from entity headers needed by main
+ * HTTP dissector code.
+ */
+typedef struct {
+	char	*content_type;
+} entity_headers_t;
+
 static int is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 		RequestDissector *req_dissector, int *req_strlen);
 static void process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset,
-    packet_info *pinfo, proto_tree *tree);
+    packet_info *pinfo, proto_tree *tree, entity_headers_t *eh_ptr);
 static gint find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len);
 static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
     packet_info *pinfo, gchar *value);
 static gboolean check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb,
     gchar *value);
 
-static dissector_table_t subdissector_table;
+static dissector_table_t port_subdissector_table;
+static dissector_table_t content_type_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 static dissector_handle_t ntlmssp_handle=NULL;
@@ -181,6 +190,9 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		colon_offset;
 	long int	content_length;
 	gboolean	content_length_found = FALSE;
+	entity_headers_t entity_headers;
+	dissector_handle_t handle;
+	gboolean	dissected;
 
 	/*
 	 * Is this a request or response?
@@ -359,6 +371,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Process the packet data, a line at a time.
 	 */
 	http_type = HTTP_OTHERS;	/* type not known yet */
+	entity_headers.content_type = NULL;	/* content type not known yet */
 	while (tvb_offset_exists(tvb, offset)) {
 		/*
 		 * Find the end of the line.
@@ -489,7 +502,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Entity header.
 			 */
 			process_entity_header(tvb, offset, next_offset,
-			    line, linelen, colon_offset, pinfo, http_tree);
+			    line, linelen, colon_offset, pinfo, http_tree,
+			    &entity_headers);
 		} else {
 			/*
 			 * Blank line.
@@ -531,22 +545,44 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 		/*
-		 * OK, has some subdissector asked that they be called
-		 * if something was on some particular port?
+		 * Do subdissector checks.
+		 *
+		 * First, check whether some subdissector asked that they
+		 * be called if something was on some particular port.
 		 */
-		if (dissector_try_port(subdissector_table, pinfo->match_port,
-		    next_tvb, pinfo, tree)) {
+		handle = dissector_get_port_handle(port_subdissector_table,
+		    pinfo->match_port);
+		if (handle == NULL && entity_headers.content_type != NULL) {
 			/*
-			 * Yes.  Fix up the top-level item so that it
-			 * doesn't include the stuff for that protocol.
+			 * We didn't find any subdissector that
+			 * registered for the port, and we have a
+			 * Content-Type value.  Is there any subdissector
+			 * for that content type?
 			 */
-			if (ti != NULL)
-				proto_item_set_len(ti, offset);
-		} else if (dissector_try_heuristic(heur_subdissector_list,
-		    next_tvb, pinfo, tree)) {
+			handle = dissector_get_string_handle(
+			    content_type_subdissector_table,
+			    entity_headers.content_type);
+		}
+		g_free(entity_headers.content_type);
+		if (handle != NULL) {
 			/*
-			 * Yes.  Fix up the top-level item so that it
-			 * doesn't include the stuff for that protocol.
+			 * We have a subdissector - call it.
+			 */
+			dissected = call_dissector(handle, next_tvb, pinfo,
+			    tree);
+		} else {
+			/*
+			 * We don't have a subdissector - try the heuristic
+			 * subdissectors.
+			 */
+			dissected = dissector_try_heuristic(
+			    heur_subdissector_list, next_tvb, pinfo, tree);
+		}
+		if (dissected) {
+			/*
+			 * The subdissector dissected the body.
+			 * Fix up the top-level item so that it doesn't
+			 * include the stuff for that protocol.
 			 */
 			if (ti != NULL)
 				proto_item_set_len(ti, offset);
@@ -554,6 +590,11 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(data_handle, next_tvb, pinfo,
 			    http_tree);
 		}
+	} else {
+		/*
+		 * Free up content type - there's no content.
+		 */
+		g_free(entity_headers.content_type);
 	}
 
 	tap_queue_packet(http_tap, pinfo, stat_info);
@@ -764,7 +805,7 @@ static const entity_header_info headers[] = {
 static void
 process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset,
-    packet_info *pinfo, proto_tree *tree)
+    packet_info *pinfo, proto_tree *tree, entity_headers_t *eh_ptr)
 {
 	int len;
 	int line_end_offset;
@@ -833,6 +874,12 @@ process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
 
 		case EH_AUTHENTICATE:
 			check_auth_ntlmssp(hdr_item, tvb, pinfo, value);
+			break;
+
+		case EH_CONTENT_TYPE:
+			if (eh_ptr->content_type != NULL)
+				g_free(eh_ptr->content_type);
+			eh_ptr->content_type = g_strdup(value);
 			break;
 		}
 
@@ -1016,8 +1063,15 @@ proto_register_http(void)
 	 * This only works for protocols such as IPP that run over
 	 * HTTP on a specific non-HTTP port.
 	 */
-	subdissector_table = register_dissector_table("http.port",
+	port_subdissector_table = register_dissector_table("http.port",
 	    "TCP port for protocols using HTTP", FT_UINT16, BASE_DEC);
+
+	/*
+	 * Dissectors can register themselves in this table.
+	 */
+	content_type_subdissector_table =
+	    register_dissector_table("http.content_type",
+		"HTTP content type", FT_STRING, BASE_NONE);
 
 	/*
 	 * Heuristic dissectors SHOULD register themselves in
