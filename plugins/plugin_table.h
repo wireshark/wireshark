@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.48 2002/05/13 21:18:26 guy Exp $
+ * $Id: plugin_table.h,v 1.49 2002/05/16 02:43:53 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -210,7 +210,7 @@ typedef gint32 (*addr_get_CDR_long)(tvbuff_t *, int *, gboolean, int);
 typedef void (*addr_get_CDR_object)(tvbuff_t *, packet_info *, proto_tree *,
 		int *, gboolean, int);
 typedef guint8 (*addr_get_CDR_octet)(tvbuff_t *, int *);
-typedef void (*addr_get_CDR_octet_seq)(tvbuff_t *, gchar **, int *, int);
+typedef void (*addr_get_CDR_octet_seq)(tvbuff_t *, gchar **, int *, guint32);
 typedef gint16 (*addr_get_CDR_short)(tvbuff_t *, int *, gboolean, int);
 typedef guint32 (*addr_get_CDR_string)(tvbuff_t *, gchar **, int *, gboolean,
 		int);
@@ -218,7 +218,7 @@ typedef guint32 (*addr_get_CDR_typeCode)(tvbuff_t *, proto_tree *, gint *,
 	gboolean, int, MessageHeader *);
 typedef guint32 (*addr_get_CDR_ulong)(tvbuff_t *, int *, gboolean, int);
 typedef guint16 (*addr_get_CDR_ushort)(tvbuff_t *, int *, gboolean, int);
-typedef gint8 (*addr_get_CDR_wchar)(tvbuff_t *, gchar **, int *,
+typedef gint (*addr_get_CDR_wchar)(tvbuff_t *, gchar **, int *,
 		MessageHeader *);
 typedef guint32 (*addr_get_CDR_wstring)(tvbuff_t *, gchar **, int *, gboolean,
 		int, MessageHeader *);
