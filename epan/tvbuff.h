@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.23 2002/03/06 19:17:06 gram Exp $
+ * $Id: tvbuff.h,v 1.24 2002/04/12 23:25:24 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -230,10 +230,14 @@ extern guint8  tvb_get_guint8(tvbuff_t*, gint offset);
 extern guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
 extern guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
 extern guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
+extern float tvb_get_ntohieee_float(tvbuff_t*, gint offset);
+extern double tvb_get_ntohieee_double(tvbuff_t*, gint offset);
 
 extern guint16 tvb_get_letohs(tvbuff_t*, gint offset);
 extern guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
 extern guint32 tvb_get_letohl(tvbuff_t*, gint offset);
+extern float tvb_get_letohieee_float(tvbuff_t*, gint offset);
+extern double tvb_get_letohieee_double(tvbuff_t*, gint offset);
 
 /* Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough

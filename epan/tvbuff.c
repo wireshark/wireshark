@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.31 2002/03/06 19:17:05 gram Exp $
+ * $Id: tvbuff.c,v 1.32 2002/04/12 23:25:24 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1005,6 +1005,71 @@ tvb_get_ntohl(tvbuff_t *tvb, gint offset)
 	return pntohl(ptr);
 }
 
+/*
+ * Fetches an IEEE single-precision floating-point number, in
+ * big-endian form, and returns a "float".
+ *
+ * XXX - should this be "double", in case there are IEEE single-
+ * precision numbers that won't fit in some platform's native
+ * "float" format?
+ */
+float
+tvb_get_ntohieee_float(tvbuff_t *tvb, int offset)
+{
+	/*
+	 * XXX - other non-IEEE boxes that can run UNIX include some
+	 * Crays, and possibly other machines.
+	 *
+	 * It appears that the official Linux port to System/390 and
+	 * zArchitecture uses IEEE format floating point (not a
+	 * huge surprise).
+	 *
+	 * I don't know whether there are any other machines that
+	 * could run Ethereal and that don't use IEEE format.
+	 * As far as I know, all of the main commercial microprocessor
+	 * families on which OSes that support Ethereal can run
+	 * use IEEE format (x86, 68k, SPARC, MIPS, PA-RISC, Alpha,
+	 * IA-64, and so on).
+	 */
+#if defined(vax)
+#error "Sorry, you'll have to write code to translate to VAX format"
+#else
+	union {
+		float f;
+		guint32 w;
+	} ieee_fp_union;
+
+	ieee_fp_union.w = tvb_get_ntohl(tvb, offset);
+	return ieee_fp_union.f;
+#endif
+}
+
+/*
+ * Fetches an IEEE double-precision floating-point number, in
+ * big-endian form, and returns a "double".
+ */
+double
+tvb_get_ntohieee_double(tvbuff_t *tvb, int offset)
+{
+#if defined(vax)
+#error "Sorry, you'll have to write code to translate to VAX format"
+#else
+	union {
+		double d;
+		guint32 w[2];
+	} ieee_fp_union;
+
+#ifdef WORDS_BIGENDIAN
+	ieee_fp_union.w[0] = tvb_get_ntohl(tvb, offset);
+	ieee_fp_union.w[1] = tvb_get_ntohl(tvb, offset+4);
+#else
+	ieee_fp_union.w[0] = tvb_get_ntohl(tvb, offset+4);
+	ieee_fp_union.w[1] = tvb_get_ntohl(tvb, offset);
+#endif
+	return ieee_fp_union.d;
+#endif
+}
+
 guint16
 tvb_get_letohs(tvbuff_t *tvb, gint offset)
 {
@@ -1030,6 +1095,65 @@ tvb_get_letohl(tvbuff_t *tvb, gint offset)
 
 	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
 	return pletohl(ptr);
+}
+
+/*
+ * Fetches an IEEE single-precision floating-point number, in
+ * little-endian form, and returns a "float".
+ *
+ * XXX - should this be "double", in case there are IEEE single-
+ * precision numbers that won't fit in some platform's native
+ * "float" format?
+ */
+float
+tvb_get_letohieee_float(tvbuff_t *tvb, int offset)
+{
+	/*
+	 * XXX - other non-IEEE boxes that can run UNIX include Crays
+	 * and System/3x0 and zArchitecture, although later S/390
+	 * and zArchitecture machines also support IEEE floating
+	 * point; I don't know what the compilers used by Linux
+	 * for S/390 and zArchitecture use - they might have chosen
+	 * to support only machines with IEEE format, and used IEEE
+	 * format to avoid portability headaches.
+	 */
+#if defined(vax)
+#error "Sorry, you'll have to write code to translate to VAX format"
+#else
+	union {
+		float f;
+		guint32 w;
+	} ieee_fp_union;
+
+	ieee_fp_union.w = tvb_get_letohl(tvb, offset);
+	return ieee_fp_union.f;
+#endif
+}
+
+/*
+ * Fetches an IEEE double-precision floating-point number, in
+ * little-endian form, and returns a "double".
+ */
+double
+tvb_get_letohieee_double(tvbuff_t *tvb, int offset)
+{
+#if defined(vax)
+#error "Sorry, you'll have to write code to translate to VAX format"
+#else
+	union {
+		double d;
+		guint32 w[2];
+	} ieee_fp_union;
+
+#ifdef WORDS_BIGENDIAN
+	ieee_fp_union.w[0] = tvb_get_letohl(tvb, offset+4);
+	ieee_fp_union.w[1] = tvb_get_letohl(tvb, offset);
+#else
+	ieee_fp_union.w[0] = tvb_get_letohl(tvb, offset);
+	ieee_fp_union.w[1] = tvb_get_letohl(tvb, offset+4);
+#endif
+	return ieee_fp_union.d;
+#endif
 }
 
 /* Find first occurence of needle in tvbuff, starting at offset. Searches
