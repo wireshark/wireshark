@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.31 2002/01/14 02:50:28 guy Exp $
+ * $Id: packet-ldap.c,v 1.32 2002/01/14 03:01:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -889,18 +889,6 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean first_time = TRUE;
   int ret;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
-
-  if (tree) 
-  {
-    ti = proto_tree_add_item(tree, proto_ldap, tvb, 0, tvb_length(tvb),
-			     FALSE);
-    ldap_tree = proto_item_add_subtree(ti, ett_ldap);
-  }
-
   asn1_open(&a, tvb, 0);
 
   while (tvb_reported_length_remaining(tvb, a.offset) > 0)
@@ -916,11 +904,21 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_start = a.offset;
     if (read_sequence(&a, &messageLength))
     {
-      if (first_time && check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "Invalid LDAP packet");
-      if (ldap_tree)
-        proto_tree_add_text(ldap_tree, tvb, message_start, 1,
+      if (first_time)
+      {
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
+        if (check_col(pinfo->cinfo, COL_INFO))
+          col_set_str(pinfo->cinfo, COL_INFO, "Invalid LDAP packet");
+      }
+      if (tree)
+      {
+        ti = proto_tree_add_item(tree, proto_ldap, tvb, message_start,
+			         tvb_length(tvb), FALSE);
+        ldap_tree = proto_item_add_subtree(ti, ett_ldap);
+        proto_tree_add_text(ldap_tree, tvb, message_start, tvb_length(tvb),
 			    "Invalid LDAP packet");
+      }
       break;
     }
 
@@ -945,6 +943,21 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
     }
     next_offset = a.offset + messageLength;
+
+    if (first_time)
+    {
+      if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
+    }
+
+    if (tree) 
+    {
+      ti = proto_tree_add_item(tree, proto_ldap, tvb, message_start,
+			       next_offset - message_start, FALSE);
+      ldap_tree = proto_item_add_subtree(ti, ett_ldap);
+    }
 
     message_id_start = a.offset;
     if (read_integer(&a, 0, -1, 0, &messageId, ASN1_INT))
