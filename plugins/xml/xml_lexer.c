@@ -414,23 +414,32 @@ char *yytext;
 	* along with this program; if not, write to the Free Software
 	* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 	*/
-
+	
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 	
 #include "packet-xml.h"
-	
+
 	static guint8* extracted = NULL;
 	static gint offset;
-	static gint last_offset;
 	static gint text_offset;
 	static gint len;
-	xml_token_t* head;
-	xml_token_t* tail;
 	
-#define YY_INPUT(buff,result,max_size) ( (result) = tvb_yyinput((buff),(max_size)) )
+	tvbuff_t* tvb;
+	proto_item* pi;
+	proto_tree* tree;
+	GPtrArray* stack;
+	static int ett_xml;
+	static int proto_xml;
+
+#define YY_INPUT(buff,result,max_size) \
+	( (result) = tvb_yyinput((buff),(max_size)) )
+
 #define ECHO ; 
 	
-	static void add_xml_item(xml_token_type_t type, gint len);
-	static int tvb_yyinput(char* buff, guint max_len);
+	static void add_xml_item(xml_token_type_t, guint);
+	static int tvb_yyinput(char*, guint);
 	
 #define OUT 1
 #define COMMENT 2
@@ -441,7 +450,7 @@ char *yytext;
 #define MARKUPDECL 7
 #define TEXT 8
 
-#line 445 "xml_lexer.c"
+#line 454 "xml_lexer.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -592,10 +601,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 73 "xml_lexer.l"
+#line 82 "xml_lexer.l"
 
 
-#line 599 "xml_lexer.c"
+#line 608 "xml_lexer.c"
 
 	if ( yy_init )
 		{
@@ -680,90 +689,90 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 75 "xml_lexer.l"
-{ add_xml_item(XML_WHITESPACE, yyleng); }
+#line 84 "xml_lexer.l"
+{ text_offset = offset - yyleng; add_xml_item(XML_WHITESPACE, yyleng); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 76 "xml_lexer.l"
-{ add_xml_item(XML_DOCTYPE_STOP, yyleng); }
+#line 85 "xml_lexer.l"
+{ text_offset = offset - yyleng; add_xml_item(XML_DOCTYPE_STOP, yyleng); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 78 "xml_lexer.l"
-{ text_offset = offset - yyleng -1; BEGIN TEXT; }
+#line 87 "xml_lexer.l"
+{ text_offset = offset - yyleng; BEGIN TEXT; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 79 "xml_lexer.l"
-{ add_xml_item(XML_TEXT, --offset - text_offset -1 ); BEGIN OUT; }
+#line 88 "xml_lexer.l"
+{ add_xml_item(XML_TEXT, --offset - text_offset ); BEGIN OUT; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 81 "xml_lexer.l"
-{ text_offset = offset - yyleng -1; BEGIN COMMENT; }
+#line 90 "xml_lexer.l"
+{ text_offset = offset - yyleng; BEGIN COMMENT; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 82 "xml_lexer.l"
-{ add_xml_item(XML_COMMENT, offset - text_offset -1); BEGIN OUT; }
+#line 91 "xml_lexer.l"
+{ add_xml_item(XML_COMMENT, offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 84 "xml_lexer.l"
-{ text_offset = offset - yyleng -1; BEGIN CLOSE_TAG; }
+#line 93 "xml_lexer.l"
+{ text_offset = offset - yyleng ; BEGIN CLOSE_TAG; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 85 "xml_lexer.l"
-{ add_xml_item(XML_CLOSE_TAG, offset - text_offset -1); BEGIN OUT; }
+#line 94 "xml_lexer.l"
+{ add_xml_item(XML_CLOSE_TAG, offset - text_offset ); BEGIN OUT; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 87 "xml_lexer.l"
-{ text_offset = offset - yyleng -1; BEGIN XMLPI; }
+#line 96 "xml_lexer.l"
+{ text_offset = offset - yyleng; BEGIN XMLPI; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 88 "xml_lexer.l"
-{ add_xml_item(XML_XMLPI, offset - text_offset -1); BEGIN OUT; }
+#line 97 "xml_lexer.l"
+{ add_xml_item(XML_XMLPI, offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 90 "xml_lexer.l"
+#line 99 "xml_lexer.l"
 { text_offset = offset - yyleng -1; BEGIN MARKUPDECL; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 91 "xml_lexer.l"
+#line 100 "xml_lexer.l"
 { add_xml_item(XML_DOCTYPE_START, offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 92 "xml_lexer.l"
+#line 101 "xml_lexer.l"
 { add_xml_item(XML_MARKUPDECL,  offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 94 "xml_lexer.l"
+#line 103 "xml_lexer.l"
 { text_offset = offset - yyleng -1; BEGIN TAG; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 95 "xml_lexer.l"
+#line 104 "xml_lexer.l"
 { add_xml_item(XML_CLOSEDTAG, offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 96 "xml_lexer.l"
+#line 105 "xml_lexer.l"
 { add_xml_item(XML_TAG, offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 100 "xml_lexer.l"
+#line 107 "xml_lexer.l"
 ECHO;
 	YY_BREAK
-#line 767 "xml_lexer.c"
+#line 776 "xml_lexer.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(OUT):
 case YY_STATE_EOF(COMMENT):
@@ -1657,34 +1666,37 @@ int main()
 	return 0;
 	}
 #endif
-#line 100 "xml_lexer.l"
+#line 107 "xml_lexer.l"
 
 
-static void add_xml_item(xml_token_type_t type, gint the_len) {
-	xml_token_t* xi = g_malloc(sizeof(xml_token_t));
-	
-	xi->type = type;
-	xi->offset = last_offset;
-	xi->len = the_len;
-	xi->next = NULL;
-	xi->prev = tail;
-	
-	last_offset += the_len;
-		
-	if (!head) head = xi;
-	
-	if (!tail) {
-		tail = xi;
-	} else {
-		tail->next = xi;
-	}
-	
-	tail = xi;
+static void add_xml_item(xml_token_type_t type, guint the_len) {
+	switch (type) {
+		case XML_WHITESPACE:
+			break;
+		case XML_CLOSEDTAG:
+		case XML_TEXT:
+		case XML_MARKUPDECL:
+		case XML_XMLPI:
+		case XML_COMMENT:
+			pi = proto_tree_add_xml_item(tree,tvb,type,text_offset,the_len);
+			break;
+		case XML_DOCTYPE_START:
+		case XML_TAG:  
+			pi = proto_tree_add_xml_item(tree,tvb,type,text_offset,the_len);
+			g_ptr_array_add(stack,tree);
+			tree = proto_item_add_subtree(pi, ett_xml);
+			break;
+		case XML_CLOSE_TAG:
+		case XML_DOCTYPE_STOP: 
+			pi = proto_tree_add_xml_item(tree,tvb,type,text_offset,the_len); 
+			if ( stack->len ) 
+				tree = g_ptr_array_remove_index(stack,stack->len - 1);
+				break;						
+	}	
 }
 
-
-
 static int tvb_yyinput(char* buff, guint max_len _U_) {
+	
 	if ( offset < len ) {
 		buff[0] = extracted[offset];
 		offset++;
@@ -1694,25 +1706,32 @@ static int tvb_yyinput(char* buff, guint max_len _U_) {
 	}
 }
 
-extern xml_token_t* scan_tvb_for_xml_items(tvbuff_t* tvb, gint the_offset, gint the_len) {
+extern void xml_lexer_init(int proto_hfid, int ett) {
 	
-	offset = the_offset;
-	last_offset = the_offset;
-	len = the_len;
-	text_offset = offset;
-	extracted = tvb_memdup(tvb,offset,len);
-	
-	head = NULL;
-	tail = NULL;
-	
-	BEGIN OUT;
-	
-	yylex();
-	
-	yyrestart(NULL);
-	
-	g_free(extracted);
-	
-	return head;
+	proto_xml = proto_hfid;
+	ett_xml = ett;
+};
+
+extern void dissect_xml(tvbuff_t* the_tvb, packet_info* pinfo _U_, proto_tree* the_tree) {
+
+	if (the_tree) {
+		
+		tree = the_tree;
+		tvb = the_tvb;
+		text_offset = offset = 0;
+		len = tvb_length(tvb);
+		extracted = tvb_memdup(tvb,offset,len);
+		stack = g_ptr_array_new();
+
+		pi = proto_tree_add_item(tree, proto_xml, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(pi, ett_xml);
+				
+		BEGIN OUT;
+		yylex();
+		yyrestart(NULL);
+		
+		g_free(extracted);
+		g_ptr_array_free(stack,FALSE);
+		
+	}
 }
-	

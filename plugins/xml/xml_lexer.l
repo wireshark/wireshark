@@ -30,23 +30,32 @@
 	* along with this program; if not, write to the Free Software
 	* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 	*/
-
+	
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 	
 #include "packet-xml.h"
-	
+
 	static guint8* extracted = NULL;
 	static gint offset;
-	static gint last_offset;
 	static gint text_offset;
 	static gint len;
-	xml_token_t* head;
-	xml_token_t* tail;
 	
-#define YY_INPUT(buff,result,max_size) ( (result) = tvb_yyinput((buff),(max_size)) )
+	tvbuff_t* tvb;
+	proto_item* pi;
+	proto_tree* tree;
+	GPtrArray* stack;
+	static int ett_xml;
+	static int proto_xml;
+
+#define YY_INPUT(buff,result,max_size) \
+	( (result) = tvb_yyinput((buff),(max_size)) )
+
 #define ECHO ; 
 	
-	static void add_xml_item(xml_token_type_t type, gint len);
-	static int tvb_yyinput(char* buff, guint max_len);
+	static void add_xml_item(xml_token_type_t, guint);
+	static int tvb_yyinput(char*, guint);
 	
 %}
 xmlpi_start "<?"
@@ -72,58 +81,59 @@ text_stop <
 %START OUT COMMENT TAG CLOSE_TAG XMLPI DOCTYPE MARKUPDECL TEXT
 %%
 
-<OUT>{whitespace}			{ add_xml_item(XML_WHITESPACE, yyleng); }
-<OUT>{dtd_doctype_stop}		{ add_xml_item(XML_DOCTYPE_STOP, yyleng); }
+<OUT>{whitespace}			{ text_offset = offset - yyleng; add_xml_item(XML_WHITESPACE, yyleng); }
+<OUT>{dtd_doctype_stop}		{ text_offset = offset - yyleng; add_xml_item(XML_DOCTYPE_STOP, yyleng); }
 
-<OUT>{text_start}			{ text_offset = offset - yyleng -1; BEGIN TEXT; }
-<TEXT>{text_stop}			{ add_xml_item(XML_TEXT, --offset - text_offset -1 ); BEGIN OUT; }
+<OUT>{text_start}			{ text_offset = offset - yyleng; BEGIN TEXT; }
+<TEXT>{text_stop}			{ add_xml_item(XML_TEXT, --offset - text_offset ); BEGIN OUT; }
 
-<OUT>{comment_start}		{ text_offset = offset - yyleng -1; BEGIN COMMENT; }
-<COMMENT>{comment_end}		{ add_xml_item(XML_COMMENT, offset - text_offset -1); BEGIN OUT; }
+<OUT>{comment_start}		{ text_offset = offset - yyleng; BEGIN COMMENT; }
+<COMMENT>{comment_end}		{ add_xml_item(XML_COMMENT, offset - text_offset); BEGIN OUT; }
 
-<OUT>{closetag_start}		{ text_offset = offset - yyleng -1; BEGIN CLOSE_TAG; }
-<CLOSE_TAG>{tag_end}		{ add_xml_item(XML_CLOSE_TAG, offset - text_offset -1); BEGIN OUT; }
+<OUT>{closetag_start}		{ text_offset = offset - yyleng ; BEGIN CLOSE_TAG; }
+<CLOSE_TAG>{tag_end}		{ add_xml_item(XML_CLOSE_TAG, offset - text_offset ); BEGIN OUT; }
 
-<OUT>{xmlpi_start}			{ text_offset = offset - yyleng -1; BEGIN XMLPI; }
-<XMLPI>{xmlpi_end}			{ add_xml_item(XML_XMLPI, offset - text_offset -1); BEGIN OUT; }
+<OUT>{xmlpi_start}			{ text_offset = offset - yyleng; BEGIN XMLPI; }
+<XMLPI>{xmlpi_end}			{ add_xml_item(XML_XMLPI, offset - text_offset); BEGIN OUT; }
 
 <OUT>{markupdecl_start}		{ text_offset = offset - yyleng -1; BEGIN MARKUPDECL; }
 <MARKUPDECL>{open_brace}	{ add_xml_item(XML_DOCTYPE_START, offset - text_offset); BEGIN OUT; }
 <MARKUPDECL>{tag_end}		{ add_xml_item(XML_MARKUPDECL,  offset - text_offset); BEGIN OUT; }
 
-<OUT>{tag_start}				{ text_offset = offset - yyleng -1; BEGIN TAG; }
-<TAG>{closedtag_end}			{ add_xml_item(XML_CLOSEDTAG, offset - text_offset); BEGIN OUT; }
-<TAG>{tag_end}					{ add_xml_item(XML_TAG, offset - text_offset); BEGIN OUT; }
-
-
+<OUT>{tag_start}			{ text_offset = offset - yyleng -1; BEGIN TAG; }
+<TAG>{closedtag_end}		{ add_xml_item(XML_CLOSEDTAG, offset - text_offset); BEGIN OUT; }
+<TAG>{tag_end}				{ add_xml_item(XML_TAG, offset - text_offset); BEGIN OUT; }
 
 %%
 
-static void add_xml_item(xml_token_type_t type, gint the_len) {
-	xml_token_t* xi = g_malloc(sizeof(xml_token_t));
-	
-	xi->type = type;
-	xi->offset = last_offset;
-	xi->len = the_len;
-	xi->next = NULL;
-	xi->prev = tail;
-	
-	last_offset += the_len;
-		
-	if (!head) head = xi;
-	
-	if (!tail) {
-		tail = xi;
-	} else {
-		tail->next = xi;
-	}
-	
-	tail = xi;
+static void add_xml_item(xml_token_type_t type, guint the_len) {
+	switch (type) {
+		case XML_WHITESPACE:
+			break;
+		case XML_CLOSEDTAG:
+		case XML_TEXT:
+		case XML_MARKUPDECL:
+		case XML_XMLPI:
+		case XML_COMMENT:
+			pi = proto_tree_add_xml_item(tree,tvb,type,text_offset,the_len);
+			break;
+		case XML_DOCTYPE_START:
+		case XML_TAG:  
+			pi = proto_tree_add_xml_item(tree,tvb,type,text_offset,the_len);
+			g_ptr_array_add(stack,tree);
+			tree = proto_item_add_subtree(pi, ett_xml);
+			break;
+		case XML_CLOSE_TAG:
+		case XML_DOCTYPE_STOP: 
+			pi = proto_tree_add_xml_item(tree,tvb,type,text_offset,the_len); 
+			if ( stack->len ) 
+				tree = g_ptr_array_remove_index(stack,stack->len - 1);
+				break;						
+	}	
 }
 
-
-
 static int tvb_yyinput(char* buff, guint max_len _U_) {
+	
 	if ( offset < len ) {
 		buff[0] = extracted[offset];
 		offset++;
@@ -133,25 +143,32 @@ static int tvb_yyinput(char* buff, guint max_len _U_) {
 	}
 }
 
-extern xml_token_t* scan_tvb_for_xml_items(tvbuff_t* tvb, gint the_offset, gint the_len) {
+extern void xml_lexer_init(int proto_hfid, int ett) {
 	
-	offset = the_offset;
-	last_offset = the_offset;
-	len = the_len;
-	text_offset = offset;
-	extracted = tvb_memdup(tvb,offset,len);
-	
-	head = NULL;
-	tail = NULL;
-	
-	BEGIN OUT;
-	
-	yylex();
-	
-	yyrestart(NULL);
-	
-	g_free(extracted);
-	
-	return head;
+	proto_xml = proto_hfid;
+	ett_xml = ett;
+};
+
+extern void dissect_xml(tvbuff_t* the_tvb, packet_info* pinfo _U_, proto_tree* the_tree) {
+
+	if (the_tree) {
+		
+		tree = the_tree;
+		tvb = the_tvb;
+		text_offset = offset = 0;
+		len = tvb_length(tvb);
+		extracted = tvb_memdup(tvb,offset,len);
+		stack = g_ptr_array_new();
+
+		pi = proto_tree_add_item(tree, proto_xml, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(pi, ett_xml);
+				
+		BEGIN OUT;
+		yylex();
+		yyrestart(NULL);
+		
+		g_free(extracted);
+		g_ptr_array_free(stack,FALSE);
+		
+	}
 }
-	
