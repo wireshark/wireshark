@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.34 2000/05/19 05:29:44 guy Exp $
+ * $Id: packet-fddi.c,v 1.35 2000/05/28 22:02:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -258,7 +258,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gboolean bitswapped)
 {
   int        fc;
-  proto_tree *fh_tree;
+  proto_tree *fh_tree = NULL;
   proto_item *ti;
   gchar      *fc_str;
   static u_char src[6], dst[6];
@@ -269,49 +269,59 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_add_str(pinfo->fd, COL_PROTOCOL, "FDDI");
 
-  /* Extract the source and destination addresses, possibly bit-swapping
-     them. */
-  if (bitswapped) {
-    swap_mac_addr(dst, (u_char *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
-    swap_mac_addr(src, (u_char *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
-  } else {
-    memcpy(dst, (u_char *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6), sizeof dst);
-    memcpy(src, (u_char *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6), sizeof src);
-  }
-
   fc = (int) tvb_get_guint8(tvb, FDDI_P_FC);
   fc_str = fddifc_to_str(fc);
 
   if (check_col(pinfo->fd, COL_INFO))
     col_add_str(pinfo->fd, COL_INFO, fc_str);
 
+  if (tree) {
+    ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, FDDI_HEADER_SIZE,
+		"Fiber Distributed Data Interface, %s", fc_str);
+    fh_tree = proto_item_add_subtree(ti, ett_fddi);
+    proto_tree_add_item(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC, 1, fc);
+  }
+
+  /* Extract the destination address, possibly bit-swapping it. */
+  if (bitswapped)
+    swap_mac_addr(dst, (u_char *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+  else
+    memcpy(dst, (u_char *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6), sizeof dst);
+  swap_mac_addr(dst_swapped, (u_char*) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+
   /* XXX - copy them to some buffer associated with "pi", rather than
-     just making "src" and "dst" static? */
-  SET_ADDRESS(&pi.dl_src, AT_ETHER, 6, &src[0]);
-  SET_ADDRESS(&pi.src, AT_ETHER, 6, &src[0]);
+     just making "dst" static? */
   SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &dst[0]);
   SET_ADDRESS(&pi.dst, AT_ETHER, 6, &dst[0]);
 
-  if (tree) {
-	ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, FDDI_HEADER_SIZE,
-		"Fiber Distributed Data Interface, %s", fc_str);
+  if (fh_tree) {
+    proto_tree_add_item(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst);
+    proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst);
 
-      swap_mac_addr(dst_swapped, (u_char*) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
-      swap_mac_addr(src_swapped, (u_char*) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
+    /* hide some bit-swapped mac address fields in the proto_tree, just in case */
+    proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst_swapped);
+    proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst_swapped);
+  }
 
-      fh_tree = proto_item_add_subtree(ti, ett_fddi);
-      proto_tree_add_item(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC, 1, fc);
-      proto_tree_add_item(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst);
+  /* Extract the source address, possibly bit-swapping it. */
+  if (bitswapped)
+    swap_mac_addr(src, (u_char *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
+  else
+    memcpy(src, (u_char *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6), sizeof src);
+  swap_mac_addr(src_swapped, (u_char*) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
+
+  /* XXX - copy them to some buffer associated with "pi", rather than
+     just making "src" static? */
+  SET_ADDRESS(&pi.dl_src, AT_ETHER, 6, &src[0]);
+  SET_ADDRESS(&pi.src, AT_ETHER, 6, &src[0]);
+
+  if (fh_tree) {
       proto_tree_add_item(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst);
       proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src);
 
       /* hide some bit-swapped mac address fields in the proto_tree, just in case */
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst_swapped);
       proto_tree_add_item_hidden(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src_swapped);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst_swapped);
       proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src_swapped);
-
   }
 
   next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE, -1, -1);

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.62 2000/05/28 21:21:23 guy Exp $
+ * $Id: packet-llc.c,v 1.63 2000/05/28 22:02:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -285,11 +285,6 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	dsap = tvb_get_guint8(tvb, 0);
-	ssap = tvb_get_guint8(tvb, 1);
-
-	is_snap = (dsap == SAP_SNAP) && (ssap == SAP_SNAP);
-	llc_header_len = 2;	/* DSAP + SSAP */
-
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, 0, NULL);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
@@ -297,12 +292,20 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			1, dsap & SAP_MASK);
 		proto_tree_add_item(llc_tree, hf_llc_dsap_ig, tvb, 0, 
 			1, dsap & DSAP_GI_BIT);
+	} else
+		llc_tree = NULL;
+
+	ssap = tvb_get_guint8(tvb, 1);
+	if (tree) {
 		proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 
 			1, ssap & SAP_MASK);
 		proto_tree_add_item(llc_tree, hf_llc_ssap_cr, tvb, 1, 
 			1, ssap & SSAP_CR_BIT);
 	} else
 		llc_tree = NULL;
+
+	is_snap = (dsap == SAP_SNAP) && (ssap == SAP_SNAP);
+	llc_header_len = 2;	/* DSAP + SSAP */
 
 	/*
 	 * XXX - the page referred to in the comment above about the
