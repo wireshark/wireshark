@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.78 2003/07/30 23:18:55 guy Exp $
+$Id: README.developer,v 1.79 2003/10/06 19:11:41 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -171,6 +171,24 @@ also do
 
 to properly define it for UNIX (it's not necessary on UNIX).
 
+Don't use forward declarations of static arrays without a specified size
+in a fashion such as this:
+
+	static const value_string foo_vals[];
+
+		...
+
+	static const value_string foo_vals[] = {
+		{ 0,		"Red" },
+		{ 1,		"Green" },
+		{ 2,		"Blue" },
+		{ 0,		NULL }
+	};
+
+as some compilers will reject the first of those statements.  Instead,
+initialize the array at the point at which it's first declared, so that
+the size is known.
+
 1.1.2 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
@@ -208,7 +226,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.78 2003/07/30 23:18:55 guy Exp $"
+The "$Id: README.developer,v 1.79 2003/10/06 19:11:41 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -218,7 +236,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.78 2003/07/30 23:18:55 guy Exp $
+ * $Id: README.developer,v 1.79 2003/10/06 19:11:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
