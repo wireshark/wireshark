@@ -2,7 +2,7 @@
  * Declarations of a list of "p_" names; included in various places
  * to declare them as variables or as function members.
  *
- * $Id: plugin_api_decls.h,v 1.7 2003/03/06 09:01:45 sahlberg Exp $
+ * $Id: plugin_api_decls.h,v 1.8 2003/04/08 17:20:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -81,6 +81,7 @@ addr_proto_item_append_text		p_proto_item_append_text;
 addr_proto_item_add_subtree		p_proto_item_add_subtree;
 addr_proto_tree_add_item		p_proto_tree_add_item;
 addr_proto_tree_add_item_hidden		p_proto_tree_add_item_hidden;
+addr_proto_tree_add_none_format		p_proto_tree_add_none_format;
 addr_proto_tree_add_protocol_format	p_proto_tree_add_protocol_format;
 
 addr_proto_tree_add_bytes		p_proto_tree_add_bytes;
