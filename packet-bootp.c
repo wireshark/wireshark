@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.51 2001/05/03 07:02:50 girlich Exp $
+ * $Id: packet-bootp.c,v 1.52 2001/05/24 19:21:15 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -68,11 +68,13 @@ static int hf_bootp_dhcp = -1;
 static guint ett_bootp = -1;
 static guint ett_bootp_option = -1;
 
+static const guint8 *vendor_class_id = NULL;
+
 #define UDP_PORT_BOOTPS  67
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
-	val_u_byte, val_u_short, val_u_long,
+	val_u_byte, val_u_short, val_u_le_short, val_u_long,
 	val_s_long };
 
 struct opt_info {
@@ -83,6 +85,8 @@ struct opt_info {
 #define NUM_OPT_INFOS 211
 #define NUM_O63_SUBOPTS 11
 
+static int dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optp);
 static int dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optp);
 static int bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb,
@@ -195,7 +199,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 		/*  57 */ { "Maximum DHCP Message Size",			val_u_short },
 		/*  58 */ { "Renewal Time Value",					time_in_secs },
 		/*  59 */ { "Rebinding Time Value",					time_in_secs },
-		/*  60 */ { "Vendor class identifier",				opaque },
+		/*  60 */ { "Vendor class identifier",				special },
 		/*  61 */ { "Client identifier",					special },
 		/*  62 */ { "Novell/Netware IP domain",					string },
 		/*  63 */ { "Novell Options",	special },
@@ -379,6 +383,14 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 	 */
 	vlen = tvb_get_guint8(tvb, voff+1);
 	consumed = vlen + 2;
+	/* Handling of options we need to scan for first:
+	 * 60 (Vendor class identifier)
+	 * This is ugly but I don't have any better ideas
+	 * -- Joerg Mayer
+	 */
+	if ( (code == 60) && (bp_tree == NULL) ) {
+		vendor_class_id = tvb_get_ptr(tvb, voff+2, consumed-2);
+	}
 	if (bp_tree == NULL) {
 		/* Don't put anything in the protocol tree. */
 		return consumed;
@@ -430,8 +442,21 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 		break;
 
 	case 43:	/* Vendor-Specific Info */
-		proto_tree_add_text(bp_tree, tvb, voff, consumed,
-				"Option %d: %s", code, text);
+		/* PXE protocol 2.1 as described in the intel specs */
+		if (strncmp(vendor_class_id, "PXEClient", strlen("PXEClient")) == 0) {
+			vti = proto_tree_add_text(bp_tree, tvb, voff,
+				consumed, "Option %d: %s (PXEClient)", code, text);
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+
+			optp = voff+2;
+			while (optp < voff+consumed) {
+				optp = dissect_vendor_pxeclient_suboption(v_tree,
+					tvb, optp);
+			}
+		} else {
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: %s (%d bytes)", code, text, vlen);
+		}
 		break;
 
 	case 46:	/* NetBIOS-over-TCP/IP Node Type */
@@ -462,6 +487,13 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 			}
 		}
 		break;
+
+	case 60:	/* Vendor class identifier */
+                        proto_tree_add_text(bp_tree, tvb, voff, consumed,
+                                        "Option %d: %s = \"%.*s\"", code, text,
+vlen,
+                                        tvb_get_ptr(tvb, voff+2, consumed-2));
+                        break;
 
 	case 61:	/* Client Identifier */
 		/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
@@ -588,7 +620,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 			 * John Lines <John.Lines@aeat.co.uk>
 			 */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = %.*s", code, text, vlen,
+					"Option %d: %s = \"%.*s\"", code, text, vlen,
 					tvb_get_ptr(tvb, voff+2, consumed-2));
 			break;
 
@@ -696,6 +728,125 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
 				    "Unknown agent option: %d", subopt);
 		break;
+	}
+	optp += (subopt_len + 2);
+	return optp;
+}
+
+static int
+dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+{
+	guint8 subopt;
+	guint8 subopt_len;
+	int slask;
+	proto_tree *o43pxeclient_v_tree;
+	proto_item *vti;
+
+	struct o43pxeclient_opt_info { 
+		char	*text;
+		enum field_type	ft;
+	};
+
+	static struct o43pxeclient_opt_info o43pxeclient_opt[]= {
+		/* 0 */ {"nop", special},	/* dummy */
+		/* 1 */ {"PXE mtftp IP", ipv4},
+		/* 2 */ {"PXE mtftp client port", val_u_le_short},
+		/* 3 */ {"PXE mtftp server port",val_u_le_short},
+		/* 4 */ {"PXE mtftp timeout", val_u_byte},
+		/* 5 */ {"PXE mtftp delay", val_u_byte},
+		/* 6 */ {"PXE discovery control", val_u_byte},
+			/*
+			 * Correct: b0 (lsb): disable broadcast discovery
+			 *	b1: disable multicast discovery
+			 *	b2: only use/accept servers in boot servers
+			 *	b3: download bootfile without prompt/menu/disc
+			 */
+		/* 7 */ {"PXE multicast address", ipv4},
+		/* 8 */ {"PXE boot servers", special},
+		/* 9 */ {"PXE boot menu", special},
+		/* 10 */ {"PXE menu prompt", special},
+		/* 11 */ {"PXE multicast address alloc", special},
+		/* 12 */ {"PXE credential types", special},
+		/* 71 {"PXE boot item", special} */
+		/* 255 {"PXE end options", special} */
+	};
+#define NUM_O43PXECLIENT_SUBOPTS (12)
+		
+	subopt = tvb_get_guint8(tvb, optp);
+
+	if (subopt == 0 ) {
+		proto_tree_add_text(v_tree, tvb, optp, 1, "Padding");
+                return (optp+1);
+	} else if (subopt == 255) {	/* End Option */
+		proto_tree_add_text(v_tree, tvb, optp, 1, "End PXEClient option");
+		/* Make sure we skip any junk left this option */
+		return (optp+255);
+	}
+
+	subopt_len = tvb_get_guint8(tvb, optp+1);
+
+	if ( subopt == 71 ) {	/* 71 {"PXE boot item", special} */ 
+		/* case special */
+		/* I may need to decode that properly one day */
+		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+			"Suboption %d: %s (%d byte%s)" ,
+	 		subopt, "PXE boot item",
+			subopt_len, (subopt_len != 1)?"s":"");
+	} else if ( (subopt < 1 ) || (subopt > NUM_O43PXECLIENT_SUBOPTS) ) {
+		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
+			(subopt_len != 1)?"s":"");
+	} else {
+		switch (o43pxeclient_opt[subopt].ft) {
+
+/* XXX		case string:
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				"Suboption %d: %s", subopt, o43pxeclient_opt[subopt].text);
+			break;
+   XXX */
+		case special:	
+			/* I may need to decode that properly one day */
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				"Suboption %d: %s (%d byte%s)" ,
+		 		subopt, o43pxeclient_opt[subopt].text,
+				subopt_len, (subopt_len != 1)?"s":"");
+			break;
+
+		case val_u_le_short:
+			proto_tree_add_text(v_tree, tvb, optp, 4, "Suboption %d: %s = %u",
+			    subopt, o43pxeclient_opt[subopt].text,
+			    tvb_get_letohs(tvb, optp+2));
+			break;
+							
+		case val_u_byte:
+			proto_tree_add_text(v_tree, tvb, optp, 3, "Suboption %d: %s = %u",
+			    subopt, o43pxeclient_opt[subopt].text,
+			    tvb_get_guint8(tvb, optp+2));
+			break;
+							
+		case ipv4:
+			if (subopt_len == 4) {
+				/* one IP address */
+				proto_tree_add_text(v_tree, tvb, optp, 6,
+				    "Suboption %d : %s = %s",
+				    subopt, o43pxeclient_opt[subopt].text,
+				    ip_to_str(tvb_get_ptr(tvb, optp+2, 4)));
+			} else {
+				/* > 1 IP addresses. Let's make a sub-tree */
+				vti = proto_tree_add_text(v_tree, tvb, optp,
+				    subopt_len+2, "Suboption %d: %s",
+				    subopt, o43pxeclient_opt[subopt].text);
+				o43pxeclient_v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				for (slask = optp + 2 ; slask < optp+subopt_len; slask += 4) {
+					proto_tree_add_text(o43pxeclient_v_tree, tvb, slask, 4, "IP Address: %s",
+					    ip_to_str(tvb_get_ptr(tvb, slask, 4)));
+				}
+			}
+			break;
+		default:
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
+			break;
+		}
 	}
 	optp += (subopt_len + 2);
 	return optp;
@@ -815,7 +966,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		op;
 	guint8		htype, hlen;
 	const guint8	*haddr;
-	int		voff, eoff; /* vender offset, end offset */
+	int		voff, eoff, tmpvoff; /* vender offset, end offset */
 	guint32		ip_addr;
 	gboolean	is_dhcp = FALSE;
 	const char	*dhcp_type;
@@ -939,6 +1090,17 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	voff = 240;
 	eoff = tvb_reported_length(tvb);
+	/*
+	 * If we are displaying the details, we need two passes:
+	 * the first to find out about vendor specific options,
+	 * the second to do the actual decoding (option 60 is needed
+	 * to decode option 43 )
+	 */
+	tmpvoff = voff;
+	if (bp_tree) {
+		while (tmpvoff < eoff )
+			tmpvoff += bootp_option(tvb, 0, tmpvoff, eoff);
+	}
 	while (voff < eoff) {
 		/* Handle the DHCP option specially here, so that we
 		   can flag DHCP packets as such. */

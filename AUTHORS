@@ -74,6 +74,7 @@ Simon Wilkinson      <sxw@dcs.ed.ac.uk> {
 Joerg Mayer      <jmayer@loplof.de> {
 	Banyan Vines support
 	NTP fixes
+	DHCP support for Intel PXEclient DHCP requests
 }
 
 Martin Maciaszek <fastjack@i-s-o.net> {
