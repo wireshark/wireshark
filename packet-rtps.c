@@ -12,7 +12,7 @@
  * version: 2004/04/15 9:40:45
  * dedication to Kj :]
  *
- * $Id: packet-rtps.c,v 1.3 2004/04/18 06:40:27 ulfl Exp $
+ * $Id: packet-rtps.c,v 1.4 2004/04/18 18:55:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,9 +154,6 @@ static char *get_parameter(gint offset, tvbuff_t *tvb, gboolean little_endian, c
 static gint  seq_nr_to_string( gint offset, gboolean little_endian, tvbuff_t *tvb,
                              SequenceNumber *p_seqNumber);
 
-/*  global variable - submessage ENDIAN */
-static gboolean    little_endian;
-
 
 
 /* *********************************************************************** */
@@ -184,9 +181,8 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*  offset is the byte offset of 'tvb' at which the new tvbuff
       should start.  The first byte is the 0th byte.             */
 
-  message_len = tvb_length(tvb);
-
   /* --- making disition if protocol is RTPS protocol --- */
+  if (!tvb_bytes_exist(tvb, offset, 4)) return FALSE;
   if (tvb_get_guint8(tvb,offset++) != 'R') return FALSE;
   if (tvb_get_guint8(tvb,offset++) != 'T') return FALSE;
   if (tvb_get_guint8(tvb,offset++) != 'P') return FALSE;
@@ -235,10 +231,13 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*  offset behind RTPS's Header */
   offset=16;
 
+  message_len = tvb_reported_length(tvb);
+
   do {
     submessageId = tvb_get_guint8(tvb, offset);
 
     /* read value in littlendian format */
+    /* XXX - is this in the byte order specified by the E bit? */
     next_submsg  = tvb_get_letohs(tvb, offset+2);
 
     switch (submessageId)
@@ -748,6 +747,7 @@ dissect_PAD(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   proto_item             *ti;
   proto_tree             *rtps_submessage_tree;
   gint                    flags = 0;
+  gboolean                little_endian;
 
   ti = proto_tree_add_text(tree, tvb, offset, 1,"Submessage Id: PAD");
   rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
@@ -790,6 +790,7 @@ dissect_VAR(tvbuff_t *tvb, gint offset,  proto_tree *tree)
    proto_item        *ti;
    proto_tree        *rtps_submessage_tree;
    gint               flags = 0;
+   gboolean           little_endian;
    gint               next_submsg_offset = 0;
    char               buff[200];
    SequenceNumber     writerSeqNumber;
@@ -1120,6 +1121,7 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   proto_item               *ti;
   proto_tree               *rtps_submessage_tree;
   gint                      flags = 0;
+  gboolean                  little_endian;
   gint                      next_submsg_offset = 0;
   char                      buff[40];
   SequenceNumber            sequenceNumber;      /*  type struct  */
@@ -1211,6 +1213,7 @@ dissect_ACK(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   proto_item             *ti;
   proto_tree             *rtps_submessage_tree;
   gint                    flags = 0;
+  gboolean                little_endian;
   gint                    next_submsg_offset = 0;
   char                    buff[40];
 
@@ -1273,6 +1276,7 @@ dissect_HEARTBEAT(tvbuff_t *tvb, gint offset, proto_tree *tree)
   proto_item         *ti;
   proto_tree         *rtps_submessage_tree;
   guint8              flags = 0;
+  gboolean            little_endian;
   char                buff[40];
   SequenceNumber     sequenceNumber;      /* type struct  */
 
@@ -1340,6 +1344,7 @@ dissect_GAP(tvbuff_t *tvb, gint offset, proto_tree *tree)
   proto_item             *ti;
   proto_tree             *rtps_submessage_tree;
   gint                    flags = 0;
+  gboolean                little_endian;
   gint                    next_submsg_offset = 0;
   char                    buff[40];
   SequenceNumber          sequenceNumber;      /* type struct  */
@@ -1411,6 +1416,7 @@ dissect_INFO_TS(tvbuff_t *tvb, gint offset, proto_tree *tree)
   proto_item              *ti;
   proto_tree              *rtps_submessage_tree;
   gint                     flags = 0;
+  gboolean                 little_endian;
   char                     buff[10];
 
   ti = proto_tree_add_text(tree, tvb, offset,1,"Submessage Id: INFO_TS");
@@ -1463,6 +1469,7 @@ dissect_INFO_SRC(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   proto_item             *ti;
   proto_tree             *rtps_submessage_tree;
   gint                    flags = 0;
+  gboolean                little_endian;
   char                    buff[200];
 
 
@@ -1538,6 +1545,7 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, proto_tree *tree)
   proto_item             *ti;
   proto_tree             *rtps_submessage_tree;
   gint                    flags = 0;
+  gboolean                little_endian;
   char                    buff_ip[10], buff_port[10];
 
   ti = proto_tree_add_text(tree,tvb,offset,1,"Submessage Id: INFO_REPLY");
@@ -1615,6 +1623,7 @@ dissect_INFO_DST(tvbuff_t *tvb,gint offset,proto_tree *tree)
   proto_item             *ti;
   proto_tree             *rtps_submessage_tree;
   gint                    flags = 0;
+  gboolean                little_endian;
   char                    buff[200];
 
   ti = proto_tree_add_text(tree, tvb, offset,1,"Submessage Id: INFO_DST");
