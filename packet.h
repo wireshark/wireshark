@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.93 1999/09/03 00:38:49 guy Exp $
+ * $Id: packet.h,v 1.94 1999/09/03 07:20:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -239,6 +239,7 @@ enum {
 	ETT_NBNS_QD,
 	ETT_NETB,
 	ETT_NETB_FLAGS,
+	ETT_NETB_STATUS,
 	ETT_NETB_NAME,
 	ETT_NBNS_ANS,
 	ETT_NBNS_RR,
