@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.16 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-msproxy.c,v 1.17 2001/03/22 06:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -319,7 +319,7 @@ static int display_application_name(const u_char *pd, int offset,
 
 /* NOTE: this routine assumes that the tree pointer is valid (not NULL) */	
 
-	char temp[255];
+	char temp[255+1];
 	
 	if (!IS_DATA_IN_FRAME(offset)){ 
  		proto_tree_add_text(tree, NullTVB, offset, 0, "****FRAME TOO SHORT***");
@@ -383,9 +383,10 @@ static void dissect_user_info_2(const u_char *pd, int offset, frame_data *fd, pr
 /* decode the user, application, computer name  */
 
 
-	char str[ 255];
+	char str[ 255+1];
 
 	if ( tree) {	
+		CHECK_PACKET_LENGTH(1);
 		strncpy( str, &pd[ offset], MIN( 255, END_OF_FRAME));
 		str[ MIN( 255, END_OF_FRAME)] = 0;			
 	
@@ -393,6 +394,7 @@ static void dissect_user_info_2(const u_char *pd, int offset, frame_data *fd, pr
 			"User name: %s", str); 
 		offset += strlen( str) + 2;
 	
+		CHECK_PACKET_LENGTH(1);
 		strncpy( str, &pd[ offset], MIN( 255, END_OF_FRAME));
 		str[ MIN( 255, END_OF_FRAME)] = 0;			
 	
@@ -400,6 +402,7 @@ static void dissect_user_info_2(const u_char *pd, int offset, frame_data *fd, pr
 			"Application name: %s", str); 
 		offset += strlen( str) + 1;
 	
+		CHECK_PACKET_LENGTH(1);
 		strncpy( str, &pd[ offset], MIN( 255, END_OF_FRAME));
 		str[ MIN( 255, END_OF_FRAME)] = 0;			
 	
@@ -468,11 +471,12 @@ static void dissect_auth(const u_char *pd, int offset,
 
 /* decode the authorization request  */
 
-	char temp[255];
+	char temp[255+1];
 
 	if ( tree) {
 		offset += 134;
 
+		CHECK_PACKET_LENGTH(7);
 		strncpy( temp, &pd[ offset], 7);
 		temp[ 7] = 0;			
 		proto_tree_add_text( tree, NullTVB, offset, 7, "NTLMSSP signature: %s",
@@ -604,10 +608,11 @@ static void dissect_request_resolve(const u_char *pd, int offset,
 	proto_tree      *name_tree;
 	proto_item      *ti;
 
-	char temp[ 256];
+	char temp[ 255+1];
 	int length = GBYTE( pd, offset);
 
 	if ( tree){
+		CHECK_PACKET_LENGTH(length);
 		strncpy( temp, &pd[ offset + 18], length);
 		temp[ length ] = 0;
   
@@ -693,7 +698,7 @@ static void dissect_msproxy_request(const u_char *pd, int offset, frame_data *fd
 	proto_tree *tree, hash_entry_t *conv_info) {
 
 	int cmd;
-	char temp[ 255];
+	char temp[ 255+1];
 
 	if ( tree) {
 		CHECK_PACKET_LENGTH( 4);
@@ -852,7 +857,7 @@ static void dissect_udpassociate_ack( const u_char *pd, int offset,
 static void dissect_auth_1_ack(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 
-	char temp[ 255];		
+	char temp[ 255+1];
 
 	offset += 134;
 	if ( tree) {
@@ -1019,8 +1024,10 @@ static void dissect_resolve(const u_char *pd, int offset, frame_data *fd,
 /* return the length of the string and the length byte */
 
 	if ( tree) {
+		int addr_offset;
 
-		int addr_offset = GBYTE( pd, offset); 
+		CHECK_PACKET_LENGTH(1);
+		addr_offset = GBYTE( pd, offset); 
   	
 		proto_tree_add_text( tree, NullTVB, offset, 1, "Address offset: %d",
 			addr_offset);
@@ -1041,7 +1048,7 @@ static void dissect_resolve(const u_char *pd, int offset, frame_data *fd,
 
 static void dissect_msproxy_response(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, hash_entry_t *conv_info) {
 
-	char temp[ 255];
+	char temp[ 255+1];
 	int cmd;
 
 
