@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.14 2002/04/05 03:07:28 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.15 2002/04/08 00:27:36 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -747,6 +747,8 @@ static int prs_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	subtree = proto_item_add_subtree(item, ett_DEVMODE);
 
+ 	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Size");
+
 	/* The device name is stored in a 32-wchar buffer */
 
 	prs_uint16uni(tvb, offset, pinfo, subtree, NULL, "Devicename");
@@ -975,8 +977,8 @@ static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &rel_offset, NULL);
 
-	prs_DEVMODE(
-		tvb, struct_start + rel_offset, pinfo, tree, dp_list, NULL);
+	prs_DEVMODE(tvb, struct_start + rel_offset - 4, pinfo, tree, 
+		    dp_list, NULL);
 	
 	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
 			    NULL, "Separator file");
@@ -1054,7 +1056,8 @@ static int prs_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "Devicemode");
 
 	if (ptr)
-		defer_ptr(dp_list, prs_DEVMODE, subtree);
+		offset = prs_DEVMODE(tvb, offset, pinfo, subtree, dp_list, 
+				     data);
 
 	return offset;
 }
