@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.21 2001/03/13 17:36:50 guy Exp $
+ * $Id: packet-mount.c,v 1.22 2001/03/15 21:50:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,6 @@
 
 static int proto_mount = -1;
 static int hf_mount_path = -1;
-static int hf_mount1_status = -1;
 static int hf_mount3_status = -1;
 static int hf_mount_mountlist_hostname = -1;
 static int hf_mount_mountlist_directory = -1;
@@ -82,6 +81,13 @@ static char group_name_list[MAX_GROUP_NAME_LIST];
 static int  group_names_len;
 
 /* RFC 1094, Page 24 */
+/* This function dissects fhstatus for v1 and v2 of the mount protocol.
+ * Formally, hf_mount3_status only define the status codes returned by version
+ * 3 of the protocol. 
+ * Though not formally defined in the standard, we use the same 
+ * value-to-string mappings as version 3 since we belive that this mapping 
+ * is consistant with most v1 and v2 implementations.
+ */
 static int
 dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -89,7 +95,7 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 	status=tvb_get_ntohl(tvb,offset);
 	if (tree) {
-		offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_mount1_status,offset);
+		offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_mount3_status,offset);
 	}
 
 	switch (status) {
@@ -583,9 +589,6 @@ proto_register_mount(void)
 		{ &hf_mount_path, {
 			"Path", "mount.path", FT_STRING, BASE_DEC,
 			NULL, 0, "Path" }},
-		{ &hf_mount1_status, {
-			"Status", "mount.status", FT_UINT32, BASE_DEC,
-			NULL, 0, "Status" }},
 		{ &hf_mount3_status, {
 			"Status", "mount.status", FT_UINT32, BASE_DEC,
 			VALS(mount3_mountstat3), 0, "Status" }},
