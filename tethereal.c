@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.69 2001/03/23 18:44:20 jfoster Exp $
+ * $Id: tethereal.c,v 1.70 2001/03/24 09:24:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -874,6 +874,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd = NULL;
+  fdata->data_src = NULL;
   fdata->num = cf->count;
   fdata->pkt_len = phdr->len;
   fdata->cap_len = phdr->caplen;
@@ -931,6 +932,16 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   }
 }
 
+/* Free up all data attached to a "frame_data" structure. */
+static void
+clear_fdata(frame_data *fdata)
+{
+  if (fdata->pfd)
+    g_slist_free(fdata->pfd);
+  if (fdata->data_src)
+    g_slist_free(fdata->data_src);
+}
+
 static void
 wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   union wtap_pseudo_header *pseudo_header, const u_char *buf)
@@ -977,6 +988,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     proto_tree_free(protocol_tree);
   if (edt != NULL)
     epan_dissect_free(edt);
+  clear_fdata(&fdata);
 }
 
 static void
@@ -1288,6 +1300,8 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     proto_tree_free(protocol_tree);
 
   epan_dissect_free(edt);
+
+  clear_fdata(&fdata);
 
   proto_tree_is_visible = FALSE;
 }
