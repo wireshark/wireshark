@@ -670,56 +670,6 @@ gchar* dcom_uuid_to_str(e_uuid_t *uuid) {
 }
 
 
-#if 0
-/* currently unused (do not remove) */
-int
-dissect_dcerpc_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, char *drep,
-                    int hfindex, e_uuid_t *pdata)
-{
-    e_uuid_t uuid;
-	gchar *uuid_name;
-	header_field_info* hfi;
-
-
-    dcerpc_tvb_get_uuid (tvb, offset, drep, &uuid);
-    if (tree) {
-		/* get name of protocol field to prepend it later */
-		hfi = proto_registrar_get_nth(hfindex);
-
-		/* look for a registered uuid name */
-		uuid_name = dcerpc_get_uuid_name(&uuid, 0);
-
-		if (uuid_name) {
-			/* we know the name of this uuid */
-			proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, "",
-                                      "%s: %s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
-									  hfi->name, uuid_name,
-                                      uuid.Data1, uuid.Data2, uuid.Data3,
-                                      uuid.Data4[0], uuid.Data4[1],
-                                      uuid.Data4[2], uuid.Data4[3],
-                                      uuid.Data4[4], uuid.Data4[5],
-                                      uuid.Data4[6], uuid.Data4[7]);
-		} else {
-			/* we don't know the name of this uuid */
-			proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, "",
-                                      "%s: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-									  hfi->name,
-                                      uuid.Data1, uuid.Data2, uuid.Data3,
-                                      uuid.Data4[0], uuid.Data4[1],
-                                      uuid.Data4[2], uuid.Data4[3],
-                                      uuid.Data4[4], uuid.Data4[5],
-                                      uuid.Data4[6], uuid.Data4[7]);
-		}
-    }
-    if (pdata) {
-        *pdata = uuid;
-    }
-    return offset + 16;
-}
-#endif
-
-
 /* dissect 64bits integer with alignment of 8 bytes (use this for VT_I8 type only) */
 int
 dissect_dcom_I8(tvbuff_t *tvb, gint offset, packet_info *pinfo,

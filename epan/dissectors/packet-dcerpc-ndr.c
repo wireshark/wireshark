@@ -192,10 +192,7 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep,
                     int hfindex, e_uuid_t *pdata)
 {
-    e_uuid_t uuid;
     dcerpc_info *di;
-    char uuid_str[DCERPC_UUID_STR_LEN]; 
-    int uuid_str_len;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -207,31 +204,8 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 4) {
         offset += 4 - (offset % 4);
     }
-    dcerpc_tvb_get_uuid (tvb, offset, drep, &uuid);
-    if (tree) {
-        /*
-         * XXX - look up the UUID to see if it's registered, and use
-         * the name of the protocol?  Unfortunately, we need the version
-         * as well.
-         */
-        uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
-                                "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                uuid.Data1, uuid.Data2, uuid.Data3,
-                                uuid.Data4[0], uuid.Data4[1],
-                                uuid.Data4[2], uuid.Data4[3],
-                                uuid.Data4[4], uuid.Data4[5],
-                                uuid.Data4[6], uuid.Data4[7]);
-        if (uuid_str_len >= DCERPC_UUID_STR_LEN)
-            memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
-        proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, 
-                                      uuid_str, "%s: %s",
-                                      proto_registrar_get_name(hfindex),
-                                      uuid_str);
-    }
-    if (pdata) {
-        *pdata = uuid;
-    }
-    return offset + 16;
+    return dissect_dcerpc_uuid_t (tvb, offset, pinfo,
+                                  tree, drep, hfindex, pdata);
 }
 
 /*

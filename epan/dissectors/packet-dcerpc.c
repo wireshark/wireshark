@@ -1088,6 +1088,60 @@ dissect_dcerpc_double(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 
+int
+dissect_dcerpc_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, char *drep,
+                    int hfindex, e_uuid_t *pdata)
+{
+    e_uuid_t uuid;
+	header_field_info* hfi;
+#if 0
+	gchar *uuid_name;
+#endif
+
+
+    dcerpc_tvb_get_uuid (tvb, offset, drep, &uuid);
+    if (tree) {
+		/* get name of protocol field to prepend it later */
+		hfi = proto_registrar_get_nth(hfindex);
+
+#if 0
+        /* XXX - get the name won't work correct, as we don't know the version of this uuid (if it has one) */
+		/* look for a registered uuid name */
+		uuid_name = dcerpc_get_uuid_name(&uuid, 0);
+
+		if (uuid_name) {
+			/* we know the name of this uuid */
+			proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, "",
+                                      "%s: %s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
+									  hfi->name, uuid_name,
+                                      uuid.Data1, uuid.Data2, uuid.Data3,
+                                      uuid.Data4[0], uuid.Data4[1],
+                                      uuid.Data4[2], uuid.Data4[3],
+                                      uuid.Data4[4], uuid.Data4[5],
+                                      uuid.Data4[6], uuid.Data4[7]);
+		} else {
+#endif
+			/* we don't know the name of this uuid */
+			proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, "",
+                                      "%s: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+									  hfi->name,
+                                      uuid.Data1, uuid.Data2, uuid.Data3,
+                                      uuid.Data4[0], uuid.Data4[1],
+                                      uuid.Data4[2], uuid.Data4[3],
+                                      uuid.Data4[4], uuid.Data4[5],
+                                      uuid.Data4[6], uuid.Data4[7]);
+#if 0
+		}
+#endif
+    }
+    if (pdata) {
+        *pdata = uuid;
+    }
+    return offset + 16;
+}
+
+
 /*
  * a couple simpler things
  */
