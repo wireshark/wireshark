@@ -196,7 +196,7 @@ extern module_t *prefs_register_protocol_obsolete(int id);
 /*
  * Callback function for module list scanners.
  */
-typedef void (*module_cb)(module_t *module, gpointer user_data);
+typedef guint (*module_cb)(module_t *module, gpointer user_data);
 
 /*
  * Call a callback function, with a specified argument, for each module
@@ -208,7 +208,7 @@ typedef void (*module_cb)(module_t *module, gpointer user_data);
  * silently ignored in preference files.  Does not ignore subtrees,
  * as this can be used when walking the display tree of modules.
  */
-extern void prefs_module_list_foreach(GList *module_list, module_cb callback,
+extern guint prefs_module_list_foreach(GList *module_list, module_cb callback,
     gpointer user_data);
 
 /*
@@ -219,7 +219,7 @@ extern void prefs_module_list_foreach(GList *module_list, module_cb callback,
  * preferences for dissectors that no longer have preferences to be
  * silently ignored in preference files.
  */
-extern void prefs_modules_foreach(module_cb callback, gpointer user_data);
+extern guint prefs_modules_foreach(module_cb callback, gpointer user_data);
 
 /*
  * Call the "apply" callback function for each module if any of its

@@ -316,43 +316,39 @@ find_module(const char *name)
 	return (module_t *) list_entry->data;
 }
 
-typedef struct {
-	module_cb callback;
-	gpointer user_data;
-} module_cb_arg_t;
-
-static void
-do_module_callback(gpointer data, gpointer user_data)
-{
-	module_t *module = data;
-	module_cb_arg_t *arg = user_data;
-
-	if (!module->obsolete)
-		(*arg->callback)(module, arg->user_data);
-}
-
 /*
  * Call a callback function, with a specified argument, for each module
  * in a list of modules.  If the list is NULL, searches the top-level
- * list in the display tree of modules.
+ * list in the display tree of modules.  If any callback returns a
+ * non-zero value, we stop and return that value, otherwise we
+ * return 0.
  *
  * Ignores "obsolete" modules; their sole purpose is to allow old
  * preferences for dissectors that no longer have preferences to be
  * silently ignored in preference files.  Does not ignore subtrees,
  * as this can be used when walking the display tree of modules.
  */
-void
+guint
 prefs_module_list_foreach(GList *module_list, module_cb callback,
     gpointer user_data)
 {
-	module_cb_arg_t arg;
+	GList *elem;
+	module_t *module;
+	guint ret;
 
 	if (module_list == NULL)
 		module_list = top_level_modules;
 
-	arg.callback = callback;
-	arg.user_data = user_data;
-	g_list_foreach(module_list, do_module_callback, &arg);
+	for (elem = g_list_first(module_list); elem != NULL;
+	    elem = g_list_next(elem)) {
+		module = elem->data;
+		if (!module->obsolete) {
+			ret = (*callback)(module, user_data);
+			if (ret != 0)
+				return ret;
+		}
+	}
+	return 0;
 }
 
 /*
@@ -363,10 +359,10 @@ prefs_module_list_foreach(GList *module_list, module_cb callback,
  * preferences for dissectors that no longer have preferences to be
  * silently ignored in preference files.
  */
-void
+guint
 prefs_modules_foreach(module_cb callback, gpointer user_data)
 {
-	prefs_module_list_foreach(modules, callback, user_data);
+	return prefs_module_list_foreach(modules, callback, user_data);
 }
 
 static void
