@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.427 2004/04/29 17:03:27 ulfl Exp $
+ * $Id: main.c,v 1.428 2004/04/30 00:22:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3553,7 +3553,6 @@ GtkWidget *main_widget_layout(gint layout_content)
  * Rearrange the main window widgets
  */
 void main_widgets_rearrange(void) {
-    gint widgets = 0;
     GtkWidget *pane_content[3];
     gboolean filter_toolbar_show_in_statusbar = prefs.filter_toolbar_show_in_statusbar;
 

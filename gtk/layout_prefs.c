@@ -1,7 +1,7 @@
 /* layout_prefs.c
  * Dialog box for layout preferences
  *
- * $Id: layout_prefs.c,v 1.1 2004/04/29 17:03:27 ulfl Exp $
+ * $Id: layout_prefs.c,v 1.2 2004/04/30 00:22:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,13 +81,13 @@ static GtkWidget *xpm_to_widget(GtkWidget *parent, const char ** xpm) {
     icon = gdk_pixmap_create_from_xpm_d(parent->window, &mask, &parent->style->white, (char **) xpm);
     return gtk_pixmap_new(icon, mask);
 #else
-	GdkPixbuf * pixbuf;
-	GdkPixmap * pixmap;
-	GdkBitmap * bitmap;
+    GdkPixbuf * pixbuf;
+    GdkPixmap * pixmap;
+    GdkBitmap * bitmap;
 
 
     pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
-	gdk_pixbuf_render_pixmap_and_mask_for_colormap (pixbuf, gtk_widget_get_colormap(parent), &pixmap, &bitmap, 128);
+    gdk_pixbuf_render_pixmap_and_mask_for_colormap (pixbuf, gtk_widget_get_colormap(parent), &pixmap, &bitmap, 128);
 
     return gtk_image_new_from_pixmap (pixmap, bitmap);
 #endif
@@ -95,16 +95,16 @@ static GtkWidget *xpm_to_widget(GtkWidget *parent, const char ** xpm) {
 
 
 static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *tooltips, int i, layout_pane_content_e content) {
-	GtkWidget	*radio_vb, *radio_lb;
-	GtkWidget	*radio_none_rb, *radio_plist_rb, *radio_pdetails_rb, *radio_pbytes_rb;
-	char buf[64];
+    GtkWidget	*radio_vb, *radio_lb;
+    GtkWidget	*radio_none_rb, *radio_plist_rb, *radio_pdetails_rb, *radio_pbytes_rb;
+    char buf[64];
 
 
-	/* radio vbox */
+    /* radio vbox */
     radio_vb = gtk_vbox_new(FALSE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(radio_vb), 6);
 
-	g_snprintf (buf, sizeof(buf), "Pane %d:", i);
+    g_snprintf (buf, sizeof(buf), "Pane %d:", i);
     radio_lb = gtk_label_new(buf);
     gtk_misc_set_alignment(GTK_MISC(radio_lb), 0.0, 0.5);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_lb);
@@ -201,8 +201,8 @@ static void layout_pane_set_content(GtkWidget * radio_vb, layout_pane_content_e 
 
 
 static void layout_set(GtkWidget * main_vb, layout_t *layout) {
-	GtkWidget	*radio_vb;
-	GtkWidget ** layout_type_buttons = OBJECT_GET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY);
+    GtkWidget	*radio_vb;
+    GtkWidget ** layout_type_buttons = OBJECT_GET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(layout_type_buttons[layout->type - 1]), TRUE);
 
@@ -215,8 +215,8 @@ static void layout_set(GtkWidget * main_vb, layout_t *layout) {
 }
 
 static void layout_get(GtkWidget * main_vb, layout_t *layout_out) {
-	GtkWidget	*radio_vb;
-	GtkWidget ** layout_type_buttons = OBJECT_GET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY);
+    GtkWidget	*radio_vb;
+    GtkWidget ** layout_type_buttons = OBJECT_GET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY);
     int i;
 
     for (i=0; i<LAYOUT_QTY; ++i) {
@@ -257,10 +257,12 @@ static void
 layout_defaults_cb (GtkWidget * w _U_, gpointer data _U_)
 {
     layout_t default_layout = { 
-        layout_type_5, 
-        layout_pane_content_plist,
-        layout_pane_content_pdetails,
-        layout_pane_content_pbytes
+        layout_type_5,
+        {
+            layout_pane_content_plist,
+            layout_pane_content_pdetails,
+            layout_pane_content_pbytes
+        }
     };
 
     layout_set(data, &default_layout);
@@ -276,20 +278,20 @@ layout_prefs_show(void)
     GtkTooltips   *tooltips;
 
     GtkWidget	*main_vb, *button_hb, *type_tb;
-	GtkWidget	*radio_hb, *radio_vb;
-	GtkWidget	*default_vb, *default_bt;
+    GtkWidget	*radio_hb, *radio_vb;
+    GtkWidget	*default_vb, *default_bt;
 
-	const guint8 ** inline_txt [LAYOUT_QTY] = {
+    const char ** inline_txt [LAYOUT_QTY] = {
 		icon_layout_5_xpm, icon_layout_2_xpm, icon_layout_1_xpm,
 		icon_layout_4_xpm, icon_layout_3_xpm, icon_layout_6_xpm };
-	GtkWidget ** layout_type_buttons = g_malloc (sizeof(GtkWidget*) * LAYOUT_QTY);
+    GtkWidget ** layout_type_buttons = g_malloc (sizeof(GtkWidget*) * LAYOUT_QTY);
 
     int i;
 
 
-	/* main vertical box */
-	main_vb = gtk_vbox_new(FALSE, 7);
-	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
+    /* main vertical box */
+    main_vb = gtk_vbox_new(FALSE, 7);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
 #if GTK_MAJOR_VERSION < 2
     /* Accelerator group for the accelerators (or, as they're called in
@@ -303,27 +305,27 @@ layout_prefs_show(void)
     tooltips = gtk_tooltips_new();
 
 
-	/* button hbox */
+    /* button hbox */
     button_hb = gtk_hbox_new(FALSE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(button_hb), 6);
     gtk_box_pack_start (GTK_BOX(main_vb), button_hb, FALSE, FALSE, 0);
 
-	/* pane layout */
-	for (i=0; i<LAYOUT_QTY; ++i)
-	{
-		type_tb = gtk_toggle_button_new ();
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(type_tb), (i + 1) == prefs.gui_layout_type);
+    /* pane layout */
+    for (i=0; i<LAYOUT_QTY; ++i)
+    {
+	type_tb = gtk_toggle_button_new ();
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(type_tb), (i + 1) == prefs.gui_layout_type);
 
-		gtk_container_add (GTK_CONTAINER(type_tb), xpm_to_widget(top_level, inline_txt[i]));
+	gtk_container_add (GTK_CONTAINER(type_tb), xpm_to_widget(top_level, inline_txt[i]));
 
-		SIGNAL_CONNECT(type_tb, "toggled", layout_type_changed_cb, layout_type_buttons);
-		layout_type_buttons[i] = type_tb;
-		gtk_box_pack_start (GTK_BOX(button_hb), type_tb, TRUE, FALSE, 0);
-	}
+	SIGNAL_CONNECT(type_tb, "toggled", layout_type_changed_cb, layout_type_buttons);
+	layout_type_buttons[i] = type_tb;
+	gtk_box_pack_start (GTK_BOX(button_hb), type_tb, TRUE, FALSE, 0);
+    }
 
     OBJECT_SET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY, layout_type_buttons);
 
-	/* radio hbox */
+    /* radio hbox */
     radio_hb = gtk_hbox_new(FALSE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(radio_hb), 6);
     gtk_box_pack_start (GTK_BOX(main_vb), radio_hb, FALSE, FALSE, 0);
@@ -343,17 +345,17 @@ layout_prefs_show(void)
     gtk_box_pack_start (GTK_BOX(radio_hb), radio_vb, FALSE, FALSE, 0);
     OBJECT_SET_DATA(main_vb, LAYOUT_CONTENT3_VB_KEY, radio_vb);
 
-	default_vb = gtk_vbox_new(FALSE, 0);
+    default_vb = gtk_vbox_new(FALSE, 0);
     default_bt = gtk_button_new_with_label("Defaults");
     gtk_tooltips_set_tip (tooltips, default_bt, "Reset the pane layout settings to default values.", NULL);
     SIGNAL_CONNECT(default_bt, "clicked", layout_defaults_cb, main_vb);
     gtk_box_pack_end(GTK_BOX(default_vb), default_bt, FALSE, FALSE, 0);
     gtk_box_pack_end(GTK_BOX(radio_hb), default_vb, FALSE, FALSE, 0);
 
-	/* Show 'em what we got */
-	gtk_widget_show_all(main_vb);
+    /* Show 'em what we got */
+    gtk_widget_show_all(main_vb);
 
-	return(main_vb);
+    return(main_vb);
 }
 
 void
@@ -378,7 +380,7 @@ layout_prefs_apply(GtkWidget *w _U_)
 void
 layout_prefs_destroy(GtkWidget *main_vb)
 {
-	GtkWidget ** layout_type_buttons = OBJECT_GET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY);
+    GtkWidget ** layout_type_buttons = OBJECT_GET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY);
 
     g_free(layout_type_buttons);
 }
