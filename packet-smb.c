@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.102 2001/08/11 18:26:03 guy Exp $
+ * $Id: packet-smb.c,v 1.103 2001/08/11 18:33:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9650,9 +9650,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (check_col(fd, COL_INFO)) {
 
       if (request_val == NULL)
-	col_set_str(fd, COL_INFO, "Response to unknown message");
+	col_set_str(fd, COL_INFO, "Response to unknown SMBtrans2");
       else if (request_val -> last_transact2_command == -1)
-	col_set_str(fd, COL_INFO, "Response to message of unknown type");
+	col_set_str(fd, COL_INFO, "Response to SMBtrans2 of unknown type");
       else
 	col_add_fstr(fd, COL_INFO, "%s Response",
 		     val_to_str(request_val -> last_transact2_command,
@@ -10455,9 +10455,9 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     if (check_col(fd, COL_INFO)) {
       if ( request_val == NULL )
-	col_set_str(fd, COL_INFO, "Response to unknown message");
+	col_set_str(fd, COL_INFO, "Response to unknown SMBtrans");
       else if (request_val -> last_transact_command == NULL)
-	col_set_str(fd, COL_INFO, "Response to message of unknown type");
+	col_set_str(fd, COL_INFO, "Response to SMBtrans of unknown type");
       else
 	col_add_fstr(fd, COL_INFO, "%s Response",
 		     request_val -> last_transact_command);
