@@ -2291,7 +2291,8 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     leftedge = tvb_get_ntohl(tvb, offset)-base_ack;
     proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb, 
 			       offset, 4, leftedge, 
-			       "left edge = %u %s", leftedge, tcp_relative_seq?"(relative)":"");
+			       "left edge = %u%s", leftedge,
+			       tcp_relative_seq ? " (relative)" : "");
 
     optlen -= 4;
     if (optlen < 4) {
@@ -2304,7 +2305,8 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     optlen -= 4;
     proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sre, tvb, 
 			       offset+4, 4, rightedge, 
-			       "right edge = %u %s", rightedge, tcp_relative_seq?"(relative)":"");
+			       "right edge = %u%s", rightedge,
+			       tcp_relative_seq ? " (relative)" : "");
     tcp_info_append_uint(pinfo, "SLE", leftedge);
     tcp_info_append_uint(pinfo, "SRE", rightedge);
     proto_item_append_text(field_tree, " %u-%u", leftedge, rightedge);
