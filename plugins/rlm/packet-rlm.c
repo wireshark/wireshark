@@ -2,7 +2,7 @@
  * Routines for RLM dissection
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rlm.c,v 1.1 2004/03/25 11:21:07 guy Exp $
+ * $Id: packet-rlm.c,v 1.2 2004/03/25 23:09:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,27 +198,27 @@ _U_
 		{ &hf_rlm_version,
 			{ "Version",           "rlm.version",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_rlm_type,
 			{ "Type",           "rlm.type",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_rlm_unknown,
 			{ "Unknown",           "rlm.unknown",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_rlm_tid,
 			{ "Transaction ID",           "rlm.tid",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_rlm_unknown2,
 			{ "Unknown",           "rlm.unknown2",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 	};
 

@@ -2,7 +2,7 @@
  * Routines for Reliable UDP Protocol.
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rudp.c,v 1.1 2004/03/25 11:21:07 guy Exp $
+ * $Id: packet-rudp.c,v 1.2 2004/03/25 23:09:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,62 +128,62 @@ _U_
 		{ &hf_rudp_flags,
 			{ "RUDP Header flags",           "rudp.flags",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			""  }
+			"", HFILL }
 		},
 		{ &hf_rudp_flags_syn,
 			{ "Syn",           "rudp.flags.syn",
 			FT_BOOLEAN, 8, NULL, 0x80,
-			""  }
+			"", HFILL }
 		},
 		{ &hf_rudp_flags_ack,
 			{ "Ack",           "rudp.flags.ack",
-			FT_BOOLEAN, 8, NULL, 0x40,          
-			""  }
+			FT_BOOLEAN, 8, NULL, 0x40,
+			"", HFILL }
 		},
 		{ &hf_rudp_flags_eak,
 			{ "Eak",           "rudp.flags.eak",
-			FT_BOOLEAN, 8, NULL, 0x20,          
-			"Extended Ack"  }
+			FT_BOOLEAN, 8, NULL, 0x20,
+			"Extended Ack", HFILL }
 		},
 		{ &hf_rudp_flags_rst,
 			{ "RST",           "rudp.flags.rst",
-			FT_BOOLEAN, 8, NULL, 0x10,          
-			"Reset flag"  }
+			FT_BOOLEAN, 8, NULL, 0x10,
+			"Reset flag", HFILL }
 		},
 		{ &hf_rudp_flags_nul,
 			{ "NULL",           "rudp.flags.nul",
-			FT_BOOLEAN, 8, NULL, 0x08,          
-			"Null flag"  }
+			FT_BOOLEAN, 8, NULL, 0x08,
+			"Null flag", HFILL }
 		},
 		{ &hf_rudp_flags_chk,
 			{ "CHK",           "rudp.flags.chk",
-			FT_BOOLEAN, 8, NULL, 0x04,          
-			"Checksum is on header or body"  }
+			FT_BOOLEAN, 8, NULL, 0x04,
+			"Checksum is on header or body", HFILL }
 		},
 		{ &hf_rudp_flags_tcs,
 			{ "TCS",           "rudp.flags.tcs",
-			FT_BOOLEAN, 8, NULL, 0x02,          
-			"Transfer Connection System"  }
+			FT_BOOLEAN, 8, NULL, 0x02,
+			"Transfer Connection System", HFILL }
 		},
 		{ &hf_rudp_flags_0,
 			{ "0",           "rudp.flags.0",
-			FT_BOOLEAN, 8, NULL, 0x01,          
-			""  }
+			FT_BOOLEAN, 8, NULL, 0x01,
+			"", HFILL }
 		},
 		{ &hf_rudp_hlen,
 			{ "Header Length",           "rudp.hlen",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			""  }
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }
 		},
 		{ &hf_rudp_seq,
 			{ "Seq",           "rudp.seq",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"Sequence Number"  }
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Sequence Number", HFILL }
 		},
 		{ &hf_rudp_ack,
 			{ "Ack",           "rudp.ack",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"Acknowledgement Number"  }
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Acknowledgement Number", HFILL }
 		},
 		/*
 
@@ -191,8 +191,8 @@ _U_
 
 		{ &hf_rudp_cksum,
 			{ "Checksum",           "rudp.cksum",
-			FT_UINT16, 8, NULL, 0x0,          
-			""  }
+			FT_UINT16, 8, NULL, 0x0,
+			"", HFILL }
 		},
 		*/
 	};

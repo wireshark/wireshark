@@ -2,7 +2,7 @@
  * Routines for Cisco Session Management Protocol dissection
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-sm.c,v 1.1 2004/03/25 11:21:06 guy Exp $
+ * $Id: packet-sm.c,v 1.2 2004/03/25 23:09:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,37 +124,37 @@ _U_
 		{ &hf_sm_sm_msg_type,
 			{ "SM Message Type",           "sm.sm_msg_type",
 			FT_UINT32, BASE_HEX, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_sm_protocol,
 			{ "Protocol Type",           "sm.protocol",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_sm_msg_id,
 			{ "Message ID",           "sm.msgid",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_sm_msg_type,
 			{ "Message Type",           "sm.msg_type",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_sm_channel,
 			{ "Channel ID",           "sm.channel",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_sm_bearer,
 			{ "Bearer ID",           "sm.bearer",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_sm_len,
 			{ "Length",           "sm.len",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 	};
 
