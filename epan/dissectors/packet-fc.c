@@ -842,8 +842,9 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (ftype == FC_FTYPE_LINKCTL)
             col_append_fstr (pinfo->cinfo, COL_INFO, ", %s",
-                             match_strval ((fchdr.r_ctl & 0x0F),
-                                           fc_lctl_proto_val));
+                             val_to_str ((fchdr.r_ctl & 0x0F),
+                                          fc_lctl_proto_val,
+                                          "LCTL 0x%x"));
     }
     
     /* In the interest of speed, if "tree" is NULL, don't do any work not
