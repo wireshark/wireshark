@@ -5,7 +5,7 @@ dnl AM_PATH_GLIB_2_0([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND [
 dnl Test for GLIB, and define GLIB_CFLAGS and GLIB_LIBS, if gmodule, gobject or 
 dnl gthread is specified in MODULES, pass to pkg-config
 dnl
-AC_DEFUN(AM_PATH_GLIB_2_0,
+AC_DEFUN([AM_PATH_GLIB_2_0],
 [dnl 
 dnl Get the cflags and libraries from pkg-config
 dnl
