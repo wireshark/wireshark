@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.154 2004/01/31 14:23:53 ulfl Exp $
+ * $Id: menu.c,v 1.155 2004/02/01 15:36:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -287,7 +287,7 @@ static GtkItemFactoryEntry menu_items[] =
                        NULL, tcp_graph_cb, 1, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/Throughput Graph", NULL,
                        tcp_graph_cb, 2, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/RTT Graph", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/Round Trip Time Graph", NULL,
                        tcp_graph_cb, 3, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Summar_y", NULL, summary_open_cb, 0, NULL, NULL),
