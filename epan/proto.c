@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.60 2002/04/04 20:23:50 guy Exp $
+ * $Id: proto.c,v 1.61 2002/04/18 00:50:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2081,6 +2081,16 @@ proto_register_subtree_array(gint **indices, int num_indices)
 {
 	int	i;
 	gint	**ptr = indices;
+
+	/*
+	 * Make sure we haven't already allocated the array of "tree is
+	 * expanded" flags.
+	 *
+	 * XXX - if it's *really* important to allow more ett_ values to
+	 * be given out after "proto_init()" is called, we could expand
+	 * the array.
+	 */
+	g_assert(tree_is_expanded == NULL);
 
 	/*
 	 * Assign "num_indices" subtree numbers starting at "num_tree_types",
