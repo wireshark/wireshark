@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.72 2004/01/17 00:26:22 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.73 2004/01/21 12:19:19 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -486,6 +486,10 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_container_add(GTK_CONTAINER(frame), gui_font_pg);
   OBJECT_SET_DATA(prefs_w, E_GUI_FONT_PAGE_KEY, gui_font_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
+  /* gtk_font_selection_set_font_name doesn't work when run before appending the
+   * frame to the notebook (at least in GTK2) */
+  gtk_font_selection_set_font_name(
+	    GTK_FONT_SELECTION(gui_font_pg), prefs.PREFS_GUI_FONT_NAME);
   strcpy(label_str, "Font");
 #if GTK_MAJOR_VERSION < 2
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), ct_base_node, NULL,

@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.56 2004/01/20 19:33:23 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.57 2004/01/21 12:19:19 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -312,15 +312,6 @@ gui_font_prefs_show(void)
 	    NULL);	/* all charsets are OK (XXX - ISO 8859/1 only?) */
 #endif
 #endif
-
-    /* Set the font to the current font.
-	   XXX - GTK+ 1.2.8, and probably earlier versions, have a bug
-	   wherein that doesn't necessarily cause that font to be
-	   selected in the dialog box.  I've sent to the GTK+ folk
-	   a fix; hopefully, it'll show up in 1.2.9 if, as, and when
-	   they put out a 1.2.9 release. */
-	gtk_font_selection_set_font_name(
-	    GTK_FONT_SELECTION(font_browse_w), prefs.PREFS_GUI_FONT_NAME);
 
 	gtk_widget_show(font_browse_w);
 
