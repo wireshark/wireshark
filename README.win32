@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.67 2004/04/09 07:37:25 ulfl Exp $
+$Id: README.win32,v 1.68 2004/04/10 09:10:01 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -88,100 +88,79 @@ The rest of this documentation is only interesting if
 you want to compile Ethereal yourself.
 
 
-Running Ethereal, Tethereal, and Editcap on Win32
-=================================================
-You need the glib and gtk libraries for running Ethereal. 
-
-These packages for win32 can be found at:
-
-	http://www.ethereal.com/distribution/win32
-
-and at the home page for the GTK+ for Win32 project:
-
-	http://www.gimp.org/~tml/gimp/win32
-
-or
-	http://www.iki.fi/tml/gimp/win32/
-
-(the mirror nearer to you may be faster).
-
-Plugins (gryphon.dll and mgcp.dll) can go in:
-	<Ethereal installation directory>\plugins\<version>
-
-Where <version> is the version number, without brackets.  For example,
-if you have Ethereal 0.9.8 installed in the default location, plugins
-will reside in C:\Program Files\Ethereal\plugins\0.9.8
-
-Yes, the location of plugins needs to be more flexible.
-
-Make sure the glib and gtk DLL's are in your path - i.e., that your
-path includes the directory (folder) or directories (folders) in which
-those DLLs are found - when you run Ethereal.  This includes gtk-*.dll,
-glib-*.dll, gmodule-*.dll, gdk-*.dll, intl.dll, and iconv-*.dll.  As of
-the 20000805 GTK+/GLIB distribution, gthread-*.dll is no longer needed.
-
-Note the wiretap*.dll must be in your path as well and if wiretap is changed
-be shure to put the new one in your path.
-
-The Win32 Binary distribution, available from
-
-	http://www.ethereal.com/distribution/win32
-
-used different version of the GTK+/GLIB libraries at different points
-in time:
-
-Ethereal Version		GTK+/GLIB version
-----------------		-----------------
-0.8.16 and after		20001226
-0.8.11 - 0.8.15			20000805
-0.8.9 - 0.8.10			20000416
-0.8.8 and before		19990828
-
-
-Capturing Packets
------------------
-In order to capture with Win32, you need to install the NDIS
-packet capture driver for your particular Win32 OS; drivers for Windows
-9x, Windows NT 4.0, Windows 2000 and Windows XP can be downloaded from the
-WinPcap home page:
-
-	http://winpcap.polito.it/
-
-or the mirror site at
-
-	http://www.wiretapped.net/security/packet-capture/winpcap/default.htm
-
 Compiling the Ethereal distribution from source
 ===============================================
 
+Automated library download
+--------------------------
+Before using the automated download, be sure to edit the config.nmake file 
+to suit your needs. Especially have a look at the ETHEREAL_LIBS setting.
+However, the defaults should be working well for a first start.
+
+If you've installed Microsoft Visual C++ (MSVC), you can run:
+
+nmake -f makefile.nmake setup 
+
+This will first check the availability of all required tools and then uses 
+the tool wget to download each package file (together around 30MB!) from the 
+server location at:
+
+http://www.ethereal.com/distribution/win32/development/
+
+and unpack it in the $ETHEREAL_LIBS directory. 
+
+If you have problems downloading the files, you might be connected to the 
+internet through a proxy/firewall. In this case see the wget documentation 
+to configure wget accordingly.
+
+
+Required libraries
+------------------
+If the automated library download finished sucessfully, you should have all
+libraries on your machine at the right places. So you don't have to read this,
+unless you are interested which libraries are used.
+
 You'll need the development packages for GLIB, GTK+, iconv, gettext,
-WinPcap, zlib, Net-SNMP, ADNS, and PCRE.  The GLIB, GTK+, and WinPcap
-packages are available from the respective home pages for each project
-(the same URLs as listed above). The development packages contain header
-files and stub libraries to link against.  Precompiled versions of all
-of these packages are available at
+WinPcap, Net-SNMP, and optionally ADNS, PCRE and zlib. The development 
+packages contain header files and stub libraries to link against.  
+
+PRECOMPILED VERSIONS OF ALL OF THESE PACKAGES ARE AVAILABLE AT:
 
 	http://www.ethereal.com/distribution/win32/development/
 
-The ADNS package is also available at its homepage:
+
+The GLIB, GTK+, iconv, gettext packages for win32 can be found at the home 
+page for the GTK+ for Win32 project:
+
+	http://www.gimp.org/~tml/gimp/win32 or the mirror
+	http://www.iki.fi/tml/gimp/win32/
+
+The Net-SNMP package for win32 is available at its homepage:
+
+	http://
+
+The WinPcap package is available at its homepage:
+
+	http://winpcap.polito.it/ or the mirror
+	http://www.wiretapped.net/security/packet-capture/winpcap/default.htm
+
+The optional ADNS package for win32 is available at its homepage:
 
 	http://adns.jgaa.com/
+
+The optional PCRE package (Perl Compatible Regular Expressions) for win32 is 
+available at its homepage:
+
+	http://gnuwin32.sourceforge.net/packages/pcre.htm
+
+The optional zlib package for win32 is available at its homepage:
+
+	http://www.gzip.org/zlib/
+
 
 By default, the build process looks for these packages in
 C:\ethereal-win32-libs.  You can place them in a different directory, but
 you must update the ETHEREAL_LIBS variable in config.nmake accordingly.
-
-If you're running MSVC++, you can run:
-
-nmake -f makefile.nmake setup 
-
-to download each package file (together around 30MB!) and unpack it in the 
-$ETHEREAL_LIBS directory. 
-This will first check the availability of all required tools and then uses 
-the tool wget to download the files from the server location at
-www.ethereal.com mentioned above. If you have problems downloading the files,
-you might be connected to the internet through a proxy/firewall. In this case
-see the wget documentation to configure wget accordingly.
 
 The following lists the packages needed to compile Ethereal and the default
 locations where to unpack them, when the above method isn't used.
@@ -223,13 +202,13 @@ Compiling the Ethereal distribution using GTK+2
 The more recent version 2 of the GTK+ can be used to compile 
 Ethereal with, but is still considered beta.
 
-GTK+2 will look better and nicer in some ways, especially for WIN32 users.
+GTK+2 will look better in various ways, especially for WIN32 users.
 
 You can get the required libraries from:
 
 http://www.ethereal.com/distribution/win32/development/gtk2
 
-or:
+or (like the GTK+1 libraries from the GTK+ for Win32 project):
 
 http://www.gimp.org/~tml/gimp/win32/downloads.html
 
@@ -249,6 +228,26 @@ and optional:
     gtk-wimp-0.5.3-bin.zip                C:\ethereal-win32-libs\gtk-wimp
 
 Be sure to set GTK2_DIR in config.nmake correct, to be able to compile.
+
+Running your freshly compiled Ethereal
+--------------------------------------
+
+Make sure the glib and gtk DLL's are in your path or you use a directory 
+where all required DLL's and the exe files reside.- i.e., that your
+path includes the directory (folder) or directories (folders) in which
+those DLLs are found - when you run Ethereal.
+
+Note the wiretap*.dll must be in your path as well and if wiretap is changed
+be sure to put the new one in your path.
+
+Plugins (gryphon.dll and mgcp.dll) can go in:
+	<Ethereal installation directory>\plugins\<version>
+
+Where <version> is the version number, without brackets.  For example,
+if you have Ethereal 0.9.8 installed in the default location, plugins
+will reside in C:\Program Files\Ethereal\plugins\0.9.8
+
+Yes, the location of plugins needs to be more flexible.
 
 Instructions for MS Visual C++
 ----------------------------
