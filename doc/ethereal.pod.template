@@ -181,7 +181,10 @@ matching the filter are discarded.
 
 Save the current capture, or the packets currently displayed from that
 capture, to a file.  A check box lets you select whether to save all
-packets, or just those that have passed the current display filter.
+packets, or just those that have passed the current display filter, and
+an option menu lets you select (from a list of file formats in which at
+particular capture, or the packets currently displayed from that
+capture, can be saved), a file format in which to save it.
 
 =item File:Print
 
