@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.3 2003/11/14 01:35:08 guy Exp $
+ * $Id: packet-tcap.c,v 1.4 2003/12/02 02:58:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,8 +65,6 @@
 #include "asn1.h"
 
 Tcap_Standard_Type tcap_standard = ITU_TCAP_STANDARD;
-
-void proto_reg_handoff_tcap(void);
 
 /* saved pinfo */
 static packet_info *g_pinfo = NULL;
@@ -2749,7 +2747,7 @@ proto_register_tcap(void)
     proto_register_field_array(proto_tcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    tcap_module = prefs_register_protocol(proto_tcap, proto_reg_handoff_tcap);
+    tcap_module = prefs_register_protocol(proto_tcap, NULL);
 
     prefs_register_enum_preference(tcap_module, "standard", "TCAP standard",
 	"The SS7 standard used in TCAP packets",
@@ -2772,25 +2770,19 @@ proto_register_tcap(void)
 void
 proto_reg_handoff_tcap(void)
 {
-    static gboolean tcap_prefs_initialized = FALSE;
     dissector_handle_t tcap_handle;
 
-    if (!tcap_prefs_initialized)
-    {
-	tcap_handle = create_dissector_handle(dissect_tcap,
-	    proto_tcap);
+    tcap_handle = create_dissector_handle(dissect_tcap,
+	proto_tcap);
 
-	dissector_add("sccp.ssn", 5, tcap_handle); /* MAP*/
-	dissector_add("sccp.ssn", 6, tcap_handle); /* HLR*/
-	dissector_add("sccp.ssn", 7, tcap_handle); /* VLR */
-	dissector_add("sccp.ssn", 8, tcap_handle); /* MSC */
-	dissector_add("sccp.ssn", 9, tcap_handle); /* EIR */
-	dissector_add("sccp.ssn", 10, tcap_handle); /* EIR */
-	dissector_add("sccp.ssn", 11, tcap_handle); /* SMS/MC */
-	dissector_add("sccp.ssn", 12, tcap_handle); /* IS41 OTAF */
-
-	tcap_prefs_initialized = TRUE;
-    }
+    dissector_add("sccp.ssn", 5, tcap_handle); /* MAP*/
+    dissector_add("sccp.ssn", 6, tcap_handle); /* HLR*/
+    dissector_add("sccp.ssn", 7, tcap_handle); /* VLR */
+    dissector_add("sccp.ssn", 8, tcap_handle); /* MSC */
+    dissector_add("sccp.ssn", 9, tcap_handle); /* EIR */
+    dissector_add("sccp.ssn", 10, tcap_handle); /* EIR */
+    dissector_add("sccp.ssn", 11, tcap_handle); /* SMS/MC */
+    dissector_add("sccp.ssn", 12, tcap_handle); /* IS41 OTAF */
 
     data_handle = find_dissector("data");
 }

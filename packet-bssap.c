@@ -7,7 +7,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-bssap.c,v 1.4 2003/12/01 23:05:08 guy Exp $
+ * $Id: packet-bssap.c,v 1.5 2003/12/02 02:58:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,10 +141,6 @@ static guint8	pdu_type = 0xFF;
 
 static guint	bssap_or_bsap_global = BSSAP_OR_BSAP_DEFAULT;
 
-
-/* FORWARD DECLARATIONS */
-
-void proto_reg_handoff_bssap(void);
 
 static void
 dissect_bssap_unknown_message(tvbuff_t *message_tvb, proto_tree *bssap_tree)
@@ -461,7 +457,7 @@ proto_register_bssap(void)
     proto_register_field_array(proto_bssap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    bssap_module = prefs_register_protocol(proto_bssap, proto_reg_handoff_bssap);
+    bssap_module = prefs_register_protocol(proto_bssap, NULL);
 
     prefs_register_enum_preference(bssap_module,
 	"bsap_or_bssap",
@@ -478,15 +474,7 @@ proto_register_bssap(void)
 void
 proto_reg_handoff_bssap(void)
 {
-    static gboolean bssap_prefs_initialized = FALSE;
-
-
-    if (!bssap_prefs_initialized)
-    {
-	heur_dissector_add("sccp", dissect_bssap_heur, proto_bssap);
-
-	bssap_prefs_initialized = TRUE;
-    }
+    heur_dissector_add("sccp", dissect_bssap_heur, proto_bssap);
 
     data_handle = find_dissector("data");
 }
