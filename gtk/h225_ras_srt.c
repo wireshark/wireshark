@@ -307,7 +307,7 @@ gtk_h225rassrt_init(char *optarg)
 	hs->vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
 
-	init_main_stat_window(hs->win, hs->vbox, "ITU-T H.225 RAS Service Response Time", filter);
+	init_main_stat_window(hs->win, hs->vbox, "H.225 RAS Service Response Time", filter);
 
         /* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
@@ -344,6 +344,6 @@ register_tap_listener_gtk_h225rassrt(void)
 {
 	register_ethereal_tap("h225,srt", gtk_h225rassrt_init);
 
-	register_tap_menu_item("ITU-T H.225 RAS...", REGISTER_TAP_GROUP_RESPONSE_TIME,
+	register_tap_menu_item("H.225 RAS...", REGISTER_TAP_GROUP_RESPONSE_TIME,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(h225_rassrt_dlg));
 }
