@@ -1624,15 +1624,27 @@ main(int argc, char *argv[])
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */
   capture_child = (strcmp(command_name, CHILD_NAME) == 0);
+  /* We want a splash screen only if we're not a child process */
   if (capture_child) {
     strcat(optstring, OPTSTRING_CHILD);
-  } else if (argc < 2 || strcmp(argv[1], "-G") != 0) {
-    /* We want a splash screen only if we're not a child process */
-    splash_win = splash_new("Loading Ethereal ...");
-  }
-#else
-    splash_win = splash_new("Loading Ethereal ...");
+  } else
 #endif
+  {
+    /* We also want it only if we're not being run with "-G".
+       XXX - we also don't want it if we're being run with
+       "-h" or "-v", as those are options to run Ethereal and just
+       have it print stuff to the command line.  That would require
+       that we parse the argument list before putting up the splash
+       screen, which means we'd need to do so before reading the
+       preference files, as that could take enough time that we'd
+       want the splash screen up while we're doing that.  Unfortunately,
+       that means we'd have to queue up, for example, "-o" options,
+       so that we apply them *after* reading the preferences, as
+       they're supposed to override saved preferences. */
+    if (argc < 2 || strcmp(argv[1], "-G") != 0) {
+      splash_win = splash_new("Loading Ethereal ...");
+    }
+  }
 
   splash_update(splash_win, "Registering dissectors ...");
 
