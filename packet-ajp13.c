@@ -243,13 +243,15 @@ typedef struct ajp13_frame_data {
  * both a leading length field, and a trailing null. Mostly, see
  * AJPv13.html. The returned length _includes_ the trailing null, if
  * there is one.
+ *
+ * XXX - is there a tvbuff routine to handle this?
  */
 static guint16 
-get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf)
+get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf, size_t cbuflen)
 {
   guint16 len;
-  guint8* ptr;
-  gint i;
+  guint16 copylen;
+
   /*printf("ajp13:get_nstring()\n");*/
   len = tvb_get_ntohs(tvb, offset);
   /*printf("ajp13:get_nstring():len=%d\n", len);*/
@@ -257,12 +259,11 @@ get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf)
     cbuf[0] = '\0';
     len = 0;
   } else {
-    ptr = tvb_get_ptr(tvb, offset+2, len);
-    for(i=0; i<len; i++) {
-      /*printf("%d:%c\n", i, ptr[i]);*/
-      cbuf[i] = ptr[i];
-    }
-    cbuf[i] = '\0';
+    copylen = len;
+    if (copylen > cbuflen - 1)
+      copylen = cbuflen - 1;
+    tvb_memcpy(tvb, cbuf, offset+2, copylen);
+    cbuf[copylen] = '\0';
     len++;
   }
   return len;
@@ -332,7 +333,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
 
     /* HTTP RESPONSE STATUS MESSAGE
      */
-    rsmsg_len = get_nstring(tvb, pos, rsmsg_bytes);
+    rsmsg_len = get_nstring(tvb, pos, rsmsg_bytes, sizeof rsmsg_bytes);
     pos+=2;
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_rsmsg, tvb, pos, rsmsg_len, 0);
@@ -377,7 +378,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
         if (hid == 0x08)
           cl = 1;
       } else {
-        int hname_len = get_nstring(tvb, pos, hname_bytes);
+        int hname_len = get_nstring(tvb, pos, hname_bytes, sizeof hname_bytes);
         /*printf("ajp13:dissect_ajp13():hname_len=%d\n", hname_len);*/
         pos+=hname_len+2;
         hname = (gchar*)hname_bytes; /* VERY EVIL */
@@ -394,7 +395,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
       /* HEADER VALUE
        */
       orig_pos = pos;
-      hval_len = get_nstring(tvb, pos, hval);
+      hval_len = get_nstring(tvb, pos, hval, sizeof hval);
       /*printf("ajp13:dissect_ajp13():hval_len=%d\n", hval_len);*/
       pos+=hval_len+2;
       dp = pos - orig_pos;
@@ -426,8 +427,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
  * packets.
  */
 static void
-display_req_body(tvbuff_t *tvb, packet_info *pinfo,
-                 proto_tree *ajp13_tree)
+display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree)
 {
   /*printf("ajp13:display_req_body()\n");*/
 
@@ -449,7 +449,7 @@ display_req_body(tvbuff_t *tvb, packet_info *pinfo,
     
     /* BODY (AS STRING)
      */
-    body_len = get_nstring(tvb, pos, body_bytes);
+    body_len = get_nstring(tvb, pos, body_bytes, sizeof body_bytes);
     proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, body_len-1, 0);
   }
 }
@@ -483,7 +483,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   guint8 srv[4096];
   guint16 srv_len;
   guint nhdr;
-  int i;
+  guint i;
 
   /*printf("ajp13:display_req_forward()\n");*/
 
@@ -500,7 +500,6 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   cod = tvb_get_guint8(tvb, 4);
   if (ajp13_tree) {
     gchar* msg_code = NULL;
-    guint8 mcode = 0;
     char mcode_buf[1024];
     msg_code = val_to_str(cod, mtype_codes, "UNKNOWN");
     sprintf(mcode_buf, "(%d) %s", cod, msg_code);
@@ -512,7 +511,6 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
    */
   {
     gchar* meth_code = NULL;
-    guint8 mcode = 0;
     meth = tvb_get_guint8(tvb, pos);
     meth_code = val_to_str(meth, http_method_codes, "UNKNOWN");
     if (ajp13_tree) {
@@ -527,16 +525,16 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* HTTP VERSION STRING
    */
-  ver_len = get_nstring(tvb, pos, ver);
-  pos+=2; // skip over size 
+  ver_len = get_nstring(tvb, pos, ver, sizeof ver);
+  pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_ver, tvb, pos, ver_len, 0);
   pos=pos+ver_len;  /* skip over chars + trailing null */
 
   /* URI
    */
-  uri_len = get_nstring(tvb, pos, uri);
-  pos+=2; // skip over size
+  uri_len = get_nstring(tvb, pos, uri, sizeof uri);
+  pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_uri, tvb, pos, uri_len, 0);
   pos=pos+uri_len;  /* skip over chars + trailing null */
@@ -548,27 +546,27 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* REMOTE ADDRESS
    */
-  raddr_len = get_nstring(tvb, pos, raddr);
-  pos+=2; // skip over size
+  raddr_len = get_nstring(tvb, pos, raddr, sizeof raddr);
+  pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_raddr, tvb, pos, raddr_len, 0);
-  pos=pos+raddr_len;  // skip over chars + trailing null
+  pos=pos+raddr_len;  /* skip over chars + trailing null */
 
   /* REMOTE HOST
    */
-  rhost_len = get_nstring(tvb, pos, rhost);
-  pos+=2; // skip over size
+  rhost_len = get_nstring(tvb, pos, rhost, sizeof rhost);
+  pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_rhost, tvb, pos, rhost_len, 0);
-  pos=pos+rhost_len;  // skip over chars + trailing null
+  pos=pos+rhost_len;  /* skip over chars + trailing null */
 
   /* SERVER NAME
    */
-  srv_len = get_nstring(tvb, pos, srv);
-  pos+=2; // skip over size
+  srv_len = get_nstring(tvb, pos, srv, sizeof srv);
+  pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_srv, tvb, pos, srv_len, 0);
-  pos=pos+srv_len;  // skip over chars + trailing null
+  pos=pos+srv_len;  /* skip over chars + trailing null */
 
   /* SERVER PORT
    */
@@ -604,7 +602,6 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     int dp = 0;
     int cl = 0;
     guint8 hname_bytes[1024];
-    gchar hname_value[8*1024];
 
     /* HEADER CODE/NAME
      */
@@ -619,7 +616,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       if (hid == 0x08)
         cl = 1;
     } else {
-      int hname_len = get_nstring(tvb, pos, hname_bytes);
+      int hname_len = get_nstring(tvb, pos, hname_bytes, sizeof hname_bytes);
       /*printf("ajp13:dissect_ajp13():hname_len=%d\n", hname_len);*/
       pos+=hname_len+2;
       hname = (gchar*)hname_bytes; /* VERY EVIL */
@@ -636,7 +633,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     /* HEADER VALUE
      */
     orig_pos = pos;
-    hval_len = get_nstring(tvb, pos, hval);
+    hval_len = get_nstring(tvb, pos, hval, sizeof hval);
     /*printf("ajp13:dissect_ajp13():hval_len=%d\n", hval_len);*/
     pos+=hval_len+2;
     dp = pos - orig_pos;
@@ -666,7 +663,6 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 len;
   conversation_t *conv = NULL;
   ajp13_conv_data *cd = NULL;
-  int i = 0;
   proto_tree *ajp13_tree = NULL;
   ajp13_frame_data* fd = NULL;
 
@@ -725,7 +721,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AJP13");
-  if (check_col(pinfo->cinfo, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     if (mag == 0x1234 && !fd->is_request_body)
       col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:", conv->index);
     else if (mag == 0x1234 && fd->is_request_body)
@@ -734,6 +730,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_append_fstr(pinfo->cinfo, COL_INFO, "%d:RSP:", conv->index);
     else 
       col_set_str(pinfo->cinfo, COL_INFO, "AJP13 Error?");
+  }
 
   if (tree) {
     proto_item *ti;
@@ -744,7 +741,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (mag == 0x1234) {
 
     if (fd->is_request_body)
-      display_req_body(tvb, pinfo, ajp13_tree);
+      display_req_body(tvb, ajp13_tree);
     else
       display_req_forward(tvb, pinfo, ajp13_tree, cd);
 
@@ -782,10 +779,6 @@ dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* Set up structures needed to add the protocol subtree and manage it
    */
-  int offset = 0;
-  guint32 value = 666;
-  ajp13_conv_data *cd = (ajp13_conv_data*)0;
-
   /*printf("ajp13:dissect_ajp13()\n");*/
 
   tcp_dissect_pdus(tvb, pinfo, tree,
@@ -802,61 +795,80 @@ proto_register_ajp13(void)
 {                 
   static hf_register_info hf[] = {
     { &hf_ajp13_magic,
-      { "Magic",  "ajp13.magic", FT_BYTES, BASE_HEX, NULL, 0x0, "Magic Number" }
+      { "Magic",  "ajp13.magic", FT_BYTES, BASE_HEX, NULL, 0x0, "Magic Number",
+        HFILL }
     },
     { &hf_ajp13_len,
-      { "Length",  "ajp13.len", FT_UINT16, BASE_DEC, NULL, 0x0, "Data Length" }
+      { "Length",  "ajp13.len", FT_UINT16, BASE_DEC, NULL, 0x0, "Data Length",
+        HFILL }
     },
     { &hf_ajp13_code,
-      { "Code",  "ajp13.code", FT_STRING, BASE_DEC, NULL, 0x0, "Type Code" }
+      { "Code",  "ajp13.code", FT_STRING, BASE_DEC, NULL, 0x0, "Type Code",
+         HFILL }
     },
     { &hf_ajp13_method,
-      { "Method",  "ajp13.method", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP Method" }
+      { "Method",  "ajp13.method", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP Method",
+        HFILL }
     },
     { &hf_ajp13_ver,
-      { "Version",  "ajp13.ver", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP Version" }
+      { "Version",  "ajp13.ver", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP Version",
+        HFILL }
     },
     { &hf_ajp13_uri,
-      { "URI",  "ajp13.uri", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP URI" }
+      { "URI",  "ajp13.uri", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP URI",
+        HFILL }
     },
     { &hf_ajp13_raddr,
-      { "RADDR",  "ajp13.raddr", FT_STRING, BASE_DEC, NULL, 0x0, "Remote Address" }
+      { "RADDR",  "ajp13.raddr", FT_STRING, BASE_DEC, NULL, 0x0, "Remote Address",
+        HFILL }
     },
     { &hf_ajp13_rhost,
-      { "RHOST",  "ajp13.rhost", FT_STRING, BASE_DEC, NULL, 0x0, "Remote Host" }
+      { "RHOST",  "ajp13.rhost", FT_STRING, BASE_DEC, NULL, 0x0, "Remote Host",
+        HFILL }
     },
     { &hf_ajp13_srv,
-      { "SRV",  "ajp13.srv", FT_STRING, BASE_DEC, NULL, 0x0, "Server" }
+      { "SRV",  "ajp13.srv", FT_STRING, BASE_DEC, NULL, 0x0, "Server",
+        HFILL }
     },
     { &hf_ajp13_port,
-      { "PORT",  "ajp13.port", FT_UINT16, BASE_DEC, NULL, 0x0, "Port" }
+      { "PORT",  "ajp13.port", FT_UINT16, BASE_DEC, NULL, 0x0, "Port",
+        HFILL }
     },
     { &hf_ajp13_sslp,
-      { "SSLP",  "ajp13.sslp", FT_UINT8, BASE_DEC, NULL, 0x0, "Is SSL?" }
+      { "SSLP",  "ajp13.sslp", FT_UINT8, BASE_DEC, NULL, 0x0, "Is SSL?",
+        HFILL }
     },
     { &hf_ajp13_nhdr,
-      { "NHDR",  "ajp13.nhdr", FT_UINT16, BASE_DEC, NULL, 0x0, "Num Headers" }
+      { "NHDR",  "ajp13.nhdr", FT_UINT16, BASE_DEC, NULL, 0x0, "Num Headers",
+        HFILL }
     },
     { &hf_ajp13_hname,
-      { "HNAME",  "ajp13.hname", FT_STRING, BASE_DEC, NULL, 0x0, "Header Name" }
+      { "HNAME",  "ajp13.hname", FT_STRING, BASE_DEC, NULL, 0x0, "Header Name",
+        HFILL }
     },
     { &hf_ajp13_hval,
-      { "HVAL",  "ajp13.hval", FT_STRING, BASE_DEC, NULL, 0x0, "Header Value" }
+      { "HVAL",  "ajp13.hval", FT_STRING, BASE_DEC, NULL, 0x0, "Header Value",
+        HFILL }
     },
     { &hf_ajp13_rlen,
-      { "RLEN",  "ajp13.rlen", FT_UINT16, BASE_DEC, NULL, 0x0, "Requested Length" }
+      { "RLEN",  "ajp13.rlen", FT_UINT16, BASE_DEC, NULL, 0x0, "Requested Length",
+        HFILL }
     },
     { &hf_ajp13_reusep,
-      { "REUSEP",  "ajp13.reusep", FT_UINT8, BASE_DEC, NULL, 0x0, "Reuse Connection?" }
+      { "REUSEP",  "ajp13.reusep", FT_UINT8, BASE_DEC, NULL, 0x0, "Reuse Connection?",
+        HFILL }
     },
     { &hf_ajp13_rstatus,
-      { "RSTATUS",  "ajp13.rstatus", FT_UINT16, BASE_DEC, NULL, 0x0, "HTTP Status Code" }
+      { "RSTATUS",  "ajp13.rstatus", FT_UINT16, BASE_DEC, NULL, 0x0, "HTTP Status Code",
+        HFILL }
     },
     { &hf_ajp13_rsmsg,
-      { "RSMSG",  "ajp13.rmsg", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP Status Message" }
+      { "RSMSG",  "ajp13.rmsg", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP Status Message",
+        HFILL }
     },
     { &hf_ajp13_data,
-      { "Data",  "ajp13.data", FT_STRING, BASE_DEC, NULL, 0x0, "Data" }
+      { "Data",  "ajp13.data", FT_STRING, BASE_DEC, NULL, 0x0, "Data",
+        HFILL }
     },
   };
 
