@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.6 2002/05/24 10:57:36 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.7 2002/05/24 16:45:05 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -277,7 +277,7 @@ srvsvc_dissect_SVR_INFO_CTR(tvbuff_t *tvb, int offset,
 
   }
  
-  /* Should set the field here too ...*/
+  /* XXX - Should set the field here too ...*/
   proto_item_set_len(item, offset - old_offset);
   return offset;
 
@@ -314,7 +314,8 @@ srvsvc_dissect_net_srv_get_info_reply(tvbuff_t *tvb, int offset,
 			       "Info", hf_srvsvc_info, 0);
 
   /* [out] LONG response_code */
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_rc, NULL);
+  offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, 
+			    hf_srvsvc_rc, NULL);
 
   return offset;
 }
@@ -336,8 +337,9 @@ srvsvc_dissect_net_share_get_info_rqst(tvbuff_t *tvb, int offset,
 			       NDR_POINTER_UNIQUE, "Server",
 			       hf_srvsvc_server, 0);
 
-  /* We need a label for this string here ... */
-
+  /*
+   * Construct a label for the string ...
+   */
   item = proto_tree_add_text(tree, tvb, offset, -1, "Share");
   stree = proto_item_add_subtree(item, ett_srvsvc_share_info);
   di->hf_index = hf_srvsvc_share;
@@ -369,8 +371,26 @@ srvsvc_dissect_net_share_get_info_reply(tvbuff_t *tvb, int offset,
 			       NDR_POINTER_REF, "Info", 
 			       hf_srvsvc_share_info, 0);
 
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			      hf_srvsvc_rc, NULL);
+  offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+			    hf_srvsvc_rc, NULL);
+  return offset;
+}
+
+static int
+srvsvc_dissect_netshareenum_all_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+
+  return offset;
+}
+
+static int
+srvsvc_dissect_netshareenum_all_reply(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree, 
+				      char *drep)
+{
+
   return offset;
 }
 
@@ -379,7 +399,9 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
         { SRV_NETFILEENUM, "SRV_NETFILEENUM", NULL, NULL },
         { SRV_NETSESSENUM, "SRV_NETSESSENUM", NULL, NULL },
         { SRV_NET_SHARE_ADD, "SRV_NET_SHARE_ADD", NULL, NULL },
-        { SRV_NETSHAREENUM_ALL, "SRV_NETSHAREENUM_ALL", NULL, NULL },
+        { SRV_NETSHAREENUM_ALL, "SRV_NETSHAREENUM_ALL", 
+	  srvsvc_dissect_netshareenum_all_rqst,
+	  srvsvc_dissect_netshareenum_all_reply},
         { SRV_NET_SHARE_GET_INFO, "SRV_NET_SHARE_GET_INFO", 
 	  srvsvc_dissect_net_share_get_info_rqst,
 	  srvsvc_dissect_net_share_get_info_reply},
@@ -424,7 +446,7 @@ proto_register_dcerpc_srvsvc(void)
 	  /* XXX - DOS error code, NT status code, or neither? */
 	  { &hf_srvsvc_rc,
 	    { "Return code", "srvsvc.rc", FT_UINT32, 
-	      BASE_DEC, NULL, 0x0, "Return Code", HFILL}},
+	      BASE_HEX, VALS(NT_errors), 0x0, "Return Code", HFILL}},
 
 	  { &hf_srvsvc_platform_id,
 	    { "Platform ID", "srvsvc.info.platform_id", FT_UINT32,
@@ -435,7 +457,7 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_ver_minor,
 	    { "Minor Version", "srvsvc.version.minor", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Minor Version", HFILL}},
-	  /* Should break this out */
+	  /* XXX - Should break this out. We know it from browsing. */
 	  { &hf_srvsvc_server_type,
 	    { "Server Type", "srvsvc.server.type", FT_UINT32,
 	      BASE_HEX, NULL, 0x0, "Server Type", HFILL}},
