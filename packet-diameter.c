@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.52 2003/04/10 01:30:34 guy Exp $
+ * $Id: packet-diameter.c,v 1.53 2003/04/12 05:48:26 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -1876,7 +1876,7 @@ proto_register_diameter(void)
 	};
 	module_t *diameter_module;
 
-	proto_diameter = proto_register_protocol ("Diameter Procotol", "Diameter", "diameter");
+	proto_diameter = proto_register_protocol ("Diameter Protocol", "Diameter", "diameter");
 	proto_register_field_array(proto_diameter, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
