@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.7 2002/11/26 21:45:28 guy Exp $
+ * $Id: packet-tds.c,v 1.8 2002/12/03 08:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,10 +145,13 @@
 
 #include <glib.h>
 
-#include "epan/packet.h"
-#include "epan/conversation.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
 
 #include "packet-smb-common.h"
+#include "packet-frame.h"
+#include "reassemble.h"
+#include "prefs.h"
 
 #define TDS_QUERY_PKT        1
 #define TDS_LOGIN_PKT        2
@@ -164,19 +167,10 @@
 #define TDS_ECHO_PKT        12
 #define TDS_LOGOUT_CHN_PKT  13
 #define TDS_QUERY5_PKT      15  /* or "Normal tokenized request or response */
-#define TDS_LOGIN7_PKT      16	/* Or "Urgent tokenized request or response */
+#define TDS_LOGIN7_PKT      16	/* or "Urgent tokenized request or response */
+#define TDS_XXX7_PKT        18	/* seen in one capture */
 
-/*
- * XXX - include all of the above?
- * Most of them came from the document on the NAI site.
- */
-#define is_valid_tds_type(x) \
-	(x==TDS_QUERY_PKT || \
-	x==TDS_LOGIN_PKT || \
-	x==TDS_RESP_PKT || \
-	x==TDS_QUERY5_PKT || \
-	x==TDS_QUERY5_PKT || \
-	x==TDS_LOGIN7_PKT)
+#define is_valid_tds_type(x) ((x) >= TDS_QUERY_PKT && (x) <= TDS_XXX7_PKT)
 
 /* The following constants are imported more or less directly from FreeTDS */
 
@@ -260,23 +254,54 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_tds = -1;
-static int hf_netlib_type = -1;
-static int hf_netlib_status = -1;
-static int hf_netlib_size = -1;
-static int hf_netlib_channel = -1;
-static int hf_netlib_packet_number = -1;
-static int hf_netlib_window = -1;
+static int hf_tds_type = -1;
+static int hf_tds_status = -1;
+static int hf_tds_size = -1;
+static int hf_tds_channel = -1;
+static int hf_tds_packet_number = -1;
+static int hf_tds_window = -1;
+static int hf_tds_fragments = -1;
+static int hf_tds_fragment = -1;
+static int hf_tds_fragment_overlap = -1;
+static int hf_tds_fragment_overlap_conflict = -1;
+static int hf_tds_fragment_multiple_tails = -1;
+static int hf_tds_fragment_too_long_fragment = -1;
+static int hf_tds_fragment_error = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_netlib = -1;
 static gint ett_tds = -1;
-static gint ett_tds_pdu = -1;
+static gint ett_tds_fragments = -1;
+static gint ett_tds_fragment = -1;
+static gint ett_tds_token = -1;
 static gint ett_tds7_login = -1;
 static gint ett_tds7_hdr = -1;
 
-static heur_dissector_list_t netlib_heur_subdissector_list;
+/* Desegmentation of Netlib buffers crossing TCP segment boundaries. */
+static gboolean tds_desegment = TRUE;
 
-static dissector_handle_t ntlmssp_handle = NULL;
+static const fragment_items tds_frag_items = {
+	&ett_tds_fragment,
+	&ett_tds_fragments,
+	&hf_tds_fragments,
+	&hf_tds_fragment,
+	&hf_tds_fragment_overlap,
+	&hf_tds_fragment_overlap_conflict,
+	&hf_tds_fragment_multiple_tails,
+	&hf_tds_fragment_too_long_fragment,
+	&hf_tds_fragment_error,
+	"fragments"
+};
+
+/* Tables for reassembly of fragments. */
+static GHashTable *tds_fragment_table = NULL;
+static GHashTable *tds_reassembled_table = NULL;
+
+/* defragmentation of multi-buffer TDS PDUs */
+static gboolean tds_defragment = TRUE;
+
+static dissector_handle_t tds_tcp_handle;
+static dissector_handle_t ntlmssp_handle;
+static dissector_handle_t data_handle;
 
 /* These correspond to the netlib packet type field */
 static const value_string packet_type_names[] = {
@@ -290,6 +315,9 @@ static const value_string packet_type_names[] = {
 };
 
 /* The status field */
+
+#define is_valid_tds_status(x) ((x) < 5)
+
 static const value_string status_names[] = {
 	{0x00, "Not last buffer"},
 	{0x01, "Last buffer in request or response"},
@@ -357,11 +385,10 @@ static const value_string login_field_names[] = {
 
 
 #define MAX_COLUMNS 256
-#define REM_BUF_SIZE 4096
 
 /*
- * this is where we store the column information to be used in decoding the
- * TDS_ROW_TOKEN PDU's
+ * This is where we store the column information to be used in decoding the
+ * TDS_ROW_TOKEN tokens.
  */
 struct _tds_col {
      gchar name[256];
@@ -370,72 +397,30 @@ struct _tds_col {
      guint csize;
 };
 
-/*
- * The first time ethereal decodes a stream it calls each packet in order.
- * We use this structure to pass data from the dissection of one packet to
- * the next.  After the initial dissection, this structure is largely unused.
- */
-struct _conv_data {
-	guint netlib_unread_bytes;
-	guint num_cols;
-	struct _tds_col *columns[MAX_COLUMNS];
-	guint tds_bytes_left;
-	guint8 tds_remainder[REM_BUF_SIZE];
-};
-
-/*
- * Now on the first dissection of a packet copy the global (_conv_data)
- * to the packet data so that we may retrieve out of order later.
- */
-struct _packet_data {
-	guint netlib_unread_bytes;
-	guint num_cols;
-	struct _tds_col *columns[MAX_COLUMNS];
-	guint tds_bytes_left;
-	guint8 tds_remainder[REM_BUF_SIZE];
-};
-
-/*
- * and finally a place for netlib packets within tcp packets
- */
 struct _netlib_data {
-	guint8 packet_type;
-	guint8 packet_last;
-	guint16 packet_size;
-	guint netlib_unread_bytes;
 	guint num_cols;
 	struct _tds_col *columns[MAX_COLUMNS];
-	guint tds_bytes_left;
-	guint8 tds_remainder[REM_BUF_SIZE];
 };
 
 /* all the standard memory management stuff */
-#define netlib_win_length (sizeof(struct _conv_data))
-#define netlib_packet_length (sizeof(struct _packet_data))
 #define tds_column_length (sizeof(struct _tds_col))
-
-#define netlib_win_init_count 4
-#define netlib_packet_init_count 10
 #define tds_column_init_count 10
 
-static GMemChunk *netlib_window = NULL;
-static GMemChunk *netlib_pdata = NULL;
 static GMemChunk *tds_column = NULL;
 
-static void netlib_reinit(void);
-
 /* support routines */
-static void dissect_tds_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint length)
+static void
+dissect_tds_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    guint offset, guint length)
 {
-	tvbuff_t *ntlmssp_tvb = NULL;
+	tvbuff_t *ntlmssp_tvb;
 
 	ntlmssp_tvb = tvb_new_subset(tvb, offset, length, length);
-
-	add_new_data_source(pinfo, ntlmssp_tvb, "NTLMSSP Data");
 	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
 }
 
-static void dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
+static void
+dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset, i, offset2, len;
 	guint16 bc;
@@ -447,41 +432,44 @@ static void dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_item *header_hdr;
 	proto_tree *header_tree;
 
-	tvbuff_t *tds7_tvb;
+	gint length_remaining;
 
-	length -= 8;
-
-	tds7_tvb = tvb_new_subset(tvb, 8, length, length);
-	offset = 36;
+	offset = 8+36;
 
 	/* create display subtree for the protocol */
-	login_hdr = proto_tree_add_text(tree, tds7_tvb, 0, length,
-		"TDS7 Login Packet");
+	login_hdr = proto_tree_add_text(tree, tvb, 8, -1, "TDS7 Login Packet");
 	login_tree = proto_item_add_subtree(login_hdr, ett_tds7_login);
 
-	header_hdr = proto_tree_add_text(login_tree, tds7_tvb, offset, 50, "Login Packet Header");
+	header_hdr = proto_tree_add_text(login_tree, tvb, offset, 50,
+	    "Login Packet Header");
 	header_tree = proto_item_add_subtree(header_hdr, ett_tds7_hdr);
 	for (i = 0; i < 9; i++) {
-		offset2 = tvb_get_letohs(tds7_tvb, offset + i*4);
-		len = tvb_get_letohs(tds7_tvb, offset + i*4 + 2);
-		proto_tree_add_text(header_tree, tds7_tvb, offset + i*4, 2,
-			"%s offset: %d",val_to_str(i,login_field_names,"Unknown"),
-			offset2);
-		proto_tree_add_text(header_tree, tds7_tvb, offset + i*4 + 2, 2,
-			"%s length: %d",val_to_str(i,login_field_names,"Unknown"),
+		offset2 = tvb_get_letohs(tvb, offset + i*4);
+		len = tvb_get_letohs(tvb, offset + i*4 + 2);
+		proto_tree_add_text(header_tree, tvb, offset + i*4, 2,
+		    "%s offset: %u",
+		    val_to_str(i, login_field_names, "Unknown"),
+		    offset2);
+		proto_tree_add_text(header_tree, tvb, offset + i*4 + 2, 2,
+			"%s length: %u",
+			val_to_str(i, login_field_names, "Unknown"),
 			len);
-		if (len > 0) {
+		if (len != 0) {
 			if (is_unicode == TRUE)
 				len *= 2;
-			val = get_unicode_or_ascii_string(tds7_tvb, &offset2,
+			val = get_unicode_or_ascii_string(tvb, &offset2,
 				is_unicode, &len, TRUE, TRUE, &bc);
-			proto_tree_add_text(login_tree, tds7_tvb, offset2, len,
-				"%s: %s", val_to_str(i, login_field_names, "Unknown"), val);
+			proto_tree_add_text(login_tree, tvb, offset2, len,
+				"%s: %s",
+				val_to_str(i, login_field_names, "Unknown"),
+				val);
 		}
 	}
 
-	if (offset2 + len < length) {
-		dissect_tds_ntlmssp(tds7_tvb, pinfo, login_tree, offset2 + len, length - offset2);
+	length_remaining = tvb_reported_length_remaining(tvb, offset2 + len);
+	if (length_remaining > 0) {
+		dissect_tds_ntlmssp(tvb, pinfo, login_tree, offset2 + len,
+		    length_remaining);
 	}
 }
 
@@ -532,6 +520,7 @@ static int tds_get_token_size(int token)
                return 0;
      }
 }
+
 # if 0
 /*
  * data_to_string should take column data and turn it into something we can
@@ -563,58 +552,6 @@ static char *data_to_string(void *data, guint col_type, guint col_size)
    return result;
 }
 #endif
-/*
- * This function computes the number of bytes remaining from a PDU started in
- * the previous netlib packet.
- * XXX - needs some more PDU types added.
- */
-static int
-get_skip_count(tvbuff_t *tvb, guint offset, struct _netlib_data *nl_data, guint last_byte)
-{
-guint8 token;
-guint i;
-int csize;
-unsigned int cur;
-const guint8 *buf;
-int switched = 0;
-
-     /* none leftover? none to skip */
-     if (!nl_data->tds_bytes_left)
-          return 0;
-
-     token = nl_data->tds_remainder[0];
-     switch (token) {
-          case TDS_ROW_TOKEN:
-               buf = nl_data->tds_remainder;
-               cur = 1;
-               for (i = 0; i < nl_data->num_cols; i++) {
-                    if (! is_fixed_coltype(nl_data->columns[i]->ctype)) {
-                         if (!switched && cur >= nl_data->tds_bytes_left) {
-                              switched = 1;
-                              cur = cur - nl_data->tds_bytes_left;
-                              buf = tvb_get_ptr(tvb, offset, tvb_length(tvb)-offset);
-                         }
-                         csize = buf[cur];
-                         cur ++;
-                    } else {
-                         csize = get_size_by_coltype(nl_data->columns[i]->ctype);
-                    }
-/* printf("2value %d %d %d %s\n", i, cur, csize, data_to_string(&buf[cur], nl_data->columns[i]->ctype, csize));  */
-                    cur += csize;
-                    if (switched && cur > last_byte - offset)
-			return -1;
-               }
-               return cur;
-               break;
-          default:
-#ifdef DEBUG
-               printf("unhandled case for token %d\n",token);
-#else
-		;
-#endif
-     }
-     return 0;
-}
 
 /*
  * Since rows are special PDUs in that they are not fixed and lack a size field,
@@ -622,44 +559,40 @@ int switched = 0;
  * PDU. This function does just that.
  */
 static size_t
-tds_get_row_size(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset, guint last_byte)
+tds_get_row_size(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset)
 {
-guint cur, i, csize;
+	guint cur, i, csize;
 
-     cur = offset;
-     for (i=0;i<nl_data->num_cols;i++) {
-          if (! is_fixed_coltype(nl_data->columns[i]->ctype)) {
-               if (cur>=last_byte) return 0;
-               csize = tvb_get_guint8(tvb,cur);
-               cur ++;
-          } else {
-               csize = get_size_by_coltype(nl_data->columns[i]->ctype);
-          }
-          cur += csize;
-     }
-     if (cur>last_byte) return 0;
+	cur = offset;
+	for (i = 0; i < nl_data->num_cols; i++) {
+		if (!is_fixed_coltype(nl_data->columns[i]->ctype)) {
+			csize = tvb_get_guint8(tvb, cur);
+			cur++;
+		} else
+			csize = get_size_by_coltype(nl_data->columns[i]->ctype);
+		cur += csize;
+	}
 
-     return (cur - offset + 1);
+	return (cur - offset + 1);
 }
+
 /*
- * read the results PDU and store the relevent information in the _netlib_data
- * structure for later use (see tds_get_row_size)
- * XXX - assumes that result token will be entirely contained within packet
- * boundary
+ * Read the results token and store the relevant information in the
+ * _netlib_data structure for later use (see tds_get_row_size).
  */
 static gboolean
 read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset)
 {
-guint len, name_len;
-guint cur;
-guint i;
+	guint len, name_len;
+	guint cur;
+	guint i;
 
-len = tvb_get_letohs(tvb, offset+1);
-cur = offset + 3;
+	len = tvb_get_letohs(tvb, offset+1);
+	cur = offset + 3;
 
 	/*
-	 * This would be the logical place to check for little/big endianess if we
-	 * didn't see the login packet.
+	 * This would be the logical place to check for little/big endianess
+	 * if we didn't see the login packet.
 	 */
 	nl_data->num_cols = tvb_get_letohs(tvb, cur);
 	if (nl_data->num_cols > MAX_COLUMNS) {
@@ -675,7 +608,7 @@ cur = offset + 3;
 		cur ++;
 		cur += name_len;
 
-		cur ++; /* unknown */
+		cur++; /* unknown */
 
 		nl_data->columns[i]->utype = tvb_get_letohs(tvb, cur);
 		cur += 2;
@@ -683,147 +616,17 @@ cur = offset + 3;
 		cur += 2; /* unknown */
 
 		nl_data->columns[i]->ctype = tvb_get_guint8(tvb,cur);
-		cur ++;
+		cur++;
 
 		if (!is_fixed_coltype(nl_data->columns[i]->ctype)) {
 			nl_data->columns[i]->csize = tvb_get_guint8(tvb,cur);
 			cur ++;
 		} else {
-			nl_data->columns[i]->csize = get_size_by_coltype(nl_data->columns[i]->ctype);
+			nl_data->columns[i]->csize =
+			    get_size_by_coltype(nl_data->columns[i]->ctype);
 		}
-		cur ++; /* unknown */
+		cur++; /* unknown */
 	}
-	return TRUE;
-}
-/*
- * This function copies information about data crossing the netlib packet
- * boundary from _netlib_data to _conv_data it is called at the end of packet
- * dissection during the first decoding.
- */
-void
-store_conv_data(packet_info *pinfo, struct _netlib_data *nl_data)
-{
-	conversation_t *conv;
-	struct _conv_data *conv_data;
-
-	/* check for an existing conversation */
-	conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
-		pinfo->srcport, pinfo->destport, 0);
-
-	conv_data = conversation_get_proto_data(conv,proto_tds);
-	/* first packet seen ? */
-	if (!conv_data) {
-		conv_data = g_mem_chunk_alloc(netlib_window);
-	}
-	conv_data->netlib_unread_bytes = nl_data->netlib_unread_bytes;
-        conv_data->num_cols = nl_data->num_cols;
-        memcpy(conv_data->columns, nl_data->columns, sizeof(struct _tds_col *) * MAX_COLUMNS);
-        conv_data->tds_bytes_left = nl_data->tds_bytes_left;
-        memcpy(conv_data->tds_remainder, nl_data->tds_remainder, REM_BUF_SIZE);
-
-	conversation_add_proto_data(conv,proto_tds, conv_data);
-}
-/*
- * This function copies information about data crossing the netlib packet
- * boundary from _netlib_data to _pkt_data it is called after load_nelib_data
- * during packet dissection when the packet has not previously been seen.
- */
-void
-store_pkt_data(packet_info *pinfo, struct _netlib_data *nl_data)
-{
-	struct _packet_data *p_data;
-
-	p_data = p_get_proto_data(pinfo->fd, proto_tds);
-
-	/* only store it the first time through */
-	if (p_data) {
-		return;
-	}
-
-	p_data = g_mem_chunk_alloc(netlib_pdata);
-
-	/* copy the data */
-	p_data->netlib_unread_bytes = nl_data->netlib_unread_bytes;
-        p_data->num_cols = nl_data->num_cols;
-        memcpy(p_data->columns, nl_data->columns, sizeof(struct _tds_col *) * MAX_COLUMNS);
-        p_data->tds_bytes_left = nl_data->tds_bytes_left;
-        memcpy(p_data->tds_remainder, nl_data->tds_remainder, REM_BUF_SIZE);
-
-	/* stash it */
-	p_add_proto_data( pinfo->fd, proto_tds, (void*)p_data);
-}
-/* load conversation data into packet_data */
-void
-load_packet_data(packet_info *pinfo, struct _packet_data *pkt_data)
-{
-	conversation_t *conv;
-	struct _conv_data *conv_data;
-
-	/* check for an existing conversation */
-	conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
-		pinfo->srcport, pinfo->destport, 0);
-
-	conv_data = conversation_get_proto_data(conv,proto_tds);
-	/* first packet seen ? */
-	if (!conv_data) {
-		/* just zero it */
-		memset(pkt_data, 0, sizeof(struct _packet_data));
-		return;
-	}
-	pkt_data->netlib_unread_bytes = conv_data->netlib_unread_bytes;
-        pkt_data->num_cols = conv_data->num_cols;
-        memcpy(pkt_data->columns, conv_data->columns, sizeof(struct _tds_col *) * MAX_COLUMNS);
-        pkt_data->tds_bytes_left = conv_data->tds_bytes_left;
-        memcpy(pkt_data->tds_remainder, conv_data->tds_remainder, REM_BUF_SIZE);
-
-}
-/* load packet data into netlib_data */
-void
-load_netlib_data(packet_info *pinfo, struct _netlib_data *nl_data)
-{
-	struct _packet_data *pkt_data;
-
-	pkt_data = p_get_proto_data(pinfo->fd, proto_tds);
-	/* wtf? */
-	if (!pkt_data) {
-		return;
-	}
-	nl_data->netlib_unread_bytes = pkt_data->netlib_unread_bytes;
-        nl_data->num_cols = pkt_data->num_cols;
-        memcpy(nl_data->columns, pkt_data->columns, sizeof(struct _tds_col *) * MAX_COLUMNS);
-        nl_data->tds_bytes_left = pkt_data->tds_bytes_left;
-        memcpy(nl_data->tds_remainder, pkt_data->tds_remainder, REM_BUF_SIZE);
-}
-
-
-/*
- * read the eight byte netlib header, write the interesting parts into
- * netlib_data, and return false if this is illegal (for heuristics)
- */
-static gboolean
-netlib_read_header(tvbuff_t *tvb, guint offset, struct _netlib_data *nl_data)
-{
-	nl_data->packet_type = tvb_get_guint8( tvb, offset);
-	nl_data->packet_last = tvb_get_guint8( tvb, offset+1);
-	nl_data->packet_size = tvb_get_ntohs( tvb, offset+2);
-
-	/* do validity checks on header fields */
-
-	if (!is_valid_tds_type(nl_data->packet_type)) {
-		return FALSE;
-	}
-	/* Valid values are 0 and 1 */
-	if (nl_data->packet_last > 1) {
-		return FALSE;
-	}
-	if (nl_data->packet_size == 0) {
-		return FALSE;
-	}
-	/*
-	if (tvb_length(tvb) != nl_data->packet_size) {
-		return FALSE;
-	}
-	*/
 	return TRUE;
 }
 
@@ -833,7 +636,7 @@ netlib_read_header(tvbuff_t *tvb, guint offset, struct _netlib_data *nl_data)
  * weak heuristics of the netlib check.
  */
 static gboolean
-netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, struct _netlib_data *nl_data)
+netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, guint8 type)
 {
 	guint tds_major, bytes_avail;
 
@@ -842,7 +645,7 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, struct _
 	/*
 	 * we have two login packet styles, one for TDS 4.2 and 5.0
 	 */
-	if (nl_data->packet_type==TDS_LOGIN_PKT) {
+	if (type==TDS_LOGIN_PKT) {
 		/* Use major version number to validate TDS 4/5 login
 		 * packet */
 
@@ -856,13 +659,13 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, struct _
 	/*
 	 * and one added by Microsoft in SQL Server 7
 	 */
-	} else if (nl_data->packet_type==TDS_LOGIN7_PKT) {
+	} else if (type==TDS_LOGIN7_PKT) {
 		if (bytes_avail < 16) return FALSE;
 		tds_major = tvb_get_guint8(tvb, 15);
 		if (tds_major != 0x70 && tds_major != 0x80) {
 			return FALSE;
 		}
-	} else if (nl_data->packet_type==TDS_QUERY5_PKT) {
+	} else if (type==TDS_QUERY5_PKT) {
 		if (bytes_avail < 9) return FALSE;
 		/* if this is a TDS 5.0 query check the token */
 		if (tvb_get_guint8(tvb, 8) != TDS_LANG_TOKEN) {
@@ -874,42 +677,41 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, struct _
 		/* otherwise, we can not ensure this is netlib */
 		/* beyond a reasonable doubt.                  */
           		return FALSE;
-	} else {
 	}
 	return TRUE;
 }
 
-static gboolean
-dissect_tds_env_chg(tvbuff_t *tvb, struct _netlib_data *nl_data _U_, guint offset, guint last_byte _U_, proto_tree *tree)
+static void
+dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
+    proto_tree *tree)
 {
-guint8 env_type;
-guint packet_len;
-guint old_len, new_len, old_len_offset;
-const char *new_val = NULL, *old_val = NULL;
-guint32 string_offset;
-guint16 bc;
-gboolean is_unicode = FALSE;
-
-	/* FIXME: if we have to take a negative offset, isn't that
-	   defeating the purpose? */
-	packet_len = tvb_get_letohs(tvb, offset - 2);
+	guint8 env_type;
+	guint old_len, new_len, old_len_offset;
+	const char *new_val = NULL, *old_val = NULL;
+	guint32 string_offset;
+	guint16 bc;
+	gboolean is_unicode = FALSE;
 
 	env_type = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1, "Type: %d (%s)", env_type,
+	proto_tree_add_text(tree, tvb, offset, 1, "Type: %u (%s)", env_type,
 		val_to_str(env_type, env_chg_names, "Unknown"));
 
 	new_len = tvb_get_guint8(tvb, offset+1);
 	old_len_offset = offset + new_len + 2;
 	old_len = tvb_get_guint8(tvb, old_len_offset);
 
-	/* If our lengths don't add up to the packet length, it must be UCS2. */
-	if (old_len + new_len + 3 != packet_len) {
+	/*
+	 * If our lengths plus the lengths of the type and the lengths
+	 * don't add up to the token size, it must be UCS2.
+	 */
+	if (old_len + new_len + 3 != token_sz) {
 		is_unicode = TRUE;
 		old_len_offset = offset + (new_len * 2) + 2;
 		old_len = tvb_get_guint8(tvb, old_len_offset);
 	}
 
-	proto_tree_add_text(tree, tvb, offset + 1, 1, "New Value Length: %d", new_len);
+	proto_tree_add_text(tree, tvb, offset + 1, 1, "New Value Length: %u",
+	    new_len);
 	if (new_len) {
 		if (is_unicode == TRUE) {
 			new_len *= 2;
@@ -919,10 +721,12 @@ gboolean is_unicode = FALSE;
 		                            is_unicode, &new_len,
 		                            TRUE, TRUE, &bc);
 
-		proto_tree_add_text(tree, tvb, string_offset, new_len, "New Value: %s", new_val);
+		proto_tree_add_text(tree, tvb, string_offset, new_len,
+		    "New Value: %s", new_val);
 	}
 
-	proto_tree_add_text(tree, tvb, old_len_offset, 1, "Old Value Length: %d", old_len);
+	proto_tree_add_text(tree, tvb, old_len_offset, 1, "Old Value Length: %u",
+	    old_len);
 	if (old_len) {
 		if (is_unicode == TRUE) {
 			old_len *= 2;
@@ -932,299 +736,469 @@ gboolean is_unicode = FALSE;
 		                            is_unicode, &old_len,
 		                            TRUE, TRUE, &bc);
 
-		proto_tree_add_text(tree, tvb, string_offset, old_len, "Old Value: %s", old_val);
+		proto_tree_add_text(tree, tvb, string_offset, old_len,
+		    "Old Value: %s", old_val);
 	 }
-
-	 return TRUE;
 }
 
-/* note that dissect_tds is called only for TDS_RESP_PKT netlib packets */
 static void
-dissect_tds(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, struct _netlib_data *nl_data, guint offset)
+dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-proto_item *ti;
-proto_item *tds_hdr;
-proto_tree *tds_tree;
-guint last_byte, end_of_pkt;
-guint pos, token_sz = 0;
-guint8 token;
-gint skip_count;
-proto_tree *pdu_tree;
+	int offset = 0;
+	proto_item *token_item;
+	proto_tree *token_tree;
+	guint pos, token_sz = 0;
+	guint8 token;
+	struct _netlib_data nl_data;
+	gint length_remaining;
+
+	memset(&nl_data, '\0', sizeof nl_data);
 
 	/*
-	 * if we have unprocessed bytes from the previous dissection then we deal
-	 * those first.
+	 * Until we reach the end of the packet, read tokens.
 	 */
-	if (nl_data->netlib_unread_bytes) {
-		end_of_pkt = nl_data->netlib_unread_bytes;
-	} else {
-		/*
-		 * otherwise the end of the packet is where we are now plus the
-		 * packet_size minus the 8 header bytes.
-		 */
-		end_of_pkt = offset + nl_data->packet_size - 8;
-	}
-
-	/*
-	 * the last byte to dissect is the end of the netlib packet or the end of
-	 * the tcp packet (tvb buffer) which ever comes first
-	 */
-	last_byte = tvb_length(tvb) > end_of_pkt ? end_of_pkt : tvb_length(tvb);
-
-	/* create an item to make a TDS tree out of */
-	tds_hdr = proto_tree_add_text(tree, tvb, offset, last_byte - offset,
-		"TDS Data");
-	tds_tree = proto_item_add_subtree(tds_hdr, ett_tds);
-
-	/* is there the second half of a PDU here ? */
-	if (nl_data->tds_bytes_left > 0) {
-		/* XXX - should be calling dissection here */
-		skip_count = get_skip_count(tvb, offset, nl_data, last_byte);
-
-		/*
-		 * we started with left overs and the data continues to the end of
-		 * this packet.  Just add it on, and skip to the next packet
-		 */
-		if (skip_count == -1) {
-			token = nl_data->tds_remainder[0];
-			token_sz = last_byte - offset;
-			ti = proto_tree_add_text(tds_tree, tvb, offset, token_sz,
-                    		"Token 0x%02x %s (continued)",  token, val_to_str(token, token_names,
-                		"Unknown Token Type"));
-			tvb_memcpy( tvb, &nl_data->tds_remainder[nl_data->tds_bytes_left],
-				offset, token_sz);
-			nl_data->tds_bytes_left += token_sz;
-			nl_data->netlib_unread_bytes = 0;
-			return;
-		}
-
-		/* show something in the tree for this data */
-		token = nl_data->tds_remainder[0];
-		ti = proto_tree_add_text(tds_tree, tvb, offset, skip_count,
-                   	"Token 0x%02x %s (continued)",  token, val_to_str(token, token_names,
-                	"Unknown Token Type"));
-		offset += skip_count;
-	}
-
-	/* Ok, all done with the fragments, start clean */
-	nl_data->tds_bytes_left = 0;
-	nl_data->netlib_unread_bytes = 0;
-
-	/* until we reach the end of the netlib packet or this buffer, read PDUs */
 	pos = offset;
-	while (pos < last_byte) {
-		/* our PDU token */
+	while (tvb_reported_length_remaining(tvb, pos) > 0) {
+		/* our token */
 		token = tvb_get_guint8(tvb, pos);
 
 		if (tds_is_fixed_token(token)) {
 			token_sz = tds_get_token_size(token) + 1;
-		/* rows are special, they have no size field and aren't fixed length */
 		} else if (token == TDS_ROW_TOKEN) {
+			/*
+			 * Rows are special; they have no size field and
+			 * aren't fixed length.
+			 */
+			token_sz = tds_get_row_size(tvb, &nl_data, pos + 1);
+		} else
+			token_sz = tvb_get_letohs(tvb, pos + 1) + 3;
 
-			token_sz = tds_get_row_size(tvb, nl_data, pos + 1, last_byte);
+		length_remaining = tvb_ensure_length_remaining(tvb, pos);
+		if (token_sz > (guint)length_remaining)
+			token_sz = (guint)length_remaining;
 
-			if (! token_sz) {
-				/*
-				 * partial row, set size to end of packet and stash
-				 * the top half for the next packet dissection
-				 */
-				token_sz = last_byte - pos;
-				nl_data->tds_bytes_left = token_sz;
-				tvb_memcpy(tvb, nl_data->tds_remainder, pos, token_sz);
-			}
-
-		} else {
-			token_sz = tvb_get_letohs(tvb, pos+1) + 3;
-		}
-
-		ti = proto_tree_add_text(tds_tree, tvb, pos, token_sz,
-                    "Token 0x%02x %s",  token, val_to_str(token, token_names,
-                "Unknown Token Type"));
-		pdu_tree = proto_item_add_subtree(ti, ett_tds_pdu);
-
-		/* if it's a variable token do it here instead of replicating this
-		 * for each subdissector */
-		if (! tds_is_fixed_token(token) && token != TDS_ROW_TOKEN) {
-			proto_tree_add_text(pdu_tree, tvb, pos+1, 2,
-			"Length: %d", tvb_get_letohs(tvb, pos+1));
-		}
-
-
-		/* XXX - call subdissector here */
-		switch (token) {
-			/* if it's a result token we need to stash the column info */
-			case TDS_RESULT_TOKEN:
-				read_results_tds5(tvb, nl_data, pos);
-			break;
-			case TDS_ENV_CHG_TOKEN:
-				dissect_tds_env_chg(tvb, nl_data, pos + 3, last_byte, pdu_tree);
-			break;
-			case TDS_AUTH_TOKEN:
-				dissect_tds_ntlmssp(tvb, pinfo, pdu_tree, pos + 3, last_byte - pos - 3);
-			break;
-		}
-
-		/* and step to the end of the PDU, rinse, lather, repeat */
-		pos += token_sz;
-
-	}
-
-}
-static void
-dissect_netlib_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, struct _netlib_data *nl_data, guint offset)
-{
-	proto_item *netlib_hdr;
-	proto_tree *netlib_tree;
-	guint bytes_remaining, bytes_avail;
-
-	bytes_remaining = tvb_length(tvb) - offset;
-	bytes_avail = bytes_remaining > nl_data->packet_size ?
-		nl_data->packet_size : bytes_remaining;
-
-
-	/* In the interest of speed, if "tree" is NULL, don't do any work not
-	 * necessary to generate protocol tree items. */
-	if (tree) {
-
-		/* create display subtree for the protocol */
-		netlib_hdr = proto_tree_add_text(tree, tvb, offset, bytes_avail,
-                    "Netlib Header");
-
-		netlib_tree = proto_item_add_subtree(netlib_hdr, ett_netlib);
-		proto_tree_add_uint(netlib_tree, hf_netlib_type, tvb, offset, 1,
-			nl_data->packet_type);
-		proto_tree_add_uint(netlib_tree, hf_netlib_status, tvb, offset+1, 1,
-			nl_data->packet_last);
-		proto_tree_add_uint(netlib_tree, hf_netlib_size, tvb, offset+2, 2,
-			nl_data->packet_size);
-		proto_tree_add_item(netlib_tree, hf_netlib_channel, tvb, offset+4, 2,
-			FALSE);
-		proto_tree_add_item(netlib_tree, hf_netlib_packet_number, tvb, offset+6, 1,
-			FALSE);
-		proto_tree_add_item(netlib_tree, hf_netlib_window, tvb, offset+7, 1,
-			FALSE);
-	}
-}
-
-/* Code to actually dissect the packets */
-static gboolean
-dissect_netlib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-
-/* Set up structures needed to add the protocol subtree and manage it */
-	conversation_t *conv;
-	struct _netlib_data nl_data;
-	struct _packet_data *p_data;
-	guint offset = 0;
-	guint bytes_remaining;
-
-	memset(&nl_data, '\0', sizeof nl_data);
-
-	p_data = p_get_proto_data(pinfo->fd, proto_tds);
-
-        /* check for an existing conversation */
-        conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
-                pinfo->srcport, pinfo->destport, 0);
-
-	/*
-	 * we don't know if this is our packet yet, so do nothing if we don't have
-	 * a conversation.
-	 */
-	if (conv) {
-
-		/* only copy from conv_data to p_data if we've never seen this before */
-	        if (!p_data) {
-       		       	p_data = g_mem_chunk_alloc(netlib_pdata);
-			load_packet_data(pinfo, p_data);
-       			p_add_proto_data( pinfo->fd, proto_tds, (void*)p_data);
-		}
-		offset = p_data->netlib_unread_bytes;
-	}
-
-#ifdef DEBUG
-		printf("offset = %d\n", offset);
-#endif
-
-	load_netlib_data(pinfo, &nl_data);
-
-	/*
-	 * if offset is > 0 then we have undecoded data at the front of the
-	 * packet.  Call the TDS dissector on it.
- 	 */
-	if (nl_data.packet_type == TDS_RESP_PKT && offset > 0) {
-		dissect_tds(tvb, pinfo, tree, &nl_data, 0);
-	}
-
-	bytes_remaining = tvb_length(tvb) - offset;
-
-	while (bytes_remaining > 0) {
+		token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
+                    "Token 0x%02x %s", token,
+                    val_to_str(token, token_names, "Unknown Token Type"));
+		token_tree = proto_item_add_subtree(token_item, ett_tds_token);
 
 		/*
-		 * if packet is less than 8 characters, its not a
-		 * netlib packet
-		 * XXX - This is not entirely correct...fix.
+		 * If it's a variable token, put the length field in here
+		 * instead of replicating this for each token subdissector.
 		 */
-		if (bytes_remaining < 8) {
-			return FALSE;
+		if (!tds_is_fixed_token(token) && token != TDS_ROW_TOKEN) {
+			proto_tree_add_text(token_tree, tvb, pos+1, 2,
+			    "Length: %u", tvb_get_letohs(tvb, pos+1));
 		}
 
-		/* read header fields and check their validity */
-		if (!netlib_read_header(tvb, offset, &nl_data))
-			return FALSE;
+		switch (token) {
 
-		/* If we don't have a conversation is this a TDS stream? */
-		if (conv == NULL) {
-			if (!netlib_check_login_pkt(tvb, offset, pinfo, &nl_data)) {
-				return FALSE;
-			}
-			/* first packet checks out, create a conversation */
-			conv = conversation_new (&pinfo->src, &pinfo->dst,
-				pinfo->ptype, pinfo->srcport, pinfo->destport,
-				0);
+		case TDS_RESULT_TOKEN:
+			/*
+			 * If it's a result token, we need to stash the
+			 * column info.
+			 */
+			read_results_tds5(tvb, &nl_data, pos);
+			break;
+
+		case TDS_ENV_CHG_TOKEN:
+			dissect_tds_env_chg(tvb, pos + 3, token_sz - 3,
+			    token_tree);
+			break;
+
+		case TDS_AUTH_TOKEN:
+			dissect_tds_ntlmssp(tvb, pinfo, token_tree, pos + 3,
+			    token_sz - 3);
+			break;
 		}
 
-		/* dissect the header */
-		dissect_netlib_hdr(tvb, pinfo, tree, &nl_data, offset);
-
-		/* if this is a response packet decode it further */
-		if (nl_data.packet_type == TDS_RESP_PKT) {
-			dissect_tds(tvb, pinfo, tree, &nl_data, offset+8);
-		} else if (nl_data.packet_type == TDS_LOGIN7_PKT) {
-			dissect_tds7_login(tvb, pinfo, tree, nl_data.packet_size);
-		} else {
-			/* we don't want to track left overs for non-response packets */
-			nl_data.tds_bytes_left = 0;
-		}
-
-		/* now all the checking is done, we are a TDS stream */
-		offset += nl_data.packet_size;
-
-		bytes_remaining = tvb_length(tvb) - offset;
+		/* and step to the end of the token, rinse, lather, repeat */
+		pos += token_sz;
 	}
-	nl_data.netlib_unread_bytes = offset - tvb_length(tvb);
+}
+
+static void
+dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int offset = 0;
+	proto_item *tds_item = NULL;
+	proto_tree *tds_tree = NULL;
+	guint8 type;
+	guint8 status;
+	guint16 size;
+	guint16 channel;
+	gboolean save_fragmented;
+	int len;
+	fragment_data *fd_head;
+	tvbuff_t *next_tvb;
+
+	if (tree) {
+		/* create display subtree for the protocol */
+		tds_item = proto_tree_add_item(tree, proto_tds, tvb, offset, -1,
+		    FALSE);
+
+		tds_tree = proto_item_add_subtree(tds_item, ett_tds);
+	}
+	type = tvb_get_guint8(tvb, offset);
+	if (tree) {
+		proto_tree_add_uint(tds_tree, hf_tds_type, tvb, offset, 1,
+		    type);
+	}
+	status = tvb_get_guint8(tvb, offset + 1);
+	if (tree) {
+		proto_tree_add_uint(tds_tree, hf_tds_status, tvb, offset + 1, 1,
+		    status);
+	}
+	size = tvb_get_ntohs(tvb, offset + 2);
+	if (tree) {
+		proto_tree_add_uint(tds_tree, hf_tds_size, tvb, offset + 2, 2,
+			size);
+	}
+	channel = tvb_get_ntohs(tvb, offset + 4);
+	if (tree) {
+		proto_tree_add_uint(tds_tree, hf_tds_channel, tvb, offset + 4, 2,
+			channel);
+		proto_tree_add_item(tds_tree, hf_tds_packet_number, tvb, offset + 6, 1,
+			FALSE);
+		proto_tree_add_item(tds_tree, hf_tds_window, tvb, offset + 7, 1,
+			FALSE);
+	}
+	offset += 8;	/* skip Netlib header */
 
 	/*
-	 * copy carry over data to the conversation buffer, to retrieve at beginning
-         * of next packet
+	 * Deal with fragmentation.
 	 */
-	store_conv_data(pinfo, &nl_data);
+	save_fragmented = pinfo->fragmented;
+	if (tds_defragment) {
+		len = tvb_length_remaining(tvb, offset);
+		fd_head = fragment_add_seq_next(tvb, offset, pinfo, channel,
+		    tds_fragment_table, tds_reassembled_table,
+		    len, status == 0x00);
+		if (fd_head != NULL) {
+			if (fd_head->next != NULL) {
+				next_tvb = tvb_new_real_data(fd_head->data,
+				    fd_head->len, fd_head->len);
+				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+				add_new_data_source(pinfo, next_tvb,
+				    "Reassembled TDS");
+				/* Show all fragments. */
+				if (tree) {
+					show_fragment_seq_tree(fd_head,
+					    &tds_frag_items, tds_tree, pinfo,
+					    next_tvb);
+				}
+			} else {
+				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			}
+		} else {
+			next_tvb = NULL;
+		}
+	} else {
+		/*
+		 * If this isn't the last buffer,just show it as a fragment.
+		 * (XXX - it'd be nice to dissect it if it's the first
+		 * buffer, but we'd need to do reassembly in order to
+		 * discover that.)
+		 *
+		 * If this is the last buffer, dissect it.
+		 * (XXX - it'd be nice to show it as a fragment if it's part
+		 * of a fragmented message, but we'd need to do reassembly
+		 * in order to discover that.)
+		 */
+		if (status == 0x00)
+			next_tvb = NULL;
+		else {
+			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		}
+	}
+	if (next_tvb != NULL) {
+		switch (type) {
 
-/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDS");
+		case TDS_RESP_PKT:
+			dissect_tds_resp(next_tvb, pinfo, tds_tree);
+			break;
 
+		case TDS_LOGIN7_PKT:
+			dissect_tds7_login(next_tvb, pinfo, tds_tree);
+			break;
 
-	/* set the packet description based on its TDS packet type */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-                        val_to_str(nl_data.packet_type, packet_type_names,
-				"Unknown Packet Type: %u"));
+		default:
+			proto_tree_add_text(tds_tree, next_tvb, 0, -1,
+			    "TDS Packet");
+			break;
+		}
+	} else {
+		next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+		call_dissector(data_handle, next_tvb, pinfo, tds_tree);
+	}
+}
+
+static void
+dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	volatile gboolean first_time = TRUE;
+	volatile int offset = 0;
+	guint length_remaining;
+	guint8 type;
+	guint16 plen;
+	guint length;
+	tvbuff_t *next_tvb;
+	proto_item *tds_item = NULL;
+	proto_tree *tds_tree = NULL;
+
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		length_remaining = tvb_ensure_length_remaining(tvb, offset);
+
+		/*
+		 * Can we do reassembly?
+		 */
+		if (tds_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the fixed-length part of the PDU
+			 * split across segment boundaries?
+			 */
+			if (length_remaining < 8) {
+				/*
+				 * Yes.  Tell the TCP dissector where the
+				 * data for this message starts in the data
+				 * it handed us, and how many more bytes we
+				 * need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len = 8 - length_remaining;
+				return;
+			}
+		}
+
+		type = tvb_get_guint8(tvb, offset);
+
+		/*
+		 * Get the length of the PDU.
+		 */
+		plen = tvb_get_ntohs(tvb, offset + 2);
+		if (plen < 8) {
+			/*
+			 * The length is less than the header length.
+			 * Put in the type, status, and length, and
+			 * report the length as bogus.
+			 */
+			if (tree) {
+				/* create display subtree for the protocol */
+				tds_item = proto_tree_add_item(tree, proto_tds,
+				    tvb, offset, -1, FALSE);
+
+				tds_tree = proto_item_add_subtree(tds_item,
+				    ett_tds);
+				proto_tree_add_uint(tds_tree, hf_tds_type, tvb,
+				    offset, 1, type);
+				proto_tree_add_item(tds_tree, hf_tds_status,
+				    tvb, offset + 1, 1, FALSE);
+				proto_tree_add_uint_format(tds_tree,
+				    hf_tds_size, tvb, offset + 2, 2, plen,
+				    "Size: %u (bogus, should be >= 8)", plen);
+			}
+
+			/*
+			 * Give up - we can't dissect any more of this
+			 * data.
+			 */
+			break;
+		}
+
+		/*
+		 * Can we do reassembly?
+		 */
+		if (tds_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the PDU split across segment boundaries?
+			 */
+			if (length_remaining < plen) {
+				/*
+				 * Yes.  Tell the TCP dissector where the
+				 * data for this message starts in the data
+				 * it handed us, and how many more bytes we
+				 * need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len = plen - length_remaining;
+			}
+		}
+
+		if (first_time) {
+			if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDS");
+
+			/*
+			 * Set the packet description based on its TDS packet
+			 * type.
+			 */
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_str(pinfo->cinfo, COL_INFO,
+				    val_to_str(type, packet_type_names,
+				      "Unknown Packet Type: %u"));
+			}
+			first_time = FALSE;
+		}
+
+		/*
+		 * Construct a tvbuff containing the amount of the payload
+		 * we have available.  Make its reported length the amount
+		 * of data in the PDU.
+		 *
+		 * XXX - if reassembly isn't enabled. the subdissector will
+		 * throw a BoundsError exception, rather than a
+		 * ReportedBoundsError exception.  We really want a tvbuff
+		 * where the length is "length", the reported length is
+		 * "plen", and the "if the snapshot length were infinite"
+		 * length is the minimum of the reported length of the tvbuff
+		 * handed to us and "plen", with a new type of exception
+		 * thrown if the offset is within the reported length but
+		 * beyond that third length, with that exception getting the
+		 * "Unreassembled Packet" error.
+		 */
+		length = length_remaining;
+		if (length > plen)
+			length = plen;
+		next_tvb = tvb_new_subset(tvb, offset, length, plen);
+
+		/*
+		 * Dissect the Netlib buffer.
+		 *
+		 * Catch the ReportedBoundsError exception; if this
+		 * particular Netlib buffer happens to get a
+		 * ReportedBoundsError exception, that doesn't mean
+		 * that we should stop dissecting PDUs within this frame
+		 * or chunk of reassembled data.
+		 *
+		 * If it gets a BoundsError, we can stop, as there's nothing
+		 * more to see, so we just re-throw it.
+		 */
+		TRY {
+			dissect_netlib_buffer(next_tvb, pinfo, tree);
+		}
+		CATCH(BoundsError) {
+			RETHROW;
+		}
+		CATCH(ReportedBoundsError) {
+			show_reported_bounds_error(tvb, pinfo, tree);
+		}
+		ENDTRY;
+
+		/*
+		 * Step to the next Netlib buffer.
+		 */
+		offset += plen;
+	}
+}
+
+static gboolean
+dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int offset = 0;
+	guint8 type;
+	guint8 status;
+	guint16 plen;
+	conversation_t *conv;
+
+	/*
+	 * If we don't have even enough data for a Netlib header,
+	 * just say it's not TDS.
+	 */
+	if (!tvb_bytes_exist(tvb, offset, 8))
+		return FALSE;
+
+	/*
+	 * Quickly scan all the data we have in order to see if
+	 * everything in it looks like Netlib traffic.
+	 */
+	while (tvb_bytes_exist(tvb, offset, 1)) {
+		/*
+		 * Check the type field.
+		 */
+		type = tvb_get_guint8(tvb, offset);
+		if (!is_valid_tds_type(type))
+			return FALSE;
+
+		/*
+		 * Check the status field, if it's present.
+		 */
+		if (!tvb_bytes_exist(tvb, offset + 1, 1))
+			break;
+		status = tvb_get_guint8(tvb, offset + 1);
+		if (!is_valid_tds_status(status))
+			return FALSE;
+
+		/*
+		 * Get the length of the PDU.
+		 */
+		if (!tvb_bytes_exist(tvb, offset + 2, 2))
+			break;
+		plen = tvb_get_ntohs(tvb, offset + 2);
+		if (plen < 8) {
+			/*
+			 * The length is less than the header length.
+			 * That's bogus.
+			 */
+			return FALSE;
+		}
+
+		/*
+		 * If we're at the beginning of the segment, check the
+		 * payload if it's a login packet.
+		 */
+		if (offset == 0) {
+			if (!netlib_check_login_pkt(tvb, offset, pinfo, type))
+				return FALSE;
+		}
+
+		/*
+		 * Step to the next Netlib buffer.
+		 */
+		offset += plen;
 	}
 
+	/*
+	 * OK, it passes the test; assume the rest of this conversation
+	 * is TDS.
+	 */
+	conv = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+            pinfo->srcport, pinfo->destport, 0);
+        if (conv == NULL) {
+        	/*
+        	 * No conversation exists yet - create one.
+        	 */
+		conv = conversation_new(&pinfo->src, &pinfo->dst,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	conversation_set_dissector(conv, tds_tcp_handle);
 
+	/*
+	 * Now dissect it as TDS.
+	 */
+	dissect_tds_tcp(tvb, pinfo, tree);
 	return TRUE;
 }
 
+static void
+tds_init(void)
+{
+	/*
+	 * Initialize the fragment and reassembly tables.
+	 */
+	fragment_table_init(&tds_fragment_table);
+	reassembled_table_init(&tds_reassembled_table);
+
+	/*
+	 * Reinitialize the chunks of data for remembering row
+	 * information.
+	 */
+        if (tds_column)
+                g_mem_chunk_destroy(tds_column);
+
+        tds_column = g_mem_chunk_new("tds_column", tds_column_length,
+                tds_column_init_count * tds_column_length,
+                G_ALLOC_AND_FREE);
+}
 
 /* Register the protocol with Ethereal */
 
@@ -1236,46 +1210,81 @@ void
 proto_register_netlib(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_netlib_type,
-			{ "Type",           "netlib.type",
+		{ &hf_tds_type,
+			{ "Type",           "tds.type",
 			FT_UINT8, BASE_HEX, VALS(packet_type_names), 0x0,
 			"Packet Type", HFILL }
 		},
-		{ &hf_netlib_status,
-			{ "Status",         "netlib.status",
+		{ &hf_tds_status,
+			{ "Status",         "tds.status",
 			FT_UINT8, BASE_DEC, VALS(status_names), 0x0,
 			"Frame status", HFILL }
 		},
-		{ &hf_netlib_size,
-			{ "Size",           "netlib.size",
+		{ &hf_tds_size,
+			{ "Size",           "tds.size",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Packet Size", HFILL }
 		},
-		{ &hf_netlib_channel,
-			{ "Channel",        "netlib.channel",
+		{ &hf_tds_channel,
+			{ "Channel",        "tds.channel",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Channel Number", HFILL }
 		},
-		{ &hf_netlib_packet_number,
-			{ "Packet Number",  "netlib.packet_number",
+		{ &hf_tds_packet_number,
+			{ "Packet Number",  "tds.packet_number",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Packet Number", HFILL }
 		},
-		{ &hf_netlib_window,
-			{ "Window",         "netlib.window",
+		{ &hf_tds_window,
+			{ "Window",         "tds.window",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Window", HFILL }
 		},
+		{ &hf_tds_fragment_overlap,
+			{ "Segment overlap",	"tds.fragment.overlap",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Fragment overlaps with other fragments", HFILL }
+		},
+		{ &hf_tds_fragment_overlap_conflict,
+			{ "Conflicting data in fragment overlap", "tds.fragment.overlap.conflict",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Overlapping fragments contained conflicting data", HFILL }
+		},
+		{ &hf_tds_fragment_multiple_tails,
+			{ "Multiple tail fragments found", "tds.fragment.multipletails",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Several tails were found when defragmenting the packet", HFILL }
+		},
+		{ &hf_tds_fragment_too_long_fragment,
+			{ "Segment too long",	"tds.fragment.toolongfragment",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Segment contained data past end of packet", HFILL }
+		},
+		{ &hf_tds_fragment_error,
+			{ "Defragmentation error",	"tds.fragment.error",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"Defragmentation error due to illegal fragments", HFILL }
+		},
+		{ &hf_tds_fragment,
+			{ "TDS Fragment",	"tds.fragment",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"TDS Fragment", HFILL }
+		},
+		{ &hf_tds_fragments,
+			{ "TDS Fragments",	"tds.fragments",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"TDS Fragments", HFILL }
+		},
 	};
-
-/* Setup protocol subtree array */
 	static gint *ett[] = {
-		&ett_netlib,
 		&ett_tds,
-		&ett_tds_pdu,
+		&ett_tds_fragments,
+		&ett_tds_fragment,
+		&ett_tds_token,
 		&ett_tds7_login,
 		&ett_tds7_hdr,
 	};
+	module_t *tds_module;
 
 /* Register the protocol name and description */
 	proto_tds = proto_register_protocol("Tabular Data Stream",
@@ -1284,51 +1293,33 @@ proto_register_netlib(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_tds, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_init_routine(&netlib_reinit);
 
-	register_heur_dissector_list("netlib", &netlib_heur_subdissector_list);
+	tds_tcp_handle = create_dissector_handle(dissect_tds_tcp, proto_tds);
+
+	tds_module = prefs_register_protocol(proto_tds, NULL);
+	prefs_register_bool_preference(tds_module, "desegment_buffers",
+	    "Desegment all TDS buffers spanning multiple TCP segments",
+	    "Whether the TDS dissector should desegment all TDS buffers spanning multiple TCP segments",
+	    &tds_desegment);
+	prefs_register_bool_preference(tds_module, "defragment",
+	    "Defragment all TDS messages with multiple buffers",
+	    "Whether the TDS dissector should defragment all messages spanning multiple Netlib buffers",
+	    &tds_defragment);
+
+	register_init_routine(tds_init);
 }
-
-static void netlib_reinit( void){
-
-/* Do the cleanup work when a new pass through the packet list is       */
-/* performed. re-initialize the  memory chunks.                         */
-
-/* mostly ripped from packet-wcp.c -- bsb */
-
-        if (netlib_window)
-                g_mem_chunk_destroy(netlib_window);
-
-        netlib_window = g_mem_chunk_new("netlib_window", netlib_win_length,
-                netlib_win_init_count * netlib_win_length,
-                G_ALLOC_AND_FREE);
-
-        if (netlib_pdata)
-                g_mem_chunk_destroy(netlib_pdata);
-
-        netlib_pdata = g_mem_chunk_new("netlib_pdata", netlib_packet_length,
-                netlib_packet_init_count * netlib_packet_length,
-                G_ALLOC_AND_FREE);
-
-        if (tds_column)
-                g_mem_chunk_destroy(tds_column);
-
-        tds_column = g_mem_chunk_new("tds_column", tds_column_length,
-                tds_column_init_count * tds_column_length,
-                G_ALLOC_AND_FREE);
-}
-
 
 /* If this dissector uses sub-dissector registration add a registration routine.
    This format is required because a script is used to find these routines and
    create the code that calls these routines.
 */
 void
-proto_reg_handoff_netlib(void)
+proto_reg_handoff_tds(void)
 {
-	/* dissector_add("tcp.port", 1433, dissect_netlib,
-	    proto_netlib); */
-	heur_dissector_add ("tcp", dissect_netlib, proto_tds);
+	/* dissector_add("tcp.port", 1433, dissect_tds,
+	    proto_tds); */
+	heur_dissector_add("tcp", dissect_tds_tcp_heur, proto_tds);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
+	data_handle = find_dissector("data");
 }
