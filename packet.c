@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.98 2000/08/11 13:34:33 deniel Exp $
+ * $Id: packet.c,v 1.99 2000/08/12 00:15:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,6 +106,13 @@ static int proto_short = -1;
 static int proto_malformed = -1;
 
 static gint ett_frame = -1;
+
+/* Protocol-specific data attched to a frame_data structure - protocol
+   index and opaque pointer. */
+typedef struct _frame_proto_data {
+  int proto;
+  void *proto_data;
+} frame_proto_data;
 
 GMemChunk *frame_proto_data_area = NULL;
 
@@ -1279,7 +1286,7 @@ p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 void *
 p_get_proto_data(frame_data *fd, int proto)
 {
-  frame_proto_data temp;
+  frame_proto_data temp, *p1;
   GSList *item;
 
   temp.proto = proto;
@@ -1287,7 +1294,10 @@ p_get_proto_data(frame_data *fd, int proto)
 
   item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
 
-  if (item) return (void *)item->data;
+  if (item) {
+    p1 = (frame_proto_data *)item->data;
+    return p1->proto_data;
+  }
 
   return NULL;
 

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.193 2000/08/11 13:34:38 deniel Exp $
+ * $Id: packet.h,v 1.194 2000/08/12 00:15:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,11 +135,6 @@ typedef enum {
 	CHAR_ASCII	 = 0,	/* ASCII */
 	CHAR_EBCDIC	 = 1	/* EBCDIC */
 } char_enc;
-
-typedef struct _frame_proto_data {
-  int proto;
-  void *proto_data;
-} frame_proto_data;
 
 /* XXX - some of this stuff is used only while a packet is being dissected;
    should we keep around a separate data structure for that, to save
