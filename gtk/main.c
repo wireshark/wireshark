@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.28 1999/10/24 00:55:59 guy Exp $
+ * $Id: main.c,v 1.29 1999/10/29 01:04:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -156,6 +156,7 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Nathan Neulinger         <nneul@umr.edu>\n"
 		"Tomislav Vujec           <tvujec@carnet.hr>\n"
 		"Kojak                    <kojak@bigwig.net>\n"
+		"Uwe Girlich              <Uwe.Girlich@philosys.de>\n"
 
 		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);
@@ -523,6 +524,7 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
 /* call initialization routines at program startup time */
 static void
 ethereal_proto_init(void) {
+  init_dissect_rpc();
   proto_init();
   init_dissect_udp();
   dfilter_init();

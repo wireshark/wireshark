@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.121 1999/10/25 20:28:20 guy Exp $
+ * $Id: packet.h,v 1.122 1999/10/29 01:04:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -422,6 +422,20 @@ enum {
 	ETT_SNA_RH_2,
 	ETT_SNA_RU,
 	ETT_YHOO,
+	ETT_RPC,
+	ETT_RPC_CRED,
+	ETT_RPC_VERF,
+	ETT_RPC_GIDS,
+	ETT_NFS,
+	ETT_NFS2_FH,
+	ETT_NFS3_FH,
+	ETT_BOOT,
+	ETT_MNT,
+	ETT_NLM,
+	ETT_PMAP,
+	ETT_STAT,
+	ETT_YPBIND,
+	ETT_YPSERV,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -468,6 +482,7 @@ void       col_append_str(frame_data *, gint, gchar *);
 void blank_packetinfo(void);
 
 void afs_init_protocol(void);
+void rpc_init_protocol(void);
 void smb_init_protocol(void);
 
 void dissect_packet(const u_char *, frame_data *, proto_tree *);
@@ -603,6 +618,9 @@ void dissect_smb(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_pptp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_gre(const u_char *, int, frame_data *, proto_tree *);
 
+void dissect_rpc(const u_char *, int, frame_data *, proto_tree *, guint32, void*);
+
+void init_dissect_rpc(void);
 void init_dissect_udp(void);
 void init_dissect_x25(void);
 

@@ -1,7 +1,7 @@
 /* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.h,v 1.2 1999/10/24 07:27:18 guy Exp $
+ * $Id: conversation.h,v 1.3 1999/10/29 01:04:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,6 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __CONVERSATION_H__
+#define __CONVERSATION_H__
+
 /*
  * Data structure representing a conversation.
  */
@@ -37,3 +40,5 @@ conversation_t *conversation_new(address *src, address *dst, port_type ptype,
     guint16 src_port, guint16 dst_port, void *data);
 conversation_t *find_conversation(address *src, address *dst, port_type ptype,
     guint16 src_port, guint16 dst_port);
+
+#endif /* conversation.h */
