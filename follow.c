@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.32 2002/12/02 23:43:25 guy Exp $
+ * $Id: follow.c,v 1.33 2003/07/06 00:30:40 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -140,12 +140,20 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
   /* Now check if the packet is for this connection. */
   memcpy(srcx, net_src->data, len);
   memcpy(dstx, net_dst->data, len);
-  if ((memcmp(srcx, ip_address[0], len) != 0 &&
-       memcmp(srcx, ip_address[1], len) != 0) ||
-      (memcmp(dstx, ip_address[0], len) != 0 &&
-       memcmp(dstx, ip_address[1], len) != 0) ||
-      (srcport != tcp_port[0] && srcport != tcp_port[1]) ||
-      (dstport != tcp_port[0] && dstport != tcp_port[1]))
+  if (
+      ! (
+	 memcmp(srcx, ip_address[0], len) == 0 &&
+	 memcmp(dstx, ip_address[1], len) == 0 &&
+	 srcport == tcp_port[0] &&
+	 dstport == tcp_port[1]
+	) &&
+      ! (
+	 memcmp(srcx, ip_address[1], len) == 0 &&
+	 memcmp(dstx, ip_address[0], len) == 0 &&
+	 srcport == tcp_port[1] &&
+	 dstport == tcp_port[0]
+	)
+     )
     return;
 
   /* Initialize our stream chunk.  This data gets written to disk. */

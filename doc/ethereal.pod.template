@@ -1843,6 +1843,7 @@ B<http://www.ethereal.com>.
   Kaloian Stoilov          <kalkata [AT] yahoo.com>
   Steven Lass              <stevenlass [AT] mail.com>
   Nathan Jennings          <njen [AT] bellsouth.net>
+  Gregory Stark            <gsstark [AT] mit.edu>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
