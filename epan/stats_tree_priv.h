@@ -77,7 +77,6 @@ struct _stats_tree {
 	guint8*			name;
 	guint8*			tapname;
 	
-	/* is this realy needed? */
 	char*			filter;
 	
 	/* times */

@@ -153,6 +153,7 @@ static void free_stat_node( stat_node* node ) {
 	if(node->st->free_node_pr) node->st->free_node_pr(node);
 	
 	if (node->hash) g_hash_table_destroy(node->hash);
+
 	if (node->rng) g_free(node->rng);
 	
 	if (node->name) g_free(node->name);
@@ -212,6 +213,9 @@ extern void reinit_stats_tree(void* p) {
 	for (child = st->root.children; child; child = child->next) {
 		free_stat_node(child);
 	}
+	
+	st->root.children = NULL;
+	st->root.counter = 0;
 	
 	if (st->init) {
 		st->init(st);
@@ -364,7 +368,8 @@ static stat_node*  new_stat_node(stats_tree* st,
 	node->st = (stats_tree*) st;
 	node->hash = with_hash ? g_hash_table_new(g_str_hash,g_str_equal) : NULL;
 	node->parent = NULL;
-	
+	node->rng  =  NULL;
+
 	if (as_parent_node) {
 		g_hash_table_insert(st->names,
 							node->name,

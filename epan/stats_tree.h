@@ -97,6 +97,9 @@ extern int tick_range(stats_tree* st,
 						 int parent_id,
 						 int value_in_range);
 
+#define tick_range_with_parent_name(st,name,parent_name,value_in_range) \
+     tick_range((st),(name),get_parent_id_by_name((st),(parent_name),(value_in_range))
+
 /* */
 extern int create_pivot_node(stats_tree* st,
 							 const gchar* name,

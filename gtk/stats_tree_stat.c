@@ -24,12 +24,10 @@
  */
 
 /*
- TODO
+ TODO:
 
- -  at reinitialization I have one of these for every node in the tree
-     Gtk-CRITICAL **: file gtktreestore.c: line 1044 (gtk_tree_store_set): assertion `VALID_ITER (iter, tree_store)' failed
-
- - GTK1
+ - GTK1 something better than just a textbox
+ 
 */
 
 #ifdef HAVE_CONFIG_H
@@ -93,17 +91,19 @@ static void setup_gtk_node_pr(stat_node* node) {
 	GtkTreeIter* parent =  NULL;
 #endif
 	
+
 	node->pr = g_malloc(sizeof(st_node_pres));
 
 #if GTK_MAJOR_VERSION >= 2
-	if ( node->parent && node->parent->pr ) 
+	
+	if ( node->parent && node->parent->pr ) {
 		parent = node->parent->pr->iter;
-
-	node->pr->iter = g_malloc(sizeof(GtkTreeIter));
-
+	}
+	
 	if (node->st->pr->store) {
+		node->pr->iter = g_malloc0(sizeof(GtkTreeIter));
+
 		gtk_tree_store_append (node->st->pr->store, node->pr->iter, parent);
-		/* g_message("setup_gtk_node_pr: %s",node->name); */
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter, TITLE_COLUMN, node->name, RATE_COLUMN, "", COUNT_COLUMN, "", -1);
 	}
 #else
@@ -123,7 +123,6 @@ static void draw_gtk_node(stat_node* node) {
 	get_strings_from_node(node, value, rate, percent);
 	
 	if (node->st->pr->store) {
-		/* g_message("draw_gtk_node: %s",node->name); */
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter,
 						   RATE_COLUMN, rate,
 						   COUNT_COLUMN, value,
@@ -145,10 +144,10 @@ static void draw_gtk_tree( void *psp  ) {
 	stat_node* child;
 
 #if GTK_MAJOR_VERSION >= 2
-	for (child = st->root.children; child; child = child->next )
+
+	for (child = st->root.children; child; child = child->next ) {
 		draw_gtk_node(child);
-	
-	gtk_tree_view_set_model(GTK_TREE_VIEW(st->pr->tree),GTK_TREE_MODEL(st->pr->store));
+	}
 #else
 	GString* text = g_string_new("");
 	gchar* fmt;
@@ -163,12 +162,12 @@ static void draw_gtk_tree( void *psp  ) {
 		stat_branch_to_str(child,text,0);
 	}
 	
-	gtk_text_freeze(st->pr->textbox);
-	gtk_text_set_point(st->pr->textbox,0);
-	gtk_text_forward_delete(st->pr->textbox,gtk_text_get_length(st->pr->textbox));
-	gtk_text_insert(st->pr->textbox,NULL,
+	gtk_text_freeze(GTK_TEXT(st->pr->textbox));
+	gtk_text_set_point(GTK_TEXT(st->pr->textbox),0);
+	gtk_text_forward_delete(GTK_TEXT(st->pr->textbox),gtk_text_get_length(st->pr->textbox));
+	gtk_text_insert(GTK_TEXT(st->pr->textbox),NULL,
 					NULL,NULL,text->str,-1);
-	gtk_text_thaw(st->pr->textbox);
+	gtk_text_thaw(GTK_TEXT(st->pr->textbox));
 	
 	g_string_free(text,TRUE);
 #endif	
@@ -199,6 +198,7 @@ static void init_gtk_tree(char* optarg) {
 	guint8* window_name = NULL;
 	GString* error_string;
 	GtkWidget *scr_win;
+	guint init_strlen;
 #if GTK_MAJOR_VERSION >= 2
 	GtkTreeViewColumn* column;
 	GtkCellRenderer* renderer;
@@ -208,8 +208,15 @@ static void init_gtk_tree(char* optarg) {
 		st = get_stats_tree_by_abbr(abbr);
 		
 		if (st != NULL) {
-			if (strncmp (optarg, st->pr->stat_dlg->init_string, strlen(st->pr->stat_dlg->init_string)) == 0){
-				st->filter=((guint8*)optarg)+strlen(st->pr->stat_dlg->init_string);
+			init_strlen = strlen(st->pr->stat_dlg->init_string);
+			
+			if (strncmp (optarg, st->pr->stat_dlg->init_string, init_strlen) == 0){
+				if (init_strlen == strlen(optarg)) {
+					st->filter= "";
+				} else { 
+					st->filter=((guint8*)optarg)+init_strlen+1;
+				}
+				
 			} else {
 				st->filter=NULL;
 			}
@@ -222,7 +229,7 @@ static void init_gtk_tree(char* optarg) {
 		g_error("could not obtain stats_tree abbr from optarg");		
 	}
 	
-	window_name = g_strdup_printf("%s Stats Tree", st->abbr);
+	window_name = g_strdup_printf("%s Stats Tree", st->name);
 	
 	st->pr->win = window_new_with_geom(GTK_WINDOW_TOPLEVEL,window_name,window_name);
 	g_free(window_name);
@@ -283,16 +290,16 @@ static void init_gtk_tree(char* optarg) {
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 #else
-	st->pr->textbox = gtk_text_new(NULL,NULL);
-	gtk_text_set_editable(st->pr->textbox,TRUE);
-	gtk_container_add( GTK_CONTAINER(scr_win), st->pr->textbox);
+	st->pr->textbox = GTK_TEXT(gtk_text_new(NULL,NULL));
+	gtk_text_set_editable(GTK_TEXT(st->pr->textbox),TRUE);
+	gtk_container_add( GTK_CONTAINER(scr_win), GTK_WIDGET(st->pr->textbox));
 	gtk_container_add( GTK_CONTAINER(st->pr->win), scr_win);
 #endif
 	
 	error_string = register_tap_listener( st->tapname,
 										  st,
 										  st->filter,
-										  /* reinit_stats_tree*/ NULL,
+										  NULL,
 										  stats_tree_packet,
 										  draw_gtk_tree);
 	
@@ -310,7 +317,13 @@ static void init_gtk_tree(char* optarg) {
 	gtk_widget_show_all(st->pr->win);
 	window_present(st->pr->win);
 	
-	if (st->init) st->init(st);
+	gtk_tree_view_set_model(GTK_TREE_VIEW(st->pr->tree),GTK_TREE_MODEL(st->pr->store));
+
+	if (st->filter) {
+		reinit_stats_tree(st);
+	} else {
+		st->init(st);
+	}
 
 	cf_retap_packets(&cfile);
 	
@@ -353,6 +366,6 @@ register_tap_listener_stats_tree_stat(void)
 {	
 	stats_tree_presentation(register_gtk_stats_tree_tap,
 							setup_gtk_node_pr, NULL,
-							draw_gtk_node,
+							NULL,
 							NULL, NULL, NULL, NULL, NULL, NULL);
 }

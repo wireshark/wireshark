@@ -45,15 +45,17 @@ struct _tree_pres {
 static void draw_stats_tree(void *psp) {
 	stats_tree *st = psp;
 	GString* s;
+	gchar* fmt;
 	stat_node* child;
 	
 	s = g_string_new("\n===================================================================\n");
-	
-	g_string_sprintfa(s,"Statistics for %s\n===================================================================\n",
-					 st->name);
+	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_branch_max_name_len(&st->root,0));
+	g_string_sprintfa(s,fmt,"",st->name,"value","rate","percent");
+	g_free(fmt);
+	g_string_sprintfa(s,"-------------------------------------------------------------------\n");
 	
 	for (child = st->root.children; child; child = child->next ) {
-		stat_branch_to_str(child,s,1);
+		stat_branch_to_str(child,s,0);
 	}
 	
 	s = g_string_append(s,"\n===================================================================\n");
