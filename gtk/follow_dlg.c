@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.17 2002/01/11 07:40:31 guy Exp $
+ * $Id: follow_dlg.c,v 1.18 2002/01/18 07:25:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,8 @@
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
 #endif
+
+#include <ctype.h>
 
 #include "color.h"
 #include "color_utils.h"
@@ -526,7 +528,7 @@ follow_read_stream(follow_info_t *follow_info,
 				sprintf(hexbuf, (is_server && 
 					follow_info->show_stream == BOTH_HOSTS) ?
 					"                                 "
-					"                              %08X  " :
+					"                                             %08X  " :
 					"%08X  ", *global_pos);
 				cur = strlen(hexbuf);
 				for (i = 0; i < 16 && current_pos + i < nchars;
@@ -541,6 +543,28 @@ follow_read_stream(follow_info_t *follow_info,
 					hexbuf[cur++] = ' ';
 				    } else if (i != 15)
 					hexbuf[cur++] = ' ';
+				}
+				/* Fill it up if column isn't complete */
+				if (i < 16) {
+				    int j;
+					
+				    for (j = i; j < 16; j++) {
+					if (j == 7)
+					    hexbuf[cur++] = ' ';
+					hexbuf[cur++] = ' ';
+					hexbuf[cur++] = ' ';
+					hexbuf[cur++] = ' ';
+				    }
+				} else
+				    hexbuf[cur++] = ' ';
+
+				/* Now dump bytes as text */
+				for (i = 0; i < 16 && current_pos + i < nchars;
+				     i++) {
+				    hexbuf[cur++] = (isprint(buffer[current_pos + i]) ? buffer[current_pos + i] : '.' );
+				    if (i == 7) {
+					hexbuf[cur++] = ' ';
+				    } 
 				}
 				current_pos += i;
 				(*global_pos) += i;

@@ -997,6 +997,8 @@ Jirka Novak <j.novak[AT]netsystem.cz> {
 	Support for adding filter expressions generated from column or
 	    protocol tree field values to the current expression rather
 	    than replacing the current expression
+	Support for hex dump mode in "Follow TCP Stream" window showing
+	    hex and ASCII data
 }
 	
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
