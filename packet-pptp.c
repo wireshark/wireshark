@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.27 2003/04/30 02:35:19 gerald Exp $
+ * $Id: packet-pptp.c,v 1.28 2003/05/26 21:36:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -301,8 +301,8 @@ dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   guint8		minor_ver;
   guint32		frame;
   guint32		bearer;
-  guint8		host[HOSTLEN];
-  guint8		vendor[VENDORLEN];
+  guint8		host[HOSTLEN+1];
+  guint8		vendor[VENDORLEN+1];
 
   major_ver = tvb_get_guint8(tvb, offset);
   minor_ver = tvb_get_guint8(tvb, offset + 1);
@@ -332,12 +332,14 @@ dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		      "Firmware revision: %u", tvb_get_ntohs(tvb, offset));
   offset += 2;
 
-  tvb_get_nstringz0(tvb, offset, HOSTLEN, host);
+  tvb_memcpy(tvb, host, offset, HOSTLEN);
+  host[HOSTLEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, HOSTLEN,
 		      "Hostname: %s", host);
   offset += HOSTLEN;
 
-  tvb_get_nstringz0(tvb, offset, VENDORLEN, vendor);
+  tvb_memcpy(tvb, vendor, offset, VENDORLEN);
+  vendor[VENDORLEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, VENDORLEN,
 		      "Vendor: %s", vendor);
 }
@@ -389,12 +391,14 @@ dissect_cntrl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		      "Firmware revision: %u", tvb_get_ntohs(tvb, offset));
   offset += 2;
 
-  tvb_get_nstringz0(tvb, offset, HOSTLEN, host);
+  tvb_memcpy(tvb, host, offset, HOSTLEN);
+  host[HOSTLEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, HOSTLEN,
 		      "Hostname: %s", host);
   offset += HOSTLEN;
 
-  tvb_get_nstringz0(tvb, offset, VENDORLEN, vendor);
+  tvb_memcpy(tvb, vendor, offset, VENDORLEN);
+  vendor[VENDORLEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, VENDORLEN,
 		      "Vendor: %s", vendor);
 }
@@ -523,12 +527,14 @@ dissect_out_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		      "Reserved: %u", tvb_get_ntohs(tvb, offset));
   offset += 2;
 
-  tvb_get_nstringz0(tvb, offset, PHONELEN, phone);
+  tvb_memcpy(tvb, phone, offset, PHONELEN);
+  phone[PHONELEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, PHONELEN,
 		      "Phone number: %s", phone);
   offset += PHONELEN;
 
-  tvb_get_nstringz0(tvb, offset, SUBADDRLEN, subaddr);
+  tvb_memcpy(tvb, subaddr, offset, SUBADDRLEN);
+  subaddr[SUBADDRLEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, SUBADDRLEN,
 		      "Subaddress: %s", subaddr);
 }
@@ -612,17 +618,20 @@ dissect_in_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		      "Dialing number length: %u", tvb_get_ntohs(tvb, offset));
   offset += 2;
 
-  tvb_get_nstringz0(tvb, offset, PHONELEN, dialed);
+  tvb_memcpy(tvb, dialing, offset, PHONELEN);
+  dialed[PHONELEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, PHONELEN,
 		      "Dialed number: %s", dialed);
   offset += PHONELEN;
 
-  tvb_get_nstringz0(tvb, offset, PHONELEN, dialing);
+  tvb_memcpy(tvb, dialing, offset, PHONELEN);
+  dialing[PHONELEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, PHONELEN,
 		      "Dialing number: %s", dialing);
   offset += PHONELEN;
 
-  tvb_get_nstringz0(tvb, offset, SUBADDRLEN, subaddr);
+  tvb_memcpy(tvb, subaddr, offset, SUBADDRLEN);
+  subaddr[SUBADDRLEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, SUBADDRLEN,
 		      "Subaddress: %s", subaddr);
 }
@@ -737,7 +746,8 @@ dissect_disc_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		      "Reserved: %u", tvb_get_ntohs(tvb, offset));
   offset += 2;
 
-  tvb_get_nstringz0(tvb, offset, STATSLEN, stats);
+  tvb_memcpy(tvb, stats, offset, STATSLEN);
+  stats[STATSLEN] = '\0';
   proto_tree_add_text(tree, tvb, offset, STATSLEN,
 		      "Call statistics: %s", stats);
 }
