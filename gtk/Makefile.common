@@ -44,6 +44,7 @@ ETHEREAL_GTK_SRC = \
 	decode_as_dcerpc.c	\
 	dfilter_expr_dlg.c	\
 	dlg_utils.c	\
+	drag_and_drop.c 	\
 	ethereal-tap-register.c	\
 	file_dlg.c	\
 	filter_dlg.c	\

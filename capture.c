@@ -316,7 +316,7 @@ capture_stop(capture_options *capture_opts)
 }
 
 void
-kill_capture_child(capture_options *capture_opts)
+capture_kill_child(capture_options *capture_opts)
 {
   if (capture_opts->sync_mode) {	
     sync_pipe_kill(capture_opts);

@@ -642,7 +642,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   case CF_READ_ABORTED:
     /* Kill the child capture process; the user wants to exit, and we
        shouldn't just leave it running. */
-    kill_capture_child(capture_opts);
+    capture_kill_child(capture_opts);
     break;
   }
 

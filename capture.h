@@ -102,7 +102,7 @@ extern int  capture_start(capture_options *capture_opts, gboolean *stats_known, 
 extern void capture_stop(capture_options *capture_opts);
 
 /** Terminate the capture child cleanly when exiting. */
-extern void kill_capture_child(capture_options *capture_opts);
+extern void capture_kill_child(capture_options *capture_opts);
 
 /** Do the low-level work of a capture. */
 extern int  capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
