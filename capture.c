@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.9 1998/11/15 05:28:54 guy Exp $
+ * $Id: capture.c,v 1.10 1998/11/15 05:40:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,7 +126,7 @@ get_interface_list() {
         ! strchr(ifr->ifr_name, ':')) {
       il = g_list_append(il, g_strdup(ifr->ifr_name));
     }
-#ifdef HAVE_SA_LEN
+#ifdef HAVE_SOCKADDR_SA_LEN
     ifr = (struct ifreq *) ((char *) ifr + ifr->ifr_addr.sa_len + IFNAMSIZ);
 #else
     ifr = (struct ifreq *) ((char *) ifr + sizeof(struct ifreq));
