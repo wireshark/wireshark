@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.6 1999/10/02 06:26:53 guy Exp $
+ * $Id: capture_dlg.c,v 1.7 1999/10/02 07:13:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,19 +76,28 @@
 #include "util.h"
 
 /* Capture callback data keys */
-#define E_CAP_IFACE_KEY "cap_iface"
-#define E_CAP_FILT_KEY  "cap_filter"
-#define E_CAP_COUNT_KEY "cap_count"
-#define E_CAP_OPEN_KEY  "cap_open"
-#define E_CAP_SNAP_KEY  "cap_snap"
-#define E_CAP_SYNC_KEY  "cap_sync"
-#define E_CAP_RESOLVE_KEY "cap_resolve"
+#define E_CAP_IFACE_KEY    "cap_iface"
+#define E_CAP_FILT_KEY     "cap_filter_te"
+#define E_CAP_FILE_TE_KEY  "cap_file_te"
+#define E_CAP_COUNT_KEY    "cap_count"
+#define E_CAP_SNAP_KEY     "cap_snap"
+#define E_CAP_SYNC_KEY     "cap_sync"
+#define E_CAP_RESOLVE_KEY  "cap_resolve"
 
 /* Capture filter key */
 #define E_CAP_FILT_TE_KEY "cap_filt_te"
 
 static GList*
 get_interface_list();
+
+static void
+capture_prep_file_cb(GtkWidget *w, gpointer te);
+
+static void
+cap_prep_fs_ok_cb(GtkWidget *w, gpointer data);
+
+static void
+cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data);
 
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
@@ -103,10 +112,13 @@ static void
 free_if_cb(gpointer data, gpointer user_data);
 
 void
-capture_prep_cb(GtkWidget *w, gpointer d) {
+capture_prep_cb(GtkWidget *w, gpointer d)
+{
   GtkWidget     *cap_open_w, *if_cb, *if_lb,
                 *count_lb, *count_cb, *main_vb, *if_hb, *count_hb,
-                *filter_hb, *filter_bt, *filter_te, *caplen_hb,
+                *filter_hb, *filter_bt, *filter_te,
+                *file_hb, *file_bt, *file_te,
+                *caplen_hb,
                 *bbox, *ok_bt, *cancel_bt, *snap_lb,
                 *snap_sb, *sync_cb, *resolv_cb;
   GtkAdjustment *adj;
@@ -188,6 +200,22 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
   gtk_widget_show(filter_te);
+  
+  /* File row */
+  file_hb = gtk_hbox_new(FALSE, 1);
+  gtk_container_add(GTK_CONTAINER(main_vb), file_hb);
+  gtk_widget_show(file_hb);
+  
+  file_bt = gtk_button_new_with_label("File:");
+  gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3);
+  gtk_widget_show(file_bt);
+  
+  file_te = gtk_entry_new();
+  gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
+  gtk_widget_show(file_te);
+
+  gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
+    GTK_SIGNAL_FUNC(capture_prep_file_cb), GTK_OBJECT(file_te));
 
   /* Misc row: Capture file checkbox and snap spinbutton */
   caplen_hb = gtk_hbox_new(FALSE, 3);
@@ -242,6 +270,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   /* Attach pointers to needed widgets to the capture prefs window/object */
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILT_KEY,  filter_te);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILE_TE_KEY,  file_te);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_KEY, count_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_KEY,  snap_sb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
@@ -251,12 +280,49 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
 }
 
 static void
+capture_prep_file_cb(GtkWidget *w, gpointer file_te)
+{
+  GtkWidget *fs;
+
+  fs = gtk_file_selection_new ("Ethereal: Capture File");
+
+  gtk_object_set_data(GTK_OBJECT(fs), E_CAP_FILE_TE_KEY, file_te);
+
+  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button),
+    "clicked", (GtkSignalFunc) cap_prep_fs_ok_cb, fs);
+
+  /* Connect the cancel_button to destroy the widget */
+  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button),
+    "clicked", (GtkSignalFunc) cap_prep_fs_cancel_cb, fs);
+  
+  gtk_widget_show(fs);
+}
+
+static void
+cap_prep_fs_ok_cb(GtkWidget *w, gpointer data)
+{
+  gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
+      E_CAP_FILE_TE_KEY)),
+      gtk_file_selection_get_filename (GTK_FILE_SELECTION(data)));
+  gtk_widget_destroy(GTK_WIDGET(data));
+}
+
+static void
+cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data)
+{
+  gtk_widget_destroy(GTK_WIDGET(data));
+}  
+
+static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
-  GtkWidget *if_cb, *filter_te, *count_cb, *snap_sb, *sync_cb, *resolv_cb;
+  GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *snap_sb, *sync_cb,
+            *resolv_cb;
   gchar *filter_text;
+  gchar *save_file;
 
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
   filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILT_KEY);
+  file_te   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILE_TE_KEY);
   count_cb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_KEY);
   snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_KEY);
   sync_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SYNC_KEY);
@@ -274,26 +340,31 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   if (filter_text && filter_text[0]) {
     cf.cfilter = g_strdup(filter_text); 
   }
+
+  save_file = gtk_entry_get_text(GTK_ENTRY(file_te));
+  if (save_file && save_file[0]) {
+    /* User specified a file to which the capture should be written. */
+    save_file = g_strdup(save_file);
+  } else {
+    /* User didn't specify a file; save to a temporary file. */
+    save_file = NULL;
+  }
+
   cf.count = atoi(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry)));
+
   cf.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
   if (cf.snap < 1)
     cf.snap = WTAP_MAX_PACKET_SIZE;
   else if (cf.snap < MIN_PACKET_SIZE)
     cf.snap = MIN_PACKET_SIZE;
-  if (GTK_TOGGLE_BUTTON (sync_cb)->active) {
-    /* They requested that the summary window be updated as packets are
-       captured. */
-    sync_mode = TRUE;
-  } else {
-    /* They requested that the summary window not be updated as packets are
-       captured. */
-    sync_mode = FALSE;
-  }
+
+  sync_mode = GTK_TOGGLE_BUTTON (sync_cb)->active;
+
   g_resolving_actif = GTK_TOGGLE_BUTTON (resolv_cb)->active;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
-  do_capture(NULL);
+  do_capture(save_file);
 }
 
 static void
