@@ -2,7 +2,7 @@
  * Definitions for recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.h,v 1.4 2004/02/01 20:28:11 ulfl Exp $
+ * $Id: recent.h,v 1.5 2004/02/17 14:49:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,7 +48,6 @@ typedef struct recent_settings_tag {
     gint        gui_geometry_main_y;
     gint        gui_geometry_main_width;
     gint        gui_geometry_main_height;
-    gchar       *gui_fileopen_remembered_dir;
 
     gboolean    gui_geometry_main_maximized;    /* this is valid in GTK2 only */
 } recent_settings_t;

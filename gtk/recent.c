@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.9 2004/02/16 19:00:09 ulfl Exp $
+ * $Id: recent.c,v 1.10 2004/02/17 14:49:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -176,10 +176,9 @@ write_recent(char **rf_path_return)
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
 		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
 
-  if (recent.gui_fileopen_remembered_dir != NULL) {
+  if (last_open_dir != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
-    fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n",
-                  recent.gui_fileopen_remembered_dir);
+    fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", last_open_dir);
   }
 
   fclose(rf);
@@ -267,9 +266,7 @@ read_set_recent_pair(gchar *key, gchar *value)
     recent.gui_geometry_main_height = strtol(value, NULL, 10);
 
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
-    if (recent.gui_fileopen_remembered_dir != NULL)
-      g_free(recent.gui_fileopen_remembered_dir);
-    recent.gui_fileopen_remembered_dir = g_strdup(value);
+    set_last_open_dir(value);
   }
 
   return PREFS_SET_OK;
@@ -298,7 +295,6 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   recent.gui_geometry_main_y        =        20;
   recent.gui_geometry_main_width    = DEF_WIDTH;
   recent.gui_geometry_main_height   =        -1;
-  recent.gui_fileopen_remembered_dir=      NULL;
   recent.gui_geometry_main_maximized=     FALSE;
 
   /* Construct the pathname of the user's recent file. */

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.397 2004/02/13 00:53:35 guy Exp $
+ * $Id: main.c,v 1.398 2004/02/17 14:49:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2764,7 +2764,9 @@ main(int argc, char *argv[])
              good thing, given that "get_dirname()" does write over its
              argument. */
           s = get_dirname(cf_name);
-	  set_last_open_dir(s);
+          /* we might already set this from the recent file, don't overwrite this */
+          if(last_open_dir == NULL) 
+            set_last_open_dir(s);
           g_free(cf_name);
           cf_name = NULL;
         } else {
