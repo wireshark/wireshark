@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.5 2003/12/29 00:41:07 guy Exp $
+ * $Id: packet-tcap.c,v 1.6 2004/01/23 01:51:38 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -247,7 +247,7 @@ dissect_tcap_eoc(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static int
-dissect_tcap_tag(ASN1_SCK *asn1, proto_tree *tree, guint *tag, guchar * str)
+dissect_tcap_tag(ASN1_SCK *asn1, proto_tree *tree, guint *tag, gchar * str)
 {
     guint saved_offset, real_tag;
 
@@ -264,7 +264,7 @@ dissect_tcap_tag(ASN1_SCK *asn1, proto_tree *tree, guint *tag, guchar * str)
 }
 
 static int
-dissect_tcap_octet(ASN1_SCK *asn1, proto_tree *tree, guchar * str)
+dissect_tcap_octet(ASN1_SCK *asn1, proto_tree *tree, gchar * str)
 {
     guint saved_offset;
     guchar my_oct;
@@ -277,7 +277,7 @@ dissect_tcap_octet(ASN1_SCK *asn1, proto_tree *tree, guchar * str)
 }
 
 static int
-dissect_tcap_integer(ASN1_SCK *asn1, proto_tree *tree, guint len, guchar * str)
+dissect_tcap_integer(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar * str)
 {
     guint saved_offset;
     gint32 invokeId;
