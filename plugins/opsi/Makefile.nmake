@@ -1,0 +1,21 @@
+#
+# $Id$
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+OBJECTS=packet-opsi.obj 
+
+opsi.dll opsi.exp opsi.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:opsi.dll $(OBJECTS) ..\plugin_api.obj \
+	$(GLIB_LIBS)
+
+clean:
+	rm -f $(OBJECTS) opsi.dll opsi.exp opsi.lib $(PDB_FILE)
+
+distclean: clean

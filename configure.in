@@ -1176,6 +1176,7 @@ AC_OUTPUT(
   plugins/lwres/Makefile
   plugins/megaco/Makefile
   plugins/mgcp/Makefile
+  plugins/opsi/Makefile
   plugins/pcli/Makefile
   plugins/rdm/Makefile
   plugins/rlm/Makefile

@@ -72,6 +72,7 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/lwres/lwres.dll \
 	../../plugins/megaco/megaco.dll \
 	../../plugins/mgcp/mgcp.dll \
+	../../plugins/opsi/opsi.dll \
 	../../plugins/pcli/pcli.dll \
 	../../plugins/rdm/rdm.dll \
 	../../plugins/rlm/rlm.dll \

@@ -104,6 +104,7 @@ plugin_libs = \
 	plugins/lwres/lwres.la \
 	plugins/megaco/megaco.la \
 	plugins/mgcp/mgcp.la \
+	plugins/opsi/opsi.la \
 	plugins/pcli/pcli.la \
 	plugins/rdm/rdm.la \
 	plugins/rlm/rlm.la \
@@ -148,6 +149,7 @@ plugin_ldadd = \
 	plugins/lwres/packet-lwres.o \
 	plugins/megaco/packet-megaco.o \
 	plugins/mgcp/packet-mgcp.o \
+	plugins/opsi/packet-opsi.o \
 	plugins/pcli/packet-pcli.o \
 	plugins/rdm/packet-rdm.o \
 	plugins/rlm/packet-rlm.o \
@@ -171,6 +173,7 @@ plugin_ldadd = \
 	"-dlopen" plugins/lwres/lwres.la \
 	"-dlopen" plugins/megaco/megaco.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
+	"-dlopen" plugins/opsi/opsi.la \
 	"-dlopen" plugins/pcli/pcli.la \
 	"-dlopen" plugins/rdm/rdm.la \
 	"-dlopen" plugins/rlm/rlm.la \
