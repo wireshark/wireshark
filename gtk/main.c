@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.151 2000/08/22 20:17:27 deniel Exp $
+ * $Id: main.c,v 1.152 2000/08/23 18:21:44 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -791,7 +791,7 @@ print_usage(void) {
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "%s [ -vh ] [ -kQS ] [ -B <byte view height> ] [ -c count ]\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -D ] [ -f <capture filter> ] [ -i interface ] [ -m <medium font> ] \n");
+  fprintf(stderr, "\t[ -f <capture filter> ] [ -i interface ] [ -m <medium font> ] \n");
   fprintf(stderr, "\t[ -n ] [ -o <preference setting> ] ... [ -P <packet list height> ]\n");
   fprintf(stderr, "\t[ -r infile ] [ -R <read filter> ] [ -s snaplen ] \n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ] [ -w savefile ]\n");
@@ -977,9 +977,6 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
-      case 'D':        /* Turn off DSCP printing */
-	g_ip_dscp_actif = FALSE;
-	break;
       case 'f':
 #ifdef HAVE_LIBPCAP
 	if (cfile.cfilter)

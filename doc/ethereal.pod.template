@@ -8,7 +8,6 @@ Ethereal - Interactively browse network traffic
 B<ethereal>
 S<[ B<-B> byte view height ]>
 S<[ B<-c> count ]>
-S<[ B<-D> ]>
 S<[ B<-f> filter expression ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
@@ -80,11 +79,6 @@ Sets the initial height of the byte view (bottom) pane.
 
 Sets the default number of packets to read when capturing live
 data.
-
-=item -D
-
-Turns off treating the original IPv4 TOS field as the Differentiated
-Services Field. The structure of the DS Field is defined in RFC 2474.
 
 =item -f
 

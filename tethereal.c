@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.43 2000/08/22 03:33:41 guy Exp $
+ * $Id: tethereal.c,v 1.44 2000/08/23 18:21:57 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,12 +135,12 @@ print_usage(void)
   fprintf(stderr, "This is GNU t%s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -D ] [ -f <capture filter> ]\n", PACKAGE);
+  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -f <capture filter> ]\n", PACKAGE);
   fprintf(stderr, "\t[ -F <capture file type> ] [ -i interface ] [ -n ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
 #else
-  fprintf(stderr, "t%s [ -vVh ] [ -D ] [ -F <capture file type> ] [ -n ]\n", PACKAGE);
+  fprintf(stderr, "t%s [ -vVh ] [ -F <capture file type> ] [ -n ]\n", PACKAGE);
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r infile ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
 #endif
@@ -294,9 +294,6 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
-      case 'D':        /* Turn off DSCP printing */
-	g_ip_dscp_actif = FALSE;
-	break;
       case 'f':
 #ifdef HAVE_LIBPCAP
         capture_filter_specified = TRUE;

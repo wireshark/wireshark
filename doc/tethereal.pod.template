@@ -7,7 +7,6 @@ Tethereal - Dump and analyze network traffic
 
 B<tethereal>
 S<[ B<-c> count ]>
-S<[ B<-D> ]>
 S<[ B<-f> filter expression ]>
 S<[ B<-F> file format ]>
 S<[ B<-h> ]>
@@ -102,11 +101,6 @@ filter arguments are treated as a filter expression.
 
 Sets the default number of packets to read when capturing live
 data.
-
-=item -D
-
-Turns off treating the original IPv4 TOS field as the Differentiated
-Services Field. The structure of the DS Field is defined in RFC 2474.
 
 =item -f
 
