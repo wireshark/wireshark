@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.14 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-ieee80211.c,v 1.15 2001/03/15 05:39:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -594,18 +594,9 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
       for (i = 0; i < tag_len; i++)
 	{
-
-	  if (tag_data_ptr[i] >= 128)
-	    {
-	      tag_data_ptr[i] -= 128;
-	      n += snprintf (out_buff + n, SHORT_STR - n, "%2.1f ", (float)
-			     (((float) tag_data_ptr[i]) * 0.5));
-	    }
-
-	  else
-	    n += snprintf (out_buff + n, SHORT_STR - n, "%2.1f ", (float)
-			   (((float) tag_data_ptr[i]) * 0.5));
-
+	    n += snprintf (out_buff + n, SHORT_STR - n, "%2.1f%s ",
+			   (tag_data_ptr[i] & 0x7F) * 0.5,
+			   (tag_data_ptr[i] & 0x80) ? "(B)" : "");
 	}
       snprintf (out_buff + n, SHORT_STR - n, "[Mbit/sec]");
 
