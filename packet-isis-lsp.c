@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.30 2002/05/02 10:13:56 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.31 2002/05/07 18:52:26 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -1187,7 +1187,7 @@ dissect_subclv_unrsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 	ntree = proto_item_add_subtree (ti, ett_isis_lsp_subclv_unrsv_bw);
 
 	for (i = 0 ; i < 8 ; i++) {
-		bw = tvb_get_ntohieee_float(tvb, offset);;
+		bw = tvb_get_ntohieee_float(tvb, offset+4*i);
 		proto_tree_add_text (ntree, tvb, offset+4*i, 4,
 			"priority level %d: %.2f Mbps", i, bw*8/1000000 );
 	}
