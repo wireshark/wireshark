@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.94 1999/09/22 01:26:23 ashokn Exp $
+ * $Id: file.c,v 1.95 1999/09/23 03:24:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,7 +83,6 @@
 
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
-extern int	  sync_mode;
 extern int        sync_pipe[];
 
 guint cap_input_id;
