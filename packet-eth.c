@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.22 1999/11/16 11:42:29 guy Exp $
+ * $Id: packet-eth.c,v 1.23 1999/11/19 05:12:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,7 +129,7 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "Ethernet");
 
-  etype = (pd[offset+12] << 8) | pd[offset+13];
+  etype = pntohs(&pd[offset+12]);
 
 	/* either ethernet802.3 or ethernet802.2 */
   if (etype <= IEEE_802_3_MAX_LEN) {
@@ -154,14 +154,14 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }
     if (tree) {
 
-	ti = proto_tree_add_item_format(tree, proto_eth, 0, ETH_HEADER_SIZE,
+	ti = proto_tree_add_item_format(tree, proto_eth, offset, ETH_HEADER_SIZE,
 		NULL, "IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
 	fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
 
-	proto_tree_add_item(fh_tree, hf_eth_dst, 0, 6, &pd[offset+0]);
-	proto_tree_add_item(fh_tree, hf_eth_src, 6, 6, &pd[offset+6]);
-	proto_tree_add_item(fh_tree, hf_eth_len, 12, 2, length);
+	proto_tree_add_item(fh_tree, hf_eth_dst, offset+0, 6, &pd[offset+0]);
+	proto_tree_add_item(fh_tree, hf_eth_src, offset+6, 6, &pd[offset+6]);
+	proto_tree_add_item(fh_tree, hf_eth_len, offset+12, 2, length);
 
 	/* Convert the LLC length from the 802.3 header to a total
 	   length, by adding in the Ethernet header size, and set
@@ -180,16 +180,16 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       col_add_str(fd, COL_INFO, "Ethernet II");
     if (tree) {
 
-	ti = proto_tree_add_item_format(tree, proto_eth, 0, ETH_HEADER_SIZE,
+	ti = proto_tree_add_item_format(tree, proto_eth, offset, ETH_HEADER_SIZE,
 		NULL, "Ethernet II");
 
 	fh_tree = proto_item_add_subtree(ti, ett_ether2);
 
-	proto_tree_add_item_format(fh_tree, hf_eth_dst, 0, 6, &pd[offset+0],
+	proto_tree_add_item_format(fh_tree, hf_eth_dst, offset+0, 6, &pd[offset+0],
 		"Destination: %s (%s)", ether_to_str((guint8 *) &pd[offset+0]),
 		get_ether_name((u_char *) &pd[offset+0]));
 
-	proto_tree_add_item_format(fh_tree, hf_eth_src, 6, 6, &pd[offset+6],
+	proto_tree_add_item_format(fh_tree, hf_eth_src, offset+6, 6, &pd[offset+6],
 		"Source: %s (%s)", ether_to_str((guint8 *) &pd[offset+6]),
 		get_ether_name((u_char *) &pd[offset+6]));
     }
