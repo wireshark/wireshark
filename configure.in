@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.159 2002/03/12 10:37:01 guy Exp $
+# $Id: configure.in,v 1.160 2002/03/23 01:01:26 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -515,7 +515,15 @@ AC_ARG_WITH(ucdsnmp,
 		ucdsnmp_dir=$withval
 	fi
 ],[
-	want_ucdsnmp=ifpresent
+	#
+	# For now, we default to *not* using the UCD SNMP library unless
+	# the user explicitly asks for it, as the current release has
+	# buffer-overflow vulnerabilities we can't avoid.
+	#
+	# Set "want_ucdsnmp" to "ifpresent" to make the default "use it
+	# if you find it, otherwise don't".
+	#
+	want_ucdsnmp=no
 	ucdsnmp_dir=
 ])
 
