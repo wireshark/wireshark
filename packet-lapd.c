@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lapd.c,v 1.32 2002/10/31 07:12:23 guy Exp $
+ * $Id: packet-lapd.c,v 1.33 2002/10/31 07:43:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,7 +100,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sapi = (address & LAPD_SAPI) >> LAPD_SAPI_SHIFT;
 	lapd_header_len = 2;	/* address */
 
-	if (pinfo->pseudo_header->p2p.sent) {
+	if (pinfo->p2p_dir == P2P_DIR_SENT) {
 		is_response = cr ? TRUE : FALSE;
 		if(check_col(pinfo->cinfo, COL_RES_DL_DST))
 			col_set_str(pinfo->cinfo, COL_RES_DL_DST, "Network");
@@ -108,6 +108,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "User");
 	}
 	else {
+		/* XXX - what if the direction is unknown? */
 		is_response = cr ? FALSE : TRUE;
 		if(check_col(pinfo->cinfo, COL_RES_DL_DST))
 		    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "User");

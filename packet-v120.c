@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.29 2002/10/31 07:12:23 guy Exp $
+ * $Id: packet-v120.c,v 1.30 2002/10/31 07:43:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,20 +82,15 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return;
     }
 
-    if (pinfo->pseudo_header->isdn.uton) {
-	if (!(byte0 & 0x02))
-	    is_response = TRUE;
-	else
-	    is_response = FALSE;
+    if (pinfo->p2p_dir == P2P_DIR_SENT) {
+	is_response = (byte0 & 0x02) ? FALSE: TRUE;
 	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
 	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
 	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
 	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
     } else {
-	if (byte0 & 0x02)
-	    is_response = TRUE;
-	else
-	    is_response = FALSE;
+	/* XXX - what if the direction is unknown? */
+	is_response = (byte0 & 0x02) ? TRUE : FALSE;
 	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
 	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
 	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
