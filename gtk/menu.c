@@ -272,6 +272,8 @@ static GtkItemFactoryEntry menu_items[] =
                              capture_prep_cb, 0, ETHEREAL_STOCK_CAPTURE_START),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/S_top", "<control>E", capture_stop_cb,
                              0, GTK_STOCK_STOP),
+    ITEM_FACTORY_ENTRY("/Capture/_Interfaces...", NULL,
+                             capture_if_cb, 0, NULL, NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Capture Filters...", NULL, cfilter_dialog_cb,
                        0, ETHEREAL_STOCK_CAPTURE_FILTER),
 #endif /* HAVE_LIBPCAP */
@@ -1493,6 +1495,8 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
       capture_in_progress);
 #endif /* HAVE_LIBPCAP */
   set_toolbar_for_capture_in_progress(capture_in_progress);
+
+  set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 }
 
 /* Enable or disable menu items based on whether you have some captured

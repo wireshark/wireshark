@@ -252,8 +252,21 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
     }
 }
 
+
+/* XXX - this is a quick and dirty hack to get the current state of capturing.
+ * this has to be improved, and should be reside somewhere in the capture engine. */
+gboolean g_is_capture_in_progress = FALSE;
+
+gboolean
+is_capture_in_progress(void)
+{
+    return g_is_capture_in_progress;
+}
+
 /* set toolbar state "have a capture in progress" */
 void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
+
+    g_is_capture_in_progress = capture_in_progress;
 
     if (toolbar_init) {
 #ifdef HAVE_LIBPCAP

@@ -49,4 +49,19 @@ void capture_stop_cb(GtkWidget *widget, gpointer data);
  */
 void capture_prep(void);
 
+/** User requested the "Capture Interfaces" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void
+capture_if_cb(GtkWidget *widget, gpointer data);
+
+/** User requested the "Capture Interfaces" dialog box by menu or toolbar.
+ *
+ * @param capture_in_progress capture is in progress
+ */
+void
+set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress);
+
 #endif /* capture.h */

@@ -58,6 +58,7 @@
 
 /* Capture callback data keys */
 #define E_CAP_IFACE_KEY             "cap_iface"
+#define E_CAP_IFACE_IP_KEY          "cap_iface_ip"
 #define E_CAP_SNAP_CB_KEY           "cap_snap_cb"
 #define E_CAP_LT_OM_KEY             "cap_lt_om"
 #define E_CAP_LT_OM_LABEL_KEY       "cap_lt_om_label"
@@ -212,6 +213,23 @@ get_if_name(char *if_text)
  */
 static GtkWidget *cap_open_w;
 
+
+/* From tcptraceroute, convert a numeric IP address to a string */
+/* XXX - this functionality is already somewhere in our code */
+#define IPTOSBUFFERS    12
+char *iptos(u_long in)
+{
+    static char output[IPTOSBUFFERS][3*4+3+1];
+    static short which;
+    u_char *p;
+
+    p = (u_char *)&in;
+    which = (which + 1 == IPTOSBUFFERS ? 0 : which + 1);
+    sprintf(output[which], "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
+    return output[which];
+}
+
+
 static void
 set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 {
@@ -230,6 +248,10 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   gchar *linktype_menu_label;
   guint num_supported_link_types;
   GtkWidget *linktype_lb = OBJECT_GET_DATA(linktype_om, E_CAP_LT_OM_LABEL_KEY);
+  GtkWidget *if_ip_lb;
+  GString *ip_str = g_string_new("IP address: ");
+  int ips = 0;
+  GSList *curr_ip;
 
   lt_menu = gtk_menu_new();
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
@@ -267,6 +289,19 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 	   * Get the list of link-layer types for it.
 	   */
 	  lt_list = get_pcap_linktype_list(if_name, err_buf);
+
+      /* create string of list of IP addresses of this interface */
+      for( ; curr_ip = g_slist_nth(if_info->ip_addr, ips); ips++) {
+          if (ips != 0) {
+              g_string_append(ip_str, ", ");
+          }
+
+          g_string_append(ip_str, iptos(*((guint32 *)curr_ip->data)));
+      }
+
+      if(if_info->loopback) {
+          g_string_append(ip_str, " (loopback)");
+      }
 	}
       }
       free_interface_list(if_list);
@@ -297,6 +332,13 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   gtk_option_menu_set_menu(GTK_OPTION_MENU(linktype_om), lt_menu);
   gtk_widget_set_sensitive(linktype_lb, num_supported_link_types >= 2);
   gtk_widget_set_sensitive(linktype_om, num_supported_link_types >= 2);
+
+  if_ip_lb = OBJECT_GET_DATA(linktype_om, E_CAP_IFACE_KEY);
+  if(ips == 0) {
+    g_string_append(ip_str, "unknown");
+  }
+  gtk_label_set_text(GTK_LABEL(if_ip_lb), ip_str->str);
+  g_string_free(ip_str, TRUE);
 }
 
 
@@ -526,6 +568,7 @@ capture_prep(void)
 
                 *capture_fr, *capture_vb,
                 *if_hb, *if_cb, *if_lb,
+                *if_ip_hb, *if_ip_lb,
                 *linktype_hb, *linktype_lb, *linktype_om,
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
@@ -660,6 +703,12 @@ capture_prep(void)
     "Be sure to select the correct one, as it's a common mistake to select the wrong interface.", NULL);
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, TRUE, TRUE, 6);
 
+  if_ip_hb = gtk_hbox_new(FALSE, 3);
+  gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, FALSE, FALSE, 0);
+
+  if_ip_lb = gtk_label_new("");
+  gtk_box_pack_start(GTK_BOX(if_ip_hb), if_ip_lb, FALSE, FALSE, 6);
+
   /* Linktype row */
   linktype_hb = gtk_hbox_new(FALSE, 3);
   gtk_box_pack_start(GTK_BOX(capture_vb), linktype_hb, FALSE, FALSE, 0);
@@ -671,6 +720,7 @@ capture_prep(void)
   OBJECT_SET_DATA(linktype_om, E_CAP_LT_OM_LABEL_KEY, linktype_lb);
   /* Default to "use the default" */
   OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
+  OBJECT_SET_DATA(linktype_om, E_CAP_IFACE_KEY, if_ip_lb);
   set_link_type_list(linktype_om, GTK_COMBO(if_cb)->entry);
   /*
    * XXX - in some cases, this is "multiple link-layer header types", e.g.
