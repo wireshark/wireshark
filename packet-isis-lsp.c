@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.41 2003/04/03 05:22:08 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.42 2003/04/29 16:57:05 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -452,7 +452,7 @@ dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 	}
 
 	proto_tree_add_text ( tree, tvb, offset, 2 ,
-                        "%s Topology (%d)", mt_desc, mt_id);
+                        "%s (%d)", mt_desc, mt_id);
 
 }
 
