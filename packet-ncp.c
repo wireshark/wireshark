@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.19 1999/09/02 23:17:57 guy Exp $
+ * $Id: packet-ncp.c,v 1.20 1999/10/17 14:09:35 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,6 +44,10 @@
 #include "packet-ncp.h"
 
 static int proto_ncp = -1;
+static int hf_ncp_type = -1;
+static int hf_ncp_seq = -1;
+static int hf_ncp_connection = -1;
+static int hf_ncp_task = -1;
 
 struct svc_record;
 
@@ -453,18 +457,22 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ti = proto_tree_add_item(tree, proto_ncp, offset, END_OF_FRAME, NULL);
 		ncp_tree = proto_item_add_subtree(ti, ETT_NCP);
 
-		proto_tree_add_text(ncp_tree, offset,      2,
-			"Type: %s", val_to_str( header.type,
-			request_reply_values, "Unknown (%04X)"));
+		proto_tree_add_item_format(ncp_tree, hf_ncp_type, 
+					   offset,      2,
+					   header.type,
+					   "Type: %s", 
+					   val_to_str( header.type,
+						       request_reply_values,
+						       "Unknown (%04X)"));
 
-		proto_tree_add_text(ncp_tree, offset+2,    1,
-			"Sequence Number: %d", header.sequence);
+		proto_tree_add_item(ncp_tree, hf_ncp_seq, 
+				    offset+2,    1, header.sequence);
 
-		proto_tree_add_text(ncp_tree, offset+3,    3,
-			"Connection Number: %d", nw_connection);
+		proto_tree_add_item(ncp_tree, hf_ncp_connection,
+				    offset+3,    3, nw_connection);
 
-		proto_tree_add_text(ncp_tree, offset+4,    1,
-			"Task Number: %d", header.task);
+		proto_tree_add_item(ncp_tree, hf_ncp_task, 
+				    offset+4,    1, header.task);
 	}
 
 	/* Note how I use ncp_tree *and* tree in my args for ncp request/reply */
@@ -851,11 +859,27 @@ ncp_completion_code(guint8 ccode, enum nfamily family)
 void
 proto_register_ncp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "ncp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
 
-        proto_ncp = proto_register_protocol("NetWare Core Protocol", "ncp");
- /*       proto_register_field_array(proto_ncp, hf, array_length(hf));*/
+  static hf_register_info hf[] = {
+    { &hf_ncp_type,
+      { "Type",			"ncp.type",
+	FT_UINT16, BASE_HEX, NULL, 0x0,
+	"NCP message type" }},
+    { &hf_ncp_seq,
+      { "Sequence Number",     	"ncp.seq",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"" }},
+    { &hf_ncp_connection,
+      { "Connection Number",    "ncp.connection",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"" }},
+    { &hf_ncp_task,
+      { "Task Number",     	"ncp.task",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"" }}
+  };
+
+  proto_ncp = proto_register_protocol("NetWare Core Protocol", "ncp");
+  proto_register_field_array(proto_ncp, hf, array_length(hf));
+
 }
