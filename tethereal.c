@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.198 2003/09/19 04:52:16 guy Exp $
+ * $Id: tethereal.c,v 1.199 2003/09/25 00:08:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1421,6 +1421,9 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
+
+static condition  *volatile cnd_ring_timeout = NULL; /* this must be visible in wtap_dispatch_cb_write */
+
 static int
 capture(int out_file_type)
 {
@@ -1438,7 +1441,6 @@ capture(int out_file_type)
   char        errmsg[1024+1];
   condition  *volatile cnd_stop_capturesize = NULL;
   condition  *volatile cnd_stop_timeout = NULL;
-  condition  *volatile cnd_ring_timeout = NULL;
 #ifndef _WIN32
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
@@ -1714,15 +1716,6 @@ capture(int out_file_type)
     } else if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
       /* The specified capture time has elapsed; stop the capture. */
       ld.go = FALSE;
-    } else if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
-      /* time elasped for this ring file, swith to the next */
-      if (ringbuf_switch_file(&cfile, &ld.pdh, &loop_err)) {
-	/* File switch succeeded: reset the condition */
-	cnd_reset(cnd_ring_timeout);
-      } else {
-	/* File switch failed: stop here */
-	ld.go = FALSE;
-      }
     } else if (inpkts > 0) {
       if (capture_opts.autostop_count != 0 &&
                  ld.packet_count >= capture_opts.autostop_count) {
@@ -2204,7 +2197,26 @@ wtap_dispatch_cb_write(guchar *user, const struct wtap_pkthdr *phdr,
   if (passed) {
     /* The packet passed the read filter. */
 #ifdef HAVE_LIBPCAP
+    int loop_err;
+
     ld.packet_count++;
+
+    /* The current packet may have arrived after a very long silence,
+     * way past the time to switch files.  In order not to have
+     * the first packet of a new series of events as the last
+     * [or only] packet in the file, switch before writing!
+     */
+    if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
+      /* time elasped for this ring file, switch to the next */
+      if (ringbuf_switch_file(&cfile, &ld.pdh, &loop_err)) {
+	/* File switch succeeded: reset the condition */
+	cnd_reset(cnd_ring_timeout);
+      } else {
+	/* File switch failed: stop here */
+	/* XXX - we should do something with "loop_err" */
+	ld.go = FALSE;
+      }
+    }
 #endif
     if (!wtap_dump(pdh, phdr, pseudo_header, buf, &err)) {
 #ifdef HAVE_LIBPCAP
