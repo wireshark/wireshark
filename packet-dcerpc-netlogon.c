@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.18 2002/04/29 08:20:06 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.19 2002/05/03 11:16:55 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3332,7 +3332,7 @@ netlogon_dissect_TYPE_47(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_00_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogonuaslogon_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
@@ -3351,7 +3351,7 @@ netlogon_dissect_function_00_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_00_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogonuaslogon_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3365,7 +3365,7 @@ netlogon_dissect_function_00_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_function_01_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogonuaslogoff_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
@@ -3384,7 +3384,7 @@ netlogon_dissect_function_01_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_01_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogonuaslogoff_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3669,7 +3669,7 @@ netlogon_dissect_netsamdeltas_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_function_08_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogondatabasesync_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
@@ -3700,7 +3700,7 @@ netlogon_dissect_function_08_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_08_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogondatabasesync_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3722,7 +3722,7 @@ netlogon_dissect_function_08_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_function_09_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogonaccountdeltas_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
@@ -3756,7 +3756,7 @@ netlogon_dissect_function_09_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_09_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogonaccountdeltas_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3786,7 +3786,7 @@ netlogon_dissect_function_09_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_function_0a_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogonaccountsync_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
@@ -3817,7 +3817,7 @@ netlogon_dissect_function_0a_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_0a_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogonaccountsync_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3851,7 +3851,7 @@ netlogon_dissect_function_0a_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_function_0b_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogongetdcname_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 
@@ -3870,7 +3870,7 @@ netlogon_dissect_function_0b_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_0b_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogongetdcname_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3915,7 +3915,7 @@ netlogon_dissect_netlogoncontrol_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_function_0d_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogongetanydcname_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
@@ -3933,7 +3933,7 @@ netlogon_dissect_function_0d_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_0d_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogongetanydcname_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -4090,7 +4090,7 @@ netlogon_dissect_netdatabasesync2_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_function_11_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogondatabaseredo_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
@@ -4119,7 +4119,7 @@ netlogon_dissect_function_11_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_11_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_netlogondatabaseredo_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -5018,12 +5018,12 @@ netlogon_dissect_dsrderegisterdnshostrecords_reply(tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
-	{ NETLOGON_FUNCTION_00, "FUNCTION_00",
-		netlogon_dissect_function_00_rqst,
-		netlogon_dissect_function_00_reply },
-	{ NETLOGON_FUNCTION_01, "FUNCTION_01",
-		netlogon_dissect_function_01_rqst,
-		netlogon_dissect_function_01_reply },
+	{ NETLOGON_UASLOGON, "UasLogon",
+		netlogon_dissect_netlogonuaslogon_rqst,
+		netlogon_dissect_netlogonuaslogon_reply },
+	{ NETLOGON_UASLOGOFF, "UasLogoff",
+		netlogon_dissect_netlogonuaslogoff_rqst,
+		netlogon_dissect_netlogonuaslogoff_reply },
 	{ NETLOGON_NETLOGONSAMLOGON, "NETLOGONSAMLOGON",
 		netlogon_dissect_netlogonsamlogon_rqst,
 		netlogon_dissect_netlogonsamlogon_reply },
@@ -5042,24 +5042,24 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_NETSAMDELTAS, "NETSAMDELTAS",
 		netlogon_dissect_netsamdeltas_rqst,
 		netlogon_dissect_netsamdeltas_reply },
-	{ NETLOGON_FUNCTION_08, "FUNCTION_08",
-		netlogon_dissect_function_08_rqst,
-		netlogon_dissect_function_08_reply },
-	{ NETLOGON_FUNCTION_09, "FUNCTION_09",
-		netlogon_dissect_function_09_rqst,
-		netlogon_dissect_function_09_reply },
-	{ NETLOGON_FUNCTION_0A, "FUNCTION_0A",
-		netlogon_dissect_function_0a_rqst,
-		netlogon_dissect_function_0a_reply },
-	{ NETLOGON_FUNCTION_0B, "FUNCTION_0B",
-		netlogon_dissect_function_0b_rqst,
-		netlogon_dissect_function_0b_reply },
+	{ NETLOGON_DATABASESYNC, "DatabaseSync",
+		netlogon_dissect_netlogondatabasesync_rqst,
+		netlogon_dissect_netlogondatabasesync_reply },
+	{ NETLOGON_ACCOUNTDELTAS, "AccountDeltas",
+		netlogon_dissect_netlogonaccountdeltas_rqst,
+		netlogon_dissect_netlogonaccountdeltas_reply },
+	{ NETLOGON_ACCOUNTSYNC, "AccountSync",
+		netlogon_dissect_netlogonaccountsync_rqst,
+		netlogon_dissect_netlogonaccountsync_reply },
+	{ NETLOGON_GETDCNAME, "GetDCName",
+		netlogon_dissect_netlogongetdcname_rqst,
+		netlogon_dissect_netlogongetdcname_reply },
 	{ NETLOGON_NETLOGONCONTROL, "NETLOGONCONTROL",
 		netlogon_dissect_netlogoncontrol_rqst,
 		netlogon_dissect_netlogoncontrol_reply },
-	{ NETLOGON_FUNCTION_0D, "FUNCTION_0D",
-		netlogon_dissect_function_0d_rqst,
-		netlogon_dissect_function_0d_reply },
+	{ NETLOGON_GETANYDCNAME, "GetAnyDCName",
+		netlogon_dissect_netlogongetanydcname_rqst,
+		netlogon_dissect_netlogongetanydcname_reply },
 	{ NETLOGON_NETLOGONCONTROL2, "NETLOGONCONTROL2",
 		netlogon_dissect_netlogoncontrol2_rqst,
 		netlogon_dissect_netlogoncontrol2_reply },
@@ -5069,9 +5069,9 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_NETDATABASESYNC2, "NETDATABASESYNC2",
 		netlogon_dissect_netdatabasesync2_rqst,
 		netlogon_dissect_netdatabasesync2_reply },
-	{ NETLOGON_FUNCTION_11, "FUNCTION_11",
-		netlogon_dissect_function_11_rqst,
-		netlogon_dissect_function_11_reply },
+	{ NETLOGON_DATABASEREDO, "DatabaseRedo",
+		netlogon_dissect_netlogondatabaseredo_rqst,
+		netlogon_dissect_netlogondatabaseredo_reply },
 	{ NETLOGON_FUNCTION_12, "FUNCTION_12",
 		netlogon_dissect_function_12_rqst,
 		netlogon_dissect_function_12_reply },
