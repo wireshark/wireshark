@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.14 2001/01/09 06:31:37 guy Exp $
+ * $Id: packet-kerberos.c,v 1.15 2001/04/15 07:30:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,15 +47,17 @@
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
 
-static gint ett_kerberos   = -1;
-static gint ett_preauth    = -1;
-static gint ett_addresses  = -1;
-static gint ett_request    = -1;
-static gint ett_princ      = -1;
-static gint ett_ticket     = -1;
-static gint ett_encrypted  = -1;
-static gint ett_etype      = -1;
 static gint proto_kerberos = -1;
+
+static gint ett_kerberos = -1;
+static gint ett_preauth = -1;
+static gint ett_addresses = -1;
+static gint ett_request = -1;
+static gint ett_princ = -1;
+static gint ett_ticket = -1;
+static gint ett_encrypted = -1;
+static gint ett_etype = -1;
+static gint ett_additional_tickets = -1;
 
 #define KRB5_MSG_AS_REQ   10	/* AS-REQ type */
 #define KRB5_MSG_AS_REP   11	/* AS-REP type */
@@ -338,21 +340,19 @@ static const value_string krb5_msg_types[] = {
 };
 
 static int dissect_PrincipalName(char *title, ASN1_SCK *asn1p,
-                                 frame_data *fd, proto_tree *tree,
+                                 packet_info *pinfo, proto_tree *tree,
                                  int start_offset);
-static int dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd,
+static int dissect_Ticket(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
                           proto_tree *tree, int start_offset);
-static int dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
-                                 proto_tree *tree, int start_offset);
-static int dissect_Addresses(char *title, ASN1_SCK *asn1p, frame_data *fd,
+static int dissect_EncryptedData(char *title, ASN1_SCK *asn1p,
+				 packet_info *pinfo, proto_tree *tree,
+				 int start_offset);
+static int dissect_Addresses(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
                              proto_tree *tree, int start_offset);
 
 static const char *
 to_error_str(int ret) {
     switch (ret) {
-
-        case ASN1_ERR_EMPTY:
-            return("Ran out of data");
 
         case ASN1_ERR_EOC_MISMATCH:
             return("EOC mismatch");
@@ -374,10 +374,11 @@ to_error_str(int ret) {
 }
 
 static void
-krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
-                        char *name, guchar *str) {
+krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
+			int str_len, char *name, guchar *str)
+{
     if (tree)
-        proto_tree_add_text(tree, NullTVB, offset, str_len,
+        proto_tree_add_text(tree, tvb, offset, str_len,
                             "%s: %.4s-%.2s-%.2s %.2s:%.2s:%.2s (%.1s)",
                             name, str, str+4, str+6,
                             str+8, str+10, str+12,
@@ -391,21 +392,21 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
  */
 
 #define KRB_HEAD_DECODE_OR_DIE(token) \
-   start = asn1p->pointer; \
+   start = asn1p->offset; \
    ret = asn1_header_decode (asn1p, &cls, &con, &tag, &def, &item_len); \
-   if (ret != ASN1_ERR_NOERROR && ret != ASN1_ERR_EMPTY) {\
-       if (check_col(fd, COL_INFO)) \
-           col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
+   if (ret != ASN1_ERR_NOERROR) {\
+       if (check_col(pinfo->fd, COL_INFO)) \
+           col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s", \
                     token, to_error_str(ret)); \
        return -1; \
    } \
    if (!def) {\
-       if (check_col(fd, COL_INFO)) \
-           col_add_fstr(fd, COL_INFO, "not definite: %s", token); \
+       if (check_col(pinfo->fd, COL_INFO)) \
+           col_add_fstr(pinfo->fd, COL_INFO, "not definite: %s", token); \
        fprintf(stderr,"not definite: %s\n", token); \
        return -1; \
    } \
-   offset += (asn1p->pointer - start);
+   offset += (asn1p->offset - start);
 
 #define CHECK_APPLICATION_TYPE(expected_tag) \
     (cls == ASN1_APL && con == ASN1_CON && tag == expected_tag)
@@ -423,8 +424,8 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
 
 #define DIE_WITH_BAD_TYPE(token, expected_tag) \
     { \
-      if (check_col(fd, COL_INFO)) \
-         col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s (tag=%d exp=%d)", \
+      if (check_col(pinfo->fd, COL_INFO)) \
+         col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s (tag=%d exp=%d)", \
                       token, to_error_str(ASN1_ERR_WRONG_TYPE), tag, expected_tag); \
       return -1; \
     }
@@ -439,9 +440,9 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
 
 #define KRB_SEQ_HEAD_DECODE_OR_DIE(token) \
    ret = asn1_sequence_decode (asn1p, &item_len, &header_len); \
-   if (ret != ASN1_ERR_NOERROR && ret != ASN1_ERR_EMPTY) {\
-       if (check_col(fd, COL_INFO)) \
-           col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
+   if (ret != ASN1_ERR_NOERROR) {\
+       if (check_col(pinfo->fd, COL_INFO)) \
+           col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s", \
                     token, to_error_str(ret)); \
        return -1; \
    } \
@@ -450,8 +451,8 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
 #define KRB_DECODE_OR_DIE(token, fn, val) \
     ret = fn (asn1p, &val, &length); \
     if (ret != ASN1_ERR_NOERROR) { \
-       if (check_col(fd, COL_INFO)) \
-         col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
+       if (check_col(pinfo->fd, COL_INFO)) \
+         col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s", \
                      token, to_error_str(ret)); \
         return -1; \
     } \
@@ -462,8 +463,8 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
 #define KRB_DECODE_STRING_OR_DIE(token, expected_tag, val, val_len, item_len) \
     ret = asn1_string_decode (asn1p, &val, &val_len, &item_len, expected_tag); \
     if (ret != ASN1_ERR_NOERROR) { \
-       if (check_col(fd, COL_INFO)) \
-         col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
+       if (check_col(pinfo->fd, COL_INFO)) \
+         col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s", \
                      token, to_error_str(ret)); \
         return -1; \
     }
@@ -493,20 +494,20 @@ dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
     int offset = *inoff;
     guint cls, con, tag;
     gboolean def;
-    const guchar *start;
+    int start;
     guint tmp_len;
     int ret;
 
     /* SEQUENCE */
-    start = asn1p->pointer;
+    start = asn1p->offset;
     asn1_header_decode (asn1p, &cls, &con, &tag, &def, &tmp_len);
-    offset += (asn1p->pointer - start);
+    offset += (asn1p->offset - start);
 
     /* INT */
     /* wrapper */
-    start = asn1p->pointer;
+    start = asn1p->offset;
     asn1_header_decode (asn1p, &cls, &con, &tag, &def, &tmp_len);
-    offset += (asn1p->pointer - start);
+    offset += (asn1p->offset - start);
 
     if (type_off)
         *type_off = offset;
@@ -521,10 +522,10 @@ dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
 
     /* OCTET STRING (or generic data) */
     /* wrapper */
-    start = asn1p->pointer;
+    start = asn1p->offset;
     asn1_header_decode (asn1p, &cls, &con, &tag, &def, val_len);
     asn1_header_decode (asn1p, &cls, &con, &tag, &def, val_len);
-    offset += asn1p->pointer - start;
+    offset += asn1p->offset - start;
     
     if (val_off)
         *val_off = offset;
@@ -536,13 +537,14 @@ dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
 }
 
 static gboolean
-dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
-                      proto_tree *tree)
+dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    int offset = 0;
     proto_tree *kerberos_tree = NULL;
     proto_tree *etype_tree = NULL;
     proto_tree *preauth_tree = NULL;
     proto_tree *request_tree = NULL;
+    proto_tree *additional_tickets_tree = NULL;
     ASN1_SCK asn1, *asn1p = &asn1;
     proto_item *item = NULL;
 
@@ -550,7 +552,7 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
     guint cls, con, tag;
     gboolean def;
     guint item_len, total_len;
-    const guchar *start;
+    int start, end, message_end, sequence_end;
 
     int ret;
 
@@ -566,17 +568,17 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
     guchar *str;
     int tmp_pos1, tmp_pos2;
 
-    if (tree) {
-        item = proto_tree_add_item(tree, proto_kerberos, NullTVB, offset,
-                                   END_OF_FRAME, FALSE);
-        kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
-    }
-
-    asn1_open(&asn1, &pd[offset], END_OF_FRAME);
+    asn1_open(&asn1, tvb, 0);
 
     /* top header */
     KRB_HEAD_DECODE_OR_DIE("top");
     protocol_message_type = tag;
+    if (tree) {
+        item = proto_tree_add_item(tree, proto_kerberos, tvb, offset,
+                                   item_len, FALSE);
+        kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
+    }
+    message_end = start + item_len;
     
     /* second header */
     KRB_HEAD_DECODE_OR_DIE("top2");
@@ -586,7 +588,7 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
     KRB_DECODE_UINT32_OR_DIE("version", version);
 
     if (kerberos_tree) {
-        proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
+        proto_tree_add_text(kerberos_tree, tvb, offset, length,
                             "Version: %d",
                             version);
     }
@@ -597,15 +599,15 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
     KRB_DECODE_UINT32_OR_DIE("message-type", msg_type);
 
     if (kerberos_tree) {
-        proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
+        proto_tree_add_text(kerberos_tree, tvb, offset, length,
                             "MSG Type: %s",
                             val_to_str(msg_type, krb5_msg_types,
                                        "Unknown msg type %#x"));
     }
     offset += length;
 
-    if (check_col(fd, COL_INFO))
-        col_add_str(fd, COL_INFO, val_to_str(msg_type, krb5_msg_types,
+    if (check_col(pinfo->fd, COL_INFO))
+        col_add_str(pinfo->fd, COL_INFO, val_to_str(msg_type, krb5_msg_types,
                                              "Unknown msg type %#x"));
 
         /* is preauthentication present? */
@@ -619,26 +621,26 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
         /* pre-authentication supplied */
 
         if (tree) {
-            item = proto_tree_add_text(kerberos_tree, NullTVB, offset,
+            item = proto_tree_add_text(kerberos_tree, tvb, offset,
                                        item_len, "Pre-Authentication");
             preauth_tree = proto_item_add_subtree(item, ett_preauth);
         }
 
         KRB_HEAD_DECODE_OR_DIE("sequence of pa-data");
-        start = asn1p->pointer + item_len;
+        end = asn1p->offset + item_len;
 
-        while(start > asn1p->pointer) {
+        while(asn1p->offset < end) {
             dissect_type_value_pair(asn1p, &offset,
                                     &preauth_type, &item_len, &tmp_pos1,
                                     &str, &str_len, &tmp_pos2);
 
             if (preauth_tree) {
-                proto_tree_add_text(preauth_tree, NullTVB, tmp_pos1,
+                proto_tree_add_text(preauth_tree, tvb, tmp_pos1,
                                     item_len, "Type: %s",
                                     val_to_str(preauth_type,
                                                krb5_preauthentication_types,
                                                "Unknown preauth type %#x"));
-                proto_tree_add_text(preauth_tree, NullTVB, tmp_pos2,
+                proto_tree_add_text(preauth_tree, tvb, tmp_pos2,
                                     str_len, "Value: %s",
                                     bytes_to_str(str, str_len));
             }
@@ -684,10 +686,11 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
         /* request body */
         KRB_HEAD_DECODE_OR_DIE("body-sequence");
         if (tree) {
-            item = proto_tree_add_text(kerberos_tree, NullTVB, offset,
+            item = proto_tree_add_text(kerberos_tree, tvb, offset,
                                        item_len, "Request");
             request_tree = proto_item_add_subtree(item, ett_request);
         }
+        sequence_end = start + item_len;
 
         /* kdc options */
         KRB_HEAD_DECODE_OR_DIE("kdc options");
@@ -695,17 +698,18 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
         KRB_HEAD_DECODE_OR_DIE("kdc options:bits");
 
         if (request_tree) {
-                proto_tree_add_text(request_tree, NullTVB, offset, item_len,
+                proto_tree_add_text(request_tree, tvb, offset, item_len,
                                     "Options: %s",
-                                    bytes_to_str(asn1.pointer, item_len));
+                                    tvb_bytes_to_str(asn1.tvb, asn1.offset,
+                                                     item_len));
         }
         offset += item_len;
-        asn1.pointer += item_len;
+        asn1.offset += item_len;
 
         KRB_HEAD_DECODE_OR_DIE("Client Name or Realm");
 
         if (CHECK_CONTEXT_TYPE(KRB5_BODY_CNAME)) {
-            item_len = dissect_PrincipalName("Client Name", asn1p, fd,
+            item_len = dissect_PrincipalName("Client Name", asn1p, pinfo,
                                              request_tree, offset);
             if (item_len == -1)
                 return -1;
@@ -716,14 +720,14 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
         DIE_IF_NOT_CONTEXT_TYPE("Realm", KRB5_BODY_REALM);
         KRB_DECODE_GENERAL_STRING_OR_DIE("Realm", str, str_len, item_len);
         if (request_tree) {
-            proto_tree_add_text(request_tree, NullTVB, offset, item_len,
+            proto_tree_add_text(request_tree, tvb, offset, item_len,
                                 "Realm: %.*s", str_len, str);
         }
         offset += item_len;
 
         KRB_HEAD_DECODE_OR_DIE("Server Name");
         if (CHECK_CONTEXT_TYPE(KRB5_BODY_SNAME)) {
-            item_len = dissect_PrincipalName("Server Name", asn1p, fd,
+            item_len = dissect_PrincipalName("Server Name", asn1p, pinfo,
                                              request_tree, offset);
             if (item_len == -1)
                 return -1;
@@ -733,7 +737,7 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
 
         if (CHECK_CONTEXT_TYPE(KRB5_BODY_FROM)) {
             KRB_DECODE_GENERAL_TIME_OR_DIE("From", str, str_len, item_len);
-            krb_proto_tree_add_time(request_tree, offset, item_len,
+            krb_proto_tree_add_time(request_tree, asn1p->tvb, offset, item_len,
                                     "Start Time", str);
             offset += item_len;
             KRB_HEAD_DECODE_OR_DIE("Till");
@@ -741,14 +745,14 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
 
         DIE_IF_NOT_CONTEXT_TYPE("Till", KRB5_BODY_TILL);
         KRB_DECODE_GENERAL_TIME_OR_DIE("Till", str, str_len, item_len);
-        krb_proto_tree_add_time(request_tree, offset, item_len,
+        krb_proto_tree_add_time(request_tree, asn1p->tvb, offset, item_len,
                                 "End Time", str);
         offset += item_len;
 
         KRB_HEAD_DECODE_OR_DIE("Renewable Until or Nonce");
         if (CHECK_CONTEXT_TYPE(KRB5_BODY_RTIME)) {
             KRB_DECODE_GENERAL_TIME_OR_DIE("Renewable Until", str, str_len, item_len);
-            krb_proto_tree_add_time(request_tree, offset, item_len,
+            krb_proto_tree_add_time(request_tree, asn1p->tvb, offset, item_len,
                                     "Renewable Until", str);
             offset += item_len;
             KRB_HEAD_DECODE_OR_DIE("Nonce");
@@ -757,7 +761,7 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
         DIE_IF_NOT_CONTEXT_TYPE("Nonce", KRB5_BODY_NONCE);
         KRB_DECODE_UINT32_OR_DIE("Nonce", tmp_int);
         if (request_tree) {
-            proto_tree_add_text(request_tree, NullTVB, offset, length,
+            proto_tree_add_text(request_tree, tvb, offset, length,
                                 "Random Number: %u",
                                 tmp_int);
         }
@@ -767,7 +771,7 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
                                               KRB5_BODY_ENCTYPE);
         KRB_HEAD_DECODE_OR_DIE("encryption type list");
         if (kerberos_tree) {
-            item = proto_tree_add_text(request_tree, NullTVB, offset,
+            item = proto_tree_add_text(request_tree, tvb, offset,
                                        item_len, "Encryption Types");
             etype_tree = proto_item_add_subtree(item, ett_etype);
         }
@@ -775,7 +779,7 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
         while(total_len > 0) {
             KRB_DECODE_UINT32_OR_DIE("encryption type", tmp_int);
             if (etype_tree) {
-                proto_tree_add_text(etype_tree, NullTVB, offset, length,
+                proto_tree_add_text(etype_tree, tvb, offset, length,
                                     "Type: %s",
                                     val_to_str(tmp_int,
                                                krb5_encryption_types,
@@ -785,16 +789,50 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
             total_len -= length;
         }
 
-        KRB_HEAD_DECODE_OR_DIE("addresses");
+        if (asn1p->offset >= sequence_end)
+            break;
+        KRB_HEAD_DECODE_OR_DIE("addresses or enc-authorization-data");
         if (CHECK_CONTEXT_TYPE(KRB5_BODY_ADDRESSES)) {
-            /* pre-authentication supplied */
+            /* addresses supplied */
 
-            offset = dissect_Addresses("Addresses", asn1p, fd, kerberos_tree,
+            length = dissect_Addresses("Addresses", asn1p, pinfo, kerberos_tree,
                                        offset);
             if (offset == -1)
                 return -1;
-            KRB_HEAD_DECODE_OR_DIE("auth-data");
+            offset += length;
+            if (asn1p->offset >= sequence_end)
+                break;
+            KRB_HEAD_DECODE_OR_DIE("enc-authorization-data or additional-tickets");
         }
+
+        if (CHECK_CONTEXT_TYPE(KRB5_BODY_ENC_AUTHORIZATION_DATA)) {
+            /* enc-authorization-data supplied */
+            length = dissect_EncryptedData("Encrypted Payload", asn1p, pinfo,
+                                           kerberos_tree, offset);
+            if (length == -1)
+                return -1;
+            offset += length;
+            if (asn1p->offset >= sequence_end)
+                break;
+            KRB_HEAD_DECODE_OR_DIE("additional-tickets");
+        }
+
+        /* additional-tickets supplied */
+        if (tree) {
+            item = proto_tree_add_text(kerberos_tree, tvb, offset,
+                                       item_len, "Additional Tickets");
+            additional_tickets_tree = proto_item_add_subtree(item, ett_additional_tickets);
+        }
+        end = asn1p->offset + item_len;
+        while(asn1p->offset < end) {
+            KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_KDC_REP_TICKET);
+            length = dissect_Ticket("ticket", asn1p, pinfo, additional_tickets_tree,
+                                    offset);
+            if (length == -1)
+                return -1;
+            offset += length;
+        }
+
         break;
 
     case KRB5_MSG_AS_REP:
@@ -814,32 +852,34 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
    }
 */
 
-		DIE_IF_NOT_CONTEXT_TYPE("crealm", KRB5_KDC_REP_CREALM);
+	DIE_IF_NOT_CONTEXT_TYPE("crealm", KRB5_KDC_REP_CREALM);
         KRB_DECODE_GENERAL_STRING_OR_DIE("realm name", str, str_len, item_len);
         if (kerberos_tree) {
-            proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
+            proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
                                 "Realm: %.*s", str_len, str);
         }
         offset += item_len;
 
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("cname", KRB5_KDC_REP_CNAME);
-        item_len = dissect_PrincipalName("Client Name", asn1p, fd,
+        item_len = dissect_PrincipalName("Client Name", asn1p, pinfo,
                                          kerberos_tree, offset);
         if (item_len == -1)
             return -1;
         offset += item_len;
         
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_KDC_REP_TICKET);
-        offset = dissect_Ticket("ticket", asn1p, fd, kerberos_tree, offset);
-        if (offset == -1)
+        length = dissect_Ticket("ticket", asn1p, pinfo, kerberos_tree, offset);
+        if (length == -1)
             return -1;
+        offset += length;
 
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("enc-msg-part",
                                               KRB5_KDC_REP_ENC_PART);
-        offset = dissect_EncryptedData("Encrypted Payload", asn1p, fd,
+        length = dissect_EncryptedData("Encrypted Payload", asn1p, pinfo,
                                        kerberos_tree, offset);
-        if (offset == -1)
+        if (length == -1)
             return -1;
+        offset += length;
         break;
 
     case KRB5_MSG_ERROR:
@@ -863,115 +903,118 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
 
 */
 
-		/* ctime */
+	/* ctime */
         if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CTIME)) {
             KRB_DECODE_GENERAL_TIME_OR_DIE("ctime", str, str_len, item_len);
-            krb_proto_tree_add_time(kerberos_tree, offset, item_len,
+            krb_proto_tree_add_time(kerberos_tree, asn1p->tvb, offset, item_len,
                                     "ctime", str);
             offset += item_len;
 			KRB_HEAD_DECODE_OR_DIE("cusec");
         }
 
-		/* cusec */
+	/* cusec */
         if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CUSEC)) {
 			KRB_DECODE_UINT32_OR_DIE("cusec", tmp_int);
-	        if (kerberos_tree) {
-	            proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
-	                                "cusec: %u",
-	                                tmp_int);
-	        }
+	    if (kerberos_tree) {
+		proto_tree_add_text(kerberos_tree, tvb, offset, length,
+	                            "cusec: %u",
+	                            tmp_int);
+	    }
 
             offset += item_len;
 			KRB_HEAD_DECODE_OR_DIE("sutime");
         }
 
-		DIE_IF_NOT_CONTEXT_TYPE("sutime", KRB5_ERROR_STIME);
-	    KRB_DECODE_GENERAL_TIME_OR_DIE("stime", str, str_len, item_len);
-	    krb_proto_tree_add_time(kerberos_tree, offset, item_len,
+	DIE_IF_NOT_CONTEXT_TYPE("sutime", KRB5_ERROR_STIME);
+	KRB_DECODE_GENERAL_TIME_OR_DIE("stime", str, str_len, item_len);
+	krb_proto_tree_add_time(kerberos_tree, asn1p->tvb, offset, item_len,
 	                            "stime", str);
     	offset += item_len;
 
-		KRB_HEAD_DECODE_OR_DIE("susec");
-		DIE_IF_NOT_CONTEXT_TYPE("susec", KRB5_ERROR_SUSEC);		
-		KRB_DECODE_UINT32_OR_DIE("susec", tmp_int);
-		if (kerberos_tree) {
-		    proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
-		                        "susec: %u",
-		                        tmp_int);
-		}
-	    offset += item_len;
+	KRB_HEAD_DECODE_OR_DIE("susec");
+	DIE_IF_NOT_CONTEXT_TYPE("susec", KRB5_ERROR_SUSEC);		
+	KRB_DECODE_UINT32_OR_DIE("susec", tmp_int);
+	if (kerberos_tree) {
+		proto_tree_add_text(kerberos_tree, tvb, offset, length,
+		                    "susec: %u",
+		                    tmp_int);
+	}
+	offset += item_len;
 
-		KRB_HEAD_DECODE_OR_DIE("errcode");
-		DIE_IF_NOT_CONTEXT_TYPE("errcode", KRB5_ERROR_ERROR_CODE);		
-		KRB_DECODE_UINT32_OR_DIE("errcode", tmp_int);
-	    if (kerberos_tree) {
-	        proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
-	                            "Error Code: %s",
-								val_to_str(tmp_int,
-                                               krb5_error_codes,
-                                               "Unknown error code %#x"));
-	    }
+	KRB_HEAD_DECODE_OR_DIE("errcode");
+	DIE_IF_NOT_CONTEXT_TYPE("errcode", KRB5_ERROR_ERROR_CODE);
+	KRB_DECODE_UINT32_OR_DIE("errcode", tmp_int);
+	if (kerberos_tree) {
+	    proto_tree_add_text(kerberos_tree, tvb, offset, length,
+	                        "Error Code: %s",
+				val_to_str(tmp_int, krb5_error_codes,
+                                           "Unknown error code %#x"));
+	}
         offset += item_len;
-		KRB_HEAD_DECODE_OR_DIE("crealm");
+	KRB_HEAD_DECODE_OR_DIE("crealm");
 
         if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CREALM)) {
         	KRB_DECODE_GENERAL_STRING_OR_DIE("crealm", str, str_len, item_len);
         	if (kerberos_tree) {
-            	proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
+		    proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
                                 	"crealm: %.*s", str_len, str);
         	}
         	offset += item_len;
-			KRB_HEAD_DECODE_OR_DIE("cname");
-		}
+		KRB_HEAD_DECODE_OR_DIE("cname");
+	}
 
-		if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CNAME)) {
-	        item_len = dissect_PrincipalName("cname", asn1p, fd,
+	if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CNAME)) {
+	    item_len = dissect_PrincipalName("cname", asn1p, pinfo,
                                          kerberos_tree, offset);
-	        if (item_len == -1)
-	            return -1;
-	        offset += item_len;
-			KRB_HEAD_DECODE_OR_DIE("realm");
-		}
+	    if (item_len == -1)
+		return -1;
+	    offset += item_len;
+	    KRB_HEAD_DECODE_OR_DIE("realm");
+	}
 
-		DIE_IF_NOT_CONTEXT_TYPE("realm", KRB5_ERROR_REALM);
+	DIE_IF_NOT_CONTEXT_TYPE("realm", KRB5_ERROR_REALM);
         KRB_DECODE_GENERAL_STRING_OR_DIE("realm", str, str_len, item_len);
         if (kerberos_tree) {
-            proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
+            proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
                                 "realm: %.*s", str_len, str);
         }
         offset += item_len;
-		KRB_HEAD_DECODE_OR_DIE("sname");
+	KRB_HEAD_DECODE_OR_DIE("sname");
 
-		DIE_IF_NOT_CONTEXT_TYPE("sname", KRB5_ERROR_SNAME);
-	    item_len = dissect_PrincipalName("sname", asn1p, fd,
-                                     kerberos_tree, offset);
-	    if (item_len == -1)
-	        return -1;
-	    offset += item_len;
-		KRB_HEAD_DECODE_OR_DIE("e-text");
+	DIE_IF_NOT_CONTEXT_TYPE("sname", KRB5_ERROR_SNAME);
+	item_len = dissect_PrincipalName("sname", asn1p, pinfo,
+                                         kerberos_tree, offset);
+	if (item_len == -1)
+		return -1;
+	offset += item_len;
 
-		if ( CHECK_CONTEXT_TYPE(KRB5_ERROR_ETEXT) ) {
-        	KRB_DECODE_GENERAL_STRING_OR_DIE("etext", str, str_len, item_len);
-        	if (kerberos_tree) {
-            	proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
+        if (asn1p->offset >= message_end)
+            break;
+	KRB_HEAD_DECODE_OR_DIE("e-text");
+	if ( CHECK_CONTEXT_TYPE(KRB5_ERROR_ETEXT) ) {
+            KRB_DECODE_GENERAL_STRING_OR_DIE("etext", str, str_len, item_len);
+            if (kerberos_tree) {
+		proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
                                 	"etext: %.*s", str_len, str);
-        	}
-        	offset += item_len;
-			KRB_HEAD_DECODE_OR_DIE("e-data");
-		}
+            }
+            offset += item_len;
+            if (asn1p->offset >= message_end)
+                break;
+	    KRB_HEAD_DECODE_OR_DIE("e-data");
+	}
 
-		if ( CHECK_CONTEXT_TYPE(KRB5_ERROR_EDATA) ) {
-		   guchar *data;
-		   guint data_len;
+	if ( CHECK_CONTEXT_TYPE(KRB5_ERROR_EDATA) ) {
+	    guchar *data;
+	    guint data_len;
 
- 		   KRB_DECODE_OCTET_STRING_OR_DIE("e-data", data, data_len, item_len);
+ 	    KRB_DECODE_OCTET_STRING_OR_DIE("e-data", data, data_len, item_len);
 
-	       if (kerberos_tree) {
-               proto_tree_add_text(kerberos_tree, NullTVB, offset, data_len,
+	    if (kerberos_tree) {
+		proto_tree_add_text(kerberos_tree, tvb, offset, data_len,
                             "Error Data: %s", bytes_to_str(data, item_len));
-           }
-           offset += data_len;
-		}
+	    }
+	    offset += data_len;
+	}
 
         break;
     }
@@ -979,18 +1022,16 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
 }
 
 static void
-dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_kerberos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    OLD_CHECK_DISPLAY_AS_DATA(proto_kerberos, pd, offset, fd, tree);
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+        col_set_str(pinfo->fd, COL_PROTOCOL, "KRB5");
 
-    if (check_col(fd, COL_PROTOCOL))
-        col_set_str(fd, COL_PROTOCOL, "KRB5");
-
-    dissect_kerberos_main(pd, offset, fd, tree);
+    dissect_kerberos_main(tvb, pinfo, tree);
 }
 
 static int
-dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
+dissect_PrincipalName(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
                        proto_tree *tree, int start_offset)
 {
 /*
@@ -1004,7 +1045,7 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
 
     guint32 princ_type;
 
-    const guchar *start;
+    int start;
     guint cls, con, tag;
     guint header_len, item_len, total_len, type_len;
     int ret;
@@ -1022,7 +1063,7 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
     KRB_SEQ_HEAD_DECODE_OR_DIE("principal section");
 
     if (tree) {
-      item = proto_tree_add_text(tree, NullTVB, start_offset,
+      item = proto_tree_add_text(tree, asn1p->tvb, start_offset,
                                  (offset - start_offset) + item_len, "%s",
                                  title);
       princ_tree = proto_item_add_subtree(item, ett_princ);
@@ -1038,7 +1079,7 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
     offset += length;
 
     if (princ_tree) {
-      proto_tree_add_text(princ_tree, NullTVB, type_offset, type_len,
+      proto_tree_add_text(princ_tree, asn1p->tvb, type_offset, type_len,
 						"Type: %s",
 						val_to_str(princ_type, krb5_princ_types,
                                            "Unknown name type %#x"));
@@ -1057,7 +1098,7 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
     KRB_DECODE_GENERAL_STRING_OR_DIE("principal name", name, name_len, item_len);
     if (princ_tree) {
         proto_item_set_text(item, "%s: %.*s", title, (int) name_len, name);
-        proto_tree_add_text(princ_tree, NullTVB, offset, item_len,
+        proto_tree_add_text(princ_tree, asn1p->tvb, offset, item_len,
                             "Name: %.*s", (int) name_len, name);
     }
     total_len -= item_len;
@@ -1068,7 +1109,7 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
     while (total_len > 0) {
         KRB_DECODE_GENERAL_STRING_OR_DIE("principal name", name, name_len, item_len);
         if (princ_tree) {
-            proto_tree_add_text(princ_tree, NullTVB, offset, item_len,
+            proto_tree_add_text(princ_tree, asn1p->tvb, offset, item_len,
                                 "Name: %.*s", (int) name_len, name);
         }
         total_len -= item_len;
@@ -1078,12 +1119,12 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
 }
 
 static int
-dissect_Addresses(char *title, ASN1_SCK *asn1p, frame_data *fd,
+dissect_Addresses(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
                   proto_tree *tree, int start_offset) {
     proto_tree *address_tree = NULL;
     int offset = start_offset;
 
-    const guchar *start;
+    int start, end;
     guint cls, con, tag;
     guint item_len;
     int ret;
@@ -1099,44 +1140,45 @@ dissect_Addresses(char *title, ASN1_SCK *asn1p, frame_data *fd,
 
     KRB_HEAD_DECODE_OR_DIE("sequence of addresses");
     if (tree) {
-        item = proto_tree_add_text(tree, NullTVB, offset,
+        item = proto_tree_add_text(tree, asn1p->tvb, offset,
                                    item_len, "Addresses");
         address_tree = proto_item_add_subtree(item, ett_addresses);
     }
 
-    start = asn1p->pointer + item_len;
+    start = offset;
+    end = asn1p->offset + item_len;
 
-    while(start > asn1p->pointer) {
+    while(asn1p->offset < end) {
         dissect_type_value_pair(asn1p, &offset,
                                 &address_type, &item_len, &tmp_pos1,
                                 &str, &str_len, &tmp_pos2);
 
         if (address_tree) {
-            proto_tree_add_text(address_tree, NullTVB, tmp_pos1,
+            proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos1,
                                 item_len, "Type: %s",
                                 val_to_str(address_type, krb5_address_types,
                                            "Unknown address type %#x"));
             switch(address_type) {
                 case KRB5_ADDR_IPv4:
-                    proto_tree_add_text(address_tree, NullTVB, tmp_pos2,
+                    proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos2,
                                         str_len, "Value: %d.%d.%d.%d",
                                         str[0], str[1], str[2], str[3]);
                     break;
                     
                 default:
-                    proto_tree_add_text(address_tree, NullTVB, tmp_pos2,
+                    proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos2,
                                         str_len, "Value: %s",
                                         bytes_to_str(str, str_len));
             }
         }
     }
     
-    return offset;
+    return offset - start_offset;
 }
 
 static int
-dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
-                      proto_tree *tree, int start_offset)
+dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
+		      proto_tree *tree, int start_offset)
 {
 /*
    EncryptedData ::=   SEQUENCE {
@@ -1148,7 +1190,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
     proto_tree *encr_tree = NULL;
     int offset = start_offset;
 
-    const guchar *start;
+    int start;
     guint cls, con, tag;
     guint header_len, item_len, data_len;
     int ret;
@@ -1163,7 +1205,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
     KRB_SEQ_HEAD_DECODE_OR_DIE("encrypted data section");
 
     if (tree) {
-        item = proto_tree_add_text(tree, NullTVB, start_offset,
+        item = proto_tree_add_text(tree, asn1p->tvb, start_offset,
                                    (offset - start_offset) + item_len,
                                    "Encrypted Data: %s", title);
         encr_tree = proto_item_add_subtree(item, ett_princ);
@@ -1173,7 +1215,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
     KRB_DECODE_CONTEXT_HEAD_OR_DIE("encryption type", 0);
     KRB_DECODE_UINT32_OR_DIE("encr-type", val);
     if (encr_tree) {
-        proto_tree_add_text(encr_tree, NullTVB, offset, length,
+        proto_tree_add_text(encr_tree, asn1p->tvb, offset, length,
                             "Type: %s",
                             val_to_str(val, krb5_encryption_types,
                                        "Unknown encryption type %#x"));
@@ -1185,7 +1227,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
     if (CHECK_CONTEXT_TYPE(1)) {
       KRB_DECODE_UINT32_OR_DIE("kvno", val);
       if (encr_tree) {
-          proto_tree_add_text(encr_tree, NullTVB, offset, length,
+          proto_tree_add_text(encr_tree, asn1p->tvb, offset, length,
                               "KVNO: %d", val);
       }
       offset += length;
@@ -1196,17 +1238,17 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
     KRB_DECODE_OCTET_STRING_OR_DIE("cipher", data, data_len, item_len);
 
     if (encr_tree) {
-        proto_tree_add_text(encr_tree, NullTVB, offset, data_len,
+        proto_tree_add_text(encr_tree, asn1p->tvb, offset, data_len,
                             "CipherText: %s", bytes_to_str(data, item_len));
     }
     offset += data_len;
     
-    return offset;
+    return offset - start_offset;
 }
 
 static int
-dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
-               int start_offset)
+dissect_Ticket(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
+	       proto_tree *tree, int start_offset)
 {
 /*
    Ticket ::=                    [APPLICATION 1] SEQUENCE {
@@ -1219,7 +1261,7 @@ dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
     proto_tree *ticket_tree = NULL;
     int offset = start_offset;
 
-    const guchar *start;
+    int start;
     guint cls, con, tag;
     guint header_len, item_len, total_len;
     int ret;
@@ -1237,7 +1279,7 @@ dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
     total_len = item_len;
 
     if (tree) {
-        item = proto_tree_add_text(tree, NullTVB, start_offset,
+        item = proto_tree_add_text(tree, asn1p->tvb, start_offset,
                                    (offset - start_offset) + item_len,
                                    "Ticket");
         ticket_tree = proto_item_add_subtree(item, ett_ticket);
@@ -1247,7 +1289,7 @@ dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
     KRB_DECODE_CONTEXT_HEAD_OR_DIE("Ticket tkt-vno", KRB5_TKT_TKT_VNO);
     KRB_DECODE_UINT32_OR_DIE("Ticket tkt-vno", val);
     if (ticket_tree) {
-        proto_tree_add_text(ticket_tree, NullTVB, offset, length,
+        proto_tree_add_text(ticket_tree, asn1p->tvb, offset, length,
                             "Version: %u", val);
     }
     offset += length;
@@ -1257,7 +1299,7 @@ dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
     KRB_DECODE_CONTEXT_HEAD_OR_DIE("Ticket realm", KRB5_TKT_REALM);
     KRB_DECODE_GENERAL_STRING_OR_DIE("Ticket realm string", str, str_len, item_len);
     if (ticket_tree) {
-        proto_tree_add_text(ticket_tree, NullTVB, offset, item_len,
+        proto_tree_add_text(ticket_tree, asn1p->tvb, offset, item_len,
                             "Realm: %.*s", str_len, str);
     }
     offset += item_len;
@@ -1265,7 +1307,7 @@ dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
 
     /* server name (sname) */
     KRB_DECODE_CONTEXT_HEAD_OR_DIE("Ticket sname", KRB5_TKT_SNAME);
-    item_len = dissect_PrincipalName("Service Name", asn1p, fd, ticket_tree,
+    item_len = dissect_PrincipalName("Service Name", asn1p, pinfo, ticket_tree,
                                      offset);
     if (item_len == -1)
         return -1;
@@ -1273,12 +1315,13 @@ dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
 
     /* encrypted part */
     KRB_DECODE_CONTEXT_HEAD_OR_DIE("enc-part", KRB5_TKT_ENC_PART);
-    offset = dissect_EncryptedData("Ticket data", asn1p, fd, ticket_tree,
-                                   offset);
-    if (offset == -1)
+    length = dissect_EncryptedData("Ticket data", asn1p, pinfo, ticket_tree,
+				   offset);
+    if (length == -1)
         return -1;
+    offset += length;
 
-    return offset;
+    return offset - start_offset;
 }
 
 
@@ -1297,6 +1340,7 @@ proto_register_kerberos(void) {
         &ett_ticket,
         &ett_addresses,
         &ett_etype,
+        &ett_additional_tickets,
     };
     proto_kerberos = proto_register_protocol("Kerberos", "KRB5", "kerberos");
 /*
@@ -1308,10 +1352,10 @@ proto_register_kerberos(void) {
 void
 proto_reg_handoff_kerberos(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_KERBEROS, dissect_kerberos,
-	    proto_kerberos);
-	old_dissector_add("tcp.port", TCP_PORT_KERBEROS, dissect_kerberos,
-	    proto_kerberos);
+    dissector_add("udp.port", UDP_PORT_KERBEROS, dissect_kerberos,
+	proto_kerberos);
+    dissector_add("tcp.port", TCP_PORT_KERBEROS, dissect_kerberos,
+	proto_kerberos);
 }
 
 /*
@@ -1577,16 +1621,16 @@ proto_reg_handoff_kerberos(void)
       METHOD-DATA ::=    SEQUENCE {
                          method-type[0]   INTEGER,
                          method-data[1]   OCTET STRING OPTIONAL
-       }
+      }
 
-          EncryptionKey ::=   SEQUENCE {
-                              keytype[0]    INTEGER,
-                              keyvalue[1]   OCTET STRING
-          }
+      EncryptionKey ::=   SEQUENCE {
+                         keytype[0]    INTEGER,
+                         keyvalue[1]   OCTET STRING
+      }
 
-            Checksum ::=   SEQUENCE {
-                           cksumtype[0]   INTEGER,
-                           checksum[1]    OCTET STRING
-            }
+      Checksum ::=   SEQUENCE {
+                         cksumtype[0]   INTEGER,
+                         checksum[1]    OCTET STRING
+      }
 
 */

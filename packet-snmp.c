@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.63 2001/04/07 08:23:58 guy Exp $
+ * $Id: packet-snmp.c,v 1.64 2001/04/15 07:30:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -519,16 +519,12 @@ snmp_tag_cls2syntax ( guint tag, guint cls, gushort *syntax)
 }
 
 static void
-dissect_snmp_parse_error(const u_char *pd, int offset, frame_data *fd,
+dissect_snmp_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, const char *field_name, int ret)
 {
 	const gchar *errstr;
 
 	switch (ret) {
-
-	case ASN1_ERR_EMPTY:
-		errstr = "Ran out of data";
-		break;
 
 	case ASN1_ERR_EOC_MISMATCH:
 		errstr = "EOC mismatch";
@@ -555,27 +551,27 @@ dissect_snmp_parse_error(const u_char *pd, int offset, frame_data *fd,
 		break;
 	}
 
-	if (check_col(fd, COL_INFO)) {
-		col_add_fstr(fd, COL_INFO,
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_add_fstr(pinfo->fd, COL_INFO,
 		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
 	}
 	if (tree != NULL) {
-		proto_tree_add_text(tree, NullTVB, offset, 0,
+		proto_tree_add_text(tree, tvb, offset, 0,
 		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
-		old_dissect_data(pd, offset, fd, tree);
+		dissect_data(tvb, offset, pinfo, tree);
 	}
 }
 
 static void
-dissect_snmp_error(const u_char *pd, int offset, frame_data *fd,
+dissect_snmp_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, const char *message)
 {
-	if (check_col(fd, COL_INFO))
-		col_add_str(fd, COL_INFO, message);
+	if (check_col(pinfo->fd, COL_INFO))
+		col_add_str(pinfo->fd, COL_INFO, message);
 
 	if (tree != NULL) {
-		proto_tree_add_text(tree, NullTVB, offset, 0, "%s", message);
-		old_dissect_data(pd, offset, fd, tree);
+		proto_tree_add_text(tree, tvb, offset, 0, "%s", message);
+		dissect_data(tvb, offset, pinfo, tree);
 	}
 }
 
@@ -705,7 +701,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
     guint variable_oid_length, ASN1_SCK *asn1, int offset, guint *lengthp,
     gboolean unsafe)
 {
-	const guchar *start;
+	int start;
 	guint length;
 	gboolean def;
 	guint vb_length;
@@ -735,7 +731,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 	int len;
 
 	/* parse the type of the object */
-	start = asn1->pointer;
+	start = asn1->offset;
 	ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &vb_length);
 	if (ret != ASN1_ERR_NOERROR)
 		return ret;
@@ -761,7 +757,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		    &vb_integer_value);
 		if (ret != ASN1_ERR_NOERROR)
 			return ret;
-		length = asn1->pointer - start;
+		length = asn1->offset - start;
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
 			if (!unsafe) {
@@ -774,14 +770,14 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 				vb_display_string = format_var(&variable,
 				    variable_oid, variable_oid_length, vb_type,
 				    vb_length);
-				proto_tree_add_text(snmp_tree, NullTVB, offset,
+				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 				    length,
 				    "Value: %s", vb_display_string);
 				g_free(vb_display_string);
 				break;	/* we added formatted version to the tree */
 			}
 #endif /* HAVE_SPRINT_VALUE */
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
 			    "Value: %s: %d (%#x)", vb_type_name,
 			    vb_integer_value, vb_integer_value);
 		}
@@ -794,7 +790,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		    &vb_uinteger_value);
 		if (ret != ASN1_ERR_NOERROR)
 			return ret;
-		length = asn1->pointer - start;
+		length = asn1->offset - start;
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
 			if (!unsafe) {
@@ -807,14 +803,14 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 				vb_display_string = format_var(&variable,
 				    variable_oid, variable_oid_length, vb_type,
 				    vb_length);
-				proto_tree_add_text(snmp_tree, NullTVB, offset,
+				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 				    length,
 				    "Value: %s", vb_display_string);
 				g_free(vb_display_string);
 				break;	/* we added formatted version to the tree */
 			}
 #endif /* HAVE_SPRINT_VALUE */
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
 			    "Value: %s: %u (%#x)", vb_type_name,
 			    vb_uinteger_value, vb_uinteger_value);
 		}
@@ -830,7 +826,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		    &vb_octet_string);
 		if (ret != ASN1_ERR_NOERROR)
 			return ret;
-		length = asn1->pointer - start;
+		length = asn1->offset - start;
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
 			if (!unsafe) {
@@ -838,7 +834,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 				vb_display_string = format_var(&variable,
 				    variable_oid, variable_oid_length, vb_type,
 				    vb_length);
-				proto_tree_add_text(snmp_tree, NullTVB, offset,
+				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 				    length,
 				    "Value: %s", vb_display_string);
 				g_free(vb_display_string);
@@ -869,12 +865,12 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 					    vb_octet_string[i]);
 					buf += len;
 				}
-				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+				proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
 				    "Value: %s: %s", vb_type_name,
 				    vb_display_string);
 				g_free(vb_display_string);
 			} else {
-				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+				proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
 				    "Value: %s: %.*s", vb_type_name,
 				    (int)vb_length,
 				    SAFE_STRING(vb_octet_string));
@@ -887,9 +883,9 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		ret = asn1_null_decode (asn1, vb_length);
 		if (ret != ASN1_ERR_NOERROR)
 			return ret;
-		length = asn1->pointer - start;
+		length = asn1->offset - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
 			    "Value: %s", vb_type_name);
 		}
 		break;
@@ -899,7 +895,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		    &vb_oid_length);
 		if (ret != ASN1_ERR_NOERROR)
 			return ret;
-		length = asn1->pointer - start;
+		length = asn1->offset - start;
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
 			if (!unsafe) {
@@ -907,14 +903,14 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 				vb_display_string = format_var(&variable,
 				    variable_oid, variable_oid_length, vb_type,
 				    vb_length);
-				proto_tree_add_text(snmp_tree, NullTVB, offset,
+				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 				    length,
 				    "Value: %s", vb_display_string);
 				break;	/* we added formatted version to the tree */
 			}
 #endif /* HAVE_SPRINT_VALUE */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
 			g_free(vb_display_string);
 		}
@@ -922,25 +918,25 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		break;
 
 	case SNMP_NOSUCHOBJECT:
-		length = asn1->pointer - start;
+		length = asn1->offset - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
 			    "Value: %s: no such object", vb_type_name);
 		}
 		break;
 
 	case SNMP_NOSUCHINSTANCE:
-		length = asn1->pointer - start;
+		length = asn1->offset - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
 			    "Value: %s: no such instance", vb_type_name);
 		}
 		break;
 
 	case SNMP_ENDOFMIBVIEW:
-		length = asn1->pointer - start;
+		length = asn1->offset - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
 			    "Value: %s: end of mib view", vb_type_name);
 		}
 		break;
@@ -954,8 +950,8 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 }
 
 static void
-dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
-    proto_tree *tree, ASN1_SCK asn1, guint pdu_type, const guchar *start)
+dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, ASN1_SCK asn1, guint pdu_type, int start)
 {
 	gboolean def;
 	guint length;
@@ -1000,9 +996,9 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 
 	pdu_type_string = val_to_str(pdu_type, pdu_types,
 	    "Unknown PDU type %#x");
-	if (check_col(fd, COL_INFO))
-		col_add_str(fd, COL_INFO, pdu_type_string);
-	length = asn1.pointer - start;
+	if (check_col(pinfo->fd, COL_INFO))
+		col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+	length = asn1.offset - start;
 	if (tree) {
 		proto_tree_add_text(tree, NullTVB, offset, length,
 		    "PDU type: %s", pdu_type_string);
@@ -1023,7 +1019,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		/* request id */
 		ret = asn1_uint32_decode (&asn1, &request_id, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "request ID", ret);
 			return;
 		}
@@ -1036,7 +1032,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		/* error status, or getbulk non-repeaters */
 		ret = asn1_uint32_decode (&asn1, &error_status, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    (pdu_type == SNMP_MSG_GETBULK) ? "non-repeaters"
 			    				   : "error status",
 			    ret);
@@ -1058,7 +1054,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		/* error index, or getbulk max-repetitions */
 		ret = asn1_uint32_decode (&asn1, &error_index, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    (pdu_type == SNMP_MSG_GETBULK) ? "max repetitions"
 			    				   : "error index",
 			    ret);
@@ -1081,7 +1077,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		ret = asn1_oid_decode (&asn1, &enterprise, &enterprise_length,
 		    &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "enterprise OID", ret);
 			return;
 		}
@@ -1095,11 +1091,11 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		offset += length;
 
 		/* agent address */
-		start = asn1.pointer;
+		start = asn1.offset;
 		ret = asn1_header_decode (&asn1, &cls, &con, &tag,
 		    &def, &agent_address_length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "agent address", ret);
 			return;
 		}
@@ -1107,23 +1103,23 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		    (cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_OTS))) {
 			/* GXSNMP 0.0.15 says the latter is "needed for
 			   Banyan" */
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "agent_address", ASN1_ERR_WRONG_TYPE);
 			return;
 		}
 		if (agent_address_length != 4) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "agent_address", ASN1_ERR_WRONG_LENGTH_FOR_TYPE);
 			return;
 		}
 		ret = asn1_string_value_decode (&asn1,
 		    agent_address_length, &agent_address);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "agent address", ret);
 			return;
 		}
-		length = asn1.pointer - start;
+		length = asn1.offset - start;
 		if (tree) {
 			if (agent_address_length != 4) {
 				proto_tree_add_text(tree, NullTVB, offset,
@@ -1143,7 +1139,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 	        /* generic trap type */
 		ret = asn1_uint32_decode (&asn1, &trap_type, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "generic trap type", ret);
 			return;
 		}
@@ -1157,7 +1153,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 	        /* specific trap type */
 		ret = asn1_uint32_decode (&asn1, &specific_type, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "specific trap type", ret);
 			return;
 		}
@@ -1169,28 +1165,28 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		offset += length;
 		
 	        /* timestamp */
-		start = asn1.pointer;
+		start = asn1.offset;
 		ret = asn1_header_decode (&asn1, &cls, &con, &tag,
 		    &def, &timestamp_length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "timestamp", ret);
 			return;
 		}
 		if (!((cls == ASN1_APL && con == ASN1_PRI && tag == SNMP_TIT) ||
 		    (cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_INT))) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "timestamp", ASN1_ERR_WRONG_TYPE);
 			return;
 		}
 		ret = asn1_uint32_value_decode(&asn1, timestamp_length,
 		    &timestamp);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "timestamp", ret);
 			return;
 		}
-		length = asn1.pointer - start;
+		length = asn1.offset - start;
 		if (tree) {
 			proto_tree_add_text(tree, NullTVB, offset, length,
 			    "Timestamp: %u", timestamp);
@@ -1203,7 +1199,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 	/* get header for variable-bindings sequence */
 	ret = asn1_sequence_decode(&asn1, &variable_bindings_length, &length);
 	if (ret != ASN1_ERR_NOERROR) {
-		dissect_snmp_parse_error(pd, offset, fd, tree,
+		dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			"variable bindings header", ret);
 		return;
 	}
@@ -1218,7 +1214,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		/* parse type */
 		ret = asn1_sequence_decode(&asn1, &variable_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 				"variable binding header", ret);
 			return;
 		}
@@ -1228,7 +1224,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		ret = asn1_oid_decode (&asn1, &variable_oid,
 		    &variable_oid_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "variable binding OID", ret);
 			return;
 		}
@@ -1287,7 +1283,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		    variable_oid_length, &asn1, offset, &length,
 		    unsafe);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "variable", ret);
 			return;
 		}
@@ -1426,11 +1422,11 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 }
 
 void
-dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
+dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, char *proto_name, int proto, gint ett)
 {
 	ASN1_SCK asn1;
-	const guchar *start;
+	int start;
 	gboolean def;
 	gboolean encrypted;
 	guint length;
@@ -1476,11 +1472,11 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 	int ret;
 	guint cls, con, tag;
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, proto_name);
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, proto_name);
 
 	if (tree) {
-		item = proto_tree_add_item(tree, proto, NullTVB, offset,
+		item = proto_tree_add_item(tree, proto, tvb, offset,
 		    END_OF_FRAME, FALSE);
 		snmp_tree = proto_item_add_subtree(item, ett);
 	}
@@ -1490,10 +1486,10 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 	 * parsing is likely to fail.
 	 */
 	/* parse the SNMP header */
-	asn1_open(&asn1, &pd[offset], END_OF_FRAME);
+	asn1_open(&asn1, tvb, offset);
 	ret = asn1_sequence_decode(&asn1, &message_length, &length);
 	if (ret != ASN1_ERR_NOERROR) {
-		dissect_snmp_parse_error(pd, offset, fd, snmp_tree,
+		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			"message header", ret);
 		return;
 	}
@@ -1501,12 +1497,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 
 	ret = asn1_uint32_decode (&asn1, &version, &length);
 	if (ret != ASN1_ERR_NOERROR) {
-		dissect_snmp_parse_error(pd, offset, fd, snmp_tree,
+		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 		    "version number", ret);
 		return;
 	}
 	if (snmp_tree) {
-		proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+		proto_tree_add_text(snmp_tree, tvb, offset, length,
 		    "Version: %s",
 		    val_to_str(version, versions, "Unknown version %#x"));
 	}
@@ -1519,12 +1515,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		ret = asn1_octet_string_decode (&asn1, &community, 
 		    &community_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree, 
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree, 
 			    "community", ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Community: %.*s", community_length,
 			    SAFE_STRING(community));
 		}
@@ -1544,77 +1540,77 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 	case SNMP_VERSION_3:
 		ret = asn1_sequence_decode(&asn1, &global_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 				"message global header", ret);
 			return;
 		}
 		if (snmp_tree) {
-			item = proto_tree_add_text(snmp_tree, NullTVB, offset,
+			item = proto_tree_add_text(snmp_tree, tvb, offset,
 			    global_length + length, "Message Global Header");
 			global_tree = proto_item_add_subtree(item, ett_global);
-			proto_tree_add_text(global_tree, NullTVB, offset,
+			proto_tree_add_text(global_tree, tvb, offset,
 		 	    length,
 			    "Message Global Header Length: %d", global_length);
 		}
 		offset += length;
 		ret = asn1_uint32_decode (&asn1, &msgid, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree, 
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree, 
 			    "message id", ret);
 			return;
 		}
 		if (global_tree) {
-			proto_tree_add_text(global_tree, NullTVB, offset,
+			proto_tree_add_text(global_tree, tvb, offset,
 			    length, "Message ID: %d", msgid);
 		}
 		offset += length;
 		ret = asn1_uint32_decode (&asn1, &msgmax, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree, 
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree, 
 			    "message max size", ret);
 			return;
 		}
 		if (global_tree) {
-			proto_tree_add_text(global_tree, NullTVB, offset,
+			proto_tree_add_text(global_tree, tvb, offset,
 			    length, "Message Max Size: %d", msgmax);
 		}
 		offset += length;
 		ret = asn1_octet_string_decode (&asn1, &msgflags, 
 		    &msgflags_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree, 
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree, 
 			    "message flags", ret);
 			return;
 		}
 		if (msgflags_length != 1) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 			    "message flags wrong length", ret);
 			g_free(msgflags);
 			return;
 		}
 		if (global_tree) {
 			item = proto_tree_add_uint_format(global_tree,
-			    hf_snmpv3_flags, NullTVB, offset, length,
+			    hf_snmpv3_flags, tvb, offset, length,
 			    msgflags[0], "Flags: 0x%02x", msgflags[0]);
 			flags_tree = proto_item_add_subtree(item, ett_flags);
 			proto_tree_add_boolean(flags_tree, hf_snmpv3_flags_report,
-			    NullTVB, offset, length, msgflags[0]);
+			    tvb, offset, length, msgflags[0]);
 			proto_tree_add_boolean(flags_tree, hf_snmpv3_flags_crypt,
-			    NullTVB, offset, length, msgflags[0]);
+			    tvb, offset, length, msgflags[0]);
 			proto_tree_add_boolean(flags_tree, hf_snmpv3_flags_auth,
-			    NullTVB, offset, length, msgflags[0]);
+			    tvb, offset, length, msgflags[0]);
 		}
 		encrypted = msgflags[0] & TH_CRYPT;
 		g_free(msgflags);
 		offset += length;
 		ret = asn1_uint32_decode (&asn1, &msgsec, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree, 
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree, 
 			    "message security model", ret);
 			return;
 		}
 		if (global_tree) {
-			proto_tree_add_text(global_tree, NullTVB, offset,
+			proto_tree_add_text(global_tree, tvb, offset,
 			    length, "Message Security Model: %s",
 			    val_to_str(msgsec, sec_models,
 			    "Unknown model %#x"));
@@ -1622,24 +1618,24 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		offset += length;
 		switch(msgsec) {
 		case SNMP_SEC_USM:
-			start = asn1.pointer;
+			start = asn1.offset;
 			ret = asn1_header_decode (&asn1, &cls, &con, &tag,
 			    &def, &secparm_length);
-			length = asn1.pointer - start;
+			length = asn1.offset - start;
 			if (cls != ASN1_UNI && con != ASN1_PRI && 
 			    tag != ASN1_OTS) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "Message Security Parameters",
 				    ASN1_ERR_WRONG_TYPE);
 				return;
 			}
 			if (snmp_tree) {
-				item = proto_tree_add_text(snmp_tree, NullTVB,
+				item = proto_tree_add_text(snmp_tree, tvb,
 				    offset, secparm_length + length,
 				    "Message Security Parameters");
 				secur_tree = proto_item_add_subtree(item,
 				    ett_secur);
-				proto_tree_add_text(secur_tree, NullTVB, offset,
+				proto_tree_add_text(secur_tree, tvb, offset,
 			 	    length, 
 				    "Message Security Parameters Length: %d",
 				    secparm_length);
@@ -1648,7 +1644,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			ret = asn1_sequence_decode(&asn1, &secparm_length,
 			    &length);
 			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "USM sequence header", ret);
 				return;
 			}
@@ -1656,12 +1652,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			ret = asn1_octet_string_decode (&asn1, &aengineid, 
 			    &aengineid_length, &length);
 			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "authoritative engine id", ret);
 				return;
 			}
 			if (secur_tree) {
-				proto_tree_add_text(secur_tree, NullTVB, offset,
+				proto_tree_add_text(secur_tree, tvb, offset,
 				    length, "Authoritative Engine ID: %s",
 				    bytes_to_str(aengineid, aengineid_length));
 			}
@@ -1669,24 +1665,24 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			offset += length;
 			ret = asn1_uint32_decode (&asn1, &engineboots, &length);
 			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "engine boots", ret);
 				return;
 			}
 			if (secur_tree) {
-				proto_tree_add_text(secur_tree, NullTVB,
+				proto_tree_add_text(secur_tree, tvb,
 				    offset, length, "Engine Boots: %d", 
 				    engineboots);
 			}
 			offset += length;
 			ret = asn1_uint32_decode (&asn1, &enginetime, &length);
 			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree,  "engine time", ret);
 				return;
 			}
 			if (secur_tree) {
-				proto_tree_add_text(secur_tree, NullTVB,
+				proto_tree_add_text(secur_tree, tvb,
 				    offset, length, "Engine Time: %d", 
 				    enginetime);
 			}
@@ -1694,12 +1690,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			ret = asn1_octet_string_decode (&asn1, &username, 
 			    &username_length, &length);
 			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "user name", ret);
 				return;
 			}
 			if (secur_tree) {
-				proto_tree_add_text(secur_tree, NullTVB, offset,
+				proto_tree_add_text(secur_tree, tvb, offset,
 				    length, "User Name: %.*s", 
 				    username_length,
 				    SAFE_STRING(username));
@@ -1709,12 +1705,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			ret = asn1_octet_string_decode (&asn1, &authpar, 
 			    &authpar_length, &length);
 			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "authentication parameter", ret);
 				return;
 			}
 			if (secur_tree) {
-				proto_tree_add_text(secur_tree, NullTVB, offset,
+				proto_tree_add_text(secur_tree, tvb, offset,
 				    length, "Authentication Parameter: %s",
 				    bytes_to_str(authpar, authpar_length));
 			}
@@ -1723,12 +1719,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			ret = asn1_octet_string_decode (&asn1, &privpar, 
 			    &privpar_length, &length);
 			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "privacy parameter", ret);
 				return;
 			}
 			if (secur_tree) {
-				proto_tree_add_text(secur_tree, NullTVB, offset,
+				proto_tree_add_text(secur_tree, tvb, offset,
 				    length, "Privacy Parameter: %s",
 				    bytes_to_str(privpar, privpar_length));
 			}
@@ -1739,13 +1735,13 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			ret = asn1_octet_string_decode (&asn1, 
 			    &secparm, &secparm_length, &length);
 			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "Message Security Parameters",
 				    ret);
 				return;
 			}
 			if (snmp_tree) {
-				proto_tree_add_text(snmp_tree, NullTVB, offset,
+				proto_tree_add_text(snmp_tree, tvb, offset,
 				    length,
 				    "Message Security Parameters Data"
 				    " (%d bytes)", secparm_length);
@@ -1759,20 +1755,20 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			ret = asn1_octet_string_decode (&asn1, &cryptpdu,
 			    &cryptpdu_length, &length);
 			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd,
+				dissect_snmp_parse_error(tvb, offset, pinfo,
 				    snmp_tree, "encrypted PDU header", ret);
 				return;
 			}
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Encrypted PDU (%d bytes)", length);
 			g_free(cryptpdu);
-			if (check_col(fd, COL_INFO))
-				col_set_str(fd, COL_INFO, "Encrypted PDU");
+			if (check_col(pinfo->fd, COL_INFO))
+				col_set_str(pinfo->fd, COL_INFO, "Encrypted PDU");
 			return;
 		}
 		ret = asn1_sequence_decode(&asn1, &global_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 				"PDU header", ret);
 			return;
 		}
@@ -1780,12 +1776,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		ret = asn1_octet_string_decode (&asn1, &cengineid, 
 		    &cengineid_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree, 
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree, 
 			    "context engine id", ret);
 			return;
 		}
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Context Engine ID: %s",
 			    bytes_to_str(cengineid, cengineid_length));
 		}
@@ -1794,12 +1790,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		ret = asn1_octet_string_decode (&asn1, &cname, 
 		    &cname_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, snmp_tree, 
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree, 
 			    "context name", ret);
 			return;
 		}
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
+			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Context Name: %.*s", cname_length,
 			    SAFE_STRING(cname));
 		}
@@ -1807,33 +1803,33 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		offset += length;
 		break;
 	default:
-		dissect_snmp_error(pd, offset, fd, snmp_tree,
+		dissect_snmp_error(tvb, offset, pinfo, snmp_tree,
 		    "PDU for unknown version of SNMP");
 		return;
 	}
 
-	start = asn1.pointer;
+	start = asn1.offset;
 	ret = asn1_header_decode (&asn1, &cls, &con, &pdu_type, &def,
 	    &pdu_length);
 	if (ret != ASN1_ERR_NOERROR) {
-		dissect_snmp_parse_error(pd, offset, fd, snmp_tree,
+		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 		    "PDU type", ret);
 		return;
 	}
 	if (cls != ASN1_CTX || con != ASN1_CON) {
-		dissect_snmp_parse_error(pd, offset, fd, snmp_tree,
+		dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
 		    "PDU type", ASN1_ERR_WRONG_TYPE);
 		return;
 	}
-	dissect_common_pdu(pd, offset, fd, snmp_tree, asn1, pdu_type, start);
+	dissect_common_pdu(tvb, offset, pinfo, snmp_tree, asn1, pdu_type, start);
 }
 
 static void
-dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
+dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, int proto, gint ett)
 {
 	ASN1_SCK asn1;
-	const guchar *start;
+	int start;
 	gboolean def;
 	guint length;
 
@@ -1863,11 +1859,11 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	int ret;
 	guint cls, con;
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "SMUX");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "SMUX");
 
 	if (tree) {
-		item = proto_tree_add_item(tree, proto, NullTVB, offset,
+		item = proto_tree_add_item(tree, proto, tvb, offset,
 		    END_OF_FRAME, FALSE);
 		smux_tree = proto_item_add_subtree(item, ett);
 	}
@@ -1877,12 +1873,12 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	 * parsing is likely to fail.
 	 */
 	/* parse the SNMP header */
-	asn1_open(&asn1, &pd[offset], END_OF_FRAME);
-	start = asn1.pointer;
+	asn1_open(&asn1, tvb, offset);
+	start = asn1.offset;
 	ret = asn1_header_decode (&asn1, &cls, &con, &pdu_type, &def,
 	    &pdu_length);
 	if (ret != ASN1_ERR_NOERROR) {
-		dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+		dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 		    "PDU type", ret);
 		return;
 	}
@@ -1891,35 +1887,35 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	if (cls == ASN1_APL && con == ASN1_CON && pdu_type == SMUX_MSG_OPEN) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(fd, COL_INFO))
-			col_add_str(fd, COL_INFO, pdu_type_string);
-		length = asn1.pointer - start;
+		if (check_col(pinfo->fd, COL_INFO))
+			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "PDU type: %s", pdu_type_string);
 		}
 		offset += length;
 		ret = asn1_uint32_decode (&asn1, &version, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 			    "version", ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Version: %d", version);
 		}
 		offset += length;
 
 		ret = asn1_oid_decode (&asn1, &regid, &regid_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 			    "registration OID", ret);
 			return;
 		}
 		if (tree) {
 			oid_string = format_oid(regid, regid_length);
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Registration: %s", oid_string);
 			g_free(oid_string);
 		}
@@ -1929,12 +1925,12 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 		ret = asn1_octet_string_decode (&asn1, &application, 
 		    &application_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree, 
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree, 
 			    "application", ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Application: %.*s", application_length,
 			     SAFE_STRING(application));
 		}
@@ -1944,12 +1940,12 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 		ret = asn1_octet_string_decode (&asn1, &password, 
 		    &password_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree, 
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree, 
 			    "password", ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Password: %.*s", password_length,
 			    SAFE_STRING(password));
 		}
@@ -1960,22 +1956,22 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	if (cls == ASN1_APL && con == ASN1_PRI && pdu_type == SMUX_MSG_CLOSE) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(fd, COL_INFO))
-			col_add_str(fd, COL_INFO, pdu_type_string);
-		length = asn1.pointer - start;
+		if (check_col(pinfo->fd, COL_INFO))
+			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "PDU type: %s", pdu_type_string);
 		}
 		offset += length;
 		ret = asn1_uint32_value_decode (&asn1, pdu_length, &cause);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 			    "cause", ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset,
+			proto_tree_add_text(smux_tree, tvb, offset,
 			    pdu_length, "Cause: %s",
 			    val_to_str(cause, smux_close, 
 				"Unknown cause %#x"));
@@ -1986,23 +1982,23 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	if (cls == ASN1_APL && con == ASN1_CON && pdu_type == SMUX_MSG_RREQ) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(fd, COL_INFO))
-			col_add_str(fd, COL_INFO, pdu_type_string);
-		length = asn1.pointer - start;
+		if (check_col(pinfo->fd, COL_INFO))
+			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "PDU type: %s", pdu_type_string);
 		}
 		offset += length;
 		ret = asn1_oid_decode (&asn1, &regid, &regid_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 			    "registration subtree", ret);
 			return;
 		}
 		if (tree) {
 			oid_string = format_oid(regid, regid_length);
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Registration: %s", oid_string);
 			g_free(oid_string);
 		}
@@ -2011,24 +2007,24 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 
 		ret = asn1_uint32_decode (&asn1, &priority, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 			    "priority", ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Priority: %d", priority);
 		}
 		offset += length;
 
 		ret = asn1_uint32_decode (&asn1, &operation, &length);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 			    "operation", ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Operation: %s", 
 			    val_to_str(operation, smux_rreq, 
 				"Unknown operation %#x"));
@@ -2039,22 +2035,22 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	if (cls == ASN1_APL && con == ASN1_PRI && pdu_type == SMUX_MSG_RRSP) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(fd, COL_INFO))
-			col_add_str(fd, COL_INFO, pdu_type_string);
-		length = asn1.pointer - start;
+		if (check_col(pinfo->fd, COL_INFO))
+			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "PDU type: %s", pdu_type_string);
 		}
 		offset += length;
 		ret = asn1_uint32_value_decode (&asn1, pdu_length, &priority);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 			    "priority", ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset,
+			proto_tree_add_text(smux_tree, tvb, offset,
 			    pdu_length, "%s",
 			    val_to_str(priority, smux_prio, 
 				"Priority: %#x"));
@@ -2065,22 +2061,22 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	if (cls == ASN1_APL && con == ASN1_PRI && pdu_type == SMUX_MSG_SOUT) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(fd, COL_INFO))
-			col_add_str(fd, COL_INFO, pdu_type_string);
-		length = asn1.pointer - start;
+		if (check_col(pinfo->fd, COL_INFO))
+			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset, length,
+			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "PDU type: %s", pdu_type_string);
 		}
 		offset += length;
 		ret = asn1_uint32_value_decode (&asn1, pdu_length, &commit);
 		if (ret != ASN1_ERR_NOERROR) {
-			dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+			dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 			    "commit", ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(smux_tree, NullTVB, offset,
+			proto_tree_add_text(smux_tree, tvb, offset,
 			    pdu_length, "%s",
 			    val_to_str(commit, smux_sout, 
 				"Unknown SOUT Value: %#x"));
@@ -2089,19 +2085,17 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 		return;
 	}
 	if (cls != ASN1_CTX || con != ASN1_CON) {
-		dissect_snmp_parse_error(pd, offset, fd, smux_tree,
+		dissect_snmp_parse_error(tvb, offset, pinfo, smux_tree,
 		    "PDU type", ASN1_ERR_WRONG_TYPE);
 		return;
 	}
-	dissect_common_pdu(pd, offset, fd, smux_tree, asn1, pdu_type, start);
+	dissect_common_pdu(tvb, offset, pinfo, smux_tree, asn1, pdu_type, start);
 }
 
 static void
-dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
+dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
 	conversation_t  *conversation;
-
-	OLD_CHECK_DISPLAY_AS_DATA(proto_snmp, pd, offset, fd, tree);
 
 	/*
 	 * The first SNMP packet goes to the SNMP port; the second one
@@ -2117,25 +2111,24 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	 * one, with a wildcard UDP port, and give it the SNMP dissector
 	 * as a dissector.
 	 */
-	if (pi.destport == UDP_PORT_SNMP) {
-	  conversation = find_conversation(&pi.src, &pi.dst, PT_UDP,
-					   pi.srcport, 0, NO_DST_PORT);
+	if (pinfo->destport == UDP_PORT_SNMP) {
+	  conversation = find_conversation(&pinfo->src, &pinfo->dst, PT_UDP,
+					   pinfo->srcport, 0, NO_DST_PORT);
 	  if (conversation == NULL) {
-	    conversation = conversation_new(&pi.src, &pi.dst, PT_UDP,
-					    pi.srcport, 0, NULL,
+	    conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
+					    pinfo->srcport, 0, NULL,
 					    NO_DST_PORT);
-	    old_conversation_set_dissector(conversation, dissect_snmp);
+	    conversation_set_dissector(conversation, dissect_snmp);
 	  }
 	}
 
-	dissect_snmp_pdu(pd, offset, fd, tree, "SNMP", proto_snmp, ett_snmp);
+	dissect_snmp_pdu(tvb, 0, pinfo, tree, "SNMP", proto_snmp, ett_snmp);
 }
 
 static void
-dissect_smux(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
+dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
-	OLD_CHECK_DISPLAY_AS_DATA(proto_smux, pd, offset, fd, tree);
-	dissect_smux_pdu(pd, offset, fd, tree, proto_smux, ett_smux);
+	dissect_smux_pdu(tvb, 0, pinfo, tree, proto_smux, ett_smux);
 }
 
 void
@@ -2295,16 +2288,12 @@ proto_register_snmp(void)
 void
 proto_reg_handoff_snmp(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp,
+	dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp, proto_snmp);
+	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp, proto_snmp);
+	dissector_add("tcp.port", TCP_PORT_SMUX, dissect_smux, proto_smux);
+	dissector_add("ethertype", ETHERTYPE_SNMP, dissect_snmp, proto_snmp);
+	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, dissect_snmp,
 	    proto_snmp);
-	old_dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp,
-	    proto_snmp);
-	old_dissector_add("tcp.port", TCP_PORT_SMUX, dissect_smux,
-	    proto_smux);
-	old_dissector_add("ethertype", ETHERTYPE_SNMP, dissect_snmp,
-	    proto_snmp);
-	old_dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, dissect_snmp,
-	    proto_snmp);
-	old_dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, dissect_snmp,
+	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, dissect_snmp,
 	    proto_snmp);
 }

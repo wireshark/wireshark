@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.32 2001/01/21 20:16:01 guy Exp $
+ * $Id: packet-atm.c,v 1.33 2001/04/15 07:30:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -563,12 +563,6 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item   *ti;
   guint         aal_type;
   guint         hl_type;
-  const guint8 *pd;
-  int           offset;
-
-  CHECK_DISPLAY_AS_DATA(proto_atm, tvb, pinfo, tree);
-
-  pinfo->current_proto = "ATM";
 
   aal_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_AALTYPE;
   hl_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_HLTYPE;
@@ -741,8 +735,7 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case ATT_HL_ILMI:
       CHECK_DISPLAY_AS_DATA(proto_ilmi, tvb, pinfo, tree);
-      tvb_compat(tvb, &pd, &offset);
-      dissect_snmp_pdu(pd, offset, pinfo->fd, tree, "ILMI", proto_ilmi, ett_ilmi);
+      dissect_snmp_pdu(tvb, 0, pinfo, tree, "ILMI", proto_ilmi, ett_ilmi);
       break;
 
     default:

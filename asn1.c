@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.6 2000/12/24 09:10:11 guy Exp $
+ * $Id: asn1.c,v 1.7 2001/04/15 07:30:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,14 +41,14 @@
  *
  *              To decode this we must do:
  *
- *              asn1_open (asn1, buf_start, buf_len);
+ *              asn1_open (asn1, tvb, offset);
  *              asn1_header_decode (asn1, &end_of_seq, cls, con, tag, def, len);
  *              asn1_header_decode (asn1, &end_of_octs, cls, con, tag, def, len);
  *              asn1_octets_decode (asn1, end_of_octs, str, len);
  *              asn1_header_decode (asn1, &end_of_int, cls, con, tag);
  *              asn1_int_decode (asn1, end_of_int, &integer);
  *              asn1_eoc_decode (asn1, end_of_seq);
- *              asn1_close (asn1, &buf_start, &buf_len);
+ *              asn1_close (asn1, &offset);
  *              
  *              For indefinite encoding end_of_seq and &end_of_seq in the
  *              example above should be replaced by NULL.
@@ -70,32 +70,32 @@
 #endif
 
 #include <glib.h>
+#include "tvbuff.h"
 #include "asn1.h"
 
 /*
  * NAME:        asn1_open                                   [API]
  * SYNOPSIS:    void asn1_open
  *                  (
- *                      ASN1_SCK     *asn1,
- *                      const guchar *buf,
- *                      guint        len,
+ *                      ASN1_SCK *asn1,
+ *                      tvbuff_t *tvb,
+ *                      int       offset
  *                  )
  * DESCRIPTION: Opens an ASN1 socket.
  *              Parameters:
- *              asn1: pointer to ASN1 socket.
- *              buf:  Character buffer for encoding.
- *              len:  Length of character buffer.
+ *              asn1:   pointer to ASN1 socket.
+ *              tvb:    Tvbuff for encoding.
+ *              offset: Current offset in tvbuff.
  *              Encoding starts at the end of the buffer, and
  *              proceeds to the beginning.
  * RETURNS:     void
  */
 
 void
-asn1_open(ASN1_SCK *asn1, const guchar *buf, guint len)
+asn1_open(ASN1_SCK *asn1, tvbuff_t *tvb, int offset)
 {
-    asn1->begin = buf;
-    asn1->end = buf + len;
-    asn1->pointer = buf;
+    asn1->tvb = tvb;
+    asn1->offset = offset;
 }
 
 /*
@@ -103,22 +103,20 @@ asn1_open(ASN1_SCK *asn1, const guchar *buf, guint len)
  * SYNOPSIS:    void asn1_close
  *                  (
  *                      ASN1_SCK   *asn1,
- *                      guchar    **buf,
- *                      guint      *len
+ *                      int        *offset
  *                  )
  * DESCRIPTION: Closes an ASN1 socket.
  *              Parameters:
- *              asn1: pointer to ASN1 socket.
- *              buf: pointer to beginning of encoding.
- *              len: Length of encoding.
+ *              asn1:   pointer to ASN1 socket.
+ *              offset: pointer to variable into which current offset is
+ *              to be put.
  * RETURNS:     void
  */
 
 void 
-asn1_close(ASN1_SCK *asn1, const guchar **buf, guint *len)
+asn1_close(ASN1_SCK *asn1, int *offset)
 {
-    *buf   = asn1->pointer;
-    *len   = asn1->end - asn1->pointer;
+    *offset = asn1->offset;
 }
 
 /*
@@ -134,9 +132,8 @@ asn1_close(ASN1_SCK *asn1, const guchar **buf, guint *len)
 int
 asn1_octet_decode(ASN1_SCK *asn1, guchar *ch)
 {
-    if (asn1->pointer >= asn1->end)
-	return ASN1_ERR_EMPTY;
-    *ch = *(asn1->pointer)++;
+    *ch = tvb_get_guint8(asn1->tvb, asn1->offset);
+    asn1->offset++;
     return ASN1_ERR_NOERROR;
 }
 
@@ -291,22 +288,22 @@ asn1_header_decode(ASN1_SCK *asn1, guint *cls, guint *con, guint *tag,
  * SYNOPSIS:    gboolean asn1_eoc
  *                  (
  *                      ASN1_SCK *asn1,
- *                      guchar   *eoc
+ *                      int       eoc
  *                  )
  * DESCRIPTION: Checks if decoding is at End Of Contents.
  *              Parameters:
  *              asn1: pointer to ASN1 socket.
- *              eoc: pointer to end of encoding or 0 if
- *                   indefinite.
+ *              eoc: offset of end of encoding, or -1 if indefinite.
  * RETURNS:     gboolean success
  */
 gboolean
-asn1_eoc ( ASN1_SCK *asn1, const guchar *eoc)
+asn1_eoc ( ASN1_SCK *asn1, int eoc)
 {
-    if (eoc == 0)
-        return (asn1->pointer [0] == 0x00 && asn1->pointer [1] == 0x00);
+    if (eoc == -1)
+        return (tvb_get_guint8(asn1->tvb, asn1->offset) == 0x00
+		&& tvb_get_guint8(asn1->tvb, asn1->offset + 1) == 0x00);
     else
-        return (asn1->pointer >= eoc);
+        return (asn1->offset >= eoc);
 }
 
 /*
@@ -314,31 +311,29 @@ asn1_eoc ( ASN1_SCK *asn1, const guchar *eoc)
  * SYNOPSIS:    int asn1_eoc_decode
  *                  (
  *                      ASN1_SCK  *asn1,
- *                      guchar    *eoc
+ *                      int       eoc
  *                  )
  * DESCRIPTION: Decodes End Of Contents.
  *              Parameters:
  *              asn1: pointer to ASN1 socket.
- *              eoc: pointer to end of encoding or 0 if
- *                   indefinite.
- *              If eoc is 0 it decodes an ASN1 End Of
+ *              eoc: offset of end of encoding, or -1 if indefinite.
+ *              If eoc is -1 it decodes an ASN1 End Of
  *              Contents (0x00 0x00), so it has to be an
- *              indefinite length encoding. If eoc is a
- *              character pointer, it probably was filled by
- *              asn1_header_decode, and should point to the octet
- *              after the last of the encoding. It is checked
- *              if this pointer points to the octet to be
+ *              indefinite length encoding. If eoc is a non-negative
+ *              integer, it probably was filled by asn1_header_decode,
+ *              and should refer to the octet after the last of the encoding.
+ *              It is checked if this offset refers to the octet to be
  *              decoded. This only takes place in decoding a
  *              definite length encoding.
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
 int
-asn1_eoc_decode (ASN1_SCK *asn1, const guchar *eoc)
+asn1_eoc_decode (ASN1_SCK *asn1, int eoc)
 {
     int    ret;
     guchar ch;
     
-    if (eoc == 0) {
+    if (eoc == -1) {
         ret = asn1_octet_decode (asn1, &ch);
         if (ret != ASN1_ERR_NOERROR)
 	    return ret;
@@ -351,7 +346,7 @@ asn1_eoc_decode (ASN1_SCK *asn1, const guchar *eoc)
 	return ASN1_ERR_EOC_MISMATCH;
       return ASN1_ERR_NOERROR;
   } else {
-      if (asn1->pointer != eoc)
+      if (asn1->offset != eoc)
 	return ASN1_ERR_LENGTH_MISMATCH;
       return ASN1_ERR_NOERROR;
     }
@@ -373,7 +368,7 @@ asn1_eoc_decode (ASN1_SCK *asn1, const guchar *eoc)
 int
 asn1_null_decode ( ASN1_SCK *asn1, int enc_len)
 {
-    asn1->pointer += enc_len;
+    asn1->offset += enc_len;
     return ASN1_ERR_NOERROR;
 }
 
@@ -427,17 +422,17 @@ int
 asn1_int32_value_decode ( ASN1_SCK *asn1, int enc_len, gint32 *integer)
 {
     int          ret;
-    const guchar *eoc;
+    int          eoc;
     guchar       ch;
     guint        len;
 
-    eoc = asn1->pointer + enc_len;
+    eoc = asn1->offset + enc_len;
     ret = asn1_octet_decode (asn1, &ch);
     if (ret != ASN1_ERR_NOERROR)
         return ret;
     *integer = (gint) ch;
     len = 1;
-    while (asn1->pointer < eoc) {
+    while (asn1->offset < eoc) {
         if (++len > sizeof (gint32))
 	    return ASN1_ERR_WRONG_LENGTH_FOR_TYPE;
         ret = asn1_octet_decode (asn1, &ch);
@@ -468,14 +463,14 @@ int
 asn1_int32_decode ( ASN1_SCK *asn1, gint32 *integer, guint *nbytes)
 {
     int          ret;
-    const guchar *start;
+    int          start;
     guint        cls;
     guint        con;
     guint        tag;
     gboolean     def;
     guint        enc_len;
 
-    start = asn1->pointer;
+    start = asn1->offset;
     ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &enc_len);
     if (ret != ASN1_ERR_NOERROR)
 	goto done;
@@ -490,7 +485,7 @@ asn1_int32_decode ( ASN1_SCK *asn1, gint32 *integer, guint *nbytes)
     ret = asn1_int32_value_decode (asn1, enc_len, integer);
 
 done:
-    *nbytes = asn1->pointer - start;
+    *nbytes = asn1->offset - start;
     return ret;
 }
 
@@ -514,11 +509,11 @@ int
 asn1_uint32_value_decode ( ASN1_SCK *asn1, int enc_len, guint *integer)
 {
     int          ret;
-    const guchar *eoc;
+    int          eoc;
     guchar       ch;
     guint        len;
 
-    eoc = asn1->pointer + enc_len;
+    eoc = asn1->offset + enc_len;
     ret = asn1_octet_decode (asn1, &ch);
     if (ret != ASN1_ERR_NOERROR)
         return ret;
@@ -527,7 +522,7 @@ asn1_uint32_value_decode ( ASN1_SCK *asn1, int enc_len, guint *integer)
 	len = 0;
     else
 	len = 1;
-    while (asn1->pointer < eoc) {
+    while (asn1->offset < eoc) {
         if (++len > sizeof (guint32))
 	    return ASN1_ERR_WRONG_LENGTH_FOR_TYPE;
         ret = asn1_octet_decode (asn1, &ch);
@@ -558,14 +553,14 @@ int
 asn1_uint32_decode ( ASN1_SCK *asn1, guint32 *integer, guint *nbytes)
 {
     int          ret;
-    const guchar *start;
+    int          start;
     guint        cls;
     guint        con;
     guint        tag;
     gboolean     def;
     guint        enc_len;
 
-    start = asn1->pointer;
+    start = asn1->offset;
     ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &enc_len);
     if (ret != ASN1_ERR_NOERROR)
 	goto done;
@@ -580,7 +575,7 @@ asn1_uint32_decode ( ASN1_SCK *asn1, guint32 *integer, guint *nbytes)
     ret = asn1_uint32_value_decode (asn1, enc_len, integer);
 
 done:
-    *nbytes = asn1->pointer - start;
+    *nbytes = asn1->offset - start;
     return ret;
 }
 
@@ -589,7 +584,7 @@ done:
  * SYNOPSIS:    int asn1_bits_decode
  *                  (
  *                      ASN1_SCK  *asn1,
- *                      guchar    *eoc,
+ *                      int        eoc,
  *                      guchar    *bits,
  *                      guint      size,
  *                      guint      len,
@@ -598,8 +593,7 @@ done:
  * DESCRIPTION: Decodes Bit String.
  *              Parameters:
  *              asn1:   pointer to ASN1 socket.
- *              eoc:    pointer to end of encoding or 0 if
- *                      indefinite.
+ *              eoc: offset of end of encoding, or -1 if indefinite.
  *              bits:   pointer to begin of Bit String.
  *              size:   Size of Bit String in characters.
  *              len:    Length of Bit String in characters.
@@ -607,7 +601,7 @@ done:
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
 int
-asn1_bits_decode ( ASN1_SCK *asn1, const guchar *eoc, guchar **bits,
+asn1_bits_decode ( ASN1_SCK *asn1, int eoc, guchar **bits,
 		     guint *len, guchar *unused)
 
 {
@@ -618,8 +612,8 @@ asn1_bits_decode ( ASN1_SCK *asn1, const guchar *eoc, guchar **bits,
     if (ret != ASN1_ERR_NOERROR)
         return ret;
     *len = 0;
-    *bits = g_malloc(eoc - asn1->pointer);
-    while (asn1->pointer < eoc) {
+    *bits = g_malloc(eoc - asn1->offset);
+    while (asn1->offset < eoc) {
         ret = asn1_octet_decode (asn1, (guchar *)bits++);
         if (ret != ASN1_ERR_NOERROR) {
             g_free(*bits);
@@ -650,13 +644,13 @@ int
 asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
 {
     int          ret;
-    const guchar *eoc;
+    int          eoc;
     guchar       *ptr;
 
-    eoc = asn1->pointer + enc_len;
+    eoc = asn1->offset + enc_len;
     *octets = g_malloc (enc_len);
     ptr = *octets;
-    while (asn1->pointer < eoc) {
+    while (asn1->offset < eoc) {
 	ret = asn1_octet_decode (asn1, (guchar *)ptr++);
 	if (ret != ASN1_ERR_NOERROR) {
 	    g_free(*octets);
@@ -692,14 +686,14 @@ asn1_string_decode ( ASN1_SCK *asn1, guchar **octets, guint *str_len,
 			guint *nbytes, guint expected_tag)
 {
     int          ret;
-    const guchar *start;
+    int          start;
     int          enc_len;
     guint        cls;
     guint        con;
     guint        tag;
     gboolean     def;
 
-    start = asn1->pointer;
+    start = asn1->offset;
     ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &enc_len);
     if (ret != ASN1_ERR_NOERROR)
 	goto done;
@@ -717,7 +711,7 @@ asn1_string_decode ( ASN1_SCK *asn1, guchar **octets, guint *str_len,
     *str_len = enc_len;
 
 done:
-    *nbytes = asn1->pointer - start;
+    *nbytes = asn1->offset - start;
     return ret;
 }
 
@@ -796,12 +790,12 @@ int
 asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
 {
     int          ret;
-    const guchar *eoc;
+    int          eoc;
     subid_t      subid;
     guint        size;
     subid_t      *optr;
 
-    eoc = asn1->pointer + enc_len;
+    eoc = asn1->offset + enc_len;
     size = enc_len + 1;
     *oid = g_malloc(size * sizeof(gulong));
     optr = *oid;
@@ -824,7 +818,7 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
     }
     *len = 2;
     optr += 2;
-    while (asn1->pointer < eoc) {
+    while (asn1->offset < eoc) {
 	if (++(*len) > size) {
             g_free(*oid);
             *oid = NULL;
@@ -861,14 +855,14 @@ int
 asn1_oid_decode ( ASN1_SCK *asn1, subid_t **oid, guint *len, guint *nbytes)
 {
     int          ret;
-    const guchar *start;
+    int          start;
     guint        cls;
     guint        con;
     guint        tag;
     gboolean     def;
     guint        enc_len;
 
-    start = asn1->pointer;
+    start = asn1->offset;
     ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &enc_len);
     if (ret != ASN1_ERR_NOERROR)
 	goto done;
@@ -884,7 +878,7 @@ asn1_oid_decode ( ASN1_SCK *asn1, subid_t **oid, guint *len, guint *nbytes)
     ret = asn1_oid_value_decode (asn1, enc_len, oid, len);
 
 done:
-    *nbytes = asn1->pointer - start;
+    *nbytes = asn1->offset - start;
     return ret;
 }
 
@@ -907,13 +901,13 @@ int
 asn1_sequence_decode ( ASN1_SCK *asn1, guint *seq_len, guint *nbytes)
 {
     int          ret;
-    const guchar *start;
+    int          start;
     guint        cls;
     guint        con;
     guint        tag;
     gboolean     def;
 
-    start = asn1->pointer;
+    start = asn1->offset;
     ret = asn1_header_decode(asn1, &cls, &con, &tag,
 	    &def, seq_len);
     if (ret != ASN1_ERR_NOERROR)
@@ -930,6 +924,6 @@ asn1_sequence_decode ( ASN1_SCK *asn1, guint *seq_len, guint *nbytes)
     ret = ASN1_ERR_NOERROR;
 
 done:
-    *nbytes = asn1->pointer - start;
+    *nbytes = asn1->offset - start;
     return ret;
 }

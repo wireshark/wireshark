@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.22 2001/01/10 23:42:12 guy Exp $
+ * $Id: packet-ldap.c,v 1.23 2001/04/15 07:30:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,7 +140,7 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
 {
   guint length = 0;
   gboolean def = FALSE;
-  const guchar *start = a->pointer;
+  int start = a->offset;
   
   asn1_length_decode(a, &def, &length);
 
@@ -148,7 +148,7 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
     *len = length;
 
   if (tree)
-    proto_tree_add_uint(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, length);
+    proto_tree_add_uint(tree, hf_id, a->tvb, start, a->offset-start, length);
 
   return 0;
 }
@@ -157,13 +157,15 @@ static int read_sequence(ASN1_SCK *a, guint *len)
 {
   guint cls, con, tag;
   gboolean def;
+  int start;
   guint length;
   
+  start = a->offset;
   if (asn1_header_decode(a, &cls, &con, &tag, &def, &length) != ASN1_ERR_NOERROR)
     return 1;
   if (cls != ASN1_UNI || con != ASN1_CON || tag != ASN1_SEQ)
     return 1;
-  
+
   if (len)
     *len = length;
   
@@ -188,7 +190,7 @@ static int read_set(ASN1_SCK *a, guint *len)
 }
 
 static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
-	proto_tree **new_tree, guint *i, const guchar *start, guint length)
+	proto_tree **new_tree, guint *i, int start, guint length)
 {
   guint integer = 0;
 
@@ -200,7 +202,7 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (tree)
   {
     proto_tree *temp_tree = 0;
-    temp_tree = proto_tree_add_uint(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, integer);
+    temp_tree = proto_tree_add_uint(tree, hf_id, a->tvb, start, a->offset-start, integer);
     if (new_tree)
       *new_tree = temp_tree;
   }
@@ -214,7 +216,7 @@ static int read_integer(ASN1_SCK *a, proto_tree *tree, int hf_id,
   guint cls, con, tag;
   gboolean def;
   guint length;
-  const guchar *start = a->pointer;
+  int start = a->offset;
   
   if (asn1_header_decode(a, &cls, &con, &tag, &def, &length) != ASN1_ERR_NOERROR)
     return 1;
@@ -225,7 +227,7 @@ static int read_integer(ASN1_SCK *a, proto_tree *tree, int hf_id,
 }
 
 static int read_boolean_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
-	proto_tree **new_tree, guint *i, const guchar *start, guint length)
+	proto_tree **new_tree, guint *i, int start, guint length)
 {
   guint integer = 0;
 
@@ -237,7 +239,7 @@ static int read_boolean_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (tree)
   {
     proto_tree *temp_tree = 0;
-    temp_tree = proto_tree_add_boolean(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, integer);
+    temp_tree = proto_tree_add_boolean(tree, hf_id, a->tvb, start, a->offset-start, integer);
     if (new_tree)
       *new_tree = temp_tree;
   }
@@ -251,7 +253,7 @@ static int read_boolean(ASN1_SCK *a, proto_tree *tree, int hf_id,
   guint cls, con, tag;
   gboolean def;
   guint length;
-  const guchar *start = a->pointer;
+  int start = a->offset;
   
   if (asn1_header_decode(a, &cls, &con, &tag, &def, &length) != ASN1_ERR_NOERROR)
     return 1;
@@ -262,7 +264,7 @@ static int read_boolean(ASN1_SCK *a, proto_tree *tree, int hf_id,
 }
 
 static void read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
-	proto_tree **new_tree, char **s, const guchar *start, guint length)
+	proto_tree **new_tree, char **s, int start, guint length)
 {
   guchar *string;
   
@@ -278,7 +280,7 @@ static void read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (tree)
   {
     proto_tree *temp_tree;
-    temp_tree = proto_tree_add_string(tree, hf_id, NullTVB, start - a->begin, a->pointer - start, string);
+    temp_tree = proto_tree_add_string(tree, hf_id, a->tvb, start, a->offset - start, string);
     if (new_tree)
       *new_tree = temp_tree;
   }
@@ -295,7 +297,7 @@ static int read_string(ASN1_SCK *a, proto_tree *tree, int hf_id,
   guint cls, con, tag;
   gboolean def;
   guint length;
-  const guchar *start = a->pointer;
+  int start = a->offset;
   int ret;
   
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
@@ -348,7 +350,7 @@ static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length
 /* Richard Dawe: To parse substring filters, I added this function. */
 static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_length)
 {
-  guchar *end;
+  int end;
   guchar *string;
   char *filterp;
   guint string_length;
@@ -386,9 +388,9 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
 
   /* Now decode seq_len's worth of octet strings. */
   any_valued = 0;
-  end = (guchar *) (a->pointer + seq_len);
+  end = a->offset + seq_len;
 
-  while (a->pointer < end) {
+  while (a->offset < end) {
     /* Octet strings here are context-specific, which
      * asn1_octet_string_decode() barfs on. Emulate it, but don't barf. */
     ret = asn1_header_decode (a, &cls, &con, &tag, &def, &string_length);
@@ -446,7 +448,8 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
 }
 
 /* Returns -1 if we're at the end, returns an ASN1_ERR value otherwise. */
-static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const guchar **end)
+static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
+			int *end)
 {
   guint cls, con, tag;
   guint length;
@@ -459,7 +462,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
   
   if (*end == 0)
   {
-    *end = a->pointer + length;
+    *end = a->offset + length;
     *filter_length = 1;
     *filter = g_malloc0(*filter_length);
   }
@@ -470,11 +473,11 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
     {
      case LDAP_FILTER_AND:
       {
-        const guchar *add_end;
+        int add_end;
 
         if (con != ASN1_CON)
           return ASN1_ERR_WRONG_TYPE;
-        add_end = a->pointer + length;
+        add_end = a->offset + length;
         *filter_length += 3;
         *filter = g_realloc(*filter, *filter_length);
         strcat(*filter, "(&");
@@ -488,11 +491,11 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
       break;
      case LDAP_FILTER_OR:
       {
-        const guchar *or_end;
+        int or_end;
 
         if (con != ASN1_CON)
           return ASN1_ERR_WRONG_TYPE;
-        or_end = a->pointer + length;
+        or_end = a->offset + length;
         *filter_length += 3;
         *filter = g_realloc(*filter, *filter_length);
         strcat(*filter, "(|");
@@ -506,11 +509,11 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
       break;
      case LDAP_FILTER_NOT:
       {
-        const guchar *not_end;
+        int not_end;
 
         if (con != ASN1_CON)
           return ASN1_ERR_WRONG_TYPE;
-        not_end = a->pointer + length;
+        not_end = a->offset + length;
         *filter_length += 3;
         *filter = g_realloc(*filter, *filter_length);
         strcat(*filter, "(!");
@@ -586,7 +589,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
     }
   }
   
-  if (a->pointer == *end)
+  if (a->offset == *end)
     return -1;
   else
     return ret;
@@ -594,10 +597,10 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
 
 static int read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
 {
-  const guchar *start = a->pointer;
+  int start = a->offset;
   char *filter = 0;
   guint filter_length = 0;
-  const guchar *end = 0;
+  int end = 0;
   int ret;
      
   while ((ret = parse_filter(a, &filter, &filter_length, &end))
@@ -606,10 +609,10 @@ static int read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
 
   if (tree) {
     if (ret != -1) {
-      proto_tree_add_text(tree, NullTVB, start-a->begin, 0,
+      proto_tree_add_text(tree, a->tvb, start, 0,
         "Error parsing filter (%d)", ret);
     } else
-      proto_tree_add_string(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, filter);
+      proto_tree_add_string(tree, hf_id, a->tvb, start, a->offset-start, filter);
   }
 
   g_free(filter);
@@ -629,17 +632,17 @@ static int dissect_ldap_result(ASN1_SCK *a, proto_tree *tree)
 
   if (resultCode == 10)		/* Referral */
   {
-    const guchar *start = a->pointer;
-    const guchar *end;
+    int start = a->offset;
+    int end;
     guint length;
     proto_tree *t, *referralTree;
     
     read_sequence(a, &length);
-    t = proto_tree_add_text(tree, NullTVB, start-a->begin, length, "Referral URLs");
+    t = proto_tree_add_text(tree, a->tvb, start, length, "Referral URLs");
     referralTree = proto_item_add_subtree(t, ett_ldap_referrals);
 
-    end = a->pointer + length;;
-    while (a->pointer < end)
+    end = a->offset + length;
+    while (a->offset < end)
       read_string(a, referralTree, hf_ldap_message_result_referral, 0, 0, ASN1_UNI, ASN1_OTS);
   }
     
@@ -650,18 +653,18 @@ static int dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree)
 {
   guint cls, con, tag;
   guint def, length;
-  const guchar *start;
+  int start;
 
   read_integer(a, tree, hf_ldap_message_bind_version, 0, 0, ASN1_INT);
   read_string(a, tree, hf_ldap_message_bind_dn, 0, 0, ASN1_UNI, ASN1_OTS);
 
-  start = a->pointer;
+  start = a->offset;
   if (asn1_header_decode(a, &cls, &con, &tag, &def, &length) != ASN1_ERR_NOERROR)
     return 1;	/* XXX - right return value for an error? */
   if (cls != ASN1_CTX)
     return 1;	/* RFCs 1777 and 2251 say these are context-specific types */
-  proto_tree_add_uint(tree, hf_ldap_message_bind_auth, NullTVB, start - a->begin,
-			a->pointer - start, tag);
+  proto_tree_add_uint(tree, hf_ldap_message_bind_auth, a->tvb, start,
+			a->offset - start, tag);
   switch (tag)
   {
    case LDAP_AUTH_SIMPLE:
@@ -686,7 +689,7 @@ static int dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree)
 static int dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
-  const guchar *end;
+  int end;
   int ret;
   
   read_string(a, tree, hf_ldap_message_search_base, 0, 0, ASN1_UNI, ASN1_OTS);
@@ -699,8 +702,8 @@ static int dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
   if (ret != ASN1_ERR_NOERROR)
     return ret;
   read_sequence(a, &seq_length);
-  end = a->pointer + seq_length;
-  while (a->pointer < end) {
+  end = a->offset + seq_length;
+  while (a->offset < end) {
     ret = read_string(a, tree, hf_ldap_message_attribute, 0, 0, ASN1_UNI, ASN1_OTS);
     if (ret != ASN1_ERR_NOERROR)
       return ret;
@@ -711,25 +714,25 @@ static int dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
 static int dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
-  const guchar *end_of_sequence;
+  int end_of_sequence;
  
   read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
   read_sequence(a, &seq_length);
 
-  end_of_sequence = a->pointer + seq_length;
-  while (a->pointer < end_of_sequence)
+  end_of_sequence = a->offset + seq_length;
+  while (a->offset < end_of_sequence)
   {
     proto_tree *t, *attr_tree;
     guint set_length;
-    const guchar *end_of_set;
+    int end_of_set;
 
     read_sequence(a, 0);
     read_string(a, tree, hf_ldap_message_attribute, &t, 0, ASN1_UNI, ASN1_OTS);
     attr_tree = proto_item_add_subtree(t, ett_ldap_attribute);
 
     read_set(a, &set_length);
-    end_of_set = a->pointer + set_length;
-    while (a->pointer < end_of_set)
+    end_of_set = a->offset + set_length;
+    while (a->offset < end_of_set)
       read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI, ASN1_OTS);
   }
 
@@ -739,25 +742,25 @@ static int dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
 static int dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
-  const guchar *end_of_sequence;
+  int end_of_sequence;
   
   read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
 
   read_sequence(a, &seq_length);
-  end_of_sequence = a->pointer + seq_length;
-  while (a->pointer < end_of_sequence)
+  end_of_sequence = a->offset + seq_length;
+  while (a->offset < end_of_sequence)
   {
     proto_tree *t, *attr_tree;
     guint set_length;
-    const guchar *end_of_set;
+    int end_of_set;
 
     read_sequence(a, 0);
     read_string(a, tree, hf_ldap_message_attribute, &t, 0, ASN1_UNI, ASN1_OTS);
     attr_tree = proto_item_add_subtree(t, ett_ldap_attribute);
 
     read_set(a, &set_length);
-    end_of_set = a->pointer + set_length;
-    while (a->pointer < end_of_set)
+    end_of_set = a->offset + set_length;
+    while (a->offset < end_of_set)
       read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI, ASN1_OTS);
   }
 
@@ -765,7 +768,7 @@ static int dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree)
 }
 
 static int dissect_ldap_request_delete(ASN1_SCK *a, proto_tree *tree,
-		const guchar *start, guint length)
+		int start, guint length)
 {
   read_string_value(a, tree, hf_ldap_message_dn, NULL, NULL, start, length);
   return 0;
@@ -774,13 +777,13 @@ static int dissect_ldap_request_delete(ASN1_SCK *a, proto_tree *tree,
 static int dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
 		guint length)
 {
-  const guchar *start = a->pointer;
+  int start = a->offset;
 
   read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
   read_string(a, tree, hf_ldap_message_modrdn_name, 0, 0, ASN1_UNI, ASN1_OTS);
   read_boolean(a, tree, hf_ldap_message_modrdn_delete, 0, 0);
   
-  if (a->pointer < (start + length)) {
+  if (a->offset < (start + length)) {
     /* LDAP V3 Modify DN operation, with newSuperior */
     read_string(a, tree, hf_ldap_message_modrdn_superior, 0, 0, ASN1_UNI, ASN1_OTS);
   }
@@ -790,7 +793,7 @@ static int dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
 
 static int dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
 {
-  const guchar *start;
+  int start;
   int length;
   char *string1 = 0;
   char *string2 = 0;
@@ -799,14 +802,15 @@ static int dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
   read_sequence(a, 0);
 
-  start = a->pointer;
+  start = a->offset;
   read_string(a, 0, -1, 0, &string1, ASN1_UNI, ASN1_OTS);
   read_string(a, 0, -1, 0, &string2, ASN1_UNI, ASN1_OTS);
 
   length = 2 + strlen(string1) + strlen(string2);
   compare = g_malloc0(length);
   snprintf(compare, length, "%s=%s", string1, string2);
-  proto_tree_add_string(tree, hf_ldap_message_compare, NullTVB, start-a->begin, a->pointer-start, compare);
+  proto_tree_add_string(tree, hf_ldap_message_compare, a->tvb, start,
+      a->offset-start, compare);
   
   g_free(string1);
   g_free(string2);
@@ -818,16 +822,16 @@ static int dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
 static int dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
-  const guchar *end_of_sequence;
+  int end_of_sequence;
   
   read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
   read_sequence(a, &seq_length);
-  end_of_sequence = a->pointer + seq_length;
-  while (a->pointer < end_of_sequence)
+  end_of_sequence = a->offset + seq_length;
+  while (a->offset < end_of_sequence)
   {
     proto_tree *t = 0, *attr_tree;
     guint set_length;
-    const guchar *end_of_set;
+    int end_of_set;
     guint operation;
 
     read_sequence(a, 0);
@@ -849,8 +853,8 @@ static int dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
     attr_tree = proto_item_add_subtree(t, ett_ldap_attribute);
 
     read_set(a, &set_length);
-    end_of_set = a->pointer + set_length;
-    while (a->pointer < end_of_set)
+    end_of_set = a->offset + set_length;
+    while (a->offset < end_of_set)
       read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI, ASN1_OTS);
   }
 
@@ -858,7 +862,7 @@ static int dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
 }
 
 static int dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
-		const guchar *start, guint length)
+		int start, guint length)
 {
   read_integer_value(a, tree, hf_ldap_message_abandon_msgid, NULL, NULL,
 			start, length); 
@@ -866,8 +870,9 @@ static int dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
 }
 
 static void
-dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  int offset = 0;
   proto_tree *ldap_tree = 0, *ti, *msg_tree;
   guint messageLength;
   guint messageId;
@@ -875,49 +880,38 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   gchar *typestr;
   guint opLen;
   ASN1_SCK a;
-  const guchar *start;
+  int start;
   int first_time = 1;
   int ret;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_ldap, pd, offset, fd, tree);
-
   if (tree) 
   {
-    ti = proto_tree_add_item(tree, proto_ldap, NullTVB, offset, END_OF_FRAME, FALSE);
+    ti = proto_tree_add_item(tree, proto_ldap, tvb, offset, tvb_length(tvb),
+			     FALSE);
     ldap_tree = proto_item_add_subtree(ti, ett_ldap);
   }
 
-  asn1_open(&a, pd, pi.captured_len);
-  a.pointer += offset;
+  asn1_open(&a, tvb, 0);
 
-  while (a.pointer < a.end)
+  while (tvb_reported_length_remaining(tvb, offset) > 0)
   {
     int message_id_start;
     int message_id_length;
     int message_start;
     
-    message_start = a.pointer - a.begin;
+    message_start = a.offset;
     if (read_sequence(&a, &messageLength))
     {
       if (ldap_tree)
-        proto_tree_add_text(ldap_tree, NullTVB, offset, 1, "Invalid LDAP packet");
+        proto_tree_add_text(ldap_tree, tvb, offset, 1, "Invalid LDAP packet");
       break;
     }
 
-    if (messageLength > (a.end - a.pointer))
-    {
-      if (ldap_tree)
-        proto_tree_add_text(ldap_tree, NullTVB, message_start, END_OF_FRAME,
-			    "Short message! (expected: %u, actual: %lu)",
-			    messageLength, (unsigned long)(a.end - a.pointer));
-      break;
-    }
-  
-    message_id_start = a.pointer - a.begin;
+    message_id_start = a.offset;
     read_integer(&a, 0, -1, 0, &messageId, ASN1_INT);
-    message_id_length = (a.pointer - a.begin) - message_id_start;
+    message_id_length = a.offset - message_id_start;
 
-    start = a.pointer;
+    start = a.offset;
     asn1_id_decode(&a, &protocolOpCls, &protocolOpCon, &protocolOpTag);
     if (protocolOpCls != ASN1_APL)
       typestr = "Bad message type (not Application)";
@@ -926,11 +920,11 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (first_time)
     {
-      if (check_col(fd, COL_PROTOCOL))
-        col_set_str(fd, COL_PROTOCOL, "LDAP");
+      if (check_col(pinfo->fd, COL_PROTOCOL))
+        col_set_str(pinfo->fd, COL_PROTOCOL, "LDAP");
 
-      if (check_col(fd, COL_INFO))
-        col_add_fstr(fd, COL_INFO, "MsgId=%u MsgType=%s",
+      if (check_col(pinfo->fd, COL_INFO))
+        col_add_fstr(pinfo->fd, COL_INFO, "MsgId=%u MsgType=%s",
 		     messageId, typestr);
       first_time = 0;
       if (!tree)
@@ -939,12 +933,12 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (ldap_tree) 
     {
-      proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_id, NullTVB, message_id_start, message_id_length, messageId);
-      proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_type, NullTVB,
-			         start - a.begin, a.pointer - start, protocolOpTag);
-      ti = proto_tree_add_text(ldap_tree, NullTVB, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
+      proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_id, tvb, message_id_start, message_id_length, messageId);
+      proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_type, tvb,
+			         start, a.offset - start, protocolOpTag);
+      ti = proto_tree_add_text(ldap_tree, tvb, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
       msg_tree = proto_item_add_subtree(ti, ett_ldap_message);
-      start = a.pointer;
+      start = a.offset;
       read_length(&a, msg_tree, hf_ldap_message_length, &opLen);
 
       switch (protocolOpTag)
@@ -954,8 +948,7 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         break;
        case LDAP_REQ_SEARCH:
         ret = dissect_ldap_request_search(&a, msg_tree);
-        if (ret != ASN1_ERR_NOERROR)
-          break;
+        /* XXX - do somethign with "ret" */
         break;
        case LDAP_REQ_ADD:
         dissect_ldap_request_add(&a, msg_tree);
@@ -991,6 +984,7 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         break;
       }
     }
+    offset = a.offset;
   }
 }
 
@@ -1210,5 +1204,5 @@ proto_register_ldap(void)
 void
 proto_reg_handoff_ldap(void)
 {
-  old_dissector_add("tcp.port", TCP_PORT_LDAP, dissect_ldap, proto_ldap);
+  dissector_add("tcp.port", TCP_PORT_LDAP, dissect_ldap, proto_ldap);
 }

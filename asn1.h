@@ -1,7 +1,7 @@
 /* asn1.h
  * Definitions for ASN.1 BER dissection
  *
- * $Id: asn1.h,v 1.4 2000/12/24 09:10:11 guy Exp $
+ * $Id: asn1.h,v 1.5 2001/04/15 07:30:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,39 +97,37 @@ typedef u_int	subid_t;	/* CMU SNMP, libsmi, or nothing */
 #endif
 
 #define ASN1_ERR_NOERROR		0	/* no error */
-#define ASN1_ERR_EMPTY			1	/* ran out of data */
-#define ASN1_ERR_EOC_MISMATCH		2
-#define ASN1_ERR_WRONG_TYPE		3	/* type not right */
-#define ASN1_ERR_LENGTH_NOT_DEFINITE	4	/* length should be definite */
-#define ASN1_ERR_LENGTH_MISMATCH	5
-#define ASN1_ERR_WRONG_LENGTH_FOR_TYPE	6	/* length wrong for type */
+#define ASN1_ERR_EOC_MISMATCH		1
+#define ASN1_ERR_WRONG_TYPE		2	/* type not right */
+#define ASN1_ERR_LENGTH_NOT_DEFINITE	3	/* length should be definite */
+#define ASN1_ERR_LENGTH_MISMATCH	4
+#define ASN1_ERR_WRONG_LENGTH_FOR_TYPE	5	/* length wrong for type */
 
 typedef struct _ASN1_SCK ASN1_SCK;
 
 struct _ASN1_SCK
 {                           /* ASN1 socket                         */
-    const guchar *pointer;  /* Octet just encoded or to be decoded */
-    const guchar *begin;    /* First octet                         */
-    const guchar *end;      /* Octet after last octet              */
+    tvbuff_t *tvb;          /* Tvbuff whence the data comes        */
+    int offset;             /* Current offset in tvbuff            */
 };
 
-void asn1_open (ASN1_SCK *asn1, const guchar *buf, guint len);
-void asn1_close (ASN1_SCK *asn1, const guchar **buf, guint *len);
+void asn1_open (ASN1_SCK *asn1, tvbuff_t *tvb, int offset);
+void asn1_close (ASN1_SCK *asn1, int *offset);
 int asn1_octet_decode (ASN1_SCK *asn1, guchar *ch);
 int asn1_tag_decode (ASN1_SCK *asn1, guint *tag);
 int asn1_id_decode (ASN1_SCK *asn1, guint *cls, guint *con, guint *tag);
 int asn1_length_decode (ASN1_SCK *asn1, gboolean *def, guint *len);
 int asn1_header_decode(ASN1_SCK *asn1, guint *cls, guint *con, guint *tag,
 			gboolean *defp, guint *lenp);
-int asn1_eoc (ASN1_SCK *asn1, const guchar *eoc);
-int asn1_eoc_decode (ASN1_SCK *asn1, const guchar *eoc);
+int asn1_eoc (ASN1_SCK *asn1, int eoc);
+int asn1_eoc_decode (ASN1_SCK *asn1, int eoc);
 int asn1_null_decode (ASN1_SCK *asn1, int enc_len);
 int asn1_bool_decode (ASN1_SCK *asn1, int enc_len, gboolean *bool);
 int asn1_int32_value_decode (ASN1_SCK *asn1, int enc_len, gint32 *integer);
 int asn1_int32_decode (ASN1_SCK *asn1, gint32 *integer, guint *nbytes);
 int asn1_uint32_value_decode (ASN1_SCK *asn1, int enc_len, guint *integer);
 int asn1_uint32_decode (ASN1_SCK *asn1, guint32 *integer, guint *nbytes);
-int asn1_bits_decode (ASN1_SCK *asn1, const guchar *eoc, guchar **bits, 
+int asn1_bits_decode (ASN1_SCK *asn1, int eoc, guchar **bits, 
                              guint *len, guchar *unused);
 int asn1_string_value_decode (ASN1_SCK *asn1, int enc_len,
 			guchar **octets);
