@@ -1000,8 +1000,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   int          err;
   cf_status_t  merge_status;
   char        *in_filenames[2];
-  int          out_fd;
-  char         tmpname[128+1];
+  char        *tmpname;
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -1027,30 +1026,28 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     	return;
   }
 
-  out_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
-
   /* merge or append the two files */
   rb = OBJECT_GET_DATA(w, E_MERGE_CHRONO_KEY);
+  tmpname = NULL;
   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
       /* chronological order */
       in_filenames[0] = cfile.filename;
       in_filenames[1] = cf_name;
-      merge_status = cf_merge_files(tmpname, out_fd, 2, in_filenames,
-                                filetype, FALSE);
+      merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, FALSE);
   } else {
       rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
           in_filenames[0] = cfile.filename;
           in_filenames[1] = cf_name;
-          merge_status = cf_merge_files(tmpname, out_fd, 2, in_filenames,
-                                    filetype, TRUE);
+          merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype,
+                                        TRUE);
       } else {
           /* append file */
           in_filenames[0] = cf_name;
           in_filenames[1] = cfile.filename;
-          merge_status = cf_merge_files(tmpname, out_fd, 2, in_filenames,
-                                    filetype, TRUE);
+          merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype,
+                                        TRUE);
       }
   }
 
@@ -1059,6 +1056,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   if (merge_status != CF_OK) {
     if (rfcode != NULL)
       dfilter_free(rfcode);
+    g_free(tmpname);
     return;
   }
 
@@ -1075,8 +1073,10 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
        try again. */
     if (rfcode != NULL)
       dfilter_free(rfcode);
+    g_free(tmpname);
     return;
   }
+  g_free(tmpname);
 
   /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
      it closed the previous capture file, and thus destroyed any

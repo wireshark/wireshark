@@ -406,8 +406,9 @@ char *cf_read_error_message(int err, const gchar *err_info);
  * Merge two (or more) capture files into one.
  * @todo is this the right place for this function? It doesn't have to do a lot with capture_file.
  *
- * @param out_filename output filename
- * @param out_fd output file descriptor
+ * @param out_filename pointer to output filename; if output filename is
+ * NULL, a temporary file name is generated and *out_filename is set
+ * to point to the generated file name
  * @param in_file_count the number of input files to merge
  * @param in_filnames array of input filenames
  * @param file_type the output filetype
@@ -415,8 +416,7 @@ char *cf_read_error_message(int err, const gchar *err_info);
  * @return one of cf_status_t
  */
 cf_status_t
-cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
+cf_merge_files(char **out_filename, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append);
-
 
 #endif /* file.h */

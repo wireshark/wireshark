@@ -939,11 +939,14 @@ read_packet(capture_file *cf, long offset)
 }
 
 cf_status_t
-cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
+cf_merge_files(char **out_filenamep, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append)
 {
   merge_in_file_t  *in_files;
   wtap             *wth;
+  char             *out_filename;
+  char              tmpname[128+1];
+  int               out_fd;
   wtap_dumper      *pdh;
   int               open_err, read_err, write_err, close_err;
   gchar            *err_info;
@@ -974,6 +977,26 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
     free(in_files);
     cf_open_failure_alert_box(in_filenames[err_fileno], open_err, err_info,
                               FALSE, 0);
+    return CF_ERROR;
+  }
+
+  if (*out_filenamep != NULL) {
+    out_filename = *out_filenamep;
+    out_fd = open(out_filename, O_CREAT|O_TRUNC|O_BINARY, 0600);
+    if (out_fd == -1)
+      open_err = errno;
+  } else {
+    out_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
+    if (out_fd == -1)
+      open_err = errno;
+    out_filename = g_strdup(tmpname);
+    *out_filenamep = out_filename;
+  }
+  if (out_fd == -1) {
+    err_info = NULL;
+    merge_close_in_files(in_file_count, in_files);
+    free(in_files);
+    cf_open_failure_alert_box(out_filename, open_err, NULL, TRUE, file_type);
     return CF_ERROR;
   }
 

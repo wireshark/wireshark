@@ -134,20 +134,18 @@ dnd_uri2filename(gchar *cf_name)
 static void
 dnd_merge_files(int in_file_count, char **in_filenames)
 {
-    int out_fd;
+    char *tmpname;
     gboolean merge_ok;
     int err;
-    char      tmpname[128+1];
-
-
-    out_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
 
     /* merge the files in chonological order */
-    merge_ok = cf_merge_files(tmpname, out_fd, in_file_count, in_filenames,
+    tmpname = NULL;
+    merge_ok = cf_merge_files(&tmpname, in_file_count, in_filenames,
                               WTAP_FILE_PCAP, FALSE);
 
     if (!merge_ok) {
         /* merge failed */
+        g_free(tmpname);
 	return;
     }
 
@@ -159,8 +157,10 @@ dnd_merge_files(int in_file_count, char **in_filenames)
 	   just leave it around so that the user can, after they
 	   dismiss the alert box popped up for the open error,
 	   try again. */
+	g_free(tmpname);
 	return;
     }
+    g_free(tmpname);
 
     switch (cf_read(&cfile)) {
 
