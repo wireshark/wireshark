@@ -1,7 +1,7 @@
 /* packet-pflog.c
  * Routines for pflog (OpenBSD Firewall Logging) packet disassembly
  *
- * $Id: packet-pflog.c,v 1.8 2003/05/15 07:14:44 guy Exp $
+ * $Id: packet-pflog.c,v 1.9 2003/05/16 00:30:54 guy Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -179,7 +179,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   hdrlen = BPF_WORDALIGN(pflogh.length);
 
-  if (pflogh.subrulenr == (u_int32_t) -1)
+  if (pflogh.subrulenr == (guint32) -1)
     snprintf(rulestr, sizeof(rulestr), "%u",
              pflogh.rulenr);
   else
