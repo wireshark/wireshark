@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.47 2004/02/22 18:44:01 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.48 2004/02/22 23:39:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,9 +154,11 @@ void
 follow_stream_cb(GtkWidget * w, gpointer data _U_)
 {
 	GtkWidget	*streamwindow, *vbox, *txt_scrollw, *text, *filter_te;
-	GtkWidget	*hbox, *button, *radio_bt;
+	GtkWidget	*hbox, *button_hbox, *button, *radio_bt;
+    GtkWidget   *stream_fr, *stream_vb;
 	GtkWidget	*stream_om, *stream_menu, *stream_mi;
-	int		tmp_fd;
+	GtkTooltips *tooltips;
+	int		    tmp_fd;
 	gchar		*follow_filter;
 	const gchar	*previous_filter;
 	const char	*hostname0, *hostname1;
@@ -244,13 +246,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	fclose(data_out_file);
 
 	/* The data_out_filename file now has all the text that was in the session */
-	if (incomplete_tcp_stream) {
-	    streamwindow = window_new(GTK_WINDOW_TOPLEVEL,
-				 "Contents of TCP stream (incomplete)");
-	} else {
-	    streamwindow = window_new(GTK_WINDOW_TOPLEVEL,
-				 "Contents of TCP stream");
-	}
+	streamwindow = window_new(GTK_WINDOW_TOPLEVEL, "Follow TCP stream");
 
 	/* needed in follow_filter_out_stream(), is there a better way? */
 	follow_info->streamwindow = streamwindow;
@@ -262,8 +258,23 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_container_border_width(GTK_CONTAINER(streamwindow), 2);
 
 	/* setup the container */
+    tooltips = gtk_tooltips_new ();
+
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(streamwindow), vbox);
+
+    /* content frame */
+	if (incomplete_tcp_stream) {
+        stream_fr = gtk_frame_new("Stream Content (incomplete)");
+	} else {
+        stream_fr = gtk_frame_new("Stream Content");
+	}
+  	gtk_container_add(GTK_CONTAINER(vbox), stream_fr);
+  	gtk_widget_show(stream_fr);
+
+    stream_vb = gtk_vbox_new(FALSE, 0);
+	gtk_container_set_border_width( GTK_CONTAINER(stream_vb) , 5);
+	gtk_container_add(GTK_CONTAINER(stream_fr), stream_vb);
 
 	/* create a scrolled window for the text */
 	txt_scrollw = scrolled_window_new(NULL, NULL);
@@ -271,7 +282,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
                                    GTK_SHADOW_IN);
 #endif
-	gtk_box_pack_start(GTK_BOX(vbox), txt_scrollw, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(stream_vb), txt_scrollw, TRUE, TRUE, 0);
 
 	/* create a text box */
 #if GTK_MAJOR_VERSION < 2
@@ -284,10 +295,22 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
 	follow_info->text = text;
 
-	/* Create hbox */
-	hbox = gtk_hbox_new(FALSE, 1);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
+	/* stream hbox */
+	hbox = gtk_hbox_new(FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
+
+	/* Create Save As Button */
+    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
+	SIGNAL_CONNECT(button, "clicked", follow_save_as_cmd_cb, follow_info);
+    gtk_tooltips_set_tip (tooltips, button, "Save the content as currently displayed ", NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+
+	/* Create Print Button */
+    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_PRINT);
+	SIGNAL_CONNECT(button, "clicked", follow_print_stream, follow_info);
+    gtk_tooltips_set_tip (tooltips, button, "Print the content as currently displayed", NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 	/* Stream to show */
 	follow_tcp_stats(&stats);
@@ -348,6 +371,8 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(stream_om), stream_menu);
 	/* Set history to 0th item, i.e., the first item. */
 	gtk_option_menu_set_history(GTK_OPTION_MENU(stream_om), 0);
+    gtk_tooltips_set_tip (tooltips, stream_om, 
+        "Select the stream direction to display", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), stream_om, FALSE, FALSE, 0);
 
 	/* ASCII radio button */
@@ -389,32 +414,31 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
                        follow_info);
 	follow_info->carray_bt = radio_bt;
 
+	/* button hbox */
+	button_hbox = gtk_hbutton_box_new();
+	gtk_box_pack_start(GTK_BOX(vbox), button_hbox, FALSE, FALSE, 0);
+    gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
+    gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
+
+	/* Create exclude stream button */
+	button = gtk_button_new_with_label("Filter out this stream");
+	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);
+    gtk_tooltips_set_tip (tooltips, button, 
+        "Build a display filter which cuts this stream from the capture", NULL);
+	gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
+
 	/* Create Close Button */
     button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	SIGNAL_CONNECT_OBJECT(button, "clicked", gtk_widget_destroy,
                               streamwindow);
-	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip (tooltips, button, 
+        "Close the dialog and keep the current display filter", NULL);
+	gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
 	/* Catch the "key_press_event" signal in the window, so that we can catch
 	the ESC key being pressed and act as if the "Cancel" button had
 	been selected. */
 	dlg_set_cancel(streamwindow, button);
-
-	/* Create exclude stream button */
-	button = gtk_button_new_with_label("Filter out this stream");
-	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);
-
-	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-
-	/* Create Save As Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
-	SIGNAL_CONNECT(button, "clicked", follow_save_as_cmd_cb, follow_info);
-	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-
-	/* Create Print Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_PRINT);
-	SIGNAL_CONNECT(button, "clicked", follow_print_stream, follow_info);
-	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 
 	/* Tuck away the follow_info object into the window */
