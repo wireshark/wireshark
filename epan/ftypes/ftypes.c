@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.17 2003/12/03 08:53:37 guy Exp $
+ * $Id: ftypes.c,v 1.18 2003/12/03 09:28:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -196,7 +196,7 @@ fvalue_new(ftenum_t ftype)
 	SLAB_ALLOC(fv, fvalue_free_list);
 
 	FTYPE_LOOKUP(ftype, ft);
-	fv->ptr_u.ftype = ft;
+	fv->ftype = ft;
 
 	new_value = ft->new_value;
 	if (new_value) {
@@ -213,7 +213,7 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype)
 	FvalueNewFunc		new_value;
 
 	FTYPE_LOOKUP(ftype, ft);
-	fv->ptr_u.ftype = ft;
+	fv->ftype = ft;
 
 	new_value = ft->new_value;
 	if (new_value) {
@@ -227,8 +227,8 @@ fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogF
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ptr_u.ftype->val_from_unparsed) {
-		if (fv->ptr_u.ftype->val_from_unparsed(fv, s, allow_partial_value, logfunc)) {
+	if (fv->ftype->val_from_unparsed) {
+		if (fv->ftype->val_from_unparsed(fv, s, allow_partial_value, logfunc)) {
 			return fv;
 		}
 	}
@@ -246,8 +246,8 @@ fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ptr_u.ftype->val_from_string) {
-		if (fv->ptr_u.ftype->val_from_string(fv, s, logfunc)) {
+	if (fv->ftype->val_from_string) {
+		if (fv->ftype->val_from_string(fv, s, logfunc)) {
 			return fv;
 		}
 	}
@@ -262,34 +262,34 @@ fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
 const char*
 fvalue_type_name(fvalue_t *fv)
 {
-	return fv->ptr_u.ftype->name;
+	return fv->ftype->name;
 }
 
 
 guint
 fvalue_length(fvalue_t *fv)
 {
-	if (fv->ptr_u.ftype->len)
-		return fv->ptr_u.ftype->len(fv);
+	if (fv->ftype->len)
+		return fv->ftype->len(fv);
 	else
-		return fv->ptr_u.ftype->wire_size;
+		return fv->ftype->wire_size;
 }
 
 int
 fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
-	g_assert(fv->ptr_u.ftype->len_string_repr);
-	return fv->ptr_u.ftype->len_string_repr(fv, rtype);
+	g_assert(fv->ftype->len_string_repr);
+	return fv->ftype->len_string_repr(fv, rtype);
 }
 
 char *
 fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
-	g_assert(fv->ptr_u.ftype->val_to_string_repr);
+	g_assert(fv->ftype->val_to_string_repr);
 	if (!buf) {
 		buf = g_malloc0(fvalue_string_repr_len(fv, rtype) + 1);
 	}
-	fv->ptr_u.ftype->val_to_string_repr(fv, rtype, buf);
+	fv->ftype->val_to_string_repr(fv, rtype, buf);
 	return buf;
 }
 
@@ -375,7 +375,7 @@ slice_func(gpointer data, gpointer user_data)
 		return;
 	}
 
-	fv->ptr_u.ftype->slice(fv, slice_data->bytes, start_offset, length);
+	fv->ftype->slice(fv, slice_data->bytes, start_offset, length);
 }
 
 
@@ -406,98 +406,98 @@ fvalue_slice(fvalue_t *fv, drange *drange)
 void
 fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
-	g_assert(fv->ptr_u.ftype->set_value);
-	fv->ptr_u.ftype->set_value(fv, value, already_copied);
+	g_assert(fv->ftype->set_value);
+	fv->ftype->set_value(fv, value, already_copied);
 }
 
 void
 fvalue_set_integer(fvalue_t *fv, guint32 value)
 {
-	g_assert(fv->ptr_u.ftype->set_value_integer);
-	fv->ptr_u.ftype->set_value_integer(fv, value);
+	g_assert(fv->ftype->set_value_integer);
+	fv->ftype->set_value_integer(fv, value);
 }
 
 void
 fvalue_set_floating(fvalue_t *fv, gdouble value)
 {
-	g_assert(fv->ptr_u.ftype->set_value_floating);
-	fv->ptr_u.ftype->set_value_floating(fv, value);
+	g_assert(fv->ftype->set_value_floating);
+	fv->ftype->set_value_floating(fv, value);
 }
 
 
 gpointer
 fvalue_get(fvalue_t *fv)
 {
-	g_assert(fv->ptr_u.ftype->get_value);
-	return fv->ptr_u.ftype->get_value(fv);
+	g_assert(fv->ftype->get_value);
+	return fv->ftype->get_value(fv);
 }
 
 guint32
 fvalue_get_integer(fvalue_t *fv)
 {
-	g_assert(fv->ptr_u.ftype->get_value_integer);
-	return fv->ptr_u.ftype->get_value_integer(fv);
+	g_assert(fv->ftype->get_value_integer);
+	return fv->ftype->get_value_integer(fv);
 }
 
 double
 fvalue_get_floating(fvalue_t *fv)
 {
-	g_assert(fv->ptr_u.ftype->get_value_floating);
-	return fv->ptr_u.ftype->get_value_floating(fv);
+	g_assert(fv->ftype->get_value_floating);
+	return fv->ftype->get_value_floating(fv);
 }
 
 gboolean
 fvalue_eq(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ptr_u.ftype->cmp_eq);
-	return a->ptr_u.ftype->cmp_eq(a, b);
+	g_assert(a->ftype->cmp_eq);
+	return a->ftype->cmp_eq(a, b);
 }
 
 gboolean
 fvalue_ne(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ptr_u.ftype->cmp_ne);
-	return a->ptr_u.ftype->cmp_ne(a, b);
+	g_assert(a->ftype->cmp_ne);
+	return a->ftype->cmp_ne(a, b);
 }
 
 gboolean
 fvalue_gt(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ptr_u.ftype->cmp_gt);
-	return a->ptr_u.ftype->cmp_gt(a, b);
+	g_assert(a->ftype->cmp_gt);
+	return a->ftype->cmp_gt(a, b);
 }
 
 gboolean
 fvalue_ge(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ptr_u.ftype->cmp_ge);
-	return a->ptr_u.ftype->cmp_ge(a, b);
+	g_assert(a->ftype->cmp_ge);
+	return a->ftype->cmp_ge(a, b);
 }
 
 gboolean
 fvalue_lt(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ptr_u.ftype->cmp_lt);
-	return a->ptr_u.ftype->cmp_lt(a, b);
+	g_assert(a->ftype->cmp_lt);
+	return a->ftype->cmp_lt(a, b);
 }
 
 gboolean
 fvalue_le(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ptr_u.ftype->cmp_le);
-	return a->ptr_u.ftype->cmp_le(a, b);
+	g_assert(a->ftype->cmp_le);
+	return a->ftype->cmp_le(a, b);
 }
 
 gboolean
 fvalue_contains(fvalue_t *a, fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
-	g_assert(a->ptr_u.ftype->cmp_contains);
-	return a->ptr_u.ftype->cmp_contains(a, b);
+	g_assert(a->ftype->cmp_contains);
+	return a->ftype->cmp_contains(a, b);
 }

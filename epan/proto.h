@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.50 2003/12/03 08:53:36 guy Exp $
+ * $Id: proto.h,v 1.51 2003/12/03 09:28:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,14 +109,7 @@ typedef struct _item_label_t {
 
 /* Contains the field information for the proto_item. */
 typedef struct field_info {
-	union {
-		/* the next pointer is only used when keeping track of 
-		 * free (unallocated) field_infos. Such field_info's
-		 * are never associated with a header_field_info.
-		 */
-		struct field_info		*next;
-		header_field_info		*hfinfo;
-	} ptr_u;
+	header_field_info		*hfinfo;
 	gint				start;
 	gint				length;
 	gint				tree_type; /* ETT_* */

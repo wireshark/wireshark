@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.61 2003/11/27 22:29:52 guy Exp $
+ * $Id: print.c,v 1.62 2003/12/03 09:28:19 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -155,7 +155,7 @@ void proto_tree_print_node(GNode *node, gpointer data)
 
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
-	if (fi->ptr_u.hfinfo->id == proto_data && pdata->print_hex_for_data) {
+	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data) {
 		/*
 		 * Find the data for this field.
 		 */

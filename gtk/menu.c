@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.118 2003/12/01 01:57:14 sharpe Exp $
+ * $Id: menu.c,v 1.119 2003/12/03 09:28:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1037,7 +1037,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
   gboolean properties;
 
   if (cf->finfo_selected != NULL) {
-	header_field_info *hfinfo = cf->finfo_selected->ptr_u.hfinfo;
+	header_field_info *hfinfo = cf->finfo_selected->hfinfo;
 	if (hfinfo->parent == -1) {
 	  properties = prefs_is_registered_protocol(hfinfo->abbrev);
 	} else {

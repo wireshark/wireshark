@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.121 2003/12/03 08:53:36 guy Exp $
+ * $Id: proto.c,v 1.122 2003/12/03 09:28:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -569,15 +569,14 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		 * good thing we saved it, now we can reverse the
 		 * memory leak and reclaim it.
 		 */
-		field_info_tmp->ptr_u.next=field_info_free_list;
-		field_info_free_list=field_info_tmp;
+		SLAB_FREE(field_info_tmp, field_info_free_list);
 	}
 	/* we might throw an exception, keep track of this one
 	 * across the "dangerous" section below.
 	*/
 	field_info_tmp=new_fi;
 
-	switch(new_fi->ptr_u.hfinfo->type) {
+	switch(new_fi->hfinfo->type) {
 		case FT_NONE:
 			/* no value to set for FT_NONE */
 			break;
@@ -738,9 +737,9 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			break;
 
 		default:
-			g_error("new_fi->ptr_u.hfinfo->type %d (%s) not handled\n",
-					new_fi->ptr_u.hfinfo->type,
-					ftype_name(new_fi->ptr_u.hfinfo->type));
+			g_error("new_fi->hfinfo->type %d (%s) not handled\n",
+					new_fi->hfinfo->type,
+					ftype_name(new_fi->hfinfo->type));
 			g_assert_not_reached();
 			break;
 	}
@@ -1277,7 +1276,7 @@ proto_item_append_string(proto_item *pi, const char *str)
 		return;
 
 	fi = PITEM_FINFO(pi);
-	hfinfo = fi->ptr_u.hfinfo;
+	hfinfo = fi->hfinfo;
 	g_assert(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 	old_str = fvalue_get(&fi->value);
 	new_str = g_malloc(strlen(old_str) + strlen(str) + 1);
@@ -1638,7 +1637,7 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 	header_field_info	*hfinfo;
 	guint32			integer;
 
-	hfinfo = fi->ptr_u.hfinfo;
+	hfinfo = fi->hfinfo;
 	integer = value;
 
 	if (hfinfo->bitmask) {
@@ -1725,7 +1724,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 	header_field_info	*hfinfo;
 	guint32			integer;
 
-	hfinfo = fi->ptr_u.hfinfo;
+	hfinfo = fi->hfinfo;
 	integer = (guint32) value;
 
 	if (hfinfo->bitmask) {
@@ -1883,7 +1882,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	FIELD_INFO_NEW(fi);
 
-	fi->ptr_u.hfinfo = hfinfo;
+	fi->hfinfo = hfinfo;
 	fi->start = start;
 	if (tvb) {
 		fi->start += tvb_raw_offset(tvb);
@@ -1891,7 +1890,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	fi->length = *length;
 	fi->tree_type = -1;
 	fi->visible = PTREE_DATA(tree)->visible;
-	fvalue_init(&fi->value, fi->ptr_u.hfinfo->type);
+	fvalue_init(&fi->value, fi->hfinfo->type);
 	fi->rep = NULL;
 
 	/* add the data source tvbuff */
@@ -2491,7 +2490,7 @@ proto_register_subtree_array(gint **indices, int num_indices)
 void
 proto_item_fill_label(field_info *fi, gchar *label_str)
 {
-	header_field_info		*hfinfo = fi->ptr_u.hfinfo;
+	header_field_info		*hfinfo = fi->hfinfo;
 
 	guint8				*bytes;
 	guint32				integer;
@@ -2676,7 +2675,7 @@ static void
 fill_label_uint64(field_info *fi, gchar *label_str)
 {
 	unsigned char *bytes;
-	header_field_info *hfinfo = fi->ptr_u.hfinfo;
+	header_field_info *hfinfo = fi->hfinfo;
 	int					ret;	/*tmp return value */
 
 	bytes=fvalue_get(&fi->value);
@@ -2705,7 +2704,7 @@ static void
 fill_label_int64(field_info *fi, gchar *label_str)
 {
 	unsigned char *bytes;
-	header_field_info *hfinfo = fi->ptr_u.hfinfo;
+	header_field_info *hfinfo = fi->hfinfo;
 	int					ret;	/*tmp return value */
 
 	bytes=fvalue_get(&fi->value);
@@ -2739,7 +2738,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	guint32	value;
 	int					ret;	/*tmp return value */
 
-	header_field_info		*hfinfo = fi->ptr_u.hfinfo;
+	header_field_info		*hfinfo = fi->hfinfo;
 	static const true_false_string	default_tf = { "True", "False" };
 	const true_false_string		*tfstring = &default_tf;
 
@@ -2782,7 +2781,7 @@ fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
 	guint32 value;
 	int					ret;	/*tmp return value */
 
-	header_field_info	*hfinfo = fi->ptr_u.hfinfo;
+	header_field_info	*hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
 	bitwidth = hfinfo_bitwidth(hfinfo);
@@ -2818,7 +2817,7 @@ fill_label_numeric_bitfield(field_info *fi, gchar *label_str)
 	guint32 value;
 	int					ret;	/*tmp return value */
 
-	header_field_info	*hfinfo = fi->ptr_u.hfinfo;
+	header_field_info	*hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
 	bitwidth = hfinfo_bitwidth(hfinfo);
@@ -2849,7 +2848,7 @@ static void
 fill_label_enumerated_uint(field_info *fi, gchar *label_str)
 {
 	char *format = NULL;
-	header_field_info	*hfinfo = fi->ptr_u.hfinfo;
+	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
 	int					ret;	/*tmp return value */
 
@@ -2870,7 +2869,7 @@ static void
 fill_label_uint(field_info *fi, gchar *label_str)
 {
 	char *format = NULL;
-	header_field_info	*hfinfo = fi->ptr_u.hfinfo;
+	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
 	int					ret;	/*tmp return value */
 
@@ -2889,7 +2888,7 @@ static void
 fill_label_enumerated_int(field_info *fi, gchar *label_str)
 {
 	char *format = NULL;
-	header_field_info	*hfinfo = fi->ptr_u.hfinfo;
+	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
 	int					ret;	/*tmp return value */
 
@@ -2909,7 +2908,7 @@ static void
 fill_label_int(field_info *fi, gchar *label_str)
 {
 	char *format = NULL;
-	header_field_info	*hfinfo = fi->ptr_u.hfinfo;
+	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
 	int					ret;	/*tmp return value */
 
@@ -3445,7 +3444,7 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 	header_field_info	*hfinfo;
 	gint			length;
 
-	hfinfo = finfo->ptr_u.hfinfo;
+	hfinfo = finfo->hfinfo;
 	g_assert(hfinfo);
 
 	switch(hfinfo->type) {
@@ -3537,7 +3536,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 	gint			start, length;
 	guint8			c;
 
-	hfinfo = finfo->ptr_u.hfinfo;
+	hfinfo = finfo->hfinfo;
 	g_assert(hfinfo);
 	abbrev_len = strlen(hfinfo->abbrev);
 
@@ -3678,7 +3677,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			break;
 
 		case FT_PROTOCOL:
-			buf = g_strdup(finfo->ptr_u.hfinfo->abbrev);
+			buf = g_strdup(finfo->hfinfo->abbrev);
 			break;
 
 		default:

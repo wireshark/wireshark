@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.66 2003/11/24 22:11:55 guy Exp $
+ * $Id: prefs_dlg.c,v 1.67 2003/12/03 09:28:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1308,7 +1308,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
   }
 
   /* Find the title for the protocol for the selected field. */
-  hfinfo = cfile.finfo_selected->ptr_u.hfinfo;
+  hfinfo = cfile.finfo_selected->hfinfo;
   if (hfinfo->parent == -1)
     title = prefs_get_title_by_name(hfinfo->abbrev);
   else
