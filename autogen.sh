@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.29 2004/03/04 08:25:22 jmayer Exp $
+# $Id: autogen.sh,v 1.30 2004/03/05 00:02:43 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -69,12 +69,11 @@ else
 	LIBTOOLIZE=glibtoolize
 fi
 case "$LTVER" in
-0* | 1\.[0-2] | 1\.[0-2][a-z]* | \
-1\.3\.[0-2] | 1\.3\.[0-2][a-z]* )
+0* | 1\.[0-3]* )
 
   cat >&2 <<_EOF_
 
-	You must have libtool 1.3.3 or later installed to compile $PROJECT.
+	You must have libtool 1.4 or later installed to compile $PROJECT.
 	Download the appropriate package for your distribution/OS,
 	or get the source tarball at ftp://ftp.gnu.org/pub/gnu/libtool/
 _EOF_
