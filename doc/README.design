@@ -1,0 +1,60 @@
+$Id: README.design,v 1.1 2000/11/14 18:05:27 gram Exp $
+
+Unfortunately, the closest thing to a design document is the
+"README.developer" document in the "doc" directory of the Ethereal
+source tree; however, although that's useful for people adding new
+protocol dissectors to Ethereal, it doesn't describe the operations of
+the "core" of Ethereal.
+
+We have no document describing that; however, a quick summary of the
+part of the code you'd probably be working with is:
+
+	for every capture file that Ethereal has open, there's a
+	"capture_file" structure - Ethereal currently supports only one
+	open capture file at a time, and that structure is named
+	"cfile" (see the "file.h" header file);
+
+	that structure has a member "plist", which points to a
+	"frame_data" structure - every link-layer frame that Ethereal
+	has read in has a "frame_data" structure (see the
+	"epan/packet.h" header file), the "plist" member of "cfile"
+	points to the first frame, and each frame has a "next" member
+	that points to the next frame in the capture (or is null for the
+	last frame);
+
+	each "frame_data" struct has:
+
+		a pointer to the next frame (null for the last frame);
+
+		a pointer to the previous frame (null for the first
+		frame);
+
+		information such as the ordinal number of the frame in
+		the capture, the time stamps for the capture, the size
+		of the packet data in bytes, the size of the frame in
+		bytes (which might not equal the size of the packet data
+		if, for example, the program capturing the packets
+		captured no more than the first N bytes of the capture,
+		for some value of N);
+
+		the byte offset in the capture file where the frame's
+		data is located.
+
+See the "print_packets()" routine in "file.c" for an example of a
+routine that goes through all the packets in the capture; the loop does
+
+	for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+
+		update a progress bar (because it could take a
+		    significant period of time to process all packets);
+
+		read the packet data if the packet is to be printed;
+
+		print the packet;
+
+	}
+
+The "wtap_seek_read()" call read the packet data into memory; the
+"epan_dissect_new()" call "dissects" that data, building a tree
+structure for the fields in the packet.
+
