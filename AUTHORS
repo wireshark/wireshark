@@ -383,6 +383,7 @@ Ralf Schneider <ralf.schneider[AT]alcatel.se> {
 
 Yaniv Kaul <ykaul[AT]netvision.net.il> {
 	Enhancements to ISAKMP
+	CPHA support
 }
 
 Paul Ionescu <paul[AT]acorp.ro> {
