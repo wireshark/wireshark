@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.1 2004/03/02 01:21:56 jmayer Exp $
+# $Id: Makefile.common,v 1.2 2004/03/02 01:48:31 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,6 @@
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
-	register.c		\
 	../packet-aarp.c	\
 	../packet-acap.c	\
 	../packet-acse.c	\
@@ -451,6 +450,7 @@ DISSECTOR_SRC =	\
 
 # dissector helpers (needed from the dissectors, but not a dissector itself)
 DISSECTOR_SUPPORT_SRC =	\
+	register.c	\
 	../adler32.c	\
 	../afn.c	\
 	../asn1.c	\
