@@ -31,7 +31,7 @@ Storing options
 ---------------
 -File: You can choose the file to which captured data will be written. If you don't enter something here a temporary file will be used.
 
--Use ring buffer: Instead of using a single capture file, multiple files will be created. The generated filenames will contain an incrementing number and the start time of the capture. For example, if you choose "/foo.cap" in the "File" field, files like "/foo_00001_20040205110102.cap", "/foo_00002_20040205110102.cap", ... will be created.
+-Use multiple files: Instead of using a single capture file, multiple files will be created. The generated filenames will contain an incrementing number and the start time of the capture. For example, if you choose "/foo.cap" in the "File" field, files like "/foo_00001_20040205110102.cap", "/foo_00002_20040205110102.cap", ... will be created.
 This feature can be useful if you do long term capturing, as working with a single capture file of several GB usually isn't very fast.
 
 Stop condition options

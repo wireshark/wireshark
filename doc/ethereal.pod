@@ -494,12 +494,13 @@ ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
 =over 4
 
-=item File:Open, File:Close
+=item File:Open, File:Open Recent, File:Close
 
 Open or close a capture file.  The I<File:Open> dialog box
 allows a filter to be specified; when the capture file is read, the
 filter is applied to all packets read from the file, and packets not
-matching the filter are discarded.
+matching the filter are discarded. The I<File:Open Recent> is a submenu 
+and will show a list of previously opened files.
 
 =item File:Save, File:Save As
 
@@ -511,20 +512,17 @@ a list of file formats in which at particular capture, or the packets
 currently displayed from that capture, can be saved), a file format in 
 which to save it.
 
+=item File:Export
+
+Export captured data, currently very limited.
+
 =item File:Print
 
-Print, for all the packets in the current capture, or for only the
-marked packets in the current capture, either the summary line for the
-packet or the protocol tree view of the packet; when printing the
-protocol tree view, the hex dump of the packet can be printed as well. 
-Printing options can be set with the I<Edit:Preferences> menu item, or
-in the dialog box popped up by this item.
-
-=item File:Print Packet
-
-Print a fully-expanded protocol tree view of the currently-selected
-packet.  Printing options can be set with the I<Edit:Preferences> menu
-item.
+Print, for a selectable range of packets in the current capture, either 
+the summary line for the packet or the protocol tree view of the packet; 
+when printing the protocol tree view, the hex dump of the packet can be 
+printed as well. Printing options can be set with the I<Edit:Preferences> 
+menu item, or in the dialog box popped up by this item.
 
 =item File:Quit
 
@@ -557,21 +555,7 @@ Search backward, starting with the currently selected packet (or the
 most recently selected packet, if no packet is selected), for a packet
 matching the filter from the previous search.
 
-=item Edit:Go To Packet
-
-Go to a particular numbered packet.
-
-=item Edit:Go To Corresponding Packet
-
-If a field in the protocol tree pane containing a packet number is
-selected, go to the packet number specified by that field.  (This works
-only if the dissector that put that entry into the protocol tree put it
-into the tree as a filterable field rather than just as text.)  This can
-be used, for example, to go to the packet for the request corresponding
-to a reply, or the reply corresponding to a request, if that packet
-number has been put into the protocol tree.
-
-=item Edit:Set Time Reference
+=item Edit:Time Reference:Set Time Reference
 
 Set (or unset if currently set) the selected packet as a Time Reference packet.
 When a packet is set as a Time Reference packet, the timestamps in the packet
@@ -586,6 +570,14 @@ packets.
 
 If there is a column displayed for "Culmulative Bytes" this counter will 
 be reset at every Time Reference packet.
+
+=item Edit:Time Reference:Find Next
+
+Find the next time referenced packet.
+
+=item Edit:Time Reference:Find Previous
+
+Find the previously time referenced packet.
 
 =item Edit:Mark Packet
 
@@ -608,13 +600,35 @@ Unmark all packets that are currently displayed.
 Set the packet printing, column display, TCP stream coloring, and GUI
 options (see L<"Preferences"> below).
 
-=item View:Options
+=item View:Show
 
-Pop up a dialog allowing you to set the format of the packet timestamp
-displayed in the packet list window to relative, absolute, absolute date
-and time, or delta, to enable or disable the automatic scrolling of the
-packet list while a live capture is in progress or to enable or disable
-translation of addresses to names in the display.
+Show or hide the main window controls, like the main toolbar.
+
+=item View:Time Display Format
+
+Set the format of the packet timestamp displayed in the packet list window 
+to relative, absolute, absolute date and time, or delta.
+
+=item View:Name Resolution
+
+Enable or disable translation of addresses to names in the display.
+
+=item View:Auto Scroll in Live Capture
+
+Enable or disable the automatic scrolling of the
+packet list while a live capture is in progress.
+
+=item View:Zoom In
+
+Zoom into the main window data.
+
+=item View:Zoom Out
+
+Zoom out of the main window data.
+
+=item View:Normal Size
+
+Reset the zoom factor of zoom in / zoom out back to normal font size.
 
 =item View:Collapse All
 
@@ -660,16 +674,6 @@ modified.
 Single rows may be selected by clicking. Multiple rows may be selected
 by using the ctrl and shift keys in combination with the mouse button.
 
-=item UP
-
-Moves the selected filter(s) up the list, making it more likely that
-they will be used to color packets.
-
-=item DOWN
-
-Moves the selected filter(s) down the list, making it less likely that
-they will be used to color packets.
-
 =item NEW
 
 Adds a new filter at the bottom of the list and opens the Edit Color
@@ -690,26 +694,6 @@ ambiguous which is to be edited.)
 
 Deletes the selected color filter(s).
 
-=item OK
-
-Closes the dialog and uses the color filters as they stand.
-
-=item APPLY
-
-Colors the packets according to the current list of color filters, but
-does not close the dialog.
-
-=item SAVE
-
-Saves the current list of color filters in your personal color filters
-file. Unless you do this they will not be used the next time you start
-Ethereal.
-
-=item REVERT
-
-Deletes your personal color filters file, reloads the global
-color filters file, if any, and closes the dialog.
-
 =item EXPORT
 
 Allows you to choose a file in which to save the current list of color
@@ -726,7 +710,37 @@ group. To avoid confusion, all filters are unselected before the new
 filters are imported. A button is provided to load the filters from the
 global color filters file.
 
-=item CANCEL
+=item CLEAR
+
+Deletes your personal color filters file, reloads the global
+color filters file, if any, and closes the dialog.
+
+=item UP
+
+Moves the selected filter(s) up the list, making it more likely that
+they will be used to color packets.
+
+=item DOWN
+
+Moves the selected filter(s) down the list, making it less likely that
+they will be used to color packets.
+
+=item OK
+
+Closes the dialog and uses the color filters as they stand.
+
+=item APPLY
+
+Colors the packets according to the current list of color filters, but
+does not close the dialog.
+
+=item SAVE
+
+Saves the current list of color filters in your personal color filters
+file. Unless you do this they will not be used the next time you start
+Ethereal.
+
+=item CLOSE
 
 Closes the dialog without changing the coloration of the packets. Note
 that changes you have made to the current list of color filters are not
@@ -745,8 +759,30 @@ selected.
 
 =item View:Reload
 
-Reload a capture file.  Same as I<File:Close> and IFile:Open> the same 
+Reload a capture file.  Same as I<File:Close> and I<File:Open> the same 
 file again.
+
+=item Go:Go To Packet
+
+Go to a particular numbered packet.
+
+=item Go:Go To Corresponding Packet
+
+If a field in the protocol tree pane containing a packet number is
+selected, go to the packet number specified by that field.  (This works
+only if the dissector that put that entry into the protocol tree put it
+into the tree as a filterable field rather than just as text.)  This can
+be used, for example, to go to the packet for the request corresponding
+to a reply, or the reply corresponding to a request, if that packet
+number has been put into the protocol tree.
+
+=item Go:First Packet
+
+Go to the first packet in the capture.
+
+=item Go:Last Packet
+
+Go to the last packet in the capture.
 
 =item Capture:Start
 
@@ -861,14 +897,14 @@ and lets you print what's currently being displayed, using the same
 print options that are used for the I<File:Print Packet> menu item, or
 save it as text to a file.
 
-=item Analyze:Summary
+=item Statistics:Summary
 
 Show summary information about the capture, including elapsed time,
 packet counts, byte counts, and the like.  If a display filter is in
 effect, summary information will be shown about the capture and about
 the packets currently being displayed.
 
-=item Analyze:Protocol Hierarchy Statistics
+=item Statistics:Protocol Hierarchy
 
 Show the number of packets, and the number of bytes in those packets,
 for each protocol in the trace.  It organizes the protocols in the same
@@ -879,103 +915,7 @@ last-protocol counts show you how many packets (and the byte count
 associated with those packets) B<ended> in a particular protocol.  In
 the table, they are listed under "End Packets" and "End Bytes".
 
-=item Analyze:Statistics:ONC-RPC:Programs
-
-This dialog will open a window showing aggregated RTT statistics for all
-ONC-RPC Programs/versions that exist in the capture file.
-
-=item Analyze:Statistics:Service Response Time:DCE-RPC
-
-Open a window to display Service Response Time statistics for an 
-arbitrary DCE-RPC program
-interface and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>,
-B<Maximum SRT> and B<Average SRT> for all procedures for that
-program/version.  These windows opened will update in semi-real time to
-reflect changes when doing live captures or when reading new capture
-files into B<Ethereal>.
-
-This dialog will also allow an optional filter string to be used.
-If an optional filter string is used only such DCE-RPC request/response pairs 
-that match that filter will be used to calculate the statistics. If no filter 
-string is specified all request/response pairs will be used.
-
-=item Analyze:Statistics:Service Response Time:Fibre Channel
-
-Open a window to display Service Response Time statistics for Fibre Channel
-and display B<FC Type>, B<Number of Calls>, B<Minimum SRT>,
-B<Maximum SRT> and B<Average SRT> for all FC types.
-These windows opened will update in semi-real time to
-reflect changes when doing live captures or when reading new capture
-files into B<Ethereal>.
-The Service Response Time is calculated as the time delta between the
-First packet of the exchange and the Last packet of the exchange.
-
-This dialog will also allow an optional filter string to be used.
-If an optional filter string is used only such FC first/last exchange pairs 
-that match that filter will be used to calculate the statistics. If no filter 
-string is specified all request/response pairs will be used.
-
-=item Analyze:Statistics:Service Response Time:ONC-RPC
-
-Open a window to display statistics for an arbitrary ONC-RPC program interface
-and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>, B<Maximum SRT> and B<Average SRT> for all procedures for that program/version.
-These windows opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Ethereal>.
-
-This dialog will also allow an optional filter string to be used.
-If an optional filter string is used only such ONC-RPC request/response pairs 
-that match that filter will be used to calculate the statistics. If no filter 
-string is specified all request/response pairs will be used.
-
-By first selecting a conversation by clicking on it and then using the 
-right mouse button (on those platforms that have a right
-mouse button) ethereal will display a popup menu offering several different 
-filter operations to apply to the capture.
-
-=item Analyze:Statistics:Service Response Time:SMB
-
-Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
-is number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT. 
-
-The data will be presented as separate tables for all normal SMB commands,
-all Transaction2 commands and all NT Transaction commands.
-Only those commands that are seen in the capture will have its stats
-displayed.
-Only the first command in a xAndX command chain will be used in the
-calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
-only the SessionSetupAndX call will be used in the statistics.
-This is a flaw that might be fixed in the future.
-
-You can apply an optional filter string in a dialog box, before starting
-the calculation. The stats will only be calculated 
-on those calls matching that filter.
-
-By first selecting a conversation by clicking on it and then using the 
-right mouse button (on those platforms that have a right
-mouse button) ethereal will display a popup menu offering several different 
-filter operations to apply to the capture.
-
-=item Analyze:Statistics:Conversation List
-
-This option will open a new window that displays a list of all
-conversations between two endpoints.  The list has one row for each
-unique conversation and displays total number of packets/bytes seen as
-well as number of packets/bytes in each direction.
-
-By default the list is sorted according to the number of packets but by
-clicking on the column header; it is possible to re-sort the list in
-ascending or descending order by any column.
-
-By first selecting a conversation by clicking on it and then using the 
-right mouse button (on those platforms that have a right
-mouse button) ethereal will display a popup menu offering several different 
-filter operations to apply to the capture.
-
-
-These statistics windows can also be invoked from the Ethereal command
-line using the B<-z conv> argument. 
-
-=item Analyze:Statistics:Traffic:IO-Stat
+=item Statistics:IO Graphs
 
 Open a window where up to 5 graphs in different colors can be displayed
 to indicate number of packets or number of bytes per second for all packets
@@ -1091,7 +1031,98 @@ Below the graph are the LOAD values for each interval that would be calculated.
  500   1500   500  750   1000   500    0     0
 
 
-=item Analyze:Statistics:Service Response Time:MGCP
+=item Statistics:Conversation List
+
+This option will open a new window that displays a list of all
+conversations between two endpoints.  The list has one row for each
+unique conversation and displays total number of packets/bytes seen as
+well as number of packets/bytes in each direction.
+
+By default the list is sorted according to the number of packets but by
+clicking on the column header; it is possible to re-sort the list in
+ascending or descending order by any column.
+
+By first selecting a conversation by clicking on it and then using the 
+right mouse button (on those platforms that have a right
+mouse button) ethereal will display a popup menu offering several different 
+filter operations to apply to the capture.
+
+
+These statistics windows can also be invoked from the Ethereal command
+line using the B<-z conv> argument. 
+
+=item Statistics:Service Response Time:DCE-RPC
+
+Open a window to display Service Response Time statistics for an 
+arbitrary DCE-RPC program
+interface and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>,
+B<Maximum SRT> and B<Average SRT> for all procedures for that
+program/version.  These windows opened will update in semi-real time to
+reflect changes when doing live captures or when reading new capture
+files into B<Ethereal>.
+
+This dialog will also allow an optional filter string to be used.
+If an optional filter string is used only such DCE-RPC request/response pairs 
+that match that filter will be used to calculate the statistics. If no filter 
+string is specified all request/response pairs will be used.
+
+=item Statistics:Service Response Time:Fibre Channel
+
+Open a window to display Service Response Time statistics for Fibre Channel
+and display B<FC Type>, B<Number of Calls>, B<Minimum SRT>,
+B<Maximum SRT> and B<Average SRT> for all FC types.
+These windows opened will update in semi-real time to
+reflect changes when doing live captures or when reading new capture
+files into B<Ethereal>.
+The Service Response Time is calculated as the time delta between the
+First packet of the exchange and the Last packet of the exchange.
+
+This dialog will also allow an optional filter string to be used.
+If an optional filter string is used only such FC first/last exchange pairs 
+that match that filter will be used to calculate the statistics. If no filter 
+string is specified all request/response pairs will be used.
+
+=item Statistics:Service Response Time:ONC-RPC
+
+Open a window to display statistics for an arbitrary ONC-RPC program interface
+and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>, B<Maximum SRT> and B<Average SRT> for all procedures for that program/version.
+These windows opened will update in semi-real time to reflect changes when
+doing live captures or when reading new capture files into B<Ethereal>.
+
+This dialog will also allow an optional filter string to be used.
+If an optional filter string is used only such ONC-RPC request/response pairs 
+that match that filter will be used to calculate the statistics. If no filter 
+string is specified all request/response pairs will be used.
+
+By first selecting a conversation by clicking on it and then using the 
+right mouse button (on those platforms that have a right
+mouse button) ethereal will display a popup menu offering several different 
+filter operations to apply to the capture.
+
+=item Statistics:Service Response Time:SMB
+
+Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
+is number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT. 
+
+The data will be presented as separate tables for all normal SMB commands,
+all Transaction2 commands and all NT Transaction commands.
+Only those commands that are seen in the capture will have its stats
+displayed.
+Only the first command in a xAndX command chain will be used in the
+calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
+only the SessionSetupAndX call will be used in the statistics.
+This is a flaw that might be fixed in the future.
+
+You can apply an optional filter string in a dialog box, before starting
+the calculation. The stats will only be calculated 
+on those calls matching that filter.
+
+By first selecting a conversation by clicking on it and then using the 
+right mouse button (on those platforms that have a right
+mouse button) ethereal will display a popup menu offering several different 
+filter operations to apply to the capture.
+
+=item Statistics:Service Response Time:MGCP
 
 Collect requests/response SRT (Service Response Time) data for MGCP. 
 Data collected is B<number of calls> for each known MGCP Type, 
@@ -1103,20 +1134,7 @@ You can apply an optional filter string in a dialog box, before starting
 the calculation. The statistics will only be calculated 
 on those calls matching that filter.
 
-=item Analyze:Statistics:Watch protocol:ITU-T H.225
-
-Count ITU-T H.225 messages and their reasons. In the first column you get a 
-list of H.225 messages and H.225 message reasons, which occur in the current
-capture file. The number of occurences of each message or reason will be displayed 
-in the second column.
-This window opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Ethereal>.
-
-You can apply an optional filter string in a dialog box, before starting
-the counter. The statistics will only be calculated 
-on those calls matching that filter.
-
-=item Analyze:Statistics:Service Response Time:ITU-T H.225 RAS
+=item Statistics:Service Response Time:ITU-T H.225 RAS
 
 Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS. 
 Data collected is B<number of calls> for each known ITU-T H.225 RAS Message Type,
@@ -1129,6 +1147,24 @@ doing live captures or when reading new capture files into B<Ethereal>.
 You can apply an optional filter string in a dialog box, before starting
 the calculation. The statistics will only be calculated 
 on those calls matching that filter.
+
+=item Statistics:ITU-T H.225
+
+Count ITU-T H.225 messages and their reasons. In the first column you get a 
+list of H.225 messages and H.225 message reasons, which occur in the current
+capture file. The number of occurences of each message or reason will be displayed 
+in the second column.
+This window opened will update in semi-real time to reflect changes when
+doing live captures or when reading new capture files into B<Ethereal>.
+
+You can apply an optional filter string in a dialog box, before starting
+the counter. The statistics will only be calculated 
+on those calls matching that filter.
+
+=item Statistics:ONC-RPC Programs
+
+This dialog will open a window showing aggregated RTT statistics for all
+ONC-RPC Programs/versions that exist in the capture file.
 
 =item Help:Contents
 
@@ -1440,14 +1476,10 @@ following actions:
 If there is text in the two entry boxes, creates a new associated list
 item.
 
-=item Change
+=item Edit
 
 Modifies the currently selected list item to match what's in the entry
 boxes.
-
-=item Copy
-
-Makes a copy of the currently selected list item.
 
 =item Delete
 
@@ -1510,15 +1542,19 @@ The I<Interface:> field lets you specify the interface from which to
 capture packet data or a command from which to get the packet data via a
 pipe.
 
-The I<Limit each packet to ... bytes> check box and field lets you
-specify a maximum number of bytes per packet to capture and save; if the
-check box is not checked, the limit will be 65535 bytes.
+The I<Link layer header type:> field lets you specify the interfaces link
+layer header type. This field is usually disabled, as most interface have 
+only one header type.
 
 The I<Capture packets in promiscuous mode> check box lets you specify
 whether the interface should be put into promiscuous mode when
 capturing.
 
-The I<Filter:> entry lets you specify the capture filter using a
+The I<Limit each packet to ... bytes> check box and field lets you
+specify a maximum number of bytes per packet to capture and save; if the
+check box is not checked, the limit will be 65535 bytes.
+
+The I<Capture Filter:> entry lets you specify the capture filter using a
 tcpdump-style filter string as described above.
 
 The I<File:> entry lets you specify the file into which captured packets
@@ -1526,14 +1562,46 @@ should be saved, as in the I<Printer Options> dialog above.  If not
 specified, the captured packets will be saved in a temporary file; you
 can save those packets to a file with the I<File:Save As> menu item.
 
-The I<Use ring buffer> check box lets you specify that the capture
-should be done in "ring buffer" mode; the I<Number of files> field
-lets you specify the number of files in the ring buffer (0 means unlimited).
+The I<Use multiple files> check box lets you specify that the capture
+should be done in "multiple files" mode. This option is disabled, if the 
+I<Update list of packets in real time> option is checked.
 
-The I<Rotate capture file every ...  second(s)> check box and field lets
-you to specify that the swith to a next ring buffer file should be done
-if the specified duration has elapsed even if the specified capture size
-is not reached.
+The I<Next file every ...  megabyte(s)> check box and fields lets
+you specify that a switch to a next file should be done
+if the specified filesize is reached. You can also select the appriate 
+unit, but beware that the filesize has a maximum of 2 GB.
+The check box is forced to be checked, as "multiple files" mode requires a 
+file size to be specified.
+
+The I<Next file every ... minute(s)> check box and fields lets 
+you specify that the switch to a next file should be done after the specified
+time has elapsed, even if the specified capture size is not reached.
+
+The I<Ring buffer with ... files> field lets you specify the number 
+of files of a ring buffer. This feature will capture into to the first file
+again, after the specified amount of files were used.
+
+The I<Stop capture after ... files> field lets you specify the number 
+of capture files used, until the capture is stopped.
+
+The I<Stop capture after ... packet(s)> check box and field let
+you specify that Ethereal should stop capturing after having captured
+some number of packets; if the check box is not checked, Ethereal will
+not stop capturing at some fixed number of captured packets.
+
+The I<Stop capture after ... megabyte(s)> check box and field lets 
+you specify that Ethereal should stop capturing after the file to which 
+captured packets are being saved grows as large as or larger than some 
+specified number of megabytes. If the check box is not checked, Ethereal 
+will not stop capturing at some capture file size (although the operating 
+system on which Ethereal is running, or the available disk space, may still 
+limit the maximum size of a capture file). This option is disabled, if 
+"multiple files" mode is used, 
+
+The I<Stop capture after ...  second(s)> check box and field let you
+specify that Ethereal should stop capturing after it has been capturing
+for some number of seconds; if the check box is not checked, Ethereal
+will not stop capturing after some fixed time has elapsed.
 
 The I<Update list of packets in real time> check box lets you specify
 whether the display should be updated as packets are captured and, if
@@ -1541,49 +1609,10 @@ you specify that, the I<Automatic scrolling in live capture> check box
 lets you specify the packet list pane should automatically scroll to
 show the most recently captured packets as new packets arrive.
 
-The I<Stop capture after ... packet(s) captured> check box and field let
-you specify that Ethereal should stop capturing after having captured
-some number of packets; if the check box is not checked, Ethereal will
-not stop capturing at some fixed number of captured packets.
-
-If "ring buffer" mode is not specified, the I<Stop capture after ...
-kilobyte(s) captured> check box and field let you specify that Ethereal
-should stop capturing after the the file to which captured packets are
-being saved grows as large as or larger than some specified number of
-kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).  If the
-check box is not checked, Ethereal will not stop capturing at some
-capture file size (although the operating system on which Ethereal is
-running, or the available disk space, may still limit the maximum size
-of a capture file).
-
-If "ring buffer" mode is specified, that field becomes the I<Rotate
-capture file every ...  kilobyte(s)> field, and specifies the number
-of kilobytes at which to start writing to a new ring buffer file; the
-check box is forced to be checked, as "ring buffer" mode requires a file
-size to be specified.
-
-The I<Stop capture after ...  second(s)> check box and field let you
-specify that Ethereal should stop capturing after it has been capturing
-for some number of seconds; if the check box is not checked, Ethereal
-will not stop capturing after some fixed time has elapsed.
-
 The I<Enable MAC name resolution>, I<Enable network name resolution> and
 I<Enable transport name resolution> check boxes let you specify whether
 MAC addresses, network addresses, and transport-layer port numbers
 should be translated to names.
-
-=item Display Options
-
-The I<Display Options> dialog lets you specify the format of the time
-stamp in the packet list.  You can select "Time of day" for absolute
-time stamps, "Date and time of day" for absolute time stamps with the
-date, "Seconds since beginning of capture" for relative time stamps, or
-"Seconds since previous packet" for delta time stamps.  You can also
-specify whether, when the display is updated as packets are captured,
-the list should automatically scroll to show the most recently captured
-packets or not and whether addresses or port numbers should be
-translated to names in the display on a MAC, network and transport layer
-basis.
 
 =item Plugins
 
