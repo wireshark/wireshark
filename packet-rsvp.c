@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.88 2004/03/24 04:26:05 guy Exp $
+ * $Id: packet-rsvp.c,v 1.89 2004/05/19 17:45:04 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -238,9 +238,9 @@ enum rsvp_classes {
 
     RSVP_CLASS_FAST_REROUTE = 205,
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
-    RSVP_CLASS_GENERALIZED_UNI,
     RSVP_CLASS_DCLASS = 225,
-    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227
+    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
+    RSVP_CLASS_GENERALIZED_UNI = 229
 
 };
 

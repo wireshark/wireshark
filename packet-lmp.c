@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.18 2003/12/21 04:31:56 jmayer Exp $
+ * $Id: packet-lmp.c,v 1.19 2004/05/19 17:45:04 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,7 +211,7 @@ static value_string lmp_09_class_vals[] = {
 
 
 #define VALID_CLASS(class) ((class) > LMP_CLASS_NULL && (class) < LMP_CLASS_MAX)
-#define VALID_09_CLASS(class) (((class) > LMP_CLASS_NULL && (class) < LMP_09_CLASS_CHANNEL_STATUS_REQUEST) || (class)==LMP_09_CLASS_ERROR)
+#define VALID_09_CLASS(class) ((class) > LMP_CLASS_NULL && (((class) < LMP_09_CLASS_CHANNEL_STATUS_REQUEST) || ((class)==LMP_09_CLASS_ERROR)))
 
 /*------------------------------------------------------------------------------
  * Other constants & stuff
@@ -820,8 +820,15 @@ lmp_class_to_filter_num(int class)
 static int
 lmp_09_class_to_filter_num(int class)
 {
-    if (VALID_09_CLASS(class))
-	return class + LMPF_09_OBJECT;
+    ushort gap = LMP_09_CLASS_ERROR - LMP_09_CLASS_CHANNEL_STATUS_REQUEST;
+
+    if (VALID_09_CLASS(class)) {
+	if (class != LMP_09_CLASS_ERROR)
+	    return LMPF_09_OBJECT + class;
+	else {
+	    return LMPF_09_OBJECT + class - gap + 1;
+	}
+    }
     return -1;
 }
 
@@ -848,7 +855,7 @@ enum {
     LMP_TREE_CLASS_START
 };
 #define NUM_LMP_SUBTREES (LMP_TREE_CLASS_START + LMP_CLASS_MAX)
-#define NUM_LMP_09_SUBTREES (LMP_TREE_CLASS_START + LMP_CLASS_MAX)
+#define NUM_LMP_09_SUBTREES (LMP_TREE_CLASS_START + LMP_09_CLASS_MAX)
 
 static gint lmp_subtree[MAX(NUM_LMP_SUBTREES,NUM_LMP_09_SUBTREES)];
 static gint lmp_09_subtree[NUM_LMP_09_SUBTREES];
@@ -1012,7 +1019,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				      "Header. Class %d, C-Type %d, Length %d, %s",
 				      class, type, obj_length,
 				      negotiable ? "Negotiable" : "Not Negotiable");
-		lmp_object_header_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_OBJECT_HEADER]);
+		lmp_object_header_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_OBJECT_HEADER]);
 		proto_tree_add_text(lmp_object_header_tree, tvb, offset, 1,
 				negotiable ? "Negotiable" : "Not Negotiable");
 		proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
@@ -1244,7 +1251,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    ti2 = proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS],
 					      tvb, offset2, 2, FALSE);
 
-		    lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_BEGIN_VERIFY_FLAGS]);
+		    lmp_flags_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_BEGIN_VERIFY_FLAGS]);
 		    proto_tree_add_boolean(lmp_flags_tree, lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
 					   tvb, offset2, 2, l);
 		    proto_tree_add_boolean(lmp_flags_tree, lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_LINK_TYPE],
@@ -1307,7 +1314,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(ti2, ": %s%s",
 				       (l&0x01) ? "Fault-Mgmt-Supported " : "",
 				       (l&0x02) ? "Link-Verification-Supported " : "");
-		lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_TE_LINK_FLAGS]);
+		lmp_flags_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_TE_LINK_FLAGS]);
 		proto_tree_add_boolean(lmp_flags_tree,
 				       lmp_filter[LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT],
 				       tvb, offset2, 1, l);
@@ -1355,7 +1362,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(ti2, ": %s%s",
 				       (l&0x01) ? "Interface-Type-Port " : "Interface-Type-Component-Link ",
 				       (l&0x02) ? "Allocated " : "Unallocated ");
-		lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_DATA_LINK_FLAGS]);
+		lmp_flags_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_DATA_LINK_FLAGS]);
 		proto_tree_add_boolean(lmp_flags_tree,
 				       lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_PORT],
 				       tvb, offset2, 1, l);
@@ -1404,7 +1411,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    mylen = tvb_get_guint8(tvb, offset2+l+1);
 		    ti2 = proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ],
 					      tvb, offset2+l, mylen, FALSE);
-		    lmp_subobj_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_DATA_LINK_SUBOBJ]);
+		    lmp_subobj_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_DATA_LINK_SUBOBJ]);
 		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
 					"Subobject Type: %d", tvb_get_guint8(tvb, offset2+l));
 		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+1, 1,
@@ -1466,7 +1473,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		for (l=0; l<obj_length - 4; ) {
 		    ti2 = proto_tree_add_text(lmp_object_tree, tvb, offset2+l, k,
 					      "Interface-Id");
-		    lmp_subobj_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_CHANNEL_STATUS_ID]);
+		    lmp_subobj_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_CHANNEL_STATUS_ID]);
 		    switch(type) {
 		    case 1:
 			if (j < 4)
@@ -1566,28 +1573,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		switch(type) {
 		case 1:
-			proto_item_append_text(ti, ": CONFIG_ERROR: %s%s%s",
-					       (l&0x01) ? "Unacceptable-Params " : "",
-					       (l&0x02) ? "Renegotiate" : "",
-					       (l&0x04) ? "Bad Received CCID" : "");
-			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
-			proto_tree_add_boolean(lmp_flags_tree,
-					       lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS],
-					       tvb, offset, 4, l);
-			proto_tree_add_boolean(lmp_flags_tree,
-					       lmp_filter[LMPF_VAL_ERROR_CONFIG_RENEGOTIATE],
-					       tvb, offset, 4, l);
-			proto_tree_add_boolean(lmp_flags_tree,
-					       lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_CCID],
-					       tvb, offset, 4, l);
-			break;
-		case 2:
 			proto_item_append_text(ti, ": BEGIN_VERIFY_ERROR: %s%s%s%s",
 					       (l&0x01) ? "Unsupported-Link " : "",
 					       (l&0x02) ? "Unwilling" : "",
 					       (l&0x04) ? "Unsupported-Transport" : "",
 					       (l&0x08) ? "TE-Link-ID" : "");
-			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_ERROR_FLAGS]);
 			proto_tree_add_boolean(lmp_flags_tree,
 					       lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
 					       tvb, offset, 4, l);
@@ -1601,7 +1592,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID],
 					       tvb, offset, 4, l);
 			break;
-		case 3:
+		case 2:
 			proto_item_append_text(ti, ": LINK_SUMMARY_ERROR: %s%s%s%s%s%s",
 					       (l&0x01) ? "Unacceptable-Params " : "",
 					       (l&0x02) ? "Renegotiate" : "",
@@ -1609,7 +1600,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       (l&0x08) ? "Bad-Data-Link" : "",
 					       (l&0x10) ? "Bad-TE-Link-CType" : "",
 					       (l&0x20) ? "Bad-Data-Link-CType" : "");
-			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_ERROR_FLAGS]);
 			proto_tree_add_boolean(lmp_flags_tree,
 					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
 					       tvb, offset, 4, l);
@@ -2195,7 +2186,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       (l&0x02) ? "Unwilling" : "",
 					       (l&0x04) ? "Unsupported-Transport" : "",
 					       (l&0x08) ? "TE-Link-ID" : "");
-			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_ERROR_FLAGS]);
 			proto_tree_add_boolean(lmp_flags_tree,
 					       lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
 					       tvb, offset, 4, l);
@@ -2217,7 +2208,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       (l&0x08) ? "TE-Link" : "",
 					       (l&0x10) ? "Data-Link" : "");
 
-			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_ERROR_FLAGS]);
 			proto_tree_add_boolean(lmp_flags_tree,
 					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
 					       tvb, offset, 4, l);
