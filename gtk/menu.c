@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.164 2004/02/13 01:09:52 guy Exp $
+ * $Id: menu.c,v 1.165 2004/02/16 19:00:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -874,9 +874,11 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 		menu_item = GTK_WIDGET(li->data);
 		widget_cf_name = OBJECT_GET_DATA(menu_item, MENU_RECENT_FILES_KEY);
 
-		/* if this element string is one of our special items or
+		/* if this element string is one of our special items (seperator, ...) or
 		 * already in the list or 
 		 * this element is above maximum count (too old), remove it */
+        /* XXX: do a case insensitive compare on win32 */
+        /* XXX: replace all backslashes by slashes */
 		if (!widget_cf_name ||
 		    strncmp(widget_cf_name, cf_name, 1000) == 0 ||
 		    cnt >= prefs.gui_recent_files_count_max) {
@@ -935,33 +937,33 @@ add_menu_recent_capture_file(gchar *cf_name) {
 }
 
 
-
-/* write a single menu item widget label to the user's recent file */
-/* helper, for menu_recent_file_write_all() */
-void menu_recent_file_write(GtkWidget *widget, gpointer data) {
-	gchar     *cf_name;
-	FILE      *rf = (FILE *) data;
-
-
-	/* get capture filename from the menu item label */
-	cf_name = OBJECT_GET_DATA(widget, MENU_RECENT_FILES_KEY);
-
-	if (cf_name) {
-	    fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
-	}
-}
-
-
 /* write all capture filenames of the menu to the user's recent file */
 void
 menu_recent_file_write_all(FILE *rf) {
-	GtkWidget *submenu_recent_files;
+	GtkWidget   *submenu_recent_files;
+    GList       *children;
+	GList       *child;
+	gchar       *cf_name;
 
 
 	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
-	gtk_container_foreach(GTK_CONTAINER(submenu_recent_files), 
-		menu_recent_file_write, rf);
+    /* we have to iterate backwards through the children's list,
+     * so we get the latest item last in the file.
+     * (don't use gtk_container_foreach() here, it will return the wrong iteration order) */
+    children = gtk_container_children(GTK_CONTAINER(submenu_recent_files));
+    child = g_list_last(children);
+    while(child != NULL) {
+	    /* get capture filename from the menu item label */
+	    cf_name = OBJECT_GET_DATA(child->data, MENU_RECENT_FILES_KEY);
+	    if (cf_name) {
+	        fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
+	    }
+
+        child = g_list_previous(child);
+    }
+
+	g_list_free(children);
 }
 
 

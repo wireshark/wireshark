@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.8 2004/02/01 20:28:11 ulfl Exp $
+ * $Id: recent.c,v 1.9 2004/02/16 19:00:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,7 +111,7 @@ write_recent(char **rf_path_return)
     "# This file is regenerated each time Ethereal is quit.\n"
     "# So be careful, if you want to make manual changes here.\n"
     "\n"
-    "######## Recent capture files (latest first) ########\n"
+    "######## Recent capture files (latest last) ########\n"
     "\n", rf);
 
   menu_recent_file_write_all(rf);
