@@ -5,7 +5,7 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id: packet-cups.c,v 1.2 2001/03/13 21:34:23 gram Exp $
+* $Id: packet-cups.c,v 1.3 2001/03/15 06:09:19 guy Exp $
 *
 * 
 * This program is free software; you can redistribute it and/or
@@ -42,7 +42,7 @@
 /**********************************************************************/
 
 /* From cups/cups.h, GNU GPL, Copyright 1997-2001 by Easy Software Products. */
-typedef unsigned cups_ptype_t;          /**** Printer Type/Capability Bits ****/
+typedef guint32 cups_ptype_t;           /**** Printer Type/Capability Bits ****/
 enum                                    /* Not a typedef'd enum so we can OR */
 {
   CUPS_PRINTER_LOCAL = 0x0000,          /* Local printer or class */
@@ -68,45 +68,52 @@ enum                                    /* Not a typedef'd enum so we can OR */
 };
 /* End insert from cups/cups.h */
 
-static const value_string cups_ptype_on[] = {
-	{ CUPS_PRINTER_CLASS,		"printer class" },
-	{ CUPS_PRINTER_REMOTE,		"remote" },
-	{ CUPS_PRINTER_BW,		"can print black" },
-	{ CUPS_PRINTER_COLOR,		"can print color" },
-	{ CUPS_PRINTER_DUPLEX,		"can duplex" },
-	{ CUPS_PRINTER_STAPLE,		"can staple" },
-	{ CUPS_PRINTER_COPIES,		"can do fast copies" },
-	{ CUPS_PRINTER_COLLATE,		"can do fast collating" },
-	{ CUPS_PRINTER_PUNCH,		"can punch holes" },
-	{ CUPS_PRINTER_COVER,		"can cover" },
-	{ CUPS_PRINTER_BIND,		"can bind" },
-	{ CUPS_PRINTER_SORT,		"can sort" },
-	{ CUPS_PRINTER_SMALL,		"can print up to 9x14 inches" },
-	{ CUPS_PRINTER_MEDIUM,		"can print up to 18x24 inches" },
-	{ CUPS_PRINTER_LARGE,		"can print up to 36x48 inches" },
-	{ CUPS_PRINTER_VARIABLE,	"can print variable sizes" },
-	{ CUPS_PRINTER_IMPLICIT,	"implicit class" },
-	{ CUPS_PRINTER_DEFAULT,		"default printer on network" }
+typedef struct {
+	guint32	bit;
+	char	*on_string;
+	char	*off_string;
+} cups_ptype_bit_info;
+
+static const cups_ptype_bit_info cups_ptype_bits[] = {
+	{ CUPS_PRINTER_DEFAULT,
+	  "Default printer on network", "Not default printer" },
+	{ CUPS_PRINTER_IMPLICIT,
+	  "Implicit class", "Explicit class" },
+	{ CUPS_PRINTER_VARIABLE,
+	  "Can print variable sizes", "Cannot print variable sizes" },
+	{ CUPS_PRINTER_LARGE,
+	  "Can print up to 36x48 inches", "Cannot print up to 36x48 inches" },
+	{ CUPS_PRINTER_MEDIUM,
+	  "Can print up to 18x24 inches", "Cannot print up to 18x24 inches" },
+	{ CUPS_PRINTER_SMALL,
+	  "Can print up to 9x14 inches", "Cannot print up to 9x14 inches" },
+	{ CUPS_PRINTER_SORT,
+	  "Can sort", "Cannot sort" },
+	{ CUPS_PRINTER_BIND,
+	  "Can bind", "Cannot bind" },
+	{ CUPS_PRINTER_COVER,
+	  "Can cover", "Cannot cover" },
+	{ CUPS_PRINTER_PUNCH,
+	  "Can punch holes", "Cannot punch holes" },
+	{ CUPS_PRINTER_COLLATE,
+	  "Can do fast collating", "Cannot do fast collating" },
+	{ CUPS_PRINTER_COPIES,
+	  "Can do fast copies", "Cannot do fast copies" },
+	{ CUPS_PRINTER_STAPLE,
+	  "Can staple", "Cannot staple" },
+	{ CUPS_PRINTER_DUPLEX,
+	  "Can duplex", "Cannot duplex" },
+	{ CUPS_PRINTER_COLOR,
+	  "Can print color", "Cannot print color" },
+	{ CUPS_PRINTER_BW,
+	  "Can print black", "Cannot print black" },
+	{ CUPS_PRINTER_REMOTE,
+	  "Remote", "Local (illegal)" },
+	{ CUPS_PRINTER_CLASS,
+	  "Printer class", "Single printer" }
 };
 
-static const value_string cups_ptype_off[] = {
-	{ CUPS_PRINTER_CLASS,		"single printer" },
-	{ CUPS_PRINTER_REMOTE,		"local (illegal)" },
-	{ CUPS_PRINTER_BW,		"cannot print black" },
-	{ CUPS_PRINTER_COLOR,		"cannot print color" },
-	{ CUPS_PRINTER_DUPLEX,		"cannot duplex" },
-	{ CUPS_PRINTER_STAPLE,		"cannot staple" },
-	{ CUPS_PRINTER_COPIES,		"cannot do fast copies" },
-	{ CUPS_PRINTER_COLLATE,		"cannot do fast collating" },
-	{ CUPS_PRINTER_PUNCH,		"cannot punch holes" },
-	{ CUPS_PRINTER_COVER,		"cannot cover" },
-	{ CUPS_PRINTER_BIND,		"cannot bind" },
-	{ CUPS_PRINTER_SORT,		"cannot sort" },
-	{ CUPS_PRINTER_SMALL,		"cannot print up to 9x14 inches" },
-	{ CUPS_PRINTER_MEDIUM,		"cannot print up to 18x24 inches" },
-	{ CUPS_PRINTER_LARGE,		"cannot print up to 36x48 inches" },
-	{ CUPS_PRINTER_VARIABLE,	"cannot print variable sizes" }
-};
+#define N_CUPS_PTYPE_BITS	(sizeof cups_ptype_bits / sizeof cups_ptype_bits[0])
 
 typedef enum _cups_state {
 	CUPS_IDLE = 3,
@@ -134,7 +141,7 @@ static gint ett_cups_ptype = -1;
 
 static guint get_hex_uint(tvbuff_t *tvb, gint offset,
     gint *next_offset);
-static void get_space(tvbuff_t *tvb, gint offset,
+static gboolean skip_space(tvbuff_t *tvb, gint offset,
     gint *next_offset);
 static const guint8* get_quoted_string(tvbuff_t *tvb, gint offset,
     gint *next_offset, guint *len);
@@ -175,22 +182,19 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_uint(cups_tree, hf_cups_ptype,
 		    tvb, offset, len, ptype);
 		ptype_subtree = proto_item_add_subtree(ti, ett_cups_ptype);
-		for (u = 1; match_strval(u, cups_ptype_on); u <<= 1) {
-			if (ptype & u)
-				proto_tree_add_text(
-				    ptype_subtree, tvb, offset, len,
-				    "  0x%05x => %s",
-				    u, val_to_str(u, cups_ptype_on, ""));
-			else if (match_strval(u, cups_ptype_off))
-				proto_tree_add_text(
-				    ptype_subtree, tvb, offset, len,
-				    "! 0x%05x => %s",
-				    u, val_to_str(u, cups_ptype_off, ""));
+		for (u = 0; u < N_CUPS_PTYPE_BITS; u++) {
+			proto_tree_add_text(ptype_subtree, tvb, offset, len,
+			    "%s",
+			    decode_boolean_bitfield(ptype,
+			      cups_ptype_bits[u].bit, sizeof (ptype)*8,
+			      cups_ptype_bits[u].on_string,
+			      cups_ptype_bits[u].off_string));
 		}
 	}
 	offset = next_offset;
 
-	get_space(tvb, offset, &next_offset);
+	if (!skip_space(tvb, offset, &next_offset))
+		return;	/* end of packet */
 	offset = next_offset;
 
 	state = get_hex_uint(tvb, offset, &next_offset);
@@ -200,7 +204,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb, offset, len, state);
 	offset = next_offset;
 
-	get_space(tvb, offset, &next_offset);
+	if (!skip_space(tvb, offset, &next_offset))
+		return;	/* end of packet */
 	offset = next_offset;
 
 	str = get_unquoted_string(tvb, offset, &next_offset, &len);
@@ -218,7 +223,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!cups_tree)
 		return;
 
-	get_space(tvb, offset, &next_offset);
+	if (!skip_space(tvb, offset, &next_offset))
+		return;	/* end of packet */
 	offset = next_offset;
 
 	str = get_quoted_string(tvb, offset, &next_offset, &len);
@@ -227,7 +233,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    (guint16) len, str);
 	offset = next_offset;
 
-	get_space(tvb, offset, &next_offset);
+	if (!skip_space(tvb, offset, &next_offset))
+		return;	/* end of packet */
 	offset = next_offset;
 
 	str = get_quoted_string(tvb, offset, &next_offset, &len);
@@ -236,7 +243,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    (guint16) len, str);
 	offset = next_offset;
 
-	get_space(tvb, offset, &next_offset);
+	if (!skip_space(tvb, offset, &next_offset))
+		return;	/* end of packet */
 	offset = next_offset;
 
 	str = get_quoted_string(tvb, offset, &next_offset, &len);
@@ -274,17 +282,19 @@ get_hex_uint(tvbuff_t *tvb, gint offset, gint *next_offset)
 	return u;
 }
 
-static void
-get_space(tvbuff_t *tvb, gint offset, gint *next_offset)
+static gboolean
+skip_space(tvbuff_t *tvb, gint offset, gint *next_offset)
 {
 	int c;
 
 	while ((c = tvb_get_guint8(tvb, offset)) == ' ')
 		offset++;
+	if (c == '\r' || c == '\n')
+		return FALSE;	/* end of packet */
 
 	*next_offset = offset;
 
-	return;
+	return TRUE;
 }
 
 static const guint8*
@@ -319,7 +329,7 @@ get_unquoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
 	guint l = 0;
 	gint o;
 
-	o = tvb_find_guint8(tvb, offset, -1, ' ');
+	o = tvb_pbrk_guint8(tvb, offset, -1, " \t\r\n");
 	if (o != -1) {
 		l = o - offset;
 		s = tvb_get_ptr(tvb, offset, l);
