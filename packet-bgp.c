@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.73 2003/01/28 05:25:16 guy Exp $
+ * $Id: packet-bgp.c,v 1.74 2003/01/31 08:09:24 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -1277,18 +1277,15 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		    type = tvb_get_guint8(tvb, q++);
 		    if (strlen(as_path_str) != 0 &&
 			as_path_str[strlen(as_path_str) - 1] != ' ')
-			strncat(as_path_str, "  ", 2);
+			strcat(as_path_str, " ");
                     if (type == AS_SET) {
-                        as_path_str[strlen(as_path_str) - 1] = '{';
+                        strcat(as_path_str, "{");
                     }
                     else if (type == AS_CONFED_SET) {
-			as_path_str[strlen(as_path_str) - 1] = '[';
+			strcat(as_path_str, "[");
                     }
                     else if (type == AS_CONFED_SEQUENCE) {
-			as_path_str[strlen(as_path_str) - 1] = '(';
-		    }
-		    else {
-			as_path_str[strlen(as_path_str) - 1] = '\0';
+			strcat(as_path_str, "(");
 		    }
 		    length = tvb_get_guint8(tvb, q++);
 
@@ -1305,11 +1302,11 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 
                     /* cleanup end of string */
                     if (type == AS_SET) {
-                        as_path_str[strlen(as_path_str) - 2] = '}';
+			as_path_str[strlen(as_path_str) - 2] = '}';
 			as_path_str[strlen(as_path_str) - 1] = '\0';
                     }
                     else if (type == AS_CONFED_SET) {
-                        as_path_str[strlen(as_path_str) - 2] = ']';
+			as_path_str[strlen(as_path_str) - 2] = ']';
 			as_path_str[strlen(as_path_str) - 1] = '\0';
                     }
                     else if (type == AS_CONFED_SEQUENCE) {
