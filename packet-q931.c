@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.67 2004/02/18 07:14:36 guy Exp $
+ * $Id: packet-q931.c,v 1.68 2004/02/18 09:58:17 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -411,7 +411,7 @@ dissect_q931_segmented_message_ie(tvbuff_t *tvb, int offset, int len,
 {
 	if (len != 2) {
 		proto_tree_add_text(tree, tvb, offset, len,
-		    "Segmented message: length is %d, should be 2\n", len);
+		    "Segmented message: length is %d, should be 2", len);
 		return;
 	}
 	if (tvb_get_guint8(tvb, offset) & 0x80) {
@@ -424,7 +424,7 @@ dissect_q931_segmented_message_ie(tvbuff_t *tvb, int offset, int len,
 		    tvb_get_guint8(tvb, offset) & 0x7F);
 	}
 	proto_tree_add_text(tree, tvb, offset + 1, 1,
-	    "Segmented message type: %u\n", tvb_get_guint8(tvb, offset + 1));
+	    "Segmented message type: %u", tvb_get_guint8(tvb, offset + 1));
 }
 
 /*
@@ -1628,7 +1628,7 @@ dissect_q931_date_time_ie(tvbuff_t *tvb, int offset, int len,
 		    tvb_get_guint8(tvb, offset + 3), tvb_get_guint8(tvb, offset + 4));
 	} else {
 		proto_tree_add_text(tree, tvb, offset, len,
-		    "Date/time: length is %d, should be 5 or 6\n", len);
+		    "Date/time: length is %d, should be 5 or 6", len);
 	}
 }
 
@@ -1665,7 +1665,7 @@ dissect_q931_signal_ie(tvbuff_t *tvb, int offset, int len,
 {
 	if (len != 1) {
 		proto_tree_add_text(tree, tvb, offset, len,
-		    "Signal: length is %d, should be 1\n", len);
+		    "Signal: length is %d, should be 1", len);
 		return;
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1698,7 +1698,7 @@ dissect_q931_information_rate_ie(tvbuff_t *tvb, int offset, int len,
 {
 	if (len != 4) {
 		proto_tree_add_text(tree, tvb, offset, len,
-		    "Information rate: length is %d, should be 4\n", len);
+		    "Information rate: length is %d, should be 4", len);
 		return;
 	}
 	proto_tree_add_text(tree, tvb, offset + 0, 1,
@@ -2118,7 +2118,7 @@ dissect_q931_restart_indicator_ie(tvbuff_t *tvb, int offset, int len,
 {
 	if (len != 1) {
 		proto_tree_add_text(tree, tvb, offset, len,
-		    "Restart indicator: length is %d, should be 1\n", len);
+		    "Restart indicator: length is %d, should be 1", len);
 		return;
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
