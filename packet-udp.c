@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.21 1999/07/22 16:41:22 gram Exp $
+ * $Id: packet-udp.c,v 1.22 1999/08/05 00:05:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,7 +86,7 @@ struct hash_struct {
   struct hash_struct *next;
 };
 
-struct hash_struct *hash_table[256];
+static struct hash_struct *hash_table[256];
 
 /*
  * These routines are for UDP, will be generalized soon: RJS

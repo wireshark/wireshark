@@ -115,7 +115,7 @@ typedef struct _global_vc_info {
 	struct _global_vc_info *next;
 } global_vc_info;
 
-global_vc_info *hash_table[64];
+static global_vc_info *hash_table[64];
 
 void
 free_vc_info(vc_info *pt)
