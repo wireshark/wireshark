@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.112 2003/11/25 14:10:27 sahlberg Exp $
+ * $Id: proto.c,v 1.113 2003/11/25 14:11:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,7 +156,7 @@ static GMemChunk *gmc_hfinfo = NULL;
  * proto_tree_add_item.  */
 static field_info *field_info_free_list=NULL;
 static field_info *field_info_tmp=NULL;
-#define FREE_FIELD_INFO(fi) \
+#define FIELD_INFO_FREE(fi) \
 	fi->ptr_u.next=field_info_free_list;	\
 	field_info_free_list=fi;	
 #define FIELD_INFO_NEW(fi)					\
@@ -385,7 +385,7 @@ free_node_field_info(field_info* finfo)
 {
 	ITEM_LABEL_FREE(finfo->rep);
 	FVALUE_FREE(finfo->value);
-	FREE_FIELD_INFO(finfo);
+	FIELD_INFO_FREE(finfo);
 }
 
 static gboolean
