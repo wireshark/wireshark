@@ -3,7 +3,7 @@
  * dissection
  * Copyright 2003, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-ns.c,v 1.3 2003/09/09 07:51:37 guy Exp $
+ * $Id: packet-gprs-ns.c,v 1.4 2003/09/09 08:53:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -257,8 +257,10 @@ dissect_gprs_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	nspdu = tvb_get_guint8(tvb,offset);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, match_strval(nspdu, ns_pdu_type));
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(nspdu, ns_pdu_type, "Unknown PDU type (0x%02x)"));
+	}
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_gprs_ns, tvb, 0, -1, FALSE);
 		gprs_ns_tree = proto_item_add_subtree(ti, ett_gprs_ns);
