@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.33 2001/01/13 02:40:55 guy Exp $
+ * $Id: packet-cdp.c,v 1.34 2001/01/15 21:36:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,6 +79,8 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 #define TYPE_IP_PREFIX		0x0007
 
 #define TYPE_VTP_MGMT_DOMAIN    0x0009 /* Guessed, from tcpdump */
+#define TYPE_NATIVE_VLAN        0x000a /* Guessed, from tcpdump */
+#define TYPE_DUPLEX             0x000b /* Guessed, from tcpdump */
 
 static const value_string type_vals[] = {
 	{ TYPE_DEVICE_ID,    	"Device ID" },
@@ -89,6 +91,8 @@ static const value_string type_vals[] = {
 	{ TYPE_PLATFORM,        "Platform" },
 	{ TYPE_IP_PREFIX,       "IP Prefix (used for ODR)" },
 	{ TYPE_VTP_MGMT_DOMAIN, "VTP Management Domain" },
+	{ TYPE_NATIVE_VLAN,     "Native VLAN" },
+	{ TYPE_DUPLEX,          "Duplex" },
 	{ 0,                    NULL },
 };
 	
@@ -290,8 +294,40 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    offset + TLV_TYPE, 2, type);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 			    offset + TLV_LENGTH, 2, length);
-		add_multi_line_string_to_tree(tlv_tree, tvb, offset + 4,
-				length - 4, "VTP Management Domain: ");
+		proto_tree_add_text(tlv_tree, tvb, offset + 4,
+			    length - 4, "VTP Management Domain: %.*s",
+			    length - 4,
+			    tvb_get_ptr(tvb, offset + 4, length - 4));
+		offset += length;
+		break;
+	    case TYPE_NATIVE_VLAN:
+		tlvi = proto_tree_add_text(cdp_tree, tvb,
+			    offset, length, "Native VLAN: %u",
+					   tvb_get_ntohs(tvb, offset + 4));
+		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+			    offset + TLV_TYPE, 2, type);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+			    offset + TLV_LENGTH, 2, length);
+		proto_tree_add_text(tlv_tree, tvb, offset + 4,
+			    length - 4, "Native VLAN: %u",
+				    tvb_get_ntohs(tvb, offset + 4));
+		offset += length;
+		break;
+	    case TYPE_DUPLEX:
+		tlvi = proto_tree_add_text(cdp_tree, tvb,
+			    offset, length, "Duplex: %s",
+					   tvb_get_guint8(tvb, offset + 4) ?
+					   "Full" : "Half" );
+		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+			    offset + TLV_TYPE, 2, type);
+		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+			    offset + TLV_LENGTH, 2, length);
+		proto_tree_add_text(tlv_tree, tvb, offset + 4,
+			    length - 4, "Duplex: %s",
+				    tvb_get_guint8(tvb, offset + 4) ?
+				    "Full" : "Half" );
 		offset += length;
 		break;
 	    default:
