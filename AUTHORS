@@ -1094,6 +1094,10 @@ Jouni Malinen <jkmaline[AT]cc.hut.fi> {
 	802.11 authentication frame dissection bug fix
 }
 
+Paul E. Erkkila <pee[AT]erkkila.org> {
+	Skinny Client Control Protocol enhancements
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
