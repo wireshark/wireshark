@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.94 2004/05/19 04:52:31 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.95 2004/06/05 02:40:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -315,6 +315,7 @@ static gint hf_create_secret = -1;
 static gint hf_create_priv = -1;
 static gint hf_set_default_quota_limits = -1;
 static gint hf_set_audit_requirements = -1;
+static gint hf_audit_log_admin = -1;
 static gint hf_server_admin = -1;
 static gint hf_lookup_names = -1;
 
@@ -327,6 +328,9 @@ lsa_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 
 	proto_tree_add_boolean(
 		tree, hf_server_admin, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_audit_log_admin, tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
 		tree, hf_set_audit_requirements, tvb, offset, 4, access);
@@ -4403,39 +4407,39 @@ proto_register_dcerpc_lsa(void)
 		NULL, 0x0, "Flag whether all rights should be removed or only the specified ones", HFILL }},
 
 	{ &hf_view_local_info,
-	        { "View local info", "lsa.access_mask.view_local_info",
+	        { "View non-sensitive policy information", "lsa.access_mask.view_local_info",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_VIEW_LOCAL_INFORMATION,
-		  "View local info", HFILL }},
+		  "View non-sensitive policy information", HFILL }},
 
 	{ &hf_view_audit_info,
-	        { "View audit info", "lsa.access_mask.view_audit_info",
+	        { "View system audit requirements", "lsa.access_mask.view_audit_info",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_VIEW_AUDIT_INFORMATION,
-		  "View audit info", HFILL }},
+		  "View system audit requirements", HFILL }},
 
 	{ &hf_get_private_info,
-	        { "Get private info", "lsa.access_mask.get_privateinfo",
+	        { "Get sensitive policy information", "lsa.access_mask.get_privateinfo",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_GET_PRIVATE_INFORMATION,
-		  "Get private info", HFILL }},
+		  "Get sensitive policy information", HFILL }},
 
 	{ &hf_trust_admin,
-	        { "Trust admin", "lsa.access_mask.trust_admin",
+	        { "Modify domain trust relationships", "lsa.access_mask.trust_admin",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_TRUST_ADMIN,
-		  "Trust admin", HFILL }},
+		  "Modify domain trust relationships", HFILL }},
 
 	{ &hf_create_account,
-	        { "Create account", "lsa.access_mask.create_account",
+	        { "Create special accounts (for assignment of user rights)", "lsa.access_mask.create_account",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_ACCOUNT,
-		  "Create account", HFILL }},
+		  "Create special accounts (for assignment of user rights)", HFILL }},
 
 	{ &hf_create_secret,
-	        { "Create secret", "lsa.access_mask.create_secret",
+	        { "Create a secret object", "lsa.access_mask.create_secret",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_SECRET,
-		  "Create secret", HFILL }},
+		  "Create a secret object", HFILL }},
 
 	{ &hf_create_priv,
-	        { "Create privilege", "lsa.access_mask.create_priv",
+	        { "Create a privilege", "lsa.access_mask.create_priv",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_PRIVILEGE,
-		  "Create privilege", HFILL }},
+		  "Create a privilege", HFILL }},
 
 	{ &hf_set_default_quota_limits,
 	        { "Set default quota limits", "lsa.access_mask.set_default_quota_limits",
@@ -4443,19 +4447,24 @@ proto_register_dcerpc_lsa(void)
 		  "Set default quota limits", HFILL }},
 
 	{ &hf_set_audit_requirements,
-	        { "Set audit requirements", "lsa.access_mask.set_audit_requirements",
+	        { "Change system audit requirements", "lsa.access_mask.set_audit_requirements",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SET_AUDIT_REQUIREMENTS,
-		  "Set audit requirements", HFILL }},
+		  "Change system audit requirements", HFILL }},
+
+	{ &hf_audit_log_admin,
+		{ "Administer audit log attributes", "lsa.access_mask.audit_log_admin",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_AUDIT_LOG_ADMIN,
+		  "Administer audit log attributes", HFILL }},
 
 	{ &hf_server_admin,
-	        { "Server admin", "lsa.access_mask.server_admin",
+	        { "Enable/Disable LSA", "lsa.access_mask.server_admin",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SERVER_ADMIN,
-		  "Server admin", HFILL }},
+		  "Enable/Disable LSA", HFILL }},
 
 	{ &hf_lookup_names,
-	        { "Lookup names", "lsa.access_mask.lookup_names",
+	        { "Lookup Names/SIDs", "lsa.access_mask.lookup_names",
 		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_LOOKUP_NAMES,
-		  "Lookup names", HFILL }}
+		  "Lookup Names/SIDs", HFILL }}
 };
 
         static gint *ett[] = {

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.107 2004/05/19 04:52:30 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.108 2004/06/05 02:40:23 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,6 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-samr.h"
-#include "packet-dcerpc-lsa.h"
 #include "smb.h"	/* for "NT_errors[]" */
 #include "packet-smb-common.h"
 #include "crypt-md4.h"
@@ -57,6 +56,7 @@ static int hf_samr_rid_attrib = -1;
 static int hf_samr_rc = -1;
 static int hf_samr_index = -1;
 static int hf_samr_count = -1;
+static int hf_samr_sd_size = -1;
 
 static int hf_samr_level = -1;
 static int hf_samr_start_idx = -1;
@@ -127,6 +127,7 @@ static int hf_samr_unknown_string = -1;
 static int hf_samr_unknown_time = -1;
 
 static gint ett_dcerpc_samr = -1;
+static gint ett_SAM_SECURITY_DESCRIPTOR = -1;
 static gint ett_samr_user_dispinfo_1 = -1;
 static gint ett_samr_user_dispinfo_1_array = -1;
 static gint ett_samr_user_dispinfo_2 = -1;
@@ -229,6 +230,59 @@ struct access_mask_info samr_connect_access_mask_info = {
 	NULL,			    /* Generic rights mapping */
 	NULL                        /* Standard rights mapping */
 };
+
+
+int
+sam_dissect_SAM_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             guint8 *drep)
+{
+       guint32 len;
+       dcerpc_info *di;
+
+       di=pinfo->private_data;
+       if(di->conformant_run){
+               /*just a run to handle conformant arrays, nothing to dissect */
+               return offset;
+       }
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                    hf_samr_sd_size, &len);
+
+       dissect_nt_sec_desc(
+               tvb, offset, pinfo, tree, drep, len, &samr_connect_access_mask_info);
+
+       offset += len;
+
+       return offset;
+}
+
+int
+sam_dissect_SAM_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
+                       packet_info *pinfo, proto_tree *parent_tree,
+                       guint8 *drep)
+{
+       proto_item *item=NULL;
+       proto_tree *tree=NULL;
+       int old_offset=offset;
+
+       if(parent_tree){
+               item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+                       "SAM_SECURITY_DESCRIPTOR:");
+               tree = proto_item_add_subtree(item, ett_SAM_SECURITY_DESCRIPTOR);
+       }
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                   hf_samr_sd_size, NULL);
+
+       offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+                       sam_dissect_SAM_SECURITY_DESCRIPTOR_data, NDR_POINTER_UNIQUE,
+                       "SAM SECURITY DESCRIPTOR data:", -1);
+
+       proto_item_set_len(item, offset-old_offset);
+       return offset;
+}
+
 
 /* Dissect domain specific access rights */
 
@@ -473,8 +527,9 @@ samr_dissect_open_user_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_access, NULL);
+       offset = dissect_nt_access_mask(
+               tvb, offset, pinfo, tree, drep, hf_samr_access,
+               &samr_user_access_mask_info, NULL);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, &rid);
@@ -3735,8 +3790,8 @@ samr_dissect_set_sec_object_rqst(tvbuff_t *tvb, int offset,
 			pinfo->cinfo, COL_INFO, ", info type %d", info_type);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_REF,
-		"LSA_SECURITY_DESCRIPTOR pointer: ", -1);
+               sam_dissect_SAM_SECURITY_DESCRIPTOR, NDR_POINTER_REF,
+               "SAM_SECURITY_DESCRIPTOR pointer: ", -1);
 
 	return offset;
 }
@@ -3778,8 +3833,8 @@ samr_dissect_query_sec_object_reply(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_UNIQUE,
-		"LSA_SECURITY_DESCRIPTOR pointer: ", -1);
+               sam_dissect_SAM_SECURITY_DESCRIPTOR, NDR_POINTER_UNIQUE,
+               "SAM_SECURITY_DESCRIPTOR pointer: ", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
@@ -5224,12 +5279,17 @@ proto_register_dcerpc_samr(void)
 	{ &hf_access_connect_open_domain,
 	  { "Open domain", "samr_access_mask.connect_open_domain",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-	    SAMR_ACCESS_OPEN_DOMAIN, "Open domain", HFILL }}
+           SAMR_ACCESS_OPEN_DOMAIN, "Open domain", HFILL }},
+
+       { &hf_samr_sd_size,
+               { "Size", "sam.sd_size", FT_UINT32, BASE_DEC,
+               NULL, 0x0, "Size of SAM security descriptor", HFILL }}
 
         };
 
         static gint *ett[] = {
                 &ett_dcerpc_samr,
+		&ett_SAM_SECURITY_DESCRIPTOR,
 		&ett_samr_user_dispinfo_1,
                 &ett_samr_user_dispinfo_1_array,
                 &ett_samr_user_dispinfo_2,
