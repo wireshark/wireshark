@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.40 2000/09/08 09:49:20 guy Exp $
+ * $Id: prefs.c,v 1.41 2000/09/12 06:41:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -533,7 +533,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
 #ifdef WIN32
     prefs.gui_font_name = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
 #else
-    prefs.gui_font_name = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-*-");
+    prefs.gui_font_name = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-*-*");
 #endif
     prefs.gui_marked_fg.pixel = 65535;
     prefs.gui_marked_fg.red   = 65535;
