@@ -1,7 +1,7 @@
 /* color_filters.c
  * Routines for color filters
  *
- * $Id: color_filters.c,v 1.7 2004/01/31 03:22:39 guy Exp $
+ * $Id: color_filters.c,v 1.8 2004/03/14 23:55:53 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@
 #endif
 
 #include <gtk/gtk.h>
-
+#include <ctype.h>
 #include <string.h>
 
 #include <epan/filesystem.h>
@@ -48,8 +48,8 @@
 static gboolean read_filters(void);
 static gboolean read_global_filters(void);
 
-GSList *filter_list;
-GSList *removed_filter_list;
+GSList *filter_list = NULL;
+GSList *removed_filter_list = NULL;
 
 /* Remove the specified filter from the list of existing color filters,
  * and add it to the list of removed color filters.
@@ -65,7 +65,7 @@ void remove_color_filter(color_filter_t *colorf)
 }
 
 /* delete the specified filter */
-void
+static void
 delete_color_filter(color_filter_t *colorf)
 {
 	if (colorf->filter_name != NULL)
@@ -74,26 +74,27 @@ delete_color_filter(color_filter_t *colorf)
 		g_free(colorf->filter_text);
 	if (colorf->c_colorfilter != NULL)
 		dfilter_free(colorf->c_colorfilter);
-	filter_list = g_slist_remove(filter_list, colorf);
 	g_free(colorf);
 }
 
 /* delete the specified filter as an iterator*/
 static void
-delete_color_filter_it(gpointer filter_arg, gpointer ignored _U_)
+delete_color_filter_it(gpointer filter_arg, gpointer unused _U_)
 {
 	color_filter_t *colorf = filter_arg;
-	
 	delete_color_filter(colorf);
 }
 
 /* delete all the filters */
-
 static void
 delete_all_color_filters (void)
 {
         g_slist_foreach(filter_list, delete_color_filter_it, NULL);
+	g_slist_free(filter_list);
+	filter_list = NULL;
         g_slist_foreach(removed_filter_list, delete_color_filter_it, NULL);
+	g_slist_free(removed_filter_list);
+	removed_filter_list = NULL;
 }
 
 /* Initialize the filter structures (reading from file) for general running, including app startup */
@@ -113,7 +114,7 @@ new_color_filter(gchar *name,           /* The name of the filter to create */
 	color_filter_t *colorf;
         GtkStyle       *style;
 
-	colorf = (color_filter_t *)g_malloc(sizeof (color_filter_t));
+	colorf = g_malloc(sizeof (color_filter_t));
 	colorf->filter_name = g_strdup(name);
 	colorf->filter_text = g_strdup(filter_string);
         style = gtk_widget_get_style(packet_list);
@@ -125,7 +126,6 @@ new_color_filter(gchar *name,           /* The name of the filter to create */
 	filter_list = g_slist_append(filter_list, colorf);
         return colorf;
 }
-
 
 static void
 prime_edt(gpointer data, gpointer user_data)
@@ -145,44 +145,113 @@ filter_list_prime_edt(epan_dissect_t *edt)
 	g_slist_foreach(filter_list, prime_edt, edt);
 }
 
-
 /* read filters from the given file */
 static gboolean
 read_filters_file(FILE *f, gpointer arg)
 {
-	/* TODO: Lots more syntax checking on the file */
-	/* I hate these fixed length names! TODO: make more dynamic */
-	/* XXX - buffer overflow possibility here
-	 * sscanf blocks max size of name and filter_exp; buf is used for
-	 * reading only */
-	gchar name[256],filter_exp[256], buf[1024];
+#define INIT_BUF_SIZE 128
+	gchar  *name = NULL;
+	gchar  *filter_exp = NULL;
+	guint32 name_len = INIT_BUF_SIZE;
+	guint32 filter_exp_len = INIT_BUF_SIZE;
+	guint32 i = 0;
+	gint32  c;
 	guint16 fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
-	GdkColor fg_color, bg_color;
-	color_filter_t *colorf;
-	dfilter_t *temp_dfilter;
+	gboolean skip_end_of_line = FALSE;
 
-	do {
-		if (fgets(buf,sizeof buf, f) == NULL)
+	name = g_malloc(name_len + 1);
+	filter_exp = g_malloc(filter_exp_len + 1);
+
+	while (1) {
+
+		if (skip_end_of_line) {
+			do {
+				c = getc(f);
+			} while (c != EOF && c != '\n');
+			if (c == EOF)
+				break;
+			skip_end_of_line = FALSE;
+		}
+
+		while ((c = getc(f)) != EOF && isspace(c)) {
+			if (c == '\n') {
+				continue;
+			}
+		}
+
+		if (c == EOF)
 			break;
 
-		if (strspn(buf," \t") == (size_t)((strchr(buf,'*') - buf))) {
-			/* leading # comment */
+		/* skip # comments and invalid lines */
+		if (c != '@') {	
+			skip_end_of_line = TRUE;
 			continue;
 		}
 
-		/* we get the @ delimiter.  It is not in any strings
+		/* we get the @ delimiter.
 		 * Format is:
 		 * @name@filter expression@[background r,g,b][foreground r,g,b]
 		 */
-		if (sscanf(buf," @%256[^@]@%256[^@]@[%hu,%hu,%hu][%hu,%hu,%hu]",
-		    name, filter_exp, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b)
-		    == 8) {
-			/* we got a filter */
+
+		/* retrieve name */
+		i = 0;
+		while (1) {
+			c = getc(f);
+			if (c == EOF || c == '@')
+				break;
+			if (i >= name_len) {
+				/* buffer isn't long enough; double its length.*/
+				name_len *= 2;
+				name = g_realloc(name, name_len + 1);
+			}
+			name[i++] = c;		  
+		}
+		name[i] = '\0';
+
+		if (c == EOF) {
+			break;
+		} else if (i == 0) {
+			skip_end_of_line = TRUE;
+			continue;
+		}
+
+		/* retrieve filter expression */
+		i = 0;
+		while (1) {
+			c = getc(f);
+			if (c == EOF || c == '@')
+				break;
+			if (i >= filter_exp_len) {
+				/* buffer isn't long enough; double its length.*/
+				filter_exp_len *= 2;
+				filter_exp = g_realloc(filter_exp, filter_exp_len + 1);
+			}
+			filter_exp[i++] = c;
+		}
+		filter_exp[i] = '\0';
+
+		if (c == EOF) {
+			break;
+		} else if (i == 0) {
+			skip_end_of_line = TRUE;
+			continue;
+		}
+
+		/* retrieve background and foreground colors */
+		if (fscanf(f,"[%hu,%hu,%hu][%hu,%hu,%hu]",
+			&bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 6) {
+
+			/* we got a complete color filter */
+
+			GdkColor fg_color, bg_color;
+			color_filter_t *colorf;
+			dfilter_t *temp_dfilter;
 
 			if (!dfilter_compile(filter_exp, &temp_dfilter)) {
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		"Could not compile color filter %s from saved filters.\n%s",
-				    name, dfilter_error_msg);
+				"Could not compile color filter %s from saved filters.\n%s",
+					      name, dfilter_error_msg);
+				skip_end_of_line = TRUE;
 				continue;
 			}
 			if (!get_color(&fg_color)) {
@@ -191,6 +260,7 @@ read_filters_file(FILE *f, gpointer arg)
 				    "Could not allocate foreground color "
 				    "specified in input file for %s.", name);
 				dfilter_free(temp_dfilter);
+				skip_end_of_line = TRUE;
 				continue;
 			}
 			if (!get_color(&bg_color)) {
@@ -199,6 +269,7 @@ read_filters_file(FILE *f, gpointer arg)
 				    "Could not allocate background color "
 				    "specified in input file for %s.", name);
 				dfilter_free(temp_dfilter);
+				skip_end_of_line = TRUE;
 				continue;
 			}
 
@@ -217,7 +288,12 @@ read_filters_file(FILE *f, gpointer arg)
 			if (arg != NULL)
 				color_add_filter_cb (colorf, arg);
 		}    /* if sscanf */
-	} while(!feof(f));
+
+		skip_end_of_line = TRUE;
+	}
+
+	g_free(name);
+	g_free(filter_exp);
 	return TRUE;
 }
 
@@ -225,11 +301,6 @@ read_filters_file(FILE *f, gpointer arg)
 static gboolean
 read_filters(void)
 {
-	/* TODO: Lots more syntax checking on the file */
-	/* I hate these fixed length names! TODO: make more dynamic */
-	/* XXX - buffer overflow possibility here
-	 * sscanf blocks max size of name and filter_exp; buf is used for
-	 * reading only */
 	gchar *path;
 	FILE *f;
 	gboolean ret;
@@ -242,10 +313,10 @@ read_filters(void)
 			    "Could not open filter file\n\"%s\": %s.", path,
 			    strerror(errno));
 		}
-		g_free((gchar *)path);
+		g_free(path);
 		return FALSE;
 	}
-	g_free((gchar *)path);
+	g_free(path);
 	path = NULL;
 
 	ret = read_filters_file(f, NULL);
@@ -269,10 +340,10 @@ read_global_filters(void)
 			    "Could not open global filter file\n\"%s\": %s.", path,
 			    strerror(errno));
 		}
-		g_free((gchar *)path);
+		g_free(path);
 		return FALSE;
 	}
-	g_free((gchar *)path);
+	g_free(path);
 	path = NULL;
 
 	ret = read_filters_file(f, NULL);
@@ -390,8 +461,12 @@ revert_filters(void)
 	}
 
 	path = get_persconffile_path("colorfilters", TRUE);
-	if (!deletefile(path))
+	if (!deletefile(path)) {
+		g_free((gchar *)path);
 		return FALSE;
+	}
+
+	g_free((gchar *)path);
 
 	/* Reload the (global) filters - Note: this does not update the dialog. */
 	colfilter_init();

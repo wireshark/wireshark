@@ -1,7 +1,7 @@
 /* color_filters.h
  * Definitions for color filters
  *
- * $Id: color_filters.h,v 1.4 2004/01/09 20:39:26 guy Exp $
+ * $Id: color_filters.h,v 1.5 2004/03/14 23:55:53 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 #ifndef  __COLOR_FILTERS_H__
 #define  __COLOR_FILTERS_H__
 
-#define MAXCOLORS	255
-#define MAX_COLOR_FILTER_NAME_LEN 33
-#define MAX_COLOR_FILTER_STRING_LEN 256
-
 #define CFILTERS_CONTAINS_FILTER(filter) \
 	((filter)->num_of_filters != 0)
 
@@ -38,7 +34,7 @@ gboolean revert_filters(void);
 
 color_filter_t *new_color_filter(gchar *name, gchar *filter_string);
 void remove_color_filter(color_filter_t *colorf);
-void delete_color_filter(color_filter_t *colorf);
 gboolean read_other_filters(gchar *path, gpointer arg);
 gboolean write_other_filters(gchar *path, gboolean only_marked);
+
 #endif
