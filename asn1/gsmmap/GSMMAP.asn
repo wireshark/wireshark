@@ -193,21 +193,23 @@ PrepareSubsequentHO-Arg ::= SEQUENCE {
 
 --sendAuthenticationInfo OPERATION
 --   ARGUMENT
-SendAuthenticationInfoArg ::= SEQUENCE {
-      imsi                         [0] IMPLICIT Imsi, 
-      numberOfRequestedVectors     INTEGER ( 1 .. 5 ), 
-      segmentationProhibited       NULL OPTIONAL, 
-      immediateResponsePreferred   [1] IMPLICIT NULL OPTIONAL, 
-      re-synchronisationInfo       SEQUENCE {
-         rand       OCTET STRING (  SIZE (16 ) ), 
-         auts       OCTET STRING (  SIZE (14 ) ), 
-         ... } OPTIONAL, 
-      extensionContainer           [2] IMPLICIT ExtensionContainer OPTIONAL, 
-      requestingNodeType           [3] IMPLICIT ENUMERATED {
-         vlr         (0 ), 
-         sgsn        (1 ), 
-         ... } OPTIONAL, 
-      requestingPLMN-Id            [4] IMPLICIT OCTET STRING (  SIZE (3 ) ) OPTIONAL}
+ SendAuthenticationInfoArg ::= Imsi
+-- Is this V9 ?
+-- SendAuthenticationInfoArg ::=  SEQUENCE {
+--      imsi                         [0]  IMPLICIT Imsi, 
+--      numberOfRequestedVectors     INTEGER ( 1 .. 5 ), 
+--      segmentationProhibited       NULL OPTIONAL, 
+--      immediateResponsePreferred   [1] IMPLICIT NULL OPTIONAL, 
+--      re-synchronisationInfo       SEQUENCE {
+--         rand       OCTET STRING (  SIZE (16 ) ), 
+--         auts       OCTET STRING (  SIZE (14 ) ), 
+--         ... } OPTIONAL, 
+--      extensionContainer           [2] IMPLICIT ExtensionContainer OPTIONAL, 
+--      requestingNodeType           [3] IMPLICIT ENUMERATED {
+--         vlr         (0 ), 
+--         sgsn        (1 ), 
+--         ... } OPTIONAL, 
+--      requestingPLMN-Id            [4] IMPLICIT OCTET STRING (  SIZE (3 ) ) OPTIONAL}
 
 --   RESULT
 SendAuthenticationInfoRes ::= SEQUENCE  ( SIZE( 1 .. 5 ) ) OF
