@@ -40,6 +40,7 @@ ethereal_SOURCES = \
 	packet-raw.c   \
 	packet-rip.c   \
 	packet-tcp.c   \
+	packet-tftp.c  \
 	packet-tr.c    \
 	packet-trmac.c \
 	packet-udp.c   \

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.37 1999/02/12 09:03:40 guy Exp $
+ * $Id: packet.h,v 1.38 1999/02/15 06:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -361,6 +361,7 @@ typedef struct _e_udphdr {
 
 #define UDP_PORT_DNS     53
 #define UDP_PORT_BOOTPS  67
+#define UDP_PORT_TFTP    69
 #define UDP_PORT_IPX    213
 #define UDP_PORT_NBNS	137
 #define UDP_PORT_NBDGM	138
@@ -452,6 +453,7 @@ enum {
 	ETT_NBDGM,
 	ETT_CDP,
 	ETT_HTTP,
+	ETT_TFTP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -590,6 +592,7 @@ void dissect_ospf(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, GtkTree *);
 void dissect_rip(const u_char *, int, frame_data *, GtkTree *);
 void dissect_tcp(const u_char *, int, frame_data *, GtkTree *);
+void dissect_tftp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_trmac(const u_char *, int, frame_data *, GtkTree *);
 void dissect_udp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_vines(const u_char *, int, frame_data *, GtkTree *);
@@ -599,6 +602,8 @@ void dissect_vines_icp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_vines_ipc(const u_char *, int, frame_data *, GtkTree *);
 void dissect_vines_rtp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_vines_spp(const u_char *, int, frame_data *, GtkTree *);
+
+void init_dissect_udp(void);
 
 /* These functions are in ethertype.c */
 gchar *ethertype_to_str(guint16 etype, const char *fmt);
