@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.3 2002/05/23 12:48:28 sahlberg Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.4 2002/05/25 08:41:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-mapi.h"
 #include "smb.h"	/* for "NT_errors[]" */
+#include "prefs.h"
 
 static int proto_dcerpc_mapi = -1;
 static int hf_mapi_unknown_string = -1;
@@ -41,6 +42,10 @@ static int hf_mapi_unknown_short = -1;
 static int hf_mapi_hnd = -1;
 static int hf_mapi_rc = -1;
 static int hf_mapi_encap_datalen = -1;
+static int hf_mapi_decrypted_data_maxlen = -1;
+static int hf_mapi_decrypted_data_offset = -1;
+static int hf_mapi_decrypted_data_len = -1;
+static int hf_mapi_decrypted_data = -1;
 
 static gint ett_dcerpc_mapi = -1;
 
@@ -59,6 +64,120 @@ static guint16 ver_dcerpc_mapi = 0;
 	offset += len;\
 	}
 
+/* decryption */
+static gboolean mapi_decrypt = FALSE;
+static GMemChunk *mapi_decrypted_data_chunk = NULL;
+static int mapi_decrypted_data_init_count = 200;
+static GHashTable *mapi_decrypted_table = NULL;
+typedef struct {
+	guint32 frame;
+	guint32 callid;
+	tvbuff_t *tvb;
+	unsigned char *data;
+} mapi_decrypted_data_t;
+
+static gboolean
+free_all_decrypted(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
+{
+	mapi_decrypted_data_t *mdd=(mapi_decrypted_data_t *)key_arg;
+
+	if(mdd->tvb){
+		tvb_free(mdd->tvb);
+		mdd->tvb=NULL;
+	}
+	if(mdd->data){
+		g_free(mdd->data);
+		mdd->data=NULL;
+	}
+	return TRUE;
+}
+static guint
+mapi_decrypt_hash(gconstpointer k)
+{
+	mapi_decrypted_data_t *mdd=(mapi_decrypted_data_t *)k;
+	return mdd->frame;
+}
+static gint
+mapi_decrypt_equal(gconstpointer k1, gconstpointer k2)
+{
+	mapi_decrypted_data_t *mdd1=(mapi_decrypted_data_t *)k1;
+	mapi_decrypted_data_t *mdd2=(mapi_decrypted_data_t *)k2;
+
+	return	( (mdd1->frame==mdd2->frame)
+		&&(mdd1->callid==mdd2->callid) );
+}
+static void
+mapi_decrypt_init(void)
+{
+	if(mapi_decrypted_table){
+		g_hash_table_foreach_remove(mapi_decrypted_table,
+			free_all_decrypted, NULL);
+	} else {
+		mapi_decrypted_table=g_hash_table_new(mapi_decrypt_hash,
+			mapi_decrypt_equal);
+	}
+
+	if(mapi_decrypted_data_chunk){
+		g_mem_chunk_destroy(mapi_decrypted_data_chunk);
+		mapi_decrypted_data_chunk=NULL;
+	}
+
+	if(mapi_decrypt){
+		mapi_decrypted_data_chunk=g_mem_chunk_new("mapi_decrypt_chunk",
+			sizeof(mapi_decrypted_data_t),
+			mapi_decrypted_data_init_count*sizeof(mapi_decrypted_data_t),
+			G_ALLOC_ONLY);
+	}
+}
+
+
+static int
+mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	dcerpc_info *di;
+	mapi_decrypted_data_t *mmd=NULL;
+	guint32 len;
+	unsigned char *ptr;
+	guint32 i;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		return offset;
+	}
+
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_decrypted_data_maxlen, NULL);
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_decrypted_data_offset, NULL);
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_decrypted_data_len, &len);
+
+	if(!pinfo->fd->flags.visited){
+		mmd=g_mem_chunk_alloc(mapi_decrypted_data_chunk);
+		mmd->callid=di->call_id;
+		mmd->frame=pinfo->fd->num;
+		mmd->data=g_malloc(len);
+		ptr=(unsigned char *)tvb_get_ptr(tvb, offset, len);
+		for(i=0;i<len;i++){
+			mmd->data[i]=ptr[i]^0xa5;
+		}
+		mmd->tvb=tvb_new_real_data(mmd->data, len, len);
+		g_hash_table_insert(mapi_decrypted_table, mmd, mmd);
+	}
+
+	if(!mmd){
+		mapi_decrypted_data_t mmd_key;
+		mmd_key.callid=di->call_id;
+		mmd_key.frame=pinfo->fd->num;
+		mmd=g_hash_table_lookup(mapi_decrypted_table, &mmd_key);
+	}
+
+	add_new_data_source(pinfo->fd, mmd->tvb, "Decrypted MAPI");
+	
+	/*XXX call dissector here */
+	proto_tree_add_item(tree, hf_mapi_decrypted_data, mmd->tvb, 0, tvb_length(mmd->tvb), FALSE);
+	offset+=len;
+
+	return offset;
+}
 
 static int
 mapi_logon_rqst(tvbuff_t *tvb, int offset,
@@ -110,11 +229,15 @@ mapi_unknown_02_request(tvbuff_t *tvb, int offset,
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_mapi_hnd, NULL, FALSE, FALSE);
 
-	/* this is a unidimensional varying and conformant array of
-	   encrypted data */  
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
-			"", hf_mapi_unknown_data, -1);
+	if(!mapi_decrypt){
+		/* this is a unidimensional varying and conformant array of
+		   encrypted data */  
+       		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+				dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
+				"", hf_mapi_unknown_data, -1);
+	} else {
+		offset = mapi_decrypt_pdu(tvb, offset, pinfo, tree, drep);
+	}
 
 	/* length of encrypted data. */
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
@@ -132,12 +255,16 @@ mapi_unknown_02_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_mapi_hnd, NULL, FALSE, FALSE);
 
-	/* this is a unidimensional varying and conformant array of
-	   encrypted data */  
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
-			"", hf_mapi_unknown_data, -1);
-
+	if(!mapi_decrypt){
+		/* this is a unidimensional varying and conformant array of
+		   encrypted data */  
+       		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+				dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
+				"", hf_mapi_unknown_data, -1);
+	} else {
+		offset = mapi_decrypt_pdu(tvb, offset, pinfo, tree, drep);
+	}
+	
 	/* length of encrypted data */
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_mapi_encap_datalen, NULL);
@@ -215,12 +342,29 @@ static hf_register_info hf[] = {
 		{ "Length", "mapi.encap_len", FT_UINT16, BASE_DEC, 
 		NULL, 0x0, "Length of encapsulated/encrypted data", HFILL }},
 
+	{ &hf_mapi_decrypted_data_maxlen,
+		{ "Max Length", "mapi.decrypted.data.maxlen", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Maximum size of buffer for decrypted data", HFILL }},
+
+	{ &hf_mapi_decrypted_data_offset,
+		{ "Offset", "mapi.decrypted.data.offset", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Offset into buffer for decrypted data", HFILL }},
+
+	{ &hf_mapi_decrypted_data_len,
+		{ "Length", "mapi.decrypted.data.len", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Used size of buffer for decrypted data", HFILL }},
+
+	{ &hf_mapi_decrypted_data,
+		{ "Decrypted data", "mapi.decrypted.data", FT_BYTES, BASE_HEX, 
+		NULL, 0x0, "Decrypted data", HFILL }},
 
 	};
+
 
         static gint *ett[] = {
                 &ett_dcerpc_mapi,
         };
+	module_t *mapi_module;
 
         proto_dcerpc_mapi = proto_register_protocol(
                 "Microsoft Exchange MAPI", "MAPI", "mapi");
@@ -228,6 +372,12 @@ static hf_register_info hf[] = {
         proto_register_field_array(proto_dcerpc_mapi, hf, 
 				   array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+	mapi_module = prefs_register_protocol(proto_dcerpc_mapi, NULL);
+	prefs_register_bool_preference(mapi_module, "mapi_decrypt",
+		"Decrypt MAPI PDUs",
+		"Whether the dissector should decrypt MAPI PDUs",
+		&mapi_decrypt);
+	register_init_routine(mapi_decrypt_init);
 }
 
 void
