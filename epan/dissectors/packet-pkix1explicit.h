@@ -38,7 +38,15 @@ int dissect_pkix1explicit_AlgorithmIdentifier(gboolean implicit_tag, tvbuff_t *t
 int dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 
-/*#include "packet-pkix1explicit-exp.h"*/
+
+/*--- Included file: packet-pkix1explicit-exp.h ---*/
+
+extern const value_string TerminalType_vals[];
+int dissect_pkix1explicit_TerminalType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+
+/*--- End of included file: packet-pkix1explicit-exp.h ---*/
+
 
 #endif  /* PACKET_PKIX1EXPLICIT_H */
 

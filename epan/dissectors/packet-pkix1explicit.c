@@ -86,7 +86,7 @@ dissect_pkix1explicit_Name(gboolean implicit_tag, tvbuff_t *tvb, int offset, pac
   return offset;
 }
 
-static int
+int
 dissect_pkix1explicit_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
@@ -109,7 +109,7 @@ dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb,
 
 
 
-static const value_string TerminalType_vals[] = {
+const value_string TerminalType_vals[] = {
   {   3, "telex" },
   {   4, "teletex" },
   {   5, "g3-facsimile" },
@@ -120,7 +120,7 @@ static const value_string TerminalType_vals[] = {
 };
 
 
-static int
+int
 dissect_pkix1explicit_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_index, NULL);
 
@@ -149,7 +149,7 @@ static ber_sequence TeletexDomainDefinedAttribute_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TeletexDomainDefinedAttribute_sequence, hf_index, ett_pkix1explicit_TeletexDomainDefinedAttribute);
