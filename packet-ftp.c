@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  *
- * $Id: packet-ftp.c,v 1.51 2003/04/30 02:35:19 gerald Exp $
+ * $Id: packet-ftp.c,v 1.52 2003/06/10 23:12:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@ static int hf_ftp_response_code = -1;
 static int hf_ftp_response_arg = -1;
 
 static gint ett_ftp = -1;
+static gint ett_ftp_reqresp = -1;
 static gint ett_ftp_data = -1;
 
 static dissector_handle_t ftpdata_handle;
@@ -246,6 +247,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gboolean        is_request;
         proto_tree      *ftp_tree = NULL;
+        proto_tree      *reqresp_tree = NULL;
 	proto_item	*ti;
 	gint		offset = 0;
 	const guchar	*line;
@@ -301,6 +303,14 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_boolean_hidden(ftp_tree,
 			    hf_ftp_response, tvb, 0, 0, TRUE);
 		}
+
+		/*
+		 * Put the line into the protocol tree.
+		 */
+		ti = proto_tree_add_text(ftp_tree, tvb, offset,
+		    next_offset - offset, "%s",
+		    tvb_format_text(tvb, offset, next_offset - offset));
+		reqresp_tree = proto_item_add_subtree(ti, ett_ftp_reqresp);
 	}
 
 	if (is_request) {
@@ -311,7 +321,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tokenlen = get_token_len(line, line + linelen, &next_token);
 		if (tokenlen != 0) {
 			if (tree) {
-				proto_tree_add_item(ftp_tree,
+				proto_tree_add_item(reqresp_tree,
 				    hf_ftp_request_command, tvb, offset,
 				    tokenlen, FALSE);
 			}
@@ -339,7 +349,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			code = strtoul(code_str, NULL, 10);
 				
 			if (tree) {
-				proto_tree_add_uint(ftp_tree,
+				proto_tree_add_uint(reqresp_tree,
 				    hf_ftp_response_code, tvb, offset, 3, code);
 			}
 
@@ -397,11 +407,11 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (linelen != 0) {
 			if (is_request) {
-				proto_tree_add_item(ftp_tree,
+				proto_tree_add_item(reqresp_tree,
 				    hf_ftp_request_arg, tvb, offset,
 				    linelen, FALSE);
 			} else {
-				proto_tree_add_item(ftp_tree,
+				proto_tree_add_item(reqresp_tree,
 				    hf_ftp_response_arg, tvb, offset,
 				    linelen, FALSE);
 			}
@@ -497,6 +507,7 @@ proto_register_ftp(void)
   };
   static gint *ett[] = {
     &ett_ftp,
+    &ett_ftp_reqresp,
     &ett_ftp_data,
   };
 
