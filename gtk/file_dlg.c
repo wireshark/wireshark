@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.122 2004/06/25 07:04:02 jmayer Exp $
+ * $Id: file_dlg.c,v 1.123 2004/06/28 15:09:26 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -737,9 +737,9 @@ file_merge_cmd(GtkWidget *w)
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   /* it's annoying, that the file chooser dialog is already shown here, 
      so we cannot use the correct gtk_window_set_default_size() to resize it */
-  WIDGET_SET_SIZE(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
+  WIDGET_SET_SIZE(GTK_WINDOW(file_merge_w), DEF_WIDTH, DEF_HEIGHT);
 #else
-  gtk_window_set_default_size(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
+  gtk_window_set_default_size(GTK_WINDOW(file_merge_w), DEF_WIDTH, DEF_HEIGHT);
 #endif
 
 #if GTK_MAJOR_VERSION < 2
