@@ -30,6 +30,7 @@ OBJECTS=atalk-utils.obj	\
 	inet_pton.obj	\
 	inet_ntop.obj	\
 	ipv4.obj         \
+	int-64bit.obj	\
 	osi-utils.obj	\
 	packet.obj       \
 	plugins.obj      \
