@@ -440,6 +440,8 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			}
 		} /* while */
 	}
+	else
+		g_free(str);
 }
 
 
