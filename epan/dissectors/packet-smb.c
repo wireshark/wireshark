@@ -564,11 +564,19 @@ static int hf_smb_device_char_mounted = -1;
 static int hf_smb_device_char_virtual = -1;
 static int hf_smb_fs_attr_css = -1;
 static int hf_smb_fs_attr_cpn = -1;
+static int hf_smb_fs_attr_uod = -1;
 static int hf_smb_fs_attr_pacls = -1;
 static int hf_smb_fs_attr_fc = -1;
 static int hf_smb_fs_attr_vq = -1;
-static int hf_smb_fs_attr_dim = -1;
+static int hf_smb_fs_attr_ssf = -1;
+static int hf_smb_fs_attr_srp = -1;
+static int hf_smb_fs_attr_srs = -1;
+static int hf_smb_fs_attr_sla = -1;
 static int hf_smb_fs_attr_vic = -1;
+static int hf_smb_fs_attr_soids = -1;
+static int hf_smb_fs_attr_se = -1;
+static int hf_smb_fs_attr_ns = -1;
+static int hf_smb_fs_attr_rov = -1;
 static int hf_smb_quota_flags_enabled = -1;
 static int hf_smb_quota_flags_deny_disk = -1;
 static int hf_smb_quota_flags_log_limit = -1;
@@ -9079,6 +9087,10 @@ static const true_false_string tfs_fs_attr_cpn = {
 	"This FS supports CASE PRESERVED NAMES",
 	"This FS does NOT support case preserved names"
 };
+static const true_false_string tfs_fs_attr_uod = {
+	"This FS supports UNICODE NAMES",
+	"This FS does NOT support unicode names"
+};
 static const true_false_string tfs_fs_attr_pacls = {
 	"This FS supports PERSISTENT ACLs",
 	"This FS does NOT support persistent acls"
@@ -9091,13 +9103,41 @@ static const true_false_string tfs_fs_attr_vq = {
 	"This FS supports VOLUME QUOTAS",
 	"This FS does NOT support volume quotas"
 };
-static const true_false_string tfs_fs_attr_dim = {
-	"This FS is on a MOUNTED DEVICE",
-	"This FS is NOT on a mounted device"
+static const true_false_string tfs_fs_attr_srp = {
+	"This FS supports REPARSE POINTS",
+	"This FS does NOT support reparse points"
+};
+static const true_false_string tfs_fs_attr_srs = {
+	"This FS supports REMOTE STORAGE",
+	"This FS does NOT support remote storage"
+};
+static const true_false_string tfs_fs_attr_ssf = {
+	"This FS supports SPARSE FILES",
+	"This FS does NOT support sparse files"
+};
+static const true_false_string tfs_fs_attr_sla = {
+	"This FS supports LFN APIs",
+	"This FS does NOT support lfn apis"
 };
 static const true_false_string tfs_fs_attr_vic = {
-	"This FS is on a COMPRESSED VOLUME",
-	"This FS is NOT on a compressed volume"
+	"This FS VOLUME IS COMPRESSED",
+	"This FS volume is NOT compressed"
+};
+static const true_false_string tfs_fs_attr_soids = {
+	"This FS supports OIDs",
+	"This FS does NOT support OIDs"
+};
+static const true_false_string tfs_fs_attr_se = {
+	"This FS supports ENCRYPTION",
+	"This FS does NOT support encryption"
+};
+static const true_false_string tfs_fs_attr_ns = {
+	"This FS supports NAMED STREAMS",
+	"This FS does NOT support named streams"
+};
+static const true_false_string tfs_fs_attr_rov = {
+	"This is a READ ONLY VOLUME",
+	"This is a read/write volume"
 };
 
 #define FF2_RESUME	0x0004
@@ -12293,6 +12333,7 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
 }
 
 
+/* is this one just wrong and should be dissect_fs0105_attributes above ? */
 static int
 dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
@@ -12308,20 +12349,52 @@ dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		tree = proto_item_add_subtree(item, ett_smb_fs_attributes);
 	}
 
+	/* case sensitive search */
 	proto_tree_add_boolean(tree, hf_smb_fs_attr_css,
 		tvb, offset, 4, mask);
+	/* case preserved names */
 	proto_tree_add_boolean(tree, hf_smb_fs_attr_cpn,
 		tvb, offset, 4, mask);
+	/* unicode on disk */
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_uod,
+		tvb, offset, 4, mask);
+	/* persistent acls */
 	proto_tree_add_boolean(tree, hf_smb_fs_attr_pacls,
 		tvb, offset, 4, mask);
+	/* file compression */
 	proto_tree_add_boolean(tree, hf_smb_fs_attr_fc,
 		tvb, offset, 4, mask);
+	/* volume quotas */
 	proto_tree_add_boolean(tree, hf_smb_fs_attr_vq,
 		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_dim,
+	/* sparse files */
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_ssf,
 		tvb, offset, 4, mask);
+	/* reparse points */
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_srp,
+		tvb, offset, 4, mask);
+	/* remote storage */
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_srs,
+		tvb, offset, 4, mask);
+	/* lfn apis */
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_sla,
+		tvb, offset, 4, mask);
+	/* volume is compressed */
 	proto_tree_add_boolean(tree, hf_smb_fs_attr_vic,
 		tvb, offset, 4, mask);
+	/* support oids */
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_soids,
+		tvb, offset, 4, mask);
+	/* encryption */
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_se,
+		tvb, offset, 4, mask);
+	/* named streams */
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_ns,
+		tvb, offset, 4, mask);
+	/* read only volume */
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_rov,
+		tvb, offset, 4, mask);
+
 
 	offset += 4;
 	return offset;
@@ -16915,25 +16988,57 @@ proto_register_smb(void)
 		{ "Case Preserving", "smb.fs_attr.cpn", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_cpn), 0x00000002, "Will this FS Preserve Name Case?", HFILL }},
 
+	{ &hf_smb_fs_attr_uod,
+		{ "Unicode On Disk", "smb.fs_attr.uod", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_uod), 0x00000004, "Does this FS support Unicode On Disk?", HFILL }},
+
 	{ &hf_smb_fs_attr_pacls,
 		{ "Persistent ACLs", "smb.fs_attr.pacls", FT_BOOLEAN, 32,
-		TFS(&tfs_fs_attr_pacls), 0x00000004, "Does this FS support Persistent ACLs?", HFILL }},
+		TFS(&tfs_fs_attr_pacls), 0x00000008, "Does this FS support Persistent ACLs?", HFILL }},
 
 	{ &hf_smb_fs_attr_fc,
 		{ "Compression", "smb.fs_attr.fc", FT_BOOLEAN, 32,
-		TFS(&tfs_fs_attr_fc), 0x00000008, "Does this FS support File Compression?", HFILL }},
+		TFS(&tfs_fs_attr_fc), 0x00000010, "Does this FS support File Compression?", HFILL }},
 
 	{ &hf_smb_fs_attr_vq,
 		{ "Volume Quotas", "smb.fs_attr.vq", FT_BOOLEAN, 32,
-		TFS(&tfs_fs_attr_vq), 0x00000010, "Does this FS support Volume Quotas?", HFILL }},
+		TFS(&tfs_fs_attr_vq), 0x00000020, "Does this FS support Volume Quotas?", HFILL }},
 
-	{ &hf_smb_fs_attr_dim,
-		{ "Mounted", "smb.fs_attr.dim", FT_BOOLEAN, 32,
-		TFS(&tfs_fs_attr_dim), 0x00000020, "Is this FS a Mounted Device?", HFILL }},
+	{ &hf_smb_fs_attr_ssf,
+		{ "Sparse Files", "smb.fs_attr.ssf", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_ssf), 0x00000040, "Does this FS support SPARSE FILES?", HFILL }},
+
+	{ &hf_smb_fs_attr_srp,
+		{ "Reparse Points", "smb.fs_attr.srp", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_srp), 0x00000080, "Does this FS support REPARSE POINTS?", HFILL }},
+
+	{ &hf_smb_fs_attr_srs,
+		{ "Remote Storage", "smb.fs_attr.srs", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_srs), 0x00000100, "Does this FS support REMOTE STORAGE?", HFILL }},
+
+	{ &hf_smb_fs_attr_sla,
+		{ "LFN APIs", "smb.fs_attr.sla", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_sla), 0x00004000, "Does this FS support LFN APIs?", HFILL }},
 
 	{ &hf_smb_fs_attr_vic,
-		{ "Compressed", "smb.fs_attr.vic", FT_BOOLEAN, 32,
-		TFS(&tfs_fs_attr_vic), 0x00008000, "Is this FS Compressed?", HFILL }},
+		{ "Volume Is Compressed", "smb.fs_attr.vis", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_vic), 0x00008000, "Is this FS on a compressed volume?", HFILL }},
+
+	{ &hf_smb_fs_attr_soids,
+		{ "Supports OIDs", "smb.fs_attr.soids", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_soids), 0x00010000, "Does this FS support OIDs?", HFILL }},
+
+	{ &hf_smb_fs_attr_se,
+		{ "Supports Encryption", "smb.fs_attr.se", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_se), 0x00020000, "Does this FS support encryption?", HFILL }},
+
+	{ &hf_smb_fs_attr_ns,
+		{ "Named Streams", "smb.fs_attr.ns", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_ns), 0x00040000, "Does this FS support named streams?", HFILL }},
+
+	{ &hf_smb_fs_attr_rov,
+		{ "Read Only Volume", "smb.fs_attr.rov", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_rov), 0x00080000, "Is this FS on a read only volume?", HFILL }},
 
 	{ &hf_smb_user_quota_offset,
 		{ "Next Offset", "smb.quota.user.offset", FT_UINT32, BASE_DEC,
