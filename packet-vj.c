@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.3 2001/12/20 06:32:19 guy Exp $
+ * $Id: packet-vj.c,v 1.4 2002/01/10 22:07:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,10 +85,12 @@
 #define IP_HDR_LEN_MASK    0x0f /* Mask for header length field           */
 #define IP_MAX_OPT_LEN       44 /* Max length of IP options               */
 #define TCP_HDR_LEN          20 /* Minimum TCP header length              */
-#define TCP_PUSH_BIT       0x10 /* TCP push bit                           */
-#define TCP_MAX_OPT_LEN      44 /* Max length of TCP options               */
+#define TCP_MAX_OPT_LEN      44 /* Max length of TCP options              */
 #define TCP_SIMUL_CONV      256 /* Number of simul. TCP conversations     */
 #define TCP_SIMUL_CONV_MAX  256 /* Max number of simul. TCP conversations */
+#define CHANGE_PUSH_BIT    0x10 /* TCP push bit changed                   */
+#define TCP_PUSH_BIT       0x08 /* TCP push bit                           */
+#define TCP_URG_BIT        0x20 /* TCP urgent bit                         */
 
 /* Bits in first octet of compressed packet */
 /* flag bits for what changed in a packet */
@@ -120,13 +122,7 @@
 
 /* IP and TCP header types */
 typedef struct {
-#if BYTE_ORDER == LITTLE_ENDIAN 
-  guint8  ihl:4,
-          version:4;
-#else 
-  guint8  version:4,
-          ihl:4;
-#endif
+  guint8  ihl_version;
   guint8  tos;
   guint16 tot_len;
   guint16 id;
@@ -143,34 +139,14 @@ typedef struct {
   guint16 dstport;
   guint32 seq;
   guint32 ack_seq;
-#if BYTE_ORDER == LITTLE_ENDIAN
-  guint16 res1:4,
-          doff:4,
-          fin:1,
-          syn:1,
-          rst:1,
-          psh:1,
-          ack:1,
-          urg:1,
-          ece:1,
-          cwr:1;
-#else 
-  guint16 doff:4,
-          res1:4,
-          cwr:1,
-          ece:1,
-          urg:1,
-          ack:1,
-          psh:1,
-          rst:1,
-          syn:1,
-          fin:1;
-#endif
+  guint8  off_x2;
+  guint8  flags;
   guint16 window;
   guint16 cksum;
   guint16 urg_ptr;
 } tcphdr_type;
 
+#define TCP_OFFSET(th)  (((th)->off_x2 & 0xf0) >> 4)
 
 /* State per active tcp conversation */
 typedef struct cstate {
@@ -427,8 +403,8 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
 
   /* Copy header and form tvb */
   data_ptr = hdr_buf->data;
-  hdr_len  = ((iphdr_type *)data_ptr)->ihl * 4;
-  hdr_len += ((tcphdr_type *)(data_ptr + hdr_len))->doff * 4;
+  hdr_len  = lo_nibble(((iphdr_type *)data_ptr)->ihl_version) * 4;
+  hdr_len += TCP_OFFSET(((tcphdr_type *)(data_ptr + hdr_len))) * 4;
   buf_len  = tvb_length(src_tvb) + hdr_len - offset;
   pbuf     = g_malloc(buf_len); 
   memcpy(pbuf, data_ptr, hdr_len);
@@ -462,10 +438,13 @@ vjc_update_state(tvbuff_t *src_tvb,  slcompress *comp, frame_data *fd)
    offset++;
 
   /* Build TCP and IP headers */
-  hdrlen = ip->ihl * 4 + thp->doff * 4;
+  hdrlen = lo_nibble(ip->ihl_version) * 4 + TCP_OFFSET(thp) * 4;
   thp->cksum = htons((tvb_get_guint8(src_tvb, offset++) << 8) | 
                       tvb_get_guint8(src_tvb, offset++));
-  thp->psh = (changes & TCP_PUSH_BIT) ? 1 : 0;
+  if (changes & CHANGE_PUSH_BIT)  
+    thp->flags |= TCP_PUSH_BIT; 
+  else
+    thp->flags &= ~TCP_PUSH_BIT;
 
   /* Deal with special cases and normal deltas */
   switch(changes & SPECIALS_MASK){
@@ -481,10 +460,10 @@ vjc_update_state(tvbuff_t *src_tvb,  slcompress *comp, frame_data *fd)
       if(changes & NEW_U){
         thp->urg_ptr = ZERO;
         decodes(src_tvb, &offset, &thp->urg_ptr);  
-        thp->urg = 1;
+        thp->flags |= TCP_URG_BIT;
       } 
       else
-        thp->urg = 0;
+        thp->flags &= ~TCP_URG_BIT;
       if(changes & NEW_W)
         decodes(src_tvb, &offset, &thp->window); 
       if(changes & NEW_A)
@@ -507,7 +486,7 @@ vjc_update_state(tvbuff_t *src_tvb,  slcompress *comp, frame_data *fd)
   ip->tot_len = htons(len);
   /* Compute IP check sum */
   ip->cksum = ZERO;
-  ip->cksum = ip_csum((guint8 *)ip, ip->ihl * 4);
+  ip->cksum = ip_csum((guint8 *)ip, lo_nibble(ip->ihl_version) * 4);
 
   /* Store the reconstructed header in frame data area */
   buf_hdr = g_mem_chunk_alloc(vj_header_memchunk);
@@ -515,14 +494,14 @@ vjc_update_state(tvbuff_t *src_tvb,  slcompress *comp, frame_data *fd)
   data_ptr = buf_hdr->data;
   memcpy(data_ptr, ip, IP_HDR_LEN);
   data_ptr += IP_HDR_LEN;
-  if(ip->ihl > 5) {
-    memcpy(data_ptr, cs->cs_ipopt, (ip->ihl - 5) * 4);
-    data_ptr += (ip->ihl - 5) * 4;
+  if(lo_nibble(ip->ihl_version) > 5) {
+    memcpy(data_ptr, cs->cs_ipopt, (lo_nibble(ip->ihl_version) - 5) * 4);
+    data_ptr += (lo_nibble(ip->ihl_version) - 5) * 4;
   }
   memcpy(data_ptr, thp, TCP_HDR_LEN);
   data_ptr += TCP_HDR_LEN;
-  if(thp->doff > 5)
-    memcpy(data_ptr, cs->cs_tcpopt, (thp->doff - 5) * 4);
+  if(TCP_OFFSET(thp) > 5)
+    memcpy(data_ptr, cs->cs_tcpopt, (TCP_OFFSET(thp) - 5) * 4);
   p_add_proto_data(fd, proto_vj, buf_hdr);
 
   return VJ_OK;
@@ -684,9 +663,9 @@ vjuc_update_state(tvbuff_t *tvb, slcompress *comp, guint8 index)
   tvb_memcpy(tvb, (guint8 *)&cs->cs_tcp, ihl, TCP_HDR_LEN);
   if (ihl > IP_HDR_LEN)
     tvb_memcpy(tvb, cs->cs_ipopt, sizeof(iphdr_type), ihl - IP_HDR_LEN);
-  if (cs->cs_tcp.doff > 5)
+  if (TCP_OFFSET(&(cs->cs_tcp)) > 5)
     tvb_memcpy(tvb, cs->cs_tcpopt, ihl + sizeof(tcphdr_type), 
-               (cs->cs_tcp.doff - 5) * 4);
+               (TCP_OFFSET(&(cs->cs_tcp)) - 5) * 4);
   return;
 } 
 
