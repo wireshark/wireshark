@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.8 1999/11/19 13:09:56 gram Exp $
+ * $Id: packet-portmap.c,v 1.9 1999/11/22 03:32:55 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -57,6 +57,7 @@ static int hf_portmap_value_follows = -1;
 
 static gint ett_portmap = -1;
 static gint ett_portmap_rpcb = -1;
+static gint ett_portmap_entry = -1;
 
 
 static struct true_false_string yesno = { "Yes", "No" };
@@ -172,6 +173,54 @@ int dissect_set_reply(const u_char *pd, int offset, frame_data *fd,
     return offset;
 }
 
+int dissect_dump_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	int prog, version, proto, port, value_follows;
+	proto_item *ti, *subtree;
+
+	while ( BYTES_ARE_IN_FRAME(offset, 4) )
+	{
+		value_follows = pntohl(&pd[offset+0]);
+		if ( tree )
+		{
+			proto_tree_add_item(tree, hf_portmap_value_follows,
+				offset, 4, value_follows);
+		}
+		offset += 4;
+
+		if ( value_follows )
+		{
+			if ( ! BYTES_ARE_IN_FRAME(offset, 16) )
+			{
+				break;
+			}
+			prog = pntohl(&pd[offset+0]);
+			version = pntohl(&pd[offset+4]);
+			proto = pntohl(&pd[offset+8]);
+			port = pntohl(&pd[offset+12]);
+
+			if ( tree )
+			{
+				ti = proto_tree_add_text(tree, offset, 16, "Map Entry: %s (%d) V%d",
+					rpc_prog_name(prog), prog, version);
+				subtree = proto_item_add_subtree(ti, ett_portmap_entry);
+
+				proto_tree_add_item(subtree, hf_portmap_prog,
+					offset+0, 4, prog);
+				proto_tree_add_item(subtree, hf_portmap_version,
+					offset+4, 4, version);
+				proto_tree_add_item(subtree, hf_portmap_proto,
+					offset+8, 4, proto);
+				proto_tree_add_item(subtree, hf_portmap_port,
+					offset+12, 4, port);
+			}
+			offset += 16;
+		}
+	}
+	return offset;
+}
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 const vsff portmap1_proc[] = {
@@ -195,7 +244,7 @@ const vsff portmap2_proc[] = {
 	{ PORTMAPPROC_GETPORT,	"GETPORT",
 		dissect_getport_call, dissect_getport_reply },
 	{ PORTMAPPROC_DUMP, "DUMP",
-		NULL, NULL },
+		NULL, dissect_dump_reply },
 	{ PORTMAPPROC_CALLIT, "CALLIT",
 		NULL, NULL },
     { 0, NULL, NULL, NULL }
@@ -398,7 +447,8 @@ proto_register_portmap(void)
 	};
 	static gint *ett[] = {
 		&ett_portmap,
-		&ett_portmap_rpcb
+		&ett_portmap_rpcb,
+		&ett_portmap_entry
 	};
 
 	proto_portmap = proto_register_protocol("Portmap", "portmap");
