@@ -7,12 +7,11 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.22 2001/03/30 06:10:54 guy Exp $
+ * $Id: packet-l2tp.c,v 1.23 2001/06/10 04:42:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,7 +30,6 @@
 
 
 static int proto_l2tp = -1;
-static int hf_l2tp_code = -1; /* XXX - to be removed */
 static int hf_l2tp_type = -1;
 static int hf_l2tp_length_bit = -1;
 static int hf_l2tp_seq_bit = -1;
@@ -44,6 +42,11 @@ static int hf_l2tp_session = -1;
 static int hf_l2tp_Ns = -1;
 static int hf_l2tp_Nr = -1;
 static int hf_l2tp_offset = -1;
+static int hf_l2tp_avp_mandatory = -1;
+static int hf_l2tp_avp_hidden = -1;
+static int hf_l2tp_avp_length = -1;
+static int hf_l2tp_avp_vendor_id = -1;
+static int hf_l2tp_avp_type = -1;
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -77,9 +80,10 @@ static int hf_l2tp_offset = -1;
 #define MANDATORY_BIT(msg_info) (msg_info & 0x8000) /* Mandatory = 1 */
 #define HIDDEN_BIT(msg_info) (msg_info & 0x4000)    /* Hidden = 1 */
 #define AVP_LENGTH(msg_info) (msg_info & 0x03ff)    /* AVP Length */
-#define FRAMING_ASYNC(msg_info) (msg_info & 0x0001) /* ASYNCFraming Type */
-#define FRAMING_SYNC(msg_info)  (msg_info & 0x0002) /* SYNC Type */
-
+#define FRAMING_SYNC(msg_info)  (msg_info & 0x0001) /* SYNC Framing Type */
+#define FRAMING_ASYNC(msg_info) (msg_info & 0x0002) /* ASYNC Framing Type */
+#define BEARER_DIGITAL(msg_info) (msg_info & 0x0001) /* Digital Bearer Type */
+#define BEARER_ANALOG(msg_info) (msg_info & 0x0002) /* Analog Bearer Type */
 
 static gint ett_l2tp = -1;
 static gint ett_l2tp_ctrl = -1;
@@ -163,21 +167,21 @@ static const true_false_string l2tp_offset_bit_truth =
 static const true_false_string l2tp_priority_truth =
 	{ "This data message has priority", "No priority" };
 
-#define NUM_AUTH_TYPES  6
-static const char *authen_types[NUM_AUTH_TYPES] = {
-  "Reserved",
-  "Textual username and password",
-  "PPP CHAP",
-  "PPP PAP",
-  "No Authentication",
-  "Microsoft CHAP Version 1",
+static const value_string authen_type_vals[] = {
+  { 0, "Reserved" },
+  { 1, "Textual username and password" },
+  { 2, "PPP CHAP" },
+  { 3, "PPP PAP" },
+  { 4, "No Authentication" },
+  { 5, "Microsoft CHAP Version 1" },
+  { 0, NULL }
 };
 
 #define  CONTROL_MESSAGE  0
 #define  RESULT_ERROR_CODE 1
 #define  PROTOCOL_VERSION  2
-#define  FRAMING_CAPABIlITIES 3
-#define  BEARER_CAPABIlITIES 4
+#define  FRAMING_CAPABILITIES 3
+#define  BEARER_CAPABILITIES 4
 #define  TIE_BREAKER 5
 #define  FIRMWARE_REVISION 6
 #define  HOST_NAME 7
@@ -193,7 +197,6 @@ static const char *authen_types[NUM_AUTH_TYPES] = {
 #define  MAXIMUM_BPS 17
 #define  BEARER_TYPE 18
 #define  FRAMING_TYPE 19
-#define  UNKNOWN_MESSAGE 20
 #define  CALLED_NUMBER 21
 #define  CALLING_NUMBER 22
 #define  SUB_ADDRESS 23
@@ -209,53 +212,53 @@ static const char *authen_types[NUM_AUTH_TYPES] = {
 #define  PROXY_AUTHEN_RESPONSE 33
 #define  CALL_STATUS_AVPS 34
 #define  ACCM 35
-#define  UNKOWN_MESSAGE_36
+#define  RANDOM_VECTOR 36
 #define  PRIVATE_GROUP_ID 37
 #define  RX_CONNECT_SPEED 38
 #define  SEQUENCING_REQUIRED 39
 
 #define NUM_AVP_TYPES  40
-static const char *avptypestr[NUM_AVP_TYPES] = {
-  "Control Message ",
-  "Result-Error Code ",
-  "Protocol Version ",
-  "Framing Capabilities ",
-  "Bearer Capabilities  ",
-  "Tie Breaker ",
-  "Firmware Revision ",
-  "Host Name ",
-  "Vendor Name ",
-  "Assigned Tunnel ID ",
-  "Receive Window Size ",
-  "Challenge ",
-  "Cause Code ",
-  "Challenge Response ",
-  "Assigned Session ",
-  "Call Serial Number ",
-  "Minimun BPS ",
-  "Maximum bps ",
-  "Bearer Type ",
-  "Framing Type ",
-  "Unknown Message ",
-  "Called Number ",
-  "Calling Number ",
-  "Sub-Address ",
-  "Connect Speed ",
-  "Physical Channel ",
-  "Initial Received lcP ",
-  "Last Send LCP CONFREQ ",
-  "Last Received LCP CONFREQ ",
-  "Proxy Authen Type ",
-  "Proxy Authen Name ",
-  "Proxy Authen Challenge ",
-  "Proxy Authen ID ",
-  "Proxy Authen Response ",
-  "Call status AVPs ",
-  "ACCM ",
-  "Unknown Message ",
-  "Private group ID ",
-  "RxConnect Speed ",
-  "Sequencing Required ",
+static const value_string avp_type_vals[] = {
+  { CONTROL_MESSAGE,           "Control Message" },
+  { RESULT_ERROR_CODE,         "Result-Error Code" },
+  { PROTOCOL_VERSION,          "Protocol Version" },
+  { FRAMING_CAPABILITIES,      "Framing Capabilities" },
+  { BEARER_CAPABILITIES,       "Bearer Capabilities" },
+  { TIE_BREAKER,               "Tie Breaker" },
+  { FIRMWARE_REVISION,         "Firmware Revision" },
+  { HOST_NAME,                 "Host Name" },
+  { VENDOR_NAME,               "Vendor Name" },
+  { ASSIGNED_TUNNEL_ID,        "Assigned Tunnel ID" },
+  { RECEIVE_WINDOW_SIZE,       "Receive Window Size" },
+  { CHALLENGE,                 "Challenge" },
+  { CAUSE_CODE,                "Cause Code" },
+  { CHALLENGE_RESPONSE,        "Challenge Response" },
+  { ASSIGNED_SESSION,          "Assigned Session" },
+  { CALL_SERIAL_NUMBER,        "Call Serial Number" },
+  { MINIMUM_BPS,               "Minimum BPS" },
+  { MAXIMUM_BPS,               "Maximum BPS" },
+  { BEARER_TYPE,               "Bearer Type" },
+  { FRAMING_TYPE,              "Framing Type" },
+  { CALLED_NUMBER,             "Called Number" },
+  { CALLING_NUMBER,            "Calling Number" },
+  { SUB_ADDRESS,               "Sub-Address" },
+  { TX_CONNECT_SPEED,          "Connect Speed" },
+  { PHYSICAL_CHANNEL,          "Physical Channel" },
+  { INITIAL_RECEIVED_LCP,      "Initial Received LCP" },
+  { LAST_SEND_LCP_CONFREQ,     "Last Send LCP CONFREQ" },
+  { LAST_RECEIVED_LCP_CONFREQ, "Last Received LCP CONFREQ" },
+  { PROXY_AUTHEN_TYPE,         "Proxy Authen Type" },
+  { PROXY_AUTHEN_NAME,         "Proxy Authen Name" },
+  { PROXY_AUTHEN_CHALLENGE,    "Proxy Authen Challenge" },
+  { PROXY_AUTHEN_ID,           "Proxy Authen ID" },
+  { PROXY_AUTHEN_RESPONSE,     "Proxy Authen Response" },
+  { CALL_STATUS_AVPS,          "Call status AVPs" },
+  { ACCM,                      "ACCM" },
+  { RANDOM_VECTOR,             "Random Vector" },
+  { PRIVATE_GROUP_ID,          "Private group ID" },
+  { RX_CONNECT_SPEED,          "RxConnect Speed" },
+  { SEQUENCING_REQUIRED,       "Sequencing Required" },
+  { 0,                         NULL }
 };
 
 
@@ -272,26 +275,18 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int index = 0;
   int tmp_index;
   int proto_length = 0;
-  unsigned short  length = 0;		/* Length field */
-  unsigned short  tid;			/* Tunnel ID */
-  unsigned short  cid;			/* Call ID */
-  unsigned short  offset_size;		/* Offset size */
-  unsigned short ver_len_hidden;
-  unsigned short vendor;
-  unsigned short avp_type;
-  unsigned short msg_type;
-  unsigned short avp_len;
-  unsigned short result_code;
-  unsigned short error_code;
-  unsigned short avp_ver;
-  unsigned short avp_rev;
-  unsigned short framing;
-  unsigned short firmware_rev;
-  unsigned short gen_type;
-  unsigned long long_type;
-  char  error_string[100];
-  char  message_string[200];
-
+  guint16 length = 0;		/* Length field */
+  guint16 tid;			/* Tunnel ID */
+  guint16 cid;			/* Call ID */
+  guint16 offset_size;		/* Offset size */
+  guint16 ver_len_hidden;
+  guint16 avp_type;
+  guint16 msg_type;
+  guint16 avp_len;
+  guint16 result_code;
+  guint16 error_code;
+  guint32 bits;
+  guint16 firmware_rev;
   guint16	control;
   tvbuff_t	*next_tvb;
 
@@ -449,300 +444,430 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
  	}
 	while (index < length ) {    /* Process AVP's */
-                tmp_index	= index;
-   		ver_len_hidden	= tvb_get_ntohs(tvb, tmp_index);
+   		ver_len_hidden	= tvb_get_ntohs(tvb, index);
    		avp_len		= AVP_LENGTH(ver_len_hidden);
-   		vendor		= tvb_get_ntohs(tvb, (tmp_index+=2));
-   		avp_type	= tvb_get_ntohs(tvb, (tmp_index+=2));
+   		avp_type	= tvb_get_ntohs(tvb, index + 4);
 
-		tf =  proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, tvb, index , avp_len,
-                                                 rhcode, "AVP Type  %s  ",  (NUM_AVP_TYPES > avp_type)
-                                                 ? avptypestr[avp_type] : "Unknown");
+		tf =  proto_tree_add_text(l2tp_tree, tvb, index, avp_len,
+		    "%s AVP",
+		    val_to_str(avp_type, avp_type_vals, "Unknown (%u)"));
                 l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
-                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index , 1,
-                                           rhcode, " Mandatory:%s" ,
+                proto_tree_add_boolean_format(l2tp_avp_tree,hf_l2tp_avp_mandatory, tvb, index, 1,
+                                           rhcode, "Mandatory: %s",
 					   (MANDATORY_BIT(ver_len_hidden)) ? "True" : "False" );
-                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index , 1,
-                                           rhcode, " Hidden:%s" ,
+                proto_tree_add_boolean_format(l2tp_avp_tree,hf_l2tp_avp_hidden, tvb, index, 1,
+                                           rhcode, "Hidden: %s",
 					   (HIDDEN_BIT(ver_len_hidden)) ? "True" : "False" );
-		proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, (index + 1), 1,
-					   rhcode, " Length:%d" , avp_len );
-
-		if (avp_len == 0) {
-			proto_tree_add_text(l2tp_avp_tree, tvb, (index + 1), 1, "Length should not be zero");
-			return;
-		}
-
+		proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_avp_length, tvb, index, 2,
+					   rhcode, "Length: %u", avp_len);
 		if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
 			index += avp_len;
 			continue;
 		}
 
+		if (avp_len == 0) {
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 0,
+			  "AVP length must not be zero");
+			return;
+		}
+		index += 2;
+		avp_len -= 2;
+
+		proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id,
+		    tvb, index, 2, FALSE);
+		index += 2;
+		avp_len -= 2;
+
+		proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_avp_type,
+		    tvb, index, 2, avp_type);
+		index += 2;
+		avp_len -= 2;
+
 		switch (avp_type) {
 
 		case CONTROL_MESSAGE:
-		    msg_type = tvb_get_ntohs(tvb, (tmp_index+=2));
-		    proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 2 ,
-					       rhcode, " Control Message Type: (%d)  %s", msg_type,
-					       ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
-					       calltypestr[msg_type] : "Unknown" );
-		    break;
+			msg_type = tvb_get_ntohs(tvb, index);
+			proto_tree_add_text(l2tp_avp_tree,tvb, index, 2,
+			  "Control Message Type: (%u) %s", msg_type,
+			  ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
+			  calltypestr[msg_type] : "Unknown");
+			break;
 
 		case RESULT_ERROR_CODE:
-			if ( avp_len >= 8 ) {
-				result_code = tvb_get_ntohs(tvb, (tmp_index+=2));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-				  2, rhcode,
-				  " Result code: %d",  result_code  );
-		
-			}
-			if ( avp_len >= 10 ) {
-				error_code = tvb_get_ntohs(tvb, (tmp_index+=2));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 8,
-				  2, rhcode,
-				  " Error code: %d", error_code);
-			}
-			if ( avp_len > 10 ) {
-				memset(error_string,'\0' ,sizeof(error_string));
-				strncpy(error_string, tvb_get_ptr(tvb, tmp_index,(avp_len - 10)),
-						avp_len - 10);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 10, (avp_len - 10),
-				  rhcode, " Error Message: %s",  error_string  );
-			}
+			if (avp_len < 2)
+				break;
+			result_code = tvb_get_ntohs(tvb, index);
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Result code: %u",  result_code);
+			index += 2;
+			avp_len -= 2;
+
+			if (avp_len < 2)
+				break;
+			error_code = tvb_get_ntohs(tvb, index);
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Error code: %u", error_code);
+			index += 2;
+			avp_len -= 2;
+
+			if (avp_len == 0)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Error Message: %.*s", avp_len,
+			  tvb_get_ptr(tvb, index, avp_len));
 			break;
 
 		case PROTOCOL_VERSION:
-			avp_ver = tvb_get_ntohs(tvb, (tmp_index+=2));
-			avp_rev = tvb_get_ntohs(tvb, (tmp_index+=2));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 1,
-			  rhcode, " Version: %d",  ((avp_ver&0xff00)>>8)  );
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 7, 1,
-			  rhcode, " Revision: %d",  (avp_ver&0x00ff));
+			if (avp_len < 1)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 1,
+			  "Version: %u", tvb_get_guint8(tvb, index));
+			index += 1;
+			avp_len -= 1;
+
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 1,
+			  "Revision: %u", tvb_get_guint8(tvb, index));
 			break;
 
-		case FRAMING_CAPABIlITIES:
-			tmp_index+=2;
-			framing = tvb_get_ntohs(tvb, (tmp_index+=2));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 4,
-			  rhcode, " ASYNC FRAMING: %s" , (FRAMING_ASYNC(framing)) ? "True" : "False" );  
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 4,
-			  rhcode, " SYNC FRAMING: %s" , (FRAMING_SYNC(framing)) ? "True" : "False" );  
+		case FRAMING_CAPABILITIES:
+			bits = tvb_get_ntohl(tvb, index);
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Async Framing Supported: %s",
+			  (FRAMING_ASYNC(bits)) ? "True" : "False");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Sync Framing Supported: %s",
+			  (FRAMING_SYNC(bits)) ? "True" : "False");
 			break;
 
-		case BEARER_CAPABIlITIES:
-			tmp_index+=2;
-			framing = tvb_get_ntohs(tvb, (tmp_index+=2));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 4 ,
-			  rhcode, " Analog Access: %s" , (FRAMING_ASYNC(framing)) ? "True" : "False" );  
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 4,
-			  rhcode, " Digital Access: %s" , (FRAMING_SYNC(framing)) ? "True" : "False" );  
+		case BEARER_CAPABILITIES:
+			bits = tvb_get_ntohl(tvb, index);
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Analog Access Supported: %s",
+			  (BEARER_ANALOG(bits)) ? "True" : "False");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Digital Access Supported: %s",
+			  (BEARER_DIGITAL(bits)) ? "True" : "False");
 			break;
 
 		case TIE_BREAKER:
-			long_type = tvb_get_ntohl(tvb, (tmp_index+=8));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 1,
-			  rhcode, " TIE_BREAKER %lu 0x%lx", long_type,long_type );
+			/*
+			 * XXX - 64-bit values aren't supported on
+			 * platforms/compilers where "guint64" isn't
+			 * supported, and, even on those platforms,
+			 * there's no *printf standard for the format
+			 * to use when printing those values, so we print it
+			 * as a string of hex digits.
+			 */
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 8,
+			  "Tie Breaker: %s",
+			  tvb_bytes_to_str(tvb, index, 8));
 			break;
 
 		case FIRMWARE_REVISION:
-			firmware_rev = tvb_get_ntohs(tvb, (tmp_index+=2));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 2,
-			  rhcode, " Firmware Revision: %d 0x%x", firmware_rev,firmware_rev );
+			firmware_rev = tvb_get_ntohs(tvb, index);
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Firmware Revision: %d 0x%x", firmware_rev,firmware_rev );
 			break;
 
 		case HOST_NAME:
-			memset(error_string,'\0',sizeof(error_string));
-			strncpy(error_string, tvb_get_ptr(tvb, (tmp_index+=2), (avp_len - 6)),
-					avp_len - 6);
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
-			  (avp_len - 6), rhcode, " Host Name: %s",  error_string  );
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Host Name: %.*s", avp_len,
+			  tvb_get_ptr(tvb, index, avp_len));
 			break;
 
 		case VENDOR_NAME:
-			memset(message_string,'\0' ,sizeof(message_string));
-			strncpy(message_string, tvb_get_ptr(tvb, (tmp_index+=2),(avp_len - 6)),
-					avp_len - 6);
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
-			  (avp_len - 6), rhcode, " Vendor Name: %s",  message_string  );
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Vendor Name: %.*s", avp_len,
+			  tvb_get_ptr(tvb, index, avp_len));
 			break;
 
 		case ASSIGNED_TUNNEL_ID:
-			gen_type = tvb_get_ntohs(tvb, (tmp_index+=2));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  2, rhcode, " Tunnel ID: %d",  gen_type  );
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Tunnel ID: %u", tvb_get_ntohs(tvb, index));
 			break;
 
 		case RECEIVE_WINDOW_SIZE:
-			gen_type = tvb_get_ntohs(tvb, (tmp_index+=2));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  2, rhcode, " Receive Window Size: %d",  gen_type  );
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Receive Window Size: %u",
+			  tvb_get_ntohs(tvb, index));
 			break;
 
 		case CHALLENGE:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  (avp_len - 6 ), rhcode, "  CHAP Challenge: ");
-			break;
-
-		case CHALLENGE_RESPONSE:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  (avp_len - 6 ), rhcode, "  CHAP Challenge Response: ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "CHAP Challenge: %s",
+			  tvb_bytes_to_str(tvb, index, avp_len));
 			break;
 
 		case CAUSE_CODE:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  1, rhcode, " Cause Code: ");
+			/*
+			 * XXX - export stuff from the Q.931 dissector
+			 * to dissect the cause code and cause message,
+			 * and use it.
+			 */
+			if (avp_len < 2)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Cause Code: %u",
+			  tvb_get_ntohs(tvb, index));
+			index += 2;
+			avp_len -= 2;
+
+			if (avp_len < 1)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 1,
+			  "Cause Msg: %u",
+			  tvb_get_guint8(tvb, index));
+			index += 1;
+			avp_len -= 1;
+
+			if (avp_len == 0)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Advisory Msg: %.*s", avp_len,
+			  tvb_get_ptr(tvb, index, avp_len));
+			break;
+
+		case CHALLENGE_RESPONSE:
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 16,
+			  "CHAP Challenge Response: %s",
+			  tvb_bytes_to_str(tvb, index, 16));
 			break;
 
 		case ASSIGNED_SESSION:
-			gen_type = tvb_get_ntohs(tvb, (tmp_index+=2));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  2, rhcode, " Assigned Session: %d",  gen_type  );
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Assigned Session: %u",
+			  tvb_get_ntohs(tvb, index));
 			break;
 
 		case CALL_SERIAL_NUMBER:
-			gen_type = tvb_get_ntohs(tvb, (tmp_index+=2));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  4, rhcode, " Call Serial Number: %d",  gen_type  );
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Call Serial Number: %u",
+			  tvb_get_ntohl(tvb, index));
 			break;
 
 		case MINIMUM_BPS:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  4, rhcode, " Minimum BPS: ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Minimum BPS: %u",
+			  tvb_get_ntohl(tvb, index));
 			break;
 
 		case MAXIMUM_BPS:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  4, rhcode, " Maximum BPS ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Maximum BPS: %u",
+			  tvb_get_ntohl(tvb, index));
 			break;
 
 		case BEARER_TYPE:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  4, rhcode, " Bearer Type: ");
+			bits = tvb_get_ntohl(tvb, index);
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Analog Bearer Type: %s",
+			  (BEARER_ANALOG(bits)) ? "True" : "False");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Digital Bearer Type: %s",
+			  (BEARER_DIGITAL(bits)) ? "True" : "False");
 			break;
 
 		case FRAMING_TYPE:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  4, rhcode, " Framing Type: ");
-			break;
-
-		case UNKNOWN_MESSAGE:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  1, rhcode, " Unknown Message: ");
+			bits = tvb_get_ntohl(tvb, index);
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Async Framing Type: %s",
+			  (FRAMING_ASYNC(bits)) ? "True" : "False");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Sync Framing Type: %s",
+			  (FRAMING_SYNC(bits)) ? "True" : "False");
 			break;
 
 		case CALLED_NUMBER:
-			memset(message_string,'\0' ,sizeof(message_string));
-			strncpy(message_string, tvb_get_ptr(tvb, (tmp_index+=2),(avp_len - 6)),
-					avp_len - 6);
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
-			  (avp_len - 6), rhcode, " Called Number: %s",  message_string  );
+			if (avp_len == 0)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Called Number: %.*s", avp_len,
+			  tvb_get_ptr(tvb, index, avp_len));
 			break;
 
 		case CALLING_NUMBER:
-			memset(message_string,'\0' ,sizeof(message_string));
-			strncpy(message_string, tvb_get_ptr(tvb, (tmp_index+=2),(avp_len - 6)),
-					avp_len - 6);
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
-			  (avp_len - 6), rhcode, " Calling Number: %s",  message_string  );
+			if (avp_len == 0)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Calling Number: %.*s", avp_len,
+			  tvb_get_ptr(tvb, index, avp_len));
 			break;
 
 		case SUB_ADDRESS:
-			memset(message_string,'\0' ,sizeof(message_string));
-			strncpy(message_string, tvb_get_ptr(tvb, (tmp_index+=2),(avp_len - 6)),
-					avp_len - 6);
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
-			  (avp_len - 6), rhcode, " Sub-Address: %s",  message_string  );
+			if (avp_len == 0)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Sub-Address: %.*s", avp_len,
+			  tvb_get_ptr(tvb, index, avp_len));
 			break;
 
 		case TX_CONNECT_SPEED:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  4, rhcode, " Connect Speed: ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Connect Speed: %u",
+			  tvb_get_ntohl(tvb, index));
 			break;
 
 		case PHYSICAL_CHANNEL:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  4, rhcode, " Physical Channel: ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Physical Channel: %u",
+			  tvb_get_ntohl(tvb, index));
 			break;
 
 		case INITIAL_RECEIVED_LCP:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  (avp_len - 6 ), rhcode, " Initial LCP Conf REQ: ");
+			/*
+			 * XXX - can this be dissected by stuff in the
+			 * LCP dissector?
+			 */
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Initial LCP CONFREQ: %s",
+			  tvb_bytes_to_str(tvb, index, avp_len));
 			break;
 
 		case LAST_SEND_LCP_CONFREQ:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  (avp_len - 6 ), rhcode, " Last Sent LCP Conf REQ: ");
+			/*
+			 * XXX - can this be dissected by stuff in the
+			 * LCP dissector?
+			 */
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Last Sent LCP CONFREQ: %s",
+			  tvb_bytes_to_str(tvb, index, avp_len));
 			break;
 
 		case LAST_RECEIVED_LCP_CONFREQ:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  (avp_len - 6 ), rhcode, " Last Received LCP Conf REQ: ");
+			/*
+			 * XXX - can this be dissected by stuff in the
+			 * LCP dissector?
+			 */
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Last Received LCP CONFREQ: %s",
+			  tvb_bytes_to_str(tvb, index, avp_len));
 			break;
 
 		case PROXY_AUTHEN_TYPE:
-			msg_type = tvb_get_ntohs(tvb, (tmp_index+=2));
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  1, rhcode, " Proxy Authen Type: %s ", authen_types[msg_type] );
+			msg_type = tvb_get_ntohs(tvb, index);
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Proxy Authen Type: %s",
+			  val_to_str(msg_type, authen_type_vals, "Unknown (%u)"));
 			break;
 
 		case PROXY_AUTHEN_NAME:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  (avp_len - 6 ), rhcode, " Proxy Authen Name: ");
+			if (avp_len == 0)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Proxy Authen Name: %.*s", avp_len,
+			  tvb_get_ptr(tvb, index, avp_len));
 			break;
 
 		case PROXY_AUTHEN_CHALLENGE:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  (avp_len - 6 ), rhcode, " Proxy Authen Challenge: ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Proxy Authen Challenge: %s",
+			  tvb_bytes_to_str(tvb, index, avp_len));
 			break;
 
 		case PROXY_AUTHEN_ID:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  2, rhcode, " Paorx Authen ID: ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index + 1, 1,
+			  "Proxy Authen ID: %u",
+			  tvb_get_guint8(tvb, index + 1));
 			break;
 
 		case PROXY_AUTHEN_RESPONSE:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  (avp_len - 6 ), rhcode, " Proxy Authen Response: ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Proxy Authen Response: %s",
+			  tvb_bytes_to_str(tvb, index, avp_len));
 			break;
 
 		case CALL_STATUS_AVPS:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  4, rhcode, "  CRC Errors: ");
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 10,
-			  4, rhcode, "  Framing Errors: ");
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 14,
-			  4, rhcode, "  Hardware Overruns: ");
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 18,
-			  4, rhcode, "  Buffer Overruns: ");
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 23,
-			  4, rhcode, "  Time-out Errors: ");
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 26,
-			  4, rhcode, "  Alignment Errors: ");
+			if (avp_len < 2)
+				break;
+			index += 2;
+			avp_len -= 2;
+
+			if (avp_len < 4)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "CRC Errors: %u", tvb_get_ntohl(tvb, index));
+			index += 4;
+			avp_len -= 4;
+
+			if (avp_len < 4)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Framing Errors: %u", tvb_get_ntohl(tvb, index));
+			index += 4;
+			avp_len -= 4;
+
+			if (avp_len < 4)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Hardware Overruns: %u", tvb_get_ntohl(tvb, index));
+			index += 4;
+			avp_len -= 4;
+
+			if (avp_len < 4)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Buffer Overruns: %u", tvb_get_ntohl(tvb, index));
+			index += 4;
+			avp_len -= 4;
+
+			if (avp_len < 4)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Time-out Errors: %u", tvb_get_ntohl(tvb, index));
+			index += 4;
+			avp_len -= 4;
+
+			if (avp_len < 4)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Alignment Errors: %u", tvb_get_ntohl(tvb, index));
+			index += 4;
+			avp_len -= 4;
 			break;
 
 		case ACCM:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  2, rhcode, " Reserve Quantity: ");
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 8,
-			  4, rhcode, " Send ACCM: ");
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 12,
-			  4, rhcode, " Recv ACCM: ");
+			if (avp_len < 2)
+				break;
+			index += 2;
+			avp_len -= 2;
+
+			if (avp_len < 4)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Send ACCM: %u", tvb_get_ntohl(tvb, index));
+			index += 4;
+			avp_len -= 4;
+
+			if (avp_len < 4)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Receive ACCM: %u", tvb_get_ntohl(tvb, index));
+			index += 4;
+			avp_len -= 4;
+			break;
+
+		case RANDOM_VECTOR:
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Random Vector: %s",
+			  tvb_bytes_to_str(tvb, index, avp_len));
 			break;
 
 		case PRIVATE_GROUP_ID:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  1, rhcode, " Private Group ID: ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Private Group ID: %s",
+			  tvb_bytes_to_str(tvb, index, avp_len));
 			break;
 
 		case RX_CONNECT_SPEED:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
-			  4, rhcode, " RX Connect Speed: ");
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+			  "Rx Connect Speed: %u",
+			  tvb_get_ntohl(tvb, index));
 			break;
 
-		case SEQUENCING_REQUIRED:
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index ,
-			  1, rhcode, " Sequencing Required: ");
+		default:
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Unknown AVP");
 			break;
 		}
 
@@ -760,10 +885,6 @@ void
 proto_register_l2tp(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_l2tp_code,
-		{ "code", "lt2p.code", FT_UINT16, BASE_DEC, NULL, 0, /* XXX - to be removed */
-			"Type bit" }},
-
 		{ &hf_l2tp_type,
 		{ "Type", "lt2p.type", FT_UINT16, BASE_DEC, VALS(l2tp_type_vals), 0x8000,
 			"Type bit" }},
@@ -813,6 +934,25 @@ proto_register_l2tp(void)
 			"Number of octest past the L2TP header at which the"
 				"payload data starts." }},
 
+		{ &hf_l2tp_avp_mandatory,
+		{ "Mandatory", "lt2p.avp.mandatory", FT_BOOLEAN, BASE_NONE, NULL, 0,
+			"Mandatory AVP" }},
+
+		{ &hf_l2tp_avp_hidden,
+		{ "Hidden", "lt2p.avp.hidden", FT_BOOLEAN, BASE_NONE, NULL, 0,
+			"Hidden AVP" }},
+
+		{ &hf_l2tp_avp_length,
+		{ "Length", "lt2p.avp.length", FT_UINT16, BASE_DEC, NULL, 0,
+			"AVP Length" }},
+
+		{ &hf_l2tp_avp_vendor_id,
+		{ "Vendor ID", "lt2p.avp.vendor_id", FT_UINT16, BASE_DEC, NULL, 0,
+			"AVP Vendor ID" }},
+
+		{ &hf_l2tp_avp_type,
+		{ "Type", "lt2p.avp.type", FT_UINT16, BASE_DEC, VALS(avp_type_vals), 0,
+			"AVP Type" }},
 	};
 
 	static gint *ett[] = {
