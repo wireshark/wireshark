@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.31 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: nettl.c,v 1.32 2003/05/05 01:01:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -44,8 +44,8 @@ struct nettlrec_sx25l2_hdr {
     guint8	xxa[8];
     guint8	from_dce;
     guint8	xxb[55];
+    guint8	caplen[2];
     guint8	length[2];
-    guint8	length2[2];    /* don't know which one is captured length / real length */
     guint8	xxc[4];
     guint8	sec[4];
     guint8	usec[4];
@@ -56,8 +56,8 @@ struct nettlrec_sx25l2_hdr {
 /* This also works for BASE100 and GSC100BT */
 struct nettlrec_ns_ls_ip_hdr {
     guint8	xxa[28];
+    guint8	caplen[4];
     guint8	length[4];
-    guint8	length2[4];    /* don't know which one is captured length / real length */
     guint8	sec[4];
     guint8	usec[4];
     guint8	xxb[16];
@@ -105,20 +105,20 @@ The first header seems to be
 
 The header for 100baseT seems to be
 	0-3	unknown
-	4-5	length1   these are probably total/captured len. unknown which.
-	6-7	length2
+	4-5	captured length
+	6-7	actual length
 	8-11	unknown
 	12-15	secs
-	16-19	100 x nsec
+	16-19	usecs
 	20-23	unknown
 */
 struct nettlrec_ns_ls_drv_eth_hdr {
     guint8	xxa[4];
-    guint8	length[2];
-    guint8	length2[2];
+    guint8      caplen[2];
+    guint8      length[2];
     guint8	xxb[4];
     guint8	sec[4];
-    guint8	cnsec[4];  /* unit of 100 nsec */
+    guint8	usec[4];
     guint8	xxc[4];
 };
 
@@ -267,13 +267,19 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     offset += 4;
 
     switch (encap[3]) {
+	case NETTL_SUBSYS_LAN100 :
 	case NETTL_SUBSYS_BASE100 :
 	case NETTL_SUBSYS_GSC100BT :
+	case NETTL_SUBSYS_PCI100BT :
+	case NETTL_SUBSYS_SPP100BT :
+	case NETTL_SUBSYS_GELAN :
+	case NETTL_SUBSYS_BTLAN :
+	case NETTL_SUBSYS_INTL100 :
+	case NETTL_SUBSYS_IGELAN :
 	case NETTL_SUBSYS_NS_LS_IP :
 	case NETTL_SUBSYS_NS_LS_LOOPBACK :
 	case NETTL_SUBSYS_NS_LS_TCP :
 	case NETTL_SUBSYS_NS_LS_UDP :
-	case 0xb9:	/* XXX unknown encapsulation name */
 	case NETTL_SUBSYS_NS_LS_ICMP :
 	    if( (encap[3] == NETTL_SUBSYS_NS_LS_IP)
 	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_LOOPBACK)
@@ -320,16 +326,12 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    length = pntohl(&ip_hdr.length);
 	    if (length <= 0) return 0;
 	    phdr->len = length;
+	    length = pntohl(&ip_hdr.caplen);
 	    phdr->caplen = length;
 
 
 	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
-	    /* this filed is in units of 0.1 us for HPUX 11 */
-	    if (wth->capture.nettl->is_hpux_11) {
-		    phdr->ts.tv_usec = pntohl(&ip_hdr.usec)/10;
-	    } else {
-		    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
-	    }
+	    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
 	    break;
 	case NETTL_SUBSYS_NS_LS_DRIVER :
 	    bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
@@ -362,7 +364,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		offset += 4;
 	    }
 
-	    /* XXX we dont know how to identify this as ehternet frames, so
+	    /* XXX we dont know how to identify this as ethernet frames, so
 	       we assumes everything is. We will crash and burn for anything else */
 	    /* for encapsulated 100baseT we do this */
 	    phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
@@ -379,19 +381,14 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    }
 	    offset += sizeof drv_eth_hdr;
 
-	    length = pntohl(&ip_hdr.length);
+	    length = pntohs(&drv_eth_hdr.length); 
 	    if (length <= 0) return 0;
 	    phdr->len = length;
+	    length = pntohs(&drv_eth_hdr.caplen);
 	    phdr->caplen = length;
 
-
 	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
-	    /* this filed is in units of 0.1 us for HPUX 11 */
-	    if (wth->capture.nettl->is_hpux_11) {
-		    phdr->ts.tv_usec = pntohl(&ip_hdr.usec)/10;
-	    } else {
-		    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
-	    }
+	    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
 	    break;
 	case NETTL_SUBSYS_SX25L2 :
 	    phdr->pkt_encap = WTAP_ENCAP_LAPB;

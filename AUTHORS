@@ -1692,6 +1692,10 @@ Garth Bushell <gbushell [AT] elipsan.com> {
 	iSNS support
 }
 
+Mark C. Brown <mbrown [AT] nosila.net> {
+	Improvements to code that reads HP-UX nettl files
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
