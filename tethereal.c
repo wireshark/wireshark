@@ -682,7 +682,7 @@ main(int argc, char *argv[])
   e_prefs             *prefs;
   char                 badopt;
   ethereal_tap_list *tli = NULL;
-  gboolean got_tap = FALSE;
+  guint8* tli_optarg = NULL;
   
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&capture_opts, NULL /* cfile */);
@@ -1050,7 +1050,7 @@ main(int argc, char *argv[])
                 as it would disallow mate's fields (which are registered
                 by the preferences set callback) from being used as
                 part of a tap filter */
-            got_tap = TRUE;
+			  tli_optarg = g_strdup(optarg);
             break;
           }
         }
@@ -1240,8 +1240,10 @@ main(int argc, char *argv[])
   /* At this point mate will have registered its field array so we can
 	  have a filter with one of mate's late registered fields as part
 	  of the tap's filter */
-  if (got_tap)
-	  (*tli->func)(optarg);
+  if (tli_optarg != NULL) {
+	  (*tli->func)(tli_optarg);
+	  g_free(tli_optarg);
+  }
   
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
