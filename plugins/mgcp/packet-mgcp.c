@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.3 2000/11/10 06:50:37 guy Exp $
+ * $Id: packet-mgcp.c,v 1.4 2000/11/12 11:08:46 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -28,6 +28,10 @@
 #include "config.h"
 #endif
 
+#include "plugins/plugin_api.h"
+
+#include "moduleinfo.h"
+
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -48,12 +52,7 @@
 #include "prefs.h"
 #include "strutil.h"
 
-/* Start includes and definitions for plugin stuff */
-#include "plugins/plugin_api.h"
-#include "moduleinfo.h"
 DLLEXPORT const gchar version[] = VERSION;
-/* End includes and definitions for plugin stuff */
-
 
 #define TCP_PORT_MGCP_GATEWAY 2427
 #define UDP_PORT_MGCP_GATEWAY 2427

@@ -1,0 +1,20 @@
+#
+# $Id: Makefile.nmake,v 1.1 2000/11/12 11:08:46 guy Exp $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../epan /I../../wiretap \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
+
+OBJECTS=packet-mgcp.obj 
+
+mgcp.dll mgcp.exp mgcp.lib : packet-mgcp.obj ..\plugin_api.obj
+	link -dll /out:mgcp.dll packet-mgcp.obj ..\plugin_api.obj
+
+clean:
+	rm -f $(OBJECTS) mgcp.dll mgcp.exp mgcp.lib
