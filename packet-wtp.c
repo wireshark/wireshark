@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.47 2003/05/19 20:23:29 guy Exp $
+ * $Id: packet-wtp.c,v 1.48 2003/05/24 16:54:42 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -308,7 +308,7 @@ wtp_handle_tpi(proto_tree *tree, tvbuff_t *tvb)
 static void
 dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    char	szInfo[50];
+    static GString *szInfo = NULL;
     int		offCur		= 0; /* current offset from start of WTP data */
 
     unsigned char  b0;
@@ -327,13 +327,15 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     char		pdut;
     char		clsTransaction 	= ' ';
-    int			cchInfo;
     int			numMissing = 0;		/* Number of missing packets in a negative ack */
     int			i;
     tvbuff_t		*wsp_tvb = NULL;
     fragment_data	*fd_head = NULL;
     guint8		psn = 0;		/* Packet sequence number*/
     guint16		TID = 0;		/* Transaction-Id	*/
+
+    if (szInfo == NULL)
+    	szInfo = g_string_sized_new(32);
 
     b0 = tvb_get_guint8 (tvb, offCur + 0);
     /* Discover Concatenated PDUs */
@@ -376,7 +378,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pdut = pdu_type(b0);
 
     /* Develop the string to put in the Info column */
-    cchInfo = snprintf(szInfo, sizeof( szInfo ), "WTP %s",
+    g_string_sprintf(szInfo, "WTP %s",
 		    val_to_str(pdut, vals_pdu_type, "Unknown PDU type 0x%x"));
 
     switch (pdut) {
@@ -385,8 +387,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    TID = tvb_get_ntohs(tvb, offCur + 1);
 	    psn = 0;
 	    clsTransaction = transaction_class(tvb_get_guint8(tvb, offCur + 3));
-	    snprintf(szInfo + cchInfo, sizeof(szInfo) - cchInfo,
-		     " Class %d", clsTransaction);
+	    g_string_sprintfa(szInfo, " Class %d", clsTransaction);
 	    cbHeader = 4;
 	    break;
 
@@ -423,7 +424,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
     };
     if (fRID) {
-	strcat( szInfo, " R" );
+	g_string_append( szInfo, " R" );
     };
     if (fCon) {				/* Scan variable part (TPI's),	*/
 					/* determine length of it	*/
@@ -452,9 +453,9 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) <= 0) ||
 	 (pdut == ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)) ) {
 #ifdef DEBUG
-	fprintf(stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo);
+	fprintf(stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo->str);
 #endif
-	col_append_str(pinfo->cinfo, COL_INFO, szInfo);
+	col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
     };
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */
@@ -630,7 +631,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    else
 	    {
 		if (check_col(pinfo->cinfo, COL_INFO))		/* Won't call WSP so display */
-		    col_append_str(pinfo->cinfo, COL_INFO, szInfo);
+		    col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
 	    }
 	    pinfo->fragmented = save_fragmented;
 	}
