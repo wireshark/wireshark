@@ -6,6 +6,7 @@
 #include <glib.h>
 #include <epan.h>
 
+#include "plugins.h"
 #include "conversation.h"
 #include "dfilter.h"
 #include "except.h"
@@ -20,7 +21,7 @@ epan_init(void)
 	proto_init();
 	dfilter_init();
 #ifdef HAVE_PLUGINS
-	init_plugins(epan);
+	init_plugins();
 #endif
 }
 
