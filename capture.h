@@ -85,6 +85,10 @@ typedef struct capture_options_tag {
 } capture_options;
 
 
+/* initialize the capture_options with some reasonable values */
+extern void
+capture_opts_init(capture_options *capture_opts, void *cfile);
+
 /** 
  * Open a specified file, or create a temporary file, and start a capture
  * to the file in question.  

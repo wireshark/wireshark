@@ -79,6 +79,41 @@ static gboolean normal_do_capture(capture_options *capture_opts, gboolean is_tem
 static void stop_capture_signal_handler(int signo);
 
 
+void
+capture_opts_init(capture_options *capture_opts, void *cfile)
+{
+  capture_opts->cf                      = cfile;
+#ifdef _WIN32
+  capture_opts->buffer_size             = 1;                /* 1 MB */
+#endif
+  capture_opts->has_snaplen             = FALSE;
+  capture_opts->snaplen                 = MIN_PACKET_SIZE;
+  capture_opts->promisc_mode            = TRUE;
+  capture_opts->linktype                = -1;               /* the default linktype */
+  capture_opts->capture_child           = FALSE;
+  capture_opts->save_file               = NULL;
+  capture_opts->save_file_fd            = -1;
+  capture_opts->sync_mode               = TRUE;
+  capture_opts->show_info               = TRUE;
+  capture_opts->quit_after_cap          = FALSE;
+
+  capture_opts->multi_files_on          = FALSE;
+  capture_opts->has_file_duration       = FALSE;
+  capture_opts->file_duration           = 60;               /* 1 min */
+  capture_opts->has_ring_num_files      = TRUE;
+  capture_opts->ring_num_files          = 2;
+
+  capture_opts->has_autostop_files      = FALSE;
+  capture_opts->autostop_files          = 1;
+  capture_opts->has_autostop_packets    = FALSE;
+  capture_opts->autostop_packets        = 1;
+  capture_opts->has_autostop_filesize   = FALSE;
+  capture_opts->autostop_filesize       = 1024 * 1024;      /* 1 MB */
+  capture_opts->has_autostop_duration   = FALSE;
+  capture_opts->autostop_duration       = 60;               /* 1 min */
+}
+
+
 /* open the output file (temporary/specified name/ringbuffer) and close the old one */
 /* Returns TRUE if the file opened successfully, FALSE otherwise. */
 static gboolean

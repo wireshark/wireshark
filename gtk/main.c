@@ -1570,31 +1570,8 @@ main(int argc, char *argv[])
   }
 #endif
 
-  capture_opts->cf = &cfile;
 #ifdef HAVE_LIBPCAP
-  capture_opts->has_snaplen = FALSE;
-  capture_opts->snaplen = MIN_PACKET_SIZE;
-  capture_opts->linktype = -1;
-#ifdef _WIN32
-  capture_opts->buffer_size = 1;
-#endif
-  capture_opts->save_file_fd = -1;
-  capture_opts->quit_after_cap  = FALSE;
-
-  capture_opts->has_autostop_packets = FALSE;
-  capture_opts->autostop_packets = 1;
-  capture_opts->has_autostop_duration = FALSE;
-  capture_opts->autostop_duration = 60 /* 1 min */;
-  capture_opts->has_autostop_filesize = FALSE;
-  capture_opts->autostop_filesize = 1024 * 1024 /* 1 MB */;
-  capture_opts->has_autostop_files = FALSE;
-  capture_opts->autostop_files = 1;
-
-  capture_opts->multi_files_on = FALSE;
-  capture_opts->has_ring_num_files = TRUE;
-  capture_opts->ring_num_files = 2;
-  capture_opts->has_file_duration = FALSE;
-  capture_opts->file_duration = 60 /* 1 min */;
+  capture_opts_init(capture_opts, &cfile);
 
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
@@ -1604,12 +1581,8 @@ main(int argc, char *argv[])
 
      Otherwise, set promiscuous mode from the preferences setting. */
   /* the same applies to other preferences settings as well. */
-  if (capture_opts->capture_child) {
-    capture_opts->promisc_mode   = TRUE;     /* maybe changed by command line below */
-    capture_opts->show_info      = TRUE;     /* maybe changed by command line below */
-    capture_opts->sync_mode      = TRUE;     /* always true in child process */
-    auto_scroll_live            = FALSE;    /* doesn't matter in child process */
-
+  if (!capture_opts->capture_child) {
+    auto_scroll_live            = FALSE;
   } else {
     capture_opts->promisc_mode   = prefs->capture_prom_mode;
     capture_opts->show_info      = prefs->capture_show_info;
