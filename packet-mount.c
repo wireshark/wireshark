@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.28 2002/01/12 10:24:46 guy Exp $
+ * $Id: packet-mount.c,v 1.29 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,7 +164,7 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_mount_mountlist, tvb,
-					offset, tvb_length_remaining(tvb, offset), FALSE);
+					offset, -1, FALSE);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, ett_mount_mountlist);
 	}
@@ -242,7 +242,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	group_names_len=0;
 	if (tree) {
 		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist, tvb,
-					offset, tvb_length_remaining(tvb, offset), FALSE);
+					offset, -1, FALSE);
 		if (exportlist_item)
 			exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
 	}
@@ -253,7 +253,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	if (tree) {
 		groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, tvb,
-					offset, tvb_length_remaining(tvb, offset), FALSE);
+					offset, -1, FALSE);
 		if (groups_item)
 			groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
 	}

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.126 2002/01/18 22:35:19 guy Exp $
+ * $Id: packet-tcp.c,v 1.127 2002/01/20 22:12:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -866,15 +866,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
   if (tree) {
     if (tcp_summary_in_tree) {
-	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, 0,
-		tvb_length(tvb),
+	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, 0, -1,
 		"Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
 		get_tcp_port(th_sport), th_sport,
 		get_tcp_port(th_dport), th_dport);
     }
     else {
-	    ti = proto_tree_add_item(tree, proto_tcp, tvb, 0,
-		tvb_length(tvb), FALSE);
+	    ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, FALSE);
     }
     tcp_tree = proto_item_add_subtree(ti, ett_tcp);
     proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, tvb, offset, 2, th_sport,

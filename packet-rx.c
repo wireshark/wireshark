@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.29 2001/12/10 00:25:34 guy Exp $
+ * $Id: packet-rx.c,v 1.30 2002/01/20 22:12:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,7 +151,7 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 	int i;
 	guint32 callnumber;
 
-	item = proto_tree_add_item(parent_tree, hf_rx_encrypted, tvb, offset, 0, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_rx_encrypted, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_rx_encrypted);
 
 	/* epoch : 4 bytes */
@@ -219,7 +219,7 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		);
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_rx_response, tvb, offset, 0, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_rx_response, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_rx_response);
 
 	version = tvb_get_ntohl(tvb, offset);
@@ -274,7 +274,7 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		);
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_rx_challenge, tvb, offset, 0, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_rx_challenge, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_rx_challenge);
 
 	version = tvb_get_ntohl(tvb, offset);
@@ -316,7 +316,7 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 		);
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_rx_ack, tvb, offset, 0, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_rx_ack, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_rx_ack);
 
 

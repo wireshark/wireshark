@@ -1,11 +1,11 @@
 /* packet-mtp2.c
  * Routines for MTP2 dissection
  * It is hopefully (needs testing) compliant to
- * ITU-T Q. 703
+ * ITU-T Q.703
  *
  * Copyright 2001, Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-mtp2.c,v 1.1 2001/12/11 03:04:26 gram Exp $
+ * $Id: packet-mtp2.c,v 1.2 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,7 +186,7 @@ dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
 
   if (tree) {
-    mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, tvb_length(tvb), FALSE);
+    mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, FALSE);
     mtp2_tree = proto_item_add_subtree(mtp2_item, ett_mtp2);
   };
 

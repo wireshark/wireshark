@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.28 2002/01/10 22:21:13 guy Exp $
+ * $Id: packet-rtcp.c,v 1.29 2002/01/20 22:12:27 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -429,7 +429,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 		start_offset = offset;
 
 		ssrc = tvb_get_ntohl( tvb, offset );
-		sdes_item = proto_tree_add_text(tree, tvb, offset, 0,
+		sdes_item = proto_tree_add_text(tree, tvb, offset, -1,
 		    "Chunk %u, SSRC/CSRC %u", chunk, ssrc);
 		sdes_tree = proto_item_add_subtree( sdes_item, ett_sdes );
 
@@ -440,7 +440,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 		/* Create a subtree for the SDES items; we don't yet know
 		   the length */	
 		items_start_offset = offset;
-		ti = proto_tree_add_text(sdes_tree, tvb, offset, 0,
+		ti = proto_tree_add_text(sdes_tree, tvb, offset, -1,
 		    "SDES items" );
 		sdes_item_tree = proto_item_add_subtree( ti, ett_sdes_item );
 		

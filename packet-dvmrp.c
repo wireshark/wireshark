@@ -1,7 +1,7 @@
 /* packet-dvmrp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/DVMRP packet disassembly
  *
- * $Id: packet-dvmrp.c,v 1.5 2001/12/23 21:36:57 guy Exp $
+ * $Id: packet-dvmrp.c,v 1.6 2002/01/20 22:12:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -251,7 +251,7 @@ dissect_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_route, 
-				tvb, offset, 0, FALSE);
+				tvb, offset, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_route);
 
 		m0 = 0xff;
@@ -479,14 +479,14 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 2;
 
 	/* decode all the v1 commands */
-	while (tvb_length_remaining(tvb, offset)) {
+	while (tvb_reported_length_remaining(tvb, offset)) {
 		proto_tree *tree;
 		proto_item *item;
 		guint8 cmd,count;
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_commands, 
-				tvb, offset, 0, FALSE);
+				tvb, offset, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_commands);
 
 		cmd = tvb_get_guint8(tvb, offset);
@@ -637,7 +637,7 @@ dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 		return offset+tvb_length_remaining(tvb, offset);
 	}
 
-	item = proto_tree_add_item(parent_tree, proto_dvmrp, tvb, offset, 0, FALSE);
+	item = proto_tree_add_item(parent_tree, proto_dvmrp, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_dvmrp);
 
 

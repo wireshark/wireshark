@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.83 2002/01/20 01:13:41 guy Exp $
+ * $Id: packet-rpc.c,v 1.84 2002/01/20 22:12:27 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -692,8 +692,7 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return offset;
 	}
 
-	lock_item = proto_tree_add_item(tree, hfindex, tvb, offset,
-			tvb_length_remaining(tvb, offset), FALSE);
+	lock_item = proto_tree_add_item(tree, hfindex, tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array); 	
 
@@ -1367,11 +1366,10 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 
 	if (tree) {
-		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0,
-				tvb_length(tvb), FALSE);
+		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0, -1,
+				FALSE);
 		rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
-		proto_tree_add_text(rpc_tree, tvb, 0, tvb_length(tvb),
-		    "Continuation data");
+		proto_tree_add_text(rpc_tree, tvb, 0, -1, "Continuation data");
 	}
 }
 
@@ -1527,8 +1525,8 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0,
-				tvb_length(tvb), FALSE);
+		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0, -1,
+				FALSE);
 		if (rpc_item) {
 			rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
 		}
@@ -1964,8 +1962,8 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* create here the program specific sub-tree */
 	if (tree) {
-		pitem = proto_tree_add_item(tree, proto, tvb,
-				offset, tvb_length(tvb) - offset, FALSE);
+		pitem = proto_tree_add_item(tree, proto, tvb, offset, -1,
+		    FALSE);
 		if (pitem) {
 			ptree = proto_item_add_subtree(pitem, ett);
 		}
@@ -1992,7 +1990,7 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * We don't know the authentication flavor, so we can't
 		 * dissect the payload.
 		 */
-		proto_tree_add_text(ptree, tvb, offset, tvb_length_remaining(tvb, offset),
+		proto_tree_add_text(ptree, tvb, offset, -1,
 		    "Unknown authentication flavor - cannot dissect");
 		return TRUE;
 
@@ -2011,7 +2009,7 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * procedure and service information, so we can't dissect
 		 * the payload.
 		 */
-		proto_tree_add_text(ptree, tvb, offset, tvb_length_remaining(tvb, offset),
+		proto_tree_add_text(ptree, tvb, offset, -1,
 		    "GSS-API authentication, but procedure and service unknown - cannot dissect");
 		return TRUE;
 

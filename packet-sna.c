@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-sna.c,v 1.36 2001/12/10 00:25:36 guy Exp $
+ * $Id: packet-sna.c,v 1.37 2002/01/20 22:12:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,13 +348,13 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Don't bother setting length. We'll set it later after we find
 		 * the lengths of TH/RH/RU */
-		sna_ti = proto_tree_add_item(tree, proto_sna, tvb, 0, 0, FALSE);
+		sna_ti = proto_tree_add_item(tree, proto_sna, tvb, 0, -1, FALSE);
 		sna_tree = proto_item_add_subtree(sna_ti, ett_sna);
 
 		/* --- TH --- */
 		/* Don't bother setting length. We'll set it later after we find
 		 * the length of TH */
-		th_ti = proto_tree_add_item(sna_tree, hf_sna_th, tvb,  0, 0, FALSE);
+		th_ti = proto_tree_add_item(sna_tree, hf_sna_th, tvb,  0, -1, FALSE);
 		th_tree = proto_item_add_subtree(th_ti, ett_sna_th);
 	}
 

@@ -2,7 +2,7 @@
  * Routines for GVRP (GARP VLAN Registration Protocol) dissection
  * Copyright 2000, Kevin Shi <techishi@ms22.hinet.net>
  *
- * $Id: packet-gvrp.c,v 1.8 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-gvrp.c,v 1.9 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,7 +183,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    offset += sizeof(guint8);
 	    length -= sizeof(guint8);
 
-	    msg_item = proto_tree_add_text(gvrp_tree, tvb, msg_start, 0,
+	    msg_item = proto_tree_add_text(gvrp_tree, tvb, msg_start, -1,
 					   "Message %d", msg_index + 1);
 
 	    proto_tree_add_uint(gvrp_tree, hf_gvrp_attribute_type, tvb,
@@ -237,7 +237,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    length -= sizeof(guint8);
 
 		    attr_item = proto_tree_add_text(gvrp_tree, tvb,
-			 attr_start, 0, "  Attribute %d", attr_index + 1);
+			 attr_start, -1, "  Attribute %d", attr_index + 1);
 
 		    proto_tree_add_uint(gvrp_tree, hf_gvrp_attribute_length,
 			 tvb, attr_start, sizeof(guint8), octet);

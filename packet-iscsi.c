@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.20 2002/01/16 20:25:07 guy Exp $
+ * $Id: packet-iscsi.c,v 1.21 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -762,7 +762,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
 	/* create display subtree for the protocol */
 	ti = proto_tree_add_protocol_format(tree, proto_iscsi, tvb,
-					    offset, 0, "iSCSI (%s)",
+					    offset, -1, "iSCSI (%s)",
 					    (char *)opcode_str);
 
 	proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,

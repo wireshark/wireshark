@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.27 2002/01/15 23:05:36 guy Exp $
+ * $Id: packet-sctp.c,v 1.28 2002/01/20 22:12:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -652,7 +652,7 @@ dissect_tlv_parameter_list(tvbuff_t *parameter_list_tvb, packet_info *pinfo, pro
   tvbuff_t *parameter_tvb;
 
   offset = 0;
-  while(tvb_length_remaining(parameter_list_tvb, offset)) {
+  while(tvb_reported_length_remaining(parameter_list_tvb, offset)) {
     length         = tvb_get_ntohs(parameter_list_tvb, offset + PARAMETER_LENGTH_OFFSET);
     padding_length = nr_of_padding_bytes(length);
     total_length   = length + padding_length;
@@ -874,7 +874,7 @@ dissect_error_cause_indication_parameter(tvbuff_t *parameter_tvb, packet_info *p
   tvbuff_t *error_cause_tvb;
 
   offset = PARAMETER_VALUE_OFFSET;
-  while(tvb_length_remaining(parameter_tvb, offset)) {
+  while(tvb_reported_length_remaining(parameter_tvb, offset)) {
     length         = tvb_get_ntohs(parameter_tvb, offset + CAUSE_LENGTH_OFFSET);
     padding_length = nr_of_padding_bytes(length);
     total_length   = length + padding_length;
@@ -1592,16 +1592,16 @@ dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   if (chunk_tree) {
     number_of_causes = 0;
     offset = ABORT_CHUNK_FIRST_ERROR_CAUSE_OFFSET;
-    while(tvb_length_remaining(chunk_tvb, offset)) {
-    length         = tvb_get_ntohs(chunk_tvb, offset + CAUSE_LENGTH_OFFSET);
-    padding_length = nr_of_padding_bytes(length);
-    total_length   = length + padding_length;
-    /* create a tvb for the chunk including the padding bytes */
-    cause_tvb      = tvb_new_subset(chunk_tvb, offset, total_length, total_length);
-    dissect_error_cause(cause_tvb, pinfo, chunk_tree); 
-    /* get rid of the handled parameter */
-    offset += total_length;
-    number_of_causes++;
+    while(tvb_reported_length_remaining(chunk_tvb, offset)) {
+	length         = tvb_get_ntohs(chunk_tvb, offset + CAUSE_LENGTH_OFFSET);
+	padding_length = nr_of_padding_bytes(length);
+	total_length   = length + padding_length;
+	/* create a tvb for the chunk including the padding bytes */
+	cause_tvb      = tvb_new_subset(chunk_tvb, offset, total_length, total_length);
+	dissect_error_cause(cause_tvb, pinfo, chunk_tree); 
+	/* get rid of the handled parameter */
+	offset += total_length;
+	number_of_causes++;
     };
     
     proto_item_set_text(chunk_item, "Abort chunk with %u cause%s",
@@ -1667,7 +1667,7 @@ dissect_error_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
       /* get rid of the handled parameter */
       offset += total_length;
       number_of_causes++;
-    } while(tvb_length_remaining(chunk_tvb, offset));
+    } while(tvb_reported_length_remaining(chunk_tvb, offset));
     
     proto_item_set_text(chunk_item, "Error chunk with %u cause%s",
 			number_of_causes, plurality(number_of_causes, "", "s"));
@@ -1848,7 +1848,7 @@ dissect_asconf_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, 
     offset          += ASCONF_ADDR_LENGTH;
     proto_item_set_text(chunk_item, "ASCONF chunk");
     
-    while(tvb_length_remaining(chunk_tvb, offset)) {
+    while(tvb_reported_length_remaining(chunk_tvb, offset)) {
       correlation_id = tvb_get_ntohl(chunk_tvb, offset);
       proto_tree_add_uint(chunk_tree, hf_sctp_asconf_correlation_id, chunk_tvb, offset, CORRELATION_ID_LENGTH, correlation_id);
       offset        += CORRELATION_ID_LENGTH;
@@ -1880,7 +1880,7 @@ dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tr
     proto_item_set_text(chunk_item, "ASCONF-ACK chunk");
     
     offset = SERIAL_NUMBER_OFFSET + SERIAL_NUMBER_LENGTH;
-    while(tvb_length_remaining(chunk_tvb, offset)) {
+    while(tvb_reported_length_remaining(chunk_tvb, offset)) {
       correlation_id = tvb_get_ntohl(chunk_tvb, offset);
       proto_tree_add_uint(chunk_tree, hf_sctp_asconf_ack_correlation_id, chunk_tvb, offset, CORRELATION_ID_LENGTH, correlation_id);
       offset        += CORRELATION_ID_LENGTH;
@@ -1947,7 +1947,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
  
   if (tree) {
     /* create proto_tree stuff */
-    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, tvb_length(chunk_tvb), "Incomplete chunk");
+    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, -1, "Incomplete chunk");
     chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
     
     /* then insert the chunk header components into the protocol tree */
@@ -2037,7 +2037,7 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
   offset = COMMON_HEADER_LENGTH;
   sctp_item_length_set = FALSE;
 
-  while(tvb_length_remaining(tvb, offset) > 0) {
+  while(tvb_reported_length_remaining(tvb, offset) > 0) {
     /* extract the chunk length and compute number of padding bytes */
     length         = tvb_get_ntohs(tvb, offset + CHUNK_LENGTH_OFFSET);
     padding_length = nr_of_padding_bytes(length);
@@ -2050,8 +2050,8 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
       sctp_item_length_set = TRUE;
       offset += total_length;
       last_offset = offset;
-      if (tvb_length_remaining(tvb, offset) > 0) {
-	sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, offset, 0, FALSE);
+      if (tvb_reported_length_remaining(tvb, offset) > 0) {
+	sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, offset, -1, FALSE);
 	sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
 	sctp_item_length_set = FALSE;
       }
@@ -2102,7 +2102,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the sctp protocol tree */
-    sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, 0, FALSE);
+    sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, -1, FALSE);
     sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
     
     /* add the components of the common header to the protocol tree */

@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.15 2001/12/23 21:36:57 guy Exp $
+ * $Id: packet-igmp.c,v 1.16 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -446,7 +446,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint32 ip;
 
 	tvb_memcpy(tvb, (guint8 *)&ip, offset+4, 4);
-	item = proto_tree_add_text(parent_tree, tvb, offset, 0, 
+	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 		"Group Record : %s  %s", 
 			ip_to_str((gchar*)&ip), 
 			val_to_str(tvb_get_guint8(tvb, offset), vs_record_type,"")
@@ -784,7 +784,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	unsigned char type;
 	guint32 dst;
 
-	item = proto_tree_add_item(parent_tree, proto_igmp, tvb, offset, 0, FALSE);
+	item = proto_tree_add_item(parent_tree, proto_igmp, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_igmp);
 
 

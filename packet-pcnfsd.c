@@ -1,10 +1,10 @@
 /* packet-pcnfsd.c
  * Routines for PCNFSD dissection
  *
- * $Id: packet-pcnfsd.c,v 1.3 2001/11/07 07:05:58 girlich Exp $
+ * $Id: packet-pcnfsd.c,v 1.4 2002/01/20 22:12:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-ypbind.c
@@ -93,8 +93,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		ident_item = proto_tree_add_text(tree, tvb,
-				offset, tvb_length_remaining(tvb, offset),
-				"Authentication Ident");
+				offset, -1, "Authentication Ident");
 		if (ident_item)
 			ident_tree = proto_item_add_subtree(
 				ident_item, ett_pcnfsd_auth_ident);
@@ -125,8 +124,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		password_item = proto_tree_add_text(tree, tvb,
-				offset, tvb_length_remaining(tvb, offset),
-				"Authentication Password");
+				offset, -1, "Authentication Password");
 		if (password_item)
 			password_tree = proto_item_add_subtree(
 				password_item, ett_pcnfsd_auth_password);

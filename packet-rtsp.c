@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.45 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-rtsp.c,v 1.46 2002/01/20 22:12:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -413,8 +413,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	orig_offset = offset;
 	rtsp_tree = NULL;
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rtsp, tvb, offset,
-			tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_rtsp, tvb, offset,	-1,
+		    FALSE);
 		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
 

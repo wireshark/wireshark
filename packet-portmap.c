@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.32 2001/12/10 00:25:32 guy Exp $
+ * $Id: packet-portmap.c,v 1.33 2002/01/20 22:12:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,7 +310,7 @@ dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		rpcb_item = proto_tree_add_item(tree, hf_portmap_rpcb, tvb,
-			offset, tvb_length(tvb), FALSE);
+			offset, -1, FALSE);
 		if (rpcb_item)
 			rpcb_tree = proto_item_add_subtree(rpcb_item, ett_portmap_rpcb);
 	}

@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.64 2002/01/17 06:29:16 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.65 2002/01/20 22:12:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -715,8 +715,7 @@ netshareenum_shares_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset)
 {
 	if (tree) {
-		return proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset),
+		return proto_tree_add_text(tree, tvb, offset, -1,
 		    "Available Shares");
 	} else
 		return NULL;
@@ -730,8 +729,7 @@ netshareenum_share_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset)
 {
 	if (tree) {
-		return proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset),
+		return proto_tree_add_text(tree, tvb, offset, -1,
 		    "Share %.13s", tvb_get_ptr(tvb, offset, 13));
 	} else
 		return NULL;
@@ -908,8 +906,8 @@ netserverenum2_servers_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset)
 {
 	if (tree) {
-		return proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Servers");
+		return proto_tree_add_text(tree, tvb, offset, -1,
+		    "Servers");
 	} else
 		return NULL;
 }
@@ -922,8 +920,7 @@ netserverenum2_server_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset)
 {
 	if (tree) {
-		return proto_tree_add_text(tree, tvb, offset,
-			    tvb_length_remaining(tvb, offset),
+		return proto_tree_add_text(tree, tvb, offset, -1,
 			    "Server %.16s", tvb_get_ptr(tvb, offset, 16));
 	} else
 		return NULL;
@@ -1893,8 +1890,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 		 * We can't dissect the data; just show it
 		 * as raw data.
 		 */
-		proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset),
+		proto_tree_add_text(tree, tvb, offset, -1,
 		    "Data (no descriptor available)");
 		offset += tvb_length_remaining(tvb, offset);
 	} else {
@@ -2002,7 +1998,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb_lanman,
-			pd_tvb, 0, tvb_length(pd_tvb), FALSE);
+			pd_tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_lanman);
 	}
 

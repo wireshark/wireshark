@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.60 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-atalk.c,v 1.61 2002/01/20 22:12:25 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -244,8 +244,7 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		net, nodelen_bits, node);
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtmp, tvb, offset,
-			     tvb_length_remaining(tvb, offset), FALSE);
+    ti = proto_tree_add_item(tree, proto_rtmp, tvb, offset, -1, FALSE);
     rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
 
     proto_tree_add_uint(rtmp_tree, hf_rtmp_net, tvb, offset, 2, net);
@@ -326,8 +325,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       val_to_str(op, nbp_op_vals, "Unknown (0x%01x)"), count);
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_nbp, tvb, offset,
-    		tvb_length_remaining(tvb, offset), FALSE);
+    ti = proto_tree_add_item(tree, proto_nbp, tvb, offset, -1, FALSE);
     nbp_tree = proto_item_add_subtree(ti, ett_nbp);
 
     info_item = proto_tree_add_uint_format(nbp_tree, hf_nbp_info, tvb, offset, 1,
@@ -345,7 +343,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       proto_tree *node_item,*node_tree;
       int soffset = offset;
 
-      node_item = proto_tree_add_text(nbp_tree, tvb, offset, 4, 
+      node_item = proto_tree_add_text(nbp_tree, tvb, offset, -1, 
 			"Node %d", i+1);
       node_tree = proto_item_add_subtree(node_item, ett_nbp_node);
 

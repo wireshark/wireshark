@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.63 2002/01/14 13:16:31 girlich Exp $
+ * $Id: packet-nfs.c,v 1.64 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1717,8 +1717,8 @@ dissect_fattr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, c
 	int old_offset = offset;
 
 	if (tree) {
-		fattr_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		fattr_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		fattr_tree = proto_item_add_subtree(fattr_item, ett_nfs_fattr);
 	}
 
@@ -1756,8 +1756,8 @@ dissect_sattr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, c
 	int old_offset = offset;
 
 	if (tree) {
-		sattr_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		sattr_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		sattr_tree = proto_item_add_subtree(sattr_item, ett_nfs_sattr);
 	}
 
@@ -1872,8 +1872,8 @@ dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	int old_offset = offset;
 
 	if (tree) {
-		diropargs_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		diropargs_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		diropargs_tree = proto_item_add_subtree(diropargs_item, ett_nfs_diropargs);
 	}
 
@@ -2153,7 +2153,7 @@ dissect_readdir_entry(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,
-			offset+0, tvb_length_remaining(tvb, offset), FALSE);
+			offset+0, -1, FALSE);
 		entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
 
@@ -2637,8 +2637,8 @@ dissect_fattr3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	guint32 type;
 
 	if (tree) {
-		fattr3_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		fattr3_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		fattr3_tree = proto_item_add_subtree(fattr3_item, ett_nfs_fattr3);
 	}
 
@@ -2691,8 +2691,8 @@ dissect_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 attributes_follow;
 
 	if (tree) {
-		post_op_attr_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		post_op_attr_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		post_op_attr_tree = proto_item_add_subtree(post_op_attr_item, 
 			ett_nfs_post_op_attr);
 	}
@@ -2731,8 +2731,8 @@ dissect_wcc_attr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int old_offset = offset;
 
 	if (tree) {
-		wcc_attr_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		wcc_attr_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		wcc_attr_tree = proto_item_add_subtree(wcc_attr_item, 
 			ett_nfs_wcc_attr);
 	}
@@ -2761,8 +2761,8 @@ dissect_pre_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 attributes_follow;
 
 	if (tree) {
-		pre_op_attr_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		pre_op_attr_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		pre_op_attr_tree = proto_item_add_subtree(pre_op_attr_item, 
 			ett_nfs_pre_op_attr);
 	}
@@ -2801,8 +2801,8 @@ dissect_wcc_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int old_offset = offset;
 
 	if (tree) {
-		wcc_data_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		wcc_data_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		wcc_data_tree = proto_item_add_subtree(wcc_data_item, 
 			ett_nfs_wcc_data);
 	}
@@ -2830,8 +2830,8 @@ dissect_post_op_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 handle_follows;
 
 	if (tree) {
-		post_op_fh3_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		post_op_fh3_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		post_op_fh3_tree = proto_item_add_subtree(post_op_fh3_item, 
 			ett_nfs_post_op_fh3);
 	}
@@ -2875,9 +2875,8 @@ dissect_set_mode3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
-		set_mode3_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s: %s",
-			name, set_it_name);
+		set_mode3_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s: %s", name, set_it_name);
 		set_mode3_tree = proto_item_add_subtree(set_mode3_item, 
 			ett_nfs_set_mode3);
 	}
@@ -2922,9 +2921,8 @@ dissect_set_uid3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
-		set_uid3_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s: %s",
-			name, set_it_name);
+		set_uid3_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s: %s", name, set_it_name);
 		set_uid3_tree = proto_item_add_subtree(set_uid3_item, 
 			ett_nfs_set_uid3);
 	}
@@ -2969,9 +2967,8 @@ dissect_set_gid3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
-		set_gid3_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s: %s",
-			name, set_it_name);
+		set_gid3_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s: %s", name, set_it_name);
 		set_gid3_tree = proto_item_add_subtree(set_gid3_item, 
 			ett_nfs_set_gid3);
 	}
@@ -3016,9 +3013,8 @@ dissect_set_size3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
-		set_size3_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s: %s",
-			name, set_it_name);
+		set_size3_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s: %s", name, set_it_name);
 		set_size3_tree = proto_item_add_subtree(set_size3_item, 
 			ett_nfs_set_size3);
 	}
@@ -3077,9 +3073,8 @@ dissect_set_atime(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	set_it_name = val_to_str(set_it,time_how,"Unknown");
 
 	if (tree) {
-		set_atime_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s: %s",
-			name, set_it_name);
+		set_atime_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s: %s", name, set_it_name);
 		set_atime_tree = proto_item_add_subtree(set_atime_item, 
 			ett_nfs_set_atime);
 	}
@@ -3126,9 +3121,8 @@ dissect_set_mtime(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	set_it_name = val_to_str(set_it,time_how,"Unknown");
 
 	if (tree) {
-		set_mtime_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s: %s",
-			name, set_it_name);
+		set_mtime_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s: %s", name, set_it_name);
 		set_mtime_tree = proto_item_add_subtree(set_mtime_item, 
 			ett_nfs_set_mtime);
 	}
@@ -3170,8 +3164,8 @@ dissect_sattr3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	int old_offset = offset;
 
 	if (tree) {
-		sattr3_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		sattr3_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		sattr3_tree = proto_item_add_subtree(sattr3_item, ett_nfs_sattr3);
 	}
 
@@ -3203,8 +3197,8 @@ dissect_diropargs3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int name_offset, name_len;
 
 	if (tree) {
-		diropargs3_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s", name);
+		diropargs3_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s", name);
 		diropargs3_tree = proto_item_add_subtree(diropargs3_item, 
 			ett_nfs_diropargs3);
 	}
@@ -3362,9 +3356,8 @@ dissect_sattrguard3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	check_name = val_to_str(check,value_follows,"Unknown");
 
 	if (tree) {
-		sattrguard3_item = proto_tree_add_text(tree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "%s: %s",
-			name, check_name);
+		sattrguard3_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"%s: %s", name, check_name);
 		sattrguard3_tree = proto_item_add_subtree(sattrguard3_item, 
 			ett_nfs_sattrguard3);
 	}
@@ -3879,7 +3872,7 @@ dissect_entry3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree)
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,
-			offset+0, tvb_length_remaining(tvb, offset), FALSE);
+			offset+0, -1, FALSE);
 		entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
 
@@ -3965,7 +3958,7 @@ dissect_entryplus3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,
-			offset+0, tvb_length_remaining(tvb, offset), FALSE);
+			offset+0, -1, FALSE);
 		entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
 

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.85 2002/01/11 21:37:10 guy Exp $
+ * $Id: packet-ppp.c,v 1.86 2002/01/20 22:12:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2344,7 +2344,7 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 val_to_str(PPP_COMP, ppp_vals, "Unknown"));
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_comp_data, tvb, 0, tvb_length(tvb), FALSE);
+    ti = proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, FALSE);
     comp_data_tree = proto_item_add_subtree(ti, ett_comp_data);
   }
 }
@@ -2380,11 +2380,10 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "PPP Multiplexing");
 	
-  length_remaining = tvb_length(tvb);
+  length_remaining = tvb_reported_length(tvb);
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_pppmux, tvb, 0, length_remaining,
-			     FALSE);
+    ti = proto_tree_add_item(tree, proto_pppmux, tvb, 0, -1, FALSE);
     mux_tree = proto_item_add_subtree(ti,ett_pppmux);
     
     while (length_remaining > 0) {
@@ -2535,7 +2534,7 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_tree *fh_tree = NULL;
 
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 0, FALSE);
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 

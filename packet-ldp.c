@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.23 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-ldp.c,v 1.24 2002/01/20 22:12:26 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -561,8 +561,7 @@ dissect_ldp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {  /* Build the tree info ..., this is wrong! FIXME */
 
-    ldp_item = proto_tree_add_item(tree, proto_ldp, tvb, offset,
-				   tvb_length_remaining(tvb, offset), FALSE);
+    ldp_item = proto_tree_add_item(tree, proto_ldp, tvb, offset, -1, FALSE);
     ldp_tree = proto_item_add_subtree(ldp_item, ett_ldp);
 
   }

@@ -197,7 +197,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += sizeof(guint8);
 			length -= sizeof(guint8);
 
-			msg_item = proto_tree_add_text(gmrp_tree, tvb, msg_start, 0,
+			msg_item = proto_tree_add_text(gmrp_tree, tvb, msg_start, -1,
 						   "Message %d", msg_index + 1);
 
 			proto_tree_add_uint(gmrp_tree, hf_gmrp_attribute_type, tvb,
@@ -251,7 +251,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					length -= sizeof(guint8);
 
 					attr_item = proto_tree_add_text(gmrp_tree, tvb,
-					 attr_start, 0, "  Attribute %d", attr_index + 1);
+					 attr_start, -1, "  Attribute %d", attr_index + 1);
 
 					proto_tree_add_uint(gmrp_tree, hf_gmrp_attribute_length,
 					 tvb, attr_start, sizeof(guint8), octet);

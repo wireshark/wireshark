@@ -1,7 +1,7 @@
 /* packet-nisplus.c
  * 2001  Ronnie Sahlberg   <See AUTHORS for email>
  *
- * $Id: packet-nisplus.c,v 1.9 2001/12/23 21:36:57 guy Exp $
+ * $Id: packet-nisplus.c,v 1.10 2002/01/20 22:12:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -296,7 +296,7 @@ dissect_group_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_group,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_group);
 
@@ -355,8 +355,7 @@ dissect_table(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_table_col,
-			tvb, offset, 0,
-			FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_table_col);
 
@@ -400,7 +399,7 @@ dissect_table_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_table,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_table);
 
@@ -434,7 +433,7 @@ dissect_entry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_entry_col,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_entry_col);
 
@@ -466,7 +465,7 @@ dissect_entry_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_entry,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_entry);
 
@@ -488,7 +487,7 @@ dissect_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_attr,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_attr);
 
@@ -510,7 +509,7 @@ dissect_link_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_link,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_link);
 
@@ -536,7 +535,7 @@ dissect_endpoint(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_endpoint,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_endpoint);
 
@@ -562,7 +561,7 @@ dissect_directory_server(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_server,
-			tvb, offset, 0,	FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_server);
 
@@ -591,7 +590,7 @@ dissect_directory_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_directory_mask,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_directory_mask);
 
@@ -612,7 +611,7 @@ dissect_directory_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_directory,
-			tvb, offset, 0,	FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_directory);
 
@@ -643,7 +642,7 @@ dissect_nisplus_oid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_oid, tvb,
-			offset, 0, FALSE);
+			offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_oid);
 
@@ -666,7 +665,7 @@ dissect_nisplus_object(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_object, tvb,
-			offset, 0, FALSE);
+			offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_object);
 
@@ -789,7 +788,7 @@ dissect_nisplus_tag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_tag, tvb,
-			offset, 0, FALSE);
+			offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_tag);
 
@@ -1032,7 +1031,7 @@ dissect_log_entry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_log_entry,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_log_entry);
 
@@ -1837,7 +1836,7 @@ proto_reg_handoff_nis(void)
 
 
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-   callback protocol for NIS 
+   callback protocol for NIS+
    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 
 static int proto_nispluscb = -1;
@@ -1855,7 +1854,7 @@ dissect_cb_entry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nispluscb_entry,
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nispluscb_entry);
 

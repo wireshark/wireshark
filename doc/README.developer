@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.44 2001/12/17 08:35:09 guy Exp $
+$Id: README.developer,v 1.45 2002/01/20 22:12:37 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -101,7 +101,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.44 2001/12/17 08:35:09 guy Exp $"
+The "$Id: README.developer,v 1.45 2002/01/20 22:12:37 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -111,7 +111,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.44 2001/12/17 08:35:09 guy Exp $
+ * $Id: README.developer,v 1.45 2002/01/20 22:12:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,11 +222,11 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    display window when the line in the protocol tree display
    corresponding to that item is selected.
 
-   tvb_length(tvb) is a handy way to highlight all data from the offset to
-   the end of the packet. */
+   Supplying a length of -1 is the way to highlight all data from the
+   offset to the end of the packet. */
 
 /* create display subtree for the protocol */
-		ti = proto_tree_add_item(tree, proto_PROTOABBREV, tvb, 0, tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_PROTOABBREV, tvb, 0, -1, FALSE);
 
 		PROTOABBREV_tree = proto_item_add_subtree(ti, ett_PROTOABBREV);
 
@@ -979,9 +979,8 @@ the item being added, and the 'length' argument is the length, in bytes,
 of the item.
 
 The length of some items cannot be determined until the item has been
-dissected; to add such an item, add it with a length of 0, and, when the
-dissection is complete (or fails because the packet is too short), set
-the length with 'proto_item_set_len()':
+dissected; to add such an item, add it with a length of -1, and, when the
+dissection is complete, set the length with 'proto_item_set_len()':
 
 	void
 	proto_item_set_len(ti, length);

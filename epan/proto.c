@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.49 2002/01/07 01:05:33 guy Exp $
+ * $Id: proto.c,v 1.50 2002/01/20 22:12:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1599,19 +1599,37 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 static field_info *
 alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length)
 {
-	field_info	*fi;
-
-	fi = g_mem_chunk_alloc(gmc_field_info);
-
-	g_assert(hfindex >= 0 && (guint) hfindex < gpa_hfinfo->len);
+	header_field_info	*hfinfo;
+	field_info		*fi;
 
 	/*
 	 * We only allow a null tvbuff if the item has a zero length,
 	 * i.e. if there's no data backing it.
 	 */
 	g_assert(tvb != NULL || length == 0);
-	fi->hfinfo = proto_registrar_get_nth(hfindex);
-	g_assert(fi->hfinfo != NULL);
+
+	g_assert(hfindex >= 0 && (guint) hfindex < gpa_hfinfo->len);
+	hfinfo = proto_registrar_get_nth(hfindex);
+	g_assert(hfinfo != NULL);
+
+	if (length == -1) {
+		/*
+		 * For FT_NONE or FT_PROTOCOL fields, this means "set the
+		 * length to what remains in the tvbuff"; the assumption
+		 * is that the length can only be determined by dissection,
+		 * so we set it to that value so that, if we throw an
+		 * exception while dissecting, it has what is probably the
+		 * right value.
+		 *
+		 * It's not valid for any other type of field.
+		 */
+		g_assert(hfinfo->type == FT_PROTOCOL ||
+			 hfinfo->type == FT_NONE);
+		length = tvb_length_remaining(tvb, start);
+	}
+
+	fi = g_mem_chunk_alloc(gmc_field_info);
+	fi->hfinfo = hfinfo;
 	fi->start = start;
 	if (tvb) {
 		fi->start += tvb_raw_offset(tvb);

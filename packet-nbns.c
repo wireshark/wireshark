@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.70 2002/01/19 23:59:03 guy Exp $
+ * $Id: packet-nbns.c,v 1.71 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -927,7 +927,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 	
 	start_off = cur_off;
 	if (nbns_tree != NULL) {
-		ti = proto_tree_add_text(nbns_tree, tvb, start_off, 0, "Queries");
+		ti = proto_tree_add_text(nbns_tree, tvb, start_off, -1, "Queries");
 		qatree = proto_item_add_subtree(ti, ett_nbns_qry);
 	}
 	while (count-- > 0) {
@@ -954,7 +954,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 	
 	start_off = cur_off;
 	if (nbns_tree != NULL) {
-		ti = proto_tree_add_text(nbns_tree, tvb, start_off, 0, name);
+		ti = proto_tree_add_text(nbns_tree, tvb, start_off, -1, name);
 		qatree = proto_item_add_subtree(ti, ett_nbns_ans);
 	}
 	while (count-- > 0) {
@@ -1005,8 +1005,8 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbns, tvb, offset,
-		    tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_nbns, tvb, offset, -1,
+		    FALSE);
 		nbns_tree = proto_item_add_subtree(ti, ett_nbns);
 
 		if (flags & F_RESPONSE) {
@@ -1203,8 +1203,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbdgm, tvb, offset,
-		    tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_nbdgm, tvb, offset, -1,
+		    FALSE);
 		nbdgm_tree = proto_item_add_subtree(ti, ett_nbdgm);
 
 		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_type, tvb,

@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.8 2002/01/18 22:37:56 guy Exp $
+ * $Id: packet-ndmp.c,v 1.9 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1643,8 +1643,8 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 	char *name;
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-				"File ");
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+				"File");
 		tree = proto_item_add_subtree(item, ett_ndmp_file_name);
 	}
 
@@ -1761,7 +1761,7 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	nstime_t ns;
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Stats:");
 		tree = proto_item_add_subtree(item, ett_ndmp_file_stats);
 	}
@@ -1830,7 +1830,7 @@ dissect_file(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_t
 	int old_offset=offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"File:");
 		tree = proto_item_add_subtree(item, ett_ndmp_file);
 	}

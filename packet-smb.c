@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.195 2002/01/17 06:29:16 guy Exp $
+ * $Id: packet-smb.c,v 1.196 2002/01/20 22:12:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4111,7 +4111,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if(un){
 		old_offset = offset;
 
-		it = proto_tree_add_text(tree, tvb, offset, 0,
+		it = proto_tree_add_text(tree, tvb, offset, -1,
 			"Unlocks");
 		tr = proto_item_add_subtree(it, ett_smb_unlocks);
 		while(un--){
@@ -4172,7 +4172,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if(ln){
 		old_offset = offset;
 
-		it = proto_tree_add_text(tree, tvb, offset, 0,
+		it = proto_tree_add_text(tree, tvb, offset, -1,
 			"Locks");
 		tr = proto_item_add_subtree(it, ett_smb_locks);
 		while(ln--){
@@ -6330,7 +6330,7 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	char str[256], *strp;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 					   "NT %s SID", name);
 		tree = proto_item_add_subtree(item, ett_smb_sid);
 	}
@@ -6474,7 +6474,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *par
 	int old_offset = offset;
 	
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 					   "NT ACE: ");
 		tree = proto_item_add_subtree(item, ett_smb_ace);
 	}
@@ -6513,7 +6513,7 @@ dissect_nt_acl(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	guint32 num_aces;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 					   "NT %s ACL", name);
 		tree = proto_item_add_subtree(item, ett_smb_acl);
 	}
@@ -11829,8 +11829,8 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, int
 				(si->request)? "Request" : "Response");
 		}
 
-		cmd_item = proto_tree_add_text(smb_tree, tvb, offset,
-			0, "%s %s (0x%02x)",
+		cmd_item = proto_tree_add_text(smb_tree, tvb, offset, -1,
+			"%s %s (0x%02x)",
 			decode_smb_name(cmd), 
 			(si->request)?"Request":"Response",
 			cmd);
@@ -13568,7 +13568,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb, tvb, offset, 
-			tvb_length_remaining(tvb, 0), FALSE);
+			-1, FALSE);
 		tree = proto_item_add_subtree(item, ett_smb);
 
 		hitem = proto_tree_add_text(tree, tvb, offset, 32, 

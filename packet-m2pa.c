@@ -6,7 +6,7 @@
  * Copyright 2001, Jeff Morriss <jeff.morriss[AT]ulticom.com>, 
  * updated by Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-m2pa.c,v 1.4 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-m2pa.c,v 1.5 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,9 +197,8 @@ dissect_m2pa_proving_data_message(tvbuff_t *message_data_tvb,  proto_tree *m2pa_
   
   if (m2pa_tree) {
     message_data_length = tvb_length(message_data_tvb);
-    proto_tree_add_bytes(m2pa_tree, hf_m2pa_proving_data, 
-                         message_data_tvb, 0, message_data_length,
-                         tvb_get_ptr(message_data_tvb, 0, message_data_length));
+    proto_tree_add_item(m2pa_tree, hf_m2pa_proving_data, 
+                         message_data_tvb, 0, message_data_length, FALSE);
   };
 }
 
@@ -210,9 +209,8 @@ dissect_m2pa_unknown_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
   
   if (m2pa_tree) {
     message_data_length = tvb_length(message_data_tvb);
-    proto_tree_add_bytes(m2pa_tree, hf_m2pa_unknown_data, 
-                         message_data_tvb, 0, message_data_length,
-                         tvb_get_ptr(message_data_tvb, 0, message_data_length));
+    proto_tree_add_item(m2pa_tree, hf_m2pa_unknown_data, 
+                         message_data_tvb, 0, message_data_length, FALSE);
   };
 }
 
@@ -296,7 +294,7 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the m2pa protocol tree */
-    m2pa_item = proto_tree_add_item(tree, proto_m2pa, tvb, 0, tvb_length(tvb), FALSE);
+    m2pa_item = proto_tree_add_item(tree, proto_m2pa, tvb, 0, -1, FALSE);
     m2pa_tree = proto_item_add_subtree(m2pa_item, ett_m2pa);
   } else {
     m2pa_item = NULL;

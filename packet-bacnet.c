@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.8 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-bacnet.c,v 1.9 2002/01/20 22:12:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,7 +218,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 
 /* I don't know the length of the NPDU by know. Setting the length after dissection */
-		ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, 0, FALSE);
+		ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, -1, FALSE);
 
 		bacnet_tree = proto_item_add_subtree(ti, ett_bacnet);
 

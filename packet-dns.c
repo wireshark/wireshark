@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.78 2002/01/19 23:59:02 guy Exp $
+ * $Id: packet-dns.c,v 1.79 2002/01/20 22:12:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1715,7 +1715,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   start_off = cur_off;
   if (dns_tree) {
     char *s = (isupdate ?  "Zone" : "Queries");
-    ti = proto_tree_add_text(dns_tree, tvb, start_off, 0, s);
+    ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, s);
     qatree = proto_item_add_subtree(ti, ett_dns_qry);
   }
   while (count-- > 0) {
@@ -1738,7 +1738,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   
   start_off = cur_off;
   if (dns_tree) {
-    ti = proto_tree_add_text(dns_tree, tvb, start_off, 0, name);
+    ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, name);
     qatree = proto_item_add_subtree(ti, ett_dns_ans);
   }
   while (count-- > 0) {

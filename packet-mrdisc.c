@@ -1,7 +1,7 @@
 /* packet-mrdisc.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/MRDISC packet disassembly
  *
- * $Id: packet-mrdisc.c,v 1.4 2001/12/23 21:36:57 guy Exp $
+ * $Id: packet-mrdisc.c,v 1.5 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,7 +140,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_options, 
-			tvb, offset, 0, FALSE);
+			tvb, offset, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_options);
 
 		type = tvb_get_guint8(tvb, offset);

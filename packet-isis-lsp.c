@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.23 2001/12/26 21:37:21 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.24 2002/01/20 22:12:26 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -593,7 +593,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb,
 		bit_length = ctrl_info & 0x3f;
 		byte_length = (bit_length + 7) / 8;
 		tvb_memcpy (tvb, prefix, offset+5, byte_length);
-		pi = proto_tree_add_text (tree, tvb, offset, 0,
+		pi = proto_tree_add_text (tree, tvb, offset, -1,
 			"IPv4 prefix: %s/%d", 
 			ip_to_str (prefix),
 			bit_length );
@@ -653,7 +653,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb,
 		bit_length = tvb_get_guint8(tvb, offset+5);
 		byte_length = (bit_length + 7) / 8;
 		tvb_memcpy (tvb, prefix.s6_addr, offset+6, byte_length);
-		ti = proto_tree_add_text (tree, tvb, offset, 0,
+		ti = proto_tree_add_text (tree, tvb, offset, -1,
 			"IP prefix: %s /%d", 
 			ip6_to_str (&prefix),
 			bit_length );
@@ -1287,7 +1287,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb,
 	if (!tree) return;
 
 	while (length > 0) {
-		ti = proto_tree_add_text (tree, tvb, offset, 0,
+		ti = proto_tree_add_text (tree, tvb, offset, -1,
 			"IS neighbor: %s",
 			print_system_id (tvb_get_ptr(tvb, offset, 7), 7) );
 		ntree = proto_item_add_subtree (ti, 
@@ -1406,7 +1406,7 @@ static void dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb,
                                       mt_desc,
                                       mt_block&0xfff ); 
 
-		ti = proto_tree_add_text (tree, tvb, offset+2, 0,
+		ti = proto_tree_add_text (tree, tvb, offset+2, -1,
 			"IS neighbor: %s",
 			print_system_id(tvb_get_ptr(tvb, offset+2, 7), 7) );
 	      
@@ -1610,8 +1610,8 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int		inx, q, some, value, len;
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), PROTO_STRING_LSP);
+		ti = proto_tree_add_text(tree, tvb, offset, -1,
+		    PROTO_STRING_LSP);
 		lsp_tree = proto_item_add_subtree(ti, ett_isis_lsp);
 	}
 

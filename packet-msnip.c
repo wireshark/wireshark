@@ -1,7 +1,7 @@
 /* packet-msnip.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/MSNIP packet disassembly
  *
- * $Id: packet-msnip.c,v 1.3 2001/12/23 21:36:57 guy Exp $
+ * $Id: packet-msnip.c,v 1.4 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,7 +132,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_groups, 
-				tvb, offset, 0, FALSE);
+				tvb, offset, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_groups);
 
 		/* record type */
@@ -211,7 +211,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_groups, 
-				tvb, offset, 0, FALSE);
+				tvb, offset, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_groups);
 
 		/* multicast group */
@@ -256,7 +256,7 @@ dissect_msnip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 		return offset+tvb_length_remaining(tvb, offset);
 	}
 
-	item = proto_tree_add_item(parent_tree, proto_msnip, tvb, offset, 0, FALSE);
+	item = proto_tree_add_item(parent_tree, proto_msnip, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_msnip);
 
 
@@ -353,7 +353,7 @@ proto_register_msnip(void)
 		&ett_groups,
 	};
 
-	proto_msnip = proto_register_protocol("MSNIP : Multicast Source Notification of Interest Protocol",
+	proto_msnip = proto_register_protocol("MSNIP: Multicast Source Notification of Interest Protocol",
 	    "MSNIP", "msnip");
 	proto_register_field_array(proto_msnip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

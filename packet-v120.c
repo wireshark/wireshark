@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.22 2001/12/10 00:25:41 guy Exp $
+ * $Id: packet-v120.c,v 1.23 2002/01/20 22:12:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,7 +83,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid V.120 frame");
 	if (tree)
-	    ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, tvb_length(tvb),
+	    ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, -1,
 			                    "Invalid V.120 frame");
 	return;
     }
@@ -108,7 +108,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	is_response = FALSE;
 
     if (tree) {
-	ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, 0, "V.120");
+	ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, -1, "V.120");
 	v120_tree = proto_item_add_subtree(ti, ett_v120);
 	addr = byte1 << 8 | byte0;
 	sprintf(info, "LLI: %d C/R: %s",

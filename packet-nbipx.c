@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-nbipx.c,v 1.44 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-nbipx.c,v 1.45 2002/01/20 22:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -267,7 +267,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbipx, tvb, 0,
-		    0, FALSE);
+		    -1, FALSE);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 	}
 
