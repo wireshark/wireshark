@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.125 2000/09/15 05:32:18 guy Exp $
+ * $Id: capture.c,v 1.126 2000/09/17 03:20:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,10 +67,6 @@
 
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
-#endif
-
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
 #endif
 
 #include <signal.h>
