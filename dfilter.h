@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.4 1999/08/01 04:28:08 gram Exp $
+ * $Id: dfilter.h,v 1.5 1999/08/03 15:04:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,7 +66,6 @@ enum node_type {
 	abs_time,
 	string,
 	ether,
-	ether_vendor,
 	bytes,
 	ipv4,
 	ipxnet

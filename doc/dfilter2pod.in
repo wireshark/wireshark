@@ -9,7 +9,7 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod.in,v 1.2 1999/08/01 04:28:20 gram Exp $
+# $Id: dfilter2pod.in,v 1.3 1999/08/03 15:04:33 gram Exp $
 
 %ftenum_names = (
 	'FT_NONE',	'No value',
@@ -86,13 +86,11 @@ sub create_dfilter_table {
 
 		# If this proto has children fields, print those
 		if ($field_abbrev{$proto_abbrev{$proto_name}}) {
-			print "=over 4\n\n";
 
 			for $field_abbrev (sort @{$field_abbrev{$proto_abbrev{$proto_name}}}) {
-				print "=item ", $field_info{$field_abbrev}[0]," ($field_abbrev)\n\n";
-				print $ftenum_names{$field_info{$field_abbrev}[1]}, "\n\n";
+				print "    $field_abbrev  ", $field_info{$field_abbrev}[0],"\n";
+				print "        ", $ftenum_names{$field_info{$field_abbrev}[1]}, "\n\n";
 			}
-			print "=back\n\n";
 		}
 	}
 }

@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.1 1999/08/01 04:28:07 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.2 1999/08/03 15:04:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -98,38 +98,17 @@ hexsep		[-:.]
 [\t\n ]+	/* ignore whitespace */
 
 
-\&\&		{ yylval.operand = TOK_AND; return TOK_AND; }
-and		{ yylval.operand = TOK_AND; return TOK_AND; }
+and|\&\&	{ return TOK_AND; }
+or|\|\|		{ return TOK_OR; }
+not|\!		{ return TOK_NOT; }
+xor|\^\^	{ return TOK_XOR; }
+eq|\=\=		{ return TOK_EQ; }
+ne|\!\=		{ return TOK_NE; }
+gt|\>		{ return TOK_GT; }
+ge|\>\=		{ return TOK_GE; }
+lt|\<		{ return TOK_LT; }
+le|\<\=		{ return TOK_LE; }
 
-\|\|		{ yylval.operand = TOK_OR; return TOK_OR; }
-or		{ yylval.operand = TOK_OR; return TOK_OR; }
-
-\!		{ yylval.operand = TOK_NOT; return TOK_NOT; }
-not		{ yylval.operand = TOK_NOT; return TOK_NOT; }
-
-\^\^		{ yylval.operand = TOK_XOR; return TOK_XOR; }
-xor		{ yylval.operand = TOK_XOR; return TOK_XOR; }
-
-\=\=		{ yylval.operand = TOK_EQ; return TOK_EQ; }
-eq		{ yylval.operand = TOK_EQ; return TOK_EQ; }
-
-\!\=		{ yylval.operand = TOK_NE; return TOK_NE; }
-ne		{ yylval.operand = TOK_NE; return TOK_NE; }
-
-\>		{ yylval.operand = TOK_GT; return TOK_GT; }
-gt		{ yylval.operand = TOK_GT; return TOK_GT; }
-
-\>\=		{ yylval.operand = TOK_GE; return TOK_GE; }
-ge		{ yylval.operand = TOK_GE; return TOK_GE; }
-
-\<		{ yylval.operand = TOK_LT; return TOK_LT; }
-lt		{ yylval.operand = TOK_LT; return TOK_LT; }
-
-\<\=		{ yylval.operand = TOK_LE; return TOK_LE; }
-le		{ yylval.operand = TOK_LE; return TOK_LE; }
-
-exist		{ yylval.operand = TOK_EXIST;  return TOK_EXIST; }
-exists		{ yylval.operand = TOK_EXIST; return TOK_EXIST; }
 true		{ yylval.operand = TOK_TRUE; return TOK_TRUE; }
 false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 
@@ -192,7 +171,8 @@ false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 	enum ftenum ftype;
 	yylval.variable = dfilter_lookup_token(yytext);
 	if (yylval.variable == 0) {
-		return 0;
+		yylval.id = g_strdup(yytext);
+		return T_VAL_UNQUOTED_STRING;
 	}
 	
 	ftype = proto_registrar_get_ftype(yylval.variable);
@@ -238,18 +218,18 @@ false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 
 [0-9]+ {				/* decimal or octal values */
 	yylval.id = g_strdup(yytext);
-	return T_VAL_ID;
+	return T_VAL_UNQUOTED_STRING;
 }
 
 
 0[xX][A-Fa-f0-9]+ {			/* hex values */
 	yylval.id = g_strdup(yytext);
-	return T_VAL_ID;
+	return T_VAL_UNQUOTED_STRING;
 }
 
 [0-9\:\.]+ {
 	yylval.id = g_strdup(yytext);
-	return T_VAL_ID;
+	return T_VAL_UNQUOTED_STRING;
 }
 
 %%

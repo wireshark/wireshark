@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.5 1999/08/01 04:28:07 gram Exp $
+ * $Id: dfilter.c,v 1.6 1999/08/03 15:04:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -158,7 +158,8 @@ clear_byte_array(gpointer data, gpointer user_data)
 void
 yyerror(char *s)
 {
-	fprintf(stderr, "%s\n", s);
+/*	fprintf(stderr, "%s\n", s);
+	Do not report the error, just let yyparse() return 1 */
 }
 
 void
@@ -210,13 +211,10 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
 
 	switch(dnode->ntype) {
 	case variable:
-		/* the only time we'll see a 'variable' at this point is if the display filter
-		 * checks the value of a single field: "tr.sr", for example. Inside a relation,
-		 * the relation code will retrieve the value of the variable
-                 */
-		g_assert(!gnode_a && !gnode_b);
+		/* We'll never see this case because if the parser finds the name of
+		 * a variable, it will cause it to be an 'existence' operation.
+		 */
 		g_assert_not_reached();
-		/*return check_single_variable(gnode, ptree, pd);*/
 
 	case logical:
 		return check_logical(dnode->value.logical, gnode_a, gnode_b, ptree, pd);
@@ -233,13 +231,13 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
 	case ipv4:
 	case boolean:
 	case ether:
-	case ether_vendor:
 	case string:
 	case abs_time:
 	case bytes:
 	case ipxnet:
 		/* the only time we'll see these at this point is if the display filter
-		 * is really wacky. Just return TRUE */
+		 * is really wacky. (like simply "192.168.1.1"). The parser as it stands
+		 * now let these by. Just return TRUE */
 		g_assert(!gnode_a && !gnode_b);
 		return TRUE;
 
@@ -309,27 +307,6 @@ check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8
 
 	return retval;
 }
-
-#if 0
-static gboolean
-check_single_variable(GNode *gnode, proto_tree *ptree, guint8* pd)
-{
-	dfilter_node	*node = (dfilter_node*) (gnode->data);
-	GArray		*vals;
-	gboolean	retval;
-
-
-	bytes_length = node->length;
-	bytes_offset = node->offset;
-	vals = get_values_from_ptree(node, ptree, pd);
-
-	retval =  node_a->check_relation_func(operand, vals_a, vals_b);
-
-	g_array_free(vals, FALSE);
-
-	return retval;
-}
-#endif
 
 static gboolean
 check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree)

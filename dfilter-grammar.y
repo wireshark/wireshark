@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.4 1999/08/02 06:34:23 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.5 1999/08/03 15:04:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,7 +112,7 @@ GSList *dfilter_list_byte_arrays = NULL;
 %type <node>	ether_value ether_variable
 %type <node>	ipxnet_value ipxnet_variable
 %type <node>	ipv4_value ipv4_variable
-%type <node>	protocol_name
+%type <node>	variable_name
 %type <node>	bytes_value bytes_variable
 %type <node>	boolean_value boolean_variable
 
@@ -121,7 +121,6 @@ GSList *dfilter_list_byte_arrays = NULL;
 %type <operand>	bytes_relation
 
 %type <variable>	any_variable_type
-%type <operand>		exists_operand
 
 %token <variable>	T_FT_UINT8
 %token <variable>	T_FT_UINT16
@@ -134,14 +133,13 @@ GSList *dfilter_list_byte_arrays = NULL;
 %token <variable>	T_FT_STRING
 %token <variable>	T_FT_IPXNET
 
-%token <id>	 	T_VAL_ID
+%token <id>	 	T_VAL_UNQUOTED_STRING
 %token <ether>		T_VAL_ETHER
 %token <bytes>		T_VAL_BYTES
 %token <byte_range>	T_VAL_BYTE_RANGE
 
 %token <operand>	TOK_AND TOK_OR TOK_NOT TOK_XOR
 %token <operand>	TOK_EQ TOK_NE TOK_GT TOK_GE TOK_LT TOK_LE
-%token <operand>	TOK_EXIST
 %token <operand>	TOK_TRUE TOK_FALSE
 
 %left TOK_AND
@@ -161,9 +159,10 @@ statement: expression
 expression:	'(' expression ')' { $$ = $2; }
 	|	expression TOK_AND expression { $$ = dfilter_mknode_join($1, logical, $2, $3); }
 	|	expression TOK_OR expression { $$ = dfilter_mknode_join($1, logical, $2, $3); }
+	|	expression TOK_XOR expression { $$ = dfilter_mknode_join($1, logical, $2, $3); }
 	|	TOK_NOT expression { $$ = dfilter_mknode_unary(TOK_NOT, $2); }
 	|	relation { $$ = $1; }
-	|	protocol_name { $$ = $1; }
+	|	variable_name { $$ = $1; }
 	;
 
 relation:	numeric_variable numeric_relation numeric_value
@@ -221,12 +220,10 @@ relation:	numeric_variable numeric_relation numeric_value
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 
-	|	exists_operand any_variable_type	{ $$ = dfilter_mknode_existence($2); }
-
 	;
 
 
-numeric_value:	T_VAL_ID
+numeric_value:	T_VAL_UNQUOTED_STRING
 	{
 		$$ = dfilter_mknode_numeric_value(string_to_value($1));
 		g_free($1);
@@ -239,13 +236,13 @@ ether_value:	T_VAL_ETHER
 		}
 	;
 
-ipxnet_value:	T_VAL_ID
+ipxnet_value:	T_VAL_UNQUOTED_STRING
 		{
 			$$ = dfilter_mknode_ipxnet_value(string_to_value($1));
 		}
 	;
 
-ipv4_value:	T_VAL_ID
+ipv4_value:	T_VAL_UNQUOTED_STRING
 	{
 		$$ = dfilter_mknode_ipv4_value($1);
 		g_free($1);
@@ -257,7 +254,7 @@ bytes_value:	T_VAL_BYTES
 		 $$ = dfilter_mknode_bytes_value($1);
 	}
 
-	|	T_VAL_ID
+	|	T_VAL_UNQUOTED_STRING
 	{								/* one byte */
 		GByteArray	*barray = g_byte_array_new();
 		guint8		val;
@@ -300,7 +297,7 @@ ipxnet_variable:	T_FT_IPXNET	{ $$ = dfilter_mknode_ipxnet_variable($1); }
 ipv4_variable:		T_FT_IPv4	{ $$ = dfilter_mknode_ipv4_variable($1); }
 	;
 
-protocol_name:		T_FT_NONE		{ $$ = dfilter_mknode_existence($1); }
+variable_name:		any_variable_type	{ $$ = dfilter_mknode_existence($1); }
 	;
 
 bytes_variable:		any_variable_type T_VAL_BYTE_RANGE
@@ -323,26 +320,22 @@ any_variable_type:	T_FT_UINT8 { $$ = $1; }
 	|		T_FT_STRING { $$ = $1; }
 	;
 
-numeric_relation:	TOK_EQ { $$ = $1; }
-	|		TOK_NE { $$ = $1; }
-	|		TOK_GT { $$ = $1; }
-	|		TOK_GE { $$ = $1; }
-	|		TOK_LT { $$ = $1; }
-	|		TOK_LE { $$ = $1; }
+numeric_relation:	TOK_EQ { $$ = TOK_EQ; }
+	|		TOK_NE { $$ = TOK_NE; }
+	|		TOK_GT { $$ = TOK_GT; }
+	|		TOK_GE { $$ = TOK_GE; }
+	|		TOK_LT { $$ = TOK_LT; }
+	|		TOK_LE { $$ = TOK_LE; }
 	;
 
-equality_relation:	TOK_EQ { $$ = $1; }
-	|		TOK_NE { $$ = $1; }
+equality_relation:	TOK_EQ { $$ = TOK_EQ; }
+	|		TOK_NE { $$ = TOK_NE; }
 	;
 
-bytes_relation:		TOK_EQ { $$ = $1; }
-	|		TOK_NE { $$ = $1; }
-	|		TOK_GT { $$ = $1; }
-	|		TOK_LT { $$ = $1; }
-	;
-
-exists_operand:		TOK_EXIST	{ $$ = $1; }
-	|		'?'		{ $$ = TOK_EXIST; }
+bytes_relation:		TOK_EQ { $$ = TOK_EQ; }
+	|		TOK_NE { $$ = TOK_NE; }
+	|		TOK_GT { $$ = TOK_GT; }
+	|		TOK_LT { $$ = TOK_LT; }
 	;
 
 %%
