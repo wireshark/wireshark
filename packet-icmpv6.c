@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.23 2000/08/22 08:30:00 itojun Exp $
+ * $Id: packet-icmpv6.c,v 1.24 2000/08/22 15:07:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -219,12 +219,12 @@ again:
 
 static const char *
 bitrange0(v, s, buf, buflen)
-	u_int32_t v;
+	guint32 v;
 	int s;
 	char *buf;
 	int buflen;
 {
-	u_int32_t v0;
+	guint32 v0;
 	char *p, *ep;
 	int off;
 	int i, l;
@@ -931,7 +931,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    int flagoff;
 	    proto_tree_add_text(icmp6_tree, NullTVB,
 		offset + offsetof(struct icmp6_router_renum, rr_seqnum), 4,
-		/*"Sequence number: 0x%08x", (u_int32_t)htonl(rr->rr_seqnum));*/
+		/*"Sequence number: 0x%08x", (guint32)htonl(rr->rr_seqnum));*/
 		"Sequence number: 0x%08x", pntohl(&rr->rr_seqnum));
 	    proto_tree_add_text(icmp6_tree, NullTVB,
 		offset + offsetof(struct icmp6_router_renum, rr_segnum), 1,
