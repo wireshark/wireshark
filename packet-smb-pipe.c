@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.66 2002/01/21 07:36:42 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.67 2002/01/27 03:04:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,7 @@ static int hf_weekday = -1;
 static int hf_enumeration_domain = -1;
 static int hf_computer_name = -1;
 static int hf_user_name = -1;
+static int hf_group_name = -1;
 static int hf_workstation_domain = -1;
 static int hf_workstation_major = -1;
 static int hf_workstation_minor = -1;
@@ -139,6 +140,7 @@ static int hf_password_must_change = -1;
 static int hf_script_path = -1;
 static int hf_logoff_code = -1;
 static int hf_duration = -1;
+static int hf_comment = -1;
 static int hf_user_comment = -1;
 static int hf_full_name = -1;
 static int hf_homedir = -1;
@@ -155,8 +157,11 @@ static int hf_old_password = -1;
 static int hf_reserved = -1;
 
 static gint ett_lanman = -1;
+static gint ett_lanman_unknown_entries = -1;
+static gint ett_lanman_unknown_entry = -1;
 static gint ett_lanman_shares = -1;
 static gint ett_lanman_share = -1;
+static gint ett_lanman_groups = -1;
 static gint ett_lanman_servers = -1;
 static gint ett_lanman_server = -1;
 
@@ -275,7 +280,7 @@ add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 			    BParam, BParam);
 		} else {
 			proto_tree_add_text(tree, tvb, offset, count,
-			    "Bytes Param: %s, type is wrong",
+			    "Byte Param: %s",
 			    tvb_bytes_to_str(tvb, offset, count));
 		}
 	}
@@ -684,9 +689,8 @@ struct lanman_desc {
 	const item_t	*req_data;
 	const item_t	*req_aux_data;
 	const item_t	*resp;
-	proto_item	*(*resp_data_item)(tvbuff_t *, packet_info *,
-					   proto_tree *, int);
-	gint		*ett_resp_data;
+	const gchar	*resp_data_entry_list_label;
+	gint		*ett_data_entry_list;
 	proto_item	*(*resp_data_element_item)(tvbuff_t *, packet_info *,
 						   proto_tree *, int);
 	gint		*ett_resp_data_element_item;
@@ -708,20 +712,6 @@ static const item_t lm_params_resp_netshareenum[] = {
 };
 
 /*
- * Create a subtree for all available shares.
- */
-static proto_item *
-netshareenum_shares_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset)
-{
-	if (tree) {
-		return proto_tree_add_text(tree, tvb, offset, -1,
-		    "Available Shares");
-	} else
-		return NULL;
-}
-
-/*
  * Create a subtree for a share.
  */
 static proto_item *
@@ -740,7 +730,7 @@ static const item_t lm_null[] = {
 };
 
 static const item_list_t lm_null_list[] = {
-	{ 0, lm_null }
+	{ -1, lm_null }
 };
 
 static const item_t lm_data_resp_netshareenum_1[] = {
@@ -831,6 +821,7 @@ static const item_list_t lm_data_serverinfo[] = {
 };
 
 static const item_t lm_params_req_netusergetinfo[] = {
+	{ &hf_user_name, add_string_param, PARAM_STRINGZ },
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
 	{ NULL, NULL, PARAM_NONE }
 };
@@ -843,6 +834,7 @@ static const item_t lm_params_resp_netusergetinfo[] = {
 static const item_t lm_data_resp_netusergetinfo_11[] = {
 	{ &hf_user_name, add_byte_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
+	{ &hf_comment, add_pointer_param, PARAM_STRINGZ },
 	{ &hf_user_comment, add_pointer_param, PARAM_STRINGZ },
 	{ &hf_full_name, add_pointer_param, PARAM_STRINGZ },
 	{ &hf_privilege_level, add_word_param, PARAM_WORD },
@@ -865,6 +857,27 @@ static const item_t lm_data_resp_netusergetinfo_11[] = {
 
 static const item_list_t lm_data_resp_netusergetinfo[] = {
 	{ 11, lm_data_resp_netusergetinfo_11 },
+	{ -1, lm_null }
+};
+
+static const item_t lm_params_req_netusergetgroups[] = {
+	{ &hf_user_name, add_string_param, PARAM_STRINGZ },
+	{ &hf_detail_level, add_detail_level, PARAM_WORD },
+	{ NULL, NULL, PARAM_NONE }
+};
+
+static const item_t lm_params_resp_netusergetgroups[] = {
+	{ &hf_abytes, add_word_param, PARAM_WORD },
+	{ NULL, NULL, PARAM_NONE }
+};
+
+static const item_t lm_data_resp_netusergetgroups_0[] = {
+	{ &hf_group_name, add_byte_param, PARAM_BYTES },
+	{ NULL, NULL, PARAM_NONE }
+};
+
+static const item_list_t lm_data_resp_netusergetgroups[] = {
+	{ 0, lm_data_resp_netusergetgroups_0 },
 	{ -1, lm_null }
 };
 
@@ -899,21 +912,7 @@ static const item_t lm_params_req_netserverenum2[] = {
 };
 
 /*
- * Create a subtree for all servers.
- */
-static proto_item *
-netserverenum2_servers_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset)
-{
-	if (tree) {
-		return proto_tree_add_text(tree, tvb, offset, -1,
-		    "Servers");
-	} else
-		return NULL;
-}
-
-/*
- * Create a subtree for a share.
+ * Create a subtree for a server.
  */
 static proto_item *
 netserverenum2_server_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -925,6 +924,7 @@ netserverenum2_server_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	} else
 		return NULL;
 }
+
 static const item_t lm_params_resp_netserverenum2[] = {
 	{ &hf_acount, add_word_param, PARAM_WORD },
 	{ NULL, NULL, PARAM_NONE }
@@ -1032,53 +1032,317 @@ static const item_t lm_data_req_samoemchangepassword[] = {
 	{ NULL, NULL, PARAM_NONE }
 };
 
-#define LANMAN_NETSHAREENUM		0
-#define LANMAN_NETSHAREGETINFO		1
-#define LANMAN_NETSERVERGETINFO		13
-#define LANMAN_NETGROUPGETUSERS		52
-#define LANMAN_NETUSERGETINFO		56
-#define LANMAN_NETUSERGETGROUPS		59
-#define LANMAN_NETWKSTAGETINFO		63
-#define LANMAN_DOSPRINTQENUM		69
-#define LANMAN_DOSPRINTQGETINFO		70
-#define LANMAN_WPRINTQUEUEPAUSE		74
-#define LANMAN_WPRINTQUEUERESUME	75
-#define LANMAN_WPRINTJOBENUMERATE	76
-#define LANMAN_WPRINTJOBGETINFO		77
-#define LANMAN_RDOSPRINTJOBDEL		81
-#define LANMAN_RDOSPRINTJOBPAUSE	82
-#define LANMAN_RDOSPRINTJOBRESUME	83
-#define LANMAN_WPRINTDESTENUM		84
-#define LANMAN_WPRINTDESTGETINFO	85
-#define LANMAN_NETREMOTETOD		91
-#define LANMAN_WPRINTQUEUEPURGE		103
-#define LANMAN_NETSERVERENUM2		104
-#define LANMAN_WACCESSGETUSERPERMS	105
-#define LANMAN_SETUSERPASSWORD		115
-#define LANMAN_NETWKSTAUSERLOGON	132
-#define LANMAN_NETWKSTAUSERLOGOFF	133
-#define LANMAN_PRINTJOBINFO		147
-#define LANMAN_WPRINTDRIVERENUM		205
-#define LANMAN_WPRINTQPROCENUM		206
-#define LANMAN_WPRINTPORTENUM		207
-#define LANMAN_SAMOEMCHANGEPASSWORD	214
+/*
+ * Create a subtree for an entry we don't yet know how to dissect.
+ */
+static proto_item *
+unknown_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset)
+{
+	if (tree) {
+		return proto_tree_add_text(tree, tvb, offset, -1,
+			    "Unknown entry");
+	} else
+		return NULL;
+}
+
+#define API_NetShareEnum		0
+#define API_NetShareGetInfo		1
+#define API_NetShareSetInfo		2
+#define API_NetShareAdd			3
+#define API_NetShareDel			4
+#define API_NetShareCheck		5
+#define API_NetSessionEnum		6
+#define API_NetSessionGetInfo		7
+#define API_NetSessionDel		8
+#define API_WconnectionEnum		9
+#define API_NetFileEnum			10
+#define API_NetFileGetInfo		11
+#define API_NetFileClose		12
+#define API_NetServerGetInfo		13
+#define API_NetServerSetInfo		14
+#define API_NetServerDiskEnum		15
+#define API_NetServerAdminCommand	16
+#define API_NetAuditOpen		17
+#define API_NetAuditClear		18
+#define API_NetErrorLogOpen		19
+#define API_NetErrorLogClear		20
+#define API_NetCharDevEnum		21
+#define API_NetCharDevGetInfo		22
+#define API_NetCharDevControl		23
+#define API_NetCharDevQEnum		24
+#define API_NetCharDevQGetInfo		25
+#define API_NetCharDevQSetInfo		26
+#define API_NetCharDevQPurge		27
+#define API_NetCharDevQPurgeSelf	28
+#define API_NetMessageNameEnum		29
+#define API_NetMessageNameGetInfo	30
+#define API_NetMessageNameAdd		31
+#define API_NetMessageNameDel		32
+#define API_NetMessageNameFwd		33
+#define API_NetMessageNameUnFwd		34
+#define API_NetMessageBufferSend	35
+#define API_NetMessageFileSend		36
+#define API_NetMessageLogFileSet	37
+#define API_NetMessageLogFileGet	38
+#define API_NetServiceEnum		39
+#define API_NetServiceInstall		40
+#define API_NetServiceControl		41
+#define API_NetAccessEnum		42
+#define API_NetAccessGetInfo		43
+#define API_NetAccessSetInfo		44
+#define API_NetAccessAdd		45
+#define API_NetAccessDel		46
+#define API_NetGroupEnum		47
+#define API_NetGroupAdd			48
+#define API_NetGroupDel			49
+#define API_NetGroupAddUser		50
+#define API_NetGroupDelUser		51
+#define API_NetGroupGetUsers		52
+#define API_NetUserEnum			53
+#define API_NetUserAdd			54
+#define API_NetUserDel			55
+#define API_NetUserGetInfo		56
+#define API_NetUserSetInfo		57
+#define API_NetUserPasswordSet		58
+#define API_NetUserGetGroups		59
+/*This line and number replaced a Dead Entry for 60 */
+/*This line and number replaced a Dead Entry for 61 */
+#define API_NetWkstaSetUID		62
+#define API_NetWkstaGetInfo		63
+#define API_NetWkstaSetInfo		64
+#define API_NetUseEnum			65
+#define API_NetUseAdd			66
+#define API_NetUseDel			67
+#define API_NetUseGetInfo		68
+#define API_WPrintQEnum			69
+#define API_WPrintQGetInfo		70
+#define API_WPrintQSetInfo		71
+#define API_WPrintQAdd			72
+#define API_WPrintQDel			73
+#define API_WPrintQPause		74
+#define API_WPrintQContinue		75
+#define API_WPrintJobEnum		76
+#define API_WPrintJobGetInfo		77
+#define API_WPrintJobSetInfo_OLD	78
+/* This line and number replaced a Dead Entry for 79 */
+/* This line and number replaced a Dead Entry for 80 */
+#define API_WPrintJobDel		81
+#define API_WPrintJobPause		82
+#define API_WPrintJobContinue		83
+#define API_WPrintDestEnum		84
+#define API_WPrintDestGetInfo		85
+#define API_WPrintDestControl		86
+#define API_NetProfileSave		87
+#define API_NetProfileLoad		88
+#define API_NetStatisticsGet		89
+#define API_NetStatisticsClear		90
+#define API_NetRemoteTOD		91
+#define API_WNetBiosEnum		92
+#define API_WNetBiosGetInfo		93
+#define API_NetServerEnum		94
+#define API_I_NetServerEnum		95
+#define API_NetServiceGetInfo		96
+/* This line and number replaced a Dead Entry for 97 */
+/* This line and number replaced a Dead Entry for 98 */
+/* This line and number replaced a Dead Entry for 99 */
+/* This line and number replaced a Dead Entry for 100 */
+/* This line and number replaced a Dead Entry for 101 */
+/* This line and number replaced a Dead Entry for 102 */
+#define API_WPrintQPurge		103
+#define API_NetServerEnum2		104
+#define API_NetAccessGetUserPerms	105
+#define API_NetGroupGetInfo		106
+#define API_NetGroupSetInfo		107
+#define API_NetGroupSetUsers		108
+#define API_NetUserSetGroups		109
+#define API_NetUserModalsGet		110
+#define API_NetUserModalsSet		111
+#define API_NetFileEnum2		112
+#define API_NetUserAdd2			113
+#define API_NetUserSetInfo2		114
+#define API_NetUserPasswordSet2		115
+#define API_I_NetServerEnum2		116
+#define API_NetConfigGet2		117
+#define API_NetConfigGetAll2		118
+#define API_NetGetDCName		119
+#define API_NetHandleGetInfo		120
+#define API_NetHandleSetInfo		121
+#define API_NetStatisticsGet2		122
+#define API_WBuildGetInfo		123
+#define API_NetFileGetInfo2		124
+#define API_NetFileClose2		125
+#define API_NetServerReqChallenge	126
+#define API_NetServerAuthenticate	127
+#define API_NetServerPasswordSet	128
+#define API_WNetAccountDeltas		129
+#define API_WNetAccountSync		130
+#define API_NetUserEnum2		131
+#define API_NetWkstaUserLogon		132
+#define API_NetWkstaUserLogoff		133
+#define API_NetLogonEnum		134
+#define API_NetErrorLogRead		135
+#define API_I_NetPathType		136
+#define API_I_NetPathCanonicalize	137
+#define API_I_NetPathCompare		138
+#define API_I_NetNameValidate		139
+#define API_I_NetNameCanonicalize	140
+#define API_I_NetNameCompare		141
+#define API_NetAuditRead		142
+#define API_WPrintDestAdd		143
+#define API_WPrintDestSetInfo		144
+#define API_WPrintDestDel		145
+#define API_NetUserValidate2		146
+#define API_WPrintJobSetInfo		147
+#define API_TI_NetServerDiskEnum	148
+#define API_TI_NetServerDiskGetInfo	149
+#define API_TI_FTVerifyMirror		150
+#define API_TI_FTAbortVerify		151
+#define API_TI_FTGetInfo		152
+#define API_TI_FTSetInfo		153
+#define API_TI_FTLockDisk		154
+#define API_TI_FTFixError		155
+#define API_TI_FTAbortFix		156
+#define API_TI_FTDiagnoseError		157
+#define API_TI_FTGetDriveStats		158
+/* This line and number replaced a Dead Entry for 159 */
+#define API_TI_FTErrorGetInfo		160
+/* This line and number replaced a Dead Entry for 161 */
+/* This line and number replaced a Dead Entry for 162 */
+#define API_NetAccessCheck		163
+#define API_NetAlertRaise		164
+#define API_NetAlertStart		165
+#define API_NetAlertStop		166
+#define API_NetAuditWrite		167
+#define API_NetIRemoteAPI		168
+#define API_NetServiceStatus		169
+#define API_I_NetServerRegister		170
+#define API_I_NetServerDeregister	171
+#define API_I_NetSessionEntryMake	172
+#define API_I_NetSessionEntryClear	173
+#define API_I_NetSessionEntryGetInfo	174
+#define API_I_NetSessionEntrySetInfo	175
+#define API_I_NetConnectionEntryMake	176
+#define API_I_NetConnectionEntryClear	177
+#define API_I_NetConnectionEntrySetInfo	178
+#define API_I_NetConnectionEntryGetInfo	179
+#define API_I_NetFileEntryMake		180
+#define API_I_NetFileEntryClear		181
+#define API_I_NetFileEntrySetInfo	182
+#define API_I_NetFileEntryGetInfo	183
+#define API_AltSrvMessageBufferSend	184
+#define API_AltSrvMessageFileSend	185
+#define API_wI_NetRplWkstaEnum		186
+#define API_wI_NetRplWkstaGetInfo	187
+#define API_wI_NetRplWkstaSetInfo	188
+#define API_wI_NetRplWkstaAdd		189
+#define API_wI_NetRplWkstaDel		190
+#define API_wI_NetRplProfileEnum	191
+#define API_wI_NetRplProfileGetInfo	192
+#define API_wI_NetRplProfileSetInfo	193
+#define API_wI_NetRplProfileAdd		194
+#define API_wI_NetRplProfileDel		195
+#define API_wI_NetRplProfileClone	196
+#define API_wI_NetRplBaseProfileEnum	197
+/* This line and number replaced a Dead Entry for 198 */
+/* This line and number replaced a Dead Entry for 199 */
+/* This line and number replaced a Dead Entry for 200 */
+#define API_WIServerSetInfo		201
+/* This line and number replaced a Dead Entry for 202 */
+/* This line and number replaced a Dead Entry for 203 */
+/* This line and number replaced a Dead Entry for 204 */
+#define API_WPrintDriverEnum		205
+#define API_WPrintQProcessorEnum	206
+#define API_WPrintPortEnum		207
+#define API_WNetWriteUpdateLog		208
+#define API_WNetAccountUpdate		209
+#define API_WNetAccountConfirmUpdate	210
+#define API_NetConfigSet		211
+#define API_WAccountsReplicate		212
+/* 213 is used by WfW */
+#define API_SamOEMChgPasswordUser2_P	214
+#define API_NetServerEnum3		215
+/* XXX - what about 216 through 249? */
+#define API_WPrintDriverGetInfo		250
+#define API_WPrintDriverSetInfo		251
+#define API_NetAliasAdd			252
+#define API_NetAliasDel			253
+#define API_NetAliasGetInfo		254
+#define API_NetAliasSetInfo		255
+#define API_NetAliasEnum		256
+#define API_NetUserGetLogonAsn		257
+#define API_NetUserSetLogonAsn		258
+#define API_NetUserGetAppSel		259
+#define API_NetUserSetAppSel		260
+#define API_NetAppAdd			261
+#define API_NetAppDel			262
+#define API_NetAppGetInfo		263
+#define API_NetAppSetInfo		264
+#define API_NetAppEnum			265
+#define API_NetUserDCDBInit		266
+#define API_NetDASDAdd			267
+#define API_NetDASDDel			268
+#define API_NetDASDGetInfo		269
+#define API_NetDASDSetInfo		270
+#define API_NetDASDEnum			271
+#define API_NetDASDCheck		272
+#define API_NetDASDCtl			273
+#define API_NetUserRemoteLogonCheck	274
+#define API_NetUserPasswordSet3		275
+#define API_NetCreateRIPLMachine	276
+#define API_NetDeleteRIPLMachine	277
+#define API_NetGetRIPLMachineInfo	278
+#define API_NetSetRIPLMachineInfo	279
+#define API_NetEnumRIPLMachine		280
+#define API_I_ShareAdd			281
+#define API_I_AliasEnum			282
+#define API_NetAccessApply		283
+#define API_WPrt16Query			284
+#define API_WPrt16Set			285
+#define API_NetUserDel100		286
+#define API_NetUserRemoteLogonCheck2	287
+#define API_WRemoteTODSet		294
+#define API_WPrintJobMoveAll		295
+#define API_W16AppParmAdd		296
+#define API_W16AppParmDel		297
+#define API_W16AppParmGet		298
+#define API_W16AppParmSet		299
+#define API_W16RIPLMachineCreate	300
+#define API_W16RIPLMachineGetInfo	301
+#define API_W16RIPLMachineSetInfo	302
+#define API_W16RIPLMachineEnum		303
+#define API_W16RIPLMachineListParmEnum	304
+#define API_W16RIPLMachClassGetInfo	305
+#define API_W16RIPLMachClassEnum	306
+#define API_W16RIPLMachClassCreate	307
+#define API_W16RIPLMachClassSetInfo	308
+#define API_W16RIPLMachClassDelete	309
+#define API_W16RIPLMachClassLPEnum	310
+#define API_W16RIPLMachineDelete	311
+#define API_W16WSLevelGetInfo		312
+#define API_NetServerNameAdd		313
+#define API_NetServerNameDel		314
+#define API_NetServerNameEnum		315
+#define API_I_WDASDEnum			316
+#define API_I_WDASDEnumTerminate	317
+#define API_I_WDASDSetInfo2		318
 
 static const struct lanman_desc lmd[] = {
-	{ LANMAN_NETSHAREENUM,
+	{ API_NetShareEnum,
 	  lm_params_req_netshareenum,
 	  NULL,
 	  NULL,
 	  lm_null,
 	  lm_null,
 	  lm_params_resp_netshareenum,
-	  netshareenum_shares_list,
+	  "Available Shares",
 	  &ett_lanman_shares,
 	  netshareenum_share_entry,
 	  &ett_lanman_share,
 	  lm_data_resp_netshareenum,
 	  lm_null },
 
-	{ LANMAN_NETSHAREGETINFO,
+	{ API_NetShareGetInfo,
 	  lm_params_req_netsharegetinfo,
 	  NULL,
 	  NULL,
@@ -1092,7 +1356,7 @@ static const struct lanman_desc lmd[] = {
 	  lm_data_resp_netsharegetinfo,
 	  lm_null },
 
-	{ LANMAN_NETSERVERGETINFO, 
+	{ API_NetServerGetInfo, 
 	  lm_params_req_netservergetinfo,
 	  NULL,
 	  NULL,
@@ -1106,7 +1370,7 @@ static const struct lanman_desc lmd[] = {
 	  lm_data_serverinfo,
 	  lm_null },
 
-	{ LANMAN_NETUSERGETINFO,
+	{ API_NetUserGetInfo,
 	  lm_params_req_netusergetinfo,
 	  NULL,
 	  NULL,
@@ -1120,7 +1384,21 @@ static const struct lanman_desc lmd[] = {
 	  lm_data_resp_netusergetinfo,
 	  lm_null },
 
-	{ LANMAN_NETREMOTETOD,
+	{ API_NetUserGetGroups,
+	  lm_params_req_netusergetgroups,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netusergetgroups,
+	  "Groups",
+	  &ett_lanman_groups,
+	  NULL,
+	  NULL,
+	  lm_data_resp_netusergetgroups,
+	  lm_null },
+
+	{ API_NetRemoteTOD,
 	  lm_null,
 	  NULL,
 	  NULL,
@@ -1134,21 +1412,21 @@ static const struct lanman_desc lmd[] = {
 	  lm_data_resp_netremotetod,
 	  lm_null },
 
-	{ LANMAN_NETSERVERENUM2,
+	{ API_NetServerEnum2,
 	  lm_params_req_netserverenum2,
 	  NULL,
 	  NULL,
 	  lm_null,
 	  lm_null,
 	  lm_params_resp_netserverenum2,
-	  netserverenum2_servers_list,
+	  "Servers",
 	  &ett_lanman_servers,
 	  netserverenum2_server_entry,
 	  &ett_lanman_server,
 	  lm_data_serverinfo,
 	  lm_null },
 
-	{ LANMAN_NETWKSTAGETINFO,
+	{ API_NetWkstaGetInfo,
 	  lm_params_req_netwkstagetinfo,
 	  NULL,
 	  NULL,
@@ -1162,7 +1440,7 @@ static const struct lanman_desc lmd[] = {
 	  lm_data_resp_netwkstagetinfo,
 	  lm_null },
 
-	{ LANMAN_NETWKSTAUSERLOGON,
+	{ API_NetWkstaUserLogon,
 	  lm_params_req_netwkstauserlogon,
 	  NULL,
 	  NULL,
@@ -1176,7 +1454,7 @@ static const struct lanman_desc lmd[] = {
 	  lm_data_resp_netwkstauserlogon,
 	  lm_null },
 
-	{ LANMAN_NETWKSTAUSERLOGOFF,
+	{ API_NetWkstaUserLogoff,
 	  lm_params_req_netwkstauserlogoff,
 	  NULL,
 	  NULL,
@@ -1190,7 +1468,7 @@ static const struct lanman_desc lmd[] = {
 	  lm_data_resp_netwkstauserlogoff,
 	  lm_null },
 
-	{ LANMAN_SAMOEMCHANGEPASSWORD,
+	{ API_SamOEMChgPasswordUser2_P,
 	  lm_params_req_samoemchangepassword,
 	  NULL,
 	  NULL,
@@ -1214,7 +1492,7 @@ static const struct lanman_desc lmd[] = {
 	  NULL,
 	  NULL,
 	  NULL,
-	  NULL,
+	  &ett_lanman_unknown_entry,
 	  lm_null_list,
 	  lm_null }
 };
@@ -1801,37 +2079,266 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 }
 
 static const value_string commands[] = {
-	{LANMAN_NETSHAREENUM,		"NetShareEnum"},
-	{LANMAN_NETSHAREGETINFO,	"NetShareGetInfo"},
-	{LANMAN_NETSERVERGETINFO,	"NetServerGetInfo"},
-	{LANMAN_NETGROUPGETUSERS,	"NetGroupGetUsers"},
-	{LANMAN_NETUSERGETINFO,		"NetUserGetInfo"},
-	{LANMAN_NETUSERGETGROUPS,	"NetUserGetGroups"},
-	{LANMAN_NETWKSTAGETINFO,	"NetWkstaGetInfo"},
-	{LANMAN_DOSPRINTQENUM,		"DOSPrintQEnum"},
-	{LANMAN_DOSPRINTQGETINFO,	"DOSPrintQGetInfo"},
-	{LANMAN_WPRINTQUEUEPAUSE,	"WPrintQueuePause"},
-	{LANMAN_WPRINTQUEUERESUME,	"WPrintQueueResume"},
-	{LANMAN_WPRINTJOBENUMERATE,	"WPrintJobEnumerate"},
-	{LANMAN_WPRINTJOBGETINFO,	"WPrintJobGetInfo"},
-	{LANMAN_RDOSPRINTJOBDEL,	"RDOSPrintJobDel"},
-	{LANMAN_RDOSPRINTJOBPAUSE,	"RDOSPrintJobPause"},
-	{LANMAN_RDOSPRINTJOBRESUME,	"RDOSPrintJobResume"},
-	{LANMAN_WPRINTDESTENUM,		"WPrintDestEnum"},
-	{LANMAN_WPRINTDESTGETINFO,	"WPrintDestGetInfo"},
-	{LANMAN_NETREMOTETOD,		"NetRemoteTOD"},
-	{LANMAN_WPRINTQUEUEPURGE,	"WPrintQueuePurge"},
-	{LANMAN_NETSERVERENUM2,		"NetServerEnum2"},
-	{LANMAN_WACCESSGETUSERPERMS,	"WAccessGetUserPerms"},
-	{LANMAN_SETUSERPASSWORD,	"SetUserPassword"},
-	{LANMAN_NETWKSTAUSERLOGON,	"NetWkstaUserLogon"},
-	{LANMAN_NETWKSTAUSERLOGOFF,	"NetWkstaUserLogoff"},
-	{LANMAN_PRINTJOBINFO,		"PrintJobInfo"},
-	{LANMAN_WPRINTDRIVERENUM,	"WPrintDriverEnum"},
-	{LANMAN_WPRINTQPROCENUM,	"WPrintQProcEnum"},
-	{LANMAN_WPRINTPORTENUM,		"WPrintPortEnum"},
-	{LANMAN_SAMOEMCHANGEPASSWORD,	"SamOEMChangePassword"},
-	{0,	NULL}
+	{API_NetShareEnum,			"NetShareEnum"},
+	{API_NetShareGetInfo,			"NetShareGetInfo"},
+	{API_NetShareSetInfo,			"NetShareSetInfo"},
+	{API_NetShareAdd,			"NetShareAdd"},
+	{API_NetShareDel,			"NetShareDel"},
+	{API_NetShareCheck,			"NetShareCheck"},
+	{API_NetSessionEnum,			"NetSessionEnum"},
+	{API_NetSessionGetInfo,			"NetSessionGetInfo"},
+	{API_NetSessionDel,			"NetSessionDel"},
+	{API_WconnectionEnum,			"NetConnectionEnum"},
+	{API_NetFileEnum,			"NetFileEnum"},
+	{API_NetFileGetInfo,			"NetFileGetInfo"},
+	{API_NetFileClose,			"NetFileClose"},
+	{API_NetServerGetInfo,			"NetServerGetInfo"},
+	{API_NetServerSetInfo,			"NetServerSetInfo"},
+	{API_NetServerDiskEnum,			"NetServerDiskEnum"},
+	{API_NetServerAdminCommand,		"NetServerAdminCommand"},
+	{API_NetAuditOpen,			"NetAuditOpen"},
+	{API_NetAuditClear,			"NetAuditClear"},
+	{API_NetErrorLogOpen,			"NetErrorLogOpen"},
+	{API_NetErrorLogClear,			"NetErrorLogClear"},
+	{API_NetCharDevEnum,			"NetCharDevEnum"},
+	{API_NetCharDevGetInfo,			"NetCharDevGetInfo"},
+	{API_NetCharDevControl,			"NetCharDevControl"},
+	{API_NetCharDevQEnum,			"NetCharDevQEnum"},
+	{API_NetCharDevQGetInfo,		"NetCharDevQGetInfo"},
+	{API_NetCharDevQSetInfo,		"NetCharDevQSetInfo"},
+	{API_NetCharDevQPurge,			"NetCharDevQPurge"},
+	{API_NetCharDevQPurgeSelf,		"NetCharDevQPurgeSelf"},
+	{API_NetMessageNameEnum,		"NetMessageNameEnum"},
+	{API_NetMessageNameGetInfo,		"NetMessageNameGetInfo"},
+	{API_NetMessageNameAdd,			"NetMessageNameAdd"},
+	{API_NetMessageNameDel,			"NetMessageNameDel"},
+	{API_NetMessageNameFwd,			"NetMessageNameFwd"},
+	{API_NetMessageNameUnFwd,		"NetMessageNameUnFwd"},
+	{API_NetMessageBufferSend,		"NetMessageBufferSend"},
+	{API_NetMessageFileSend,		"NetMessageFileSend"},
+	{API_NetMessageLogFileSet,		"NetMessageLogFileSet"},
+	{API_NetMessageLogFileGet,		"NetMessageLogFileGet"},
+	{API_NetServiceEnum,			"NetServiceEnum"},
+	{API_NetServiceInstall,			"NetServiceInstall"},
+	{API_NetServiceControl,			"NetServiceControl"},
+	{API_NetAccessEnum,			"NetAccessEnum"},
+	{API_NetAccessGetInfo,			"NetAccessGetInfo"},
+	{API_NetAccessSetInfo,			"NetAccessSetInfo"},
+	{API_NetAccessAdd,			"NetAccessAdd"},
+	{API_NetAccessDel,			"NetAccessDel"},
+	{API_NetGroupEnum,			"NetGroupEnum"},
+	{API_NetGroupAdd,			"NetGroupAdd"},
+	{API_NetGroupDel,			"NetGroupDel"},
+	{API_NetGroupAddUser,			"NetGroupAddUser"},
+	{API_NetGroupDelUser,			"NetGroupDelUser"},
+	{API_NetGroupGetUsers,			"NetGroupGetUsers"},
+	{API_NetUserEnum,			"NetUserEnum"},
+	{API_NetUserAdd,			"NetUserAdd"},
+	{API_NetUserDel,			"NetUserDel"},
+	{API_NetUserGetInfo,			"NetUserGetInfo"},
+	{API_NetUserSetInfo,			"NetUserSetInfo"},
+	{API_NetUserPasswordSet,		"NetUserPasswordSet"},
+	{API_NetUserGetGroups,			"NetUserGetGroups"},
+	{API_NetWkstaSetUID,			"NetWkstaSetUID"},
+	{API_NetWkstaGetInfo,			"NetWkstaGetInfo"},
+	{API_NetWkstaSetInfo,			"NetWkstaSetInfo"},
+	{API_NetUseEnum,			"NetUseEnum"},
+	{API_NetUseAdd,				"NetUseAdd"},
+	{API_NetUseDel,				"NetUseDel"},
+	{API_NetUseGetInfo,			"NetUseGetInfo"},
+	{API_WPrintQEnum,			"WPrintQEnum"},
+	{API_WPrintQGetInfo,			"WPrintQGetInfo"},
+	{API_WPrintQSetInfo,			"WPrintQSetInfo"},
+	{API_WPrintQAdd,			"WPrintQAdd"},
+	{API_WPrintQDel,			"WPrintQDel"},
+	{API_WPrintQPause,			"WPrintQPause"},
+	{API_WPrintQContinue,			"WPrintQContinue"},
+	{API_WPrintJobEnum,			"WPrintJobEnum"},
+	{API_WPrintJobGetInfo,			"WPrintJobGetInfo"},
+	{API_WPrintJobSetInfo_OLD,		"WPrintJobSetInfo_OLD"},
+	{API_WPrintJobDel,			"WPrintJobDel"},
+	{API_WPrintJobPause,			"WPrintJobPause"},
+	{API_WPrintJobContinue,			"WPrintJobContinue"},
+	{API_WPrintDestEnum,			"WPrintDestEnum"},
+	{API_WPrintDestGetInfo,			"WPrintDestGetInfo"},
+	{API_WPrintDestControl,			"WPrintDestControl"},
+	{API_NetProfileSave,			"NetProfileSave"},
+	{API_NetProfileLoad,			"NetProfileLoad"},
+	{API_NetStatisticsGet,			"NetStatisticsGet"},
+	{API_NetStatisticsClear,		"NetStatisticsClear"},
+	{API_NetRemoteTOD,			"NetRemoteTOD"},
+	{API_WNetBiosEnum,			"WNetBiosEnum"},
+	{API_WNetBiosGetInfo,			"WNetBiosGetInfo"},
+	{API_NetServerEnum,			"NetServerEnum"},
+	{API_I_NetServerEnum,			"I_NetServerEnum"},
+	{API_NetServiceGetInfo,			"NetServiceGetInfo"},
+	{API_WPrintQPurge,			"WPrintQPurge"},
+	{API_NetServerEnum2,			"NetServerEnum2"},
+	{API_NetAccessGetUserPerms,		"NetAccessGetUserPerms"},
+	{API_NetGroupGetInfo,			"NetGroupGetInfo"},
+	{API_NetGroupSetInfo,			"NetGroupSetInfo"},
+	{API_NetGroupSetUsers,			"NetGroupSetUsers"},
+	{API_NetUserSetGroups,			"NetUserSetGroups"},
+	{API_NetUserModalsGet,			"NetUserModalsGet"},
+	{API_NetUserModalsSet,			"NetUserModalsSet"},
+	{API_NetFileEnum2,			"NetFileEnum2"},
+	{API_NetUserAdd2,			"NetUserAdd2"},
+	{API_NetUserSetInfo2,			"NetUserSetInfo2"},
+	{API_NetUserPasswordSet2,		"SetUserPassword"},
+	{API_I_NetServerEnum2,			"I_NetServerEnum2"},
+	{API_NetConfigGet2,			"NetConfigGet2"},
+	{API_NetConfigGetAll2,			"NetConfigGetAll2"},
+	{API_NetGetDCName,			"NetGetDCName"},
+	{API_NetHandleGetInfo,			"NetHandleGetInfo"},
+	{API_NetHandleSetInfo,			"NetHandleSetInfo"},
+	{API_NetStatisticsGet2,			"NetStatisticsGet2"},
+	{API_WBuildGetInfo,			"WBuildGetInfo"},
+	{API_NetFileGetInfo2,			"NetFileGetInfo2"},
+	{API_NetFileClose2,			"NetFileClose2"},
+	{API_NetServerReqChallenge,		"NetServerReqChallenge"},
+	{API_NetServerAuthenticate,		"NetServerAuthenticate"},
+	{API_NetServerPasswordSet,		"NetServerPasswordSet"},
+	{API_WNetAccountDeltas,			"WNetAccountDeltas"},
+	{API_WNetAccountSync,			"WNetAccountSync"},
+	{API_NetUserEnum2,			"NetUserEnum2"},
+	{API_NetWkstaUserLogon,			"NetWkstaUserLogon"},
+	{API_NetWkstaUserLogoff,		"NetWkstaUserLogoff"},
+	{API_NetLogonEnum,			"NetLogonEnum"},
+	{API_NetErrorLogRead,			"NetErrorLogRead"},
+	{API_I_NetPathType,			"I_NetPathType"},
+	{API_I_NetPathCanonicalize,		"I_NetPathCanonicalize"},
+	{API_I_NetPathCompare,			"I_NetPathCompare"},
+	{API_I_NetNameValidate,			"I_NetNameValidate"},
+	{API_I_NetNameCanonicalize,		"I_NetNameCanonicalize"},
+	{API_I_NetNameCompare,			"I_NetNameCompare"},
+	{API_NetAuditRead,			"NetAuditRead"},
+	{API_WPrintDestAdd,			"WPrintDestAdd"},
+	{API_WPrintDestSetInfo,			"WPrintDestSetInfo"},
+	{API_WPrintDestDel,			"WPrintDestDel"},
+	{API_NetUserValidate2,			"NetUserValidate2"},
+	{API_WPrintJobSetInfo,			"WPrintJobSetInfo"},
+	{API_TI_NetServerDiskEnum,		"TI_NetServerDiskEnum"},
+	{API_TI_NetServerDiskGetInfo,		"TI_NetServerDiskGetInfo"},
+	{API_TI_FTVerifyMirror,			"TI_FTVerifyMirror"},
+	{API_TI_FTAbortVerify,			"TI_FTAbortVerify"},
+	{API_TI_FTGetInfo,			"TI_FTGetInfo"},
+	{API_TI_FTSetInfo,			"TI_FTSetInfo"},
+	{API_TI_FTLockDisk,			"TI_FTLockDisk"},
+	{API_TI_FTFixError,			"TI_FTFixError"},
+	{API_TI_FTAbortFix,			"TI_FTAbortFix"},
+	{API_TI_FTDiagnoseError,		"TI_FTDiagnoseError"},
+	{API_TI_FTGetDriveStats,		"TI_FTGetDriveStats"},
+	{API_TI_FTErrorGetInfo,			"TI_FTErrorGetInfo"},
+	{API_NetAccessCheck,			"NetAccessCheck"},
+	{API_NetAlertRaise,			"NetAlertRaise"},
+	{API_NetAlertStart,			"NetAlertStart"},
+	{API_NetAlertStop,			"NetAlertStop"},
+	{API_NetAuditWrite,			"NetAuditWrite"},
+	{API_NetIRemoteAPI,			"NetIRemoteAPI"},
+	{API_NetServiceStatus,			"NetServiceStatus"},
+	{API_I_NetServerRegister,		"I_NetServerRegister"},
+	{API_I_NetServerDeregister,		"I_NetServerDeregister"},
+	{API_I_NetSessionEntryMake,		"I_NetSessionEntryMake"},
+	{API_I_NetSessionEntryClear,		"I_NetSessionEntryClear"},
+	{API_I_NetSessionEntryGetInfo,		"I_NetSessionEntryGetInfo"},
+	{API_I_NetSessionEntrySetInfo,		"I_NetSessionEntrySetInfo"},
+	{API_I_NetConnectionEntryMake,		"I_NetConnectionEntryMake"},
+	{API_I_NetConnectionEntryClear,		"I_NetConnectionEntryClear"},
+	{API_I_NetConnectionEntrySetInfo,	"I_NetConnectionEntrySetInfo"},
+	{API_I_NetConnectionEntryGetInfo,	"I_NetConnectionEntryGetInfo"},
+	{API_I_NetFileEntryMake,		"I_NetFileEntryMake"},
+	{API_I_NetFileEntryClear,		"I_NetFileEntryClear"},
+	{API_I_NetFileEntrySetInfo,		"I_NetFileEntrySetInfo"},
+	{API_I_NetFileEntryGetInfo,		"I_NetFileEntryGetInfo"},
+	{API_AltSrvMessageBufferSend,		"AltSrvMessageBufferSend"},
+	{API_AltSrvMessageFileSend,		"AltSrvMessageFileSend"},
+	{API_wI_NetRplWkstaEnum,		"wI_NetRplWkstaEnum"},
+	{API_wI_NetRplWkstaGetInfo,		"wI_NetRplWkstaGetInfo"},
+	{API_wI_NetRplWkstaSetInfo,		"wI_NetRplWkstaSetInfo"},
+	{API_wI_NetRplWkstaAdd,			"wI_NetRplWkstaAdd"},
+	{API_wI_NetRplWkstaDel,			"wI_NetRplWkstaDel"},
+	{API_wI_NetRplProfileEnum,		"wI_NetRplProfileEnum"},
+	{API_wI_NetRplProfileGetInfo,		"wI_NetRplProfileGetInfo"},
+	{API_wI_NetRplProfileSetInfo,		"wI_NetRplProfileSetInfo"},
+	{API_wI_NetRplProfileAdd,		"wI_NetRplProfileAdd"},
+	{API_wI_NetRplProfileDel,		"wI_NetRplProfileDel"},
+	{API_wI_NetRplProfileClone,		"wI_NetRplProfileClone"},
+	{API_wI_NetRplBaseProfileEnum,		"wI_NetRplBaseProfileEnum"},
+	{API_WIServerSetInfo,			"WIServerSetInfo"},
+	{API_WPrintDriverEnum,			"WPrintDriverEnum"},
+	{API_WPrintQProcessorEnum,		"WPrintQProcessorEnum"},
+	{API_WPrintPortEnum,			"WPrintPortEnum"},
+	{API_WNetWriteUpdateLog,		"WNetWriteUpdateLog"},
+	{API_WNetAccountUpdate,			"WNetAccountUpdate"},
+	{API_WNetAccountConfirmUpdate,		"WNetAccountConfirmUpdate"},
+	{API_NetConfigSet,			"NetConfigSet"},
+	{API_WAccountsReplicate,		"WAccountsReplicate"},
+	{API_SamOEMChgPasswordUser2_P,		"SamOEMChangePassword"},
+	{API_NetServerEnum3,			"NetServerEnum3"},
+	{API_WPrintDriverGetInfo,		"WPrintDriverGetInfo"},
+	{API_WPrintDriverSetInfo,		"WPrintDriverSetInfo"},
+	{API_NetAliasAdd,			"NetAliasAdd"},
+	{API_NetAliasDel,			"NetAliasDel"},
+	{API_NetAliasGetInfo,			"NetAliasGetInfo"},
+	{API_NetAliasSetInfo,			"NetAliasSetInfo"},
+	{API_NetAliasEnum,			"NetAliasEnum"},
+	{API_NetUserGetLogonAsn,		"NetUserGetLogonAsn"},
+	{API_NetUserSetLogonAsn,		"NetUserSetLogonAsn"},
+	{API_NetUserGetAppSel,			"NetUserGetAppSel"},
+	{API_NetUserSetAppSel,			"NetUserSetAppSel"},
+	{API_NetAppAdd,				"NetAppAdd"},
+	{API_NetAppDel,				"NetAppDel"},
+	{API_NetAppGetInfo,			"NetAppGetInfo"},
+	{API_NetAppSetInfo,			"NetAppSetInfo"},
+	{API_NetAppEnum,			"NetAppEnum"},
+	{API_NetUserDCDBInit,			"NetUserDCDBInit"},
+	{API_NetDASDAdd,			"NetDASDAdd"},
+	{API_NetDASDDel,			"NetDASDDel"},
+	{API_NetDASDGetInfo,			"NetDASDGetInfo"},
+	{API_NetDASDSetInfo,			"NetDASDSetInfo"},
+	{API_NetDASDEnum,			"NetDASDEnum"},
+	{API_NetDASDCheck,			"NetDASDCheck"},
+	{API_NetDASDCtl,			"NetDASDCtl"},
+	{API_NetUserRemoteLogonCheck,		"NetUserRemoteLogonCheck"},
+	{API_NetUserPasswordSet3,		"NetUserPasswordSet3"},
+	{API_NetCreateRIPLMachine,		"NetCreateRIPLMachine"},
+	{API_NetDeleteRIPLMachine,		"NetDeleteRIPLMachine"},
+	{API_NetGetRIPLMachineInfo,		"NetGetRIPLMachineInfo"},
+	{API_NetSetRIPLMachineInfo,		"NetSetRIPLMachineInfo"},
+	{API_NetEnumRIPLMachine,		"NetEnumRIPLMachine"},
+	{API_I_ShareAdd,			"I_ShareAdd"},
+	{API_I_AliasEnum,			"I_AliasEnum"},
+	{API_NetAccessApply,			"NetAccessApply"},
+	{API_WPrt16Query,			"WPrt16Query"},
+	{API_WPrt16Set,				"WPrt16Set"},
+	{API_NetUserDel100,			"NetUserDel100"},
+	{API_NetUserRemoteLogonCheck2,		"NetUserRemoteLogonCheck2"},
+	{API_WRemoteTODSet,			"WRemoteTODSet"},
+	{API_WPrintJobMoveAll,			"WPrintJobMoveAll"},
+	{API_W16AppParmAdd,			"W16AppParmAdd"},
+	{API_W16AppParmDel,			"W16AppParmDel"},
+	{API_W16AppParmGet,			"W16AppParmGet"},
+	{API_W16AppParmSet,			"W16AppParmSet"},
+	{API_W16RIPLMachineCreate,		"W16RIPLMachineCreate"},
+	{API_W16RIPLMachineGetInfo,		"W16RIPLMachineGetInfo"},
+	{API_W16RIPLMachineSetInfo,		"W16RIPLMachineSetInfo"},
+	{API_W16RIPLMachineEnum,		"W16RIPLMachineEnum"},
+	{API_W16RIPLMachineListParmEnum,	"W16RIPLMachineListParmEnum"},
+	{API_W16RIPLMachClassGetInfo,		"W16RIPLMachClassGetInfo"},
+	{API_W16RIPLMachClassEnum,		"W16RIPLMachClassEnum"},
+	{API_W16RIPLMachClassCreate,		"W16RIPLMachClassCreate"},
+	{API_W16RIPLMachClassSetInfo,		"W16RIPLMachClassSetInfo"},
+	{API_W16RIPLMachClassDelete,		"W16RIPLMachClassDelete"},
+	{API_W16RIPLMachClassLPEnum,		"W16RIPLMachClassLPEnum"},
+	{API_W16RIPLMachineDelete,		"W16RIPLMachineDelete"},
+	{API_W16WSLevelGetInfo,			"W16WSLevelGetInfo"},
+	{API_NetServerNameAdd,			"NetServerNameAdd"},
+	{API_NetServerNameDel,			"NetServerNameDel"},
+	{API_NetServerNameEnum,			"NetServerNameEnum"},
+	{API_I_WDASDEnum,			"I_WDASDEnum"},
+	{API_I_WDASDEnumTerminate,		"I_WDASDEnumTerminate"},
+	{API_I_WDASDSetInfo2,			"I_WDASDSetInfo2"},
+	{0,					NULL}
 };
 
 static void
@@ -1843,6 +2350,8 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 	smb_transact_info_t *trp = smb_info->sip->extra_info;
 	const item_list_t *resp_data_list;
 	int offset, start_offset;
+	const char *label;
+	gint ett;
 	const item_t *resp_data;
 	proto_item *data_item;
 	proto_tree *data_tree;
@@ -1862,14 +2371,26 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 	resp_data = resp_data_list->item_list;
 
 	offset = 0;
-	if (lanman->resp_data_item != NULL) {
+	if (has_ent_count) {
 		/*
-		 * Create a protocol tree item for the data.
+		 * The data is a list of entries; create a protocol tree item
+		 * for it.
 		 */
-		data_item = (*lanman->resp_data_item)(tvb,
-		    pinfo, tree, offset);
-		data_tree = proto_item_add_subtree(data_item,
-		    *lanman->ett_resp_data);
+		if (tree) {
+			label = lanman->resp_data_entry_list_label;
+			if (label == NULL)
+				label = "Entries";
+			if (lanman->ett_data_entry_list != NULL)
+				ett = *lanman->ett_data_entry_list;
+			else
+				ett = ett_lanman_unknown_entries;
+			data_item = proto_tree_add_text(tree, tvb, offset, -1,
+			    label);
+			data_tree = proto_item_add_subtree(data_item, ett);
+		} else {
+			data_item = NULL;
+			data_tree = NULL;
+		}
 	} else {
 		/*
 		 * Just leave it at the top level.
@@ -1905,7 +2426,8 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 			ent_count = 1;
 		for (i = 0; i < ent_count; i++) {
 			start_offset = offset;
-			if (has_ent_count) {
+			if (has_ent_count &&
+			    lanman->resp_data_element_item != NULL) {
 				/*
 				 * Create a protocol tree item for the
 				 * entry.
@@ -2006,7 +2528,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		/* function code */
 		cmd = tvb_get_letohs(p_tvb, offset);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str(cmd, commands, "Unknown Command:0x%02x"));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str(cmd, commands, "Unknown Command (%u)"));
 		}
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, offset, 2,
 		    cmd);
@@ -2068,7 +2590,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 * item is the auxiliary data descriptor.
 			 */
 			descriptor_len = tvb_strsize(p_tvb, offset);
-			proto_tree_add_item(tree, hf_return_desc, p_tvb, offset,
+			proto_tree_add_item(tree, hf_aux_data_desc, p_tvb, offset,
 			    descriptor_len, TRUE);
 			aux_data_descrip = tvb_get_ptr(p_tvb, offset, descriptor_len);
 			if (!pinfo->fd->flags.visited) {
@@ -2147,7 +2669,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/* command */
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s Interim Response",
-					     val_to_str(trp->lanman_cmd, commands, "Unknown Command (0x%02x)"));
+					     val_to_str(trp->lanman_cmd, commands, "Unknown Command (%u)"));
 			}
 			proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0, trp->lanman_cmd);
 			return TRUE;
@@ -2156,7 +2678,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		/* command */
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
-				     val_to_str(trp->lanman_cmd, commands, "Unknown Command (0x%02x)"));
+				     val_to_str(trp->lanman_cmd, commands, "Unknown Command (%u)"));
 		}
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0,
 		    trp->lanman_cmd);
@@ -2179,7 +2701,6 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		offset = dissect_response_parameters(p_tvb, offset, pinfo, tree,
 		    trp->param_descrip, lanman->resp, &has_data,
 		    &has_ent_count, &ent_count);
-
 
 		/* reset offset, we now start dissecting the data area */
 		offset = 0;
@@ -2362,6 +2883,10 @@ proto_register_pipe_lanman(void)
 			{ "User Name", "lanman.user_name", FT_STRING, BASE_NONE,
 			NULL, 0, "LANMAN User Name", HFILL }},
 
+		{ &hf_group_name,
+			{ "Group Name", "lanman.group_name", FT_STRING, BASE_NONE,
+			NULL, 0, "LANMAN Group Name", HFILL }},
+
 		{ &hf_workstation_domain,
 			{ "Workstation Domain", "lanman.workstation_domain", FT_STRING, BASE_NONE,
 			NULL, 0, "LANMAN Workstation Domain", HFILL }},
@@ -2454,6 +2979,10 @@ proto_register_pipe_lanman(void)
 			{ "Duration of Session", "lanman.duration", FT_RELATIVE_TIME, BASE_NONE,
 			NULL, 0, "LANMAN Number of seconds the user was logged on", HFILL }},
 
+		{ &hf_comment,
+			{ "Comment", "lanman.comment", FT_STRING, BASE_NONE,
+			NULL, 0, "LANMAN Comment", HFILL }},
+
 		{ &hf_user_comment,
 			{ "User Comment", "lanman.user_comment", FT_STRING, BASE_NONE,
 			NULL, 0, "LANMAN User Comment", HFILL }},
@@ -2515,8 +3044,11 @@ proto_register_pipe_lanman(void)
 	};
 	static gint *ett[] = {
 		&ett_lanman,
+		&ett_lanman_unknown_entries,
+		&ett_lanman_unknown_entry,
 		&ett_lanman_servers,
 		&ett_lanman_server,
+		&ett_lanman_groups,
 		&ett_lanman_shares,
 		&ett_lanman_share,
 	};
@@ -3065,5 +3597,5 @@ proto_register_smb_pipe(void)
 void
 proto_reg_handoff_smb_pipe(void)
 {
-  data_handle = find_dissector("data");
+	data_handle = find_dissector("data");
 }
