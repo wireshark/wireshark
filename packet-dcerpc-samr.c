@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.78 2003/02/19 22:09:03 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.79 2003/02/21 00:19:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -254,7 +254,7 @@ static gint hf_access_domain_set_info2 = -1;
 static gint hf_access_domain_create_user = -1;
 static gint hf_access_domain_create_group = -1;
 static gint hf_access_domain_create_alias = -1;
-static gint hf_access_domain_unknown_80 = -1;
+static gint hf_access_domain_lookup_alias_by_mem = -1;
 static gint hf_access_domain_enum_accounts = -1;
 static gint hf_access_domain_open_account = -1;
 static gint hf_access_domain_set_info3 = -1;
@@ -276,7 +276,7 @@ specific_rights_domain(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
-		tree, hf_access_domain_unknown_80,
+		tree, hf_access_domain_lookup_alias_by_mem,
 		tvb, offset, 4, access);
 
 	proto_tree_add_boolean(
@@ -5389,10 +5389,10 @@ proto_register_dcerpc_samr(void)
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 	    DOMAIN_ACCESS_CREATE_ALIAS, "Create alias", HFILL }},
 
-	{ &hf_access_domain_unknown_80,
-	  { "Unknown 0x80", "samr_access_mask.domain_unknown_80",
+	{ &hf_access_domain_lookup_alias_by_mem,
+	  { "Lookup alias", "samr_access_mask.domain_lookup_alias_by_mem",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-	    DOMAIN_ACCESS_UNKNOWN_80, "Unknown 0x80", HFILL }},
+	    DOMAIN_ACCESS_UNKNOWN_80, "Lookup alias", HFILL }},
 
 	{ &hf_access_domain_enum_accounts,
 	  { "Enum accounts", "samr_access_mask.domain_enum_accounts",
