@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.138 2001/06/19 23:08:55 guy Exp $
+ * $Id: packet-ip.c,v 1.139 2001/06/29 09:46:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -792,7 +792,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ip_tree = NULL, *field_tree;
   proto_item *ti, *tf;
   int        offset = 0;
-  guint      hlen, optlen, len, payload_len, reported_payload_len;
+  guint      hlen, optlen, len;
   int        padding;
   guint16    flags;
   guint8     nxt;
@@ -815,33 +815,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   iph.ip_off = ntohs(iph.ip_off);
   iph.ip_sum = ntohs(iph.ip_sum);
 
-  /* Length of payload handed to us. */
-  reported_payload_len = tvb_reported_length(tvb);
-  payload_len = tvb_length(tvb);
-
   /* Length of IP datagram. */
   len = iph.ip_len;
 
-  if (len < reported_payload_len) {
-    /* Adjust the length of this tvbuff to include only the IP datagram.
-       Our caller may use that to determine how much of its packet
-       was padding. */
-    tvb_set_reported_length(tvb, len);
-
-    /* Shrink the total payload by the amount of padding. */
-    padding = reported_payload_len - len;
-    if (pinfo->len >= padding)
-      pinfo->len -= padding;
-
-    /* Shrink the captured payload by the amount of padding in the
-       captured payload (which may be less than the amount of padding,
-       as the padding may not have been captured). */
-    if (len < payload_len) {
-      padding = payload_len - len;
-      if (pinfo->captured_len >= padding)
-        pinfo->captured_len -= padding;
-    }
-  }
+  /* Adjust the length of this tvbuff to include only the IP datagram. */
+  set_actual_length(tvb, pinfo, len);
 
   hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
  

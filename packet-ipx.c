@@ -2,12 +2,11 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.86 2001/06/18 02:17:47 guy Exp $
+ * $Id: packet-ipx.c,v 1.87 2001/06/29 09:46:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -202,8 +201,6 @@ static void
 dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t	*next_tvb;
-	const guint8	*this_pd;
-	int		this_offset, len;
 
 	proto_tree	*ipx_tree;
 	proto_item	*ti;
@@ -212,7 +209,6 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint8		ipx_type, ipx_hops;
 	guint16		ipx_length;
-	int		reported_length, available_length;
 
 	guint16		ipx_dsocket, ipx_ssocket;
 
@@ -227,15 +223,8 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ipx_type	= tvb_get_guint8(tvb, 5);
 	ipx_length	= tvb_get_ntohs(tvb, 2);
 
-	/* Set the payload and captured-payload lengths to the minima of
-	   (the IPX length plus the length of the headers above it) and
-	   the frame lengths. XXX - remove once all dissectors use tvbuffs */
-	tvb_compat(tvb, &this_pd, &this_offset);
-	len = ipx_length + this_offset;
-	if (pi.len > len)
-		pi.len = len;
-	if (pi.captured_len > len)
-		pi.captured_len = len;
+	/* Adjust the tvbuff length to include only the IPX datagram. */
+	set_actual_length(tvb, pinfo, ipx_length);
 
 	src_net_node = tvb_get_ptr(tvb, 18, 10);
 	dst_net_node = tvb_get_ptr(tvb, 6,  10);
@@ -278,11 +267,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Make the next tvbuff */
-	reported_length = ipx_length - IPX_HEADER_LEN;
-	available_length = tvb_length(tvb) - IPX_HEADER_LEN;
-	next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN,
-			MIN(available_length, reported_length),
-			reported_length);
+	next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN, -1, -1);
 
 	if (dissector_try_port(ipx_type_dissector_table, ipx_type, next_tvb,
 	    pinfo, tree))

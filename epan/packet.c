@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.35 2001/06/02 08:23:10 guy Exp $
+ * $Id: packet.c,v 1.36 2001/06/29 09:46:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,6 +94,50 @@ void
 packet_cleanup(void)
 {
 	/* nothing */
+}
+
+/*
+ * Given a tvbuff, a packet_info *, and a length from a packet header,
+ * adjust the length of the tvbuff, and the "len" and "captured_len"
+ * members of the "packet_info" structure, to reflect the specified
+ * length.
+ */
+void
+set_actual_length(tvbuff_t *tvb, packet_info *pinfo, guint specified_len)
+{
+  guint payload_len, reported_payload_len;
+  int   padding;
+
+  /* Length of payload handed to us. */
+  reported_payload_len = tvb_reported_length(tvb);
+  payload_len = tvb_length(tvb);
+
+  if (specified_len < reported_payload_len) {
+    /* Adjust the length of this tvbuff to include only the specified
+       payload length.
+
+       The dissector above the one calling us (the dissector above is
+       probably us) may use that to determine how much of its packet
+       was padding. */
+    tvb_set_reported_length(tvb, specified_len);
+
+    /* XXX - can we get rid of "pinfo->len" and "pinfo->captured_len"
+       when the last dissector is tvbuffified? */
+
+    /* Shrink the total payload by the amount of padding. */
+    padding = reported_payload_len - specified_len;
+    if (pinfo->len >= padding)
+      pinfo->len -= padding;
+
+    /* Shrink the captured payload by the amount of padding in the
+       captured payload (which may be less than the amount of padding,
+       as the padding may not have been captured). */
+    if (specified_len < payload_len) {
+      padding = payload_len - specified_len;
+      if (pinfo->captured_len >= padding)
+        pinfo->captured_len -= padding;
+    }
+  }
 }
 
 /* Allow protocols to register "init" routines, which are called before

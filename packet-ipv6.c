@@ -1,11 +1,10 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.60 2001/06/26 17:31:36 itojun Exp $
+ * $Id: packet-ipv6.c,v 1.61 2001/06/29 09:46:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
- *
  * Copyright 1998 Gerald Combs
  *
  * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
@@ -675,9 +674,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Get the payload length */
   plen = ntohs(ipv6.ip6_plen);
 
-  /* Check for trailer (not part of IPv6 packet) */
-  if (plen + sizeof (struct ip6_hdr) < tvb_reported_length(tvb))
-    tvb_set_reported_length(tvb, plen + sizeof (struct ip6_hdr));
+  /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
+  set_actual_length(tvb, pinfo, plen + sizeof (struct ip6_hdr));
 
   SET_ADDRESS(&pinfo->net_src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_SRC, 16));
   SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_SRC, 16));
