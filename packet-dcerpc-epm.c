@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.15 2002/10/21 18:07:20 guy Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.16 2002/10/23 00:48:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -185,8 +185,10 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     offset += len;
 
     if(str&&str[0]){
-        proto_item_append_text(tree, " Service:%*s ", strlen, str);
-        proto_item_append_text(tree->parent, " Service:%*s ", strlen, str);
+        if(parent_tree) {
+            proto_item_append_text(item, " Service:%*s ", strlen, str);
+            proto_item_append_text(tree->parent, " Service:%*s ", strlen, str);
+        }
         if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Service:%*s", strlen, str);
         }
