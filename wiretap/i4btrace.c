@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.1 1999/12/12 22:40:09 gram Exp $
+ * $Id: i4btrace.c,v 1.2 1999/12/15 02:25:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -34,10 +34,19 @@
 
 static int i4btrace_read(wtap *wth, int *err);
 
+/*
+ * Test some fields in the header to see if they make sense.
+ */
+#define	I4B_HDR_IS_OK(hdr) \
+	(!((unsigned)hdr.length < 3 || (unsigned)hdr.unit > 4 || \
+	    (unsigned)hdr.type > 4 || (unsigned)hdr.dir > 2 || \
+	    (unsigned)hdr.trunc > 2048))
+
 int i4btrace_open(wtap *wth, int *err)
 {
 	int bytes_read;
 	i4b_trace_hdr_t hdr;
+	gboolean byte_swapped = FALSE;
 
 	/* I4B trace files have no magic in the header... Sigh */
 	file_seek(wth->fh, 0, SEEK_SET);
@@ -51,10 +60,28 @@ int i4btrace_open(wtap *wth, int *err)
 	}
 
 	/* Silly heuristic... */
-	if ((unsigned)hdr.length < 3 || (unsigned)hdr.unit > 4 ||
-			(unsigned)hdr.type > 4 || (unsigned)hdr.dir > 2 ||
-			(unsigned)hdr.trunc > 2048)
-		return 0;
+	if (!I4B_HDR_IS_OK(hdr)) {
+		/*
+		 * OK, try byte-swapping the header fields.
+		 */
+		hdr.length = BSWAP32(hdr.length);
+		hdr.unit = BSWAP32(hdr.unit);
+		hdr.type = BSWAP32(hdr.type);
+		hdr.dir = BSWAP32(hdr.dir);
+		hdr.trunc = BSWAP32(hdr.trunc);
+		if (!I4B_HDR_IS_OK(hdr)) {
+			/*
+			 * It doesn't look valid in either byte order.
+			 */
+			return 0;
+		}
+
+		/*
+		 * It looks valid byte-swapped, so assume it's a
+		 * trace written in the opposite byte order.
+		 */
+		byte_swapped = TRUE;
+	}
 
 	file_seek(wth->fh, 0, SEEK_SET);
 	wth->data_offset = 0;
@@ -69,6 +96,7 @@ int i4btrace_open(wtap *wth, int *err)
 	wth->capture.i4btrace->start = hdr.time.tv_sec;
 	wth->capture.i4btrace->bchannel_prot[0] = -1;
 	wth->capture.i4btrace->bchannel_prot[1] = -1;
+	wth->capture.i4btrace->byte_swapped = byte_swapped;
 
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 
@@ -100,8 +128,22 @@ static int i4btrace_read(wtap *wth, int *err)
 		return 0;
 	}
 	wth->data_offset += sizeof hdr;
-	length = pletohs(&hdr.length) - sizeof(hdr);
-	if (length == 0) return 0;
+	if (wth->capture.i4btrace->byte_swapped) {
+		/*
+		 * Byte-swap the header.
+		 */
+		hdr.length = BSWAP32(hdr.length);
+		hdr.unit = BSWAP32(hdr.unit);
+		hdr.type = BSWAP32(hdr.type);
+		hdr.dir = BSWAP32(hdr.dir);
+		hdr.trunc = BSWAP32(hdr.trunc);
+		hdr.count = BSWAP32(hdr.count);
+		hdr.time.tv_sec = BSWAP32(hdr.time.tv_sec);
+		hdr.time.tv_usec = BSWAP32(hdr.time.tv_usec);
+	}
+	length = hdr.length - sizeof(hdr);
+	if (length == 0)
+		return 0;
 
 	wth->phdr.len = length;
 	wth->phdr.caplen = length;

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.61 1999/12/15 01:34:16 guy Exp $
+ * $Id: wtap.h,v 1.62 1999/12/15 02:25:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -160,6 +160,7 @@ typedef struct {
 } radcom_t;
 
 typedef struct {
+	gboolean byte_swapped;
 	time_t	start;
 	int bchannel_prot[2];	/* For the V.120 heuristic */
 } i4btrace_t;
@@ -474,6 +475,16 @@ int wtap_pcap_encap_to_wtap_encap(int encap);
 #define	WTAP_ERR_ZLIB				-200
 #define	WTAP_ERR_ZLIB_MAX			-100
 #define	WTAP_ERR_ZLIB_MIN			-300
+
+/* Macros to byte-swap 32-bit and 16-bit quantities. */
+#define	BSWAP32(x) \
+	((((x)&0xFF000000)>>24) | \
+	 (((x)&0x00FF0000)>>8) | \
+	 (((x)&0x0000FF00)<<8) | \
+	 (((x)&0x000000FF)<<24))
+#define	BSWAP16(x) \
+	 ((((x)&0xFF00)>>8) | \
+	  (((x)&0x00FF)<<8))
 
 /* Turn host-byte-order values into little-endian values. */
 #ifdef WORDS_BIGENDIAN

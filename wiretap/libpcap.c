@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.27 1999/12/11 00:40:39 guy Exp $
+ * $Id: libpcap.c,v 1.28 1999/12/15 02:25:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -52,16 +52,6 @@
 #define	PCAP_SWAPPED_MAGIC		0xd4c3b2a1
 #define	PCAP_MODIFIED_MAGIC		0xa1b2cd34
 #define	PCAP_SWAPPED_MODIFIED_MAGIC	0x34cdb2a1
-
-/* Macros to byte-swap 32-bit and 16-bit quantities. */
-#define	BSWAP32(x) \
-	((((x)&0xFF000000)>>24) | \
-	 (((x)&0x00FF0000)>>8) | \
-	 (((x)&0x0000FF00)<<8) | \
-	 (((x)&0x000000FF)<<24))
-#define	BSWAP16(x) \
-	 ((((x)&0xFF00)>>8) | \
-	  (((x)&0x00FF)<<8))
 
 /* On some systems, the FDDI MAC addresses are bit-swapped. */
 #if !defined(ultrix) && !defined(__alpha) && !defined(__bsdi__)
