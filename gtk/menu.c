@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.79 2002/11/17 11:43:40 sahlberg Exp $
+ * $Id: menu.c,v 1.80 2002/12/19 02:58:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -311,7 +311,8 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/_Go To Specified Frame", NULL, goto_framenum_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Protocol Properties...", NULL, properties_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Match", NULL, NULL, 0, "<Branch>", NULL),

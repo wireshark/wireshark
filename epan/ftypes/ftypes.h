@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.14 2002/08/28 20:41:00 jmayer Exp $
+ * $Id: ftypes.h,v 1.15 2002/12/19 02:58:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@ enum ftenum {
 	FT_IPv4,
 	FT_IPv6,
 	FT_IPXNET,
+	FT_FRAMENUM,	/* a UINT32, but if selected lets you go to frame with that numbe */
 	FT_NUM_TYPES /* last item number plus one */
 };
 

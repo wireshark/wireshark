@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.29 2002/11/03 17:38:33 oabad Exp $
+ * $Id: main.h,v 1.30 2002/12/19 02:58:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,7 @@ extern GtkStyle *item_style;
 #endif
 
 void about_ethereal( GtkWidget *, gpointer);
+void goto_framenum_cb(GtkWidget *, gpointer);
 void match_selected_cb_replace_ptree( GtkWidget *, gpointer);
 void match_selected_cb_and_ptree( GtkWidget *, gpointer);
 void match_selected_cb_or_ptree( GtkWidget *, gpointer);

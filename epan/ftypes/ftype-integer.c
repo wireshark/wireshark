@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.10 2002/08/28 20:41:00 jmayer Exp $
+ * $Id: ftype-integer.c,v 1.11 2002/12/19 02:58:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -467,6 +467,32 @@ ftype_register_integers(void)
 		NULL,
 	};
 
+	static ftype_t framenum_type = {
+		"FT_FRAMENUM",
+		"frame number",
+		4,
+		int_fvalue_new,
+		NULL,
+		val_from_string,
+
+		NULL,
+		set_integer,
+		NULL,
+
+		NULL,
+		get_integer,
+		NULL,
+
+		cmp_eq,
+		cmp_ne,
+		u_cmp_gt,
+		u_cmp_ge,
+		u_cmp_lt,
+		u_cmp_le,
+
+		NULL,
+		NULL,
+	};
 
 	ftype_register(FT_UINT8, &uint8_type);
 	ftype_register(FT_UINT16, &uint16_type);
@@ -478,4 +504,5 @@ ftype_register_integers(void)
 	ftype_register(FT_INT32, &int32_type);
 	ftype_register(FT_BOOLEAN, &boolean_type);
 	ftype_register(FT_IPXNET, &ipxnet_type);
+	ftype_register(FT_FRAMENUM, &framenum_type);
 }

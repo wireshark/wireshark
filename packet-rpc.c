@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.112 2002/12/06 21:01:37 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.113 2002/12/19 02:58:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,6 +144,8 @@ static const value_string rpc_authdes_namekind[] = {
 
 /* the protocol number */
 static int proto_rpc = -1;
+static int hf_rpc_reqframe = -1;
+static int hf_rpc_repframe = -1;
 static int hf_rpc_lastfrag = -1;
 static int hf_rpc_fraglen = -1;
 static int hf_rpc_xid = -1;
@@ -1881,7 +1883,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if(rpc_call && rpc_call->rep_num){
-			proto_tree_add_text(rpc_tree, tvb, 0, 0,
+			proto_tree_add_uint_format(rpc_tree, hf_rpc_repframe,
+			    tvb, 0, 0, rpc_call->rep_num,
 			    "The reply to this request is in frame %u",
 			    rpc_call->rep_num);
 		}
@@ -1980,7 +1983,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Indicate the frame to which this is a reply. */
 		if(rpc_call && rpc_call->req_num){
-			proto_tree_add_text(rpc_tree, tvb, 0, 0,
+			proto_tree_add_uint_format(rpc_tree, hf_rpc_reqframe,
+			    tvb, 0, 0, rpc_call->req_num,
 			    "This is a reply to a request in frame %u",
 			    rpc_call->req_num);
 			ns.secs= pinfo->fd->abs_secs-rpc_call->req_time.secs;
@@ -2932,6 +2936,12 @@ void
 proto_register_rpc(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_rpc_reqframe, {
+			"Request Frame", "rpc.reqframe", FT_FRAMENUM, BASE_NONE,
+			NULL, 0, "Request Frame", HFILL }},
+		{ &hf_rpc_repframe, {
+			"Reply Frame", "rpc.repframe", FT_FRAMENUM, BASE_NONE,
+			NULL, 0, "Reply Frame", HFILL }},
 		{ &hf_rpc_lastfrag, {
 			"Last Fragment", "rpc.lastfrag", FT_BOOLEAN, 32,
 			&yesno, RPC_RM_LASTFRAG, "Last Fragment", HFILL }},

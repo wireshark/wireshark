@@ -9,7 +9,7 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod.pl,v 1.3 2002/08/18 19:08:23 guy Exp $
+# $Id: dfilter2pod.pl,v 1.4 2002/12/19 02:58:45 guy Exp $
 
 %ftenum_names = (
 	'FT_NONE',		'No value',
@@ -36,6 +36,7 @@
 	'FT_IPv4',		'IPv4 address',
 	'FT_IPv6',		'IPv6 address',
 	'FT_IPXNET',		'IPX network or server name',
+	'FT_FRAMENUM',		'Frame number',
 );
 
 # Read all the data into memory

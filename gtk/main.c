@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.278 2002/11/28 02:04:23 guy Exp $
+ * $Id: main.c,v 1.279 2002/12/19 02:58:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,7 @@
 #include "register.h"
 #include "ringbuffer.h"
 #include "ui_util.h"
+#include "../ui_util.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "../tap.h"
@@ -215,6 +216,25 @@ set_fonts(PangoFontDescription *regular, PangoFontDescription *bold)
 #endif
 }
 
+/*
+ * Go to frame specified by currently selected protocol tree item.
+ */
+void
+goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+    if (finfo_selected) {
+	header_field_info	*hfinfo;
+	guint32			framenum;
+
+	hfinfo = finfo_selected->hfinfo;
+	g_assert(hfinfo);
+	if (hfinfo->type == FT_FRAMENUM) {
+		framenum = fvalue_get_integer(finfo_selected->value);
+		if (framenum != 0)
+			packet_list_set_selected_row(framenum - 1);
+	}
+    }
+}
 
 /* Match selected byte pattern */
 static void

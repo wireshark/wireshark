@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.77 2002/11/28 01:46:12 guy Exp $
+ * $Id: proto.c,v 1.78 2002/12/19 02:58:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1554,6 +1554,7 @@ proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_FRAMENUM:
 			pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length,
 					&new_fi);
 			proto_tree_set_uint(new_fi, value);
@@ -2254,9 +2255,9 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 			(hfinfo->type == FT_INT16) ||
 			(hfinfo->type == FT_INT24) ||
 			(hfinfo->type == FT_INT32) ||
-			(hfinfo->type == FT_BOOLEAN) ));
+			(hfinfo->type == FT_BOOLEAN) ||
+			(hfinfo->type == FT_FRAMENUM) ));
 
-	/* Require integral types to have a number base */
 	switch (hfinfo->type) {
 
 	case FT_UINT8:
@@ -2267,7 +2268,15 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	case FT_INT16:
 	case FT_INT24:
 	case FT_INT32:
+		/* Require integral types (other than frame number, which is
+		   always displayed in decimal) to have a number base */
 		g_assert(hfinfo->display != BASE_NONE);
+		break;
+
+	case FT_FRAMENUM:
+		/* Don't allow bitfields or value strings for frame numbers */
+		g_assert(hfinfo->bitmask == 0);
+		g_assert(hfinfo->strings == NULL);
 		break;
 
 	default:
@@ -2360,6 +2369,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_FRAMENUM:
 			if (hfinfo->bitmask) {
 				if (hfinfo->strings) {
 					fill_label_enumerated_bitfield(fi, label_str);
@@ -2772,36 +2782,43 @@ hfinfo_uint_format(header_field_info *hfinfo)
 	char *format = NULL;
 
 	/* Pick the proper format string */
-	switch(hfinfo->display) {
-		case BASE_DEC:
-		case BASE_BIN: /* I'm lazy */
-			format = "%s: %u";
-			break;
-		case BASE_OCT: /* I'm lazy */
-			format = "%s: %o";
-			break;
-		case BASE_HEX:
-			switch(hfinfo->type) {
-				case FT_UINT8:
-					format = "%s: 0x%02x";
-					break;
-				case FT_UINT16:
-					format = "%s: 0x%04x";
-					break;
-				case FT_UINT24:
-					format = "%s: 0x%06x";
-					break;
-				case FT_UINT32:
-					format = "%s: 0x%08x";
-					break;
-				default:
-					g_assert_not_reached();
-					;
-			}
-			break;
-		default:
-			g_assert_not_reached();
-			;
+	if (hfinfo->type == FT_FRAMENUM) {
+		/*
+		 * Frame numbers are always displayed in decimal.
+		 */
+		format = "%s: %u";
+	} else {
+		switch(hfinfo->display) {
+			case BASE_DEC:
+			case BASE_BIN: /* I'm lazy */
+				format = "%s: %u";
+				break;
+			case BASE_OCT: /* I'm lazy */
+				format = "%s: %o";
+				break;
+			case BASE_HEX:
+				switch(hfinfo->type) {
+					case FT_UINT8:
+						format = "%s: 0x%02x";
+						break;
+					case FT_UINT16:
+						format = "%s: 0x%04x";
+						break;
+					case FT_UINT24:
+						format = "%s: 0x%06x";
+						break;
+					case FT_UINT32:
+						format = "%s: 0x%08x";
+						break;
+					default:
+						g_assert_not_reached();
+						;
+				}
+				break;
+			default:
+				g_assert_not_reached();
+				;
+		}
 	}
 	return format;
 }
@@ -3163,50 +3180,58 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 	char *format = NULL;
 
 	/* Pick the proper format string */
-	switch(hfinfo->display) {
-		case BASE_DEC:
-		case BASE_OCT: /* I'm lazy */
-		case BASE_BIN: /* I'm lazy */
-			switch(hfinfo->type) {
-				case FT_UINT8:
-				case FT_UINT16:
-				case FT_UINT24:
-				case FT_UINT32:
-					format = "%s == %u";
-					break;
-				case FT_INT8:
-				case FT_INT16:
-				case FT_INT24:
-				case FT_INT32:
-					format = "%s == %d";
-					break;
-				default:
-					g_assert_not_reached();
-					;
-			}
-			break;
-		case BASE_HEX:
-			switch(hfinfo->type) {
-				case FT_UINT8:
-					format = "%s == 0x%02x";
-					break;
-				case FT_UINT16:
-					format = "%s == 0x%04x";
-					break;
-				case FT_UINT24:
-					format = "%s == 0x%06x";
-					break;
-				case FT_UINT32:
-					format = "%s == 0x%08x";
-					break;
-				default:
-					g_assert_not_reached();
-					;
-			}
-			break;
-		default:
-			g_assert_not_reached();
-			;
+	if (hfinfo->type == FT_FRAMENUM) {
+		/*
+		 * Frame numbers are always displayed in decimal.
+		 */
+		format = "%s == %u";
+	} else {
+		/* Pick the proper format string */
+		switch(hfinfo->display) {
+			case BASE_DEC:
+			case BASE_OCT: /* I'm lazy */
+			case BASE_BIN: /* I'm lazy */
+				switch(hfinfo->type) {
+					case FT_UINT8:
+					case FT_UINT16:
+					case FT_UINT24:
+					case FT_UINT32:
+						format = "%s == %u";
+						break;
+					case FT_INT8:
+					case FT_INT16:
+					case FT_INT24:
+					case FT_INT32:
+						format = "%s == %d";
+						break;
+					default:
+						g_assert_not_reached();
+						;
+				}
+				break;
+			case BASE_HEX:
+				switch(hfinfo->type) {
+					case FT_UINT8:
+						format = "%s == 0x%02x";
+						break;
+					case FT_UINT16:
+						format = "%s == 0x%04x";
+						break;
+					case FT_UINT24:
+						format = "%s == 0x%06x";
+						break;
+					case FT_UINT32:
+						format = "%s == 0x%08x";
+						break;
+					default:
+						g_assert_not_reached();
+						;
+				}
+				break;
+			default:
+				g_assert_not_reached();
+				;
+		}
 	}
 	return format;
 }
@@ -3226,6 +3251,7 @@ proto_can_match_selected(field_info *finfo)
 	switch(hfinfo->type) {
 
 		case FT_BOOLEAN:
+		case FT_FRAMENUM:
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
@@ -3301,6 +3327,7 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_FRAMENUM:
 			/*
 			 * 4 bytes for " == ".
 			 * 11 bytes for:
