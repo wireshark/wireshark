@@ -611,6 +611,7 @@ Hartmut Mueller <hartmut[AT]wendolene.ping.de> {
 
 Michal Melerowicz <Michal.Melerowicz[AT]nokia.com> {
 	GTP support
+	GTPv1 support and GTPv0 improvements
 }
 
 Hannes Gredler <hannes[AT]juniper.net> {
@@ -780,6 +781,10 @@ Thomas Wittwer <thomas.wittwer[AT]iclip.ch> {
 
 Palle Lyckegaard <Palle[AT]lyckegaard.dk> {
 	OSPFv3 support
+}
+
+Nicolas Balkota <balkota[AT]mac.com> {
+	GTPv1 support and GTPv0 improvements
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
