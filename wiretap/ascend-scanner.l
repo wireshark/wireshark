@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.26 2003/10/03 21:12:49 jmayer Exp $
+ * $Id: ascend-scanner.l,v 1.27 2004/01/06 20:05:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -19,7 +19,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -187,7 +186,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 }
 
 <sc_gen_byte>{H}{2} {
-  ascendlval.b = strtol(ascendtext, NULL, 16);
+  ascendlval.b = (guint8)strtol(ascendtext, NULL, 16);
   return HEXBYTE;
 }
 

@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.24 2002/03/02 20:41:07 guy Exp $
+ * $Id: ascend-grammar.y,v 1.25 2004/01/06 20:05:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -126,14 +126,14 @@ unsigned int bcur = 0, bcount;
 guint32 start_time, secs, usecs, caplen, wirelen;
 ascend_pkthdr *header;
 struct ascend_phdr *pseudo_header;
-char *pkt_data;
+guint8 *pkt_data;
 
 %}
  
 %union {
 gchar  *s;
 guint32 d;
-char    b;
+guint8  b;
 }
 
 %token <s> STRING KEYWORD WDD_DATE WDD_CHUNK COUNTER
@@ -378,7 +378,7 @@ init_parse_ascend()
 /* Parse the capture file.  Return the offset of the next packet, or zero
    if there is none. */
 int
-parse_ascend(FILE_T fh, void *pd, struct ascend_phdr *phdr,
+parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
 		ascend_pkthdr *hdr, int len)
 {
   /* yydebug = 1; */
