@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.3 1999/08/04 00:21:37 guy Exp $
+# $Id: autogen.sh,v 1.4 1999/08/11 16:05:11 gram Exp $
 
 DIE=0
 PROJECT="Ethereal"
@@ -38,14 +38,6 @@ for dir in . wiretap ;  do
 		aclocalinclude="$ACLOCAL_FLAGS"; \
 		aclocal $aclocalinclude; \
 		autoheader; automake --add-missing --gnu $am_opt; autoconf)
-done
-
-for dir in doc;  do
-	echo processing $dir
-	(cd $dir; \
-		aclocalinclude="$ACLOCAL_FLAGS"; \
-		aclocal $aclocalinclude; \
-		autoheader; autoconf)
 done
 
 ./configure "$@"
