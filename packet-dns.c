@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.33 1999/12/29 10:36:13 guy Exp $
+ * $Id: packet-dns.c,v 1.34 2000/01/16 02:54:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,7 +38,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dns.h"
-#include "util.h"
 
 static int proto_dns = -1;
 static int hf_dns_response = -1;

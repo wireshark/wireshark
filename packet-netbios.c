@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.12 2000/01/14 17:08:41 gerald Exp $
+ * $Id: packet-netbios.c,v 1.13 2000/01/16 02:54:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,7 +40,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-netbios.h"
-#include "util.h"
 
 /* Netbios command numbers */
 #define NB_ADD_GROUP		0x00

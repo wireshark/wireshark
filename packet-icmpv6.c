@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.11 1999/11/16 11:42:31 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.12 2000/01/16 02:54:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,7 +57,6 @@
 #include "packet.h"
 #include "packet-ipv6.h"
 #include "resolv.h"
-#include "util.h"
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
