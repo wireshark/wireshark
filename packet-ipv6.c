@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.57 2001/05/27 02:16:32 guy Exp $
+ * $Id: packet-ipv6.c,v 1.58 2001/06/08 08:30:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,8 @@
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include "resolv.h"
+#include "prefs.h"
+#include "reassemble.h"
 #include "ipproto.h"
 #include "etypes.h"
 #include "ppptypes.h"
@@ -75,6 +77,13 @@ static int hf_ipv6_addr = -1;
 #ifdef TEST_FINALHDR
 static int hf_ipv6_final = -1;
 #endif
+static int hf_ipv6_fragments = -1;
+static int hf_ipv6_fragment = -1;
+static int hf_ipv6_fragment_overlap = -1;
+static int hf_ipv6_fragment_overlap_conflict = -1;
+static int hf_ipv6_fragment_multiple_tails = -1;
+static int hf_ipv6_fragment_too_long_fragment = -1;
+static int hf_ipv6_fragment_error = -1;
 
 /* BT INSERT BEGIN */
 static int hf_ipv6_mipv6_type = -1;
@@ -98,10 +107,26 @@ static int hf_ipv6_mipv6_sub_alternative_COA = -1;
 /* BT INSERT END */
 
 static gint ett_ipv6 = -1;
+static gint ett_ipv6_fragments = -1;
+static gint ett_ipv6_fragment  = -1;
+
+/* Reassemble fragmented datagrams */
+static gboolean ipv6_reassemble = FALSE;
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
 #endif
+
+/*
+ * defragmentation of IPv6
+ */
+static GHashTable *ipv6_fragment_table = NULL;
+
+static void
+ipv6_reassemble_init(void)
+{
+  fragment_table_init(&ipv6_fragment_table);
+}
 
 static int
 dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
@@ -164,7 +189,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 static int
 dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
-    int *fragstart) {
+    guint16 *offlg, guint32 *ident) {
     struct ip6_frag frag;
     int len;
     proto_item *ti;
@@ -173,12 +198,13 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     tvb_memcpy(tvb, (guint8 *)&frag, offset, sizeof(frag));
     len = sizeof(frag);
     frag.ip6f_offlg = ntohs(frag.ip6f_offlg);
-    *fragstart = frag.ip6f_offlg & IP6F_OFF_MASK;
+    *offlg = frag.ip6f_offlg;
+    *ident = frag.ip6f_ident;
     if (check_col(pinfo->fd, COL_INFO)) {
 	col_add_fstr(pinfo->fd, COL_INFO,
 	    "IPv6 fragment (nxt=%s (0x%02x) off=%u id=0x%x)",
 	    ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt,
-	    *fragstart, frag.ip6f_ident);
+	    frag.ip6f_offlg & IP6F_OFF_MASK, frag.ip6f_ident);
     }
     if (tree) {
 	   ti = proto_tree_add_text(tree, tvb, offset, len,
@@ -613,13 +639,21 @@ dissect_dstopts(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 static void
 dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  proto_tree *ipv6_tree;
+  proto_tree *ipv6_tree = NULL;
   proto_item *ti;
   guint8 nxt;
   int advance;
   int poffset;
-  int frag;
+  guint16 plen;
+  gboolean frag;
+  guint16 offlg;
+  guint32 ident;
   int offset;
+  fragment_data *ipfd_head;
+  tvbuff_t   *next_tvb;
+  packet_info save_pi;
+  gboolean must_restore_pi = FALSE;
+  gboolean update_col_info = TRUE;
 
   struct ip6_hdr ipv6;
 
@@ -633,9 +667,12 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   pinfo->ipproto = ipv6.ip6_nxt; /* XXX make work TCP follow (ipproto = 6) */
 
+  /* Get the payload length */
+  plen = ntohs(ipv6.ip6_plen);
+
   /* Check for trailer (not part of IPv6 packet) */
-  if (pntohs(&ipv6.ip6_plen) + sizeof (struct ip6_hdr) < tvb_reported_length(tvb))
-    tvb_set_reported_length(tvb, pntohs(&ipv6.ip6_plen) + sizeof (struct ip6_hdr));
+  if (plen + sizeof (struct ip6_hdr) < tvb_reported_length(tvb))
+    tvb_set_reported_length(tvb, plen + sizeof (struct ip6_hdr));
 
   SET_ADDRESS(&pinfo->net_src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_SRC, 16));
   SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_SRC, 16));
@@ -651,7 +688,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_uint(ipv6_tree, hf_ipv6_version, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_vfc), 1,
 		(ipv6.ip6_vfc >> 4) & 0x0f);
-
 
     proto_tree_add_uint(ipv6_tree, hf_ipv6_class, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
@@ -669,7 +705,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     proto_tree_add_uint(ipv6_tree, hf_ipv6_plen, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_plen), 2,
-		ntohs(ipv6.ip6_plen));
+		plen);
 
     proto_tree_add_uint_format(ipv6_tree, hf_ipv6_nxt, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_nxt), 1,
@@ -715,31 +751,36 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   poffset = offset + offsetof(struct ip6_hdr, ip6_nxt);
   nxt = tvb_get_guint8(tvb, poffset);
   offset += sizeof(struct ip6_hdr);
-  frag = 0;
+  offlg = 0;
+  ident = 0;
 
-/* start out assuming this insn't fragmented */
-	pinfo->fragmented = FALSE;
+/* start out assuming this isn't fragmented */
+  frag = FALSE;
 
 again:
-    switch (nxt) {
-    case IP_PROTO_HOPOPTS:
+   switch (nxt) {
+   case IP_PROTO_HOPOPTS:
 			advance = dissect_hopopts(tvb, offset, tree);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
+			plen -= advance;
 			goto again;
     case IP_PROTO_ROUTING:
 			advance = dissect_routing6(tvb, offset, tree);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
+			plen -= advance;
 			goto again;
     case IP_PROTO_FRAGMENT:
-			pinfo->fragmented = TRUE;
-			advance = dissect_frag6(tvb, offset, pinfo, tree, &frag);
+			frag = TRUE;
+			advance = dissect_frag6(tvb, offset, pinfo, tree,
+			    &offlg, &ident);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
+			plen -= advance;
 			goto again;
     case IP_PROTO_AH:
 			advance = dissect_ah_header(
@@ -748,32 +789,178 @@ again:
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
+			plen -= advance;
 			goto again;
     case IP_PROTO_DSTOPTS:
 			advance = dissect_dstopts(tvb, offset, tree);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
+			plen -= advance;
 			goto again;
     }
 
 #ifdef TEST_FINALHDR
   proto_tree_add_uint_hidden(ipv6_tree, hf_ipv6_final, tvb, poffset, 1, nxt);
 #endif
-  if (frag) {
-    /* fragmented */
+
+  /* If ipv6_reassemble is on and this is a fragment, then just add the fragment
+   * to the hashtable.
+   */
+  if (ipv6_reassemble && frag) {
+    /* We're reassembling, and this is part of a fragmented datagram.
+       Add the fragment to the hash table if the frame isn't truncated. */
+    if (tvb_reported_length(tvb) <= tvb_length(tvb)) {
+      ipfd_head = fragment_add(tvb, offset, pinfo, ident,
+			       ipv6_fragment_table,
+			       offlg & IP6F_OFF_MASK,
+			       plen,
+			       offlg & IP6F_MORE_FRAG);
+    } else {
+      ipfd_head=NULL;
+    }
+
+    if (ipfd_head != NULL) {
+      fragment_data *ipfd;
+      proto_tree *ft=NULL;
+      proto_item *fi=NULL;
+
+      /* OK, we have the complete reassembled payload. */
+      /* show all fragments */
+      fi = proto_tree_add_item(ipv6_tree, hf_ipv6_fragments, 
+                tvb, 0, 0, FALSE);
+      ft = proto_item_add_subtree(fi, ett_ipv6_fragments);
+      for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
+        if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
+                          |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+          /* this fragment has some flags set, create a subtree 
+           * for it and display the flags.
+           */
+          proto_tree *fet=NULL;
+          proto_item *fei=NULL;
+          int hf;
+
+          if (ipfd->flags & (FD_OVERLAPCONFLICT
+                      |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+            hf = hf_ipv6_fragment_error;
+          } else {
+            hf = hf_ipv6_fragment;
+          }
+          fei = proto_tree_add_none_format(ft, hf, 
+                   tvb, 0, 0,
+                   "Frame:%d payload:%d-%d",
+                   ipfd->frame,
+                   ipfd->offset,
+                   ipfd->offset+ipfd->len-1
+          );
+          fet = proto_item_add_subtree(fei, ett_ipv6_fragment);
+          if (ipfd->flags&FD_OVERLAP) {
+            proto_tree_add_boolean(fet, 
+                 hf_ipv6_fragment_overlap, tvb, 0, 0, 
+                 TRUE);
+          }
+          if (ipfd->flags&FD_OVERLAPCONFLICT) {
+            proto_tree_add_boolean(fet, 
+                 hf_ipv6_fragment_overlap_conflict, tvb, 0, 0, 
+                 TRUE);
+          }
+          if (ipfd->flags&FD_MULTIPLETAILS) {
+            proto_tree_add_boolean(fet, 
+                 hf_ipv6_fragment_multiple_tails, tvb, 0, 0, 
+                 TRUE);
+          }
+          if (ipfd->flags&FD_TOOLONGFRAGMENT) {
+            proto_tree_add_boolean(fet, 
+                 hf_ipv6_fragment_too_long_fragment, tvb, 0, 0, 
+                 TRUE);
+          }
+        } else {
+          /* nothing of interest for this fragment */
+          proto_tree_add_none_format(ft, hf_ipv6_fragment, 
+                   tvb, 0, 0,
+                   "Frame:%d payload:%d-%d",
+                   ipfd->frame,
+                   ipfd->offset,
+                   ipfd->offset+ipfd->len-1
+          );
+        }
+      }
+      if (ipfd_head->flags & (FD_OVERLAPCONFLICT
+                        |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+        if (check_col(pinfo->fd, COL_INFO)) {
+          col_set_str(pinfo->fd, COL_INFO, "[Illegal fragments]");
+          update_col_info = FALSE;
+        }
+      }
+
+      /* Allocate a new tvbuff, referring to the reassembled payload. */
+      next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen,
+	ipfd_head->datalen, "Reassembled");
+
+      /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+         were handed refers, so it'll get cleaned up when that tvbuff
+         is cleaned up. */
+      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+      /* Add the defragmented data to the data source list. */
+      pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, next_tvb);
+
+      /* It's not fragmented. */
+      pinfo->fragmented = FALSE;
+
+      /* Save the current value of "pi", and adjust certain fields to
+         reflect the new tvbuff. */
+      save_pi = pi;
+      pi.compat_top_tvb = next_tvb;
+      pi.len = tvb_reported_length(next_tvb);
+      pi.captured_len = tvb_length(next_tvb);
+      must_restore_pi = TRUE;
+    } else {
+      /* We don't have the complete reassembled payload. */
+      next_tvb = NULL;
+    }
+  } else {
+    /* If this is the first fragment, dissect its contents, otherwise
+       just show it as a fragment.
+
+       XXX - if we eventually don't save the reassembled contents of all
+       fragmented datagrams, we may want to always reassemble. */
+    if (offlg & IP6F_OFF_MASK) {
+      /* Not the first fragment - don't dissect it. */
+      next_tvb = NULL;
+    } else {
+      /* First fragment, or not fragmented.  Dissect what we have here. */
+
+      /* Get a tvbuff for the payload. */
+      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+      /*
+       * If this is the first fragment, but not the only fragment,
+       * tell the next protocol that.
+       */
+      if (offlg & IP6F_MORE_FRAG)
+        pinfo->fragmented = TRUE;
+      else
+        pinfo->fragmented = FALSE;
+    }
+  }
+
+  if (next_tvb == NULL) {
+    /* Just show this as a fragment. */
     /* COL_INFO was filled in by "dissect_frag6()" */
     dissect_data(tvb, offset, pinfo, tree);
-  }	else {
-    tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
-    /* do lookup with the subdissector table */
-    if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
-      /* Unknown protocol */
-      if (check_col(pinfo->fd, COL_INFO))
-	col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
-      dissect_data(next_tvb, 0, pinfo, tree);
-    }
+    /* As we haven't reassembled anything, we haven't changed "pi", so
+       we don't have to restore it. */
+    return;
+  }
+
+  /* do lookup with the subdissector table */
+  if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
+    /* Unknown protocol */
+    if (check_col(pinfo->fd, COL_INFO))
+      col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
+    dissect_data(next_tvb, 0, pinfo, tree);
   }
 }
 
@@ -825,6 +1012,41 @@ proto_register_ipv6(void)
       { "Address",		"ipv6.addr",
 				FT_IPv6, BASE_NONE, NULL, 0x0,
 				"Source or Destination IPv6 Address" }},
+
+    { &hf_ipv6_fragment_overlap,
+      { "Fragment overlap",	"ipv6.fragment.overlap",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"Fragment overlaps with other fragments" }},
+
+    { &hf_ipv6_fragment_overlap_conflict,
+      { "Conflicting data in fragment overlap",	"ipv6.fragment.overlap.conflict",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"Overlapping fragments contained conflicting data" }},
+
+    { &hf_ipv6_fragment_multiple_tails,
+      { "Multiple tail fragments found", "ipv6.fragment.multipletails",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"Several tails were found when defragmenting the packet" }},
+
+    { &hf_ipv6_fragment_too_long_fragment,
+      { "Fragment too long",	"ipv6.fragment.toolongfragment",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"Fragment contained data past end of packet" }},
+
+    { &hf_ipv6_fragment_error,
+      { "Defragmentation error", "ipv6.fragment.error",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"Defragmentation error due to illegal fragments" }},
+
+    { &hf_ipv6_fragment,
+      { "IPv6 Fragment",	"ipv6.fragment",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"IPv6 Fragment" }},
+
+    { &hf_ipv6_fragments,
+      { "IPv6 Fragments",	"ipv6.fragments",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"IPv6 Fragments" }},
 
     /* BT INSERT BEGIN */
     { &hf_ipv6_mipv6_type,
@@ -915,13 +1137,24 @@ proto_register_ipv6(void)
   };
   static gint *ett[] = {
     &ett_ipv6,
+    &ett_ipv6_fragments,
+    &ett_ipv6_fragment,
   };
+  module_t *ipv6_module;
 
   proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "IPv6", "ipv6");
   proto_register_field_array(proto_ipv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /* Register configuration options */
+  ipv6_module = prefs_register_protocol(proto_ipv6, NULL);
+  prefs_register_bool_preference(ipv6_module, "defragment",
+	"Reassemble fragmented IPv6 datagrams",
+	"Whether fragmented IPv6 datagrams should be reassembled",
+	&ipv6_reassemble);
+
   register_dissector("ipv6", dissect_ipv6, proto_ipv6);
+  register_init_routine(ipv6_reassemble_init);
 }
 
 void
