@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.31 2002/02/10 02:25:14 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.32 2002/07/13 19:33:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <string.h>
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
 #include "packet-smb-browse.h"
