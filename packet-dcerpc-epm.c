@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.16 2002/10/23 00:48:33 guy Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.17 2002/10/25 01:16:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,11 +132,9 @@ epm_dissect_ept_lookup_rqst (tvbuff_t *tvb, int offset,
 
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_ver_opt, NULL);
-    if (tree) {
-        proto_tree_add_bytes (tree, hf_epm_hnd, tvb, offset, 20,
-                              tvb_get_ptr (tvb, offset, 20));
-    }
-    offset += 20;
+
+    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                  hf_epm_hnd, NULL);
 
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_max_ents, NULL);
@@ -565,6 +563,33 @@ epm_dissect_ept_delete_resp (tvbuff_t *tvb, int offset,
 }
 
 
+
+static int
+epm_dissect_ept_lookup_handle_free_rqst (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             char *drep)
+{
+    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                  hf_epm_hnd, NULL);
+
+    return offset;
+}
+
+static int
+epm_dissect_ept_lookup_handle_free_resp (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             char *drep)
+{
+    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                  hf_epm_hnd, NULL);
+
+    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                 hf_epm_rc, NULL);
+
+    return offset;
+}
+
+
 static dcerpc_sub_dissector epm_dissectors[] = {
     { 0, "Insert", 
 	epm_dissect_ept_insert_rqst,
@@ -578,9 +603,11 @@ static dcerpc_sub_dissector epm_dissectors[] = {
     { 3, "Map",
 	epm_dissect_ept_map_rqst,
 	epm_dissect_ept_map_resp },
-    { 4, "ept_lookup_handle_free", NULL, NULL },
-    { 5, "ept_inq_object", NULL, NULL },
-    { 6, "ept_mgmt_delete", NULL, NULL },
+    { 4, "LookupHandleFree",
+	epm_dissect_ept_lookup_handle_free_rqst,
+	epm_dissect_ept_lookup_handle_free_resp },
+    { 5, "InqObject", NULL, NULL },
+    { 6, "MgmtDelete", NULL, NULL },
     { 0, NULL, NULL, NULL }
 };
 
@@ -589,9 +616,9 @@ static const value_string epm_opnum_vals[] = {
 	{ 1, "Delete" },
 	{ 2, "Lookup" },
 	{ 3, "Map" },
-	{ 4, "lookup_handle_free" },
-	{ 5, "inq_object" },
-	{ 6, "mgmt_delete" },
+	{ 4, "LookupHandleFree" },
+	{ 5, "InqObject" },
+	{ 6, "MgmtDelete" },
 	{ 0, NULL }
 };
 
