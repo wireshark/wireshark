@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.27 2000/03/29 22:39:19 guy Exp $
+ * $Id: menu.c,v 1.28 2000/04/06 06:52:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,8 @@
 #include "follow.h"
 #include "keys.h"
 #include "plugins.h"
+
+GtkWidget *popup_menu_object;
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
