@@ -1559,7 +1559,7 @@ extern LoAL* new_loal(guint8* name) {
 	new_loal->null.avpl = NULL;
 	new_loal->null.next = &new_loal->null;
 	new_loal->null.prev = &new_loal->null;
-
+	new_loal->len = 0;
 	return new_loal;
 }
 
@@ -1584,6 +1584,7 @@ extern void loal_append(LoAL* loal, AVPL* avpl) {
 
 	loal->null.prev->next = node;
 	loal->null.prev = node;
+	loal->len++;
 }
 
 
@@ -1722,23 +1723,28 @@ extern void delete_loal(LoAL* loal, gboolean avpls_too, gboolean avps_too) {
  * load_loal_error:
  * Used by loal_from_file to handle errors while loading.
  **/
-void load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, guint8* fmt, ...) {
+LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, guint8* fmt, ...) {
 	va_list list;
 	guint8* desc;
-
-
+	LoAL* ret = NULL;
+	guint8* err;
+	
 	va_start( list, fmt );
 	desc = g_strdup_vprintf(fmt, list);
 	va_end( list );
+
+
+	err = g_strdup_printf("Error Loading LoAL from file: in %s at line: %i, %s",loal->name,linenum,desc);
+	ret = new_loal(err);
+
+	g_free(desc);
+	g_free(err);
 
 	if (fp) fclose(fp);
 	if (loal) delete_loal(loal,TRUE,TRUE);
 	if (curr) delete_avpl(curr,TRUE);
 
-	g_warning("Error Loading LoAL from file: at line: %i, %s",linenum,desc);
-	g_free(desc);
-
-	return;
+	return ret;
 }
 
 
@@ -1772,6 +1778,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 	guint8 c;
 	int i = 0;
 	guint32 linenum = 1;
+	guint8 linenum_buf[MAX_ITEM_LEN];
 	guint8 name[MAX_ITEM_LEN];
 	guint8 value[MAX_ITEM_LEN];
 	guint8 op = '?';
@@ -1801,8 +1808,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 
 			if ( feof(fp) ) {
 				if ( ferror(fp) ) {
-					load_loal_error(fp,loal,curr,linenum,"Error while reading '%f'",filename);
-					return NULL;
+					return load_loal_error(fp,loal,curr,linenum,"Error while reading '%f'",filename);
 				}
 				break;
 			}
@@ -1812,8 +1818,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 			}
 
 			if ( i >= MAX_ITEM_LEN - 1  ) {
-				load_loal_error(fp,loal,curr,linenum,"Maximum item lenght exceeded");
-				return NULL;
+				return load_loal_error(fp,loal,curr,linenum,"Maximum item lenght exceeded");
 			}
 
 			switch(state) {
@@ -1841,15 +1846,14 @@ extern LoAL* loal_from_file(guint8* filename) {
 							i = 0;
 							name[i++] = c;
 							name[i] = '\0';
-
-							curr = new_avpl("");
+							g_snprintf(linenum_buf,sizeof(linenum_buf),"%s:%u",filename,linenum);
+							curr = new_avpl(linenum_buf);
 							continue;
 						case '#':
 							state = MY_IGNORE;
 							continue;
 						default:
-							load_loal_error(fp,loal,curr,linenum,"expecting name got: '%c'",c);
-							return NULL;
+							return load_loal_error(fp,loal,curr,linenum,"expecting name got: '%c'",c);
 					}
 				case BEFORE_NAME:
 					i = 0;
@@ -1873,8 +1877,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 							state = START;
 							continue;
 						default:
-							load_loal_error(fp,loal,curr,linenum,"expecting name got: '%c'",c);
-							return NULL;
+							return load_loal_error(fp,loal,curr,linenum,"expecting name got: '%c'",c);
 					}
 					case IN_NAME:
 						switch (c) {
@@ -1903,11 +1906,9 @@ extern LoAL* loal_from_file(guint8* filename) {
 								name[i++] = c;
 								continue;
 							case '\n':
-								load_loal_error(fp,loal,curr,linenum,"operator expected found new line");
-								return NULL;
+								return load_loal_error(fp,loal,curr,linenum,"operator expected found new line");
 							default:
-								load_loal_error(fp,loal,curr,linenum,"name or match operator expected found '%c'",c);
-								return NULL;
+								return load_loal_error(fp,loal,curr,linenum,"name or match operator expected found '%c'",c);
 						}
 					case IN_VALUE:
 						switch (c) {
@@ -1927,8 +1928,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 								}
 								continue;
 							case '\n':
-								load_loal_error(fp,loal,curr,linenum,"';' expected found new line");
-								return NULL;
+								return load_loal_error(fp,loal,curr,linenum,"';' expected found new line");
 							default:
 								value[i++] = c;
 								continue;
@@ -1940,7 +1940,6 @@ extern LoAL* loal_from_file(guint8* filename) {
 		return loal;
 
 	} else {
-		load_loal_error(NULL,loal,NULL,0,"Cannot Open file '%s'",filename);
-		return NULL;
+		return load_loal_error(NULL,loal,NULL,0,"Cannot Open file '%s'",filename);
 	}
 }

@@ -37,7 +37,7 @@ static mate_config* mc = NULL;
 
 static int proto_mate = -1;
 
-static char* pref_mate_config_filename = "config.mate";
+static char* pref_mate_config_filename = "";
 
 static proto_item *mate_i = NULL;
 
@@ -259,16 +259,17 @@ extern
 void
 proto_reg_handoff_mate(void)
 {
-	mc = mate_make_config(pref_mate_config_filename);
-
-	if (mc) {
-		proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
-		proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
-		register_init_routine(init_mate);
+	if ( *pref_mate_config_filename != '\0' ) {
+		
+		mc = mate_make_config(pref_mate_config_filename);
+		
+		if (mc) {
+			proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
+			proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
+			register_init_routine(init_mate);
+		}
 	}
-
-}  
-
+}
 
 extern
 void
