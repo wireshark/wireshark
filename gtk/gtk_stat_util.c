@@ -2,7 +2,7 @@
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *
- * $Id: gtk_stat_util.c,v 1.6 2004/06/01 21:56:04 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

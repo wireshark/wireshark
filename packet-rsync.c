@@ -3,7 +3,7 @@
  * [ very rough, but mininally functional ]
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-rsync.c,v 1.7 2004/01/17 12:51:00 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

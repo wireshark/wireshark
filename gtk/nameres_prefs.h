@@ -1,7 +1,7 @@
 /* nameres_prefs.h
  * Definitions for name resolution preferences window
  *
- * $Id: nameres_prefs.h,v 1.5 2004/06/04 20:05:31 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

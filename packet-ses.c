@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id: packet-ses.c,v 1.8 2004/01/13 01:55:36 guy Exp $
+* $Id$
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *

@@ -2,7 +2,7 @@
  * Routines for decoding MDS Port Analyzer Adapter (FC in Eth) Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-brdwlk.c,v 1.6 2003/10/30 03:15:26 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

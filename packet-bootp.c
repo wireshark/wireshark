@@ -3,7 +3,7 @@
  * Copyright 1998, Gilbert Ramirez <gram@alumni.rice.edu>
  * Copyright 2004, Thomas Anders <thomas.anders [AT] blue-cable.de>
  *
- * $Id: packet-bootp.c,v 1.79 2004/05/24 16:38:29 guy Exp $
+ * $Id$
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol

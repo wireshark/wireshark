@@ -2,7 +2,7 @@
 * Routines for the disassembly of the "Nortel Networks / SynOptics Network Management Protocol"
 * (c) Copyright Giles Scott <giles.scott1 [AT] btinternet.com>
 *
-* $Id: packet-nt-sonmp.c,v 1.5 2004/02/23 16:33:14 jmayer Exp $
+* $Id$
 *
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>

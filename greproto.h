@@ -10,7 +10,7 @@
  * definition for them; when this file is empty, get rid of all includes
  * of it, and get rid of it.
  *
- * $Id: greproto.h,v 1.3 2002/08/28 21:00:06 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

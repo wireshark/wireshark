@@ -1,6 +1,6 @@
 /* proto_dlg.h
  *
- * $Id: proto_dlg.h,v 1.5 2004/06/04 20:05:31 ulfl Exp $
+ * $Id$
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *

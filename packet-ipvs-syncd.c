@@ -1,7 +1,7 @@
 /* packet-ipvs-syncd.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-ipvs-syncd.c,v 1.1 2004/03/21 17:13:01 nneul Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* filters.c
  * Declarations of routines for reading and writing the filters file.
  *
- * $Id: filters.h,v 1.4 2003/12/04 00:45:37 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -3,7 +3,7 @@
  * exists so that the library can be loaded on systems that
  * have it.
  *
- * $Id: xmlstub.c,v 1.4 2004/04/25 10:38:24 etxrab Exp $
+ * $Id$
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *

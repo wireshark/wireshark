@@ -2,7 +2,7 @@
  * Routines for IGMP/IGAP packet disassembly
  * 2003, Endoh Akria (see AUTHORS for email)
  *
- * $Id: packet-igap.c,v 1.2 2004/03/06 01:54:53 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

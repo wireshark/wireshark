@@ -1,6 +1,6 @@
 /* pppdump.h
  *
- * $Id: pppdump.h,v 1.4 2004/01/25 21:55:17 guy Exp $
+ * $Id$
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *

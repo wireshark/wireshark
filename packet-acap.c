@@ -3,7 +3,7 @@
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  * Heavily based in packet-imap.c, Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-acap.c,v 1.2 2003/06/11 20:04:13 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 /* wtap_capture.h
  *
- * $Id: wtap-capture.h,v 1.3 2002/08/28 20:30:45 jmayer Exp $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

@@ -1,7 +1,7 @@
 /* range.h
  * Packet range routines (save, print, ...)
  *
- * $Id: range.h,v 1.8 2004/01/09 18:10:40 ulfl Exp $
+ * $Id$
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>

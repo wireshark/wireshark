@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.274 2004/07/06 16:29:18 gerald Exp $
+# $Id$
 #
 AC_INIT(etypes.h)
 

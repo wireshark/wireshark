@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_attr_schema.idl
  *
- * $Id: packet-dcerpc-rs_attr_schema.c,v 1.1 2004/02/10 23:38:34 guy Exp $
+ * $Id$
  *      
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

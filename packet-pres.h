@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8823 OSI Presentation Protocol packets
 *
-* $Id: packet-pres.h,v 1.2 2004/03/23 19:37:23 guy Exp $
+* $Id$
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *

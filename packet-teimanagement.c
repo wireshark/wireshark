@@ -3,7 +3,7 @@
  * Rolf Fiedler <rolf.fiedler@innoventif.com>
  * based on code by Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-teimanagement.c,v 1.1 2004/01/26 20:48:38 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,5 +1,5 @@
 /*
- *  $Id: packet-rtps.h,v 1.3 2004/04/22 20:29:46 jmayer Exp $
+ *  $Id$
  *
  *  AUTHOR: Petr Smolik                 petr.smolik@wo.cz
  *

@@ -1,7 +1,7 @@
 /* packet-esis.h
  * Defines and such for ESIS protocol decode.
  *
- * $Id: packet-esis.h,v 1.4 2002/08/28 21:00:13 jmayer Exp $
+ * $Id$
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer

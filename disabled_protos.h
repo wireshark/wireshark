@@ -1,7 +1,7 @@
 /* disabled_protos.h
  * Declarations of routines for reading and writing the disabled protocols file.
  *
- * $Id: disabled_protos.h,v 1.2 2004/01/03 18:40:07 sharpe Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

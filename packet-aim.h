@@ -1,7 +1,7 @@
 /* packet-tcp.h
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.h,v 1.6 2004/06/03 04:19:38 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

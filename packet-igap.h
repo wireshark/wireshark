@@ -2,7 +2,7 @@
  * Declarations of routines for IGMP/IGAP packet disassembly
  * 2003, Endoh Akira <See AUTHORS for email>
  *
- * $Id: packet-igap.h,v 1.1 2003/12/10 19:21:55 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

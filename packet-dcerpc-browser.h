@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.h,v 1.3 2003/10/02 21:48:35 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

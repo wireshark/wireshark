@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.23 2004/07/07 07:01:37 guy Exp $
+ * $Id$
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *

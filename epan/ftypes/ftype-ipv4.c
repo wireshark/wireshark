@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-ipv4.c,v 1.16 2004/02/27 12:00:32 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

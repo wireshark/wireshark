@@ -1,7 +1,7 @@
 /* packet-isdn.c
  * Routines for ISDN packet disassembly
  *
- * $Id: packet-isdn.c,v 1.5 2003/12/21 12:07:09 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

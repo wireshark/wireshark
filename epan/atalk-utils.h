@@ -1,7 +1,7 @@
 /* atalk-utils.h
  * Definitions for Appletalk utilities (DDP, currently).
  *
- * $Id: atalk-utils.h,v 1.4 2003/08/26 01:00:29 guy Exp $
+ * $Id$
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

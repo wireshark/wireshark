@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.88 2004/05/24 02:25:17 guy Exp $
+ * $Id$
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)

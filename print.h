@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.45 2004/07/08 10:36:27 guy Exp $
+ * $Id$
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *

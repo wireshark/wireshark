@@ -3,7 +3,7 @@
  * Enterasys Networks Home: http://www.enterasys.com/
  * Copyright 2003, Joshua Craig Douglas <jdouglas@enterasys.com>
  *
- * $Id: packet-ismp.c,v 1.4 2004/02/18 10:11:51 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

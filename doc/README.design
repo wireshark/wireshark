@@ -1,4 +1,4 @@
-$Id: README.design,v 1.1 2000/11/14 18:05:27 gram Exp $
+$Id$
 
 Unfortunately, the closest thing to a design document is the
 "README.developer" document in the "doc" directory of the Ethereal

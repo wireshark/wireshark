@@ -2,7 +2,7 @@
  * Routines for IAPP dissection
  * Copyright 2002, Alfred Arnold <aarnold@elsa.de>
  *
- * $Id: packet-iapp.c,v 1.6 2002/08/28 21:00:16 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -4,7 +4,7 @@
  * Heavily based in packet-acap.c, which in turn is heavily based on 
  * packet-imap.c, Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-jabber.c,v 1.1 2003/07/07 22:48:55 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

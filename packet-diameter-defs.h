@@ -5,7 +5,7 @@
  * AVPs.  If libxml is in the LD_LIBRARY_PATH, and dictionary.xml exists,
  * then it will not be used.
  *
- * $Id: packet-diameter-defs.h,v 1.12 2004/04/02 05:07:42 guy Exp $
+ * $Id$
  * Generated: Fri Feb 23 13:04:15 2001
  * References:
  * http://www.ietf.org/rfc/rfc3588.txt

@@ -1,7 +1,7 @@
 /* ipv6-utils.h
  * Definitions for IPv6 packet disassembly
  *
- * $Id: ipv6-utils.h,v 1.2 2002/08/28 20:40:44 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

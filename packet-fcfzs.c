@@ -2,7 +2,7 @@
  * Routines for FC Fabric Zone Server
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-fcfzs.c,v 1.2 2003/12/02 06:06:30 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines for CCSDS dissection
  * Copyright 2000, Scott Hovis scott.hovis@ums.msfc.nasa.gov
  *
- * $Id: packet-ccsds.c,v 1.3 2003/12/05 22:33:11 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* webbrowser.h
  * Web browser activation functions
  *
- * $Id: webbrowser.h,v 1.3 2004/07/01 09:35:33 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

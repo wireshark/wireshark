@@ -1,7 +1,7 @@
 /* column-utils.h
  * Definitions for column utility structures and routines
  *
- * $Id: column-utils.h,v 1.12 2004/02/05 23:57:15 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

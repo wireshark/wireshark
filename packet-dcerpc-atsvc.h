@@ -2,7 +2,7 @@
  * Routines for SMB \pipe\atsvc packet disassembly
  * Copyright 2003 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
- * $Id: packet-dcerpc-atsvc.h,v 1.1 2003/05/28 22:43:57 sharpe Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 /* packet-ppp.h
  *
- * $Id: packet-ppp.h,v 1.14 2003/08/26 05:52:52 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

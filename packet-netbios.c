@@ -5,7 +5,7 @@
  *
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.57 2003/04/20 11:36:14 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

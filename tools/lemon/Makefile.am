@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.3 2001/02/27 20:34:09 gram Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>

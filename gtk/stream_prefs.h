@@ -1,7 +1,7 @@
 /* stream_prefs.h
  * Definitions for stream preferences window
  *
- * $Id: stream_prefs.h,v 1.7 2004/06/04 20:05:31 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

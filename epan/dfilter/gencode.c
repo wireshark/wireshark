@@ -1,5 +1,5 @@
 /*
- * $Id: gencode.c,v 1.13 2004/02/27 12:00:30 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

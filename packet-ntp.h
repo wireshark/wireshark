@@ -1,7 +1,7 @@
 /* packet-ntp.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-ntp.h,v 1.9 2004/05/13 20:20:34 gerald Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

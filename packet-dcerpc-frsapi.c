@@ -2,7 +2,7 @@
  * Routines for the frs API (File Replication Service) MSRPC interface 
  * Copyright 2004 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
- * $Id: packet-dcerpc-frsapi.c,v 1.1 2004/07/10 07:16:54 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

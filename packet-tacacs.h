@@ -2,7 +2,7 @@
  * Routines for cisco tacplus packet dissection
  * Copyright 2000, Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.h,v 1.6 2003/12/21 04:31:57 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

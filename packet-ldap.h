@@ -1,6 +1,6 @@
 /* packet-ldap.h
  *
- * $Id: packet-ldap.h,v 1.7 2003/11/05 09:04:16 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  *
- * $Id: packet-wtls.c,v 1.24 2004/02/28 22:56:36 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -4,7 +4,7 @@ Test-suite to test ethereal's dfilter mechanism.
 """
 
 #
-# $Id: dfilter-test.py,v 1.4 2004/02/22 03:04:41 gram Exp $
+# $Id$
 #
 # Copyright (C) 2003 by Gilbert Ramirez <gram@alumni.rice.edu>
 #  

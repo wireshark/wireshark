@@ -2,7 +2,7 @@
 * Routines for Transparent Proxy Cache Protocol packet disassembly
 * (c) Copyright Giles Scott <giles.scott1 [AT] btinternet.com>
 *
-* $Id: packet-nt-tpcp.c,v 1.3 2004/02/23 16:33:14 jmayer Exp $
+* $Id$
 *
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>

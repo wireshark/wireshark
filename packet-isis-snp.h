@@ -1,7 +1,7 @@
 /* packet-isis-snp.h
  * Defines and such for CSNP, PSNP, and their payloads
  *
- * $Id: packet-isis-snp.h,v 1.8 2003/12/08 20:40:33 guy Exp $
+ * $Id$
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer

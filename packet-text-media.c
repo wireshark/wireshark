@@ -6,7 +6,7 @@
  *
  * (C) Olivier Biot, 2004.
  *
- * $Id: packet-text-media.c,v 1.9 2004/06/17 20:49:01 etxrab Exp $
+ * $Id$
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.

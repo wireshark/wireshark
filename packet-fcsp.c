@@ -3,7 +3,7 @@
  * This decoder is for FC-SP version 1.1
  * Copyright 2003, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcsp.c,v 1.2 2003/11/07 08:47:53 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

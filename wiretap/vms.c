@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.23 2004/03/03 22:24:53 guy Exp $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>

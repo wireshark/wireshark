@@ -6,7 +6,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: process-x11-fields.pl,v 1.6 2004/03/27 11:33:40 guy Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* iax2_codec_type.h
  * Defines IAX2 codec types
  *
- * $Id: iax2_codec_type.h,v 1.1 2004/06/25 06:31:46 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Header file for display filter dialog used by GTK gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.h,v 1.3 2004/06/02 22:13:04 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

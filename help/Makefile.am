@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal help files
 #
-# $Id: Makefile.am,v 1.6 2004/02/09 18:22:28 ulfl Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

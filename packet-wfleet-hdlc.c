@@ -2,7 +2,7 @@
  * Routines for Wellfleet HDLC packet disassembly
  * Copied from the Cisco HDLC packet disassembly routines
  *
- * $Id: packet-wfleet-hdlc.c,v 1.1 2002/12/20 07:56:07 sharpe Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 /* packet-atm.h
  *
- * $Id: packet-atm.h,v 1.9 2002/08/28 21:00:07 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

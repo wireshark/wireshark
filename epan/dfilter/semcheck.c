@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.28 2004/06/15 10:16:10 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

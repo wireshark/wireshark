@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.18 2004/06/25 07:00:54 jmayer Exp $
+ * $Id$
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *

@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-who.c,v 1.26 2003/04/30 02:35:20 gerald Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

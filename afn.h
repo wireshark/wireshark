@@ -1,7 +1,7 @@
 /* afn.h
  * RFC 1700 address family numbers
  *
- * $Id: afn.h,v 1.3 2002/08/28 21:00:05 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

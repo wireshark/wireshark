@@ -1,7 +1,7 @@
 /* register.h
  * Definitions for protocol registration
  *
- * $Id: register.h,v 1.6 2004/05/03 18:51:50 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

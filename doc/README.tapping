@@ -1,4 +1,4 @@
-$Id: README.tapping,v 1.6 2003/11/29 12:34:33 jmayer Exp $
+$Id$
 
 The TAP system in ethereal is a powerful and flexible mechanism to get event 
 driven notification on packets matching certain protocols and/or filters.

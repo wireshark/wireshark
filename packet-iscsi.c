@@ -3,7 +3,7 @@
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *  2004 Request/Response matching and Service Response Time: ronnie sahlberg
  *
- * $Id: packet-iscsi.c,v 1.50 2004/05/24 02:25:18 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.8 2004/03/17 06:55:02 guy Exp $
+# $Id$
 #
 
 include ..\..\config.nmake

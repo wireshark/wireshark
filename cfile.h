@@ -1,7 +1,7 @@
 /* cfile.h
  * capture_file definition & GUI-independent manipulation
  *
- * $Id: cfile.h,v 1.10 2004/04/15 23:28:10 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

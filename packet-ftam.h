@@ -2,7 +2,7 @@
 *
 * Routine to dissect OSI ISO 8571 FTAM Protocol packets
 *
-* $Id: packet-ftam.h,v 1.1 2004/03/23 19:51:06 guy Exp $
+* $Id$
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *

@@ -2,7 +2,7 @@
  * Routines for FC Extended Link Services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcels.c,v 1.6 2003/11/07 08:50:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -5,7 +5,7 @@
  * Based on the code from packet-gvrp.c (GVRP) from
  * Kevin Shi <techishi@ms22.hinet.net> Copyright 2000
  *
- * $Id: packet-gmrp.c,v 1.10 2002/08/28 21:00:13 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* conditions.c
  * Implementation for condition handler.
  *
- * $Id: conditions.c,v 1.6 2004/01/18 16:20:09 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

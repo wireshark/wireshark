@@ -1,7 +1,7 @@
 /* timestamp.h
  * Defines for packet timestamps
  *
- * $Id: timestamp.h,v 1.5 2004/03/18 19:04:32 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -3,7 +3,7 @@
  * to many dissectors.
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-e164.c,v 1.2 2004/03/19 10:24:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -4,7 +4,7 @@
  *
  * (C) Olivier Biot, 2004
  *
- * $Id: packet-media.c,v 1.2 2004/04/30 21:33:15 guy Exp $
+ * $Id$
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.

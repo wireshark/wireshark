@@ -1,4 +1,4 @@
-/* $Id: grammar.lemon,v 1.10 2004/06/03 07:36:24 guy Exp $ */
+/* $Id$ */
 
 %include {
 #ifdef HAVE_CONFIG_H

@@ -1,7 +1,7 @@
 /* range_utils.h
  * Declarations of utilities to with range_utils.c (packet range dialog)
  *
- * $Id: range_utils.h,v 1.2 2004/06/02 22:13:04 ulfl Exp $
+ * $Id$
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *

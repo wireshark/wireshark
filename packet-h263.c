@@ -5,7 +5,7 @@
  * Copyright 2003 Niklas Ögren <niklas.ogren@7l.se>
  * Seven Levels Consultants AB
  *
- * $Id: packet-h263.c,v 1.5 2004/06/25 06:31:46 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

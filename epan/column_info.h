@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column structures and routines
  *
- * $Id: column_info.h,v 1.13 2004/07/05 09:29:06 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

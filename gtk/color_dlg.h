@@ -1,7 +1,7 @@
 /* color_dlg.h
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.h,v 1.6 2004/06/04 20:05:30 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

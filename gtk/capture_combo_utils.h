@@ -1,7 +1,7 @@
 /* capture_combo_utils.c
  * Declarations of tilities for combo box of interface names
  *
- * $Id: capture_combo_utils.h,v 1.2 2004/06/01 20:28:04 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

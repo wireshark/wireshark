@@ -9,7 +9,7 @@
  *   Short Message Service
  *			3GPP2 C.S0015-0		TIA/EIA-637-A
  *
- * $Id: packet-ansi_637.c,v 1.5 2003/12/09 00:52:02 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

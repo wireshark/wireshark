@@ -1,6 +1,6 @@
 /* atm.h
  *
- * $Id: atm.h,v 1.3 2002/08/28 20:30:44 jmayer Exp $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

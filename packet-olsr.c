@@ -8,7 +8,7 @@
  *
  * http://www.ietf.org/rfc/rfc3626.txt
  *
- * $Id: packet-olsr.c,v 1.4 2004/01/18 16:48:24 gerald Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

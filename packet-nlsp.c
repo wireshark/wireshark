@@ -1,7 +1,7 @@
 /* packet-nlsp.c
  * Routines for NetWare Link Services Protocol
  *
- * $Id: packet-nlsp.c,v 1.7 2003/10/06 08:35:30 guy Exp $
+ * $Id$
  *
  * Based on ISIS dissector by Stuart Stanley <stuarts@mxmail.net>
  *

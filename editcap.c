@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.31 2004/02/23 05:44:34 sharpe Exp $
+ * $Id$
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.

@@ -2,7 +2,7 @@
  * Fibre Channel Switch InterLink Services Definitions
  * Copyright 2001 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcswils.h,v 1.3 2003/10/30 02:06:12 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

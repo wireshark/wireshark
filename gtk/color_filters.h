@@ -1,7 +1,7 @@
 /* color_filters.h
  * Definitions for color filters
  *
- * $Id: color_filters.h,v 1.7 2004/06/01 20:28:04 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

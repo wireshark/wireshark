@@ -1,6 +1,6 @@
 /* packet-tr.h
  *
- * $Id: packet-tr.h,v 1.9 2003/08/23 09:09:33 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

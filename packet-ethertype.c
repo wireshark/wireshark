@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.46 2004/04/07 06:04:22 guy Exp $
+ * $Id$
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *

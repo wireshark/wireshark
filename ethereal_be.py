@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_be.py,v 1.6 2001/11/19 22:58:49 guy Exp $
+# $Id$
 #
 #    File      : ethereal_be.py
 #

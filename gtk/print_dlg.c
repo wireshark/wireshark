@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing and exporting to text files
  *
- * $Id: print_dlg.c,v 1.81 2004/07/08 10:36:29 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

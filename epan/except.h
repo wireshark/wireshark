@@ -14,7 +14,7 @@
  * into proprietary software; there is no requirement for such software to
  * contain a copyright notice related to this source.
  *
- * $Id: except.h,v 1.4 2002/08/28 20:40:44 jmayer Exp $
+ * $Id$
  * $Name:  $
  */
 

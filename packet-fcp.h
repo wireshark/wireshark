@@ -2,7 +2,7 @@
  * Fibre Channel SCSI (FCP) Protocol definitions 
  * Copyright 2001 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcp.h,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

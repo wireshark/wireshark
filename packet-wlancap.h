@@ -2,7 +2,7 @@
  * packet-wlancap.h
  *	Declarations for packet-wlancap.c
  *
- * $Id: packet-wlancap.h,v 1.1 2002/11/06 21:49:29 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

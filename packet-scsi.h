@@ -1,7 +1,7 @@
 /* packet-scsi.h
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.h,v 1.7 2003/03/08 08:02:20 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

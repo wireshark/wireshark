@@ -5,7 +5,7 @@
  *
  * Using IPDC spec 0.20.2
  *
- * $Id: packet-ipdc.h,v 1.6 2004/04/22 20:31:01 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

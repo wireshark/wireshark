@@ -11,7 +11,7 @@
  *        DICOM packets correctly.  
  *        This should probably be documented somewhere besides here.)
  *
- * $Id: packet-dcm.c,v 1.4 2004/07/09 23:17:04 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

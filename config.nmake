@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.96 2004/07/13 18:19:59 gerald Exp $
+# $Id$
 
 VERSION=0.10.5
 #

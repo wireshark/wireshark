@@ -2,7 +2,7 @@
  * Routines for FC Common Transport Protocol (used by GS3 services)
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-fcct.c,v 1.2 2003/06/30 21:50:17 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

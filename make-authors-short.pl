@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: make-authors-short.pl,v 1.3 2004/05/22 14:05:33 jmayer Exp $
+# $Id$
 
 # Remove tasks from individual author entries from AUTHORS file
 # for use in the about dialog.

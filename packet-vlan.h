@@ -1,6 +1,6 @@
 /* packet-vlan.h
  *
- * $Id: packet-vlan.h,v 1.6 2002/08/28 21:00:36 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

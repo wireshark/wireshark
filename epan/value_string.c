@@ -1,7 +1,7 @@
 /* value_string.c
  * Routines for value_strings
  *
- * $Id: value_string.c,v 1.5 2003/12/01 23:41:44 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

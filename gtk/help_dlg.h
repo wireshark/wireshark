@@ -1,6 +1,6 @@
 /* help_dlg.h
  *
- * $Id: help_dlg.h,v 1.8 2004/06/04 20:05:31 ulfl Exp $
+ * $Id$
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *

@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.41 2004/06/10 09:46:26 guy Exp $
+ * $Id$
  *
  * Routines to modify dissector tables on the fly.
  *

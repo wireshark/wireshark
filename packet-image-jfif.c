@@ -3,7 +3,7 @@
  * Routines for JFIF image/jpeg media dissection
  * Copyright 2004, Olivier Biot.
  *
- * $Id: packet-image-jfif.c,v 1.5 2004/05/31 01:24:03 obiot Exp $
+ * $Id$
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.

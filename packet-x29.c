@@ -1,7 +1,7 @@
 /* packet-x29.c
  * Routines for X.29 packet dissection
  *
- * $Id: packet-x29.c,v 1.1 2003/01/06 02:24:57 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* ps.h
  * Definitions for generating PostScript(R) packet output.
  *
- * $Id: ps.h,v 1.7 2004/01/25 00:58:12 guy Exp $
+ * $Id$
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *

@@ -4,7 +4,7 @@
  *
  * See RFC 3244 
  *
- * $Id: packet-kpasswd.c,v 1.3 2004/06/04 01:56:25 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

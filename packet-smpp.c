@@ -8,7 +8,7 @@
  * Dissection of multiple SMPP PDUs within one packet
  * provided by Chris Wilson.
  *
- * $Id: packet-smpp.c,v 1.29 2004/03/08 22:03:59 obiot Exp $
+ * $Id$
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.

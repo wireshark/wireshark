@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.18 2004/06/02 06:50:28 guy Exp $ */
+/* $Id$ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__

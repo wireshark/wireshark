@@ -3,7 +3,7 @@
  * Richard Sharpe <rsharpe@ns.aus.com> based on the lapb module by
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-lapbether.c,v 1.12 2002/09/01 14:30:30 oabad Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

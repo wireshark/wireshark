@@ -1,7 +1,7 @@
 /* timestamp.c
  * Routines for timestamp type setting.
  *
- * $Id: timestamp.c,v 1.2 2004/03/20 08:32:03 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

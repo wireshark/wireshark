@@ -1,7 +1,7 @@
 /* dfilter_expr_dlg.h
  * Definitions for dialog boxes for display filter expression construction
  *
- * $Id: dfilter_expr_dlg.h,v 1.4 2004/06/04 20:05:30 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

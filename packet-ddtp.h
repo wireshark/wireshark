@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-ddtp.h,v 1.5 2002/09/01 14:30:30 oabad Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

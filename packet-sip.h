@@ -1,6 +1,6 @@
 /* packet-sip.h
  *
- * $Id: packet-sip.h,v 1.3 2004/06/16 18:20:49 etxrab Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

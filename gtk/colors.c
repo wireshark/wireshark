@@ -1,7 +1,7 @@
 /* colors.c
  * Routines for colors
  *
- * $Id: colors.c,v 1.28 2004/01/31 03:22:39 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

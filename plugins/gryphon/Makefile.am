@@ -3,7 +3,7 @@
 # By Steve Limkemann <stevelim@dgtech.com>
 # Copyright 1998 Steve Limkemann
 #
-# $Id: Makefile.am,v 1.14 2004/04/25 21:07:19 obiot Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

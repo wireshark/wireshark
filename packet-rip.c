@@ -6,7 +6,7 @@
  * RFC2082 ( Keyed Message Digest Algorithm )
  *   Emanuele Caratti  <wiz@iol.it>
  *
- * $Id: packet-rip.c,v 1.35 2004/07/05 10:15:30 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

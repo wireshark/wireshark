@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\msgsvc packet disassembly
  * Copyright 2003 Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-messenger.c,v 1.6 2004/01/19 20:10:34 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

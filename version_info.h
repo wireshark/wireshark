@@ -2,7 +2,7 @@
  * Declarations of outines to report version information for stuff used
  * by Ethereal
  *
- * $Id: version_info.h,v 1.1 2004/01/11 22:17:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

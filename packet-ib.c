@@ -4,7 +4,7 @@
  * Erik Kunze <kunze@philosys.de>
  * Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-ib.c,v 1.2 2003/01/20 08:03:16 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 /* hcidump.h
  *
- * $Id: hcidump.h,v 1.2 2004/01/25 21:55:14 guy Exp $
+ * $Id$
  *
  * Copyright (c) 2003 by Marcel Holtmann <marcel@holtmann.org>
  *

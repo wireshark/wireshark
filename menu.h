@@ -2,7 +2,7 @@
  * Definitions for menu routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: menu.h,v 1.12 2003/12/13 18:01:29 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

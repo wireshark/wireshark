@@ -2,7 +2,7 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: supported_protos_dlg.c,v 1.12 2004/06/17 16:35:25 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 /* packet-docsis.h
  *
- * $Id: packet-docsis.h,v 1.5 2004/03/17 06:55:03 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines for the drsuapi (Directory Replication Service) MSRPC interface 
  * Copyright 2003 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
- * $Id: packet-dcerpc-drsuapi.c,v 1.1 2003/09/20 08:56:56 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

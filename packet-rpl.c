@@ -2,7 +2,7 @@
  * Routines for RPL
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-rpl.c,v 1.6 2004/02/21 08:21:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

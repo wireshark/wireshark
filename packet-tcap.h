@@ -1,6 +1,6 @@
 /* packet-tcap.h
  *
- * $Id: packet-tcap.h,v 1.3 2004/03/19 07:54:58 guy Exp $
+ * $Id$
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.

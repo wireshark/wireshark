@@ -3,7 +3,7 @@
  * Routines for LWAPP encapsulated packet disassembly
  * draft-calhoun-seamoby-lwapp-N (the current draft is 3)
  *
- * $Id: packet-lwapp.c,v 1.5 2003/12/16 19:58:45 guy Exp $
+ * $Id$
  *
  * Copyright (c) 2003 by David Frascone <dave@frascone.com>
  *

@@ -1,7 +1,7 @@
 /* about_dlg.h
  * Declarations of routines for the "About" dialog
  *
- * $Id: about_dlg.h,v 1.6 2004/07/04 12:15:41 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

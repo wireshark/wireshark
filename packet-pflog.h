@@ -1,6 +1,6 @@
 /* packet-pflog.h
  *
- * $Id: packet-pflog.h,v 1.5 2003/05/15 07:14:45 guy Exp $
+ * $Id$
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.

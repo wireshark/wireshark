@@ -1,6 +1,6 @@
 /* dbs-etherwatch.h
  *
- * $Id: dbs-etherwatch.h,v 1.5 2004/01/25 21:55:13 guy Exp $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

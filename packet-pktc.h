@@ -3,7 +3,7 @@
  * Ronnie Sahlberg 2004
  * See the spec: PKT-SP-SEC-I10-040113.pdf
  *
- * $Id: packet-pktc.h,v 1.1 2004/05/18 08:22:26 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

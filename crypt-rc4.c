@@ -6,7 +6,7 @@
 
    Copyright (C) Andrew Tridgell 1998
 
-   $Id: crypt-rc4.c,v 1.2 2002/12/11 19:31:02 guy Exp $
+   $Id$
    
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

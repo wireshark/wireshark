@@ -2,7 +2,7 @@
  * Routines for Baseline Privacy Key Management Response dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-bpkmrsp.c,v 1.6 2003/12/13 03:18:37 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

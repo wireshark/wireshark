@@ -1,7 +1,7 @@
 /* packet-cosine.c
  * Routines for decoding CoSine IPNOS L2 debug output
  *
- * $Id: packet-cosine.c,v 1.4 2002/08/28 21:00:08 jmayer Exp $
+ * $Id$
  *
  * Motonori Shindo <mshindo@mshindo.net>
  *

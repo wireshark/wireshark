@@ -1,6 +1,6 @@
 /* packet-null.h
  *
- * $Id: packet-null.h,v 1.7 2002/08/28 21:00:24 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

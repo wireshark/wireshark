@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all host talkers taps.
  *
- * $Id: hostlist_table.h,v 1.8 2004/06/05 13:28:13 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

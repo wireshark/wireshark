@@ -2,7 +2,7 @@
  * packet-radiotap.h
  *	Declarations for packet-radiotap.c
  *
- * $Id: packet-radiotap.h,v 1.1 2004/01/31 04:40:09 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

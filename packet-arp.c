@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly (RFC 826)
  *
- * $Id: packet-arp.c,v 1.60 2004/06/17 20:04:53 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

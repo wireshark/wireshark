@@ -2,7 +2,7 @@
  * Routines for sFlow dissection
  * Copyright 2003, Jeff Rizzo <riz@boogers.sf.ca.us>
  *
- * $Id: packet-sflow.c,v 1.2 2003/06/14 23:50:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

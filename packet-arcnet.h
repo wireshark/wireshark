@@ -1,6 +1,6 @@
 /* packet-arcnet.h
  *
- * $Id: packet-arcnet.h,v 1.2 2003/01/23 09:04:54 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

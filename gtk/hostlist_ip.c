@@ -1,7 +1,7 @@
 /* hostlist_ip.c   2004 Ian Schorr
  * modified from endpoint_talkers_ip.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_ip.c,v 1.6 2004/05/02 21:16:08 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

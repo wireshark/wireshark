@@ -1,7 +1,7 @@
 /* layout_prefs.c
  * Dialog box for layout preferences
  *
- * $Id: layout_prefs.c,v 1.8 2004/05/05 07:31:05 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

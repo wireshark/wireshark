@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-mtp2.c,v 1.10 2003/12/21 05:51:33 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  *
  * Utility routines for WAP dissectors
  *
- * $Id: packet-wap.c,v 1.9 2004/01/13 20:59:37 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

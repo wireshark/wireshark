@@ -1,7 +1,7 @@
 /* format-oid.h
  * Declare routine for formatting OIDs
  *
- * $Id: format-oid.h,v 1.3 2003/09/08 19:40:10 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

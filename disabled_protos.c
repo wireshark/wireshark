@@ -1,7 +1,7 @@
 /* disabled_protos.c
  * Code for reading and writing the disabled protocols file.
  *
- * $Id: disabled_protos.c,v 1.4 2004/01/03 18:40:07 sharpe Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  *
  * Declarations for disassembly of WTLS component of WAP traffic.
  *
- * $Id: packet-wtls.h,v 1.2 2002/08/28 21:00:37 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

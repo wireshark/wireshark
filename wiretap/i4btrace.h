@@ -1,6 +1,6 @@
 /* i4btrace.h
  *
- * $Id: i4btrace.h,v 1.4 2004/01/25 21:55:15 guy Exp $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>

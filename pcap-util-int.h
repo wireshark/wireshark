@@ -1,7 +1,7 @@
 /* pcap-util-int.h
  * Definitions of routines internal to the libpcap/WinPcap utilities
  *
- * $Id: pcap-util-int.h,v 1.1 2003/10/10 03:04:38 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

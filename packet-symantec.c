@@ -2,7 +2,7 @@
  * Routines for dissection of packets from the Axent Raptor firewall/
  * Symantec Enterprise Firewall
  *
- * $Id: packet-symantec.c,v 1.1 2004/03/11 09:18:32 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

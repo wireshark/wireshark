@@ -2,7 +2,7 @@
  * T.35 and H.221 tables
  * 2003  Tomas Kukosa
  *
- * $Id: t35.c,v 1.5 2004/06/15 09:43:19 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

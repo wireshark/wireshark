@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.84 2004/07/08 10:36:27 guy Exp $
+ * $Id$
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *

@@ -2,7 +2,7 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002,2003, Alfred Koebler <ako@icon.de>
  *
- * $Id: packet-fw1.c,v 1.11 2004/01/06 22:05:37 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ako@icon.de>

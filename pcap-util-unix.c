@@ -1,7 +1,7 @@
 /* pcap-util-unix.c
  * UN*X-specific utility routines for packet capture
  *
- * $Id: pcap-util-unix.c,v 1.3 2004/06/12 07:47:13 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

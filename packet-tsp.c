@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-tsp.c,v 1.4 2003/06/11 20:41:45 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

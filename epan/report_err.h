@@ -2,7 +2,7 @@
  * Declarations of routines for dissectors to use to report errors to
  * the user (e.g., problems with preference settings)
  *
- * $Id: report_err.h,v 1.2 2004/04/16 23:16:28 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

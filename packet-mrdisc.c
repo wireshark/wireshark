@@ -1,7 +1,7 @@
 /* packet-mrdisc.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/MRDISC packet disassembly
  *
- * $Id: packet-mrdisc.c,v 1.10 2003/11/16 23:17:19 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

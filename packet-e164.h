@@ -2,7 +2,7 @@
  * E164 tables
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-e164.h,v 1.1 2004/03/05 10:29:35 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

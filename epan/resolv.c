@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.44 2004/06/25 07:00:54 jmayer Exp $
+ * $Id$
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *

@@ -1,5 +1,5 @@
 /* packet-mount.h */
-/* $Id: packet-mount.h,v 1.4 2002/11/13 21:45:56 guy Exp $ */
+/* $Id$ */
 
 #ifndef PACKET_MOUNT_H
 #define PACKET_MOUNT_H

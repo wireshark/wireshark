@@ -2,7 +2,7 @@
  * Routines for DLSw packet dissection (Data Link Switching)
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-dlsw.c,v 1.7 2002/08/28 21:00:12 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

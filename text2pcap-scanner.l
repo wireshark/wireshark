@@ -10,7 +10,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap-scanner.l,v 1.3 2001/11/24 09:46:28 guy Exp $
+ * $Id$
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.29 2004/02/20 13:51:30 jmayer Exp $
+# $Id$
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #

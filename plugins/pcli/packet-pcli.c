@@ -4,7 +4,7 @@
  * http://www.packetcable.com/downloads/specs/pkt-sp-esp-I01-991229.pdf
  * Chapter 4 ( Call Content Connection Interface )
  *
- * $Id: packet-pcli.c,v 1.8 2003/09/05 07:44:50 jmayer Exp $
+ * $Id$
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *

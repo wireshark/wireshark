@@ -1,7 +1,7 @@
 /* slab.h
  * Definitions for very simple slab handling
  *
- * $Id: slab.h,v 1.4 2004/07/04 02:29:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

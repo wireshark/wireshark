@@ -1,5 +1,5 @@
 /* packet-nlm.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nlm.h,v 1.2 2000/08/02 11:32:31 girlich Exp $ */
+/* $Id$ */
 
 #ifndef __PACKET_NLM_H__
 #define __PACKET_NLM_H__

@@ -1,7 +1,7 @@
 /* tap-rpcprogs.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcprogs.c,v 1.6 2004/05/17 20:06:32 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

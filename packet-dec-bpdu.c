@@ -1,7 +1,7 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.15 2002/08/28 21:00:12 jmayer Exp $
+ * $Id$
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  *

@@ -1,6 +1,6 @@
 /* gsm_map_stat.h
  *
- * $Id: gsm_map_stat.h,v 1.3 2004/06/05 11:03:14 ulfl Exp $
+ * $Id$
  *
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.

@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.37 2002/08/28 21:00:06 jmayer Exp $
+ * $Id$
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *

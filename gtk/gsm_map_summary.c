@@ -6,7 +6,7 @@
  *
  * Modified from summary_dlg.c
  *
- * $Id: gsm_map_summary.c,v 1.3 2004/05/23 23:24:05 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

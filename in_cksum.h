@@ -1,7 +1,7 @@
 /* in_cksum.h
  * Declaration of  Internet checksum routine.
  *
- * $Id: in_cksum.h,v 1.1 2000/12/13 02:24:22 guy Exp $
+ * $Id$
  */
 
 typedef struct {

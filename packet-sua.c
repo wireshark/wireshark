@@ -5,7 +5,7 @@
  *
  * Copyright 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-sua.c,v 1.21 2003/10/06 08:35:30 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* rtp_analysis.h
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.h,v 1.2 2004/06/02 22:13:04 ulfl Exp $
+ * $Id$
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>

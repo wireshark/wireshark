@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.12 2004/06/26 09:56:22 guy Exp $
+# $Id$
 #
 
 """ASN.1 to Ethereal dissector compiler"""

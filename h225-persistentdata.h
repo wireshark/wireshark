@@ -5,7 +5,7 @@
  *
  * Copyright 2003 Lars Roland
  *
- * $Id: h225-persistentdata.h,v 1.1 2003/11/16 23:11:18 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

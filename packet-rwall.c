@@ -1,6 +1,6 @@
 /* packet-rwall.c
  *
- * $Id: packet-rwall.c,v 1.9 2002/11/01 00:48:38 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.19 2003/12/08 20:40:33 guy Exp $
+ * $Id$
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer

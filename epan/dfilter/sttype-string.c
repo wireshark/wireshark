@@ -1,5 +1,5 @@
 /*
- * $Id: sttype-string.c,v 1.4 2003/07/25 03:44:01 gram Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

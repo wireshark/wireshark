@@ -2,7 +2,7 @@
  * Routines for HP remote management protocol
  * Gilbert Ramirez <jochen@scram.de>
  *
- * $Id: packet-rmp.c,v 1.2 2003/03/03 14:08:39 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

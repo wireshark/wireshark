@@ -4,7 +4,7 @@
  *
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.h,v 1.5 2003/04/21 23:06:39 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

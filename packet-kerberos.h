@@ -1,6 +1,6 @@
 /* packet-kerberos.h
  *
- * $Id: packet-kerberos.h,v 1.8 2004/06/04 01:56:25 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

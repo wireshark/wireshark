@@ -3,7 +3,7 @@
  * Martin Mathieson
  * Based on packet-sdp.c
  *
- * $Id: packet-sipfrag.c,v 1.1 2004/02/03 18:57:26 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

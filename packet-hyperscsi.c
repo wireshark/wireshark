@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for dissassembly of the Hyper SCSI protocol.
  *
- * $Id: packet-hyperscsi.c,v 1.4 2002/12/03 01:09:00 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2003 Markus Friedl.  All rights reserved.
  *
- * $Id: packet-enc.c,v 1.2 2003/03/08 09:11:51 guy Exp $
+ * $Id$
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

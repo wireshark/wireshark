@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/RTNET
 #
-# $Id: Makefile.am,v 1.5 2004/04/25 21:07:24 obiot Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

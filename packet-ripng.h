@@ -2,7 +2,7 @@
  * RIPng definition
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-ripng.h,v 1.6 2002/08/28 21:00:29 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

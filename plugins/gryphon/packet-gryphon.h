@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Definitions for Gryphon packet disassembly structures and routines
  *
- * $Id: packet-gryphon.h,v 1.8 2003/10/03 23:22:12 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>

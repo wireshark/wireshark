@@ -1,6 +1,6 @@
 /* packet-udp.h
  *
- * $Id: packet-udp.h,v 1.9 2004/01/22 20:43:17 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

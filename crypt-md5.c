@@ -21,7 +21,7 @@
   ghost@aladdin.com
 
  */
-/* $Id: crypt-md5.c,v 1.2 2002/12/17 22:14:54 oabad Exp $ */
+/* $Id$ */
 /*
   Independent implementation of MD5 (RFC 1321).
 

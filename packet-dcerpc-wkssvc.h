@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@richardsharpe.org>
  *
- * $Id: packet-dcerpc-wkssvc.h,v 1.8 2003/09/27 23:43:29 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 /* packet-dcerpc-dcom.h
  *
- * $Id: packet-dcerpc-dcom.h,v 1.2 2003/11/09 19:53:11 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

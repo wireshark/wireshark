@@ -1,7 +1,7 @@
 /* packet-ans.c
  * Routines for Intel ANS probe dissection
  *
- * $Id: packet-ans.c,v 1.1 2003/03/23 19:32:19 gerald Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

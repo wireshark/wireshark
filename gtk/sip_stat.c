@@ -1,7 +1,7 @@
 /* sip_stat.c
  * sip_stat   2004 Martin Mathieson
  *
- * $Id: sip_stat.c,v 1.6 2004/05/23 23:24:06 ulfl Exp $
+ * $Id$
  * Copied from http_stat.c
  *
  * Ethereal - Network traffic analyzer

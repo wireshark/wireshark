@@ -1,7 +1,7 @@
 /* packet-nt-oui.c
  * Register an LLC dissector table for Nortel's OUI 00:00:0c
  *
- * $Id: packet-nt-oui.c,v 1.1 2003/09/03 06:38:15 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

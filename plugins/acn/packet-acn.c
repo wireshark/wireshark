@@ -1,7 +1,7 @@
 /* packet-acn.c
  * Routines for ACN packet disassembly
  *
- * $Id: packet-acn.c,v 1.4 2003/11/06 09:32:46 guy Exp $
+ * $Id$
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *

@@ -2,7 +2,7 @@
  * Definitions for toolbar utility routines
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.h,v 1.9 2004/06/04 17:16:58 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

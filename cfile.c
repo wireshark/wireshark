@@ -2,7 +2,7 @@
  * capture_file GUI-independent manipulation 
  * Vassilii Khachaturov <vassilii@tarunz.org>
  *
- * $Id: cfile.c,v 1.1 2002/09/06 23:14:04 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

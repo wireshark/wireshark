@@ -10,7 +10,7 @@
  *
  * Copyright 2003, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3mg.c,v 1.12 2004/02/02 17:57:20 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

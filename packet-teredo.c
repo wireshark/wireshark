@@ -6,7 +6,7 @@
  * Copyright 2003, Ragi BEJJANI - 6WIND - <ragi.bejjani@6wind.com>
  * Copyright 2003, Vincent JARDIN - 6WIND - <vincent.jardin@6wind.com>
  *
- * $Id: packet-teredo.c,v 1.4 2003/12/29 00:19:00 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  *
  * Declarations for disassembly of WSP component of WAP traffic.
  *
- * $Id: packet-wsp.h,v 1.11 2004/05/09 10:03:37 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* x264_prt_id.h
  * Definitions of X.264/ISO 11570 transport protocol IDs
  *
- * $Id: x264_prt_id.h,v 1.2 2002/08/28 21:00:41 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

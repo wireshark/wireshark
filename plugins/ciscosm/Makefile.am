@@ -2,7 +2,7 @@
 # Automake file for Cisco SS7 Session Management dissector
 # Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
 #
-# $Id: Makefile.am,v 1.3 2004/04/25 21:07:16 obiot Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

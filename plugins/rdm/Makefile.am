@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/RDM
 #
-# $Id: Makefile.am,v 1.3 2004/04/25 21:07:23 obiot Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Basic Fibre Channel Header definitions
  * Copyright 2002 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fc.h,v 1.6 2004/05/09 10:03:37 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

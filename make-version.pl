@@ -2,7 +2,7 @@
 #
 # Copyright 2004 Jörg Mayer (see AUTHORS file)
 #
-# $Id: make-version.pl,v 1.7 2004/03/04 16:19:40 jmayer Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

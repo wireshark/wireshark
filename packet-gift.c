@@ -4,7 +4,7 @@
  *
  * See http://www.giftproject.org/
  *
- * $Id: packet-gift.c,v 1.2 2004/07/01 06:30:29 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

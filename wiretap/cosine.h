@@ -1,6 +1,6 @@
 /* cosine.h
  *
- * $Id: cosine.h,v 1.3 2004/01/25 21:55:12 guy Exp $
+ * $Id$
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>

@@ -1,4 +1,4 @@
-$Id: README.macos,v 1.9 2004/07/03 21:46:59 tuexen Exp $
+$Id$
 
 This file tries to help building Ethereal for Mac OS X (Ethereal does
 not work on earlier versions of Mac OS).

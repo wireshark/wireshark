@@ -1,7 +1,7 @@
 /* tap_sipstat.c
  * sip message counter for ethereal
  *
- * $Id: tap-sipstat.c,v 1.2 2004/05/01 21:34:24 guy Exp $
+ * $Id$
  * Copied from gtk/sip_stat.c and tap-httpstat.c
  *
  * Ethereal - Network traffic analyzer

@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz bubasics/rs_prop_acct.idl
  *
- * $Id: packet-dcerpc-rs_prop_acct.c,v 1.2 2004/01/27 04:15:49 guy Exp $
+ * $Id$
  *      
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

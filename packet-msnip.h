@@ -1,7 +1,7 @@
 /* packet-msnip.h   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Declarations of routines for IGMP/MSNIP packet disassembly
  *
- * $Id: packet-msnip.h,v 1.3 2002/08/28 21:00:22 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

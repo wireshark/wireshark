@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the Lucent/Ascend
  * capture file reading code code, but not used outside that code.
  *
- * $Id: ascend-int.h,v 1.11 2004/01/25 21:55:12 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

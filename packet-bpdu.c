@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.51 2004/04/13 04:04:55 guy Exp $
+ * $Id$
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *

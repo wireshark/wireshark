@@ -1,7 +1,7 @@
 /* packet-isis-clv.h
  * Declares for common clv decoding functions.
  *
- * $Id: packet-isis-clv.h,v 1.10 2003/12/08 20:40:32 guy Exp $
+ * $Id$
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer

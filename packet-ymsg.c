@@ -3,7 +3,7 @@
  * Copyright 2003, Wayne Parrott <wayne_p@pacific.net.au>
  * Copied from packet-yhoo.c and updated
  *
- * $Id: packet-ymsg.c,v 1.4 2004/04/02 07:28:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

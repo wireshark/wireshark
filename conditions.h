@@ -1,7 +1,7 @@
 /* conditions.h
  * Header for condition handler.
  *
- * $Id: conditions.h,v 1.2 2002/08/28 21:00:06 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

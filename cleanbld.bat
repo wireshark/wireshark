@@ -2,7 +2,7 @@ echo off
 rem cleanbld.bat
 rem Script to clean up from a build on another platform
 rem
-rem $Id: cleanbld.bat,v 1.3 2003/04/07 18:43:03 guy Exp $
+rem $Id$
 rem
 rem Ethereal - Network traffic analyzer
 rem By Gerald Combs <gerald@ethereal.com>

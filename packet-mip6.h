@@ -1,6 +1,6 @@
 /* packet-mip6.h
  *
- * $Id: packet-mip6.h,v 1.4 2003/12/16 19:31:40 guy Exp $
+ * $Id$
  *
  * Definitions for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>

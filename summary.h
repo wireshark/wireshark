@@ -1,7 +1,7 @@
 /* summary.h
  * Definitions for capture file summary data
  *
- * $Id: summary.h,v 1.8 2003/09/02 22:10:32 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* tap-smbstat.c
  * smbstat   2003 Ronnie Sahlberg
  *
- * $Id: tap-smbstat.c,v 1.6 2004/05/09 10:03:38 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

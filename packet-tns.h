@@ -1,6 +1,6 @@
 /* packet-tns.h
  *
- * $Id: packet-tns.h,v 1.5 2002/08/28 21:00:36 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

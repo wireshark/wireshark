@@ -1,7 +1,7 @@
 /* gui_prefs.h
  * Definitions for GUI preferences window
  *
- * $Id: gui_prefs.h,v 1.8 2004/06/04 20:05:31 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,7 +1,7 @@
 /* crc32.h
  * Declaration of CRC-32 routine and table
  *
- * $Id: crc32.h,v 1.4 2004/06/26 09:48:11 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -3,7 +3,7 @@
  * By Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: irda-appl.h,v 1.2 2004/06/30 07:34:52 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>

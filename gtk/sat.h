@@ -2,7 +2,7 @@
  * 2003 Ronnie Sahlberg
  * Sub-address types for MAC addresses
  *
- * $Id: sat.h,v 1.1 2004/06/03 21:46:27 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* packet-clearcase.c
  * Routines for ClearCase NFS dissection
  *
- * $Id: packet-clearcase.c,v 1.1 2002/11/15 22:45:52 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

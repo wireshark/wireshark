@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.43 2004/06/18 14:27:13 jmayer Exp $
+# $Id$
 #
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
@@ -7600,7 +7600,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.43 2004/06/18 14:27:13 jmayer Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>

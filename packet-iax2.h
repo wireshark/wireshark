@@ -7,7 +7,7 @@
  *
  * Mark Spencer <markster@linux-support.net>
  *
- * $Id: packet-iax2.h,v 1.3 2004/06/25 06:31:46 sahlberg Exp $
+ * $Id$
  *
  * This program is free software, distributed under the terms of
  * the GNU General Public License

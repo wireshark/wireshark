@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.68 2004/04/25 10:40:42 etxrab Exp $
+ * $Id$
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *

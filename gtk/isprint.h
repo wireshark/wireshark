@@ -2,7 +2,7 @@
  * Temporary redefinition of "isprint()" to cope with GTK+ 1.3 and
  * later using UTF-8 strings
  *
- * $Id: isprint.h,v 1.1 2004/07/09 23:02:38 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

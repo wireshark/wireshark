@@ -1,6 +1,6 @@
 /* packet-rquota.h
  *
- * $Id: packet-rquota.h,v 1.3 2002/08/28 21:00:29 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

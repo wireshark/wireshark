@@ -1,4 +1,4 @@
-/* $Id: glib-util.c,v 1.2 2002/08/28 20:40:55 jmayer Exp $ */
+/* $Id$ */
 
 #include <string.h>
 #include <glib.h>

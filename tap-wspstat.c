@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * wspstat   2003 Jean-Michel FAYARD
  *
- * $Id: tap-wspstat.c,v 1.4 2004/05/09 10:03:38 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* column_prefs.h
  * Definitions for column preferences window
  *
- * $Id: column_prefs.h,v 1.7 2004/06/04 20:05:30 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

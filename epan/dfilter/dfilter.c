@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.18 2004/06/16 07:33:46 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

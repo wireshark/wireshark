@@ -2,7 +2,7 @@
  * Routines for T.38 packet dissection
  * 2003  Hans Viens
  *
- * $Id: packet-t38.c,v 1.7 2004/05/24 02:25:19 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines for DCOM Remote Activation
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-remact.c,v 1.8 2003/08/04 02:49:02 tpot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

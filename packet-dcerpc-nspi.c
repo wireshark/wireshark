@@ -2,7 +2,7 @@
  * Routines for dcerpc nspi dissection
  * Copyright 2001, Todd Sabin <tsabin@optonline.net>
  *
- * $Id: packet-dcerpc-nspi.c,v 1.4 2002/08/02 23:35:48 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 /* packet-ypserv.h
  *
- * $Id: packet-ypserv.h,v 1.3 2002/08/28 21:00:40 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

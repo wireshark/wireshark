@@ -1,7 +1,7 @@
 /* text_page.h
  * Declarations of routine to construct a simple text page from a file.
  *
- * $Id: text_page.h,v 1.4 2004/06/05 09:57:11 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

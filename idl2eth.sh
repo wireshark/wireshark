@@ -1,6 +1,6 @@
 #! @SHELL@
 #
-#  $Id: idl2eth.sh,v 1.1 2001/09/15 23:01:12 guy Exp $
+#  $Id$
 #
 #  File : idl2eth          
 #

@@ -2,7 +2,7 @@
 *
 * Routine to dissect OSI ISO/IEC 10035-1 ACSE Protocol packets
 *
-* $Id: packet-acse.h,v 1.2 2004/01/24 01:30:20 jmayer Exp $
+* $Id$
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *

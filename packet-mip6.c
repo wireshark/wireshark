@@ -1,6 +1,6 @@
 /* packet-mip6.c
  *
- * $Id: packet-mip6.c,v 1.7 2004/03/30 17:52:15 guy Exp $
+ * $Id$
  *
  * Routines for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>

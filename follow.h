@@ -1,6 +1,6 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.15 2004/05/09 10:03:37 guy Exp $
+ * $Id$
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *

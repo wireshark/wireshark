@@ -1,7 +1,7 @@
 /* color_filters.c
  * Routines for color filters
  *
- * $Id: color_filters.c,v 1.10 2004/04/16 19:36:36 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

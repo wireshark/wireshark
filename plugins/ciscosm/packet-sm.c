@@ -2,7 +2,7 @@
  * Routines for Cisco Session Management Protocol dissection
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-sm.c,v 1.5 2004/04/25 15:16:38 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* summary_dlg.h
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.h,v 1.3 2004/06/02 22:13:04 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -2,7 +2,7 @@
  * Routines to fetch IPv4 and IPv6 addresses from a tvbuff and then mask
  * out bits other than those covered by a prefix length
  *
- * $Id: addr_and_mask.c,v 1.1 2004/03/06 03:25:10 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* goto_dlg.h
  * Definitions for "go to frame" window
  *
- * $Id: goto_dlg.h,v 1.4 2004/06/04 20:05:31 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

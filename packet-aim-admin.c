@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, Administration Service
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-admin.c,v 1.3 2004/04/26 18:21:09 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

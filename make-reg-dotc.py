@@ -9,7 +9,7 @@
 # seds for each input file.  I wrote this python version so that
 # less processes would have to be started.
 #
-# $Id: make-reg-dotc.py,v 1.4 2003/07/21 07:05:44 girlich Exp $
+# $Id$
 
 import os
 import sys

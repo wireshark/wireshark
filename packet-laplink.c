@@ -2,7 +2,7 @@
  * Routines for laplink dissection
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-laplink.c,v 1.4 2003/10/20 23:05:41 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.h
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.h,v 1.2 2004/06/02 22:13:04 ulfl Exp $
+ * $Id$
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>

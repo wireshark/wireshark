@@ -2,7 +2,7 @@
  * Routines for DCERPC TAPI packet disassembly
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-tapi.c,v 1.9 2004/01/19 20:10:36 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

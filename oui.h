@@ -1,7 +1,7 @@
 /* oui.h
  * Definitions of OUIs
  *
- * $Id: oui.h,v 1.13 2003/08/28 00:11:31 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

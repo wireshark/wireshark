@@ -1,7 +1,7 @@
 /* packet-rsvp.h
  * Declarations of variables exported by "packet-rsvp.c"
  *
- * $Id: packet-rsvp.h,v 1.11 2004/06/19 09:48:49 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* progress_dlg.h
  * Definitions for progress dialog box routines
  *
- * $Id: progress_dlg.h,v 1.7 2004/06/04 20:04:34 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

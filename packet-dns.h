@@ -2,7 +2,7 @@
  * Definitions for packet disassembly structures and routines used both by
  * DNS and NBNS.
  *
- * $Id: packet-dns.h,v 1.13 2002/08/28 21:00:12 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

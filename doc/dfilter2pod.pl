@@ -9,7 +9,7 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod.pl,v 1.5 2004/04/28 17:50:02 obiot Exp $
+# $Id$
 
 %ftenum_names = (
 	'FT_NONE',		'No value',

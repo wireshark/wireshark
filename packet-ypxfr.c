@@ -1,7 +1,7 @@
 /* packet-ypxfr.c
  * Routines for ypxfr dissection
  *
- * $Id: packet-ypxfr.c,v 1.9 2002/11/01 00:48:39 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

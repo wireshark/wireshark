@@ -1,7 +1,7 @@
 /* sna-utils.h
  * Definitions for SNA dissection.
  *
- * $Id: sna-utils.h,v 1.4 2003/08/26 01:00:30 guy Exp $
+ * $Id$
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

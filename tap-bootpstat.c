@@ -1,7 +1,7 @@
 /* tap-bootpstat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: tap-bootpstat.c,v 1.1 2003/09/02 22:47:58 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

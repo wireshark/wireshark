@@ -1,6 +1,6 @@
 /* libpcap.h
  *
- * $Id: libpcap.h,v 1.15 2004/01/25 21:55:15 guy Exp $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

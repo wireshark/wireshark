@@ -1,4 +1,4 @@
-$Id: README.linux,v 1.8 2003/12/03 07:46:34 guy Exp $
+$Id$
 
 In order to capture packets (with Ethereal/Tethereal, tcpdump, or any
 other libpcap-based packet capture program) on a Linux system, the

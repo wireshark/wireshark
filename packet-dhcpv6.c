@@ -5,7 +5,7 @@
  * SHIRASAKI Yasuhiro <yasuhiro@gnome.gr.jp>
  * Tony Lindstrom <tony.lindstrom@ericsson.com>
  *
- * $Id: packet-dhcpv6.c,v 1.11 2004/02/25 09:31:05 guy Exp $
+ * $Id$
  *
  * The information used comes from:
  * RFC3315.txt

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/ENTTEC
 #
-# $Id: Makefile.am,v 1.3 2004/04/25 21:07:17 obiot Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

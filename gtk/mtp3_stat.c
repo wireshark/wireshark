@@ -5,7 +5,7 @@
  *
  * Modified from gsm_map_stat.c
  *
- * $Id: mtp3_stat.c,v 1.2 2004/05/23 23:24:06 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

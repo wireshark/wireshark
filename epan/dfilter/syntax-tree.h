@@ -1,5 +1,5 @@
 /*
- * $Id: syntax-tree.h,v 1.6 2004/06/03 07:36:25 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

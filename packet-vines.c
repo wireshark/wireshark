@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.63 2004/01/06 02:51:13 guy Exp $
+ * $Id$
  *
  * Don Lafontaine <lafont02@cn.ca>
  *

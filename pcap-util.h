@@ -1,7 +1,7 @@
 /* pcap-util.h
  * Utility definitions for packet capture
  *
- * $Id: pcap-util.h,v 1.7 2004/06/12 07:47:13 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

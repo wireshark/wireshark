@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary info
  *
- * $Id: summary.c,v 1.23 2003/09/02 22:10:32 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

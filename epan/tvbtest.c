@@ -2,7 +2,7 @@
  *
  * tvbtest : tvbtest.o tvbuff.o except.o
  *
- * $Id: tvbtest.c,v 1.3 2002/08/28 20:40:45 jmayer Exp $
+ * $Id$
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *

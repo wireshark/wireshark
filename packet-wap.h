@@ -2,7 +2,7 @@
  *
  * Declarations for WAP packet disassembly
  *
- * $Id: packet-wap.h,v 1.9 2004/02/28 22:56:36 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -7,7 +7,7 @@
  *  Rewrote entire file with a complete and correct list of all
  *  function names.  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-srvsvc.h,v 1.7 2003/09/27 23:34:57 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

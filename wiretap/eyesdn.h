@@ -1,6 +1,6 @@
 /* eyesdn.h
  *
- * $Id: eyesdn.h,v 1.1 2004/02/11 20:05:16 guy Exp $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- python -*-
 #
-# $Id: plugin_gen.py,v 1.3 2003/08/23 07:34:31 guy Exp $
+# $Id$
 #
 # mmelchior@xs4all.nl
 #

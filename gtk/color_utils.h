@@ -2,7 +2,7 @@
  * Declarations of utilities for converting between "toolkit-independent"
  * and GDK notions of color
  *
- * $Id: color_utils.h,v 1.3 2004/06/01 20:28:04 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

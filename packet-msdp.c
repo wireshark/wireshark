@@ -4,7 +4,7 @@
  *
  * Copyright 2001, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-msdp.c,v 1.8 2003/01/20 06:24:37 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

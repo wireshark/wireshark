@@ -9,7 +9,7 @@
  * Ronnie Sahlberg 2004
  * Thomas Anders 2004
  *
- * $Id: packet-pktc.c,v 1.9 2004/06/19 04:10:33 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -3,7 +3,7 @@
  *
  * Definitions for routines for u-law, A-law and linear PCM conversions
  *
- * $Id: g711.h,v 1.2 2003/03/06 21:57:17 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

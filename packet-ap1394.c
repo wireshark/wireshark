@@ -1,7 +1,7 @@
 /* packet-ap1394.c
  * Routines for Apple IP-over-IEEE 1394 packet disassembly
  *
- * $Id: packet-ap1394.c,v 1.1 2004/03/23 01:02:40 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

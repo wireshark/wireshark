@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.17 2003/04/22 08:37:55 guy Exp $
+ * $Id$
  *
  * Don Lafontaine <lafont02@cn.ca>
  *

@@ -1,6 +1,6 @@
 /* strerror.c
  *
- * $Id: strerror.c,v 1.2 2002/08/28 21:00:41 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

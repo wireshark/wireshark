@@ -2,7 +2,7 @@
  * Declarations of routines handling protocols with a request/response line,
  * headers, a blank line, and an optional body.
  *
- * $Id: req_resp_hdrs.h,v 1.1 2003/12/23 02:29:11 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

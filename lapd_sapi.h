@@ -1,7 +1,7 @@
 /* lapd_sapi.h
  * Declarations of LAPD SAPI values.
  *
- * $Id: lapd_sapi.h,v 1.1 2004/01/26 20:48:38 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  *  packet-radiotap.c
  *	Decode packets with a Radiotap header
  *
- * $Id: packet-radiotap.c,v 1.5 2004/07/06 19:22:44 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

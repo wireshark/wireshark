@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.58 2004/06/01 00:15:38 jmayer Exp $
+# $Id$
 #
 AC_INIT(wtap.c)
 

@@ -2,7 +2,7 @@
  *
  * Routines for RFC 2250 MPEG-1 dissection
  *
- * $Id: packet-mpeg1.c,v 1.10 2003/08/23 06:36:46 guy Exp $
+ * $Id$
  *
  * Copyright 2001,
  * Francisco Javier Cabello Torres, <fjcabello@vtools.es>

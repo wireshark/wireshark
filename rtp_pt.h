@@ -1,7 +1,7 @@
 /* rtp_pt.h
  * Defines RTP payload types
  *
- * $Id: rtp_pt.h,v 1.4 2004/06/01 23:08:00 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\DNSSERVER packet disassembly
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dnsserver.h,v 1.2 2003/10/02 21:37:24 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

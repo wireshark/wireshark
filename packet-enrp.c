@@ -13,7 +13,7 @@
  *
  * Copyright 2004, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-enrp.c,v 1.2 2004/07/09 19:50:00 tuexen Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* packet-cisco-oui.c
  * Register an LLC dissector table for Cisco's OUI 00:00:0c
  *
- * $Id: packet-cisco-oui.c,v 1.4 2004/04/13 04:04:55 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -3,7 +3,7 @@
  *
  * Duncan Laurie <duncan@sun.com>
  *
- * $Id: packet-ipmi.c,v 1.5 2004/04/07 06:18:55 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

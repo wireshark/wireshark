@@ -3,7 +3,7 @@
  *
  * Ronnie Sahlberg
  *
- * $Id: packet-nfsauth.c,v 1.4 2002/11/01 00:48:38 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

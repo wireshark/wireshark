@@ -1,4 +1,4 @@
-$Id: README.aix,v 1.6 2002/10/08 07:30:08 guy Exp $
+$Id$
 
 libpcap 0.7.1 and later appear to work on AIX when using AIX's native
 BPF; that appears to work better than DLPI does.  Note that you may have

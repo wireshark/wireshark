@@ -1,7 +1,7 @@
 /* capture_stop_conditions.c
  * Implementation for 'stop condition handler'.
  *
- * $Id: capture_stop_conditions.c,v 1.4 2002/08/28 21:00:05 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 /* packet-tzsp.c
  *
- * $Id: packet-tzsp.c,v 1.6 2004/01/29 10:58:28 guy Exp $
+ * $Id$
  *
  * Copyright 2002, Tazmen Technologies Inc
  *

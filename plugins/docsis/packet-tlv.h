@@ -2,7 +2,7 @@
  * Contains Definitions for Configuration types
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-tlv.h,v 1.4 2003/05/28 14:52:52 gerald Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.96 2004/02/25 09:31:05 guy Exp $
+ * $Id$
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *

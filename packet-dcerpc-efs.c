@@ -2,7 +2,7 @@
  * Routines for the efsrpc MSRPC interface
  * Copyright 2004 Ronnie Sahlberg, Jean-Baptiste Marchand
  *
- * $Id: packet-dcerpc-efs.c,v 1.2 2004/05/19 04:52:31 tpot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

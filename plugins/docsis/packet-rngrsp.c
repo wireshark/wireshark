@@ -2,7 +2,7 @@
  * Routines for Ranging Response Message dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-rngrsp.c,v 1.8 2004/01/07 05:13:29 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

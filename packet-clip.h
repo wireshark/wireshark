@@ -1,6 +1,6 @@
 /* packet-clip.h
  *
- * $Id: packet-clip.h,v 1.7 2002/08/28 21:00:08 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

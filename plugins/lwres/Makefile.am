@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/lwres
 #
-# $Id: Makefile.am,v 1.5 2004/04/25 21:07:22 obiot Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer / light waight resolver (part of Bind9)
 # By Steve Oleg Terletsky <oleg.terletsky@comverse.com>

@@ -3,7 +3,7 @@
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  * Copyright 2004, Olivier Biot
  *
- * $Id: packet-mmse.c,v 1.35 2004/05/05 03:05:52 gerald Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,5 +1,5 @@
 /*
- * $Id: snprintf.h,v 1.9 2002/09/12 21:26:51 gram Exp $
+ * $Id$
  */
 
 #ifndef __ETHEREAL_SNPRINTF_H__

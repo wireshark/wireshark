@@ -1,7 +1,7 @@
 /* frame_data.c
  * Routines for packet disassembly
  *
- * $Id: frame_data.c,v 1.5 2003/07/08 05:29:42 tpot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -3,7 +3,7 @@
  * By Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: packet-ircomm.c,v 1.3 2004/03/08 19:41:52 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>

@@ -1,7 +1,7 @@
 /* packet-igmp.h   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Declarations of routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.h,v 1.2 2002/08/28 21:00:17 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

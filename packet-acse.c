@@ -2,7 +2,7 @@
 *
 * Routine to dissect OSI ACSE Protocol packets
 *
-* $Id: packet-acse.c,v 1.5 2004/04/30 06:24:35 ulfl Exp $
+* $Id$
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *

@@ -1,7 +1,7 @@
 /* packet-osi-options.h
  * Defines for OSI options part decode
  *
- * $Id: packet-osi-options.h,v 1.6 2002/08/28 21:00:24 jmayer Exp $
+ * $Id$
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer

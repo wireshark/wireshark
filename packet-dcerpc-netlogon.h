@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\NETLOGON packet disassembly
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-netlogon.h,v 1.17 2004/03/05 23:12:10 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

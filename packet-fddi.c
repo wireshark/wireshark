@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: packet-fddi.c,v 1.62 2003/08/29 10:59:09 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines handling protocols with a request/response line, headers,
  * a blank line, and an optional body.
  *
- * $Id: req_resp_hdrs.c,v 1.5 2004/05/04 06:53:47 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

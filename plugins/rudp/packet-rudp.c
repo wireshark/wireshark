@@ -2,7 +2,7 @@
  * Routines for Reliable UDP Protocol.
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rudp.c,v 1.8 2004/04/25 15:16:39 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

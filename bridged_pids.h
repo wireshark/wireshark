@@ -2,7 +2,7 @@
  * Definitions of protocol IDs for the 00-80-C2 OUI, used for
  * bridging various networks over ATM (RFC 2684) or Frame Relay (RFC 2427).
  *
- * $Id: bridged_pids.h,v 1.2 2002/08/28 21:00:05 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

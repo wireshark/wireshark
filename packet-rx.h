@@ -1,7 +1,7 @@
 /* packet-rx.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-rx.h,v 1.9 2002/02/05 21:02:36 nneul Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

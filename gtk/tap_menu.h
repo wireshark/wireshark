@@ -1,7 +1,7 @@
 /* tap_menu.h
  * Menu definitions for use by taps
  *
- * $Id: tap_menu.h,v 1.6 2004/06/03 02:14:14 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

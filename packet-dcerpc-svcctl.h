@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\svcctl packet disassembly
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-svcctl.h,v 1.6 2003/10/02 21:40:22 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -7,7 +7,7 @@
  * Copyright 2003, Elipsan, Gareth Bushell <gbushell@elipsan.com>
  * (c) 2004 Ronnie Sahlberg   updates
  *
- * $Id: packet-isns.c,v 1.9 2004/07/06 19:01:31 gerald Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

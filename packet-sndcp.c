@@ -2,7 +2,7 @@
  * Routines for Subnetwork Dependent Convergence Protocol (SNDCP) dissection
  * Copyright 2000, Christian Falckenberg <christian.falckenberg@nortelnetworks.com>
  *
- * $Id: packet-sndcp.c,v 1.4 2004/05/04 09:12:26 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,5 +1,5 @@
 /*
- * $Id: g711.c,v 1.3 2003/03/10 19:58:47 guy Exp $
+ * $Id$
  *
  * This source code is a product of Sun Microsystems, Inc. and is provided
  * for unrestricted use.  Users may copy or modify this source code without

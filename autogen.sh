@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.36 2004/05/26 10:41:14 jmayer Exp $
+# $Id$
 
 DIE=true
 PROJECT="Ethereal"

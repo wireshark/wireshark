@@ -1,7 +1,7 @@
 /* sctpppids.h
  * Declarations of SCTP payload protocol IDs.
  *
- * $Id: sctpppids.h,v 1.2 2003/01/20 22:44:58 tuexen Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

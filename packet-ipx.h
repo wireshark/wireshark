@@ -6,7 +6,7 @@
  * Portions Copyright (c) by Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.h,v 1.28 2003/08/24 05:17:51 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -3,7 +3,7 @@
    a implementation of MD4 designed for use in the SMB authentication protocol
    Copyright (C) Andrew Tridgell 1997-1998.
 
-   $Id: crypt-md4.c,v 1.2 2002/12/03 15:21:28 gerald Exp $
+   $Id$
    
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

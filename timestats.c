@@ -2,7 +2,7 @@
  * routines for time statistics
  * Copyrigth 2003 Lars Roland
  *
- * $Id: timestats.c,v 1.2 2003/09/03 10:10:17 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

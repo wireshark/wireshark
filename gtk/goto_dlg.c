@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to packet" window
  *
- * $Id: goto_dlg.c,v 1.27 2004/06/01 17:33:36 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -3,7 +3,7 @@
  * Devin Heitmueller <dheitmueller@netilla.com>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-ntlmssp.c,v 1.48 2004/05/04 08:30:36 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

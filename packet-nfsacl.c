@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.11 2003/10/06 20:46:51 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

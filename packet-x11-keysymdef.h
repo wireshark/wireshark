@@ -3,7 +3,7 @@
  * Copyright holders: Digital, The Open Group
  * (see below for their copyright statement)
  *
- * $Id: packet-x11-keysymdef.h,v 1.3 2004/01/04 10:57:17 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* font_utils.h
  * Declarations of utilities to use for font manipulation
  *
- * $Id: font_utils.h,v 1.1 2004/06/17 16:35:24 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -10,7 +10,7 @@
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-ansi_801.c,v 1.1 2004/03/27 11:32:27 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

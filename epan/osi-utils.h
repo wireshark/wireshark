@@ -1,6 +1,6 @@
 /* osi-utils.h
  *
- * $Id: osi-utils.h,v 1.5 2003/08/26 01:00:29 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

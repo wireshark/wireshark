@@ -1,6 +1,6 @@
 /* proto_hier_stats.h
  *
- * $Id: proto_hier_stats.h,v 1.5 2004/03/17 21:48:15 deniel Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

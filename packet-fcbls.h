@@ -2,7 +2,7 @@
  * Fibre Channel Basic Link Services header
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcbls.h,v 1.2 2003/07/09 06:24:32 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -3,7 +3,7 @@
  * Defines for RFC 2833 RTP Events dissection
  * Copyright 2003, Kevin A. Noll <knoll[AT]poss.com>
  *
- * $Id: packet-rtp-events.h,v 1.1 2003/09/19 04:16:23 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dfs.c,v 1.8 2003/10/02 21:45:54 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

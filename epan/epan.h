@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.h,v 1.17 2004/04/16 23:16:28 guy Exp $
+ * $Id$
  *
  * Ethereal Protocol Analyzer Library
  *

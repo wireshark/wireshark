@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for IRC packet dissection
  *
- * $Id: packet-irc.c,v 1.21 2002/08/28 21:00:18 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

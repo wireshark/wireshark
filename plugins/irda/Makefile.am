@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/IrDA
 #
-# $Id: Makefile.am,v 1.4 2004/06/30 07:34:52 guy Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines and definitions for time statistics
  * Copyrigth 2003 Lars Roland
  *
- * $Id: timestats.h,v 1.1 2003/04/16 07:24:04 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

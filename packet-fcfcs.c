@@ -2,7 +2,7 @@
  * Routines for FC Fabric Configuration Server
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-fcfcs.c,v 1.2 2004/02/29 09:02:19 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

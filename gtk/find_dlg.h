@@ -1,7 +1,7 @@
 /* find_dlg.h
  * Definitions for "find frame" window
  *
- * $Id: find_dlg.h,v 1.8 2004/06/04 20:05:31 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

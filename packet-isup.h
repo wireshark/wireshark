@@ -1,6 +1,6 @@
 /* packet-isup.h
  *
- * $Id: packet-isup.h,v 1.3 2004/05/09 10:03:37 guy Exp $
+ * $Id$
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.

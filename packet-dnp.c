@@ -2,7 +2,7 @@
  * Routines for DNP dissection
  * Copyright 2003, Graham Bloice <graham.bloice@trihedral.com>
  *
- * $Id: packet-dnp.c,v 1.1 2004/06/04 00:12:12 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

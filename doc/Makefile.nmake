@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.16 2004/05/22 17:14:32 ulfl Exp $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>

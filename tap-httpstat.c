@@ -1,7 +1,7 @@
 /* tap-httpstat.c
  * tap-httpstat   2003 Jean-Michel FAYARD
  *
- * $Id: tap-httpstat.c,v 1.3 2003/09/29 19:18:43 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

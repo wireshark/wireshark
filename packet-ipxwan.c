@@ -1,7 +1,7 @@
 /* packet-ipxwan.c
  * Routines for NetWare IPX WAN Protocol
  *
- * $Id: packet-ipxwan.c,v 1.1 2003/04/06 02:32:38 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

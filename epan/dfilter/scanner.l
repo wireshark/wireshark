@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.20 2004/06/03 07:36:24 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

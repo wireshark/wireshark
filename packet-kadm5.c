@@ -1,7 +1,7 @@
 /* packet-kadm5.c
  * Routines for kadm5 dissection
  *
- * $Id: packet-kadm5.c,v 1.1 2003/04/25 21:09:35 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

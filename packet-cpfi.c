@@ -5,7 +5,7 @@
  *
  * Copyright 2003, Dave Sclarsky <dave_sclarsky[AT]cnt.com>
  *
- * $Id: packet-cpfi.c,v 1.7 2004/06/17 07:10:33 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -6,7 +6,7 @@
  *
  * Copyright 2004, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-asap.c,v 1.12 2004/07/03 21:37:15 tuexen Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines for XDMCP message dissection
  * Copyright 2002, Pasi Eronen <pasi.eronen@nixu.com>
  *
- * $Id: packet-xdmcp.c,v 1.5 2004/02/25 09:31:07 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

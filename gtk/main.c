@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.458 2004/07/13 07:15:44 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

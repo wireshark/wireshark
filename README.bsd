@@ -1,4 +1,4 @@
-$Id: README.bsd,v 1.2 2002/04/24 23:19:38 guy Exp $
+$Id$
 
 In order to capture packets (with Ethereal/Tethereal, tcpdump, or any
 other packet capture program) on a BSD system, your kernel must have

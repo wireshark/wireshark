@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.34 2004/01/23 01:42:45 jmayer Exp $
+ * $Id$
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *

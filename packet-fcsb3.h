@@ -3,7 +3,7 @@
  * This decoder is for FC-SB3 version 1.4 
  * Copyright 2003 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcsb3.h,v 1.1 2003/10/30 02:06:12 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

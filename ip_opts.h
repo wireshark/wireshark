@@ -2,7 +2,7 @@
  * Definitions of structures and routines for dissection of options that
  * work like IPv4 or IPv6 options
  *
- * $Id: ip_opts.h,v 1.1 2003/07/11 09:30:48 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

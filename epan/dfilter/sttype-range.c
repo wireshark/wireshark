@@ -1,5 +1,5 @@
 /*
- * $Id: sttype-range.c,v 1.5 2002/08/28 20:40:56 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

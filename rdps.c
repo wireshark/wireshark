@@ -1,6 +1,6 @@
 /* rdps.c
  *
- * $Id: rdps.c,v 1.8 2004/01/25 00:58:12 guy Exp $
+ * $Id$
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

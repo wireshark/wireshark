@@ -2,7 +2,7 @@
  * Routines for Simple Traversal of UDP Through NAT dissection
  * Copyright 2003, Shiang-Ming Huang <smhuang@pcs.csie.nctu.edu.tw>
  *
- * $Id: packet-stun.c,v 1.4 2004/01/04 20:44:50 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

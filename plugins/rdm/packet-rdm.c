@@ -1,7 +1,7 @@
 /* packet-rdm.c
  * Routines for RDM packet disassembly
  *
- * $Id: packet-rdm.c,v 1.2 2003/11/17 22:26:57 guy Exp $
+ * $Id$
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *

@@ -4,7 +4,7 @@
  *
  * See: http://project.honeynet.org/tools/sebek/ for more details
  *
- * $Id: packet-sebek.c,v 1.1 2003/11/19 22:13:29 nneul Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

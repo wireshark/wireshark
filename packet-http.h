@@ -1,6 +1,6 @@
 /* packet-http.h
  *
- * $Id: packet-http.h,v 1.9 2003/09/02 23:09:10 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* print_mswin.h
  * Printing support for MSWindows
  *
- * $Id: print_mswin.h,v 1.5 2004/06/02 20:14:51 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

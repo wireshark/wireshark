@@ -2,7 +2,7 @@
  * Routines for display filter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.c,v 1.10 2004/06/02 07:12:11 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

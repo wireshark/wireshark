@@ -1,7 +1,7 @@
 /* circuit.h
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.h,v 1.5 2002/11/28 08:25:59 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

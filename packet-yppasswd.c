@@ -1,7 +1,7 @@
 /* packet-yppasswd.c
  * Routines for yppasswd dissection
  *
- * $Id: packet-yppasswd.c,v 1.10 2002/11/01 00:48:39 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -6,7 +6,7 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: packet-echo.c,v 1.1 2003/06/25 13:42:18 deniel Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

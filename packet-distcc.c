@@ -3,7 +3,7 @@
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  * Copyright 2003, Ronnie Sahlberg, added TCP desegmentation.
  *
- * $Id: packet-distcc.c,v 1.5 2004/01/25 15:56:04 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Fibre Channel Link Control definitions
  * Copyright 2001 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fclctl.h,v 1.2 2003/06/30 21:50:17 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

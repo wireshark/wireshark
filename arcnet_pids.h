@@ -2,7 +2,7 @@
  * ARCNET protocol ID values
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: arcnet_pids.h,v 1.4 2003/01/23 09:54:54 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

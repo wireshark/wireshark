@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_prop_plcy.idl
  *
- * $Id: packet-dcerpc-rs_prop_plcy.c,v 1.3 2004/03/25 08:01:14 guy Exp $
+ * $Id$
  *      
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

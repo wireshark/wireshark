@@ -3,7 +3,7 @@
  * 
  * 2004 Richard van der Hoff <richardv@mxtelecom.com>
  *
- * $Id: crc16.c,v 1.2 2004/06/26 09:45:27 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@xxxxxxxxxxxx>

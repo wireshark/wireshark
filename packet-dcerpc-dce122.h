@@ -3,7 +3,7 @@
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  *
- * $Id: packet-dcerpc-dce122.h,v 1.3 2004/01/27 04:15:48 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

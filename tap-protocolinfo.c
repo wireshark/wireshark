@@ -1,7 +1,7 @@
 /* tap-protocolinfo.c
  * protohierstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-protocolinfo.c,v 1.4 2003/05/03 00:48:33 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.45 2004/05/09 10:03:37 guy Exp $
+ * $Id$
  *
  * (c) 1999 Uwe Girlich
  *

@@ -13,7 +13,7 @@
  *
  * Implemented in ethereal at April 7-8, 2004
  *
- * $Id: packet-cops.c,v 1.49 2004/07/09 23:17:03 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,6 +1,6 @@
  /* csids.h
  *
- * $Id: csids.h,v 1.4 2004/01/25 21:55:13 guy Exp $
+ * $Id$
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) Cisco Systems

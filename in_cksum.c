@@ -2,7 +2,7 @@
  * 4.4-Lite-2 Internet checksum routine, modified to take a vector of
  * pointers/lengths giving the pieces to be checksummed.
  *
- * $Id: in_cksum.c,v 1.9 2002/08/28 21:00:06 jmayer Exp $
+ * $Id$
  */
 
 /*

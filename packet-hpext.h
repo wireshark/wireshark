@@ -2,7 +2,7 @@
  * Routines for HP extended IEEE 802.2 LLC layer
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-hpext.h,v 1.1 2003/03/02 21:52:16 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -6,7 +6,7 @@
 # recursive diff, and unflattens it so that it can be
 # applied correctly with "patch".
 #
-# $Id: cvsdiff-fix.py,v 1.3 2003/06/11 14:48:27 gram Exp $
+# $Id$
 #
 # Copyright (C) 2001 by Gilbert Ramirez <gram@alumni.rice.edu>
 #  

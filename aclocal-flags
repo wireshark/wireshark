@@ -21,7 +21,7 @@
 # "aclocal" will look in that directory twice, and get well and truly
 # confused, reporting a ton of duplicate macro definitions.)
 #
-# $Id: aclocal-flags,v 1.9 2004/07/03 21:35:30 tuexen Exp $
+# $Id$
 #
 
 #

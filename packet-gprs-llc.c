@@ -2,7 +2,7 @@
  * Routines for Logical Link Control GPRS dissection ETSI 4.64
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-llc.c,v 1.5 2004/05/04 09:03:57 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

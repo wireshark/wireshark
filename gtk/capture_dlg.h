@@ -1,7 +1,7 @@
 /* capture_dlg.h
  * Definitions for packet capture windows
  *
- * $Id: capture_dlg.h,v 1.6 2004/06/04 20:05:30 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

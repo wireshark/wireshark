@@ -1,5 +1,5 @@
 /* packet-bootparams.h */
-/* $Id: packet-bootparams.h,v 1.1 1999/11/10 17:23:53 nneul Exp $ */
+/* $Id$ */
 
 #ifndef PACKET_BOOTPARAMS_H
 #define PACKET_BOOTPARAMS_H

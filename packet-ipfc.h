@@ -1,6 +1,6 @@
 /* packet-ipfc.h
  *
- * $Id: packet-ipfc.h,v 1.1 2002/12/08 22:35:30 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

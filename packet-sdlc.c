@@ -1,7 +1,7 @@
 /* packet-sdlc.c
  * Routines for SDLC frame disassembly
  *
- * $Id: packet-sdlc.c,v 1.4 2004/01/18 08:32:46 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

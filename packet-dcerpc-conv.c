@@ -2,7 +2,7 @@
  * Routines for dcerpc conv dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-conv.c,v 1.10 2004/04/23 16:46:54 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

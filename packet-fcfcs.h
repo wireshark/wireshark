@@ -1,6 +1,6 @@
 /* packet-fcfcs.h
  *
- * $Id: packet-fcfcs.h,v 1.2 2003/03/06 21:55:26 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

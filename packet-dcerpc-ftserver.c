@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tgz file/ftserver/ftserver_proc.idl
  *
- * $Id: packet-dcerpc-ftserver.c,v 1.5 2004/01/27 04:15:48 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

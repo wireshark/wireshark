@@ -1,7 +1,7 @@
 /* packet-afp.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-afp.h,v 1.5 2002/10/17 22:38:19 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

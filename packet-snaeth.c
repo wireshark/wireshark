@@ -1,7 +1,7 @@
 /* packet-snaeth.c
  * Routines for SNA-over-Ethernet (Ethernet type 80d5)
  *
- * $Id: packet-snaeth.c,v 1.4 2002/08/28 21:00:34 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

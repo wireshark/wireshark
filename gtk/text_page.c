@@ -1,6 +1,6 @@
 /* text_page.c
  *
- * $Id: text_page.c,v 1.3 2004/06/17 16:35:26 ulfl Exp $
+ * $Id$
  *
  * Ulf Lamping
  *

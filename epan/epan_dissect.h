@@ -1,6 +1,6 @@
 /* epan_dissect.h
  *
- * $Id: epan_dissect.h,v 1.2 2002/08/28 20:40:44 jmayer Exp $
+ * $Id$
  *
  * Ethereal Protocol Analyzer Library
  *

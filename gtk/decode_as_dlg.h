@@ -1,6 +1,6 @@
 /* decode_as_dlg.h
  *
- * $Id: decode_as_dlg.h,v 1.6 2004/06/04 20:05:30 ulfl Exp $
+ * $Id$
  *
  * Routines to modify dissector tables on the fly.
  *

@@ -2,7 +2,7 @@
  * A small program to generate the ASCII form of a capture with TCP
  * segments of a reasonable nature. The payload is all zeros.
  *
- * $Id: mkcap.c,v 1.2 2003/10/05 14:58:11 sharpe Exp $
+ * $Id$
  *
  * By Ronnie Sahlberg and Richard Sharpe. From a program initially 
  * written by Ronnie.

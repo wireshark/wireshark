@@ -2,7 +2,7 @@
  *
  * Declarations for disassembly of WTP component of WAP traffic.
  *
- * $Id: packet-wtp.h,v 1.4 2002/08/28 21:00:39 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,7 +1,7 @@
 /* llcsaps.h
  * Defines LLC SAP values.
  *
- * $Id: llcsaps.h,v 1.7 2003/06/10 05:38:52 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

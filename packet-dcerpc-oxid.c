@@ -2,7 +2,7 @@
  * Routines for DCOM OXID Resolver
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-oxid.c,v 1.11 2004/01/19 20:10:35 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

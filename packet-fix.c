@@ -2,7 +2,7 @@
  * Routines for Financial Information eXchange (FIX) Protocol dissection
  * Copyright 2000, PC Drew <drewpc@ibsncentral.com>
  *
- * $Id: packet-fix.c,v 1.6 2003/06/12 08:33:29 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

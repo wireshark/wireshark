@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, SNAC BOS
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-bos.c,v 1.4 2004/05/05 09:30:56 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

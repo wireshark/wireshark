@@ -3,7 +3,7 @@
  * Copyright 2004, Anders Broman.
  * Copyright 2004, Olivier Biot.
  *
- * $Id: packet-multipart.c,v 1.9 2004/04/30 17:07:21 obiot Exp $
+ * $Id$
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.

@@ -4,7 +4,7 @@
  * By Peter Torvals
  * Copyright 1999 Peter Torvals
  *
- * $Id: packet-icp.c,v 1.23 2002/08/28 21:00:17 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

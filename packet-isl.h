@@ -1,6 +1,6 @@
 /* packet-isl.h
  *
- * $Id: packet-isl.h,v 1.6 2002/08/28 21:00:19 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

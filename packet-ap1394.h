@@ -1,6 +1,6 @@
 /* packet-ap1394.h
  *
- * $Id: packet-ap1394.h,v 1.1 2004/03/23 01:02:40 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

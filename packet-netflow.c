@@ -45,7 +45,7 @@
  ** http://www.cisco.com/univercd/cc/td/doc/cisintwk/intsolns/netflsol/nfwhite.htm
  **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
- ** $Id: packet-netflow.c,v 1.13 2004/06/01 18:43:30 guy Exp $
+ ** $Id$
  */
 
 #ifdef HAVE_CONFIG_H

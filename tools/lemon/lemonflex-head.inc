@@ -1,4 +1,4 @@
-/* $Id: lemonflex-head.inc,v 1.1 2001/02/01 20:21:25 gram Exp $ */
+/* $Id$ */
 
 /* This file is #include'd at the top of a Lex/Flex scanner
 for use with the Lemon parser. You must have #define'd:

@@ -2,7 +2,7 @@
  * Routines for DCERPC Distributed Link tracking Server packet disassembly
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-trksvr.c,v 1.1 2003/12/16 05:07:49 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

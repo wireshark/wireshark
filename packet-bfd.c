@@ -3,7 +3,7 @@
  *
  * Copyright 2003, Hannes Gredler <hannes@juniper.net>
  *
- * $Id: packet-bfd.c,v 1.1 2003/11/23 22:00:48 gerald Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

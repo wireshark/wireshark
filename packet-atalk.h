@@ -1,7 +1,7 @@
 /* packet-atalk.h
  * Definitions for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.h,v 1.9 2002/08/28 21:00:07 jmayer Exp $
+ * $Id$
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -19,7 +19,7 @@
  * Michael Lum <mlum [AT] telostech.com>,
  * Created (2004).
  *
- * $Id: packet-gsm_ss.c,v 1.3 2004/04/21 05:53:56 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/GIOP subdissectors 
 #
-# $Id: Makefile.am,v 1.7 2004/04/25 21:07:18 obiot Exp $
+# $Id$
 #
 # Copyright 2001, Ericsson Inc.
 # Frank Singleton <frank.singleton@ericsson.com>

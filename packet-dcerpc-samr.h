@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.h,v 1.12 2003/09/29 00:01:27 tpot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

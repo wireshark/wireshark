@@ -1,7 +1,7 @@
 /* version_info.c
  * Routines to report version information for stuff used by Ethereal
  *
- * $Id: version_info.c,v 1.4 2004/05/22 04:15:01 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

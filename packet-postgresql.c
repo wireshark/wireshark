@@ -3,7 +3,7 @@
  *
  * Copyright 2004, Edwin Calo <calo@fusemail.com>
  *
- * $Id: packet-postgresql.c,v 1.7 2004/03/02 01:39:35 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Header file for display filter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.h,v 1.1 2003/12/19 23:39:53 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

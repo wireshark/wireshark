@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: make-faq,v 1.8 2004/02/18 00:31:22 jmayer Exp $
+# $Id$
 #
 # Make-faq - Creates a plain text version of the Ethereal FAQ
 #	from http://www.ethereal.com/faq.html

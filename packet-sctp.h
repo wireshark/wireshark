@@ -2,7 +2,7 @@
  *
  * Defintion of SCTP specific structures used b tap listeners.
  *
- * $Id: packet-sctp.h,v 1.1 2004/03/23 17:27:29 tuexen Exp $
+ * $Id$
  * Copyright 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
 
  * Ethereal - Network traffic analyzer

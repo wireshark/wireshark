@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.38 2004/06/27 22:21:28 obiot Exp $
+ * $Id$
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.

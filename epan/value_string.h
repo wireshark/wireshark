@@ -1,7 +1,7 @@
 /* value_string.h
  * Definitions for value_string structures and routines
  *
- * $Id: value_string.h,v 1.6 2004/05/07 11:34:10 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

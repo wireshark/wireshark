@@ -2,7 +2,7 @@
  * Definitions of routines for ARP packet disassembly that are used
  * elsewhere
  *
- * $Id: packet-arp.h,v 1.6 2002/08/28 21:00:07 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

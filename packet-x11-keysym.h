@@ -1,6 +1,6 @@
 /* packet-x11-keysym.h
  *
- * $Id: packet-x11-keysym.h,v 1.6 2002/08/28 21:00:40 jmayer Exp $
+ * $Id$
  *
  * Put there so as to make packet-x11.c lighter. See packet-x11.c
  */

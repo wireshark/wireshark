@@ -9,7 +9,7 @@
  * http://cvs.sourceforge.net/viewcvs.py/soleseek/SoleSeek/doc/protocol.html?rev=HEAD
  * Updated for SoulSeek client version 151
  *
- * $Id: packet-slsk.c,v 1.4 2004/05/05 17:28:12 obiot Exp $
+ * $Id$
  *
  *
  * Ethereal - Network traffic analyzer

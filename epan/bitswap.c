@@ -1,7 +1,7 @@
 /* bitswap.c
  * Table of bit-swapped values of bytes
  *
- * $Id: bitswap.c,v 1.2 2002/08/28 20:40:44 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

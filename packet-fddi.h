@@ -1,6 +1,6 @@
 /* packet-fddi.h
  *
- * $Id: packet-fddi.h,v 1.8 2003/08/29 10:59:10 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines for Intial Ranging Request Message dissection
  * Copyright 2003, Brian Wheeler <brian.wheeler[AT]arrisi.com>
  *
- * $Id: packet-intrngreq.c,v 1.1 2004/03/17 06:55:03 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

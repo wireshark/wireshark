@@ -8,7 +8,7 @@
  *          PKT-SP-EC-MGCP-I09-040113, January 13, 2004, Cable Television 
  *          Laboratories, Inc., http://www.PacketCable.com/
  *
- * $Id: packet-mgcp.c,v 1.47 2004/05/31 19:31:14 etxrab Exp $
+ * $Id$
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  * Copyright (c) 2004 by Thomas Anders <thomas.anders [AT] blue-cable.de>

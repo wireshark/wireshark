@@ -1,7 +1,7 @@
 /* rpc_defrag.h
  * Declarations for RPC defragmentation
  *
- * $Id: rpc_defrag.h,v 1.5 2003/04/21 08:13:18 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

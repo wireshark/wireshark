@@ -1,6 +1,6 @@
 /* packet-gsm_ss.h
  *
- * $Id: packet-gsm_ss.h,v 1.3 2004/04/21 05:53:56 guy Exp $
+ * $Id$
  *
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.

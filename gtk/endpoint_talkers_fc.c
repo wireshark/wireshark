@@ -1,7 +1,7 @@
 /* endpoint_talkers_fc.c
  * endpoint_talkers_fc   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_fc.c,v 1.25 2004/05/02 17:25:10 ulfl Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -4,7 +4,7 @@
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  * as per a suggestion by Jim McDonough
  *
- * $Id: packet-dcerpc-initshutdown.c,v 1.2 2004/01/19 20:10:33 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

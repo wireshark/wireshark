@@ -2,7 +2,7 @@
  * Definitions of OSI NLPIDs (Network Layer Protocol IDs)
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: nlpid.h,v 1.14 2003/09/03 05:39:21 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

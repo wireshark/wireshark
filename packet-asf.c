@@ -3,7 +3,7 @@
  *
  * Duncan Laurie <duncan@sun.com>
  *
- * $Id: packet-asf.c,v 1.2 2003/06/04 08:51:36 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

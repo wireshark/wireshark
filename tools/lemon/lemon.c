@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.17 2004/01/25 09:49:50 jmayer Exp $
+** $Id$
 */
 #include <stdio.h>
 #include <stdarg.h>

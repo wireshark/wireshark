@@ -16,7 +16,7 @@
  *   * bundling errors
  *   * value errors
  *
- * $Id: packet-sctp.c,v 1.72 2004/05/24 02:25:19 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

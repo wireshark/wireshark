@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.26 2004/07/04 02:29:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

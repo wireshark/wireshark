@@ -2,7 +2,7 @@
  * Routines for MSN Messenger Service packet dissection
  * Copyright 2003, Chris Waters <chris@waters.co.nz>
  *
- * $Id: packet-msn-messenger.c,v 1.4 2004/02/19 20:27:43 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, SNAC Advertisements
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-adverts.c,v 1.4 2004/04/26 18:21:09 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

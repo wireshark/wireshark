@@ -1,7 +1,7 @@
 /* nstime.h
  * Definition of data structure to hold time values with nanosecond resolution
  *
- * $Id: nstime.h,v 1.2 2002/08/28 20:40:44 jmayer Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

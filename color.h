@@ -1,7 +1,7 @@
 /* color.h
  * Definitions for "toolkit-independent" colors
  *
- * $Id: color.h,v 1.5 2004/01/09 20:19:34 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

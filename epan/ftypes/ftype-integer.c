@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.17 2004/02/27 12:00:31 obiot Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

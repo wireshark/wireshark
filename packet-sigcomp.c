@@ -2,7 +2,7 @@
  * Routines for Signaling Compression (SigComp) dissection.
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-sigcomp.c,v 1.3 2004/06/29 20:40:12 etxrab Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -6,7 +6,7 @@
 
    Copyright (C) Andrew Tridgell 1998
 
-   $Id: crypt-des.h,v 1.1 2002/12/31 08:05:29 guy Exp $
+   $Id$
    
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

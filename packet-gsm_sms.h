@@ -1,6 +1,6 @@
 /* packet-gsm_sms.h
  *
- * $Id: packet-gsm_sms.h,v 1.1 2004/03/27 11:32:29 guy Exp $
+ * $Id$
  *
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
