@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.64 2000/08/13 14:08:18 deniel Exp $
+ * $Id: packet-ipx.c,v 1.65 2000/10/22 07:54:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -496,7 +496,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conn_number = tvb_get_guint8(tvb, 0);
 	sig_char = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	if (check_col(pinfo->fd, COL_INFO)) {
 		col_add_fstr(pinfo->fd, COL_INFO, 
 			"%s, Connection %d", 
 			val_to_str(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
@@ -535,7 +535,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	operation = tvb_get_ntohs(tvb, 0) - 1;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	if (check_col(pinfo->fd, COL_INFO)) {
 		/* rip_types 0 and 1 are valid, anything else becomes 2 or "Unknown" */
 		col_add_str(pinfo->fd, COL_INFO, rip_type[MIN(operation, 2)]);
 	}
