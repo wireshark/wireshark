@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.73 2000/01/15 00:22:29 gram Exp $
+# $Id: configure.in,v 1.74 2000/01/15 05:30:52 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -97,7 +97,7 @@ esac
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
 # programs to be built with GLib.
 #
-AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR(GLib distribution not found.))
+AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
 
 # GTK checks
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
