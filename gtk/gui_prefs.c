@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.11 2000/08/23 06:55:58 guy Exp $
+ * $Id: gui_prefs.c,v 1.12 2000/08/23 07:38:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,7 +51,10 @@ static void color_browse_cb(GtkWidget *w, gpointer data);
 static void update_text_color(GtkWidget *w, gpointer data);
 static void update_current_color(GtkWidget *w, gpointer data);
 static void color_ok_cb(GtkWidget *w, gpointer data);
+static void color_cancel_cb(GtkWidget *w, gpointer data);
+static gboolean color_delete_cb(GtkWidget *prefs_w, gpointer dummy);
 static void color_destroy_cb(GtkWidget *w, gpointer data);
+static void fetch_colors(void);
 
 #define SCROLLBAR_PLACEMENT_KEY		"scrollbar_placement"
 #define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
@@ -94,10 +97,19 @@ static const enum_val expander_style_vals[] = {
 	{ NULL,       0 }
 };
 
+/* Set to FALSE initially; set to TRUE if the user ever hits "OK" on
+   the "Colors..." dialog, so that we know that they (probably) changed
+   colors, and therefore that the "apply" function needs to recolor
+   any marked packets. */
+static gboolean colors_changed;
+
 GtkWidget*
 gui_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb, *font_bt, *color_bt;
+
+	/* The colors haven't been changed yet. */
+	colors_changed = FALSE;
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 5);
@@ -340,6 +352,8 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_ptree_expander_style = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), PTREE_EXPANDER_STYLE_KEY),
 	    expander_style_vals);
+
+	fetch_colors();
 }
 
 void
@@ -359,6 +373,8 @@ gui_prefs_apply(GtkWidget *w)
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_ptree_line_style_all(prefs.gui_ptree_line_style);
 	set_ptree_expander_style_all(prefs.gui_ptree_expander_style);
+	if (colors_changed)
+		update_marked_frames();
 	if (font != NULL) {
 		set_plist_font(font);
 		set_ptree_font_all(font);
@@ -430,10 +446,13 @@ color_browse_cb(GtkWidget *w, gpointer data)
   gdouble    scolor[4]; 
   GtkWidget *caller = gtk_widget_get_toplevel(w);
  
+  /* Has a font dialog box already been opened for that top-level
+     widget? */
   color_w = gtk_object_get_data(GTK_OBJECT(caller),
 				       COLOR_DIALOG_PTR_KEY);
 
   if (color_w != NULL) {
+    /* Yes.  Just re-activate that dialog box. */
     reactivate_window(color_w);
     return;
   }
@@ -446,7 +465,18 @@ color_browse_cb(GtkWidget *w, gpointer data)
   scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
   scolor[CS_OPACITY] = 1.0;
 
+  /* Now create a new dialog.
+     You can't put your own extra widgets into a color selection
+     dialog, as you can with a file selection dialog, so we have to
+     construct our own dialog and put a color selection widget
+     into it. */
   color_w = dlg_window_new("Ethereal: Select Color");
+
+  gtk_signal_connect(GTK_OBJECT(color_w), "delete_event",
+    GTK_SIGNAL_FUNC(color_delete_cb), NULL);
+
+  /* Call a handler when we're destroyed, so we can inform our caller,
+     if any, that we've been destroyed. */
   gtk_signal_connect(GTK_OBJECT(color_w), "destroy",
 		     GTK_SIGNAL_FUNC(color_destroy_cb), NULL);
   
@@ -570,11 +600,32 @@ update_current_color(GtkWidget *w, gpointer data)
 static void
 color_ok_cb(GtkWidget *w, gpointer data)
 {
-  prefs.gui_marked_fg = color_info[MFG_IDX].color;
-  prefs.gui_marked_bg = color_info[MBG_IDX].color;
+  /* We assume the user actually changed a color here. */
+  colors_changed = TRUE;
+
   gtk_widget_hide(GTK_WIDGET(data));
   gtk_widget_destroy(GTK_WIDGET(data));
-  update_marked_frames();
+}
+
+static void
+color_cancel_cb(GtkWidget *w, gpointer data)
+{
+  /* Revert the colors to the current preference settings. */
+  color_info[MFG_IDX].color = prefs.gui_marked_fg;
+  color_info[MBG_IDX].color = prefs.gui_marked_bg;
+  gtk_widget_hide(GTK_WIDGET(data));
+  gtk_widget_destroy(GTK_WIDGET(data));
+}
+
+/* Treat this as a cancel, by calling "color_cancel_cb()".
+   XXX - that'll destroy the Select Color dialog; will that upset
+   a higher-level handler that says "OK, we've been asked to delete
+   this, so destroy it"? */
+static gboolean
+color_delete_cb(GtkWidget *prefs_w, gpointer dummy)
+{
+  color_cancel_cb(NULL, NULL);
+  return FALSE;
 }
 
 static void
@@ -589,3 +640,9 @@ color_destroy_cb(GtkWidget *w, gpointer data)
   gtk_widget_destroy(GTK_WIDGET(w));
 }
 
+static void
+fetch_colors(void)
+{
+	prefs.gui_marked_fg = color_info[MFG_IDX].color;
+	prefs.gui_marked_bg = color_info[MBG_IDX].color;
+}
