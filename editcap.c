@@ -1,5 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
- * format to another format (at the moment, only output format is libpcap)
+ * format to another format.
+ *
+ * $Id: editcap.c,v 1.2 1999/12/04 21:42:56 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -18,7 +20,7 @@
 int selectfrm[100], max_selected = -1;
 static int count = 1;
 static int keep_em = 0;
-static int out_file_type = WTAP_FILE_PCAP;
+static int out_file_type = WTAP_FILE_PCAP;	/* default to "libpcap" */
 static int out_frame_type = -2;   /* Leave frame type alone */
 
 /* Was the record selected? */
@@ -64,7 +66,7 @@ edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 
     if (!wtap_dump(argp->pdh, phdr, buf, &err)) {
 
-      fprintf(stderr, "editpcap: Error writing to %s: %s\n", argp->filename,
+      fprintf(stderr, "editcap: Error writing to %s: %s\n", argp->filename,
         wtap_strerror(err));
       exit(1);
 
@@ -78,13 +80,19 @@ edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 
 void usage()
 {
+  int i;
 
-  fprintf(stderr, "Usage: editpcap [-r] [-T <encap type>] [-F <capture type>]  <infile> <outfile>\\\n");
+  fprintf(stderr, "Usage: editcap [-r] [-T <encap type>] [-F <capture type>]  <infile> <outfile>\\\n");
   fprintf(stderr, "                [ <record#> ... ]\n");
   fprintf(stderr, "  where\t-r specifies that the records specified should be kept, not deleted, \n");
   fprintf(stderr, "                           default is to delete\n");
   fprintf(stderr, "       \t-T <encap type> specified the encapsulation type\n");
-  fprintf(stderr, "       \t-F <capture type> specifies the capture file type\n");
+  fprintf(stderr, "       \t-F <capture type> specifies the capture file type:\n");
+  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+    if (wtap_dump_can_open(i))
+      fprintf(stderr, "       \t    %s - %s\n",
+        wtap_file_type_short_string(i), wtap_file_type_string(i));
+  }
 }
 
 int main(int argc, char *argv[])
@@ -108,7 +116,12 @@ int main(int argc, char *argv[])
       break;
       
     case 'F':
-      out_file_type = atoi(optarg);
+      out_file_type = wtap_short_string_to_file_type(optarg);
+      if (out_file_type < 0) {
+      	fprintf(stderr, "editcap: \"%s\" is not a valid capture file type\n",
+      	    optarg);
+      	exit(1);
+      }
       break;
 
     case 'r':
@@ -137,7 +150,7 @@ int main(int argc, char *argv[])
 
   if (!wth) {
 
-    fprintf(stderr, "editpcap: Can't open %s: %s\n", argv[optind],
+    fprintf(stderr, "editcap: Can't open %s: %s\n", argv[optind],
         wtap_strerror(err));
     exit(1);
 
@@ -151,7 +164,7 @@ int main(int argc, char *argv[])
 		out_frame_type, wtap_snapshot_length(wth), &err);
   if (args.pdh == NULL) {
 
-    fprintf(stderr, "editpcap: Can't open or create %s: %s\n", argv[optind+1],
+    fprintf(stderr, "editcap: Can't open or create %s: %s\n", argv[optind+1],
         wtap_strerror(err));
     exit(1);
 
@@ -164,7 +177,7 @@ int main(int argc, char *argv[])
 
   if (!wtap_dump_close(args.pdh, &err)) {
 
-    fprintf(stderr, "editpcap: Error writing to %s: %s\n", argv[2],
+    fprintf(stderr, "editcap: Error writing to %s: %s\n", argv[2],
         wtap_strerror(err));
     exit(1);
 
