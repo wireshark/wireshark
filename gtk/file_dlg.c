@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.97 2004/02/17 14:49:11 ulfl Exp $
+ * $Id: file_dlg.c,v 1.98 2004/02/27 19:07:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -284,6 +284,7 @@ file_open_cmd(GtkWidget *w)
   filter_te = gtk_entry_new();
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
+  SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
   gtk_widget_show(filter_te);
 
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,

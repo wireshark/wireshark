@@ -2,7 +2,7 @@
  * Routines for display filter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.c,v 1.5 2004/01/21 21:19:34 ulfl Exp $
+ * $Id: tap_dfilter_dlg.c,v 1.6 2004/02/27 19:07:20 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,6 +183,7 @@ gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	/* Filter entry */
 	current_dlg->filter_entry=gtk_entry_new();
 	WIDGET_SET_SIZE(current_dlg->filter_entry, 300, 25);
+    SIGNAL_CONNECT(current_dlg->filter_entry, "changed", filter_te_syntax_check_cb, NULL);
 	
 	/* filter prefs dialog */
 	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, current_dlg->filter_entry);

@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.51 2004/02/23 19:19:35 ulfl Exp $
+ * $Id: dcerpc_stat.c,v 1.52 2004/02/27 19:07:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -628,7 +628,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
 	WIDGET_SET_SIZE(filter_entry, 300, -1);
-
+    SIGNAL_CONNECT(filter_entry, "changed", filter_te_syntax_check_cb, NULL);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){

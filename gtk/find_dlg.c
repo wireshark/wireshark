@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.46 2004/02/11 00:55:28 guy Exp $
+ * $Id: find_dlg.c,v 1.47 2004/02/27 19:07:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,6 +153,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   if (cfile.sfilter) gtk_entry_set_text(GTK_ENTRY(filter_text_box), cfile.sfilter);
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_text_box);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_text_box, TRUE, TRUE, 0);
+  SIGNAL_CONNECT(filter_text_box, "changed", filter_te_syntax_check_cb, NULL);
   gtk_widget_show(filter_text_box);
 
   direction_frame = gtk_frame_new("Direction");

@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.70 2004/02/25 00:16:28 ulfl Exp $
+ * $Id: io_stat.c,v 1.71 2004/02/27 19:07:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1759,6 +1759,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_field, FALSE, FALSE, 0);
 	gtk_widget_show(gio->filter_field);
 	SIGNAL_CONNECT(gio->filter_field, "activate", filter_callback, gio);
+    SIGNAL_CONNECT(gio->filter_field, "changed", filter_te_syntax_check_cb, NULL);
 
 	create_advanced_box(gio, hbox);
 
