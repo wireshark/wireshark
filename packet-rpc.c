@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.127 2003/05/21 02:48:40 sharpe Exp $
+ * $Id: packet-rpc.c,v 1.128 2003/05/22 17:11:18 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1059,6 +1059,7 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 	new_tvb = tvb_new_subset(tvb, offset, length, reported_length);
 	len_consumed = call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
 	offset += len_consumed;
+	offset = rpc_roundup(offset);
 
 	return offset;
 }
