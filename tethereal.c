@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.242 2004/05/31 09:53:21 guy Exp $
+ * $Id: tethereal.c,v 1.243 2004/06/10 08:01:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,12 +168,9 @@ static void report_counts_siginfo(int);
 #endif /* HAVE_LIBPCAP */
 
 static int load_cap_file(capture_file *, int);
-static void process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
+static gboolean process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
     const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
-    const guchar *pd);
-static void write_packet(capture_file *cf, wtap_dumper *pdh,
-    const struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
-    const guchar *buf);
+    const guchar *pd, int *err);
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void show_print_file_io_error(int err);
 static void print_packet(capture_file *cf, epan_dissect_t *edt);
@@ -1636,7 +1633,7 @@ main(int argc, char *argv[])
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 
-static condition  *volatile cnd_ring_timeout = NULL; /* this must be visible in write_packet */
+static condition  *volatile cnd_ring_timeout = NULL; /* this must be visible in process_packet */
 
 static int
 capture(int out_file_type)
@@ -2116,6 +2113,7 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
   struct wtap_pkthdr whdr;
   union wtap_pseudo_header pseudo_header;
   loop_data *ld = (loop_data *) user;
+  int loop_err;
   int err;
 
   /* Convert from libpcap to Wiretap format.
@@ -2135,7 +2133,35 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
   infodelay = TRUE;
 #endif /* SIGINFO */
 
-  process_packet(&cfile, ld->pdh, 0, &whdr, &pseudo_header, pd);
+  /* The current packet may have arrived after a very long silence,
+   * way past the time to switch files.  In order not to have
+   * the first packet of a new series of events as the last
+   * [or only] packet in the file, switch before writing!
+   */
+  if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
+    /* time elapsed for this ring file, switch to the next */
+    if (ringbuf_switch_file(&cfile, &ld->pdh, &loop_err)) {
+      /* File switch succeeded: reset the condition */
+      cnd_reset(cnd_ring_timeout);
+    } else {
+      /* File switch failed: stop here */
+      /* XXX - we should do something with "loop_err" */
+      ld->go = FALSE;
+    }
+  }
+
+  if (!process_packet(&cfile, ld->pdh, 0, &whdr, &pseudo_header, pd, &err)) {
+    /* Error writing to a capture file */
+    if (!quiet) {
+      /* We're capturing packets, so (if -q not specified) we're printing
+         a count of packets captured; move to the line after the count. */
+      fprintf(stderr, "\n");
+    }
+    show_capture_file_io_error(cfile.save_file, err, FALSE);
+    pcap_close(ld->pch);
+    wtap_dump_close(ld->pdh, &err);
+    exit(2);
+  }
 
 #ifdef SIGINFO
   /*
@@ -2298,8 +2324,14 @@ load_cap_file(capture_file *cf, int out_file_type)
     pdh = NULL;
   }
   while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
-    process_packet(cf, pdh, data_offset, wtap_phdr(cf->wth),
-                   wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth));
+    if (!process_packet(cf, pdh, data_offset, wtap_phdr(cf->wth),
+                        wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
+                        &err)) {
+      /* Error writing to a capture file */
+      show_capture_file_io_error(cf->save_file, err, FALSE);
+      wtap_dump_close(pdh, &err);
+      exit(2);
+    }
   }
   if (err != 0) {
     /* Print a message noting that the read failed somewhere along the line. */
@@ -2429,10 +2461,11 @@ clear_fdata(frame_data *fdata)
     g_slist_free(fdata->pfd);
 }
 
-static void
+static gboolean
 process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
                const struct wtap_pkthdr *whdr,
-               union wtap_pseudo_header *pseudo_header, const guchar *pd)
+               union wtap_pseudo_header *pseudo_header, const guchar *pd,
+               int *err)
 {
   frame_data fdata;
   gboolean create_proto_tree;
@@ -2504,7 +2537,8 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
     /* Process this packet. */
     if (pdh != NULL) {
       /* We're writing to a capture file; write this packet. */
-      write_packet(cf, pdh, whdr, pseudo_header, pd);
+      if (!wtap_dump(pdh, whdr, pseudo_header, pd, err))
+        return FALSE;
       /* Report packet capture count if not quiet */
       if (!quiet && !print_packet_info) {
       	/* Don't print a packet count if we were asked not to with "-q"
@@ -2527,51 +2561,7 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
     epan_dissect_free(edt);
     clear_fdata(&fdata);
   }
-}
-
-static void
-write_packet(capture_file *cf, wtap_dumper *pdh, const struct wtap_pkthdr *phdr,
-  union wtap_pseudo_header *pseudo_header, const guchar *buf)
-{
-  int           err;
-#ifdef HAVE_LIBPCAP
-  int loop_err;
-#endif
-
-#ifdef HAVE_LIBPCAP
-  /* The current packet may have arrived after a very long silence,
-   * way past the time to switch files.  In order not to have
-   * the first packet of a new series of events as the last
-   * [or only] packet in the file, switch before writing!
-   */
-  if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
-    /* time elapsed for this ring file, switch to the next */
-    if (ringbuf_switch_file(&cfile, &ld.pdh, &loop_err)) {
-      /* File switch succeeded: reset the condition */
-      cnd_reset(cnd_ring_timeout);
-    } else {
-      /* File switch failed: stop here */
-      /* XXX - we should do something with "loop_err" */
-      ld.go = FALSE;
-    }
-  }
-#endif
-  if (!wtap_dump(pdh, phdr, pseudo_header, buf, &err)) {
-#ifdef HAVE_LIBPCAP
-    if (ld.pch != NULL && !quiet) {
-      /* We're capturing packets, so (if -q not specified) we're printing
-         a count of packets captured; move to the line after the count. */
-      fprintf(stderr, "\n");
-    }
-#endif
-    show_capture_file_io_error(cf->save_file, err, FALSE);
-#ifdef HAVE_LIBPCAP
-    if (ld.pch != NULL)
-      pcap_close(ld.pch);
-#endif
-    wtap_dump_close(pdh, &err);
-    exit(2);
-  }
+  return TRUE;
 }
 
 static void
