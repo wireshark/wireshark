@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.78 2001/12/28 20:18:45 guy Exp $
+ * $Id: packet-rpc.c,v 1.79 2002/01/07 00:59:26 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "packet.h"
 #include "conversation.h"
 #include "packet-rpc.h"
+#include "packet-frame.h"
 #include "prefs.h"
 
 /*
@@ -1464,7 +1465,7 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   We already have the message type.
 		   Check whether an RPC version number of 2 is in the
 		   location where it would be, and that an RPC program
-		   number we know about is in the locaton where it would be. */
+		   number we know about is in the location where it would be. */
 		rpc_prog_key.prog = tvb_get_ntohl(tvb, offset + 12);
 		if (tvb_get_ntohl(tvb, offset + 8) != 2 ||
 		    ((rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key))
@@ -2104,12 +2105,14 @@ static rpc_tcp_return_t
 dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean is_heur)
 {
-	int offset = 0;
+	volatile int offset = 0;
 	guint32 rpc_rm;
-	gboolean saw_rpc = FALSE;
-	gint32 len, seglen;
+	volatile gboolean saw_rpc = FALSE;
+	volatile gint32 len;
+	gint32 seglen;
 	gint tvb_len, tvb_reported_len;
 	tvbuff_t *msg_tvb;
+	const char *saved_proto;
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
@@ -2177,9 +2180,37 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			tvb_reported_len = len;
 		msg_tvb = tvb_new_subset(tvb, offset, tvb_len,
 		    tvb_reported_len);
-		if (!dissect_rpc_message(msg_tvb, 4, pinfo, tree,
-		    TRUE, rpc_rm))
-			break;
+
+		/*
+		 * Catch the ReportedBoundsError exception; if this
+		 * particular message happens to get a ReportedBoundsError
+		 * exception, that doesn't mean that we should stop
+		 * dissecting RPC messages within this frame or chunk
+		 * of reassembled data.
+		 *
+		 * If it gets a BoundsError, we can stop, as there's
+		 * nothing more to see, so we just re-throw it.
+		 */
+		saved_proto = pinfo->current_proto;
+		TRY {
+			if (!dissect_rpc_message(msg_tvb, 4, pinfo, tree,
+			    TRUE, rpc_rm))
+				break;
+		}
+		CATCH(BoundsError) {
+			RETHROW;
+		}
+		CATCH(ReportedBoundsError) {
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_str(pinfo->cinfo, COL_INFO,
+				    "[Malformed Packet]");
+			}
+			proto_tree_add_protocol_format(tree, proto_malformed,
+			    tvb, 0, 0, "[Malformed Packet: %s]",
+			    pinfo->current_proto );
+			pinfo->current_proto = saved_proto;
+		}
+		ENDTRY;
 		offset += len;
 		saw_rpc = TRUE;
 	}
