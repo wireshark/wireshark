@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.76 2000/04/13 20:39:16 gram Exp $
+ * $Id: packet.c,v 1.77 2000/04/16 04:56:40 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,6 +102,31 @@ static int hf_frame_packet_len = -1;
 static int hf_frame_capture_len = -1;
 
 static gint ett_frame = -1;
+
+GMemChunk *frame_proto_data_area = NULL;
+
+/* 
+ * Free up any space allocated for frame proto data areas and then 
+ * allocate a new area.
+ *
+ * We can free the area, as the structures it contains are pointed to by
+ * frames, that will be freed as well.
+ */
+static void
+packet_init_protocol(void)
+{
+
+  printf("Initializing Packet stuff ... \n");
+
+  if (frame_proto_data_area)
+    g_mem_chunk_destroy(frame_proto_data_area);
+
+  frame_proto_data_area = g_mem_chunk_new("frame_proto_data_area",
+					  sizeof(frame_proto_data),
+					  20 * sizeof(frame_proto_data), /* FIXME*/
+					  G_ALLOC_ONLY);
+
+}
 
 /* Wrapper for the most common case of asking
  * for a string using a colon as the hex-digit separator.
@@ -1192,15 +1217,14 @@ gint p_compare(gconstpointer a, gconstpointer b)
 void
 p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 {
-  frame_proto_data *p1 = malloc(sizeof(frame_proto_data)); /* FIXME */
+  frame_proto_data *p1 = g_mem_chunk_alloc(frame_proto_data_area);
  
   g_assert(p1 != NULL);
 
   p1 -> proto = proto;
   p1 -> proto_data = proto_data;
 
-  /* Allocate a frame_proto_data struct and then add it to the GSLIST */
-
+  /* Add it to the GSLIST */
 
   fd -> pfd = g_slist_insert_sorted(fd -> pfd,
 				    (gpointer *)p1,
@@ -1264,6 +1288,9 @@ proto_register_frame(void)
 	proto_frame = proto_register_protocol("Frame", "frame");
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_init_routine(&packet_init_protocol);
+
 }
 
 /*********************** code added for sub-dissector lookup *********************/
