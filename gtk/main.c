@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.336 2003/12/03 09:28:24 guy Exp $
+ * $Id: main.c,v 1.337 2003/12/07 09:43:53 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3020,32 +3020,33 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
      * of any widget that ends up calling a callback which needs
      * that text entry pointer */
     set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
-    set_menu_object_data("/Edit/Filters...", E_FILT_TE_PTR_KEY, filter_te);
-    set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Display Filters...", E_FILT_TE_PTR_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Match/Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Follow TCP Stream", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Match/Not Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Match/Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Match/And Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Match/Not Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Match/Or Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Match/And Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Match/And Not Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Match/Or Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Match/Or Not Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Match/And Not Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Prepare/Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Match/Or Not Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Prepare/Not Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Prepare/Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Prepare/And Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Prepare/Not Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Prepare/Or Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Prepare/And Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Prepare/And Not Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Prepare/Or Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    set_menu_object_data("/Display/Prepare/Or Not Selected", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Prepare/And Not Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Analyze/Prepare/Or Not Selected", E_DFILTER_TE_KEY,
                          filter_te);
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
