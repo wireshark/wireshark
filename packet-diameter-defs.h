@@ -5,8 +5,16 @@
  * AVPs.  If libxml is in the LD_LIBRARY_PATH, and dictionary.xml exists,
  * then it will not be used.
  *
- * $Id: packet-diameter-defs.h,v 1.8 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-diameter-defs.h,v 1.9 2004/03/21 23:08:05 guy Exp $
  * Generated: Fri Feb 23 13:04:15 2001
+ * References:
+ * http://www.ietf.org/rfc/rfc3588.txt
+ * http://www.iana.org/assignments/radius-types
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-03.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-nasreq-14.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-16.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-sip-app-01.txt
+ * http://www.ietf.org/html.charters/aaa-charter.html
  */
 
 #ifndef _PACKET_DIAMETER_DEFS_H
@@ -31,17 +39,17 @@ static value_string diameter_service_type_vals[]={
 
 static value_string diameter_framed_protocol_vals[]={
    {1, "PPP"},
-   {260, "COMB"},
+   {260,"COMB"},
    {5, "Xylogics"},
-   {257, "EURAW"},
+   {257,"EURAW"},
    {3, "ARA"},
-   {261, "FR"},
+   {261,"FR"},
    {2, "SLIP"},
-   {258, "EUUI"},
+   {258,"EUUI"},
    {4, "Gandalf"},
-   {256, "MPP"},
-   {255, "Ascend-ARA"},
-   {259, "X25"},
+   {256,"MPP"},
+   {255,"Ascend-ARA"},
+   {259,"X25"},
    {0, (char *)NULL}
 };
 
@@ -83,6 +91,7 @@ static value_string diameter_vendor_specific_vendors[]= {
 	{1584, "Bay Networks"},
 	{2636, "Juniper Networks"},
         {5925, "ipUnplugged"},
+	{10415, "3GPP"},
 	{0,NULL}
 };
 
@@ -133,16 +142,32 @@ static value_string diameter_acct_terminate_cause_vals[]={
    {0, (char *)NULL}
 };
 static value_string diameter_nas_port_type_vals[]={
-   {6, "PIAFS"},
-   {9, "X75"},
-   {7, "HDLC-Clear-Channel"},
-   {5, "Virtual"},
-   {2, "ISDN-Sync"},
-   {1, "Sync"},
    {0, "Async"},
-   {4, "ISDN-Async-v110"},
+   {1, "Sync"},
+   {2, "ISDN-Sync"},
    {3, "ISDN-Async-v120"},
+   {4, "ISDN-Async-v110"},
+   {5, "Virtual"},
+   {6, "PIAFS"},
+   {7, "HDLC-Clear-Channel"},
    {8, "X25"},
+   {9, "X75"},
+   {10,"G.3 Fax"},
+   {11,"SDSL - Symmetric DSL"},
+   {12,"ADSL-CAP - Asymmetric DSL, Carrierless Amplitude Phase Modulation"},
+   {13,"ADSL-DMT - Asymmetric DSL, Discrete Multi-Tone"},
+   {14,"IDSL - ISDN Digital Subscriber Line"},
+   {15,"Ethernet"},
+   {16,"xDSL - Digital Subscriber Line of unknown type"},
+   {17,"Cable"},
+   {18,"Wireless - Other"},
+   {19,"Wireless - IEEE 802.11"},
+   {20,"Token-Ring"},                                 
+   {21,"FDDI"},                                       
+   {22,"Wireless - CDMA2000"},                           
+   {23,"Wireless - UMTS"},                               
+   {24,"Wireless - 1X-EV"},                              
+   {25,"IAPP"},                                     
    {0, (char *)NULL}
 };
 
@@ -159,6 +184,7 @@ static value_string diameter_tunnel_type_vals[]= {
 	{10,"GRE"},
 	{11,"DVS"},
 	{12,"IP-IP"},
+	{13,"VLAN"},
 	{0,NULL}
 };
 
@@ -255,7 +281,179 @@ static value_string diameter_mip_replay_type[] = {
 	{3, "Timestamp"},
 	{0, NULL}
 };
+/* XXX TODO correct these values to IANA assigned ones */
+static value_string diameter_application_id_vals[] = {
+	{1, "Diameter NASREQ Application"},
+	{2, "Diameter Mobile IPv4 Application"},
+	{4, "Diameter Credit-Control Application"},
+/*	{x, "Diameter Session Initiation Protocol (SIP) Application"},
+ */
+  {2000, "Diameter EAP Application"},
+	{0, NULL}
 
+};
+/* Diameter Session Initiation Protocol (SIP) Application value strings */
+/* Remove comment when IANA assigned values are avalable 
+static value_string SIP_user_data_request_type[] = {
+	{0, "COMPLETE_PROFILE"},
+	{1, "REGISTERED_PROFILE"},
+	{2, "UNREGISTERED_PROFILE"},
+	{0, NULL}
+
+};
+static value_string SIP_user_authorization_type[] = {
+	{0, "REGISTRATION"},
+	{1, "DE_REGISTRATION"},
+	{2, "REGISTRATION_AND_CAPABILITIES"},
+	{0, NULL}
+
+};
+
+static value_string SIP_reason_code_vals[] = {
+	{0, "PERMANENT_TERMINATION"},
+	{1, "NEW_SIP_SERVER_ASSIGNED "},
+	{2, "SIP_SERVER_CHANGE"},
+	{3, "REMOVE_SIP_SERVER"},
+	{0, NULL}
+
+};
+static value_string SIP_user_data_already_available_vals[] = {
+	{0, "USER_DATA_NOT_AVAILABLE"},
+	{1, "USER_DATA_ALREADY_AVAILABLE"},
+	{0, NULL}
+
+};
+
+static value_string SIP_server_assignment_type[] ={
+	{0, "NO_ASSIGNMENT"},
+	{1, "REGISTRATION"},
+	{2, "RE_REGISTRATION"},
+	{3, "UNREGISTERED_USER"},
+	{4, "TIMEOUT_DEREGISTRATION"},
+	{5, "USER_DEREGISTRATION"},
+	{6, "TIMEOUT_DEREGISTRATION_STORE_SERVER_NAME"},
+	{7, "USER_DEREGISTRATION_STORE_SERVER_NAME"},
+	{8, "ADMINISTRATIVE_DEREGISTRATION"},
+	{9, "AUTHENTICATION_FAILURE"},
+	{10, "AUTHENTICATION_TIMEOUT"},
+	{11, "DEREGISTRATION_TOO_MUCH_DATA"},
+	{0, NULL}
+
+};
+
+ Remove comment when IANA assigned values are avalable */ 
+
+/*
+ * The Result-Code data field contains an IANA-managed 32-bit address
+ * space representing errors (see Section 11.4(RFC3588)).  Diameter provides the
+ * following classes of errors, all identified by the thousands digit in
+ * the decimal notation:
+ *
+ *    -  1xxx (Informational)
+ *    -  2xxx (Success)
+ *    -  3xxx (Protocol Errors)
+ *    -  4xxx (Transient Failures)
+ *    -  5xxx (Permanent Failure)
+ */
+
+static value_string diameter_result_code_vals[] = {
+	/* Informational
+	 * Errors that fall within this category are used to inform the
+	 * requester that a request could not be satisfied, and additional
+	 * action is required on its part before access is granted.
+	 */
+	{1001, "DIAMETER_MULTI_ROUND_AUTH "},
+	/* Errors that fall within the Success category are used to inform a peer 
+	 *that a request has been successfully completed
+	 */
+	{2001, "DIAMETER_SUCCESS"},
+	{2002, "DIAMETER_LIMITED_SUCCESS"},
+	/* draft-ietf-aaa-diameter-sip-app-01.txt numbers not yet allocated by IANA 
+	{2xx1, "DIAMETER_FIRST_REGISTRATION"},
+	{2xx2, "DIAMETER_SUBSEQUENT_REGISTRATION "},
+	{2xx3, "DIAMETER_UNREGISTERED_SERVICE "},
+	{2xx4, "DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED "},
+	{2xx5, "DIAMETER_SERVER_SELECTION"},
+	{2xx6, "DIAMETER_SUCCESS_AUTH_SENT_SERVER_NOT_STORED"},
+	{2xx7, "DIAMETER_SUCCESS_SERVER_NOT_STORED"},
+	
+	  */
+
+	/* Protocol errors */
+	{3001, "DIAMETER_COMMAND_UNSUPPORTED"},
+	{3002, "DIAMETER_UNABLE_TO_DELIVER"},
+	{3003, "DIAMETER_REALM_NOT_SERVED"},
+	{3004, "DIAMETER_TOO_BUSY"},
+	{3005, "DIAMETER_LOOP_DETECTED"},
+	{3006, "DIAMETER_REDIRECT_INDICATION"},
+	{3007, "DIAMETER_APPLICATION_UNSUPPORTED"},
+	{3008, "DIAMETER_INVALID_HDR_BITS"},
+	{3009, "DIAMETER_INVALID_AVP_BITS"},
+	{3010, "DIAMETER_UNKNOWN_PEER"},
+	/* Transient Failures */
+	{4001, "DIAMETER_AUTHENTICATION_REJECTED"},
+	{4002, "DIAMETER_OUT_OF_SPACE"},
+	{4003, "ELECTION_LOST"},
+	/* draft-ietf-aaa-diameter-mobileip-16 */
+	{4005, "DIAMETER_ERROR_MIP_REPLY_FAILURE"},
+	{4006, "DIAMETER_ERROR_HA_NOT_AVAILABLE"},
+	{4007, "DIAMETER_ERROR_BAD_KEY"},
+	{4008, "DIAMETER_ERROR_MIP_FILTER_NOT_SUPPORTED"},
+	{4003, "ELECTION_LOST"},
+	/* draft-ietf-aaa-diameter-cc-03.txt */
+	{4010, "DIAMETER_END_USER_SERVICE_DENIED"},
+	{4011, "DIAMETER_CREDIT_CONTROL_NOT_APPLICABLE"},
+	{4012, "DIAMETER_CREDIT_LIMIT_REACHED"},
+	/* draft-ietf-aaa-diameter-sip-app-01.txt numbers not yet allocated by IANA 
+	 
+	{4xx1, "DIAMETER_USER_NAME_REQUIRED"},
+	*/
+	/* Permanent Failures */
+	{5001, "DIAMETER_AVP_UNSUPPORTED"}, 
+	{5002, "DIAMETER_UNKNOWN_SESSION_ID"}, 
+	{5003, "DIAMETER_AUTHORIZATION_REJECTED"}, 
+	{5004, "DIAMETER_INVALID_AVP_VALUE"}, 
+	{5005, "DIAMETER_MISSING_AVP"}, 
+	{5006, "DIAMETER_RESOURCES_EXCEEDED"}, 
+	{5007, "DIAMETER_CONTRADICTING_AVPS"}, 
+	{5008, "DIAMETER_AVP_NOT_ALLOWED"}, 
+	{5009, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
+	{5010, "DIAMETER_NO_COMMON_APPLICATION"}, 
+	{5011, "DIAMETER_UNSUPPORTED_VERSION"}, 
+	{5012, "DIAMETER_UNABLE_TO_COMPLY"}, 
+	{5013, "DIAMETER_INVALID_BIT_IN_HEADER"}, 
+	{5014, "DIAMETER_INVALID_AVP_LENGTH"}, 
+	{5015, "DIAMETER_INVALID_MESSAGE_LENGTH"}, 
+	{5016, "DIAMETER_INVALID_AVP_BIT_COMBO"}, 
+	{5017, "DIAMETER_NO_COMMON_SECURITY"}, 
+	{5018, "DIAMETER_AVP_NOT_ALLOWED"}, 
+	{5019, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
+	/* draft-ietf-aaa-diameter-mobileip-16 */
+	{5024, "DIAMETER_ERROR_NO_FOREIGN_HA_SERVICE"}, 
+	{5025, "DIAMETER_ERROR_END_TO_END_MIP_KEY_ENCRYPTION"}, 
+	{5026, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
+	{5027, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
+	{5028, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
+	{5029, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
+	/* draft-ietf-aaa-diameter-cc-03.txt */
+	{5030, "DIAMETER_USER_UNKNOWN"},
+	{5031, "DIAMETER_RATING_FAILED"},
+	{5032, "DIAMETER_CREDIT_LIMIT_REACHED"},
+
+	/* draft-ietf-aaa-diameter-sip-app-01.txt numbers not yet allocated by IANA 
+
+	{5xx1, "DIAMETER_ERROR_USER_UNKNOWN"}, 
+	{5xx2, "DIAMETER_ERROR_IDENTITIES_DONT_MATCH"}, 
+	{5xx3, "DIAMETER_ERROR_IDENTITY_NOT_REGISTERED"}, 
+	{5xx4, "DIAMETER_ERROR_ROAMING_NOT_ALLOWED"}, 
+	{5xx5, "DIAMETER_ERROR_IDENTITY_ALREADY_REGISTERED"}, 
+	{5xx6, "DIAMETER_ERROR_USER_UNKNOWN"}, 
+	{5xx7, "DIAMETER_ERROR_IN_ASSIGNMENT_TYPE"}, 
+	{5xx8, "DIAMETER_ERROR_TOO_MUCH_DATA"}, 
+	{5xx9, "DIAMETER_ERROR_NOT_SUPPORTED_USER_DATA"},
+	*/
+	{0, NULL}
+};
 
 
 static struct old_avp_info old_diameter_avps[] = {
@@ -325,11 +523,13 @@ static struct old_avp_info old_diameter_avps[] = {
 
 	/* Diameter AVPs */
     { 482, "Accounting-Interim-Interval", DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 483, "Accounting-Realtime-Required",DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 485, "Accounting-Record-Number",    DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 480, "Accounting-Record-Type",      DIAMETER_ENUMERATED,  diameter_accounting_record_type_vals},
-    { 259, "Acct-Application-Id",         DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 287, "Accounting-Sub-Session-Id",   DIAMETER_UNSIGNED64,  (value_string *)NULL},
+    { 259, "Acct-Application-Id",         DIAMETER_UNSIGNED32,  diameter_application_id_vals},
     { 275, "Alternate-Peer",              DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 258, "Auth-Aplication-Id",          DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 258, "Auth-Application-Id",         DIAMETER_UNSIGNED32,  diameter_application_id_vals},
     { 274, "Auth-Request-Type",           DIAMETER_ENUMERATED,  diameter_auth_request_type_vals},
     { 291, "Authorization-Lifetime",      DIAMETER_INTEGER32,   (value_string *)NULL},
     { 276, "Auth-Grace-Period",           DIAMETER_UNSIGNED32,  (value_string *)NULL},
@@ -353,9 +553,9 @@ static struct old_avp_info old_diameter_avps[] = {
     { 292, "Redirect-Host",               DIAMETER_IDENTITY,    (value_string *)NULL},
     { 261, "Redirect-Host-Usage",         DIAMETER_ENUMERATED,  diameter_redirect_host_usage_vals},
     { 262, "Redirect-Max-Cache-Time",     DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 268, "Result-Code",                 DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 268, "Result-Code",                 DIAMETER_ENUMERATED,  diameter_result_code_vals},
     { 282, "Route-Record",                DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 263, "Session-Id",                  DIAMETER_UTF8STRING,  (value_string *)NULL},
+    { 263, "Session-Id",                  DIAMETER_SESSION_ID,  (value_string *)NULL},
     { 270, "Session-Binding",             DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 271, "Session-Server-Failover",     DIAMETER_ENUMERATED,  diameter_session_server_failover_vals},
     { 286, "Source-Route",                DIAMETER_IDENTITY,    (value_string *)NULL},
@@ -378,6 +578,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 333, "MIP-Mobile-Node-Address",     DIAMETER_IP_ADDRESS,     (value_string *)NULL},
     { 334, "MIP-Home-Agent-Address",      DIAMETER_IP_ADDRESS,     (value_string *)NULL},
     { 335, "MIP-Key-Material",            DIAMETER_OCTET_STRING,   (value_string *)NULL},
+    { 336, "MIP-Candidate-Home-Agent-Host",		DIAMETER_IDENTITY,			(value_string *)NULL},
     { 337, "MIP-Feature-Vector",          DIAMETER_UNSIGNED32,     (value_string *)NULL},
     { 338, "MIP-Auth-Input-Data-Length",  DIAMETER_UNSIGNED32,     (value_string *)NULL},
     { 339, "MIP-Authenticator-Length",    DIAMETER_UNSIGNED32,     (value_string *)NULL},
@@ -389,8 +590,90 @@ static struct old_avp_info old_diameter_avps[] = {
     { 345, "MIP-Algorithm-Type",          DIAMETER_ENUMERATED,     diameter_mip_algorithm_type},
     { 346, "MIP-Algorithm-Type",          DIAMETER_ENUMERATED,     diameter_mip_replay_type},
     { 347, "MIP-Filter-Rule",             DIAMETER_IP_FILTER_RULE, (value_string *)NULL},
+    { 348, "MIP-Home-Agent-Host",				DIAMETER_IDENTITY,			(value_string *)NULL},
     { 398, "MIP-Key-Lifetime",            DIAMETER_UNSIGNED32,    (value_string *)NULL},
-{0, (char *)NULL, 0, (value_string*)NULL}
+/* http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-03.txt */
+	{ 411, "CC-Correlation-Id",                 DIAMETER_OCTET_STRING,		(value_string *)NULL}, 
+	{ 412, "CC-Input-Octets",                   DIAMETER_UNSIGNED64 ,		(value_string *)NULL}, 
+	{ 413, "CC-Money",                          DIAMETER_GROUPED    ,		(value_string *)NULL}, 
+	{ 414, "CC-Output-Octets",                  DIAMETER_UNSIGNED64 ,		(value_string *)NULL}, 
+	{ 415, "CC-Request-Number",                 DIAMETER_UNSIGNED32 ,		(value_string *)NULL}, 
+	{ 416, "CC-Request-Type",                   DIAMETER_ENUMERATED ,		(value_string *)NULL}, 
+	{ 417, "CC-Service-Specific-Units",         DIAMETER_UNSIGNED64 ,		(value_string *)NULL},  
+	{ 418, "CC-Session-Failover",				DIAMETER_ENUMERATED ,		(value_string *)NULL}, 
+	{ 419, "CC-Sub-Session-Id",                 DIAMETER_UNSIGNED64 ,		(value_string *)NULL},
+	{ 420, "CC-Time",                           DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
+	{ 421, "CC-Total-Octets",                   DIAMETER_UNSIGNED64 ,		(value_string *)NULL},
+	{ 454, "CC-Unit-Type",                      DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 422, "Check-Balance-Result",              DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 423, "Cost-Information",                  DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 424, "Cost-Unit",                         DIAMETER_UTF8STRING ,		(value_string *)NULL},
+	{ 426, "Credit-Control",                    DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 427, "Credit-Control-Failure-Handling",   DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 425, "Currency-Code",                     DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
+	{ 428, "Direct-Debiting-Failure-Handling",  DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 429, "Exponent",                          DIAMETER_INTEGER32  ,		(value_string *)NULL},
+	{ 449, "Final-Unit-Action",                 DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 430, "Final-Unit-Indication",             DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 431, "Granted-Service-Unit",              DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 453, "G-S-U-Pool-Identifier",             DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
+	{ 457, "G-S-U-Pool-Reference",              DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 456, "Multiple-Services-Credit-Control",  DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 455, "Multiple-Services-Indicator",       DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 432, "Rating-Group",                      DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
+	{ 433, "Redirect-Address-Type",             DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 434, "Redirect-Server",                   DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 435, "Redirect-Server-Address",           DIAMETER_UTF8STRING ,		(value_string *)NULL},
+	{ 436, "Requested-Action",                  DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 437, "Requested-Service-Unit",            DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 438, "Restriction-Filter-Rule",           DIAMETER_IP_FILTER_RULE,	(value_string *)NULL},
+	{ 439, "Service-Identifier",                DIAMETER_UTF8STRING ,		(value_string *)NULL},
+	{ 440, "Service-Parameter-Info",            DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 441, "Service-Parameter-Type",            DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
+	{ 442, "Service-Parameter-Value",           DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 443, "Subscription-Id",                   DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 444, "Subscription-Id-Data",              DIAMETER_UTF8STRING ,		(value_string *)NULL},
+	{ 450, "Subscription-Id-Type",              DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 452, "Tariff-Change-Usage",               DIAMETER_ENUMERATED ,		(value_string *)NULL},
+	{ 451, "Tariff-Time-Change",                DIAMETER_TIME,				(value_string *)NULL},
+	{ 445, "Unit-Value",                        DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 446, "Used-Service-Unit",                 DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 447, "Value-Digits",                      DIAMETER_INTEGER64  ,		(value_string *)NULL},
+	{ 448, "Validity-Time",                     DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
+
+
+/* draft-ietf-aaa-diameter-sip-app-01.txt AVP codes to be allocated
+	{ xx01, "SIP-Visited-Network-Id",			DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ xx02, "SIP-AOR",							DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ xx03, "SIP-Server-URI",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ xx04, "SIP-Server-Capabilities",			DIAMETER_GROUPED,			(value_string *)NULL},
+	{ xx05, "SIP-Mandatory-Capability",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
+	{ xx06, "SIP-Optional-Capability",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
+	{ xx07, "SIP-User-Data",					DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ xx08, "SIP-Number-Auth-Items",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
+	{ xx09, "SIP-Auth-Data-Item",				DIAMETER_GROUPED,			(value_string *)NULL},
+	{ xxxx, "SIP-Item-Number",					DIAMETER_UNSIGNED32,		(value_string *)NULL},
+	{ xx11, "SIP-Authentication-Scheme",		DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ xx12, "SIP-Authenticate",					DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ xx13, "SIP-Authorization",				DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ xx14, "SIP-Authentication-Info",			DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ xx15, "SIP-Authentication-Context",		DIAMETER_GROUPED,			(value_string *)NULL},
+	{ xx16, "SIP-Confidentiality-Key",			DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ xx17, "SIP-Integrity-Key",				DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ xx18, "SIP-Server-Assignment-Type",		DIAMETER_ENUMERATED,		SIP_server_assignment_type},
+	{ xx19, "SIP-Deregistration-Reason",		DIAMETER_GROUPED,			(value_string *)NULL},
+	{ xx20, "SIP-Reason-Code",					DIAMETER_ENUMERATED,		SIP_reason_code_vals},
+	{ xx21, "SIP-Reason-Info",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ xx22, "SIP-Accouting-Information",		DIAMETER_GROUPED,			(value_string *)NULL},
+	{ xx23, "SIP-Accounting-Server-URI",		DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ xx24, "SIP-Credit-Control-Server-URI",	DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ xx25, "SIP-User-Authorization-Type",		DIAMETER_ENUMERATED,		SIP_user_authorization_type},
+	{ xx26, "SIP-User-Data-Request-Type",		DIAMETER_ENUMERATED,		SIP_user_data_request_type},
+	{ xx27, "SIP-User-Data-Already-Available",	DIAMETER_ENUMERATED,		SIP_user_data_already_available_vals},
+	{ xx28, "SIP-Method",						DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ xx29, "SIP-Entity-Body-Hash",				DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	*/
+	{0, (char *)NULL, 0, (value_string*)NULL}
 };
 
 
@@ -404,6 +687,7 @@ static value_string diameter_command_code_vals[] = {
 	{280, "Device-Watchdog"},
 	{282, "Disconnect-Peer"},
 	{258, "Re-Auth"},
+	{300, "Test-Auth"},
 	{275, "Session-Termination"},
 	/* Mip Protocol */
 	{262, "Home-Agent-MIP"},
@@ -411,6 +695,20 @@ static value_string diameter_command_code_vals[] = {
 	/* Nasreq Protocol */
 	{265, "AA"},
 	{268, "Diameter-EAP"},
+	/* Credit-Control Application */
+	{272, "Credit-Control"},
+	/* draft-ietf-aaa-diameter-cms-sec-04 */
+	{304,  "Diameter-Security-Association"},
+	{305,  "Proxy-Diameter-Security-Association"},
+	/* Session Initiation Protocol (SIP) Application, numbers not yet assigned by IANA 
+	{aaa, "User-Authorization"},
+	{bbb, "Server-Assignment"},
+	{ccc, "Location-Info"},
+	{ddd, "Multimedia-Auth"},
+	{eee, "Registration-Termination"},
+	{fff, "Push-Profile"},
+	*/	
+
 	{0, (char *)NULL}
 };
 
