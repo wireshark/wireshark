@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.25 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-ethertype.c,v 1.26 2002/02/17 00:16:19 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -53,6 +53,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_REVARP,		"RARP"				},
     {ETHERTYPE_DEC_LB,		"DEC LanBridge"			},
     {ETHERTYPE_ATALK,		"Appletalk"			},
+    {ETHERTYPE_SNA,		"SNA-over-Ethernet"		},
     {ETHERTYPE_AARP,		"AARP"				},
     {ETHERTYPE_IPX,		"Netware IPX/SPX"		},
     {ETHERTYPE_VINES,		"Vines"				},
