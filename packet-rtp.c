@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.37 2003/02/28 22:03:08 guy Exp $
+ * $Id: packet-rtp.c,v 1.38 2003/03/06 20:35:09 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,9 @@
 
 #include "packet-rtp.h"
 #include <epan/conversation.h>
+#include "tap.h"
+
+static int rtp_tap = -1;
 
 /* RTP header fields             */
 static int proto_rtp           = -1;
@@ -349,6 +352,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint32     sync_src;
 	guint32     csrc_item;
 
+	static struct _rtp_info rtp_info;
+
 	/* Get the fields in the first octet */
 	octet = tvb_get_guint8( tvb, offset );
 	version = RTP_VERSION( octet );
@@ -390,6 +395,16 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	timestamp = tvb_get_ntohl( tvb, offset + 4 );
 	sync_src = tvb_get_ntohl( tvb, offset + 8 );
 
+	/* fill in the rtp_info structure */ 
+	rtp_info.info_padding_set = padding_set;
+	rtp_info.info_padding_count = 0;
+	rtp_info.info_marker_set = marker_set;
+	rtp_info.info_payload_type = payload_type;
+	rtp_info.info_seq_num = seq_num;
+	rtp_info.info_timestamp = timestamp;
+	rtp_info.info_sync_src = sync_src;
+	rtp_info.info_data_len = tvb_reported_length_remaining( tvb, offset );
+
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
 	}
@@ -404,7 +419,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    timestamp,
 		    marker_set ? ", Mark" : "");
 	}
-
 	if ( tree ) {
 		ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, -1, FALSE );
 		rtp_tree = proto_item_add_subtree( ti, ett_rtp );
@@ -555,6 +569,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			    payload_type );
 		}
 	}
+	tap_queue_packet(rtp_tap, pinfo, &rtp_info);
 }
 
 void
@@ -770,6 +785,7 @@ proto_register_rtp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("rtp", dissect_rtp, proto_rtp);
+	rtp_tap = register_tap("rtp");
 
 #if 0
 	register_init_routine( &rtp_init );

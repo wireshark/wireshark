@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.285 2003/03/06 09:01:40 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.286 2003/03/06 20:35:09 sahlberg Exp $
 
 include config.nmake
 include <win32.mak>
@@ -379,6 +379,7 @@ ETHEREAL_COMMON_OBJECTS = \
 	crypt-md5.obj    \
 	crypt-rc4.obj    \
 	follow.obj       \
+	g711.obj	\
 	getopt.obj	 \
 	in_cksum.obj	 \
 	ipproto.obj      \

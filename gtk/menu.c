@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.83 2003/01/22 00:40:36 sahlberg Exp $
+ * $Id: menu.c,v 1.84 2003/03/06 20:35:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,7 @@
 #include "smb_stat.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"
+#include "tap_rtp.h"
 
 GtkWidget *popup_menu_object;
 
@@ -217,6 +218,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Tools/_Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Tools/_Decode As...", NULL, decode_as_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Tools/_RTP analysis...", NULL, rtp_analyse_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Tools/_Go To Corresponding Frame", NULL, goto_framenum_cb,
                        0, NULL, NULL),

@@ -1635,6 +1635,11 @@ Lars Ronald <Lars.Roland [AT] gmx.net> {
 	MGCP request/response matching and MGCPSTAT calculation
 }
 
+Miha Jemec <m.jemec [AT] iskratel.si> {
+	Support to follow a RTP stream and save it as a file.
+	Support for G.711 codec
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
