@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.34 2000/08/07 03:21:05 guy Exp $
+ * $Id: packet-rpc.c,v 1.35 2000/08/08 06:19:51 girlich Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -377,8 +377,18 @@ int hfindex)
 
 
 int
+dissect_rpc_bool_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+int hfindex, int offset)
+{
+	if (tree)
+		proto_tree_add_item(tree, hfindex, tvb, offset, 4, FALSE);
+	return offset + 4;
+}
+
+
+int
 dissect_rpc_uint32(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-char* name, char* type)
+char* name)
 {
 	guint32 value;
 
@@ -396,8 +406,18 @@ char* name, char* type)
 
 
 int
+dissect_rpc_uint32_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+int hfindex, int offset)
+{
+	if (tree)
+		proto_tree_add_item(tree, hfindex, tvb, offset, 4, FALSE);
+	return offset + 4;
+}
+
+
+int
 dissect_rpc_uint64(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-char* name, char* type)
+char* name)
 {
 	guint32 value_low;
 	guint32 value_high;
@@ -417,6 +437,28 @@ char* name, char* type)
 
 	offset += 8;
 	return offset;
+}
+
+
+int
+dissect_rpc_uint64_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+int hfindex, int offset)
+{
+	guint32 value_low;
+	guint32 value_high;
+
+	value_high = tvb_get_ntohl(tvb, offset + 0);
+	value_low  = tvb_get_ntohl(tvb, offset + 4);
+
+	if (tree) {
+		if (value_high)
+			proto_tree_add_text(tree, tvb, offset, 8,
+				"%s: 0x%x%08x", proto_registrar_get_name(hfindex), value_high, value_low);
+		else
+			proto_tree_add_uint(tree, hfindex, tvb, offset, 8, value_low);
+	}
+
+	return offset + 8;
 }
 
 
@@ -597,12 +639,46 @@ dissect_rpc_string(const u_char *pd, int offset, frame_data *fd,
 
 
 int
+dissect_rpc_string_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hfindex, int offset, char **string_buffer_ret)
+{
+	const guint8 *pd;
+	int compat_offset;
+	int compat_offset_new;
+
+	tvb_compat(tvb, &pd, &compat_offset);
+	compat_offset += offset;
+	
+	compat_offset_new = dissect_rpc_string(pd, compat_offset, pinfo->fd,
+				tree, hfindex, string_buffer_ret);
+	offset += (compat_offset_new - compat_offset);
+	return offset;
+}
+
+
+int
 dissect_rpc_data(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree, int hfindex)
 {
 	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, FALSE,
 	    NULL);
 
+	return offset;
+}
+
+
+int
+dissect_rpc_data_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hfindex, int offset)
+{
+	const guint8 *pd;
+	int compat_offset;
+	int compat_offset_new;
+
+	tvb_compat(tvb, &pd, &compat_offset);
+	compat_offset += offset;
+	
+	compat_offset_new = dissect_rpc_data(pd, compat_offset, pinfo->fd,
+				tree, hfindex);
+	offset += (compat_offset_new - compat_offset);
 	return offset;
 }
 

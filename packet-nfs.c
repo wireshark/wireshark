@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.33 2000/08/06 07:22:35 guy Exp $
+ * $Id: packet-nfs.c,v 1.34 2000/08/08 06:19:52 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -556,7 +556,7 @@ int
 dissect_unsigned_int(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint32(pd,offset,fd,tree,name,"unsigned int");
+	offset = dissect_rpc_uint32(pd,offset,fd,tree,name);
 	return offset;
 }
 
@@ -1376,7 +1376,7 @@ int
 dissect_uint64(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"uint64");
+	offset = dissect_rpc_uint64(pd,offset,fd,tree,name);
 	return offset;
 }
 
@@ -1386,7 +1386,7 @@ int
 dissect_uint32(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint32(pd,offset,fd,tree,name,"uint32");
+	offset = dissect_rpc_uint32(pd,offset,fd,tree,name);
 	return offset;
 }
 
@@ -1415,7 +1415,7 @@ int
 dissect_fileid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"fileid3");
+	offset = dissect_rpc_uint64(pd,offset,fd,tree,name);
 	return offset;
 }
 
@@ -1425,7 +1425,7 @@ int
 dissect_cookie3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"cookie3");
+	offset = dissect_rpc_uint64(pd,offset,fd,tree,name);
 	return offset;
 }
 
@@ -1471,7 +1471,7 @@ int
 dissect_uid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint32(pd,offset,fd,tree,name,"uid3"); 
+	offset = dissect_rpc_uint32(pd,offset,fd,tree,name); 
 	return offset;
 }
 
@@ -1481,7 +1481,7 @@ int
 dissect_gid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint32(pd,offset,fd,tree,name,"gid3"); 
+	offset = dissect_rpc_uint32(pd,offset,fd,tree,name); 
 	return offset;
 }
 
@@ -1491,7 +1491,7 @@ int
 dissect_size3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"size3"); 
+	offset = dissect_rpc_uint64(pd,offset,fd,tree,name); 
 	return offset;
 }
 
@@ -1501,7 +1501,7 @@ int
 dissect_offset3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"offset3"); 
+	offset = dissect_rpc_uint64(pd,offset,fd,tree,name); 
 	return offset;
 }
 
@@ -1563,7 +1563,7 @@ int
 dissect_count3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
-	offset = dissect_rpc_uint32(pd,offset,fd,tree,name,"count3");
+	offset = dissect_rpc_uint32(pd,offset,fd,tree,name);
 	return offset;
 }
 
