@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.86 2003/12/17 02:24:53 guy Exp $
+ * $Id: packet-radius.c,v 1.87 2003/12/17 07:05:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,7 +141,7 @@ typedef struct _rd_vsa_buffer {
  * of its own.
  */
 enum {
-    RADIUS_STRING = 1,
+    RADIUS_STRING,
     RADIUS_BINSTRING,
     RADIUS_INTEGER4,
     RADIUS_IP_ADDRESS,
@@ -2367,11 +2367,9 @@ static gchar *rd_match_strval(guint32 val, const value_string *vs) {
  * */
 static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 			    const e_avphdr *avph, tvbuff_t *tvb,
-			    int offset, const radius_attr_info *vvs,
+			    int offset, const radius_attr_info *attr_info,
 			    proto_tree *tree)
 {
-  const radius_attr_info *attr_info;
-
   /* Variable to peek which will be the next print_type for VENDOR-SPECIFIC
    * RADIUS attributes
    * */
@@ -2394,12 +2392,13 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
   const radius_attr_info *vsa_attr_info_table;
   const e_avphdr *vsa_avph;
 
-/* prints the values of the attribute value pairs into a text buffer */
-  attr_info = find_radius_attr_info(avph->avp_type, vvs);
-
   /* Default begin */
   strcpy(dest, "Value:");
   cont=&dest[strlen(dest)];
+  if(attr_info == NULL) {
+    strcpy(cont,"Unknown Value Type");
+    return;
+  }
   switch(attr_info->value_type)
   {
         case( RADIUS_STRING ):
@@ -2478,7 +2477,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 				vsa_avph->avp_type, vsa_avph->avp_length);
 			cont = &cont[strlen(cont)];
 			rd_value_to_str(cont, vsabuffer, vsa_avph, tvb,
-					offset+vsa_len, vsa_attr_info_table,
+					offset+vsa_len, next_attr_info,
 					tree);
 			vsa_index++;
 			vsa_len += vsa_avph->avp_length;
@@ -2556,9 +2555,10 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		break;
 
         case( RADIUS_UNKNOWN ):
-        default:
                 strcpy(cont,"Unknown Value Type");
                 break;
+        default:
+        	g_assert_not_reached();
   }
   cont=&cont[strlen(cont)];
   if (cont == dest) {
@@ -2573,6 +2573,7 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
 /* adds the attribute value pairs to the tree */
   e_avphdr avph;
   const radius_attr_info *attr_info;
+  proto_item *ti = NULL;
   guint8 *reassembled_data = NULL;
   int reassembled_data_len = 0;
   int data_needed = 0;
@@ -2607,20 +2608,22 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
       break;
     }
 
-    if (attr_info->value_type == RADIUS_EAP_MESSAGE) {	/* EAP Message */
-      proto_item *ti;
+    if (tree) {
+      ti = proto_tree_add_text(tree, tvb, offset, avph.avp_length,
+			       "t:%s(%u) l:%u",
+			       attr_info ? attr_info->str : "Unknown Type",
+			       avph.avp_type, avph.avp_length);
+    }
+    if (attr_info != NULL && attr_info->value_type == RADIUS_EAP_MESSAGE) {
+      /* EAP Message */
       proto_tree *eap_tree = NULL;
       gint tvb_len;
       tvbuff_t *next_tvb;
       int data_len;
       int result;
 
-      if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, avph.avp_length,
-				 "t:%s(%u) l:%u",
-			 	 attr_info->str, avph.avp_type, avph.avp_length);
+      if (tree)
         eap_tree = proto_item_add_subtree(ti, ett_radius_eap);
-      }
       tvb_len = tvb_length_remaining(tvb, offset+2);
       data_len = avph.avp_length-2;
       if (data_len < tvb_len)
@@ -2720,7 +2723,6 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
       }
     } else {
       if (tree) {
-        proto_item *ti;
         proto_tree *vsa_tree = NULL;
         int i;
         gchar textbuffer[TEXTBUFFER];
@@ -2729,14 +2731,11 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
         /* We pre-add a text and a subtree to allow 3GPP QoS decoding
          * to access the protocol tree.
          * */
-        ti = proto_tree_add_text(tree, tvb, offset, avph.avp_length,
-			    "t:%s(%u) l:%u",
-			    attr_info->str, avph.avp_type, avph.avp_length);
         vsa_tree = proto_item_add_subtree(ti, ett_radius_vsa);
         for (i = 0; i < VSABUFFER; i++)
 	    vsabuffer[i].str = NULL;
         rd_value_to_str(textbuffer, &vsabuffer, &avph, tvb, offset,
-			radius_attrib, vsa_tree);
+			attr_info, vsa_tree);
         proto_item_append_text(ti, ", %s", textbuffer);
 	for (i = 0; vsabuffer[i].str && i < VSABUFFER; i++)
 	    proto_tree_add_text(vsa_tree, tvb, vsabuffer[i].offset,
