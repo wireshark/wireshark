@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.13 2004/06/01 21:56:04 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.14 2004/06/01 22:00:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -438,11 +438,11 @@ hostlist_create_popup_menu(hostlist_table *hl)
 {
 	GtkItemFactory *item_factory;
 
-    hl->item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+    item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
 
-	gtk_item_factory_create_items_ac(hl->item_factory, sizeof(hostlist_list_menu_items)/sizeof(hostlist_list_menu_items[0]), hostlist_list_menu_items, hl, 2);
+	gtk_item_factory_create_items_ac(item_factory, sizeof(hostlist_list_menu_items)/sizeof(hostlist_list_menu_items[0]), hostlist_list_menu_items, hl, 2);
 
-	hl->menu = gtk_item_factory_get_widget(hl->item_factory, "<main>");
+	hl->menu = gtk_item_factory_get_widget(item_factory, "<main>");
 	SIGNAL_CONNECT(hl->table, "button_press_event", hostlist_show_popup_menu_cb, hl);
 }
 
