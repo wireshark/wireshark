@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.31 2001/06/20 23:58:57 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.32 2001/06/21 06:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -443,7 +443,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 {
   const guint8 *dataptr;
   char out_buff[SHORT_STR];
-  guint16 *temp16;
+  guint16 capability;
   proto_item *cap_item;
   static proto_tree *cap_tree;
   double temp_double;
@@ -466,10 +466,8 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       proto_tree_add_string (tree, ff_timestamp, tvb, offset, 8, out_buff);
       break;
 
-
     case FIELD_BEACON_INTERVAL:
-      dataptr = tvb_get_ptr (tvb, offset, 2);
-      temp_double = ((double) *((guint16 *) dataptr));
+      temp_double = (double) tvb_get_letohs (tvb, offset);
       temp_double = temp_double * 1024 / 1000000;
       proto_tree_add_double_format (tree, ff_beacon_interval, tvb, offset, 2,
 				    temp_double,"Beacon Interval: %f [Seconds]",
@@ -478,85 +476,61 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
 
     case FIELD_CAP_INFO:
-      dataptr = tvb_get_ptr (tvb, offset, 2);
-      temp16 = (guint16 *) dataptr;
+      capability = tvb_get_letohs (tvb, offset);
 
       cap_item = proto_tree_add_uint_format (tree, ff_capture, 
 					     tvb, offset, 2,
-					     pletohs (temp16),
+					     capability,
 					     "Capability Information: 0x%04X",
-					     pletohs (temp16));
+					     capability);
       cap_tree = proto_item_add_subtree (cap_item, ett_cap_tree);
       proto_tree_add_boolean (cap_tree, ff_cf_ess, tvb, offset, 1,
-			      pletohs (temp16));
+			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_ibss, tvb, offset, 1,
-			      pletohs (temp16));
+			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_privacy, tvb, offset, 1,
-			      pletohs (temp16));
+			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_preamble, tvb, offset, 1,
-			      pletohs (temp16));
+			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_pbcc, tvb, offset, 1,
-			      pletohs (temp16));
+			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_agility, tvb, offset, 1,
-			      pletohs (temp16));
-      if (ESS_SET (pletohs (temp16)) != 0)	/* This is an AP */
+			      capability);
+      if (ESS_SET (capability) != 0)	/* This is an AP */
 	proto_tree_add_uint (cap_tree, ff_cf_ap_poll, tvb, offset, 2,
-			     ((pletohs (temp16) & 0xC) >> 2));
+			     ((capability & 0xC) >> 2));
 
       else			/* This is a STA */
 	proto_tree_add_uint (cap_tree, ff_cf_sta_poll, tvb, offset, 2,
-			     ((pletohs (temp16) & 0xC) >> 2));
+			     ((capability & 0xC) >> 2));
       break;
-
 
     case FIELD_AUTH_ALG:
-      dataptr = tvb_get_ptr (tvb, offset, 2);
-      temp16 =(guint16 *) dataptr;
-      proto_tree_add_uint (tree, ff_auth_alg, tvb, offset, 2,
-			   pletohs (temp16));
+      proto_tree_add_uint (tree, ff_auth_alg, tvb, offset, 2, TRUE);
       break;
-
 
     case FIELD_AUTH_TRANS_SEQ:
-      dataptr = tvb_get_ptr (tvb, offset, 2);
-      temp16 = (guint16 *)dataptr;
-      proto_tree_add_uint (tree, ff_auth_seq, tvb, offset, 2,
-			   pletohs (temp16));
+      proto_tree_add_uint (tree, ff_auth_seq, tvb, offset, 2, TRUE);
       break;
-
 
     case FIELD_CURRENT_AP_ADDR:
-      dataptr = tvb_get_ptr (tvb, offset, 6);
-      proto_tree_add_ether (tree, ff_current_ap, tvb, offset, 6, dataptr);
+      proto_tree_add_item (tree, ff_current_ap, tvb, offset, 6, FALSE);
       break;
-
 
     case FIELD_LISTEN_IVAL:
-      dataptr = tvb_get_ptr (tvb, offset, 2);
-      temp16 = (guint16 *) dataptr;
-      proto_tree_add_uint (tree, ff_listen_ival, tvb, offset, 2,
-			   pletohs (temp16));
+      proto_tree_add_item (tree, ff_listen_ival, tvb, offset, 2, TRUE);
       break;
-
 
     case FIELD_REASON_CODE:
-      dataptr = tvb_get_ptr (tvb, offset, 2);
-      temp16 = (guint16 *) dataptr;
-      proto_tree_add_uint (tree, ff_reason, tvb, offset, 2, pletohs (temp16));
+      proto_tree_add_item (tree, ff_reason, tvb, offset, 2, TRUE);
       break;
 
-
     case FIELD_ASSOC_ID:
-      dataptr = tvb_get_ptr (tvb, offset, 2);
-      temp16 = (guint16 *) dataptr;
-      proto_tree_add_uint (tree, ff_assoc_id, tvb, offset, 2, pletohs (temp16));
+      proto_tree_add_item (tree, ff_assoc_id, tvb, offset, 2, TRUE);
       break;
 
     case FIELD_STATUS_CODE:
-      dataptr = tvb_get_ptr (tvb, offset, 2);
-      temp16 = (guint16 *) dataptr;
-      proto_tree_add_uint (tree, ff_status_code, tvb, offset, 2,
-			   pletohs (temp16));
+      proto_tree_add_item (tree, ff_status_code, tvb, offset, 2, TRUE);
       break;
     }
 }
@@ -568,7 +542,6 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 static int
 add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 {
-  const guint8 *tag_info_ptr;
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
   unsigned int i;
@@ -576,9 +549,8 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
   char out_buff[SHORT_STR];
 
 
-  tag_info_ptr = tvb_get_ptr (tvb, offset, 2);
-  tag_no = tag_info_ptr[0];
-  tag_len = tag_info_ptr[1];
+  tag_no = tvb_get_guint8(tvb, offset);
+  tag_len = tvb_get_guint8(tvb, offset + 1);
 
   tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
 
@@ -611,7 +583,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
     }
 
 
-  switch (tag_info_ptr[0])
+  switch (tag_no)
     {
 
 
@@ -902,11 +874,9 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if (tree)
 	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6,
-				tvb_get_ptr (tvb, 4, 6));
+	  proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6, dst);
 
-	  proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6,
-				tvb_get_ptr (tvb, 10, 6));
+	  proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6, src);
 
 	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 16, 6,
 				tvb_get_ptr (tvb, 16, 6));
@@ -974,10 +944,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    {
 
 	    case DATA_ADDR_T1:
-	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6,
-				    tvb_get_ptr (tvb, 4, 6));
-	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6,
-				    tvb_get_ptr (tvb, 10, 6));
+	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6, dst);
+	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6, src);
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
@@ -990,12 +958,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      
 	      
 	    case DATA_ADDR_T2:
-	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6,
-				    tvb_get_ptr (tvb, 4, 6));
+	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6, dst);
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6,
 				    tvb_get_ptr (tvb, 10, 6));
-	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 16, 6,
-				    tvb_get_ptr (tvb, 16, 6));
+	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 16, 6, src);
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
 				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
@@ -1008,10 +974,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    case DATA_ADDR_T3:
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6,
 				    tvb_get_ptr (tvb, 4, 6));
-	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6,
-				    tvb_get_ptr (tvb, 10, 6));
-	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6,
-				    tvb_get_ptr (tvb, 16, 6));
+	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6, src);
+	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6, dst);
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
 				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
@@ -1026,16 +990,14 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				    tvb_get_ptr (tvb, 4, 6));
 	      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6,
 				    tvb_get_ptr (tvb, 10, 6));
-	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6,
-				    tvb_get_ptr (tvb, 16, 6));
+	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6, dst);
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
 				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
 				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
-	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 24, 6,
-				    tvb_get_ptr (tvb, 24, 6));
+	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 24, 6, src);
 	      break;
 	    }
 
@@ -1302,12 +1264,9 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if (tree)
 	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6,
-				tvb_get_ptr (tvb, 4, 6));
+	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6, dst);
 
-	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6,
-				tvb_get_ptr (tvb, 10, 6));
-
+	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
 	}
       break;
 
@@ -1321,12 +1280,9 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if (tree)
 	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
-				tvb_get_ptr (tvb, 4, 6));
+	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
 
-	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6,
-				tvb_get_ptr (tvb, 10, 6));
-
+	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
 	}
       break;
 
@@ -1337,11 +1293,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       set_dst_addr_cols(pinfo, dst, "RA");
 
       if (tree)
-	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
-				tvb_get_ptr (tvb, 4, 6));
-
-	}
+	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
       break;
 
 
@@ -1351,8 +1303,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       set_dst_addr_cols(pinfo, dst, "RA");
 
       if (tree)
-	proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
-			      tvb_get_ptr (tvb, 4, 6));
+	proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
       break;
 
 
@@ -1365,10 +1316,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if (tree)
 	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
-				tvb_get_ptr (tvb, 4, 6));
-	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6,
-				tvb_get_ptr (tvb, 10, 6));
+	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
 	}
       break;
 
@@ -1382,11 +1331,9 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if (tree)
 	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
-				tvb_get_ptr (tvb, 4, 6));
+	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
 
-	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6,
-				tvb_get_ptr (tvb, 10, 6));
+	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
 	}
       break;
 
@@ -1666,12 +1613,12 @@ proto_register_wlan (void)
       "Basic Service Set ID", HFILL }},
 
     {&hf_frag_number,
-     {"Fragment number", "wlan.frag", FT_UINT16, BASE_HEX, NULL, 0,
+     {"Fragment number", "wlan.frag", FT_UINT16, BASE_DEC, NULL, 0,
       "Fragment number", HFILL }},
 
     {&hf_seq_number,
-     {"Sequence number", "wlan.seq", FT_UINT16, BASE_HEX, NULL, 0,
-      "Fragment number", HFILL }},
+     {"Sequence number", "wlan.seq", FT_UINT16, BASE_DEC, NULL, 0,
+      "Sequence number", HFILL }},
 
     {&hf_fcs,
      {"Frame Check Sequence (not verified)", "wlan.fcs", FT_UINT32, BASE_HEX,
@@ -1751,7 +1698,6 @@ proto_register_wlan (void)
     {&ff_cf_agility,
      {"Channel Agility", "wlan.fixed.capabilities.agility",
       FT_BOOLEAN, 8, TFS (&cf_agility_flags), 0x0080, "Channel Agility", HFILL }},
-
 
     {&ff_auth_seq,
      {"Authentication SEQ", "wlan.fixed.auth_seq",
