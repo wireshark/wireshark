@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.13 2003/04/08 02:35:12 guy Exp $
+ * $Id: packet-ndps.c,v 1.14 2003/04/08 02:45:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,7 +53,7 @@ static gboolean ndps_fragmented = FALSE;
 static gboolean more_fragment = FALSE;
 static guint32  tid = 1;
 
-static void dissect_ndps_request(tvbuff_t*, packet_info*, proto_tree*, guint32, guint32, guint32, int);
+static void dissect_ndps_request(tvbuff_t*, packet_info*, proto_tree*, guint32, guint32, int);
 
 static void dissect_ndps_reply(tvbuff_t *, packet_info*, proto_tree*, int);
 
@@ -3073,14 +3073,6 @@ ndps_hash(gconstpointer v)
 	return GPOINTER_TO_UINT(ndps_key->conversation) + ndps_key->ndps_xport;
 }
 
-/* Frees memory used by the ndps_req_hash_value's */
-static void
-ndps_req_hash_cleanup(gpointer key _U_, gpointer value, gpointer user_data _U_)
-{
-	ndps_req_hash_value	*request_value = (ndps_req_hash_value*) value;
-
-}
-
 /* Initializes the hash table and the mem_chunk area each time a new
  * file is loaded or re-loaded in ethereal */
 static void
@@ -3090,10 +3082,8 @@ ndps_init_protocol(void)
   	fragment_table_init(&ndps_fragment_table);
   	reassembled_table_init(&ndps_reassembled_table);
 
-	if (ndps_req_hash) {
-		g_hash_table_foreach(ndps_req_hash, ndps_req_hash_cleanup, NULL);
+	if (ndps_req_hash)
 		g_hash_table_destroy(ndps_req_hash);
-	}
 	if (ndps_req_hash_keys)
 		g_mem_chunk_destroy(ndps_req_hash_keys);
 	if (ndps_req_hash_values)
@@ -3283,7 +3273,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
                     foffset += 4;
                     proto_tree_add_item(ndps_tree, hf_ndps_auth_null, tvb, foffset, 16, FALSE);
                     foffset+=16;
-                    dissect_ndps_request(tvb, pinfo, ndps_tree, ndps_xid, ndps_prog, ndps_func, foffset);
+                    dissect_ndps_request(tvb, pinfo, ndps_tree, ndps_prog, ndps_func, foffset);
                 }
             }
         }
@@ -3482,7 +3472,7 @@ dissect_ndps_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, guint32 ndps_xid, guint32 ndps_prog, guint32 ndps_func, int foffset)
+dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, guint32 ndps_prog, guint32 ndps_func, int foffset)
 {
     ndps_req_hash_value	*request_value = NULL;
     conversation_t		*conversation;
