@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.83 2002/02/22 21:52:09 guy Exp $
+ * $Id: packet-dns.c,v 1.84 2002/03/19 09:18:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2019,7 +2019,7 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * ReportedBoundsError exception.  We really want
 		 * a tvbuff where the length is "length", the reported
 		 * length is "plen + 2", and the "if the snapshot length
-		 * were infinite" length were the minimum of the
+		 * were infinite" length is the minimum of the
 		 * reported length of the tvbuff handed to us and "plen+2",
 		 * with a new type of exception thrown if the offset is
 		 * within the reported length but beyond that third length,
@@ -2037,8 +2037,8 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Catch the ReportedBoundsError exception; if this
 		 * particular message happens to get a ReportedBoundsError
 		 * exception, that doesn't mean that we should stop
-		 * dissecting COPS messages within this frame or chunk
-		 * of reassembled data.
+		 * dissecting DNS-over-TCP messages within this frame or
+		 * chunk of reassembled data.
 		 *
 		 * If it gets a BoundsError, we can stop, as there's nothing
 		 * more to see, so we just re-throw it.
