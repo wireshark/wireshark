@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.6 1999/09/03 01:43:08 guy Exp $
+ * $Id: packet-netbios.c,v 1.7 1999/09/03 04:37:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,13 +45,21 @@
 /* Netbios command numbers */
 #define NB_ADD_GROUP		0x00
 #define NB_ADD_NAME		0x01
+#define NB_NAME_IN_CONFLICT	0x02
 #define NB_DATAGRAM		0x08
+#define NB_DATAGRAM_BCAST	0x09
 #define NB_NAME_QUERY		0x0a
+#define NB_ADD_NAME_RESP	0x0d
 #define NB_NAME_RESP 		0x0e
 #define NB_DATA_ACK		0x14
+#define NB_DATA_FIRST_MIDDLE	0x15
 #define NB_DATA_ONLY_LAST	0x16
-#define NB_SESSION_CONFIRM	0x17	
-#define NB_SESSION_INIT		0x19	
+#define NB_SESSION_CONFIRM	0x17
+#define NB_SESSION_END		0x18
+#define NB_SESSION_INIT		0x19
+#define NB_NO_RECEIVE		0x1a
+#define NB_RECEIVE_OUTSTANDING	0x1b
+#define NB_RECEIVE_CONTINUE	0x1c
 #define NB_KEEP_ALIVE		0x1f
 
 
@@ -127,9 +135,16 @@ static const value_string name_type_vals[] = {
 	{0x00,	NULL}
 };
 
+/* See
+
+	http://ourworld.compuserve.com/homepages/TimothyDEvans/contents.htm
+
+   for information about the NetBIOS Frame Protocol (which is what this
+   module dissects). */
+
 /* the strings for the command types  */
 
-char *CommandName[] = {
+static char *CommandName[] = {
 		"Add Group Query",	/* 0x00 */
 		"Add Name Query",	/* 0x01 */
 		"Unknown",
@@ -162,7 +177,7 @@ char *CommandName[] = {
 		"Unknown",
 		"Unknown",
 		"Session Alive",	/* 0x1f */
-	};
+};
 
 void capture_netbios(const u_char *pd, int offset, guint32 cap_len,
 	packet_counts *ld)
@@ -319,6 +334,25 @@ static void netbios_data_only_flags( const u_char *pd, proto_tree *tree,
 				8, "", "No "), "NO.ACK indicator");
 }
 
+static void netbios_no_receive_flags( const u_char *pd, proto_tree *tree,
+    int offset)
+
+{
+	proto_tree *field_tree;
+	proto_item *tf;
+	guint flags = *(pd + offset);
+			/* decode the flag field for No Receive packet*/
+
+
+	tf = proto_tree_add_text( tree, offset, 1,
+			"Flags: 0x%02x", flags);
+	field_tree = proto_item_add_subtree(tf, ETT_NETB_FLAGS);
+
+	proto_tree_add_text(field_tree, offset, 1, "%s%s",
+			decode_boolean_bitfield(flags, 0x02,
+				8, "", "No "), "NO.ACK indicator");
+}
+
 
 /************************************************************************/
 /*									*/
@@ -410,7 +444,7 @@ static void  dissect_netb_unknown(const u_char *data_ptr, int offset,
 
 {/* Handle any unknow commands, do nothing */
 
-//$$	dissect_data( data_ptr, offset + NB_COMMAND + 1, fd, tree);
+/*	dissect_data( data_ptr, offset + NB_COMMAND + 1, fd, tree); */
 }
 
 
@@ -438,6 +472,17 @@ static void  dissect_netb_add_name(const u_char *data_ptr, int offset,
 }
 
 
+static void  dissect_netb_name_in_conflict(const u_char *data_ptr, int offset,
+    frame_data *fd, proto_tree *tree)
+
+{/* Handle the NAME IN CONFLICT command */
+
+	netbios_add_name( "Name In Conflict", data_ptr, offset, NB_RECVER_NAME, tree);
+	netbios_add_name( "Name Number 1", data_ptr, offset, NB_SENDER_NAME,
+	    tree);
+}
+
+
 static void  dissect_netb_name_query(const u_char *data_ptr, int offset,
     frame_data *fd, proto_tree *tree)
 
@@ -447,6 +492,55 @@ static void  dissect_netb_name_query(const u_char *data_ptr, int offset,
 	nb_call_name_type( data_ptr, offset, tree); 
 	netbios_add_name( "Query Name", data_ptr, offset, NB_RECVER_NAME, tree);
 	netbios_add_name( "Sender's Name", data_ptr, offset, NB_SENDER_NAME,
+	    tree);
+}
+
+
+static void  dissect_netb_add_name_resp(const u_char *data_ptr, int offset,
+    frame_data *fd, proto_tree *tree)
+
+{/* Handle the ADD NAME RESPONSE command */
+
+	switch (*(data_ptr + NB_DATA1)) {
+
+	case 0:
+		proto_tree_add_text( tree, offset + NB_DATA1, 1,
+		    "Data1: Add name not in process");
+		break;
+
+	case 1:
+		proto_tree_add_text( tree, offset + NB_DATA1, 1,
+		    "Data1: Add name in process");
+		break;
+
+	default:
+		nb_data1( "Data1: 0x%02x (should be 0 or 1)", data_ptr,
+		    offset, tree); 
+		break;
+	}
+
+	switch (pletohs(data_ptr + NB_DATA2)) {
+
+	case 0:
+		proto_tree_add_text( tree, offset + NB_DATA2, 2,
+		    "Data2: Unique name");
+		break;
+
+	case 1:
+		proto_tree_add_text( tree, offset + NB_DATA2, 2,
+		    "Data2: Group name");
+		break;
+
+	default:
+		nb_data2( "Data2: 0x%04x (should be 0 or 1)", 2, data_ptr,
+		    offset, tree); 
+		break;
+	}
+
+	nb_xmit_corrl( data_ptr, offset, tree); 
+	netbios_add_name( "Name to be added", data_ptr, offset, NB_RECVER_NAME,
+	    tree);
+	netbios_add_name( "Name to be added", data_ptr, offset, NB_SENDER_NAME,
 	    tree);
 }
 
@@ -467,21 +561,6 @@ static void  dissect_netb_name_resp(const u_char *data_ptr, int offset,
 	    tree);
 }
 
-static void  dissect_netb_session_init(const u_char *data_ptr, int offset,
-    frame_data *fd, proto_tree *tree)
-
-{/* Handle the SESSION INITIATE command */
-
-	netbios_add_flags( data_ptr, tree, offset + NB_FLAGS);
-
-	nb_data2( "Max data recv size: %d", 2, data_ptr, offset, tree); 
-	nb_resp_corrl( data_ptr, offset, tree);
-	nb_xmit_corrl( data_ptr, offset, tree); 
-	nb_remote_session( data_ptr, offset, tree); 
-	nb_local_session( data_ptr, offset, tree); 
-}
-
-
 static void  dissect_netb_session_confirm(const u_char *data_ptr, int offset,
     frame_data *fd, proto_tree *tree)
 
@@ -496,6 +575,57 @@ static void  dissect_netb_session_confirm(const u_char *data_ptr, int offset,
 	nb_local_session( data_ptr, offset, tree); 
 }
 
+static void  dissect_netb_session_end(const u_char *data_ptr, int offset,
+    frame_data *fd, proto_tree *tree)
+
+{/* Handle the SESSION END command */
+
+	nb_data2( "Reason for termination: 0x%04x", 2, data_ptr, offset, tree); 
+	nb_remote_session( data_ptr, offset, tree); 
+	nb_local_session( data_ptr, offset, tree); 
+}
+
+static void  dissect_netb_session_init(const u_char *data_ptr, int offset,
+    frame_data *fd, proto_tree *tree)
+
+{/* Handle the SESSION INITIATE command */
+
+	netbios_add_flags( data_ptr, tree, offset + NB_FLAGS);
+
+	nb_data2( "Max data recv size: %d", 2, data_ptr, offset, tree); 
+	nb_resp_corrl( data_ptr, offset, tree);
+	nb_xmit_corrl( data_ptr, offset, tree); 
+	nb_remote_session( data_ptr, offset, tree); 
+	nb_local_session( data_ptr, offset, tree); 
+}
+
+static void  dissect_netb_data_ack(const u_char *data_ptr, int offset,
+    frame_data *fd, proto_tree *tree)
+
+{/* Handle the DATA ACK command */
+
+	/* XXX - Timothy D. Evans' stuff says Data1 is reserved */
+	netbios_data_only_flags( data_ptr, tree, offset + NB_FLAGS);
+
+	nb_xmit_corrl( data_ptr, offset, tree);
+	nb_remote_session( data_ptr, offset, tree); 
+	nb_local_session( data_ptr, offset, tree); 
+
+}
+
+static void  dissect_netb_data_first_middle(const u_char *data_ptr, int offset,
+    frame_data *fd, proto_tree *tree)
+
+{/* Handle the DATA FIRST MIDDLE command */
+
+	netbios_data_only_flags( data_ptr, tree, offset + NB_FLAGS);
+
+	nb_data2( "Re-sync indicator: %d", 2, data_ptr, offset, tree); 
+	nb_resp_corrl( data_ptr, offset, tree);
+	nb_remote_session( data_ptr, offset, tree); 
+	nb_local_session( data_ptr, offset, tree); 
+
+}
 
 static void  dissect_netb_data_only_last(const u_char *data_ptr, int offset,
     frame_data *fd, proto_tree *tree)
@@ -511,6 +641,40 @@ static void  dissect_netb_data_only_last(const u_char *data_ptr, int offset,
 
 }
 
+static void  dissect_netb_no_receive(const u_char *data_ptr, int offset,
+    frame_data *fd, proto_tree *tree)
+
+{/* Handle the NO RECEIVE command */
+
+	netbios_no_receive_flags( data_ptr, tree, offset + NB_FLAGS);
+
+	nb_data2( "Number of data bytes accepted: %u", 2, data_ptr, offset, tree); 
+	nb_remote_session( data_ptr, offset, tree); 
+	nb_local_session( data_ptr, offset, tree); 
+
+}
+
+static void  dissect_netb_receive_outstanding(const u_char *data_ptr, int offset,
+    frame_data *fd, proto_tree *tree)
+
+{/* Handle the RECEIVE OUTSTANDING command */
+
+	nb_data2( "Number of data bytes accepted: %u", 2, data_ptr, offset, tree); 
+	nb_remote_session( data_ptr, offset, tree); 
+	nb_local_session( data_ptr, offset, tree); 
+
+}
+
+static void  dissect_netb_receive_continue(const u_char *data_ptr, int offset,
+    frame_data *fd, proto_tree *tree)
+
+{/* Handle the RECEIVE CONTINUE command */
+
+	nb_xmit_corrl( data_ptr, offset, tree);
+	nb_remote_session( data_ptr, offset, tree); 
+	nb_local_session( data_ptr, offset, tree); 
+
+}
 
 static void  dissect_netb_datagram(const u_char *data_ptr, int offset,
     frame_data *fd, proto_tree *tree)
@@ -528,17 +692,17 @@ static void  dissect_netb_datagram(const u_char *data_ptr, int offset,
 
 }
 
-static void  dissect_netb_data_ack(const u_char *data_ptr, int offset,
+static void  dissect_netb_datagram_bcast(const u_char *data_ptr, int offset,
     frame_data *fd, proto_tree *tree)
 
-{/* Handle the DATA ACK command */
+{/* Handle the DATAGRAM command */
 
-	netbios_data_only_flags( data_ptr, tree, offset + NB_FLAGS);
-
-
+	nb_data1( "Data1: 0x%02x", data_ptr, offset, tree); 
+	nb_data2( "Data2: 0x%04x", 2, data_ptr, offset, tree); 
 	nb_xmit_corrl( data_ptr, offset, tree);
-	nb_remote_session( data_ptr, offset, tree); 
-	nb_local_session( data_ptr, offset, tree); 
+	nb_resp_corrl( data_ptr, offset, tree);
+	netbios_add_name( "Sender's Name", data_ptr, offset, NB_SENDER_NAME,
+	    tree);
 
 }
 
@@ -552,37 +716,37 @@ static void  dissect_netb_data_ack(const u_char *data_ptr, int offset,
 
 void (*dissect_netb[])(const u_char *, int, frame_data *, proto_tree *) = {
 
-  dissect_netb_add_group,      	/* add_group 	0x00 */
-  dissect_netb_add_name,      	/* add_name	0x01 */
-  dissect_netb_unknown,		/* unknown 	0x02 */
-  dissect_netb_unknown,		/* unknown 	0x03 */
-  dissect_netb_unknown,		/* unknown 	0x04 */
-  dissect_netb_unknown,		/* unknown 	0x05 */
-  dissect_netb_unknown,		/* unknown 	0x06 */
-  dissect_netb_unknown,		/* unknown 	0x07 */
-  dissect_netb_datagram,	/* Datagram	0x08 */
-  dissect_netb_unknown,		/* unknown 	0x09 */
-  dissect_netb_name_query,	/* Name Query   0x0A */
-  dissect_netb_unknown,		/* unknown 	0x0B */
-  dissect_netb_unknown,		/* unknown 	0x0C */
-  dissect_netb_unknown,		/* unknown 	0x0D */
-  dissect_netb_name_resp,	/* Name Resp    0x0E */
-  dissect_netb_unknown,		/* unknown 	0x0F */
-  dissect_netb_unknown,		/* unknown 	0x10 */
-  dissect_netb_unknown,		/* unknown 	0x11 */
-  dissect_netb_unknown,		/* unknown 	0x12 */
-  dissect_netb_unknown,		/* unknown 	0x13 */
-  dissect_netb_data_ack,	/* Data Ack 	0x14 */
-  dissect_netb_unknown,		/* unknown 	0x15 */
-  dissect_netb_data_only_last,	/* Data Only Last 0x16 */
-  dissect_netb_session_confirm,	/* Session Confirm 0x17	*/
-  dissect_netb_unknown,		/* unknown 	0x18 */
-  dissect_netb_session_init,	/* Session Initialize 0x19	*/
-  dissect_netb_unknown,		/* unknown 	0x1A */
-  dissect_netb_unknown,		/* unknown 	0x1B */
-  dissect_netb_unknown,		/* unknown 	0x1C */
-  dissect_netb_unknown,		/* unknown 	0x1D */
-  dissect_netb_unknown,		/* unknown 	0x1E */
+  dissect_netb_add_group,      	/* Add Group 		0x00 */
+  dissect_netb_add_name,      	/* Add Name		0x01 */
+  dissect_netb_name_in_conflict,/* Name In Conflict 	0x02 */
+  dissect_netb_unknown,		/* unknown	 	0x03 */
+  dissect_netb_unknown,		/* unknown 		0x04 */
+  dissect_netb_unknown,		/* unknown	 	0x05 */
+  dissect_netb_unknown,		/* unknown 		0x06 */
+  dissect_netb_unknown,		/* unknown	 	0x07 */
+  dissect_netb_datagram,	/* Datagram		0x08 */
+  dissect_netb_datagram_bcast,	/* Datagram Broadcast 	0x09 */
+  dissect_netb_name_query,	/* Name Query   	0x0A */
+  dissect_netb_unknown,		/* unknown	 	0x0B */
+  dissect_netb_unknown,		/* unknown 		0x0C */
+  dissect_netb_add_name_resp,	/* Add Name Response 	0x0D */
+  dissect_netb_name_resp,	/* Name Resp	    	0x0E */
+  dissect_netb_unknown,		/* unknown 		0x0F */
+  dissect_netb_unknown,		/* unknown	 	0x10 */
+  dissect_netb_unknown,		/* unknown 		0x11 */
+  dissect_netb_unknown,		/* unknown		0x12 */
+  dissect_netb_unknown,		/* unknown 		0x13 */
+  dissect_netb_data_ack,	/* Data Ack 		0x14 */
+  dissect_netb_data_first_middle,/* Data First Middle	0x15 */
+  dissect_netb_data_only_last,	/* Data Only Last	0x16 */
+  dissect_netb_session_confirm,	/* Session Confirm 	0x17 */
+  dissect_netb_session_end,	/* Session End 		0x18 */
+  dissect_netb_session_init,	/* Session Initialize	0x19 */
+  dissect_netb_no_receive,	/* No Receive 		0x1A */
+  dissect_netb_receive_outstanding,/* Receive Outstanding 0x1B */
+  dissect_netb_receive_continue,/* Receive Continue	0x1C */
+  dissect_netb_unknown,		/* unknown 		0x1D */
+  dissect_netb_unknown,		/* unknown 		0x1E */
 
   dissect_netb_unknown,		/* Session Alive	0x1f (nothing to do) */
 };
@@ -653,7 +817,10 @@ void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 			break;
 
 		default:
-			col_add_fstr(fd, COL_INFO, "%s", CommandName[ command]);
+			if ( command < sizeof( dissect_netb)/ sizeof(void *))
+				col_add_fstr(fd, COL_INFO, "%s", CommandName[ command]);
+			else
+				col_add_fstr(fd, COL_INFO, "Unknown");
 			break;
 		}
 	}
