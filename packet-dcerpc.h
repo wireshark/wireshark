@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.19 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-dcerpc.h,v 1.20 2002/09/03 08:39:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,6 +115,12 @@ int dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                            proto_tree *tree, char *drep,
                            int hfindex, unsigned char *pdata);
+int dissect_dcerpc_float  (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                           proto_tree *tree, char *drep, 
+                           int hfindex, gfloat *pdata);
+int dissect_dcerpc_double (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                           proto_tree *tree, char *drep, 
+                           int hfindex, gdouble *pdata);
 
 
 /*
@@ -132,6 +138,12 @@ int dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep,
                         int hfindex, unsigned char *pdata);
+int dissect_ndr_float (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        int hfindex, gfloat *pdata);
+int dissect_ndr_double (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        int hfindex, gdouble *pdata);
 int dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep,
                         int hfindex, e_uuid_t *pdata);

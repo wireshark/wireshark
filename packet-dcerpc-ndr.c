@@ -2,7 +2,7 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.8 2002/08/28 21:00:09 jmayer Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.9 2002/09/03 08:39:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,51 @@ dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     return dissect_dcerpc_uint64 (tvb, offset, pinfo,
                                   tree, drep, hfindex, pdata);
 }
+
+
+int
+dissect_ndr_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, char *drep, 
+                    int hfindex, gfloat *pdata)
+{
+    dcerpc_info *di;
+
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (offset % 4) {
+        offset += 4 - (offset % 4);
+    }
+    return dissect_dcerpc_float(tvb, offset, pinfo, 
+                                  tree, drep, hfindex, pdata);
+}
+
+
+int
+dissect_ndr_double(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, char *drep, 
+                    int hfindex, gdouble *pdata)
+{
+    dcerpc_info *di;
+
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (offset % 8) {
+        offset += 8 - (offset % 8);
+    }
+    return dissect_dcerpc_double(tvb, offset, pinfo, 
+                                  tree, drep, hfindex, pdata);
+}
+
 
 int
 dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.75 2002/08/30 05:13:45 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.76 2002/09/03 08:39:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,11 +73,16 @@ static const value_string drep_character_vals[] = {
     { 0,  NULL }
 };
 
+#define DCE_RPC_DREP_FP_IEEE 0
+#define DCE_RPC_DREP_FP_VAX  1
+#define DCE_RPC_DREP_FP_CRAY 2
+#define DCE_RPC_DREP_FP_IBM  3
+
 static const value_string drep_fp_vals[] = {
-    { 0, "IEEE" },
-    { 1, "VAX" },
-    { 2, "Cray" },
-    { 3, "IBM" },
+    { DCE_RPC_DREP_FP_IEEE, "IEEE" },
+    { DCE_RPC_DREP_FP_VAX,  "VAX"  },
+    { DCE_RPC_DREP_FP_CRAY, "Cray" },
+    { DCE_RPC_DREP_FP_IBM,  "IBM"  },
     { 0,  NULL }
 };
 
@@ -656,6 +661,75 @@ dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     return offset+8;
 }
+
+
+int
+dissect_dcerpc_float(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                    proto_tree *tree, char *drep, 
+                    int hfindex, gfloat *pdata)
+{
+	gfloat data;
+
+
+	switch(drep[1]) {
+		case(DCE_RPC_DREP_FP_IEEE):
+			data = ((drep[0] & 0x10)
+					? tvb_get_letohieee_float(tvb, offset)
+					: tvb_get_ntohieee_float(tvb, offset));
+			if (tree) {
+				proto_tree_add_float(tree, hfindex, tvb, offset, 4, data);
+			}
+			break;
+		case(DCE_RPC_DREP_FP_VAX):  /* (fall trough) */
+		case(DCE_RPC_DREP_FP_CRAY): /* (fall trough) */
+		case(DCE_RPC_DREP_FP_IBM):  /* (fall trough) */
+		default:
+			/* ToBeDone: non IEEE floating formats */
+			/* Set data to a negative infinity value */
+			data = -1.0 * 1e100 * 1e100;
+			if (tree) {
+				proto_tree_add_debug_text(tree, "DCE RPC: dissection of non IEEE floating formats currently not implemented (drep=%u)!", drep[1]);
+			}
+	}
+    if (pdata)
+        *pdata = data;
+    return offset + 4;
+}
+
+
+int
+dissect_dcerpc_double(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                    proto_tree *tree, char *drep, 
+                    int hfindex, gdouble *pdata)
+{
+    gdouble data;
+
+
+	switch(drep[1]) {
+		case(DCE_RPC_DREP_FP_IEEE):
+			data = ((drep[0] & 0x10)
+					? tvb_get_letohieee_double(tvb, offset)
+					: tvb_get_ntohieee_double(tvb, offset));
+			if (tree) {
+				proto_tree_add_double(tree, hfindex, tvb, offset, 8, data);
+			}
+			break;
+		case(DCE_RPC_DREP_FP_VAX):  /* (fall trough) */
+		case(DCE_RPC_DREP_FP_CRAY): /* (fall trough) */
+		case(DCE_RPC_DREP_FP_IBM):  /* (fall trough) */
+		default:
+			/* ToBeDone: non IEEE double formats */
+			/* Set data to a negative infinity value */
+			data = -1.0 * 1e100 * 1e100;
+			if (tree) {
+				proto_tree_add_debug_text(tree, "DCE RPC: dissection of non IEEE double formats currently not implemented (drep=%u)!", drep[1]);
+			}
+	}
+    if (pdata)
+        *pdata = data;
+    return offset + 8;
+}
+
 
 /*
  * a couple simpler things
