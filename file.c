@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.383 2004/05/09 10:03:37 guy Exp $
+ * $Id: file.c,v 1.384 2004/05/27 21:48:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1421,6 +1421,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
       ret = PSP_FAILED;
       break;
     }
+    /* Process the packet */
     if (!callback(cf, fdata, &pseudo_header, pd, callback_args)) {
       /* Callback failed.  We assume it reported the error appropriately. */
       ret = PSP_FAILED;
