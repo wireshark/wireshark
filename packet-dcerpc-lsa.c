@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.c,v 1.8 2002/03/19 22:09:23 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.9 2002/04/17 09:24:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,1180 +34,1781 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-lsa.h"
+#include "packet-smb-common.h"
 #include "smb.h"
 
-/*
- * Parse a unicode string.
- *
- *  typedef struct {
- *    short length;
- *    short size;
- *    [size_is(size/2)] [length_is(length/2)] [unique] wchar_t *string;
- *  } UNICODE_STRING;
- *
- */
+static int proto_dcerpc_lsa = -1;
 
-static int ett_UNISTR = -1;
-static int ett_UNISTR_hdr = -1;
+static int hf_lsa_rc = -1;
+static int hf_lsa_hnd = -1;
+static int hf_lsa_server = -1;
+static int hf_lsa_obj_attr = -1;
+static int hf_lsa_obj_attr_len = -1;
+static int hf_lsa_obj_attr_name = -1;
+static int hf_lsa_access_mask = -1;
+static int hf_lsa_info_level = -1;
+static int hf_lsa_sd_size = -1;
+static int hf_lsa_qos_len = -1;
+static int hf_lsa_qos_impersonation_level = -1;
+static int hf_lsa_qos_track_context = -1;
+static int hf_lsa_qos_effective_only = -1;
+static int hf_lsa_pali_percent_full = -1;
+static int hf_lsa_pali_log_size = -1;
+static int hf_lsa_pali_retention_period = -1;
+static int hf_lsa_pali_time_to_shutdown = -1;
+static int hf_lsa_pali_shutdown_in_progress = -1;
+static int hf_lsa_pali_next_audit_record = -1;
+static int hf_lsa_paei_enabled = -1;
+static int hf_lsa_paei_settings = -1;
+static int hf_lsa_count = -1;
+static int hf_lsa_max_count = -1;
+static int hf_lsa_index = -1;
+static int hf_lsa_domain = -1;
+static int hf_lsa_acct = -1;
+static int hf_lsa_server_role = -1;
+static int hf_lsa_source = -1;
+static int hf_lsa_quota_paged_pool = -1;
+static int hf_lsa_quota_non_paged_pool = -1;
+static int hf_lsa_quota_min_wss = -1;
+static int hf_lsa_quota_max_wss = -1;
+static int hf_lsa_quota_pagefile = -1;
+static int hf_lsa_mod_seq_no = -1;
+static int hf_lsa_mod_mtime = -1;
+static int hf_lsa_name = -1;
+static int hf_lsa_forest = -1;
+static int hf_lsa_info_type = -1;
+static int hf_lsa_old_pwd = -1;
+static int hf_lsa_new_pwd = -1;
+static int hf_lsa_sid_type = -1;
+static int hf_lsa_rid = -1;
+static int hf_lsa_num_mapped = -1;
+static int hf_lsa_policy_information_class = -1;
+static int hf_lsa_secret = -1;
 
-static int prs_UNISTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		      proto_tree *tree, int flags, GList **ptr_list, 
-		      char *name)
+static int hf_lsa_unknown_hyper = -1;
+static int hf_lsa_unknown_long = -1;
+static int hf_lsa_unknown_short = -1;
+static int hf_lsa_unknown_char = -1;
+static int hf_lsa_unknown_string = -1;
+static int hf_lsa_unknown_time = -1;
+
+
+static gint ett_dcerpc_lsa = -1;
+static gint ett_lsa_OBJECT_ATTRIBUTES = -1;
+static gint ett_LSA_SECURITY_DESCRIPTOR = -1;
+static gint ett_lsa_policy_info = -1;
+static gint ett_lsa_policy_audit_log_info = -1;
+static gint ett_lsa_policy_audit_events_info = -1;
+static gint ett_lsa_policy_primary_domain_info = -1;
+static gint ett_lsa_policy_primary_account_info = -1;
+static gint ett_lsa_policy_server_role_info = -1;
+static gint ett_lsa_policy_replica_source_info = -1;
+static gint ett_lsa_policy_default_quota_info = -1;
+static gint ett_lsa_policy_modification_info = -1;
+static gint ett_lsa_policy_audit_full_set_info = -1;
+static gint ett_lsa_policy_audit_full_query_info = -1;
+static gint ett_lsa_policy_dns_domain_info = -1;
+static gint ett_lsa_translated_names = -1;
+static gint ett_lsa_translated_name = -1;
+static gint ett_lsa_referenced_domain_list = -1;
+static gint ett_lsa_trust_information = -1;
+
+
+static int
+lsa_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
 {
-	proto_tree *scalars, *buffers;
-	guint16 length, size;
+	dcerpc_info *di;
 
-	if (flags & PARSE_SCALARS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "String header");
-		subtree = proto_item_add_subtree(item, ett_UNISTR_hdr);
-		
-		offset = prs_uint16(tvb, offset, pinfo, subtree, &length, 
-				    "Length");
-
-		offset = prs_uint16(tvb, offset, pinfo, subtree, &size, 
-				    "Size");
-
-		offset = prs_push_ptr(tvb, offset, pinfo, subtree,
-				      ptr_list, "Data");
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
 	}
 
-	if (flags & PARSE_BUFFERS) {
-		proto_item *item;
-		proto_tree *subtree;
-		guint32 max_len, stroffset, actual_count, i;
-		int old_offset;
-		int string_offset;
-		char *astring;
-
-		/* Parse data */
-
-		old_offset = offset;
-
-		offset = prs_uint32(tvb, offset, pinfo, NULL, &max_len, 
-				    "Max length");
-
-		offset = prs_uint32(tvb, offset, pinfo, NULL, &stroffset, 
-				    "Offset");
-
-		offset = prs_uint32(tvb, offset, pinfo, NULL, 
-				    &actual_count, "Actual length");
-
-		offset = prs_uint16s(tvb, offset, pinfo, NULL,
-				     actual_count, &string_offset, "Data");
-
-		/* Insert into display */
-
-		astring = fake_unicode(tvb, string_offset, actual_count);
-
-		if (!astring || !astring[0])
-			astring = g_strdup("(NULL)");
-
-		item = proto_tree_add_text(tree, tvb, old_offset, 
-					   offset - old_offset, "String: %s", 
-					   astring);
-
-		g_free(astring);
-
-		subtree = proto_item_add_subtree(item, ett_UNISTR);
-
-		proto_tree_add_text(subtree, tvb, old_offset, 4, 
-				    "Max length: %u", max_len);
-		old_offset += 4;
-
-		proto_tree_add_text(subtree, tvb, old_offset, 4, 
-				    "Offset: %u", stroffset);
-		old_offset += 4;
-
-		proto_tree_add_text(subtree, tvb, old_offset, 4,
-				    "Actual length: %u", actual_count);
-		old_offset += 4;
-
-		if (prs_pop_ptr(ptr_list, "Data"))
-			proto_tree_add_text(subtree, tvb, old_offset, 
-					    actual_count * 2, "Data");
-	}
-
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+			di->hf_index, di->levels);
 	return offset;
 }
 
-/*
- *  typedef struct {
- *    char revision;
- *    char subauth_count;
- *    char authority[6];
- *    [size_is(subauth_count)] long subauth[*];
- *  } SID;
- *
- */
 
-static int ett_SID = -1;
-
-/* For some reason the SID structure is treated as a scalar type.  For
-   instance in an array of SIDs, I would have thought that this entire
-   structure should be in the scalars part of the RPC but instead is in
-   the buffers section.  I am probably misunderstanding NDR arrays
-   though. - tpot */
-
-static int prs_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		   proto_tree *tree)
+static int
+lsa_dissect_LSA_SECRET_data(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree,
+                             char *drep)
 {
-	guint8 subauth_count, id_auth[6];
-	int old_offset, i;
-	proto_item *item;
-	proto_tree *subtree;
-	guint32 ia, subauth_max;
-	int subauths_offset;
-	guint8 revision;
-	char sid_str[128];
+	guint32 len;
+	dcerpc_info *di;
 
-	old_offset = offset;
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
 
-	offset = prs_uint32(tvb, offset, pinfo, NULL, &subauth_max, 
-			    "Array max count");
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_sd_size, &len);
+	proto_tree_add_item(tree, hf_lsa_secret, tvb, offset, len, FALSE);
+	offset += len;
 
-	offset = prs_uint8(tvb, offset, pinfo, NULL, &revision, "Revision");
+	return offset;
+}
+int
+lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+ 	int old_offset=offset;
 
-	offset = prs_uint8(tvb, offset, pinfo, NULL, &subauth_count, 
-			   "Subauth count");
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LSA_SECRET:");
+		tree = proto_item_add_subtree(item, ett_LSA_SECURITY_DESCRIPTOR);
+	}
 
-	for (i = 0; i < 6; i++)
-		offset = prs_uint8(tvb, offset, pinfo, NULL, &id_auth[i], 
-				   "Authority");
+	/* XXX need to figure this one out */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_sd_size, NULL);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			lsa_dissect_LSA_SECRET_data, NDR_POINTER_UNIQUE,
+			"LSA SECRET data:", -1, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree,
+                             char *drep)
+{
+	guint32 len;
+	dcerpc_info *di;
 	
-	ia = id_auth[5] + (id_auth[4] << 8 ) + (id_auth[3] << 16) + 
-		(id_auth[2] << 24);
-
-	sprintf(sid_str, "S-%u-%u", revision, ia);
-
-	offset = prs_uint32s(tvb, offset, pinfo, NULL, subauth_count,
-			     &subauths_offset, "Subauth count");
-
-	for (i = 0; i < subauth_count; i++) {
-		char sa[16];
-
-		sprintf(sa, "-%u", tvb_get_letohl(tvb, subauths_offset));
- 		strcat(sid_str, sa);
- 		subauths_offset += 4;
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
 	}
 
-	/* Insert into display */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_sd_size, &len);
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "SID: %s", sid_str);
-	subtree = proto_item_add_subtree(item, ett_SID);
-
-	proto_tree_add_text(subtree, tvb, old_offset, 4,
-			    "Subauth array max count: %u", subauth_max);
-
-	old_offset += 4;
-
-	proto_tree_add_text(subtree, tvb, old_offset, 1, "Revision: %u",
-			    revision);
-
-	old_offset++;
-
-	proto_tree_add_text(subtree, tvb, old_offset, 1, "Subauth count: %u",
-			    subauth_count); 
-
-	old_offset++;
-
-	proto_tree_add_text(subtree, tvb, old_offset, 6, "Authority");
-
-	old_offset += 6;
-
-	proto_tree_add_text(subtree, tvb, old_offset, subauth_count * 4,
-			    "Subauthorities");
-
-	old_offset += subauth_count * 4;
+	dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
+	offset += len;
 
 	return offset;
 }
-
-/*
- * Close a policy handle.
- *
- *  long LsarClose(
- *      [in,out] [context_handle] void **hnd
- * );
- *
- */
-
-static int LsaClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-		      proto_tree *tree, char *drep)
+int
+lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			char *drep)
 {
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "ClosePolicy request");
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+ 	int old_offset=offset;
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LSA_SECURITY_DESCRIPTOR:");
+		tree = proto_item_add_subtree(item, ett_LSA_SECURITY_DESCRIPTOR);
+	}
 
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_sd_size, NULL);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_UNIQUE,
+			"LSA SECURITY DESCRIPTOR data:", -1, 0);
+
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
-static int LsaClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-		      proto_tree *tree, char *drep)
-{
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "ClosePolicy reply");
-
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
-	offset = prs_ntstatus(tvb, offset, pinfo, tree);
-
-	return offset;
-}
-
-/* 
- * Dissect a SECURITY_DESCRIPTOR structure 
- *
- * typedef struct {
- *   char revision;
- *   char reserved;
- *   short control;
- *   [unique] SID *owner;
- *   [unique] SID *group;
- *   [unique] SEC_ACL *sacl;
- *   [unique] SEC_ACL *dacl;
- * } SECURITY_DESCRIPTOR;
- *
- */
-
-static int prs_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset, 
-				   packet_info *pinfo, proto_tree *tree, 
-				   int flags)
-{
-	/* Not implemented */
-
-	return offset;
-}
-
-/* Dissect a SECURITY_QOS structure
- *
- *  typedef struct {
- *   uint32 struct_len;
- *   uint16 imp_level;
- *   char track_context;
- *   char effective_only;
- * } SECURITY_QOS;
- *
- */
-
-static int ett_SECURITY_QOS = -1;
-static int ett_SECURITY_QOS_hdr = -1;
-
-static int prs_SECURITY_QOS(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			    proto_tree *tree, int flags)
-{
-	if (flags & PARSE_SCALARS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "SECURITY_QOS header");
-		subtree = proto_item_add_subtree(item, ett_SECURITY_QOS_hdr);
-
-		offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-				    "Struct length");
-
-		offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, 
-				    "Implementation level");
-
-		offset = prs_uint8(tvb, offset, pinfo, subtree, NULL, 
-				   "Track context");
-
-		offset = prs_uint8(tvb, offset, pinfo, subtree, NULL, 
-				   "Effective only");
-	}
-
-	if (flags & PARSE_BUFFERS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "SECURITY_QOS");
-		subtree = proto_item_add_subtree(item, ett_SECURITY_QOS);
-	}
-
-	return offset;
-}
-
-/*
- * Dissect an OBJECT_ATTRIBUTES structure.
- *
- * typedef struct {
- *   uint32 struct_len;
- *   [unique] char *root_dir;
- *   [unique] unistr2 *name;
- *   uint32 attributes;
- *   [unique] SECURITY_DESCRIPTOR *sec_desc;
- *   [unique] SECURITY_QOS *sec_qos;
- * } OBJECT_ATTRIBUTES;
- *
- */
-
-static int prs_OBJECT_ATTRIBUTES(tvbuff_t *tvb, int offset, 
-				 packet_info *pinfo, proto_tree *tree, 
-				 int flags, GList **ptr_list)
-{
-	if (flags & PARSE_SCALARS) {
-		offset = prs_uint32(tvb, offset, pinfo, tree, NULL, 
-				    "Structure length");
-
-		offset = prs_push_ptr(tvb, offset, pinfo, tree, ptr_list,
-				      "Root directory");
-
-		offset = prs_push_ptr(tvb, offset, pinfo, tree, ptr_list, 
-				      "Name");
-
-		offset = prs_uint32(tvb, offset, pinfo, tree, NULL, 
-				    "Attributes");
-
-		offset = prs_push_ptr(tvb, offset, pinfo, tree, ptr_list,
-				      "SECURITY_DESCRIPTOR");
-
-		offset = prs_push_ptr(tvb, offset, pinfo, tree, ptr_list,
-				      "SEC_QOS");
-	}
-
-	if (flags & PARSE_BUFFERS) {
-		if (prs_pop_ptr(ptr_list, "Root directory"))
-		    offset = prs_uint8(tvb, offset, pinfo, tree, NULL, 
-				       "Root directory");
-		    
-		if (prs_pop_ptr(ptr_list, "Name"))
-			offset = prs_UNISTR2(tvb, offset, pinfo, tree,
-					     flags, NULL, "Name");
-
-		if (prs_pop_ptr(ptr_list, "SECURITY_DESCRIPTOR"))
-			offset = prs_SECURITY_DESCRIPTOR(
-				tvb, offset, pinfo, tree, flags);
-
-		if (prs_pop_ptr(ptr_list, "SEC_QOS"))
-			offset = prs_SECURITY_QOS(
-				tvb, offset, pinfo, tree, flags);
-
-	}
-
-	return offset;
-}
-
-/*
- * Open a LSA policy handle.  Note that due to a bug in Microsoft's
- * original IDL, only the first character of the server name is ever sent
- * across the wire.  Since the server name is in UNC format this will be a
- * single '\'.
- * 
- *  uint32 LsarOpenPolicy(
- *       [in] [unique] wchar_t *server,
- *       [in] [ref] OBJECT_ATTRIBUTES *attribs,
- *       [in] uint32 access,
- *      [out] [context_handle] void **hnd
- * );
- *
- */ 
-
-static int LsaOpenPolicy_q(tvbuff_t * tvb, int offset,
-			   packet_info * pinfo, proto_tree * tree,
-			   char *drep)
-{
-	GList *ptr_list = NULL;
-	int flags = PARSE_SCALARS|PARSE_BUFFERS;
-	guint32 access;
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "OpenPolicy request");
-
-        offset = prs_push_ptr(tvb, offset, pinfo, tree, &ptr_list, "Server");
-
-        if (prs_pop_ptr(&ptr_list, "Server"))
-                offset = prs_uint16(tvb, offset, pinfo, tree, NULL, "Server");
-
-	offset = prs_OBJECT_ATTRIBUTES(tvb, offset, pinfo, tree, flags,
-				       &ptr_list);
-
-        offset = prs_uint32(tvb, offset, pinfo, tree, &access, NULL);
-
-	proto_tree_add_text(tree, tvb, offset, 4, "Access: 0x%08x", access);
-
-        return offset;
-}
-
-static int LsaOpenPolicy_r(tvbuff_t * tvb, int offset,
-                            packet_info * pinfo, proto_tree * tree,
-                            char *drep)
-{
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "OpenPolicy reply");
-
-        offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
-        offset = prs_ntstatus(tvb, offset, pinfo, tree);
-
-        return offset;
-}
-
-/*
- * Parse a NAME_AND_SID structure.
- *
- * typedef struct {
- *   UNICODE_STRING name;
- *   [unique] SID *sid;
- * } NAME_AND_SID;
- *
- */
-
-int ett_NAME_AND_SID = -1;
-int ett_NAME_AND_SID_hdr = -1;
-
-static int prs_NAME_AND_SID(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			    proto_tree *tree, int flags, GList **ptr_list)
-{
-	if (flags & PARSE_SCALARS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "NAME_AND_SID header");
-		subtree = proto_item_add_subtree(item, ett_NAME_AND_SID_hdr);
-
-		offset = prs_UNISTR(tvb, offset, pinfo, subtree, 
-				    PARSE_SCALARS, ptr_list, "Name");
-		offset = prs_push_ptr(tvb, offset, pinfo, subtree,
-				      ptr_list, "SID");
-	}
-
-	if (flags & PARSE_BUFFERS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "NAME_AND_SID");
-		subtree = proto_item_add_subtree(item, ett_NAME_AND_SID);
-
-		offset = prs_UNISTR(tvb, offset, pinfo, subtree, 
-				    PARSE_BUFFERS, ptr_list, "Name");
-
-		if (prs_pop_ptr(ptr_list, "SID"))
-			offset = prs_SID(tvb, offset, pinfo, subtree);
-	}
-
-	return offset;
-}
-
-/*
- * Parse a POLICY_INFORMATION structure. 
- *
- * typedef union {
- *   [case(1)] AUDIT_LOG_INFO audit_log;
- *   [case(2)] AUDIT_SETTINGS audit_settings;
- *   [case(3)] NAME_AND_SID primary_domain;
- *   [case(5)] NAME_AND_SID account_domain;
- *   [case(4)] UNICODE_STRING account;
- *   [case(6)] SERVER_ROLE server_role;
- *   [case(7)] REPLICA_SOURCE replica_source;
- *   [case(8)] QUOTA_INFO default_quota;
- *   [case(9)] HISTORY history;
- *   [case(10)] AUDIT_SET_INFO audit_set;
- *   [case(11)] AUDIT_QUERY_INFO audit_query;
- * } POLICY_INFORMATION;
- *
- */
-
-static int ett_POLICY_INFORMATION = -1;
-
-static int prs_POLICY_INFORMATION(tvbuff_t *tvb, int offset,
-				  packet_info *pinfo, proto_tree *tree, 
-				  int flags)
-{
-	guint16 level;
-	proto_item *item;
-	proto_tree *subtree;
-	GList *ptr_list = NULL;
-
-	item = proto_tree_add_text(tree, tvb, offset, 0, "POLICY_INFORMATION");
-	subtree = proto_item_add_subtree(item, ett_POLICY_INFORMATION);
-
-	offset = prs_uint16(tvb, offset, pinfo, subtree, &level, "Info level");
-
-	switch (level) {
-	case 1: 
-/*		offset = prs_AUDIT_LOG_INFO(tvb, offset, pinfo, subtree); */
-		break;
-	case 2:
-/*		offset = prs_AUDIT_SETTINGS(tvb, offset, pinfo, subtree); */
-		break;
-	case 3:
-		offset = prs_NAME_AND_SID(tvb, offset, pinfo, subtree,
-					  flags, &ptr_list);
-		break;
-	case 4:
-/*		offset = prs_UNISTR2(tvb, offset, pinfo, subtree); */
-		break;
-	case 5:
-		offset = prs_NAME_AND_SID(tvb, offset, pinfo, subtree, 
-					  flags, &ptr_list);
-		break;
-	case 6:
-/*		offset = prs_SERVER_ROLE(tvb, offset, pinfo, subtree); */
-		break;
-	case 7:
-/*		offset = prs_REPLICA_SOURCE(tvb, offset, pinfo, subtree); */
-		break;
-	case 8:
-/*		offset = prs_QUOTA_INFO(tvb, offset, pinfo, subtree); */
-		break;
-	case 9:
-/*		offset = prs_HISTORY(tvb, offset, pinfo, subtree); */
-		break;
-	case 10:
-/*		offset = prs_AUDIT_SET_INFO(tvb, offset, pinfo, subtree); */
-		break;
-	case 11:
-/*		offset = prs_AUDIT_QUERY_INFO(tvb, offset, pinfo, subtree); */
-		break;
-	}
-
-	return offset;
-}
-
-/*
- * uint32 LsarQueryInformationPolicy(
- *       [in] [context_handle] void *hnd,
- *       [in] uint16 level,
- *      [out] [switch_is(level)] [ref] POLICY_INFORMATION **info
- * );
- *
- */
-
-static int LsaQueryInfoPolicy_q(tvbuff_t *tvb, int offset,
+static int
+lsa_dissect_LPSTR(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "QueryInfo request");
-
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
-	offset = prs_uint16(tvb, offset, pinfo, tree, NULL, "Info level");
-
+/*qqq*/
 	return offset;
 }
 
-static int LsaQueryInfoPolicy_r(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	GList *ptr_list = NULL;
-	int flags = PARSE_SCALARS|PARSE_BUFFERS;
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "QueryInfo reply");
-
-	offset = prs_push_ptr(tvb, offset, pinfo, tree, &ptr_list, 
-			      "POLICY_INFORMATION");
-
-	if (prs_pop_ptr(&ptr_list, "POLICY_INFORMATION"))
-		offset = prs_POLICY_INFORMATION(tvb, offset, pinfo, tree,
-						flags);
-
-	offset = prs_ntstatus(tvb, offset, pinfo, tree);
-
-	return offset;
-}
-
-/*
- * Parse a DOM_RID structure.
- *
- * typedef struct {
- *    short type;
- *    long rid;
- *    long dom_idx;
- * } DOM_RID;
- *
- */
-
-static int ett_DOM_RID = -1;
-
-static int prs_DOM_RID(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-		       proto_tree *tree, int flags, GList **ptr_list)
-{
-	if (flags & PARSE_SCALARS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, "DOM_RID");
-		subtree = proto_item_add_subtree(item, ett_DOM_RID);
-
-		offset = prs_uint16(tvb, offset, pinfo, subtree, NULL, "Type");
-	
-		offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "RID");
-
-		offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-				    "Domain index");
-	}
-
-	if (flags & PARSE_BUFFERS) {
-	}
-
-	return offset;
-}
-
-/*
- * Parse a DOM_RID_ARRAY structure.
- *
- * typedef struct {
- *   long count;
- *   [size_is(count)] [unique] DOM_RID *rids;
- * } DOM_RID_ARRAY;
- *
- */
-
-static int ett_DOM_RID_ARRAY = -1;
-static int ett_DOM_RID_ARRAY_hdr = -1;
-
-static int prs_DOM_RID_ARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			     proto_tree *tree, int flags, GList **ptr_list)
-{
-	if (flags & PARSE_SCALARS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "DOM_RID_ARRAY header");
-		subtree = proto_item_add_subtree(item, ett_DOM_RID_ARRAY_hdr);
-
-		
-		offset = prs_uint32(tvb, offset, pinfo, subtree, NULL,
-				    "Count");
-
-		offset = prs_push_ptr(tvb, offset, pinfo, subtree, ptr_list, 
-				      "RIDs");
-	}
-
-	if (flags & PARSE_BUFFERS) {
-		proto_item *item;
-		proto_tree *subtree;
-		guint32 count, i;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "DOM_RID_ARRAY");
-		subtree = proto_item_add_subtree(item, ett_DOM_RID_ARRAY);
-
-		if (prs_pop_ptr(ptr_list, "RIDs")) {
-			offset = prs_uint32(tvb, offset, pinfo, subtree, &count,
-					    "Count");
-
-			for (i = 0; i < count; i++) {
-				offset = prs_DOM_RID(tvb, offset, pinfo,
-						     subtree, PARSE_SCALARS,
-						     ptr_list);
-			}
-
-			for (i = 0; i < count; i++) {
-				offset = prs_DOM_RID(tvb, offset, pinfo,
-						     subtree, PARSE_BUFFERS,
-						     ptr_list);
-			}
-		}
-	}
-
-	return offset;
-}
-
-/*
- * Parse a NAME_AND_SID_ARRAY structure.
- *
- * typedef struct {
- *   long count;
- *   [size_is(count)] [unique] NAME_AND_SID *objects;
- * } NAME_AND_SID_ARRAY;
- *
- */
-
-static int ett_NAME_AND_SID_ARRAY = -1;
-static int ett_NAME_AND_SID_ARRAY_hdr = -1;
-
-static int prs_NAME_AND_SID_ARRAY(tvbuff_t *tvb, int offset, 
-				  packet_info *pinfo, proto_tree *tree, 
-				  int flags, GList **ptr_list)
-{
-	if (flags & PARSE_SCALARS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "NAME_AND_SID_ARRAY header");
-		subtree = proto_item_add_subtree(
-			item, ett_NAME_AND_SID_ARRAY_hdr);
-
-		offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-				    "Count");
-
-		offset = prs_push_ptr(tvb, offset, pinfo, subtree, ptr_list,
-				      "NAME_AND_SIDs");
-
-		offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-				    "Max count");
-
-	}
-
-	if (flags & PARSE_BUFFERS) {
-		proto_item *item;
-		proto_tree *subtree;
-		guint32 count, i;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "NAME_AND_SID_ARRAY");
-		subtree = proto_item_add_subtree(
-			item, ett_NAME_AND_SID_ARRAY);
-
-		offset = prs_uint32(tvb, offset, pinfo, subtree, &count, 
-				    "Count");
-
-		if (prs_pop_ptr(ptr_list, "NAME_AND_SIDs")) {
-			for (i = 0; i < count; i++) {
-				offset = prs_NAME_AND_SID(tvb, offset, pinfo,
-							  subtree,
-							  PARSE_SCALARS,
-							  ptr_list);
-			}
-
-			for (i = 0; i < count; i++) {
-				offset = prs_NAME_AND_SID(tvb, offset, pinfo,
-							  subtree,
-							  PARSE_BUFFERS,
-							  ptr_list);
-			}
-		}
-	}
-
-	return offset;
-}
-
-/*
- * Parse a DOM_REF_INFO structure.
- *
- * typedef struct {
- *   NAME_AND_SID_ARRAY domains;
- *   long count;
- * } DOM_REF_INFO;
- *
- */
-
-static int ett_DOM_REF_INFO = -1;
-static int ett_DOM_REF_INFO_hdr = -1;
-
-static int prs_DOM_REF_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			    proto_tree *tree, int flags, GList **ptr_list)
-{
-	if (flags & PARSE_SCALARS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "DOM_REF_INFO header");
-		subtree = proto_item_add_subtree(item, ett_DOM_REF_INFO_hdr);
-	}
-
-	if (flags & PARSE_BUFFERS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "DOM_REF_INFO");
-		subtree = proto_item_add_subtree(item, ett_DOM_REF_INFO);
-
-		offset = prs_NAME_AND_SID_ARRAY(tvb, offset, pinfo, subtree, 
-						PARSE_SCALARS, ptr_list);
-
-		offset = prs_NAME_AND_SID_ARRAY(tvb, offset, pinfo, subtree, 
-						PARSE_BUFFERS, ptr_list);
-	}
-
-	return offset;
-}
-
-/*
- * Convert a list of names to a list of SIDs.
- *
- *   uint32 LsarLookupNames(
- *       [in] [context_handle] void *hnd,
- *       [in] uint32 num_names,
- *       [in] [size_is(num_names)] [ref] UNISTR2 *names,
- *      [out] [ref] DOM_REF_INFO **domains,
- *   [in,out] [ref] DOM_RID_ARRAY *rids,
- *       [in] uint16 level,
- *   [in,out] [ref] uint32 *num_mapped
- * );
- *
- */
-
-static int LsaLookupNames_q(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	GList *ptr_list = NULL;
-	guint32 count, i;
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "LookupNames request");
-
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, &count, "Num names");
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, &count, 
-			    "Name array max count");
-
-	for (i = 0; i < count; i++)
-		offset = prs_UNISTR(tvb, offset, pinfo, tree, PARSE_SCALARS, 
-				    &ptr_list, "Name");
-
-	for (i = 0; i < count; i++)
-		offset = prs_UNISTR(tvb, offset, pinfo, tree, PARSE_BUFFERS,
-				    &ptr_list, "Name");
-
-	offset = prs_DOM_RID_ARRAY(tvb, offset, pinfo, tree, 
-				   PARSE_SCALARS|PARSE_BUFFERS, &ptr_list);
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Info level");
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Num mapped");
-		
-	return offset;
-}
-
-static int LsaLookupNames_r(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	GList *ptr_list = NULL;
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "LookupNames reply");
-
-	offset = prs_push_ptr(tvb, offset, pinfo, tree, &ptr_list, "Domains");
-
-	if (prs_pop_ptr(&ptr_list, "Domains"))
-		offset = prs_DOM_REF_INFO(tvb, offset, pinfo, tree,
-					  PARSE_SCALARS|PARSE_BUFFERS, 
-					  &ptr_list);
-
-	offset = prs_DOM_RID_ARRAY(tvb, offset, pinfo, tree, 
-				   PARSE_SCALARS|PARSE_BUFFERS, &ptr_list);
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Num mapped");
-
-	offset = prs_ntstatus(tvb, offset, pinfo, tree);
-
-	g_assert(g_list_length(ptr_list) == 0);
-
-	return offset;
-}
-
-/*
- * Parse a SID_ARRAY structure.
- *
- * typedef struct {
- *   long count;
- *   [size_is(count)] [unique] PSID *sids;
- * } SID_ARRAY;
- *
- */
-
-static int ett_SID_ARRAY = -1;
-static int ett_SID_ARRAY_hdr = -1;
-
-static int prs_SID_ARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			 proto_tree *tree, int flags, GList **ptr_list)
-{
-	if (flags & PARSE_SCALARS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "SID_ARRAY header");
-		subtree = proto_item_add_subtree(item, ett_SID_ARRAY_hdr);
-
-		
-		offset = prs_uint32(tvb, offset, pinfo, subtree, NULL,
-				    "Count");
-		
-		offset = prs_push_ptr(tvb, offset, pinfo, subtree, ptr_list, 
-				      "SIDs");
-	}
-
-	if (flags & PARSE_BUFFERS) {
-		proto_item *item;
-		proto_tree *subtree;
-		guint32 count, i;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "SID_ARRAY");
-		subtree = proto_item_add_subtree(item, ett_SID_ARRAY);
-
-		if (prs_pop_ptr(ptr_list, "SIDs")) {
-			offset = prs_uint32(tvb, offset, pinfo, subtree,
-					    &count, "Count");
-
-			for (i = 0; i < count; i++)
-				offset = prs_push_ptr(tvb, offset, pinfo, 
-						      subtree, ptr_list, "SID"); 
-
-			for (i = 0; i < count; i++) {
-				if (prs_pop_ptr(ptr_list, "SID"))
-					offset = prs_SID(tvb, offset, pinfo,
-							 subtree);
-			}
-		}
-	}
-
-	return offset;
-}
-
-/*
- * Parse an ACCOUNT_NAME structure.
- *
- * typedef struct {
- *   unsigned short type;
- *   UNICODE_STRING name;
- *   long dom_idx;
- * } ACCOUNT_NAME;
- *
- */
-
-static int prs_ACCOUNT_NAME(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			    proto_tree *tree, int flags, GList **ptr_list)
-{
-	if (flags & PARSE_SCALARS) {
-		offset = prs_uint16(tvb, offset, pinfo, tree, NULL, "Type");
-
-		offset = prs_uint32(tvb, offset, pinfo, tree, NULL, 
-				    "Domain index");
-		
-		offset = prs_UNISTR(tvb, offset, pinfo, tree,
-				    PARSE_SCALARS, ptr_list, "Name");
-	}
-
-	if (flags & PARSE_BUFFERS) {
-		offset = prs_UNISTR(tvb, offset, pinfo, tree,
-				    PARSE_BUFFERS, ptr_list, "Name");
-	}
-
-	return offset;
-}
-
-/*
- * Parse an ACCOUNT_NAME_ARRAY structure.
- *
- * typedef struct {
- *   long count;
- *   [size_is(count)] [unique] ACCOUNT_NAME *domains;
- * } ACCOUNT_NAME_ARRAY;
- *
- */
-
-static int prs_ACCOUNT_NAME_ARRAY(tvbuff_t *tvb, int offset,
-				  packet_info *pinfo, proto_tree *tree, 
-				  int flags, GList **ptr_list)
-{
-	if (flags & PARSE_SCALARS) {
-		proto_item *item;
-		proto_tree *subtree;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "ACCOUNT_NAME_ARRAY header");
-		subtree = proto_item_add_subtree(item, ett_SID_ARRAY_hdr);
-
-		offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-				    "Count");
-		
-		offset = prs_push_ptr(tvb, offset, pinfo, subtree, ptr_list,
-				      "ACCOUNT_NAMEs");
-	}
-
-	if (flags & PARSE_BUFFERS) {
-		proto_item *item;
-		proto_tree *subtree;
-		guint32 count, i;
-
-		item = proto_tree_add_text(tree, tvb, offset, 0, 
-					   "ACCOUNT_NAME_ARRAY");
-		subtree = proto_item_add_subtree(item, ett_SID_ARRAY);
-
-		if (prs_pop_ptr(ptr_list, "ACCOUNT_NAMEs")) {
-			offset = prs_uint32(tvb, offset, pinfo, subtree,
-					    &count, "Count");
-
-			for (i = 0; i < count; i++) {
-				offset = prs_ACCOUNT_NAME(tvb, offset, pinfo,
-							  subtree,
-							  PARSE_SCALARS,
-							  ptr_list);
-			}
-
-			for (i = 0; i < count; i++) {
-				offset = prs_ACCOUNT_NAME(tvb, offset, pinfo,
-							  subtree,
-							  PARSE_BUFFERS,
-							  ptr_list);
-			}
-		}
-	}
-
-	return offset;
-}
-
-/*
- * Convert a list of SIDs to a list of names.
- *
- * long LsarLookupSids(
- *       [in] [context_handle] void *hnd,
- *       [in] [ref] SID_ARRAY *sids,
- *      [out] [ref] DOM_REF_INFO **domains,
- *   [in,out] [ref] ACCOUNT_NAME_ARRAY *names,
- *       [in] unsigned short level,
- *   [in,out] [ref] long *num_mapped
- * );
- *
- */
-
-static int LsaLookupSids_q(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			   proto_tree *tree, char *drep)
-{
-	GList *ptr_list = NULL;
-	int flags = PARSE_SCALARS|PARSE_BUFFERS;
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "LookupSids request");
-
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
-
-	offset = prs_SID_ARRAY(tvb, offset, pinfo, tree, flags, &ptr_list);
-
-	offset = prs_ACCOUNT_NAME_ARRAY(tvb, offset, pinfo, tree, flags, 
-					&ptr_list);
-	
-	offset = prs_uint16(tvb, offset, pinfo, tree, NULL, "Info level");
-	
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Num mapped");
-
-	return offset;
-}
-
-static int LsaLookupSids_r(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			   proto_tree *tree, char *drep)
-{
-	GList *ptr_list = NULL;
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "LookupSids reply");
-
-	offset = prs_push_ptr(tvb, offset, pinfo, tree, &ptr_list,
-			 "DOM_REF_INFO");
-
-	if (prs_pop_ptr(&ptr_list, "DOM_REF_INFO"))
-		offset = prs_DOM_REF_INFO(tvb, offset, pinfo, tree,
-					  PARSE_SCALARS|PARSE_BUFFERS,
-					  &ptr_list);
-
-	offset = prs_ACCOUNT_NAME_ARRAY(tvb, offset, pinfo, tree, 
-					PARSE_SCALARS|PARSE_BUFFERS,
-					&ptr_list);
-	
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Num mapped");
-	
-	offset = prs_ntstatus(tvb, offset, pinfo, tree);
-
-	return offset;
-}
-
-/*
- * List of subdissectors for this pipe.
- */
-
-static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
-        { LSA_CLOSE, "LSA_CLOSE", LsaClose_q, LsaClose_r },
-        { LSA_DELETE, "LSA_DELETE", NULL, NULL },
-        { LSA_ENUM_PRIVS, "LSA_ENUM_PRIVS", NULL, NULL },
-        { LSA_QUERYSECOBJ, "LSA_QUERYSECOBJ", NULL, NULL },
-        { LSA_SETSECOBJ, "LSA_SETSECOBJ", NULL, NULL },
-        { LSA_CHANGEPASSWORD, "LSA_CHANGEPASSWORD", NULL, NULL },
-        { LSA_OPENPOLICY, "LSA_OPENPOLICY", 
-	  LsaOpenPolicy_q, LsaOpenPolicy_r },
-        { LSA_QUERYINFOPOLICY, "LSA_QUERYINFOPOLICY", 
-	  LsaQueryInfoPolicy_q, LsaQueryInfoPolicy_r },
-        { LSA_SETINFOPOLICY, "LSA_SETINFOPOLICY", NULL, NULL },
-        { LSA_CLEARAUDITLOG, "LSA_CLEARAUDITLOG", NULL, NULL },
-        { LSA_CREATEACCOUNT, "LSA_CREATEACCOUNT", NULL, NULL },
-        { LSA_ENUM_ACCOUNTS, "LSA_ENUM_ACCOUNTS", NULL, NULL },
-        { LSA_CREATETRUSTDOM, "LSA_CREATETRUSTDOM", NULL, NULL },
-        { LSA_ENUMTRUSTDOM, "LSA_ENUMTRUSTDOM", NULL, NULL },
-        { LSA_LOOKUPNAMES, "LSA_LOOKUPNAMES",
-	  LsaLookupNames_q, LsaLookupNames_r },
-        { LSA_LOOKUPSIDS, "LSA_LOOKUPSIDS", 
-	  LsaLookupSids_q, LsaLookupSids_r },
-        { LSA_CREATESECRET, "LSA_CREATESECRET", NULL, NULL },
-        { LSA_OPENACCOUNT, "LSA_OPENACCOUNT", NULL, NULL },
-        { LSA_ENUMPRIVSACCOUNT, "LSA_ENUMPRIVSACCOUNT", NULL, NULL },
-        { LSA_ADDPRIVS, "LSA_ADDPRIVS", NULL, NULL },
-        { LSA_REMOVEPRIVS, "LSA_REMOVEPRIVS", NULL, NULL },
-        { LSA_GETQUOTAS, "LSA_GETQUOTAS", NULL, NULL },
-        { LSA_SETQUOTAS, "LSA_SETQUOTAS", NULL, NULL },
-        { LSA_GETSYSTEMACCOUNT, "LSA_GETSYSTEMACCOUNT", NULL, NULL },
-        { LSA_SETSYSTEMACCOUNT, "LSA_SETSYSTEMACCOUNT", NULL, NULL },
-        { LSA_OPENTRUSTDOM, "LSA_OPENTRUSTDOM", NULL, NULL },
-        { LSA_QUERYTRUSTDOM, "LSA_QUERYTRUSTDOM", NULL, NULL },
-        { LSA_SETINFOTRUSTDOM, "LSA_SETINFOTRUSTDOM", NULL, NULL },
-        { LSA_OPENSECRET, "LSA_OPENSECRET", NULL, NULL },
-        { LSA_SETSECRET, "LSA_SETSECRET", NULL, NULL },
-        { LSA_QUERYSECRET, "LSA_QUERYSECRET", NULL, NULL },
-        { LSA_LOOKUPPRIVVALUE, "LSA_LOOKUPPRIVVALUE", NULL, NULL },
-        { LSA_LOOKUPPRIVNAME, "LSA_LOOKUPPRIVNAME", NULL, NULL },
-        { LSA_PRIV_GET_DISPNAME, "LSA_PRIV_GET_DISPNAME", NULL, NULL },
-        { LSA_DELETEOBJECT, "LSA_DELETEOBJECT", NULL, NULL },
-        { LSA_ENUMACCTWITHRIGHT, "LSA_ENUMACCTWITHRIGHT", NULL, NULL },
-        { LSA_ENUMACCTRIGHTS, "LSA_ENUMACCTRIGHTS", NULL, NULL },
-        { LSA_ADDACCTRIGHTS, "LSA_ADDACCTRIGHTS", NULL, NULL },
-        { LSA_REMOVEACCTRIGHTS, "LSA_REMOVEACCTRIGHTS", NULL, NULL },
-        { LSA_QUERYTRUSTDOMINFO, "LSA_QUERYTRUSTDOMINFO", NULL, NULL },
-        { LSA_SETTRUSTDOMINFO, "LSA_SETTRUSTDOMINFO", NULL, NULL },
-        { LSA_DELETETRUSTDOM, "LSA_DELETETRUSTDOM", NULL, NULL },
-        { LSA_STOREPRIVDATA, "LSA_STOREPRIVDATA", NULL, NULL },
-        { LSA_RETRPRIVDATA, "LSA_RETRPRIVDATA", NULL, NULL },
-        { LSA_OPENPOLICY2, "LSA_OPENPOLICY2", NULL, NULL },
-        { LSA_UNK_GET_CONNUSER, "LSA_UNK_GET_CONNUSER", NULL, NULL },
-
-        {0, NULL, NULL,  NULL },
+static const value_string lsa_impersionation_level_vals[] = {
+	{0,	"Anonymous"},
+	{1,	"Identification"},
+	{2,	"Impersonation"},
+	{3,	"Delegation"},
+	{0, NULL}
 };
 
-/* Protocol registration */
 
-static int proto_dcerpc_lsa = -1;
-static gint ett_dcerpc_lsa = -1;
+static int
+lsa_dissect_SECURITY_QUALITY_OF_SERVICE(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* Length */
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_qos_len, NULL);
+
+	/* impersonation level */
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_qos_impersonation_level, NULL);
+
+	/* context tracking mode */
+	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_qos_track_context, NULL);
+
+	/* effective only */
+	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_qos_effective_only, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_ACCESS_MASK(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* XXX is this some bitmask ?*/
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_access_mask, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_HANDLE(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+			hf_lsa_hnd, NULL);
+	return offset;
+}
+
+
+static int
+lsa_dissect_LSA_OBJECT_ATTRIBUTES(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	int old_offset=offset;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "Object Attributes");
+		tree = proto_item_add_subtree(item, ett_lsa_OBJECT_ATTRIBUTES);
+	}
+
+	/* Length */
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_obj_attr_len, NULL);
+
+	/* LPSTR */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LPSTR, NDR_POINTER_UNIQUE,
+		"LSPTR pointer: ", -1, 0);
+
+	/* attribute name */	
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"NAME pointer: ", hf_lsa_obj_attr_name, 0);
+
+	/* Attr */
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_obj_attr, NULL);
+
+	/* security descriptor */	
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_UNIQUE,
+		"LSA_SECURITY_DESCRIPTOR pointer: ", -1, 0);
+
+	/* security quality of service */	
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_SECURITY_QUALITY_OF_SERVICE, NDR_POINTER_UNIQUE,
+		"LSA_SECURITY_QUALITY_OF_SERVICE pointer: ", -1, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_lsaclose_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaclose_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaopenpolicy_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Server:", hf_lsa_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_OBJECT_ATTRIBUTES, NDR_POINTER_REF,
+		"", -1, 0);
+
+	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
+		pinfo, tree, drep);
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaopenpolicy_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static const value_string policy_information_class_vals[] = {
+	{1,	"Audit Log Information"},
+	{2,	"Audit Events Information"},
+	{3,	"Primary Domain Information"},
+	{4,	"Pd Account Information"},
+	{5,	"Account Domain Information"},
+	{6,	"Server Role Information"},
+	{7,	"Replica Source Information"},
+	{8,	"Default Quota Information"},
+	{9,	"Modification Information"},
+	{10,	"Audit Full Set Information"},
+	{11,	"Audit Full Query Information"},
+	{12,	"DNS Domain Information"},
+	{0, NULL}
+};
+
+static int
+lsa_dissect_lsaqueryinformationpolicy_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_policy_information_class, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_POLICY_AUDIT_LOG_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_AUDIT_LOG_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_audit_log_info);
+	}
+
+	/* percent full */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_pali_percent_full, NULL);
+
+	/* log size */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_pali_log_size, NULL);
+
+	/* retention period */
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+				hf_lsa_pali_retention_period);
+
+	/* shutdown in progress */
+        offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_pali_shutdown_in_progress, NULL);
+
+	/* time to shutdown */
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+				hf_lsa_pali_time_to_shutdown);
+
+	/* next audit record */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_pali_next_audit_record, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_POLICY_AUDIT_EVENTS_INFO_settings(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_paei_settings, NULL);
+	return offset;
+}
+
+static int
+lsa_dissect_POLICY_AUDIT_EVENTS_INFO_settings_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_AUDIT_EVENTS_INFO_settings);
+
+	return offset;
+}
+
+static int
+lsa_dissect_POLICY_AUDIT_EVENTS_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_AUDIT_EVENTS_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_audit_events_info);
+	}
+
+	/* enabled */
+        offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_paei_enabled, NULL);
+
+	/* settings */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_AUDIT_EVENTS_INFO_settings_array, NDR_POINTER_UNIQUE,
+		"Settings", -1, 0);
+
+	/* count */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_count, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
+lsa_dissect_POLICY_PRIMARY_DOMAIN_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_PRIMARY_DOMAIN_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_primary_domain_info);
+	}
+
+	/* domain */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_domain, 0);
+
+	/* sid */
+	offset = dissect_ndr_nt_PSID(tvb, offset,
+		pinfo, tree, drep);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
+lsa_dissect_POLICY_ACCOUNT_DOMAIN_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_ACCOUNT_DOMAIN_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_primary_account_info);
+	}
+
+	/* account */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_acct, 0);
+
+	/* sid */
+	offset = dissect_ndr_nt_PSID(tvb, offset,
+		pinfo, tree, drep);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static const value_string server_role_vals[] = {
+	{0,	"Standalone"},
+	{1,	"Domain Member"},
+	{2,	"Backup"},
+	{3,	"Primary"},
+	{0, NULL}
+};
+static int
+lsa_dissect_POLICY_SERVER_ROLE_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_SERVER_ROLE_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_server_role_info);
+	}
+
+	/* server role */
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_server_role, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_POLICY_REPLICA_SOURCE_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_REPLICA_SOURCE_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_replica_source_info);
+	}
+
+	/* source */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_source, 0);
+
+	/* account */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_acct, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
+lsa_dissect_POLICY_DEFAULT_QUOTA_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_DEFAULT_QUOTA_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_default_quota_info);
+	}
+
+	/* paged pool */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_quota_paged_pool, NULL);
+
+	/* non paged pool */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_quota_non_paged_pool, NULL);
+
+	/* min wss */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_quota_min_wss, NULL);
+
+	/* max wss */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_quota_max_wss, NULL);
+
+	/* pagefile */
+        offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_hyper, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
+lsa_dissect_POLICY_MODIFICATION_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_MODIFICATION_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_modification_info);
+	}
+
+	/* seq no */
+        offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_mod_seq_no, NULL);
+
+	/* mtime */
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+				hf_lsa_mod_mtime);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
+lsa_dissect_POLICY_AUDIT_FULL_SET_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_AUDIT_FULL_SET_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_audit_full_set_info);
+	}
+
+	/* unknown */
+	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_unknown_char, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
+lsa_dissect_POLICY_AUDIT_FULL_QUERY_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_AUDIT_FULL_QUERY_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_audit_full_query_info);
+	}
+
+	/* unknown */
+	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_unknown_char, NULL);
+
+	/* unknown */
+	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_unknown_char, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
+lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_DNS_DOMAIN_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_dns_domain_info);
+	}
+
+	/* name */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_name, 0);
+
+	/* domain */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_domain, 0);
+
+	/* forest */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_forest, 0);
+
+	/* GUID */
+	offset = dissect_nt_GUID(tvb, offset,
+		pinfo, tree, drep);
+
+	/* SID pointer */
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_POLICY_INFORMATION(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+	guint16 level;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"POLICY_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_policy_info);
+	}
+
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_info_level, &level);
+
+	ALIGN_TO_4_BYTES;  /* all union arms aligned to 4 bytes, case 7 and 9 need this  */
+	switch(level){
+	case 1:	
+		offset = lsa_dissect_POLICY_AUDIT_LOG_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 2:
+		offset = lsa_dissect_POLICY_AUDIT_EVENTS_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 3:
+		offset = lsa_dissect_POLICY_PRIMARY_DOMAIN_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 4:
+		offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+			hf_lsa_acct, 0);
+		break;
+	case 5:
+		offset = lsa_dissect_POLICY_ACCOUNT_DOMAIN_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 6:
+		offset = lsa_dissect_POLICY_SERVER_ROLE_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 7:
+		offset = lsa_dissect_POLICY_REPLICA_SOURCE_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 8:
+		offset = lsa_dissect_POLICY_DEFAULT_QUOTA_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 9:
+		offset = lsa_dissect_POLICY_MODIFICATION_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 10:
+		offset = lsa_dissect_POLICY_AUDIT_FULL_SET_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 11:
+		offset = lsa_dissect_POLICY_AUDIT_FULL_QUERY_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	case 12:
+		offset = lsa_dissect_POLICY_DNS_DOMAIN_INFO(
+				tvb, offset, pinfo, tree, drep);
+		break;
+	}
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_lsaqueryinformationpolicy_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* This is really a pointer to a pointer though the first level is REF
+	  so we just ignore that one */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_INFORMATION, NDR_POINTER_UNIQUE,
+		"POLICY_INFORMATION pointer: info", -1, 0);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsadelete_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsadelete_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaquerysecurityobject_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_info_type, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaquerysecurityobject_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_UNIQUE,
+		"LSA_SECURITY_DESCRIPTOR pointer: sec_info", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasetsecurityobject_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_info_type, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_REF,
+		"LSA_SECURITY_DESCRIPTOR: sec_info", -1, 0);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsasetsecurityobject_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsachangepassword_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* server */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_server, 0);
+
+	/* domain */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_domain, 0);
+
+	/* account */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_acct, 0);
+
+	/* old password */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_old_pwd, 0);
+
+	/* new password */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_new_pwd, 0);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsachangepassword_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static const value_string sid_type_vals[] = {
+	{1,	"User"},
+	{2,	"Group"},
+	{3,	"Domain"},
+	{4,	"Alias"},
+	{5,	"Well Known Group"},
+	{6,	"Deleted Account"},
+	{7,	"Invalid"},
+	{8,	"Unknown"},
+	{9,	"Computer"},
+	{0, NULL}
+};
+static int
+lsa_dissect_LSA_TRANSLATED_NAME(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LSA_TRANSLATED_NAME:");
+		tree = proto_item_add_subtree(item, ett_lsa_translated_name);
+	}
+
+	/* sid type */
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_sid_type, NULL);
+
+	/* name */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_name, 0);
+
+	/* index */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_index, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRANSLATED_NAME_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_NAME);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRANSLATED_NAMES(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LSA_TRANSLATED_NAMES:");
+		tree = proto_item_add_subtree(item, ett_lsa_translated_names);
+	}
+
+	/* count */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_count, NULL);
+
+	/* settings */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_NAME_array, NDR_POINTER_UNIQUE,
+		"TRANSLATED_NAME_ARRAY", -1, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsalookupsids_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
+			"", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_NAMES, NDR_POINTER_REF,
+		"LSA_TRANSLATED_NAMES pointer: names", -1, 0);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_info_level, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_num_mapped, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRUST_INFORMATION(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"TRUST INFORMATION:");
+		tree = proto_item_add_subtree(item, ett_lsa_trust_information);
+	}
+
+	/* name */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_name, 0);
+
+	/* sid */
+	offset = dissect_ndr_nt_PSID(tvb, offset,
+		pinfo, tree, drep);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRUST_INFORMATION_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUST_INFORMATION);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_REFERENCED_DOMAIN_LIST(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LSA_REFERENCED_DOMAIN_LIST:");
+		tree = proto_item_add_subtree(item, ett_lsa_referenced_domain_list);
+	}
+
+	/* count */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_count, NULL);
+
+	/* trust information */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUST_INFORMATION_array, NDR_POINTER_UNIQUE,
+		"TRUST INFORMATION array:", -1, 0);
+
+	/* max count */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_max_count, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_lsalookupsids_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_REFERENCED_DOMAIN_LIST, NDR_POINTER_UNIQUE,
+		"LSA_REFERENCED_DOMAIN_LIST pointer: domains", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_NAMES, NDR_POINTER_REF,
+		"LSA_TRANSLATED_NAMES pointer: names", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_num_mapped, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_DEFAULT_QUOTA_INFO, NDR_POINTER_REF,
+		"POLICY_DEFAULT_QUOTA_INFO pointer: quotas", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasetquotasforaccount_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsagetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsagetquotasforaccount_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_DEFAULT_QUOTA_INFO, NDR_POINTER_REF,
+		"POLICY_DEFAULT_QUOTA_INFO pointer: quotas", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasetinformationpolicy_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_policy_information_class, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_INFORMATION, NDR_POINTER_REF,
+		"POLICY_INFORMATION pointer: info", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasetinformationpolicy_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaclearauditlog_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaclearauditlog_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsagetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsagetsystemaccessaccount_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_rid, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rid, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasetsystemaccessaccount_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaopentrusteddomain_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_nt_SID(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaopentrusteddomain_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsadeletetrusteddomain_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_nt_SID(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsadeletetrusteddomain_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
+	{ LSA_LSACLOSE, "LSACLOSE",
+		lsa_dissect_lsaclose_rqst,
+		lsa_dissect_lsaclose_reply },
+	{ LSA_LSADELETE, "LSADELETE",
+		lsa_dissect_lsadelete_rqst,
+		lsa_dissect_lsadelete_reply },
+#ifdef REMOVED
+	{ LSA_LSAENUMERATEPRIVILEGES, "LSAENUMERATEPRIVILEGES",
+		lsa_dissect_lsaenumerateprivileges_rqst,
+		lsa_dissect_lsaenumerateprivileges_reply },
+#endif
+	{ LSA_LSAQUERYSECURITYOBJECT, "LSAQUERYSECURITYOBJECT",
+		lsa_dissect_lsaquerysecurityobject_rqst,
+		lsa_dissect_lsaquerysecurityobject_reply },
+	{ LSA_LSASETSECURITYOBJECT, "LSASETSECURITYOBJECT",
+		lsa_dissect_lsasetsecurityobject_rqst,
+		lsa_dissect_lsasetsecurityobject_reply },
+	{ LSA_LSACHANGEPASSWORD, "LSACHANGEPASSWORD",
+		lsa_dissect_lsachangepassword_rqst,
+		lsa_dissect_lsachangepassword_reply },
+	{ LSA_LSAOPENPOLICY, "LSAOPENPOLICY",
+		lsa_dissect_lsaopenpolicy_rqst,
+		lsa_dissect_lsaopenpolicy_reply },
+	{ LSA_LSAQUERYINFORMATIONPOLICY, "LSAQUERYINFORMATIONPOLICY",
+		lsa_dissect_lsaqueryinformationpolicy_rqst,
+		lsa_dissect_lsaqueryinformationpolicy_reply },
+	{ LSA_LSASETINFORMATIONPOLICY, "LSASETINFORMATIONPOLICY",
+		lsa_dissect_lsasetinformationpolicy_rqst,
+		lsa_dissect_lsasetinformationpolicy_reply },
+	{ LSA_LSACLEARAUDITLOG, "LSACLEARAUDITLOG",
+		lsa_dissect_lsaclearauditlog_rqst,
+		lsa_dissect_lsaclearauditlog_reply },
+#ifdef REMOVED
+	{ LSA_LSACREATEACCOUNT, "LSACREATEACCOUNT",
+		lsa_dissect_lsacreateaccount_rqst,
+		lsa_dissect_lsacreateaccount_reply },
+	{ LSA_LSAENUMERATEACCOUNTS, "LSAENUMERATEACCOUNTS",
+		lsa_dissect_lsaenumerateaccounts_rqst,
+		lsa_dissect_lsaenumerateaccounts_reply },
+	{ LSA_LSACREATETRUSTEDDOMAIN, "LSACREATETRUSTEDDOMAIN",
+		lsa_dissect_lsacreatetrusteddomain_rqst,
+		lsa_dissect_lsacreatetrusteddomain_reply },
+	{ LSA_LSAENUMERATETRUSTEDDOMAINS, "LSAENUMERATETRUSTEDDOMAINS",
+		lsa_dissect_lsaenumeratetrusteddomains_rqst,
+		lsa_dissect_lsaenumeratetrusteddomains_reply },
+	{ LSA_LSALOOKUPNAMES, "LSALOOKUPNAMES",
+		lsa_dissect_lsalookupnames_rqst,
+		lsa_dissect_lsalookupnames_reply },
+#endif
+	{ LSA_LSALOOKUPSIDS, "LSALOOKUPSIDS",
+		lsa_dissect_lsalookupsids_rqst,
+		lsa_dissect_lsalookupsids_reply },
+#ifdef REMOVED
+	{ LSA_LSACREATESECRET, "LSACREATESECRET",
+		lsa_dissect_lsacreatesecret_rqst,
+		lsa_dissect_lsacreatesecret_reply },
+	{ LSA_LSAOPENACCOUNT, "LSAOPENACCOUNT",
+		lsa_dissect_lsaopenaccount_rqst,
+		lsa_dissect_lsaopenaccount_reply },
+	{ LSA_LSAENUMERATEPRIVILEGESACCOUNT, "LSAENUMERATEPRIVILEGESACCOUNT",
+		lsa_dissect_lsaenumerateprivilegesaccount_rqst,
+		lsa_dissect_lsaenumerateprivilegesaccount_reply },
+	{ LSA_LSAADDPRIVILEGESTOACCOUNT, "LSAADDPRIVILEGESTOACCOUNT",
+		lsa_dissect_lsaaddprivilegestoaccount_rqst,
+		lsa_dissect_lsaaddprivilegestoaccount_reply },
+	{ LSA_LSAREMOVEPRIVILEGESFROMACCOUNT, "LSAREMOVEPRIVILEGESFROMACCOUNT",
+		lsa_dissect_lsaremoveprivilegesfromaccount_rqst,
+		lsa_dissect_lsaremoveprivilegesfromaccount_reply },
+#endif
+	{ LSA_LSAGETQUOTASFORACCOUNT, "LSAGETQUOTASFORACCOUNT",
+		lsa_dissect_lsagetquotasforaccount_rqst,
+		lsa_dissect_lsagetquotasforaccount_reply },
+	{ LSA_LSASETQUOTASFORACCOUNT, "LSASETQUOTASFORACCOUNT",
+		lsa_dissect_lsasetquotasforaccount_rqst,
+		lsa_dissect_lsasetquotasforaccount_reply },
+	{ LSA_LSAGETSYSTEMACCESSACCOUNT, "LSAGETSYSTEMACCESSACCOUNT",
+		lsa_dissect_lsagetsystemaccessaccount_rqst,
+		lsa_dissect_lsagetsystemaccessaccount_reply },
+	{ LSA_LSASETSYSTEMACCESSACCOUNT, "LSASETSYSTEMACCESSACCOUNT",
+		lsa_dissect_lsasetsystemaccessaccount_rqst,
+		lsa_dissect_lsasetsystemaccessaccount_reply },
+	{ LSA_LSAOPENTRUSTEDDOMAIN, "LSAOPENTRUSTEDDOMAIN",
+		lsa_dissect_lsaopentrusteddomain_rqst,
+		lsa_dissect_lsaopentrusteddomain_reply },
+#ifdef REMOVED
+	{ LSA_LSAQUERYINFOTRUSTEDDOMAIN, "LSAQUERYINFOTRUSTEDDOMAIN",
+		lsa_dissect_lsaqueryinfotrusteddomain_rqst,
+		lsa_dissect_lsaqueryinfotrusteddomain_reply },
+	{ LSA_LSASETINFORMATIONTRUSTEDDOMAIN, "LSASETINFORMATIONTRUSTEDDOMAIN",
+		lsa_dissect_lsasetinformationtrusteddomain_rqst,
+		lsa_dissect_lsasetinformationtrusteddomain_reply },
+	{ LSA_LSAOPENSECRET, "LSAOPENSECRET",
+		lsa_dissect_lsaopensecret_rqst,
+		lsa_dissect_lsaopensecret_reply },
+	{ LSA_LSASETSECRET, "LSASETSECRET",
+		lsa_dissect_lsasetsecret_rqst,
+		lsa_dissect_lsasetsecret_reply },
+	{ LSA_LSAQUERYSECRET, "LSAQUERYSECRET",
+		lsa_dissect_lsaquerysecret_rqst,
+		lsa_dissect_lsaquerysecret_reply },
+	{ LSA_LSALOOKUPPRIVILEGEVALUE, "LSALOOKUPPRIVILEGEVALUE",
+		lsa_dissect_lsalookupprivilegevalue_rqst,
+		lsa_dissect_lsalookupprivilegevalue_reply },
+	{ LSA_LSALOOKUPPRIVILEGENAME, "LSALOOKUPPRIVILEGENAME",
+		lsa_dissect_lsalookupprivilegename_rqst,
+		lsa_dissect_lsalookupprivilegename_reply },
+	{ LSA_LSALOOKUPPRIVILEGEDISPLAYNAME, "LSALOOKUPPRIVILEGEDISPLAYNAME",
+		lsa_dissect_lsalookupprivilegedisplayname_rqst,
+		lsa_dissect_lsalookupprivilegedisplayname_reply },
+	{ LSA_LSADELETEOBJECT, "LSADELETEOBJECT",
+		lsa_dissect_lsadeleteobject_rqst,
+		lsa_dissect_lsadeleteobject_reply },
+	{ LSA_LSAENUMERATEACCOUNTSWITHUSERRIGHT, "LSAENUMERATEACCOUNTSWITHUSERRIGHT",
+		lsa_dissect_lsaenumerateaccountswithuserright_rqst,
+		lsa_dissect_lsaenumerateaccountswithuserright_reply },
+	{ LSA_LSAENUMERATEACCOUNTRIGHTS, "LSAENUMERATEACCOUNTRIGHTS",
+		lsa_dissect_lsaenumerateaccountrights_rqst,
+		lsa_dissect_lsaenumerateaccountrights_reply },
+	{ LSA_LSAADDACCOUNTRIGHTS, "LSAADDACCOUNTRIGHTS",
+		lsa_dissect_lsaaddaccountrights_rqst,
+		lsa_dissect_lsaaddaccountrights_reply },
+	{ LSA_LSAREMOVEACCOUNTRIGHTS, "LSAREMOVEACCOUNTRIGHTS",
+		lsa_dissect_lsaremoveaccountrights_rqst,
+		lsa_dissect_lsaremoveaccountrights_reply },
+	{ LSA_LSAQUERYTRUSTEDDOMAININFO, "LSAQUERYTRUSTEDDOMAININFO",
+		lsa_dissect_lsaquerytrusteddomaininfo_rqst,
+		lsa_dissect_lsaquerytrusteddomaininfo_reply },
+	{ LSA_LSASETTRUSTEDDOMAININFO, "LSASETTRUSTEDDOMAININFO",
+		lsa_dissect_lsasettrusteddomaininfo_rqst,
+		lsa_dissect_lsasettrusteddomaininfo_reply },
+#endif
+	{ LSA_LSADELETETRUSTEDDOMAIN, "LSADELETETRUSTEDDOMAIN",
+		lsa_dissect_lsadeletetrusteddomain_rqst,
+		lsa_dissect_lsadeletetrusteddomain_reply },
+#ifdef REMOVED
+	{ LSA_LSASTOREPRIVATEDATA, "LSASTOREPRIVATEDATA",
+		lsa_dissect_lsastoreprivatedata_rqst,
+		lsa_dissect_lsastoreprivatedata_reply },
+	{ LSA_LSARETRIEVEPRIVATEDATA, "LSARETRIEVEPRIVATEDATA",
+		lsa_dissect_lsaretrieveprivatedata_rqst,
+		lsa_dissect_lsaretrieveprivatedata_reply },
+#endif
+	{ LSA_LSAOPENPOLICY2, "LSAOPENPOLICY2",
+		lsa_dissect_lsaopenpolicy_rqst,
+		lsa_dissect_lsaopenpolicy_reply },
+#ifdef REMOVED
+	{ LSA_LSAGETUSERNAME, "LSAGETUSERNAME",
+		lsa_dissect_lsagetusername_rqst,
+		lsa_dissect_lsagetusername_reply },
+	{ LSA_LSAFUNCTION_2E, "LSAFUNCTION_2E",
+		lsa_dissect_lsafunction_2e_rqst,
+		lsa_dissect_lsafunction_2e_reply },
+	{ LSA_LSAFUNCTION_2F, "LSAFUNCTION_2F",
+		lsa_dissect_lsafunction_2f_rqst,
+		lsa_dissect_lsafunction_2f_reply },
+	{ LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME, "LSAQUERYTRUSTEDDOMAININFOBYNAME",
+		lsa_dissect_lsaquerytrusteddomaininfobyname_rqst,
+		lsa_dissect_lsaquerytrusteddomaininfobyname_reply },
+	{ LSA_LSASETTRUSTEDDOMAININFOBYNAME, "LSASETTRUSTEDDOMAININFOBYNAME",
+		lsa_dissect_lsasettrusteddomaininfobyname_rqst,
+		lsa_dissect_lsasettrusteddomaininfobyname_reply },
+	{ LSA_LSAENUMERATETRUSTEDDOMAINSEX, "LSAENUMERATETRUSTEDDOMAINSEX",
+		lsa_dissect_lsaenumeratetrusteddomainsex_rqst,
+		lsa_dissect_lsaenumeratetrusteddomainsex_reply },
+	{ LSA_LSACREATETRUSTEDDOMAINEX, "LSACREATETRUSTEDDOMAINEX",
+		lsa_dissect_lsacreatetrusteddomainex_rqst,
+		lsa_dissect_lsacreatetrusteddomainex_reply },
+	{ LSA_LSACLOSETRUSTEDDOMAINEX, "LSACLOSETRUSTEDDOMAINEX",
+		lsa_dissect_lsaclosetrusteddomainex_rqst,
+		lsa_dissect_lsaclosetrusteddomainex_reply },
+	{ LSA_LSAQUERYDOMAININFORMATIONPOLICY, "LSAQUERYDOMAININFORMATIONPOLICY",
+		lsa_dissect_lsaquerydomaininformationpolicy_rqst,
+		lsa_dissect_lsaquerydomaininformationpolicy_reply },
+	{ LSA_LSASETDOMAININFORMATIONPOLICY, "LSASETDOMAININFORMATIONPOLICY",
+		lsa_dissect_lsasetdomaininformationpolicy_rqst,
+		lsa_dissect_lsasetdomaininformationpolicy_reply },
+	{ LSA_LSAOPENTRUSTEDDOMAINBYNAME, "LSAOPENTRUSTEDDOMAINBYNAME",
+		lsa_dissect_lsaopentrusteddomainbyname_rqst,
+		lsa_dissect_lsaopentrusteddomainbyname_reply },
+	{ LSA_LSAFUNCTION_38, "LSAFUNCTION_38",
+		lsa_dissect_lsafunction_38_rqst,
+		lsa_dissect_lsafunction_38_reply },
+	{ LSA_LSALOOKUPSIDS2, "LSALOOKUPSIDS2",
+		lsa_dissect_lsalookupsids2_rqst,
+		lsa_dissect_lsalookupsids2_reply },
+	{ LSA_LSALOOKUPNAMES2, "LSALOOKUPNAMES2",
+		lsa_dissect_lsalookupnames2_rqst,
+		lsa_dissect_lsalookupnames2_reply },
+	{ LSA_LSAFUNCTION_3B, "LSAFUNCTION_3B",
+		lsa_dissect_lsafunction_3b_rqst,
+		lsa_dissect_lsafunction_3b_reply },
+#endif
+	{0, NULL, NULL, NULL},
+};
 
 void 
 proto_register_dcerpc_lsa(void)
 {
+        static hf_register_info hf[] = {
+	{ &hf_lsa_unknown_string,
+		{ "Unknown string", "lsa.unknown_string", FT_STRING, BASE_NONE,
+		NULL, 0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
+
+	{ &hf_lsa_hnd,
+		{ "Context Handle", "lsa.hnd", FT_BYTES, BASE_NONE, 
+		NULL, 0x0, "LSA policy handle", HFILL }},
+
+	{ &hf_lsa_server,
+		{ "Server", "lsa.server", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of Server", HFILL }},
+
+	{ &hf_lsa_unknown_hyper,
+		{ "Unknown hyper", "lsa.unknown.hyper", FT_UINT64, BASE_HEX, 
+		NULL, 0x0, "Unknown hyper. If you know what this is, contact ethereal developers.", HFILL }},
+
+	{ &hf_lsa_unknown_long,
+		{ "Unknown long", "lsa.unknown.long", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
+
+	{ &hf_lsa_unknown_short,
+		{ "Unknown short", "lsa.unknown.short", FT_UINT16, BASE_HEX, 
+		NULL, 0x0, "Unknown short. If you know what this is, contact ethereal developers.", HFILL }},
+
+	{ &hf_lsa_unknown_char,
+		{ "Unknown char", "lsa.unknown.char", FT_UINT8, BASE_HEX, 
+		NULL, 0x0, "Unknown char. If you know what this is, contact ethereal developers.", HFILL }},
+
+	{ &hf_lsa_rc,
+		{ "Return code", "lsa.rc", FT_UINT32, BASE_HEX, 
+		VALS (NT_errors), 0x0, "LSA return status code", HFILL }},
+
+	{ &hf_lsa_obj_attr,
+		{ "Attributes", "lsa.obj_attr", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "LSA Attributes", HFILL }},
+
+	{ &hf_lsa_obj_attr_len,
+		{ "Length", "lsa.obj_attr.len", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Length of object attribute structure", HFILL }},
+
+	{ &hf_lsa_obj_attr_name,
+		{ "Name", "lsa.obj_attr.name", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "Name of object attribute", HFILL }},
+
+	{ &hf_lsa_access_mask,
+		{ "Access Mask", "lsa.access_mask", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "LSA Access Mask", HFILL }},
+
+	{ &hf_lsa_info_level,
+		{ "Level", "lsa.info.level", FT_UINT16, BASE_DEC, 
+		NULL, 0x0, "Information level of requested data", HFILL }},
+
+	{ &hf_lsa_sd_size,
+		{ "Size", "lsa.sd_size", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Size of lsa security descriptor", HFILL }},
+
+	{ &hf_lsa_qos_len,
+		{ "Length", "lsa.qos.len", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Length of quality of service structure", HFILL }},
+
+	{ &hf_lsa_qos_impersonation_level,
+		{ "Impersionation", "lsa.qos.imp_lev", FT_UINT16, BASE_DEC, 
+		VALS(lsa_impersionation_level_vals), 0x0, "QOS Impersionation Level", HFILL }},
+
+	{ &hf_lsa_qos_track_context,
+		{ "Context Tracking", "lsa.qos.track_ctx", FT_UINT8, BASE_DEC, 
+		NULL, 0x0, "QOS Context Tracking Mode", HFILL }},
+
+	{ &hf_lsa_qos_effective_only,
+		{ "Effective only", "lsa.qos.effective_only", FT_UINT8, BASE_DEC, 
+		NULL, 0x0, "QOS Flag whether this is Effective Only or not", HFILL }},
+
+	{ &hf_lsa_pali_percent_full,
+		{ "Percent Full", "lsa.pali.percent_full", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "How full audit log is in percentage", HFILL }},
+
+	{ &hf_lsa_pali_log_size,
+		{ "Log Size", "lsa.pali.log_size", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Size of audit log", HFILL }},
+
+	{ &hf_lsa_pali_retention_period,
+		{ "Retention Period", "lsa.pali.retention_period", FT_RELATIVE_TIME, BASE_NONE, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_pali_time_to_shutdown,
+		{ "Time to shutdown", "lsa.pali.time_to_shutdown", FT_RELATIVE_TIME, BASE_NONE, 
+		NULL, 0x0, "Time to shutdown", HFILL }},
+
+	{ &hf_lsa_pali_shutdown_in_progress,	
+		{ "Shutdown in progress", "lsa.pali.shutdown_in_progress", FT_UINT8, BASE_DEC, 
+		NULL, 0x0, "Flag whether shutdown is in progress or not", HFILL }},
+
+	{ &hf_lsa_pali_next_audit_record,
+		{ "Next Audit Record", "lsa.pali.next_audit_record", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "Next audit record", HFILL }},
+
+	{ &hf_lsa_paei_enabled,
+		{ "Enabled", "lsa.paei.enabled", FT_UINT8, BASE_DEC, 
+		NULL, 0x0, "If Audit Events Information is Enabled or not", HFILL }},
+
+	{ &hf_lsa_paei_settings,
+		{ "Settings", "lsa.paei.settings", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "Audit Events Information settings", HFILL }},
+
+	{ &hf_lsa_count,
+		{ "Count", "lsa.count", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Count of objects", HFILL }},
+
+	{ &hf_lsa_max_count,
+		{ "Max Count", "lsa.max_count", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_domain,
+		{ "Domain", "lsa.domain", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "Domain", HFILL }},
+
+	{ &hf_lsa_acct,
+		{ "Account", "lsa.acct", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "Account", HFILL }},
+
+	{ &hf_lsa_source,
+		{ "Source", "lsa.source", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "Replica Source", HFILL }},
+
+	{ &hf_lsa_server_role,
+		{ "Role", "lsa.server_role", FT_UINT16, BASE_DEC, 
+		VALS(server_role_vals), 0x0, "LSA Server Role", HFILL }},
+
+	{ &hf_lsa_quota_paged_pool,
+		{ "Paged Pool", "lsa.quota.paged_pool", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Size of Quota Paged Pool", HFILL }},
+
+	{ &hf_lsa_quota_non_paged_pool,
+		{ "Non Paged Pool", "lsa.quota.non_paged_pool", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Size of Quota non-Paged Pool", HFILL }},
+
+	{ &hf_lsa_quota_min_wss,
+		{ "Min WSS", "lsa.quota.min_wss", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Size of Quota Min WSS", HFILL }},
+
+	{ &hf_lsa_quota_max_wss,
+		{ "Max WSS", "lsa.quota.max_wss", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Size of Quota Max WSS", HFILL }},
+
+	{ &hf_lsa_quota_pagefile,
+		{ "Pagefile", "lsa.quota.pagefile", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Size of quota pagefile usage", HFILL }},
+
+	{ &hf_lsa_mod_seq_no,
+		{ "Seq No", "lsa.mod.seq_no", FT_UINT64, BASE_DEC, 
+		NULL, 0x0, "Sequence number for this modification", HFILL }},
+
+	{ &hf_lsa_mod_mtime,
+		{ "MTime", "lsa.mod.mtime", FT_ABSOLUTE_TIME, BASE_NONE, 
+		NULL, 0x0, "Time when this modification occured", HFILL }},
+
+	{ &hf_lsa_name,
+		{ "Name", "lsa.name", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_forest,
+		{ "Forest", "lsa.forest", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_info_type,
+		{ "Info Type", "lsa.info_type", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_new_pwd,
+		{ "New Password", "lsa.new_pwd", FT_BYTES, BASE_HEX, 
+		NULL, 0x0, "New password", HFILL }},
+
+	{ &hf_lsa_old_pwd,
+		{ "Old Password", "lsa.old_pwd", FT_BYTES, BASE_HEX, 
+		NULL, 0x0, "Old password", HFILL }},
+
+	{ &hf_lsa_sid_type,
+		{ "SID Type", "lsa.sid_type", FT_UINT16, BASE_DEC, 
+		VALS(sid_type_vals), 0x0, "Type of SID", HFILL }},
+
+	{ &hf_lsa_rid,
+		{ "RID", "lsa.rid", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "RID", HFILL }},
+
+	{ &hf_lsa_index,
+		{ "Index", "lsa.index", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_num_mapped,
+		{ "Num Mapped", "lsa.num_mapped", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_policy_information_class,
+		{ "Info Class", "lsa.policy.info", FT_UINT16, BASE_DEC, 
+		VALS(policy_information_class_vals), 0x0, "Policy information class", HFILL }},
+
+	{ &hf_lsa_secret,
+		{ "LSA Secret", "lsa.secret", FT_BYTES, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
+	
+	};
+
         static gint *ett[] = {
-                &ett_dcerpc_lsa,
-		&ett_UNISTR,
-		&ett_UNISTR_hdr,
-		&ett_NAME_AND_SID,
-		&ett_NAME_AND_SID_hdr,
-		&ett_SID,
-		&ett_POLICY_INFORMATION,
-		&ett_DOM_REF_INFO,
-		&ett_DOM_REF_INFO_hdr,
-		&ett_DOM_RID_ARRAY,
-		&ett_DOM_RID_ARRAY_hdr,
-		&ett_DOM_RID,
-		&ett_SID_ARRAY,
-		&ett_SID_ARRAY_hdr,
-		&ett_NAME_AND_SID_ARRAY,
-		&ett_NAME_AND_SID_ARRAY_hdr,
-		&ett_SECURITY_QOS,
-		&ett_SECURITY_QOS_hdr,
+		&ett_dcerpc_lsa,
+		&ett_lsa_OBJECT_ATTRIBUTES,
+		&ett_LSA_SECURITY_DESCRIPTOR,
+		&ett_lsa_policy_info,
+		&ett_lsa_policy_audit_log_info,
+		&ett_lsa_policy_audit_events_info,
+		&ett_lsa_policy_primary_domain_info,
+		&ett_lsa_policy_primary_account_info,
+		&ett_lsa_policy_server_role_info,
+		&ett_lsa_policy_replica_source_info,
+		&ett_lsa_policy_default_quota_info,
+		&ett_lsa_policy_modification_info,
+		&ett_lsa_policy_audit_full_set_info,
+		&ett_lsa_policy_audit_full_query_info,
+		&ett_lsa_policy_dns_domain_info,
+		&ett_lsa_translated_names,
+		&ett_lsa_translated_name,
+		&ett_lsa_referenced_domain_list,
+		&ett_lsa_trust_information,
         };
 
         proto_dcerpc_lsa = proto_register_protocol(
                 "Microsoft Local Security Architecture", "LSA", "lsa");
 
+        proto_register_field_array (proto_dcerpc_lsa, hf, array_length (hf));
         proto_register_subtree_array(ett, array_length(ett));
 }
 
