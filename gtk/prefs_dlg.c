@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.33 2001/11/04 02:50:21 guy Exp $
+ * $Id: prefs_dlg.c,v 1.34 2001/12/04 07:23:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -640,7 +640,6 @@ prefs_main_apply_cb(GtkWidget *apply_bt, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
-  prefs_module_foreach(module_prefs_fetch, &must_redissect);
   prefs_apply_all();
 
   if (must_redissect) {
@@ -701,7 +700,6 @@ prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
-  prefs_module_foreach(module_prefs_fetch, &must_redissect);
   prefs_apply_all();
 
   if (must_redissect) {

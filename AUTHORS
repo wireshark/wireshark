@@ -804,6 +804,7 @@ Jean-Francois Mule <jfmule[AT]clarent.com> {
 Thomas Wittwer <thomas.wittwer[AT]iclip.ch> {
 	HTTP dissector registered by name
 	"prefs_register_string_preference()" made available to plugins
+	Remove unnecessary calls to "prefs_module_foreach()"
 }
 
 Palle Lyckegaard <Palle[AT]lyckegaard.dk> {
