@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.62 2000/06/15 03:48:40 gram Exp $
+ * $Id: packet-ipx.c,v 1.63 2000/08/07 03:20:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,16 +102,16 @@ static int hf_msg_conn = -1;
 static int hf_msg_sigchar = -1;
 
 static void
-dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
-dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
-dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
-dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #define UDP_PORT_IPX    213		/* RFC 1234 */
 
@@ -270,17 +270,9 @@ capture_ipx(const u_char *pd, int offset, packet_counts *ld)
 	ld->ipx++;
 }
 
-#if 0
 void
 dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#else
-void
-dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(offset);
-#endif
 	tvbuff_t	*next_tvb;
 	const guint8	*this_pd;
 	int		this_offset, len;
@@ -368,8 +360,8 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	tvb_compat(next_tvb, &next_pd, &next_offset);
 
-	if (dissector_try_port(ipx_type_dissector_table, ipx_type, next_pd,
-	    next_offset, pinfo->fd, tree))
+	if (dissector_try_port(ipx_type_dissector_table, ipx_type, next_tvb,
+	    pinfo, tree))
 		return;
 
 	switch (ipx_type) {
@@ -387,13 +379,13 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			break;
 	}
 
-	if (dissector_try_port(ipx_socket_dissector_table, ipx_dsocket, next_pd,
-	    next_offset, pinfo->fd, tree))
+	if (dissector_try_port(ipx_socket_dissector_table, ipx_dsocket,
+	    next_tvb, pinfo, tree))
 		return;
-	if (dissector_try_port(ipx_socket_dissector_table, ipx_ssocket, next_pd,
-	    next_offset, pinfo->fd, tree))
+	if (dissector_try_port(ipx_socket_dissector_table, ipx_ssocket,
+	    next_tvb, pinfo, tree))
 		return;
-	dissect_data_tvb(next_tvb, pinfo, tree);
+	dissect_data(next_tvb, pinfo, tree);
 }
 
 
@@ -438,17 +430,9 @@ spx_datastream(guint8 type)
 
 #define SPX_HEADER_LEN	12
 
-#if 0
 static void
 dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#else
-static void
-dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(offset);
-#endif
 	proto_tree	*spx_tree;
 	proto_item	*ti;
 	tvbuff_t	*next_tvb;
@@ -485,24 +469,16 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
 
 		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
-		dissect_data_tvb(next_tvb, pinfo, tree);
+		dissect_data(next_tvb, pinfo, tree);
 	}
 }
 
 /* ================================================================= */
 /* IPX Message                                                       */
 /* ================================================================= */
-#if 0
 static void
 dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#else
-static void
-dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(offset);
-#endif
 	proto_tree	*msg_tree;
 	proto_item	*ti;
 	guint8		conn_number, sig_char;
@@ -534,17 +510,9 @@ dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 /* ================================================================= */
 /* IPX RIP                                                           */
 /* ================================================================= */
-#if 0
 static void
 dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#else
-static void
-dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(offset);
-#endif
 	proto_tree	*rip_tree;
 	proto_item	*ti;
 	guint16		operation;
@@ -688,18 +656,9 @@ server_type(guint16 type)
 	}
 }
 
-#if 0
 static void
 dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#else
-static void
-dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(offset);
-#endif
-
 	proto_tree	*sap_tree, *s_tree;
 	proto_item	*ti;
 	int		cursor;

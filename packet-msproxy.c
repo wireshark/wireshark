@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.6 2000/08/06 10:04:13 guy Exp $
+ * $Id: packet-msproxy.c,v 1.7 2000/08/07 03:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -282,7 +282,7 @@ static void add_msproxy_conversation( hash_entry_t *hash_info){
 /* conversation data structure with the info needed to call the TCP or 	*/
 /* UDP port decoder.							*/
 
-/* NOTE: Currently this assume that the conversataion will be created 	*/
+/* NOTE: Currently this assume that the conversation will be created 	*/
 /* 	during a packet from the server.  If that changes, the pi.src	*/
 /*	and pi.dst will not be correct and this routine will have to 	*/
 /*	change.								*/
@@ -309,7 +309,8 @@ static void add_msproxy_conversation( hash_entry_t *hash_info){
 	new_conv_info->server_int_port = hash_info->server_int_port;
 	new_conv_info->proto = hash_info->proto;
 	
-	conversation->dissector = msproxy_sub_dissector;
+	conversation->is_old_dissector = TRUE;
+	conversation->dissector.old = msproxy_sub_dissector;
 }
 
 
@@ -1354,5 +1355,5 @@ proto_reg_handoff_msproxy(void) {
 
 	/* dissector install routine */ 
  
- 	dissector_add("udp.port", UDP_PORT_MSPROXY, dissect_msproxy);
+ 	old_dissector_add("udp.port", UDP_PORT_MSPROXY, dissect_msproxy);
 }

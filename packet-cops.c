@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.2 2000/06/15 03:48:39 gram Exp $
+ * $Id: packet-cops.c,v 1.3 2000/08/07 03:20:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -147,17 +147,9 @@ static gint ett_cops_obj = -1;
 static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree);
 
 /* Code to actually dissect the packets */
-#if 0
 static void dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         guint8 op_code;
-#else
-static void dissect_cops(const u_char *pd, int o, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(o);
-        guint8 op_code;
-#endif
 
         pinfo->current_proto = "COPS";
         if (check_col(pinfo->fd, COL_PROTOCOL)) 
@@ -331,4 +323,3 @@ proto_reg_handoff_cops(void)
 {
         dissector_add("tcp.port", TCP_PORT_COPS, dissect_cops);
 }
-

@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.2 2000/07/31 04:12:04 guy Exp $
+ * $Id: packet-sctp.c,v 1.3 2000/08/07 03:21:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -959,7 +959,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *chunk_tree)
  * Code to actually dissect the packets 
 */
 
-void
+static void
 dissect_data_chunk(tvbuff_t *chunk_tvb,
 		   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
@@ -1479,18 +1479,9 @@ dissect_sctp_chunks(tvbuff_t *tvb, proto_tree *sctp_tree)
  * For the handling of the chunks dissect_sctp_chunks is called.
  */
 
-#if 0
 static void
 dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#else
-static void
-dissect_sctp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-        tvbuff_t *tvb = tvb_create_from_top(offset);
-        packet_info *pinfo = &pi;
-#endif
-
   guint16 source_port, destination_port;
   guint32 verification_tag, checksum;
   proto_item *ti;
@@ -1505,12 +1496,12 @@ dissect_sctp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   checksum         = tvb_get_ntohl(tvb, CHECKSUM_OFFSET);
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(fd, COL_PROTOCOL)) 
-    col_add_str(fd, COL_PROTOCOL, "SCTP");
+  if (check_col(pinfo->fd, COL_PROTOCOL)) 
+    col_add_str(pinfo->fd, COL_PROTOCOL, "SCTP");
 
   /* Make entries in Info column on summary display */
-  if (check_col(fd, COL_INFO)) 
-    col_add_fstr(fd, COL_INFO, "%u > %u: tag 0x%x",
+  if (check_col(pinfo->fd, COL_INFO)) 
+    col_add_fstr(pinfo->fd, COL_INFO, "%u > %u: tag 0x%x",
 		 source_port, destination_port, verification_tag);
   
   /* In the interest of speed, if "tree" is NULL, don't do any work not

@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.12 2000/05/31 05:07:16 guy Exp $
+ * $Id: packet-ldap.c,v 1.13 2000/08/07 03:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1165,5 +1165,5 @@ proto_register_ldap(void)
 void
 proto_reg_handoff_ldap(void)
 {
-  dissector_add("tcp.port", TCP_PORT_LDAP, dissect_ldap);
+  old_dissector_add("tcp.port", TCP_PORT_LDAP, dissect_ldap);
 }

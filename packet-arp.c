@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.30 2000/05/31 05:06:50 guy Exp $
+ * $Id: packet-arp.c,v 1.31 2000/08/07 03:20:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -388,7 +388,7 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   gchar       *tha_str, *tsa_str, *tpa_str;
 
   if (!BYTES_ARE_IN_FRAME(offset, MIN_ATMARP_HEADER_SIZE)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -409,7 +409,7 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   tot_len = MIN_ATMARP_HEADER_SIZE + ar_shtl + ar_ssl + ar_spln +
 				ar_thtl + ar_tsl + ar_tpln;
   if (!BYTES_ARE_IN_FRAME(offset, tot_len)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -564,7 +564,7 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
   if (!BYTES_ARE_IN_FRAME(offset, MIN_ARP_HEADER_SIZE)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -580,7 +580,7 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   tot_len = MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2;
   if (!BYTES_ARE_IN_FRAME(offset, tot_len)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -796,6 +796,6 @@ proto_register_arp(void)
 void
 proto_reg_handoff_arp(void)
 {
-	dissector_add("ethertype", ETHERTYPE_ARP, dissect_arp);
-	dissector_add("ethertype", ETHERTYPE_REVARP, dissect_arp);
+	old_dissector_add("ethertype", ETHERTYPE_ARP, dissect_arp);
+	old_dissector_add("ethertype", ETHERTYPE_REVARP, dissect_arp);
 }

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.48 2000/07/21 01:40:41 guy Exp $
+ * $Id: packet-dns.c,v 1.49 2000/08/07 03:20:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1721,7 +1721,7 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   if (pi.captured_len < DNS_HDRLEN) {
     col_add_str(fd, COL_INFO, "Short DNS packet");
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -1922,5 +1922,5 @@ proto_register_dns(void)
 void
 proto_reg_handoff_dns(void)
 {
-  dissector_add("udp.port", UDP_PORT_DNS, dissect_dns);
+  old_dissector_add("udp.port", UDP_PORT_DNS, dissect_dns);
 }

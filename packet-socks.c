@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.7 2000/08/06 10:04:15 guy Exp $
+ * $Id: packet-socks.c,v 1.8 2000/08/07 03:21:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -438,7 +438,8 @@ void new_udp_conversation( socks_hash_entry_t *hash_info){
 			
 	g_assert( conversation);
 	
-	conversation->dissector = socks_udp_dissector;
+	conversation->is_old_dissector = TRUE;
+	conversation->dissector.old = socks_udp_dissector;
 }
 
 
@@ -1150,5 +1151,5 @@ proto_reg_handoff_socks(void) {
 
 	/* dissector install routine */ 
  
- 	dissector_add("tcp.port", TCP_PORT_SOCKS, dissect_socks);
+ 	old_dissector_add("tcp.port", TCP_PORT_SOCKS, dissect_socks);
 }

@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.20 2000/05/31 05:07:23 guy Exp $
+ * $Id: packet-netbios.c,v 1.21 2000/08/07 03:20:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -509,7 +509,7 @@ static void  dissect_netb_unknown(const u_char *data_ptr, int offset,
 
 {/* Handle any unknow commands, do nothing */
 
-/*	dissect_data( data_ptr, offset + NB_COMMAND + 1, fd, tree); */
+/*	old_dissect_data( data_ptr, offset + NB_COMMAND + 1, fd, tree); */
 }
 
 
@@ -1086,5 +1086,5 @@ void proto_register_netbios(void)
 void
 proto_reg_handoff_netbios(void)
 {
-	dissector_add("llc.dsap", SAP_NETBIOS, dissect_netbios);
+	old_dissector_add("llc.dsap", SAP_NETBIOS, dissect_netbios);
 }

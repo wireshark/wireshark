@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.33 2000/07/01 08:55:28 guy Exp $
+ * $Id: packet-x25.c,v 1.34 2000/08/07 03:21:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1927,7 +1927,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    dissect_ip(next_pd, next_offset, pinfo->fd, tree);
 	}
 	else {
-	    dissect_data(next_pd, next_offset, pinfo->fd, tree);
+	    dissect_data(next_tvb, pinfo, tree);
 	}
     }
 }

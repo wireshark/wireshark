@@ -1,7 +1,7 @@
 /* packet-tacacs.c
  * Routines for cisco tacacs/tacplus/AAA packet dissection
  *
- * $Id: packet-tacacs.c,v 1.5 2000/05/31 05:07:49 guy Exp $
+ * $Id: packet-tacacs.c,v 1.6 2000/08/07 03:21:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -157,6 +157,6 @@ proto_register_tacacs(void)
 void
 proto_reg_handoff_tacacs(void)
 {
-	dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs);
-	dissector_add("tcp.port", TCP_PORT_TACACS, dissect_tacplus);
+	old_dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs);
+	old_dissector_add("tcp.port", TCP_PORT_TACACS, dissect_tacplus);
 }

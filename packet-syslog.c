@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@zing.org>
  *
- * $Id: packet-syslog.c,v 1.4 2000/06/18 22:12:14 gerald Exp $
+ * $Id: packet-syslog.c,v 1.5 2000/08/07 03:21:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -136,28 +136,14 @@ static gint ett_syslog = -1;
    upper five bits are the facility.  T is the message text.
  */
 
-#if 0
 static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  gint pri = -1, lev, fac;
-  gint msg_off = 0, msg_len;
-  gint ellipsis_len = (COL_INFO_LEN - strlen(ELLIPSIS)) - 1;
-  proto_item *ti;
-  proto_tree *syslog_tree;
-  gchar msg_str[COL_INFO_LEN];
-#else
-static void dissect_syslog(const u_char *pd, int o, frame_data *fd, proto_tree *tree)
-{
-  packet_info	*pinfo = &pi;
-  tvbuff_t	*tvb = tvb_create_from_top(o);
   gint pri = -1, lev = -1, fac = -1;
   gint msg_off = 0, msg_len;
   gint ellipsis_len = (COL_INFO_LEN - strlen(ELLIPSIS)) - 1;
   proto_item *ti;
   proto_tree *syslog_tree;
   gchar msg_str[COL_INFO_LEN];
-
-#endif
 
   pinfo->current_proto = "Syslog";
   msg_len = tvb_length(tvb);

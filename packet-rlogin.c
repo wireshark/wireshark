@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.6 2000/08/06 08:53:44 guy Exp $
+ * $Id: packet-rlogin.c,v 1.7 2000/08/07 03:21:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -496,5 +496,5 @@ proto_reg_handoff_rlogin(void) {
 
 	/* dissector install routine */ 
  
- 	dissector_add("tcp.port", TCP_PORT_RLOGIN, dissect_rlogin);
+	old_dissector_add("tcp.port", TCP_PORT_RLOGIN, dissect_rlogin);
 }

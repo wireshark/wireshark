@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.20 2000/05/31 05:06:48 guy Exp $
+ * $Id: packet-aarp.c,v 1.21 2000/08/07 03:20:20 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -140,7 +140,7 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
   if (!BYTES_ARE_IN_FRAME(offset, MIN_AARP_HEADER_SIZE)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -152,7 +152,7 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (!BYTES_ARE_IN_FRAME(offset, 
 			  MIN_AARP_HEADER_SIZE + ar_hln*2 + ar_pln*2)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
   
@@ -287,5 +287,5 @@ proto_register_aarp(void)
 void
 proto_reg_handoff_aarp(void)
 {
-	dissector_add("ethertype", ETHERTYPE_AARP, dissect_aarp);
+	old_dissector_add("ethertype", ETHERTYPE_AARP, dissect_aarp);
 }

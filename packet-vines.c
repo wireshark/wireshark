@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.16 2000/05/11 08:15:54 gram Exp $
+ * $Id: packet-vines.c,v 1.17 2000/08/07 03:21:18 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -249,7 +249,7 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		dissect_vines_spp(pd, offset, fd, tree);
     		break;
 	default:
-		dissect_data(pd, offset, fd, tree);
+		old_dissect_data(pd, offset, fd, tree);
 		break;
   		}
 	}
@@ -335,7 +335,7 @@ void dissect_vines_spp(const u_char *pd, int offset, frame_data *fd, proto_tree 
     	proto_tree_add_text(vspp_tree, NullTVB, offset+14,   2, "Window: 0x%04x", viph.vspp_win);
 		}
 	offset += 16; /* sizeof SPP */
-	dissect_data(pd, offset, fd, tree);
+	old_dissect_data(pd, offset, fd, tree);
 	}
 
 void
@@ -353,7 +353,7 @@ proto_register_vines(void)
 void
 proto_reg_handoff_vines(void)
 {
-	dissector_add("ethertype", ETHERTYPE_VINES, dissect_vines);
-	dissector_add("ppp.protocol", PPP_VINES, dissect_vines);
-	dissector_add("ip.proto", IP_PROTO_VINES, dissect_vines_frp);
+	old_dissector_add("ethertype", ETHERTYPE_VINES, dissect_vines);
+	old_dissector_add("ppp.protocol", PPP_VINES, dissect_vines);
+	old_dissector_add("ip.proto", IP_PROTO_VINES, dissect_vines_frp);
 }

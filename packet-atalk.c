@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.38 2000/05/31 05:06:51 guy Exp $
+ * $Id: packet-atalk.c,v 1.39 2000/08/07 03:20:22 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -148,13 +148,13 @@ int dissect_pascal_string(const u_char *pd, int offset, frame_data *fd,
 	int len;
 	
 	if ( ! BYTES_ARE_IN_FRAME(offset,1) ) {
-		dissect_data(pd,offset,fd,tree);
+		old_dissect_data(pd,offset,fd,tree);
 		return END_OF_FRAME;
 	}
 		
 	len = pd[offset];
 	if ( ! BYTES_ARE_IN_FRAME(offset,len) ) {
-		dissect_data(pd,offset,fd,tree);
+		old_dissect_data(pd,offset,fd,tree);
 		return END_OF_FRAME;
 	}
 	offset++;
@@ -183,7 +183,7 @@ int dissect_pascal_string(const u_char *pd, int offset, frame_data *fd,
 
 static void
 dissect_rtmp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-  dissect_data(pd, offset, fd, tree);
+  old_dissect_data(pd, offset, fd, tree);
   return;
 }
 
@@ -197,7 +197,7 @@ dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   int i;
 
   if (!BYTES_ARE_IN_FRAME(offset, 3)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -236,7 +236,7 @@ dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 		if ( ! BYTES_ARE_IN_FRAME(offset, 3) )
 		{
-			dissect_data(pd,offset,fd,rtmp_tree);
+			old_dissect_data(pd,offset,fd,rtmp_tree);
 			return;
 		}
 
@@ -257,7 +257,7 @@ dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 		{
 			if ( ! BYTES_ARE_IN_FRAME(offset+3, 3) )
 			{
-				dissect_data(pd,offset,fd,rtmp_tree);
+				old_dissect_data(pd,offset,fd,rtmp_tree);
 				return;
 			}
 
@@ -293,7 +293,7 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   int i;
 
   if (!BYTES_ARE_IN_FRAME(offset, 2)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -328,7 +328,7 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		int soffset = offset;
 
 		if ( !BYTES_ARE_IN_FRAME(offset, 6) ) {
-			dissect_data(pd,offset,fd,nbp_tree);
+			old_dissect_data(pd,offset,fd,nbp_tree);
 			return;
 		}
 
@@ -371,7 +371,7 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   static struct atalk_ddp_addr src, dst;
 
   if (!BYTES_ARE_IN_FRAME(offset, DDP_HEADER_SIZE)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -416,8 +416,8 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   offset += DDP_HEADER_SIZE;
 
-  if (!dissector_try_port(ddp_dissector_table, ddp.type, pd, offset, fd, tree))
-    dissect_data(pd, offset, fd, tree);
+  if (!old_dissector_try_port(ddp_dissector_table, ddp.type, pd, offset, fd, tree))
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 void
@@ -548,9 +548,9 @@ proto_register_atalk(void)
 void
 proto_reg_handoff_atalk(void)
 {
-  dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp);
-  dissector_add("ppp.protocol", PPP_AT, dissect_ddp);
-  dissector_add("ddp.type", DDP_NBP, dissect_nbp);
-  dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request);
-  dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data);
+  old_dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp);
+  old_dissector_add("ppp.protocol", PPP_AT, dissect_ddp);
+  old_dissector_add("ddp.type", DDP_NBP, dissect_nbp);
+  old_dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request);
+  old_dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data);
 }

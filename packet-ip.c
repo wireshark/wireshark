@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.99 2000/08/05 05:24:01 guy Exp $
+ * $Id: packet-ip.c,v 1.100 2000/08/07 03:20:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,8 +58,7 @@
 #include "packet-ipsec.h"
 
 static void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_igmp(const u_char *, int, frame_data *, proto_tree *);
-
+static void dissect_igmp(tvbuff_t *, packet_info *, proto_tree *);
 
 /* Decode the old IPv4 TOS field as the DiffServ DS Field */
 gboolean g_ip_dscp_actif = TRUE;
@@ -835,7 +834,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   /* To do: check for errs, etc. */
   if (!BYTES_ARE_IN_FRAME(offset, IPH_MIN_LEN)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -951,18 +950,18 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     if (check_col(fd, COL_INFO))
       col_add_fstr(fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_port(ip_dissector_table, nxt, pd, offset, fd, tree)) {
+  if (!old_dissector_try_port(ip_dissector_table, nxt, pd, offset, fd, tree)) {
     /* Unknown protocol */
     if (check_col(fd, COL_PROTOCOL))
       col_add_str(fd, COL_PROTOCOL, "IP");
     if (check_col(fd, COL_INFO))
       col_add_fstr(fd, COL_INFO, "%s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
   }
 }
 
@@ -1166,12 +1165,12 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	   XXX - for now, just display it as data; not all dissection
 	   routines can handle a short packet without exploding. */
-	dissect_data(pd, offset + 8, fd, icmp_tree);
+	old_dissect_data(pd, offset + 8, fd, icmp_tree);
 	break;
 
       case ICMP_ECHOREPLY:
       case ICMP_ECHO:
-	dissect_data(pd, offset + 8, fd, icmp_tree);
+	old_dissect_data(pd, offset + 8, fd, icmp_tree);
 	break;
 
       case ICMP_RTRADVERT:
@@ -1184,7 +1183,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	      "Preference level: %u", pntohl(&pd[offset + 12 + (i*8)]));
 	  }
 	} else
-	  dissect_data(pd, offset + 8, fd, icmp_tree);
+	  old_dissect_data(pd, offset + 8, fd, icmp_tree);
 	break;
 
       case ICMP_TSTAMP:
@@ -1207,18 +1206,12 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 }
 
 static void
-#if 0
 dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-#else
-dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-#endif
 {
   e_igmp     ih;
   proto_tree *igmp_tree;
   proto_item *ti;
   gchar      *type_str;
-  packet_info	*pinfo = &pi;
-  tvbuff_t	*tvb = tvb_create_from_top(offset);
 
   pinfo->current_proto = "IGMP";
   if (check_col(pinfo->fd, COL_PROTOCOL))
@@ -1447,11 +1440,11 @@ proto_register_ip(void)
 void
 proto_reg_handoff_ip(void)
 {
-	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip);
-	dissector_add("ppp.protocol", PPP_IP, dissect_ip);
-	dissector_add("llc.dsap", SAP_IP, dissect_ip);
-	dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip);
-	dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip);
+	old_dissector_add("ethertype", ETHERTYPE_IP, dissect_ip);
+	old_dissector_add("ppp.protocol", PPP_IP, dissect_ip);
+	old_dissector_add("llc.dsap", SAP_IP, dissect_ip);
+	old_dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip);
+	old_dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip);
 }
 
 void
@@ -1484,5 +1477,5 @@ proto_register_icmp(void)
 void
 proto_reg_handoff_icmp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_ICMP, dissect_icmp);
+	old_dissector_add("ip.proto", IP_PROTO_ICMP, dissect_icmp);
 }

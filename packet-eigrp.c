@@ -1,6 +1,6 @@
 /* packet-eigrp.c
  *
- * $Id: packet-eigrp.c,v 1.4 2000/05/31 05:07:02 guy Exp $
+ * $Id: packet-eigrp.c,v 1.5 2000/08/07 03:20:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -131,7 +131,7 @@ proto_register_eigrp(void)
 void
 proto_reg_handoff_eigrp(void)
 {
-    dissector_add("ip.proto", IP_PROTO_EIGRP, dissect_eigrp);
-    dissector_add("ddp.type", DDP_EIGRP, dissect_eigrp);
-    dissector_add("ipx.socket", IPX_SOCKET_EIGRP, dissect_eigrp);
+    old_dissector_add("ip.proto", IP_PROTO_EIGRP, dissect_eigrp);
+    old_dissector_add("ddp.type", DDP_EIGRP, dissect_eigrp);
+    old_dissector_add("ipx.socket", IPX_SOCKET_EIGRP, dissect_eigrp);
 }

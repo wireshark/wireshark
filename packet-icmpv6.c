@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.17 2000/05/31 05:07:06 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.18 2000/08/07 03:20:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -183,7 +183,7 @@ again:
 	if ((pd[offset + 8] & 0xf0) == 0x60)
 	    dissect_ipv6(pd, offset + 8, fd, icmp6opt_tree);
 	else
-	    dissect_data(pd, offset + 8, fd, icmp6opt_tree);
+	    old_dissect_data(pd, offset + 8, fd, icmp6opt_tree);
 	break;
     case ND_OPT_MTU:
       {
@@ -370,7 +370,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    if ((pd[offset + sizeof(*dp)] & 0xf0) == 0x60) {
 		dissect_ipv6(pd, offset + sizeof(*dp), fd, icmp6_tree);
 	    } else {
-		dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
+		old_dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
 	    }
 	    break;
 	case ICMP6_PACKET_TOO_BIG:
@@ -381,7 +381,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    if ((pd[offset + sizeof(*dp)] & 0xf0) == 0x60) {
 		dissect_ipv6(pd, offset + sizeof(*dp), fd, icmp6_tree);
 	    } else {
-		dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
+		old_dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
 	    }
 	    break;
 	case ICMP6_PARAM_PROB:
@@ -392,7 +392,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    if ((pd[offset + sizeof(*dp)] & 0xf0) == 0x60) {
 		dissect_ipv6(pd, offset + sizeof(*dp), fd, icmp6_tree);
 	    } else {
-		dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
+		old_dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
 	    }
 	    break;
 	case ICMP6_ECHO_REQUEST:
@@ -403,7 +403,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    proto_tree_add_text(icmp6_tree, NullTVB,
 		offset + offsetof(struct icmp6_hdr, icmp6_seq), 2,
 		"Sequence: 0x%04x", (guint16)ntohs(dp->icmp6_seq));
-	    dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
+	    old_dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
 	    break;
 	case ICMP6_MEMBERSHIP_QUERY:
 	case ICMP6_MEMBERSHIP_REPORT:
@@ -567,10 +567,10 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    proto_tree_add_text(icmp6_tree, NullTVB,
 		offset + offsetof(struct icmp6_router_renum, rr_segnum), 2,
 		"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
-	    dissect_data(pd, offset + sizeof(*rr), fd, tree);	/*XXX*/
+	    old_dissect_data(pd, offset + sizeof(*rr), fd, tree);	/*XXX*/
 	  }
 	default:
-	    dissect_data(pd, offset + sizeof(*dp), fd, tree);
+	    old_dissect_data(pd, offset + sizeof(*dp), fd, tree);
 	    break;
 	}
     }
@@ -605,6 +605,6 @@ proto_register_icmpv6(void)
 void
 proto_reg_handoff_icmpv6(void)
 {
-  dissector_add("ip.proto", IP_PROTO_ICMPV6, dissect_icmpv6);
+  old_dissector_add("ip.proto", IP_PROTO_ICMPV6, dissect_icmpv6);
 }
 

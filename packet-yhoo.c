@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.8 2000/05/31 05:07:55 guy Exp $
+ * $Id: packet-yhoo.c,v 1.9 2000/08/07 03:21:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -220,5 +220,5 @@ proto_register_yhoo(void)
 void
 proto_reg_handoff_yhoo(void)
 {
-	heur_dissector_add("tcp", dissect_yhoo);
+	old_heur_dissector_add("tcp", dissect_yhoo);
 }

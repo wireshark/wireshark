@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.39 2000/06/05 03:21:03 gram Exp $
+ * $Id: packet-ipv6.c,v 1.40 2000/08/07 03:20:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -370,16 +370,16 @@ again:
     if (check_col(fd, COL_PROTOCOL))
       col_add_str(fd, COL_PROTOCOL, "IPv6");
     /* COL_INFO was filled in by "dissect_frag6()" */
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
   } else {
     /* do lookup with the subdissector table */
-    if (!dissector_try_port(ip_dissector_table, nxt, pd, offset, fd, tree)) {
+    if (!old_dissector_try_port(ip_dissector_table, nxt, pd, offset, fd, tree)) {
       /* Unknown protocol */
       if (check_col(fd, COL_PROTOCOL))
 	col_add_str(fd, COL_PROTOCOL, "IPv6");
       if (check_col(fd, COL_INFO))
 	col_add_fstr(fd, COL_INFO, "%s (0x%02x)", ipprotostr(nxt), nxt);
-      dissect_data(pd, offset, fd, tree);
+      old_dissect_data(pd, offset, fd, tree);
     }
   }
 }
@@ -440,8 +440,8 @@ proto_register_ipv6(void)
 void
 proto_reg_handoff_ipv6(void)
 {
-	dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6);
-	dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6);
-	dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6);
-	dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none);
+	old_dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6);
+	old_dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6);
+	old_dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6);
+	old_dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none);
 }

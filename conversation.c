@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.7 2000/04/12 22:53:14 guy Exp $
+ * $Id: conversation.c,v 1.8 2000/08/07 03:20:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -279,15 +279,65 @@ find_conversation(address *src, address *dst, port_type ptype,
 /*
  * Given source and destination addresses and ports for a packet,
  * search for a conversational dissector.
- * Returns NULL if not found.
+ * If found, call it and return TRUE, otherwise return FALSE.
  */
-dissector_t find_conversation_dissector(address *src, address *dst, port_type ptype,
-    guint32 src_port, guint32 dst_port){
+gboolean
+old_try_conversation_dissector(address *src, address *dst, port_type ptype,
+    guint32 src_port, guint32 dst_port, const u_char *pd, int offset,
+    frame_data *fd, proto_tree *tree)
+{
+	conversation_t *conversation;
+	tvbuff_t *tvb;
 
-	conversation_t *conversation = find_conversation(src, dst, ptype, src_port, dst_port);
+	conversation = find_conversation(src, dst, ptype, src_port, dst_port);
+	if (conversation != NULL) {
+		if (conversation->is_old_dissector) {
+			if (conversation->dissector.old == NULL)
+				return FALSE;
+			(*conversation->dissector.old)(pd, offset, fd, tree);
+		} else {
+			if (conversation->dissector.new == NULL)
+				return FALSE;
 
-	if ( conversation)
-		return conversation->dissector;
+			/*
+			 * Old dissector calling new dissector; use
+			 * "tvb_create_from_top()" to remap.
+			 *
+			 * XXX - what about the "pd" argument?  Do
+			 * any dissectors not just pass that along and
+			 * let the "offset" argument handle stepping
+			 * through the packet?
+			 */
+			tvb = tvb_create_from_top(offset);
+			(*conversation->dissector.new)(tvb, &pi, tree);
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
 
-	return NULL;
+gboolean
+try_conversation_dissector(address *src, address *dst, port_type ptype,
+    guint32 src_port, guint32 dst_port, tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree)
+{
+	conversation_t *conversation;
+	const guint8 *pd;
+	int offset;
+
+	conversation = find_conversation(src, dst, ptype, src_port, dst_port);
+	if (conversation != NULL) {
+		if (conversation->is_old_dissector) {
+			/*
+			 * New dissector calling old dissector; use
+			 * "tvb_compat()" to remap.
+			 */
+			tvb_compat(tvb, &pd, &offset);
+			(*conversation->dissector.old)(pd, offset, pinfo->fd,
+			    tree);
+		} else
+			(*conversation->dissector.new)(tvb, pinfo, tree);
+		return TRUE;
+	}
+	return FALSE;
 }

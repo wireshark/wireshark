@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.10 2000/08/06 07:22:38 guy Exp $
+ * $Id: packet-v120.c,v 1.11 2000/08/07 03:21:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -143,7 +143,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		v120len += dissect_v120_header(tvb, v120len, pinfo, v120_tree);
 	proto_item_set_len(ti, v120len);
 	next_tvb = tvb_new_subset(tvb, v120len, -1, -1);
-	dissect_data_tvb(next_tvb, pinfo, v120_tree);
+	dissect_data(next_tvb, pinfo, v120_tree);
     }
 }
 

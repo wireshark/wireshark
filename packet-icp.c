@@ -2,7 +2,7 @@
  * Routines for ICP (internet cache protocol) packet disassembly
  * RFC 2186 && RFC 2187
  *
- * $Id: packet-icp.c,v 1.9 2000/08/06 07:22:33 guy Exp $
+ * $Id: packet-icp.c,v 1.10 2000/08/07 03:20:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -293,5 +293,5 @@ proto_register_icp(void)
 void
 proto_reg_handoff_icp(void)
 {
-	dissector_add("udp.port", UDP_PORT_ICP, dissect_icp);
+	old_dissector_add("udp.port", UDP_PORT_ICP, dissect_icp);
 }

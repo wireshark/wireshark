@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.11 2000/05/31 05:06:56 guy Exp $
+ * $Id: packet-bpdu.c,v 1.12 2000/08/07 03:20:25 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -146,7 +146,7 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 				       bpdu_type == 0x80 ? "Topology Change Notification" : "Unknown");
 
 	    if (bpdu_type != 0) {
-	      dissect_data(pd, offset + BPDU_TYPE + 1, fd, tree);
+	      old_dissect_data(pd, offset + BPDU_TYPE + 1, fd, tree);
 	      return;
 	    }
 
@@ -267,5 +267,5 @@ proto_register_bpdu(void)
 void
 proto_reg_handoff_bpdu(void)
 {
-  dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu);
+  old_dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu);
 }

@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TIME Option Extension
  *
- * $Id: packet-time.c,v 1.6 2000/05/31 05:07:50 guy Exp $
+ * $Id: packet-time.c,v 1.7 2000/08/07 03:21:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,5 +92,5 @@ proto_register_time(void)
 void
 proto_reg_handoff_time(void)
 {
-  dissector_add("udp.port", UDP_PORT_TIME, dissect_time);
+  old_dissector_add("udp.port", UDP_PORT_TIME, dissect_time);
 }

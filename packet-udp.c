@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.73 2000/07/14 12:53:00 girlich Exp $
+ * $Id: packet-udp.c,v 1.74 2000/08/07 03:21:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,19 +83,15 @@ static heur_dissector_list_t heur_subdissector_list;
 /* can call to it, ie. socks	*/
 
 void
-decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, int uh_sport, int uh_dport){
-  dissector_t sub_dissector;
-
+decode_udp_ports(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+	int uh_sport, int uh_dport)
+{
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
-  sub_dissector = find_conversation_dissector( &pi.src, &pi.dst, PT_UDP,
-		uh_sport, uh_dport);
-  if (sub_dissector){
-	(sub_dissector)(pd, offset, fd, tree);
+  if (old_try_conversation_dissector(&pi.src, &pi.dst, PT_UDP,
+		uh_sport, uh_dport, pd, offset, fd, tree))
 	return;
-  }
 
   /* try to apply the plugins */
 #ifdef HAVE_PLUGINS
@@ -116,12 +112,12 @@ decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
 #endif
 
   /* do lookup with the subdissector table */
-  if (dissector_try_port(udp_dissector_table, uh_sport, pd, offset, fd, tree) ||
-      dissector_try_port(udp_dissector_table, uh_dport, pd, offset, fd, tree))
+  if (old_dissector_try_port(udp_dissector_table, uh_sport, pd, offset, fd, tree) ||
+      old_dissector_try_port(udp_dissector_table, uh_dport, pd, offset, fd, tree))
     return;
 
   /* do lookup with the heuristic subdissector table */
-  if (dissector_try_heuristic(heur_subdissector_list, pd, offset, fd, tree))
+  if (old_dissector_try_heuristic(heur_subdissector_list, pd, offset, fd, tree))
     return;
 
   /* XXX - we should do these with the subdissector table as well. */
@@ -131,10 +127,10 @@ decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
     dissect_vines_frp(pd, offset, fd, tree);
   } else if (PORT_IS(UDP_PORT_TFTP)) {
     /* This is the first point of call, but it adds a dynamic call */
-    dissector_add("udp.port", MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
+    old_dissector_add("udp.port", MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
     dissect_tftp(pd, offset, fd, tree);
   } else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 
@@ -146,7 +142,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *ti;
 
   if (!BYTES_ARE_IN_FRAME(offset, sizeof(e_udphdr))) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -232,5 +228,5 @@ proto_register_udp(void)
 void
 proto_reg_handoff_udp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_UDP, dissect_udp);
+	old_dissector_add("ip.proto", IP_PROTO_UDP, dissect_udp);
 }

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.5 2000/05/31 05:07:03 guy Exp $
+ * $Id: packet-ethertype.c,v 1.6 2000/08/07 03:20:33 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -89,11 +89,8 @@ void
 ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pinfo,
 		proto_tree *tree, proto_tree *fh_tree, int item_id)
 {
-	dissector_t	sub_dissector;
 	char		*description;
 	tvbuff_t	*next_tvb;
-	const guint8	*next_pd;
-	int		next_offset;
 	
 	/* Add to proto_tree */
 	if (tree) {
@@ -101,31 +98,27 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pin
 	}
 
 	next_tvb = tvb_new_subset(tvb, offset_after_etype, -1, -1);
-	tvb_compat(next_tvb, &next_pd, &next_offset);
 
 	/* Look for sub-dissector */
-	sub_dissector = dissector_lookup( ethertype_dissector_table, etype );
-
-	if (sub_dissector) {
-		/* Call sub-dissector */
-		sub_dissector(next_pd, next_offset, pinfo->fd, tree);
-	}
-	else {
-		/* Label rest of packet as "Data" */
-		dissect_data_tvb(next_tvb, pinfo, tree);
+	if (!dissector_try_port(ethertype_dissector_table, etype,
+	    next_tvb, pinfo, tree)) {
+		/* No sub-dissector found.
+		   Label rest of packet as "Data" */
+		dissect_data(next_tvb, pinfo, tree);
 
 		/* Label protocol */
 		switch(etype) {
-			case ETHERTYPE_LOOP:
-				if (check_col(pinfo->fd, COL_PROTOCOL)) {
-					col_add_fstr(pinfo->fd, COL_PROTOCOL, "LOOP");
-				}
-				break;
-			    default:
-				if (check_col(pinfo->fd, COL_PROTOCOL)) {
-					col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x", etype);
-				}
-				break;
+
+		case ETHERTYPE_LOOP:
+			if (check_col(pinfo->fd, COL_PROTOCOL)) {
+				col_add_fstr(pinfo->fd, COL_PROTOCOL, "LOOP");
+			}
+			break;
+		default:
+			if (check_col(pinfo->fd, COL_PROTOCOL)) {
+				col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x", etype);
+			}
+			break;
 		}
 		if (check_col(pinfo->fd, COL_INFO)) {
 			description = match_strval(etype, etype_vals);

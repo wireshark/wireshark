@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.23 2000/06/15 03:48:40 gram Exp $
+ * $Id: packet-gre.c,v 1.24 2000/08/07 03:20:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -220,10 +220,12 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         dissect_ip(pd, offset, fd, tree);
         break;
       case GRE_IPX:
-        dissect_ipx(pd, offset, fd, tree);
+	next_tvb = tvb_create_from_top(offset);
+        dissect_ipx(next_tvb, &pi, tree);
         break;
       default:
-	dissect_data(pd, offset, fd, gre_tree);
+	next_tvb = tvb_create_from_top(offset);
+	dissect_data(next_tvb, &pi, gre_tree);
 	break;
     }
   }
@@ -299,5 +301,5 @@ proto_register_gre(void)
 void
 proto_reg_handoff_gre(void)
 {
-	dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre);
+	old_dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre);
 }

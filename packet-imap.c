@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.7 2000/05/31 05:07:07 guy Exp $
+ * $Id: packet-imap.c,v 1.8 2000/08/07 03:20:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,5 +140,5 @@ proto_register_imap(void)
 void
 proto_reg_handoff_imap(void)
 {
-  dissector_add("tcp.port", TCP_PORT_IMAP, dissect_imap);
+  old_dissector_add("tcp.port", TCP_PORT_IMAP, dissect_imap);
 }

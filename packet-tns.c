@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for MSX tns packet dissection
  *
- * $Id: packet-tns.c,v 1.7 2000/05/31 05:07:50 guy Exp $
+ * $Id: packet-tns.c,v 1.8 2000/08/07 03:21:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,7 @@ static const value_string tns_type_vals[] = {
 
 /* Handy macro for checking for truncated packet */
 #define TRUNC(length) if ( ! BYTES_ARE_IN_FRAME(offset, length)) { \
-			dissect_data(pd,offset,fd,tree); return; }
+			old_dissect_data(pd,offset,fd,tree); return; }
 
 static void dissect_tns_sns(const u_char *pd, int offset, frame_data *fd, 
 	proto_tree *tree, proto_tree *tns_tree)
@@ -98,7 +98,7 @@ static void dissect_tns_sns(const u_char *pd, int offset, frame_data *fd,
 
 	if ( sns_tree )
 	{
-		dissect_data(pd,offset,fd,sns_tree);
+		old_dissect_data(pd,offset,fd,sns_tree);
 	}
 }
 
@@ -124,7 +124,7 @@ static void dissect_tns_data(const u_char *pd, int offset, frame_data *fd,
 		}
 	}
 	
-	dissect_data(pd,offset,fd,tree);
+	old_dissect_data(pd,offset,fd,tree);
 	return;
 }
 
@@ -173,7 +173,7 @@ static void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd,
 
 	if ( connect_tree )
 	{
-		dissect_data(pd,offset,fd,connect_tree);
+		old_dissect_data(pd,offset,fd,connect_tree);
 	}
 	return;
 }
@@ -181,7 +181,7 @@ static void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd,
 static void dissect_tns_accept(const u_char *pd, int offset, frame_data *fd, 
 	proto_tree *tree, proto_tree *tns_tree)
 {
-	dissect_data(pd,offset,fd,tns_tree);
+	old_dissect_data(pd,offset,fd,tns_tree);
 	return;
 }
 
@@ -286,7 +286,7 @@ dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			dissect_tns_data(pd,offset,fd,tree,tns_tree);
 			break;
 		default:
-			dissect_data(pd,offset,fd,tns_tree);
+			old_dissect_data(pd,offset,fd,tns_tree);
 	}
 }
 
@@ -349,5 +349,5 @@ void proto_register_tns(void)
 void
 proto_reg_handoff_tns(void)
 {
-	dissector_add("tcp.port", TCP_PORT_TNS, dissect_tns);
+	old_dissector_add("tcp.port", TCP_PORT_TNS, dissect_tns);
 }

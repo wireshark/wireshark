@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.36 2000/05/31 05:07:03 guy Exp $
+ * $Id: packet-fddi.c,v 1.37 2000/08/07 03:20:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -350,7 +350,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       return;
       
     default :
-      dissect_data_tvb(next_tvb, pinfo, tree);
+      dissect_data(next_tvb, pinfo, tree);
       return;
 
   } /* fc */

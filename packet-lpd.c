@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.20 2000/05/31 05:07:17 guy Exp $
+ * $Id: packet-lpd.c,v 1.21 2000/08/07 03:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -124,7 +124,7 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					strlen(printer), "Printer/options: %s", printer);
 			}
 			else {
-				dissect_data(pd, offset, fd, tree);
+				old_dissect_data(pd, offset, fd, tree);
 			}
 
 			if (printer) 
@@ -138,11 +138,11 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					lpd_server_code[response]);
 			}
 			else {
-				dissect_data(pd, offset, fd, tree);
+				old_dissect_data(pd, offset, fd, tree);
 			}
 		}
 		else {
-				dissect_data(pd, offset, fd, tree);
+				old_dissect_data(pd, offset, fd, tree);
 		}
 	}
 }
@@ -200,5 +200,5 @@ proto_register_lpd(void)
 void
 proto_reg_handoff_lpd(void)
 {
-  dissector_add("tcp.port", TCP_PORT_PRINTER, &dissect_lpd);
+  old_dissector_add("tcp.port", TCP_PORT_PRINTER, &dissect_lpd);
 }

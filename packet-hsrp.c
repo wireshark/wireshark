@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.5 2000/05/31 05:07:05 guy Exp $
+ * $Id: packet-hsrp.c,v 1.6 2000/08/07 03:20:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -116,7 +116,7 @@ dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                 guint8 auth_buf[sizeof(hsrp.auth_data) + 1];
 
                 if (short_packet) {
-                        dissect_data(pd, offset, fd, tree);
+                        old_dissect_data(pd, offset, fd, tree);
                         return;
                 }
 
@@ -167,5 +167,5 @@ void proto_register_hsrp(void)
 void
 proto_reg_handoff_hsrp(void)
 {
-	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
+	old_dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
 }

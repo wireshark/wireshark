@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.78 2000/07/30 08:20:52 guy Exp $
+ * $Id: packet-tcp.c,v 1.79 2000/08/07 03:21:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -362,19 +362,15 @@ static const true_false_string flags_set_truth = {
 /* can call to it, ie. socks	*/
 
 void
-decode_tcp_ports( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-	int src_port, int dst_port) {
-  dissector_t sub_dissector;
-
+decode_tcp_ports(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+	int src_port, int dst_port)
+{
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
-  sub_dissector = find_conversation_dissector( &pi.src, &pi.dst, PT_TCP,
-		src_port, dst_port);
-  if (sub_dissector){
-	(sub_dissector)(pd, offset, fd, tree);
+  if (old_try_conversation_dissector(&pi.src, &pi.dst, PT_TCP,
+		src_port, dst_port, pd, offset, fd, tree))
 	return;
-  }
 
   /* try to apply the plugins */
 #ifdef HAVE_PLUGINS
@@ -395,16 +391,16 @@ decode_tcp_ports( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 #endif
 
   /* do lookup with the subdissector table */
-  if (dissector_try_port(subdissector_table, src_port, pd, offset, fd, tree) ||
-      dissector_try_port(subdissector_table, dst_port, pd, offset, fd, tree))
+  if (old_dissector_try_port(subdissector_table, src_port, pd, offset, fd, tree) ||
+      old_dissector_try_port(subdissector_table, dst_port, pd, offset, fd, tree))
     return;
 
   /* do lookup with the heuristic subdissector table */
-  if (dissector_try_heuristic(heur_subdissector_list, pd, offset, fd, tree))
+  if (old_dissector_try_heuristic(heur_subdissector_list, pd, offset, fd, tree))
     return;
 
   /* Oh, well, we don't know this; dissect it as data. */
-  dissect_data(pd, offset, fd, tree);
+  old_dissect_data(pd, offset, fd, tree);
 }
 
 
@@ -662,5 +658,5 @@ proto_register_tcp(void)
 void
 proto_reg_handoff_tcp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_TCP, dissect_tcp);
+	old_dissector_add("ip.proto", IP_PROTO_TCP, dissect_tcp);
 }

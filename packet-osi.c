@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.33 2000/04/17 01:36:31 guy Exp $
+ * $Id: packet-osi.c,v 1.34 2000/08/07 03:20:58 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -225,7 +225,7 @@ void dissect_osi(const u_char *pd, int offset, frame_data *fd,
 		 proto_tree *tree) 
 {
   /* do lookup with the subdissector table */
-  if (dissector_try_port(subdissector_table, pd[offset], pd, offset, fd, tree))
+  if (old_dissector_try_port(subdissector_table, pd[offset], pd, offset, fd, tree))
       return;
 
   switch (pd[offset]) {
@@ -236,13 +236,13 @@ void dissect_osi(const u_char *pd, int offset, frame_data *fd,
       if (check_col(fd, COL_PROTOCOL)) {
 	col_add_str(fd, COL_PROTOCOL, "ESIS (X.25)");
       }
-      dissect_data(pd, offset, fd, tree);
+      old_dissect_data(pd, offset, fd, tree);
       break;
     case NLPID_ISO10747_IDRP:
       if (check_col(fd, COL_PROTOCOL)) {
         col_add_str(fd, COL_PROTOCOL, "IDRP");
       }
-      dissect_data(pd, offset, fd, tree);
+      old_dissect_data(pd, offset, fd, tree);
       break;
     default:
       if (check_col(fd, COL_PROTOCOL)) {
@@ -251,7 +251,7 @@ void dissect_osi(const u_char *pd, int offset, frame_data *fd,
       if (check_col(fd, COL_INFO)) {
 	col_add_fstr(fd, COL_INFO, "Unknown ISO protocol (%02x)", pd[offset]);
       }
-      dissect_data(pd, offset, fd, tree);
+      old_dissect_data(pd, offset, fd, tree);
       break;
   }
 } /* dissect_osi */
@@ -268,5 +268,5 @@ proto_register_osi(void)
 void
 proto_reg_handoff_osi(void)
 {
-	dissector_add("llc.dsap", SAP_OSINL, dissect_osi);
+	old_dissector_add("llc.dsap", SAP_OSINL, dissect_osi);
 }

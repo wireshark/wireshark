@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.42 2000/05/31 05:07:03 guy Exp $
+ * $Id: packet-eth.c,v 1.43 2000/08/07 03:20:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -170,10 +170,10 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   src = tvb_get_ptr(tvb, 6, 6);
   dst = tvb_get_ptr(tvb, 0, 6);
-  SET_ADDRESS(&pi.dl_src,	AT_ETHER, 6, src);
-  SET_ADDRESS(&pi.src,		AT_ETHER, 6, src);
-  SET_ADDRESS(&pi.dl_dst,	AT_ETHER, 6, dst);
-  SET_ADDRESS(&pi.dst,		AT_ETHER, 6, dst);
+  SET_ADDRESS(&pinfo->dl_src,	AT_ETHER, 6, src);
+  SET_ADDRESS(&pinfo->src,	AT_ETHER, 6, src);
+  SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, dst);
+  SET_ADDRESS(&pinfo->dst,	AT_ETHER, 6, dst);
 
   etype = tvb_get_ntohs(tvb, 12);
 
@@ -280,10 +280,10 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      dissect_ipx(pd, eth_offset, pinfo->fd, tree);
+      dissect_ipx(next_tvb, pinfo, tree);
       break;
     case ETHERNET_802_2:
-      dissect_llc(next_tvb, &pi, tree);
+      dissect_llc(next_tvb, pinfo, tree);
       break;
     case ETHERNET_II:
       ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_eth_type);

@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.45 2000/07/25 17:30:47 guy Exp $
+ * $Id: packet-snmp.c,v 1.46 2000/08/07 03:21:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -548,7 +548,7 @@ dissect_snmp_parse_error(const u_char *pd, int offset, frame_data *fd,
 		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
 	}
 
-	dissect_data(pd, offset, fd, tree);
+	old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -558,7 +558,7 @@ dissect_snmp_error(const u_char *pd, int offset, frame_data *fd,
 	if (check_col(fd, COL_INFO))
 		col_add_str(fd, COL_INFO, message);
 
-	dissect_data(pd, offset, fd, tree);
+	old_dissect_data(pd, offset, fd, tree);
 }
 
 static gchar *
@@ -2035,10 +2035,10 @@ proto_register_snmp(void)
 void
 proto_reg_handoff_snmp(void)
 {
-	dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp);
-	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp);
-	dissector_add("tcp.port", TCP_PORT_SMUX, dissect_smux);
-	dissector_add("ethertype", ETHERTYPE_SNMP, dissect_snmp);
-	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, dissect_snmp);
-	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, dissect_snmp);
+	old_dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp);
+	old_dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp);
+	old_dissector_add("tcp.port", TCP_PORT_SMUX, dissect_smux);
+	old_dissector_add("ethertype", ETHERTYPE_SNMP, dissect_snmp);
+	old_dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, dissect_snmp);
+	old_dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, dissect_snmp);
 }

@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.13 2000/05/31 05:07:50 guy Exp $
+ * $Id: packet-telnet.c,v 1.14 2000/08/07 03:21:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -373,5 +373,5 @@ proto_register_telnet(void)
 void
 proto_reg_handoff_telnet(void)
 {
-	dissector_add("tcp.port", TCP_PORT_TELNET, dissect_telnet);
+	old_dissector_add("tcp.port", TCP_PORT_TELNET, dissect_telnet);
 }

@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-pppoe.c,v 1.8 2000/05/11 08:15:35 gram Exp $
+ * $Id: packet-pppoe.c,v 1.9 2000/08/07 03:21:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -251,6 +251,6 @@ proto_register_pppoed(void)
 void
 proto_reg_handoff_pppoe(void)
 {
-	dissector_add("ethertype", ETHERTYPE_PPPOED, dissect_pppoed);
-	dissector_add("ethertype", ETHERTYPE_PPPOES, dissect_pppoes);
+	old_dissector_add("ethertype", ETHERTYPE_PPPOED, dissect_pppoed);
+	old_dissector_add("ethertype", ETHERTYPE_PPPOES, dissect_pppoes);
 }

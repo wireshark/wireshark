@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.2 2000/07/31 12:59:51 girlich Exp $
+ * $Id: packet-quake.c,v 1.3 2000/08/07 03:21:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,11 +151,7 @@ static const value_string names_colors[] = {
 };
 
 
-#if 0
 static void dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-#else
-static void dissect_quake(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
-#endif
 
 
 static gint
@@ -271,7 +267,8 @@ dissect_quake_CCREP_ACCEPT
 	port = tvb_get_letohl(tvb, 0);
 	c = conversation_new( &pi.src, &pi.dst, PT_UDP, port, pi.destport, NULL);
 	if (c) {
-		c->dissector = dissect_quake;
+		c->is_old_dissector = FALSE;
+		c->dissector.new = dissect_quake;
 	}
 	if (tree) {
 		proto_tree_add_uint(tree, hf_quake_CCREP_ACCEPT_port,
@@ -529,23 +526,15 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			(next_tvb, pinfo, control_tree);
 		break;
 		default:
-			dissect_data_tvb(next_tvb, pinfo, control_tree);
+			dissect_data(next_tvb, pinfo, control_tree);
 		break;
 	}
 }
 
 
-#if 0
 static void
 dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#else
-static void
-dissect_quake(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-        tvbuff_t *tvb = tvb_create_from_top(offset);
-        packet_info *pinfo = &pi;
-#endif                                                                          
 	proto_tree	*quake_tree = NULL;
 	proto_item	*quake_item = NULL;
 	guint32		length;
@@ -622,7 +611,7 @@ dissect_quake(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	rest_length = tvb_reported_length(tvb) - 8;
 	next_tvb = tvb_new_subset(tvb, 8, rest_length , rest_length);
-	dissect_data_tvb(next_tvb, pinfo, quake_tree);
+	dissect_data(next_tvb, pinfo, quake_tree);
 }
 
 void
@@ -753,4 +742,3 @@ proto_reg_handoff_quake(void)
 {
 	dissector_add("udp.port", DEFAULTnet_hostport, dissect_quake);
 }
-

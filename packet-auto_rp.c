@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.6 2000/05/31 05:06:53 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.7 2000/08/07 03:20:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -147,7 +147,7 @@ static void dissect_auto_rp(const u_char *pd, int offset, frame_data *fd, proto_
                 int i;
 
                 if (short_hdr) {
-                        dissect_data(pd, offset, fd, tree);
+                        old_dissect_data(pd, offset, fd, tree);
                         return;
                 }
 
@@ -182,7 +182,7 @@ static void dissect_auto_rp(const u_char *pd, int offset, frame_data *fd, proto_
                 }
 
                 if (END_OF_FRAME > 0)
-                        dissect_data(pd, offset, fd, tree);
+                        old_dissect_data(pd, offset, fd, tree);
         }
 
         return;
@@ -244,7 +244,7 @@ void proto_register_auto_rp(void)
 void
 proto_reg_handoff_auto_rp(void)
 {
-	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
+	old_dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
 }
 
 /*

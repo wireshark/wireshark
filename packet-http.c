@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.19 2000/05/31 05:07:06 guy Exp $
+ * $Id: packet-http.c,v 1.20 2000/08/07 03:20:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -207,7 +207,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			if (is_ipp)
 				dissect_ipp(pd, offset, fd, tree);
 			else
-				dissect_data(&pd[offset], offset, fd, http_tree);
+				old_dissect_data(&pd[offset], offset, fd, http_tree);
 		}
 	}
 }
@@ -294,8 +294,8 @@ proto_register_http(void)
 void
 proto_reg_handoff_http(void)
 {
-  dissector_add("tcp.port", TCP_PORT_HTTP, dissect_http);
-  dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http);
-  dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http);
-  dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http);
+  old_dissector_add("tcp.port", TCP_PORT_HTTP, dissect_http);
+  old_dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http);
+  old_dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http);
+  old_dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http);
 }

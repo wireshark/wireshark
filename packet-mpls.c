@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.7 2000/05/31 05:07:19 guy Exp $
+ * $Id: packet-mpls.c,v 1.8 2000/08/07 03:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,7 +145,7 @@ dissect_mpls(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     /* Start Decoding Here. */
     while (1) {
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-	    dissect_data(pd, offset, fd, tree);
+	    old_dissect_data(pd, offset, fd, tree);
 	    return;
 	}
 
@@ -193,5 +193,5 @@ proto_register_mpls(void)
 void
 proto_reg_handoff_mpls(void)
 {
-	dissector_add("ethertype", ETHERTYPE_MPLS, dissect_mpls);
+	old_dissector_add("ethertype", ETHERTYPE_MPLS, dissect_mpls);
 }

@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.23 2000/07/02 03:25:48 guy Exp $
+ * $Id: packet-isakmp.c,v 1.24 2000/08/07 03:20:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -433,7 +433,7 @@ dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
           (*strfuncs[hdr->next_payload].func)(pd, offset, fd, isakmp_tree);
       }
       else
-        dissect_data(pd, offset, fd, isakmp_tree);
+        old_dissect_data(pd, offset, fd, isakmp_tree);
     }
   }
 }
@@ -483,7 +483,7 @@ dissect_sa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -539,7 +539,7 @@ dissect_proposal(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       (*strfuncs[hdr->next_payload].func)(pd, next_hdr_offset, fd, tree);
   }
   else
-    dissect_data(pd, next_hdr_offset, fd, tree);
+    old_dissect_data(pd, next_hdr_offset, fd, tree);
 }
 
 static void
@@ -629,7 +629,7 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd,
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -661,7 +661,7 @@ dissect_key_exch(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -718,7 +718,7 @@ dissect_id(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -754,7 +754,7 @@ dissect_cert(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -790,7 +790,7 @@ dissect_certreq(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -822,7 +822,7 @@ dissect_hash(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -854,7 +854,7 @@ dissect_sig(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -886,7 +886,7 @@ dissect_nonce(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -945,7 +945,7 @@ dissect_notif(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -1000,7 +1000,7 @@ dissect_delete(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -1032,7 +1032,7 @@ dissect_vid(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
@@ -1091,7 +1091,7 @@ dissect_config(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
   }
   else
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
  
 }
 
@@ -1432,5 +1432,5 @@ proto_register_isakmp(void)
 void
 proto_reg_handoff_isakmp(void)
 {
-	dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp);
+	old_dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp);
 }

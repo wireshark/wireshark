@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.10 2000/05/31 05:07:09 guy Exp $
+ * $Id: packet-ipp.c,v 1.11 2000/08/07 03:20:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -228,7 +228,7 @@ void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		offset = parse_attributes(pd, offset, fd, ipp_tree);
 
 		if (IS_DATA_IN_FRAME(offset))
-			dissect_data(pd, offset, fd, ipp_tree);
+			old_dissect_data(pd, offset, fd, ipp_tree);
 	}
 }
 
@@ -584,6 +584,6 @@ proto_reg_handoff_ipp(void)
 
 	   Or should the HTTP dissector decide that the payload is
 	   IPP based on the MIME headers? */
-	dissector_add("tcp.port", 631, dissect_http);
+	old_dissector_add("tcp.port", 631, dissect_http);
 }
 

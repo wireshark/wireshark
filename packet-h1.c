@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.10 2000/07/21 07:51:34 guy Exp $
+ * $Id: packet-h1.c,v 1.11 2000/08/07 03:20:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,15 +99,8 @@ static gint ett_org = -1;
 static gint ett_response = -1;
 static gint ett_empty = -1;
 
-#if 0
 static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#else
-static gboolean dissect_h1(const u_char *pd, int o, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(o);
-#endif
   tvbuff_t *next_tvb; 
   
   proto_tree *h1_tree = NULL;
@@ -125,10 +118,10 @@ static gboolean dissect_h1(const u_char *pd, int o, frame_data *fd, proto_tree *
     return FALSE;
     }
 
-      if (check_col (fd, COL_PROTOCOL))
-	col_add_str (fd, COL_PROTOCOL, "H1");
-      if (check_col (fd, COL_INFO))
-	col_add_str (fd, COL_INFO, "S5: ");
+      if (check_col (pinfo->fd, COL_PROTOCOL))
+	col_add_str (pinfo->fd, COL_PROTOCOL, "H1");
+      if (check_col (pinfo->fd, COL_INFO))
+	col_add_str (pinfo->fd, COL_INFO, "S5: ");
       if (tree)
 	{
 	  ti = proto_tree_add_item (tree, proto_h1, tvb, offset, 16, FALSE);
@@ -158,9 +151,9 @@ static gboolean dissect_h1(const u_char *pd, int o, frame_data *fd, proto_tree *
 				       offset + position + 2, 1,
 				       tvb_get_guint8(tvb,offset + position + 2));
 		}
-	      if (check_col (fd, COL_INFO))
+	      if (check_col (pinfo->fd, COL_INFO))
 		{
-		  col_append_str (fd, COL_INFO,
+		  col_append_str (pinfo->fd, COL_INFO,
 				  val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 						opcode_vals,"Unknown Opcode (0x%2.2x)"));
 		}
@@ -189,15 +182,15 @@ static gboolean dissect_h1(const u_char *pd, int o, frame_data *fd, proto_tree *
 				       offset + position + 6, 2,
 				       tvb_get_ntohs(tvb,offset+position+6));
 		}
-	      if (check_col (fd, COL_INFO))
+	      if (check_col (pinfo->fd, COL_INFO))
 		{
-		  col_append_fstr (fd, COL_INFO, " %s %d",
+		  col_append_fstr (pinfo->fd, COL_INFO, " %s %d",
 				  val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 						 org_vals,"Unknown Type (0x%2.2x)"),
 				   tvb_get_guint8(tvb,offset + position + 3));
-		  col_append_fstr (fd, COL_INFO, " DW %d",
+		  col_append_fstr (pinfo->fd, COL_INFO, " DW %d",
 				       tvb_get_ntohs(tvb,offset+position+4));
-		  col_append_fstr (fd, COL_INFO, " Count %d",
+		  col_append_fstr (pinfo->fd, COL_INFO, " Count %d",
 				       tvb_get_ntohs(tvb,offset+position+6));
 		}
 	      break;
@@ -216,9 +209,9 @@ static gboolean dissect_h1(const u_char *pd, int o, frame_data *fd, proto_tree *
 				       offset + position + 2, 1,
 				       tvb_get_guint8(tvb,offset + position+2));
 		}
-	      if (check_col (fd, COL_INFO))
+	      if (check_col (pinfo->fd, COL_INFO))
 		{
-		  col_append_fstr (fd, COL_INFO, " %s",
+		  col_append_fstr (pinfo->fd, COL_INFO, " %s",
 				  val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 						 returncode_vals,"Unknown Returcode (0x%2.2x"));
 		}
@@ -246,7 +239,7 @@ static gboolean dissect_h1(const u_char *pd, int o, frame_data *fd, proto_tree *
 	  position += tvb_get_guint8(tvb,offset + position + 1);	/* Goto next section */
 	}			/* ..while */
     next_tvb = tvb_new_subset(tvb, offset+tvb_get_guint8(tvb,offset+2), -1, -1);
-    dissect_data_tvb(next_tvb, pinfo, tree);
+    dissect_data(next_tvb, pinfo, tree);
 
     return TRUE;
 }

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.37 2000/06/15 03:48:42 gram Exp $
+ * $Id: packet-ppp.c,v 1.38 2000/08/07 03:21:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -996,7 +996,7 @@ dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
   tvb_compat(next_tvb, &next_pd, &next_offset);
 
   /* do lookup with the subdissector table */
-  if (dissector_try_port(subdissector_table, ppp_prot, next_pd, next_offset, pinfo->fd, tree))
+  if (old_dissector_try_port(subdissector_table, ppp_prot, next_pd, next_offset, pinfo->fd, tree))
       return TRUE;
 
   /* XXX - make "dissect_lcp()" and "dissect_ipcp()", have them just
@@ -1019,7 +1019,7 @@ dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
       if (check_col(pinfo->fd, COL_INFO))
         col_add_fstr(pinfo->fd, COL_INFO, "PPP %s (0x%04x)",
 		val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
-      dissect_data_tvb(next_tvb, pinfo, tree);
+      dissect_data(next_tvb, pinfo, tree);
       return FALSE;
   }
 }

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.23 2000/05/11 08:14:59 gram Exp $
+ * $Id: packet-bgp.c,v 1.24 2000/08/07 03:20:23 guy Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -1303,5 +1303,5 @@ proto_register_bgp(void)
 void
 proto_reg_handoff_bgp(void)
 {
-    dissector_add("tcp.port", TCP_PORT_BGP, dissect_bgp);
+    old_dissector_add("tcp.port", TCP_PORT_BGP, dissect_bgp);
 }

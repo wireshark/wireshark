@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.22 2000/05/31 05:06:52 guy Exp $
+ * $Id: packet-atm.c,v 1.23 2000/08/07 03:20:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -413,7 +413,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     /* Dump it as raw data. */
     next_tvb		= tvb_new_subset(tvb, 0, -1, -1);
-    dissect_data_tvb(next_tvb, pinfo, tree);
+    dissect_data(next_tvb, pinfo, tree);
     break;
   }
 }
@@ -743,7 +743,7 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
       if (tree) {
         /* Dump it as raw data. */
-        dissect_data_tvb(tvb, pinfo, tree);
+        dissect_data(tvb, pinfo, tree);
         break;
       }
     }
@@ -752,7 +752,7 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     if (tree) {
       /* Dump it as raw data.  (Is this a single cell?) */
-      dissect_data_tvb(tvb, pinfo, tree);
+      dissect_data(tvb, pinfo, tree);
     }
     break;
   }

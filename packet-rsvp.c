@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.24 2000/06/02 13:24:12 gram Exp $
+ * $Id: packet-rsvp.c,v 1.25 2000/08/07 03:21:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2037,5 +2037,5 @@ proto_register_rsvp(void)
 void
 proto_reg_handoff_rsvp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_RSVP, dissect_rsvp);
+	old_dissector_add("ip.proto", IP_PROTO_RSVP, dissect_rsvp);
 }

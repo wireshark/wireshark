@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.13 2000/06/15 03:48:41 gram Exp $
+ * $Id: packet-isl.c,v 1.14 2000/08/07 03:20:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -147,7 +147,7 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   tvbuff_t *next_tvb;
   
   if (!BYTES_ARE_IN_FRAME(offset, ISL_HEADER_SIZE)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -232,7 +232,7 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   default:
     next_tvb = tvb_create_from_top(offset+26);
-    dissect_data_tvb(next_tvb, &pi, tree);
+    dissect_data(next_tvb, &pi, tree);
     break;
   }
 }

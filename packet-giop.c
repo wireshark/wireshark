@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.15 2000/07/27 17:11:44 gram Exp $
+ * $Id: packet-giop.c,v 1.16 2000/08/07 03:20:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -256,7 +256,7 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		"Version %d.%d not supported", 
 		header.GIOP_version.major, header.GIOP_version.minor);
     }
-    dissect_data(pd, offset + GIOP_HEADER_SIZE, fd, tree);
+    old_dissect_data(pd, offset + GIOP_HEADER_SIZE, fd, tree);
     return TRUE;
   }
 
@@ -333,7 +333,7 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   offset += GIOP_HEADER_SIZE;
 
   if (!BYTES_ARE_IN_FRAME(offset, message_size)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return TRUE;
   }
 
@@ -458,7 +458,7 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	pntohl(&pd[offset]) : pletohl(&pd[offset]);
 
       if (sequence_length > message_size) {
-	dissect_data(pd, offset, fd, tree);
+	old_dissect_data(pd, offset, fd, tree);
 	return TRUE;
       }
        
@@ -527,7 +527,7 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  pntohl(&pd[offset]) : pletohl(&pd[offset]);
 
 	if (sequence_length > message_size) {
-	  dissect_data(pd, offset, fd, tree);
+	  old_dissect_data(pd, offset, fd, tree);
 	  return TRUE;
 	}
 
@@ -566,7 +566,7 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  pntohl(&pd[offset]) : pletohl(&pd[offset]);
 
 	if (sequence_length > message_size) {
-	  dissect_data(pd, offset, fd, tree);
+	  old_dissect_data(pd, offset, fd, tree);
 	  return TRUE;
 	}
 
@@ -586,7 +586,7 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  pntohl(&pd[offset]) : pletohl(&pd[offset]);
 
 	if (sequence_length > message_size) {
-	  dissect_data(pd, offset, fd, tree);
+	  old_dissect_data(pd, offset, fd, tree);
 	  return TRUE;
 	}
 
@@ -720,7 +720,7 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   offset = first_offset + GIOP_HEADER_SIZE + message_size;
 
   if (IS_DATA_IN_FRAME(offset)) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
   }
 
   return TRUE;
@@ -749,5 +749,5 @@ proto_register_giop(void)
 void
 proto_reg_handoff_giop(void)
 {
-  heur_dissector_add("tcp", dissect_giop);
+  old_heur_dissector_add("tcp", dissect_giop);
 }

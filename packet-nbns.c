@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.43 2000/05/31 05:07:21 guy Exp $
+ * $Id: packet-nbns.c,v 1.44 2000/08/07 03:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1140,7 +1140,7 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (pi.captured_len < NBNS_HDRLEN) {
 		col_add_str(fd, COL_INFO, "Short NBNS packet");
-		dissect_data(pd, offset, fd, tree);
+		old_dissect_data(pd, offset, fd, tree);
 		return;
 	}
 
@@ -1759,8 +1759,8 @@ proto_register_nbt(void)
 void
 proto_reg_handoff_nbt(void)
 {
-  dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns);
-  dissector_add("udp.port", UDP_PORT_NBDGM, dissect_nbdgm);
-  dissector_add("tcp.port", TCP_PORT_NBSS, dissect_nbss);
-  dissector_add("tcp.port", TCP_PORT_CIFS, dissect_nbss);
+  old_dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns);
+  old_dissector_add("udp.port", UDP_PORT_NBDGM, dissect_nbdgm);
+  old_dissector_add("tcp.port", TCP_PORT_NBSS, dissect_nbss);
+  old_dissector_add("tcp.port", TCP_PORT_CIFS, dissect_nbss);
 }

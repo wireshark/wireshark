@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.38 2000/07/28 20:03:42 gram Exp $
+ * $Id: packet-ncp.c,v 1.39 2000/08/07 03:20:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -247,17 +247,9 @@ ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence,
 	}
 }
 
-#if 0
-void
+static void
 dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#else
-void
-dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(offset);
-#endif
 	proto_tree			*ncp_tree = NULL;
 	proto_item			*ti;
 	struct ncp_ip_header		ncpiph;

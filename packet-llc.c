@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.65 2000/05/31 05:07:17 guy Exp $
+ * $Id: packet-llc.c,v 1.66 2000/08/07 03:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -360,7 +360,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ethertype(etype, tvb, 8,
 				    pinfo, tree, llc_tree, hf_llc_type);
 			} else
-				dissect_data_tvb(next_tvb, pinfo, tree);
+				dissect_data(next_tvb, pinfo, tree);
 			break;
 
 		case OUI_CISCO:
@@ -395,11 +395,11 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 
 				default:
-					dissect_data_tvb(next_tvb, pinfo, tree);
+					dissect_data(next_tvb, pinfo, tree);
 					break;
 				}
 			} else
-				dissect_data_tvb(next_tvb, pinfo, tree);
+				dissect_data(next_tvb, pinfo, tree);
 			break;
 
 		case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
@@ -415,7 +415,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_uint(llc_tree,
 				    hf_llc_pid, tvb, 6, 2, etype);
 			}
-			dissect_data_tvb(next_tvb, pinfo, tree);
+			dissect_data(next_tvb, pinfo, tree);
 			break;
 		}
 	}
@@ -434,17 +434,16 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		next_tvb = tvb_new_subset(tvb, llc_header_len, -1, -1);
 		if (XDLC_IS_INFORMATION(control)) {
-			tvb_compat(tvb, &pd, &offset);
 			/* non-SNAP */
 			offset += llc_header_len;
 
 			/* do lookup with the subdissector table */
 			if (!dissector_try_port(subdissector_table, dsap,
-			    pd, offset, pinfo->fd, tree)) {
-				dissect_data_tvb(next_tvb, pinfo, tree);
+			    next_tvb, pinfo, tree)) {
+				dissect_data(next_tvb, pinfo, tree);
 			}
 		} else {
-			dissect_data_tvb(next_tvb, pinfo, tree);
+			dissect_data(next_tvb, pinfo, tree);
 		}
 	}
 }

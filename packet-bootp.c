@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.37 2000/07/25 21:25:59 guy Exp $
+ * $Id: packet-bootp.c,v 1.38 2000/08/07 03:20:24 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -834,5 +834,5 @@ proto_register_bootp(void)
 void
 proto_reg_handoff_bootp(void)
 {
-  dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
+  old_dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
 }

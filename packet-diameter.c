@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.3 2000/08/03 09:30:32 gram Exp $
+ * $Id: packet-diameter.c,v 1.4 2000/08/07 03:20:28 guy Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -725,11 +725,11 @@ proto_reg_handoff_diameter(void)
 	static int SctpPort=0;
 #endif
 	if (Initialized) {
-		dissector_delete("udp.port", UdpPort, dissect_diameter);
-		dissector_delete("tcp.port", TcpPort, dissect_diameter);
+		old_dissector_delete("udp.port", UdpPort, dissect_diameter);
+		old_dissector_delete("tcp.port", TcpPort, dissect_diameter);
 #ifdef SCTP_DISSECTORS_ENABLED
-		dissector_delete("sctp.srcport", SctpPort, dissect_diameter);
-		dissector_delete("sctp.destport", SctpPort, dissect_diameter);
+		old_dissector_delete("sctp.srcport", SctpPort, dissect_diameter);
+		old_dissector_delete("sctp.destport", SctpPort, dissect_diameter);
 #endif
 	} else {
 		Initialized=TRUE;
@@ -744,10 +744,10 @@ proto_reg_handoff_diameter(void)
 
 	strcpy(gbl_diameterString, "Diameter Protocol");
 
-	dissector_add("udp.port", gbl_diameterUdpPort, dissect_diameter);
-	dissector_add("tcp.port", gbl_diameterTcpPort, dissect_diameter);
+	old_dissector_add("udp.port", gbl_diameterUdpPort, dissect_diameter);
+	old_dissector_add("tcp.port", gbl_diameterTcpPort, dissect_diameter);
 #ifdef SCTP_DISSECTORS_ENABLED
-	dissector_add("sctp.srcport", gbl_diameterSctpPort, dissect_diameter);
-	dissector_add("sctp.destport", gbl_diameterSctpPort, dissect_diameter);
+	old_dissector_add("sctp.srcport", gbl_diameterSctpPort, dissect_diameter);
+	old_dissector_add("sctp.destport", gbl_diameterSctpPort, dissect_diameter);
 #endif
 }

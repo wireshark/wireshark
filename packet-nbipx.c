@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.21 2000/05/31 05:07:21 guy Exp $
+ * $Id: packet-nbipx.c,v 1.22 2000/08/07 03:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -417,7 +417,7 @@ dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			break;
 				
 		default:
-			dissect_data(pd, offset, fd, tree);
+			old_dissect_data(pd, offset, fd, tree);
 			break;
 		}
 	}
@@ -443,5 +443,5 @@ proto_register_nbipx(void)
 void
 proto_reg_handoff_nbipx(void)
 {
-	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_DGRAM, dissect_nwlink_dg);
+	old_dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_DGRAM, dissect_nwlink_dg);
 }

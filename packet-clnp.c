@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.11 2000/08/06 15:54:42 deniel Exp $
+ * $Id: packet-clnp.c,v 1.12 2000/08/07 03:20:26 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -691,7 +691,7 @@ static int osi_decode_DR(const u_char *pd, int offset,
   }
 
   offset += li + 1;
-  dissect_data(pd, offset, fd, tree);
+  old_dissect_data(pd, offset, fd, tree);
 
   return pi.captured_len;	/* we dissected all of the containing PDU */
 
@@ -816,16 +816,16 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
   offset += li;
 
   if (uses_inactive_subset){
-	if (dissector_try_heuristic(cotp_is_heur_subdissector_list, pd, offset,
+	if (old_dissector_try_heuristic(cotp_is_heur_subdissector_list, pd, offset,
 					fd, tree)) {
 		return TRUE;
 		}
 	/* Fill in other Dissectors using inactive subset here */
-	dissect_data(pd, offset, fd, tree);
+	old_dissect_data(pd, offset, fd, tree);
 	return FALSE;
 	}
   else {
-	dissect_data(pd, offset, fd, tree);
+	old_dissect_data(pd, offset, fd, tree);
 	return FALSE;
 	}
 } /* osi_decode_DT */
@@ -925,7 +925,7 @@ static int osi_decode_ED(const u_char *pd, int offset,
     osi_decode_tp_var_part(pd, offset, li, 4, cotp_tree);
   offset += li;
 
-  dissect_data(pd, offset, fd, tree);
+  old_dissect_data(pd, offset, fd, tree);
 
   return pi.captured_len;	/* we dissected all of the containing PDU */
 
@@ -1049,7 +1049,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
     osi_decode_tp_var_part(pd, offset, li, class_option, cotp_tree);
   offset += li;
 
-  dissect_data(pd, offset, fd, tree);
+  old_dissect_data(pd, offset, fd, tree);
 
   return pi.captured_len;	/* we dissected all of the containing PDU */
 
@@ -1392,7 +1392,7 @@ static gboolean osi_decode_UD(const u_char *pd, int offset,
     osi_decode_tp_var_part(pd, offset, li, 0, cltp_tree);
   offset += li;
 
-  dissect_data(pd, offset, fd, tree);
+  old_dissect_data(pd, offset, fd, tree);
   return FALSE;
 } /* osi_decode_UD */
 
@@ -1428,14 +1428,14 @@ static gboolean dissect_ositp_internal(const u_char *pd, int offset,
       if (check_col(fd, COL_INFO))
         col_append_str(fd, COL_INFO, "Length indicator is zero");
       if (!first_tpdu)
-        dissect_data(pd, offset, fd, tree);
+        old_dissect_data(pd, offset, fd, tree);
       return found_ositp;
     }
     if (!BYTES_ARE_IN_FRAME(offset, P_LI + li + 1)) {
       if (check_col(fd, COL_INFO))
         col_append_str(fd, COL_INFO, "Captured data in frame doesn't include entire frame");
       if (!first_tpdu)
-        dissect_data(pd, offset, fd, tree);
+        old_dissect_data(pd, offset, fd, tree);
       return found_ositp;
     }
 
@@ -1489,7 +1489,7 @@ static gboolean dissect_ositp_internal(const u_char *pd, int offset,
 
     if (new_offset == -1) { /* incorrect TPDU */
       if (!first_tpdu)
-        dissect_data(pd, offset, fd, tree);
+        old_dissect_data(pd, offset, fd, tree);
       break;
     }
 
@@ -1511,7 +1511,7 @@ void dissect_ositp(const u_char *pd, int offset, frame_data *fd,
 		  proto_tree *tree) 
 {
   if (!dissect_ositp_internal(pd, offset, fd, tree, FALSE))
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
 }
 
 
@@ -1555,13 +1555,13 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   } 
  
   if (!BYTES_ARE_IN_FRAME(offset, sizeof(clnp))) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
   /* return if version not known */
   if (clnp.cnf_vers != ISO8473_V1) {
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -1611,7 +1611,7 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   if (!BYTES_ARE_IN_FRAME(offset, clnp.cnf_hdr_len)) {
     if (check_col(fd, COL_INFO))
       col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -1709,7 +1709,7 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
     if (check_col(fd, COL_INFO))
       col_add_fstr(fd, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
 		pdu_type_string, flag_string, segment_offset);
-    dissect_data(pd, offset, fd, tree);
+    old_dissect_data(pd, offset, fd, tree);
     return;
   }
 
@@ -1744,7 +1744,7 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   }
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-  dissect_data(pd, offset, fd, tree);
+  old_dissect_data(pd, offset, fd, tree);
 
 } /* dissect_clnp */
 
@@ -1844,6 +1844,6 @@ void proto_register_cltp(void)
 void
 proto_reg_handoff_clnp(void)
 {
-	dissector_add("osinl", NLPID_ISO8473_CLNP, dissect_clnp);
-	dissector_add("osinl", NLPID_NULL, dissect_clnp);	/* Inactive subset */
+	old_dissector_add("osinl", NLPID_ISO8473_CLNP, dissect_clnp);
+	old_dissector_add("osinl", NLPID_NULL, dissect_clnp);	/* Inactive subset */
 }

@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.8 2000/06/15 03:48:40 gram Exp $
+ * $Id: packet-ddtp.c,v 1.9 2000/08/07 03:20:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,21 +97,11 @@ static const value_string vals_ddtp_status[] = {
     { 0, NULL}
 };
 
-#if 0
 static void
 dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *ddtp_tree;
     proto_item *ti;
-#else
-static void
-dissect_ddtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-    proto_tree  *ddtp_tree;
-    proto_item  *ti;
-    packet_info *pinfo = &pi;
-    tvbuff_t	*tvb = tvb_create_from_top(offset);
-#endif
 
     pinfo->current_proto = "DDTP";
     if (check_col(pinfo->fd, COL_PROTOCOL)) {
@@ -120,14 +110,9 @@ dissect_ddtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0,
-		END_OF_FRAME - offset, FALSE);
+		tvb_length(tvb), FALSE);
 	ddtp_tree = proto_item_add_subtree(ti, ett_ddtp);
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-	    proto_tree_add_text(ddtp_tree, NullTVB, offset, tvb_length(tvb),
-		    "Frame too short");
-	    return;
-	}
 	proto_tree_add_item(ddtp_tree, hf_ddtp_version, tvb, 0, 4, FALSE);
 	proto_tree_add_item(ddtp_tree, hf_ddtp_encrypt, tvb, 4, 4, FALSE);
 	proto_tree_add_item(ddtp_tree, hf_ddtp_hostid, tvb, 8, 4, FALSE);

@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.18 2000/07/08 10:46:20 gram Exp $
+ * $Id: packet-ipsec.c,v 1.19 2000/08/07 03:20:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -198,8 +198,8 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
 
     /* do lookup with the subdissector table */
-    if (!dissector_try_port(ip_dissector_table, ah.ah_nxt, pd, offset, fd, next_tree)) {
-      dissect_data(pd, offset, fd, next_tree);
+    if (!old_dissector_try_port(ip_dissector_table, ah.ah_nxt, pd, offset, fd, next_tree)) {
+      old_dissect_data(pd, offset, fd, next_tree);
     }
 }
 
@@ -236,7 +236,7 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree_add_uint(esp_tree, hf_esp_sequence, NullTVB,
 			    offset + offsetof(struct newesp, esp_seq), 4,
 			    (guint32)ntohl(esp.esp_seq));
-	dissect_data(pd, offset + sizeof(struct newesp), fd, esp_tree);
+	old_dissect_data(pd, offset + sizeof(struct newesp), fd, esp_tree);
     }
 }
 
@@ -293,7 +293,7 @@ dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		"CPI: %s (0x%04x)",
 		p, ntohs(ipcomp.comp_cpi));
 	}
-	dissect_data(pd, offset + sizeof(struct ipcomp), fd, ipcomp_tree);
+	old_dissect_data(pd, offset + sizeof(struct ipcomp), fd, ipcomp_tree);
     }
 }
 
@@ -357,7 +357,7 @@ proto_register_ipsec(void)
 void
 proto_reg_handoff_ipsec(void)
 {
-  dissector_add("ip.proto", IP_PROTO_AH, dissect_ah);
-  dissector_add("ip.proto", IP_PROTO_ESP, dissect_esp);
-  dissector_add("ip.proto", IP_PROTO_IPCOMP, dissect_ipcomp);
+  old_dissector_add("ip.proto", IP_PROTO_AH, dissect_ah);
+  old_dissector_add("ip.proto", IP_PROTO_ESP, dissect_esp);
+  old_dissector_add("ip.proto", IP_PROTO_IPCOMP, dissect_ipcomp);
 }

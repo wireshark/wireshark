@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.5 2000/06/15 03:48:42 gram Exp $
+ * $Id: packet-mip.c,v 1.6 2000/08/07 03:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -299,5 +299,5 @@ void proto_register_mip(void)
 void
 proto_reg_handoff_mip(void)
 {
-	dissector_add("udp.port", UDP_PORT_MIP, dissect_mip);
+	old_dissector_add("udp.port", UDP_PORT_MIP, dissect_mip);
 }

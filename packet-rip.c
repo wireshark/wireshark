@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.16 2000/05/31 05:07:34 guy Exp $
+ * $Id: packet-rip.c,v 1.17 2000/08/07 03:21:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,7 +72,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	case RIPv1:
             /* the domain field has to be set to zero for RIPv1 */
             if(!(rip_header.domain == 0)){ 
-                dissect_data(pd, offset, fd, tree);
+                old_dissect_data(pd, offset, fd, tree);
                 return;
             }
 	    /* the RIPv2 checks are also made for v1 packets */
@@ -81,13 +81,13 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	     * (range checking for index of char* packet_type is done at the same time) 
 	     */
             if( !( (rip_header.command > 0) && (rip_header.command <= 7) )){ 
-                dissect_data(pd, offset, fd, tree);
+                old_dissect_data(pd, offset, fd, tree);
                 return;
             }
 	    break;
 	default:
 	    /* we only know RIPv1 and RIPv2 */
-            dissect_data(pd, offset, fd, tree);
+            old_dissect_data(pd, offset, fd, tree);
             return;
     }
 
@@ -202,5 +202,5 @@ proto_register_rip(void)
 void
 proto_reg_handoff_rip(void)
 {
-	dissector_add("udp.port", UDP_PORT_RIP, dissect_rip);
+	old_dissector_add("udp.port", UDP_PORT_RIP, dissect_rip);
 }

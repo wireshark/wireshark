@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.25 2000/05/31 05:07:27 guy Exp $
+ * $Id: packet-null.c,v 1.26 2000/08/07 03:20:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -300,7 +300,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
       case BSD_AF_IPX:
-        dissect_ipx(next_pd, next_offset, pinfo->fd, tree);
+        dissect_ipx(next_tvb, pinfo, tree);
         break;
 
       case BSD_AF_ISO:
@@ -313,7 +313,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
       default:
-        dissect_data_tvb(next_tvb, pinfo, tree);
+        dissect_data(next_tvb, pinfo, tree);
         break;
       }
     }

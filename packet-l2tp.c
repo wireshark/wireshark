@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.13 2000/06/15 03:48:41 gram Exp $
+ * $Id: packet-l2tp.c,v 1.14 2000/08/07 03:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -830,5 +830,5 @@ proto_register_l2tp(void)
 void
 proto_reg_handoff_l2tp(void)
 {
-	dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp);
+	old_dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp);
 }

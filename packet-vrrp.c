@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.6 2000/05/31 05:07:53 guy Exp $
+ * $Id: packet-vrrp.c,v 1.7 2000/08/07 03:21:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -128,7 +128,7 @@ dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                 guint8 ip_count, auth_len, auth_buf[VRRP_AUTH_DATA_LEN+1];
 
                 if (short_hdr) {
-                        dissect_data(pd, offset, fd, tree);
+                        old_dissect_data(pd, offset, fd, tree);
                         return;
                 }
 
@@ -156,7 +156,7 @@ dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                 offset+=2;
 
                 if (short_packet) {
-                        dissect_data(pd, offset, fd, vrrp_tree);
+                        old_dissect_data(pd, offset, fd, vrrp_tree);
                         return;
                 }
                 
@@ -217,5 +217,5 @@ void proto_register_vrrp(void)
 void
 proto_reg_handoff_vrrp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_VRRP, dissect_vrrp);
+	old_dissector_add("ip.proto", IP_PROTO_VRRP, dissect_vrrp);
 }

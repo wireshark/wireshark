@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.13 2000/05/31 05:07:26 guy Exp $
+ * $Id: packet-ntp.c,v 1.14 2000/08/07 03:20:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -441,6 +441,6 @@ proto_register_ntp(void)
 void
 proto_reg_handoff_ntp(void)
 {
-	dissector_add("udp.port", UDP_PORT_NTP, dissect_ntp);
-	dissector_add("tcp.port", TCP_PORT_NTP, dissect_ntp);
+	old_dissector_add("udp.port", UDP_PORT_NTP, dissect_ntp);
+	old_dissector_add("tcp.port", TCP_PORT_NTP, dissect_ntp);
 }
