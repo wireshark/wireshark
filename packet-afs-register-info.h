@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.5 2000/11/03 22:38:07 nneul Exp $
+ * $Id: packet-afs-register-info.h,v 1.6 2001/03/23 21:42:37 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -447,14 +447,16 @@
 /* UBIK Fields */
 { &hf_afs_ubik_errcode, { "Error Code", "afs.ubik.errcode", 
 	FT_UINT32, BASE_DEC, VALS(afs_errors), 0, "Error Code" }},
+{ &hf_afs_ubik_state, { "State", "afs.ubik.state", 
+	FT_UINT32, BASE_HEX, 0, 0, "State" }},
 { &hf_afs_ubik_version_epoch, { "Epoch", "afs.ubik.version.epoch", 
 	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Epoch" }},
+{ &hf_afs_ubik_version_counter, { "Counter", "afs.ubik.version.counter", 
+	FT_UINT32, BASE_DEC, 0, 0, "Counter" }},
 { &hf_afs_ubik_votestart, { "Vote Started", "afs.ubik.votestart", 
 	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Vote Started" }},
 { &hf_afs_ubik_voteend, { "Vote Ends", "afs.ubik.voteend", 
 	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Vote Ends" }},
-{ &hf_afs_ubik_version_counter, { "Counter", "afs.ubik.version.counter", 
-	FT_UINT32, BASE_DEC, 0, 0, "Counter" }},
 { &hf_afs_ubik_file, { "File", "afs.ubik.file", 
 	FT_UINT32, BASE_DEC, 0, 0, "File" }},
 { &hf_afs_ubik_pos, { "Position", "afs.ubik.position", 
@@ -464,8 +466,6 @@
 { &hf_afs_ubik_locktype, { "Lock Type", "afs.ubik.locktype", 
 	FT_UINT32, BASE_DEC, VALS(ubik_lock_types), 0, "Lock Type" }},
 { &hf_afs_ubik_votetype, { "Vote Type", "afs.ubik.votetype", 
-	FT_BOOLEAN, BASE_HEX, 0, 0, "Vote Type" }},
-{ &hf_afs_ubik_syncsite, { "Syncsite", "afs.ubik.syncsite", 
-	FT_BOOLEAN, BASE_HEX, 0, 0, "Syncsite" }},
+	FT_UINT32, BASE_HEX, 0, 0, "Vote Type" }},
 { &hf_afs_ubik_site, { "Site", "afs.ubik.site", 
 	FT_IPv4, BASE_HEX, 0, 0, "Site" }},

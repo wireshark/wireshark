@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.5 2000/11/03 22:38:07 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.6 2001/03/23 21:42:37 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -451,8 +451,12 @@
 			"UBIK Version (%s): %u.%u", label, epoch, counter ); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_ubikver); \
+		if ( epoch != 0 ) \
 		proto_tree_add_time(tree,hf_afs_ubik_version_epoch, NullTVB,curoffset-8, \
 			sizeof(guint32),&tv); \
+		else \
+			proto_tree_add_text(tree, NullTVB, curoffset-8, \
+			sizeof(guint32),"Epoch: 0"); \
 		proto_tree_add_uint(tree,hf_afs_ubik_version_counter, NullTVB,curoffset-4, \
 			sizeof(guint32),counter); \
 		tree = save; \

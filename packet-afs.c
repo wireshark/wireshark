@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.26 2001/01/03 06:55:26 guy Exp $
+ * $Id: packet-afs.c,v 1.27 2001/03/23 21:42:37 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -254,8 +254,6 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		opcode = request_val->opcode;
 	}
 
-	
-
 	node = 0;
 	typenode = 0;
 	vals = NULL;
@@ -359,7 +357,8 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		afs_tree = proto_item_add_subtree(ti, ett_afs);
 
 		if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct rx_header) +
-			sizeof(struct afs_header)) )
+			sizeof(struct afs_header)) &&
+			typenode != hf_afs_ubik )
 		{
 			proto_tree_add_text(afs_tree, NullTVB, doffset, END_OF_FRAME,
 				"Service: %s %s (Truncated)",
@@ -1651,30 +1650,41 @@ dissect_ubik_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	doffset = offset + sizeof(struct rx_header);
 	curoffset = doffset;
 
-	if ( rxh->type == RX_PACKET_TYPE_DATA )
+	switch ( opcode )
 	{
-		switch ( opcode )
-		{
-			case 10000: /* beacon */
-				proto_tree_add_boolean(tree,hf_afs_ubik_votetype, NullTVB,0,0,0);
-				break;
-			case 20004: /* get version */
-				OUT_UBIKVERSION("DB Version");
-				break;
-		}
-	}
-	else if ( rxh->type == RX_PACKET_TYPE_ABORT )
-	{
-		switch ( opcode )
-		{
-			case 10000:
-				proto_tree_add_boolean(tree,hf_afs_ubik_votetype, NullTVB,0,0,1);
-				OUT_DATE(hf_afs_ubik_voteend);
-				break;
-			default:
-				OUT_UINT(hf_afs_ubik_errcode);
-				break;
-		}
+		case 10000: /* vote-beacon */
+			break;
+		case 10001: /* vote-debug-old */
+			/* ubik_debug_old */
+			break;
+		case 10002: /* vote-sdebug-old */
+			/* ubik_sdebug_old */
+			break;
+		case 10003: /* vote-get syncsite */
+			break;
+		case 10004: /* vote-debug */
+			/* ubik_debug */
+			break;
+		case 10005: /* vote-sdebug */
+			/* ubik_sdebug */
+			break;
+		case 10006: /* vote-xdebug */
+			/* ubik_debug */
+			/* isClone */
+			break;
+		case 10007: /* vote-xsdebug */
+			/* ubik_sdebug */
+			/* isClone */
+			break;
+
+		case 20000: /* disk-begin */
+			break;
+		case 20004: /* get version */
+			OUT_UBIKVERSION("DB Version");
+			break;
+		case 20010: /* disk-probe */
+			break;
+
 	}
 }
 
@@ -1694,48 +1704,65 @@ dissect_ubik_request(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 
 	switch ( opcode )
 	{
-		case 10000: /* beacon */
-			OUT_UINT(hf_afs_ubik_syncsite);
+		case 10000: /* vote-beacon */
+			OUT_UINT(hf_afs_ubik_state);
 			OUT_DATE(hf_afs_ubik_votestart);
 			OUT_UBIKVERSION("DB Version");
 			OUT_UBIKVERSION("TID");
 			break;
-		case 10003: /* get sync site */
+		case 10001: /* vote-debug-old */
+			break;
+		case 10002: /* vote-sdebug-old */
+			OUT_UINT(hf_afs_ubik_site);
+			break;
+		case 10003: /* vote-get sync site */
 			OUT_IP(hf_afs_ubik_site);
 			break;
-		case 20000: /* begin */
-		case 20001: /* commit */
-		case 20007: /* abort */
-		case 20008: /* release locks */
-		case 20010: /* writev */
+		case 10004: /* vote-debug */
+		case 10005: /* vote-sdebug */
+			OUT_IP(hf_afs_ubik_site);
+			break;
+		case 20000: /* disk-begin */
 			OUT_UBIKVERSION("TID");
 			break;
-		case 20002: /* lock */
+		case 20001: /* disk-commit */
+			OUT_UBIKVERSION("TID");
+			break;
+		case 20002: /* disk-lock */
 			OUT_UBIKVERSION("TID");
 			OUT_UINT(hf_afs_ubik_file);
 			OUT_UINT(hf_afs_ubik_pos);
 			OUT_UINT(hf_afs_ubik_length);
 			OUT_UINT(hf_afs_ubik_locktype);
 			break;
-		case 20003: /* write */
+		case 20003: /* disk-write */
 			OUT_UBIKVERSION("TID");
 			OUT_UINT(hf_afs_ubik_file);
 			OUT_UINT(hf_afs_ubik_pos);
 			break;
-		case 20005: /* get file */
+		case 20004: /* disk-get version */
+			break;
+		case 20005: /* disk-get file */
 			OUT_UINT(hf_afs_ubik_file);
 			break;
-		case 20006: /* send file */
+		case 20006: /* disk-send file */
 			OUT_UINT(hf_afs_ubik_file);
 			OUT_UINT(hf_afs_ubik_length);
 			OUT_UBIKVERSION("DB Version");
 			break;
-		case 20009: /* truncate */
+		case 20007: /* disk-abort */
+		case 20008: /* disk-release locks */
+		case 20010: /* disk-probe */
+			break;
+		case 20009: /* disk-truncate */
 			OUT_UBIKVERSION("TID");
 			OUT_UINT(hf_afs_ubik_file);
 			OUT_UINT(hf_afs_ubik_length);
 			break;
-		case 20012: /* set version */
+		case 20011: /* disk-writev */
+			OUT_UBIKVERSION("TID");
+			break;
+		case 20012: /* disk-set version */
 			OUT_UBIKVERSION("TID");
 			OUT_UBIKVERSION("Old DB Version");
 			OUT_UBIKVERSION("New DB Version");

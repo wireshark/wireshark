@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.5 2000/11/03 22:38:07 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.6 2001/03/23 21:42:37 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -289,6 +289,8 @@ static const value_string ubik_req[] = {
 	{ 10003,	"vote-getsyncsite" },
 	{ 10004,	"vote-debug" },
 	{ 10005,	"vote-sdebug" },
+	{ 10006,	"vote-xdebug" },
+	{ 10007,	"vote-xsdebug" },
 	{ 20000,	"disk-begin" },
 	{ 20001,	"disk-commit" },
 	{ 20002,	"disk-lock" },
@@ -687,7 +689,7 @@ static int hf_afs_ubik_errcode = -1;
 static int hf_afs_ubik_version_epoch = -1;
 static int hf_afs_ubik_version_counter = -1;
 static int hf_afs_ubik_votestart = -1;
-static int hf_afs_ubik_syncsite = -1;
+static int hf_afs_ubik_state = -1;
 static int hf_afs_ubik_site = -1;
 static int hf_afs_ubik_file = -1;
 static int hf_afs_ubik_pos = -1;
