@@ -41,12 +41,15 @@ static int hf_nt_sec_desc_type_dacl_present = -1;
 static int hf_nt_sec_desc_type_dacl_defaulted = -1;
 static int hf_nt_sec_desc_type_sacl_present = -1;
 static int hf_nt_sec_desc_type_sacl_defaulted = -1;
+static int hf_nt_sec_desc_type_dacl_trusted = -1;
+static int hf_nt_sec_desc_type_server_security = -1;
 static int hf_nt_sec_desc_type_dacl_auto_inherit_req = -1;
 static int hf_nt_sec_desc_type_sacl_auto_inherit_req = -1;
 static int hf_nt_sec_desc_type_dacl_auto_inherited = -1;
 static int hf_nt_sec_desc_type_sacl_auto_inherited = -1;
 static int hf_nt_sec_desc_type_dacl_protected = -1;
 static int hf_nt_sec_desc_type_sacl_protected = -1;
+static int hf_nt_sec_desc_type_rm_control_valid = -1;
 static int hf_nt_sec_desc_type_self_relative = -1;
 static int hf_nt_sid = -1;
 static int hf_nt_sid_revision = -1;
@@ -1910,6 +1913,14 @@ static const true_false_string tfs_sec_desc_type_sacl_defaulted = {
   "SACL is DEFAULTED",
   "SACL is NOT defaulted"
 };
+static const true_false_string tfs_sec_desc_type_dacl_trusted = {
+  "DACL TRUSTED is TRUE",
+  "Dacl trusted is FALSE"
+};
+static const true_false_string tfs_sec_desc_type_server_security = {
+  "SERVER SECURITY is TRUE",
+  "Server security is FALSE"
+};
 static const true_false_string tfs_sec_desc_type_dacl_auto_inherit_req = {
   "DACL has AUTO INHERIT REQUIRED",
   "DACL does NOT require auto inherit"
@@ -1934,6 +1945,10 @@ static const true_false_string tfs_sec_desc_type_sacl_protected = {
   "The SACL is PROTECTED",
   "The SACL is NOT protected"
 };
+static const true_false_string tfs_sec_desc_type_rm_control_valid = {
+  "Rm control valid is TRUE",
+  "Rm control valid is FALSE"
+};
 static const true_false_string tfs_sec_desc_type_self_relative = {
   "This SecDesc is SELF RELATIVE",
   "This SecDesc is NOT self relative"
@@ -1956,6 +1971,8 @@ dissect_nt_sec_desc_type(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_self_relative,
 			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_rm_control_valid,
+			       tvb, offset, 2, mask);
 	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_sacl_protected,
 			       tvb, offset, 2, mask);
 	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_dacl_protected,
@@ -1967,6 +1984,10 @@ dissect_nt_sec_desc_type(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_sacl_auto_inherit_req,
 			       tvb, offset, 2, mask);
 	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_dacl_auto_inherit_req,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_server_security,
+			       tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_dacl_trusted,
 			       tvb, offset, 2, mask);
 	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_sacl_defaulted,
 			       tvb, offset, 2, mask);
@@ -2116,6 +2137,14 @@ proto_do_register_windows_common(int proto_smb)
 		  { "DACL Auto Inherit Required", "nt.sec_desc.type.dacl_auto_inherit_req", FT_BOOLEAN, 16,
 		    TFS(&tfs_sec_desc_type_dacl_auto_inherit_req), 0x0100, "Does this SecDesc have DACL Auto Inherit Required set?", HFILL }},
 
+		{ &hf_nt_sec_desc_type_dacl_trusted,
+		  { "DACL Trusted", "nt.sec_desc.type.dacl_trusted", FT_BOOLEAN, 16,
+		    TFS(&tfs_sec_desc_type_dacl_trusted), 0x0040, "Does this SecDesc have DACL TRUSTED set?", HFILL }},
+
+		{ &hf_nt_sec_desc_type_server_security,
+		  { "Server Security", "nt.sec_desc.type.server_security", FT_BOOLEAN, 16,
+		    TFS(&tfs_sec_desc_type_server_security), 0x0080, "Does this SecDesc have SERVER SECURITY set?", HFILL }},
+
 		{ &hf_nt_sec_desc_type_sacl_auto_inherit_req,
 		  { "SACL Auto Inherit Required", "nt.sec_desc.type.sacl_auto_inherit_req", FT_BOOLEAN, 16,
 		    TFS(&tfs_sec_desc_type_sacl_auto_inherit_req), 0x0200, "Does this SecDesc have SACL Auto Inherit Required set?", HFILL }},
@@ -2139,6 +2168,10 @@ proto_do_register_windows_common(int proto_smb)
 		{ &hf_nt_sec_desc_type_self_relative,
 		  { "Self Relative", "nt.sec_desc.type.self_relative", FT_BOOLEAN, 16,
 		    TFS(&tfs_sec_desc_type_self_relative), 0x8000, "Is this SecDesc self relative?", HFILL }},
+
+		{ &hf_nt_sec_desc_type_rm_control_valid,
+		  { "RM Control Valid", "nt.sec_desc.type.rm_control_valid", FT_BOOLEAN, 16,
+		    TFS(&tfs_sec_desc_type_rm_control_valid), 0x4000, "Is RM Control Valid set?", HFILL }},
 
 		/* SIDs */
 
