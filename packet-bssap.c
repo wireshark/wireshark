@@ -7,7 +7,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-bssap.c,v 1.1 2003/10/22 20:59:02 guy Exp $
+ * $Id: packet-bssap.c,v 1.2 2003/10/24 00:38:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,12 +84,6 @@ static const value_string bsap_pdu_type_acro_values[] = {
 #define PARAMETER_DLCI		0x00
 #define PARAMETER_LENGTH	0x01
 #define PARAMETER_DATA		0x02
-
-static const value_string bssap_parameter_values[] = {
-    { PARAMETER_DLCI,	"Data Link Connection Identifier" },
-    { PARAMETER_LENGTH,	"Length" },
-    { PARAMETER_DATA,	"Data" },
-    { 0,		NULL } };
 
 #define DLCI_LENGTH		1
 #define LENGTH_LENGTH		1
