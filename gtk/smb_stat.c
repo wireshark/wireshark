@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.23 2003/10/27 01:09:32 sharpe Exp $
+ * $Id: smb_stat.c,v 1.24 2003/10/27 01:20:16 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -265,7 +265,7 @@ static void
 gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	GtkWidget *dlg_box;
-	GtkWidget *filter_box, *filter_label, *filter_bt;
+	GtkWidget *filter_box, *filter_bt;
 	GtkWidget *bbox, *start_button, *cancel_button;
 	char *filter;
 	static construct_args_t args = {
