@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.12 1999/12/06 09:57:34 girlich Exp $
+ * $Id: packet-nfs.c,v 1.13 1999/12/09 10:10:29 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -65,6 +65,7 @@ static int hf_nfs_statfs_bsize = -1;
 static int hf_nfs_statfs_blocks = -1;
 static int hf_nfs_statfs_bfree = -1;
 static int hf_nfs_statfs_bavail = -1;
+static int hf_nfs_createmode3 = -1;
 
 
 static gint ett_nfs = -1;
@@ -80,6 +81,7 @@ static gint ett_nfs_specdata3 = -1;
 static gint ett_nfs_fh3 = -1;
 static gint ett_nfs_nfstime3 = -1;
 static gint ett_nfs_fattr3 = -1;
+static gint ett_nfs_post_op_fh3 = -1;
 static gint ett_nfs_sattr3 = -1;
 static gint ett_nfs_diropargs3 = -1;
 static gint ett_nfs_sattrguard3 = -1;
@@ -868,8 +870,6 @@ dissect_nfs2_statfs_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 	return offset;
 }
 
-/* more to come here */
-
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
@@ -951,10 +951,30 @@ dissect_filename3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 /* RFC 1813, Page 15 */
 int
+dissect_nfspath3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hf)
+{
+	offset = dissect_rpc_string(pd,offset,fd,tree,hf);
+	return offset;
+}
+
+
+/* RFC 1813, Page 15 */
+int
 dissect_fileid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
 	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"fileid3");
+	return offset;
+}
+
+
+/* RFC 1813, Page 16 */
+int
+dissect_createverf3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
+	proto_tree_add_text(tree, offset, 8, "Verifier: Opaque Data");
+	offset += 8;
 	return offset;
 }
 
@@ -1285,7 +1305,7 @@ dissect_fattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 }
 
 
-const value_string value_follows[3] =
+const value_string value_follows[] =
 	{
 		{ 0, "no value" },
 		{ 1, "value follows"},
@@ -1424,6 +1444,47 @@ dissect_wcc_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	/* now we know, that wcc_data is shorter */
 	if (wcc_data_item) {
 		proto_item_set_len(wcc_data_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 25 */
+int
+dissect_post_op_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item* post_op_fh3_item = NULL;
+	proto_tree* post_op_fh3_tree = NULL;
+	int old_offset = offset;
+	guint32 handle_follows;
+
+	if (tree) {
+		post_op_fh3_item = proto_tree_add_text(tree, offset,
+			END_OF_FRAME, "%s", name);
+		if (post_op_fh3_item)
+			post_op_fh3_tree = proto_item_add_subtree(post_op_fh3_item, ett_nfs_post_op_fh3);
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	handle_follows = EXTRACT_UINT(pd, offset+0);
+	proto_tree_add_text(post_op_fh3_tree, offset, 4,
+		"handle_follows: %s (%u)", 
+		val_to_str(handle_follows,value_follows,"Unknown"), handle_follows);
+	offset += 4;
+	switch (handle_follows) {
+		case TRUE:
+			offset = dissect_nfs_fh3(pd, offset, fd, post_op_fh3_tree,
+					"handle");
+		break;
+		case FALSE:
+			/* void */
+		break;
+	}
+	
+	/* now we know, that post_op_fh3_tree is shorter */
+	if (post_op_fh3_item) {
+		proto_item_set_len(post_op_fh3_item, offset - old_offset);
 	}
 
 	return offset;
@@ -1724,7 +1785,7 @@ dissect_set_mtime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 }
 
 
-/* RFC 1813, Page 26 */
+/* RFC 1813, Page 25..27 */
 int
 dissect_sattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
 {
@@ -1782,6 +1843,16 @@ dissect_diropargs3(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 }
 
 
+/* RFC 1813, Page 27 */
+int
+dissect_nfs3_diropargs3_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_diropargs3(pd, offset, fd, tree, "object");
+
+	return offset;
+}
+
+
 /* RFC 1813, Page 40 */
 int
 dissect_access(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
@@ -1820,9 +1891,9 @@ dissect_access(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 }
 
 
-/* generic NFS3 call dissector */
+/* NFS3 file handle dissector */
 int
-dissect_nfs3_any_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+dissect_nfs3_nfs_fh3_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
 	offset = dissect_nfs_fh3(pd, offset, fd, tree, "object");
 	return offset;
@@ -2011,32 +2082,150 @@ dissect_nfs3_access_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 }
 
 
+/* RFC 1813, Page 44,45 */
+int
+dissect_nfs3_readlink_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "symlink_attributes");
+			offset = dissect_nfspath3    (pd, offset, fd, tree, hf_nfs_readlink_data);
+		break;
+		default:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "symlink_attributes");
+		break;
+	}
+		
+	return offset;
+}
+
+
+/* RFC 1813, Page 54 */
+static const value_string text_createmode3[] = {
+	{	UNCHECKED, "UNCHECKED" },
+	{	GUARDED,   "GUARDED" },
+	{	EXCLUSIVE, "EXCLUSIVE" },
+	{ 0, NULL }
+};
+
+
+/* RFC 1813, Page 54 */
+int
+dissect_createmode3(const u_char* pd, int offset, frame_data* fd, proto_tree* tree, guint32* mode)
+{
+	guint32 mode_value;
+	
+	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+	mode_value = EXTRACT_UINT(pd, offset + 0);
+	if (tree) {
+		proto_tree_add_item(tree, hf_nfs_createmode3,
+		offset+0, 4, mode_value);
+	}
+	offset += 4;
+
+	*mode = mode_value;
+	return offset;
+}
+
+
+/* RFC 1813, Page 54..58 */
+int
+dissect_nfs3_create_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 mode;
+
+	offset = dissect_diropargs3 (pd, offset, fd, tree, "where");
+	offset = dissect_createmode3(pd, offset, fd, tree, &mode);
+	switch (mode) {
+		case UNCHECKED:
+		case GUARDED:
+			offset = dissect_sattr3(pd, offset, fd, tree, "obj_attributes");
+		break;
+		case EXCLUSIVE:
+			offset = dissect_createverf3(pd, offset, fd, tree);
+		break;
+	}
+	
+	return offset;
+}
+
+
+/* RFC 1813, Page 54..58 */
+int
+dissect_nfs3_create_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_post_op_fh3(pd, offset, fd, tree, "obj");
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+			offset = dissect_wcc_data(pd, offset, fd, tree, "dir_wcc");
+		break;
+		default:
+			offset = dissect_wcc_data(pd, offset, fd, tree, "dir_wcc");
+		break;
+	}
+		
+	return offset;
+}
+
+
+/* 25 missing functions */
+
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 const vsff nfs3_proc[] = {
-	{ 0,	"NULL",		NULL,				NULL },
-	{ 1,	"GETATTR",	dissect_nfs3_getattr_call,	dissect_nfs3_getattr_reply },
-	{ 2,	"SETATTR",	dissect_nfs3_setattr_call,	dissect_nfs3_setattr_reply },
-	{ 3,	"LOOKUP",	dissect_nfs3_lookup_call,	dissect_nfs3_lookup_reply },
-	{ 4,	"ACCESS",	dissect_nfs3_access_call,	dissect_nfs3_access_reply },
-	{ 5,	"READLINK",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 6,	"READ",		dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 7,	"WRITE",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 8,	"CREATE",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 9,	"MKDIR",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 10,	"SYMLINK",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 11,	"MKNOD",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 12,	"REMOVE",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 13,	"RMDIR",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 14,	"RENAME",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 15,	"LINK",		dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 16,	"READDIR",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 17,	"READDIRPLUS",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 18,	"FSSTAT",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 19,	"FSINFO",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 20,	"PATHCONF",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 21,	"COMMIT",	dissect_nfs3_any_call,		dissect_nfs3_any_reply },
-	{ 0,	NULL,		NULL,				NULL }
+	{ 0,	"NULL",		/* OK */
+	NULL,				NULL },
+	{ 1,	"GETATTR",	/* OK */
+	dissect_nfs3_getattr_call,	dissect_nfs3_getattr_reply },
+	{ 2,	"SETATTR",	/* OK */
+	dissect_nfs3_setattr_call,	dissect_nfs3_setattr_reply },
+	{ 3,	"LOOKUP",	/* OK */
+	dissect_nfs3_lookup_call,	dissect_nfs3_lookup_reply },
+	{ 4,	"ACCESS",	/* OK */
+	dissect_nfs3_access_call,	dissect_nfs3_access_reply },
+	{ 5,	"READLINK",	/* OK */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_readlink_reply },
+	{ 6,	"READ",		/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 7,	"WRITE",	/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 8,	"CREATE",	/* OK */
+	dissect_nfs3_create_call,	dissect_nfs3_create_reply },
+	{ 9,	"MKDIR",	/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 10,	"SYMLINK",	/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 11,	"MKNOD",	/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 12,	"REMOVE",	/* todo: reply */
+	dissect_nfs3_diropargs3_call,	dissect_nfs3_any_reply },
+	{ 13,	"RMDIR",	/* todo: reply */
+	dissect_nfs3_diropargs3_call,	dissect_nfs3_any_reply },
+	{ 14,	"RENAME",	/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 15,	"LINK",		/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 16,	"READDIR",	/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 17,	"READDIRPLUS",	/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 18,	"FSSTAT",	/* todo: reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 19,	"FSINFO",	/* todo: reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 20,	"PATHCONF",	/* todo: reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 21,	"COMMIT",	/* todo: call, reply */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 0,NULL,NULL,NULL }
 };
 /* end of NFS Version 3 */
 
@@ -2116,7 +2305,10 @@ proto_register_nfs(void)
 			NULL, 0, "Free Blocks" }},
 		{ &hf_nfs_statfs_bavail, {
 			"Available Blocks", "nfs.statfs.bavail", FT_UINT32, BASE_DEC,
-			NULL, 0, "Available Blocks" }}
+			NULL, 0, "Available Blocks" }},
+		{ &hf_nfs_createmode3, {
+			"Create Mode", "nfs.createmode", FT_UINT32, BASE_DEC,
+			VALS(text_createmode3), 0, "Create Mode" }}
 	};
 
 	static gint *ett[] = {
@@ -2133,6 +2325,7 @@ proto_register_nfs(void)
 		&ett_nfs_fh3,
 		&ett_nfs_nfstime3,
 		&ett_nfs_fattr3,
+		&ett_nfs_post_op_fh3,
 		&ett_nfs_sattr3,
 		&ett_nfs_diropargs3,
 		&ett_nfs_sattrguard3,
