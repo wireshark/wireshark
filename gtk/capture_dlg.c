@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.45 2001/09/28 07:50:48 guy Exp $
+ * $Id: capture_dlg.c,v 1.46 2001/09/29 19:56:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,14 +145,17 @@ capture_prep_cb(GtkWidget *w, gpointer d)
 		  "to capture packets.\n\n"
 		  "In order to capture packets, WinPcap must be installed; see\n"
 		  "\n"
-		  "http://netgroup-serv.polito.it/winpcap/\n"
+		  "        http://netgroup-serv.polito.it/winpcap/\n"
+		  "\n"
+		  "or the mirror at\n"
+		  "\n"
+		  "        http://www.wiretapped.net/security/packet-capture/winpcap/default.htm\n"
 		  "\n"
 		  "for a downloadable version of WinPcap and for instructions\n"
 		  "on how to install WinPcap.");
 	  return;
   }
 #endif
-	  
 
   if_list = get_interface_list(&err, err_str);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
