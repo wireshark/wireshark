@@ -26,8 +26,15 @@
 #ifndef __REQ_RESP_HDRS_H__
 #define __REQ_RESP_HDRS_H__
 
-/*
+/**
  * Optionally do reassembly of the request/response line, headers, and body.
+ *
+ *  @param tvb  The buffer.
+ *  @param offset   The offset in the buffer to begin inspection.
+ *  @param pinfo    Packet info from the parent protocol.
+ *  @param desegment_headers    Do desegmentation on headers.
+ *  @param desegment_body   Do desegmenation on body.
+ *  @return TRUE if desegmentation is complete otherwise FALSE
  */
 extern gboolean
 req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
