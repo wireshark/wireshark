@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.69 2004/02/24 23:25:28 ulfl Exp $
+ * $Id: io_stat.c,v 1.70 2004/02/25 00:16:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,7 +86,7 @@ static char *plot_style_name[MAX_PLOT_STYLES] = {
 #define COUNT_TYPE_BYTES    1
 #define COUNT_TYPE_ADVANCED 2
 #define MAX_COUNT_TYPES 3
-static char *count_type_names[MAX_COUNT_TYPES] = {"Frames/Tick", "Bytes/Tick", "Advanced..."};
+static char *count_type_names[MAX_COUNT_TYPES] = {"Packets/Tick", "Bytes/Tick", "Advanced..."};
 
 /* unit is in ms */
 #define MAX_TICK_VALUES 5
@@ -695,7 +695,55 @@ io_stat_draw(io_stat_t *io)
 			io->pixmap_height-bottom_y_border-draw_height*i/10, 
 			io->pixmap_width-right_x_border+1+xwidth, 
 			io->pixmap_height-bottom_y_border-draw_height*i/10);
-		/* draw the label */
+		/* draw the labels */
+		if(i==0){
+			if(draw_y_as_time){
+				print_time_scale_string(label_string, (max_y*i/10));
+			} else {
+				sprintf(label_string,"%d", max_y*i/10);
+			}
+#if GTK_MAJOR_VERSION < 2
+	                lwidth=gdk_string_width(font, label_string);
+	                gdk_draw_string(io->pixmap,
+        	                        font,
+	                                io->draw_area->style->black_gc,
+	                                io->pixmap_width-right_x_border+15+label_width-lwidth,
+        	                        io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
+                	                label_string);
+#else
+	                pango_layout_set_text(layout, label_string, -1);
+	                pango_layout_get_pixel_size(layout, &lwidth, NULL);
+			gdk_draw_layout(io->pixmap,
+                	                io->draw_area->style->black_gc,
+                        	        io->pixmap_width-right_x_border+15+label_width-lwidth,
+                                	io->pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
+	                                layout);
+#endif
+		}
+		if(i==5){
+			if(draw_y_as_time){
+				print_time_scale_string(label_string, (max_y*i/10));
+			} else {
+				sprintf(label_string,"%d", max_y*i/10);
+			}
+#if GTK_MAJOR_VERSION < 2
+	                lwidth=gdk_string_width(font, label_string);
+	                gdk_draw_string(io->pixmap,
+        	                        font,
+	                                io->draw_area->style->black_gc,
+	                                io->pixmap_width-right_x_border+15+label_width-lwidth,
+        	                        io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
+                	                label_string);
+#else
+	                pango_layout_set_text(layout, label_string, -1);
+	                pango_layout_get_pixel_size(layout, &lwidth, NULL);
+			gdk_draw_layout(io->pixmap,
+                	                io->draw_area->style->black_gc,
+                        	        io->pixmap_width-right_x_border+15+label_width-lwidth,
+                                	io->pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
+	                                layout);
+#endif
+		}
 		if(i==10){
 			if(draw_y_as_time){
 				print_time_scale_string(label_string, (max_y*i/10));
@@ -784,13 +832,13 @@ io_stat_draw(io_stat_t *io)
 		if(xlen==10){
 			int lwidth;
 			if(io->interval>=1000){
-				sprintf(label_string,"%d", current_interval/1000);
+				sprintf(label_string,"%ds", current_interval/1000);
 			} else if(io->interval>=100){
-				sprintf(label_string,"%d.%1d", current_interval/1000,(current_interval/100)%10);
+				sprintf(label_string,"%d.%1ds", current_interval/1000,(current_interval/100)%10);
 			} else if(io->interval>=10){
-				sprintf(label_string,"%d.%2d", current_interval/1000,(current_interval/10)%100);
+				sprintf(label_string,"%d.%2ds", current_interval/1000,(current_interval/10)%100);
 			} else {
-				sprintf(label_string,"%d.%3d", current_interval/1000,current_interval%1000);
+				sprintf(label_string,"%d.%3ds", current_interval/1000,current_interval%1000);
 			}
 #if GTK_MAJOR_VERSION < 2
                         lwidth=gdk_string_width(font, label_string);
@@ -1376,7 +1424,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(box), frame_vbox);
 	gtk_widget_show(frame_vbox);
 
-    frame = gtk_frame_new("X-Direction (Unit: seconds)");
+    frame = gtk_frame_new("X Axis");
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
@@ -1386,10 +1434,10 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
 	gtk_widget_show(vbox);
 
-	create_ctrl_menu(io, vbox, "Tick Interval:", create_tick_interval_menu_items);
-	create_ctrl_menu(io, vbox, "Pixels per Tick:", create_pixels_per_tick_menu_items);
+	create_ctrl_menu(io, vbox, "Tick interval:", create_tick_interval_menu_items);
+	create_ctrl_menu(io, vbox, "Pixels per tick:", create_pixels_per_tick_menu_items);
 
-    frame = gtk_frame_new("Y-Direction");
+    frame = gtk_frame_new("Y Axis");
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
