@@ -19,8 +19,9 @@ S<[ B<-s> snaplen ]>
 S<[ B<-t> time stamp format ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
-S<[ B<-w> savefile]>
+S<[ B<-w> savefile ]>
 S<[ B<-x> ]>
+S<[ filter expression ]>
 
 =head1 DESCRIPTION
 
@@ -82,6 +83,13 @@ specified for a live capture.
 Compressed file support uses (and therefore requires) the zlib library. 
 If the zlib library is not present, B<Tethereal> will compile, but will
 be unable to read compressed files.
+
+A capture or read filter can either be specified with the B<-f> or B<-R>
+option, respectively, in which case the entire filter expression must be
+specified as a single argument (which means that if it contains spaces,
+it must be quoted), or can be specified with command-line arguments
+after the option arguments, in which case all the arguments after the
+filter arguments are treated as a filter expression.
 
 =head1 OPTIONS
 

@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.18 2000/01/29 16:41:15 gram Exp $
+ * $Id: util.h,v 1.19 2000/02/22 07:07:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,12 @@ int create_tempfile(char *, int, const char *);
 /* Returns the user's home directory, via the HOME environment
  * variable, or a default directory if HOME is not set */
 const char* get_home_dir(void);
+
+/*
+ * Collect command-line arguments as a string consisting of the arguments,
+ * separated by spaces.
+ */
+char *get_args_as_string(int argc, char **argv, int optind);
 
 void ASCII_to_EBCDIC(guint8 *buf, guint bytes);
 guint8 ASCII_to_EBCDIC1(guint8 c);

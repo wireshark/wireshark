@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.36 2000/02/09 19:17:52 gram Exp $
+ * $Id: util.c,v 1.37 2000/02/22 07:07:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -181,6 +181,46 @@ get_dirname(char *path)
 	 * the file/directory to which it referred.
 	 */
 	return path;
+}
+
+/*
+ * Collect command-line arguments as a string consisting of the arguments,
+ * separated by spaces.
+ */
+char *
+get_args_as_string(int argc, char **argv, int optind)
+{
+	int len;
+	int i;
+	char *argstring;
+
+	/*
+	 * Find out how long the string will be.
+	 */
+	len = 0;
+	for (i = optind; i < argc; i++) {
+		len += strlen(argv[i]);
+		len++;	/* space, or '\0' if this is the last argument */
+	}
+
+	/*
+	 * Allocate the buffer for the string.
+	 */
+	argstring = g_malloc(len);
+
+	/*
+	 * Now construct the string.
+	 */
+	strcpy(argstring, "");
+	i = optind;
+	for (;;) {
+		strcat(argstring, argv[i]);
+		i++;
+		if (i == argc)
+			break;
+		strcat(argstring, " ");
+	}
+	return argstring;
 }
 
 static char *

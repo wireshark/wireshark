@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.19 2000/02/19 07:59:54 guy Exp $
+ * $Id: tethereal.c,v 1.20 2000/02/22 07:07:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,6 +174,7 @@ main(int argc, char *argv[])
   char                *pf_path;
   int                  err;
 #ifdef HAVE_LIBPCAP
+  gboolean             capture_filter_specified = FALSE;
   int                  packet_count = 0;
   GList               *if_list;
   gchar                err_str[PCAP_ERRBUF_SIZE];
@@ -287,6 +288,7 @@ main(int argc, char *argv[])
 	break;
       case 'f':
 #ifdef HAVE_LIBPCAP
+        capture_filter_specified = TRUE;
 	cf.cfilter = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
@@ -361,6 +363,32 @@ main(int argc, char *argv[])
     }
   }
   
+  /* If no capture filter or read filter has been specified, and there are
+     still command-line arguments, treat them as the tokens of a capture
+     filter (if no "-r" flag was specified) or a read filter (if a "-r"
+     flag was specified. */
+  if (optind < argc) {
+    if (cf_name != NULL) {
+      if (rfilter != NULL) {
+        fprintf(stderr,
+"tethereal: Read filters were specified both with \"-R\" and with additional command-line arguments\n");
+        exit(2);
+      }
+      rfilter = get_args_as_string(argc, argv, optind);
+    } else {
+#ifdef HAVE_LIBPCAP
+      if (capture_filter_specified) {
+        fprintf(stderr,
+"tethereal: Capture filters were specified both with \"-f\" and with additional command-line arguments\n");
+        exit(2);
+      }
+      cf.cfilter = get_args_as_string(argc, argv, optind);
+#else
+      capture_option_specified = TRUE;
+#endif
+    }
+  }
+
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)
     fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
