@@ -2,7 +2,7 @@
  * Routines for T.38 packet dissection
  * 2003  Hans Viens
  *
- * $Id: packet-t38.c,v 1.5 2004/01/26 22:16:43 obiot Exp $
+ * $Id: packet-t38.c,v 1.6 2004/01/26 22:52:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,7 +104,8 @@ static const enum_val_t t38_tpkt_options[] = {
 };
 
 
-static dissector_handle_t t38_handle;
+static dissector_handle_t t38_udp_handle;
+static dissector_handle_t t38_tcp_handle;
 static dissector_handle_t t38_tcp_pdu_handle;
 static dissector_handle_t rtp_handle;
 
@@ -650,9 +651,21 @@ dissect_t38_UDPTLPacket(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 static void
 dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint8 octet1;
 	proto_item *it;
 	proto_tree *tr;
-    guint32 offset=0;
+	guint32 offset=0;
+
+	/*
+	 * XXX - heuristic to check for misidentified packets.
+	 */
+	if(dissect_possible_rtpv2_packets_as_rtp){
+		octet1 = tvb_get_guint8( tvb, offset );
+		if(RTP_VERSION(octet1) == 2){
+			call_dissector(rtp_handle,tvb,pinfo,tree);
+			return;
+		}
+	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
@@ -661,18 +674,20 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	it=proto_tree_add_protocol_format(tree, proto_t38, tvb, 0, tvb_length(tvb),
-        "ITU-T Recommendation T.38");
+	primary_part = TRUE;
+
+	it=proto_tree_add_protocol_format(tree, proto_t38, tvb, 0, -1,
+	    "ITU-T Recommendation T.38");
 	tr=proto_item_add_subtree(it, ett_t38);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-        col_append_fstr(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket ");
+		col_append_fstr(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket ");
 	}
 
-    offset=dissect_t38_UDPTLPacket(tvb, offset, pinfo, tr);
+	offset=dissect_t38_UDPTLPacket(tvb, offset, pinfo, tr);
 
 	if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
+		offset=(offset&0xfffffff8)+8;
 	}
 	if(tvb_length_remaining(tvb,offset>>3)>0){
 		if(tr){
@@ -683,15 +698,14 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed?]");
 		}
 	}
-
 }
 
 static void
-dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *it;
+	proto_item *it;
 	proto_tree *tr;
-    guint32 offset=0;
+	guint32 offset=0;
 	guint16 ifp_packet_number=1;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
@@ -701,12 +715,12 @@ dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	it=proto_tree_add_protocol_format(tree, proto_t38, tvb, 0, tvb_length(tvb),
-        "ITU-T Recommendation T.38");
+	it=proto_tree_add_protocol_format(tree, proto_t38, tvb, 0, -1,
+	    "ITU-T Recommendation T.38");
 	tr=proto_item_add_subtree(it, ett_t38);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TCP: IFPPacket");
+		col_append_fstr(pinfo->cinfo, COL_INFO, "TCP: IFPPacket");
 	}
 
 	while(tvb_length_remaining(tvb,offset>>3)>0)
@@ -740,33 +754,30 @@ dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_t38(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8      octet1;
-	unsigned int offset = 0;
 	primary_part = TRUE;
 
+	if(t38_tpkt_usage == T38_TPKT_ALWAYS){
+		dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
+	} 
+	else if((t38_tpkt_usage == T38_TPKT_NEVER) || (is_tpkt(tvb,1) == -1)){
+		dissect_t38_tcp_pdu(tvb, pinfo, tree);
+	} 
+	else {
+		dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
+	}
+}
+
+static void
+dissect_t38(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
 	if(pinfo->ipproto == IP_PROTO_TCP)
 	{
-		if(t38_tpkt_usage == T38_TPKT_ALWAYS){
-			dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
-		} 
-		else if((t38_tpkt_usage == T38_TPKT_NEVER) || (is_tpkt(tvb,1) == -1)){
-			dissect_t38_tcp(tvb, pinfo, tree);
-		} 
-		else {
-			dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
-		}
+		dissect_t38_tcp(tvb, pinfo, tree);
 	}
 	else if(pinfo->ipproto == IP_PROTO_UDP)
 	{   
-		if(dissect_possible_rtpv2_packets_as_rtp){
-			octet1 = tvb_get_guint8( tvb, offset );
-			if(RTP_VERSION(octet1) == 2){
-                call_dissector(rtp_handle,tvb,pinfo,tree);
-				return;
-			}
-		}
 		dissect_t38_udp(tvb, pinfo, tree);
 	}
 }
@@ -842,18 +853,18 @@ proto_register_t38(void)
 	static gint *ett[] =
 	{
 		&ett_t38,
-        &ett_t38_IFPPacket,
-        &ett_t38_Type_of_msg,
-        &ett_t38_t30_indicator,
-        &ett_t38_data,
-        &ett_t38_Data_Field,
-        &ett_t38_Data_Field_item,
-        &ett_t38_Data_Field_field_type,
-        &ett_t38_UDPTLPacket,
-        &ett_t38_error_recovery,
-        &ett_t38_secondary_ifp_packets,
-        &ett_t38_fec_info,
-        &ett_t38_fec_data,
+		&ett_t38_IFPPacket,
+		&ett_t38_Type_of_msg,
+		&ett_t38_t30_indicator,
+		&ett_t38_data,
+		&ett_t38_Data_Field,
+		&ett_t38_Data_Field_item,
+		&ett_t38_Data_Field_field_type,
+		&ett_t38_UDPTLPacket,
+		&ett_t38_error_recovery,
+		&ett_t38_secondary_ifp_packets,
+		&ett_t38_fec_info,
+		&ett_t38_fec_data,
 	};
 	module_t *t38_module;
 
@@ -899,19 +910,20 @@ proto_reg_handoff_t38(void)
 	static int t38_prefs_initialized = FALSE;
 
 	if (!t38_prefs_initialized) {
-		t38_handle=create_dissector_handle(dissect_t38, proto_t38);
-		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
+		t38_udp_handle=create_dissector_handle(dissect_t38_udp, proto_t38);
+		t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
+		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
 		t38_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcp.port", tcp_port, t38_handle);
-		dissector_delete("udp.port", udp_port, t38_handle);
+		dissector_delete("tcp.port", tcp_port, t38_tcp_handle);
+		dissector_delete("udp.port", udp_port, t38_udp_handle);
 	}
 	tcp_port = global_t38_tcp_port;
 	udp_port = global_t38_udp_port;
 
-	dissector_add("tcp.port", tcp_port, t38_handle);
-	dissector_add("udp.port", udp_port, t38_handle);
+	dissector_add("tcp.port", tcp_port, t38_tcp_handle);
+	dissector_add("udp.port", udp_port, t38_udp_handle);
 
 	rtp_handle = find_dissector("rtp");
 }
