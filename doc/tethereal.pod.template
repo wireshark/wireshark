@@ -18,6 +18,7 @@ S<[ B<-t> time stamp format ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> savefile]>
+S<[ B<-x> ]>
 
 =head1 DESCRIPTION
 
@@ -130,6 +131,11 @@ a one-line summary of the packet.
 =item -w
 
 Sets the default capture file name.
+
+=item -x
+
+Causes B<Tethereal> to print a hex and ASCII dump of the packet data
+after printing the summary or protocol tree.
 
 =back
 

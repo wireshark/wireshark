@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.8 2000/01/16 02:47:46 guy Exp $
+ * $Id: tethereal.c,v 1.9 2000/01/17 07:48:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,6 +83,7 @@ static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static gchar   comp_info_str[256];
 static gboolean verbose;
+static gboolean print_hex;
 
 #ifdef HAVE_LIBPCAP
 typedef struct _loop_data {
@@ -136,7 +137,7 @@ print_usage(void) {
 
   fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -f <filter expression> ] [ -i iface ]\n", PACKAGE);
   fprintf(stderr, "\t[ -r infile ] [ -R <filter expression> ] [ -s snaplen ]\n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w savefile ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
 }
 
 int
@@ -248,7 +249,7 @@ main(int argc, char *argv[])
    );
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "c:f:hi:nr:R:s:t:vw:V")) != EOF) {
+  while ((opt = getopt(argc, argv, "c:f:hi:nr:R:s:t:vw:Vx")) != EOF) {
     switch (opt) {
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
@@ -324,6 +325,9 @@ main(int argc, char *argv[])
 	break;
       case 'V':        /* Verbose */
         verbose = TRUE;
+        break;
+      case 'x':        /* Print packet data in hex (and ASCII) */
+        print_hex = TRUE;
         break;
     }
   }
@@ -700,11 +704,16 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
       print_args.to_file = TRUE;
       print_args.format = PR_FMT_TEXT;
       print_args.print_summary = FALSE;
-      print_args.print_hex = FALSE;
+      print_args.print_hex = print_hex;
       print_args.expand_all = TRUE;
       proto_tree_print(FALSE, &print_args, (GNode *)protocol_tree,
 			buf, &fdata, stdout);
-      printf("\n");
+      if (!print_hex) {
+        /* "print_hex_data()" will put out a leading blank line, as well
+	   as a trailing one; print one here, to separate the packets,
+	   only if "print_hex_data()" won't be called. */
+        printf("\n");
+      }
     } else {
       /* Just fill in the columns. */
       fill_in_columns(&fdata);
@@ -723,6 +732,11 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 		  col_info(&fdata, COL_PROTOCOL),
 		  col_info(&fdata, COL_INFO));
       }
+    }
+    if (print_hex) {
+      print_hex_data(stdout, print_args.format, buf,
+			fdata.cap_len, fdata.encoding);
+      printf("\n");
     }
     fdata.cinfo = NULL;
   }
