@@ -7,7 +7,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-bssap.c,v 1.2 2003/10/24 00:38:34 guy Exp $
+ * $Id: packet-bssap.c,v 1.3 2003/10/28 18:08:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,6 +90,7 @@ static const value_string bsap_pdu_type_acro_values[] = {
 #define DATA_LENGTH		1
 
 #define CC_MASK			0xc0
+#define SPARE_MASK		0x38
 #define SAPI_MASK		0x07
 
 static const value_string bssap_cc_values[] = {
@@ -118,6 +119,8 @@ static int hf_bssap_pdu_type = -1;
 static int hf_bsap_pdu_type = -1;
 static int hf_bssap_dlci_cc = -1;
 static int hf_bsap_dlci_cc = -1;
+static int hf_bssap_dlci_spare = -1;
+static int hf_bsap_dlci_rsvd = -1;
 static int hf_bssap_dlci_sapi = -1;
 static int hf_bsap_dlci_sapi = -1;
 static int hf_bssap_length = -1;
@@ -190,7 +193,7 @@ dissect_bssap_dlci_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 {
     proto_item	*dlci_item = 0;
     proto_tree	*dlci_tree = 0;
-    guint8	cc, sapi;
+    guint8	oct;
 
     dlci_item =
 	proto_tree_add_text(tree, tvb, 0, length,
@@ -198,18 +201,19 @@ dissect_bssap_dlci_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 
     dlci_tree = proto_item_add_subtree(dlci_item, ett_bssap_dlci);
 
-    cc = tvb_get_guint8(tvb, 0) & CC_MASK;
-    sapi = tvb_get_guint8(tvb, 0) & SAPI_MASK;
+    oct = tvb_get_guint8(tvb, 0);
 
     if (bssap_or_bsap_global == BSSAP)
     {
-	proto_tree_add_uint(dlci_tree, hf_bssap_dlci_cc, tvb, 0, length, cc);
-	proto_tree_add_uint(dlci_tree, hf_bssap_dlci_sapi, tvb, 0, length, sapi);
+	proto_tree_add_uint(dlci_tree, hf_bssap_dlci_cc, tvb, 0, length, oct);
+	proto_tree_add_uint(dlci_tree, hf_bssap_dlci_spare, tvb, 0, length, oct);
+	proto_tree_add_uint(dlci_tree, hf_bssap_dlci_sapi, tvb, 0, length, oct);
     }
     else
     {
-	proto_tree_add_uint(dlci_tree, hf_bsap_dlci_cc, tvb, 0, length, cc);
-	proto_tree_add_uint(dlci_tree, hf_bsap_dlci_sapi, tvb, 0, length, sapi);
+	proto_tree_add_uint(dlci_tree, hf_bsap_dlci_cc, tvb, 0, length, oct);
+	proto_tree_add_uint(dlci_tree, hf_bsap_dlci_rsvd, tvb, 0, length, oct);
+	proto_tree_add_uint(dlci_tree, hf_bsap_dlci_sapi, tvb, 0, length, oct);
     }
 }
 
@@ -417,6 +421,14 @@ proto_register_bssap(void)
 	{ &hf_bsap_dlci_cc,
 	    { "Control Channel", "bsap.dlci.cc",
 		FT_UINT8, BASE_HEX, VALS(bsap_cc_values), CC_MASK,
+		"", HFILL}},
+	{ &hf_bssap_dlci_spare,
+	    { "Spare", "bssap.dlci.spare",
+		FT_UINT8, BASE_HEX, NULL, SPARE_MASK,
+		"", HFILL}},
+	{ &hf_bsap_dlci_rsvd,
+	    { "Reserved", "bsap.dlci.rsvd",
+		FT_UINT8, BASE_HEX, NULL, SPARE_MASK,
 		"", HFILL}},
 	{ &hf_bssap_dlci_sapi,
 	    { "SAPI", "bssap.dlci.sapi",

@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.4 2003/10/16 18:14:32 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.5 2003/10/28 18:08:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -713,18 +713,16 @@ my_dgt_tbcd_unpack(
 	/*
 	 * unpack first value in byte
 	 */
-	i = *in;
-	i &= 0x0F;
-	*out++ = dgt->out[i];
+	i = *in++;
+	*out++ = dgt->out[i & 0x0f];
 	cnt++;
 
 	/*
 	 * unpack second value in byte
 	 */
-	i = *in++;
 	i >>= 4;
 
-	if (i == 0xff)	/* odd number bytes - hit filler */
+	if (i == 0x0f)	/* odd number bytes - hit filler */
 	    break;
 
 	*out++ = dgt->out[i];

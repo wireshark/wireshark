@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.1 2003/10/22 20:59:01 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.2 2003/10/28 18:08:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -434,18 +434,16 @@ my_dgt_tbcd_unpack(
 	/*
 	 * unpack first value in byte
 	 */
-	i = *in;
-	i &= 0x0F;
-	*out++ = dgt->out[i];
+	i = *in++;
+	*out++ = dgt->out[i & 0x0f];
 	cnt++;
 
 	/*
 	 * unpack second value in byte
 	 */
-	i = *in++;
 	i >>= 4;
 
-	if (i == 0xff)	/* odd number bytes - hit filler */
+	if (i == 0x0f)	/* odd number bytes - hit filler */
 	    break;
 
 	*out++ = dgt->out[i];
@@ -606,7 +604,7 @@ elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     case 0: str = "No Alert"; break;
     case 1: str = "Speech"; break;
     case 2: str = "Data"; data = TRUE; break;
-    case 3: str = "Signaling";
+    case 3: str = "Signaling"; break;
     default:
 	str = "Unknown";
 	break;
@@ -2007,7 +2005,6 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     guint32	curr_offset;
     gchar	*str = NULL;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
