@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.42 2003/09/02 21:23:43 guy Exp $
+ * $Id: packet-sip.c,v 1.43 2003/09/26 20:00:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -312,10 +312,12 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
 }
 
 /* Code to actually dissect the packets */
-static void
+static int
 dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_sip_common(tvb, pinfo, tree, FALSE);
+	if (!dissect_sip_common(tvb, pinfo, tree, FALSE))
+		return 0;
+	return tvb_length(tvb);
 }
 
 static gboolean
@@ -400,13 +402,6 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
         }
         msg_offset = sip_get_msg_offset(tvb, offset);
-        if (msg_offset < 0) {
-                /*
-                 * XXX - this may just mean that the entire SIP message
-                 * didn't fit in this TCP segment.
-                 */
-                goto bad;
-        }
 
         if (tree) {
                 proto_item *ti, *th;
@@ -552,22 +547,29 @@ void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
 }
 
 /* Returns the offset to the start of the optional message-body, or
- * -1 if not found.
+ * an offset just past the end of the packet if not found.
  */
 static gint sip_get_msg_offset(tvbuff_t *tvb, int offset)
 {
-        gint eol;
+        gint linelen, next_offset;
 
-        while ((eol = tvb_find_guint8(tvb, offset, -1, '\r')) > 0
-            && tvb_bytes_exist(tvb, eol, 4)) {
-                if (tvb_get_guint8(tvb, eol + 1) == '\n' &&
-                    tvb_get_guint8(tvb, eol + 2) == '\r' &&
-                    tvb_get_guint8(tvb, eol + 3) == '\n')
-                        return eol + 4;
-                offset = eol + 2;
+	while (tvb_offset_exists(tvb, offset)) {
+                linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+                                            FALSE);
+                /*
+                 * If the line length is 0, this is a blank line;
+                 * we're done.
+                 */
+                if (linelen == 0)
+                        break;
+                offset = next_offset;
         }
 
-        return -1;
+        /*
+         * Return the offset just past the line we just processed (or
+         * past the end of the buffer if we didn't find a blank line).
+         */
+        return next_offset;
 }
 
 /* From section 4.1 of RFC 2543:
@@ -705,7 +707,7 @@ static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 
         for (i = 1; i < array_length(sip_headers); i++) {
                 if (header_len == strlen(sip_headers[i]) &&
-                    tvb_strneql(tvb, offset, sip_headers[i], header_len) == 0)
+                    tvb_strncaseeql(tvb, offset, sip_headers[i], header_len) == 0)
                         return i;
         }
 
@@ -1021,7 +1023,7 @@ proto_reg_handoff_sip(void)
 {
         dissector_handle_t sip_handle;
 
-        sip_handle = create_dissector_handle(dissect_sip, proto_sip);
+        sip_handle = new_create_dissector_handle(dissect_sip, proto_sip);
         dissector_add("tcp.port", TCP_PORT_SIP, sip_handle);
         dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
 
