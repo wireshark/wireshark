@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.110 2003/08/23 09:09:33 sahlberg Exp $
+ * $Id: packet-udp.c,v 1.111 2003/09/03 09:52:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -252,6 +252,7 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->srcport = udph->uh_sport;
   pinfo->destport = udph->uh_dport;
 
+  tap_queue_packet(udp_tap, pinfo, udph);
   /*
    * Call sub-dissectors.
    *
@@ -266,7 +267,6 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   if (!pinfo->in_error_pkt || tvb_length_remaining(tvb, offset) > 0)
     decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport);
-  tap_queue_packet(udp_tap, pinfo, udph);
 }
 
 void
