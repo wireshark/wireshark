@@ -24,6 +24,6 @@ int wtap_lex(void);
 int wtap_parse(void);
 void wtap_error(char *string);
 
-void lex_init(char *);
+void wtap_lex_init(char *);
 
 int wtap_offline_filter_compile(wtap *wth, int encap_type);
