@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.78 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-ppp.c,v 1.79 2001/12/08 01:03:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,6 +88,22 @@ static gint ett_cbcp_options = -1;
 static gint ett_cbcp_no_callback_opt = -1;
 static gint ett_cbcp_callback_opt = -1;
 
+static int proto_bacp = -1;
+
+static gint ett_bacp = -1;
+static gint ett_bacp_options = -1;
+static gint ett_bacp_favored_peer_opt = -1;
+
+static int proto_bap = -1;
+
+static gint ett_bap = -1;
+static gint ett_bap_options = -1;
+static gint ett_bap_link_type_opt = -1;
+static gint ett_bap_phone_delta_opt = -1;
+static gint ett_bap_reason_opt = -1;
+static gint ett_bap_link_disc_opt = -1;
+static gint ett_bap_call_status_opt = -1;
+
 static int proto_comp_data = -1;
 
 static gint ett_comp_data = -1;
@@ -153,6 +169,8 @@ static const value_string ppp_vals[] = {
 	{PPP_CHAP,	"Cryptographic Handshake Auth. Protocol" },
 	{PPP_EAP,	"Extensible Authentication Protocol" },
 	{PPP_CBCP,	"Callback Control Protocol" },
+	{PPP_BACP,	"Bandwidth Allocation Control Protocol" },
+	{PPP_BAP,	"Bandwitdh Allocation Protocol" },
 	{0,             NULL            }
 };
 
@@ -202,6 +220,18 @@ static const value_string cp_vals[] = {
 
 #define CBCP_OPT  6 /* Use callback control protocol */
 
+/*
+ * BAP-specific packet types.
+ */
+#define BAP_CREQ   1  /* Call Request */
+#define BAP_CRES   2  /* Call Response */
+#define BAP_CBREQ  3  /* Callback Request */
+#define BAP_CBRES  4  /* Callback Response */
+#define BAP_LDQREQ 5  /* Link Drop Query Request */
+#define BAP_LDQRES 6  /* Link Drop Query Response */
+#define BAP_CSI    7  /* Call Status Indication */
+#define BAP_CSRES  8  /* Call Status Response */
+
 static const value_string lcp_vals[] = {
 	{CONFREQ,    "Configuration Request" },
 	{CONFACK,    "Configuration Ack" },
@@ -237,6 +267,163 @@ static const value_string cbcp_vals[] = {
 	{CBRES,      "Callback Response" },
 	{CBACK,      "Callback Ack" },
 	{0,          NULL } 
+};
+
+static const value_string bap_vals[] = {
+	{BAP_CREQ,	"Call Request" },
+	{BAP_CRES,	"Call Response" },
+	{BAP_CBREQ,	"Callback Request" },
+	{BAP_CBRES,	"Callback Response" },
+	{BAP_LDQREQ,	"Link Drop Query Request" },
+	{BAP_LDQRES,	"Link Drop Query Response" },
+	{BAP_CSI,	"Call Status Indication" },
+	{BAP_CSRES,	"Call Status Response" },
+	{0,		NULL }
+};
+
+#define BAP_RESP_CODE_REQACK	0x00
+#define BAP_RESP_CODE_REQNAK	0x01
+#define BAP_RESP_CODE_REQREJ	0x02
+#define BAP_RESP_CODE_REQFULLNAK	0x03
+static const value_string bap_resp_code_vals[] = {
+	{BAP_RESP_CODE_REQACK,	"Request Ack" },
+	{BAP_RESP_CODE_REQNAK,	"Request Nak" },
+	{BAP_RESP_CODE_REQREJ,	"Request Rej" },
+	{BAP_RESP_CODE_REQFULLNAK,	"Request Full Nak" },
+	{0,			NULL }
+};
+
+#define BAP_LINK_TYPE_ISDN	0	/* ISDN */
+#define BAP_LINK_TYPE_X25	1	/* X.25 */
+#define BAP_LINK_TYPE_ANALOG	2	/* Analog */
+#define BAP_LINK_TYPE_SD	3	/* Switched Digital (non-ISDN) */
+#define BAP_LINK_TYPE_ISDNOV	4	/* ISDN data over voice */
+#define BAP_LINK_TYPE_RESV5	5	/* Reserved */
+#define BAP_LINK_TYPE_RESV6	6	/* Reserved */
+#define BAP_LINK_TYPE_RESV7	7	/* Reserved */
+static const value_string bap_link_type_vals[] = {
+	{BAP_LINK_TYPE_ISDN,	"ISDN" },
+	{BAP_LINK_TYPE_X25,	"X.25" },
+	{BAP_LINK_TYPE_ANALOG,	"Analog" },
+	{BAP_LINK_TYPE_SD,	"Switched Digital (non-ISDN)" },
+	{BAP_LINK_TYPE_ISDNOV,	"ISDN data over voice" },
+	{BAP_LINK_TYPE_RESV5,	"Reserved" },
+	{BAP_LINK_TYPE_RESV6,	"Reserved" },
+	{BAP_LINK_TYPE_RESV7,	"Reserved" },
+	{0,			NULL }
+};
+
+#define BAP_PHONE_DELTA_SUBOPT_UNIQ_DIGIT	1	/* Unique Digit */
+#define BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM	2	/* Subscriber Number */
+#define BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR	3 /* Phone Number Sub Address */
+static const value_string bap_phone_delta_subopt_vals[] = {
+	{BAP_PHONE_DELTA_SUBOPT_UNIQ_DIGIT,	"Unique Digit" },
+	{BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM,	"Subscriber Number" },
+	{BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR, "Phone Number Sub Address" },
+	{0,					NULL }
+};
+
+/*
+ * Cause codes for Cause.
+ *
+ * The following code table is taken from packet-q931.c but is slightly 
+ * adapted to BAP protocol.
+ */
+static const value_string q931_cause_code_vals[] = {
+	{ 0x00,	"Call successful" },
+	{ 0x01,	"Unallocated (unassigned) number" },
+	{ 0x02,	"No route to specified transit network" },
+	{ 0x03,	"No route to destination" },
+	{ 0x04,	"Send special information tone" },
+	{ 0x05,	"Misdialled trunk prefix" },
+	{ 0x06,	"Channel unacceptable" },
+	{ 0x07,	"Call awarded and being delivered in an established channel" },
+	{ 0x08,	"Prefix 0 dialed but not allowed" },
+	{ 0x09,	"Prefix 1 dialed but not allowed" },
+	{ 0x0A,	"Prefix 1 dialed but not required" },
+	{ 0x0B,	"More digits received than allowed, call is proceeding" },
+	{ 0x10,	"Normal call clearing" },
+	{ 0x11,	"User busy" },
+	{ 0x12,	"No user responding" },
+	{ 0x13,	"No answer from user (user alerted)" },
+	{ 0x14,	"Subscriber absent" },
+	{ 0x15,	"Call rejected" },
+	{ 0x16,	"Number changed" },
+	{ 0x17,	"Reverse charging rejected" },
+	{ 0x18,	"Call suspended" },
+	{ 0x19,	"Call resumed" },
+	{ 0x1A,	"Non-selected user clearing" },
+	{ 0x1B,	"Destination out of order" },
+	{ 0x1C,	"Invalid number format (incomplete number)" },
+	{ 0x1D,	"Facility rejected" },
+	{ 0x1E,	"Response to STATUS ENQUIRY" },
+	{ 0x1F,	"Normal unspecified" },
+	{ 0x21,	"Circuit out of order" },
+	{ 0x22,	"No circuit/channel available" },
+	{ 0x23,	"Destination unattainable" },
+	{ 0x25,	"Degraded service" },
+	{ 0x26,	"Network out of order" },
+	{ 0x27,	"Transit delay range cannot be achieved" },
+	{ 0x28,	"Throughput range cannot be achieved" },
+	{ 0x29,	"Temporary failure" },
+	{ 0x2A,	"Switching equipment congestion" },
+	{ 0x2B,	"Access information discarded" },
+	{ 0x2C,	"Requested circuit/channel not available" },
+	{ 0x2D,	"Pre-empted" },
+	{ 0x2E,	"Precedence call blocked" },
+	{ 0x2F,	"Resources unavailable, unspecified" },
+	{ 0x31,	"Quality of service unavailable" },
+	{ 0x32,	"Requested facility not subscribed" },
+	{ 0x33,	"Reverse charging not allowed" },
+	{ 0x34,	"Outgoing calls barred" },
+	{ 0x35,	"Outgoing calls barred within CUG" },
+	{ 0x36,	"Incoming calls barred" },
+	{ 0x37,	"Incoming calls barred within CUG" },
+	{ 0x38,	"Call waiting not subscribed" },
+	{ 0x39,	"Bearer capability not authorized" },
+	{ 0x3A,	"Bearer capability not presently available" },
+	{ 0x3E,	"Inconsistency in designated outgoing access information and subscriber class" },
+	{ 0x3F,	"Service or option not available, unspecified" },
+	{ 0x41,	"Bearer capability not implemented" },
+	{ 0x42,	"Channel type not implemented" },
+	{ 0x43,	"Transit network selection not implemented" },
+	{ 0x44,	"Message not implemented" },
+	{ 0x45,	"Requested facility not implemented" },
+	{ 0x46,	"Only restricted digital information bearer capability is available" },
+	{ 0x4F,	"Service or option not implemented, unspecified" },
+	{ 0x51,	"Invalid call reference value" },
+	{ 0x52,	"Identified channel does not exist" },
+	{ 0x53,	"Call identity does not exist for suspended call" },
+	{ 0x54,	"Call identity in use" },
+	{ 0x55,	"No call suspended" },
+	{ 0x56,	"Call having the requested call identity has been cleared" },
+	{ 0x57,	"Called user not member of CUG" },
+	{ 0x58,	"Incompatible destination" },
+	{ 0x59,	"Non-existent abbreviated address entry" },
+	{ 0x5A,	"Destination address missing, and direct call not subscribed" },
+	{ 0x5B,	"Invalid transit network selection (national use)" },
+	{ 0x5C,	"Invalid facility parameter" },
+	{ 0x5D,	"Mandatory information element is missing" },
+	{ 0x5F,	"Invalid message, unspecified" },
+	{ 0x60,	"Mandatory information element is missing" },
+	{ 0x61,	"Message type non-existent or not implemented" },
+	{ 0x62,	"Message not compatible with call state or message type non-existent or not implemented" },
+	{ 0x63,	"Information element nonexistant or not implemented" },
+	{ 0x64,	"Invalid information element contents" },
+	{ 0x65,	"Message not compatible with call state" },
+	{ 0x66,	"Recovery on timer expiry" },
+	{ 0x67,	"Parameter non-existent or not implemented - passed on" },
+	{ 0x6E,	"Message with unrecognized parameter discarded" },
+	{ 0x6F,	"Protocol error, unspecified" },
+	{ 0x7F,	"Internetworking, unspecified" },
+	{ 0xFF, "Non-specific failure" },
+	{ 0,	NULL }
+};
+
+static const value_string bap_call_status_opt_action_vals[] = {
+	{0,	"No retry" },
+	{1,	"Retry" },
+	{0,	NULL }
 };
 
 #define STAC_CM_NONE		0
@@ -774,6 +961,111 @@ static const ip_tcp_opt cbcp_opts[] = {
 };
 
 #define N_CBCP_OPTS	(sizeof cbcp_opts / sizeof cbcp_opts[0])
+
+/*
+ * Options.  (BACP)
+ */
+#define CI_BACP_FAVORED_PEER	1  /* Favored-Peer */
+
+static void dissect_bacp_favored_peer_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static const ip_tcp_opt bacp_opts[] = {
+	{
+		CI_BACP_FAVORED_PEER,
+		"Favored-Peer",
+		&ett_bacp_favored_peer_opt,
+		FIXED_LENGTH,
+		6,
+		dissect_bacp_favored_peer_opt
+	}
+};
+
+#define N_BACP_OPTS	(sizeof bacp_opts / sizeof bacp_opts[0])
+
+/*
+ * Options.  (BAP)
+ */
+#define CI_BAP_LINK_TYPE	1  /* Link Type */
+#define CI_BAP_PHONE_DELTA	2  /* Phone-Delta */
+#define CI_BAP_NO_PHONE_NUM_NEEDED	3  /* No Phone Number Needed */
+#define CI_BAP_REASON		4  /* Reason */
+#define CI_BAP_LINK_DISC	5  /* Link Discriminator */
+#define CI_BAP_CALL_STATUS	6  /* Call Status */
+
+static void dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static void dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static void dissect_bap_link_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static void dissect_bap_reason_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static void dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static const ip_tcp_opt bap_opts[] = {
+	{
+		CI_BAP_LINK_TYPE,
+		"Link Type",
+		&ett_bap_link_type_opt,
+		FIXED_LENGTH,
+		5,
+		dissect_bap_link_type_opt
+	},
+	{
+		CI_BAP_PHONE_DELTA,
+		"Phone Delta",
+		&ett_bap_phone_delta_opt,
+		VARIABLE_LENGTH,
+		4,
+		dissect_bap_phone_delta_opt
+	},
+	{
+		CI_BAP_NO_PHONE_NUM_NEEDED,
+		"No Phone Number Needed",
+		NULL,
+		FIXED_LENGTH,
+		2,
+		NULL
+	},
+	{
+		CI_BAP_REASON,
+		"Reason",
+		&ett_bap_reason_opt,
+		VARIABLE_LENGTH,
+		2,
+		dissect_bap_reason_opt
+	},
+	{
+		CI_BAP_LINK_DISC,
+		"Link Discriminator",
+		&ett_bap_link_disc_opt,
+		FIXED_LENGTH,
+		4,
+		dissect_bap_link_disc_opt
+	},
+	{
+		CI_BAP_CALL_STATUS,
+		"Call Status",
+		&ett_bap_call_status_opt,
+		FIXED_LENGTH,
+		4,
+		dissect_bap_call_status_opt
+	}
+};
+
+#define N_BAP_OPTS	(sizeof bap_opts / sizeof bap_opts[0])
 
 static void dissect_ppp(tvbuff_t *tvb, packet_info *pinfo, 
     proto_tree *tree);
@@ -1476,6 +1768,141 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
+dissect_bacp_favored_peer_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  proto_item *tf;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+
+  proto_tree_add_text(tf, tvb, offset + 2, 4,
+		      "Magic number: 0x%08x", tvb_get_ntohl(tvb, offset + 2));
+}
+
+static void
+dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  proto_item *tf;
+  guint8 link_type;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+
+  proto_tree_add_text(tf, tvb, offset + 2, 2,
+	      "Link Speed : %u kbps", tvb_get_ntohs(tvb, offset + 2));
+  link_type = tvb_get_guint8(tvb, offset + 4);
+  proto_tree_add_text(tf, tvb, offset + 4, 1,
+	      "Link Type : %s (%u)", val_to_str(link_type, bap_link_type_vals,
+						"Unknown"), link_type);
+}
+
+static void
+dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  proto_item *ti;
+  proto_item *tf;
+  guint8 link_type;
+  guint8 subopt_type;
+  guint8 subopt_len;
+  guint8 buf[256];	/* Since Sub-Option length field in BAP Phone-Delta
+			   Option is 8 bits, 256-octets buf is large enough */
+
+  ti = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+
+  offset += 2;
+  length -= 2;
+
+  while (length > 0) {
+    subopt_type = tvb_get_guint8(tvb, offset);
+    subopt_len = tvb_get_guint8(tvb, offset + 1);
+    tf = proto_tree_add_text(ti, tvb, offset, subopt_len, 
+		"Sub-Option (%d byte%s)",
+		subopt_len, plurality(subopt_len, "", "s"));
+
+    proto_tree_add_text(tf, tvb, offset, 1,
+	"Sub-Option Type : %s (%u)", 
+	val_to_str(subopt_type, bap_phone_delta_subopt_vals, "Unknown"),
+	subopt_type);
+
+    proto_tree_add_text(tf, tvb, offset + 1, 1,
+	"Sub-Option Length : %u", subopt_len);
+
+    switch (subopt_type) {
+    case BAP_PHONE_DELTA_SUBOPT_UNIQ_DIGIT:
+      proto_tree_add_text(tf, tvb, offset + 2, 1, "Uniq Digit: %u", 
+			  tvb_get_guint8(tvb, offset + 2));
+      break;
+    case BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM:
+      tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
+      proto_tree_add_text(tf, tvb, offset + 2, subopt_len - 2, 
+			  "Subscriber Number: %s", buf);
+      break;
+    case BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR:
+      tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
+      proto_tree_add_text(tf, tvb, offset + 2, subopt_len - 2, 
+			  "Phone Number Sub Address: %s", buf);
+      break;
+    default:
+      proto_tree_add_text(tf, tvb, offset + 2, subopt_len - 2, "Unknown");
+      break;
+    }
+    offset += subopt_len;
+    length -= subopt_len;
+  }
+}
+
+static void
+dissect_bap_reason_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  guint8 link_type;
+  guint8 buf[256];	/* Since length field in BAP Reason Option is
+			   8 bits, 256-octets buf is large enough */
+
+  tvb_get_nstringz0(tvb, offset + 2, length - 2, buf);
+  proto_tree_add_text(tree, tvb, offset, length, "%s : %s", 
+			   optp->name, buf);
+}
+
+static void
+dissect_bap_link_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  guint8 link_type;
+
+  proto_tree_add_text(tree, tvb, offset, length, "%s : 0x%04x", 
+		      optp->name, tvb_get_ntohs(tvb, offset + 2));
+}
+
+static void
+dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  proto_item *tf;
+  guint8 link_type;
+  guint8 status, action;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+
+  status = tvb_get_guint8(tvb, offset + 2);
+  proto_tree_add_text(tf, tvb, offset + 2, 1,
+      "Status : %s (0x%02x)", 
+      val_to_str(status, q931_cause_code_vals, "Unknown"), status);
+
+  action = tvb_get_guint8(tvb, offset + 3);
+  proto_tree_add_text(tf, tvb, offset + 3, 1,
+      "Action : %s (0x%02x)", 
+      val_to_str(action, bap_call_status_opt_action_vals, "Unknown"), action);
+}
+
+static void
 dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	const value_string *proto_vals, int options_subtree_index,
 	const ip_tcp_opt *opts, int nopts, packet_info *pinfo, proto_tree *tree ) {
@@ -1671,6 +2098,73 @@ dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_cp(tvb, proto_cbcp, ett_cbcp, cbcp_vals, ett_cbcp_options,
 	     cbcp_opts, N_CBCP_OPTS, pinfo, tree);
+}
+
+static void
+dissect_bacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb, proto_bacp, ett_bacp, cp_vals, ett_bacp_options,
+	     bacp_opts, N_BACP_OPTS, pinfo, tree);
+}
+
+static void
+dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  
+  proto_item *ti;
+  proto_tree *fh_tree = NULL;
+  proto_item *tf;
+  proto_tree *field_tree;
+
+  guint8 type;
+  guint8 id;
+  int length, offset;
+  guint8 resp_code;
+
+  type = tvb_get_guint8(tvb, 0);
+  id = tvb_get_guint8(tvb, 1);
+  length = tvb_get_ntohs(tvb, 2);
+
+  if(check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL,
+		proto_get_protocol_short_name(proto_bap));
+
+  if(check_col(pinfo->fd, COL_INFO))
+	col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
+		proto_get_protocol_short_name(proto_bap),
+		val_to_str(type, bap_vals, "Unknown"));
+
+  if(tree) {
+    ti = proto_tree_add_item(tree, proto_bap, tvb, 0, length, FALSE);
+    fh_tree = proto_item_add_subtree(ti, ett_bap_options);
+    proto_tree_add_text(fh_tree, tvb, 0, 1, "Type: %s (0x%02x)",
+      val_to_str(type, bap_vals, "Unknown"), type);
+    proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x",
+			id);
+    proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u",
+			length);
+  }
+  offset = 4;
+  length -= 4;
+
+  if (type == BAP_CRES || type == BAP_CBRES || 
+      type == BAP_LDQRES || type == BAP_CSRES) {
+    resp_code = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(fh_tree, tvb, offset, 1, "Response Code: %s (0x%02x)",
+	val_to_str(resp_code, bap_resp_code_vals, "Unknown"), resp_code);
+    offset++;
+    length--;
+  }
+
+  if(tree) {
+    if (length > 0) {
+      tf = proto_tree_add_text(fh_tree, tvb, offset, length,
+	       "Data (%d byte%s)", length, plurality(length, "", "s"));
+      field_tree = proto_item_add_subtree(tf, ett_bap_options);
+      dissect_ip_tcp_options(tvb, offset, length, bap_opts, N_BAP_OPTS, -1,
+			     pinfo->fd, field_tree);
+    }
+  }
 }
 
 static void
@@ -1907,7 +2401,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
       if(tree) {
         if (length > 0) {
           tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-            "Data: (%d byte%s)", length, plurality(length, "", "s"));
+            "Data (%d byte%s)", length, plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, ett_pap_data);
 		  peer_id_length = tvb_get_guint8(tvb, offset);
 		  tp = proto_tree_add_text(field_tree, tvb, offset,      1,
@@ -1938,7 +2432,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
       if(tree) {
         if (length > 0) {
           tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-            "Data: (%d byte%s)", length, plurality(length, "", "s"));
+            "Data (%d byte%s)", length, plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, ett_pap_data);
 		  msg_length = tvb_get_guint8(tvb, offset);
 		  tm = proto_tree_add_text(field_tree, tvb, offset,      1,
@@ -2008,7 +2502,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
       if(tree) {
         if (length > 0) {
           tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-				   "Data: (%d byte%s)", length, 
+				   "Data (%d byte%s)", length, 
 				   plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, ett_chap_data);
 	  value_size = tvb_get_guint8(tvb, offset);
@@ -2040,7 +2534,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
       if(tree) {
         if (length > 0) {
           tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-				   "Data: (%d byte%s)", length, 
+				   "Data (%d byte%s)", length, 
 				   plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, ett_chap_data);
 	  tv = proto_tree_add_text(field_tree, tvb, offset, length,
@@ -2293,6 +2787,68 @@ proto_reg_handoff_cbcp(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_CBCP, cbcp_handle);
+}
+
+void
+proto_register_bacp(void)
+{
+  static gint *ett[] = {
+    &ett_bacp,
+    &ett_bacp_options,
+    &ett_bacp_favored_peer_opt
+  };
+
+  proto_bacp = proto_register_protocol("PPP Bandwidth Allocation Control Protocol", 
+				      "PPP BACP", "bacp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_bacp(void)
+{
+  dissector_handle_t bacp_handle;
+
+  bacp_handle = create_dissector_handle(dissect_bacp, proto_bacp);
+  dissector_add("ppp.protocol", PPP_BACP, bacp_handle);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_BACP, bacp_handle);
+}
+
+void
+proto_register_bap(void)
+{
+  static gint *ett[] = {
+    &ett_bap,
+    &ett_bap_options,
+    &ett_bap_link_type_opt,
+    &ett_bap_phone_delta_opt,
+    &ett_bap_reason_opt,
+    &ett_bap_link_disc_opt,
+    &ett_bap_call_status_opt
+  };
+
+  proto_bap = proto_register_protocol("PPP Bandwidth Allocation Protocol", 
+				      "PPP BAP", "bap");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_bap(void)
+{
+  dissector_handle_t bap_handle;
+
+  bap_handle = create_dissector_handle(dissect_bap, proto_bap);
+  dissector_add("ppp.protocol", PPP_BAP, bap_handle);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_BAP, bap_handle);
 }
 
 void

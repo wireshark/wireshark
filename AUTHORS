@@ -795,6 +795,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	    formats that have an ASCII dump at the end of the line
 	Get rid of "send output to /dev/null" hack in Ascend/Lucent
 	   trace reading code's Flex scanner
+	BACP and BAP support in PPP dissector
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

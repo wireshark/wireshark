@@ -1,7 +1,7 @@
 /* ppptypes.h
  * Defines PPP packet types.
  *
- * $Id: ppptypes.h,v 1.9 2001/08/05 10:09:38 guy Exp $
+ * $Id: ppptypes.h,v 1.10 2001/12/08 01:03:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,5 +57,7 @@
 #define PPP_CHAP	0xc223	/* Cryptographic Handshake Auth. Protocol */
 #define PPP_EAP		0xc227	/* Extensible Authentication Protocol */
 #define PPP_CBCP	0xc029	/* Callback Control Protocol */
+#define PPP_BACP	0xc02b	/* Bandwidth Allocation Control Protocol */
+#define PPP_BAP		0xc02d	/* Bandwidth Allocation Protocol */
 
 #endif /* ppptypes.h */
