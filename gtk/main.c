@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.395 2004/02/12 22:24:28 guy Exp $
+ * $Id: main.c,v 1.396 2004/02/13 00:00:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -173,6 +173,7 @@ static void console_log_handler(const char *log_domain,
 static gboolean list_link_layer_types;
 #endif
 
+static void about_ethereal_destroy_cb(GtkWidget *, gpointer);
 static void create_main_window(gint, gint, gint, e_prefs*);
 static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_);
 static void main_save_window_geometry(GtkWidget *widget);
@@ -188,10 +189,25 @@ static void try_to_get_windows_font_gtk2 (void);
 /* About Ethereal window */
 #define MAX_ABOUT_MSG_LEN 2048
 
+/*
+ * Keep a static pointer to the current "About Ethereal" window, if any, so
+ * that if somebody tries to do "About Ethereal" while there's already an
+ * "About Ethereal" window up, we just pop up the existing one, rather than
+ * creating a new one.
+ */
+static GtkWidget *about_ethereal_w;
+
 void
-about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
-  GtkWidget   *win, *main_vb, *top_hb, *msg_label, *bbox, *ok_btn;
+about_ethereal( GtkWidget *w _U_, gpointer data _U_ )
+{
+  GtkWidget   *main_vb, *top_hb, *msg_label, *bbox, *ok_btn;
   gchar        message[MAX_ABOUT_MSG_LEN];
+
+  if (about_ethereal_w != NULL) {
+    /* There's already an "About Ethereal" dialog box; reactivate it. */
+    reactivate_window(about_ethereal_w);
+    return;
+  }
 
   /*
    * XXX - use GtkDialog?  The GNOME 2.x GnomeAbout widget does.
@@ -199,13 +215,14 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
    * is the GTK+ 2.x GtkDialog appropriate but the 1.2[.x] one
    * not?  (The GNOME 1.x GnomeAbout widget uses GnomeDialog.)
    */
-  win = dlg_window_new("About Ethereal");
-  gtk_container_border_width(GTK_CONTAINER(win), 7);
+  about_ethereal_w = dlg_window_new("About Ethereal");
+  SIGNAL_CONNECT(about_ethereal_w, "destroy", about_ethereal_destroy_cb, NULL);
+  gtk_container_border_width(GTK_CONTAINER(about_ethereal_w), 7);
 
   /* Container for our rows */
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  gtk_container_add(GTK_CONTAINER(win), main_vb);
+  gtk_container_add(GTK_CONTAINER(about_ethereal_w), main_vb);
   gtk_widget_show(main_vb);
 
   /* Top row: Message text */
@@ -245,15 +262,23 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
   gtk_widget_show(bbox);
 
   ok_btn = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy, win);
+  SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy,
+                        about_ethereal_w);
   gtk_widget_grab_default(ok_btn);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had
      been selected. */
-  dlg_set_cancel(win, ok_btn);
+  dlg_set_cancel(about_ethereal_w, ok_btn);
 
-  gtk_widget_show(win);
+  gtk_widget_show(about_ethereal_w);
+}
+
+static void
+about_ethereal_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+{
+  /* Note that we no longer have an "About Ethereal" dialog box. */
+  about_ethereal_w = NULL;
 }
 
 #if GTK_MAJOR_VERSION < 2
