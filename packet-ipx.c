@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.89 2001/10/08 18:20:01 nneul Exp $
+ * $Id: packet-ipx.c,v 1.90 2001/10/20 18:10:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,15 +155,7 @@ static const value_string ipx_socket_vals[] = {
 static const char*
 socket_text(guint16 socket)
 {
-	const char	*p;
-
-	p = match_strval(socket, ipx_socket_vals);
-	if (p) {
-		return p;
-	}
-	else {
-		return "Unknown";
-	}
+	return val_to_str(socket, ipx_socket_vals, "Unknown");
 }
 
 static const value_string ipx_packet_type_vals[] = {
@@ -241,7 +233,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->dst,	AT_IPX, 10, dst_net_node);
 
 	if (check_col(pinfo->fd, COL_INFO))
-		col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%04X)",
+		col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%04x)",
 				socket_text(ipx_dsocket), ipx_dsocket);
 
 	if (tree) {
@@ -260,15 +252,13 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Destination */
 		proto_tree_add_item(ipx_tree, hf_ipx_dnet, tvb, 6, 4, FALSE);
 		proto_tree_add_item(ipx_tree, hf_ipx_dnode, tvb, 10, 6, FALSE);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
-			ipx_dsocket, "Destination Socket: %s (0x%04X)",
-			socket_text(ipx_dsocket), ipx_dsocket);
+		proto_tree_add_uint(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
+			ipx_dsocket);
 
 		/* Source */
 		proto_tree_add_item(ipx_tree, hf_ipx_snet, tvb, 18, 4, FALSE);
 		proto_tree_add_item(ipx_tree, hf_ipx_snode, tvb, 22, 6, FALSE);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
-			ipx_ssocket, "Source Socket: %s (0x%04X)", socket_text(ipx_ssocket),
+		proto_tree_add_uint(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
 			ipx_ssocket);
 	}
 
@@ -633,7 +623,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						ipxnet_to_string((guint8*)tvb_get_ptr(tvb, cursor+50, 4)));
 				proto_tree_add_text(s_tree, tvb, cursor+54, 6, "Node: %s",
 						ether_to_str((guint8*)tvb_get_ptr(tvb, cursor+54, 6)));
-				proto_tree_add_text(s_tree, tvb, cursor+60, 2, "Socket: %s (0x%04X)",
+				proto_tree_add_text(s_tree, tvb, cursor+60, 2, "Socket: %s (0x%04x)",
 						socket_text(server.server_port), server.server_port);
 				proto_tree_add_text(s_tree, tvb, cursor+62, 2,
 						"Intermediate Networks: %d",
@@ -677,7 +667,8 @@ proto_register_ipx(void)
 			"", HFILL }},
 
 		{ &hf_ipx_dsocket,
-		{ "Destination Socket",	"ipx.dst.socket", FT_UINT16, BASE_HEX, NULL, 0x0,
+		{ "Destination Socket",	"ipx.dst.socket", FT_UINT16, BASE_HEX,
+			VALS(ipx_socket_vals), 0x0,
 			"", HFILL }},
 
 		{ &hf_ipx_snet,
@@ -689,7 +680,8 @@ proto_register_ipx(void)
 			"", HFILL }},
 
 		{ &hf_ipx_ssocket,
-		{ "Source Socket",	"ipx.src.socket", FT_UINT16, BASE_HEX, NULL, 0x0,
+		{ "Source Socket",	"ipx.src.socket", FT_UINT16, BASE_HEX,
+			VALS(ipx_socket_vals), 0x0,
 			"", HFILL }},
 	};
 
