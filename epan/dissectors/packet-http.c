@@ -895,9 +895,9 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
     proto_tree *tree, int offset)
 {
 	guint8 *chunk_string = NULL;
-	gint chunk_size = 0;
+	guint32 chunk_size = 0;
 	gint chunk_offset = 0;
-	gint datalen = 0;
+	guint32 datalen = 0;
 	gint linelen = 0;
 	gint chunks_decoded = 0;
 	tvbuff_t *tvb = NULL;
