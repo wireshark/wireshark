@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.53 2004/03/13 15:15:24 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.54 2004/03/27 11:16:58 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,7 +100,7 @@ static void follow_load_text(follow_info_t *follow_info);
 static void follow_filter_out_stream(GtkWidget * w, gpointer parent_w);
 static void follow_print_stream(GtkWidget * w, gpointer parent_w);
 static void follow_save_as_cmd_cb(GtkWidget * w, gpointer data);
-static void follow_save_as_ok_cb(GtkWidget * w, GtkFileSelection * fs);
+static void follow_save_as_ok_cb(GtkWidget * w, gpointer fs);
 static void follow_save_as_destroy_cb(GtkWidget * win, gpointer user_data);
 static void follow_stream_om_both(GtkWidget * w, gpointer data);
 static void follow_stream_om_client(GtkWidget * w, gpointer data);
@@ -943,13 +943,30 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	return;
     }
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    new_win = file_selection_new("Ethereal: Save TCP Follow Stream As",
+                                 GTK_FILE_CHOOSER_ACTION_SAVE);
+#else
     new_win = gtk_file_selection_new("Ethereal: Save TCP Follow Stream As");
+#endif
     follow_info->follow_save_as_w = new_win;
     SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb, follow_info);
 
     /* Tuck away the follow_info object into the window */
     OBJECT_SET_DATA(new_win, E_FOLLOW_INFO_KEY, follow_info);
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    /* If we've opened a file, start out by showing the files in the directory
+       in which that file resided. */
+    if (last_open_dir)
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(new_win),
+                                            last_open_dir);
+    if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
+    {
+        follow_save_as_ok_cb(new_win, new_win);
+    }
+    else gtk_widget_destroy(new_win);
+#else
     /* If we've opened a file, start out by showing the files in the directory
        in which that file resided. */
     if (last_open_dir)
@@ -973,64 +990,74 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win), "");
     gtk_widget_show_all(new_win);
+#endif
 }
 
 
 static void
-follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
+follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 {
-	gchar		*to_name;
-	follow_info_t	*follow_info;
-	FILE		*fh;
-	gchar		*dirname;
+    gchar		*to_name;
+    follow_info_t	*follow_info;
+    FILE		*fh;
+    gchar		*dirname;
 
-	to_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    to_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+#else
+    to_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+#endif
 
-	/* Perhaps the user specified a directory instead of a file.
-	   Check whether they did. */
-	if (test_for_directory(to_name) == EISDIR) {
-		/* It's a directory - set the file selection box to display that
-		   directory, and leave the selection box displayed. */
-		set_last_open_dir(to_name);
-		g_free(to_name);
-		gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs),
-			last_open_dir);
-		return;
-	}
+    /* Perhaps the user specified a directory instead of a file.
+       Check whether they did. */
+    if (test_for_directory(to_name) == EISDIR) {
+        /* It's a directory - set the file selection box to display that
+           directory, and leave the selection box displayed. */
+        set_last_open_dir(to_name);
+        g_free(to_name);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs),
+                                            last_open_dir);
+#else
+        gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs),
+                                        last_open_dir);
+#endif
+        return;
+    }
 
-	fh = fopen(to_name, "wb");
-	if (fh == NULL) {
-		open_failure_alert_box(to_name, errno, TRUE);
-		g_free(to_name);
-		return;
-	}
+    fh = fopen(to_name, "wb");
+    if (fh == NULL) {
+        open_failure_alert_box(to_name, errno, TRUE);
+        g_free(to_name);
+        return;
+    }
 
-	gtk_widget_hide(GTK_WIDGET(fs));
-	follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
-	gtk_widget_destroy(GTK_WIDGET(fs));
+    gtk_widget_hide(GTK_WIDGET(fs));
+    follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
+    gtk_widget_destroy(GTK_WIDGET(fs));
 
-	switch (follow_read_stream(follow_info, follow_print_text, fh)) {
+    switch (follow_read_stream(follow_info, follow_print_text, fh)) {
 
-	case FRS_OK:
-		if (fclose(fh) == EOF)
-			write_failure_alert_box(to_name, errno);
-		break;
+    case FRS_OK:
+        if (fclose(fh) == EOF)
+            write_failure_alert_box(to_name, errno);
+        break;
 
-	case FRS_OPEN_ERROR:
-	case FRS_READ_ERROR:
-		fclose(fh);
-		break;
+    case FRS_OPEN_ERROR:
+    case FRS_READ_ERROR:
+        fclose(fh);
+        break;
 
-	case FRS_PRINT_ERROR:
-		write_failure_alert_box(to_name, errno);
-		fclose(fh);
-		break;
-	}
+    case FRS_PRINT_ERROR:
+        write_failure_alert_box(to_name, errno);
+        fclose(fh);
+        break;
+    }
 
-	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(to_name);  /* Overwrites to_name */
-	set_last_open_dir(dirname);
-	g_free(to_name);
+    /* Save the directory name for future file dialogs. */
+    dirname = get_dirname(to_name);  /* Overwrites to_name */
+    set_last_open_dir(dirname);
+    g_free(to_name);
 }
 
 static void

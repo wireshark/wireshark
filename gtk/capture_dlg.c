@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.121 2004/03/13 22:49:30 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.122 2004/03/27 11:16:57 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@
 #include "compat_macros.h"
 #include "file_dlg.h"
 #include "help_dlg.h"
+#include "gtkglobals.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -106,11 +107,13 @@ capture_prep_file_cb(GtkWidget *w, gpointer te);
 static void
 select_link_type_cb(GtkWidget *w, gpointer data);
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
 static void
 cap_prep_fs_ok_cb(GtkWidget *w, gpointer data);
 
 static void
 cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data);
+#endif
 
 static void
 cap_prep_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te);
@@ -1026,6 +1029,7 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
 {
   GtkWidget *caller = gtk_widget_get_toplevel(w);
   GtkWidget *fs;
+  gchar     *cf_name;
 
   /* Has a file selection dialog box already been opened for that top-level
      widget? */
@@ -1037,12 +1041,26 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
     return;
   }
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  fs = gtk_file_chooser_dialog_new("Ethereal: Capture File",
+                                   GTK_WINDOW(top_level),
+                                   GTK_FILE_CHOOSER_ACTION_SAVE,
+                                   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                   NULL);
+#else
   fs = file_selection_new ("Ethereal: Capture File");
+#endif
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  if (last_open_dir)
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), last_open_dir);
+#else
   if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+#endif
 
   OBJECT_SET_DATA(fs, E_CAP_FILE_TE_KEY, file_te);
 
@@ -1056,6 +1074,15 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
      our caller, if any, that it's been destroyed. */
   SIGNAL_CONNECT(fs, "destroy", cap_prep_fs_destroy_cb, file_te);
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
+  {
+      cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+      gtk_entry_set_text(GTK_ENTRY(file_te), cf_name);
+      g_free(cf_name);
+  }
+  gtk_widget_destroy(fs);
+#else
   SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", cap_prep_fs_ok_cb, fs);
 
   /* Connect the cancel_button to destroy the widget */
@@ -1068,8 +1095,10 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
   dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
 
   gtk_widget_show_all(fs);
+#endif
 }
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
 static void
 cap_prep_fs_ok_cb(GtkWidget *w _U_, gpointer data)
 {
@@ -1085,7 +1114,7 @@ cap_prep_fs_ok_cb(GtkWidget *w _U_, gpointer data)
         set_last_open_dir(cf_name);
         g_free(cf_name);
         gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
-          last_open_dir);
+                                        last_open_dir);
         return;
   }
 
@@ -1100,6 +1129,7 @@ cap_prep_fs_cancel_cb(GtkWidget *w _U_, gpointer data)
 {
   gtk_widget_destroy(GTK_WIDGET(data));
 }
+#endif
 
 static void
 cap_prep_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te)

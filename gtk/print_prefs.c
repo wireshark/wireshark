@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.17 2004/01/21 03:54:30 ulfl Exp $
+ * $Id: print_prefs.c,v 1.18 2004/03/27 11:16:58 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,10 +39,13 @@
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
+#include "gtkglobals.h"
 
 static void printer_opts_file_cb(GtkWidget *w, gpointer te);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
 static void printer_opts_fs_ok_cb(GtkWidget *w, gpointer data);
 static void printer_opts_fs_cancel_cb(GtkWidget *w, gpointer data);
+#endif
 static void printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data);
 
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
@@ -149,8 +152,13 @@ printer_opts_file_cb(GtkWidget *file_bt, gpointer file_te) {
     return;
   }
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  fs = file_selection_new("Ethereal: Print to a File",
+                          GTK_FILE_CHOOSER_ACTION_SAVE);
+#else
   fs = gtk_file_selection_new ("Ethereal: Print to a File");
 	OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
+#endif
 
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
   OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
@@ -162,6 +170,14 @@ printer_opts_file_cb(GtkWidget *file_bt, gpointer file_te) {
      our caller, if any, that it's been destroyed. */
   SIGNAL_CONNECT(fs, "destroy", printer_opts_fs_destroy_cb, NULL);
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
+  {
+      gtk_entry_set_text(GTK_ENTRY(file_te),
+                         gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+  }
+  gtk_widget_destroy(fs);
+#else
   SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked",
                  printer_opts_fs_ok_cb, fs);
 
@@ -175,8 +191,10 @@ printer_opts_file_cb(GtkWidget *file_bt, gpointer file_te) {
   dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
 
   gtk_widget_show(fs);
+#endif
 }
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
 static void
 printer_opts_fs_ok_cb(GtkWidget *w, gpointer data) {
 
@@ -190,6 +208,7 @@ printer_opts_fs_cancel_cb(GtkWidget *w _U_, gpointer data) {
 
 	gtk_widget_destroy(GTK_WIDGET(data));
 }
+#endif
 
 static void
 printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data _U_)

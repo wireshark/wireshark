@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.21 2004/02/13 00:53:35 guy Exp $
+ * $Id: dlg_utils.c,v 1.22 2004/03/27 11:16:58 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -321,16 +321,29 @@ dlg_window_new(const gchar *title)
 
 /* Create a file selection dialog box window that belongs to Ethereal's
    main window. */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+GtkWidget *
+file_selection_new(const gchar *title, GtkFileChooserAction action)
+#else
 GtkWidget *
 file_selection_new(const gchar *title)
+#endif
 {
   GtkWidget *win;
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  win = gtk_file_chooser_dialog_new(title, GTK_WINDOW(top_level), action,
+                                    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                    NULL);
+  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
+#else
   win = gtk_file_selection_new(title);
 #if GTK_MAJOR_VERSION >= 2
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
 #endif
   gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
+#endif
   return win;
 }
 

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.98 2004/02/27 19:07:18 ulfl Exp $
+ * $Id: file_dlg.c,v 1.99 2004/03/27 11:16:58 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,17 +55,19 @@
 #endif
 
 
-static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void file_open_ok_cb(GtkWidget *w, gpointer fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
 static void select_file_type_cb(GtkWidget *w, gpointer data);
-static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void file_save_as_ok_cb(GtkWidget *w, gpointer fs);
 static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
-static void file_color_import_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void file_color_import_ok_cb(GtkWidget *w, gpointer fs);
 static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
-static void file_color_export_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void file_color_export_ok_cb(GtkWidget *w, gpointer fs);
 static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
 static void file_select_ok_cb(GtkWidget *w, gpointer data);
 static void file_select_cancel_cb(GtkWidget *w, gpointer data);
+#endif
 static void file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 static void toggle_captured_cb(GtkWidget *widget, gpointer data _U_);
 
@@ -96,6 +98,7 @@ select_file_cb(GtkWidget *file_bt, const char *label)
 {
   GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
   GtkWidget *fs, *file_te;
+  gchar     *f_name;
 
   /* Has a file selection dialog box already been opened for that top-level
      widget? */
@@ -107,12 +110,21 @@ select_file_cb(GtkWidget *file_bt, const char *label)
     return;
   }
 
-  fs = file_selection_new (label);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  fs = file_selection_new(label, GTK_FILE_CHOOSER_ACTION_SAVE);
+#else
+  fs = file_selection_new(label);
+#endif
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  if (last_open_dir)
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), last_open_dir);
+#else
   if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+#endif
 
   OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
 
@@ -127,6 +139,15 @@ select_file_cb(GtkWidget *file_bt, const char *label)
   SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(file_select_destroy_cb), 
 		 file_te);
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
+  {
+      f_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+      gtk_entry_set_text(GTK_ENTRY(file_te), f_name);
+      g_free(f_name);
+  }
+  gtk_widget_destroy(fs);
+#else
   SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", 
 		 file_select_ok_cb, fs);
 
@@ -140,15 +161,16 @@ select_file_cb(GtkWidget *file_bt, const char *label)
   dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
 
   gtk_widget_show(fs);
+#endif
 }
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
 static void
 file_select_ok_cb(GtkWidget *w _U_, gpointer data)
 {
   gchar     *f_name;
 
-  f_name = g_strdup(gtk_file_selection_get_filename(
-    GTK_FILE_SELECTION (data)));
+  f_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (data)));
 
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
@@ -157,7 +179,7 @@ file_select_ok_cb(GtkWidget *w _U_, gpointer data)
         set_last_open_dir(f_name);
         g_free(f_name);
         gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
-          last_open_dir);
+                                        last_open_dir);
         return;
   }
 
@@ -173,6 +195,7 @@ file_select_cancel_cb(GtkWidget *w _U_, gpointer data)
 {
   gtk_widget_destroy(GTK_WIDGET(data));
 }
+#endif
 
 static void
 file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te)
@@ -227,7 +250,12 @@ file_open_cmd(GtkWidget *w)
     return;
   }
 
-  file_open_w = file_selection_new ("Ethereal: Open Capture File");
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  file_open_w = file_selection_new("Ethereal: Open Capture File",
+                                   GTK_FILE_CHOOSER_ACTION_OPEN);
+#else
+  file_open_w = file_selection_new("Ethereal: Open Capture File");
+#endif
   SIGNAL_CONNECT(file_open_w, "destroy", file_open_destroy_cb, NULL);
 
 #if GTK_MAJOR_VERSION < 2
@@ -246,28 +274,46 @@ file_open_cmd(GtkWidget *w)
        directory, if we could determine it, as the directory, otherwise
        use the "last opened" directory saved in the preferences file if
        there was one. */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    if (last_open_dir) {
+      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_open_w),
+                                          last_open_dir);
+    }
+#else
     if (last_open_dir) {
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
 				      last_open_dir);
     }
+#endif
     break;
 
   case FO_STYLE_SPECIFIED:
     /* The user has specified that we should always start out in a
        specified directory; if they've specified that directory,
        start out by showing the files in that dir. */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    if (prefs.gui_fileopen_dir[0] != '\0') {
+      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_open_w),
+                                          prefs.gui_fileopen_dir);
+    }
+#else
     if (prefs.gui_fileopen_dir[0] != '\0') {
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
 				      prefs.gui_fileopen_dir);
     }
+#endif
     break;
   }
     
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(file_open_w), main_vb);
+#else
   gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_open_w)->action_area),
     main_vb, FALSE, FALSE, 0);
+#endif
   gtk_widget_show(main_vb);
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
@@ -287,33 +333,59 @@ file_open_cmd(GtkWidget *w)
   SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
   gtk_widget_show(filter_te);
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_open_w, E_RFILTER_TE_KEY, filter_te);
+#else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
                   E_RFILTER_TE_KEY, filter_te);
+#endif
 
   m_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _MAC name resolution", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
 	g_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
-  gtk_widget_show(m_resolv_cb);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_open_w,
+                  E_FILE_M_RESOLVE_KEY, m_resolv_cb);
+#else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
                   E_FILE_M_RESOLVE_KEY, m_resolv_cb);
+#endif
+  gtk_widget_show(m_resolv_cb);
 
   n_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _network name resolution", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
 	g_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(n_resolv_cb);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_open_w, E_FILE_N_RESOLVE_KEY, n_resolv_cb);
+#else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
 		  E_FILE_N_RESOLVE_KEY, n_resolv_cb);
+#endif
 
   t_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _transport name resolution", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
 	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_open_w, E_FILE_T_RESOLVE_KEY, t_resolv_cb);
+#else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
 		  E_FILE_T_RESOLVE_KEY, t_resolv_cb);
+#endif
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_open_w, E_DFILTER_TE_KEY,
+                  OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
+  if (gtk_dialog_run(GTK_DIALOG(file_open_w)) == GTK_RESPONSE_ACCEPT)
+  {
+    file_open_ok_cb(file_open_w, file_open_w);
+  }
+  else gtk_widget_destroy(file_open_w);
+#else
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->ok_button, "clicked",
@@ -333,6 +405,7 @@ file_open_cmd(GtkWidget *w)
   dlg_set_cancel(file_open_w, GTK_FILE_SELECTION(file_open_w)->cancel_button);
 
   gtk_widget_show(file_open_w);
+#endif
 }
 
 void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
@@ -370,13 +443,17 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 }
 
 static void
-file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
+file_open_ok_cb(GtkWidget *w, gpointer fs) {
   gchar     *cf_name, *rfilter, *s;
   GtkWidget *filter_te, *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
   dfilter_t *rfcode = NULL;
   int        err;
 
-  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+#else
+  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+#endif
   filter_te = OBJECT_GET_DATA(w, E_RFILTER_TE_KEY);
   rfilter = (gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
@@ -810,7 +887,7 @@ gpointer            action_after_save_data_g;
 void
 file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
 {
-  GtkWidget     *ok_bt, *main_vb, *ft_hb, *ft_lb, *range_fr, *range_tb;
+  GtkWidget     *main_vb, *ft_hb, *ft_lb, *range_fr, *range_tb;
   GtkTooltips   *tooltips;
 
 #if GTK_MAJOR_VERSION < 2
@@ -833,7 +910,12 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   tooltips = gtk_tooltips_new();
 	  
   /* build the file selection */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  file_save_as_w = file_selection_new ("Ethereal: Save Capture File As",
+                                       GTK_FILE_CHOOSER_ACTION_SAVE);
+#else
   file_save_as_w = file_selection_new ("Ethereal: Save Capture File As");
+#endif
   SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
 
   /* as the dialog might already be gone, when using this values, we cannot
@@ -848,20 +930,26 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 	
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (last_open_dir)
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w), last_open_dir);
-
-  /* Connect the ok_button to file_save_as_ok_cb function and pass along a
-     pointer to the file selection box widget */
-  ok_bt = GTK_FILE_SELECTION (file_save_as_w)->ok_button;
-  SIGNAL_CONNECT(ok_bt, "clicked", file_save_as_ok_cb, file_save_as_w);
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_save_as_w),
+                                        last_open_dir);
+#else
+  if (last_open_dir)
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w),
+                                    last_open_dir);
+#endif
 
   /* Container for each row of widgets */
        
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(file_save_as_w), main_vb);
+#else
   gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_save_as_w)->action_area),
-    main_vb, FALSE, FALSE, 0);
+                     main_vb, FALSE, FALSE, 0);
+#endif
   gtk_widget_show(main_vb);	
 		
   /*** Packet Range frame ***/
@@ -1007,6 +1095,18 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* dynamic values in the range frame */
   file_set_save_dynamics();
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  if (gtk_dialog_run(GTK_DIALOG(file_save_as_w)) == GTK_RESPONSE_ACCEPT)
+  {
+    file_save_as_ok_cb(file_save_as_w, file_save_as_w);
+  }
+  else gtk_widget_destroy(file_save_as_w);
+#else
+  /* Connect the ok_button to file_save_as_ok_cb function and pass along a
+     pointer to the file selection box widget */
+  SIGNAL_CONNECT(GTK_FILE_SELECTION (file_save_as_w)->ok_button, "clicked",
+                 file_save_as_ok_cb, file_save_as_w);
+
   /* Connect the cancel_button to destroy the widget */
   SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_save_as_w)->cancel_button,
                         "clicked", (GtkSignalFunc)gtk_widget_destroy,
@@ -1020,6 +1120,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w), "");
 
   gtk_widget_show(file_save_as_w);
+#endif
 }
 
 void
@@ -1029,12 +1130,15 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 }
 
 static void
-file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
+file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	*cf_name;
   gchar	*dirname;
 
-	  
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+#else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+#endif
 
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
@@ -1183,14 +1287,16 @@ static void
 color_global_cb(GtkWidget *widget _U_, gpointer data)
 {
   GtkWidget *fs_widget = data;
-  
-	gchar *path;
+  gchar *path;
 
-	/* decide what file to open (from dfilter code) */
-	path = get_datafile_path("colorfilters");
+  /* decide what file to open (from dfilter code) */
+  path = get_datafile_path("colorfilters");
 
-  gtk_file_selection_set_filename (GTK_FILE_SELECTION(fs_widget), path);
-
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  gtk_file_chooser_select_filename(GTK_FILE_CHOOSER(fs_widget), path);
+#else
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs_widget), path);
+#endif
   g_free((gchar *)path);
 }
 
@@ -1211,7 +1317,12 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
     return;
   }
 
-  file_color_import_w = gtk_file_selection_new ("Ethereal: Import Color Filters");
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  file_color_import_w = file_selection_new("Ethereal: Import Color Filters",
+                                           GTK_FILE_CHOOSER_ACTION_OPEN);
+#else
+  file_color_import_w = gtk_file_selection_new("Ethereal: Import Color Filters");
+#endif
   SIGNAL_CONNECT(file_color_import_w, "destroy", file_color_import_destroy_cb, NULL);
 
 #if GTK_MAJOR_VERSION < 2
@@ -1224,14 +1335,26 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (last_open_dir)
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_import_w), last_open_dir);
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_color_import_w),
+                                        last_open_dir);
+#else
+  if (last_open_dir)
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_import_w),
+                                    last_open_dir);
+#endif
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(file_color_import_w),
+                                    main_vb);
+#else
   gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_color_import_w)->action_area),
-    main_vb, FALSE, FALSE, 0);
+                     main_vb, FALSE, FALSE, 0);
+#endif
   gtk_widget_show(main_vb);
 
 
@@ -1240,6 +1363,15 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
   SIGNAL_CONNECT(cfglobal_but, "clicked", color_global_cb, file_color_import_w);
   gtk_widget_show(cfglobal_but);
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  OBJECT_SET_DATA(file_color_import_w, ARGUMENT_CL, data);
+
+  if (gtk_dialog_run(GTK_DIALOG(file_color_import_w)) == GTK_RESPONSE_ACCEPT)
+  {
+      file_color_import_ok_cb(file_color_import_w, file_color_import_w);
+  }
+  else gtk_widget_destroy(file_color_import_w);
+#else
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_color_import_w)->ok_button, "clicked",
@@ -1259,16 +1391,21 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
   dlg_set_cancel(file_color_import_w, GTK_FILE_SELECTION(file_color_import_w)->cancel_button);
 
   gtk_widget_show(file_color_import_w);
+#endif
 }
 
 static void
-file_color_import_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
+file_color_import_ok_cb(GtkWidget *w, gpointer fs) {
   gchar     *cf_name, *s;
   gpointer  argument;
 
   argument = OBJECT_GET_DATA(w, ARGUMENT_CL);     /* to be passed back into read_other_filters */
   
-  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+#else
+  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+#endif
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
   if (test_for_directory(cf_name) == EISDIR) {
@@ -1350,7 +1487,7 @@ color_toggle_marked_cb(GtkWidget *widget, gpointer data _U_)
 void
 file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkWidget *ok_bt, *main_vb, *cfglobal_but;
+  GtkWidget *main_vb, *cfglobal_but;
 
   if (file_color_export_w != NULL) {
     /* There's already an "Color Filter Export" dialog box; reactivate it. */
@@ -1362,24 +1499,36 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   color_marked   = FALSE;
   filetype = cfile.cd_t;
 
-  file_color_export_w = gtk_file_selection_new ("Ethereal: Export Color Filters");
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  file_color_export_w = file_selection_new("Ethereal: Export Color Filters",
+                                           GTK_FILE_CHOOSER_ACTION_SAVE);
+#else
+  file_color_export_w = gtk_file_selection_new("Ethereal: Export Color Filters");
+#endif
   SIGNAL_CONNECT(file_color_export_w, "destroy", file_color_export_destroy_cb, NULL);
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (last_open_dir)
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_export_w), last_open_dir);
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_color_export_w),
+                                        last_open_dir);
+#else
+  if (last_open_dir)
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_export_w),
+                                    last_open_dir);
 
-  /* Connect the ok_button to file_export_ok_cb function and pass along a
-     pointer to the file selection box widget */
-  ok_bt = GTK_FILE_SELECTION (file_color_export_w)->ok_button;
-  SIGNAL_CONNECT(ok_bt, "clicked", file_color_export_ok_cb, file_color_export_w);
-
+#endif
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(file_color_export_w),
+                                    main_vb);
+#else
   gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_color_export_w)->action_area),
     main_vb, FALSE, FALSE, 0);
+#endif
   gtk_widget_show(main_vb);
 
   cfmark_cb = gtk_check_button_new_with_label("Export only marked filters");
@@ -1394,6 +1543,18 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   SIGNAL_CONNECT(cfglobal_but, "clicked", color_global_cb, file_color_export_w);
   gtk_widget_show(cfglobal_but);
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  if (gtk_dialog_run(GTK_DIALOG(file_color_export_w)) == GTK_RESPONSE_ACCEPT)
+  {
+      file_color_export_ok_cb(file_color_export_w, file_color_export_w);
+  }
+  else gtk_widget_destroy(file_color_export_w);
+#else
+  /* Connect the ok_button to file_export_ok_cb function and pass along a
+     pointer to the file selection box widget */
+  SIGNAL_CONNECT(GTK_FILE_SELECTION (file_color_export_w)->ok_button, "clicked",
+                 file_color_export_ok_cb, file_color_export_w);
+
   /* Connect the cancel_button to destroy the widget */
   SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_color_export_w)->cancel_button,
                         "clicked", (GtkSignalFunc)gtk_widget_destroy,
@@ -1407,14 +1568,19 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_export_w), "");
 
   gtk_widget_show(file_color_export_w);
+#endif
 }
 
 static void
-file_color_export_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
+file_color_export_ok_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	*cf_name;
   gchar	*dirname;
 
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+#else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+#endif
 
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
@@ -1455,5 +1621,3 @@ file_color_export_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
   file_color_export_w = NULL;
 }
-
-
