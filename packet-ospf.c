@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.60 2002/04/24 20:14:26 guy Exp $
+ * $Id: packet-ospf.c,v 1.61 2002/04/25 06:34:41 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -881,14 +881,14 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case MPLS_LINK_MAX_BW:
 		case MPLS_LINK_MAX_RES_BW:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-					     "%s: %f", stlv_name,
+					     "%s: %.10g", stlv_name,
 					     tvb_get_ntohieee_float(tvb, stlv_offset + 4));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "%s: %f", stlv_name,
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "%s: %.10g", stlv_name,
 					tvb_get_ntohieee_float(tvb, stlv_offset + 4));
 		    break;
 
@@ -902,7 +902,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					stlv_len);
 		    for (i = 0; i < 8; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4+(i*4), 4,
-					    "Pri %d: %f bytes/s (%.0f bits/s)", i,
+					    "Pri %d: %.10g bytes/s (%.0f bits/s)", i,
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 4 + i*4),
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 4 + i*4) * 8.0);
 		    }
@@ -940,7 +940,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 						   gmpls_lsp_enc_str, "Unknown (%d)"));
 		    for (i = 0; i < 8; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+8+(i*4), 4,
-					    "Pri %d: %f bytes/s (%.0f bits/s)", i,
+					    "Pri %d: %.10g bytes/s (%.0f bits/s)", i,
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4),
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4) * 8.0);
 		    }

@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.35 2002/04/24 19:35:52 guy Exp $
+ * $Id: packet-ldp.c,v 1.36 2002/04/25 06:34:41 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1447,30 +1447,30 @@ dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			/* PDR */
 			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_pdr, tvb, offset,
-						    4, val_f, "PDR: %f Bps", val_f);
+						    4, val_f, "PDR: %.10g Bps", val_f);
 			offset += 4;
 			/* PBS */
 			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_pbs, tvb, offset,
-						    4, val_f, "PBS: %f Bytes", val_f);
+						    4, val_f, "PBS: %.10g Bytes", val_f);
 			offset += 4;
 
 			/* CDR */
 			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_cdr, tvb, offset,
-						    4, val_f, "CDR: %f Bps", val_f);
+						    4, val_f, "CDR: %.10g Bps", val_f);
 			offset += 4;
 
 			/* CBS */
 			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_cbs, tvb, offset,
-						    4, val_f, "CBS: %f Bytes", val_f);
+						    4, val_f, "CBS: %.10g Bytes", val_f);
 			offset += 4;
 
 			/* EBS */
 			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_ebs, tvb, offset,
-						    4, val_f, "EBS: %f Bytes", val_f);
+						    4, val_f, "EBS: %.10g Bytes", val_f);
 
 		}
 	}

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.3 2002/04/24 20:18:01 guy Exp $
+ * $Id: packet-lmp.c,v 1.4 2002/04/25 06:34:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1053,7 +1053,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+10, 2, 
 					"Verify Transport Mechanism: 0x%0x", tvb_get_ntohs(tvb, offset2+10));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+12, 4, 
-					"Transmission Rate: %f", tvb_get_ntohieee_float(tvb, offset2+12));
+					"Transmission Rate: %.10g", tvb_get_ntohieee_float(tvb, offset2+12));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+16, 4, 
 					"Wavelength: %d", tvb_get_ntohl(tvb, offset2+4));
 		    break;
@@ -1207,7 +1207,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    switch(tvb_get_guint8(tvb, offset2+l)) {
 		    case 1: 
 			proto_item_set_text(ti2, "Interface Switching Capability: "
-					    "Switching Cap: %s, Encoding Type: %s, Min BW: %f, Max BW: %f", 
+					    "Switching Cap: %s, Encoding Type: %s, Min BW: %.10g, Max BW: %.10g", 
 					    val_to_str(tvb_get_guint8(tvb, offset2+l+2), 
 						       gmpls_switching_type_str, "Unknown (%d)"),
 					    val_to_str(tvb_get_guint8(tvb, offset2+l+3), 
@@ -1221,10 +1221,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
 					    tvb, offset2+l+3, 1, FALSE);
 			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4, 
-					    "Minimum Reservable Bandwidth: %f bytes/s", 
+					    "Minimum Reservable Bandwidth: %.10g bytes/s", 
 					    tvb_get_ntohieee_float(tvb, offset2+l+4));
 			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+8, 4, 
-					    "Maximum Reservable Bandwidth: %f bytes/s", 
+					    "Maximum Reservable Bandwidth: %.10g bytes/s", 
 					    tvb_get_ntohieee_float(tvb, offset2+l+8));
 			break;
 
