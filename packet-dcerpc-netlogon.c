@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.79 2003/05/15 02:01:39 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.80 2003/05/15 04:58:53 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5946,6 +5946,7 @@ static int hf_netlogon_secchan_bind_ack_unknown1 = -1;
 static int hf_netlogon_secchan_bind_ack_unknown2 = -1;
 static int hf_netlogon_secchan_bind_ack_unknown3 = -1;
 
+static gint ett_secchan = -1;
 static gint ett_secchan_bind_creds = -1;
 static gint ett_secchan_bind_ack_creds = -1;
 
@@ -6028,6 +6029,42 @@ int netlogon_dissect_secchan_bind_ack_creds(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+
+static int hf_netlogon_secchan = -1;
+static int hf_netlogon_secchan_sig = -1;
+static int hf_netlogon_secchan_unk = -1;
+static int hf_netlogon_secchan_seq = -1;
+static int hf_netlogon_secchan_nonce = -1;
+
+int netlogon_dissect_secchan_verf(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo _U_, proto_tree *tree, 
+				  char *drep _U_)
+{
+	proto_item *vf;
+	proto_tree *sec_chan_tree;
+	/*
+         * Create a new tree, and split into 4 components ...
+         */
+	vf = proto_tree_add_item(tree, hf_netlogon_secchan, tvb, 
+				 offset, -1, FALSE);
+	sec_chan_tree = proto_item_add_subtree(vf, ett_secchan);
+	
+	proto_tree_add_item(sec_chan_tree, hf_netlogon_secchan_sig, tvb, 
+			    offset, 8, FALSE);
+	
+	proto_tree_add_item(sec_chan_tree, hf_netlogon_secchan_unk, tvb, 
+			    offset + 8, 8, FALSE);
+	
+	proto_tree_add_item(sec_chan_tree, hf_netlogon_secchan_seq, tvb, 
+			    offset + 16, 8, FALSE);
+	
+	proto_tree_add_item(sec_chan_tree, hf_netlogon_secchan_nonce, tvb, 
+			    offset + 24, 8, FALSE);
+	
+	return offset;
+}
+
+/* Subdissectors */
 
 static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_UASLOGON, "UasLogon",
@@ -6996,6 +7033,8 @@ static hf_register_info hf[] = {
 		{ "Time Limit", "netlogon.time_limit", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0, "", HFILL }},
 
+	/* Secure channel dissection */
+
 	{ &hf_netlogon_secchan_bind_unknown1,
 	  { "Unknown1", "netlogon.secchan.bind.unknown1", FT_UINT32, BASE_HEX,
 	    NULL, 0x0, "", HFILL }},
@@ -7024,6 +7063,26 @@ static hf_register_info hf[] = {
 	  { "Unknown3", "netlogon.secchan.bind_ack.unknown3", FT_UINT32, 
 	    BASE_HEX, NULL, 0x0, "", HFILL }},
 
+        { &hf_netlogon_secchan,
+          { "Verifier", "netlogon.secchan.verifier", FT_NONE, BASE_NONE, 
+	    NULL, 0x0, "Verifier", HFILL }},
+
+        { &hf_netlogon_secchan_sig,
+          { "Signature", "netlogon.secchan.sig", FT_BYTES, BASE_HEX, NULL, 
+	    0x0, "Signature", HFILL }}, 
+
+        { &hf_netlogon_secchan_unk,
+          { "Unknown", "netlogon.secchan.unk", FT_BYTES, BASE_HEX, NULL, 
+          0x0, "Unknown", HFILL }}, 
+
+        { &hf_netlogon_secchan_seq,
+          { "Sequence No", "netlogon.secchan.seq", FT_BYTES, BASE_HEX, NULL, 
+          0x0, "Sequence No", HFILL }}, 
+
+        { &hf_netlogon_secchan_nonce,
+          { "Nonce", "netlogon.secchan.nonce", FT_BYTES, BASE_HEX, NULL, 
+          0x0, "Nonce", HFILL }}, 
+
 	};
 
         static gint *ett[] = {
@@ -7050,7 +7109,8 @@ static hf_register_info hf[] = {
 		&ett_get_dcname_request_flags,
 		&ett_dc_flags,
 		&ett_secchan_bind_creds,
-		&ett_secchan_bind_ack_creds
+		&ett_secchan_bind_ack_creds,
+		&ett_secchan,
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(
