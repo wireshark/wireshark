@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.2 2001/07/13 08:16:15 guy Exp $
+ * $Id: mergecap.c,v 1.3 2001/07/14 19:28:10 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -184,6 +184,52 @@ merge(int count, in_file_t in_files[], out_file_t *out_file)
 
 
 /*
+ * Select an output frame type based on the input files
+ * From Guy: If all files have the same frame type, then use that.
+ *           Otherwise select WTAP_ENCAP_PER_PACKET.  If the selected
+ *           output file type doesn't support per packet frame types,
+ *           then the wtap_dump_open call will fail with a reasonable
+ *           error condition.
+ */
+static int
+select_frame_type(int count, in_file_t files[])
+{
+  int i;
+  int selected_frame_type;
+  
+  selected_frame_type = wtap_file_encap(files[0].wth);
+  
+  for (i = 1; i < count; i++) {
+    int this_frame_type = wtap_file_encap(files[i].wth);
+    if (selected_frame_type != this_frame_type) {
+      selected_frame_type = WTAP_ENCAP_PER_PACKET;
+      if (verbose) {
+        fprintf(stderr, "mergecap: multiple frame encapsulation types detected\n");
+        fprintf(stderr, "          defaulting to WTAP_ENCAP_PER_PACKET\n");
+        fprintf(stderr, "          %s had type %s (%s)\n",
+                files[0].filename,
+                wtap_encap_string(selected_frame_type),
+                wtap_encap_short_string(selected_frame_type));
+        fprintf(stderr, "          %s had type %s (%s)\n",
+                files[i].filename,
+                wtap_encap_string(this_frame_type),
+                wtap_encap_short_string(this_frame_type));
+      }
+      break;
+    }
+  }
+  
+  if (verbose) {
+      fprintf(stderr, "mergecap: selected frame_type %s (%s)\n",
+              wtap_encap_string(selected_frame_type),
+              wtap_encap_short_string(selected_frame_type));
+  }
+
+  return selected_frame_type;
+}
+    
+
+/*
  * Close the output file
  */
 static void
@@ -215,8 +261,8 @@ open_outfile(out_file_t *out_file, int snapshot_len)
   out_file->pdh = wtap_dump_open(out_file->filename, out_file->file_type,
                                  out_file->frame_type, snapshot_len, &err);
   if (!out_file->pdh) {
-    fprintf(stderr, "mergecap: Can't open/create %s: %s\n",
-            out_file->filename, wtap_strerror(err));
+    fprintf(stderr, "mergecap: Can't open/create %s:\n", out_file->filename);
+    fprintf(stderr, "          %s\n", wtap_strerror(err));
     return FALSE;
   }
   return TRUE;
@@ -285,7 +331,7 @@ open_in_files(int argc, char *argv[], in_file_t *in_files[])
               wtap_strerror(err));
     } else {
       if (verbose) {
-        fprintf(stderr, "File %s is a %s capture file.\n", argv[i],
+        fprintf(stderr, "mergecap: %s is type %s.\n", argv[i],
                 wtap_file_type_string(wtap_file_type(files[count].wth)));
       }
       count++;
@@ -308,7 +354,7 @@ usage()
   int i;
   const char *string;
 
-  fprintf(stderr, "Usage: mergecap [-h] [-v] [-a] [-s <snaplen>] [-T <encap type>]\n");
+  fprintf(stderr, "Usage: mergecap [-hva] [-s <snaplen>] [-T <encap type>]\n");
   fprintf(stderr, "          [-F <capture type>] -w <outfile> <infile> [...]\n\n");
   fprintf(stderr, "  where\t-h produces this help listing.\n");
   fprintf(stderr, "       \t-v verbose operation, default is silent\n");
@@ -356,7 +402,7 @@ main(int argc, char *argv[])
   out_file.count      = 1;                 /* frames output */
 
   /* Process the options first */
-  while ((opt = getopt(argc, argv, "w:aT:F:vs:h")) != EOF) {
+  while ((opt = getopt(argc, argv, "hvas:T:F:w:")) != EOF) {
 
     switch (opt) {
     case 'w':
@@ -432,7 +478,7 @@ main(int argc, char *argv[])
 
   /* set the outfile frame type */
   if (out_file.frame_type == -2)
-    out_file.frame_type = wtap_file_encap(in_files[0].wth);
+    out_file.frame_type = select_frame_type(in_file_count, in_files);
   
   /* open the outfile */
   if (!open_outfile(&out_file, max_snapshot_length(in_file_count, in_files))) {
