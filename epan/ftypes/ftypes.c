@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.12 2003/11/25 08:50:37 sahlberg Exp $
+ * $Id: ftypes.c,v 1.13 2003/11/25 13:20:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,7 @@
 static ftype_t* type_list[FT_NUM_TYPES];
 
 /* Space for quickly allocating/de-allocating fvalue_t's */
-static fvalue_t *fvalue_free_list=NULL;
+fvalue_t *fvalue_free_list=NULL;
 
 /* These are the ftype registration functions that need to be called.
  * This list and the initialization function could be produced
@@ -230,21 +230,6 @@ fvalue_new(ftenum_t ftype)
 	return fv;
 }
 
-/* Free all memory used by an fvalue_t */
-void
-fvalue_free(fvalue_t *fv)
-{
-	FvalueFreeFunc	free_value;
-
-	free_value = fv->ptr_u.ftype->free_value;
-	if (free_value) {
-		free_value(fv);
-	}
-
-	fv->ptr_u.next=fvalue_free_list;	\
-	fvalue_free_list=fv;	
-}
-
 fvalue_t*
 fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
@@ -260,7 +245,7 @@ fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogF
 		logfunc("\"%s\" cannot be converted to %s.",
 				s, ftype_pretty_name(ftype));
 	}
-	fvalue_free(fv);
+	FVALUE_FREE(fv);
 	return NULL;
 }
 
@@ -279,7 +264,7 @@ fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
 		logfunc("\"%s\" cannot be converted to %s.",
 				s, ftype_pretty_name(ftype));
 	}
-	fvalue_free(fv);
+	FVALUE_FREE(fv);
 	return NULL;
 }
 

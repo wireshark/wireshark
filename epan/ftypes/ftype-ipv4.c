@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-ipv4.c,v 1.13 2003/08/27 15:23:07 gram Exp $
+ * $Id: ftype-ipv4.c,v 1.14 2003/11/25 13:20:35 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,7 +105,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 			return FALSE;
 		}
 		nmask_bits = fvalue_get_integer(nmask_fvalue);
-		fvalue_free(nmask_fvalue);
+		FVALUE_FREE(nmask_fvalue);
 
 		if (nmask_bits > 32) {
 			logfunc("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",

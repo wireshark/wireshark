@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes-int.h,v 1.10 2003/08/27 15:23:08 gram Exp $
+ * $Id: ftypes-int.h,v 1.11 2003/11/25 13:20:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,61 +25,6 @@
 
 #include <epan/packet.h>
 #include "ftypes.h"
-
-typedef void (*FvalueNewFunc)(fvalue_t*);
-typedef void (*FvalueFreeFunc)(fvalue_t*);
-
-typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, char*, gboolean, LogFunc);
-typedef gboolean (*FvalueFromString)(fvalue_t*, char*, LogFunc);
-typedef void (*FvalueToStringRepr)(fvalue_t*, ftrepr_t, char*);
-typedef int (*FvalueStringReprLen)(fvalue_t*, ftrepr_t);
-
-typedef void (*FvalueSetFunc)(fvalue_t*, gpointer, gboolean);
-typedef void (*FvalueSetIntegerFunc)(fvalue_t*, guint32);
-typedef void (*FvalueSetFloatingFunc)(fvalue_t*, gdouble);
-
-typedef gpointer (*FvalueGetFunc)(fvalue_t*);
-typedef guint32 (*FvalueGetIntegerFunc)(fvalue_t*);
-typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
-
-typedef gboolean (*FvalueCmp)(fvalue_t*, fvalue_t*);
-
-typedef guint (*FvalueLen)(fvalue_t*);
-typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
-
-struct _ftype_t {
-	const char		*name;
-	const char		*pretty_name;
-	int			wire_size;
-	FvalueNewFunc		new_value;
-	FvalueFreeFunc		free_value;
-	FvalueFromUnparsed	val_from_unparsed;
-	FvalueFromString	val_from_string;
-	FvalueToStringRepr	val_to_string_repr;
-	FvalueStringReprLen	len_string_repr;
-
-	/* could be union */
-	FvalueSetFunc		set_value;
-	FvalueSetIntegerFunc	set_value_integer;
-	FvalueSetFloatingFunc	set_value_floating;
-
-	/* could be union */
-	FvalueGetFunc		get_value;
-	FvalueGetIntegerFunc	get_value_integer;
-	FvalueGetFloatingFunc	get_value_floating;
-
-	FvalueCmp		cmp_eq;
-	FvalueCmp		cmp_ne;
-	FvalueCmp		cmp_gt;
-	FvalueCmp		cmp_ge;
-	FvalueCmp		cmp_lt;
-	FvalueCmp		cmp_le;
-	FvalueCmp		cmp_contains;
-
-	FvalueLen		len;
-	FvalueSlice		slice;
-};
-
 
 void
 ftype_register(enum ftenum ftype, ftype_t *ft);

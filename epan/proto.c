@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.108 2003/11/24 22:11:54 guy Exp $
+ * $Id: proto.c,v 1.109 2003/11/25 13:20:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -349,7 +349,8 @@ free_node_field_info(field_info* finfo)
 	if (finfo->representation) {
 		g_mem_chunk_free(gmc_item_labels, finfo->representation);
 	}
-	fvalue_free(finfo->value);
+
+	FVALUE_FREE(finfo->value);
 	free_field_info(finfo);
 }
 

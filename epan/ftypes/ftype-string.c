@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.14 2003/10/29 23:48:14 guy Exp $
+ * $Id: ftype-string.c,v 1.15 2003/11/25 13:20:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,7 +144,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		memcpy(fv->value.string, fv->value.bytes->data, num_bytes);
 		fv->value.string[num_bytes] = '\0';
 
-		fvalue_free(fv_bytes);
+		FVALUE_FREE(fv_bytes);
 		return TRUE;
 	}
 	else {

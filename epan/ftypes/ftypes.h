@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.20 2003/11/25 08:50:38 sahlberg Exp $
+ * $Id: ftypes.h,v 1.21 2003/11/25 13:20:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,13 +154,79 @@ typedef struct _fvalue_t {
 
 } fvalue_t;
 
+typedef void (*FvalueNewFunc)(fvalue_t*);
+typedef void (*FvalueFreeFunc)(fvalue_t*);
+typedef void (*LogFunc)(char*,...);
+
+typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, char*, gboolean, LogFunc);
+typedef gboolean (*FvalueFromString)(fvalue_t*, char*, LogFunc);
+typedef void (*FvalueToStringRepr)(fvalue_t*, ftrepr_t, char*);
+typedef int (*FvalueStringReprLen)(fvalue_t*, ftrepr_t);
+
+typedef void (*FvalueSetFunc)(fvalue_t*, gpointer, gboolean);
+typedef void (*FvalueSetIntegerFunc)(fvalue_t*, guint32);
+typedef void (*FvalueSetFloatingFunc)(fvalue_t*, gdouble);
+
+typedef gpointer (*FvalueGetFunc)(fvalue_t*);
+typedef guint32 (*FvalueGetIntegerFunc)(fvalue_t*);
+typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
+
+typedef gboolean (*FvalueCmp)(fvalue_t*, fvalue_t*);
+
+typedef guint (*FvalueLen)(fvalue_t*);
+typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
+
+struct _ftype_t {
+	const char		*name;
+	const char		*pretty_name;
+	int			wire_size;
+	FvalueNewFunc		new_value;
+	FvalueFreeFunc		free_value;
+	FvalueFromUnparsed	val_from_unparsed;
+	FvalueFromString	val_from_string;
+	FvalueToStringRepr	val_to_string_repr;
+	FvalueStringReprLen	len_string_repr;
+
+	/* could be union */
+	FvalueSetFunc		set_value;
+	FvalueSetIntegerFunc	set_value_integer;
+	FvalueSetFloatingFunc	set_value_floating;
+
+	/* could be union */
+	FvalueGetFunc		get_value;
+	FvalueGetIntegerFunc	get_value_integer;
+	FvalueGetFloatingFunc	get_value_floating;
+
+	FvalueCmp		cmp_eq;
+	FvalueCmp		cmp_ne;
+	FvalueCmp		cmp_gt;
+	FvalueCmp		cmp_ge;
+	FvalueCmp		cmp_lt;
+	FvalueCmp		cmp_le;
+	FvalueCmp		cmp_contains;
+
+	FvalueLen		len;
+	FvalueSlice		slice;
+};
+
+
 fvalue_t*
 fvalue_new(ftenum_t ftype);
 
-void
-fvalue_free(fvalue_t *fv);
 
-typedef void (*LogFunc)(char*,...);
+/* Free all memory used by an fvalue_t */
+extern fvalue_t *fvalue_free_list;
+#define FVALUE_FREE(fv)						\
+	{							\
+		FvalueFreeFunc	free_value;			\
+		free_value = fv->ptr_u.ftype->free_value;	\
+		if (free_value) {				\
+			free_value(fv);				\
+		}						\
+		fv->ptr_u.next=fvalue_free_list;		\
+		fvalue_free_list=fv;				\
+	}
+
 
 fvalue_t*
 fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogFunc logfunc);

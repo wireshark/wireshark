@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.43 2003/11/16 23:17:25 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.44 2003/11/25 13:20:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -954,7 +954,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
             g_free(value_str);
             return;
         }
-        fvalue_free(fvalue);
+        FVALUE_FREE(fvalue);
     } else {
         value_str = NULL;
         stripped_value_str = NULL;
