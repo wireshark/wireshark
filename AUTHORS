@@ -1774,6 +1774,7 @@ Jeff Liu <jqliu [AT] broadcom.com> {
 Niels Koot <Niels.Koot [AT] logicacmg.com> {
 	Support for subdissectors in SUA
 	Assorted SUA fixes
+	DBS Etherwatch file reader enhancements
 }
 
 Lionel Ains <lains [AT] gmx.net> {

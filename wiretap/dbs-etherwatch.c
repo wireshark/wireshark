@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.11 2003/01/17 23:54:19 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.12 2003/12/29 00:36:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -38,7 +38,7 @@
  */
 
 /*
-   Example 'TCPIPTRACE' output data:
+   Example 'ETHERWATCH' output data:
 ETHERWATCH  X5-008
 42 names and addresses were loaded
 Reading recorded data from PERSISTENCE
@@ -56,6 +56,15 @@ Protocol 08-00 00 00-00-00-00-00,   50 byte buffer at 10-OCT-2001 10:20:45.17
   [...Ö.Ò...(¤.Z.4w]-   16-[80 93 80 D6 02 D2 02 03 00 28 A4 91 5A 1C 34 77]
   [P.#(Ás.....´....]-   32-[50 10 23 28 C1 73 00 00 02 04 05 B4 03 03 00 00]
   [..              ]-   48-[02 04]
+
+
+Alternative HEX only output, slightly more efficient and all ethereal needs:
+------------------------------------------------------------------------------
+From 00-D0-C0-D2-4D-60 [MF1] to AA-00-04-00-FC-94 [PSERVB]
+Protocol 08-00 00 00-00-00-00-00,   50 byte buffer at 10-OCT-2001 10:20:45.17
+     0-[45 00 00 28 38 9B 00 00 1D 06 D2 1E 80 93 11 1A 80 93 80 D6]
+    20-[02 D2 02 03 00 28 A4 BF 5A 1C 34 79 50 10 23 28 C1 43 00 00]
+    40-[03 30 30 30 30 30 00 00 03 30]
  */
 
 /* Magic text to check for DBS-ETHERWATCH-ness of file */
@@ -78,11 +87,11 @@ static const char dbs_etherwatch_rec_magic[]  =
 static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset);
 static gboolean dbs_etherwatch_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
-static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
-	long byte_offset);
-static gboolean parse_dbs_etherwatch_hex_dump(FILE_T fh, int pkt_len,
-	guint8* buf, int *err);
-static int parse_dbs_etherwatch_rec_hdr(wtap *wth, FILE_T fh, int *err);
+static int parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf,
+	int *err);
+static guint parse_single_hex_dump_line(char* rec, guint8 *buf,
+	int byte_offset);
+static guint parse_hex_dump(char* dump, guint8 *buf, char seperator, char end);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error. */
@@ -183,7 +192,7 @@ int dbs_etherwatch_open(wtap *wth, int *err)
 	}
 
 	wth->data_offset = 0;
-	wth->file_encap = WTAP_ENCAP_RAW_IP;
+	wth->file_encap = WTAP_ENCAP_ETHERNET;
 	wth->file_type = WTAP_FILE_DBS_ETHERWATCH;
 	wth->snapshot_length = 0;	/* not known */
 	wth->subtype_read = dbs_etherwatch_read;
@@ -204,17 +213,13 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 	if (offset < 1)
 		return FALSE;
 
-	/* Parse the header */
-	pkt_len = parse_dbs_etherwatch_rec_hdr(wth, wth->fh, err);
-	if (pkt_len == -1)
-		return FALSE;
-
 	/* Make sure we have enough room for the packet */
 	buffer_assure_space(wth->frame_buffer, DBS_ETHERWATCH_MAX_PACKET_LEN);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
-	/* Convert the ASCII hex dump to binary data */
-	if (!parse_dbs_etherwatch_hex_dump(wth->fh, pkt_len, buf, err))
+	/* Parse the packet */
+	pkt_len = parse_dbs_etherwatch_packet(wth, wth->fh, buf, err);
+	if (pkt_len == -1)
 		return FALSE;
 
 	wth->data_offset = offset;
@@ -233,31 +238,74 @@ dbs_etherwatch_seek_read (wtap *wth, long seek_off,
 	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
 		return FALSE;
 
-	pkt_len = parse_dbs_etherwatch_rec_hdr(NULL, wth->random_fh, err);
+	pkt_len = parse_dbs_etherwatch_packet(NULL, wth->random_fh, pd, err);
 
 	if (pkt_len != len) {
 		if (pkt_len != -1)
 			*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
-
-	return parse_dbs_etherwatch_hex_dump(wth->random_fh, pkt_len, pd, err);
+	return TRUE;
 }
 
-/* Parses a packet record header. */
+/* Parse a packet */
+/*
+Packet header:
+          1         2         3         4
+0123456789012345678901234567890123456789012345
+From 00-D0-C0-D2-4D-60 [MF1] to AA-00-04-00-FC-94 [PSERVB]
+Protocol 08-00 00 00-00-00-00-00,   50 byte buffer at 10-OCT-2001 10:20:45.17
+*/
+#define MAC_ADDR_LENGTH		6			/* Length MAC address */
+#define DEST_MAC_PREFIX		"] to "		/* Prefix to the dest. MAC address */
+#define PROTOCOL_LENGTH		2			/* Length protocol */
+#define PROTOCOL_POS		9			/* Position protocol */
+#define SAP_LENGTH			2			/* Length DSAP+SSAP */
+#define SAP_POS				9			/* Position DSAP+SSAP */
+#define CTL_UNNUMB_LENGTH	1			/* Length unnumbered control field */
+#define CTL_NUMB_LENGTH		2			/* Length numbered control field */
+#define CTL_POS				15			/* Position control field */
+#define PID_LENGTH			5			/* Length PID */
+#define PID_POS				18			/* Position PID */
+#define LENGTH_POS			33			/* Position length */
+#define HEX_HDR_SPR			'-'			/* Seperator char header hex values */
+#define HEX_HDR_END			' '			/* End char hdr. hex val. except PID */
+#define HEX_PID_END			','			/* End char PID hex value */
+#define IEEE802_LEN_LEN		2			/* Length of the IEEE 802 len. field */
+/*
+To check whether it is Ethernet II or IEEE 802 we check the values of the
+control field and PID, when they are all 0's we assume it is Ethernet II
+else IEEE 802. In IEEE 802 the DSAP and SSAP are behind protocol, the
+length in the IEEE data we have to construct.
+*/
+#define ETH_II_CHECK_POS    15
+#define ETH_II_CHECK_STR    "00 00-00-00-00-00,"
+/*
+To check whether it IEEE 802.3 with SNAP we check that both the DSAP & SSAP
+values are 0xAA and the control field 0x03.
+*/
+#define SNAP_CHECK_POS		9
+#define SNAP_CHECK_STR		"AA-AA 03"
+/*
+To check whether the control field is 1 or two octets we check if it is
+unnumbered. Unnumbered has length 1, numbered 2.
+*/
+#define CTL_UNNUMB_MASK		0x03
+#define CTL_UNNUMB_VALUE	0x03
 static int
-parse_dbs_etherwatch_rec_hdr(wtap *wth, FILE_T fh, int *err)
+parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err)
 {
 	char	line[DBS_ETHERWATCH_LINE_LENGTH];
 	int	num_items_scanned;
-	int	pkt_len, csec;
+	int	eth_hdr_len, pkt_len, csec;
+	int length_pos, length_from, length;
 	struct tm time;
 	char mon[4];
 	guchar *p;
 	static guchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
+	int	count, line_count;
 
-	pkt_len = 0;
-
+	eth_hdr_len = 0;
 	/* Our file pointer should be on the first line containing the
 	 * summary information for a packet. Read in that line and
 	 * extract the useful information
@@ -270,8 +318,38 @@ parse_dbs_etherwatch_rec_hdr(wtap *wth, FILE_T fh, int *err)
 		return -1;
 	}
 
-	/* But that line only contains the mac addresses, so we will ignore
-	   that line for now.  Read the next line */
+	/* Get the destination address */
+	p = strstr(line, DEST_MAC_PREFIX);
+	if(!p) {
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
+	p += strlen(DEST_MAC_PREFIX);
+	if(parse_hex_dump(p, &buf[eth_hdr_len], HEX_HDR_SPR, HEX_HDR_END)
+				!= MAC_ADDR_LENGTH) {
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
+	eth_hdr_len += MAC_ADDR_LENGTH;
+
+	/* Get the source address */
+	/*
+	 * Since the first part of the line is already skipped in order to find
+	 * the start of the record we cannot index, just look for the first
+	 * 'HEX' character
+	 */
+	p = line;
+	while(!isxdigit(*p)) {
+		p++;
+	}
+	if(parse_hex_dump(p, &buf[eth_hdr_len], HEX_HDR_SPR,
+		HEX_HDR_END) != MAC_ADDR_LENGTH) {
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
+	eth_hdr_len += MAC_ADDR_LENGTH;
+
+	/* Read the next line of the record header */
 	if (file_gets(line, DBS_ETHERWATCH_LINE_LENGTH, fh) == NULL) {
 		*err = file_error(fh);
 		if (*err == 0) {
@@ -280,15 +358,84 @@ parse_dbs_etherwatch_rec_hdr(wtap *wth, FILE_T fh, int *err)
 		return -1;
 	}
 
-	num_items_scanned = sscanf(line+33, "%d byte buffer at %d-%3s-%d %d:%d:%d.%d",
-				   &pkt_len,
-				   &time.tm_mday, mon,
-				   &time.tm_year, &time.tm_hour, &time.tm_min,
-				   &time.tm_sec, &csec);
+	/* Check the lines is as least as long as the length position */
+	if(strlen(line) < LENGTH_POS) {
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
+
+	num_items_scanned = sscanf(line + LENGTH_POS,
+				"%d byte buffer at %d-%3s-%d %d:%d:%d.%d",
+				&pkt_len,
+				&time.tm_mday, mon,
+				&time.tm_year, &time.tm_hour, &time.tm_min,
+				&time.tm_sec, &csec);
 
 	if (num_items_scanned != 8) {
 		*err = WTAP_ERR_BAD_RECORD;
 		return -1;
+	}
+	
+	/* Determine whether it is Ethernet II or IEEE 802 */
+	if(strncmp(&line[ETH_II_CHECK_POS], ETH_II_CHECK_STR,
+		strlen(ETH_II_CHECK_STR)) == 0) {
+		/* Ethernet II */
+		/* Get the Protocol */
+		if(parse_hex_dump(&line[PROTOCOL_POS], &buf[eth_hdr_len], HEX_HDR_SPR,
+					HEX_HDR_END) != PROTOCOL_LENGTH) {
+			*err = WTAP_ERR_BAD_RECORD;
+			return -1;
+		}
+		eth_hdr_len += PROTOCOL_LENGTH;
+	} else {
+		/* IEEE 802 */
+		/* Remember where to put the length in the header */
+		length_pos = eth_hdr_len;
+		/* Leave room in the header for the length */
+		eth_hdr_len += IEEE802_LEN_LEN;
+		/* Remember how much of the header should not be added to the length */
+		length_from = eth_hdr_len;
+		/* Get the DSAP + SSAP */
+		if(parse_hex_dump(&line[SAP_POS], &buf[eth_hdr_len], HEX_HDR_SPR,
+					HEX_HDR_END) != SAP_LENGTH) {
+			*err = WTAP_ERR_BAD_RECORD;
+			return -1;
+		}
+		eth_hdr_len += SAP_LENGTH;
+		/* Get the (first part of the) control field */
+		if(parse_hex_dump(&line[CTL_POS], &buf[eth_hdr_len], HEX_HDR_SPR,
+					HEX_HDR_END) != CTL_UNNUMB_LENGTH) {
+			*err = WTAP_ERR_BAD_RECORD;
+			return -1;
+		}
+		/* Determine whether the control is numbered, and thus longer */
+		if((buf[eth_hdr_len] & CTL_UNNUMB_MASK) != CTL_UNNUMB_VALUE) {
+			/* Get the rest of the control field, the first octet in the PID */
+			if(parse_hex_dump(&line[PID_POS],
+						&buf[eth_hdr_len + CTL_UNNUMB_LENGTH], HEX_HDR_END,
+						HEX_HDR_SPR) != CTL_NUMB_LENGTH - CTL_UNNUMB_LENGTH) {
+				*err = WTAP_ERR_BAD_RECORD;
+				return -1;
+			}
+			eth_hdr_len += CTL_NUMB_LENGTH;
+		} else {
+			eth_hdr_len += CTL_UNNUMB_LENGTH;
+		}
+		/* Determine whether it is SNAP */
+		if(strncmp(&line[SNAP_CHECK_POS], SNAP_CHECK_STR,
+				strlen(SNAP_CHECK_STR)) == 0) {
+			/* Get the PID */
+			if(parse_hex_dump(&line[PID_POS], &buf[eth_hdr_len], HEX_HDR_SPR,
+						HEX_PID_END) != PID_LENGTH) {
+				*err = WTAP_ERR_BAD_RECORD;
+				return -1;
+			}
+			eth_hdr_len += PID_LENGTH;
+		}
+		/* Write the length in the header */
+		length = eth_hdr_len - length_from + pkt_len;
+		buf[length_pos] = (length) >> 8;
+		buf[length_pos+1] = (length) & 0xFF;
 	}
 
 	if (wth) {
@@ -301,98 +448,166 @@ parse_dbs_etherwatch_rec_hdr(wtap *wth, FILE_T fh, int *err)
 		wth->phdr.ts.tv_sec = mktime(&time);
 
 		wth->phdr.ts.tv_usec = csec * 10000;
-		wth->phdr.caplen = pkt_len;
-		wth->phdr.len = pkt_len;
-		wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
+		wth->phdr.caplen = eth_hdr_len + pkt_len;
+		wth->phdr.len = eth_hdr_len + pkt_len;
+		wth->phdr.pkt_encap = wth->file_encap;
 	}
 
-	return pkt_len;
-}
-
-/* Converts ASCII hex dump to binary data */
-static gboolean
-parse_dbs_etherwatch_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
-{
-	guchar	line[DBS_ETHERWATCH_LINE_LENGTH];
-	int	i, hex_lines;
-
-	/* Calculate the number of hex dump lines, each
-	 * containing 16 bytes of data */
-	hex_lines = pkt_len / 16 + ((pkt_len % 16) ? 1 : 0);
-
-	for (i = 0; i < hex_lines; i++) {
+	/* Parse the hex dump */
+    count = 0;
+	while (count < pkt_len) {
 		if (file_gets(line, DBS_ETHERWATCH_LINE_LENGTH, fh) == NULL) {
 			*err = file_error(fh);
 			if (*err == 0) {
 				*err = WTAP_ERR_SHORT_READ;
 			}
-			return FALSE;
+			return -1;
 		}
-		if (!parse_single_hex_dump_line(line, buf, i * 16)) {
+		if (!(line_count = parse_single_hex_dump_line(line,
+				&buf[eth_hdr_len + count], count))) {
 			*err = WTAP_ERR_BAD_RECORD;
-			return FALSE;
+			return -1;
+		}
+		count += line_count;
+		if (count > pkt_len) {
+			*err = WTAP_ERR_BAD_RECORD;
+			return -1;
 		}
 	}
-	return TRUE;
+	return eth_hdr_len + pkt_len;
 }
 
+/* Parse a hex dump line */
 /*
+/DISPLAY=BOTH output:
+
           1         2         3         4
 0123456789012345678901234567890123456789012345
   [E..(8.....Ò.....]-    0-[45 00 00 28 38 9B 00 00 1D 06 D2 1E 80 93 11 1A]
   [...Ö.Ò...(¤¿Z.4y]-   16-[80 93 80 D6 02 D2 02 03 00 28 A4 BF 5A 1C 34 79]
   [P.#(ÁC...00000..]-   32-[50 10 23 28 C1 43 00 00 03 30 30 30 30 30 00 00]
   [.0              ]-   48-[03 30]
+
+/DISPLAY=HEXADECIMAL output:
+
+          1         2         3         4
+0123456789012345678901234567890123456789012345
+     0-[45 00 00 28 38 9B 00 00 1D 06 D2 1E 80 93 11 1A 80 93 80 D6]
+    20-[02 D2 02 03 00 28 A4 BF 5A 1C 34 79 50 10 23 28 C1 43 00 00]
+    40-[03 30 30 30 30 30 00 00 03 30]
+
 */
 
-#define START_POS	28
-#define HEX_LENGTH	((16 * 2) + 15) /* sixteen clumps of 2 bytes with 15 inner spaces */
+#define TYPE_CHECK_POS		2	/* Position to check the type of hex dump */
+#define TYPE_CHECK_BOTH		'['	/* Value at pos. that indicates BOTH type */
+#define COUNT_POS_BOTH		21	/* Count position BOTH type */
+#define COUNT_POS_HEX		1	/* Count position HEX type */
+#define COUNT_SIZE         	5	/* Length counter */
+#define HEX_DUMP_START		'['	/* Start char */
+#define HEX_DUMP_SPR		' ' /* Seperator char */
+#define HEX_DUMP_END		']' /* End char */
+
 /* Take a string representing one line from a hex dump and converts the
  * text to binary data. We check the printed offset with the offset
  * we are passed to validate the record. We place the bytes in the buffer
  * at the specified offset.
  *
- * In the process, we're going to write all over the string.
- *
- * Returns TRUE if good hex dump, FALSE if bad.
+ * Returns length parsed if a good hex dump, 0 if bad.
  */
-static gboolean
-parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset) {
+static guint
+parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset) {
 
 	int		pos, i;
-	char		*s;
-	long		value;
+	int		value;
 
 
-	/* Get the byte_offset directly from the record */
-	rec[26] = '\0';
-	s = rec + 21;
-	value = strtol(s, NULL, 10);
-
-	if (value != byte_offset) {
-		return FALSE;
-	}
-
-	/* Go through the substring representing the values and:
-	 * 	1. Replace any spaces with '0's
-	 * 	2. Place \0's every 3 bytes (to terminate the string)
-	 *
-	 * Then read the eight sets of hex bytes
-	 */
-
-	for (pos = START_POS; pos < START_POS + HEX_LENGTH; pos++) {
-		if (rec[pos] == ' ') {
-			rec[pos] = '0';
+    /* Check that the record is as least as long as the check offset */
+	for(i = 0; i < TYPE_CHECK_POS; i++)
+	{
+		if(rec[i] == '\0') {
+			return 0;
 		}
 	}
+    /* determine the format and thus the counter offset and hex dump length */
+    if(rec[TYPE_CHECK_POS] == TYPE_CHECK_BOTH)
+    {
+        pos = COUNT_POS_BOTH;
+    }
+    else
+    {
+        pos = COUNT_POS_HEX;
+    }    
 
-	pos = START_POS;
-	for (i = 0; i < 16; i++) {
-		rec[pos+2] = '\0';
-
-		buf[byte_offset + i] = (guint8) strtoul(&rec[pos], NULL, 16);
-		pos += 3;
+    /* Check that the record is as least as long as the start position */
+	while(i < pos)
+	{
+		if(rec[i] == '\0') {
+			return 0;
+		}
+		i++;
 	}
 
-	return TRUE;
+	/* Get the byte_offset directly from the record */
+	value = 0;
+	for(i = 0; i < COUNT_SIZE; i++) {
+		if(!isspace(rec[pos])) {
+			if(isdigit(rec[pos])) {
+				value *= 10;
+				value += rec[pos] - '0';
+			} else {
+				return 0;
+			}
+		}
+		pos++;
+	}
+
+	if (value != byte_offset) {
+		return 0;
+	}
+
+	/* find the start of the hex dump */
+	while(rec[pos] != HEX_DUMP_START) {
+		if(rec[pos] == '\0') {
+			return 0;
+		}
+		pos++;
+	}
+	pos++;
+	return parse_hex_dump(&rec[pos], buf, HEX_DUMP_SPR, HEX_DUMP_END);
+}
+
+/* Parse a hex dump */
+static guint
+parse_hex_dump(char* dump, guint8 *buf, char seperator, char end) {
+
+	int		pos, count;
+
+	/* Parse the hex dump */
+	pos = 0;
+	count = 0;
+	while(dump[pos] != end) {
+		/* Check the hex value */
+		if(!(isxdigit(dump[pos]) && isxdigit(dump[pos + 1]))) {
+			return 0;
+		}
+		/* Get the hex value value */
+		if(isdigit(dump[pos])) {
+			buf[count] = (dump[pos] - '0') << 4;
+		} else {
+			buf[count] = (toupper(dump[pos]) - 'A' + 10) << 4;
+		}
+		pos++;
+		if(isdigit(dump[pos])) {
+			buf[count] += dump[pos] - '0';
+		} else {
+			buf[count] += toupper(dump[pos]) - 'A' + 10;
+		}
+		pos++;
+		count++;
+	    /* Skip the seperator characters */
+		while(dump[pos] == seperator) {
+			pos++;
+		}
+	}
+	return count;
 }
