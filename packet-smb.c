@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.4 1999/05/10 20:30:27 guy Exp $
+ * $Id: packet-smb.c,v 1.5 1999/05/10 21:36:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -477,8 +477,8 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 void 
 dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int dirn)
 {
-  guint8        wct, enckeylen;
-  guint16       bcc, mode, rawmode;
+  guint8        wct;
+  guint16       bcc, mode, rawmode, enckeylen;
   guint32       caps;
   proto_tree    *dialects = NULL, *mode_tree, *caps_tree, *rawmode_tree;
   proto_item    *ti;
@@ -516,7 +516,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %d", bcc);
+      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %u", bcc);
 
     }
 
@@ -568,7 +568,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %d", bcc);
+      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %u", bcc);
 
     }
 
@@ -586,29 +586,29 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     offset += 2;
 
-    mode = GBYTE(pd, offset);
+    mode = GSHORT(pd, offset);
 
     if (tree) {
 
-      ti = proto_tree_add_item(tree, offset, 1, "Security Mode: 0x%02x", mode);
+      ti = proto_tree_add_item(tree, offset, 2, "Security Mode: 0x%04x", mode);
       mode_tree = proto_tree_new();
       proto_item_add_subtree(ti, mode_tree, ETT_SMB_MODE);
-      proto_tree_add_item(mode_tree, offset, 1, "%s",
-			  decode_boolean_bitfield(mode, 0x01, 8,
+      proto_tree_add_item(mode_tree, offset, 2, "%s",
+			  decode_boolean_bitfield(mode, 0x0001, 16,
 						  "Security  = User",
 						  "Security  = Share"));
-      proto_tree_add_item(mode_tree, offset, 1, "%s",
-			  decode_boolean_bitfield(mode, 0x02, 8,
+      proto_tree_add_item(mode_tree, offset, 2, "%s",
+			  decode_boolean_bitfield(mode, 0x0002, 16,
 						  "Passwords = Encrypted",
 						  "Passwords = Plaintext"));
 
     }
 
-    offset += 1;
+    offset += 2;
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Max multiplex count: %d", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Max buffer size:     %u", GSHORT(pd, offset));
 
     }
     
@@ -616,7 +616,15 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Max vcs:             %d", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Max multiplex count: %u", GSHORT(pd, offset));
+
+    }
+    
+    offset += 2;
+
+     if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Max vcs:             %u", GSHORT(pd, offset));
 
     }
 
@@ -642,15 +650,27 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     offset += 2;
 
-    /* Now the server time ... skip 8 bytes ... pick up later */
-
-    offset += 8;
-
-    /* Encryption Key Length, should be zero */
+    /* Session key */
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Encryption Key Length: %d (should be zero)", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 4, "Session key: %08x", GWORD(pd, offset));
+
+    }
+
+    offset += 4;
+
+    /* Now the server date/time/time zone ... skip 6 bytes ... pick up later */
+
+    offset += 6;
+
+    /* Encryption Key Length, should be zero (if not LanMan 2.1) */
+
+    enckeylen = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Encryption Key Length: %u (should be zero)", enckeylen);
 
     }
 
@@ -658,7 +678,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Reserved: %d (MBZ)", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Reserved: %u (MBZ)", GSHORT(pd, offset));
 
     }
 
@@ -668,7 +688,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %d", bcc);
+      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %u", bcc);
 
     }
 
@@ -730,7 +750,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Max multiplex count: %d", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Max multiplex count: %u", GSHORT(pd, offset));
 
     }
     
@@ -738,7 +758,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Max vcs:             %d", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Max vcs:             %u", GSHORT(pd, offset));
 
     }
 
@@ -746,7 +766,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Max buffer size:     %d", GWORD(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Max buffer size:     %u", GWORD(pd, offset));
 
     }
 
@@ -754,7 +774,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 4, "Max raw size:        %d", GWORD(pd, offset));
+      proto_tree_add_item(tree, offset, 4, "Max raw size:        %u", GWORD(pd, offset));
 
     }
 
@@ -848,7 +868,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 1, "Encryption key len: %d", enckeylen);
+      proto_tree_add_item(tree, offset, 1, "Encryption key len: %u", enckeylen);
 
     }
 
@@ -858,7 +878,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Byte count (BCC): %d", bcc);
+      proto_tree_add_item(tree, offset, 2, "Byte count (BCC): %u", bcc);
 
     }
 
@@ -1454,8 +1474,8 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 						      "Extended attributes not supported"));
 	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
 			      decode_boolean_bitfield(flags2, 0x1000, 16, 
-						      "Resolve pathnames with Dfs",
-						      "Don't resolve pathnames with Dfs"));
+						      "Resolve pathnames with DFS",
+						      "Don't resolve pathnames with DFS"));
 	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
 			      decode_boolean_bitfield(flags2, 0x2000, 16,
 						      "Permit reads if execute-only",
