@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.344 2001/07/08 21:51:31 hagbard Exp $
+# $Id: Makefile.am,v 1.345 2001/07/10 01:20:56 hagbard Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -499,8 +499,9 @@ ethereal_LDADD = \
 	$(ethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	"-dlopen" self	\
-	"-dlopen" plugins/gryphon/gryphon.la @PCAP_LIBS@ @GTK_LIBS@ \
-	"-dlopen" plugins/mgcp/mgcp.la @PCAP_LIBS@ @GTK_LIBS@
+	"-dlopen" plugins/gryphon/gryphon.la \
+	"-dlopen" plugins/mgcp/mgcp.la \
+	@PCAP_LIBS@ @GTK_LIBS@
 
 ethereal_static_LDADD = \
 	"-all-static" 			\
@@ -551,8 +552,9 @@ tethereal_LDADD = wiretap/libwiretap.a	\
 	$(tethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	"-dlopen" self	\
-	"-dlopen" plugins/gryphon/gryphon.la @GLIB_LIBS@ -lm \
-	"-dlopen" plugins/mgcp/mgcp.la @GLIB_LIBS@ -lm \
+	"-dlopen" plugins/gryphon/gryphon.la \
+	"-dlopen" plugins/mgcp/mgcp.la \
+	@GLIB_LIBS@ -lm \
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
 tethereal_static_LDADD = \
