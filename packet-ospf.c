@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.62 2002/05/10 18:37:38 ashokn Exp $
+ * $Id: packet-ospf.c,v 1.63 2002/05/11 18:43:09 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -358,8 +358,6 @@ static guint8 ospf_msg_type_to_filter (guint8 msg_type)
 
 static guint8 ospf_ls_type_to_filter (guint8 ls_type)
 {
-    int r;
-
     if (ls_type >= OSPF_LSTYPE_ROUTER && 
 	ls_type <= OSPF_LSTYPE_EXTATTR) 
 	return OSPFF_LS_MIN + ls_type;
