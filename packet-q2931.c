@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.23 2002/04/14 23:04:03 guy Exp $
+ * $Id: packet-q2931.c,v 1.24 2002/05/01 08:40:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -257,6 +257,8 @@ dissect_q2931_shift_ie(tvbuff_t *tvb, int offset, int len,
 	gboolean non_locking_shift;
 	guint8 codeset;
 
+	if (len == 0)
+		return;
 	non_locking_shift = (info_element == Q2931_IE_BBAND_NLOCKING_SHIFT);
 	codeset = tvb_get_guint8(tvb, offset) & 0x07;
 	proto_tree_add_text(tree, tvb, offset, 1, "%s shift to codeset %u: %s",
