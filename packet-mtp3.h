@@ -1,6 +1,6 @@
 /* packet-mtp3.h
  *
- * $Id: packet-mtp3.h,v 1.3 2003/04/10 18:52:11 guy Exp $
+ * $Id: packet-mtp3.h,v 1.4 2003/12/08 21:36:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,20 @@ typedef enum {
 
 extern Standard_Type mtp3_standard;
 
+typedef enum {
+  MTP3_NET_ADDR_FMT_DEC		= 1,
+  MTP3_NET_ADDR_FMT_HEX		= 2,
+  MTP3_NET_ADDR_FMT_NI_DEC	= 3,
+  MTP3_NET_ADDR_FMT_NI_HEX	= 4,
+  MTP3_NET_ADDR_FMT_DASHED	= 5
+} mtp3_net_addr_fmt_e;
+
+typedef struct _mtp3_addr_pc_t {
+  mtp3_net_addr_fmt_e	type;
+  guint32		pc;
+  guint8		ni;
+} mtp3_addr_pc_t;
+
 #define ITU_PC_LENGTH     2
 #define ITU_PC_MASK       0x3FFF
 
@@ -37,7 +51,10 @@ extern Standard_Type mtp3_standard;
 #define ANSI_MEMBER_OFFSET 0
 #define ANSI_CLUSTER_OFFSET 1
 #define ANSI_NETWORK_OFFSET 2
+#define ANSI_PC_MASK      0xFFFFFF
 #define ANSI_NETWORK_MASK 0x0000FF
 #define ANSI_CLUSTER_MASK 0x00FF00
 #define ANSI_MEMBER_MASK  0xFF0000
 #define ANSI_PC_STRING_LENGTH 16
+
+extern void mtp3_addr_to_str_buf(const guint8 *data, gchar *buf);

@@ -1818,6 +1818,7 @@ Michael Lum <mlum [AT] telostech.com> {
 	GSM SMS TPDU (3GPP TS 23.040) support
 	GSM MAP fixes and parameter separation
 	Taps for ANSI A-interface statistics
+	Support for SS7 point codes as address types
 }
 
 Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {

@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.39 2003/11/17 22:56:45 sahlberg Exp $
+ * $Id: to_str.c,v 1.40 2003/12/08 21:36:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,7 @@
 #include "atalk-utils.h"
 #include "sna-utils.h"
 #include "osi-utils.h"
+#include "packet-mtp3.h"
 #include <stdio.h>
 #include <time.h>
 
@@ -843,6 +844,9 @@ address_to_str_buf(address *addr, gchar *buf)
     break;
   case AT_FC:
     sprintf(buf, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
+    break;
+  case AT_SS7PC:
+    mtp3_addr_to_str_buf(addr->data, buf);
     break;
   default:
     g_assert_not_reached();

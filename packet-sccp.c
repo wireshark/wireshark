@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.16 2003/11/06 09:28:40 guy Exp $
+ * $Id: packet-sccp.c,v 1.17 2003/12/08 21:36:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 
 #include <epan/packet.h>
 #include "packet-mtp3.h"
+#include "prefs.h"
 
 #define SCCP_SI 3
 
@@ -651,6 +652,15 @@ static gint ett_sccp_sequencing_segmenting = -1;
 static gint ett_sccp_segmentation = -1;
 static gint ett_sccp_ansi_isni_routing_control = -1;
 
+/*
+ * Here are the global variables associated with
+ * the various user definable characteristics of the dissection
+ */
+static guint32 sccp_source_pc_global = 0;
+static gboolean sccp_show_length = FALSE;
+
+static module_t *sccp_module;
+static heur_dissector_list_t heur_subdissector_list;
 
 /*  Keep track of SSN value of current message so if/when we get to the data
  *  parameter, we can call appropriate sub-dissector.  TODO: can this info
@@ -661,8 +671,6 @@ static guint8 calling_ssn = INVALID_SSN;
 
 static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
-
-static heur_dissector_list_t heur_subdissector_list;
 
 static void
 dissect_sccp_unknown_message(tvbuff_t *message_tvb, proto_tree *sccp_tree)
@@ -1473,15 +1481,15 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
     length_length = PARAMETER_LONG_DATA_LENGTH_LENGTH;
   }
 
-/*  TODO? I find this annoying, but it could possibly useful for debugging.
- *  Make it a preference?
- * if (sccp_tree)
- *   proto_tree_add_text(sccp_tree, tvb, offset, length_length,
- *			"%s length: %d",
- *			val_to_str(parameter_type, sccp_parameter_values,
- *				   "Unknown"),
- *			parameter_length);
- */
+  if (sccp_tree &&
+    sccp_show_length)
+  {
+    proto_tree_add_text(sccp_tree, tvb, offset, length_length,
+			"%s length: %d",
+			val_to_str(parameter_type, sccp_parameter_values,
+				   "Unknown"),
+			parameter_length);
+  }
 
   offset += length_length;
 
@@ -1900,6 +1908,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *sccp_item;
   proto_tree *sccp_tree = NULL;
+  const mtp3_addr_pc_t *mtp3_addr_p;
 
   /* Make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -1921,6 +1930,37 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* create the sccp protocol tree */
     sccp_item = proto_tree_add_item(tree, proto_sccp, tvb, 0, -1, FALSE);
     sccp_tree = proto_item_add_subtree(sccp_item, ett_sccp);
+  }
+
+  /* Set whether message is UPLINK, DOWNLINK, or of UNKNOWN direction */
+
+  if (pinfo->net_src.type == AT_SS7PC)
+  {
+    /*
+     * XXX - we assume that the "data" pointers of the source and destination
+     * addresses are set to point to "mtp3_addr_pc_t" structures, so that
+     * we can safely cast them.
+     */
+    mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->net_src.data;
+
+    if (sccp_source_pc_global == mtp3_addr_p->pc)
+    {
+       pinfo->p2p_dir = P2P_DIR_SENT;
+    }
+    else
+    {
+      /* assuming if net_src was SS7 PC then net_dst will be too */
+      mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->net_dst.data;
+
+      if (sccp_source_pc_global == mtp3_addr_p->pc)
+      {
+	 pinfo->p2p_dir = P2P_DIR_RECV;
+      }
+      else
+      {
+	 pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+      }
+    }
   }
 
   /* dissect the message */
@@ -2288,6 +2328,18 @@ proto_register_sccp(void)
   sccp_ssn_dissector_table = register_dissector_table("sccp.ssn", "SCCP SSN", FT_UINT8, BASE_DEC);
 
   register_heur_dissector_list("sccp", &heur_subdissector_list);
+
+  sccp_module = prefs_register_protocol(proto_sccp, NULL);
+
+  prefs_register_uint_preference(sccp_module, "source_pc",
+				 "Source PC",
+				 "The source point code (usually MSC) (to determine whether message is uplink or downlink)",
+				 16, &sccp_source_pc_global);
+
+  prefs_register_bool_preference(sccp_module, "show_length",
+      "Show length",
+      "Show parameter length in the protocol tree",
+      &sccp_show_length);
 }
 
 void
