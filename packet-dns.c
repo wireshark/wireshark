@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.24 1999/10/07 09:21:36 guy Exp $
+ * $Id: packet-dns.c,v 1.25 1999/10/16 15:08:11 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,14 @@
 #include "util.h"
 
 static int proto_dns = -1;
+static int hf_dns_response = -1;
+static int hf_dns_query = -1;
+static int hf_dns_flags = -1;
+static int hf_dns_transaction_id = -1;
+static int hf_dns_count_questions = -1;
+static int hf_dns_count_answers = -1;
+static int hf_dns_count_auth_rr = -1;
+static int hf_dns_count_add_rr = -1;
 
 /* DNS structs and definitions */
 
@@ -960,9 +968,14 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			  (flags & F_RESPONSE) ? "DNS response" : "DNS query");
     
     dns_tree = proto_item_add_subtree(ti, ETT_DNS);
-    
-    proto_tree_add_text(dns_tree, offset + DNS_ID, 2, "Transaction ID: 0x%04x",
-    			id);
+
+    if (flags & F_RESPONSE)
+      proto_tree_add_item_hidden(dns_tree, hf_dns_response, offset, 4, 1);
+    else
+      proto_tree_add_item_hidden(dns_tree, hf_dns_query, offset, 4, 1);
+
+    proto_tree_add_item(dns_tree, hf_dns_transaction_id, 
+			offset + DNS_ID, 2, id);
 
     strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown operation"));
     if (flags & F_RESPONSE) {
@@ -971,8 +984,11 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
             "Unknown error"));
     }
-    tf = proto_tree_add_text(dns_tree, offset + DNS_FLAGS, 2, "Flags: 0x%04x (%s)",
-                          flags, buf);
+    tf = proto_tree_add_item_format(dns_tree, hf_dns_flags, 
+				    offset + DNS_FLAGS, 2, 
+				    flags,
+				    "Flags: 0x%04x (%s)",
+				    flags, buf);
     field_tree = proto_item_add_subtree(tf, ETT_DNS_FLAGS);
     proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
        decode_boolean_bitfield(flags, F_RESPONSE,
@@ -1007,10 +1023,14 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
          decode_enumerated_bitfield(flags, F_RCODE,
               2*8, rcode_vals, "%s"));
     }
-    proto_tree_add_text(dns_tree, offset + DNS_QUEST, 2, "Questions: %d", quest);
-    proto_tree_add_text(dns_tree, offset + DNS_ANS, 2, "Answer RRs: %d", ans);
-    proto_tree_add_text(dns_tree, offset + DNS_AUTH, 2, "Authority RRs: %d", auth);
-    proto_tree_add_text(dns_tree, offset + DNS_ADD, 2, "Additional RRs: %d", add);
+    proto_tree_add_item(dns_tree, hf_dns_count_questions, 
+			offset + DNS_QUEST, 2, quest);
+    proto_tree_add_item(dns_tree, hf_dns_count_answers, 
+			offset + DNS_ANS, 2, ans);
+    proto_tree_add_item(dns_tree, hf_dns_count_auth_rr, 
+			offset + DNS_AUTH, 2, auth);
+    proto_tree_add_item(dns_tree, hf_dns_count_add_rr, 
+			offset + DNS_ADD, 2, add);
 
     cur_off = offset + DNS_HDRLEN;
     
@@ -1035,11 +1055,42 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_dns(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "dns.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  static hf_register_info hf[] = {
+    { &hf_dns_response,
+      { "Response",		"dns.response",  
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"TRUE if DNS response" }},
+    { &hf_dns_query,
+      { "Query",		"dns.query",  
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"TRUE if DNS query" }},
+    { &hf_dns_flags,
+      { "Flags",		"dns.flags",  
+	FT_UINT16, BASE_HEX, NULL, 0x0,
+	"" }},
+    { &hf_dns_transaction_id,
+      { "Transaction ID",      	"dns.id",  
+	FT_UINT16, BASE_HEX, NULL, 0x0,
+	"Identification of transaction" }},
+    { &hf_dns_count_questions,
+      { "Questions",		"dns.count.queries",  
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of queries in packet" }},
+    { &hf_dns_count_answers,
+      { "Answer RRs",		"dns.count.answers",  
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of answers in packet" }},
+    { &hf_dns_count_auth_rr,
+      { "Authority RRs",       	"dns.count.auth_rr",  
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of authoritative records in packet" }},
+    { &hf_dns_count_add_rr,
+      { "Additional RRs",      	"dns.count.add_rr",  
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Number of additional records in packet" }}
+  };
 
-        proto_dns = proto_register_protocol("Domain Name Service", "dns");
- /*       proto_register_field_array(proto_dns, hf, array_length(hf));*/
+  proto_dns = proto_register_protocol("Domain Name Service", "dns");
+  proto_register_field_array(proto_dns, hf, array_length(hf));
+
 }
