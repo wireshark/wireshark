@@ -2,7 +2,9 @@
  * Routines for H.225 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h225.c,v 1.9 2003/08/28 14:29:41 sahlberg Exp $
+ * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
+ *
+ * $Id: packet-h225.c,v 1.10 2003/08/30 22:47:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4780,6 +4782,11 @@ dissect_h225_fastStart_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h225_fastStart_item_length, &length);
 	offset=dissect_h245_OpenLogicalChannel(tvb, offset, pinfo, tree);
+
+ 	if (check_col(pinfo->cinfo, COL_INFO)) {
+ 		col_append_str(pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
+ 	}
+
 	return offset;
 }
 
@@ -7968,7 +7975,7 @@ static per_sequence_t InfoRequestResponse_sequence[] = {
 		dissect_h225_callSignalAddress },
 	{ "endpointAlias", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_endpointAlias },
-	{ "perCallInfo", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "perCallInfo", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_perCallInfo },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_tokens },

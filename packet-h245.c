@@ -4,7 +4,10 @@
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.32 2003/08/28 12:57:24 sahlberg Exp $
+ *
+ * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
+ *
+ * $Id: packet-h245.c,v 1.33 2003/08/30 22:47:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1473,6 +1476,10 @@ static guint32 manufacturerCode;
 static guint32 h221NonStandard;
 
 static gboolean h245_reassembly = TRUE;
+
+/* To put the codec type only in COL_INFO when
+   an OLC is read */
+char* codec_type = NULL;
 
 static int
 dissect_h245_NULL(tvbuff_t *tvb _U_, int offset, packet_info *pinfo _U_, proto_tree *tree _U_)
@@ -14327,7 +14334,11 @@ static per_choice_t DataApplicationCapability_application_choice[] = {
 static int
 dissect_h245_DataApplicationCapability_application(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataApplicationCapability_application, ett_h245_DataApplicationCapability_application, DataApplicationCapability_application_choice, "application", NULL);
+        guint32 value;
+
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataApplicationCapability_application, ett_h245_DataApplicationCapability_application, DataApplicationCapability_application_choice, "application", &value);
+
+        codec_type = val_to_str(value, DataApplicationCapability_application_vals, "<unknown>");
 
 	return offset;
 }
@@ -16661,7 +16672,11 @@ static per_choice_t AudioCapability_choice[] = {
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_AudioCapability, ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability", NULL);
+        guint32 value;
+
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_AudioCapability, ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability", &value);
+
+        codec_type = val_to_str(value, AudioCapability_vals, "<unknown>");
 
 	return offset;
 }
@@ -18633,7 +18648,7 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IndicationMessage_type, ett_h245_IndicationMessage, IndicationMessage_choice, "IndicationMessage", &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(value, IndicationMessage_vals, "<unknown>"));
 	}
 
@@ -18702,8 +18717,12 @@ dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestMessage_type, ett_h245_RequestMessage, RequestMessage_choice, "RequestMessage", &value);
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(value, RequestMessage_vals, "<unknown>"));
+	}
+
+	if (( check_col(pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == 3) ){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", codec_type );
 	}
 
 	return offset;
@@ -19003,7 +19022,7 @@ dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CommandMessage_type, ett_h245_CommandMessage, CommandMessage_choice, "CommandMessage", &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(value, CommandMessage_vals, "<unknown>"));
 	}
 
@@ -19101,7 +19120,7 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ResponseMessage_type, ett_h245_ResponseMessage, ResponseMessage_choice, "ResponseMessage", &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(value, ResponseMessage_vals, "<unknown>"));
 	}
 
@@ -19181,9 +19200,6 @@ dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, packet_info *pinfo, p
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.245");
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
 
 	it=proto_tree_add_protocol_format(tree, proto_h245, tvb, 0, tvb_length(tvb), "H.245");
 	tr=proto_item_add_subtree(it, ett_h245);
@@ -19200,12 +19216,6 @@ dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, packet_info *pinfo, p
 			offset=(offset&0xfffffff8)+8;
 		}
 	}
-
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(value, MultimediaSystemControlMessage_vals, "<unknown>"));
-	}
-	
 }
 
 
