@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.16 2002/08/23 21:12:07 jmayer Exp $
+# $Id: autogen.sh,v 1.17 2002/08/26 02:14:55 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -88,6 +88,7 @@ if test -z "$*"; then
 fi
 
 aclocal_flags="`./aclocal-flags`"
+
 for dir in . epan wiretap ;  do
   echo processing $dir
   (
@@ -97,7 +98,18 @@ for dir in . epan wiretap ;  do
     else
         topdir=..
     fi
-    aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags -I $topdir/aclocal-fallback"; \
+    VER=`aclocal --version | head -1`
+    case $VER in
+      aclocal*1.4 | aclocal*1.4[^0-9]* )
+        echo "Automake 1.4 detected Disabling aclocal-fallback"
+        aclocal_fallback=""
+        ;;
+      * )
+        aclocal_fallback="-I $topdir/aclocal-fallback"
+        ;;
+    esac
+
+    aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags $aclocal_fallback"; \
     echo aclocal $aclocalinclude
     aclocal $aclocalinclude || exit 1
     echo autoheader
