@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.57 2001/11/13 23:55:43 gram Exp $
+ * $Id: libpcap.c,v 1.58 2001/11/14 22:34:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -24,6 +24,7 @@
 #include "config.h"
 #endif
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -772,6 +773,7 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	struct pcaprec_ss990915_hdr hdr;
 	guint packet_size;
 	int bytes_read;
+	u_char *buf;
 
 	bytes_read = libpcap_read_header(wth, err, &hdr, FALSE);
 	if (bytes_read == -1) {
@@ -785,10 +787,10 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	packet_size = hdr.hdr.incl_len;
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
+	buf = buffer_start_ptr(wth->frame_buffer);
 	*data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-			packet_size, wth->fh);
+	bytes_read = file_read(buf, 1, packet_size, wth->fh);
 
 	if ((guint)bytes_read != packet_size) {
 		*err = file_error(wth->fh);
@@ -797,6 +799,69 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 		return FALSE;
 	}
 	wth->data_offset += packet_size;
+
+	if (wth->file_encap == WTAP_ENCAP_FDDI ||
+	    wth->file_encap == WTAP_ENCAP_FDDI_BITSWAPPED) {
+		/*
+		 * Sigh.
+		 *
+		 * The Digital UNIX packet capture mechanism sticks
+		 * 3 bytes of padding before the FDDI header, to align
+		 * the stuff after the FDDI header on a 4-byte boundary.
+		 *
+		 * The standard libpcap strips that off before handing
+		 * the packet to the callback routine, so the standard
+		 * tcpdump plus the standard libpcap, and Ethereal plus
+		 * the standard libpcap, don't see that padding.
+		 *
+		 * However, the tcpdump that comes with Digital UNIX
+		 * appears to be linked with a libpcap that *doesn't*
+		 * strip it off; the captures it writes out appear to
+		 * have the padding in them.
+		 *
+		 * This not only means that Ethereal wouldn't be able
+		 * to read FDDI captures from the Digital UNIX tcpdump,
+		 * it means that *the standard tcpdump* can't read them -
+		 * and that the Digital UNIX tcpdump can't read FDDI
+		 * captures from the standard tcpdump or from Ethereal.
+		 * (We won't get into the bit-order issue for source and
+		 * destination MAC addresses here; that's just adding
+		 * insult to injury.)
+		 *
+		 * So we check here whether we have at least 4 bytes of
+		 * data in the packet; if so, we check whether the first
+		 * byte doesn't look like an FDDI async frame type but
+		 * the fourth byte does, in which case we skip over the
+		 * first 3 padding bytes.  (The padding does *NOT* appear
+		 * to be guaranteed to be zero.)
+		 *
+		 * XXX - this may mean we don't correctly handle captured
+		 * packets that aren't async frames.  I don't know whether
+		 * any capture programs using libpcap will see those
+		 * frames.
+		 */
+		if (packet_size >= 4) {
+			if ((buf[0] & 0xf0) != 0x50 &&
+			    (buf[3] & 0xf0) == 0x50) {
+				/*
+				 * Bleah.  Move the data 3 bytes down,
+				 * and reduce the packet size by 3 bytes.
+				 * Also advance by 3 bytes the seek pointer
+				 * we return.
+				 *
+				 * XXX - some scheme where we first
+				 * check the first 4 bytes, and
+				 * then put the data in the appropriate
+				 * place, would let us avoid the move,
+				 * as would a scheme in which
+				 */
+				packet_size -= 3;
+				hdr.hdr.orig_len -= 3;
+				*data_offset += 3;
+				memmove(&buf[0], &buf[3], packet_size);
+			}
+		}
+	}
 
 	wth->phdr.ts.tv_sec = hdr.hdr.ts_sec;
 	wth->phdr.ts.tv_usec = hdr.hdr.ts_usec;
