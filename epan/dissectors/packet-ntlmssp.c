@@ -720,12 +720,17 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 			break;
 	}
 
-	proto_tree_add_item(
-		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_unknown, tvb,
-		offset, 4, TRUE);
-
-	offset += 4;
-
+	/*
+	 * XXX - Windows puts 4 bytes of additional stuff here.
+	 * Samba's smbclient doesn't.
+	 * Both of them appear to be able to connect to W2K SMB
+	 * servers.
+	 * Should we display the rest of the response as an
+	 * "extra data" item?
+	 *
+	 * XXX - we should also check whether we go past the length
+	 * of the response.
+	 */
 	return offset;
 }
 
