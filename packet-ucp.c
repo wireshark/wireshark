@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.22 2004/03/05 10:47:53 guy Exp $
+ * $Id: packet-ucp.c,v 1.23 2004/03/20 07:49:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -692,18 +692,22 @@ ucp_mktime(char *datestr)
 static void
 ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    char	 strval[BUFSIZ];
-    int		 idx = 0;
-    int		 tmpoff = *offset;
+    gint	 idx, len;
 
-    idx = 0;
-    while ((strval[idx++] = tvb_get_guint8(tvb, tmpoff++)) != '/')
-	;
-    if (idx > 1) {
-	strval[--idx] = '\0';
-	proto_tree_add_string(tree, field, tvb, *offset, idx, strval);
-    }
-    *offset = tmpoff;
+    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    if (idx == -1) {
+	/*
+	 * XXX - should we do reassembly here, if this isn't a short
+	 * frame?
+	 */
+	len = tvb_length_remaining(tvb, *offset);
+    } else
+	len = idx - *offset;
+    if (len > 0)
+	proto_tree_add_item(tree, field, tvb, *offset, len, FALSE);
+    *offset += len;
+    if (idx != -1)
+	*offset += 1;	/* skip terminating '/' */
 }
 
 static void
@@ -770,41 +774,59 @@ ucp_handle_byte(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 static guint
 ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    char	 strval[BUFSIZ];
+    gint	 idx, len;
+    char	 *strval;
     guint	 intval = 0;
-    int		 tmpoff = *offset;
-    int		 idx = 0;
 
-    while ((strval[idx++] = tvb_get_guint8(tvb, tmpoff++)) != '/')
-	;
-    if (idx > 1) {
-	strval[--idx] = '\0';
+    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    if (idx == -1) {
+	/*
+	 * XXX - should we do reassembly here, if this isn't a short
+	 * frame?
+	 */
+	len = tvb_length_remaining(tvb, *offset);
+    } else
+	len = idx - *offset;
+    strval = tvb_get_string(tvb, *offset, len);
+    if (len > 0) {
 	intval = atoi(strval);
 	proto_tree_add_uint(tree, field, tvb, *offset, idx, intval);
     }
-    *offset = tmpoff;
+    g_free(strval);
+    *offset += len;
+    if (idx != -1)
+	*offset += 1;	/* skip terminating '/' */
     return intval;
 }
 
 static void
 ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    char	 strval[BUFSIZ];
+    gint	 idx, len;
+    char	 *strval;
     time_t	 tval;
     nstime_t	 tmptime;
-    int		 tmpoff = *offset;
-    int		 idx = 0;
 
-    while ((strval[idx++] = tvb_get_guint8(tvb, tmpoff++)) != '/')
-	;
-    if (idx > 1) {
-	strval[--idx] = '\0';
+    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    if (idx == -1) {
+	/*
+	 * XXX - should we do reassembly here, if this isn't a short
+	 * frame?
+	 */
+	len = tvb_length_remaining(tvb, *offset);
+    } else
+	len = idx - *offset;
+    strval = tvb_get_string(tvb, *offset, len);
+    if (len > 0) {
 	tval = ucp_mktime(strval);
 	tmptime.secs  = tval;
 	tmptime.nsecs = 0;
 	proto_tree_add_time(tree, field, tvb, *offset, idx, &tmptime);
     }
-    *offset = tmpoff;
+    g_free(strval);
+    *offset += len;
+    if (idx != -1)
+	*offset += 1;	/* skip terminating '/' */
 }
 
 static void
