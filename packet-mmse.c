@@ -1,8 +1,9 @@
 /* packet-mmse.c
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
+ * Copyright 2004, Olivier Biot
  *
- * $Id: packet-mmse.c,v 1.32 2004/02/06 01:07:51 obiot Exp $
+ * $Id: packet-mmse.c,v 1.33 2004/04/13 22:07:34 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +26,9 @@
  *
  * Dissector of an encoded Multimedia message PDU, as defined by the WAPForum
  * (http://www.wapforum.org) in "WAP-209-MMSEncapsulation-20020105-a".
+ * Subsequent releases of MMS are in control of the Open Mobile Alliance (OMA):
+ * Dissection of MMS 1.1 as in OMA-MMS-ENC-v1.1 (not finished yet).
+ * Dissection of MMS 1.2 as in OMA-MMS-ENC-v1.2 (not finished yet).
  */
 
 /* This file has been edited with 8-space tabs and 4-space indentation */
@@ -75,56 +79,121 @@ static void dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /*
  * Header field values
  */
+/* MMS 1.0 */
 #define MM_BCC_HDR		0x81	/* Bcc			*/
 #define MM_CC_HDR		0x82	/* Cc			*/
-#define MM_CLOCATION_HDR	0x83	/* Content-Location	*/
+#define MM_CLOCATION_HDR	0x83	/* X-Mms-Content-Location	*/
 #define MM_CTYPE_HDR		0x84	/* Content-Type		*/
-#define MM_DATE_HDR		0x85	/* Date			*/
-#define MM_DREPORT_HDR		0x86	/* Delivery-Report	*/
-#define MM_DTIME_HDR		0x87	/* Delivery-Time	*/
-#define MM_EXPIRY_HDR		0x88	/* Expiry		*/
-#define MM_FROM_HDR		0x89	/* From			*/
-#define MM_MCLASS_HDR		0x8A	/* Message-Class	*/
-#define MM_MID_HDR		0x8B	/* Message-ID		*/
-#define MM_MTYPE_HDR		0x8C	/* Message-Type		*/
-#define MM_VERSION_HDR		0x8D	/* MMS-Version		*/
-#define MM_MSIZE_HDR		0x8E	/* Message-Size		*/
-#define MM_PRIORITY_HDR		0x8F	/* Priority		*/
-#define MM_RREPLY_HDR		0x90	/* Read-Reply		*/
-#define MM_RALLOWED_HDR		0x91	/* Report-Allowed	*/
-#define MM_RSTATUS_HDR		0x92	/* Response-Status	*/
-#define MM_RTEXT_HDR		0x93	/* Response-Text	*/
-#define MM_SVISIBILITY_HDR	0x94	/* Sender-Visibility	*/
-#define MM_STATUS_HDR		0x95	/* Status		*/
-#define MM_SUBJECT_HDR		0x96	/* Subject		*/
-#define MM_TO_HDR		0x97	/* To			*/
-#define MM_TID_HDR		0x98	/* Transaction-Id	*/
+#define MM_DATE_HDR		0x85	/* Date				*/
+#define MM_DREPORT_HDR		0x86	/* X-Mms-Delivery-Report	*/
+#define MM_DTIME_HDR		0x87	/* X-Mms-Delivery-Time		*/
+#define MM_EXPIRY_HDR		0x88	/* X-Mms-Expiry			*/
+#define MM_FROM_HDR		0x89	/* From				*/
+#define MM_MCLASS_HDR		0x8A	/* X-Mms-Message-Class		*/
+#define MM_MID_HDR		0x8B	/* Message-ID			*/
+#define MM_MTYPE_HDR		0x8C	/* X-Mms-Message-Type		*/
+#define MM_VERSION_HDR		0x8D	/* X-Mms-MMS-Version		*/
+#define MM_MSIZE_HDR		0x8E	/* X-Mms-Message-Size		*/
+#define MM_PRIORITY_HDR		0x8F	/* X-Mms-Priority		*/
+#define MM_RREPLY_HDR		0x90	/* X-Mms-Read-Reply		*/
+#define MM_RALLOWED_HDR		0x91	/* X-Mms-Report-Allowed		*/
+#define MM_RSTATUS_HDR		0x92	/* X-Mms-Response-Status	*/
+#define MM_RTEXT_HDR		0x93	/* X-Mms-Response-Text		*/
+#define MM_SVISIBILITY_HDR	0x94	/* X-Mms-Sender-Visibility	*/
+#define MM_STATUS_HDR		0x95	/* X-Mms-Status			*/
+#define MM_SUBJECT_HDR		0x96	/* Subject			*/
+#define MM_TO_HDR		0x97	/* To				*/
+#define MM_TID_HDR		0x98	/* X-Mms-Transaction-Id		*/
+/* MMS 1.1 */
+#define MM_RETRIEVE_STATUS_HDR	0x99	/* X-Mms-Retrieve-Status	*/
+#define MM_RETRIEVE_TEXT_HDR	0x9A	/* X-Mms-Retrieve-Text		*/
+#define MM_READ_STATUS_HDR	0x9B	/* X-Mms-Read-Status		*/
+#define MM_REPLY_CHARGING_HDR	0x9C	/* X-Mms-Reply-Charging		*/
+#define MM_REPLY_CHARGING_DEADLINE_HDR	\
+				0x9D	/* X-Mms-Reply-Charging-Deadline*/
+#define MM_REPLY_CHARGING_ID_HDR	\
+				0x9E	/* X-Mms-Reply-Charging-ID	*/
+#define MM_REPLY_CHARGING_SIZE_HDR	\
+				0x9F	/* X-Mms-Reply-Charging-Size	*/
+#define MM_PREV_SENT_BY_HDR	0xA0	/* X-Mms-Previously-Sent-By	*/
+#define MM_PREV_SENT_DATE_HDR	0xA1	/* X-Mms-Previously-Sent-Date	*/
+/* MMS 1.2 */
+#define MM_STORE_HDR		0xA2	/* X-Mms-Store			*/
+#define MM_MM_STATE_HDR		0xA3	/* X-Mms-MM-State		*/
+#define MM_MM_FLAGS_HDR		0xA4	/* X-Mms-MM-Flags		*/
+#define MM_STORE_STATUS_HDR	0xA5	/* X-Mms-Store-Status		*/
+#define MM_STORE_STATUS_TEXT_HDR	\
+				0xA6	/* X-Mms-Store-Status-Text	*/
+#define MM_STORED_HDR		0xA7	/* X-Mms-Stored			*/
+#define MM_ATTRIBUTES_HDR	0xA8	/* X-Mms-Attributes		*/
+#define MM_TOTALS_HDR		0xA9	/* X-Mms-Totals			*/
+#define MM_MBOX_TOTALS_HDR	0xAA	/* X-Mms-Mbox-Totals		*/
+#define MM_QUOTAS_HDR		0xAB	/* X-Mms-Quotas			*/
+#define MM_MBOX_QUOTAS_HDR	0xAC	/* X-Mms-Mbox-Quotas		*/
+#define MM_MBOX_MSG_COUNT_HDR	0xAD	/* X-Mms-Message-Count		*/
+#define MM_CONTENT_HDR		0xAE	/* Content			*/
+#define MM_START_HDR		0xAF	/* X-Mms-Start			*/
+#define MM_ADDITIONAL_HDR	0xB0	/* Additional-headers		*/
+#define MM_DISTRIBUION_IND_HDR	0xB1	/* X-Mms-Distribution-Indcator	*/
+#define MM_ELEMENT_DESCR_HDR	0xB2	/* X-Mms-Element-Descriptor	*/
+#define MM_LIMIT_HDR		0xB3	/* X-Mms-Limit			*/
 
 static const value_string vals_mm_header_names[] = {
+	/* MMS 1.0 */
 	{ MM_BCC_HDR,			"Bcc" },
 	{ MM_CC_HDR,			"Cc" },
-	{ MM_CLOCATION_HDR,		"Content-Location" },
-	{ MM_CTYPE_HDR,			"Content-Type" },
+	{ MM_CLOCATION_HDR,		"X-Mms-Content-Location" },
+	{ MM_CTYPE_HDR,			"X-Mms-Content-Type" },
 	{ MM_DATE_HDR,			"Date" },
-	{ MM_DREPORT_HDR,		"Delivery-Report" },
-	{ MM_DTIME_HDR,			"Delivery-Time" },
-	{ MM_EXPIRY_HDR,		"Expiry" },
+	{ MM_DREPORT_HDR,		"X-Mms-Delivery-Report" },
+	{ MM_DTIME_HDR,			"X-Mms-Delivery-Time" },
+	{ MM_EXPIRY_HDR,		"X-Mms-Expiry" },
 	{ MM_FROM_HDR,			"From" },
-	{ MM_MCLASS_HDR,		"Message-Class" },
+	{ MM_MCLASS_HDR,		"X-Mms-Message-Class" },
 	{ MM_MID_HDR,			"Message-ID" },
-	{ MM_MTYPE_HDR,			"Message-Type" },
-	{ MM_VERSION_HDR,		"MMS-Version" },
-	{ MM_MSIZE_HDR,			"Message-Size" },
-	{ MM_PRIORITY_HDR,		"Priority" },
-	{ MM_RREPLY_HDR,		"Read-Reply" },
-	{ MM_RALLOWED_HDR,		"Report-Allowed" },
-	{ MM_RSTATUS_HDR,		"Response-Status" },
-	{ MM_RTEXT_HDR,			"Response-Text" },
-	{ MM_SVISIBILITY_HDR,	"Sender-Visibility" },
-	{ MM_STATUS_HDR,		"Status" },
+	{ MM_MTYPE_HDR,			"X-Mms-Message-Type" },
+	{ MM_VERSION_HDR,		"X-Mms-MMS-Version" },
+	{ MM_MSIZE_HDR,			"X-Mms-Message-Size" },
+	{ MM_PRIORITY_HDR,		"X-Mms-Priority" },
+	{ MM_RREPLY_HDR,		"X-Mms-Read-Reply" },
+	{ MM_RALLOWED_HDR,		"X-Mms-Report-Allowed" },
+	{ MM_RSTATUS_HDR,		"X-Mms-Response-Status" },
+	{ MM_RTEXT_HDR,			"X-Mms-Response-Text" },
+	{ MM_SVISIBILITY_HDR,		"X-Mms-Sender-Visibility" },
+	{ MM_STATUS_HDR,		"X-Mms-Status" },
 	{ MM_SUBJECT_HDR,		"Subject" },
 	{ MM_TO_HDR,			"To" },
-	{ MM_TID_HDR,			"Transaction-Id" },
+	{ MM_TID_HDR,			"X-Mms-Transaction-Id" },
+	/* MMS 1.1 */
+	{ MM_RETRIEVE_STATUS_HDR,	"X-Mms-Retrieve-Status" },
+	{ MM_RETRIEVE_TEXT_HDR,		"X-Mms-Retrieve-Text" },
+	{ MM_READ_STATUS_HDR,		"X-Mms-Read-Status" },
+	{ MM_REPLY_CHARGING_HDR,	"X-Mms-Reply-Charging" },
+	{ MM_REPLY_CHARGING_DEADLINE_HDR,
+					"X-Mms-Reply-Charging-Deadline" },
+	{ MM_REPLY_CHARGING_ID_HDR,	"X-Mms-Reply-Charging-ID" },
+	{ MM_REPLY_CHARGING_SIZE_HDR,	"X-Mms-Reply-Charging-Size" },
+	{ MM_PREV_SENT_BY_HDR,		"X-Mms-Previously-Sent-By" },
+	{ MM_PREV_SENT_DATE_HDR,	"X-Mms-Previously-Sent-Date" },
+	/* MMS 1.2 */
+	{ MM_STORE_HDR,			"X-Mms-Store" },
+	{ MM_MM_STATE_HDR,		"X-Mms-MM-State	" },
+	{ MM_MM_FLAGS_HDR,		"X-Mms-MM-Flags	" },
+	{ MM_STORE_STATUS_HDR,		"X-Mms-Store-Status" },
+	{ MM_STORE_STATUS_TEXT_HDR,	"X-Mms-Store-Status-Text" },
+	{ MM_STORED_HDR,		"X-Mms-Stored" },
+	{ MM_ATTRIBUTES_HDR,		"X-Mms-Attributes" },
+	{ MM_TOTALS_HDR,		"X-Mms-Totals" },
+	{ MM_MBOX_TOTALS_HDR,		"X-Mms-Mbox-Totals" },
+	{ MM_QUOTAS_HDR,		"X-Mms-Quotas" },
+	{ MM_MBOX_QUOTAS_HDR,		"X-Mms-Mbox-Quotas" },
+	{ MM_MBOX_MSG_COUNT_HDR,	"X-Mms-Message-Count" },
+	{ MM_CONTENT_HDR,		"Content" },
+	{ MM_START_HDR,			"X-Mms-Start" },
+	{ MM_ADDITIONAL_HDR,		"Additional-headers" },
+	{ MM_DISTRIBUION_IND_HDR,	"X-Mms-Distribution-Indcator" },
+	{ MM_ELEMENT_DESCR_HDR,		"X-Mms-Element-Descriptor" },
+	{ MM_LIMIT_HDR,			"X-Mms-Limit" },
 
 	{ 0x00, NULL },
 };
@@ -168,9 +237,9 @@ static int hf_mmse_ffheader		= -1;
 static gint ett_mmse = -1;
 
 /*
- * Valuestrings for header contents
+ * Valuestrings for PDU types
  */
-
+/* MMS 1.0 */
 #define PDU_M_SEND_REQ		0x80
 #define PDU_M_SEND_CONF		0x81
 #define PDU_M_NOTIFICATION_IND	0x82
@@ -178,12 +247,33 @@ static gint ett_mmse = -1;
 #define PDU_M_RETRIEVE_CONF	0x84
 #define PDU_M_ACKNOWLEDGE_IND	0x85
 #define PDU_M_DELIVERY_IND	0x86
+/* MMS 1.1 */
+#define PDU_M_READ_REC_IND	0x87
+#define PDU_M_READ_ORIG_IND	0x88
+#define PDU_M_FORWARD_REQ	0x89
+#define PDU_M_FORWARD_CONF	0x8A
+/* MMS 1.2 */
+#define PDU_M_MBOX_STORE_REQ	0x8B
+#define PDU_M_MBOX_STORE_CONF	0x8C
+#define PDU_M_MBOX_VIEW_REQ	0x8D
+#define PDU_M_MBOX_VIEW_CONF	0x8E
+#define PDU_M_MBOX_UPLOAD_REQ	0x8F
+#define PDU_M_MBOX_UPLOAD_CONF	0x90
+#define PDU_M_MBOX_DELETE_REQ	0x91
+#define PDU_M_MBOX_DELETE_CONF	0x92
+#define PDU_M_MBOX_DESCR	0x93
 
 #define pdu_has_content(pdut) \
 	(  ((pdut) == PDU_M_SEND_REQ) \
-	|| ((pdut) == PDU_M_DELIVERY_IND) )
+	|| ((pdut) == PDU_M_DELIVERY_IND) \
+	|| ((pdut) == PDU_M_RETRIEVE_CONF) \
+	|| ((pdut) == PDU_M_MBOX_VIEW_CONF) \
+	|| ((pdut) == PDU_M_MBOX_DESCR) \
+	|| ((pdut) == PDU_M_MBOX_UPLOAD_REQ) \
+	)
 
 static const value_string vals_message_type[] = {
+    /* MMS 1.0 */
     { PDU_M_SEND_REQ,		"m-send-req" },
     { PDU_M_SEND_CONF,		"m-send-conf" },
     { PDU_M_NOTIFICATION_IND,	"m-notification-ind" },
@@ -191,6 +281,21 @@ static const value_string vals_message_type[] = {
     { PDU_M_RETRIEVE_CONF,	"m-retrieve-conf" },
     { PDU_M_ACKNOWLEDGE_IND,	"m-acknowledge-ind" },
     { PDU_M_DELIVERY_IND,	"m-delivery-ind" },
+    /* MMS 1.1 */
+    { PDU_M_READ_REC_IND,	"m-read-rec-ind" },
+    { PDU_M_READ_ORIG_IND,	"m-read-orig-ind" },
+    { PDU_M_FORWARD_REQ,	"m-forward-req" },
+    { PDU_M_FORWARD_CONF,	"m-forward-conf" },
+    /* MMS 1.2 */
+    { PDU_M_MBOX_STORE_REQ,	"m-mbox-store-req" },
+    { PDU_M_MBOX_STORE_CONF,	"m-mbox-store-conf" },
+    { PDU_M_MBOX_VIEW_REQ,	"m-mbox-view-req" },
+    { PDU_M_MBOX_VIEW_CONF,	"m-mbox-view-conf" },
+    { PDU_M_MBOX_UPLOAD_REQ,	"m-mbox-upload-req" },
+    { PDU_M_MBOX_UPLOAD_CONF,	"m-mbox-upload-conf" },
+    { PDU_M_MBOX_DELETE_REQ,	"m-mbox-delete-req" },
+    { PDU_M_MBOX_DELETE_CONF,	"m-mbox-delete-conf" },
+    { PDU_M_MBOX_DESCR,		"m-mbox-descr" },
     { 0x00, NULL },
 };
 
@@ -216,6 +321,7 @@ static const value_string vals_priority[] = {
 };
 
 static const value_string vals_response_status[] = {
+    /* MMS 1.0 - obsolete as from MMS 1.1 */
     { 0x80, "Ok" },
     { 0x81, "Unspecified" },
     { 0x82, "Service denied" },
@@ -225,6 +331,35 @@ static const value_string vals_response_status[] = {
     { 0x86, "Network problem" },
     { 0x87, "Content not accepted" },
     { 0x88, "Unsupported message" },
+
+    /*
+     * Transient errors
+     */
+    /* MMS 1.1 */
+    { 0xC0, "Transient failure" },
+    { 0xC1, "Transient: Sending address unresolved" },
+    { 0xC2, "Transient: Message not found" },
+    { 0xC3, "Transient: Network problem" },
+    /* MMS 1.2 */
+    { 0xC4, "Transient: Partial success" },
+
+    /*
+     * Permanent errors
+     */
+    /* MMS 1.1 */
+    { 0xE0, "Permanent failure" },
+    { 0xE1, "Permanent: Service denied" },
+    { 0xE2, "Permanent: Message format corrupt" },
+    { 0xE3, "Permanent: Sending address unresolved" },
+    { 0xE4, "Permanent: Message not found" },
+    { 0xE5, "Permanent: Content not accepted" },
+    { 0xE6, "Permanent: Reply charging limitations not met" },
+    { 0xE7, "Permanent: Reply charging request not accepted" },
+    { 0xE8, "Permanent: Reply charging forwarding denied" },
+    { 0xE9, "Permanent: Reply charging not supported" },
+    /* MMS 1.2 */
+    { 0xEA, "Permanent: Address hiding not supported" },
+    
     { 0x00, NULL },
 };
 
@@ -235,11 +370,18 @@ static const value_string vals_sender_visibility[] = {
 };
 
 static const value_string vals_message_status[] = {
+    /* MMS 1.0 */
     { 0x80, "Expired" },
     { 0x81, "Retrieved" },
     { 0x82, "Rejected" },
     { 0x83, "Deferred" },
     { 0x84, "Unrecognized" },
+    /* MMS 1.1 */
+    { 0x85, "Indeterminate" },
+    { 0x86, "Forwarded" },
+    /* MMS 1.2 */
+    { 0x87, "Unreachable" },
+    
     { 0x00, NULL },
 };
 
@@ -548,13 +690,32 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    offset += length;
 		    break;
 		case MM_CLOCATION_HDR:		/* Uri-value		*/
-		    length = get_text_string(tvb, offset, &strval);
-		    if (tree) {
-			proto_tree_add_string(mmse_tree,
-				hf_mmse_content_location,
-				tvb, offset - 1, length + 1,strval);
+		    if (pdut == PDU_M_MBOX_DELETE_CONF) {
+			/* General form with length */
+			length = tvb_get_guint8(tvb, offset);
+			if (length == 0x1F) {
+			    guint length_len = 0;
+			    length = tvb_get_guintvar(tvb, offset + 1,
+				    &length_len);
+			    length += 1 + length_len;
+			} else {
+			    length += 1;
+			}
+			if (tree) {
+			    proto_tree_add_string(mmse_tree,
+				    hf_mmse_content_location,
+				    tvb, offset - 1, length + 1,
+				    "<Undecoded value for m-mbox-delete-conf>");
+			}
+		    } else {
+			length = get_text_string(tvb, offset, &strval);
+			if (tree) {
+			    proto_tree_add_string(mmse_tree,
+				    hf_mmse_content_location,
+				    tvb, offset - 1, length + 1, strval);
+			}
+			g_free(strval);
 		    }
-		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_DATE_HDR:		/* Long-integer		*/
@@ -728,12 +889,32 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    }
 		    break;
 		case MM_RTEXT_HDR:		/* Encoded-string-value	*/
-		    length = get_encoded_strval(tvb, offset, &strval);
-		    if (tree) {
-			proto_tree_add_string(mmse_tree, hf_mmse_response_text,
-				tvb, offset - 1, length + 1, strval);
+		    if (pdut == PDU_M_MBOX_DELETE_CONF) {
+			/* General form with length */
+			length = tvb_get_guint8(tvb, offset);
+			if (length == 0x1F) {
+			    guint length_len = 0;
+			    length = tvb_get_guintvar(tvb, offset + 1,
+				    &length_len);
+			    length += 1 + length_len;
+			} else {
+			    length += 1;
+			}
+			if (tree) {
+			    proto_tree_add_string(mmse_tree,
+				    hf_mmse_content_location,
+				    tvb, offset - 1, length + 1,
+				    "<Undecoded value for m-mbox-delete-conf>");
+			}
+		    } else {
+    			length = get_encoded_strval(tvb, offset, &strval);
+			if (tree) {
+			    proto_tree_add_string(mmse_tree,
+				    hf_mmse_response_text, tvb, offset - 1,
+				    length + 1, strval);
+			}
+			g_free(strval);
 		    }
-		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_SVISIBILITY_HDR:	/* Hide|Show		*/
@@ -769,17 +950,55 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    offset += length;
 		    break;
 		default:
-		    if (field & 0x80) {
-			if (tree) {
-			    proto_tree_add_text(mmse_tree, tvb, offset - 1, 1,
-				    "Unknown field (0x%02x)", field);
+		    if (field & 0x80) { /* Well-known WSP header encoding */
+			guint8 peek = tvb_get_guint8(tvb, offset);
+			char *hdr_name = val_to_str(field, vals_mm_header_names,
+				"Unknown field (0x%02x)");
+			DebugLog(("\t\tUndecoded well-known header: %s\n",
+				    hdr_name));
+
+			if (peek & 0x80) { /* Well-known value */
+			    length = 1;
+			    if (tree) {
+				proto_tree_add_text(mmse_tree, tvb, offset - 1,
+					length + 1,
+					"%s: <Well-known value 0x%02x>"
+					" (not decoded)",
+					hdr_name, peek);
+			    }
+			} else if ((peek == 0) || (peek >= 0x20)) { /* Text */
+			    length = get_text_string(tvb, offset, &strval);
+			    if (tree) {
+				proto_tree_add_text(mmse_tree, tvb, offset - 1,
+					length + 1, "%s: %s (Not decoded)",
+					hdr_name, strval);
+				g_free(strval);
+			    }
+			} else { /* General form with length */
+			    if (peek == 0x1F) { /* Value length in guintvar */
+				guint length_len = 0;
+				length = 1 + tvb_get_guintvar(tvb, offset + 1,
+					&length_len);
+				length += length_len;
+			    } else { /* Value length in octet */
+				length = 1 + tvb_get_guint8(tvb, offset);
+			    }
+			    if (tree) {
+				proto_tree_add_text(mmse_tree, tvb, offset - 1,
+					length + 1, "%s: "
+					"<Value in general form> (not decoded)",
+					hdr_name);
+			    }
 			}
-		    } else {
+			offset += length;
+		    } else { /* Literal WSP header encoding */
 			guint	 length2;
 			char	 *strval2;
 
 			--offset;
 			length = get_text_string(tvb, offset, &strval);
+			DebugLog(("\t\tUndecoded literal header: %s\n",
+				    strval));
 			CLEANUP_PUSH(g_free, strval);
 			length2= get_text_string(tvb, offset+length, &strval2);
 
@@ -788,8 +1007,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				    hf_mmse_ffheader, tvb, offset,
 				    length + length2,
 				    (const char *) tvb_get_ptr(
-					tvb, offset, length + length2),
-				    "%s: %s",strval,strval2);
+					    tvb, offset, length + length2),
+				    "%s: %s", strval, strval2);
 			}
 			g_free(strval2);
 			offset += length + length2;
