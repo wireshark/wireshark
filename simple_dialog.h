@@ -1,7 +1,8 @@
-/* ui_util.h
- * Definitions for UI utility routines
+/* simple_dialog.h
+ * Definitions for dialog box routines with toolkit-independent APIs but
+ * toolkit-dependent implementations.
  *
- * $Id: ui_util.h,v 1.3 2000/01/03 06:59:10 guy Exp $
+ * $Id: simple_dialog.h,v 1.1 2000/01/03 06:59:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,25 +24,31 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __UI_UTIL_H__
-#define __UI_UTIL_H__
+#ifndef __DIALOG_H__
+#define __DIALOG_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-/* Set the name of the top-level window and its icon. */
-void set_main_window_name(gchar *);
+/* Dialog type. */
+#define ESD_TYPE_INFO 0
+#define ESD_TYPE_WARN 1
+#define ESD_TYPE_CRIT 2
 
-/* Given a pointer to a GtkWidget for a top-level window, raise it and
-   de-iconify it.  This routine is used if the user has done something to
-   ask that a window of a certain type be popped up when there can be only
-   one such window and such a window has already been popped up - we
-   pop up the existing one rather than creating a new one. */
-void reactivate_window(GtkWidget *);
+/* Which buttons to display. */
+#define ESD_BTN_OK     0
+#define ESD_BTN_CANCEL 1
+
+#if __GNUC__ == 2
+void simple_dialog(gint, gint *, gchar *, ...)
+    __attribute__((format (printf, 3, 4)));
+#else
+void simple_dialog(gint, gint *, gchar *, ...);
+#endif
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __UI_UTIL_H__ */
+#endif /* __DIALOG_H__ */

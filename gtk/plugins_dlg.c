@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.6 1999/12/29 07:39:51 guy Exp $
+ * $Id: plugins_dlg.c,v 1.7 2000/01/03 06:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,7 +40,7 @@
 #include "plugins.h"
 #include "keys.h"
 #include "prefs_dlg.h"
-#include "ui_util.h"
+#include "simple_dialog.h"
 
 static gint selected_row;
 static gchar *selected_name;

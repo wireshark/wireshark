@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.3 1999/12/09 07:19:18 guy Exp $
+ * $Id: goto_dlg.c,v 1.4 2000/01/03 06:59:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,7 +46,7 @@
 
 #include "goto_dlg.h"
 #include "prefs_dlg.h"
-#include "ui_util.h"
+#include "simple_dialog.h"
 
 /* Capture callback data keys */
 #define E_GOTO_FNUMBER_KEY     "goto_fnumber_te"

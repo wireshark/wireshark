@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.4 1999/12/09 07:19:17 guy Exp $
+ * $Id: find_dlg.c,v 1.5 2000/01/03 06:59:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,7 @@
 
 #include "find_dlg.h"
 #include "prefs_dlg.h"
-#include "ui_util.h"
+#include "simple_dialog.h"
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY     "find_filter_te"

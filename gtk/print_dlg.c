@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.11 2000/01/03 06:28:44 guy Exp $
+ * $Id: print_dlg.c,v 1.12 2000/01/03 06:59:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,8 +45,8 @@
 #include "prefs_dlg.h"
 #endif
 
-#ifndef __UI_UTIL_H__
-#include "ui_util.h"
+#ifndef __DIALOG_H__
+#include "simple_dialog.h"
 #endif
 
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
