@@ -1632,8 +1632,8 @@ dissect_tcap_dlg_protocol_version(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_i
 	dissect_tcap_len(asn1, tcap_tree, &def_len, &len);
 	saved_offset = asn1->offset;
 	ti =
-	    proto_tree_add_bytes(tcap_tree, hf_tcap_bytes, asn1->tvb, saved_offset, len,
-		(guchar*)(tvb_get_ptr(asn1->tvb, saved_offset, len)));
+	    proto_tree_add_item(tcap_tree, hf_tcap_bytes, asn1->tvb,
+		saved_offset, len, FALSE);
 	asn1->offset += len;
     }
 
