@@ -4,9 +4,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -71,6 +70,13 @@ typedef struct _color_filter {
 /* List of all color filters. */
 extern GSList *filter_list;
 extern GSList *removed_filter_list;
+
+/** Add a color filter.
+ *
+ * @param colorf the new color filter
+ * @param arg the color filter widget
+ */
+void color_add_filter_cb (color_filter_t *colorf, gpointer arg);
 
 void
 filter_list_prime_edt(epan_dissect_t *edt);

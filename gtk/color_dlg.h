@@ -4,9 +4,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,12 +48,5 @@ void color_display_with_filter(char *filter);
  * @return the number of color filters
  */
 int color_marked_count(void);
-
-/** Add a color filter.
- *
- * @param colorf the new color filter
- * @param arg the color filter widget
- */
-void color_add_filter_cb (color_filter_t *colorf, gpointer arg);
 
 #endif /* color_dlg.h */

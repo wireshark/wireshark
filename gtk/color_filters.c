@@ -28,7 +28,7 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
+#include <glib.h>
 #include <ctype.h>
 #include <string.h>
 
@@ -36,9 +36,7 @@
 
 #include <epan/packet.h>
 #include "color.h"
-#include "colors.h"
 #include "color_filters.h"
-#include "color_dlg.h"
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
 #include "simple_dialog.h"
