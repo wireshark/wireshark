@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.44 2003/11/11 05:09:03 guy Exp $
+ * $Id: gui_prefs.c,v 1.45 2003/11/11 05:23:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,7 +158,11 @@ static gboolean font_changed;
    has been set to the name of the font the user selected. */
 static gchar *new_font_name;
 
+#if GTK_MAJOR_VERSION < 2
 #define GUI_TABLE_ROWS 10
+#else
+#define GUI_TABLE_ROWS 9
+#endif
 
 GtkWidget*
 gui_prefs_show(void)
