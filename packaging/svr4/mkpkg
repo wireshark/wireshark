@@ -46,7 +46,7 @@ if [ ! -d $stagedir ] ; then
   exit 1
 fi
 
-find $stagedir/$prefix -mindepth 1 -print | \
+find $stagedir/$prefix/* -print | \
   pkgproto $stagedir/$prefix=$prefix >> $prototype
 
 # Make the package installation directory

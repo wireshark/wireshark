@@ -895,6 +895,7 @@ Shinsuke Suzuki <suz[AT]kame.net> {
 
 Andrew C. Feren <aferen[AT]cetacean.com> {
 	Makefile fix
+	Solaris packaging fix
 }
 
 Tomas Kukosa <tomas.kukosa[AT]anfdata.cz> {
