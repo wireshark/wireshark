@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.8 2001/11/24 08:59:38 guy Exp $
+ * $Id: text2pcap.c,v 1.9 2002/01/16 21:05:09 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,6 +137,12 @@ int hdr_udp = FALSE;
 unsigned long hdr_udp_dest = 0;
 unsigned long hdr_udp_src = 0;
 
+/* Dummy SCTP header */
+int hdr_sctp = FALSE;
+unsigned long hdr_sctp_src  = 0;
+unsigned long hdr_sctp_dest = 0;
+unsigned long hdr_sctp_tag  = 0;
+
 /*--- Local date -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
@@ -234,6 +240,15 @@ typedef struct {
 } hdr_udp_t;
 
 hdr_udp_t HDR_UDP = {0, 0, 0, 0};
+
+typedef struct {
+    unsigned short src_port;
+    unsigned short dest_port;
+    unsigned long  tag;
+    unsigned long  checksum;
+} hdr_sctp_t;
+
+hdr_sctp_t HDR_SCTP = {0, 0, 0, 0};
 
 char tempbuf[64];
 
@@ -348,6 +363,7 @@ write_current_packet (void)
 
         /* Compute packet length */
         length = curr_offset;
+        if (hdr_sctp) { length += sizeof(HDR_SCTP); }
         if (hdr_udp) { length += sizeof(HDR_UDP); udp_length = length; }
         if (hdr_ip) { length += sizeof(HDR_IP); ip_length = length; }
         if (hdr_ethernet) {
@@ -388,6 +404,14 @@ write_current_packet (void)
             HDR_UDP.length = htons(udp_length);
             
             fwrite(&HDR_UDP, sizeof(HDR_UDP), 1, output_file);
+        }
+        
+        /* Write SCTP header */
+        if (hdr_sctp) {
+            HDR_SCTP.src_port  = htons(hdr_sctp_src);
+            HDR_SCTP.dest_port = htons(hdr_sctp_dest);
+            HDR_SCTP.tag        = htonl(hdr_sctp_tag);
+            fwrite(&HDR_SCTP, sizeof(HDR_SCTP), 1, output_file);
         }
 
         /* Write packet */
@@ -725,37 +749,39 @@ help (char *progname)
     fprintf(stderr, 
             "\n"
             "Usage: %s [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto] \n"
-            "          [-u srcp destp] [-t timefmt] <input-filename> <output-filename>\n"
+            "          [-u srcp,destp] [-s srcp,destp,tag] [-t timefmt] <input-filename> <output-filename>\n"
             "\n"
             "where <input-filename> specifies input filename (use - for standard input)\n"
             "      <output-filename> specifies output filename (use - for standard output)\n"
             "\n"
             "[options] are one or more of the following \n"
             "\n"
-            " -w filename  : Write capfile to <filename>. Default is standard output\n"
-            " -h           : Display this help message \n"
-            " -d           : Generate detailed debug of parser states \n"
-            " -o hex|oct   : Parse offsets as (h)ex or (o)ctal. Default is hex\n"
-            " -l typenum   : Specify link-layer type number. Default is 1 (Ethernet). \n"
-            "                See net/bpf.h for list of numbers.\n"
-            " -q           : Generate no output at all (automatically turns off -d)\n"
-            " -e l3pid     : Prepend dummy Ethernet II header with specified L3PID (in HEX)\n"
-            "                Example: -e 0x800\n"
-            " -i proto     : Prepend dummy IP header with specified IP protocol (in DECIMAL).\n"
-            "                Automatically prepends Ethernet header as well.\n"
-            "                Example: -i 46\n"
-            " -u srcp destp: Prepend dummy UDP header with specified dest and source ports\n"
-            "                (in DECIMAL).\n"
-            "                Automatically prepends Ethernet and IP headers as well.\n"
-            "                Example: -u 30 40\n"
-            " -t timefmt   : Treats the text before the packet as a date/time code; the\n"
-            "                specified argument is a format string of the sort supported\n"
-            "                by strptime.\n"
-            "                Example: The time \"10:15:14.5476\" has the format code\n"
-            "                \"%%H:%%M:%%S.\"\n"
-            "                NOTE:    The subsecond component delimiter must be specified\n"
-            "                         (.) but no pattern is required; the remaining number\n"
-            "                         is assumed to be fractions of a second.\n"
+            " -w filename     : Write capfile to <filename>. Default is standard output\n"
+            " -h              : Display this help message \n"
+            " -d              : Generate detailed debug of parser states \n"
+            " -o hex|oct      : Parse offsets as (h)ex or (o)ctal. Default is hex\n"
+            " -l typenum      : Specify link-layer type number. Default is 1 (Ethernet). \n"
+            "                   See net/bpf.h for list of numbers.\n"
+            " -q              : Generate no output at all (automatically turns off -d)\n"
+            " -e l3pid        : Prepend dummy Ethernet II header with specified L3PID (in HEX)\n"
+            "                   Example: -e 0x800\n"
+            " -i proto        : Prepend dummy IP header with specified IP protocol (in DECIMAL). \n"
+            "                   Automatically prepends Ethernet header as well. Example: -i 46\n"
+            " -u srcp,destp   : Prepend dummy UDP header with specified dest and source ports (in DECIMAL).\n"
+            "                   Automatically prepends Ethernet and IP headers as well\n"
+            "                   Example: -u 30,40\n"
+            " -s srcp,dstp,tag: Prepend dummy SCTP header with specified dest/source ports and\n"
+            "                   verification tag (in DECIMAL).\n"
+            "                   Automatically prepends Ethernet and IP headers as well\n"
+            "                   Example: -s 30,40,34\n"
+            " -t timefmt      : Treats the text before the packet as a date/time code; the\n"
+            "                   specified argument is a format string of the sort supported\n"
+            "                   by strptime.\n"
+            "                   Example: The time \"10:15:14.5476\" has the format code\n"
+            "                   \"%%H:%%M:%%S.\"\n"
+            "                   NOTE:    The subsecond component delimiter must be specified\n"
+            "                            (.) but no pattern is required; the remaining number\n"
+            "                            is assumed to be fractions of a second.\n"
             "",
             progname);
 
@@ -772,7 +798,7 @@ parse_options (int argc, char *argv[])
     char *p;
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "dqr:w:e:i:l:o:u:t:")) != -1) {
+    while ((c = getopt(argc, argv, "dqr:w:e:i:l:o:u:s:t:")) != -1) {
         switch(c) {
         case '?': help(argv[0]); break;
         case 'h': help(argv[0]); break;
@@ -800,6 +826,41 @@ parse_options (int argc, char *argv[])
                 fprintf(stderr, "Bad argument for '-i': %s\n", optarg);
                 help(argv[0]);
             }
+            hdr_ethernet = TRUE;
+            hdr_ethernet_proto = 0x800;
+            break;
+            
+        case 's':
+            hdr_sctp = TRUE;
+            hdr_sctp_src = strtol(optarg, &p, 10);
+            if (p == optarg || (*p != ',' && *p != '\0')) {
+                fprintf(stderr, "Bad src port for '-s'\n");
+                help(argv[0]);
+            }
+            if (*p == '\0') {
+                fprintf(stderr, "No dest port specified for '-s'\n");
+                help(argv[0]);
+            }
+            p++;
+            optarg = p;
+            hdr_sctp_dest = strtol(optarg, &p, 10);
+            if (p == optarg || (*p != ',' && *p != '\0')) {
+                fprintf(stderr, "Bad dest port for '-s'\n");
+                help(argv[0]);
+            }            if (*p == '\0') {
+                fprintf(stderr, "No dest port specified for '-s'\n");
+                help(argv[0]);
+            }
+            p++;
+            optarg = p;
+            hdr_sctp_tag = strtol(optarg, &p, 10);
+            if (p == optarg || *p != '\0') {
+                fprintf(stderr, "Bad tag for '-s'\n");
+                help(argv[0]);
+            }
+
+            hdr_ip = TRUE;
+            hdr_ip_proto = 132;
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
             break;
@@ -870,7 +931,7 @@ parse_options (int argc, char *argv[])
 
     /* Some validation */
     if (pcap_link_type != 1 && hdr_ethernet) {
-        fprintf(stderr, "Dummy headers (-e, -i, -u) cannot be specified with link type override (-l)\n");
+        fprintf(stderr, "Dummy headers (-e, -i, -u, -s) cannot be specified with link type override (-l)\n");
         exit(-1);
     }
 
@@ -895,6 +956,8 @@ parse_options (int argc, char *argv[])
                            hdr_ip_proto); 
         if (hdr_udp) fprintf(stderr, "Generate dummy UDP header: Source port: %ld. Dest port: %ld\n", 
                             hdr_udp_src, hdr_udp_dest); 
+        if (hdr_sctp) fprintf(stderr, "Generate dummy SCTP header: Source port: %ld. Dest port: %ld. Tag: %ld\n", 
+                            hdr_sctp_src, hdr_sctp_dest, hdr_sctp_tag); 
     }
 }
 
@@ -909,6 +972,7 @@ int main(int argc, char *argv[])
 
     yyin = input_file;
     yylex();
+
     write_current_packet();
     if (debug)
         fprintf(stderr, "\n-------------------------\n");

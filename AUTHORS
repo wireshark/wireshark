@@ -404,6 +404,7 @@ Michael Tuexen <Michael.Tuexen[AT]icn.siemens.de> {
 	MacOS X support
 	Update of M2PA support to draft 3
 	MTP2 support
+	SCTP support in text2pcap
 }
 
 Bruce Korb <bkorb[AT]sco.com> {

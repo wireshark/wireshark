@@ -133,6 +133,15 @@ IP or Ethernet headers. Note that this automatically includes
 appropriate Ethernet and IP headers with each packet. Example: I<-u
 1000,69> to make the packets look like TFTP/UDP packets.
 
+=item -s srcport,destport,tag
+
+Include dummy SCTP headers before each packet.  Specify the source and
+destination SCTP ports, and verification tag, for the packet in decimal. 
+Use this option if your dump is the SCTP payload of a packet but does not
+include any SCTP, IP or Ethernet headers.  Note that this automatically
+includes appropriate Ethernet and IP headers with each packet.  The SCTP
+checksum will be set to 0, rather than being calculated.
+
 =item -t timefmt
 
 Treats the text before the packet as a date/time code; I<timefmt> is a
