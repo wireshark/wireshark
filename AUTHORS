@@ -2198,13 +2198,13 @@ James H. Cloos Jr.      <cloos [AT] jhcloos.com>
 Tim Farley              <tfarley[AT]iss.net>
 Daniel Thompson         <daniel.thompson[AT]st.com>
 Chris Jepeway           <thai-dragon[AT]eleven29.com>
-Matthew Bradley		<matthew.bradley [AT] cnsonline.net>
-Nathan Alger		<nathan [AT] wasted.com>
-Stas Grabois		<sagig [AT] radware.com>
+Matthew Bradley         <matthew.bradley [AT] cnsonline.net>
+Nathan Alger            <nathan [AT] wasted.com>
+Stas Grabois            <sagig [AT] radware.com>
 Ainsley Pereira         <APereira [AT] Witness.com>
-Philippe Mazeau		<philippe.mazeau [AT] swissvoice.net>
-Carles Kishimoto	<ckishimo [AT] ac.upc.es>
-Dennis Lim		<Dennis.Lim [AT] motorola.com>
+Philippe Mazeau         <philippe.mazeau [AT] swissvoice.net>
+Carles Kishimoto        <ckishimo [AT] ac.upc.es>
+Dennis Lim              <Dennis.Lim [AT] motorola.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
@@ -2219,3 +2219,6 @@ We use the exception module from Kazlib, a C library written by
 Kaz Kylheku <kaz[AT]ashi.footprints.net>. Thanks goes to him for his
 well-written library. The Kazlib home page can be found at
 http://users.footprints.net/~kaz/kazlib.html
+
+Henrik Brix Andersen <brix[AT]gimp.org> gave permission for his webbrowser 
+calling routine to be used.
