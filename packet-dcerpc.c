@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.149 2003/10/23 05:58:57 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.150 2003/10/23 07:14:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3371,7 +3371,7 @@ dissect_dcerpc_cn_pk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Only one PDU per transport packet, and only one transport
      * packet per PDU.
      */
-    if (dissect_dcerpc_cn (tvb, 0, pinfo, tree, FALSE, NULL) == -1) {
+    if (!dissect_dcerpc_cn (tvb, 0, pinfo, tree, FALSE, NULL)) {
         /*
          * It wasn't a DCERPC PDU.
          */
