@@ -773,19 +773,17 @@ The following three display filters are equivalent:
     frame.pkt_len > 012
     frame.pkt_len > 0xa
 
-Boolean values are either true or false.  However, a boolean field is
-present in a protocol decode only if its value is true.  If the value is
-false, the field is not presence.  You can therefore check the truth
-value of a boolean field by simply checking for its existence, that is,
-by naming the field.  For example, a token-ring packet's source route
-field is boolean.  To find any source-routed packets, the display filter
-is simply:
+Boolean values are either true or false.  In a display filter expression
+testing the value of a Boolean field, "true" is expressed as 1 or any
+other non-zero value, and "false" is expressed as zero.  For example, a
+token-ring packet's source route field is boolean.  To find any
+source-routed packets, a display filter would be:
 
-    tr.sr
+    tr.sr == 1
 
-Non source-routed packets can be found with the negation of that filter:
+Non source-routed packets can be found with:
 
-    ! tr.sr
+    tr.sr == 0
 
 Ethernet addresses, as well as a string of bytes, are represented in hex
 digits.  The hex digits may be separated by colons, periods, or hyphens:
