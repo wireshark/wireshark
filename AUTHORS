@@ -502,6 +502,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	IP fragment reassembly
 	YPPASSWD support
 	KLM support
+	SPRAY support
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
