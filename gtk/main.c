@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.220 2001/12/21 20:18:40 guy Exp $
+ * $Id: main.c,v 1.221 2001/12/21 20:33:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1365,6 +1365,27 @@ main(int argc, char *argv[])
     arg_error = TRUE;
   }
 
+  if (cfile.ringbuffer_on) {
+    /* Ring buffer works only under certain conditions:
+       a) ring buffer does not work with temporary files;
+       b) prefs->capture_real_time and cfile.ringbuffer_on are mutually
+          exclusive - prefs->capture_real_time takes precedence;
+       c) it makes no sense to enable the ring buffer if the maximum
+          file size is set to "infinite". */
+    if (cfile.save_file == NULL) {
+      fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
+      cfile.ringbuffer_on = FALSE;
+    }
+    if (prefs->capture_real_time == TRUE) {
+      fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
+      cfile.ringbuffer_on = FALSE;
+    }
+    if (cfile.autostop_filesize == 0) {
+      fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
+      cfile.ringbuffer_on = FALSE;
+    }
+  }
+
 #ifdef WIN32
   /* Load wpcap if possible */
   load_wpcap();
@@ -1438,21 +1459,6 @@ main(int argc, char *argv[])
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
   
-  if (cfile.ringbuffer_on == TRUE) {
-    /* Ringbuffer works just under certain conditions: 
-       a) prefs->capture_real_time and cfile.ringbuffer_on are mutially 
-          exclusive. prefs->capture_real_time takes precedence. 
-       b) Ringbuffer does not work with temporary files
-       c) It makes no sense to enable the ringbuffer if the maximum
-           file size is set to infinite */
-    if (prefs->capture_real_time == TRUE ||
-        cfile.save_file == NULL ||
-        cfile.autostop_filesize == 0) {
-      /* turn ringbuffer off */
-      cfile.ringbuffer_on = FALSE;
-    }
-  }
-
   /* Check the value range of the ringbuffer_num_files parameter */
   if (cfile.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
     cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
