@@ -1,0 +1,103 @@
+$Id: README.idl2eth,v 1.1 2001/06/18 05:27:18 guy Exp $
+
+Copyright (C) 2001 Frank Singleton <frank.singleton@ericsson.com>
+
+
+How to use idl2eth
+==================
+
+To use the idl2eth to generate ethereal dissectors, you
+need the following.
+
+
+1. Python must be installed
+   http://python.org/
+
+2. omniidl from the the omniORB package must be available.
+   http://www.uk.research.att.com/omniORB/omniORB.html
+
+3  Of course you can have ethereal installed to compile the
+   code an tweak it if required.
+
+4. You need ethereal_be.py and ethereal_gen.py, part of the idl2eth
+   code.
+
+Procedure
+=========
+
+1.  To write the C code to stdout.  
+
+    idl2eth  <your file.idl>
+
+    eg: idl2eth echo.idl
+
+
+2. To write to a file, just redirect the output.
+
+    idl2eth echo.idl > packet-test-idl.c
+
+   You may wish to comment out the register_giop_user_module() code
+   and that will leave you with heuristic dissection.
+
+
+If you dont want to use the shell script wrapper, then try
+steps 3 or 4 instead.
+
+3.  To write the C code to stdout.  
+
+    Usage: omniidl  -p ./ -b ethereal_be <your file.idl>
+
+    eg: omniidl  -p ./ -b ethereal_be echo.idl
+
+
+4. To write to a file, just redirect the output.
+
+    omniidl  -p ./ -b ethereal_be echo.idl > packet-test-idl.c
+
+   You may wish to comment out the register_giop_user_module() code
+   and that will leave you with heuristic dissection.
+
+
+5. Copy the resulting C code to your ethereal src directory, edit the 2 make files
+   to include the packet-test-idl.c
+ 
+   cp packet-test-idl.c /dir/where/ethereal/lives/
+   edit Makefile.am
+   edit Makefile.nmake
+
+6. Run configure
+
+   ./configure
+
+7. Compile the code
+
+   make
+
+8. Good Luck !!
+
+
+TODO
+====
+
+1. Exception code not generated  (yet), but can be added manually.
+2. Enums not converted to symbolic values (yet), but can be added manually.
+3. Add command line options etc
+4. More I am sure :-)
+
+
+Limitations
+===========
+
+See TODO list inside packet-giop.c
+
+
+
+Notes
+=====
+
+1. The "-p ./" option passed to omniidl indicates that the ethereal_be.py
+   and ethereal_gen.py are residing in the current directory. This may need
+   tweaking if you place these files somewhere else.
+
+Frank Singleton.
+

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.335 2001/06/14 09:25:22 guy Exp $
+# $Id: Makefile.am,v 1.336 2001/06/18 05:27:16 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -275,6 +275,7 @@ noinst_HEADERS = \
 	packet-fddi.h  \
 	packet-fr.h    \
 	packet-frame.h  \
+	packet-giop.h  \
 	packet-gnutella.h \
 	packet-hclnfsd.h  \
 	packet-http.h  \
@@ -637,23 +638,27 @@ EXTRA_DIST = \
 	debian/postinst		\
 	debian/prerm		\
 	debian/rules		\
-	doc/README.developer    \
 	doc/Makefile.in         \
 	doc/Makefile.am         \
+	doc/README.developer    \
+	doc/README.idl2eth      \
 	doc/README.regression   \
 	doc/README.tvbuff	\
 	doc/dfilter2pod.pl	\
 	doc/editcap.pod		\
-	doc/text2pcap.pod	\
 	doc/ethereal.pod.template \
 	doc/randpkt.txt		\
 	doc/tethereal.pod.template \
+	doc/text2pcap.pod	\
 	editcap.c		\
+	ethereal_be.py		\
+	ethereal_gen.py		\
 	text2pcap.c             \
 	text2pcap.h             \
 	text2pcap-scanner.l     \
 	getopt.c		\
 	getopt.h		\
+	idl2eth			\
 	ieee-float.h		\
 	image/Makefile.nmake	\
 	image/editcap.rc.in	\
