@@ -9,7 +9,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.25 2001/08/05 20:35:41 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.26 2001/08/06 00:59:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -367,7 +367,8 @@ netsharegetinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* detail level */
 	level = tvb_get_letohs(tvb, offset);
-	request_val->last_level = level;	/* remember this for the response */
+	if (!pinfo->fd->flags.visited)
+		request_val->last_level = level;	/* remember this for the response */
 	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
 	offset += 2;
 
@@ -490,7 +491,8 @@ netservergetinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* detail level */
 	level = tvb_get_letohs(tvb, offset);
-	request_val->last_level = level;	/* remember this for the response */
+	if (!pinfo->fd->flags.visited)
+		request_val->last_level = level;	/* remember this for the response */
 	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
 	offset += 2;
 
@@ -539,7 +541,8 @@ netusergetinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* detail level */
 	level = tvb_get_letohs(tvb, offset);
-	request_val->last_level = level;	/* remember this for the response */
+	if (!pinfo->fd->flags.visited)
+		request_val->last_level = level;	/* remember this for the response */
 	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
 	offset += 2;
 
@@ -791,7 +794,8 @@ netserverenum2_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* detail level */
 	level = tvb_get_letohs(tvb, offset);
-	request_val->last_level = level;	/* remember this for the response */
+	if (!pinfo->fd->flags.visited)
+		request_val->last_level = level;	/* remember this for the response */
 	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
 	offset += 2;
 
@@ -870,7 +874,8 @@ netwkstagetinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* detail level */
 	level = tvb_get_letohs(tvb, offset);
-	request_val->last_level = level;	/* remember this for the response */
+	if (!pinfo->fd->flags.visited)
+		request_val->last_level = level;	/* remember this for the response */
 	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
 	offset += 2;
 
@@ -943,7 +948,8 @@ netwkstauserlogon_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* detail level */
 	level = tvb_get_letohs(tvb, offset);
-	request_val->last_level = level;	/* remember this for the response */
+	if (!pinfo->fd->flags.visited)
+		request_val->last_level = level;	/* remember this for the response */
 	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
 	offset += 2;
 

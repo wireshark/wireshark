@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.95 2001/08/05 01:15:26 guy Exp $
+ * $Id: packet-smb.c,v 1.96 2001/08/06 00:59:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,10 +84,51 @@ char *decode_smb_name(unsigned char);
 
 int smb_packet_init_count = 200;
 
+/*
+ * Unfortunately, the MID is not a transaction ID in, say, the ONC RPC
+ * sense; instead, it's a "multiplex ID" used when there's more than one
+ * request *currently* in flight, to distinguish replies.
+ *
+ * This means that the MID and PID don't uniquely identify a request in
+ * a conversation.
+ *
+ * Therefore, we have to use some other value to distinguish between
+ * requests with the same MID and PID.
+ *
+ * On the first pass through the capture, when we first see a request,
+ * we hash it by conversation, MID, and PID.
+ *
+ * When we first see a reply to it, we add it to a new hash table,
+ * hashing it by conversation, MID, PID, and frame number of the reply.
+ *
+ * This works as long as
+ *
+ *	1) a client doesn't screw up and have multiple requests outstanding
+ *	   with the same MID and PID
+ *
+ * and
+ *
+ *	2) we don't have, within the same frame, replies to multiple
+ *	   requests with the same MID and PID.
+ *
+ * 2) should happen only if the server screws up and puts the wrong MID or
+ * PID into a reply (in which case not only can we not handle this, the
+ * client can't handle it either) or if the client has screwed up as per
+ * 1) and the server's dutifully replied to both of the requests with the
+ * same MID and PID (in which case, again, neither we nor the client can
+ * handle this).
+ *
+ * We don't have to correctly dissect screwups; we just have to keep from
+ * dumping core on them.
+ *
+ * XXX - in addition, we need to keep a hash table of replies, so that we
+ * can associate continuations with the reply to which they're a continuation.
+ */
 struct smb_request_key {
   guint32 conversation;
   guint16 mid;
   guint16 pid;
+  guint32 frame_num;
 };
 
 static GHashTable *smb_request_hash = NULL;
@@ -102,14 +143,15 @@ smb_equal(gconstpointer v, gconstpointer w)
   struct smb_request_key *v2 = (struct smb_request_key *)w;
 
 #if defined(DEBUG_SMB_HASH)
-  printf("Comparing %08X:%u:%u\n      and %08X:%u:%u\n",
-	 v1 -> conversation, v1 -> mid, v1 -> pid,
-	 v2 -> conversation, v2 -> mid, v2 -> pid);
+  printf("Comparing %08X:%u:%u:%u\n      and %08X:%u:%u:%u\n",
+	 v1 -> conversation, v1 -> mid, v1 -> pid, v1 -> frame_num,
+	 v2 -> conversation, v2 -> mid, v2 -> pid, v2 -> frame_num);
 #endif
 
   if (v1 -> conversation == v2 -> conversation &&
       v1 -> mid          == v2 -> mid &&
-      v1 -> pid          == v2 -> pid) {
+      v1 -> pid          == v2 -> pid &&
+      v1 -> frame_num    == v2 -> frame_num) {
 
     return 1;
 
@@ -124,7 +166,8 @@ smb_hash (gconstpointer v)
   struct smb_request_key *key = (struct smb_request_key *)v;
   guint val;
 
-  val = (key -> conversation) + (key -> mid) + (key -> pid);
+  val = (key -> conversation) + (key -> mid) + (key -> pid) +
+	(key -> frame_num);
 
 #if defined(DEBUG_SMB_HASH)
   printf("SMB Hash calculated as %u\n", val);
@@ -156,6 +199,133 @@ free_request_val_data(gpointer key, gpointer value, gpointer user_data)
   if (request_val->last_data_descrip != NULL)
     g_free(request_val->last_data_descrip);
   return TRUE;
+}
+
+static struct smb_request_val *
+do_transaction_hashing(conversation_t *conversation, struct smb_info si,
+		       frame_data *fd)
+{
+  struct smb_request_key request_key, *new_request_key;
+  struct smb_request_val *request_val = NULL;
+  gpointer               new_request_key_ret, request_val_ret;
+
+  if (si.request) {
+    /*
+     * This is a request.
+     *
+     * If this is the first time the frame has been seen, check for
+     * an entry for the request in the hash table.  If it's not found,
+     * insert an entry for it.
+     *
+     * If it's the first time it's been seen, then we can't have seen
+     * the reply yet, so the reply frame number should be 0, for
+     * "unknown".
+     */
+    if (!fd->flags.visited) {
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = 0;
+
+      request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
+
+      if (request_val == NULL) {
+	/*
+	 * Not found.
+	 */
+	new_request_key = g_mem_chunk_alloc(smb_request_keys);
+	new_request_key -> conversation = conversation->index;
+	new_request_key -> mid          = si.mid;
+	new_request_key -> pid          = si.pid;
+	new_request_key -> frame_num    = 0;
+
+	request_val = g_mem_chunk_alloc(smb_request_vals);
+	request_val -> frame = fd->num;
+	request_val -> last_transact2_command = -1;		/* unknown */
+	request_val -> last_transact_command = NULL;
+	request_val -> last_param_descrip = NULL;
+	request_val -> last_data_descrip = NULL;
+
+	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
+      } else {
+        /*
+         * This means that we've seen another request in this conversation
+         * with the same request and reply, and without an intervening
+         * reply to that first request, and thus won't be using this
+         * "request_val" structure for that request (as we'd use it only
+         * for the reply).
+         *
+         * Clean out the structure, and set it to refer to this frame.
+         */
+        request_val -> frame = fd->num;
+	request_val -> last_transact2_command = -1;		/* unknown */
+        if (request_val -> last_transact_command)
+          g_free(request_val -> last_transact_command);
+        request_val -> last_transact_command = NULL;
+        if (request_val -> last_param_descrip)
+          g_free(request_val -> last_param_descrip);
+        request_val -> last_param_descrip = NULL;
+        if (request_val -> last_data_descrip)
+          g_free(request_val -> last_data_descrip);
+        request_val -> last_data_descrip = NULL;
+      }
+    }
+  } else {
+    /*
+     * This is a reply.
+     */
+    if (!fd->flags.visited) {
+      /*
+       * This is the first time the frame has been seen; check for
+       * an entry for a matching request, with an unknown reply frame
+       * number, in the hash table.
+       *
+       * If we find it, re-hash it with this frame's reply number.
+       */
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = 0;
+
+      /*
+       * Look it up - and, if we find it, get pointers to the key and
+       * value structures for it.
+       */
+      if (g_hash_table_lookup_extended(smb_request_hash, &request_key,
+				       &new_request_key_ret,
+				       &request_val_ret)) {
+	new_request_key = new_request_key_ret;
+	request_val = request_val_ret;
+
+	/*
+	 * We found it.
+	 * Remove the old entry.
+	 */
+	g_hash_table_remove(smb_request_hash, &request_key);
+
+	/*
+	 * Now update the key, and put it back into the hash table with
+	 * the new key.
+	 */
+	new_request_key->frame_num = fd->num;
+	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
+      }
+    } else {
+      /*
+       * This is not the first time the frame has been seen; check for
+       * an entry for a matching request, with this frame's frame
+       * number as the reply frame number, in the hash table.
+       */
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = fd->num;
+
+      request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
+    }
+  }
+
+  return request_val;
 }
 
 static void
@@ -8929,8 +9099,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint16       DataCount;
   guint16       ByteCount;
   conversation_t *conversation;
-  struct smb_request_key      request_key, *new_request_key;
-  struct smb_request_val      *request_val;
+  struct smb_request_val *request_val;
 
   /*
    * Find out what conversation this packet is part of.
@@ -8955,33 +9124,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   si.conversation = conversation;  /* Save this for later */
 
-  /*
-   * Check for entry in hash table; if it's not found, insert an entry
-   * in the hash table if this is a request.
-   */
-  request_key.conversation = conversation->index;
-  request_key.mid          = si.mid;
-  request_key.pid          = si.pid;
-
-  request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
-
-  if (!request_val && si.request) { /* Create one */
-
-    new_request_key = g_mem_chunk_alloc(smb_request_keys);
-    new_request_key -> conversation = conversation->index;
-    new_request_key -> mid          = si.mid;
-    new_request_key -> pid          = si.pid;
-
-    request_val = g_mem_chunk_alloc(smb_request_vals);
-    request_val -> frame = fd->num;
-    request_val -> last_transact2_command = -1;		/* unknown */
-    request_val -> last_transact_command = NULL;
-    request_val -> last_param_descrip = NULL;
-    request_val -> last_data_descrip = NULL;
-
-    g_hash_table_insert(smb_request_hash, new_request_key, request_val);
-    
-  }
+  request_val = do_transaction_hashing(conversation, si, fd);
 
   si.request_val = request_val;  /* Save this for later */
 
@@ -9214,7 +9357,14 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
        */
       Setup = GSHORT(pd, offset);
 
-      request_val -> last_transact2_command = Setup;  /* Save for later */
+      if (!fd->flags.visited) {
+	/*
+	 * This is the first time this frame has been seen; remember
+	 * the transaction code.
+	 */
+	g_assert(request_val -> last_transact2_command == -1);
+        request_val -> last_transact2_command = Setup;  /* Save for later */
+      }
 
       if (check_col(fd, COL_INFO)) {
 
@@ -9764,11 +9914,8 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
   int           TNlen;
   const char    *TransactName;
   conversation_t *conversation;
-  struct smb_request_key   request_key, *new_request_key;
-  struct smb_request_val   *request_val;
- 
+  struct smb_request_val *request_val;
   guint16	SetupAreaOffset;
-
 
   /*
    * Find out what conversation this packet is part of
@@ -9786,33 +9933,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
   si.conversation = conversation;  /* Save this */
 
-  /*
-   * Check for entry in hash table; if it's not found, insert an entry
-   * in the hash table if this is a request.
-   */
-  request_key.conversation = conversation->index;
-  request_key.mid          = si.mid;
-  request_key.pid          = si.pid;
-
-  request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
-
-  if (!request_val && si.request) { /* Create one */
-
-    new_request_key = g_mem_chunk_alloc(smb_request_keys);
-    new_request_key -> conversation = conversation -> index;
-    new_request_key -> mid          = si.mid;
-    new_request_key -> pid          = si.pid;
-
-    request_val = g_mem_chunk_alloc(smb_request_vals);
-    request_val -> frame = fd->num;
-    request_val -> last_transact2_command = -1;		/* unknown */
-    request_val -> last_transact_command = NULL;
-    request_val -> last_param_descrip = NULL;
-    request_val -> last_data_descrip = NULL;
-
-    g_hash_table_insert(smb_request_hash, new_request_key, request_val);
-
-  }
+  request_val = do_transaction_hashing(conversation, si, fd);
 
   si.request_val = request_val;  /* Save this for later */
 
@@ -10097,30 +10218,14 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
       TNlen = strlen(TransactName) + 1;
     }
 
-    /*
-     * XXX - we should, arguably, do this only if we haven't already visited
-     * this frame, and thus shouldn't need to free "last_transact_command".
-     *
-     * However, when we did that, and put in an assertion to check that
-     * "last_transact_command" was null, we crashed on some browser
-     * messages; in at least one capture, all the browser messages
-     * had the same MID and PID (browser announcements don't get a response,
-     * so you can get away with giving them the same MID and PID),
-     * so instead of creating a new "request_val" structure for each
-     * one, they all got the same "request_val" structure.
-     *
-     * Therefore, for now, we allow the "request_val" structures to be
-     * reused in that fashion.
-     *
-     * That won't work if different transactions in the same conversation
-     * with the same MID and PID have different transaction names.
-     * Fortunately, unless MIDs get recycled in a conversation, the only
-     * time that should happen is with transactions that don't get
-     * replies.
-     */
-    if (request_val -> last_transact_command)
-      g_free(request_val -> last_transact_command);
-    request_val -> last_transact_command = g_strdup(TransactName);
+    if (!fd->flags.visited) {
+      /*
+       * This is the first time this frame has been seen; remember
+       * the transaction name.
+       */
+      g_assert(request_val -> last_transact_command == NULL);
+      request_val -> last_transact_command = g_strdup(TransactName);
+    }
 
     if (check_col(fd, COL_INFO)) {
 
