@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.126 2000/07/03 08:36:02 guy Exp $
+ * $Id: main.c,v 1.127 2000/07/05 02:04:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1228,7 +1228,8 @@ main(int argc, char *argv[])
 
   /* Set the current locale according to the program environment. 
    * We haven't localized anything, but some GTK widgets are localized
-   * (the file selection dialogue, for example) */
+   * (the file selection dialogue, for example).
+   * This also sets the C-language locale to the native environment. */
   gtk_set_locale();
 
   /* Let GTK get its args */
