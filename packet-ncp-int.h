@@ -2,7 +2,7 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp-int.h,v 1.6.2.5 2002/02/27 05:24:42 gram Exp $
+ * $Id: packet-ncp-int.h,v 1.6.2.6 2002/03/01 03:19:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,6 +65,7 @@ typedef struct {
 	const ptvc_record	*reply_ptvc;
 	const error_equivalency	*errors;
 	const int		*req_cond_indexes;
+	unsigned int		req_cond_size_type;
 } ncp_record;
 
 

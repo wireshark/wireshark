@@ -24,7 +24,8 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.13 2002/02/27 17:06:06 gram Exp $
+$Id: ncp2222.py,v 1.14.2.14 2002/03/01 03:19:27 gram Exp $
+
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -75,6 +76,10 @@ PROTO_LENGTH_UNTIL_END	= -1
 
 global_highest_var = -1
 global_req_cond = {}
+
+
+REQ_COND_SIZE_VARIABLE = "REQ_COND_SIZE_VARIABLE"
+REQ_COND_SIZE_CONSTANT = "REQ_COND_SIZE_CONSTANT"
 
 ##############################################################################
 # Global containers
@@ -409,6 +414,7 @@ class NCP:
 		self.request_records	= None
 		self.reply_records	= None
 		self.has_length		= has_length
+		self.req_cond_size	= None
 
 		if not groups.has_key(group):
 			msg.write("NCP 0x%x has invalid group '%s'\n" % \
@@ -421,6 +427,15 @@ class NCP:
 		else:
 			# Simple NCP Function
 			self.start_offset = 7
+
+	def ReqCondSize(self):
+		return self.req_cond_size
+
+	def ReqCondSizeVariable(self):
+		self.req_cond_size = REQ_COND_SIZE_VARIABLE
+
+	def ReqCondSizeConstant(self):
+		self.req_cond_size = REQ_COND_SIZE_CONSTANT
 
 	def FunctionCode(self, part=None):
 		"Returns the function code for this NCP packet."
@@ -1375,6 +1390,8 @@ DirectoryEntryNumber.Display('BASE_HEX')
 DirectoryEntryNumberWord 	= uint16("directory_entry_number_word", "Directory Entry Number")
 DirectoryID			= uint16("directory_id", "Directory ID")
 DirectoryID.Display("BASE_HEX")
+DirectoryName                   = fw_string("directory_name", "Directory Name",12)
+DirectoryNameLen                = uint8("directory_name_len", "Directory Name Length")
 DirectoryNumber			= uint32("directory_number", "Directory Number")
 DirectoryNumber.Display("BASE_HEX")
 DirectoryPath			= fw_string("directory_path", "Directory Path", 16)
@@ -2772,6 +2789,7 @@ ObjectIDInfo			= uint32("object_id_info", "Object Information")
 ObjectInfoReturnCount		= uint32("object_info_rtn_count", "Object Information Count")
 ObjectName			= nstring8("object_name", "Object Name")
 ObjectNameLen			= fw_string("object_name_len", "Object Name", 48)
+ObjectNameStringz               = stringz("object_name_stringz", "Object Name")
 ObjectNumber                    = uint32("object_number", "Object Number")
 ObjectSecurity			= val_string8("object_security", "Object Security", [
 	[ 0x00, "Object Read (Anyone) / Object Write (Anyone)" ],
@@ -3798,6 +3816,53 @@ DirEntryStruct			= struct("dir_entry_struct", [
 	DOSDirectoryEntryNumber,
 	VolumeNumberLong,
 ])
+DOSDirectoryEntryStruct         = struct("dos_directory_entry_struct", [
+        AttributesDefLow,
+	AttributesDefLow2,
+	AttributesDefLow3,
+	Reserved,
+	UniqueID,
+	PurgeFlags,
+	DestNameSpace,
+	DirectoryNameLen,
+	DirectoryName,
+	CreationDateAndTime,
+	CreatorID,
+	ArchivedDateAndTime,
+	ArchiverID,
+	UpdateDateAndTime,
+        NextTrusteeEntry,
+        Reserved48,
+        InheritedRightsMaskLow,
+        InheritedRightsMaskHigh,
+])
+DOSFileEntryStruct              = struct("dos_file_entry_struct", [
+        AttributesDefLow,
+	AttributesDefLow2,
+	AttributesDefLow3,
+	Reserved,
+	UniqueID,
+	PurgeFlags,
+	DestNameSpace,
+	NameLen,
+	Name12,
+	CreationDateAndTime,
+	CreatorID,
+	ArchivedDateAndTime,
+	ArchiverID,
+	UpdateDateAndTime,
+        UpdateID,
+        FileSize,
+        DataForkFirstFAT,
+        NextTrusteeEntry,
+        Reserved36,
+        InheritedRightsMaskLow,
+        InheritedRightsMaskHigh,
+        LastAccessedDate,
+        Reserved28,
+        PrimaryEntry,
+        NameList,
+])
 DSSpaceAllocateStruct		= struct("ds_space_alloc_struct", [
 	DataStreamSpaceAlloc,
 ])
@@ -3829,6 +3894,9 @@ FileInfoStruct                  = struct("file_info_struct", [
         TotalBlocksToDecompress,
         CurrentBlockBeingDecompressed,
 ])        			       
+FileNameStruct                  = struct("file_name_struct", [
+        FileName,
+])       
 FileServerCounters		= struct("file_server_counters", [
 	uint16("too_many_hops", "Too Many Hops", LE),
 	uint16("unknown_network", "Unknown Network", LE),
@@ -4099,7 +4167,7 @@ NLMInformation			= struct("nlm_information", [
 	NumberOfReferencedPublics,
 ])
 NSInfoStruct			= struct("ns_info_struct", [
-	CreatorNameSpaceNumber,
+	NameSpace,
 	Reserved3,
 ])
 NWAuditStatus			= struct("nw_audit_status", [
@@ -4116,6 +4184,20 @@ NWAuditStatus			= struct("nw_audit_status", [
 	uint32("audit_file_size_threshold", "Audit File Size Threshold",LE),
 	uint32("audit_record_count", "Audit Record Count",LE),
 	uint32("auditing_flags", "Auditing Flags",LE),
+])
+
+ObjectSecurityStruct            = struct("object_security_struct", [
+        ObjectSecurity,
+])
+ObjectFlagsStruct               = struct("object_flags_struct", [
+        ObjectFlags,
+])
+ObjectTypeStruct                = struct("object_type_struct", [
+        ObjectType,
+        Reserved2,
+])
+ObjectNameStruct                = struct("object_name_struct", [
+        ObjectNameStringz,
 ])
 ObjectIDStruct			= struct("object_id_struct", [
 	ObjectID, 
@@ -4847,6 +4929,10 @@ static int ptvc_struct_int_storage;
 #define NO_VAR		NUM_REPEAT_VARS
 #define NO_REPEAT	NUM_REPEAT_VARS
 
+#define REQ_COND_SIZE_CONSTANT	0
+#define REQ_COND_SIZE_VARIABLE	1
+#define NO_REQ_COND_SIZE	0
+
 static int hf_ncp_func = -1;
 static int hf_ncp_length = -1;
 static int hf_ncp_subfunc = -1;
@@ -5095,10 +5181,21 @@ static int hf_ncp_connection_status = -1;
 		else:
 			req_conds = "NULL"
 
-		print '\t\t%s, %s, %s, %s },\n' % \
-			(ptvc_request, ptvc_reply, errors.Name(), req_conds)
+		if not req_conds_obj:
+			req_cond_size = "NO_REQ_COND_SIZE"
+		else:
+			req_cond_size = pkt.ReqCondSize()
+			if req_cond_size == None:
+				msg.write("NCP packet %s nees a ReqCondSize*() call\n" \
+					% (pkt.CName(),))
+				sys.exit(1)
+				
 
-	print '\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL }'
+		print '\t\t%s, %s, %s, %s, %s },\n' % \
+			(ptvc_request, ptvc_reply, errors.Name(), req_conds,
+			req_cond_size)
+
+	print '\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NO_REQ_COND_SIZE }'
 	print "};\n"
 
 	print "/* ncp funcs that require a subfunc */"
@@ -6041,7 +6138,7 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x0101, 0x8c00, 0xbf00])
 	# 2222/1625, 22/37
 	pkt = NCP(0x1625, "Set Directory Entry Information", 'fileserver')
-	pkt.Request(65, [
+	pkt.Request(NO_LENGTH_CHECK, [
 		rec( 10, 1, DirHandle ),
 		rec( 11, 1, SearchAttributesLow ),
 		rec( 12, 1, SearchAttributesHigh ),
@@ -6050,25 +6147,11 @@ def define_ncp2222():
 		rec( 18, 1, ChangeBits2 ),
 		rec( 19, 2, Reserved2 ),
 		rec( 21, 4, Subdirectory ),
-		#The rest of this packet could be file or directory based on search flag
-		#Listing common fields
-		rec( 25, 1, AttributesDefLow ),
-		rec( 26, 1, AttributesDefLow2 ),
-		rec( 27, 1, AttributesDefLow3 ),
-		rec( 28, 1, Reserved ),
-		rec( 29, 1, UniqueID ),
-		rec( 30, 1, PurgeFlags ),
-		rec( 31, 1, DestNameSpace ),
-		rec( 32, 1, NameLen ),
-		rec( 33, 12, Name12 ),
-		rec( 45, 4, CreationDateAndTime, LE ),
-		rec( 49, 4, CreatorID ),
-		rec( 53, 4, ArchivedDateAndTime, LE ),
-		rec( 57, 4, ArchiverID ),
-		rec( 61, 4, UpdateDateAndTime, LE ),
-	#This is where the directory and file change.
+                srec(DOSDirectoryEntryStruct, req_cond="ncp.search_att_sub == TRUE"),
+                srec(DOSFileEntryStruct, req_cond="ncp.search_att_sub == FALSE"),
 	])
 	pkt.Reply(8)
+	pkt.ReqCondSizeConstant()
 	pkt.CompletionCodes([0x0000, 0x0106, 0x8c00, 0xbf00])
 	# 2222/1626, 22/38
 	pkt = NCP(0x1626, "Scan File or Directory for Extended Trustees", 'fileserver')
@@ -6586,8 +6669,8 @@ def define_ncp2222():
 		rec( 8, 4, UserID, LE ),
 		rec( 12, 2, ObjectType ),
 		rec( 14, (1,48), ObjectName ),
-		rec( 62, 7, LoginTime ),	#GRJ - structure
-		rec( 69, 1, Reserved ),
+		rec( 62, 7, LoginTime ),       
+                rec( 69, 1, Reserved ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9602, 0xfc06, 0xfd00, 0xfe07, 0xff00])
 	# 2222/1717, 23/23
@@ -6677,13 +6760,16 @@ def define_ncp2222():
 		rec( 21, 1, InfoFlagsHigh ),
 		rec( 22, (1,48), ObjectName ),
 	])
-	pkt.Reply(20, [
-		rec( 8, 4, ObjectInfoReturnCount ),
+	pkt.Reply(NO_LENGTH_CHECK, [
+		rec( 8, 4, ObjectInfoReturnCount, LE ),
 		rec( 12, 4, NextObjectID ),
-		rec( 16, 4, ObjectIDInfo ),
-		#The following 3 Attributes are returned if the InfoFlags of the request asked for them.
-		#ObjectType, ObjectSecurity, ObjectName
+		rec( 16, 4, ObjectIDInfo, LE ),
+                srec(ObjectTypeStruct, req_cond="ncp.info_flags_type == TRUE"),
+                srec(ObjectSecurityStruct, req_cond="ncp.info_flags_security == TRUE"),
+                srec(ObjectFlagsStruct, req_cond="ncp.info_flags_flags == TRUE"),
+                srec(ObjectNameStruct, req_cond="ncp.info_flags_name == TRUE"),
 	])
+	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x9600, 0xef01, 0xfc02, 0xfe01, 0xff00])
 	# 2222/1721, 23/33
 	pkt = NCP(0x1721, "Generate GUIDs", 'nds')
@@ -9464,8 +9550,10 @@ def define_ncp2222():
 		srec( RightsInfoStruct, req_cond="ncp.ret_info_mask_rights == TRUE" ),
 		srec( DirEntryStruct, req_cond="ncp.ret_info_mask_dir == TRUE" ),
 		srec( EAInfoStruct, req_cond="ncp.ret_info_mask_eattr == TRUE" ),
-		srec( NSInfoStruct, req_cond="ncp.ret_info_mask_ns_attr == TRUE" ),
+		srec( NSInfoStruct, req_cond="ncp.ret_info_mask_ns == TRUE" ),
+                srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == TRUE" ),
 	])
+	pkt.ReqCondSizeConstant()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
@@ -11463,11 +11551,6 @@ def define_ncp2222():
 	pkt = NCP(0x7B0B, "NLM Information", 'stats')
 	pkt.Request(14, [
 		rec(10, 4, NLMNumber, LE),
-                #rec(14, (1,45), NLMBuffer),
-                #This parameter specifies the number of buffers in the request.. If this is set to 
-                #anything but 0 then add 8 bytes per value to be included right after NLMInformation
-                #in the reply packet. I do not know what these bytes indicate. For example if the 
-                #buffer == 0x01 then add 8 bytes. If buffer == 0x02 then add 16 bytes.
         ])
 	pkt.Reply((79,841), [
 		rec(8, 4, CurrentServerTime, LE),

@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8.2.4 2002/02/24 20:42:42 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8.2.5 2002/03/01 03:19:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,8 @@
 
 static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
-		int *req_cond_results, gboolean really_decode);
+		int *req_cond_results, gboolean really_decode,
+		const ncp_record *ncp_rec);
 
 /* NCP packets come in request/reply pairs. The request packets tell the type
  * of NCP request and give a sequence ID. The response, unfortunately, only
@@ -282,14 +283,15 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 /* Process a sub-ptvc_record that points to a "struct" ptvc_record. */
 static void
 process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
-		int *req_cond_results, gboolean really_decode)
+		int *req_cond_results, gboolean really_decode,
+		const ncp_record *ncp_rec)
 {
 	const ptvc_record	*sub_rec;
 
 	/* Get the ptvc_record for the struct and call our caller
 	 * to process it. */
 	sub_rec = rec->sub_ptvc_rec->ptvc_rec;
-	process_ptvc_record(ptvc, sub_rec, req_cond_results, really_decode);
+	process_ptvc_record(ptvc, sub_rec, req_cond_results, really_decode, ncp_rec);
 }
 
 guint
@@ -302,7 +304,8 @@ get_item_value(proto_item *item)
  * is the work-horse of process_ptvc_record(). */
 static void
 _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
-		int *req_cond_results, gboolean really_decode)
+		int *req_cond_results, gboolean really_decode,
+		const ncp_record *ncp_rec)
 {
 	proto_item *item;
 	guint i, repeat_count;
@@ -312,7 +315,8 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 		if (rec->repeat_index == NO_REPEAT) {
 			if (rec->hf_ptr == PTVC_STRUCT) {
 				process_struct_sub_ptvc_record(ptvc, rec,
-						req_cond_results, really_decode);
+						req_cond_results, really_decode,
+						ncp_rec);
 			}
 			else {
 				process_bitfield_sub_ptvc_record(ptvc, rec,
@@ -324,7 +328,8 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 			for (i = 0; i < repeat_count; i++ ) {
 				if (rec->hf_ptr == PTVC_STRUCT) {
 					process_struct_sub_ptvc_record(ptvc, rec,
-						req_cond_results, really_decode);
+						req_cond_results, really_decode,
+						ncp_rec);
 				}
 				else {
 					process_bitfield_sub_ptvc_record(ptvc, rec,
@@ -378,7 +383,8 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
  * Honor a request condition result. */
 static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
-		int *req_cond_results, gboolean really_decode)
+		int *req_cond_results, gboolean really_decode,
+		const ncp_record *ncp_rec)
 {
 	gboolean decode;
 
@@ -393,7 +399,9 @@ process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 				}
 			}
 		}
-		_process_ptvc_record(ptvc, rec, req_cond_results, decode);
+		if (decode || ncp_rec->req_cond_size_type == REQ_COND_SIZE_CONSTANT) {
+			_process_ptvc_record(ptvc, rec, req_cond_results, decode, ncp_rec);
+		}
 		rec++;
 	}
 }
@@ -428,7 +436,7 @@ ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 
 static const ncp_record ncp1111_request =
 	{ 0x01, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
-		NULL, NULL, ncp_0x2_errors, NULL };
+		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE };
 
 /* Wrapper around proto_tree_free() */
 void free_proto_tree(void *tree)
@@ -574,7 +582,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
 			case 0x2222:
 				proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
-					func, "Function Code: %d (0x%02X), %s",
+					func, "Function: %d (0x%02X), %s",
 					func, func, ncp_rec ? ncp_rec->name : "Unknown");
 				break;
 
@@ -612,7 +620,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (ncp_rec && ncp_rec->request_ptvc) {
 			clear_repeat_vars();
-			process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE);
+			process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
 		}
 		ptvcursor_free(ptvc);
 
@@ -709,11 +717,13 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		 * or ncp.subfunc will find both the requests and the replies.
 		 */
 		if (ncp_rec) {
-			proto_tree_add_uint(ncp_tree, hf_ncp_func, tvb,
-					6, 0, ncp_rec->func);
+			proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 0,
+				ncp_rec->func, "Function: %d (0x%02X), %s",
+				ncp_rec->func, ncp_rec->func, ncp_rec->name);
 			if (ncp_requires_subfunc(ncp_rec->func)) {
-				proto_tree_add_uint(ncp_tree, hf_ncp_subfunc,
-						tvb, 6, 0, ncp_rec->subfunc);
+				proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 6, 0,
+					ncp_rec->subfunc, "SubFunction: %d (0x%02x)",
+					ncp_rec->subfunc, ncp_rec->subfunc);
 			}
 		}
 
@@ -748,7 +758,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 			clear_repeat_vars();
 			ptvc = ptvcursor_new(ncp_tree, tvb, 8);
 			process_ptvc_record(ptvc, ncp_rec->reply_ptvc, req_cond_results,
-					TRUE);
+					TRUE, ncp_rec);
 			ptvcursor_free(ptvc);
 		}
 	}
