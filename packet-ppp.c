@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.87 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-ppp.c,v 1.88 2002/03/31 22:37:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -599,7 +599,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	},
 	{
 		CI_MAGICNUMBER,
-		NULL,
+		"Magic number",
 		&ett_lcp_magicnum_opt,
 		FIXED_LENGTH,
 		6,
@@ -623,7 +623,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	},
 	{
 		CI_FCS_ALTERNATIVES,
-		NULL,
+		"FCS alternatives",
 		&ett_lcp_fcs_alternatives_opt,
 		FIXED_LENGTH,
 		3,
@@ -631,7 +631,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	},
 	{
 		CI_SELF_DESCRIBING_PAD,
-		NULL,
+		"Maximum octets of self-describing padding",
 		NULL,
 		FIXED_LENGTH,
 		3,
@@ -663,7 +663,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	},
 	{
 		CI_MULTILINK_MRRU,
-		NULL,
+		"Multilink MRRU",
 		NULL,
 		FIXED_LENGTH,
 		4,
@@ -703,7 +703,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	},
 	{
 		CI_LINK_DISC_FOR_BACP,
-		NULL,
+		"Link discriminator for BAP",
 		NULL,
 		FIXED_LENGTH,
 		4,
@@ -1371,23 +1371,31 @@ capture_ppp_hdlc( const u_char *pd, int offset, int len, packet_counts *ld ) {
 
 static void
 dissect_lcp_mru_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint length, packet_info *pinfo, proto_tree *tree)
+			guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
 {
-  proto_tree_add_text(tree, tvb, offset, length, "MRU: %u",
+  proto_tree_add_text(tree, tvb, offset, length, "%s: %u", optp->name,
 			tvb_get_ntohs(tvb, offset + 2));
 }
 
 static void
 dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint length, packet_info *pinfo, proto_tree *tree)
+			guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
 {
-  proto_tree_add_text(tree, tvb, offset, length, "Async characters to map: 0x%08x",
+  /*
+   * XXX - walk through the map and show the characters to map?
+   * Put them in a subtree of this item, and have the top-level item
+   * either say "None", "All", or give a list of the characters?)
+   */
+  proto_tree_add_text(tree, tvb, offset, length, "%s: 0x%08x", optp->name,
 			tvb_get_ntohl(tvb, offset + 2));
 }
 
 static void
 dissect_lcp_protocol_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint length, packet_info *pinfo, proto_tree *tree)
+			guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
 {
   guint16 protocol;
   proto_item *tf;
@@ -1410,7 +1418,8 @@ dissect_lcp_protocol_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			 guint length, packet_info *pinfo, proto_tree *tree)
+			 guint length, packet_info *pinfo _U_,
+			 proto_tree *tree)
 {
   guint16 protocol;
   guint8 algorithm;
@@ -1444,16 +1453,16 @@ dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_lcp_magicnumber_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
-  proto_tree_add_text(tree, tvb, offset, length, "Magic number: 0x%08x",
+  proto_tree_add_text(tree, tvb, offset, length, "%s: 0x%08x", optp->name,
 			tvb_get_ntohl(tvb, offset + 2));
 }
 
 static void
 dissect_lcp_fcs_alternatives_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1478,17 +1487,16 @@ dissect_lcp_fcs_alternatives_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_lcp_self_describing_pad_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
-  proto_tree_add_text(tree, tvb, offset, length,
-			"Maximum octets of self-describing padding: %u",
+  proto_tree_add_text(tree, tvb, offset, length, "%s: %u", optp->name,
 			tvb_get_guint8(tvb, offset + 2));
 }
 
 static void
 dissect_lcp_numbered_mode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1521,7 +1529,8 @@ static const value_string callback_op_vals[] = {
 
 static void
 dissect_lcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint length, packet_info *pinfo, proto_tree *tree)
+			guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
 {
   proto_item *tf;
   proto_tree *field_tree = NULL;
@@ -1545,10 +1554,10 @@ dissect_lcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_lcp_multilink_mrru_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
-  proto_tree_add_text(tree, tvb, offset, length, "Multilink MRRU: %u",
+  proto_tree_add_text(tree, tvb, offset, length, "%s: %u", optp->name,
 			tvb_get_ntohs(tvb, offset + 2));
 }
 
@@ -1571,7 +1580,7 @@ static const value_string multilink_ep_disc_class_vals[] = {
 
 static void
 dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1668,11 +1677,11 @@ dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_lcp_bap_link_discriminator_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, length,
-			"Link discriminator for BAP: 0x%04x",
+			"%s: 0x%04x", optp->name,
 			tvb_get_ntohs(tvb, offset + 2));
 }
 
@@ -1684,7 +1693,7 @@ static const value_string charset_num_vals[] = {
 
 static void
 dissect_lcp_internationalization_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1711,7 +1720,7 @@ dissect_lcp_internationalization_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1733,7 +1742,7 @@ dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
@@ -1741,7 +1750,8 @@ static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo, proto_tree *tree)
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
 { 
   pppmux_def_prot_id = tvb_get_ntohs(tvb, offset + 2);
   proto_tree_add_text(tree, tvb, offset + 2, length - 2, "%s: %s (0x%02x)",optp->name,
@@ -1751,7 +1761,7 @@ static void dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1776,7 +1786,7 @@ dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1809,7 +1819,7 @@ dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_ccp_bsdcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1825,7 +1835,7 @@ dissect_ccp_bsdcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1846,7 +1856,7 @@ dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1866,7 +1876,7 @@ dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1887,7 +1897,7 @@ dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_cbcp_no_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
@@ -1895,7 +1905,7 @@ dissect_cbcp_no_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1930,7 +1940,7 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_bacp_favored_peer_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1943,7 +1953,7 @@ dissect_bacp_favored_peer_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
@@ -1961,12 +1971,11 @@ dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *ti;
   proto_item *tf;
-  guint8 link_type;
   guint8 subopt_type;
   guint8 subopt_len;
   guint8 buf[256];	/* Since Sub-Option length field in BAP Phone-Delta
@@ -2018,10 +2027,9 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_bap_reason_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
-  guint8 link_type;
   guint8 buf[256];	/* Since length field in BAP Reason Option is
 			   8 bits, 256-octets buf is large enough */
 
@@ -2032,22 +2040,19 @@ dissect_bap_reason_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_bap_link_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
-  guint8 link_type;
-
   proto_tree_add_text(tree, tvb, offset, length, "%s : 0x%04x", 
 		      optp->name, tvb_get_ntohs(tvb, offset + 2));
 }
 
 static void
 dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-			int offset, guint length, packet_info *pinfo,
+			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
 {
   proto_item *tf;
-  guint8 link_type;
   guint8 status, action;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
@@ -2372,7 +2377,6 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *next_tvb;    
   int offset = 0, length_remaining;
   int length_field = 0, pid_field = 0,hdr_length = 0;
-  dissector_handle_t prot_handle; 
   
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPP PPPMux");
