@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.82 2003/08/24 01:36:44 guy Exp $
+ * $Id: packet-eth.c,v 1.83 2003/08/26 04:34:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -301,13 +301,39 @@ add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
      the minimum payload size - assume the last 4 bytes of the trailer
      are an FCS. */
   if (trailer_tvb && fh_tree) {
-    guint trailer_length;
+    guint trailer_length, trailer_reported_length;
     gboolean has_fcs = FALSE;
 
     trailer_length = tvb_length(trailer_tvb);
-    if (tvb_reported_length(tvb) >= 64 && trailer_length >= 4) {
-      trailer_length -= 4;
-      has_fcs = TRUE;
+    trailer_reported_length = tvb_reported_length(trailer_tvb);
+    if (tvb_reported_length(tvb) >= 64) {
+      /* OK, the frame is big enough that, if we have a trailer, it
+	 probably includes an FCS; there's no need to pad an Ethernet
+	 packet past 60 bytes.
+
+	 Do we have enough space in the trailer for an FCS? */
+      if (trailer_reported_length >= 4) {
+	/* Yes, as the claimed trailer length is at least as big as
+	   a 4-byte FCS. */
+	if (trailer_length < trailer_reported_length) {
+	  /* The packet is claimed to have enough data for a 4-byte FCS,
+	     but we didn't capture all of the packet.
+	     Slice off the 4-byte FCS from the reported length, and
+	     trim the captured length so it's no more than the reported
+	     length; that will slice off what of the FCS, if any, is
+	     in the captured packet. */
+	  trailer_reported_length -= 4;
+	  if (trailer_length > trailer_reported_length)
+	    trailer_length = trailer_reported_length;
+	  has_fcs = TRUE;
+	} else {
+	  /* We captured all of the packet, including what appears to
+	     be a 4-byte FCS.  Slice it off. */
+	  trailer_length -= 4;
+	  trailer_reported_length -= 4;
+	  has_fcs = TRUE;
+	}
+      }
     }
     if (trailer_length != 0) {
       proto_tree_add_item(fh_tree, trailer_id, trailer_tvb, 0,
