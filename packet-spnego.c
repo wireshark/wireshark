@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.20 2002/08/31 17:09:45 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.21 2002/08/31 20:50:08 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,7 +161,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  if (ret != ASN1_ERR_NOERROR) {
 	    dissect_parse_error(tvb, offset, pinfo, subtree,
-				"GSS-API token", ret);
+				"SPNEGO mechTypes token", ret);
 	    goto done;
 	  }
 
