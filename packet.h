@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.66 1999/07/08 04:23:04 gram Exp $
+ * $Id: packet.h,v 1.67 1999/07/08 20:31:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -411,6 +411,7 @@ void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pppoed(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pppoes(const u_char *, int, frame_data *, proto_tree *);
 void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_radius(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rsvp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rtsp(const u_char *, int, frame_data *, proto_tree *);
