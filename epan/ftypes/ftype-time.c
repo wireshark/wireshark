@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.19 2003/07/25 03:44:03 gram Exp $
+ * $Id: ftype-time.c,v 1.20 2003/07/30 22:50:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -296,6 +296,36 @@ value_get(fvalue_t *fv)
 {
 	return &(fv->value.time);
 }
+   
+static int
+absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
+{
+	gchar *rep;
+
+	rep = abs_time_to_str(&fv->value.time);
+	return strlen(rep) + 2;	/* 2 for opening and closing quotes */
+}
+
+static void
+absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	sprintf(buf, "\"%s\"", abs_time_to_str(&fv->value.time));
+}
+   
+static int
+relative_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
+{
+	gchar *rep;
+
+	rep = rel_time_to_secs_str(&fv->value.time);
+	return strlen(rep);
+}
+
+static void
+relative_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	strcpy(buf, rel_time_to_secs_str(&fv->value.time));
+}
 
 void
 ftype_register_time(void)
@@ -309,8 +339,8 @@ ftype_register_time(void)
 		NULL,
 		absolute_val_from_string,	/* val_from_unparsed */
 		absolute_val_from_string,	/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		absolute_val_to_repr,		/* val_to_string_repr */
+		absolute_val_repr_len,		/* len_string_repr */
 
 		time_fvalue_set,
 		NULL,
@@ -337,8 +367,8 @@ ftype_register_time(void)
 		NULL,
 		relative_val_from_unparsed,	/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		relative_val_to_repr,		/* val_to_string_repr */
+		relative_val_repr_len,		/* len_string_repr */
 
 		time_fvalue_set,
 		NULL,

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.95 2003/07/07 20:29:45 guy Exp $
+ * $Id: proto.c,v 1.96 2003/07/30 22:50:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3481,7 +3481,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 {
 	header_field_info	*hfinfo;
 	int			abbrev_len;
-	char			*buf, *stringified, *format, *ptr, *value_str;
+	char			*buf, *stringified, *format, *ptr;
 	int			dfilter_len, i;
 	gint			start, length;
 	guint8			c;
@@ -3644,42 +3644,14 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 					fvalue_get_floating(finfo->value));
 			break;
 
-		case FT_ABSOLUTE_TIME:
-			/*
-			 * 4 bytes for " == ".
-			 * N bytes for the string for the time.
-			 * 2 bytes for the opening and closing quotes.
-			 * 1 byte for the trailing '\0'.
-			 */
-			value_str =
-			    abs_time_to_str((nstime_t *)fvalue_get(finfo->value));
-			dfilter_len = abbrev_len + strlen(value_str) + 4 + 2 + 1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == \"%s\"",
-					hfinfo->abbrev, value_str);
-			break;
-
-		case FT_RELATIVE_TIME:
-			/*
-			 * 4 bytes for " == ".
-			 * N bytes for the string for the time.
-			 * 1 byte for the trailing '\0'.
-			 */
-			value_str =
-			    rel_time_to_secs_str((nstime_t *)fvalue_get(finfo->value));
-			dfilter_len = abbrev_len + strlen(value_str) + 4 + 1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s",
-					hfinfo->abbrev, value_str);
-			break;
-
-
 		/* These use the fvalue's "to_string_repr" method. */
 		case FT_BOOLEAN:
 		case FT_STRING:
 		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
+		case FT_ABSOLUTE_TIME:
+		case FT_RELATIVE_TIME:
 			/* Figure out the string length needed.
 			 * 	The ft_repr length.
 			 * 	4 bytes for " == ".
