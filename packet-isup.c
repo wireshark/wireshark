@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.17 2003/03/12 00:27:00 guy Exp $
+ * $Id: packet-isup.c,v 1.18 2003/04/10 18:40:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1975,8 +1975,11 @@ dissect_isup_closed_user_group_interlock_code_parameter(tvbuff_t *parameter_tvb,
 static void
 dissect_isup_user_service_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User service information (-> Q.931)");
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User service information (-> Q.931 Bearer_capability)");
   proto_item_set_text(parameter_item, "User service information, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
+  dissect_q931_bearer_capability_ie(parameter_tvb,
+					    0, length,
+					    parameter_tree);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Signalling point code
