@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.18 2002/08/27 23:00:02 jmayer Exp $
+# $Id: autogen.sh,v 1.19 2002/08/28 12:25:54 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -90,22 +90,22 @@ fi
 aclocal_flags="`./aclocal-flags`"
 
 if glib-config --version >/dev/null 2>&1 ; then
-	echo glib OK
+	rm -f aclocal-missing/glib.m4
 else
 	cp aclocal-fallback/glib.m4 aclocal-missing/
 fi
 if gtk-config --version >/dev/null 2>&1 ; then
-	echo gtk OK
+	rm -f aclocal-missing/gtk.m4
 else
 	cp aclocal-fallback/gtk.m4 aclocal-missing/
 fi
 if pkg-config glib-2.0 >/dev/null 2>&1 ; then
-	echo glib-2.0 OK
+	rm -f aclocal-missing/glib-2.0.m4
 else
 	cp aclocal-fallback/glib-2.0.m4 aclocal-missing/
 fi
 if pkg-config gtk+-2.0 >/dev/null 2>&1 ; then
-	echo gtk-2.0 OK
+	rm -f aclocal-missing/gtk-2.0.m4
 else
 	cp aclocal-fallback/gtk-2.0.m4 aclocal-missing/
 fi
