@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.8 2002/01/21 07:37:37 guy Exp $
+ * $Id: semcheck.c,v 1.9 2002/02/27 18:54:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 #include <epan/packet.h>
 
 static void
-semcheck(dfwork_t *dfw, stnode_t *st_node);
+semcheck(stnode_t *st_node);
 
 typedef gboolean (*FtypeCanFunc)(enum ftenum);
 
@@ -247,7 +247,7 @@ is_bytes_type(enum ftenum type)
 }
 
 static void
-check_relation_LHS_FIELD(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
+check_relation_LHS_FIELD(FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -330,7 +330,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node
 }
 
 static void
-check_relation_LHS_STRING(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
+check_relation_LHS_STRING(FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -384,7 +384,7 @@ check_relation_LHS_STRING(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_nod
 }
 
 static void
-check_relation_LHS_RANGE(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
+check_relation_LHS_RANGE(FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -451,18 +451,18 @@ check_relation_LHS_RANGE(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node
 
 
 static void
-check_relation(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
+check_relation(FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
-			check_relation_LHS_FIELD(dfw, can_func, st_node, st_arg1, st_arg2);
+			check_relation_LHS_FIELD(can_func, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_STRING:
-			check_relation_LHS_STRING(dfw, can_func, st_node, st_arg1, st_arg2);
+			check_relation_LHS_STRING(can_func, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_RANGE:
-			check_relation_LHS_RANGE(dfw, can_func, st_node, st_arg1, st_arg2);
+			check_relation_LHS_RANGE(can_func, st_node, st_arg1, st_arg2);
 			break;
 
 		case STTYPE_UNINITIALIZED:
@@ -475,7 +475,7 @@ check_relation(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
 }
 
 static void
-check_test(dfwork_t *dfw, stnode_t *st_node)
+check_test(stnode_t *st_node)
 {
 	test_op_t		st_op;
 	stnode_t		*st_arg1, *st_arg2;
@@ -492,39 +492,39 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			break;
 
 		case TEST_OP_NOT:
-			semcheck(dfw, st_arg1);
+			semcheck( st_arg1);
 			break;
 
 		case TEST_OP_AND:
 		case TEST_OP_OR:
-			semcheck(dfw, st_arg1);
-			semcheck(dfw, st_arg2);
+			semcheck(st_arg1);
+			semcheck(st_arg2);
 			break;
 
 		case TEST_OP_EQ:
-			check_relation(dfw, ftype_can_eq, st_node, st_arg1, st_arg2);
+			check_relation(ftype_can_eq, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_NE:
-			check_relation(dfw, ftype_can_ne, st_node, st_arg1, st_arg2);
+			check_relation(ftype_can_ne, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GT:
-			check_relation(dfw, ftype_can_gt, st_node, st_arg1, st_arg2);
+			check_relation(ftype_can_gt, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GE:
-			check_relation(dfw, ftype_can_ge, st_node, st_arg1, st_arg2);
+			check_relation(ftype_can_ge, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_LT:
-			check_relation(dfw, ftype_can_lt, st_node, st_arg1, st_arg2);
+			check_relation(ftype_can_lt, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_LE:
-			check_relation(dfw, ftype_can_le, st_node, st_arg1, st_arg2);
+			check_relation(ftype_can_le, st_node, st_arg1, st_arg2);
 			break;
 	}
 }
 
 
 static void
-semcheck(dfwork_t *dfw, stnode_t *st_node)
+semcheck(stnode_t *st_node)
 {
 	const char	*name;
 
@@ -532,7 +532,7 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
-			check_test(dfw, st_node);
+			check_test(st_node);
 			break;
 		default:
 			g_assert_not_reached();
@@ -544,7 +544,7 @@ gboolean
 dfw_semcheck(dfwork_t *dfw)
 {
 	TRY {
-		semcheck(dfw, dfw->st_root);
+		semcheck(dfw->st_root);
 	}
 	CATCH(TypeError) {
 		return FALSE;

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.54 2002/02/27 08:57:23 guy Exp $
+ * $Id: proto.c,v 1.55 2002/02/27 18:54:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2733,48 +2733,6 @@ proto_registrar_get_length(int n)
 }
 
 
-/* =================================================================== */
-/* used when calling proto search functions */
-typedef struct {
-	header_field_info	*target;
-	const guint8		*packet_data;
-	guint			packet_len;
-	gboolean		halt_on_first_hit;
-	GNodeTraverseFunc	traverse_func; /* for traverse_subtree_for_field() */
-	union {
-		GPtrArray		*ptr_array;
-		GNode			*node;
-	} 			result;
-} proto_tree_search_info;
-
-/* Looks for a protocol at the top layer of the tree. The protocol can occur
- * more than once, for those encapsulated protocols. For each protocol subtree
- * that is found, the callback function is called.
- */
-static void
-proto_find_protocol_multi(proto_tree* tree, GNodeTraverseFunc callback,
-			proto_tree_search_info *sinfo)
-{
-	g_assert(callback != NULL);
-	g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, 2, callback, (gpointer*)sinfo);
-}
-
-/* Calls a traversal function for all subtrees.
- */
-static gboolean
-traverse_subtree_for_field(GNode *node, gpointer data)
-{
-	field_info *fi = PITEM_FINFO(node);
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*) data;
-
-	if (fi) { /* !fi == the top most container node which holds nothing */
-			g_node_traverse(node, G_IN_ORDER, G_TRAVERSE_ALL, -1,
-					sinfo->traverse_func, sinfo);
-			if (sinfo->result.node)
-				return sinfo->halt_on_first_hit; /* halt? continue? */
-	}
-	return FALSE; /* keep traversing */
-}
 
 /* Looks for a protocol or a field in a proto_tree. Returns TRUE if
  * it exists anywhere, or FALSE if it exists nowhere. */
