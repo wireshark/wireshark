@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.194 2002/10/16 23:34:52 guy Exp $
+ * $Id: capture.c,v 1.195 2002/10/19 07:52:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1878,8 +1878,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 
       /* calculate and display running time */
       cur_time -= start_time;
-      snprintf(label_str, sizeof(label_str), "%02d:%02d:%02d", 
-      cur_time/3600, cur_time/60%3600, cur_time%60);
+      snprintf(label_str, sizeof(label_str), "%02ld:%02ld:%02ld", 
+               (long)(cur_time/3600), (long)(cur_time/60%3600),
+               (long)(cur_time%60));
       gtk_label_set(GTK_LABEL(running_time), label_str);
 
       if (ld.sync_packets) {
