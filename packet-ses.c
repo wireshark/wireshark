@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id: packet-ses.c,v 1.7 2004/01/13 01:52:09 guy Exp $
+* $Id: packet-ses.c,v 1.8 2004/01/13 01:55:36 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -1019,17 +1019,17 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			/* do we have OSI presentation packet dissector ? */
 			if(!pres_handle)
 			{
-				/*   save type of session pdu. We'll need it in the presentation dissector  */
-				save_private_data = pinfo->private_data;
-				pinfo->private_data = &session;
 				call_dissector(data_handle, next_tvb, pinfo,
 				    tree);
-				pinfo->private_data = save_private_data;
 			}
 			else
 			{
+				/*   save type of session pdu. We'll need it in the presentation dissector  */
+				save_private_data = pinfo->private_data;
+				pinfo->private_data = &session;
 				call_dissector(pres_handle, next_tvb, pinfo,
 				    tree);
+				pinfo->private_data = save_private_data;
 			}
 
 			/*
