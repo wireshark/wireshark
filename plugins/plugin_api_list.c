@@ -418,7 +418,7 @@ void report_read_failure(const char *filename, int err);
 
 guint32 dissect_per_bit_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int);
 
-int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag);
+int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag);
 int dissect_ber_length(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
 int dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value);
 int dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
@@ -429,9 +429,9 @@ int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tre
 int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 int dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **tvb_out);
 int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn_namedbit const *named_bits, gint hf_id, gint ett_id, tvbuff_t **tvb_out);
-int dissect_ber_restricted_string(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **tvb_out);
+int dissect_ber_restricted_string(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **tvb_out);
 int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *value_string);
-int get_ber_identifier(tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag);
+int get_ber_identifier(tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag);
 int get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
 proto_tree* proto_item_get_subtree(proto_item *ti);
 proto_item* proto_tree_get_parent(proto_tree *tree);
