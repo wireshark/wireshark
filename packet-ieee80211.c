@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.74 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-ieee80211.c,v 1.75 2002/10/21 19:05:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1633,9 +1633,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
        */
       len -= 4;
       reported_len -= 4;
-      if (tree)
-	proto_tree_add_item (wep_tree, hf_wep_icv, tvb, hdr_len + 4 + len, 4,
-			     FALSE);
       can_decrypt = TRUE;
     }
 
@@ -1646,9 +1643,24 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
        */
       next_tvb = tvb_new_subset(tvb, hdr_len + 4, len, reported_len);
 
+      if (tree && can_decrypt)
+	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb, 
+				    hdr_len + 4 + len, 4, 
+				    tvb_get_ntohl(tvb, hdr_len + 4 + len),
+				    "WEP ICV: 0x%08x (not verified)", 
+				    tvb_get_ntohl(tvb, hdr_len + 4 + len));
+
       call_dissector(data_handle, next_tvb, pinfo, tree);
       return;
     } else {
+
+      if (tree)
+	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb, 
+				    hdr_len + 4 + len, 4, 
+				    tvb_get_ntohl(tvb, hdr_len + 4 + len),
+				    "WEP ICV: 0x%08x (correct)", 
+				    tvb_get_ntohl(tvb, hdr_len + 4 + len));
+
       add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
     }
 
@@ -2171,7 +2183,7 @@ proto_register_wlan (void)
       "Key", HFILL }},
 
     {&hf_wep_icv,
-     {"WEP ICV (not verified)", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
+     {"WEP ICV", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
       "WEP ICV", HFILL }},
   };
 
