@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.13 2000/05/28 17:04:23 oabad Exp $
+$Id: README.developer,v 1.14 2000/08/11 13:46:34 deniel Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -57,7 +57,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.13 2000/05/28 17:04:23 oabad Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.14 2000/08/11 13:46:34 deniel Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -66,7 +66,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.13 2000/05/28 17:04:23 oabad Exp $
+ * $Id: README.developer,v 1.14 2000/08/11 13:46:34 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -95,6 +95,7 @@ version of the file is currently checked out.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -104,17 +105,12 @@ version of the file is currently checked out.
 # include <netinet/in.h>
 #endif
 
+#include <glib.h>
+
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 
-#include <string.h>
-#include <glib.h>
 #include "packet.h"
 #include "packet-PROTOABBREV.h"
 
