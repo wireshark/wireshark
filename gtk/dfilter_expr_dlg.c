@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.53 2004/03/06 15:55:18 ulfl Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.54 2004/03/07 18:18:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,7 @@ typedef struct protocol_data {
 
 static void show_relations(GtkWidget *relation_list, ftenum_t ftype);
 static gboolean relation_is_presence_test(const char *string);
-static void add_relation_list(GtkWidget *relation_list, char *relation);
+static void add_relation_list(GtkWidget *relation_list, char *relation, gboolean sensitive);
 static void build_boolean_values(GtkWidget *value_list_scrolled_win,
                                  GtkWidget *value_list,
                                  const true_false_string *values);
@@ -263,32 +263,25 @@ show_relations(GtkWidget *relation_list, ftenum_t ftype)
 	/*
 	 * Add the supported relations.
 	 */
-	add_relation_list(relation_list, "is present");
-	if (ftype_can_eq(ftype) ||
-	    (ftype_can_slice(ftype) && ftype_can_eq(FT_BYTES)))
-		add_relation_list(relation_list, "==");
-	if (ftype_can_ne(ftype) ||
-	    (ftype_can_slice(ftype) && ftype_can_ne(FT_BYTES)))
-		add_relation_list(relation_list, "!=");
-	if (ftype_can_gt(ftype) ||
-	    (ftype_can_slice(ftype) && ftype_can_gt(FT_BYTES)))
-		add_relation_list(relation_list, ">");
-	if (ftype_can_lt(ftype) ||
-	    (ftype_can_slice(ftype) && ftype_can_lt(FT_BYTES)))
-		add_relation_list(relation_list, "<");
-	if (ftype_can_ge(ftype) ||
-	    (ftype_can_slice(ftype) && ftype_can_ge(FT_BYTES)))
-		add_relation_list(relation_list, ">=");
-	if (ftype_can_le(ftype) ||
-	    (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)))
-		add_relation_list(relation_list, "<=");
-	if (ftype_can_contains(ftype) ||
-	    (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)))
-		add_relation_list(relation_list, "contains");
+	add_relation_list(relation_list, "is present", TRUE);
+	add_relation_list(relation_list, "==",
+	    ftype_can_eq(ftype) || (ftype_can_slice(ftype) && ftype_can_eq(FT_BYTES)));
+	add_relation_list(relation_list, "!=",
+	    ftype_can_ne(ftype) || (ftype_can_slice(ftype) && ftype_can_ne(FT_BYTES)));
+	add_relation_list(relation_list, ">",
+	    ftype_can_gt(ftype) || (ftype_can_slice(ftype) && ftype_can_gt(FT_BYTES)));
+
+	add_relation_list(relation_list, "<",
+        ftype_can_lt(ftype) || (ftype_can_slice(ftype) && ftype_can_lt(FT_BYTES)));
+	add_relation_list(relation_list, ">=",
+	    ftype_can_ge(ftype) || (ftype_can_slice(ftype) && ftype_can_ge(FT_BYTES)));
+	add_relation_list(relation_list, "<=",
+	    ftype_can_le(ftype) || (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)));
+	add_relation_list(relation_list, "contains",
+	    ftype_can_contains(ftype) || (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)));
 #ifdef HAVE_LIBPCRE
-	if (ftype_can_matches(ftype) ||
-	    (ftype_can_slice(ftype) && ftype_can_matches(FT_BYTES)))
-		add_relation_list(relation_list, "matches");
+	add_relation_list(relation_list, "matches",
+	    ftype_can_matches(ftype) || (ftype_can_slice(ftype) && ftype_can_matches(FT_BYTES)));
 #endif
 
 #if GTK_MAJOR_VERSION >= 2
@@ -308,7 +301,7 @@ relation_is_presence_test(const char *string)
 }
 
 static void
-add_relation_list(GtkWidget *relation_list, char *relation)
+add_relation_list(GtkWidget *relation_list, char *relation, gboolean sensitive)
 {
 #if GTK_MAJOR_VERSION < 2
     GtkWidget *label, *item;
@@ -321,9 +314,16 @@ add_relation_list(GtkWidget *relation_list, char *relation)
     gtk_widget_show(label);
     gtk_container_add(GTK_CONTAINER(relation_list), item);
     gtk_widget_show(item);
+    gtk_widget_set_sensitive(item, sensitive);
 #else
     GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(relation_list)));
     GtkTreeIter   iter;
+
+    /* XXX: I currently see no way to insensitive the item,
+     * so for a first step, just don't show it (as before these changes :-) */
+    if (!sensitive) {
+        return;
+    }
 
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter, 0, relation, -1);
@@ -803,7 +803,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     /*
      * Get the range to use, if any.
      */
-    if (GTK_WIDGET_VISIBLE(range_entry)) {
+    if (GTK_WIDGET_SENSITIVE(range_entry)) {
         range_str = g_strdup(gtk_entry_get_text(GTK_ENTRY(range_entry)));
         /*
          * XXX - strip this even for strings?
@@ -881,7 +881,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     /*
      * Get the value to use, if any.
      */
-    if (GTK_WIDGET_VISIBLE(value_entry)) {
+    if (GTK_WIDGET_SENSITIVE(value_entry)) {
         value_str = g_strdup(gtk_entry_get_text(GTK_ENTRY(value_entry)));
         stripped_value_str = g_strstrip(value_str);
         if (strcmp(stripped_value_str, "") == 0) {
@@ -1057,6 +1057,10 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkWidget *field_vb, *field_tree_lb, *field_tree, *tree_scrolled_win;
 
     GtkWidget *relation_vb, *relation_label, *relation_list, *relation_list_scrolled_win;
+/*    GtkWidget *relation_present_rb, *relation_equals_rb, *relation_unequals_rb,
+              *relation_greater_rb, *relation_less_rb,
+              *relation_greaterequal_rb, *relation_lessequal_rb,
+              *relation_contains_rb, *relation_matches_rb;*/
 
     GtkWidget *value_vb, *value_label, *value_entry;
     GtkWidget *value_list_label, *value_list_scrolled_win, *value_list;
@@ -1200,6 +1204,35 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      */
     show_relations(relation_list, FT_UINT8);
 
+    /*
+    relation_present_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "is present", NULL);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_present_rb, FALSE, FALSE, 0);
+
+    relation_equals_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "==", NULL);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_equals_rb, FALSE, FALSE, 0);
+
+    relation_unequals_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "!=", NULL);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_unequals_rb, FALSE, FALSE, 0);
+
+    relation_greater_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, ">", NULL);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_greater_rb, FALSE, FALSE, 0);
+
+    relation_less_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "<", NULL);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_less_rb, FALSE, FALSE, 0);
+
+    relation_greaterequal_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, ">=", NULL);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_greaterequal_rb, FALSE, FALSE, 0);
+
+    relation_lessequal_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "<=", NULL);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_lessequal_rb, FALSE, FALSE, 0);
+
+    relation_contains_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "contains", NULL);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_contains_rb, FALSE, FALSE, 0);
+
+    relation_matches_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "matches", NULL);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_matches_rb, FALSE, FALSE, 0);
+*/
+    /* value column */
     value_vb = gtk_vbox_new(FALSE, 5);
     gtk_container_border_width(GTK_CONTAINER(value_vb), 5);
     gtk_container_add(GTK_CONTAINER(main_hb), value_vb);
@@ -1391,6 +1424,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_box_pack_start(GTK_BOX(value_vb), range_entry, FALSE, FALSE, 0);
 
 
+    /* button box */
     list_bb = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), list_bb, FALSE, FALSE, 0);
     gtk_container_set_border_width  (GTK_CONTAINER (list_bb), 0);
