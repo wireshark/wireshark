@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.35 1999/12/04 09:38:36 guy Exp $
+ * $Id: file.c,v 1.36 1999/12/04 21:20:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -174,82 +174,84 @@ success:
 /* Table of the file types we know about. */
 const static struct file_type_info {
 	const char *name;
+	const char *short_name;
 	int	(*can_write_encap)(int, int);
 	int	(*dump_open)(wtap_dumper *, int *);
 } dump_open_table[WTAP_NUM_FILE_TYPES] = {
 	/* WTAP_FILE_UNKNOWN */
-	{ NULL,
+	{ NULL, NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_WTAP */
-	{ "Wiretap (Ethereal)",
+	{ "Wiretap (Ethereal)", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP */
-	{ "libpcap (tcpdump)",
+	{ "libpcap (tcpdump)", "libpcap",
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_MODIFIED */
-	{ "modified libpcap (tcpdump)",
+	{ "modified libpcap (tcpdump)", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_LANALYZER */
-	{ "Novell LANalyzer",
+	{ "Novell LANalyzer", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NGSNIFFER */
-	{ "Network Associates Sniffer (DOS-based)",
+	{ "Network Associates Sniffer (DOS-based)", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_SNOOP */
-	{ "snoop",
+	{ "snoop", "snoop",
 	  snoop_dump_can_write_encap, snoop_dump_open },
 
 	/* WTAP_FILE_IPTRACE_1_0 */
-	{ "AIX iptrace 1.0",
+	{ "AIX iptrace 1.0", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_IPTRACE_2_0 */
-	{ "AIX iptrace 2.0",
+	{ "AIX iptrace 2.0", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETMON_1_x */
-	{ "Microsoft Network Monitor 1.x",
+	{ "Microsoft Network Monitor 1.x", "netmon1",
 	  netmon_dump_can_write_encap, netmon_dump_open },
 
 	/* WTAP_FILE_NETMON_2_x */
-	{ "Microsoft Network Monitor 2.x",
+	{ "Microsoft Network Monitor 2.x", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_0 */
-	{ "Cinco Networks NetXRay",
+	{ "Cinco Networks NetXRay", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_1 */
-	{ "Network Associates Sniffer (Windows-based) 1.1",
+	{ "Network Associates Sniffer (Windows-based) 1.1", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_2_001 */
-	{ "Network Associates Sniffer (Windows-based) 2.001",
+	{ "Network Associates Sniffer (Windows-based) 2.001", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_RADCOM */
-	{ "RADCOM WAN/LAN analyzer",
+	{ "RADCOM WAN/LAN analyzer", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_ASCEND */
-	{ "Lucent/Ascend access server trace",
+	{ "Lucent/Ascend access server trace", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETTL */
-	{ "HP-UX nettl trace",
+	{ "HP-UX nettl trace", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_TOSHIBA */
-	{ "Toshiba Compact ISDN Router snoop trace",
+	{ "Toshiba Compact ISDN Router snoop trace", NULL,
 	  NULL, NULL }
 };
 
+/* Name that should be somewhat descriptive. */
 const char *wtap_file_type_string(int filetype)
 {
 	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES) {
@@ -257,6 +259,27 @@ const char *wtap_file_type_string(int filetype)
 		return NULL;
 	} else
 		return dump_open_table[filetype].name;
+}
+
+/* Name to use in, say, a command-line flag specifying the type. */
+const char *wtap_file_type_short_string(int filetype)
+{
+	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES)
+		return NULL;
+	else
+		return dump_open_table[filetype].short_name;
+}
+
+/* Translate a short name to a capture file type. */
+int wtap_short_string_to_file_type(const char *short_name)
+{
+	int filetype;
+
+	for (filetype = 0; filetype < WTAP_NUM_FILE_TYPES; filetype++) {
+		if (strcmp(short_name, dump_open_table[filetype].short_name) == 0)
+			return filetype;
+	}
+	return -1;	/* no such file type, or we can't write it */
 }
 
 gboolean wtap_dump_can_open(int filetype)
