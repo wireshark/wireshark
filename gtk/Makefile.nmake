@@ -23,6 +23,7 @@ OBJECTS=capture_dlg.obj \
 	file_dlg.obj \
 	filter_prefs.obj \
 	find_dlg.obj \
+	follow_dlg.obj \
 	goto_dlg.obj \
 	gui_prefs.obj \
 	main.obj 	\

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.72 2000/07/20 05:09:46 guy Exp $
+ * $Id: file.h,v 1.73 2000/08/03 12:44:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -164,5 +164,7 @@ int file_cp(char *from, char *to);
 char *file_open_error_message(int, gboolean);
 char *file_read_error_message(int);
 char *file_write_error_message(int);
+
+gboolean copy_binary_file(char *from_filename, char *to_filename);
 
 #endif /* file.h */

@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.22 2000/07/07 09:30:56 guy Exp $
+ * $Id: follow.c,v 1.23 2000/08/03 12:44:20 gram Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -44,7 +44,7 @@
 #include "packet.h"
 #include "follow.h"
 
-extern FILE* data_out_file;
+FILE* data_out_file;
 
 gboolean incomplete_tcp_stream = FALSE;
 

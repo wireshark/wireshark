@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.202 2000/08/03 12:02:15 gram Exp $
+ * $Id: file.c,v 1.203 2000/08/03 12:44:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1610,7 +1610,6 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   size_t        msg_len;
   int           err;
   gboolean      do_copy;
-  int           from_fd, to_fd, nread, nwritten;
   wtap_dumper  *pdh;
   frame_data   *fdata;
   struct wtap_pkthdr hdr;
@@ -1672,58 +1671,9 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
     }
     /* Copy the file, if we haven't moved it. */
     if (do_copy) {
-      /* Copy the raw bytes of the file. */
-      from_fd = open(from_filename, O_RDONLY | O_BINARY);
-      if (from_fd < 0) {
-      	err = errno;
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, TRUE), from_filename);
-	goto done;
-      }
-
-      /* Use open() instead of creat() so that we can pass the O_BINARY
-         flag, which is relevant on Win32; it appears that "creat()"
-	 may open the file in text mode, not binary mode, but we want
-	 to copy the raw bytes of the file, so we need the output file
-	 to be open in binary mode. */
-      to_fd = open(fname, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
-      if (to_fd < 0) {
-      	err = errno;
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, TRUE), fname);
-	close(from_fd);
-	goto done;
-      }
-
-      while ((nread = read(from_fd, pd, sizeof pd)) > 0) {
-	nwritten = write(to_fd, pd, nread);
-	if (nwritten < nread) {
-	  if (nwritten < 0)
-	    err = errno;
-	  else
-	    err = WTAP_ERR_SHORT_WRITE;
-	  simple_dialog(ESD_TYPE_CRIT, NULL,
-				file_write_error_message(err), fname);
-	  close(from_fd);
-	  close(to_fd);
-	  goto done;
-	}
-      }
-      if (nread < 0) {
-      	err = errno;
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_read_error_message(err), from_filename);
-	close(from_fd);
-	close(to_fd);
-	goto done;
-      }
-      close(from_fd);
-      if (close(to_fd) < 0) {
-      	err = errno;
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-		file_close_error_message(err), fname);
-	goto done;
-      }
+	    if (!copy_binary_file(from_filename, fname)) {
+		goto done;
+	    }
     }
   } else {
     /* Either we're filtering packets, or we're saving in a different
@@ -1996,4 +1946,76 @@ file_close_error_message(int err)
     break;
   }
   return errmsg;
+}
+
+
+/* Copies a file in binary mode, for those operating systems that care about
+ * such things.
+ * Returns TRUE on success, FALSE on failure. If a failure, it also
+ * displays a simple dialog window with the error message.
+ */
+gboolean
+copy_binary_file(char *from_filename, char *to_filename)
+{
+	int           from_fd, to_fd, nread, nwritten, err;
+	guint8        pd[65536]; /* XXX - Hmm, 64K here, 64K in save_cap_file(),
+				    perhaps we should make just one 64K buffer. */
+
+      /* Copy the raw bytes of the file. */
+      from_fd = open(from_filename, O_RDONLY | O_BINARY);
+      if (from_fd < 0) {
+      	err = errno;
+	simple_dialog(ESD_TYPE_CRIT, NULL,
+			file_open_error_message(err, TRUE), from_filename);
+	goto done;
+      }
+
+      /* Use open() instead of creat() so that we can pass the O_BINARY
+         flag, which is relevant on Win32; it appears that "creat()"
+	 may open the file in text mode, not binary mode, but we want
+	 to copy the raw bytes of the file, so we need the output file
+	 to be open in binary mode. */
+      to_fd = open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+      if (to_fd < 0) {
+      	err = errno;
+	simple_dialog(ESD_TYPE_CRIT, NULL,
+			file_open_error_message(err, TRUE), to_filename);
+	close(from_fd);
+	goto done;
+      }
+
+      while ((nread = read(from_fd, pd, sizeof pd)) > 0) {
+	nwritten = write(to_fd, pd, nread);
+	if (nwritten < nread) {
+	  if (nwritten < 0)
+	    err = errno;
+	  else
+	    err = WTAP_ERR_SHORT_WRITE;
+	  simple_dialog(ESD_TYPE_CRIT, NULL,
+				file_write_error_message(err), to_filename);
+	  close(from_fd);
+	  close(to_fd);
+	  goto done;
+	}
+      }
+      if (nread < 0) {
+      	err = errno;
+	simple_dialog(ESD_TYPE_CRIT, NULL,
+			file_read_error_message(err), from_filename);
+	close(from_fd);
+	close(to_fd);
+	goto done;
+      }
+      close(from_fd);
+      if (close(to_fd) < 0) {
+      	err = errno;
+	simple_dialog(ESD_TYPE_CRIT, NULL,
+		file_close_error_message(err), to_filename);
+	goto done;
+      }
+
+      return TRUE;
+
+   done:
+      return FALSE;
 }

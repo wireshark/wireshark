@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.18 2000/06/27 04:35:45 guy Exp $
+ * $Id: globals.h,v 1.19 2000/08/03 12:44:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,7 +74,6 @@
 # define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
 
-extern FILE        *data_out_file;
 extern packet_info  pi;
 extern capture_file cfile;
 extern guint        main_ctx, file_ctx;
