@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.1 2004/05/24 08:33:09 sahlberg Exp $
+# $Id: asn2eth.py,v 1.2 2004/05/25 21:06:54 guy Exp $
 #
 
 """ASN.1 to Ethereal PER dissector compiler"""
@@ -22,13 +22,13 @@
 # 
 # 
 # ITU-T Recommendation X.680 (07/2002), 
-#   Information technology – Abstract Syntax Notation One (ASN.1): Specification of basic notation
+#   Information technology - Abstract Syntax Notation One (ASN.1): Specification of basic notation
 #
 # ITU-T Recommendation X.682 (07/2002), 
-#   Information technology – Abstract Syntax Notation One (ASN.1): Constraint specification
+#   Information technology - Abstract Syntax Notation One (ASN.1): Constraint specification
 #
 # ITU-T Recommendation X.683 (07/2002), 
-#   Information technology – Abstract Syntax Notation One (ASN.1): Parameterization of ASN.1 specifications
+#   Information technology - Abstract Syntax Notation One (ASN.1): Parameterization of ASN.1 specifications
 #
 
 from __future__ import nested_scopes
@@ -720,7 +720,7 @@ class EthCtx:
     fx.write(eth_fhdr(fn))
     for t in self.eth_export_ord:  # vals
       if (self.eth_type[t]['export'] & 0x02):
-        fx.write("const value_string %s_vals[];\n" % (t))
+        fx.write("extern const value_string %s_vals[];\n" % (t))
     for t in self.eth_export_ord:  # functions
       if (self.eth_type[t]['export'] & 0x01):
         fx.write(self.eth_type_fn_h(t))
@@ -1859,6 +1859,9 @@ class RealType (Type):
     out = ectx.eth_type_fn_hdr(tname)
     #out += "  offset = dissect_per_real_new(tvb, offset, pinfo, tree,\n" \
     #       "                                hf_index, item, NULL);\n"
+    #
+    # XXX - "PER_NOT_DECODED_YET()" or "BER_NOT_DECODED_YET()"?
+    #
     body = 'NOT_DECODED_YET("%s");\n' % (tname)
     out += ectx.eth_type_fn_body(tname, body)
     out += ectx.eth_type_fn_ftr(tname)
