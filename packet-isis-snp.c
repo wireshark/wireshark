@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.15 2002/04/07 22:36:55 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.16 2002/05/02 10:13:56 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -375,7 +375,7 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_l1_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	isis_dissect_authentication_clv(tvb, tree, offset, length,
 		"Per area authentication" );
@@ -400,7 +400,7 @@ dissect_l1_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_l2_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	isis_dissect_authentication_clv(tvb, tree, offset, length,
 		"Per domain authentication" );

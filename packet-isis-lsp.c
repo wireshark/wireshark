@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.29 2002/04/24 20:25:02 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.30 2002/05/02 10:13:56 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -433,7 +433,7 @@ dissect_metric(tvbuff_t *tvb, proto_tree *tree,	int offset, guint8 value,
  */
 static void 
 dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	proto_item 	*ti;
 	proto_tree	*ntree = NULL;
@@ -552,7 +552,7 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
-	int offset, int id_length, int length)
+	int offset, int id_length _U_, int length)
 {
 	proto_item *pi = NULL;
 	proto_tree *subtree = NULL;
@@ -609,7 +609,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
  */
 static void 
 dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	proto_item        *ti;
 	proto_tree        *ntree = NULL;
@@ -678,7 +678,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	isis_dissect_nlpid_clv(tvb, tree, offset, length);
 }
@@ -702,7 +702,7 @@ dissect_lsp_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	isis_dissect_mt_clv(tvb, tree, offset, length, hf_isis_lsp_clv_mt );
 }
@@ -726,7 +726,7 @@ dissect_lsp_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
         isis_dissect_hostname_clv(tvb, tree, offset, length);
 }
@@ -751,7 +751,7 @@ dissect_lsp_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
         isis_dissect_te_router_id_clv(tvb, tree, offset, length,
                 hf_isis_lsp_clv_te_router_id );
@@ -777,7 +777,7 @@ dissect_lsp_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_ip_int_addr_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	isis_dissect_ip_int_clv(tvb, tree, offset, length,
 		hf_isis_lsp_clv_ipv4_int_addr );
@@ -802,7 +802,7 @@ dissect_lsp_ip_int_addr_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	isis_dissect_ipv6_int_clv(tvb, tree, offset, length,
 		hf_isis_lsp_clv_ipv6_int_addr );
@@ -827,7 +827,7 @@ dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_l1_auth_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	isis_dissect_authentication_clv(tvb, tree, offset, length,
 		"Per area authentication" );
@@ -852,7 +852,7 @@ dissect_lsp_l1_auth_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_l2_auth_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	isis_dissect_authentication_clv(tvb, tree, offset, length,
 		"Per domain authentication" );
@@ -877,7 +877,7 @@ dissect_lsp_l2_auth_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	isis_dissect_area_address_clv(tvb, tree, offset, length);
 }
@@ -1214,7 +1214,7 @@ dissect_subclv_unrsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
  */
 static void 
 dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
-	int offset, int id_length, int length)
+	int offset, int id_length _U_, int length)
 {
 	proto_item *ti;
 	proto_tree *ntree = NULL;
@@ -1301,7 +1301,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 
 static void
 dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	proto_item *ti;
 	proto_tree *ntree = NULL;
@@ -1434,7 +1434,7 @@ dissect_lsp_partition_dis_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void 
 dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	char *sbuf;
 	int mylen;

@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.29 2002/04/07 23:39:00 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.30 2002/05/02 10:13:56 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -318,9 +318,16 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 
 static void 
 dissect_hello_restart_clv(tvbuff_t *tvb, 
-		proto_tree *tree, int offset, int id_length, int length)
+		proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	int restart_options;
+
+	if (length != 3) {
+	    isis_dissect_unknown(tvb, tree, offset,
+				 "malformed TLV (%d vs 3)",
+				 length, 3 );
+	    return;
+	}
 
 	restart_options = tvb_get_guint8(tvb, offset);
 
@@ -353,7 +360,7 @@ dissect_hello_restart_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_nlpid_clv(tvbuff_t *tvb, 
-	proto_tree *tree, int offset, int id_length, int length)
+	proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	isis_dissect_nlpid_clv(tvb, tree, offset, length);
 }
@@ -378,7 +385,7 @@ dissect_hello_nlpid_clv(tvbuff_t *tvb,
 
 static void 
 dissect_hello_mt_clv(tvbuff_t *tvb, 
-	proto_tree *tree, int offset, int id_length, int length)
+	proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	isis_dissect_mt_clv(tvb, tree, offset, length,
 		hf_isis_hello_clv_mt );
@@ -403,7 +410,7 @@ dissect_hello_mt_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_ip_int_addr_clv(tvbuff_t *tvb, 
-	proto_tree *tree, int offset, int id_length, int length)
+	proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	isis_dissect_ip_int_clv(tvb, tree, offset, length,
 		hf_isis_hello_clv_ipv4_int_addr );
@@ -428,7 +435,7 @@ dissect_hello_ip_int_addr_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb, 
-	proto_tree *tree, int offset, int id_length, int length)
+	proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	isis_dissect_ipv6_int_clv(tvb, tree, offset, length,
 		hf_isis_hello_clv_ipv6_int_addr );
@@ -454,7 +461,7 @@ dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_auth_clv(tvbuff_t *tvb, 
-	proto_tree *tree, int offset, int id_length, int length)
+	proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	isis_dissect_authentication_clv(tvb, tree, offset,
 		length, "authentication" );
@@ -479,7 +486,7 @@ dissect_hello_auth_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_area_address_clv(tvbuff_t *tvb, 
-	proto_tree *tree, int offset, int id_length, int length)
+	proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	isis_dissect_area_address_clv(tvb, tree, offset, length);
 }
@@ -488,38 +495,33 @@ dissect_hello_area_address_clv(tvbuff_t *tvb,
 
 static void 
 dissect_hello_ptp_adj_clv(tvbuff_t *tvb, 
-		proto_tree *tree, int offset, int id_length, int length)
+		proto_tree *tree, int offset, int id_length _U_, int length)
 {
-	char adj_state[20];
+	static const value_string adj_state_vals[] = {
+	    { 0, "Up" },
+	    { 1, "Initializing" },
+	    { 2, "Down" },
+	    { 0, NULL }
+	};
+	guint8 adj_state;
+	char *adj_state_str;
 
-	switch(tvb_get_guint8(tvb, offset)) {
-	  case 0:
-	    strcpy(adj_state,"Up");
-	    break;
-	  case 1:
-	    strcpy(adj_state,"Initializing");
-	    break;
-	  case 2:
-	    strcpy(adj_state,"Down");
-	    break;
-	  default:
-	    strcpy(adj_state,"<illegal value !!!>");
-	    }
-
+	adj_state = tvb_get_guint8(tvb, offset);
+	adj_state_str = val_to_str(adj_state, adj_state_vals, "Unknown (%u)");
 	switch(length) {
 	  case 1:
 	    proto_tree_add_text ( tree, tvb, offset, 1,
-				  "Adjacency State: %s", adj_state );
+				  "Adjacency State: %s", adj_state_str );
 	    break;
 	  case 5:
-	    proto_tree_add_text ( tree, tvb, offset, 1,        
-                                  "Adjacency State: %s", adj_state ); 
+	    proto_tree_add_text ( tree, tvb, offset, 1,
+                                  "Adjacency State: %s", adj_state_str ); 
 	    proto_tree_add_text ( tree, tvb, offset+1, 4,        
                                   "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) ); 
 	    break;
 	  case 11:
             proto_tree_add_text ( tree, tvb, offset, 1,
-                                  "Adjacency State: %s", adj_state );
+                                  "Adjacency State: %s", adj_state_str );
             proto_tree_add_text ( tree, tvb, offset+1, 4,
                                   "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) );
             proto_tree_add_text ( tree, tvb, offset+5, 6,
@@ -527,7 +529,7 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
 	    break;
 	  case 15:
 	    proto_tree_add_text ( tree, tvb, offset, 1,
-                                  "Adjacency State: %s", adj_state );
+                                  "Adjacency State: %s", adj_state_str );
             proto_tree_add_text ( tree, tvb, offset+1, 4,
                                   "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) );
             proto_tree_add_text ( tree, tvb, offset+5, 6,
@@ -561,7 +563,7 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_is_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int id_length, int length)
+	int id_length _U_, int length)
 {
 	while ( length > 0 ) {
 		if (length<6) {
@@ -600,8 +602,8 @@ dissect_hello_is_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	void
  */
 static void 
-dissect_hello_padding_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int id_length, int length)
+dissect_hello_padding_clv(tvbuff_t *tvb _U_, proto_tree *tree _U_, int offset _U_,
+	int id_length _U_, int length _U_)
 {
 	/* nothing to do here! */
 }
