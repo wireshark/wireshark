@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2ua.c,v 1.13 2003/11/13 23:38:33 guy Exp $
+ * $Id: packet-m2ua.c,v 1.14 2003/12/01 23:26:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #endif
 
 #include <epan/packet.h>
+#include "prefs.h"
 #include "sctpppids.h"
 
 #define SCTP_PORT_M2UA                  2904
@@ -507,6 +508,8 @@ dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_1_MTP3_OFFSET, payload_length, payload_length);
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
+
+  proto_item_set_text(parameter_item, "Data 1 parameter");
 }
 
 #define DATA_2_LI_LENGTH   1
@@ -866,6 +869,15 @@ static const value_string parameter_tag_values[] = {
   { DEREG_STATUS_PARAMETER_TAG,                    "Deregistration status" },
   { 0,                           NULL } };
 
+/*
+ * Default preference for 'Protocol Data 1 Parameter Tag' is RFC3331 value
+ * defined above (PROTOCOL_DATA_1_PARAMETER_TAG)
+ *
+ * The other option is the old Draft 7 value defined below.
+ */
+#define	PROTOCOL_DATA_1_DRAFT_7				0x000e
+static guint protocol_data_1_global = PROTOCOL_DATA_1_PARAMETER_TAG;
+
 static void
 dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m2ua_tree)
 {
@@ -885,9 +897,24 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
                                          val_to_str(tag, parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_m2ua_parameter);
 
-  /* add tag and length to the m2ua tree */
-  proto_tree_add_item(parameter_tree, hf_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
+  if ((protocol_data_1_global == PROTOCOL_DATA_1_DRAFT_7) &&
+      (tag == PROTOCOL_DATA_1_DRAFT_7))
+  {
+     proto_tree_add_uint_hidden(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag);
+
+     /* add tag and length to the m2ua tree */
+     proto_tree_add_text(parameter_tree, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH,
+		      "Parameter Tag: Protocol data 1 (0x000e)");
+
+     proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
+     tag = PROTOCOL_DATA_1_PARAMETER_TAG;
+  }
+  else
+  {
+      /* add tag and length to the m2ua tree */
+      proto_tree_add_item(parameter_tree, hf_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
+      proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
+  }
 
   switch(tag) {
   case INTERFACE_IDENTIFIER_INT_PARAMETER_TAG:
@@ -924,6 +951,10 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
     dissect_correlation_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case PROTOCOL_DATA_1_PARAMETER_TAG:
+    if (protocol_data_1_global == PROTOCOL_DATA_1_DRAFT_7)
+    {
+       tag = PROTOCOL_DATA_1_DRAFT_7;
+    }
     dissect_protocol_data_1_parameter(parameter_tvb, pinfo, tree, parameter_item);
     break;
   case PROTOCOL_DATA_2_PARAMETER_TAG:
@@ -1091,6 +1122,14 @@ proto_register_m2ua(void)
     &ett_m2ua_parameter,
   };
 
+  static enum_val_t protocol_data_1_options[] = {
+    { "0x000e (Draft 7)", PROTOCOL_DATA_1_DRAFT_7 },
+    { "0x0300 (RFC3331)", PROTOCOL_DATA_1_PARAMETER_TAG },
+    { NULL,		0 }
+  };
+
+  module_t *m2ua_module;
+
   /* Register the protocol name and description */
   proto_m2ua = proto_register_protocol("MTP 2 User Adaptation Layer", "M2UA",  "m2ua");
 
@@ -1098,7 +1137,16 @@ proto_register_m2ua(void)
   proto_register_field_array(proto_m2ua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-};
+  m2ua_module = prefs_register_protocol(proto_m2ua, NULL);
+
+  prefs_register_enum_preference(m2ua_module,
+    "protocol_data_1_tag",
+    "Protocol Data 1 Parameter Tag",
+    "The value of the parameter tag for protocol data 1",
+    &protocol_data_1_global,
+    protocol_data_1_options,
+    FALSE);
+}
 
 void
 proto_reg_handoff_m2ua(void)
