@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.125 2001/02/28 19:33:49 guy Exp $
+ * $Id: packet-ip.c,v 1.126 2001/03/05 19:59:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1484,7 +1484,6 @@ proto_reg_handoff_ip(void)
 	dissector_add("gre.proto", ETHERTYPE_IP, dissect_ip, proto_ip);
 	dissector_add("gre.proto", GRE_WCCP, dissect_ip, proto_ip);
 	dissector_add("llc.dsap", SAP_IP, dissect_ip, proto_ip);
-	dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip, proto_ip);
 	dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip, proto_ip);
 	dissector_add("null.type", BSD_AF_INET, dissect_ip, proto_ip);
 	dissector_add("fr.cisco", ETHERTYPE_IP, dissect_ip, proto_ip);
