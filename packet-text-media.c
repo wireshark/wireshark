@@ -6,7 +6,7 @@
  *
  * (C) Olivier Biot, 2004 <Olivier.Biot (ad) siemens.com>
  *
- * $Id: packet-text-media.c,v 1.1 2004/01/10 02:38:38 obiot Exp $
+ * $Id: packet-text-media.c,v 1.2 2004/01/10 02:54:50 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,11 +47,14 @@
  * TODO - character set and chunked transfer-coding
  */
 
+/* Filterable header fields */
 static gint proto_text_lines = -1;
-static gint ett_text_lines = -1;
-static dissector_handle_t text_lines_handle;
 
-static const char default_data_name[] = "Line-based text data";
+/* Subtrees */
+static gint ett_text_lines = -1;
+
+/* Dissector handles */
+static dissector_handle_t text_lines_handle;
 
 static void
 dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
