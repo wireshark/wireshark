@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.42 2002/04/30 08:48:25 guy Exp $
+ * $Id: packet-atm.c,v 1.43 2002/04/30 18:58:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -510,102 +510,6 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree   *atm_tree;
   proto_item   *ti;
-  guint8        byte0, byte1, byte2;
-
-  /*
-   * The joys of a connection-oriented link layer; the type of
-   * traffic may be implied by the connection on which it's
-   * traveling, rather than being specified in the packet itself.
-   *
-   * The program that captured the traffic might, or might not,
-   * have known the traffic type; if it didn't see the connection
-   * setup and wasn't running on one of the endpoints, and wasn't
-   * later told, e.g. by the human running it, what type of traffic
-   * was on that circuit, or was running on one of the endpoints
-   * but was using, to capture the packets, a mechanism that either
-   * doesn't have access to data saying what's going over the
-   * connection or doesn't bother providing that information, it
-   * won't have known the traffic type.
-   *
-   * If we don't know the full traffic type, we try to guess it
-   * based on the VPI/VCI and/or the packet header; at some point,
-   * we should provide a mechanism by which the user can specify
-   * what sort of traffic is on a particular circuit.
-   */
-  if (pinfo->pseudo_header->atm.aal == AAL_5) {
-    if (pinfo->pseudo_header->atm.type == TRAF_UNKNOWN) {
-      /*
-       * We don't know the traffic type at all.
-       * Try to guess it based on the VPI and VCI.
-       *
-       * VPI 0, VCI 5 should have been mapped to AAL_SIGNALLING
-       * by Wiretap.
-       */
-      if (pinfo->pseudo_header->atm.vpi == 0) {
-	/*
-	 * Traffic on some PVCs with a VPI of 0 and certain
-	 * VCIs is of particular types.
-	 */
-	switch (pinfo->pseudo_header->atm.vci) {
-
-	case 16:
-	  /*
-	   * ILMI.
-	   */
-	  pinfo->pseudo_header->atm.type = TRAF_ILMI;
-	  break;
-	}
-      }
-    }
-
-    if (pinfo->pseudo_header->atm.type == TRAF_UNKNOWN) {
-      /*
-       * OK, we can't tell what it is based on the VPI/VCI; try
-       * guessing based on the contents.
-       */
-      byte0 = tvb_get_guint8(tvb, 0);
-      byte1 = tvb_get_guint8(tvb, 1);
-      byte2 = tvb_get_guint8(tvb, 2);
-      if (byte0 == 0xaa && byte1 == 0xaa && byte2 == 0x03) {
-	/*
-	 * Looks like a SNAP header; assume it's LLC multiplexed
-	 * RFC 1483 traffic.
-	 */
-	pinfo->pseudo_header->atm.type = TRAF_LLCMX;
-      } else {
-	/*
-	 * Assume it's LANE.
-	 */
-	pinfo->pseudo_header->atm.type = TRAF_LANE;
-      }
-    }
-
-    if (pinfo->pseudo_header->atm.type == TRAF_LANE &&
-	pinfo->pseudo_header->atm.subtype == TRAF_ST_UNKNOWN) {
-      /*
-       * OK, it's LANE, but we don't know what type of LANE traffic
-       * it is.  Guess based on the first two bytes.
-       */
-      byte0 = tvb_get_guint8(tvb, 0);
-      byte1 = tvb_get_guint8(tvb, 1);
-      if (byte0 == 0xff && byte1 == 0x00) {
-	/*
-	 * Looks like LE Control traffic.
-	 */
-	pinfo->pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
-      } else {
-	/*
-	 * XXX - Ethernet, or Token Ring?
-	 * Assume Ethernet for now; if we see earlier
-	 * LANE traffic, we may be able to figure out
-	 * the traffic type from that, but there may
-	 * still be situations where the user has to
-	 * tell us.
-	 */
-	pinfo->pseudo_header->atm.subtype = TRAF_ST_LANE_802_3;
-      }
-    }
-  }
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");

@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.47 2002/04/30 09:23:29 guy Exp $
+ * $Id: snoop.c,v 1.48 2002/04/30 18:58:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -28,6 +28,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
+#include "atm.h"
 #include "snoop.h"
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
@@ -384,6 +385,16 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 	wth->phdr.pkt_encap = wth->file_encap;
+
+	/*
+	 * If this is ATM LANE traffic, try to guess what type of LANE
+	 * traffic it is based on the packet contents.
+	 */
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER &&
+	    wth->pseudo_header.atm.type == TRAF_LANE) {
+		atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
+		    wth->phdr.caplen, &wth->pseudo_header);
+	}
 
 	/*
 	 * Skip over the padding (don't "fseek()", as the standard

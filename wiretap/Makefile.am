@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.36 2001/12/04 22:28:19 guy Exp $
+# $Id: Makefile.am,v 1.37 2002/04/30 18:58:15 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,8 @@ libwiretap_a_SOURCES = \
 	ascend.c		\
 	ascend.h		\
 	ascend-int.h		\
+	atm.c			\
+	atm.h			\
 	buffer.c		\
 	buffer.h		\
 	csids.c			\

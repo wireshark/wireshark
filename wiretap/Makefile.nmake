@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.25 2002/02/27 09:42:52 guy Exp $
+# $Id: Makefile.nmake,v 1.26 2002/04/30 18:58:15 guy Exp $
 #
 
 include ..\config.nmake
@@ -15,6 +15,7 @@ CFLAGS=-DHAVE_CONFIG_H /I$(GLIB_DIR) /I$(ZLIB_DIR) -D_U_="" $(LOCAL_CFLAGS)
 OBJECTS=ascend-grammar.obj \
 	ascend-scanner.obj \
 	ascend.obj \
+	atm.obj \
 	buffer.obj \
 	csids.obj \
 	dbs-etherwatch.obj \
