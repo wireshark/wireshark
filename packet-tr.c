@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.18 1999/08/01 04:28:09 gram Exp $
+ * $Id: packet-tr.c,v 1.19 1999/08/10 02:54:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -407,14 +407,11 @@ add_ring_bridge_pairs(int rcf_len, const u_char *pd, proto_tree *tree)
 	int 	j, size;
 	int 	segment, brdgnmb;
 	char	buffer[50];
-	int		buff_offset=0;
+	int	buff_offset=0;
 
 	rcf_len -= 2;
 
-	if (rcf_len)
-		rcf_len >>= 1;
-
-	for(j = 1; j < rcf_len; j++) {
+	for(j = 1; j < rcf_len - 1; j += 2) {
 		if (j==1) {
 			segment=pntohs(&pd[16]) >> 4;
 			size = sprintf(buffer, "%03X",segment);
@@ -428,7 +425,7 @@ add_ring_bridge_pairs(int rcf_len, const u_char *pd, proto_tree *tree)
 		proto_tree_add_item_hidden(tree, hf_tr_rif_bridge, 16+j, 1, brdgnmb);
 		buff_offset += size;	
 	}
-	proto_tree_add_item(tree, hf_tr_rif, 16, rcf_len << 1, buffer);
+	proto_tree_add_item(tree, hf_tr_rif, 16, rcf_len, buffer);
 }
 
 void
