@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.58 2004/04/29 17:03:26 ulfl Exp $
+ * $Id: prefs.h,v 1.59 2004/04/30 00:40:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,30 @@ char string_to_name_resolve(char *string, guint32 *name_resolve);
 #define TB_STYLE_TEXT		1
 #define TB_STYLE_BOTH		2
 
+/*
+ * Types of layout of summary/details/hex panes.
+ */
+typedef enum {
+    layout_unused,  /* entry currently unused */
+    layout_type_5,
+    layout_type_2,
+    layout_type_1,
+    layout_type_4,
+    layout_type_3,
+    layout_type_6
+} layout_type_e;
+
+/*
+ * Types of pane.
+ */
+typedef enum {
+    layout_pane_content_none,
+    layout_pane_content_plist,
+    layout_pane_content_pdetails,
+    layout_pane_content_pbytes
+} layout_pane_content_e;
+
+
 typedef struct _e_prefs {
   gint     pr_format;
   gint     pr_dest;
@@ -93,10 +117,10 @@ typedef struct _e_prefs {
   guint    gui_fileopen_style;
   guint    gui_recent_files_count_max;
   gchar	   *gui_fileopen_dir;
-  gint     gui_layout_type;
-  gint     gui_layout_content_1;
-  gint     gui_layout_content_2;
-  gint     gui_layout_content_3;
+  layout_type_e gui_layout_type;
+  layout_pane_content_e gui_layout_content_1;
+  layout_pane_content_e gui_layout_content_2;
+  layout_pane_content_e gui_layout_content_3;
   guint32  name_resolve;
   gint     name_resolve_concurrency;
   gchar   *capture_device;

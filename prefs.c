@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.129 2004/04/29 17:03:26 ulfl Exp $
+ * $Id: prefs.c,v 1.130 2004/04/30 00:40:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -994,9 +994,9 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_recent_files_count_max = 10;
     prefs.gui_fileopen_dir           = g_strdup("");
     prefs.gui_layout_type            = 1;
-    prefs.gui_layout_content_1       = 0;
-    prefs.gui_layout_content_2       = 1;
-    prefs.gui_layout_content_3       = 2;
+    prefs.gui_layout_content_1       = layout_pane_content_plist;
+    prefs.gui_layout_content_2       = layout_pane_content_pdetails;
+    prefs.gui_layout_content_3       = layout_pane_content_pbytes;
 
 /* set the default values for the capture dialog box */
     prefs.capture_device           = NULL;

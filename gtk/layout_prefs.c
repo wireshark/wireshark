@@ -1,7 +1,7 @@
 /* layout_prefs.c
  * Dialog box for layout preferences
  *
- * $Id: layout_prefs.c,v 1.2 2004/04/30 00:22:45 guy Exp $
+ * $Id: layout_prefs.c,v 1.3 2004/04/30 00:40:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,7 +286,7 @@ layout_prefs_show(void)
 		icon_layout_4_xpm, icon_layout_3_xpm, icon_layout_6_xpm };
     GtkWidget ** layout_type_buttons = g_malloc (sizeof(GtkWidget*) * LAYOUT_QTY);
 
-    int i;
+    guint i;
 
 
     /* main vertical box */

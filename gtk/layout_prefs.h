@@ -1,7 +1,7 @@
 /* layout_prefs.h
  * Definitions for layout preferences window
  *
- * $Id: layout_prefs.h,v 1.1 2004/04/29 17:03:27 ulfl Exp $
+ * $Id: layout_prefs.h,v 1.2 2004/04/30 00:40:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,24 +24,6 @@
 
 #ifndef __LAYOUT_PREFS_H__
 #define __LAYOUT_PREFS_H__
-
-typedef enum {
-    layout_unused,  /* entry currently unused */
-    layout_type_5,
-    layout_type_2,
-    layout_type_1,
-    layout_type_4,
-    layout_type_3,
-    layout_type_6
-} layout_type_e;
-
-typedef enum {
-    layout_pane_content_none,
-    layout_pane_content_plist,
-    layout_pane_content_pdetails,
-    layout_pane_content_pbytes
-} layout_pane_content_e;
-
 
 GtkWidget *layout_prefs_show(void);
 void layout_prefs_fetch(GtkWidget *w);
