@@ -1,6 +1,6 @@
 /* packet-raw.h
  *
- * $Id: packet-raw.h,v 1.1 2000/02/15 21:02:58 gram Exp $
+ * $Id: packet-raw.h,v 1.2 2000/05/19 21:47:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,4 +23,4 @@
  */
 
 void capture_raw(const u_char *, packet_counts *);
-void dissect_raw(const u_char *, frame_data *, proto_tree *);
+void dissect_raw(tvbuff_t *, packet_info *, proto_tree *);
