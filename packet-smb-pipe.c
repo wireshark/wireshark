@@ -2,7 +2,7 @@
  * Routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.17 2001/03/21 22:57:26 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.18 2001/03/21 23:13:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -565,7 +565,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	const u_char *command, int DataOffset, int DataCount,
 	int ParameterOffset, int ParameterCount)
 {
- gboolean             is_interim_response;
+  gboolean            is_interim_response;
   guint32             loc_offset;
   guint16             FunctionCode;
   guint16             Level;
@@ -583,7 +583,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     /* Interim response; we weren't given any data. */
 
     is_interim_response = TRUE;
-    loc_offset = 0;
+    loc_offset = SMB_offset;
 
   }
   else {
@@ -848,7 +848,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     
     }
   }
-  else {  /* Dirn == 0, response */
+  else {  /* dirn == 0, response */
     guint16          Status;
     guint16          Convert;
     guint16          EntCount;
@@ -905,7 +905,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
-	proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "Function Code: NetShareEnum");
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: NetShareEnum");
 
       }
 
@@ -1035,7 +1035,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
-	proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "Function Code: NetServerEnum2");
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: NetServerEnum2");
 
       }
 
@@ -1205,10 +1205,10 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 	if (lanman) {
-	  proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "%s Response", lanman -> lanman_name);
+	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "%s Response", lanman -> lanman_name);
 	}
 	else {
-	  proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
+	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
 	}
       }
 
