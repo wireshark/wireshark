@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.62 2001/10/13 07:43:25 guy Exp $
+ * $Id: prefs.c,v 1.63 2001/10/16 07:35:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,14 +77,10 @@ static gchar *pf_path = NULL;
  * XXX - variables to allow us to attempt to interpret the first
  * "mgcp.{tcp,udp}.port" in a preferences file as
  * "mgcp.{tcp,udp}.gateway_port" and the second as
- * "mgcp.{tcp,udp}.callagent_port", and to allow us to interpret the
- * first "quake3.udp.port" in a preferences file as
- * "quake3.udp.arena_port" and the second as
- * "quake3.udp.master_port".
+ * "mgcp.{tcp,udp}.callagent_port".
  */
 static int mgcp_tcp_port_count;
 static int mgcp_udp_port_count;
-static int quake3_udp_port_count;
 
 e_prefs prefs;
 
@@ -787,12 +783,11 @@ read_prefs_file(const char *pf_path, FILE *pf)
   gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
 
   /*
-   * Start out the counters of "mgcp.{tcp,udp}.port" and
-   * "quake3.udp.port" entries we've seen.
+   * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
+   * seen.
    */
   mgcp_tcp_port_count = 0;
   mgcp_udp_port_count = 0;
-  quake3_udp_port_count = 0;
 
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
@@ -911,16 +906,14 @@ prefs_set_pref(char *prefarg)
 	int ret;
 
 	/*
-	 * Set the counters of "mgcp.{tcp,udp}.port" and "quake3.udp.port"
-	 * entries we've seen to values that keep us from trying to
-	 * interpret tham as "mgcp.{tcp,udp}.gateway_port",
-	 * "mgcp.{tcp,udp}.callagent_port", "quake3.udp.arena_port",
-	 * or "quake3.udp.master+port", as, from the command line, we have
-	 * no way of guessing which the user had in mind.
+	 * Set the counters of "mgcp.{tcp,udp}.port" entries we've
+	 * seen to values that keep us from trying to interpret tham
+	 * as "mgcp.{tcp,udp}.gateway_port" or "mgcp.{tcp,udp}.callagent_port",
+	 * as, from the command line, we have no way of guessing which
+	 * the user had in mind.
 	 */
 	mgcp_tcp_port_count = -1;
 	mgcp_udp_port_count = -1;
-	quake3_udp_port_count = -1;
 
 	colonp = strchr(prefarg, ':');
 	if (colonp == NULL)
@@ -1303,19 +1296,6 @@ set_pref(gchar *pref_name, gchar *value)
           /* Otherwise it's from the command line, and we don't bother
              mapping it. */
 	}
-      } else if (strncmp(pref_name, "quake3.", 6) == 0) {
-	if (strcmp(dotp, "udp.port") == 0) {
-          quake3_udp_port_count++;
-          if (quake3_udp_port_count == 1) {
-            /* It's the first one */
-            pref = find_preference(module, "udp.arena_port");
-	  } else if (quake3_udp_port_count == 2) {
-            /* It's the second one */
-            pref = find_preference(module, "udp.master_port");
-	  }
-          /* Otherwise it's from the command line, and we don't bother
-             mapping it. */
-        }
       }
     }
     if (pref == NULL)
