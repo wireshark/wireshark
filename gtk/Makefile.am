@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.96 2004/04/29 17:03:27 ulfl Exp $
+# $Id: Makefile.am,v 1.97 2004/05/21 08:44:45 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@ ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 	@$(top_srcdir)/make-tapreg-dotc ethereal-tap-register.c $(srcdir) $(ETHEREAL_TAP_SRC)
 
 noinst_HEADERS = \
+	about_dlg.h	\
 	capture_combo_utils.h \
 	capture_dlg.h	\
 	capture_prefs.h	\

@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.4 2004/05/21 00:38:45 guy Exp $
+ * $Id: about_dlg.c,v 1.5 2004/05/21 08:44:45 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -33,6 +33,7 @@
 
 #include <epan/filesystem.h>
 #include <epan/plugins.h>
+#include "about_dlg.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
