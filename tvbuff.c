@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.8 2000/08/30 02:50:04 gram Exp $
+ * $Id: tvbuff.c,v 1.9 2000/09/07 13:00:12 sharpe Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -998,6 +998,32 @@ gint tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
 	}
 }
 
+/*
+ * Implement strneql etc
+ */
+
+/* Call strncmp after checking if enough chars left, otherwise return -1 */
+
+tvb_strneql(tvbuff_t *tvb, gint offset, guint8 *str, gint size)
+{
+  guint8 *ptr;
+
+  ptr = ensure_contiguous(tvb, offset, size);
+
+  if (ptr) {
+
+    int cmp = strncmp(ptr, str, size);
+
+    return (cmp == 0 ? 0 : -1);  /* Make it -1 if comparison failed */
+
+  }
+  else {
+
+    return -1;   /* Not enough chars in the TVB */
+
+  }
+
+}
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than maxlength number of bytes, including terminating NUL, to buffer.
