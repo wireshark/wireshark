@@ -31,7 +31,7 @@ ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_srcdir)/AUTHORS-SHORT
 	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	ethereal-tmp.pod > ../ethereal.1
+	ethereal-tmp.pod | sed 's/ETHEREAL-TMP/ETHEREAL/' > ../ethereal.1
 
 ../ethereal.html: ethereal-tmp.pod ../config.h
 	$(POD2HTML)                    \
