@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.26 2000/08/10 20:09:28 deniel Exp $
+ * $Id: resolv.c,v 1.27 2000/08/10 22:35:30 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -211,7 +211,8 @@ static u_char *serv_name_lookup(u_int port, u_int proto)
   tp->addr = port;
   tp->next = NULL;
 
-  if ((servp = getservbyport(htons(port), serv_proto)) == NULL) {
+  if (!g_resolving_actif || 
+      (servp = getservbyport(htons(port), serv_proto)) == NULL) {
     /* unknown port */
     sprintf(tp->name, "%d", port);
   } else {
@@ -269,27 +270,29 @@ static u_char *host_name_lookup(u_int addr, gboolean *found)
   tp->addr = addr;
   tp->next = NULL;
 
+  if (g_resolving_actif) {
 #ifdef AVOID_DNS_TIMEOUT
     
-  /* Quick hack to avoid DNS/YP timeout */
+    /* Quick hack to avoid DNS/YP timeout */
   
-  if (!setjmp(hostname_env)) {
-    signal(SIGALRM, abort_network_query);
-    alarm(DNS_TIMEOUT);
+    if (!setjmp(hostname_env)) {
+      signal(SIGALRM, abort_network_query);
+      alarm(DNS_TIMEOUT);
 #endif
-    hostp = gethostbyaddr((char *)&addr, 4, AF_INET);
+      hostp = gethostbyaddr((char *)&addr, 4, AF_INET);
 #ifdef AVOID_DNS_TIMEOUT
-    alarm(0);
+      alarm(0);
 #endif
-    if (hostp != NULL) {
-      strncpy(tp->name, hostp->h_name, MAXNAMELEN);
-      tp->name[MAXNAMELEN-1] = '\0';
-      tp->is_dummy_entry = FALSE;
-      return tp->name;
+      if (hostp != NULL) {
+	strncpy(tp->name, hostp->h_name, MAXNAMELEN);
+	tp->name[MAXNAMELEN-1] = '\0';
+	tp->is_dummy_entry = FALSE;
+	return tp->name;
+      }
+#ifdef AVOID_DNS_TIMEOUT
     }
-#ifdef AVOID_DNS_TIMEOUT
-  }
 #endif
+  }
 
   /* unknown host or DNS timeout */
 
@@ -306,27 +309,30 @@ static u_char *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
   static u_char name[MAXNAMELEN];
 #ifdef INET6
   struct hostent *hostp;
+
+  if (g_resolving_actif) {
 #ifdef AVOID_DNS_TIMEOUT
     
-  /* Quick hack to avoid DNS/YP timeout */
-  
-  if (!setjmp(hostname_env)) {
-    signal(SIGALRM, abort_network_query);
-    alarm(DNS_TIMEOUT);
+    /* Quick hack to avoid DNS/YP timeout */
+    
+    if (!setjmp(hostname_env)) {
+      signal(SIGALRM, abort_network_query);
+      alarm(DNS_TIMEOUT);
 #endif /* AVOID_DNS_TIMEOUT */
-    hostp = gethostbyaddr((char *)addr, sizeof(*addr), AF_INET6);
+      hostp = gethostbyaddr((char *)addr, sizeof(*addr), AF_INET6);
 #ifdef AVOID_DNS_TIMEOUT
-    alarm(0);
+      alarm(0);
 #endif
-    if (hostp != NULL) {
-      strncpy(name, hostp->h_name, MAXNAMELEN);
-      name[MAXNAMELEN-1] = '\0';
-      *found = TRUE;
-      return name;
+      if (hostp != NULL) {
+	strncpy(name, hostp->h_name, MAXNAMELEN);
+	name[MAXNAMELEN-1] = '\0';
+	*found = TRUE;
+	return name;
+      }
+#ifdef AVOID_DNS_TIMEOUT
     }
-#ifdef AVOID_DNS_TIMEOUT
-  }
 #endif
+  }
 
   /* unknown host or DNS timeout */
 #endif /* INET6 */
@@ -597,10 +603,6 @@ static hashmanuf_t *manuf_name_lookup(const u_char *addr)
 static void initialize_ethers(void)
 {
   ether_t *eth;
-
-#ifdef DEBUG_RESOLV
-  signal(SIGSEGV, SIG_IGN);
-#endif
 
   /* Set g_pethers_path here, but don't actually do anything
    * with it. It's used in get_ethbyname() and get_ethbyaddr()
@@ -895,10 +897,6 @@ static ipxnet_t *get_ipxnetbyaddr(guint32 addr)
 
 static void initialize_ipxnets(void)
 {
-
-#ifdef DEBUG_RESOLV
-  signal(SIGSEGV, SIG_IGN);
-#endif
 
   /* Set g_pipxnets_path here, but don't actually do anything
    * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
