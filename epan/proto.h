@@ -78,9 +78,24 @@ typedef struct _protocol protocol_t;
 	}								\
   }
 
+/** Macro used for reporting errors in dissectors; it throws a
+ * DissectorError exception, with the string passed as an argument
+ * as the message for the exception, so that it can show up in
+ * the Info column and the protocol tree.
+ *
+ * That string should be allocated with g_malloc(); using
+ * "g_strdup_printf()" would work.
+ *
+ * @param message string to use as the message
+ */
+#define REPORT_DISSECTOR_BUG(message)  \
+  (THROW_MESSAGE(DissectorError, message))
+
 /** Macro used for assertions in dissectors; it doesn't abort, it just
  * throws a DissectorError exception, with the assertion failure
  * message as a parameter, so that it can show up in the protocol tree.
+ *
+ * @param expression expression to test in the assertion
  */
 #define DISSECTOR_ASSERT(expression)  \
   ((void) ((expression) ? 0 : \
@@ -89,7 +104,7 @@ typedef struct _protocol protocol_t;
 #define __DISSECTOR_ASSERT_STRINGIFY(s)	# s
 
 #define __DISSECTOR_ASSERT(expression, file, lineno)  \
-  (THROW_MESSAGE(DissectorError, \
+  (REPORT_DISSECTOR_BUG( \
     g_strdup_printf("%s:%u: failed assertion \"%s\"", \
      file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
 
