@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.10 2001/07/13 00:01:35 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.11 2001/07/13 00:27:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -539,6 +539,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint8 server_count;
 	int i;
 	guint32 criterion;
+	guint32 uptime;
 
 	if (!proto_is_protocol_enabled(proto_smb_browse)) {
 		return FALSE;
@@ -578,9 +579,8 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		periodicity = tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint_format(tree, hf_periodicity, tvb, offset, 4,
 		    periodicity,
-		    "Update Periodicity: %u.%03u sec",
-		    periodicity/1000,
-		    periodicity%1000);
+		    "Update Periodicity: %s",
+		    time_msecs_to_str(periodicity));
 		offset += 4;
 
 		/* server name */
@@ -686,7 +686,11 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 4;
 
 		/* server uptime */
-		proto_tree_add_item(tree, hf_server_uptime, tvb, offset, 4, TRUE);
+		uptime = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint_format(tree, hf_server_uptime,
+		    tvb, offset, 4, uptime,
+		    "Uptime: %s",
+		    time_msecs_to_str(uptime));
 		offset += 4;
 
 		/* next 4 bytes must be zero */

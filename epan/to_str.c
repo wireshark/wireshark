@@ -1,7 +1,7 @@
 /* to_str.h
  * Routines  for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.8 2001/05/31 06:47:59 guy Exp $
+ * $Id: to_str.c,v 1.9 2001/07/13 00:27:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -317,6 +317,66 @@ time_secs_to_str(guint32 time)
     do_comma = 0;
   if (secs != 0)
     sprintf(p, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
+  return cur;
+}
+
+gchar *
+time_msecs_to_str(guint32 time)
+{
+  static gchar  str[3][8+1+4+2+2+5+2+2+7+2+2+11+1];
+  static gchar *cur, *p;
+  int hours, mins, secs;
+  int msecs;
+  int do_comma;
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {  
+    cur = &str[2][0];
+  } else {  
+    cur = &str[0][0];
+  }
+
+  if (time == 0) {
+    sprintf(cur, "0 time");
+    return cur;
+  }
+
+  msecs = time % 1000;
+  time /= 1000;
+
+  secs = time % 60;
+  time /= 60;
+  mins = time % 60;
+  time /= 60;
+  hours = time % 24;
+  time /= 24;
+
+  p = cur;
+  if (time != 0) {
+    sprintf(p, "%u day%s", time, PLURALIZE(time));
+    p += strlen(p);
+    do_comma = 1;
+  } else
+    do_comma = 0;
+  if (hours != 0) {
+    sprintf(p, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
+    p += strlen(p);
+    do_comma = 1;
+  } else
+    do_comma = 0;
+  if (mins != 0) {
+    sprintf(p, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
+    p += strlen(p);
+    do_comma = 1;
+  } else
+    do_comma = 0;
+  if (secs != 0) {
+    if (msecs != 0)
+      sprintf(p, "%s%u.%03u seconds", COMMA(do_comma), secs, msecs);
+    else
+      sprintf(p, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
+  }
   return cur;
 }
 
