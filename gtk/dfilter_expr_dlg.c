@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.17 2001/02/20 20:06:04 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.18 2001/02/20 20:14:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -824,6 +824,19 @@ dfilter_expr_dlg_cancel_cb(GtkWidget *w, gpointer parent_w)
 	gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
+static void
+dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
+{
+	/*
+	 * The dialog box is being destroyed; disconnect from the
+	 * "destroy" signal on the text entry box to which we're
+	 * attached, as the handler for that signal is supposed
+	 * to destroy us, but we're already gone.
+	 */
+	gtk_signal_disconnect_by_func(GTK_OBJECT(filter_te),
+	    dfilter_expr_dlg_cancel_cb, w);
+}
+
 void
 dfilter_expr_dlg_new(GtkWidget *filter_te)
 {
@@ -1110,6 +1123,14 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	 */
 	gtk_clist_set_selection_mode (GTK_CLIST(tree),
 				      GTK_SELECTION_BROWSE);
+
+	/*
+	 * Catch the "destroy" signal on our top-level window, and,
+	 * when it's destroyed, disconnect the signal we'll be
+	 * connecting below.
+	 */
+	gtk_signal_connect(GTK_OBJECT(window), "destroy",
+	    GTK_SIGNAL_FUNC(dfilter_expr_dlg_destroy_cb), filter_te);
 
 	/*
 	 * Catch the "destroy" signal on the text entry widget to which
