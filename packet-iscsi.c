@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.44 2003/06/15 00:16:06 sahlberg Exp $
+ * $Id: packet-iscsi.c,v 1.45 2003/06/15 02:02:59 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1503,7 +1503,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 }
 
 static gboolean
-dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean check_port) {
     /* Set up structures needed to add the protocol subtree and manage it */
     guint iSCSIPdusDissected = 0;
     guint offset = 0;
@@ -1544,7 +1544,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	if(opcode_str == NULL) {
 	    badPdu = TRUE;
 	}
-	else if(iscsi_port != 0 &&
+	else if(check_port && iscsi_port != 0 &&
 		(((opcode & TARGET_OPCODE_BIT) && pinfo->srcport != iscsi_port) ||
 		 (!(opcode & TARGET_OPCODE_BIT) && pinfo->destport != iscsi_port))) {
 	    badPdu = TRUE;
@@ -1650,7 +1650,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	       a PDU.
 	    */
 	    if(!pinfo->fd->flags.visited){
-		if(pduLen>tvb_reported_length_remaining(tvb, offset)){
+		if(pduLen>(guint32)tvb_reported_length_remaining(tvb, offset)){
 		    pinfo->want_pdu_tracking=2;
 		    pinfo->bytes_until_next_pdu=pduLen-tvb_reported_length_remaining(tvb, offset);
 		}
@@ -1673,6 +1673,26 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
 
     return iSCSIPdusDissected > 0;
+}
+
+/* This is called for those sessions where we have explicitely said
+   this to be iSCSI using "Decode As..."
+   In this case we will not check the port number for sanity and just
+   do as the user said.
+*/
+static void
+dissect_iscsi_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    dissect_iscsi(tvb, pinfo, tree, FALSE);
+}
+
+/* This is called through the heuristic handler.
+   In this case we also want to check that the port matches the preference
+   setting for iSCSI in order to reduce the number of
+   false positives.
+*/
+static gboolean
+dissect_iscsi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    return dissect_iscsi(tvb, pinfo, tree, TRUE);
 }
 
 
@@ -2247,6 +2267,7 @@ proto_register_iscsi(void)
 				       10,
 				       &bogus_pdu_data_length_threshold);
 
+
 	prefs_register_uint_preference(iscsi_module,
 				       "target_port",
 				       "Target port",
@@ -2311,5 +2332,10 @@ proto_register_iscsi(void)
 void
 proto_reg_handoff_iscsi(void)
 {
-    heur_dissector_add("tcp", dissect_iscsi, proto_iscsi);
+    dissector_handle_t iscsi_handle;
+
+    heur_dissector_add("tcp", dissect_iscsi_heur, proto_iscsi);
+
+    iscsi_handle = create_dissector_handle(dissect_iscsi_handle, proto_iscsi);
+    dissector_add_handle("tcp.port", iscsi_handle);
 }
