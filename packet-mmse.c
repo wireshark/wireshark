@@ -3,7 +3,7 @@
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  * Copyright 2004, Olivier Biot
  *
- * $Id: packet-mmse.c,v 1.33 2004/04/13 22:07:34 obiot Exp $
+ * $Id: packet-mmse.c,v 1.34 2004/04/20 23:54:19 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,7 @@
  * Dissector of an encoded Multimedia message PDU, as defined by the WAPForum
  * (http://www.wapforum.org) in "WAP-209-MMSEncapsulation-20020105-a".
  * Subsequent releases of MMS are in control of the Open Mobile Alliance (OMA):
- * Dissection of MMS 1.1 as in OMA-MMS-ENC-v1.1 (not finished yet).
+ * Dissection of MMS 1.1 as in OMA-MMS-ENC-v1.1.
  * Dissection of MMS 1.2 as in OMA-MMS-ENC-v1.2 (not finished yet).
  */
 
@@ -230,11 +230,27 @@ static int hf_mmse_subject		= -1;
 static int hf_mmse_to			= -1;
 static int hf_mmse_content_type		= -1;
 static int hf_mmse_ffheader		= -1;
+/* MMSE 1.1 */
+static int hf_mmse_read_report		= -1;
+static int hf_mmse_retrieve_status	= -1;
+static int hf_mmse_retrieve_text	= -1;
+static int hf_mmse_read_status		= -1;
+static int hf_mmse_reply_charging	= -1;
+static int hf_mmse_reply_charging_deadline	= -1;
+static int hf_mmse_reply_charging_id	= -1;
+static int hf_mmse_reply_charging_size	= -1;
+static int hf_mmse_prev_sent_by	= -1;
+static int hf_mmse_prev_sent_by_fwd_count	= -1;
+static int hf_mmse_prev_sent_by_address	= -1;
+static int hf_mmse_prev_sent_date	= -1;
+static int hf_mmse_prev_sent_date_fwd_count	= -1;
+static int hf_mmse_prev_sent_date_date	= -1;
 
 /*
  * Initialize the subtree pointers
  */
-static gint ett_mmse = -1;
+static gint ett_mmse			= -1;
+static gint ett_mmse_hdr_details	= -1;
 
 /*
  * Valuestrings for PDU types
@@ -385,6 +401,50 @@ static const value_string vals_message_status[] = {
     { 0x00, NULL },
 };
 
+static const value_string vals_retrieve_status[] = {
+    /*
+     * Transient errors
+     */
+    /* MMS 1.1 */
+    { 0xC0, "Transient failure" },
+    { 0xC1, "Transient: Message not found" },
+    { 0xC2, "Transient: Network problem" },
+
+    /*
+     * Permanent errors
+     */
+    /* MMS 1.1 */
+    { 0xE0, "Permanent failure" },
+    { 0xE1, "Permanent: Service denied" },
+    { 0xE2, "Permanent: Message not found" },
+    { 0xE3, "Permanent: Content unsupported" },
+
+    { 0x00, NULL },
+};
+
+static const value_string vals_read_status[] = {
+    { 0x80, "Read" },
+    { 0x81, "Deleted without being read" },
+
+    { 0x00, NULL },
+};
+
+static const value_string vals_reply_charging[] = {
+    { 0x80, "Requested" },
+    { 0x81, "Requested text only" },
+    { 0x82, "Accepted" },
+    { 0x83, "Accepted text only" },
+
+    { 0x00, NULL },
+};
+
+static const value_string vals_reply_charging_deadline[] = {
+    { 0x80, "Absolute" },
+    { 0x81, "Relative" },
+
+    { 0x00, NULL },
+};
+
 /*!
  * Decodes a Text-string from the protocol data
  * 	Text-string = [Quote] *TEXT End-of-string
@@ -522,6 +582,59 @@ get_long_integer(tvbuff_t *tvb, guint offset, guint *byte_count)
     return val;
 }
 
+/*!
+ * Decodes an Integer-value from the protocol data
+ * 	Integer-value = Short-integer | Long-integer
+ * 	Short-integer = OCTET
+ * 	Long-integer = Short-length Multi-octet-integer
+ * 	Short-length = <Any octet 0-30>
+ * 	Multi-octet-integer = 1*30OCTET
+ *
+ * \todo Shouldn't we be sharing this with WSP (packet-wap.c)?
+ *
+ * \param	tvb		The buffer with PDU-data
+ * \param	offset		Offset within that buffer
+ * \param	byte_count	Returns the length in bytes of the field
+ *
+ * \return			The value of the Long-integer
+ *
+ * \note	A maximum of 4-byte integers will be handled.
+ */
+static guint
+get_integer_value(tvbuff_t *tvb, guint offset, guint *byte_count)
+{
+    guint	 val;
+    guint8 peek;
+
+    peek = tvb_get_guint8(tvb, offset++);
+    if (peek & 0x80) {
+	val = peek & 0x7F;
+	*byte_count = 1;
+	return val;
+    } else {
+	*byte_count = peek;
+	switch (peek) {
+	case 1:
+	    val = tvb_get_guint8(tvb, offset);
+	    break;
+	case 2:
+	    val = tvb_get_ntohs(tvb, offset);
+	    break;
+	case 3:
+	    val = tvb_get_ntoh24(tvb, offset);
+	    break;
+	case 4:
+	    val = tvb_get_ntohl(tvb, offset);
+	    break;
+	default:
+	    val = 0;
+	    break;
+	}
+    }
+    (*byte_count)++;
+    return val;
+}
+
 /* Code to actually dissect the packets */
 static gboolean
 dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -600,6 +713,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
     char	 *strval;
     guint	 length;
     guint	 count;
+    guint8	 version = 0x80; /* Default to MMSE 1.0 */
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item	*ti = NULL;
@@ -656,12 +770,12 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    offset += length;
 		    break;
 		case MM_VERSION_HDR:		/* nibble-Major/nibble-minor*/
-		    field = tvb_get_guint8(tvb, offset++);
+		    version = tvb_get_guint8(tvb, offset++);
 		    if (tree) {
 			guint8	 major, minor;
 
-			major = (field & 0x70) >> 4;
-			minor = field & 0x0F;
+			major = (version & 0x70) >> 4;
+			minor = version & 0x0F;
 			if (minor == 0x0F)
 			    strval = g_strdup_printf("%u", major);
 			else
@@ -870,8 +984,13 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		case MM_RREPLY_HDR:		/* Yes|No		*/
 		    field = tvb_get_guint8(tvb, offset++);
 		    if (tree) {
-			proto_tree_add_uint(mmse_tree, hf_mmse_read_reply, tvb,
-				offset - 2, 2, field);
+			if (version == 0x80) { /* MMSE 1.0 */
+			    proto_tree_add_uint(mmse_tree, hf_mmse_read_reply,
+				    tvb, offset - 2, 2, field);
+			} else {
+			    proto_tree_add_uint(mmse_tree, hf_mmse_read_report,
+				    tvb, offset - 2, 2, field);
+			}
 		    }
 		    break;
 		case MM_RALLOWED_HDR:		/* Yes|No		*/
@@ -949,6 +1068,158 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    g_free(strval);
 		    offset += length;
 		    break;
+
+		/*
+		 * MMS Encapsulation 1.1
+		 */
+		case MM_RETRIEVE_STATUS_HDR:	/* Well-known-value */
+		    field = tvb_get_guint8(tvb, offset++);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree, hf_mmse_retrieve_status,
+				tvb, offset - 2, 2, field);
+		    }
+		    break;
+		case MM_RETRIEVE_TEXT_HDR:
+		    if (pdut == PDU_M_MBOX_DELETE_CONF) {
+			/* General form with length */
+			length = tvb_get_guint8(tvb, offset);
+			if (length == 0x1F) {
+			    guint length_len = 0;
+			    length = tvb_get_guintvar(tvb, offset + 1,
+				    &length_len);
+			    length += 1 + length_len;
+			} else {
+			    length += 1;
+			}
+			if (tree) {
+			    proto_tree_add_string(mmse_tree,
+				    hf_mmse_content_location,
+				    tvb, offset - 1, length + 1,
+				    "<Undecoded value for m-mbox-delete-conf>");
+			}
+		    } else {
+			/* Encoded-string-value */
+			length = get_encoded_strval(tvb, offset, &strval);
+			if (tree) {
+			    proto_tree_add_string(mmse_tree,
+				    hf_mmse_retrieve_text, tvb, offset - 1,
+				    length + 1, strval);
+			}
+			g_free(strval);
+		    }
+		    offset += length;
+		    break;
+		case MM_READ_STATUS_HDR:	/* Well-known-value */
+		    field = tvb_get_guint8(tvb, offset++);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree, hf_mmse_read_status,
+				tvb, offset - 2, 2, field);
+		    }
+		    break;
+		case MM_REPLY_CHARGING_HDR:	/* Well-known-value */
+		    field = tvb_get_guint8(tvb, offset++);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree, hf_mmse_reply_charging,
+				tvb, offset - 2, 2, field);
+		    }
+		    break;
+		case MM_REPLY_CHARGING_DEADLINE_HDR:	/* Well-known-value */
+		    field = tvb_get_guint8(tvb, offset++);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree,
+				hf_mmse_reply_charging_deadline,
+				tvb, offset - 2, 2, field);
+		    }
+		    break;
+		case MM_REPLY_CHARGING_ID_HDR:	/* Text-string */
+		    length = get_text_string(tvb, offset, &strval);
+		    if (tree) {
+			proto_tree_add_string(mmse_tree,
+				hf_mmse_reply_charging_id,
+				tvb, offset - 1, length + 1, strval);
+		    }
+		    g_free(strval);
+		    offset += length;
+		    break;
+		case MM_REPLY_CHARGING_SIZE_HDR:	/* Long-integer */
+		    length = get_long_integer(tvb, offset, &count);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree,
+				hf_mmse_reply_charging_size,
+				tvb, offset - 1, count + 1, length);
+		    }
+		    offset += count;
+		    break;
+		case MM_PREV_SENT_BY_HDR:
+		    /* Value-length Integer-value Encoded-string-value */
+		    length = get_value_length(tvb, offset, &count);
+		    if (tree) {
+			guint32 fwd_count, count1, count2;			
+			proto_tree *subtree = NULL;
+			proto_item *ti = NULL;
+			/* 1. Forwarded-count-value := Integer-value */
+			fwd_count = get_integer_value(tvb, offset + count,
+			    &count1);
+			/* 2. Encoded-string-value */
+			count2 = get_encoded_strval(tvb,
+				offset + count + count1, &strval);
+			/* Now render the fields */
+			ti = proto_tree_add_string_format(tree,
+				hf_mmse_prev_sent_by,
+				tvb, offset - 1, 1 + count + length,
+				"%s (Forwarded-count=%u)",
+				strval, fwd_count);
+			subtree = proto_item_add_subtree(ti,
+				ett_mmse_hdr_details);
+			proto_tree_add_uint(subtree,
+				hf_mmse_prev_sent_by_fwd_count,
+				tvb, offset + count, count1, fwd_count);
+			proto_tree_add_string(subtree,
+				hf_mmse_prev_sent_by_address,
+				tvb, offset + count + count1, count2, strval);
+			g_free(strval);
+		    }
+		    offset += length + count;
+		    break;
+		case MM_PREV_SENT_DATE_HDR:
+		    /* Value-Length Forwarded-count-value Date-value */
+		    length = get_value_length(tvb, offset, &count);
+		    if (tree) {
+			guint32 fwd_count, count1, count2;			
+			guint		 tval;
+			nstime_t	 tmptime;
+			proto_tree *subtree = NULL;
+			proto_item *ti = NULL;
+			/* 1. Forwarded-count-value := Integer-value */
+			fwd_count = get_integer_value(tvb, offset + count,
+			    &count1);
+			/* 2. Date-value := Long-integer */
+			tval = get_long_integer(tvb, offset + count + count1,
+				&count2);
+			tmptime.secs = tval;
+			tmptime.nsecs = 0;
+			strval = abs_time_to_str(&tmptime);
+			/* Now render the fields */
+			ti = proto_tree_add_string_format(tree,
+				hf_mmse_prev_sent_date,
+				tvb, offset - 1, 1 + count + length,
+				"%s (Forwarded-count=%u)",
+				strval, fwd_count);
+			subtree = proto_item_add_subtree(ti,
+				ett_mmse_hdr_details);
+			proto_tree_add_uint(subtree,
+				hf_mmse_prev_sent_date_fwd_count,
+				tvb, offset + count, count1, fwd_count);
+			proto_tree_add_string(subtree,
+				hf_mmse_prev_sent_date_date,
+				tvb, offset + count + count1, count2, strval);
+			g_free(strval);
+		    }
+		    offset += length + count;
+		    break;
+
+		/* MMS Encapsulation 1.2 */
+
 		default:
 		    if (field & 0x80) { /* Well-known WSP header encoding */
 			guint8 peek = tvb_get_guint8(tvb, offset);
@@ -1057,14 +1328,14 @@ proto_register_mmse(void)
     /* Setup list of header fields  See Section 1.6.1 for details	*/
     static hf_register_info hf[] = {
 	{   &hf_mmse_message_type,
-	    {   "Message-Type", "mmse.message_type",
+	    {   "X-Mms-Message-Type", "mmse.message_type",
 		FT_UINT8, BASE_HEX, VALS(vals_message_type), 0x00,
 		"Specifies the transaction type. Effectively defines PDU.",
 		HFILL
 	    }
 	},
 	{   &hf_mmse_transaction_id,
-	    {   "Transaction-ID", "mmse.transaction_id",
+	    {   "X-Mms-Transaction-ID", "mmse.transaction_id",
 		FT_STRING, BASE_NONE, NULL, 0x00,
 		"A unique identifier for this transaction. "
 		"Identifies request and corresponding response only.",
@@ -1072,7 +1343,7 @@ proto_register_mmse(void)
 	    }
 	},
 	{   &hf_mmse_mms_version,
-	    {   "MMS-Version", "mmse.mms_version",
+	    {   "X-Mms-MMS-Version", "mmse.mms_version",
 		FT_STRING, BASE_NONE, NULL, 0x00,
 		"Version of the protocol used.",
 		HFILL
@@ -1093,7 +1364,7 @@ proto_register_mmse(void)
 	    }
 	},
 	{   &hf_mmse_content_location,
-	    {   "Content-Location", "mmse.content_location",
+	    {   "X-Mms-Content-Location", "mmse.content_location",
 		FT_STRING, BASE_NONE, NULL, 0x00,
 		"Defines the location of the message.",
 		HFILL
@@ -1107,35 +1378,35 @@ proto_register_mmse(void)
 	    }
 	},
 	{   &hf_mmse_delivery_report,
-	    {   "Delivery-Report", "mmse.delivery_report",
+	    {   "X-Mms-Delivery-Report", "mmse.delivery_report",
 		FT_UINT8, BASE_HEX, VALS(vals_yes_no), 0x00,
 		"Whether a report of message delivery is wanted or not.",
 		HFILL
 	    }
 	},
 	{   &hf_mmse_delivery_time_abs,
-	    {   "Delivery-Time", "mmse.delivery_time.abs",
+	    {   "X-Mms-Delivery-Time", "mmse.delivery_time.abs",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
 		"The time at which message delivery is desired.",
 		HFILL
 	    }
 	},
 	{   &hf_mmse_delivery_time_rel,
-	    {   "Delivery-Time", "mmse.delivery_time.rel",
+	    {   "X-Mms-Delivery-Time", "mmse.delivery_time.rel",
 		FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
 		"The desired message delivery delay.",
 		HFILL
 	    }
 	},
 	{   &hf_mmse_expiry_abs,
-	    {   "Expiry", "mmse.expiry.abs",
+	    {   "X-Mms-Expiry", "mmse.expiry.abs",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
 		"Time when message expires and need not be delivered anymore.",
 		HFILL
 	    }
 	},
 	{   &hf_mmse_expiry_rel,
-	    {   "Expiry", "mmse.expiry.rel",
+	    {   "X-Mms-Expiry", "mmse.expiry.rel",
 		FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
 		"Delay before message expires and need not be delivered anymore.",
 		HFILL
@@ -1149,14 +1420,14 @@ proto_register_mmse(void)
 	    }
 	},
 	{   &hf_mmse_message_class_id,
-	    {   "Message-Class", "mmse.message_class.id",
+	    {   "X-Mms-Message-Class", "mmse.message_class.id",
 		FT_UINT8, BASE_HEX, VALS(vals_message_class), 0x00,
 		"Of what category is the message.",
 		HFILL
 	    }
 	},
 	{   &hf_mmse_message_class_str,
-	    {   "Message-Class", "mmse.message_class.str",
+	    {   "X-Mms-Message-Class", "mmse.message_class.str",
 		FT_STRING, BASE_NONE, NULL, 0x00,
 		"Of what category is the message.",
 		HFILL
@@ -1170,28 +1441,35 @@ proto_register_mmse(void)
 	    }
 	},
 	{   &hf_mmse_message_size,
-	    {   "Message-Size", "mmse.message_size",
+	    {   "X-Mms-Message-Size", "mmse.message_size",
 		FT_UINT32, BASE_DEC, NULL, 0x00,
 		"The size of the message in octets.",
 		HFILL
 	    }
 	},
 	{   &hf_mmse_priority,
-	    {   "Priority", "mmse.priority",
+	    {   "X-Mms-Priority", "mmse.priority",
 		FT_UINT8, BASE_HEX, VALS(vals_priority), 0x00,
 		"Priority of the message.",
 		HFILL
 	    }
 	},
 	{   &hf_mmse_read_reply,
-	    {   "Read-Reply", "mmse.read_reply",
+	    {   "X-Mms-Read-Reply", "mmse.read_reply",
+		FT_UINT8, BASE_HEX, VALS(vals_yes_no), 0x00,
+		"Whether a read report from every recipient is wanted.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_read_report,
+	    {   "X-Mms-Read-Report", "mmse.read_report",
 		FT_UINT8, BASE_HEX, VALS(vals_yes_no), 0x00,
 		"Whether a read report from every recipient is wanted.",
 		HFILL
 	    }
 	},
 	{   &hf_mmse_report_allowed,
-	    {   "Report-Allowed", "mmse.report_allowed",
+	    {   "X-Mms-Report-Allowed", "mmse.report_allowed",
 		FT_UINT8, BASE_HEX, VALS(vals_yes_no), 0x00,
 		"Sending of delivery report allowed or not.",
 		HFILL
@@ -1253,10 +1531,106 @@ proto_register_mmse(void)
 		HFILL
 	    }
 	},
+	/* MMSE 1.1 */
+	{   &hf_mmse_retrieve_status,
+	    {   "X-Mms-Retrieve-Status", "mmse.retrieve_status",
+		FT_UINT8, BASE_HEX, VALS(vals_retrieve_status), 0x00,
+		"MMS-specific result of a message retrieval.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_retrieve_text,
+	    {   "X-Mms-Retrieve-Text", "mmse.retrieve_text",
+		FT_STRING, BASE_NONE, NULL, 0x00,
+		"Status text of a MMS message retrieval.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_read_status,
+	    {   "X-Mms-Read-Status", "mmse.read_status",
+		FT_UINT8, BASE_HEX, VALS(vals_read_status), 0x00,
+		"MMS-specific message read status.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_reply_charging,
+	    {   "X-Mms-Reply-Charging", "mmse.reply_charging",
+		FT_UINT8, BASE_HEX, VALS(vals_reply_charging), 0x00,
+		"MMS-specific message reply charging method.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_reply_charging_deadline,
+	    {   "X-Mms-Reply-Charging-Deadline", "mmse.reply_charging_deadline",
+		FT_UINT8, BASE_HEX, VALS(vals_reply_charging_deadline), 0x00,
+		"MMS-specific message reply charging deadline type.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_reply_charging_id,
+	    {   "X-Mms-Reply-Charging-Id", "mmse.reply_charging_id",
+		FT_STRING, BASE_NONE, NULL, 0x00,
+		"Unique reply charging identification of the message.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_reply_charging_size,
+	    {   "X-Mms-Reply-Charging-Size", "mmse.reply_charging_size",
+		FT_UINT32, BASE_DEC, NULL, 0x00,
+		"The size of the reply charging in octets.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_prev_sent_by,
+	    {   "X-Mms-Previously-Sent-By", "mmse.previously_sent_by",
+    		FT_STRING, BASE_NONE, NULL, 0x00,
+    		"Indicates that the MM has been previously sent by this user.",
+    		HFILL
+	    }
+	},
+	{   &hf_mmse_prev_sent_by_fwd_count,
+	    {   "Forward Count", "mmse.previously_sent_by.forward_count",
+		FT_UINT32, BASE_DEC, NULL, 0x00,
+		"Forward count of the previously sent MM.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_prev_sent_by_address,
+	    {   "Address", "mmse.previously_sent_by.address",
+    		FT_STRING, BASE_NONE, NULL, 0x00,
+    		"Indicates from whom the MM has been previously sent.",
+    		HFILL
+	    }
+	},
+	{   &hf_mmse_prev_sent_date,
+	    {   "X-Mms-Previously-Sent-Date", "mmse.previously_sent_date",
+    		FT_STRING, BASE_NONE, NULL, 0x00,
+    		"Indicates the date that the MM has been previously sent.",
+    		HFILL
+	    }
+	},
+	{   &hf_mmse_prev_sent_date_fwd_count,
+	    {   "Forward Count", "mmse.previously_sent_date.forward_count",
+		FT_UINT32, BASE_DEC, NULL, 0x00,
+		"Forward count of the previously sent MM.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_prev_sent_date_date,
+	    {   "Date", "mmse.previously_sent_date.date",
+		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+		"Time when the MM has been previously sent.",
+    		HFILL
+	    }
+	},
+
+
+
     };
     /* Setup protocol subtree array */
     static gint *ett[] = {
 	&ett_mmse,
+	&ett_mmse_hdr_details,
     };
 
     /* Register the protocol name and description */
