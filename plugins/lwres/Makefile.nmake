@@ -1,21 +1,19 @@
 #
-# $Id: Makefile.nmake,v 1.1 2003/08/05 05:03:30 guy Exp $
+# $Id: Makefile.nmake,v 1.2 2003/08/05 17:09:54 guy Exp $
 #
 
 include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
-	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
-	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 OBJECTS=packet-lwres.obj 
 
 lwres.dll lwres.exp lwres.lib : packet-lwres.obj ..\plugin_api.obj
 	link -dll /out:lwres.dll packet-lwres.obj ..\plugin_api.obj \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 clean:
 	rm -f $(OBJECTS) lwres.dll lwres.exp lwres.lib $(PDB_FILE)
