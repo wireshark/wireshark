@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.50 2001/12/26 22:32:57 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.51 2001/12/29 00:43:55 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,8 @@
 #include "etypes.h"
 #include "ipproto.h"
 
+#include "packet-ip.h"
+
 static int proto_rsvp = -1;
 
 static gint ett_rsvp = -1;
@@ -87,10 +89,13 @@ static gint ett_rsvp_confirm = -1;
 static gint ett_rsvp_sender_template = -1;
 static gint ett_rsvp_filter_spec = -1;
 static gint ett_rsvp_sender_tspec = -1;
+static gint ett_rsvp_sender_tspec_subtree = -1;
 static gint ett_rsvp_flowspec = -1;
+static gint ett_rsvp_flowspec_subtree = -1;
 static gint ett_rsvp_adspec = -1;
 static gint ett_rsvp_adspec_subtree = -1;
 static gint ett_rsvp_integrity = -1;
+static gint ett_rsvp_dclass = -1;
 static gint ett_rsvp_policy = -1;
 static gint ett_rsvp_label = -1;
 static gint ett_rsvp_label_request = -1;
@@ -179,6 +184,7 @@ enum rsvp_classes {
     RSVP_CLASS_SUGGESTED_LABEL = 140,  /* Number is TBA */
 
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
+    RSVP_CLASS_DCLASS = 225,
 };
 
 static value_string rsvp_class_vals[] = { 
@@ -209,6 +215,7 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_UPSTREAM_LABEL, "UPSTREAM-LABEL object"},
     {RSVP_CLASS_LABEL_SET, "LABEL-SET object"},
     {RSVP_CLASS_SUGGESTED_LABEL, "SUGGESTED-LABEL object"},
+    {RSVP_CLASS_DCLASS, "DCLASS object"},
     {0, NULL}
 };
 
@@ -284,6 +291,7 @@ static value_string style_vals[] = {
  */
 enum    qos_service_type {
     QOS_QUALITATIVE =     128,          /* Qualitative service */
+    QOS_NULL =              6,          /* Null service (RFC2997) */
     QOS_CONTROLLED_LOAD=    5,		/* Controlled Load Service */
     QOS_GUARANTEED =        2,		/* Guaranteed service */
     QOS_TSPEC =             1		/* Traffic specification */
@@ -291,6 +299,7 @@ enum    qos_service_type {
 
 static value_string qos_vals[] = {
     { QOS_QUALITATIVE, "Qualitative QoS" },
+    { QOS_NULL, "Null-Service QoS" },
     { QOS_CONTROLLED_LOAD, "Controlled-load QoS" },
     { QOS_GUARANTEED, "Guaranteed rate QoS" },
     { QOS_TSPEC, "Traffic specification" },
@@ -298,8 +307,9 @@ static value_string qos_vals[] = {
 };
 
 static value_string svc_vals[] = {
-    { 127, "Token bucket TSpec" },
-    { 128, "Qualitative TSpec" },
+    { 126, "Compression Hint" },
+    { 127, "Token bucket" },
+    { 128, "Null Service" },
     { 130, "Guaranteed-rate RSpec" },
     { 0, NULL }
 };
@@ -310,17 +320,20 @@ enum intsrv_services {
 	INTSRV_GENERAL = 1,
 	INTSRV_GTD = 2,
 	INTSRV_CLOAD = 5,
+	INTSRV_NULL = 6,
 	INTSRV_QUALITATIVE = 128
 };
 
 static value_string intsrv_services_str[] = { 
     {INTSRV_GENERAL, "Default General Parameters"},
-    {INTSRV_GTD, "Guaranteed"},
+    {INTSRV_GTD, "Guaranteed Rate"},
     {INTSRV_CLOAD, "Controlled Load"},
-    {INTSRV_QUALITATIVE, "Qualitative"},
+    {INTSRV_NULL, "Null Service"},
+    {INTSRV_QUALITATIVE, "Null Service"},
     { 0, NULL }
 };
 
+#if 0
 enum intsrv_field_name {
 	INTSRV_NON_IS_HOPS = 1, INTSRV_COMPOSED_NON_IS_HOPS,
 	INTSRV_IS_HOPS, INTSRV_COMPOSED_IS_HOPS,
@@ -339,6 +352,7 @@ enum intsrv_field_name {
     	INTSRV_SHP_DELAY,	/* Gtd Parameter Csum */
 	INTSRV_SHP_MAX_JITTER	/* Gtd Parameter Dsum */
 };
+#endif
 
 static value_string adspec_params[] = { 
     {4, "IS Hop Count"},
@@ -481,6 +495,7 @@ enum rsvp_filter_keys {
 
     RSVPF_SUGGESTED_LABEL,
     RSVPF_SESSION_ATTRIBUTE,
+    RSVPF_DCLASS,
     RSVPF_UNKNOWN_OBJ, 
 
     /* Session object */
@@ -656,7 +671,11 @@ static hf_register_info rsvpf_info[] = {
      	"", HFILL }},
 
     {&rsvp_filter[RSVPF_HELLO_OBJ], 
-     { "HELLO Message", "rsvp.hello", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "HELLO", "rsvp.hello", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_DCLASS], 
+     { "DCLASS", "rsvp.dclass", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
@@ -730,9 +749,10 @@ static inline int rsvp_class_to_filter_num(int classnum)
 
     case RSVP_CLASS_SUGGESTED_LABEL :
 	return RSVPF_SUGGESTED_LABEL;
-	
     case RSVP_CLASS_SESSION_ATTRIBUTE :
 	return RSVPF_SESSION_ATTRIBUTE;
+    case RSVP_CLASS_DCLASS :
+	return RSVPF_DCLASS;
 	
     default:
 	return RSVPF_UNKNOWN_OBJ;
@@ -1336,6 +1356,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	    case RSVP_CLASS_SENDER_TSPEC : {
+		proto_tree *tspec_tree;
+
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_sender_tspec);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
 				    "Length: %u", obj_length);
@@ -1353,9 +1375,14 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		mylen -= 4;
 		offset2 += 4;
+
+		proto_item_set_text(ti, "SENDER TSPEC: ");
+
 		while (mylen > 0) {
 		    guint8 service_num;
 		    guint8 param_id;
+		    guint16 param_len;
+		    guint16 param_len_processed;
 		    guint16 length;
 
 		    service_num = tvb_get_guint8(tvb, offset2);
@@ -1372,73 +1399,138 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    mylen -= 4;
 		    offset2 += 4;
 
-		    switch(service_num) {
-			
-		    case QOS_TSPEC :
-			/* Token bucket TSPEC */
+		    /* Process all known service headers as a set of parameters */
+		    param_len_processed = 0;
+		    while (param_len_processed < length) {
 			param_id = tvb_get_guint8(tvb, offset2);
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
-					    "Parameter %u - %s", 
-					    param_id,
-					    val_to_str(param_id, svc_vals, "Unknown"));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
-					    "Parameter %u flags: 0x%02x",
-					    param_id,
-					    tvb_get_guint8(tvb, offset2+1));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
-					    "Parameter %u data length: %u words, " 
-					    "not including header",
-					    param_id,
-					    tvb_get_ntohs(tvb, offset2+2));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-					    "Token bucket rate: %ld", 
-					    tvb_ieee_to_long(tvb, offset2+4));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
-					    "Token bucket size: %ld", 
-					    tvb_ieee_to_long(tvb, offset2+8));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+12, 4,
-					    "Peak data rate: %ld", 
-					    tvb_ieee_to_long(tvb, offset2+12));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 4,
-					    "Minimum policed unit [m]: %u", 
-					    tvb_get_ntohl(tvb, offset2+16));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+20, 4,
-					    "Maximum packet size [M]: %u", 
-					    tvb_get_ntohl(tvb, offset2+20));
-                        proto_item_set_text(ti, "SENDER TSPEC: IntServ, %lu bytes/sec", 
-                                            tvb_ieee_to_long(tvb, offset2+4));
-			break;
+			param_len = tvb_get_ntohs(tvb, offset2+2) + 1;
+			switch(param_id) {
+			case 127: 
+			    /* Token Bucket */
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+						      offset2, param_len*4, 
+						      "Token Bucket TSpec: ");
+			    tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
 
-		    case QOS_QUALITATIVE :
-			/* Token bucket TSPEC */
-			param_id = tvb_get_guint8(tvb, offset2);
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
-					    "Parameter %u - %s", 
-					    param_id,
-					    val_to_str(param_id, svc_vals, "Unknown"));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
-					    "Parameter %u flags: %x", 
-					    param_id,
-					    tvb_get_guint8(tvb, offset2+1));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
-					    "Parameter %u data length: %u words, " 
-					    "not including header",
-					    param_id,
-					    tvb_get_ntohs(tvb, offset2+2));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-					    "Maximum packet size [M]: %u", 
-					    tvb_get_ntohl(tvb, offset2+4));
-                        proto_item_set_text(ti, "SENDER TSPEC: Qualitative");
-			break;
+			    proto_tree_add_text(tspec_tree, tvb, offset2, 1, 
+						"Parameter %u - %s", 
+						param_id,
+						val_to_str(param_id, svc_vals, "Unknown"));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+						"Parameter %u flags: 0x%02x",
+						param_id,
+						tvb_get_guint8(tvb, offset2+1));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+2, 2,
+						"Parameter %u data length: %u words, " 
+						"not including header",
+						param_id,
+						tvb_get_ntohs(tvb, offset2+2));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
+						"Token bucket rate: %ld", 
+						tvb_ieee_to_long(tvb, offset2+4));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+						"Token bucket size: %ld", 
+						tvb_ieee_to_long(tvb, offset2+8));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+12, 4,
+						"Peak data rate: %ld", 
+						tvb_ieee_to_long(tvb, offset2+12));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+16, 4,
+						"Minimum policed unit [m]: %u", 
+						tvb_get_ntohl(tvb, offset2+16));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+20, 4,
+						"Maximum packet size [M]: %u", 
+						tvb_get_ntohl(tvb, offset2+20));
+			    proto_item_append_text(ti, "Token Bucket, %lu bytes/sec. ", 
+						   tvb_ieee_to_long(tvb, offset2+4));
+			    proto_item_append_text(ti2, "Rate=%lu Burst=%lu Peak=%lu m=%u M=%u", 
+						   tvb_ieee_to_long(tvb, offset2+4),
+						   tvb_ieee_to_long(tvb, offset2+8),
+						   tvb_ieee_to_long(tvb, offset2+12),
+						   tvb_get_ntohl(tvb, offset2+16),
+						   tvb_get_ntohl(tvb, offset2+20));
+			    break;
 
+			case 128:
+			    /* Null Service (RFC2997) */
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+						      offset2, param_len*4, 
+						      "Null Service TSpec: ");
+			    tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
+				
+			    proto_tree_add_text(tspec_tree, tvb, offset2, 1, 
+						"Parameter %u - %s", 
+						param_id,
+						val_to_str(param_id, svc_vals, "Unknown"));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+						"Parameter %u flags: %x", 
+						param_id,
+						tvb_get_guint8(tvb, offset2+1));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+2, 2,
+						"Parameter %u data length: %u words, " 
+						"not including header",
+						param_id,
+						tvb_get_ntohs(tvb, offset2+2));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
+						"Maximum packet size [M]: %u", 
+						tvb_get_ntohl(tvb, offset2+4));
+			    proto_item_append_text(ti, "Null Service. M=%u", 
+						   tvb_get_ntohl(tvb, offset2+4));
+			    proto_item_append_text(ti2, "Max pkt size=%u", 
+						   tvb_get_ntohl(tvb, offset2+4));
+			    break;
+
+			case 126:
+			    /* Compression hint (RFC3006) */
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+						      offset2, param_len*4, 
+						      "Compression Hint: ");
+			    tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
+				
+			    proto_tree_add_text(tspec_tree, tvb, offset2, 1, 
+						"Parameter %u - %s", 
+						param_id,
+						val_to_str(param_id, svc_vals, "Unknown"));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+						"Parameter %u flags: %x", 
+						param_id,
+						tvb_get_guint8(tvb, offset2+1));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+2, 2,
+						"Parameter %u data length: %u words, " 
+						"not including header",
+						param_id,
+						tvb_get_ntohs(tvb, offset2+2));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
+						"Hint: %u", 
+						tvb_get_ntohl(tvb, offset2+4));
+			    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
+						"Compression Factor: %u", 
+						tvb_get_ntohl(tvb, offset2+8));
+			    proto_item_append_text(ti, "Compression Hint. Hint=%u, Factor=%u", 
+						   tvb_get_ntohl(tvb, offset2+4),
+						   tvb_get_ntohl(tvb, offset2+8));
+			    proto_item_append_text(ti2, "Hint=%u, Factor=%u", 
+						   tvb_get_ntohl(tvb, offset2+4),
+						   tvb_get_ntohl(tvb, offset2+8));
+			    break;
+
+			default: 
+			    proto_tree_add_text(rsvp_object_tree, tvb, offset2, param_len*4, 
+						"Unknown parameter %d, %d words", 
+						param_id, param_len);
+			    break;
+			}
+			param_len_processed += param_len;
+			offset2 += param_len*4;
 		    }
-		    offset2 += length*4; 
+		    /* offset2 += length*4;  */
 		    mylen -= length*4;
 		}
 		break;
 	    }
 
 	    case RSVP_CLASS_FLOWSPEC : {
+		proto_tree *flowspec_tree;
+
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_flowspec);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
 				    "Length: %u", obj_length);
@@ -1454,12 +1546,16 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Data length: %u words, not including header", 
 				    tvb_get_ntohs(tvb, offset2+2));
 
+		proto_item_set_text(ti, "FLOWSPEC: ");
+
 		mylen -= 4;
 		offset2+= 4;
 		while (mylen > 0) {
 		    guint8 service_num;
 		    guint16 length;
 		    guint8 param_id;
+		    guint16 param_len;
+		    guint16 param_len_processed;
 
 		    service_num = tvb_get_guint8(tvb, offset2);
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
@@ -1476,96 +1572,134 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    mylen -= 4;
 		    offset2 += 4;
 
-		    switch(service_num) {
+		    proto_item_append_text(ti, "%s: ", 
+					   val_to_str(service_num, intsrv_services_str, 
+						      "Unknown (%d)"));
 
-		    case QOS_CONTROLLED_LOAD :
-		    case QOS_GUARANTEED :
-			/* Treat both these the same for now */
+		    /* Process all known service headers as a set of parameters */
+		    param_len_processed = 0;
+		    while (param_len_processed < length) {
 			param_id = tvb_get_guint8(tvb, offset2);
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
-					    "Parameter %u - %s", 
-					    param_id,
-					    val_to_str(param_id, svc_vals, "Unknown"));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
-					    "Parameter %u flags: %x", 
-					    param_id,
-					    tvb_get_guint8(tvb, offset2+1));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
-					    "Parameter %u data length: %u words, " 
-					    "not including header",
-					    param_id,
-					    tvb_get_ntohs(tvb, offset2+2));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-					    "Token bucket rate: %ld", 
-					    tvb_ieee_to_long(tvb, offset2+4));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
-					    "Token bucket size: %ld", 
-					    tvb_ieee_to_long(tvb, offset2+8));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+12, 4,
-					    "Peak data rate: %ld", 
-					    tvb_ieee_to_long(tvb, offset2+12));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 4,
-					    "Minimum policed unit [m]: %u", 
-					    tvb_get_ntohl(tvb, offset2+16));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+20, 4,
-					    "Maximum packet size [M]: %u", 
-					    tvb_get_ntohl(tvb, offset2+20));
+			param_len = tvb_get_ntohs(tvb, offset2+2) + 1;
+			switch(param_id) {
+			case 127: 
+			    /* Token Bucket */
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+						      offset2, param_len*4, 
+						      "Token Bucket: ");
+			    flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
 
-			if (service_num != QOS_GUARANTEED) {
-                            proto_item_set_text(ti, "FLOWSPEC: Controlled-Load, %lu bytes/sec", 
-                                                tvb_ieee_to_long(tvb, offset2+4));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2, 1, 
+						"Parameter %u - %s", 
+						param_id,
+						val_to_str(param_id, svc_vals, "Unknown"));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
+						"Parameter %u flags: 0x%02x",
+						param_id,
+						tvb_get_guint8(tvb, offset2+1));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+2, 2,
+						"Parameter %u data length: %u words, " 
+						"not including header",
+						param_id,
+						tvb_get_ntohs(tvb, offset2+2));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
+						"Token bucket rate: %ld", 
+						tvb_ieee_to_long(tvb, offset2+4));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+						"Token bucket size: %ld", 
+						tvb_ieee_to_long(tvb, offset2+8));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+12, 4,
+						"Peak data rate: %ld", 
+						tvb_ieee_to_long(tvb, offset2+12));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+16, 4,
+						"Minimum policed unit [m]: %u", 
+						tvb_get_ntohl(tvb, offset2+16));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+20, 4,
+						"Maximum packet size [M]: %u", 
+						tvb_get_ntohl(tvb, offset2+20));
+			    proto_item_append_text(ti, "Token Bucket, %lu bytes/sec. ", 
+						   tvb_ieee_to_long(tvb, offset2+4));
+			    proto_item_append_text(ti2, "Rate=%lu Burst=%lu Peak=%lu m=%u M=%u", 
+						   tvb_ieee_to_long(tvb, offset2+4),
+						   tvb_ieee_to_long(tvb, offset2+8),
+						   tvb_ieee_to_long(tvb, offset2+12),
+						   tvb_get_ntohl(tvb, offset2+16),
+						   tvb_get_ntohl(tvb, offset2+20));
 			    break;
-                        }
-			
-			/* Guaranteed-rate RSpec */
-			param_id = tvb_get_guint8(tvb, offset2+24);
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+24, 1,
-					    "Parameter %u - %s", 
-					    param_id,
-					    val_to_str(param_id, svc_vals, "Unknown"));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+25, 1, 
-					    "Parameter %u flags: %x", 
-					    param_id,
-					    tvb_get_guint8(tvb, offset2+25));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+26, 2,
-					    "Parameter %u data length: %u words, " 
-					    "not including header",
-					    param_id,
-					    tvb_get_ntohs(tvb, offset2+26));
 
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+28, 4,
-					    "Rate: %ld", 
-					    tvb_ieee_to_long(tvb, offset2+28));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+32, 4,
-					    "Slack term: %u", 
-					    tvb_get_ntohl(tvb, offset2+32));
-                        proto_item_set_text(ti, "FLOWSPEC: Guaranteed-Rate, %lu bytes/sec", 
-                                            tvb_ieee_to_long(tvb, offset2+4));
-			break;
+			case 130:
+			    /* Guaranteed-rate RSpec */
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+						      offset2, param_len*4, 
+						      "Guaranteed-Rate RSpec: ");
+			    flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
+			    proto_tree_add_text(flowspec_tree, tvb, offset2, 1,
+						"Parameter %u - %s", 
+						param_id,
+						val_to_str(param_id, svc_vals, "Unknown"));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1, 
+						"Parameter %u flags: %x", 
+						param_id,
+						tvb_get_guint8(tvb, offset2+1));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+2, 2,
+						"Parameter %u data length: %u words, " 
+						"not including header",
+						param_id,
+						tvb_get_ntohs(tvb, offset2+2));
+			    
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
+						"Rate: %ld", 
+						tvb_ieee_to_long(tvb, offset2+4));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+						"Slack term: %u", 
+						tvb_get_ntohl(tvb, offset2+8));
+			    proto_item_append_text(ti, "RSpec, %lu bytes/sec. ", 
+						   tvb_ieee_to_long(tvb, offset2+4));
+			    proto_item_append_text(ti2, "R=%lu, s=%u", 
+						   tvb_ieee_to_long(tvb, offset2+4),
+						   tvb_get_ntohl(tvb, offset2+8));
+			    break;
 
-		    case QOS_QUALITATIVE :
-			param_id = tvb_get_guint8(tvb, offset2);
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
-					    "Parameter %u - %s", 
-					    param_id,
-					    val_to_str(param_id, svc_vals, "Unknown"));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
-					    "Parameter %u flags: %x", 
-					    param_id,
-					    tvb_get_guint8(tvb, offset2+1));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
-					    "Parameter %u data length: %u words, " 
-					    "not including header",
-					    param_id,
-					    tvb_get_ntohs(tvb, offset2+2));
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-					    "Maximum packet size [M]: %u", 
-					    tvb_get_ntohl(tvb, offset2+4));
-			
-                        proto_item_set_text(ti, "FLOWSPEC: Qualitative");
-			break;
+			case 128:
+			    /* Null Service (RFC2997) */
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+						      offset2, param_len*4, 
+						      "Null Service Flowspec: ");
+			    flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
+				
+			    proto_tree_add_text(flowspec_tree, tvb, offset2, 1, 
+						"Parameter %u - %s", 
+						param_id,
+						val_to_str(param_id, svc_vals, "Unknown"));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
+						"Parameter %u flags: %x", 
+						param_id,
+						tvb_get_guint8(tvb, offset2+1));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+2, 2,
+						"Parameter %u data length: %u words, " 
+						"not including header",
+						param_id,
+						tvb_get_ntohs(tvb, offset2+2));
+			    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
+						"Maximum packet size [M]: %u", 
+						tvb_get_ntohl(tvb, offset2+4));
+			    proto_item_append_text(ti, "Null Service. M=%u", 
+						   tvb_get_ntohl(tvb, offset2+4));
+			    proto_item_append_text(ti2, "Max pkt size=%u", 
+						   tvb_get_ntohl(tvb, offset2+4));
+			    break;
+
+			default: 
+			    proto_tree_add_text(rsvp_object_tree, tvb, offset2, param_len*4, 
+						"Unknown parameter %d, %d words", 
+						param_id, param_len);
+			    break;
+			}
+			param_len_processed += param_len;
+			offset2 += param_len * 4;
 		    }
-		    offset2 += length*4;
+
+		    /* offset2 += length*4; */
 		    mylen -= length*4;
 		}
 		break;
@@ -2387,6 +2521,42 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    
 		break;
 
+	    case RSVP_CLASS_DCLASS :
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				    "Length: %u", obj_length);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+				    "Class number: %u - %s", 
+				    class, object_type);
+		proto_item_set_text(ti, "DCLASS: ");
+                switch(type) {
+                case 1: 
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 1");
+                    for (mylen = 4; mylen < obj_length; mylen += 4) {
+                        proto_tree_add_text(rsvp_object_tree, tvb, offset+mylen+3, 1,
+                                            "DSCP: %s", 
+					    val_to_str(tvb_get_guint8(tvb, offset+mylen+3),
+						       dscp_vals, "Unknown (%d)"));
+			proto_item_append_text(ti, "%d%s", 
+					       tvb_get_guint8(tvb, offset+mylen+3)>>2,
+					       mylen==obj_length-4 ? "" : 
+					       mylen<16 ? ", " : 
+					       mylen==16 ? ", ..." : "");
+		    }
+                    break;
+
+                default:
+                    mylen = obj_length - 4;
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: Unknown (%u)",
+					type);
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+                }
+                break;
+
 	    default :
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_unknown_class);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
@@ -2428,7 +2598,9 @@ proto_register_rsvp(void)
 		&ett_rsvp_sender_template,
 		&ett_rsvp_filter_spec,
 		&ett_rsvp_sender_tspec,
+		&ett_rsvp_sender_tspec_subtree,
 		&ett_rsvp_flowspec,
+		&ett_rsvp_flowspec_subtree,
 		&ett_rsvp_adspec,
 		&ett_rsvp_adspec_subtree,
 		&ett_rsvp_integrity,
@@ -2442,6 +2614,7 @@ proto_register_rsvp(void)
 		&ett_rsvp_record_route,
 		&ett_rsvp_record_route_subobj,
 		&ett_rsvp_hello_obj,
+		&ett_rsvp_dclass,
 		&ett_rsvp_unknown_class,
 	};
 

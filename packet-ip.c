@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.152 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-ip.c,v 1.153 2001/12/29 00:43:55 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -740,7 +740,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   }
 }
 
-static const value_string dscp_vals[] = {
+value_string dscp_vals[] = {
 		  { IPDSFIELD_DSCP_DEFAULT, "Default"               },
 		  { IPDSFIELD_DSCP_CS1,     "Class Selector 1"      },
 		  { IPDSFIELD_DSCP_CS2,     "Class Selector 2"      },

@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.21 2001/12/10 00:25:29 guy Exp $
+ * $Id: packet-ip.h,v 1.22 2001/12/29 00:43:55 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,5 +52,8 @@ void       dissect_ip_tcp_options(tvbuff_t *, int, guint,
 
 /* Dissector table for "ip.proto"; used by IPv6 as well as IPv4 */
 extern dissector_table_t ip_dissector_table;
+
+/* Export the DSCP value-string table for other protocols */
+extern value_string dscp_vals[];
 
 #endif
