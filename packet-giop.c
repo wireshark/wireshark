@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.44 2001/07/26 16:59:28 guy Exp $
+ * $Id: packet-giop.c,v 1.45 2001/07/27 18:31:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4385,16 +4385,16 @@ static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
   default:
     
-    /* fetch all octets in this sequence */
+    /* fetch all octets in this sequence , but skip endianess */
       
-    get_CDR_octet_seq(tvb, &profile_data, offset, seqlen_pd);
+    get_CDR_octet_seq(tvb, &profile_data, offset, seqlen_pd -1);
       
     /* Make a printable string */
       
-    p_profile_data = make_printable_string( profile_data, seqlen_pd );
+    p_profile_data = make_printable_string( profile_data, seqlen_pd -1);
       
     if(tree) {
-      proto_tree_add_text (tree, tvb, *offset -seqlen_pd, seqlen_pd,
+      proto_tree_add_text (tree, tvb, *offset -seqlen_pd + 1, seqlen_pd - 1,
 			   "Profile Data: %s", p_profile_data);
     }
       
