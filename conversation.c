@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.3 1999/11/11 20:44:14 guy Exp $
+ * $Id: conversation.c,v 1.4 1999/11/14 19:56:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -182,6 +182,7 @@ conversation_init(void)
 		g_free((gpointer)key->src.data);
 		g_free((gpointer)key->dst.data);
 	}
+	conversation_keys = NULL;
 	if (conversation_hashtable != NULL)
 		g_hash_table_destroy(conversation_hashtable);
 	if (conversation_key_chunk != NULL)
