@@ -1074,6 +1074,8 @@ Adam Sulmicki <adam[AT]cfar.umd.edu> {
 	Dissect EAP messages inside RADIUS
 	Dissect SSL-encoded stuff inside EAP
 	Cisco LEAP support
+	EAP-TLS reassembly
+	Other EAP enhancements
 }
 
 Kari Tiirikainen <ktiirika[AT]stybba.ntc.nokia.com> {
