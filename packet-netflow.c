@@ -45,7 +45,7 @@
  ** http://www.cisco.com/univercd/cc/td/doc/cisintwk/intsolns/netflsol/nfwhite.htm
  **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
- ** $Id: packet-netflow.c,v 1.12 2004/06/01 18:39:13 guy Exp $
+ ** $Id: packet-netflow.c,v 1.13 2004/06/01 18:43:30 guy Exp $
  */
 
 #ifdef HAVE_CONFIG_H
@@ -84,6 +84,12 @@ static guint netflow_udp_port = 0;
 #define V8PDU_TOSDSTPREFIX_SIZE	V8PDU_DPREFIX_SIZE
 #define V8PDU_TOSMATRIX_SIZE	V8PDU_MATRIX_SIZE
 #define V8PDU_PREPORTPROTOCOL_SIZE (4 * 10)
+
+static const value_string v5_sampling_mode[] = {
+	{0, "No sampling mode configured"},
+	{1, "Packet Interval sampling mode configured"},
+	{0, NULL}
+};
 
 enum {
 	V8PDU_NO_METHOD = 0,
@@ -1427,7 +1433,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_samplingmode,
 		 {"SamplingMode", "cflow.samplingmode",
-		  FT_UINT16, BASE_DEC, NULL, 0xC000,
+		  FT_UINT16, BASE_DEC, VALS(v5_sampling_mode), 0xC000,
 		  "Sampling Mode of exporter", HFILL}
 		 },
 		{&hf_cflow_samplerate,
