@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.81 2001/04/01 02:47:54 hagbard Exp $
+ * $Id: packet-ipx.c,v 1.82 2001/04/15 07:36:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,8 +42,6 @@
 #include "packet.h"
 #include "packet-ipx.h"
 #include "resolv.h"
-
-#include "packet-snmp.h"
 
 /* The information in this module (IPX, SPX, NCP) comes from:
 	NetWare LAN Analysis, Second Edition
