@@ -3815,7 +3815,7 @@ proto_registrar_dump_fields(int format)
 					enum_name,parent_hfinfo->abbrev, hfinfo->blurb);
 			}
 			else if (format == 2) {
-				printf("F\t%s\t%s\t%s\t%s\t%s\t\%s\t%s\n",
+				printf("F\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 					hfinfo->name, hfinfo->abbrev,
 					enum_name,parent_hfinfo->abbrev, hfinfo->blurb,
 					base_name, hfinfo->blurb);
