@@ -152,11 +152,13 @@ EXTRA_DIST = \
 	print.ps                \
 	README.tru64		\
 	README.win32		\
-	rdps.c			\
-	VERSION
+	rdps.c
 
 SUBDIRS = wiretap @SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
 	make ../ethereal.1 )
+
+dfilter-scanner.c : dfilter-scanner.l
+	$(LEX) -Pdfilter_ -t dfilter-scanner.l > dfilter-scanner.c
