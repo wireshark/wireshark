@@ -1,4 +1,4 @@
-$Id: README.linux,v 1.6 2000/02/19 21:44:13 guy Exp $
+$Id: README.linux,v 1.7 2001/01/10 09:54:44 guy Exp $
 
 In order to capture packets (with Ethereal/Tethereal, tcpdump, or any
 other packet capture program) on a Linux system, the "packet" protocol
@@ -31,7 +31,7 @@ The current version of Ethereal attempts to work around this, so its GUI
 shouldn't freeze when capturing on a not-so-busy network.  If its GUI
 does freeze when that happens, please send a note about this, indicating
 which version of which distribution of Linux you're using, and which
-version of libpcap you're using, to ethereal-dev@zing.org.
+version of libpcap you're using, to ethereal-dev@ethereal.com.
 
 The current version of Ethereal should work with versions of libpcap
 that have been patched to fix the timeout problem, as well as working

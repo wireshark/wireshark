@@ -1,4 +1,4 @@
-$Id: README.hpux,v 1.13 2000/08/13 07:48:55 guy Exp $
+$Id: README.hpux,v 1.14 2001/01/10 09:54:44 guy Exp $
 
 Contents:
 
@@ -362,10 +362,10 @@ name as an argument to tcpdump, rather than requiring that you specify a
 "dlpiN" name (and it should work equally well with Ethereal).
 
 If you try this code on HP-UX 10.20, and it doesn't let you specify the
-interface by name, please send mail to ethereal-dev@zing.org, so that we
-know that it didn't work - we'll probably send you debugging patches in
-the hopes of being able to make it work on 10.20 as well.  (It appeared
-to work in some tests done on HP-UX 10.20 systems.)
+interface by name, please send mail to ethereal-dev@ethereal.com, so
+that we know that it didn't work - we'll probably send you debugging
+patches in the hopes of being able to make it work on 10.20 as well. 
+(It appeared to work in some tests done on HP-UX 10.20 systems.)
 
 To use this patch, you will need the source to libpcap; if you don't
 already have it, it is available from the Software Porting And Archive

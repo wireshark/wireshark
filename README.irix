@@ -1,4 +1,4 @@
-$Id: README.irix,v 1.3 2000/04/29 08:45:39 guy Exp $
+$Id: README.irix,v 1.4 2001/01/10 09:54:44 guy Exp $
 
 1. Some problems seen by one person who tried to build Ethereal on IRIX;
 your mileage may vary.
@@ -125,9 +125,9 @@ packet is captured, will not work.
 Here is a patch to libpcap 0.4 source that should fix that problem.  If
 it doesn't fix the problem, or if it reduces the snapshot length below
 the MTU (so that a snapshot length of 65535 doesn't capture all the data
-in the packets), please report this to ethereal-dev@zing.org, so that
-we know that it didn't work - we'll probably send you debugging patches
-in the hopes of being able to make it work.
+in the packets), please report this to ethereal-dev@ethereal.com, so
+that we know that it didn't work - we'll probably send you debugging
+patches in the hopes of being able to make it work.
 
 diff -c ../libpcap-0.4/pcap-snoop.c ./pcap-snoop.c
 *** ../libpcap-0.4/pcap-snoop.c	Tue Apr  8 21:07:01 1997
