@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.38 2004/06/03 21:17:06 guy Exp $
+ * $Id: dlg_utils.c,v 1.39 2004/06/20 19:35:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -421,10 +421,26 @@ gboolean
 file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
 {
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  return gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), filename);
+    gboolean ret;
+    int filename_len = strlen(filename);
+    gchar *new_filename;
+
+    /* trim filename, so gtk_file_chooser_set_current_folder() likes it */
+    if (filename[filename_len -1] == G_DIR_SEPARATOR && filename[1] != ':') {
+        new_filename = g_strdup(filename);
+	    new_filename[filename_len-1] = '\0';
+    } else {
+        new_filename = g_strdup(filename);
+    }
+
+    /* this function is very pedantic about it's filename parameter */
+    /* no trailing '\' allowed, unless a win32 root dir "D:\" */
+    ret = gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), new_filename);
+    g_free(new_filename);
+    return ret;
 #else
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), filename);
-  return TRUE;
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), filename);
+    return TRUE;
 #endif
 }
 
