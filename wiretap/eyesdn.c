@@ -1,0 +1,349 @@
+/* eyesdn.c
+ *
+ * $Id: eyesdn.c,v 1.1 2004/02/11 20:05:16 guy Exp $
+ *
+ * Wiretap Library
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include "wtap-int.h"
+#include "buffer.h"
+#include "eyesdn.h"
+#include "file_wrappers.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+/* This module reads the output of the EyeSDN USB S0/E1 ISDN probes
+ * They store HDLC frames of D and B channels in a binary format
+ * The fileformat is
+ * 
+ * 1-6 Byte: EyeSDN - Magic
+ * 7-n Byte: Frames
+ * 
+ * Each Frame starts with the 0xff Flag byte
+ * - Bytes 0-2: timestamp (long usec in network byte order)
+ * - Bytes 3-7: timestamp (40bits sec since 1970 in network byte order)
+ * - Byte 8: channel (0d for D channel, 0e for e channel, b1-ce for B1-B30)
+ * - Byte 9: Sender (0 NT, 1 TE)
+ * - Byte 10-11: frame size in bytes
+ * - Byte 12-n: Frame Payload
+ * 
+ * All multibyte values are represented in network byte order
+ * The frame is terminated with a flag character (0xff)
+ * bytes 0xff within a frame are escaped using the 0xfe escape character
+ * the byte following the escape character is decremented by two:
+ * so 0xfe 0xfd is actually a 0xff
+ * Characters that need to be escaped are 0xff and 0xfe
+ */
+
+
+static int esc_read(unsigned char *buf, int len, FILE_T *fh)
+{
+    int i, err;
+    unsigned char value;
+    
+    for(i=0; i<len; i++) {
+	value=file_getc(fh);
+	err=0 /*file_eof(fh)*/;
+	if(err) break;
+	if(value==0xff) return -1; /* error !!, read into next frame */
+	if(value==0xfe) { // we need to escape 
+	    value=file_getc(fh);
+	    value+=2;
+	}
+	buf[i]=value;
+    }
+    if(file_error(fh)) return -2;
+    return i;
+}
+
+/* Magic text to check for eyesdn-ness of file */
+static const unsigned char eyesdn_hdr_magic[]  =
+{ 'E', 'y', 'e', 'S', 'D', 'N'};
+#define EYESDN_HDR_MAGIC_SIZE  (sizeof(eyesdn_hdr_magic)  / sizeof(eyesdn_hdr_magic[0]))
+
+/* Magic text for start of packet */
+static const unsigned char eyesdn_rec_magic[]  = { 0xff };
+#define EYESDN_REC_MAGIC_SIZE  (sizeof eyesdn_rec_magic  / sizeof eyesdn_rec_magic[0])
+
+#define EYESDN_HEADER_LINES_TO_CHECK	1
+#define EYESDN_HDR_LENGTH		12
+#define EYESDN_LINE_LENGTH		12
+
+/*
+ * XXX - is this the biggest packet we can get?
+ */
+#define EYESDN_MAX_PACKET_LEN	16384
+
+static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
+	long *data_offset);
+static gboolean eyesdn_seek_read(wtap *wth, long seek_off,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err, gchar **err_info);
+static gboolean parse_eyesdn_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
+	int *err, gchar **err_info);
+static int parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
+	union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+
+/* Seeks to the beginning of the next packet, and returns the
+   byte offset.  Returns -1 on failure, and sets "*err" to the error. */
+static long eyesdn_seek_next_packet(wtap *wth, int *err)
+{
+  int byte;
+  long cur_off;
+
+  while ((byte = file_getc(wth->fh)) != EOF) {
+    if (byte == 0xff) {
+        cur_off = file_tell(wth->fh);
+        if (cur_off == -1) {
+          /* Error. */
+          *err = file_error(wth->fh);
+          return -1;
+        }
+        return cur_off;
+      }
+  }
+  if (file_eof(wth->fh)) {
+    /* We got an EOF. */
+    *err = 0;
+  } else {
+    /* We (presumably) got an error (there's no equivalent to "ferror()"
+       in zlib, alas, so we don't have a wrapper to check for an error). */
+    *err = file_error(wth->fh);
+  }
+  return -1;
+}
+
+/* Look through the first part of a file to see if this is
+ * a eyesdn trace file.
+ *
+ * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
+ * if we get an I/O error, "*err" will be set to a non-zero value.
+ */
+static gboolean eyesdn_check_file_type(wtap *wth, int *err)
+{
+	char	buf[EYESDN_HDR_MAGIC_SIZE];
+	int	i, reclen;
+	guint	level;
+	char	byte;
+
+        reclen=EYESDN_HDR_MAGIC_SIZE;
+        if (file_read(buf, 1, reclen, wth->fh) == reclen) {
+	    level = 0;
+	    for (i = 0; i < reclen; i++) {
+		byte = buf[i];
+		if (byte == eyesdn_hdr_magic[level]) {
+		    level++;
+		    if (level >= EYESDN_HDR_MAGIC_SIZE) {
+			return TRUE;
+		    }
+		} else {
+		    level = 0;
+		}
+	    }
+	} else {/* EOF or error. */
+	    if (file_eof(wth->fh))
+		*err = 0;
+	    else
+		*err = file_error(wth->fh);
+	    return FALSE;
+	}
+	*err = 0;
+	return FALSE;
+}
+
+
+int eyesdn_open(wtap *wth, int *err, gchar **err_info _U_)
+{
+	/* Look for eyesdn header */
+	if (!eyesdn_check_file_type(wth, err)) {
+		if (*err == 0)
+			return 0;
+		else
+			return -1;
+	}
+
+	wth->data_offset = 0;
+	wth->file_encap = WTAP_ENCAP_ISDN;
+	wth->file_type = WTAP_FILE_EYESDN;
+	wth->snapshot_length = 0; /* not known */
+	wth->subtype_read = eyesdn_read;
+	wth->subtype_seek_read = eyesdn_seek_read;
+
+	return 1;
+}
+
+/* Find the next packet and parse it; called from wtap_loop() and wtap_read(). */
+static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
+{
+	long	offset;
+	guint8	*buf;
+	int	pkt_len;
+
+	/* Find the next packet */
+	offset = eyesdn_seek_next_packet(wth, err);
+	if (offset < 1)
+		return FALSE;
+
+	/* Parse the header */
+	pkt_len = parse_eyesdn_rec_hdr(wth, wth->fh, &wth->pseudo_header, err,
+	    err_info);
+	if (pkt_len == -1)
+		return FALSE;
+
+	/* Make sure we have enough room for the packet */
+	buffer_assure_space(wth->frame_buffer, EYESDN_MAX_PACKET_LEN);
+	buf = buffer_start_ptr(wth->frame_buffer);
+
+	/* Convert the ASCII hex dump to binary data */
+	if (!parse_eyesdn_hex_dump(wth->fh, pkt_len, buf, err, err_info))
+		return FALSE;
+
+	wth->data_offset = offset;
+	*data_offset = offset;
+	return TRUE;
+}
+
+/* Used to read packets in random-access fashion */
+static gboolean
+eyesdn_seek_read (wtap *wth, long seek_off,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err, gchar **err_info)
+{
+	int	pkt_len;
+
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return FALSE;
+
+	pkt_len = parse_eyesdn_rec_hdr(NULL, wth->random_fh, pseudo_header,
+	    err, err_info);
+
+	if (pkt_len != len) {
+		if (pkt_len != -1) {
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("eyesdn: requested length %d doesn't match length %d",
+			    len, pkt_len);
+		}
+		return FALSE;
+	}
+
+	return parse_eyesdn_hex_dump(wth->random_fh, pkt_len, pd, err,
+	    err_info);
+}
+
+/* Parses a packet record header. */
+static int
+parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+{
+	unsigned char	line[EYESDN_HDR_LENGTH];
+        unsigned long   secs, usecs;
+	int	pkt_len;
+	unsigned int    channel, direction;
+
+	/* Our file pointer should be on the line containing the
+	 * summary information for a packet. Read in that line and
+	 * extract the useful information
+	 */
+	if (esc_read(line, EYESDN_HDR_LENGTH, fh) != EYESDN_HDR_LENGTH) {
+		*err = file_error(fh);
+		if (*err == 0) {
+			*err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
+	}
+    
+        /* extract information from header */
+        usecs = ((unsigned long) line[0]);
+        usecs = (usecs << 8) | ((unsigned long) line[1]);
+        usecs = (usecs << 8) | ((unsigned long) line[2]);
+#ifdef TV64BITS    
+        secs = ((unsigned long) line[3]);
+#else    
+        secs = 0;
+#endif    
+        secs = (secs << 8) | ((unsigned long) line[4]);
+        secs = (secs << 8) | ((unsigned long) line[5]);
+        secs = (secs << 8) | ((unsigned long) line[6]);
+        secs = (secs << 8) | ((unsigned long) line[7]);
+
+        channel = line[8];
+        direction = line[9];
+        pkt_len = ((unsigned long) line[10]) << 8;
+        pkt_len = (pkt_len << 8) | ((unsigned long) line[11]);
+
+        /* sanity checks */
+        if(channel>30) {
+	    *err = WTAP_ERR_BAD_RECORD;
+            *err_info = g_strdup_printf("eyesdn: bad channel number %u",
+		channel);
+	    return -1;
+	}
+
+        if(direction>1) {
+	    *err = WTAP_ERR_BAD_RECORD;
+            *err_info = g_strdup_printf("eyesdn: bad direction value %u",
+		direction);
+	    return -1;
+	}
+        if(pkt_len > EYESDN_MAX_PACKET_LEN) {
+	    *err = WTAP_ERR_BAD_RECORD;
+	    *err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
+		pkt_len, EYESDN_MAX_PACKET_LEN);
+	    return -1;
+	}
+
+	if (wth) {
+	        wth->phdr.ts.tv_sec = secs;
+		wth->phdr.ts.tv_usec = usecs;
+		wth->phdr.caplen = pkt_len;
+		wth->phdr.len = pkt_len;
+	}
+        pseudo_header->isdn.uton = direction;
+        pseudo_header->isdn.channel = channel;
+
+	return pkt_len;
+}
+
+/* read a packet */
+static gboolean
+parse_eyesdn_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
+    gchar **err_info)
+{
+        int bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = esc_read(buf, pkt_len, fh);
+	if (bytes_read != pkt_len) {
+	    if (bytes_read == -2)
+		*err = file_error(fh);
+	    else if (bytes_read == -1) {
+	        *err = WTAP_ERR_BAD_RECORD;
+	        *err_info = g_strdup("eyesdn: No flag character seen in frame");
+	    } else
+		*err = WTAP_ERR_SHORT_READ;
+	    return FALSE;
+	}
+	return TRUE;
+}

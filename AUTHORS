@@ -2021,6 +2021,10 @@ Martin Mathieson <martin [AT] arca-technologies.com> {
 	SIP sipfrag support
 }
 
+Rolf Fiedler <Rolf.Fiedler [AT] Innoventif.com> {
+	Support for reading EyeSDN USB S0 trace files
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.48 2003/12/02 19:37:04 guy Exp $
+# $Id: Makefile.am,v 1.49 2004/02/11 20:05:15 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -85,6 +85,8 @@ libwiretap_a_SOURCES = \
 	snoop.h			\
 	toshiba.c		\
 	toshiba.h		\
+	eyesdn.c		\
+	eyesdn.h		\
 	visual.c		\
 	visual.h		\
 	vms.c			\

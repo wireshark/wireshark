@@ -1,6 +1,6 @@
 /* file_access.c
  *
- * $Id: file_access.c,v 1.10 2004/02/06 02:11:52 guy Exp $
+ * $Id: file_access.c,v 1.11 2004/02/11 20:05:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -61,6 +61,7 @@
 #include "netmon.h"
 #include "netxray.h"
 #include "toshiba.h"
+#include "eyesdn.h"
 #include "i4btrace.h"
 #include "csids.h"
 #include "pppdump.h"
@@ -118,6 +119,7 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	etherpeek_open,
 	pppdump_open,
 	ascend_open,
+	eyesdn_open,
 	toshiba_open,
 	i4btrace_open,
 	csids_open,
@@ -453,6 +455,10 @@ static const struct file_type_info {
 
 	/* WTAP_FILE_AIROPEEK_V9 */
 	{ "EtherPeek/AiroPeek trace (V9 file format)", NULL,
+	  NULL, NULL },
+    
+	/* WTAP_FILE_EYESDN */
+	{ "EyeSDN USB S0/E1 ISDN trace format", NULL,
 	  NULL, NULL },
 };
 
