@@ -1,7 +1,7 @@
 /* disabled_protos.c
  * Code for reading and writing the disabled protocols file.
  *
- * $Id: disabled_protos.c,v 1.1 2003/08/07 00:41:26 guy Exp $
+ * $Id: disabled_protos.c,v 1.2 2003/08/07 01:05:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,18 +177,15 @@ read_disabled_protos_list(char **pref_path_return, int *open_errno_return,
       /* Skip over trailing white space. */
       while ((c = getc(ff)) != EOF && c != '\n' && isspace(c))
         ;
-      if (c != EOF && c != '\n') {
+      if (c != EOF && c != '\n' && c != '#') {
 	/* Non-white-space after the protocol name; warn about it,
 	   in case we come up with a reason to use it. */
 	g_warning("'%s' line %d has extra stuff after the protocol name.",
 	          ff_path, line);
-
-        /* Skip to end of line. */
-        while ((c = getc(ff)) != EOF && c != '\n')
-          ;
       }
-    } else if (c == '#') {
-      /* Comment - skip to end of line. */
+    }
+    if (c != EOF && c != '\n') {
+      /* Skip to end of line. */
       while ((c = getc(ff)) != EOF && c != '\n')
         ;
     }
