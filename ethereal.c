@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.32 1999/05/06 05:45:58 guy Exp $
+ * $Id: ethereal.c,v 1.33 1999/05/11 18:51:10 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <signal.h>
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
@@ -92,10 +93,19 @@ guint        main_ctx, file_ctx;
 frame_data  *fd;
 gint         start_capture = 0;
 gchar        comp_info_str[256];
+gchar       *ethereal_path = NULL;
+gchar       *medium_font = MONO_MEDIUM_FONT;
+gchar       *bold_font = MONO_BOLD_FONT;
 
 ts_type timestamp_type = RELATIVE;
 
 GtkStyle *item_style;
+
+int sync_mode;	/* allow sync */
+int sync_pipe[2]; /* used to sync father */
+int fork_mode;	/* fork a child to do the capture */
+int sigusr2_received = 0;
+int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 
 #define E_DFILTER_TE_KEY "display_filter_te"
 
@@ -281,7 +291,10 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
     (file_sel)->cancel_button), "clicked", (GtkSignalFunc)
     gtk_widget_destroy, GTK_OBJECT (file_sel));
 
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), "");
+  if( fork_mode && (cf.save_file != NULL) )
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), cf.save_file);
+  else
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), "");
 
   gtk_widget_show(file_sel);
 }
@@ -408,17 +421,19 @@ void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
   GList      *l;
 
+  if (!sync_mode) {
 #ifdef WITH_WIRETAP
   if (cf.wth) return; 
 #else
   if (cf.pfh) return;
 #endif
+  }
   blank_packetinfo();
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
     gtk_text_get_length(GTK_TEXT(byte_view)));
-  l = g_list_nth(cf.plist, row);
+  l = g_list_nth(cf.plist_first, row);
   if (l) {
     fd = (frame_data *) l->data;
     fseek(cf.fh, fd->file_off, SEEK_SET);
@@ -491,12 +506,15 @@ main_realize_cb(GtkWidget *w, gpointer data) {
 #endif
   }
   if (start_capture) {
-    if (cf.save_file)
-      capture();
-    else
-      capture();
+    capture();
     start_capture = 0;
   }
+}
+
+static void 
+sigusr2_handler(int sig) {
+  sigusr2_received = 1;
+  signal(SIGUSR2, sigusr2_handler);
 }
 
 static void
@@ -510,12 +528,12 @@ void
 print_usage(void) {
 
   fprintf(stderr, "This is GNU %s %s, compiled with %s\n", PACKAGE,
-  VERSION, comp_info_str);
-  fprintf(stderr, "%s [-v] [-b bold font] [-B byte view height] [-c count] [-h]\n",
+	  VERSION, comp_info_str);
+  fprintf(stderr, "%s [-vh] [-FkQS] [-b bold font] [-B byte view height] [-c count]\n",
 	  PACKAGE);
-  fprintf(stderr, "         [-i interface] [-m medium font] [-n] [-P packet list height]\n");
-  fprintf(stderr, "         [-r infile] [-s snaplen] [-t <time stamp format>]\n");
-  fprintf(stderr, "         [-T tree view height] [-w savefile] \n");
+  fprintf(stderr, "         [-f \"filter expression\"] [-i interface] [-m medium font] [-n]\n");
+  fprintf(stderr, "         [-P packet list height] [-r infile] [-s snaplen]\n");
+  fprintf(stderr, "         [-t <time stamp format>] [-T tree view height] [-w savefile] \n");
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -539,19 +557,21 @@ main(int argc, char *argv[])
 #endif
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL;
-  gchar               *medium_font = MONO_MEDIUM_FONT;
-  gchar               *bold_font = MONO_BOLD_FONT;
   e_prefs             *prefs;
   gint                *col_fmt;
   gchar              **col_title;
 
+  ethereal_path = argv[0];
+
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
+  
 
   prefs = read_prefs();
     
   /* Initialize the capture file struct */
   cf.plist		= NULL;
+  cf.plist_first       	= NULL;
 #ifdef WITH_WIRETAP
   cf.wth		= NULL;
 #else
@@ -584,7 +604,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:hi:m:nP:r:s:t:T:w:v")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:Ss:t:T:w:v")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -594,6 +614,12 @@ main(int argc, char *argv[])
         break;
       case 'c':        /* Capture xxx packets */
         cf.count = atoi(optarg);
+        break;
+      case 'f':
+	cf.cfilter = g_strdup(optarg);
+	break;
+      case 'F':	       /* Fork to capture */
+        fork_mode = 1;
         break;
       case 'h':        /* Print help and exit */
 	print_usage();
@@ -614,11 +640,19 @@ main(int argc, char *argv[])
       case 'P':        /* Packet list pane height */
         pl_size = atoi(optarg);
         break;
+      case 'Q':        /* Quit after capture (just capture to file) */
+        quit_after_cap = 1;
+        start_capture = 1;  /*** -Q implies -k !! ***/
+        break;
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
         break;
       case 's':        /* Set the snapshot (capture) length */
         cf.snap = atoi(optarg);
+        break;
+      case 'S':        /* "Sync" mode: used for following file ala tail -f */
+        sync_mode = 1;
+        fork_mode = 1; /* -S implies -F */
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
@@ -647,6 +681,9 @@ main(int argc, char *argv[])
 	break;
     }
   }
+
+  if (sync_mode)
+    signal(SIGUSR2, sigusr2_handler);
 
   /* Build the column format array */  
   col_fmt   = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);

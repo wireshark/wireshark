@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.21 1999/04/06 16:24:47 gram Exp $
+ * $Id: capture.c,v 1.22 1999/05/11 18:51:09 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,8 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <signal.h>
+#include <errno.h>
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
@@ -69,6 +71,15 @@
 extern capture_file  cf;
 extern GtkWidget    *info_bar;
 extern guint         file_ctx;
+
+extern gchar *ethereal_path;
+extern gchar *medium_font;
+extern gchar *bold_font;
+extern int fork_mode;
+extern int sync_pipe[];
+extern int sync_mode;
+extern int sigusr2_received;
+extern int quit_after_cap;
 
 /* File selection data keys */
 #define E_CAP_PREP_FS_KEY "cap_prep_fs"
@@ -337,7 +348,7 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
 	  cf.cfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te))); 
   }
   cf.count =
-    atoi(g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry))));
+    atoi( g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry))));
   cf.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
   if (cf.snap < 1)
     cf.snap = MAX_PACKET_SIZE;
@@ -354,7 +365,62 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
   cf.save_file = tempnam(NULL, "ether");
   cf.user_saved = 0;
   
-  capture();
+  if( fork_mode ){	/*  use fork() for capture */
+    int  fork_child;
+    char ssnap[24];
+    char scount[24];	/* need a constant for len of numbers */
+
+    sprintf(ssnap,"%d",cf.snap); /* in liu of itoa */
+    sprintf(scount,"%d",cf.count);
+    signal(SIGCHLD, SIG_IGN);
+    if (sync_mode) pipe(sync_pipe);
+    if((fork_child = fork()) == 0){
+      /* args: -k -- capture
+       * -i interface specification
+       * -w file to write
+       * -c count to capture
+       * -Q quit after capture (forces -k)
+       * -s snaplen
+       * -S sync mode
+       * -m / -b fonts
+       * -f "filter expression"
+       */
+       if (sync_mode) {
+	 close(1);
+	 dup(sync_pipe[1]);
+	 close(sync_pipe[0]);
+	 execl(ethereal_path,"ethereal","-k","-Q","-i",cf.iface,"-w",cf.save_file,
+	       "-c", scount, "-s", ssnap, "-S", 
+	       "-m", medium_font, "-b", bold_font,
+	       (cf.cfilter == NULL)? 0 : "-f", (cf.cfilter == NULL)? 0 : cf.cfilter, 
+	       0);	
+       }
+       else {
+	 execl(ethereal_path,"ethereal","-k","-Q","-i",cf.iface,"-w",cf.save_file,
+	       "-c", scount, "-s", ssnap,
+	       "-m", medium_font, "-b", bold_font,
+	       (cf.cfilter == NULL)? 0 : "-f", (cf.cfilter == NULL)? 0 : cf.cfilter,
+	       0);
+       }
+    }
+    else {
+       cf.filename = cf.save_file;
+       if (sync_mode) {
+	 close(sync_pipe[1]);
+	 while (!sigusr2_received) {
+	   struct timeval timeout = {1,0};
+	   select(0, NULL, NULL, NULL, &timeout);
+	   if (kill(fork_child, 0) == -1 && errno == ESRCH) 
+	     break;
+	 }
+	 if (sigusr2_received) 
+	   tail_cap_file(cf.save_file, &cf);
+	 sigusr2_received = FALSE;
+       }
+    }
+  }
+  else
+    capture();
 }
 
 void
@@ -381,6 +447,8 @@ capture(void) {
   ld.counts.total = 0;
   ld.max          = cf.count;
   ld.linktype     = DLT_NULL;
+  ld.signal_sent  = 0;
+  ld.sync_time    = 0;
   ld.counts.tcp   = 0;
   ld.counts.udp   = 0;
   ld.counts.ospf  = 0;
@@ -401,6 +469,7 @@ capture(void) {
       pcap_close(pch);
       return;
     }
+
     ld.linktype = pcap_datalink(pch);
 
     if (cf.cfilter) {
@@ -504,6 +573,11 @@ capture(void) {
       "that you have the proper interface specified.");
   }
 
+  if( quit_after_cap ){
+    /* DON'T unlink the save file.  Presumably someone wants it. */
+    gtk_exit(0);
+  }
+
   if (cf.save_file) load_cap_file(cf.save_file, &cf);
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Save", TRUE);
@@ -535,6 +609,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd) {
   
   loop_data *ld = (loop_data *) user;
+  time_t *sync_time= &ld->sync_time, cur_time;
   
   if ((++ld->counts.total >= ld->max) && (ld->max > 0)) 
   {
@@ -543,6 +618,15 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   /* Currently, pcap_dumper_t is a FILE *.  Let's hope that doesn't change. */
   if (ld->pdh) pcap_dump((u_char *) ld->pdh, phdr, pd);
   
+  cur_time = time(NULL);
+  if (cur_time > *sync_time) {
+    /* sync every seconds */
+    *sync_time = cur_time;
+    fflush((FILE *)ld->pdh);
+    if (sync_mode) 
+      write(1, "D", 1);
+  }
+
   switch (ld->linktype) {
     case DLT_EN10MB :
       capture_eth(pd, phdr->caplen, &ld->counts);
@@ -563,4 +647,13 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
       capture_raw(pd, phdr->caplen, &ld->counts);
       break;
   }
+
+  if (sync_mode && !ld->signal_sent) {
+    /* will trigger the father to open the cap file which contains 
+       at least one complete packet */
+    fflush((FILE *)ld->pdh);
+    kill(getppid(), SIGUSR2);
+    ld->signal_sent = 1;
+  }
+  
 }

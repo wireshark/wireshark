@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.23 1999/04/06 16:24:48 gram Exp $
+ * $Id: file.c,v 1.24 1999/05/11 18:51:10 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
@@ -64,8 +65,14 @@
 
 #include "packet-ncp.h"
 
+#define TAIL_TIMEOUT	2000  /* msec */
+
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
+extern int	  sync_mode;
+extern int        sync_pipe[];
+
+guint cap_input_id, tail_timeout_id;
 
 static guint32 firstsec, firstusec;
 static guint32 lastsec, lastusec;
@@ -77,6 +84,8 @@ static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
 static void pcap_dispatch_cb(u_char *, const struct pcap_pkthdr *,
     const u_char *);
 #endif
+
+static gint tail_timeout_cb(gpointer);
 
 int
 open_cap_file(char *fname, capture_file *cf) {
@@ -128,6 +137,7 @@ open_cap_file(char *fname, capture_file *cf) {
   cf->snap  = 0;
   if (cf->plist == NULL) {
     cf->plist       = g_list_alloc();
+    cf->plist_first = cf->plist;
     cf->plist->data = (frame_data *) g_malloc(sizeof(frame_data));
   } else {
     cf->plist = g_list_first(cf->plist);
@@ -318,6 +328,155 @@ load_cap_file(char *fname, capture_file *cf) {
   return err;
 }
 
+void 
+cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
+  
+  capture_file *cf = (capture_file *)data;
+  char buffer[256];
+
+  /* avoid reentrancy problems and stack overflow */
+  gtk_input_remove(cap_input_id);
+  if (tail_timeout_id != -1) gtk_timeout_remove(tail_timeout_id);
+
+  if (read(sync_pipe[0], buffer, 256) <= 0) {
+
+    /* process data until end of file and stop capture (restore menu items) */
+    gtk_clist_freeze(GTK_CLIST(packet_list));
+#ifdef WITH_WIRETAP
+    wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
+#else
+    pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
+#endif
+    gtk_clist_thaw(GTK_CLIST(packet_list));
+
+#ifdef WITH_WIRETAP
+    wtap_close(cf->wth);
+    cf->wth = NULL;
+#else
+    pcap_close(cf->pfh);
+    cf->pfh = NULL;
+#endif
+    cf->plist = g_list_first(cf->plist);
+#ifdef USE_ITEM
+    set_menu_sensitivity("/File/Open", TRUE);
+    set_menu_sensitivity("/File/Close", TRUE);
+    set_menu_sensitivity("/File/Save as", TRUE);
+    set_menu_sensitivity("/File/Reload", TRUE);
+    set_menu_sensitivity("/Tools/Capture", TRUE);
+#else
+    set_menu_sensitivity("<Main>/File/Open", TRUE);
+    set_menu_sensitivity("<Main>/File/Close", TRUE);
+    set_menu_sensitivity("<Main>/File/Save as", TRUE);
+    set_menu_sensitivity("<Main>/File/Reload", TRUE);
+    set_menu_sensitivity("<Main>/Tools/Capture", TRUE);
+#endif
+    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, " File: <none>");
+    return;
+  }
+
+  gtk_clist_freeze(GTK_CLIST(packet_list));
+#ifdef WITH_WIRETAP
+  wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
+#else
+  pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
+#endif
+  gtk_clist_thaw(GTK_CLIST(packet_list));
+
+  /* restore pipe handler */
+  cap_input_id = gtk_input_add_full (sync_pipe[0],
+				     GDK_INPUT_READ,
+				     cap_file_input_cb,
+				     NULL,
+				     (gpointer) cf,
+				     NULL);
+
+  /* only useful in case of low amount of captured data */
+  tail_timeout_id = gtk_timeout_add(TAIL_TIMEOUT, tail_timeout_cb, (gpointer) cf);
+
+}
+
+gint
+tail_timeout_cb(gpointer data) {
+
+  capture_file *cf = (capture_file *)data;
+
+  /* avoid reentrancy problems and stack overflow */
+  gtk_input_remove(cap_input_id);
+
+  gtk_clist_freeze(GTK_CLIST(packet_list));
+#ifdef WITH_WIRETAP
+  wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
+#else
+  pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
+#endif
+  gtk_clist_thaw(GTK_CLIST(packet_list));
+
+  cap_input_id = gtk_input_add_full (sync_pipe[0],
+				     GDK_INPUT_READ,
+				     cap_file_input_cb,
+				     NULL,
+				     (gpointer) cf,
+				     NULL);
+
+  return TRUE;
+}
+
+int
+tail_cap_file(char *fname, capture_file *cf) {
+  int     err;
+
+  close_cap_file(cf, info_bar, file_ctx);
+
+  /* Initialize protocol-speficic variables */
+  ncp_init_protocol();
+  
+  err = open_cap_file(fname, cf);
+#ifdef WITH_WIRETAP
+  if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
+#else
+  if ((err == 0) && (cf->cd_t != CD_UNKNOWN)) {
+#endif
+
+#ifdef USE_ITEM
+    set_menu_sensitivity("/File/Open", FALSE);
+    set_menu_sensitivity("/File/Close", FALSE);
+    set_menu_sensitivity("/File/Reload", FALSE);
+    set_menu_sensitivity("/Tools/Capture", FALSE);
+#else
+    set_menu_sensitivity("<Main>/File/Open", FALSE);
+    set_menu_sensitivity("<Main>/File/Close", FALSE);
+    set_menu_sensitivity("<Main>/File/Reload", FALSE);
+    set_menu_sensitivity("<Main>/Tools/Capture", FALSE);
+#endif
+    cf->fh = fopen(fname, "r");
+    tail_timeout_id = -1;
+    cap_input_id = gtk_input_add_full (sync_pipe[0],
+				       GDK_INPUT_READ,
+				       cap_file_input_cb,
+				       NULL,
+				       (gpointer) cf,
+				       NULL);
+    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, 
+		       " <live capture in progress>");
+  }
+  else {
+#ifdef USE_ITEM
+    set_menu_sensitivity("/File/Close", FALSE);
+    set_menu_sensitivity("/File/Save", FALSE);
+    set_menu_sensitivity("/File/Save as", FALSE);
+    set_menu_sensitivity("/File/Reload", FALSE);
+#else
+    set_menu_sensitivity("<Main>/File/Close", FALSE);
+    set_menu_sensitivity("<Main>/File/Save", FALSE);
+    set_menu_sensitivity("<Main>/File/Save as", FALSE);
+    set_menu_sensitivity("<Main>/File/Reload", FALSE);
+#endif
+    close(sync_pipe[0]);
+  }
+  return err;
+}
+
+
 static void
 #ifdef WITH_WIRETAP
 wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
@@ -328,7 +487,7 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
   frame_data   *fdata;
   gint          i, row;
   capture_file *cf = (capture_file *) user;
-  
+
   while (gtk_events_pending())
     gtk_main_iteration();
 
@@ -342,7 +501,7 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
   fdata->file_off = offset;
   fdata->lnk_t = phdr->pkt_encap;
 #else
-  fdata->file_off = ftell(cf->fh) - phdr->caplen;
+  fdata->file_off = ftell(pcap_file(cf->pfh)) - phdr->caplen;
 #endif
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
@@ -399,4 +558,5 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
     g_list_append(cf->plist, (gpointer) fdata);
   }
   cf->plist = cf->plist->next;
+
 }
