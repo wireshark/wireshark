@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.27 1999/11/10 06:01:21 guy Exp $
+ * $Id: packet-dns.c,v 1.28 1999/11/12 22:43:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -769,6 +769,81 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	}
 	proto_tree_add_text(rr_tree, cur_offset, pname_len, "Domain name: %s",
 			pname);
+      }
+      break;
+    }
+    break;
+
+
+  case T_HINFO:
+    {
+      int cpu_offset;
+      int cpu_len;
+      int os_offset;
+      int os_len;
+
+      cpu_offset = cur_offset;
+      if (!BYTES_ARE_IN_FRAME(cpu_offset, 1)) {
+	/* We ran past the end of the captured data in the packet. */
+      	if (dns_tree != NULL) {
+	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		       "%s: type %s, class %s, <CPU goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	  rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+	}
+	return 0;
+      }
+      cpu_len = pd[cpu_offset];
+      if (!BYTES_ARE_IN_FRAME(cpu_offset + 1, cpu_len)) {
+	/* We ran past the end of the captured data in the packet. */
+      	if (dns_tree != NULL) {
+	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		       "%s: type %s, class %s, <CPU goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	  rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+	}
+	return 0;
+      }
+      os_offset = cpu_offset + 1 + cpu_len;
+      if (!BYTES_ARE_IN_FRAME(os_offset, 1)) {
+	/* We ran past the end of the captured data in the packet. */
+      	if (dns_tree != NULL) {
+	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		       "%s: type %s, class %s, CPU %.*s, <OS goes past end of captured data in packet>",
+		       name, type_name, class_name, cpu_len, &pd[cpu_offset + 1]);
+	  rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+	}
+	return 0;
+      }
+      os_len = pd[os_offset];
+      if (!BYTES_ARE_IN_FRAME(os_offset + 1, os_len)) {
+	/* We ran past the end of the captured data in the packet. */
+      	if (dns_tree != NULL) {
+	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		       "%s: type %s, class %s, CPU %*.s, <OS goes past end of captured data in packet>",
+		       name, type_name, class_name, cpu_len, &pd[cpu_offset + 1]);
+	  rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+	}
+	return 0;
+      }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s %.*s %.*s", type_name, cpu_len,
+	    &pd[cpu_offset + 1], os_len, &pd[os_offset + 1]);
+      if (dns_tree != NULL) {
+	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s, CPU %.*s, OS %.*s",
+		     name, type_name, class_name,
+		     cpu_len, &pd[cpu_offset + 1], os_len, &pd[os_offset + 1]);
+	rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+	proto_tree_add_text(rr_tree, cpu_offset, 1 + cpu_len, "CPU: %.*s",
+			cpu_len, &pd[cpu_offset + 1]);
+	proto_tree_add_text(rr_tree, os_offset, 1 + os_len, "OS: %.*s",
+			os_len, &pd[os_offset + 1]);
       }
       break;
     }
