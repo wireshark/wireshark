@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.58 2002/12/27 18:32:55 oabad Exp $
+ * $Id: prefs_dlg.c,v 1.59 2003/03/11 23:14:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -871,10 +871,9 @@ pref_fetch(pref_t *pref, gpointer user_data)
 
   case PREF_STRING:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
-    if (*pref->varp.string == NULL || strcmp(*pref->varp.string, str_val) != 0) {
+    if (strcmp(*pref->varp.string, str_val) != 0) {
       *pref_changed_p = TRUE;
-      if (*pref->varp.string != NULL)
-        g_free(*pref->varp.string);
+      g_free(*pref->varp.string);
       *pref->varp.string = g_strdup(str_val);
     }
     break;
@@ -1151,13 +1150,9 @@ pref_revert(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_STRING:
-    if (*pref->varp.string != pref->saved_val.string &&
-	(*pref->varp.string == NULL ||
-	 pref->saved_val.string == NULL ||
-	 strcmp(*pref->varp.string, pref->saved_val.string) != 0)) {
+    if (strcmp(*pref->varp.string, pref->saved_val.string) != 0) {
       *pref_changed_p = TRUE;
-      if (*pref->varp.string != NULL)
-        g_free(*pref->varp.string);
+      g_free(*pref->varp.string);
       *pref->varp.string = g_strdup(pref->saved_val.string);
     }
     break;
