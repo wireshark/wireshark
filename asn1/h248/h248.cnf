@@ -11,6 +11,7 @@
 
 #.NO_EMIT
 MtpAddress
+PkgdName
 
 #.TYPE_RENAME
 

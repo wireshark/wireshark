@@ -55,6 +55,7 @@
 static int proto_h248 = -1;
 static int hf_h248_mtpaddress_ni = -1;
 static int hf_h248_mtpaddress_pc = -1;
+static int hf_h248_package_name = -1;
 
 /*--- Included file: packet-h248-hf.c ---*/
 
@@ -232,6 +233,7 @@ static int hf_h248_reserveValue1 = -1;            /* BOOLEAN */
 static int hf_h248_reserveGroup1 = -1;            /* BOOLEAN */
 static int hf_h248_propertyParms1 = -1;           /* SEQUNCE_OF_PropertyParm */
 static int hf_h248_propertyParms_item1 = -1;      /* PropertyParm */
+static int hf_h248_propertyName = -1;             /* PkgdName */
 static int hf_h248_value1 = -1;                   /* SEQUNCE_OF_OCTET_STRING */
 static int hf_h248_value_item = -1;               /* OCTET_STRING */
 static int hf_h248_extraInfo1 = -1;               /* T_extraInfo1 */
@@ -328,6 +330,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
 static gint ett_mtpaddress = -1;
+static gint ett_packagename = -1;
 
 /*--- Included file: packet-h248-ett.c ---*/
 
@@ -465,6 +468,37 @@ static gint ett_h248_Value = -1;
 /*--- End of included file: packet-h248-ett.c ---*/
 
 
+
+static const value_string package_name_vals[] = {
+	{0x001E,     "Bearer Characteristics G.1950 Annex A"},
+	{0,     NULL}
+};
+
+static int 
+dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+  tvbuff_t *new_tvb;
+  proto_tree *package_tree=NULL;
+  guint32 name_major, name_minor;
+  int old_offset;
+
+  old_offset=offset;
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+
+
+  /* this field is always 4 bytes  so just read it into two integers */
+  name_major=tvb_get_ntohs(new_tvb, 0);
+  name_minor=tvb_get_ntohs(new_tvb, 2);
+
+  /* do the prettification */
+  proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+  if(tree){
+    package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+  }
+  proto_tree_add_uint(package_tree, hf_h248_package_name, tvb, offset-4, 2, name_major);
+
+
+  return offset;
+}
 
 
 static int 
@@ -1106,14 +1140,6 @@ static int dissect_contextAuditResult_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_TerminationIDList(TRUE, tvb, offset, pinfo, tree, hf_h248_contextAuditResult);
 }
 
-
-static int
-dissect_h248_PkgdName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
-
-  return offset;
-}
 static int dissect_name1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_name1);
 }
@@ -1128,6 +1154,9 @@ static int dissect_signalName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 static int dissect_statName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_statName);
+}
+static int dissect_propertyName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_propertyName);
 }
 
 
@@ -1209,7 +1238,7 @@ static int dissect_extraInfo1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 }
 
 static ber_sequence PropertyParm_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_name1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_propertyName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_value1_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_extraInfo1 },
   { 0, 0, 0, NULL }
@@ -3790,6 +3819,9 @@ void proto_register_h248(void) {
     { &hf_h248_mtpaddress_pc, {
       "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
       NULL, 0, "PC", HFILL }},
+    { &hf_h248_package_name, {
+      "Package", "h248.package_name", FT_UINT32, BASE_HEX,
+      VALS(package_name_vals), 0, "Package", HFILL }},
 
 /*--- Included file: packet-h248-hfarr.c ---*/
 
@@ -4284,7 +4316,7 @@ void proto_register_h248(void) {
     { &hf_h248_name1,
       { "name", "h248.name",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
+        "IndAudPropertyParm/name", HFILL }},
     { &hf_h248_propGroupID,
       { "propGroupID", "h248.propGroupID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4489,6 +4521,10 @@ void proto_register_h248(void) {
       { "Item", "h248.propertyParms_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
+    { &hf_h248_propertyName,
+      { "propertyName", "h248.propertyName",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "PropertyParm/propertyName", HFILL }},
     { &hf_h248_value1,
       { "value", "h248.value",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4850,6 +4886,7 @@ void proto_register_h248(void) {
   static gint *ett[] = {
     &ett_h248,
     &ett_mtpaddress,
+    &ett_packagename,
 
 /*--- Included file: packet-h248-ettarr.c ---*/
 

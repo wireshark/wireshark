@@ -48,13 +48,46 @@
 static int proto_h248 = -1;
 static int hf_h248_mtpaddress_ni = -1;
 static int hf_h248_mtpaddress_pc = -1;
+static int hf_h248_package_name = -1;
 #include "packet-h248-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
 static gint ett_mtpaddress = -1;
+static gint ett_packagename = -1;
 #include "packet-h248-ett.c"
 
+
+static const value_string package_name_vals[] = {
+	{0x001E,     "Bearer Characteristics G.1950 Annex A"},
+	{0,     NULL}
+};
+
+static int 
+dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+  tvbuff_t *new_tvb;
+  proto_tree *package_tree=NULL;
+  guint32 name_major, name_minor;
+  int old_offset;
+
+  old_offset=offset;
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+
+
+  /* this field is always 4 bytes  so just read it into two integers */
+  name_major=tvb_get_ntohs(new_tvb, 0);
+  name_minor=tvb_get_ntohs(new_tvb, 2);
+
+  /* do the prettification */
+  proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+  if(tree){
+    package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+  }
+  proto_tree_add_uint(package_tree, hf_h248_package_name, tvb, offset-4, 2, name_major);
+
+
+  return offset;
+}
 
 
 static int 
@@ -121,6 +154,9 @@ void proto_register_h248(void) {
     { &hf_h248_mtpaddress_pc, {
       "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
       NULL, 0, "PC", HFILL }},
+    { &hf_h248_package_name, {
+      "Package", "h248.package_name", FT_UINT32, BASE_HEX,
+      VALS(package_name_vals), 0, "Package", HFILL }},
 #include "packet-h248-hfarr.c"
   };
 
@@ -128,6 +164,7 @@ void proto_register_h248(void) {
   static gint *ett[] = {
     &ett_h248,
     &ett_mtpaddress,
+    &ett_packagename,
 #include "packet-h248-ettarr.c"
   };
 

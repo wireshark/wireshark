@@ -599,7 +599,7 @@ BEGIN
        
       PropertyParm ::= SEQUENCE 
       { 
-         name        [0] IMPLICIT PkgdName, 
+         propertyName [0] IMPLICIT PkgdName, 
          value       [1] IMPLICIT SEQUENCE OF OCTET STRING, 
          extraInfo   [2] CHOICE 
          { 
