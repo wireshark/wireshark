@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary info
  *
- * $Id: summary.c,v 1.15 1999/12/10 04:20:53 gram Exp $
+ * $Id: summary.c,v 1.16 1999/12/29 21:30:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,15 +46,15 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
 
   cur_time = secs_usecs(cur_frame->abs_secs, cur_frame->abs_usecs);
 
-    if (cur_time < sum_tally->start_time) {
-      sum_tally->start_time = cur_time;
-    }
-    if (cur_time > sum_tally->stop_time){
-      sum_tally->stop_time = cur_time;
-    }
-    sum_tally->bytes += cur_frame->pkt_len;
-    if (cur_frame->passed_dfilter)
-	  sum_tally->filtered_count++;
+  if (cur_time < sum_tally->start_time) {
+    sum_tally->start_time = cur_time;
+  }
+  if (cur_time > sum_tally->stop_time){
+    sum_tally->stop_time = cur_time;
+  }
+  sum_tally->bytes += cur_frame->pkt_len;
+  if (cur_frame->passed_dfilter)
+    sum_tally->filtered_count++;
 }
 
 void
@@ -65,18 +65,23 @@ summary_fill_in(summary_tally *st)
   int 		i;
   frame_data    *cur_glist;
 
- /* initialize the tally */
-  first_frame = cf.plist;
-  st->start_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs) ;
-  st->stop_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs) ;
+  st->start_time = 0;
+  st->stop_time = 0;
   st->bytes = 0;
   st->filtered_count = 0;
-  cur_glist = cf.plist;
 
-  for (i = 0; i < cf.count; i++) {
-    cur_frame = cur_glist;
-    tally_frame_data(cur_frame, st);
-    cur_glist = cur_glist->next;
+  /* initialize the tally */
+  if (cf.plist != NULL) {
+    first_frame = cf.plist;
+    st->start_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
+    st->stop_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
+    cur_glist = cf.plist;
+
+    for (i = 0; i < cf.count; i++) {
+      cur_frame = cur_glist;
+      tally_frame_data(cur_frame, st);
+      cur_glist = cur_glist->next;
+    }
   }
 
   st->filename = cf.filename;
@@ -94,7 +99,4 @@ summary_fill_in(summary_tally *st)
 #else
   st->cfilter = NULL;
 #endif
-
-
 }
-
