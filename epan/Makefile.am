@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.50 2004/06/09 19:20:45 gerald Exp $
+# $Id: Makefile.am,v 1.51 2004/06/11 15:23:42 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -158,7 +158,9 @@ tvbtest: tvbtest.o tvbuff.o except.o strutil.o
 # The second argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
+# HACK : removing config.h is a hack and may be removed at the end of August 2004
 register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/../make-reg-dotc
+	@rm -f config.h
 	@if test -n $(PYTHON); then \
 		echo Making register.c with python ; \
 		$(PYTHON) $(srcdir)/../make-reg-dotc.py $(srcdir) $(DISSECTOR_SRC) ; \
