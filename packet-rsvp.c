@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.68 2002/07/14 19:23:04 guy Exp $
+ * $Id: packet-rsvp.c,v 1.69 2002/07/14 19:33:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -621,10 +621,6 @@ static hf_register_info rsvpf_info[] = {
      { "Path Message", "rsvp.path", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
-    {&rsvp_filter[RSVPF_HELLO], 
-     { "HELLO Message", "rsvp.hello", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"", HFILL }},
-
     {&rsvp_filter[RSVPF_RESV], 
      { "Resv Message", "rsvp.resv", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -655,6 +651,18 @@ static hf_register_info rsvpf_info[] = {
 
     {&rsvp_filter[RSVPF_BUNDLE], 
      { "Bundle Message", "rsvp.bundle", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_ACK], 
+     { "Ack Message", "rsvp.ack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_SREFRESH], 
+     { "Srefresh Message", "rsvp.srefresh", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_HELLO], 
+     { "HELLO Message", "rsvp.hello", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     /* Object class */
