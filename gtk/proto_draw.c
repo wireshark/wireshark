@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.92 2004/04/28 20:56:43 guy Exp $
+ * $Id: proto_draw.c,v 1.93 2004/05/01 15:15:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1796,7 +1796,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     GtkTreePath  *path;
 #endif
 
-    if (!fi->visible)
+    if (PROTO_ITEM_IS_HIDDEN(node))
         return;
 
     /* was a free format label produced? */
@@ -1823,6 +1823,10 @@ proto_tree_draw_node(proto_node *node, gpointer data)
         is_expanded = FALSE;
     }
 
+    if(PROTO_ITEM_IS_GENERATED(node)) {
+        label_ptr = g_strdup_printf("[%s]", label_ptr);
+    }
+
 #if GTK_MAJOR_VERSION < 2
     info.ctree = parent_info->ctree;
     parent = gtk_ctree_insert_node ( info.ctree, parent_info->ctree_node, NULL,
@@ -1836,6 +1840,10 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     gtk_tree_store_append(store, &iter, parent_info->iter);
     gtk_tree_store_set(store, &iter, 0, label_ptr, 1, fi, -1);
 #endif
+
+    if(PROTO_ITEM_IS_GENERATED(node)) {
+        g_free(label_ptr);
+    }
 
     if (!is_leaf) {
 #if GTK_MAJOR_VERSION < 2

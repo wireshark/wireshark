@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.131 2004/03/25 23:55:21 guy Exp $
+ * $Id: proto.c,v 1.132 2004/05/01 15:15:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -858,14 +858,12 @@ proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian)
 {
 	proto_item	*pi;
-	field_info	*fi;
 
 	pi = proto_tree_add_item(tree, hfindex, tvb, start, length, little_endian);
 	if (pi == NULL)
 		return(NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -961,14 +959,12 @@ proto_tree_add_bytes_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 		gint length, const guint8 *start_ptr)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1037,14 +1033,12 @@ proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 		nstime_t *value_ptr)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1100,14 +1094,12 @@ proto_tree_add_ipxnet_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 		guint32 value)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1163,14 +1155,12 @@ proto_tree_add_ipv4_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 		guint32 value)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1226,14 +1216,12 @@ proto_tree_add_ipv6_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 		const guint8* value_ptr)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1318,14 +1306,12 @@ proto_tree_add_string_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 		gint length, const char* value)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1421,14 +1407,12 @@ proto_tree_add_ether_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 		const guint8* value)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1490,14 +1474,12 @@ proto_tree_add_boolean_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint
 		guint32 value)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1553,14 +1535,12 @@ proto_tree_add_float_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 		float value)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1616,14 +1596,12 @@ proto_tree_add_double_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 		double value)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1689,14 +1667,12 @@ proto_tree_add_uint_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 		guint32 value)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -1776,14 +1752,12 @@ proto_tree_add_int_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 		gint32 value)
 {
 	proto_item		*pi;
-	field_info 		*fi;
 
 	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
 		return (NULL);
 
-	fi = PITEM_FINFO(pi);
-	fi->visible = FALSE;
+	PROTO_ITEM_SET_HIDDEN(pi);
 
 	return pi;
 }
@@ -2003,7 +1977,10 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	fi->start+=(tvb)?TVB_RAW_OFFSET(tvb):0;
 	fi->length = *length;
 	fi->tree_type = -1;
-	fi->visible = PTREE_DATA(tree)->visible;
+	fi->flags = 0;
+    if(!PTREE_DATA(tree)->visible) {
+        FI_SET_FLAG(fi, FI_HIDDEN);
+    }
 	fvalue_init(&fi->value, fi->hfinfo->type);
 	fi->rep = NULL;
 
@@ -2021,7 +1998,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 	int					ret;	/*tmp return value */
 	field_info *fi = PITEM_FINFO(pi);
 
-	if (fi->visible) {
+	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		ITEM_LABEL_NEW(fi->rep);
 		ret = vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH, format, ap);
 		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
@@ -2066,7 +2043,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 
 	fi = PITEM_FINFO(pi);
 
-	if (fi->visible) {
+    if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		va_start(ap, format);
 
 		/*
@@ -3426,7 +3403,7 @@ check_for_offset(proto_node *node, gpointer data)
 	offset_search_t		*offsearch = data;
 
 	/* !fi == the top most container node which holds nothing */
-	if (fi && fi->visible && fi->ds_tvb && offsearch->tvb == fi->ds_tvb) {
+	if (fi && !PROTO_ITEM_IS_HIDDEN(node) && fi->ds_tvb && offsearch->tvb == fi->ds_tvb) {
 		if (offsearch->offset >= (guint) fi->start &&
 				offsearch->offset < (guint) (fi->start + fi->length)) {
 

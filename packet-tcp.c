@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.230 2004/04/30 06:24:35 ulfl Exp $
+ * $Id: packet-tcp.c,v 1.231 2004/05/01 15:15:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1150,17 +1150,20 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 	}
 
 	item=proto_tree_add_text(parent_tree, tvb, 0, 0, "SEQ/ACK analysis");
+    PROTO_ITEM_SET_GENERATED(item);
 	tree=proto_item_add_subtree(item, ett_tcp_analysis);
 
 	/* encapsulate all proto_tree_add_xxx in ifs so we only print what
 	   data we actually have */
 	if(ta->frame_acked){
-		proto_tree_add_uint(tree, hf_tcp_analysis_acks_frame,
+		item = proto_tree_add_uint(tree, hf_tcp_analysis_acks_frame,
 			tvb, 0, 0, ta->frame_acked);
+        PROTO_ITEM_SET_GENERATED(item);
 	}
 	if( ta->ts.secs || ta->ts.nsecs ){
-		proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt,
+		item = proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt,
 		tvb, 0, 0, &ta->ts);
+        PROTO_ITEM_SET_GENERATED(item);
 	}
 
 	if(ta->flags){

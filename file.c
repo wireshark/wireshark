@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.379 2004/04/25 12:04:07 ulfl Exp $
+ * $Id: file.c,v 1.380 2004/05/01 15:15:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1959,7 +1959,7 @@ match_subtree_text(proto_node *node, gpointer data)
   }
 
   /* Don't match invisible entries. */
-  if (!fi->visible)
+  if (PROTO_ITEM_IS_HIDDEN(node))
     return;
 
   /* was a free format label produced? */

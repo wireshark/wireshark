@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.80 2004/04/26 15:58:33 gram Exp $
+ * $Id: print.c,v 1.81 2004/05/01 15:15:08 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -209,7 +209,7 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 	gchar		*label_ptr;
 
 	/* Don't print invisible entries. */
-	if (!fi->visible)
+	if (PROTO_ITEM_IS_HIDDEN(node))
 		return;
 
     /* was a free format label produced? */
@@ -389,7 +389,7 @@ proto_tree_print_node_pdml(proto_node *node, gpointer data)
 			print_escaped_xml(pdata->fh, label_ptr);
 		}
 
-        if(!fi->visible) {
+        if(PROTO_ITEM_IS_HIDDEN(node)) {
     		fprintf(pdata->fh, "\" hide=\"yes");
         }
 
