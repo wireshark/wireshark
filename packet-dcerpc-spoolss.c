@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.49 2002/08/22 01:13:13 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.50 2002/08/22 07:05:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -491,7 +491,7 @@ static int hf_printer_access_admin = -1;
 static int hf_printer_access_use = -1;
 static int hf_job_access_admin = -1;
 
-static int 
+static void
 spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 			guint32 access)
 {
@@ -514,8 +514,6 @@ spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(
 		tree, hf_server_access_admin,
 		tvb, offset, 4, access);
-	
-	return offset;
 }
 
 /* 
