@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.42 2003/06/13 22:43:37 guy Exp $
+# $Id: config.nmake,v 1.43 2003/06/14 03:23:21 guy Exp $
 
 VERSION=0.9.13
 #
@@ -42,7 +42,7 @@ LOCAL_LDFLAGS=/DEBUG
 PDB_FILE=vc*.pdb
 
 # Set path if you need to find some binary
-PATH=c:\cygnus\cygwin-b20\H-i586-cygwin32\bin;c:\python22;c:\ethereal\wiretap;c:\program files\common files\gnu;$(PATH)
+PATH=c:\cygnus\cygwin-b20\H-i586-cygwin32\bin;c:\python22;c:\ethereal\wiretap;$(COMMON_FILES_GNU);$(PATH)
 
 SH=bash
 PERL=perl
