@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.38 1999/10/22 07:17:42 guy Exp $
+ * $Id: packet-tcp.c,v 1.39 1999/11/02 05:03:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,12 +60,23 @@ extern FILE* data_out_file;
 static gchar info_str[COL_MAX_LEN];
 static int   info_len;
 
-int proto_tcp = -1;
-int hf_tcp_srcport = -1;
-int hf_tcp_dstport = -1;
-int hf_tcp_port = -1;
-int hf_tcp_seq = -1;
-int hf_tcp_ack = -1;
+static int proto_tcp = -1;
+static int hf_tcp_srcport = -1;
+static int hf_tcp_dstport = -1;
+static int hf_tcp_port = -1;
+static int hf_tcp_seq = -1;
+static int hf_tcp_ack = -1;
+static int hf_tcp_hlen = -1;
+static int hf_tcp_flags = -1;
+static int hf_tcp_flags_urg = -1;
+static int hf_tcp_flags_ack = -1;
+static int hf_tcp_flags_push = -1;
+static int hf_tcp_flags_reset = -1;
+static int hf_tcp_flags_syn = -1;
+static int hf_tcp_flags_fin = -1;
+static int hf_tcp_window_size = -1;
+static int hf_tcp_checksum = -1;
+static int hf_tcp_urgent_pointer = -1;
 
 /* TCP Ports */
 
@@ -338,6 +349,12 @@ static const ip_tcp_opt tcpopts[] = {
 
 #define N_TCP_OPTS	(sizeof tcpopts / sizeof tcpopts[0])
 
+/* TCP flags flag */
+static const true_false_string flags_set_truth = {
+  "Set",
+  "Not set"
+};
+
 void
 dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_tcphdr   th;
@@ -409,32 +426,20 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(tcp_tree, hf_tcp_seq, offset + 4, 4, th.th_seq);
     if (th.th_flags & TH_ACK)
       proto_tree_add_item(tcp_tree, hf_tcp_ack, offset + 8, 4, th.th_ack);
-    proto_tree_add_text(tcp_tree, offset + 12, 1, "Header length: %u bytes", hlen);
-     tf = proto_tree_add_text(tcp_tree, offset + 13, 1, "Flags: 0x%x", th.th_flags);
-     field_tree = proto_item_add_subtree(tf, ETT_TCP_FLAGS);
-     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
-       decode_boolean_bitfield(th.th_flags, TH_URG, sizeof (th.th_flags)*8,
-                         "Urgent pointer", "No urgent pointer"));
-     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
-       decode_boolean_bitfield(th.th_flags, TH_ACK, sizeof (th.th_flags)*8,
-                         "Acknowledgment", "No acknowledgment"));
-     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
-       decode_boolean_bitfield(th.th_flags, TH_PUSH, sizeof (th.th_flags)*8,
-                         "Push", "No push"));
-     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
-       decode_boolean_bitfield(th.th_flags, TH_RST, sizeof (th.th_flags)*8,
-                         "Reset", "No reset"));
-     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
-       decode_boolean_bitfield(th.th_flags, TH_SYN, sizeof (th.th_flags)*8,
-                         "Syn", "No Syn"));
-     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
-       decode_boolean_bitfield(th.th_flags, TH_FIN, sizeof (th.th_flags)*8,
-                         "Fin", "No Fin"));
-    proto_tree_add_text(tcp_tree, offset + 14, 2, "Window size: %u", th.th_win);
-    proto_tree_add_text(tcp_tree, offset + 16, 2, "Checksum: 0x%04x", th.th_sum);
+    proto_tree_add_item(tcp_tree, hf_tcp_hlen, offset + 12, 1, hlen);
+    tf = proto_tree_add_item_format(tcp_tree, hf_tcp_flags, offset + 13, 1,
+	th.th_flags, "Flags: 0x%04x (%s)", th.th_flags, flags);
+    field_tree = proto_item_add_subtree(tf, ETT_TCP_FLAGS);
+    proto_tree_add_item(field_tree, hf_tcp_flags_urg, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_ack, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_push, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_reset, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_syn, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_fin, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(tcp_tree, hf_tcp_window_size, offset + 14, 2, th.th_win);
+    proto_tree_add_item(tcp_tree, hf_tcp_checksum, offset + 16, 2, th.th_sum);
     if (th.th_flags & TH_URG)
-      proto_tree_add_text(tcp_tree, offset + 18, 2, "Urgent pointer: 0x%04x",
-        th.th_urp);
+      proto_tree_add_item(tcp_tree, hf_tcp_urgent_pointer, offset + 18, 2, th.th_urp);
   }
 
   /* Decode TCP options, if any. */
@@ -552,6 +557,50 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_ack,
 		{ "Acknowledgement number",	"tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
+
+		{ &hf_tcp_hlen,
+		{ "Header length",		"tcp.hlen", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
+
+		{ &hf_tcp_flags,
+		{ "Flags",			"tcp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
+
+		{ &hf_tcp_flags_urg,
+		{ "Urgent",			"tcp.flags.urg", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_URG,
+			"" }},
+
+		{ &hf_tcp_flags_ack,
+		{ "Acknowledgment",		"tcp.flags.ack", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ACK,
+			"" }},
+
+		{ &hf_tcp_flags_push,
+		{ "Push",			"tcp.flags.push", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_PUSH,
+			"" }},
+
+		{ &hf_tcp_flags_reset,
+		{ "Reset",			"tcp.flags.reset", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_RST,
+			"" }},
+
+		{ &hf_tcp_flags_syn,
+		{ "Syn",			"tcp.flags.syn", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_SYN,
+			"" }},
+
+		{ &hf_tcp_flags_fin,
+		{ "Fin",			"tcp.flags.fin", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_FIN,
+			"" }},
+
+		{ &hf_tcp_window_size,
+		{ "Window size",		"tcp.window_size", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
+
+		{ &hf_tcp_checksum,
+		{ "Checksum",			"tcp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
+
+		{ &hf_tcp_urgent_pointer,
+		{ "Urgent pointer",		"tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"" }},
 	};
 
