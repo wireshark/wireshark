@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dfs.h,v 1.4 2002/08/28 21:00:09 jmayer Exp $
+ * $Id: packet-dcerpc-dfs.h,v 1.5 2003/10/02 21:45:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,10 +28,28 @@
 
 /* Functions available on the NETDFS pipe.  From Samba, include/rpc_dfs.h */
 
-#define DFS_EXIST                0x00
-#define DFS_ADD                  0x01
-#define DFS_REMOVE               0x02
-#define DFS_GET_INFO             0x04
-#define DFS_ENUM                 0x05
+#define DFS_MANAGER_GET_VERSION 	0x00
+#define DFS_ADD 			0x01
+#define DFS_REMOVE 			0x02
+#define DFS_SET_INFO			0x03
+#define DFS_GET_INFO 			0x04
+#define DFS_ENUM			0x05
+#define DFS_RENAME			0x06
+#define DFS_MOVE			0x07
+#define DFS_MANAGER_GET_CONFIG_INFO	0x08 
+#define DFS_MANAGER_SEND_SITE_INFO	0x09
+#define DFS_ADD_FT_ROOT			0x0a
+#define DFS_REMOVE_FT_ROOT		0x0b
+#define DFS_ADD_STD_ROOT		0x0c
+#define DFS_REMOVE_STD_ROOT		0x0d
+#define DFS_MANAGER_INITIALIZE		0x0e
+#define DFS_ADD_STD_ROOT_FORCED		0x0f
+#define DFS_GET_DC_ADDRESS		0x10
+#define DFS_SET_DC_ADDRESS		0x11
+#define DFS_FLUSH_FT_TABLE		0x12
+#define DFS_ADD2			0x13
+#define DFS_REMOVE2			0x14
+#define DFS_ENUM_EX			0x15
+#define DFS_SET_INFO_2			0x16
 
 #endif /* packet-dcerpc-dfs.h */
