@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.268 2002/04/20 01:54:27 guy Exp $
+ * $Id: file.c,v 1.269 2002/04/22 19:10:33 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1750,8 +1750,18 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
       do_copy = TRUE;
       from_filename = cf->filename;
     }
-    /* Copy the file, if we haven't moved it. */
+
+    /* Check that the from file is not the same as to file */
+
     if (do_copy) {
+
+            /* Copy the file, if we haven't moved it. */
+	    if (strncmp(from_filename, fname, sizeof(cf->filename)) == 0) {
+		    simple_dialog(ESD_TYPE_WARN, NULL, 
+				  "Can't save over current capture file: %s!", from_filename);
+		    goto done;
+	    }
+
 	    if (!copy_binary_file(from_filename, fname)) {
 		goto done;
 	    }
