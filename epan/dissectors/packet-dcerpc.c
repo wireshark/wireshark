@@ -3588,9 +3588,17 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (check_col (pinfo->cinfo, COL_PROTOCOL))
         col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
-    if (check_col (pinfo->cinfo, COL_INFO))
+
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+        if(pinfo->dcectxid != 0) {
+            /* this is not the first DCE-RPC request/response in this (TCP?-)PDU, 
+             * append a delimiter and set a column fence */
+            col_append_str (pinfo->cinfo, COL_INFO, " # ");
+            col_set_fence(pinfo->cinfo,COL_INFO);
+        }
         col_add_fstr (pinfo->cinfo, COL_INFO, "%s: call_id: %u",
-	    pckt_vals[hdr.ptype].strptr, hdr.call_id);
+	        pckt_vals[hdr.ptype].strptr, hdr.call_id);
+    }
 
     if (tree) {
         offset = start_offset;
