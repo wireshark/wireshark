@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.50 2000/08/08 16:21:23 deniel Exp $
+ * $Id: packet-dns.c,v 1.51 2000/08/09 07:15:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -115,6 +115,12 @@ static gint ett_t_key_flags = -1;
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
 #define T_WINS_R	65282		/* Microsoft's WINS-R RR */
+
+/* Class values */
+#define C_IN		1		/* the Internet */
+#define C_CS		2		/* CSNET (obsolete) */
+#define C_CH		3		/* CHAOS */
+#define C_HS		4		/* Hesiod */
 
 /* Bit fields in the flags */
 #define F_RESPONSE      (1<<15)         /* packet is response */
@@ -330,13 +336,16 @@ dns_class_name(int class)
   char *class_name;
   
   switch (class) {
-  case 1:
+  case C_IN:
     class_name = "inet";
     break;
-  case 3:
+  case C_CS:
+    class_name = "csnet";
+    break;
+  case C_CH:
     class_name = "chaos";
     break;
-  case 4:
+  case C_HS:
     class_name = "hesiod";
     break;
   default:
@@ -737,7 +746,7 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Addr: %s",
 		     ip_to_str((guint8 *)dptr));
     }
-    if (class == 1) {
+    if (class == C_IN) {
       guint32 addr;
       memcpy(&addr, dptr, sizeof(addr));
       add_host_name(addr, name);
