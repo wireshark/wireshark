@@ -7,7 +7,7 @@
  * draft-ietf-ips-iscsi-09.txt by defining DRAFT09
  * draft-ietf-ips-iscsi-08.txt by defining DRAFT08
  *
- * $Id: packet-iscsi.c,v 1.28 2002/04/04 10:20:24 guy Exp $
+ * $Id: packet-iscsi.c,v 1.29 2002/04/04 23:24:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,6 +181,7 @@ static int hf_iscsi_BegRun = -1;
 static int hf_iscsi_RunLength = -1;
 
 /* Initialize the subtree pointers */
+static gint ett_iscsi = -1;
 static gint ett_iscsi_KeyValues = -1;
 static gint ett_iscsi_CDB = -1;
 static gint ett_iscsi_Flags = -1;
@@ -719,7 +720,7 @@ static void
 dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len) {
 
     guint original_offset = offset;
-    proto_item *ti = NULL;
+    proto_tree *ti = NULL;
     char *scsi_command_name = NULL;
     guint8 scsi_status = 0;
     guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
@@ -861,11 +862,12 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     /* In the interest of speed, if "tree" is NULL, don't do any
        work not necessary to generate protocol tree items. */
     if (tree) {
-
+	proto_item *tp;
 	/* create display subtree for the protocol */
-	ti = proto_tree_add_protocol_format(tree, proto_iscsi, tvb,
+	tp = proto_tree_add_protocol_format(tree, proto_iscsi, tvb,
 					    offset, -1, "iSCSI (%s)",
 					    (char *)opcode_str);
+	ti = proto_item_add_subtree(tp, ett_iscsi);
 
 	proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
 			    offset + 0, 1, opcode);
@@ -2040,6 +2042,7 @@ proto_register_iscsi(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
+	&ett_iscsi,
 	&ett_iscsi_KeyValues,
 	&ett_iscsi_CDB,
 	&ett_iscsi_Flags,
