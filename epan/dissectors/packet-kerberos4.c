@@ -65,9 +65,6 @@ static gint ett_krb4_auth_msg_type = -1;
 #define UDP_PORT_KRB4    750
 #define TRANSARC_SPECIAL_VERSION 0x63
 
-static dissector_handle_t krb4_handle;
-
-
 static const value_string byte_order_vals[] = {
 	{ 0,	"Big Endian" },
 	{ 1,	"Little Endian" },
@@ -243,7 +240,7 @@ dissect_krb4_auth_msg_type(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 	return offset;
 }
 
-static void
+static int
 dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_tree *tree;
@@ -256,7 +253,7 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 */
 	version=tvb_get_guint8(tvb, offset);
 	if((version!=4)&&(version!=TRANSARC_SPECIAL_VERSION)){ 
-		return;
+		return 0;
 	}
 
 	/* create a tree for krb4 */
@@ -294,7 +291,7 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case AUTH_MSG_DIE:
 		break;
 	}
-
+	return tvb_length(tvb);
 }
 
 void
@@ -375,12 +372,13 @@ proto_register_krb4(void)
 				       "KRB4", "krb4");
   proto_register_field_array(proto_krb4, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-  krb4_handle = create_dissector_handle(dissect_krb4, proto_krb4);
 }
 
 void
 proto_reg_handoff_krb4(void)
 {
+  dissector_handle_t krb4_handle;
+
+  krb4_handle = new_create_dissector_handle(dissect_krb4, proto_krb4);
   dissector_add("udp.port", UDP_PORT_KRB4, krb4_handle);
 }
