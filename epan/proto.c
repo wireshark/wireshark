@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.27 2001/05/09 01:22:46 guy Exp $
+ * $Id: proto.c,v 1.28 2001/05/31 07:15:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2837,7 +2837,7 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 {
 	header_field_info	*hfinfo;
 	int			abbrev_len;
-	char			*buf, *stringified, *format, *ptr;
+	char			*buf, *stringified, *format, *ptr, *value_str;
 	int			dfilter_len, i;
 	guint8			*c;
 
@@ -2905,25 +2905,37 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 					hfinfo->abbrev,
 					ether_to_str(fvalue_get(finfo->value)));
 			break;
-#if 0
 
 		case FT_ABSOLUTE_TIME:
-		case FT_RELATIVE_TIME:
-			memcpy(&fi->value.time, va_arg(ap, struct timeval*),
-				sizeof(struct timeval));
+			value_str =
+			    abs_time_to_str((struct timeval *)fvalue_get(finfo->value));
+			dfilter_len = abbrev_len + strlen(value_str) + 7;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == \"%s\"",
+					hfinfo->abbrev, value_str);
 			break;
 
+		case FT_RELATIVE_TIME:
+			value_str =
+			    rel_time_to_str((struct timeval *)fvalue_get(finfo->value));
+			dfilter_len = abbrev_len + strlen(value_str) + 4;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == %s",
+					hfinfo->abbrev, value_str);
+			break;
+
+#if 0
 		case FT_TEXT_ONLY:
 			; /* nothing */
 			break;
 #endif
 
 		case FT_STRING:
-			dfilter_len = abbrev_len + 
-			  strlen(fvalue_get(finfo->value)) + 7;
+			value_str = fvalue_get(finfo->value);
+			dfilter_len = abbrev_len + strlen(value_str) + 7;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == \"%s\"",
-				 hfinfo->abbrev, (char*)fvalue_get(finfo->value));
+				 hfinfo->abbrev, value_str);
 			break;
 
 		case FT_BYTES:
@@ -2934,6 +2946,7 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 				 hfinfo->abbrev,
 				 bytes_to_str_punct(fvalue_get(finfo->value), finfo->length,':'));
 			break;       
+
 		default:
 			c = pd + finfo->start;
 			buf = g_malloc0(32 + finfo->length * 3);
