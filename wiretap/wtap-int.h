@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.31 2002/11/01 08:18:36 guy Exp $
+ * $Id: wtap-int.h,v 1.32 2002/11/27 22:21:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -242,81 +242,81 @@ struct wtap_dumper {
 
 #ifndef pntohs
 #define pntohs(p)  ((guint16)                       \
-                    ((guint16)*((guint8 *)(p)+0)<<8|  \
-                     (guint16)*((guint8 *)(p)+1)<<0))
+                    ((guint16)*((const guint8 *)(p)+0)<<8|  \
+                     (guint16)*((const guint8 *)(p)+1)<<0))
 #endif
 
 #ifndef pntoh24
-#define pntoh24(p)  ((guint32)*((guint8 *)(p)+0)<<16| \
-                     (guint32)*((guint8 *)(p)+1)<<8|  \
-                     (guint32)*((guint8 *)(p)+2)<<0)
+#define pntoh24(p)  ((guint32)*((const guint8 *)(p)+0)<<16| \
+                     (guint32)*((const guint8 *)(p)+1)<<8|  \
+                     (guint32)*((const guint8 *)(p)+2)<<0)
 #endif
 
 #ifndef pntohl
-#define pntohl(p)  ((guint32)*((guint8 *)(p)+0)<<24|  \
-                    (guint32)*((guint8 *)(p)+1)<<16|  \
-                    (guint32)*((guint8 *)(p)+2)<<8|   \
-                    (guint32)*((guint8 *)(p)+3)<<0)
+#define pntohl(p)  ((guint32)*((const guint8 *)(p)+0)<<24|  \
+                    (guint32)*((const guint8 *)(p)+1)<<16|  \
+                    (guint32)*((const guint8 *)(p)+2)<<8|   \
+                    (guint32)*((const guint8 *)(p)+3)<<0)
 #endif
 
 #ifdef G_HAVE_GINT64
 #ifndef pntohll
-#define pntohll(p)  ((guint64)*((guint8 *)(p)+0)<<56|  \
-                     (guint64)*((guint8 *)(p)+1)<<48|  \
-                     (guint64)*((guint8 *)(p)+2)<<40|  \
-                     (guint64)*((guint8 *)(p)+3)<<32|  \
-                     (guint64)*((guint8 *)(p)+4)<<24|  \
-                     (guint64)*((guint8 *)(p)+5)<<16|  \
-                     (guint64)*((guint8 *)(p)+6)<<8|   \
-                     (guint64)*((guint8 *)(p)+7)<<0)
+#define pntohll(p)  ((guint64)*((const guint8 *)(p)+0)<<56|  \
+                     (guint64)*((const guint8 *)(p)+1)<<48|  \
+                     (guint64)*((const guint8 *)(p)+2)<<40|  \
+                     (guint64)*((const guint8 *)(p)+3)<<32|  \
+                     (guint64)*((const guint8 *)(p)+4)<<24|  \
+                     (guint64)*((const guint8 *)(p)+5)<<16|  \
+                     (guint64)*((const guint8 *)(p)+6)<<8|   \
+                     (guint64)*((const guint8 *)(p)+7)<<0)
 #endif
 #endif
 
 
 #ifndef phtons
 #define phtons(p)  ((guint16)                       \
-                    ((guint16)*((guint8 *)(p)+0)<<8|  \
-                     (guint16)*((guint8 *)(p)+1)<<0))
+                    ((guint16)*((const guint8 *)(p)+0)<<8|  \
+                     (guint16)*((const guint8 *)(p)+1)<<0))
 #endif
 
 #ifndef phtonl
-#define phtonl(p)  ((guint32)*((guint8 *)(p)+0)<<24|  \
-                    (guint32)*((guint8 *)(p)+1)<<16|  \
-                    (guint32)*((guint8 *)(p)+2)<<8|   \
-                    (guint32)*((guint8 *)(p)+3)<<0)
+#define phtonl(p)  ((guint32)*((const guint8 *)(p)+0)<<24|  \
+                    (guint32)*((const guint8 *)(p)+1)<<16|  \
+                    (guint32)*((const guint8 *)(p)+2)<<8|   \
+                    (guint32)*((const guint8 *)(p)+3)<<0)
 #endif
 
 #ifndef pletohs
 #define pletohs(p) ((guint16)                       \
-                    ((guint16)*((guint8 *)(p)+1)<<8|  \
-                     (guint16)*((guint8 *)(p)+0)<<0))
+                    ((guint16)*((const guint8 *)(p)+1)<<8|  \
+                     (guint16)*((const guint8 *)(p)+0)<<0))
 #endif
 
 #ifndef pletoh24
-#define pletoh24(p) ((guint32)*((guint8 *)(p)+2)<<16|  \
-                     (guint32)*((guint8 *)(p)+1)<<8|  \
-                     (guint32)*((guint8 *)(p)+0)<<0)
+#define pletoh24(p) ((guint32)*((const guint8 *)(p)+2)<<16|  \
+                     (guint32)*((const guint8 *)(p)+1)<<8|  \
+                     (guint32)*((const guint8 *)(p)+0)<<0)
 #endif
 
 
 #ifndef pletohl
-#define pletohl(p) ((guint32)*((guint8 *)(p)+3)<<24|  \
-                    (guint32)*((guint8 *)(p)+2)<<16|  \
-                    (guint32)*((guint8 *)(p)+1)<<8|   \
-                    (guint32)*((guint8 *)(p)+0)<<0)
+#define pletohl(p) ((guint32)*((const guint8 *)(p)+3)<<24|  \
+                    (guint32)*((const guint8 *)(p)+2)<<16|  \
+                    (guint32)*((const guint8 *)(p)+1)<<8|   \
+                    (guint32)*((const guint8 *)(p)+0)<<0)
 #endif
 
 
 #ifdef G_HAVE_GINT64
 #ifndef pletohll
-#define pletohll(p) ((guint64)*((guint8 *)(p)+7)<<56|  \
-                     (guint64)*((guint8 *)(p)+6)<<48|  \
-                     (guint64)*((guint8 *)(p)+5)<<40|  \
-                     (guint64)*((guint8 *)(p)+4)<<32|  \
-                     (guint64)*((guint8 *)(p)+3)<<24|  \
-                     (guint64)*((guint8 *)(p)+2)<<16|  \
-                     (guint64)*((guint8 *)(p)+1)<<8|   \
-                     (guint64)*((guint8 *)(p)+0)<<0)
+#define pletohll(p) ((guint64)*((const guint8 *)(p)+7)<<56|  \
+                     (guint64)*((const guint8 *)(p)+6)<<48|  \
+                     (guint64)*((const guint8 *)(p)+5)<<40|  \
+                     (guint64)*((const guint8 *)(p)+4)<<32|  \
+                     (guint64)*((const guint8 *)(p)+3)<<24|  \
+                     (guint64)*((const guint8 *)(p)+2)<<16|  \
+                     (guint64)*((const guint8 *)(p)+1)<<8|   \
+                     (guint64)*((const guint8 *)(p)+0)<<0)
 #endif
 #endif
 
