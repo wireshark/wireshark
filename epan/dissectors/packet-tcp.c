@@ -104,6 +104,8 @@ static int hf_tcp_analysis_zero_window = -1;
 static int hf_tcp_analysis_zero_window_probe = -1;
 static int hf_tcp_analysis_zero_window_violation = -1;
 static int hf_tcp_continuation_to = -1;
+static int hf_tcp_pdu_time = -1;
+static int hf_tcp_pdu_last_frame = -1;
 static int hf_tcp_reassembled_in = -1;
 static int hf_tcp_segments = -1;
 static int hf_tcp_segment = -1;
@@ -268,9 +270,12 @@ struct tcp_next_pdu {
 	guint32 seq;
 	guint32 nxtpdu;
 	guint32 first_frame;
+	guint32 last_frame;
+        nstime_t last_frame_time;
 };
 static GHashTable *tcp_pdu_tracking_table = NULL;
 static GHashTable *tcp_pdu_skipping_table = NULL;
+static GHashTable *tcp_pdu_time_table = NULL;
 
 
 static struct tcp_analysis *
@@ -353,7 +358,6 @@ prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
 			if(tmptnp==*tnp){
 				tmptnp=tmptnp->next;
 				*tnp=tmptnp;
-				g_mem_chunk_free(tcp_next_pdu_chunk, oldtnp);
 				if(!tmptnp){
 					return;
 				}
@@ -362,7 +366,6 @@ prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
 				for(tmptnp=*tnp;tmptnp;tmptnp=tmptnp->next){
 					if(tmptnp->next==oldtnp){
 						tmptnp->next=oldtnp->next;
-						g_mem_chunk_free(tcp_next_pdu_chunk, oldtnp);
 						break;
 					}
 				}
@@ -374,6 +377,20 @@ prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
 	}
 }
 		
+
+static void
+print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree, struct tcp_next_pdu *tnp, guint32 frame)
+{
+	proto_item *item;
+ 	nstime_t ns;
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", tnp->first_frame);
+	}
+	item=proto_tree_add_uint(tcp_tree, hf_tcp_continuation_to,
+		tvb, 0, 0, tnp->first_frame);
+	PROTO_ITEM_SET_GENERATED(item);
+}
 
 /* if we know that a PDU starts inside this segment, return the adjusted 
    offset to where that PDU starts or just return offset back
@@ -410,13 +427,13 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 			 * then we just skip this packet
 			 */
 			if(seq>tnp->seq && nxtseq<=tnp->nxtpdu){
+				tnp->last_frame=pinfo->fd->num;
+				tnp->last_frame_time.secs=pinfo->fd->abs_secs;
+				tnp->last_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
 				g_hash_table_insert(tcp_pdu_skipping_table, 
-					(void *)pinfo->fd->num, (void *)tnp->first_frame);
-				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", tnp->first_frame);
-				}
-				proto_tree_add_uint(tcp_tree, hf_tcp_continuation_to,
-					tvb, 0, 0, tnp->first_frame);
+					(void *)pinfo->fd->num, (void *)tnp);
+				print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp, pinfo->fd->num);
+
 				return -1;
 			}			
 			if(seq<tnp->nxtpdu && nxtseq>tnp->nxtpdu){
@@ -428,16 +445,31 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 		}
 	} else {
 		guint32 pduseq;
-		guint32 first_frame;
+
+		tnp=(struct tcp_next_pdu *)g_hash_table_lookup(tcp_pdu_time_table, (void *)pinfo->fd->num);
+		if(tnp){
+			proto_item *item;
+		 	nstime_t ns;
+
+			item=proto_tree_add_uint(tcp_tree, hf_tcp_pdu_last_frame, tvb, 0, 0, tnp->last_frame);
+			PROTO_ITEM_SET_GENERATED(item);
+
+			ns.secs =tnp->last_frame_time.secs-pinfo->fd->abs_secs;
+			ns.nsecs=tnp->last_frame_time.nsecs-pinfo->fd->abs_usecs*1000;
+			if(ns.nsecs<0){
+				ns.nsecs+=1000000000;
+				ns.secs--;
+			}
+			item = proto_tree_add_time(tcp_tree, hf_tcp_pdu_time,
+					tvb, 0, 0, &ns);
+			PROTO_ITEM_SET_GENERATED(item);
+
+		}
 
 		/* check if this is a segment in the middle of a pdu */
-		first_frame=(guint32)g_hash_table_lookup(tcp_pdu_skipping_table, (void *)pinfo->fd->num);
-		if(first_frame){
-			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", first_frame);
-			}
-			proto_tree_add_uint(tcp_tree, hf_tcp_continuation_to,
-				tvb, 0, 0, first_frame);
+		tnp=(struct tcp_next_pdu *)g_hash_table_lookup(tcp_pdu_skipping_table, (void *)pinfo->fd->num);
+		if(tnp){
+			print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp, pinfo->fd->num);
 			return -1;
 		}
 
@@ -460,13 +492,16 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	struct tcp_next_pdu *tnp=NULL;
 	int direction;
 
-	/* find(or create if needed) the conversation for this tcp session */
+ 	/* find(or create if needed) the conversation for this tcp session */
 	tcpd=get_tcp_conversation_data(pinfo);
 
 	tnp=g_mem_chunk_alloc(tcp_next_pdu_chunk);
 	tnp->nxtpdu=nxtpdu;
 	tnp->seq=seq;
 	tnp->first_frame=pinfo->fd->num;
+	tnp->last_frame=pinfo->fd->num;
+	tnp->last_frame_time.secs=pinfo->fd->abs_secs;
+	tnp->last_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
 
 	/* check direction and get pdu start list */
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
@@ -485,6 +520,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	  Add check for ACKs and purge list of sequence numbers
 	  already acked.
 	*/
+	g_hash_table_insert(tcp_pdu_time_table, (void *)pinfo->fd->num, (void *)tnp);
 }
 
 /* This is called for SYN+ACK packets and the purpose is to verify that we
@@ -1335,6 +1371,12 @@ tcp_analyze_seq_init(void)
 		g_hash_table_destroy(tcp_pdu_tracking_table);
 		tcp_pdu_tracking_table = NULL;
 	}
+	if( tcp_pdu_time_table ){
+		g_hash_table_foreach_remove(tcp_pdu_time_table,
+			free_all_acked, NULL);
+		g_hash_table_destroy(tcp_pdu_time_table);
+		tcp_pdu_time_table = NULL;
+	}
 	if( tcp_pdu_skipping_table ){
 		g_hash_table_foreach_remove(tcp_pdu_skipping_table,
 			free_all_acked, NULL);
@@ -1371,6 +1413,8 @@ tcp_analyze_seq_init(void)
 		tcp_analyze_acked_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
 		tcp_rel_seq_table = g_hash_table_new(tcp_acked_hash,
+			tcp_acked_equal);
+		tcp_pdu_time_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
 		tcp_pdu_tracking_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
@@ -3217,6 +3261,14 @@ proto_register_tcp(void)
 		{ &hf_tcp_option_md5,
 		  { "TCP MD5 Option", "tcp.options.md5", FT_BOOLEAN, BASE_NONE,
 		    NULL, 0x0, "TCP MD5 Option", HFILL}},
+
+		{ &hf_tcp_pdu_time,
+		  { "Time until the last segment of this PDU", "tcp.pdu.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    "How long time has passed until the last frame of this PDU", HFILL}},
+		{ &hf_tcp_pdu_last_frame,
+		  { "Last frame of this PDU", "tcp.pdu.last_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This is the last frame of the PDU starting in this segment", HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_tcp,
