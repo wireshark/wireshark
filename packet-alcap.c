@@ -6,7 +6,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-alcap.c,v 1.1 2003/10/06 09:18:07 guy Exp $
+ * $Id: packet-alcap.c,v 1.2 2003/10/06 14:48:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,7 +76,23 @@
 	return; \
     }
 
-static const value_string msg_parm_strings[];
+static const value_string msg_parm_strings[] = {
+    { 1,	"Cause (CAU)" },
+    { 2,	"Connection element identifier (CEID)" },
+    { 3,	"Destination E.164 service endpoint address (ESEA)" },
+    { 4,	"Destination NSAP service endpoint address (NSEA)" },
+    { 5,	"Link characteristics (ALC)" },
+    { 6,	"Originating signalling association identifier (OSAID)" },
+    { 7,	"Served user generated reference (SUGR)" },
+    { 8,	"Served user transport (SUT)" },
+    { 9,	"Service specific information (audio) (SSIA)" },
+    { 10,	"Service specific information (multirate) (SSIM)" },
+    { 11,	"Service specific information (SAR-assured) (SSISA)" },
+    { 12,	"Service specific information (SAR-unassured) (SSISU)" },
+    { 13,	"Test connection identifier (TCI)" },
+    { 0, NULL },
+};
+define	NUM_PARMS (sizeof(msg_parm_strings)/sizeof(value_string))
 
 static char *alcap_proto_name = "AAL type 2 signalling protocol - Capability set 1 (Q.2630.1)";
 static char *alcap_proto_name_short = "ALCAP";
@@ -1493,23 +1509,6 @@ dis_parm_service_specific_info_unass(tvbuff_t *tvb, proto_tree *tree, guint len,
     EXTRANEOUS_DATA_CHECK(len, 0);
 }
 
-static const value_string msg_parm_strings[] = {
-    { 1,	"Cause (CAU)" },
-    { 2,	"Connection element identifier (CEID)" },
-    { 3,	"Destination E.164 service endpoint address (ESEA)" },
-    { 4,	"Destination NSAP service endpoint address (NSEA)" },
-    { 5,	"Link characteristics (ALC)" },
-    { 6,	"Originating signalling association identifier (OSAID)" },
-    { 7,	"Served user generated reference (SUGR)" },
-    { 8,	"Served user transport (SUT)" },
-    { 9,	"Service specific information (audio) (SSIA)" },
-    { 10,	"Service specific information (multirate) (SSIM)" },
-    { 11,	"Service specific information (SAR-assured) (SSISA)" },
-    { 12,	"Service specific information (SAR-unassured) (SSISU)" },
-    { 13,	"Test connection identifier (TCI)" },
-    { 0, NULL },
-};
-#define	NUM_PARMS (sizeof(msg_parm_strings)/sizeof(value_string))
 static gint ett_parms[NUM_PARMS];
 static void (*alcap_parm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset) = {
     dis_parm_cause,				/* Cause */
