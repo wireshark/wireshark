@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.215 2004/01/09 19:02:18 ulfl Exp $
+ * $Id: tethereal.c,v 1.216 2004/01/09 21:38:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2927,8 +2927,6 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
     cf->snap = WTAP_MAX_PACKET_SIZE;
   } else
     cf->has_snap = TRUE;
-  cf->progbar_quantum = 0;
-  cf->progbar_nextstep = 0;
   firstsec = 0, firstusec = 0;
   prevsec = 0, prevusec = 0;
 

@@ -1,7 +1,7 @@
 /* cfile.h
  * capture_file definition & GUI-independent manipulation
  *
- * $Id: cfile.h,v 1.6 2003/09/24 00:47:36 guy Exp $
+ * $Id: cfile.h,v 1.7 2004/01/09 21:38:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,8 +59,6 @@ typedef struct _capture_file {
   guint32      eusec;     /* Elapsed microseconds */
   gboolean     has_snap;  /* TRUE if maximum capture packet length is known */
   int          snap;      /* Maximum captured packet length */
-  long         progbar_quantum; /* Number of bytes read per progress bar update */
-  long         progbar_nextstep; /* Next point at which to update progress bar */
   gchar       *iface;     /* Interface */
   gchar       *save_file; /* File that user saved capture to */
   int          save_file_fd; /* File descriptor for saved file */

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.337 2004/01/09 18:10:40 ulfl Exp $
+ * $Id: file.c,v 1.338 2004/01/09 21:38:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,8 +197,6 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
     cf->snap = WTAP_MAX_PACKET_SIZE;
   } else
     cf->has_snap = TRUE;
-  cf->progbar_quantum = 0;
-  cf->progbar_nextstep = 0;
   firstsec = 0, firstusec = 0;
   prevsec = 0, prevusec = 0;
 
@@ -346,6 +344,8 @@ cf_read(capture_file *cf, int *err)
   struct stat cf_stat;
   GTimeVal    start_time;
   gchar       status_str[100];
+  int         progbar_nextstep;
+  int         progbar_quantum;
 
   cul_bytes=0;
   reset_tap_listeners();
@@ -358,10 +358,10 @@ cf_read(capture_file *cf, int *err)
   statusbar_push_file_msg(load_msg);
 
   /* Update the progress bar when it gets to this value. */
-  cf->progbar_nextstep = 0;
+  progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  cf->progbar_quantum = cf->f_len/N_PROGBAR_UPDATES;
+  progbar_quantum = cf->f_len/N_PROGBAR_UPDATES;
 
 #ifndef O_BINARY
 #define O_BINARY 	0
@@ -378,7 +378,7 @@ cf_read(capture_file *cf, int *err)
        to repaint what's pending, and doing so may involve an "ioctl()"
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
-    if (data_offset >= cf->progbar_nextstep) {
+    if (data_offset >= progbar_nextstep) {
         file_pos = lseek(cf->filed, 0, SEEK_CUR);
         prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
         if (prog_val > 1.0) {
@@ -408,7 +408,7 @@ cf_read(capture_file *cf, int *err)
                      "%luKB of %luKB", file_pos / 1024, cf->f_len / 1024);
           update_progress_dlg(progbar, prog_val, status_str);
         }
-        cf->progbar_nextstep += cf->progbar_quantum;
+        progbar_nextstep += progbar_quantum;
     }
 
     if (stop_flag) {
@@ -1019,6 +1019,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   float       prog_val;
   GTimeVal    start_time;
   gchar       status_str[100];
+  int         progbar_nextstep;
+  int         progbar_quantum;
 
   cul_bytes=0;
   reset_tap_listeners();
@@ -1062,10 +1064,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   prevusec = 0;
 
   /* Update the progress bar when it gets to this value. */
-  cf->progbar_nextstep = 0;
+  progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
   count = 0;
 
@@ -1089,7 +1091,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        to repaint what's pending, and doing so may involve an "ioctl()"
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
-    if (count >= cf->progbar_nextstep) {
+    if (count >= progbar_nextstep) {
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
@@ -1107,7 +1109,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
         update_progress_dlg(progbar, prog_val, status_str);
       }
 
-      cf->progbar_nextstep += cf->progbar_quantum;
+      progbar_nextstep += progbar_quantum;
     }
 
     if (stop_flag) {
@@ -1278,6 +1280,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
   float       prog_val;
   GTimeVal    start_time;
   gchar       status_str[100];
+  int         progbar_nextstep;
+  int         progbar_quantum;
   range_process_e process_this;
 
   cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
@@ -1339,10 +1343,10 @@ print_packets(capture_file *cf, print_args_t *print_args)
   print_separator = FALSE;
 
   /* Update the progress bar when it gets to this value. */
-  cf->progbar_nextstep = 0;
+  progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
   count = 0;
 
@@ -1359,7 +1363,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
        to repaint what's pending, and doing so may involve an "ioctl()"
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
-    if (count >= cf->progbar_nextstep) {
+    if (count >= progbar_nextstep) {
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
@@ -1377,7 +1381,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
         update_progress_dlg(progbar, prog_val, status_str);
       }
 
-      cf->progbar_nextstep += cf->progbar_quantum;
+      progbar_nextstep += progbar_quantum;
     }
 
     if (stop_flag) {
@@ -1501,6 +1505,8 @@ change_time_formats(capture_file *cf)
   float       prog_val;
   GTimeVal    start_time;
   gchar       status_str[100];
+  int         progbar_nextstep;
+  int         progbar_quantum;
   int         first, last;
   gboolean    sorted_by_frame_column;
 
@@ -1524,10 +1530,10 @@ change_time_formats(capture_file *cf)
   packet_list_freeze();
 
   /* Update the progress bar when it gets to this value. */
-  cf->progbar_nextstep = 0;
+  progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
   count = 0;
 
@@ -1565,7 +1571,7 @@ change_time_formats(capture_file *cf)
        to repaint what's pending, and doing so may involve an "ioctl()"
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
-    if (count >= cf->progbar_nextstep) {
+    if (count >= progbar_nextstep) {
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
@@ -1584,7 +1590,7 @@ change_time_formats(capture_file *cf)
         update_progress_dlg(progbar, prog_val, status_str);
       }
 
-      cf->progbar_nextstep += cf->progbar_quantum;
+      progbar_nextstep += progbar_quantum;
     }
 
     if (stop_flag) {
@@ -1984,6 +1990,8 @@ find_packet(capture_file *cf,
   float       prog_val;
   GTimeVal    start_time;
   gchar       status_str[100];
+  int         progbar_nextstep;
+  int         progbar_quantum;
 
   start_fd = cf->current_frame;
   if (start_fd != NULL)  {
@@ -1993,10 +2001,10 @@ find_packet(capture_file *cf,
     count = 0;
     fdata = start_fd;
 
-    cf->progbar_nextstep = 0;
+    progbar_nextstep = 0;
     /* When we reach the value that triggers a progress bar update,
        bump that value by this amount. */
-    cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+    progbar_quantum = cf->count/N_PROGBAR_UPDATES;
 
     stop_flag = FALSE;
     g_get_current_time(&start_time);
@@ -2008,7 +2016,7 @@ find_packet(capture_file *cf,
          to repaint what's pending, and doing so may involve an "ioctl()"
          to see if there's any pending input from an X server, and doing
          that for every packet can be costly, especially on a big file. */
-      if (count >= cf->progbar_nextstep) {
+      if (count >= progbar_nextstep) {
         /* let's not divide by zero. I should never be started
          * with count == 0, so let's assert that
          */
@@ -2027,7 +2035,7 @@ find_packet(capture_file *cf,
           update_progress_dlg(progbar, prog_val, status_str);
         }
 
-        cf->progbar_nextstep += cf->progbar_quantum;
+        progbar_nextstep += progbar_quantum;
       }
 
       if (stop_flag) {

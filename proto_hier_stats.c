@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.20 2003/12/04 10:59:33 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.21 2004/01/09 21:38:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,6 +164,8 @@ ph_stats_new(void)
 	float		prog_val;
 	GTimeVal	start_time;
 	gchar		status_str[100];
+	int		progbar_nextstep;
+	int		progbar_quantum;
 
 	/* Initialize the data */
 	ps = g_new(ph_stats_t, 1);
@@ -172,10 +174,10 @@ ph_stats_new(void)
 	ps->stats_tree = g_node_new(NULL);
 
 	/* Update the progress bar when it gets to this value. */
-	cfile.progbar_nextstep = 0;
+	progbar_nextstep = 0;
 	/* When we reach the value that triggers a progress bar update,
 	   bump that value by this amount. */
-	cfile.progbar_quantum = cfile.count/N_PROGBAR_UPDATES;
+	progbar_quantum = cfile.count/N_PROGBAR_UPDATES;
 	/* Count of packets at which we've looked. */
 	count = 0;
 
@@ -192,7 +194,7 @@ ph_stats_new(void)
 		   may involve an "ioctl()" to see if there's any pending
 		   input from an X server, and doing that for every packet
 		   can be costly, especially on a big file. */
-		if (count >= cfile.progbar_nextstep) {
+		if (count >= progbar_nextstep) {
 			/* let's not divide by zero. I should never be started
 			 * with count == 0, so let's assert that
 			 */
@@ -212,7 +214,7 @@ ph_stats_new(void)
 				update_progress_dlg(progbar, prog_val, status_str);
 			}
 
-			cfile.progbar_nextstep += cfile.progbar_quantum;
+			progbar_nextstep += progbar_quantum;
 		}
 
 		if (stop_flag) {
