@@ -57,7 +57,9 @@
 #include <string.h>
 
 #include "packet-rtcp.h"
-/* #include "packet-ntp.h" */
+#if 0
+#include "packet-ntp.h"
+#endif
 #include "conversation.h"
 
 /* Version is the first 2 bits of the first octet*/
@@ -568,18 +570,27 @@ static int
 dissect_rtcp_sr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
     int count )
 {
-	/* gchar buff[ NTP_TS_SIZE ];
+#if 0
+	gchar buff[ NTP_TS_SIZE ];
 	char* ptime = tvb_get_ptr( tvb, offset, 8 );
-	*/
 
 	/* Retreive the NTP timestamp. Using the NTP dissector for this */
-	/*ntp_fmt_ts( ptime, buff );
+	ntp_fmt_ts( ptime, buff );
 	proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) &buff, "NTP timestamp: %s", &buff );
 	free( ptime ); ??????????????????????????????????????????????????????????????????
-	*/
-
-	proto_tree_add_text( tree, tvb, offset, 8, "Timestamp, format unknown" );
 	offset += 8;
+#else
+	/*
+	 * XXX - RFC 1889 says this is an NTP timestamp, but that appears
+	 * not to be the case.
+	 */
+	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, MSW: %u",
+		tvb_get_ntohl(tvb, offset));
+	offset += 4;
+	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp, LSW: %u",
+		tvb_get_ntohl(tvb, offset));
+	offset += 4;
+#endif
 	/* RTP timestamp, 32 bits */
 	proto_tree_add_uint( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 	offset += 4;
