@@ -6,7 +6,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-alcap.c,v 1.2 2003/10/06 14:48:00 jmayer Exp $
+ * $Id: packet-alcap.c,v 1.3 2003/10/06 19:25:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,7 +92,7 @@ static const value_string msg_parm_strings[] = {
     { 13,	"Test connection identifier (TCI)" },
     { 0, NULL },
 };
-define	NUM_PARMS (sizeof(msg_parm_strings)/sizeof(value_string))
+#define	NUM_PARMS (sizeof(msg_parm_strings)/sizeof(value_string))
 
 static char *alcap_proto_name = "AAL type 2 signalling protocol - Capability set 1 (Q.2630.1)";
 static char *alcap_proto_name_short = "ALCAP";

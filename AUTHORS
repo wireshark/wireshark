@@ -1790,6 +1790,8 @@ Michael Lum <mlum [AT] telostech.com> {
 	ANSI TCAP support
 	ANSI MAP support
 	ALCAP (Q.2630.1) support
+	IS-637-A (SMS) support
+	IS-683-A (OTA) support
 }
 
 Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {

@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.2 2003/10/06 09:08:06 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.3 2003/10/06 19:25:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -302,7 +302,6 @@ static const value_string ansi_param_3_strings[] = {
     { 0x9F8128,	"Pilot Number" },
     { 0x9F8129,	"Pilot Billing ID" },
     { 0x9F812A,	"CDMA Band Class" },
-    { 0x9F8113,	"Preferred Language" },
     { 0x9F8172,	"International Mobile Subscriber Identity" },
     { 0x9F8173,	"Calling Party Name" },
     { 0x9F8174,	"Display Text" },
@@ -495,10 +494,10 @@ static const value_string ansi_opr_code_strings[] = {
     { 15,	"Location Request" },
     { 16,	"Routing Request" },
     { 17,	"Feature Request" },
-    { 18,	"Reserved 18" },
-    { 19,	"Reserved 19" },
+    { 18,	"Reserved 18 (Service Profile Request, IS-41-C)" },
+    { 19,	"Reserved 19 (Service Profile Directive, IS-41-C)" },
     { 20,	"Unreliable Roamer Data Directive" },
-    { 21,	"Reserved 21" },
+    { 21,	"Reserved 21 (Call Data Request, IS-41-C)" },
     { 22,	"MS Inactive" },
     { 23,	"Transfer To Number Request" },
     { 24,	"Redirection Request" },
@@ -3211,6 +3210,36 @@ param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len)
 	calling_feat_ind_str[value & 0x03]);
 
     EXTRANEOUS_DATA_CHECK(len, 6);
+}
+
+static void
+param_usage_ind(ASN1_SCK *asn1, proto_tree *tree, guint len)
+{
+    gint32 value;
+    guint saved_offset;
+    gchar *str = NULL;
+
+    EXACT_DATA_CHECK(len, 1);
+
+    saved_offset = asn1->offset;
+
+    asn1_int32_value_decode(asn1, 1, &value);
+
+    switch (value)
+    {
+    case 0: str = "Unspecified"; break;
+    case 1: str = "Sent-paid call"; break;
+    case 2: str = "3rd number bill"; break;
+    default:
+	str = "Reserved, treat as Unspecified";
+	break;
+    }
+
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset,
+	"%s (%d)",
+	str,
+	value);
 }
 
 gchar *tdma_data_feat_ind_str[] = {
@@ -11728,7 +11757,7 @@ static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len) = {
     param_term_res,	/* Termination Restriction Code */
     param_calling_feat_ind,	/* Calling Features Indicator */
     param_faulty,	/* Faulty Parameter */
-    NULL/* XXX what spec ? */,	/* Usage Indicator */
+    param_usage_ind,	/* Usage Indicator */
     param_tdma_chan_data,	/* TDMA Channel Data */
     param_tdma_call_mode,	/* TDMA Call Mode */
     param_ho_reason,	/* Handoff Reason */
@@ -11883,7 +11912,6 @@ static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len) = {
     param_digits,	/* Pilot Number */
     param_bill_id,	/* Pilot Billing ID */
     param_cdma_band_class,	/* CDMA Band Class */
-    NULL/* XXX what spec ? */,	/* Preferred Language */
     param_imsi,	/* International Mobile Subscriber Identity */
     param_calling_party_name,	/* Calling Party Name */
     param_dis_text,	/* Display Text */
