@@ -312,7 +312,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else {
 		wtap_encap = -1;
 		encap_name = "Nothing";
-		info = tzsp_type[type].strptr;
+		info = val_to_str(type, tzsp_type, "Unknown (%u)");
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
