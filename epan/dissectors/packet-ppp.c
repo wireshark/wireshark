@@ -3108,7 +3108,7 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 }
 
 static tvbuff_t*
-remove_escape_chars(tvbuff_t *tvb, packet_info *pinfo, int offset, int length)
+remove_escape_chars(tvbuff_t *tvb, int offset, int length)
 {
   guint8	*buff;
   int		i;
@@ -3175,7 +3175,7 @@ dissect_ppp_8881( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		  }
 		  proto_tree_add_text(tree, tvb, 0, -1, "PPP Fragment");
 		  length = tvb_length_remaining(tvb,offset);
-		  ppp_tvb = remove_escape_chars(tvb,pinfo, offset,length);
+		  ppp_tvb = remove_escape_chars(tvb, offset,length);
 		  add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
 		  call_dissector(data_handle, ppp_tvb, pinfo, tree);
 		  return;
@@ -3189,14 +3189,14 @@ dissect_ppp_8881( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 		  proto_tree_add_text(tree, tvb, 0, -1, "PPP Fragment");
 		  length = tvb_length_remaining(tvb,offset);
-		  ppp_tvb = remove_escape_chars(tvb,pinfo, offset,length);
+		  ppp_tvb = remove_escape_chars(tvb, offset,length);
 		  add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
 		  call_dissector(data_handle, ppp_tvb, pinfo, tree);
 		  return;
 	  }
 	  length = end_offset - offset+1;
 	  g_warning("length(%u) = end_offset(%u) - offset(%u)+1",length,end_offset,offset);
-	  ppp_tvb = remove_escape_chars(tvb,pinfo, offset,length);
+	  ppp_tvb = remove_escape_chars(tvb, offset,length);
 	  add_new_data_source(pinfo, ppp_tvb, "PPP Message");
 
 	  byte0 = tvb_get_guint8(ppp_tvb, 0);
