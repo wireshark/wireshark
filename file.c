@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.285 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: file.c,v 1.286 2002/08/28 10:07:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,7 @@ static guint32 prevsec, prevusec;
 
 static void read_packet(capture_file *cf, long offset);
 
-static void rescan_packets(capture_file *cf, const char *action,
+static void rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	gboolean refilter, gboolean redissect);
 
 static void set_selected_row(int row);
@@ -303,7 +303,7 @@ set_display_filename(capture_file *cf)
 read_status_t
 read_cap_file(capture_file *cf, int *err)
 {
-  gchar      *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
+  gchar      *name_ptr, *load_msg, *load_fmt = "%s";
   size_t      msg_len;
   char       *errmsg;
   char        errmsg_errno[1024+1];
@@ -311,11 +311,17 @@ read_cap_file(capture_file *cf, int *err)
   long        data_offset;
   progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
-  int         file_pos;
+  /*
+   * XXX - should be "off_t", but Wiretap would need more work to handle
+   * the full size of "off_t" on platforms where it's more than a "long"
+   * as well.
+   */
+  long        file_pos;
   float       prog_val;
   int         fd;
   struct stat cf_stat;
   GTimeVal    start_time;
+  gchar       status_str[100];
 
   name_ptr = get_basename(cf->filename);
 
@@ -365,13 +371,16 @@ read_cap_file(capture_file *cf, int *err)
         }
         if (progbar == NULL) {
           /* Create the progress bar if necessary */
-          progbar = delayed_create_progress_dlg(load_msg, "Stop",
+          progbar = delayed_create_progress_dlg("Loading", load_msg, "Stop",
             &stop_flag, &start_time, prog_val);
           if (progbar != NULL)
             g_free(load_msg);
         }
-        if (progbar != NULL)
-          update_progress_dlg(progbar, prog_val);
+        if (progbar != NULL) {
+          g_snprintf(status_str, sizeof(status_str), 
+                     "%luKB of %luKB", file_pos / 1024, cf->f_len / 1024);
+          update_progress_dlg(progbar, prog_val, status_str);
+        }
         cf->progbar_nextstep += cf->progbar_quantum;
     }
 
@@ -882,25 +891,32 @@ filter_packets(capture_file *cf, gchar *dftext)
 
   /* Now rescan the packet list, applying the new filter, but not
      throwing away information constructed on a previous pass. */
-  rescan_packets(cf, "Filtering", TRUE, FALSE);
+  if (dftext == NULL) {
+    rescan_packets(cf, "Resetting", "Filter", TRUE, FALSE);
+  } else {
+    rescan_packets(cf, "Filtering", dftext, TRUE, FALSE);
+  }
   return 1;
 }
 
 void
 colorize_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Colorizing", FALSE, FALSE);
+  rescan_packets(cf, "Colorizing", "all frames", FALSE, FALSE);
 }
 
 void
 redissect_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Reprocessing", TRUE, TRUE);
+  rescan_packets(cf, "Reprocessing", "all frames", TRUE, TRUE);
 }
 
 /* Rescan the list of packets, reconstructing the CList.
 
    "action" describes why we're doing this; it's used in the progress
+   dialog box.
+
+   "action_item" describes what we're doing; it's used in the progress
    dialog box.
 
    "refilter" is TRUE if we need to re-evaluate the filter expression.
@@ -910,19 +926,20 @@ redissect_packets(capture_file *cf)
    some dissector has changed, meaning some dissector might construct
    its state differently from the way it was constructed the last time). */
 static void
-rescan_packets(capture_file *cf, const char *action, gboolean refilter,
-		gboolean redissect)
+rescan_packets(capture_file *cf, const char *action, const char *action_item,
+		gboolean refilter, gboolean redissect)
 {
   frame_data *fdata;
   progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
-  long        count;
+  int         count;
   int         err;
   frame_data *selected_frame;
   int         selected_row;
   int         row;
   float       prog_val;
   GTimeVal    start_time;
+  gchar       status_str[100];
 
   /* Which frame, if any, is the currently selected frame?
      XXX - should the selected frame or the focus frame be the "current"
@@ -989,11 +1006,14 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
 
       if (progbar == NULL)
         /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg(action, "Stop", &stop_flag,
+        progbar = delayed_create_progress_dlg(action, action_item, "Stop", &stop_flag,
           &start_time, prog_val);
 
-      if (progbar != NULL)
-        update_progress_dlg(progbar, prog_val);
+      if (progbar != NULL) {
+        g_snprintf(status_str, sizeof(status_str),
+                  "%4u of %u frames", count, cf->count);
+        update_progress_dlg(progbar, prog_val, status_str);
+      }
 
       cf->progbar_nextstep += cf->progbar_quantum;
     }
@@ -1085,7 +1105,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   frame_data *fdata;
   progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
-  long        count;
+  int         count;
   int         err;
   gint       *col_widths = NULL;
   gint        data_width;
@@ -1098,6 +1118,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   epan_dissect_t *edt = NULL;
   float       prog_val;
   GTimeVal    start_time;
+  gchar       status_str[100];
 
   cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
   if (cf->print_fh == NULL)
@@ -1183,11 +1204,14 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
       if (progbar == NULL)
         /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg("Printing", "Stop", &stop_flag,
+        progbar = delayed_create_progress_dlg("Printing", "selected frames", "Stop", &stop_flag,
           &start_time, prog_val);
 
-      if (progbar != NULL)
-        update_progress_dlg(progbar, prog_val);
+      if (progbar != NULL) {
+        g_snprintf(status_str, sizeof(status_str),
+                   "%4u of %u frames", count, cf->count);
+        update_progress_dlg(progbar, prog_val, status_str);
+      }
 
       cf->progbar_nextstep += cf->progbar_quantum;
     }
@@ -1297,12 +1321,13 @@ change_time_formats(capture_file *cf)
   frame_data *fdata;
   progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
-  long        count;
+  int         count;
   int         row;
   int         i;
   GtkStyle   *pl_style;
   float       prog_val;
   GTimeVal    start_time;
+  gchar       status_str[100];
 
   /* Are there any columns with time stamps in the "command-line-specified"
      format?
@@ -1351,11 +1376,14 @@ change_time_formats(capture_file *cf)
 
       if (progbar == NULL)
         /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg("Changing time display", "Stop",
+        progbar = delayed_create_progress_dlg("Changing", "time display", "Stop",
           &stop_flag, &start_time, prog_val);
 
-      if (progbar != NULL)
-        update_progress_dlg(progbar, prog_val);
+      if (progbar != NULL) {
+        g_snprintf(status_str, sizeof(status_str),
+                   "%4u of %u frames", count, cf->count);
+        update_progress_dlg(progbar, prog_val, status_str);
+      }
 
       cf->progbar_nextstep += cf->progbar_quantum;
     }
@@ -1417,13 +1445,14 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
   frame_data *new_fd = NULL;
   progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
-  long        count;
+  int         count;
   int         err;
   gboolean    frame_matched;
   int         row;
   epan_dissect_t	*edt;
   float       prog_val;
   GTimeVal    start_time;
+  gchar       status_str[100];
 
   start_fd = cf->current_frame;
   if (start_fd != NULL)  {
@@ -1458,11 +1487,14 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
 
         /* Create the progress bar if necessary */
         if (progbar == NULL)
-           progbar = delayed_create_progress_dlg("Searching", "Cancel",
+           progbar = delayed_create_progress_dlg("Searching", cf->sfilter, "Cancel",
              &stop_flag, &start_time, prog_val);
         
-        if (progbar != NULL)
-          update_progress_dlg(progbar, prog_val);
+        if (progbar != NULL) {
+          g_snprintf(status_str, sizeof(status_str),
+                     "%4u of %u frames", count, cf->count);
+          update_progress_dlg(progbar, prog_val, status_str);
+        }
 
         cf->progbar_nextstep += cf->progbar_quantum;
       }

@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.14 2002/07/30 10:13:14 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.15 2002/08/28 10:07:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,9 +154,10 @@ ph_stats_new(void)
 	guint		tot_packets, tot_bytes;
 	progdlg_t	*progbar = NULL;
 	gboolean	stop_flag;
-	long		count;
+	int		count;
 	float		prog_val;
 	GTimeVal	start_time;
+	gchar		status_str[100];
 
 	/* Initialize the data */
 	ps = g_new(ph_stats_t, 1);
@@ -196,11 +197,14 @@ ph_stats_new(void)
 			if (progbar == NULL)
 				/* Create the progress bar if necessary */
 				progbar = delayed_create_progress_dlg(
-				    "Computing protocol statistics", "Stop",
+				    "Computing", "protocol hierarchy statistics", "Stop",
 				    &stop_flag, &start_time, prog_val);
 
-			if (progbar != NULL)
-				update_progress_dlg(progbar, prog_val);
+			if (progbar != NULL) {
+				g_snprintf(status_str, sizeof(status_str),
+					"%4u of %u frames", count, cfile.count);
+				update_progress_dlg(progbar, prog_val, status_str);
+			}
 
 			cfile.progbar_nextstep += cfile.progbar_quantum;
 		}
