@@ -3,7 +3,7 @@
  * Routines for RFC 2833 RTP Events dissection
  * Copyright 2003, Kevin A. Noll <knoll[AT]poss.com>
  *
- * $Id: packet-rtp-events.c,v 1.3 2003/11/27 21:20:46 guy Exp $
+ * $Id: packet-rtp-events.c,v 1.4 2004/05/01 14:22:00 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,6 +113,13 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset+1, 1, octet);
 
 	    proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset+2, 2, FALSE);
+
+	    /* Make end-of-event packets obvious in the info column */
+	    if ((octet & 0x80) && check_col(pinfo->cinfo, COL_INFO))
+	    {
+		    col_append_str(pinfo->cinfo, COL_INFO, " (end)");
+	    }
+
 	  }
 }
 
