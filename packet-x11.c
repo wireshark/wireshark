@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.51 2004/01/04 20:42:44 guy Exp $
+ * $Id: packet-x11.c,v 1.52 2004/01/06 19:56:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1148,22 +1148,22 @@ keysyms_per_keycode) {\
 
 static void
 dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		  const char *sep, x11_conv_data_t *volatile state, gboolean
-		  little_endian);
-
-static void
-dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		  const char *sep, x11_conv_data_t *volatile state, gboolean
-		  little_endian);
-
-static void
-dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  const char *sep, x11_conv_data_t *volatile state,
 		  gboolean little_endian);
 
 static void
+dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  const char *volatile sep, x11_conv_data_t *volatile state,
+		  gboolean little_endian);
+
+static void
+dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  const char *volatile sep, x11_conv_data_t *volatile state,
+		  gboolean little_endian);
+
+static void
 dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		  const char *sep, x11_conv_data_t *volatile state,
+		  const char *volatile sep, x11_conv_data_t *volatile state,
 		  gboolean little_endian);
 
 static void
@@ -2815,7 +2815,7 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, const char _U_ *sep, x11_conv_data_t *state,
+    proto_tree *tree, const char _U_ *sep, x11_conv_data_t *volatile state,
     gboolean little_endian)
 {
       	int offset = 0, *offsetp = &offset, left;
