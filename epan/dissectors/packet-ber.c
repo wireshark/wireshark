@@ -58,12 +58,15 @@ static gint hf_ber_id_uni_tag = -1;
 static gint hf_ber_id_tag = -1;
 static gint hf_ber_length = -1;
 static gint hf_ber_bitstring_padding = -1;
+static gint hf_ber_unknown_OID = -1;
+static gint hf_ber_unknown_OCTETSTRING = -1;
 static gint hf_ber_unknown_PrintableString = -1;
 static gint hf_ber_unknown_IA5String = -1;
 static gint hf_ber_unknown_INTEGER = -1;
 
 static gint ett_ber_octet_string = -1;
 static gint ett_ber_unknown = -1;
+static gint ett_ber_SEQUENCE = -1;
 
 static gboolean show_internal_ber_fields = FALSE;
 
@@ -159,7 +162,7 @@ get_ber_oid_name(char *oid)
  * dissector in ethereal.
  * something is missing, so dont become too comfy with this one,
  * when it is called it is a BAD thing  not a good thing.
- * It can not handle IMPLICIT tags nor non-UNIVERSAL classes
+ * It can not handle IMPLICIT tags nor indefinite length.
  */
 static int
 dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -169,6 +172,8 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 	gboolean pc, ind;
 	guint32 tag;
 	guint32 len;
+	proto_item *item=NULL;
+	proto_tree *next_tree=NULL;
 
 	start_offset=offset;
 
@@ -180,28 +185,58 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 		   since these are not vital outputs just return instead of 
 		   throwing en exception.
 		 */
+		proto_tree_add_text(tree, tvb, offset, len, "BER: Error length:%d longer than tvb_length_ramaining:%d",len, tvb_length_remaining(tvb, offset));
 		return tvb_length(tvb);
 	}
 
-	if(class!=BER_CLASS_UNI){
+	switch(class){
+	case BER_CLASS_UNI:
+		switch(tag){
+		case BER_UNI_TAG_INTEGER:
+			offset = dissect_ber_integer_new(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_INTEGER, NULL);
+			break;
+		case BER_UNI_TAG_OCTETSTRING:
+			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
+			break;
+		case BER_UNI_TAG_OID:
+			offset=dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_OID, NULL);
+			break;
+		case BER_UNI_TAG_SEQUENCE:
+			item=proto_tree_add_text(tree, tvb, start_offset, len, "SEQUENCE");
+			if(item){
+				next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
+			}
+			offset=dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+			break;
+		case BER_UNI_TAG_PrintableString:
+			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_PrintableString, NULL);
+			break;
+		case BER_UNI_TAG_IA5String:
+			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_IA5String, NULL);
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, len, "BER: Error can not handle universal tag:%d",tag);
+			offset += len;
+		}
+		break;
+	case BER_CLASS_CON:
+		item=proto_tree_add_text(tree, tvb, start_offset, len, "[%d]",tag);
+		if(item){
+			next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
+		}
+		offset=dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+		break;
+	default:
+		proto_tree_add_text(tree, tvb, offset, len, "BER: Error can not handle class:%d (0x%02x)",class,tvb_get_guint8(tvb, start_offset));
 		/* some printout here? aborting dissection */
 		return tvb_length(tvb);
 	}
 
-	switch(tag){
-	case BER_UNI_TAG_INTEGER:
-		offset = dissect_ber_integer_new(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_INTEGER, NULL);
-		break;
-	case BER_UNI_TAG_IA5String:
-		offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_IA5String, NULL);
-		break;
-	case BER_UNI_TAG_PrintableString:
-		offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_PrintableString, NULL);
-		break;
-	default:
-		offset += len;
+	/* were there more data to eat? */
+	if(offset<tvb_length(tvb)){
+		offset=dissect_unknown_ber(pinfo, tvb, offset, tree);
 	}
-	
+
 	return offset;
 }
 
@@ -1530,6 +1565,12 @@ proto_register_ber(void)
 	{ &hf_ber_length, {
 	    "Length", "ber.length", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Length of contents", HFILL }},
+	{ &hf_ber_unknown_OCTETSTRING, {
+	    "OCTETSTRING", "ber.unknown.OCTETSTRING", FT_BYTES, BASE_HEX,
+	    NULL, 0, "This is an unknown OCTETSTRING", HFILL }},
+	{ &hf_ber_unknown_OID, {
+	    "OID", "ber.unknown.OID", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown Object Identifier", HFILL }},
 	{ &hf_ber_unknown_PrintableString, {
 	    "PrintableString", "ber.unknown.PrintableString", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown PrintableString", HFILL }},
@@ -1545,6 +1586,7 @@ proto_register_ber(void)
     static gint *ett[] = {
 	&ett_ber_octet_string,
 	&ett_ber_unknown,
+	&ett_ber_SEQUENCE,
     };
     module_t *ber_module;
 
