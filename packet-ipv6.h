@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.24 2001/09/04 21:04:52 guy Exp $
+ * $Id: packet-ipv6.h,v 1.25 2002/01/15 20:11:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -458,11 +458,8 @@ struct nd_opt_route_info {	/* route info */
 struct nd_opt_map_info {	/* HMIPv6 MAP option */
 	guint8			nd_opt_map_type;
 	guint8			nd_opt_map_len;
-	guint8			nd_opt_map_distance;
-	guint8			nd_opt_map_preference;
-	guint8			nd_opt_map_prefixlen;
+	guint8			nd_opt_map_dist_and_pref;
 	guint8			nd_opt_map_flags;
-	guint16			nd_opt_map_unused;
 	guint32			nd_opt_map_lifetime;
 	struct e_in6_addr	nd_opt_map_address;
 };
@@ -472,6 +469,7 @@ struct nd_opt_map_info {	/* HMIPv6 MAP option */
 #define ND_OPT_MAP_FLAG_I	0x20
 #define ND_OPT_MAP_FLAG_T	0x10
 #define ND_OPT_MAP_FLAG_P	0x08
+#define ND_OPT_MAP_FLAG_V	0x04
 
 /*
  * icmp6 node information
