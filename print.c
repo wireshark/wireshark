@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.64 2003/12/06 06:09:10 gram Exp $
+ * $Id: print.c,v 1.65 2003/12/08 21:57:25 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -329,24 +329,26 @@ proto_tree_print_node_pdml(proto_node *node, gpointer data)
 			 * fvalue_to_string_repr() for *all* FT_* types. */
 			dfilter_string = proto_construct_dfilter_string(fi,
 					pdata->edt);
-			chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
+			if (dfilter_string != NULL) {
+				chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
 
-			/* XXX - Remove double-quotes. Again, once we can call
-			 * fvalue_to_string_repr(), we can ask it not to
-			 * produce the version for display-filters, and thus,
-			 * no double-quotes. */
-			if (dfilter_string[strlen(dfilter_string)-1] == '"') {
-				dfilter_string[strlen(dfilter_string)-1] = '\0';
-				chop_len++;
+				/* XXX - Remove double-quotes. Again, once we
+				 * can call fvalue_to_string_repr(), we can
+				 * ask it not to produce the version for
+				 * display-filters, and thus, no
+				 * double-quotes. */
+				if (dfilter_string[strlen(dfilter_string)-1] == '"') {
+					dfilter_string[strlen(dfilter_string)-1] = '\0';
+					chop_len++;
+				}
+
+				fputs("\" show=\"", pdata->fh);
+				print_escaped_xml(pdata->fh, &dfilter_string[chop_len]);
 			}
-
-			fputs("\" show=\"", pdata->fh);
-			print_escaped_xml(pdata->fh, &dfilter_string[chop_len]);
-		}
-
-		if (fi->hfinfo->type != FT_PROTOCOL && fi->length > 0) {
-			fputs("\" value=\"", pdata->fh);
-			print_field_hex_value(pdata, fi);
+			if (fi->length > 0) {
+				fputs("\" value=\"", pdata->fh);
+				print_field_hex_value(pdata, fi);
+			}
 		}
 
 		if (node->first_child != NULL) {
