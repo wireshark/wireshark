@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.113 1999/10/22 08:53:40 guy Exp $
+ * $Id: file.c,v 1.114 1999/10/22 08:56:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,6 +96,8 @@
 #include "packet-ncp.h"
 
 #include "packet-sna.h"
+
+#include "packet-vines.h"
 
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
