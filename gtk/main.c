@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.69 1999/12/12 22:39:50 gram Exp $
+ * $Id: main.c,v 1.70 1999/12/13 03:45:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1276,7 +1276,7 @@ main(int argc, char *argv[])
 
   /* Byte view */
   bv_table = gtk_table_new (2, 2, FALSE);
-  gtk_paned_add2(GTK_PANED(l_pane), bv_table);
+  gtk_paned_pack2(GTK_PANED(l_pane), bv_table, FALSE, FALSE);
   gtk_widget_set_usize(bv_table, -1, bv_size);
   gtk_widget_show(bv_table);
 
