@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.111 2003/12/17 08:34:07 guy Exp $
+ * $Id: packet-dns.c,v 1.112 2003/12/17 08:40:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1755,13 +1755,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		val_to_str(tkey_error, tsigerror_vals, "Unknown error (%x)")));
 
 	tkey_keylen = tvb_get_ntohs(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key length: %u",
+        proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key Size: %u",
             tkey_keylen);
 	cur_offset += 2;
 	rr_len -= 2;
 
 	key_item = proto_tree_add_text(
-		rr_tree, tvb, cur_offset, tkey_keylen, "Key");
+		rr_tree, tvb, cur_offset, tkey_keylen, "Key Data");
 
 	key_tree = proto_item_add_subtree(key_item, ett_t_key);
 
@@ -1804,7 +1804,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	if (rr_len < 2)
 	  goto bad_rr;
 	tkey_otherlen = tvb_get_ntohs(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Other length: %u",
+        proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Other Size: %u",
             tkey_otherlen);
 	cur_offset += 2;
 	rr_len -= 2;
@@ -1812,7 +1812,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	if (tkey_otherlen != 0) {
 	  if (rr_len < tkey_otherlen)
 	    goto bad_rr;
-	  proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_otherlen, "Other");
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_otherlen, "Other Data");
 	  cur_offset += tkey_otherlen;
 	  rr_len -= tkey_otherlen;
 	}
