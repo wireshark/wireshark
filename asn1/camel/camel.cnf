@@ -1,0 +1,20 @@
+# inap.cnf
+# inap conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+
+#.PDU
+
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+
