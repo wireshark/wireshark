@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.15 2001/10/23 05:40:35 guy Exp $
+ * $Id: packet-iscsi.c,v 1.16 2001/11/04 00:58:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+
+#if 0
+#define ISCSI_CSG_DIGESTS_ACTIVE ISCSI_CSG_FULL_FEATURE_PHASE
+#else
+#define ISCSI_CSG_DIGESTS_ACTIVE ISCSI_CSG_OPERATIONAL_NEGOTIATION
+#endif
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -52,6 +58,7 @@
 
 static gboolean iscsi_desegment = TRUE;
 
+static int demand_good_f_bit = FALSE;
 static int enable_bogosity_filter = TRUE;
 static guint32 bogus_pdu_data_length_threshold = 256 * 1024;
 
@@ -135,10 +142,10 @@ static int hf_iscsi_KeyValue = -1;
 static int hf_iscsi_Text_F = -1;
 static int hf_iscsi_ExpDataSN = -1;
 static int hf_iscsi_R2TSN = -1;
-static int hf_iscsi_SCSITask_ReferencedTaskTag = -1;
+static int hf_iscsi_TaskManagementFunction_ReferencedTaskTag = -1;
 static int hf_iscsi_RefCmdSN = -1;
-static int hf_iscsi_SCSITask_Function = -1;
-static int hf_iscsi_SCSITask_Response = -1;
+static int hf_iscsi_TaskManagementFunction_Function = -1;
+static int hf_iscsi_TaskManagementFunction_Response = -1;
 static int hf_iscsi_Logout_Reason = -1;
 static int hf_iscsi_Logout_Response = -1;
 static int hf_iscsi_Time2Wait = -1;
@@ -164,48 +171,53 @@ static gint ett_iscsi_Flags = -1;
 
 #define TARGET_OPCODE_BIT 0x20
 
-#define ISCSI_OPCODE_NOP_OUT                      0x00
-#define ISCSI_OPCODE_SCSI_COMMAND                 0x01
-#define ISCSI_OPCODE_SCSI_TASK_MANAGEMENT_COMMAND 0x02
-#define ISCSI_OPCODE_LOGIN_COMMAND                0x03
-#define ISCSI_OPCODE_TEXT_COMMAND                 0x04
-#define ISCSI_OPCODE_SCSI_DATA_OUT                0x05
-#define ISCSI_OPCODE_LOGOUT_COMMAND               0x06
-#define ISCSI_OPCODE_SNACK_REQUEST                0x10
+#define ISCSI_OPCODE_NOP_OUT                  0x00
+#define ISCSI_OPCODE_SCSI_COMMAND             0x01
+#define ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION 0x02
+#define ISCSI_OPCODE_LOGIN_COMMAND            0x03
+#define ISCSI_OPCODE_TEXT_COMMAND             0x04
+#define ISCSI_OPCODE_SCSI_DATA_OUT            0x05
+#define ISCSI_OPCODE_LOGOUT_COMMAND           0x06
+#define ISCSI_OPCODE_SNACK_REQUEST            0x10
 
-#define ISCSI_OPCODE_NOP_IN                        (0x20 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_SCSI_RESPONSE                 (0x21 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_SCSI_TASK_MANAGEMENT_RESPONSE (0x22 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_LOGIN_RESPONSE                (0x23 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_TEXT_RESPONSE                 (0x24 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_SCSI_DATA_IN                  (0x25 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_LOGOUT_RESPONSE               (0x26 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_R2T                           (0x31 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_ASYNC_MESSAGE                 (0x32 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_REJECT                        (0x3f | X_BIT | I_BIT)
+#define ISCSI_OPCODE_NOP_IN                            (0x20 | X_BIT | I_BIT)
+#define ISCSI_OPCODE_SCSI_RESPONSE                     (0x21 | X_BIT | I_BIT)
+#define ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE (0x22 | X_BIT | I_BIT)
+#define ISCSI_OPCODE_LOGIN_RESPONSE                    (0x23 | X_BIT | I_BIT)
+#define ISCSI_OPCODE_TEXT_RESPONSE                     (0x24 | X_BIT | I_BIT)
+#define ISCSI_OPCODE_SCSI_DATA_IN                      (0x25 | X_BIT | I_BIT)
+#define ISCSI_OPCODE_LOGOUT_RESPONSE                   (0x26 | X_BIT | I_BIT)
+#define ISCSI_OPCODE_R2T                               (0x31 | X_BIT | I_BIT)
+#define ISCSI_OPCODE_ASYNC_MESSAGE                     (0x32 | X_BIT | I_BIT)
+#define ISCSI_OPCODE_REJECT                            (0x3f | X_BIT | I_BIT)
 
-#define CSG_MASK 0x0c
+#define CSG_SHIFT 2
+#define CSG_MASK  (0x03 << CSG_SHIFT)
+
+#define ISCSI_CSG_SECURITY_NEGOTIATION    (0 << CSG_SHIFT)
+#define ISCSI_CSG_OPERATIONAL_NEGOTIATION (1 << CSG_SHIFT)
+#define ISCSI_CSG_FULL_FEATURE_PHASE      (3 << CSG_SHIFT)
 
 static const value_string iscsi_opcodes[] = {
-  { ISCSI_OPCODE_NOP_OUT,                      "NOP Out" },
-  { ISCSI_OPCODE_SCSI_COMMAND,                 "SCSI Command" },
-  { ISCSI_OPCODE_SCSI_TASK_MANAGEMENT_COMMAND, "SCSI Task Management Command" },
-  { ISCSI_OPCODE_LOGIN_COMMAND,                "Login Command" },
-  { ISCSI_OPCODE_TEXT_COMMAND,                 "Text Command" },
-  { ISCSI_OPCODE_SCSI_DATA_OUT,                "SCSI Write Data" },
-  { ISCSI_OPCODE_LOGOUT_COMMAND,               "Logout Command" },
-  { ISCSI_OPCODE_SNACK_REQUEST,                "SNACK Request" },
+  { ISCSI_OPCODE_NOP_OUT,                           "NOP Out" },
+  { ISCSI_OPCODE_SCSI_COMMAND,                      "SCSI Command" },
+  { ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION,          "Task Management Function" },
+  { ISCSI_OPCODE_LOGIN_COMMAND,                     "Login Command" },
+  { ISCSI_OPCODE_TEXT_COMMAND,                      "Text Command" },
+  { ISCSI_OPCODE_SCSI_DATA_OUT,                     "SCSI Write Data" },
+  { ISCSI_OPCODE_LOGOUT_COMMAND,                    "Logout Command" },
+  { ISCSI_OPCODE_SNACK_REQUEST,                     "SNACK Request" },
 
-  { ISCSI_OPCODE_NOP_IN,                        "NOP In" },
-  { ISCSI_OPCODE_SCSI_RESPONSE,                 "SCSI Command Response" },
-  { ISCSI_OPCODE_SCSI_TASK_MANAGEMENT_RESPONSE, "SCSI Task Management Response" },
-  { ISCSI_OPCODE_LOGIN_RESPONSE,                "Login Response" },
-  { ISCSI_OPCODE_TEXT_RESPONSE,                 "Text Response" },
-  { ISCSI_OPCODE_SCSI_DATA_IN,                  "SCSI Read Data" },
-  { ISCSI_OPCODE_LOGOUT_RESPONSE,               "Logout Response" },
-  { ISCSI_OPCODE_R2T,                           "Ready To Transfer" },
-  { ISCSI_OPCODE_ASYNC_MESSAGE,                 "Asynchronous Message" },
-  { ISCSI_OPCODE_REJECT,                        "Reject"},
+  { ISCSI_OPCODE_NOP_IN,                            "NOP In" },
+  { ISCSI_OPCODE_SCSI_RESPONSE,                     "SCSI Response" },
+  { ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE, "Task Management Function Response" },
+  { ISCSI_OPCODE_LOGIN_RESPONSE,                    "Login Response" },
+  { ISCSI_OPCODE_TEXT_RESPONSE,                     "Text Response" },
+  { ISCSI_OPCODE_SCSI_DATA_IN,                      "SCSI Read Data" },
+  { ISCSI_OPCODE_LOGOUT_RESPONSE,                   "Logout Response" },
+  { ISCSI_OPCODE_R2T,                               "Ready To Transfer" },
+  { ISCSI_OPCODE_ASYNC_MESSAGE,                     "Asynchronous Message" },
+  { ISCSI_OPCODE_REJECT,                            "Reject"},
   {0, NULL},
 };
 
@@ -350,14 +362,14 @@ static const value_string iscsi_scsi_cdb0[] = {
 
 static const value_string iscsi_scsi_statuses[] = {
     {0x00, "Good"},
-    {0x01, "Check condition"},
-    {0x02, "Condition good"},
-    {0x04, "Busy"},
-    {0x08, "Intermediate good"},
-    {0x0a, "Intermediate c good"},
-    {0x0c, "Reservation conflict"},
-    {0x11, "Command terminated"},
-    {0x14, "Queue full"},
+    {0x02, "Check condition"},
+    {0x04, "Condition good"},
+    {0x08, "Busy"},
+    {0x10, "Intermediate good"},
+    {0x14, "Intermediate c good"},
+    {0x18, "Reservation conflict"},
+    {0x22, "Command terminated"},
+    {0x28, "Queue full"},
     {0, NULL},
 };
 
@@ -365,11 +377,14 @@ static const value_string iscsi_task_responses[] = {
     {0, "Function complete"},
     {1, "Task not in task set"},
     {2, "LUN does not exist"},
+    {3, "Task still allegiant"},
+    {4, "Task failover not supported"},
+    {5, "Task management function not supported"},
     {255, "Function rejected"},
     {0, NULL},
 };
 
-static const value_string iscsi_task_functions[] = {
+static const value_string iscsi_task_management_functions[] = {
     {1, "Abort Task"},
     {2, "Abort Task Set"},
     {3, "Clear ACA"},
@@ -580,7 +595,7 @@ handleHeaderDigest(proto_item *ti, tvbuff_t *tvb, guint offset, int headerLen) {
 		    proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Good CRC32)", sent);
 		}
 		else {
-		    proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Bad CRC32)", sent);
+		    proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Bad CRC32, should be 0x%08x)", sent, crc);
 		}
 	    }
 	    return offset + headerLen + 4;
@@ -605,7 +620,7 @@ handleDataDigest(proto_item *ti, tvbuff_t *tvb, guint offset, int dataLen) {
 		    proto_tree_add_uint_format(ti, hf_iscsi_DataDigest32, tvb, offset + dataLen, 4, sent, "DataDigest: 0x%08x (Good CRC32)", sent);
 		}
 		else {
-		    proto_tree_add_uint_format(ti, hf_iscsi_DataDigest32, tvb, offset + dataLen, 4, sent, "DataDigest: 0x%08x (Bad CRC32)", sent);
+		    proto_tree_add_uint_format(ti, hf_iscsi_DataDigest32, tvb, offset + dataLen, 4, sent, "DataDigest: 0x%08x (Bad CRC32, should be 0x%08x)", sent, crc);
 		}
 	    }
 	    return offset + dataLen + 4;
@@ -675,7 +690,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
     if (check_col(pinfo->fd, COL_INFO)) {
 
-	col_add_str(pinfo->fd, COL_INFO, (char *)opcode_str);
+	col_append_str(pinfo->fd, COL_INFO, (char *)opcode_str);
 
 	if((opcode & ~(X_BIT | I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
 	    /* SCSI Command */
@@ -702,7 +717,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    /* look at response byte */
 	    if(tvb_get_guint8(tvb, offset + 2) == 0) {
 		/* command completed at target */
-		blurb = match_strval(tvb_get_guint8(tvb, offset + 3) >> 1, iscsi_scsi_statuses);
+		blurb = match_strval(tvb_get_guint8(tvb, offset + 3), iscsi_scsi_statuses);
 	    }
 	    else
 		blurb = "Target Failure";
@@ -837,22 +852,22 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_sense_data);
 	}
-	else if(opcode == ISCSI_OPCODE_SCSI_TASK_MANAGEMENT_COMMAND) {
-	    /* SCSI Task Command */
- 	    proto_tree_add_item(ti, hf_iscsi_SCSITask_Function, tvb, offset + 1, 1, FALSE);
+	else if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION) {
+	    /* Task Management Function */
+ 	    proto_tree_add_item(ti, hf_iscsi_TaskManagementFunction_Function, tvb, offset + 1, 1, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
-	    proto_tree_add_item(ti, hf_iscsi_SCSITask_ReferencedTaskTag, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_TaskManagementFunction_ReferencedTaskTag, tvb, offset + 20, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_RefCmdSN, tvb, offset + 32, 4, FALSE);
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
 	}
-	else if(opcode == ISCSI_OPCODE_SCSI_TASK_MANAGEMENT_RESPONSE) {
-	    /* SCSI Task Response */
-	    proto_tree_add_item(ti, hf_iscsi_SCSITask_Response, tvb, offset + 2, 1, FALSE);
+	else if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE) {
+	    /* Task Management Function Response */
+	    proto_tree_add_item(ti, hf_iscsi_TaskManagementFunction_Response, tvb, offset + 2, 1, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
-	    proto_tree_add_item(ti, hf_iscsi_SCSITask_ReferencedTaskTag, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_TaskManagementFunction_ReferencedTaskTag, tvb, offset + 20, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
@@ -860,14 +875,13 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	}
 	else if(opcode == ISCSI_OPCODE_LOGIN_COMMAND) {
 	    /* Login Command */
-	    int digestsActive = 1;
+	    int digestsActive = 0;
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
-		if((b & CSG_MASK) == 0) {
-		    /* current stage is SecurityNegotiation, digests
-		     * are not yet turned on */
-		    digestsActive = 0;
-		}
+#if ISCSI_CSG_DIGESTS_ACTIVE < ISCSI_CSG_FULL_FEATURE_PHASE
+		if((b & CSG_MASK) >= ISCSI_CSG_DIGESTS_ACTIVE)
+		    digestsActive = 1;
+#endif
 #if 0
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
@@ -894,14 +908,13 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	}
 	else if(opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
 	    /* Login Response */
-	    int digestsActive = 1;
+	    int digestsActive = 0;
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
-		if((b & CSG_MASK) == 0) {
-		    /* current stage is SecurityNegotiation, digests
-		     * are not yet turned on */
-		    digestsActive = 0;
-		}
+#if ISCSI_CSG_DIGESTS_ACTIVE < ISCSI_CSG_FULL_FEATURE_PHASE
+		if((b & CSG_MASK) >= ISCSI_CSG_DIGESTS_ACTIVE)
+		    digestsActive = 1;
+#endif
 #if 0
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
@@ -1115,8 +1128,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    opcode &= ~(X_BIT | I_BIT);
 	}
 	opcode_str = match_strval(opcode, iscsi_opcodes);
-	if(opcode == ISCSI_OPCODE_SCSI_TASK_MANAGEMENT_COMMAND ||
-	   opcode == ISCSI_OPCODE_SCSI_TASK_MANAGEMENT_RESPONSE ||
+	if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION ||
+	   opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE ||
 	   opcode == ISCSI_OPCODE_R2T ||
 	   opcode == ISCSI_OPCODE_LOGOUT_COMMAND ||
 	   opcode == ISCSI_OPCODE_LOGOUT_RESPONSE ||
@@ -1138,13 +1151,14 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    if(data_segment_len > bogus_pdu_data_length_threshold) {
 		badPdu = TRUE;
 	    }
-	    else if(!(secondPduByte & 0x80) &&
+	    else if(demand_good_f_bit &&
+		    !(secondPduByte & 0x80) &&
 		    (opcode == ISCSI_OPCODE_NOP_OUT ||
 		     opcode == ISCSI_OPCODE_NOP_IN ||
 		     opcode == ISCSI_OPCODE_LOGOUT_COMMAND ||
 		     opcode == ISCSI_OPCODE_LOGOUT_RESPONSE ||
 		     opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
-		     opcode == ISCSI_OPCODE_SCSI_TASK_MANAGEMENT_RESPONSE ||
+		     opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE ||
 		     opcode == ISCSI_OPCODE_R2T ||
 		     opcode == ISCSI_OPCODE_ASYNC_MESSAGE ||
 		     opcode == ISCSI_OPCODE_SNACK_REQUEST ||
@@ -1162,11 +1176,14 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	    if(opcode == ISCSI_OPCODE_LOGIN_COMMAND ||
 	       opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
-		if((secondPduByte & CSG_MASK) == 0) {
-		    /* current stage is SecurityNegotiation, digests
-		     * are not yet turned on */
+#if ISCSI_CSG_DIGESTS_ACTIVE < ISCSI_CSG_FULL_FEATURE_PHASE
+		if((secondPduByte & CSG_MASK) < ISCSI_CSG_DIGESTS_ACTIVE) {
+		    /* digests are not yet turned on */
 		    digestsActive = 0;
 		}
+#else
+		digestsActive = 0;
+#endif
 	    }
 
 	    if(opcode == ISCSI_OPCODE_SCSI_COMMAND) {
@@ -1210,7 +1227,14 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    return TRUE;
 		}
 	    }
-	    
+
+	    if(check_col(pinfo->fd, COL_INFO)) {
+		if(iSCSIPdusDissected == 0)
+		    col_set_str(pinfo->fd, COL_INFO, "");
+		else
+		    col_append_str(pinfo->fd, COL_INFO, ", ");
+	    }
+
 	    dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len);
 	    if(pduLen > available_bytes)
 		pduLen = available_bytes;
@@ -1567,13 +1591,13 @@ proto_register_iscsi(void)
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    "R2T PDU Number", HFILL }
 	},
-	{ &hf_iscsi_SCSITask_Response,
-	  { "Response", "iscsi.scsitask.response",
+	{ &hf_iscsi_TaskManagementFunction_Response,
+	  { "Response", "iscsi.taskmanfun.response",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_task_responses), 0,
 	    "Response", HFILL }
 	},
-	{ &hf_iscsi_SCSITask_ReferencedTaskTag,
-	  { "InitiatorTaskTag", "iscsi.scsitask.referencedtasktag",
+	{ &hf_iscsi_TaskManagementFunction_ReferencedTaskTag,
+	  { "InitiatorTaskTag", "iscsi.taskmanfun.referencedtasktag",
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    "Task's initiator task tag", HFILL }
 	},
@@ -1582,9 +1606,9 @@ proto_register_iscsi(void)
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    "Command sequence number for command to be aborted", HFILL }
 	},
-	{ &hf_iscsi_SCSITask_Function,
-	  { "Function", "iscsi.scsitask.function",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_task_functions), 0x7F,
+	{ &hf_iscsi_TaskManagementFunction_Function,
+	  { "Function", "iscsi.taskmanfun.function",
+	    FT_UINT8, BASE_HEX, VALS(iscsi_task_management_functions), 0x7F,
 	    "Requested task function", HFILL }
 	},
 	{ &hf_iscsi_Logout_Reason,
@@ -1688,6 +1712,12 @@ proto_register_iscsi(void)
 				       "Enable bogus pdu filter",
 				       "When enabled, packets that appear bogus are ignored",
 				       &enable_bogosity_filter);
+
+	prefs_register_bool_preference(iscsi_module,
+				       "demand_good_f_bit", 
+				       "Ignore packets with bad F bit",
+				       "Ignore packets that haven't set the F bit when they should have",
+				       &demand_good_f_bit);
 
 	prefs_register_uint_preference(iscsi_module,
 				       "bogus_pdu_max_data_len", 
