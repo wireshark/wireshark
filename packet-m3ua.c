@@ -2,14 +2,14 @@
  * Routines for MTP3 User Adaptation Layer dissection
  * It is hopefully (needs testing) compilant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-06.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-10.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-12.txt
  * To do: - clean up the code
  *        - provide better handling of length parameters
  *        - provide good information in summary window
  *
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.16 2002/03/02 07:23:56 guy Exp $
+ * $Id: packet-m3ua.c,v 1.17 2002/03/28 21:48:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,60 +140,59 @@ static const value_string m3ua_v6_parameter_tag_values[] = {
   { V6_DEREGISTRATION_RESULTS_PARAMETER_TAG,       "De-registration results" },
   { 0,                           NULL } };
   
-#define V10_INFO_STRING_PARAMETER_TAG                  0x0004
-#define V10_ROUTING_CONTEXT_PARAMETER_TAG              0x0006
-#define V10_DIAGNOSTIC_INFORMATION_PARAMETER_TAG       0x0007
-#define V10_HEARTBEAT_DATA_PARAMETER_TAG               0x0009
-#define V10_TRAFFIC_MODE_TYPE_PARAMETER_TAG            0x000b
-#define V10_ERROR_CODE_PARAMETER_TAG                   0x000c
-#define V10_STATUS_PARAMETER_TAG                       0x000d
-#define V10_ASP_IDENTIFIER_PARAMETER_TAG               0x0011
-#define V10_AFFECTED_POINT_CODE_PARAMETER_TAG          0x0012
-#define V10_NETWORK_APPEARANCE_PARAMETER_TAG           0x0200
-#define V10_USER_CAUSE_PARAMETER_TAG                   0x0204
-#define V10_CONGESTION_INDICATIONS_PARAMETER_TAG       0x0205
-#define V10_CONCERNED_DESTINATION_PARAMETER_TAG        0x0206
-#define V10_ROUTING_KEY_PARAMETER_TAG                  0x0207
-#define V10_REGISTRATION_RESULT_PARAMETER_TAG          0x0208
-#define V10_DEREGISTRATION_RESULT_PARAMETER_TAG        0x0209
-#define V10_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG 0x020a
-#define V10_DESTINATION_POINT_CODE_PARAMETER_TAG       0x020b
-#define V10_SERVICE_INDICATORS_PARAMETER_TAG           0x020c
-#define V10_SUBSYSTEM_NUMBERS_PARAMETER_TAG            0x020d
-#define V10_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG  0x020e
-#define V10_CIRCUIT_RANGE_PARAMETER_TAG                0x020f
-#define V10_PROTOCOL_DATA_PARAMETER_TAG                0x0210
-#define V10_CORRELATION_IDENTIFIER_PARAMETER_TAG       0x0211
-#define V10_REGISTRATION_STATUS_PARAMETER_TAG          0x0212
-#define V10_DEREGISTRATION_STATUS_PARAMETER_TAG        0x0213
+#define V12_INFO_STRING_PARAMETER_TAG                  0x0004
+#define V12_ROUTING_CONTEXT_PARAMETER_TAG              0x0006
+#define V12_DIAGNOSTIC_INFORMATION_PARAMETER_TAG       0x0007
+#define V12_HEARTBEAT_DATA_PARAMETER_TAG               0x0009
+#define V12_TRAFFIC_MODE_TYPE_PARAMETER_TAG            0x000b
+#define V12_ERROR_CODE_PARAMETER_TAG                   0x000c
+#define V12_STATUS_PARAMETER_TAG                       0x000d
+#define V12_ASP_IDENTIFIER_PARAMETER_TAG               0x0011
+#define V12_AFFECTED_POINT_CODE_PARAMETER_TAG          0x0012
+#define V12_CORRELATION_IDENTIFIER_PARAMETER_TAG       0x0013
 
-static const value_string m3ua_v10_parameter_tag_values[] = {
-  { V10_INFO_STRING_PARAMETER_TAG,                  "Info string" } ,
-  { V10_ROUTING_CONTEXT_PARAMETER_TAG,              "Routing context" } ,
-  { V10_DIAGNOSTIC_INFORMATION_PARAMETER_TAG,       "Diagnostic Information" } ,
-  { V10_HEARTBEAT_DATA_PARAMETER_TAG,               "Heartbeat data" } ,
-  { V10_TRAFFIC_MODE_TYPE_PARAMETER_TAG,            "Traffic mode type" } ,
-  { V10_ERROR_CODE_PARAMETER_TAG,                   "Error code" } ,
-  { V10_STATUS_PARAMETER_TAG,                       "Status" } ,
-  { V10_ASP_IDENTIFIER_PARAMETER_TAG,               "ASP identifier" } ,
-  { V10_AFFECTED_POINT_CODE_PARAMETER_TAG,          "Affected point code" } ,
-  { V10_NETWORK_APPEARANCE_PARAMETER_TAG,           "Network appearance" } ,
-  { V10_USER_CAUSE_PARAMETER_TAG,                   "User / cause" } ,
-  { V10_CONGESTION_INDICATIONS_PARAMETER_TAG,       "Congestion indications" } ,
-  { V10_CONCERNED_DESTINATION_PARAMETER_TAG,        "Concerned destination" } ,
-  { V10_ROUTING_KEY_PARAMETER_TAG,                  "Routing key" } ,
-  { V10_REGISTRATION_RESULT_PARAMETER_TAG,          "Registration result" } ,
-  { V10_DEREGISTRATION_RESULT_PARAMETER_TAG,        "Deregistration result" } ,
-  { V10_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG, "Local routing key identifier" } ,
-  { V10_DESTINATION_POINT_CODE_PARAMETER_TAG,       "Destination point code" } ,
-  { V10_SERVICE_INDICATORS_PARAMETER_TAG,           "Service indicators" } ,
-  { V10_SUBSYSTEM_NUMBERS_PARAMETER_TAG,            "Subsystem number" } ,
-  { V10_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG,  "Originating point code list" } ,
-  { V10_CIRCUIT_RANGE_PARAMETER_TAG,                "Circuit range" } ,
-  { V10_PROTOCOL_DATA_PARAMETER_TAG,                "Protocol data" } ,
-  { V10_CORRELATION_IDENTIFIER_PARAMETER_TAG,       "Correlation identifier" } ,
-  { V10_REGISTRATION_STATUS_PARAMETER_TAG,          "Registration status" } ,
-  { V10_DEREGISTRATION_STATUS_PARAMETER_TAG,        "Deregistration status" } ,
+#define V12_NETWORK_APPEARANCE_PARAMETER_TAG           0x0200
+#define V12_USER_CAUSE_PARAMETER_TAG                   0x0204
+#define V12_CONGESTION_INDICATIONS_PARAMETER_TAG       0x0205
+#define V12_CONCERNED_DESTINATION_PARAMETER_TAG        0x0206
+#define V12_ROUTING_KEY_PARAMETER_TAG                  0x0207
+#define V12_REGISTRATION_RESULT_PARAMETER_TAG          0x0208
+#define V12_DEREGISTRATION_RESULT_PARAMETER_TAG        0x0209
+#define V12_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG 0x020a
+#define V12_DESTINATION_POINT_CODE_PARAMETER_TAG       0x020b
+#define V12_SERVICE_INDICATORS_PARAMETER_TAG           0x020c
+#define V12_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG  0x020e
+#define V12_CIRCUIT_RANGE_PARAMETER_TAG                0x020f
+#define V12_PROTOCOL_DATA_PARAMETER_TAG                0x0210
+#define V12_REGISTRATION_STATUS_PARAMETER_TAG          0x0212
+#define V12_DEREGISTRATION_STATUS_PARAMETER_TAG        0x0213
+
+static const value_string m3ua_v12_parameter_tag_values[] = {
+  { V12_INFO_STRING_PARAMETER_TAG,                  "Info string" } ,
+  { V12_ROUTING_CONTEXT_PARAMETER_TAG,              "Routing context" } ,
+  { V12_DIAGNOSTIC_INFORMATION_PARAMETER_TAG,       "Diagnostic Information" } ,
+  { V12_HEARTBEAT_DATA_PARAMETER_TAG,               "Heartbeat data" } ,
+  { V12_TRAFFIC_MODE_TYPE_PARAMETER_TAG,            "Traffic mode type" } ,
+  { V12_ERROR_CODE_PARAMETER_TAG,                   "Error code" } ,
+  { V12_STATUS_PARAMETER_TAG,                       "Status" } ,
+  { V12_ASP_IDENTIFIER_PARAMETER_TAG,               "ASP identifier" } ,
+  { V12_AFFECTED_POINT_CODE_PARAMETER_TAG,          "Affected point code" } ,
+  { V12_CORRELATION_IDENTIFIER_PARAMETER_TAG,       "Correlation identifier" } ,
+  { V12_NETWORK_APPEARANCE_PARAMETER_TAG,           "Network appearance" } ,
+  { V12_USER_CAUSE_PARAMETER_TAG,                   "User / cause" } ,
+  { V12_CONGESTION_INDICATIONS_PARAMETER_TAG,       "Congestion indications" } ,
+  { V12_CONCERNED_DESTINATION_PARAMETER_TAG,        "Concerned destination" } ,
+  { V12_ROUTING_KEY_PARAMETER_TAG,                  "Routing key" } ,
+  { V12_REGISTRATION_RESULT_PARAMETER_TAG,          "Registration result" } ,
+  { V12_DEREGISTRATION_RESULT_PARAMETER_TAG,        "Deregistration result" } ,
+  { V12_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG, "Local routing key identifier" } ,
+  { V12_DESTINATION_POINT_CODE_PARAMETER_TAG,       "Destination point code" } ,
+  { V12_SERVICE_INDICATORS_PARAMETER_TAG,           "Service indicators" } ,
+  { V12_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG,  "Originating point code list" } ,
+  { V12_CIRCUIT_RANGE_PARAMETER_TAG,                "Circuit range" } ,
+  { V12_PROTOCOL_DATA_PARAMETER_TAG,                "Protocol data" } ,
+  { V12_REGISTRATION_STATUS_PARAMETER_TAG,          "Registration status" } ,
+  { V12_DEREGISTRATION_STATUS_PARAMETER_TAG,        "Deregistration status" } ,
   { 0,                           NULL } };
 
 #define PROTOCOL_VERSION_RELEASE_1             1
@@ -390,8 +389,8 @@ static dissector_table_t m3ua_si_dissector_table;
 
 /* stuff for supporting multiple versions */
 #define M3UA_V6            1
-#define M3UA_V10           2
-static gint m3ua_version = M3UA_V10;
+#define M3UA_V12           2
+static gint m3ua_version = M3UA_V12;
 
 static void
 dissect_m3ua_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
@@ -530,14 +529,14 @@ dissect_m3ua_v6_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree 
 
 #define BROADCAST_TYPE   3
 
-static const value_string m3ua_v10_traffic_mode_type_values[] = {
+static const value_string m3ua_v12_traffic_mode_type_values[] = {
   { OVER_RIDE_TYPE ,                             "Over-ride" },
   { LOAD_SHARE_TYPE,                             "Load-share" },
   { BROADCAST_TYPE,                              "Broadcast" },
   {0,                           NULL } };
 
 static void
-dissect_m3ua_v10_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_m3ua_v12_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 traffic_mode_type;
 
@@ -546,8 +545,8 @@ dissect_m3ua_v10_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree
   proto_tree_add_uint_format(parameter_tree, hf_m3ua_traffic_mode_type, 
 			                       parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH,
 			                       traffic_mode_type, "Traffic mode type: %u (%s)",
-			                       traffic_mode_type, val_to_str(traffic_mode_type, m3ua_v10_traffic_mode_type_values, "unknown"));
-  proto_item_set_text(parameter_item, "Traffic mode type parameter (%s)", val_to_str(traffic_mode_type, m3ua_v10_traffic_mode_type_values, "unknown"));
+			                       traffic_mode_type, val_to_str(traffic_mode_type, m3ua_v12_traffic_mode_type_values, "unknown"));
+  proto_item_set_text(parameter_item, "Traffic mode type parameter (%s)", val_to_str(traffic_mode_type, m3ua_v12_traffic_mode_type_values, "unknown"));
 }
 
 #define V6_INVALID_VERSION_ERROR_CODE               1
@@ -589,53 +588,55 @@ dissect_m3ua_v6_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 }
 
 
-#define V10_INVALID_VERSION_ERROR_CODE                   0x01
-#define V10_UNSUPPORTED_MESSAGE_CLASS_ERROR_CODE         0x03
-#define V10_UNSUPPORTED_MESSAGE_TYPE_ERROR_CODE          0x04
-#define V10_UNSUPPORTED_TRAFFIC_HANDLING_MODE_ERROR_CODE 0x05
-#define V10_UNEXPECTED_MESSAGE_ERROR_CODE                0x06
-#define V10_PROTOCOL_ERROR_ERROR_CODE                    0x07
-#define V10_INVALID_STREAM_IDENTIFIER_ERROR_CODE         0x09
-#define V10_REFUSED_ERROR_CODE                           0x0d
-#define V10_ASP_IDENTIFIER_REQUIRED_ERROR_CODE           0x0e
-#define V10_INVALID_ASP_IDENTIFIER_ERROR_CODE            0x0f
-#define V10_INVALID_ROUTING_CONTEXT_ERROR_CODE           0x10
-#define V10_INVALID_PARAMETER_VALUE_ERROR_CODE           0x11
-#define V10_PARAMETER_FIELD_ERROR_CODE                   0x12
-#define V10_UNEXPECTED_PARAMETER_ERROR_CODE              0x13
-#define V10_DESTINATION_STATUS_UNKNOWN_ERROR_CODE        0x14
-#define V10_INVALID_NETWORK_APPEARANCE_ERROR_CODE        0x15
-#define V10_NO_CONFIGURED_AS_FOR_ASP_ERROR_CODE          0x16
+#define V12_INVALID_VERSION_ERROR_CODE                   0x01
+#define V12_UNSUPPORTED_MESSAGE_CLASS_ERROR_CODE         0x03
+#define V12_UNSUPPORTED_MESSAGE_TYPE_ERROR_CODE          0x04
+#define V12_UNSUPPORTED_TRAFFIC_HANDLING_MODE_ERROR_CODE 0x05
+#define V12_UNEXPECTED_MESSAGE_ERROR_CODE                0x06
+#define V12_PROTOCOL_ERROR_ERROR_CODE                    0x07
+#define V12_INVALID_STREAM_IDENTIFIER_ERROR_CODE         0x09
+#define V12_REFUSED_ERROR_CODE                           0x0d
+#define V12_ASP_IDENTIFIER_REQUIRED_ERROR_CODE           0x0e
+#define V12_INVALID_ASP_IDENTIFIER_ERROR_CODE            0x0f
+#define V12_INVALID_PARAMETER_VALUE_ERROR_CODE           0x11
+#define V12_PARAMETER_FIELD_ERROR_CODE                   0x12
+#define V12_UNEXPECTED_PARAMETER_ERROR_CODE              0x13
+#define V12_DESTINATION_STATUS_UNKNOWN_ERROR_CODE        0x14
+#define V12_INVALID_NETWORK_APPEARANCE_ERROR_CODE        0x15
+#define V12_MISSING_PARAMETER_ERROR_CODE                 0x16
+#define V12_INVALID_ROUTING_CONTEXT_ERROR_CODE           0x19
+#define V12_NO_CONFIGURED_AS_FOR_ASP_ERROR_CODE          0x1a
 
-static const value_string m3ua_v10_error_code_values[] = {
-  { V10_INVALID_VERSION_ERROR_CODE,                   "Invalid version" },
-  { V10_UNSUPPORTED_MESSAGE_CLASS_ERROR_CODE,         "Unsupported message class" },
-  { V10_UNSUPPORTED_MESSAGE_TYPE_ERROR_CODE,          "Unsupported message type" },
-  { V10_UNSUPPORTED_TRAFFIC_HANDLING_MODE_ERROR_CODE, "Unsupported traffic handling mode" },
-  { V10_UNEXPECTED_MESSAGE_ERROR_CODE,                "Unexpected message" },
-  { V10_PROTOCOL_ERROR_ERROR_CODE,                    "Protocol error" },
-  { V10_INVALID_STREAM_IDENTIFIER_ERROR_CODE,         "Invalid stream identifier" },
-  { V10_REFUSED_ERROR_CODE,                           "Refused - management blocking" },
-  { V10_ASP_IDENTIFIER_REQUIRED_ERROR_CODE,           "ASP identifier required" },
-  { V10_INVALID_ASP_IDENTIFIER_ERROR_CODE,            "Invalid ASP identifier" },
-  { V10_INVALID_ROUTING_CONTEXT_ERROR_CODE,           "Invalid routing context" },
-  { V10_INVALID_PARAMETER_VALUE_ERROR_CODE,           "Invalid parameter value" },
-  { V10_PARAMETER_FIELD_ERROR_CODE,                   "Parameter field error" },
-  { V10_UNEXPECTED_PARAMETER_ERROR_CODE,              "Unexpected parameter" },
-  { V10_DESTINATION_STATUS_UNKNOWN_ERROR_CODE,        "Destination status unknown" },
-  { V10_INVALID_NETWORK_APPEARANCE_ERROR_CODE,        "Invalid network appearance" },
-  { V10_NO_CONFIGURED_AS_FOR_ASP_ERROR_CODE,          "No configured AS for ASP" },
+static const value_string m3ua_v12_error_code_values[] = {
+  { V12_INVALID_VERSION_ERROR_CODE,                   "Invalid version" },
+  { V12_UNSUPPORTED_MESSAGE_CLASS_ERROR_CODE,         "Unsupported message class" },
+  { V12_UNSUPPORTED_MESSAGE_TYPE_ERROR_CODE,          "Unsupported message type" },
+  { V12_UNSUPPORTED_TRAFFIC_HANDLING_MODE_ERROR_CODE, "Unsupported traffic handling mode" },
+  { V12_UNEXPECTED_MESSAGE_ERROR_CODE,                "Unexpected message" },
+  { V12_PROTOCOL_ERROR_ERROR_CODE,                    "Protocol error" },
+  { V12_INVALID_STREAM_IDENTIFIER_ERROR_CODE,         "Invalid stream identifier" },
+  { V12_REFUSED_ERROR_CODE,                           "Refused - management blocking" },
+  { V12_ASP_IDENTIFIER_REQUIRED_ERROR_CODE,           "ASP identifier required" },
+  { V12_INVALID_ASP_IDENTIFIER_ERROR_CODE,            "Invalid ASP identifier" },
+  { V12_INVALID_PARAMETER_VALUE_ERROR_CODE,           "Invalid parameter value" },
+  { V12_PARAMETER_FIELD_ERROR_CODE,                   "Parameter field error" },
+  { V12_UNEXPECTED_PARAMETER_ERROR_CODE,              "Unexpected parameter" },
+  { V12_DESTINATION_STATUS_UNKNOWN_ERROR_CODE,        "Destination status unknown" },
+  { V12_INVALID_NETWORK_APPEARANCE_ERROR_CODE,        "Invalid network appearance" },
+  { V12_MISSING_PARAMETER_ERROR_CODE,                 "Missing parameter" },
+  { V12_INVALID_ROUTING_CONTEXT_ERROR_CODE,           "Invalid routing context" },
+  { V12_NO_CONFIGURED_AS_FOR_ASP_ERROR_CODE,          "No configured AS for ASP" },
   { 0,                                            NULL } };
 
 static void
-dissect_m3ua_v10_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_m3ua_v12_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 error_code;
 
   error_code = tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET);
   proto_tree_add_uint_format(parameter_tree, hf_m3ua_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, error_code,
-                             "Error code: %u (%s)",error_code, val_to_str(error_code, m3ua_v10_error_code_values, "unknown"));
-  proto_item_set_text(parameter_item, "Error code parameter (%s)", val_to_str(error_code, m3ua_v10_error_code_values, "unknown"));
+                             "Error code: %u (%s)",error_code, val_to_str(error_code, m3ua_v12_error_code_values, "unknown"));
+  proto_item_set_text(parameter_item, "Error code parameter (%s)", val_to_str(error_code, m3ua_v12_error_code_values, "unknown"));
 }
 
 #define AS_STATE_CHANGE_TYPE       1
@@ -945,7 +946,7 @@ dissect_m3ua_v6_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tre
 }
 
 static void
-dissect_m3ua_v10_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_m3ua_v12_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
@@ -986,7 +987,7 @@ dissect_m3ua_v6_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_t
 }
 
 static void
-dissect_m3ua_v10_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_m3ua_v12_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
@@ -1406,7 +1407,7 @@ dissect_m3ua_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tre
 }
 
 static void
-dissect_m3ua_v10_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
+dissect_m3ua_v12_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
   guint16 tag, length, padding_length, total_length;
   proto_item *parameter_item;
@@ -1426,83 +1427,83 @@ dissect_m3ua_v10_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tr
 
   /* add tag and length to the m3ua tree */
   proto_tree_add_uint_format(parameter_tree, hf_m3ua_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag, 
-                             "Parameter tag: %s (0x%x)", val_to_str(tag, m3ua_v10_parameter_tag_values, "unknown"), tag);
+                             "Parameter tag: %s (0x%x)", val_to_str(tag, m3ua_v12_parameter_tag_values, "unknown"), tag);
   proto_tree_add_uint(parameter_tree, hf_m3ua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, length);
 
   switch(tag) {
-  case V10_INFO_STRING_PARAMETER_TAG:
+  case V12_INFO_STRING_PARAMETER_TAG:
     dissect_m3ua_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_ROUTING_CONTEXT_PARAMETER_TAG:
+  case V12_ROUTING_CONTEXT_PARAMETER_TAG:
     dissect_m3ua_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_DIAGNOSTIC_INFORMATION_PARAMETER_TAG:
+  case V12_DIAGNOSTIC_INFORMATION_PARAMETER_TAG:
     dissect_m3ua_diagnostic_information_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_HEARTBEAT_DATA_PARAMETER_TAG:
+  case V12_HEARTBEAT_DATA_PARAMETER_TAG:
     dissect_m3ua_heartbeat_data_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_TRAFFIC_MODE_TYPE_PARAMETER_TAG:
-    dissect_m3ua_v10_traffic_mode_type_parameter(parameter_tvb, parameter_tree, parameter_item);
+  case V12_TRAFFIC_MODE_TYPE_PARAMETER_TAG:
+    dissect_m3ua_v12_traffic_mode_type_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_ERROR_CODE_PARAMETER_TAG:
-    dissect_m3ua_v10_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+  case V12_ERROR_CODE_PARAMETER_TAG:
+    dissect_m3ua_v12_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_STATUS_PARAMETER_TAG:
+  case V12_STATUS_PARAMETER_TAG:
     dissect_m3ua_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_ASP_IDENTIFIER_PARAMETER_TAG:
+  case V12_ASP_IDENTIFIER_PARAMETER_TAG:
     dissect_m3ua_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_AFFECTED_POINT_CODE_PARAMETER_TAG:
+  case V12_AFFECTED_POINT_CODE_PARAMETER_TAG:
     dissect_m3ua_affected_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_NETWORK_APPEARANCE_PARAMETER_TAG:
+  case V12_NETWORK_APPEARANCE_PARAMETER_TAG:
     dissect_m3ua_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_USER_CAUSE_PARAMETER_TAG:
+  case V12_USER_CAUSE_PARAMETER_TAG:
     dissect_m3ua_user_cause_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_CONGESTION_INDICATIONS_PARAMETER_TAG:
+  case V12_CONGESTION_INDICATIONS_PARAMETER_TAG:
     dissect_m3ua_congestion_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_CONCERNED_DESTINATION_PARAMETER_TAG:
+  case V12_CONCERNED_DESTINATION_PARAMETER_TAG:
     dissect_m3ua_concerned_destination_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_ROUTING_KEY_PARAMETER_TAG:
+  case V12_ROUTING_KEY_PARAMETER_TAG:
     dissect_m3ua_routing_key_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
     break;
-  case V10_REGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_m3ua_v10_registration_result_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
+  case V12_REGISTRATION_RESULT_PARAMETER_TAG:
+    dissect_m3ua_v12_registration_result_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
     break;
-  case V10_DEREGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_m3ua_v10_deregistration_result_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
+  case V12_DEREGISTRATION_RESULT_PARAMETER_TAG:
+    dissect_m3ua_v12_deregistration_result_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
     break;
-  case V10_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG:
+  case V12_LOCAL_ROUTING_KEY_IDENTIFIER_PARAMETER_TAG:
     dissect_m3ua_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_DESTINATION_POINT_CODE_PARAMETER_TAG:
+  case V12_DESTINATION_POINT_CODE_PARAMETER_TAG:
     dissect_m3ua_destination_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_SERVICE_INDICATORS_PARAMETER_TAG:
+  case V12_SERVICE_INDICATORS_PARAMETER_TAG:
     dissect_m3ua_service_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG:
+  case V12_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG:
     dissect_m3ua_originating_point_code_list_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_CIRCUIT_RANGE_PARAMETER_TAG:
+  case V12_CIRCUIT_RANGE_PARAMETER_TAG:
     dissect_m3ua_circuit_range_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_PROTOCOL_DATA_PARAMETER_TAG:
+  case V12_PROTOCOL_DATA_PARAMETER_TAG:
     dissect_m3ua_protocol_data_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
     break;
-  case V10_CORRELATION_IDENTIFIER_PARAMETER_TAG:
+  case V12_CORRELATION_IDENTIFIER_PARAMETER_TAG:
     dissect_m3ua_correlation_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_REGISTRATION_STATUS_PARAMETER_TAG:
+  case V12_REGISTRATION_STATUS_PARAMETER_TAG:
     dissect_m3ua_registration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case V10_DEREGISTRATION_STATUS_PARAMETER_TAG:
+  case V12_DEREGISTRATION_STATUS_PARAMETER_TAG:
     dissect_m3ua_deregistration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   default:
@@ -1535,8 +1536,8 @@ dissect_m3ua_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree
       case M3UA_V6:
         dissect_m3ua_v6_parameter(parameter_tvb, pinfo, tree, m3ua_tree); 
         break;
-      case M3UA_V10:
-        dissect_m3ua_v10_parameter(parameter_tvb, pinfo, tree, m3ua_tree);
+      case M3UA_V12:
+        dissect_m3ua_v12_parameter(parameter_tvb, pinfo, tree, m3ua_tree);
         break;
     }
     /* get rid of the handled parameter */
@@ -1623,7 +1624,7 @@ proto_register_m3ua(void)
 	      "", HFILL }
     }, 
     { &hf_m3ua_parameter_value,
-      { "Paramter value", "m3ua.parameter_value",
+      { "Parameter value", "m3ua.parameter_value",
 	      FT_BYTES, BASE_NONE, NULL, 0x0,          
 	      "", HFILL }
     },    
@@ -1867,7 +1868,7 @@ proto_register_m3ua(void)
   
   static enum_val_t m3ua_options[] = {
     { "Internet Draft version 6",        M3UA_V6 },
-    { "Internet Draft version 10",       M3UA_V10 },
+    { "Internet Draft version 12",       M3UA_V12 },
     { NULL, 0 }
   };
 
