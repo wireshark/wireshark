@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.1 2000/09/27 04:54:53 gram Exp $
+ * $Id: tvbuff.c,v 1.2 2000/10/17 08:50:57 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1029,7 +1029,7 @@ tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
 		return -1;
 	}
 	else {
-		return result_offset;
+		return result_offset - abs_offset;
 	}
 }
 
@@ -1090,7 +1090,7 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 gint
 tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
 {
-	gint	stringlen, NUL_offset;
+	gint	stringlen;
 	guint	abs_offset, junk_length;
 	gint	limit;
 
@@ -1109,16 +1109,15 @@ tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
 		limit = maxlength;
 	}
 
-	NUL_offset = tvb_strnlen(tvb, abs_offset, limit);
+	stringlen = tvb_strnlen(tvb, abs_offset, limit);
 
 	/* If NUL wasn't found, copy the data and return -1 */
-	if (NUL_offset == -1) {
+	if (stringlen == -1) {
 		tvb_memcpy(tvb, buffer, abs_offset, limit);
 		return -1;
 	}
 
 	/* Copy the string to buffer */
-	stringlen = NUL_offset - abs_offset;
 	tvb_memcpy(tvb, buffer, abs_offset, stringlen + 1);
 	return stringlen;
 }
