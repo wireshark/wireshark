@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.53 2003/12/22 23:37:02 guy Exp $
+ * $Id: packet-rtsp.c,v 1.54 2003/12/22 23:43:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,8 +110,8 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
 	guint		length_remaining;
-	proto_tree	*rtspframe_tree;
 	proto_item	*ti;
+	proto_tree	*rtspframe_tree = NULL;
 	int		orig_offset;
 	guint8		rf_start;	/* always RTSP_FRAMEHDR */
 	guint8		rf_chan;        /* interleaved channel id */
@@ -181,32 +181,31 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			"Interleaved channel 0x%02x, %u bytes",
 			rf_chan, rf_len);
 
-	if (tree == NULL) {
-		/*
-		 * We're not building a full protocol tree; all we care
-		 * about is setting the column info.
-		 */
-		return -1;
+	if (tree != NULL) {
+		ti = proto_tree_add_protocol_format(tree, proto_rtsp, tvb,
+		    offset, 4,
+		    "RTSP Interleaved Frame, Channel: 0x%02x, %u bytes",
+		    rf_chan, rf_len);
+		rtspframe_tree = proto_item_add_subtree(ti, ett_rtspframe);
+
+		proto_tree_add_text(rtspframe_tree, tvb, offset, 1,
+		    "Magic: 0x%02x",
+		    rf_start);
 	}
-
-	ti = proto_tree_add_protocol_format(tree, proto_rtsp, tvb, offset, 4,
-		"RTSP Interleaved Frame, Channel: 0x%02x, %u bytes",
-		rf_chan, rf_len);
-	rtspframe_tree = proto_item_add_subtree(ti, ett_rtspframe);
-
-	proto_tree_add_text(rtspframe_tree, tvb, offset, 1,
-		"Magic: 0x%02x",
-		rf_start);
 	offset += 1;
 
-	proto_tree_add_text(rtspframe_tree, tvb, offset, 1,
-		"Channel: 0x%02x",
-		rf_chan);
+	if (tree != NULL) {
+		proto_tree_add_text(rtspframe_tree, tvb, offset, 1,
+		    "Channel: 0x%02x",
+		    rf_chan);
+	}
 	offset += 1;
 
-	proto_tree_add_text(rtspframe_tree, tvb, offset, 2,
-		"Length: %u bytes",
-		rf_len);
+	if (tree != NULL) {
+		proto_tree_add_text(rtspframe_tree, tvb, offset, 2,
+		    "Length: %u bytes",
+		    rf_len);
+	}
 	offset += 2;
 
 	/*
@@ -869,7 +868,7 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	while (tvb_offset_exists(tvb, offset)) {
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		len = (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR)
 			? dissect_rtspinterleaved(tvb, offset, pinfo, tree)
 			: dissect_rtspmessage(tvb, offset, pinfo, tree);
