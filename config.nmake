@@ -101,7 +101,7 @@ PCAP_DIR=$(ETHEREAL_LIBS)\WPdpack
 # Set NET_SNMP_DIR to the pathname of the directory in which the
 # Net-SNMP include files and library resides.
 #
-NET_SNMP_DIR=$(ETHEREAL_LIBS)\net-snmp-5.1
+NET_SNMP_DIR=$(ETHEREAL_LIBS)\net-snmp-5.1.2
 
 #
 # If you have GNU ADNS, set this to the pathname of the directory in
@@ -110,7 +110,7 @@ NET_SNMP_DIR=$(ETHEREAL_LIBS)\net-snmp-5.1
 # If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
 # isn't defined.
 #
-ADNS_DIR=$(ETHEREAL_LIBS)\adns-1.0-win32-03
+ADNS_DIR=$(ETHEREAL_LIBS)\adns-1.0-win32-04
 
 #
 # If you have the PCRE (Perl Compatible Regular Expressions) library,
