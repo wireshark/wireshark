@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.42 2002/10/16 23:24:21 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.43 2002/10/19 01:05:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -885,7 +885,7 @@ typedef struct {
 } nw_time_t;
 
 typedef struct {
-	char *  buffer;
+	char   buffer[1024];
 } nw_uni_t;
 
 #define VTYPE_NONE		0	/* no value */
@@ -1061,7 +1061,7 @@ padd_uni(ptvcursor_t *ptvc, const ptvc_record *rec)
         nw_uni_t        nw_uni;
         guint            offset;
         
-	nw_uni.buffer = "\0";
+	strcpy(nw_uni.buffer, "");
         offset = ptvcursor_current_offset(ptvc);
 
 	item = ptvcursor_add(ptvc, *rec->hf_ptr,
@@ -1359,27 +1359,15 @@ align_4(tvbuff_t *tvb, guint32 aoffset)
        return 0;
 }
        
-/*
- * XXX - this routine assumes that "dest_buf" points to a buffer large
- * enough for the string we'll be generating; unfortunately, it usually
- * points to a null constant string, which is unlikely to be large
- * enough for any characters whatsoever (so that this routine will
- * overwrite some arbitrary stuff in memory), and may even be in
- * a read-only portion of the address space (so that this routine
- * will crash).
- *
- * We "#if 0" it out for now, to eliminate crashes.
- */
 static void
 get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
 {
-#if 0
         guint32 i;
         guint16 c_char;
         guint32 length_remaining = 0;
         
         length_remaining = tvb_length_remaining(tvb, offset);
-        if(str_length > length_remaining)
+        if(str_length > length_remaining || str_length > 1024)  
         {
                 strcpy(dest_buf, "String too long to process");
                 return;
@@ -1415,7 +1403,6 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
         }
 dest_buf[i] = '\0';
 return;
-#endif
 }
 
 /*************************************
@@ -1736,10 +1723,6 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
 		                                proto_tree_add_item(nvtree, hf_nds_node, tvb, voffset+4, 6, FALSE);
 		                                proto_tree_add_item(nvtree, hf_nds_socket, tvb, voffset+10, 2, FALSE);
                                                 break;
-	        	                        /*proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
-                                                value4 = tvb_get_letohl(tvb, voffset+2);
-	                                        proto_tree_add_ipv4(nvtree, hf_add_ref_ip, tvb, voffset+2, 4, value4);
-                                                break;*/
                                         case 0x00000008:
 	        	                        proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
                                                 value4 = tvb_get_letohl(tvb, voffset+2);
@@ -2023,7 +2006,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
 	proto_item      *aitem;
         char *          vstring="";
               
-       	mval_buf.buffer = "";
+       	strcpy(mval_buf.buffer, "");
 
         switch (vtype)
         {
@@ -2459,7 +2442,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         proto_tree      *sub2tree;
 	proto_item      *sub2item;
                
-       	mval_buf.buffer = "";
+       	strcpy(mval_buf.buffer, "");
         if(values->mvtype != MVTYPE_LIST_PARTITIONS)
         {
                 nitem = proto_tree_add_uint_format(ncp_tree, values->hfname, tvb, values->voffset+ioffset,
@@ -4260,7 +4243,8 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         char                            *global_object_name='\0';
 	int				i;
         
-        reply_buffer.buffer = "\0";
+        strcpy(reply_buffer.buffer, "");
+
 	if (!pinfo->fd->flags.visited) {
 		/* Find the conversation whence the request would have come. */
 		conversation = find_conversation(&pinfo->src, &pinfo->dst,
@@ -5417,7 +5401,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 		pvalues[i].vtype = 0;
 		pvalues[i].mvtype = 0;
 	}
-        req_buffer.buffer = "\0";
+
+        strcpy(req_buffer.buffer, "");
         func = tvb_get_guint8(tvb, 6);
         subfunc = tvb_get_guint8(tvb, 7);
         
