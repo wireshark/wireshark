@@ -415,13 +415,24 @@ static const value_string cops_report_type_vals[] = {
 
 /* PacketCable Types */
 
-//static dissector_handle_t sdp_handle;
+/* static dissector_handle_t sdp_handle; */
 
 #define COPS_CLIENT_PC_DQOS	0x8008
 #define COPS_CLIENT_PC_MM	0x800a
 
 static const value_string cops_client_type_vals[] = {
+	{0,                   "None"},
+	{1,                   "RSVP"},
+	{2,                   "DiffServ QoS"},
+	{0x8001,              "IP Highway"},
+	{0x8002,              "IP Highway"},
+	{0x8003,              "IP Highway"},
+	{0x8004,              "IP Highway"},
+	{0x8005,              "Fujitsu"},
+	{0x8006,              "HP OpenView PolicyXpert"},
+	{0x8007,              "HP OpenView PolicyXpert"},
 	{COPS_CLIENT_PC_DQOS, "PacketCable Dynamic Quality-of-Service"},
+	{0x8009,              "3GPP"},
 	{COPS_CLIENT_PC_MM,   "PacketCable Multimedia"},
 	{0, NULL},
 };
@@ -775,19 +786,19 @@ void proto_reg_handoff_cops(void);
 static guint get_cops_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 client_type);
-static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
-                                     guint16 client_type, guint8 c_num, guint8 c_type, guint16 len);
+static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type);
+static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
+                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, guint16 len);
 
 static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len);
 static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
                                        guint8 s_num, guint8 s_type, guint16 len);
 
 /* Added for PacketCable */
-proto_tree *info_to_cops_subtree(tvbuff_t *, proto_tree *, int, int, char *);
-proto_item *info_to_display(tvbuff_t *, proto_item *, int, int, char *, const value_string *, int, gint *);
+static proto_tree *info_to_cops_subtree(tvbuff_t *, proto_tree *, int, int, char *);
+static proto_item *info_to_display(tvbuff_t *, proto_item *, int, int, char *, const value_string *, int, gint *);
 
-static void cops_transaction_id(tvbuff_t *, proto_tree *, guint, guint32);
+static void cops_transaction_id(tvbuff_t *, packet_info *, proto_tree *, guint8, guint, guint32);
 static void cops_subscriber_id_v4(tvbuff_t *, proto_tree *, guint, guint32);
 static void cops_subscriber_id_v6(tvbuff_t *, proto_tree *, guint, guint32);
 static void cops_gate_id(tvbuff_t *, proto_tree *, guint, guint32);
@@ -803,11 +814,9 @@ static void cops_amid(tvbuff_t *, proto_tree *, guint, guint32);
 
 static void decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_tree *tree, gint hf);
 
-static void cops_analyze_packetcable_dqos_obj(tvbuff_t *, proto_tree *, guint32);
-static void cops_analyze_packetcable_mm_obj(tvbuff_t *, proto_tree *, guint32);
+static void cops_analyze_packetcable_dqos_obj(tvbuff_t *, packet_info *, proto_tree *, guint8, guint32);
+static void cops_analyze_packetcable_mm_obj(tvbuff_t *, packet_info *, proto_tree *, guint8, guint32);
 
-static packet_info *cpinfo;
-static guint8 opcode_idx;
 static gboolean cops_packetcable = TRUE;
 
 /* End of addition for PacketCable */
@@ -850,10 +859,6 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Currently used by PacketCable */
   client_type = tvb_get_ntohs(tvb, 2);
 
-  /* PacketCable: Remember the next two values to manipulate the info field in the Gui */
-  cpinfo = pinfo;
-  opcode_idx = op_code;
-
   if (tree) {
     proto_item *ti, *tv;
     proto_tree *cops_tree, *ver_flags_tree;
@@ -886,7 +891,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
 
     while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE) {
-      object_len = dissect_cops_object(tvb, offset, cops_tree, client_type);
+      object_len = dissect_cops_object(tvb, pinfo, op_code, offset, cops_tree, client_type);
       if (object_len < 0)
         return;
       offset += object_len;
@@ -957,7 +962,7 @@ static char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
   return "";
 }
 
-static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 client_type)
+static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type)
 {
   guint16 object_len, contents_len;
   guint8 c_num, c_type;
@@ -996,7 +1001,7 @@ static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree, 
   offset++;
 
   contents_len = object_len - COPS_OBJECT_HDR_SIZE;
-  dissect_cops_object_data(tvb, offset, obj_tree, client_type, c_num, c_type, contents_len);
+  dissect_cops_object_data(tvb, pinfo, offset, obj_tree, op_code, client_type, c_num, c_type, contents_len);
 
   /* Pad to 32bit boundary */
   if (object_len % sizeof (guint32))
@@ -1063,8 +1068,8 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *t
   }
 }
 
-static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
-                                     guint16 client_type, guint8 c_num, guint8 c_type, guint16 len)
+static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
+                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, guint16 len)
 {
   proto_item *ti;
   proto_tree *r_type_tree, *itf_tree, *reason_tree, *dec_tree, *error_tree, *clientsi_tree, *pdp_tree;
@@ -1150,9 +1155,9 @@ static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *
 
     /* PacketCable : Analyze the remaining data if available */
     if (client_type == COPS_CLIENT_PC_DQOS && c_type == 4) {
-	cops_analyze_packetcable_dqos_obj(tvb, tree, offset);
+	cops_analyze_packetcable_dqos_obj(tvb, pinfo, tree, op_code, offset);
     } else if (client_type == COPS_CLIENT_PC_MM && c_type == 4) {
-	cops_analyze_packetcable_mm_obj(tvb, tree, offset);
+	cops_analyze_packetcable_mm_obj(tvb, pinfo, tree, op_code, offset);
     }
 
     break;
@@ -1179,10 +1184,10 @@ static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *
 
     /* For PacketCable */
     if (client_type == COPS_CLIENT_PC_DQOS && c_type == 1) {
-       cops_analyze_packetcable_dqos_obj(tvb, tree, offset);
+       cops_analyze_packetcable_dqos_obj(tvb, pinfo, tree, op_code, offset);
        break;
     } else if (client_type == COPS_CLIENT_PC_MM && c_type == 1) {
-       cops_analyze_packetcable_mm_obj(tvb, tree, offset);
+       cops_analyze_packetcable_mm_obj(tvb, pinfo, tree, op_code, offset);
        break;
     }
 
@@ -2486,7 +2491,8 @@ void proto_reg_handoff_cops(void)
  *
  */
 
-proto_item *info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, char *str, const value_string *vsp, int mode,gint *hf_proto_parameter)
+static proto_item *
+info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, char *str, const value_string *vsp, int mode,gint *hf_proto_parameter)
 {
      proto_item *pi = NULL;
      guint8   code8  = 0;
@@ -2614,7 +2620,8 @@ proto_item *info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octe
 }
 
 /* Print the subtree information for cops */
-proto_tree *info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, char *str) {
+static proto_tree *
+info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, char *str) {
      proto_item *tv;
 
      tv  = proto_tree_add_uint_format( st, hf_cops_subtree, tvb, offset, n, (guint)NULL, str);
@@ -2623,7 +2630,7 @@ proto_tree *info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offse
 
 /* Cops - Section : D-QoS Transaction ID */
 static void
-cops_transaction_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op_code, guint n, guint32 offset) {
 
      proto_tree *stt;
      guint16  code16;
@@ -2643,12 +2650,12 @@ cops_transaction_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
             val_to_str(code16,table_cops_dqos_transaction_id, "Unknown (0x%04x)"),code16);
 
      /* Write the right data into the 'info field' on the Gui */
-     sprintf(info,"COPS %-20s - ",val_to_str(opcode_idx,cops_op_code_vals, "Unknown"));
+     sprintf(info,"COPS %-20s - ",val_to_str(op_code,cops_op_code_vals, "Unknown"));
      strcat(info,val_to_str(code16,table_cops_dqos_transaction_id, "Unknown"));
 
-     if (check_col(cpinfo->cinfo, COL_INFO)) {
-          col_clear(cpinfo->cinfo, COL_INFO);
-          col_add_str(cpinfo->cinfo, COL_INFO,info);
+     if (check_col(pinfo->cinfo, COL_INFO)) {
+          col_clear(pinfo->cinfo, COL_INFO);
+          col_add_str(pinfo->cinfo, COL_INFO,info);
      }
 
 }
@@ -3008,7 +3015,7 @@ cops_packetcable_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
 /* Cops - Section : Multimedia Transaction ID */
 static void
-cops_mm_transaction_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op_code, guint n, guint32 offset) {
 
      proto_tree *stt;
      guint16  code16;
@@ -3028,12 +3035,12 @@ cops_mm_transaction_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
             val_to_str(code16,table_cops_mm_transaction_id, "Unknown (0x%04x)"),code16);
 
      /* Write the right data into the 'info field' on the Gui */
-     sprintf(info,"COPS %-20s - ",val_to_str(opcode_idx,cops_op_code_vals, "Unknown"));
+     sprintf(info,"COPS %-20s - ",val_to_str(op_code,cops_op_code_vals, "Unknown"));
      strcat(info,val_to_str(code16,table_cops_mm_transaction_id, "Unknown"));
 
-     if (check_col(cpinfo->cinfo, COL_INFO)) {
-          col_clear(cpinfo->cinfo, COL_INFO);
-          col_add_str(cpinfo->cinfo, COL_INFO,info);
+     if (check_col(pinfo->cinfo, COL_INFO)) {
+          col_clear(pinfo->cinfo, COL_INFO);
+          col_add_str(pinfo->cinfo, COL_INFO,info);
      }
 
 }
@@ -4246,7 +4253,8 @@ cops_version_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 #define PCDQ_SESSION_DESCRIPTION         0x0b01
 
 /* Analyze the PacketCable objects */
-void cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
+static void
+cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 op_code, guint32 offset) {
 
     gint remdata;
     guint16 object_len;
@@ -4282,7 +4290,7 @@ void cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, proto_tree *tree, guint32 
        /* Perform the appropriate functions */
        switch (num_type_glob){
         case PCDQ_TRANSACTION_ID:
-               cops_transaction_id(tvb, tree, object_len, offset);
+               cops_transaction_id(tvb, pinfo, tree, op_code, object_len, offset);
                break;
         case PCDQ_SUBSCRIBER_IDv4:
                cops_subscriber_id_v4(tvb, tree, object_len, offset);
@@ -4382,8 +4390,8 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
 #define PCMM_VERSION_INFO                  0x1001
 
 
-void
-cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
+static void
+cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 op_code, guint32 offset) {
 
     gint remdata;
     guint16 object_len;
@@ -4419,7 +4427,7 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
        /* Perform the appropriate functions */
        switch (num_type_glob){
         case PCMM_TRANSACTION_ID:
-               cops_mm_transaction_id(tvb, tree, object_len, offset);
+               cops_mm_transaction_id(tvb, pinfo, tree, op_code, object_len, offset);
                break;
         case PCMM_AMID:
                cops_amid(tvb, tree, object_len, offset);
@@ -4499,5 +4507,3 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
 
 /* End of PacketCable Addition */
-
-
