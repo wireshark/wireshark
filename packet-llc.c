@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.23 1999/09/26 20:40:00 guy Exp $
+ * $Id: packet-llc.c,v 1.24 1999/09/27 08:39:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -238,7 +238,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
   
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_llc, offset, (is_snap ? 8 : 3), NULL);
+		ti = proto_tree_add_item(tree, proto_llc, offset, 0, NULL);
 		llc_tree = proto_item_add_subtree(ti, ETT_LLC);
 		proto_tree_add_item(llc_tree, hf_llc_dsap, offset, 1, pd[offset]);
 		proto_tree_add_item(llc_tree, hf_llc_ssap, offset+1, 1, pd[offset+1]);
