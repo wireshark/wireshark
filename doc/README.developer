@@ -149,6 +149,14 @@ those are declared by <glib.h>, and you'll need to include that anyway,
 as Ethereal header files that all dissectors must include use stuff from
 <glib.h>.
 
+Don't fetch a little-endian value using "tvb_get_ntohs() or
+"tvb_get_ntohl()" and then using "g_ntohs()", "g_htons()", "g_ntohl()",
+or "g_htonl()" on the resulting value - the g_ routines in question
+convert between network byte order (big-endian) and *host* byte order,
+not *little-endian* byte order; not all machines on which Ethereal runs
+are little-endian, even though PC's are.  Fetch those values using
+"tvb_get_letohs()" and "tvb_get_letohl()".
+
 Don't put a comma after the last element of an enum - some compilers may
 either warn about it (producing extra noise) or refuse to accept it.
 
