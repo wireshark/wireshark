@@ -104,6 +104,11 @@
 	<application>bash</application> package from the cygwin setup.
 	</para>
 	<para>
+	If the bash isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/bash/bash.html"/>.
+	</para>
+	<para>
 	After correct installation, typing inside any shell:
 	</para>
 	<para>
@@ -143,6 +148,11 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	<para>
 	The gcc C compiler is available for most of the unix-like platforms and 
 	also as a cygwin package.
+	</para>
+	<para>
+	If gcc isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://gcc.gnu.org/"/>.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -252,6 +262,99 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 
 	</section>
 
+	<section id="ChToolsDebugger">
+	<title>Debugger</title>
+	<para>
+	Well, using a good debugger can save you a lot of development time. However
+	some people still think it's use is optional.
+	</para>
+	<para>
+	The debugger you use must match the C compiler Ethereal was compiled with, 
+	otherwise the debugger will simply fail or you will only see a lot of 
+	garbage.
+	</para>
+
+	<section id="ChToolsGDB">
+	<title>Unix: GNU gdb</title>
+	<para>
+	gdb is the debugger for the gcc compiler. It is available for many (if 
+	not all) unix-like platforms and cygwin.
+	</para>
+	<para>
+	If you don't like debugging using the command line, there are some GUI 
+	frontends for it available, most notably GNU DDD.
+	</para>
+	<para>
+	If gdb isn't already installed and also not available as a package for 
+	your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/gdb/gdb.html"/>.
+	</para>
+	<para>
+	After correct installation, typing inside the bash:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>gdb --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[
+GNU gdb 2003-09-20-cvs (cygwin-special)
+Copyright 2003 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i686-pc-cygwin".]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+
+	<section id="ChToolsGDB">
+	<title>Unix: GNU DDD</title>
+	<para>
+	The GNU Data Display Debugger is a good GUI frontend for gdb (and a lot of 
+	other command line debuggers), so you have to install gdb first. It is 
+	available for many unix-like platforms and cygwin.
+	</para>
+	<para>
+	If GNU DDD isn't already installed and also not available as a package for 
+	your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/ddd/"/>.
+	</para>
+	</section>
+
+	<section id="ChToolsMSVCDebugger">
+	<title>Win32 native: Microsoft Visual Studio debugger</title>
+	<para>
+	You can use the integrated debugger of Visual Studio. 
+	</para>
+	<para>
+	However, setting up 
+	the environment is a bit tricky, as the win32 build process is using 
+	makefiles instead of the .dsp/.dsw files usually used. 
+	XXX - add instructions how to do it.
+	</para>
+	</section>
+	
+	<section id="ChToolsMSDebuggingTools">
+	<title>Win32 native: Microsoft Debugging Tools for Windows</title>
+	<para>
+	You could also use the Microsoft debugging tools, which is a GUI debugger. 
+	As it's not that comfortable compared to debugging in visual studio, it 
+	can be helpful if you have to debug on a different machine.
+	</para>
+	<para>	
+	You can get it free of charge at: <ulink 
+	url="http://www.microsoft.com/whdc/devtools/debugging/default.mspx"/> (as
+	links to microsoft pages changes from time to time, search for 
+	"Debugging Tools" at their page if this link should be outdated).
+	</para>
+	</section>
+
+	</section>
+
 	<section id="ChToolsMake">
 	<title>make</title>
 
@@ -266,6 +369,11 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	<para>
 	GNU make is available for most of the unix-like platforms and 
 	also as a cygwin package.
+	</para>
+	<para>
+	If GNU make isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/make/"/>.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -338,6 +446,11 @@ Stop.]]]>
 	<application>python</application> package from the cygwin setup.
 	</para>
 	<para>
+	If Python isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://www.python.org/"/>.
+	</para>
+	<para>
 	After correct installation, typing inside the bash:
 	</para>
 	<para>
@@ -380,6 +493,11 @@ Stop.]]]>
 	<para>
 	Perl is available for most of the unix-like platforms and as the 
 	<application>perl</application> package from the cygwin setup.
+	</para>
+	<para>
+	If Perl isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://www.perl.com/"/>.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -453,6 +571,12 @@ Built 18:08:02 Feb  4 2003
 	<application>sed</application> package from the cygwin setup.
 	</para>
 	<para>
+	If Sed isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://sed.sourceforge.net/"/> 
+	(XXX - is this the official home?).
+	</para>
+	<para>
 	After correct installation, typing inside the bash:
 	</para>
 	<para>
@@ -491,6 +615,11 @@ to the extent permitted by law.]]>
 	<para>
 	Bison is available for most of the unix-like platforms and as the 
 	<application>bison</application> package from the cygwin setup.
+	</para>
+	<para>
+	If GNU Bison isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/bison/bison.html"/>.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -533,6 +662,11 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<para>
 	Flex is available for most of the unix-like platforms and as the 
 	<application>flex</application> package from the cygwin setup.
+	</para>
+	<para>
+	If GNU Flex isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/flex/"/>.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -591,6 +725,12 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<application>SVN</application> package from the cygwin setup.
 	</para>
 	<para>
+	If Subversion isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://subversion.tigris.org/"/> (together with the server 
+	software).
+	</para>
+	<para>
 	After correct installation, typing inside the bash:
 	</para>
 	<para>
@@ -646,7 +786,12 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	<title>Unix: GNU diff</title>
 	<para>
 	Diff is available for most of the unix-like platforms and as the 
-	<application>diff</application> package from the cygwin setup.
+	<application>diffutils</application> package from the cygwin setup.
+	</para>
+	<para>
+	If GNU diff isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/diffutils/diffutils.html"/>.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -705,6 +850,11 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<application>patch</application> package from the cygwin setup.
 	</para>
 	<para>
+	If GNU patch isn't already installed and also not available as a package 
+	for your platform, you can get it at: 
+	<ulink url="http://www.gnu.org/software/patch/patch.html"/>.
+	</para>
+	<para>
 	After correct installation, typing inside the bash:
 	</para>
 	<para>
@@ -739,18 +889,38 @@ written by Larry Wall and Paul Eggert]]>
 
 
 	<section id="ChToolsWget">
-	<title>Win32: wget (optional)</title>
+	<title>Win32: GNU wget (optional)</title>
 	<para>
-	wget is used to download files from the internet using the command line.
+	GNU wget is used to download files from the internet using the command line.
+	</para>
+	<para>
+	GNU wget is available for most of the unix-like platforms and as the 
+	<application>wget</application> package from the cygwin setup.
 	</para>
 	<para>
 	You will only need wget, if you want to use the win32 automated library 
 	download, see <xref linkend="ChLibsSetup"/> for details.
 	</para>
 	<para>
-	If you are behind a HTTP proxy, you must set the environment variable 
-	http_proxy before using wget to something like:
-	HTTP_PROXY=http://proxy.de:8080/
+	If GNU wget isn't already installed and also not available as a package 
+	for your platform (well, for win32 it is available as a cygwin package), 
+	you can get it at: 
+	<ulink url="http://www.gnu.org/software/wget/wget.html"/>.
+	</para>
+	<para>
+	If wget is trying to download files but fails to do so, your internet 
+	connection might use a HTTP proxy. Some internet providers using such a 
+	proxy and it is common for company networks today. In this case, you 
+	must set the environment variable 
+	http_proxy before using wget. For example, if you are behind proxy.com 
+	which is listening on port 8080, you have to set it to something like:
+	</para>
+	<para>
+	<programlisting>set HTTP_PROXY=http://proxy.com:8080/</programlisting>
+	</para>
+	<para>
+	If you are unsure about the settings, you might ask your system 
+	administrator.
 	</para>
 	</section>
 
@@ -813,6 +983,11 @@ written by Larry Wall and Paul Eggert]]>
 	  <entry><xref linkend="ChToolsCompiler"/></entry>
 	  <entry>gcc</entry>
 	  <entry><command>cl.exe (MSVC)</command></entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsDebugger"/></entry>
+	  <entry>DDD</entry>
+	  <entry><command>integrated debugger (MSVC)</command></entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsMake"/></entry>
