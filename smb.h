@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.11 2001/08/07 08:39:57 guy Exp $
+ * $Id: smb.h,v 1.12 2001/08/11 07:26:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -627,6 +627,13 @@
 #define SMB_LMapi_SetUserInfo     0x0072
 #define SMB_LMapi_UserPasswordSet 0x0073
 
+/*
+ * One of these data structures is allocated for a transaction or
+ * transaction2 request; it keeps track of all information that's
+ * available in the request but not the reply and that's needed in
+ * order to dissect the reply, as well as the frame number of the
+ * request.
+ */
 struct smb_request_val {
   int frame;                   /* Frame in which this request appeared */
   int last_transact2_command;
@@ -638,10 +645,22 @@ struct smb_request_val {
   guint16 last_level;          /* Last level in request */
 };
 
+/*
+ * One of these data structures is allocated for a transaction reply
+ * that's continued in a later reply; it keeps track of the pathname
+ * from the request that generated the reply, as well as the frame
+ * number of the continued message.
+ */
+struct smb_continuation_val {
+  int frame;                   /* Frame in which this reply appeared */
+  const gchar *transact_name;
+};
+
 struct smb_info {
   int tid, uid, mid, pid;	/* Any more? */
   conversation_t *conversation;
   struct smb_request_val *request_val;
+  struct smb_continuation_val *continuation_val;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
   gboolean is_interim_response;	/* Is this an interim transaction response? */

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.97 2001/08/07 08:39:56 guy Exp $
+ * $Id: packet-smb.c,v 1.98 2001/08/11 07:26:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,6 +85,8 @@ char *decode_smb_name(unsigned char);
 int smb_packet_init_count = 200;
 
 /*
+ * This is a hash table matching transaction requests and replies.
+ *
  * Unfortunately, the MID is not a transaction ID in, say, the ONC RPC
  * sense; instead, it's a "multiplex ID" used when there's more than one
  * request *currently* in flight, to distinguish replies.
@@ -134,6 +136,16 @@ struct smb_request_key {
 static GHashTable *smb_request_hash = NULL;
 static GMemChunk *smb_request_keys = NULL;
 static GMemChunk *smb_request_vals = NULL;
+
+/*
+ * This is a hash table matching continued transation replies and their
+ * continuations.
+ *
+ * It works similarly to the request/reply hash table.
+ */
+static GHashTable *smb_continuation_hash = NULL;
+
+static GMemChunk *smb_continuation_vals = NULL;
 
 /* Hash Functions */
 static gint
@@ -248,26 +260,26 @@ do_transaction_hashing(conversation_t *conversation, struct smb_info si,
 
 	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
       } else {
-        /*
-         * This means that we've seen another request in this conversation
-         * with the same request and reply, and without an intervening
-         * reply to that first request, and thus won't be using this
-         * "request_val" structure for that request (as we'd use it only
-         * for the reply).
-         *
-         * Clean out the structure, and set it to refer to this frame.
-         */
-        request_val -> frame = fd->num;
+	/*
+	 * This means that we've seen another request in this conversation
+	 * with the same request and reply, and without an intervening
+	 * reply to that first request, and thus won't be using this
+	 * "request_val" structure for that request (as we'd use it only
+	 * for the reply).
+	 *
+	 * Clean out the structure, and set it to refer to this frame.
+	 */
+	request_val -> frame = fd->num;
 	request_val -> last_transact2_command = -1;		/* unknown */
-        if (request_val -> last_transact_command)
-          g_free(request_val -> last_transact_command);
-        request_val -> last_transact_command = NULL;
-        if (request_val -> last_param_descrip)
-          g_free(request_val -> last_param_descrip);
-        request_val -> last_param_descrip = NULL;
-        if (request_val -> last_data_descrip)
-          g_free(request_val -> last_data_descrip);
-        request_val -> last_data_descrip = NULL;
+	if (request_val -> last_transact_command)
+	  g_free(request_val -> last_transact_command);
+	request_val -> last_transact_command = NULL;
+	if (request_val -> last_param_descrip)
+	  g_free(request_val -> last_param_descrip);
+	request_val -> last_param_descrip = NULL;
+	if (request_val -> last_data_descrip)
+	  g_free(request_val -> last_data_descrip);
+	request_val -> last_data_descrip = NULL;
       }
     }
   } else {
@@ -280,7 +292,8 @@ do_transaction_hashing(conversation_t *conversation, struct smb_info si,
        * an entry for a matching request, with an unknown reply frame
        * number, in the hash table.
        *
-       * If we find it, re-hash it with this frame's reply number.
+       * If we find it, re-hash it with this frame's number as the
+       * reply frame number.
        */
       request_key.conversation = conversation->index;
       request_key.mid          = si.mid;
@@ -328,6 +341,142 @@ do_transaction_hashing(conversation_t *conversation, struct smb_info si,
   return request_val;
 }
 
+static struct smb_continuation_val *
+do_continuation_hashing(conversation_t *conversation, struct smb_info si,
+		       frame_data *fd, guint16 TotalDataCount,
+		       guint16 DataCount, const char **TransactName)
+{
+  struct smb_request_key request_key, *new_request_key;
+  struct smb_continuation_val *continuation_val, *new_continuation_val;
+  gpointer               new_request_key_ret, continuation_val_ret;
+
+  continuation_val = NULL;
+  if (si.ddisp != 0) {
+    /*
+     * This reply isn't the first in the series; there should be a
+     * reply of which it is a continuation.
+     */
+    if (!fd->flags.visited) {
+      /*
+       * This is the first time the frame has been seen; check for
+       * an entry for a matching continued message, with an unknown
+       * continuation frame number, in the hash table.
+       *
+       * If we find it, re-hash it with this frame's number as the
+       * continuation frame number.
+       */
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = 0;
+
+      /*
+       * Look it up - and, if we find it, get pointers to the key and
+       * value structures for it.
+       */
+      if (g_hash_table_lookup_extended(smb_continuation_hash, &request_key,
+				       &new_request_key_ret,
+				       &continuation_val_ret)) {
+	new_request_key = new_request_key_ret;
+	continuation_val = continuation_val_ret;
+
+	/*
+	 * We found it.
+	 * Remove the old entry.
+	 */
+	g_hash_table_remove(smb_continuation_hash, &request_key);
+
+	/*
+	 * Now update the key, and put it back into the hash table with
+	 * the new key.
+	 */
+	new_request_key->frame_num = fd->num;
+	g_hash_table_insert(smb_continuation_hash, new_request_key,
+			    continuation_val);
+      }
+    } else {
+      /*
+       * This is not the first time the frame has been seen; check for
+       * an entry for a matching request, with this frame's frame
+       * number as the continuation frame number, in the hash table.
+       */
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = fd->num;
+
+      continuation_val = (struct smb_continuation_val *)
+		g_hash_table_lookup(smb_continuation_hash, &request_key);
+    }
+  }
+
+  /*
+   * If we found the entry for the message of which this is a continuation,
+   * and our caller cares, get the transaction name for that message, as
+   * it's the transaction name for this message as well.
+   */
+  if (continuation_val != NULL && TransactName != NULL)
+    *TransactName = continuation_val -> transact_name;
+
+  if (TotalDataCount > DataCount + si.ddisp) {
+    /*
+     * This reply isn't the last in the series; there should be a
+     * continuation for it later in the capture.
+     *
+     * If this is the first time the frame has been seen, check for
+     * an entry for the reply in the hash table.  If it's not found,
+     * insert an entry for it.
+     *
+     * If it's the first time it's been seen, then we can't have seen
+     * the continuation yet, so the continuation frame number should
+     * be 0, for "unknown".
+     */
+    if (!fd->flags.visited) {
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = 0;
+
+      new_continuation_val = (struct smb_continuation_val *)
+		g_hash_table_lookup(smb_continuation_hash, &request_key);
+
+      if (new_continuation_val == NULL) {
+	/*
+	 * Not found.
+	 */
+	new_request_key = g_mem_chunk_alloc(smb_request_keys);
+	new_request_key -> conversation = conversation->index;
+	new_request_key -> mid          = si.mid;
+	new_request_key -> pid          = si.pid;
+	new_request_key -> frame_num    = 0;
+
+	new_continuation_val = g_mem_chunk_alloc(smb_continuation_vals);
+	new_continuation_val -> frame = fd->num;
+	if (TransactName != NULL)
+	  new_continuation_val -> transact_name = *TransactName;
+	else
+	  new_continuation_val -> transact_name = NULL;
+
+	g_hash_table_insert(smb_continuation_hash, new_request_key,
+			    new_continuation_val);
+      } else {
+	/*
+	 * This presumably means we never saw the continuation of
+	 * the message we found, and this is a reply to a different
+	 * request; as we never saw the continuation of that message,
+	 * we won't be using this "request_val" structure for that
+	 * message (as we'd use it only for the continuation).
+	 *
+	 * Clean out the structure, and set it to refer to this frame.
+	 */
+	new_continuation_val -> frame = fd->num;
+      }
+    }
+  }
+
+  return continuation_val;
+}
+
 static void
 smb_init_protocol(void)
 {
@@ -345,18 +494,26 @@ smb_init_protocol(void)
     g_hash_table_foreach_remove(smb_request_hash, free_request_val_data, NULL);
     g_hash_table_destroy(smb_request_hash);
   }
+  if (smb_continuation_hash)
+    g_hash_table_destroy(smb_continuation_hash);
   if (smb_request_keys)
     g_mem_chunk_destroy(smb_request_keys);
   if (smb_request_vals)
     g_mem_chunk_destroy(smb_request_vals);
+  if (smb_continuation_vals)
+    g_mem_chunk_destroy(smb_continuation_vals);
 
   smb_request_hash = g_hash_table_new(smb_hash, smb_equal);
+  smb_continuation_hash = g_hash_table_new(smb_hash, smb_equal);
   smb_request_keys = g_mem_chunk_new("smb_request_keys",
 				     sizeof(struct smb_request_key),
 				     smb_packet_init_count * sizeof(struct smb_request_key), G_ALLOC_AND_FREE);
   smb_request_vals = g_mem_chunk_new("smb_request_vals",
 				     sizeof(struct smb_request_val),
 				     smb_packet_init_count * sizeof(struct smb_request_val), G_ALLOC_AND_FREE);
+  smb_continuation_vals = g_mem_chunk_new("smb_continuation_vals",
+				     sizeof(struct smb_continuation_val),
+				     smb_packet_init_count * sizeof(struct smb_continuation_val), G_ALLOC_AND_FREE);
 }
 
 static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info si, int, int, int);
@@ -9100,6 +9257,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint16       ByteCount;
   conversation_t *conversation;
   struct smb_request_val *request_val;
+  struct smb_continuation_val *continuation_val;
 
   /*
    * Find out what conversation this packet is part of.
@@ -9764,7 +9922,7 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
   tvbuff_t         *setup_tvb;
 
   if (!TransactName)
-	  return;
+    return;
 
   /* Should check for error here ... */
 
@@ -10533,13 +10691,26 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     }
 
-    if (request_val != NULL) {
-      dissect_transact_params(pd, offset, fd, parent, tree, si, max_data,
-			      SMB_offset, errcode, DataOffset, DataCount,
-			      ParameterOffset, ParameterCount,
-			      SetupAreaOffset, SetupCount,
-			      request_val -> last_transact_command);
-    }
+    if (request_val != NULL)
+      TransactName = request_val -> last_transact_command;
+    else
+      TransactName = NULL;
+
+    /*
+     * Make an entry for this, if it's continued; get the entry for
+     * the message of which it's a continuation, and get the transaction
+     * name for that message, if it's a continuation.
+     *
+     * XXX - eventually, do reassembly of all the continuations, so
+     * we can dissect the entire reply.
+     */
+    si.continuation_val = do_continuation_hashing(conversation, si, fd,
+					          TotalDataCount, DataCount,
+					          &TransactName);
+    dissect_transact_params(pd, offset, fd, parent, tree, si, max_data,
+			    SMB_offset, errcode, DataOffset, DataCount,
+			    ParameterOffset, ParameterCount,
+			    SetupAreaOffset, SetupCount, TransactName);
 
   }
 

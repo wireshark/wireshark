@@ -1,5 +1,4 @@
 /*
-XXX  Fixme : continuation stuff removed, should be solved by smb reassembly
 XXX  Fixme : shouldnt show [malformed frame] for long packets
 */
 
@@ -9,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.28 2001/08/07 08:39:56 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.29 2001/08/11 07:26:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +63,7 @@ static int hf_not_implemented = -1;
 static int hf_detail_level = -1;
 static int hf_recv_buf_len = -1;
 static int hf_response_to = -1;
+static int hf_continuation_from = -1;
 static int hf_status = -1;
 static int hf_convert = -1;
 static int hf_ecount = -1;
@@ -1396,10 +1396,29 @@ dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_lanman);
 	}
 
-	/* continuation messages, dont try to decode them */
+	/*
+	 * Don't try to decode continuation messages.
+	 *
+	 * XXX - at some point, we will probably be handed tvbuffs
+	 * for the parameters of the first message and for the
+	 * reassembled contents of the data of the first message
+	 * and all the continuations, and should dissect it.
+	 *
+	 * Transaction reassembly may, however, be an option, so that if
+	 * we don't *have* all the reply messages, you at least can
+	 * see what you have, by turning the option off.  (We don't know
+	 * that we don't have them until we get to the end of the capture,
+	 * but, by that time, it may be too late to dissect what we have;
+	 * in Tethereal, for example, there's no going back....)
+	 */
 	if (smb_info->ddisp) {
 		if (check_col(pinfo->fd, COL_INFO)) {
 			col_set_str(pinfo->fd, COL_INFO, "Transact Continuation");
+		}
+		if (smb_info->continuation_val != NULL) {
+			/* continuation from the message in frame xx */
+			proto_tree_add_uint(tree, hf_continuation_from, tvb,
+			    0, 0, smb_info->continuation_val->frame);
 		}
 		return TRUE;
 	}
@@ -1571,7 +1590,11 @@ register_proto_smb_pipe(void)
 
 		{ &hf_response_to,
 			{ "Response to request in frame", "lanman.response_to", FT_UINT32, BASE_DEC,
-			NULL, 0, "This is a LANMAN response to the request in frame", HFILL }},
+			NULL, 0, "This is a LANMAN response to the request in the frame in question", HFILL }},
+
+		{ &hf_continuation_from,
+			{ "Continuation from message in frame", "lanman.continuation_from", FT_UINT32, BASE_DEC,
+			NULL, 0, "This is a LANMAN continuation from the message in the frame in question", HFILL }},
 
 		{ &hf_status,
 			{ "Status", "lanman.status", FT_UINT16, BASE_DEC,
