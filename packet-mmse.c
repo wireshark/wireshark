@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.2 2001/10/19 21:40:48 guy Exp $
+ * $Id: packet-mmse.c,v 1.3 2001/12/07 11:10:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,9 +52,17 @@
 
 #include "packet.h"
 #include "packet-wap.h"
+#include "packet-wsp.h"
 /* #include "packet-mmse.h" */		/* We autoregister	*/
 
 #define	MM_QUOTE		0x7F	/* Quoted string	*/
+
+#define MMS_CONTENT_TYPE	0x3E	/* WINA-value for mms-message	*/
+
+/*
+ * Forward declarations
+ */
+static void dissect_mmse(tvbuff_t *, packet_info *, proto_tree *);
 
 /*
  * Header field values
@@ -318,6 +326,26 @@ get_long_integer(tvbuff_t *tvb, guint offset, guint *byte_count)
 
 /* Code to actually dissect the packets */
 static gboolean
+dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8	 pdut;
+
+    /*
+     * Check if data makes sense for it to be dissected as MMSE:  Message-type
+     * field must make sense and followed by Transaction-Id header
+     */
+    if (tvb_get_guint8(tvb, 0) != MM_MTYPE_HDR)
+	return FALSE;
+    pdut = tvb_get_guint8(tvb, 1);
+    if (match_strval(pdut, vals_message_type) == NULL)
+	return FALSE;
+    if (tvb_get_guint8(tvb, 2) != MM_TID_HDR)
+	return FALSE;
+    dissect_mmse(tvb, pinfo, tree);
+    return TRUE;
+}
+
+static void
 dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8	 pdut;
@@ -330,18 +358,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *mmse_tree;
-    /*
-     * Check if data makes sense for it to be dissected as MMSE:  Message-type
-     * field must make sense and followed by Transaction-Id header
-     */
-    if (tvb_get_guint8(tvb, 0) != MM_MTYPE_HDR)
-	return FALSE;
-    pdut = tvb_get_guint8(tvb, 1);
-    if (match_strval(pdut, vals_message_type) == NULL)
-	return FALSE;
-    if (tvb_get_guint8(tvb, 2) != MM_TID_HDR)
-	return FALSE;
 
+    pdut = tvb_get_guint8(tvb, 1);
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->fd, COL_PROTOCOL))
 	col_set_str(pinfo->fd, COL_PROTOCOL, "MMSE");
@@ -605,20 +623,21 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (field == MM_CTYPE_HDR) {
 	    /*
-	     * \todo
 	     * Eeehh, we're now actually back to good old WSP content-type
 	     * encoding for multipart/related and multipart/mixed MIME-types.
-	     * I'm not gonna do that work here again so maybe it's wise to
-	     * share some more code with packet-wsp.c in the near future?
-	     * Leave it as "Data" for now as it is the end of the PDU...
+	     * Let's steal that from the WSP-dissector.
 	     */
-	    proto_tree_add_item(mmse_tree, hf_mmse_content_type, tvb,
-				offset - 1,
-				tvb_length_remaining(tvb, offset - 1), FALSE);
-	    return TRUE;
+	    tvbuff_t	*tmp_tvb;
+	    guint	 type;
+	    const char	*type_str;
+
+	    offset = add_content_type(mmse_tree, tvb, offset, &type, &type_str);
+	    tmp_tvb = tvb_new_subset(tvb, offset,
+				     tvb_length_remaining(tvb, offset),
+				     tvb_length_remaining(tvb, offset));
+	    add_multipart_data(mmse_tree, tmp_tvb);
 	}
     }
-    return TRUE;
 
     /* If this protocol has a sub-dissector call it here, see section 1.8 */
 }
@@ -853,17 +872,16 @@ proto_register_mmse(void)
 void
 proto_reg_handoff_mmse(void)
 {
-    heur_dissector_add("wsp", dissect_mmse, proto_mmse);
-    /*!
-     * \todo
-     * Mmmmm, actually, it should register itself on the "wsp.content_type"
-     * protocol field. Especially when IANA finally registers the type
-     * 'application/wap.vnd.mms-message'. The wsp-dissector should then
-     * ofcourse be modified to cater for such subdissectors...
-     */
+    dissector_handle_t mmse_handle;
+
+    heur_dissector_add("wsp", dissect_mmse_heur, proto_mmse);
+    mmse_handle = create_dissector_handle(dissect_mmse, proto_mmse);
+    dissector_add("wsp.content_type.type", MMS_CONTENT_TYPE,
+		  mmse_handle);
     /*
      * \todo
-     * The bearer could also be http (through the same content-type field).
-     * Same modifications would apply there.
+     * The bearer could also be http (through the content-type field).
+     * The wsp-dissector should then ofcourse be modified to cater for
+     * such subdissectors...
      */
 }

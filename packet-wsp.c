@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.47 2001/12/03 03:59:43 guy Exp $
+ * $Id: packet-wsp.c,v 1.48 2001/12/07 11:10:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,9 +95,13 @@ static int hf_wsp_parameter_start_info			= HF_EMPTY;
 static int hf_wsp_parameter_comment			= HF_EMPTY;
 static int hf_wsp_parameter_domain			= HF_EMPTY;
 static int hf_wsp_parameter_path			= HF_EMPTY;
+static int hf_wsp_parameter_upart_type			= HF_EMPTY;
+static int hf_wsp_parameter_upart_type_value		= HF_EMPTY;
 static int hf_wsp_reply_data				= HF_EMPTY;
 static int hf_wsp_post_data				= HF_EMPTY;
 static int hf_wsp_push_data				= HF_EMPTY;
+static int hf_wsp_multipart_data			= HF_EMPTY;
+static int hf_wsp_mpart					= HF_EMPTY;
 
 static int hf_wsp_header_shift_code			= HF_EMPTY;
 static int hf_wsp_header_accept				= HF_EMPTY;
@@ -136,6 +140,7 @@ static int hf_wsp_header_warning_text			= HF_EMPTY;
 static int hf_wsp_header_application_header		= HF_EMPTY;
 static int hf_wsp_header_application_value		= HF_EMPTY;
 static int hf_wsp_header_x_wap_tod			= HF_EMPTY;
+static int hf_wsp_header_content_ID			= HF_EMPTY;
 static int hf_wsp_header_transfer_encoding		= HF_EMPTY;
 static int hf_wsp_header_transfer_encoding_str		= HF_EMPTY;
 static int hf_wsp_header_via				= HF_EMPTY;
@@ -167,6 +172,8 @@ static gint ett_capabilities				= ETT_EMPTY;
 static gint ett_content_type				= ETT_EMPTY;
 static gint ett_redirect_flags				= ETT_EMPTY;
 static gint ett_redirect_afl				= ETT_EMPTY;
+static gint ett_multiparts				= ETT_EMPTY;
+static gint ett_mpartlist				= ETT_EMPTY;
 
 /* Handle for WSP-over-UDP dissector */
 static dissector_handle_t wsp_fromudp_handle;
@@ -722,23 +729,23 @@ static const true_false_string yes_no_truth = {
 enum {
 	RESERVED		= 0x00,
 	CONNECT			= 0x01,
-	CONNECTREPLY	= 0x02,
+	CONNECTREPLY		= 0x02,
 	REDIRECT		= 0x03,			/* No sample data */
 	REPLY			= 0x04,
 	DISCONNECT		= 0x05,
 	PUSH			= 0x06,			/* No sample data */
-	CONFIRMEDPUSH	= 0x07,			/* No sample data */
+	CONFIRMEDPUSH		= 0x07,			/* No sample data */
 	SUSPEND			= 0x08,			/* No sample data */
 	RESUME			= 0x09,			/* No sample data */
 
-	GET				= 0x40,
+	GET			= 0x40,
 	OPTIONS			= 0x41,			/* No sample data */
 	HEAD			= 0x42,			/* No sample data */
 	DELETE			= 0x43,			/* No sample data */
 	TRACE			= 0x44,			/* No sample data */
 
 	POST			= 0x60,
-	PUT				= 0x61,			/* No sample data */
+	PUT			= 0x61,			/* No sample data */
 };
 
 typedef enum {
@@ -747,6 +754,7 @@ typedef enum {
 	VALUE_IN_LEN,
 } value_type_t;
 
+static dissector_table_t wsp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 static void add_uri (proto_tree *, frame_data *, tvbuff_t *, guint, guint);
@@ -768,22 +776,22 @@ static void add_connection_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int);
 static void add_content_type_value (proto_tree *, tvbuff_t *, int, int,
     tvbuff_t *, value_type_t, int, int, int, guint *, const char **);
-static guint add_content_type (proto_tree *, tvbuff_t *, guint, guint *,
-    const char **);
 static void add_wap_application_id_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int);
 static void add_integer_value_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int, int, guint8);
 static void add_string_value_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int, int, guint8);
+static void add_quoted_string_value_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int, int, guint8);
 static void add_date_value_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int, int, guint8);
 static int add_parameter (proto_tree *, tvbuff_t *, int);
-static void add_untyped_parameter (proto_tree *, tvbuff_t *, int, int);
-static void add_parameter_charset (proto_tree *, tvbuff_t *, int, int);
-static void add_parameter_type (proto_tree *, tvbuff_t *, int, int);
-static void add_parameter_text (proto_tree *, tvbuff_t *, int, int, int,
-    const char *paramName);
+static int add_untyped_parameter (proto_tree *, tvbuff_t *, int, int);
+static int add_parameter_charset (proto_tree *, tvbuff_t *, int, int);
+static int add_constrained_encoding (proto_tree *, tvbuff_t *, int, int);
+static int add_parameter_type (proto_tree *, tvbuff_t *, int, int);
+static int add_parameter_text (proto_tree *, tvbuff_t *, int, int, int, const char *);
 static void add_post_data (proto_tree *, tvbuff_t *, guint, const char *);
 static void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
 static void add_pragma_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
@@ -795,9 +803,7 @@ static void add_warning_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
 static void add_accept_application_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int);
 static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type);
-static void add_capability_vals(tvbuff_t *tvb, gboolean add_string,
-    int offsetStr, guint length, guint capabilitiesStart, char *valString,
-    size_t valStringSize);
+static void add_capability_vals(tvbuff_t *, gboolean, int, guint, guint, char *, size_t);
 static value_type_t get_value_type_len (tvbuff_t *, int, guint *, int *, int *);
 static guint get_uintvar (tvbuff_t *, guint, guint);
 static gint get_integer (tvbuff_t *, guint, guint, value_type_t, guint *);
@@ -1185,7 +1191,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tvb_reported_length_remaining(tvb, headerStart + count + uriLength + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + count + uriLength + headersLength, -1, -1);
-				dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+				if (!dissector_try_port(wsp_dissector_table, contentType, tmp_tvb, pinfo, tree))
+					dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
 			}
 			break;
 
@@ -1226,7 +1233,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
-				dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+				if (!dissector_try_port(wsp_dissector_table, contentType, tmp_tvb, pinfo, tree))
+					dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
 			}
 			break;
 
@@ -1267,7 +1275,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
-				dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+				if (!dissector_try_port(wsp_dissector_table, contentType, tmp_tvb, pinfo, tree))
+					dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
 			}
 			break;
 
@@ -1642,9 +1651,15 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 		    hf_wsp_header_profile, headerType);
 		break;
 
-	case FN_X_WAP_APPLICATION_ID:		/* X-Wap-Application-Id */
+	case FN_X_WAP_APPLICATION_ID:	/* X-Wap-Application-Id */
 		add_wap_application_id_header (tree, header_buff, headerLen,
 		    value_buff, valueType, valueLen);
+		break;
+
+	case FN_CONTENT_ID:		/* Content-ID	*/
+		add_quoted_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_content_ID, headerType);
 		break;
 
 	default:
@@ -2869,7 +2884,7 @@ add_content_type_value (proto_tree *tree, tvbuff_t *header_buff,
 		offset = add_parameter (parameter_tree, value_buff, offset);
 }
 
-static guint
+guint
 add_content_type (proto_tree *tree, tvbuff_t *tvb, guint offset,
     guint *contentTypep, const char **contentTypeStrp)
 {
@@ -2959,6 +2974,24 @@ add_string_value_header (proto_tree *tree, tvbuff_t *header_buff,
 	}
 }
 
+static void
+add_quoted_string_value_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen, int hf_string, guint8 headerType)
+{
+	if (valueType != VALUE_IS_TEXT_STRING)
+	{
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid %s quoted string value",
+		    match_strval (headerType, vals_field_names));
+	}
+	else
+	{
+		proto_tree_add_string (tree, hf_string, header_buff,
+			0, headerLen, tvb_get_ptr (value_buff, 1, valueLen - 1));
+	}
+}
+
 /* Utility function to add a date value to the protocol tree */
 static void
 add_date_value_header (proto_tree *tree, tvbuff_t *header_buff,
@@ -3010,7 +3043,7 @@ add_parameter (proto_tree *tree, tvbuff_t *value_buff, int offset)
 		/*
 		 * Untyped-parameter.
 		 */
-		add_untyped_parameter (tree, value_buff, startOffset, offset);
+		offset = add_untyped_parameter (tree, value_buff, startOffset, offset);
 		return offset;
 	}
 
@@ -3029,53 +3062,56 @@ add_parameter (proto_tree *tree, tvbuff_t *value_buff, int offset)
 	switch (value) {
 
 	case 0x01:	/* Charset */
-		add_parameter_charset (tree, value_buff, startOffset, offset);
+		offset = add_parameter_charset (tree, value_buff, startOffset, offset);
 		break;
 
 	case 0x03:	/* Type */
-		add_parameter_type (tree, value_buff, startOffset, offset);
+		offset = add_parameter_type (tree, value_buff, startOffset, offset);
 		break;
 
 	case 0x05:	/* Name */
-		add_parameter_text (tree, value_buff, startOffset, offset,
-		    hf_wsp_parameter_name, "Name");
+		offset = add_parameter_text (tree, value_buff, startOffset, offset,
+				    hf_wsp_parameter_name, "Name");
 		break;
 
 	case 0x06:	/* Filename */
-		add_parameter_text (tree, value_buff, startOffset, offset,
-		    hf_wsp_parameter_filename, "Filename");
+		offset = add_parameter_text (tree, value_buff, startOffset, offset,
+				    hf_wsp_parameter_filename, "Filename");
+		break;
+
+	case 0x09:	/* Type (special) */
+		offset = add_constrained_encoding(tree, value_buff, startOffset, offset);
 		break;
 
 	case 0x0A:	/* Start */
-		add_parameter_text (tree, value_buff, startOffset, offset,
-		    hf_wsp_parameter_start, "Start");
+		offset = add_parameter_text (tree, value_buff, startOffset, offset,
+				    hf_wsp_parameter_start, "Start");
 		break;
 
 	case 0x0B:	/* Start-info */
-		add_parameter_text (tree, value_buff, startOffset, offset,
-		    hf_wsp_parameter_start_info, "Start-info");
+		offset = add_parameter_text (tree, value_buff, startOffset, offset,
+				    hf_wsp_parameter_start_info, "Start-info");
 		break;
 
 	case 0x0C:	/* Comment */
-		add_parameter_text (tree, value_buff, startOffset, offset,
-		    hf_wsp_parameter_comment, "Comment");
+		offset = add_parameter_text (tree, value_buff, startOffset, offset,
+				    hf_wsp_parameter_comment, "Comment");
 		break;
 
 	case 0x0D:	/* Domain */
-		add_parameter_text (tree, value_buff, startOffset, offset,
-		    hf_wsp_parameter_domain, "Domain");
+		offset = add_parameter_text (tree, value_buff, startOffset, offset,
+				    hf_wsp_parameter_domain, "Domain");
 		break;
 
 	case 0x0F:	/* Path */
-		add_parameter_text (tree, value_buff, startOffset, offset,
-		    hf_wsp_parameter_path, "Path");
+		offset = add_parameter_text (tree, value_buff, startOffset, offset,
+				    hf_wsp_parameter_path, "Path");
 		break;
 
 	case 0x00:	/* Q */
 	case 0x02:	/* Level */
 	case 0x07:	/* Differences */
 	case 0x08:	/* Padding */
-	case 0x09:	/* Type (special) */
 	case 0x0E:	/* Max-Age */
 	case 0x10:	/* Secure */
 	default:
@@ -3085,25 +3121,18 @@ add_parameter (proto_tree *tree, tvbuff_t *value_buff, int offset)
 	return offset;
 }
 
-static void
+static int
 add_untyped_parameter (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
     int offset)
 {
-	int tokenOffset;
-	guint tokenSize;
 	const guint8 *token;
 	value_type_t valueType;
 	int subvalueLen;
 	int subvalueOffset;
 	guint value;
-	int textvOffset;
-	guint stringSize;
+	int vOffset = offset;
 
-	tokenOffset = offset;
-	tokenSize = tvb_strsize (value_buff, tokenOffset);
-	token = tvb_get_ptr (value_buff, tokenOffset, tokenSize);
-	offset += tokenSize;
-
+	token = tvb_get_ptr (value_buff, startOffset, offset - startOffset);
 	/*
 	 * Now an Untyped-value; either an Integer-value or a Text-value.
 	 */
@@ -3114,9 +3143,7 @@ add_untyped_parameter (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 		/*
 		 * Text-value.
 		 */
-		textvOffset = offset;
-		stringSize = tvb_strsize (value_buff, textvOffset);
-		if (stringSize == 1) {
+		if ((offset - vOffset) == 1) {
 			/*
 			 * No-value.  (stringSize includes the terminating
 			 * null byte, so an empty string has a size of 1.)
@@ -3124,13 +3151,12 @@ add_untyped_parameter (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 			proto_tree_add_text (tree, value_buff, startOffset,
 			    offset - startOffset,
 			    "%s", token);
-			return;
+			return offset;
 		}
-		offset += stringSize;
 		proto_tree_add_text (tree, value_buff, startOffset,
 		    offset - startOffset,
 		    "%s: %s", token,
-		    tvb_get_ptr (value_buff, textvOffset, stringSize));
+		    tvb_get_ptr (value_buff, vOffset, offset - vOffset));
 	}
 	else
 	{
@@ -3151,9 +3177,10 @@ add_untyped_parameter (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 			    "%s: Invalid Integer-value", token);
 		}
 	}
+	return offset;
 }
 
-static void
+static int
 add_parameter_charset (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
     int offset)
 {
@@ -3172,7 +3199,7 @@ add_parameter_charset (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 		proto_tree_add_uint (tree, hf_wsp_parameter_well_known_charset,
 		    value_buff, startOffset, offset - startOffset,
 		    subvalueLen);	/* subvalueLen is the value */
-		return;
+		return offset;
 	}
 	if (valueType == VALUE_IS_TEXT_STRING)
 	{
@@ -3181,7 +3208,7 @@ add_parameter_charset (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 		 */
 	    	proto_tree_add_text (tree, value_buff, startOffset,
 		    offset - startOffset, "Invalid Well-known charset");
-		return;
+		return offset;
 	}
 
 	/*
@@ -3194,7 +3221,7 @@ add_parameter_charset (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 		 */
 		proto_tree_add_text (tree, value_buff, startOffset,
 		    offset- startOffset, "*");
-		return;
+		return offset;
 	}
 
 	if (get_integer(value_buff, subvalueOffset, subvalueLen,
@@ -3206,9 +3233,49 @@ add_parameter_charset (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 		proto_tree_add_uint (tree, hf_wsp_parameter_well_known_charset,
 		    value_buff, startOffset, offset - startOffset, value);
 	}
+	return offset;
 }
 
-static void
+static int
+add_constrained_encoding (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
+    int offset)
+{
+	value_type_t valueType;
+	int subvalueLen;
+	int subvalueOffset;
+	guint value;
+
+	valueType = get_value_type_len (value_buff, offset,
+	    &subvalueLen, &subvalueOffset, &offset);
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Integer-value, invalid
+		 */
+	    	proto_tree_add_text (tree, value_buff, startOffset,
+		    offset - startOffset, "Invalid multipart type parameter");
+		return offset;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * type-label.
+		 */
+		proto_tree_add_string (tree, hf_wsp_parameter_upart_type,
+		    value_buff, startOffset, offset - startOffset,
+		    tvb_get_ptr (value_buff, subvalueOffset, subvalueLen));
+		return offset;
+	}
+	/*
+	 * First byte had the 8th bit set.
+	 */
+	get_integer(value_buff, subvalueOffset, subvalueLen, valueType, &value);
+	proto_tree_add_uint (tree, hf_wsp_parameter_upart_type_value,
+	    value_buff, startOffset, offset - startOffset, value);
+	return offset;
+}
+
+static int
 add_parameter_type (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
     int offset)
 {
@@ -3227,9 +3294,10 @@ add_parameter_type (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 		proto_tree_add_uint (tree, hf_wsp_parameter_type, value_buff,
 		    startOffset, offset - startOffset, value);
 	}
+	return offset;
 }
 
-static void
+static int
 add_parameter_text (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
     int offset, int hf_string, const char *paramName)
 {
@@ -3243,9 +3311,11 @@ add_parameter_text (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 	    	proto_tree_add_text (tree, value_buff, startOffset,
 		    offset - startOffset, "Invalid %s", paramName);
 	} else {
-		proto_tree_add_item (tree, hf_string, value_buff,
-		    startOffset, offset - startOffset, bo_little_endian);
+		proto_tree_add_string (tree, hf_string, value_buff,
+			    startOffset, offset - startOffset,
+			    tvb_get_ptr (value_buff, subvalueOffset, subvalueLen));
 	}
+	return offset;
 }
 
 static void
@@ -3296,6 +3366,11 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 			add_post_variable (ti, tvb, variableStart, variableEnd, valueStart, offset);
 		}
 	}
+	else if ((contentType == 0x22) || (contentType == 0x23) || (contentType == 0x23) || (contentType == 0x24) ||
+		 (contentType == 0x25) || (contentType == 0x26) || (contentType == 0x33))
+	{
+		add_multipart_data(ti, tvb);
+	}
 }
 
 static void
@@ -3336,6 +3411,57 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 
 	g_free (variableBuffer);
 	g_free (valueBuffer);
+}
+
+void
+add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
+{
+	int		 offset = 0;
+	guint		 nextOffset;
+	guint		 nEntries = 0;
+	guint		 count;
+	guint		 HeadersLen;
+	guint		 DataLen;
+	guint		 contentType = 0;
+	const char	*contentTypeStr;
+	tvbuff_t	*tmp_tvb;
+	int		 partnr = 1;
+	int		 part_start;
+
+	proto_item	*sub_tree = NULL,
+			*ti;
+	proto_tree	*mpart_tree;
+
+	nEntries = tvb_get_guintvar (tvb, offset, &count);
+	offset += count;
+	if (nEntries)
+	{
+		sub_tree = proto_tree_add_text(tree, tvb, offset - count, 0,
+					"Multipart body");
+		proto_item_add_subtree(sub_tree, ett_mpartlist);
+	}
+	while (nEntries--)
+	{
+		part_start = offset;
+		HeadersLen = tvb_get_guintvar (tvb, offset, &count);
+		offset += count;
+		DataLen = tvb_get_guintvar (tvb, offset, &count);
+		offset += count;
+		ti = proto_tree_add_uint(sub_tree, hf_wsp_mpart, tvb, part_start,
+					HeadersLen + DataLen + (offset - part_start), partnr);
+		mpart_tree = proto_item_add_subtree(ti, ett_multiparts);
+		nextOffset = add_content_type (mpart_tree, tvb, offset, &contentType, &contentTypeStr);
+		HeadersLen -= (nextOffset - offset);
+		if (HeadersLen > 0)
+		{
+			tmp_tvb = tvb_new_subset (tvb, nextOffset, HeadersLen, HeadersLen);
+			add_headers (mpart_tree, tmp_tvb);
+		}
+		offset = nextOffset + HeadersLen;
+		proto_tree_add_item (mpart_tree, hf_wsp_multipart_data, tvb, offset, DataLen, bo_little_endian);
+		offset += DataLen;
+		partnr++;
+	}
 }
 
 static gint
@@ -3556,6 +3682,20 @@ proto_register_wsp(void)
 				"wsp.content_type.parameter.path",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Path", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_upart_type,
+			{ 	"Type",
+				"wsp.content_type.parameter.upart.type",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Multipart type", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_upart_type_value,
+			{ 	"Type",
+				"wsp.content_type.parameter.upart.type.int",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Multipart type (int value)", HFILL
 			}
 		},
 		{ &hf_wsp_reply_data,
@@ -3864,6 +4004,13 @@ proto_register_wsp(void)
 				"Application Header Value", HFILL
 			}
 		},
+		{ &hf_wsp_header_content_ID,
+			{ 	"Content-ID",           
+				"wsp.header.content-id",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Content-ID", HFILL
+			}
+		},
 		{ &hf_wsp_header_x_wap_tod,
 			{ 	"X-WAP.TOD",           
 				"wsp.header.x_wap_tod",
@@ -3939,6 +4086,20 @@ proto_register_wsp(void)
 				"wsp.push.data",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Push Data", HFILL
+			}
+		},
+		{ &hf_wsp_multipart_data,
+			{ 	"Data in this part",           
+				"wsp.multipart.data",
+				 FT_NONE, BASE_NONE, NULL, 0x00,
+				"The data of 1 MIME-multipart part.", HFILL
+			}
+		},
+		{ &hf_wsp_mpart,
+			{ 	"Part",           
+				"wsp.multipart",
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"MIME part of multipart data.", HFILL
 			}
 		},
 		{ &hf_wsp_redirect_flags,
@@ -4040,6 +4201,8 @@ proto_register_wsp(void)
 		&ett_content_type,
 		&ett_redirect_flags,
 		&ett_redirect_afl,
+		&ett_multiparts,
+		&ett_mpartlist
 	};
 
 /* Register the protocol name and description */
@@ -4057,6 +4220,7 @@ proto_register_wsp(void)
 
 	register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
 	register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
+	wsp_dissector_table = register_dissector_table("wsp.content_type.type");
 	register_heur_dissector_list("wsp", &heur_subdissector_list);
 
 	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,

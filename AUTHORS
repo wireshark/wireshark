@@ -832,6 +832,7 @@ Tom Uijldert <Tom.Uijldert[AT]cmg.nl> {
 	Push-traffic dissecting for WSP/WTLS
 	UCP support
 	SMPP support
+	multipart-content support in WSP/MMSE
 }
 
 Endoh Akira <endoh[AT]netmarks.co.jp> {
