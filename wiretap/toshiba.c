@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.7 2000/01/13 07:09:19 guy Exp $
+ * $Id: toshiba.c,v 1.8 2000/03/04 14:22:29 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -35,14 +35,13 @@
 /* This module reads the output of the 'snoop' command in the Toshiba
  * TR-600 and TR-650 "Compact" ISDN Routers. You can telnet to the
  * router and run 'snoop' on the different channels, and at different
- * detail levels. Be sure to choose 'dump' to get the hex dump.
+ * detail levels. Be sure to choose the 'dump' level to get the hex dump.
  * The 'snoop' command has nothing to do with the Solaris 'snoop'
  * command, except that they both capture packets.
  */
 
 /*
    Example 'snoop' output data:
-  
 
 Script started on Thu Sep  9 21:48:49 1999
 ]0;gram@nirvana:/tmp$ telnet 10.0.0.254
@@ -282,15 +281,28 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 		return -1;
 	}
 
-	/* The next line contains mostly junk, but it does contain the
-	 * packet length. */
-	if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) == NULL) {
-		*err = file_error(fh);
-		if (*err == 0) {
-			*err = WTAP_ERR_SHORT_READ;
+	/* Scan lines until we find the OFFSET line. In a "telnet" trace,
+	 * this will be the next line. But if you save your telnet session
+	 * to a file from within a Windows-based telnet client, it may
+	 * put in line breaks at 80 columns (or however big your "telnet" box
+	 * is). CRT (a Windows telnet app from VanDyke) does this.
+	 * Here we assume that 80 columns will be the minimum size, and that
+	 * the OFFSET line is not broken in the middle. It's the previous
+	 * line that is normally long and can thus be broken at column 80.
+	 */
+	do {
+		if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) == NULL) {
+			*err = file_error(fh);
+			if (*err == 0) {
+				*err = WTAP_ERR_SHORT_READ;
+			}
+			return -1;
 		}
-		return -1;
-	}
+
+		/* Check for "OFFSET 0001-0203" at beginning of line */
+		line[16] = '\0';
+
+	} while (strcmp(line, "OFFSET 0001-0203") != 0);
 
 	num_items_scanned = sscanf(line+64, "LEN=%d", &pkt_len);
 	if (num_items_scanned != 1) {
