@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.93 2004/03/19 07:49:29 guy Exp $
+$Id: README.developer,v 1.94 2004/03/25 16:01:12 ulfl Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -213,6 +213,10 @@ to implement it.  Use something like
 
 instead.
 
+snprintf() -> g_snprintf()
+snprintf() is not available on all platforms, so it's a good idea to use the 
+g_snprintf() function declared by <glib.h> instead.
+
 The pointer retured by a call to "tvb_get_ptr()" is not guaranteed to be
 aligned on any particular byte boundary; this means that you cannot
 safely cast it to any data type other than a pointer to "char",
@@ -303,6 +307,13 @@ should be stored in a 32-bit variable, such as an "int"; if you store it
 in an 8-bit or 16-bit variable, you run the risk of the variable
 overflowing.
 
+sprintf() -> g_snprintf()
+Prevent yourself from using the sprintf() function, as it does not test the 
+length of the given output buffer and might be writing into memory areas not 
+intended for. This function is one of the main causes of security problems 
+like buffer exploits and many other bugs that are very hard to find. It's 
+much better to use the g_snprintf() function declared by <glib.h> instead.
+
 1.1.3 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
@@ -352,12 +363,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.93 2004/03/19 07:49:29 guy Exp $"
+The "$Id: README.developer,v 1.94 2004/03/25 16:01:12 ulfl Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.93 2004/03/19 07:49:29 guy Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.94 2004/03/25 16:01:12 ulfl Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -366,7 +377,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.93 2004/03/19 07:49:29 guy Exp $
+ * $Id: README.developer,v 1.94 2004/03/25 16:01:12 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
