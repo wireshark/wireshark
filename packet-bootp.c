@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.60 2001/12/27 22:49:02 guy Exp $
+ * $Id: packet-bootp.c,v 1.61 2001/12/27 23:53:10 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -128,7 +128,7 @@ get_dhcp_type(guint8 byte)
 /* Returns the number of bytes consumed by this option. */
 static int
 bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
-    gboolean first_pass, const char **dhcp_type_p,
+    gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
     const guint8 **vendor_class_id_p)
 {
 	char			*text;
@@ -406,6 +406,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				    "End Option");
 			}
 		}
+		*at_end = TRUE;
 		consumed = 1;
 		return consumed;
 	}
@@ -1089,6 +1090,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guint8	*haddr;
 	int		voff, eoff, tmpvoff; /* vendor offset, end offset */
 	guint32		ip_addr;
+	gboolean	at_end;
 	const char	*dhcp_type = NULL;
 	const guint8	*vendor_class_id = NULL;
 
@@ -1217,8 +1219,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * and Vendor class identifier options.
 	 */
 	tmpvoff = voff;
-	while (tmpvoff < eoff) {
-		tmpvoff += bootp_option(tvb, 0, tmpvoff, eoff, TRUE,
+	at_end = FALSE;
+	while (tmpvoff < eoff && !at_end) {
+		tmpvoff += bootp_option(tvb, 0, tmpvoff, eoff, TRUE, &at_end,
 		    &dhcp_type, &vendor_class_id);
 	}
 
@@ -1251,9 +1254,16 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * OK, now build the protocol tree.
 	 */
-	while (voff < eoff) {
-		voff += bootp_option(tvb, bp_tree, voff, eoff, FALSE,
+	at_end = FALSE;
+	while (voff < eoff && !at_end) {
+		voff += bootp_option(tvb, bp_tree, voff, eoff, FALSE, &at_end,
 		    &dhcp_type, &vendor_class_id);
+	}
+	if (voff < eoff) {
+		/*
+		 * Padding after the end option.
+		 */
+		proto_tree_add_text(bp_tree, tvb, voff, eoff - voff, "Padding");
 	}
 }
 
