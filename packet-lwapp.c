@@ -3,7 +3,7 @@
  * Routines for LWAPP encapsulated packet disassembly
  * draft-calhoun-seamoby-lwapp-N (the current draft is 3)
  *
- * $Id: packet-lwapp.c,v 1.4 2003/09/24 23:35:39 guy Exp $
+ * $Id: packet-lwapp.c,v 1.5 2003/12/16 19:58:45 guy Exp $
  *
  * Copyright (c) 2003 by David Frascone <dave@frascone.com>
  *
@@ -69,6 +69,7 @@ static gint hf_lwapp_length = -1;
 static gint hf_lwapp_rssi = -1;
 static gint hf_lwapp_snr = -1;
 static gint hf_lwapp_control = -1;
+static gint hf_lwapp_control_mac = -1;
 static gint hf_lwapp_control_type = -1;
 static gint hf_lwapp_control_seq_no = -1;
 static gint hf_lwapp_control_length = -1;
@@ -345,11 +346,13 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
                         proto_tree *tree)
 {
     LWAPP_Header header;
-    guint8     slotId;
-    guint8     version;
-    proto_tree      *lwapp_tree;
-    proto_tree      *flags_tree;
-    tvbuff_t        *next_client;
+    guint8       slotId;
+    guint8       version;
+    proto_tree  *lwapp_tree;
+    proto_tree  *flags_tree;
+    tvbuff_t    *next_client;
+    char         dest_mac[6];
+    guint8       have_destmac=0;
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item      *ti;
@@ -364,8 +367,20 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
                     "LWAPP IP or Layer 2");
     }
 
-    /* Copy our header */
-    tvb_memcpy(tvb, (guint8*) &header, offset, sizeof(header));
+    /* First, set up our dest mac, if we're a control packet with a
+     * dest of port 12223 */
+    if (pinfo->destport == 12223 ) {
+        tvb_memcpy(tvb, (guint8*)dest_mac, offset, 6);
+        have_destmac = 1;
+        
+        /* Copy our header */
+        tvb_memcpy(tvb, (guint8*) &header, offset + 6, sizeof(header));
+    } else {
+
+        /* Copy our header */
+        tvb_memcpy(tvb, (guint8*) &header, offset, sizeof(header));
+    }
+
 
     /* 
      * Fix the length (network byte ordering), and set our version &
@@ -392,6 +407,12 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
 	ti = proto_tree_add_item(tree, proto_lwapp, tvb, offset,
 				 tvb_length(tvb), FALSE);
 	lwapp_tree = proto_item_add_subtree(ti, ett_lwapp);
+
+        if (have_destmac) {
+            proto_tree_add_ether(lwapp_tree, hf_lwapp_control_mac, tvb, offset,
+                         6, dest_mac);
+            offset += 6;
+        }
 
 	proto_tree_add_uint(lwapp_tree, hf_lwapp_version, 
                                tvb, offset, 1, version);
@@ -425,7 +446,7 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
 
     }  /* tree */
 
-    next_client = tvb_new_subset(tvb, sizeof(LWAPP_Header), -1, -1);
+    next_client = tvb_new_subset(tvb, (have_destmac?6:0) + sizeof(LWAPP_Header), -1, -1);
     if ((header.flags & LWAPP_FLAGS_T) == 0) {
 	call_dissector(swap_frame_control ? wlan_bsfc_handle : wlan_handle,
 			next_client, pinfo, tree);
@@ -473,6 +494,9 @@ proto_register_lwapp(void)
         { &hf_lwapp_control,
           { "Control Data (not dissected yet)","lwapp.control", FT_BYTES, BASE_NONE,
             NULL, 0x0, "", HFILL }},
+        { &hf_lwapp_control_mac,
+          { "AP Identity", "lwapp.apid", FT_ETHER, BASE_NONE, NULL, 0x0,
+              "Access Point Identity", HFILL }},
         { &hf_lwapp_control_type,
           { "Control Type", "lwapp.control.type", FT_UINT8, BASE_DEC, NULL, 0x00,
             "", HFILL }},
@@ -556,6 +580,7 @@ proto_reg_handoff_lwapp(void)
 
     /* new-style lwapp directly over UDP: L3-lwapp*/
     dissector_add("udp.port", 12222, lwapp_handle);
+    dissector_add("udp.port", 12223, lwapp_handle);
 
     /* Lwapp over L2 */
     dissector_add("ethertype", 0x88bb, lwapp_handle);
