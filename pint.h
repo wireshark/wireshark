@@ -2,7 +2,7 @@
  * Definitions for extracting and translating integers safely and portably
  * via pointers.
  *
- * $Id: pint.h,v 1.1 2000/08/30 02:50:02 gram Exp $
+ * $Id: pint.h,v 1.2 2000/09/14 11:50:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,6 +84,32 @@
                      (guint64)*((guint8 *)(p)+2)<<16|  \
                      (guint64)*((guint8 *)(p)+1)<<8|   \
                      (guint64)*((guint8 *)(p)+0)<<0)
+#endif
+
+	
+/* Macros to byte-swap 32-bit and 16-bit quantities. */
+#define	BSWAP32(x) \
+	((((x)&0xFF000000)>>24) | \
+	 (((x)&0x00FF0000)>>8) | \
+	 (((x)&0x0000FF00)<<8) | \
+	 (((x)&0x000000FF)<<24))
+#define	BSWAP16(x) \
+	 ((((x)&0xFF00)>>8) | \
+	  (((x)&0x00FF)<<8))
+
+/* Turn host-byte-order values into little-endian values. */
+#ifdef WORDS_BIGENDIAN
+#define htoles(s) ((guint16)                       \
+                    ((guint16)((s) & 0x00FF)<<8|  \
+                     (guint16)((s) & 0xFF00)>>8))
+
+#define htolel(l) ((guint32)((l) & 0x000000FF)<<24|  \
+                   (guint32)((l) & 0x0000FF00)<<8|  \
+                   (guint32)((l) & 0x00FF0000)>>8|   \
+                   (guint32)((l) & 0xFF000000)>>24)
+#else
+#define htoles(s)	(s)
+#define htolel(l)	(l)
 #endif
 
 #endif /* PINT_H */

@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.27 2000/08/13 14:08:36 deniel Exp $
+ * $Id: packet-null.c,v 1.28 2000/09/14 11:50:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,13 +58,6 @@ static int hf_null_family = -1;
 static gint ett_null = -1;
 
 /* Null/loopback structs and definitions */
-
-/* Macro to byte-swap 32-bit quantities. */
-#define	BSWAP32(x) \
-	((((x)&0xFF000000)>>24) | \
-	 (((x)&0x00FF0000)>>8) | \
-	 (((x)&0x0000FF00)<<8) | \
-	 (((x)&0x000000FF)<<24))
 
 /* BSD AF_ values. */
 #define BSD_AF_INET		2
