@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.18 2004/01/15 01:13:51 ulfl Exp $
+ * $Id: stream_prefs.c,v 1.19 2004/01/16 11:53:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,11 +39,6 @@
 #include "follow_dlg.h"
 #include "packet_list.h"
 
-static void update_text_color(GtkWidget *, gpointer);
-static void update_current_color(GtkWidget *, gpointer);
-
-static GdkColor tcolors[4], *curcolor = NULL;
-
 #define SAMPLE_MARKED_TEXT "Sample marked packet text\n"
 #define SAMPLE_CLIENT_TEXT "Sample TCP stream client text\n"
 #define SAMPLE_SERVER_TEXT "Sample TCP stream server text\n"
@@ -53,12 +48,18 @@ static GdkColor tcolors[4], *curcolor = NULL;
 #define CBG_IDX 3
 #define SFG_IDX 4
 #define SBG_IDX 5
+#define MAX_IDX 6 /* set this to the number of IDX values */
 #define STREAM_SAMPLE_KEY "stream_entry"
 #define STREAM_CS_KEY "stream_colorselection"
 #define CS_RED 0
 #define CS_GREEN 1
 #define CS_BLUE 2
 #define CS_OPACITY 3
+
+static void update_text_color(GtkWidget *, gpointer);
+static void update_current_color(GtkWidget *, gpointer);
+
+static GdkColor tcolors[MAX_IDX], *curcolor = NULL;
 
 GtkWidget *
 stream_prefs_show()
