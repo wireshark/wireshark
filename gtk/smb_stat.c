@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.10 2003/08/19 10:09:20 sahlberg Exp $
+ * $Id: smb_stat.c,v 1.11 2003/08/25 11:06:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,10 +63,13 @@ static void
 smbstat_reset(void *pss)
 {
 	smbstat_t *ss=(smbstat_t *)pss;
+	char title[256];
 
 	reset_srt_table_data(&ss->smb_srt_table);
 	reset_srt_table_data(&ss->trans2_srt_table);
 	reset_srt_table_data(&ss->nt_trans_srt_table);
+	snprintf(title, 255, "SMB Service Response Time statistics: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(ss->win), title);
 }
 
 static int
@@ -140,6 +143,7 @@ gtk_smbstat_init(char *optarg)
 	GString *error_string;
 	int i;
 	GtkWidget *vbox;
+	char title[256];
 
 	if(!strncmp(optarg,"smb,srt,",8)){
 		filter=optarg+8;
@@ -151,7 +155,8 @@ gtk_smbstat_init(char *optarg)
 
 	ss->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(ss->win), 550, 600);
-	gtk_window_set_title(GTK_WINDOW(ss->win), "SMB Service Response Time statistics");
+	snprintf(title, 255, "SMB Service Response Time statistics: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(ss->win), title);
 	SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
 
 	vbox=gtk_vbox_new(FALSE, 0);

@@ -1,7 +1,7 @@
 /* endpoint_talkers_eth.c
  * endpoint_talkers_eth   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_eth.c,v 1.3 2003/08/24 22:34:31 guy Exp $
+ * $Id: endpoint_talkers_eth.c,v 1.4 2003/08/25 11:06:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,9 +70,13 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static void
 eth_talkers_reset(void *pit)
 {
+	char title[256];
 	eth_talkers_t *eth_talkers=(eth_talkers_t *)pit;
 
 	reset_ett_table_data(&eth_talkers->talkers);
+
+	snprintf(title, 255, "Ethernet Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(eth_talkers->win), title);
 }
 
 
@@ -106,7 +110,7 @@ gtk_eth_talkers_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GString *error_string;
-
+	char title[256];
 
 	if(!strncmp(optarg,"talkers,eth,",12)){
 		filter=optarg+12;
@@ -118,7 +122,8 @@ gtk_eth_talkers_init(char *optarg)
 
 	eth_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(eth_talkers->win), 750, 400);
-	gtk_window_set_title(GTK_WINDOW(eth_talkers->win), "Ethernet Talkers");
+	snprintf(title, 255, "Ethernet Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(eth_talkers->win), title);
 
 	SIGNAL_CONNECT(eth_talkers->win, "destroy", win_destroy_cb, eth_talkers);
 

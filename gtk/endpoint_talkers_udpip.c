@@ -1,7 +1,7 @@
 /* endpoint_talkers_udpip.c
  * endpoint_talkers_udpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_udpip.c,v 1.5 2003/08/24 22:34:32 guy Exp $
+ * $Id: endpoint_talkers_udpip.c,v 1.6 2003/08/25 11:06:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,8 +88,11 @@ static void
 udpip_talkers_reset(void *pit)
 {
 	udpip_talkers_t *udpip_talkers=(udpip_talkers_t *)pit;
+	char title[256];
 
 	reset_ett_table_data(&udpip_talkers->talkers);
+	snprintf(title, 255, "UDP Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(udpip_talkers->win), title);
 }
 
 
@@ -123,7 +126,7 @@ gtk_udpip_talkers_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GString *error_string;
-
+	char title[256];
 
 	if(!strncmp(optarg,"talkers,udp,",12)){
 		filter=optarg+12;
@@ -135,7 +138,8 @@ gtk_udpip_talkers_init(char *optarg)
 
 	udpip_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(udpip_talkers->win), 750, 400);
-	gtk_window_set_title(GTK_WINDOW(udpip_talkers->win), "UDP Talkers");
+	snprintf(title, 255, "UDP Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(udpip_talkers->win), title);
 
 	SIGNAL_CONNECT(udpip_talkers->win, "destroy", win_destroy_cb, udpip_talkers);
 

@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.13 2003/08/19 10:09:20 sahlberg Exp $
+ * $Id: rpc_stat.c,v 1.14 2003/08/25 11:06:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,7 +61,12 @@ typedef struct _rpcstat_t {
 static void
 rpcstat_reset(rpcstat_t *rs)
 {
+	char title_string[256];
+
 	reset_srt_table_data(&rs->srt_table);
+
+	snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d : %s", rs->prog, rs->version, cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
 }
 
 
@@ -176,7 +181,7 @@ gtk_rpcstat_init(char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i;
-	char title_string[60];
+	char title_string[256];
 	char filter_string[256];
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
@@ -206,7 +211,7 @@ gtk_rpcstat_init(char *optarg)
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
-	sprintf(title_string,"ONC-RPC Service Response Time statistics for %s version %d", rs->prog, rs->version);
+	snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d : %s", rs->prog, rs->version, cfile.filename);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 

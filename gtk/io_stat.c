@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.21 2003/04/23 08:20:05 guy Exp $
+ * $Id: io_stat.c,v 1.22 2003/08/25 11:06:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -201,6 +201,7 @@ gtk_iostat_reset(void *g)
 {
 	io_stat_graph_t *gio=g;
 	io_stat_item_t *it;
+	char title[256];
 
 	gio->io->needs_redraw=1;
 
@@ -221,6 +222,9 @@ gtk_iostat_reset(void *g)
 
 	gio->io->last_interval=0xffffffff;
 	gio->io->max_interval=0;
+
+	snprintf(title, 255, "IO-Stat: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(gio->io->window), title);
 }
 
 
@@ -1616,6 +1620,7 @@ init_io_stat_window(io_stat_t *io)
 {
 	GtkWidget *vbox;
 	GtkWidget *hbox;
+	char title[256];
 
 	/* create the main window */
 	io->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -1637,7 +1642,8 @@ init_io_stat_window(io_stat_t *io)
 	create_ctrl_area(io, hbox);
 
 	gtk_widget_show(io->window);
-	gtk_window_set_title(GTK_WINDOW(io->window),"IO-Stat");
+	snprintf(title, 255, "IO-Stat: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(io->window), title);
 }
 
 

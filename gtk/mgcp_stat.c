@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.7 2003/08/21 17:48:04 guy Exp $
+ * $Id: mgcp_stat.c,v 1.8 2003/08/25 11:06:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,11 +79,18 @@ static const value_string mgcp_mesage_type[] = {
   {  0, NULL}
 };
 
+static GtkWidget *dlg=NULL, *dlg_box;
+static GtkWidget *filter_box;
+static GtkWidget *filter_label, *filter_entry;
+static GtkWidget *start_button;
+
+
 static void
 mgcpstat_reset(void *pms)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
 	int i;
+	char title[256];
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		ms->rtd[i].num=0;
@@ -102,6 +109,8 @@ mgcpstat_reset(void *pms)
 	ms->req_dup_num=0;
 	ms->rsp_dup_num=0;
 
+	snprintf(title, 255, "MGCP SRT Statistics: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(dlg), title);
 }
 
 
@@ -299,11 +308,6 @@ gtk_mgcpstat_init(char *optarg)
 }
 
 
-static GtkWidget *dlg=NULL, *dlg_box;
-static GtkWidget *filter_box;
-static GtkWidget *filter_label, *filter_entry;
-static GtkWidget *start_button;
-
 static void
 dlg_destroy_cb(void)
 {
@@ -331,6 +335,7 @@ static void
 gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	char *filter;
+	char title[256];
 
 	/* if the window is already open, bring it to front */
 	if(dlg){
@@ -339,7 +344,8 @@ gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(dlg), "MGCP SRT Statistics");
+	snprintf(title, 255, "MGCP SRT Statistics: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(dlg), title);
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 	dlg_box=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);

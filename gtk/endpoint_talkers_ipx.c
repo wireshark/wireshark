@@ -1,7 +1,7 @@
 /* endpoint_talkers_ipx.c
  * endpoint_talkers_ipx   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ipx.c,v 1.2 2003/08/24 22:34:31 guy Exp $
+ * $Id: endpoint_talkers_ipx.c,v 1.3 2003/08/25 11:06:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,8 +71,11 @@ static void
 ipx_talkers_reset(void *pit)
 {
 	ipx_talkers_t *ipx_talkers=(ipx_talkers_t *)pit;
+	char title[256];
 
 	reset_ett_table_data(&ipx_talkers->talkers);
+	snprintf(title, 255, "IPX Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(ipx_talkers->win), title);
 }
 
 
@@ -106,7 +109,7 @@ gtk_ipx_talkers_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GString *error_string;
-
+	char title[256];
 
 	if(!strncmp(optarg,"talkers,ipx,",12)){
 		filter=optarg+12;
@@ -118,7 +121,8 @@ gtk_ipx_talkers_init(char *optarg)
 
 	ipx_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(ipx_talkers->win), 750, 400);
-	gtk_window_set_title(GTK_WINDOW(ipx_talkers->win), "IPX Talkers");
+	snprintf(title, 255, "IPX Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(ipx_talkers->win), title);
 
 	SIGNAL_CONNECT(ipx_talkers->win, "destroy", win_destroy_cb, ipx_talkers);
 

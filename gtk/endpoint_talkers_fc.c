@@ -1,7 +1,7 @@
 /* endpoint_talkers_fc.c
  * endpoint_talkers_fc   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_fc.c,v 1.3 2003/08/24 22:34:31 guy Exp $
+ * $Id: endpoint_talkers_fc.c,v 1.4 2003/08/25 11:06:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,8 +71,11 @@ static void
 fc_talkers_reset(void *pit)
 {
 	fc_talkers_t *fc_talkers=(fc_talkers_t *)pit;
+	char title[256];
 
 	reset_ett_table_data(&fc_talkers->talkers);
+	snprintf(title, 255, "Fibre Channel Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(fc_talkers->win), title);
 }
 
 
@@ -106,7 +109,7 @@ gtk_fc_talkers_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GString *error_string;
-
+	char title[256];
 
 	if(!strncmp(optarg,"talkers,fc,",11)){
 		filter=optarg+11;
@@ -118,7 +121,8 @@ gtk_fc_talkers_init(char *optarg)
 
 	fc_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(fc_talkers->win), 750, 400);
-	gtk_window_set_title(GTK_WINDOW(fc_talkers->win), "Fibre Channel Talkers");
+	snprintf(title, 255, "Fibre Channel Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(fc_talkers->win), title);
 
 	SIGNAL_CONNECT(fc_talkers->win, "destroy", win_destroy_cb, fc_talkers);
 

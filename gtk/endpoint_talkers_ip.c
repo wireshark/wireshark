@@ -1,7 +1,7 @@
 /* endpoint_talkers_ip.c
  * endpoint_talkers_ip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ip.c,v 1.4 2003/08/24 22:34:31 guy Exp $
+ * $Id: endpoint_talkers_ip.c,v 1.5 2003/08/25 11:06:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,8 +71,11 @@ static void
 ip_talkers_reset(void *pit)
 {
 	ip_talkers_t *ip_talkers=(ip_talkers_t *)pit;
+	char title[256];
 
 	reset_ett_table_data(&ip_talkers->talkers);
+	snprintf(title, 255, "IPv4 Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(ip_talkers->win), title);
 }
 
 
@@ -106,7 +109,7 @@ gtk_ip_talkers_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GString *error_string;
-
+	char title[256];
 
 	if(!strncmp(optarg,"talkers,ip,",11)){
 		filter=optarg+11;
@@ -118,7 +121,8 @@ gtk_ip_talkers_init(char *optarg)
 
 	ip_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(ip_talkers->win), 750, 400);
-	gtk_window_set_title(GTK_WINDOW(ip_talkers->win), "IPv4 Talkers");
+	snprintf(title, 255, "IPv4 Talkers: %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(ip_talkers->win), title);
 
 	SIGNAL_CONNECT(ip_talkers->win, "destroy", win_destroy_cb, ip_talkers);
 

@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.2 2003/08/19 10:09:20 sahlberg Exp $
+ * $Id: fc_stat.c,v 1.3 2003/08/25 11:06:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,8 +61,11 @@ static void
 fcstat_reset(void *pfc)
 {
 	fcstat_t *fc=(fcstat_t *)pfc;
+	char title[256];
 
 	reset_srt_table_data(&fc->fc_srt_table);
+	snprintf(title, 255, "Fibre Channel Service Response Time statistics : %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(fc->win), title);
 }
 
 static int
@@ -122,6 +125,7 @@ gtk_fcstat_init(char *optarg)
 	GString *error_string;
 	int i;
 	GtkWidget *vbox;
+	char title[256];
 
 	if(!strncmp(optarg,"fc,srt,",7)){
 		filter=optarg+7;
@@ -133,7 +137,8 @@ gtk_fcstat_init(char *optarg)
 
 	fc->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(fc->win), 550, 400);
-	gtk_window_set_title(GTK_WINDOW(fc->win), "Fibre Channel Service Response Time statistics");
+	snprintf(title, 255, "Fibre Channel Service Response Time statistics : %s", cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(fc->win), title);
 	SIGNAL_CONNECT(fc->win, "destroy", win_destroy_cb, fc);
 
 	vbox=gtk_vbox_new(FALSE, 0);
