@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.38 2000/03/14 08:26:19 guy Exp $
+ * $Id: util.c,v 1.39 2000/03/21 06:51:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -608,25 +608,46 @@ GList *
 get_interface_list(int *err, char *err_str) {
   GList  *il = NULL;
   wchar_t *names;
+  char *win95names; 
   char newname[255];
   int i, j, done;
   
   names = (wchar_t *)pcap_lookupdev(err_str);
   i = done = 0;
 
-  if (names)
-     do
-     {
-        j = 0;
-        while (names[i] != 0)
-           newname[j++] = names[i++];
-        i++;
-        if (names[i] == 0)
-           done = 1;
-        newname[j++] = 0;
-        il = g_list_append(il, g_strdup(newname));
-     } while (!done);
-  
+  if (names) {
+	  if (names[0]<256) { 
+		  /* If names[0] is less than 256 it means the first byte is 0
+		     This implies that we are using unicode characters */
+		  do 
+		  { 
+			  j = 0; 
+			  while (names[i] != 0) 
+				  newname[j++] = names[i++]; 
+			  i++; 
+			  if (names[i] == 0) 
+				  done = 1; 
+			  newname[j++] = 0; 
+			  il = g_list_append(il, g_strdup(newname)); 
+		  } while (!done); 
+	  } 
+	  else { 
+		  /* Otherwise we are in Windows 95/98 and using ascii(8 bit)
+		     characters */
+		  do 
+		  { 
+			  win95names=names; 
+			  j = 0; 
+			  while (win95names[i] != 0) 
+				  newname[j++] = win95names[i++]; 
+			  i++; 
+			  if (win95names[i] == 0) 
+				  done = 1; 
+			  newname[j++] = 0; 
+			  il = g_list_append(il, g_strdup(newname)); 
+		  } while (!done); 
+	  } 
+  }
   return(il);
 }
 #endif

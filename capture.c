@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.98 2000/02/19 14:00:33 oabad Exp $
+ * $Id: capture.c,v 1.99 2000/03/21 06:51:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -518,6 +518,23 @@ capture(void)
   struct timeval timeout;
   int         pcap_fd;
 #endif
+#ifdef _WIN32 
+  WORD wVersionRequested; 
+  WSADATA wsaData; 
+#endif
+
+  /* Initialize Windows Socket if we are in a WIN32 OS 
+     This needs to be done before querying the interface for network/netmask */
+#ifdef _WIN32 
+  wVersionRequested = MAKEWORD( 1, 1 ); 
+  err = WSAStartup( wVersionRequested, &wsaData ); 
+  if (err!=0) { 
+    snprintf(errmsg, sizeof errmsg, 
+      "Couldn't initialize Windows Sockets."); 
+	pch=NULL; 
+    goto error; 
+  } 
+#endif 
 
   ld.go             = TRUE;
   ld.counts.total   = 0;

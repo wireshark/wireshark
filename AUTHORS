@@ -269,6 +269,10 @@ Jochen Friedrich <jochen+ethereal@scram.de> {
 	Fix to IPv6 fragment handling
 }
 
+Paul Welchinski <paul.welchinski@telusplanet.net> {
+	Fixes to Win32 packet capture code
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
