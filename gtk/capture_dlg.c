@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.109 2004/02/24 02:19:16 gerald Exp $
+ * $Id: capture_dlg.c,v 1.110 2004/02/24 05:52:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,15 +155,13 @@ get_if_name(char *if_text)
    * return the entire string; otherwise, skip the colon and any blanks
    * after it, and return that string.
    */
-   if_name = if_text;
-   for (;;) {
-     if_name = strrchr(if_name, ':');
-     if (if_name == NULL)
-       return if_text;	/* give up */
-     if_name++;		/* skip the colon */
+   if_name = strrchr(if_text, ':');
+   if (if_name == NULL) {
+     if_name = if_text;
+   } else {
+     if_name++;
      while (*if_name == ' ')
        if_name++;
-     return if_name;
    }
 #else
   /*
