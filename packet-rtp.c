@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.24 2001/09/03 10:33:06 guy Exp $
+ * $Id: packet-rtp.c,v 1.25 2001/09/08 00:43:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -765,6 +765,8 @@ proto_register_rtp(void)
 	    "RTP", "rtp");
 	proto_register_field_array(proto_rtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("rtp", dissect_rtp, proto_rtp);
 
 #if 0
 	register_init_routine( &rtp_init );

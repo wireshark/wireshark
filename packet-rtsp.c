@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.41 2001/09/03 10:33:06 guy Exp $
+ * $Id: packet-rtsp.c,v 1.42 2001/09/08 00:43:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,13 @@ static int hf_rtsp_method = -1;
 static int hf_rtsp_url = -1;
 static int hf_rtsp_status = -1;
 
+static dissector_handle_t sdp_handle;
+static dissector_handle_t rtp_handle;
+static dissector_handle_t rtcp_handle;
+
+static GMemChunk *rtsp_vals = NULL;
+#define rtsp_hash_init_count 20
+
 #define TCP_PORT_RTSP			554
 
 /*
@@ -61,6 +68,22 @@ static int hf_rtsp_status = -1;
 #define STRLEN_CONST(str)	(sizeof (str) - 1)
 
 #define RTSP_FRAMEHDR	('$')
+
+typedef struct {
+	dissector_handle_t		dissector;
+} rtsp_interleaved_t;
+
+#define RTSP_MAX_INTERLEAVED		(8)
+
+/*
+ * Careful about dynamically allocating memory in this structure (say
+ * for dynamically increasing the size of the 'interleaved' array) -
+ * the containing structure is garbage collected and contained
+ * pointers will not be freed.
+ */
+typedef struct {
+	rtsp_interleaved_t		interleaved[RTSP_MAX_INTERLEAVED];
+} rtsp_conversation_data_t;
 
 static int
 dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -74,6 +97,9 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint16		rf_len;         /* packet length */
 	gint		framelen;
 	tvbuff_t	*next_tvb;
+	conversation_t	*conv;
+	rtsp_conversation_data_t	*data;
+	dissector_handle_t		dissector;
 
 	orig_offset = offset;
 	rf_start = tvb_get_guint8(tvb, offset);
@@ -126,7 +152,20 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (framelen > rf_len)
 		framelen = rf_len;
 	next_tvb = tvb_new_subset(tvb, offset, framelen, rf_len);
-	dissect_data(next_tvb, 0, pinfo, tree);
+
+	conv = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+		pinfo->srcport, pinfo->destport, 0);
+
+	if (conv &&
+	    (data = conversation_get_proto_data(conv, proto_rtsp)) &&
+	    rf_chan < RTSP_MAX_INTERLEAVED &&
+	    (dissector = data->interleaved[rf_chan].dissector)) {
+		call_dissector(dissector, next_tvb, pinfo, tree);
+	} else {
+		proto_tree_add_text(rtspframe_tree, tvb, offset, rf_len,
+			"Data (%u bytes)", rf_len);
+	}
+
 	offset += rf_len;
 
 	return offset - orig_offset;
@@ -151,8 +190,6 @@ static const char *rtsp_methods[] = {
 };
 
 #define RTSP_NMETHODS	(sizeof rtsp_methods / sizeof rtsp_methods[0])
-
-static dissector_handle_t sdp_handle;
 
 static rtsp_type_t
 is_rtsp_request_or_reply(const u_char *line, size_t linelen)
@@ -210,7 +247,8 @@ is_content_sdp(const u_char *line, size_t linelen)
 static const char rtsp_transport[] = "Transport:";
 static const char rtsp_sps[] = "server_port=";
 static const char rtsp_cps[] = "client_port=";
-static const char rtsp_rtp[] = "rtp/avp";
+static const char rtsp_rtp[] = "rtp/";
+static const char rtsp_inter[] = "interleaved=";
 
 static void
 rtsp_create_conversation(packet_info *pinfo, const u_char *line_begin,
@@ -219,8 +257,8 @@ rtsp_create_conversation(packet_info *pinfo, const u_char *line_begin,
 	conversation_t	*conv;
 	u_char		buf[256];
 	u_char		*tmp;
-	int		c_data_port, c_mon_port;
-	int		s_data_port, s_mon_port;
+	u_int		c_data_port, c_mon_port;
+	u_int		s_data_port, s_mon_port;
 	address		null_addr;
 
 	if (line_len > sizeof(buf) - 1) {
@@ -235,23 +273,73 @@ rtsp_create_conversation(packet_info *pinfo, const u_char *line_begin,
 	tmp = buf + STRLEN_CONST(rtsp_transport);
 	while (*tmp && isspace(*tmp))
 		tmp++;
-	if (strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) != 0)
-		return;	/* we don't know this transport */
+	if (strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) != 0) {
+		g_warning("Frame %u: rtsp: unknown transport", pinfo->fd->num);
+		return;
+	}
 
 	c_data_port = c_mon_port = 0;
 	s_data_port = s_mon_port = 0;
 	if ((tmp = strstr(buf, rtsp_sps))) {
 		tmp += strlen(rtsp_sps);
-		if (sscanf(tmp, "%u-%u", &s_data_port, &s_mon_port) < 1)
-			g_warning("rtsp: failed to parse server_port");
+		if (sscanf(tmp, "%u-%u", &s_data_port, &s_mon_port) < 1) {
+			g_warning("Frame %u: rtsp: bad server_port",
+				pinfo->fd->num);
+			return;
+		}
 	}
 	if ((tmp = strstr(buf, rtsp_cps))) {
 		tmp += strlen(rtsp_cps);
-		if (sscanf(tmp, "%u-%u", &c_data_port, &c_mon_port) < 1)
-			g_warning("rtsp: failed to parse client_port");
+		if (sscanf(tmp, "%u-%u", &c_data_port, &c_mon_port) < 1) {
+			g_warning("Frame %u: rtsp: bad client_port",
+				pinfo->fd->num);
+			return;
+		}
 	}
-	if (!c_data_port)
+	if (!c_data_port) {
+		rtsp_conversation_data_t	*data;
+		u_int				s_data_chan, s_mon_chan;
+		int				i;
+
+		/*
+		 * Deal with RTSP TCP-interleaved conversations.
+		 */
+		if ((tmp = strstr(buf, rtsp_inter)) == NULL) {
+			/*
+			 * No interleaved or server_port - probably a
+			 * SETUP request, rather than reply.
+			 */
+			return;
+		}
+		tmp += strlen(rtsp_inter);
+		i = sscanf(tmp, "%u-%u", &s_data_chan, &s_mon_chan);
+		if (i < 1) {
+			g_warning("Frame %u: rtsp: bad interleaved",
+				pinfo->fd->num);
+			return;
+		}
+		conv = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+			pinfo->srcport, pinfo->destport, 0);
+		if (!conv) {
+			conv = conversation_new(&pinfo->src, &pinfo->dst,
+				pinfo->ptype, pinfo->srcport, pinfo->destport,
+				0);
+		}
+		data = conversation_get_proto_data(conv, proto_rtsp);
+		if (!data) {
+			data = g_mem_chunk_alloc(rtsp_vals);
+			conversation_add_proto_data(conv, proto_rtsp, data);
+		}
+		if (s_data_chan < RTSP_MAX_INTERLEAVED) {
+			data->interleaved[s_data_chan].dissector =
+				rtp_handle;
+		}
+		if (i > 1 && s_mon_chan < RTSP_MAX_INTERLEAVED) {
+			data->interleaved[s_mon_chan].dissector =
+				rtcp_handle;
+		}
 		return;
+	}
 
 	/*
 	 * We only want to match on the destination address, not the
@@ -698,6 +786,21 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+static void
+rtsp_init(void)
+{
+/* Routine to initialize rtsp protocol before each capture or filter pass. */
+/* Release any memory if needed.  Then setup the memory chunks.		*/
+
+  	if (rtsp_vals)
+   		g_mem_chunk_destroy(rtsp_vals);
+
+  	rtsp_vals = g_mem_chunk_new("rtsp_vals",
+		sizeof(rtsp_conversation_data_t),
+		rtsp_hash_init_count * sizeof(rtsp_conversation_data_t),
+		G_ALLOC_AND_FREE);
+}
+
 void
 proto_register_rtsp(void)
 {
@@ -718,6 +821,8 @@ proto_register_rtsp(void)
 		"RTSP", "rtsp");
 	proto_register_field_array(proto_rtsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_init_routine(rtsp_init);	/* register re-init routine */
 }
 
 void
@@ -725,8 +830,7 @@ proto_reg_handoff_rtsp(void)
 {
 	dissector_add("tcp.port", TCP_PORT_RTSP, dissect_rtsp, proto_rtsp);
 
-	/*
-	 * Get a handle for the SDP dissector.
-	 */
 	sdp_handle = find_dissector("sdp");
+	rtp_handle = find_dissector("rtp");
+	rtcp_handle = find_dissector("rtcp");
 }

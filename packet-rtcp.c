@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.21 2001/09/03 10:33:06 guy Exp $
+ * $Id: packet-rtcp.c,v 1.22 2001/09/08 00:43:51 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -1217,6 +1217,8 @@ proto_register_rtcp(void)
 	    "RTCP", "rtcp");
 	proto_register_field_array(proto_rtcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("rtcp", dissect_rtcp, proto_rtcp);
 
 #if 0
 	register_init_routine( &rtcp_init );
