@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.99 2003/01/28 06:17:08 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.100 2003/02/05 01:23:41 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3636,10 +3636,10 @@ proto_register_dcerpc (void)
 {
     static hf_register_info hf[] = {
 	{ &hf_dcerpc_request_in,
-		{ "Request in", "dcerpc.request_in", FT_UINT32, BASE_DEC,
+		{ "Request in", "dcerpc.request_in", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "This packet is a response to the packet in this frame", HFILL }},
 	{ &hf_dcerpc_response_in,
-		{ "Response in", "dcerpc.response_in", FT_UINT32, BASE_DEC,
+		{ "Response in", "dcerpc.response_in", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "The response to this packet is in this packet", HFILL }},
 	{ &hf_dcerpc_referent_id,
 		{ "Referent ID", "dcerpc.referent_id", FT_UINT32, BASE_HEX,
