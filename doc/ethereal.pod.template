@@ -1066,6 +1066,7 @@ B<http://www.ethereal.com>.
   Peter Lei                <peterlei@cisco.com>
   Thomas Gimpel            <thomas.gimpel@ferrari.de>
   Albert Chin              <china@thewrittenword.com>
+  Charles Levert           <charles@comm.polymtl.ca>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
