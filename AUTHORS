@@ -1678,6 +1678,10 @@ Duncan Laurie <duncan [AT] sun.com> {
 	IPMI-over-LAN support (IPMI, RMCP, partial ASF)
 }
 
+Tony Schene <Schene_Tony [AT] emc.com> {
+	Initial stub Kerberos kadmin support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
