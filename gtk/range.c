@@ -1,6 +1,8 @@
 /* range.c
  * Packet range routines (save, print, ...)
  *
+ * $Id: range.c,v 1.2 2003/12/29 20:40:02 guy Exp $
+ *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -26,6 +28,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <ctype.h>
 
 #include <glib.h>
 
@@ -213,7 +217,7 @@ void packet_range_convert_str(gchar *es)
         return;
     }
 	
-    /* only keep digits, comma's, and hyphens. */
+    /* only keep digits, commas, and hyphens. */
     for (i=0; i<=strlen(OrgStr); i++) {
       if ( isdigit(OrgStr[i]) || OrgStr[i] == '-' || OrgStr[i] == ',' ) {
 	 EntryStr[j++] = OrgStr[i];
