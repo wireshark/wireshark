@@ -37,8 +37,31 @@ struct frame_date {
 	guint32	usec;
 };
 
+struct unaligned_frame_date {
+	char	year[2];
+	char	month;
+	char	day;
+	char	sec[4];		/* seconds since midnight */
+	char	usec[4];
+};
+
 static char radcom_magic[8] = {
 	0x42, 0xD2, 0x00, 0x34, 0x12, 0x66, 0x22, 0x88
+};
+
+/* RADCOM record header - followed by frame data (perhaps including FCS).
+   The first two bytes of "xxz" appear to equal "length", as do the
+   second two bytes; if a RADCOM box can be told not to save all of
+   the captured packet, might one or the other of those be the
+   captured length of the packet? */
+struct radcomrec_hdr {
+	char	xxx[4];		/* unknown */
+	char	length[2];	/* packet length */
+	char	xxy[5];		/* unknown */
+	struct unaligned_frame_date date; /* date/time stamp of packet */
+	char	xxz[6];		/* unknown */
+	char	dce;		/* DCE/DTE flag (and other flags?) */
+	char	xxw[9];		/* unknown */
 };
 
 static int radcom_read(wtap *wth, int *err);
@@ -202,22 +225,17 @@ read_error:
 static int radcom_read(wtap *wth, int *err)
 {
 	int	bytes_read;
+	struct radcomrec_hdr hdr;
 	guint16 length;
-	struct frame_date date;
 	guint32 sec;
-	int	data_offset;
 	struct tm tm;
-	char dce;
+	int	data_offset;
+	char	fcs[2];
 
-	fseek(wth->fh, 4, SEEK_CUR);
-	wth->data_offset += 4;
-
-	/*
-	 * Read the frame size
-	 */
+	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&length, 1, 2, wth->fh);
-	if (bytes_read != 2) {
+	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
+	if (bytes_read != sizeof hdr) {
 		if (ferror(wth->fh)) {
 			*err = errno;
 			return -1;
@@ -228,8 +246,8 @@ static int radcom_read(wtap *wth, int *err)
 		}
 		return 0;
 	}
-	wth->data_offset += 2;
-	length = pletohs(&length);
+	wth->data_offset += sizeof hdr;
+	length = pletohs(&hdr.length);
 	if (length == 0) return 0;
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB)
@@ -238,46 +256,17 @@ static int radcom_read(wtap *wth, int *err)
 	wth->phdr.len = length;
 	wth->phdr.caplen = length;
 
-	fseek(wth->fh, 5, SEEK_CUR);
-	wth->data_offset += 5;
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&date, 1, sizeof(struct frame_date), wth->fh);
-	if (bytes_read != sizeof(struct frame_date)) {
-		if (ferror(wth->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
-	}
-	wth->data_offset += sizeof(struct frame_date);
-
-	tm.tm_year = pletohs(&date.year)-1900;
-	tm.tm_mon = date.month-1;
-	tm.tm_mday = date.day;
-	sec = pletohl(&date.sec);
+	tm.tm_year = pletohs(&hdr.date.year)-1900;
+	tm.tm_mon = hdr.date.month-1;
+	tm.tm_mday = hdr.date.day;
+	sec = pletohl(&hdr.date.sec);
 	tm.tm_hour = sec/3600;
 	tm.tm_min = (sec%3600)/60;
 	tm.tm_sec = sec%60;
 	tm.tm_isdst = -1;
 	wth->phdr.ts.tv_sec = mktime(&tm);
-	wth->phdr.ts.tv_usec = pletohl(&date.usec);
-
-	fseek(wth->fh, 6, SEEK_CUR);
-	wth->data_offset += 6;
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = fread(&dce, 1, 1, wth->fh);
-	if (bytes_read != 1) {
-		if (ferror(wth->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
-	}
-	wth->data_offset += 1;
-	wth->phdr.pseudo_header.x25.flags = (dce & 0x1) ? 0x00 : 0x80;
-
-	fseek(wth->fh, 9, SEEK_CUR);
-	wth->data_offset += 9;
+	wth->phdr.ts.tv_usec = pletohl(&hdr.date.usec);
+	wth->phdr.pseudo_header.x25.flags = (hdr.dce & 0x1) ? 0x00 : 0x80;
 
 	/*
 	 * Read the packet data.
@@ -300,8 +289,18 @@ static int radcom_read(wtap *wth, int *err)
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB) {
-		fseek(wth->fh, 2, SEEK_CUR); /* FCS */
-		wth->data_offset += 2;
+		/* Read the FCS.
+		   XXX - should we put it in the pseudo-header? */
+		errno = WTAP_ERR_CANT_READ;
+		bytes_read = fread(&fcs, 1, sizeof fcs, wth->fh);
+		if (bytes_read != sizeof fcs) {
+			if (ferror(wth->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		wth->data_offset += sizeof fcs;
 	}
 
 	return data_offset;
