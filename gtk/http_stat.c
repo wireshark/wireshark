@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.7 2003/09/29 19:18:44 jmayer Exp $
+ * $Id: http_stat.c,v 1.8 2003/12/13 17:10:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,6 @@
 
 #include "epan/packet_info.h"
 #include "epan/epan.h"
-#include "menu.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "tap.h"

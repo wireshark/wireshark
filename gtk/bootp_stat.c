@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.5 2003/09/26 02:09:43 guy Exp $
+ * $Id: bootp_stat.c,v 1.6 2003/12/13 17:10:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 #include <gtk/gtk.h>
 #include "epan/packet_info.h"
 #include "epan/epan.h"
-#include "menu.h"
+/*#include "menu.h"*/
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "tap.h"

@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.12 2003/09/24 02:36:35 guy Exp $
+ * $Id: rpc_progs.c,v 1.13 2003/12/13 17:10:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,6 @@
 #include <gtk/gtk.h>
 #include "epan/packet_info.h"
 #include "epan/epan.h"
-#include "menu.h"
 #include "tap.h"
 #include "../register.h"
 #include "packet-rpc.h"
