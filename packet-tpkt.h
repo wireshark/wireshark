@@ -5,7 +5,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-tpkt.h,v 1.5 2002/02/02 02:51:20 guy Exp $
+ * $Id: packet-tpkt.h,v 1.6 2002/02/22 08:56:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,15 +32,11 @@
  * Sets "*offset" to the offset of the first byte past the TPKT header,
  * and returns the length from the TPKT header, if it is.
  */
-int is_tpkt( tvbuff_t *tvb, int *offset );
-
+extern int is_tpkt(tvbuff_t *tvb, int *offset);
 
 /*
- * Dissect the TPKT header; called from the TPKT dissector, as well as
- * from dissectors such as the dissector for Q.931-over-TCP.
- *
- * Returns -1 if TPKT isn't enabled, otherwise returns the PDU length
- * from the TPKT header.
+ * Dissect TPKT-encapsulated data in a TCP stream.
  */
-int dissect_tpkt_header( tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree );
+extern void dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, gboolean desegment,
+    dissector_handle_t subdissector_handle);

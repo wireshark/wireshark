@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.37 2002/02/12 10:21:05 guy Exp $
+ * $Id: packet-q931.c,v 1.38 2002/02/22 08:56:45 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -40,6 +40,7 @@
 #include <epan/strutil.h>
 #include "nlpid.h"
 #include "packet-q931.h"
+#include "prefs.h"
 
 #include "packet-tpkt.h"
 
@@ -64,7 +65,11 @@ static int hf_q931_message_type = -1;
 static gint ett_q931 = -1;
 static gint ett_q931_ie = -1;
 
+/* desegmentation of Q.931 over TPKT over TCP */
+static gboolean q931_desegment = TRUE;
+
 static dissector_handle_t h225_cs_handle;
+static dissector_handle_t q931_tpkt_pdu_handle;
 
 /*
  * Q.931 message types.
@@ -2095,9 +2100,10 @@ static const value_string q931_codeset_vals[] = {
 };
 
 static void
-dissect_q931_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, gboolean is_tpkt)
+dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean is_tpkt)
 {
+	int		offset = 0;
 	proto_tree	*q931_tree = NULL;
 	proto_item	*ti;
 	proto_tree	*ie_tree = NULL;
@@ -2488,9 +2494,6 @@ dissect_q931_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /*
  * Q.931-over-TPKT-over-TCP.
- *
- * XXX - this should do the usual TCP loop-over-everything-in-the-segment
- * stuff, and should also handle TPKT PDUs split across segment boundaries.
  */
 static gboolean
 dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2539,28 +2542,24 @@ dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/*
 	 * OK, it looks like Q.931-over-TPKT.
-	 *
-	 * Dissect the TPKT header.
+	 * Call the "dissect TPKT over a TCP stream" routine.
 	 */
-	dissect_tpkt_header(tvb, offset, pinfo, tree);
-
-	offset = q931_offset;
-
-	/*
-	 * Reset the current_proto variable because
-	 * "dissect_tpkt_header()" messed with it.
-	 */
-	pinfo->current_proto = "Q.931";
-
-	dissect_q931_pdu(tvb, q931_offset, pinfo, tree, TRUE);
+	dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment,
+	    q931_tpkt_pdu_handle);
 
 	return TRUE;
 }
 
 static void
+dissect_q931_tpkt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_q931_pdu(tvb, pinfo, tree, TRUE);
+}
+
+static void
 dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_q931_pdu(tvb, 0, pinfo, tree, FALSE);
+	dissect_q931_pdu(tvb, pinfo, tree, FALSE);
 }
 
 void
@@ -2582,25 +2581,31 @@ proto_register_q931(void)
 		{ &hf_q931_message_type,
 		  { "Message type", "q931.message_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
 		  	"", HFILL }},
-
-	    };
+	};
 	static gint *ett[] = {
 		&ett_q931,
 		&ett_q931_ie,
 	};
+	module_t *q931_module;
 
 	proto_q931 = proto_register_protocol("Q.931", "Q.931", "q931");
 	proto_register_field_array (proto_q931, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("q931", dissect_q931, proto_q931);
+	q931_tpkt_pdu_handle = create_dissector_handle(dissect_q931_tpkt_pdu,
+	    proto_q931);
+
+	q931_module = prefs_register_protocol(proto_q931, NULL);
+	prefs_register_bool_preference(q931_module, "desegment_h323_messages",
+	    "Desegment all Q.931 messages spanning multiple TCP segments",
+	    "Whether the Q.931 dissector should desegment all messages spanning multiple TCP segments",
+	    &q931_desegment);
 }
 
 void
 proto_reg_handoff_q931(void)
 {
-	dissector_handle_t q931_tpkt_handle;
-
 	/*
 	 * Attempt to get a handle for the H.225 Call Setup dissector.
 	 * If we can't, the handle we get is null.

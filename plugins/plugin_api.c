@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.36 2002/02/20 08:24:52 guy Exp $
+ * $Id: plugin_api.c,v 1.37 2002/02/22 08:56:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -168,4 +168,10 @@ plugin_address_table_init(plugin_address_table_t *pat)
 
 	/* GIOP End */
 
+	/* TPKT Begin */
+
+	p_is_tpkt				= pat->p_is_tpkt;
+	p_dissect_tpkt_encap			= pat->p_dissect_tpkt_encap;
+
+	/* TPKT End */
 }

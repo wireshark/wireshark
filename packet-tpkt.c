@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.11 2002/02/02 02:51:20 guy Exp $
+ * $Id: packet-tpkt.c,v 1.12 2002/02/22 08:56:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 #include <string.h>
 
 #include "packet-tpkt.h"
+#include "prefs.h"
 
 /* TPKT header fields             */
 static int proto_tpkt          = -1;
@@ -56,6 +57,9 @@ static int hf_tpkt_length      = -1;
 
 /* TPKT fields defining a sub tree */
 static gint ett_tpkt           = -1;
+
+/* desegmentation of OSI over TPKT over TCP */
+static gboolean tpkt_desegment = TRUE;
 
 #define TCP_PORT_TPKT	102
 
@@ -81,7 +85,7 @@ is_tpkt( tvbuff_t *tvb, int *offset )
 		return -1;
 
 	/* There should at least be 4 bytes left in the frame */
-	if ( (*offset) + 4 > (int)tvb_length( tvb ) )
+	if (!tvb_bytes_exist(tvb, *offset, 4))
 		return -1;	/* there aren't */
 
 	/*
@@ -100,53 +104,125 @@ is_tpkt( tvbuff_t *tvb, int *offset )
 }
 
 /*
- * Dissect the TPKT header; called from the TPKT dissector, as well as
- * from dissectors such as the dissector for Q.931-over-TCP.
- *
- * Returns the PDU length from the TPKT header.
+ * Dissect TPKT-encapsulated data in a TCP stream.
  */
-int
-dissect_tpkt_header( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree )
+void
+dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean desegment, dissector_handle_t subdissector_handle)
 {
-	proto_item *ti            = NULL;
-	proto_tree *tpkt_tree     = NULL;
-	guint16 data_len;
+	proto_item *ti = NULL;
+	proto_tree *tpkt_tree = NULL;
+	int offset = 0;
+	int length_remaining;
+	int data_len;
+	int length;
+	tvbuff_t *next_tvb;
+	const char *saved_proto;
 
-	pinfo->current_proto = "TPKT";
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		length_remaining = tvb_length_remaining(tvb, offset);
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "TPKT" );
+		/*
+		 * Can we do reassembly?
+		 */
+		if (desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the TPKT header split across segment
+			 * boundaries?
+			 */
+			if (length_remaining < 4) {
+				/*
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len = 4 - length_remaining;
+				return;
+			}
+		}
+
+		/*
+		 * Dissect the TPKT header.
+		 * Save and restore "pinfo->current_proto".
+		 */
+		saved_proto = pinfo->current_proto;
+		pinfo->current_proto = "TPKT";
+
+		data_len = tvb_get_ntohs(tvb, offset + 2);
+
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
+			    "TPKT Data length = %u", data_len);
+		}
+
+		if (tree) {
+			ti = proto_tree_add_item(tree, proto_tpkt, tvb,
+			    offset, 4, FALSE);
+			tpkt_tree = proto_item_add_subtree(ti, ett_tpkt);
+
+			/* Version */
+			proto_tree_add_item(tpkt_tree, hf_tpkt_version, tvb,
+			    offset, 1, FALSE);
+
+			/* Reserved octet*/
+			proto_tree_add_item(tpkt_tree, hf_tpkt_reserved, tvb,
+			    offset + 1, 1, FALSE);
+
+			/* Length */
+			proto_tree_add_uint(tpkt_tree, hf_tpkt_length, tvb,
+			    offset + 2, 2, data_len);
+		}
+		pinfo->current_proto = saved_proto;
+
+		/*
+		 * Can we do reassembly?
+		 */
+		if (desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the payload split across segment
+			 * boundaries?
+			 */
+			if (length_remaining < data_len + 4) {
+				/*
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len =
+				    (data_len + 4) - length_remaining;
+				return;
+			}
+		}
+
+		/* Skip the TPKT header. */
+		offset += 4;
+
+		/*
+		 * Construct a tvbuff containing the amount of the payload
+		 * we have available.  Make its reported length the
+		 * amount of data in this TPKT packet.
+		 */
+		length = length_remaining - 4;
+		if (length > data_len)
+			length = data_len;
+		next_tvb = tvb_new_subset(tvb, offset, length, data_len);
+
+		/*
+		 * Call the subdissector.
+		 */
+		call_dissector(subdissector_handle, next_tvb, pinfo, tree);
+
+		/*
+		 * Skip the payload.
+		 */
+		offset += length;
 	}
-	
-	data_len = tvb_get_ntohs( tvb, offset + 2 );
-
-	if ( check_col( pinfo->cinfo, COL_INFO) ) {
-		col_add_fstr( pinfo->cinfo, COL_INFO, "TPKT Data length = %u",
-		    data_len );
-	}
-
-	if ( tree ) {
-		ti = proto_tree_add_item( tree, proto_tpkt, tvb, offset, 4,
-		    FALSE );
-		tpkt_tree = proto_item_add_subtree( ti, ett_tpkt );
-		/* Version 1st octet */
-		proto_tree_add_item( tpkt_tree, hf_tpkt_version, tvb,
-		    offset, 1, FALSE );
-		offset++;
-		/* Reserved octet*/
-		proto_tree_add_item( tpkt_tree, hf_tpkt_reserved, tvb,
-		    offset, 1, FALSE );
-		offset++;
-	}
-	else {
-		offset += 2;
-	}
-
-	if ( tree )
-		proto_tree_add_uint( tpkt_tree, hf_tpkt_length, tvb,
-		    offset, 2, data_len );
-
-	return data_len;
 }
 
 /*
@@ -154,30 +230,9 @@ dissect_tpkt_header( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * PDU.
  */
 static void
-dissect_tpkt( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int tpkt_len;
-	int offset = 0;
-	int length, reported_length;
-	tvbuff_t *next_tvb;
-
-	/* Dissect the TPKT header. */
-	tpkt_len = dissect_tpkt_header(tvb, offset, pinfo, tree);
-	offset += 4;
-
-	/*
-	 * Now hand the minimum of (what's in this frame, what the TPKT
-	 * header says is in the PDU) on to the OSI TP dissector.
-	 */
-	length = tvb_length_remaining(tvb, offset);
-	reported_length = tvb_reported_length_remaining(tvb, offset);
-	if (length > tpkt_len)
-		length = tpkt_len;
-	if (reported_length > tpkt_len)
-		reported_length = tpkt_len;
-	next_tvb = tvb_new_subset(tvb, offset, length, reported_length);
-
-	call_dissector(osi_tp_handle, next_tvb, pinfo, tree);
+	dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, osi_tp_handle);
 }
 
 void
@@ -227,11 +282,17 @@ proto_register_tpkt(void)
 	{
 		&ett_tpkt,
 	};
-
+	module_t *tpkt_module;
 
 	proto_tpkt = proto_register_protocol("TPKT", "TPKT", "tpkt");
 	proto_register_field_array(proto_tpkt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	tpkt_module = prefs_register_protocol(proto_tpkt, NULL);
+	prefs_register_bool_preference(tpkt_module, "desegment",
+	    "Desegment all TPKT messages spanning multiple TCP segments",
+	    "Whether the TPKT dissector should desegment all messages spanning multiple TCP segments",
+	    &tpkt_desegment);
 }
 
 void

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.48 2002/02/20 08:24:51 guy Exp $
+ * $Id: plugins.c,v 1.49 2002/02/22 08:56:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,7 @@
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 #include "conversation.h"
 #include "packet-giop.h"
+#include "packet-tpkt.h"
 #include "plugins/plugin_table.h"
 static plugin_address_table_t	patable;
 #endif
@@ -421,6 +422,9 @@ init_plugins(const char *plugin_dir)
 	patable.p_get_CDR_enum			= get_CDR_enum;
 	patable.p_get_CDR_object		= get_CDR_object;
 	patable.p_get_CDR_boolean		= get_CDR_boolean;
+
+	patable.p_is_tpkt			= is_tpkt;
+	patable.p_dissect_tpkt_encap		= dissect_tpkt_encap;
 #endif
 
 #ifdef WIN32

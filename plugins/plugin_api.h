@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.37 2002/02/20 08:24:52 guy Exp $
+ * $Id: plugin_api.h,v 1.38 2002/02/22 08:56:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -168,7 +168,6 @@
 #define prefs_register_enum_preference	(*p_prefs_register_enum_preference)
 #define prefs_register_string_preference (*p_prefs_register_string_preference)
 
-
 /* GIOP entries Begin */
 
 #define register_giop_user		(*p_register_giop_user)
@@ -197,12 +196,19 @@
 
 /* GIOP entries End */
 
+/* TPKT entries Begin */
+
+#define is_tpkt				(*p_is_tpkt)
+#define dissect_tpkt_encap		(*p_dissect_tpkt_encap)
+
+/* TPKT entries End */
 #endif
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "prefs.h"
 #include "packet-giop.h"
+#include "packet-tpkt.h"
 
 #include "plugin_table.h"
 

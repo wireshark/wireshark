@@ -1,7 +1,7 @@
 /* plugin_api_defs.h
  * Define the variables that hold pointers to plugin API functions
  *
- * $Id: plugin_api_defs.h,v 1.12 2002/02/20 08:24:52 guy Exp $
+ * $Id: plugin_api_defs.h,v 1.13 2002/02/22 08:56:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -191,6 +191,9 @@ addr_get_CDR_ulong			p_get_CDR_ulong;
 addr_get_CDR_ushort			p_get_CDR_ushort;
 addr_get_CDR_wchar			p_get_CDR_wchar;
 addr_get_CDR_wstring			p_get_CDR_wstring;
+
+addr_is_tpkt				p_is_tpkt;
+addr_dissect_tpkt_encap			p_dissect_tpkt_encap;
 
 #endif /* PLUGINS_NEED_ADDRESS_TABLE */
 
