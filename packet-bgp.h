@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.4 1999/11/11 21:08:52 itojun Exp $
+ * $Id: packet-bgp.h,v 1.5 1999/11/22 07:05:21 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -33,19 +33,21 @@
 #define BGP_MIN_UPDATE_MSG_SIZE		23
 #define BGP_MIN_NOTIFICATION_MSG_SIZE	21
 #define BGP_MIN_KEEPALVE_MSG_SIZE	BGP_HEADER_SIZE
-#define BGP_MAX_AS_PATH_LENGTH		32	/* guint16s */
 
+/* BGP message types */
 #define BGP_OPEN		1
 #define BGP_UPDATE		2
 #define BGP_NOTIFICATION	3
 #define BGP_KEEPALIVE		4
 
+/* BGP header */
 struct bgp {
     guint8 bgp_marker[BGP_MARKER_SIZE];
     guint16 bgp_len;
     guint8 bgp_type;
 };
 
+/* BGP OPEN message */
 struct bgp_open {
     guint8 bgpo_marker[BGP_MARKER_SIZE];
     guint16 bgpo_len;
@@ -58,6 +60,7 @@ struct bgp_open {
     /* options should follow */
 };
 
+/* BGP NOTIFICATION message */
 struct bgp_notification {
     guint8 bgpn_marker[BGP_MARKER_SIZE];
     guint16 bgpn_len;
@@ -67,21 +70,32 @@ struct bgp_notification {
     /* data should follow */
 };
 
+/* path attribute */
 struct bgp_attr {
     guint8 bgpa_flags;
     guint8 bgpa_type;
 };
 
-/* attribute flags, from RFC 1771 */
+/* attribute flags, from RFC1771 */
 #define BGP_ATTR_FLAG_OPTIONAL        0x80
 #define BGP_ATTR_FLAG_TRANSITIVE      0x40
 #define BGP_ATTR_FLAG_PARTIAL         0x20
 #define BGP_ATTR_FLAG_EXTENDED_LENGTH 0x10
 
-/* AS_PATH segment types, from RFC 1771 */
-#define AS_SET      1
-#define AS_SEQUENCE 2
+/* AS_PATH segment types */
+#define AS_SET             1   /* RFC1771 */
+#define AS_SEQUENCE        2   /* RFC1771 */
+#define AS_CONFED_SET      3   /* RFC1965 */
+#define AS_CONFED_SEQUENCE 4   /* RFC1965 */
 
+/* well-known communities, from RFC1997 */
+#define BGP_COMM_NO_EXPORT           0xFFFFFF01
+#define BGP_COMM_NO_ADVERTISE        0xFFFFFF02
+#define BGP_COMM_NO_EXPORT_SUBCONFED 0xFFFFFF03
+#define FOURHEX0                     0x0000
+#define FOURHEXF                     0xFFFF
+
+/* attribute types */
 #define BGPTYPE_ORIGIN            1   /* RFC1771          */
 #define BGPTYPE_AS_PATH           2   /* RFC1771          */
 #define BGPTYPE_NEXT_HOP          3   /* RFC1771          */
@@ -90,10 +104,10 @@ struct bgp_attr {
 #define BGPTYPE_ATOMIC_AGGREGATE  6   /* RFC1771          */
 #define BGPTYPE_AGGREGATOR        7   /* RFC1771          */
 #define BGPTYPE_COMMUNITIES       8   /* RFC1997          */
-#define BGPTYPE_ORIGINATOR_ID     9   /* RFC1998          */
-#define BGPTYPE_CLUSTER_LIST     10   /* RFC1998          */
+#define BGPTYPE_ORIGINATOR_ID     9   /* RFC1966          */
+#define BGPTYPE_CLUSTER_LIST     10   /* RFC1966          */
 #define BGPTYPE_DPA              11   /* work in progress */
-#define BGPTYPE_ADVERTISERS      12   /* RFC1863          */
+#define BGPTYPE_ADVERTISER       12   /* RFC1863          */
 #define BGPTYPE_RCID_PATH        13   /* RFC1863          */
 #define BGPTYPE_MP_REACH_NLRI    14   /* RFC2283          */
 #define BGPTYPE_MP_UNREACH_NLRI  15   /* RFC2283          */
@@ -124,10 +138,5 @@ do {				\
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
 #endif
-
-/*
- * Convert prefix length into number of guint8s needed for prefix.
- */
-#define convert_prefix(p) (((p) + 7) / (8))
 
 #endif
