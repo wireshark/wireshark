@@ -4590,7 +4590,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
     }
     else {
 	/* End of optional parameters is reached */
-	proto_tree_add_uint_format(isup_tree, hf_isup_message_type, optional_parameters_tvb , offset, PARAMETER_TYPE_LENGTH, parameter_type, "End of optional parameters (%u)", parameter_type);
+	proto_tree_add_uint_format(isup_tree, hf_isup_parameter_type, optional_parameters_tvb , offset, PARAMETER_TYPE_LENGTH, parameter_type, "End of optional parameters (%u)", parameter_type);
     }
   }
 }
