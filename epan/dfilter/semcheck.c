@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.20 2003/12/06 16:35:19 gram Exp $
+ * $Id: semcheck.c,v 1.21 2003/12/09 23:02:40 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,16 @@
 
 #include <epan/exceptions.h>
 #include <epan/packet.h>
+
+/* Usage: DebugLog(("Error: string=%s\n", str)); */
+#ifdef DEBUG_dfilter
+#define DebugLog(x) \
+	printf("%s:%u: ", __FILE__, __LINE__); \
+	printf x; \
+	fflush(stdout)
+#else
+#define DebugLog(x) ;
+#endif
 
 static void
 semcheck(stnode_t *st_node);
@@ -101,6 +111,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 					return FALSE;
 			}
 
+		case FT_PCRE:
 		case FT_NUM_TYPES:
 			g_assert_not_reached();
 	}
@@ -120,7 +131,6 @@ mk_uint32_fvalue(guint32 val)
 
 	return fv;
 }
-
 
 /* Try to make an fvalue from a string using a value_string or true_false_string.
  * This works only for ftypes that are integers. Returns the created fvalue_t*
@@ -151,6 +161,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_UINT_STRING:
 		case FT_UINT64:
 		case FT_INT64:
+		case FT_PCRE:
 			return FALSE;
 
 		case FT_BOOLEAN:
@@ -212,7 +223,6 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 	return FALSE;
 }
 
-
 static gboolean
 is_bytes_type(enum ftenum type)
 {
@@ -246,6 +256,7 @@ is_bytes_type(enum ftenum type)
 		case FT_INT24:
 		case FT_INT32:
 		case FT_INT64:
+		case FT_PCRE:
 			return FALSE;
 
 		case FT_NUM_TYPES:
@@ -284,7 +295,6 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 		THROW(TypeError);
 	}
 
-
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
@@ -304,13 +314,18 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 	}
 	else if (type2 == STTYPE_STRING) {
 		s = stnode_data(st_arg2);
-		fvalue = fvalue_from_string(ftype1, s, dfilter_fail);
-		if (!fvalue) {
-			/* check value_string */
-			fvalue = mk_fvalue_from_val_string(hfinfo1, s);
+		if (strcmp(relation_string, "matches") == 0) {
+			/* Convert to a FT_PCRE */
+			fvalue = fvalue_from_string(FT_PCRE, s, dfilter_fail);
+		} else {
+			fvalue = fvalue_from_string(ftype1, s, dfilter_fail);
 			if (!fvalue) {
-				THROW(TypeError);
+				/* check value_string */
+				fvalue = mk_fvalue_from_val_string(hfinfo1, s);
 			}
+		}
+		if (!fvalue) {
+			THROW(TypeError);
 		}
 
 		new_st = stnode_new(STTYPE_FVALUE, fvalue);
@@ -319,13 +334,18 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 	}
 	else if (type2 == STTYPE_UNPARSED) {
 		s = stnode_data(st_arg2);
-		fvalue = fvalue_from_unparsed(ftype1, s, allow_partial_value, dfilter_fail);
-		if (!fvalue) {
-			/* check value_string */
-			fvalue = mk_fvalue_from_val_string(hfinfo1, s);
+		if (strcmp(relation_string, "matches") == 0) {
+			/* Convert to a FT_PCRE */
+			fvalue = fvalue_from_unparsed(FT_PCRE, s, FALSE, dfilter_fail);
+		} else {
+			fvalue = fvalue_from_unparsed(ftype1, s, allow_partial_value, dfilter_fail);
 			if (!fvalue) {
-				THROW(TypeError);
+				/* check value_string */
+				fvalue = mk_fvalue_from_val_string(hfinfo1, s);
 			}
+		}
+		if (!fvalue) {
+			THROW(TypeError);
 		}
 
 		new_st = stnode_new(STTYPE_FVALUE, fvalue);
@@ -618,6 +638,11 @@ check_relation(const char *relation_string, gboolean allow_partial_value,
 		FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
+#ifdef DEBUG_dfilter
+	static guint i = 0;
+#endif
+
+	DebugLog(("   4 check_relation(\"%s\") [%u]\n", relation_string, i++));
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 			check_relation_LHS_FIELD(relation_string, can_func,
@@ -651,6 +676,11 @@ check_test(stnode_t *st_node)
 {
 	test_op_t		st_op;
 	stnode_t		*st_arg1, *st_arg2;
+#ifdef DEBUG_dfilter
+	static guint i = 0;
+#endif
+
+	DebugLog(("  3 check_test(stnode_t *st_node = %p) [%u]\n", st_node, i));
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
 
@@ -706,6 +736,7 @@ check_test(stnode_t *st_node)
 		default:
 			g_assert_not_reached();
 	}
+	DebugLog(("  3 check_test(stnode_t *st_node = %p) [%u] - End\n", st_node, i++));
 }
 
 
@@ -713,6 +744,10 @@ check_test(stnode_t *st_node)
 static void
 semcheck(stnode_t *st_node)
 {
+#ifdef DEBUG_dfilter
+	static guint i = 0;
+#endif
+	DebugLog((" 2 semcheck(stnode_t *st_node = %p) [%u]\n", st_node, i++));
 	/* The parser assures that the top-most syntax-tree
 	 * node will be a TEST node, no matter what. So assert that. */
 	switch (stnode_type_id(st_node)) {
@@ -731,6 +766,11 @@ semcheck(stnode_t *st_node)
 gboolean
 dfw_semcheck(dfwork_t *dfw)
 {
+#ifdef DEBUG_dfilter
+	static guint i = 0;
+#endif
+	
+	DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u]\n", dfw, i));
 	/* Instead of having to check for errors at every stage of
 	 * the semantic-checking, the semantic-checking code will
 	 * throw an exception if a problem is found. */
@@ -738,9 +778,13 @@ dfw_semcheck(dfwork_t *dfw)
 		semcheck(dfw->st_root);
 	}
 	CATCH(TypeError) {
+		DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns FALSE\n",
+					dfw, i++));
 		return FALSE;
 	}
 	ENDTRY;
 
+	DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns FALSE\n",
+				dfw, i++));
 	return TRUE;
 }

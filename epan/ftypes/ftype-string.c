@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.16 2003/12/06 16:35:20 gram Exp $
+ * $Id: ftype-string.c,v 1.17 2003/12/09 23:02:39 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -237,46 +237,32 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {
-	pcre *re;
-	const char *pcre_error_text;
-	int pcre_error_offset;
 	int options = 0;
 	int rc;
-	pcre_extra *pe = NULL; /* TODO - pcre_study() */
 
-	re = pcre_compile(
-			fv_b->value.string,	/* pattern */
-			options,			/* PCRE options */
-			&pcre_error_text,	/* PCRE constant error string */
-			&pcre_error_offset,	/* Start offset of error in pattern */
-			NULL				/* Default char tables (C locale) */
-			);
-	if (re == NULL) {
-		/* TODO - Do something with pcre_error and pcre_error_offset */
+	/* fv_b is always a FT_PCRE, otherwise the dfilter semcheck() would have
+	 * warned us. For the same reason (and because we're using g_malloc()),
+	 * fv_b->value.re is not NULL.
+	 */
+	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
 		return FALSE;
 	}
-	/* TODO - Study the RE *if* the compile & study only happens once * /
-	pe = pcre_study(re, 0, &pcre_error_text);
-	if (pcre_error != NULL) {
-		/ * TODO - Do something with pcre_error and pcre_error_offset * /
+	if (! fv_b->value.re) {
 		return FALSE;
 	}
-	*/
 	rc = pcre_exec(
-			re,					/* Compiled PCRE */
-			pe,					/* PCRE extra from pcre_study() */
-			fv_a->value.string,	/* The data to check for the pattern */
-			(int)strlen(fv_a->value.string),	/* and its length */
-			0,					/* Start offset within data */
-			options,			/* PCRE options */
-			NULL,				/* We are not interested in the matched string */
-			0					/* of the pattern; only in success or failure. */
+			(fv_b->value.re)->re,	/* Compiled PCRE */
+			(fv_b->value.re)->ex,	/* PCRE extra from pcre_study() */
+			fv_a->value.string,		/* The data to check for the pattern... */
+			(int)strlen(fv_a->value.string),	/* ... and its length */
+			0,			/* Start offset within data */
+			options,	/* PCRE options */
+			NULL,		/* We are not interested in the matched string */
+			0			/* of the pattern; only in success or failure. */
 			);
-	/* if (pe != NULL)
-		g_free(pe); */
-	g_free(re);
-	if (rc == 0)
+	if (rc == 0) {
 		return TRUE;
+	}
 	return FALSE;
 }
 #endif

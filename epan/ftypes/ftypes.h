@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.26 2003/12/06 16:35:20 gram Exp $
+ * $Id: ftypes.h,v 1.27 2003/12/09 23:02:39 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,10 @@
 
 #ifndef FTYPES_H
 #define FTYPES_H
+
+#ifdef HAVE_LIBPCRE
+#include <pcre.h>
+#endif /* HAVE_LIBPCRE */
 
 #include <glib.h>
 #include "../slab.h"
@@ -59,6 +63,7 @@ enum ftenum {
 	FT_IPv6,
 	FT_IPXNET,
 	FT_FRAMENUM,	/* a UINT32, but if selected lets you go to frame with that numbe */
+	FT_PCRE,		/* a compiled Perl-Compatible Regular Expression object */
 	FT_NUM_TYPES /* last item number plus one */
 };
 
@@ -73,6 +78,14 @@ enum ftrepr {
 
 typedef enum ftrepr ftrepr_t;
 
+#ifdef HAVE_LIBPCRE
+typedef struct _pcre_tuple_t {
+	char *string;
+	pcre *re;
+	pcre_extra *ex;
+	char *error;
+} pcre_tuple_t;
+#endif /* HAVE_LIBPCRE */
 
 /* Initialize the ftypes subsytem. Called once. */
 void
@@ -141,6 +154,9 @@ typedef struct _fvalue_t {
 		ipv4_addr	ipv4;
 		nstime_t	time;
 		tvbuff_t	*tvb;
+#ifdef HAVE_LIBPCRE
+		pcre_tuple_t	*re;
+#endif /* HAVE_LIBPCRE */
 	} value;
 
 	/* The following is provided for private use

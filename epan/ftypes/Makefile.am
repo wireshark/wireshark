@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.4 2001/03/05 22:53:40 gram Exp $
+# $Id: Makefile.am,v 1.5 2003/12/09 23:02:39 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@ libftypes_a_SOURCES =	\
 	ftype-integer.c	\
 	ftype-ipv4.c	\
 	ftype-none.c	\
+	ftype-pcre.c	\
 	ftype-string.c	\
 	ftype-time.c	\
 	ftype-tvbuff.c

@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.19 2003/12/06 16:35:20 gram Exp $
+ * $Id: ftypes.c,v 1.20 2003/12/09 23:02:39 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@ void ftype_register_none(void);
 void ftype_register_string(void);
 void ftype_register_time(void);
 void ftype_register_tvbuff(void);
+void ftype_register_pcre(void);
 
 /* Initialize the ftype module. */
 void
@@ -59,6 +60,7 @@ ftypes_initialize(void)
 	ftype_register_string();
 	ftype_register_time();
 	ftype_register_tvbuff();
+	ftype_register_pcre();
 }
 
 /* Each ftype_t is registered via this function */
