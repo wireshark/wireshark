@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.351 2003/06/09 22:59:11 guy Exp $
+ * $Id: packet-smb.c,v 1.352 2003/06/10 05:28:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -16217,15 +16217,21 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * Network Monitor 2.x dissects the four bytes before the Session ID
 	 * as a "Key", and the two bytes after the SequenceNumber as
 	 * a "Group ID".
+	 *
+	 * The "High Part of PID" has been seen in calls other than NT
+	 * Create and X, although most of them appear to be I/O on DCE RPC
+	 * pipes opened with the NT Create and X in question.
 	 */
+	proto_tree_add_item(htree, hf_smb_pid_high, tvb, offset, 2, TRUE);
+	offset += 2;
+
 	if (pinfo->ptype == PT_IPX &&
 	    (pinfo->match_port == IPX_SOCKET_NWLINK_SMB_SERVER ||
 	     pinfo->match_port == IPX_SOCKET_NWLINK_SMB_REDIR ||
 	     pinfo->match_port == IPX_SOCKET_NWLINK_SMB_MESSENGER)) {
 		/*
 		 * This is SMB-over-IPX.
-		 * XXX - high part of pid?
-		 * XXX - doe we have to worry about "sequenced commands",
+		 * XXX - do we have to worry about "sequenced commands",
 		 * as per the Samba document?  They say that for
 		 * "unsequenced commands" (with a sequence number of 0),
 		 * the Mid must be unique, but perhaps the Mid doesn't
@@ -16233,10 +16239,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 * one capture with SMB-over-IPX, however, the Mids
 		 * are unique even for sequenced commands.
 		 */
-		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 2,
-		    TRUE);
-		offset += 2;
-
 		/* Key */
 		proto_tree_add_item(htree, hf_smb_key, tvb, offset, 4,
 		    TRUE);
@@ -16258,15 +16260,11 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset += 2;
 	} else {
 		/*
-		 * 12 reserved bytes.
-		 * XXX - high part of pid?
-                 * According to http://ubiqx.org/cifs/SMB.html#SMB.4.2.1
-                 * and http://ubiqx.org/cifs/SMB.html#SMB.5.5.1 these are
-                 * a two byte pid-high, and an 8-byte signature ...
+		 * According to http://ubiqx.org/cifs/SMB.html#SMB.4.2.1
+		 * and http://ubiqx.org/cifs/SMB.html#SMB.5.5.1 the 8
+		 * bytes after the "High part of PID" are an 8-byte
+		 * signature ...
 		 */
-		proto_tree_add_item(htree, hf_smb_pid_high, tvb, offset, 2, TRUE);
-		offset += 2;
-
 		proto_tree_add_item(htree, hf_smb_sig, tvb, offset, 8, TRUE);
 		offset += 8;
 
