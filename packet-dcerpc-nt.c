@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.20 2002/03/20 07:39:18 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.21 2002/03/24 12:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -288,17 +288,6 @@ guint32 prs_pop_ptr(GList **ptr_list, char *name)
 	return result;
 }
 
-/*
- * Parse a UNISTR2 structure 
- *
- * typedef struct {
- *   short length;
- *   short size;
- *   [size_is(size/2)] [length_is(length/2)] [unique] wchar_t *string;
- * } UNICODE_STRING;
- *
- */
-
 /* Convert a string from little-endian unicode to ascii.  At the moment we
    fake it by taking every odd byte.  )-:  The caller must free the
    result returned. */
@@ -456,10 +445,12 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	   and trying to append to the tree object in that case will dump core */
 	if(tree && (di->levels>-1)){
 		proto_item_append_text(tree, ": %s", text);
+		di->levels--;
 		if(di->levels>-1){
 			tree=tree->parent;
 			proto_item_append_text(tree, ": %s", text);
-			while(di->levels>0){
+			di->levels--;
+			while(di->levels>-1){
 				tree=tree->parent;
 				proto_item_append_text(tree, " %s", text);
 				di->levels--;
@@ -512,10 +503,11 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 			hf_nt_string_length, NULL);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_nt_string_size, NULL);
-	di->levels=1;
+	di->levels=1;	/* XXX - is this necessary? */
+	/* Add 1 level, for the extra level we added */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			name, hf_index, levels);
+			name, hf_index, levels + 1);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;

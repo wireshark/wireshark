@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.25 2002/03/14 10:04:02 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.26 2002/03/24 12:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -878,7 +878,7 @@ samr_dissect_connect2_rqst(tvbuff_t *tvb, int offset,
 {
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_connect2_server, NDR_POINTER_UNIQUE,
-			"Server", hf_samr_server, 0);
+			"Server", hf_samr_server, 1);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_access, NULL);
