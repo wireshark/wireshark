@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.3 2003/10/30 07:00:18 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.4 2003/11/05 20:19:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,16 +37,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <gmodule.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #include <string.h>
 
 #include "epan/packet.h"
