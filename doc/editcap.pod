@@ -30,13 +30,13 @@ WAN/LAN analyzer, B<Lucent/Ascend> router debug output, HP-UX's
 B<nettl>, the dump output from B<Toshiba's> ISDN routers, the output
 from B<i4btrace> from the ISDN4BSD project, the output in B<IPLog>
 format from the Cisco Secure Intrusion Detection System, B<pppd logs>
-(pppdump format), the output from VMS's B<TCPIPtrace> utility, and the
-text output from the B<DBS Etherwatch> VMS utility.  There is no need to
-tell B<Editcap> what type of file you are reading; it will determine the
-file type by itself.  B<Editcap> is also capable of reading any of these
-file formats if they are compressed using gzip.  B<Editcap> recognizes
-this directly from the file; the '.gz' extension is not required for this
-purpose.
+(pppdump format), the output from VMS's B<TCPIPtrace> utility, the text
+output from the B<DBS Etherwatch> VMS utility, and traffic capture files
+from Visual Networks' software.  There is no need to tell B<Editcap>
+what type of file you are reading; it will determine the file type by
+itself.  B<Editcap> is also capable of reading any of these file formats
+if they are compressed using gzip.  B<Editcap> recognizes this directly
+from the file; the '.gz' extension is not required for this purpose.
 
 By default, it writes the capture file in B<libpcap> format, and writes
 all of the packets in the capture file to the output file.  The B<-F>
@@ -45,8 +45,9 @@ file; it can write the file in B<libpcap> format (standard B<libpcap>
 format, a modified format used by some patched versions of B<libpcap>,
 the format used by Red Hat Linux 6.1, or the format used by SuSE Linux
 6.3), B<snoop> format, uncompressed B<Sniffer> format, Microsoft
-B<Network Monitor> 1.x format, and the format used by Windows-based
-versions of the B<Sniffer> software.
+B<Network Monitor> 1.x format, the format used by Windows-based versions
+of the B<Sniffer> software, and the format used by Visual Networks'
+software.
 
 A list of packet numbers can be specified on the command line; the
 packets with those numbers will I<not> be written to the capture file,

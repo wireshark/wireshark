@@ -44,13 +44,13 @@ B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, the dump output
 from B<Toshiba's> ISDN routers, the output from B<i4btrace> from the
 ISDN4BSD project, the output in B<IPLog> format from the Cisco Secure
 Intrusion Detection System, B<pppd logs> (pppdump format), the output
-from VMS's B<TCPIPtrace> utility, and the text output from the
-B<DBS Etherwatch> VMS utility.  There is no need to tell B<Tethereal>
-what type of file you are reading; it will determine the file type by
-itself.  B<Tethereal> is also capable of reading any of these file
-formats if they are compressed using gzip.  B<Tethereal> recognizes this
-directly from the file; the '.gz' extension is not required for this
-purpose.
+from VMS's B<TCPIPtrace> utility, the text output from the B<DBS
+Etherwatch> VMS utility, and traffic capture files from Visual Networks'
+software.  There is no need to tell B<Tethereal> what type of file you
+are reading; it will determine the file type by itself.  B<Tethereal> is
+also capable of reading any of these file formats if they are compressed
+using gzip.  B<Tethereal> recognizes this directly from the file; the
+'.gz' extension is not required for this purpose.
 
 If the B<-w> flag is not specified, B<Tethereal> prints a decoded form
 of the packets it captures or reads; otherwise, it writes those packets
@@ -72,8 +72,8 @@ to write the file; it can write the file in B<libpcap> format (standard
 B<libpcap> format, a modified format used by some patched versions of
 B<libpcap>, or the format used by Red Hat Linux 6.1), B<snoop> format,
 uncompressed B<Sniffer> format, Microsoft B<Network Monitor> 1.x format,
-and the format used by Windows-based versions of the B<Sniffer>
-software.
+the format used by Windows-based versions of the B<Sniffer>
+software, and the format used by Visual Networks' software.
 
 Read filters in B<Tethereal>, which allow you to select which packets
 are to be decoded or written to a file, are very powerful; more fields
