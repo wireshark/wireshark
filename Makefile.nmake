@@ -27,6 +27,7 @@ OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter-scanner.obj \
 	packet-aarp.obj \
 	packet-arp.obj \
 	packet-atalk.obj \
+	packet-atm.obj \
 	packet-bootp.obj \
 	packet-cdp.obj \
 	packet-clip.obj \
