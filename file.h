@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.48 1999/10/02 20:23:53 guy Exp $
+ * $Id: file.h,v 1.49 1999/10/11 06:39:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,9 +104,6 @@ typedef struct _capture_file {
   wtap        *wth;       /* Wiretap session */
   dfilter     *rfcode;    /* Compiled read filter program */ 
   gchar       *dfilter;   /* Display filter string */
-#if 0
-  GNode       *dfcode;    /* Compiled display filter program */ 
-#endif
   colfilter   *colors;	  /* Colors for colorizing packet window */
   dfilter     *dfcode;    /* Compiled display filter program */ 
 #ifdef HAVE_LIBPCAP
@@ -130,8 +127,9 @@ int  read_cap_file(capture_file *);
 int  tail_cap_file(char *, capture_file *);
 /* size_t read_frame_header(capture_file *); */
 
+void filter_packets(capture_file *cf, gchar *dfilter);
+void colorize_packets(capture_file *);
 int print_packets(capture_file *cf, print_args_t *print_args);
-void filter_packets(capture_file *);
 void change_time_formats(capture_file *);
 void select_packet(capture_file *, int);
 void unselect_packet(capture_file *);

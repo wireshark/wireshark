@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.12 1999/09/09 02:42:26 gram Exp $
+ * $Id: summary.c,v 1.13 1999/10/11 06:39:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -249,8 +249,8 @@ traffic_bytes/seconds);
   add_string_to_box(string_buff, capture_box);
 
   /* Display filter */
-  if (DFILTER_CONTAINS_FILTER(cf.dfcode)) {
-    snprintf(string_buff, SUM_STR_MAX, "Display filter: %s", cf.dfcode->dftext);
+  if (cf.dfilter) {
+    snprintf(string_buff, SUM_STR_MAX, "Display filter: %s", cf.dfilter);
   } else {
     sprintf(string_buff, "Display filter: none");
   }

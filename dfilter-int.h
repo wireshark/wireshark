@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.7 1999/10/11 03:03:11 guy Exp $
+ * $Id: dfilter-int.h,v 1.8 1999/10/11 06:39:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,7 +34,6 @@ void dfilter_scanner_cleanup(void);
 
 /* in dfilter-grammar.y */
 extern dfilter *global_df;
-extern GSList *gnode_slist;
 
 /* Here we provide interfaces to make our scanner act and look like lex */
 int dfilter_lex(void);

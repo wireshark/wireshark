@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.104 1999/10/10 11:50:38 sharpe Exp $
+ * $Id: file.c,v 1.105 1999/10/11 06:39:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -771,24 +771,56 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 }
 
 void
-filter_packets(capture_file *cf)
+filter_packets(capture_file *cf, gchar *dftext)
+{
+  dfilter *dfcode;
+
+  if (dftext == NULL) {
+    /* The new filter is an empty filter (i.e., display all packets). */
+    dfcode = NULL;
+  } else {
+    /*
+     * We have a filter; try to compile it.
+     */
+    dfcode = dfilter_compile(dftext);
+    if (dfcode == NULL) {
+      simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
+      return;
+    }
+
+    /* Was it empty? */
+    if (dfcode->dftree == NULL) {
+      /* Yes - free the filter text and filter code, and set them to
+         NULL. */
+      g_free(dftext);
+      dftext = NULL;
+      dfilter_destroy(dfcode);
+      dfcode = NULL;
+    }
+  }
+
+  /* We have a valid filter.  Replace the current filter. */
+  if (cf->dfilter != NULL)
+    g_free(cf->dfilter);
+  cf->dfilter = dftext;
+  if (cf->dfcode != NULL)
+    dfilter_destroy(cf->dfcode);
+  cf->dfcode = dfcode;
+
+  /* Now go through the list of packets we've read from the capture file,
+     applying the current display filter, and, if the packet passes the
+     display filter, add it to the summary display, appropriately
+     colored.  (That's how we colorize the display - it's like filtering
+     the display, only we don't install a new filter.) */
+  colorize_packets(cf);
+}
+
+void
+colorize_packets(capture_file *cf)
 {
   frame_data *fd;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
-
-  if (cf->dfilter == NULL) {
-	dfilter_clear_filter(cf->dfcode);
-  }
-  else {
-    /*
-     * Compile the filter.
-     */
-    if (dfilter_compile(cf->dfcode, cf->dfilter) != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
-      return;
-    }
-  }
 
   gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
 

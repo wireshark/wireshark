@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.18 1999/10/09 14:05:04 deniel Exp $
+ * $Id: main.c,v 1.19 1999/10/11 06:39:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -162,6 +162,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
   char      filename1[128+1];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
   int        tmp_fd;
+  gchar     *follow_filter;
 
   if( pi.ipproto == 6 ) {
     /* we got tcp so we can follow */
@@ -191,10 +192,10 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     /* Create a new filter that matches all packets in the TCP stream,
        and set the display filter entry accordingly */
     reset_tcp_reassembly();
-    cf.dfilter = build_follow_filter( &pi );
+    follow_filter = build_follow_filter( &pi );
 
     /* Run the display filter so it goes in effect. */
-    filter_packets(&cf);
+    filter_packets(&cf, follow_filter);
 
     /* the data_out_file should now be full of the streams information */
     fclose( data_out_file );
@@ -317,17 +318,12 @@ match_selected_cb(GtkWidget *w, gpointer data)
 	    }
     }
 
-    if( cf.dfilter != NULL ) {
-      /* get rid of this one */
-      g_free( cf.dfilter );
-    }
     /* create a new one and set the display filter entry accordingly */
-    cf.dfilter = buf;
     if (filter_te) {
-	gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
+	gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
     }
     /* Run the display filter so it goes in effect. */
-    filter_packets(&cf);
+    filter_packets(&cf, buf);
 }
 
 /* Run the current display filter on the current packet set, and
@@ -337,18 +333,7 @@ filter_activate_cb(GtkWidget *w, gpointer data)
 {
   char *s = gtk_entry_get_text(GTK_ENTRY(w));
 
-  if (cf.dfilter)
-	g_free(cf.dfilter);
-
-  /* simple check for empty string. XXX - need to modify to search for /^\s+$/ */
-  if (s[0] == '\0' ) {
-	cf.dfilter = NULL;
-  }
-  else {
-	cf.dfilter = g_strdup(s);
-  }
-
-  filter_packets(&cf);
+  filter_packets(&cf, g_strdup(s));
 }
 
 /* What to do when a list item is selected/unselected */
@@ -522,7 +507,7 @@ main(int argc, char *argv[])
   cf.fh			= NULL;
   cf.rfcode		= NULL;
   cf.dfilter		= NULL;
-  cf.dfcode		= dfilter_new();
+  cf.dfcode		= NULL;
 #ifdef HAVE_LIBPCAP
   cf.cfilter		= NULL;
 #endif
@@ -876,10 +861,9 @@ main(int argc, char *argv[])
        up on top of us. */
     if (cf_name) {
       if (rfilter != NULL) {
-        rfcode = dfilter_new();
-        if (dfilter_compile(rfcode, rfilter) != 0) {
+        rfcode = dfilter_compile(rfilter);
+        if (rfcode == NULL) {
           simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
-          dfilter_destroy(rfcode);
           rfilter_parse_failed = TRUE;
         }
       }

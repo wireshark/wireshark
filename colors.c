@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.12 1999/10/07 22:50:44 guy Exp $
+ * $Id: colors.c,v 1.13 1999/10/11 06:39:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -116,9 +116,8 @@ colors_init(capture_file *cf)
 	new_color_filter(cf->colors, default_colors[i].proto, default_colors[i].proto);
 	color_filter(cf,i)->bg_color = color;
 
-	color_filter(cf,i)->c_colorfilter = dfilter_new();
-	if(dfilter_compile((color_filter(cf,i)->c_colorfilter),
-	  default_colors[i].proto) != 0){
+	color_filter(cf,i)->c_colorfilter = dfilter_compile(default_colors[i].proto);
+	if(color_filter(cf,i)->c_colorfilter == NULL){
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Cannot compile default filter %s.\n%s",
 		  default_colors[i].proto, dfilter_error_msg);
@@ -244,14 +243,11 @@ read_filters(capture_file *cf)
 		name, filter, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 8){
 		/* we got a filter */
 
-            /* test the dfilter before putting it into the list of color dfilters */
-	    /*if(dfilter_compile((color_filter(cf,i)->c_colorfilter),filter) != 0){*/
-	    temp_dfilter = dfilter_new();
-	    if(dfilter_compile(temp_dfilter, filter) != 0){
+	    temp_dfilter = dfilter_compile(filter);
+	    if(temp_dfilter == NULL){
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		 "Could not compile filter %s from saved filters because\n%s",
 		 name, dfilter_error_msg);
-		dfilter_destroy(temp_dfilter);
 		continue;
 	    }
             new_color_filter(cf->colors, name, filter);
@@ -493,7 +489,7 @@ color_ok_cb                            (GtkButton       *button,
 
   /* colorize list */
 
-  filter_packets(&cf);
+  colorize_packets(&cf);
   gtk_container_remove(GTK_CONTAINER(GTK_WIDGET(cf.colors->color_filters)->parent),
 	cf.colors->color_filters);
   gtk_widget_destroy(dialog);
@@ -507,7 +503,7 @@ color_apply_cb                         (GtkButton       *button,
 {
   capture_file *cf;
   cf = (capture_file *)user_data;
-  filter_packets(cf);
+  colorize_packets(cf);
 }
 
 /* Exit dialog and do not process list */
@@ -593,12 +589,11 @@ colorize_ok_cb                         (GtkButton       *button,
 
 
 
-  compiled_filter = dfilter_new();
+  compiled_filter = dfilter_compile(filter_text);
   
-  if( dfilter_compile( compiled_filter, filter_text) != 0 ){
+  if(compiled_filter == NULL ){
 	simple_dialog(ESD_TYPE_WARN, NULL, "Filter \"%s\" did not compile correctly.\n"
 		" Please try again. Filter unchanged.\n%s\n", filter_name,dfilter_error_msg);
-	dfilter_destroy(compiled_filter);
   } else {
 
 	if( color_filter(&cf, cf.colors->row_selected)->c_colorfilter != NULL)

@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.25 1999/10/11 03:03:10 guy Exp $
+ * $Id: dfilter.c,v 1.26 1999/10/11 06:39:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,8 +94,6 @@ static GArray* get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, con
 static GArray* get_values_from_dfilter(dfilter_node *dnode, GNode *gnode);
 static gboolean check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree);
 static void clear_byte_array(gpointer data, gpointer user_data);
-static void unlink_gnode_children(gpointer gnode_ptr, gpointer user_data);
-static void destroy_gnode(gpointer gnode_ptr, gpointer user_data);
 
 /* this is not so pretty. I need my own g_array "function" (macro) to
  * retreive the pointer to the data stored in an array cell. I need this
@@ -135,28 +133,28 @@ dfilter_cleanup(void)
  * display filter each time, without having to clear any memory used, since
  * dfilter_compile will take care of that automatically.
  * 
- * Returns 0 on success, non-zero on failure.
+ * Returns a pointer to a newly-allocated dfilter strucutre on success,
+ * NULL on failure.
  * If a failure, dfilter_error_msg points to an appropriate error message.
  * This error message is a global string, so another invocation of
  * dfilter_compile will clear it. If the caller needs is stored, he
  * needs to g_strdup it himself.
  */
-int
-dfilter_compile(dfilter *df, gchar *dfilter_text)
+dfilter*
+dfilter_compile(gchar *dfilter_text)
 {
+	dfilter *df;
 	int retval;
 
 	g_assert(dfilter_text != NULL);
 
-	dfilter_clear_filter(df);
-	df->dftext = g_strdup(dfilter_text);
+	df = dfilter_new();
 
-	/* tell the scanner to use this string as input */
-	dfilter_scanner_text(df->dftext);
+	/* tell the scanner to use the filter string as input */
+	dfilter_scanner_text(dfilter_text);
 
 	/* Assign global variable so dfilter_parse knows which dfilter we're
-	 * talking about. Reset the global error message. We don't have to set
-	 * gnode_slist since it will always be NULL by the time we get here.
+	 * talking about. Reset the global error message.
 	 */
 	global_df = df;
 	dfilter_error_msg = NULL;
@@ -183,42 +181,15 @@ dfilter_compile(dfilter *df, gchar *dfilter_text)
 		}
 	}
 
-	/* Clear the list of allocated nodes */
-	if (gnode_slist) {
-		g_slist_free(gnode_slist);
-		gnode_slist = NULL;
+	/* Set global_df to NULL just to be tidy. */
+	global_df = NULL;
+
+	if (retval == 0)
+		return df;
+	else {
+		dfilter_destroy(df);
+		return NULL;
 	}
-
-	return retval;
-}
-
-/* clear the current filter, w/o clearing memchunk area which is where we'll
- * put new nodes in a future filter */
-void
-dfilter_clear_filter(dfilter *df)
-{
-	if (!df)
-		return;
-
-	if (df->dftext)
-		g_free(df->dftext);
-
-	if (df->dftree != NULL)
-		g_node_destroy(df->dftree);
-
-	/* clear the memory that the tree was using for nodes */
-	if (df->node_memchunk)
-		g_mem_chunk_reset(df->node_memchunk);
-
-	/* clear the memory that the tree was using for byte arrays */
-	if (df->list_of_byte_arrays) {
-		g_slist_foreach(df->list_of_byte_arrays, clear_byte_array, NULL);
-		g_slist_free(df->list_of_byte_arrays);
-	}
-
-	df->dftext = NULL;
-	df->dftree = NULL;
-	df->list_of_byte_arrays = NULL;
 }
 
 /* Allocates new dfilter, initializes values, and returns pointer to dfilter */
@@ -229,7 +200,6 @@ dfilter_new(void)
 
 	df = g_malloc(sizeof(dfilter));
 
-	df->dftext = NULL;
 	df->dftree = NULL;
 	df->node_memchunk = g_mem_chunk_new("df->node_memchunk",
 		sizeof(dfilter_node), 20 * sizeof(dfilter_node), G_ALLOC_ONLY);
@@ -245,7 +215,21 @@ dfilter_destroy(dfilter *df)
 	if (!df)
 		return;
 
-	dfilter_clear_filter(df);
+	if (df->dftree != NULL)
+		g_node_destroy(df->dftree);
+
+	/* clear the memory that the tree was using for nodes */
+	if (df->node_memchunk)
+		g_mem_chunk_reset(df->node_memchunk);
+
+	/* clear the memory that the tree was using for byte arrays */
+	if (df->list_of_byte_arrays) {
+		g_slist_foreach(df->list_of_byte_arrays, clear_byte_array, NULL);
+		g_slist_free(df->list_of_byte_arrays);
+	}
+
+	df->dftree = NULL;
+	df->list_of_byte_arrays = NULL;
 
 	/* Git rid of memchunk */
 	if (df->node_memchunk)
@@ -267,63 +251,24 @@ clear_byte_array(gpointer data, gpointer user_data)
 void
 dfilter_error(char *s)
 {
-	/* The only data we have to worry about freeing is the
-	 * data used by any GNodes that were allocated during
-	 * parsing. The data in those Gnodes will be cleared
-	 * later via df->node_memchunk. Use gnode_slist to
-	 * clear the GNodes, and set global_df to NULL just
-	 * to be tidy.
-	 */
-	global_df = NULL;
-
-	/* I don't want to call g_node_destroy on each GNode ptr,
-	 * since that function frees any children. That could
-	 * mess me up later in the list if I try to free a GNode
-	 * that has already been freed. So, I'll unlink the
-	 * children firs,t then call g_node_destroy on each GNode ptr.
-	 */
-	if (!gnode_slist)
-		return;
-
-	g_slist_foreach(gnode_slist, unlink_gnode_children, NULL);
-	g_slist_foreach(gnode_slist, destroy_gnode, NULL);
-
-	/* notice we don't clear gnode_slist itself. dfilter_compile()
-	 * will take care of that.
-	 */
 }
 
 /* Called when an error other than a parsing error occurs. */
 void
 dfilter_fail(char *format, ...)
 {
-  va_list    ap;
+	va_list    ap;
 
-  /* If we've already reported one error, don't overwrite it with this
-   * one. */
-  if (dfilter_error_msg != NULL)
-    return;
+	/* If we've already reported one error, don't overwrite it with this
+	 * one. */
+	if (dfilter_error_msg != NULL)
+		return;
 
-  va_start(ap, format);
-  vsnprintf(dfilter_error_msg_buf, sizeof dfilter_error_msg_buf, format, ap);
-  dfilter_error_msg = dfilter_error_msg_buf;
-  va_end(ap);
+	va_start(ap, format);
+	vsnprintf(dfilter_error_msg_buf, sizeof dfilter_error_msg_buf, format, ap);
+	dfilter_error_msg = dfilter_error_msg_buf;
+	va_end(ap);
 }
-
-static void
-unlink_gnode_children(gpointer gnode_ptr, gpointer user_data)
-{
-	if (gnode_ptr)
-		g_node_unlink((GNode*) gnode_ptr);
-}
-
-static void
-destroy_gnode(gpointer gnode_ptr, gpointer user_data)
-{
-	if (gnode_ptr)
-		g_node_destroy((GNode*) gnode_ptr);
-}
-
 
 /* lookup an abbreviation in our token tree, returing the ID #
  * If the abbreviation doesn't exit, returns -1 */
