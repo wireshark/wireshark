@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.10 2000/08/04 07:38:13 guy Exp $
+ * $Id: packet-srvloc.c,v 1.11 2000/08/04 22:56:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -248,7 +248,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Reply");
 		    if (!BYTES_ARE_IN_FRAME(offset, 2))
 			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
                     offset += 2;
 		    if (!BYTES_ARE_IN_FRAME(offset, 2))
 			break;
@@ -335,7 +335,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Acknowledge");
 		    if (!BYTES_ARE_IN_FRAME(offset, 2))
 			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
                     offset += 2;
                 break;
 
@@ -383,7 +383,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Attribute Reply");
 		    if (!BYTES_ARE_IN_FRAME(offset, 2))
 			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
                     offset += 2;
 		    if (!BYTES_ARE_IN_FRAME(offset, 2))
 			break;
@@ -402,7 +402,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "DA Advertisement");
 		    if (!BYTES_ARE_IN_FRAME(offset, 2))
 			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
                     offset += 2;
 		    if (!BYTES_ARE_IN_FRAME(offset, 2))
 			break;
@@ -459,7 +459,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Type Reply");
 		    if (!BYTES_ARE_IN_FRAME(offset, 2))
 			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
                     offset += 2;
 		    if (!BYTES_ARE_IN_FRAME(offset, 2))
 			break;
@@ -514,7 +514,7 @@ proto_register_srvloc(void)
         
         {&hf_srvloc_error,
             {"Error Code", "srvloc.err",
-            FT_UINT8, BASE_DEC, VALS(srvloc_errs), 0x0,
+            FT_UINT16, BASE_DEC, VALS(srvloc_errs), 0x0,
             ""}
         },
    };
