@@ -1,6 +1,6 @@
-/* wtap.c
+/* snoop.h
  *
- * $Id: wtap.c,v 1.3 1998/11/15 05:29:16 guy Exp $
+ * $Id: snoop.h,v 1.1 1998/11/15 05:29:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,44 +21,5 @@
  *
  */
 
-#include "wtap.h"
-
-FILE* wtap_file(wtap *wth)
-{
-	return wth->fh;
-}
-
-int wtap_file_type(wtap *wth)
-{
-	return wth->file_type;
-}
-
-int wtap_encapsulation(wtap *wth)
-{
-	return wth->encapsulation;
-}
-
-
-int wtap_snapshot_length(wtap *wth)
-{
-	return wth->snapshot_length;
-}
-
-void wtap_close(wtap *wth)
-{
-	/* XXX - free up memory? */
-	fclose(wth->fh);
-}
-
-void wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user)
-{
-	int i = 0;
-	int data_offset;
-
-	while ((data_offset = wth->subtype_read(wth)) > 0) {
-		i++;
-		/*g_message("Parsing packet %d", i);*/
-		callback(user, &wth->phdr, data_offset,
-		    buffer_start_ptr(&wth->frame_buffer));
-	}
-}
+int snoop_open(wtap *wth);
+int snoop_read(wtap *wth);

@@ -1,4 +1,4 @@
-$Id: README,v 1.2 1998/11/12 06:01:17 gram Exp $
+$Id: README,v 1.3 1998/11/15 05:29:05 guy Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -36,19 +36,15 @@ File Formats
 
 Libpcap
 -------
-Currently the libpcap file format is handled by linking in the pcap library.
-Eventualy libpcap will not be linked in with wiretap as to avoid the overhead
-of bringing in the libpcap packet capturing and BPF optimizing code.
+The "libpcap" file format was determined by reading the "libpcap" code;
+wiretap reads the "libpcap" file format with its own code, rather than
+using the "libpcap" library's code to read it.
 
 Sniffer
 -------
-The Sniffer format has been deduced by looking at hex dumps of Sniffer trace
-files. I have access to many Token-Ring Sniffer trace files, but very few
-ethernet Sniffer trace files. I am guessing as to which field in the header
-denotes link type. Perhaps I am wrong; perhaps only the file extension (*.enc
-vs. *.trc) denotes the link type. If you have a Sniffer trace file which
-doesn't work with wiretap, please send it to me. BTW, I have not yet figured
-out how packet timestamps are stored in the Sniffer format.
+The Sniffer format, at least for Token-Ring, is documented in the
+Sniffer manual.  Unfortunately, Sniffer manuals tend to document only
+the format for the Sniffer model they document.
 
 LANalyzer
 ---------
@@ -56,6 +52,10 @@ The LANalyzer format is available from http://www.novell.com. Search their
 knowledge base for "Trace File Format". The code in wiretap so far only dumps
 the packet data; I have yet to decode the timestamp for each packet. At least
 I have the format for this, so it will be supported soon.
+
+"snoop"
+-------
+The Solaris 2.x "snoop" program's format is documented in RFC 1761.
 
 Gilbert Ramirez
 <gram@verdict.uthscsa.edu>

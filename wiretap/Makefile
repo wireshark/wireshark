@@ -15,7 +15,7 @@
 SHELL = /bin/sh
 
 srcdir = .
-top_srcdir = ..
+top_srcdir = .
 prefix = /usr/local
 exec_prefix = ${prefix}
 
@@ -34,9 +34,9 @@ oldincludedir = /usr/include
 
 DISTDIR =
 
-pkgdatadir = $(datadir)/ethereal
-pkglibdir = $(libdir)/ethereal
-pkgincludedir = $(includedir)/ethereal
+pkgdatadir = $(datadir)/libwtap.a
+pkglibdir = $(libdir)/libwtap.a
+pkgincludedir = $(includedir)/libwtap.a
 
 top_builddir = .
 
@@ -45,7 +45,7 @@ AUTOCONF = autoconf
 AUTOMAKE = automake
 AUTOHEADER = autoheader
 
-INSTALL = /usr/bin/install -c
+INSTALL = ./../install-sh -c
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_SCRIPT = ${INSTALL_PROGRAM}
@@ -58,13 +58,13 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CC = gcc
-GTK_CFLAGS = -I/usr/local/lib/glib/include -I/usr/local/include
+GTK_CFLAGS = -I/usr/local/lib/glib/include -I/usr/local/include -I/usr/openwin/include
 GTK_CONFIG = /usr/local/bin/gtk-config
-GTK_LIBS = -L/usr/local/lib -L/usr/X11R6/lib -lgtk -lgdk -lglib -lXext -lX11 -lm
+GTK_LIBS = -L/usr/local/lib -R/usr/local/lib -L/usr/openwin/lib -R/usr/openwin/lib -lgtk -lgdk -lglib -lXext -lX11 -lsocket -lnsl -lm
 MAKEINFO = makeinfo
-PACKAGE = ethereal
+PACKAGE = libwtap.a
 RANLIB = ranlib
-VERSION = 0.4.1
+VERSION = 0.0.0
 
 noinst_LIBRARIES = libwiretap.a
 
@@ -72,7 +72,9 @@ libwiretap_a_SOURCES = \
 	buffer.c		\
 	file.c			\
 	lanalyzer.c		\
+	libpcap.c		\
 	ngsniffer.c		\
+	snoop.c			\
 	wtap.c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
@@ -84,11 +86,12 @@ LIBRARIES =  $(noinst_LIBRARIES)
 DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I.
 CPPFLAGS = 
 LDFLAGS = 
-LIBS = -lpcap  -L/usr/local/lib -L/usr/X11R6/lib -lgtk -lgdk -lglib -lXext -lX11 -lm
+LIBS =  -L/usr/local/lib -R/usr/local/lib -L/usr/openwin/lib -R/usr/openwin/lib -lgtk -lgdk -lglib -lXext -lX11 -lsocket -lnsl -lm
 libwiretap_a_LIBADD = 
-libwiretap_a_OBJECTS =  buffer.o file.o lanalyzer.o ngsniffer.o wtap.o
+libwiretap_a_OBJECTS =  buffer.o file.o lanalyzer.o libpcap.o \
+ngsniffer.o snoop.o wtap.o
 AR = ar
-CFLAGS = -g -O2 -I/usr/local/lib/glib/include -I/usr/local/include -Iwiretap
+CFLAGS = -g -O2 -I/usr/local/lib/glib/include -I/usr/local/include -I/usr/openwin/include
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LINK = $(CC) $(CFLAGS) $(LDFLAGS) -o $@
 DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
@@ -101,7 +104,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/buffer.P .deps/file.P .deps/lanalyzer.P \
-.deps/ngsniffer.P .deps/wtap.P
+.deps/libpcap.P .deps/ngsniffer.P .deps/snoop.P .deps/wtap.P
 SOURCES = $(libwiretap_a_SOURCES)
 OBJECTS = $(libwiretap_a_OBJECTS)
 

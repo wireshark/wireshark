@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.4 1998/11/13 06:47:37 gram Exp $
+ * $Id: wtap.h,v 1.5 1998/11/15 05:29:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -43,7 +43,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <glib.h>
-#include <pcap.h>
+#include <stdio.h>
 #include <buffer.h>
 
 typedef struct {
@@ -56,6 +56,12 @@ typedef struct {
 	guint32	totpktt;
 } lanalyzer_t;
 
+typedef struct {
+	int	byte_swapped;
+	guint16	version_major;
+	guint16	version_minor;
+} libpcap_t;
+
 struct wtap_pkthdr {
 	struct timeval ts;
 	guint32	caplen;
@@ -63,26 +69,26 @@ struct wtap_pkthdr {
 };
 
 typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,
-		const u_char *);
+		int, const u_char *);
 
 struct wtap;
 typedef int (*subtype_func)(struct wtap*);
 typedef struct wtap {
 	FILE*			fh;
 	int				file_type;
+	int		snapshot_length;
 	unsigned long	frame_number;
 	unsigned long	file_byte_offset;
 	Buffer			frame_buffer;
 	struct wtap_pkthdr	phdr;
 
 	union {
-		pcap_t			*pcap;
+		libpcap_t		*pcap;
 		lanalyzer_t		*lanalyzer;
 		ngsniffer_t		*ngsniffer;
 	} capture;
 
 	subtype_func	subtype_read;	
-	char			err_str[PCAP_ERRBUF_SIZE];
 	int				encapsulation;
 } wtap;
 

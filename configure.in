@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.10 1998/11/12 00:06:18 gram Exp $
+# $Id: configure.in,v 1.11 1998/11/15 05:28:58 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -91,9 +91,10 @@ AC_CHECK_HEADERS(sys/sockio.h sys/types.h netinet/in.h)
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST
 
-# We need libpcap's AC_LBL_SOCKADDR_SA_LEN test for get_interface_list().
+# We need to know whether "struct sockaddr" has an "sa_len" member
+# for get_interface_list().
 
-AC_LBL_SOCKADDR_SA_LEN
+AC_ETHEREAL_STRUCT_SA_LEN
 
 # We must know our byte order
 AC_C_BIGENDIAN

@@ -72,7 +72,9 @@ libwiretap_a_SOURCES = \
 	buffer.c		\
 	file.c			\
 	lanalyzer.c		\
+	libpcap.c		\
 	ngsniffer.c		\
+	snoop.c			\
 	wtap.c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
@@ -86,7 +88,8 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libwiretap_a_LIBADD = 
-libwiretap_a_OBJECTS =  buffer.o file.o lanalyzer.o ngsniffer.o wtap.o
+libwiretap_a_OBJECTS =  buffer.o file.o lanalyzer.o libpcap.o \
+ngsniffer.o snoop.o wtap.o
 AR = ar
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
@@ -101,7 +104,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/buffer.P .deps/file.P .deps/lanalyzer.P \
-.deps/ngsniffer.P .deps/wtap.P
+.deps/libpcap.P .deps/ngsniffer.P .deps/snoop.P .deps/wtap.P
 SOURCES = $(libwiretap_a_SOURCES)
 OBJECTS = $(libwiretap_a_OBJECTS)
 

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.11 1998/11/12 00:06:20 gram Exp $
+ * $Id: file.c,v 1.12 1998/11/15 05:28:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,12 +68,20 @@ extern guint      file_ctx;
 static guint32 ssec, susec;
 static guint32 lastsec, lastusec;
 
+#ifdef WITH_WIRETAP
+static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
+    const u_char *);
+#else
+static void pcap_dispatch_cb(u_char *, const struct pcap_pkthdr *,
+    const u_char *);
+#endif
+
 int
 open_cap_file(char *fname, capture_file *cf) {
 #ifndef WITH_WIRETAP
   guint32     magic[2];
-#endif
   char        err_str[PCAP_ERRBUF_SIZE];
+#endif
   struct stat cf_stat;
 
   /* First, make sure the file is valid */
@@ -260,9 +268,9 @@ load_cap_file(char *fname, capture_file *cf) {
 #endif
     gtk_clist_freeze(GTK_CLIST(packet_list));
 #ifdef WITH_WIRETAP
-	wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
-	wtap_close(cf->wth);
-	cf->wth = NULL;
+    wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
+    wtap_close(cf->wth);
+    cf->wth = NULL;
 #else
     pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
     pcap_close(cf->pfh);
@@ -301,9 +309,9 @@ load_cap_file(char *fname, capture_file *cf) {
   return err;
 }
 
-void
+static void
 #ifdef WITH_WIRETAP
-wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr,
+wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 #else
 pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
 #endif
@@ -324,7 +332,11 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
 
   fdata->pkt_len  = phdr->len;
   fdata->cap_len  = phdr->caplen;
+#ifdef WITH_WIRETAP
+  fdata->file_off = offset;
+#else
   fdata->file_off = ftell(cf->fh) - phdr->caplen;
+#endif
   fdata->secs     = phdr->ts.tv_sec;
   fdata->usecs    = phdr->ts.tv_usec;
 

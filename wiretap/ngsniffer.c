@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.4 1998/11/13 06:47:36 gram Exp $
+ * $Id: ngsniffer.c,v 1.5 1998/11/15 05:29:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -56,6 +56,7 @@
  *
  */
 
+#include <stdlib.h>
 #include "wtap.h"
 #include "ngsniffer.h"
 
@@ -107,6 +108,7 @@ int ngsniffer_open(wtap *wth)
 	/* This is a ngsniffer file */
 	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
 	wth->subtype_read = ngsniffer_read;
+	wth->snapshot_length = 16384;	/* XXX - available in header? */
 	/*wth->frame_number = 0;*/
 	/*wth->file_byte_offset = 0x10b;*/
 
@@ -116,6 +118,7 @@ int ngsniffer_open(wtap *wth)
 		bytes_read = fread(record_type, 1, 2, wth->fh);
 		bytes_read += fread(record_length, 1, 4, wth->fh);
 		if (bytes_read != 6) {
+			free(wth->capture.ngsniffer);
 			return WTAP_FILE_UNKNOWN;
 		}
 
@@ -132,6 +135,7 @@ int ngsniffer_open(wtap *wth)
 				network = version[9];
 				if (network >= NUM_NGSNIFF_ENCAPS) {
 					g_error("ngsniffer: network type %d unknown", network);
+					free(wth->capture.ngsniffer);
 					return WTAP_FILE_UNKNOWN;
 				}
 				else {
@@ -142,6 +146,7 @@ int ngsniffer_open(wtap *wth)
 				timeunit = version[11];
 				if (timeunit >= NUM_NGSNIFF_TIMEUNITS) {
 					g_error("ngsniffer: Unknown timeunit %d", timeunit);
+					free(wth->capture.ngsniffer);
 					return WTAP_FILE_UNKNOWN;
 				}
 				else {
@@ -173,6 +178,7 @@ int ngsniffer_read(wtap *wth)
 	char frame2[14];
 	double t, x;
 	guint16 time_low, time_med, time_high, true_size, size;
+	int	data_offset;
 
 	/* if this is the very first packet, then the fh cursor will be at the
 	 * start of a f_frame2_struct instead of at the start of the record.
@@ -216,13 +222,18 @@ int ngsniffer_read(wtap *wth)
 	time_high = frame2[4];
 
 	buffer_assure_space(&wth->frame_buffer, packet_size);
+	data_offset = ftell(wth->fh);
 	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		g_error("ngsniffer_read: fread for data: %d bytes out of %d",
+		if (ferror(wth->fh)) {
+			g_error("ngsniffer_read: fread for data: read error\n");
+		} else {
+			g_error("ngsniffer_read: fread for data: %d bytes out of %d",
 				bytes_read, packet_size);
-		return 0;
+		}
+		return -1;
 	}
 
 	x = 4.0 * (double)(1<<30);
@@ -236,5 +247,5 @@ int ngsniffer_read(wtap *wth)
 	wth->phdr.len = true_size ? true_size : size;
 	wth->phdr.caplen = size;
 
-	return 1;
+	return data_offset;
 }

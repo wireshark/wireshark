@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.1 1998/11/12 06:01:22 gram Exp $
+ * $Id: lanalyzer.c,v 1.2 1998/11/15 05:29:10 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+#include <stdlib.h>
 #include "wtap.h"
 #include "lanalyzer.h"
 
@@ -50,6 +51,7 @@ int lanalyzer_open(wtap *wth)
 	 * Let's get some info from it */
 	wth->capture.lanalyzer = g_malloc(sizeof(lanalyzer_t));
 	wth->subtype_read = lanalyzer_read;
+	wth->snapshot_length = 16384;	/* XXX - available in header? */
 
 	/* Read records until we find the start of packets */
 
@@ -58,6 +60,7 @@ int lanalyzer_open(wtap *wth)
 		bytes_read = fread(record_type, 1, 2, wth->fh);
 		bytes_read += fread(record_length, 1, 2, wth->fh);
 		if (bytes_read != 4) {
+			free(wth->capture.lanalyzer);
 			return WTAP_FILE_UNKNOWN;
 		}
 
@@ -106,6 +109,7 @@ int lanalyzer_read(wtap *wth)
 	char record_length[2];
 	guint16 type, length;
 	gchar descriptor[32];
+	int	data_offset;
 
 	/* If this is the very first packet, then the fh cursor will already
 	 * be at the start of the packet data instead of at the start of the Trace
@@ -142,13 +146,18 @@ int lanalyzer_read(wtap *wth)
 	}
 
 	buffer_assure_space(&wth->frame_buffer, packet_size);
+	data_offset = ftell(wth->fh);
 	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		g_error("lanalyzer_read: fread for data: %d bytes out of %d read",
-			bytes_read, packet_size);
-		return 0;
+		if (ferror(wth->fh)) {
+			g_error("lanalyzer_read: fread for data: read error\n");
+		} else {
+			g_error("lanalyzer_read: fread for data: %d bytes out of %d read",
+				bytes_read, packet_size);
+		}
+		return -1;
 	}
 
 	wth->phdr.ts.tv_sec = 0;
@@ -156,7 +165,5 @@ int lanalyzer_read(wtap *wth)
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = packet_size;
 
-
-	return 1;
+	return data_offset;
 }
-

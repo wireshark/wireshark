@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.3 1998/11/13 03:21:20 gram Exp $
+# $Id: configure.in,v 1.4 1998/11/15 05:29:08 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(wtap.c)
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
@@ -11,9 +11,6 @@ AC_PROG_RANLIB
 # GTK checks (copied from ethereal)
 AM_PATH_GTK(1.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
                    AC_MSG_ERROR(GTK+ distribution not found.))
-
-# Pcap checks (copied from ethereal)
-AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
 
 dnl Checks for header files
 AC_HEADER_STDC

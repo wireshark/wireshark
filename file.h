@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.5 1998/11/12 00:06:21 gram Exp $
+ * $Id: file.h,v 1.6 1998/11/15 05:29:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,28 +31,29 @@
 
 #ifdef WITH_WIRETAP
  #include <wtap.h>
+ #include <pcap.h>
 #else
  #include <pcap.h>
+
+  /* Data file formats */
+  #define CD_UNKNOWN    0
+  #define CD_WIRE       1
+  #define CD_SNOOP      2
+  #define CD_PCAP_BE    3
+  #define CD_PCAP_LE    4
+  #define CD_NA_UNCOMPR 5
+
+  /* Data file magic info */
+  #define SNOOP_MAGIC_1 0x736e6f6f /* 'snoop' in ASCII */
+  #define SNOOP_MAGIC_2 0x70000000
+  #define PCAP_MAGIC    0xa1b2c3d4
+
+  /* Data file format versions we can handle */
+  #define SNOOP_MIN_VERSION 2
+  #define SNOOP_MAX_VERSION 2
+
+  /* Link types (removed in favor of the DLT_* defines from bpf.h */
 #endif
-
-/* Data file formats */
-#define CD_UNKNOWN    0
-#define CD_WIRE       1
-#define CD_SNOOP      2
-#define CD_PCAP_BE    3
-#define CD_PCAP_LE    4
-#define CD_NA_UNCOMPR 5
-
-/* Data file magic info */
-#define SNOOP_MAGIC_1 0x736e6f6f /* 'snoop' in ASCII */
-#define SNOOP_MAGIC_2 0x70000000
-#define PCAP_MAGIC    0xa1b2c3d4
-
-/* Data file format versions we can handle */
-#define SNOOP_MIN_VERSION 2
-#define SNOOP_MAX_VERSION 2
-
-/* Link types (removed in favor of the DLT_* defines from bpf.h */
 
 typedef struct bpf_program bpf_prog;
 
@@ -105,11 +106,6 @@ typedef struct _snoop_frame_hdr {
 int  open_cap_file(char *, capture_file *);
 void close_cap_file(capture_file *, GtkWidget *, guint);
 int  load_cap_file(char *, capture_file *);
-#ifdef WITH_WIRETAP
-void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, const u_char *);
-#else
-void pcap_dispatch_cb(u_char *, const struct pcap_pkthdr *, const u_char *);
-#endif
 /* size_t read_frame_header(capture_file *); */
 
 #endif /* file.h */
