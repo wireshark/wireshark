@@ -239,3 +239,4 @@ addr_dissector_change_string p_dissector_change_string;
 addr_dissector_reset_string p_dissector_reset_string;
 addr_dissector_try_string p_dissector_try_string;
 addr_dissector_get_string_handle p_dissector_get_string_handle;
+addr_get_datafile_dir p_get_datafile_dir;

@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.7 2003/09/24 18:35:08 guy Exp $
+ * $Id: plugin_api_list.c,v 1.8 2003/10/28 21:01:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/filesystem.h>
 #include "prefs.h"
 #include "reassemble.h"
 #include "packet-giop.h"
@@ -376,3 +377,5 @@ void dissector_change_string(const char*, gchar *, dissector_handle_t);
 void dissector_reset_string(const char*, const gchar*);
 gboolean dissector_try_string(dissector_table_t, const gchar*, tvbuff_t*, packet_info*, proto_tree*);
 dissector_handle_t dissector_get_string_handle(dissector_table_t, const gchar*);
+
+const char *get_datafile_dir(void);

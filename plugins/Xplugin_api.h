@@ -239,3 +239,4 @@
 #define dissector_reset_string (*p_dissector_reset_string)
 #define dissector_try_string (*p_dissector_try_string)
 #define dissector_get_string_handle (*p_dissector_get_string_handle)
+#define get_datafile_dir (*p_get_datafile_dir)
