@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.63 2001/01/25 21:47:23 guy Exp $
+ * $Id: file.c,v 1.64 2001/02/22 22:03:31 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -59,6 +59,7 @@
 #include "i4btrace.h"
 #include "csids.h"
 #include "pppdump.h"
+#include "etherpeek.h"
 
 /* The open_file_* routines should return:
  *
@@ -96,6 +97,7 @@ static int (*open_routines[])(wtap *, int *) = {
 	radcom_open,
 	nettl_open,
 	pppdump_open,
+	etherpeek_open,
 
 	/* Files whose magic headers are in text *somewhere* in the
 	 * file (usually because the trace is just a saved copy of
@@ -345,6 +347,13 @@ const static struct file_type_info {
         { "pppd log (pppdump format)", NULL,
           NULL, NULL },
 
+	/* WTAP_FILE_ETHERPEEK_MAC_V56 */
+	{ "Etherpeek trace (Macintosh V5 & V6)", NULL,
+	  NULL, NULL },
+
+	/* WTAP_FILE_ETHERPEEK_MAC_V7 */
+	{ "Etherpeek trace (Macintosh V7)", NULL,
+	  NULL, NULL },
 };
 
 /* Name that should be somewhat descriptive. */

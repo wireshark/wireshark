@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.84 2001/01/08 22:18:22 guy Exp $
+ * $Id: wtap.h,v 1.85 2001/02/22 22:03:31 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -129,9 +129,11 @@
 #define WTAP_FILE_I4BTRACE			22
 #define WTAP_FILE_CSIDS				23
 #define WTAP_FILE_PPPDUMP			24
+#define WTAP_FILE_ETHERPEEK_MAC_V56		25
+#define WTAP_FILE_ETHERPEEK_MAC_V7		26
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			25
+#define WTAP_NUM_FILE_TYPES			27
 
 /*
  * Maximum packet size we'll support.
@@ -189,6 +191,10 @@ struct ascend_phdr {
 	guint32	task;			/* Task number */
 };
 
+/* Packet "pseudo_header" for etherpeek capture files. */
+struct etherpeek_phdr {
+	struct timeval reference_time;
+};
 
 struct p2p_phdr {
 	gboolean	sent; /* TRUE=sent, FALSE=received */
@@ -251,6 +257,7 @@ union wtap_pseudo_header {
 	struct x25_phdr			x25;
 	struct ngsniffer_atm_phdr	ngsniffer_atm;
 	struct ascend_phdr		ascend;
+	struct etherpeek_phdr           etherpeek;
 	struct p2p_phdr			p2p;
 };
 
