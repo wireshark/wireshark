@@ -88,9 +88,9 @@ it under?)
 
 *) A GtkWidget for authors in the About box. We've got a lot of authors!
 We've currently banished the list of authors to the AUTHORS file and the
-man page, which may be the right solution here.
+man page, which may be the right solution here. [DONE]
 
-*) Finish moving GTK-dependent code into gtk/ subdirectory.
+*) Finish moving GTK-dependent code into gtk/ subdirectory. [DONE]
 
 *) Provide alternative user interfaces, e.g. other toolkits (Qt/KDE,
 full GNOME, native Windows, native Aqua, etc.) and text-mode "curses".
