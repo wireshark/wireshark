@@ -82,6 +82,7 @@ struct _stats_tree {
 	stats_tree_cfg* cfg;
 	
 	char*			filter;
+	guint32			highest_seen;
 	
 	/* times */
 	float			start;

@@ -494,7 +494,8 @@ stats_tree_branch_max_namelen
 stats_tree_branch_to_str
 stats_tree_create_node
 stats_tree_create_node_by_pname
-stats_tree_create_pivot_node
+stats_tree_create_pivot
+stats_tree_create_pivot_by_pname
 stats_tree_create_range_node
 stats_tree_free
 stats_tree_get_abbr

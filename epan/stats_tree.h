@@ -114,14 +114,6 @@ extern int stats_tree_create_pivot_by_pname(stats_tree* st,
 											  const gchar* name,
 											  const gchar* parent_name);
 
-extern int stats_tree_create_pivot_node(stats_tree* st,
-							 const gchar* name,
-							 int parent_id);
-
-extern int create_pivot_node_with_parent_name(stats_tree* st,
-							 const gchar* name,
-							 const gchar* parent_name);
-
 extern int stats_tree_tick_pivot(stats_tree* st,
 					  int pivot_id,
 					  const gchar* pivot_value);

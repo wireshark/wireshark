@@ -198,7 +198,7 @@ static int st_node_other = -1;
 
 static void http_stats_tree_init(stats_tree* st) {
 	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);	
-		st_node_requests = stats_tree_create_pivot_node(st, st_str_requests, st_node_packets);
+		st_node_requests = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
 		st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
 			st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, TRUE);
 			st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, TRUE);

@@ -61,7 +61,7 @@ extern void ip_hosts_stats_tree_init(stats_tree* st) {
 extern int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	static guint8 str[128];
 	
-	stats_tree_tick_node(st, st_str_ip, 0, FALSE);
+	tick_stat_node(st, st_str_ip, 0, FALSE);
 	
 	g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->net_src));
 	tick_stat_node(st, str, st_node_ip, FALSE);
@@ -71,7 +71,6 @@ extern int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan
 	
 	return 1;
 }
-
 
 /* packet type stats_tree -- test pivot node */
 static int st_node_ptype = -1;
@@ -124,19 +123,18 @@ extern int dsts_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_disse
 	int ip_dst_node;
 	int proto_node;
 	
-	stats_tree_tick_node(st, st_str_dsts, 0, FALSE);
+	tick_stat_node(st, st_str_dsts, 0, FALSE);
 	
 	g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->net_src));
 	ip_dst_node = tick_stat_node(st, str, st_node_dsts, TRUE);
 	
-	proto_node = stats_tree_tick_node(st,port_type_to_str(pinfo->ptype),ip_dst_node,TRUE);
+	proto_node = tick_stat_node(st,port_type_to_str(pinfo->ptype),ip_dst_node,TRUE);
 
 	g_snprintf(str, sizeof(str),"%u",pinfo->destport);
 	tick_stat_node(st,str,proto_node,TRUE);
 	
 	return 1;
 }
-
 
 /* register all pinfo trees */
 extern void register_pinfo_stat_trees(void) {

@@ -285,7 +285,8 @@ extern stats_tree* stats_tree_new(stats_tree_cfg* cfg, tree_pres* pr,char* filte
 	
 	st->start = -1.0;
 	st->elapsed = 0.0;
-
+	st->highest_seen = 0;
+	
 	st->root.counter = 0;
 	st->root.name = g_strdup(cfg->name);
 	st->root.st = st;
@@ -303,8 +304,13 @@ extern stats_tree* stats_tree_new(stats_tree_cfg* cfg, tree_pres* pr,char* filte
 /* will be the tap packet cb */
 extern int stats_tree_packet(void* p, packet_info* pinfo, epan_dissect_t *edt, const void *pri) {
 	stats_tree* st = p;
+	float now;
 	
-	float now = (((float)pinfo->fd->rel_secs) + (((float)pinfo->fd->rel_usecs)/1000000) );
+	if (st->highest_seen >= pinfo->fd->num) return 0;
+	
+	st->highest_seen = pinfo->fd->num;
+	
+	now = (((float)pinfo->fd->rel_secs) + (((float)pinfo->fd->rel_usecs)/1000000) );
 	
 	if (st->start < 0.0) st->start = now;
 	
@@ -631,7 +637,7 @@ extern int stats_tree_tick_range(stats_tree* st,
 	return node->id;
 }
 
-extern int stats_tree_create_pivot_node(stats_tree* st,
+extern int stats_tree_create_pivot(stats_tree* st,
 							 const gchar* name,
 							 int parent_id) {
 	stat_node* node = new_stat_node(st,name,parent_id,TRUE,TRUE);
@@ -642,7 +648,7 @@ extern int stats_tree_create_pivot_node(stats_tree* st,
 		return 0;
 }
 
-extern int create_pivot_node_with_parent_name(stats_tree* st,
+extern int stats_tree_create_pivot_by_pname(stats_tree* st,
 							 const gchar* name,
 							 const gchar* parent_name) {
 	int parent_id = stats_tree_parent_id_by_name(st,parent_name);
