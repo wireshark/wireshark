@@ -1651,7 +1651,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
 
 /* dissect the V5UA-Parameters into subsets which are separated by Tag-Length-Header and call up the dissector for the subsets */
 static void
-dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *v5ua_tree)
+dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree _U_, proto_tree *v5ua_tree)
 {
   gint tag, offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
