@@ -11,7 +11,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.15 2002/03/21 11:08:39 guy Exp $
+ * $Id: packet-skinny.c,v 1.16 2002/03/21 11:18:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -277,7 +277,7 @@ static const value_string deviceStimuli[] = {
 #define DeviceMaxCapabilities 18 /* max capabilities allowed in Cap response message */
 
 static const value_string mediaPayloads[] = {
-  {1   , "Non-standard"},
+  {1   , "Non-standard codec"},
   {2   , "G.711 A-law 64k"},
   {3   , "G.711 A-law 56k"},
   {4   , "G.711 u-law 64k"},
@@ -285,16 +285,20 @@ static const value_string mediaPayloads[] = {
   {6   , "G.722 64k"},
   {7   , "G.722 56k"},
   {8   , "G.722 48k"},
-  {9   , "G.7231"},
+  {9   , "G.723.1"},
   {10  , "G.728"},
   {11  , "G.729"},
-  {12  , "G.729 AnnexA"},
-  {13  , "Is11172AudioCap"},
-  {14  , "Is13818AudioCap"},
+  {12  , "G.729 Annex A"},
+  {13  , "IS11172 AudioCap"},	/* IS11172 is an ISO MPEG standard */
+  {14  , "IS13818 AudioCap"},	/* IS13818 is an ISO MPEG standard */
   {15  , "G.729 Annex B"},
   {16  , "G.729 Annex A+Annex B"},
-  {32  , "Data64"},
-  {33  , "Data56"},
+  {18  , "GSM Full Rate"},
+  {19  , "GSM Half Rate"},
+  {20  , "GSM Enhanced Full Rate"},
+  {25  , "Wideband 256k"},
+  {32  , "Data 64k"},
+  {33  , "Data 56k"},
   {80  , "GSM"},
   {81  , "ActiveVoice"},
   {82  , "G.726 32K"},
