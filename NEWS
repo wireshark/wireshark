@@ -1,3 +1,10 @@
+Overview of changes in Ethereal 0.7.2:
+* Another memory leak fix (Jochen)
+* Allow compilation from different directory (Laurent)
+* -R flag for display filter on command line (Jochen)
+* Updated docs (Guy)
+* Handles ICMP Unreachable|Frag Required (John)
+
 Overview of changes in Ethereal 0.7.1:
 * Fixed big memory leaks in dfilter code (Guy)
 * Enhanced xdlc, llc, and x25 (Guy, Olivier)

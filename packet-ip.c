@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.33 1999/08/05 00:02:55 guy Exp $
+ * $Id: packet-ip.c,v 1.34 1999/08/09 18:18:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,6 +106,26 @@ typedef struct _e_icmp {
 #define ICMP_IREQREPLY    16
 #define ICMP_MASKREQ      17
 #define ICMP_MASKREPLY    18
+
+/* ICMP UNREACHABLE */
+
+#define ICMP_NET_UNREACH        0       /* Network Unreachable */
+#define ICMP_HOST_UNREACH       1       /* Host Unreachable */
+#define ICMP_PROT_UNREACH       2       /* Protocol Unreachable */
+#define ICMP_PORT_UNREACH       3       /* Port Unreachable */
+#define ICMP_FRAG_NEEDED        4       /* Fragmentation Needed/DF set */
+#define ICMP_SR_FAILED          5       /* Source Route failed */
+#define ICMP_NET_UNKNOWN        6
+#define ICMP_HOST_UNKNOWN       7
+#define ICMP_HOST_ISOLATED      8
+#define ICMP_NET_ANO            9
+#define ICMP_HOST_ANO           10
+#define ICMP_NET_UNR_TOS        11
+#define ICMP_HOST_UNR_TOS       12
+#define ICMP_PKT_FILTERED       13      /* Packet filtered */
+#define ICMP_PREC_VIOLATION     14      /* Precedence violation */
+#define ICMP_PREC_CUTOFF        15      /* Precedence cut off */
+
 
 /* IGMP structs and definitions */
 typedef struct _e_igmp {
@@ -937,6 +957,15 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree_add_text(icmp_tree, offset +  6, 2, "Sequence number: %u",
 	  pntohs(&pd[offset +  6]));
 	break;
+
+       case ICMP_UNREACH:
+         switch (ih.icmp_code) {
+           case ICMP_FRAG_NEEDED:
+                 proto_tree_add_text(icmp_tree, offset +  6, 2, "MTU of next hop: %u",
+                   pntohs(&pd[offset + 6]));
+                 break;
+           }
+         break;
 
       case ICMP_RTRADVERT:
         num_addrs = pd[offset + 4];
