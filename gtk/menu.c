@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.169 2004/02/22 21:35:58 ulfl Exp $
+ * $Id: menu.c,v 1.170 2004/02/22 22:42:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -566,21 +566,21 @@ register_tap_menu_item(
     gboolean (*selected_tree_row_enabled)(field_info *),
     gpointer callback_data)
 {
-	//static const char toolspath[] = "/Analyze/";
-	char *toolspath;
-	char *p;
-	char *menupath;
-	size_t menupathlen;
-	menu_item_t *child;
+    /*static const char toolspath[] = "/Analyze/";*/
+    char *toolspath;
+    char *p;
+    char *menupath;
+    size_t menupathlen;
+    menu_item_t *child;
     GList *curnode;
     GList *childnode;
 
-	/*
-	 * The menu path must be relative.
-	 */
+    /*
+     * The menu path must be relative.
+     */
 	g_assert(*name != '/');
 
-//#if 0
+/*#if 0*/
     switch(layer) {
     case(REGISTER_TAP_LAYER_GENERIC): toolspath = "/Analyze/"; break;
     case(REGISTER_TAP_LAYER_PHYSICAL): toolspath = "/Physical/"; break;
@@ -593,7 +593,7 @@ register_tap_menu_item(
     default:
         g_assert(0);
     }
-//#endif
+/*#endif*/
     switch(layer) {
     case(REGISTER_TAP_LAYER_GENERIC): toolspath = "/Analyze/"; break;
     case(REGISTER_TAP_LAYER_PHYSICAL): toolspath = "/Transport/"; break;
@@ -605,6 +605,7 @@ register_tap_menu_item(
     case(REGISTER_TAP_LAYER_APPLICATION): toolspath = "/Application/"; break;
     default:
         g_assert(0);
+        toolspath = NULL;
     }
 
     /* add the (empty) root node, if not already done */
@@ -613,67 +614,67 @@ register_tap_menu_item(
         tap_menu_tree_root = g_list_append(NULL, child);
     }
 
-	/*
-	 * Create any submenus required.
-	 */
-	curnode = tap_menu_tree_root;
-	p = name;
-	while ((p = strchr(p, '/')) != NULL) {
-		/*
-		 * OK, everything between "name" and "p" is
-		 * a menu relative subtree into which the menu item
-		 * will be placed.
-		 *
-		 * Construct the absolute path name of that subtree.
-		 */
-		menupathlen = strlen(toolspath) + 1 + (p - name);
-		menupath = g_malloc(menupathlen);
-		strcpy(menupath, toolspath);
-		strncat(menupath, name, p - name);
+    /*
+     * Create any submenus required.
+     */
+    curnode = tap_menu_tree_root;
+    p = name;
+    while ((p = strchr(p, '/')) != NULL) {
+        /*
+         * OK, everything between "name" and "p" is
+         * a menu relative subtree into which the menu item
+         * will be placed.
+         *
+         * Construct the absolute path name of that subtree.
+         */
+        menupathlen = strlen(toolspath) + 1 + (p - name);
+        menupath = g_malloc(menupathlen);
+        strcpy(menupath, toolspath);
+        strncat(menupath, name, p - name);
 
-		/*
-		 * Does there exist an entry with that path at this
-		 * level of the Analyze menu tree?
-		 */
+        /*
+         * Does there exist an entry with that path at this
+         * level of the Analyze menu tree?
+         */
         child = curnode->data;
-		for (childnode = child->children; childnode != NULL; childnode = childnode->next) {
+        for (childnode = child->children; childnode != NULL; childnode = childnode->next) {
             child = childnode->data;
-			if (strcmp(child->name, menupath) == 0)
-				break;
-		}
-		if (childnode == NULL) {
-			/*
-			 * No.  Create such an item as a subtree, and
-			 * add it to the Tools menu tree.
-			 */
+            if (strcmp(child->name, menupath) == 0)
+                break;
+        }
+        if (childnode == NULL) {
+            /*
+             * No.  Create such an item as a subtree, and
+             * add it to the Tools menu tree.
+             */
             childnode = tap_menu_item_add(
                 layer, menupath, NULL, NULL ,NULL, NULL, curnode);
-		} else {
-			/*
-			 * Yes.  We don't need this "menupath" any longer.
-			 */
-			g_free(menupath);
-		}
-		curnode = childnode;
+        } else {
+            /*
+             * Yes.  We don't need this "menupath" any longer.
+             */
+            g_free(menupath);
+        }
+        curnode = childnode;
 
-		/*
-		 * Skip over the '/' we found.
-		 */
-		p++;
-	}
+        /*
+         * Skip over the '/' we found.
+         */
+        p++;
+    }
 
-	/*
-	 * Construct the main menu path for the menu item.
+    /*
+     * Construct the main menu path for the menu item.
      */
-	menupathlen = strlen(toolspath) + 1 + strlen(name);
-	menupath = g_malloc(menupathlen);
-	strcpy(menupath, toolspath);
-	strcat(menupath, name);
+    menupathlen = strlen(toolspath) + 1 + strlen(name);
+    menupath = g_malloc(menupathlen);
+    strcpy(menupath, toolspath);
+    strcat(menupath, name);
 
-	/*
-	 * Construct an item factory entry for the item, and add it to
-	 * the main menu.
-	 */
+    /*
+     * Construct an item factory entry for the item, and add it to
+     * the main menu.
+     */
     tap_menu_item_add(
         layer, menupath, callback, 
         selected_packet_enabled, selected_tree_row_enabled, 
@@ -682,91 +683,91 @@ register_tap_menu_item(
 
 
 guint merge_tap_menus_layered(GList *node, gint layer) {
-	GtkItemFactoryEntry *entry;
-	GList       *child;
+    GtkItemFactoryEntry *entry;
+    GList       *child;
     guint       added = 0;
     menu_item_t *node_data = node->data;
 
-	/*
-	 * Is this a leaf node or an interior node?
-	 */
-	if (node_data->children == NULL) {
-		/*
-		 * It's a leaf node.
-		 */
+    /*
+     * Is this a leaf node or an interior node?
+     */
+    if (node_data->children == NULL) {
+        /*
+         * It's a leaf node.
+         */
 
-	    /*
-	     * The root node doesn't correspond to a menu tree item; it
-	     * has a null name pointer.
-	     */
-	    if (node_data->name != NULL && layer == node_data->layer) {
-	        entry = g_malloc0(sizeof (GtkItemFactoryEntry));
-	        entry->path = node_data->name;
-	        entry->callback = node_data->callback;
-	        gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, 2);
-	        set_menu_sensitivity(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
-            added++;
-        }
-	} else {
-		/*
-		 * It's an interior node; call
-		 * "merge_tap_menus_layered()" on all its children 
-		 */
-
-	    /*
-	     * The root node doesn't correspond to a menu tree item; it
-	     * has a null name pointer.
-	     */
-	    if (node_data->name != NULL && layer == node_data->layer) {
+        /*
+         * The root node doesn't correspond to a menu tree item; it
+         * has a null name pointer.
+         */
+        if (node_data->name != NULL && layer == node_data->layer) {
             entry = g_malloc0(sizeof (GtkItemFactoryEntry));
-		    entry->path = node_data->name;
-		    entry->item_type = "<Branch>";
-		    gtk_item_factory_create_item(main_menu_factory, entry,
-			    NULL, 2);
-		    set_menu_sensitivity(main_menu_factory, node_data->name,
-			    FALSE);	/* no children yet */
+            entry->path = node_data->name;
+            entry->callback = node_data->callback;
+            gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, 2);
+            set_menu_sensitivity(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
+            added++;
+        }
+    } else {
+        /*
+         * It's an interior node; call
+         * "merge_tap_menus_layered()" on all its children 
+         */
+
+        /*
+         * The root node doesn't correspond to a menu tree item; it
+         * has a null name pointer.
+         */
+        if (node_data->name != NULL && layer == node_data->layer) {
+            entry = g_malloc0(sizeof (GtkItemFactoryEntry));
+            entry->path = node_data->name;
+            entry->item_type = "<Branch>";
+            gtk_item_factory_create_item(main_menu_factory, entry,
+                NULL, 2);
+            set_menu_sensitivity(main_menu_factory, node_data->name,
+                FALSE);    /* no children yet */
             added++;
         }
 
-		for (child = node_data->children; child != NULL; child =
-		    child->next) {
-			added += merge_tap_menus_layered(child, layer);
-		}
-	}
+        for (child = node_data->children; child != NULL; child =
+            child->next) {
+            added += merge_tap_menus_layered(child, layer);
+        }
+    }
 
     return added;
 }
 
 
 void merge_all_tap_menus(GList *node) {
-	GtkItemFactoryEntry *entry;
+    GtkItemFactoryEntry *entry;
 
     entry = g_malloc0(sizeof (GtkItemFactoryEntry));
-	entry->item_type = "<Separator>";
+    entry->item_type = "<Separator>";
 
     /* 
      * merge only the menu items of the specific layer,
      * and then append a seperator
      */
-	entry->path = "/Analyze/";
+    entry->path = "/Analyze/";
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_GENERIC))
-	    /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
 
-	entry->path = "/Transport/";
+    entry->path = "/Transport/";
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_PHYSICAL))
-	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_DATA_LINK))
-	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_NETWORK))
-	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_TRANSPORT))
-	    /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
 
-	entry->path = "/Application/";
+    entry->path = "/Application/";
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_SESSION))
-	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_PRESENTATION))
-	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     merge_tap_menus_layered(node, REGISTER_TAP_LAYER_APPLICATION);
 }
 
