@@ -1919,6 +1919,10 @@ Matthias Drochner <M.Drochner [AT] fz-juelich.de> {
 	    extension data, in NTP
 }
 
+Dave Sclarsky <dave_sclarsky [AT] cnt.com> {
+	CPFI support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
