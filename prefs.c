@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.104 2003/08/07 00:41:26 guy Exp $
+ * $Id: prefs.c,v 1.105 2003/08/26 05:56:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1736,7 +1736,7 @@ set_pref(gchar *pref_name, gchar *value)
         if (strcmp(dotp, "nlm_msg_res_matching") == 0)
           pref = find_preference(module, "msg_res_matching");
       } else if (strcmp(module->name, "ppp") == 0) {
-        /* Handle old names for PP preferences. */
+        /* Handle old names for PPP preferences. */
         if (strcmp(dotp, "ppp_fcs") == 0)
           pref = find_preference(module, "fcs_type");
         else if (strcmp(dotp, "ppp_vj") == 0)
