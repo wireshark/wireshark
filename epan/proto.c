@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.86 2003/05/19 03:23:12 gerald Exp $
+ * $Id: proto.c,v 1.87 2003/06/04 21:51:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -699,6 +699,15 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 		case FT_STRINGZ:
 			if (length != 0) {  /* XXX - Should we throw an exception instead? */
+				/* Instead of calling proto_item_set_len(),
+				 * since we don't yet have a proto_item, we
+				 * set the field_info's length ourselves.
+				 *
+				 * XXX - our caller can't use that length to
+				 * advance an offset unless they arrange that
+				 * there always be a protocol tree into which
+				 * we're putting this item.
+				 */
 				if (length == -1) {
 					/* This can throw an exception */
 					length = tvb_strsize(tvb, start);
@@ -710,14 +719,23 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 					new_fi->length = length;
 				}
 				else {
-					/* In this case, length signifies maximum length. */
+					/* In this case, length signifies
+					 * maximum length.  That does not
+					 * include the trailing '\0'; we
+					 * assume this is null-padded,
+					 * not null-terminated, so we need
+					 * a buffer of length length+1,
+					 * with the extra 1 for the trailing
+					 * '\0'. */
 
-					/* This g_strdup'ed memory is freed in proto_tree_free_node() */
-					string = g_malloc(length);
+					/* This g_strdup'ed memory is freed
+					 * in proto_tree_free_node() */
+					string = g_malloc(length + 1);
 
 					CLEANUP_PUSH(g_free, string);
 
-					found_length = tvb_get_nstringz0(tvb, start, length, string);
+					found_length = tvb_get_nstringz0(tvb,
+					    start, length + 1, string);
 
 					CLEANUP_POP;
 					new_fi->length = found_length + 1;
@@ -731,17 +749,24 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			n = get_uint_value(tvb, start, length, little_endian);
 			proto_tree_set_string_tvb(new_fi, tvb, start + length, n);
 
-			/* Instead of calling proto_item_set_len(), since we don't yet
-			 * have a proto_item, we set the field_info's length ourselves. */
+			/* Instead of calling proto_item_set_len(), since we
+			 * don't yet have a proto_item, we set the
+			 * field_info's length ourselves.
+			 *
+			 * XXX - our caller can't use that length to
+			 * advance an offset unless they arrange that
+			 * there always be a protocol tree into which
+			 * we're putting this item.
+			 */
 			new_fi->length = n + length;
 			break;
+
 		default:
 			g_error("new_fi->hfinfo->type %d (%s) not handled\n",
 					new_fi->hfinfo->type,
 					ftype_name(new_fi->hfinfo->type));
 			g_assert_not_reached();
 			break;
-
 	}
 
 	/* Don't add new node to proto_tree until now so that any exceptions
@@ -750,13 +775,13 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	CLEANUP_POP;
 
-    /* If the proto_tree wants to keep a record of this finfo
-     * for quick lookup, then record it. */
-    hash = PTREE_DATA(tree)->interesting_hfids;
-    ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
-    if (ptrs) {
-        g_ptr_array_add(ptrs, new_fi);
-    }
+	/* If the proto_tree wants to keep a record of this finfo
+	 * for quick lookup, then record it. */
+	hash = PTREE_DATA(tree)->interesting_hfids;
+	ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
+	if (ptrs) {
+		g_ptr_array_add(ptrs, new_fi);
+	}
 
 	return pi;
 }
@@ -1199,7 +1224,7 @@ proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean li
 	proto_tree_set_uint64(fi, tvb_get_ptr(tvb, start, 8), little_endian);
 }
 
-/* Add a FT_STRING to a proto_tree. Creates own copy of string,
+/* Add a FT_STRING or FT_STRINGZ to a proto_tree. Creates own copy of string,
  * and frees it when the proto_tree is destroyed. */
 proto_item *
 proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
@@ -1213,7 +1238,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		return (NULL);
 
 	hfinfo = proto_registrar_get_nth(hfindex);
-	g_assert(hfinfo->type == FT_STRING);
+	g_assert(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_string(new_fi, value, FALSE);
@@ -1828,14 +1853,32 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		 * that, if we throw an exception while dissecting, it
 		 * has what is probably the right value.
 		 *
+		 * For FT_STRINGZ, it means "the string is null-terminated,
+		 * not null-padded; set the length to the actual length
+		 * of the string", and if the tvbuff if short, we just
+		 * throw an exception.
+		 *
 		 * It's not valid for any other type of field.
 		 */
-		g_assert(hfinfo->type == FT_PROTOCOL ||
-			 hfinfo->type == FT_NONE ||
-			 hfinfo->type == FT_BYTES ||
-			 hfinfo->type == FT_STRING ||
-			 hfinfo->type == FT_STRINGZ);
-		*length = tvb_ensure_length_remaining(tvb, start);
+		switch (hfinfo->type) {
+
+		case FT_PROTOCOL:
+		case FT_NONE:
+		case FT_BYTES:
+		case FT_STRING:
+			*length = tvb_ensure_length_remaining(tvb, start);
+			break;
+
+		case FT_STRINGZ:
+			/*
+			 * Leave the length as -1, so our caller knows
+			 * it was -1.
+			 */
+			break;
+
+		default:
+			g_assert_not_reached();
+		}
 	}
 
 	fi = g_mem_chunk_alloc(gmc_field_info);
