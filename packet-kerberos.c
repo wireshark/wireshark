@@ -14,7 +14,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.45 2004/01/21 01:10:20 guy Exp $
+ * $Id: packet-kerberos.c,v 1.46 2004/01/23 09:50:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -922,7 +922,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         KRB_DECODE_GENERAL_STRING_OR_DIE("Realm", str, str_len, item_len);
         if (request_tree) {
             proto_tree_add_text(request_tree, tvb, offset, item_len,
-                                "Realm: %.*s", str_len, str);
+                                "Realm: %.*s", (int)str_len, str);
         }
         offset += item_len;
 
@@ -1057,7 +1057,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         KRB_DECODE_GENERAL_STRING_OR_DIE("realm name", str, str_len, item_len);
         if (kerberos_tree) {
             proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
-                                "Realm: %.*s", str_len, str);
+                                "Realm: %.*s", (int)str_len, str);
         }
         offset += item_len;
 
@@ -1204,7 +1204,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         	KRB_DECODE_GENERAL_STRING_OR_DIE("crealm", str, str_len, item_len);
         	if (kerberos_tree) {
 		    proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
-                                	"crealm: %.*s", str_len, str);
+                                	"crealm: %.*s", (int)str_len, str);
         	}
         	offset += item_len;
 		KRB_HEAD_DECODE_OR_DIE("cname");
@@ -1223,7 +1223,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         KRB_DECODE_GENERAL_STRING_OR_DIE("realm", str, str_len, item_len);
         if (kerberos_tree) {
             proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
-                                "realm: %.*s", str_len, str);
+                                "realm: %.*s", (int)str_len, str);
         }
         offset += item_len;
 	KRB_HEAD_DECODE_OR_DIE("sname");
@@ -1242,7 +1242,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             KRB_DECODE_GENERAL_STRING_OR_DIE("etext", str, str_len, item_len);
             if (kerberos_tree) {
 		proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
-                                	"etext: %.*s", str_len, str);
+                                	"etext: %.*s", (int)str_len, str);
             }
             offset += item_len;
             if (asn1p->offset >= message_end)
@@ -1561,7 +1561,7 @@ dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
     KRB_DECODE_GENERAL_STRING_OR_DIE("Ticket realm string", str, str_len, item_len);
     if (ticket_tree) {
         proto_tree_add_text(ticket_tree, asn1p->tvb, offset, item_len,
-                            "Realm: %.*s", str_len, str);
+                            "Realm: %.*s", (int)str_len, str);
     }
     offset += item_len;
     total_len -= item_len;
