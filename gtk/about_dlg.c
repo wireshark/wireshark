@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.22 2004/07/07 05:36:10 guy Exp $
+ * $Id: about_dlg.c,v 1.23 2004/07/07 07:01:37 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -95,22 +95,23 @@ splash_new(char *message)
 
     win = splash_window_new();
 
+    /* When calling about_ethereal(), we must realize the top-level
+       widget for the window, otherwise GTK will throw a warning
+       because we don't have a colormap associated with that window and
+       can't handle the pixmap. */
+    gtk_widget_realize(win);
+
     main_vb = gtk_vbox_new(FALSE, 6);
     gtk_container_border_width(GTK_CONTAINER(main_vb), 24);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 
-    /* when calling about_ethereal(), we must have a visible window, */
-    /* otherwise GTK will throw a warning */
-    gtk_widget_show_all(win);
     about_ethereal(win, main_vb, "Ethereal - Network Protocol Analyzer");
-    gtk_widget_hide(win);
 
     main_lb = gtk_label_new(message);
     gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
     OBJECT_SET_DATA(win, "splash_label", main_lb);
     
     gtk_widget_show_all(win);
-    gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
 
     splash_update(win, message);
 
@@ -127,7 +128,8 @@ splash_update(GtkWidget *win, char *message)
     main_lb = OBJECT_GET_DATA(win, "splash_label");
     gtk_label_set_text(GTK_LABEL(main_lb), message);
 
-    /* process all pending GUI events before continue */
+    /* Process all pending GUI events before continuing, so that
+       the splash screen window gets updated. */
     while (gtk_events_pending()) gtk_main_iteration();
 }
 
