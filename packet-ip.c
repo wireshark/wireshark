@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.200 2003/10/15 22:00:02 guy Exp $
+ * $Id: packet-ip.c,v 1.201 2003/11/13 08:16:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1281,8 +1281,8 @@ static const gchar *redir_str[] = {"Redirect for network",
 
 #define	N_REDIRECT	(sizeof redir_str / sizeof redir_str[0])
 
-static const gchar *ttl_str[] = {"TTL equals 0 during transit",
-                                 "TTL equals 0 during reassembly"};
+static const gchar *ttl_str[] = {"Time to live exceeded in transit",
+                                 "Fragment reassembly time exceeded"};
 
 #define	N_TIMXCEED	(sizeof ttl_str / sizeof ttl_str[0])
 
