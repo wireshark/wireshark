@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.31 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-rx.c,v 1.32 2002/02/01 16:37:18 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,6 +132,8 @@ static int hf_rx_ifmtu = -1;
 static int hf_rx_maxmtu = -1;
 static int hf_rx_rwind = -1;
 static int hf_rx_maxpackets = -1;
+static int hf_rx_abort = -1;
+static int hf_rx_abortcode = -1;
 
 static gint ett_rx = -1;
 static gint ett_rx_flags = -1;
@@ -139,6 +141,7 @@ static gint ett_rx_ack = -1;
 static gint ett_rx_challenge = -1;
 static gint ett_rx_response = -1;
 static gint ett_rx_encrypted = -1;
+static gint ett_rx_abort = -1;
 
 static dissector_handle_t afs_handle;
 
@@ -251,6 +254,39 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	proto_item_set_len(item, offset-old_offset);	
 	return offset;
 }
+
+static int
+dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
+{
+	proto_tree *tree;
+	proto_item *item;
+	int old_offset=offset;
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+			"ABORT  "
+			"Seq: %lu  "
+			"Call: %lu  "
+			"Source Port: %s  "
+			"Destination Port: %s  ",
+			(unsigned long)seq,
+			(unsigned long)callnumber,
+			get_udp_port(pinfo->srcport),
+			get_udp_port(pinfo->destport)
+		);
+	}
+
+	item = proto_tree_add_item(parent_tree, hf_rx_abort, tvb, offset, -1, FALSE);
+	tree = proto_item_add_subtree(item, ett_rx_abort);
+
+	/* kvno */
+	proto_tree_add_item(tree, hf_rx_abortcode, tvb, offset, 4, FALSE);
+	offset += 4;
+		
+	proto_item_set_len(item, offset-old_offset);	
+	return offset;
+}
+
 
 static int
 dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
@@ -547,6 +583,9 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		call_dissector(afs_handle, next_tvb, pinfo, parent_tree);
 		};
 		break;
+	case RX_PACKET_TYPE_ABORT:
+		dissect_rx_abort(tvb, pinfo, tree, offset, seq, callnumber);
+		break;
 	}
 
 }
@@ -679,6 +718,10 @@ proto_register_rx(void)
 			"RESPONSE Packet", "rx.response", FT_NONE, BASE_NONE,
 			NULL, 0, "RESPONSE Packet", HFILL }},
 
+		{ &hf_rx_abort, {
+			"ABORT Packet", "rx.abort", FT_NONE, BASE_NONE,
+			NULL, 0, "ABORT Packet", HFILL }},
+
 		{ &hf_rx_encrypted, {
 			"Encrypted", "rx.encrypted", FT_NONE, BASE_NONE,
 			NULL, 0, "Encrypted part of response packet", HFILL }},
@@ -711,6 +754,10 @@ proto_register_rx(void)
 			"Max Packets", "rx.max_packets", FT_UINT32, BASE_DEC,
 			NULL, 0, "Max Packets", HFILL }},
 
+		{ &hf_rx_abortcode, {
+			"Abort Code", "rx.abort_code", FT_UINT32, BASE_DEC,
+			NULL, 0, "Abort Code", HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_rx,
@@ -719,6 +766,7 @@ proto_register_rx(void)
 		&ett_rx_challenge,
 		&ett_rx_response,
 		&ett_rx_encrypted,
+		&ett_rx_abort
 	};
 
 	proto_rx = proto_register_protocol("RX Protocol", "RX", "rx");
