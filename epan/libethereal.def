@@ -80,8 +80,6 @@ convert_string_to_hex
 copy_prefs
 crc16_ccitt_tvb
 create_dissector_handle
-create_node
-create_node_with_parent_name
 create_persconffile_dir
 data_out_file                   DATA
 dcerpc_add_conv_to_bind_table
@@ -223,7 +221,6 @@ fragment_set_partial_reassembly
 fragment_set_tot_len
 fragment_table_init
 free_prefs
-free_stats_tree
 ftype_can_contains
 ftype_can_eq
 ftype_can_ge
@@ -284,10 +281,6 @@ get_hostname6
 get_persconffile_path
 get_plugins_global_dir
 get_plugins_pers_dir
-get_parent_id_by_name
-get_st_abbr
-get_stats_tree_by_abbr
-get_strings_from_node
 get_systemfile_dir
 get_tcp_port
 get_tempfile_path
@@ -331,7 +324,6 @@ mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
 new_create_dissector_handle
 new_register_dissector
-new_stats_tree
 nt_cmd_vals                     DATA
 num_tap_filters                 DATA
 num_tree_types                  DATA
@@ -470,13 +462,11 @@ register_postseq_cleanup_routine
 register_tap
 register_tap_listener
 RegistrationRejectReason_vals   DATA
-reinit_stats_tree
 ReleaseCompleteReason_vals      DATA
 remove_tap_listener
 report_failure
 report_open_failure
 report_read_failure
-reset_stats_tree
 reset_tap_listeners
 reset_tcp_reassembly
 rpc_init_proc_table
@@ -502,8 +492,7 @@ sminmpec_values                 DATA
 stats_tree_branch_to_str
 stats_tree_create_node
 stats_tree_create_node_by_pname
-stats_tree_create_pivot
-stats_tree_create_pivot_by_pname
+stats_tree_create_pivot_node
 stats_tree_create_range_node
 stats_tree_free
 stats_tree_get_abbr
@@ -521,7 +510,6 @@ stats_tree_reinit
 stats_tree_reset
 stats_tree_tick_pivot
 stats_tree_tick_range
-stats_tree_tick_range_by_pname
 string_to_name_resolve
 T_h323_message_body_vals	DATA
 tap_push_tapped_queue
