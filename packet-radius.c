@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.100 2004/03/22 16:05:48 gerald Exp $
+ * $Id: packet-radius.c,v 1.101 2004/03/30 18:23:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,6 +220,7 @@ static const value_string radius_vals[] =
 #define VENDOR_CISCO			9
 #define VENDOR_MERIT			61
 #define VENDOR_SHIVA			166
+#define VENDOR_CISCO_VPN5000		255
 #define VENDOR_LIVINGSTON		307
 #define VENDOR_MICROSOFT		311
 #define VENDOR_3COM			429
@@ -230,11 +231,13 @@ static const value_string radius_vals[] =
 #define VENDOR_REDBACK			2352
 #define VENDOR_JUNIPER			2636
 #define VENDOR_APTIS			2637
+#define VENDOR_CISCO_VPN3000		3076
 #define VENDOR_COSINE			3085
 #define VENDOR_SHASTA			3199
 #define VENDOR_NOMADIX			3309
 #define VENDOR_SIEMENS			4329
 #define VENDOR_UNISPHERE		4874
+#define VENDOR_CISCO_BBSM		5263
 #define VENDOR_ISSANNI			5948
 #define VENDOR_QUINTUM			6618
 #define VENDOR_INTERLINK		6728
@@ -248,6 +251,7 @@ static const value_string radius_vendor_specific_vendors[] =
   {VENDOR_CISCO,		"Cisco"},
   {VENDOR_MERIT,		"Merit"},
   {VENDOR_SHIVA,		"Shiva"},
+  {VENDOR_CISCO_VPN5000,	"Cisco VPN 5000"},
   {VENDOR_MICROSOFT,		"Microsoft"},
   {VENDOR_LIVINGSTON,		"Livingston"},
   {VENDOR_3COM,			"3Com"},
@@ -258,11 +262,13 @@ static const value_string radius_vendor_specific_vendors[] =
   {VENDOR_REDBACK,		"Redback"},
   {VENDOR_JUNIPER,		"Juniper Networks"},
   {VENDOR_APTIS,		"Aptis"},
+  {VENDOR_CISCO_VPN3000,	"Cisco VPN 3000"},
   {VENDOR_COSINE,		"CoSine Communications"},
   {VENDOR_SHASTA,		"Shasta"},
   {VENDOR_NOMADIX,		"Nomadix"},
   {VENDOR_SIEMENS,		"SIEMENS"},
   {VENDOR_UNISPHERE,		"Unisphere Networks"},
+  {VENDOR_CISCO_BBSM,		"Cisco BBSM"},
   {VENDOR_ISSANNI,		"Issanni Communications"},
   {VENDOR_QUINTUM,		"Quintum"},
   {VENDOR_INTERLINK,	"Interlink"},
@@ -1033,6 +1039,25 @@ static const radius_attr_info radius_vendor_shiva_attrib[] =
   {102,	RADIUS_INTEGER4,	"Shiva Event Flags", NULL},
   {103,	RADIUS_INTEGER4,	"Shiva Function", radius_vendor_shiva_function_vals},
   {104,	RADIUS_INTEGER4,	"Shiva Connect Reason", radius_vendor_shiva_connect_reason_vals},
+  {0, 0, NULL, NULL},
+};
+
+/*
+reference:
+	Cisco ACS 3.2 User Guide - Appendix D
+	http://www.cisco.com/univercd/cc/td/doc/product/access/acs_soft/csacs4nt/acs32/user02/ad.htm#wp473517
+*/
+
+
+static const radius_attr_info radius_vendor_cisco_vpn5000_attrib[] =
+{
+  {1,	RADIUS_INTEGER4,		"CVPN5000-Tunnel-Throughput", NULL},
+  {2,	RADIUS_IP_ADDRESS,	"CVPN5000-Client-Assigned-IP", NULL},
+  {3,	RADIUS_IP_ADDRESS,	"CVPN5000-Client-Real-IP", NULL},
+  {4,	RADIUS_STRING,		"CVPN5000-VPN-GroupInfo", NULL},
+  {5,	RADIUS_STRING,		"CVPN5000-VPN-Password", NULL},
+  {6,	RADIUS_INTEGER4,		"CVPN5000-Echo", NULL},
+  {7,	RADIUS_INTEGER4,		"CVPN5000-Client-Assigned-IPX", NULL},
   {0, 0, NULL, NULL},
 };
 
@@ -1999,6 +2024,354 @@ static const radius_attr_info radius_vendor_aptis_attrib[] =
   {0, 0, NULL, NULL},
 };
 
+/*
+reference:
+	Dictonary of Cisco ACS 3.1
+	http://www.cisco.com/en/US/products/sw/secursw/ps2086/products_user_guide_chapter09186a0080102172.html#984410
+*/
+
+
+static const value_string radius_vendor_cisco_vpn3000_sep_card_assignment_vals[] =
+{
+  {1,	"SEP 1"},
+  {2,	"SEP 2"},
+  {3,	"SEP 1 + SEP 2"},
+  {4,	"SEP 3"},
+  {5,   	"SEP 1 + SEP 3"},
+  {6,   	"SEP 2 + SEP 3"},
+  {7,   	"SEP 1 + SEP 2 + SEP 3"},
+  {8,   	"SEP 4"},
+  {9,	"SEP 1 + SEP 4"}, 
+  {10,  	"SEP 2 + SEP 4"},
+  {11,  	"SEP 1 + SEP 2 + SEP 4"},
+  {12,  	"SEP 3 + SEP 4"},
+  {13,  	"SEP 1 + SEP 3 + SEP 4"},
+  {14,  	"SEP 2 + SEP 3 + SEP 4"},
+  {15,	"Any SEP"},
+  {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_tunneling_protocols_vals[] =
+{
+  {1,	"PPTP"},
+  {2,	"L2TP"},
+  {3,	"PPTP and L2TP"},
+  {4,	"IPSec"},
+  {5,	"PPTP and IPSec"},
+  {6,	"L2TP and IPSec"},
+  {7,	"PPTP - L2TP - IPSec"},
+  {8,	"L2TP/IPSec"},
+  {9,	"PPTP and L2TP/IPSec"},
+  {10,	"L2TP and L2TP/IPSec"},
+  {11,	"PPTP - L2TP - L2TP/IPSec"},
+  {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ipsec_authentication_vals[] =
+{
+  {0,	"None"},
+  {1,	"RADIUS"},
+  {3,	"NT Domain"},
+  {4,	"SDI"},
+  {5,	"Internal"},
+  {6,	"Radius with Expiry"},
+  {7,	"KERBEROS / Active Directory"},
+  {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_allow_pw_store_vals[] =
+{
+  {0,	"False"},
+  {1,	"True"},
+  {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_use_client_address_vals[] =
+{
+  {0,	"False"},
+  {1,	"True"},
+  {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_pptp_encryption_vals[] =
+{
+  {1,   "Encryption required"},
+  {2,   "40 Bits"},
+  {3,   "40 Bits - Encryption required"},
+  {4,   "128 Bits"},
+  {5,   "128 Bits - Encryption required"},
+  {6,   "40 or 128 Bits"},
+  {7,   "40 or 128 Bits - Encryption required"},
+  {8,   "Stateless Required"},
+  {9,   "Encryption / Stateless required"},
+  {10,  "40 Bits - Stateless required"},
+  {11,  "40 Bits Encryption / Stateless required"},
+  {12,  "128 Bits - Stateless required"},
+  {13,  "128 Bits - Encryption / Stateless required"},
+  {14,  "40/128 Bits - Stateless required"},
+  {15,  "40/128 Bits - Encryption / Stateless required"},
+  {0, NULL}
+};
+
+
+static const value_string radius_vendor_cisco_vpn3000_l2tp_encryption_vals[] =
+{
+  {1,	"Encryption required"}, 
+  {2,	"40 Bits"},
+  {3,	"40 Bits - Encryption required"},
+  {4,	"128 Bits"},
+  {5,	"128 Bits - Encryption required"},
+  {6,	"40 or 128 Bits"},
+  {7,	"40 or 128 Bits - Encryption required"},
+  {8,	"Stateless Required"},
+  {9,	"Encryption / Stateless required"},
+  {10,	"40 Bits - Stateless required"},
+  {11,	"40 Bits Encryption / Stateless required"},
+  {12,	"128 Bits - Stateless required"},
+  {13,	"128 Bits - Encryption / Stateless required"}, 
+  {14,	"40/128 Bits - Stateless required"},
+  {15,	"40/128 Bits - Encryption / Stateless required"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_tunnel_type_vals[] =
+{
+  {1,	"LAN-to-LAN"},
+  {2,	"Remote Access"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_mode_config_vals[] =
+{
+  {0,	"OFF"},
+  {1,	"ON"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_user_group_lock_vals[] =
+{
+  {0,	"OFF"},
+  {1,	"ON"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ipsec_over_udp_vals[] =
+{
+  {0,	"OFF"},
+  {1,	"ON"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_pptp_mppc_compression_vals[] =
+{
+  {1,	"ON"},
+  {2,	"OFF"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_l2tp_mppc_compression_vals[] =
+{
+  {0,	"ON"},
+  {1,	"OFF"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ipsec_ip_compression_vals[] =
+{
+  {0,	"None"},
+  {1,	"LZS"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ipsec_ike_peer_idcheck_vals[] =
+{
+  {1,	"Required"},
+  {2,	"If supported by certifiate"},
+  {3,	"Do not check"}, 
+  {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ike_keep_alives_vals[] =
+{
+  {0,	"OFF"},
+  {1,	"ON"},
+ {0, NULL}
+};
+
+
+static const value_string radius_vendor_cisco_vpn3000_auth_on_rekey_vals[] =
+{
+  {0,	"OFF"},
+  {1,	"ON"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_required_client_fw_vendor_code_vals[] =
+{
+  {1,	"Cisco Systems (with CIC) "},
+  {2,	"Zone Labs"},
+  {3,	"Network ICE"},
+  {4,	"Sygate"},
+  {5,	"Cisco Systems (with CSA) "},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_hw_client_auth_vals[] =
+{
+  {0,	"OFF"},
+  {1,	"ON"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn_req_user_auth_vals[] = 
+{
+  {0,	"No"},
+  {1,	"Yes"},
+  {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ip_phone_bypass_vals[] =
+{
+  {0,	"No"},
+  {1,	"Yes"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ipsec_split_tunneling_policy_vals[] =
+{
+  {0,	"Tunnel everything"},
+  {1,	"Only tunnel networks in list"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ipsec_required_client_fw_capability_vals[] =
+{
+  {0,	"None"},
+  {1,	"Policy defined by remote FW AYT"},
+  {2,	"Policy pushed CPP"},
+  {4,	"Policy from Server"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ipsec_client_fw_filter_optional_vals[] =
+{
+  {0,	"Required"},
+  {1,	"Optional"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ipsec_backup_servers_vals[] =
+{
+  {1,	"User Client-configured list"},
+  {2,	"Disable and clear client list"},
+  {3,	"Use Backup server list"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_ms_client_intercept_dhcp_configure_message_vals[] =
+{
+  {0,	"No"},
+  {1,	"Yes"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_allow_network_extension_mode_vals[] =
+{
+  {0,	"No"},
+  {1,	"Yes"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_webvpn_content_filter_parameters_vals[] =
+{
+  {1,	"Java & ActiveX"},
+  {2,	"JavaScript"},
+  {3,	"Java & ActiveX - JavaScript"},
+  {4,	"Images"},
+  {5,	"Java & ActiveX - Images"},
+  {6,	"JavaScript - Images"},
+  {7,	"Java & ActiveX - JavaScript - Images"},
+  {8,	"Cookies"},
+  {9,	"Cookies - Java & ActiveX"},
+  {10,	"Cookies - Javascript"},
+  {11,  	"Cookies - Java & ActiveX - JavaScript"},
+  {12,	"Cookies - Images"},
+  {13,	"Cookies - Images - Java &ActiveX"},
+  {14,	"Cookies - Images - JavaScript"},
+  {15,	"Cookies - Images - Java &ActiveX - JavaScript"},
+ {0, NULL}
+};
+
+static const value_string radius_vendor_cisco_vpn3000_strip_realm_vals[] =
+{
+  {0,	"No"},
+  {1,	"Yes"},
+ {0, NULL}
+};
+
+static const radius_attr_info radius_vendor_cisco_vpn3000_attrib[] =
+{
+  {1,	RADIUS_STRING,		"CVPN3000-Access-Hours", NULL},
+  {2,	RADIUS_INTEGER4,		"CVPN3000-Simultaneous-Logins", NULL},
+  {5,	RADIUS_IP_ADDRESS,	"CVPN3000-Primary-DNS", NULL},
+  {6,	RADIUS_IP_ADDRESS,	"CVPN3000-Secondary-DNS", NULL},
+  {7,	RADIUS_IP_ADDRESS,	"CVPN3000-Primary-WINS", NULL},
+  {8,	RADIUS_IP_ADDRESS,	"CVPN3000-Secondary-WINS", NULL},
+  {9,   	RADIUS_INTEGER4,		"CVPN3000-SEP-Card-Assignment", radius_vendor_cisco_vpn3000_sep_card_assignment_vals},
+  {11,  	RADIUS_INTEGER4,		"CVPN3000-Tunneling-Protocols", radius_vendor_cisco_vpn3000_tunneling_protocols_vals},
+  {12,	RADIUS_STRING,		"CVPN3000-IPSec-Sec-Association", NULL},
+  {13,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Authentication", radius_vendor_cisco_vpn3000_ipsec_authentication_vals},
+  {15,	RADIUS_STRING,		"CVPN3000-IPSec-Banner1", NULL},
+  {16,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Allow-Passwd-Store", radius_vendor_cisco_vpn3000_allow_pw_store_vals},
+  {17,	RADIUS_INTEGER4,		"CVPN3000-Use-Client-Address", radius_vendor_cisco_vpn3000_use_client_address_vals},
+  {20,	RADIUS_INTEGER4,		"CVPN3000-PPTP-Encryption", radius_vendor_cisco_vpn3000_pptp_encryption_vals},
+  {21,	RADIUS_INTEGER4,		"CVPN3000-L2TP-Encryption", radius_vendor_cisco_vpn3000_l2tp_encryption_vals},
+  {27,	RADIUS_STRING,		"CVPN3000-IPSec-Split-Tunnel-List", NULL},
+  {28,	RADIUS_STRING,		"CVPN3000-IPSec-Default-Domain", NULL},
+  {29,	RADIUS_STRING,		"CVPN3000-IPSec-Split-DNS-Names", NULL},
+  {30,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Tunnel-Type", radius_vendor_cisco_vpn3000_tunnel_type_vals},
+  {31,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Mode-Config", radius_vendor_cisco_vpn3000_mode_config_vals},
+  {33,	RADIUS_INTEGER4,		"CVPN3000-IPSec-User-Group-Lock", radius_vendor_cisco_vpn3000_user_group_lock_vals},
+  {34,  	RADIUS_INTEGER4,		"CVPN3000-IPSec-Over-UDP", radius_vendor_cisco_vpn3000_ipsec_over_udp_vals},
+  {35,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Over-UDP-Port", NULL},
+  {36,	RADIUS_STRING,		"CVPN3000-IPSec-Banner2", NULL},
+  {37,	RADIUS_INTEGER4,		"CVPN3000-PPTP-MPPC-Compression", radius_vendor_cisco_vpn3000_pptp_mppc_compression_vals},
+  {38,	RADIUS_INTEGER4,		"CVPN3000-L2TP-MPPC-Compression", radius_vendor_cisco_vpn3000_l2tp_mppc_compression_vals},
+  {39,	RADIUS_INTEGER4,		"CVPN3000-IPSec-IP-Compression", radius_vendor_cisco_vpn3000_ipsec_ip_compression_vals},
+  {40,	RADIUS_INTEGER4,		"CVPN3000-IPSec-IKE-Peer-IDCheck", radius_vendor_cisco_vpn3000_ipsec_ike_peer_idcheck_vals},
+  {41,	RADIUS_INTEGER4,		"CVPN3000-IKE-Keep-Alives", radius_vendor_cisco_vpn3000_ike_keep_alives_vals},
+  {42,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Auth-On-Rekey", radius_vendor_cisco_vpn3000_auth_on_rekey_vals},
+  {45,	RADIUS_INTEGER4,		"CVPN3000-Required-Client-Firewall-Vendor-Code", radius_vendor_cisco_vpn3000_required_client_fw_vendor_code_vals},
+  {46,	RADIUS_INTEGER4,		"CVPN3000-Required-Client-Firewall-Product-Code", NULL},
+  {47,	RADIUS_STRING,		"CVPN3000-Required-Client-Firewall-Description", NULL},
+  {48,	RADIUS_INTEGER4,		"CVPN3000-Require-HW-Client-Auth", radius_vendor_cisco_vpn3000_hw_client_auth_vals},
+  {49,	RADIUS_INTEGER4,		"CVPN3000-Required-Individual-User-Auth", radius_vendor_cisco_vpn_req_user_auth_vals},
+  {50,	RADIUS_INTEGER4,		"CVPN3000-Authenticated-User-Idle-Timeout", NULL},
+  {51,	RADIUS_INTEGER4,		"CVPN3000-Cisco-IP-Phone-Bypass", radius_vendor_cisco_vpn3000_ip_phone_bypass_vals},
+  {52,	RADIUS_STRING,		"CVPN3000-User-Auth-Server-Name", NULL},
+  {53,	RADIUS_INTEGER4,		"CVPN3000-User-Auth-Server-Port", NULL},
+  {54,  	RADIUS_STRING,		"CVPN3000-User-Auth-Server-Secret", NULL},
+  {55,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Split-Tunneling-Policy", radius_vendor_cisco_vpn3000_ipsec_split_tunneling_policy_vals},
+  {56,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Required-Client-Firewall-Capability", radius_vendor_cisco_vpn3000_ipsec_required_client_fw_capability_vals},
+  {57,	RADIUS_STRING,		"CVPN3000-IPSec-Client-Firewall-Filter-Name", NULL},
+  {58,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Client-Firewall-Filter-Optional", radius_vendor_cisco_vpn3000_ipsec_client_fw_filter_optional_vals},
+  {59,	RADIUS_INTEGER4,		"CVPN3000-IPSec-Backup-Servers", radius_vendor_cisco_vpn3000_ipsec_backup_servers_vals},
+  {60,	RADIUS_STRING,		"CVPN3000-IPSec-Backup-Server-List", NULL},
+  {62,	RADIUS_INTEGER4,		"CVPN3000-MS-Client-Intercept-DHCP-Configure-Message", radius_vendor_cisco_vpn3000_ms_client_intercept_dhcp_configure_message_vals},
+  {63,	RADIUS_IP_ADDRESS,	"CVPN3000-MS-Client-Subnet-Mask", NULL},
+  {64,	RADIUS_INTEGER4,		"CVPN3000-Allow-Network-Extension-Mode", radius_vendor_cisco_vpn3000_allow_network_extension_mode_vals},
+  {68,	RADIUS_INTEGER4,		"CVPN3000-Confidence-Interval", NULL},
+  {69,	RADIUS_INTEGER4,		"CVPN3000-WebVPN-Content-Filter-Parameters", radius_vendor_cisco_vpn3000_webvpn_content_filter_parameters_vals},
+  {70,	RADIUS_INTEGER4,		"CVPN3000-WebVPN-Enable-functions", NULL},
+  {74,	RADIUS_STRING,		"CVPN3000-WebVPN-Exchange-Server-Address", NULL},
+  {75,	RADIUS_INTEGER4,		"CVPN3000-Cisco-LEAP-Bypass", NULL},
+  {77,	RADIUS_STRING,		"CVPN3000-Client-Type-Version-Limiting", NULL},
+  {78,	RADIUS_STRING,		"CVPN3000-WebVPN-ExchangeServer-NETBIOS-Name", NULL},
+  {79,	RADIUS_STRING,		"CVPN3000-Port-Forwarding-Name", NULL},
+  {135,	RADIUS_INTEGER4,		"CVPN3000-Strip-Realm", radius_vendor_cisco_vpn3000_strip_realm_vals},
+  {0,	0, NULL, NULL}
+};
+
 static const radius_attr_info radius_vendor_cosine_attrib[] =
 {
   {1,	RADIUS_STRING,		"Connection Profile Name", NULL},
@@ -2075,6 +2448,18 @@ static const radius_attr_info radius_vendor_unisphere_attrib[] =
   {21,	RADIUS_STRING,		"ERX Alternate Cli Vrouter Name", NULL},
   {22,	RADIUS_INTEGER4,	"ERX Sa Validate", NULL},
   {23,	RADIUS_INTEGER4,	"ERX Igmp Enable", NULL},
+  {0, 0, NULL, NULL},
+};
+
+/*
+reference:
+	Cisco ACS 3.2 User Guide - Appendix D
+	http://www.cisco.com/univercd/cc/td/doc/product/access/acs_soft/csacs4nt/acs32/user02/ad.htm#wp473531
+*/
+
+static const radius_attr_info radius_vendor_cisco_bbsm_attrib[] =
+{
+  {1,	RADIUS_INTEGER4,	"CBBSM-Bandwidth", NULL},
   {0, 0, NULL, NULL},
 };
 
@@ -2202,6 +2587,7 @@ static rd_vsa_table radius_vsa_table[] =
   {VENDOR_ACC,			radius_vendor_acc_attrib},
   {VENDOR_CISCO,		radius_vendor_cisco_attrib},
   {VENDOR_SHIVA,		radius_vendor_shiva_attrib},
+  {VENDOR_CISCO_VPN5000,	radius_vendor_cisco_vpn5000_attrib},
   {VENDOR_LIVINGSTON,		radius_vendor_livingston_attrib},
   {VENDOR_MICROSOFT,		radius_vendor_microsoft_attrib},
   {VENDOR_ASCEND,		radius_vendor_ascend_attrib},
@@ -2210,11 +2596,13 @@ static rd_vsa_table radius_vsa_table[] =
   {VENDOR_VERSANET,		radius_vendor_versanet_attrib},
   {VENDOR_REDBACK,		radius_vendor_redback_attrib},
   {VENDOR_JUNIPER,		radius_vendor_juniper_attrib},
+  {VENDOR_CISCO_VPN3000,	radius_vendor_cisco_vpn3000_attrib},
   {VENDOR_APTIS,		radius_vendor_aptis_attrib},
   {VENDOR_COSINE,		radius_vendor_cosine_attrib},
   {VENDOR_SHASTA,		radius_vendor_shasta_attrib},
   {VENDOR_NOMADIX,		radius_vendor_nomadix_attrib},
   {VENDOR_UNISPHERE,		radius_vendor_unisphere_attrib},
+  {VENDOR_CISCO_BBSM,		radius_vendor_cisco_bbsm_attrib},
   {VENDOR_ISSANNI,		radius_vendor_issanni_attrib},
   {VENDOR_QUINTUM,		radius_vendor_quintum_attrib},
   {VENDOR_COLUBRIS,		radius_vendor_colubris_attrib},
