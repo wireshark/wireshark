@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.60 2004/02/18 20:55:57 guy Exp $
+ * $Id: packet-sip.c,v 1.61 2004/03/26 00:28:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,8 +55,13 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+#include "packet-sip.h"
+#include "tap.h"
+
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060
+
+static gint sip_tap = -1;
 
 /* Initialize the protocol and registered fields */
 static gint proto_sip = -1;
@@ -369,12 +374,24 @@ static dissector_table_t media_type_dissector_table;
 #define SIP2_HDR "SIP/2.0"
 #define SIP2_HDR_LEN (strlen (SIP2_HDR))
 
+/* Store the info needed by the SIP tap for one packet */
+static sip_info_value_t *stat_info;
+
 /* Code to actually dissect the packets */
 static int
 dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    /* Initialise stat info for passing to tap */
+	stat_info = g_malloc(sizeof(sip_info_value_t));
+	stat_info->response_code = 0;
+	stat_info->request_method = NULL;	
+	
 	if (!dissect_sip_common(tvb, pinfo, tree, FALSE))
 		return 0;
+
+	/* Report this packet to the tap */
+	tap_queue_packet(sip_tap, pinfo, stat_info);	
+	
 	return tvb_length(tvb);
 }
 
@@ -815,6 +832,12 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
          */
         string = tvb_get_string(tvb, 0, meth_len);
         proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
+		
+		/* Copy request method for telling tap */
+		stat_info->request_method = g_malloc(meth_len+1);
+		strncpy(stat_info->request_method, string, meth_len+1);
+		
+        /* String no longer needed */
         g_free(string);
 }
 
@@ -834,6 +857,9 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
         string[3] = '\0';
         proto_tree_add_string(tree, hf_Status_Code, tvb, SIP2_HDR_LEN + 1,
             3, string);
+
+        /* Add response code for sending to tap */
+        stat_info->response_code = atoi(string);
 }
 
 /* From section 4.1 of RFC 2543:
@@ -1484,21 +1510,24 @@ void proto_register_sip(void)
 		"Disable it to allow SIP traffic with a different version "
 		"to be dissected as SIP.",
 		&strict_sip_version);
+
+	/* Register for tapping */
+	sip_tap = register_tap("sip");
 }
 
 void
 proto_reg_handoff_sip(void)
 {
-        dissector_handle_t sip_handle, sip_tcp_handle;
+	dissector_handle_t sip_handle, sip_tcp_handle;
 
-        sip_handle = new_create_dissector_handle(dissect_sip, proto_sip);
-        dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
+	sip_handle = new_create_dissector_handle(dissect_sip, proto_sip);
+	dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
 	dissector_add_string("media_type", "message/sip", sip_handle);
 
-        sip_tcp_handle = create_dissector_handle(dissect_sip_tcp, proto_sip);
-        dissector_add("tcp.port", TCP_PORT_SIP, sip_tcp_handle);
+	sip_tcp_handle = create_dissector_handle(dissect_sip_tcp, proto_sip);
+	dissector_add("tcp.port", TCP_PORT_SIP, sip_tcp_handle);
 
-        heur_dissector_add("udp", dissect_sip_heur, proto_sip);
-        heur_dissector_add("tcp", dissect_sip_heur, proto_sip);
-        heur_dissector_add("sctp", dissect_sip_heur, proto_sip);
+	heur_dissector_add("udp", dissect_sip_heur, proto_sip);
+	heur_dissector_add("tcp", dissect_sip_heur, proto_sip);
+	heur_dissector_add("sctp", dissect_sip_heur, proto_sip);
 }

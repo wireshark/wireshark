@@ -2030,6 +2030,7 @@ Sam Leffler <sam [AT] errno.com> {
 
 Martin Mathieson <martin [AT] arca-technologies.com> {
 	SIP sipfrag support
+	SIP statistics tap
 }
 
 Christian Wagner <Christian.Wagner [AT] stud.uni-karlsruhe.de> {

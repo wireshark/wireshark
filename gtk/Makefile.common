@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.8 2004/02/23 19:19:38 ulfl Exp $
+# $Id: Makefile.common,v 1.9 2004/03/26 00:28:39 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -113,5 +113,6 @@ ETHEREAL_TAP_SRC = \
 	rtp_analysis.c	\
 	rtp_stream_dlg.c	\
 	tcp_graph.c	\
+	sip_stat.c	\
 	smb_stat.c	\
 	wsp_stat.c
