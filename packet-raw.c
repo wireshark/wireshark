@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.29 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-raw.c,v 1.30 2002/01/02 20:33:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "packet-ip.h"
 #include "packet-ppp.h"
 
+static int proto_raw = -1;
 static gint ett_raw = -1;
 
 static const char zeroes[10];
@@ -100,7 +101,7 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if (tree) {
-    ti = proto_tree_add_text(tree, tvb, 0, 0, "Raw packet data" );
+    ti = proto_tree_add_item(tree, proto_raw, tvb, 0, 0, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_raw);
     proto_tree_add_text(fh_tree, tvb, 0, 0, "No link information available");
   }
@@ -152,6 +153,7 @@ proto_register_raw(void)
     &ett_raw,
   };
 
+  proto_raw = proto_register_protocol("Raw packet data", "Raw", "raw");
   proto_register_subtree_array(ett, array_length(ett));
 }
 
