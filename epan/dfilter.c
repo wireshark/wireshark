@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.38 2000/09/13 20:30:48 gram Exp $
+ * $Id: dfilter.c,v 1.1 2000/09/27 04:54:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

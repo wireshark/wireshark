@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.227 2000/09/22 16:37:48 gram Exp $
+# $Id: Makefile.am,v 1.228 2000/09/27 04:54:23 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -30,9 +30,6 @@ bin_PROGRAMS = ethereal editcap tethereal
 man_MANS = ethereal.1 editcap.1 tethereal.1
 
 sysconf_DATA = manuf
-
-# Any POSIX-compatible YACC should honor the -p flag
-YFLAGS=-d -p dfilter_
 
 DISSECTOR_SOURCES = \
 	packet-aarp.c  \
@@ -262,17 +259,7 @@ ETHEREAL_COMMON_SOURCES = \
 	asn1.h         \
 	column.c       \
 	column.h       \
-	conversation.c \
-	conversation.h \
-	dfilter-int.h  \
-	dfilter-grammar.y \
-	dfilter-scanner.l \
-	dfilter.c      \
-	dfilter.h      \
 	etypes.h       \
-	except.c	\
-	except.h	\
-	exceptions.h	\
 	follow.c       \
 	follow.h       \
 	inet_aton.h    \
@@ -285,17 +272,12 @@ ETHEREAL_COMMON_SOURCES = \
 	oui.h          \
 	packet.c       \
 	packet.h       \
-	pint.h		\
-	plugins.c      \
-	plugins.h      \
 	ppptypes.h     \
 	prefs.c        \
 	prefs.h        \
 	prefs-int.h    \
 	print.c        \
 	print.h        \
-	proto.c        \
-	proto.h        \
 	ps.c           \
 	ps.h           \
 	ptvcursor.c	\
@@ -305,11 +287,7 @@ ETHEREAL_COMMON_SOURCES = \
 	resolv.c       \
 	resolv.h       \
 	smb.h          \
-	strutil.c         \
-	strutil.h         \
 	timestamp.h    \
-	tvbuff.c	\
-	tvbuff.h	\
 	util.c         \
 	util.h         \
 	xdlc.c         \
@@ -333,9 +311,6 @@ ethereal_static_SOURCES = \
 	$(ethereal_SOURCES)
 
 EXTRA_ethereal_SOURCES = \
-	dfilter-grammar.c \
-	dfilter-grammar.h \
-	dfilter-scanner.c \
 	snprintf.c	\
 	snprintf.h	\
 	snprintf-imp.h	\
@@ -363,7 +338,7 @@ ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
 
 # Additional libs that I know how to build. These will be
 # linked into the ethereal executable.
-ethereal_additional_libs = wiretap/libwiretap.a gtk/libui.a
+ethereal_additional_libs = wiretap/libwiretap.a gtk/libui.a epan/libepan.a
 
 # This is the automake dependency variable for the executable
 ethereal_DEPENDENCIES = \
@@ -405,7 +380,7 @@ tethereal_SOURCES = \
 
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
-tethereal_additional_libs = wiretap/libwiretap.a
+tethereal_additional_libs = wiretap/libwiretap.a epan/libepan.a
 
 # This is the automake dependency variable for the executable
 tethereal_DEPENDENCIES = \
@@ -472,9 +447,6 @@ randpkt.o: randpkt.c
 
 randpkt: randpkt.o wiretap/libwiretap.a
 	$(LINK) -o randpkt randpkt.o wiretap/libwiretap.a `glib-config --libs` -lz
-
-tvbtest: tvbtest.o tvbuff.o except.o strutil.o
-	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o strutil.o `glib-config --libs`
 
 DISTCLEANFILES =	\
 	register.c	\
@@ -568,7 +540,7 @@ endif
 #dist-hook:
 #	@rm -f $(distdir)/register.c
 
-SUBDIRS = wiretap gtk plugins packaging @ethereal_SUBDIRS@
+SUBDIRS = wiretap epan gtk plugins packaging @ethereal_SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
@@ -581,9 +553,6 @@ tethereal.1: tethereal doc/tethereal.pod.template
 editcap.1: doc/editcap.pod
 	(cd doc ; \
 	$(MAKE) ../editcap.1 )
-
-dfilter-scanner.c : dfilter-scanner.l
-	$(LEX) -Pdfilter_ -odfilter-scanner.c $(srcdir)/dfilter-scanner.l
 
 packet-ncp2222.c : ncp2222.py
 	$(PYTHON) $(srcdir)/ncp2222.py > $@

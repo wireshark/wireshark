@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.24 2000/09/14 10:03:02 gram Exp $
+ * $Id: plugins.c,v 1.1 2000/09/27 04:54:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

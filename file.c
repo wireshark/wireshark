@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.222 2000/09/17 07:58:39 guy Exp $
+ * $Id: file.c,v 1.223 2000/09/27 04:54:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,6 +68,8 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
+
+#include <epan.h>
 
 #include "gtk/main.h"
 #include "column.h"
@@ -142,7 +144,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   close_cap_file(cf, info_bar);
 
   /* Initialize the table of conversations. */
-  conversation_init();
+  epan_conversation_init();
 
   /* Initialize protocol-specific variables */
   init_all_protocols();
@@ -901,7 +903,7 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
        by that dissector. */
 
     /* Initialize the table of conversations. */
-    conversation_init();
+    epan_conversation_init();
 
     /* Initialize protocol-specific variables */
     init_all_protocols();

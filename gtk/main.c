@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.158 2000/09/15 05:32:49 guy Exp $
+ * $Id: main.c,v 1.159 2000/09/27 04:55:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,6 +94,8 @@
 #ifdef NEED_GETOPT_H
 #include "getopt.h"
 #endif
+
+#include <epan.h>
 
 #include "main.h"
 #include "timestamp.h"
@@ -854,7 +856,7 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps a list of fields registered
      by the dissectors, and we must do it before we read the preferences,
      in case any dissectors register preferences. */
-  dissect_init();
+  epan_init();
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */
@@ -1357,7 +1359,7 @@ main(int argc, char *argv[])
 
   gtk_main();
 
-  dissect_cleanup();
+  epan_cleanup();
   g_free(rc_file);
 
 #ifdef WIN32

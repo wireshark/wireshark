@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.47 2000/09/20 08:28:43 guy Exp $
+ * $Id: tethereal.c,v 1.48 2000/09/27 04:54:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,6 +74,9 @@
 #ifdef NEED_GETOPT_H
 #include "getopt.h"
 #endif
+
+#include <glib.h>
+#include <epan.h>
 
 #include "globals.h"
 #include "timestamp.h"
@@ -187,7 +190,7 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps a list of fields registered
      by the dissectors, and we must do it before we read the preferences,
      in case any dissectors register preferences. */
-  dissect_init();
+  epan_init();
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */
@@ -457,7 +460,7 @@ main(int argc, char *argv[])
   if (rfilter != NULL) {
     if (dfilter_compile(rfilter, &rfcode) != 0) {
       fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
-      dissect_cleanup();
+      epan_cleanup();
       exit(2);
     }
   }
@@ -465,12 +468,12 @@ main(int argc, char *argv[])
   if (cf_name) {
     err = open_cap_file(cf_name, FALSE, &cfile);
     if (err != 0) {
-      dissect_cleanup();
+      epan_cleanup();
       exit(2);
     }
     err = load_cap_file(&cfile, out_file_type);
     if (err != 0) {
-      dissect_cleanup();
+      epan_cleanup();
       exit(2);
     }
     cf_name[0] = '\0';
@@ -507,7 +510,7 @@ main(int argc, char *argv[])
 #endif
   }
 
-  dissect_cleanup();
+  epan_cleanup();
 
   exit(0);
 }
@@ -529,7 +532,7 @@ capture(int packet_count, int out_file_type)
 #endif
 
   /* Initialize the table of conversations. */
-  conversation_init();
+  epan_conversation_init();
 
   /* Initialize protocol-specific variables */
   init_all_protocols();
@@ -1080,7 +1083,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   /* The open succeeded.  Fill in the information for this file. */
 
   /* Initialize the table of conversations. */
-  conversation_init();
+  epan_conversation_init();
 
   /* Initialize protocol-specific variables */
   init_all_protocols();

@@ -14,7 +14,7 @@
  * into proprietary software; there is no requirement for such software to
  * contain a copyright notice related to this source.
  *
- * $Id: except.h,v 1.1 2000/05/11 08:14:49 gram Exp $
+ * $Id: except.h,v 1.1 2000/09/27 04:54:50 gram Exp $
  * $Name:  $
  */
 

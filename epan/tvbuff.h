@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.12 2000/09/13 20:17:23 gram Exp $
+ * $Id: tvbuff.h,v 1.1 2000/09/27 04:54:54 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *

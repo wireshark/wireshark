@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: strutil.h,v 1.3 2000/09/11 23:31:05 guy Exp $
+ * $Id: strutil.h,v 1.1 2000/09/27 04:54:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

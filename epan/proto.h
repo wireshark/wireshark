@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.42 2000/08/30 02:50:03 gram Exp $
+ * $Id: proto.h,v 1.1 2000/09/27 04:54:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

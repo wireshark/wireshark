@@ -13,7 +13,7 @@
  * This source code may be translated into executable form and incorporated
  * into proprietary software; there is no requirement for such software to
  * contain a copyright notice related to this source.
- * $Id: except.c,v 1.1 2000/05/11 08:14:49 gram Exp $
+ * $Id: except.c,v 1.1 2000/09/27 04:54:49 gram Exp $
  * $Name:  $
  */
 
@@ -27,7 +27,7 @@
 #define XCEPT_BUFFER_SIZE	1024
 
 #ifdef KAZLIB_RCSID
-static const char rcsid[] = "$Id: except.c,v 1.1 2000/05/11 08:14:49 gram Exp $";
+static const char rcsid[] = "$Id: except.c,v 1.1 2000/09/27 04:54:49 gram Exp $";
 #endif
 
 #define group except_group

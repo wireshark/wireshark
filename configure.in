@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.102 2000/09/17 03:20:05 guy Exp $
+# $Id: configure.in,v 1.103 2000/09/27 04:54:24 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -126,8 +126,8 @@ fi
 # as various packages we use ("libpcap", "zlib", an SNMP library)
 # may have been installed under "/usr/local/include".
 #
-CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I/usr/local/include"
-CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I/usr/local/include"
+CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I\$(top_srcdir)/epan -I/usr/local/include"
+CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I\$(top_srcdir)/epan -I/usr/local/include"
 
 #
 # Arrange that we search for libraries in "/usr/local/lib".
@@ -447,6 +447,7 @@ AC_CONFIG_SUBDIRS(wiretap)
 AC_OUTPUT(
   Makefile
   doc/Makefile
+  epan/Makefile
   gtk/Makefile
   packaging/Makefile
   packaging/rpm/Makefile

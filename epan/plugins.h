@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.7 2000/08/11 13:34:27 deniel Exp $
+ * $Id: plugins.h,v 1.1 2000/09/27 04:54:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

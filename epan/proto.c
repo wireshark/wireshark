@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.80 2000/08/30 02:50:02 gram Exp $
+ * $Id: proto.c,v 1.1 2000/09/27 04:54:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

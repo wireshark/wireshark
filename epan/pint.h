@@ -2,7 +2,7 @@
  * Definitions for extracting and translating integers safely and portably
  * via pointers.
  *
- * $Id: pint.h,v 1.2 2000/09/14 11:50:59 gram Exp $
+ * $Id: pint.h,v 1.1 2000/09/27 04:54:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

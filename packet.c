@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.110 2000/09/23 05:58:17 guy Exp $
+ * $Id: packet.c,v 1.111 2000/09/27 04:54:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -952,27 +952,6 @@ void blank_packetinfo(void)
   pi.p2p_dir = P2P_DIR_UNKNOWN;
 }
 
-/* Do all one-time initialization. */
-void
-dissect_init(void)
-{
-	except_init();
-	tvbuff_init();
-	proto_init();
-	dfilter_init();
-#ifdef HAVE_PLUGINS
-	init_plugins();
-#endif
-}
-
-void
-dissect_cleanup(void)
-{
-	dfilter_cleanup();
-	proto_cleanup();
-	tvbuff_cleanup();
-	except_deinit();
-}
 
 /* Allow protocols to register "init" routines, which are called before
    we make a pass through a capture file and dissect all its packets

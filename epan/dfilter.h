@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.18 2000/08/11 13:34:40 deniel Exp $
+ * $Id: dfilter.h,v 1.1 2000/09/27 04:54:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

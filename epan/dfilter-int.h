@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.13 2000/08/01 18:10:05 gram Exp $
+ * $Id: dfilter-int.h,v 1.1 2000/09/27 04:54:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -2,7 +2,7 @@
  *
  * tvbtest : tvbtest.o tvbuff.o except.o
  *
- * $Id: tvbtest.c,v 1.3 2000/08/30 02:50:04 gram Exp $
+ * $Id: tvbtest.c,v 1.1 2000/09/27 04:54:53 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
