@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.5 1998/10/21 02:36:54 gram Exp $
+ * $Id: packet-trmac.c,v 1.6 1998/10/22 04:03:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -284,9 +284,9 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	}
 
 	if (tree) {
-		if ((mv_text = match_strval(pd[offset+3], major_vectors)))
+		if (mv_text)
 			add_item_to_tree(mac_tree, offset+3, 1, "Major Vector Command: %s",
-							pd[offset+3]);
+							mv_text);
 		else
 			add_item_to_tree(mac_tree, offset+3, 1, "Major Vector Command: %02X (Unknown)",
 							pd[offset+3]);
