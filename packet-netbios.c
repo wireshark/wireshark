@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.8 1999/09/03 07:20:15 guy Exp $
+ * $Id: packet-netbios.c,v 1.9 1999/11/15 21:33:57 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,6 +93,10 @@ static int proto_netbios = -1;
 static const value_string name_type_vals[] = {
 	{0x00,	"Workstation/Redirector"},
 	{0x01,	"Browser"},
+	{0x02,	"Workstation/Redirector"}, 
+		/* not sure what 0x02 is, I'm seeing alot of them however */
+		/* i'm seeing them with workstation/redirection host 
+			announcements */
 	{0x03,	"Messenger service/Main name"},
 	{0x05,	"Forwarded name"},
 	{0x06,	"RAS Server service"},

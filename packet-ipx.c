@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.30 1999/10/22 07:17:34 guy Exp $
+ * $Id: packet-ipx.c,v 1.31 1999/11/15 21:33:56 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -117,8 +117,15 @@ struct server_info {
 #define IPX_SOCKET_SERIALIZATION	0x0457
 #define IPX_SOCKET_NWLINK_SMB_NAMEQUERY	0x0551
 #define IPX_SOCKET_NWLINK_SMB_DGRAM	0x0553
+#define IPX_SOCKET_NWLINK_SMB_BROWSE	0x0555 /* ? not sure on this
+	but I guessed based on the content of the packet I saw */
 #define IPX_SOCKET_ATTACHMATE_GW	0x055d
 #define IPX_SOCKET_IPX_MESSAGE		0x4001
+#define IPX_SOCKET_ADSM                 0x8522 /* www.tivoli.com */
+#define IPX_SOCKET_SNMP_AGENT           0x900F /* RFC 1906 */
+#define IPX_SOCKET_SNMP_SINK            0x9010 /* RFC 1906 */
+#define IPX_SOCKET_TCP_TUNNEL           0x9091 /* RFC 1791 */
+#define IPX_SOCKET_UDP_TUNNEL           0x9092 /* RFC 1791 */
 
 static struct port_info	ports[] = {
 	{ IPX_SOCKET_NCP,			dissect_ncp,
@@ -137,10 +144,18 @@ static struct port_info	ports[] = {
 				"NWLink SMB Name Query" },
 	{ IPX_SOCKET_NWLINK_SMB_DGRAM,		dissect_nwlink_dg,
 				"NWLink SMB Datagram" },
+	{ IPX_SOCKET_NWLINK_SMB_BROWSE,	NULL,
+				"NWLink SMB Browse" },
 	{ IPX_SOCKET_ATTACHMATE_GW,		NULL,
 				"Attachmate Gateway" },
 	{ IPX_SOCKET_IPX_MESSAGE,		NULL,
 				"IPX Message" },
+	{ IPX_SOCKET_SNMP_AGENT, NULL, "SNMP Agent" },
+	{ IPX_SOCKET_SNMP_SINK,	NULL, "SNMP Sink" },
+	{ IPX_SOCKET_UDP_TUNNEL, NULL, "UDP Tunnel" },
+	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
+	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
+	{ IPX_SOCKET_ADSM, NULL, "ADSM" },
 	{ 0x0000,				NULL,
 				NULL }
 };
@@ -569,10 +584,28 @@ server_type(guint16 type)
 		{ 0x0111,	"Test server" },
 		{ 0x0133,	"NetWare Name Service" },
 		{ 0x0166,	"NetWare management" },
+		{ 0x023f,	"SMS Testing and Development" },
 		{ 0x026a,	"NetWare management" },
 		{ 0x026b,	"Time synchronization" },
+		{ 0x027b,	"NetWare Management Agent" },
 		{ 0x0278,	"NetWare Directory server" },
+		{ 0x030c,	"HP LaserJet / Quick Silver" },
+		{ 0x0355,	"Arcada Software" },
+		{ 0x0361,	"NETINELO" },
+		{ 0x037e,	"Powerchute UPS Monitoring" },
+		{ 0x03e1,	"UnixWare Application Server" },
+		{ 0x044c,	"Archive" },
 		{ 0x055d,	"Attachmate SNA gateway" },
+		{ 0x0610,	"Adaptec SCSI Management" },
+		{ 0x0640,	"NT Server-RPC/GW for NW/Win95 User Level Sec" },
+		{ 0x064e,	"NT Server-IIS" },
+		{ 0x0810,	"ELAN License Server Demo" },
+		{ 0x8002,	"Intel NetPort Print Server" },
+
+/* For any unidentified ones, I found a really big list of them at: */
+/*    http://www.inpnet.org/cnpweb/saplist.txt */
+/*    http://www.isi.edu/in-notes/iana/assignments/novell-sap-numbers */
+
 		{ 0x0000,	NULL }
 	};
 
