@@ -54,8 +54,8 @@
 #include "gtk/color_dlg.h"
 #ifdef HAVE_LIBPCAP
 #include "capture_dlg.h"
-#include "range_utils.h"
 #endif
+#include "range_utils.h"
 #include "merge.h"
 #include "util.h"
 
