@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.7 2004/03/17 18:20:58 jmayer Exp $
+dnl $Id: acinclude.m4,v 1.8 2004/03/20 10:32:02 jmayer Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -325,6 +325,16 @@ AC_DEFUN(AC_ETHEREAL_KRB5_CHECK,
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
             CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
 	    KRB5_LIBS=`$KRB5_CONFIG --libs`
+	    # Looks like krb5-config is lacking -lresolv on some systems
+	    AC_MSG_CHECKING(whether library list looks OK)
+	    if echo "$KRB5_LIBS" | grep resolv >/dev/null
+	    then
+		AC_MSG_RESULT(yes)
+	    else
+		KRB5_LIBS="$KRB5_LIBS -lresolv"
+		AC_MSG_RESULT(Adding -lresolv to libs)
+	    fi
+
 	    LIBS="$LIBS $KRB5_LIBS"
 	    ac_krb5_version=`$KRB5_CONFIG --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'`
  	  fi
