@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.17 2001/12/17 22:31:42 guy Exp $
+# $Id: ethereal_gen.py,v 1.18 2001/12/17 22:51:42 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -2110,8 +2110,6 @@ static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     
     gboolean be;                        /* big endianess */
     guint32  offset_saved = (*offset);  /* save in case we must back out */
-
-    pinfo->current_proto = \"@disprot@\";
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
        col_set_str(pinfo->cinfo, COL_PROTOCOL, \"@disprot@\");
