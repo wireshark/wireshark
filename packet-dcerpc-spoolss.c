@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.87 2003/02/10 06:21:57 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.88 2003/02/11 03:22:59 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,6 @@
 
 /* TODO list:
 
- - fix up dissect_SYSTEM_TIME() to take a hf value
  - audit of item lengths
 
 */
@@ -48,89 +47,6 @@
 /* Global objects */
 
 static int hf_spoolss_opnum = -1;
-
-static const value_string spoolss_opnum_vals[] = {
-        { SPOOLSS_ENUMPRINTERS, "EnumPrinters" },
-	{ SPOOLSS_OPENPRINTER, "OpenPrinter" },
-        { SPOOLSS_SETJOB, "SetJob" },
-        { SPOOLSS_GETJOB, "GetJob" },
-        { SPOOLSS_ENUMJOBS, "EnumJobs" },
-        { SPOOLSS_ADDPRINTER, "AddPrinter" },
-        { SPOOLSS_DELETEPRINTER, "DeletePrinter" },
-        { SPOOLSS_SETPRINTER, "SetPrinter" },
-        { SPOOLSS_GETPRINTER, "GetPrinter" },
-        { SPOOLSS_ADDPRINTERDRIVER, "AddPrinterDriver" },
-        { SPOOLSS_ENUMPRINTERDRIVERS, "EnumPrinterDrivers" },
-	{ SPOOLSS_GETPRINTERDRIVER, "GetPrinterDriver" },
-        { SPOOLSS_GETPRINTERDRIVERDIRECTORY, "GetPrinterDriverDirectory" },
-        { SPOOLSS_DELETEPRINTERDRIVER, "DeletePrinterDriver" },
-        { SPOOLSS_ADDPRINTPROCESSOR, "AddPrintProcessor" },
-        { SPOOLSS_ENUMPRINTPROCESSORS, "EnumPrintProcessor" },
-	{ SPOOLSS_GETPRINTPROCESSORDIRECTORY, "GetPrintProcessorDirectory" },
-        { SPOOLSS_STARTDOCPRINTER, "StartDocPrinter" },
-        { SPOOLSS_STARTPAGEPRINTER, "StartPagePrinter" },
-        { SPOOLSS_WRITEPRINTER, "WritePrinter" },
-        { SPOOLSS_ENDPAGEPRINTER, "EndPagePrinter" },
-        { SPOOLSS_ABORTPRINTER, "AbortPrinter" },
-	{ SPOOLSS_READPRINTER, "ReadPrinter" },
-        { SPOOLSS_ENDDOCPRINTER, "EndDocPrinter" },
-        { SPOOLSS_ADDJOB, "AddJob" },
-        { SPOOLSS_SCHEDULEJOB, "ScheduleJob" },
-        { SPOOLSS_GETPRINTERDATA, "GetPrinterData" },
-        { SPOOLSS_SETPRINTERDATA, "SetPrinterData" },
-	{ SPOOLSS_WAITFORPRINTERCHANGE, "WaitForPrinterChange" },
-        { SPOOLSS_CLOSEPRINTER, "ClosePrinter" },
-        { SPOOLSS_ADDFORM, "AddForm" },
-        { SPOOLSS_DELETEFORM, "DeleteForm" },
-        { SPOOLSS_GETFORM, "GetForm" },
-        { SPOOLSS_SETFORM, "SetForm" },
-        { SPOOLSS_ENUMFORMS, "EnumForms" },
-        { SPOOLSS_ENUMPORTS, "EnumPorts" },
-        { SPOOLSS_ENUMMONITORS, "EnumMonitors" },
-	{ SPOOLSS_ADDPORT, "AddPort" },
-	{ SPOOLSS_CONFIGUREPORT, "ConfigurePort" },
-	{ SPOOLSS_DELETEPORT, "DeletePort" },
-	{ SPOOLSS_CREATEPRINTERIC, "CreatePrinterIC" },
-	{ SPOOLSS_PLAYGDISCRIPTONPRINTERIC, "PlayDiscriptOnPrinterIC" },
-	{ SPOOLSS_DELETEPRINTERIC, "DeletePrinterIC" },
-	{ SPOOLSS_ADDPRINTERCONNECTION, "AddPrinterConnection" },
-	{ SPOOLSS_DELETEPRINTERCONNECTION, "DeletePrinterConnection" },
-	{ SPOOLSS_PRINTERMESSAGEBOX, "PrinterMessageBox" },
-	{ SPOOLSS_ADDMONITOR, "AddMonitor" },
-	{ SPOOLSS_DELETEMONITOR, "DeleteMonitor" },
-	{ SPOOLSS_DELETEPRINTPROCESSOR, "DeletePrintProcessor" },
-	{ SPOOLSS_ADDPRINTPROVIDER, "AddPrintProvider" },
-	{ SPOOLSS_DELETEPRINTPROVIDER, "DeletePrintProvider" },
-        { SPOOLSS_ENUMPRINTPROCDATATYPES, "EnumPrintProcDataTypes" },
-	{ SPOOLSS_RESETPRINTER, "ResetPrinter" },
-        { SPOOLSS_GETPRINTERDRIVER2, "GetPrinterDriver2" },
-	{ SPOOLSS_FINDFIRSTPRINTERCHANGENOTIFICATION, "FindNextPrinterChangeNotification" },
-	{ SPOOLSS_FINDNEXTPRINTERCHANGENOTIFICATION, "FindNextPrinterChangeNotification" },
-        { SPOOLSS_FCPN, "FCPN" },
-	{ SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD, "RouterFindFirstPrinterNotificationOld" },
-        { SPOOLSS_REPLYOPENPRINTER, "ReplyOpenPrinter" },
-	{ SPOOLSS_ROUTERREPLYPRINTER, "RouterReplyPrinter" },
-        { SPOOLSS_REPLYCLOSEPRINTER, "ReplyClosePrinter" },
-	{ SPOOLSS_ADDPORTEX, "AddPortEx" },
-	{ SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION, "RemoteFindFirstPrinterChangeNotification" },
-	{ SPOOLSS_SPOOLERINIT, "SpoolerInit" },
-	{ SPOOLSS_RESETPRINTEREX, "ResetPrinterEx" },
-        { SPOOLSS_RFFPCNEX, "RFFPCNEX" },
-        { SPOOLSS_RRPCN, "RRPCN" },
-        { SPOOLSS_RFNPCNEX, "RFNPCNEX" },
-        { SPOOLSS_OPENPRINTEREX, "OpenPrinterEx" },
-        { SPOOLSS_ADDPRINTEREX, "AddPrinterEx" },
-        { SPOOLSS_ENUMPRINTERDATA, "EnumPrinterData" },
-        { SPOOLSS_DELETEPRINTERDATA, "DeletePrinterData" },
-        { SPOOLSS_GETPRINTERDATAEX, "GetPrinterDataEx" },
-        { SPOOLSS_SETPRINTERDATAEX, "SetPrinterDataEx" },
-	{ SPOOLSS_ENUMPRINTERDATAEX, "EnumPrinterDataEx" },
-	{ SPOOLSS_ENUMPRINTERKEY, "EnumPrinterKey" },
-	{ SPOOLSS_DELETEPRINTERDATAEX, "DeletePrinterDataEx" },
-	{ SPOOLSS_DELETEPRINTERDRIVEREX, "DeletePrinterDriverEx" },
-	{ SPOOLSS_ADDPRINTERDRIVEREX, "AddPrinterDriverEx" },
-	{ 0, NULL }
-};
 
 static int hf_spoolss_hnd = -1;
 static int hf_spoolss_rc = -1;
@@ -161,17 +77,6 @@ static int hf_spoolss_printprocessor = -1;
 static int hf_spoolss_parameters = -1;
 static int hf_spoolss_level = -1;
 static int hf_access_required = -1;
-
-/* SYSTEM_TIME */
-
-static int hf_spoolss_time_year = -1;
-static int hf_spoolss_time_month = -1;
-static int hf_spoolss_time_dow = -1;
-static int hf_spoolss_time_day = -1;
-static int hf_spoolss_time_hour = -1;
-static int hf_spoolss_time_minute = -1;
-static int hf_spoolss_time_second = -1;
-static int hf_spoolss_time_msec = -1;
 
 /* Printer data */
 
@@ -212,139 +117,6 @@ static int hf_spoolss_monitorname = -1;
 static int hf_spoolss_defaultdatatype = -1;
 static int hf_spoolss_driverinfo_cversion = -1;
 static int hf_spoolss_dependentfiles = -1;
-static int hf_spoolss_printer_status = -1;
-
-static const value_string printer_status_vals[] =
-{
-	{ PRINTER_STATUS_OK, "OK" },
-	{ PRINTER_STATUS_PAUSED, "Paused" },
-	{ PRINTER_STATUS_ERROR, "Error" },
-	{ PRINTER_STATUS_PENDING_DELETION, "Pending deletion" },
-	{ PRINTER_STATUS_PAPER_JAM, "Paper jam" },
-	{ PRINTER_STATUS_PAPER_OUT, "Paper out" },
-	{ PRINTER_STATUS_MANUAL_FEED, "Manual feed" },
-	{ PRINTER_STATUS_PAPER_PROBLEM, "Paper problem" },
-	{ PRINTER_STATUS_OFFLINE, "Offline" },
-	{ PRINTER_STATUS_IO_ACTIVE, "IO active" },
-	{ PRINTER_STATUS_BUSY, "Busy" },
-	{ PRINTER_STATUS_PRINTING, "Printing" },
-	{ PRINTER_STATUS_OUTPUT_BIN_FULL, "Output bin full" },
-	{ PRINTER_STATUS_NOT_AVAILABLE, "Not available" },
-	{ PRINTER_STATUS_WAITING, "Waiting" },
-	{ PRINTER_STATUS_PROCESSING, "Processing" },
-	{ PRINTER_STATUS_INITIALIZING, "Initialising" },
-	{ PRINTER_STATUS_WARMING_UP, "Warming up" },
-	{ PRINTER_STATUS_TONER_LOW, "Toner low" },
-	{ PRINTER_STATUS_NO_TONER, "No toner" },
-	{ PRINTER_STATUS_PAGE_PUNT, "Page punt" },
-	{ PRINTER_STATUS_USER_INTERVENTION, "User intervention" },
-	{ PRINTER_STATUS_OUT_OF_MEMORY, "Out of memory" },
-	{ PRINTER_STATUS_DOOR_OPEN, "Door open" },
-	{ PRINTER_STATUS_SERVER_UNKNOWN, "Server unknown" },
-	{ PRINTER_STATUS_POWER_SAVE, "Power save" },
-	{ 0, NULL }
-};
-
-/* Printer attributes */
-
-static int hf_spoolss_printer_attributes = -1;
-static int hf_spoolss_printer_attributes_queued = -1;
-static int hf_spoolss_printer_attributes_direct = -1;
-static int hf_spoolss_printer_attributes_default = -1;
-static int hf_spoolss_printer_attributes_shared = -1;
-static int hf_spoolss_printer_attributes_network = -1;
-static int hf_spoolss_printer_attributes_hidden = -1;
-static int hf_spoolss_printer_attributes_local = -1;
-static int hf_spoolss_printer_attributes_enable_devq = -1;
-static int hf_spoolss_printer_attributes_keep_printed_jobs = -1;
-static int hf_spoolss_printer_attributes_do_complete_first = -1;
-static int hf_spoolss_printer_attributes_work_offline = -1;
-static int hf_spoolss_printer_attributes_enable_bidi = -1;
-static int hf_spoolss_printer_attributes_raw_only = -1;
-static int hf_spoolss_printer_attributes_published = -1;
-
-static const true_false_string tfs_printer_attributes_queued = {
-	"Printer starts printing after last page spooled",
-	"Printer starts printing while spooling"
-};
-
-static const true_false_string tfs_printer_attributes_direct = {
-	"Jobs sent directly to printer",
-	"Jobs are spooled to printer before printing"
-};
-
-static const true_false_string tfs_printer_attributes_default = {
-	"Printer is the default printer",
-	"Printer is not the default printer"
-};
-
-static const true_false_string tfs_printer_attributes_shared = {
-	"Printer is shared",
-	"Printer is not shared"
-};
-
-static const true_false_string tfs_printer_attributes_network = {
-	"Printer is a network printer connection",
-	"Printer is not a network printer connection"
-};
-
-static const true_false_string tfs_printer_attributes_hidden = {
-	"Reserved",
-	"Reserved"
-};
-
-static const true_false_string tfs_printer_attributes_local = {
-	"Printer is a local printer",
-	"Printer is not a local printer"
-};
-
-static const true_false_string tfs_printer_attributes_enable_devq = {
-	"Call DevQueryPrint",
-	"Do not call DevQueryPrint"
-};
-
-static const true_false_string tfs_printer_attributes_keep_printed_jobs = {
-	"Jobs are kept after they are printed",
-	"Jobs are deleted after printing"
-};
-
-static const true_false_string tfs_printer_attributes_do_complete_first = {
-	"Jobs that have completed spooling are scheduled before still spooling jobs",
-	"Jobs are scheduled in the order they start spooling"
-};
-
-static const true_false_string tfs_printer_attributes_work_offline = {
-	"The printer is currently connected",
-	"The printer is currently not connected"
-};
-
-static const true_false_string tfs_printer_attributes_enable_bidi = {
-	"Bidirectional communications are supported",
-	"Bidirectional communications are not supported"
-};
-
-static const true_false_string tfs_printer_attributes_raw_only = {
-	"Only raw data type print jobs can be spooled",
-	"All data type print jobs can be spooled"
-};
-
-static const true_false_string tfs_printer_attributes_published = {
-	"Printer is published in the directory",
-	"Printer is not published in the directory"
-};
-
-/* Setprinter RPC */
-
-static int hf_spoolss_setprinter_cmd = -1;
-
-static const value_string setprinter_cmd_vals[] = {
-	{ SPOOLSS_PRINTER_CONTROL_UNPAUSE, "Unpause" },
-	{ SPOOLSS_PRINTER_CONTROL_PAUSE, "Pause" },
-	{ SPOOLSS_PRINTER_CONTROL_RESUME, "Resume" },
-	{ SPOOLSS_PRINTER_CONTROL_PURGE, "Purge" },
-	{ SPOOLSS_PRINTER_CONTROL_SET_STATUS, "Set status" },
-	{ 0, NULL }
-};
 
 /* RouterReplyPrinter RPC */
 
@@ -429,17 +201,6 @@ static int hf_spoolss_getprinter_action = -1;
 static int hf_spoolss_start_time = -1;
 static int hf_spoolss_end_time = -1;
 static int hf_spoolss_elapsed_time = -1;
-
-
-/* Userlevel */
-
-static int hf_spoolss_userlevel_size = -1;
-static int hf_spoolss_userlevel_client = -1;
-static int hf_spoolss_userlevel_user = -1;
-static int hf_spoolss_userlevel_build = -1;
-static int hf_spoolss_userlevel_major = -1;
-static int hf_spoolss_userlevel_minor = -1;
-static int hf_spoolss_userlevel_processor = -1;
 
 /* Setprinterdataex */
 
@@ -738,44 +499,80 @@ dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 static gint ett_SYSTEM_TIME;
 
+static int hf_time_year = -1;
+static int hf_time_month = -1;
+static int hf_time_dow = -1;
+static int hf_time_day = -1;
+static int hf_time_hour = -1;
+static int hf_time_minute = -1;
+static int hf_time_second = -1;
+static int hf_time_msec = -1;
+
 static int
 dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *tree, char *drep)
+		    proto_tree *tree, char *drep, char *name, 
+		    gboolean add_subtree, char **data)
 {
-	proto_item *item;
-	proto_tree *subtree;
+	proto_item *item = NULL;
+	proto_tree *subtree = tree;
 	guint16 year, month, day, hour, minute, second;
+	char *str;
 
-	item = proto_tree_add_text(tree, tvb, offset, 16, "SYSTEM_TIME: ");
-
-	subtree = proto_item_add_subtree(item, ett_SYSTEM_TIME);
-
-	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
-				     hf_spoolss_time_year, &year);
-
-	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
-				     hf_spoolss_time_month, &month);
+	if (add_subtree) {
+		item = proto_tree_add_text(tree, tvb, offset, 16, name);
+		subtree = proto_item_add_subtree(item, ett_SYSTEM_TIME);
+	}
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
-				     hf_spoolss_time_dow, NULL);
+				     hf_time_year, &year);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
-				     hf_spoolss_time_day, &day);
+				     hf_time_month, &month);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
-				     hf_spoolss_time_hour, &hour);
+				     hf_time_dow, NULL);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
-				     hf_spoolss_time_minute, &minute);
+				     hf_time_day, &day);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
-				     hf_spoolss_time_second, &second);
+				     hf_time_hour, &hour);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
-				     hf_spoolss_time_msec, NULL);
+				     hf_time_minute, &minute);
 
-	proto_item_append_text(item, "%d/%02d/%02d %02d:%02d:%02d", year,
-			       month, day, hour, minute, second);
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_time_second, &second);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, subtree, drep,
+				     hf_time_msec, NULL);
+
+	str = g_strdup_printf("%d/%02d/%02d %02d:%02d:%02d", 
+			year, month, day, hour, minute, second);
+
+	if (add_subtree) 
+		proto_item_append_text(item, ": %s", str);
+
+	if (data)
+		*data = str;
+	else
+		g_free(str);
+
+	return offset;
+}
+
+static int
+dissect_SYSTEM_TIME_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *str;
+
+	offset =  dissect_SYSTEM_TIME(
+		tvb, offset, pinfo, tree, drep, NULL, FALSE, &str);
+
+	dcv->private_data = str;
 
 	return offset;
 }
@@ -1983,6 +1780,39 @@ dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * PRINTER_INFO_0
  */
 
+static int hf_printer_status = -1;
+
+static const value_string printer_status_vals[] =
+{
+	{ PRINTER_STATUS_OK, "OK" },
+	{ PRINTER_STATUS_PAUSED, "Paused" },
+	{ PRINTER_STATUS_ERROR, "Error" },
+	{ PRINTER_STATUS_PENDING_DELETION, "Pending deletion" },
+	{ PRINTER_STATUS_PAPER_JAM, "Paper jam" },
+	{ PRINTER_STATUS_PAPER_OUT, "Paper out" },
+	{ PRINTER_STATUS_MANUAL_FEED, "Manual feed" },
+	{ PRINTER_STATUS_PAPER_PROBLEM, "Paper problem" },
+	{ PRINTER_STATUS_OFFLINE, "Offline" },
+	{ PRINTER_STATUS_IO_ACTIVE, "IO active" },
+	{ PRINTER_STATUS_BUSY, "Busy" },
+	{ PRINTER_STATUS_PRINTING, "Printing" },
+	{ PRINTER_STATUS_OUTPUT_BIN_FULL, "Output bin full" },
+	{ PRINTER_STATUS_NOT_AVAILABLE, "Not available" },
+	{ PRINTER_STATUS_WAITING, "Waiting" },
+	{ PRINTER_STATUS_PROCESSING, "Processing" },
+	{ PRINTER_STATUS_INITIALIZING, "Initialising" },
+	{ PRINTER_STATUS_WARMING_UP, "Warming up" },
+	{ PRINTER_STATUS_TONER_LOW, "Toner low" },
+	{ PRINTER_STATUS_NO_TONER, "No toner" },
+	{ PRINTER_STATUS_PAGE_PUNT, "Page punt" },
+	{ PRINTER_STATUS_USER_INTERVENTION, "User intervention" },
+	{ PRINTER_STATUS_OUT_OF_MEMORY, "Out of memory" },
+	{ PRINTER_STATUS_DOOR_OPEN, "Door open" },
+	{ PRINTER_STATUS_SERVER_UNKNOWN, "Server unknown" },
+	{ PRINTER_STATUS_POWER_SAVE, "Power save" },
+	{ 0, NULL }
+};
+
 static gint ett_PRINTER_INFO_0 = -1;
 
 static int dissect_PRINTER_INFO_0(tvbuff_t *tvb, int offset, 
@@ -2009,7 +1839,8 @@ static int dissect_PRINTER_INFO_0(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep,
 		hf_spoolss_getprinter_total_bytes, NULL);
 
-	offset = dissect_SYSTEM_TIME(tvb, offset, pinfo, tree, drep);
+	offset = dissect_SYSTEM_TIME(
+		tvb, offset, pinfo, tree, drep, "Unknown time", TRUE, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -2077,7 +1908,7 @@ static int dissect_PRINTER_INFO_0(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_printer_status, NULL);
+		hf_printer_status, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -2267,6 +2098,92 @@ dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static gint ett_printer_attributes = -1;
 
+static int hf_printer_attributes = -1;
+static int hf_printer_attributes_queued = -1;
+static int hf_printer_attributes_direct = -1;
+static int hf_printer_attributes_default = -1;
+static int hf_printer_attributes_shared = -1;
+static int hf_printer_attributes_network = -1;
+static int hf_printer_attributes_hidden = -1;
+static int hf_printer_attributes_local = -1;
+static int hf_printer_attributes_enable_devq = -1;
+static int hf_printer_attributes_keep_printed_jobs = -1;
+static int hf_printer_attributes_do_complete_first = -1;
+static int hf_printer_attributes_work_offline = -1;
+static int hf_printer_attributes_enable_bidi = -1;
+static int hf_printer_attributes_raw_only = -1;
+static int hf_printer_attributes_published = -1;
+
+static const true_false_string tfs_printer_attributes_queued = {
+	"Printer starts printing after last page spooled",
+	"Printer starts printing while spooling"
+};
+
+static const true_false_string tfs_printer_attributes_direct = {
+	"Jobs sent directly to printer",
+	"Jobs are spooled to printer before printing"
+};
+
+static const true_false_string tfs_printer_attributes_default = {
+	"Printer is the default printer",
+	"Printer is not the default printer"
+};
+
+static const true_false_string tfs_printer_attributes_shared = {
+	"Printer is shared",
+	"Printer is not shared"
+};
+
+static const true_false_string tfs_printer_attributes_network = {
+	"Printer is a network printer connection",
+	"Printer is not a network printer connection"
+};
+
+static const true_false_string tfs_printer_attributes_hidden = {
+	"Reserved",
+	"Reserved"
+};
+
+static const true_false_string tfs_printer_attributes_local = {
+	"Printer is a local printer",
+	"Printer is not a local printer"
+};
+
+static const true_false_string tfs_printer_attributes_enable_devq = {
+	"Call DevQueryPrint",
+	"Do not call DevQueryPrint"
+};
+
+static const true_false_string tfs_printer_attributes_keep_printed_jobs = {
+	"Jobs are kept after they are printed",
+	"Jobs are deleted after printing"
+};
+
+static const true_false_string tfs_printer_attributes_do_complete_first = {
+	"Jobs that have completed spooling are scheduled before still spooling jobs",
+	"Jobs are scheduled in the order they start spooling"
+};
+
+static const true_false_string tfs_printer_attributes_work_offline = {
+	"The printer is currently connected",
+	"The printer is currently not connected"
+};
+
+static const true_false_string tfs_printer_attributes_enable_bidi = {
+	"Bidirectional communications are supported",
+	"Bidirectional communications are not supported"
+};
+
+static const true_false_string tfs_printer_attributes_raw_only = {
+	"Only raw data type print jobs can be spooled",
+	"All data type print jobs can be spooled"
+};
+
+static const true_false_string tfs_printer_attributes_published = {
+	"Printer is published in the directory",
+	"Printer is not published in the directory"
+};
+
 static int
 dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, char *drep)
@@ -2276,8 +2193,7 @@ dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 attributes;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
-				    hf_spoolss_printer_attributes,
-				    &attributes);
+				    hf_printer_attributes, &attributes);
 
 	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
 				   "Attributes: 0x%08x", attributes);
@@ -2285,59 +2201,59 @@ dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	subtree = proto_item_add_subtree(item, ett_printer_attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_published,
+		subtree, hf_printer_attributes_published,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_raw_only,
+		subtree, hf_printer_attributes_raw_only,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_enable_bidi,
+		subtree, hf_printer_attributes_enable_bidi,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_work_offline,
+		subtree, hf_printer_attributes_work_offline,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_do_complete_first,
+		subtree, hf_printer_attributes_do_complete_first,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_keep_printed_jobs,
+		subtree, hf_printer_attributes_keep_printed_jobs,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_enable_devq,
+		subtree, hf_printer_attributes_enable_devq,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_local,
+		subtree, hf_printer_attributes_local,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_hidden,
+		subtree, hf_printer_attributes_hidden,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_network,
+		subtree, hf_printer_attributes_network,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_shared,
+		subtree, hf_printer_attributes_shared,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_default,
+		subtree, hf_printer_attributes_default,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_direct,
+		subtree, hf_printer_attributes_direct,
 		tvb, offset - 4, 4, attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_queued,
+		subtree, hf_printer_attributes_queued,
 		tvb, offset - 4, 4, attributes);
 
 	return offset;
@@ -2444,7 +2360,7 @@ static int dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_printer_status, NULL);
+		hf_printer_status, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, NULL, drep, hf_spoolss_getprinter_jobs, 
@@ -2527,6 +2443,14 @@ static int dissect_PRINTER_DATATYPE(tvbuff_t *tvb, int offset,
 
 static gint ett_USER_LEVEL_1 = -1;
 
+static int hf_userlevel_size = -1;
+static int hf_userlevel_client = -1;
+static int hf_userlevel_user = -1;
+static int hf_userlevel_build = -1;
+static int hf_userlevel_major = -1;
+static int hf_userlevel_minor = -1;
+static int hf_userlevel_processor = -1;
+
 static int dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset, 
                                 packet_info *pinfo, proto_tree *tree, 
                                 char *drep)
@@ -2539,36 +2463,30 @@ static int dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset,
            even sure this structure is a container. */
 
         offset = dissect_ndr_uint32(
-                tvb, offset, pinfo, tree, drep,
-                hf_spoolss_level, &level);
+                tvb, offset, pinfo, tree, drep, hf_spoolss_level, &level);
 
         offset = dissect_ndr_uint32(
-                tvb, offset, pinfo, tree, drep,
-                hf_spoolss_userlevel_size, NULL);
+                tvb, offset, pinfo, tree, drep, hf_userlevel_size, NULL);
 
         offset = dissect_ndr_str_pointer_item(
                 tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-                "Client", hf_spoolss_userlevel_client, 0);
+                "Client", hf_userlevel_client, 0);
 
         offset = dissect_ndr_str_pointer_item(
                 tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-                "User", hf_spoolss_userlevel_user, 0);
+                "User", hf_userlevel_user, 0);
 
         offset = dissect_ndr_uint32(
-                tvb, offset, pinfo, tree, drep, 
-                hf_spoolss_userlevel_build, NULL);
+                tvb, offset, pinfo, tree, drep, hf_userlevel_build, NULL);
 
         offset = dissect_ndr_uint32(
-                tvb, offset, pinfo, tree, drep,
-                hf_spoolss_userlevel_major, NULL);
+                tvb, offset, pinfo, tree, drep, hf_userlevel_major, NULL);
 
         offset = dissect_ndr_uint32(
-                tvb, offset, pinfo, tree, drep,
-                hf_spoolss_userlevel_minor, NULL);
+                tvb, offset, pinfo, tree, drep, hf_userlevel_minor, NULL);
 
         offset = dissect_ndr_uint32(
-                tvb, offset, pinfo, tree, drep,
-                hf_spoolss_userlevel_processor, NULL);
+                tvb, offset, pinfo, tree, drep, hf_userlevel_processor, NULL);
 
         return offset;
 }
@@ -3532,6 +3450,17 @@ dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * SpoolssSetPrinter
  */
 
+static int hf_setprinter_cmd = -1;
+
+static const value_string setprinter_cmd_vals[] = {
+	{ SPOOLSS_PRINTER_CONTROL_UNPAUSE, "Unpause" },
+	{ SPOOLSS_PRINTER_CONTROL_PAUSE, "Pause" },
+	{ SPOOLSS_PRINTER_CONTROL_RESUME, "Resume" },
+	{ SPOOLSS_PRINTER_CONTROL_PURGE, "Purge" },
+	{ SPOOLSS_PRINTER_CONTROL_SET_STATUS, "Set status" },
+	{ 0, NULL }
+};
+
 static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			       proto_tree *tree, char *drep _U_)
 {
@@ -3555,7 +3484,7 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_setprinter_cmd, NULL);
+		hf_setprinter_cmd, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -4504,7 +4433,9 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
 				    hf_job_pagesprinted, NULL);
 
-	offset = dissect_SYSTEM_TIME(tvb, offset, pinfo, subtree, drep);
+	offset = dissect_SYSTEM_TIME(
+		tvb, offset, pinfo, subtree, drep, "Job Submission Time",
+		TRUE, NULL);
 
 	proto_item_set_len(item, offset - struct_start);
 
@@ -4613,7 +4544,9 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, hf_job_size, NULL);
 
-	offset = dissect_SYSTEM_TIME(tvb, offset, pinfo, subtree, drep);
+	offset = dissect_SYSTEM_TIME(
+		tvb, offset, pinfo, subtree, drep, "Job Submission Time",
+		TRUE, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, NULL, drep, hf_spoolss_elapsed_time, NULL);
@@ -5785,7 +5718,7 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
  		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_printer_status, &status);
+			hf_printer_status, &status);
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, NULL, drep,
@@ -5827,6 +5760,25 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 	}
 	return offset;
+}
+
+static void notify_job_time_cb(packet_info *pinfo, proto_tree *tree _U_, 
+			       proto_item *item, tvbuff_t *tvb _U_, 
+			       int start_offset _U_, int end_offset _U_, 
+			       void *callback_args _U_)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *str = (char *)dcv->private_data;
+
+	/* Append job string stored in dcv->private_data by 
+           dissect_SYSTEM_TIME_ptr() in the current item as well
+           as the parent. */
+
+	proto_item_append_text(item, ": %s", str);
+
+	if (item)
+		proto_item_append_text(item->parent, ": %s", str);
 }
 
 static int
@@ -5884,10 +5836,10 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb, offset, pinfo, tree, drep,
 			hf_notify_info_data_buffer_len, NULL);
 
-		offset = dissect_ndr_pointer(
+		offset = dissect_ndr_pointer_cb(
 			tvb, offset, pinfo, tree, drep,
-			dissect_SYSTEM_TIME, NDR_POINTER_UNIQUE,
-			"Time submitted", -1);
+			dissect_SYSTEM_TIME_ptr, NDR_POINTER_UNIQUE,
+			"Time submitted", -1, notify_job_time_cb, NULL);
 
 		break;
 
@@ -6023,6 +5975,9 @@ static int
 dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    proto_tree *tree, char *drep)
 {
+	dcerpc_info *di = pinfo->private_data;
+	guint32 count;
+
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_notify_info_version, NULL);
 
@@ -6030,7 +5985,12 @@ dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    hf_notify_info_flags, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_notify_info_count, NULL);
+				    hf_notify_info_count, &count);
+
+	if (!di->conformant_run && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(
+			pinfo->cinfo, COL_INFO, ", %d notifi%s", count,
+			(count == 1) ? "cation" : "es");
 
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 				     dissect_NOTIFY_INFO_DATA);
@@ -6045,6 +6005,8 @@ dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, char *drep)
 {
+	guint32 changeid;
+
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -6052,7 +6014,11 @@ static int SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, tree, drep, hf_rrpcn_changelow, NULL);
+		tvb, offset, pinfo, tree, drep, hf_rrpcn_changelow, &changeid);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(
+			pinfo->cinfo, COL_INFO, ", changeid %d", changeid);
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
@@ -6089,6 +6055,8 @@ static int SpoolssRFNPCNEX_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree *tree, char *drep)
 {
+	guint32 changeid;
+
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -6096,7 +6064,11 @@ static int SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, tree, drep, hf_rrpcn_changelow, NULL);
+		tvb, offset, pinfo, tree, drep, hf_rrpcn_changelow, &changeid);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(
+			pinfo->cinfo, COL_INFO, ", changeid %d", changeid);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_rrpcn_changehigh, NULL);
@@ -6750,6 +6722,93 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 static int proto_dcerpc_spoolss = -1;
 static gint ett_dcerpc_spoolss = -1;
 
+static const value_string spoolss_opnum_vals[] = {
+        { SPOOLSS_ENUMPRINTERS, "EnumPrinters" },
+	{ SPOOLSS_OPENPRINTER, "OpenPrinter" },
+        { SPOOLSS_SETJOB, "SetJob" },
+        { SPOOLSS_GETJOB, "GetJob" },
+        { SPOOLSS_ENUMJOBS, "EnumJobs" },
+        { SPOOLSS_ADDPRINTER, "AddPrinter" },
+        { SPOOLSS_DELETEPRINTER, "DeletePrinter" },
+        { SPOOLSS_SETPRINTER, "SetPrinter" },
+        { SPOOLSS_GETPRINTER, "GetPrinter" },
+        { SPOOLSS_ADDPRINTERDRIVER, "AddPrinterDriver" },
+        { SPOOLSS_ENUMPRINTERDRIVERS, "EnumPrinterDrivers" },
+	{ SPOOLSS_GETPRINTERDRIVER, "GetPrinterDriver" },
+        { SPOOLSS_GETPRINTERDRIVERDIRECTORY, "GetPrinterDriverDirectory" },
+        { SPOOLSS_DELETEPRINTERDRIVER, "DeletePrinterDriver" },
+        { SPOOLSS_ADDPRINTPROCESSOR, "AddPrintProcessor" },
+        { SPOOLSS_ENUMPRINTPROCESSORS, "EnumPrintProcessor" },
+	{ SPOOLSS_GETPRINTPROCESSORDIRECTORY, "GetPrintProcessorDirectory" },
+        { SPOOLSS_STARTDOCPRINTER, "StartDocPrinter" },
+        { SPOOLSS_STARTPAGEPRINTER, "StartPagePrinter" },
+        { SPOOLSS_WRITEPRINTER, "WritePrinter" },
+        { SPOOLSS_ENDPAGEPRINTER, "EndPagePrinter" },
+        { SPOOLSS_ABORTPRINTER, "AbortPrinter" },
+	{ SPOOLSS_READPRINTER, "ReadPrinter" },
+        { SPOOLSS_ENDDOCPRINTER, "EndDocPrinter" },
+        { SPOOLSS_ADDJOB, "AddJob" },
+        { SPOOLSS_SCHEDULEJOB, "ScheduleJob" },
+        { SPOOLSS_GETPRINTERDATA, "GetPrinterData" },
+        { SPOOLSS_SETPRINTERDATA, "SetPrinterData" },
+	{ SPOOLSS_WAITFORPRINTERCHANGE, "WaitForPrinterChange" },
+        { SPOOLSS_CLOSEPRINTER, "ClosePrinter" },
+        { SPOOLSS_ADDFORM, "AddForm" },
+        { SPOOLSS_DELETEFORM, "DeleteForm" },
+        { SPOOLSS_GETFORM, "GetForm" },
+        { SPOOLSS_SETFORM, "SetForm" },
+        { SPOOLSS_ENUMFORMS, "EnumForms" },
+        { SPOOLSS_ENUMPORTS, "EnumPorts" },
+        { SPOOLSS_ENUMMONITORS, "EnumMonitors" },
+	{ SPOOLSS_ADDPORT, "AddPort" },
+	{ SPOOLSS_CONFIGUREPORT, "ConfigurePort" },
+	{ SPOOLSS_DELETEPORT, "DeletePort" },
+	{ SPOOLSS_CREATEPRINTERIC, "CreatePrinterIC" },
+	{ SPOOLSS_PLAYGDISCRIPTONPRINTERIC, "PlayDiscriptOnPrinterIC" },
+	{ SPOOLSS_DELETEPRINTERIC, "DeletePrinterIC" },
+	{ SPOOLSS_ADDPRINTERCONNECTION, "AddPrinterConnection" },
+	{ SPOOLSS_DELETEPRINTERCONNECTION, "DeletePrinterConnection" },
+	{ SPOOLSS_PRINTERMESSAGEBOX, "PrinterMessageBox" },
+	{ SPOOLSS_ADDMONITOR, "AddMonitor" },
+	{ SPOOLSS_DELETEMONITOR, "DeleteMonitor" },
+	{ SPOOLSS_DELETEPRINTPROCESSOR, "DeletePrintProcessor" },
+	{ SPOOLSS_ADDPRINTPROVIDER, "AddPrintProvider" },
+	{ SPOOLSS_DELETEPRINTPROVIDER, "DeletePrintProvider" },
+        { SPOOLSS_ENUMPRINTPROCDATATYPES, "EnumPrintProcDataTypes" },
+	{ SPOOLSS_RESETPRINTER, "ResetPrinter" },
+        { SPOOLSS_GETPRINTERDRIVER2, "GetPrinterDriver2" },
+	{ SPOOLSS_FINDFIRSTPRINTERCHANGENOTIFICATION, 
+	  "FindNextPrinterChangeNotification" },
+	{ SPOOLSS_FINDNEXTPRINTERCHANGENOTIFICATION, 
+	  "FindNextPrinterChangeNotification" },
+        { SPOOLSS_FCPN, "FCPN" },
+	{ SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD, 
+	  "RouterFindFirstPrinterNotificationOld" },
+        { SPOOLSS_REPLYOPENPRINTER, "ReplyOpenPrinter" },
+	{ SPOOLSS_ROUTERREPLYPRINTER, "RouterReplyPrinter" },
+        { SPOOLSS_REPLYCLOSEPRINTER, "ReplyClosePrinter" },
+	{ SPOOLSS_ADDPORTEX, "AddPortEx" },
+	{ SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION, 
+	  "RemoteFindFirstPrinterChangeNotification" },
+	{ SPOOLSS_SPOOLERINIT, "SpoolerInit" },
+	{ SPOOLSS_RESETPRINTEREX, "ResetPrinterEx" },
+        { SPOOLSS_RFFPCNEX, "RFFPCNEX" },
+        { SPOOLSS_RRPCN, "RRPCN" },
+        { SPOOLSS_RFNPCNEX, "RFNPCNEX" },
+        { SPOOLSS_OPENPRINTEREX, "OpenPrinterEx" },
+        { SPOOLSS_ADDPRINTEREX, "AddPrinterEx" },
+        { SPOOLSS_ENUMPRINTERDATA, "EnumPrinterData" },
+        { SPOOLSS_DELETEPRINTERDATA, "DeletePrinterData" },
+        { SPOOLSS_GETPRINTERDATAEX, "GetPrinterDataEx" },
+        { SPOOLSS_SETPRINTERDATAEX, "SetPrinterDataEx" },
+	{ SPOOLSS_ENUMPRINTERDATAEX, "EnumPrinterDataEx" },
+	{ SPOOLSS_ENUMPRINTERKEY, "EnumPrinterKey" },
+	{ SPOOLSS_DELETEPRINTERDATAEX, "DeletePrinterDataEx" },
+	{ SPOOLSS_DELETEPRINTERDRIVEREX, "DeletePrinterDriverEx" },
+	{ SPOOLSS_ADDPRINTERDRIVEREX, "AddPrinterDriverEx" },
+	{ 0, NULL }
+};
+
 void
 proto_register_dcerpc_spoolss(void)
 {
@@ -6851,33 +6910,6 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_level,
 		  { "Info level", "spoolss.enumjobs.level", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, "Info level", HFILL }},
-
-		/* SYSTEM_TIME */
-
-		{ &hf_spoolss_time_year,
-		  { "Year", "spoolss.time.year", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Year", HFILL }},
-		{ &hf_spoolss_time_month,
-		  { "Month", "spoolss.time.month", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Month", HFILL }},
-		{ &hf_spoolss_time_dow,
-		  { "Day of week", "spoolss.time.dow", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Day of week", HFILL }},
-		{ &hf_spoolss_time_day,
-		  { "Day", "spoolss.time.day", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Day", HFILL }},
-		{ &hf_spoolss_time_hour,
-		  { "Hour", "spoolss.time.hour", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Hour", HFILL }},
-		{ &hf_spoolss_time_minute,
-		  { "Minute", "spoolss.time.minute", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Minute", HFILL }},
-		{ &hf_spoolss_time_second,
-		  { "Second", "spoolss.time.second", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Second", HFILL }},
-		{ &hf_spoolss_time_msec,
-		  { "Millisecond", "spoolss.time.msec", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Millisecond", HFILL }},
 
 		/* Printer data */
 
@@ -6990,89 +7022,13 @@ proto_register_dcerpc_spoolss(void)
 		  { "Dependent files", "spoolss.dependentfiles", FT_STRING, BASE_NONE,
 		    NULL, 0, "Dependent files", HFILL }},
 
-		{ &hf_spoolss_printer_status,
+		{ &hf_printer_status,
 		  { "Status", "spoolss.printer_status", FT_UINT32, BASE_DEC,
 		   VALS(printer_status_vals), 0, "Status", HFILL }},
 
-		/* Printer attributes */
-
-		{ &hf_spoolss_printer_attributes,
-		  { "Attributes", "spoolss.printer_attributes", FT_UINT32,
-		    BASE_HEX, NULL, 0, "Attributes", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_queued,
-		  { "Queued", "spoolss.printer_attributes.queued", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_queued),
-		    PRINTER_ATTRIBUTE_QUEUED, "Queued", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_direct,
-		  { "Direct", "spoolss.printer_attributes.direct", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_direct),
-		    PRINTER_ATTRIBUTE_DIRECT, "Direct", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_default,
-		  { "Default (9x/ME only)", "spoolss.printer_attributes.default",FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_default),
-		    PRINTER_ATTRIBUTE_DEFAULT, "Default", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_shared,
-		  { "Shared", "spoolss.printer_attributes.shared", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_shared),
-		    PRINTER_ATTRIBUTE_SHARED, "Shared", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_network,
-		  { "Network", "spoolss.printer_attributes.network", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_network),
-		    PRINTER_ATTRIBUTE_NETWORK, "Network", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_hidden,
-		  { "Hidden", "spoolss.printer_attributes.hidden", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_hidden),
-		    PRINTER_ATTRIBUTE_HIDDEN, "Hidden", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_local,
-		  { "Local", "spoolss.printer_attributes.local", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_local),
-		    PRINTER_ATTRIBUTE_LOCAL, "Local", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_enable_devq,
-		  { "Enable devq", "spoolss.printer_attributes.enable_devq", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_enable_devq),
-		    PRINTER_ATTRIBUTE_ENABLE_DEVQ, "Enable evq", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_keep_printed_jobs,
-		  { "Keep printed jobs", "spoolss.printer_attributes.keep_printed_jobs", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_keep_printed_jobs),
-		    PRINTER_ATTRIBUTE_KEEPPRINTEDJOBS, "Keep printed jobs", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_do_complete_first,
-		  { "Do complete first", "spoolss.printer_attributes.do_complete_first", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_do_complete_first),
-		    PRINTER_ATTRIBUTE_DO_COMPLETE_FIRST, "Do complete first", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_work_offline,
-		  { "Work offline (9x/ME only)", "spoolss.printer_attributes.work_offline", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_work_offline),
-		    PRINTER_ATTRIBUTE_WORK_OFFLINE, "Work offline", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_enable_bidi,
-		  { "Enable bidi (9x/ME only)", "spoolss.printer_attributes.enable_bidi", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_enable_bidi),
-		    PRINTER_ATTRIBUTE_ENABLE_BIDI, "Enable bidi", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_raw_only,
-		  { "Raw only", "spoolss.printer_attributes.raw_only", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_raw_only),
-		    PRINTER_ATTRIBUTE_RAW_ONLY, "Raw only", HFILL }},
-
-		{ &hf_spoolss_printer_attributes_published,
-		  { "Published", "spoolss.printer_attributes.published", FT_BOOLEAN,
-		    32, TFS(&tfs_printer_attributes_published),
-		    PRINTER_ATTRIBUTE_PUBLISHED, "Published", HFILL }},
-
 		/* Setprinter RPC */
 
-		{ &hf_spoolss_setprinter_cmd,
+		{ &hf_setprinter_cmd,
 		  { "Command", "spoolss.setprinter_cmd", FT_UINT32, BASE_DEC,
 		   VALS(setprinter_cmd_vals), 0, "Command", HFILL }},
 
@@ -7315,36 +7271,6 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_getprinter_action,
 		  { "Action", "spoolss.getprinter.action", FT_UINT32, BASE_DEC,
 		   VALS(getprinter_action_vals), 0, "Action", HFILL }},
-
-                /* Userlevel */
-
-                { &hf_spoolss_userlevel_size,
-                  { "Size", "spoolss.userlevel.size",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Size", HFILL }},
-
-                { &hf_spoolss_userlevel_client,
-                  { "Client", "spoolss.userlevel.client", FT_STRING, 
-                    BASE_NONE, NULL, 0, "Client", HFILL }},
-
-                { &hf_spoolss_userlevel_user,
-                  { "User", "spoolss.userlevel.user", FT_STRING, 
-                    BASE_NONE, NULL, 0, "User", HFILL }},
-
-                { &hf_spoolss_userlevel_build,
-                  { "Build", "spoolss.userlevel.build",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Build", HFILL }},
-
-                { &hf_spoolss_userlevel_major,
-                  { "Major", "spoolss.userlevel.major",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Major", HFILL }},
-
-                { &hf_spoolss_userlevel_minor,
-                  { "Minor", "spoolss.userlevel.minor",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Minor", HFILL }},
-
-                { &hf_spoolss_userlevel_processor,
-                  { "Processor", "spoolss.userlevel.processor",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Processor", HFILL }},
 
 		/* Setprinterdataex */
 
@@ -8185,6 +8111,153 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_replyopenprinter_unk1,
 		  { "Unknown 1", "spoolss.replyopenprinter.unk1", FT_UINT32, 
 		    BASE_DEC, NULL, 0, "Unknown 1", HFILL }},
+
+		/* Printer attributes */
+
+		{ &hf_printer_attributes,
+		  { "Attributes", "spoolss.printer_attributes", FT_UINT32,
+		    BASE_HEX, NULL, 0, "Attributes", HFILL }},
+
+		{ &hf_printer_attributes_queued,
+		  { "Queued", "spoolss.printer_attributes.queued", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_queued),
+		    PRINTER_ATTRIBUTE_QUEUED, "Queued", HFILL }},
+
+		{ &hf_printer_attributes_direct,
+		  { "Direct", "spoolss.printer_attributes.direct", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_direct),
+		    PRINTER_ATTRIBUTE_DIRECT, "Direct", HFILL }},
+
+		{ &hf_printer_attributes_default,
+		  { "Default (9x/ME only)", 
+		    "spoolss.printer_attributes.default",FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_default),
+		    PRINTER_ATTRIBUTE_DEFAULT, "Default", HFILL }},
+
+		{ &hf_printer_attributes_shared,
+		  { "Shared", "spoolss.printer_attributes.shared", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_shared),
+		    PRINTER_ATTRIBUTE_SHARED, "Shared", HFILL }},
+
+		{ &hf_printer_attributes_network,
+		  { "Network", "spoolss.printer_attributes.network", 
+		    FT_BOOLEAN, 32, TFS(&tfs_printer_attributes_network),
+		    PRINTER_ATTRIBUTE_NETWORK, "Network", HFILL }},
+
+		{ &hf_printer_attributes_hidden,
+		  { "Hidden", "spoolss.printer_attributes.hidden", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_hidden),
+		    PRINTER_ATTRIBUTE_HIDDEN, "Hidden", HFILL }},
+
+		{ &hf_printer_attributes_local,
+		  { "Local", "spoolss.printer_attributes.local", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_local),
+		    PRINTER_ATTRIBUTE_LOCAL, "Local", HFILL }},
+
+		{ &hf_printer_attributes_enable_devq,
+		  { "Enable devq", "spoolss.printer_attributes.enable_devq", 
+		    FT_BOOLEAN, 32, TFS(&tfs_printer_attributes_enable_devq),
+		    PRINTER_ATTRIBUTE_ENABLE_DEVQ, "Enable evq", HFILL }},
+
+		{ &hf_printer_attributes_keep_printed_jobs,
+		  { "Keep printed jobs", 
+		    "spoolss.printer_attributes.keep_printed_jobs", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_keep_printed_jobs),
+		    PRINTER_ATTRIBUTE_KEEPPRINTEDJOBS, "Keep printed jobs", 
+		    HFILL }},
+
+		{ &hf_printer_attributes_do_complete_first,
+		  { "Do complete first", 
+		    "spoolss.printer_attributes.do_complete_first", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_do_complete_first),
+		    PRINTER_ATTRIBUTE_DO_COMPLETE_FIRST, "Do complete first", 
+		    HFILL }},
+
+		{ &hf_printer_attributes_work_offline,
+		  { "Work offline (9x/ME only)", 
+		    "spoolss.printer_attributes.work_offline", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_work_offline),
+		    PRINTER_ATTRIBUTE_WORK_OFFLINE, "Work offline", HFILL }},
+
+		{ &hf_printer_attributes_enable_bidi,
+		  { "Enable bidi (9x/ME only)", 
+		    "spoolss.printer_attributes.enable_bidi", FT_BOOLEAN,
+		    32, TFS(&tfs_printer_attributes_enable_bidi),
+		    PRINTER_ATTRIBUTE_ENABLE_BIDI, "Enable bidi", HFILL }},
+
+		{ &hf_printer_attributes_raw_only,
+		  { "Raw only", "spoolss.printer_attributes.raw_only", 
+		    FT_BOOLEAN, 32, TFS(&tfs_printer_attributes_raw_only),
+		    PRINTER_ATTRIBUTE_RAW_ONLY, "Raw only", HFILL }},
+
+		{ &hf_printer_attributes_published,
+		  { "Published", "spoolss.printer_attributes.published", 
+		    FT_BOOLEAN, 32, TFS(&tfs_printer_attributes_published),
+		    PRINTER_ATTRIBUTE_PUBLISHED, "Published", HFILL }},
+
+		/* Timestamps */
+
+		{ &hf_time_year,
+		  { "Year", "spoolss.time.year", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Year", HFILL }},
+
+		{ &hf_time_month,
+		  { "Month", "spoolss.time.month", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Month", HFILL }},
+
+		{ &hf_time_dow,
+		  { "Day of week", "spoolss.time.dow", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Day of week", HFILL }},
+
+		{ &hf_time_day,
+		  { "Day", "spoolss.time.day", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Day", HFILL }},
+
+		{ &hf_time_hour,
+		  { "Hour", "spoolss.time.hour", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Hour", HFILL }},
+
+		{ &hf_time_minute,
+		  { "Minute", "spoolss.time.minute", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Minute", HFILL }},
+
+		{ &hf_time_second,
+		  { "Second", "spoolss.time.second", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Second", HFILL }},
+
+		{ &hf_time_msec,
+		  { "Millisecond", "spoolss.time.msec", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Millisecond", HFILL }},
+
+                /* Userlevel */
+
+                { &hf_userlevel_size,
+                  { "Size", "spoolss.userlevel.size",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Size", HFILL }},
+
+                { &hf_userlevel_client,
+                  { "Client", "spoolss.userlevel.client", FT_STRING, 
+                    BASE_NONE, NULL, 0, "Client", HFILL }},
+
+                { &hf_userlevel_user,
+                  { "User", "spoolss.userlevel.user", FT_STRING, 
+                    BASE_NONE, NULL, 0, "User", HFILL }},
+
+                { &hf_userlevel_build,
+                  { "Build", "spoolss.userlevel.build",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Build", HFILL }},
+
+                { &hf_userlevel_major,
+                  { "Major", "spoolss.userlevel.major",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Major", HFILL }},
+
+                { &hf_userlevel_minor,
+                  { "Minor", "spoolss.userlevel.minor",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Minor", HFILL }},
+
+                { &hf_userlevel_processor,
+                  { "Processor", "spoolss.userlevel.processor",
+                    FT_UINT32, BASE_DEC, NULL, 0, "Processor", HFILL }},
 	};
 
         static gint *ett[] = {
