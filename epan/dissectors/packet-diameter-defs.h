@@ -288,11 +288,11 @@ static const value_string diameter_redirect_host_usage_vals[]= {
 	{0,NULL}
 };
 /* Session-Binding AVP Values (code 270) */
-static const value_string diameter_session-binding_vals[]= {
-	{1, "RE_AUTH"},								/*[RFC3588]*/
-	{2, "STR"},									/*[RFC3588]*/
-	{3, "Unallocated 
-	{4, "ACCOUNTING"},							/*[RFC3588]*/
+static const value_string diameter_session_binding_vals[]= {
+	{1, "RE_AUTH"},		/*[RFC3588]*/
+	{2, "STR"},		/*[RFC3588]*/
+	{3, "Unallocated"},
+	{4, "ACCOUNTING"},	/*[RFC3588]*/
   /*5-8    Unallocated (IETF Consensus) */
 	{0,NULL}
 };
@@ -706,7 +706,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 268, "Result-Code",                 DIAMETER_ENUMERATED,  diameter_result_code_vals},
     { 282, "Route-Record",                DIAMETER_IDENTITY,    (value_string *)NULL},
     { 263, "Session-Id",                  DIAMETER_SESSION_ID,  (value_string *)NULL},
-    { 270, "Session-Binding",             DIAMETER_UNSIGNED32,  diameter_session-binding_vals},
+    { 270, "Session-Binding",             DIAMETER_UNSIGNED32,  diameter_session_binding_vals},
     { 271, "Session-Server-Failover",     DIAMETER_ENUMERATED,  diameter_session_server_failover_vals},
     { 286, "Source-Route",                DIAMETER_IDENTITY,    (value_string *)NULL},
     { 265, "Supported-Vendor-Id",         DIAMETER_UNSIGNED32,  (value_string *)NULL},
@@ -727,12 +727,12 @@ static struct old_avp_info old_diameter_avps[] = {
     { 328, "MIP-FA-to-HA-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
     { 329, "MIP-HA-to-FA-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
     { 331, "MIP-MN-to-HA-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
-    { 332, "MIP-HA-to-MN-MSA",			  DIAMETER_GROUPED,		   (value_string *)NULL},
+    { 332, "MIP-HA-to-MN-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
     { 333, "MIP-Mobile-Node-Address",     DIAMETER_IP_ADDRESS,     (value_string *)NULL},
     { 334, "MIP-Home-Agent-Address",      DIAMETER_IP_ADDRESS,     (value_string *)NULL},
-    { 335, "MIP-Nonce",						DIAMETER_OCTET_STRING,   (value_string *)NULL},
-    { 336, "MIP-Candidate-Home-Agent-Host",		DIAMETER_IDENTITY,			(value_string *)NULL},
-    { 337, "MIP-Feature-Vector",          DIAMETER_UNSIGNED32,     diameter_mip_feature_vector_vals )NULL},
+    { 335, "MIP-Nonce",                   DIAMETER_OCTET_STRING,   (value_string *)NULL},
+    { 336, "MIP-Candidate-Home-Agent-Host", DIAMETER_IDENTITY,     (value_string *)NULL},
+    { 337, "MIP-Feature-Vector",          DIAMETER_UNSIGNED32,     diameter_mip_feature_vector_vals},
     { 338, "MIP-Auth-Input-Data-Length",  DIAMETER_UNSIGNED32,     (value_string *)NULL},
     { 339, "MIP-Authenticator-Length",    DIAMETER_UNSIGNED32,     (value_string *)NULL},
     { 340, "MIP-Authenticator-Offset",    DIAMETER_UNSIGNED32,     (value_string *)NULL},
@@ -743,8 +743,8 @@ static struct old_avp_info old_diameter_avps[] = {
     { 345, "MIP-Algorithm-Type",          DIAMETER_ENUMERATED,     diameter_mip_algorithm_type},
     { 346, "MIP-Replay-Mode",	          DIAMETER_ENUMERATED,     diameter_mip_replay_mode},
     { 347, "MIP-Filter-Rule",             DIAMETER_IP_FILTER_RULE, (value_string *)NULL},
-    { 348, "MIP-Home-Agent-Host",			DIAMETER_IDENTITY,			(value_string *)NULL},
-    { 398, "MIP-Key-Lifetime",            DIAMETER_UNSIGNED32,    (value_string *)NULL},
+    { 348, "MIP-Home-Agent-Host",         DIAMETER_IDENTITY,       (value_string *)NULL},
+    { 398, "MIP-Key-Lifetime",            DIAMETER_UNSIGNED32,     (value_string *)NULL},
 /* http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-03.txt */
 	{ 411, "CC-Correlation-Id",                 DIAMETER_OCTET_STRING,		(value_string *)NULL}, 
 	{ 412, "CC-Input-Octets",                   DIAMETER_UNSIGNED64 ,		(value_string *)NULL}, 
