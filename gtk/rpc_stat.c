@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.22 2003/09/24 02:36:35 guy Exp $
+ * $Id: rpc_stat.c,v 1.23 2003/09/26 02:09:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "epan/epan.h"
 #include "menu.h"
 #include "simple_dialog.h"
+#include "dlg_utils.h"
 #include "tap.h"
 #include "../register.h"
 #include "packet-rpc.h"
@@ -56,18 +57,31 @@ typedef struct _rpcstat_t {
 	guint32 num_procedures;
 } rpcstat_t;
 
+static char *
+rpcstat_gen_title(rpcstat_t *rs)
+{
+	char *title;
 
+	title = g_strdup_printf("ONC-RPC Service Response Time statistics for %s version %d: %s",
+	    rs->prog, rs->version, cf_get_display_name(&cfile));
+	return title;
+}
 
+static void
+rpcstat_set_title(rpcstat_t *rs)
+{
+	char *title;
+
+	title = rpcstat_gen_title(rs);
+	gtk_window_set_title(GTK_WINDOW(rs->win), title);
+	g_free(title);
+}
 
 static void
 rpcstat_reset(rpcstat_t *rs)
 {
-	char title_string[256];
-
 	reset_srt_table_data(&rs->srt_table);
-
-	snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d: %s", rs->prog, rs->version, cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
+	rpcstat_set_title(rs);
 }
 
 
@@ -182,7 +196,7 @@ gtk_rpcstat_init(char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i;
-	char title_string[256];
+	char *title_string;
 	char filter_string[256];
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
@@ -216,8 +230,7 @@ gtk_rpcstat_init(char *optarg)
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
-	snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d: %s", rs->prog, rs->version, cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
+	rpcstat_set_title(rs);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
 	vbox=gtk_vbox_new(FALSE, 0);
@@ -225,7 +238,9 @@ gtk_rpcstat_init(char *optarg)
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
+	title_string = rpcstat_gen_title(rs);
 	stat_label=gtk_label_new(title_string);
+	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 	gtk_widget_show(stat_label);
 
@@ -266,29 +281,27 @@ gtk_rpcstat_init(char *optarg)
 
 
 
-static GtkWidget *dlg=NULL, *dlg_box;
-static GtkWidget *prog_box;
-static GtkWidget *prog_label, *prog_opt, *prog_menu;
-static GtkWidget *vers_label, *vers_opt, *vers_menu;
-static GtkWidget *filter_box;
-static GtkWidget *filter_label, *filter_entry;
-static GtkWidget *start_button;
+static GtkWidget *dlg=NULL;
+static GtkWidget *prog_menu;
+static GtkWidget *vers_opt, *vers_menu;
+static GtkWidget *filter_entry;
 
 
 static void
 rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 {
+	GString *str;
 	char *filter;
-	char str[256];
 
+	str = g_string_new("rpc,srt");
+	g_string_sprintfa(str, ",%d,%d", rpc_program, rpc_version);
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
-	if(filter[0]==0){
-		sprintf(str, "rpc,srt,%d,%d", rpc_program, rpc_version);
-		filter="";
-	} else {
-		sprintf(str, "rpc,srt,%d,%d,%s", rpc_program, rpc_version, filter);
+	if(filter[0]!=0){
+		g_string_sprintfa(str, ",%s", filter);
 	}
-	gtk_rpcstat_init(str);
+
+	gtk_rpcstat_init(str->str);
+	g_string_free(str, TRUE);
 }
 
 
@@ -359,8 +372,19 @@ dlg_destroy_cb(void)
 }
 
 static void
+dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
+{
+	gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
 gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
+	GtkWidget *dlg_box;
+	GtkWidget *prog_box, *prog_label, *prog_opt;
+	GtkWidget *vers_label;
+	GtkWidget *filter_box, *filter_label;
+	GtkWidget *bbox, *start_button, *cancel_button;
 	int i;
 	char *filter;
 
@@ -370,15 +394,17 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(dlg), "ONC-RPC Service Response Time statistics");
+	dlg=dlg_window_new("Ethereal: Compute ONC-RPC SRT statistics");
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
-	dlg_box=gtk_vbox_new(FALSE, 0);
+
+	dlg_box=gtk_vbox_new(FALSE, 10);
+	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
-
+	/* Program box */
 	prog_box=gtk_hbox_new(FALSE, 10);
+
 	/* Program label */
 	gtk_container_set_border_width(GTK_CONTAINER(prog_box), 10);
 	prog_label=gtk_label_new("Program:");
@@ -417,7 +443,6 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(vers_menu), menu_item);
 	}
-
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(vers_opt), vers_menu);
 	gtk_box_pack_start(GTK_BOX(prog_box), vers_opt, TRUE, TRUE, 0);
 	gtk_widget_show(vers_opt);
@@ -425,17 +450,18 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), prog_box, TRUE, TRUE, 0);
 	gtk_widget_show(prog_box);
 
+	/* Filter box */
+	filter_box=gtk_hbox_new(FALSE, 3);
 
-	/* filter box */
-	filter_box=gtk_hbox_new(FALSE, 10);
 	/* Filter label */
-	gtk_container_set_border_width(GTK_CONTAINER(filter_box), 10);
 	filter_label=gtk_label_new("Filter:");
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_label, FALSE, FALSE, 0);
 	gtk_widget_show(filter_label);
 
-	filter_entry=gtk_entry_new_with_max_length(250);
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
+	/* Filter entry */
+	filter_entry=gtk_entry_new();
+	gtk_widget_set_usize(filter_entry, 300, -2);
+	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){
 		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
@@ -445,13 +471,46 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
 	gtk_widget_show(filter_box);
 
+	/* button box */
+	bbox=gtk_hbutton_box_new();
+	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_DEFAULT_STYLE);
+	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
+	gtk_widget_show(bbox);
 
 	/* the start button */
 	start_button=gtk_button_new_with_label("Create Stat");
         SIGNAL_CONNECT_OBJECT(start_button, "clicked",
                               rpcstat_start_button_clicked, NULL);
-	gtk_box_pack_start(GTK_BOX(dlg_box), start_button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);
+	GTK_WIDGET_SET_FLAGS(start_button, GTK_CAN_DEFAULT);
+	gtk_widget_grab_default(start_button);
 	gtk_widget_show(start_button);
+
+#if GTK_MAJOR_VERSION < 2
+	cancel_button=gtk_button_new_with_label("Cancel");
+#else
+	cancel_button=gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+#endif
+	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);
+	GTK_WIDGET_SET_FLAGS(cancel_button, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(bbox), cancel_button, TRUE, TRUE, 0);
+	gtk_widget_show(cancel_button);
+
+	/* Catch the "activate" signal on the filter text entry, so that
+	   if the user types Return there, we act as if the "Create Stat"
+	   button had been selected, as happens if Return is typed if some
+	   widget that *doesn't* handle the Return key has the input
+	   focus. */
+	dlg_set_activate(filter_entry, start_button);
+
+	/* Catch the "key_press_event" signal in the window, so that we can
+	   catch the ESC key being pressed and act as if the "Cancel" button
+	   had been selected. */
+	dlg_set_cancel(dlg, cancel_button);
+
+	/* Give the initial focus to the "Filter" entry box. */
+	gtk_widget_grab_focus(filter_entry);
 
 	gtk_widget_show_all(dlg);
 }
@@ -466,6 +525,6 @@ register_tap_listener_gtkrpcstat(void)
 void
 register_tap_menu_gtkrpcstat(void)
 {
-	register_tap_menu_item("Statistics/Service Response Time/ONC-RPC",
+	register_tap_menu_item("Statistics/Service Response Time/ONC-RPC...",
 	    gtk_rpcstat_cb, NULL, NULL);
 }

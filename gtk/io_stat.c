@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.29 2003/09/24 02:36:34 guy Exp $
+ * $Id: io_stat.c,v 1.30 2003/09/26 02:09:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -194,14 +194,21 @@ io_stat_widget_equal(gconstpointer k1, gconstpointer k2)
 	return frame1==frame2;
 }
 
+static void
+io_stat_set_title(io_stat_t *io)
+{
+	char		*title;
 
+	title = g_strdup_printf("IO-Stat: %s", cf_get_display_name(&cfile));
+	gtk_window_set_title(GTK_WINDOW(io->window), title);
+	g_free(title);
+}
 
 static void
 gtk_iostat_reset(void *g)
 {
 	io_stat_graph_t *gio=g;
 	io_stat_item_t *it;
-	char title[256];
 
 	gio->io->needs_redraw=1;
 
@@ -223,8 +230,7 @@ gtk_iostat_reset(void *g)
 	gio->io->last_interval=0xffffffff;
 	gio->io->max_interval=0;
 
-	snprintf(title, 255, "IO-Stat: %s", cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(gio->io->window), title);
+	io_stat_set_title(gio->io);
 }
 
 
@@ -1620,7 +1626,6 @@ init_io_stat_window(io_stat_t *io)
 {
 	GtkWidget *vbox;
 	GtkWidget *hbox;
-	char title[256];
 
 	/* create the main window */
 	io->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -1641,9 +1646,8 @@ init_io_stat_window(io_stat_t *io)
 	create_filter_area(io, hbox);
 	create_ctrl_area(io, hbox);
 
+	io_stat_set_title(io);
 	gtk_widget_show(io->window);
-	snprintf(title, 255, "IO-Stat: %s", cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(io->window), title);
 }
 
 

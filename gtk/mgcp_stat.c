@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.16 2003/09/24 02:36:35 guy Exp $
+ * $Id: mgcp_stat.c,v 1.17 2003/09/26 02:09:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 #include "gtk_stat_util.h"
 #include "compat_macros.h"
 #include "../simple_dialog.h"
+#include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
 
@@ -80,10 +81,8 @@ static const value_string mgcp_mesage_type[] = {
   {  0, NULL}
 };
 
-static GtkWidget *dlg=NULL, *dlg_box;
-static GtkWidget *filter_box;
-static GtkWidget *filter_label, *filter_entry;
-static GtkWidget *start_button;
+static GtkWidget *dlg=NULL;
+static GtkWidget *filter_entry;
 
 
 static void
@@ -91,7 +90,7 @@ mgcpstat_reset(void *pms)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
 	int i;
-	char title[256];
+	char *title;
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		ms->rtd[i].num=0;
@@ -110,10 +109,11 @@ mgcpstat_reset(void *pms)
 	ms->req_dup_num=0;
 	ms->rsp_dup_num=0;
 
-	snprintf(title, 255, "MGCP SRT Statistics: %s", cf_get_display_name(&cfile));
 	if (! dlg)
 		dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	title = g_strdup_printf("MGCP SRT statistics: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(dlg), title);
+	g_free(title);
 }
 
 
@@ -318,6 +318,12 @@ dlg_destroy_cb(void)
 }
 
 static void
+dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
+{
+	gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
 mgcpstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 {
 	char *filter;
@@ -338,7 +344,10 @@ static void
 gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	char *filter;
-	char title[256];
+	char *title;
+	GtkWidget *dlg_box;
+	GtkWidget *filter_box, *filter_label;
+	GtkWidget *bbox, *start_button, *cancel_button;
 
 	/* if the window is already open, bring it to front */
 	if(dlg){
@@ -346,25 +355,29 @@ gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	snprintf(title, 255, "MGCP SRT Statistics: %s", cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(dlg), title);
+	title = g_strdup_printf("Ethereal: Compute MGCP SRT statistics: %s", cf_get_display_name(&cfile));
+
+	dlg=dlg_window_new(title);
+	g_free(title);
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
-	dlg_box=gtk_vbox_new(FALSE, 0);
+
+	dlg_box=gtk_vbox_new(FALSE, 10);
+	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
+	/* Filter box */
+	filter_box=gtk_hbox_new(FALSE, 3);
 
-	/* filter box */
-	filter_box=gtk_hbox_new(FALSE, 10);
 	/* Filter label */
-	gtk_container_set_border_width(GTK_CONTAINER(filter_box), 10);
 	filter_label=gtk_label_new("Filter:");
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_label, FALSE, FALSE, 0);
 	gtk_widget_show(filter_label);
 
-	filter_entry=gtk_entry_new_with_max_length(250);
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
+	/* Filter entry */
+	filter_entry=gtk_entry_new();
+	gtk_widget_set_usize(filter_entry, 300, -2);
+	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){
 		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
@@ -374,13 +387,46 @@ gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
 	gtk_widget_show(filter_box);
 
+	/* button box */
+	bbox = gtk_hbutton_box_new();
+	gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_DEFAULT_STYLE);
+	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
+	gtk_widget_show(bbox);
 
 	/* the start button */
 	start_button=gtk_button_new_with_label("Create Stat");
         SIGNAL_CONNECT_OBJECT(start_button, "clicked",
                               mgcpstat_start_button_clicked, NULL);
-	gtk_box_pack_start(GTK_BOX(dlg_box), start_button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);
+	GTK_WIDGET_SET_FLAGS(start_button, GTK_CAN_DEFAULT);
+	gtk_widget_grab_default(start_button);
 	gtk_widget_show(start_button);
+
+#if GTK_MAJOR_VERSION < 2
+	cancel_button=gtk_button_new_with_label("Cancel");
+#else
+	cancel_button=gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+#endif
+	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);
+	GTK_WIDGET_SET_FLAGS(cancel_button, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(bbox), cancel_button, TRUE, TRUE, 0);
+	gtk_widget_show(cancel_button);
+
+	/* Catch the "activate" signal on the filter text entry, so that
+	   if the user types Return there, we act as if the "Create Stat"
+	   button had been selected, as happens if Return is typed if
+	   some widget that *doesn't* handle the Return key has the input
+	   focus. */
+	dlg_set_activate(filter_entry, start_button);
+
+	/* Catch the "key_press_event" signal in the window, so that we can
+	   catch the ESC key being pressed and act as if the "Cancel" button
+	   had been selected. */
+	dlg_set_cancel(dlg, cancel_button);
+
+	/* Give the initial focus to the "Filter" entry box. */
+	gtk_widget_grab_focus(filter_entry);
 
 	gtk_widget_show_all(dlg);
 }
@@ -395,7 +441,7 @@ void
 register_tap_menu_gtkmgcpstat(void)
 {
 	if (find_tap_id("mgcp"))
-		register_tap_menu_item("Statistics/Service Response Time/MGCP",
+		register_tap_menu_item("Statistics/Service Response Time/MGCP...",
 		    gtk_mgcpstat_cb, NULL, NULL);
 }
 

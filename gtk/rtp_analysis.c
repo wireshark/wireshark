@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.2 2003/09/25 19:35:14 guy Exp $
+ * $Id: rtp_analysis.c,v 1.3 2003/09/26 02:09:44 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1559,7 +1559,8 @@ void create_rtp_dialog(user_data_t* user_data)
 	gchar str_ip_dst[16];
 	
 
-	window = dlg_window_new("Ethereal: RTP Stream Analysis");
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title (GTK_WINDOW (window), "Ethereal: RTP Stream Analysis");
 	gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
 	gtk_signal_connect(GTK_OBJECT(window), "destroy",
 		GTK_SIGNAL_FUNC(on_destroy), user_data);

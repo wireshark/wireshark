@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.23 2003/09/24 02:36:34 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.24 2003/09/26 02:09:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,16 +80,23 @@ uuid_equal(e_uuid_t *uuid1, e_uuid_t *uuid2)
 	}
 	return 1;
 }
-	
+
+static void
+dcerpcstat_set_title(rpcstat_t *rs)
+{
+	char *title;
+
+	title = g_strdup_printf("DCE-RPC Service Response Time statistics for %s version %d.%d: %s",
+	    rs->prog, rs->ver&0xff, rs->ver>>8, cf_get_display_name(&cfile));
+	gtk_window_set_title(GTK_WINDOW(rs->win), title);
+	g_free(title);
+}
 
 static void
 dcerpcstat_reset(rpcstat_t *rs)
 {
-	char title_string[256];
 	reset_srt_table_data(&rs->srt_table);
-
-	snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
+	dcerpcstat_set_title(rs);
 }
 
 
@@ -212,8 +219,7 @@ gtk_dcerpcstat_init(char *optarg)
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
-	snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
+	dcerpcstat_set_title(rs);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
 	vbox=gtk_vbox_new(FALSE, 0);
@@ -276,13 +282,10 @@ gtk_dcerpcstat_init(char *optarg)
 
 static e_uuid_t *dcerpc_uuid_program=NULL;
 static guint16 dcerpc_version;
-static GtkWidget *dlg=NULL, *dlg_box;
-static GtkWidget *prog_box;
-static GtkWidget *prog_label, *prog_opt, *prog_menu;
-static GtkWidget *vers_label, *vers_opt, *vers_menu;
-static GtkWidget *filter_box;
-static GtkWidget *filter_label, *filter_entry;
-static GtkWidget *start_button;
+static GtkWidget *dlg=NULL;
+static GtkWidget *prog_menu;
+static GtkWidget *vers_opt, *vers_menu;
+static GtkWidget *filter_entry;
 static dcerpc_uuid_key *current_uuid_key=NULL;
 static dcerpc_uuid_value *current_uuid_value=NULL;
 static dcerpc_uuid_key *new_uuid_key=NULL;
@@ -292,18 +295,26 @@ static dcerpc_uuid_value *new_uuid_value=NULL;
 static void
 dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 {
+	GString *str;
 	char *filter;
-	char str[256];
 
+	str = g_string_new("dcerpc,srt");
+	g_string_sprintfa(str,
+	    ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d",
+	    dcerpc_uuid_program->Data1, dcerpc_uuid_program->Data2,
+	    dcerpc_uuid_program->Data3,
+	    dcerpc_uuid_program->Data4[0], dcerpc_uuid_program->Data4[1],
+	    dcerpc_uuid_program->Data4[2], dcerpc_uuid_program->Data4[3],
+	    dcerpc_uuid_program->Data4[4], dcerpc_uuid_program->Data4[5],
+	    dcerpc_uuid_program->Data4[6], dcerpc_uuid_program->Data4[7],
+	    dcerpc_version&0xff, dcerpc_version>>8);
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
-	if(filter[0]==0){
-		sprintf(str, "dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d",dcerpc_uuid_program->Data1,dcerpc_uuid_program->Data2,dcerpc_uuid_program->Data3,dcerpc_uuid_program->Data4[0],dcerpc_uuid_program->Data4[1],dcerpc_uuid_program->Data4[2],dcerpc_uuid_program->Data4[3],dcerpc_uuid_program->Data4[4],dcerpc_uuid_program->Data4[5],dcerpc_uuid_program->Data4[6],dcerpc_uuid_program->Data4[7],dcerpc_version&0xff,dcerpc_version>>8);
-
-	} else {
-		sprintf(str, "dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%s",dcerpc_uuid_program->Data1,dcerpc_uuid_program->Data2,dcerpc_uuid_program->Data3,dcerpc_uuid_program->Data4[0],dcerpc_uuid_program->Data4[1],dcerpc_uuid_program->Data4[2],dcerpc_uuid_program->Data4[3],dcerpc_uuid_program->Data4[4],dcerpc_uuid_program->Data4[5],dcerpc_uuid_program->Data4[6],dcerpc_uuid_program->Data4[7],dcerpc_version&0xff,dcerpc_version>>8, filter);
+	if(filter[0]!=0){
+		g_string_sprintfa(str, ",%s", filter);
 	}
 
-	gtk_dcerpcstat_init(str);
+	gtk_dcerpcstat_init(str->str);
+	g_string_free(str, TRUE);
 }
 
 
@@ -444,7 +455,11 @@ dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 static void
 gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	GtkWidget *bbox, *cancel_button;
+	GtkWidget *dlg_box;
+	GtkWidget *prog_box, *prog_label, *prog_opt;
+	GtkWidget *vers_label;
+	GtkWidget *filter_box, *filter_label;
+	GtkWidget *bbox, *start_button, *cancel_button;
 	char *filter;
 
 	/* if the window is already open, bring it to front and
@@ -454,14 +469,17 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg=dlg_window_new("Ethereal: DCE-RPC SRT Statistics");
+	dlg=dlg_window_new("Ethereal: Compute DCE-RPC SRT statistics");
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
-	dlg_box=gtk_vbox_new(FALSE, 0);
+
+	dlg_box=gtk_vbox_new(FALSE, 10);
+	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
+	/* Program box */
+	prog_box=gtk_hbox_new(FALSE, 3);
 
-	prog_box=gtk_hbox_new(FALSE, 10);
 	/* Program label */
 	gtk_container_set_border_width(GTK_CONTAINER(prog_box), 10);
 	prog_label=gtk_label_new("Program:");
@@ -483,7 +501,6 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		current_uuid_key=new_uuid_key;
 		current_uuid_value=new_uuid_value;
 	} while(new_uuid_key!=NULL);
-
 
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(prog_opt), prog_menu);
 	gtk_box_pack_start(GTK_BOX(prog_box), prog_opt, TRUE, TRUE, 0);
@@ -507,17 +524,18 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), prog_box, TRUE, TRUE, 0);
 	gtk_widget_show(prog_box);
 
+	/* Filter box */
+	filter_box=gtk_hbox_new(FALSE, 3);
 
-	/* filter box */
-	filter_box=gtk_hbox_new(FALSE, 10);
 	/* Filter label */
-	gtk_container_set_border_width(GTK_CONTAINER(filter_box), 10);
 	filter_label=gtk_label_new("Filter:");
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_label, FALSE, FALSE, 0);
 	gtk_widget_show(filter_label);
 
-	filter_entry=gtk_entry_new_with_max_length(250);
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
+	/* Filter entry */
+	filter_entry=gtk_entry_new();
+	gtk_widget_set_usize(filter_entry, 300, -2);
+	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){
 		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
@@ -527,19 +545,19 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
 	gtk_widget_show(filter_box);
 
-
+	/* button box */
 	bbox=gtk_hbutton_box_new();
-	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
+	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_DEFAULT_STYLE);
 	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-	gtk_container_add(GTK_CONTAINER(dlg_box), bbox);
+	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
 	/* the start button */
 	start_button=gtk_button_new_with_label("Create Stat");
 	SIGNAL_CONNECT_OBJECT(start_button, "clicked", 
                               dcerpcstat_start_button_clicked, NULL);
-	GTK_WIDGET_SET_FLAGS(start_button, GTK_CAN_DEFAULT);
 	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);
+	GTK_WIDGET_SET_FLAGS(start_button, GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(start_button);
 	gtk_widget_show(start_button);
 
@@ -580,6 +598,6 @@ register_tap_listener_gtkdcerpcstat(void)
 void
 register_tap_menu_gtkdcerpcstat(void)
 {
-	register_tap_menu_item("Statistics/Service Response Time/DCE-RPC",
+	register_tap_menu_item("Statistics/Service Response Time/DCE-RPC...",
 	    gtk_dcerpcstat_cb, NULL, NULL);
 }
