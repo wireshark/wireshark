@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.11 2001/07/22 10:25:50 guy Exp $
+** $Id: lemon.c,v 1.12 2002/01/30 22:55:15 guy Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -2113,7 +2113,7 @@ void Parse(struct lemon *gp)
   struct pstate ps;
   FILE *fp;
   char *filebuf;
-  size_t filesize;
+  long filesize;
   int lineno;
   char c;
   char *cp, *nextcp;
@@ -2134,15 +2134,16 @@ void Parse(struct lemon *gp)
   fseek(fp,0,2);
   filesize = ftell(fp);
   rewind(fp);
+  /* XXX - what if filesize is bigger than the maximum size_t value? */
   filebuf = (char *)malloc( filesize+1 );
   if( filebuf==0 ){
-    ErrorMsg(ps.filename,0,"Can't allocate %d of memory to hold this file.",
+    ErrorMsg(ps.filename,0,"Can't allocate %ld of memory to hold this file.",
       filesize+1);
     gp->errorcnt++;
     return;
   }
-  if( fread(filebuf,1,filesize,fp)!=filesize ){
-    ErrorMsg(ps.filename,0,"Can't read in all %d bytes of this file.",
+  if( fread(filebuf,1,filesize,fp)!=(size_t)filesize ){
+    ErrorMsg(ps.filename,0,"Can't read in all %ld bytes of this file.",
       filesize);
     free(filebuf);
     gp->errorcnt++;
@@ -3129,9 +3130,9 @@ void ReportTable(
     stp = lemp->sorted[i];
     tablesize = 1;
     while( tablesize<stp->naction ) tablesize += tablesize;
-    fprintf(out,"  { &yyActionTable[%d], %d, %d},\n",
+    fprintf(out,"  { &yyActionTable[%d], %lu, %d},\n",
       stp->tabstart,
-      tablesize - 1,
+      (unsigned long)tablesize - 1,
       stp->tabdfltact); lineno++;
   }
   tplt_xfer(lemp->name,in,out,&lineno);
