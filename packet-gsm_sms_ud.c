@@ -209,7 +209,9 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
 	gboolean ports_available = FALSE;
 
 	udh_len = tvb_get_guint8(tvb, i++);
-printf("udhlen %d\n", udh_len);	
+#ifdef DEBUG
+printf("udhlen %d\n", udh_len);
+#endif
 	tree = proto_tree_add_uint(sm_tree, hf_gsm_sms_udh_length, tvb, 0, 1, udh_len);
 	tree = proto_item_add_subtree(tree, ett_udh);
 	while (i < udh_len) {
