@@ -1,4 +1,4 @@
-$Id: README,v 1.39 2000/07/28 20:03:40 gram Exp $
+$Id: README,v 1.40 2000/08/15 18:44:52 deniel Exp $
 
 General Information
 ------- -----------
@@ -157,9 +157,6 @@ support for IPv6 name resolution, use the "--disable-ipv6" option with
 "./configure". If you compile ethereal without IPv6 name resolution,
 you will still be able to decode IPv6 packets, but you'll only see IPv6
 addresses, not host names.
-
-The "Follow TCP Stream" feature only supports TCP over IPv4. Support for TCP
-over IPv6 is planned.
 
 
 NetWare Core Protocol
