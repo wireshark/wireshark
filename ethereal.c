@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.30 1999/04/06 16:35:46 gram Exp $
+ * $Id: ethereal.c,v 1.31 1999/04/09 13:31:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -131,23 +131,11 @@ void
 file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gchar     *cf_name;
   int        err;
-#if 0
-  GtkWidget *filter_te = NULL;
 
-  /* Gilbert --- I added this if statement. Is this right? */
-  if (w)
-	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
-#endif
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-#if 0
-  if (w && cf.dfilter) {
-	  g_free(cf.dfilter);
-	  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
-  }
-#endif
   /* this depends upon load_cap_file removing the filename from
    * cf_name, leaving only the path to the directory. */
   if ((err = load_cap_file(cf_name, &cf)) == 0)
