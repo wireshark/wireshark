@@ -1,4 +1,149 @@
 ------------------------------------------------------------------------
+r13699 | gerald | 2005-03-10 14:23:04 -0600 (Thu, 10 Mar 2005) | 6 lines
+Changed paths:
+   M /releases/ethereal-0.10.10/asn1/h245/h245.cnf
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-h245.c
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-rtp-events.c
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-rtp-events.h
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-rtp.c
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-rtp.h
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-rtsp.c
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-sdp.c
+   M /releases/ethereal-0.10.10/epan/dissectors/packet-skinny.c
+   M /releases/ethereal-0.10.10/gtk/voip_calls.c
+   M /releases/ethereal-0.10.10/gtk/voip_calls.h
+   M /releases/ethereal-0.10.10/gtk/voip_calls_dlg.c
+
+Copy r13697 from the trunk:
+
+From Alejandro Vaquero:
+- Automatic dissection of RTP events (RFC2833) set in SDP sessions.
+- Add RTP events (RFC2833) to the Voip Graph
+
+------------------------------------------------------------------------
+r13698 | gerald | 2005-03-10 14:17:34 -0600 (Thu, 10 Mar 2005) | 6 lines
+Changed paths:
+   M /releases/ethereal-0.10.10/plugins/xml/packet-xml.c
+   M /releases/ethereal-0.10.10/plugins/xml/packet-xml.h
+   M /releases/ethereal-0.10.10/plugins/xml/xml_lexer.c
+   M /releases/ethereal-0.10.10/plugins/xml/xml_lexer.l
+
+Copy r13696 from the trunk:
+
+Instead of first running the lexer to create a list of items and then
+iterate through this items to create the tree, just create the tree from
+the lexer.
+
+------------------------------------------------------------------------
+r13695 | gerald | 2005-03-10 09:51:13 -0600 (Thu, 10 Mar 2005) | 2 lines
+Changed paths:
+   A /releases/ethereal-0.10.10 (from /trunk:13694)
+
+Branch off the 0.10.10 release.
+
+------------------------------------------------------------------------
+r13694 | gerald | 2005-03-10 09:49:02 -0600 (Thu, 10 Mar 2005) | 2 lines
+Changed paths:
+   M /trunk/NEWS
+
+More NEWS updates.
+
+------------------------------------------------------------------------
+r13693 | jmayer | 2005-03-10 08:04:35 -0600 (Thu, 10 Mar 2005) | 1 line
+Changed paths:
+   M /trunk/gtk/sctp_assoc_analyse.c
+
+Warning fix: function declaration isn’t a prototype
+------------------------------------------------------------------------
+r13692 | jmayer | 2005-03-10 06:49:05 -0600 (Thu, 10 Mar 2005) | 1 line
+Changed paths:
+   M /trunk/gtk/sctp_byte_graph_dlg.c
+   M /trunk/gtk/sctp_graph_dlg.c
+
+Warning fix: ISO C forbids zero-size array ‘tsns
+------------------------------------------------------------------------
+r13691 | jmayer | 2005-03-10 06:43:35 -0600 (Thu, 10 Mar 2005) | 1 line
+Changed paths:
+   M /trunk/gtk/sctp_stat_dlg.c
+   M /trunk/gtk/voip_calls_dlg.c
+
+Trivial warning fixes
+------------------------------------------------------------------------
+r13690 | sahlberg | 2005-03-10 04:16:49 -0600 (Thu, 10 Mar 2005) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-dcerpc.c
+   M /trunk/epan/dissectors/packet-gssapi.c
+   M /trunk/epan/dissectors/packet-gssapi.h
+   M /trunk/epan/dissectors/packet-kerberos.c
+   M /trunk/epan/dissectors/packet-ldap.c
+   M /trunk/epan/dissectors/packet-ntlmssp.c
+   M /trunk/epan/dissectors/packet-spnego.c
+
+add support to decrypt and dissect sign-and-sealed traffic.
+(cifs: dc's talking to eachother   and when longhorn comes out: anyone wanting to talk dce to a dc!)
+
+((this is an incredibly advanced feature well worthy of mentioning in NEWS))
+
+
+------------------------------------------------------------------------
+r13689 | sahlberg | 2005-03-10 02:52:59 -0600 (Thu, 10 Mar 2005) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ldap.c
+   M /trunk/epan/packet_info.h
+
+add two nice defines for how to decrypt a GSSKRB tvb
+
+dce has slightly different padding and checksumming so we have to tell decrypt_arcfour() about it.
+
+
+
+------------------------------------------------------------------------
+r13688 | sahlberg | 2005-03-10 02:50:18 -0600 (Thu, 10 Mar 2005) | 7 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-dcerpc.c
+   M /trunk/epan/dissectors/packet-dcerpc.h
+   M /trunk/epan/dissectors/packet-ntlmssp.c
+
+change the signature for the functions to decrypt data for the
+dcerpc_auth_subdissector_fns structure.
+
+the SignAndSeal decryption (which works really well) needs this.
+
+
+
+------------------------------------------------------------------------
+r13687 | lego | 2005-03-10 00:33:07 -0600 (Thu, 10 Mar 2005) | 3 lines
+Changed paths:
+   M /trunk/plugins/xml/xml_lexer.c
+
+check in the newly generated lexer too
+
+
+------------------------------------------------------------------------
+r13686 | lego | 2005-03-10 00:32:06 -0600 (Thu, 10 Mar 2005) | 6 lines
+Changed paths:
+   M /trunk/plugins/xml/packet-xml.c
+   M /trunk/plugins/xml/packet-xml.h
+   M /trunk/plugins/xml/xml_lexer.l
+
+- changed the lexer to return entire tags, refactored packet-xml.c for those changes
+- add markup_declarations and indent on doctype's []
+- removed debugging code
+- renamed meta_tag into xmlpi
+
+
+------------------------------------------------------------------------
+r13685 | gerald | 2005-03-09 17:49:55 -0600 (Wed, 09 Mar 2005) | 3 lines
+Changed paths:
+   M /trunk/ChangeLog
+   M /trunk/NEWS
+   M /trunk/config.nmake
+   M /trunk/configure.in
+
+Prep for 0.10.10: Update the ChangeLog and NEWS files, bump the version
+number.
+
+------------------------------------------------------------------------
 r13684 | ulfl | 2005-03-09 17:00:21 -0600 (Wed, 09 Mar 2005) | 1 line
 Changed paths:
    M /trunk/epan/dissectors/packet-bssgp.c
