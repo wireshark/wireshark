@@ -2,7 +2,7 @@
  * Routines for cisco tacplus packet dissection
  * Copyright 2000, Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.h,v 1.4 2003/09/29 18:50:47 guy Exp $
+ * $Id: packet-tacacs.h,v 1.5 2003/10/19 17:30:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,11 @@
 
 #define MD5_LEN           16
 #define MSCHAP_DIGEST_LEN 49
+enum
+{
+	FLAGS_UNENCRYPTED = 0x01,
+	FLAGS_SINGLE = 0x04
+};
 
 /* Tacacs+ packet type */
 enum

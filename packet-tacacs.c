@@ -5,7 +5,7 @@
  * Full Tacacs+ parsing with decryption by
  *   Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.c,v 1.29 2003/09/29 18:50:47 guy Exp $
+ * $Id: packet-tacacs.c,v 1.30 2003/10/19 17:30:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,7 +66,8 @@ static int hf_tacacs_result3 = -1;
 
 static gint ett_tacacs = -1;
 
-static char *tacplus_key;
+static char *tacplus_opt_key;
+static GSList *tacplus_keys = NULL;
 
 #define VERSION_TACACS	0x00
 #define VERSION_XTACACS	0x80
@@ -303,6 +304,7 @@ static int hf_tacplus_seqno = -1;
 static int hf_tacplus_flags = -1;
 static int hf_tacplus_flags_payload_type = -1;
 static int hf_tacplus_flags_connection_type = -1;
+static int hf_tacplus_acct_flags = -1;
 static int hf_tacplus_session_id = -1;
 static int hf_tacplus_packet_len = -1;
 
@@ -310,27 +312,21 @@ static gint ett_tacplus = -1;
 static gint ett_tacplus_body = -1;
 static gint ett_tacplus_body_chap = -1;
 static gint ett_tacplus_flags = -1;
+static gint ett_tacplus_acct_flags = -1;
 
-#define FLAGS_UNENCRYPTED	0x01
-
-static const true_false_string payload_type = {
-  "Unencrypted",
-  "Encrypted"
-};
-
-#define FLAGS_SINGLE		0x04
-
-static const true_false_string connection_type = {
-  "Single",
-  "Multiple"
-};
+typedef struct _tacplus_key_entry {
+	address  *s; /* Server address */
+	address  *c; /* client address */
+	char	*k; /* Key */
+} tacplus_key_entry;
 
 static gint 
-tacplus_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint32 len, guint8 version )
+tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint32 len, guint8 version, char *key )
 {
 	guint8	*buff;
 	u_char session_id[4];
 
+	/* TODO Check the possibility to use pinfo->decrypted_data */
 /* session_id is in NETWORK Byte Order, and is used as byte array in the md5_xor */
 
 	tvb_memcpy(tvb, (guint8*)session_id, 4,4); 
@@ -338,7 +334,7 @@ tacplus_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint3
 	buff = tvb_memdup(tvb, TAC_PLUS_HDR_SIZE, len);
 
 
-	md5_xor( buff, tacplus_key, len, session_id,version, tvb_get_guint8(tvb,2) );
+	md5_xor( buff, key, len, session_id,version, tvb_get_guint8(tvb,2) );
 
 	/* Allocate a new tvbuff, referring to the decrypted data. */
 	*dst_tvb = tvb_new_real_data( buff, len, len );
@@ -364,9 +360,9 @@ dissect_tacplus_args_list( tvbuff_t *tvb, proto_tree *tree, int data_off, int le
 	guint8	buff[257];
 	for(i=0;i<arg_cnt;i++){
 		int len=tvb_get_guint8(tvb,len_off+i);
-		proto_tree_add_text( tree, tvb, len_off+i, 1, "Arg(%d) length: %d", i, len );
+		proto_tree_add_text( tree, tvb, len_off+i, 1, "Arg[%d] length: %d", i, len );
 		tvb_get_nstringz0(tvb, data_off, len+1, buff);
-		proto_tree_add_text( tree, tvb, data_off, len, "Arg(%d) value: %s", i, buff );
+		proto_tree_add_text( tree, tvb, data_off, len, "Arg[%d] value: %s", i, buff );
 		data_off+=len;
 	}
 }
@@ -385,15 +381,15 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 	/* authen_type */
 	val=tvb_get_guint8(tvb,offset);
 	proto_tree_add_text( tree, tvb, offset, 1,
-			"Authentication type: 0x%01x (%s)",
-			val, val_to_str( val, tacplus_authen_type_vals, "Unknown Packet" ) );
+			"Authentication type: %s",
+			val_to_str( val, tacplus_authen_type_vals, "Unknown Packet" ) );
 	offset++;
 
 	/* service */
 	val=tvb_get_guint8(tvb,offset);
 	proto_tree_add_text( tree, tvb, offset, 1,
-			"Service: 0x%01x (%s)",
-			val, val_to_str( val, tacplus_authen_service_vals, "Unknown Packet" ) );
+			"Service: %s",
+			val_to_str( val, tacplus_authen_service_vals, "Unknown Packet" ) );
 	offset++;
 
 	/* user_len && user */
@@ -525,7 +521,7 @@ dissect_tacplus_body_authen_req( tvbuff_t* tvb, proto_tree *tree )
 	val=tvb_get_guint8( tvb, AUTHEN_S_ACTION_OFF );
 	proto_tree_add_text( tree, tvb,
 			AUTHEN_S_ACTION_OFF, 1, 
-			"Action: 0x%01x (%s)", val,
+			"Action: %s", 
 			val_to_str( val, tacplus_authen_action_vals, "Unknown Packet" ) );
 
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree , AUTHEN_S_PRIV_LVL_OFF, AUTHEN_S_VARDATA_OFF );
@@ -616,8 +612,7 @@ dissect_tacplus_body_author_req( tvbuff_t* tvb, proto_tree *tree )
 
 	val=tvb_get_guint8( tvb, AUTHOR_Q_AUTH_METH_OFF ) ;
 	proto_tree_add_text( tree, tvb, AUTHOR_Q_AUTH_METH_OFF, 1, 
-			"Auth Method: 0x%01x (%s)", val,
-				val_to_str( val, tacplus_authen_method, "Unknown Authen Method" ) );
+			"Auth Method: %s", val_to_str( val, tacplus_authen_method, "Unknown Authen Method" ) );
 
 	val=tvb_get_guint8( tvb, AUTHOR_Q_ARGC_OFF );
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree ,
@@ -662,13 +657,30 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 {
 	int val, var_off;
 
+	proto_item *tf;
+	proto_tree *flags_tree;
+
 	val=tvb_get_guint8( tvb, ACCT_Q_FLAGS_OFF ); 
-	proto_tree_add_text( tree, tvb, ACCT_Q_FLAGS_OFF, 1, "Flags: 0x%04x", val );
+	tf = proto_tree_add_uint( tree, hf_tacplus_acct_flags, tvb, ACCT_Q_FLAGS_OFF, 1, val );
+
+	flags_tree = proto_item_add_subtree( tf, ett_tacplus_acct_flags );
+	proto_tree_add_text( flags_tree, tvb, ACCT_Q_FLAGS_OFF, 1, "%s",
+			decode_boolean_bitfield( val, TAC_PLUS_ACCT_FLAG_MORE, 8,
+				"More: Set", "More: Not set" ) );
+	proto_tree_add_text( flags_tree, tvb, ACCT_Q_FLAGS_OFF, 1, "%s",
+			decode_boolean_bitfield( val, TAC_PLUS_ACCT_FLAG_START, 8,
+				"Start: Set", "Start: Not set" ) );
+	proto_tree_add_text( flags_tree, tvb, ACCT_Q_FLAGS_OFF, 1, "%s",
+			decode_boolean_bitfield( val, TAC_PLUS_ACCT_FLAG_STOP, 8,
+				"Stop: Set", "Stop: Not set" ) );
+	proto_tree_add_text( flags_tree, tvb, ACCT_Q_FLAGS_OFF, 1, "%s",
+			decode_boolean_bitfield( val, TAC_PLUS_ACCT_FLAG_WATCHDOG, 8,
+				"Watchdog: Set", "Watchdog: Not set" ) );
 
 	val=tvb_get_guint8( tvb, ACCT_Q_METHOD_OFF );
 	proto_tree_add_text( tree, tvb, ACCT_Q_METHOD_OFF, 1, 
-			"Authen Method: 0x%04x (%s)",  
-			val, val_to_str( val, tacplus_authen_type_vals, "Unknown Packet" ) );
+			"Authen Method: 0x%01x (%s)",  
+			val, val_to_str( val, tacplus_authen_method, "Unknown Authen Method" ) );
 
 	val=tvb_get_guint8( tvb, ACCT_Q_ARG_CNT_OFF );
 
@@ -760,6 +772,137 @@ dissect_tacplus_body(tvbuff_t * hdr_tvb, tvbuff_t * tvb, proto_tree * tree )
 	proto_tree_add_text( tree, tvb, 0, tvb_length( tvb ), "Bogus..");
 }
 
+#ifdef DEB_TACPLUS
+static void
+tacplus_print_key_entry( gpointer data, gpointer user_data )
+{
+	tacplus_key_entry *tacplus_data=(tacplus_key_entry *)data;
+	if( user_data ) {
+		printf("%s:%s=%s\n", address_to_str( tacplus_data->s ),
+				address_to_str( tacplus_data->c ), tacplus_data->k );
+	} else {
+		printf("%s:%s\n", address_to_str( tacplus_data->s ),
+				address_to_str( tacplus_data->c ) );
+	}
+}
+#endif
+static int
+cmp_conv_address( gconstpointer p1, gconstpointer p2 )
+{
+	tacplus_key_entry *a1=(tacplus_key_entry*)p1;
+	tacplus_key_entry *a2=(tacplus_key_entry*)p2;
+	gint32	ret;
+	/*
+	printf("p1=>");
+	tacplus_print_key_entry( p1, NULL );
+	printf("p2=>");
+	tacplus_print_key_entry( p2, NULL );
+	*/
+	ret=CMP_ADDRESS( a1->s, a2->s );
+	if( !ret ) {
+		ret=CMP_ADDRESS( a1->c, a2->c );
+		/*
+		if(ret)
+			printf("No Client found!"); */
+	} else {
+		/* printf("No Server found!"); */
+	}
+	return ret;
+}
+
+static char*
+find_key( address *srv, address *cln )
+{
+	tacplus_key_entry data;
+	GSList *match;
+
+	data.s=srv;
+	data.c=cln;
+/*	printf("Looking for: ");
+	tacplus_print_key_entry( (gconstpointer)&data, NULL ); */
+	match=g_slist_find_custom( tacplus_keys, (gpointer)&data, cmp_conv_address );
+/*	printf("Finished (%p)\n", match);  */
+	if( match ) 
+		return ((tacplus_key_entry*)match->data)->k;
+
+	return (tacplus_keys?NULL:tacplus_opt_key);
+}
+#define AF_INET 2
+int inet_pton(int , const char*, void*);
+
+static void
+mkipv4_address( address **addr, char *str_addr )
+{
+	*addr=g_malloc( sizeof(address) );
+	(*addr)->type=AT_IPv4;
+	(*addr)->len=4;
+	(*addr)->data=g_malloc( 4 );
+	inet_pton( AF_INET, (const char*)str_addr, (void*)(*addr)->data );
+}
+static void
+parse_tuple( char *key_from_option )
+{
+	char *client,*key;
+	tacplus_key_entry *tacplus_data=g_malloc( sizeof(tacplus_key_entry) );
+	/*
+	printf("keys: %s\n", key_from_option );
+	*/
+	client=strchr(key_from_option,'/');
+	if(!client)
+		return;
+	*client++='\0';
+	key=strchr(client,'=');
+	if(!key)
+		return;
+	*key++='\0';
+	/*
+	printf("%s %s => %s\n", key_from_option, client, key );
+	*/
+	mkipv4_address( &tacplus_data->s, key_from_option );
+	mkipv4_address( &tacplus_data->c, client );
+	tacplus_data->k=strdup( key );
+	tacplus_keys = g_slist_prepend( tacplus_keys, tacplus_data );
+}
+
+static
+void
+free_tacplus_keys( gpointer data, gpointer user_data _U_ )
+{
+	g_free( ((tacplus_key_entry *)data)->k );
+}
+
+static 
+void
+parse_tacplus_keys( char *keys_from_option )
+{
+	char *s1,*s;
+
+	/* Drop old keys */
+	if( tacplus_keys ) {
+		g_slist_foreach( tacplus_keys, free_tacplus_keys, NULL );
+		g_slist_free( tacplus_keys );
+		tacplus_keys=NULL;
+	}
+
+	if( !strchr( keys_from_option, '/' ) ){
+		/* option not in client/server=key format */
+		return ;
+	}
+	s=strdup(keys_from_option);
+	s1=s;
+	keys_from_option = s;
+	while(keys_from_option){
+		if( (s=strchr( keys_from_option, ' ' )) != NULL )
+			*s++='\0';
+		parse_tuple( keys_from_option );
+		keys_from_option=s;
+	}
+	g_free( s1 );
+#ifdef DEB_TACPLUS
+	g_slist_foreach( tacplus_keys, tacplus_print_key_entry, GINT_TO_POINTER(1) );
+#endif
+}
+
 static void
 dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -771,8 +914,14 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item      *tf;
 	proto_item	*tmp_pi;
 	guint32		len;
-	gboolean	request=(pinfo->match_port == pinfo->destport);
+	gboolean	request=( pinfo->destport == TCP_PORT_TACACS );
+	char		*key=NULL;
 
+	if( request ) {
+		key=find_key( &pinfo->dst, &pinfo->src );
+	} else {
+		key=find_key(  &pinfo->src, &pinfo->dst );
+	}
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS+");
 
@@ -814,12 +963,12 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		flags = tvb_get_guint8(tvb,3);
 		tf = proto_tree_add_uint_format(tacplus_tree, hf_tacplus_flags,
 		    tvb, 3, 1, flags,
-		    "Flags: %s, %s (0x%02x)",
-		    (flags&FLAGS_UNENCRYPTED) ? "Unencrypted payload" :
-						"Encrypted payload",
+		    "Flags: 0x%02x (%s payload, %s)",
+			flags,
+		    (flags&FLAGS_UNENCRYPTED) ? "Unencrypted" :
+						"Encrypted",
 		    (flags&FLAGS_SINGLE) ? "Single connection" :
-					   "Multiple Connections",
-		    flags);
+					   "Multiple Connections" );
 		flags_tree = proto_item_add_subtree(tf, ett_tacplus_flags);
 		proto_tree_add_boolean(flags_tree, hf_tacplus_flags_payload_type,
 		    tvb, 3, 1, flags);
@@ -838,8 +987,8 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			new_tvb = tvb_new_subset( tvb, TAC_PLUS_HDR_SIZE, len, len );
 		}  else {
 			new_tvb=NULL;
-			if( tacplus_key && *tacplus_key ){
-				tacplus_tvb_setup(tvb,&new_tvb,pinfo,len,version);
+			if( key && *key ){
+				tacplus_decrypted_tvb_setup( tvb, &new_tvb, pinfo, len, version, key );
 			}
 		}
 		if( new_tvb ) {
@@ -851,6 +1000,12 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_tacplus_body( tvb, new_tvb, proto_item_add_subtree( tmp_pi, ett_tacplus_body ));
 		}
 	}
+}
+
+void
+tacplus_pref_cb()
+{
+	parse_tacplus_keys( tacplus_opt_key );
 }
 
 void
@@ -886,13 +1041,17 @@ proto_register_tacplus(void)
 	      FT_UINT8, BASE_HEX, NULL, 0x0,
 	      "Flags", HFILL }},
 	  { &hf_tacplus_flags_payload_type,
-	    { "Payload type",       "tacplus.flags.payload_type",
-	      FT_BOOLEAN, 8, TFS(&payload_type), FLAGS_UNENCRYPTED,
-	      "Payload type (unencrypted or encrypted)", HFILL }},
+	    { "Unencrypted",       "tacplus.flags.unencrypted",
+	      FT_BOOLEAN, 8, TFS(&flags_set_truth), FLAGS_UNENCRYPTED,
+	      "Is payload unencrypted?", HFILL }},
 	  { &hf_tacplus_flags_connection_type,
-	    { "Connection type",    "tacplus.flags.connection_type",
-	      FT_BOOLEAN, 8, TFS(&connection_type), FLAGS_SINGLE,
-	      "Connection type (single or multiple)", HFILL }},
+	    { "Single Connection",    "tacplus.flags.singleconn",
+	      FT_BOOLEAN, 8, TFS(&flags_set_truth), FLAGS_SINGLE,
+	      "Is this a single connection?", HFILL }},
+	  { &hf_tacplus_acct_flags,
+	    { "Flags",    "tacplus.acct.flags",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      "Flags", HFILL }},
 	  { &hf_tacplus_session_id,
 	    { "Session ID",         "tacplus.session_id",
 	      FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -905,6 +1064,7 @@ proto_register_tacplus(void)
 	static gint *ett[] = {
 		&ett_tacplus,
 		&ett_tacplus_flags,
+		&ett_tacplus_acct_flags,
 		&ett_tacplus_body,
 		&ett_tacplus_body_chap, 
 	};
@@ -913,9 +1073,9 @@ proto_register_tacplus(void)
 	proto_tacplus = proto_register_protocol("TACACS+", "TACACS+", "tacplus");
 	proto_register_field_array(proto_tacplus, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	tacplus_module = prefs_register_protocol (proto_tacplus, NULL);
+	tacplus_module = prefs_register_protocol (proto_tacplus, tacplus_pref_cb );
 	prefs_register_string_preference ( tacplus_module, "key",
-	"TACACS+ Encryption Key", "TACACS+ Encryption Key", &tacplus_key );
+	"TACACS+ Encryption Key", "TACACS+ Encryption Key", &tacplus_opt_key );
 }
 
 void
