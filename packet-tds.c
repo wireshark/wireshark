@@ -1,8 +1,9 @@
 /* packet-tds.c
  * Routines for TDS NetLib dissection
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
+ * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.3 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-tds.c,v 1.4 2002/09/28 16:04:03 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,6 +99,8 @@
 
 #include "epan/packet.h"
 #include "epan/conversation.h"
+
+#include "packet-smb-common.h"
 
 #define TDS_QUERY_PKT  0x01
 #define TDS_LOGIN_PKT  0x02
@@ -204,8 +207,12 @@ static int hf_netlib_last = -1;
 static gint ett_netlib = -1;
 static gint ett_tds = -1;
 static gint ett_tds_pdu = -1;
+static gint ett_tds7_login = -1;
+static gint ett_tds7_hdr = -1;
 
 static heur_dissector_list_t netlib_heur_subdissector_list;
+
+static dissector_handle_t ntlmssp_handle = NULL;
 
 /* These correspond to the netlib packet type field */
 static const value_string packet_type_names[] = {
@@ -253,7 +260,24 @@ static const value_string token_names[] = {
 
 static const value_string env_chg_names[] = {
         {1, "Database"},
+        {2, "Language"},
+        {3, "Sort Order"},
         {4, "Blocksize"},
+        {5, "Unicode Locale ID"},
+        {6, "Unicode Comparison Style"},
+        {0, NULL},
+};
+
+static const value_string login_field_names[] = {
+        {0, "Client Name"},
+        {1, "Username"},
+        {2, "Password"},
+        {3, "App Name"},
+        {4, "Server Name"},
+        {5, "Unknown1"},
+        {6, "Library Name"},
+        {7, "Locale"},
+        {8, "Unknown2"},
         {0, NULL},
 };
 
@@ -326,6 +350,67 @@ static GMemChunk *tds_column = NULL;
 static void netlib_reinit(void);
 
 /* support routines */
+static void dissect_tds_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint length)
+{
+	tvbuff_t *ntlmssp_tvb = NULL;
+
+	ntlmssp_tvb = tvb_new_subset(tvb, offset, length, length);
+
+	add_new_data_source(pinfo, ntlmssp_tvb, "NTLMSSP Data");
+	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
+}
+
+static void dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int length)
+{
+	int offset, offset2, len, i;
+	guint16 bc;
+	gboolean is_unicode = TRUE;
+	const char *val;
+
+	proto_item *login_hdr;
+	proto_tree *login_tree;
+	proto_item *header_hdr;
+	proto_tree *header_tree;
+
+	tvbuff_t *tds7_tvb;
+
+	length -= 8;
+
+	tds7_tvb = tvb_new_subset(tvb, 8, length, length);
+	offset = 36;
+
+	/* create display subtree for the protocol */
+	login_hdr = proto_tree_add_text(tree, tds7_tvb, 0, length,
+                    "TDS7 Login Packet");
+	login_tree = proto_item_add_subtree(login_hdr, ett_tds7_login);
+
+	header_hdr = proto_tree_add_text(login_tree, tds7_tvb, offset, 50, "Login Packet Header");
+	header_tree = proto_item_add_subtree(header_hdr, ett_tds7_hdr);
+	for (i = 0; i < 9; i++) {
+		offset2 = tvb_get_letohs(tds7_tvb, offset + i*4);
+		len = tvb_get_letohs(tds7_tvb, offset + i*4 + 2);
+		proto_tree_add_text(header_tree, tds7_tvb, offset + i*4, 2,
+		       "%s offset: %d",val_to_str(i,login_field_names,"Unknown"),
+		       offset2);
+		proto_tree_add_text(header_tree, tds7_tvb, offset + i*4 + 2, 2,
+		       "%s length: %d",val_to_str(i,login_field_names,"Unknown"),
+		       len);
+		if (len) {
+			if (is_unicode == TRUE)
+				len *= 2;
+			val = get_unicode_or_ascii_string(tds7_tvb, &offset2,
+			                            is_unicode, &len,
+		        	                    TRUE, TRUE, &bc);
+			proto_tree_add_text(login_tree, tds7_tvb, offset2, len,
+			                    "%s: %s", val_to_str(i, login_field_names, "Unknown"), val);
+		}
+	}
+
+	if (offset2 + len < length) {
+		dissect_tds_ntlmssp(tds7_tvb, pinfo, login_tree, offset2 + len, length - offset2);
+	}
+}
+
 static int get_size_by_coltype(int servertype)
 {
    switch(servertype)
@@ -719,9 +804,17 @@ static gboolean
 dissect_tds_env_chg(tvbuff_t *tvb, struct _netlib_data *nl_data _U_, guint offset, guint last_byte _U_, proto_tree *tree)
 {
 guint8 env_type;
+guint packet_len;
 guint old_len, new_len;
 unsigned int old_len_offset;
-char old_val[257], new_val[257];
+const char *new_val = NULL, *old_val = NULL;
+guint32 string_offset;
+guint16 bc;
+gboolean is_unicode = FALSE;
+
+	/* FIXME: if we have to take a negative offset, isn't that
+	   defeating the purpose? */
+	packet_len = tvb_get_letohs(tvb, offset - 2);
 
 	env_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1, "Type: %d (%s)", env_type,
@@ -731,18 +824,37 @@ char old_val[257], new_val[257];
 	old_len_offset = offset + new_len + 2;
 	old_len = tvb_get_guint8(tvb, old_len_offset);
 
+	/* If our lengths don't add up to the packet length, it must be UCS2. */
+	if (old_len + new_len + 3 != packet_len) {
+		is_unicode = TRUE;
+		old_len_offset = offset + (new_len * 2) + 2;
+		old_len = tvb_get_guint8(tvb, old_len_offset);
+	}
+
 	proto_tree_add_text(tree, tvb, offset + 1, 1, "New Value Length: %d", new_len);
 	if (new_len) {
-		strncpy(new_val, tvb_get_ptr(tvb, offset + 2, new_len), new_len);
-		new_val[new_len]='\0';
+		if (is_unicode == TRUE) {
+			new_len *= 2;
+		}
+		string_offset = offset + 2;
+		new_val = get_unicode_or_ascii_string(tvb, &string_offset,
+		                            is_unicode, &new_len,
+		                            TRUE, TRUE, &bc);
 
-		proto_tree_add_text(tree, tvb, offset + 2, new_len, "New Value: %s", new_val);
+		proto_tree_add_text(tree, tvb, string_offset, new_len, "New Value: %s", new_val);
 	}
+
 	proto_tree_add_text(tree, tvb, old_len_offset, 1, "Old Value Length: %d", old_len);
 	if (old_len) {
-		strncpy(old_val, tvb_get_ptr(tvb, old_len_offset + 1, old_len), old_len);
-		old_val[old_len]='\0';
-		proto_tree_add_text(tree, tvb, old_len_offset + 1, old_len, "Old Value: %s", old_val);
+		if (is_unicode == TRUE) {
+			old_len *= 2;
+		}
+		string_offset = old_len_offset + 1;
+		old_val = get_unicode_or_ascii_string(tvb, &string_offset,
+		                            is_unicode, &old_len,
+		                            TRUE, TRUE, &bc);
+
+		proto_tree_add_text(tree, tvb, string_offset, old_len, "Old Value: %s", old_val);
 	 }
 
 	 return TRUE;
@@ -870,6 +982,9 @@ proto_tree *pdu_tree;
 			case TDS_ENV_CHG_TOKEN:
 				dissect_tds_env_chg(tvb, nl_data, pos + 3, last_byte, pdu_tree);
 			break;
+			case TDS_AUTH_TOKEN:
+				dissect_tds_ntlmssp(tvb, pinfo, pdu_tree, pos + 3, last_byte - pos - 3);
+			break;
 		}
 
 		/* and step to the end of the PDU, rinse, lather, repeat */
@@ -990,6 +1105,8 @@ dissect_netlib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* if this is a response packet decode it further */
 		if (nl_data.packet_type == TDS_RESP_PKT) {
 			dissect_tds(tvb, pinfo, tree, &nl_data, offset+8);
+		} else if (nl_data.packet_type == TDS_LOGIN7_PKT) {
+			dissect_tds7_login(tvb, pinfo, tree, nl_data.packet_size);
 		} else {
 			/* we don't want to track left overs for non-response packets */
 			nl_data.tds_bytes_left = 0;
@@ -1059,6 +1176,8 @@ proto_register_netlib(void)
 		&ett_netlib,
 		&ett_tds,
 		&ett_tds_pdu,
+		&ett_tds7_login,
+		&ett_tds7_hdr,
 	};
 
 /* Register the protocol name and description */
@@ -1113,7 +1232,8 @@ proto_reg_handoff_netlib(void)
 	/* dissector_add("tcp.port", 1433, dissect_netlib,
 	    proto_netlib); */
 	heur_dissector_add ("tcp", dissect_netlib, proto_tds);
-}
 
+	ntlmssp_handle = find_dissector("ntlmssp");
+}
 
 
