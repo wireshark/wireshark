@@ -1408,6 +1408,9 @@ Matthew Smart <smart[AT]monkey.org> {
 	Cisco NetFlow protocol support
 }
 
+Jamie Fournier <jafour1@yahoo.com>
+	DCE/RPC stub dissector for RS_UNIX
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
