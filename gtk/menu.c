@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.20 2000/01/18 19:01:35 guy Exp $
+ * $Id: menu.c,v 1.21 2000/01/25 03:48:16 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -280,6 +280,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event)
 void
 set_menus_for_capture_file(gboolean have_capture_file)
 {
+  set_menu_sensitivity("/File/Open...", have_capture_file);
   set_menu_sensitivity("/File/Save As...", have_capture_file);
   set_menu_sensitivity("/File/Close", have_capture_file);
   set_menu_sensitivity("/File/Reload", have_capture_file);
