@@ -1004,6 +1004,10 @@ Jirka Novak <j.novak[AT]netsystem.cz> {
 Ricardo Barroetaveña <rbarroetavena[AT]veufort.com> {
 	Enhanced LDP support
 }
+
+Alan Harrison <alanharrison[AT]mail.com> {
+	Fixes to EtherPeek file reader code
+}
 	
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
