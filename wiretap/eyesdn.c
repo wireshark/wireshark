@@ -1,6 +1,6 @@
 /* eyesdn.c
  *
- * $Id: eyesdn.c,v 1.1 2004/02/11 20:05:16 guy Exp $
+ * $Id: eyesdn.c,v 1.2 2004/02/12 21:25:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -57,23 +57,26 @@
  */
 
 
-static int esc_read(unsigned char *buf, int len, FILE_T *fh)
+static int esc_read(guint8 *buf, int len, FILE_T *fh)
 {
-    int i, err;
-    unsigned char value;
+    int i;
+    int value;
     
     for(i=0; i<len; i++) {
 	value=file_getc(fh);
-	err=0 /*file_eof(fh)*/;
-	if(err) break;
-	if(value==0xff) return -1; /* error !!, read into next frame */
-	if(value==0xfe) { // we need to escape 
+	if(value==-1)
+	    return -2; /* EOF or error */
+	if(value==0xff)
+	    return -1; /* error !!, read into next frame */
+	if(value==0xfe) {
+	    /* we need to escape */
 	    value=file_getc(fh);
+	    if(value==-1)
+		return -2;
 	    value+=2;
 	}
 	buf[i]=value;
     }
-    if(file_error(fh)) return -2;
     return i;
 }
 
@@ -100,7 +103,7 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 static gboolean eyesdn_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info);
-static gboolean parse_eyesdn_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
+static gboolean parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf,
 	int *err, gchar **err_info);
 static int parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
@@ -216,8 +219,8 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 	buffer_assure_space(wth->frame_buffer, EYESDN_MAX_PACKET_LEN);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
-	/* Convert the ASCII hex dump to binary data */
-	if (!parse_eyesdn_hex_dump(wth->fh, pkt_len, buf, err, err_info))
+	/* Read the packet data */
+	if (!parse_eyesdn_packet_data(wth->fh, pkt_len, buf, err, err_info))
 		return FALSE;
 
 	wth->data_offset = offset;
@@ -248,7 +251,7 @@ eyesdn_seek_read (wtap *wth, long seek_off,
 		return FALSE;
 	}
 
-	return parse_eyesdn_hex_dump(wth->random_fh, pkt_len, pd, err,
+	return parse_eyesdn_packet_data(wth->random_fh, pkt_len, pd, err,
 	    err_info);
 }
 
@@ -257,41 +260,40 @@ static int
 parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
-	unsigned char	line[EYESDN_HDR_LENGTH];
+	guint8		hdr[EYESDN_HDR_LENGTH];
         unsigned long   secs, usecs;
-	int	pkt_len;
+	int		pkt_len;
 	unsigned int    channel, direction;
 
-	/* Our file pointer should be on the line containing the
-	 * summary information for a packet. Read in that line and
-	 * extract the useful information
+	/* Our file pointer should be at the summary information header
+	 * for a packet. Read in that header and extract the useful
+	 * information.
 	 */
-	if (esc_read(line, EYESDN_HDR_LENGTH, fh) != EYESDN_HDR_LENGTH) {
+	if (esc_read(hdr, EYESDN_HDR_LENGTH, fh) != EYESDN_HDR_LENGTH) {
 		*err = file_error(fh);
-		if (*err == 0) {
+		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		}
 		return -1;
 	}
     
         /* extract information from header */
-        usecs = ((unsigned long) line[0]);
-        usecs = (usecs << 8) | ((unsigned long) line[1]);
-        usecs = (usecs << 8) | ((unsigned long) line[2]);
+        usecs = ((unsigned long) hdr[0]);
+        usecs = (usecs << 8) | ((unsigned long) hdr[1]);
+        usecs = (usecs << 8) | ((unsigned long) hdr[2]);
 #ifdef TV64BITS    
-        secs = ((unsigned long) line[3]);
+        secs = ((unsigned long) hdr[3]);
 #else    
         secs = 0;
 #endif    
-        secs = (secs << 8) | ((unsigned long) line[4]);
-        secs = (secs << 8) | ((unsigned long) line[5]);
-        secs = (secs << 8) | ((unsigned long) line[6]);
-        secs = (secs << 8) | ((unsigned long) line[7]);
+        secs = (secs << 8) | ((unsigned long) hdr[4]);
+        secs = (secs << 8) | ((unsigned long) hdr[5]);
+        secs = (secs << 8) | ((unsigned long) hdr[6]);
+        secs = (secs << 8) | ((unsigned long) hdr[7]);
 
-        channel = line[8];
-        direction = line[9];
-        pkt_len = ((unsigned long) line[10]) << 8;
-        pkt_len = (pkt_len << 8) | ((unsigned long) line[11]);
+        channel = hdr[8];
+        direction = hdr[9];
+        pkt_len = ((unsigned long) hdr[10]) << 8;
+        pkt_len = (pkt_len << 8) | ((unsigned long) hdr[11]);
 
         /* sanity checks */
         if(channel>30) {
@@ -328,7 +330,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 
 /* read a packet */
 static gboolean
-parse_eyesdn_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
+parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf, int *err,
     gchar **err_info)
 {
         int bytes_read;
@@ -336,9 +338,11 @@ parse_eyesdn_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = esc_read(buf, pkt_len, fh);
 	if (bytes_read != pkt_len) {
-	    if (bytes_read == -2)
+	    if (bytes_read == -2) {
 		*err = file_error(fh);
-	    else if (bytes_read == -1) {
+		if (*err == 0)
+		    *err = WTAP_ERR_SHORT_READ;
+	    }  else if (bytes_read == -1) {
 	        *err = WTAP_ERR_BAD_RECORD;
 	        *err_info = g_strdup("eyesdn: No flag character seen in frame");
 	    } else
