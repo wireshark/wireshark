@@ -1,4 +1,4 @@
-$Id: README,v 1.37 2000/04/13 11:20:49 gram Exp $
+$Id: README,v 1.38 2000/06/08 03:09:26 gram Exp $
 
 General Information
 ------- -----------
@@ -82,12 +82,12 @@ its infancy. However, wiretap is used in ethereal for its ability
 to read multiple file types. You can read the following file
 formats, and create display filters for them as well:
 
-libpcap (tcpdump -w), Sniffer (uncompressed), NetXray, Sniffer Pro,
-snoop, Shomiti, LANalyzer, Microsoft Network Monitor, AIX's iptrace,
-RADCOM's WAN/LAN Analyzer, Lucent/Ascend access products, HP-UX's nettl,
-Toshiba's ISDN routers, and the ISDN4BSD "i4btrace" utility.
+libpcap (tcpdump -w), Sniffer (compressed and uncompressed), NetXray,
+Sniffer Pro, snoop, Shomiti, LANalyzer, Microsoft Network Monitor, AIX's
+iptrace, RADCOM's WAN/LAN Analyzer, Lucent/Ascend access products, HP-UX's
+nettl, Toshiba's ISDN routers, and the ISDN4BSD "i4btrace" utility.
 
-In addition, it can read gzipped versions of any of these files,
+In addition, it can read gzipped versions of any of these files
 automatically, if you have the zlib library available when compiling
 Ethereal. Ethereal needs a modern version of zlib to be able to use
 zlib to read gzipped files; version 1.1.3 is known to work.  Versions
