@@ -575,7 +575,11 @@ SIP packets exchanged by the host at IP address 1.2.3.4 .
 
 =over 4
 
-=item File:Open, File:Open Recent, File:Close
+=item File:Open
+
+=item File:Open Recent
+
+=item File:Close
 
 Open or close a capture file.  The I<File:Open> dialog box
 allows a filter to be specified; when the capture file is read, the
@@ -583,7 +587,9 @@ filter is applied to all packets read from the file, and packets not
 matching the filter are discarded. The I<File:Open Recent> is a submenu 
 and will show a list of previously opened files.
 
-=item File:Save, File:Save As
+=item File:Save
+
+=item File:Save As
 
 Save the current capture, or the packets currently displayed from that
 capture, to a file.  Check boxes let you select whether to save all
@@ -630,15 +636,11 @@ case insensitive.
 
 =item Edit:Find Next
 
-Search forward, starting with the currently selected packet
-(or the most recently selected packet, if no packet is selected), for a
-packet matching the filter from the previous search.
-
 =item Edit:Find Previous
 
-Search backward, starting with the currently selected packet (or the
-most recently selected packet, if no packet is selected), for a packet
-matching the filter from the previous search.
+Search forward / backward for a packet matching the filter from the previous 
+search, starting with the currently selected packet (or the most recently 
+selected packet, if no packet is selected).
 
 =item Edit:Time Reference:Set Time Reference
 
@@ -658,32 +660,28 @@ be reset at every Time Reference packet.
 
 =item Edit:Time Reference:Find Next
 
-Find the next time referenced packet.
-
 =item Edit:Time Reference:Find Previous
 
-Find the previously time referenced packet.
+Search forward / backward for a time referenced packet.
 
 =item Edit:Mark Packet
 
 Mark (or unmark if currently marked) the selected packet.  The field
 "frame.marked" is set for packets that are marked, so that, for example,
 a display filters can be used to display only marked packets, and so that
-the L<Find Packet> menu item can be used to find the next or previous
+the L<Edit:Find Packet|/item_edit_3afind_packet> dialog can be used to find the next or previous
 marked packet.
 
 =item Edit:Mark All Packets
 
-Mark all packets that are currently displayed.
-
 =item Edit:Unmark All Packets
 
-Unmark all packets that are currently displayed.
+Mark / Unmark all packets that are currently displayed.
 
 =item Edit:Preferences
 
 Set the packet printing, column display, TCP stream coloring, and GUI
-options (see L<"Preferences"> below).
+options (see L<Preferences|/item_preferences> dialog below).
 
 =item View:Main Toolbar
 
@@ -717,11 +715,9 @@ packet list while a live capture is in progress.
 
 =item View:Zoom In
 
-Zoom into the main window data.
-
 =item View:Zoom Out
 
-Zoom out of the main window data.
+Zoom into / out of the main window data (by changing the font size).
 
 =item View:Normal Size
 
@@ -729,17 +725,15 @@ Reset the zoom factor of zoom in / zoom out back to normal font size.
 
 =item View:Collapse All
 
-Collapse all branches of the packet details.
-
 =item View:Expand All
 
-Expands all branches of the packet details.
+Collapse / Expand all branches of the packet details.
 
 =item View:Expand Tree
 
 Expands the currently selected item in the packet details.
 
-=item Edit:Coloring Rules
+=item View:Coloring Rules
 
 Change the foreground and background colors of the packet information in
 the list of packets, based upon display filters.  The list of display
@@ -793,15 +787,13 @@ that packet number has been put into the packet details.
 
 =item Go:First Packet
 
-Go to the first packet in the capture.
-
 =item Go:Last Packet
 
-Go to the last packet in the capture.
+Go to the first / last packet in the capture.
 
 =item Capture:Start
 
-Initiate a live packet capture (see L<"Capture Options"> below).  A
+Initiate a live packet capture (see L<Capture Options|/item_capture_options> dialog below).  A
 temporary file will be created to hold the capture.  The location of the
 file can be chosen by setting your TMPDIR environment variable before
 starting B<Ethereal>.  Otherwise, the default TMPDIR location is
@@ -1214,7 +1206,7 @@ List of supported protocols and display filter protocol fields.
 
 =item Help:About Ethereal
 
-See various information about Ethereal (see I<"About"> below), like the 
+See various information about Ethereal (see L<About|/item_about> dialog below), like the 
 version, the folders used, the available plugins, ...
 
 =back
