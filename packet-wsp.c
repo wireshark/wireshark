@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.42 2001/10/22 20:37:51 guy Exp $
+ * $Id: packet-wsp.c,v 1.43 2001/10/26 19:14:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -529,6 +529,17 @@ static const value_string vals_content_types[] = {
 	{ 0x32, "application/vnd.wap.coc" },
 	{ 0x33, "application/vnd.wap.multipart.related" },
 	{ 0x34, "application/vnd.wap.sia" },
+	{ 0x35, "text/vnd.wap.connectivity-xml" },
+	{ 0x36, "application/vnd.wap.connectivity-wbxml" },
+	{ 0x37, "application/pkcs7-mime" },
+	{ 0x38, "application/vnd.wap.hashed-certificate" },
+	{ 0x39, "application/vnd.wap.signed-certificate" },
+	{ 0x3A, "application/vnd.wap.cert-response" },
+	{ 0x3B, "application/xhtml+xml" },
+	{ 0x3C, "application/wml+xml" },
+	{ 0x3D, "text/css" },
+	{ 0x3E, "application/vnd.wap.mms-message" },
+	{ 0x3F, "application/vnd.wap.rollover-certificate" },
 	{ 0x00, NULL }
 };
 
