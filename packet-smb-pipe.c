@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.91 2003/04/13 23:58:36 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.92 2003/04/14 20:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3213,11 +3213,11 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	gboolean result=0;
 	gboolean save_fragmented;
 	guint reported_len;
+	guint32 hash_key;
 	gpointer hash_value;
 	fragment_data *fd_head;
 	tvbuff_t *new_tvb;
 	guint32 frame;
-
 
 	dcerpc_priv.transport_type = DCERPC_TRANSPORT_SMB;
 	dcerpc_priv.data.smb.fid = fid;
@@ -3257,8 +3257,21 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	   to reassemble it
 	*/
 	if((!pinfo->fd->flags.visited) && smb_priv->sip){
-		/* check if we are already reassembling this pdu or not */
-		hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid);
+		/*
+		 * Check if we are already reassembling this PDU or not;
+		 * we check for an in-progress reassembly for this FID
+		 * in this direction (the direction is indicated by the
+		 * SMB request/reply flag - data from client to server
+		 * is carried in requests, data from server to client
+		 * is carried in replies).
+		 *
+		 * We know that the FID is only 16 bits long, so we put
+		 * the direction in bit 17.
+		 */
+		hash_key = fid;
+		if (smb_priv->request)
+			hash_key |= 0x10000;
+		hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_fid_to_frame, (void *)hash_key);
 		if(!hash_value){
 			/* this is a new pdu. check if the dissector wants us
 			   to reassemble it or if we already got the full pdu
@@ -3290,7 +3303,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 				   we know this entry does not exist already
 				   from the code above
 				*/
-				g_hash_table_insert(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid,(void *)pinfo->fd->num);
+				g_hash_table_insert(smb_priv->ct->dcerpc_fid_to_frame, (void *)hash_key,(void *)pinfo->fd->num);
 
 				/* store the frame to hash_key value so we can
 				   find this pdu later */
@@ -3335,7 +3348,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 		/* if we completed reassembly */
 		if(fd_head){
-			g_hash_table_remove(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid);
+			g_hash_table_remove(smb_priv->ct->dcerpc_fid_to_frame, (void *)hash_key);
 			new_tvb = tvb_new_real_data(fd_head->data,
 				  fd_head->datalen, fd_head->datalen);
 			tvb_set_child_real_data_tvbuff(d_tvb, new_tvb);
