@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id: packet-ses.c,v 1.3 2003/11/18 07:08:43 guy Exp $
+* $Id: packet-ses.c,v 1.4 2003/12/02 05:53:26 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -269,24 +269,22 @@ call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 			proto_tree_add_text(param_tree, tvb, offset, param_len,
 			    "User data");
 		}
-		else
-		{
-			/* Yes - call presentation dissector */
-			tvbuff_t *next_tvb;
+	}
+	else
+	{
+		/* Yes - call presentation dissector */
+		tvbuff_t *next_tvb;
 
-			next_tvb = tvb_new_subset(tvb, offset, param_len,
-			    param_len);
-			TRY
-			{
-				call_dissector(pres_handle, next_tvb, pinfo,
-				    tree);
-			}
-			CATCH_ALL
-			{
-				show_exception(tvb, pinfo, tree, EXCEPT_CODE);
-			}
-			ENDTRY;
+		next_tvb = tvb_new_subset(tvb, offset, param_len, param_len);
+		TRY
+		{
+			call_dissector(pres_handle, next_tvb, pinfo, tree);
 		}
+		CATCH_ALL
+		{
+			show_exception(tvb, pinfo, tree, EXCEPT_CODE);
+		}
+		ENDTRY;
 	}
 }
 
