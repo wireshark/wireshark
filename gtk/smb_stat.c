@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.41 2004/03/13 15:15:25 ulfl Exp $
+ * $Id: smb_stat.c,v 1.42 2004/04/12 08:53:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,6 +159,8 @@ gtk_smbstat_init(char *optarg)
 	GString *error_string;
 	int i;
 	GtkWidget *vbox;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
 
 	if(!strncmp(optarg,"smb,srt,",8)){
 		filter=optarg+8;
@@ -168,32 +170,27 @@ gtk_smbstat_init(char *optarg)
 
 	ss=g_malloc(sizeof(smbstat_t));
 
-	ss->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
+	ss->win=dlg_window_new("");
 	gtk_window_set_default_size(GTK_WINDOW(ss->win), 550, 600);
 	smbstat_set_title(ss);
 	SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(ss->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
-	gtk_widget_show(vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
 	label=gtk_label_new("SMB Service Response Time statistics");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 
 	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
 	label=gtk_label_new(filter_string);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
-
 
 	label=gtk_label_new("SMB Commands");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
-	gtk_widget_show(ss->win);
+	gtk_widget_show_all(ss->win);
 
 	init_srt_table(&ss->smb_srt_table, 256, vbox, "smb.cmd");
 	for(i=0;i<256;i++){
@@ -203,7 +200,6 @@ gtk_smbstat_init(char *optarg)
 
 	label=gtk_label_new("Transaction2 Sub-Commands");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 	init_srt_table(&ss->trans2_srt_table, 256, vbox, "smb.trans2.cmd");
 	for(i=0;i<256;i++){
 		init_srt_table_row(&ss->trans2_srt_table, i, val_to_str(i, trans2_cmd_vals, "Unknown(0x%02x)"));
@@ -212,7 +208,6 @@ gtk_smbstat_init(char *optarg)
 
 	label=gtk_label_new("NT Transaction Sub-Commands");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 	init_srt_table(&ss->nt_trans_srt_table, 256, vbox, "smb.nt.function");
 	for(i=0;i<256;i++){
 		init_srt_table_row(&ss->nt_trans_srt_table, i, val_to_str(i, nt_cmd_vals, "Unknown(0x%02x)"));
@@ -226,6 +221,19 @@ gtk_smbstat_init(char *optarg)
 		g_free(ss);
 		return;
 	}
+
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, ss->win);
+	gtk_widget_grab_default(close_bt);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(ss->win, close_bt);
 
 	gtk_widget_show_all(ss->win);
 	retap_packets(&cfile);

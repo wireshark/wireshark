@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_map_stat.c,v 1.5 2004/03/13 15:15:24 ulfl Exp $
+ * $Id: gsm_map_stat.c,v 1.6 2004/04/12 08:53:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -271,65 +271,24 @@ gsm_map_stat_gtk_win_create(
     GtkWidget		*column_lb;
     GtkWidget		*vbox;
     GtkWidget		*bt_close;
-    GtkWidget		*hbuttonbox;
-    GtkWidget		*dialog_vbox;
-    GtkWidget		*dialog_action_area;
+    GtkWidget		*bbox;
 
 
-    dlg_p->win = gtk_dialog_new();
+    dlg_p->win = dlg_window_new(title);
     gtk_window_set_default_size(GTK_WINDOW(dlg_p->win), 560, 390);
-    gtk_window_set_title(GTK_WINDOW(dlg_p->win), title);
     SIGNAL_CONNECT(dlg_p->win, "destroy", gsm_map_stat_gtk_win_destroy_cb, dlg_p);
 
-    dialog_vbox = GTK_DIALOG(dlg_p->win)->vbox;
-    gtk_widget_show(dialog_vbox);
+    vbox = gtk_vbox_new(FALSE, 3);
+	gtk_container_add(GTK_CONTAINER(dlg_p->win), vbox);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
-    dialog_action_area = GTK_DIALOG(dlg_p->win)->action_area;
-    gtk_widget_show(dialog_action_area);
-    gtk_container_set_border_width(GTK_CONTAINER(dialog_action_area), 10);
-
-    hbuttonbox = gtk_hbutton_box_new();
-    gtk_widget_ref(hbuttonbox);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "hbuttonbox", hbuttonbox,
-	(GtkDestroyNotify) gtk_widget_unref);
-    gtk_widget_show(hbuttonbox);
-    gtk_box_pack_start(GTK_BOX(dialog_action_area), hbuttonbox, FALSE, FALSE, 0);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(hbuttonbox), GTK_BUTTONBOX_END);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(hbuttonbox), 0);
-
-    bt_close = gtk_button_new_with_label("Close");
-    gtk_widget_ref(bt_close);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "bt_close", bt_close,
-	(GtkDestroyNotify) gtk_widget_unref);
-    gtk_widget_show(bt_close);
-    gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_close);
-    GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
-    SIGNAL_CONNECT(bt_close, "clicked", gsm_map_stat_gtk_dlg_close_cb, dlg_p);
-
-    vbox = gtk_vbox_new(FALSE, 0);
-    gtk_widget_ref(vbox);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "vbox", vbox,
-	(GtkDestroyNotify) gtk_widget_unref);
-    gtk_widget_show(vbox);
-    gtk_box_pack_start(GTK_BOX(dialog_vbox), vbox, TRUE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
-
-    dlg_p->scrolled_win = gtk_scrolled_window_new(NULL, NULL);
-    gtk_widget_ref(dlg_p->scrolled_win);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "scrolled_win", dlg_p->scrolled_win,
-	(GtkDestroyNotify) gtk_widget_unref);
-    gtk_widget_show(dlg_p->scrolled_win);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(dlg_p->scrolled_win),
-	GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+    dlg_p->scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
 
     dlg_p->table = gtk_clist_new(INIT_TABLE_NUM_COLUMNS);
-    gtk_widget_ref(dlg_p->table);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "table", GTK_CLIST(dlg_p->table),
-	(GtkDestroyNotify) gtk_widget_unref);
-    gtk_widget_show(dlg_p->table);
 
-    gtk_widget_show(dlg_p->win);
+	/* We must display dialog widget before calling gdk_pixmap_create_from_xpm_d() */
+    gtk_widget_show_all(dlg_p->win);
 
     col_arrows =
 	(column_arrows *) g_malloc(sizeof(column_arrows) * INIT_TABLE_NUM_COLUMNS);
@@ -398,6 +357,21 @@ gsm_map_stat_gtk_win_create(
     gtk_container_add(GTK_CONTAINER(dlg_p->scrolled_win), dlg_p->table);
 
     SIGNAL_CONNECT(dlg_p->table, "click-column", gsm_map_stat_gtk_click_column_cb, col_arrows);
+
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    SIGNAL_CONNECT(bt_close, "clicked", gsm_map_stat_gtk_dlg_close_cb, dlg_p);
+    gtk_widget_grab_default(bt_close);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(dlg_p->win, bt_close);
+
+    gtk_widget_show_all(dlg_p->win);
 }
 
 

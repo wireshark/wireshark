@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.30 2004/03/13 15:15:24 ulfl Exp $
+ * $Id: fc_stat.c,v 1.31 2004/04/12 08:53:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,6 +137,8 @@ gtk_fcstat_init(char *optarg)
 	GString *error_string;
 	int i;
 	GtkWidget *vbox;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
 
 	if(!strncmp(optarg,"fc,srt,",7)){
 		filter=optarg+7;
@@ -146,32 +148,27 @@ gtk_fcstat_init(char *optarg)
 
 	fc=g_malloc(sizeof(fcstat_t));
 
-	fc->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
+	fc->win=dlg_window_new("");
 	gtk_window_set_default_size(GTK_WINDOW(fc->win), 550, 400);
 	fcstat_set_title(fc);
 	SIGNAL_CONNECT(fc->win, "destroy", win_destroy_cb, fc);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(fc->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
-	gtk_widget_show(vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
 	label=gtk_label_new("Fibre Channel Service Response Time statistics");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 
 	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
 	label=gtk_label_new(filter_string);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
-
 
 	label=gtk_label_new("Fibre Channel Types");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
-	gtk_widget_show(fc->win);
+	gtk_widget_show_all(fc->win);
 
 	init_srt_table(&fc->fc_srt_table, 256, vbox, NULL);
 	for(i=0;i<256;i++){
@@ -186,6 +183,19 @@ gtk_fcstat_init(char *optarg)
 		g_free(fc);
 		return;
 	}
+
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, fc->win);
+	gtk_widget_grab_default(close_bt);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(fc->win, close_bt);
 
 	gtk_widget_show_all(fc->win);
 	retap_packets(&cfile);

@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.26 2004/03/27 11:13:02 guy Exp $
+ * $Id: http_stat.c,v 1.27 2004/04/12 08:53:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -378,6 +378,18 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	g_free(sp);
 }
 
+static void
+httpstat_gtk_dlg_close_cb(
+    GtkButton		*button _U_,
+    gpointer		user_data _U_)
+{
+    httpstat_t *sp = user_data;
+
+    gtk_grab_remove(GTK_WIDGET(sp->win));
+    gtk_widget_destroy(GTK_WIDGET(sp->win));
+}
+
+
 /* When called, this function will create a new instance of gtk_httpstat.
  */
 static void
@@ -390,6 +402,8 @@ gtk_httpstat_init(char *optarg)
 	GtkWidget  *main_vb, *separator,
 		*informational_fr, *success_fr, *redirection_fr, 
 		*client_errors_fr, *server_errors_fr, *request_fr;
+    GtkWidget	*bt_close;
+    GtkWidget	*bbox;
 	
 	if (strncmp (optarg, "http,stat,", 10) == 0){
 		filter=optarg+10;
@@ -407,71 +421,54 @@ gtk_httpstat_init(char *optarg)
 	}
 
 	/* top level window */
-	sp->win = window_new( GTK_WINDOW_TOPLEVEL, title);
+	sp->win = dlg_window_new(title);
 	g_free(title);
 	SIGNAL_CONNECT( sp->win, "destroy", win_destroy_cb, sp);
 
 	/* container for each group of status code */
-	main_vb = gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 10);
+	main_vb = gtk_vbox_new(FALSE, 6);
+	gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
 	gtk_container_add(GTK_CONTAINER(sp->win), main_vb);
-	gtk_widget_show(main_vb);
 	
 	/* number of packets */
 	sp->packets=0;
 	sp->packets_label = gtk_label_new("HTTP stats (0 HTTP packets)");
 	gtk_container_add( GTK_CONTAINER(main_vb), sp->packets_label);
-	gtk_widget_show(sp->packets_label);
 
 	/* Informational response frame */
 	informational_fr = gtk_frame_new("Informational  HTTP 1xx");
   	gtk_container_add(GTK_CONTAINER(main_vb), informational_fr);
-  	gtk_widget_show(informational_fr);
 	
 	sp->informational_table = gtk_table_new( 0, 2, FALSE);
 	gtk_container_add(GTK_CONTAINER(informational_fr), sp->informational_table);
-	gtk_widget_show(sp->informational_table);
-
 
 	/* success response frame */
 	success_fr = gtk_frame_new	("Success         HTTP 2xx");
   	gtk_container_add(GTK_CONTAINER(main_vb), success_fr);
-  	gtk_widget_show(success_fr);
 	
 	sp->success_table = gtk_table_new( 0, 2, FALSE);
 	gtk_container_add(GTK_CONTAINER(success_fr), sp->success_table);
-	gtk_widget_show(sp->success_table);
-
 
 	/* redirection response frame */
 	redirection_fr = gtk_frame_new	("Redirection     HTTP 3xx");
   	gtk_container_add(GTK_CONTAINER(main_vb), redirection_fr);
-  	gtk_widget_show(redirection_fr);
 	
 	sp->redirection_table = gtk_table_new( 0, 2, FALSE);
 	gtk_container_add(GTK_CONTAINER(redirection_fr), sp->redirection_table);
-	gtk_widget_show(sp->redirection_table);
-
 
 	/* client_errors response frame */
 	client_errors_fr = gtk_frame_new("Client errors  HTTP 4xx");
   	gtk_container_add(GTK_CONTAINER(main_vb), client_errors_fr);
-  	gtk_widget_show(client_errors_fr);
 	
 	sp->client_error_table = gtk_table_new( 0, 2, FALSE);
 	gtk_container_add(GTK_CONTAINER(client_errors_fr), sp->client_error_table);
-	gtk_widget_show(sp->client_error_table);
-
 
 	/* server_errors response frame */
 	server_errors_fr = gtk_frame_new("Server errors  HTTP 5xx");
   	gtk_container_add(GTK_CONTAINER(main_vb), server_errors_fr);
-  	gtk_widget_show(server_errors_fr);
 	
 	sp->server_errors_table = gtk_table_new( 0, 2, FALSE);
 	gtk_container_add(GTK_CONTAINER(server_errors_fr), sp->server_errors_table);
-	gtk_widget_show(sp->server_errors_table);
-
 
 	separator = gtk_hseparator_new();
 	gtk_container_add(GTK_CONTAINER(main_vb), separator );
@@ -480,11 +477,9 @@ gtk_httpstat_init(char *optarg)
 	request_fr = gtk_frame_new("List of request methods");
   	gtk_container_add(GTK_CONTAINER(main_vb), request_fr);
 	gtk_container_border_width(GTK_CONTAINER(request_fr), 0);
-  	gtk_widget_show(request_fr);
 	
 	sp->request_box = gtk_vbox_new(FALSE, 10);
 	gtk_container_add(GTK_CONTAINER(request_fr), sp->request_box);
-	gtk_widget_show(sp->request_box);
 
 	error_string = register_tap_listener( 
 			"http",
@@ -501,6 +496,19 @@ gtk_httpstat_init(char *optarg)
 		g_string_free(error_string, TRUE);
 		return ;
 	}
+
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    SIGNAL_CONNECT(bt_close, "clicked", httpstat_gtk_dlg_close_cb, sp);
+    gtk_widget_grab_default(bt_close);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(sp->win, bt_close);
 
 	gtk_widget_show_all( sp->win );
 	http_init_hash(sp);

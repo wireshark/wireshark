@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_a_stat.c,v 1.16 2004/03/13 15:15:22 ulfl Exp $
+ * $Id: ansi_a_stat.c,v 1.17 2004/04/12 08:53:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -301,50 +301,23 @@ ansi_a_stat_gtk_win_create(
     GtkWidget		*vbox;
     GtkWidget		*bt_close;
     GtkWidget		*bbox;
-    GtkWidget		*dialog_vbox;
-    GtkWidget		*dialog_action_area;
 
 
-    dlg_p->win = gtk_dialog_new();
+    dlg_p->win = dlg_window_new(title);
     gtk_window_set_default_size(GTK_WINDOW(dlg_p->win), 480, 450);
-    gtk_window_set_title(GTK_WINDOW(dlg_p->win), title);
     SIGNAL_CONNECT(dlg_p->win, "destroy", ansi_a_stat_gtk_win_destroy_cb, dlg_p);
 
-    dialog_vbox = GTK_DIALOG(dlg_p->win)->vbox;
-    gtk_widget_show(dialog_vbox);
-
-    dialog_action_area = GTK_DIALOG(dlg_p->win)->action_area;
-    gtk_widget_show(dialog_action_area);
-    gtk_container_set_border_width(GTK_CONTAINER(dialog_action_area), 10);
-
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-	gtk_box_pack_start(GTK_BOX(dialog_action_area), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
-
-    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    gtk_widget_grab_default(bt_close);
-    SIGNAL_CONNECT(bt_close, "clicked", ansi_a_stat_gtk_dlg_close_cb, dlg_p);
-
-    vbox = gtk_vbox_new(FALSE, 0);
-    gtk_widget_ref(vbox);
-    OBJECT_SET_DATA_FULL(dlg_p->win, "vbox", vbox, gtk_widget_unref);
-    gtk_widget_show(vbox);
-    gtk_box_pack_start(GTK_BOX(dialog_vbox), vbox, TRUE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
+	vbox=gtk_vbox_new(FALSE, 3);
+	gtk_container_add(GTK_CONTAINER(dlg_p->win), vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
     dlg_p->scrolled_win = scrolled_window_new(NULL, NULL);
-    gtk_widget_ref(dlg_p->scrolled_win);
-    OBJECT_SET_DATA_FULL(dlg_p->win, "scrolled_win", dlg_p->scrolled_win,
-                          gtk_widget_unref);
-    gtk_widget_show(dlg_p->scrolled_win);
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
 
-    dlg_p->table = gtk_clist_new(INIT_TABLE_NUM_COLUMNS);
-    gtk_widget_ref(dlg_p->table);
-    OBJECT_SET_DATA_FULL(dlg_p->win, "table", dlg_p->table, gtk_widget_unref);
-    gtk_widget_show(dlg_p->table);
+	/* We must display dialog widget before calling gdk_pixmap_create_from_xpm_d() */
+    gtk_widget_show_all(dlg_p->win);
 
-    gtk_widget_show(dlg_p->win);
+    dlg_p->table = gtk_clist_new(INIT_TABLE_NUM_COLUMNS);
 
     col_arrows =
 	(column_arrows *) g_malloc(sizeof(column_arrows) * INIT_TABLE_NUM_COLUMNS);
@@ -366,37 +339,37 @@ ansi_a_stat_gtk_win_create(
 
     for (i = 0; i < INIT_TABLE_NUM_COLUMNS; i++)
     {
-	col_arrows[i].table = gtk_table_new(2, 2, FALSE);
+        col_arrows[i].table = gtk_table_new(2, 2, FALSE);
 
-	gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
+        gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
 
-	column_lb = gtk_label_new(default_titles[i]);
+        column_lb = gtk_label_new(default_titles[i]);
 
-	gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb,
-	    0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb,
+        0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
-	gtk_widget_show(column_lb);
+        gtk_widget_show(column_lb);
 
-	col_arrows[i].ascend_pm =
-	    gtk_pixmap_new(ascend_pm, ascend_bm);
+        col_arrows[i].ascend_pm =
+        gtk_pixmap_new(ascend_pm, ascend_bm);
 
-	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
-	    1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
+        1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
-	col_arrows[i].descend_pm =
-	    gtk_pixmap_new(descend_pm, descend_bm);
+        col_arrows[i].descend_pm =
+        gtk_pixmap_new(descend_pm, descend_bm);
 
-	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
-	    1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
+        1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
-	if (i == 0)
-	{
-	    /* default column sorting */
-	    gtk_widget_show(col_arrows[i].ascend_pm);
-	}
+        if (i == 0)
+        {
+            /* default column sorting */
+            gtk_widget_show(col_arrows[i].ascend_pm);
+        }
 
-	gtk_clist_set_column_widget(GTK_CLIST(dlg_p->table), i, col_arrows[i].table);
-	gtk_widget_show(col_arrows[i].table);
+        gtk_clist_set_column_widget(GTK_CLIST(dlg_p->table), i, col_arrows[i].table);
+        gtk_widget_show(col_arrows[i].table);
     }
     gtk_clist_column_titles_show(GTK_CLIST(dlg_p->table));
 
@@ -413,6 +386,21 @@ ansi_a_stat_gtk_win_create(
     gtk_container_add(GTK_CONTAINER(dlg_p->scrolled_win), dlg_p->table);
 
     SIGNAL_CONNECT(dlg_p->table, "click-column", ansi_a_stat_gtk_click_column_cb, col_arrows);
+
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    gtk_widget_grab_default(bt_close);
+    SIGNAL_CONNECT(bt_close, "clicked", ansi_a_stat_gtk_dlg_close_cb, dlg_p);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(dlg_p->win, bt_close);
+
+    gtk_widget_show_all(dlg_p->win);
 }
 
 

@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.25 2004/03/27 11:13:02 guy Exp $
+ * $Id: bootp_stat.c,v 1.26 2004/04/12 08:53:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,17 +188,31 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
+static void
+dhspstat_gtk_dlg_close_cb(
+    GtkButton		*button _U_,
+    gpointer		user_data _U_)
+{
+    dhcpstat_t *sp = user_data;
+
+    gtk_grab_remove(GTK_WIDGET(sp->win));
+    gtk_widget_destroy(GTK_WIDGET(sp->win));
+}
+
 
 /* When called, this function will create a new instance of gtk2-dhcpstat.
  */
 static void
-gtk_dhcpstat_init(char *optarg)
+dhcpstat_init(char *optarg)
 {
 	dhcpstat_t *sp;
 	char 		*filter=NULL;
 	char 		*title=NULL;
 	GString		*error_string;
 	GtkWidget	*message_type_fr;
+    GtkWidget	*vbox;
+    GtkWidget	*bt_close;
+    GtkWidget	*bbox;
 	
 	if (strncmp (optarg, "bootp,stat,", 11) == 0){
 		filter=optarg+11;
@@ -217,13 +231,17 @@ gtk_dhcpstat_init(char *optarg)
 	}
 
 	/* top level window */
-	sp->win = window_new( GTK_WINDOW_TOPLEVEL, title);
+	sp->win = dlg_window_new(title);
 	g_free(title);
 	SIGNAL_CONNECT( sp->win, "destroy", win_destroy_cb, sp);
 
+    vbox = gtk_vbox_new(FALSE, 3);
+	gtk_container_add(GTK_CONTAINER(sp->win), vbox);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+
 	/* Status Codes frame */
 	message_type_fr = gtk_frame_new("DHCP Message Type");
-  	gtk_container_add(GTK_CONTAINER(sp->win), message_type_fr);
+  	gtk_container_add(GTK_CONTAINER(vbox), message_type_fr);
   	gtk_widget_show(message_type_fr);
 	
 	sp->table_message_type = gtk_table_new( 0, 4, FALSE);
@@ -248,21 +266,35 @@ gtk_dhcpstat_init(char *optarg)
 		g_string_free(error_string, TRUE);
 		return ;
 	}
-	gtk_widget_show_all( sp->win );
+
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    SIGNAL_CONNECT(bt_close, "clicked", dhspstat_gtk_dlg_close_cb, sp);
+    gtk_widget_grab_default(bt_close);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(sp->win, bt_close);
+
+    gtk_widget_show_all( sp->win );
 	retap_packets(&cfile);
 }
 
 static tap_dfilter_dlg dhcp_stat_dlg = {
 	"BOOTP-DHCP Packet Counter",
 	"bootp,stat",
-	gtk_dhcpstat_init,
+	dhcpstat_init,
 	-1
 };
 
 void
 register_tap_listener_gtkdhcpstat(void)
 {
-	register_ethereal_tap("bootp,stat", gtk_dhcpstat_init);
+	register_ethereal_tap("bootp,stat", dhcpstat_init);
 
 	register_tap_menu_item("BOOTP-DHCP", REGISTER_TAP_GROUP_NONE,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(dhcp_stat_dlg));

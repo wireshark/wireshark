@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.44 2004/04/07 04:31:32 sahlberg Exp $
+ * $Id: rpc_stat.c,v 1.45 2004/04/12 08:53:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,6 +217,8 @@ gtk_rpcstat_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
 	int program, version, pos;
 	char *filter=NULL;
 	GString *error_string;
@@ -244,26 +246,23 @@ gtk_rpcstat_init(char *optarg)
 	hf_index=rpc_prog_hf(rpc_program, rpc_version);
 	hfi=proto_registrar_get_nth(hf_index);
 
-	rs->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
+	rs->win=dlg_window_new("");
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 	rpcstat_set_title(rs);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
-	gtk_widget_show(vbox);
-
-	title_string = rpcstat_gen_title(rs);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+	
+    title_string = rpcstat_gen_title(rs);
 	stat_label=gtk_label_new(title_string);
 	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
-	gtk_widget_show(stat_label);
 
 	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
 	filter_label=gtk_label_new(filter_string);
 	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
-	gtk_widget_show(filter_label);
 
 	rpc_min_proc=-1;
 	rpc_max_proc=-1;
@@ -271,7 +270,7 @@ gtk_rpcstat_init(char *optarg)
 	rs->num_procedures=rpc_max_proc+1;
 
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
-	gtk_widget_show(rs->win);
+	gtk_widget_show_all(rs->win);
 
 	init_srt_table(&rs->srt_table, rpc_max_proc+1, vbox, hfi->abbrev);
 
@@ -289,6 +288,18 @@ gtk_rpcstat_init(char *optarg)
 		return;
 	}
 
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, rs->win);
+	gtk_widget_grab_default(close_bt);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(rs->win, close_bt);
 
 	gtk_widget_show_all(rs->win);
 	retap_packets(&cfile);

@@ -2,7 +2,7 @@
  * h225 RAS Service Response Time statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_ras_srt.c,v 1.15 2004/03/27 11:13:02 guy Exp $
+ * $Id: h225_ras_srt.c,v 1.16 2004/04/12 08:53:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -288,6 +288,8 @@ gtk_h225rassrt_init(char *optarg)
 	h225rassrt_t *hs;
 	char *filter=NULL;
 	GString *error_string;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
 
 	if(strncmp(optarg,"h225,srt,",9) == 0){
 		filter=optarg+9;
@@ -301,10 +303,11 @@ gtk_h225rassrt_init(char *optarg)
 
 	h225rassrt_reset(hs);
 
-	hs->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
+	hs->win=dlg_window_new("");
 	SIGNAL_CONNECT(hs->win, "destroy", win_destroy_cb, hs);
 
-	hs->vbox=gtk_vbox_new(FALSE, 0);
+	hs->vbox=gtk_vbox_new(FALSE, 3);
+	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
 
 	init_main_stat_window(hs->win, hs->vbox, "ITU-T H.225 RAS Service Response Time", filter);
 
@@ -322,6 +325,19 @@ gtk_h225rassrt_init(char *optarg)
 		g_free(hs);
 		return;
 	}
+
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(hs->vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, hs->win);
+	gtk_widget_grab_default(close_bt);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(hs->win, close_bt);
 
 	gtk_widget_show_all(hs->win);
 	redissect_packets(&cfile);

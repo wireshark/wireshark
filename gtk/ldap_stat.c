@@ -1,7 +1,7 @@
 /* ldap_stat.c
  * ldap_stat   2003 Ronnie Sahlberg
  *
- * $Id: ldap_stat.c,v 1.18 2004/03/13 15:15:25 ulfl Exp $
+ * $Id: ldap_stat.c,v 1.19 2004/04/12 08:53:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,6 +151,8 @@ gtk_ldapstat_init(char *optarg)
 	char filter_string[256];
 	GString *error_string;
 	GtkWidget *vbox;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
 
 	if(!strncmp(optarg,"ldap,srt,",9)){
 		filter=optarg+9;
@@ -160,32 +162,27 @@ gtk_ldapstat_init(char *optarg)
 
 	ldap=g_malloc(sizeof(ldapstat_t));
 
-	ldap->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
+	ldap->win=dlg_window_new("");
 	gtk_window_set_default_size(GTK_WINDOW(ldap->win), 550, 400);
 	ldapstat_set_title(ldap);
 	SIGNAL_CONNECT(ldap->win, "destroy", win_destroy_cb, ldap);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(ldap->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
-	gtk_widget_show(vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
 	label=gtk_label_new("LDAP Service Response Time statistics");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 
 	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
 	label=gtk_label_new(filter_string);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
-
 
 	label=gtk_label_new("LDAP Commands");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
 
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
-	gtk_widget_show(ldap->win);
+	gtk_widget_show_all(ldap->win);
 
 	init_srt_table(&ldap->ldap_srt_table, 24, vbox, NULL);
 	init_srt_table_row(&ldap->ldap_srt_table, 0, "Bind");
@@ -221,6 +218,19 @@ gtk_ldapstat_init(char *optarg)
 		g_free(ldap);
 		return;
 	}
+
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, ldap->win);
+	gtk_widget_grab_default(close_bt);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(ldap->win, close_bt);
 
 	gtk_widget_show_all(ldap->win);
 	retap_packets(&cfile);
