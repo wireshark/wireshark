@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.57 2003/07/02 04:03:27 tpot Exp $
+ * $Id: packet-ldap.c,v 1.58 2003/07/03 01:52:11 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,6 +124,7 @@ static gboolean ldap_desegment = TRUE;
 
 #define TCP_PORT_LDAP			389
 #define UDP_PORT_CLDAP			389
+#define TCP_PORT_GLOBALCAT_LDAP         3268 /* Windows 2000 Global Catalog */
 
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
@@ -2227,6 +2228,7 @@ proto_reg_handoff_ldap(void)
 
   ldap_handle = create_dissector_handle(dissect_ldap, proto_ldap);
   dissector_add("tcp.port", TCP_PORT_LDAP, ldap_handle);
+  dissector_add("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
   dissector_add("udp.port", UDP_PORT_CLDAP, ldap_handle);
 
   gssapi_handle = find_dissector("gssapi");
