@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.219 2003/11/19 09:32:04 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.220 2003/12/09 00:12:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2705,13 +2705,16 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Decode TCP options, if any. */
-  if (tree && tcph->th_hlen > TCPH_MIN_LEN) {
+  if (tcph->th_hlen > TCPH_MIN_LEN) {
     /* There's more than just the fixed-length header.  Decode the
        options. */
     optlen = tcph->th_hlen - TCPH_MIN_LEN; /* length of options, in bytes */
-    tf = proto_tree_add_text(tcp_tree, tvb, offset +  20, optlen,
-      "Options: (%u bytes)", optlen);
-    field_tree = proto_item_add_subtree(tf, ett_tcp_options);
+    if (tcp_tree != NULL) {
+      tf = proto_tree_add_text(tcp_tree, tvb, offset +  20, optlen,
+        "Options: (%u bytes)", optlen);
+      field_tree = proto_item_add_subtree(tf, ett_tcp_options);
+    } else
+      field_tree = NULL;
     dissect_ip_tcp_options(tvb, offset + 20, optlen,
       tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree);
   }
