@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.30 2002/04/17 11:17:43 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.31 2002/04/17 11:32:24 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -323,6 +323,10 @@ static int
 samr_dissect_open_user_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			    proto_tree *tree, char *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 rid;
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "OpenUser request");
 
@@ -333,7 +337,12 @@ samr_dissect_open_user_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hf_samr_access, NULL);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_rid, NULL);
+			hf_samr_rid, &rid);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", rid 0x%x", rid);
+
+	dcv->private_data = (void *)rid;
 
 	return offset;
 }
@@ -4241,6 +4250,10 @@ static int
 samr_dissect_open_group_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			    proto_tree *tree, char *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 rid;
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "OpenGroup request");
 
@@ -4251,7 +4264,12 @@ samr_dissect_open_group_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hf_samr_access, NULL);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_rid, NULL);
+			hf_samr_rid, &rid);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", rid 0x%x", rid);
+
+	dcv->private_data = (void *)rid;
 
 	return offset;
 }
@@ -4277,6 +4295,10 @@ static int
 samr_dissect_open_alias_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			     proto_tree *tree, char *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 rid;
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "OpenAlias request");
 
@@ -4287,7 +4309,12 @@ samr_dissect_open_alias_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hf_samr_access, NULL);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_rid, NULL);
+			hf_samr_rid, &rid);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", rid 0x%x", rid);
+
+	dcv->private_data = (void *)rid;
 
 	return offset;
 }
@@ -4419,6 +4446,37 @@ samr_dissect_query_information_domain_reply(tvbuff_t *tvb, int offset,
         return offset;
 }
 
+static int
+samr_dissect_query_information_user_rqst(tvbuff_t *tvb, int offset, 
+					  packet_info *pinfo, 
+					  proto_tree *tree, char *drep)
+{
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "QueryUserInfo request");
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, NULL);
+
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+			hf_samr_level, NULL);
+
+	return offset;
+}
+
+static int
+samr_dissect_query_information_user_reply(tvbuff_t *tvb, int offset, 
+					   packet_info *pinfo, 
+					   proto_tree *tree, char *drep)
+{
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "QueryUserInfo response");
+
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_samr_rc, NULL);
+
+	return offset;
+}
+
 static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_CONNECT_ANON, "CONNECT_ANON",
 		samr_dissect_connect_anon_rqst,
@@ -4529,8 +4587,8 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_delete_dom_user_rqst,
 		samr_dissect_delete_dom_user_reply },
         { SAMR_QUERY_USERINFO, "QUERY_USERINFO",
-		samr_dissect_query_information_alias_rqst,
-		samr_dissect_query_information_alias_reply },
+		samr_dissect_query_information_user_rqst,
+		samr_dissect_query_information_user_reply },
         { SAMR_SET_USERINFO2, "SET_USERINFO2",
 		samr_dissect_set_information_user2_rqst,
 		samr_dissect_set_information_user2_reply },
