@@ -3,7 +3,7 @@
  * dissection
  * Copyright 2003, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-ns.c,v 1.5 2003/09/09 09:20:07 guy Exp $
+ * $Id: packet-gprs-ns.c,v 1.6 2003/09/10 19:27:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -324,7 +324,7 @@ proto_register_gprs_ns(void)
 		  VALS(ns_pdu_type), 0x0, "NS Command", HFILL}},
 		{ &hf_gprs_ns_ie_type, {
 		  "IE Type", "gprs_ns.ietype", FT_UINT8, BASE_HEX,
-		  VALS(ns_pdu_type), 0x0, "IE Type", HFILL}},
+		  VALS(ns_ie_type), 0x0, "IE Type", HFILL}},
 		{ &hf_gprs_ns_ie_length, {
 		  "IE Length", "gprs_ns.ielength", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, "IE Length", HFILL}},
