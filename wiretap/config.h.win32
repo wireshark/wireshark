@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.10 2002/06/23 10:32:36 guy Exp $ */
+/* $Id: config.h.win32,v 1.11 2003/11/07 23:27:13 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -27,7 +27,7 @@
 /* #define HAVE_UNISTD_H */
 
 /* Define if you have the z library (-lz).  */
-#define HAVE_LIBZ
+@HAVE_LIBZ@
 
 /* Define if you have the <sys/stat.h> header file.  */
 #define HAVE_SYS_STAT_H 1

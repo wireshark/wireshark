@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.37 2003/10/31 00:43:21 guy Exp $
+# $Id: Makefile.nmake,v 1.38 2003/11/07 23:27:13 guy Exp $
 #
 
 include ..\config.nmake
@@ -7,7 +7,7 @@ include <win32.mak>
 
 ############### no need to modify below this line #########
 
-CFLAGS=-DHAVE_CONFIG_H $(GLIB_CFLAGS) /I$(ZLIB_DIR) /I$(PCAP_DIR)/include \
+CFLAGS=-DHAVE_CONFIG_H $(GLIB_CFLAGS) $(ZLIB_CFLAGS) /I$(PCAP_DIR)/include \
 	-D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
@@ -47,7 +47,7 @@ OBJECTS=ascend-grammar.obj \
 
 wiretap_LIBS = \
 	$(GLIB_LIBS)	\
-	$(ZLIB_DIR)\zlib.lib
+	$(ZLIB_LIBS)
 
 all: wiretap-$(WTAP_VERSION).dll
 
@@ -72,8 +72,10 @@ ascend-scanner.c : ascend-scanner.l
 	$(LEX) -Pascend -oascend-scanner.c ascend-scanner.l
 
 
-config.h	: config.h.win32
-	sed -e s/@VERSION@/$(WTAP_VERSION)/ < config.h.win32 > $@
+config.h	: config.h.win32 ..\config.nmake
+	sed -e s/@VERSION@/$(WTAP_VERSION)/ \
+	    -e "s/@HAVE_LIBZ@/$(ZLIB_CONFIG)/" \
+	    < config.h.win32 > $@
 
 clean :
 	rm -f $(OBJECTS) \
