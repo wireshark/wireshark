@@ -126,6 +126,8 @@ ReleaseCompleteReason/securityError rLC_securityError
 GatekeeperRejectReason/securityError gkRej_securityError
 RegistrationRejectReason/securityError reg_securityError
 
+CallIdentifier/guid guid
+
 #----------------------------------------------------------------------------------------
 #.FN_BODY H323-UU-PDU/h323-message-body
 	guint32 message_body_val;
@@ -374,6 +376,13 @@ guint32 value_len;
                               ett_h225_ReleaseCompleteReason, ReleaseCompleteReason_choice, "ReleaseCompleteReason",
                               &value);
   h225_pi.reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY CallIdentifier/guid
+  guint32 guid_offset,guid_len;
+
+  offset = dissect_per_octet_string(tvb,offset,pinfo,tree,hf_index,16,16,&guid_offset,&guid_len);
+  tvb_memcpy(tvb,h225_pi.guid,guid_offset,guid_len);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RequestSeqNum
