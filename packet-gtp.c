@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.22 2002/01/31 09:59:22 guy Exp $
+ * $Id: packet-gtp.c,v 1.23 2002/01/31 10:11:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3330,6 +3330,9 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			type++;		/* +1 because of first 0x86 byte for UMTS QoS */
 			break;
 		default:
+			/* XXX - what should we do with the length here? */
+			length = 0;
+			ext_tree_qos = NULL;
 			break;
 	}
 	
