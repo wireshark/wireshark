@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.47 2002/05/02 02:42:17 guy Exp $
+ * $Id: packet-netbios.c,v 1.48 2002/05/04 09:57:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -602,13 +602,14 @@ static void  dissect_netb_status_query( tvbuff_t *tvb, int offset, proto_tree *t
 }
 
 
-static void  dissect_netb_terminate_trace( tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static void  dissect_netb_terminate_trace( tvbuff_t *tvb _U_, int offset _U_,
+    proto_tree *tree _U_)
 
 {/* Handle the TERMINATE TRACE command */
 
 	/*
 	 * XXX - are any of the fields in this message significant?
+	 * The IBM NetBIOS document shows them as "Reserved".
 	 */
 }
 
