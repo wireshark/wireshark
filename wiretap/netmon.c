@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.16 1999/10/05 07:06:06 guy Exp $
+ * $Id: netmon.c,v 1.17 1999/11/26 22:50:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -76,7 +76,7 @@ struct netmon_hdr {
 	guint32	networkinfolength;	/* length of network info structure */
 };
 
-/* Network Monitor record header; not defined in STRUCT.H, but deduced by
+/* Network Monitor 1.x record header; not defined in STRUCT.H, but deduced by
  * looking at capture files. */
 struct netmonrec_1_x_hdr {
 	guint32	ts_delta;	/* time stamp - msecs since start of capture */
@@ -84,6 +84,8 @@ struct netmonrec_1_x_hdr {
 	guint16	incl_len;	/* number of octets captured in file */
 };
 
+/* Network Monitor 2.x record header; not defined in STRUCT.H, but deduced by
+ * looking at capture files. */
 struct netmonrec_2_x_hdr {
 	guint32	ts_delta_lo;	/* time stamp - usecs since start of capture */
 	guint32	ts_delta_hi;	/* time stamp - usecs since start of capture */
@@ -115,6 +117,8 @@ int netmon_open(wtap *wth, int *err)
 	};
 	#define NUM_NETMON_ENCAPS (sizeof netmon_encap / sizeof netmon_encap[0])
 	struct tm tm;
+	guint32 frame_table_length;
+	guint32 first_frame_table_entry;
 
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
@@ -211,9 +215,42 @@ int netmon_open(wtap *wth, int *err)
 	 */
 	wth->capture.netmon->end_offset = pletohl(&hdr.frametableoffset);
 
+	/*
+	 * It appears that some NetMon 2.x files don't have the
+	 * first packet starting exactly 128 bytes into the file.
+	 * So we read the first entry from the frame table, and
+	 * use that as the offset of the first packet.
+	 *
+	 * First, make sure the frame table has at least one entry
+	 * in it....
+	 */
+	frame_table_length = pletohl(&hdr.frametablelength);
+	if (frame_table_length < sizeof first_frame_table_entry) {
+		g_message("netmon: frame table length is %u, which means it's less than one entry in size",
+		    frame_table_length);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
+	}
+
+	/*
+	 * Now read that entry.  (It appears that the N+1st frame immediately
+	 * follows the Nth frame, so we don't need any entries after the
+	 * first entry.)
+	 */
+	errno = WTAP_ERR_CANT_READ;
+	file_seek(wth->fh, wth->capture.netmon->end_offset, SEEK_SET);
+	bytes_read = file_read(&first_frame_table_entry, 1,
+	    sizeof first_frame_table_entry, wth->fh);
+	if (bytes_read != sizeof first_frame_table_entry) {
+		*err = file_error(wth->fh);
+		if (*err != 0)
+			return -1;
+		return 0;
+	}
+
 	/* Seek to the beginning of the data records. */
-	file_seek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
-	wth->data_offset = CAPTUREFILE_HEADER_SIZE;
+	wth->data_offset = pletohl(&first_frame_table_entry);
+	file_seek(wth->fh, wth->data_offset, SEEK_SET);
 
 	return 1;
 }
