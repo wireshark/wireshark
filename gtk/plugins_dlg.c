@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.11 2000/01/17 17:12:43 oabad Exp $
+ * $Id: plugins_dlg.c,v 1.12 2000/01/17 20:30:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -178,19 +178,23 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
 static void
 plugins_scan(GtkWidget *clist)
 {
-    plugin *pt_plug;
-    gchar  *plugent[4];               /* new entry added in clist */
+    plugin   *pt_plug;
+    gchar    *plugent[4];               /* new entry added in clist */
+    gpointer symbol;
 
     pt_plug = plugin_list;
     while (pt_plug)
     {
 	plugent[0] = pt_plug->name;
 
-	if (g_module_symbol(pt_plug->handle, "desc", &plugent[1]) == FALSE) {
+	/* Get, from the string named "desc" in the module, the
+	   description of the plugin. */
+	if (g_module_symbol(pt_plug->handle, "desc", &symbol) == FALSE) {
 		/* This plugin fails; continue next plugin */
 		goto NEXT_PLUGIN;
 	}
 
+	plugent[1] = symbol;
 	plugent[2] = pt_plug->version;
 	plugent[3] = (pt_plug->enabled ? "Yes" : "No");
 	gtk_clist_append(GTK_CLIST(clist), plugent);
@@ -233,7 +237,8 @@ static void
 plugins_enable_cb(GtkWidget *button, gpointer clist)
 {
     plugin    *pt_plug;
-    void     (*proto_init) ();
+    gpointer symbol;
+    void     (*proto_init)(void);
 
     /* nothing selected */
     if (selected_row == -1) return;
@@ -245,8 +250,13 @@ plugins_enable_cb(GtkWidget *button, gpointer clist)
 	simple_dialog(ESD_TYPE_WARN, NULL, "Plugin not found");
 	return;
     }
-    if (g_module_symbol(pt_plug->handle, "proto_init", (void**)&proto_init) == TRUE)
+
+    /* Try to get the initialization routine for the plugin, and, if it
+       has one, call it. */
+    if (g_module_symbol(pt_plug->handle, "proto_init", &symbol) == TRUE) {
+	proto_init = symbol;
 	proto_init();
+    }
 
     gtk_clist_set_text(GTK_CLIST(clist), selected_row, 3, "Yes");
 }
@@ -369,12 +379,17 @@ static void
 filter_default_cb(GtkWidget *button, gpointer parent_w)
 {
     GtkWidget *filter_entry;
+    gpointer   symbol;
     gchar     *filter_string;
     plugin    *pt_plug;
 
     filter_entry = gtk_object_get_data(GTK_OBJECT(parent_w), PLUGINS_DFILTER_TE);
     pt_plug = find_plugin(selected_name, selected_version);
-    g_module_symbol(pt_plug->handle, "filter_string", &filter_string);
+
+    /* Get the display-filter string that specifies which packets should
+       be dissected by this module's dissector. */
+    g_module_symbol(pt_plug->handle, "filter_string", &symbol);
+    filter_string = symbol;
     gtk_entry_set_text(GTK_ENTRY(filter_entry), filter_string);
 }
 #endif
