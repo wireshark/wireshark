@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.13 2003/12/06 04:05:02 guy Exp $
+ * $Id: ui_util.h,v 1.14 2003/12/09 06:48:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,9 +37,6 @@ void packet_list_clear(void);
 void packet_list_freeze(void);
 void packet_list_thaw(void);
 void packet_list_select_row(gint);
-void packet_list_set_column_auto_resize(gint, gboolean);
-void packet_list_set_column_resizeable(gint, gboolean);
-void packet_list_set_column_width(gint, gint);
 void packet_list_moveto_end(void);
 gint packet_list_append(gchar *text[], gpointer data);
 void packet_list_set_colors(gint, color_t *, color_t *);

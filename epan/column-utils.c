@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.40 2003/12/02 23:14:31 guy Exp $
+ * $Id: column-utils.c,v 1.41 2003/12/09 06:48:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,6 @@ col_setup(column_info *col_info, gint num_cols)
   col_info->fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * num_cols);
   col_info->col_first	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
   col_info->col_last 	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
-  col_info->col_width	= (gint *) g_malloc(sizeof(gint) * num_cols);
   col_info->col_title	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_data	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_buf	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);

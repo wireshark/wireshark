@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column structures and routines
  *
- * $Id: column_info.h,v 1.10 2003/12/02 23:14:31 guy Exp $
+ * $Id: column_info.h,v 1.11 2003/12/09 06:48:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,6 @@ typedef struct _column_info {
   gboolean **fmt_matx;  /* Specifies which formats apply to a column */
   gint      *col_first; /* First column number with a given format */
   gint      *col_last;  /* Last column number with a given format */
-  gint      *col_width; /* Column widths to use during a "-S" capture */
   gchar    **col_title; /* Column titles */
   gchar    **col_data;  /* Column data */
   gchar    **col_buf;   /* Buffer into which to copy data for column */

@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column handling routines
  *
- * $Id: column.h,v 1.9 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: column.h,v 1.10 2003/12/09 06:48:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,18 +31,11 @@ typedef struct _fmt_data {
   gchar *fmt;
 } fmt_data;
 
-enum col_resize_type {
-  RESIZE_AUTO,          /* Automatically resize */
-  RESIZE_LIVE,          /* Automatically resize even during live capture */
-  RESIZE_MANUAL         /* Don't automatically resize */
-};
-
 gchar               *col_format_to_string(gint);
 gchar               *col_format_desc(gint);
 gint                 get_column_format(gint);
 void                 get_column_format_matches(gboolean *, gint);
 gint                 get_column_format_from_str(gchar *);
-enum col_resize_type get_column_resize_type(gint);
 gchar               *get_column_title(gint);
 char                *get_column_longest_string(gint);
 gint                 get_column_char_width(gint format);

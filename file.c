@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.327 2003/12/06 04:05:02 guy Exp $
+ * $Id: file.c,v 1.328 2003/12/09 06:48:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,9 +112,6 @@ static gboolean match_dfilter(capture_file *cf, frame_data *fdata,
 static gboolean find_packet(capture_file *cf,
 	gboolean (*match_function)(capture_file *, frame_data *, void *),
 	void *criterion);
-
-static void freeze_plist(capture_file *cf);
-static void thaw_plist(capture_file *cf);
 
 static char *file_rename_error_message(int err);
 static char *file_close_error_message(int err);
@@ -361,7 +358,7 @@ cf_read(capture_file *cf, int *err)
 #define O_BINARY 	0
 #endif
 
-  freeze_plist(cf);
+  packet_list_freeze();
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
@@ -441,7 +438,7 @@ cf_read(capture_file *cf, int *err)
   cf->lnk_t = wtap_file_encap(cf->wth);
 
   cf->current_frame = cf->first_displayed;
-  thaw_plist(cf);
+  packet_list_thaw();
 
   statusbar_pop_file_msg();
   set_display_filename(cf);
@@ -502,7 +499,6 @@ int
 cf_start_tail(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   int     err;
-  int     i;
 
   err = cf_open(fname, is_tempfile, cf);
   if (err == 0) {
@@ -513,16 +509,6 @@ cf_start_tail(char *fname, gboolean is_tempfile, capture_file *cf)
     /* Enable menu items that make sense if you have some captured
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
-
-    for (i = 0; i < cf->cinfo.num_cols; i++) {
-      if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_LIVE)
-        packet_list_set_column_auto_resize(i, TRUE);
-      else {
-        packet_list_set_column_auto_resize(i, FALSE);
-        packet_list_set_column_width(i, cf->cinfo.col_width[i]);
-        packet_list_set_column_resizeable(i, TRUE);
-      }
-    }
 
     statusbar_push_file_msg(" <live capture in progress>");
   }
@@ -598,7 +584,7 @@ cf_finish_tail(capture_file *cf, int *err)
     return READ_ABORTED;
   }
 
-  thaw_plist(cf);
+  packet_list_thaw();
   if (auto_scroll_live && cf->plist_end != NULL)
     /* XXX - this cheats and looks inside the packet list to find the final
        row number. */
@@ -1502,7 +1488,7 @@ change_time_formats(capture_file *cf)
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
-  freeze_plist(cf);
+  packet_list_freeze();
 
   /* Update the progress bar when it gets to this value. */
   cf->progbar_nextstep = 0;
@@ -1624,7 +1610,7 @@ change_time_formats(capture_file *cf)
   }
 
   /* Unfreeze the packet list. */
-  thaw_plist(cf);
+  packet_list_thaw();
 }
 
 typedef struct {
@@ -2231,43 +2217,6 @@ unmark_frame(capture_file *cf, frame_data *frame)
 {
   frame->flags.marked = FALSE;
   cf->marked_count--;
-}
-
-static void
-freeze_plist(capture_file *cf)
-{
-  int i;
-
-  /* Make the column sizes static, so they don't adjust while
-     we're reading the capture file (freezing the clist doesn't
-     seem to suffice). */
-  for (i = 0; i < cf->cinfo.num_cols; i++)
-    packet_list_set_column_auto_resize(i, FALSE);
-  packet_list_freeze();
-}
-
-static void
-thaw_plist(capture_file *cf)
-{
-  int i;
-
-  for (i = 0; i < cf->cinfo.num_cols; i++) {
-    if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_MANUAL) {
-      /* Set this column's width to the appropriate value. */
-      packet_list_set_column_width(i, cf->cinfo.col_width[i]);
-    } else {
-      /* Make this column's size dynamic, so that it adjusts to the
-         appropriate size. */
-      packet_list_set_column_auto_resize(i, TRUE);
-    }
-  }
-  packet_list_thaw();
-
-  /* Hopefully, the columns have now gotten their appropriate sizes;
-     make them resizeable - a column that auto-resizes cannot be
-     resized by the user, and *vice versa*. */
-  for (i = 0; i < cf->cinfo.num_cols; i++)
-    packet_list_set_column_resizeable(i, TRUE);
 }
 
 /*

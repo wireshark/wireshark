@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.337 2003/12/07 09:43:53 oabad Exp $
+ * $Id: main.c,v 1.338 2003/12/09 06:48:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1101,6 +1101,7 @@ set_plist_font(PangoFontDescription *font)
 #endif
 {
 	int i;
+	gint col_width;
 #if GTK_MAJOR_VERSION < 2
 	GtkStyle *style;
 
@@ -1116,19 +1117,19 @@ set_plist_font(PangoFontDescription *font)
         gtk_widget_modify_font(packet_list, font);
 #endif
 
-	/* Compute static column sizes to use during a "-S" capture, so that
- 	   the columns don't resize during a live capture. */
+	/* Compute default column sizes. */
 	for (i = 0; i < cfile.cinfo.num_cols; i++) {
 #if GTK_MAJOR_VERSION < 2
-		cfile.cinfo.col_width[i] = gdk_string_width(font,
+		col_width = gdk_string_width(font,
 			get_column_longest_string(get_column_format(i)));
 #else
                 layout = gtk_widget_create_pango_layout(packet_list,
 		    get_column_longest_string(get_column_format(i)));
-                pango_layout_get_pixel_size(layout, &cfile.cinfo.col_width[i],
-                                            NULL);
+                pango_layout_get_pixel_size(layout, &col_width, NULL);
                 g_object_unref(G_OBJECT(layout));
 #endif
+		gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
+			col_width);
 	}
 }
 
@@ -2930,8 +2931,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     SIGNAL_CONNECT(packet_list, "select-row", packet_list_select_cb, NULL);
     SIGNAL_CONNECT(packet_list, "unselect-row", packet_list_unselect_cb, NULL);
     for (i = 0; i < cfile.cinfo.num_cols; i++) {
-        if (get_column_resize_type(cfile.cinfo.col_fmt[i]) != RESIZE_MANUAL)
-            gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
+        /* Columns do not automatically resize, but are resizeable by
+           the user. */
+        gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, FALSE);
+        gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
 
         /* Right-justify the packet number column. */
         if (cfile.cinfo.col_fmt[i] == COL_NUMBER)

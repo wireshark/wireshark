@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.6 2003/12/06 04:05:02 guy Exp $
+ * $Id: packet_list.c,v 1.7 2003/12/09 06:48:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,25 +59,6 @@ void
 packet_list_select_row(gint row)
 {
     SIGNAL_EMIT_BY_NAME1(packet_list, "select_row", row);
-}
-
-void
-packet_list_set_column_auto_resize(gint column, gboolean auto_resize)
-{
-    gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), column,
-                                     auto_resize);
-}
-
-void
-packet_list_set_column_resizeable(gint column, gboolean resizeable)
-{
-    gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), column, resizeable);
-}
-
-void
-packet_list_set_column_width(gint column, gint width)
-{
-    gtk_clist_set_column_width(GTK_CLIST(packet_list), column, width);
 }
 
 void
@@ -146,7 +127,7 @@ packet_list_set_cls_time_width(gint column)
     pango_layout_get_pixel_size(layout, &width, NULL);
     g_object_unref(G_OBJECT(layout));
 #endif
-    packet_list_set_column_width(column, width);
+    gtk_clist_set_column_width(GTK_CLIST(packet_list), column, width);
 }
 
 gpointer
