@@ -5,7 +5,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.72 2002/12/17 22:49:33 guy Exp $
+ * $Id: packet-radius.c,v 1.73 2003/01/28 16:31:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2391,7 +2391,19 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     pd = tvb_get_ptr(tvb,offset,length);
     for( i = 0 ; i < 16 && i < (guint32)length ; i++ ) {
 	c = pd[i] ^ digest[i];
+#ifdef _WIN32
+	/*
+	 * XXX - "isprint()" can return "true" for non-ASCII characters, but
+	 * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
+	 * UTF-8 strings.  Until we fix up Ethereal to properly handle
+	 * non-ASCII characters in all output (both GUI displays and text
+	 * printouts) on all platforms including Windows, we work around
+	 * the problem by escaping all characters that aren't printable ASCII.
+	 */
+	if ( c >= 0x20 && c <= 0x7f) {
+#else
 	if ( isprint(c)) {
+#endif
 	    dest[totlen] = c;
 	    totlen++;
 	} else {
@@ -2400,7 +2412,19 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
 	}
     }
     while(i<(guint32)length) {
+#ifdef _WIN32
+	/*
+	 * XXX - "isprint()" can return "true" for non-ASCII characters, but
+	 * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
+	 * UTF-8 strings.  Until we fix up Ethereal to properly handle
+	 * non-ASCII characters in all output (both GUI displays and text
+	 * printouts) on all platforms including Windows, we work around
+	 * the problem by escaping all characters that aren't printable ASCII.
+	 */
+	if ( pd[i] >= 0x20 && pd[i] <= 0x7f) {
+#else
 	if ( isprint(pd[i]) ) {
+#endif
 	    dest[totlen] = (gchar)pd[i];
 	    totlen++;
 	} else {
