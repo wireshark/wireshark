@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.7 2000/11/09 05:16:19 guy Exp $
+ * $Id: packet-eigrp.c,v 1.8 2000/11/14 19:13:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -264,6 +264,8 @@ static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 			proto_tree_add_text (tree,tvb,1,addr_len,"IPX Address = %08x.%04x.%04x.%04x",tvb_get_ntohl(tvb,1),tvb_get_ntohs(tvb,5),tvb_get_ntohs(tvb,7),tvb_get_ntohs(tvb,9));
 			break;
 		default:
+			/* nothing */
+			;
 		}
 	proto_item_set_text (ti,"%s",match_strval(TLV_SEQ,eigrp_tlv_vals));
 			
