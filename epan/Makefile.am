@@ -2,12 +2,11 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.30 2001/12/18 19:09:03 gram Exp $
+# $Id: Makefile.am,v 1.31 2002/10/22 08:22:05 guy Exp $
 #
 # Ethereal - Network traffic analyzer
-# By Gerald Combs <gerald@zing.org>
+# By Gerald Combs <gerald@ethereal.com>
 # Copyright 1998 Gerald Combs
-#
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -39,6 +38,8 @@ libethereal_a_SOURCES = \
 	atalk-utils.h		\
 	bitswap.c		\
 	bitswap.h		\
+	circuit.c		\
+	circuit.h		\
 	column_info.h		\
 	conversation.c		\
 	conversation.h		\

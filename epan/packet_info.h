@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.22 2002/10/19 00:40:05 guy Exp $
+ * $Id: packet_info.h,v 1.23 2002/10/22 08:22:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,6 +99,13 @@ typedef enum {
   PT_DDP		/* DDP AppleTalk connection */
 } port_type;
 
+/* Types of circuit IDs Ethereal knows about. */
+typedef enum {
+  CT_NONE,		/* no port number */
+  CT_DLCI		/* Frame Relay DLCI */
+  /* Could also have X.25 logical channel and ATM VPI/VCI pairs */
+} circuit_type;
+
 #define P2P_DIR_UNKNOWN	-1
 #define P2P_DIR_SENT	0
 #define P2P_DIR_RECV	1
@@ -118,6 +125,8 @@ typedef struct _packet_info {
   guint32 ethertype;		/* Ethernet Type Code, if this is an Ethernet packet */
   guint32 ipproto;		/* IP protocol, if this is an IP packet */
   guint32 ipxptype;		/* IPX packet type, if this is an IPX packet */
+  circuit_type ctype;		/* type of circuit, for protocols with a VC identifier */
+  guint32 circuit_id;		/* circuit ID, for protocols with a VC identifier */
   gboolean fragmented;		/* TRUE if the protocol is only a fragment */
   gboolean in_error_pkt;	/* TRUE if we're inside an {ICMP,CLNP,...} error packet */
   port_type ptype;		/* type of the following two port numbers */

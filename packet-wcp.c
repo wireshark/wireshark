@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.28 2002/08/28 21:00:37 jmayer Exp $
+ * $Id: packet-wcp.c,v 1.29 2002/10/22 08:22:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,7 +105,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include "packet-frame.h"
-#include <epan/conversation.h>
+#include <epan/circuit.h>
 #include "etypes.h"
 #include "nlpid.h"
 
@@ -120,6 +120,11 @@ typedef struct {
 
 }wcp_window_t;
 
+typedef struct {
+	wcp_window_t recv;
+	wcp_window_t send;
+} wcp_circuit_data_t;
+
 /*XXX do I really want the length in here  */
 typedef struct {
 
@@ -132,10 +137,10 @@ typedef struct {
 #define wcp_win_init_count 4
 #define wcp_packet_init_count 10
 
-#define wcp_win_length (sizeof(wcp_window_t))
+#define wcp_circuit_length (sizeof(wcp_circuit_data_t))
 #define wcp_packet_length (sizeof(wcp_pdata_t))
 
-static GMemChunk *wcp_window = NULL;
+static GMemChunk *wcp_circuit = NULL;
 static GMemChunk *wcp_pdata = NULL;
 
 static int proto_wcp = -1;
@@ -446,29 +451,28 @@ static guint8 *decompressed_entry( guint8 *src, guint8 *dst, int *len, guint8 * 
 static
 wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 
-/* find the conversation for this side of the DLCI, create one if needed */
+/* find the circuit for this DLCI, create one if needed */
 /* and return the wcp_window data structure pointer */
+/* for the direction of this packet */
 
-	conversation_t *conv;
-	wcp_window_t *wcp_win_data;
+	circuit_t *circuit;
+	wcp_circuit_data_t *wcp_circuit_data;
 
-	conv = find_conversation( &pinfo->dl_src, &pinfo->dl_src, PT_NONE,
-		((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0),
-		((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0), 0);
-	if ( !conv){
-		conv = conversation_new( &pinfo->dl_src, &pinfo->dl_src, PT_NONE,
-			((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0),
-			((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0),
-			0);
+	circuit = find_circuit( pinfo->ctype, pinfo->circuit_id);
+	if ( !circuit){
+		circuit = circuit_new( pinfo->ctype, pinfo->circuit_id);
 	}
-	wcp_win_data = conversation_get_proto_data(conv, proto_wcp);
-	if ( !wcp_win_data){
-		wcp_win_data = g_mem_chunk_alloc( wcp_window);
-		wcp_win_data->buf_cur = wcp_win_data->buffer;
-		conversation_add_proto_data(conv, proto_wcp, wcp_win_data);
+	wcp_circuit_data = circuit_get_proto_data(circuit, proto_wcp);
+	if ( !wcp_circuit_data){
+		wcp_circuit_data = g_mem_chunk_alloc( wcp_circuit);
+		wcp_circuit_data->recv.buf_cur = wcp_circuit_data->recv.buffer;
+		wcp_circuit_data->send.buf_cur = wcp_circuit_data->send.buffer;
+		circuit_add_proto_data(circuit, proto_wcp, wcp_circuit_data);
 	}
-
-	return wcp_win_data;
+	if (pinfo->pseudo_header->x25.flags & FROM_DCE)
+		return &wcp_circuit_data->recv;
+	else
+		return &wcp_circuit_data->send;
 }
 
 
@@ -617,11 +621,11 @@ static void wcp_reinit( void){
 /* Do the cleanup work when a new pass through the packet list is       */
 /* performed. re-initialize the  memory chunks.                         */
 
-        if (wcp_window)
-                g_mem_chunk_destroy(wcp_window);
+        if (wcp_circuit)
+                g_mem_chunk_destroy(wcp_circuit);
 
-        wcp_window = g_mem_chunk_new("wcp_window", wcp_win_length,
-                wcp_win_init_count * wcp_win_length,
+        wcp_circuit = g_mem_chunk_new("wcp_circuit", wcp_circuit_length,
+                wcp_win_init_count * wcp_circuit_length,
                 G_ALLOC_AND_FREE);
 
         if (wcp_pdata)

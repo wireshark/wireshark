@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.22 2002/02/27 09:42:39 guy Exp $
+# $Id: Makefile.nmake,v 1.23 2002/10/22 08:22:05 guy Exp $
 
 include ..\config.nmake
 
@@ -25,6 +25,7 @@ libethereal_LIBS = \
 
 OBJECTS=atalk-utils.obj	\
 	bitswap.obj	\
+	circuit.obj     \
 	column-utils.obj \
 	conversation.obj \
 	epan.obj         \

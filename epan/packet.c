@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.78 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: packet.c,v 1.79 2002/10/22 08:22:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,9 @@ init_dissection(void)
 {
 	/* Initialize the table of conversations. */
 	epan_conversation_init();
+
+	/* Initialize the table of circuits. */
+	epan_circuit_init();
 
 	/* Initialize protocol-specific variables. */
 	g_slist_foreach(init_routines, &call_init_routine, NULL);
@@ -276,6 +279,8 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.ethertype = 0;
 	edt->pi.ipproto  = 0;
 	edt->pi.ipxptype = 0;
+	edt->pi.ctype = CT_NONE;
+	edt->pi.circuit_id = 0;
 	edt->pi.fragmented = FALSE;
 	edt->pi.in_error_pkt = FALSE;
 	edt->pi.ptype = PT_NONE;

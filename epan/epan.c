@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.21 2002/09/09 21:04:06 guy Exp $
+ * $Id: epan.c,v 1.22 2002/10/22 08:22:05 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  */
@@ -14,6 +14,7 @@
 #include "epan_dissect.h"
 
 #include "conversation.h"
+#include "circuit.h"
 #include "except.h"
 #include "packet.h"
 #include "column-utils.h"
@@ -65,14 +66,17 @@ epan_cleanup(void)
 	except_deinit();
 }
 
-
 void
 epan_conversation_init(void)
 {
 	conversation_init();
 }
 
-
+void
+epan_circuit_init(void)
+{
+	circuit_init();
+}
 
 epan_dissect_t*
 epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible)

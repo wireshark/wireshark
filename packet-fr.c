@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.31 2002/10/19 00:40:03 guy Exp $
+ * $Id: packet-fr.c,v 1.32 2002/10/22 08:22:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,6 +168,8 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fr_header = tvb_get_ntohs(tvb, 0);
   fr_ctrl = tvb_get_guint8( tvb, 2);
   address = EXTRACT_DLCI(fr_header);
+  pinfo->ctype = CT_DLCI;
+  pinfo->circuit_id = address;
 
   if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", address);
