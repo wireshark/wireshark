@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Invitation
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-invitation.c,v 1.1 2004/03/23 06:21:16 guy Exp $
+ * $Id: packet-aim-invitation.c,v 1.2 2004/03/23 18:36:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,9 @@ proto_register_aim_invitation(void)
 {
 
 /* Setup list of header fields */
+/*FIXME
   static hf_register_info hf[] = {
-  };
+  };*/
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -78,7 +79,8 @@ proto_register_aim_invitation(void)
   proto_aim_invitation = proto_register_protocol("AIM Invitation Service", "AIM Invitation", "aim_invitation");
 
 /* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_invitation, hf, array_length(hf));
+/*FIXME
+  proto_register_field_array(proto_aim_invitation, hf, array_length(hf));*/
   proto_register_subtree_array(ett, array_length(ett));
 }
 
