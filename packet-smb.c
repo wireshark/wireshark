@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.241 2002/04/09 23:56:57 tpot Exp $
+ * $Id: packet-smb.c,v 1.242 2002/04/16 02:42:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7619,6 +7619,9 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 	smb_info_t *si;
 	smb_nt_transact_info_t *nti;
 	guint16 fid;
+	int old_offset;
+	guint32 neo;
+	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip != NULL)
@@ -7713,8 +7716,11 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		break;
 	case NT_TRANS_NOTIFY:
 		while(len){
+			old_offset = offset;
+
 			/* next entry offset */
-			proto_tree_add_item(tree, hf_smb_next_entry_offset, tvb, offset, 4, TRUE);
+			neo = tvb_get_letohl(tvb, offset);
+			proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
 			COUNT_BYTES(4);
 			len -= 4;
 			/* broken implementations */
@@ -7746,6 +7752,23 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 			/* broken implementations */
 			if(len<0)break;
 
+			if (neo == 0)
+				break;	/* no more structures */
+
+			/* skip to next structure */
+			padcnt = (old_offset + neo) - offset;
+			if (padcnt < 0) {
+				/*
+				 * XXX - this is bogus; flag it?
+				 */
+				padcnt = 0;
+			}
+			if (padcnt != 0) {
+				COUNT_BYTES(padcnt);
+				len -= padcnt;
+				/* broken implementations */
+				if(len<0)break;
+			}
 		}
 		break;
 	case NT_TRANS_RENAME:
