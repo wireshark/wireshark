@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.20 2003/04/30 23:53:42 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.21 2003/05/01 00:23:47 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -339,6 +339,61 @@ wkssvc_dissect_WKS_INFO_502(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+wkssvc_dissect_WKS_INFO_1010(tvbuff_t *tvb, int offset,
+			     packet_info *pinfo, proto_tree *tree,
+			     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_char_wait, NULL);
+
+	return offset;
+}
+
+static int
+wkssvc_dissect_WKS_INFO_1011(tvbuff_t *tvb, int offset,
+			     packet_info *pinfo, proto_tree *tree,
+			     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_collection_time, NULL);
+
+	return offset;
+}
+
+static int
+wkssvc_dissect_WKS_INFO_1012(tvbuff_t *tvb, int offset,
+			     packet_info *pinfo, proto_tree *tree,
+			     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_maximum_collection_count, NULL);
+
+	return offset;
+}
+
+static int
+wkssvc_dissect_WKS_INFO_1013(tvbuff_t *tvb, int offset,
+			     packet_info *pinfo, proto_tree *tree,
+			     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_keep_conn, NULL);
+
+	return offset;
+}
+
+static int
+wkssvc_dissect_WKS_INFO_1018(tvbuff_t *tvb, int offset,
+			     packet_info *pinfo, proto_tree *tree,
+			     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_sess_timeout, NULL);
+
+	return offset;
+}
+
 /*
  * IDL long NetWkstaGetInfo(
  * IDL      [in] [string] [unique] wchar_t *ServerName,
@@ -367,7 +422,12 @@ wkssvc_dissect_netwkstagetinfo_rqst(tvbuff_t *tvb, int offset,
  * IDL   [case(100)] [unique] WKS_INFO_100 *wks100;
  * IDL   [case(101)] [unique] WKS_INFO_101 *wks101;
  * IDL   [case(102)] [unique] WKS_INFO_102 *wks102;
- * IDL   [case(502)] [unique] WKS_INFO_502 *wks502; 
+ * IDL   [case(502)] [unique] WKS_INFO_502 *wks502;
+ * IDL   [case(1010)] [unique] WKS_INFO_1010 *wks1010;
+ * IDL   [case(1011)] [unique] WKS_INFO_1011 *wks1011;
+ * IDL   [case(1012)] [unique] WKS_INFO_1012 *wks1012;
+ * IDL   [case(1013)] [unique] WKS_INFO_1013 *wks1013;
+ * IDL   [case(1018)] [unique] WKS_INFO_1018 *wks1018;
  * IDL } WKS_INFO_UNION;
  */
 static int
@@ -407,6 +467,41 @@ wkssvc_dissect_WKS_GETINFO_UNION(tvbuff_t *tvb, int offset,
 					     wkssvc_dissect_WKS_INFO_502,
 					     NDR_POINTER_UNIQUE, 
 					     "WKS_INFO_502:", -1);
+		break;
+
+	case 1010:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_1010,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_1010:", -1);
+		break;
+
+	case 1011:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_1011,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_1011:", -1);
+		break;
+
+	case 1012:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_1012,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_1012:", -1);
+		break;
+
+	case 1013:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_1013,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_1013:", -1);
+		break;
+
+	case 1018:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_1018,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_1018:", -1);
 		break;
 
 	}
