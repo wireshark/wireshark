@@ -99,6 +99,7 @@ Overview of changes in Ethereal 0.8.18:
 * Updates to OSPF for the changes between drafts 3 and 4 of
 * Various ISIS improvements (Jean-Christian Pennetier, Guy)
 * osi-util.c  Fix postfix error in string generation (Chris Fould, Guy)
+* Support for Cisco-proprietary capabilities in BGP from <bgp4news@yahoo.com> (Guy)
 
 Overview of changes in Ethereal 0.8.17:
 * Display filter GUI fix (Guy)
