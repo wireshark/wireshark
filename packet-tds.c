@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.20 2003/12/27 02:17:22 guy Exp $
+ * $Id: packet-tds.c,v 1.21 2003/12/31 01:17:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -994,7 +994,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	save_fragmented = pinfo->fragmented;
 	if (tds_defragment &&
-	    (packet_number != 1 || status == STATUS_NOT_LAST_BUFFER)) {
+	    (packet_number > 1 || status == STATUS_NOT_LAST_BUFFER)) {
 		if (status == STATUS_NOT_LAST_BUFFER) {
 			if (check_col(pinfo->cinfo, COL_INFO))
 				col_append_str(pinfo->cinfo, COL_INFO,
