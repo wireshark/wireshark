@@ -132,10 +132,10 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_dissections   = print_dissections_as_displayed;
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
-  
-      /* init the printing range */
-      packet_range_init(&args->range);
   }
+  
+  /* init the printing range */
+  packet_range_init(&args->range);
 
   print_win = open_print_dialog("Ethereal: Print", output_action_print, args);
   SIGNAL_CONNECT(print_win, "destroy", print_destroy_cb, &print_win);
@@ -176,10 +176,10 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_dissections   = print_dissections_as_displayed;
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
-  
-      /* init the printing range */
-      packet_range_init(&args->range);
   }
+  
+  /* init the printing range */
+  packet_range_init(&args->range);
 
   export_text_win = open_print_dialog("Ethereal: Export as \"Plain Text\" File", output_action_export_text, args);
   SIGNAL_CONNECT(export_text_win, "destroy", print_destroy_cb, &export_text_win);
@@ -220,10 +220,10 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_dissections   = print_dissections_as_displayed;
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
-  
-      /* init the printing range */
-      packet_range_init(&args->range);
   }
+  
+  /* init the printing range */
+  packet_range_init(&args->range);
 
   export_ps_win = open_print_dialog("Ethereal: Export as \"PostScript\" file", output_action_export_ps, args);
   SIGNAL_CONNECT(export_ps_win, "destroy", print_destroy_cb, &export_ps_win);
@@ -264,10 +264,10 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_dissections   = print_dissections_as_displayed;
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
-  
-      /* init the printing range */
-      packet_range_init(&args->range);
   }
+  
+  /* init the printing range */
+  packet_range_init(&args->range);
 
   export_psml_win = open_print_dialog("Ethereal: Export as \"PSML\" file", output_action_export_psml, args);
   SIGNAL_CONNECT(export_psml_win, "destroy", print_destroy_cb, &export_psml_win);
@@ -308,10 +308,10 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_dissections   = print_dissections_as_displayed;
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
-  
-      /* init the printing range */
-      packet_range_init(&args->range);
   }
+  
+  /* init the printing range */
+  packet_range_init(&args->range);
 
   export_pdml_win = open_print_dialog("Ethereal: Export as \"PDML\" file", output_action_export_pdml, args);
   SIGNAL_CONNECT(export_pdml_win, "destroy", print_destroy_cb, &export_pdml_win);
