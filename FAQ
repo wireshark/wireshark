@@ -3,7 +3,7 @@
 
    Note: This is just an ASCII snapshot of the faq and may not be up to
          date. Please go to http://www.ethereal.com/faq for the up to
-         date version. The version of the snapshot can be found at the
+         date version. The version of this snapshot can be found at the
          end of this document.
 
    INDEX
@@ -160,61 +160,68 @@
 
    Q 1.2: What protocols are currently supported?
 
-   A: There are currently 340 supported protocols and media, listed
+   A: There are currently 355 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             802.1q Virtual LAN
             802.1x Authentication
-            AFS (4.0) Replication Server call declarations
-            AOL Instant Messenger
-            ARCNET
-            ATM
-            ATM LAN Emulation
-            AVS WLAN Capture header
+            Address Resolution Protocol
             Ad hoc On-demand Distance Vector Routing Protocol
             Ad hoc On-demand Distance Vector Routing Protocol v6
-            Address Resolution Protocol
+            AFS (4.0) Replication Server call declarations
             Aggregate Server Access Protocol
             Andrew File System (AFS)
+            AOL Instant Messenger
             Apache JServ Protocol v1.3
+            Appletalk Address Resolution Protocol
             AppleTalk Filing Protocol
             AppleTalk Session Protocol
             AppleTalk Transaction Protocol packet
-            Appletalk Address Resolution Protocol
+            ARCNET
             Async data over ISDN (V.120)
+            ATM
+            ATM AAL1
+            ATM AAL3/4
+            ATM LAN Emulation
+            ATM OAM AAL
             Authentication Header
+            AVS WLAN Capture header
             BACnet Virtual Link Control
             Banyan Vines
             Banyan Vines Fragmentation Protocol
             Banyan Vines SPP
             Blocks Extensible Exchange Protocol
+            Boardwalk
             Boot Parameters
             Bootstrap Protocol
             Border Gateway Protocol
             Building Automation and Control Network APDU
             Building Automation and Control Network NPDU
             CDS Clerk Server Calls
-            Check Point High Availability Protocol
             Checkpoint FW-1
+            Check Point High Availability Protocol
             Cisco Auto-RP
             Cisco Discovery Protocol
             Cisco Group Management Protocol
             Cisco HDLC
             Cisco Hot Standby Router Protocol
-            Cisco ISL
             Cisco Interior Gateway Routing Protocol
+            Cisco ISL
             Cisco NetFlow
             Cisco SLARP
             Clearcase NFS
-            CoSine IPNOS L2 debug output
             Common Open Policy Service
             Common Unix Printing System (CUPS) Browsing Protocol
+            CoSine IPNOS L2 debug output
+            Data
+            Datagram Delivery Protocol
+            Data Link SWitching
+            Data Stream Interface
             DCE DFS Calls
             DCE Distributed Time Service Local Server
             DCE Distributed Time Service Provider
             DCE Name Service
             DCE RPC
-            DCE Security ID Mapper
             DCE/RPC BOS Server
             DCE/RPC CDS Solicitation
             DCE/RPC Conversation Manager
@@ -223,25 +230,22 @@
             DCE/RPC FLDB UBIK TRANSFER
             DCE/RPC FLDB UBIKVOTE
             DCE/RPC Kerberos V
+            DCE/RPC Remote Management
+            DCE/RPC Repserver Calls
             DCE/RPC RS_ACCT
             DCE/RPC RS_MISC
             DCE/RPC RS_UNIX
-            DCE/RPC Remote Management
-            DCE/RPC Repserver Calls
             DCE/RPC TokenServer Calls
             DCE/RPC UpServer
+            DCE Security ID Mapper
             DCOM OXID Resolver
             DCOM Remote Activation
             DEC Spanning Tree Protocol
             DHCPv6
-            DNS Control Program Server
-            Data
-            Data Link SWitching
-            Data Stream Interface
-            Datagram Delivery Protocol
             Diameter Protocol
             Distance Vector Multicast Routing Protocol
             Distributed Checksum Clearinghouse Prototocl
+            DNS Control Program Server
             Domain Name Service
             Dummy Protocol
             Dynamic DNS Tools Protocol
@@ -250,26 +254,30 @@
             Ethernet
             Extensible Authentication Protocol
             FC Extended Link Svc
+            FC Fabric Configuration Server
             FCIP
-            FTP Data
-            FTServer Operations
             Fiber Distributed Data Interface
             Fibre Channel
+            Fibre Channel Common Transport
+            Fibre Channel Fabric Zone Server
+            Fibre Channel Name Server
             Fibre Channel Protocol for SCSI
             Fibre Channel SW_ILS
             File Transfer Protocol (FTP)
             Financial Information eXchange Protocol
             Frame
             Frame Relay
+            FTP Data
+            FTServer Operations
             GARP Multicast Registration Protocol
             GARP VLAN Registration Protocol
-            GPRS Tunneling Protocol
-            GPRS Tunnelling Protocol v0
-            GPRS Tunnelling Protocol v1
             General Inter-ORB Protocol
             Generic Routing Encapsulation
             Generic Security Service Application Program Interface
             Gnutella Protocol
+            GPRS Tunneling Protocol
+            GPRS Tunnelling Protocol v0
+            GPRS Tunnelling Protocol v1
             Hummingbird NFS Daemon
             HyperSCSI
             Hypertext Transfer Protocol
@@ -277,19 +285,6 @@
             IEEE 802.11 wireless LAN
             IEEE 802.11 wireless LAN management frame
             ILMI
-            IP Over FC
-            IP Payload Compression
-            IPX Message
-            IPX Routing Information Protocol
-            ISDN
-            ISDN Q.921-User Adaptation Layer
-            ISDN User Part
-            ISO 10589 ISIS InTRA Domain Routeing Information Exchange Protocol
-            ISO 8073 COTP Connection-Oriented Transport Protocol
-            ISO 8473 CLNP ConnectionLess Network Protocol
-            ISO 8602 CLTP ConnectionLess Transport Protocol
-            ISO 9542 ESIS Routeing Information Exchange Protocol
-            ITU-T Recommendation H.261
             Inter-Access-Point Protocol
             Interbase
             Internet Cache Protocol
@@ -304,6 +299,20 @@
             Internet Relay Chat
             Internet Security Association and Key Management Protocol
             Internetwork Packet eXchange
+            IP Over FC
+            IP Payload Compression
+            IPX Message
+            IPX Routing Information Protocol
+            iSCSI
+            ISDN
+            ISDN Q.921-User Adaptation Layer
+            ISDN User Part
+            ISO 10589 ISIS InTRA Domain Routeing Information Exchange Protocol
+            ISO 8073 COTP Connection-Oriented Transport Protocol
+            ISO 8473 CLNP ConnectionLess Network Protocol
+            ISO 8602 CLTP ConnectionLess Transport Protocol
+            ISO 9542 ESIS Routeing Information Exchange Protocol
+            ITU-T Recommendation H.261
             Java RMI
             Java Serialization
             Kerberos
@@ -312,8 +321,8 @@
             Layer 2 Tunneling Protocol
             Lightweight Directory Access Protocol
             Line Printer Daemon Protocol
-            Link Access Procedure Balanced (LAPB)
             Link Access Procedure Balanced Ethernet (LAPBETHER)
+            Link Access Procedure Balanced (LAPB)
             Link Access Procedure, Channel D (LAPD)
             Link Aggregation Control Protocol
             Link Management Protocol (LMP)
@@ -322,15 +331,10 @@
             LocalTalk Link Access Protocol
             Logical-Link Control
             Lucent/Ascend debug output
-            MMS Message Encapsulation
-            MS Proxy Protocol
-            MSNIP: Multicast Source Notification of Interest Protocol
-            MTP 2 Transparent Proxy
-            MTP 2 User Adaptation Layer
-            MTP 3 User Adaptation Layer
-            MTP2 Peer Adaptation Layer
+            MDS Header
             Message Transfer Part Level 2
             Message Transfer Part Level 3
+            Message Transfer Part Level 3 Management
             Microsoft Distributed File System
             Microsoft Exchange MAPI
             Microsoft Local Security Architecture
@@ -345,25 +349,27 @@
             Microsoft Windows Lanman Remote API Protocol
             Microsoft Windows Logon Protocol
             Microsoft Workstation Service
+            MMS Message Encapsulation
             Mobile IP
             Modbus/TCP
             Mount Service
-            MultiProtocol Label Switching Header
+            MSNIP: Multicast Source Notification of Interest Protocol
+            MS Proxy Protocol
+            MTP2 Peer Adaptation Layer
+            MTP 2 Transparent Proxy
+            MTP 2 User Adaptation Layer
+            MTP 3 User Adaptation Layer
             Multicast Router DISCovery protocol
             Multicast Source Discovery Protocol
-            NFSACL
-            NFSAUTH
-            NIS+
-            NIS+ Callback
-            NSPI
-            NTLM Secure Service Provider
+            MultiProtocol Label Switching Header
+            MySQL Protocol
             Name Binding Protocol
             Name Management Protocol over IPX
             NetBIOS
             NetBIOS Datagram Service
             NetBIOS Name Service
-            NetBIOS Session Service
             NetBIOS over IPX
+            NetBIOS Session Service
             NetWare Core Protocol
             Network Data Management Protocol
             Network File System
@@ -372,15 +378,25 @@
             Network Status Monitor CallBack Protocol
             Network Status Monitor Protocol
             Network Time Protocol
+            NFSACL
+            NFSAUTH
+            NIS+
+            NIS+ Callback
             Novell Distributed Print System
+            NSPI
+            NTLM Secure Service Provider
             Null/Loopback
-            Open Shortest Path First
             OpenBSD Packet Filter log file
+            Open Shortest Path First
             PC NFS
+            Point-to-Point Protocol
+            Point-to-Point Tunnelling Protocol
+            Portmap
+            Post Office Protocol
             PPP Bandwidth Allocation Control Protocol
             PPP Bandwidth Allocation Protocol
-            PPP CDP Control Protocol
             PPP Callback Control Protocol
+            PPP CDP Control Protocol
             PPP Challenge Handshake Authentication Protocol
             PPP Compressed Datagram
             PPP Compression Control Protocol
@@ -390,62 +406,48 @@
             PPP MPLS Control Protocol
             PPP Multilink Protocol
             PPP Multiplexing
-            PPP Password Authentication Protocol
-            PPP VJ Compression
+            PPPMux Control Protocol
             PPP-over-Ethernet Discovery
             PPP-over-Ethernet Session
-            PPPMux Control Protocol
-            Point-to-Point Protocol
-            Point-to-Point Tunnelling Protocol
-            Portmap
-            Post Office Protocol
+            PPP Password Authentication Protocol
+            PPP VJ Compression
             Pragmatic General Multicast
             Prism
             Privilege Server operations
             Protocol Independent Multicast
             Q.2931
             Q.931
-            Quake II Network Protocol
             Quake III Arena Network Protocol
+            Quake II Network Protocol
             Quake Network Protocol
             QuakeWorld Network Protocol
             Qualified Logical Link Control
-            RFC 2250 MPEG1
-            RIPng
-            RPC Browser
-            RSTAT
-            RX Protocol
             Radio Access Network Application Part
             Radius Protocol
             Raw packet data
             Real Time Streaming Protocol
-            Real-Time Transport Protocol
             Real-time Transport Control Protocol
-            Registry Server Attributes Manipulation Interface
+            Real-Time Transport Protocol
             Registry server administration operations.
+            Registry Server Attributes Manipulation Interface
             Remote Override interface
             Remote Procedure Call
             Remote Program Load
             Remote Quota
+            Remote sec_login preauth interface.
             Remote Shell
             Remote Wall protocol
-            Remote sec_login preauth interface.
             Resource ReserVation Protocol (RSVP)
+            RFC 2250 MPEG1
+            RIPng
             Rlogin Protocol
             Routing Information Protocol
             Routing Table Maintenance Protocol
+            RPC Browser
+            RSTAT
+            RX Protocol
             SADMIND
             SCSI
-            SGI Mount Service
-            SMB (Server Message Block Protocol)
-            SMB MailSlot Protocol
-            SMB Pipe Protocol
-            SNA-over-Ethernet
-            SNMP Multiplex Protocol
-            SPNEGO-KRB5
-            SPRAY
-            SS7 SCCP-User Adaptation Layer
-            SSCOP
             Secure Socket Layer
             Sequenced Packet eXchange
             Service Advertisement Protocol
@@ -453,6 +455,7 @@
             Session Announcement Protocol
             Session Description Protocol
             Session Initiation Protocol
+            SGI Mount Service
             Short Message Peer to Peer
             Signalling Connection Control Part
             Signalling Connection Control Part Management
@@ -461,21 +464,32 @@
             Sinec H1 Protocol
             Skinny Client Control Protocol
             SliMP3 Communication Protocol
+            SMB MailSlot Protocol
+            SMB Pipe Protocol
+            SMB (Server Message Block Protocol)
+            SNA-over-Ethernet
+            SNMP Multiplex Protocol
             Socks Protocol
             Spanning Tree Protocol
             Spnego
+            SPNEGO-KRB5
+            SPRAY
+            SS7 SCCP-User Adaptation Layer
+            SSCOP
             Stream Control Transmission Protocol
+            Synchronous Data Link Control (SDLC)
             Syslog message
             Systems Network Architecture
+            Tabular Data Stream
             TACACS
             TACACS+
-            TPKT
-            Tabular Data Stream
+            Tazmen Sniffer Protocol
             Telnet
             Time Protocol
             Time Synchronization Protocol
             Token-Ring
             Token-Ring Media Access Control
+            TPKT
             Transmission Control Protocol
             Transparent Network Substrate Protocol
             Trivial File Transfer Protocol
@@ -485,15 +499,17 @@
             Virtual Trunking Protocol
             Web Cache Coordination Protocol
             Wellfleet Compression
+            Wellfleet HDLC
             Who
             Windows 2000 DNS
             Wireless Session Protocol
             Wireless Transaction Protocol
             Wireless Transport Layer Security
-            X Display Manager Control Protocol
+            X11
             X.25
             X.25 over TCP
-            X11
+            X.29
+            X Display Manager Control Protocol
             Xyplex
             Yahoo Messenger Protocol
             Yellow Pages Bind
@@ -502,7 +518,6 @@
             Yellow Pages Transfer
             Zebra Protocol
             Zone Information Protocol
-            iSCSI
 
    Q 1.3: Are there any plans to support {your favorite protocol}?
 
@@ -743,6 +758,18 @@
    for the switch to see if this is possible and, if so, to see how to do
    this. See, for example, this documentation from Cisco on the Switched
    Port Analyzer (SPAN) feature on Catalyst switches.
+
+   Note also that many firewall/NAT boxes have a switch built into them;
+   this includes many of the "cable/DSL router" boxes. If you have a box
+   of that sort, that has a switch with some number of Ethernet ports
+   into which you plug machines on your network, and another Ethernet
+   port used to connect to a cable or DSL modem, you can, at least, sniff
+   traffic between the machines on your network and the Internet by
+   plugging the Ethernet port on the router going to the modem, the
+   Ethernet port on the modem, and the machine on which you're running
+   Ethereal into a hub (make sure it's not a switching hub, and that, if
+   it's a dual-speed hub, all three of those ports are running at the
+   same speed.
 
    If your machine is not plugged into a switched network or a dual-speed
    hub, or it is plugged into a switched network but the port is set up
@@ -1006,6 +1033,16 @@
        you should uninstall WinPcap, download and install the current
        version of WinPcap, and then install the latest version of
        Ethereal.
+     * On Windows 95, 98, or Me, sometimes more than one interface will
+       be given the same name; if that is the case, you will only be able
+       to capture on one of those interfaces - it's not clear to which
+       one the name, when used in a WinPcap application, will refer. For
+       example, if you have a PPP serial interface and a VPN interface,
+       they might show up with the same name, for example "ppp-mac", and
+       if you try to capture on "ppp-mac", it might not capture on the
+       interface you're currently using. In that case, you might, for
+       example, have to remove the VPN interface from the system in order
+       to capture on the PPP serial interface.
      * WinPcap doesn't support PPP WAN interfaces on Windows
        NT/2000/XP/Server, so Ethereal cannot capture packets on those
        devices when running on Windows NT/2000/XP/Server. Regular dial-up
@@ -1429,4 +1466,4 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    list. 
    For corrections/additions/suggestions for this page, please send email
    to: ethereal-web[AT]ethereal.com
-   Last modified: Thu, January 16 2003.
+   Last modified: Sun, February 09 2003.
