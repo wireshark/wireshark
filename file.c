@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.101 1999/09/30 07:15:19 guy Exp $
+ * $Id: file.c,v 1.102 1999/09/30 16:24:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,6 +67,10 @@
 
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
+#endif
+
+#ifdef HAVE_SYS_WAIT_H
+# include <sys/wait.h>
 #endif
 
 #include "gtk/main.h"
@@ -373,9 +377,24 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
           sigmsg = "Segmentation violation";
           break;
 
+	/* http://metalab.unc.edu/pub/Linux/docs/HOWTO/GCC-HOWTO 
+		Linux is POSIX compliant.  These are not POSIX-defined signals ---
+		  ISO/IEC 9945-1:1990 (IEEE Std 1003.1-1990), paragraph B.3.3.1.1 sez:
+
+	       ``The signals SIGBUS, SIGEMT, SIGIOT, SIGTRAP, and SIGSYS
+		were omitted from POSIX.1 because their behavior is
+		implementation dependent and could not be adequately catego-
+		rized.  Conforming implementations may deliver these sig-
+		nals, but must document the circumstances under which they
+		are delivered and note any restrictions concerning their
+		delivery.''
+	*/
+
+	#ifdef SIGSYS
         case SIGSYS:
           sigmsg = "Bad system call";
           break;
+	#endif
 
         case SIGPIPE:
           sigmsg = "Broken pipe";
