@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.57 2002/07/10 04:24:37 guy Exp $
+$Id: README.developer,v 1.58 2002/07/10 04:29:23 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -139,7 +139,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.57 2002/07/10 04:24:37 guy Exp $"
+The "$Id: README.developer,v 1.58 2002/07/10 04:29:23 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -149,7 +149,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.57 2002/07/10 04:24:37 guy Exp $
+ * $Id: README.developer,v 1.58 2002/07/10 04:29:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1189,7 +1189,7 @@ Rings are 3-digit hex numbers, and bridges are single hex digits:
 	RIF: 001-A-013-9-C0F-B-555
 
 In the case of RIF, the programmer should use a field with no value and
-use proto_tree_add_item_format() to build the above representation. The
+use proto_tree_add_none_format() to build the above representation. The
 programmer can then add the ring and bridge values, one-by-one, with
 proto_tree_add_item_hidden() so that the user can then filter on or
 search for a particular ring or bridge. Here's a skeleton of how the
@@ -1198,13 +1198,13 @@ programmer might code this.
 	char *rif;
 	rif = create_rif_string(...);
 
-	proto_tree_add_item_format(tree, hf_tr_rif_label,..., "RIF: %s", rif);
+	proto_tree_add_none_format(tree, hf_tr_rif_label, ..., "RIF: %s", rif);
 
 	for(i = 0; i < num_rings; i++) {
-		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, ..., ring[i]);
+		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, ..., FALSE);
 	}
 	for(i = 0; i < num_rings - 1; i++) {
-		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, ..., bridge[i]);
+		proto_tree_add_item_hidden(tree, hf_tr_rif_bridge, ..., FALSE);
 	}
 
 The logical tree has these items:
