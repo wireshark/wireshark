@@ -3,12 +3,11 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.38 2001/04/17 06:29:12 guy Exp $
+ * $Id: packet-isakmp.c,v 1.39 2001/08/29 08:12:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -187,6 +186,12 @@ struct isakmp_hdr {
   guint8	length[4];
 };
 
+struct udp_encap_esp_hdr {
+  guint8	non_ike_marker[8];
+  guint32	esp_SPI;
+  guint32	esp_seq_num;
+};
+
 static proto_tree *dissect_payload_header(tvbuff_t *, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
@@ -245,27 +250,68 @@ static struct strfunc {
   {"Attrib",			dissect_config	  }
 };
 
+static dissector_handle_t esp_handle;
+
 static void
 dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int			offset = 0;
   struct isakmp_hdr *	hdr;
+  struct udp_encap_esp_hdr * udp_encap_hdr;
   guint32		len;
   guint8		payload, next_payload;
   guint16		payload_length;
   proto_tree *		ntree;
+  static const guint8	non_ike_marker[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+  tvbuff_t *		next_tvb;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "ISAKMP");
   if (check_col(pinfo->fd, COL_INFO))
     col_clear(pinfo->fd, COL_INFO);
-  
+
   hdr = (struct isakmp_hdr *)tvb_get_ptr(tvb, 0, sizeof (struct isakmp_hdr));
+  udp_encap_hdr = (struct udp_encap_esp_hdr *)tvb_get_ptr(tvb, 0, sizeof(struct udp_encap_esp_hdr));
+ 
   len = pntohl(&hdr->length);
   
+  if(memcmp(udp_encap_hdr->non_ike_marker,non_ike_marker,8) == 0) {
+    if (udp_encap_hdr->esp_SPI != 0) {
+       if (check_col(pinfo->fd, COL_INFO))
+          col_add_str(pinfo->fd, COL_INFO, "UDP encapsulated IPSec - ESP");
+    }
+    else {
+      if (check_col(pinfo->fd, COL_INFO))
+         col_add_str(pinfo->fd, COL_INFO, "UDP encapsulated IPSec - AH");
+    } 
+    if(tree) {
+      proto_item *	ti;
+      proto_tree *	isakmp_tree;
+     
+      ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, len, FALSE);
+      isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
+    
+      proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(udp_encap_hdr->non_ike_marker),"Non-IKE-Marker");
+      offset += sizeof(udp_encap_hdr->non_ike_marker);
+      
+      if (udp_encap_hdr->esp_SPI != 0) {
+        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        call_dissector(esp_handle, next_tvb, pinfo, tree);
+      } else {
+        proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(udp_encap_hdr->esp_SPI),"Non-ESP-Marker");
+        offset += sizeof(udp_encap_hdr->esp_SPI);
+
+        /*
+         * Dissect AH Envelope, and then call AH dissector.
+         */
+      }
+    }
+    return;
+  }
+
   if (check_col(pinfo->fd, COL_INFO))
     col_add_str(pinfo->fd, COL_INFO, exchtype2str(hdr->exch_type));
-  
+
   if (tree) {
     proto_item *	ti;
     proto_tree *	isakmp_tree;
@@ -965,6 +1011,9 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
       switch (value) {
         case 1:  return "Tunnel";
         case 2:  return "Transport";
+	case 61440: return "Check Point IPSec UDP Encapsulation";
+	case 61443: return "UDP-Encapsulated-Tunnel (draft)";
+	case 61444: return "UDP-Encapsulated-Transport (draft)";
         default: return "UNKNOWN-ENCAPSULATION-VALUE";
       }
     case 5:
@@ -1182,5 +1231,10 @@ proto_register_isakmp(void)
 void
 proto_reg_handoff_isakmp(void)
 {
+  /*
+   * Get handle for the ESP dissector.
+   */
+  esp_handle = find_dissector("esp");
+
   dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp, proto_isakmp);
 }

@@ -1,12 +1,11 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.30 2001/06/18 02:17:47 guy Exp $
+ * $Id: packet-ipsec.c,v 1.31 2001/08/29 08:12:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -341,6 +340,8 @@ proto_register_ipsec(void)
 	    "Place AH payload in subtree",
 "Whether the AH payload decode should be placed in a subtree",
 	    &g_ah_payload_in_subtree);
+
+  register_dissector("esp", dissect_esp, proto_esp);
 }
 
 void
