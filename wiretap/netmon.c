@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.3 1999/02/12 16:26:09 gram Exp $
+ * $Id: netmon.c,v 1.4 1999/02/20 06:46:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -33,11 +33,11 @@
  * for the header of a Microsoft Network Monitor capture file.
  */
 
-/* Capture file eader, *including* magic number, is padded to 128 bytes. */
+/* Capture file header, *including* magic number, is padded to 128 bytes. */
 #define	CAPTUREFILE_HEADER_SIZE	128
 
 /* Magic number in Network Monitor files. */
-static char netmon_magic[] = {
+static const char netmon_magic[] = {
 	'R', 'T', 'S', 'S'
 };
 
