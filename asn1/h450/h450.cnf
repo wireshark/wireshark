@@ -1,5 +1,5 @@
-# h4501.cnf
-# H.4501 conformation file
+# h450.cnf
+# H.450 conformation file
 # Copyright 2004 Anders Broman 
 # $Id$
 
@@ -10,6 +10,18 @@ Remote-Operations-Apdus ros
 
 #.INCLUDE ../h225/h225-exp.cnf
 #----------------------------------------------------------------------------------------
+#.TYPE_RENAME
+ActivateDiversionQArg/extension ActivateDiversionQArg_extension
+DeactivateDiversionQArg/extension DeactivateDiversionQArg_extension
+InterrogateDiversionQ/extension InterrogateDiversionQ_extension
+CheckRestrictionArg/extension CheckRestrictionArg_extension
+CallReroutingArg/extension CallReroutingArg_extension
+DivertingLegInformation1Arg/extension DivertingLegInformation1Arg_extension
+DivertingLegInformation2Arg/extension DivertingLegInformation2Arg_extension
+DivertingLegInformation3Arg/extension DivertingLegInformation3Arg_extension
+DivertingLegInformation4Arg/extension DivertingLegInformation4Arg_extension
+IntResult/extension IntResult_extension
+
 #.FIELD_RENAME
 
 PresentedAddressScreened/presentationAllowedAddress addressScreened_presentationAllowedAddress
@@ -21,3 +33,66 @@ PresentedAddressScreened/presentationRestrictedAddress addressScreened_presentat
 PresentedNumberScreened/presentationRestrictedAddress numberScreened_presentationRestrictedAddress
 PresentedNumberUnscreened/presentationRestrictedAddress numberUnscreened_presentationRestrictedAddress
 PresentedAddressUnscreened/presentationRestrictedAddress addressUnscreened_presentationRestrictedAddress
+
+CTInitiateArg/argumentExtension cTInitiateArg_argumentExtension 
+CTSetupArg/argumentExtension cTSetupArg_argumentExtension 
+CTUpdateArg/argumentExtension cTUpdateArg_argumentExtension
+SubaddressTransferArg/argumentExtension subaddressTransferArg_argumentExtension 
+CTCompleteArg/argumentExtension cTCompleteArg_argumentExtension 
+CTActiveArg/argumentExtension cTActiveArg_argumentExtension
+MixedExtension/extension mixedExtension_extension
+Unspecified/extension Unspecified_extension
+CheckRestrictionArg/extension checkRestrictionArg_extension
+DivertingLegInformation1Arg/extension divertingLegInformation1Arg_extension
+CcRequestArg/extension ccRequestArg_extension
+CcRequestRes/extension ccRequestRes_extension
+CcShortArg/extension ccShortArg_extension
+CcLongArg/extension ccLongArg_extension
+CoReqOptArg/extension coReqOptArg_extension
+RUAlertOptArg/extension rUAlertOptArg_extension
+CfbOvrOptArg/extension cfbOvrOptArg_extension
+CmnArg/extension cmnArg_extension
+ActivateDiversionQArg/extension activateDiversionQArg_extension 
+InterrogateDiversionQ/extension interrogateDiversionQ_extension
+CallReroutingArg/extension callReroutingArg_extension 
+DivertingLegInformation4Arg/extension divertingLegInformation4Arg_extension 
+DivertingLegInformation3Arg/extension divertingLegInformation3Arg_extension 
+DeactivateDiversionQArg/extension deactivateDiversionQArg_extension 
+IntResult/extension intResult_extension
+
+MWIActivateArg/extensionArg mWIActivateArg_extensionArg 
+MWIDeactivateArg/extensionArg mWIDeactivateArg_extensionArg 
+MWIInterrogateArg/extensionArg mWIInterrogateArg_extensionArg 
+MWIInterrogateResElt/extensionArg mWIInterrogateResElt_extensionArg
+
+HoldNotificArg/extensionArg holdNotificArg_extensionArg 
+RetrieveNotificArg/extensionArg retrieveNotificArg_extensionArg 
+
+RemoteHoldArg/extensionArg remoteHoldArg_extensionArg
+RemoteRetrieveArg/extensionArg remoteRetrieveArg_extensionArg
+CpRequestArg/extensionArg cpRequestArg_extensionArg
+CpSetupArg/extensionArg cpSetupArg_extensionArg
+GroupIndicationOnArg/extensionArg groupIndicationOnArg_extensionArg
+GroupIndicationOffArg/extensionArg groupIndicationOffArg_extensionArg
+PickrequArg/extensionArg pickrequArg_extensionArg
+PickupArg/extensionArg pickupArg_extensionArg
+PickExeArg/extensionArg pickExeArg_extensionArg
+CpNotifyArg/extensionArg cpNotifyArg_extensionArg
+CpickupNotifyArg/extensionArg cpickupNotifyArg_extensionArg
+CallWaitingArg/extensionArg callWaitingArg_extensionArg
+NameArg/extensionArg nameArg_extensionArg
+CmnRequestArg/extensionArg cmnRequestArg_extensionArg
+CIRequestArg/argumentExtension cIRequestArg_argumentExtension 
+CIGetCIPLOptArg/argumentExtension cIGetCIPLOptArg_argumentExtension
+CIIsOptArg/argumentExtension cIIsOptArg_argumentExtension
+CIFrcRelArg/argumentExtension cIFrcRelArg_argumentExtension
+CIWobOptArg/argumentExtension cIWobOptArg_argumentExtension
+CISilentArg/argumentExtension cISilentArg_argumentExtension
+CINotificationArg/argumentExtension cINotificationArg_argumentExtension
+
+CIRequestRes/resultExtension cIRequestRes_resultExtension
+CIGetCIPLRes/resultExtension cIGetCIPLRes_resultExtension
+CIIsOptRes/resultExtension cIIsOptRes_resultExtension
+CIFrcRelOptRes/resultExtension cIFrcRelOptRes_resultExtension
+CIWobOptRes/resultExtension cIWobOptRes_resultExtension
+CISilentOptRes/resultExtension cISilentOptRes_resultExtension

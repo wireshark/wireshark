@@ -124,6 +124,10 @@
 #define CallIntrusionSilentMonitor  116
 #define CallIntrusionNotification   117
 
+/* H.450.12 Common Information Operations constants */
+#define CmnRequest					84
+#define CmnInform					85
+
 /* TODO - define other H.450.x constants here */
 static dissector_handle_t h4501_handle=NULL;
 
@@ -160,6 +164,17 @@ static int hf_h4502_CTUpdateArg = -1;
 static int hf_h4502_SubaddressTransferArg = -1;
 static int hf_h4502_CTCompleteArg = -1;
 static int hf_h4502_CTActiveArg = -1;
+
+static int hf_h4503ActivateDiversionQArg = -1;
+static int hf_h4503DeactivateDiversionQArg = -1;
+static int hf_h4503InterrogateDiversionQ = -1;
+static int hf_h4503CheckRestrictionArg = -1;
+static int hf_h4503CallReroutingArg = -1;
+static int hf_h4503DivertingLegInformation1Arg = -1;
+static int hf_h4503DivertingLegInformation2Arg = -1;
+static int hf_h4503DivertingLegInformation3Arg = -1;
+static int hf_h4503DivertingLegInformation4Arg = -1;
+static int hf_h4503CfnrDivertedLegFailedArg = -1;
 
 static int hf_h4504_HoldNotificArg = -1;
 static int hf_h4504_RetrieveNotificArg = -1;
@@ -289,17 +304,6 @@ static const value_string localOpcode_vals[] = {
 static int dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_ind _U_);
 
-static int
-dissect_xxx_Extensionxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_id){
-	PER_NOT_DECODED_YET("H.450.1 ExtensionSeq");
-   return offset;
-}
-
-static int
-dissect_xxx_Extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_id){
-	PER_NOT_DECODED_YET("H.450.1 ExtensionSeq");
-   return offset;
-}
 
 
 #include "packet-h450-fn.c"
@@ -690,6 +694,7 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
       switch (localOpcode) {
+		  /* h450.2 */
 		  case CallTransferIdentify:  /* Localvalue 7 */
 	      case CallTransferAbandon:   /* Localvalue 8 */
 			 dissect_h450_DummyArg(argument_tvb, 0, pinfo , tree, hf_h4502_DummyArg);
@@ -718,7 +723,39 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	      case CallTransferActive:		/* Localvalue 11 */
 	         dissect_h450_CTActiveArg(argument_tvb, 0, pinfo , tree, hf_h4502_CTActiveArg);
 		     break;
-		  /* H.450.4 */
+		  /* h450.3*/
+
+		  case ActivateDiversionQ:          /* Localvalue 15 */
+	         dissect_h450_ActivateDiversionQArg(argument_tvb, 0, pinfo , tree, hf_h4503ActivateDiversionQArg);
+		     break;
+		  case DeactivateDiversionQ:        /* Localvalue 16 */
+	         dissect_h450_DeactivateDiversionQArg(argument_tvb, 0, pinfo , tree, hf_h4503DeactivateDiversionQArg);
+		     break;
+		  case InterrogateDiversionQ:       /* Localvalue 17 */
+	         dissect_h450_InterrogateDiversionQ(argument_tvb, 0, pinfo , tree, hf_h4503InterrogateDiversionQ);
+		     break;
+		  case CheckRestriction:            /* Localvalue 18 */
+	         dissect_h450_CheckRestrictionArg(argument_tvb, 0, pinfo , tree, hf_h4503CheckRestrictionArg);
+		     break;
+		  case CallRerouting:               /* Localvalue 19 */
+	         dissect_h450_CallReroutingArg(argument_tvb, 0, pinfo , tree, hf_h4503CallReroutingArg);
+		     break;
+		  case DivertingLegInformation1:    /* Localvalue 20 */
+	         dissect_h450_DivertingLegInformation1Arg(argument_tvb, 0, pinfo , tree, hf_h4503DivertingLegInformation1Arg);
+		     break;
+		  case DivertingLegInformation2:   /* Localvalue 21 */
+	         dissect_h450_DivertingLegInformation2Arg(argument_tvb, 0, pinfo , tree, hf_h4503DivertingLegInformation2Arg);
+		     break;
+		  case DivertingLegInformation3:   /* Localvalue 22 */
+	         dissect_h450_DivertingLegInformation3Arg(argument_tvb, 0, pinfo , tree, hf_h4503DivertingLegInformation3Arg);
+		     break;
+		  case DivertingLegInformation4:    /* Localvalue 100 */
+	         dissect_h450_DivertingLegInformation4Arg(argument_tvb, 0, pinfo , tree, hf_h4503DivertingLegInformation4Arg);
+		     break;
+		  case CfnrDivertedLegFailed:       /* Localvalue 23 */
+	         dissect_h450_CfnrDivertedLegFailedArg(argument_tvb, 0, pinfo , tree, hf_h4503CfnrDivertedLegFailedArg);
+		     break;
+		  /* H.450.4 Call Hold */
 	      case HoldNotific:				/* Localvalue 101 */
 			   dissect_h450_HoldNotificArg(argument_tvb, 0, pinfo , tree, hf_h4504_HoldNotificArg);
 		     break;
@@ -731,6 +768,23 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	      case RemoteRetrieve:			/* Localvalue 104 */
 			   dissect_h450_RemoteRetrieveArg(argument_tvb, 0, pinfo , tree, hf_h4504_RemoteRetrieveArg);
 		     break;
+
+/* H.450.5 Call Park and Pickup constants */
+		  case CpRequest:                   /* Localvalue 106 */
+		  case CpSetup:                     /* Localvalue 107 */
+		  case GroupIndicationOn:           /* Localvalue 108 */
+		  case GroupIndicationOff:          /* Localvalue 109 */
+		  case Pickrequ:                    /* Localvalue 110 */
+		  case Pickup:                      /* Localvalue 111 */
+		  case PickExe:                     /* Localvalue 112 */
+		  case CpNotify:                    /* Localvalue 113 */
+		  case CpickupNotify:               /* Localvalue 114 */
+
+/* H.450.6 Call Waiting constants */
+		  case CallWaiting:                 /* Localvalue 105 */
+PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
+	         break;
+
 		  /* H.450.7 Message Waiting Indication  */
 		  case MWIActivate:				/* Localvalue 80 */
 			   dissect_h450_MWIActivateArg(argument_tvb, 0, pinfo , tree, hf_h4507_MWIActivateArg);
@@ -742,19 +796,47 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 			   dissect_h450_MWIInterrogateArg(argument_tvb, 0, pinfo , tree, hf_h4507_MWIInterrogateArg);
 		     break;
 
-		  /* H.450.8 */
+		  /* H.450.8 Name Identification */
 		  case NIcallingName:			/* Localvalue 0 */
-			  dissect_h450_CallingName(argument_tvb, 0, pinfo , tree, hf_h4508_CallingNameArg);
+			  dissect_h450_NameArg(argument_tvb, 0, pinfo , tree, hf_h4508_CallingNameArg);
 			  break;
 		  case NIalertingName:			/* Localvalue 1 */
-			  dissect_h450_AlertingName(argument_tvb, 0, pinfo , tree, hf_h4508_AlertingNameArg);
+			  dissect_h450_NameArg(argument_tvb, 0, pinfo , tree, hf_h4508_AlertingNameArg);
 			  break;
 		  case NIconnectedName:			/* Localvalue 2 */
-			  dissect_h450_ConnectedName(argument_tvb, 0, pinfo , tree, hf_h4508_ConnectedNameArg);
+			  dissect_h450_NameArg(argument_tvb, 0, pinfo , tree, hf_h4508_ConnectedNameArg);
 			  break;
 		  case NIbusyName:			/* Localvalue 3 */
-			  dissect_h450_BusyName(argument_tvb, 0, pinfo , tree, hf_h4508_BusyNameArg);
+			  dissect_h450_NameArg(argument_tvb, 0, pinfo , tree, hf_h4508_BusyNameArg);
 			  break;
+
+/* H.450.9 Call Completion constants */
+		  case CCBSRequest:                 /* Localvalue 40 */
+		  case CCNRRequest:                 /* Localvalue 27 */
+		  case CCCancel:                    /* Localvalue 28 */
+		  case CCExecPossible:              /* Localvalue 29 */
+		  case CCRingout:                   /* Localvalue 31 */
+		  case CCSuspend:                   /* Localvalue 32 */
+		  case CCResume:                    /* Localvalue 33 */ 
+
+/* H.450.10 Call Offer constants */
+		  case CallOfferRequest:            /* Localvalue 34 */
+		  case RemoteUserAlerting:          /* Localvalue 115 */
+		  case CFBOverride:                 /* Localvalue 49  */
+
+/* H.450.11 Call Intrusion constants */
+		  case CallIntrusionRequest:        /* Localvalue 43 */
+		  case CallIntrusionGetCIPL:        /* Localvalue 44 */
+		  case CallIntrusionIsolate:        /* Localvalue 45 */
+		  case CallIntrusionForcedRelease:  /* Localvalue 46 */
+		  case CallIntrusionWOBRequest:     /* Localvalue 47 */
+		  case CallIntrusionSilentMonitor:  /* Localvalue 116 */
+		  case CallIntrusionNotification:   /* Localvalue 117 */
+
+/* H.450.12 Common Information Operations constants */
+		  case CmnRequest:					/* Localvalue 84 */
+		  case CmnInform:					/* Localvalue 85 */
+
 	      /* TODO - decode other H.450.x invoke arguments here */
 	     default:
 PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
@@ -882,6 +964,37 @@ void proto_register_h450(void) {
    { &hf_h4502_SubaddressTransferArg,
       { "SubaddressTransferArg", "h4502.SubaddressTransferArg", FT_NONE, BASE_NONE,
       NULL, 0, "SubaddressTransferArg sequence of", HFILL }},
+
+   { &hf_h4503ActivateDiversionQArg,
+      { "ActivateDiversionQArg", "h4503.ActivateDiversionQArg", FT_NONE, BASE_NONE,
+      NULL, 0, "ActivateDiversionQArg sequence of", HFILL }},
+   { &hf_h4503DeactivateDiversionQArg,
+      { "DeactivateDiversionQArg", "h4503.DeactivateDiversionQArg", FT_NONE, BASE_NONE,
+      NULL, 0, "ActivateDiversionQArg sequence of", HFILL }},
+   { &hf_h4503InterrogateDiversionQ,
+      { "InterrogateDiversionQ", "h4503.InterrogateDiversionQ", FT_NONE, BASE_NONE,
+      NULL, 0, "InterrogateDiversionQ sequence of", HFILL }},
+   { &hf_h4503CheckRestrictionArg,
+      { "CheckRestrictionArg", "h4503.CheckRestrictionArg", FT_NONE, BASE_NONE,
+      NULL, 0, "CheckRestrictionArg sequence of", HFILL }},
+   { &hf_h4503CallReroutingArg,
+      { "CallReroutingArg", "h4503.CallReroutingArg", FT_NONE, BASE_NONE,
+      NULL, 0, "ActivateDiversionQArg sequence of", HFILL }},
+   { &hf_h4503DivertingLegInformation1Arg,
+      { "DivertingLegInformation1Arg", "h4503.DivertingLegInformation1Arg", FT_NONE, BASE_NONE,
+      NULL, 0, "DivertingLegInformation1Arg sequence of", HFILL }},
+   { &hf_h4503DivertingLegInformation2Arg,
+      { "DivertingLegInformation2Arg", "h4503.DivertingLegInformation2Arg", FT_NONE, BASE_NONE,
+      NULL, 0, "DivertingLegInformation1Arg sequence of", HFILL }},
+   { &hf_h4503DivertingLegInformation3Arg,
+      { "DivertingLegInformation3Arg", "h4503.DivertingLegInformation3Arg", FT_NONE, BASE_NONE,
+      NULL, 0, "DivertingLegInformation1Arg sequence of", HFILL }},
+   { &hf_h4503DivertingLegInformation4Arg,
+      { "DivertingLegInformation4Arg", "h4503.DivertingLegInformation4Arg", FT_NONE, BASE_NONE,
+      NULL, 0, "DivertingLegInformation4Arg sequence of", HFILL }},
+   { &hf_h4503CfnrDivertedLegFailedArg,
+      { "CfnrDivertedLegFailedArg", "h4503.CfnrDivertedLegFailedArg", FT_NONE, BASE_NONE,
+      NULL, 0, "ActivateDiversionQArg sequence of", HFILL }},
 
    { &hf_h4504_HoldNotificArg,
       { "HoldNotificArg", "h4504.HoldNotificArg", FT_NONE, BASE_NONE,
