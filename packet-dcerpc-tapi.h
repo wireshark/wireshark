@@ -2,7 +2,7 @@
  * Routines for DCERPC TAPI packet disassembly
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-tapi.h,v 1.2 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-dcerpc-tapi.h,v 1.3 2003/10/22 01:55:04 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,8 +26,8 @@
 #ifndef __PACKET_DCERPC_TAPI_H
 #define __PACKET_DCERPC_TAPI_H
 
-#define TAPI_UNKNOWN_00		0x00
-#define TAPI_UNKNOWN_01		0x01
-#define TAPI_UNKNOWN_02		0x02
+#define TAPI_CLIENT_ATTACH	0x00
+#define TAPI_CLIENT_REQUEST	0x01
+#define TAPI_CLIENT_DETACH	0x02
 
 #endif

@@ -2,7 +2,7 @@
  * Routines for DCERPC TAPI packet disassembly
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-tapi.c,v 1.7 2003/08/04 02:48:59 tpot Exp $
+ * $Id: packet-dcerpc-tapi.c,v 1.8 2003/10/22 01:55:04 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@ static e_uuid_t uuid_dcerpc_tapi = {
 static guint16 ver_dcerpc_tapi = 1;
 
 /*
-  IDL   long Function_00(
+  IDL   long ClientAttach(
   IDL         [out] [context_handle] void *element_1,
   IDL         [in] long element_2,
   IDL         [out] long element_3,
@@ -71,7 +71,7 @@ static guint16 ver_dcerpc_tapi = 1;
   IDL   );
 */
 static int
-dissect_tapi_UNKNOWN_00_rqst(tvbuff_t *tvb, int offset,
+dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -89,7 +89,7 @@ dissect_tapi_UNKNOWN_00_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_tapi_UNKNOWN_00_reply(tvbuff_t *tvb, int offset,
+dissect_tapi_client_attach_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -106,7 +106,7 @@ dissect_tapi_UNKNOWN_00_reply(tvbuff_t *tvb, int offset,
 }
 
 /*
-  IDL   long Function_01(
+  IDL   long ClientRequest(
   IDL         [in] [context_handle] void *element_6,
   IDL     [in,out] [size_is(element_8)] [length_is(???)] char element_7[*],
   IDL         [in] long element_8
@@ -135,7 +135,7 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_tapi_UNKNOWN_01_rqst(tvbuff_t *tvb, int offset,
+dissect_tapi_client_request_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -152,7 +152,7 @@ dissect_tapi_UNKNOWN_01_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_tapi_UNKNOWN_01_reply(tvbuff_t *tvb, int offset,
+dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -164,19 +164,19 @@ dissect_tapi_UNKNOWN_01_reply(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL   void Function_02(
+  IDL   void ClientDetach(
   IDL         void
   IDL   );
 */
 static int
-dissect_tapi_UNKNOWN_02_rqst(tvbuff_t *tvb _U_, int offset _U_,
+dissect_tapi_client_detach_rqst(tvbuff_t *tvb _U_, int offset _U_,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
 			char *drep _U_)
 {
 	return offset;
 }
 static int
-dissect_tapi_UNKNOWN_02_reply(tvbuff_t *tvb _U_, int offset _U_,
+dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, int offset _U_,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
 			char *drep _U_)
 {
@@ -187,15 +187,15 @@ dissect_tapi_UNKNOWN_02_reply(tvbuff_t *tvb _U_, int offset _U_,
   IDL }
 */
 static dcerpc_sub_dissector dcerpc_tapi_dissectors[] = {
-        { TAPI_UNKNOWN_00, "TAPI_UNKNOWN_00",
-		dissect_tapi_UNKNOWN_00_rqst,
-		dissect_tapi_UNKNOWN_00_reply },
-        { TAPI_UNKNOWN_01, "TAPI_UNKNOWN_01",
-		dissect_tapi_UNKNOWN_01_rqst,
-		dissect_tapi_UNKNOWN_01_reply },
-        { TAPI_UNKNOWN_02, "TAPI_UNKNOWN_02",
-		dissect_tapi_UNKNOWN_02_rqst,
-		dissect_tapi_UNKNOWN_02_reply },
+        { TAPI_CLIENT_ATTACH, "ClientAttach",
+		dissect_tapi_client_attach_rqst,
+		dissect_tapi_client_attach_reply },
+        { TAPI_CLIENT_REQUEST, "ClientRequest",
+		dissect_tapi_client_request_rqst,
+		dissect_tapi_client_request_reply },
+        { TAPI_CLIENT_DETACH, "ClientDetach",
+		dissect_tapi_client_detach_rqst,
+		dissect_tapi_client_detach_reply },
 
         {0, NULL, NULL,  NULL }
 };
