@@ -111,6 +111,13 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     offset += 1;
 
     mdb_size = tvb_get_guint8(tvb, offset) - 19;
+
+    if (mdb_size < 20) {
+      proto_tree_add_text(rdm_tree, tvb, offset, 1, "Invalid MDB size: %d", 
+			mdb_size + 19);
+      return;
+    }
+
     proto_tree_add_item(rdm_tree, hf_rdm_slot_count, tvb,
                         offset, 1, FALSE);
     offset += 1;
@@ -139,6 +146,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                         offset, 1, FALSE);
     offset += 1;
 
+    tvb_ensure_bytes_exist(tvb, offset, mdb_size);
     proto_tree_add_item(rdm_tree, hf_rdm_mdb, tvb,
                         offset, mdb_size, FALSE);
     offset += mdb_size;
