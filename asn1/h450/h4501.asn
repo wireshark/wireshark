@@ -1,0 +1,320 @@
+-- Module H4501-Supplementary-ServiceAPDU-Structure (H.450.1:02/1998)
+H4501-Supplementary-ServiceAPDU-Structure {itu-t recommendation h 450 
+  1 version1(0) h4501-facility-information-structure(2)} DEFINITIONS AUTOMATIC
+TAGS ::=
+BEGIN
+
+IMPORTS
+  AliasAddress, PartyNumber, PresentationIndicator, ScreeningIndicator, NonStandardParameter
+    FROM H323-MESSAGES -- see H.225.0 V2
+      
+  OPERATION, ROS{}, InvokeId
+    FROM Remote-Operations-Apdus {itu-t recommendation h 450 1 version1(0)
+      remote-operations-apdus(11)};
+
+H4501SupplementaryService ::= SEQUENCE {
+  networkFacilityExtension  NetworkFacilityExtension OPTIONAL, -- see 8.1
+  interpretationApdu        InterpretationApdu OPTIONAL, -- see 8.2
+  serviceApdu               ServiceApdus, -- H.450.x supplementary services
+  ...
+}
+
+NetworkFacilityExtension ::= SEQUENCE {
+  sourceEntity              EntityType,
+  sourceEntityAddress       AddressInformation OPTIONAL,
+  destinationEntity         EntityType,
+  destinationEntityAddress  AddressInformation OPTIONAL,
+  ...
+}
+
+EntityType ::= CHOICE {endpoint   NULL,
+                       anyEntity  NULL,
+                       ...
+}
+
+AddressInformation ::= AliasAddress
+
+InterpretationApdu ::= CHOICE {
+  discardAnyUnrecognizedInvokePdu       NULL,
+  clearCallIfAnyInvokePduNotRecognized  NULL,
+  -- this value also applies to Call independent signalling connections 
+  rejectAnyUnrecognizedInvokePdu        NULL,
+  -- this coding is implied by the absence of an interpretation APDU.
+  ...
+}
+
+ServiceApdus ::= CHOICE {
+  rosApdus
+    SEQUENCE OF
+      ROS{{InvokeIdSet}, {OperationSet}, {OperationSet}},
+  -- see 8.3; other alternatives may be defined in future versions
+  ...
+}
+
+
+-- actual values are defined by individual supplementary service specifications 
+-- (e.g. H.450.x or manufacturer specific)
+-- 
+-- END of H4501- Supplementary-ServiceAPDU-Structure
+-- Imported : 
+-- Module Addressing-Data-Elements (H.450.1:02/1998)
+-- Addressing-Data-Elements {itu-t recommendation h 450 1 version1(0)
+--   addressing-data-elements(9)} DEFINITIONS AUTOMATIC TAGS ::=
+PresentedAddressScreened ::= CHOICE {
+  presentationAllowedAddress           AddressScreened,
+  presentationRestricted               NULL,
+  numberNotAvailableDueToInterworking  NULL,
+  presentationRestrictedAddress        AddressScreened,
+  ...
+}
+
+PresentedAddressUnscreened ::= CHOICE {
+  presentationAllowedAddress           Address,
+  presentationRestricted               NULL,
+  numberNotAvailableDueToInterworking  NULL,
+  presentationRestrictedAddress        Address,
+  ...
+}
+
+PresentedNumberScreened ::= CHOICE {
+  presentationAllowedAddress           NumberScreened,
+  presentationRestricted               NULL,
+  numberNotAvailableDueToInterworking  NULL,
+  presentationRestrictedAddress        NumberScreened,
+  ...
+}
+
+PresentedNumberUnscreened ::= CHOICE {
+  presentationAllowedAddress           PartyNumber,
+  presentationRestricted               NULL,
+  numberNotAvailableDueToInterworking  NULL,
+  presentationRestrictedAddress        PartyNumber,
+  ...
+}
+
+AddressScreened ::= SEQUENCE {
+  partyNumber         PartyNumber,
+  screeningIndicator  ScreeningIndicator,
+  partySubaddress     PartySubaddress OPTIONAL,
+  ...
+}
+
+NumberScreened ::= SEQUENCE {
+  partyNumber         PartyNumber,
+  screeningIndicator  ScreeningIndicator,
+  ...
+}
+
+Address ::= SEQUENCE {
+  partyNumber      PartyNumber,
+  partySubaddress  PartySubaddress OPTIONAL,
+  ...
+}
+
+-- PartyNumber defined in Recommendation H.225.0
+-- PublicPartyNumber defined in Recommendation H.225.0
+-- PrivatePartyNumber defined in Recommendation H.225.0
+-- NumberDigits defined in Recommendation H.225.0
+-- PublicTypeOfNumber defined in Recommendation H.225.0
+-- PrivateTypeOfNumber defined in Recommendation H.225.0
+-- PresentationIndicator defined in Recommendation H.225.0 (v3 and beyond)
+-- ScreeningIndicator defined in Recommendation H.225.0 (v3 and beyond)
+EndpointAddress ::= SEQUENCE {
+  destinationAddress                              SEQUENCE OF AliasAddress,
+  -- multiple alias addresses may be used to address the same H.323 endpoint
+  remoteExtensionAddress                          AliasAddress OPTIONAL,
+  ...,
+  destinationAddressPresentationIndicator
+    PresentationIndicator OPTIONAL,
+  -- Note 1, 2
+  destinationAddressScreeningIndicator            ScreeningIndicator OPTIONAL,
+  remoteExtensionAddressPresentationIndicator
+    PresentationIndicator OPTIONAL,
+  -- Note 1, 2
+  remoteExtensionAddressScreeningIndicator        ScreeningIndicator OPTIONAL
+}
+
+-- Note 1: If this element is not available, presentation allowed shall be assumed.
+-- Note 2: If an H.450 APDU that carries this element EndpointAddress also
+-- contains an element PresentationAllowedIndicator, then the setting of the
+-- element PresentationAllowedIndicator shall take precedence in case of
+-- conflicting presentation information.
+PartySubaddress ::= CHOICE {
+  userSpecifiedSubaddress  UserSpecifiedSubaddress,
+  -- not recommended.
+  nsapSubaddress           NSAPSubaddress,
+  -- according to Recommendation X.213. 
+  ...
+}
+
+UserSpecifiedSubaddress ::= SEQUENCE {
+  subaddressInformation  SubaddressInformation,
+  oddCountIndicator      BOOLEAN OPTIONAL,
+  -- used when the coding of subaddress is BCD
+  ...
+}
+
+NSAPSubaddress ::= OCTET STRING(SIZE (1..20))
+
+-- specified according to X.213. Some networks may
+-- limit the subaddress value to some other length
+-- e.g. 4 octets
+SubaddressInformation ::= OCTET STRING(SIZE (1..20))
+
+-- coded according to user requirements. Some networks 
+-- may limit the subaddress value to some other length
+-- e.g. 4 octets
+PresentationAllowedIndicator ::= BOOLEAN
+
+--END 
+-- of Addressing-Data-Elements
+-- Module Call-Transfer-Operations (H.450.2:02/1998)
+-- Call-Transfer-Operations {itu-t recommendation h 450 2 version1(0)
+--  call-transfer-operations(0)} DEFINITIONS AUTOMATIC TAGS ::=
+--  Edited for ethereal purposes
+
+CallTransferIdentify ::= OCTET STRING
+
+CallTransferAbandon ::= OCTET STRING
+
+CallTransferInitiate ::= OCTET STRING
+
+CallTransferSetup ::= OCTET STRING
+
+CallTransferUpdate ::= OCTET STRING
+
+SubaddressTransfer ::= OCTET STRING
+
+CallTransferComplete ::= OCTET STRING
+
+CallTransferActive ::= OCTET STRING
+
+DummyArg ::= CHOICE {
+  extensionSeq     ExtensionSeq,
+  nonStandardData  NonStandardParameter
+}
+DummyRes ::= CHOICE {
+  extensionSeq     ExtensionSeq,
+  nonStandardData  NonStandardParameter
+}
+
+CTInitiateArg ::= SEQUENCE {
+  callIdentity       CallIdentity,
+  reroutingNumber    EndpointAddress,
+  argumentExtension  ArgumentExtension OPTIONAL,
+  ...
+}
+ArgumentExtension ::= CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter}
+
+CTSetupArg ::= SEQUENCE {
+  callIdentity        CallIdentity,
+  transferringNumber  EndpointAddress OPTIONAL,
+  argumentExtension   ArgumentExtension OPTIONAL,
+  ...
+}
+
+CTIdentifyRes ::= SEQUENCE {
+  callIdentity     CallIdentity,
+  reroutingNumber  EndpointAddress,
+  resultExtension
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter} OPTIONAL,
+  ...
+}
+
+CTUpdateArg ::= SEQUENCE {
+  redirectionNumber      EndpointAddress,
+  redirectionInfo        BMPString(SIZE (1..128)) OPTIONAL,
+  basicCallInfoElements  H225InformationElement OPTIONAL,
+  -- Information element 
+  -- Progress indicator may be conveyed
+  argumentExtension      ArgumentExtension OPTIONAL,
+  ...
+}
+
+SubaddressTransferArg ::= SEQUENCE {
+  redirectionSubaddress  PartySubaddress,
+  argumentExtension      ArgumentExtension OPTIONAL,
+  ...
+}
+
+CTCompleteArg ::= SEQUENCE {
+  endDesignation         EndDesignation,
+  redirectionNumber      EndpointAddress,
+  -- number of new connected user
+  basicCallInfoElements  H225InformationElement OPTIONAL,
+  -- Information element Progress indicator may be conveyed
+  redirectionInfo        BMPString(SIZE (1..128)) OPTIONAL,
+  callStatus             CallStatus DEFAULT answered,
+  argumentExtension      ArgumentExtension OPTIONAL,
+  ...
+}
+
+EndDesignation ::= ENUMERATED {primaryEnd(0), secondaryEnd(1), ...
+                               }
+
+CallStatus ::= ENUMERATED {answered(0), alerting(1), ...
+                           }
+
+CTActiveArg ::= SEQUENCE {
+  connectedAddress       EndpointAddress,
+  -- number of new connected user
+  basicCallInfoElements  H225InformationElement OPTIONAL,
+  -- Information element Progress indicator may be conveyed
+  connectedInfo          BMPString(SIZE (1..128)) OPTIONAL,
+  argumentExtension      ArgumentExtension OPTIONAL,
+  ...
+}
+
+CallIdentity ::= NumericString(SIZE (0..4))
+-- size 0 means 'empty'
+
+ExtensionSeq ::= SEQUENCE OF Extension{{ExtensionSet}}
+--
+-- Module Manufacturer-specific-service-extension-definition (H.450.1:02/1998)
+-- Manufacturer-specific-service-extension-definition {itu-t recommendation 
+--  h 450 1 version1(0) msi-definition(18)} DEFINITIONS AUTOMATIC TAGS ::=
+-- BEGIN
+-- Is this correct ?
+
+
+-- Actual values defined by individual manufacturers
+Unspecified ::= 
+    CHOICE {extension    Extension,
+            nonStandard  NonStandardParameter}
+
+-- invalidReroutingNumber ERROR ::= {
+  -- used when establishment of the new connection fails
+  -- because the reroutingNumber is not a valid alias address
+--  CODE  local:1004
+-- }
+
+-- UnrecognizedCallIdentity ERROR ::= {
+  -- used when establishment of the new connection fails because it
+  -- could not be associated with a SS-CT entity at the 
+  -- transferred-to endpoint
+--  CODE  local:1005
+--}
+
+--establishmentFailure ERROR ::= {
+  -- used when establishment of the new connection fails and
+  -- no other error applies
+--  CODE  local:1006
+--}
+
+-- END 
+-- of Call-Transfer-Operations
+-- Module H225-generic-parameters-definition (H.450.1:02/1998)
+-- H225-generic-parameters-definition {itu-t recommendation h 450 1 version1(0)
+--  h225-generic-parameters(6)} DEFINITIONS AUTOMATIC TAGS ::=
+
+H225InformationElement ::= OCTET STRING
+
+--END 
+-- of H225 Generic parameters definition
+
+END -- of H4501- Supplementary-ServiceAPDU-Structure 
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

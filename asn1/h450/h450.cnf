@@ -1,0 +1,23 @@
+# h4501.cnf
+# H.4501 conformation file
+# Copyright 2004 Anders Broman 
+# $Id$
+
+#.MODULE_IMPORT
+H323-MESSAGES h225
+Remote-Operations-Apdus ros
+#.END
+
+#.INCLUDE ../h225/h225-exp.cnf
+#----------------------------------------------------------------------------------------
+#.FIELD_RENAME
+
+PresentedAddressScreened/presentationAllowedAddress addressScreened_presentationAllowedAddress
+PresentedNumberScreened/presentationAllowedAddress numberScreened_presentationAllowedAddress
+PresentedNumberUnscreened/presentationAllowedAddress numberUnscreened_presentationAllowedAddress
+PresentedAddressUnscreened/presentationAllowedAddress addressUnscreened_presentationAllowedAddress
+
+PresentedAddressScreened/presentationRestrictedAddress addressScreened_presentationRestrictedAddress
+PresentedNumberScreened/presentationRestrictedAddress numberScreened_presentationRestrictedAddress
+PresentedNumberUnscreened/presentationRestrictedAddress numberUnscreened_presentationRestrictedAddress
+PresentedAddressUnscreened/presentationRestrictedAddress addressUnscreened_presentationRestrictedAddress
