@@ -270,3 +270,6 @@ addr_get_ber_identifier p_get_ber_identifier;
 addr_get_ber_length p_get_ber_length;
 addr_proto_item_get_subtree p_proto_item_get_subtree;
 addr_proto_tree_get_parent p_proto_tree_get_parent;
+addr_proto_item_get_parent p_proto_item_get_parent;
+addr_proto_item_get_parent_nth p_proto_item_get_parent_nth;
+addr_get_ber_last_created_item p_get_ber_last_created_item;

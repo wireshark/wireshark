@@ -270,3 +270,6 @@ p_get_ber_identifier = pat->p_get_ber_identifier;
 p_get_ber_length = pat->p_get_ber_length;
 p_proto_item_get_subtree = pat->p_proto_item_get_subtree;
 p_proto_tree_get_parent = pat->p_proto_tree_get_parent;
+p_proto_item_get_parent = pat->p_proto_item_get_parent;
+p_proto_item_get_parent_nth = pat->p_proto_item_get_parent_nth;
+p_get_ber_last_created_item = pat->p_get_ber_last_created_item;

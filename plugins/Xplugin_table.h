@@ -270,3 +270,6 @@ typedef int (*addr_get_ber_identifier) (tvbuff_t *, int, guint8 *, gboolean *, g
 typedef int (*addr_get_ber_length) (tvbuff_t *, int, guint32 *, gboolean *);
 typedef proto_tree *(*addr_proto_item_get_subtree) (proto_item *);
 typedef proto_item *(*addr_proto_tree_get_parent) (proto_tree *);
+typedef proto_item *(*addr_proto_item_get_parent) (proto_item *);
+typedef proto_item *(*addr_proto_item_get_parent_nth) (proto_item *, int);
+typedef proto_item *(*addr_get_ber_last_created_item) (void);
