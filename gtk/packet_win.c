@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.35 2002/03/05 12:03:26 guy Exp $
+ * $Id: packet_win.c,v 1.36 2002/03/31 23:11:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,12 +150,11 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
   gtk_widget_show(pane);
 
   /* Tree view */
-  create_tree_view(tv_size, &prefs, pane, &tv_scrollw, &tree_view,
-			prefs.gui_scrollbar_on_right);
+  create_tree_view(tv_size, &prefs, pane, &tv_scrollw, &tree_view);
   gtk_widget_show(tree_view);
 
   /* Byte view */
-  bv_nb_ptr = create_byte_view(bv_size, pane, prefs.gui_scrollbar_on_right);
+  bv_nb_ptr = create_byte_view(bv_size, pane);
 
   /* Allocate data structure to represent this window. */
   DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));

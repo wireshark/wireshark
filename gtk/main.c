@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.243 2002/03/12 10:37:04 guy Exp $
+ * $Id: main.c,v 1.244 2002/03/31 23:11:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2272,8 +2272,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   item_style = gtk_style_new();
   gdk_font_unref(item_style->font);
   item_style->font = m_r_font;
-  create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view,
-			prefs->gui_scrollbar_on_right);
+  create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
     GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
@@ -2284,7 +2283,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(tree_view);
 
   /* Byte view. */
-  byte_nb_ptr = create_byte_view(bv_size, l_pane, prefs->gui_scrollbar_on_right);
+  byte_nb_ptr = create_byte_view(bv_size, l_pane);
 
   gtk_signal_connect(GTK_OBJECT(byte_nb_ptr), "button_press_event",
 		     GTK_SIGNAL_FUNC(popup_menu_handler),

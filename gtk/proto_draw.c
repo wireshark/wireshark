@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.48 2002/03/05 12:03:27 guy Exp $
+ * $Id: proto_draw.c,v 1.49 2002/03/31 23:11:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,7 +140,7 @@ redraw_hex_dump(GtkWidget *nb, frame_data *fd, field_info *finfo)
   const guint8 *data;
   guint len;
  
-  bv = get_notebook_bv_ptr(byte_nb_ptr);
+  bv = get_notebook_bv_ptr(nb);
   if (bv != NULL) {
     data = get_byte_view_data_and_length(bv, &len);
     if (data != NULL)
@@ -205,7 +205,7 @@ byte_num(int offset, int start_point)
  * the item in the GUI proto_tree that corresponds to that byte, and
  * select it. */
 static gint
-byte_view_select(GtkWidget *widget, GdkEventButton *event, gpointer data)
+byte_view_select(GtkWidget *widget, GdkEventButton *event)
 {
 	proto_tree	*tree;
 	GtkCTree	*ctree;
@@ -334,7 +334,7 @@ byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 		switch(event_button->button) {
 
 		case 1:
-			return byte_view_select(widget, event_button, data);
+			return byte_view_select(widget, event_button);
 		case 3:
 			return popup_menu_handler(widget, event, data);
 		default:
@@ -346,7 +346,7 @@ byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 }
 
 GtkWidget *
-create_byte_view(gint bv_size, GtkWidget *pane, int pos)
+create_byte_view(gint bv_size, GtkWidget *pane)
 {
   GtkWidget *byte_nb;
 
@@ -802,7 +802,7 @@ set_ptree_font_all(GdkFont *font)
 
 void
 create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
-		GtkWidget **tv_scrollw_p, GtkWidget **tree_view_p, int pos)
+		GtkWidget **tv_scrollw_p, GtkWidget **tree_view_p)
 {
   GtkWidget *tv_scrollw, *tree_view;
 
