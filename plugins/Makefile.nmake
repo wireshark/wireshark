@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.19 2003/06/14 20:35:58 guy Exp $
+# $Id: Makefile.nmake,v 1.20 2003/06/17 04:06:12 guy Exp $
 #
 
 include ..\config.nmake
@@ -68,5 +68,7 @@ clean:
 	cd ../mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../pcli
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../rtnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
