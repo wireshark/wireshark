@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.1 2002/07/09 20:49:27 tpot Exp $
+ * $Id: packet-ntlmssp.c,v 1.2 2002/07/10 02:59:38 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,102 +160,101 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
   }
 
   proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_01, 
-			  tvb, offset, 4, negotiate_flags);  
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_02, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_04, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_08, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_10,
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_20, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_40, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_80, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_100, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_200, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_400, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_800, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_1000,
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_2000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_4000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_8000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_10000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_20000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_40000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_80000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_100000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_200000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_400000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_800000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_1000000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_2000000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_4000000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_8000000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_10000000, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_20000000, 
+			  hf_ntlmssp_negotiate_flags_80000000, 
 			  tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree, 
 			  hf_ntlmssp_negotiate_flags_40000000, 
 			  tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_80000000, 
+			  hf_ntlmssp_negotiate_flags_20000000, 
 			  tvb, offset, 4, negotiate_flags);
-
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_10000000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_8000000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_4000000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_2000000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_1000000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_800000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_400000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_200000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_100000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_80000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_40000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_20000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_10000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_8000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_4000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_2000, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_1000,
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_800, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_400, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_200, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_100, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_80, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_40, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_20, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_10,
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_08, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_04, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_02, 
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree, 
+			  hf_ntlmssp_negotiate_flags_01, 
+			  tvb, offset, 4, negotiate_flags);  
 
   return (offset + 4);
 }

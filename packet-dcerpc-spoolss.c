@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.46 2002/07/09 14:24:39 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.47 2002/07/10 02:59:38 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1496,39 +1496,7 @@ dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	subtree = proto_item_add_subtree(item, ett_job_status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_paused,
-		tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_error,
-		tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_deleting,
-		tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_spooling,
-		tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_printing,
-		tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_offline,
-		tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_paperout,
-		tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_printed,
-		tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_deleted,
+		subtree, hf_spoolss_job_status_user_intervention,
 		tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
@@ -1536,7 +1504,39 @@ dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_user_intervention,
+		subtree, hf_spoolss_job_status_deleted,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_printed,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_paperout,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_offline,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_printing,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_spooling,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_deleting,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_error,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_paused,
 		tvb, offset - 4, 4, status);
 
 	return offset;
@@ -1564,43 +1564,15 @@ dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	subtree = proto_item_add_subtree(item, ett_printer_attributes);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_queued, 
+		subtree, hf_spoolss_printer_attributes_published, 
 		tvb, offset - 4, 4, attributes);
 	
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_direct, 
+		subtree, hf_spoolss_printer_attributes_raw_only, 
 		tvb, offset - 4, 4, attributes);
-	
+
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_default, 
-		tvb, offset - 4, 4, attributes);
-	
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_shared, 
-		tvb, offset - 4, 4, attributes);
-	
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_network, 
-		tvb, offset - 4, 4, attributes);
-	
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_hidden, 
-		tvb, offset - 4, 4, attributes);
-	
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_local, 
-		tvb, offset - 4, 4, attributes);
-	
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_enable_devq, 
-		tvb, offset - 4, 4, attributes);
-	
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_keep_printed_jobs, 
-		tvb, offset - 4, 4, attributes);
-	
-	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_do_complete_first, 
+		subtree, hf_spoolss_printer_attributes_enable_bidi, 
 		tvb, offset - 4, 4, attributes);
 	
 	proto_tree_add_boolean(
@@ -1608,15 +1580,43 @@ dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset - 4, 4, attributes);
 	
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_enable_bidi, 
+		subtree, hf_spoolss_printer_attributes_do_complete_first, 
 		tvb, offset - 4, 4, attributes);
 	
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_raw_only, 
+		subtree, hf_spoolss_printer_attributes_keep_printed_jobs, 
 		tvb, offset - 4, 4, attributes);
 	
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_printer_attributes_published, 
+		subtree, hf_spoolss_printer_attributes_enable_devq, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_local, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_hidden, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_network, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_shared, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_default, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_direct, 
+		tvb, offset - 4, 4, attributes);
+	
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_printer_attributes_queued, 
 		tvb, offset - 4, 4, attributes);
 	
 	return offset;
@@ -2376,75 +2376,7 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 	flags_subtree = proto_item_add_subtree(flags_item, ett_rffpcnex_flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_printer, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_set_printer, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_printer, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_failed_printer_connection, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_job, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_set_job, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_job, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_write_job, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_form, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_set_form, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_form, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_port, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_configure_port, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_port, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_print_processor, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_print_processor, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_driver, tvb, 
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_set_driver, tvb, 
+		flags_subtree, hf_spoolss_rffpcnex_flags_timeout, tvb, 
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
@@ -2452,7 +2384,77 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_timeout, tvb, 
+		flags_subtree, hf_spoolss_rffpcnex_flags_set_driver, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_add_driver, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, 
+		hf_spoolss_rffpcnex_flags_delete_print_processor, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_add_print_processor, 
+		tvb, offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_delete_port, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_configure_port, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_add_port, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_delete_form, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_set_form, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_add_form, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_write_job, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_delete_job, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_set_job, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_add_job, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, 
+		hf_spoolss_rffpcnex_flags_failed_printer_connection, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_delete_printer, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_set_printer, tvb, 
+		offset - 4, 4, flags);
+
+	proto_tree_add_boolean(
+		flags_subtree, hf_spoolss_rffpcnex_flags_add_printer, tvb, 
 		offset - 4, 4, flags);
 
 	if (flags & PRINTER_CHANGE_PRINTER)
