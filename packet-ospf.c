@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.46 2001/09/14 06:30:42 guy Exp $
+ * $Id: packet-ospf.c,v 1.47 2001/10/27 00:47:26 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -298,7 +298,11 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	length = tvb_length(tvb);
 	/* XXX - include only the length from the OSPF header? */
 	reported_length = tvb_reported_length(tvb);
-	if (!pinfo->fragmented && length >= reported_length
+	if (cksum == 0) {
+		/* No checksum supplied in the packet. */
+		proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
+		    "Packet Checksum: 0x%04x (none)", cksum);
+	} else if (!pinfo->fragmented && length >= reported_length
 		&& length >= ospf_header_length) {
 	    /* The packet isn't part of a fragmented datagram and isn't
 	       truncated, so we can checksum it. */
