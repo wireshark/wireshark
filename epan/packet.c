@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.19 2001/02/01 07:34:30 guy Exp $
+ * $Id: packet.c,v 1.20 2001/02/08 07:06:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2015,6 +2015,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		 * No - just dissect this packet as data.
 		 */
 		dissect_data(tvb, 0, pinfo, tree);
+		return;
 	}
 
 	saved_proto = pinfo->current_proto;
