@@ -888,14 +888,16 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode1, tvb, voff+3, 1, FALSE);
 		/* XXX: use code from packet-dns for return code decoding */
 		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode2, tvb, voff+4, 1, FALSE);
-		if (fqdn_flags & F_FQDN_E) {
-			/* XXX: use code from packet-dns for binary encoded name */
-			proto_tree_add_item(v_tree, hf_bootp_fqdn_name, tvb, voff+5,
-				vlen-3, FALSE);
+		if (vlen > 3) {
+			if (fqdn_flags & F_FQDN_E) {
+				/* XXX: use code from packet-dns for binary encoded name */
+				proto_tree_add_item(v_tree, hf_bootp_fqdn_name,
+				    tvb, voff+5, vlen-3, FALSE);
 
-		} else {
-			proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname, tvb, voff+5,
-				vlen-3, FALSE);
+			} else {
+				proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname,
+				    tvb, voff+5, vlen-3, FALSE);
+			}
 		}
 		break;
 
@@ -2635,22 +2637,22 @@ proto_register_bootp(void)
     { &hf_bootp_fqdn_s,
       { "Server",		"bootp.fqdn.s",		FT_BOOLEAN,
         8,			TFS(&tfs_fqdn_s),	F_FQDN_S,
-      	"Server should do ddns update", HFILL }},
+      	"If true, server should do DDNS update", HFILL }},
 
     { &hf_bootp_fqdn_o,
       { "Server overrides",	"bootp.fqdn.o",		FT_BOOLEAN,
         8,			TFS(&tfs_fqdn_o),	F_FQDN_O,
-      	"Server insists on doing DDNS update", HFILL }},
+      	"If true, server insists on doing DDNS update", HFILL }},
 
     { &hf_bootp_fqdn_e,
-      { "Binary encoding",	"bootp.fqdn.e",		FT_BOOLEAN,
+      { "Encoding",	"bootp.fqdn.e",		FT_BOOLEAN,
         8,			TFS(&tfs_fqdn_e),	F_FQDN_E,
-      	"Name is binary encoded", HFILL }},
+      	"If true, name is binary encoded", HFILL }},
 
     { &hf_bootp_fqdn_n,
-      { "No server ddns",	"bootp.fqdn.n",		FT_BOOLEAN,
+      { "Server DDNS",	"bootp.fqdn.n",		FT_BOOLEAN,
         8,			TFS(&tfs_fqdn_n),	F_FQDN_N,
-      	"Server should not do any DDNS updates", HFILL }},
+      	"If true, server should not do any DDNS updates", HFILL }},
 
     { &hf_bootp_fqdn_mbz,
       { "Reserved flags",	"bootp.fqdn.mbz",	FT_UINT8,
@@ -2670,12 +2672,12 @@ proto_register_bootp(void)
     { &hf_bootp_fqdn_name,
       { "Client name",		"bootp.fqdn.name",	FT_BYTES,
         BASE_NONE,		NULL,			0x0,
-      	"Name to register via ddns", HFILL }},
+      	"Name to register via DDNS", HFILL }},
 
     { &hf_bootp_fqdn_asciiname,
       { "Client name",		"bootp.fqdn.name",	FT_STRING,
         BASE_NONE,		NULL,			0x0,
-      	"Name to register via ddns", HFILL }},
+      	"Name to register via DDNS", HFILL }},
 
     { &hf_bootp_pkt_mtacap_len,
       { "PacketCable MTA Device Capabilities Length",	"bootp.vendor.pktc.mtacap_len",
