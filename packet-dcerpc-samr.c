@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.c,v 1.8 2002/02/08 11:02:03 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.9 2002/02/10 02:23:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,7 +115,6 @@ int hf_nt_str_max_len = -1;
 int hf_nt_string_length = -1;
 int hf_nt_string_size = -1;
 
-
 static gint ett_dcerpc_samr = -1;
 gint ett_nt_unicode_string = -1;	/* used by packet-dcerpc-nt.c*/
 static gint ett_samr_user_dispinfo_1 = -1;
@@ -126,6 +125,8 @@ static e_uuid_t uuid_dcerpc_samr = {
 };
 
 static guint16 ver_dcerpc_samr = 1;
+
+
 
 
 /* functions to dissect a UNICODE_STRING structure, common to many 
@@ -3536,7 +3537,7 @@ proto_register_dcerpc_samr(void)
 		NULL, 0x0, "Index", HFILL }},
 
 	{ &hf_samr_acct_ctrl,
-		{ "Acct Ctrl", "samr.acct_ctrl", FT_UINT32, BASE_DEC, 
+		{ "Acct Ctrl", "samr.acct_ctrl", FT_UINT32, BASE_HEX, 
 		NULL, 0x0, "Acct CTRL", HFILL }},
 
         { &hf_samr_count,
