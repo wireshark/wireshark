@@ -2,15 +2,13 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.14 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-rlogin.c,v 1.15 2001/06/08 08:38:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- *
  * Based upon RFC-1282 - BSD Rlogin
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,7 +53,6 @@
 
 #include "packet.h"
 #include "resolv.h"
-#include "globals.h"
 #include "alignment.h"
 #include "conversation.h"
 

@@ -1,12 +1,11 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.102 2001/04/23 17:51:34 guy Exp $
+ * $Id: packet-tcp.c,v 1.103 2001/06/08 08:41:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,7 +43,6 @@
 # include "snprintf.h"
 #endif
 
-#include "globals.h"
 #include "resolv.h"
 #include "ipproto.h"
 #include "follow.h"

@@ -2,12 +2,11 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.19 2001/04/19 23:02:44 guy Exp $
+ * $Id: packet-socks.c,v 1.20 2001/06/08 08:39:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -74,7 +73,6 @@
 
 #include "packet.h"
 #include "resolv.h"
-#include "globals.h"
 #include "alignment.h"
 #include "conversation.h"
 
