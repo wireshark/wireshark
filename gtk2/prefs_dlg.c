@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.3 2002/09/10 19:39:00 oabad Exp $
+ * $Id: prefs_dlg.c,v 1.4 2002/09/14 10:07:39 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -292,7 +292,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(ct_sb);
 
   store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_INT);
-  cts.treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+  cts.treeview = tree_view_new(GTK_TREE_MODEL(store));
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(cts.treeview), FALSE);
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(cts.treeview));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);

@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.4 2002/09/10 20:49:07 oabad Exp $
+ * $Id: filter_prefs.c,v 1.5 2002/09/14 10:07:39 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -458,8 +458,7 @@ filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
     gtk_widget_show(filter_sc);
 
     store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
-    filter_l = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
-    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(filter_l), TRUE);
+    filter_l = tree_view_new(GTK_TREE_MODEL(store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(filter_l), FALSE);
     renderer = gtk_cell_renderer_text_new();
     column = gtk_tree_view_column_new_with_attributes("", renderer, "text",

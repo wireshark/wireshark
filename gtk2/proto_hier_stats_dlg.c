@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.1 2002/08/31 09:55:22 oabad Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.2 2002/09/14 10:07:40 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,9 +138,8 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     store = gtk_tree_store_new(NUM_STAT_COLUMNS, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_UINT, G_TYPE_UINT,
                                G_TYPE_UINT, G_TYPE_UINT);
-    tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+    tree = tree_view_new(GTK_TREE_MODEL(store));
     tree_view = GTK_TREE_VIEW(tree);
-    gtk_tree_view_set_rules_hint(tree_view, TRUE);
     gtk_tree_view_set_headers_visible(tree_view, TRUE);
     gtk_tree_view_set_headers_clickable(tree_view, FALSE);
     renderer = gtk_cell_renderer_text_new();

@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.3 2002/09/10 20:54:14 oabad Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.4 2002/09/14 10:07:39 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -978,7 +978,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_widget_show(tree_scrolled_win);
 
     store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
-    tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+    tree = tree_view_new(GTK_TREE_MODEL(store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_BROWSE);
@@ -1002,7 +1002,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_box_pack_start(GTK_BOX(col2_vb), relation_label, FALSE, FALSE, 0);
 
     l_store = gtk_list_store_new(1, G_TYPE_STRING);
-    relation_list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(l_store));
+    relation_list = tree_view_new(GTK_TREE_MODEL(l_store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(relation_list), FALSE);
     g_object_unref(G_OBJECT(l_store));
     renderer = gtk_cell_renderer_text_new();
@@ -1061,7 +1061,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_widget_show(value_list_scrolled_win);
 
     l_store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
-    value_list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(l_store));
+    value_list = tree_view_new(GTK_TREE_MODEL(l_store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(value_list), FALSE);
     g_object_unref(G_OBJECT(l_store));
     renderer = gtk_cell_renderer_text_new();

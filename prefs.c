@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.89 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: prefs.c,v 1.90 2002/09/14 10:07:37 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -763,6 +763,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.gui_scrollbar_on_right = TRUE;
     prefs.gui_plist_sel_browse = FALSE;
     prefs.gui_ptree_sel_browse = FALSE;
+    prefs.gui_altern_colors = FALSE;
     prefs.gui_ptree_line_style = 0;
     prefs.gui_ptree_expander_style = 1;
     prefs.gui_hex_dump_highlight_style = 1;
@@ -1083,6 +1084,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_SCROLLBAR_ON_RIGHT "gui.scrollbar_on_right"
 #define PRS_GUI_PLIST_SEL_BROWSE "gui.packet_list_sel_browse"
 #define PRS_GUI_PTREE_SEL_BROWSE "gui.protocol_tree_sel_browse"
+#define PRS_GUI_ALTERN_COLORS "gui.tree_view_altern_colors"
 #define PRS_GUI_PTREE_LINE_STYLE "gui.protocol_tree_line_style"
 #define PRS_GUI_PTREE_EXPANDER_STYLE "gui.protocol_tree_expander_style"
 #define PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE "gui.hex_dump_highlight_style"
@@ -1307,6 +1309,13 @@ set_pref(gchar *pref_name, gchar *value)
     }
     else {
 	    prefs.gui_ptree_sel_browse = FALSE;
+    }
+  } else if (strcmp(pref_name, PRS_GUI_ALTERN_COLORS) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+            prefs.gui_altern_colors = TRUE;
+    }
+    else {
+            prefs.gui_altern_colors = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_PTREE_LINE_STYLE) == 0) {
 	  prefs.gui_ptree_line_style =
@@ -1748,9 +1757,13 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_PTREE_SEL_BROWSE ": %s\n",
 		  prefs.gui_ptree_sel_browse == TRUE ? "TRUE" : "FALSE");
 
+  fprintf(pf, "\n# Alternating colors in TreeViews\n");
+  fprintf(pf, PRS_GUI_ALTERN_COLORS ": %s\n",
+		  prefs.gui_altern_colors == TRUE ? "TRUE" : "FALSE");
+
   fprintf(pf, "\n# Protocol-tree line style. One of: NONE, SOLID, DOTTED, TABBED\n");
   fprintf(pf, PRS_GUI_PTREE_LINE_STYLE ": %s\n",
-		  gui_ptree_line_style_text[prefs.gui_ptree_line_style]);
+          gui_ptree_line_style_text[prefs.gui_ptree_line_style]);
 
   fprintf(pf, "\n# Protocol-tree expander style. One of: NONE, SQUARE, TRIANGLE, CIRCULAR\n");
   fprintf(pf, PRS_GUI_PTREE_EXPANDER_STYLE ": %s\n",
@@ -1850,6 +1863,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_scrollbar_on_right = src->gui_scrollbar_on_right;
   dest->gui_plist_sel_browse = src->gui_plist_sel_browse;
   dest->gui_ptree_sel_browse = src->gui_ptree_sel_browse;
+  dest->gui_altern_colors = src->gui_altern_colors;
   dest->gui_ptree_line_style = src->gui_ptree_line_style;
   dest->gui_ptree_expander_style = src->gui_ptree_expander_style;
   dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;

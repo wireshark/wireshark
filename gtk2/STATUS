@@ -62,6 +62,7 @@ Remaining problems :
   settable in GTK+ 2.0's new tree view widget, as the GTK+ developers
   consider them per-user preferences rather than items that should be
   set by individual applications.
+  ==> Done
 
 - double click on item in protocol tree doesn't expand or collapse its
   subtree ;

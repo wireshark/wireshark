@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: plugins_dlg.c,v 1.3 2002/09/14 10:07:39 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@
 
 #include <epan/plugins.h>
 #include "dlg_utils.h"
+#include "ui_util.h"
 
 #ifdef HAVE_PLUGINS
 
@@ -55,7 +56,6 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     GtkWidget    *frame_vbnbox;
     GtkWidget    *main_hbnbox;
     GtkWidget    *close_bn;
-    gchar        *titles[] = {"Name", "Version"};
     GtkListStore *store;
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
@@ -85,8 +85,7 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
     store = gtk_list_store_new(NUM_COLUMNS, G_TYPE_STRING, G_TYPE_STRING);
     plugins_scan(store);
-    plugins_list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
-    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(plugins_list), TRUE);
+    plugins_list = tree_view_new(GTK_TREE_MODEL(store));
     gtk_tree_view_set_search_column(GTK_TREE_VIEW(plugins_list), 0);
     g_object_unref(G_OBJECT(store));
     gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);

@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.3 2002/09/07 18:35:16 oabad Exp $
+ * $Id: decode_as_dlg.c,v 1.4 2002/09/14 10:07:39 oabad Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -419,8 +419,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 	/* Initialize list */
         store = gtk_list_store_new(E_LIST_D_COLUMNS, G_TYPE_STRING,
                                    G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-        list = GTK_TREE_VIEW(gtk_tree_view_new_with_model(GTK_TREE_MODEL(store)));
-        gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list), TRUE);
+        list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), TRUE);
         gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), FALSE);
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(list),
@@ -991,7 +990,7 @@ decode_list_menu_start (GtkWidget *page, GtkTreeView **list_p,
 
     store = gtk_list_store_new(E_LIST_S_COLUMNS+1, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_POINTER);
-    list = GTK_TREE_VIEW(gtk_tree_view_new_with_model(GTK_TREE_MODEL(store)));
+    list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     *list_p = list;
     gtk_tree_view_set_headers_clickable(list, FALSE);
 #ifndef DEBUG

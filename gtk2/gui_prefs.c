@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: gui_prefs.c,v 1.3 2002/09/14 10:07:39 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,8 +59,7 @@ static void fetch_colors(void);
 #define SCROLLBAR_PLACEMENT_KEY		"scrollbar_placement"
 #define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
 #define PTREE_SEL_BROWSE_KEY		"ptree_sel_browse"
-#define PTREE_LINE_STYLE_KEY		"ptree_line_style"
-#define PTREE_EXPANDER_STYLE_KEY	"ptree_expander_style"
+#define ALTERN_COLORS_KEY               "altern_colors"
 #define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 #define GEOMETRY_POSITION_KEY		"geometry_position"
 #define GEOMETRY_SIZE_KEY		"geometry_size"
@@ -84,20 +83,10 @@ static const enum_val_t selection_mode_vals[] = {
 	{ NULL,      0 }
 };
 
-static const enum_val_t line_style_vals[] = {
-	{ "None",   0 },
-	{ "Solid",  1 },
-	{ "Dotted", 2 },
-	{ "Tabbed", 3 },
-	{ NULL,     0 }
-};
-
-static const enum_val_t expander_style_vals[] = {
-	{ "None",     0 },
-	{ "Square",   1 },
-	{ "Triangle", 2 },
-	{ "Circular", 3 },
-	{ NULL,       0 }
+static const enum_val_t altern_colors_vals[] = {
+	{ "No",  FALSE },
+	{ "Yes",  TRUE },
+	{ NULL,      0 }
 };
 
 static const enum_val_t highlight_style_vals[] = {
@@ -128,8 +117,8 @@ gui_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb, *hbox, *font_bt, *color_bt;
 	GtkWidget	*scrollbar_om, *plist_browse_om;
-	GtkWidget	*ptree_browse_om, *line_style_om;
-	GtkWidget	*expander_style_om, *highlight_style_om;
+	GtkWidget	*ptree_browse_om, *altern_colors_om;
+	GtkWidget	*highlight_style_om;
 	GtkWidget	*save_position_cb, *save_size_cb;
 
 	/* The colors or font haven't been changed yet. */
@@ -173,22 +162,15 @@ gui_prefs_show(void)
 	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_SEL_BROWSE_KEY,
 	    ptree_browse_om);
 
-	/* Tree line style */
-	line_style_om = create_preference_option_menu(main_tb, 3,
-	    "Tree line style:", NULL, line_style_vals,
-	    prefs.gui_ptree_line_style);
-	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_LINE_STYLE_KEY,
-	    line_style_om);
-
-	/* Tree expander style */
-	expander_style_om = create_preference_option_menu(main_tb, 4,
-	    "Tree expander style:", NULL, expander_style_vals,
-	    prefs.gui_ptree_expander_style);
-	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_EXPANDER_STYLE_KEY,
-	    expander_style_om);
+	/* Alternating row colors in list and tree views */
+	altern_colors_om = create_preference_option_menu(main_tb, 3,
+	    "Alternating row colors in lists and trees:", NULL,
+            altern_colors_vals, prefs.gui_altern_colors);
+	gtk_object_set_data(GTK_OBJECT(main_vb), ALTERN_COLORS_KEY,
+	    altern_colors_om);
 
 	/* Hex Dump highlight style */
-	highlight_style_om = create_preference_option_menu(main_tb, 5,
+	highlight_style_om = create_preference_option_menu(main_tb, 4,
 	    "Hex display highlight style:", NULL, highlight_style_vals,
 	    prefs.gui_hex_dump_highlight_style);
 	gtk_object_set_data(GTK_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY,
@@ -196,12 +178,12 @@ gui_prefs_show(void)
 
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb,
-	    6, "Save window position:", NULL, prefs.gui_geometry_save_position);
+	    5, "Save window position:", NULL, prefs.gui_geometry_save_position);
 	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_POSITION_KEY,
 	    save_position_cb);
 
 	save_size_cb = create_preference_check_button(main_tb,
-	    7, "Save window size:", NULL, prefs.gui_geometry_save_size);
+	    6, "Save window size:", NULL, prefs.gui_geometry_save_size);
 	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_SIZE_KEY,
 	    save_size_cb);
 
@@ -390,12 +372,9 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_ptree_sel_browse = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), PTREE_SEL_BROWSE_KEY),
 	    selection_mode_vals);
-	prefs.gui_ptree_line_style = fetch_enum_value(
-	    gtk_object_get_data(GTK_OBJECT(w), PTREE_LINE_STYLE_KEY),
-	    line_style_vals);
-	prefs.gui_ptree_expander_style = fetch_enum_value(
-	    gtk_object_get_data(GTK_OBJECT(w), PTREE_EXPANDER_STYLE_KEY),
-	    expander_style_vals);
+	prefs.gui_altern_colors = fetch_enum_value(
+	    gtk_object_get_data(GTK_OBJECT(w), ALTERN_COLORS_KEY),
+	    altern_colors_vals);
 	prefs.gui_hex_dump_highlight_style = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), HEX_DUMP_HIGHLIGHT_STYLE_KEY),
 	    highlight_style_vals);
@@ -451,6 +430,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 	set_scrollbar_placement_all();
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
+        set_tree_view_styles_all();
 	if (colors_changed)
 		update_marked_frames();
 

@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.3 2002/09/07 21:21:56 oabad Exp $
+ * $Id: column_prefs.c,v 1.4 2002/09/14 10:07:39 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,8 @@
 #include "gtkglobals.h"
 #include "prefs.h"
 #include "column.h"
+
+#include "ui_util.h"
 
 static GtkWidget *column_l, *del_bt, *title_te, *fmt_m, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;
@@ -120,8 +122,7 @@ column_prefs_show() {
   gtk_widget_show(column_sc);
 
   store = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
-  column_l = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
-  gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(column_l), TRUE);
+  column_l = tree_view_new(GTK_TREE_MODEL(store));
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(column_l), TRUE);
   gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(column_l), FALSE);
   renderer = gtk_cell_renderer_text_new();

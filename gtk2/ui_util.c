@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.2 2002/09/05 18:48:52 jmayer Exp $
+ * $Id: ui_util.c,v 1.3 2002/09/14 10:07:40 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -200,4 +200,67 @@ void
 set_scrollbar_placement_all(void)
 {
   g_list_foreach(scrolled_windows, set_scrollbar_placement_cb, NULL);
+}
+
+/* List of all GtkTreeViews, so we can globally set the alternating
+ * colors style of all of them. */
+static GList *tree_views;
+
+static void setup_tree_view(GtkWidget *tree_view);
+static void forget_tree_view(GtkWidget *tree_view, gpointer data);
+static void set_tree_view_styles(GtkWidget *tree_view);
+
+/* Create a GtkTreeView, give it the right styles, and remember it. */
+GtkWidget *
+tree_view_new(GtkTreeModel *model)
+{
+  GtkWidget *tree;
+
+  tree = gtk_tree_view_new_with_model(model);
+  setup_tree_view(tree);
+  return tree;
+}
+
+/* Set a GtkTreeView's styles and add it to the list of GtkTreeViews */
+static void
+setup_tree_view(GtkWidget *tree_view)
+{
+  set_tree_view_styles(tree_view);
+
+  tree_views = g_list_append(tree_views, tree_view);
+
+  /* Catch the "destroy" event on the widget, so that we remove it from
+     the list when it's destroyed. */
+  g_signal_connect(G_OBJECT(tree_view), "destroy",
+                   G_CALLBACK(forget_tree_view), NULL);
+}
+
+/* Remove a GtkTreeView from the list of GtkTreeViews. */
+static void
+forget_tree_view(GtkWidget *tree_view, gpointer data _U_)
+{
+  tree_views = g_list_remove(tree_views, tree_view);
+}
+
+/* Set the styles of a GtkCTree based upon user preferences. */
+static void
+set_tree_view_styles(GtkWidget *tree_view)
+{
+  g_assert(prefs.gui_altern_colors >= 0 &&
+           prefs.gui_altern_colors <= 1);
+  gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree_view),
+                               prefs.gui_altern_colors);
+}
+
+static void
+set_tree_view_styles_cb(gpointer data, gpointer user_data _U_)
+{
+  set_tree_view_styles((GtkWidget *)data);
+}
+
+/* Set the styles of all GtkTreeViews based upon style values. */
+void
+set_tree_view_styles_all(void)
+{
+  g_list_foreach(tree_views, set_tree_view_styles_cb, NULL);
 }

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.2 2002/09/05 18:48:52 jmayer Exp $
+ * $Id: proto_draw.c,v 1.3 2002/09/14 10:07:39 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -899,7 +899,7 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   gtk_widget_show(tv_scrollw);
 
   store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
-  tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+  tree_view = tree_view_new(GTK_TREE_MODEL(store));
   g_object_unref(G_OBJECT(store));
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree_view), FALSE);
   renderer = gtk_cell_renderer_text_new();
