@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.19 2003/04/30 23:31:51 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.20 2003/04/30 23:53:42 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,6 +90,7 @@ static int hf_wkssvc_buf_files_deny_write = -1;
 static int hf_wkssvc_buf_read_only_files = -1;
 static int hf_wkssvc_force_core_create_mode = -1;
 static int hf_wkssvc_use_512_byte_max_transfer = -1;
+static int hf_wkssvc_parm_err = -1;
 static gint ett_dcerpc_wkssvc = -1;
 
 extern const value_string platform_id_vals[];
@@ -430,6 +431,49 @@ static int wkssvc_dissect_netwkstagetinfo_reply(tvbuff_t *tvb, int offset,
 }
 
 /*
+ * IDL long NetWkstaSetInfo(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long level,
+ * IDL      [in] [ref] WKS_INFO_UNION *wks,
+ * IDL      [out] long parm_err
+ * IDL );
+ */
+static int wkssvc_dissect_netwkstasetinfo_rqst(tvbuff_t *tvb, int offset,
+					       packet_info *pinfo, 
+					       proto_tree *tree,
+					       char *drep)
+{
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "Server", 
+					      hf_wkssvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_info_level, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_WKS_GETINFO_UNION,
+			NDR_POINTER_REF, "Server Info", -1);
+
+	return offset;
+
+}
+
+static int wkssvc_dissect_netwkstasetinfo_reply(tvbuff_t *tvb, int offset,
+						packet_info *pinfo, 
+						proto_tree *tree,
+						char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_parm_err, 0);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+	hf_wkssvc_rc, NULL);
+
+	return offset;
+
+}
+
+/*
  * IDL typedef struct {
  * IDL   [string] [unique] wchar_t *dev;
  * IDL } USER_INFO_0;
@@ -656,8 +700,8 @@ static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
 	  wkssvc_dissect_netwkstagetinfo_rqst, 
 	  wkssvc_dissect_netwkstagetinfo_reply},
 	{ WKS_NetWkstaSetInfo, "NetWkstaSetInfo",
-	  NULL,
-	  NULL},
+	  wkssvc_dissect_netwkstasetinfo_rqst,
+	  wkssvc_dissect_netwkstasetinfo_reply},
         { WKS_NetWkstaEnumUsers, "NetWkstaEnumUsers",
 	  wkssvc_dissect_netwkstaenumusers_rqst,
  	  wkssvc_dissect_netwkstaenumusers_reply},
@@ -831,6 +875,9 @@ proto_register_dcerpc_wkssvc(void)
 	  { &hf_wkssvc_use_512_byte_max_transfer, 
 	    { "Use 512 Byte Max Transfer", "wkssvc.use.512.byte.max.transfer", FT_INT32,
 	      BASE_DEC, NULL, 0x0, "Use 512 Byte Maximum Transfer", HFILL}},
+	  { &hf_wkssvc_parm_err, 
+	    { "Parameter Error Offset", "wkssvc.parm.err", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Parameter Error Offset", HFILL}},
 	};
         static gint *ett[] = {
                 &ett_dcerpc_wkssvc
