@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.207 2004/06/25 17:33:33 ulfl Exp $
+ * $Id: menu.c,v 1.208 2004/07/07 16:26:52 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -324,6 +324,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
+#if (GLIB_MAJOR_VERSION >= 2)
+    /* currently, glib1.x can't start a webbrowser, see webbrowser.c for details */
     ITEM_FACTORY_ENTRY("/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal", NULL, url_localpage_cb, LOCALPAGE_MAN_ETHEREAL, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Ethereal Filter", NULL, url_localpage_cb, LOCALPAGE_MAN_ETHEREAL_FILTER, NULL, NULL),
@@ -338,6 +340,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/FAQ's", NULL, url_onlinepage_cb, ONLINEPAGE_FAQ, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Downloads", NULL, url_onlinepage_cb, ONLINEPAGE_DOWNLOAD, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Example Files", NULL, url_onlinepage_cb, ONLINEPAGE_SAMPLE, NULL, NULL),
+#endif
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Help/_About Ethereal", NULL, about_ethereal_cb,
                        0, NULL, NULL)
