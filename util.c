@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.19 1999/08/23 05:02:50 guy Exp $
+ * $Id: util.c,v 1.20 1999/09/23 05:20:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -208,7 +208,7 @@ static int
 try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 {
 	static const char suffix[] = "XXXXXXXXXX";
-	int namelen = strlen(namebuf) + strlen(pfx) + sizeof suffix;
+	int namelen = strlen(dir) + strlen(pfx) + sizeof suffix;
 	mode_t old_umask;
 	int tmp_fd;
 
