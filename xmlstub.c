@@ -3,7 +3,7 @@
  * exists so that the library can be loaded on systems that
  * have it.
  *
- * $Id: xmlstub.c,v 1.3 2004/01/18 16:19:15 jmayer Exp $
+ * $Id: xmlstub.c,v 1.4 2004/04/25 10:38:24 etxrab Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <gmodule.h>
+#include <epan/report_err.h>
 
 /* XML Stub routines */
 #define IN_XMLSTUB
@@ -68,7 +69,7 @@ loadLibXML(void)
 	 * under windows?  Perhaps we should check . . .
 	 */
 	if ((handle = g_module_open(XML_LIBRARY, G_MODULE_BIND_LAZY)) == NULL) {
-		g_warning("XMLStub: Unable to open module " XML_LIBRARY);
+		report_failure("XMLStub: Unable to open module " XML_LIBRARY );
 		return (-1);
 	}
 
