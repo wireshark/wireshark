@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.51 2001/09/25 18:27:35 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.52 2001/09/27 10:35:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,8 +139,17 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	save_src = pinfo->src;
 	save_dst = pinfo->dst;
 
-	/* Dissect the contained packet. */
-	call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+	/* Dissect the contained packet.
+	   Catch ReportedBoundsError, and do nothing if we see it,
+	   because it's not an error if the contained packet is short;
+	   there's no guarantee that all of it was included. */
+	TRY {
+	    call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+	}
+	CATCH(ReportedBoundsError) {
+	    ; /* do nothing */
+	}
+	ENDTRY;
 
 	/* Restore the addresses. */
 	pinfo->dl_src = save_dl_src;

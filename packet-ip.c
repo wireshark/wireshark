@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.140 2001/07/20 07:11:56 guy Exp $
+ * $Id: packet-ip.c,v 1.141 2001/09/27 10:35:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,6 +115,8 @@ static gint ett_ip_fragment  = -1;
 
 /* Used by IPv6 as well, so not static */
 dissector_table_t ip_dissector_table;
+
+static dissector_handle_t ip_handle;
 
 static int proto_icmp = -1;
 static int hf_icmp_type = -1;
@@ -814,7 +816,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   iph.ip_off = ntohs(iph.ip_off);
   iph.ip_sum = ntohs(iph.ip_sum);
 
-  /* Length of IP datagram. */
+  /* Length of IP datagram.
+     XXX - what if this is greater than the reported length of the
+     tvbuff?  This could happen, for example, in an IP datagram
+     inside an ICMP datagram; we need to somehow let the
+     dissector we call know that, as it might want to avoid
+     doing its checksumming. */
   len = iph.ip_len;
 
   /* Adjust the length of this tvbuff to include only the IP datagram. */
@@ -1161,6 +1168,13 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
   int        i;
+  address    save_dl_src;
+  address    save_dl_dst;
+  address    save_net_src;
+  address    save_net_dst;
+  address    save_src;
+  address    save_dst;
+  tvbuff_t   *next_tvb;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "ICMP");
@@ -1338,9 +1352,42 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Decode the IP header and first 64 bits of data from the
 	   original datagram.
 
-	   XXX - for now, just display it as data; not all dissection
-	   routines can handle a short packet without exploding. */
-	dissect_data(tvb, 8, pinfo, icmp_tree);
+	   Set the columns non-writable, so that the packet list
+	   shows this as an ICMP packet, not as the type of packet
+	   for which the ICMP packet was generated. */
+	col_set_writable(pinfo->fd, FALSE);
+
+	/* Also, save the current values of the addresses, and restore
+	   them when we're finished dissecting the contained packet, so
+	   that the address columns in the summary don't reflect the
+	   contained packet, but reflect this packet instead. */
+	save_dl_src = pinfo->dl_src;
+	save_dl_dst = pinfo->dl_dst;
+	save_net_src = pinfo->net_src;
+	save_net_dst = pinfo->net_dst;
+	save_src = pinfo->src;
+	save_dst = pinfo->dst;
+
+	/* Dissect the contained packet.
+	   Catch ReportedBoundsError, and do nothing if we see it,
+	   because it's not an error if the contained packet is short;
+	   there's no guarantee that all of it was included. */
+	next_tvb = tvb_new_subset(tvb, 8, -1, -1);
+	TRY {
+	  call_dissector(ip_handle, next_tvb, pinfo, icmp_tree);
+	}
+	CATCH(ReportedBoundsError) {
+	  ; /* do nothing */
+	}
+	ENDTRY;
+
+	/* Restore the addresses. */
+	pinfo->dl_src = save_dl_src;
+	pinfo->dl_dst = save_dl_dst;
+	pinfo->net_src = save_net_src;
+	pinfo->net_dst = save_net_dst;
+	pinfo->src = save_src;
+	pinfo->dst = save_dst;
 	break;
 
       case ICMP_ECHOREPLY:
@@ -1610,5 +1657,10 @@ proto_register_icmp(void)
 void
 proto_reg_handoff_icmp(void)
 {
+  /*
+   * Get handle for the IP dissector.
+   */
+  ip_handle = find_dissector("ip");
+
   dissector_add("ip.proto", IP_PROTO_ICMP, dissect_icmp, proto_icmp);
 }

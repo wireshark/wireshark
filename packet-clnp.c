@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.33 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-clnp.c,v 1.34 2001/09/27 10:35:40 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1593,7 +1593,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   address     save_src;
   address     save_dst;
   fragment_data *fd_head;
-  tvbuff_t   *next_tvb;
+  tvbuff_t   *volatile next_tvb;
   packet_info save_pi;
   gboolean must_restore_pi = FALSE;
   gboolean update_col_info = TRUE;
@@ -2022,11 +2022,20 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           save_src = pinfo->src;
           save_dst = pinfo->dst;
 
-          /* Dissect the contained packet. */
+          /* Dissect the contained packet.
+             Catch ReportedBoundsError, and do nothing if we see it,
+             because it's not an error if the contained packet is short;
+             there's no guarantee that all of it was included. */
           ti = proto_tree_add_text(clnp_tree, tvb, offset, next_length,
             "Discarded PDU");
           discpdu_tree = proto_item_add_subtree(ti, ett_clnp_disc_pdu);
-          dissect_clnp(next_tvb, pinfo, discpdu_tree);
+          TRY {
+            dissect_clnp(next_tvb, pinfo, discpdu_tree);
+          }
+          CATCH(ReportedBoundsError) {
+            ; /* do nothing */
+          }
+          ENDTRY;
 
           /* Restore the addresses. */
           pinfo->dl_src = save_dl_src;
