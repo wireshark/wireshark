@@ -1,8 +1,9 @@
 /* packet-dcerpc-wkssvc.c
  * Routines for SMB \\PIPE\\wkssvc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
+ * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.5 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.6 2003/04/26 00:00:30 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +34,8 @@
 #include "packet-dcerpc-wkssvc.h"
 
 static int proto_dcerpc_wkssvc = -1;
+static int hf_wkssvc_server = -1;
+static int hf_wkssvc_info_level = -1;
 static gint ett_dcerpc_wkssvc = -1;
 
 static e_uuid_t uuid_dcerpc_wkssvc = {
@@ -42,8 +45,41 @@ static e_uuid_t uuid_dcerpc_wkssvc = {
 
 static guint16 ver_dcerpc_wkssvc = 1;
 
+/*
+ * IDL long NetrQueryInfo(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long level,
+ * IDL      [out] [ref] WKS_INFO_UNION *wks
+ * IDL );
+ */
+static int
+wkssvc_dissect_netrqueryinfo_rqst(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep)
+{
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "Server", 
+					      hf_wkssvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_info_level, 0);
+
+	return offset;
+
+}
+
+static int wkssvc_dissect_netrqueryinfo_reply(tvbuff_t *tvb, int offset,
+				      packet_info *pinfo, proto_tree *tree,
+				      char *drep)
+{
+
+  return offset;
+}
+
 static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
-        { WKS_QUERY_INFO, "WKS_QUERY_INFO", NULL, NULL },
+        { WKS_QUERY_INFO, "WKS_QUERY_INFO", 
+	  wkssvc_dissect_netrqueryinfo_rqst, 
+	  wkssvc_dissect_netrqueryinfo_reply},
 
         {0, NULL, NULL,  NULL }
 };
@@ -51,6 +87,14 @@ static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
 void
 proto_register_dcerpc_wkssvc(void)
 {
+        static hf_register_info hf[] = { 
+	  { &hf_wkssvc_server,
+	    { "Server", "wkssvc.server", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "Server Name", HFILL}},
+	  { &hf_wkssvc_info_level,
+	    { "Info Level", "svrsvc.info_level", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Info Level", HFILL}},
+	};
         static gint *ett[] = {
                 &ett_dcerpc_wkssvc
         };
@@ -58,6 +102,7 @@ proto_register_dcerpc_wkssvc(void)
         proto_dcerpc_wkssvc = proto_register_protocol(
                 "Microsoft Workstation Service", "WKSSVC", "wkssvc");
 
+	proto_register_field_array(proto_dcerpc_wkssvc, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 }
 
