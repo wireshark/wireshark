@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.16 1999/10/22 08:11:40 guy Exp $
+ * $Id: packet-atalk.c,v 1.17 1999/10/22 08:18:26 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -76,10 +76,10 @@ typedef struct _e_ddp {
 #define DDP_ADSP	0x07
 #define DDP_HEADER_SIZE 13
 
-extern gchar *
+gchar *
 atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
 {
-  static gchar	str[3][22];
+  static gchar	str[3][14];
   static gchar	*cur;
 
   if (cur == &str[0][0]) {
@@ -90,7 +90,7 @@ atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
     cur = &str[0][0];
   }
 
-  sprintf(cur, "%d.%d:%d", addrp->net, addrp->node, addrp->port);
+  sprintf(cur, "%u.%u:%u", addrp->net, addrp->node, addrp->port);
   return cur;
 }
 
