@@ -1019,6 +1019,14 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd) {
 }
 
 
+#ifndef _WIN32
+static void
+capture_loop_stop_signal_handler(int signo _U_)
+{
+  capture_loop_stop();
+}
+#endif
+
 
 /*
  * This needs to be static, so that the SIGUSR1 handler can clear the "go"
@@ -1075,6 +1083,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #endif
 #ifdef MUST_DO_SELECT
   ld.pcap_fd            = 0;
+#endif
+
+#ifndef _WIN32
+  /*
+   * Catch SIGUSR1, so that we exit cleanly if the parent process
+   * kills us with it due to the user selecting "Capture->Stop".
+   */
+    signal(SIGUSR1, capture_loop_stop_signal_handler);
 #endif
 
   /* We haven't yet gotten the capture statistics. */

@@ -2219,10 +2219,10 @@ main(int argc, char *argv[])
      capture box to let us stop the capture, and run a capture
      to a file that our parent will read? */
   if (capture_child) {
-    /* This is the child process for a sync mode or fork mode capture,
+    /* This is the child process of a capture session,
        so just do the low-level work of a capture - don't create
        a temporary file and fork off *another* child process (so don't
-       call "do_capture()"). */
+       call "capture_start()"). */
 
     /* Pop up any queued-up alert boxes. */
     display_queued_messages();
@@ -2231,7 +2231,7 @@ main(int argc, char *argv[])
        After the capture is done; there's nothing more for us to do. */
 
     /* XXX - hand these stats to the parent process */
-    if(capture_child_start(capture_opts, &stats_known, &stats) == TRUE) {
+    if(capture_loop_start(capture_opts, &stats_known, &stats) == TRUE) {
         /* capture ok */
         gtk_exit(0);
     } else {
@@ -2365,7 +2365,7 @@ main(int argc, char *argv[])
       }
       /* "-k" was specified; start a capture. */
       show_main_window(TRUE);
-      if (do_capture(capture_opts)) {
+      if (capture_start(capture_opts)) {
         /* The capture started.  Open tap windows; we do so after creating
            the main window, to avoid GTK warnings, and after starting the
            capture, so we know we have something to tap. */

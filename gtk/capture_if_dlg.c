@@ -117,7 +117,7 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
     g_free(capture_opts->save_file);
   capture_opts->save_file = NULL;
 
-  do_capture(capture_opts);
+  capture_start(capture_opts);
 }
 
 

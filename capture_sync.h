@@ -27,21 +27,19 @@
  *  
  *  Sync mode capture (internal interface).
  *
- *  Will start a new Ethereal instance which will do the actual capture work.
- *  This is only used, if the "Update list of packets in real time" option is 
- *  used.
+ *  Will start a new Ethereal child instance which will do the actual capture work.
  */
 
 #ifndef __CAPTURE_SYNC_H__
 #define __CAPTURE_SYNC_H__
 
 /** 
- * Start a new synced capture session.
+ * Start a new capture session.
  *  Create a capture child which is doing the real capture work.
  *
  *  Most of the parameters are passed through the global capture_opts.
  *
- *  @param capture_opts the options (formerly global)
+ *  @param capture_opts the options
  *  @param is_tempfile  TRUE if the current cfile is a tempfile
  *  @return             TRUE if a capture could be started, FALSE if not
  */
@@ -52,7 +50,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile);
 extern void
 sync_pipe_stop(capture_options *capture_opts);
 
-/** We want to stop the program, just kill the child as soon as possible */
+/** User wants to stop the program, just kill the child as soon as possible */
 extern void
 sync_pipe_kill(capture_options *capture_opts);
 
@@ -61,6 +59,10 @@ sync_pipe_kill(capture_options *capture_opts);
 extern void
 sync_pipe_capstart_to_parent(void);
 
+/** the child has opened a new capture file, notify the parent */
+extern void
+sync_pipe_filename_to_parent(const char *filename);
+
 /** the child captured some new packets, notify the parent */
 extern void
 sync_pipe_packet_count_to_parent(int packet_count);
@@ -68,10 +70,6 @@ sync_pipe_packet_count_to_parent(int packet_count);
 /** the child stopped capturing, notify the parent */
 extern void
 sync_pipe_drops_to_parent(int drops);
-
-/** the child has opened a new capture file, notify the parent */
-extern void
-sync_pipe_filename_to_parent(const char *filename);
 
 /** the child encountered an error, notify the parent */
 extern void 

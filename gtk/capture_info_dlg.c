@@ -75,7 +75,7 @@ pct(gint num, gint denom) {
 
 static void
 capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_) {
-  capture_child_stop(capture_opts);
+  capture_loop_stop();
 }
 
 

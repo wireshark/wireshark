@@ -93,13 +93,18 @@ extern void
 capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt, const char *optarg, gboolean *start_capture);
 
 /** 
- * Open a specified file, or create a temporary file, and start a capture
- * to the file in question.  
+ * Start a capture session.
  *
  * @param capture_opts the numerous capture options
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
-extern gboolean do_capture(capture_options *capture_opts);
+extern gboolean capture_start(capture_options *capture_opts);
+
+/** Stop a capture session (usually from a menu item). */
+extern void capture_stop(capture_options *capture_opts);
+
+/** Terminate the capture child cleanly when exiting. */
+extern void capture_kill_child(capture_options *capture_opts);
 
 /**
  * Capture child told us, we have a new (or the first) capture file.
@@ -116,26 +121,13 @@ extern void capture_input_new_packets(capture_options *capture_opts, int to_read
  */
 extern void capture_input_closed(capture_options *capture_opts);
 
-/** Stop a capture (usually from a menu item). */
-extern void capture_stop(capture_options *capture_opts);
-
-/** Terminate the capture child cleanly when exiting. */
-extern void capture_kill_child(capture_options *capture_opts);
-
 
 
 /** Do the low-level work of a capture (start the capture child).
  *  Returns TRUE if it succeeds, FALSE otherwise. */
-extern int  capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
-
-/** Stop a capture child (usually from a menu item). */
-extern void capture_child_stop(capture_options *capture_opts);
-
-/** Do the low-level work of a capture.
- *  Returns TRUE if it succeeds, FALSE otherwise. */
 extern int  capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
 
-/** Stop a low-level capture. */
+/** Stop a low-level capture (stops the capture child). */
 extern void capture_loop_stop(void);
 
 

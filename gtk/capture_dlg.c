@@ -1470,7 +1470,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 
   window_destroy(GTK_WIDGET(parent_w));
 
-  if (do_capture(capture_opts)) {
+  if (capture_start(capture_opts)) {
     /* The capture succeeded, which means the capture filter syntax is
        valid; add this capture filter to the recent capture filter list. */
     cfilter_combo_add_recent(capture_opts->cfilter);

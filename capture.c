@@ -1,5 +1,5 @@
 /* capture.c
- * Routines for packet capture windows
+ * Routines for packet capture
  *
  * $Id$
  *
@@ -67,14 +67,14 @@
 #include "ui_util.h"
 
 
-static void stop_capture_signal_handler(int signo);
 
-
-
-/* start a capture */
-/* Returns TRUE if the capture starts successfully, FALSE otherwise. */
+/** 
+ * Start a capture.
+ *
+ * @return TRUE if the capture starts successfully, FALSE otherwise.
+ */
 gboolean
-do_capture(capture_options *capture_opts)
+capture_start(capture_options *capture_opts)
 {
   gboolean ret;
 
@@ -99,7 +99,7 @@ do_capture(capture_options *capture_opts)
 }
 
 
-/* we've succeeded a capture, try to read it into a new capture file */
+/* We've succeeded a (non real-time) capture, try to read it into a new capture file */
 static gboolean
 capture_input_read_all(capture_options *capture_opts, gboolean is_tempfile, gboolean drops_known,
 guint32 drops)
@@ -107,7 +107,7 @@ guint32 drops)
     int err;
 
 
-    /* Capture succeeded; attempt to read in the capture file. */
+    /* Capture succeeded; attempt to open the capture file. */
     if (cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
       /* We're not doing a capture any more, so we don't have a save
 	 file. */
@@ -149,6 +149,8 @@ guint32 drops)
          supplies, allowing us to display only the ones it does. */
       cf_set_drops(capture_opts->cf, drops);
     }
+
+    /* read in the packet data */
     switch (cf_read(capture_opts->cf)) {
 
     case CF_READ_OK:
@@ -159,8 +161,8 @@ guint32 drops)
       break;
 
     case CF_READ_ABORTED:
-      /* Exit by leaving the main loop, so that any quit functions
-         we registered get called. */
+      /* User wants to quit program. Exit by leaving the main loop, 
+         so that any quit functions we registered get called. */
       main_window_nested_quit();
       return FALSE;
     }
@@ -188,7 +190,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 
       /*g_warning("New capture file: %s", new_file);*/
 
-      /* save the new filename */
+      /* free the old filename */
       if(capture_opts->save_file != NULL) {
         /* we start a new capture file, simply close the old one */
         /* XXX - is it enough to call cf_close here? */
@@ -201,18 +203,19 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
         is_tempfile = TRUE;
         cf_set_tempfile(capture_opts->cf, TRUE);
       }
+
+      /* save the new filename */
       capture_opts->save_file = g_strdup(new_file);
 
-      /* if we are in real-time mode, open the new file */
+      /* if we are in real-time mode, open the new file now */
     if(capture_opts->real_time_mode) {
-        /* The child process started a capture.
-           Attempt to open the capture file and set up to read it. */
+        /* Attempt to open the capture file and set up to read from it. */
         switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
         case CF_OK:
             break;
         case CF_ERROR:
-            /* Don't unlink the save file - leave it around, for debugging
-            purposes. */
+            /* Don't unlink (delete) the save file - leave it around, 
+               for debugging purposes. */
             g_free(capture_opts->save_file);
             capture_opts->save_file = NULL;
             return FALSE;
@@ -302,40 +305,10 @@ capture_input_closed(capture_options *capture_opts)
 }
 
 
-#ifndef _WIN32
-static void
-capture_child_stop_signal_handler(int signo _U_)
-{
-  capture_loop_stop();
-}
-#endif
-
-
-int  
-capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
-{
-#ifndef _WIN32
-  /*
-   * Catch SIGUSR1, so that we exit cleanly if the parent process
-   * kills us with it due to the user selecting "Capture->Stop".
-   */
-    signal(SIGUSR1, capture_child_stop_signal_handler);
-#endif
-
-  return capture_loop_start(capture_opts, stats_known, stats);
-}
-
-void
-capture_child_stop(capture_options *capture_opts)
-{
-  /* stop the capture loop */
-  capture_loop_stop();
-}
-
 void
 capture_stop(capture_options *capture_opts)
 {
-  /* stop the capture child, if we have one */
+  /* stop the capture child gracefully, if we have one */
   sync_pipe_stop(capture_opts);
 }
 
