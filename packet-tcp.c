@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.75 2000/05/31 05:07:49 guy Exp $
+ * $Id: packet-tcp.c,v 1.76 2000/07/13 14:16:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include "globals.h"
 #include "resolv.h"
 #include "follow.h"
+#include "prefs.h"
 
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
@@ -55,6 +56,9 @@
 
 #include "packet-ip.h"
 #include "packet-rpc.h"
+
+/* Place TCP summary in proto tree */
+gboolean g_tcp_summary_in_tree = TRUE;
 
 extern FILE* data_out_file;
 
@@ -474,7 +478,12 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_tcp, NullTVB, offset, hlen, "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u", get_tcp_port(th.th_sport), th.th_sport, get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
+    if (g_tcp_summary_in_tree) {
+	    ti = proto_tree_add_protocol_format(tree, proto_tcp, NullTVB, offset, hlen, "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u", get_tcp_port(th.th_sport), th.th_sport, get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
+    }
+    else {
+	    ti = proto_tree_add_item(tree, proto_tcp, NullTVB, offset, hlen, FALSE);
+    }
     tcp_tree = proto_item_add_subtree(ti, ett_tcp);
     proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, NullTVB, offset, 2, th.th_sport,
 	"Source port: %s (%u)", get_tcp_port(th.th_sport), th.th_sport);
@@ -617,14 +626,22 @@ proto_register_tcp(void)
 		&ett_tcp_options,
 		&ett_tcp_option_sack,
 	};
+	module_t *tcp_module;
 
 	proto_tcp = proto_register_protocol ("Transmission Control Protocol", "tcp");
 	proto_register_field_array(proto_tcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-/* subdissector code */
+	/* subdissector code */
 	subdissector_table = register_dissector_table("tcp.port");
 	register_heur_dissector_list("tcp", &heur_subdissector_list);
+
+	/* Register a configuration preferences */
+	tcp_module = prefs_register_module("tcp", "TCP", NULL);
+	prefs_register_bool_preference(tcp_module, "tcp_summary_in_tree",
+	    "Show TCP summary in protocol tree",
+"Whether the TCP summary line should be shown in the protocol tree",
+	    &g_tcp_summary_in_tree);
 }
 
 void
