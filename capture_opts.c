@@ -85,6 +85,39 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->fork_child              = -1;               /* invalid process handle */
 }
 
+
+/* debug only: print content of capture_opts to console */
+void
+capture_opts_info(capture_options *capture_opts) {
+    g_warning("CAPTURE OPTIONS    :");
+    g_warning("File               : %s", capture_opts->cf);
+    g_warning("Filter             : %s", capture_opts->cfilter);
+    g_warning("Interface          : %s", capture_opts->iface);
+#ifdef _WIN32
+    g_warning("BufferSize         : %u (MB)", capture_opts->buffer_size);
+#endif
+    g_warning("SnapLen         (%u): %u", capture_opts->has_snaplen, capture_opts->snaplen);
+    g_warning("Promisc            : %u", capture_opts->promisc_mode);
+    g_warning("LinkType           : %d", capture_opts->linktype);
+    g_warning("Child              : %u", capture_opts->capture_child);
+    g_warning("SaveFile           : %s", capture_opts->save_file);
+    g_warning("SaveFileFd         : %d", capture_opts->save_file_fd);
+    g_warning("SyncMode           : %u", capture_opts->sync_mode);
+    g_warning("ShowInfo           : %u", capture_opts->show_info);
+    g_warning("QuitAfterCap       : %u", capture_opts->quit_after_cap);
+
+    g_warning("MultiFilesOn       : %u", capture_opts->multi_files_on);
+    g_warning("FileDuration    (%u): %u", capture_opts->has_file_duration, capture_opts->file_duration);
+    g_warning("RingNumFiles    (%u): %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
+
+    g_warning("AutostopFiles   (%u): %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
+    g_warning("AutostopPackets (%u): %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
+    g_warning("AutostopFilesize(%u): %u", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
+    g_warning("AutostopDuration(%u): %u", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
+
+    g_warning("ForkChild          : %d", capture_opts->fork_child);
+}
+
 /*
  * Given a string of the form "<autostop criterion>:<value>", as might appear
  * as an argument to a "-a" option, parse it and set the criterion in
@@ -148,17 +181,11 @@ get_ring_arguments(capture_options *capture_opts, const char *appname, const cha
   gchar *p = NULL, *colonp;
 
   colonp = strchr(arg, ':');
-
-  if (colonp != NULL) {
-    p = colonp;
-    *p++ = '\0';
-  }
-
-  capture_opts->ring_num_files = 
-    get_natural_int(appname, arg, "number of ring buffer files");
-
   if (colonp == NULL)
     return TRUE;
+
+  p = colonp;
+  *p++ = '\0';
 
   /*
    * Skip over any white space (there probably won't be any, but
@@ -177,9 +204,16 @@ get_ring_arguments(capture_options *capture_opts, const char *appname, const cha
     return FALSE;
   }
 
-  capture_opts->has_file_duration = TRUE;
-  capture_opts->file_duration = get_positive_int(appname, p,
-						      "ring buffer duration");
+  if (strcmp(arg,"files") == 0) {
+    capture_opts->has_ring_num_files = TRUE;
+    capture_opts->ring_num_files = get_natural_int(appname, p, "number of ring buffer files");
+  } else if (strcmp(arg,"filesize") == 0) {
+    capture_opts->has_autostop_filesize = TRUE;
+    capture_opts->autostop_filesize = get_positive_int(appname, p, "ring buffer filesize");
+  } else if (strcmp(arg,"duration") == 0) {
+    capture_opts->has_file_duration = TRUE;
+    capture_opts->file_duration = get_positive_int(appname, p, "ring buffer duration");
+  }
 
   *colonp = ':';	/* put the colon back */
   return TRUE;
@@ -202,7 +236,6 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
         break;
     case 'b':        /* Ringbuffer option */
         capture_opts->multi_files_on = TRUE;
-        capture_opts->has_ring_num_files = TRUE;
         if (get_ring_arguments(capture_opts, appname, optarg) == FALSE) {
           fprintf(stderr, "%s: Invalid or unknown -b arg \"%s\"\n", appname, optarg);
           exit(1);

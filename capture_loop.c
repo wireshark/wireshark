@@ -1027,6 +1027,26 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* We haven't yet gotten the capture statistics. */
   *stats_known      = FALSE;
 
+  /*g_warning("capture_loop_start");
+  capture_opts_info(capture_opts);*/
+
+  /*_asm {int 3};*/
+
+  if (capture_opts->multi_files_on) {
+      /* ringbuffer is enabled */
+      capture_opts->save_file_fd = ringbuf_init(capture_opts->save_file,
+          (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
+      if (capture_opts->save_file_fd == -1) {
+        ringbuf_error_cleanup();
+        goto error;
+      }
+
+      /* replace save_file by current ringbuffer filename */
+      if(capture_opts->save_file) {
+          g_free(capture_opts->save_file);
+      }
+      capture_opts->save_file = g_strdup(ringbuf_current_filename());  
+  }
 
   /* open the "input file" from network interface or capture pipe */
   if (!capture_loop_open_input(capture_opts, &ld, errmsg, sizeof(errmsg))) {
@@ -1123,6 +1143,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             if (cnd_file_duration) {
               cnd_reset(cnd_file_duration);
             }
+            if (capture_opts->capture_child) {
+                sync_pipe_filename_to_parent(capture_opts->save_file);
+            }
           } else {
             /* File switch failed: stop here */
             ld.go = FALSE;
@@ -1191,6 +1214,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
               cnd_reset(cnd_autostop_size);
+            if (capture_opts->capture_child) {
+                sync_pipe_filename_to_parent(capture_opts->save_file);
+            }
           } else {
             /* File switch failed: stop here */
 	        ld.go = FALSE;

@@ -2070,12 +2070,12 @@ main(int argc, char *argv[])
 	fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
 	capture_opts->multi_files_on = FALSE;
       }
-      if (capture_opts->sync_mode) {
+/*      if (capture_opts->sync_mode) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
 	capture_opts->multi_files_on = FALSE;
-      }
-      if (!capture_opts->has_autostop_filesize) {
-	fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
+      }*/
+      if (!capture_opts->has_autostop_filesize && !capture_opts->has_file_duration) {
+	fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size or duration were specified.\n");
 	capture_opts->multi_files_on = FALSE;
       }
     }

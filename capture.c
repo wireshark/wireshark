@@ -72,7 +72,7 @@
 #define O_BINARY	0
 #endif
 
-static gboolean normal_do_capture(capture_options *capture_opts, gboolean is_tempfile);
+/*static gboolean normal_do_capture(capture_options *capture_opts, gboolean is_tempfile);*/
 static void stop_capture_signal_handler(int signo);
 
 
@@ -92,8 +92,16 @@ capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
     capfile_name = g_strdup(capture_opts->save_file);
     if (capture_opts->multi_files_on) {
       /* ringbuffer is enabled */
-      capture_opts->save_file_fd = ringbuf_init(capfile_name,
-          (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
+/*      capture_opts->save_file_fd = ringbuf_init(capfile_name,
+          (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);*/
+    /* XXX - this is a hack, we need to find a way to move this whole function to capture_loop.c */
+      capture_opts->save_file_fd = -1;
+      if(capture_opts->save_file != NULL) {
+        g_free(capture_opts->save_file);
+      }
+      capture_opts->save_file = capfile_name;
+      *is_tempfile = FALSE;
+      return TRUE;
     } else {
       /* Try to open/create the specified file for use as a capture buffer. */
       capture_opts->save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
@@ -115,7 +123,7 @@ capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
 	"could not be opened: %s.", capfile_name, strerror(errno));
     } else {
       if (capture_opts->multi_files_on) {
-        ringbuf_error_cleanup();
+/*        ringbuf_error_cleanup();*/
       }
       open_failure_alert_box(capfile_name, errno, TRUE);
     }
@@ -134,17 +142,19 @@ capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
 }
 
 
+#if 0
 /* close the output file (NOT the capture file) */
 static void
 capture_close_output(capture_options *capture_opts)
 {
     if (capture_opts->multi_files_on) {
-        ringbuf_free();
+/*        ringbuf_free();*/
     } else {
         g_free(capture_opts->save_file);
     }
     capture_opts->save_file = NULL;
 }
+#endif
 
 
 /* Open a specified file, or create a temporary file, and start a capture
@@ -173,17 +183,19 @@ do_capture(capture_options *capture_opts)
    * If this is fixed, we could always use the sync mode, throwing away the 
    * normal mode completely and doing some more cleanup. */
 /*  if (TRUE) {*/
-  if (capture_opts->sync_mode) {
+/*  if (capture_opts->sync_mode) {*/
     /* sync mode: do the capture in a child process */
     ret = sync_pipe_do_capture(capture_opts, is_tempfile);
     /* capture is still running */
     cf_callback_invoke(cf_cb_live_capture_prepare, capture_opts);
+#if 0
   } else {
     /* normal mode: do the capture synchronously */
     cf_callback_invoke(cf_cb_live_capture_prepare, capture_opts);
     ret = normal_do_capture(capture_opts, is_tempfile);
     /* capture is finished here */
   }
+#endif
 
   return ret;
 }
@@ -268,6 +280,7 @@ guint32 drops)
 }
 
 
+#if 0
 /* start a normal capture session */
 static gboolean
 normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
@@ -292,6 +305,7 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
     capture_close_output(capture_opts);
     return succeeded;
 }
+#endif
 
 
 static void
@@ -304,7 +318,7 @@ stop_capture_signal_handler(int signo _U_)
 int  
 capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
-  gchar *err_msg;
+/*  gchar *err_msg;*/
 
   g_assert(capture_opts->capture_child);
 
@@ -316,6 +330,7 @@ capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct
     signal(SIGUSR1, stop_capture_signal_handler);
 #endif
 
+#if 0
     /* parent must have send us a file descriptor for the opened output file */
     if (capture_opts->save_file_fd == -1) {
       /* send this to the standard output as something our parent
@@ -325,6 +340,7 @@ capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct
       g_free(err_msg);
       return FALSE;
     }
+#endif
 
   return capture_loop_start(capture_opts, stats_known, stats);
 }

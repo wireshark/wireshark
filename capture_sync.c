@@ -221,7 +221,11 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     char *msg;
     int  err;
     char ssnap[24];
-    char scount[24];			/* need a constant for len of numbers */
+    char scount[24];			    /* need a constant for len of numbers */
+    char sfilesize[24];	            /* need a constant for len of numbers */
+    char sfile_duration[24];	    /* need a constant for len of numbers */
+    char sring_num_files[24];	    /* need a constant for len of numbers */
+    char sautostop_files[24];	    /* need a constant for len of numbers */
     char sautostop_filesize[24];	/* need a constant for len of numbers */
     char sautostop_duration[24];	/* need a constant for len of numbers */
     char save_file_fd_str[24];
@@ -238,6 +242,10 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 #endif
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
     int sync_pipe[2];                       /* pipes used to sync between instances */
+
+
+    /*g_warning("sync_pipe_do_capture");
+    capture_opts_info(capture_opts);*/
 
     capture_opts->fork_child = -1;
 
@@ -260,12 +268,6 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     sprintf(save_file_fd_str,"%d",capture_opts->save_file_fd);	/* in lieu of itoa */
     argv = sync_pipe_add_arg(argv, &argc, save_file_fd_str);
 
-    if (capture_opts->has_autostop_packets) {
-      argv = sync_pipe_add_arg(argv, &argc, "-c");
-      sprintf(scount,"%d",capture_opts->autostop_packets);
-      argv = sync_pipe_add_arg(argv, &argc, scount);
-    }
-
     if (capture_opts->has_snaplen) {
       argv = sync_pipe_add_arg(argv, &argc, "-s");
       sprintf(ssnap,"%d",capture_opts->snaplen);
@@ -283,10 +285,42 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
       argv = sync_pipe_add_arg(argv, &argc, ssnap);
     }
 
-    if (capture_opts->has_autostop_filesize) {
-      argv = sync_pipe_add_arg(argv, &argc, "-a");
-      sprintf(sautostop_filesize,"filesize:%d",capture_opts->autostop_filesize);
-      argv = sync_pipe_add_arg(argv, &argc, sautostop_filesize);
+    if(capture_opts->multi_files_on) {
+      if (capture_opts->has_autostop_filesize) {
+        argv = sync_pipe_add_arg(argv, &argc, "-b");
+        sprintf(sfilesize,"filesize:%d",capture_opts->autostop_filesize);
+        argv = sync_pipe_add_arg(argv, &argc, sfilesize);
+      }
+
+      if (capture_opts->has_file_duration) {
+        argv = sync_pipe_add_arg(argv, &argc, "-b");
+        sprintf(sfile_duration,"duration:%d",capture_opts->file_duration);
+        argv = sync_pipe_add_arg(argv, &argc, sfile_duration);
+      }
+
+      if (capture_opts->has_ring_num_files) {
+        argv = sync_pipe_add_arg(argv, &argc, "-b");
+        sprintf(sring_num_files,"files:%d",capture_opts->ring_num_files);
+        argv = sync_pipe_add_arg(argv, &argc, sring_num_files);
+      }
+
+      if (capture_opts->has_autostop_files) {
+        argv = sync_pipe_add_arg(argv, &argc, "-a");
+        sprintf(sautostop_files,"files:%d",capture_opts->autostop_files);
+        argv = sync_pipe_add_arg(argv, &argc, sautostop_files);
+      }
+    } else {
+        if (capture_opts->has_autostop_filesize) {
+          argv = sync_pipe_add_arg(argv, &argc, "-a");
+          sprintf(sautostop_filesize,"filesize:%d",capture_opts->autostop_filesize);
+          argv = sync_pipe_add_arg(argv, &argc, sautostop_filesize);
+        }
+    }
+
+    if (capture_opts->has_autostop_packets) {
+      argv = sync_pipe_add_arg(argv, &argc, "-c");
+      sprintf(scount,"%d",capture_opts->autostop_packets);
+      argv = sync_pipe_add_arg(argv, &argc, scount);
     }
 
     if (capture_opts->has_autostop_duration) {
@@ -304,7 +338,6 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
 #ifdef _WIN32
     /* Create a pipe for the child process */
-
     if(_pipe(sync_pipe, 512, O_BINARY) < 0) {
       /* Couldn't create the pipe between parent and child. */
       error = errno;
@@ -402,7 +435,9 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
     /* Close the save file FD, as we won't be using it - we'll be opening
        it and reading the save file through Wiretap. */
-    close(capture_opts->save_file_fd);
+    if(capture_opts->save_file_fd != -1) {
+      close(capture_opts->save_file_fd);
+    }
 
     if (capture_opts->fork_child == -1) {
       /* We couldn't even create the child process. */
@@ -675,10 +710,6 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         msglen -= chars_to_copy;
       }
       *r = '\0';
-
-      /* currently, both filenames must be equal */
-      /* (this will change, when multiple files together with sync_mode are captured) */
-      g_assert(strcmp(capture_opts->save_file, msg) == 0);
 
       /* save the new filename */
       if(capture_opts->save_file != NULL) {

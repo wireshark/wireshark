@@ -232,6 +232,12 @@ ringbuf_init(const char *capfile_name, guint num_files)
   return rb_data.fd;
 }
 
+
+const gchar *ringbuf_current_filename(void)
+{
+  return rb_data.files[rb_data.curr_file_num % rb_data.num_files].name;
+}
+
 /*
  * Calls wtap_dump_fdopen() for the current ringbuffer file
  */

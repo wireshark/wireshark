@@ -38,6 +38,7 @@
 #define RINGBUFFER_MAX_NUM_FILES 1024
 
 int ringbuf_init(const char *capture_name, guint num_files);
+const gchar *ringbuf_current_filename(void);
 wtap_dumper* ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,
   int snaplen, int *err);
 gboolean ringbuf_switch_file(wtap_dumper **pdh, gchar **save_file, int *save_file_fd, int *err);
