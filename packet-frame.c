@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.11 2001/11/26 01:23:59 hagbard Exp $
+ * $Id: packet-frame.c,v 1.12 2001/12/06 22:52:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -139,7 +139,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (check_col(pinfo->fd, COL_PROTOCOL))
 				col_set_str(pinfo->fd, COL_PROTOCOL, "UNKNOWN");
 			if (check_col(pinfo->fd, COL_INFO))
-				col_add_fstr(pinfo->fd, COL_INFO, "WTAP_ENCAP = 0x%x", pinfo->fd->lnk_t);
+				col_add_fstr(pinfo->fd, COL_INFO, "WTAP_ENCAP = %u", pinfo->fd->lnk_t);
 			call_dissector(data_handle,tvb, pinfo, tree);
 		}
 	}
