@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.70 2002/04/14 23:04:04 guy Exp $
+ * $Id: packet-tr.c,v 1.71 2002/07/02 08:23:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,6 +226,11 @@ capture_tr(const u_char *pd, int offset, int len, packet_counts *ld) {
 	 * which packets should have been SR here. I'll check to
 	 * see if there's a SNAP or IPX field right after
 	 * my RIF fields.
+	 *
+	 * The Linux 2.4.18 code, at least appears to do the
+	 * same thing, from a capture I got from somebody running
+	 * 2.4.18 (RH 7.1, so perhaps this is a Red Hat
+	 * "improvement").
 	 */
 	if (!source_routed && trn_rif_bytes > 0) {
 		if (pd[offset + 0x0e] != pd[offset + 0x0f]) {
@@ -365,6 +370,11 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * which packets should have been SR here. I'll check to
 	 * see if there's a SNAP or IPX field right after
 	 * my RIF fields.
+	 *
+	 * The Linux 2.4.18 code, at least appears to do the
+	 * same thing, from a capture I got from somebody running
+	 * 2.4.18 (RH 7.1, so perhaps this is a Red Hat
+	 * "improvement").
 	 */
 	if (frame_type == 1 && !source_routed && trn_rif_bytes > 0) {
 		TRY {
