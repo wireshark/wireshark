@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.11 2003/05/20 21:22:59 guy Exp $
+ * $Id: tap_rtp.c,v 1.12 2003/05/27 01:40:30 gerald Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -115,6 +115,7 @@
 #include "progress_dlg.h"
 #include "compat_macros.h"
 #include "../g711.h"
+#include "../util.h"
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -136,7 +137,7 @@ static GtkWidget *clist_r;
 static GtkWidget *max;
 static GtkWidget *max_r;
 
-static char f_tempname[100], r_tempname[100];
+static char f_tempname[128+1], r_tempname[128+1];
 
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {
@@ -236,6 +237,7 @@ rtp_reset(void *prs)
   rs->forward.count = 0;
   rs->reversed.count = 0;
   /* XXX check for error at fclose? */
+  /* XXX - Should we just use freopen instead? */
   if (rs->forward.fp != NULL)
 	fclose(rs->forward.fp); 
   if (rs->reversed.fp != NULL)
@@ -1226,6 +1228,7 @@ static void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_)
   gboolean frame_matched;
   frame_data *fdata;
   GString *error_string;
+  int fd;
 
   /* There's already a "Display Options" dialog box; reactivate it. */
   if (rtp_w != NULL) {
@@ -1321,10 +1324,10 @@ static void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(main_vb);
 
   /* file names for storing sound data */
-  tmpnam(f_tempname);
-  tmpnam(r_tempname);
-  rs->forward.fp = NULL;
-  rs->reversed.fp = NULL;
+  fd = create_tempfile(f_tempname, sizeof(f_tempname), "ethereal_rtp_fwd");
+  rs->forward.fp = fdopen(fd, "wb");
+  fd = create_tempfile(r_tempname, sizeof(f_tempname), "ethereal_rtp_rev");
+  rs->reversed.fp = fdopen(fd, "wb");
 
   redissect_packets(cf);
 
