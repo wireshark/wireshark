@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.1 2001/04/05 04:39:27 gram Exp $
+; $Id: ethereal.nsi.in,v 1.2 2001/04/05 05:36:47 gram Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -28,9 +28,7 @@ LicenseData "GPL.txt"
 ; ============================================================================
 ; Component page configuration
 ; ============================================================================
-ComponentText "Choose which components to install."
-InstType Default
-InstType Complete
+ComponentText "The following components are available for installation."
 
 ; ============================================================================
 ; Directory selection page configuration
@@ -73,7 +71,6 @@ WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninst
 
 Section "Ethereal"
 ;-------------------------------------------
-SectionIn 1,2
 SetOutPath $INSTDIR
 File "..\..\ethereal.exe"
 File "..\..\doc\ethereal.html"
@@ -82,21 +79,18 @@ File "c:\program files\common files\GNU\gdk-1.3.dll"
 
 Section "Tethereal"
 ;-------------------------------------------
-SectionIn 1,2
 SetOutPath $INSTDIR
 File "..\..\tethereal.exe"
 File "..\..\doc\tethereal.html"
 
 Section "Editcap"
 ;-------------------------------------------
-SectionIn 1,2
 SetOutPath $INSTDIR
 File "..\..\editcap.exe"
 File "..\..\doc\editcap.html"
 
 
 Section "Plugins"
-SectionIn 1,2
 ;-------------------------------------------
 SetOutPath $INSTDIR\plugins\@VERSION@
 File "..\..\plugins\gryphon\gryphon.dll"
@@ -104,20 +98,25 @@ File "..\..\plugins\mgcp\mgcp.dll"
 
 Section "Debug PDB Files"
 ;-------------------------------------------
-SectionIn 2
 SetOutPath $INSTDIR
 File "..\..\ethereal.pdb"
 File "..\..\tethereal.pdb"
 File "..\..\editcap.pdb"
 
+SectionDivider
+;-------------------------------------------
+
 Section "Start Menu Shortcuts"
 ;-------------------------------------------
-SectionIn 1,2
 CreateDirectory "$SMPROGRAMS\Ethereal"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Documentation.lnk" "$INSTDIR\ethereal.html" "" "$INSTDIR\ethereal.html" 0
-CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
 
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe"
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Documentation.lnk" "$INSTDIR\ethereal.html"
+CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+
+Section "Desktop Icon"
+;-------------------------------------------
+CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\Ethereal.exe"
 
 Section "Uninstall"
 ;-------------------------------------------
@@ -128,10 +127,11 @@ Delete "$INSTDIR\README*"
 Delete "$INSTDIR\*.exe"
 Delete "$INSTDIR\*.pdb"
 Delete "$INSTDIR\*.html"
-Delete "$INSTDIR\wiretap-@WTAP_VERSION@.dll"
+Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\plugins\@VERSION@\gryphon.dll"
 Delete "$INSTDIR\plugins\@VERSION@\mgcp.dll"
 Delete "$SMPROGRAMS\Ethereal\*.*"
+Delete "$DESKTOP\Ethereal.lnk"
 
 RMDir "$SMPROGRAMS\Ethereal"
 RMDir "$INSTDIR\plugins\@VERSION@"
