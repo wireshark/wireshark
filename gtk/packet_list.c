@@ -656,7 +656,7 @@ packet_list_resize_columns(void) {
       destroy_progress_dlg(progbar);
 }
 
-void packet_list_resize_columns_cb(GtkWidget *widget, gpointer data)
+void packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     packet_list_resize_columns();
 }
