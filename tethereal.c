@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.42 2000/08/19 18:20:59 deniel Exp $
+ * $Id: tethereal.c,v 1.43 2000/08/22 03:33:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -802,17 +802,19 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
 
   fdata->next = NULL;
   fdata->prev = NULL;
-  fdata->pkt_len  = phdr->len;
-  fdata->cap_len  = phdr->caplen;
+  fdata->pfd = NULL;
+  fdata->num = cf->count;
+  fdata->pkt_len = phdr->len;
+  fdata->cap_len = phdr->caplen;
   fdata->file_off = offset;
+  fdata->cinfo = NULL;
   fdata->lnk_t = phdr->pkt_encap;
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
+  fdata->flags.passed_dfilter = 0;
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
-  fdata->cinfo = NULL;
-
-  fdata->num = cf->count;
+  fdata->flags.marked = 0;
 
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
