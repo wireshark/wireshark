@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.175 2002/12/31 22:42:45 guy Exp $
+ * $Id: tethereal.c,v 1.176 2003/01/01 03:51:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1020,8 +1020,8 @@ capture(int out_file_type)
 	"The capture session could not be initiated (%s).\n"
 	"Please check that you have the proper interface specified.\n"
 	"\n"
-	"Note that the driver Tethereal uses for packet capture on Windows\n"
-	"doesn't support capturing on PPP/WAN interfaces in Windows NT/2000/XP/.NET Server.\n",
+	"Note that the driver Tethereal uses for packet capture on Windows doesn't\n"
+	"support capturing on PPP/WAN interfaces in Windows NT/2000/XP/.NET Server.\n",
 	open_err_str);
     goto error;
 #else
