@@ -2,7 +2,7 @@
  * Routines for Message Transfer Part Level 3 dissection
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-mtp3.c,v 1.9 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-mtp3.c,v 1.10 2002/02/02 20:55:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -242,7 +242,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree, p
   if (!dissector_try_port(mtp3_sio_dissector_table, service_indicator, payload_tvb, pinfo, tree)) {
     call_dissector(data_handle, payload_tvb, pinfo, tree);
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "DATA");
+      col_append_str(pinfo->cinfo, COL_INFO, "DATA ");
   }
 }
 
