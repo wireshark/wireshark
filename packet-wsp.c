@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.114 2004/04/25 20:42:15 obiot Exp $
+ * $Id: packet-wsp.c,v 1.115 2004/04/30 17:07:20 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -355,6 +355,9 @@ static dissector_handle_t wsp_fromudp_handle;
 
 /* Handle for WTP-over-UDP dissector */
 static dissector_handle_t wtp_fromudp_handle;
+
+/* Handle for generic media dissector */
+static dissector_handle_t media_handle;
 
 const value_string vals_pdu_type[] = {
 	{ 0x00, "Reserved" },
@@ -5055,10 +5058,19 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				if (! found_match) {
 					if (! dissector_try_heuristic(heur_subdissector_list,
-								tmp_tvb, pinfo, tree))
+								tmp_tvb, pinfo, tree)) {
+						guint8* save_private_data = pinfo->private_data;
+						
+						pinfo->match_string = contentTypeStr;
+						pinfo->private_data = NULL; /* TODO: parameters */
+						call_dissector(media_handle, tmp_tvb, pinfo, tree);
+						pinfo->private_data = save_private_data;
+#if 0
 						if (tree) /* Only display if needed */
 							add_post_data (wsp_tree, tmp_tvb,
 									contentType, contentTypeStr, pinfo);
+#endif
+					}
 				}
 			}
 			break;
@@ -5144,11 +5156,20 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				if (! found_match) {
 					if (! dissector_try_heuristic(heur_subdissector_list,
-								tmp_tvb, pinfo, tree))
-						if (tree) /* Only display if needed */
+								tmp_tvb, pinfo, tree)) {
+						guint8* save_private_data = pinfo->private_data;
+						
+						pinfo->match_string = contentTypeStr;
+						pinfo->private_data = NULL; /* TODO: parameters */
+						call_dissector(media_handle, tmp_tvb, pinfo, tree);
+						pinfo->private_data = save_private_data;
+#if 0
+						if (tree) / * Only display if needed * /
 							ti = proto_tree_add_item (wsp_tree,
 							    hf_wsp_reply_data,
 							    tmp_tvb, 0, -1, bo_little_endian);
+#endif
+					}
 				}
 			}
 			break;
@@ -5220,11 +5241,20 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				if (! found_match) {
 					if (! dissector_try_heuristic(heur_subdissector_list,
-								tmp_tvb, pinfo, tree))
+								tmp_tvb, pinfo, tree)) {
+						guint8* save_private_data = pinfo->private_data;
+						
+						pinfo->match_string = contentTypeStr;
+						pinfo->private_data = NULL; /* TODO: parameters */
+						call_dissector(media_handle, tmp_tvb, pinfo, tree);
+						pinfo->private_data = save_private_data;
+#if 0
 						if (tree) /* Only display if needed */
 							ti = proto_tree_add_item (wsp_tree,
 									hf_wsp_push_data,
 									tmp_tvb, 0, -1, bo_little_endian);
+#endif
+					}
 				}
 			}
 			break;
@@ -5829,10 +5859,19 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 		}
 		if (! found_match) {
 			if (! dissector_try_heuristic(heur_subdissector_list,
-						tmp_tvb, pinfo, mpart_tree))
+						tmp_tvb, pinfo, mpart_tree)) {
+				guint8* save_private_data = pinfo->private_data;
+
+				pinfo->match_string = contentTypeStr;
+				pinfo->private_data = NULL; /* TODO: parameters */
+				call_dissector(media_handle, tmp_tvb, pinfo, tree);
+				pinfo->private_data = save_private_data;
+#if 0
 				if (tree) /* Only display if needed */
 					proto_tree_add_item (mpart_tree, hf_wsp_multipart_data,
 							tvb, offset, DataLen, bo_little_endian);
+#endif
+			}
 		}
 
 		offset += DataLen;
@@ -7179,9 +7218,10 @@ void
 proto_reg_handoff_wsp(void)
 {
 	/*
-	 * And get a handle for the WTP-over-UDP dissector.
+	 * Get a handle for the WTP-over-UDP and the generic media dissectors.
 	 */
 	wtp_fromudp_handle = find_dissector("wtp-udp");
+	media_handle = find_dissector("media");
 
 	/* Only connection-less WSP has no previous handler */
 	dissector_add("udp.port", UDP_PORT_WSP, wsp_fromudp_handle);

@@ -3,7 +3,7 @@
  * Copyright 2004, Anders Broman.
  * Copyright 2004, Olivier Biot.
  *
- * $Id: packet-multipart.c,v 1.8 2004/03/08 22:03:59 obiot Exp $
+ * $Id: packet-multipart.c,v 1.9 2004/04/30 17:07:21 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -118,8 +118,9 @@ static gint hf_header_array[] = {
 /* Define media_type/Content type table */
 static dissector_table_t media_type_dissector_table;
 
-/* Data dissector handle */
+/* Data and media dissector handles */
 static dissector_handle_t data_handle;
+static dissector_handle_t media_handle;
 
 /* Determins if	bodies with no media type dissector shoud be displayed
  * as raw text, may cause problems with images sound etc
@@ -656,7 +657,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 			content_type_str = NULL;
 			parameters = NULL; /* Shares same memory as content_type_str */
 			if (! dissected) {
-				call_dissector(data_handle, tmp_tvb, pinfo, subtree);
+				call_dissector(media_handle, tmp_tvb, pinfo, tree);
 			}
 		} else {
 			call_dissector(data_handle, tmp_tvb, pinfo, subtree);
@@ -908,9 +909,11 @@ proto_reg_handoff_multipart(void)
 	dissector_handle_t multipart_handle;
 
 	/*
-	 * When we cannot display the data, call the data dissector
+	 * When we cannot display the data, call the data dissector.
+	 * When there is no dissector for the given media, call the media dissector.
 	 */
 	data_handle = find_dissector("data");
+	media_handle = find_dissector("media");
 
 	/*
 	 * Handle for multipart dissection

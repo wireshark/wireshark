@@ -742,7 +742,7 @@ Olivier Biot <ethereal[AT]tiscali.be> {
 	README.win32 updates for Cygwin
 	UDH dissection in SMPP
 	WTP-over-SMPP and WSP-over-SMPP
-	GSM SMS, CBS and DCS support for the SMPP dissector.
+	GSM SMS, CBS and DCS support for the SMPP dissector
 	Display filter operator: matches (PCRE syntax)
 	Compuserve GIF image dissector
 	JPEG File Interchange Format (JFIF) dissector
@@ -750,6 +750,7 @@ Olivier Biot <ethereal[AT]tiscali.be> {
 	Generic line-based textual data dissector
 	Multipart media dissector
 	Display filter operator: bitwise_and
+	Generic media dissector (in analogy to the data dissector)
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {

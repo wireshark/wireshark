@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.99 2004/04/30 15:26:39 obiot Exp $
+ * $Id: packet-http.c,v 1.100 2004/04/30 17:07:20 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,6 +79,7 @@ static gint ett_http_chunk_data = -1;
 static gint ett_http_encoded_entity = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t media_handle;
 static dissector_handle_t http_handle;
 
 /*
@@ -707,6 +708,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			handle = dissector_get_string_handle(
 			    media_type_subdissector_table,
 			    headers.content_type);
+			/*
+			 * Calling the default media handle otherwise
+			 */
+			if (handle == NULL) {
+			    handle = media_handle;
+			}
 		}
 		if (handle != NULL) {
 			/*
@@ -1575,6 +1582,7 @@ proto_reg_handoff_http(void)
 	dissector_handle_t http_udp_handle;
 
 	data_handle = find_dissector("data");
+	media_handle = find_dissector("media");
 
 	dissector_add("tcp.port", TCP_PORT_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, http_handle);
