@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.64 2003/09/21 20:06:01 gerald Exp $
+ * $Id: packet-sctp.c,v 1.65 2003/10/03 20:18:15 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -279,7 +279,7 @@ static const value_string sctp_payload_proto_id_values[] = {
 #define SCTP_CHECKSUM_AUTOMATIC 3
 
 static gboolean show_always_control_chunks = TRUE;
-static gint sctp_checksum = SCTP_CHECKSUM_ADLER32;
+static gint sctp_checksum = SCTP_CHECKSUM_CRC32C;
 
 /* adler32.c -- compute the Adler-32 checksum of a data stream
  * Copyright (C) 1995-1996 Mark Adler
@@ -1093,7 +1093,7 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
 
 static const value_string cause_code_values[] = {
   { INVALID_STREAM_IDENTIFIER,                  "Invalid stream identifier" },
-  { MISSING_MANDATORY_PARAMETERS,               "Missing mandator parameter" },
+  { MISSING_MANDATORY_PARAMETERS,               "Missing mandatory parameter" },
   { STALE_COOKIE_ERROR,                         "Stale cookie error" },
   { OUT_OF_RESOURCE,                            "Out of resource" },
   { UNRESOLVABLE_ADDRESS,                       "Unresolvable address" },
