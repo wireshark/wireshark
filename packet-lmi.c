@@ -2,7 +2,7 @@
  * Routines for Frame Relay Local Management Interface (LMI) disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-lmi.c,v 1.11 2002/08/28 21:00:20 jmayer Exp $
+ * $Id: packet-lmi.c,v 1.12 2003/01/11 07:01:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,20 +139,30 @@ dissect_lmi_pvc_status(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*lmi_tree, *lmi_subtree;
+	proto_tree	*lmi_tree = NULL, *lmi_subtree;
 	proto_item	*ti;
 	int		offset = 2, len;
+	guint8		msg_type;
 	guint8		ele_id;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMI");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_lmi, tvb, 0, 3, FALSE);
 		lmi_tree = proto_item_add_subtree(ti, ett_lmi_ele);
 
-		proto_tree_add_uint(lmi_tree, hf_lmi_call_ref, tvb, 0, 1, tvb_get_guint8( tvb, 0));
-		proto_tree_add_uint(lmi_tree, hf_lmi_msg_type,  tvb, 1, 1,  tvb_get_guint8( tvb, 1));
+		proto_tree_add_item(lmi_tree, hf_lmi_call_ref, tvb, 0, 1, FALSE);
+	}
+	msg_type = tvb_get_guint8( tvb, 1);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(msg_type, msg_type_str, "Unknown message type (0x%02x)"));
+	}
+	if (tree) {
+		proto_tree_add_uint(lmi_tree, hf_lmi_msg_type, tvb, 1, 1, msg_type);
 
 	/* Display the LMI elements */
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
