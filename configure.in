@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.221 2003/09/10 07:17:21 jmayer Exp $
+# $Id: configure.in,v 1.222 2003/09/20 10:06:40 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -771,6 +771,15 @@ fi
 AC_SUBST(plugindir)
 
 dnl libtool defs
+#
+# Yes, AM_PROG_LIBTOOL is redundant with newer version(s) of some tool(s)
+# (autoconf?  automake?  libtool?) - with the newer version(s), it's
+# just an alias for AC_PROG_LIBTOOL, which is called earlier.
+#
+# With older version(s) of those tool(s), however, it's not just an
+# alias, and the configure scripts don't work without it.
+#
+AM_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
 
 AM_CONDITIONAL(ENABLE_STATIC, test x$enable_static = xyes)
