@@ -13,7 +13,7 @@
  *
  * Implemented in ethereal at April 7-8, 2004
  *
- * $Id: packet-cops.c,v 1.45 2004/04/25 04:01:12 guy Exp $
+ * $Id: packet-cops.c,v 1.46 2004/04/30 06:24:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2134,8 +2134,9 @@ void info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, cha
                 }
                 /* Ieee float format */
                 if (mode==FMT_FLT) {
+                    /* XXX - use proto_tree_add_float_format instead? */
                    proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb, offset, octets,
-                       codefl,"%-28s : %.10g",str,codefl);
+                       (guint32) codefl,"%-28s : %.10g",str,codefl);
                    break;
                 }
                 /* Print a 32 bits integer */

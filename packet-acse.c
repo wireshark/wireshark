@@ -2,7 +2,7 @@
 *
 * Routine to dissect OSI ACSE Protocol packets
 *
-* $Id: packet-acse.c,v 1.4 2004/04/20 04:17:52 guy Exp $
+* $Id: packet-acse.c,v 1.5 2004/04/30 06:24:35 ulfl Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -222,7 +222,7 @@ static packet_info *global_pinfo = NULL;
 /* dissector for data */
 static dissector_handle_t data_handle;
 static void
-call_app_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
+call_app_dissector(tvbuff_t *tvb, gint offset, gint param_len,
     packet_info *pinfo, proto_tree *tree, proto_tree *param_tree)
 {
 	/* do we have OSI app packet dissector ? */

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.229 2004/04/29 16:33:37 ulfl Exp $
+ * $Id: packet-tcp.c,v 1.230 2004/04/30 06:24:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1987,7 +1987,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * somewhere in the middle of a segment.
      */
     if(!pinfo->fd->flags.visited && tcp_analyze_seq){
-       gint remaining_bytes;
+       guint remaining_bytes;
        remaining_bytes=tvb_reported_length_remaining(tvb, offset);
        if(plen>remaining_bytes){
           pinfo->want_pdu_tracking=2;

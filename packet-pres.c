@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8823 OSI Presentation Protocol packets
 *
-* $Id: packet-pres.c,v 1.4 2004/03/23 19:37:23 guy Exp $
+* $Id: packet-pres.c,v 1.5 2004/04/30 06:24:35 ulfl Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -217,7 +217,7 @@ packet_info *global_pinfo = NULL;
 static dissector_handle_t data_handle;
 
 static void
-call_acse_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
+call_acse_dissector(tvbuff_t *tvb, gint offset, gint param_len,
     packet_info *pinfo, proto_tree *tree, proto_tree *param_tree)
 {
 	/* do we have OSI acse/rose packet dissector ? */
