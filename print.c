@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.14 1999/07/23 08:29:22 guy Exp $
+ * $Id: print.c,v 1.15 1999/07/23 08:30:57 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -264,14 +264,12 @@ typedef struct {
 FILE *open_print_dest(int to_file, const char *dest)
 {
 	FILE	*fh;
-	char	*out;
 
 	/* Open the file or command for output */
-	out = dest;
 	if (to_file)
 		fh = fopen(dest, "w");
 	else
-		fh = popen(prefs.pr_cmd, "w");
+		fh = popen(dest, "w");
 
 	return fh;
 }
