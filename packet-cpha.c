@@ -2,7 +2,7 @@
  * Routines for the Check Point High-Availability Protocol (CPHAP)
  * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il> 
  *
- * $Id: packet-cpha.c,v 1.2 2002/08/20 22:56:29 guy Exp $
+ * $Id: packet-cpha.c,v 1.3 2002/08/28 20:02:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -412,7 +412,7 @@ static void dissect_conf_reply(tvbuff_t * tvb, int offset, proto_tree * tree) {
   proto_tree_add_ether(tree, hf_ethernet_add, tvb, offset, 6, hdr.ethernet_add);
   offset += 6;
 
-  proto_tree_add_boolean(tree, hdr.is_if_trusted, tvb, offset, sizeof(hdr.is_if_trusted), hdr.is_if_trusted);
+  proto_tree_add_boolean(tree, hf_is_if_trusted, tvb, offset, sizeof(hdr.is_if_trusted), hdr.is_if_trusted);
   offset += sizeof(hdr.is_if_trusted);
 
   proto_tree_add_ipv4(tree, hf_ip, tvb, offset, sizeof(hdr.ip), hdr.ip);
