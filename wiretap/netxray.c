@@ -544,19 +544,21 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * Perhaps hdr.realtick[0] is 0x00, in which case time
 		 * stamp units in the range 1192960 through 1193215
 		 * correspond to captures with an FCS, but that's still
-		 * a bit bizarre.  Note that there are captures with
-		 * a network type of 0 (Ethernet) and capture type
-		 * of 0 (NDIS) that do, and that don't, have 0x34 0x12
-		 * in them, so it's not as if NDIS captures always lack
-		 * FCSes - although the question then is whether any
-		 * NDIS captures with 0x34 0x12 have frames with an FCS;
-		 * if not, then it might be that no NDIS captures have
-		 * FCSes.
+		 * a bit bizarre.
+		 *
+		 * Note that there are captures with a network type of 0
+		 * (Ethernet) and capture type of 0 (NDIS) that do, and
+		 * that don't, have 0x34 0x12 in them, and at least one
+		 * of the NDIS captures with 0x34 0x12 in it has FCSes,
+		 * so it's not as if no NDIS captures have an FCS.
 		 *
 		 * There are also captures with a network type of 4 (WAN),
 		 * capture type of 6 (HDLC), and subtype of 2 (T1 PRI) that
 		 * do, and that don't, have 0x34 0x12, so there are at least
-		 * some captures taken with a pod that might lack an FCS.
+		 * some captures taken with a WAN pod that might lack an FCS.
+		 * (We haven't yet tried dissecting the 4 bytes at the
+		 * end of packets with hdr_2_x.xxx[2] and hdr_2_x.xxx[3]
+		 * equal to 0xff as an FCS.)
 		 *
 		 * All captures I've seen that have 0x34 and 0x12 *and*
 		 * have at least one frame with an FCS have a value of
@@ -569,7 +571,9 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * not as simple as "xxb[4] = 0x01 means the 4 bytes at
 		 * the end are FCSes".  Also, there's also at least one
 		 * 802.11 capture with an xxb[4] value of 0x01 with junk
-		 * rather than an FCS at the end of the frame.
+		 * rather than an FCS at the end of the frame, so xxb[4]
+		 * isn't an obvious flag to determine whether the
+		 * capture has FCSes.
 		 *
 		 * There don't seem to be any other values in xxb or xxc
 		 * that obviously correspond to frames having an FCS.
