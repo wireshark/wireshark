@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.13 2003/12/06 16:35:20 gram Exp $
+ * $Id: ftype-tvbuff.c,v 1.14 2003/12/17 22:42:02 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,13 @@
 #include <string.h>
 #include <epan/gdebug.h>
 
+#ifdef HAVE_LIBPCRE
+#include <pcre.h>
+#define CMP_MATCHES cmp_matches
+#else
+#define CMP_MATCHES NULL
+#endif
+
 #define tvb_is_private	fvalue_gboolean1
 
 static void
@@ -45,7 +52,6 @@ value_free(fvalue_t *fv)
 	}
 }
 
-
 static void
 value_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
@@ -62,7 +68,6 @@ free_tvb_data(void *data)
 {
 	g_free(data);
 }
-
 
 static gboolean
 val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
@@ -167,6 +172,51 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 	}
 }
 
+#ifdef HAVE_LIBPCRE
+static gboolean
+cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	int options = 0;
+	int rc;
+	const char *data = NULL;
+	guint32 tvb_len;
+
+	/* fv_b is always a FT_PCRE, otherwise the dfilter semcheck() would have
+	 * warned us. For the same reason (and because we're using g_malloc()),
+	 * fv_b->value.re is not NULL.
+	 */
+	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
+		return FALSE;
+	}
+	if (! fv_b->value.re) {
+		return FALSE;
+	}
+	TRY {
+		tvb_len = tvb_length(fv_a->value.tvb);
+		data = tvb_get_ptr(fv_a->value.tvb, 0, tvb_len);
+		rc = pcre_exec(
+			(fv_b->value.re)->re,	/* Compiled PCRE */
+			(fv_b->value.re)->ex,	/* PCRE extra from pcre_study() */
+			data,		/* The data to check for the pattern... */
+			tvb_len,	/* ... and its length */
+			0,			/* Start offset within data */
+			options,	/* PCRE options */
+			NULL,		/* We are not interested in the matched string */
+			0			/* of the pattern; only in success or failure. */
+			);
+		/* NOTE - DO NOT g_free(data) */
+	}
+	CATCH_ALL {
+		return FALSE;
+	}
+	ENDTRY;
+	if (rc == 0) {
+		return TRUE;
+	}
+	return FALSE;
+}
+#endif
+
 void
 ftype_register_tvbuff(void)
 {
@@ -197,7 +247,7 @@ ftype_register_tvbuff(void)
 		NULL,				/* cmp_lt */
 		NULL,				/* cmp_le */
 		cmp_contains,
-		NULL,				/* cmp_matches */
+		CMP_MATCHES,
 
 		len,
 		slice,
