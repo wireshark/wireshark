@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.60 2002/04/24 06:03:33 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.61 2002/05/01 07:21:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2096,7 +2096,7 @@ proto_register_wlan (void)
 
     {&hf_fragments,
       {"802.11 Fragments", "wlan.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-       "WTP Fragments", HFILL }},
+       "802.11 Fragments", HFILL }},
 
     {&hf_wep_iv,
      {"Initialization Vector", "wlan.wep.iv", FT_UINT24, BASE_HEX, NULL, 0,
