@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.68 2003/02/07 06:38:40 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.69 2003/02/07 08:33:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -797,7 +797,7 @@ lsa_dissect_POLICY_ACCOUNT_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 
 	/* account */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_lsa_acct, 0);
+		hf_lsa_acct, 1);
 
 	/* sid */
 	offset = dissect_ndr_nt_PSID(tvb, offset,
@@ -2267,7 +2267,7 @@ lsa_dissect_LSA_TRUSTED_DOMAIN(tvbuff_t *tvb, int offset,
 
 	/* domain */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_lsa_domain, 0);
+		hf_lsa_domain, 1);
 
 	/* sid */
 	offset = dissect_ndr_nt_PSID(tvb, offset,
