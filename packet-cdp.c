@@ -1,8 +1,8 @@
 /* packet-cdp.c
- * Routines for the disassembly of the "Cisco Discovery Protocoll"
+ * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.4 1999/01/05 00:08:49 hannes Exp $
+ * $Id: packet-cdp.c,v 1.5 1999/01/06 23:07:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,6 +29,7 @@
 #include <gtk/gtk.h>
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -41,27 +42,28 @@
 #include "ethereal.h"
 #include "packet.h"
 
+/* Offsets in TLV structure. */
+#define	TLV_TYPE	0
+#define	TLV_LENGTH	2
+
+static void
+add_multi_line_string_to_tree(GtkWidget *tree, gint start, gint len,
+  const gchar *prefix, const gchar *string);
 
 void 
 dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     GtkWidget *cdp_tree = NULL, *ti; 
     
-    typedef struct _e_tlv_struct{
-		gint16 type;
-		gint16 length;
-    } e_tlv_struct;
-
     typedef struct _e_cdp_hdr{
 		char version;
 		char flags;
 		gint16 ttl;
 	} e_cdp_hdr;
 
-    e_tlv_struct *tlv;
-	e_cdp_hdr *cdp_hdr;
+    e_cdp_hdr *cdp_hdr;
     char *stringmem;
-    gint32	mgmt_ip;
-
+    gint16 type;
+    gint16 length;
 
     if (check_col(fd, COL_PROTOCOL))
         col_add_str(fd, COL_PROTOCOL, "CDP");
@@ -74,7 +76,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	cdp_tree = gtk_tree_new(); 
 	add_subtree(ti, cdp_tree, ETT_CDP);
 	
-    /* CDP header */
+	/* CDP header */
 	cdp_hdr = (e_cdp_hdr *) &pd[offset];
 	add_item_to_tree(cdp_tree, offset, 0, "under development (hannes@boehm.org)");
 	add_item_to_tree(cdp_tree, offset, 1, "Version: %d", cdp_hdr->version);
@@ -88,14 +90,16 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
      */
 	
 	while( offset <= fd->cap_len ){
-		tlv = (e_tlv_struct *)  &pd[offset];
-		switch( ntohs(tlv->type) ){
+		type = pntohs(&pd[offset + TLV_TYPE]);
+		length = pntohs(&pd[offset + TLV_LENGTH]);
+		switch( type ){
 			case 0: /* ??? Mgmt Addr */
-				offset+=ntohs(tlv->length) + 4;
+				offset+=length + 4;
 				break;
-			case 1: /* ??? Chasis ID */
-				add_item_to_tree(cdp_tree, offset + 4, ntohs(tlv->length) - 4, "Chassis ID: %s", &pd[offset+4] );
-				offset+=ntohs(tlv->length);
+			case 1: /* ??? Chassis ID */
+				add_item_to_tree(cdp_tree, offset + 4,
+				    length - 4, "Chassis ID: %s", &pd[offset+4] );
+				offset+=length;
 				break;
 			case 2:  
 				/* this is quite strange: this tlv contains no data itself but two tlvs which
@@ -104,48 +108,89 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 				offset+=4; 
 				break;
 			case 3: /* ??? Port  */    
-				add_item_to_tree(cdp_tree, offset + 4, ntohs(tlv->length) - 4, "Sent through Interface: %s", &pd[offset+4] );
-				offset+=ntohs(tlv->length);
+				add_item_to_tree(cdp_tree, offset + 4,
+				  length - 4, "Sent through Interface: %s", &pd[offset+4] );
+				offset+=length;
 				break;
 			case 5: /* ??? IOS Version */
-				add_item_to_tree(cdp_tree, offset + 4, ntohs(tlv->length) - 4, 
-				                                       "Software Version: %s", &pd[offset+4] );
-				offset+=ntohs(tlv->length);
+				add_multi_line_string_to_tree(cdp_tree,
+				    offset + 4, length - 4, "Software Version: ",
+				    &pd[offset+4] );
+				offset+=length;
 				break;
 			case 6: /* ??? platform */
 				
-				stringmem = malloc(ntohs(tlv->length));
-				bzero(stringmem, ntohs(tlv->length));
-				memcpy(stringmem, &pd[offset+4], ntohs(tlv->length) - 4 );
-				add_item_to_tree(cdp_tree, offset + 4, ntohs(tlv->length) - 4, 
+				stringmem = malloc(length);
+				memset(stringmem, '\0', length);
+				memcpy(stringmem, &pd[offset+4], length - 4 );
+				add_item_to_tree(cdp_tree, offset + 4, length - 4, 
                                                      "Platform: %s", stringmem );
 				free(stringmem);
-				offset+=ntohs(tlv->length);
+				offset+=length;
 				break;
 			case 0x01cc: /* ??? Mgmt Addr */
-				memcpy(&mgmt_ip, &pd[offset+4], 4);
-				add_item_to_tree(cdp_tree, offset + 4, ntohs(tlv->length), 
-                                                     "Mgmt IP: %s", inet_ntoa((mgmt_ip)) );
-				offset+=ntohs(tlv->length) + 4;
+				add_item_to_tree(cdp_tree, offset + 4, length, 
+                                                     "Mgmt IP: %s",
+						     ip_to_str(&pd[offset+4]) );
+				offset+=length + 4;
 				break;
 			default:
 /*
-				if( ntohs(tlv->type) > 512){
+				if( type > 512){
 					dissect_data(pd, offset, fd, (GtkTree *) cdp_tree);
 					return;
 				}
 */
 /*
-				add_item_to_tree(cdp_tree, offset, 2, "Type: %d",  ntohs(tlv->type));
-				add_item_to_tree(cdp_tree, offset + 2, 2, "Length: %d", ntohs(tlv->length));
-				add_item_to_tree(cdp_tree, offset + 4, ntohs(tlv->length) - 4, "Data");
+				add_item_to_tree(cdp_tree, offset + TLV_TYPE,
+				    2, "Type: %d", type);
+				add_item_to_tree(cdp_tree, offset + TLV_LENGTH,
+				    2, "Length: %d", length);
+				add_item_to_tree(cdp_tree, offset + 4,
+				    length - 4, "Data");
 */
 
-				offset+=ntohs(tlv->length);
+				offset+=length;
 		}
 
-    }
-    	dissect_data(pd, offset, fd, (GtkTree *) cdp_tree);
 	}
+    	dissect_data(pd, offset, fd, (GtkTree *) cdp_tree);
+    }
 }
 
+static void
+add_multi_line_string_to_tree(GtkWidget *tree, gint start, gint len,
+  const gchar *prefix, const gchar *string)
+{
+    int prefix_len;
+    int i;
+    char blanks[64+1];
+    const gchar *p, *q;
+    int line_len;
+    int data_len;
+
+    prefix_len = strlen(prefix);
+    if (prefix_len > 64)
+	prefix_len = 64;
+    for (i = 0; i < prefix_len; i++)
+	blanks[i] = ' ';
+    blanks[i] = '\0';
+    p = string;
+    for (;;) {
+	q = strchr(p, '\n');
+	if (q != NULL) {
+	    line_len = q - p;
+	    data_len = line_len + 1;
+	} else {
+	    line_len = strlen(p);
+	    data_len = line_len;
+	}
+	add_item_to_tree(tree, start, data_len, "%s%.*s", prefix,
+	   line_len, p);
+	if (q == NULL)
+	    break;
+	p += data_len;
+	start += data_len;
+	prefix = blanks;
+    }
+}
