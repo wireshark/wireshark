@@ -1,7 +1,7 @@
 /* packet-ieee8023.c
  * Routine for dissecting 802.3 (as opposed to D/I/X Ethernet) packets.
  *
- * $Id: packet-ieee8023.c,v 1.6 2003/10/01 07:11:44 guy Exp $
+ * $Id: packet-ieee8023.c,v 1.7 2004/02/20 10:21:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
 {
   tvbuff_t		*volatile next_tvb;
   tvbuff_t		*volatile trailer_tvb;
+  volatile unsigned long exception = 0;
 
   if (fh_tree)
     proto_tree_add_uint(fh_tree, length_id, tvb, offset_after_length - 2, 2,
@@ -86,20 +87,40 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
     else
       call_dissector(ipx_handle, next_tvb, pinfo, tree);
   }
-  CATCH2(BoundsError, ReportedBoundsError) {
-    /* Well, somebody threw an exception.  Add the trailer, if appropriate. */
-    add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
+  CATCH(ReportedBoundsError) {
+    /* Well, somebody threw an exception other than BoundsError.
+       Remember the exception, so we can rethrow it after adding
+       the trailer.
 
-    /* Rethrow the exception, so the "Short Frame" or "Mangled Frame"
-       indication can be put into the tree. */
-    RETHROW;
+       We do so just in case adding the trailer *also* throws an
+       exception.
 
-    /* XXX - RETHROW shouldn't return. */
-    g_assert_not_reached();
+       We don't do so for BoundsError, as that exception means
+       that dissecting the payload found that the packet was
+       cut off by a snapshot length before the end of the payload;
+       the trailer comes after the payload, so that was *definitely*
+       cut off. */
+    exception = EXCEPT_CODE;
   }
   ENDTRY;
 
-  add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
+  if (exception != 0) {
+    /* Perhaps we'll get another exception from attempting to
+       dissect the trailer; we already have an exception to
+       show, so we don't want to show that other exception. */
+    TRY {
+      add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
+    }
+    CATCH_ALL {
+      ;		/* do nothing */
+    }
+    ENDTRY;
+
+    /* Rethrow the original exception, so the appropriate indication
+       can be put into the tree. */
+    THROW(exception);
+  } else
+    add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 }
 
 void
