@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.27 2001/06/20 22:26:07 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.28 2001/06/20 23:04:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -189,6 +189,37 @@
 #define TAG_IBSS_PARAMETER 0x06
 #define TAG_CHALLENGE_TEXT 0x10
 
+/* ************************************************************************* */
+/*                         Frame types, and their names                      */
+/* ************************************************************************* */
+static const value_string frame_type_vals[] = {
+	{MGT_ASSOC_REQ,        "Association Request"},
+	{MGT_ASSOC_RESP,       "Association Response"},
+	{MGT_REASSOC_REQ,      "Reassociation Request"},
+	{MGT_REASSOC_RESP,     "Reassociation Response"},
+	{MGT_PROBE_REQ,        "Probe Request"},
+	{MGT_PROBE_RESP,       "Probe Response"},
+	{MGT_BEACON,           "Beacon frame"},
+	{MGT_ATIM,             "ATIM"},
+	{MGT_DISASS,           "Dissassociate"},
+	{MGT_AUTHENTICATION,   "Authentication"},
+	{MGT_DEAUTHENTICATION, "Deauthentication"},
+	{CTRL_PS_POLL,         "Power-Save poll"},
+	{CTRL_RTS,             "Request-to-send"},
+	{CTRL_CTS,             "Clear-to-send"},
+	{CTRL_ACKNOWLEDGEMENT, "Acknowledgement"},
+	{CTRL_CFP_END,         "CF-End (Control-frame)"},
+	{CTRL_CFP_ENDACK,      "CF-End + CF-Ack (Control-frame)"},
+	{DATA,                 "Data"},
+	{DATA_CF_ACK,          "Data + CF-Acknowledgement"},
+	{DATA_CF_POLL,         "Data + CF-Poll"},
+	{DATA_CF_ACK_POLL,     "Data + CF-Acknowledgement/Poll"},
+	{DATA_NULL_FUNCTION,   "Null function (No data)"},
+	{DATA_CF_ACK_NOD,      "Data + Acknowledgement (No data)"},
+	{DATA_CF_POLL_NOD,     "Data + CF-Poll (No data)"},
+	{DATA_CF_ACK_POLL_NOD, "Data + CF-Acknowledgement/Poll (No data)"},
+	{0,                    NULL}
+};
 
 static int proto_wlan = -1;
 /* ************************************************************************* */
@@ -198,6 +229,7 @@ static int hf_fc_field = -1;
 static int hf_fc_proto_version = -1;
 static int hf_fc_frame_type = -1;
 static int hf_fc_frame_subtype = -1;
+static int hf_fc_frame_type_subtype = -1;
 
 static int hf_fc_flags = -1;
 static int hf_fc_to_ds = -1;
@@ -768,7 +800,7 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  guint16 fcf, flags;
+  guint16 fcf, flags, frame_type;
   const guint8 *src = NULL, *dst = NULL;
   proto_item *ti;
   proto_item *flag_item;
@@ -793,6 +825,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   cap_len = tvb_length(tvb);
   fcf = tvb_get_letohs (tvb, 0);
   hdr_len = find_header_length (fcf);
+  frame_type = COMPOSE_FRAME_TYPE(fcf);
+
+  COL_SHOW_INFO_CONST (pinfo->fd,
+      val_to_str(frame_type, frame_type_vals, "Unrecognized (Reserved frame)"));
 
   /* Add the FC to the current tree */
   if (tree)
@@ -819,6 +855,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   tvb, 0, 1,
 			   COOK_FRAME_SUBTYPE (fcf));
 
+      proto_tree_add_uint (fc_tree, hf_fc_frame_type_subtype,
+			   tvb, 0, 1,
+			   frame_type);
+
       flags = COOK_FLAGS (fcf);
 
       flag_item =
@@ -844,7 +884,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       proto_tree_add_boolean (flag_tree, hf_fc_order, tvb, 1, 1, flags);
 
-      if ((COMPOSE_FRAME_TYPE(fcf))==CTRL_PS_POLL) 
+      if (frame_type == CTRL_PS_POLL) 
 	proto_tree_add_uint(hdr_tree, hf_assoc_id,tvb,2,2,
 			    COOK_ASSOC_ID(tvb_get_letohs(tvb,2)));
      
@@ -1009,12 +1049,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
     }
 
-
-  switch (COMPOSE_FRAME_TYPE (fcf))
+  switch (frame_type)
     {
 
     case MGT_ASSOC_REQ:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Association Request");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 4);
@@ -1041,8 +1079,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_ASSOC_RESP:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Association Response");
-
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 6);
@@ -1070,7 +1106,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_REASSOC_REQ:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Reassociation Request");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 10);
@@ -1096,7 +1131,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
     case MGT_REASSOC_RESP:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Reassociation Response");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 10);
@@ -1123,7 +1157,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_PROBE_REQ:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Probe Request");
       if (tree)
 	{
 	  next_idx = MGT_FRAME_LEN;
@@ -1143,7 +1176,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_PROBE_RESP:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Probe Response");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 12);
@@ -1170,8 +1202,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case MGT_BEACON:		/* Dissect protocol payload fields  */
-      COL_SHOW_INFO_CONST (pinfo->fd, "Beacon frame");
-
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 12);
@@ -1199,16 +1229,13 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
 
-
     case MGT_ATIM:
-      COL_SHOW_INFO_CONST (pinfo->fd, "ATIM");
       if (tree)
 	{
 	}
       break;
 
     case MGT_DISASS:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Dissassociate");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, cap_len);
@@ -1217,7 +1244,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
     case MGT_AUTHENTICATION:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Authentication");
       if (IS_WEP(COOK_FLAGS(fcf)))
 	{
 	  int pkt_len = tvb_reported_length (tvb);
@@ -1263,8 +1289,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
       break;
 
+
     case MGT_DEAUTHENTICATION:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Deauthentication");
       if (tree)
 	{
 	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 2);
@@ -1273,10 +1299,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
 
-
     case CTRL_PS_POLL:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Power-Save poll");
-
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
@@ -1295,9 +1318,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
 
-
     case CTRL_RTS:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Request-to-send");
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
@@ -1316,10 +1337,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
 
-
     case CTRL_CTS:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Clear-to-send");
-
       dst = tvb_get_ptr (tvb, 4, 6);
 
       set_dst_addr_cols(pinfo, dst, "RA");
@@ -1333,10 +1351,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
 
-
     case CTRL_ACKNOWLEDGEMENT:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Acknowledgement");
-
       dst = tvb_get_ptr (tvb, 4, 6);
 
       set_dst_addr_cols(pinfo, dst, "RA");
@@ -1347,10 +1362,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
 
-
     case CTRL_CFP_END:
-      COL_SHOW_INFO_CONST (pinfo->fd, "CF-End (Control-frame)");
-
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
@@ -1365,12 +1377,9 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				tvb_get_ptr (tvb, 10, 6));
 	}
       break;
-
 
 
     case CTRL_CFP_ENDACK:
-      COL_SHOW_INFO_CONST (pinfo->fd, "CF-End + CF-Ack (Control-frame)");
-
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
@@ -1388,10 +1397,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
 
-
     case DATA:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Data");
-
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
 
       if (IS_WEP(COOK_FLAGS(fcf)))
@@ -1409,12 +1415,9 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       else
 	call_dissector (llc_handle, next_tvb, pinfo, tree);
       break;
-
 
 
     case DATA_CF_ACK:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Acknowledgement");
-
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
 
       if (IS_WEP(COOK_FLAGS(fcf)))
@@ -1432,11 +1435,9 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       else
 	call_dissector (llc_handle, next_tvb, pinfo, tree);
       break;
-
 
 
     case DATA_CF_POLL:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Poll");
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
 
       if (IS_WEP(COOK_FLAGS(fcf)))
@@ -1454,11 +1455,9 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       else
 	call_dissector (llc_handle, next_tvb, pinfo, tree);
       break;
-
 
 
     case DATA_CF_ACK_POLL:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Acknowledgement/Poll");
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
 
       if (IS_WEP(COOK_FLAGS(fcf)))
@@ -1475,32 +1474,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
       else
 	call_dissector (llc_handle, next_tvb, pinfo, tree);
-      break;
-
-
-
-    case DATA_NULL_FUNCTION:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Null function (No data)");
-      break;
-
-
-    case DATA_CF_ACK_NOD:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Data + Acknowledgement (No data)");
-      break;
-
-
-    case DATA_CF_POLL_NOD:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Poll (No data)");
-      break;
-
-
-    case DATA_CF_ACK_POLL_NOD:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Acknowledgement/Poll (No data)");
-      break;
-
-
-    default:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Unrecognized (Reserved frame)");
       break;
     }
 }
@@ -1675,6 +1648,10 @@ proto_register_wlan (void)
     {&hf_fc_frame_subtype,
      {"Subtype", "wlan.fc.subtype", FT_UINT8, BASE_DEC, NULL, 0,
       "Frame subtype", HFILL }},	/* 2 */
+
+    {&hf_fc_frame_type_subtype,
+     {"Type/Subtype", "wlan.fc.type_subtype", FT_UINT16, BASE_HEX, VALS(frame_type_vals), 0,
+      "Type and subtype combined", HFILL }},
 
     {&hf_fc_flags,
      {"Protocol Flags", "wlan.flags", FT_UINT8, BASE_HEX, NULL, 0,
