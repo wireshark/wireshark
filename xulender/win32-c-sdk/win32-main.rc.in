@@ -1,8 +1,4 @@
-/*************************************************************\
-* generic.rc: Resource script for Generic                     *
-*                                                             *
-*                                                             *
-\*************************************************************/
+/* win32-main.rc -- Generated from win32-main.rc.in */
 
 #include <windows.h>
 #include "win32-main.h"
@@ -13,6 +9,7 @@
 #include "generated\capture-interfaces-dialog.rc"
 #include "generated\coloring-rules-dialog.rc"
 #include "generated\edit-color-filter-dialog.rc"
+#include "generated\enabled-protocols-dialog.rc"
 #include "generated\ethereal-main.rc"
 #include "generated\filter-dialog.rc"
 #include "generated\find-packet-dialog.rc"
