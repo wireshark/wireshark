@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.35 2003/09/02 18:33:11 guy Exp $
+ * $Id: packet-fr.c,v 1.36 2003/09/02 18:45:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,7 +147,9 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void dissect_lapf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  gboolean has_direction)
 {
   int offset = 0;
   proto_item *ti = NULL;
@@ -164,17 +166,18 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
 
-  if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
-        if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-            col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
-        if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-            col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
-  }
-  else {
-        if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-            col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
-        if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-            col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+  if (has_direction) {
+    if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
+      if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+	col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+      if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
+    } else {
+      if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+	col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+      if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+    }
   }
 
   /*
@@ -347,6 +350,17 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+static void
+dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_fr_common(tvb, pinfo, tree, FALSE);
+}
+
+static void
+dissect_fr_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_fr_common(tvb, pinfo, tree, TRUE);
+}
 
 static void dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
 				    proto_tree *tree)
@@ -562,12 +576,14 @@ void proto_register_fr(void)
 
 void proto_reg_handoff_fr(void)
 {
-  dissector_handle_t fr_handle;
+  dissector_handle_t fr_handle, fr_phdr_handle;
 
   fr_handle = create_dissector_handle(dissect_fr, proto_fr);
-  dissector_add("wtap_encap", WTAP_ENCAP_FRELAY, fr_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_handle);
   dissector_add("gre.proto", GRE_FR, fr_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_FRELAY, fr_handle);
+
+  fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
+  dissector_add("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
   data_handle = find_dissector("data");
 
   osinl_subdissector_table = find_dissector_table("osinl");
