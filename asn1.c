@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.20 2003/06/24 06:05:47 guy Exp $
+ * $Id: asn1.c,v 1.21 2003/08/29 19:13:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -661,7 +661,8 @@ asn1_bits_decode ( ASN1_SCK *asn1, int enc_len, guchar **bits,
  *              Parameters:
  *              asn1:    pointer to ASN1 socket.
  *              enc_len: length of encoding of value.
- *              octets:  pointer to variable we set to point to string.
+ *              octets:  pointer to variable we set to point to string,
+ *			 which is '\0' terminated for ease of use as C-string
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
 int
@@ -679,18 +680,9 @@ asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
      * but that's another matter; in any case, that would happen only
      * if we had an immensely large tvbuff....)
      */
-    if (enc_len != 0) {
+    if (enc_len != 0)
 	tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
-	*octets = g_malloc (enc_len);
-    } else {
-	/*
-	 * If the length is 0, we allocate a 1-byte buffer, as
-	 * "g_malloc()" returns NULL if passed 0 as an argument,
-	 * and our caller expects us to return a pointer to a
-	 * buffer.
-	 */
-	*octets = g_malloc (1);
-    }
+    *octets = g_malloc (enc_len+1);
 
     eoc = asn1->offset + enc_len;
     ptr = *octets;
@@ -702,6 +694,7 @@ asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
 	    return ret;
 	}
     }
+    *(guchar *)ptr = '\0';
     return ASN1_ERR_NOERROR;
 }
 
