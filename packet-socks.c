@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.57 2004/02/12 20:47:27 guy Exp $
+ * $Id: packet-socks.c,v 1.58 2004/02/12 21:04:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -540,7 +540,8 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	unsigned int i, command;
 	guint temp;
 	char *AuthMethodStr;
-	unsigned char auth_status;
+	guint8 auth_status;
+
 	proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
 	++offset;
 
@@ -594,9 +595,9 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	else if (compare_packet( hash_info->auth_version)) {
 		auth_status = tvb_get_guint8(tvb, offset);
 		if(auth_status != 0)
-			proto_tree_add_text( tree, tvb, offset, 1, "Status: %d (failure)", auth_status);
+			proto_tree_add_text( tree, tvb, offset, 1, "Status: %u (failure)", auth_status);
 		else
-			proto_tree_add_text( tree, tvb, offset, 1, "Status: success", auth_status);
+			proto_tree_add_text( tree, tvb, offset, 1, "Status: success");
 		offset ++;
 	}
 	else if ((compare_packet( hash_info->command_row)) ||
