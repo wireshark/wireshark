@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.38 2003/09/05 07:44:46 jmayer Exp $
+ * $Id: packet-gryphon.c,v 1.39 2003/09/09 19:22:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -969,7 +969,7 @@ filtmode(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     mode = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 1, "Filter mode: %s",
-	val_to_str(mode, dmodes, "Unknown (%u)"));
+	val_to_str(mode, modes, "Unknown (%u)"));
     proto_tree_add_text(pt, tvb, offset+1, 3, "reserved");
     offset += 4;
     return offset;
