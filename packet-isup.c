@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.34 2003/10/14 17:50:01 guy Exp $
+ * $Id: packet-isup.c,v 1.35 2003/10/20 19:13:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/ipv6-utils.h>
 #include "packet-q931.h"
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
@@ -1324,6 +1325,7 @@ static int hf_characteristics						= -1;
 
 static int hf_Organization_Identifier					= -1;
 static int hf_codec_type						= -1;
+static int hf_etsi_codec_type						= -1;
 static int hf_bearer_control_tunneling					= -1;
 static int hf_Local_BCU_ID						= -1;
 static int hf_late_cut_trough_cap_ind					= -1;
@@ -1333,8 +1335,10 @@ static int hf_bat_ase_bearer_redir_ind					= -1;
 static int hf_BAT_ASE_Comp_Report_Reason				= -1;
 static int hf_BAT_ASE_Comp_Report_ident					= -1;
 static int hf_BAT_ASE_Comp_Report_diagnostic				= -1;
-
-
+static int hf_nsap_ipv4_addr						= -1;
+static int hf_nsap_ipv6_addr						= -1;
+static int hf_iana_icp							= -1;
+ 
 /* Initialize the subtree pointers */
 static gint ett_isup 							= -1;
 static gint ett_isup_parameter 						= -1;
@@ -2241,28 +2245,71 @@ static const value_string E164_International_Networks_vals[] = {
 	{ 0,	NULL }
 };    
 
+/* Up-to-date information on the allocated ICP values can be found at:	*/
+/*http://www.iana.org/assignments/osi-nsapanumbers.			*/
+static const value_string iana_icp_values[] = {
+	{   0x0, "IP Version 6 Address"},
+	{   0x1, "IP Version 4 Address"},
+	{ 0,	NULL }
+};
+
 static void
 dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter_tree)
 {
 	guint8 afi, cc_length = 0;
-	guint8 length = 0;
-	guint temp_cc, cc, id_code;
+	guint8 length = 0, address_digit_pair = 0;
+	guint icp,  cc, id_code, cc_offset;
+	guint32    addr;
+	struct e_in6_addr ipv6_addr;
+
 
 	afi = tvb_get_guint8(parameter_tvb, offset);
 
 	switch ( afi ) {
+		case 0x35: 	/* IANA ICP Binary fortmat*/
+			proto_tree_add_text(parameter_tree, parameter_tvb, offset, 3,
+			    "IDP = %s", tvb_bytes_to_str(parameter_tvb, offset, 3));
+
+			proto_tree_add_uint(parameter_tree, hf_afi, parameter_tvb, offset, 1, afi );
+			offset = offset + 1;
+			icp = tvb_get_ntohs(parameter_tvb, offset);
+			proto_tree_add_uint(parameter_tree, hf_iana_icp, parameter_tvb, offset, 1, icp );
+			if ( icp == 0 ){ /* IPv6 addr */
+				tvb_memcpy(parameter_tvb, (guint8 *)&ipv6_addr,( offset + 2 ), 16);
+				proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2 , 3,
+				    "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
+					    proto_tree_add_ipv6(parameter_tree, hf_nsap_ipv6_addr, parameter_tvb, offset,
+							16, (guint8 *)&ipv6_addr);
+
+			}
+			else { /* IPv4 addr */
+				tvb_memcpy(parameter_tvb,(guint8 *) &addr, ( offset + 2 ), 4);
+				proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2 , 3,
+				    "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
+				proto_tree_add_ipv4(parameter_tree, hf_nsap_ipv4_addr, parameter_tvb, offset + 2, 4, addr);
+			}
+			
+			break;
 		case 0x45:	/* E.164 ATM format */
 		case 0xC3:	/* E.164 ATM group format */
-		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 9,
-		    "IDP = %s", tvb_bytes_to_str(parameter_tvb, offset, 9));
+			proto_tree_add_text(parameter_tree, parameter_tvb, offset, 9,
+			    "IDP = %s", tvb_bytes_to_str(parameter_tvb, offset, 9));
 
-		proto_tree_add_uint(parameter_tree, hf_afi, parameter_tvb, offset, len, afi );
-
-		proto_tree_add_text(parameter_tree, parameter_tvb, offset + 1, 8,
-		    "IDI = %s", tvb_bytes_to_str(parameter_tvb, offset + 1, 8));
-			offset = offset + 1;
-			temp_cc = tvb_get_ntohs(parameter_tvb, offset);
-			cc = temp_cc >> 4;
+			proto_tree_add_uint(parameter_tree, hf_afi, parameter_tvb, offset, 1, afi );
+	
+			proto_tree_add_text(parameter_tree, parameter_tvb, offset + 1, 8,
+			    "IDI = %s", tvb_bytes_to_str(parameter_tvb, offset + 1, 8));
+			offset = offset +1;
+			/* Dissect country code after removing non significant zeros */
+			cc_offset = offset;
+			address_digit_pair = tvb_get_guint8(parameter_tvb, cc_offset);
+			while ( address_digit_pair == 0 ) {
+				cc_offset = cc_offset + 1;
+				address_digit_pair = tvb_get_guint8(parameter_tvb, cc_offset);
+			}
+			cc = tvb_get_ntohs(parameter_tvb, cc_offset);
+			if (( address_digit_pair & 0xf0 ) != 0 )
+			cc = cc >> 4;
 
 			switch ( cc & 0x0f00 ) {
 		
@@ -2368,13 +2415,13 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 			default:	length = 2;
 			break;
 			}/* end switch cc_length */
-			proto_tree_add_text(parameter_tree,parameter_tvb, offset, length,"Country Code: %x %s length %u",cc,
+			proto_tree_add_text(parameter_tree,parameter_tvb, cc_offset, length,"Country Code: %x %s length %u",cc,
 					val_to_str(cc,E164_country_code_value,"unknown (%x)"),cc_length);
 			switch ( cc ) {
 				case 0x882 :
-						id_code = tvb_get_ntohs(parameter_tvb, offset + 1);
+						id_code = tvb_get_ntohs(parameter_tvb, cc_offset + 1);
 						id_code = (id_code & 0x0fff) >> 4;
-						proto_tree_add_text(parameter_tree,parameter_tvb, (offset + 1), 2,"Identification Code: %x %s ",id_code,
+						proto_tree_add_text(parameter_tree,parameter_tvb, (cc_offset + 1), 2,"Identification Code: %x %s ",id_code,
 							val_to_str(id_code,E164_International_Networks_vals,"unknown (%x)"));
 
 				break;
@@ -2494,6 +2541,7 @@ static const true_false_string BCTP_TPEI_value  = {
 };
 
 #define  ITU_T                          	0x01	
+#define  ETSI	                          	0x02	
 
 static const value_string bat_ase_organization_identifier_subfield_vals[] = {
 
@@ -2535,6 +2583,26 @@ static const value_string ITU_T_codec_type_subfield_vals[] = {
 	{ 0,	NULL }
 };
 
+static const value_string ETSI_codec_type_subfield_vals[] = {
+
+	{ 0x00, "GSM Full Rate (13.0 kBit/s)( GSM FR )"},
+	{ 0x01, "GSM Half Rate (5.6 kBit/s) ( GSM HR )"},
+	{ 0x02, "GSM Enhanced Full Rate (12.2 kBit/s)( GSM EFR )"},
+	{ 0x03, "Full Rate Adaptive Multi-Rate ( FR AMR )"},
+	{ 0x04, "Half Rate Adaptive Multi-Rate ( HR AMR )"},
+	{ 0x05, "UMTS Adaptive Multi-Rate ( UMTS AMR )"},
+	{ 0x06, "UMTS Adaptive Multi-Rate 2 ( UMTS AMR 2 )"},
+	{ 0x07, "TDMA Enhanced Full Rate (7.4 kBit/s) ( TDMA EFR )"},
+	{ 0x08, "PDC Enhanced Full Rate (6.7 kBit/s) ( PDC EFR )"},
+	{ 0x09, "Full Rate Adaptive Multi-Rate WideBand ( FR AMR-WB )"},
+	{ 0x0a, "UMTS Adaptive Multi-Rate WideBand ( UMTS AMR-WB )"},
+	{ 0x0b, "8PSK Half Rate Adaptive Multi-Rate ( OHR AMR )"},
+	{ 0x0c, "8PSK Full Rate Adaptive Multi-Rate WideBand  ( OFR AMR-WB )"},
+	{ 0x0d, "8PSK Half Rate Adaptive Multi-Rate WideBand ( OHR AMR-WB )"},
+	{ 0xfe, "Reserved for future use."},
+	{ 0xff, "Reserved for MuMe dummy Codec Type ( MuMe )"},
+	{ 0,	NULL }
+};
 
 static const value_string bearer_network_connection_characteristics_vals[] = {
 
@@ -2564,7 +2632,7 @@ static const value_string Bearer_Redirection_Indicator_vals[] = {
 	{ 0x04,	"redirect forwards request"},
 	{ 0x05,	"redirect bearer release request"},
 	{ 0x06,	"redirect bearer release proceed"},
-	{ 0x07,	" redirect bearer release complete"},
+	{ 0x07,	"redirect bearer release complete"},
 	{ 0x08,	"redirect cut-through request"},
 	{ 0x09,	"redirect bearer connected indication"},
 	{ 0x0a,	"redirect failure"},
@@ -2620,7 +2688,94 @@ static const value_string BAT_ASE_Report_Reason_vals[] = {
 	{ 0x02,	"BICC data with unrecognized information element, discarded"},
 	{ 0,	NULL }
 };
+static int
+dissect_codec(tvbuff_t *parameter_tvb, proto_tree *bat_ase_element_tree, gint length_indicator, gint offset,gint identifier)
+{
+/* offset is at length indicator e.g 1 step past identifier */
+guint content_len;
+guint8 tempdata, compatibility_info;
 
+	proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb, offset - 1, 1, identifier );
+	proto_tree_add_uint(bat_ase_element_tree , hf_length_indicator  , parameter_tvb, offset, 1, length_indicator );
+	offset = offset + 1;	
+	compatibility_info = tvb_get_guint8(parameter_tvb, offset);
+	proto_tree_add_uint(bat_ase_element_tree, hf_Instruction_ind_for_general_action , parameter_tvb, offset, 1, compatibility_info );
+	proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_general_action , parameter_tvb, offset, 1, compatibility_info );
+	proto_tree_add_uint(bat_ase_element_tree, hf_Instruction_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
+	proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
+	proto_tree_add_boolean(bat_ase_element_tree, hf_isup_extension_ind , parameter_tvb, offset, 1, compatibility_info );
+
+	content_len = length_indicator - 1 ; /* exclude the treated Compatibility information */
+	offset = offset + 1;
+	tempdata = tvb_get_guint8(parameter_tvb, offset);
+	proto_tree_add_uint(bat_ase_element_tree, hf_Organization_Identifier , parameter_tvb, offset, 1, tempdata );
+		switch ( tempdata ){
+			case ITU_T :
+					offset = offset + 1;
+					tempdata = tvb_get_guint8(parameter_tvb, offset);
+					proto_tree_add_uint(bat_ase_element_tree, hf_codec_type , parameter_tvb, offset, 1, tempdata );
+					offset = offset + 1;
+					switch ( tempdata ) {
+						case G_711_64_A :
+  						case G_711_64_U	:		
+						case G_711_56_A	:		
+        			     		case G_711_56_U	: 		
+        					case G_722_SB_ADPCM :	
+        					case G_723_1 :				
+        					case G_723_1_Annex_A :	/* These codecs have no configuration data */	
+						break;
+			            		case G_726_ADPCM :					
+        		        		case G_727_Embedded_ADPCM : /* four bit config data, TODO decode config */
+						if ( content_len > 2 ) {	
+							tempdata = tvb_get_guint8(parameter_tvb, offset);
+							proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1, "Configuration data : 0x%x", tempdata);
+						}
+						break;	
+        		            		case G_728 :							
+        		         		case G_729_CS_ACELP :		
+        			     		case G_729_Annex_B :	 /* three bit config data, TODO decode config */
+						if ( content_len > 2 ) {	
+							tempdata = tvb_get_guint8(parameter_tvb, offset);
+							proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1 , "Configuration data : 0x%x", tempdata);
+						}
+						break;
+						default:
+						break;
+
+					}/* switch ITU codec type*/
+			offset = offset + 1;
+			break;	
+			case ETSI:
+					offset = offset + 1;
+					tempdata = tvb_get_guint8(parameter_tvb, offset);
+					proto_tree_add_uint(bat_ase_element_tree, hf_etsi_codec_type , parameter_tvb, offset, 1, tempdata );
+					if ( content_len > 2 )	{
+						offset = offset + 1;
+						tempdata = tvb_get_guint8(parameter_tvb, offset);
+						proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1 , "ACS : 0x%x", tempdata);
+					}
+					if ( content_len > 3 )	{
+						offset = offset + 1;
+						tempdata = tvb_get_guint8(parameter_tvb, offset);
+						proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1 , "SCS : 0x%x", tempdata);
+					}
+					if ( content_len > 4 )	{
+						offset = offset + 1;
+						tempdata = tvb_get_guint8(parameter_tvb, offset);
+						proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1 , "OM MACS : 0x%x", tempdata);
+					}
+					offset = offset + 1;
+			break;
+			default:
+					offset = offset + 1;
+					tempdata = tvb_get_guint8(parameter_tvb, offset);
+					proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, content_len ,
+						 "Unknown organisation Identifier ( Non ITU-T/ETSI codec ) %u", tempdata);
+					offset = offset + content_len - 1;
+			break;
+			}/* switch OID */
+return offset;
+}
 
 /* Dissect BAT ASE message according to Q.765.5 200006 and Amendment 1 200107	*/
 /* Layout of message								*/
@@ -2628,22 +2783,23 @@ static const value_string BAT_ASE_Report_Reason_vals[] = {
 /*	Identifier 1 			1					*/
 /*	Length indicator 1 		2					*/
 /*	Compatibility information 1 	3					*/
-/*	Contents 1			4					*/
+/*	Contents 1				4					*/
 /*	Identifier n 			m					*/
 /*	Length indicator n							*/
 /*	Compatibility information n						*/
-/*	Contents n			p					*/
+/*	Contents n				p					*/
 
 static void
 dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, gint offset)
 { 
-	gint		length = tvb_reported_length_remaining(parameter_tvb, offset);
+	gint		length = tvb_reported_length_remaining(parameter_tvb, offset), list_end;
 	tvbuff_t	*next_tvb;
 	proto_tree	*bat_ase_tree, *bat_ase_element_tree, *bat_ase_iwfa_tree;
 	proto_item	*bat_ase_item, *bat_ase_element_item, *bat_ase_iwfa_item;
 	guint8 identifier,compatibility_info,content, BCTP_Indicator_field_1, BCTP_Indicator_field_2;
-	guint8 length_indicator, sdp_length, tempdata, content_len, element_no, number_of_indicators;
+	guint8 sdp_length, tempdata, element_no, number_of_indicators;
 	guint8 iwfa[32], diagnostic_len;
+	guint content_len, length_indicator;
 	guint duration;
 	guint diagnostic;
 	guint32 bncid, Local_BCU_ID;
@@ -2658,21 +2814,30 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 	while(tvb_reported_length_remaining(parameter_tvb, offset) > 0){
 		element_no = element_no + 1;
 		identifier = tvb_get_guint8(parameter_tvb, offset);
-		offset = offset + 1;
 
 		/* length indicator may be 11 bits long 			*/
-		/*        temp_length = tvb_get_ntohs(parameter_tvb, offset);*/
-	
-		length_indicator = tvb_get_guint8(parameter_tvb, offset) & 0x7f;
+		offset = offset + 1;
+		tempdata = tvb_get_guint8(parameter_tvb, offset);
+		if ( tempdata & 0x80 ) {
+			length_indicator = tempdata & 0x7f;	
+		}
+		else {
+			offset = offset +1;
+			length_indicator = tvb_get_guint8(parameter_tvb, offset);
+			length_indicator = length_indicator << 7;
+			length_indicator = length_indicator & ( tempdata & 0x7f );
+		}
 
 		bat_ase_element_item = proto_tree_add_text(bat_ase_tree,parameter_tvb,
 					  ( offset - 1),(length_indicator + 2),"BAT ASE Element %u, Identifier: %s",element_no,
 					val_to_str(identifier,bat_ase_list_of_Identifiers_vals,"unknown (%u)"));
 		bat_ase_element_tree = proto_item_add_subtree(bat_ase_element_item , ett_bat_ase_element);
-
+		if ( identifier != CODEC ) {
+			/* identifier, lengt indicator and compabillity info must be printed inside CODEC */
+			/* dissection in order to use dissect_codec routine for codec list */
 		proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb, offset - 1, 1, identifier );
 		proto_tree_add_uint(bat_ase_element_tree , hf_length_indicator  , parameter_tvb, offset, 1, length_indicator );
-
+		
 		offset = offset + 1;
 		compatibility_info = tvb_get_guint8(parameter_tvb, offset);
 		proto_tree_add_uint(bat_ase_element_tree, hf_Instruction_ind_for_general_action , parameter_tvb, offset, 1, compatibility_info );
@@ -2681,8 +2846,9 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 		proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
 		proto_tree_add_boolean(bat_ase_element_tree, hf_isup_extension_ind , parameter_tvb, offset, 1, compatibility_info );
 		offset = offset + 1;
+		}
 		content_len = length_indicator - 1 ; /* exclude the treated Compatibility information */
-
+	
 		/* content will be different depending on identifier */
 		switch ( identifier ){
 
@@ -2724,68 +2890,28 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
 				offset = offset + content_len;
 			break;
-			case CODEC_LIST :          	
+			case CODEC_LIST :    
+				list_end = offset + content_len;
+				while ( offset < ( list_end - 1 )) { 
+				identifier = tvb_get_guint8(parameter_tvb, offset);			      	
+				offset = offset + 1;
 				tempdata = tvb_get_guint8(parameter_tvb, offset);
-				proto_tree_add_uint(bat_ase_element_tree, hf_Organization_Identifier , parameter_tvb, offset, 1, tempdata );
-				if ( tempdata != ITU_T ){
-					proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, content_len , "List of Codecs ( Non ITU-T ) %s",
-							    tvb_bytes_to_str(parameter_tvb, offset, content_len));
-				break;
+				if ( tempdata & 0x80 ) {
+					length_indicator = tempdata & 0x7f;	
 				}
-				offset = offset + 1;
-				tempdata = tvb_get_guint8(parameter_tvb, offset);
-				proto_tree_add_uint(bat_ase_element_tree, hf_codec_type , parameter_tvb, offset, 1, tempdata );
-				offset = offset +1;
-				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(content_len, "", "s"));
-				offset = offset + content_len - 2;
-			break;
-			case CODEC :                             	
-
-				tempdata = tvb_get_guint8(parameter_tvb, offset);
-				proto_tree_add_uint(bat_ase_element_tree, hf_Organization_Identifier , parameter_tvb, offset, 1, tempdata );
-				if ( tempdata != ITU_T ){
-					proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, content_len , "Codec ( Non ITU-T ) %s",
-							    tvb_bytes_to_str(parameter_tvb, offset, content_len));
-				break;
+				else {
+					offset = offset +1;
+					length_indicator = tvb_get_guint8(parameter_tvb, offset);
+					length_indicator = length_indicator << 7;
+					length_indicator = length_indicator & ( tempdata & 0x7f );
 				}
-				offset = offset + 1;
-				tempdata = tvb_get_guint8(parameter_tvb, offset);
-				proto_tree_add_uint(bat_ase_element_tree, hf_codec_type , parameter_tvb, offset, 1, tempdata );
-				offset = offset + 1;
-
-				switch ( tempdata ) {
-					
-				case G_711_64_A :
-		                case G_711_64_U	:		
-                		case G_711_56_A	:		
-                    		case G_711_56_U	: 		
-                    		case G_722_SB_ADPCM :	
-                    		case G_723_1 :				
-                    		case G_723_1_Annex_A :	/* These codecs have no configuration data */	
-				break;
-
-                    		case G_726_ADPCM :					
-                    		case G_727_Embedded_ADPCM : /* four bit config data, TODO decode config */
-					if ( content_len > 1 ) {	
-						proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, content_len , "Configuration data : %s",
-							    tvb_bytes_to_str(parameter_tvb, offset, 1));
-					offset = offset + 1;
-					}
-				break;	
-                    		case G_728 :							
-                    		case G_729_CS_ACELP :		
-                    		case G_729_Annex_B :	 /* four bit config data, TODO decode config */
-					if ( content_len > 1 )	{
-						proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, content_len , "Configuration data : %s",
-							    tvb_bytes_to_str(parameter_tvb, offset, 1));
-					offset = offset + 1;
-					}
-				default:
-					break;
-
-				}	
-                             	
+				offset = dissect_codec(parameter_tvb, bat_ase_element_tree, length_indicator , offset, identifier);
+				}
 			break;
+			case CODEC :       
+				/* offset is at length indicator in this case */                       	
+				offset = dissect_codec(parameter_tvb, bat_ase_element_tree, length_indicator , offset, identifier);
+				break;/* case codec */
 			case BAT_COMPATIBILITY_REPORT :                	
 				tempdata = tvb_get_guint8(parameter_tvb, offset);
 				proto_tree_add_uint(bat_ase_element_tree, hf_BAT_ASE_Comp_Report_Reason, parameter_tvb, offset, 1, tempdata );
@@ -2922,6 +3048,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 				offset = offset + content_len;
 			}                                	
   	} 
+
 }
 
 static void
@@ -6036,6 +6163,12 @@ proto_register_isup(void)
 			FT_UINT8, BASE_HEX, VALS(ITU_T_codec_type_subfield_vals),0x0,
 			"", HFILL }},
 
+		{ &hf_etsi_codec_type,
+			{ "ETSI codec type subfield",  "bat_ase.ETSI_codec_type_subfield",
+			FT_UINT8, BASE_HEX, VALS(ETSI_codec_type_subfield_vals),0x0,
+			"", HFILL }},
+
+
 		{ &hf_bearer_control_tunneling,
 			{ "Bearer control tunneling",  "bat_ase.bearer_control_tunneling",
 			FT_BOOLEAN, 8, TFS(&Bearer_Control_Tunnelling_ind_value),0x01,
@@ -6078,10 +6211,25 @@ proto_register_isup(void)
 			"", HFILL }},
 
 		{ &hf_bat_ase_bearer_redir_ind,
-			{ "Redirection Indicator",  "bat_ase_bearer_redir_ind",
+			{ "Redirection Indicator",  "bat_ase.bearer_redir_ind",
 			FT_UINT8, BASE_HEX, VALS(Bearer_Redirection_Indicator_vals),0x0,
 			"", HFILL }},
 
+		{ &hf_nsap_ipv4_addr,
+			{ "IWFA IPv4 Address", "nsap.ipv4_addr", 
+			FT_IPv4, BASE_NONE, NULL, 0x0,
+			"IPv4 address", HFILL }},
+
+		{ &hf_nsap_ipv6_addr,
+		  { "IWFA IPv6 Address", "nsap.ipv6_addr",
+	  	  FT_IPv6, BASE_NONE, NULL, 0x0,
+	   	 "IPv4 address", HFILL}},
+
+
+		{ &hf_iana_icp,
+			{ "IANA ICP",  "nsap.iana_icp",
+			FT_UINT16, BASE_HEX, VALS(iana_icp_values),0x0,
+			"", HFILL }},
 
 	};
 
