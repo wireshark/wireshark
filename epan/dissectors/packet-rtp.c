@@ -70,11 +70,11 @@
 
 static dissector_handle_t rtp_handle;
 static dissector_handle_t stun_handle;
-static dissector_handle_t rtpevent_handle=NULL;
 
 static int rtp_tap = -1;
 
 static dissector_table_t rtp_pt_dissector_table;
+static dissector_table_t rtp_dyn_pt_dissector_table;
 
 /* RTP header fields             */
 static int proto_rtp           = -1;
@@ -126,6 +126,7 @@ static gboolean dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_rtp( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void get_conv_info(tvbuff_t *tvb, packet_info *pinfo);
 
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_rtp_show_setup_info = TRUE;
@@ -235,11 +236,27 @@ const value_string rtp_payload_type_short_vals[] =
        { 0,            NULL },
 };
 
+static void
+free_hash_item( gpointer key _U_ , gpointer value, gpointer user_data _U_ )
+{
+        g_free(value);
+		g_free(key);
+}
+
+void
+rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload)
+{
+	if (rtp_dyn_payload == NULL) return;
+	g_hash_table_foreach(rtp_dyn_payload, (GHFunc)free_hash_item, NULL);
+	g_hash_table_destroy(rtp_dyn_payload);
+	rtp_dyn_payload = NULL;
+}
+
 /* Set up an RTP conversation */
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     gchar *setup_method, guint32 setup_frame_number, int rtp_event_pt)
+                     gchar *setup_method, guint32 setup_frame_number, GHashTable *rtp_dyn_payload)
 {
 	address null_addr;
 	conversation_t* p_conv;
@@ -287,6 +304,7 @@ void rtp_add_address(packet_info *pinfo,
 	if ( ! p_conv_data ) {
 		/* Create conversation data */
 		p_conv_data = g_mem_chunk_alloc(rtp_conversations);
+		p_conv_data->rtp_dyn_payload = NULL;
 
 		conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
 	}
@@ -294,10 +312,13 @@ void rtp_add_address(packet_info *pinfo,
 	/*
 	 * Update the conversation data.
 	 */
+	/* Free the hash if already exists */
+	rtp_free_hash_dyn_payload(p_conv_data->rtp_dyn_payload);
+
 	strncpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE);
 	p_conv_data->method[MAX_RTP_SETUP_METHOD_SIZE] = '\0';
 	p_conv_data->frame_number = setup_frame_number;
-	p_conv_data->rtp_event_pt = rtp_event_pt;
+	p_conv_data->rtp_dyn_payload = rtp_dyn_payload;
 }
 
 static void rtp_init( void )
@@ -374,26 +395,22 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	newtvb = tvb_new_subset( tvb, offset, data_len, data_reported_len );
 
-	/*
-	 * If this is part of a conversation set up by SDP,
-	 * we know the dynamically-assigned payload type for telephone
-	 * events (such as keypad button presses).
-	 */
+	/* if the payload type is dynamic (96 to 127), we check if the conv is set and we look for the pt definition */
+	if ( (payload_type >=96) && (payload_type <=127) ) {
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
-	if (p_conv_data && (strcmp(p_conv_data->method, "SDP") == 0) ) {
-		if ( (p_conv_data->rtp_event_pt != 0) && (p_conv_data->rtp_event_pt == (guint32)payload_type) )
-		{
-			call_dissector(rtpevent_handle, newtvb, pinfo, tree);
-			return;
+		if (p_conv_data && p_conv_data->rtp_dyn_payload) {
+			gchar *payload_type_str = NULL;
+			payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
+			if (payload_type_str)
+				found_match = dissector_try_string(rtp_dyn_pt_dissector_table,
+													payload_type_str, newtvb, pinfo, tree);
 		}
 	}
-
-	/*
-	 * It's not a telephone event; try dissecting it based on the
-	 * payload type.
-	 */
+	/* if we don't found, it is static OR could be set static from the preferences */
+	if (found_match == FALSE) 
 	if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
 		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+	}
 }
 
 static struct _rtp_info rtp_info;
@@ -411,6 +428,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int csrc_count;
 	gboolean    marker_set;
 	unsigned int payload_type;
+	gchar *payload_type_str = NULL;
 	unsigned int i            = 0;
 	unsigned int hdr_extension= 0;
 	unsigned int padding_count;
@@ -421,6 +439,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint32     timestamp;
 	guint32     sync_src;
 	guint32     csrc_item;
+	struct _rtp_conversation_info *p_conv_data = NULL;
+
 
 	/* Get the fields in the first octet */
 	octet1 = tvb_get_guint8( tvb, offset );
@@ -520,21 +540,34 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		rtp_info.info_data = NULL;
 	}
 
+	/* Look for conv and add to the frame if found */
+	get_conv_info(tvb, pinfo);
+
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
+	}
+
+	/* if it is dynamic payload, let use the conv data to see if it is defined */
+	if ( (payload_type>95) && (payload_type<128) ) {
+		/* Use existing packet info if available */
+		p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+		if (p_conv_data)
+			payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
 	}
 
 	if ( check_col( pinfo->cinfo, COL_INFO) ) {
 		col_add_fstr( pinfo->cinfo, COL_INFO,
 		    "Payload type=%s, SSRC=%u, Seq=%u, Time=%u%s",
-		    val_to_str( payload_type, rtp_payload_type_vals,
-		        "Unknown (%u)" ),
+			payload_type_str ? payload_type_str : val_to_str( payload_type, rtp_payload_type_vals,"Unknown (%u)" ),
 		    sync_src,
 		    seq_num,
 		    timestamp,
 		    marker_set ? ", Mark" : "");
 	}
+
+
 	if ( tree ) {
+		proto_tree *item;
 		/* Create RTP protocol tree */
 		ti = proto_tree_add_item(tree, proto_rtp, tvb, offset, -1, FALSE );
 		rtp_tree = proto_item_add_subtree(ti, ett_rtp );
@@ -557,8 +590,12 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 		proto_tree_add_boolean( rtp_tree, hf_rtp_marker, tvb, offset,
 		    1, octet2 );
-		proto_tree_add_uint( rtp_tree, hf_rtp_payload_type, tvb,
-		    offset, 1, octet2 );
+
+		item = proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
+		    offset, 1, octet2, "Payload type: %s (%u)", 
+			payload_type_str ? payload_type_str : val_to_str( payload_type, rtp_payload_type_vals,"Unknown"),
+			payload_type);
+
 		offset++;
 
 		/* Sequence number 16 bits (2 octets) */
@@ -573,7 +610,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		proto_tree_add_uint( rtp_tree, hf_rtp_ssrc, tvb, offset, 4, sync_src );
 		offset += 4;
 	} else {
-		show_setup_info(tvb, pinfo, NULL);
 		offset += 12;
 	}
 	/* CSRC list*/
@@ -708,9 +744,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		tap_queue_packet(rtp_tap, pinfo, &rtp_info);
 }
 
-
-/* Look for conversation info and display any setup info found */
-static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/* Look for conversation info */
+static void get_conv_info(tvbuff_t *tvb, packet_info *pinfo)
 {
 	/* Conversation and current data */
 	conversation_t *p_conv = NULL;
@@ -736,17 +771,30 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				p_conv_packet_data = g_mem_chunk_alloc(rtp_conversations);
 				strcpy(p_conv_packet_data->method, p_conv_data->method);
 				p_conv_packet_data->frame_number = p_conv_data->frame_number;
-				p_conv_packet_data->rtp_event_pt = p_conv_data->rtp_event_pt;
+				p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
 				p_add_proto_data(pinfo->fd, proto_rtp, p_conv_packet_data);
 			}
 		}
 	}
+	if (p_conv_data) rtp_info.info_setup_frame_num = p_conv_data->frame_number;
+}
+
+
+/* Display setup info */
+static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	/* Conversation and current data */
+	struct _rtp_conversation_info *p_conv_data = NULL;
+		proto_tree *rtp_setup_tree;
+	proto_item *ti;
+
+	/* Use existing packet info if available */
+	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+
+	if (!p_conv_data) return;
 
 	/* Create setup info subtree with summary info. */
-	if (p_conv_data)
-	{
-		proto_tree *rtp_setup_tree;
-		proto_item *ti =  proto_tree_add_string_format(tree, hf_rtp_setup, tvb, 0, 0,
+	ti =  proto_tree_add_string_format(tree, hf_rtp_setup, tvb, 0, 0,
 		                                               "",
 		                                               "Stream setup by %s (frame %d)",
 		                                               p_conv_data->method,
@@ -763,8 +811,6 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			                             tvb, 0, 0, p_conv_data->method);
 			PROTO_ITEM_SET_GENERATED(item);
 		}
-		rtp_info.info_setup_frame_num = p_conv_data->frame_number;
-	}
 }
 
 
@@ -840,7 +886,7 @@ proto_register_rtp(void)
 				"rtp.p_type",
 				FT_UINT8,
 				BASE_DEC,
-				VALS(rtp_payload_type_vals),
+				"",
 				0x7F,
 				"", HFILL
 			}
@@ -1021,10 +1067,14 @@ proto_register_rtp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("rtp", dissect_rtp, proto_rtp);
+
 	rtp_tap = register_tap("rtp");
 
 	rtp_pt_dissector_table = register_dissector_table("rtp.pt",
 	                                                  "RTP payload type", FT_UINT8, BASE_DEC);
+	rtp_dyn_pt_dissector_table = register_dissector_table("rtp_dyn_payload_type",
+												    "Dynamic RTP payload type", FT_STRING, BASE_NONE);
+
 
 	rtp_module = prefs_register_protocol(proto_rtp, NULL);
 
@@ -1053,8 +1103,6 @@ proto_reg_handoff_rtp(void)
 {
 	data_handle = find_dissector("data");
 	stun_handle = find_dissector("stun");
-	rtpevent_handle = find_dissector("rtpevent");
-
 	/*
 	 * Register this dissector as one that can be selected by a
 	 * UDP port number.
