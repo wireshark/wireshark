@@ -3,7 +3,7 @@
  * Copyright 2002-2003, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.8 2003/01/30 08:19:37 guy Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.9 2003/02/14 06:14:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,8 +191,14 @@ static int
 lsa_ds_dissect_role_get_dom_info_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	guint16 level;
+
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-				    hf_lsa_ds_dominfo_level, NULL);
+				    hf_lsa_ds_dominfo_level, &level);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+
 	return offset;
 }
 
