@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.30 2002/07/17 06:55:20 guy Exp $
+ * $Id: packet-sip.c,v 1.31 2002/07/25 21:43:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -215,7 +215,7 @@ dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          */
                         return FALSE;
                 }
-                if (!tvb_bytes_exist(tvb, eol - SIP2_HDR_LEN + 1, SIP2_HDR_LEN)) {
+                if (!tvb_bytes_exist(tvb, eol - SIP2_HDR_LEN, SIP2_HDR_LEN)) {
                         /*
                          * We don't have enough of the data in the line
                          * to check.
@@ -223,7 +223,7 @@ dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         return FALSE;
                 }
 
-                if (tvb_strneql(tvb, eol - SIP2_HDR_LEN + 1, SIP2_HDR, SIP2_HDR_LEN - 1) != 0) {
+                if (tvb_strneql(tvb, eol - SIP2_HDR_LEN, SIP2_HDR, SIP2_HDR_LEN - 1) != 0) {
                         /*
                          * Not a request, either.
                          */
@@ -238,7 +238,6 @@ dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         return TRUE;
 }
-
 
 /* Returns the offset to the start of the optional message-body, or
  * -1 if not found.
