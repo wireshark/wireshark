@@ -168,7 +168,7 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	# Evidently, some systems have pcap.h, etc. in */include/pcap
 	AC_MSG_CHECKING(for extraneous pcap header directories)
 	found_pcap_dir=""
-	for pcap_dir in /usr/include/pcap /usr/local/include/pcap
+	for pcap_dir in /usr/include/pcap /usr/local/include/pcap $prefix/include
 	do
 	  if test -d $pcap_dir ; then
 	    LIBS="$LIBS -L$pcap_dir"
@@ -179,7 +179,7 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	done
 
 	if test "$found_pcap_dir" != "" ; then
-	  AC_MSG_RESULT(found --$found_pcap_dir added to LIBS)
+	  AC_MSG_RESULT(found --$found_pcap_dir added to LIBS and CFLAGS)
 	else
 	  AC_MSG_RESULT(not found)
 	fi
