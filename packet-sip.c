@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.47 2003/11/14 02:07:20 guy Exp $
+ * $Id: packet-sip.c,v 1.48 2003/11/20 22:38:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,7 +275,7 @@ static gboolean dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo,
 static line_type_t sip_parse_line(tvbuff_t *tvb, gint linelen,
     guint *token_1_len);
 static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
-    guint meth_len);
+    guint meth_len, guint *meth_idx);
 static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset,
     guint header_len);
 static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree,
@@ -320,8 +320,11 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gboolean is_known_request;
         char *descr;
         guint token_1_len;
+	guint current_method_idx = 0;
         proto_item *ts = NULL, *ti, *th = NULL, *sip_element_item;
         proto_tree *sip_tree, *reqresp_tree, *hdr_tree = NULL, *sip_element_tree;
+	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;	
+	char csec_method[16] = "";
 
         /*
          * Note that "tvb_find_line_end()" will return a value that
@@ -356,7 +359,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         switch (line_type) {
 
         case REQUEST_LINE:
-                is_known_request = sip_is_known_request(tvb, 0, token_1_len);
+                is_known_request = sip_is_known_request(tvb, 0, token_1_len, &current_method_idx);
                 descr = is_known_request ? "Request" : "Unknown request";
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                         col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
@@ -453,7 +456,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				header_len = colon_offset - offset;
 				hf_index = sip_is_known_sip_header(tvb,
 				    offset, header_len);
-			
+
 				if (hf_index == -1) {
 					proto_tree_add_text(hdr_tree, tvb,
 					    offset, next_offset - offset, "%s",
@@ -484,9 +487,9 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					case POS_TO :
 						sip_element_item = proto_tree_add_string_format(hdr_tree,
 						    hf_header_array[hf_index], tvb,
-					    	offset, next_offset - offset,
-					    	value, "%s",
-					    	tvb_format_text(tvb, offset, linelen));
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
 						sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
 						tag_offset = tvb_find_guint8(tvb, offset,linelen, ';');
 						if ( tag_offset != -1){
@@ -495,30 +498,30 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							if ( c == 't' ){/* tag found */
 								proto_tree_add_string(sip_element_tree,
 								    hf_sip_to_addr, tvb,
-								    	value_offset, (tag_offset - value_offset - 1),
+								    value_offset, (tag_offset - value_offset - 1),
 					    			tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
 								tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, '=') + 1;
 								proto_tree_add_string(sip_element_tree,
 								    hf_sip_tag, tvb,
-								    	tag_offset, (line_end_offset - tag_offset),
+								    tag_offset, (line_end_offset - tag_offset),
 					    			tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
 							
 							}
 							else {
 								proto_tree_add_string_format(sip_element_tree,
 								    hf_sip_to_addr, tvb,
-							    	offset, line_end_offset - offset,
-					    			value, "%s",
-					    			tvb_format_text(tvb, offset, linelen));
+								    offset, line_end_offset - offset,
+								    value, "%s",
+								    tvb_format_text(tvb, offset, linelen));
 							}/* if c= t */
 						} /* if tag offset */
 					break;	
 					case POS_FROM :
 						sip_element_item = proto_tree_add_string_format(hdr_tree,
 						    hf_header_array[hf_index], tvb,
-					    	offset, next_offset - offset,
-					    	value, "%s",
-					    	tvb_format_text(tvb, offset, linelen));
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
 						sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
 						tag_offset = tvb_find_guint8(tvb, offset,linelen, ';');
 						if ( tag_offset != -1){
@@ -527,14 +530,13 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							if ( c == 't' ){/* tag found */
 								proto_tree_add_string(sip_element_tree,
 								    hf_sip_from_addr, tvb,
-								    	value_offset, (tag_offset - value_offset - 1),
-					    			tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
+								    value_offset, (tag_offset - value_offset - 1),
+								    tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
 								tag_offset = tvb_find_guint8(tvb, offset,linelen, '=') + 1;
 								proto_tree_add_string(sip_element_tree,
 								    hf_sip_tag, tvb,
-								    	tag_offset, (line_end_offset - tag_offset),
-					    			tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
-							
+								    tag_offset, (line_end_offset - tag_offset),
+								    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
 							}
 							else {
 								tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, ';');
@@ -548,21 +550,56 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					    					   tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
 										tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, '=') + 1;
 										proto_tree_add_string(sip_element_tree,
-								  		  hf_sip_tag, tvb,
-								    		  tag_offset, (line_end_offset - tag_offset),
-					    					  tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+										    hf_sip_tag, tvb,
+										    tag_offset, (line_end_offset - tag_offset),
+										    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
 									}
 								}
 							}/* if c= t */
 						} /* if tag offset */
-
 					break;
+					case POS_CSEQ :
+						/* Extract method name from value */
+						for (value_offset = 0; value_offset < (gint)strlen(value); value_offset++)
+						{
+							if (isalpha(value[value_offset]))
+							{
+								strcpy(csec_method,value+value_offset);
+								break;
+							}
+						}
+						/* Add 'CSeq' string item to tree */
+						proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
+					break;
+					case POS_EXPIRES :
+						if (strcmp(value, "0") == 0)
+						{
+							expires_is_0 = 1;
+						}
+						/* Add 'Expires' string item to tree */
+						proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
+					break;
+					case POS_CONTACT :
+						contacts++;
+						if (strcmp(value, "*") == 0)
+						{
+							contact_is_star = 1;
+						}
+						/* Fall through to default case to add string to tree */
 					default :	
 						proto_tree_add_string_format(hdr_tree,
 						    hf_header_array[hf_index], tvb,
-					    	offset, next_offset - offset,
-					    	value, "%s",
-					    	tvb_format_text(tvb, offset, linelen));
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
 					break;
 					}/* end switch */
 					g_free(value);
@@ -583,6 +620,31 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 next_tvb = tvb_new_subset(tvb, next_offset, -1, -1);
                 call_dissector(sdp_handle, next_tvb, pinfo, tree);
         }
+
+
+	/* Add to info column interesting things learned from header fields. */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		/* Registration requests */
+		if (strcmp(sip_methods[current_method_idx], "REGISTER") == 0)
+		{
+			if (contact_is_star && expires_is_0)
+			{
+				col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
+			}
+			else
+			if (!contacts)
+			{
+				col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
+			}
+		}
+
+		/* Registration responses */
+		if (line_type == STATUS_LINE && (strcmp(csec_method, "REGISTER") == 0))
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
+		}
+	}
 
         if (global_sip_raw_text)
                 tvb_raw_text_add(tvb, tree);
@@ -738,14 +800,17 @@ sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
 }
 
 static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
-    guint meth_len)
+    guint meth_len, guint *meth_idx)
 {
         guint i;
 
         for (i = 1; i < array_length(sip_methods); i++) {
                 if (meth_len == strlen(sip_methods[i]) &&
                     tvb_strneql(tvb, meth_offset, sip_methods[i], meth_len) == 0)
-                        return TRUE;
+                {
+                     *meth_idx = i;
+                     return TRUE;
+                }
         }
 
         return FALSE;
@@ -1089,7 +1154,7 @@ void proto_register_sip(void)
                 &ett_raw_text,
         };
 
-	  module_t *sip_module;
+	module_t *sip_module;
 
         /* Register the protocol name and description */
         proto_sip = proto_register_protocol("Session Initiation Protocol",
