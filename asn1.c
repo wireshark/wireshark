@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.11 2002/03/01 02:48:10 guy Exp $
+ * $Id: asn1.c,v 1.12 2002/03/05 09:18:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -674,10 +674,18 @@ asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
      * We do that by attempting to fetch the last byte (if the length
      * isn't 0).
      */
-    if (enc_len != 0)
+    if (enc_len != 0) {
 	tvb_get_guint8(asn1->tvb, eoc - 1);
-
-    *octets = g_malloc (enc_len);
+	*octets = g_malloc (enc_len);
+    } else {
+	/*
+	 * If the length is 0, we allocate a 1-byte buffer, as
+	 * "g_malloc()" returns NULL if passed 0 as an argument,
+	 * and our caller expects us to return a pointer to a
+	 * buffer.
+	 */
+	*octets = g_malloc (1);
+    }
     ptr = *octets;
     while (asn1->offset < eoc) {
 	ret = asn1_octet_decode (asn1, (guchar *)ptr++);
