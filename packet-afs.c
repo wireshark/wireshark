@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs.c,v 1.54 2003/03/05 09:52:22 sahlberg Exp $
+ * $Id: packet-afs.c,v 1.55 2003/12/27 03:45:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -368,8 +368,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				FALSE);
 		afs_tree = proto_item_add_subtree(ti, ett_afs);
 
-		proto_tree_add_text(afs_tree, tvb,
-			offset, -1,
+		proto_tree_add_text(afs_tree, tvb, 0, 0,
 			"Service: %s%s%s %s",
 			VALID_OPCODE(opcode) ? "" : "Encrypted ",
 			typenode == hf_afs_ubik ? "UBIK - " : "",
@@ -408,15 +407,15 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						node, tvb, offset, 4, opcode);
 				} else {
 					ti = proto_tree_add_uint(afs_tree,
-						node, tvb, offset, 0, opcode);
+						node, tvb, 0, 0, opcode);
 				}
 			} else if ( reply && node != 0 ) {
 				/* the opcode isn't in this packet */
 				ti = proto_tree_add_uint(afs_tree,
-					node, tvb, offset, 0, opcode);
+					node, tvb, 0, 0, opcode);
 			} else {
 				ti = proto_tree_add_text(afs_tree, tvb,
-					offset, 0, "Operation: Unknown");
+					0, 0, "Operation: Unknown");
 			}
 
 			/* Add the subtree for this particular service */
