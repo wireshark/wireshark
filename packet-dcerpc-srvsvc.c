@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.61 2003/11/20 06:43:51 sharpe Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.62 2003/11/20 23:21:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2419,6 +2419,7 @@ srvsvc_dissect_SHARE_INFO_502_CONTAINER(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+#if 0
 /*
   IDL typedef struct {
   IDL    [unique] [string] wchar_t *comment;
@@ -2432,6 +2433,7 @@ srvsvc_dissect_SHARE_INFO_1004(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 	return offset;
 }
+
 static int
 srvsvc_dissect_SHARE_INFO_1004_array(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
@@ -2655,7 +2657,7 @@ srvsvc_dissect_SHARE_INFO_1501_CONTAINER(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-
+#endif
 
 /*
  * IDL typedef [switch_type(long)] union {
@@ -2712,7 +2714,8 @@ srvsvc_dissect_SHARE_INFO_UNION(tvbuff_t *tvb, int offset,
 	 * These next lot do not seem to be understood by Windows of any
 	 * flavor
 	 */
-	/*case 1004:
+#if 0
+	case 1004:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1004,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1004:", -1);
@@ -2736,7 +2739,8 @@ srvsvc_dissect_SHARE_INFO_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1501,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1501:", -1);
-		break;*/
+		break;
+#endif
 	}
 
 	return offset;
@@ -2839,7 +2843,8 @@ srvsvc_dissect_SHARE_ENUM_UNION(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_SHARE_INFO_502_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_502_CONTAINER:", -1);
 		break;
-	/*case 1004:
+#if 0
+	case 1004:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1004_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1004_CONTAINER:", -1);
@@ -2863,7 +2868,8 @@ srvsvc_dissect_SHARE_ENUM_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1501_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1501_CONTAINER:", -1);
-		break;*/
+		break;
+#endif
 	}
 
 	return offset;
