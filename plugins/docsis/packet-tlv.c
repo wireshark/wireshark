@@ -2,7 +2,7 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-tlv.c,v 1.12 2003/09/09 19:14:29 guy Exp $
+ * $Id: packet-tlv.c,v 1.13 2003/10/05 22:38:09 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2722,7 +2722,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_phs_phsv,
      {".11 PHS Verify", "docsis.tlv.phs.phsv",
-      FT_BOOLEAN, BASE_DEC, VALS (&verify_tfs), 0x0,
+      FT_BOOLEAN, BASE_DEC, TFS (&verify_tfs), 0x0,
       "PHS Verify", HFILL}
      },
     {&hf_docsis_tlv_phs_vendorspec,
