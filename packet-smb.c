@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.121 2001/09/30 23:36:46 guy Exp $
+ * $Id: packet-smb.c,v 1.122 2001/10/20 19:29:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4702,7 +4702,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       proto_tree_add_text(Flags_tree, NullTVB, offset, 2, "%s",
                           decode_boolean_bitfield(Flags, 0x04, 16, "Batch OpLock not Requested", "Batch OpLock Requested"));
     
-}
+    }
 
     offset += 2; /* Skip Flags */
 
@@ -4725,7 +4725,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       proto_tree_add_text(DesiredAccess_tree, NullTVB, offset, 2, "%s",
                           decode_enumerated_bitfield(DesiredAccess, 0x4000, 16, DesiredAccess_0x4000, "%s"));
     
-}
+    }
 
     offset += 2; /* Skip Desired Access */
 
@@ -4750,7 +4750,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       proto_tree_add_text(Search_tree, NullTVB, offset, 2, "%s",
                           decode_boolean_bitfield(Search, 0x20, 16, "Archive file", "Do not archive file"));
     
-}
+    }
 
     offset += 2; /* Skip Search */
 
@@ -4775,7 +4775,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       proto_tree_add_text(File_tree, NullTVB, offset, 2, "%s",
                           decode_boolean_bitfield(File, 0x20, 16, "Archive file", "Do not archive file"));
     
-}
+    }
 
     offset += 2; /* Skip File */
 
@@ -4816,7 +4816,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       proto_tree_add_text(OpenFunction_tree, NullTVB, offset, 2, "%s",
                           decode_enumerated_bitfield(OpenFunction, 0x03, 16, OpenFunction_0x03, "%s"));
     
-}
+    }
 
     offset += 2; /* Skip Open Function */
 
@@ -5233,7 +5233,7 @@ dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
         proto_tree_add_text(WriteMode_tree, NullTVB, offset, 2, "%s",
                             decode_boolean_bitfield(WriteMode, 0x02, 16, "Return Remaining (pipe/dev)", "Dont return Remaining (pipe/dev)"));
       
-}
+      }
 
       offset += 2; /* Skip WriteMode */
 
@@ -5374,7 +5374,7 @@ dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
         proto_tree_add_text(WriteMode_tree, NullTVB, offset, 2, "%s",
                             decode_boolean_bitfield(WriteMode, 0x02, 16, "Return Remaining (pipe/dev)", "Dont return Remaining (pipe/dev)"));
       
-}
+      }
 
       offset += 2; /* Skip WriteMode */
 
@@ -5898,7 +5898,7 @@ dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_
       proto_tree_add_text(Mode_tree, NullTVB, offset, 2, "%s",
                           decode_enumerated_bitfield(Mode, 0x03, 16, Mode_0x03, "%s"));
     
-}
+    }
 
     offset += 2; /* Skip Mode */
 
@@ -6850,7 +6850,7 @@ dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       proto_tree_add_text(Mode_tree, NullTVB, offset, 2, "%s",
                           decode_enumerated_bitfield(Mode, 0x03, 16, Mode_0x03, "%s"));
     
-}
+    }
 
     offset += 2; /* Skip Mode */
 
@@ -7527,7 +7527,8 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXCommand: %u", AndXCommand);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXCommand: %s", 
+			  (AndXCommand == 0xFF ? "No further commands" : decode_smb_name(AndXCommand)));
 
     }
 
@@ -7588,7 +7589,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
       proto_tree_add_text(LockType_tree, NullTVB, offset, 1, "%s",
                           decode_boolean_bitfield(LockType, 0x10, 16, "Large file locking format", "Not a large file locking format"));
     
-}
+    }
 
     offset += 1; /* Skip Lock Type */
 
@@ -9392,7 +9393,7 @@ dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       proto_tree_add_text(WriteMode_tree, NullTVB, offset, 2, "%s",
                           decode_boolean_bitfield(WriteMode, 0x40, 16, "Connectionless mode requested", "Connectionless mode not requested"));
     
-}
+    }
 
     offset += 2; /* Skip WriteMode */
 
