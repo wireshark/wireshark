@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.27 2000/08/13 14:08:36 deniel Exp $
+ * $Id: packet-ospf.c,v 1.28 2000/09/13 07:47:09 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -694,6 +694,9 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
         case OSPF_LSTYPE_ASEXT:
 	    lsa_type="AS-external-LSA";
             break;
+        case OSPF_LSTYPE_ASEXT7:
+	    lsa_type="AS-external-LSA Type 7/NSSA";
+            break;
         case OSPF_LSTYPE_OP_LINKLOCAL:
 	    lsa_type="Opaque LSA, Link-local scope";
             break;
@@ -735,7 +738,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	                                             ip_to_str((guint8 *) &(lsa_hdr.adv_router)));
         proto_tree_add_text(ospf_lsa_tree, NullTVB, offset + 12, 4, "LS Sequence Number: 0x%04lx ", 
 	                                             (unsigned long)ntohl(lsa_hdr.ls_seq));
-        proto_tree_add_text(ospf_lsa_tree, NullTVB, offset + 16, 2, "LS Checksum: %d ", ntohs(lsa_hdr.ls_checksum));
+        proto_tree_add_text(ospf_lsa_tree, NullTVB, offset + 16, 2, "LS Checksum: %04x ", ntohs(lsa_hdr.ls_checksum));
 
         proto_tree_add_text(ospf_lsa_tree, NullTVB, offset + 18, 2, "Length: %d ", ntohs(lsa_hdr.length));
 
@@ -839,6 +842,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
                 /* returns only the TOS 0 metric (even if there are more TOS metrics) */
                 break;
             case(OSPF_LSTYPE_ASEXT):
+            case(OSPF_LSTYPE_ASEXT7):
                 memcpy(&summary_lsa, &pd[offset], sizeof(e_ospf_summary_lsa));
                 proto_tree_add_text(ospf_lsa_tree, NullTVB, offset, 4, "Netmask: %s", 
                                                   ip_to_str((guint8 *) &(summary_lsa.network_mask)));

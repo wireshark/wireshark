@@ -1,6 +1,6 @@
 /* packet-ospf.h
  *
- * $Id: packet-ospf.h,v 1.9 2000/08/11 13:34:04 deniel Exp $
+ * $Id: packet-ospf.h,v 1.10 2000/09/13 07:47:10 guy Exp $
  * 
  * (c) 1998 Hannes Boehm
  *
@@ -56,6 +56,7 @@
 #define OSPF_LSTYPE_SUMMERY	3
 #define OSPF_LSTYPE_ASBR	4
 #define OSPF_LSTYPE_ASEXT	5
+#define OSPF_LSTYPE_ASEXT7	7
 
 /* Opaque LSA types */
 #define OSPF_LSTYPE_OP_LINKLOCAL 9

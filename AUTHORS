@@ -382,6 +382,10 @@ Robert Tsai <rtsai@netapp.com> {
 	Rsh support
 }
 
+Craig Metz <cmetz@inner.net> {
+	OSPF type 7 LSA dissection
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
