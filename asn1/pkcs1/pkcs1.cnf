@@ -1,0 +1,25 @@
+# pkcs1.cnf
+# PKCS#1 conformation file
+
+# $Id: pkcs1.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+
+#.MODULE_IMPORT
+AuthenticationFramework x509af
+
+#.INCLUDE ../x509af/x509af_exp.cnf
+
+#.EXPORTS
+
+RSAPrivateKey
+RSAPublicKey
+DigestInfo
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+
