@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.2 2000/11/03 18:37:24 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.3 2000/11/03 19:27:11 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,8 +48,14 @@
    after adding a 'Truncated' message to tree */
 #define TRUNC(bytes) \
 	if(!BYTES_ARE_IN_FRAME(curoffset,(bytes))) \
-	{ proto_tree_add_text(tree, NullTVB,curoffset,END_OF_FRAME,"Truncated"); \
-	return; }
+	{	\
+		proto_tree_add_text(tree, NullTVB,curoffset, \
+			END_OF_FRAME,"Truncated"); \
+		/* not sure why, but this didn't work */ \
+		/* if (check_col(fd, COL_INFO)) */ \
+			/* col_append_fstr(fd, COL_INFO, " (TRUNCATED)"); */ \
+		return; \
+	} 
 
 /* Output a unsigned integer, stored into field 'field'
    Assumes it is in network byte order, converts to host before using */
@@ -100,13 +106,13 @@
 		tree = proto_item_add_subtree(ti, ett_afs_callback); \
 		TRUNC(3*sizeof(guint32)); \
 		OUT_UINT(hf_afs_fs_callback_version); \
-		OUT_TIMESTAMP(hf_afs_fs_callback_expires); \
+		OUT_DATE(hf_afs_fs_callback_expires); \
 		OUT_UINT(hf_afs_fs_callback_type); \
 		tree = save; \
 	}
 
 /* Output a callback */
-#define CB_CALLBACKOUT() \
+#define OUT_CB_AFSCallBack() \
 	{ 	proto_tree *save, *ti; \
 		ti = proto_tree_add_text(tree, NullTVB, curoffset, 3*4, "Callback"); \
 		save = tree; \
@@ -235,7 +241,40 @@
 	}
 
 /* Output a AFSCBFids */
-#define OUT_FS_AFSCBFids()
+#define OUT_FS_AFSCBFids() \
+	{ \
+		unsigned int j,i; \
+		TRUNC(1); \
+		j = pntohl(&pd[curoffset]); \
+		curoffset += 1; \
+		for (i=0; i<j; i++) { \
+			OUT_FS_AFSFid("Target"); \
+		} \
+	}	
+
+/* Output a ViceIds */
+#define OUT_FS_ViceIds() \
+	{ \
+		unsigned int j,i; \
+		TRUNC(1); \
+		j = pntohl(&pd[curoffset]); \
+		curoffset += 1; \
+		for (i=0; i<j; i++) { \
+			OUT_UINT(hf_afs_fs_viceid); \
+		} \
+	}
+
+/* Output a IPAddrs */
+#define OUT_FS_IPAddrs() \
+	{ \
+		unsigned int j,i; \
+		TRUNC(1); \
+		j = pntohl(&pd[curoffset]); \
+		curoffset += 1; \
+		for (i=0; i<j; i++) { \
+			OUT_IP(hf_afs_fs_ipaddr); \
+		} \
+	}
 
 /* Output a AFSCBs */
 #define OUT_FS_AFSCBs()
@@ -257,6 +296,9 @@
 
 /* Output a VolumeInfo structure */
 #define OUT_FS_VolumeInfo()
+
+/* Output an AFS Token - might just be bytes though */
+#define OUT_FS_AFSTOKEN()
 
 /* Output a AFS acl */
 #define ACLOUT(who, positive, acl, bytes) \

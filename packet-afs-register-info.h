@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.2 2000/11/03 18:37:24 nneul Exp $
+ * $Id: packet-afs-register-info.h,v 1.3 2000/11/03 19:27:11 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -139,15 +139,25 @@
 	FT_STRING, BASE_HEX, 0, 0, "Message of the Day" }},
 { &hf_afs_fs_xstats_version, { "XStats Version", "afs.fs.xstats.version", 
 	FT_UINT32, BASE_DEC, 0, 0, "XStats Version" }},
+{ &hf_afs_fs_xstats_clientversion, { "Client Version", "afs.fs.xstats.clientversion", 
+	FT_UINT32, BASE_DEC, 0, 0, "Client Version" }},
+{ &hf_afs_fs_xstats_version, { "Collection Number", "afs.fs.xstats.collnumber", 
+	FT_UINT32, BASE_DEC, 0, 0, "Collection Number" }},
 { &hf_afs_fs_xstats_timestamp, { "XStats Timestamp", "afs.fs.xstats.timestamp", 
 	FT_UINT32, BASE_DEC, 0, 0, "XStats Timestamp" }},
+{ &hf_afs_fs_cps_spare1, { "CPS Spare1", "afs.fs.cps.spare1", 
+	FT_UINT32, BASE_DEC, 0, 0, "CPS Spare1" }},
 { &hf_afs_fs_cps_spare2, { "CPS Spare2", "afs.fs.cps.spare2", 
 	FT_UINT32, BASE_DEC, 0, 0, "CPS Spare2" }},
 { &hf_afs_fs_cps_spare3, { "CPS Spare3", "afs.fs.cps.spare3", 
 	FT_UINT32, BASE_DEC, 0, 0, "CPS Spare3" }},
 { &hf_afs_fs_vicelocktype, { "Vice Lock Type", "afs.fs.vicelocktype", 
 	FT_UINT32, BASE_DEC, VALS(vice_lock_types), 0, "Vice Lock Type" }},
-		
+{ &hf_afs_fs_viceid, { "Vice ID", "afs.fs.viceid", 
+	FT_UINT32, BASE_DEC, 0, 0, "Vice ID" }},
+{ &hf_afs_fs_viceid, { "IP Address", "afs.fs.ipaddr", 
+	FT_IPv4, BASE_HEX, 0, 0, "IP Address" }},
+			
 { &hf_afs_fs_status_mask, { "Mask", "afs.fs.status.mask", 
 	FT_UINT32, BASE_HEX, 0, 0, "Mask" }},
 { &hf_afs_fs_status_mask_setmodtime, { "Set Modification Time", "afs.fs.status.mask.setmodtime", 

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.2 2000/11/03 18:37:24 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.3 2000/11/03 19:27:11 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -531,9 +531,14 @@ static int hf_afs_fs_offlinemsg = -1;
 static int hf_afs_fs_motd = -1;
 static int hf_afs_fs_xstats_version = -1;
 static int hf_afs_fs_xstats_timestamp = -1;
+static int hf_afs_fs_xstats_clientversion = -1;
+static int hf_afs_fs_xstats_collnumber = -1;
+static int hf_afs_fs_cps_spare1 = -1;
 static int hf_afs_fs_cps_spare2 = -1;
 static int hf_afs_fs_cps_spare3 = -1;
 static int hf_afs_fs_vicelocktype = -1;
+static int hf_afs_fs_viceid = -1;
+static int hf_afs_fs_ipaddr = -1;
 
 static int hf_afs_fs_status_anonymousaccess = -1;
 static int hf_afs_fs_status_author = -1;

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.20 2000/11/03 18:37:24 nneul Exp $
+ * $Id: packet-afs.c,v 1.21 2000/11/03 19:27:11 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -736,9 +736,9 @@ dissect_fs_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 			OUT_FS_AFSStoreStatus("Status");
 			break;
 		case 140: /* Link */
-			OUT_FS_AFSFid("Link From (Old File)");
-			OUT_STRING(hf_afs_fs_name);
 			OUT_FS_AFSFid("Link To (New File)");
+			OUT_STRING(hf_afs_fs_name);
+			OUT_FS_AFSFid("Link From (Old File)");
 			break;
 		case 141: /* Make dir */
 			OUT_FS_AFSFid("Target");
@@ -777,31 +777,58 @@ dissect_fs_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 			break;
 		case 150: /* Set vol stats */
 			OUT_UINT(hf_afs_fs_volid);
+			OUT_FS_AFSStoreVolumeStatus();
+			OUT_STRING(hf_afs_fs_volname);
+			OUT_STRING(hf_afs_fs_offlinemsg);
+			OUT_STRING(hf_afs_fs_motd);
+			break;
+		case 151: /* get root volume */
+			/* no params */
+			break;
+		case 152: /* check token */
+			OUT_UINT(hf_afs_fs_viceid);
+			OUT_FS_AFSTOKEN();
+			break;
+		case 153: /* get time */
+			/* no params */
 			break;
 		case 154: /* new get vol info */
 			OUT_STRING(hf_afs_fs_volname);
 			break;
 		case 155: /* bulk stat */
-		{
-			unsigned int j,i;
-			TRUNC(1);
-
-			j = pntohl(&pd[curoffset]);
-			curoffset += 1;
-			for (i=0; i<j; i++)
-			{
-				OUT_FS_AFSFid("Target");
-			}
+			OUT_FS_AFSCBFids();
 			break;
-		}
 		case 156: /* Set Lock */
 			OUT_FS_AFSFid("Target");
+			OUT_UINT(hf_afs_fs_vicelocktype);
 			break;
 		case 157: /* Extend Lock */
 			OUT_FS_AFSFid("Target");
 			break;
 		case 158: /* Release Lock */
 			OUT_FS_AFSFid("Target");
+			break;
+		case 159: /* xstats version */
+			/* no params */
+			break;
+		case 160: /* get xstats */
+			OUT_UINT(hf_afs_fs_xstats_clientversion);
+			OUT_UINT(hf_afs_fs_xstats_collnumber);
+			break;
+		case 161: /* lookup */
+			OUT_FS_AFSFid("Target");
+			OUT_STRING(hf_afs_fs_name);
+			break;
+		case 162: /* flush cps */
+			OUT_FS_ViceIds();
+			OUT_FS_IPAddrs();
+			OUT_UINT(hf_afs_fs_cps_spare1);
+			break;
+		case 163: /* dfs symlink */
+			OUT_FS_AFSFid("Target");
+			OUT_STRING(hf_afs_fs_symlink_name);
+			OUT_STRING(hf_afs_fs_symlink_content);
+			OUT_FS_AFSStoreStatus("Symlink Status");
 			break;
 	}
 }
@@ -1087,7 +1114,7 @@ dissect_cb_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 			j = GETINT();
 			for (i=0; i<j; i++)
 			{
-				CB_CALLBACKOUT();
+				OUT_CB_AFSCallBack();
 			}
 		}
 	}
