@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.62 2003/10/14 23:20:17 guy Exp $
+ * $Id: file_dlg.c,v 1.63 2003/10/14 23:42:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,32 +105,35 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   gtk_window_add_accel_group(GTK_WINDOW(file_open_w), accel_group);
 #endif
 
-  /* If the user has specified that we should always start out in a
-     specified directory, and has specified a directory that we should
-     always look in instead of in that directory, start out
-     by showing the files in that dir. */
-  if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED &&
-      prefs.gui_fileopen_dir[0] != '\0') {
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
-				    prefs.gui_fileopen_dir);
-  }
-  else {
-    /* Otherwise, check to see if we've already opened a file.
-       If so, start out by showing the files in the directory in which that
-       file resided.  Otherwise, if the user has specified that we should
-       remember the last directory in which we opened a file, use the
-       directory saved in the prefs file (if one was there). */
+  switch (prefs.gui_fileopen_style) {
+
+  case FO_STYLE_LAST_OPENED:
+    /* The user has specified that we should start out in the last directory
+       we looked in.  If we've already opened a file, use its containing
+       directory, if we could determine it, as the directory, otherwise
+       use the "last opened" directory saved in the preferences file if
+       there was one. */
     if (last_open_dir) {
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
 				      last_open_dir);
     }
     else {
-      if (prefs.gui_fileopen_style == FO_STYLE_LAST_OPENED &&
-          prefs.gui_fileopen_remembered_dir != NULL) {
+      if (prefs.gui_fileopen_remembered_dir != NULL) {
 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
 					prefs.gui_fileopen_remembered_dir);
       }
     }
+    break;
+
+  case FO_STYLE_SPECIFIED:
+    /* The user has specified that we should always start out in a
+       specified directory; if they've specified that directory,
+       start out by showing the files in that dir. */
+    if (prefs.gui_fileopen_dir[0] != '\0') {
+      gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
+				      prefs.gui_fileopen_dir);
+    }
+    break;
   }
     
   /* Container for each row of widgets */
