@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.31 2003/03/01 13:08:59 deniel Exp $
+ * $Id: decode_as_dlg.c,v 1.32 2003/09/07 00:47:57 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -97,7 +97,7 @@ enum srcdst_type {
  * Columns for a "Display" list
  */
 #define E_LIST_D_TABLE	    0
-#define E_LIST_D_PORT	    1
+#define E_LIST_D_SELECTOR   1
 #define E_LIST_D_INITIAL    2
 #define E_LIST_D_CURRENT    3
 #define E_LIST_D_MAX	    E_LIST_D_CURRENT
@@ -151,8 +151,13 @@ static enum action_type	requested_action = -1;
 struct dissector_delete_item {
     /* The name of the dissector table */
     const gchar *ddi_table_name;
-    /* The port number in the dissector table */
-    guint   ddi_port;
+    /* The type of the selector in that dissector table */
+    ftenum_t ddi_selector_type;
+    /* The selector in the dissector table */
+    union {
+	guint   sel_uint;
+	char    *sel_string;
+    } ddi_selector;
 };
 
 /*
@@ -188,14 +193,32 @@ GSList *dissector_reset_list = NULL;
  * @param user_data Unused.
  */
 static void
-decode_build_reset_list (gchar *table_name, gpointer key,
-			 gpointer value _U_, gpointer user_data _U_)
+decode_build_reset_list (gchar *table_name, ftenum_t selector_type,
+			 gpointer key, gpointer value _U_,
+			 gpointer user_data _U_)
 {
     dissector_delete_item_t *item;
 
     item = g_malloc(sizeof(dissector_delete_item_t));
     item->ddi_table_name = table_name;
-    item->ddi_port = GPOINTER_TO_UINT(key);
+    item->ddi_selector_type = selector_type;
+    switch (selector_type) {
+
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT24:
+    case FT_UINT32:
+	item->ddi_selector.sel_uint = GPOINTER_TO_UINT(key);
+	break;
+
+    case FT_STRING:
+    case FT_STRINGZ:
+	item->ddi_selector.sel_string = key;
+	break;
+
+    default:
+    	g_assert_not_reached();
+    }
     dissector_reset_list = g_slist_prepend(dissector_reset_list, item);
 }
 
@@ -224,8 +247,8 @@ decode_build_reset_list (gchar *table_name, gpointer key,
  * should be stored.
  */
 static void
-decode_build_show_list (gchar *table_name, gpointer key,
-			gpointer value, gpointer user_data)
+decode_build_show_list (gchar *table_name, ftenum_t selector_type,
+			gpointer key, gpointer value, gpointer user_data)
 {
 #if GTK_MAJOR_VERSION < 2
     GtkCList  *clist;
@@ -258,42 +281,59 @@ decode_build_show_list (gchar *table_name, gpointer key,
 	initial_proto_name = dissector_handle_get_short_name(initial);
 
     text[E_LIST_D_TABLE] = get_dissector_table_ui_name(table_name);
-    switch (get_dissector_table_base(table_name)) {
+    switch (selector_type) {
 
-    case BASE_DEC:
-	sprintf(string1, "%u", GPOINTER_TO_UINT(key));
-	break;
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT24:
+    case FT_UINT32:
+	switch (get_dissector_table_base(table_name)) {
 
-    case BASE_HEX:
-	switch (get_dissector_table_type(table_name)) {
-
-	case FT_UINT8:
-	    sprintf(string1, "0x%02x", GPOINTER_TO_UINT(key));
+	case BASE_DEC:
+	    sprintf(string1, "%u", GPOINTER_TO_UINT(key));
 	    break;
 
-	case FT_UINT16:
-	    sprintf(string1, "0x%04x", GPOINTER_TO_UINT(key));
+	case BASE_HEX:
+	    switch (get_dissector_table_selector_type(table_name)) {
+
+	    case FT_UINT8:
+		sprintf(string1, "0x%02x", GPOINTER_TO_UINT(key));
+		break;
+
+	    case FT_UINT16:
+		sprintf(string1, "0x%04x", GPOINTER_TO_UINT(key));
+		break;
+
+	    case FT_UINT24:
+		sprintf(string1, "0x%06x", GPOINTER_TO_UINT(key));
+		break;
+
+	    case FT_UINT32:
+		sprintf(string1, "0x%08x", GPOINTER_TO_UINT(key));
+		break;
+
+	    default:
+		g_assert_not_reached();
+		break;
+	    }
 	    break;
 
-	case FT_UINT24:
-	    sprintf(string1, "0x%06x", GPOINTER_TO_UINT(key));
-	    break;
-
-	case FT_UINT32:
-	    sprintf(string1, "0x%08x", GPOINTER_TO_UINT(key));
-	    break;
-
-	default:
-	    g_assert_not_reached();
+	case BASE_OCT:
+	    sprintf(string1, "%#o", GPOINTER_TO_UINT(key));
 	    break;
 	}
+	text[E_LIST_D_SELECTOR] = string1;
 	break;
 
-    case BASE_OCT:
-	sprintf(string1, "%#o", GPOINTER_TO_UINT(key));
+    case FT_STRING:
+    case FT_STRINGZ:
+	text[E_LIST_D_SELECTOR] = key;
+	break;
+
+    default:
+	g_assert_not_reached();
 	break;
     }
-    text[E_LIST_D_PORT] = string1;
     text[E_LIST_D_INITIAL] = initial_proto_name;
     text[E_LIST_D_CURRENT] = current_proto_name;
 #if GTK_MAJOR_VERSION < 2
@@ -301,7 +341,7 @@ decode_build_show_list (gchar *table_name, gpointer key,
 #else
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter, E_LIST_D_TABLE, text[E_LIST_D_TABLE],
-                       E_LIST_D_PORT, text[E_LIST_D_PORT],
+                       E_LIST_D_SELECTOR, text[E_LIST_D_SELECTOR],
                        E_LIST_D_INITIAL, text[E_LIST_D_INITIAL],
                        E_LIST_D_CURRENT, text[E_LIST_D_CURRENT], -1);
 #endif
@@ -344,7 +384,24 @@ decode_show_reset_cb (GtkWidget *reset_bt _U_, gpointer parent_w)
 
     for (tmp = dissector_reset_list; tmp; tmp = g_slist_next(tmp)) {
 	item = tmp->data;
-	dissector_reset(item->ddi_table_name, item->ddi_port);
+	switch (item->ddi_selector_type) {
+
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+	    dissector_reset(item->ddi_table_name, item->ddi_selector.sel_uint);
+	    break;
+
+	case FT_STRING:
+	case FT_STRINGZ:
+	    dissector_reset_string(item->ddi_table_name,
+				   item->ddi_selector.sel_string);
+	    break;
+
+	default:
+	    g_assert_not_reached();
+	}
 	g_free(item);
     }
     g_slist_free(dissector_reset_list);
@@ -538,7 +595,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
  * buffer.
  */
 static void
-decode_change_one_dissector(gchar *table_name, gint selector, GtkWidget *list)
+decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
 {
     dissector_handle_t handle;
     gchar              *abbrev;
@@ -644,7 +701,7 @@ decode_simple (GtkWidget *notebook_pg)
     gchar *string;
 #endif
     gchar *table_name;
-    gint value;
+    guint value;
 
     list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
@@ -660,7 +717,7 @@ decode_simple (GtkWidget *notebook_pg)
 #endif
 
     table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);
-    value = GPOINTER_TO_INT(OBJECT_GET_DATA(notebook_pg, E_PAGE_VALUE));
+    value = GPOINTER_TO_UINT(OBJECT_GET_DATA(notebook_pg, E_PAGE_VALUE));
     decode_change_one_dissector(table_name, value, list);
 }
 

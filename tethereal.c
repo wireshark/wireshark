@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.193 2003/09/06 02:22:23 guy Exp $
+ * $Id: tethereal.c,v 1.194 2003/09/07 00:47:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -537,8 +537,8 @@ fprint_all_protocols_for_layer_types(FILE *output, gchar *table_name)
  * then we return TRUE.
  */
 static gboolean
-add_decode_as(const gchar *cl_param) {
-
+add_decode_as(const gchar *cl_param)
+{
   gchar                        *table_name;
   guint32                       selector;
   gchar                        *decoded_param;
@@ -547,6 +547,7 @@ add_decode_as(const gchar *cl_param) {
   gchar                        *dissector_str;
   dissector_handle_t            dissector_matching;
   dissector_table_t             table_matching;
+  ftenum_t                      dissector_table_selector_type;
   struct protocol_name_search   user_protocol_name;
 
 /* The following code will allocate and copy the command-line options in a string pointed by decoded_param */
@@ -632,7 +633,9 @@ add_decode_as(const gchar *cl_param) {
     *remaining_param = '\0'; /* Terminate the selector number string (selector_str) where ',' was detected */
   }
 
-  switch (get_dissector_table_type(table_name)) {
+  dissector_table_selector_type = get_dissector_table_selector_type(table_name);
+
+  switch (dissector_table_selector_type) {
 
   case FT_UINT8:
   case FT_UINT16:
@@ -648,13 +651,16 @@ add_decode_as(const gchar *cl_param) {
     }
     break;
 
+  case FT_STRING:
+  case FT_STRINGZ:
+    /* The selector for this table is a string. */
+    break;
+
   default:
     /* There are currently no dissector tables with any types other
-       than the ones listed above, but we might, for example, have
-       string-based dissector tables at some point. */
+       than the ones listed above. */
     g_assert_not_reached();
   }
-
 
   if (remaining_param == NULL) {
     /* Exit if no ',' separator was found (see above) */
@@ -731,10 +737,27 @@ add_decode_as(const gchar *cl_param) {
 
   /* We now have a pointer to the handle for the requested dissector
      (requested protocol) inside the variable dissector_matching */
-  dissector_change(table_name, selector, dissector_matching);
-  /* Note: this assumes selector is an unsigned int, if not, a switch on
-     get_dissector_table_type(table_name), like the one used earlier in this
-     function, needs to be inserted here */
+  switch (dissector_table_selector_type) {
+
+  case FT_UINT8:
+  case FT_UINT16:
+  case FT_UINT24:
+  case FT_UINT32:
+    /* The selector for this table is an unsigned number. */
+    dissector_change(table_name, selector, dissector_matching);
+    break;
+
+  case FT_STRING:
+  case FT_STRINGZ:
+    /* The selector for this table is a string. */
+    dissector_change_string(table_name, selector_str, dissector_matching);
+    break;
+
+  default:
+    /* There are currently no dissector tables with any types other
+       than the ones listed above. */
+    g_assert_not_reached();
+  }
   g_free(decoded_param); /* "Decode As" rule has been succesfully added */
   return TRUE;
 }

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.69 2003/09/06 23:37:02 guy Exp $
+ * $Id: packet.h,v 1.70 2003/09/07 00:47:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,8 +113,8 @@ typedef void (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
  */
 typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
 
-typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value,
-    gpointer user_data);
+typedef void (*DATFunc) (gchar *table_name, ftenum_t selector_type,
+    gpointer key, gpointer value, gpointer user_data);
 typedef void (*DATFunc_handle) (gchar *table_name, gpointer value,
     gpointer user_data);
 typedef void (*DATFunc_table) (gchar *table_name, gchar *ui_name,
@@ -146,9 +146,9 @@ extern dissector_table_t find_dissector_table(const char *name);
 /* Get the UI name for a sub-dissector table, given its internal name */
 extern char *get_dissector_table_ui_name(const char *name);
 
-/* Get the field type to use when displaying values of the selector for a
-   sub-dissector table, given the table's internal name */
-extern ftenum_t get_dissector_table_type(const char *name);
+/* Get the field type for values of the selector for a dissector table,
+   given the table's internal name */
+extern ftenum_t get_dissector_table_selector_type(const char *name);
 
 /* Get the base to use when displaying values of the selector for a
    sub-dissector table, given the table's internal name */

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.95 2003/09/06 23:37:02 guy Exp $
+ * $Id: packet.c,v 1.96 2003/09/07 00:47:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1071,6 +1071,7 @@ typedef struct dissector_foreach_info {
   DATFunc      caller_func;
   GHFunc       next_func;
   gchar       *table_name;
+  ftenum_t     selector_type;
 } dissector_foreach_info_t;
 
 /*
@@ -1099,7 +1100,8 @@ dissector_table_foreach_func (gpointer key, gpointer value, gpointer user_data)
 	}
 
 	info = user_data;
-	info->caller_func(info->table_name, key, value, info->caller_data);
+	info->caller_func(info->table_name, info->selector_type, key, value,
+	    info->caller_data);
 }
 
 /*
@@ -1117,6 +1119,7 @@ dissector_all_tables_foreach_func (gpointer key, gpointer value, gpointer user_d
 	sub_dissectors = value;
 	info = user_data;
 	info->table_name = (gchar*) key;
+	info->selector_type = get_dissector_table_selector_type(info->table_name);
 	g_hash_table_foreach(sub_dissectors->hash_table, info->next_func, info);
 }
 
@@ -1149,6 +1152,7 @@ dissector_table_foreach (char *name,
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 
 	info.table_name = name;
+	info.selector_type = sub_dissectors->type;
 	info.caller_func = func;
 	info.caller_data = user_data;
 	g_hash_table_foreach(sub_dissectors->hash_table, dissector_table_foreach_func, &info);
@@ -1192,7 +1196,8 @@ dissector_table_foreach_changed_func (gpointer key, gpointer value, gpointer use
 	}
 
 	info = user_data;
-	info->caller_func(info->table_name, key, value, info->caller_data);
+	info->caller_func(info->table_name, info->selector_type, key, value,
+	    info->caller_data);
 }
 
 /*
@@ -1224,6 +1229,7 @@ dissector_table_foreach_changed (char *name,
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 
 	info.table_name = name;
+	info.selector_type = sub_dissectors->type;
 	info.caller_func = func;
 	info.caller_data = user_data;
 	g_hash_table_foreach(sub_dissectors->hash_table,
@@ -1322,7 +1328,7 @@ get_dissector_table_ui_name(const char *name)
 }
 
 ftenum_t
-get_dissector_table_type(const char *name)
+get_dissector_table_selector_type(const char *name)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 
