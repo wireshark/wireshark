@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.44 2002/02/25 07:13:28 guy Exp $
+ * $Id: packet-radius.c,v 1.45 2002/02/25 21:11:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -907,7 +907,7 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
        tvbuff_t   *next_tvb;
        proto_tree_add_text(tree, tvb,offset,2,"t:%s(%u) l:%u",
 			   avptpstrval,avph.avp_type,avph.avp_length);
-       next_tvb = tvb_new_subset(tvb, offset+2,avph.avp_length, -1);
+       next_tvb = tvb_new_subset(tvb, offset+2,avph.avp_length-2, -1);
        call_dissector(eap_handle, next_tvb, pinfo, tree);
      } else 
        proto_tree_add_text(tree, tvb,offset,avph.avp_length,
