@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.76 2002/11/15 10:55:19 sahlberg Exp $
+ * $Id: menu.c,v 1.77 2002/11/15 18:45:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,7 +129,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), 0, NULL},
 #ifdef HAVE_LIBPCAP
   {"/Edit/_Capture Filters...", NULL, GTK_MENU_FUNC(cfilter_dialog_cb), 0, NULL},
-#endif
+#endif /* HAVE_LIBPCAP */
   {"/Edit/_Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL},
   {"/Edit/P_rotocols...", NULL, GTK_MENU_FUNC(proto_cb), 0, NULL},
 #ifdef HAVE_LIBPCAP
@@ -166,7 +166,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
 #ifdef HAVE_PLUGINS
   {"/Tools/_Plugins...", NULL, GTK_MENU_FUNC(tools_plugins_cmd_cb), 0, NULL},
-#endif
+#endif /* HAVE_PLUGINS */
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
   {"/Tools/_Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL},
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
@@ -183,14 +183,14 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Tools/Statistics/ONC-RPC/Programs", NULL, GTK_MENU_FUNC(gtk_rpcprogs_cb), 0, NULL, },
   {"/Tools/Statistics/DCE-RPC", NULL, NULL, 0, "<Branch>", },
   {"/Tools/Statistics/DCE-RPC/RTT", NULL, GTK_MENU_FUNC(gtk_dcerpcstat_cb), 0, NULL, },
-  {"/Tools/Statistics/Traffic", NULL, NULL, 0, "<Branch>", NULL },
-  {"/Tools/Statistics/Traffic/IO-Stat", NULL, GTK_MENU_FUNC(gtk_iostat_cb), 0, NULL, NULL },
+  {"/Tools/Statistics/Traffic", NULL, NULL, 0, "<Branch>" },
+  {"/Tools/Statistics/Traffic/IO-Stat", NULL, GTK_MENU_FUNC(gtk_iostat_cb), 0, NULL },
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
   {"/Help/_Help", NULL, GTK_MENU_FUNC(help_cb), 0, NULL},
   {"/Help/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/Help/_About Ethereal...", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL}
 };
-#else
+#else /* GTK_MAJOR_VERSION >= 2 */
 static GtkItemFactoryEntry menu_items[] =
 {
   {"/_File", NULL, NULL, 0, "<Branch>", NULL },
@@ -224,7 +224,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), 0, "<StockItem>", GTK_STOCK_PREFERENCES },
 #ifdef HAVE_LIBPCAP
   {"/Edit/_Capture Filters...", NULL, GTK_MENU_FUNC(cfilter_dialog_cb), 0, NULL, NULL },
-#endif
+#endif /* HAVE_LIBPCAP */
   {"/Edit/_Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL, NULL },
   {"/Edit/P_rotocols...", NULL, GTK_MENU_FUNC(proto_cb), 0, NULL, NULL },
 #ifdef HAVE_LIBPCAP
@@ -261,7 +261,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/_Tools", NULL, NULL, 0, "<Branch>", NULL  },
 #ifdef HAVE_PLUGINS
   {"/Tools/_Plugins...", NULL, GTK_MENU_FUNC(tools_plugins_cmd_cb), 0, NULL, NULL },
-#endif
+#endif /* HAVE_PLUGINS */
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL, NULL },
   {"/Tools/_Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL, NULL },
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
@@ -285,7 +285,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL },
   {"/Help/_About Ethereal...", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL, NULL }
 };
-#endif
+#endif /* GTK major version */
 
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
