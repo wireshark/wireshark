@@ -129,7 +129,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 {
 	tvbuff_t	*decomp_tvb;
 	guint8		buff[UDVM_MEMORY_SIZE];
-	char		string[2];
+	char		string[2],*strp;
 	guint8		*out_buff;		/* Largest allowed size for a message is 65535  */
 	guint32		i = 0;
 	guint16		n = 0;
@@ -850,7 +850,7 @@ execute_next_instruction:
 				operand_address, n);
 		}
 		operand_address = next_operand_address; 
-		used_udvm_cycles = used_udvm_cycles + n;
+		used_udvm_cycles = used_udvm_cycles + 1 + n;
 		while ( n > 0) {
 			n = n - 1;
 			/* %value */
@@ -958,20 +958,15 @@ execute_next_instruction:
 		k = destination; 
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
+		byte_copy_left = buff[64] << 8;
+		byte_copy_left = byte_copy_left | buff[65];
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
 						"               byte_copy_right = %u", byte_copy_right);
 		}
 
 		while ( n < length ){
-
-			if (print_level_1 ){
-				proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-						"               byte_copy_right = %u", byte_copy_right);
-			}
 			if ( k == byte_copy_right ){
-				byte_copy_left = buff[64] << 8;
-				byte_copy_left = byte_copy_left | buff[65];
 				k = byte_copy_left;
 			}
 			buff[k] = buff[position + n];
@@ -1036,15 +1031,15 @@ execute_next_instruction:
 		k = ref_destination; 
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
+		byte_copy_left = buff[64] << 8;
+		byte_copy_left = byte_copy_left | buff[65];
+		if (print_level_1 ){
+			proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+					"               byte_copy_right = %u", byte_copy_right);
+		}
 		while ( n < length ){
 
-			if (print_level_1 ){
-				proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-						"               byte_copy_right = %u", byte_copy_right);
-			}
 			if ( k == byte_copy_right ){
-				byte_copy_left = buff[64] << 8;
-				byte_copy_left = byte_copy_left | buff[65];
 				k = byte_copy_left;
 			}
 			buff[k] = buff[position + n];
@@ -1141,24 +1136,18 @@ execute_next_instruction:
 		k = ref_destination; 
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
+		byte_copy_left = buff[64] << 8;
+		byte_copy_left = byte_copy_left | buff[65];
+		if (print_level_2 ){
+			proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+					"               byte_copy_left = %u byte_copy_right = %u", byte_copy_left, byte_copy_right);
+		}
 		while ( n < length ){
 			if ( k == byte_copy_right ){
-				byte_copy_left = buff[64] << 8;
-				byte_copy_left = byte_copy_left | buff[65];
 				k = byte_copy_left;
-				if (print_level_2 ){
-					proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-							"               byte_copy_left = %u byte_copy_right = %u", byte_copy_left, byte_copy_right);
-				}
 			}
 			if ( position == byte_copy_right ){
-				byte_copy_left = buff[64] << 8;
-				byte_copy_left = byte_copy_left | buff[65];
 				position = byte_copy_left;
-				if (print_level_2 ){
-					proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-							"               byte_copy_left = %u byte_copy_right = %u", byte_copy_left, byte_copy_right);
-				}
 			}
 			buff[k] = buff[position];
 			if (print_level_1 ){
@@ -1224,15 +1213,15 @@ execute_next_instruction:
 		k = address; 
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
+		byte_copy_left = buff[64] << 8;
+		byte_copy_left = byte_copy_left | buff[65];
+		if (print_level_2 ){
+			proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+					"               byte_copy_left = %u byte_copy_right = %u", byte_copy_left, byte_copy_right);
+		}
 		while ( n < length ){
 			if ( k == byte_copy_right ){
-				byte_copy_left = buff[64] << 8;
-				byte_copy_left = byte_copy_left | buff[65];
 				k = byte_copy_left;
-				if (print_level_2 ){
-					proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-							"               byte_copy_left = %u byte_copy_right = %u", byte_copy_left, byte_copy_right);
-				}
 			}
 			buff[k] = (start_value + ( n * multy_offset)) & 0xff;
 			if (print_level_2 ){
@@ -1534,6 +1523,12 @@ execute_next_instruction:
 		k = destination; 
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
+		byte_copy_left = buff[64] << 8;
+		byte_copy_left = byte_copy_left | buff[65];
+		if (print_level_1 ){
+			proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+					"               byte_copy_right = %u", byte_copy_right);
+		}
 		/* clear out remaining bits if any */
 		remaining_bits = 0;
 		input_bits=0;
@@ -1545,13 +1540,7 @@ execute_next_instruction:
 				goto execute_next_instruction;
 			}
 
-			if (print_level_1 ){
-				proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-						"               byte_copy_right = %u", byte_copy_right);
-			}
 			if ( k == byte_copy_right ){
-				byte_copy_left = buff[64] << 8;
-				byte_copy_left = byte_copy_left | buff[65];
 				k = byte_copy_left;
 			}
 			octet = tvb_get_guint8(message_tvb, input_address);
@@ -1638,7 +1627,6 @@ execute_next_instruction:
 		 * SigComp message, no data is returned.  Instead the UDVM moves program
 		 * execution to the address specified by the address operand.
 		 */
-
 		if ((input_address > ( msg_end -1)) && (remaining_bits == 0 )){
 			result_code = 11;
 			current_address = at_address;
@@ -1653,22 +1641,26 @@ execute_next_instruction:
 			result_code = 8;
 			goto decompression_failure;
 		}
-		/* Transfer F bit to bit_order to tell decomp dispatcher which bit order to use */
-		bit_order = ( input_bit_order & 0x0004 ) >> 2;
-		value = decomp_dispatch_get_bits( message_tvb, udvm_tree, bit_order, 
-				buff, &old_input_bit_order, &remaining_bits,
-				&input_bits, &input_address, length, &result_code, msg_end);
-		if ( result_code == 11 ){
-			current_address = at_address;
-			goto execute_next_instruction;
-		}
-		msb = value >> 8;
-		lsb = value & 0x00ff;
-		buff[destination] = msb;
-		buff[destination + 1]=lsb;
-		if (print_level_1 ){
-			proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-			"               Loading value: %u (0x%x) at Addr: %u, remaining_bits: %u", value, value, destination, remaining_bits);
+		if ( length > 0 ){
+			/* If lengt = 0 ignore the instruction - derived from torture test 12
+			 * Transfer F bit to bit_order to tell decomp dispatcher which bit order to use 
+			 */
+			bit_order = ( input_bit_order & 0x0004 ) >> 2;
+			value = decomp_dispatch_get_bits( message_tvb, udvm_tree, bit_order, 
+					buff, &old_input_bit_order, &remaining_bits,
+					&input_bits, &input_address, length, &result_code, msg_end);
+			if ( result_code == 11 ){
+				current_address = at_address;
+				goto execute_next_instruction;
+			}
+			msb = value >> 8;
+			lsb = value & 0x00ff;
+			buff[destination] = msb;
+			buff[destination + 1]=lsb;
+			if (print_level_1 ){
+				proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
+				"               Loading value: %u (0x%x) at Addr: %u, remaining_bits: %u", value, value, destination, remaining_bits);
+			}
 		}
 
 		used_udvm_cycles = used_udvm_cycles + 1 + length;
@@ -2044,12 +2036,12 @@ execute_next_instruction:
 		/* Debug */
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
+		byte_copy_left = buff[64] << 8;
+		byte_copy_left = byte_copy_left | buff[65];
 		n = 0;
 		k = state_address;
 		while ( n < state_length ){
 			if ( k == byte_copy_right ){
-				byte_copy_left = buff[64] << 8;
-				byte_copy_left = byte_copy_left | buff[65];
 				k = byte_copy_left;
 			}
 			string[0]= buff[k];
@@ -2149,6 +2141,8 @@ execute_next_instruction:
 		k = output_start; 
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
+		byte_copy_left = buff[64] << 8;
+		byte_copy_left = byte_copy_left | buff[65];
 		if (print_level_3 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 					"               byte_copy_right = %u", byte_copy_right);
@@ -2156,21 +2150,16 @@ execute_next_instruction:
 		while ( n < output_length ){
 
 			if ( k == byte_copy_right ){
-				byte_copy_left = buff[64] << 8;
-				byte_copy_left = byte_copy_left | buff[65];
 				k = byte_copy_left;
-				if (print_level_3 ){
-					proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-							"               byte_copy_right = %u", byte_copy_right);
-				}
 			}
 			out_buff[output_address] = buff[k];
 			string[0]= buff[k];
 			string[1]= '\0';
+			strp = string;
 			if (print_level_3 ){
 				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 					"               Output value: %u (0x%x) ASCII(%s) from Addr: %u ,output to dispatcher position %u",
-					buff[k],buff[k],string, k,output_address);
+					buff[k],buff[k],format_text(strp,1), k,output_address);
 			}
 			k = ( k + 1 ) & 0xffff;
 			output_address ++;
@@ -2279,6 +2268,8 @@ execute_next_instruction:
 			n = 1;
 			byte_copy_right = buff[66] << 8;
 			byte_copy_right = byte_copy_right | buff[67];
+			byte_copy_left = buff[64] << 8;
+			byte_copy_left = byte_copy_left | buff[65];
 			while ( n < no_of_state_create + 1 ){
 				sha1buff = g_malloc(state_length_buff[n]+8);
 				sha1buff[0] = state_length_buff[n] >> 8;
@@ -2299,8 +2290,6 @@ execute_next_instruction:
 				for( x=0; x < state_length_buff[n]; x++)
 					{
 					if ( k == byte_copy_right ){
-						byte_copy_left = buff[64] << 8;
-						byte_copy_left = byte_copy_left | buff[65];
 						k = byte_copy_left;
 					}
 					sha1buff[8+x] = buff[k];
