@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.12 2001/01/18 09:44:51 guy Exp $
+ * $Id: packet-nlm.c,v 1.13 2001/01/20 08:38:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -632,50 +632,84 @@ static const vsff nlm1_proc[] = {
 		dissect_nlm_gen_reply,		NULL },
 	{ NLM_GRANTED_RES,	"GRANTED_RES",	
 		dissect_nlm_gen_reply,		NULL },
-	{ 0,			NULL,		NULL,	NULL }
+	{ 0,			NULL,
+		NULL,				NULL }
 };
 /* end of NLM protocol version 1 */
 
 /* NLM protocol version 2 */
 static const vsff nlm2_proc[] = {
-	{ NLM_NULL,		"NULL",		NULL,	NULL },
-	{ NLM_TEST,		"TEST",		NULL,	NULL },
-	{ NLM_LOCK,		"LOCK",		NULL,	NULL },
-	{ NLM_CANCEL,		"CANCEL",	NULL,	NULL },
-	{ NLM_UNLOCK,		"UNLOCK",	NULL,	NULL },
-	{ NLM_GRANTED,		"GRANTED",	NULL,	NULL },
-	{ NLM_TEST_MSG,		"TEST_MSG",	NULL,	NULL },
-	{ NLM_LOCK_MSG,		"LOCK_MSG",	NULL,	NULL },
-	{ NLM_CANCEL_MSG,	"CANCEL_MSG",	NULL,	NULL },
-	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	NULL,	NULL },
-	{ NLM_GRANTED_MSG,	"GRANTED_MSG",	NULL,	NULL },
-	{ NLM_TEST_RES,		"TEST_RES",	NULL,	NULL },
-	{ NLM_LOCK_RES,		"LOCK_RES",	NULL,	NULL },
-	{ NLM_CANCEL_RES,	"CANCEL_RES",	NULL,	NULL },
-	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	NULL,	NULL },
-	{ NLM_GRANTED_RES,	"GRANTED_RES",	NULL,	NULL },
-	{ 0,			NULL,		NULL,	NULL }
+	{ NLM_NULL,		"NULL",		
+		NULL,				NULL },
+	{ NLM_TEST,		"TEST",
+		dissect_nlm1_test,		dissect_nlm1_test_res },
+	{ NLM_LOCK,		"LOCK",	
+		dissect_nlm1_lock,		dissect_nlm_gen_reply },
+	{ NLM_CANCEL,		"CANCEL",
+		dissect_nlm1_cancel,		dissect_nlm_gen_reply },
+	{ NLM_UNLOCK,		"UNLOCK",
+		dissect_nlm1_unlock,		dissect_nlm_gen_reply },
+	{ NLM_GRANTED,		"GRANTED",
+		dissect_nlm1_granted,		dissect_nlm_gen_reply },
+	{ NLM_TEST_MSG,		"TEST_MSG",
+		dissect_nlm1_test,		NULL },
+	{ NLM_LOCK_MSG,		"LOCK_MSG",
+		dissect_nlm1_lock,		NULL },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG",
+		dissect_nlm1_cancel,		NULL },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	
+		dissect_nlm1_unlock,		NULL },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG",
+		dissect_nlm1_granted,		NULL },
+	{ NLM_TEST_RES,		"TEST_RES",
+		dissect_nlm1_test_res,		NULL },
+	{ NLM_LOCK_RES,		"LOCK_RES",	
+		dissect_nlm_gen_reply,		NULL },
+	{ NLM_CANCEL_RES,	"CANCEL_RES",	
+		dissect_nlm_gen_reply,		NULL },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	
+		dissect_nlm_gen_reply,		NULL },
+	{ NLM_GRANTED_RES,	"GRANTED_RES",	
+		dissect_nlm_gen_reply,		NULL },
+	{ 0,			NULL,
+		NULL,				NULL }
 };
 /* end of NLM protocol version 2 */
 
 /* NLM protocol version 3 */
 static const vsff nlm3_proc[] = {
-	{ NLM_NULL,		"NULL",		NULL,	NULL },
-	{ NLM_TEST,		"TEST",		NULL,	NULL },
-	{ NLM_LOCK,		"LOCK",		NULL,	NULL },
-	{ NLM_CANCEL,		"CANCEL",	NULL,	NULL },
-	{ NLM_UNLOCK,		"UNLOCK",	NULL,	NULL },
-	{ NLM_GRANTED,		"GRANTED",	NULL,	NULL },
-	{ NLM_TEST_MSG,		"TEST_MSG",	NULL,	NULL },
-	{ NLM_LOCK_MSG,		"LOCK_MSG",	NULL,	NULL },
-	{ NLM_CANCEL_MSG,	"CANCEL_MSG",	NULL,	NULL },
-	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	NULL,	NULL },
-	{ NLM_GRANTED_MSG,	"GRANTED_MSG",	NULL,	NULL },
-	{ NLM_TEST_RES,		"TEST_RES",	NULL,	NULL },
-	{ NLM_LOCK_RES,		"LOCK_RES",	NULL,	NULL },
-	{ NLM_CANCEL_RES,	"CANCEL_RES",	NULL,	NULL },
-	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	NULL,	NULL },
-	{ NLM_GRANTED_RES,	"GRANTED_RES",	NULL,	NULL },
+	{ NLM_NULL,		"NULL",		
+		NULL,				NULL },
+	{ NLM_TEST,		"TEST",
+		dissect_nlm1_test,		dissect_nlm1_test_res },
+	{ NLM_LOCK,		"LOCK",	
+		dissect_nlm1_lock,		dissect_nlm_gen_reply },
+	{ NLM_CANCEL,		"CANCEL",
+		dissect_nlm1_cancel,		dissect_nlm_gen_reply },
+	{ NLM_UNLOCK,		"UNLOCK",
+		dissect_nlm1_unlock,		dissect_nlm_gen_reply },
+	{ NLM_GRANTED,		"GRANTED",
+		dissect_nlm1_granted,		dissect_nlm_gen_reply },
+	{ NLM_TEST_MSG,		"TEST_MSG",
+		dissect_nlm1_test,		NULL },
+	{ NLM_LOCK_MSG,		"LOCK_MSG",
+		dissect_nlm1_lock,		NULL },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG",
+		dissect_nlm1_cancel,		NULL },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	
+		dissect_nlm1_unlock,		NULL },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG",
+		dissect_nlm1_granted,		NULL },
+	{ NLM_TEST_RES,		"TEST_RES",
+		dissect_nlm1_test_res,		NULL },
+	{ NLM_LOCK_RES,		"LOCK_RES",	
+		dissect_nlm_gen_reply,		NULL },
+	{ NLM_CANCEL_RES,	"CANCEL_RES",	
+		dissect_nlm_gen_reply,		NULL },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	
+		dissect_nlm_gen_reply,		NULL },
+	{ NLM_GRANTED_RES,	"GRANTED_RES",	
+		dissect_nlm_gen_reply,		NULL },
 	{ NLM_SHARE,		"SHARE",	
 		dissect_nlm3_share,		NULL },	/* XXX */
 	{ NLM_UNSHARE,		"UNSHARE",	
@@ -683,8 +717,9 @@ static const vsff nlm3_proc[] = {
 	{ NLM_NM_LOCK,		"NM_LOCK",	
 		dissect_nlm1_lock,	dissect_nlm_gen_reply },
 	{ NLM_FREE_ALL,		"FREE_ALL",	
-		dissect_nlm3_freeall,		NULL },
-	{ 0,			NULL,		NULL,	NULL }
+		dissect_nlm3_freeall,		NULL },	/* XXX */
+	{ 0,			NULL,
+		NULL,				NULL }
 };
 /* end of NLM protocol version 3 */
 
@@ -723,12 +758,16 @@ static const vsff nlm4_proc[] = {
 		dissect_nlm_gen_reply,		NULL },
 	{ NLM_GRANTED_RES,	"GRANTED_RES",	
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_SHARE,		"SHARE",	NULL,	NULL },
-	{ NLM_UNSHARE,		"UNSHARE",	NULL,	NULL },
+	{ NLM_SHARE,		"SHARE",
+		NULL,				NULL },	/* XXX */
+	{ NLM_UNSHARE,		"UNSHARE",
+		NULL,				NULL },	/* XXX */
 	{ NLM_NM_LOCK,		"NM_LOCK",	
 		dissect_nlm4_lock,		NULL },
-	{ NLM_FREE_ALL,		"FREE_ALL",	NULL,	NULL },
-	{ 0,			NULL,		NULL,	NULL }
+	{ NLM_FREE_ALL,		"FREE_ALL",
+		NULL,				NULL },	/* XXX */
+	{ 0,			NULL,
+		NULL,				NULL }
 };
 /* end of NLM protocol version 4 */
 
