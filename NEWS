@@ -1,4 +1,5 @@
 Overview of changes in Ethereal 0.8.12:
+* OSPF enhancements (Craig Metz)
 * Buffer-overflow protection with snprintf (Gilbert)
 * Add "Save As" feature to TCP Follow dialogue (Gilbert)
 * NFS update (Guy)
