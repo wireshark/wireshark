@@ -173,7 +173,6 @@
  * Capture options.
  */
 capture_options capture_opts;
-gboolean quit_after_cap = FALSE;/* Makes a "capture only mode". Implies -k */
 gboolean capture_child;	        /* if this is the child for "-S" */
 
 
@@ -307,7 +306,7 @@ normal_do_capture(gboolean is_tempfile)
 
     /* Not sync mode. */
     capture_succeeded = capture(&stats_known, &stats);
-    if (quit_after_cap) {
+    if (capture_opts.quit_after_cap) {
       /* DON'T unlink the save file.  Presumably someone wants it. */
         main_window_exit();
     }

@@ -36,6 +36,7 @@
 
 /** Capture options coming from user interface */
 typedef struct {
+    /* general */
 #ifdef _WIN32
     int buffer_size;        /**< the capture buffer size (MB) */
 #endif
@@ -45,16 +46,22 @@ typedef struct {
 	int promisc_mode;		/**< Capture in promiscuous mode */
 	int linktype;			/**< Data link type to use, or -1 for
 					   "use default" */
+
+    /* GUI related */
 	int sync_mode;			/**< Fork a child to do the capture,
 					   and sync between them */
     gboolean show_info;     /**< show the info dialog */
+    gboolean quit_after_cap;    /** Makes a "capture only mode". Implies -k */
 
+    /* multiple files (and ringbuffer) */
     gboolean multi_files_on;    /**< TRUE if ring buffer in use */
 
 	gboolean has_file_duration;	/**< TRUE if ring duration specified */
 	gint32 file_duration;     /* Switch file after n seconds */
 	gboolean has_ring_num_files;/**< TRUE if ring num_files specified */
 	guint32 ring_num_files;	        /**< Number of multiple buffer files */
+
+    /* autostop conditions */
     gboolean has_autostop_files;/**< TRUE if maximum number of capture files
 					   are specified */
     gint32 autostop_files;      /**< Maximum number of capture files */
@@ -73,10 +80,7 @@ typedef struct {
 /** Global capture options. */
 extern capture_options capture_opts;
 
-/** Makes a "capture only mode". Implies -k */
-extern gboolean quit_after_cap; 
-
-/** If this is the child for "-S" */
+/** True if this is the child for "-S" */
 extern gboolean capture_child;	
 
 /** Open a specified file, or create a temporary file, and start a capture

@@ -1734,6 +1734,7 @@ main(int argc, char *argv[])
 #ifdef _WIN32
   capture_opts.buffer_size = 1;
 #endif
+  capture_opts.quit_after_cap  = FALSE;
 
   capture_opts.has_autostop_packets = FALSE;
   capture_opts.autostop_packets = 1;
@@ -1992,7 +1993,7 @@ main(int argc, char *argv[])
         break;
       case 'Q':        /* Quit after capture (just capture to file) */
 #ifdef HAVE_LIBPCAP
-        quit_after_cap  = TRUE;
+        capture_opts.quit_after_cap  = TRUE;
         start_capture   = TRUE;  /*** -Q implies -k !! ***/
 #else
         capture_option_specified = TRUE;
