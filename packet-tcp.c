@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.77 2000/07/14 12:54:32 girlich Exp $
+ * $Id: packet-tcp.c,v 1.78 2000/07/30 08:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -529,8 +529,29 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   /* Check the packet length to see if there's more data
      (it could be an ACK-only packet) */
-  if (packet_max > offset) 
-    decode_tcp_ports( pd, offset, fd, tree, th.th_sport, th.th_dport);
+  if (packet_max > offset) {
+    if (th.th_flags & TH_RST) {
+      /*
+       * RFC1122 says:
+       *
+       *	4.2.2.12  RST Segment: RFC-793 Section 3.4
+       *
+       *	  A TCP SHOULD allow a received RST segment to include data.
+       *
+       *	  DISCUSSION
+       * 	       It has been suggested that a RST segment could contain
+       * 	       ASCII text that encoded and explained the cause of the
+       *	       RST.  No standard has yet been established for such
+       *	       data.
+       *
+       * so for segments with RST we just display the data as text.
+       */
+      proto_tree_add_text(tcp_tree, NullTVB, offset, END_OF_FRAME,
+			    "Reset cause: %s",
+			    format_text(&pd[offset], END_OF_FRAME));
+    } else
+      decode_tcp_ports( pd, offset, fd, tree, th.th_sport, th.th_dport);
+  }
  
   if( data_out_file ) {
     reassemble_tcp( th.th_seq,		/* sequence number */
