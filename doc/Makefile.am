@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.2 1999/09/09 03:55:49 guy Exp $
+# $Id: Makefile.am,v 1.3 1999/10/21 21:47:08 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -29,8 +29,4 @@
 	> ../ethereal.1
 
 ethereal.pod: ethereal.pod.template  ../ethereal
-	rm -f ethereal-dump-fields
-	ln ../ethereal ethereal-dump-fields
-	./ethereal-dump-fields | ./dfilter2pod $(srcdir)/ethereal.pod.template > ethereal.pod
-	rm -f ethereal-dump-fields
-
+	../ethereal -G | ./dfilter2pod $(srcdir)/ethereal.pod.template > ethereal.pod

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.24 1999/10/19 04:11:23 gram Exp $
+ * $Id: main.c,v 1.25 1999/10/21 21:46:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -556,7 +556,10 @@ print_usage(void) {
 int
 main(int argc, char *argv[])
 {
-  char                *command_name, *s;
+#ifdef HAVE_LIBPCAP
+  char                *command_name;
+#endif
+  char                *s;
   int                  i;
 #ifndef WIN32
   int                  opt;
@@ -583,28 +586,41 @@ main(int argc, char *argv[])
 
   ethereal_path = argv[0];
 
-  /* If invoked as "ethereal-dump-fields", we dump out a glossary of
-     display filter symbols; we specify that by checking the name,
-     so that we can do so before looking at the argument list -
-     we don't want to look at the argument list, because we don't
-     want to call "gtk_init()", because we don't want to have to
-     do any X stuff just to do a build. */
+#ifdef HAVE_LIBPCAP
   command_name = strrchr(ethereal_path, '/');
   if (command_name == NULL)
     command_name = ethereal_path;
   else
     command_name++;
-  if (strcmp(command_name, "ethereal-dump-fields") == 0) {
+  /* Set "capture_child" to indicate whether this is going to be a child
+     process for a "-S" capture. */
+  capture_child = (strcmp(command_name, CHILD_NAME) == 0);
+#endif
+
+  /* If invoked with the "-G" flag, we dump out a glossary of
+     display filter symbols.
+
+     We must do this before calling "gtk_init()", because "gtk_init()"
+     tries to open an X display, and we don't want to have to do any X
+     stuff just to do a build.
+
+     Given that we call "gtk_init()" before doing the regular argument
+     list processing, so that it can handle X and GTK+ arguments and
+     remove them from the list at which we look, this means we must do
+     this before doing the regular argument list processing, as well.
+
+     This means that:
+
+	you must give the "-G" flag as the first flag on the command line;
+
+	you must give it as "-G", nothing more, nothing less;
+
+	any arguments after the "-G" flag will not be used. */
+  if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
     ethereal_proto_init();
     proto_registrar_dump();
     exit(0);
   }
-
-#ifdef HAVE_LIBPCAP
-  /* Set "capture_child" to indicate whether this is going to be a child
-     process for a "-S" capture? */
-  capture_child = (strcmp(command_name, CHILD_NAME) == 0);
-#endif
 
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
