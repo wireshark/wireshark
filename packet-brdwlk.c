@@ -2,7 +2,7 @@
  * Routines for decoding MDS Port Analyzer Adapter (FC in Eth) Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-brdwlk.c,v 1.2 2003/01/23 07:01:52 guy Exp $
+ * $Id: packet-brdwlk.c,v 1.3 2003/07/21 21:30:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,14 +99,6 @@ static const value_string brdwlk_eof_vals[] = {
     {0, NULL},
 };
 
-static const value_string brdwlk_frametype_vals[] = {
-    {0, NULL},
-};
-
-static const value_string brdwlk_error_vals[] = {
-    {0, NULL},
-};
-
 static int hf_brdwlk_sof = -1;
 static int hf_brdwlk_eof = -1;
 static int hf_brdwlk_error = -1;
@@ -170,11 +162,12 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
-    proto_tree *brdwlk_tree;
+    proto_tree *brdwlk_tree = NULL;
     tvbuff_t *next_tvb;
     guint8 error;
     int hdrlen = 2,
         offset = 0;
+    gint len, reported_len;
     guint16 pkt_cnt;
     gchar errstr[512];
 
@@ -195,29 +188,68 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item (brdwlk_tree, hf_brdwlk_vsan, tvb, offset, 2, 0);
 
 	pinfo->vsan = (tvb_get_ntohs (tvb, offset) & 0xFFF);
+    }
 
-        /* Locate EOF which is the last 4 bytes of the frame */
-        offset = tvb_reported_length (tvb) - 4;
-        proto_tree_add_item (brdwlk_tree, hf_brdwlk_pktcnt, tvb, offset,
-                             2, 0);
+    /* Locate EOF which is the last 4 bytes of the frame */
+    len = tvb_length_remaining(tvb, hdrlen);
+    reported_len = tvb_reported_length_remaining(tvb, hdrlen);
+    if (reported_len < 4) {
+        /*
+         * This packet is claimed not to even have enough data for
+         * a 4-byte EOF.
+         * Don't try to process the EOF.
+         */
+        ;
+    }
+    else if (len < reported_len) {
+        /*
+         * This packet is claimed to have enough data for a 4-byte EOF,
+         * but we didn't capture all of the packet.
+         * Slice off the 4-byte EOF from the reported length, and trim
+         * the captured length so it's no more than the reported length;
+         * that will slice off what of the EOF, if any, is in the
+         * captured length.
+         */
+        reported_len -= 4;
+        if (len > reported_len)
+            len = reported_len;
+    }
+    else {
+        /*
+         * We have the entire packet, and it includes a 4-byte EOF.
+         * Slice it off, and put it into the tree if we're building
+         * a tree.
+         */
+        len -= 4;
+        reported_len -= 4;
+        offset = tvb_reported_length(tvb) - 4;
+        if (tree) {
+            proto_tree_add_item (brdwlk_tree, hf_brdwlk_pktcnt, tvb, offset,
+                                 2, 0);
+        }
         pkt_cnt = tvb_get_ntohs (tvb, offset);
         if (pkt_cnt != packet_count + 1) {
-            if (first_pkt ||
-                (!pkt_cnt && (packet_count == BRDWLK_MAX_PACKET_CNT))) {
-                proto_tree_add_boolean_hidden (brdwlk_tree, hf_brdwlk_drop, tvb,
-                                               offset, 1, 0);
-            }
-            else {
-                proto_tree_add_boolean_hidden (brdwlk_tree, hf_brdwlk_drop, tvb,
-                                               offset, 1, 1);
+            if (tree) {
+                if (first_pkt ||
+                    (!pkt_cnt && (packet_count == BRDWLK_MAX_PACKET_CNT))) {
+                    proto_tree_add_boolean_hidden (brdwlk_tree, hf_brdwlk_drop,
+                                                   tvb, offset, 0, FALSE);
+                }
+                else {
+                    proto_tree_add_boolean_hidden (brdwlk_tree, hf_brdwlk_drop,
+                                                   tvb, offset, 0, TRUE);
+                }
             }
         }
         packet_count = pkt_cnt;
             
         error = tvb_get_guint8 (tvb, offset+2);
-        proto_tree_add_uint_format (brdwlk_tree, hf_brdwlk_error, tvb, offset+2,
-                                    1, error, "Error: 0x%x (%s)",
-                                    error, brdwlk_err_to_str (error, errstr));
+        if (tree) {
+            proto_tree_add_uint_format (brdwlk_tree, hf_brdwlk_error, tvb,
+                                        offset+2, 1, error, "Error: 0x%x (%s)",
+                                        error,
+                                        brdwlk_err_to_str (error, errstr));
+        }
 #if 0
         /* If received frame is truncated, set is_truncated flag */
         if (error & BRDWLK_TRUNCATED_BIT) {
@@ -225,11 +257,13 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 #endif
         
-        proto_tree_add_item (brdwlk_tree, hf_brdwlk_eof, tvb, offset+3,
-                             1, 0);
+        if (tree) {
+            proto_tree_add_item (brdwlk_tree, hf_brdwlk_eof, tvb, offset+3,
+                                 1, 0);
+        }
     }
     
-    next_tvb = tvb_new_subset (tvb, 2, -1, -1);
+    next_tvb = tvb_new_subset (tvb, 2, len, reported_len);
     if (fc_dissector_handle) {
         call_dissector (fc_dissector_handle, next_tvb, pinfo, tree);
     }
