@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.24 1999/08/18 00:57:51 guy Exp $
+ * $Id: packet-nbns.c,v 1.25 1999/08/21 08:45:09 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1276,6 +1276,30 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	length = pntohs(&pd[offset + 2]);
 	if (flags & NBSS_FLAGS_E)
 		length += 65536;
+
+	/* Hmmm, it may be a continuation message ... */
+
+#define RJSHACK 1
+#ifdef RJSHACK
+	if (((msg_type != SESSION_REQUEST) && 
+	     (msg_type != NEGATIVE_SESSION_RESPONSE) &&
+	     (msg_type != RETARGET_SESSION_RESPONSE) &&
+	     (msg_type != SESSION_MESSAGE)) ||
+	    ((msg_type == SESSION_MESSAGE) &&
+	    (memcmp(pd + offset + 4, "\377SMB", 4) != 0))) {
+ 
+	  if (check_col(fd, COL_PROTOCOL))
+	    col_add_str(fd, COL_PROTOCOL, "NBSS (TCP)");
+	  if (check_col(fd, COL_INFO)) {
+	    col_add_fstr(fd, COL_INFO, "NBSS (TCP) Continuation Message");
+	  }
+
+	  if (tree)
+	    proto_tree_add_text(tree, offset, max_data, "Continuation data");
+
+	  return;
+	}
+#endif
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "NBSS (TCP)");
