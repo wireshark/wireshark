@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.68 2003/05/24 17:45:10 gerald Exp $
+ * $Id: packet-wsp.c,v 1.69 2003/05/25 19:36:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3177,7 +3177,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 					i += ret;
 				}
 			add_string:
-				valString[VAL_STRING_SIZE] = '\0';
+				valString[VAL_STRING_SIZE-1] = '\0';
 				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_protocol_opt, tvb, capabilitiesStart, length+1, valString);
 				break;
 			case 0x03 : /* Method-MOR */

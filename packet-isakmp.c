@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.63 2003/05/25 16:49:47 gerald Exp $
+ * $Id: packet-isakmp.c,v 1.64 2003/05/25 19:37:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1133,7 +1133,7 @@ situation2str(guint32 type) {
     ret = snprintf(msg, SIT_MSG_NUM-n, "%sIDENTITY", sep);
     if (ret == -1 || ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
-      msg[SIT_MSG_NUM] = '\0';
+      msg[SIT_MSG_NUM-1] = '\0';
       return msg;
     }
     n += ret;
@@ -1147,7 +1147,7 @@ situation2str(guint32 type) {
     ret = snprintf(msg, SIT_MSG_NUM-n, "%sSECRECY", sep);
     if (ret == -1 || ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
-      msg[SIT_MSG_NUM] = '\0';
+      msg[SIT_MSG_NUM-1] = '\0';
       return msg;
     }
     n += ret;
@@ -1161,7 +1161,7 @@ situation2str(guint32 type) {
     ret = snprintf(msg, SIT_MSG_NUM-n, "%sINTEGRITY", sep);
     if (ret == -1 || ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
-      msg[SIT_MSG_NUM] = '\0';
+      msg[SIT_MSG_NUM-1] = '\0';
       return msg;
     }
     n += ret;
