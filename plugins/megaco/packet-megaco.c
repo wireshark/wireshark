@@ -2,7 +2,7 @@
  * Routines for megaco packet disassembly
  * RFC 3015
  *
- * $Id: packet-megaco.c,v 1.2 2003/01/14 23:54:20 guy Exp $
+ * $Id: packet-megaco.c,v 1.3 2003/01/15 00:17:53 guy Exp $
  *
  * Christian Falckenberg, 2002/10/17
  * Copyright (c) 2002 by Christian Falckenberg
@@ -85,8 +85,10 @@ static int ett_megaco = -1;
  */
 static int global_megaco_txt_tcp_port = PORT_MEGACO_TXT;
 static int global_megaco_txt_udp_port = PORT_MEGACO_TXT;
+#if 0
 static int global_megaco_bin_tcp_port = PORT_MEGACO_BIN;
 static int global_megaco_bin_udp_port = PORT_MEGACO_BIN;
+#endif
 static gboolean global_megaco_raw_text = TRUE;
 static gboolean global_megaco_dissect_tree = TRUE;
 
@@ -96,8 +98,10 @@ static gboolean global_megaco_dissect_tree = TRUE;
  */
 static int txt_tcp_port = 0;
 static int txt_udp_port = 0;
+#if 0
 static int bin_tcp_port = 0;
 static int bin_udp_port = 0;
+#endif
 
 /* Some basic utility functions that are specific to this dissector */
 static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength);
@@ -111,11 +115,12 @@ static void megaco_raw_text_add(tvbuff_t *tvb,
 				proto_tree *tree);
 
 /*
- * dissect_megaco - The dissector for the MEGACO Protocol
+ * dissect_megaco_text - The dissector for the MEGACO Protocol, using
+ * text encoding.
  */
 
 static void
-dissect_megaco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint        tvb_len, len;
     gint        tvb_offset,tvb_current_offset,tvb_previous_offset, tokenlen;
@@ -275,26 +280,26 @@ proto_register_megaco(void)
     megaco_module = prefs_register_protocol(proto_megaco, proto_reg_handoff_megaco);
 
     prefs_register_uint_preference(megaco_module, "tcp.txt_port",
-				   "MEGACO TXT TCP Port",
-				   "Set the TCP port for MEGACO txt messages ",
+				   "MEGACO Text TCP Port",
+				   "Set the TCP port for MEGACO text messages",
 				   10, &global_megaco_txt_tcp_port);
 
     prefs_register_uint_preference(megaco_module, "udp.txt_port",
-				   "MEGACO TXT UDP Port",
-				   "Set the UDP port for gateway messages ",
+				   "MEGACO Text UDP Port",
+				   "Set the UDP port for MEGACO text messages",
 				   10, &global_megaco_txt_udp_port);
 
+#if 0
     prefs_register_uint_preference(megaco_module, "tcp.bin_port",
-				   "MEGACO bin TCP Port",
-				   "Set the TCP port for MEGACO binary messages ",
+				   "MEGACO Binary TCP Port",
+				   "Set the TCP port for MEGACO binary messages",
 				   10, &global_megaco_bin_tcp_port);
 
     prefs_register_uint_preference(megaco_module, "udp.bin_port",
-				   "MEGACO Callagent UDP Port",
-				   "Set the UDP port for callagent messages "
-				   "(if other than the default of 2727)",
+				   "MEGACO Binary UDP Port",
+				   "Set the UDP port for MEGACO binary messages",
 				   10, &global_megaco_bin_udp_port);
-
+#endif
 
     prefs_register_bool_preference(megaco_module, "display_raw_text",
 				   "Display raw text for MEGACO message",
@@ -318,20 +323,23 @@ void
 proto_reg_handoff_megaco(void)
 {
     static int megaco_prefs_initialized = FALSE;
-    static dissector_handle_t megaco_handle;
+    static dissector_handle_t megaco_text_handle;
 
     /*
      * Get a handle for the SDP dissector.
      */
     if (!megaco_prefs_initialized) {
-	megaco_handle = create_dissector_handle(dissect_megaco, proto_megaco);
+	megaco_text_handle = create_dissector_handle(dissect_megaco_text,
+						     proto_megaco);
 	megaco_prefs_initialized = TRUE;
     }
     else {
-	dissector_delete("tcp.port", txt_tcp_port, megaco_handle);
-	dissector_delete("udp.port", txt_udp_port, megaco_handle);
-	dissector_delete("tcp.port", bin_tcp_port, megaco_handle);
-	dissector_delete("udp.port", bin_udp_port, megaco_handle);
+	dissector_delete("tcp.port", txt_tcp_port, megaco_text_handle);
+	dissector_delete("udp.port", txt_udp_port, megaco_text_handle);
+#if 0
+	dissector_delete("tcp.port", bin_tcp_port, megaco_bin_handle);
+	dissector_delete("udp.port", bin_udp_port, megaco_bin_handle);
+#endif
     }
 
     /* Set our port number for future use */
@@ -339,14 +347,19 @@ proto_reg_handoff_megaco(void)
     txt_tcp_port = global_megaco_txt_tcp_port;
     txt_udp_port = global_megaco_txt_udp_port;
 
+#if 0
     bin_tcp_port = global_megaco_bin_tcp_port;
     bin_udp_port = global_megaco_bin_udp_port;
+#endif
 
-    dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_handle);
-    dissector_add("udp.port", global_megaco_txt_udp_port, megaco_handle);
-    dissector_add("tcp.port", global_megaco_bin_tcp_port, megaco_handle);
-    dissector_add("udp.port", global_megaco_bin_udp_port, megaco_handle);
-    dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_handle);
+    dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_text_handle);
+    dissector_add("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
+#if 0
+    dissector_add("tcp.port", global_megaco_bin_tcp_port, megaco_bin_handle);
+    dissector_add("udp.port", global_megaco_bin_udp_port, megaco_bin_handle);
+#endif
+    /* XXX - text or binary?  Does that depend on the port number? */
+    dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
 }
 
 /*
