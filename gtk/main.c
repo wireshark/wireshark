@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.364 2004/01/21 03:02:19 ulfl Exp $
+ * $Id: main.c,v 1.365 2004/01/21 09:00:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,7 +178,11 @@ static gboolean list_link_layer_types;
 #endif
 
 static void create_main_window(gint, gint, gint, e_prefs*);
+#ifdef WIN32
+#if GTK_MAJOR_VERSION >= 2
 static void try_to_get_windows_font_gtk2 (void);
+#endif
+#endif
 
 #define E_DFILTER_CM_KEY          "display_filter_combo"
 #define E_DFILTER_FL_KEY          "display_filter_list"
@@ -2774,7 +2778,7 @@ char *font_zoom(char *gui_font_name)
     font_name_p++;
 
     /* calculate the new font size */
-    font_point_size_l = strtoul(font_name_p, NULL, 10);
+    font_point_size_l = strtol(font_name_p, NULL, 10);
     font_point_size_l += recent.gui_zoom_level;
 
     /* build a new font name */
@@ -2788,7 +2792,7 @@ char *font_zoom(char *gui_font_name)
 
     minus_chars = 0;
     /* replace all '-' chars by 0 and count them */
-    while (font_name_p = strchr(font_name_p, '-')) {
+    while ((font_name_p = strchr(font_name_p, '-')) != NULL) {
         *font_name_p = 0;
         font_name_p++;
         minus_chars++;
@@ -2861,13 +2865,13 @@ char *font_zoom(char *gui_font_name)
     font_name_p++;
 
     /* calculate the new font size */
-    font_point_size_l = strtoul(font_point_size, NULL, 10);
+    font_point_size_l = strtol(font_point_size, NULL, 10);
     font_point_size_l += recent.gui_zoom_level*10;
     if (font_point_size_l <= 0)
         font_point_size_l = 10;
 
     /* build a new font name */
-    sprintf(new_font_name, "-%s-%s-%s-%s-%s--%s-%u-%s-%s-%s-%s-%s-%s", 
+    sprintf(new_font_name, "-%s-%s-%s-%s-%s--%s-%ld-%s-%s-%s-%s-%s-%s", 
         font_foundry, font_family, font_weight, font_slant, font_set_width, 
         font_pixel_size, font_point_size_l, font_res_x, font_res_y,
         font_spacing, font_aver_width, font_charset_reg, font_charset_encoding);
