@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.18 2004/01/13 22:49:15 guy Exp $
+ * $Id: rtp_analysis.c,v 1.19 2004/01/19 23:35:32 obiot Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -785,10 +785,13 @@ static void draw_stat(user_data_t *user_data);
 /* re-dissects all packets */
 static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 {
+/*
+	***TODO: WILL NOT WORK THIS WAY ANY MORE!***
 	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_fwd));
 	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_rev));
 	retap_packets(&cfile);
 	draw_stat(user_data);
+*/
 }
 
 /****************************************************************************/
@@ -1715,12 +1718,12 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_container_add(GTK_CONTAINER(box4), csv_bt);
 	gtk_widget_show(csv_bt);
 	SIGNAL_CONNECT(csv_bt, "clicked", save_csv_as_cb, user_data);
-
+/*
 	refresh_bt = gtk_button_new_with_label("Refresh");
 	gtk_container_add(GTK_CONTAINER(box4), refresh_bt);
 	gtk_widget_show(refresh_bt);
 	SIGNAL_CONNECT(refresh_bt, "clicked", on_refresh_bt_clicked, user_data);
-
+*/
 	goto_bt = gtk_button_new_with_label("Go to frame");
 	gtk_container_add(GTK_CONTAINER(box4), goto_bt);
 	gtk_widget_show(goto_bt);
@@ -1817,6 +1820,10 @@ static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
 }
 
 
+/* XXX just copied from gtk/rpc_stat.c */
+void protect_thread_critical_region(void);
+void unprotect_thread_critical_region(void);
+
 /****************************************************************************/
 /* XXX only handles RTP over IPv4, should add IPv6 support */
 void rtp_analysis(
@@ -1870,6 +1877,7 @@ void rtp_analysis(
 		port_dst_rev
 		);
 
+	/* register tap listener */
 	error_string = register_tap_listener("rtp", user_data, filter_text,
 		(void*)rtp_reset, (void*)rtp_packet, (void*)rtp_draw);
 	if (error_string != NULL) {
@@ -1896,6 +1904,11 @@ void rtp_analysis(
 #endif
 
 	retap_packets(&cfile);
+
+	/* remove tap listener again */
+	protect_thread_critical_region();
+	remove_tap_listener(user_data);
+	unprotect_thread_critical_region();
 
 	draw_stat(user_data);
 }
