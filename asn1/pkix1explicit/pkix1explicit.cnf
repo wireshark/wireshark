@@ -12,6 +12,7 @@ TerminalType
 DirectoryString
 
 #.REGISTER
+DirectoryString  B "1.3.6.1.5.5.7.2.1" "id-qt-cps"
 DomainParameters B "1.2.840.10046.2.1" "dhpublicnumber"
 
 #.PDU

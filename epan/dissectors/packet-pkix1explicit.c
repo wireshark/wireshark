@@ -57,6 +57,7 @@ static int proto_pkix1explicit = -1;
 /*--- Included file: packet-pkix1explicit-hf.c ---*/
 
 static int hf_pkix1explicit_DomainParameters_PDU = -1;  /* DomainParameters */
+static int hf_pkix1explicit_DirectoryString_PDU = -1;  /* DirectoryString */
 static int hf_pkix1explicit_p = -1;               /* INTEGER */
 static int hf_pkix1explicit_g = -1;               /* INTEGER */
 static int hf_pkix1explicit_q = -1;               /* INTEGER */
@@ -252,6 +253,9 @@ dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, t
 static void dissect_DomainParameters_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_pkix1explicit_DomainParameters(FALSE, tvb, 0, pinfo, tree, hf_pkix1explicit_DomainParameters_PDU);
 }
+static void dissect_DirectoryString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_pkix1explicit_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_pkix1explicit_DirectoryString_PDU);
+}
 
 
 /*--- End of included file: packet-pkix1explicit-fn.c ---*/
@@ -270,6 +274,10 @@ void proto_register_pkix1explicit(void) {
       { "DomainParameters", "pkix1explicit.DomainParameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "DomainParameters", HFILL }},
+    { &hf_pkix1explicit_DirectoryString_PDU,
+      { "DirectoryString", "pkix1explicit.DirectoryString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DirectoryString", HFILL }},
     { &hf_pkix1explicit_p,
       { "p", "pkix1explicit.p",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -339,6 +347,7 @@ void proto_reg_handoff_pkix1explicit(void) {
 
 /*--- Included file: packet-pkix1explicit-dis-tab.c ---*/
 
+ register_ber_oid_dissector("1.3.6.1.5.5.7.2.1", dissect_DirectoryString_PDU, proto_pkix1explicit, "id-qt-cps");
  register_ber_oid_dissector("1.2.840.10046.2.1", dissect_DomainParameters_PDU, proto_pkix1explicit, "dhpublicnumber");
 
 
