@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.14 2001/12/03 04:00:19 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.15 2001/12/03 08:47:31 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -65,22 +65,6 @@ enum action_type {
 };
 
 /*
- * Enum used to track which transport layer protocol menu item is
- * currently selected in the dialog.  These items are labeled "TCP",
- * "UDP", and "TCP/UDP".
- */
-enum tcpudp_type {
-    /* The "TCP" menu item is currently selected. */
-    E_DECODE_TCP,
-
-    /* The "TCP" menu item is currently selected. */
-    E_DECODE_UDP,
-
-    /* The "TCP/UDP" menu item is currently selected. */
-    E_DECODE_TCPUDP
-};
-
-/*
  * Enum used to track which transport layer port menu item is
  * currently selected in the dialog.  These items are labeled "source",
  * "destination", and "source/destination".
@@ -97,7 +81,6 @@ enum srcdst_type {
 #define E_DECODE_MIN_HEIGHT 100
 #define E_NOTEBOOK "notebook"
 
-#define E_MENU_TCPUDP "menu_tcp_udp"
 #define E_MENU_SRCDST "menu_src_dst"
 
 #define E_PAGE_ACTION "notebook_page_action"
@@ -112,8 +95,7 @@ enum srcdst_type {
 #define E_CLIST_S_PROTO_NAME 0
 #define E_CLIST_S_TABLE	     1
 /* The following is for debugging in decode_add_to_clist */
-#define E_CLIST_S_ISCONV     2
-#define E_CLIST_S_MAX	     E_CLIST_S_ISCONV
+#define E_CLIST_S_MAX	     E_CLIST_S_TABLE
 #define E_CLIST_S_COLUMNS   (E_CLIST_S_MAX + 1)
 
 /*
@@ -155,13 +137,20 @@ static GtkWidget *decode_show_w = NULL;
 static GSList *decode_dimmable = NULL;
 
 /*
- * A list of additional IP port numbers that are currently being
- * decodes as either TCP or UDP.  This is used to determine whether or
- * not to include a "transport" page in the dialog notebook.  This
- * list never includes values for the standard TCP or UDP protocol
- * numbers.
+ * A list of additional IP protocol numbers that are currently being
+ * decodes as TCP.  This is used to determine whether or not to include
+ * a "transport" page for TCP in the dialog notebook.  This list never
+ * includes values for the standard TCP protocol number.
  */
-static GSList *decode_as_tcpudp = NULL;
+static GSList *decode_as_tcp = NULL;
+
+/*
+ * A list of additional IP protocol numbers that are currently being
+ * decodes as UDP.  This is used to determine whether or not to include
+ * a "transport" page for UDP in the dialog notebook.  This list never
+ * includes values for the standard UDP protocol number.
+ */
+static GSList *decode_as_udp = NULL;
 
 /*
  * Remember the "action" radio button that is currently selected in
@@ -523,16 +512,17 @@ static void
 decode_debug (GtkCList *clist, gchar *leadin)
 {
     gchar *string, *text[E_CLIST_S_COLUMNS];
-    gint row, proto_num;
+    dissector_handle_t handle;
+    gint row;
 
     string = g_malloc(1024);
     if (clist->selection) {
 	row = GPOINTER_TO_INT(clist->selection->data);
 	gtk_clist_get_text(clist, row, E_CLIST_S_PROTO_NAME, &text[E_CLIST_S_PROTO_NAME]);
 	gtk_clist_get_text(clist, row, E_CLIST_S_TABLE, &text[E_CLIST_S_TABLE]);
-	proto_num = GPOINTER_TO_INT(gtk_clist_get_row_data(clist, row));
-	sprintf(string, "%s clist row %d: proto %d, name %s, table %s",
-		leadin, row, proto_num, text[E_CLIST_S_PROTO_NAME],
+	handle = gtk_clist_get_row_data(clist, row);
+	sprintf(string, "%s clist row %d: <put handle here>, name %s, table %s",
+		leadin, row, text[E_CLIST_S_PROTO_NAME],
 		text[E_CLIST_S_TABLE]);
     } else {
 	sprintf(string, "%s clist row (none), aka do not decode", leadin);
@@ -557,6 +547,9 @@ static void
 decode_simple (GtkWidget *notebook_pg)
 {
     GtkCList *clist;
+#ifdef DEBUG
+    gchar *string;
+#endif
     gchar *table_name;
     gint value;
 
@@ -581,8 +574,8 @@ decode_simple (GtkWidget *notebook_pg)
  * "Decode As..." dialog window and the network page is foremost.
  * This routine takes care of making any changes requested to the
  * dissector tables.  This routine uses the decode_simple() routine to
- * perform the heavy lifting, and then updates a list of protocol that
- * are being decoded as TCP/UDP. *
+ * perform the heavy lifting, and then updates the lists of protocol that
+ * are being decoded as TCP and as UDP.
  *
  * @param notebook_pg A pointer to the "network" notebook page.
  */
@@ -591,12 +584,15 @@ decode_network (GtkWidget *notebook_pg)
 {
     GtkCList *clist;
     GSList *item;
-    gint row, assigned, port_num;
+    gint row, port_num;
+    dissector_handle_t handle;
+    gchar *short_name;
 
     /* Do the real work */
     decode_simple(notebook_pg);
 
-    /* Now tweak a local table of protocol ids currently decoded as TCP/UDP */
+    /* Now tweak the local tables of protocol ids currently decoded as TCP
+       and UDP */
     port_num = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(notebook_pg),
 						E_PAGE_VALUE));
 
@@ -604,30 +600,47 @@ decode_network (GtkWidget *notebook_pg)
     if ((port_num == IP_PROTO_TCP) || (port_num == IP_PROTO_UDP))
 	return;
 
-    /* Not decoding - remove any entry for this IP protocol number */
     if (requested_action == E_DECODE_NO) {
-	decode_as_tcpudp =
-	    g_slist_remove(decode_as_tcpudp, GINT_TO_POINTER(port_num));
+	/* Not decoding at all; remove any entry for this IP protocol number
+	   in the lists of protocol numbers to be decoded as TCP or
+	   UDP. */
+	decode_as_tcp =
+	    g_slist_remove(decode_as_tcp, GINT_TO_POINTER(port_num));
+	decode_as_udp =
+	    g_slist_remove(decode_as_udp, GINT_TO_POINTER(port_num));
 	return;
     }
 
-    /* Not assigning TCP or UDP - remove any entry for this IP protocol number.
-       Note: if the action was E_DECODE_NO, the selection on the clist
+    /* Note: if the action was E_DECODE_NO, the selection on the clist
        was cleared, so the code to get "row" below would blow up. */
     clist = GTK_CLIST(gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_CLIST));
     row = GPOINTER_TO_INT(clist->selection->data);
-    assigned = GPOINTER_TO_INT(gtk_clist_get_row_data(clist, row));
-    if ((assigned != IP_PROTO_TCP) && (assigned != IP_PROTO_UDP)) {
-	decode_as_tcpudp =
-	    g_slist_remove(decode_as_tcpudp, GINT_TO_POINTER(port_num));
-	return;
-    }
-
-    /* Assigning TCP or UDP - add if not already present */
-    item = g_slist_find(decode_as_tcpudp, GINT_TO_POINTER(port_num));
-    if (!item) {
-	decode_as_tcpudp =
-	    g_slist_prepend(decode_as_tcpudp, GINT_TO_POINTER(port_num));
+    handle = gtk_clist_get_row_data(clist, row);
+    short_name = dissector_handle_get_short_name(handle);
+    if (strcmp(short_name, "TCP") == 0) {
+	/* Assigning as TCP; add to the list of IP protocol numbers
+	   decoded as TCP if not already present on that list. */
+	item = g_slist_find(decode_as_tcp, GINT_TO_POINTER(port_num));
+	if (!item) {
+	    decode_as_tcp =
+		g_slist_prepend(decode_as_tcp, GINT_TO_POINTER(port_num));
+	}
+    } else if (strcmp(short_name, "UDP") == 0) {
+	/* Assigning as UDP; add to the list of IP protocol numbers
+	   decoded as UDP if not already present on that list. */
+	item = g_slist_find(decode_as_udp, GINT_TO_POINTER(port_num));
+	if (!item) {
+	    decode_as_udp =
+		g_slist_prepend(decode_as_udp, GINT_TO_POINTER(port_num));
+	}
+    } else {
+	/* Not assigning TCP or UDP; remove any entry for this IP protocol
+	   number in the lists of protocol numbers to be decoded as TCP or
+	   UDP. */
+	decode_as_tcp =
+	    g_slist_remove(decode_as_tcp, GINT_TO_POINTER(port_num));
+	decode_as_udp =
+	    g_slist_remove(decode_as_udp, GINT_TO_POINTER(port_num));
     }
 }
 
@@ -636,11 +649,7 @@ decode_network (GtkWidget *notebook_pg)
  * This routine is called when the user clicks the "OK" button in the
  * "Decode As..." dialog window and the transport page is foremost.
  * This routine takes care of making any changes requested to the TCP
- * and UDP dissector tables.
- *
- * Note: The negative tests catch multiple cases.  For example, if the
- * user didn't select UDP, then they either selected TCP or TCP/UDP.
- * Either way they *did* select TCP.
+ * or UDP dissector tables.
  *
  * @param notebook_pg A pointer to the "transport" notebook page.
  */
@@ -649,15 +658,12 @@ decode_transport (GtkObject *notebook_pg)
 {
     GtkWidget *menu, *menuitem;
     GtkCList *clist;
-    gint requested_tcpudp, requested_srcdst;
+    gchar *table_name;
+    gint requested_srcdst;
 
     clist = GTK_CLIST(gtk_object_get_data(notebook_pg, E_PAGE_CLIST));
     if (requested_action == E_DECODE_NO)
 	gtk_clist_unselect_all(clist);
-
-    menu = gtk_object_get_data(notebook_pg, E_MENU_TCPUDP);
-    menuitem = gtk_menu_get_active(GTK_MENU(menu));
-    requested_tcpudp = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(menuitem)));
 
     menu = gtk_object_get_data(notebook_pg, E_MENU_SRCDST);
     menuitem = gtk_menu_get_active(GTK_MENU(menu));
@@ -668,18 +674,11 @@ decode_transport (GtkObject *notebook_pg)
     decode_debug(clist, string);
 #endif
 
-    if (requested_tcpudp != E_DECODE_UDP) {
-	if (requested_srcdst != E_DECODE_DPORT)
-	    decode_change_one_dissector("tcp.port", cfile.edt->pi.srcport, clist);
-	if (requested_srcdst != E_DECODE_SPORT)
-	    decode_change_one_dissector("tcp.port", cfile.edt->pi.destport, clist);
-    }
-    if (requested_tcpudp != E_DECODE_TCP) {
-	if (requested_srcdst != E_DECODE_DPORT)
-	    decode_change_one_dissector("udp.port", cfile.edt->pi.srcport, clist);
-	if (requested_srcdst != E_DECODE_SPORT)
-	    decode_change_one_dissector("udp.port", cfile.edt->pi.destport, clist);
-    }
+    table_name = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_TABLE);
+    if (requested_srcdst != E_DECODE_DPORT)
+	decode_change_one_dissector(table_name, cfile.edt->pi.srcport, clist);
+    if (requested_srcdst != E_DECODE_SPORT)
+	decode_change_one_dissector(table_name, cfile.edt->pi.destport, clist);
 }
 
 /**************************************************/
@@ -863,54 +862,6 @@ decode_add_pack_menu (GtkWidget *optmenu)
     return(alignment);
 }
 
-/*
- * This routine is called to add the transport protocol selection menu
- * to the dialog box.  This is a three choice menu: TCP, UDP, and
- * TCP/UDP.  The default choice for the menu is set to the transport
- * layer protocol of the currently selected packet.
- *
- * @param page A pointer notebook page that will contain all
- * widgets created by this routine.
- *
- * @return GtkWidget * A pointer to the newly created alignment into
- * which we've packed the newly created option menu.
- */
-static GtkWidget *
-decode_add_tcpudp_menu (GtkWidget *page)
-{
-    GtkWidget *optmenu, *menu, *menuitem, *alignment;
-    gint requested_tcpudp;
-
-    optmenu = gtk_option_menu_new();
-    menu = gtk_menu_new();
-    menuitem = gtk_menu_item_new_with_label("TCP");
-    gtk_object_set_user_data(GTK_OBJECT(menuitem),
-			     GINT_TO_POINTER(E_DECODE_TCP));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-
-    menuitem = gtk_menu_item_new_with_label("UDP");
-    gtk_object_set_user_data(GTK_OBJECT(menuitem),
-			     GINT_TO_POINTER(E_DECODE_UDP));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-
-    menuitem = gtk_menu_item_new_with_label("TCP/UDP");
-    gtk_object_set_user_data(GTK_OBJECT(menuitem),
-			     GINT_TO_POINTER(E_DECODE_TCPUDP));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-
-    requested_tcpudp = (cfile.edt->pi.ipproto == IP_PROTO_TCP) ? E_DECODE_TCP : E_DECODE_UDP;
-    gtk_menu_set_active(GTK_MENU(menu), requested_tcpudp == E_DECODE_UDP);
-    gtk_object_set_data(GTK_OBJECT(page), E_MENU_TCPUDP, menu);
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
-
-    alignment = decode_add_pack_menu(optmenu);
-
-    return(alignment);
-}
-
 
 /*
  * This routine is called to add the transport port selection menu to
@@ -965,30 +916,20 @@ decode_add_srcdst_menu (GtkWidget *page)
 /**************************************************/
 
 
-typedef struct decode_build_clist_info {
-    GtkCList *clist;
-    gboolean conv;
-} decode_build_clist_info_t;
-
 /*
  * This routine creates one entry in the list of protocol dissector
- * that can be used.  It is called by the g_hash_foreach routine once
- * for each entry in a dissector table.  It guarantees unique entries
- * by iterating over the list of entries build up to this point,
+ * that can be used.  It is called by the dissector_table_foreach_handle
+ * routine once for each entry in a dissector table's list of handles
+ * for dissectors that could be used in that table.  It guarantees unique
+ * entries by iterating over the list of entries build up to this point,
  * looking for a duplicate name.  If there is no duplicate, then this
  * entry is added to the list of possible dissectors.
  *
- * @param table_name The name of the dissector hash table currently
+ * @param table_name The name of the dissector table currently
  * being walked.
  *
- * @param key A pointer to the key for this entry in the
- * dissector hash table.  This is generally the numeric selector of
- * the protocol, i.e. the ethernet type code, IP port number, TCP port
- * number, etc.
- *
- * @param value A pointer to the value for this entry in the
- * dissector hash table.  This is an opaque pointer that can only be
- * handed back to routines in the file packet.c
+ * @param value The dissector handle for this entry.  This is an opaque
+ * pointer that can only be handed back to routines in the file packet.c
  *
  * @param user_data A data block passed into each instance of this
  * routine.  It contains information from the caller of the foreach
@@ -996,38 +937,32 @@ typedef struct decode_build_clist_info {
  * to store any information generated by this routine.
  */
 static void
-decode_add_to_clist (gchar *table_name, gpointer key,
-		     gpointer value, gpointer user_data)
+decode_add_to_clist (gchar *table_name, gpointer value, gpointer user_data)
 {
     GtkCList  *clist;
-    gchar     *proto_name, *isconv;
+    gchar     *proto_name;
     gchar     *text[E_CLIST_S_COLUMNS];
     dissector_handle_t handle;
     gint       row;
-    decode_build_clist_info_t *info;
 
     g_assert(user_data);
     g_assert(value);
 
-    info = user_data;
-    clist = info->clist;
-    if (info->conv) {
-	handle = value;
-	isconv = "TRUE";
-    } else {
-    	handle = dtbl_entry_get_handle(value);
-	isconv = "FALSE";
-    }
+    clist = user_data;
+    handle = value;
     proto_name = dissector_handle_get_short_name(handle);
 
     row = gtk_clist_find_row_from_data(clist, handle);
     if (row != -1) {
+	/*
+	 * We already have an entry for this handle.
+	 * XXX - will this ever happen?
+	 */
 	return;
     }
 
     text[E_CLIST_S_PROTO_NAME] = proto_name;
     text[E_CLIST_S_TABLE] = table_name;
-    text[E_CLIST_S_ISCONV] = isconv;
     row = gtk_clist_prepend(clist, text);
     gtk_clist_set_row_data(clist, row, handle);
 }
@@ -1050,8 +985,7 @@ static void
 decode_clist_menu_start (GtkWidget *page, GtkCList **clist_p,
 			 GtkWidget **scrolled_win_p)
 {
-    gchar *titles[E_CLIST_S_COLUMNS] = {"Short Name", "Table Name",
-					"Is Conversation"};
+    gchar *titles[E_CLIST_S_COLUMNS] = {"Short Name", "Table Name"};
     GtkCList  *clist;
     GtkWidget *window;
     gint column;
@@ -1092,9 +1026,8 @@ decode_clist_menu_finish (GtkCList *clist)
 
     text[E_CLIST_S_PROTO_NAME] = "(default)";
     text[E_CLIST_S_TABLE] = "(none)";
-    text[E_CLIST_S_ISCONV] = "(who cares)";
     row = gtk_clist_prepend(clist, text);
-    gtk_clist_set_row_data(clist, row, GINT_TO_POINTER(-1));
+    gtk_clist_set_row_data(clist, row, NULL);
 
     gtk_clist_select_row(clist, 0, -1);
     gtk_clist_sort(clist);
@@ -1110,8 +1043,8 @@ decode_clist_menu_finish (GtkCList *clist)
  *
  * @param page A pointer to the notebook page currently being created.
  *
- * @param table_name The name of the dissector hash table to use to
- * build this (clist) menu.
+ * @param table_name The name of the dissector table to use to build
+ * this (clist) menu.
  *
  * @return GtkWidget * A pointer to the newly created clist within a
  * scrolled window.
@@ -1121,48 +1054,9 @@ decode_add_simple_menu (GtkWidget *page, gchar *table_name)
 {
     GtkWidget *scrolled_window;
     GtkCList  *clist;
-    decode_build_clist_info_t info;
 
     decode_clist_menu_start(page, &clist, &scrolled_window);
-    {
-	info.clist = clist;
-	info.conv = FALSE;
-	dissector_table_foreach(table_name, decode_add_to_clist, &info);
-    }
-    decode_clist_menu_finish(clist);
-    return(scrolled_window);
-}
-
-/*
- * This routine is called to add the dissector selection list to 
- * notebook page.  This scrolled list contains an entry labeled
- * "default", and an entry for each protocol that has had a dissector
- * registered.  The default choice for the list is set to the
- * "default" choice, which will return the protocol/port selections to
- * their original dissector(s).
- *
- * @param page A pointer to the notebook page currently being created.
- *
- * @return GtkWidget * A pointer to the newly created option menu.
- */
-static GtkWidget *
-decode_add_transport_menu (GtkWidget *page)
-{
-    GtkWidget *scrolled_window;
-    GtkCList  *clist;
-    decode_build_clist_info_t info;
-
-    decode_clist_menu_start(page, &clist, &scrolled_window);
-    {
-	info.clist = clist;
-	info.conv = FALSE;
-	dissector_table_foreach("tcp.port", decode_add_to_clist, &info);
-	dissector_table_foreach("udp.port", decode_add_to_clist, &info);
-
-	info.conv = TRUE;
-	dissector_conv_foreach("udp", decode_add_to_clist, &info);
-	dissector_conv_foreach("tcp", decode_add_to_clist, &info);
-    }
+    dissector_table_foreach_handle(table_name, decode_add_to_clist, clist);
     decode_clist_menu_finish(clist);
     return(scrolled_window);
 }
@@ -1181,10 +1075,9 @@ decode_add_transport_menu (GtkWidget *page)
  *
  * @param prompt The prompt for this notebook page
  *
- * @param title A table name from which all dissector names will
- * be extracted.
+ * @param title A title for this page to use when debugging.
  *
- * @param table_name The name of the dissector hash table to use to
+ * @param table_name The name of the dissector table to use to
  * build this page.
  *
  * @param value The protocol/port value that is to be changed.
@@ -1221,35 +1114,41 @@ decode_add_simple_page (gchar *prompt, gchar *title, gchar *table_name,
 
 
 /*
- * This routine creates the TCP/UDP notebook page in the dialog box.
+ * This routine creates the TCP or UDP notebook page in the dialog box.
  * All items created by this routine are packed into a single
- * horizontal box.  First is a menu allowing the user to select the
- * TCP or UDP transport layer protocol.  Second is a menu allowing the
- * user to select whether the source port, destination port, or both
- * ports will have dissectors added for them.  Last is a
- * (conditionally enabled) popup menu listing all possible dissectors
- * that can be used to decode the packets, and the choice or returning
- * to the default dissector for these ports.
+ * horizontal box.  First is a label indicating whether the port(s) for
+ * which the user can set the dissection is a TCP port or a UDP port.
+ * Second is a menu allowing the user to select whether the source port,
+ * destination port, or both ports will have dissectors added for them.
+ * Last is a (conditionally enabled) popup menu listing all possible
+ * dissectors that can be used to decode the packets, and the choice
+ * or returning to the default dissector for these ports.
  *
  * The defaults for these items are the transport layer protocol of
  * the currently selected packet, the source port of the currently
  * selected packet, and the "default dissector".
  *
+ * @param prompt The prompt for this notebook page
+ *
+ * @param table_name The name of the dissector table to use to
+ * build this page.
+ *
  * @return GtkWidget * A pointer to the notebook page created by
  * this routine.
  */
 static GtkWidget *
-decode_add_tcpudp_page (void)
+decode_add_tcpudp_page (gchar *prompt, gchar *table_name)
 {
     GtkWidget	*page, *label, *scrolled_window, *optmenu;
 
     page = gtk_hbox_new(FALSE, 5);
     gtk_object_set_data(GTK_OBJECT(page), E_PAGE_ACTION, decode_transport);
+    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_TABLE, table_name);
     gtk_object_set_data(GTK_OBJECT(page), E_PAGE_TITLE, "Transport");
 
     /* Always enabled */
-    optmenu = decode_add_tcpudp_menu(page);
-    gtk_box_pack_start(GTK_BOX(page), optmenu, TRUE, TRUE, 0);
+    label = gtk_label_new(prompt);
+    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
     optmenu = decode_add_srcdst_menu(page);
     gtk_box_pack_start(GTK_BOX(page), optmenu, TRUE, TRUE, 0);
     label = gtk_label_new("port(s)");
@@ -1259,11 +1158,49 @@ decode_add_tcpudp_page (void)
     label = gtk_label_new("as");
     gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
     decode_dimmable = g_slist_prepend(decode_dimmable, label);
-    scrolled_window = decode_add_transport_menu(page);
+    scrolled_window = decode_add_simple_menu(page, table_name);
     gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
     decode_dimmable = g_slist_prepend(decode_dimmable, scrolled_window);
 
     return(page);
+}
+
+/*
+ * Indicate if a transport page for TCP should be included, based upon the
+ * IP protocol number.
+ *
+ * @param ip_protocol The IP protocol number in question.
+ *
+ * @return gboolean TRUE if this protocol is being decoded as TCP.
+ */
+static gboolean
+decode_as_tcp_ok (gint ip_protocol)
+{
+    if (ip_protocol == IP_PROTO_TCP)
+	return(TRUE);
+
+    if (g_slist_find(decode_as_tcp, GINT_TO_POINTER(ip_protocol)))
+	return(TRUE);
+    return(FALSE);
+}
+
+/*
+ * Indicate if a transport page for UDP should be included, based upon the
+ * IP protocol number.
+ *
+ * @param ip_protocol The IP protocol number in question.
+ *
+ * @return gboolean TRUE if this protocol is being decoded as UDP.
+ */
+static gboolean
+decode_as_udp_ok (gint ip_protocol)
+{
+    if (ip_protocol == IP_PROTO_UDP)
+	return(TRUE);
+
+    if (g_slist_find(decode_as_udp, GINT_TO_POINTER(ip_protocol)))
+	return(TRUE);
+    return(FALSE);
 }
 
 /*
@@ -1278,12 +1215,18 @@ decode_add_tcpudp_page (void)
 static gboolean
 decode_as_transport_ok (gint ip_protocol)
 {
-    if ((ip_protocol == IP_PROTO_TCP) || (ip_protocol == IP_PROTO_UDP))
-	return(TRUE);
+    return(decode_as_tcp_ok(ip_protocol) || decode_as_udp_ok(ip_protocol));
+}
 
-    if (g_slist_find(decode_as_tcpudp, GINT_TO_POINTER(ip_protocol)))
-	return(TRUE);
-    return(FALSE);
+/*
+ * This routine indicates whether we'd actually have any pages in the
+ * notebook in a "Decode As" dialog box; if there wouldn't be, we
+ * inactivate the menu item for "Decode As".
+ */
+gboolean
+decode_as_ok(void)
+{
+    return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto || decode_as_transport_ok(cfile.edt->pi.ipproto);
 }
 
 
@@ -1324,8 +1267,13 @@ decode_add_notebook (GtkWidget *format_hb)
     }
 
     /* Add transport selection page */
-    if (decode_as_transport_ok(cfile.edt->pi.ipproto)) {
-	page = decode_add_tcpudp_page();
+    if (decode_as_tcp_ok(cfile.edt->pi.ipproto))
+	page = decode_add_tcpudp_page("TCP", "tcp.port");
+    else if (decode_as_udp_ok(cfile.edt->pi.ipproto))
+	page = decode_add_tcpudp_page("UDP", "udp.port");
+    else
+        page = NULL;
+    if (page != NULL) {
 	label = gtk_label_new("Transport");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
     }
@@ -1422,17 +1370,6 @@ decode_as_cb (GtkWidget * w, gpointer data)
     dlg_set_cancel(decode_w, cancel_bt);
 
     gtk_widget_show_all(decode_w);
-}
-
-/*
- * This routine indicates whether we'd actually have any pages in the
- * notebook in a "Decode As" dialog box; if there wouldn't be, we
- * inactivate the menu item for "Decode As".
- */
-gboolean
-decode_as_ok(void)
-{
-    return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto || decode_as_transport_ok(cfile.edt->pi.ipproto);
 }
 
 

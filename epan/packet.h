@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.44 2001/12/03 05:07:18 guy Exp $
+ * $Id: packet.h,v 1.45 2001/12/03 08:47:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,14 +85,17 @@ extern void packet_cleanup(void);
 struct dissector_handle;
 typedef struct dissector_handle *dissector_handle_t;
 
-/* Hash table for matching port numbers and dissectors */
-typedef GHashTable* dissector_table_t;
+/* Hash table for matching port numbers and dissectors; this is opaque
+   outside of "packet.c". */
+struct dissector_table;
+typedef struct dissector_table *dissector_table_t;
 
 /* types for sub-dissector lookup */
 typedef void (*old_dissector_t)(const u_char *, int, frame_data *, proto_tree *);
 typedef void (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
 
 typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value, gpointer user_data);
+typedef void (*DATFunc_handle) (gchar *table_name, gpointer value, gpointer user_data);
 
 /* Opaque structure - provides type checking but no access to components */
 typedef struct dtbl_entry dtbl_entry_t;
@@ -104,6 +107,8 @@ extern void dissector_table_foreach_changed (char *name, DATFunc func,
 extern void dissector_table_foreach (char *name, DATFunc func,
     gpointer user_data);
 extern void dissector_all_tables_foreach_changed (DATFunc func,
+    gpointer user_data);
+extern void dissector_table_foreach_handle(char *name, DATFunc_handle func,
     gpointer user_data);
 
 /* a protocol uses the function to register a sub-dissector table */
@@ -136,6 +141,10 @@ extern gboolean dissector_try_port(dissector_table_t sub_dissectors,
 extern dissector_handle_t dissector_get_port_handle(
     dissector_table_t sub_dissectors, guint32 port);
 
+/* Add a handle to the list of handles that *could* be used with this
+   table.  That list is used by code in the UI. */
+extern void dissector_add_handle(const char *name, dissector_handle_t handle);
+
 /* List of "heuristic" dissectors (which get handed a packet, look at it,
    and either recognize it as being for their protocol, dissect it, and
    return TRUE, or don't recognize it and return FALSE) to be called
@@ -160,35 +169,6 @@ extern void heur_dissector_add(const char *name, heur_dissector_t dissector,
    TRUE, or we run out of dissectors, in which case we return FALSE. */
 extern gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-/* List of "conversation" dissectors (they're not heuristic, but are
-   assigned to a conversation if some other dissector sees some traffic
-   saying "traffic between these hosts on these ports will be of type
-   XXX", e.g. RTSP traffic doing so).
-
-   These lists are for use by the UI, which, for a given conversation,
-   would offer a list of dissectors that could be used with it; this
-   would include dissectors on the conversation dissector list for
-   the transport-layer protocol for the conversation, as well as
-   dissectors for any port-based lists for that protocol (as a conversation
-   between two ports, both of which have dissectors associated with them,
-   might have been given to the wrong one of those dissectors). */
-typedef GSList *conv_dissector_list_t;
-
-/* A protocol uses this function to register a conversation dissector list */
-extern void register_conv_dissector_list(const char *name,
-    conv_dissector_list_t *list);
-
-/* Add a sub-dissector to a conversation dissector list.  Called by the
-   protocol routine that wants to register a sub-dissector.  */
-extern void conv_dissector_add(const char *name, dissector_handle_t handle);
-
-/* Opaque structure - provides type checking but no access to components */
-typedef struct conv_dtbl_entry conv_dtbl_entry_t;
-
-extern void dissector_conv_foreach(char *name, DATFunc func,
-    gpointer user_data);
-extern void dissector_all_conv_foreach(DATFunc func, gpointer user_data);
 
 /* Register a dissector. */
 extern void register_dissector(const char *name, dissector_t dissector,

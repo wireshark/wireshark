@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.49 2001/12/03 05:07:17 guy Exp $
+ * $Id: packet.c,v 1.50 2001/12/03 08:47:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,8 +203,6 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 
 /*********************** code added for sub-dissector lookup *********************/
 
-static GHashTable *dissector_tables = NULL;
-
 /*
  * An dissector handle.
  */
@@ -214,10 +212,31 @@ struct dissector_handle {
 	int		proto_index;
 };
 
+/*
+ * An entry in the hash table portion of a dissector table.
+ */
 struct dtbl_entry {
 	dissector_handle_t initial;
 	dissector_handle_t current;
 };
+
+/*
+ * A dissector table.
+ *
+ * "hash_table" is a hash table, indexed by port number, supplying
+ * a "struct dtbl_entry"; it records what dissector is assigned to
+ * that port number in that table.
+ *
+ * "dissector_handles" is a list of all dissectors that *could* be
+ * used in that table; not all of them are necessarily in the table,
+ * as they may be for protocols that don't have a fixed port number.
+ */
+struct dissector_table {
+	GHashTable *hash_table;
+	GSList *dissector_handles;
+};
+
+static GHashTable *dissector_tables = NULL;
 
 /* Finds a dissector table by field name. */
 static dissector_table_t
@@ -241,8 +260,14 @@ dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 	dtbl_entry->initial = dtbl_entry->current;
 
 /* do the table insertion */
-    	g_hash_table_insert( sub_dissectors, GUINT_TO_POINTER( pattern),
-    	 (gpointer)dtbl_entry);
+    	g_hash_table_insert( sub_dissectors->hash_table,
+    	    GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
+
+	/*
+	 * Now add it to the list of handles that could be used with this
+	 * table, because it *is* being used with this table.
+	 */
+	dissector_add_handle(name, handle);
 }
 
 /* delete the entry for this dissector at this pattern */
@@ -264,14 +289,15 @@ dissector_delete(const char *name, guint32 pattern, dissector_handle_t handle)
 	/*
 	 * Find the entry.
 	 */
-	dtbl_entry = g_hash_table_lookup(sub_dissectors,
+	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
 	    GUINT_TO_POINTER(pattern));
 
 	if (dtbl_entry != NULL) {
 		/*
 		 * Found - remove it.
 		 */
-		g_hash_table_remove(sub_dissectors, GUINT_TO_POINTER(pattern));
+		g_hash_table_remove(sub_dissectors->hash_table,
+		    GUINT_TO_POINTER(pattern));
 
 		/*
 		 * Now free up the entry.
@@ -292,7 +318,7 @@ dissector_change(const char *name, guint32 pattern, dissector_handle_t handle)
 	/*
 	 * See if the entry already exists. If so, reuse it.
 	 */
-	dtbl_entry = g_hash_table_lookup(sub_dissectors,
+	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
 	    GUINT_TO_POINTER(pattern));
 	if (dtbl_entry != NULL) {
 	  dtbl_entry->current = handle;
@@ -312,8 +338,8 @@ dissector_change(const char *name, guint32 pattern, dissector_handle_t handle)
 	dtbl_entry->current = handle;
 
 /* do the table insertion */
-    	g_hash_table_insert( sub_dissectors, GUINT_TO_POINTER( pattern),
-    	 (gpointer)dtbl_entry);
+    	g_hash_table_insert( sub_dissectors->hash_table,
+    	    GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
 }
 
 /* Reset a dissector in a sub-dissector table to its initial value. */
@@ -329,7 +355,7 @@ dissector_reset(const char *name, guint32 pattern)
 	/*
 	 * Find the entry.
 	 */
-	dtbl_entry = g_hash_table_lookup(sub_dissectors,
+	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
 	    GUINT_TO_POINTER(pattern));
 
 	if (dtbl_entry == NULL)
@@ -341,7 +367,8 @@ dissector_reset(const char *name, guint32 pattern)
 	if (dtbl_entry->initial != NULL) {
 		dtbl_entry->current = dtbl_entry->initial;
 	} else {
-		g_hash_table_remove(sub_dissectors, GUINT_TO_POINTER(pattern));
+		g_hash_table_remove(sub_dissectors->hash_table,
+		    GUINT_TO_POINTER(pattern));
 		g_free(dtbl_entry);
 	}
 }
@@ -358,7 +385,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	guint32 saved_match_port;
 	guint16 saved_can_desegment;
 
-	dtbl_entry = g_hash_table_lookup(sub_dissectors,
+	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
 	    GUINT_TO_POINTER(port));
 	if (dtbl_entry != NULL) {
 		/*
@@ -423,7 +450,7 @@ dissector_get_port_handle(dissector_table_t sub_dissectors, guint32 port)
 {
 	dtbl_entry_t *dtbl_entry;
 
-	dtbl_entry = g_hash_table_lookup(sub_dissectors,
+	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
 	    GUINT_TO_POINTER(port));
 	if (dtbl_entry != NULL)
 		return dtbl_entry->current;
@@ -435,6 +462,31 @@ dissector_handle_t
 dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
 {
 	return dtbl_entry->current;
+}
+
+/* Add a handle to the list of handles that *could* be used with this
+   table.  That list is used by code in the UI. */
+void
+dissector_add_handle(const char *name, dissector_handle_t handle)
+{
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+	GSList *entry;
+
+	/* sanity check */
+	g_assert(sub_dissectors != NULL);
+
+	/* Is it already in this list? */
+	entry = g_slist_find(sub_dissectors->dissector_handles, (gpointer)handle);
+	if (entry != NULL) {
+		/*
+		 * Yes - don't insert it again.
+		 */
+		return;
+	}
+
+	/* Add it to the list. */
+	sub_dissectors->dissector_handles =
+	    g_slist_append(sub_dissectors->dissector_handles, (gpointer)handle);
 }
 
 dissector_handle_t
@@ -520,8 +572,8 @@ dissector_all_tables_foreach (DATFunc func,
 }
 
 /*
- * Walk one dissector table calling a user supplied function on each
- * entry.
+ * Walk one dissector table's hash table calling a user supplied function
+ * on each entry.
  */
 void
 dissector_table_foreach (char *name,
@@ -529,15 +581,28 @@ dissector_table_foreach (char *name,
 			 gpointer user_data)
 {
 	dissector_foreach_info_t info;
-	GHashTable *hash_table;
-
-	hash_table = find_dissector_table(name);
-	g_assert(hash_table);
+	dissector_table_t sub_dissectors = find_dissector_table( name);
 
 	info.table_name = name;
 	info.caller_func = func;
 	info.caller_data = user_data;
-	g_hash_table_foreach(hash_table, dissector_table_foreach_func, &info);
+	g_hash_table_foreach(sub_dissectors->hash_table, dissector_table_foreach_func, &info);
+}
+
+/*
+ * Walk one dissector table's list of handles calling a user supplied
+ * function on each entry.
+ */
+void
+dissector_table_foreach_handle(char *name, DATFunc_handle func, gpointer user_data)
+{
+	dissector_foreach_info_t info;
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+	GSList *tmp;
+
+	for (tmp = sub_dissectors->dissector_handles; tmp != NULL;
+	    tmp = g_slist_next(tmp))
+		func(name, tmp->data, user_data);
 }
 
 /*
@@ -590,15 +655,13 @@ dissector_table_foreach_changed (char *name,
 				 gpointer user_data)
 {
 	dissector_foreach_info_t info;
-	GHashTable *hash_table;
-
-	hash_table = find_dissector_table(name);
-	g_assert(hash_table);
+	dissector_table_t sub_dissectors = find_dissector_table( name);
 
 	info.table_name = name;
 	info.caller_func = func;
 	info.caller_data = user_data;
-	g_hash_table_foreach(hash_table, dissector_table_foreach_changed_func, &info);
+	g_hash_table_foreach(sub_dissectors->hash_table,
+	    dissector_table_foreach_changed_func, &info);
 }
 
 dissector_table_t
@@ -617,7 +680,10 @@ register_dissector_table(const char *name)
 
 	/* Create and register the dissector table for this name; returns */
 	/* a pointer to the dissector table. */
-	sub_dissectors = g_hash_table_new( g_direct_hash, g_direct_equal );
+	sub_dissectors = g_malloc(sizeof (struct dissector_table));
+	sub_dissectors->hash_table = g_hash_table_new( g_direct_hash,
+	    g_direct_equal );
+	sub_dissectors->dissector_handles = NULL;
 	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
 	return sub_dissectors;
 }
@@ -714,89 +780,6 @@ register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissec
 	*sub_dissectors = NULL;	/* initially empty */
 	g_hash_table_insert(heur_dissector_lists, (gpointer)name,
 	    (gpointer) sub_dissectors);
-}
-
-static GHashTable *conv_dissector_lists = NULL;
-
-/* Finds a conversation dissector table by table name. */
-static conv_dissector_list_t *
-find_conv_dissector_list(const char *name)
-{
-	g_assert(conv_dissector_lists != NULL);
-	return g_hash_table_lookup(conv_dissector_lists, name);
-}
-
-void
-conv_dissector_add(const char *name, dissector_handle_t handle)
-{
-	conv_dissector_list_t *sub_dissectors = find_conv_dissector_list(name);
-
-	/* sanity check */
-	g_assert(sub_dissectors != NULL);
-
-	/* do the table insertion */
-	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)handle);
-}
-
-void
-register_conv_dissector_list(const char *name, conv_dissector_list_t *sub_dissectors)
-{
-	/* Create our hash-of-lists if it doesn't already exist */
-	if (conv_dissector_lists == NULL) {
-		conv_dissector_lists = g_hash_table_new(g_str_hash, g_str_equal);
-		g_assert(conv_dissector_lists != NULL);
-	}
-
-	/* Make sure the registration is unique */
-	g_assert(g_hash_table_lookup(conv_dissector_lists, name) == NULL);
-
-	*sub_dissectors = NULL;	/* initially empty */
-	g_hash_table_insert(conv_dissector_lists, (gpointer)name,
-	    (gpointer) sub_dissectors);
-}
-
-void
-dissector_conv_foreach (char *name,
-			DATFunc func,
-			gpointer user_data)
-{
-	conv_dissector_list_t *sub_dissectors = find_conv_dissector_list(name);
-	GSList *tmp;
-
-	/* sanity check */
-	g_assert(sub_dissectors != NULL);
-
-	for (tmp = *sub_dissectors; tmp; tmp = g_slist_next(tmp)) {
-		func(name, 0, tmp->data, user_data);
-	}
-}
-
-static void
-dissector_all_conv_foreach_func (gpointer key, gpointer value, gpointer user_data)
-{
-	conv_dissector_list_t *sub_dissectors;
-	GSList *tmp;
-	dissector_foreach_info_t *info;
-
-	g_assert(value);
-	g_assert(user_data);
-
-	sub_dissectors = value;
-	for (tmp = *sub_dissectors; tmp; tmp = g_slist_next(tmp)) {
-	  info = user_data;
-	  info->caller_func(key, 0, tmp->data, info->caller_data);
-	}
-}
-
-void
-dissector_all_conv_foreach (DATFunc func,
-			    gpointer user_data)
-{
-	dissector_foreach_info_t info;
-
-	info.caller_data = user_data;
-	info.caller_func = func;
-	g_hash_table_foreach(conv_dissector_lists, dissector_all_conv_foreach_func, &info);
 }
 
 /*

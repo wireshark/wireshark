@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.6 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-ucp.c,v 1.7 2001/12/03 08:47:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2510,9 +2510,10 @@ proto_reg_handoff_ucp(void)
      * one whenever TCP is spoken.
      */
     heur_dissector_add("tcp", dissect_ucp_heur, proto_ucp);
+
     /*
-     * Also register as one that can be assigned to a TCP conversation.
+     * Also register as one that can be selected by a TCP port number.
      */
     ucp_handle = create_dissector_handle(dissect_ucp, proto_ucp);
-    conv_dissector_add("tcp", ucp_handle);
+    dissector_add_handle("tcp.port", ucp_handle);
 }
