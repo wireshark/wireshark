@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.13 2000/04/08 07:07:22 guy Exp $
+ * $Id: packet-isakmp.c,v 1.14 2000/04/28 17:53:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -405,14 +405,22 @@ dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			"Length: %u", len);
     offset += sizeof(hdr->length);
 
-    if (hdr->next_payload < NUM_LOAD_TYPES) {
-      if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-        dissect_transform(pd, offset, fd, isakmp_tree, 0);	/* XXX - protocol ID? */
+    if (hdr->flags & E_FLAG) {
+      if (IS_DATA_IN_FRAME(offset) && isakmp_tree) {
+        proto_tree_add_text(isakmp_tree, offset, END_OF_FRAME,
+			"Encrypted payload (%d byte%s)",
+			END_OF_FRAME, plurality(END_OF_FRAME, "", "s"));
+      }
+    } else {
+      if (hdr->next_payload < NUM_LOAD_TYPES) {
+        if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+          dissect_transform(pd, offset, fd, isakmp_tree, 0);	/* XXX - protocol ID? */
+        else
+          (*strfuncs[hdr->next_payload].func)(pd, offset, fd, isakmp_tree);
+      }
       else
-        (*strfuncs[hdr->next_payload].func)(pd, offset, fd, isakmp_tree);
+        dissect_data(pd, offset, fd, isakmp_tree);
     }
-    else
-      dissect_data(pd, offset, fd, isakmp_tree);
   }
 }
 
