@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.96 2004/03/07 02:57:54 guy Exp $
+ * $Id: packet-radius.c,v 1.97 2004/03/09 01:08:27 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2453,7 +2453,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 
         case( RADIUS_IP6_INTF_ID ):
                 ipv6_prefix_length = tvb_get_guint8(tvb,offset+1);
-                bzero(ipv6_addr_temp, 16);
+                memset(ipv6_addr_temp, 0, 16);
                 if (ipv6_prefix_length > 16) ipv6_prefix_length = 16;
                 tvb_memcpy(tvb, ipv6_addr_temp, offset+2, ipv6_prefix_length);
                 ip6_to_str_buf((const struct e_in6_addr *)ipv6_addr_temp, cont);
