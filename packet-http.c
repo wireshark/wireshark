@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.33 2001/01/09 06:31:36 guy Exp $
+ * $Id: packet-http.c,v 1.34 2001/01/11 05:36:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,8 @@ static gint ett_http = -1;
 #define TCP_PORT_PROXY_ADMIN_HTTP	3132
 #define TCP_ALT_PORT_HTTP		8080
 
+#define TCP_PORT_IPP			631
+
 #define TCP_PORT_SSDP			1900
 #define UDP_PORT_SSDP			1900
 
@@ -99,12 +101,12 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (pinfo->match_port) {
 
-	case 631:
+	case TCP_PORT_IPP:
 		proto = PROTO_IPP;
 		proto_tag = "IPP";
 		break;
 
-	case 1900:
+	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
 		proto = PROTO_SSDP;
 		proto_tag = "SSDP";
 		break;
@@ -401,8 +403,31 @@ proto_reg_handoff_http(void)
 	    proto_http);
 	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http,
 	    proto_http);
-	dissector_add("tcp.port", 631, dissect_http, proto_http);
-				
+
+	/*
+	 * XXX - this is a bit ugly; we probably really want to have
+	 * protocols based atop HTTP call a routine to register
+	 * themselves with the HTTP dissector, giving an optional
+	 * port number (if the port number is "missing", e.g. -1 or 0,
+	 * the protocol would be assumed to use a standard HTTP port),
+	 * and an optional Content-Type: value (or some other way for
+	 * the dissector to tell what the next protocol is).
+	 *
+	 * The HTTP dissector would register itself for the port in
+	 * question (if it's not missing), and would use either the
+	 * port number or the Content-Type: (or whatever) value to
+	 * determine whether to hand the payload to that dissector.
+	 *
+	 * It would also pass a protocol number, so we could arrange
+	 * that the HTTP part of an IPP packet be dissected iff HTTP
+	 * is enabled, and the IPP part be dissected iff IPP is enabled.
+	 */
+	dissector_add("tcp.port", TCP_PORT_IPP, dissect_http, proto_http);
+
+	/*
+	 * XXX - is there anything to dissect in the body of an SSDP
+	 * request or reply?  I.e., should there be an SSDP dissector?
+	 */
 	dissector_add("tcp.port", TCP_PORT_SSDP, dissect_http, proto_http);
 	dissector_add("udp.port", UDP_PORT_SSDP, dissect_http, proto_http);
 
