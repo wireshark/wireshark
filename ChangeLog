@@ -1,4 +1,293 @@
 ------------------------------------------------------------------------
+r13146 | gerald | 2005-01-20 09:30:59 -0600 (Thu, 20 Jan 2005) | 4 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/make-version.pl
+
+Copy over r13109:
+
+ Fix the handling of "enable: 0" in version.conf.
+
+------------------------------------------------------------------------
+r13145 | gerald | 2005-01-20 08:50:41 -0600 (Thu, 20 Jan 2005) | 6 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/epan/dissectors/packet-http.c
+   M /releases/ethereal-0.10.9/epan/dissectors/packet-rtsp.c
+   M /releases/ethereal-0.10.9/epan/req_resp_hdrs.c
+   M /releases/ethereal-0.10.9/epan/req_resp_hdrs.h
+
+Copy over r13128:
+
+ There's no guaranteee that "req_resp_hdrs_do_reassembly()" gets called
+ only at the beginning of a tvbuff, so it needs an argument that's the
+ starting offset in the tvbuff.
+
+------------------------------------------------------------------------
+r13144 | gerald | 2005-01-20 08:39:15 -0600 (Thu, 20 Jan 2005) | 5 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/epan/dissectors/packet-gsm_map.c
+   M /releases/ethereal-0.10.9/epan/dissectors/packet-gsm_map.h
+
+Copy over r13131 (a palindrome!):
+
+Back out the asn2eth-generated GSM MAP dissector for now, at Anders
+Broman's request, as it has a number of problems.
+
+------------------------------------------------------------------------
+r13143 | gerald | 2005-01-20 08:36:45 -0600 (Thu, 20 Jan 2005) | 4 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/tools/asn2eth.py
+
+Copy over r13137:
+
+Fix bug in SEQUENCE/SET OF handling
+
+------------------------------------------------------------------------
+r13142 | gerald | 2005-01-20 08:35:34 -0600 (Thu, 20 Jan 2005) | 5 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/asn1/h225/h225.cnf
+   M /releases/ethereal-0.10.9/asn1/h225/packet-h225-template.c
+   M /releases/ethereal-0.10.9/epan/dissectors/packet-h225.c
+
+Copy over r13138 and r13139:
+
+NonStandardData and TunnelledProtocol reimplemented and tested
+H225 dissector regenerated with new asn2eth version
+
+------------------------------------------------------------------------
+r13125 | gerald | 2005-01-19 17:21:46 -0600 (Wed, 19 Jan 2005) | 5 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/epan/dissectors/packet-h225.c
+   M /releases/ethereal-0.10.9/epan/dissectors/packet-h225.h
+
+Copy over r13123:
+
+ Attempt to reimplement "non standard data/parameter" and "tunnelled
+ protocol"
+
+------------------------------------------------------------------------
+r13124 | gerald | 2005-01-19 17:21:14 -0600 (Wed, 19 Jan 2005) | 5 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/asn1/h225/h225-exp.cnf
+   M /releases/ethereal-0.10.9/asn1/h225/h225.cnf
+   M /releases/ethereal-0.10.9/asn1/h225/packet-h225-template.c
+
+Copy over r13122:
+
+ Attempt to reimplement "non standard data/parameter" and "tunnelled
+ protocol"
+
+------------------------------------------------------------------------
+r13121 | gerald | 2005-01-19 14:13:16 -0600 (Wed, 19 Jan 2005) | 4 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/docbook/eug_src/EUG_app_files.xml
+   M /releases/ethereal-0.10.9/docbook/eug_src/EUG_app_tools.xml
+   M /releases/ethereal-0.10.9/docbook/eug_src/EUG_chapter_build_install.xml
+   M /releases/ethereal-0.10.9/docbook/eug_src/EUG_chapter_capture.xml
+   M /releases/ethereal-0.10.9/docbook/eug_src/EUG_chapter_introduction.xml
+   M /releases/ethereal-0.10.9/docbook/eug_src/EUG_chapter_io.xml
+   M /releases/ethereal-0.10.9/docbook/eug_src/EUG_chapter_statistics.xml
+   M /releases/ethereal-0.10.9/docbook/eug_src/EUG_chapter_use.xml
+   M /releases/ethereal-0.10.9/docbook/eug_src/EUG_chapter_work.xml
+
+Copy over r13116:
+
+ noticed by Nicolas Kaiser: fix various typos
+
+------------------------------------------------------------------------
+r13120 | gerald | 2005-01-19 14:11:54 -0600 (Wed, 19 Jan 2005) | 4 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/epan/dissectors/packet-dcom-oxid.c
+
+Copy over r13113:
+
+ slightly improve dissection of complex_ping response
+
+------------------------------------------------------------------------
+r13119 | gerald | 2005-01-19 14:04:28 -0600 (Wed, 19 Jan 2005) | 4 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/doc/mergecap.pod
+
+Copy over r13112:
+
+ we can merge more than two files with mergecap
+
+------------------------------------------------------------------------
+r13114 | gerald | 2005-01-18 16:20:46 -0600 (Tue, 18 Jan 2005) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/NEWS
+
+Don't prefix "ALC" and "NORM" with "RMT".
+
+------------------------------------------------------------------------
+r13111 | gerald | 2005-01-18 14:21:52 -0600 (Tue, 18 Jan 2005) | 3 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/NEWS
+
+Move RMT ALC and RMT NORM from the "updated" section to the "new" section.
+Add CVE candidate numbers.
+
+------------------------------------------------------------------------
+r13110 | gerald | 2005-01-18 13:51:25 -0600 (Tue, 18 Jan 2005) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/NEWS
+
+Minor tweaks and edits.
+
+------------------------------------------------------------------------
+r13108 | gerald | 2005-01-17 20:38:11 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   A /releases/ethereal-0.10.9 (from /trunk:13107)
+
+Create the 0.10.9 release branch.
+
+------------------------------------------------------------------------
+r13107 | guy | 2005-01-17 20:29:14 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/Makefile.common
+
+Add packet-h450.h to the list of header files.
+
+------------------------------------------------------------------------
+r13106 | guy | 2005-01-17 20:15:33 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/README.macos
+
+Fix a pathname.
+
+------------------------------------------------------------------------
+r13105 | lroland | 2005-01-17 17:42:22 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/asn1/h245/h245.cnf
+   M /trunk/epan/dissectors/packet-h245.c
+
+Fix a small bug in h245.cnf.
+All h.323 related statistics should work now in the same way as they did before the h323 dissectors were generated.
+------------------------------------------------------------------------
+r13104 | guy | 2005-01-17 17:26:45 -0600 (Mon, 17 Jan 2005) | 7 lines
+Changed paths:
+   M /trunk/asn1/h450/packet-h450-template.c
+   M /trunk/epan/dissectors/packet-h450.c
+   M /trunk/epan/dissectors/packet-h450.h
+
+Use -1 rather than tvb_length() to create a protocol tree item that runs
+to the end of the tvbuff.
+
+Don't return a value from "dissect_h4501()" - the value isn't used, and
+"dissect_h4501()" is registered with "register_dissector()", so it's not
+supposed to return a value.
+
+------------------------------------------------------------------------
+r13103 | guy | 2005-01-17 17:01:12 -0600 (Mon, 17 Jan 2005) | 3 lines
+Changed paths:
+   M /trunk/asn1/h450/Makefile
+   M /trunk/asn1/h450/Makefile.nmake
+
+Get rid of the "-b" flag - it's not what was used to generate the H.450
+dissector that's currently checked in.
+
+------------------------------------------------------------------------
+r13102 | ulfl | 2005-01-17 16:52:09 -0600 (Mon, 17 Jan 2005) | 1 line
+Changed paths:
+   M /trunk/NEWS
+
+Ok, as I remember being able to change it myself, I've done so :-)
+------------------------------------------------------------------------
+r13101 | gerald | 2005-01-17 16:35:40 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/ChangeLog
+   M /trunk/NEWS
+
+Updates for 0.10.9.  The NEWS is downright depressing.
+
+------------------------------------------------------------------------
+r13100 | etxrab | 2005-01-17 16:30:31 -0600 (Mon, 17 Jan 2005) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-h225.c
+   M /trunk/epan/dissectors/packet-h225.h
+   M /trunk/epan/dissectors/packet-h450.c
+   A /trunk/epan/dissectors/packet-h450.h
+
+Reinsert h450 dissection
+------------------------------------------------------------------------
+r13099 | etxrab | 2005-01-17 16:27:39 -0600 (Mon, 17 Jan 2005) | 1 line
+Changed paths:
+   M /trunk/asn1/h225/h225.cnf
+   M /trunk/asn1/h225/packet-h225-template.c
+
+Use the new h450 dissector
+------------------------------------------------------------------------
+r13098 | etxrab | 2005-01-17 16:26:33 -0600 (Mon, 17 Jan 2005) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-q931.c
+   M /trunk/epan/dissectors/packet-q931.h
+
+Export q931_protocol_discriminator_vals
+------------------------------------------------------------------------
+r13097 | etxrab | 2005-01-17 16:25:36 -0600 (Mon, 17 Jan 2005) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-per.c
+
+If a string of zero length is encountered offset still needs to be advanced(?) 
+------------------------------------------------------------------------
+r13096 | guy | 2005-01-17 16:25:16 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/gtk/main.c
+
+Squelch compiler warnings about unused parameters.
+
+------------------------------------------------------------------------
+r13095 | gerald | 2005-01-17 16:24:53 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/packaging/nsis/ethereal.nsi
+
+Don't make GTK-Wimp enabled by default after all.
+
+------------------------------------------------------------------------
+r13094 | lroland | 2005-01-17 16:17:09 -0600 (Mon, 17 Jan 2005) | 1 line
+Changed paths:
+   M /trunk/plugins/Makefile.nmake
+
+Add mate to the clean and distclean target
+------------------------------------------------------------------------
+r13093 | guy | 2005-01-17 16:01:38 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/plugins/Makefile.nmake
+
+Add MATE to the list of plugins.
+
+------------------------------------------------------------------------
+r13092 | lroland | 2005-01-17 15:52:30 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/asn1/h225/h225.cnf
+   M /trunk/epan/dissectors/packet-h225.c
+
+From Anders Broman:
+Add recently lost support for the h.323 conversations tap in the h225 dissector.
+------------------------------------------------------------------------
+r13091 | ulfl | 2005-01-17 15:48:51 -0600 (Mon, 17 Jan 2005) | 3 lines
+Changed paths:
+   M /trunk/gtk/main.c
+   M /trunk/gtk/main.h
+   M /trunk/gtk/menu.c
+
+add first implementation of context relevant calls to the protocol specific wiki pages. I've commented out the items in menu.c, so this (hopefully) won't break the current release run. We might think about further steps after the release is out.
+
+However, if someone (already) want's to try out right now, you simply have to remove the comments in menu.c around line 430
+------------------------------------------------------------------------
+r13090 | guy | 2005-01-17 15:38:31 -0600 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/epan/addr_resolv.c
+
+Fix a typo in the previous checkin.
+
+------------------------------------------------------------------------
+r13089 | etxrab | 2005-01-17 15:31:37 -0600 (Mon, 17 Jan 2005) | 1 line
+Changed paths:
+   M /trunk/asn1/h450/h4501.asn
+   M /trunk/asn1/h450/packet-h450-template.c
+
+Added some more h450.x functions
+------------------------------------------------------------------------
 r13088 | guy | 2005-01-17 13:30:31 -0600 (Mon, 17 Jan 2005) | 7 lines
 Changed paths:
    M /trunk/epan/addr_resolv.c
