@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.63 2002/12/11 19:31:02 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.64 2003/01/11 04:35:57 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,6 +129,7 @@ static int hf_samr_unknown_string = -1;
 static int hf_samr_unknown_time = -1;
 
 /* these are used by functions in packet-dcerpc-nt.c */
+int hf_nt_str = -1;
 int hf_nt_str_len = -1;
 int hf_nt_str_off = -1;
 int hf_nt_str_max_len = -1;
@@ -5200,6 +5201,10 @@ proto_register_dcerpc_samr(void)
 	{ &hf_nt_string_size,
 		{ "Size", "nt.string.size", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Size of string in bytes", HFILL }},
+
+	{ &hf_nt_str,
+		{ "String", "nt.str.", FT_STRING, BASE_NONE,
+		NULL, 0x0, "String data", HFILL }},
 
 	{ &hf_nt_str_len,
 		{ "Length", "nt.str.len", FT_UINT32, BASE_DEC,

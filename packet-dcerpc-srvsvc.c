@@ -10,7 +10,7 @@
  * sources.
  *
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.44 2002/09/05 00:17:05 tpot Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.45 2003/01/11 04:35:57 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5679,9 +5679,6 @@ srvsvc_dissect_DISK_INFO_0(tvbuff_t *tvb, int offset,
 {
 	guint32 len;
 	dcerpc_info *di;
-	int old_offset;
-	int data16_offset;
-	char *text;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -5693,15 +5690,9 @@ srvsvc_dissect_DISK_INFO_0(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_disk_name_len, &len);
 
-	old_offset=offset;
-	offset = prs_uint16s(tvb, offset, pinfo, tree, len, &data16_offset,
-			NULL);
-	text = fake_unicode(tvb, data16_offset, len);
+	offset = dissect_ndr_uint16s(
+		tvb, offset, pinfo, tree, drep, hf_srvsvc_disk_name, len);
 
-	proto_tree_add_string(tree, hf_srvsvc_disk_name, tvb, old_offset,
-		offset-old_offset, text);
-
-	g_free(text);
   	return offset;
 }
 static int
@@ -6506,9 +6497,6 @@ srvsvc_dissect_netrpathcanonicalize_reply(tvbuff_t *tvb, int offset,
 {
 	guint32 len;
 	dcerpc_info *di;
-	int old_offset;
-	int data16_offset;
-	char *text;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -6520,17 +6508,8 @@ srvsvc_dissect_netrpathcanonicalize_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_path_len, &len);
 
-	old_offset=offset;
-	offset = prs_uint16s(tvb, offset, pinfo, tree, len, &data16_offset,
-			NULL);
-	text = fake_unicode(tvb, data16_offset, len);
-
-	proto_tree_add_string(tree, hf_srvsvc_path, tvb, old_offset,
-		offset-old_offset, text);
-
-	g_free(text);
-
-
+	offset = dissect_ndr_uint16s(
+		tvb, offset, pinfo, tree, drep, hf_srvsvc_path, len);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_path_type, NULL);
@@ -6676,9 +6655,6 @@ srvsvc_dissect_netrnamecanonicalize_reply(tvbuff_t *tvb, int offset,
 {
 	guint32 len;
 	dcerpc_info *di;
-	int old_offset;
-	int data16_offset;
-	char *text;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -6690,16 +6666,8 @@ srvsvc_dissect_netrnamecanonicalize_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_path_len, &len);
 
-	old_offset=offset;
-	offset = prs_uint16s(tvb, offset, pinfo, tree, len, &data16_offset,
-			NULL);
-	text = fake_unicode(tvb, data16_offset, len);
-
-	proto_tree_add_string(tree, hf_srvsvc_path, tvb, old_offset,
-		offset-old_offset, text);
-
-	g_free(text);
-
+	offset = dissect_ndr_uint16s(
+		tvb, offset, pinfo, tree, drep, hf_srvsvc_path, len);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
