@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.327 2003/11/01 02:30:18 guy Exp $
+ * $Id: main.c,v 1.328 2003/11/01 03:03:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1279,7 +1279,7 @@ main_window_configure_event_cb(GtkWidget *widget, GdkEvent *event _U_, gpointer 
 
 	updated_geometry = TRUE;
 
-	return TRUE;
+	return FALSE;
 }
 
 void
