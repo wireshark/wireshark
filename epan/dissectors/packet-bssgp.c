@@ -41,6 +41,7 @@
 #include <math.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <prefs.h>
 
 /*#define BSSGP_DEBUG*/
 #define BSSGP_LITTLE_ENDIAN FALSE
@@ -55,12 +56,16 @@
 #define BSSGP_SEP ", "
 #define BSSGP_NOT_DECODED "< Not decoded yet >"
 #define BSSGP_UNKNOWN -1
+static int bssgp_decode_nri = 0;
+static int bssgp_nri_length = 4;
 
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t data_handle;
 
+module_t *bssgp_module;
+void proto_reg_handoff_bssgp(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_bssgp = -1;
@@ -71,6 +76,7 @@ static int hf_bssgp_mnc = -1;
 static int hf_bssgp_lac = -1;
 static int hf_bssgp_rac = -1;
 static int hf_bssgp_ci = -1;
+static int hf_bssgp_nri = -1;
 static int hf_bssgp_imsi = -1;
 static int hf_bssgp_imei = -1;
 static int hf_bssgp_imeisv = -1;
@@ -406,6 +412,42 @@ get_masked_guint8(guint8 value, guint8 mask) {
   while (!((mask >> i) & MASK_BIT_1)) {
     i++;
     if (i > 7) return 0; 
+  }
+  return (value & mask) >> i;
+}
+
+static guint16
+get_masked_guint16(guint16 value, guint16 mask) {
+  const guint16 MASK_BIT_1 = 0x01; 
+  guint8 i = 0;
+  
+  while (!((mask >> i) & MASK_BIT_1)) {
+    i++;
+    if (i > 15) return 0; 
+  }
+  return (value & mask) >> i;
+}
+
+static gint32
+make_mask32(guint8 num_bits, guint8 shift_value) {
+  const guint32 LEFT_MOST_1 = 0x80000000;
+  int i;
+  guint32 mask = LEFT_MOST_1;
+  
+  for (i = 0; i < (num_bits - 1); i++) {
+    mask = (mask >> 1) | LEFT_MOST_1;
+  }
+  return mask >> shift_value;
+}
+
+static guint32
+get_masked_guint32(guint32 value, guint32 mask) {
+  const guint16 MASK_BIT_1 = 0x01; 
+  guint8 i = 0;
+  
+  while (!((mask >> i) & MASK_BIT_1)) {
+    i++;
+    if (i > 31) return 0; 
   }
   return (value & mask) >> i;
 }
@@ -1189,6 +1231,27 @@ bssgp_proto_handoff(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset, disse
   }
 }
 
+static void 
+decode_nri(proto_tree *tf, build_info_t *bi, guint32 tmsi_tlli) {
+  const guint32 LOCAL_TLLI_MASK = 0xc0000000;
+  const guint32 FOREIGN_TLLI_MASK = 0x80000000;
+  guint16 nri;
+  
+  if (bssgp_decode_nri && (bssgp_nri_length > 0) && 
+    (((tmsi_tlli & LOCAL_TLLI_MASK) == LOCAL_TLLI_MASK) ||
+     ((tmsi_tlli & FOREIGN_TLLI_MASK) == FOREIGN_TLLI_MASK))) {
+    nri = get_masked_guint32(tmsi_tlli, make_mask32(bssgp_nri_length, 8));
+    if (tf) {
+      proto_tree_add_uint_hidden(tf, hf_bssgp_nri, bi->tvb, bi->offset, 4, 
+      nri);     
+    }
+    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
+      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
+	  "NRI %u", nri);
+	}
+  }
+}
+
 static void
 decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 #define MAX_NUM_IMSI_DIGITS 15
@@ -1296,18 +1359,18 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     break;
   case BSSGP_MOBILE_IDENTITY_TYPE_TMSI_PTMSI:
     tmsi = tvb_get_ntohl(bi->tvb, bi->offset);
+    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
+      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
+			  "TMSI/P-TMSI %0x04x", tmsi);
+    }
     if (bi->bssgp_tree) {
       proto_tree_add_item(tf, hf_bssgp_tmsi_ptmsi, bi->tvb, bi->offset, 4, 
 			  BSSGP_LITTLE_ENDIAN);
       proto_item_append_text(ti, ": %#04x", tmsi);
     }
+    decode_nri(tf, bi, tmsi);
     bi->offset += 4;
-
-    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
-			  "TMSI/P-TMSI %0x04x", tmsi);
-    }
-    return;
+    break;
   default:
     ;    
   };
@@ -2743,6 +2806,7 @@ decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
 			"TLLI %#4x", tlli);
   }
+  decode_nri(bi->bssgp_tree, bi, tlli);
 }
 
 static void 
@@ -5673,6 +5737,11 @@ proto_register_bssgp(void)
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
+    { &hf_bssgp_nri,
+      { "NRI", "bssgp.nri",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"", HFILL }
+    },
   };
 
   /* Setup protocol subtree array */
@@ -5726,6 +5795,16 @@ proto_register_bssgp(void)
   proto_register_field_array(proto_bssgp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("bssgp", dissect_bssgp, proto_bssgp);
+  
+  /* Register configuration options */
+  bssgp_module = prefs_register_protocol(proto_bssgp, proto_reg_handoff_bssgp);
+  prefs_register_bool_preference(bssgp_module, "decode_nri",
+				 "Decode NRI",
+				 "Decode NRI (for use with SGSN in Pool)",
+				 &bssgp_decode_nri);
+  prefs_register_uint_preference(bssgp_module, "nri_length", "NRI length",
+				 "NRI length, in bits",
+				 10, &bssgp_nri_length); 
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -5738,15 +5817,3 @@ proto_reg_handoff_bssgp(void)
   rrlp_handle = find_dissector("rrlp");
   data_handle = find_dissector("data");  
 }
-
-
-
-
-
-
-
-
-
-
-
-
