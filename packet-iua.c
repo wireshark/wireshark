@@ -6,9 +6,9 @@
  *        - provide better handling of length parameters
  *        - think about making use of the existing Q.931 dissector
  *
- * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
+ * Copyright 2000, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-iua.c,v 1.13 2002/01/24 09:20:49 guy Exp $
+ * $Id: packet-iua.c,v 1.14 2002/07/04 20:55:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,25 +33,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#include <string.h>
-#include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
 #endif
 
 #include <epan/packet.h>
@@ -249,11 +230,11 @@ static const value_string iua_parameter_tag_values[] = {
 #define DLCI_LENGTH 2
 #define DLCI_OFFSET PARAMETER_VALUE_OFFSET
 
-#define ZERO_BIT_MASK 0x80
-#define SPARE_BIT_MASK  0x40
-#define SAPI_MASK     0x3f
-#define ONE_BIT_MASK   0x80
-#define TEI_MASK      0x7f
+#define ZERO_BIT_MASK   0x01
+#define SPARE_BIT_MASK  0x02
+#define SAPI_MASK       0xfc
+#define ONE_BIT_MASK    0x01
+#define TEI_MASK        0xfe
 
 #define ASP_MGMT_REASON   1
 
@@ -397,6 +378,10 @@ static gint ett_iua_parameter = -1;
 static gint ett_iua_dlci = -1;
 static gint ett_iua_range = -1;
 
+static dissector_handle_t q931_handle;
+static int q931_proto_id;
+
+
 static guint 
 nr_of_padding_bytes (guint length)
 {
@@ -501,22 +486,27 @@ dissect_iua_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
   proto_item_set_text(parameter_item, "Info String (%s)", info_string);
 }
 
+#define SAPI_BYTE_OFFSET DLCI_OFFSET
+#define TEI_BYTE_OFFSET  (SAPI_BYTE_OFFSET + 1)
+
 static void
 dissect_iua_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 dlci;
+  guint8 sapi_byte, tei_byte;
   proto_item *dlci_item;
   proto_tree *dlci_tree;
 
-  dlci  = tvb_get_ntohs(parameter_tvb, DLCI_OFFSET);
+  sapi_byte = tvb_get_guint8(parameter_tvb, SAPI_BYTE_OFFSET);
+  tei_byte  = tvb_get_guint8(parameter_tvb, TEI_BYTE_OFFSET);
+
   dlci_item   = proto_tree_add_text(parameter_tree, parameter_tvb, DLCI_OFFSET, DLCI_LENGTH, "DLCI");
   dlci_tree   = proto_item_add_subtree(dlci_item, ett_iua_dlci);
   
-  proto_tree_add_boolean(dlci_tree, hf_iua_zero_bit, parameter_tvb, DLCI_OFFSET, 1, dlci);
-  proto_tree_add_boolean(dlci_tree, hf_iua_spare_bit, parameter_tvb, DLCI_OFFSET, 1, dlci);
-  proto_tree_add_uint(dlci_tree, hf_iua_sapi, parameter_tvb, DLCI_OFFSET, 1, dlci);
-  proto_tree_add_boolean(dlci_tree, hf_iua_one_bit, parameter_tvb, DLCI_OFFSET+1, 1, dlci);
-  proto_tree_add_uint(dlci_tree, hf_iua_tei, parameter_tvb, DLCI_OFFSET+1, 1, dlci);
+  proto_tree_add_boolean(dlci_tree, hf_iua_zero_bit, parameter_tvb, SAPI_BYTE_OFFSET, 1, sapi_byte);
+  proto_tree_add_boolean(dlci_tree, hf_iua_spare_bit, parameter_tvb, SAPI_BYTE_OFFSET, 1, sapi_byte);
+  proto_tree_add_uint(dlci_tree, hf_iua_sapi, parameter_tvb, SAPI_BYTE_OFFSET, 1, sapi_byte);
+  proto_tree_add_boolean(dlci_tree, hf_iua_one_bit, parameter_tvb, TEI_BYTE_OFFSET, 1, tei_byte);
+  proto_tree_add_uint(dlci_tree, hf_iua_tei, parameter_tvb, TEI_BYTE_OFFSET, 1, tei_byte);
 
   proto_item_set_text(parameter_item, "DLCI");
 }
@@ -662,20 +652,19 @@ dissect_iua_status_type_identification_parameter(tvbuff_t *parameter_tvb, proto_
 }
 
 static void
-dissect_iua_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_iua_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_item,
+                                    packet_info *pinfo, proto_tree *tree)
 {
   guint16 length, protocol_data_length;
-  
+  tvbuff_t *protocol_data_tvb;
+
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   
   protocol_data_length = length - PARAMETER_HEADER_LENGTH;
+  protocol_data_tvb = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length, protocol_data_length);
+  call_dissector(q931_handle, protocol_data_tvb, pinfo, tree);
 
-  proto_tree_add_text(parameter_tree, parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length,
-		      "Protocol data (%u byte%s)",
-		      protocol_data_length, plurality(protocol_data_length, "", "s"));
-
-  proto_item_set_text(parameter_item, "Protocol data (%u byte%s)",
-		      protocol_data_length, plurality(protocol_data_length, "", "s"));
+  proto_item_set_text(parameter_item, "Protocol data (%u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
 }
 
 static void
@@ -727,7 +716,7 @@ dissect_iua_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 }
 
 static void
-dissect_iua_parameter(tvbuff_t *parameter_tvb, proto_tree *iua_tree)
+dissect_iua_parameter(tvbuff_t *parameter_tvb, proto_tree *iua_tree, packet_info *pinfo, proto_tree *tree)
 {
   guint16 tag, length, padding_length, total_length;
   proto_item *parameter_item;
@@ -790,7 +779,7 @@ dissect_iua_parameter(tvbuff_t *parameter_tvb, proto_tree *iua_tree)
     dissect_iua_status_type_identification_parameter(parameter_tvb, parameter_tree, parameter_item);   
     break;
   case PROTOCOL_DATA_PARAMETER_TAG:
-    dissect_iua_protocol_data_parameter(parameter_tvb, parameter_tree, parameter_item);   
+    dissect_iua_protocol_data_parameter(parameter_tvb, parameter_item, pinfo, tree);   
     break;
   case RELEASE_REASON_PARAMETER_TAG:
     dissect_iua_release_reason_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -810,7 +799,7 @@ dissect_iua_parameter(tvbuff_t *parameter_tvb, proto_tree *iua_tree)
 }
 
 static void
-dissect_iua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *iua_tree)
+dissect_iua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *iua_tree, proto_tree *tree)
 {
   gint offset, length, padding_length, total_length;
   tvbuff_t *common_header_tvb, *parameter_tvb;
@@ -830,7 +819,7 @@ dissect_iua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *iua_t
       total_length   = length + padding_length;
       /* create a tvb for the parameter including the padding bytes */
       parameter_tvb    = tvb_new_subset(message_tvb, offset, total_length, total_length);
-      dissect_iua_parameter(parameter_tvb, iua_tree); 
+      dissect_iua_parameter(parameter_tvb, iua_tree, pinfo, tree); 
       /* get rid of the handled parameter */
       offset += total_length;
     }
@@ -857,7 +846,7 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
     iua_tree = NULL;
   };
   /* dissect the message */
-  dissect_iua_message(message_tvb, pinfo, iua_tree);
+  dissect_iua_message(message_tvb, pinfo, iua_tree, tree);
 }
 
 /* Register the protocol with Ethereal */
@@ -1011,6 +1000,9 @@ proto_reg_handoff_iua(void)
   dissector_handle_t iua_handle;
 
   iua_handle = create_dissector_handle(dissect_iua, proto_iua);
+  q931_handle   = find_dissector("q931");
+  q931_proto_id = proto_get_id_by_filter_name("q931");
+
   dissector_add("sctp.port", SCTP_PORT_IUA, iua_handle);
   dissector_add("sctp.ppi", IUA_PAYLOAD_PROTO_ID, iua_handle);
 }
