@@ -2516,10 +2516,10 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (pinfo->p2p_dir == P2P_DIR_UNKNOWN)
 	{
-	    // Return Result ...
-	    if (msg_type == 0) // SMS-DELIVER
+	    /* Return Result ... */
+	    if (msg_type == 0) /* SMS-DELIVER */
 	    {
-		msg_type |= 0x04; // see the msg_type_strings
+		msg_type |= 0x04; /* see the msg_type_strings */
 	    }
 	}
 	else

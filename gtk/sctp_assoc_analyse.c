@@ -27,7 +27,7 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <string.h>  //for memmove
+#include <string.h>  /* for memmove */
 #include "globals.h"
 #include "simple_dialog.h"
 #include <epan/epan_dissect.h>

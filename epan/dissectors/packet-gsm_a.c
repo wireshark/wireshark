@@ -7975,7 +7975,7 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    oct <<=3;   // move away the spare bits
+    oct <<=3;   /* move away the spare bits */
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,

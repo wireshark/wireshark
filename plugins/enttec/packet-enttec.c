@@ -181,7 +181,7 @@ dissect_enttec_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 					offset, 1, FALSE);
 	offset += 1;
 
-	// data
+	/* data */
 
 	return offset;
 }

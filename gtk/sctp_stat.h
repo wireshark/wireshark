@@ -107,7 +107,7 @@ struct tsn_sort{
 
 
 typedef struct _sctp_assoc_info {
-	//guint16	assoc_id;
+	/* guint16	assoc_id; */
 	struct sockaddr_storage	src;
 	struct sockaddr_storage	dst;
 	guint16 port1;
@@ -187,7 +187,7 @@ GList*	children;
 } sctp_allassocs_info_t;
 
 
-//Data structures for sctp_assoc_analyse
+/* Data structures for sctp_assoc_analyse */
 
 struct notes {
 	GtkWidget *checktype;
@@ -224,7 +224,7 @@ struct sctp_analyse {
 	guint16 num_children;
 };
 
-//Data Structures for sctp_graph_dlg
+/* Data Structures for sctp_graph_dlg */
 
 typedef struct _sctp_graph_t {
 	gboolean needs_redraw;

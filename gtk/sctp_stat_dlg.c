@@ -571,7 +571,7 @@ void sctp_stat_start(GtkWidget *w _U_, gpointer data _U_)
 	sctp_stat_scan();
 
 	/* Show the dialog box with the list of streams */
-	//sctp_stat_dlg_show(sctp_stat_get_info()->assoc_info_list);
+	/* sctp_stat_dlg_show(sctp_stat_get_info()->assoc_info_list); */
 	sctp_stat_dlg_show();
 }
 
