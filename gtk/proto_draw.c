@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.73 2003/12/17 23:41:10 ulfl Exp $
+ * $Id: proto_draw.c,v 1.74 2003/12/18 20:36:45 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -871,8 +871,6 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 
 	file = (char *)gtk_entry_get_text(GTK_ENTRY(file_entry));
 
-	/* Get rid of the dialog box */
-	gtk_widget_destroy(GTK_WIDGET(savehex_dlg));
 	if (!file ||! *file) {
 	  return;    /* XXX, put up an error box */
 	}
@@ -902,6 +900,9 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	}
 	write(fd, data_p + start, end - start);
 	close(fd);
+
+	/* Get rid of the dialog box */
+	gtk_widget_destroy(GTK_WIDGET(savehex_dlg));
 }
 
 
