@@ -207,7 +207,7 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_toc_f,
 			{ "F bit",           "amr.toc.f",
-			FT_BOOLEAN, BASE_DEC, TFS(&toc_f_bit_vals), 0x80,          
+			FT_BOOLEAN, 8, TFS(&toc_f_bit_vals), 0x80,          
 			"F bit", HFILL }
 		},
 		{ &hf_amr_toc_ft,
@@ -217,7 +217,7 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_toc_q,
 			{ "Q bit",           "amr.toc.q",
-			FT_BOOLEAN, BASE_DEC, TFS(&toc_q_bit_vals), 0x04,          
+			FT_BOOLEAN, 8, TFS(&toc_q_bit_vals), 0x04,          
 			"Frame quality indicator bit", HFILL }
 		},
 	};
