@@ -3,7 +3,7 @@
  * Enterasys Networks Home: http://www.enterasys.com/
  * Copyright 2003, Joshua Craig Douglas <jdouglas@enterasys.com>
  *
- * $Id: packet-ismp.c,v 1.1 2003/12/30 17:14:14 jmayer Exp $
+ * $Id: packet-ismp.c,v 1.2 2003/12/30 19:11:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,7 +233,6 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	guint16 num_tuples = 0;
 	guint16 tuple_type = 0;
 	guint16 tuple_length = 0;
-	const guint8 *firmware_rev;
 	const guint8 *neighbors_ptr;
 	const guint8 *tuples_ptr;
 
