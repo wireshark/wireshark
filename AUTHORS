@@ -421,6 +421,7 @@ Michael Tuexen <Michael.Tuexen[AT]icn.siemens.de> {
 	MTP2 support
 	SCTP support in text2pcap
 	SCCP-atop-M3UA support
+	M2UA support
 }
 
 Bruce Korb <bkorb[AT]sco.com> {
