@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.57 2002/12/02 23:43:28 guy Exp $
+ * $Id: packet-null.c,v 1.58 2003/07/02 00:08:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -294,7 +294,7 @@ proto_register_null(void)
 			"", HFILL }},
 
 		{ &hf_null_family,
-		{ "Family",		"null.family",	FT_UINT32, BASE_HEX, VALS(family_vals), 0x0,
+		{ "Family",		"null.family",	FT_UINT32, BASE_DEC, VALS(family_vals), 0x0,
 			"", HFILL }}
 	};
 	static gint *ett[] = {
