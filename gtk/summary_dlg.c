@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.29 2004/05/20 23:01:53 ulfl Exp $
+ * $Id: summary_dlg.c,v 1.30 2004/05/21 06:39:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,7 +220,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if(summary.dfilter) {
     g_snprintf(string_buff2, SUM_STR_MAX, "%.3f sec", disp_seconds);
   } else {
-    g_snprintf(string_buff2, SUM_STR_MAX, "");
+    strcpy(string_buff2, "");
   }
   add_string_to_list(list, &row, "Between first and last packet", string_buff, string_buff2);
 
@@ -229,7 +229,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if(summary.dfilter) {
     g_snprintf(string_buff2, SUM_STR_MAX, "%i", summary.filtered_count);
   } else {
-    g_snprintf(string_buff2, SUM_STR_MAX, "");
+    strcpy(string_buff2, "");
   }
   add_string_to_list(list, &row, "Packets", string_buff, string_buff2);
 
@@ -237,12 +237,12 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if (seconds > 0){
     g_snprintf(string_buff, SUM_STR_MAX, "%.3f", summary.packet_count/seconds);
   } else {
-    g_snprintf(string_buff, SUM_STR_MAX, "");
+    strcpy(string_buff, "");
   }
   if(summary.dfilter && disp_seconds > 0){
-      g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", summary.filtered_count/disp_seconds);
+    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", summary.filtered_count/disp_seconds);
   } else {
-      g_snprintf(string_buff2, SUM_STR_MAX, "");
+    strcpy(string_buff2, "");
   }
   add_string_to_list(list, &row, "Avg. packets/sec", string_buff, string_buff2);
 
@@ -251,22 +251,22 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     g_snprintf(string_buff, SUM_STR_MAX, "%.3f bytes",
       (float)summary.bytes/summary.packet_count);
   } else {
-    g_snprintf(string_buff, SUM_STR_MAX, "");
+    strcpy(string_buff, "");
   }
   if (summary.dfilter && summary.filtered_count > 0){
-      g_snprintf(string_buff2, SUM_STR_MAX, "%.3f bytes",
+    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f bytes",
           (float) summary.filtered_bytes/summary.filtered_count);
   } else {
-      g_snprintf(string_buff2, SUM_STR_MAX, "");
+    strcpy(string_buff2, "");
   }
   add_string_to_list(list, &row, "Avg. packet size", string_buff, string_buff2);
 
   /* Byte count */
   g_snprintf(string_buff, SUM_STR_MAX, "%d", summary.bytes);
   if (summary.dfilter && summary.filtered_count > 0){
-      g_snprintf(string_buff2, SUM_STR_MAX, "%d", summary.filtered_bytes);
+    g_snprintf(string_buff2, SUM_STR_MAX, "%d", summary.filtered_bytes);
   } else {
-      g_snprintf(string_buff2, SUM_STR_MAX, "");
+    strcpy(string_buff2, "");
   }
   add_string_to_list(list, &row, "Bytes", string_buff, string_buff2);
 
@@ -274,12 +274,12 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if (seconds > 0){
     g_snprintf(string_buff, SUM_STR_MAX, "%.3f", summary.bytes/seconds);
   } else {
-    g_snprintf(string_buff, SUM_STR_MAX, "");
+    strcpy(string_buff, "");
   }
   if (summary.dfilter && disp_seconds > 0){
-      g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", summary.filtered_bytes/disp_seconds);
+    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", summary.filtered_bytes/disp_seconds);
   } else {
-      g_snprintf(string_buff2, SUM_STR_MAX, "");
+    strcpy(string_buff2, "");
   }
   add_string_to_list(list, &row, "Avg. bytes/sec", string_buff, string_buff2);
 
@@ -287,13 +287,13 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if (seconds > 0){
     g_snprintf(string_buff, SUM_STR_MAX, "%.3f", summary.bytes * 8.0 / (seconds * 1000.0 * 1000.0));
   } else {
-    g_snprintf(string_buff, SUM_STR_MAX, "");
+    strcpy(string_buff, "");
   }
   if (summary.dfilter && disp_seconds > 0){
-      g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", 
+    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", 
           summary.filtered_bytes * 8.0 / (disp_seconds * 1000.0 * 1000.0));
   } else {
-      g_snprintf(string_buff2, SUM_STR_MAX, "");
+    strcpy(string_buff2, "");
   }
   add_string_to_list(list, &row, "Avg. MBit/sec", string_buff, string_buff2);
 
