@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.109 2004/06/24 05:23:47 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.110 2004/06/26 03:40:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,6 +166,7 @@ static gint ett_samr_user_info_21 = -1;
 static gint ett_samr_user_info_22 = -1;
 static gint ett_samr_user_info_23 = -1;
 static gint ett_samr_user_info_24 = -1;
+static gint ett_samr_user_info_25 = -1;
 static gint ett_samr_user_info = -1;
 static gint ett_samr_member_array_types = -1;
 static gint ett_samr_member_array_rids = -1;
@@ -3450,6 +3451,34 @@ samr_dissect_USER_INFO_24(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+
+static int
+samr_dissect_USER_INFO_25(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			guint8 *drep)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset = offset;
+
+	if(parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"USER_INFO_25:");
+		tree = proto_item_add_subtree(item, ett_samr_user_info_25);
+	}
+
+	offset = samr_dissect_USER_INFO_21(tvb, offset, pinfo, tree, drep);
+
+	proto_tree_add_item(tree, hf_samr_crypt_password, tvb, offset, 532,
+		TRUE);
+	offset += 532;
+
+	proto_item_set_len(item, offset - old_offset);
+
+	return offset;
+}
+
+
 static int
 samr_dissect_USER_INFO (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *parent_tree,
@@ -3559,6 +3588,9 @@ samr_dissect_USER_INFO (tvbuff_t *tvb, int offset,
 		break;
 	case 24:
 		offset = samr_dissect_USER_INFO_24(
+				tvb, offset, pinfo, tree, drep);
+	case 25:
+		offset = samr_dissect_USER_INFO_25(
 				tvb, offset, pinfo, tree, drep);
 		break;
 	}
@@ -5425,6 +5457,7 @@ proto_register_dcerpc_samr(void)
                 &ett_samr_user_info_22,
                 &ett_samr_user_info_23,
                 &ett_samr_user_info_24,
+                &ett_samr_user_info_25,
                 &ett_samr_user_info,
                 &ett_samr_member_array_types,
                 &ett_samr_member_array_rids,
