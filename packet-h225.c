@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.39 2004/05/17 20:03:35 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.40 2004/05/25 10:09:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h225.h"
+#include "packet-h235.h"
 #include "packet-h245.h"
 #include "t35.h"
 #include "h225-persistentdata.h"
@@ -90,7 +91,6 @@ static int hf_h225_DisengageRejectReason = -1;
 static int hf_h225_InfoRequestNakReason = -1;
 static int hf_h225_SCRresult = -1;
 static int hf_h225_GatekeeperInfo = -1;
-static int hf_h225_cryptoEPPwdHash = -1;
 static int hf_h225_SecurityServiceMode_encryption = -1;
 static int hf_h225_SecurityServiceMode_authentication = -1;
 static int hf_h225_SecurityServiceMode_integrity = -1;
@@ -534,23 +534,24 @@ static int hf_h225_ras_req_frame = -1;
 static int hf_h225_ras_rsp_frame = -1;
 static int hf_h225_ras_dup = -1;
 static int hf_h225_ras_deltatime = -1;
-static int hf_h235_ClearToken = -1;
-static int hf_h235_tokenOID = -1;
-static int hf_h235_timeStamp = -1;
-static int hf_h235_password = -1;
-static int hf_h235_NonStandardParameter = -1;
-static int hf_h235_nonStandardIdentifier = -1;
-static int hf_h235_nsp_data = -1;
-static int hf_h235_AuthenticationMechanisms = -1;
-static int hf_h235_AuthenticationMechanism = -1;
-static int hf_h235_CryptoToken = -1;
-static int hf_h235_cryptoEncryptedToken = -1;
-static int hf_h235_HASHED = -1;
-static int hf_h235_ENCRYPTED = -1;
-static int hf_h235_Params = -1;
-static int hf_h235_ranInt = -1;
-static int hf_h235_hash = -1;
-static int hf_h235_encryptedData = -1;
+static int hf_h225_cleartoken = -1;
+static int hf_h225_cryptoEPPwdHash = -1;          /* T_cryptoEPPwdHash */
+static int hf_h225_cryptoGKPwdHash = -1;          /* T_cryptoGKPwdHash */
+static int hf_h225_timeStamp = -1;                /* TimeStamp */
+static int hf_h225_token = -1;                    /* HASHEDxxx */
+static int hf_h225_cryptoEPPwdEncr = -1;          /* ENCRYPTEDxxx */
+static int hf_h225_cryptoGKPwdEncr = -1;          /* ENCRYPTEDxxx */
+static int hf_h225_cryptoEPCert = -1;             /* SIGNEDxxx */
+static int hf_h225_cryptoGKCert = -1;             /* SIGNEDxxx */
+static int hf_h225_cryptoFastStart = -1;          /* SIGNEDxxx */
+static int hf_h225_nestedcryptoToken = -1;        /* CryptoToken */
+static int hf_h225_cryptoTokens_item = -1;        /* CryptoH323Token */
+static int hf_h225_authenticationCapability = -1;  /* SEQUNCE_OF_AuthenticationMechanism */
+static int hf_h225_authenticationCapability_item = -1;  /* AuthenticationMechanism */
+static int hf_h225_authenticationMode = -1;       /* AuthenticationMechanism */
+static int hf_h225_alertingTime = -1;             /* TimeStamp */
+static int hf_h225_connectTime = -1;              /* TimeStamp */
+static int hf_h225_endTimeStamp = -1;             /* TimeStamp */
 /*aaa*/
 
 static gint ett_h225 = -1;
@@ -581,7 +582,6 @@ static gint ett_h225_DisengageRejectReason = -1;
 static gint ett_h225_InfoRequestNakReason = -1;
 static gint ett_h225_SCRresult = -1;
 static gint ett_h225_GatekeeperInfo = -1;
-static gint ett_h225_cryptoEPPwdHash = -1;
 static gint ett_h225_SecurityServiceMode_encryption = -1;
 static gint ett_h225_SecurityServiceMode_authentication = -1;
 static gint ett_h225_SecurityServiceMode_integrity = -1;
@@ -820,15 +820,9 @@ static gint ett_h225_H221NonStandard = -1;
 static gint ett_h225_NonStandardIdentifier = -1;
 static gint ett_h225_NonStandardParameter = -1;
 static gint ett_h225_aliasAddress_sequence = -1;
-static gint ett_h235_ClearToken = -1;
-static gint ett_h235_NonStandardParameter = -1;
-static gint ett_h235_AuthenticationMechanisms = -1;
-static gint ett_h235_AuthenticationMechanism = -1;
-static gint ett_h235_CryptoToken = -1;
-static gint ett_h235_cryptoEncryptedToken = -1;
-static gint ett_h235_HASHED = -1;
-static gint ett_h235_Params = -1;
-static gint ett_h235_ENCRYPTED = -1;
+static gint ett_h225_T_cryptoEPPwdHash = -1;
+static gint ett_h225_T_cryptoGKPwdHash = -1;
+static gint ett_h225_SEQUNCE_OF_AuthenticationMechanism = -1;
 /*bbb*/
 
 /* Subdissector tables */
@@ -3028,454 +3022,115 @@ dissect_h225_CallLinkage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	return offset;
 }
 
-
-
-
-
-
-
-static int dissect_h235_ENCRYPTED(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-
+static guint32 
+dissect_h225_authenticationCapability_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_AuthenticationMechanism(tvb, offset, pinfo, tree, hf_h225_authenticationCapability_item);
+} 
 static int
-dissect_h235_tokenOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_h235_tokenOID, NULL);
-	return offset;
-}
-static int
-dissect_h235_timeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
-		tree, hf_h235_timeStamp, 0, 4294967295UL,
-		NULL, NULL, FALSE);
-	return offset;
-}
-static int
-dissect_h235_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_BMPString(tvb, offset, pinfo, tree, hf_h235_password, 1, 128);
-	return offset;
-}
-static int
-dissect_h235_DHSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("DHSet");
-	return offset;
-}
-static int
-dissect_h235_ChallengeString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("ChallengeString");
-	return offset;
-}
-static int
-dissect_h235_RandomVal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("RandomVal");
-	return offset;
-}
-static int
-dissect_h235_TypedCertificate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("TypedCertificate");
-	return offset;
-}
-static int
-dissect_h235_Identifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("Identifier");
-	return offset;
-}
-static int
-dissect_h235_nonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset = dissect_per_object_identifier(tvb, offset, pinfo, tree,
-				hf_h235_nonStandardIdentifier,
-				NULL);
-
-	return offset;
-}
-static int
-dissect_h235_nsp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset = dissect_per_octet_string(tvb, offset, pinfo, tree,
-				hf_h235_nsp_data, -1, -1,
-				NULL, NULL);
-
-	return offset;
-}
-
-static per_sequence_t H235NonStandardParameter_sequence[] = {
-	{ "nonStandardIdentifier", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h235_nonStandardIdentifier },
-	{ "data", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h235_nsp_data },
-	{ NULL, 0, 0, NULL }
-};
-static int
-dissect_h235_nonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_h235_NonStandardParameter,
-			ett_h235_NonStandardParameter, H235NonStandardParameter_sequence);
-
-	return offset;
-}
-static int
-dissect_h235_ECKASDH(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("ECKASDH");
-	return offset;
-}
-static int
-dissect_h235_H235Key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("H235Key");
-	return offset;
-}
-static per_sequence_t H235ClearToken_sequence[] = {
-	{ "tokenOID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
-		dissect_h235_tokenOID },
-	{ "TimeStamp", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_timeStamp },
-	{ "password", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_password },
-	{ "dhkey", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_DHSet },
-	{ "challenge", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_ChallengeString },
-	{ "random", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_RandomVal },
-	{ "certificate", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_TypedCertificate },
-	{ "generalID", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_Identifier },
-	{ "nonStandard", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_nonStandardParameter },
-	{ "eckasdhkey", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_ECKASDH },
-	{ "sendersID", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_Identifier },
-	{ "h235Key", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_H235Key },
-	{ NULL, 0, 0, NULL }
-};
-
-
-static int
-dissect_h235_AuthenticationBES(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("AuthenticationBES");
-	return offset;
-}
-
-static const value_string AuthenticationMechanism_vals[] = {
-	{ 0, "dhExch" },
-	{ 1, "pwdSymEnc" },
-	{ 2, "pwdHash" },
-	{ 3, "certSign" },
-	{ 4, "ipsec" },
-	{ 5, "tls" },
-	{ 6, "nonStandard" },
-	{ 7, "authenticationBES" },
-	{ 0, NULL}
-};
-static per_choice_t AuthenticationMechanism_choice[] = {
-	{ 0, "dhExch", ASN1_EXTENSION_ROOT,
-		dissect_h225_NULL},
-	{ 1, "pwdSymEnc", ASN1_EXTENSION_ROOT,
-		dissect_h225_NULL},
-	{ 2, "pwdHash", ASN1_EXTENSION_ROOT,
-		dissect_h225_NULL},
-	{ 3, "certSign", ASN1_EXTENSION_ROOT,
-		dissect_h225_NULL},
-	{ 4, "ipsec", ASN1_EXTENSION_ROOT,
-		dissect_h225_NULL},
-	{ 5, "tls", ASN1_EXTENSION_ROOT,
-		dissect_h225_NULL},
-	{ 6, "nonStandard", ASN1_EXTENSION_ROOT,
-		dissect_h235_nonStandardParameter },
-	{ 7, "authenticationBES", ASN1_NOT_EXTENSION_ROOT,
-		dissect_h235_AuthenticationBES },
-	{ 0, NULL, 0, NULL }
-};
-static int
-dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h235_AuthenticationMechanism, ett_h235_AuthenticationMechanism, AuthenticationMechanism_choice, "AuthenticationMechanism", NULL);
-
-	return offset;
-}
-static int
-dissect_h235_AuthenticationMechanism_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h225_authenticationCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset = dissect_per_sequence_of(tvb, offset, pinfo, tree,
-				hf_h235_AuthenticationMechanisms,
-				ett_h235_AuthenticationMechanisms, dissect_h235_AuthenticationMechanism);
-	return offset;
-}
-
-
-static int
-dissect_h235_ENCRYPTED_EncodedGeneralToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset = dissect_h235_ENCRYPTED(tvb, offset, pinfo, tree);
-
-	return offset;
-}
-static per_sequence_t cryptoEncryptedToken_sequence[] = {
-	{ "tokenOID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h235_tokenOID },
-	{ "token", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h235_ENCRYPTED_EncodedGeneralToken },
-	{ NULL, 0, 0, NULL }
-};
-static int
-dissect_h235_cryptoEncryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset = dissect_per_sequence(tvb, offset, pinfo, tree,
-				hf_h235_cryptoEncryptedToken,
-				ett_h235_cryptoEncryptedToken, cryptoEncryptedToken_sequence);
-
-	return offset;
-}
-static int
-dissect_h235_cryptoSignedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("cryptoSignedToken");
-	return offset;
-}
-static int
-dissect_h235_cryptoHashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("cryptoHashedToken");
-	return offset;
-}
-static int
-dissect_h235_cryptoPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("cryptoPwdEncr");
-	return offset;
-}
-static const value_string CryptoToken_vals[] = {
-	{ 0, "cryptoEncryptedToken" },
-	{ 1, "cryptoSignedToken" },
-	{ 2, "cryptoHashedToken" },
-	{ 3, "cryptoPwdEncr" },
-	{ 0, NULL}
-};
-static per_choice_t CryptoToken_choice[] = {
-	{ 0, "cryptoEncryptedToken", ASN1_EXTENSION_ROOT,
-		dissect_h235_cryptoEncryptedToken },
-	{ 1, "cryptoSignedToken", ASN1_EXTENSION_ROOT,
-		dissect_h235_cryptoSignedToken },
-	{ 2, "cryptoHashedToken", ASN1_EXTENSION_ROOT,
-		dissect_h235_cryptoHashedToken },
-	{ 3, "cryptoPwdEncr", ASN1_EXTENSION_ROOT,
-		dissect_h235_cryptoPwdEncr },
-	{ 0, NULL, 0, NULL }
-};
-static int
-dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h235_CryptoToken, ett_h235_CryptoToken, CryptoToken_choice, "CryptoToken", NULL);
-
-	return offset;
-}
-
-
-
-
-
-
-static int
-dissect_h235_ClearToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset = dissect_per_sequence(tvb, offset, pinfo, tree,
-				hf_h235_ClearToken,
-				ett_h235_ClearToken, H235ClearToken_sequence);
-
-	return offset;
-}
-
-
-static int
-dissect_h235_ranInt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
-		tree, hf_h235_ranInt, 0, 4294967295UL,
-		NULL, NULL, FALSE);
-	return offset;
-}
-static int
-dissect_h235_iv8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("iv8");
-	return offset;
-}
-static int
-dissect_h235_iv16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("iv16");
-	return offset;
-}
-static int
-dissect_h235_iv(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("iv");
-	return offset;
-}
-static int
-dissect_h235_clearSalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-PER_NOT_DECODED_YET("clearSalt");
-	return offset;
-}
-
-static per_sequence_t Params_sequence[] = {
-	{ "ranInt", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_ranInt },
-	{ "iv8", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_iv8 },
-	{ "iv16", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_iv16 },
-	{ "iv", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_iv },
-	{ "clearSalt", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_clearSalt },
-	{ NULL, 0, 0, NULL }
-};
-static int
-dissect_h235_Params(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_h235_Params, ett_h235_Params, Params_sequence);
-
-	return offset;
-}
-static int
-dissect_h235_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_h235_hash, -1, -1);
-
-	return offset;
-}
-
-
-static per_sequence_t HASHED_sequence[] = {
-	{ "algorithmOID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h225_algorithmOID },
-	{ "paramS", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h235_Params },
-	{ "hash", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h235_hash },
-	{ NULL, 0, 0, NULL }
-};
-static int
-dissect_h235_HASHED(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset = dissect_per_sequence(tvb, offset, pinfo, tree,
-				hf_h235_HASHED,
-				ett_h235_HASHED, HASHED_sequence);
-
+				hf_h225_authenticationCapability,
+				ett_h225_SEQUNCE_OF_AuthenticationMechanism, dissect_h225_authenticationCapability_item);
 	return offset;
 }
 
 static int
-dissect_h235_encryptedData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h225_GatekeeperIdentifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h235_encryptedData, -1, -1, NULL, NULL);
-
+	offset=dissect_per_BMPString(tvb, offset, pinfo, tree, hf_h225_GatekeeperIdentifier, 1, 128);
 	return offset;
 }
-static per_sequence_t ENCRYPTED_sequence[] = {
-	{ "algorithmOID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h225_algorithmOID },
-	{ "paramS", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h235_Params },
-	{ "encryptedData", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h235_encryptedData },
-	{ NULL, 0, 0, NULL }
-};
+
 static int
-dissect_h235_ENCRYPTED(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h225_cleartoken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	/* XXX maybe this function should take a callback so that we can decrypt and dissect the data */
-
-	offset = dissect_per_sequence(tvb, offset, pinfo, tree,
-				hf_h235_ENCRYPTED,
-				ett_h235_ENCRYPTED, ENCRYPTED_sequence);
-
+	offset = dissect_h235_ClearToken(tvb, offset, pinfo, tree, hf_h225_cleartoken);
 	return offset;
 }
-
 
 static int
 dissect_h225_tokens(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_tokens, ett_h225_tokens, dissect_h235_ClearToken);
+	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_tokens, ett_h225_tokens, dissect_h225_cleartoken);
 	return offset;
 }
 
 
-
-static int
-dissect_h225_HASHED_EncodedPwdCertToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+static guint32 dissect_h225_timeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
-	offset = dissect_h235_HASHED(tvb, offset, pinfo, tree);
-
-	return offset;
+	return dissect_h235_TimeStamp(tvb, offset, pinfo, tree, hf_h225_timeStamp);
 }
+
+static guint32 dissect_h225_token(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+{
+	return dissect_h235_HASHEDxxx(tvb, offset, pinfo, tree, hf_h225_token);
+}
+
 static per_sequence_t cryptoEPPwdHash_sequence[] = {
 	{ "alias", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_AliasAddress },
 	{ "timeStamp", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h235_timeStamp },
+		dissect_h225_timeStamp },
 	{ "token", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_h225_HASHED_EncodedPwdCertToken },
+		dissect_h225_token },
 	{ NULL, 0, 0, NULL }
 };
 static int
 dissect_h225_cryptoEPPwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_cryptoEPPwdHash, ett_h225_cryptoEPPwdHash, cryptoEPPwdHash_sequence);
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_cryptoEPPwdHash, ett_h225_T_cryptoEPPwdHash, cryptoEPPwdHash_sequence);
 
 	return offset;
 }
+
+static per_sequence_t cryptoGKPwdHash_sequence[] = {
+	{ "gatekeeperId", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h225_GatekeeperIdentifier },
+	{ "timeStamp", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h225_timeStamp },
+	{ "token", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h225_token },
+	{ NULL, 0, 0, NULL }
+};
 static int
 dissect_h225_cryptoGKPwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-PER_NOT_DECODED_YET("cryptoGKPwdHash");
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_cryptoGKPwdHash, ett_h225_T_cryptoGKPwdHash, cryptoGKPwdHash_sequence);
+
 	return offset;
 }
-static int
-dissect_h225_cryptoEPPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+
+static guint32 dissect_h225_cryptoEPPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
-PER_NOT_DECODED_YET("cryptoEPPwdEncr");
-	return offset;
+	return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoEPPwdEncr);
 }
-static int
-dissect_h225_cryptoGKPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+
+static guint32 dissect_h225_cryptoGKPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
-PER_NOT_DECODED_YET("cryptoGKPwdEncr");
-	return offset;
+	return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoGKPwdEncr);
 }
-static int
-dissect_h225_cryptoEPCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+
+static guint32 dissect_h225_cryptoEPCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
-PER_NOT_DECODED_YET("cryptoEPCert");
-	return offset;
+	return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoEPCert);
 }
-static int
-dissect_h225_cryptoGKCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+
+static guint32 dissect_h225_cryptoGKCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
-PER_NOT_DECODED_YET("cryptoGKCert");
-	return offset;
+	return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoGKCert);
 }
-static int
-dissect_h225_cryptoFastStart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+
+static guint32 dissect_h225_cryptoFastStart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
-PER_NOT_DECODED_YET("cryptoFastStart");
-	return offset;
+	return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoFastStart);
 }
+
+static guint32 dissect_h225_nestedcryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+{
+	return dissect_h235_CryptoToken(tvb, offset, pinfo, tree, hf_h225_nestedcryptoToken);
+}
+
 static const value_string CryptoH323Token_vals[] = {
 	{ 0, "cryptoEPPwdHash" },
 	{ 1, "cryptoGKPwdHash" },
@@ -3503,7 +3158,7 @@ static per_choice_t CryptoH323Token_choice[] = {
 	{ 6, "cryptoFastStart", ASN1_EXTENSION_ROOT,
 		dissect_h225_cryptoFastStart },
 	{ 7, "nestedcryptoToken", ASN1_EXTENSION_ROOT,
-		dissect_h235_CryptoToken },
+		dissect_h225_nestedcryptoToken },
 	{ 0, NULL, 0, NULL }
 };
 static int
@@ -3534,15 +3189,6 @@ dissect_h225_priority(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 		tree, hf_h225_priority, 0, 127,
 		NULL, NULL, FALSE);
-	return offset;
-}
-
-
-
-static int
-dissect_h225_GatekeeperIdentifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
-{
-	offset=dissect_per_BMPString(tvb, offset, pinfo, tree, hf_h225_GatekeeperIdentifier, 1, 128);
 	return offset;
 }
 
@@ -6339,7 +5985,7 @@ static per_sequence_t GatekeeperRequest_sequence[] = {
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CryptoH323Token_sequence_of },
 	{ "authenticationCapability", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h235_AuthenticationMechanism_sequence_of },
+		dissect_h225_authenticationCapability },
 	{ "algorithmOIDs", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_algorithmOIDs },
 	{ "integrity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7880,19 +7526,19 @@ dissect_h225_ServiceControlIndication(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 dissect_h225_alertingTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-PER_NOT_DECODED_YET("alertingTime");
+	return dissect_h235_TimeStamp(tvb, offset, pinfo, tree, hf_h225_alertingTime);
 	return offset;
 }
 static int
 dissect_h225_connectTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-PER_NOT_DECODED_YET("connectTime");
+	return dissect_h235_TimeStamp(tvb, offset, pinfo, tree, hf_h225_connectTime);
 	return offset;
 }
 static int
 dissect_h225_endTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-PER_NOT_DECODED_YET("endTime");
+	return dissect_h235_TimeStamp(tvb, offset, pinfo, tree, hf_h225_endTimeStamp);
 	return offset;
 }
 
@@ -7943,6 +7589,10 @@ dissect_h225_TimeToLive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	return offset;
 }
 
+static guint32 dissect_h225_authenticationMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h235_AuthenticationMechanism(tvb, offset, pinfo, tree, hf_h225_authenticationMode);
+}
+
 static per_sequence_t GatekeeperConfirm_sequence[] = {
 	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
@@ -7957,7 +7607,7 @@ static per_sequence_t GatekeeperConfirm_sequence[] = {
 	{ "alternateGatekeeper", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateGatekeeper },
 	{ "authenticationMode", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
-		dissect_h235_AuthenticationMechanism },
+		dissect_h225_authenticationMode },
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -9157,9 +8807,6 @@ proto_register_h225(void)
 	{ &hf_h225_GatekeeperInfo,
 		{ "GatekeeperInfo", "h225.GatekeeperInfo", FT_NONE, BASE_NONE,
 		NULL, 0, "GatekeeperInfo sequence", HFILL }},
-	{ &hf_h225_cryptoEPPwdHash,
-		{ "cryptoEPPwdHash", "h225.cryptoEPPwdHash", FT_NONE, BASE_NONE,
-		NULL, 0, "cryptoEPPwdHash sequence", HFILL }},
 	{ &hf_h225_SecurityServiceMode_encryption,
 		{ "Encryption", "h225.SecurityServiceMode_encryption", FT_UINT32, BASE_DEC,
 		VALS(SecurityServiceMode_vals), 0, "Encryption SecurityServiceMode choice", HFILL }},
@@ -10500,73 +10147,78 @@ proto_register_h225(void)
   	{ &hf_h225_ras_deltatime,
       		{ "RAS Service Response Time", "h225.ras.timedelta", FT_RELATIVE_TIME, BASE_NONE,
       		NULL, 0, "Timedelta between RAS-Request and RAS-Response", HFILL }},
-	{ &hf_h235_encryptedData,
-		{ "encryptedData", "h235.encryptedData", FT_BYTES, BASE_HEX,
-		NULL, 0, "h235 EncryptedData", HFILL }},
+	{ &hf_h225_cleartoken,
+		{ "cleartoken", "h225.cleartoken", FT_NONE, BASE_NONE,
+		NULL, 0, "ClearToken", HFILL }},
+    { &hf_h225_cryptoEPPwdHash,
+      { "cryptoEPPwdHash", "h225.cryptoEPPwdHash",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CryptoH323Token/cryptoEPPwdHash", HFILL }},
+    { &hf_h225_timeStamp,
+      { "timeStamp", "h225.timeStamp",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_h225_token,
+      { "token", "h225.token",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_h225_cryptoGKPwdHash,
+      { "cryptoGKPwdHash", "h225.cryptoGKPwdHash",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CryptoH323Token/cryptoGKPwdHash", HFILL }},
+    { &hf_h225_cryptoEPPwdEncr,
+      { "cryptoEPPwdEncr", "h225.cryptoEPPwdEncr",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CryptoH323Token/cryptoEPPwdEncr", HFILL }},
+    { &hf_h225_cryptoGKPwdEncr,
+      { "cryptoGKPwdEncr", "h225.cryptoGKPwdEncr",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CryptoH323Token/cryptoGKPwdEncr", HFILL }},
+    { &hf_h225_cryptoEPCert,
+      { "cryptoEPCert", "h225.cryptoEPCert",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CryptoH323Token/cryptoEPCert", HFILL }},
+    { &hf_h225_cryptoGKCert,
+      { "cryptoGKCert", "h225.cryptoGKCert",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CryptoH323Token/cryptoGKCert", HFILL }},
+    { &hf_h225_cryptoFastStart,
+      { "cryptoFastStart", "h225.cryptoFastStart",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CryptoH323Token/cryptoFastStart", HFILL }},
+    { &hf_h225_nestedcryptoToken,
+      { "nestedcryptoToken", "h225.nestedcryptoToken",
+        FT_UINT32, BASE_DEC, VALS(CryptoToken_vals), 0,
+        "CryptoH323Token/nestedcryptoToken", HFILL }},
+    { &hf_h225_cryptoTokens_item,
+      { "CryptoH323Token", "h225.cryptoTokens_item",
+        FT_UINT32, BASE_DEC, VALS(CryptoH323Token_vals), 0,
+        "", HFILL }},
+    { &hf_h225_authenticationCapability,
+      { "authenticationCapability", "h225.authenticationCapability",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GatekeeperRequest/authenticationCapability", HFILL }},
+    { &hf_h225_authenticationCapability_item,
+      { "authenticationCapability", "h225.authenticationCapability_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GatekeeperRequest/authenticationCapability/_item", HFILL }},
+    { &hf_h225_authenticationMode,
+      { "authenticationMode", "h225.authenticationMode",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GatekeeperConfirm/authenticationMode", HFILL }},
+    { &hf_h225_alertingTime,
+      { "alertingTime", "h225.alertingTime",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RasUsageInformation/alertingTime", HFILL }},
+    { &hf_h225_connectTime,
+      { "connectTime", "h225.connectTime",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RasUsageInformation/connectTime", HFILL }},
+    { &hf_h225_endTimeStamp,
+      { "endTime", "h225.endTime",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RasUsageInformation/endTime", HFILL }},
 
-	{ &hf_h235_ClearToken,
-		{ "ClearToken", "h235.ClearToken", FT_NONE, BASE_NONE,
-		NULL, 0, "ClearToken SEQUENCE", HFILL }},
-
-	{ &hf_h235_tokenOID,
-		{ "tokenOID", "h235.tokenOID", FT_STRING, BASE_NONE,
-		NULL, 0, "OID of this ClearToken object", HFILL }},
-
-	{ &hf_h235_timeStamp,
-		{ "timeStamp", "h235.timeStamp", FT_UINT32, BASE_DEC,
-		NULL, 0, "Timestamp of this object", HFILL }},
-
-	{ &hf_h235_password,
-		{ "password", "h235.password", FT_STRING, BASE_HEX,
-		NULL, 0, "Token password", HFILL }},
-
-	{ &hf_h235_NonStandardParameter,
-		{ "nonStandard", "h235.nonStandardParameter", FT_NONE, BASE_NONE,
-		NULL, 0, "H235 NonStandardParameter SEQUENCE", HFILL }},
-
-	{ &hf_h235_nonStandardIdentifier,
-		{ "nonStandardIdentifier", "h235.nonStandardIdentifier", FT_STRING, BASE_NONE,
-		NULL, 0, "H235 nonStandardIdentifier", HFILL }},
-
-	{ &hf_h235_nsp_data,
-		{ "data", "h235.nsp_data", FT_BYTES, BASE_HEX,
-		NULL, 0, "OCTET STRING", HFILL }},
-
-	{ &hf_h235_AuthenticationMechanisms,
-		{ "AuthenticationMechanisms", "h235.AuthenticationMechanisms", FT_NONE, BASE_NONE,
-		NULL, 0, "SEQUENCE OF AuthenticationMechanisms", HFILL }},
-
-	{ &hf_h235_AuthenticationMechanism,
-		{ "AuthenticationMechanism", "h235.AuthenticationMechanism", FT_UINT32, BASE_DEC,
-		VALS(AuthenticationMechanism_vals), 0, "AuthenticationMechanism choice", HFILL }},
-
-	{ &hf_h235_CryptoToken,
-		{ "CryptoToken", "h235.CryptoToken", FT_UINT32, BASE_DEC,
-		VALS(CryptoToken_vals), 0, "CryptoToken choice", HFILL }},
-
-	{ &hf_h235_cryptoEncryptedToken,
-		{ "cryptoEncryptedToken", "h235.cryptoEncryptedToken", FT_NONE, BASE_NONE,
-		NULL, 0, "cryptoEncryptedToken SEQUENCE", HFILL }},
-
-	{ &hf_h235_HASHED,
-		{ "HASHED", "h235.HASHED", FT_NONE, BASE_NONE,
-		NULL, 0, "HASHED SEQUENCE", HFILL }},
-
-	{ &hf_h235_ENCRYPTED,
-		{ "ENCRYPTED", "h235.ENCRYPTED", FT_NONE, BASE_NONE,
-		NULL, 0, "ENCRYPTED SEQUENCE", HFILL }},
-
-	{ &hf_h235_Params,
-		{ "Params", "h235.Params", FT_NONE, BASE_NONE,
-		NULL, 0, "H235 Params sequence", HFILL }},
-
-	{ &hf_h235_ranInt,
-		{ "ranInt", "h235.ranInt", FT_UINT32, BASE_DEC,
-		NULL, 0, "A random integer", HFILL }},
-
-	{ &hf_h235_hash,
-		{ "hash", "h235.hash", FT_BYTES, BASE_HEX,
-		NULL, 0, "The hash value", HFILL }},
 /*ddd*/
 	};
 
@@ -10625,7 +10277,6 @@ proto_register_h225(void)
 		&ett_h225_InfoRequestNakReason,
 		&ett_h225_SCRresult,
 		&ett_h225_GatekeeperInfo,
-		&ett_h225_cryptoEPPwdHash,
 		&ett_h225_SecurityCapabilities_tls,
 		&ett_h225_SecurityCapabilities_ipsec,
 		&ett_h225_RasUsageInfoTypes,
@@ -10838,16 +10489,9 @@ proto_register_h225(void)
 		&ett_h225_H221NonStandard,
 		&ett_h225_NonStandardIdentifier,
 		&ett_h225_NonStandardParameter,
+		&ett_h225_T_cryptoEPPwdHash,
+		&ett_h225_T_cryptoGKPwdHash,
 		&ett_h225_aliasAddress_sequence,
-		&ett_h235_ClearToken,
-		&ett_h235_NonStandardParameter,
-		&ett_h235_AuthenticationMechanisms,
-		&ett_h235_AuthenticationMechanism,
-		&ett_h235_CryptoToken,
-		&ett_h235_cryptoEncryptedToken,
-		&ett_h235_HASHED,
-		&ett_h235_ENCRYPTED,
-		&ett_h235_Params,
 /*eee*/
 	};
 	module_t *h225_module;

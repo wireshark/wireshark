@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.45 2004/05/18 08:22:26 sahlberg Exp $
+# $Id: Makefile.common,v 1.46 2004/05/25 10:09:03 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -103,6 +103,7 @@ DISSECTOR_INCLUDES =	\
 	packet-gssapi.h	\
 	packet-gtp.h	\
 	packet-h225.h	\
+	packet-h235.h	\
 	packet-h245.h	\
 	packet-hclnfsd.h	\
 	packet-hpext.h	\
