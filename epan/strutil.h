@@ -1,7 +1,7 @@
 /* strutil.h
  * String utility definitions
  *
- * $Id: strutil.h,v 1.9 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: strutil.h,v 1.10 2003/07/04 03:41:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,4 +34,9 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
 gchar*     format_text(const guchar *line, int len);
 gchar*     bytes_to_str(const guint8 *, int);
 gchar*     bytes_to_str_punct(const guint8 *, int, gchar punct);
+
+/* Surround a string or a macro, resolved to a string, with double quotes */
+#define _STRINGIFY(a)           # a
+#define STRINGIFY(a)            _STRINGIFY(a)
+
 #endif /* __STRUTIL_H__ */

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.93 2003/06/12 08:33:31 guy Exp $
+ * $Id: proto.c,v 1.94 2003/07/04 03:41:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+#include <float.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -2506,14 +2507,16 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_FLOAT:
 			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %.9g", hfinfo->name, fvalue_get_floating(fi->value));
+				"%s: %." STRINGIFY(FLT_DIG) "f",
+				hfinfo->name, fvalue_get_floating(fi->value));
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_DOUBLE:
 			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %.14g", hfinfo->name, fvalue_get_floating(fi->value));
+				"%s: %." STRINGIFY(DBL_DIG) "g",
+				hfinfo->name, fvalue_get_floating(fi->value));
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
@@ -3614,7 +3617,8 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 */
 			dfilter_len = abbrev_len + 4 + 1 + 26 + 1;
 			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %f", hfinfo->abbrev,
+			snprintf(buf, dfilter_len, "%s == %." STRINGIFY(FLT_DIG) "f",
+					hfinfo->abbrev,
 					fvalue_get_floating(finfo->value));
 			break;
 
@@ -3630,7 +3634,8 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 */
 			dfilter_len = abbrev_len + 4 + 1 + 26 + 1;
 			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %f", hfinfo->abbrev,
+			snprintf(buf, dfilter_len, "%s == %." STRINGIFY(DBL_DIG) "g",
+					hfinfo->abbrev,
 					fvalue_get_floating(finfo->value));
 			break;
 
