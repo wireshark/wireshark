@@ -1,8 +1,8 @@
 /* packet-x25.c
  * Routines for x25 packet disassembly
- * Olivier Abad <abad@daba.dhis.org>
+ * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.9 1999/11/16 11:43:02 guy Exp $
+ * $Id: packet-x25.c,v 1.10 1999/11/29 22:44:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

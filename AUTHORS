@@ -124,9 +124,10 @@ Johan Feyaerts <Johan.Feyaerts@siemens.atea.be> {
 	RADIUS
 }
 
-Olivier Abad <abad@daba.dhis.org> {
+Olivier Abad <abad@daba.dhis.net> {
 	X.25 support in iptrace files and Sniffer files
-	Support for files from RADCOM WAN/LAN analzyers
+	Support for files from RADCOM WAN/LAN analyzers
+	and HP-UX nettl traces
 	LAPB, X.25
 }
 
