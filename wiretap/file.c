@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.71 2001/10/19 20:18:48 guy Exp $
+ * $Id: file.c,v 1.72 2001/10/28 01:51:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -34,6 +34,10 @@
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
 #endif
 
 #include <errno.h>
