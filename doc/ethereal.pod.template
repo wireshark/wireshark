@@ -838,6 +838,7 @@ B<http://ethereal.zing.org>.
   Paul Welchinski          <paul.welchinski@telusplanet.net>
   Doug Nazar               <nazard@dragoninc.on.ca>
   Andreas Sikkema          <andreas.sikkema@philips.com>
+  Mark Muhlestein          <mmm@netapp.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

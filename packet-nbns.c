@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.39 2000/04/08 07:07:29 guy Exp $
+ * $Id: packet-nbns.c,v 1.40 2000/04/12 20:43:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,9 +79,19 @@ static int hf_nbss_flags = -1;
 static gint ett_nbss = -1;
 static gint ett_nbss_flags = -1;
 
+/* See RFC 1001 and 1002 for information on the first three, and see
+
+	http://www.cifs.com/specs/draft-leach-cifs-v1-spec-01.txt
+
+   Appendix B, and various messages on the CIFS mailing list such as
+
+	http://discuss.microsoft.com/SCRIPTS/WA-MSD.EXE?A2=ind9811A&L=cifs&P=R386
+
+   for information on the fourth. */
 #define UDP_PORT_NBNS	137
 #define UDP_PORT_NBDGM	138
 #define TCP_PORT_NBSS	139
+#define TCP_PORT_CIFS	445
 
 /* Packet structure taken from RFC 1002. See also RFC 1001.
  * Opcode, flags, and rcode treated as "flags", similarly to DNS,
@@ -1440,14 +1450,21 @@ static const value_string error_codes[] = {
 };
 
 /*
- * Dissect a single NBSS packet (there may be more than one in a given TCP
- * segment). Hmmm, in my experience, I have never seen more than one NBSS
- * in a single segment, since they mostly contain SMBs which are essentially
- * a request response type protocol (RJS). Also, a single session message 
- * may be split over multiple segments.
+ * Dissect a single NBSS packet (there may be more than one in a given
+ * TCP segment).
+ *
+ * [ Hmmm, in my experience, I have never seen more than one NBSS in a
+ * single segment, since they mostly contain SMBs which are essentially
+ * a request response type protocol (RJS). ]
+ *
+ * [ However, under heavy load with many requests multiplexed on one
+ * session it is not unusual to see multiple requests in one TCP
+ * segment. Unfortunately, in this case a single session message is
+ * frequently split over multiple segments, which frustrates decoding
+ * (MMM). ]
  */
 static int
-dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
+dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int is_cifs)
 {
 	proto_tree	*nbss_tree = NULL;
 	proto_item	*ti;
@@ -1461,10 +1478,16 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	int		name_type;
 
 	msg_type = pd[offset];
-	flags = pd[offset + 1];
-	length = pntohs(&pd[offset + 2]);
-	if (flags & NBSS_FLAGS_E)
-		length += 65536;
+
+	if (is_cifs) {
+		flags = 0;
+		length = pntohl(&pd[offset]) & 0x00FFFFFF;
+	} else {
+		flags = pd[offset + 1];
+		length = pntohs(&pd[offset + 2]);
+		if (flags & NBSS_FLAGS_E)
+			length += 65536;
+	}
 
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_nbss, offset, length + 4, NULL);
@@ -1480,21 +1503,27 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 	offset += 1;
 
-	if (tree) {
-	  tf = proto_tree_add_item(nbss_tree, hf_nbss_flags, offset, 1, flags);
-	  field_tree = proto_item_add_subtree(tf, ett_nbss_flags);
-	  proto_tree_add_text(field_tree, offset, 1, "%s",
+	if (is_cifs) {
+		if (tree) {
+		  proto_tree_add_text(nbss_tree, offset, 3, "Length: %u", length);
+		}
+		offset += 3;
+	} else {
+		if (tree) {
+		  tf = proto_tree_add_item(nbss_tree, hf_nbss_flags, offset, 1, flags);
+		  field_tree = proto_item_add_subtree(tf, ett_nbss_flags);
+		  proto_tree_add_text(field_tree, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, NBSS_FLAGS_E,
-						      8, "Add 65536 to length", "Add 0 to length"));
+							      8, "Add 65536 to length", "Add 0 to length"));
+		}
+		offset += 1;
+
+		if (tree) {
+		  proto_tree_add_text(nbss_tree, offset, 2, "Length: %u", length);
+		}
+
+		offset += 2;
 	}
-
-	offset += 1;
-
-	if (tree) {
-	  proto_tree_add_text(nbss_tree, offset, 2, "Length: %u", length);
-	}
-
-	offset += 2;
 
 	switch (msg_type) {
 
@@ -1555,12 +1584,21 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	guint16		length;
 	int		len;
 	int		max_data;
+	int		is_cifs;
 
 	msg_type = pd[offset];
-	flags = pd[offset + 1];
-	length = pntohs(&pd[offset + 2]);
-	if (flags & NBSS_FLAGS_E)
-		length += 65536;
+
+	if (pi.srcport == TCP_PORT_CIFS || pi.destport == TCP_PORT_CIFS) {
+		flags = 0;
+		length = pntohl(&pd[offset]) & 0x00FFFFFF;
+		is_cifs = TRUE;
+	} else {
+		flags = pd[offset + 1];
+		length = pntohs(&pd[offset + 2]);
+		if (flags & NBSS_FLAGS_E)
+			length += 65536;
+		is_cifs = FALSE;
+	}
 
 	/*
 	 * XXX - we should set this based on both "pi.captured_len"
@@ -1601,7 +1639,7 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	while (max_data > 0) {
-		len = dissect_nbss_packet(pd, offset, fd, tree, max_data);
+		len = dissect_nbss_packet(pd, offset, fd, tree, max_data, is_cifs);
 		offset += len;
 		max_data -= len;
 	}
@@ -1716,4 +1754,5 @@ proto_reg_handoff_nbt(void)
   dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns);
   dissector_add("udp.port", UDP_PORT_NBDGM, dissect_nbdgm);
   dissector_add("tcp.port", TCP_PORT_NBSS, dissect_nbss);
+  dissector_add("tcp.port", TCP_PORT_CIFS, dissect_nbss);
 }
