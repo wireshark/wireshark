@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.3 2001/07/14 19:28:10 guy Exp $
+ * $Id: mergecap.c,v 1.4 2001/07/20 07:22:40 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -157,8 +157,6 @@ static void
 merge(int count, in_file_t in_files[], out_file_t *out_file)
 {
   int i;
-  int data_offset_1, data_offset_2, loop = 0;
-  gboolean ok_1, ok_2;
 
   /* prime the pump (read in first frame from each file) */
   for (i = 0; i < count; i++) {
@@ -384,7 +382,6 @@ usage()
 int
 main(int argc, char *argv[])
 {
-  int          i;
   extern char *optarg;
   extern int   optind;
   int          opt;
