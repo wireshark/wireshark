@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.4 2001/07/12 22:45:23 gram Exp $
+; $Id: ethereal.nsi.in,v 1.5 2001/08/20 06:29:57 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -112,6 +112,8 @@ Section "Plugins"
 SetOutPath $INSTDIR\plugins\@VERSION@
 File "..\..\plugins\gryphon\gryphon.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
+File "..\..\plugins\giop\cosnaming.dll"
+File "..\..\plugins\giop\coseventcomm.dll"
 SectionEnd
 
 Section "Debug PDB Files"
