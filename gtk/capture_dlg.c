@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.127 2004/04/17 01:09:38 guy Exp $
+ * $Id: capture_dlg.c,v 1.128 2004/04/28 18:39:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -488,6 +488,7 @@ capture_prep(void)
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
+  GtkTooltips   *tooltips;
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
 		*stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj, *ring_filesize_adj, *file_duration_adj;
   GList         *if_list, *combo_list;
@@ -538,6 +539,8 @@ capture_prep(void)
   cap_open_w = dlg_window_new("Ethereal: Capture Options");
   SIGNAL_CONNECT(cap_open_w, "destroy", capture_prep_destroy_cb, NULL);
 
+  tooltips = gtk_tooltips_new();
+
 #if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
@@ -583,6 +586,9 @@ capture_prep(void)
   }
   free_capture_combo_list(combo_list);
   free_interface_list(if_list);
+  gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry, 
+    "Choose which interface (network card) will be used to capture packets from. "
+    "Be sure to select the correct one, as it's a common mistake to select the wrong interface.", NULL);
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, TRUE, TRUE, 6);
 
   /* Linktype row */
@@ -597,6 +603,8 @@ capture_prep(void)
   /* Default to "use the default" */
   OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
   set_link_type_list(linktype_om, GTK_COMBO(if_cb)->entry);
+  gtk_tooltips_set_tip(tooltips, linktype_om, 
+    "The selected interface supports multiple link-layer types, select the desired one.", NULL);
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_om, FALSE, FALSE, 0);
   SIGNAL_CONNECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
                  capture_prep_interface_changed_cb, linktype_om);
@@ -611,6 +619,8 @@ capture_prep(void)
   gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) capture_opts.buffer_size);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (buffer_size_sb), TRUE);
   WIDGET_SET_SIZE(buffer_size_sb, 80, -1);
+  gtk_tooltips_set_tip(tooltips, buffer_size_sb, 
+    "The memory buffer size used while capturing. If you notice packet drops, you can try to increase this size.", NULL);
   gtk_box_pack_start (GTK_BOX(linktype_hb), buffer_size_sb, FALSE, FALSE, 0);
 
   buffer_size_lb = gtk_label_new("megabyte(s)");
@@ -622,6 +632,10 @@ capture_prep(void)
       "Capture packets in _promiscuous mode", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb),
 		capture_opts.promisc_mode);
+  gtk_tooltips_set_tip(tooltips, promisc_cb, 
+    "Usually a network card will only capture the traffic to its own network address. "
+    "If you want to capture all traffic that the network card can \"see\", mark this option. "
+    "See the FAQ for some more details of capturing packets from a switched network.", NULL);
   gtk_container_add(GTK_CONTAINER(capture_vb), promisc_cb);
 
   /* Capture length row */
@@ -632,6 +646,9 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(snap_cb),
 		capture_opts.has_snaplen);
   SIGNAL_CONNECT(snap_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, snap_cb, 
+    "Limit the maximum size to be captured of each packet, this size includes the link-layer "
+    "header and all subsequent headers. ", NULL);
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_cb, FALSE, FALSE, 0);
 
   snap_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) capture_opts.snaplen,
@@ -652,11 +669,19 @@ capture_prep(void)
   filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY);
   SIGNAL_CONNECT(filter_bt, "clicked", capture_filter_construct_cb, NULL);
   SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
+  gtk_tooltips_set_tip(tooltips, filter_bt, 
+    "Select a capture filter to reduce the amount of packets to be captured. "
+    "See \"Capture Filters\" in the online help for further information how to use it.", 
+    NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
 
   filter_te = gtk_entry_new();
   if (cfile.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
+  gtk_tooltips_set_tip(tooltips, filter_te, 
+    "Enter a capture filter to reduce the amount of packets to be captured. "
+    "See \"Capture Filters\" in the online help for further information how to use it.", 
+    NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 3);
 
   main_hb = gtk_hbox_new(FALSE, 5);
@@ -688,9 +713,17 @@ capture_prep(void)
   gtk_box_pack_start(GTK_BOX(file_hb), file_lb, FALSE, FALSE, 3);
 
   file_te = gtk_entry_new();
+  gtk_tooltips_set_tip(tooltips, file_te, 
+    "Enter the file name to which captured data will be written. "
+    "If you don't enter something here, a temporary file will be used.",
+    NULL);
   gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
 
   file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
+  gtk_tooltips_set_tip(tooltips, file_bt, 
+    "Select a file to which captured data will be written, "
+    "instead of entering the file name directly. ",
+    NULL);
   gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3);
 
   SIGNAL_CONNECT(file_bt, "clicked", capture_prep_file_cb, file_te);
@@ -708,6 +741,9 @@ capture_prep(void)
 		capture_opts.multi_files_on);
   SIGNAL_CONNECT(multi_files_on_cb, "toggled", capture_prep_adjust_sensitivity,
                  cap_open_w);
+  gtk_tooltips_set_tip(tooltips, multi_files_on_cb, 
+    "Instead of using a single capture file, multiple files will be created. "
+    "The generated filenames will contain an incrementing number and the start time of the capture.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), multi_files_on_cb, 0, 1, row, row+1);
   row++;
 
@@ -716,6 +752,9 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_filesize_cb),
 		capture_opts.has_autostop_filesize);
   SIGNAL_CONNECT(ring_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, ring_filesize_cb, 
+    "If the selected filesize is exceeded, capturing switches to the next file.",
+    NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_cb, 0, 1, row, row+1);
 
   ring_filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
@@ -735,6 +774,9 @@ capture_prep(void)
 			      capture_opts.has_file_duration);
   SIGNAL_CONNECT(file_duration_cb, "toggled", 
 		 capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, file_duration_cb, 
+    "If the selected duration is exceeded, capturing switches to the next file.",
+    NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_cb, 0, 1, row, row+1);
 
   file_duration_adj = (GtkAdjustment *)gtk_adjustment_new((gfloat)capture_opts.file_duration,
@@ -753,6 +795,10 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb),
 		capture_opts.has_ring_num_files);
   SIGNAL_CONNECT(ringbuffer_nbf_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, ringbuffer_nbf_cb, 
+    "After capturing has switched to the next file and the given number of files has exceeded, "
+    "the oldest file will be removed.",
+    NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ringbuffer_nbf_cb, 0, 1, row, row+1);
 
   ringbuffer_nbf_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) capture_opts.ring_num_files,
@@ -773,6 +819,8 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_files_cb),
 		capture_opts.has_autostop_files);
   SIGNAL_CONNECT(stop_files_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, stop_files_cb, 
+    "Stop capturing after the given number of \"file switches\" have been done.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_cb, 0, 1, row, row+1);
 
   stop_files_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_files,
@@ -807,6 +855,8 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_packets_cb),
 		capture_opts.has_autostop_packets);
   SIGNAL_CONNECT(stop_packets_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, stop_packets_cb, 
+    "Stop capturing after the given number of packets have been captured.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_cb, 0, 1, row, row+1);
 
   stop_packets_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_packets,
@@ -826,6 +876,8 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_filesize_cb),
 		capture_opts.has_autostop_filesize);
   SIGNAL_CONNECT(stop_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, stop_filesize_cb, 
+    "Stop capturing after the given amount of capture data has been captured.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_cb, 0, 1, row, row+1);
 
   stop_filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
@@ -844,6 +896,8 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_duration_cb),
 		capture_opts.has_autostop_duration);
   SIGNAL_CONNECT(stop_duration_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, stop_duration_cb, 
+    "Stop capturing after the given time exceeded.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_cb, 0, 1, row, row+1);
 
   stop_duration_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_duration,
@@ -871,12 +925,18 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb),
 		capture_opts.sync_mode);
   SIGNAL_CONNECT(sync_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, sync_cb, 
+    "Using this option will show the captured packets immediately on the main screen. "
+    "Please note: this will slow down capturing, so increased packet drops might appear.", NULL);
   gtk_container_add(GTK_CONTAINER(display_vb), sync_cb);
 
   /* "Auto-scroll live update" row */
   auto_scroll_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"_Automatic scrolling in live capture", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
+  gtk_tooltips_set_tip(tooltips, auto_scroll_cb, 
+    "This will scroll the \"Packet List\" automatically to the latest captured packet, "
+    "when the \"Update List of packets in real time\" option is used.", NULL);
   gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
 
   /* Name Resolution frame */
@@ -891,18 +951,24 @@ capture_prep(void)
 		"Enable _MAC name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
 		g_resolv_flags & RESOLV_MAC);
+  gtk_tooltips_set_tip(tooltips, m_resolv_cb, 
+    "Perform MAC layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), m_resolv_cb);
 
   n_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Enable _network name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
 		g_resolv_flags & RESOLV_NETWORK);
+  gtk_tooltips_set_tip(tooltips, n_resolv_cb, 
+    "Perform network layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
 
   t_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Enable _transport name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
 		g_resolv_flags & RESOLV_TRANSPORT);
+  gtk_tooltips_set_tip(tooltips, t_resolv_cb, 
+    "Perform transport layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
 
   /* Button row: OK and cancel buttons */
@@ -911,12 +977,18 @@ capture_prep(void)
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", capture_prep_ok_cb, cap_open_w);
+  gtk_tooltips_set_tip(tooltips, ok_bt, 
+    "Start the capture process.", NULL);
   gtk_widget_grab_default(ok_bt);
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+  gtk_tooltips_set_tip(tooltips, cancel_bt, 
+    "Cancel and exit dialog.", NULL);
   SIGNAL_CONNECT(cancel_bt, "clicked", capture_prep_close_cb, cap_open_w);
 
   help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+  gtk_tooltips_set_tip(tooltips, help_bt, 
+    "Show help about capturing.", NULL);
   SIGNAL_CONNECT(help_bt, "clicked", help_topic_cb, "Capturing");
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
