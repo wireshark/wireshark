@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.32 2003/06/26 18:18:21 guy Exp $
+ * $Id: packet-afp.c,v 1.33 2003/12/08 20:36:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2264,6 +2264,10 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static gint
 dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, gint offset)
 {
+	int  param;
+	gint col_info = check_col(pinfo->cinfo, COL_INFO);
+
+	
 	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1,FALSE);
 	offset += 1;
 
@@ -2272,9 +2276,17 @@ dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, gi
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_afp_offset, tvb, offset, 4,FALSE);
+	if (col_info) {
+		param = tvb_get_ntohl(tvb, offset);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Offset=%d", param);
+	}
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_afp_rw_count, tvb, offset, 4,FALSE);
+	if (col_info) {
+		param = tvb_get_ntohl(tvb, offset);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Size=%d", param);
+	}
 	offset += 4;
 
 	return offset;
@@ -2322,6 +2334,9 @@ dissect_reply_afp_write_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static gint
 dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
+	int param;
+	gint col_info = check_col(pinfo->cinfo, COL_INFO);
+	
 	PAD(1);
 
         add_info_fork(tvb, pinfo, offset);
@@ -2329,9 +2344,17 @@ dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_afp_offset, tvb, offset, 4,FALSE);
+	if (col_info) {
+		param = tvb_get_ntohl(tvb, offset);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Offset=%d", param);
+	}
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_afp_rw_count, tvb, offset, 4,FALSE);
+	if (col_info) {
+		param = tvb_get_ntohl(tvb, offset);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Size=%d", param);
+	}
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_afp_newline_mask, tvb, offset, 1,FALSE);
@@ -2623,6 +2646,7 @@ static gint
 dissect_query_afp_set_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	guint16 bitmap;
+	int param;
 
 	PAD(1);
         add_info_fork(tvb, pinfo, offset);
@@ -2638,6 +2662,10 @@ dissect_query_afp_set_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	}
 	else {
 		proto_tree_add_item(tree, hf_afp_ofork_len, tvb, offset, 4,FALSE);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			param = tvb_get_ntohl(tvb, offset);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " Size=%d", param);
+		}
 		offset += 4;
 	}
 	return offset;
@@ -3234,10 +3262,11 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8	afp_command;
 
 	int     len =  tvb_reported_length_remaining(tvb,0);
+	gint col_info = check_col(pinfo->cinfo, COL_INFO);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AFP");
-	if (check_col(pinfo->cinfo, COL_INFO))
+	if (col_info)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
@@ -3268,13 +3297,13 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (!request_val) {	/* missing request */
-		if (check_col(pinfo->cinfo, COL_INFO))
+		if (col_info)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[Reply without query?]");
 		return;
 	}
 
 	afp_command = request_val->command;
-	if (check_col(pinfo->cinfo, COL_INFO)) {
+	if (col_info) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 			     val_to_str(afp_command, CommandCode_vals,
 					"Unknown command (%u)"),
@@ -3302,7 +3331,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        	 * ....
 	        	 * ip1:2048 --> ip2:548 <SYN> use the same port but it's a new session!
 	        	 */
-			if (check_col(pinfo->cinfo, COL_INFO)) {
+			if (col_info) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, 
 			          "[Error!IP port reused, you need to split the capture file]");
 				return;
