@@ -45,7 +45,7 @@
 #include "packet-q931.h"
 #include "packet-e164.h"
 #include "packet-isup.h"
-#include "packet-gsm_map.c"
+#include "packet-gsm_map.h"
 
 #define PNAME  "Camel"
 #define PSNAME "CAMEL"
@@ -489,7 +489,6 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   proto_item    *item=NULL;
   proto_tree    *tree=NULL;
-  gchar         *str = NULL;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Camel");
