@@ -2,7 +2,7 @@
  * Routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.20 2001/03/22 00:28:35 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.21 2001/03/22 00:50:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -803,11 +803,11 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + DataOffset, END_OF_FRAME, FALSE);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, END_OF_FRAME, FALSE);
 
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, END_OF_FRAME, "Payload: %s", format_text(pd + SMB_offset + DataOffset, END_OF_FRAME));
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, END_OF_FRAME, "Payload: %s", format_text(pd + loc_offset, END_OF_FRAME));
 
       }
 
