@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.46 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-q931.c,v 1.47 2002/09/17 19:50:12 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -201,6 +201,7 @@ static const value_string q931_message_type_vals[] = {
 #define	Q931_IE_PACKET_SIZE		0x46	/* Packet size */
 #define	Q931_IE_CUG			0x47	/* Closed user group */
 #define	Q931_IE_REVERSE_CHARGE_IND	0x4A	/* Reverse charging indication */
+#define	Q931_IE_CONNECTED_NUMBER_DEFAULT        0x4C	/* Connected Number */
 #define	Q931_IE_CALLING_PARTY_NUMBER	0x6C	/* Calling Party Number */
 #define	Q931_IE_CALLING_PARTY_SUBADDR	0x6D	/* Calling Party Subaddress */
 #define	Q931_IE_CALLED_PARTY_NUMBER	0x70	/* Called Party Number */
@@ -277,6 +278,7 @@ static const value_string q931_info_element_vals[] = {
 	{ Q931_IE_PACKET_SIZE,			"Packet size" },
 	{ Q931_IE_CUG,				"Closed user group" },
 	{ Q931_IE_REVERSE_CHARGE_IND,		"Reverse charging indication" },
+	{ Q931_IE_CONNECTED_NUMBER_DEFAULT,     "Connected number" },
 	{ Q931_IE_CALLING_PARTY_NUMBER,		"Calling party number" },
 	{ Q931_IE_CALLING_PARTY_SUBADDR,	"Calling party subaddress" },
 	{ Q931_IE_CALLED_PARTY_NUMBER,		"Called party number" },
@@ -2438,6 +2440,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					break;
 
 				case Q931_IE_CALLING_PARTY_NUMBER:
+				case Q931_IE_CONNECTED_NUMBER_DEFAULT:
 				case Q931_IE_CALLED_PARTY_NUMBER:
 				case Q931_IE_REDIRECTING_NUMBER:
 					dissect_q931_number_ie(tvb,

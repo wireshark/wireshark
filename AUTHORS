@@ -359,6 +359,7 @@ Andreas Sikkema <andreas.sikkema[AT]philips.com> {
 	Fixes to SMB dissector
 	Fixes to capture file handling on Win32
 	RTCP, RTP, TPKT (RFC 1006), H.261
+	Q.931 enhancements
 }
 
 Mark Muhlestein <mmm[AT]netapp.com> {
