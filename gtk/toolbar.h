@@ -2,7 +2,7 @@
  * Definitions for toolbar utility routines
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.h,v 1.4 2003/11/07 01:29:05 guy Exp $
+ * $Id: toolbar.h,v 1.5 2003/11/15 11:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,14 @@
 
 #ifndef __TOOLBAR_H__
 #define __TOOLBAR_H__
+
+#if GTK_MAJOR_VERSION >= 2
+#ifdef HAVE_LIBPCAP
+#define ETHEREAL_STOCK_CAPTURE_START  "Ethereal_Stock_CaptureStart"
+#define ETHEREAL_STOCK_CAPTURE_FILTER  "Ethereal_Stock_CaptureFilter"
+#endif
+#define ETHEREAL_STOCK_DISPLAY_FILTER  "Ethereal_Stock_DisplayFilter"
+#endif
 
 void set_toolbar_for_capture_file(gboolean have_capture_file);
 void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file);

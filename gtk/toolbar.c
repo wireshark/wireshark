@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.13 2003/11/07 01:29:04 guy Exp $
+ * $Id: toolbar.c,v 1.14 2003/11/15 11:44:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,11 +79,11 @@
 #include "../image/toolbar/stock_colorselector_24.xpm"
 #include "../image/toolbar/stock_preferences_24.xpm"
 #include "../image/toolbar/stock_help_24.xpm"
-/* this icons are derived from the original stock icons */
-#include "../image/toolbar/capture_24.xpm"
 #endif /* GTK_MAJOR_VERSION */
 
+/* these icons are derived from the original stock icons */
 #ifdef HAVE_LIBPCAP
+#include "../image/toolbar/capture_24.xpm"
 #include "../image/toolbar/cfilter_24.xpm"
 #endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/dfilter_24.xpm"
@@ -91,7 +91,6 @@
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
 #define E_TB_MAIN_KEY             "toolbar_main"
-#define E_TB_MAIN_HB_KEY          "toolbar_main_handlebox"
 
 
 static gboolean toolbar_init = FALSE;
@@ -108,13 +107,76 @@ static GtkWidget *color_display_button, *prefs_button, *help_button;
 static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar);
 
 
+
+#if GTK_MAJOR_VERSION >= 2
+typedef struct stock_pixmap_tag{
+    const char *    name;
+    char **         xpm_data;
+} stock_pixmap_t;
+
+/* generate application specific stock items */
+void ethereal_stock_icons(void) {
+    GtkIconFactory * factory;
+    gint32 i;
+
+
+    /* register non-standard pixmaps with the gtk-stock engine */
+    static const GtkStockItem stock_items[] = {
+#ifdef HAVE_LIBPCAP
+        { ETHEREAL_STOCK_CAPTURE_START, "_New", 0, 0, NULL },
+        { ETHEREAL_STOCK_CAPTURE_FILTER, "_CFilter", 0, 0, NULL },
+#endif
+        { ETHEREAL_STOCK_DISPLAY_FILTER, "_DFilter", 0, 0, NULL },
+    };
+
+    static const stock_pixmap_t pixmaps[] = {
+#ifdef HAVE_LIBPCAP
+        { ETHEREAL_STOCK_CAPTURE_START, capture_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_FILTER, cfilter_24_xpm },
+#endif
+        { ETHEREAL_STOCK_DISPLAY_FILTER, dfilter_24_xpm },
+        { NULL, NULL }
+    };
+
+    /* Register our stock items */
+    gtk_stock_add (stock_items, G_N_ELEMENTS (stock_items));
+
+    /* Add our custom icon factory to the list of defaults */
+    factory = gtk_icon_factory_new();
+    gtk_icon_factory_add_default(factory);
+
+    /* Create the stock items to add into our icon factory */
+    for (i = 0; pixmaps[i].name != NULL; i++) {
+        GdkPixbuf * pixbuf;
+        GtkIconSet *icon_set;
+
+        pixbuf = gdk_pixbuf_new_from_xpm_data((pixmaps[i].xpm_data));
+        g_assert(pixbuf);
+        icon_set = gtk_icon_set_new_from_pixbuf (pixbuf);
+        gtk_icon_factory_add (factory, pixmaps[i].name, icon_set);
+        gtk_icon_set_unref (icon_set);
+        g_object_unref (G_OBJECT (pixbuf));
+    }
+
+    /* Drop our reference to the factory, GTK will hold a reference.*/
+    g_object_unref (G_OBJECT (factory));
+}
+#endif
+
+
 /*
  * Create all toolbars (currently only the main toolbar)
  */
 void
 create_toolbar(GtkWidget *main_vbox)
 {
-    GtkWidget *main_tb, *main_tb_hb;
+    GtkWidget *main_tb;
+
+    
+#if GTK_MAJOR_VERSION >= 2
+    /* create application specific stock icons */
+    ethereal_stock_icons();
+#endif
 
     /* Main Toolbar */
     get_main_toolbar(top_level, &main_tb);
@@ -122,18 +184,9 @@ create_toolbar(GtkWidget *main_vbox)
     gtk_toolbar_set_space_size(GTK_TOOLBAR(main_tb), 3);
 #endif
 
-    /* To make it nice we'll put the toolbar into a handle box, 
-     * so that it can be detached from the main window */
-    /* XXX - this is coming from gtk examples (is this really helpful for
-     * someone?) */
-    main_tb_hb = gtk_handle_box_new();
-    gtk_container_add(GTK_CONTAINER(main_tb_hb) , main_tb);
-    gtk_container_set_border_width(GTK_CONTAINER(main_tb_hb), 3);
-    gtk_box_pack_start(GTK_BOX(main_vbox), main_tb_hb, FALSE, TRUE, 0);
-    gtk_widget_show(main_tb_hb);
-
+    gtk_box_pack_start(GTK_BOX(main_vbox), main_tb, FALSE, TRUE, 0);
     OBJECT_SET_DATA(top_level, E_TB_MAIN_KEY, main_tb);
-    OBJECT_SET_DATA(top_level, E_TB_MAIN_HB_KEY, main_tb_hb);
+
     /* make current preferences effective */
     toolbar_redraw_all();
 }
@@ -144,25 +197,19 @@ create_toolbar(GtkWidget *main_vbox)
 void
 toolbar_redraw_all(void)
 {
-    GtkWidget     *main_tb, *main_tb_hb;
-    static const GtkToolbarStyle styles[] = {
-	GTK_TOOLBAR_ICONS,
-	GTK_TOOLBAR_TEXT,
-	GTK_TOOLBAR_BOTH
-    };
+    GtkWidget     *main_tb;
 
-    main_tb_hb = OBJECT_GET_DATA(top_level, E_TB_MAIN_HB_KEY);
+    main_tb = OBJECT_GET_DATA(top_level, E_TB_MAIN_KEY);
 
     /* does the user want the toolbar? */
     if (prefs.gui_toolbar_main_show) {
         /* yes, set the style he/she prefers (texts, icons, both) */
-        main_tb = OBJECT_GET_DATA(top_level, E_TB_MAIN_KEY);
         gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
-                          styles[prefs.gui_toolbar_main_style]);
-        gtk_widget_show(main_tb_hb);
+                          prefs.gui_toolbar_main_style);
+        gtk_widget_show(main_tb);
     } else {
         /* no */
-        gtk_widget_hide(main_tb_hb);
+        gtk_widget_hide(main_tb);
     }
 
 #if GTK_MAJOR_VERSION < 2
@@ -296,7 +343,7 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                 NULL );
 #else
     new_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                          GTK_STOCK_EXECUTE,
+                                          ETHEREAL_STOCK_CAPTURE_START,
                                           "Start new capture...", "Private",
                                           G_CALLBACK(capture_prep_cb), NULL,
                                           -1);
@@ -409,7 +456,6 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                              G_CALLBACK(file_reload_cmd_cb),
                                              NULL, -1);
 #endif /* GTK_MAJOR_VERSION */
-    toolbar_append_separator(*toolbar);
 
     /* print frame(s) button */
 #if GTK_MAJOR_VERSION < 2
@@ -430,6 +476,7 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                             G_CALLBACK(file_print_cmd_cb),
                                             NULL, -1);
 #endif /* GTK_MAJOR_VERSION */
+    toolbar_append_separator(*toolbar);
 
     /* find frame button */
 #if GTK_MAJOR_VERSION < 2
@@ -494,6 +541,7 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
 #ifdef HAVE_LIBPCAP
 
     /* capture filter button */
+#if GTK_MAJOR_VERSION < 2
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
                                         &window->style->white, cfilter_24_xpm);
     iconw = gtk_pixmap_new(icon, mask);
@@ -502,9 +550,17 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
         gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "CFilter",
                                 "Edit Capture Filters...", "Private", iconw,
                                 GTK_SIGNAL_FUNC(cfilter_dialog_cb), NULL);
+#else
+    capture_filter_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
+                                            ETHEREAL_STOCK_CAPTURE_FILTER,
+                                            "Edit Capture Filters...", "Private",
+                                            G_CALLBACK(cfilter_dialog_cb), NULL,
+                                            -1);
+#endif /* GTK_MAJOR_VERSION */
 #endif /* HAVE_LIBPCAP */
 
     /* display filter button */
+#if GTK_MAJOR_VERSION < 2
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
                                         &window->style->white, dfilter_24_xpm);
     iconw = gtk_pixmap_new(icon, mask);
@@ -512,7 +568,15 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     display_filter_button =
         gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "DFilter",
                                 "Edit Display Filters...", "Private", iconw,
-                                GTK_SIGNAL_FUNC(dfilter_dialog_cb), NULL);
+                                GTK_SIGNAL_FUNC(dfilter_dialog_cb),
+                                NULL);
+#else
+    display_filter_button =
+        gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar), 
+                                 ETHEREAL_STOCK_DISPLAY_FILTER,
+                                 "Edit Display Filters...", "Private",
+                                 G_CALLBACK(dfilter_dialog_cb), NULL, -1);
+#endif /* GTK_MAJOR_VERSION */
 
     /* color filter button */
 #if GTK_MAJOR_VERSION < 2
