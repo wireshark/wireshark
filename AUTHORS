@@ -987,6 +987,10 @@ Dinesh Dutt <ddutt[AT]cisco.com> {
 	SCSI dissector, for use by iSCSI and other protocols that
 	    transport SCSI operations
 }
+
+Nagarjuna Venna <nvenna[AT]Brixnet.com> {
+	Only display the reason in BYE RTCP packets if it's present
+}
 	
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

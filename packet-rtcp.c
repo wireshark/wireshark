@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.27 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-rtcp.c,v 1.28 2002/01/10 22:21:13 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -386,18 +386,20 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 		offset += 4;
 	}
 
-	/* Bye reason consists of an 8 bit length l and a string with length l */
-	reason_length = tvb_get_guint8( tvb, offset );
-	proto_tree_add_item( tree, hf_rtcp_ssrc_length, tvb, offset, 1, FALSE );
-	offset++;
+	if ( tvb_reported_length_remaining( tvb, offset ) > 0 ) {
+		/* Bye reason consists of an 8 bit length l and a string with length l */
+		reason_length = tvb_get_guint8( tvb, offset );
+		proto_tree_add_item( tree, hf_rtcp_ssrc_length, tvb, offset, 1, FALSE );
+		offset++;
 
-	reason_text = ( char* ) malloc( reason_length + 1 );
-	for ( counter = 0; counter < reason_length; counter++ ) reason_text[ counter ] = tvb_get_guint8( tvb, offset + counter );
-	/* strncpy( reason_text, pd + offset, reason_length ); */
-	reason_text[ reason_length ] = '\0';
-	proto_tree_add_string( tree, hf_rtcp_ssrc_text, tvb, offset, reason_length, reason_text );
-	free( reason_text );
-	offset += reason_length;
+		reason_text = ( char* ) malloc( reason_length + 1 );
+		for ( counter = 0; counter < reason_length; counter++ ) reason_text[ counter ] = tvb_get_guint8( tvb, offset + counter );
+		/* strncpy( reason_text, pd + offset, reason_length ); */
+		reason_text[ reason_length ] = '\0';
+		proto_tree_add_string( tree, hf_rtcp_ssrc_text, tvb, offset, reason_length, reason_text );
+		free( reason_text );
+		offset += reason_length;
+	}
 
 	return offset;
 
