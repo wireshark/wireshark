@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include "prefs.h"
 
+#include "packet-rtp.h"
 #include "packet-tcp.h"
 
 #define TCP_PORT_SKINNY 2000
@@ -1167,6 +1168,7 @@ static gint ett_skinny_softKeyMap = -1;
 static gboolean skinny_desegment = TRUE;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t rtp_handle=NULL;
 
 /* Get the length of a single SCCP PDU */
 static guint get_skinny_pdu_len(tvbuff_t *tvb, int offset)
@@ -1386,6 +1388,11 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+20, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+24, 4, TRUE);
+      if((!pinfo->fd->flags.visited) && rtp_handle){
+		  guint32 ipv4_address;
+		  tvb_memcpy(tvb, (char*)&ipv4_address, offset+16, 4);
+          rtp_add_address(pinfo, (char *)&ipv4_address, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num);
+      }
       break;
 
     case 0x23    :  /* stationConnectionStatisticsRes */
@@ -1757,6 +1764,11 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression,    tvb, offset+40, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket,    tvb, offset+44, 2, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,           tvb, offset+48, 4, TRUE);
+      if((!pinfo->fd->flags.visited) && rtp_handle){
+          guint32 ipv4_address;
+          tvb_memcpy(tvb, (char*)&ipv4_address, offset+20, 4);
+          rtp_add_address(pinfo, (char *)&ipv4_address, tvb_get_letohl(tvb, offset+24), 0, "Skinny", pinfo->fd->num);
+      }
       break;
 
     case 0x8b :  /* stopMediaTransmission */
@@ -4237,6 +4249,7 @@ proto_reg_handoff_skinny(void)
   dissector_handle_t skinny_handle;
 
   data_handle = find_dissector("data");
+  rtp_handle = find_dissector("rtp");
   skinny_handle = create_dissector_handle(dissect_skinny, proto_skinny);
   dissector_add("tcp.port", TCP_PORT_SKINNY, skinny_handle);
 }
