@@ -903,8 +903,13 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 	   run out of entries */
 	ch = choice;
 	while(ch->func){
-		if( (ch->class==class)
-		  &&(ch->tag==tag) ){
+choice_try_again:
+#ifdef DEBUG_BER
+printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(expected)%d flags:%d\n",class,ch->class,tag,ch->tag,ch->flags);
+#endif
+		if( ((ch->class==class)&&(ch->tag==tag))
+		||  ((ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG))
+		){
 			if (!(ch->flags & BER_FLAGS_NOOWNTAG)){
 				/* dissect header and len for field */
 				hoffset = dissect_ber_identifier(pinfo, tree, tvb, start_offset, NULL, NULL, NULL);
@@ -956,6 +961,12 @@ name="unnamed";
 printf("CHOICE dissect_ber_choice(%s) subdissector ate %d bytes\n",name,count);
 }
 #endif
+			if((count==0)&&(ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG)){
+				/* wrong one, break and try again */
+				ch++;
+				goto choice_try_again;
+			}
+
 			offset=hoffset+count;
 			if(ind){
 				/* this choice was of indefinite length so we 
