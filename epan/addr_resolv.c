@@ -631,7 +631,7 @@ static int parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
 			    gboolean manuf_file)
 {
   /*
-   *  See man ethers(4) for ethers file format
+   *  See the ethers(4) or ethers(5) man page for ethers file format
    *  (not available on all systems).
    *  We allow both ethernet address separators (':' and '-'),
    *  as well as Ethereal's '.' separator.
@@ -642,13 +642,13 @@ static int parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
   if ((cp = strchr(line, '#')))
     *cp = '\0';
 
-  if ((cp = strtok(line, " \t\n")) == NULL)
+  if ((cp = strtok(line, " \t")) == NULL)
     return -1;
 
   if (!parse_ether_address(cp, eth, mask, manuf_file))
     return -1;
 
-  if ((cp = strtok(NULL, " \t\n")) == NULL)
+  if ((cp = strtok(NULL, " \t")) == NULL)
     return -1;
 
   strncpy(eth->name, cp, MAXNAMELEN);
@@ -1442,6 +1442,59 @@ static guint ipxnet_addr_lookup(const gchar *name, gboolean *success)
 
 } /* ipxnet_addr_lookup */
 
+#ifdef HAVE_GNU_ADNS
+static void
+read_hosts_file (FILE *hf)
+{
+  char *line = NULL;
+  int size = 0;
+  gchar *cp;
+  guint32 host_addr[4]; /* IPv4 or IPv6 */
+  gboolean is_ipv6;
+  int ret;
+
+  /*
+   *  See the hosts(4) or hosts(5) man page for hosts file format
+   *  (not available on all systems).
+   */
+  while (fgetline(&line, &size, hf) >= 0) {
+    if ((cp = strchr(line, '#')))
+      *cp = '\0';
+
+    if ((cp = strtok(line, " \t")) == NULL)
+      continue; /* no tokens in the line */
+
+    ret = inet_pton(AF_INET6, cp, &host_addr);
+    if (ret == -1)
+      continue; /* error parsing */
+    if (ret == 1) {
+      /* Valid IPv6 */
+      is_ipv6 = TRUE;
+    } else {
+      /* Not valid IPv6 - valid IPv4? */
+      if (inet_pton(AF_INET, cp, &host_addr) != 1)
+        continue; /* no */
+      is_ipv6 = FALSE;
+    }
+
+    if ((cp = strtok(NULL, " \t")) == NULL)
+      continue; /* no host name */
+
+    if (!is_ipv6)
+      add_host_name(host_addr[0], cp);
+
+    /*
+     * Add the aliases, too, if there are any.
+     */
+    while ((cp = strtok(NULL, " \t")) != NULL) {
+      if (!is_ipv6)
+        add_host_name(host_addr[0], cp);
+    }
+  }
+  if (line != NULL)
+    g_free(line);
+} /* read_hosts_file */
+#endif
 
 /*
  *  External Functions
@@ -1451,6 +1504,29 @@ static guint ipxnet_addr_lookup(const gchar *name, gboolean *success)
 
 void
 host_name_lookup_init(void) {
+
+  FILE *hf;
+  char *hostspath;
+  #ifdef WIN32
+  char *sysroot;
+  static char rootpath[] = "\\system32\\drivers\\etc\\hosts";
+  #endif
+
+#ifdef WIN32
+  sysroot = getenv("SYSTEMROOT");
+  hostspath = g_malloc(strlen(sysroot) + sizeof rootpath);
+  strcpy(hostspath, sysroot)
+  strcat(hostpath, rootpath);
+#else
+  hostspath = g_strdup("/etc/hosts");
+#endif
+
+  if ((hf = fopen(hostspath, "r")) != NULL) {
+    read_hosts_file(hf);
+    fclose(hf);
+  }
+  g_free(hostspath);
+
   /* XXX - Any flags we should be using? */
   /* XXX - We could provide config settings for DNS servers, and
            pass them to ADNS with adns_init_strcfg */
