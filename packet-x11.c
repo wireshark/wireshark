@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.8 2000/06/15 04:09:22 guy Exp $
+ * $Id: packet-x11.c,v 1.9 2000/06/17 03:05:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -2778,7 +2778,7 @@ guess_byte_ordering(tvbuff_t *tvb)
       be = x_endian_match(tvb, tvb_get_ntohs);
 
       /* remember that "decision" really means "little_endian". */
-      if (le == be)
+      if (le == be) {
 	    /* We have no reason to believe it's little- rather than
 	       big-endian, so we guess the shortest length is the
 	       right one.
@@ -2792,7 +2792,7 @@ guess_byte_ordering(tvbuff_t *tvb)
 		  decision = TRUE;
 	    else
 		  decision = tvb_get_letohs(tvb, 2) <= tvb_get_ntohs(tvb, 2);
-      else
+      } else
 	  decision = le >= be;
 
       decisionToCache = (le < 0 && be > 0) || (le > 0 && be < 0);
