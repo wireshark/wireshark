@@ -414,6 +414,10 @@ packets or not.
 
 =back
 
+=head1 CAPTURE FILTER SYNTAX
+
+See manual page of tcpdump(8).
+
 =head1 DISPLAY FILTER SYNTAX
 
 Display filters help you remove the noise from a packet trace and let you see only
