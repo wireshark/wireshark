@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.1 2000/05/27 13:53:26 gram Exp $
+ * $Id: packet-mip.c,v 1.2 2000/05/27 15:46:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -174,7 +174,7 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		 col_add_str(fd, COL_INFO, "Mobile IP Registration Request");
 	
 	  if (tree) {
-		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, END_OF_FRAME, NULL);
+		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), NULL);
 	   	 mip_tree = proto_item_add_subtree(ti, ett_mip);
 		 proto_tree_add_item(mip_tree, hf_mip_type, 0, 1, type);
 
@@ -202,7 +202,7 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
 	  if (tree) {
-		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, END_OF_FRAME, NULL);
+		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), NULL);
 	   	 mip_tree = proto_item_add_subtree(ti, ett_mip);
 		 proto_tree_add_item(mip_tree, hf_mip_type, tvb, 0, 1, type);
 
