@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-pcre.c,v 1.1 2003/12/09 23:02:39 obiot Exp $
+ * $Id: ftype-pcre.c,v 1.2 2004/01/25 17:33:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,8 +57,8 @@ pcre_tuple_new(const char *value)
 			);
 	if (pcre_error_text) {
 		tuple->error = g_strdup_printf("In regular expression \"%s\":\n"
-				"%s (character position %u)",
-				(char *)value, pcre_error_text, pcre_error_offset);
+				"%s (character position %d)",
+				value, pcre_error_text, pcre_error_offset);
 		return tuple;
 	} else {
 		tuple->error = NULL;
@@ -69,11 +69,11 @@ pcre_tuple_new(const char *value)
 		if (tuple->error) {
 			tuple->error = g_strdup_printf("In regular expression \"%s\":\n"
 					"%s. %s",
-					(char *)value, tuple->error, pcre_error_text);
+					value, tuple->error, pcre_error_text);
 		} else {
 			tuple->error = g_strdup_printf("In regular expression \"%s\":\n"
 					"%s",
-					(char *)value, pcre_error_text);
+					value, pcre_error_text);
 		}
 	}
 	return tuple;
