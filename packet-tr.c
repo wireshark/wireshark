@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.53 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-tr.c,v 1.54 2001/01/03 10:34:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,7 +38,6 @@
 #include "packet.h"
 #include "packet-tr.h"
 #include "packet-llc.h"
-#include "packet-trmac.h"
 	
 static int proto_tr = -1;
 static int hf_tr_dst = -1;
@@ -116,6 +115,9 @@ static const value_string direction_vals[] = {
 	{ 128,	"To originating station (<--)" },
 	{ 0,	NULL }
 };
+
+static dissector_handle_t trmac_handle;
+static dissector_handle_t llc_handle;
 
 /*
  * DODGY LINUX HACK DODGY LINUX HACK
@@ -522,10 +524,10 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (frame_type) {
 		/* MAC */
 		case 0:
-			dissect_trmac(next_tvb, pinfo, tree);
+			call_dissector(trmac_handle, next_tvb, pinfo, tree);
 			break;
 		case 1:
-			dissect_llc(next_tvb, pinfo, tree);
+			call_dissector(llc_handle, next_tvb, pinfo, tree);
 			break;
 		default:
 			/* non-MAC, non-LLC, i.e., "Reserved" */
@@ -674,5 +676,11 @@ proto_register_tr(void)
 void
 proto_reg_handoff_tr(void)
 {
+	/*
+	 * Get handles for the TR MAC and LLC dissectors.
+	 */
+	trmac_handle = find_dissector("trmac");
+	llc_handle = find_dissector("llc");
+
 	dissector_add("wtap_encap", WTAP_ENCAP_TOKEN_RING, dissect_tr);
 }

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.7 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.8 2001/01/03 10:34:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -277,6 +277,9 @@ static gint ett_cap_tree = -1;
 static gint ett_fc_tree = -1;
 static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
+
+static dissector_handle_t llc_handle;
+
 /* ************************************************************************* */
 /*                                                                           */
 /* ************************************************************************* */
@@ -1337,8 +1340,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 
 	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-	  dissect_llc (next_tvb, pinfo, tree);
-
+	  call_dissector (llc_handle, next_tvb, pinfo, tree);
 	}
       break;
 
@@ -1351,7 +1353,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 
 	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-	  dissect_llc (next_tvb, pinfo, tree);
+	  call_dissector (llc_handle, next_tvb, pinfo, tree);
 	}
       break;
 
@@ -1363,7 +1365,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-	  dissect_llc (next_tvb, pinfo, tree);
+	  call_dissector (llc_handle, next_tvb, pinfo, tree);
 	}
       break;
 
@@ -1375,7 +1377,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-	  dissect_llc (next_tvb, pinfo, tree);
+	  call_dissector (llc_handle, next_tvb, pinfo, tree);
 	}
       break;
 
@@ -1744,5 +1746,10 @@ proto_register_wlan (void)
 void
 proto_reg_handoff_wlan(void)
 {
-	dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, dissect_ieee80211);
+  /*
+   * Get a handle for the LLC dissector.
+   */
+  llc_handle = find_dissector("llc");
+
+  dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, dissect_ieee80211);
 }

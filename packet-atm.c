@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.29 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-atm.c,v 1.30 2001/01/03 10:34:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -482,6 +482,8 @@ static const value_string ipsilon_type_vals[] = {
 	{ 0,                NULL }
 };
 
+static dissector_handle_t llc_handle;
+
 /*
  * We don't know what kind of traffic this is; try to guess.
  * We at least know it's AAL5....
@@ -731,7 +733,7 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
       /* The ATM iptrace capture that we have shows LLC at this point,
        * so that's what I'm calling */
-      dissect_llc(tvb, &pi, tree);
+      call_dissector(llc_handle, tvb, pinfo, tree);
       break;
 
     case ATT_HL_LANE:
@@ -794,5 +796,10 @@ proto_register_atm(void)
 void
 proto_reg_handoff_atm(void)
 {
+	/*
+	 * Get a handle for the LLC dissector.
+	 */
+	llc_handle = find_dissector("llc");
+
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, dissect_atm);
 }

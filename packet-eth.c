@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.52 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-eth.c,v 1.53 2001/01/03 10:34:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,7 @@ static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
 
 static dissector_handle_t isl_handle;
+static dissector_handle_t llc_handle;
 
 #define ETH_HEADER_SIZE	14
 
@@ -62,10 +63,10 @@ static dissector_handle_t isl_handle;
 	EthernetII: The ethernet with a Type field instead of a length field
 	Ethernet802.2: An 802.3 header followed by an 802.2 header
 	Ethernet802.3: A raw 802.3 packet. IPX/SPX can be the only payload.
-			There's not 802.2 hdr in this.
+			There's no 802.2 hdr in this.
 	EthernetSNAP: Basically 802.2, just with 802.2SNAP. For our purposes,
 		there's no difference between 802.2 and 802.2SNAP, since we just
-		pass it down to dissect_llc(). -- Gilbert
+		pass it down to the LLC dissector. -- Gilbert
 */
 #define ETHERNET_II 	0
 #define ETHERNET_802_2	1
@@ -304,7 +305,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_ipx(next_tvb, pinfo, tree);
       break;
     case ETHERNET_802_2:
-      dissect_llc(next_tvb, pinfo, tree);
+      call_dissector(llc_handle, next_tvb, pinfo, tree);
       break;
     case ETHERNET_II:
       length_before = tvb_reported_length(tvb);
@@ -386,9 +387,10 @@ void
 proto_reg_handoff_eth(void)
 {
 	/*
-	 * Get a handle for the ISL dissector.
+	 * Get handles for the ISL and LLC dissectors.
 	 */
 	isl_handle = find_dissector("isl");
+	llc_handle = find_dissector("llc");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, dissect_eth);
 }
