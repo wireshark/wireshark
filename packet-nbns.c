@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.38 2000/03/12 04:47:42 gram Exp $
+ * $Id: packet-nbns.c,v 1.39 2000/04/08 07:07:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,6 +78,10 @@ static int hf_nbss_flags = -1;
 
 static gint ett_nbss = -1;
 static gint ett_nbss_flags = -1;
+
+#define UDP_PORT_NBNS	137
+#define UDP_PORT_NBDGM	138
+#define TCP_PORT_NBSS	139
 
 /* Packet structure taken from RFC 1002. See also RFC 1001.
  * Opcode, flags, and rcode treated as "flags", similarly to DNS,
@@ -1110,7 +1114,7 @@ dissect_answer_records(const u_char *pd, int cur_off, int nbns_data_offset,
 	return cur_off - start_off;
 }
 
-void
+static void
 dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	int			nbns_data_offset;
@@ -1238,7 +1242,7 @@ struct nbdgm_header {
 	guint8		error_code;
 };
 
-void
+static void
 dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree		*nbdgm_tree = NULL;
@@ -1543,7 +1547,7 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	return length + 4;
 }
 
-void
+static void
 dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	guint8		msg_type;
@@ -1704,4 +1708,12 @@ proto_register_nbt(void)
   proto_register_field_array(proto_nbss, hf_nbss, array_length(hf_nbss));
 
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_nbt(void)
+{
+  dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns);
+  dissector_add("udp.port", UDP_PORT_NBDGM, dissect_nbdgm);
+  dissector_add("tcp.port", TCP_PORT_NBSS, dissect_nbss);
 }

@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.12 2000/01/07 22:05:31 guy Exp $
+ * $Id: packet-isakmp.c,v 1.13 2000/04/08 07:07:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,8 @@ static int proto_isakmp = -1;
 static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
+
+#define UDP_PORT_ISAKMP	500
 
 #define NUM_PROTO_TYPES	5
 #define proto2str(t)	\
@@ -333,7 +335,8 @@ static struct strfunc {
   {"Vendor ID",			dissect_vid       }
 };
 
-void dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+static void
+dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   struct isakmp_hdr *	hdr = (struct isakmp_hdr *)(pd + offset);
   guint32		len;
@@ -1278,4 +1281,10 @@ proto_register_isakmp(void)
         proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol", "isakmp");
  /*       proto_register_field_array(proto_isakmp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_isakmp(void)
+{
+	dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp);
 }

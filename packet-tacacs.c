@@ -1,7 +1,7 @@
 /* packet-tacacs.c
  * Routines for cisco tacacs/tacplus/AAA packet dissection
  *
- * $Id: packet-tacacs.c,v 1.2 2000/01/07 22:05:41 guy Exp $
+ * $Id: packet-tacacs.c,v 1.3 2000/04/08 07:07:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,13 +49,16 @@ static int hf_tacacs_version = -1;
 
 static gint ett_tacacs = -1;
 
-void
+#define UDP_PORT_TACACS	49
+#define TCP_PORT_TACACS	49
+
+static void
 dissect_tacacs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *tacacs_tree, *ti;
 
 	if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "TACACS");
+		col_add_str(fd, COL_PROTOCOL, "TACACS");
 
 	if (check_col(fd, COL_INFO))
 	{
@@ -87,7 +90,7 @@ dissect_tacacs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 }
 
-void
+static void
 dissect_tacplus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *tacacs_tree, *ti;
@@ -149,4 +152,11 @@ proto_register_tacacs(void)
 	proto_tacacs = proto_register_protocol("TACACS", "tacacs");
 	proto_register_field_array(proto_tacacs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_tacacs(void)
+{
+	dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs);
+	dissector_add("tcp.port", TCP_PORT_TACACS, dissect_tacplus);
 }

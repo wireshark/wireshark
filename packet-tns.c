@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for MSX tns packet dissection
  *
- * $Id: packet-tns.c,v 1.4 2000/01/07 22:05:41 guy Exp $
+ * $Id: packet-tns.c,v 1.5 2000/04/08 07:07:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,12 +63,14 @@ static gint ett_tns_sns = -1;
 static gint ett_tns_connect = -1;
 static gint ett_sql = -1;
 
+#define TCP_PORT_TNS			1521
+
 static const value_string tns_type_vals[] = {
 		{TNS_TYPE_CONNECT, "Connect" },
 		{TNS_TYPE_ACCEPT, "Accept" },
 		{TNS_TYPE_DATA, "Data" },
 		{TNS_TYPE_RESEND, "Resend"},
-        {0, NULL}
+	        {0, NULL}
 };
 
 
@@ -76,7 +78,7 @@ static const value_string tns_type_vals[] = {
 #define TRUNC(length) if ( ! BYTES_ARE_IN_FRAME(offset, length)) { \
 			dissect_data(pd,offset,fd,tree); return; }
 
-void dissect_tns_sns(const u_char *pd, int offset, frame_data *fd, 
+static void dissect_tns_sns(const u_char *pd, int offset, frame_data *fd, 
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *sns_tree = NULL, *ti;
@@ -100,7 +102,7 @@ void dissect_tns_sns(const u_char *pd, int offset, frame_data *fd,
 	}
 }
 
-void dissect_tns_data(const u_char *pd, int offset, frame_data *fd, 
+static void dissect_tns_data(const u_char *pd, int offset, frame_data *fd, 
 	proto_tree *tree, proto_tree *tns_tree)
 {
 
@@ -126,7 +128,7 @@ void dissect_tns_data(const u_char *pd, int offset, frame_data *fd,
 	return;
 }
 
-void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd, 
+static void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd, 
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *connect_tree = NULL, *ti;
@@ -176,7 +178,7 @@ void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd,
 	return;
 }
 
-void dissect_tns_accept(const u_char *pd, int offset, frame_data *fd, 
+static void dissect_tns_accept(const u_char *pd, int offset, frame_data *fd, 
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	dissect_data(pd,offset,fd,tns_tree);
@@ -184,7 +186,7 @@ void dissect_tns_accept(const u_char *pd, int offset, frame_data *fd,
 }
 
 
-void
+static void
 dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *tns_tree = NULL, *ti;
@@ -192,7 +194,7 @@ dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	guint16 type;
 
 	if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "TNS");
+		col_add_str(fd, COL_PROTOCOL, "TNS");
 
 	if (check_col(fd, COL_INFO))
 	{
@@ -342,4 +344,10 @@ void proto_register_tns(void)
 		"Transparent Network Substrate Protocol", "tns");
 	proto_register_field_array(proto_tns, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_tns(void)
+{
+	dissector_add("tcp.port", TCP_PORT_TNS, dissect_tns);
 }

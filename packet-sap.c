@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.5 2000/02/15 21:03:07 gram Exp $
+ * $Id: packet-sap.c,v 1.6 2000/04/08 07:07:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,8 @@
 #include "packet.h"
 #include "packet-ipv6.h"
 #include "packet-sdp.h"
+
+#define UDP_PORT_SAP	9875
 
 #define MCAST_SAP_VERSION_MASK 0xE0 /* 3 bits for  SAP version*/
 #define MCAST_SAP_VERSION_SHIFT 5   /* Right shift 5 bits to get the version */
@@ -124,7 +126,8 @@ static gint ett_sap_flags = -1;
 static gint ett_sap_auth = -1;
 static gint ett_sap_authf = -1;
 
-void dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void
+dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         int sap_version, is_ipv6, is_del, is_enc, is_comp, addr_len;
         guint8 auth_len;
@@ -315,4 +318,10 @@ void proto_register_sap(void)
   proto_sap = proto_register_protocol("Session Announcement Protocol", "sap");
   proto_register_field_array(proto_sap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_sap(void)
+{
+  dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
 }

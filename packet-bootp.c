@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.29 2000/03/29 09:29:16 guy Exp $
+ * $Id: packet-bootp.c,v 1.30 2000/04/08 07:07:10 guy Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -60,6 +60,8 @@ static int hf_bootp_cookie = -1;
 
 static guint ett_bootp = -1;
 static guint ett_bootp_option = -1;
+
+#define UDP_PORT_BOOTPS  67
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
@@ -552,7 +554,7 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 	return consumed;
 }
 
-void
+static void
 dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree	*bp_tree;
@@ -743,4 +745,10 @@ proto_register_bootp(void)
   proto_bootp = proto_register_protocol("Bootstrap Protocol", "bootp");
   proto_register_field_array(proto_bootp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_bootp(void)
+{
+  dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
 }

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id
+ * $Id: packet-bgp.c,v 1.21 2000/04/08 07:07:08 guy Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -67,6 +67,8 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
+
+#define TCP_PORT_BGP			179
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN, "OPEN Message" },
@@ -1091,7 +1093,7 @@ dissect_bgp_notification(const u_char *pd, int offset, frame_data *fd,
 /*
  * Dissect a BGP packet.
  */
-void
+static void
 dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_item    *ti;           /* tree item                        */
@@ -1265,4 +1267,10 @@ proto_register_bgp(void)
 
     proto_bgp = proto_register_protocol("Border Gateway Protocol", "bgp");
     proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_bgp(void)
+{
+    dissector_add("tcp.port", TCP_PORT_BGP, dissect_bgp);
 }

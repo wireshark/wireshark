@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.12 2000/03/12 04:47:37 gram Exp $
+ * $Id: packet-ftp.c,v 1.13 2000/04/08 07:07:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,7 +54,10 @@ static int hf_ftp_response_data = -1;
 
 static gint ett_ftp = -1;
 
-void
+#define TCP_PORT_FTPDATA		20
+#define TCP_PORT_FTP			21
+
+static void
 dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         proto_tree      *ftp_tree, *ti;
@@ -137,7 +140,7 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 }
 
-void
+static void
 dissect_ftpdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         proto_tree      *ti;
@@ -195,3 +198,11 @@ proto_register_ftp(void)
   proto_register_field_array(proto_ftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_ftp(void)
+{
+	dissector_add("tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata);
+	dissector_add("tcp.port", TCP_PORT_FTP, &dissect_ftp);
+}
+

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.2 2000/01/07 22:05:31 guy Exp $
+ * $Id: packet-hsrp.c,v 1.3 2000/04/08 07:07:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,8 @@
 
 static gint proto_hsrp = -1;
 static gint ett_hsrp = -1;
+
+#define UDP_PORT_HSRP   1985
 
 struct hsrp_packet {          /* Multicast to 224.0.0.2, TTL 1, UDP, port 1985 */
         guint8  version;      /* RFC2281 describes version 0 */
@@ -85,7 +87,8 @@ static const value_string hsrp_state_vals[] = {
         {HSRP_STATE_ACTIVE,  "Active"}
 };
 
-void dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void
+dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         struct hsrp_packet hsrp;
         gboolean short_packet = FALSE;
@@ -159,4 +162,10 @@ void proto_register_hsrp(void)
         proto_register_subtree_array(ett, array_length(ett));
 
         return;
+}
+
+void
+proto_reg_handoff_hsrp(void)
+{
+	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
 }

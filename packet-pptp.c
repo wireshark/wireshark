@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.8 2000/01/20 07:31:29 guy Exp $
+ * $Id: packet-pptp.c,v 1.9 2000/04/08 07:07:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,8 @@
 #include "packet.h"
 
 static gint ett_pptp = -1;
+
+#define TCP_PORT_PPTP			1723
 
 #define NUM_MSG_TYPES		3
 #define msgtype2str(t)	\
@@ -376,7 +378,7 @@ struct set_link
   guint32	recv_acm;
 };
 
-void
+static void
 dissect_pptp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   struct pptp_hdr *	hdr = (struct pptp_hdr *)(pd + offset);
@@ -896,4 +898,10 @@ proto_register_pptp(void)
   };
 
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_pptp(void)
+{
+  dissector_add("tcp.port", TCP_PORT_PPTP, dissect_pptp);
 }

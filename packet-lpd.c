@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.16 2000/01/22 06:22:14 guy Exp $
+ * $Id: packet-lpd.c,v 1.17 2000/04/08 07:07:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,8 @@
 #include <glib.h>
 #include "packet.h"
 
+#define TCP_PORT_PRINTER		515
+
 static int proto_lpd = -1;
 static int hf_lpd_response = -1;
 static int hf_lpd_request = -1;
@@ -47,7 +49,7 @@ enum lpr_type { request, response, unknown };
 
 static char* find_printer_string(const u_char *pd, int offset, int frame_length);
 
-void
+static void
 dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree	*lpd_tree;
@@ -195,3 +197,8 @@ proto_register_lpd(void)
   proto_register_subtree_array(ett, array_length(ett));
 }
 
+void
+proto_reg_handoff_lpd(void)
+{
+  dissector_add("tcp.port", TCP_PORT_PRINTER, &dissect_lpd);
+}

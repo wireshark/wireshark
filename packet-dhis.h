@@ -3,7 +3,7 @@
  * see http://dhis.sourceforge.net/
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-dhis.h,v 1.2 2000/02/23 22:41:15 oabad Exp $
+ * $Id: packet-dhis.h,v 1.3 2000/04/08 07:07:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,5 +49,3 @@
 #define DHIS_INVALID_PASSWORD	2
 #define DHIS_INVALID_ACCOUNT	3
 #define DHIS_INVALID_OPCODE	4
-
-void dissect_dhis(const u_char *, int, frame_data *, proto_tree *);

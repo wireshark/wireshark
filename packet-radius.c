@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.10 2000/04/05 16:01:39 gram Exp $
+ * $Id: packet-radius.c,v 1.11 2000/04/08 07:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -47,6 +47,11 @@ static int hf_radius_id =-1;
 
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
+
+#define UDP_PORT_RADIUS		1645
+#define UDP_PORT_RADIUS_NEW	1812
+#define UDP_PORT_RADACCT	1646
+#define UDP_PORT_RADACCT_NEW	1813
 
 typedef struct _e_radiushdr {
         guint8 rh_code;
@@ -661,7 +666,7 @@ void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
   }
 }
 
-void dissect_radius(const u_char *pd, int offset, frame_data *fd, 
+static void dissect_radius(const u_char *pd, int offset, frame_data *fd, 
 proto_tree
 *tree)
 {
@@ -762,4 +767,13 @@ proto_register_radius(void)
 	proto_radius = proto_register_protocol ("Radius Protocol", "radius");
 	proto_register_field_array(proto_radius, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_radius(void)
+{
+	dissector_add("udp.port", UDP_PORT_RADIUS, dissect_radius);
+	dissector_add("udp.port", UDP_PORT_RADIUS_NEW, dissect_radius);
+	dissector_add("udp.port", UDP_PORT_RADACCT, dissect_radius);
+	dissector_add("udp.port", UDP_PORT_RADACCT_NEW, dissect_radius);
 }

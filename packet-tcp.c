@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.65 2000/04/08 03:32:10 guy Exp $
+ * $Id: packet-tcp.c,v 1.66 2000/04/08 07:07:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,28 +52,9 @@
 
 #include "plugins.h"
 
-#include "packet-bgp.h"
 #include "packet-ip.h"
-#include "packet-ftp.h"
 #include "packet-giop.h"
-#include "packet-http.h"
-#include "packet-imap.h"
-#include "packet-irc.h"
-#include "packet-ldap.h"
-#include "packet-lpd.h"
-#include "packet-mapi.h"
-#include "packet-nbns.h"
-#include "packet-ncp.h"
-#include "packet-nntp.h"
-#include "packet-ntp.h"
-#include "packet-pop.h"
-#include "packet-pptp.h"
 #include "packet-rpc.h"
-#include "packet-rtsp.h"
-#include "packet-srvloc.h"
-#include "packet-tacacs.h"
-#include "packet-telnet.h"
-#include "packet-tns.h"
 #include "packet-yhoo.h"
 
 extern FILE* data_out_file;
@@ -110,32 +91,8 @@ static dissector_table_t subdissector_table;
 
 /* TCP Ports */
 
-#define TCP_PORT_FTPDATA		20
-#define TCP_PORT_FTP			21
-#define TCP_PORT_TELNET			23
 #define TCP_PORT_SMTP			25
-#define TCP_PORT_HTTP			80
-#define TCP_PORT_TACACS			49
-#define TCP_PORT_POP			110
-#define TCP_PORT_NNTP			119
-#define TCP_PORT_NTP			123
-#define TCP_PORT_NBSS			139
-#define TCP_PORT_IMAP			143
-#define TCP_PORT_BGP			179
-#define TCP_PORT_LDAP			389
-#define TCP_PORT_SRVLOC			427
-#define TCP_PORT_PRINTER		515
-#define TCP_PORT_NCP			524
-#define TCP_PORT_RTSP			554
-#define TCP_PORT_MAPI			1065
-#define TCP_PORT_TNS			1521
-#define TCP_PORT_PPTP			1723
-#define TCP_PORT_PROXY_HTTP		3128
-#define TCP_PORT_PROXY_ADMIN_HTTP	3132
 #define TCP_PORT_YHOO			5050
-#define TCP_ALT_PORT_HTTP		8080
-#define TCP_PORT_IRC			6667
-	/* good candidate for dynamic port specification */
 
 /* TCP structs and definitions */
 
@@ -661,30 +618,4 @@ proto_register_tcp(void)
 
 /* subdissector code */
 	subdissector_table = register_dissector_table(hf_tcp_port);
-
-	dissector_add( "tcp.port", TCP_PORT_PRINTER, &dissect_lpd);
-	dissector_add( "tcp.port", TCP_PORT_TELNET, &dissect_telnet);
-	dissector_add( "tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata);
-	dissector_add( "tcp.port", TCP_PORT_FTP, &dissect_ftp);
-	dissector_add( "tcp.port", TCP_PORT_POP, &dissect_pop);
-	dissector_add( "tcp.port", TCP_PORT_IMAP, &dissect_imap);
-	dissector_add( "tcp.port", TCP_PORT_NNTP, &dissect_nntp);
-	dissector_add( "tcp.port", TCP_PORT_NTP, &dissect_ntp);
-	dissector_add( "tcp.port", TCP_PORT_PPTP, &dissect_pptp);
-	dissector_add( "tcp.port", TCP_PORT_PPTP, &dissect_pptp);
-	dissector_add( "tcp.port", TCP_PORT_HTTP, &dissect_http);
-	dissector_add( "tcp.port", TCP_ALT_PORT_HTTP, &dissect_http);
-	dissector_add( "tcp.port", 631, &dissect_http);	/* IPP */
-	dissector_add( "tcp.port", TCP_PORT_PROXY_HTTP, &dissect_http);
-	dissector_add( "tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, &dissect_http);
-	dissector_add( "tcp.port", TCP_PORT_NBSS, &dissect_nbss);
-	dissector_add( "tcp.port", TCP_PORT_RTSP, &dissect_rtsp);
-	dissector_add( "tcp.port", TCP_PORT_BGP, &dissect_bgp);
-	dissector_add( "tcp.port", TCP_PORT_TACACS, &dissect_tacplus);
-	dissector_add( "tcp.port", TCP_PORT_MAPI, &dissect_mapi);
-	dissector_add( "tcp.port", TCP_PORT_TNS, &dissect_tns);
-	dissector_add( "tcp.port", TCP_PORT_IRC, &dissect_irc);
-	dissector_add( "tcp.port", TCP_PORT_LDAP, &dissect_ldap);
-	dissector_add( "tcp.port", TCP_PORT_SRVLOC, &dissect_srvloc);
-	dissector_add( "tcp.port", TCP_PORT_NCP, &dissect_ncp);
 }

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.51 2000/03/20 22:52:41 gram Exp $
+ * $Id: packet-ipx.c,v 1.52 2000/04/08 07:07:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,6 +109,8 @@ static void
 dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 typedef	void	(dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
+
+#define UDP_PORT_IPX    213		/* RFC 1234 */
 
 struct port_info {
 	guint16	port;
@@ -965,4 +967,10 @@ proto_register_ipx(void)
 	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
 
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ipx(void)
+{
+	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx);
 }

@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.58 2000/04/04 22:26:36 oabad Exp $
+ * $Id: packet-udp.c,v 1.59 2000/04/08 07:07:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,32 +46,12 @@
 
 #include "plugins.h"
 
-#include "packet-auto_rp.h"
-#include "packet-bootp.h"
-#include "packet-dhis.h"
-#include "packet-hsrp.h"
-#include "packet-icp.h"
-#include "packet-icq.h"
-#include "packet-ipx.h"
-#include "packet-isakmp.h"
-#include "packet-l2tp.h"
-#include "packet-nbns.h"
 #include "packet-ncp.h"
-#include "packet-ntp.h"
-#include "packet-radius.h"
 #include "packet-rip.h"
-#include "packet-ripng.h"
 #include "packet-rpc.h"
 #include "packet-rx.h"
-#include "packet-sap.h"
-#include "packet-snmp.h"
-#include "packet-srvloc.h"
-#include "packet-tacacs.h"
 #include "packet-tftp.h"
-#include "packet-time.h"
 #include "packet-vines.h"
-#include "packet-wccp.h"
-#include "packet-who.h"
 
 static int proto_udp = -1;		
 static int hf_udp_srcport = -1;
@@ -93,39 +73,13 @@ typedef struct _e_udphdr {
 
 /* UDP Ports -> should go in packet-udp.h */
 
-#define UDP_PORT_TIME    37
-#define UDP_PORT_TACACS  49
-#define UDP_PORT_BOOTPS  67
 #define UDP_PORT_TFTP    69
-#define UDP_PORT_NTP	123
-#define UDP_PORT_NBNS	137
-#define UDP_PORT_NBDGM	138
-#define UDP_PORT_SNMP   161
-#define UDP_PORT_SNMP_TRAP 162
-#define UDP_PORT_IPX    213		/* RFC 1234 */
-#define UDP_PORT_SRVLOC 427
-#define UDP_PORT_PIM_RP_DISC 496
-#define UDP_PORT_ISAKMP	500
-#define UDP_PORT_WHO    513
 #define UDP_PORT_RIP    520
-#define UDP_PORT_RIPNG  521
 #define UDP_PORT_NCP    524
 #define UDP_PORT_VINES	573
-#define UDP_PORT_RADIUS 1645
-#define UDP_PORT_L2TP   1701
-#define UDP_PORT_RADIUS_NEW 1812
-#define UDP_PORT_RADACCT 1646
-#define UDP_PORT_RADACCT_NEW 1813
-#define UDP_PORT_HSRP   1985
-#define UDP_PORT_ICP    3130
-#define UDP_PORT_ICQ	4000
-#define UDP_PORT_SAP	9875
 #define UDP_PORT_RX_LOW 7000
 #define UDP_PORT_RX_HIGH 7009
 #define UDP_PORT_RX_AFS_BACKUPS 7021
-#define UDP_PORT_WCCP	2048
-#define UDP_PORT_DHIS1	58800
-#define UDP_PORT_DHIS2	58801
 
 static dissector_table_t udp_dissector_table;
 
@@ -265,36 +219,4 @@ proto_register_udp(void)
 
 /* subdissector code */
 	udp_dissector_table = register_dissector_table(hf_udp_port);
-
-	/* Now add the protocols we know about.
-	   XXX - we should add all the UDP ports this way, rather
-	   than having the giant "if", just as is now done in
-	   "packet-tcp.c". */
-
-	dissector_add("udp.port", UDP_PORT_TIME, dissect_time);
-	dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs);
-	dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
-	dissector_add("udp.port", UDP_PORT_NTP, dissect_ntp);
-	dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns);
-	dissector_add("udp.port", UDP_PORT_NBDGM, dissect_nbdgm);
-	dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp);
-	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp);
-	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx);
-	dissector_add("udp.port", UDP_PORT_SRVLOC, dissect_srvloc);
-	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
-	dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp);
-	dissector_add("udp.port", UDP_PORT_WHO, dissect_who);
-	dissector_add("udp.port", UDP_PORT_RIPNG, dissect_ripng);
-	dissector_add("udp.port", UDP_PORT_RADIUS, dissect_radius);
-	dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp);
-	dissector_add("udp.port", UDP_PORT_RADIUS_NEW, dissect_radius);
-	dissector_add("udp.port", UDP_PORT_RADACCT, dissect_radius);
-	dissector_add("udp.port", UDP_PORT_RADACCT_NEW, dissect_radius);
-	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
-	dissector_add("udp.port", UDP_PORT_ICP, dissect_icp);
-	dissector_add("udp.port", UDP_PORT_ICQ, dissect_icq);
-	dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
-	dissector_add("udp.port", UDP_PORT_WCCP, dissect_wccp);
-	dissector_add("udp.port", UDP_PORT_DHIS1, dissect_dhis);
-	dissector_add("udp.port", UDP_PORT_DHIS2, dissect_dhis);
 }

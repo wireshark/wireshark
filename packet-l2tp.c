@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.7 2000/04/05 15:57:04 gram Exp $
+ * $Id: packet-l2tp.c,v 1.8 2000/04/08 07:07:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,7 @@ static int hf_l2tp_id =-1;
 #include "packet.h"
 #include "resolv.h"
 
-
+#define UDP_PORT_L2TP   1701
 
 #define CONTROL_BIT(msg_info) (msg_info & 0x8000)   /* Type bit control = 1 data = 0 */
 #define LENGTH_BIT(msg_info) (msg_info & 0x4000)    /* Length bit = 1  */ 
@@ -234,7 +234,9 @@ static const char *avptypestr[NUM_AVP_TYPES] = {
 
 
 static gchar textbuffer[200];
-void dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+
+static void
+dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
   proto_tree *l2tp_tree, *l2tp_avp_tree;
   proto_item *ti, *tf;
@@ -694,4 +696,10 @@ proto_register_l2tp(void)
 	proto_l2tp = proto_register_protocol ("L2TP Protocol", "l2tp");
 	proto_register_field_array(proto_l2tp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_l2tp(void)
+{
+	dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp);
 }

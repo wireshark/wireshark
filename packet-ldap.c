@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.8 2000/04/06 03:59:28 guy Exp $
+ * $Id: packet-ldap.c,v 1.9 2000/04/08 07:07:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,6 +113,8 @@ static gint ett_ldap = -1;
 static gint ett_ldap_message = -1;
 static gint ett_ldap_referrals = -1;
 static gint ett_ldap_attribute = -1;
+
+#define TCP_PORT_LDAP			389
 
 static value_string msgTypes [] = {
   {LDAP_REQ_BIND, "Bind Request"},
@@ -703,7 +705,7 @@ static int dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
   return 0;
 }
 
-void
+static void
 dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
   proto_tree *ldap_tree = 0, *ti, *msg_tree;
@@ -1036,3 +1038,10 @@ proto_register_ldap(void)
   proto_register_field_array(proto_ldap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_ldap(void)
+{
+  dissector_add("tcp.port", TCP_PORT_LDAP, dissect_ldap);
+}
+

@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TIME Option Extension
  *
- * $Id: packet-time.c,v 1.3 2000/03/20 22:52:48 gram Exp $
+ * $Id: packet-time.c,v 1.4 2000/04/08 07:07:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,7 +39,9 @@ static int hf_time_time = -1;
 
 static gint ett_time = -1;
 
-void
+#define UDP_PORT_TIME    37
+
+static void
 dissect_time(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
   proto_tree	*time_tree;
@@ -49,7 +51,7 @@ dissect_time(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     col_add_str(fd, COL_PROTOCOL, "TIME");
   
   if (check_col(fd, COL_INFO)) {
-    col_add_fstr(fd, COL_INFO, "TIME %s", pi.srcport == 37? "Response":"Request");
+    col_add_fstr(fd, COL_INFO, "TIME %s", pi.srcport == UDP_PORT_TIME? "Response":"Request");
   }
   
   if (tree) {
@@ -85,4 +87,10 @@ proto_register_time(void)
   proto_time = proto_register_protocol("Time Protocol", "time");
   proto_register_field_array(proto_time, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_time(void)
+{
+  dissector_add("udp.port", UDP_PORT_TIME, dissect_time);
 }

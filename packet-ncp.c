@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.31 2000/03/12 04:47:43 gram Exp $
+ * $Id: packet-ncp.c,v 1.32 2000/04/08 07:07:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,8 @@ static int hf_ncp_task = -1;
 static gint ett_ncp = -1;
 static gint ett_ncp_request_fields = -1;
 static gint ett_ncp_reply_fields = -1;
+
+#define TCP_PORT_NCP			524
 
 struct svc_record;
 
@@ -1033,4 +1035,10 @@ proto_register_ncp(void)
   proto_register_field_array(proto_ncp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine(&ncp_init_protocol);
+}
+
+void
+proto_reg_handoff_ncp(void)
+{
+  dissector_add("tcp.port", TCP_PORT_NCP, dissect_ncp);
 }

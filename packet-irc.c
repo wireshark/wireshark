@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for MSX irc packet dissection
  *
- * $Id: packet-irc.c,v 1.3 2000/01/07 22:05:31 guy Exp $
+ * $Id: packet-irc.c,v 1.4 2000/04/08 07:07:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,7 +49,11 @@ static int hf_irc_command = -1;
 
 static gint ett_irc = -1;
 
-void dissect_irc_request(proto_tree *tree, char *line, int offset, int len)
+#define TCP_PORT_IRC			6667
+	/* good candidate for dynamic port specification */
+
+static void
+dissect_irc_request(proto_tree *tree, char *line, int offset, int len)
 {
 	proto_tree_add_item_hidden(tree, hf_irc_request,
 		offset, len, TRUE);
@@ -57,7 +61,8 @@ void dissect_irc_request(proto_tree *tree, char *line, int offset, int len)
 		len, "Request Line: %s", line);
 }
 
-void dissect_irc_response(proto_tree *tree, char *line, int offset, int len)
+static void
+dissect_irc_response(proto_tree *tree, char *line, int offset, int len)
 {
 	proto_tree_add_item_hidden(tree, hf_irc_response,
 		offset, len, TRUE);
@@ -65,7 +70,7 @@ void dissect_irc_response(proto_tree *tree, char *line, int offset, int len)
 		len, "Response Line: %s", line);
 }
 
-void
+static void
 dissect_irc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *irc_tree, *ti;
@@ -156,3 +161,10 @@ proto_register_irc(void)
 	proto_register_field_array(proto_irc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_irc(void)
+{
+	dissector_add("tcp.port", TCP_PORT_IRC, dissect_irc);
+}
+

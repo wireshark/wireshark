@@ -1,6 +1,6 @@
 /* packet-ldap.h
  *
- * $Id: packet-ldap.h,v 1.3 2000/03/29 09:25:21 guy Exp $
+ * $Id: packet-ldap.h,v 1.4 2000/04/08 07:07:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,5 +72,3 @@
 #define LDAP_MOD_ADD            0
 #define LDAP_MOD_DELETE         1
 #define LDAP_MOD_REPLACE        2
-
-void dissect_ldap(const u_char *, int, frame_data *, proto_tree *);

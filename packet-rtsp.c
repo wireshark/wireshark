@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.8 2000/02/15 21:03:04 gram Exp $
+ * $Id: packet-rtsp.c,v 1.9 2000/04/08 07:07:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,8 @@ static int hf_rtsp_method = -1;
 static int hf_rtsp_url = -1;
 static int hf_rtsp_status = -1;
 
+#define TCP_PORT_RTSP			554
+
 static int process_rtsp_request_or_reply(const u_char *data, int offset,
 	int linelen, proto_tree *tree);
 
@@ -80,7 +82,7 @@ is_content_sdp(const u_char *line, int linelen)
 	return 1;
 }
 
-void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
+static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
 	proto_tree	*rtsp_tree;
@@ -323,4 +325,10 @@ proto_register_rtsp(void)
 		"rtsp");
 	proto_register_field_array(proto_rtsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_rtsp(void)
+{
+	dissector_add("tcp.port", TCP_PORT_RTSP, dissect_rtsp);
 }

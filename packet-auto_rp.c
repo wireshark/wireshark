@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.3 2000/03/12 04:47:35 gram Exp $
+ * $Id: packet-auto_rp.c,v 1.4 2000/04/08 07:07:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,8 @@ static gint hf_auto_rp_map = -1;
 static gint hf_auto_rp_pim_ver = -1;
 static gint hf_auto_rp_group = -1;
 static gint hf_auto_rp_mask_sgn = -1;
+
+#define UDP_PORT_PIM_RP_DISC 496
 
 struct auto_rp_fixed_hdr {
 #define AUTO_RP_VERSION_MASK 0xf0
@@ -116,7 +118,7 @@ static const value_string auto_rp_mask_sign_vals[] = {
 
 static int do_auto_rp_map(const u_char *pd, int offset, frame_data *fd, proto_tree *auto_rp_tree);
 
-void dissect_auto_rp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void dissect_auto_rp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         struct auto_rp_fixed_hdr arh;
         gboolean short_hdr = FALSE;
@@ -239,6 +241,12 @@ void proto_register_auto_rp(void)
         return;
 }
 
+void
+proto_reg_handoff_auto_rp(void)
+{
+	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
+}
+
 /*
  * Handles one Auto-RP map entry. Returns the number of bytes in the map entry or < 0 for error.
  */
@@ -290,4 +298,3 @@ static int do_auto_rp_map(const u_char *pd, int offset, frame_data *fd, proto_tr
 
         return offset;
 }
-

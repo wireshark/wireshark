@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.6 2000/01/22 02:00:24 guy Exp $
+ * $Id: packet-srvloc.c,v 1.7 2000/04/08 07:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,14 +59,17 @@
 #include "packet.h"
 #include "packet-ipv6.h"
 
-int proto_srvloc = -1;
-int hf_srvloc_version = -1;
-int hf_srvloc_function = -1;
-int hf_srvloc_flags = -1;
-int hf_srvloc_error = -1;
+static int proto_srvloc = -1;
+static int hf_srvloc_version = -1;
+static int hf_srvloc_function = -1;
+static int hf_srvloc_flags = -1;
+static int hf_srvloc_error = -1;
 
 static gint ett_srvloc = -1;
-gint ett_srvloc_flags = -1;
+static gint ett_srvloc_flags = -1;
+
+#define TCP_PORT_SRVLOC	427
+#define UDP_PORT_SRVLOC	427
 
 /* Define function types */
 
@@ -173,7 +176,7 @@ dissect_authblk(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 /* Packet dissection routine called by tcp & udp when port 427 detected */
 
-void
+static void
 dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_item *ti, *tf;
@@ -430,3 +433,11 @@ proto_register_srvloc(void)
     proto_register_field_array(proto_srvloc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 };
+
+void
+proto_reg_handoff_srvloc(void)
+{
+    dissector_add("tcp.port", TCP_PORT_SRVLOC, dissect_srvloc);
+    dissector_add("udp.port", UDP_PORT_SRVLOC, dissect_srvloc);
+}
+

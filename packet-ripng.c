@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.8 2000/03/12 04:47:48 gram Exp $
+ * $Id: packet-ripng.c,v 1.9 2000/04/08 07:07:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,7 +51,9 @@ static int hf_ripng_version = -1;
 static gint ett_ripng = -1;
 static gint ett_ripng_addr = -1;
 
-void 
+#define UDP_PORT_RIPNG  521
+
+static void 
 dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     struct rip6 rip6;
     struct netinfo6 ni6;
@@ -144,4 +146,10 @@ proto_register_ripng(void)
     proto_ripng = proto_register_protocol("RIPng", "ripng");
     proto_register_field_array(proto_ripng, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ripng(void)
+{
+    dissector_add("udp.port", UDP_PORT_RIPNG, dissect_ripng);
 }

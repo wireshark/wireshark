@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.12 2000/01/07 22:05:35 guy Exp $
+ * $Id: packet-pop.c,v 1.13 2000/04/08 07:07:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,9 +49,11 @@ static int hf_pop_request = -1;
 
 static gint ett_pop = -1;
 
+#define TCP_PORT_POP			110
+
 static gboolean is_continuation(const u_char *data);
 	
-void
+static void
 dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         proto_tree      *pop_tree, *ti;
@@ -126,6 +128,17 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 }
 
+static gboolean is_continuation(const u_char *data)
+{
+  if (strncmp(data, "+OK", strlen("+OK")) == 0)
+    return FALSE;
+
+  if (strncmp(data, "-ERR", strlen("-ERR")) == 0)
+    return FALSE;
+
+  return TRUE;
+}
+
 void
 proto_register_pop(void)
 {
@@ -150,13 +163,8 @@ proto_register_pop(void)
   proto_register_subtree_array(ett, array_length(ett));
 }
 
-static gboolean is_continuation(const u_char *data)
+void
+proto_reg_handoff_pop(void)
 {
-  if (strncmp(data, "+OK", strlen("+OK")) == 0)
-    return FALSE;
-
-  if (strncmp(data, "-ERR", strlen("-ERR")) == 0)
-    return FALSE;
-
-  return TRUE;
+  dissector_add("tcp.port", TCP_PORT_POP, dissect_pop);
 }

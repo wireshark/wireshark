@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.4 2000/01/07 22:05:32 guy Exp $
+ * $Id: packet-mapi.c,v 1.5 2000/04/08 07:07:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,13 +48,15 @@ static int hf_mapi_response = -1;
 
 static gint ett_mapi = -1;
 
-void
+#define TCP_PORT_MAPI			1065
+
+static void
 dissect_mapi(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *mapi_tree, *ti;
 
 	if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "MAPI");
+		col_add_str(fd, COL_PROTOCOL, "MAPI");
 
 	if (check_col(fd, COL_INFO))
 	{
@@ -105,4 +107,10 @@ proto_register_mapi(void)
 	proto_mapi = proto_register_protocol("MAPI", "mapi");
 	proto_register_field_array(proto_mapi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_mapi(void)
+{
+	dissector_add("tcp.port", TCP_PORT_MAPI, dissect_mapi);
 }

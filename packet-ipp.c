@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.7 2000/03/07 06:28:47 guy Exp $
+ * $Id: packet-ipp.c,v 1.8 2000/04/08 07:07:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-http.h"
 
 static int proto_ipp = -1;
 
@@ -571,3 +572,18 @@ proto_register_ipp(void)
  /*       proto_register_field_array(proto_ipp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_ipp(void)
+{
+	/* XXX - should we just register ourselves as a dissector,
+	   and call the HTTP dissector?
+
+	   Should we pass to it a pointer to our dissector, so that
+	   it knows to call us?
+
+	   Or should the HTTP dissector decide that the payload is
+	   IPP based on the MIME headers? */
+	dissector_add("tcp.port", 631, dissect_http);
+}
+

@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.5 2000/03/12 04:47:51 gram Exp $
+ * $Id: packet-wccp.c,v 1.6 2000/04/08 07:07:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,9 @@ static gint ett_cache_info = -1;
  *
  * if it hasn't expired yet.
  */
+
+#define UDP_PORT_WCCP	2048
+
 #define WCCPv1			0x0004
 #define WCCP_HERE_I_AM		7
 #define WCCP_I_SEE_YOU		8
@@ -89,7 +92,7 @@ static int wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree,
     guint32 start, int offset);
 static gchar *bucket_name(guint8 bucket);
 
-void 
+static void 
 dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree *wccp_tree = NULL;
@@ -333,4 +336,10 @@ proto_register_wccp(void)
 	    "wccp");
 	proto_register_field_array(proto_wccp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_wccp(void)
+{
+	dissector_add("udp.port", UDP_PORT_WCCP, dissect_wccp);
 }

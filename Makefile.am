@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.179 2000/04/08 03:32:09 guy Exp $
+# $Id: Makefile.am,v 1.180 2000/04/08 07:07:06 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -46,11 +46,9 @@ DISSECTOR_SOURCES = \
 	packet-atm.c   \
 	packet-atm.h   \
 	packet-auto_rp.c   \
-	packet-auto_rp.h   \
 	packet-bgp.c   \
 	packet-bgp.h   \
 	packet-bootp.c \
-	packet-bootp.h \
 	packet-bootparams.c \
 	packet-bootparams.h \
 	packet-bpdu.c  \
@@ -71,7 +69,6 @@ DISSECTOR_SOURCES = \
 	packet-fddi.c  \
 	packet-fddi.h  \
 	packet-ftp.c   \
-	packet-ftp.h   \
 	packet-giop.c  \
 	packet-giop.h  \
 	packet-gre.c   \
@@ -79,17 +76,13 @@ DISSECTOR_SOURCES = \
 	packet-h1.c    \
 	packet-h1.h    \
 	packet-hsrp.c  \
-	packet-hsrp.h  \
 	packet-http.c  \
 	packet-http.h  \
 	packet-icmpv6.c\
 	packet-icmpv6.h\
 	packet-icp.c   \
-	packet-icp.h   \
 	packet-icq.c   \
-	packet-icq.h   \
 	packet-imap.c   \
-	packet-imap.h   \
 	packet-ip.c    \
 	packet-ip.h    \
 	packet-ipp.c   \
@@ -101,9 +94,7 @@ DISSECTOR_SOURCES = \
 	packet-ipx.c   \
 	packet-ipx.h   \
 	packet-irc.c   \
-	packet-irc.h   \
 	packet-isakmp.c\
-	packet-isakmp.h\
 	packet-isis.h  \
 	packet-isis.c  \
 	packet-isis-clv.h \
@@ -117,7 +108,6 @@ DISSECTOR_SOURCES = \
 	packet-isl.c   \
 	packet-isl.h   \
 	packet-l2tp.c  \
-	packet-l2tp.h  \
 	packet-lapb.c  \
 	packet-lapb.h  \
 	packet-lapd.c  \
@@ -127,9 +117,7 @@ DISSECTOR_SOURCES = \
 	packet-llc.c   \
 	packet-llc.h   \
 	packet-lpd.c   \
-	packet-lpd.h   \
 	packet-mapi.c  \
-	packet-mapi.h  \
 	packet-mount.c \
 	packet-mount.h \
 	packet-mpls.c \
@@ -137,7 +125,6 @@ DISSECTOR_SOURCES = \
 	packet-nbipx.c \
 	packet-nbipx.h \
 	packet-nbns.c  \
-	packet-nbns.h  \
 	packet-ncp.c   \
 	packet-ncp.h   \
 	packet-netbios.c \
@@ -147,7 +134,6 @@ DISSECTOR_SOURCES = \
 	packet-nlm.c   \
 	packet-nlm.h   \
 	packet-nntp.c  \
-	packet-nntp.h  \
 	packet-ntp.c  \
 	packet-ntp.h  \
 	packet-null.c  \
@@ -159,7 +145,6 @@ DISSECTOR_SOURCES = \
 	packet-pim.c   \
 	packet-pim.h   \
 	packet-pop.c   \
-	packet-pop.h   \
 	packet-portmap.c   \
 	packet-portmap.h   \
 	packet-ppp.c   \
@@ -167,13 +152,11 @@ DISSECTOR_SOURCES = \
 	packet-pppoe.c \
 	packet-pppoe.h \
 	packet-pptp.c  \
-	packet-pptp.h  \
 	packet-q2931.c \
 	packet-q2931.h \
 	packet-q931.c  \
 	packet-q931.h  \
 	packet-radius.c\
-	packet-radius.h\
 	packet-raw.c   \
 	packet-raw.h   \
 	packet-rip.c   \
@@ -186,11 +169,9 @@ DISSECTOR_SOURCES = \
 	packet-rsvp.c  \
 	packet-rsvp.h  \
 	packet-rtsp.c  \
-	packet-rtsp.h  \
 	packet-rx.c  \
 	packet-rx.h  \
 	packet-sap.c   \
-	packet-sap.h   \
 	packet-sdp.c   \
 	packet-sdp.h   \
 	packet-smb.c   \
@@ -206,21 +187,17 @@ DISSECTOR_SOURCES = \
 	packet-snmp.c	\
 	packet-snmp.h	\
 	packet-srvloc.c \
-	packet-srvloc.h \
 	packet-sscop.c \
 	packet-sscop.h \
 	packet-stat.c   \
 	packet-stat.h   \
 	packet-tacacs.c \
-	packet-tacacs.h \
 	packet-tcp.c   \
 	packet-tcp.h   \
 	packet-telnet.c\
-	packet-telnet.h\
 	packet-tftp.c  \
 	packet-tftp.h  \
 	packet-time.c  \
-	packet-time.h  \
 	packet-tns.c \
 	packet-tns.h \
 	packet-tr.c    \
@@ -239,10 +216,8 @@ DISSECTOR_SOURCES = \
 	packet-vrrp.h \
 	packet-vtp.c  \
 	packet-vtp.h  \
-	packet-wccp.c\
-	packet-wccp.h\
-	packet-who.c\
-	packet-who.h\
+	packet-wccp.c \
+	packet-who.c  \
 	packet-x25.c   \
 	packet-x25.h   \
 	packet-yhoo.c  \

@@ -3,7 +3,7 @@
  * see http://dhis.sourceforge.net/
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-dhis.c,v 1.2 2000/02/23 22:41:15 oabad Exp $
+ * $Id: packet-dhis.c,v 1.3 2000/04/08 07:07:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,9 @@ static int hf_dhis_status = -1;
 
 static int ett_dhis = -1;
 
+#define UDP_PORT_DHIS1	58800
+#define UDP_PORT_DHIS2	58801
+
 static const value_string vals_dhis_version[] = {
     { DHIS_VERSION_ERROR, "Protocol Error" },
     { DHIS_VERSION_4,     "4" },
@@ -95,7 +98,7 @@ static const value_string vals_dhis_status[] = {
     { 0, NULL}
 };
 
-void
+static void
 dissect_dhis(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 
@@ -227,4 +230,11 @@ proto_register_dhis(void)
     proto_dhis = proto_register_protocol("Dynamic Host Information Service", "dhis");
     proto_register_field_array(proto_dhis, hf_dhis, array_length(hf_dhis));
     proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_dhis(void)
+{
+    dissector_add("udp.port", UDP_PORT_DHIS1, dissect_dhis);
+    dissector_add("udp.port", UDP_PORT_DHIS2, dissect_dhis);
 }

@@ -2,7 +2,7 @@
  * Routines for ICP (internet cache protocol) packet disassembly
  * RFC 2186 && RFC 2187
  *
- * $Id: packet-icp.c,v 1.5 2000/03/12 04:47:38 gram Exp $
+ * $Id: packet-icp.c,v 1.6 2000/04/08 07:07:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -50,6 +50,8 @@ static int hf_icp_request_nr=-1;
 
 static gint ett_icp = -1;
 static gint ett_icp_payload = -1;
+
+#define UDP_PORT_ICP    3130
 
 #define CODE_ICP_OP_QUERY 1
 #define CODE_ICP_OP_INVALID 0
@@ -100,7 +102,8 @@ typedef struct _e_icphdr
 } e_icphdr;
 
 static gchar textbuf[MAX_TEXTBUF_LENGTH];
-void dissect_icp_payload( const u_char *pd, int offset,
+
+static void dissect_icp_payload( const u_char *pd, int offset,
         frame_data *fd,proto_tree *pload_tree, e_icphdr *icph)
 {
 /* To Be Done take care of fragmentation*/
@@ -169,7 +172,8 @@ guint16 objectlength;
   }
 }
 
-void dissect_icp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void dissect_icp(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
 {
   proto_tree *icp_tree , *payload_tree;
   proto_item *ti , *payloadtf;
@@ -285,4 +289,10 @@ proto_register_icp(void)
 	proto_icp = proto_register_protocol ("Internet Cache Protocol", "icp");
 	proto_register_field_array(proto_icp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_icp(void)
+{
+	dissector_add("udp.port", UDP_PORT_ICP, dissect_icp);
 }

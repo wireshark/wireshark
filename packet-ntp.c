@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.10 2000/03/12 04:47:44 gram Exp $
+ * $Id: packet-ntp.c,v 1.11 2000/04/08 07:07:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,6 +96,9 @@
  * in seconds relative to 0h on 1 January 1900. The integer part is in the
  * first 32 bits and the fraction part in the last 32 bits.
  */
+
+#define UDP_PORT_NTP	123
+#define TCP_PORT_NTP	123
 
  /* Leap indicator, 2bit field is used to warn of a inserted/deleted
   * second, or to alarm loosed synchronization.
@@ -199,7 +202,7 @@ static gint ett_ntp_flags = -1;
  * buff - string buffer for result (OUT)
  * returns pointer to filled buffer.
  */
-char *
+static char *
 ntp_fmt_ts(unsigned char * reftime, char* buff)
 {
 	guint32 tempstmp, tempfrac;
@@ -229,7 +232,7 @@ ntp_fmt_ts(unsigned char * reftime, char* buff)
  * fd - frame data
  * proto_tree - resolved protocol tree
  */
-void
+static void
 dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *ntp_tree, *flags_tree;
@@ -433,4 +436,11 @@ proto_register_ntp(void)
 	proto_ntp = proto_register_protocol("Network Time Protocol", "ntp");
 	proto_register_field_array(proto_ntp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ntp(void)
+{
+	dissector_add("udp.port", UDP_PORT_NTP, dissect_ntp);
+	dissector_add("tcp.port", TCP_PORT_NTP, dissect_ntp);
 }

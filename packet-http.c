@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.16 2000/02/23 20:55:33 guy Exp $
+ * $Id: packet-http.c,v 1.17 2000/04/08 07:07:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,11 @@ static int hf_http_response = -1;
 static int hf_http_request = -1;
 
 static gint ett_http = -1;
+
+#define TCP_PORT_HTTP			80
+#define TCP_PORT_PROXY_HTTP		3128
+#define TCP_PORT_PROXY_ADMIN_HTTP	3132
+#define TCP_ALT_PORT_HTTP		8080
 
 static int is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type);
 
@@ -284,4 +289,13 @@ proto_register_http(void)
   proto_http = proto_register_protocol("Hypertext Transfer Protocol", "http");
   proto_register_field_array(proto_http, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_http(void)
+{
+  dissector_add("tcp.port", TCP_PORT_HTTP, dissect_http);
+  dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http);
+  dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http);
+  dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http);
 }

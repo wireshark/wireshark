@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.26 2000/03/15 07:12:55 guy Exp $
+ * $Id: packet-snmp.c,v 1.27 2000/04/08 07:07:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -189,6 +189,9 @@
 static int proto_snmp = -1;
 
 static gint ett_snmp = -1;
+
+#define UDP_PORT_SNMP		161
+#define UDP_PORT_SNMP_TRAP	162
 
 /* Protocol version numbers */
 #define SNMP_VERSION_1	0
@@ -1175,4 +1178,11 @@ proto_register_snmp(void)
         proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
  /*       proto_register_field_array(proto_snmp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_snmp(void)
+{
+	dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp);
+	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp);
 }

@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.10 2000/03/23 10:49:33 guy Exp $
+ * $Id: packet-telnet.c,v 1.11 2000/04/08 07:07:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,8 @@ static gint ett_telnet = -1;
 static gint ett_telnet_subopt = -1;
 
 /* Some defines for Telnet */
+
+#define TCP_PORT_TELNET			23
 
 #define TN_IAC   255
 #define TN_DONT  254
@@ -290,7 +292,7 @@ telnet_command(proto_tree *telnet_tree, const u_char *pd, int start_offset)
   return offset;
 }
 
-void
+static void
 dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         proto_tree      *telnet_tree, *ti;
@@ -366,4 +368,10 @@ proto_register_telnet(void)
         proto_telnet = proto_register_protocol("Telnet", "telnet");
  /*       proto_register_field_array(proto_telnet, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_telnet(void)
+{
+	dissector_add("tcp.port", TCP_PORT_TELNET, dissect_telnet);
 }

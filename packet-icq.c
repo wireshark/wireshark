@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.13 2000/03/14 07:12:23 gram Exp $
+ * $Id: packet-icq.c,v 1.14 2000/04/08 07:07:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -82,9 +82,11 @@ static gint ett_icq_decode = -1;
 static gint ett_icq_body = -1;
 static gint ett_icq_body_parts = -1;
 
+#define UDP_PORT_ICQ	4000
+
 enum { ICQ5_client, ICQ5_server};
 
-void dissect_icqv5(const u_char *pd,
+static void dissect_icqv5(const u_char *pd,
 		   int offset,
 		   frame_data *fd,
 		   proto_tree *tree);
@@ -2330,10 +2332,10 @@ dissect_icqv5Server(const u_char *pd,
     }
 }
 
-void dissect_icqv5(const u_char *pd,
-		   int offset,
-		   frame_data *fd, 
-		   proto_tree *tree)
+static void dissect_icqv5(const u_char *pd,
+			  int offset,
+			  frame_data *fd, 
+			  proto_tree *tree)
 {
   guint32 unknown = pletohl(&pd[offset + ICQ5_UNKNOWN]);
   
@@ -2348,10 +2350,10 @@ void dissect_icqv5(const u_char *pd,
   }
 }
 
-void dissect_icq(const u_char *pd,
-		 int offset,
-		 frame_data *fd, 
-		 proto_tree *tree)
+static void dissect_icq(const u_char *pd,
+			int offset,
+			frame_data *fd, 
+			proto_tree *tree)
 {
   int version = 0;
 
@@ -2400,4 +2402,10 @@ proto_register_icq(void)
     proto_register_field_array(proto_icq, hf, array_length(hf));
 
     proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_icq(void)
+{
+    dissector_add("udp.port", UDP_PORT_ICQ, dissect_icq);
 }
