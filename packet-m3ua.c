@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-m3ua.c,v 1.25 2003/01/27 21:40:40 guy Exp $
+ * $Id: packet-m3ua.c,v 1.26 2003/01/27 23:17:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1475,13 +1475,13 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *parameter_item;
   proto_tree *parameter_tree;
 
-  if (!tree)
-    return;	/* Nothing to do here */
-
   /* extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
+
+  if (!tree && tag != PROTOCOL_DATA_PARAMETER_TAG)
+    return;	/* Nothing to do here */
 
   /* create proto_tree stuff */
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, parameter_tag_values, "Unknown parameter"));
