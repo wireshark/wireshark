@@ -4861,6 +4861,56 @@
 00:12:F3	Connectblu             # connectBlue AB
 00:12:F4	BelcoInter             # Belco International Co.,Ltd.
 00:12:F5	Prolificx              # Prolificx Ltd
+00:12:F6	Mdk                    # MDK CO.,LTD.
+00:12:F7	XiamenXing             # Xiamen Xinglian Electronics Co., Ltd.
+00:12:F8	WniResourc             # WNI Resources, LLC
+00:12:F9	UryuSeisak             # URYU SEISAKU, LTD.
+00:12:FA	Thx                    # THX LTD
+00:12:FB	SamsungEle             # Samsung Electronics
+00:12:FC	PlanetSyst             # PLANET System Co.,LTD
+00:12:FD	OptimusIcS             # OPTIMUS IC S.A.
+00:12:FE	LenovoMobi             # Lenovo Mobile Communication Technology Ltd.
+00:12:FF	LelyIndust             # Lely Industries N.V.
+00:13:00	It-Factory             # IT-FACTORY, INC.
+00:13:01	IrongateSL             # IronGate S.L.
+00:13:02	IntelCorpo             # Intel Corporate
+00:13:03	Gateconnec             # GateConnect Technologies GmbH
+00:13:04	FlaircommT             # Flaircomm Technologies Co. LTD
+00:13:05	Epicom                 # Epicom, Inc.
+00:13:06	AlwaysOnWi             # Always On Wireless
+00:13:07	Accenia                # Accenia, Inc.
+00:13:08	NuveraFuel             # Nuvera Fuel Cells
+00:13:09	OceanBroad             # Ocean Broadband Networks
+00:13:0A	Nortel
+00:13:0B	MextalBV               # Mextal B.V.
+00:13:0C	HfSystem               # HF System Corporation
+00:13:0D	GalileoAvi             # GALILEO AVIONICA
+00:13:0E	FocusriteA             # Focusrite Audio Engineering Limited
+00:13:0F	EgemenBilg             # EGEMEN Bilgisayar Muh San ve Tic LTD STI
+00:13:10	Cisco-Link             # Cisco-Linksys, LLC
+00:13:11	ArrisInter             # ARRIS International
+00:13:12	AmediaNetw             # Amedia Networks Inc.
+00:13:13	GuangzhouP             # GuangZhou Post & Telecom Equipment ltd
+00:13:14	Asiamajor              # Asiamajor Inc.
+00:13:15	SonyComput             # SONY Computer Entertainment inc,
+00:13:16	L-S-B                  # L-S-B GmbH
+00:13:17	GnNetcomAs             # GN Netcom as
+00:13:18	Dgstation              # DGSTATION Co., Ltd.
+00:13:19	Cisco                  # Cisco Systems
+00:13:1A	Cisco                  # Cisco Systems
+00:13:1B	BecellInno             # BeCell Innovations Corp.
+00:13:1C	Litetouch              # LiteTouch, Inc.
+00:13:1D	ScanvaegtI             # Scanvaegt International A/S
+00:13:1E	PeikerAcus             # Peiker acustic GmbH & Co. KG
+00:13:1F	NxtphaseT&             # NxtPhase T&D, Corp.
+00:13:20	IntelCorpo             # Intel Corporate
+00:13:21	HewlettPac             # Hewlett Packard
+00:13:22	DaqElectro             # DAQ Electronics, Inc.
+00:13:23	Cap                    # Cap Co., Ltd.
+00:13:24	SchneiderE             # Schneider Electric Ultra Terminal
+00:13:25	Immenstar              # ImmenStar Inc.
+00:13:26	Ecm                    # ECM Systems Ltd
+00:13:27	DataAcquis             # Data Acquisitions limited
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -7735,6 +7785,7 @@
 02:04:06	BbnInterna             # BBN				internal usage (not registered)
 02:07:01	Racal-Data             # RACAL-DATACOM
 02:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
+02:20:48	Marconi		# At least some 2810 send with locally assigned flag set
 02:60:60	3com
 02:60:86	LogicRepla             # LOGIC REPLACEMENT TECH. LTD.
 02:60:8C	3com                   # 3COM CORPORATION
