@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.58 2004/02/03 20:39:58 guy Exp $
+ * $Id: packet-sip.c,v 1.59 2004/02/11 09:19:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -654,7 +654,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					/* Extract method name from value */
 					for (value_offset = 0; value_offset < (gint)strlen(value); value_offset++)
 					{
-						if (isalpha(value[value_offset]))
+						if (isalpha((guchar)value[value_offset]))
 						{
 							strcpy(csec_method,value+value_offset);
 							break;

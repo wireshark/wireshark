@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.393 2004/02/11 03:55:48 guy Exp $
+ * $Id: main.c,v 1.394 2004/02/11 09:19:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1461,7 +1461,7 @@ set_autostop_criterion(const char *autostoparg)
    * as we allow it in the preferences file, we might as well
    * allow it here).
    */
-  while (isspace(*p))
+  while (isspace((guchar)*p))
     p++;
   if (*p == '\0') {
     /*

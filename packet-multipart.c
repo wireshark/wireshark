@@ -3,7 +3,7 @@
  * Copyright 2004, Anders Broman <anders.broman[at]ericsson.com>
  * Copyright 2004, Olivier Biot <olivier.biot[at]siemens.com>
  *
- * $Id: packet-multipart.c,v 1.6 2004/02/06 01:07:51 obiot Exp $
+ * $Id: packet-multipart.c,v 1.7 2004/02/11 09:19:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -318,7 +318,7 @@ get_multipart_info(packet_info *pinfo)
 		if (p == NULL)
 			return NULL;
 		p++; /* Skip semicolon */
-		while ((*p) && isspace(*p))
+		while ((*p) && isspace((guchar)*p))
 			p++; /* Skip white space */
 	}
 	start = p + 9;
@@ -347,7 +347,7 @@ get_multipart_info(packet_info *pinfo)
 		 */
 		p = start;
 		while (*p) {
-			if (*p == ';' || isspace(*p))
+			if (*p == ';' || isspace((guchar)*p))
 				break;
 			p++;
 			len++;

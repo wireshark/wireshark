@@ -1,7 +1,7 @@
 /* range.c
  * Packet range routines (save, print, ...)
  *
- * $Id: range.c,v 1.8 2004/01/09 18:10:40 ulfl Exp $
+ * $Id: range.c,v 1.9 2004/02/11 09:19:54 guy Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -288,7 +288,7 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
 
     /* Only keep digits, commas, and hyphens. */
     for (i=0; i<=strlen(OrgStr); i++) {
-      if ( isdigit(OrgStr[i]) || OrgStr[i] == '-' || OrgStr[i] == ',' ) {
+      if ( isdigit((guchar)OrgStr[i]) || OrgStr[i] == '-' || OrgStr[i] == ',' ) {
          EntryStr[j++] = OrgStr[i];
       }
     }
@@ -349,7 +349,7 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
     for (i=0; i<=strlen(EntryStr);i++) {
 
        /* Copy the digit string until a no-digit character is seen */
-       if (isdigit(EntryStr[i])) {
+       if (isdigit((guchar)EntryStr[i])) {
           value[j++] = EntryStr[i];
           continue;
        }
