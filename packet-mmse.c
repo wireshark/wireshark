@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.9 2002/06/03 19:00:00 guy Exp $
+ * $Id: packet-mmse.c,v 1.10 2002/06/05 19:03:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,14 +155,14 @@ static const value_string vals_message_class[] = {
     { 0x80, "Personal" },
     { 0x81, "Advertisement" },
     { 0x82, "Informational" },
-    { 0x82, "Auto" },
+    { 0x83, "Auto" },
     { 0x00, NULL },
 };
 
 static const value_string vals_priority[] = {
     { 0x80, "Low" },
     { 0x81, "Normal" },
-    { 0x81, "High" },
+    { 0x82, "High" },
     { 0x00, NULL },
 };
 
@@ -189,8 +189,8 @@ static const value_string vals_status[] = {
     { 0x80, "Expired" },
     { 0x81, "Retrieved" },
     { 0x82, "Rejected" },
-    { 0x82, "Deferred" },
-    { 0x82, "Unrecognized" },
+    { 0x83, "Deferred" },
+    { 0x84, "Unrecognized" },
     { 0x00, NULL },
 };
 
