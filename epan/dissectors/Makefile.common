@@ -471,6 +471,7 @@ DISSECTOR_SRC =	\
 	packet-socks.c	\
 	packet-spnego.c	\
 	packet-spray.c	\
+	packet-sscf-nni.c	\
 	packet-srvloc.c	\
 	packet-sscop.c	\
 	packet-ssh.c	\

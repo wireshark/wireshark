@@ -147,8 +147,8 @@ static const value_string mtp3_service_indicator_code_vals[] = {
 	{ 0x6,	"DUP (call and circuit related messages)" },
 	{ 0x7,	"DUP (facility registration and cancellation message)" },
 	{ 0x8,	"MTP testing user part" },
-	{ 0x9,	"Spare" },
-	{ 0xa,	"Spare" },
+	{ 0x9,	"Broadband ISUP" },
+	{ 0xa,	"Satellite ISUP" },
 	{ 0xb,	"Spare" },
 	{ 0xc,	"Spare" },
 	{ 0xd,	"Spare" },
@@ -167,6 +167,8 @@ const value_string mtp3_service_indicator_code_short_vals[] = {
 	{ 0x6,	"DUP (CC)" },
 	{ 0x7,	"DUP (FAC/CANC)" },
 	{ 0x8,	"MTP Test" },
+	{ 0x9,	"ISUP-b" },
+	{ 0xa,	"ISUP-s" },
 	{ 0,	NULL }
 };
 

@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
+#include <prefs.h>
 
 static int proto_sscop = -1;
 
@@ -39,6 +40,30 @@ static gint ett_sscop = -1;
 
 static dissector_handle_t q2931_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t sscf_nni_handle;
+
+static module_t *sscop_module;
+
+static range_t *global_udp_port_range;
+static range_t *udp_port_range;
+
+static dissector_handle_t sscop_handle;
+
+typedef enum {
+  DATA_DISSECTOR = 1,
+  Q2931_DISSECTOR = 2,
+  SSCF_NNI_DISSECTOR = 3
+} Dissector_Option;
+
+
+static enum_val_t sscop_payload_dissector_options[] = {
+  { "data",	"Data (no further dissection)",	DATA_DISSECTOR },
+  { "Q.2931",	"Q.2931",			Q2931_DISSECTOR },
+  { "SSCF-NNI",	"SSCF-NNI (MTP3-b)",		SSCF_NNI_DISSECTOR },
+  { NULL,	NULL,				0 }
+};
+
+static guint sscop_payload_dissector = Q2931_DISSECTOR;
 
 /*
  * See
@@ -289,10 +314,6 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     reported_length -= (pdu_len + pad_len);
 
-    /*
-     * XXX - if more than just Q.2931 uses SSCOP, we need to tell
-     * SSCOP what dissector to use here.
-     */
     if (reported_length != 0) {
       /*
        * We know that we have all of the payload, because we know we have
@@ -302,12 +323,60 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       next_tvb = tvb_new_subset(tvb, 0, reported_length, reported_length);
       if (pdu_type == SSCOP_SD)
-        call_dissector(q2931_handle, next_tvb, pinfo, tree);
-      else
-        call_dissector(data_handle,next_tvb, pinfo, tree);
+      {
+	if (sscop_payload_dissector == Q2931_DISSECTOR)
+	  call_dissector(q2931_handle, next_tvb, pinfo, tree);
+	else if (sscop_payload_dissector == DATA_DISSECTOR)
+	  call_dissector(data_handle, next_tvb, pinfo, tree);
+	else if (sscop_payload_dissector == SSCF_NNI_DISSECTOR)
+	  call_dissector(sscf_nni_handle, next_tvb, pinfo, tree);
+
+      } else
+        call_dissector(data_handle, next_tvb, pinfo, tree);
     }
     break;
   }
+}
+
+static void range_delete_callback(guint32 port)
+{
+    if (port) {
+	dissector_delete("udp.port", port, sscop_handle);
+    }
+}
+
+static void range_add_callback(guint32 port)
+{
+    if (port) {
+	dissector_add("udp.port", port, sscop_handle);
+    }
+}
+void
+proto_reg_handoff_sscop(void)
+{
+  static int prefs_initialized = FALSE;
+
+  if (!prefs_initialized) {
+
+    sscop_handle = create_dissector_handle(dissect_sscop, proto_sscop);
+
+    q2931_handle = find_dissector("q2931");
+    data_handle = find_dissector("data");
+    sscf_nni_handle = find_dissector("sscf-nni");
+
+    prefs_initialized = TRUE;
+
+  } else {
+
+    range_foreach(udp_port_range, range_delete_callback);
+
+  }
+
+  g_free(udp_port_range);
+  udp_port_range = range_copy(global_udp_port_range);
+
+  range_foreach(udp_port_range, range_add_callback);
+
 }
 
 void
@@ -319,14 +388,21 @@ proto_register_sscop(void)
   proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("sscop", dissect_sscop, proto_sscop);
+
+  sscop_module = prefs_register_protocol(proto_sscop, proto_reg_handoff_sscop);
+
+  global_udp_port_range = range_empty();
+  udp_port_range = range_empty();
+
+  prefs_register_range_preference(sscop_module, "udp.ports",
+				 "SSCOP UDP port range",
+				 "Set the UDP port for SSCOP messages encapsulated in UDP (0 to disable)",
+				 &global_udp_port_range, MAX_UDP_PORT);
+
+  prefs_register_enum_preference(sscop_module, "payload",
+				 "SSCOP payload protocol",
+				 "SSCOP payload (dissector to call on SSCOP payload)",
+				 (gint *)&sscop_payload_dissector,
+				 sscop_payload_dissector_options, FALSE);
 }
 
-void
-proto_reg_handoff_sscop(void)
-{
-  /*
-   * Get handle for the Q.2931 dissector.
-   */
-  q2931_handle = find_dissector("q2931");
-  data_handle = find_dissector("data");
-}

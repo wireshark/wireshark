@@ -874,6 +874,7 @@ Jeff Morriss            <jeff.morriss[AT]ulticom.com> {
 	M3UA fixes
 	Support for Chinese ITU SS7 variant
 	ISUP tweaks
+	SSCOP over UDP and SSCF-NNI support
 }
 
 Aamer Akhter            <aakhter[AT]cisco.com> {

@@ -30,6 +30,11 @@
 
 #include <glib.h>
 
+/* XXX where's the best place for these? */
+#define MAX_SCTP_PORT 65535
+#define MAX_TCP_PORT 65535
+#define MAX_UDP_PORT 65535
+
 typedef struct range_admin_tag {
     guint32 low;
     guint32 high;
