@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.7 2002/05/04 10:00:18 guy Exp $
+ * $Id: visual.c,v 1.8 2002/06/07 07:27:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -339,10 +339,8 @@ static gboolean visual_seek_read (wtap *wth, long seek_off,
 
     /* Seek to the packet header */
     if (file_seek(wth->random_fh, seek_off - sizeof(struct visual_pkt_hdr),
-                  SEEK_SET) == -1) {
-        *err = file_error(wth->random_fh);
+                  SEEK_SET, err) == -1)
         return FALSE;
-    }
 
     /* Read the packet header to get the status flags. */
     errno = WTAP_ERR_CANT_READ;

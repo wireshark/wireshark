@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.7 2002/03/05 08:39:29 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.8 2002/06/07 07:27:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -230,10 +230,8 @@ dbs_etherwatch_seek_read (wtap *wth, long seek_off,
 {
 	int	pkt_len;
 
-	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	pkt_len = parse_dbs_etherwatch_rec_hdr(NULL, wth->random_fh, err);
 

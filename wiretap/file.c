@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.90 2002/05/29 02:19:49 guy Exp $
+ * $Id: file.c,v 1.91 2002/06/07 07:27:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -129,10 +129,8 @@ gboolean wtap_def_seek_read(wtap *wth, long seek_off,
 {
 	int bytes_read;
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	bytes_read = file_read(pd, sizeof(guint8), len, wth->random_fh);
 	if (bytes_read != len) {
@@ -240,9 +238,8 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 		   to start reading at the beginning.
 
 		   Initialize the data offset while we're at it. */
-		if (file_seek(wth->fh, 0, SEEK_SET) == -1) {
+		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
 			/* I/O error - give up */
-			*err = file_error(wth->fh);
 			if (wth->random_fh != NULL)
 				file_close(wth->random_fh);
 			file_close(wth->fh);

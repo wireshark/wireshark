@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.28 2002/05/22 10:53:17 sahlberg Exp $
+ * $Id: nettl.c,v 1.29 2002/06/07 07:27:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -154,10 +154,8 @@ int nettl_open(wtap *wth, int *err)
 	return 0;
     }
 
-    if (file_seek(wth->fh, 0x63, SEEK_SET) == -1) {
-	*err = file_error(wth->fh);
+    if (file_seek(wth->fh, 0x63, SEEK_SET, err) == -1)
 	return -1;
-    }
     wth->data_offset = 0x63;
     bytes_read = file_read(os_vers, 1, 2, wth->fh);
     if (bytes_read != 2) {
@@ -167,10 +165,8 @@ int nettl_open(wtap *wth, int *err)
 	return 0;
     }
 
-    if (file_seek(wth->fh, 0x80, SEEK_SET) == -1) {
-	*err = file_error(wth->fh);
+    if (file_seek(wth->fh, 0x80, SEEK_SET, err) == -1)
 	return -1;
-    }
     wth->data_offset = 0x80;
 
     /* This is an nettl file */
@@ -222,10 +218,8 @@ nettl_seek_read(wtap *wth, long seek_off,
     int ret;
     struct wtap_pkthdr phdr;
 
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-	*err = file_error(wth->random_fh);
+    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	return FALSE;
-    }
 
     /* Read record header. */
     ret = nettl_read_rec_header(wth, wth->random_fh, &phdr, pseudo_header,

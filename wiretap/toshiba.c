@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.23 2002/03/05 08:39:29 guy Exp $
+ * $Id: toshiba.c,v 1.24 2002/06/07 07:27:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -265,10 +265,8 @@ toshiba_seek_read (wtap *wth, long seek_off,
 {
 	int	pkt_len;
 
-	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	pkt_len = parse_toshiba_rec_hdr(NULL, wth->random_fh, pseudo_header,
 	    err);

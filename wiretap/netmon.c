@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.55 2002/06/04 21:55:38 guy Exp $
+ * $Id: netmon.c,v 1.56 2002/06/07 07:27:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -269,8 +269,7 @@ int netmon_open(wtap *wth, int *err)
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
-	if (file_seek(wth->fh, frame_table_offset, SEEK_SET) == -1) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
 		g_free(wth->capture.netmon);
 		return -1;
 	}
@@ -334,10 +333,8 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	rec_offset = netmon->frame_table[netmon->current_frame];
 	if (wth->data_offset != rec_offset) {
 		wth->data_offset = rec_offset;
-		if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
-			*err = file_error(wth->fh);
+		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1)
 			return FALSE;
-		}
 	}
 	netmon->current_frame++;
 
@@ -452,10 +449,8 @@ static gboolean
 netmon_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
 {
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
 		if (!netmon_read_atm_pseudoheader(wth->random_fh, pseudo_header,

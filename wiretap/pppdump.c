@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.18 2002/05/29 02:11:57 guy Exp $
+ * $Id: pppdump.c,v 1.19 2002/06/07 07:27:35 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -195,10 +195,8 @@ pppdump_open(wtap *wth, int *err)
 
   my_file_type:
 
-	if (file_seek(wth->fh, 5, SEEK_SET) == -1) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, 5, SEEK_SET, err) == -1)
 		return -1;
-	}
 
 	state = wth->capture.generic = g_malloc(sizeof(pppdump_t));
 	state->timestamp = pntohl(&buffer[1]);
@@ -546,10 +544,8 @@ pppdump_seek_read (wtap *wth,
 		return FALSE;
 	}
 
-	if (file_seek(wth->random_fh, pid->offset, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, pid->offset, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	init_state(state->seek_state);
 

@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.13 2002/03/05 08:39:29 guy Exp $
+ * $Id: csids.c,v 1.14 2002/06/07 07:27:34 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -124,10 +124,8 @@ int csids_open(wtap *wth, int *err)
   } 
 
   /* no file header. So reset the fh to 0 so we can read the first packet */
-  if (file_seek(wth->fh, 0, SEEK_SET) == -1) {
-    *err = file_error( wth->fh );
+  if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return -1;
-  }
 
   wth->data_offset = 0; 
   wth->capture.csids = g_malloc(sizeof(csids_t));
@@ -208,10 +206,8 @@ csids_seek_read (wtap *wth,
   int bytesRead;
   struct csids_header hdr;
 
-  if( file_seek( wth->random_fh, seek_off, SEEK_SET ) == -1 ) {
-    *err = file_error( wth->random_fh );
+  if( file_seek( wth->random_fh, seek_off, SEEK_SET, err ) == -1 )
     return FALSE;
-  }
 
   bytesRead = file_read( &hdr, 1, sizeof( struct csids_header), wth->random_fh );
   if( bytesRead != sizeof( struct csids_header) ) {

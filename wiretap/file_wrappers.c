@@ -1,6 +1,6 @@
 /* file_wrappers.c
  *
- * $Id: file_wrappers.c,v 1.10 2002/02/06 09:58:30 guy Exp $
+ * $Id: file_wrappers.c,v 1.11 2002/06/07 07:27:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -104,15 +104,43 @@
 
 #ifdef HAVE_LIBZ
 long
-file_seek(void *stream, long offset, int whence)
+file_seek(void *stream, long offset, int whence, int *err)
 {
-	return gzseek(stream, (z_off_t)offset, whence);
+	long ret;
+
+	ret = gzseek(stream, (z_off_t)offset, whence);
+	if (ret == -1) {
+		/*
+		 * XXX - "gzseek()", as of zlib 1.1.4, doesn't set
+		 * "z_err" for the stream, so "gzerror()" could return
+		 * a bogus Z_OK.
+		 *
+		 * As this call failed, we know "gzerror()" shouldn't
+		 * return Z_OK; if it does, we assume that "errno" is
+		 * the real error.
+		 */
+		*err = file_error(stream);
+		if (*err == 0)
+			*err = errno;
+	}
+	return ret;
 }
 
 long
 file_tell(void *stream)
 {
 	return (long)gztell(stream);
+}
+#else /* HAVE_LIBZ */
+long
+file_seek(void *stream, long offset, int whence, int *err)
+{
+	long ret;
+
+	ret = fseek(stream, offset, whence);
+	if (ret == -1)
+		*err = file_error(stream);
+	return ret;
 }
 #endif /* HAVE_LIBZ */
 

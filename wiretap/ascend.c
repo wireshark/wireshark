@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.29 2002/03/05 08:39:29 guy Exp $
+ * $Id: ascend.c,v 1.30 2002/06/07 07:27:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -227,10 +227,8 @@ found:
    * Move to where the read for this packet should start, and return
    * that seek offset.
    */
-  if (file_seek(wth->fh, packet_off, SEEK_SET) == -1) {
-    *err = file_error(wth->fh);
+  if (file_seek(wth->fh, packet_off, SEEK_SET, err) == -1)
     return -1;
-  }
   return packet_off;
 }
 
@@ -296,10 +294,8 @@ static gboolean ascend_read(wtap *wth, int *err, long *data_offset)
      offset after the header of the previous packet and try to find the next
      packet.  */
   if (file_seek(wth->fh, wth->capture.ascend->next_packet_seek_start,
-                SEEK_SET) == -1) {
-    *err = file_error(wth->fh);
+                SEEK_SET, err) == -1)
     return FALSE;
-  }
   offset = ascend_seek(wth, ASCEND_MAX_SEEK, err);
   if (offset == -1)
     return FALSE;
@@ -343,10 +339,8 @@ static gboolean ascend_read(wtap *wth, int *err, long *data_offset)
 static gboolean ascend_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err)
 {
-  if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-    *err = file_error(wth->random_fh);
+  if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
-  }
   if (! parse_ascend(wth->random_fh, pd, &pseudo_header->ascend, NULL, len)) {
     *err = WTAP_ERR_BAD_RECORD;
     return FALSE;

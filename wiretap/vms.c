@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.12 2002/03/25 21:15:54 guy Exp $
+ * $Id: vms.c,v 1.13 2002/06/07 07:27:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -170,9 +170,8 @@ static gboolean vms_check_file_type(wtap *wth, int *err)
                 if (byte == vms_hdr_magic[level]) {
                     level++;
                     if (level >= VMS_HDR_MAGIC_SIZE) {
-                        if (file_seek(wth->fh, mpos, SEEK_SET) == -1) {
+                        if (file_seek(wth->fh, mpos, SEEK_SET, err) == -1) {
                             /* Error. */
-                            *err = file_error(wth->fh);
                             return FALSE;
                         }
                         return TRUE;
@@ -258,10 +257,8 @@ vms_seek_read (wtap *wth, long seek_off,
 {
     int    pkt_len;
 
-    if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET) == -1) {
-        *err = file_error(wth->random_fh);
+    if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return FALSE;
-    }
 
     pkt_len = parse_vms_rec_hdr(NULL, wth->random_fh, err);
 

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.74 2002/06/07 04:48:36 guy Exp $
+ * $Id: libpcap.c,v 1.75 2002/06/07 07:27:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -604,8 +604,7 @@ int libpcap_open(wtap *wth, int *err)
 			 * Well, it looks as if it might be 991029.
 			 * Put the seek pointer back, and return success.
 			 */
-			if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
-				*err = file_error(wth->fh);
+			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
 				g_free(wth->capture.pcap);
 				return -1;
 			}
@@ -626,8 +625,7 @@ int libpcap_open(wtap *wth, int *err)
 		 * it as 990915.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990915;
-		if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
-			*err = file_error(wth->fh);
+		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
 			g_free(wth->capture.pcap);
 			return -1;
 		}
@@ -654,8 +652,7 @@ int libpcap_open(wtap *wth, int *err)
 			 * libpcap file.
 			 * Put the seek pointer back, and return success.
 			 */
-			if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
-				*err = file_error(wth->fh);
+			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
 				g_free(wth->capture.pcap);
 				return -1;
 			}
@@ -674,8 +671,7 @@ int libpcap_open(wtap *wth, int *err)
 		 * ss990417.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990417;
-		if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
-			*err = file_error(wth->fh);
+		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
 			g_free(wth->capture.pcap);
 			return -1;
 		}
@@ -694,8 +690,7 @@ int libpcap_open(wtap *wth, int *err)
 			 * Well, it looks as if it might be ss990417.
 			 * Put the seek pointer back, and return success.
 			 */
-			if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
-				*err = file_error(wth->fh);
+			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
 				g_free(wth->capture.pcap);
 				return -1;
 			}
@@ -716,8 +711,7 @@ int libpcap_open(wtap *wth, int *err)
 		 * and treat it as a Nokia file.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_NOKIA;
-		if (file_seek(wth->fh, wth->data_offset, SEEK_SET) == -1) {
-			*err = file_error(wth->fh);
+		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
 			g_free(wth->capture.pcap);
 			return -1;
 		}
@@ -770,10 +764,8 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	 * Now skip over the first record's data, under the assumption
 	 * that the header is sane.
 	 */
-	if (file_seek(wth->fh, first_rec_hdr.hdr.incl_len, SEEK_CUR) == -1) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, first_rec_hdr.hdr.incl_len, SEEK_CUR, err) == -1)
 		return BAD_READ;
-	}
 
 	/*
 	 * Now attempt to read the second record's header.
@@ -885,10 +877,8 @@ static gboolean
 libpcap_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
 {
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
 		if (!libpcap_read_atm_pseudoheader(wth->random_fh, pseudo_header,

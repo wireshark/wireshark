@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.20 2002/04/09 08:15:04 guy Exp $
+ * $Id: i4btrace.c,v 1.21 2002/06/07 07:27:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -90,10 +90,8 @@ int i4btrace_open(wtap *wth, int *err)
 		byte_swapped = TRUE;
 	}
 
-	if (file_seek(wth->fh, 0, SEEK_SET) == -1) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return -1;
-	}
 	wth->data_offset = 0;
 
 	/* Get capture start time */
@@ -230,10 +228,8 @@ i4btrace_seek_read(wtap *wth, long seek_off,
 	int	ret;
 	i4b_trace_hdr_t hdr;
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	/* Read record header. */
 	ret = i4b_read_rec_header(wth->random_fh, &hdr, err);

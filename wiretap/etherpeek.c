@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.19 2002/04/08 10:01:26 guy Exp $
+ * $Id: etherpeek.c,v 1.20 2002/06/07 07:27:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -446,10 +446,8 @@ etherpeek_seek_read_v7(wtap *wth, long seek_off,
 {
 	airopeek_radio_hdr_t radio_hdr;
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
 		/*

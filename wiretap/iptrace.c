@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.40 2002/04/30 18:58:16 guy Exp $
+ * $Id: iptrace.c,v 1.41 2002/06/07 07:27:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -172,10 +172,8 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
 	int			ret;
 	guint8			header[30];
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	/* Read the descriptor data */
 	ret = iptrace_read_rec_header(wth->random_fh, header, 30, err);
@@ -295,10 +293,8 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
 	int			ret;
 	guint8			header[40];
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	/* Read the descriptor data */
 	ret = iptrace_read_rec_header(wth->random_fh, header, 40, err);

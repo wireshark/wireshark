@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.55 2002/05/28 02:39:15 guy Exp $
+ * $Id: netxray.c,v 1.56 2002/06/07 07:27:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -291,8 +291,7 @@ int netxray_open(wtap *wth, int *err)
 	wth->capture.netxray->end_offset = pletohl(&hdr.end_offset);
 
 	/* Seek to the beginning of the data records. */
-	if (file_seek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET) == -1) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET, err) == -1) {
 		g_free(wth->capture.netxray);
 		return -1;
 	}	
@@ -334,10 +333,8 @@ reread:
 			/* Yes.  Remember that we did. */
 			wth->capture.netxray->wrapped = TRUE;
 			if (file_seek(wth->fh, CAPTUREFILE_HEADER_SIZE,
-			    SEEK_SET) == -1) {
-				*err = file_error(wth->fh);
+			    SEEK_SET, err) == -1)
 				return FALSE;
-			}
 			wth->data_offset = CAPTUREFILE_HEADER_SIZE;
 			goto reread;
 		}
@@ -411,10 +408,8 @@ netxray_seek_read(wtap *wth, long seek_off,
 {
 	union netxrayrec_hdr hdr;
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	if (!netxray_read_rec_header(wth, wth->random_fh, &hdr, err)) {
 		if (*err == 0) {

@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.36 2002/04/09 08:15:04 guy Exp $
+ * $Id: radcom.c,v 1.37 2002/06/07 07:27:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -101,10 +101,8 @@ int radcom_open(wtap *wth, int *err)
 		return 0;
 	}
 
-	if (file_seek(wth->fh, 0x8B, SEEK_SET) == -1) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, 0x8B, SEEK_SET, err) == -1)
 		return -1;
-	}
 	wth->data_offset = 0x8B;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&byte, 1, 1, wth->fh);
@@ -153,10 +151,8 @@ int radcom_open(wtap *wth, int *err)
 	tm.tm_sec = sec%60;
 	tm.tm_isdst = -1;
 
-	if (file_seek(wth->fh, sizeof(struct frame_date), SEEK_CUR) == -1) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, sizeof(struct frame_date), SEEK_CUR, err) == -1)
 		return -1;
-	}
 	wth->data_offset += sizeof(struct frame_date);
 
 	errno = WTAP_ERR_CANT_READ;
@@ -166,10 +162,8 @@ int radcom_open(wtap *wth, int *err)
 	}
 	wth->data_offset += 4;
 	while (memcmp(encap_magic, search_encap, 4)) {
-		if (file_seek(wth->fh, -3, SEEK_CUR) == -1) {
-			*err = file_error(wth->fh);
+		if (file_seek(wth->fh, -3, SEEK_CUR, err) == -1)
 			return -1;
-		}
 		wth->data_offset -= 3;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(search_encap, 1, 4, wth->fh);
@@ -178,10 +172,8 @@ int radcom_open(wtap *wth, int *err)
 		}
 		wth->data_offset += 4;
 	}
-	if (file_seek(wth->fh, 12, SEEK_CUR) == -1) {
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, 12, SEEK_CUR, err) == -1)
 		return -1;
-	}
 	wth->data_offset += 12;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(search_encap, 1, 4, wth->fh);
@@ -206,10 +198,8 @@ int radcom_open(wtap *wth, int *err)
 	}
 
 	while (memcmp(&start_date, &next_date, 4)) {
-		if (file_seek(wth->fh, 1-sizeof(struct frame_date), SEEK_CUR) == -1) {
-			*err = file_error(wth->fh);
+		if (file_seek(wth->fh, 1-sizeof(struct frame_date), SEEK_CUR, err) == -1)
 			return -1;
-		}
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(&next_date, 1, sizeof(struct frame_date),
 				   wth->fh);
@@ -219,16 +209,12 @@ int radcom_open(wtap *wth, int *err)
 	}*/
 
 	if (wth->file_encap == WTAP_ENCAP_ETHERNET) {
-		if (file_seek(wth->fh, 294, SEEK_CUR) == -1) {
-			*err = file_error(wth->fh);
+		if (file_seek(wth->fh, 294, SEEK_CUR, err) == -1)
 			return -1;
-		}
 		wth->data_offset += 294;
 	} else if (wth->file_encap == WTAP_ENCAP_LAPB) {
-		if (file_seek(wth->fh, 297, SEEK_CUR) == -1) {
-			*err = file_error(wth->fh);
+		if (file_seek(wth->fh, 297, SEEK_CUR, err) == -1)
 			return -1;
-		}
 		wth->data_offset += 297;
 	}
 
@@ -316,10 +302,8 @@ radcom_seek_read(wtap *wth, long seek_off,
 	int	ret;
 	struct radcomrec_hdr hdr;
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	/* Read record header. */
 	ret = radcom_read_rec_header(wth->random_fh, &hdr, err);
