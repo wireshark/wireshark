@@ -1,6 +1,7 @@
 # $Id$
 
 VERSION=0.10.5
+WTAP_VERSION=0.1
 #
 # The RC_VERSION should be comma-separated, not dot-separated, 
 # as per Graham Bloice's message in
@@ -13,7 +14,7 @@ VERSION=0.10.5
 # for the executables, and XP's tooltip, rather than 0.0.0.0."
 #
 RC_VERSION=0,10,5
-WTAP_VERSION=0.1
+RC_WTAP_VERSION=0,1
 
 #
 # If you're building with WinPcap 2.3, set WINPCAP_VERSION to 2.3; if

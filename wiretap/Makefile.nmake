@@ -56,11 +56,12 @@ all: wiretap-$(WTAP_VERSION).dll
 wiretap-$(WTAP_VERSION).lib: wiretap-$(WTAP_VERSION).dll
 wiretap-$(WTAP_VERSION).exp: wiretap-$(WTAP_VERSION).dll
 
-wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def
+wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def ..\image\wiretap.res
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
 		/DEF:wtap.def /OUT:wiretap-$(WTAP_VERSION).dll \
 		/IMPLIB:wiretap-$(WTAP_VERSION).lib \
+		..\image\wiretap.res \
 		$(OBJECTS) $(wiretap_LIBS)
 
 $(OBJECTS): config.h
