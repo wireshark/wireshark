@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.13 2002/04/17 08:57:07 guy Exp $
+ * $Id: reassemble.c,v 1.14 2002/04/17 10:07:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -896,11 +896,36 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 }
 
 /*
+ * This function gets rid of an entry from a fragment table, given
+ * a pointer to the key for that entry; it also frees up the key
+ * and the addresses in it.
+ */
+static void
+fragment_unhash(GHashTable *fragment_table, fragment_key *key)
+{
+	/*
+	 * Free up the copies of the addresses from the old key.
+	 */
+	g_free((gpointer)key->src.data);
+	g_free((gpointer)key->dst.data);
+
+	/*
+	 * Remove the entry from the fragment table.
+	 */
+	g_hash_table_remove(fragment_table, key);
+
+	/*
+	 * Free the key itself.
+	 */
+	g_mem_chunk_free(fragment_key_chunk, key);
+}
+
+/*
  * This function adds fragment_data structure to a reassembled-packet
  * hash table, using the frame data structure as the key.
  */
 static void
-fragment_reassembled(fragment_data *fd_head, packet_info *pinfo, guint32 id,
+fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
 	     GHashTable *reassembled_table)
 {
 	g_hash_table_insert(reassembled_table, pinfo->fd, fd_head);
@@ -941,6 +966,7 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	fragment_key key, *new_key, *old_key;
 	gpointer orig_key, value;
 	fragment_data *fd_head;
+	gboolean short_frame;
 	fragment_data *fd;
 	fragment_data *fd_i;
 	fragment_data *last_fd;
@@ -952,6 +978,8 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	if (pinfo->fd->flags.visited)
 		return g_hash_table_lookup(reassembled_table, pinfo->fd);
+
+	short_frame = (tvb_reported_length(tvb) > tvb_length(tvb));
 
 	/* create key to search hash with */
 	key.src = pinfo->src;
@@ -983,9 +1011,38 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * fragment.  Just add it to the table of
 			 * reassembled packets, and return it.
 			 */
-			fragment_reassembled(fd_head, pinfo, id,
+			fragment_reassembled(fd_head, pinfo,
 			       reassembled_table);
 			return fd_head;
+		}
+
+		if (short_frame) {
+			/*
+			 * This is a short frame, so don't do
+			 * reassembly on it.  (We had to be called
+			 * even on short frames, so that we can
+			 * check for fragments that are both the
+			 * first and last fragment, and handle
+			 * them as unfragmented packets.)
+			 *
+			 * If it's the first frame (fragment number
+			 * is 0), handle it as an unfragmented
+			 * packet.
+			 *
+			 * If it's not the first frame, enter it
+			 * into the hash table, but *don't* do
+			 * any further reassembly work on it;
+			 * it'll just sit there in the hash table
+			 * as an indication that we started a
+			 * reassembly, so that when we see the
+			 * last fragment, we don't get confused and
+			 * think it's an unfragmented packet.
+			 */
+			if (frag_number == 0) {
+				fragment_reassembled(fd_head, pinfo,
+				       reassembled_table);
+				return fd_head;
+			}
 		}
 
 		/*
@@ -999,11 +1056,33 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		COPY_ADDRESS(&new_key->dst, &key.dst);
 		new_key->id = key.id;
 		g_hash_table_insert(fragment_table, new_key, fd_head);
+
+		if (short_frame)
+			return NULL;
+
+		orig_key = NULL;	/* paranoia */
 	} else {
 		/*
 		 * We found it.
 		 */
 		fd_head = value;
+
+		/*
+		 * If this is a short frame, then we can't, and don't,
+		 * do reassembly on it.  We just return NULL so
+		 * that it's shown as a fragment.
+		 *
+		 * However, if "more_frags" isn't set, we get rid of
+		 * the entry in the hash table for this reassembly,
+		 * as we don't need it any more.
+		 */
+		if (short_frame) {
+			if (!more_frags) {
+				old_key = orig_key;
+				fragment_unhash(fragment_table, old_key);
+			}
+			return NULL;
+		}
 	}
 
 	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo, id,
@@ -1016,26 +1095,16 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 
 		/*
-		 * Free up the copies of the addresses from the old key.
+		 * Remove this from the table of in-progress reassemblies,
+		 * and free up any memory used for it in that table.
 		 */
 		old_key = orig_key;
-		g_free((gpointer)old_key->src.data);
-		g_free((gpointer)old_key->dst.data);
-
-		/*
-		 * Remove the entry from the fragment table.
-		 */
-		g_hash_table_remove(fragment_table, &key);
-
-		/*
-		 * Free the key itself.
-		 */
-		g_mem_chunk_free(fragment_key_chunk, old_key);
+		fragment_unhash(fragment_table, old_key);
 
 		/*
 		 * Add this item to the table of reassembled packets.
 		 */
-		fragment_reassembled(fd_head, pinfo, id, reassembled_table);
+		fragment_reassembled(fd_head, pinfo, reassembled_table);
 		return fd_head;
 	} else {
 		/*

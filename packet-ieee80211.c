@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.57 2002/04/17 09:34:09 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.58 2002/04/17 10:07:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1631,8 +1631,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
    * (This could get some false positives if we really *did* only
    * capture the last fragment of a fragmented packet, but that's
    * life.)
-   *
-   * XXX - what about short frames?
    */
   save_fragmented = pinfo->fragmented;
   if (wlan_defragment && (more_frags || frag_number != 0)) {
