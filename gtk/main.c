@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.331 2003/11/24 22:11:55 guy Exp $
+ * $Id: main.c,v 1.332 2003/11/27 22:12:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1304,13 +1304,15 @@ print_usage(gboolean print_ver) {
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
   fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
-  fprintf(stderr, "\t[ -w <savefile> ] [ -y <link type> ] [ <infile> ]\n");
+  fprintf(stderr, "\t[ -w <savefile> ] [ -y <link type> ] [ -z <statistics string> ]\n");
+  fprintf(stderr, "\t[ <infile> ]\n");
 #else
   fprintf(stderr, "\n%s [ -vh ] [ -n ] [ -B <byte view height> ] [ -m <medium font> ]\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -N <resolving> ] [ -o <preference setting> ...\n");
   fprintf(stderr, "\t[ -P <packet list height> ] [ -r <infile> ] [ -R <read filter> ]\n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ] [ <infile> ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
+  fprintf(stderr, "\t[ -z <statistics string> ] [ <infile> ]\n");
 #endif
 }
 
