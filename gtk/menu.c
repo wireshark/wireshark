@@ -143,6 +143,22 @@ static void auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_);
        Item 6: extra data needed for ImageItem and StockItem (gtk2)
     */
 
+/*  As a general GUI guideline, we try to follow the Gnome Human Interface Guidelines, which can be found at:
+    http://developer.gnome.org/projects/gup/hig/1.0/index.html
+    
+Please note: there are some differences between the Gnome HIG menu suggestions and our implementation:
+
+File/Open Recent:   the Gnome HIG suggests putting the list of recently used files as elements into the File menuitem.
+                    As this is ok for only a few items, this will become unhandy for 10 or even more list entries.
+                    For this reason, we use a submenu for this.
+
+File/Close:         the Gnome HIG suggests putting this item just above the Quit item.
+                    This results in unintuitive behaviour as both Close and Quit items are very near together.
+                    By putting the Close item near the open item(s), it better suggests that it will close the 
+                    currently opened/captured file only.
+*/
+
+
 /* main menu */
 static GtkItemFactoryEntry menu_items[] =
 {
@@ -151,6 +167,8 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_OPEN),
     ITEM_FACTORY_ENTRY("/File/Open _Recent", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/File/_Merge...", NULL, file_merge_cmd_cb, 0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/File/_Close", "<control>W", file_close_cmd_cb,
+                             0, GTK_STOCK_CLOSE),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Save", "<control>S", file_save_cmd_cb,
                              0, GTK_STOCK_SAVE),
@@ -173,8 +191,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", "<control>P", file_print_cmd_cb,
                              0, GTK_STOCK_PRINT),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/File/_Close", "<control>W", file_close_cmd_cb,
-                             0, GTK_STOCK_CLOSE),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Quit", "<control>Q", file_quit_cmd_cb,
                              0, GTK_STOCK_QUIT),
     ITEM_FACTORY_ENTRY("/_Edit", NULL, NULL, 0, "<Branch>", NULL),
