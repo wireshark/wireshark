@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.32 2001/07/21 10:27:13 guy Exp $
+ * $Id: packet-pim.c,v 1.33 2001/10/30 10:10:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -606,13 +606,19 @@ static const value_string type2vals[] = {
     { 0, NULL },
 };
 
+/*
+ * For PIM v2, see RFC 2362, and draft-ietf-pim-sm-v2-new-03 (when PIM
+ * is run over IPv6, the rules for computing the PIM checksum from the
+ * draft in question, not from RFC 2362, should be used).
+ */
 static void 
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
     guint8 pim_typever;
     guint length, pim_length;
     guint16 pim_cksum, computed_cksum;
-    vec_t cksum_vec[1];
+    vec_t cksum_vec[4];
+    guint32 phdr[2];
     char *typestr;
     proto_tree *pim_tree = NULL;
     proto_item *ti; 
@@ -688,9 +694,33 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	     * The packet isn't part of a fragmented datagram and isn't
 	     * truncated, so we can checksum it.
 	     */
-	    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, pim_length);
-	    cksum_vec[0].len = pim_length;
-	    computed_cksum = in_cksum(&cksum_vec[0], 1);
+
+	    switch (pinfo->src.type) {
+	    case AT_IPv4:
+		cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, pim_length);
+		cksum_vec[0].len = pim_length;
+		computed_cksum = in_cksum(&cksum_vec[0], 1);
+		break;
+	    case AT_IPv6:
+		/* Set up the fields of the pseudo-header. */
+		cksum_vec[0].ptr = pinfo->src.data;
+		cksum_vec[0].len = pinfo->src.len;
+		cksum_vec[1].ptr = pinfo->dst.data;
+		cksum_vec[1].len = pinfo->dst.len;
+		cksum_vec[2].ptr = (const guint8 *)&phdr;
+		phdr[0] = htonl(pim_length);
+		phdr[1] = htonl(IP_PROTO_PIM);
+		cksum_vec[2].len = 8;
+		cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, pim_length);
+		cksum_vec[3].len = pim_length;
+		computed_cksum = in_cksum(&cksum_vec[0], 4);
+		break;
+	    default:
+	    	/* PIM is available for IPv4 and IPv6 right now */
+		g_assert_not_reached();
+		break;
+	    }
+
 	    if (computed_cksum == 0) {
 		proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
 			offset + 2, 2, pim_cksum,

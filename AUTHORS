@@ -849,6 +849,10 @@ Pavel Novotny <Pavel.Novotny[AT]icn.siemens.de> {
 	Additional items for RADIUS tunnels
 }
 
+Shinsuke Suzuki <suz[AT]kame.net> {
+	Fix to IPv6 PIM checksum calculation
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
