@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.50 2004/05/21 08:55:07 ulfl Exp $
+ * $Id: help_dlg.c,v 1.51 2004/05/22 04:25:57 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -34,6 +34,7 @@
 
 #include "epan/filesystem.h"
 #include "help_dlg.h"
+#include "text_page.h"
 #include "prefs.h"
 #include "gtkglobals.h"
 #include "ui_util.h"
