@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.45 1999/06/24 16:25:58 gram Exp $
+ * $Id: ethereal.c,v 1.46 1999/06/25 06:49:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -302,10 +302,14 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 void
 match_selected_cb(GtkWidget *w, gpointer data)
 {
+#ifndef WITH_WIRETAP
     int i;
     unsigned char *c;
+#endif
     char *buf = malloc(1024);
+#ifndef WITH_WIRETAP
     char *ptr;
+#endif
     GtkWidget *filter_te = NULL;
 
     if (w)
