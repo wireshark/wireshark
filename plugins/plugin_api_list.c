@@ -420,7 +420,7 @@ guint32 dissect_per_bit_string(tvbuff_t*, guint32, packet_info*, proto_tree*, in
 
 int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag);
 int dissect_ber_length(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
-int dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value);
+int dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value);
 int dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 int dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice *ch, gint hf_id, gint ett_id);
 int dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
@@ -507,4 +507,3 @@ header_field_info* proto_registrar_get_byname(char *field_name);
 double fvalue_get_floating(fvalue_t *fv);
 char *fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
 guint32 fvalue_get_integer(fvalue_t *fv);
-

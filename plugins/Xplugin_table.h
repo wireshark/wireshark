@@ -255,7 +255,7 @@ typedef void (*addr_report_read_failure) (const char *, int);
 typedef guint32 (*addr_dissect_per_bit_string) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, int, int);
 typedef int (*addr_dissect_ber_identifier) (packet_info *, proto_tree *, tvbuff_t *, int, guint8 *, gboolean *, guint32 *);
 typedef int (*addr_dissect_ber_length) (packet_info *, proto_tree *, tvbuff_t *, int, guint32 *, gboolean *);
-typedef int (*addr_dissect_ber_integer) (packet_info *, proto_tree *, tvbuff_t *, int, gint, guint32 *);
+typedef int (*addr_dissect_ber_integer) (gboolean, packet_info *, proto_tree *, tvbuff_t *, int, gint, guint32 *);
 typedef int (*addr_dissect_ber_boolean) (packet_info *, proto_tree *, tvbuff_t *, int, gint);
 typedef int (*addr_dissect_ber_choice) (packet_info *, proto_tree *, tvbuff_t *, int, const ber_choice *, gint, gint);
 typedef int (*addr_dissect_ber_generalized_time) (packet_info *, proto_tree *, tvbuff_t *, int, gint);
