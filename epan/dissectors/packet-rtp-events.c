@@ -253,6 +253,6 @@ proto_reg_handoff_rtp_events(void)
 	saved_payload_type_value = rtp_event_payload_type_value;
 	/* rtp_event_payload_type_value is set from preferences */
 
-    	dissector_add("rtp.pt", saved_payload_type_value, rtp_events_handle);
-
+    dissector_add("rtp.pt", saved_payload_type_value, rtp_events_handle);
+	dissector_add_string("rtp_dyn_payload_type", "telephone-event", rtp_events_handle);
 }
