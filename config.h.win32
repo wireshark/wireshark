@@ -8,16 +8,41 @@
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
 /* #undef WORDS_BIGENDIAN */
 
+/* Define if lex declares yytext as a char * by default, not a char[].  */
+#define YYTEXT_POINTER 1
+
 /* #undef HAVE_SA_LEN */
 
 #define DATAFILE_DIR "/usr/local/etc"
+
+/* #undef NEED_INET_V6DEFS_H */
 
 /* #undef NEED_SNPRINTF_H */
 
 /* #undef NEED_STRERROR_H */
 
+/* Define if you have the pcap library (-lpcap).  */
+/* #define HAVE_LIBPCAP 1 */	/* although there are versions available */
+
+/* #undef HAVE_LIBZ */		/* I think it might be available */
+
+/* Define if you have the gethostbyname2 function.  */
+/* #undef HAVE_GETHOSTBYNAME2 */
+
+/* Define if you have the getprotobynumber function.  */
+/* #undef HAVE_GETPROTOBYNUMBER */
+
+/* Define if you have the <dlfcn.h> header file.  */
+/* #undef HAVE_DLFCN_H */	/* XXX - use "LoadLibrary()"? */
+
 /* Define if you have the <fcntl.h> header file.  */
 #define HAVE_FCNTL_H 1
+
+/* Define if you have the <net/if.h> header file.  */
+/* #undef HAVE_NET_IF_H */
+
+/* Define if you have the <netdb.h> header file.  */
+/* #undef HAVE_NETDB_H */
 
 /* Define if you have the <netinet/in.h> header file.  */
 /* #define HAVE_NETINET_IN_H 1 */
@@ -25,14 +50,26 @@
 /* Define if you have the <snmp/snmp.h> header file.  */
 /* #undef HAVE_SNMP_SNMP_H */
 
+/* Define if you have the <snmp/version.h> header file.  */
+/* #undef HAVE_SNMP_VERSION_H */
+
 /* Define if you have the <stdarg.h> header file.  */
 #define HAVE_STDARG_H 1
+
+/* Define if you have the <stddef.h> header file.  */
+/* #undef HAVE_STDDEF_H */
 
 /* Define if you have the <sys/ioctl.h> header file.  */
 /* #undef HAVE_SYS_IOCTL_H */
 
+/* Define if you have the <sys/socket.h> header file.  */
+/* #undef HAVE_SYS_SOCKET_H */
+
 /* Define if you have the <sys/sockio.h> header file.  */
 /* #undef HAVE_SYS_SOCKIO_H */
+
+/* Define if you have the <sys/stat.h> header file.  */
+/* #undef HAVE_SYS_STAT_H */
 
 /* Define if you have the <sys/time.h> header file.  */
 /* #define HAVE_SYS_TIME_H 1 */
@@ -40,20 +77,23 @@
 /* Define if you have the <sys/types.h> header file.  */
 #define HAVE_SYS_TYPES_H 1
 
+/* Define if you have the <sys/wait.h> header file.  */
+/* #undef HAVE_SYS_WAIT_H */
+
 /* Define if you have the <ucd-snmp/snmp.h> header file.  */
 /* #undef HAVE_UCD_SNMP_SNMP_H */
 
+/* Define if you have the <ucd-snmp/version.h> header file.  */
+/* #undef HAVE_UCD_SNMP_VERSION_H */
+
 /* Define if you have the <unistd.h> header file.  */
 /* #define HAVE_UNISTD_H 1 */
-
-/* Define if you have the pcap library (-lpcap).  */
-/* #define HAVE_LIBPCAP 1 */
 
 /* Name of package */
 #define PACKAGE "ethereal"
 
 /* Version number of package */
-#define VERSION "0.6.3"
+#define VERSION "0.7.9"
 
 #define HAVE_WINSOCK_H
 #define snprintf _snprintf
