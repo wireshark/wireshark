@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.18 2002/09/08 01:07:40 sharpe Exp $
+ * $Id: packet-gssapi.c,v 1.19 2002/09/08 01:43:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@ static gint ett_gssapi = -1;
  * Subdissectors
  */
 
-GHashTable *gssapi_oids;
+static GHashTable *gssapi_oids;
 
 static gint gssapi_oid_equal(gconstpointer k1, gconstpointer k2)
 {
@@ -89,6 +89,37 @@ gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle,
 	g_hash_table_insert(gssapi_oids, key, value);
 }
 
+/*
+ * This takes an OID in binary form, not an OID as a text string, as
+ * an argument.
+ */
+gssapi_oid_value *
+gssapi_lookup_oid(subid_t *oid, guint oid_len)
+{
+	gchar *oid_key;
+	gchar *p;
+	unsigned int i;
+	int len;
+	gssapi_oid_value *value;
+
+	/*
+	 * Convert the OID to a string, as text strings are used as
+	 * keys in the OID hash table.
+	 */
+	oid_key = g_malloc(oid_len * 22 + 1);
+	p = oid_key;
+	len = sprintf(p, "%lu", (unsigned long)oid[0]);
+	p += len;
+	for (i = 1; i < oid_len;i++) {
+		len = sprintf(p, ".%lu", (unsigned long)oid[i]);
+		p += len;
+	}
+
+	value = g_hash_table_lookup(gssapi_oids, oid_key);
+	g_free(oid_key);
+	return value;
+}
+
 /* Display an ASN1 parse error.  Taken from packet-snmp.c */
 
 static dissector_handle_t data_handle;
@@ -119,10 +150,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean def;
 	guint len1, oid_len, cls, con, tag, nbytes;
 	subid_t *oid;
-	gchar *oid_string, *oid_key;
-	gchar *p;
-	unsigned int i;
-	int len;
+	gchar *oid_string;
 	gssapi_oid_value *value;
 	volatile dissector_handle_t handle = NULL;
 	conversation_t *volatile conversation;
@@ -216,21 +244,9 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/*
 		 * Hand off to subdissector.
-		 * We can't use "oid_string", as it might contain an
-		 * interpretation of the OID after the raw string, so
-		 * we generate our own string for it.
 		 */
 
-		oid_key = g_malloc(oid_len * 22 + 1);
-		p = oid_key;
-		len = sprintf(p, "%lu", (unsigned long)oid[0]);
-		p += len;
-		for (i = 1; i < oid_len;i++) {
-			len = sprintf(p, ".%lu", (unsigned long)oid[i]);
-			p += len;
-		}
-
-		if (((value = g_hash_table_lookup(gssapi_oids, oid_key)) == NULL) ||
+		if (((value = gssapi_lookup_oid(oid, oid_len)) == NULL) ||
 		    !proto_is_protocol_enabled(value->proto)) {
 
 		        proto_tree_add_text(subtree, tvb, offset, nbytes, 
@@ -240,7 +256,6 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += nbytes;
 
 			g_free(oid_string);
-			g_free(oid_key);
 
 			/* No dissector for this oid */
 
@@ -261,7 +276,6 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += nbytes;
 
 		g_free(oid_string);
-		g_free(oid_key);
 
 		/*
 		 * This is not needed, as the sub-dissector adds a tree

@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.16 2002/09/07 15:45:28 sharpe Exp $
+ * $Id: packet-ntlmssp.c,v 1.17 2002/09/08 01:43:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 
 #include "packet-smb-common.h"
+#include "asn1.h"		/* XXX - needed for subid_t */
 #include "packet-gssapi.h"
 #include "packet-frame.h"
 

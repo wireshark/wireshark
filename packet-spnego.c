@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.31 2002/09/07 03:32:49 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.32 2002/09/08 01:43:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -187,7 +187,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	oid_string = format_oid(oid, oid_len);
 
-	value = g_hash_table_lookup(gssapi_oids, oid_string);
+	value = gssapi_lookup_oid(oid, oid_len);
 
 	if (value) 
 	  proto_tree_add_text(subtree, tvb, offset, nbytes, 
@@ -197,6 +197,8 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	  proto_tree_add_text(subtree, tvb, offset, oid_len, "OID: %s",
 			      oid_string);
 	  
+	g_free(oid_string);
+
 	offset += nbytes;
 
 	/* Next, the token ID ... */
@@ -238,7 +240,6 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	subid_t *oid;
 	gchar *oid_string;
 	int ret;
-
 
 	/*
 	 * MechTypeList ::= SEQUENCE OF MechType
@@ -282,13 +283,15 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  }
 
 	  oid_string = format_oid(oid, len);
-	  value = g_hash_table_lookup(gssapi_oids, oid_string);
+	  value = gssapi_lookup_oid(oid, len);
 	  if (value)
 	    proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s (%s)",
 				oid_string, value->comment);
 	  else
 	    proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
 				oid_string);
+
+	  g_free(oid_string);
 
 	  offset += nbytes;
 	  len1 -= nbytes;
@@ -627,10 +630,9 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			     proto_tree *tree, ASN1_SCK *hnd)
 {
 	int ret;
-	guint oid_len, len, nbytes;
+	guint oid_len, nbytes;
 	subid_t *oid;
-	gchar *p, *oid_string;
-	unsigned int i;
+	gchar *oid_string;
 	gssapi_oid_value *value;
 	conversation_t *conversation;
 
@@ -649,21 +651,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	oid_string = format_oid(oid, oid_len);
-
-	offset += nbytes;
-
-	g_free(oid_string);
-
-	oid_string = g_malloc(oid_len * 22 + 1);
-	p = oid_string;
-	len = sprintf(p, "%lu", (unsigned long)oid[0]);
-	p += len;
-	for (i = 1; i < oid_len;i++) {
-		len = sprintf(p, ".%lu", (unsigned long)oid[i]);
-		p += len;
-	}
-
-	value = g_hash_table_lookup(gssapi_oids, oid_string);
+	value = gssapi_lookup_oid(oid, oid_len);
 
 	if (value)
 	  proto_tree_add_text(tree, tvb, offset, nbytes, 
@@ -672,6 +660,10 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	else
 	  proto_tree_add_text(tree, tvb, offset, nbytes, "supportedMech: %s",
 			      oid_string);
+
+	g_free(oid_string);
+
+	offset += nbytes;
 
 	/* Should check for an unrecognized OID ... */
 
