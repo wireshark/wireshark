@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.30 2001/07/16 06:16:14 guy Exp $
+$Id: README.developer,v 1.31 2001/07/20 09:55:08 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -62,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.30 2001/07/16 06:16:14 guy Exp $"
+The "$Id: README.developer,v 1.31 2001/07/20 09:55:08 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,7 +72,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.30 2001/07/16 06:16:14 guy Exp $
+ * $Id: README.developer,v 1.31 2001/07/20 09:55:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -830,6 +830,11 @@ typedef struct hf_register_info {
 
 Also be sure to use the handy array_length() macro found in packet.h
 to have the compiler compute the array length for you at compile time.
+
+If you don't have any fields to register, do *NOT* create a zero-length
+"hf" array; not all compilers used to compile Ethereal support them. 
+Just omit the "hf" array, and the "proto_register_field_array()" call,
+entirely.
 
 1.6.2 Adding Items and Values to the Protocol Tree.
 
