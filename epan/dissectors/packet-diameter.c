@@ -495,7 +495,7 @@ xmlParseAVP(xmlNodePtr cur)
   entry->type = avpType;
   entry->values = vEntry;
   if (vEntry)
-	entry->type = DIAMETER_INTEGER32;
+	entry->type = DIAMETER_ENUMERATED;
 
   /* And, add it to the list */
   entry->next = avpListHead;
