@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.97 2003/01/26 01:00:05 tpot Exp $
+ * $Id: packet-dns.c,v 1.98 2003/01/31 06:58:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1585,15 +1585,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	tkey_mode = tvb_get_ntohs(tvb, cur_offset);
 	cur_offset += 2;
 	rr_len -= 2;
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Mode: %s",
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Mode: %s",
 		val_to_str(tkey_mode, tkey_modes,
-	            "Unknown (0x%02X)"));
+	            "Unknown (0x%04X)"));
 
 	tkey_error = tvb_get_ntohs(tvb, cur_offset);
 	cur_offset += 2;
 	rr_len -= 2;
-
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Error: %s",
+        proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Error: %s",
 		val_to_str(tkey_error, rcode_vals,
 		val_to_str(tkey_error, tsigerror_vals, "Unknown error (%x)")));
 
@@ -1610,6 +1609,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	case TKEYMODE_GSSAPI: {
 		tvbuff_t *gssapi_tvb;
 
+		/*
+		 * XXX - in at least one capture, this appears to
+		 * be an NTLMSSP blob, with no ASN.1 in it, in
+		 * a query.
+		 *
+		 * However, that query got a "Format error" response,
+		 * so perhaps Microsoft had just screwed up in the
+		 * code that constructed the query.
+		 */
 		gssapi_tvb = tvb_new_subset(
 			tvb, cur_offset, tkey_keylen, tkey_keylen);
 
