@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.61 2004/02/28 04:18:47 guy Exp $
+ * $Id: filter_prefs.c,v 1.62 2004/02/28 04:21:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1359,7 +1359,8 @@ filter_te_syntax_check_cb(GtkWidget *w)
 
     /* colorize filter string entry */
     if (strval && dfilter_compile(strval, &dfp)) {
-        /* XXX: do we have to free the dfp again? */
+    	if (dfp != NULL)
+    	  dfilter_free(dfp);
         if (strlen(strval) == 0)
             colorize_filter_te_as_empty(w);
         else
