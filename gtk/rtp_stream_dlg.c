@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.5 2003/11/20 23:34:31 guy Exp $
+ * $Id: rtp_stream_dlg.c,v 1.6 2003/12/16 18:43:35 oabad Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -237,8 +237,8 @@ rtpstream_on_save                      (GtkButton       *button _U_,
 	}
 
 	rtpstream_save_dlg = gtk_file_selection_new("Ethereal: Save selected stream in rtpdump ('-F dump') format");
-	gtk_signal_connect(GTK_OBJECT(rtpstream_save_dlg), "destroy",
-		GTK_SIGNAL_FUNC(save_stream_destroy_cb), NULL);
+	SIGNAL_CONNECT(rtpstream_save_dlg, "destroy", save_stream_destroy_cb,
+                       NULL);
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -260,8 +260,7 @@ rtpstream_on_save                      (GtkButton       *button _U_,
 	been selected. */
 	dlg_set_cancel(rtpstream_save_dlg, GTK_FILE_SELECTION(rtpstream_save_dlg)->cancel_button);
 
-	gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		GTK_SIGNAL_FUNC(save_stream_ok_cb), tapinfo);
+	SIGNAL_CONNECT(ok_bt, "clicked", save_stream_ok_cb, tapinfo);
 
 	gtk_widget_show(rtpstream_save_dlg);
 }
@@ -482,34 +481,32 @@ static void rtpstream_dlg_create (void)
 	
 	vbox1 = gtk_vbox_new (FALSE, 0);
 	gtk_widget_ref (vbox1);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "vbox1", vbox1,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "vbox1", vbox1, gtk_widget_unref);
 	gtk_widget_show (vbox1);
 	gtk_box_pack_start (GTK_BOX (dialog_vbox1), vbox1, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (vbox1), 8);
 	
 	label10 = gtk_label_new ("Detected RTP streams. Choose one for forward and reverse direction for analysis");
 	gtk_widget_ref (label10);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label10", label10,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label10", label10,
+                             gtk_widget_unref);
 	gtk_widget_show (label10);
 	gtk_box_pack_start (GTK_BOX (vbox1), label10, FALSE, FALSE, 0);
-	gtk_widget_set_usize (label10, -2, 32);
+	WIDGET_SET_SIZE(label10, -2, 32);
 	
 	scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
 	gtk_widget_ref (scrolledwindow1);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "scrolledwindow1", scrolledwindow1,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "scrolledwindow1",
+                             scrolledwindow1, gtk_widget_unref);
 	gtk_widget_show (scrolledwindow1);
 	gtk_box_pack_start (GTK_BOX (vbox1), scrolledwindow1, TRUE, TRUE, 0);
 	
 	clist = gtk_clist_new (7); /* defines number of columns */
 	gtk_widget_ref (clist);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "clist", clist,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "clist", clist, gtk_widget_unref);
 	gtk_widget_show (clist);
 	gtk_container_add (GTK_CONTAINER (scrolledwindow1), clist);
-	gtk_widget_set_usize (clist, 640, 200);
+	WIDGET_SET_SIZE(clist, 640, 200);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 100);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 50);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 2, 100);
@@ -522,73 +519,73 @@ static void rtpstream_dlg_create (void)
 	
 	label2 = gtk_label_new ("Src IP addr");
 	gtk_widget_ref (label2);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label2", label2,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label2", label2,
+                             gtk_widget_unref);
 	gtk_widget_show (label2);
 	gtk_clist_set_column_widget (GTK_CLIST (clist), 0, label2);
 	
 	label3 = gtk_label_new ("Src port");
 	gtk_widget_ref (label3);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label3", label3,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label3", label3,
+                             gtk_widget_unref);
 	gtk_widget_show (label3);
 	gtk_clist_set_column_widget (GTK_CLIST (clist), 1, label3);
 	
 	label4 = gtk_label_new ("Dest IP addr");
 	gtk_widget_ref (label4);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label4", label4,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label4", label4,
+                             gtk_widget_unref);
 	gtk_widget_show (label4);
 	gtk_clist_set_column_widget (GTK_CLIST (clist), 2, label4);
 	
 	label5 = gtk_label_new ("Dest port");
 	gtk_widget_ref (label5);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label5", label5,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label5", label5,
+                             gtk_widget_unref);
 	gtk_widget_show (label5);
 	gtk_clist_set_column_widget (GTK_CLIST (clist), 3, label5);
 	
 	label6 = gtk_label_new ("SSRC");
 	gtk_widget_ref (label6);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label6", label6,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label6", label6,
+                             gtk_widget_unref);
 	gtk_widget_show (label6);
 	gtk_clist_set_column_widget (GTK_CLIST (clist), 4, label6);
-	gtk_widget_set_usize (label6, 80, -2);
+	WIDGET_SET_SIZE(label6, 80, -2);
 	
 	label7 = gtk_label_new ("Payload");
 	gtk_widget_ref (label7);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label7", label7,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label7", label7,
+                             gtk_widget_unref);
 	gtk_widget_show (label7);
 	gtk_clist_set_column_widget (GTK_CLIST (clist), 5, label7);
 	
 	label8 = gtk_label_new ("Packets");
 	gtk_widget_ref (label8);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label8", label8,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label8", label8,
+                             gtk_widget_unref);
 	gtk_widget_show (label8);
 	gtk_clist_set_column_widget (GTK_CLIST (clist), 6, label8);
 /*	
 	label9 = gtk_label_new ("Comment");
 	gtk_widget_ref (label9);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label9", label9,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label9", label9,
+		             gtk_widget_unref);
 	gtk_widget_show (label9);
 	gtk_clist_set_column_widget (GTK_CLIST (clist), 7, label9);
 */	
 	label_fwd = gtk_label_new (FWD_LABEL_TEXT);
 	gtk_widget_ref (label_fwd);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label_fwd", label_fwd,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label_fwd", label_fwd,
+                             gtk_widget_unref);
 	gtk_widget_show (label_fwd);
 	gtk_box_pack_start (GTK_BOX (vbox1), label_fwd, FALSE, FALSE, 0);
 	gtk_label_set_justify (GTK_LABEL (label_fwd), GTK_JUSTIFY_LEFT);
 	
 	label_rev = gtk_label_new (REV_LABEL_TEXT);
 	gtk_widget_ref (label_rev);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "label_rev", label_rev,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "label_rev", label_rev,
+                             gtk_widget_unref);
 	gtk_widget_show (label_rev);
 	gtk_box_pack_start (GTK_BOX (vbox1), label_rev, FALSE, FALSE, 0);
 	gtk_label_set_justify (GTK_LABEL (label_rev), GTK_JUSTIFY_LEFT);
@@ -599,8 +596,8 @@ static void rtpstream_dlg_create (void)
 	
 	hbuttonbox2 = gtk_hbutton_box_new ();
 	gtk_widget_ref (hbuttonbox2);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "hbuttonbox2", hbuttonbox2,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "hbuttonbox2", hbuttonbox2,
+                             gtk_widget_unref);
 	gtk_widget_show (hbuttonbox2);
 	gtk_box_pack_start (GTK_BOX (dialog_action_area1), hbuttonbox2, FALSE, FALSE, 0);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox2), GTK_BUTTONBOX_END);
@@ -608,89 +605,73 @@ static void rtpstream_dlg_create (void)
 	
 	bt_unselect = gtk_button_new_with_label ("Unselect");
 	gtk_widget_ref (bt_unselect);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "bt_unselect", bt_unselect,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_unselect", bt_unselect,
+                             gtk_widget_unref);
 	gtk_widget_show (bt_unselect);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_unselect);
 	GTK_WIDGET_SET_FLAGS (bt_unselect, GTK_CAN_DEFAULT);
 /*	
 	bt_goto = gtk_button_new_with_label ("Go to Frame");
 	gtk_widget_ref (bt_goto);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "bt_goto", bt_goto,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_goto", bt_goto,
+		             gtk_widget_unref);
 	gtk_widget_show (bt_goto);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_goto);
 	GTK_WIDGET_SET_FLAGS (bt_goto, GTK_CAN_DEFAULT);
 */	
 	bt_save = gtk_button_new_with_label ("Save as...");
 	gtk_widget_ref (bt_save);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "bt_save", bt_save,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_save", bt_save,
+                             gtk_widget_unref);
 	gtk_widget_show (bt_save);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_save);
 	GTK_WIDGET_SET_FLAGS (bt_save, GTK_CAN_DEFAULT);
 	
 	bt_frames = gtk_button_new_with_label ("Mark frames");
 	gtk_widget_ref (bt_frames);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "bt_frames", bt_frames,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_frames", bt_frames,
+                             gtk_widget_unref);
 	gtk_widget_show (bt_frames);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_frames);
 	GTK_WIDGET_SET_FLAGS (bt_frames, GTK_CAN_DEFAULT);
 	
 	bt_filter = gtk_button_new_with_label ("Set filter");
 	gtk_widget_ref (bt_filter);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "bt_filter", bt_filter,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_filter", bt_filter,
+                             gtk_widget_unref);
 	gtk_widget_show (bt_filter);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_filter);
 	GTK_WIDGET_SET_FLAGS (bt_filter, GTK_CAN_DEFAULT);
 	
 	bt_analyse = gtk_button_new_with_label ("Analyse");
 	gtk_widget_ref (bt_analyse);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "bt_analyse", bt_analyse,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_analyse", bt_analyse,
+                             gtk_widget_unref);
 	gtk_widget_show (bt_analyse);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_analyse);
 	GTK_WIDGET_SET_FLAGS (bt_analyse, GTK_CAN_DEFAULT);
 	
 	bt_close = gtk_button_new_with_label ("Close");
 	gtk_widget_ref (bt_close);
-	gtk_object_set_data_full (GTK_OBJECT (rtpstream_dlg_w), "bt_close", bt_close,
-		(GtkDestroyNotify) gtk_widget_unref);
+	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_close", bt_close,
+                             gtk_widget_unref);
 	gtk_widget_show (bt_close);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
 	GTK_WIDGET_SET_FLAGS (bt_close, GTK_CAN_DEFAULT);
 	
-	gtk_signal_connect (GTK_OBJECT (rtpstream_dlg_w), "destroy",
-		GTK_SIGNAL_FUNC (rtpstream_on_destroy),
-		NULL);
-	gtk_signal_connect (GTK_OBJECT (clist), "select_row",
-		GTK_SIGNAL_FUNC (rtpstream_on_select_row),
-		NULL);
-	gtk_signal_connect (GTK_OBJECT (bt_unselect), "clicked",
-		GTK_SIGNAL_FUNC (rtpstream_on_unselect),
-		NULL);
+	SIGNAL_CONNECT(rtpstream_dlg_w, "destroy", rtpstream_on_destroy, NULL);
+	SIGNAL_CONNECT(clist, "select_row", rtpstream_on_select_row, NULL);
+	SIGNAL_CONNECT(bt_unselect, "clicked", rtpstream_on_unselect, NULL);
 /*
 	gtk_signal_connect (GTK_OBJECT (bt_goto), "clicked",
 		GTK_SIGNAL_FUNC (rtpstream_on_goto),
 		NULL);
 */
-	gtk_signal_connect (GTK_OBJECT (bt_save), "clicked",
-		GTK_SIGNAL_FUNC (rtpstream_on_save),
-		NULL);
-	gtk_signal_connect (GTK_OBJECT (bt_frames), "clicked",
-		GTK_SIGNAL_FUNC (rtpstream_on_mark),
-		NULL);
-	gtk_signal_connect (GTK_OBJECT (bt_filter), "clicked",
-		GTK_SIGNAL_FUNC (rtpstream_on_filter),
-		NULL);
-	gtk_signal_connect (GTK_OBJECT (bt_analyse), "clicked",
-		GTK_SIGNAL_FUNC (rtpstream_on_analyse),
-		NULL);
-	gtk_signal_connect (GTK_OBJECT (bt_close), "clicked",
-		GTK_SIGNAL_FUNC (rtpstream_on_close),
-		NULL);
+	SIGNAL_CONNECT(bt_save, "clicked", rtpstream_on_save, NULL);
+	SIGNAL_CONNECT(bt_frames, "clicked", rtpstream_on_mark, NULL);
+	SIGNAL_CONNECT(bt_filter, "clicked", rtpstream_on_filter, NULL);
+	SIGNAL_CONNECT(bt_analyse, "clicked", rtpstream_on_analyse, NULL);
+	SIGNAL_CONNECT(bt_close, "clicked", rtpstream_on_close, NULL);
 /* XXX: see rtpstream_on_update for comment
 	gtk_signal_connect (GTK_OBJECT (top_level), "signal_rtpstream_update",
 		GTK_SIGNAL_FUNC (rtpstream_on_update),

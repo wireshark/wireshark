@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.71 2003/12/04 10:59:34 guy Exp $
+ * $Id: proto_draw.c,v 1.72 2003/12/16 18:43:35 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -795,7 +795,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 
 	/* File entry */
 	file_entry=gtk_entry_new();
-	gtk_widget_set_usize(file_entry, 300, -2);
+	WIDGET_SET_SIZE(file_entry, 300, -2);
 	gtk_tooltips_set_tip(tooltips, file_entry, ("Enter Save Data filename"), NULL);
 	gtk_box_pack_start(GTK_BOX(file_box), file_entry, TRUE, TRUE, 0);
 	gtk_widget_show(file_entry);

@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.49 2003/12/14 10:24:24 guy Exp $
+ * $Id: io_stat.c,v 1.50 2003/12/16 18:43:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1003,7 +1003,7 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 	int i;
 	io_stat_t *io;
 
-	io=(io_stat_t *)gtk_object_get_data(GTK_OBJECT(widget), "io_stat_t");
+	io=(io_stat_t *)OBJECT_GET_DATA(widget, "io_stat_t");
 
 	for(i=0;i<MAX_GRAPHS;i++){
 		if(io->graphs[i].display){
@@ -1030,7 +1030,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	int i;
 	io_stat_t *io;
 
-	io=(io_stat_t *)gtk_object_get_data(GTK_OBJECT(widget), "io_stat_t");
+	io=(io_stat_t *)OBJECT_GET_DATA(widget, "io_stat_t");
 	if(!io){
 		exit(10);
 	}
@@ -1103,7 +1103,7 @@ expose_event(GtkWidget *widget, GdkEventExpose *event)
 {
 	io_stat_t *io;
 
-	io=(io_stat_t *)gtk_object_get_data(GTK_OBJECT(widget), "io_stat_t");
+	io=(io_stat_t *)OBJECT_GET_DATA(widget, "io_stat_t");
 	if(!io){
 		exit(10);
 	}
@@ -1125,7 +1125,7 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 {
 	io->draw_area=gtk_drawing_area_new();
 	SIGNAL_CONNECT(io->draw_area, "destroy", quit, io);
-	gtk_object_set_data(GTK_OBJECT(io->draw_area), "io_stat_t", (gpointer)io);
+	OBJECT_SET_DATA(io->draw_area, "io_stat_t", io);
 
 	WIDGET_SET_SIZE(io->draw_area, io->pixmap_width, io->pixmap_height);
 
@@ -1152,7 +1152,7 @@ tick_interval_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(int)gtk_object_get_data(GTK_OBJECT(item), "tick_interval");
+	val=(int)OBJECT_GET_DATA(item, "tick_interval");
 
 	io->interval=val;
 	redissect_packets(&cfile);
@@ -1167,7 +1167,7 @@ pixels_per_tick_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(int)gtk_object_get_data(GTK_OBJECT(item), "pixels_per_tick");
+	val=(int)OBJECT_GET_DATA(item, "pixels_per_tick");
 	io->pixels_per_tick=val;
 	io->needs_redraw=TRUE;
 	gtk_iostat_draw(&io->graphs[0]);
@@ -1180,7 +1180,7 @@ plot_style_select(GtkWidget *item, gpointer key)
 	io_stat_graph_t *ppt;
 
 	ppt=(io_stat_graph_t *)key;
-	val=(int)gtk_object_get_data(GTK_OBJECT(item), "plot_style");
+	val=(int)OBJECT_GET_DATA(item, "plot_style");
 
 	ppt->plot_style=val;
 
@@ -1200,7 +1200,8 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 		menu_item=gtk_menu_item_new_with_label(str);
 
 		io->pixels_per_tick=DEFAULT_PIXELS_PER_TICK;
-		gtk_object_set_data(GTK_OBJECT(menu_item), "pixels_per_tick", (gpointer)pixels_per_tick[i]);
+		OBJECT_SET_DATA(menu_item, "pixels_per_tick",
+                                pixels_per_tick[i]);
 		SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1217,7 +1218,7 @@ yscale_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(int)gtk_object_get_data(GTK_OBJECT(item), "yscale_max");
+	val=(int)OBJECT_GET_DATA(item, "yscale_max");
 
 	io->max_y_units=val;
 	io->needs_redraw=TRUE;
@@ -1243,7 +1244,8 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 		}
 
 		menu_item=gtk_menu_item_new_with_label(str);
-		gtk_object_set_data(GTK_OBJECT(menu_item), "tick_interval", (gpointer)tick_interval_values[i]);
+		OBJECT_SET_DATA(menu_item, "tick_interval",
+                                tick_interval_values[i]);
 		SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, (gpointer)io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1266,7 +1268,7 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 			sprintf(str,"%d", yscale_max[i]);
 		}
 		menu_item=gtk_menu_item_new_with_label(str);
-		gtk_object_set_data(GTK_OBJECT(menu_item), "yscale_max", (gpointer)yscale_max[i]);
+		OBJECT_SET_DATA(menu_item, "yscale_max", yscale_max[i]);
 		SIGNAL_CONNECT(menu_item, "activate", yscale_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1281,7 +1283,7 @@ count_type_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(int)gtk_object_get_data(GTK_OBJECT(item), "count_type");
+	val=(int)OBJECT_GET_DATA(item, "count_type");
 
 	io->count_type=val;
 
@@ -1319,7 +1321,7 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 
 	for(i=0;i<MAX_COUNT_TYPES;i++){
 		menu_item=gtk_menu_item_new_with_label(count_type_names[i]);
-		gtk_object_set_data(GTK_OBJECT(menu_item), "count_type", (gpointer)i);
+		OBJECT_SET_DATA(menu_item, "count_type", i);
 		SIGNAL_CONNECT(menu_item, "activate", count_type_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1747,7 +1749,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	menu=gtk_menu_new();
 	for(i=0;i<MAX_PLOT_STYLES;i++){
 		menu_item=gtk_menu_item_new_with_label(plot_style_name[i]);
-		gtk_object_set_data(GTK_OBJECT(menu_item), "plot_style", (gpointer)i);
+		OBJECT_SET_DATA(menu_item, "plot_style", i);
 		SIGNAL_CONNECT(menu_item, "activate", plot_style_select, &gio->io->graphs[num-1]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);

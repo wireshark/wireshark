@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.6 2003/11/28 19:00:28 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.7 2003/12/16 18:43:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,10 +208,10 @@ capture_info    *cinfo)
 #else
   stop_bt = gtk_button_new_from_stock(GTK_STOCK_STOP);
 #endif
-  gtk_signal_connect(GTK_OBJECT(stop_bt), "clicked",
-    GTK_SIGNAL_FUNC(capture_info_stop_cb), cinfo->callback_data);
-  gtk_signal_connect(GTK_OBJECT(info->cap_w), "delete_event",
-	GTK_SIGNAL_FUNC(capture_info_delete_cb), cinfo->callback_data);
+  SIGNAL_CONNECT(stop_bt, "clicked", capture_info_stop_cb,
+                 cinfo->callback_data);
+  SIGNAL_CONNECT(info->cap_w, "delete_event", capture_info_delete_cb,
+                 cinfo->callback_data);
   gtk_box_pack_start(GTK_BOX(main_vb), stop_bt, FALSE, FALSE, 3);
   GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
   gtk_widget_grab_default(stop_bt);

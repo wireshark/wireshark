@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.3 2002/11/15 23:50:06 oabad Exp $
+ * $Id: compat_macros.h,v 1.4 2003/12/16 18:43:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@ gtk_signal_connect_object(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
 gtk_signal_disconnect_by_func(GTK_OBJECT(object), func, data)
 
 #define OBJECT_SET_DATA(widget, key, data) \
-gtk_object_set_data(GTK_OBJECT(widget), key, data)
+gtk_object_set_data(GTK_OBJECT(widget), key, (gpointer)data)
 
 #define OBJECT_SET_DATA_FULL(widget, key, data, destroy) \
 gtk_object_set_data_full(GTK_OBJECT(widget), key, (gpointer)(data), \
@@ -87,7 +87,7 @@ g_signal_connect_swapped(G_OBJECT(widget), name, G_CALLBACK(callback), \
 g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data)
 
 #define OBJECT_SET_DATA(widget, key, data) \
-g_object_set_data(G_OBJECT(widget), key, data)
+g_object_set_data(G_OBJECT(widget), key, (gpointer)data)
 
 #define OBJECT_SET_DATA_FULL(widget, key, data, destroy) \
 g_object_set_data_full(G_OBJECT(widget), key, (gpointer)(data), \

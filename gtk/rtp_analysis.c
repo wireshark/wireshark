@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.13 2003/12/04 10:59:34 guy Exp $
+ * $Id: rtp_analysis.c,v 1.14 2003/12/16 18:43:35 oabad Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -760,8 +760,8 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	user_data->dlg.graph_window = show_conversation_graph(list, title1, title2,
 		&graph_selection_callback, user_data);
-	gtk_signal_connect(GTK_OBJECT(user_data->dlg.graph_window), "destroy",
-		GTK_SIGNAL_FUNC(on_destroy_graph), user_data);
+	SIGNAL_CONNECT(user_data->dlg.graph_window, "destroy",
+                       on_destroy_graph, user_data);
 }
 #endif /*USE_CONVERSATION_GRAPH*/
 
@@ -952,8 +952,8 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	}
 	
 	user_data->dlg.save_csv_as_w = gtk_file_selection_new("Ethereal: Save Data As CSV");
-	gtk_signal_connect(GTK_OBJECT(user_data->dlg.save_csv_as_w), "destroy",
-		GTK_SIGNAL_FUNC(save_csv_as_destroy_cb), user_data);
+	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "destroy",
+                       save_csv_as_destroy_cb, user_data);
 	
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -1021,8 +1021,8 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	been selected. */
 	dlg_set_cancel(user_data->dlg.save_csv_as_w, GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button);
 	
-	gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		GTK_SIGNAL_FUNC(save_csv_as_ok_cb), user_data->dlg.save_csv_as_w);
+	SIGNAL_CONNECT(ok_bt, "clicked", save_csv_as_ok_cb,
+                       user_data->dlg.save_csv_as_w);
 	
 	gtk_widget_show(user_data->dlg.save_csv_as_w);
 }
@@ -1363,8 +1363,8 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	}
 	
 	user_data->dlg.save_voice_as_w = gtk_file_selection_new("Ethereal: Save Payload As ...");
-	gtk_signal_connect(GTK_OBJECT(user_data->dlg.save_voice_as_w), "destroy",
-		GTK_SIGNAL_FUNC(save_voice_as_destroy_cb), user_data);
+	SIGNAL_CONNECT(user_data->dlg.save_voice_as_w, "destroy",
+                       save_voice_as_destroy_cb, user_data);
 	
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -1471,8 +1471,8 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	been selected. */
 	dlg_set_cancel(user_data->dlg.save_voice_as_w, GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->cancel_button);
 	
-	gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		GTK_SIGNAL_FUNC(save_voice_as_ok_cb), user_data->dlg.save_voice_as_w);
+	SIGNAL_CONNECT(ok_bt, "clicked", save_voice_as_ok_cb,
+                       user_data->dlg.save_voice_as_w);
 	
 	gtk_widget_show(user_data->dlg.save_voice_as_w);
 }
@@ -1571,8 +1571,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (window), "Ethereal: RTP Stream Analysis");
 	gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
-	gtk_signal_connect(GTK_OBJECT(window), "destroy",
-		GTK_SIGNAL_FUNC(on_destroy), user_data);
+	SIGNAL_CONNECT(window, "destroy", on_destroy, user_data);
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 3);
@@ -1599,10 +1598,9 @@ void create_rtp_dialog(user_data_t* user_data)
 	/* Start a notebook for flipping between sets of changes */
 	notebook = gtk_notebook_new();
 	gtk_container_add(GTK_CONTAINER(main_vb), notebook);
-	gtk_object_set_data(GTK_OBJECT(window), "notebook", notebook);
-	gtk_signal_connect(GTK_OBJECT (notebook), "switch_page",
-					  GTK_SIGNAL_FUNC (on_notebook_switch_page),
-					  user_data);
+	OBJECT_SET_DATA(window, "notebook", notebook);
+	SIGNAL_CONNECT(notebook, "switch_page", on_notebook_switch_page,
+                       user_data);
 
 	/* page for forward connection */
 	page = gtk_vbox_new(FALSE, 5);
@@ -1610,7 +1608,7 @@ void create_rtp_dialog(user_data_t* user_data)
 
 	/* scrolled window */
 	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	gtk_widget_set_usize(scrolled_window, 600, 200);
+	WIDGET_SET_SIZE(scrolled_window, 600, 200);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), 
 		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 
@@ -1627,9 +1625,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(clist_fwd);
 	gtk_container_add(GTK_CONTAINER(scrolled_window), clist_fwd);
 	gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
-	gtk_signal_connect(GTK_OBJECT (clist_fwd), "select_row",
-					  GTK_SIGNAL_FUNC (on_clist_select_row),
-					  user_data);
+	SIGNAL_CONNECT(clist_fwd, "select_row", on_clist_select_row, user_data);
 	/* Hide date and length column */
 	gtk_clist_set_column_visibility(GTK_CLIST(clist_fwd), 6, FALSE);
 	gtk_clist_set_column_visibility(GTK_CLIST(clist_fwd), 7, FALSE);
@@ -1655,7 +1651,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	page_r = gtk_vbox_new(FALSE, 5);
 	gtk_container_set_border_width(GTK_CONTAINER(page_r), 20);
 	scrolled_window_r = gtk_scrolled_window_new(NULL, NULL);
-	gtk_widget_set_usize(scrolled_window_r, 600, 200);
+	WIDGET_SET_SIZE(scrolled_window_r, 600, 200);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window_r), 
 		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 	label3 = gtk_label_new(label_reverse);
@@ -1667,9 +1663,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_clist_set_column_visibility(GTK_CLIST(clist_rev), 6, FALSE);
 	gtk_clist_set_column_visibility(GTK_CLIST(clist_rev), 7, FALSE);
 
-	gtk_signal_connect(GTK_OBJECT (clist_rev), "select_row",
-				  GTK_SIGNAL_FUNC (on_clist_select_row),
-				  user_data);
+	SIGNAL_CONNECT(clist_rev, "select_row", on_clist_select_row, user_data);
 
 	gtk_container_add(GTK_CONTAINER(scrolled_window_r), clist_rev);
 	gtk_box_pack_start(GTK_BOX(page_r), scrolled_window_r, TRUE, TRUE, 0);
@@ -1715,46 +1709,39 @@ void create_rtp_dialog(user_data_t* user_data)
 	voice_bt = gtk_button_new_with_label("Save payload...");
 	gtk_container_add(GTK_CONTAINER(box4), voice_bt);
 	gtk_widget_show(voice_bt);
-	gtk_signal_connect(GTK_OBJECT(voice_bt), "clicked",
-		GTK_SIGNAL_FUNC(on_save_bt_clicked), user_data);
+	SIGNAL_CONNECT(voice_bt, "clicked", on_save_bt_clicked, user_data);
 
 	csv_bt = gtk_button_new_with_label("Save as CSV...");
 	gtk_container_add(GTK_CONTAINER(box4), csv_bt);
 	gtk_widget_show(csv_bt);
-	gtk_signal_connect(GTK_OBJECT(csv_bt), "clicked",
-		GTK_SIGNAL_FUNC(save_csv_as_cb), user_data);
+	SIGNAL_CONNECT(csv_bt, "clicked", save_csv_as_cb, user_data);
 
 	refresh_bt = gtk_button_new_with_label("Refresh");
 	gtk_container_add(GTK_CONTAINER(box4), refresh_bt);
 	gtk_widget_show(refresh_bt);
-	gtk_signal_connect(GTK_OBJECT(refresh_bt), "clicked",
-		GTK_SIGNAL_FUNC(on_refresh_bt_clicked), user_data);
+	SIGNAL_CONNECT(refresh_bt, "clicked", on_refresh_bt_clicked, user_data);
 
 	goto_bt = gtk_button_new_with_label("Go to frame");
 	gtk_container_add(GTK_CONTAINER(box4), goto_bt);
 	gtk_widget_show(goto_bt);
-	gtk_signal_connect(GTK_OBJECT(goto_bt), "clicked",
-		GTK_SIGNAL_FUNC(on_goto_bt_clicked), user_data);
+	SIGNAL_CONNECT(goto_bt, "clicked", on_goto_bt_clicked, user_data);
 
 #ifdef USE_CONVERSATION_GRAPH
 	graph_bt = gtk_button_new_with_label("Graph");
 	gtk_container_add(GTK_CONTAINER(box4), graph_bt);
 	gtk_widget_show(graph_bt);
-	gtk_signal_connect(GTK_OBJECT(graph_bt), "clicked",
-		GTK_SIGNAL_FUNC(on_graph_bt_clicked), user_data);
+	SIGNAL_CONNECT(graph_bt, "clicked", on_graph_bt_clicked, user_data);
 #endif
 
 	next_bt = gtk_button_new_with_label("Next");
 	gtk_container_add(GTK_CONTAINER(box4), next_bt);
 	gtk_widget_show(next_bt);
-	gtk_signal_connect(GTK_OBJECT(next_bt), "clicked",
-		GTK_SIGNAL_FUNC(on_next_bt_clicked), user_data);
+	SIGNAL_CONNECT(next_bt, "clicked", on_next_bt_clicked, user_data);
 
 	close_bt = gtk_button_new_with_label("Close");
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
 	gtk_widget_show(close_bt);
-	gtk_signal_connect(GTK_OBJECT(close_bt), "clicked",
-		GTK_SIGNAL_FUNC(on_close_bt_clicked), user_data);
+	SIGNAL_CONNECT(close_bt, "clicked", on_close_bt_clicked, user_data);
 
 	gtk_widget_show(window);
 

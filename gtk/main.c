@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.342 2003/12/13 22:05:08 guy Exp $
+ * $Id: main.c,v 1.343 2003/12/16 18:43:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -715,7 +715,7 @@ static guint dfilter_combo_max_recent = 10;
 static gboolean
 dfilter_combo_add(GtkWidget *filter_cm, char *s) {
   GList     *li;
-  GList     *filter_list = gtk_object_get_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY);
+  GList     *filter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
 
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
@@ -733,7 +733,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
     }
 
     filter_list = g_list_append(filter_list, s);
-    gtk_object_set_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY, filter_list);
+    OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, filter_list);
     gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_last(filter_list)->data);
 
@@ -746,7 +746,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
 void
 dfilter_combo_write_all(FILE *rf) {
   GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
-  GList     *filter_list = gtk_object_get_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY);
+  GList     *filter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
   GList     *li;
   guint      max_count = 0;
 

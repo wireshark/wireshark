@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.125 2003/12/15 06:38:48 ulfl Exp $
+ * $Id: menu.c,v 1.126 2003/12/16 18:43:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -752,7 +752,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	menu_item = gtk_menu_item_new_with_label(cf_name);
 	gtk_menu_prepend (GTK_MENU(submenu_recent_files), menu_item);
 	
-	gtk_signal_connect_object(GTK_OBJECT(menu_item), "activate", 
+	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate", 
 		menu_open_recent_file_cmd_cb, (GtkObject *) menu_item);
 	gtk_widget_show (menu_item);
 }

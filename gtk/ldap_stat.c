@@ -1,7 +1,7 @@
 /* ldap_stat.c
  * ldap_stat   2003 Ronnie Sahlberg
  *
- * $Id: ldap_stat.c,v 1.2 2003/12/04 00:45:38 guy Exp $
+ * $Id: ldap_stat.c,v 1.3 2003/12/16 18:43:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -294,7 +294,7 @@ gtk_ldapstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-	gtk_widget_set_usize(filter_entry, 300, -2);
+	WIDGET_SET_SIZE(filter_entry, 300, -2);
 
 	/* filter prefs dialog */
 	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_entry);

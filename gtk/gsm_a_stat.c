@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_a_stat.c,v 1.4 2003/12/13 22:23:18 guy Exp $
+ * $Id: gsm_a_stat.c,v 1.5 2003/12/16 18:43:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -404,8 +404,8 @@ gsm_a_stat_gtk_win_create(
 
     hbuttonbox = gtk_hbutton_box_new();
     gtk_widget_ref(hbuttonbox);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "hbuttonbox", hbuttonbox,
-	(GtkDestroyNotify) gtk_widget_unref);
+    OBJECT_SET_DATA_FULL(dlg_p->win, "hbuttonbox", hbuttonbox,
+                         gtk_widget_unref);
     gtk_widget_show(hbuttonbox);
     gtk_box_pack_start(GTK_BOX(dialog_action_area), hbuttonbox, FALSE, FALSE, 0);
     gtk_button_box_set_layout(GTK_BUTTON_BOX(hbuttonbox), GTK_BUTTONBOX_END);
@@ -413,8 +413,7 @@ gsm_a_stat_gtk_win_create(
 
     bt_close = gtk_button_new_with_label("Close");
     gtk_widget_ref(bt_close);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "bt_close", bt_close,
-	(GtkDestroyNotify) gtk_widget_unref);
+    OBJECT_SET_DATA_FULL(dlg_p->win, "bt_close", bt_close, gtk_widget_unref);
     gtk_widget_show(bt_close);
     gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_close);
     GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
@@ -422,16 +421,15 @@ gsm_a_stat_gtk_win_create(
 
     vbox = gtk_vbox_new(FALSE, 0);
     gtk_widget_ref(vbox);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "vbox", vbox,
-	(GtkDestroyNotify) gtk_widget_unref);
+    OBJECT_SET_DATA_FULL(dlg_p->win, "vbox", vbox, gtk_widget_unref);
     gtk_widget_show(vbox);
     gtk_box_pack_start(GTK_BOX(dialog_vbox), vbox, TRUE, TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
 
     dlg_p->scrolled_win = gtk_scrolled_window_new(NULL, NULL);
     gtk_widget_ref(dlg_p->scrolled_win);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "scrolled_win", dlg_p->scrolled_win,
-	(GtkDestroyNotify) gtk_widget_unref);
+    OBJECT_SET_DATA_FULL(dlg_p->win, "scrolled_win", dlg_p->scrolled_win,
+                         gtk_widget_unref);
     gtk_widget_show(dlg_p->scrolled_win);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(dlg_p->scrolled_win),
 	GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
@@ -439,8 +437,7 @@ gsm_a_stat_gtk_win_create(
 
     dlg_p->table = gtk_clist_new(INIT_TABLE_NUM_COLUMNS);
     gtk_widget_ref(dlg_p->table);
-    gtk_object_set_data_full(GTK_OBJECT(dlg_p->win), "table", GTK_CLIST(dlg_p->table),
-	(GtkDestroyNotify) gtk_widget_unref);
+    OBJECT_SET_DATA_FULL(dlg_p->win, "table", dlg_p->table, gtk_widget_unref);
     gtk_widget_show(dlg_p->table);
 
     gtk_widget_show(dlg_p->win);

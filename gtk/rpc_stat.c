@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.27 2003/12/13 22:23:18 guy Exp $
+ * $Id: rpc_stat.c,v 1.28 2003/12/16 18:43:35 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -469,7 +469,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-	gtk_widget_set_usize(filter_entry, 300, -2);
+	WIDGET_SET_SIZE(filter_entry, 300, -2);
 
 	/* filter prefs dialog */
 	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_entry);

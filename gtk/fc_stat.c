@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.14 2003/12/04 00:45:38 guy Exp $
+ * $Id: fc_stat.c,v 1.15 2003/12/16 18:43:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -259,7 +259,7 @@ gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-	gtk_widget_set_usize(filter_entry, 300, -2);
+	WIDGET_SET_SIZE(filter_entry, 300, -2);
 
 	/* filter prefs dialog */
 	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_entry);
