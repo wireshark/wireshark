@@ -980,9 +980,8 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
   gboolean          ret;
 
   /* open the input files */
-  in_file_count = merge_open_in_files(in_file_count, in_filenames, &in_files,
-                                      &err, &err_info, &err_fileno);
-  if (in_file_count < 2) {
+  if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
+                           &err, &err_info, &err_fileno)) {
     free(in_files);
     cf_open_failure_alert_box(in_filenames[err_fileno], err, err_info, FALSE, 0);
     return FALSE;

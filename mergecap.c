@@ -122,8 +122,6 @@ usage(void)
   printf("       \t     default is libpcap\n");
 }
 
-
-
 int
 main(int argc, char *argv[])
 {
@@ -131,19 +129,20 @@ main(int argc, char *argv[])
   extern int   optind;
   int          opt;
   gboolean     do_append     = FALSE;
+  gboolean     verbose       = FALSE;
   int          in_file_count = 0;
   int          snaplen = 0;
   int          file_type = WTAP_FILE_PCAP;	/* default to libpcap format */
   int          frame_type = -2;
   int          out_fd;
   merge_in_file_t   *in_files      = NULL;
+  int          i;
   merge_out_file_t   out_file;
-  int          err;
+  int          err, close_err;
   gchar       *err_info;
   int          err_fileno;
   char        *out_filename = NULL;
-
-  merge_verbose = VERBOSE_ERRORS;
+  gboolean     ret;
 
   /* Process the options first */
   while ((opt = getopt(argc, argv, "hvas:T:F:w:")) != -1) {
@@ -176,7 +175,7 @@ main(int argc, char *argv[])
       break;
 
     case 'v':
-      merge_verbose = VERBOSE_ALL;
+      verbose = TRUE;
       break;
 
     case 's':
@@ -217,11 +216,26 @@ main(int argc, char *argv[])
   }
 
   /* open the input files */
-  in_file_count = merge_open_in_files(in_file_count, &argv[optind], &in_files,
-                                      &err, &err_info, &err_fileno);
-  if (in_file_count < 1) {
-    fprintf(stderr, "mergecap: No valid input files\n");
+  if (!merge_open_in_files(in_file_count, &argv[optind], &in_files,
+                           &err, &err_info, &err_fileno)) {
+    fprintf(stderr, "mergecap: Can't open %s: %s\n", argv[optind + err_fileno],
+        wtap_strerror(err));
+    switch (err) {
+
+    case WTAP_ERR_UNSUPPORTED:
+    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_BAD_RECORD:
+      fprintf(stderr, "(%s)\n", err_info);
+      g_free(err_info);
+      break;
+    }
     exit(1);
+  }
+
+  if (verbose) {
+    for (i = 0; i < in_file_count; i++)
+      fprintf(stderr, "mergecap: %s is type %s.\n", argv[optind + i],
+              wtap_file_type_string(wtap_file_type(in_files[i].wth)));
   }
 
   if (snaplen == 0) {
@@ -238,6 +252,35 @@ main(int argc, char *argv[])
      * Default to the appropriate frame type for the input files.
      */
     frame_type = merge_select_frame_type(in_file_count, in_files);
+    if (verbose) {
+      if (frame_type == WTAP_ENCAP_PER_PACKET) {
+        /*
+         * Find out why we had to choose WTAP_ENCAP_PER_PACKET.
+         */
+        int first_frame_type, this_frame_type;
+
+        first_frame_type = wtap_file_encap(in_files[0].wth);
+        for (i = 1; i < in_file_count; i++) {
+          this_frame_type = wtap_file_encap(in_files[i].wth);
+          if (first_frame_type != this_frame_type) {
+            fprintf(stderr, "mergecap: multiple frame encapsulation types detected\n");
+            fprintf(stderr, "          defaulting to WTAP_ENCAP_PER_PACKET\n");
+            fprintf(stderr, "          %s had type %s (%s)\n",
+                    in_files[0].filename,
+                    wtap_encap_string(first_frame_type),
+                    wtap_encap_short_string(first_frame_type));
+            fprintf(stderr, "          %s had type %s (%s)\n",
+                    in_files[i].filename,
+                    wtap_encap_string(this_frame_type),
+                    wtap_encap_short_string(this_frame_type));
+            break;
+          }
+        }
+      }
+      fprintf(stderr, "mergecap: selected frame_type %s (%s)\n",
+              wtap_encap_string(frame_type),
+              wtap_encap_short_string(frame_type));
+    }
   }
 
   /* open the outfile */
@@ -258,19 +301,29 @@ main(int argc, char *argv[])
   if (!merge_open_outfile(&out_file, out_fd, file_type, frame_type, snaplen,
                           &err)) {
     merge_close_in_files(in_file_count, in_files);
+    free(in_files);
+    fprintf(stderr, "mergecap: Can't open or create %s: %s\n", out_filename,
+            wtap_strerror(err));
     exit(1);
   }
 
   /* do the merge (or append) */
   if (do_append)
-    merge_append_files(in_file_count, in_files, &out_file, &err);
+    ret = merge_append_files(in_file_count, in_files, &out_file, &err);
   else
-    merge_files(in_file_count, in_files, &out_file, &err);
+    ret = merge_files(in_file_count, in_files, &out_file, &err);
 
   merge_close_in_files(in_file_count, in_files);
-  merge_close_outfile(&out_file, &err);
+  if (ret)
+    ret = merge_close_outfile(&out_file, &err);
+  else
+    merge_close_outfile(&out_file, &close_err);
+  if (!ret) {
+    fprintf(stderr, "mergecap: Error writing to outfile: %s\n",
+            wtap_strerror(err));
+  }
 
   free(in_files);
 
-  return 0;
+  return ret ? 0 : 2;
 }

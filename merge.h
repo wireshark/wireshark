@@ -50,27 +50,17 @@ typedef struct merge_out_file_s {
   int          count;
 } merge_out_file_t;
 
-/** Verbosity levels. */
-typedef enum {
-    VERBOSE_NONE,
-    VERBOSE_ERRORS,
-    VERBOSE_ALL
-} verbose_e;
-
-/** Current verbosity level, default is VERBOSE_NONE. */
-extern int merge_verbose;
-
 /** Open a number of input files to merge.
  * 
  * @param in_file_count number of entries in in_file_names and in_files
  * @param in_file_names filenames of the input files
  * @param in_files input file array to be filled (>= sizeof(merge_in_file_t) * in_file_count)
- * @param err wiretap error, if failed and VERBOSE_NONE
- * @param err_info wiretap error string, if failed and VERBOSE_NONE
- * @param err_fileno file on which open failed, if VERBOSE_NONE
- * @return number of opened input files
+ * @param err wiretap error, if failed
+ * @param err_info wiretap error string, if failed
+ * @param err_fileno file on which open failed, if failed
+ * @return TRUE if all files could be opened, FALSE otherwise
  */
-extern int
+extern gboolean
 merge_open_in_files(int in_file_count, char *const *in_file_names,
                     merge_in_file_t **in_files, int *err, gchar **err_info,
                     int *err_fileno);
@@ -91,7 +81,7 @@ merge_close_in_files(int in_file_count, merge_in_file_t in_files[]);
  * @param frame_type the frame type to write
  * @param snapshot_len the snapshot length of the output file
  * @param err wiretap error, if failed
- * @return TRUE, if the output file could be opened
+ * @return TRUE, if the output file could be opened, and FALSE otherwise
  */
 extern gboolean
 merge_open_outfile(merge_out_file_t *out_file, int fd, int file_type,
@@ -144,7 +134,8 @@ merge_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out
  * @return TRUE on success or read failure, FALSE on write failure
  */
 extern gboolean
-merge_append_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out_file, int *err);
+merge_append_files(int in_file_count, merge_in_file_t in_files[],
+                   merge_out_file_t *out_file, int *err);
 
 #ifdef __cplusplus
 }
