@@ -38,7 +38,6 @@
 #include "color.h"
 #include "colors.h"
 #include "color_filters.h"
-#include "color_utils.h"
 #include "color_dlg.h"
 #include "file.h"
 #include <epan/dfilter/dfilter.h>

@@ -30,7 +30,7 @@
 
 #include "color.h"
 
-#include "color_utils.h"
+#include "colors.h"
 
 /*
  * Create a color from R, G, and B values, and do whatever toolkit-dependent
