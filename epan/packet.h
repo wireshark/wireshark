@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.49 2002/01/05 04:12:16 gram Exp $
+ * $Id: packet.h,v 1.50 2002/02/06 22:19:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,7 +91,6 @@ struct dissector_table;
 typedef struct dissector_table *dissector_table_t;
 
 /* types for sub-dissector lookup */
-typedef void (*old_dissector_t)(const u_char *, int, frame_data *, proto_tree *);
 typedef void (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
 
 typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value, gpointer user_data);
