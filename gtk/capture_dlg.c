@@ -280,17 +280,20 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 	      g_string_append(ip_str, ", ");
 
 	    ip_addr = (if_addr_t *)curr_ip->data;
-	    switch (ip_addr->family) {
+	    switch (ip_addr->type) {
 
-	    case FAM_IPv4:
+	    case AT_IPv4:
 	      g_string_append(ip_str,
 		ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr));
 	      break;
 
-	    case FAM_IPv6:
+	    case AT_IPv6:
 	      g_string_append(ip_str,
 	          ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr));
 	      break;
+
+            default:
+              g_assert_not_reached();
 	    }
 	  }
 

@@ -31,6 +31,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include <epan/address.h>
+
 /*
  * XXX - this is also the traditional default snapshot size in
  * tcpdump - but, if IPv6 is enabled, it defaults to 96, to get an
@@ -57,13 +59,8 @@ typedef struct {
 /*
  * An address in the "ip_addr" list.
  */
-typedef enum {
-	FAM_IPv4,
-	FAM_IPv6
-} address_family;
-
 typedef struct {
-	address_family family;
+	address_type type;
 	union {
 		guint32 ip4_addr;
 		guint8 ip6_addr[16];

@@ -442,13 +442,13 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       curr_ip = g_slist_nth(if_info->ip_addr, 0);
       if(curr_ip) {
         ip_addr = (if_addr_t *)curr_ip->data;
-        switch (ip_addr->family) {
+        switch (ip_addr->type) {
 
-        case FAM_IPv4:
+        case AT_IPv4:
           tmp_str = ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr);
           break;
 
-        case FAM_IPv6:
+        case AT_IPv6:
           tmp_str = ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr);
           break;
 
