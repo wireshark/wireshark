@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.77 1999/12/29 20:10:10 gram Exp $
+ * $Id: main.c,v 1.78 1999/12/30 19:53:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -736,7 +736,7 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 
 	g_assert(node);
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
-	g_assert(finfo);
+	if (!finfo) return;
 
 	finfo_selected = finfo;
 	tree_selected_start = finfo->start;
@@ -791,22 +791,26 @@ set_plist_sel_browse(gboolean val)
 	if (finfo_selected)
 		unselect_packet(&cf);
 
+	/* Yeah, GTK uses "browse" in the case where we do not, but oh well. I think
+	 * "browse" in Ethereal makes more sense than "SINGLE" in GTK+ */
 	if (val) {
 		gtk_clist_set_selection_mode(GTK_CLIST(packet_list), GTK_SELECTION_SINGLE);
 	}
 	else {
-		gtk_clist_set_selection_mode(GTK_CLIST(packet_list), GTK_SELECTION_EXTENDED);
+		gtk_clist_set_selection_mode(GTK_CLIST(packet_list), GTK_SELECTION_BROWSE);
 	}
 }
 
 void
 set_ptree_sel_browse(gboolean val)
 {
+	/* Yeah, GTK uses "browse" in the case where we do not, but oh well. I think
+	 * "browse" in Ethereal makes more sense than "SINGLE" in GTK+ */
 	if (val) {
 		gtk_clist_set_selection_mode(GTK_CLIST(tree_view), GTK_SELECTION_SINGLE);
 	}
 	else {
-		gtk_clist_set_selection_mode(GTK_CLIST(tree_view), GTK_SELECTION_EXTENDED);
+		gtk_clist_set_selection_mode(GTK_CLIST(tree_view), GTK_SELECTION_BROWSE);
 	}
 }
 
@@ -1280,6 +1284,7 @@ main(int argc, char *argv[])
   gtk_widget_show(tv_scrollw);
   
   tree_view = gtk_ctree_new(1, 0);
+  gtk_clist_set_column_auto_resize( GTK_CLIST(tree_view), 0, TRUE );
   gtk_container_add(GTK_CONTAINER(tv_scrollw), tree_view);
   gtk_ctree_set_line_style(GTK_CTREE(tree_view), GTK_CTREE_LINES_NONE);
   gtk_ctree_set_expander_style(GTK_CTREE(tree_view), GTK_CTREE_EXPANDER_SQUARE);
