@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.h,v 1.5 2002/02/08 06:34:44 guy Exp $
+ * $Id: packet-dcerpc-samr.h,v 1.6 2002/08/06 21:58:09 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,17 +28,17 @@
 
 /* Functions available on the SAMR pipe.  From Samba, include/rpc_samr.h */
 
-#define SAMR_CONNECT_ANON      0x00
-#define SAMR_CLOSE_HND         0x01
+#define SAMR_CONNECT                0x00
+#define SAMR_CLOSE_HND              0x01
 #define SAMR_SET_SEC_OBJECT         0x02
-#define SAMR_QUERY_SEC_OBJECT  0x03
-#define SAMR_SHUTDOWN_SAM_SERVER         0x04
-#define SAMR_LOOKUP_DOMAIN     0x05
-#define SAMR_ENUM_DOMAINS      0x06
-#define SAMR_OPEN_DOMAIN       0x07
-#define SAMR_QUERY_DOMAIN_INFO 0x08
-#define SAMR_SET_DOMAIN_INFO   0x09
-#define SAMR_CREATE_DOM_GROUP  0x0a
+#define SAMR_QUERY_SEC_OBJECT       0x03
+#define SAMR_SHUTDOWN_SAM_SERVER    0x04
+#define SAMR_LOOKUP_DOMAIN          0x05
+#define SAMR_ENUM_DOMAINS           0x06
+#define SAMR_OPEN_DOMAIN            0x07
+#define SAMR_QUERY_DOMAIN_INFO      0x08
+#define SAMR_SET_DOMAIN_INFO        0x09
+#define SAMR_CREATE_DOM_GROUP       0x0a
 #define SAMR_ENUM_DOM_GROUPS   0x0b
 #define SAMR_CREATE_USER_IN_DOMAIN 0x0c
 #define SAMR_ENUM_DOM_USERS    0x0d
@@ -87,7 +87,9 @@
 #define SAMR_GET_DOM_PWINFO    0x38
 #define SAMR_CONNECT2          0x39
 #define SAMR_SET_USERINFO      0x3A
-#define SAMR_UNKNOWN_3B		0x3B
-#define SAMR_UNKNOWN_3C		0x3C
+#define SAMR_UNKNOWN_3B	       0x3B
+#define SAMR_UNKNOWN_3C	       0x3C
+#define SAMR_CONNECT3          0x3D
+#define SAMR_CONNECT4          0x3E
 
 #endif /* packet-dcerpc-samr.h */

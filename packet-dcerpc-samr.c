@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.51 2002/07/16 22:50:45 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.52 2002/08/06 21:58:09 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -913,6 +913,22 @@ samr_dissect_connect2_rqst(tvbuff_t *tvb, int offset,
 			samr_dissect_connect2_server, NDR_POINTER_UNIQUE,
 			"Server", hf_samr_server, 1);
 
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_samr_access, NULL);
+	return offset;
+}
+
+static int
+samr_dissect_connect4_rqst(tvbuff_t *tvb, int offset, 
+			   packet_info *pinfo, proto_tree *tree, 
+			   char *drep)
+{
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_connect2_server, NDR_POINTER_UNIQUE,
+			"Server", hf_samr_server, 1);
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				     hf_samr_unknown_long, NULL);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_access, NULL);
 	return offset;
@@ -4103,7 +4119,7 @@ samr_dissect_query_information_user_reply(tvbuff_t *tvb, int offset,
 }
 
 static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
-        { SAMR_CONNECT_ANON, "ConnectAnonymous",
+        { SAMR_CONNECT, "SamrConnect",
 		samr_dissect_connect_anon_rqst,
 		samr_dissect_connect_anon_reply },
         { SAMR_CLOSE_HND, "Close",
@@ -4286,11 +4302,14 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_UNKNOWN_3C, "Unknown 0x3c", 
 		samr_dissect_unknown_3c_rqst,
 		samr_dissect_unknown_3c_reply },
+	{ SAMR_CONNECT4, "Connect4", 
+		samr_dissect_connect4_rqst,
+		samr_dissect_connect2_reply },
         {0, NULL, NULL,  NULL }
 };
 
 static const value_string samr_opnum_vals[] = {
-        { SAMR_CONNECT_ANON, "ConnectAnonymous" },
+        { SAMR_CONNECT, "SamrConnect" },
         { SAMR_CLOSE_HND, "Close" },
         { SAMR_SET_SEC_OBJECT, "SetSecObject" },
         { SAMR_QUERY_SEC_OBJECT, "QuerySecObject" },
@@ -4351,6 +4370,8 @@ static const value_string samr_opnum_vals[] = {
         { SAMR_SET_USERINFO, "SetUserInfo" },
         { SAMR_UNKNOWN_3B, "Unknown 0x3b" },
         { SAMR_UNKNOWN_3C, "Unknown 0x3c" },
+	{ SAMR_CONNECT3, "Connect3" },
+	{ SAMR_CONNECT4, "Connect4" },
 	{ 0, NULL }
 };
 
