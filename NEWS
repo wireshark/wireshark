@@ -1,3 +1,63 @@
+== September 28, 2002
+
+Ethereal 0.9.7 has been released.
+
+Bugs Fixed
+
+
+New Features
+
+  TCP analysis was improved
+  NCP code received quite a few updates
+  Initial GTK2 support
+
+* BGP segfault?
+
+New Protocols
+
+GSS-API,
+Interbase,
+SPNEGO,
+
+
+Updated Protocols
+
+AODV/AODV6,
+BGP,
+CHPA,
+DCERPC NT,
+DCERPC LSA,
+DCERPC SAMR,
+DNS,
+DOCSIS,
+GTP,
+IP,
+IS-IS,
+iSCSI,
+Kerberos,
+LDAP,
+LDP,
+NCP,
+NETLOGON,
+NTLMSSP,
+RPC,
+SCSI,
+SMB,
+SNEGO,
+SPOOLSS,
+SRVSVC,
+TCP,
+
+
+
+Capture File Updates
+
+
+
+
+
+
+
 == August 20, 2002
 
 Ethereal 0.9.6 has been released.
@@ -33,12 +93,12 @@ New Features
   Data types throughout the code have been cleaned up. 
 
 
-New Procols
+New Protocols
 
   CPHA, DOCSIS, NTLMSSP, Xyplex terminal server protocol, ZIP
 
 
-Updated Prococols
+Updated Protocols
 
   802.11, AFP, ASAP, BGP, CDP, CDPCP, CPHA, DDP, DCERPC, DCERPC NT, DCERPC
   REG, EPM, FTP, HCLNFSD, HTTP, IPX, ISAKMP, ISIS, IUA, Kerberos, L2TP,

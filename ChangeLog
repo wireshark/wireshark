@@ -1,3 +1,124 @@
+Overview of changes in Ethereal 0.9.7:
+* Add Connectionless LDAP support (UDP port 389) (Tim)
+* Improve mode page handling, media changer command and mode page
+  handling, other fixes and improvements in SCSI (Guy)
+* Handle SCSI Read Block Position replies, improve Read Element Status
+  display (Guy)
+* Add new SRVSVC information levels (Ronnie)
+* Display SCSI volume tags as per SMC-2 (Guy)
+* Put the SCSI volume identification in quotes (Guy)
+* Add support for GSS-API (Tim)
+* Add support for SPNEGO (Tim)
+* Add a note about GSS-API to packet-rpc.c (Guy)
+* Add GSS-API support to RPC (Guy)
+* Move "Set"/"Not set" generic strings to epan/packet.c (Tim)
+* Add an NT access mask dissector to DCERPC NT (Tim)
+* Call dissect_nt_access_mask() instead of dissect_ndr_uint32() (Tim)
+* Add some NT access mask constants to smb.h (Tim)
+* Create "tcp.analysis.flags" subtree (Ronnie)
+* DCE RPC NT access mask improvements (Guy, Tim)
+* Initial support for Thursby's Mac extenstions from CIFS2002 (Richard)
+* Fix spoolss_specific_rights() type in SPOOLSS (Guy)
+* Fix variable name in AODV/AODV6 (Andy Hood)
+* Fix bitfields, variable scope and add prefix size display in
+  AODV/AODV6 (Guy)
+* More graceful NetBIOS name display in Kerberos (Guy)
+* Improve NT access mask tree insertion in DCERPC NT (Guy)
+* Fix memcmp() comment/handling in packet-info.h and packet-tcp.c (Guy)
+* Properly display TCP window scale option (Guy)
+* Call GSS-API from SMB and DCERPC (Tim)
+* More GSS-API support in RPC, improved data display (Guy)
+* Fix "GSS Data" handling in RPC (Guy)
+* Add NCP 94, 92, NDS summary info, server broadcast packet, LIP and
+  Unicode support to NCP code base (Greg)
+* Fix GTP max uplink and downlink rate decoding (Flavio Poletti)
+* Allow autogen.sh to run on GTK-less systems (Joerg)
+* Fix indentation, get rid of unused variable in packet-ncp.c (Guy)
+* Don't create an empty tree in dissect_nds_request() (Guy)
+* Add a value_string table for NDS verbs, fix indentation (Guy)
+* Change the "GSS-API" filter name to "gss-api" (Guy)
+* Give the "Match" and "Prepare" menu item routines better names (Guy)
+* Handle GTP sub-protocol field 0x00 as PPP (Marcus Haebler)
+* Add support for AFI & Extd communities in draft-kompella-ppvpn-l2vpn
+  to BGP, improve unknown AFI handling, fix typos (Hannes Gredler, Guy)
+* Clear "Match Selected" and "Prepare Selected" fields before dissecting
+  a packet (Guy)
+* Add single-precision FT_FLOAT type (Ulf Lamping)
+* Fix and comment filter string length computations (Guy)
+* Improve BGP address family checking (Guy)
+* Display OIDs properly in GSS-API (Richard)
+* Make DNS fragment handles 32 bits (Greg, Guy)
+* Disable aclocal-fallback for aclocal/automake 1.4 (Joerg)
+* Dissect LDAP SASL credentials (Guy)
+* Document FT_FLOAT and the "proto_tree_add_float" routines (Guy)
+* Fix an OID memory leak, fix OID hash table insertion in GSS-API (Guy)
+* Properly label bytes in "Frame" top level, show source and dest MAC
+  addresses in Ethernet top level item (Ulf)
+* Handle 3GPP QoS in RADIUS messages (Flavio Poletti)
+* Dissect flags field for SPOOLSS enumprinters rpc (Tim)
+* More L2VPN support in BGP, fix a segfault, improve SAFI strings
+  and V6 decoding (Hannes)
+* New DCE RPC NETLOGON function (Luke H)
+* Begin moving snego to spnego (Richard)
+* Make "lsa.key" an FT_STRING (Guy)
+* Update packet-s[p]nego.c entry in Makefile.nmake (Guy)
+* Put BGP l2info extd communities in a subtree, extd community bugfixes
+  (Hannes)
+* Add support for latest MPLS and VPLS drafts to LDP (Motonori Shindo)
+* Update M2PA to support the latest draft, restructure code, fix bugs
+  (Michael)
+* Completely redo checks for missing aclocal files (Joerg)
+* Delete m4 files from aclocal-missing/ (Joerg)
+* Initial support for SPNEGO (Richard)
+* More SPNEGO improvements (Richard)
+* Add gtk2/glib2 handling to configure (Joerg)
+* Add autogen.sh to the release tarball, sorted file lists in
+  Makefile.am (Joerg)
+* Add more information to the progress dialog (Ulf)
+* Fix variable types in file handling code (Guy)
+* Delete files in aclocal-missing if test succeeds (Joerg, Guy)
+* CHPA fix (Yaniv Kaul)
+* Removed trailing whitespaces from .h and .c files (Joerg)
+* Progress dialog variable type and responsiveness enhancements (Guy)
+* Fix up dissect_file_attributes in SMB and SPNEGO (Richard)
+* More SPNEGO updates, additional comments (Richard)
+* Initial Interbase dissector (Uwe)
+* Start the code to keep state in GSSAPI (Richard)
+* More SPNEGO updates (Richard)
+* Make the IS-IS dissector more verbose in the INFO field (Hannes)
+* Change #define names that cause problems under Windows (Ulf)
+* Fix the byte order in the CRC calculation in iSCSI (Mark Burton)
+* Fixes for DCERPC SAMR (Albert Chin)
+* IP and DNS fixes (Albert Chin)
+* Change references from snego to spnego in DCERPC (Tim)
+* Fixes and enhancements for DOCSIS (Anand Narwani)
+* #include packet-gssapi.h in Kerberos, NTLMSSP (Guy)
+* Fix a bug in decode_qos_umts() in packet-gtp.c (Flavio)
+* Fix the RCS ID and a compiler warning in packet-spnego.c (Guy)
+* Print the DNS RR number as unsigned (Joerg)
+* NSIS version and Start->Programs link updates (Ulf)
+* Squelch compiler warnings in packet-spnego.c (Richard)
+* Add support to SMB for raw NTLMSSP blobs when talking to XP (Richard)
+* Handle the lack of a security blob in negprot response when raw
+  NTLMSSP is being used properly in SMB (Richard)
+* Fix the Mbits/s calculation for large captures (Gerald)
+* Properly handle raw ntlmssp in SMB (Richard)
+* More SMB/SPNEGO fixes (Richard)
+* Add support for GTK+ version 2 (Olivier)
+* Remove trailing whitespace, unused #include in GTK2 code (Joerg)
+* Remove redundant HAVE_LIBPCAP check from capture_prefs.c (Joerg)
+* Move SPNEGO tokens into subtrees (Richard)
+* Catch exceptions thrown while dissecting the GSS-API stuff (Guy)
+* Catch exceptions thrown while dissecting the NTLMSSP stuff (Guy)
+* Stop processing GSS-API tokens at the proper time (Richard)
+* Make "gssapi_init_oid()" take a dissector handle rather than a
+  registered dissector name (Guy)
+* Add the OID that MS created for KRB5 in mistake (Richard)
+
+
+
+
+
 Overview of changes in Ethereal 0.9.6:
 * Update README.hpux re: version 11i (Guy)
 * Update printing output routines (Guy)
@@ -253,8 +374,6 @@ Overview of changes in Ethereal 0.9.6:
 * Add missing "-static.o" to Makefile.am
 * Fix infinite recursion bug in DOCSIS (Anand)
 * Update CPHA to use the new dissector API (Guy)
-
-
 
 
 Overview of changes in Ethereal 0.9.5:

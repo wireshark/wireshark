@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.19 2002/08/28 12:25:54 jmayer Exp $
+# $Id: autogen.sh,v 1.20 2002/09/26 19:06:40 gerald Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -122,7 +122,8 @@ for dir in . epan wiretap ;  do
     aclocal_missing="-I $topdir/aclocal-missing"
     aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags $aclocal_missing";
     echo aclocal $aclocalinclude
-    aclocal $aclocalinclude || exit 1
+#    aclocal $aclocalinclude || exit 1
+    aclocal || exit 1
     echo autoheader
     autoheader || exit 1
     echo automake --add-missing --gnu $am_opt
