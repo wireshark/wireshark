@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.14 2003/11/02 23:12:34 gerald Exp $
+ * $Id: filesystem.h,v 1.15 2003/11/18 19:20:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,7 @@ const char *get_datafile_dir(void);
  * Construct the path name of a global configuration file, given the
  * file name.
  */
-char *get_datafile_path(const char *filename);
+extern char *get_datafile_path(const char *filename);
 
 /*
  * Get the directory in which files that, at least on UNIX, are
@@ -117,7 +117,7 @@ char *get_persconffile_path(const char *filename, gboolean for_writing);
  *
  * Return value is malloced so the caller should free it.
  */
-char *get_tempfile_path(const char *filename);
+extern char *get_tempfile_path(const char *filename);
 
 
 /* Delete a file */
