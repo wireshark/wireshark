@@ -2113,6 +2113,7 @@ B<http://www.ethereal.com>.
   Jari Mustajarvi          <jari.mustajarvi [AT] nokia.com>
   Joost Yervante Damad     <Joost.Damad [AT] siemens.com>
   Thomas Anders            <thomas.anders [AT] blue-cable.de>
+  Chris Wilson             <chris [AT mxtelecom.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

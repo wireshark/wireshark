@@ -8,7 +8,10 @@
  * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.25 2003/12/23 12:07:13 obiot Exp $
+ * Dissection of multiple SMPP PDUs within one packet
+ * provided by Chris Wilson.
+ *
+ * $Id: packet-smpp.c,v 1.26 2004/01/18 00:07:02 obiot Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -251,14 +254,15 @@ static int hf_sm_reassembled_in				= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_smpp		= -1;
+static gint ett_smpp_pdu	= -1;
 static gint ett_dlist		= -1;
 static gint ett_dlist_resp	= -1;
 static gint ett_opt_param	= -1;
-static gint ett_dcs			= -1;
+static gint ett_dcs		= -1;
 static gint ett_gsm_sms		= -1;
-static gint ett_udh						= -1;
-static gint ett_udh_ie	= -1;
-static gint ett_sm_fragment		= -1;
+static gint ett_udh		= -1;
+static gint ett_udh_ie		= -1;
+static gint ett_sm_fragment	= -1;
 static gint ett_sm_fragments	= -1;
 
 /* Subdissector declarations */
@@ -913,7 +917,7 @@ smpp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
       proto_tree_add_string(tree, field, tvb, *offset, len,
-          tvb_get_ptr(tvb, *offset, len));
+          (const char *) tvb_get_ptr(tvb, *offset, len));
     }
     (*offset) += len;
 }
@@ -922,35 +926,34 @@ smpp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 static char *
 smpp_handle_string_return(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    guint	 len;
-	char *str;
+    gint	 len;
+    char	*str;
 
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
-      str = tvb_get_stringz(tvb, *offset, &len);
-      proto_tree_add_string(tree, field, tvb, *offset, len,
-          str);
+	str = (char *)tvb_get_stringz(tvb, *offset, &len);
+	proto_tree_add_string(tree, field, tvb, *offset, len, str);
     } else {
-      str = g_malloc(1 * sizeof(char));
-	  str[0] = '\0';
-	}
+	str = g_malloc(1 * sizeof(char));
+	str[0] = '\0';
+    }
     (*offset) += len;
-	return str;
+    return str;
 }
 
 static void
 smpp_handle_string_z(proto_tree *tree, tvbuff_t *tvb, int field, int *offset,
 		const char *null_string)
 {
-    guint	 len;
+    gint	 len;
 
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
-      proto_tree_add_string(tree, field, tvb, *offset, len,
-          tvb_get_ptr(tvb, *offset, len));
+	proto_tree_add_string(tree, field, tvb, *offset, len,
+		(const char *)tvb_get_ptr(tvb, *offset, len));
     } else {
-		proto_tree_add_string(tree, field, tvb, *offset, len, null_string);
-	}
+	proto_tree_add_string(tree, field, tvb, *offset, len, null_string);
+    }
     (*offset) += len;
 }
 
@@ -992,7 +995,7 @@ smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
     gint	 len;
     nstime_t	 tmptime;
 
-    strval = tvb_get_stringz(tvb, *offset, &len);
+    strval = (char *) tvb_get_stringz(tvb, *offset, &len);
     if (*strval)
     {
 	if (smpp_mktime(strval, &tmptime.secs, &tmptime.nsecs))
@@ -1747,22 +1750,22 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 			    tvb, offset, length, FALSE);
 	if (udhi) /* UDHI indicator present */
 	{
-		DebugLog(("UDHI present - set addresses\n"));
-		/* Save original addresses */
-		COPY_ADDRESS(&save_src, &(pinfo->src));
-		COPY_ADDRESS(&save_dst, &(pinfo->dst));
-		/* Set SMPP source and destination address */
-		SET_ADDRESS(&(pinfo->src), AT_STRINGZ, 1+strlen(src_str), src_str);
-		SET_ADDRESS(&(pinfo->dst), AT_STRINGZ, 1+strlen(dst_str), dst_str);
+	    DebugLog(("UDHI present - set addresses\n"));
+	    /* Save original addresses */
+	    COPY_ADDRESS(&save_src, &(pinfo->src));
+	    COPY_ADDRESS(&save_dst, &(pinfo->dst));
+	    /* Set SMPP source and destination address */
+	    SET_ADDRESS(&(pinfo->src), AT_STRINGZ, 1+strlen(src_str), src_str);
+	    SET_ADDRESS(&(pinfo->dst), AT_STRINGZ, 1+strlen(dst_str), dst_str);
 	    tvb_msg = tvb_new_subset (tvb, offset,
-				      MIN(length, tvb_reported_length(tvb) - offset), length);
-		call_dissector (gsm_sms_handle, tvb_msg, pinfo, top_tree);
-		/* Restore original addresses */
-		COPY_ADDRESS(&(pinfo->src), &save_src);
-		COPY_ADDRESS(&(pinfo->dst), &save_dst);
-		/* Get rid of SMPP text string addresses */
-		g_free(src_str);
-		g_free(dst_str);
+		    MIN(length, tvb_reported_length(tvb) - offset), length);
+	    call_dissector (gsm_sms_handle, tvb_msg, pinfo, top_tree);
+	    /* Restore original addresses */
+	    COPY_ADDRESS(&(pinfo->src), &save_src);
+	    COPY_ADDRESS(&(pinfo->dst), &save_dst);
+	    /* Get rid of SMPP text string addresses */
+	    g_free(src_str);
+	    g_free(dst_str);
 	}
     	offset += length;
     }
@@ -1841,41 +1844,41 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb)
 
     flag = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_smpp_esm_submit_msg_mode,
-			tvb, offset, 1, flag);
+	    tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_esm_submit_msg_type,
-			tvb, offset, 1, flag);
+	    tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_esm_submit_features,
-			tvb, offset, 1, flag);
+	    tvb, offset, 1, flag);
     offset++;
     smpp_handle_int1(tree, tvb, hf_smpp_protocol_id, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_priority_flag, &offset);
-	if (tvb_get_guint8(tvb,offset)) {
-    smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
-				hf_smpp_schedule_delivery_time_r, &offset);
-	} else { /* Time = NULL means Immediate delivery */
-		proto_tree_add_text(tree, tvb, offset++, 1,
-				"Scheduled delivery time: Immediate delivery");
-	}
-	if (tvb_get_guint8(tvb,offset)) {
-    smpp_handle_time(tree, tvb, hf_smpp_validity_period,
-				hf_smpp_validity_period_r, &offset);
-	} else { /* Time = NULL means SMSC default validity */
-		proto_tree_add_text(tree, tvb, offset++, 1,
-				"Validity period: SMSC default validity period");
-	}
+    if (tvb_get_guint8(tvb,offset)) {
+	smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
+		hf_smpp_schedule_delivery_time_r, &offset);
+    } else { /* Time = NULL means Immediate delivery */
+	proto_tree_add_text(tree, tvb, offset++, 1,
+		"Scheduled delivery time: Immediate delivery");
+    }
+    if (tvb_get_guint8(tvb,offset)) {
+	smpp_handle_time(tree, tvb, hf_smpp_validity_period,
+		hf_smpp_validity_period_r, &offset);
+    } else { /* Time = NULL means SMSC default validity */
+	proto_tree_add_text(tree, tvb, offset++, 1,
+		"Validity period: SMSC default validity period");
+    }
     flag = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_smpp_regdel_receipt, tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_regdel_acks, tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_regdel_notif, tvb, offset, 1, flag);
     offset++;
     smpp_handle_int1(tree, tvb, hf_smpp_replace_if_present_flag, &offset);
-	smpp_handle_dcs(tree, tvb, &offset);
+    smpp_handle_dcs(tree, tvb, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_sm_default_msg_id, &offset);
     length = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_smpp_sm_length, tvb, offset++, 1, length);
     if (length)
 	proto_tree_add_item(tree, hf_smpp_short_message,
-			    tvb, offset, length, FALSE);
+		tvb, offset, length, FALSE);
     offset += length;
     smpp_handle_tlv(tree, tvb, &offset);
 }
@@ -2021,11 +2024,12 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint	 command_id;		/* SMPP command		*/
     guint	 command_status;	/* Status code		*/
     guint	 sequence_number;	/* ...of command	*/
-
+    /* Multiple PDUs within one tvbuffer */
+    gboolean first = TRUE;		/* First PDU		*/
+    gboolean more_pdus = FALSE;		/* More PDUs		*/
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item	*ti;
-    proto_tree	*smpp_tree;
-    tvbuff_t	*tmp_tvb;
+    proto_item	*ti = NULL;
+    proto_tree	*smpp_tree = NULL;
 
     /*
      * Safety: don't even try it when the mandatory header isn't present.
@@ -2040,156 +2044,256 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset +=4;
     sequence_number = tvb_get_ntohl(tvb, offset);
     offset += 4;
-    /* Make entries in Protocol column and Info column on summary display */
+
+    /*
+     * Update the protocol column.
+     */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMPP");
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-	col_clear(pinfo->cinfo, COL_INFO);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "SMPP %s",
-		 val_to_str(command_id,vals_command_id,"unknown operation"));
-	if (command_id & 0x80000000)
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"",
-			    val_to_str(command_status, vals_command_status,
-				       "reserved error"));
-	if (command_length > tvb_reported_length(tvb))
-	    col_append_str(pinfo->cinfo, COL_INFO, " [short packet]");
-	if (command_length < tvb_reported_length(tvb))
-	    col_append_str(pinfo->cinfo, COL_INFO, " [trailing data]");
-    }
-
-    /* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items.
-	 *
-	 * Exception: sm_submit (command_id == 0x00000004) - for SMS reassembly
+    /*
+     * Create display subtree for the protocol
      */
-    if (tree || (command_id == 4)) {
-
-	/* create display subtree for the protocol	*/
-	ti = proto_tree_add_item(tree, proto_smpp, tvb, 0,
-				 command_length, FALSE);
-	smpp_tree = proto_item_add_subtree(ti, ett_smpp);
-
-	/* add an item to the subtree			*/
-	proto_tree_add_uint(smpp_tree, hf_smpp_command_length, tvb,
-			    0, 4, command_length);
-	proto_tree_add_uint(smpp_tree, hf_smpp_command_id, tvb,
-			    4, 4, command_id);
-	proto_item_append_text (ti, ", %s",
-			match_strval (command_id, vals_command_id));
-	/* Status is only meaningful with responses	*/
-	if (command_id & 0x80000000) {
-	    proto_tree_add_uint(smpp_tree, hf_smpp_command_status, tvb,
-				8, 4, command_status);
-		proto_item_append_text (ti, ": \"%s\"",
-				match_strval (command_status, vals_command_status));
-	}
-	proto_tree_add_uint(smpp_tree, hf_smpp_sequence_number, tvb,
-			    12, 4, sequence_number);
-	proto_item_append_text (ti, ", Seq: %u, Len: %u",
-			sequence_number, command_length);
-	/*
-	 * End of header. Don't dissect variable part if it is shortened.
-	 */
-	if (command_length > tvb_reported_length(tvb))
-	    return;
-	tmp_tvb = tvb_new_subset(tvb, offset, -1, command_length - offset);
-	if (command_id & 0x80000000)
-	{
-	    switch (command_id & 0x7FFFFFFF) {
-		/*
-		 * All of these only have a fixed header
-		 */
-		case 0:				/* Generic nack	*/
-		case 6:				/* Unbind resp	*/
-		case 7:				/* Replace SM resp	*/
-		case 8:				/* Cancel SM resp	*/
-		case 21:			/* Enquire link resp	*/
-		    break;
-		case 1:
-		    if (!command_status)
-			bind_receiver_resp(smpp_tree, tmp_tvb);
-		    break;
-		case 2:
-		    if (!command_status)
-			bind_transmitter_resp(smpp_tree, tmp_tvb);
-		    break;
-		case 3:
-		    if (!command_status)
-			query_sm_resp(smpp_tree, tmp_tvb);
-		    break;
-		case 4:
-		    if (!command_status)
-			submit_sm_resp(smpp_tree, tmp_tvb);
-		    break;
-		case 5:
-		    if (!command_status)
-			deliver_sm_resp(smpp_tree, tmp_tvb);
-		    break;
-		case 9:
-		    if (!command_status)
-			bind_transceiver_resp(smpp_tree, tmp_tvb);
-		    break;
-		case 33:
-		    if (!command_status)
-			submit_multi_resp(smpp_tree, tmp_tvb);
-		    break;
-		case 259:
-		    if (!command_status)
-			data_sm_resp(smpp_tree, tmp_tvb);
-		    break;
-		default:
-		    break;
-	    }
-	}
-	else
-	{
-	    switch (command_id) {
-		case  1:
-		    bind_receiver(smpp_tree, tmp_tvb);
-		    break;
-		case  2:
-		    bind_transmitter(smpp_tree, tmp_tvb);
-		    break;
-		case  3:
-		    query_sm(smpp_tree, tmp_tvb);
-		    break;
-		case  4:
-		    submit_sm(smpp_tree, tmp_tvb, pinfo, tree);
-		    break;
-		case  5:
-		    deliver_sm(smpp_tree, tmp_tvb, pinfo, tree);
-		    break;
-		case  6:			/* Unbind	*/
-		case 21:			/* Enquire link	*/
-		    break;
-		case  7:
-		    replace_sm(smpp_tree, tmp_tvb);
-		    break;
-		case  8:
-		    cancel_sm(smpp_tree, tmp_tvb);
-		    break;
-		case  9:
-		    bind_transceiver(smpp_tree, tmp_tvb);
-		    break;
-		case  11:
-		    outbind(smpp_tree, tmp_tvb);
-		    break;
-		case  33:
-		    submit_multi(smpp_tree, tmp_tvb);
-		    break;
-		case  258:
-		    alert_notification(smpp_tree, tmp_tvb);
-		    break;
-		case  259:
-		    data_sm(smpp_tree, tmp_tvb);
-		    break;
-		default:
-		    break;
-	    }
-	}
+    if (tree) {
+	ti = proto_tree_add_item (tree, proto_smpp, tvb, 0, tvb->length, FALSE);
+	smpp_tree = proto_item_add_subtree (ti, ett_smpp);
     }
+
+    /*
+     * Cycle over the encapsulated PDUs
+     */
+    while (first || more_pdus) {
+	gchar *command_str = NULL, *command_status_str = NULL;
+	tvbuff_t *pdu_tvb;
+
+	more_pdus = FALSE;
+    	/*
+	 * Check whether there are any more PDUs in the packet
+	 * by inspecting the reported number of remaining bytes.
+	 */
+	if (tvb_reported_length_remaining(tvb, offset + command_length) > 0)
+	    more_pdus = TRUE;
+
+	/*
+	 * Make entries in Protocol column and Info column
+	 * on the summary display
+	 */
+	if (first == TRUE) {
+	    /*
+	     * First PDU - We already computed the fixed header
+	     */
+	    command_str = val_to_str(command_id, vals_command_id,
+			    "(Unknown SMPP Operation 0x%08X)");
+	    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "SMPP %s", command_str);
+	    }
+	    first = FALSE;
+	} else {
+	    /*
+	     * Fixed header - throw exception if required
+	     */
+	    command_length = tvb_get_ntohl(tvb, offset);
+	    offset += 4;
+	    command_id = tvb_get_ntohl(tvb, offset);
+	    offset += 4;
+	    command_status = tvb_get_ntohl(tvb, offset);
+	    offset +=4;
+	    sequence_number = tvb_get_ntohl(tvb, offset);
+	    offset += 4;
+	    /*
+	     * Subsequent PDUs
+	     */
+	    command_str = val_to_str(command_id, vals_command_id,
+			    "(Unknown SMPP Operation 0x%08X)");
+	    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", command_str);
+	    }
+	}
+
+	/*
+	 * Display command status of responses in Info column
+	 */
+	if (command_id & 0x80000000) {
+	    command_status_str = val_to_str(command_status,
+		    vals_command_status, "(Reserved Error 0x%08X)");
+	    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"",
+			command_status_str);
+	    }
+	}
+
+	/*
+	 * Create a tvb for the current PDU.
+	 * Physical length: at most command_length
+	 * Reported length: command_length
+	 */
+	if (tvb_length_remaining(tvb, offset - 16 + command_length) > 0) {
+	    pdu_tvb = tvb_new_subset(tvb, offset - 16,
+		    command_length,	/* Physical length */
+		    command_length);	/* Length reported by the protocol */
+	} else {
+	    pdu_tvb = tvb_new_subset(tvb, offset - 16,
+		    tvb_length_remaining(tvb, offset - 16),/* Physical length */
+		    command_length);	/* Length reported by the protocol */
+	}
+
+	/*
+	 * Dissect the PDU
+	 *
+	 * If "tree" is NULL, Ethereal is only interested in creation
+	 * of conversations, reassembly and subdissection but not in
+	 * the detailed protocol tree.
+	 * In the interest of speed, skip the generation of protocol tree
+	 * items when "tree" is NULL.
+	 *
+	 * The only PDU which requires subdissection currently is the
+	 * sm_submit PDU (command ID = 0x00000004).
+	 */
+	if (tree || (command_id == 4))
+	{
+	    proto_tree *pdu_tree = NULL;
+	    proto_item *pdu_ti = NULL;
+	    /*
+	     * Create display subtree for the PDU
+	     */
+	    if (tree) {
+    		pdu_ti = proto_tree_add_text(smpp_tree, pdu_tvb,
+    			0, pdu_tvb->length, "SMPP PDU");
+    		pdu_tree = proto_item_add_subtree(pdu_ti, ett_smpp_pdu);
+    		proto_tree_add_uint(pdu_tree, hf_smpp_command_length,
+    			pdu_tvb, 0, 4, command_length);
+    		proto_tree_add_uint(pdu_tree, hf_smpp_command_id,
+			pdu_tvb, 4, 4, command_id);
+    		proto_item_append_text(ti, ", %s", command_str);
+    		proto_item_append_text(pdu_ti, ", Command: %s", command_str);
+
+		/*
+		 * Status is only meaningful with responses
+		 */
+		if (command_id & 0x80000000) {
+		    proto_tree_add_uint(pdu_tree, hf_smpp_command_status,
+			    pdu_tvb, 8, 4, command_status);
+		    proto_item_append_text (ti, ": \"%s\"", command_status_str);
+		    proto_item_append_text (pdu_ti, ", Status: \"%s\"",
+			    command_status_str);
+		}
+		proto_tree_add_uint(pdu_tree, hf_smpp_sequence_number,
+			pdu_tvb, 12, 4, sequence_number);
+		proto_item_append_text(pdu_ti, ", Seq: %u, Len: %u",
+			sequence_number, command_length);
+	    }
+
+	    /*
+	     * End of fixed header.
+	     * Don't dissect variable part if it is shortened.
+	     *
+	     * FIXME - We then do not report a Short Frame or Malformed Packet
+	     */
+	    if (command_length <= tvb_reported_length(pdu_tvb))
+	    {
+		tvbuff_t *tmp_tvb = tvb_new_subset(pdu_tvb, 16,
+			-1, command_length - 16);
+		if (command_id & 0x80000000)
+		{
+		    switch (command_id & 0x7FFFFFFF) {
+			/*
+			 * All of these only have a fixed header
+			 */
+			case   0:	/* Generic nack		*/
+			case   6:	/* Unbind resp		*/
+			case   7:	/* Replace SM resp	*/
+			case   8:	/* Cancel SM resp	*/
+			case  21:	/* Enquire link resp	*/
+			    break;
+			case   1:
+			    if (!command_status)
+				bind_receiver_resp(pdu_tree, tmp_tvb);
+			    break;
+			case   2:
+			    if (!command_status)
+				bind_transmitter_resp(pdu_tree, tmp_tvb);
+			    break;
+			case   3:
+			    if (!command_status)
+				query_sm_resp(pdu_tree, tmp_tvb);
+			    break;
+			case   4:
+			    if (!command_status)
+				submit_sm_resp(pdu_tree, tmp_tvb);
+			    break;
+			case   5:
+			    if (!command_status)
+				deliver_sm_resp(pdu_tree, tmp_tvb);
+			    break;
+			case   9:
+			    if (!command_status)
+				bind_transceiver_resp(pdu_tree, tmp_tvb);
+			    break;
+			case  33:
+			    if (!command_status)
+				submit_multi_resp(pdu_tree, tmp_tvb);
+			    break;
+			case 259:
+			    if (!command_status)
+				data_sm_resp(pdu_tree, tmp_tvb);
+			    break;
+			default:
+			    break;
+		    } /* switch (command_id & 0x7FFFFFFF) */
+		}
+		else
+		{
+		    switch (command_id) {
+			case   1:
+			    bind_receiver(pdu_tree, tmp_tvb);
+			    break;
+			case   2:
+			    bind_transmitter(pdu_tree, tmp_tvb);
+			    break;
+			case   3:
+			    query_sm(pdu_tree, tmp_tvb);
+			    break;
+			case   4:
+			    submit_sm(pdu_tree, tmp_tvb, pinfo, tree);
+			    break;
+			case   5:
+			    deliver_sm(pdu_tree, tmp_tvb, pinfo, tree);
+			    break;
+			case   6:	/* Unbind		*/
+			case  21:	/* Enquire link		*/
+			    break;
+			case   7:
+			    replace_sm(pdu_tree, tmp_tvb);
+			    break;
+			case   8:
+			    cancel_sm(pdu_tree, tmp_tvb);
+			    break;
+			case   9:
+			    bind_transceiver(pdu_tree, tmp_tvb);
+			    break;
+			case  11:
+			    outbind(pdu_tree, tmp_tvb);
+			    break;
+			case  33:
+			    submit_multi(pdu_tree, tmp_tvb);
+			    break;
+			case  258:
+			    alert_notification(pdu_tree, tmp_tvb);
+			    break;
+			case  259:
+			    data_sm(pdu_tree, tmp_tvb);
+			    break;
+			default:
+			    break;
+		    } /* switch (command_id) */
+		} /* if (command_id & 0x80000000) */
+	    } /* if (command_length <= tvb_reported_length(pdu_tvb)) */
+	    offset += command_length;
+	} /* if (tree || (command_id == 4)) */
+	first = FALSE;
+    } /* while (first || more_pdus) */
+
     /* If this protocol has a sub-dissector call it here.	*/
     return;
 }
@@ -3156,11 +3260,12 @@ proto_register_smpp(void)
     };
     /* Setup protocol subtree array */
     static gint *ett[] = {
-	    &ett_smpp,
-	    &ett_dlist,
-	    &ett_dlist_resp,
-	    &ett_opt_param,
-		&ett_dcs,
+	&ett_smpp,
+	&ett_smpp_pdu,
+	&ett_dlist,
+	&ett_dlist_resp,
+	&ett_opt_param,
+	&ett_dcs,
 		/*
 		&ett_udh,
 	    &ett_udh_ie,
