@@ -154,6 +154,7 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-netlogon.c	\
 	packet-dcerpc-nspi.c	\
 	packet-dcerpc-oxid.c	\
+	packet-dcerpc-pn-io.c	\
 	packet-dcerpc-rdaclif.c	\
 	packet-dcerpc-reg.c	\
 	packet-dcerpc-remact.c	\
@@ -392,6 +393,8 @@ DISSECTOR_SRC =	\
 	packet-pflog.c	\
 	packet-pgm.c	\
 	packet-pim.c	\
+	packet-pn-dcp.c   \
+	packet-pn-rt.c   \
 	packet-pkcs1.c	\
 	packet-pkix1explicit.c	\
 	packet-pkix1implicit.c	\
