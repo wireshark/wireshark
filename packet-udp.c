@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.94 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-udp.c,v 1.95 2001/09/27 10:19:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,7 +166,7 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* No checksum supplied in the packet. */
       proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
         offset + 6, 2, uh_sum, "Checksum: 0x%04x (none)", uh_sum);
-    } else if (!pinfo->fragmented && len >= reported_len) {
+    } else if (!pinfo->fragmented && len >= reported_len && len >= uh_ulen) {
       /* The packet isn't part of a fragmented datagram and isn't
          truncated, so we can checksum it.
 	 XXX - make a bigger scatter-gather list once we do fragment
