@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.19 2003/09/15 22:16:08 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.20 2003/10/03 09:09:35 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,7 +110,7 @@ ett_get_filter_name(address *addr, int specific_addr_type, int port_type, int na
 		case AT_IPv6:
 			return "ipv6.src";
 		case AT_IPX:
-			return "ipx.src.node";
+			return "ipx.src";
 		case AT_FC:
 			return "fc.s_id";
 		default:
@@ -132,7 +132,7 @@ ett_get_filter_name(address *addr, int specific_addr_type, int port_type, int na
 		case AT_IPv6:
 			return "ipv6.dst";
 		case AT_IPX:
-			return "ipx.dst.node";
+			return "ipx.dst";
 		case AT_FC:
 			return "fc.d_id";
 		default:
@@ -154,7 +154,7 @@ ett_get_filter_name(address *addr, int specific_addr_type, int port_type, int na
 		case AT_IPv6:
 			return "ipv6.addr";
 		case AT_IPX:
-			return "ipx.node";
+			return "ipx.addr";
 		case AT_FC:
 			return "fc.id";
 		default:

@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.136 2003/08/24 05:37:57 sahlberg Exp $
+ * $Id: packet-ipx.c,v 1.137 2003/10/03 09:09:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,9 @@ static int ipx_tap = -1;
 static int proto_ipx = -1;
 static int hf_ipx_checksum = -1;
 static int hf_ipx_len = -1;
+static int hf_ipx_src = -1;
+static int hf_ipx_dst = -1;
+static int hf_ipx_addr = -1;
 static int hf_ipx_hops = -1;
 static int hf_ipx_packet_type = -1;
 static int hf_ipx_dnet = -1;
@@ -235,14 +238,14 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guint8	*src_net_node, *dst_net_node;
 
 	guint8		ipx_hops;
-
+	char 		*str;
 	guint16		first_socket, second_socket;
 	guint32		ipx_snet, ipx_dnet;
 	const guint8	*ipx_snode, *ipx_dnode;
 	static ipxhdr_t ipxh_arr[4];
 	static int ipx_current=0;
 	ipxhdr_t *ipxh;
-
+	
 	ipx_current++;
 	if(ipx_current==4){
 		ipx_current=0;
@@ -287,6 +290,13 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_ipx, tvb, 0, IPX_HEADER_LEN, FALSE);
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
 	}
+
+	str=address_to_str(&pinfo->net_src);
+	proto_tree_add_string_hidden(ipx_tree, hf_ipx_src, tvb, 0, 0, str);
+	proto_tree_add_string_hidden(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
+	str=address_to_str(&pinfo->net_dst);
+	proto_tree_add_string_hidden(ipx_tree, hf_ipx_dst, tvb, 0, 0, str);
+	proto_tree_add_string_hidden(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
 
 	proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, FALSE);
 	proto_tree_add_uint_format(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
@@ -1276,6 +1286,17 @@ proto_register_ipx(void)
 		{ &hf_ipx_checksum,
 		{ "Checksum",		"ipx.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
+
+		{ &hf_ipx_src,
+		{ "Source Address",	"ipx.src", FT_STRING, BASE_DEC, NULL, 0x0,
+		  "Source IPX Address  \"network.node\"", HFILL }},
+
+		{ &hf_ipx_dst,
+		{ "Destination Address",	"ipx.dst", FT_STRING, BASE_DEC, NULL, 0x0,
+		  "Destination IPX Address  \"network.node\"", HFILL }},
+		{ &hf_ipx_addr,
+		{ "Src/Dst Address",	"ipx.addr", FT_STRING, BASE_DEC, NULL, 0x0,
+		  "Source or Destination IPX Address  \"network.node\"", HFILL }},
 
 		{ &hf_ipx_len,
 		{ "Length",		"ipx.len", FT_UINT16, BASE_DEC, NULL, 0x0,
