@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.23 2004/01/23 00:29:52 guy Exp $
+ * $Id: rtp_analysis.c,v 1.24 2004/01/24 01:15:24 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -110,7 +110,8 @@ typedef struct _dialog_data_t {
 #endif
 } dialog_data_t;
 
-#define OK_TEXT "Ok"
+#define OK_TEXT "[ Ok ]"
+#define PT_UNDEFINED -1
 
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {
@@ -146,6 +147,7 @@ typedef struct _tap_rtp_stat_t {
 	gboolean under;
 	gint cycles;
 	guint16 pt;
+	int reg_pt;
 } tap_rtp_stat_t;
 
 /* status flags for the flags parameter in tap_rtp_stat_t */
@@ -154,6 +156,8 @@ typedef struct _tap_rtp_stat_t {
 #define STAT_FLAG_WRONG_SEQ   0x04
 #define STAT_FLAG_PT_CHANGE   0x08
 #define STAT_FLAG_PT_CN       0x10
+#define STAT_FLAG_FOLLOW_PT_CN  0x20
+#define STAT_FLAG_REG_PT_CHANGE  0x40
 
 typedef struct _tap_rtp_save_info_t {
 	FILE *fp;
@@ -243,6 +247,8 @@ rtp_reset(void *user_data_arg)
 	user_data->reversed.statinfo.start_time = 0;
 	user_data->forward.statinfo.time = 0;
 	user_data->reversed.statinfo.time = 0;
+	user_data->forward.statinfo.reg_pt = PT_UNDEFINED;
+	user_data->reversed.statinfo.reg_pt = PT_UNDEFINED;
 
 	user_data->forward.saveinfo.count = 0;
 	user_data->reversed.saveinfo.count = 0;
@@ -354,11 +360,14 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	if (rtpinfo->info_payload_type == PT_CN
 		|| rtpinfo->info_payload_type == PT_CN_OLD)
 		statinfo->flags |= STAT_FLAG_PT_CN;
+	if (statinfo->pt == PT_CN
+		|| statinfo->pt == PT_CN_OLD)
+		statinfo->flags |= STAT_FLAG_FOLLOW_PT_CN;
 	if (rtpinfo->info_payload_type != statinfo->pt)
 		statinfo->flags |= STAT_FLAG_PT_CHANGE;
 
 	statinfo->pt = rtpinfo->info_payload_type;
-	
+
 	/* store the current time and calculate the current jitter */
 	current_time = (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
 	current_jitter = statinfo->jitter + ( fabs (current_time - (statinfo->time) -
@@ -380,13 +389,31 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
 		statinfo->flags |= STAT_FLAG_MARKER;
 	}
-	/* if neither then it is a normal packet */
-	if (!(statinfo->first_packet) && !(rtpinfo->info_marker_set)) {
+	/* is it a regular packet? */
+	if (!(statinfo->flags & STAT_FLAG_FIRST)
+		&& !(statinfo->flags & STAT_FLAG_MARKER)
+		&& !(statinfo->flags & STAT_FLAG_PT_CN)
+		&& !(statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)) {
+		/* include it in maximum delay calculation */
 		if (statinfo->delay > statinfo->max_delay) {
 			statinfo->max_delay = statinfo->delay;
 			statinfo->max_nr = pinfo->fd->num;
 		}
 	}
+	/* regular payload change? (CN ignored) */
+	if (!(statinfo->flags & STAT_FLAG_FIRST)
+		&& !(statinfo->flags & STAT_FLAG_PT_CN)) {
+		if ((statinfo->pt != statinfo->reg_pt)
+			&& (statinfo->reg_pt != PT_UNDEFINED)) {
+			statinfo->flags |= STAT_FLAG_REG_PT_CHANGE;
+		}
+	}
+
+	/* set regular payload*/
+	if (!(statinfo->flags & STAT_FLAG_PT_CN)) {
+		statinfo->reg_pt = statinfo->pt;
+	}
+
 
 	/* When calculating expected rtp packets the seq number can wrap around
 	* so we have to count the number of cycles
@@ -452,6 +479,11 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 }
 
 
+static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
+static const GdkColor COLOR_ERROR = {0, 0xffff, 0xbfff, 0xbfff};
+static const GdkColor COLOR_WARNING = {0, 0xffff, 0xdfff, 0xbfff};
+static const GdkColor COLOR_CN = {0, 0xbfff, 0xbfff, 0xffff};
+
 /****************************************************************************/
 /* adds statistics information from the packet to the clist */
 static int rtp_packet_add_info(GtkCList *clist,
@@ -462,7 +494,7 @@ static int rtp_packet_add_info(GtkCList *clist,
 	struct tm *tm_tmp;
 	time_t then;
 	gchar status[40];
-	GdkColor color = {0, 0xffff, 0xffff, 0xffff};
+	GdkColor color = COLOR_DEFAULT;
 
 	then = pinfo->fd->abs_secs;
 	msecs = (guint16)(pinfo->fd->abs_usecs/1000);
@@ -478,35 +510,38 @@ static int rtp_packet_add_info(GtkCList *clist,
 
 	if (statinfo->pt == PT_CN) {
 		snprintf(status,40,"Comfort noise (PT=13, RFC 3389)");
-		color.pixel = 0;
-		color.red = 0x7fff;
-		color.green = 0x7fff;
-		color.blue = 0xffff;
+		color = COLOR_CN;
 	}
 	else if (statinfo->pt == PT_CN_OLD) {
 		snprintf(status,40,"Comfort noise (PT=19, reserved)");
-		color.pixel = 0;
-		color.red = 0x7fff;
-		color.green = 0x7fff;
-		color.blue = 0xffff;
+		color = COLOR_CN;
 	}
 	else if (statinfo->flags & STAT_FLAG_WRONG_SEQ) {
 		snprintf(status,40,"Wrong sequence nr.");
-		color.pixel = 0;
-		color.red = 0xffff;
-		color.green = 0x7fff;
-		color.blue = 0x7fff;
+		color = COLOR_ERROR;
+	}
+/*
+	else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
+		&&  !(statinfo->flags & STAT_FLAG_FIRST)
+		&&  !(statinfo->flags & STAT_FLAG_PT_CN)
+		&&  !(statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)) {
+*/
+	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
+		snprintf(status,40,"Payload changed to PT=%u", statinfo->pt);
+		color = COLOR_WARNING;
 	}
 	else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
 		&&  !(statinfo->flags & STAT_FLAG_FIRST)
-		&&  !(statinfo->flags & STAT_FLAG_PT_CN)) {
-		snprintf(status,40,"Payload type changed to PT=%u", statinfo->pt);
-		color.pixel = 0;
-		color.red = 0xffff;
-		color.green = 0x7fff;
-		color.blue = 0x7fff;
+		&&  !(statinfo->flags & STAT_FLAG_PT_CN)
+		&&  (statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)
+		&&  !(statinfo->flags & STAT_FLAG_MARKER)) {
+		snprintf(status,40,"Marker missing?");
+		color = COLOR_WARNING;
 	}
 	else {
+		if (statinfo->flags & STAT_FLAG_MARKER) {
+			color = COLOR_WARNING;
+		}
 		snprintf(status,40,OK_TEXT);
 	}
 
@@ -1545,18 +1580,20 @@ static void draw_stat(user_data_t *user_data)
 	gint32 f_lost = f_expected - user_data->forward.statinfo.total_nr;
 	gint32 r_lost = r_expected - user_data->reversed.statinfo.total_nr;
 
-	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n\n"
+	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d"
 		"   Sequence errors = %u",
-		user_data->forward.statinfo.max_delay, user_data->forward.statinfo.max_nr, user_data->forward.statinfo.total_nr,
+		user_data->forward.statinfo.max_delay, user_data->forward.statinfo.max_nr,
+		user_data->forward.statinfo.total_nr,
 		f_expected, f_lost, user_data->forward.statinfo.sequence);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
 
-	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n\n"
+	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d"
 		"   Sequence errors = %u",
-		user_data->reversed.statinfo.max_delay, user_data->reversed.statinfo.max_nr, user_data->reversed.statinfo.total_nr,
+		user_data->reversed.statinfo.max_delay, user_data->reversed.statinfo.max_nr,
+		user_data->reversed.statinfo.total_nr,
 		r_expected, r_lost, user_data->reversed.statinfo.sequence);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_rev), label_max);
@@ -1797,8 +1834,8 @@ void create_rtp_dialog(user_data_t* user_data)
 	SIGNAL_CONNECT(window, "destroy", on_destroy, user_data);
 
 	/* Container for each row of widgets */
-	main_vb = gtk_vbox_new(FALSE, 3);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+	main_vb = gtk_vbox_new(FALSE, 2);
+	gtk_container_border_width(GTK_CONTAINER(main_vb), 2);
 	gtk_container_add(GTK_CONTAINER(window), main_vb);
 	gtk_widget_show(main_vb);
 
@@ -1807,14 +1844,14 @@ void create_rtp_dialog(user_data_t* user_data)
 	strcpy(str_ip_dst, ip_to_str((ip_addr_p)&user_data->ip_dst_fwd));
 
 	g_snprintf(label_forward, 149, 
-		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u\n", 
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u", 
 		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 	strcpy(str_ip_src, ip_to_str((ip_addr_p)&user_data->ip_src_rev));
 	strcpy(str_ip_dst, ip_to_str((ip_addr_p)&user_data->ip_dst_rev));
 
 	g_snprintf(label_reverse, 149,
-		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u\n", 
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u", 
 		str_ip_src, user_data->port_src_rev, str_ip_dst, user_data->port_dst_rev, user_data->ssrc_rev);
 
 	/* Start a notebook for flipping between sets of changes */
@@ -1825,20 +1862,20 @@ void create_rtp_dialog(user_data_t* user_data)
                        user_data);
 
 	/* page for forward connection */
-	page = gtk_vbox_new(FALSE, 5);
-	gtk_container_set_border_width(GTK_CONTAINER(page), 20);
+	page = gtk_vbox_new(FALSE, 8);
+	gtk_container_set_border_width(GTK_CONTAINER(page), 8);
 
 	/* direction label */
 	label = gtk_label_new(label_forward);
 	gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
 
 	/* place for some statistics */
-	label_stats_fwd = gtk_label_new("\n\n");
-	gtk_box_pack_end(GTK_BOX(page), label_stats_fwd, FALSE, FALSE, 5);
+	label_stats_fwd = gtk_label_new("\n");
+	gtk_box_pack_end(GTK_BOX(page), label_stats_fwd, FALSE, FALSE, 0);
 
 	/* scrolled window */
 	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(scrolled_window, 520, 200);
+	WIDGET_SET_SIZE(scrolled_window, 560, 200);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), 
 		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 
@@ -1854,15 +1891,15 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
 
 	/* same page for reversed connection */
-	page_r = gtk_vbox_new(FALSE, 5);
-	gtk_container_set_border_width(GTK_CONTAINER(page_r), 20);
+	page_r = gtk_vbox_new(FALSE, 8);
+	gtk_container_set_border_width(GTK_CONTAINER(page_r), 8);
 	label = gtk_label_new(label_reverse);
 	gtk_box_pack_start(GTK_BOX(page_r), label, FALSE, FALSE, 0);
-	label_stats_rev = gtk_label_new("\n\n");
-	gtk_box_pack_end(GTK_BOX(page_r), label_stats_rev, FALSE, FALSE, 5);
+	label_stats_rev = gtk_label_new("\n");
+	gtk_box_pack_end(GTK_BOX(page_r), label_stats_rev, FALSE, FALSE, 0);
 
 	scrolled_window_r = gtk_scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(scrolled_window_r, 600, 200);
+	WIDGET_SET_SIZE(scrolled_window_r, 560, 200);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window_r), 
 		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 
