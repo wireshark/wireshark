@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.22 2002/09/18 01:10:02 guy Exp $
+ * $Id: packet-afp.c,v 1.23 2002/10/09 23:16:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -146,6 +146,9 @@
 #define AFP_GETSESSTOKEN	64
 #define AFP_DISCTOLDSESS        65
 
+/* AFP 3.1 new calls */
+#define AFP_ENUMERATE_EXT2	68
+
 /* ----------------------------- */
 static int proto_afp = -1;
 static int hf_afp_reserved = -1;
@@ -202,7 +205,9 @@ static int hf_afp_dir_GroupID    = -1;
 static int hf_afp_file_bitmap = -1;
 static int hf_afp_req_count = -1;
 static int hf_afp_start_index = -1;
+static int hf_afp_start_index32 = -1;
 static int hf_afp_max_reply_size = -1;
+static int hf_afp_max_reply_size32 = -1;
 static int hf_afp_file_flag = -1;
 static int hf_afp_create_flag = -1;
 static int hf_afp_struct_size = -1;
@@ -354,6 +359,7 @@ static const value_string CommandCode_vals[] = {
   {AFP_BYTELOCK_EXT,	"FPByteRangeLockExt" },
   {AFP_CATSEARCH_EXT,	"FPCatSearchExt" },
   {AFP_ENUMERATE_EXT,	"FPEnumerateExt" },
+  {AFP_ENUMERATE_EXT2,	"FPEnumerateExt2" },
   {AFP_READ_EXT,	"FPReadExt" },
   {AFP_WRITE_EXT,	"FPWriteExt" },
   {AFP_GETSESSTOKEN,	"FPGetSessionToken" },
@@ -1537,6 +1543,28 @@ dissect_reply_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 /* ************************** */
 static gint
+dissect_query_afp_enumerate_ext2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	offset = decode_vol_did_file_dir_bitmap(tree, tvb, offset);
+
+	proto_tree_add_item(tree, hf_afp_req_count, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_start_index32, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_max_reply_size32, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	offset = decode_name(tree, pinfo, tvb, offset);
+
+	return offset;
+}
+
+/* ************************** */
+static gint
 dissect_query_afp_enumerate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 
@@ -1733,6 +1761,7 @@ dissect_reply_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		sub_tree = proto_item_add_subtree(item, ett_afp_cat_search);
 	}
 	offset += 4;
+
 	return loop_record(tvb,sub_tree, offset, count, d_bitmap, f_bitmap, 2);
 }
 
@@ -2800,7 +2829,22 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		afp_tree = proto_item_add_subtree(ti, ett_afp);
 	}
 	if (!aspinfo->reply)  {
+	        
 		proto_tree_add_uint(afp_tree, hf_afp_command, tvb,offset, 1, afp_command);
+	        if (afp_command != tvb_get_guint8(tvb, offset))
+	        {
+	        	/* we have the same conversation for different connections eg:
+			 * ip1:2048 --> ip2:548
+	        	 * ip1:2048 --> ip2:548 <RST>
+	        	 * ....
+	        	 * ip1:2048 --> ip2:548 <SYN> use the same port but it's a new session!
+	        	 */
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_fstr(pinfo->cinfo, COL_INFO, 
+			          "[Error!IP port reused, you need to split the capture file]");
+				return;
+			}
+		}
 		offset++;
 		switch(afp_command) {
 		case AFP_BYTELOCK:
@@ -2825,6 +2869,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_create_file(tvb, pinfo, afp_tree, offset);break;
 		case AFP_DISCTOLDSESS:
 			offset = dissect_query_afp_disconnect_old_session(tvb, pinfo, afp_tree, offset);break;
+		case AFP_ENUMERATE_EXT2:
+			offset = dissect_query_afp_enumerate_ext2(tvb, pinfo, afp_tree, offset);break;
 		case AFP_ENUMERATE_EXT:
 		case AFP_ENUMERATE:
 			offset = dissect_query_afp_enumerate(tvb, pinfo, afp_tree, offset);break;
@@ -2927,6 +2973,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_reply_afp_byte_lock(tvb, pinfo, afp_tree, offset);break;
 		case AFP_BYTELOCK_EXT:
 			offset = dissect_reply_afp_byte_lock_ext(tvb, pinfo, afp_tree, offset);break;
+		case AFP_ENUMERATE_EXT2:
 		case AFP_ENUMERATE_EXT:
  		case AFP_ENUMERATE:
  			offset = dissect_reply_afp_enumerate(tvb, pinfo, afp_tree, offset);break;
@@ -3593,7 +3640,17 @@ proto_register_afp(void)
     { &hf_afp_max_reply_size,
       { "Reply size",         "afp.reply_size",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"Reply size", HFILL }},
+
+    { &hf_afp_start_index32,
+      { "Start index",         "afp.start_index32",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
       	"First structure returned", HFILL }},
+
+    { &hf_afp_max_reply_size32,
+      { "Reply size",         "afp.reply_size32",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"Reply size", HFILL }},
 
     { &hf_afp_file_flag,
       { "Dir",         "afp.file_flag",
