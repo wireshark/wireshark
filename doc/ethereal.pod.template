@@ -214,6 +214,16 @@ item.
 
 Exits the application.
 
+=item Edit:Find Frame
+
+Allows you to search forward or backward, starting with the currently
+selected packet (or the most recently selected packet, if no packet is
+selected), for a packet matching a given display filter.
+
+=item Edit:Go To Frame
+
+Allows you to go to a particular numbered packet.
+
 =item Edit:Preferences
 
 Sets the packet printing, column display, TCP stream coloring, and GUI
@@ -259,16 +269,6 @@ display filter matches a packet, any additional display filters in the list
 are ignored. Therefore, if you are filtering on the existence of protocols,
 you should list the higher-level protocols first, and the lower-level
 protocols last.
-
-=item Display:Find Frame
-
-Allows you to search forward or backward, starting with the currently
-selected packet (or the most recently selected packet, if no packet is
-selected), for a packet matching a given display filter.
-
-=item Display:Go To Frame
-
-Allows you to go to a particular numbered packet.
 
 =item Display:Collapse All
 

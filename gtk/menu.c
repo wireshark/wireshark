@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.18 2000/01/18 08:38:18 guy Exp $
+ * $Id: menu.c,v 1.19 2000/01/18 09:05:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,7 +101,8 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/Copy", "<control>C", NULL, 0, NULL},
   {"/Edit/Paste", "<control>V", NULL, 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
-  {"/Edit/Find", "<control>F", NULL, 0, NULL},
+  {"/Edit/_Find Frame...", "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, NULL},
+  {"/Edit/_Go To Frame...", "<control>G", GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), E_PR_PG_NONE, NULL},
   {"/Edit/_Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
@@ -113,8 +114,8 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Display/_Options...", NULL, GTK_MENU_FUNC(display_opt_cb), 0, NULL},
   {"/Display/_Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
   {"/Display/_Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
-  {"/Display/_Find Frame...", "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, NULL},
-  {"/Display/_Go To Frame...", "<control>G", GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
+  {"/Display/_Find Frame...", NULL, GTK_MENU_FUNC(find_frame_cb), 0, NULL},
+  {"/Display/_Go To Frame...", NULL, GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
   {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
