@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.7 2003/10/17 06:06:04 oabad Exp $
+ * $Id: toolbar.c,v 1.8 2003/10/17 08:14:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,12 +162,13 @@ toolbar_redraw_all(void)
         gtk_widget_hide(main_tb_hb);
     }
 
-    /* resize ALL elements in the top_level container (not necessary in GTK+
-     * 2.x) */
 #if GTK_MAJOR_VERSION < 2
-    /* If we don't do it in 1.2[.x], the toolbar takes the maximum vertical size
-     * it ever had, even if you change the style in such a way as to reduce its
-     * height. */
+    /* In GTK+ 1.2[.x], the toolbar takes the maximum vertical size it ever
+     * had, even if you change the style in such a way as to reduce its
+     * height, unless we queue a resize (which resizes ALL elements in the
+     * top-level container).
+     *
+     * In GTK+ 2.x, this isn't necessary - it does the right thing. */
     gtk_container_queue_resize(GTK_CONTAINER(top_level));
 #endif
 }
