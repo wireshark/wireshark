@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.38 2002/08/30 10:14:03 guy Exp $
+ * $Id: packet-gtp.c,v 1.39 2002/10/26 06:13:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2640,18 +2640,13 @@ decode_gtp_auth_tri(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 	proto_tree	*ext_tree_auth_tri;
 	proto_item	*te;
-	guint32		rand[4], sres, kc[2];
-
-	tvb_memcpy(tvb, (guint8 *)&rand, offset+1, 16);
-	sres = tvb_get_ntohl(tvb, offset+17);
-	tvb_memcpy(tvb, (guint8 *)&kc, offset+21, 16);
 
 	te = proto_tree_add_text(tree, tvb, offset, 29, val_to_str(GTP_EXT_AUTH_TRI, gtp_val, "Unknown message"));
 	ext_tree_auth_tri = proto_item_add_subtree(tree, ett_gtp_auth_tri);
 
-	proto_tree_add_text(ext_tree_auth_tri, tvb, offset+1, 16, "RAND: %x%x%x%x", rand[0], rand[1], rand[2], rand[3]);
-	proto_tree_add_text(ext_tree_auth_tri, tvb, offset+17, 4, "SRES: %x", sres);
-	proto_tree_add_text(ext_tree_auth_tri, tvb, offset+21, 8, "Kc: %x%x", kc[0], kc[1]);
+	proto_tree_add_text(ext_tree_auth_tri, tvb, offset+1, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset+1, 16));
+	proto_tree_add_text(ext_tree_auth_tri, tvb, offset+17, 4, "SRES: %s", tvb_bytes_to_str(tvb, offset+17, 4));
+	proto_tree_add_text(ext_tree_auth_tri, tvb, offset+21, 8, "Kc: %s", tvb_bytes_to_str(tvb, offset+21, 8));
 
 	return 1+16+4+8;
 }
@@ -3144,21 +3139,15 @@ decode_triplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count) {
 
 	proto_tree	*ext_tree_trip;
 	proto_item	*te_trip;
-	guint32		rand[4], sres, kc[2];
 	guint16		i;
 
 	for (i=0;i<count;i++) {
-
-		tvb_memcpy(tvb, (guint8 *)&rand, offset+i*28, 16);
-		sres = tvb_get_ntohl(tvb, offset+i*28+16);
-		tvb_memcpy(tvb, (guint8 *)&kc, offset+i*28+20, 8);
-
 		te_trip = proto_tree_add_text(tree, tvb, offset+i*28, 28, "Triplet no%x", i);
 		ext_tree_trip = proto_item_add_subtree(te_trip, ett_gtp_trip);
 
-		proto_tree_add_text(ext_tree_trip, tvb, offset+i*28, 16, "RAND: %x%x%x%x", rand[0], rand[1], rand[2], rand[3]);
-		proto_tree_add_text(ext_tree_trip, tvb, offset+i*28+16, 4, "SRES: %x", sres);
-		proto_tree_add_text(ext_tree_trip, tvb, offset+i*28+20, 8, "Kc: %x%x", kc[0], kc[1]);
+		proto_tree_add_text(ext_tree_trip, tvb, offset+i*28, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset+i*28, 16));
+		proto_tree_add_text(ext_tree_trip, tvb, offset+i*28+16, 4, "SRES: %s", tvb_bytes_to_str(tvb, offset+i*28+16, 4));
+		proto_tree_add_text(ext_tree_trip, tvb, offset+i*28+20, 8, "Kc: %s", tvb_bytes_to_str(tvb, offset+i*28+20, 8));
 	}
 
 	return count*28;
@@ -3171,7 +3160,6 @@ decode_quintuplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count, gu
 
 	proto_tree	*ext_tree_quint;
 	proto_item	*te_quint;
-	guint32		rand[4], q_ck[4], q_ik[4];
 	guint16		q_len, xres_len, auth_len, q_offset, i;
 
 	q_offset = 0;
@@ -3182,25 +3170,19 @@ decode_quintuplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count, gu
 
 		q_len = tvb_get_ntohs(tvb, offset);
 
-		tvb_memcpy(tvb, (guint8 *)&rand, offset+2, 16);
-		xres_len = tvb_get_ntohs(tvb, offset+18);
-/*		xres = tvb_get_ptr(tvb, offset+20, xres_len);*/
-		tvb_memcpy(tvb, (guint8 *)&q_ck, offset+20+xres_len, 16);
-		tvb_memcpy(tvb, (guint8 *)&q_ik, offset+36+xres_len, 16);
-		auth_len = tvb_get_ntohs(tvb, offset+52+xres_len);
-/*		auth = tvb_get_ptr(tvb, offset+54+xres_len, auth_len);*/
-
 		te_quint = proto_tree_add_text(tree, tvb, offset-adjust, q_len+adjust, "Quintuplet #%x", i);
 		ext_tree_quint = proto_item_add_subtree(te_quint, ett_gtp_quint);
 
 		proto_tree_add_text(ext_tree_quint, tvb, offset, 2, "Length: %x", q_len);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+2, 16, "RAND: %x%x%x%x", rand[0], rand[1], rand[2], rand[3]);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+18, 2, "XRES length: %x", xres_len);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+20, xres_len, "XRES");
-		proto_tree_add_text(ext_tree_quint, tvb, offset+20+xres_len, 16, "Quintuplet ciphering key: %x%x%x%x", q_ck[0], q_ck[1], q_ck[2], q_ck[3]);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+36+xres_len, 16, "Quintuplet integrity key: %x%x%x%x", q_ik[0], q_ik[1], q_ik[2], q_ik[3]);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+52+xres_len, 2, "Authentication length: %x", auth_len);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+54+xres_len, auth_len, "AUTH");
+		proto_tree_add_text(ext_tree_quint, tvb, offset+2, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset+2, 16));
+		xres_len = tvb_get_ntohs(tvb, offset+18);
+		proto_tree_add_text(ext_tree_quint, tvb, offset+18, 2, "XRES length: %u", xres_len);
+		proto_tree_add_text(ext_tree_quint, tvb, offset+20, xres_len, "XRES: %s", tvb_bytes_to_str(tvb, offset+20, xres_len));
+		proto_tree_add_text(ext_tree_quint, tvb, offset+20+xres_len, 16, "Quintuplet ciphering key: %s", tvb_bytes_to_str(tvb, offset+20+xres_len, 16));
+		proto_tree_add_text(ext_tree_quint, tvb, offset+36+xres_len, 16, "Quintuplet integrity key: %s", tvb_bytes_to_str(tvb, offset+36+xres_len, 16));
+		auth_len = tvb_get_ntohs(tvb, offset+52+xres_len);
+		proto_tree_add_text(ext_tree_quint, tvb, offset+52+xres_len, 2, "Authentication length: %u", auth_len);
+		proto_tree_add_text(ext_tree_quint, tvb, offset+54+xres_len, auth_len, "AUTH: %s", tvb_bytes_to_str(tvb, offset+54+xres_len, auth_len));
 
 		q_offset = q_offset + q_len + 2;
 	}
