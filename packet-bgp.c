@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.39 2001/06/15 07:36:31 guy Exp $
+ * $Id: packet-bgp.c,v 1.40 2001/06/15 08:01:31 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -212,6 +212,7 @@ static gint ett_bgp_unfeas = -1;
 static gint ett_bgp_attrs = -1;
 static gint ett_bgp_attr = -1;
 static gint ett_bgp_attr_flags = -1;
+static gint ett_bgp_mp_nhna = -1;
 static gint ett_bgp_mp_reach_nlri = -1;
 static gint ett_bgp_mp_unreach_nlri = -1;
 static gint ett_bgp_mp_snpa = -1;
@@ -745,6 +746,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 	    guint16 af;
             guint8 saf;
 	    int off, snpa;
+	    int nexthop_len;
 
 	    tvb_memcpy(tvb, (guint8 *)&bgpa, o + i, sizeof(bgpa));
             /* check for the Extended Length bit */
@@ -1292,16 +1294,23 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		    "Subsequent address family identifier: %s (%u)",
 		    val_to_str(saf, bgpattr_nlri_safi, saf >= 128 ? "Vendor specific" : "Unknown"),
 		    saf);
-                advance = tvb_get_guint8(tvb, o + i + aoff + 3);
+                nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
 		ti = proto_tree_add_text(subtree2, tvb, o + i + aoff + 3, 1,
 			"Next hop network address (%d %s)",
-			advance, (advance == 1) ? "byte" : "bytes");
-
-                advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4, junk_buf, sizeof(junk_buf)) ;
-		proto_tree_add_text(subtree2, tvb,o + i + aoff + 4, advance,
-                                "Next hop: %s (%u)", junk_buf, advance);
-                alen -= advance + 4;
-		aoff += advance + 4 ;
+			nexthop_len, plurality(nexthop_len, "byte", "bytes"));
+		subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_nhna);
+		j = 0;
+		while (j < nexthop_len) {
+                    advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
+		        junk_buf, sizeof(junk_buf)) ;
+                    if (j + advance > nexthop_len)
+			    break;
+                    proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
+                        advance, "Next hop: %s (%u)", junk_buf, advance);
+		    j += advance;
+		}
+                alen -= nexthop_len + 4;
+                aoff += nexthop_len + 4 ;
 
                 off = 0;
 		snpa = tvb_get_guint8(tvb, o + i + aoff);
@@ -1701,6 +1710,7 @@ proto_register_bgp(void)
       &ett_bgp_attrs,
       &ett_bgp_attr,
       &ett_bgp_attr_flags,
+      &ett_bgp_mp_nhna,
       &ett_bgp_mp_reach_nlri,
       &ett_bgp_mp_unreach_nlri,
       &ett_bgp_mp_snpa,
