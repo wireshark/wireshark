@@ -1,7 +1,7 @@
 /* to_str.h
  * Routines  for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.2 2001/04/01 06:32:10 hagbard Exp $
+ * $Id: to_str.c,v 1.3 2001/04/01 17:35:21 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,11 +47,17 @@
 # include "inet_v6defs.h"
 #endif
 
+#ifdef HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
+
+
 #include "to_str.h"
 #include "resolv.h"
 #include "pint.h"
 #include <stdio.h>
 #include <time.h>
+
 
 /* Wrapper for the most common case of asking
  * for a string using a colon as the hex-digit separator.
