@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.22 2003/10/27 00:54:02 sharpe Exp $
+ * $Id: smb_stat.c,v 1.23 2003/10/27 01:09:32 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -271,7 +271,7 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	static construct_args_t args = {
 	  "Service Response Time Statistics Filter",
 	  TRUE,
-	  TRUE
+	  FALSE
 	};
 
 	/* if the window is already open, bring it to front */
