@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for dissassembly of the Hyper SCSI protocol.
  *
- * $Id: packet-hyperscsi.c,v 1.1 2002/11/14 07:55:42 sharpe Exp $
+ * $Id: packet-hyperscsi.c,v 1.2 2002/11/16 08:33:53 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,23 +40,72 @@
 static int proto_hyperscsi;
 
 static int hf_hs_cmd = -1;
+static int hf_hs_ver = -1;
+static int hf_hs_res = -1;
+static int hf_hs_tagno = -1;
+static int hf_hs_lastfrag = -1;
+static int hf_hs_fragno = -1;
 
 static gint ett_hyperscsi = -1; 
+static gint ett_hs_hdr = -1;
+static gint ett_hs_pdu = -1;
+
+static const true_false_string tfs_lastfrag = {
+  "Last Fragment",
+  "Not Last Fragment"
+};
+
+#define HSCSI_OPCODE_REQUEST                  0x00
+#define HSCSI_OPCODE_REPLY                    0x01
+#define HSCSI_OPCODE_DEV_DISCOVERY            0x10
+#define HSCSI_OPCODE_ADN_REQUEST              0x11
+#define HSCSI_OPCODE_ADN_REPLY                0x12
+#define HSCSI_OPCODE_DISCONNECT               0x13
+#define HSCSI_OPCODE_ACK_SNR                  0x20
+#define HSCSI_OPCODE_ACK_REPLY                0x21
+#define HSCSI_OPCODE_ADDR_REPORT              0x30
+#define HSCSI_OPCODE_ADDR_REPLY               0x31
+#define HSCSI_OPCODE_LOCAL_REQUEST            0x32
+#define HSCSI_OPCODE_LOCAL_REPLY              0x33
+#define HSCSI_OPCODE_REMOTE_REQUEST           0x34
+#define HSCSI_OPCODE_REMOTE_REPLY             0x35
+
+static const value_string hscsi_opcodes[] = {
+  { HSCSI_OPCODE_REQUEST,         "Command Block Encap Request"}, 
+  { HSCSI_OPCODE_REPLY,           "Command Block Encap Reply"},
+  { HSCSI_OPCODE_DEV_DISCOVERY,   "Device Discovery Reply"},
+  { HSCSI_OPCODE_ADN_REQUEST,     "Auth/Device Neg Request"},
+  { HSCSI_OPCODE_ADN_REPLY,       "Auth/Device Neg Reply"},
+  { HSCSI_OPCODE_DISCONNECT,      "Disconnect Request"},
+  { HSCSI_OPCODE_ACK_SNR,         "Flow Control Setup/Ack Request"},
+  { HSCSI_OPCODE_ACK_REPLY,       "Flow Control Ack Reply"},
+  { 0, NULL}
+};
+
+#define OPCODE_MASK 0x7F
 
 static void
 dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint     hs_hdr1, hs_hdr2, hs_hdr3;
-  guint8    hs_res;
-  guint16   hs_tagl;
-  guint16   hs_frag;
-  guint8    hs_lf; 
-  int       offset = 0;
+  guint      hs_hdr1, hs_hdr2, hs_hdr3;
+  guint8     hs_res;
+  guint16    hs_tagno;
+  guint16    hs_fragno;
+  gint       offset = 0;
+  proto_tree *hs_tree, *hs_hdr_tree, *hs_pdu_tree;
+  proto_item *ti;
+  guint8     hs_cmd, hs_ver;
+  char       *opcode_str;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HYPERSCSI");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_hyperscsi, tvb, offset, -1, FALSE);
+    hs_tree = proto_item_add_subtree(ti, ett_hyperscsi);
+  } 
 
   hs_hdr1 = tvb_get_guint8(tvb, offset);
   offset++;
@@ -65,6 +114,56 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hs_hdr3 = tvb_get_guint8(tvb, offset);
   offset++;
 
+  hs_res = hs_hdr1 >> 4;
+  hs_tagno = ((hs_hdr1 & 0x0F) << 5 ) | (hs_hdr2 >> 3);
+  hs_fragno = ((hs_hdr2 &0X03) << 8 ) | hs_hdr3;
+
+  /*
+   * Add the header ... three bytes
+   */
+
+  if (tree) {
+    ti = proto_tree_add_text(hs_tree, tvb, 0, 3, "HyperSCSI Header");
+    hs_hdr_tree = proto_item_add_subtree(ti, ett_hs_hdr);
+
+    /*
+     * Now, add the header items
+     */
+
+    proto_tree_add_uint(hs_hdr_tree, hf_hs_res, tvb, 0, 1, hs_res);
+    proto_tree_add_uint(hs_hdr_tree, hf_hs_tagno, tvb, 0, 2, hs_tagno);
+    proto_tree_add_item(hs_hdr_tree, hf_hs_lastfrag, tvb, 1, 1, FALSE);
+    proto_tree_add_uint(hs_hdr_tree, hf_hs_fragno, tvb, 1, 2, hs_fragno);
+
+  }
+
+  /* 
+   * Now, add the PDU 
+   */
+
+  hs_ver = tvb_get_guint8(tvb, offset++);
+
+  hs_cmd = tvb_get_guint8(tvb, offset++);
+
+  hs_cmd &= OPCODE_MASK;
+
+  opcode_str = match_strval(hs_cmd, hscsi_opcodes);
+
+  if (!opcode_str) 
+    opcode_str = "Unknown HyperSCSI Request or Response";
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_str(pinfo->cinfo, COL_INFO, (char *)opcode_str);
+  }
+
+  if (tree) {
+    ti = proto_tree_add_text(hs_tree, tvb, 3, -1, "HyperSCSI PDU");
+    hs_hdr_tree = proto_item_add_subtree(ti, ett_hs_pdu);
+
+    
+
+  }
+
 }
 
 void
@@ -72,11 +171,34 @@ proto_register_hyperscsi(void)
 {
 
   static hf_register_info hf[] = {
+    { &hf_hs_res, 
+      { "Reserved", "hyperscsi.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, 
+	"", HFILL}},
 
+    { &hf_hs_tagno,
+      { "Tag No", "hyperscsi.tagno", FT_UINT16, BASE_DEC, NULL, 0x0,
+	"", HFILL }},
+
+    { &hf_hs_lastfrag,
+      { "Last Fragment", "hyperscsi.lastfrag", FT_BOOLEAN, 8, TFS(&tfs_lastfrag), 0x04, "", HFILL}},
+
+    { &hf_hs_fragno, 
+      { "Fragment No", "hyperscsi.fragno", FT_UINT16, BASE_DEC, NULL, 0x0,
+	"", HFILL}},
+
+    { &hf_hs_ver,
+      { "HyperSCSI Version", "hyperscsi.version", FT_UINT8, BASE_DEC, NULL, 
+	0x0, "", HFILL}},
+
+    { &hf_hs_cmd,
+      { "HyperSCSI Command", "hyperscsi.cmd", FT_UINT8, BASE_DEC, NULL, 0x0, 
+	"", HFILL}},
   };
 
   static gint *ett[] = {
     &ett_hyperscsi,
+    &ett_hs_hdr,
+    &ett_hs_pdu,
   };
   
   proto_hyperscsi = proto_register_protocol("HyperSCSI", "HyperSCSI", "hyperscsi");
