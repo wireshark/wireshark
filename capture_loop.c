@@ -607,13 +607,17 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
        Do, however, warn that WAN devices aren't supported. */
     g_snprintf(errmsg, errmsg_len,
-	"The capture session could not be initiated (%s).\n"
-	"Please check that you have the proper interface specified.\n"
-	"\n"
-	"Note that the WinPcap 2.x version of the driver Ethereal uses for packet\n"
-	"capture on Windows doesn't support capturing on PPP/WAN interfaces in\n"
-	"Windows NT/2000/XP/2003 Server, and that the WinPcap 3.0 and later versions\n"
-	"don't support capturing on PPP/WAN interfaces at all.",
+"The capture session could not be initiated (%s).\n"
+"Please check that you have the proper interface specified.\n"
+"\n"
+"Note that version 3.0 of WinPcap, and earlier versions of WinPcap, don't\n"
+"support capturing on PPP/WAN interfaces in Windows NT 4.0, Windows 2000,\n"
+"Windows XP, or Windows Server 2003.  WinPcap 3.1 has experimental support\n"
+"for it on Windows 2000, Windows XP, and Windows Server 2003, but has no\n"
+"support for it on Windows NT 4.0.  WinPcap 3.1 is currently in beta, so\n"
+"using it might introduce bugs not present in WinPcap 3.0; you should report\n"
+"all problems you see to the WinPcap developers, so they can try to fix\n"
+"them before the final WinPcap 3.1 release.",
 	open_err_str);
     return FALSE;
 #else
