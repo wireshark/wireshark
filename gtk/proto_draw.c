@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.6 1999/11/22 06:24:55 gram Exp $
+ * $Id: proto_draw.c,v 1.7 1999/12/03 21:28:58 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,13 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
   gint     i = 0, j, k, cur;
   gchar    line[128], hexchars[] = "0123456789abcdef", c = '\0';
   GdkFont *cur_font, *new_font;
+
+  /* Freeze the text for faster display */
+  gtk_text_freeze(bv);
+
+  /* Clear out the text */
+  gtk_text_set_point(bv, 0);
+  gtk_text_forward_delete(bv, gtk_text_get_length(bv));
 
   while (i < len) {
     /* Print the line number */
@@ -128,6 +135,19 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
     line[cur++] = '\n';
     line[cur]   = '\0';
     gtk_text_insert(bv, cur_font, NULL, NULL, line, -1);
+  }
+
+  /* scroll text into position */
+  gtk_text_thaw(bv); /* must thaw before adjusting scroll bars */
+  if ( bstart > 0 ) {
+    int lineheight,linenum,scrollval;
+    linenum = bstart / BYTE_VIEW_WIDTH;
+
+    /* need to change to some way of getting that offset instead of +4 */
+    lineheight = gdk_string_height(m_b_font, "0") + 4;
+    scrollval = MIN(linenum * lineheight,bv->vadj->upper - bv->vadj->page_size);
+
+    gtk_adjustment_set_value(bv->vadj, scrollval);
   }
 }
 
