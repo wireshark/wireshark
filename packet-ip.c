@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.39 1999/08/21 21:06:11 gerald Exp $
+ * $Id: packet-ip.c,v 1.40 1999/08/26 17:31:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -823,6 +823,9 @@ again:
       break;
     case IP_PROTO_IPV6:
       dissect_ipv6(pd, offset, fd, tree);
+      break;
+    default:
+      dissect_data(pd, offset, fd, tree);
       break;
   }
 }
