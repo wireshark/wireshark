@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.80 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dns.c,v 1.81 2002/02/22 08:45:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1751,10 +1751,11 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   return cur_off - start_off;
 }
 
-static int
-dissect_dns_common(tvbuff_t *tvb, int offset, int msg_len, packet_info *pinfo,
+static void
+dissect_dns_common(tvbuff_t *tvb, int msg_len, packet_info *pinfo,
 	proto_tree *tree, gboolean is_tcp)
 {
+  int offset = is_tcp ? 2 : 0;
   int dns_data_offset;
   column_info *cinfo;
   proto_tree *dns_tree = NULL, *field_tree;
@@ -1807,7 +1808,7 @@ dissect_dns_common(tvbuff_t *tvb, int offset, int msg_len, packet_info *pinfo,
     isupdate = 0;
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, offset, msg_len,
+    ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
       "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
     
     dns_tree = proto_item_add_subtree(ti, ett_dns);
@@ -1939,67 +1940,93 @@ dissect_dns_common(tvbuff_t *tvb, int offset, int msg_len, packet_info *pinfo,
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, add,
 				      NULL, dns_tree, "Additional records");
   }
-
-  return cur_off;
 }
 
 static void
 dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_dns_common(tvb, 0, tvb_length(tvb), pinfo, tree, FALSE);
+	dissect_dns_common(tvb, -1, pinfo, tree, FALSE);
 }
 
 static void
 dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
+	int length_remaining;
 	guint16 plen;
+	int length;
+	tvbuff_t *next_tvb;
 
-	for (;;) {
-		/*
-		 * XXX - should handle a length field split across segment
-		 * boundaries.
-		 */
-		if (!tvb_bytes_exist(tvb, offset, 2))
-			break;
-		plen = tvb_get_ntohs(tvb, offset);
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		length_remaining = tvb_length_remaining(tvb, offset);
 
 		/*
-		 * Desegmentation check.
+		 * Can we do reassembly?
 		 */
-		if (dns_desegment) {
-			if (pinfo->can_desegment
-			    && plen > tvb_length_remaining(tvb, offset+2)) {
+		if (dns_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the DNS-over-TCP header split across
+			 * segment boundaries?
+			 */
+			if (length_remaining < 2) {
 				/*
-				 * This frame doesn't have all of the data
-				 * for this message, but we can do reassembly
-				 * on it.
-				 *
-				 * Tell the TCP dissector where the data for
-				 * this message starts in the data it handed
-				 * us, and how many more bytes we need, and
-				 * return.
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
 				 */
 				pinfo->desegment_offset = offset;
-				pinfo->desegment_len =
-				    plen - tvb_length_remaining(tvb, offset+2);
+				pinfo->desegment_len = 2 - length_remaining;
 				return;
 			}
 		}
 
-		offset += 2;
+		/*
+		 * Get the length of the DNS packet.
+		 */
+		plen = tvb_get_ntohs(tvb, offset);
 
 		/*
-		 * Is all of the DNS message in this TCP segment?
+		 * Can we do reassembly?
 		 */
-		if (tvb_reported_length_remaining(tvb, offset) < plen)
-			break;
+		if (dns_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the DNS packet split across segment
+			 * boundaries?
+			 */
+			if (length_remaining < plen + 2) {
+				/*
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len =
+				    (plen + 2) - length_remaining;
+				return;
+			}
+		}
 
 		/*
-		 * Yes - dissect it.
+		 * Construct a tvbuff containing the amount of the payload
+		 * we have available.  Make its reported length the
+		 * amount of data in the DNS-over-TCP packet.
 		 */
-		offset = dissect_dns_common(tvb, offset, plen, pinfo, tree,
-		    TRUE);
+		length = length_remaining;
+		if (length > plen + 2)
+			length = plen + 2;
+		next_tvb = tvb_new_subset(tvb, offset, length, plen + 2);
+
+		/*
+		 * Dissect the DNS-over-TCP packet.
+		 */
+		dissect_dns_common(next_tvb, plen, pinfo, tree, TRUE);
+
+		/*
+		 * Skip the DNS-over-TCP header and the payload.
+		 */
+		offset += plen + 2;
 	}
 }
 
