@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.16 2003/04/03 02:57:48 tpot Exp $
+ * $Id: packet-smb-common.c,v 1.17 2003/05/09 01:41:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,4 +283,202 @@ dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 	    tvb_reported_length_remaining(tvb, offset));
 
 	return offset+tvb_length_remaining(tvb, offset);
+}
+
+/* Dissect a NTLM response. This is documented at
+   http://ubiqx.org/cifs/SMB.html#8, para 2.8.5.3 */
+
+static int hf_ntlmv2_response = -1;
+static int hf_ntlmv2_response_hmac = -1;
+static int hf_ntlmv2_response_header = -1;
+static int hf_ntlmv2_response_reserved = -1;
+static int hf_ntlmv2_response_time = -1;
+static int hf_ntlmv2_response_chal = -1;
+static int hf_ntlmv2_response_unknown = -1;
+static int hf_ntlmv2_response_name = -1;
+static int hf_ntlmv2_response_name_type = -1;
+static int hf_ntlmv2_response_name_len = -1;
+
+static gint ett_ntlmv2_response = -1;
+static gint ett_ntlmv2_response_name = -1;
+
+/* Name types */
+
+const value_string ntlm_name_types[] = {
+	{ NTLM_NAME_END, "End of list" },
+	{ NTLM_NAME_NB_HOST, "NetBIOS host name" },
+	{ NTLM_NAME_NB_DOMAIN, "NetBIOS domain name" },
+	{ NTLM_NAME_DNS_HOST, "DNS host name" },
+	{ NTLM_NAME_DNS_DOMAIN, "DNS domain name" },
+	{ 0, NULL }
+};
+
+int
+dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
+{
+	proto_item *ntlmv2_item = NULL;
+	proto_tree *ntlmv2_tree = NULL;
+
+	/* Dissect NTLMv2 bits&pieces */
+
+	if (tree) {
+		ntlmv2_item = proto_tree_add_item(
+			tree, hf_ntlmv2_response, tvb, 
+			offset, len, TRUE);
+		ntlmv2_tree = proto_item_add_subtree(
+			ntlmv2_item, ett_ntlmv2_response);
+	}
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmv2_response_hmac, tvb,
+		offset, 16, TRUE);
+
+	offset += 16;
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmv2_response_header, tvb,
+		offset, 4, TRUE);
+
+	offset += 4;
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmv2_response_reserved, tvb,
+		offset, 4, TRUE);
+
+	offset += 4;
+
+	offset = dissect_smb_64bit_time(
+		tvb, ntlmv2_tree, offset, hf_ntlmv2_response_time);
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmv2_response_chal, tvb,
+		offset, 8, TRUE);
+
+	offset += 8;
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmv2_response_unknown, tvb,
+		offset, 4, TRUE);
+
+	offset += 4;
+
+	/* Variable length list of names */
+
+	while(1) {
+		guint16 name_type = tvb_get_letohs(tvb, offset);
+		guint16 name_len = tvb_get_letohs(tvb, offset + 2);
+		proto_tree *name_tree = NULL;
+		proto_item *name_item = NULL;
+		char *name = NULL;
+
+		if (ntlmv2_tree) {
+			name_item = proto_tree_add_item(
+				ntlmv2_tree, hf_ntlmv2_response_name, 
+				tvb, offset, 0, TRUE);
+			name_tree = proto_item_add_subtree(
+				name_item, ett_ntlmv2_response_name);
+		}
+
+		/* Dissect name header */
+
+		proto_tree_add_item(
+			name_tree, hf_ntlmv2_response_name_type, tvb,
+			offset, 2, TRUE);
+
+		offset += 2;
+
+		proto_tree_add_item(
+			name_tree, hf_ntlmv2_response_name_len, tvb,
+			offset, 2, TRUE);
+
+		offset += 2;
+
+		/* Dissect name */
+
+		if (name_len > 0) {
+			name = tvb_fake_unicode(
+				tvb, offset, name_len / 2, TRUE);
+
+			proto_tree_add_text(
+				name_tree, tvb, offset, name_len, 
+				"Name: %s", name);
+		} else
+			name = g_strdup("NULL");
+
+		if (name_type == 0)
+			proto_item_append_text(
+				name_item, "%s", 
+				val_to_str(name_type, ntlm_name_types,
+					   "Unknown"));
+		else
+			proto_item_append_text(
+				name_item, "%s, %s",
+				val_to_str(name_type, ntlm_name_types,
+					   "Unknown"), name);
+
+		g_free(name);
+
+		offset += name_len;
+
+		proto_item_set_len(name_item, name_len + 4);
+
+		if (name_type == 0) /* End of list */
+			break;
+	};
+
+	return offset;
+}
+
+void register_smb_common(int proto_smb)
+{
+	static hf_register_info hf[] = {
+
+		{ &hf_ntlmv2_response,
+		  { "NTLMv2 Response", "smb.ntlmv2response", FT_BYTES, 
+		    BASE_HEX, NULL, 0x0, "", HFILL }},
+
+		{ &hf_ntlmv2_response_hmac,
+		  { "HMAC", "smb.ntlmv2response.hmac", FT_BYTES, BASE_HEX, 
+		    NULL, 0x0, "", HFILL }},
+
+		{ &hf_ntlmv2_response_header,
+		  { "Header", "smb.ntlmv2response.header", FT_UINT32, 
+		    BASE_HEX, NULL, 0x0, "", HFILL }},
+
+		{ &hf_ntlmv2_response_reserved,
+		  { "Reserved", "smb.ntlmv2response.reserved", FT_UINT32, 
+		    BASE_HEX, NULL, 0x0, "", HFILL }},
+
+		{ &hf_ntlmv2_response_time,
+		  { "Time", "smb.ntlmv2response.time", FT_ABSOLUTE_TIME, 
+		    BASE_NONE, NULL, 0, "", HFILL }},
+
+		{ &hf_ntlmv2_response_chal,
+		  { "Client challenge", "smb.ntlmv2response.chal", FT_BYTES, 
+		    BASE_HEX, NULL, 0x0, "", HFILL }},
+
+		{ &hf_ntlmv2_response_unknown,
+		  { "Unknown", "smb.ntlmv2response.unknown", FT_UINT32, 
+		    BASE_HEX, NULL, 0x0, "", HFILL }},
+
+		{ &hf_ntlmv2_response_name,
+		  { "Name", "smb.ntlmv2response.name", FT_STRING, BASE_NONE, 
+		    NULL, 0x0, "", HFILL }},
+
+		{ &hf_ntlmv2_response_name_type,
+		  { "Name type", "smb.ntlmv2response.name.type", FT_UINT32, 
+		    BASE_DEC, VALS(ntlm_name_types), 0x0, "", HFILL }},
+
+		{ &hf_ntlmv2_response_name_len,
+		  { "Name len", "smb.ntlmv2response.name.len", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, "", HFILL }}
+	};
+
+	static gint *ett[] = {
+		&ett_ntlmv2_response,
+		&ett_ntlmv2_response_name
+	};
+
+	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_smb, hf, array_length(hf));
 }

@@ -2,7 +2,7 @@
  * Routines for SMB packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.21 2003/04/28 04:44:54 tpot Exp $
+ * $Id: packet-smb-common.h,v 1.22 2003/05/09 01:41:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,5 +79,21 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    struct access_mask_info *ami);
 
 extern const value_string share_type_vals[];
+
+/* Dissect a ntlmv2 response */
+
+int
+dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *ntlmssp_tree, int offset,
+			int len);
+
+void register_smb_common(int proto_smb);
+
+extern const value_string ntlm_name_types[];
+
+#define NTLM_NAME_END        0x0000
+#define NTLM_NAME_NB_HOST    0x0001
+#define NTLM_NAME_NB_DOMAIN  0x0002
+#define NTLM_NAME_DNS_HOST   0x0003
+#define NTLM_NAME_DNS_DOMAIN 0x0004
 
 #endif

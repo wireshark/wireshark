@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.337 2003/04/29 21:27:05 guy Exp $
+ * $Id: packet-smb.c,v 1.338 2003/05/09 01:41:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -673,7 +673,7 @@ static gint ett_smb_ace_flags = -1;
 static gint ett_smb_sec_desc_type = -1;
 static gint ett_smb_quotaflags = -1;
 static gint ett_smb_secblob = -1;
-
+static gint ett_smb_unicode_password = -1;
 
 static int smb_tap = -1;
 
@@ -5753,10 +5753,22 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			}
 
 			if(upwlen){
+				proto_item *item;
+
 				/* password, Unicode */
 				CHECK_BYTE_COUNT(upwlen);
-				proto_tree_add_item(tree, hf_smb_unicode_password,
+				item = proto_tree_add_item(tree, hf_smb_unicode_password,
 					tvb, offset, upwlen, TRUE);
+
+				if (upwlen > 24) {
+					proto_tree *subtree;
+
+					subtree = proto_item_add_subtree(item, ett_smb_unicode_password);
+
+					dissect_ntlmv2_response(
+						tvb, subtree, offset, upwlen);
+				}
+
 				COUNT_BYTES(upwlen);
 			}
 
@@ -18228,8 +18240,9 @@ proto_register_smb(void)
 		{ &hf_access_specific_0,
 		  { "Specific access, bit 0", "nt.access_mask.specific_0",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    0x0001, "Specific access, bit 0", HFILL }},
+		    0x0001, "Specific access, bit 0", HFILL }}
 	};
+
 	static gint *ett[] = {
 		&ett_smb,
 		&ett_smb_hdr,
@@ -18310,6 +18323,7 @@ proto_register_smb(void)
 		&ett_nt_access_mask_generic,
 		&ett_nt_access_mask_standard,
 		&ett_nt_access_mask_specific,
+		&ett_smb_unicode_password
 	};
 	module_t *smb_module;
 
@@ -18317,6 +18331,9 @@ proto_register_smb(void)
 	    "SMB", "smb");
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
+
+	register_smb_common(proto_smb);
+
 	register_init_routine(&smb_init_protocol);
 	smb_module = prefs_register_protocol(proto_smb, NULL);
 	prefs_register_bool_preference(smb_module, "trans_reassembly",
