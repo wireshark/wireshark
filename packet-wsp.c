@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.87 2003/11/15 23:58:53 guy Exp $
+ * $Id: packet-wsp.c,v 1.88 2003/11/19 01:45:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,9 +191,9 @@ static int hf_hdr_openwave_x_up_proxy_push_accept		= HF_EMPTY;
 
 /* WSP parameter fields */
 static int hf_parameter_q					= HF_EMPTY;
+static int hf_parameter_charset				= HF_EMPTY;
 #if 0
 static int hf_parameter_textual				= HF_EMPTY;
-static int hf_parameter_charset				= HF_EMPTY;
 static int hf_parameter_type				= HF_EMPTY;
 static int hf_parameter_name				= HF_EMPTY;
 static int hf_parameter_filename			= HF_EMPTY;
@@ -1153,7 +1153,6 @@ static heur_dissector_list_t heur_subdissector_list;
 
 static void add_uri (proto_tree *, packet_info *, tvbuff_t *, guint, guint);
 
-static int add_parameter_charset (proto_tree *, tvbuff_t *, int, int);
 static void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
 static void add_multipart_data (proto_tree *, tvbuff_t *);
 
@@ -1182,7 +1181,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb);
 #define is_delta_seconds_value(x)	is_integer_value(x)
 /* Text string == *TEXT 0x00, thus also an empty string matches the rule! */
 #define is_text_string(x)	( ((x) == 0) || ( ((x) >= 32) && ((x) <= 127)) ) 
-#define is_quoted_string(x)		is_text_string(x)
+#define is_quoted_string(x)		( (x) == 0x22 ) /* " */
 #define is_token_text(x)		is_text_string(x)
 #define is_text_value(x)		is_text_string(x)
 #define is_uri_value(x)			is_text_string(x)
@@ -1408,6 +1407,10 @@ static guint32 wkh_range (proto_tree *tree, tvbuff_t *tvb,
 static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 
+/* Header value */
+static guint32 wkh_trailer (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
+
 /* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 static guint32 wkh_retry_after (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
@@ -1522,10 +1525,10 @@ static const hdr_parse_func_ptr WellKnownHeader[128] = {
 	/* 0x34 */	wkh_push_flag,			/* 0x35 */	wkh_profile,
 	/* 0x36 */	wkh_default,			/* 0x37 */	wkh_profile_warning,
 	/* 0x38 */	wkh_default,			/* 0x39 */	wkh_te,
-	/* 0x3A */	wkh_content_id,			/* 0x3B */	wkh_accept_charset,
+	/* 0x3A */	wkh_trailer,			/* 0x3B */	wkh_accept_charset,
 	/* 0x3C */	wkh_accept_encoding,	/* 0x3D */	wkh_cache_control,
 	/* 0x3E */	wkh_content_range,		/* 0x3F */	wkh_x_wap_tod,
-	/* 0x40 */	wkh_default,			/* 0x41 */	wkh_default,
+	/* 0x40 */	wkh_content_id,			/* 0x41 */	wkh_default,
 	/* 0x42 */	wkh_default,			/* 0x43 */	wkh_encoding_version,
 	/* 0x44 */	wkh_profile_warning,	/* 0x45 */	wkh_content_disposition,
 	/* 0x46 */	wkh_x_wap_security,		/* 0x47 */	wkh_cache_control,
@@ -1729,18 +1732,9 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 			val_id = tvb_get_guint8(tvb, val_start);
 			/* Call header value dissector for given header */
 			if (val_id >= 0x20 && val_id <=0x7E) { /* OK! */
-				/* Header value sometimes NOT NUL-ended => tvb_strnlen() */
-				val_len = tvb_strnlen(tvb, val_start, tvb_len - val_start);
-				if (val_len == -1) { /* Reached end-of-tvb before '\0' */
-					val_len = tvb_len - val_start;
-					val_str = tvb_get_string(tvb, val_start, val_len);
-					val_len++; /* For extra '\0' byte */
-					offset = tvb_len;
-				} else { /* OK */
-					val_str = tvb_get_stringz(tvb, val_start, &val_len);
-					g_assert(val_str);
-					offset = val_start + val_len;
-				}
+				val_str = tvb_get_stringz(tvb, val_start, &val_len);
+				g_assert(val_str);
+				offset = val_start + val_len;
 				proto_tree_add_text(wsp_headers,tvb,hdr_start,offset-hdr_start,
 						"%s: %s", hdr_str, val_str);
 				g_free (val_str);
@@ -2623,7 +2617,37 @@ wkh_text_header(via, "Via")
 wkh_text_header(content_uri, "Content-Uri")
 wkh_text_header(initiator_uri, "Initiator-Uri")
 wkh_text_header(profile, "Profile")
-wkh_text_header(content_id, "Content-ID")
+
+/*
+ * Same for quoted-string value
+ */
+#define wkh_quoted_string_header(underscored,Text) \
+static guint32 \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+{ \
+	wkh_0_Declarations; \
+	gchar *str; \
+	\
+	wkh_1_WellKnownValue; \
+		/* Invalid */ \
+	wkh_2_TextualValue; \
+		if (is_quoted_string(val_str[0])) { \
+			str = g_strdup_printf("%s\"", val_str); \
+			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+					tvb, hdr_start, offset - hdr_start, str); \
+			g_free(str); \
+		} else { \
+			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
+					tvb, hdr_start, offset - hdr_start, val_str); \
+			proto_item_append_text(ti, " <Warning: should be encoded as a Quoted-string>"); \
+		} \
+		ok = TRUE; \
+	wkh_3_ValueWithLength; \
+		/* Invalid */ \
+	wkh_4_End(hf_hdr_ ## underscored); \
+}
+
+wkh_quoted_string_header(content_id, "Content-ID")
 
 
 /*
@@ -2832,6 +2856,10 @@ wkh_integer_lookup_or_text_value(accept_application, "Accept-Application",
 		vals_wap_application_ids, "WAP application")
 wkh_integer_lookup_or_text_value(content_language, "Content-Language",
 		vals_languages, "language")
+/* NOTE - Although the WSP spec says this is an integer-value, the WSP headers
+ * are encoded as a 7-bit entity! */
+wkh_integer_lookup_or_text_value(trailer, "Trailer",
+		vals_field_names, "well-known-header")
 
 
 /*
@@ -3159,6 +3187,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 	wkh_0_Declarations;
 	guint32 off, len, val = 0;
 	guint8 peek, cache_control_directive;
+	gchar *str;
 
 	wkh_1_WellKnownValue;
 		val = val_id & 0x7F;
@@ -3176,7 +3205,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 		/* General form:
 		 *	  ( no-cache | private ) 1*( Field-name )
 		 *	| ( max-age | max-stale | min-fresh | s-maxage) Delta-seconds-value
-		 *	| Token-text ( Integer-value | Text-string )
+		 *	| Token-text ( Integer-value | Text-value )
 		 * Where:
 		 *	Field-name = Short-integer | Token-text
 		 */
@@ -3242,11 +3271,18 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 					val_str = g_strdup_printf("=%u", val);
 					proto_item_append_string(ti, val_str);
 					g_free(val_str); /* proto_XXX creates a copy */
-				} else { /* Text-string */
+				} else { /* Text-value */
 					get_text_string(val_str, tvb, off, len, ok);
 					if (ok) {
-						proto_item_append_string(ti, val_str);
-						g_free(val_str); /* proto_XXX creates a copy */
+						if (is_quoted_string(val_str[0])) {
+							str = g_strdup_printf("%s\"", val_str);
+							proto_item_append_string(ti, str);
+							g_free(str);
+						} else { /* Token-text | 0x00 */
+							/* TODO - check that we have Token-text or 0x00 */
+							proto_item_append_string(ti, val_str);
+						}
+						g_free(val_str);
 					}
 				}
 			}
@@ -3266,7 +3302,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 	wkh_0_Declarations;
 	guint32 off, len, val;
 	guint8 warn_code;
-	char *str;
+	gchar *str;
 	proto_tree *subtree;
 
 	/* TODO - subtree with values */
@@ -3337,7 +3373,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 	guint32 off, len, val = 0;
 	nstime_t tv;
 	guint8 warn_code;
-	char *str;
+	gchar *str;
 
 	wkh_1_WellKnownValue;
 		val = val_id & 0x7F;
@@ -3762,6 +3798,30 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
 		offset = start + len; /* Skip to end of buffer */ \
 	}
 
+#define parameter_text_value(hf,lowercase,Uppercase,value) \
+	get_text_string(val_str, tvb, offset, val_len, ok); \
+	if (ok) { \
+		if (is_quoted_string(val_str[0])) { \
+			str = g_strdup_printf("%s\"", val_str); \
+			proto_tree_add_string(tree, hf, tvb, start, type_len + val_len, str); \
+			g_free(str); \
+			str = g_strdup_printf("; " lowercase "=%s\"", val_str); \
+		} else { /* Token-text | 0x00 */ \
+			/* TODO - verify that we have either Token-text or 0x00 */ \
+			proto_tree_add_string(tree, hf, tvb, start, type_len + val_len, val_str); \
+			str = g_strdup_printf("; " lowercase "=%s", val_str); \
+		} \
+		proto_item_append_string(ti, str); \
+		g_free(str); \
+		g_free(val_str); \
+		offset += val_len; \
+	} else { \
+		proto_tree_add_string(tree, hf, tvb, start, len - start, \
+				InvalidParameterValue(Uppercase, value)); \
+		offset = start + len; /* Skip to end of buffer */ \
+	}
+
+
 /* Parameter = Untyped-parameter | Typed-parameter
  * Untyped-parameter = Token-text ( Integer-value | Text-value )
  * Typed-parameter =
@@ -3769,6 +3829,8 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
  * 			( Integer-value | Date-value | Delta-seconds-value
  * 			  | Q-value | Version-value | Uri-value )
  * 			| Text-value )
+ *
+ * TODO - Verify byte highlighting in case of invalid parameter values
  */
 static int
 parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
@@ -3776,22 +3838,33 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 	int offset = start;
 	guint8 peek = tvb_get_guint8 (tvb,start);
 	guint32 val = 0, type = 0, type_len, val_len;
-	char *str = NULL;
-	char *val_str = NULL;
+	gchar *str = NULL;
+	gchar *val_str = NULL;
+	gchar *s;
 	gboolean ok;
 
 	if (is_token_text (peek)) { /* Untyped parameter */
 		get_token_text (str,tvb,start,val_len,ok); /* Should always succeed */
 		if (ok) { /* Found a textual parameter name: str */
 			offset += val_len;
-			get_token_text (val_str,tvb,offset,val_len,ok);
+			get_text_value(val_str, tvb, offset, val_len, ok);
 			if (ok) { /* Also found a textual parameter value: val_str */
 				offset += val_len;
-				proto_tree_add_text(tree, tvb, start, offset - start,
-						"%s: %s", str, val_str);
-				proto_item_append_text(ti, "; %s=%s", str, val_str);
+				if (is_quoted_string(val_str[0])) { /* Add trailing quote! */
+					proto_tree_add_text(tree, tvb, start, offset - start,
+							"%s: %s\"", str, val_str);
+					s = g_strdup_printf("; %s=%s\"", str, val_str);
+				} else { /* Token-text | 0x00 */
+					/* TODO - verify that it is either Token-text or 0x00
+					 * and flag with warning if invalid */
+					proto_tree_add_text(tree, tvb, start, offset - start,
+							"%s: %s", str, val_str);
+					s = g_strdup_printf("; %s=%s", str, val_str);
+				}
 				/* TODO - check if we can insert a searchable field in the
 				 * protocol tree for the untyped parameter case */
+				proto_item_append_string(ti, s);
+				g_free(s);
 				g_free(val_str);
 			} else { /* Try integer value */
 				get_integer_value (val,tvb,offset,val_len,ok);
@@ -3799,7 +3872,9 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 					offset += val_len;
 					proto_tree_add_text(tree, tvb, start, offset - start,
 							"%s: %u", str, val);
-					proto_item_append_text(ti, "; %s=%u", str, val);
+					s = g_strdup_printf("; %s=%u", str, val);
+					proto_item_append_string(ti, s);
+					g_free(s);
 					/* TODO - check if we can insert a searchable field in the
 					 * protocol tree for the untyped parameter case */
 				} else { /* Error: neither token-text not Integer-value */
@@ -3822,17 +3897,31 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 	/* Now offset points to the parameter value */
 	switch (type) {
 		case 0x01:	/* WSP 1.1 encoding - Charset: Well-known-charset */
-			offset = add_parameter_charset (tree, tvb, start, offset);
+			get_integer_value(val, tvb, offset, val_len, ok);
+			if (ok) {
+				val_str = val_to_str(val, vals_character_sets,
+						"<Unknown character set Identifier 0x%X>");
+				proto_tree_add_string(tree, hf_parameter_charset,
+						tvb, start, offset - start, val_str);
+				str = g_strdup_printf("; charset=%s", val_str);
+				proto_item_append_string(ti, str);
+				g_free(str);
+				offset += val_len;
+			} else {
+				proto_tree_add_text (tree, tvb, start, offset,
+						InvalidParameterValue("Charset", "Integer-value"));
+				offset = start + len; /* Skip to end of buffer */
+			}
 			break;
 
 		case 0x03:	/* WSP 1.1 encoding - Type: Integer-value */
 			get_integer_value (val,tvb,offset,val_len,ok);
 			if (ok) {
-				val_str = g_strdup_printf("; Type=%u", val);
 				proto_tree_add_uint (tree, hf_wsp_parameter_type,
 						tvb, start, type_len + val_len, val);
-				proto_item_append_string (ti, val_str);
-				g_free(val_str);
+				s = g_strdup_printf("; Type=%u", val);
+				proto_item_append_string (ti, s);
+				g_free(s);
 				offset += val_len;
 			} else {
 				proto_tree_add_text (tree, tvb, start, offset,
@@ -3846,7 +3935,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 					"Name (WSP 1.1 encoding)", "Text-string");
 			break;
 		case 0x17:	/* WSP 1.4 encoding - Name: Text-value */
-			parameter_text(hf_wsp_parameter_name, "name",
+			parameter_text_value(hf_wsp_parameter_name, "name",
 					"Name (WSP 1.4 encoding)", "Text-value");
 			break;
 
@@ -3855,7 +3944,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 					"Filename (WSP 1.1 encoding)", "Text-string");
 			break;
 		case 0x18:	/* WSP 1.4 encoding - Filename: Text-value */
-			parameter_text(hf_wsp_parameter_filename, "filename",
+			parameter_text_value(hf_wsp_parameter_filename, "filename",
 					"Filename (WSP 1.4 encoding)", "Text-value");
 			break;
 
@@ -3895,7 +3984,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 					"Start (WSP 1.2 encoding)", "Text-string");
 			break;
 		case 0x19:	/* WSP 1.4 encoding - Start (with multipart/related): Text-value */
-			parameter_text(hf_wsp_parameter_start, "start",
+			parameter_text_value(hf_wsp_parameter_start, "start",
 					"Start (WSP 1.4 encoding)", "Text-value");
 			break;
 
@@ -3904,7 +3993,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 					"Start-info (WSP 1.2 encoding)", "Text-string");
 			break;
 		case 0x1A:	/* WSP 1.4 encoding - Start-info (with multipart/related): Text-value */
-			parameter_text(hf_wsp_parameter_start_info, "start-info",
+			parameter_text_value(hf_wsp_parameter_start_info, "start-info",
 					"Start-info (WSP 1.4 encoding)", "Text-value");
 			break;
 
@@ -3913,7 +4002,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 					"Comment (WSP 1.3 encoding)", "Text-string");
 			break;
 		case 0x1B:	/* WSP 1.4 encoding - Comment: Text-value */
-			parameter_text(hf_wsp_parameter_comment, "comment",
+			parameter_text_value(hf_wsp_parameter_comment, "comment",
 					"Comment (WSP 1.4 encoding)", "Text-value");
 			break;
 
@@ -3922,7 +4011,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 					"Domain (WSP 1.3 encoding)", "Text-string");
 			break;
 		case 0x1C:	/* WSP 1.4 encoding - Domain: Text-value */
-			parameter_text(hf_wsp_parameter_domain, "domain",
+			parameter_text_value(hf_wsp_parameter_domain, "domain",
 					"Domain (WSP 1.4 encoding)", "Text-value");
 			break;
 
@@ -3931,7 +4020,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 					"Path (WSP 1.3 encoding)", "Text-string");
 			break;
 		case 0x1D:	/* WSP 1.4 encoding - Path: Text-value */
-			parameter_text(hf_wsp_parameter_path, "path",
+			parameter_text_value(hf_wsp_parameter_path, "path",
 					"Path (WSP 1.4 encoding)", "Text-value");
 			break;
 
@@ -3942,7 +4031,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 			break;
 
 		case 0x12:	/* WSP 1.4 encoding - MAC: Text-value */
-			parameter_text(hf_wsp_parameter_mac, "MAC", "MAC", "Text-value");
+			parameter_text_value(hf_wsp_parameter_mac, "MAC", "MAC", "Text-value");
 			break;
 
 		case 0x02:	/* WSP 1.1 encoding - Level: Version-value */
@@ -3983,7 +4072,7 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
 {
 	int offset = start;
 	guint32 val = 0, val_len;
-	char *str = NULL;
+	gchar *str = NULL;
 	guint8 ok;
 
 	get_uintvar_integer (val, tvb, offset, val_len, ok);
@@ -4967,63 +5056,6 @@ get_uintvar (tvbuff_t *tvb, guint offset, guint offsetEnd)
 	}
 	while ((offsetEnd > offset) && (octet & 0x80));
 	return value;
-}
-
-
-static int
-add_parameter_charset (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
-    int offset)
-{
-	value_type_t valueType;
-	int subvalueLen;
-	int subvalueOffset;
-	guint value;
-
-	valueType = get_value_type_len (value_buff, offset,
-	    &subvalueLen, &subvalueOffset, &offset);
-	if (valueType == VALUE_IN_LEN)
-	{
-		/*
-		 * Integer-value.
-		 */
-		proto_tree_add_uint (tree, hf_wsp_parameter_well_known_charset,
-		    value_buff, startOffset, offset - startOffset,
-		    subvalueLen);	/* subvalueLen is the value */
-		return offset;
-	}
-	if (valueType == VALUE_IS_TEXT_STRING)
-	{
-		/*
-		 * Invalid.
-		 */
-	    	proto_tree_add_text (tree, value_buff, startOffset,
-		    offset - startOffset, "Invalid Well-known charset");
-		return offset;
-	}
-
-	/*
-	 * First byte had the 8th bit set.
-	 */
-	if (subvalueLen == 0) {
-		/*
-		 * Any-charset.
-		 * XXX - add this as a field?
-		 */
-		proto_tree_add_text (tree, value_buff, startOffset,
-		    offset- startOffset, "*");
-		return offset;
-	}
-
-	if (get_integer(value_buff, subvalueOffset, subvalueLen,
-	    valueType, &value) == -1) {
-	    	proto_tree_add_text (tree, value_buff, startOffset,
-		    offset - startOffset, "Length %u not handled in Well-known charset",
-		        subvalueLen);
-	} else {
-		proto_tree_add_uint (tree, hf_wsp_parameter_well_known_charset,
-		    value_buff, startOffset, offset - startOffset, value);
-	}
-	return offset;
 }
 
 
@@ -6476,6 +6508,13 @@ proto_register_wsp(void)
 				"wsp.parameter.q",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Q parameter", HFILL
+			}
+		},
+		{ &hf_parameter_charset,
+			{ 	"Charset",
+				"wsp.parameter.charset",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Charset parameter", HFILL
 			}
 		},
 	};
