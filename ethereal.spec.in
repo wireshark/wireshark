@@ -43,8 +43,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-, root, root)
 %doc AUTHORS COPYING ChangeLog INSTALL NEWS README
-README.hpux  README.linux  README.vmware
-README.aix  README.irix  README.tru64  README.win32
+%doc README.hpux  README.linux  README.vmware
+%doc README.aix  README.irix  README.tru64  README.win32
+%doc README.bsd
 %config /etc/manuf
 /usr/X11R6/bin/ethereal
 /usr/X11R6/man/man1/ethereal.1
