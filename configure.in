@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.254 2004/03/27 11:52:51 jmayer Exp $
+# $Id: configure.in,v 1.255 2004/04/14 18:42:19 obiot Exp $
 #
 AC_INIT(etypes.h)
 
@@ -132,6 +132,14 @@ else
 		#
 		CFLAGS="-no-cpp-precomp $CFLAGS"
 		AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
+		;;
+	cygwin*)
+		#
+		# Shared libraries in cygwin/Win32 must never contain
+		# undefined symbols.
+		#
+		LDFLAGS="$LDFLAGS -no-undefined"
+		AC_MSG_RESULT(CygWin GCC - added -no-undefined to LDFLAGS)
 		;;
 	*)
 		AC_MSG_RESULT(none needed)
@@ -977,6 +985,9 @@ then
   AC_DEFINE(ENABLE_STATIC, 1, [Link plugins statically into Ethereal])
 fi
 AC_SUBST(ENABLE_STATIC)
+
+dnl Save the cacheable configure results to config.cache before recursing
+AC_CACHE_SAVE
 
 AM_CONFIG_HEADER(config.h)
 AC_CONFIG_SUBDIRS(wiretap)

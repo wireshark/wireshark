@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.7 2004/03/24 21:27:44 obiot Exp $
+# $Id: Makefile.am,v 1.8 2004/04/14 18:42:19 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,8 @@ libftypes_la_SOURCES =	\
 	ftype-string.c	\
 	ftype-time.c	\
 	ftype-tvbuff.c
+
+libftypes_la_LIBADD = @GLIB_LIBS@ @PCRE_LIBS@
 
 EXTRA_DIST = \
 	Makefile.nmake

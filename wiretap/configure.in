@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.56 2004/03/04 06:30:14 guy Exp $
+# $Id: configure.in,v 1.57 2004/04/14 18:42:19 obiot Exp $
 #
 AC_INIT(wtap.c)
 
@@ -91,6 +91,14 @@ else
 		#
 		CFLAGS="-no-cpp-precomp $CFLAGS"
 		AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
+		;;
+	cygwin*)
+		#
+		# Shared libraries in cygwin/Win32 must never contain
+		# undefined symbols.
+		#
+		LDFLAGS="$LDFLAGS -no-undefined"
+		AC_MSG_RESULT(CygWin GCC - added -no-undefined to LDFLAGS)
 		;;
 	*)
 	AC_MSG_RESULT(none needed)
