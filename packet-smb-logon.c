@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.26 2002/04/30 11:03:03 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.27 2002/06/24 01:53:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -420,6 +420,8 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	offset += 4;
 
 	/* date/time */
+	/* XXX - what format is this?  Neither SMB_Date/SMB_Time nor
+	   "time_t but in the local time zone" appear to be correct. */
 	proto_tree_add_item(tree, hf_date_time, tvb, offset, 4, TRUE);
 	offset += 4;
 
@@ -439,59 +441,64 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	if (offset % 2) offset++;      /* word align ... */
 
-	/* pdc name */
-	offset = display_unicode_string(tvb, tree, offset, hf_unicode_pdc_name);
+	if (tvb_reported_length_remaining(tvb, offset) > 2) {
+		/*
+		 * XXX - older protocol versions don't have this stuff?
+		 */
+		/* pdc name */
+		offset = display_unicode_string(tvb, tree, offset, hf_unicode_pdc_name);
 
-	/* domain name */
-	offset = display_unicode_string(tvb, tree, offset, hf_domain_name);
+		/* domain name */
+		offset = display_unicode_string(tvb, tree, offset, hf_domain_name);
 
-	/* DB count */
-	info_count = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_db_count, tvb, offset, 4, info_count);
-	offset += 4;
-
-	while (info_count != 0) {
-		db_index = tvb_get_letohl(tvb, offset);
-		if (tree) {
-			ti = proto_tree_add_text(tree, tvb, offset, 20,
-			    "DBChange Info Structure: index %u", db_index);
-			info_tree = proto_item_add_subtree(ti, ett_smb_db_info);
-		}
-
-		proto_tree_add_uint(info_tree, hf_db_index, tvb, offset, 4,
-		    db_index);
+		/* DB count */
+		info_count = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_db_count, tvb, offset, 4, info_count);
 		offset += 4;
 
-		proto_tree_add_item(info_tree, hf_large_serial, tvb, offset, 8,
-		    TRUE);
-		offset += 8;
+		while (info_count != 0) {
+			db_index = tvb_get_letohl(tvb, offset);
+			if (tree) {
+				ti = proto_tree_add_text(tree, tvb, offset, 20,
+				    "DBChange Info Structure: index %u", db_index);
+				info_tree = proto_item_add_subtree(ti, ett_smb_db_info);
+			}
 
-		offset = dissect_smb_64bit_time(tvb, info_tree, offset,
-		    hf_nt_date_time);
+			proto_tree_add_uint(info_tree, hf_db_index, tvb, offset, 4,
+			    db_index);
+			offset += 4;
 
-		info_count--;
+			proto_tree_add_item(info_tree, hf_large_serial, tvb, offset, 8,
+			    TRUE);
+			offset += 8;
+
+			offset = dissect_smb_64bit_time(tvb, info_tree, offset,
+			    hf_nt_date_time);
+
+			info_count--;
+		}
+
+		/* Domain SID Size */
+		domain_sid_size = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_domain_sid_size, tvb, offset, 4,
+		    domain_sid_size);
+		offset += 4;
+
+		if (domain_sid_size != 0) {
+			/* Align to four-byte boundary */
+			offset = ((offset + 3)/4)*4;
+
+			/* Domain SID */
+			offset = dissect_nt_sid(tvb, offset, tree, "Domain");
+		}
+
+		/* NT version */
+		proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* LMNT token */
+		offset = display_LMNT_token(tvb, offset, tree);
 	}
-
-	/* Domain SID Size */
-	domain_sid_size = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_domain_sid_size, tvb, offset, 4,
-	    domain_sid_size);
-	offset += 4;
-
-	if (domain_sid_size != 0) {
-		/* Align to four-byte boundary */
-		offset = ((offset + 3)/4)*4;
-
-		/* Domain SID */
-		offset = dissect_nt_sid(tvb, offset, tree, "Domain");
-	}
-
-	/* NT version */
-	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
-	offset += 4;
-
-	/* LMNT token */
-	offset = display_LMNT_token(tvb, offset, tree);
 
 	/* LM token */
 	offset = display_LM_token(tvb, offset, tree);
@@ -611,6 +618,8 @@ dissect_smb_acc_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	offset += 8;
 
 	/* date/time */
+	/* XXX - what format is this?  Neither SMB_Date/SMB_Time nor
+	   "time_t but in the local time zone" appear to be correct. */
 	proto_tree_add_item(tree, hf_date_time, tvb, offset, 4, TRUE);
 	offset += 4;
 
