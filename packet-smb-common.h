@@ -2,7 +2,7 @@
  * Routines for SMB packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.16 2003/01/31 04:11:25 tpot Exp $
+ * $Id: packet-smb-common.h,v 1.17 2003/02/07 06:01:49 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,8 +58,18 @@ int dissect_smb_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_d
 int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 		   char *name, char **sid_str);
 
+typedef void (nt_access_mask_fn_t)(tvbuff_t *tvb, gint offset,
+				   proto_tree *tree, guint32 access);
+
 int
-dissect_nt_sec_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int len);
+dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		       proto_tree *tree, char *drep, int hfindex,
+		       nt_access_mask_fn_t *specific_rights_fn);
+
+int
+dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		    proto_tree *parent_tree, char *drep, int len, 
+		    nt_access_mask_fn_t *specific_rights_fn);
 
 extern const value_string share_type_vals[];
 
