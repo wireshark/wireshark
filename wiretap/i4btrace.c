@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.12 2000/11/17 21:00:40 gram Exp $
+ * $Id: i4btrace.c,v 1.13 2000/11/19 03:47:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -130,9 +130,11 @@ static gboolean i4btrace_read(wtap *wth, int *err, int *data_offset)
 	}
 	wth->data_offset += sizeof hdr;
 	i4b_byte_swap_header(wth, &hdr);
-	length = hdr.length - sizeof(hdr);
-	if (length == 0)
+	if (hdr.length < sizeof(hdr)) {
+		*err = WTAP_ERR_BAD_RECORD;	/* record length < header! */
 		return FALSE;
+	}
+	length = hdr.length - sizeof(hdr);
 
 	wth->phdr.len = length;
 	wth->phdr.caplen = length;

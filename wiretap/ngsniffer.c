@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.54 2000/11/11 06:36:09 guy Exp $
+ * $Id: ngsniffer.c,v 1.55 2000/11/19 03:47:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -687,6 +687,7 @@ static gboolean ngsniffer_read(wtap *wth, int *err, int *data_offset)
 			/*
 			 * End of file.  Return an EOF indication.
 			 */
+			*err = 0;	/* EOF, not error */
 			return FALSE;
 
 		default:

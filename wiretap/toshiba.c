@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.13 2000/09/21 04:41:37 gram Exp $
+ * $Id: toshiba.c,v 1.14 2000/11/19 03:47:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -209,6 +209,7 @@ static gboolean toshiba_read(wtap *wth, int *err, int *data_offset)
 	/* Find the next packet */
 	offset = toshiba_seek_next_packet(wth);
 	if (offset < 1) {
+		*err = 0;	/* XXX - assume, for now, that it's an EOF */
 		return FALSE;
 	}
 

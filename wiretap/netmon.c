@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.34 2000/09/21 04:41:32 gram Exp $
+ * $Id: netmon.c,v 1.35 2000/11/19 03:47:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -298,7 +298,8 @@ static gboolean netmon_read(wtap *wth, int *err, int *data_offset)
 		   free it. */
 		g_free(wth->capture.netmon->frame_table);
 		wth->capture.netmon->frame_table = NULL;
-		return 0;
+		*err = 0;	/* it's just an EOF, not an error */
+		return FALSE;
 	}
 
 	/* Seek to the beginning of the current record, if we're

@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.4 2000/11/17 21:00:40 gram Exp $
+ * $Id: pppdump.c,v 1.5 2000/11/19 03:47:36 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <string.h>
 
 /*
@@ -232,6 +233,7 @@ pppdump_read(wtap *wth, int *err, int *data_offset)
 	state = wth->capture.generic;
 	pid = g_new(pkt_id, 1);
 	if (!pid) {
+		*err = errno;	/* assume a malloc failed and set "errno" */
 		return FALSE;
 	}
 	pid->offset = 0;
@@ -337,6 +339,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 					num_bytes--;
 					if (num_bytes > 0) {
 						if (!save_prec_state(state, num_bytes, pkt)) {
+							*err = errno;
 							return -1;
 						}
 						*state_saved = TRUE;

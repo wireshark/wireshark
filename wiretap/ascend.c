@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.21 2000/11/12 08:45:28 guy Exp $
+ * $Id: ascend.c,v 1.22 2000/11/19 03:47:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -257,6 +257,7 @@ static gboolean ascend_read(wtap *wth, int *err, int *data_offset)
   file_seek(wth->fh, wth->capture.ascend->next_packet_seek_start, SEEK_SET);
   offset = ascend_seek(wth, ASCEND_MAX_SEEK);
   if (offset == -1) {
+    *err = 0;		/* XXX - assume, for now, that it's an EOF */
     return FALSE;
   }
   if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, 0)) {

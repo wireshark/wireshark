@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.4 2000/09/07 05:34:07 gram Exp $
+ * $Id: csids.c,v 1.5 2000/11/19 03:47:35 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -151,6 +151,8 @@ static gboolean csids_read(wtap *wth, int *err, int *data_offset)
   bytesRead = file_read( &hdr, 1, sizeof( struct csids_header) , wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
     *err = file_error( wth->fh );
+    if (*err == 0 && bytesRead != 0)
+      *err = WTAP_ERR_SHORT_READ;
     return FALSE;
   }
   hdr.seconds = pntohl(&hdr.seconds);
@@ -165,6 +167,8 @@ static gboolean csids_read(wtap *wth, int *err, int *data_offset)
   bytesRead = file_read( buf, 1, hdr.caplen, wth->fh );
   if( bytesRead != hdr.caplen ) {
     *err = file_error( wth->fh );
+    if (*err == 0)
+      *err = WTAP_ERR_SHORT_READ;
     return FALSE;
   }
   

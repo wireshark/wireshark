@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.33 2000/09/23 05:58:26 guy Exp $
+ * $Id: netxray.c,v 1.34 2000/11/19 03:47:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -234,6 +234,7 @@ reread:
 	/* Have we reached the end of the packet data? */
 	if (wth->data_offset == wth->capture.netxray->end_offset) {
 		/* Yes. */
+		*err = 0;	/* it's just an EOF, not an error */
 		return FALSE;
 	}
 	/* Read record header. */
