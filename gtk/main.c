@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.147 2000/08/21 21:24:15 deniel Exp $
+ * $Id: main.c,v 1.148 2000/08/22 05:06:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -761,7 +761,7 @@ print_usage(void) {
   fprintf(stderr, "\t[ -D ] [ -f <capture filter> ] [ -i interface ] [ -m <medium font> ] \n");
   fprintf(stderr, "\t[ -n ] [ -o <preference setting> ] ... [ -P <packet list height> ]\n");
   fprintf(stderr, "\t[ -r infile ] [ -R <read filter> ] [ -s snaplen ] \n");
-  fprintf(stderr, "\t[ -T <tree view height> ] [ -w savefile ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ] [ -w savefile ]\n");
 #else
   fprintf(stderr, "%s [ -vh ] [ -B <byte view height> ] [ -m <medium font> ] [ -n ]\n",
 	  PACKAGE);
