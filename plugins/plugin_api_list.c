@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.20 2004/01/03 03:50:38 guy Exp $
+ * $Id: plugin_api_list.c,v 1.21 2004/01/18 12:57:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -398,4 +398,6 @@ const char *decode_enumerated_bitfield_shifted(guint32, guint32, int,
 int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
   const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
-  int is_response, int extended, int append_info);
+  const value_string *u_modifier_short_vals_cmd,
+  const value_string *u_modifier_short_vals_resp, int is_response,
+  int is_extended, int append_info);
