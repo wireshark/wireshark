@@ -1,7 +1,7 @@
 /* packet-yppasswd.c
  * Routines for yppasswd dissection
  *
- * $Id: packet-yppasswd.c,v 1.9 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-yppasswd.c,v 1.10 2002/11/01 00:48:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 #include "packet-yppasswd.h"
 
 static int proto_yppasswd = -1;
+static int hf_yppasswd_procedure_v1 = -1;
 static int hf_yppasswd_status = -1;
 static int hf_yppasswd_oldpass = -1;
 static int hf_yppasswd_newpw = -1;
@@ -89,15 +90,25 @@ dissect_yppasswd_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
 static const vsff yppasswd1_proc[] = {
+	{ YPPASSWDPROC_NULL,	"NULL",
+		NULL,		NULL },
 	{ YPPASSWDPROC_UPDATE,	"UPDATE",
 		dissect_yppasswd_call,	dissect_yppasswd_reply },
 	{ 0,	NULL,		NULL,				NULL }
+};
+static const value_string yppasswd1_proc_vals[] = {
+	{ YPPASSWDPROC_NULL,	"NULL" },
+	{ YPPASSWDPROC_UPDATE,	"UPDATE" },
+	{ 0,	NULL }
 };
 
 void
 proto_register_yppasswd(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_yppasswd_procedure_v1, {
+			"V1 Procedure", "yppasswd.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(yppasswd1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_yppasswd_status, {
 			"status", "yppasswd.status", FT_UINT32, BASE_DEC,
 			NULL, 0, "YPPasswd update status", HFILL }},
@@ -157,6 +168,6 @@ proto_reg_handoff_yppasswd(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_yppasswd, YPPASSWD_PROGRAM, ett_yppasswd);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPPASSWD_PROGRAM, 1, yppasswd1_proc, -1);
+	rpc_init_proc_table(YPPASSWD_PROGRAM, 1, yppasswd1_proc, hf_yppasswd_procedure_v1);
 }
 

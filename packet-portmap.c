@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.40 2002/10/23 21:17:02 guy Exp $
+ * $Id: packet-portmap.c,v 1.41 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,10 @@
  */
 
 static int proto_portmap = -1;
+static int hf_portmap_procedure_v1 = -1;
+static int hf_portmap_procedure_v2 = -1;
+static int hf_portmap_procedure_v3 = -1;
+static int hf_portmap_procedure_v4 = -1;
 static int hf_portmap_proto = -1;
 static int hf_portmap_prog = -1;
 static int hf_portmap_proc = -1;
@@ -316,6 +320,15 @@ static const vsff portmap1_proc[] = {
 	{ PORTMAPPROC_CALLIT,	"CALLIT",	NULL,	NULL },
 	{ 0,			NULL,		NULL,	NULL }
 };
+static const value_string portmap1_proc_vals[] = {
+	{ PORTMAPPROC_NULL,	"NULL" },
+	{ PORTMAPPROC_SET,	"SET" },
+	{ PORTMAPPROC_UNSET,	"UNSET" },
+	{ PORTMAPPROC_GETPORT,	"GETPORT" },
+	{ PORTMAPPROC_DUMP,	"DUMP" },
+	{ PORTMAPPROC_CALLIT,	"CALLIT" },
+	{ 0,			NULL }
+};
 /* end of Portmap version 1 */
 
 static const vsff portmap2_proc[] = {
@@ -332,6 +345,15 @@ static const vsff portmap2_proc[] = {
 	{ PORTMAPPROC_CALLIT, "CALLIT",
 		dissect_callit_call, dissect_callit_reply },
 	{ 0, NULL, NULL, NULL }
+};
+static const value_string portmap2_proc_vals[] = {
+	{ PORTMAPPROC_NULL, "NULL" },
+	{ PORTMAPPROC_SET, "SET" },
+	{ PORTMAPPROC_UNSET, "UNSET" },
+	{ PORTMAPPROC_GETPORT,	"GETPORT" },
+	{ PORTMAPPROC_DUMP, "DUMP" },
+	{ PORTMAPPROC_CALLIT, "CALLIT" },
+	{ 0, NULL }
 };
 /* end of Portmap version 2 */
 
@@ -453,6 +475,18 @@ static const vsff portmap3_proc[] = {
 		NULL, NULL },
 	{ 0, NULL, NULL, NULL }
 };
+static const value_string portmap3_proc_vals[] = {
+	{ RPCBPROC_NULL,	"NULL" },
+	{ RPCBPROC_SET,		"SET" },
+	{ RPCBPROC_UNSET,	"UNSET" },
+	{ RPCBPROC_GETADDR,	"GETADDR" },
+	{ RPCBPROC_DUMP,	"DUMP" },
+	{ RPCBPROC_CALLIT,	"CALLIT" },
+	{ RPCBPROC_GETTIME,	"GETTIME" },
+	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR" },
+	{ RPCBPROC_TADDR2UADDR,	"TADDR2UADDR" },
+	{ 0, NULL }
+};
 /* end of Portmap version 3 */
 
 
@@ -486,12 +520,40 @@ static const vsff portmap4_proc[] = {
 		NULL, NULL },
 	{ 0, NULL, NULL, NULL }
 };
+static const value_string portmap4_proc_vals[] = {
+	{ RPCBPROC_NULL,	"NULL" },
+	{ RPCBPROC_SET,		"SET" },
+	{ RPCBPROC_UNSET,	"UNSET" },
+	{ RPCBPROC_GETADDR,	"GETADDR" },
+	{ RPCBPROC_DUMP,	"DUMP" },
+	{ RPCBPROC_BCAST,	"BCAST" },
+	{ RPCBPROC_GETTIME,	"GETTIME" },
+	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR" },
+	{ RPCBPROC_TADDR2UADDR,	"TADDR2UADDR" },
+	{ RPCBPROC_GETVERSADDR,	"GETVERSADDR" },
+	{ RPCBPROC_INDIRECT,	"INDIRECT" },
+	{ RPCBPROC_GETADDRLIST,	"GETADDRLIST" },
+	{ RPCBPROC_GETSTAT,	"GETSTAT" },
+	{ 0, NULL }
+};
 /* end of Portmap version 4 */
 
 void
 proto_register_portmap(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_portmap_procedure_v1, {
+			"V1 Procedure", "portmap.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(portmap1_proc_vals), 0, "V1 Procedure", HFILL }},
+		{ &hf_portmap_procedure_v2, {
+			"V2 Procedure", "portmap.procedure_v2", FT_UINT32, BASE_DEC,
+			VALS(portmap2_proc_vals), 0, "V2 Procedure", HFILL }},
+		{ &hf_portmap_procedure_v3, {
+			"V3 Procedure", "portmap.procedure_v3", FT_UINT32, BASE_DEC,
+			VALS(portmap3_proc_vals), 0, "V3 Procedure", HFILL }},
+		{ &hf_portmap_procedure_v4, {
+			"V4 Procedure", "portmap.procedure_v4", FT_UINT32, BASE_DEC,
+			VALS(portmap4_proc_vals), 0, "V4 Procedure", HFILL }},
 		{ &hf_portmap_prog, {
 			"Program", "portmap.prog", FT_UINT32, BASE_DEC,
 			NULL, 0, "Program", HFILL }},
@@ -555,10 +617,10 @@ proto_reg_handoff_portmap(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ett_portmap);
 	/* Register the procedure tables */
-	rpc_init_proc_table(PORTMAP_PROGRAM, 1, portmap1_proc, -1);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc, -1);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc, -1);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc, -1);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 1, portmap1_proc, hf_portmap_procedure_v1);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc, hf_portmap_procedure_v2);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc, hf_portmap_procedure_v3);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc, hf_portmap_procedure_v4);
 	rpc_handle = find_dissector("rpc");
 	rpc_tcp_handle = find_dissector("rpc-tcp");
 }

@@ -2,7 +2,7 @@
  * Routines for async NSM stat callback dissection
  * 2001 Ronnie Sahlberg <See AUTHORS for email>
  *
- * $Id: packet-stat-notify.c,v 1.12 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-stat-notify.c,v 1.13 2002/11/01 00:48:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 #include "packet-stat-notify.h"
 
 static int proto_statnotify = -1;
+static int hf_statnotify_procedure_v1 = -1;
 static int hf_statnotify_name = -1;
 static int hf_statnotify_state = -1;
 static int hf_statnotify_priv = -1;
@@ -56,11 +57,16 @@ dissect_statnotify_mon(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
 
-static const vsff statnotify_proc[] = {
+static const vsff statnotify1_proc[] = {
     { 0, "NULL", NULL, NULL },
     { STATNOTIFYPROC_MON,   "MON-CALLBACK",
 		dissect_statnotify_mon, NULL },
     { 0, NULL, NULL, NULL }
+};
+static const value_string statnotify1_proc_vals[] = {
+    { 0, "NULL" },
+    { STATNOTIFYPROC_MON,   "MON-CALLBACK" },
+    { 0, NULL }
 };
 /* end of stat-notify version 1 */
 
@@ -69,6 +75,9 @@ void
 proto_register_statnotify(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_statnotify_procedure_v1, {
+			"V1 Procedure", "statnotify.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(statnotify1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_statnotify_name, {
 			"Name", "statnotify.name", FT_STRING, BASE_DEC,
 			NULL, 0, "Name of client that changed", HFILL }},
@@ -95,5 +104,5 @@ proto_reg_handoff_statnotify(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_statnotify, STATNOTIFY_PROGRAM, ett_statnotify);
 	/* Register the procedure tables */
-	rpc_init_proc_table(STATNOTIFY_PROGRAM, 1, statnotify_proc, -1);
+	rpc_init_proc_table(STATNOTIFY_PROGRAM, 1, statnotify1_proc, hf_statnotify_procedure_v1);
 }

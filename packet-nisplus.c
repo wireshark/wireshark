@@ -1,7 +1,7 @@
 /* packet-nisplus.c
  * 2001  Ronnie Sahlberg   <See AUTHORS for email>
  *
- * $Id: packet-nisplus.c,v 1.14 2002/10/23 21:17:02 guy Exp $
+ * $Id: packet-nisplus.c,v 1.15 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 #include "packet-nisplus.h"
 
 static int proto_nisplus = -1;
+static int hf_nisplus_procedure_v3 = -1;
 static int hf_nisplus_object = -1;
 static int hf_nisplus_oid = -1;
 static int hf_nisplus_object_ctime = -1;
@@ -1160,6 +1161,32 @@ static const vsff nisplus3_proc[] = {
 		dissect_nisname,	dissect_nisplus_error },
 	{ 0,	NULL,		NULL,				NULL }
 };
+static const value_string nisplus3_proc_vals[] = {
+	{ NISPROC_NULL,			"NULL" },
+	{ NISPROC_LOOKUP,		"LOOKUP" },
+	{ NISPROC_ADD,			"ADD" },
+	{ NISPROC_MODIFY,		"MODIFY" },
+	{ NISPROC_REMOVE,		"REMOVE" },
+	{ NISPROC_IBLIST,		"IBLIST" },
+	{ NISPROC_IBADD,		"IBADD" },
+	{ NISPROC_IBMODIFY,		"IBMODIFY" },
+	{ NISPROC_IBREMOVE,		"IBREMOVE" },
+	{ NISPROC_IBFIRST,		"IBFIRST" },
+	{ NISPROC_IBNEXT,		"IBNEXT" },
+	{ NISPROC_FINDDIRECTORY,	"FINDDIRECTORY" },
+	{ NISPROC_STATUS,		"STATUS" },
+	{ NISPROC_DUMPLOG,		"DUMPLOG" },
+	{ NISPROC_DUMP,			"DUMP" },
+	{ NISPROC_CALLBACK,		"CALLBACK" },
+	{ NISPROC_CPTIME,		"CPTIME" },
+	{ NISPROC_CHECKPOINT,		"CHECKPOINT" },
+	{ NISPROC_PING,			"PING" },
+	{ NISPROC_SERVSTATE,		"SERVSTATE" },
+	{ NISPROC_MKDIR,		"MKDIR" },
+	{ NISPROC_RMDIR,		"RMDIR" },
+	{ NISPROC_UPDKEYS,		"UPDKEYS" },
+	{ 0,	NULL }
+};
 
 
 
@@ -1309,6 +1336,9 @@ proto_register_nis(void)
 
 
 	static hf_register_info hf[] = {
+		{ &hf_nisplus_procedure_v3, {
+			"V3 Procedure", "nisplus.procedure_v3", FT_UINT32, BASE_DEC,
+			VALS(nisplus3_proc_vals), 0, "V3 Procedure", HFILL }},
 		{ &hf_nisplus_object, {
 			"NIS Object", "nisplus.object", FT_NONE, BASE_NONE,
 			NULL, 0, "NIS Object", HFILL }},
@@ -1823,7 +1853,7 @@ proto_reg_handoff_nis(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nisplus, NIS_PROGRAM, ett_nisplus);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NIS_PROGRAM, 3, nisplus3_proc, -1);
+	rpc_init_proc_table(NIS_PROGRAM, 3, nisplus3_proc, hf_nisplus_procedure_v3);
 }
 
 
@@ -1836,6 +1866,7 @@ proto_reg_handoff_nis(void)
    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 
 static int proto_nispluscb = -1;
+static int hf_nispluscb_procedure_v1 = -1;
 static int hf_nispluscb_entries = -1;
 static int hf_nispluscb_entry = -1;
 
@@ -1874,19 +1905,29 @@ dissect_cback_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 static const vsff cb1_proc[] = {
 	{ CBPROC_NULL,			"NULL",
 		NULL,	NULL },
-	{ CBPROC_RECEIVE,			"NULL",
+	{ CBPROC_RECEIVE,		"RECEIVE",
 		dissect_cback_data,	dissect_callback_result },
-	{ CBPROC_FINISH,			"NULL",
+	{ CBPROC_FINISH,		"FINISH",
 		NULL,	NULL },
-	{ CBPROC_ERROR,			"NULL",
+	{ CBPROC_ERROR,			"ERROR",
 		dissect_nisplus_error,	NULL },
 	{	0,	NULL,	NULL,	NULL },
+};
+static const value_string nispluscb1_proc_vals[] = {
+	{ CBPROC_NULL,		"NULL" },
+	{ CBPROC_RECEIVE,	"RECEIVE" },
+	{ CBPROC_FINISH,	"FINISH" },
+	{ CBPROC_ERROR,		"ERROR" },
+	{	0,	NULL }
 };
 
 void
 proto_register_niscb(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_nispluscb_procedure_v1, {
+			"V1 Procedure", "nispluscb.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(nispluscb1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_nispluscb_entries, {
 			"entries", "nispluscb.entries", FT_NONE, BASE_NONE,
 			NULL, 0, "NIS Callback Entries", HFILL }},
@@ -1914,5 +1955,5 @@ proto_reg_handoff_niscb(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nispluscb, CB_PROGRAM, ett_nispluscb);
 	/* Register the procedure tables */
-	rpc_init_proc_table(CB_PROGRAM, 1, cb1_proc, -1);
+	rpc_init_proc_table(CB_PROGRAM, 1, cb1_proc, hf_nispluscb_procedure_v1);
 }

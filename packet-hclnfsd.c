@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.18 2002/10/23 21:17:01 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.19 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 #include "packet-hclnfsd.h"
 
 static int proto_hclnfsd = -1;
-
+static int hf_hclnfsd_procedure_v1 = -1;
 static int hf_hclnfsd_request_type = -1;
 static int hf_hclnfsd_device = -1;
 static int hf_hclnfsd_login = -1;
@@ -680,6 +680,27 @@ static const vsff hclnfsd1_proc[] = {
 		NULL, NULL },
     { 0, NULL, NULL, NULL }
 };
+static const value_string hclnfsd1_proc_vals[] = {
+    { HCLNFSDPROC_NULL, "NULL" },
+    { HCLNFSDPROC_SPOOL_INQUIRE, "SPOOL_INQUIRE" },
+    { HCLNFSDPROC_SPOOL_FILE, "SPOOL_FILE" },
+    { HCLNFSDPROC_AUTHORIZE, "AUTHORIZE" },
+    { HCLNFSDPROC_GRP_NAME_TO_NUMB, "GRP_NAME_TO_NUMB" },
+    { HCLNFSDPROC_GRP_TO_NUMBER, "GRP_TO_NUMBER" },
+    { HCLNFSDPROC_RETURN_HOST, "RETURN_HOST" },
+    { HCLNFSDPROC_UID_TO_NAME, "UID_TO_NAME" },
+    { HCLNFSDPROC_NAME_TO_UID, "NAME_TO_UID" },
+    { HCLNFSDPROC_SHARE, "SHARE" },
+    { HCLNFSDPROC_UNSHARE, "UNSHARE" },
+    { HCLNFSDPROC_LOCK, "LOCK" },
+    { HCLNFSDPROC_REMOVE, "REMOVE" },
+    { HCLNFSDPROC_UNLOCK, "UNLOCK" },
+    { HCLNFSDPROC_GET_PRINTERS, "GET_PRINTERS" },
+    { HCLNFSDPROC_GET_PRINTQ, "GET_PRINTQ" },
+    { HCLNFSDPROC_CANCEL_PRJOB, "CANCEL_PRJOB" },
+    { HCLNFSDPROC_ZAP_LOCKS, "ZAP_LOCKS" },
+    { 0, NULL }
+};
 /* end of hclnfsd version 1 */
 
 
@@ -687,6 +708,9 @@ void
 proto_register_hclnfsd(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_hclnfsd_procedure_v1, {
+			"V1 Procedure", "hclnfsd.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(hclnfsd1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_hclnfsd_request_type, {
 			"Request Type", "hclnfsd.request_type", FT_UINT32, BASE_DEC,
 			VALS(names_request_type), 0, "Request Type", HFILL }},
@@ -851,5 +875,5 @@ proto_reg_handoff_hclnfsd(void)
 	rpc_init_prog(proto_hclnfsd, HCLNFSD_PROGRAM, ett_hclnfsd);
 
 	/* Register the procedure tables */
-	rpc_init_proc_table(HCLNFSD_PROGRAM, 1, hclnfsd1_proc, -1);
+	rpc_init_proc_table(HCLNFSD_PROGRAM, 1, hclnfsd1_proc, hf_hclnfsd_procedure_v1);
 }

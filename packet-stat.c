@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.18 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-stat.c,v 1.19 2002/11/01 00:48:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "packet-stat.h"
 
 static int proto_stat = -1;
+static int hf_stat_procedure_v1 = -1;
 static int hf_stat_mon_name = -1;
 static int hf_stat_stat_res = -1;
 static int hf_stat_stat_res_res = -1;
@@ -247,7 +248,7 @@ dissect_stat_umon_all(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
 
-static const vsff stat_proc[] = {
+static const vsff stat1_proc[] = {
     { 0, "NULL", NULL, NULL },
     { STATPROC_STAT,   "STAT",
 		dissect_stat_stat, dissect_stat_stat_res },
@@ -263,6 +264,16 @@ static const vsff stat_proc[] = {
 		dissect_stat_notify, NULL },
     { 0, NULL, NULL, NULL }
 };
+static const value_string stat1_proc_vals[] = {
+    { 0, "NULL" },
+    { STATPROC_STAT,   "STAT" },
+    { STATPROC_MON,   "MON" },
+    { STATPROC_UNMON, "UNMON" },
+    { STATPROC_UNMON_ALL, "UNMON_ALL" },
+    { STATPROC_SIMU_CRASH, "SIMU_CRASH" },
+    { STATPROC_NOTIFY, "NOTIFY" },
+    { 0, NULL }
+};
 /* end of stat version 1 */
 
 
@@ -270,6 +281,9 @@ void
 proto_register_stat(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_stat_procedure_v1, {
+			"V1 Procedure", "stat.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(stat1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_stat_mon_name, {
 			"Name", "stat.name", FT_STRING, BASE_DEC,
 			NULL, 0, "Name", HFILL }},
@@ -333,5 +347,5 @@ proto_reg_handoff_stat(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_stat, STAT_PROGRAM, ett_stat);
 	/* Register the procedure tables */
-	rpc_init_proc_table(STAT_PROGRAM, 1, stat_proc, -1);
+	rpc_init_proc_table(STAT_PROGRAM, 1, stat1_proc, hf_stat_procedure_v1);
 }

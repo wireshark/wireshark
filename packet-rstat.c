@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rstat.c,v 1.3 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-rstat.c,v 1.4 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,10 @@
 #include "packet-rpc.h"
 
 static int proto_rstat = -1;
+static int hf_rstat_procedure_v1 = -1;
+static int hf_rstat_procedure_v2 = -1;
+static int hf_rstat_procedure_v3 = -1;
+static int hf_rstat_procedure_v4 = -1;
 
 static gint ett_rstat = -1;
 
@@ -53,6 +57,12 @@ static const vsff rstat1_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
+static const value_string rstat1_proc_vals[] = {
+	{ RSTATPROC_NULL,	"NULL" },
+	{ RSTATPROC_STATS,	"STATS" },
+	{ RSTATPROC_HAVEDISK,	"HAVEDISK" },
+	{ 0,	NULL }
+};
 
 static const vsff rstat2_proc[] = {
 	{ RSTATPROC_NULL,	"NULL",
@@ -62,6 +72,12 @@ static const vsff rstat2_proc[] = {
 	{ RSTATPROC_HAVEDISK,	"HAVEDISK",
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
+};
+static const value_string rstat2_proc_vals[] = {
+	{ RSTATPROC_NULL,	"NULL" },
+	{ RSTATPROC_STATS,	"STATS" },
+	{ RSTATPROC_HAVEDISK,	"HAVEDISK" },
+	{ 0,	NULL }
 };
 
 static const vsff rstat3_proc[] = {
@@ -73,6 +89,12 @@ static const vsff rstat3_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
+static const value_string rstat3_proc_vals[] = {
+	{ RSTATPROC_NULL,	"NULL" },
+	{ RSTATPROC_STATS,	"STATS" },
+	{ RSTATPROC_HAVEDISK,	"HAVEDISK" },
+	{ 0,	NULL }
+};
 
 static const vsff rstat4_proc[] = {
 	{ RSTATPROC_NULL,	"NULL",
@@ -83,23 +105,37 @@ static const vsff rstat4_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
+static const value_string rstat4_proc_vals[] = {
+	{ RSTATPROC_NULL,	"NULL" },
+	{ RSTATPROC_STATS,	"STATS" },
+	{ RSTATPROC_HAVEDISK,	"HAVEDISK" },
+	{ 0,	NULL }
+};
 
 void
 proto_register_rstat(void)
 {
-#if 0
 	static hf_register_info hf[] = {
+		{ &hf_rstat_procedure_v1, {
+			"V1 Procedure", "rstat.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(rstat1_proc_vals), 0, "V1 Procedure", HFILL }},
+		{ &hf_rstat_procedure_v2, {
+			"V2 Procedure", "rstat.procedure_v2", FT_UINT32, BASE_DEC,
+			VALS(rstat2_proc_vals), 0, "V2 Procedure", HFILL }},
+		{ &hf_rstat_procedure_v3, {
+			"V3 Procedure", "rstat.procedure_v3", FT_UINT32, BASE_DEC,
+			VALS(rstat3_proc_vals), 0, "V3 Procedure", HFILL }},
+		{ &hf_rstat_procedure_v4, {
+			"V4 Procedure", "rstat.procedure_v4", FT_UINT32, BASE_DEC,
+			VALS(rstat4_proc_vals), 0, "V4 Procedure", HFILL }}
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_rstat,
 	};
 
 	proto_rstat = proto_register_protocol("RSTAT", "RSTAT", "rstat");
-#if 0
 	proto_register_field_array(proto_rstat, hf, array_length(hf));
-#endif
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -109,8 +145,8 @@ proto_reg_handoff_rstat(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_rstat, RSTAT_PROGRAM, ett_rstat);
 	/* Register the procedure tables */
-	rpc_init_proc_table(RSTAT_PROGRAM, 1, rstat1_proc, -1);
-	rpc_init_proc_table(RSTAT_PROGRAM, 2, rstat2_proc, -1);
-	rpc_init_proc_table(RSTAT_PROGRAM, 3, rstat3_proc, -1);
-	rpc_init_proc_table(RSTAT_PROGRAM, 4, rstat3_proc, -1);
+	rpc_init_proc_table(RSTAT_PROGRAM, 1, rstat1_proc, hf_rstat_procedure_v1);
+	rpc_init_proc_table(RSTAT_PROGRAM, 2, rstat2_proc, hf_rstat_procedure_v2);
+	rpc_init_proc_table(RSTAT_PROGRAM, 3, rstat3_proc, hf_rstat_procedure_v3);
+	rpc_init_proc_table(RSTAT_PROGRAM, 4, rstat3_proc, hf_rstat_procedure_v4);
 }

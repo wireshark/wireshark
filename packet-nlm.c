@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.30 2002/10/23 21:17:02 guy Exp $
+ * $Id: packet-nlm.c,v 1.31 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,10 @@
  */
 
 static int proto_nlm = -1;
-
+static int hf_nlm_procedure_v1 = -1;
+static int hf_nlm_procedure_v2 = -1;
+static int hf_nlm_procedure_v3 = -1;
+static int hf_nlm_procedure_v4 = -1;
 static int hf_nlm_cookie = -1;
 static int hf_nlm_block = -1;
 static int hf_nlm_exclusive = -1;
@@ -885,6 +888,25 @@ static const vsff nlm1_proc[] = {
 	{ 0,			NULL,
 		NULL,				NULL }
 };
+static const value_string nlm1_proc_vals[] = {
+	{ NLM_NULL,		"NULL" },
+	{ NLM_TEST,		"TEST" },
+	{ NLM_LOCK,		"LOCK" },
+	{ NLM_CANCEL,		"CANCEL" },
+	{ NLM_UNLOCK,		"UNLOCK" },
+	{ NLM_GRANTED,		"GRANTED" },
+	{ NLM_TEST_MSG,		"TEST_MSG" },
+	{ NLM_LOCK_MSG,		"LOCK_MSG" },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG" },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG" },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG" },
+	{ NLM_TEST_RES,		"TEST_RES" },
+	{ NLM_LOCK_RES,		"LOCK_RES" },
+	{ NLM_CANCEL_RES,	"CANCEL_RES" },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES" },
+	{ NLM_GRANTED_RES,	"GRANTED_RES" },
+	{ 0,			NULL }
+};
 /* end of NLM protocol version 1 */
 
 /* NLM protocol version 2 */
@@ -923,6 +945,25 @@ static const vsff nlm2_proc[] = {
 		dissect_nlm_gen_reply,		NULL },
 	{ 0,			NULL,
 		NULL,				NULL }
+};
+static const value_string nlm2_proc_vals[] = {
+	{ NLM_NULL,		"NULL" },
+	{ NLM_TEST,		"TEST" },
+	{ NLM_LOCK,		"LOCK" },
+	{ NLM_CANCEL,		"CANCEL" },
+	{ NLM_UNLOCK,		"UNLOCK" },
+	{ NLM_GRANTED,		"GRANTED" },
+	{ NLM_TEST_MSG,		"TEST_MSG" },
+	{ NLM_LOCK_MSG,		"LOCK_MSG" },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG" },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG" },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG" },
+	{ NLM_TEST_RES,		"TEST_RES" },
+	{ NLM_LOCK_RES,		"LOCK_RES" },
+	{ NLM_CANCEL_RES,	"CANCEL_RES" },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES" },
+	{ NLM_GRANTED_RES,	"GRANTED_RES" },
+	{ 0,			NULL }
 };
 /* end of NLM protocol version 2 */
 
@@ -970,6 +1011,29 @@ static const vsff nlm3_proc[] = {
 		dissect_nlm3_freeall,		NULL },
 	{ 0,			NULL,
 		NULL,				NULL }
+};
+static const value_string nlm3_proc_vals[] = {
+	{ NLM_NULL,		"NULL" },
+	{ NLM_TEST,		"TEST" },
+	{ NLM_LOCK,		"LOCK" },
+	{ NLM_CANCEL,		"CANCEL" },
+	{ NLM_UNLOCK,		"UNLOCK" },
+	{ NLM_GRANTED,		"GRANTED" },
+	{ NLM_TEST_MSG,		"TEST_MSG" },
+	{ NLM_LOCK_MSG,		"LOCK_MSG" },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG" },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG" },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG" },
+	{ NLM_TEST_RES,		"TEST_RES" },
+	{ NLM_LOCK_RES,		"LOCK_RES" },
+	{ NLM_CANCEL_RES,	"CANCEL_RES" },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES" },
+	{ NLM_GRANTED_RES,	"GRANTED_RES" },
+	{ NLM_SHARE,		"SHARE" },
+	{ NLM_UNSHARE,		"UNSHARE" },
+	{ NLM_NM_LOCK,		"NM_LOCK" },
+	{ NLM_FREE_ALL,		"FREE_ALL" },
+	{ 0,			NULL }
 };
 /* end of NLM protocol version 3 */
 
@@ -1019,6 +1083,29 @@ static const vsff nlm4_proc[] = {
 	{ 0,			NULL,
 		NULL,				NULL }
 };
+static const value_string nlm4_proc_vals[] = {
+	{ NLM_NULL,		"NULL" },
+	{ NLM_TEST,		"TEST" },
+	{ NLM_LOCK,		"LOCK" },
+	{ NLM_CANCEL,		"CANCEL" },
+	{ NLM_UNLOCK,		"UNLOCK" },
+	{ NLM_GRANTED,		"GRANTED" },
+	{ NLM_TEST_MSG,		"TEST_MSG" },
+	{ NLM_LOCK_MSG,		"LOCK_MSG" },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG" },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG" },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG" },
+	{ NLM_TEST_RES,		"TEST_RES" },
+	{ NLM_LOCK_RES,		"LOCK_RES" },
+	{ NLM_CANCEL_RES,	"CANCEL_RES" },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES" },
+	{ NLM_GRANTED_RES,	"GRANTED_RES" },
+	{ NLM_SHARE,		"SHARE" },
+	{ NLM_UNSHARE,		"UNSHARE" },
+	{ NLM_NM_LOCK,		"NM_LOCK" },
+	{ NLM_FREE_ALL,		"FREE_ALL" },
+	{ 0,			NULL }
+};
 /* end of NLM protocol version 4 */
 
 
@@ -1029,6 +1116,18 @@ void
 proto_register_nlm(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_nlm_procedure_v1, {
+			"V1 Procedure", "nlm.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(nlm1_proc_vals), 0, "V1 Procedure", HFILL }},
+		{ &hf_nlm_procedure_v2, {
+			"V2 Procedure", "nlm.procedure_v2", FT_UINT32, BASE_DEC,
+			VALS(nlm2_proc_vals), 0, "V2 Procedure", HFILL }},
+		{ &hf_nlm_procedure_v3, {
+			"V3 Procedure", "nlm.procedure_v3", FT_UINT32, BASE_DEC,
+			VALS(nlm3_proc_vals), 0, "V3 Procedure", HFILL }},
+		{ &hf_nlm_procedure_v4, {
+			"V4 Procedure", "nlm.procedure_v4", FT_UINT32, BASE_DEC,
+			VALS(nlm4_proc_vals), 0, "V4 Procedure", HFILL }},
 		{ &hf_nlm_cookie, {
 			"cookie", "nlm.cookie", FT_BYTES, BASE_DEC,
 			NULL, 0, "cookie", HFILL }},
@@ -1132,8 +1231,8 @@ proto_reg_handoff_nlm(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nlm, NLM_PROGRAM, ett_nlm);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NLM_PROGRAM, 1, nlm1_proc, -1);
-	rpc_init_proc_table(NLM_PROGRAM, 2, nlm2_proc, -1);
-	rpc_init_proc_table(NLM_PROGRAM, 3, nlm3_proc, -1);
-	rpc_init_proc_table(NLM_PROGRAM, 4, nlm4_proc, -1);
+	rpc_init_proc_table(NLM_PROGRAM, 1, nlm1_proc, hf_nlm_procedure_v1);
+	rpc_init_proc_table(NLM_PROGRAM, 2, nlm2_proc, hf_nlm_procedure_v2);
+	rpc_init_proc_table(NLM_PROGRAM, 3, nlm3_proc, hf_nlm_procedure_v3);
+	rpc_init_proc_table(NLM_PROGRAM, 4, nlm4_proc, hf_nlm_procedure_v4);
 }

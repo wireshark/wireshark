@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sadmind.c,v 1.3 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-sadmind.c,v 1.4 2002/11/01 00:48:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,9 @@
 #include "packet-rpc.h"
 
 static int proto_sadmind = -1;
+static int hf_sadmind_procedure_v1 = -1;
+static int hf_sadmind_procedure_v2 = -1;
+static int hf_sadmind_procedure_v3 = -1;
 
 static gint ett_sadmind = -1;
 
@@ -47,11 +50,19 @@ static const vsff sadmind1_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
+static const value_string sadmind1_proc_vals[] = {
+	{ SADMINDPROC_NULL,	"NULL" },
+	{ 0,	NULL }
+};
 
 static const vsff sadmind2_proc[] = {
 	{ SADMINDPROC_NULL,	"NULL",
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
+};
+static const value_string sadmind2_proc_vals[] = {
+	{ SADMINDPROC_NULL,	"NULL" },
+	{ 0,	NULL }
 };
 
 static const vsff sadmind3_proc[] = {
@@ -59,23 +70,32 @@ static const vsff sadmind3_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
+static const value_string sadmind3_proc_vals[] = {
+	{ SADMINDPROC_NULL,	"NULL" },
+	{ 0,	NULL }
+};
 
 void
 proto_register_sadmind(void)
 {
-#if 0
 	static hf_register_info hf[] = {
+		{ &hf_sadmind_procedure_v1, {
+			"V1 Procedure", "sadmind.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(sadmind1_proc_vals), 0, "V1 Procedure", HFILL }},
+		{ &hf_sadmind_procedure_v2, {
+			"V2 Procedure", "sadmind.procedure_v2", FT_UINT32, BASE_DEC,
+			VALS(sadmind2_proc_vals), 0, "V2 Procedure", HFILL }},
+		{ &hf_sadmind_procedure_v3, {
+			"V3 Procedure", "sadmind.procedure_v3", FT_UINT32, BASE_DEC,
+			VALS(sadmind3_proc_vals), 0, "V3 Procedure", HFILL }}
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_sadmind,
 	};
 
 	proto_sadmind = proto_register_protocol("SADMIND", "SADMIND", "sadmind");
-#if 0
 	proto_register_field_array(proto_sadmind, hf, array_length(hf));
-#endif
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -85,7 +105,7 @@ proto_reg_handoff_sadmind(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_sadmind, SADMIND_PROGRAM, ett_sadmind);
 	/* Register the procedure tables */
-	rpc_init_proc_table(SADMIND_PROGRAM, 1, sadmind1_proc, -1);
-	rpc_init_proc_table(SADMIND_PROGRAM, 2, sadmind2_proc, -1);
-	rpc_init_proc_table(SADMIND_PROGRAM, 3, sadmind3_proc, -1);
+	rpc_init_proc_table(SADMIND_PROGRAM, 1, sadmind1_proc, hf_sadmind_procedure_v1);
+	rpc_init_proc_table(SADMIND_PROGRAM, 2, sadmind2_proc, hf_sadmind_procedure_v2);
+	rpc_init_proc_table(SADMIND_PROGRAM, 3, sadmind3_proc, hf_sadmind_procedure_v3);
 }

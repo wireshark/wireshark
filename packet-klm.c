@@ -1,7 +1,7 @@
 /* packet-klm.c    2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for klm dissection
  *
- * $Id: packet-klm.c,v 1.11 2002/10/23 21:17:01 guy Exp $
+ * $Id: packet-klm.c,v 1.12 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include "packet-klm.h"
 
 static int proto_klm = -1;
+static int hf_klm_procedure_v1 = -1;
 static int hf_klm_exclusive = -1;
 static int hf_klm_lock = -1;
 static int hf_klm_servername = -1;
@@ -188,6 +189,13 @@ static const vsff klm1_proc[] = {
 		dissect_klm_unlock_call,	dissect_klm_stat_reply },
 	{ 0,	NULL,		NULL,				NULL }
 };
+static const value_string klm1_proc_vals[] = {
+	{ KLMPROC_TEST,	"TEST" },
+	{ KLMPROC_LOCK,	"LOCK" },
+	{ KLMPROC_CANCEL,	"CANCEL" },
+	{ KLMPROC_UNLOCK,	"UNLOCK" },
+	{ 0,	NULL}
+};
 
 void
 proto_register_klm(void)
@@ -196,6 +204,9 @@ proto_register_klm(void)
 	static struct true_false_string tfs_block = { "Block", "Do not block" };
 
 	static hf_register_info hf[] = {
+		{ &hf_klm_procedure_v1, {
+			"V1 Procedure", "klm.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(klm1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_klm_exclusive, {
 			"exclusive", "klm.exclusive", FT_BOOLEAN, BASE_NONE,
 			&tfs_exclusive, 0, "Exclusive lock", HFILL }},
@@ -252,5 +263,5 @@ proto_reg_handoff_klm(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_klm, KLM_PROGRAM, ett_klm);
 	/* Register the procedure tables */
-	rpc_init_proc_table(KLM_PROGRAM, 1, klm1_proc, -1);
+	rpc_init_proc_table(KLM_PROGRAM, 1, klm1_proc, hf_klm_procedure_v1);
 }

@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.23 2002/10/23 21:17:01 guy Exp $
+ * $Id: packet-bootparams.c,v 1.24 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "packet-bootparams.h"
 
 static int proto_bootparams = -1;
+static int hf_bootparams_procedure_v1 = -1;
 static int hf_bootparams_host = -1;
 static int hf_bootparams_domain = -1;
 static int hf_bootparams_fileid = -1;
@@ -144,11 +145,20 @@ static const vsff bootparams1_proc[] = {
 };
 /* end of Bootparams version 1 */
 
+static const value_string bootparams1_proc_vals[] = {
+	{ BOOTPARAMSPROC_NULL, "NULL" },
+	{ BOOTPARAMSPROC_WHOAMI, "WHOAMI" },
+	{ BOOTPARAMSPROC_GETFILE, "GETFILE" },
+	{ 0, NULL }
+};
 
 void
 proto_register_bootparams(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_bootparams_procedure_v1, {
+			"V1 Procedure", "bootparams.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(bootparams1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_bootparams_host, {
 			"Client Host", "bootparams.host", FT_STRING, BASE_DEC,
 			NULL, 0, "Client Host", HFILL }},
@@ -187,5 +197,5 @@ proto_reg_handoff_bootparams(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ett_bootparams);
 	/* Register the procedure tables */
-	rpc_init_proc_table(BOOTPARAMS_PROGRAM, 1, bootparams1_proc, -1);
+	rpc_init_proc_table(BOOTPARAMS_PROGRAM, 1, bootparams1_proc, hf_bootparams_procedure_v1);
 }

@@ -1,6 +1,6 @@
 /* packet-yppasswd.h
  *
- * $Id: packet-yppasswd.h,v 1.3 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: packet-yppasswd.h,v 1.4 2002/11/01 00:48:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,7 @@
 #ifndef PACKET_YPPASSWD_H
 #define PACKET_YPPASSWD_H
 
+#define YPPASSWDPROC_NULL   0
 #define YPPASSWDPROC_UPDATE 1
 
 #define YPPASSWD_PROGRAM 100009

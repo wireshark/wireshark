@@ -1,7 +1,7 @@
 /* packet-spray.c
  * 2001  Ronnie Sahlberg   <See AUTHORS for email>
  *
- * $Id: packet-spray.c,v 1.11 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-spray.c,v 1.12 2002/11/01 00:48:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 #include "packet-spray.h"
 
 static int proto_spray = -1;
+static int hf_spray_procedure_v1 = -1;
 static int hf_spray_sprayarr = -1;
 static int hf_spray_counter = -1;
 static int hf_spray_clock = -1;
@@ -87,11 +88,21 @@ static const vsff spray1_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,		NULL,				NULL }
 };
+static const value_string spray1_proc_vals[] = {
+	{ SPRAYPROC_NULL,	"NULL" },
+	{ SPRAYPROC_SPRAY,	"SPRAY" },
+	{ SPRAYPROC_GET,	"GET" },
+	{ SPRAYPROC_CLEAR,	"CLEAR" },
+	{ 0,	NULL }
+};
 
 void
 proto_register_spray(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_spray_procedure_v1, {
+			"V1 Procedure", "spray.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(spray1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_spray_sprayarr, {
 			"Data", "spray.sprayarr", FT_BYTES, BASE_DEC,
 			NULL, 0, "Sprayarr data", HFILL }},
@@ -110,7 +121,7 @@ proto_register_spray(void)
 
 		{ &hf_spray_usec, {
 			"usec", "spray.usec", FT_UINT32, BASE_DEC,
-			NULL, 0, "Microseconds", HFILL }},
+			NULL, 0, "Microseconds", HFILL }}
 
 	};
 
@@ -131,6 +142,6 @@ proto_reg_handoff_spray(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_spray, SPRAY_PROGRAM, ett_spray);
 	/* Register the procedure tables */
-	rpc_init_proc_table(SPRAY_PROGRAM, 1, spray1_proc, -1);
+	rpc_init_proc_table(SPRAY_PROGRAM, 1, spray1_proc, hf_spray_procedure_v1);
 }
 

@@ -2,7 +2,7 @@
  * Routines for rquota dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-rquota.c,v 1.10 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-rquota.c,v 1.11 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "packet-rquota.h"
 
 static int proto_rquota = -1;
+static int hf_rquota_procedure_v1 = -1;
 static int hf_rquota_pathp = -1;
 static int hf_rquota_uid = -1;
 static int hf_rquota_status = -1;
@@ -151,6 +152,12 @@ static const vsff rquota1_proc[] = {
 	{ 0,				NULL,
 		NULL,				NULL }
 };
+static const value_string rquota1_proc_vals[] = {
+	{ RQUOTAPROC_NULL,		"NULL" },
+	{ RQUOTAPROC_GETQUOTA,		"GETQUOTA" },
+	{ RQUOTAPROC_GETACTIVEQUOTA,	"GETACTIVEQUOTA" },
+	{ 0,				NULL }
+};
 /* end of RQUOTA version 1 */
 
 void
@@ -159,6 +166,9 @@ proto_register_rquota(void)
 	static struct true_false_string tfs_active = { "Quota is ACTIVE", "Quota is NOT active" };
 
 	static hf_register_info hf[] = {
+		{ &hf_rquota_procedure_v1, {
+			"V1 Procedure", "rquota.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(rquota1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_rquota_uid, {
 			"uid", "rquota.uid", FT_UINT32, BASE_DEC,
 			NULL, 0, "User ID", HFILL }},
@@ -236,7 +246,7 @@ proto_reg_handoff_rquota(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_rquota, RQUOTA_PROGRAM, ett_rquota);
 	/* Register the procedure tables */
-	rpc_init_proc_table(RQUOTA_PROGRAM, 1, rquota1_proc, -1);
+	rpc_init_proc_table(RQUOTA_PROGRAM, 1, rquota1_proc, hf_rquota_procedure_v1);
 }
 
 

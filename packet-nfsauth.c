@@ -3,7 +3,7 @@
  *
  * Ronnie Sahlberg
  *
- * $Id: packet-nfsauth.c,v 1.3 2002/10/23 21:17:02 guy Exp $
+ * $Id: packet-nfsauth.c,v 1.4 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include "packet-rpc.h"
 
 static int proto_nfsauth = -1;
+static int hf_nfsauth_procedure_v1 = -1;
 
 static gint ett_nfsauth = -1;
 
@@ -49,23 +50,28 @@ static const vsff nfsauth1_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
+static const value_string nfsauth1_proc_vals[] = {
+	{ NFSAUTHPROC_NULL,	"NULL" },
+	{ NFSAUTH1_ACCESS,	"ACCESS" },
+	{ 0,	NULL }
+};
+
 
 void
 proto_register_nfsauth(void)
 {
-#if 0
 	static hf_register_info hf[] = {
+		{ &hf_nfsauth_procedure_v1, {
+			"V1 Procedure", "nfsauth.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(nfsauth1_proc_vals), 0, "V1 Procedure", HFILL }},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_nfsauth,
 	};
 
 	proto_nfsauth = proto_register_protocol("NFSAUTH", "NFSAUTH", "nfsauth");
-#if 0
 	proto_register_field_array(proto_nfsauth, hf, array_length(hf));
-#endif
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -75,5 +81,5 @@ proto_reg_handoff_nfsauth(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfsauth, NFSAUTH_PROGRAM, ett_nfsauth);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NFSAUTH_PROGRAM, 1, nfsauth1_proc, -1);
+	rpc_init_proc_table(NFSAUTH_PROGRAM, 1, nfsauth1_proc, hf_nfsauth_procedure_v1);
 }

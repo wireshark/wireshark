@@ -1,6 +1,6 @@
 /* packet-rwall.c
  *
- * $Id: packet-rwall.c,v 1.8 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-rwall.c,v 1.9 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 #include "packet-rwall.h"
 
 static int proto_rwall = -1;
+static int hf_rwall_procedure_v1 = -1;
 static int hf_rwall_message = -1;
 
 static gint ett_rwall = -1;
@@ -43,10 +44,14 @@ dissect_rwall_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	return offset;
 }
 
-static const vsff rwall_proc[] = {
+static const vsff rwall1_proc[] = {
 	{ RWALL_WALL,	"RWALL",
 		dissect_rwall_call,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
+};
+static const value_string rwall1_proc_vals[] = {
+	{ RWALL_WALL,	"RWALL" },
+	{ 0,	NULL }
 };
 
 
@@ -54,9 +59,12 @@ void
 proto_register_rwall(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_rwall_procedure_v1, {
+			"V1 Procedure", "rwall.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(rwall1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_rwall_message, {
 			"Message", "rwall.message", FT_STRING, BASE_DEC,
-			NULL, 0, "Message", HFILL }},
+			NULL, 0, "Message", HFILL }}
 	};
 
 	static gint *ett[] = {
@@ -75,7 +83,7 @@ proto_reg_handoff_rwall(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_rwall, RWALL_PROGRAM, ett_rwall);
 	/* Register the procedure tables */
-	rpc_init_proc_table(RWALL_PROGRAM, 1, rwall_proc, -1);
+	rpc_init_proc_table(RWALL_PROGRAM, 1, rwall1_proc, hf_rwall_procedure_v1);
 }
 
 

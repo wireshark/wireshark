@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.4 2002/10/23 21:17:02 guy Exp $
+ * $Id: packet-nfsacl.c,v 1.5 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,9 @@
 #include "packet-rpc.h"
 
 static int proto_nfsacl = -1;
+static int hf_nfsacl_procedure_v1 = -1;
+static int hf_nfsacl_procedure_v2 = -1;
+static int hf_nfsacl_procedure_v3 = -1;
 
 static gint ett_nfsacl = -1;
 
@@ -56,6 +59,11 @@ static const vsff nfsacl1_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
+static const value_string nfsacl1_proc_vals[] = {
+	{ NFSACLPROC_NULL,	"NULL" },
+	{ 0,	NULL }
+};
+
 
 static const vsff nfsacl2_proc[] = {
 	{ NFSACLPROC_NULL,	"NULL",
@@ -70,6 +78,15 @@ static const vsff nfsacl2_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
+static const value_string nfsacl2_proc_vals[] = {
+	{ NFSACLPROC_NULL,	"NULL" },
+	{ NFSACLPROC2_GETACL,	"GETACL" },
+	{ NFSACLPROC2_SETACL,	"SETACL" },
+	{ NFSACLPROC2_GETATTR,	"GETATTR" },
+	{ NFSACLPROC2_ACCESS,	"ACCESS" },
+	{ 0,	NULL }
+};
+
 
 static const vsff nfsacl3_proc[] = {
 	{ NFSACLPROC_NULL,	"NULL",
@@ -80,23 +97,34 @@ static const vsff nfsacl3_proc[] = {
 		NULL,	NULL },
 	{ 0,	NULL,	NULL,	NULL }
 };
+static const value_string nfsacl3_proc_vals[] = {
+	{ NFSACLPROC_NULL,	"NULL" },
+	{ NFSACLPROC3_GETACL,	"GETACL" },
+	{ NFSACLPROC3_SETACL,	"SETACL" },
+	{ 0,	NULL }
+};
 
 void
 proto_register_nfsacl(void)
 {
-#if 0
 	static hf_register_info hf[] = {
+		{ &hf_nfsacl_procedure_v1, {
+			"V1 Procedure", "nfsacl.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(nfsacl1_proc_vals), 0, "V1 Procedure", HFILL }},
+		{ &hf_nfsacl_procedure_v2, {
+			"V2 Procedure", "nfsacl.procedure_v2", FT_UINT32, BASE_DEC,
+			VALS(nfsacl2_proc_vals), 0, "V2 Procedure", HFILL }},
+		{ &hf_nfsacl_procedure_v3, {
+			"V3 Procedure", "nfsacl.procedure_v3", FT_UINT32, BASE_DEC,
+			VALS(nfsacl3_proc_vals), 0, "V3 Procedure", HFILL }}
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_nfsacl,
 	};
 
 	proto_nfsacl = proto_register_protocol("NFSACL", "NFSACL", "nfsacl");
-#if 0
 	proto_register_field_array(proto_nfsacl, hf, array_length(hf));
-#endif
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -106,7 +134,7 @@ proto_reg_handoff_nfsacl(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfsacl, NFSACL_PROGRAM, ett_nfsacl);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NFSACL_PROGRAM, 1, nfsacl1_proc, -1);
-	rpc_init_proc_table(NFSACL_PROGRAM, 2, nfsacl2_proc, -1);
-	rpc_init_proc_table(NFSACL_PROGRAM, 3, nfsacl3_proc, -1);
+	rpc_init_proc_table(NFSACL_PROGRAM, 1, nfsacl1_proc, hf_nfsacl_procedure_v1);
+	rpc_init_proc_table(NFSACL_PROGRAM, 2, nfsacl2_proc, hf_nfsacl_procedure_v2);
+	rpc_init_proc_table(NFSACL_PROGRAM, 3, nfsacl3_proc, hf_nfsacl_procedure_v3);
 }

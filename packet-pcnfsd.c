@@ -1,7 +1,7 @@
 /* packet-pcnfsd.c
  * Routines for PCNFSD dissection
  *
- * $Id: packet-pcnfsd.c,v 1.11 2002/10/23 21:17:02 guy Exp $
+ * $Id: packet-pcnfsd.c,v 1.12 2002/11/01 00:48:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,8 @@ Protocol information comes from the book
 #include "packet-pcnfsd.h"
 
 static int proto_pcnfsd = -1;
-
+static int hf_pcnfsd_procedure_v1 = -1;
+static int hf_pcnfsd_procedure_v2 = -1;
 static int hf_pcnfsd_auth_client = -1;
 static int hf_pcnfsd_auth_ident_obscure = -1;
 static int hf_pcnfsd_auth_ident_clear = -1;
@@ -313,6 +314,13 @@ static const vsff pcnfsd1_proc[] = {
 	{ 3,	"PR_START",	NULL,				NULL },
 	{ 0,	NULL,		NULL,				NULL }
 };
+static const value_string pcnfsd1_proc_vals[] = {
+	{ 0,	"NULL" },
+	{ 1,	"AUTH" },
+	{ 2,	"PR_INIT" },
+	{ 3,	"PR_START" },
+	{ 0,	NULL }
+};
 /* end of PCNFS version 1 */
 
 
@@ -337,6 +345,24 @@ static const vsff pcnfsd2_proc[] = {
 	{ 14,	"ALERT",	NULL,				NULL },
 	{ 0,	NULL,		NULL,				NULL }
 };
+static const value_string pcnfsd2_proc_vals[] = {
+	{ 0,	"NULL" },
+	{ 1,	"INFO" },
+	{ 2,	"PR_INIT" },
+	{ 3,	"PR_START" },
+	{ 4,	"PR_LIST" },
+	{ 5,	"PR_QUEUE" },
+	{ 6,	"PR_STATUS" },
+	{ 7,	"PR_CANCEL" },
+	{ 8,	"PR_ADMIN" },
+	{ 9,	"PR_REQUEUE" },
+	{ 10,	"PR_HOLD" },
+	{ 11,	"PR_RELEASE" },
+	{ 12,	"MAPID" },
+	{ 13,	"AUTH" },
+	{ 14,	"ALERT" },
+	{ 0,	NULL }
+};
 /* end of PCNFS version 2 */
 
 
@@ -344,6 +370,12 @@ void
 proto_register_pcnfsd(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_pcnfsd_procedure_v1, {
+			"V1 Procedure", "pcnfsd.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(pcnfsd1_proc_vals), 0, "V1 Procedure", HFILL }},
+		{ &hf_pcnfsd_procedure_v2, {
+			"V2 Procedure", "pcnfsd.procedure_v2", FT_UINT32, BASE_DEC,
+			VALS(pcnfsd2_proc_vals), 0, "V2 Procedure", HFILL }},
 		{ &hf_pcnfsd_auth_client, {
 			"Authentication Client", "pcnfsd.auth.client", FT_STRING, BASE_DEC,
 			NULL, 0, "Authentication Client", HFILL }},
@@ -404,7 +436,7 @@ proto_reg_handoff_pcnfsd(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_pcnfsd, PCNFSD_PROGRAM, ett_pcnfsd);
 	/* Register the procedure tables */
-	rpc_init_proc_table(PCNFSD_PROGRAM, 1, pcnfsd1_proc, -1);
-	rpc_init_proc_table(PCNFSD_PROGRAM, 2, pcnfsd2_proc, -1);
+	rpc_init_proc_table(PCNFSD_PROGRAM, 1, pcnfsd1_proc, hf_pcnfsd_procedure_v1);
+	rpc_init_proc_table(PCNFSD_PROGRAM, 2, pcnfsd2_proc, hf_pcnfsd_procedure_v2);
 }
 

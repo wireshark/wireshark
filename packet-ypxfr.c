@@ -1,7 +1,7 @@
 /* packet-ypxfr.c
  * Routines for ypxfr dissection
  *
- * $Id: packet-ypxfr.c,v 1.8 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-ypxfr.c,v 1.9 2002/11/01 00:48:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 #include "packet-ypxfr.h"
 
 static int proto_ypxfr = -1;
+static int hf_ypxfr_procedure_v1 = -1;
 
 static gint ett_ypxfr = -1;
 
@@ -44,17 +45,29 @@ static const vsff ypxfr1_proc[] = {
 	{ YPXFRPROC_GETMAP,	"GETMAP",	NULL,		NULL },
 	{ 0,			NULL,		NULL,		NULL }
 };
+static const value_string ypxfr1_proc_vals[] = {
+	{ YPXFRPROC_NULL,	"NULL" },
+	{ YPXFRPROC_GETMAP,	"GETMAP" },
+	{ 0,			NULL }
+};
 /* end of YPXFR version 1 */
 
 void
 proto_register_ypxfr(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_ypxfr_procedure_v1, {
+			"V1 Procedure", "ypxfr.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(ypxfr1_proc_vals), 0, "V1 Procedure", HFILL }}
+	};
+
 	static gint *ett[] = {
 		&ett_ypxfr
 	};
 
 	proto_ypxfr = proto_register_protocol("Yellow Pages Transfer",
 	    "YPXFR", "ypxfr");
+	proto_register_field_array(proto_ypxfr, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -64,5 +77,5 @@ proto_reg_handoff_ypxfr(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ett_ypxfr);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPXFR_PROGRAM, 1, ypxfr1_proc, -1);
+	rpc_init_proc_table(YPXFR_PROGRAM, 1, ypxfr1_proc, hf_ypxfr_procedure_v1);
 }
