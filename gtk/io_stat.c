@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.3 2002/11/15 22:21:15 oabad Exp $
+ * $Id: io_stat.c,v 1.4 2002/11/16 11:45:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,17 +55,23 @@ void unprotect_thread_critical_region(void);
 static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000};
 
 #define MAX_PIXELS_PER_TICK 4
+#define DEFAULT_PIXELS_PER_TICK 2
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 
 #define MAX_COUNT_TYPES 2
-static char *max_count_types[MAX_COUNT_TYPES] = {"frames/s", "bytes/s"};
+static char *max_count_types[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick"};
+
+/* unit is in ms */
+#define MAX_TICK_VALUES 4
+#define DEFAULT_TICK_VALUE 2
+static guint max_tick_values[MAX_TICK_VALUES] = { 10, 100, 1000, 10000 };
 
 
 
 typedef struct _io_stat_item_t {
 	struct _io_stat_item_t *next;
 	struct _io_stat_item_t *prev;
-	guint32 time;
+	guint32 time;	/* this is number of ms since start of capture */
 	guint32 frames;
 	guint32 bytes;
 } io_stat_item_t;
@@ -96,15 +102,21 @@ typedef struct _io_stat_count_type_t {
 	int count_type;
 } io_stat_count_type_t;
 
+typedef struct _io_stat_tick_interval_t {
+	struct _io_stat_t *io;
+	int interval;
+} io_stat_tick_interval_t;
+
 typedef struct _io_stat_t {
 	int needs_redraw;
-	gint32 interval;
-	guint32  time_base;
+	gint32 interval;    /* measurement interval in ms */
+	nstime_t time_base;
+
 	struct _io_stat_graph_t graphs[MAX_GRAPHS];
 	struct _io_stat_yscale_t yscale[MAX_YSCALE];
 	struct _io_stat_pixels_per_tick_t pixelspertick[MAX_PIXELS_PER_TICK];
 	struct _io_stat_count_type_t counttype[MAX_COUNT_TYPES];
-
+	struct _io_stat_tick_interval_t tick_val[MAX_TICK_VALUES];
 	GtkWidget *window;
 	GtkWidget *draw_area;
 	GdkPixmap *pixmap;
@@ -161,7 +173,8 @@ gtk_iostat_reset(void *g)
 	gio->counts->frames=0;
 	gio->counts->bytes=0;
 
-	gio->io->time_base=0xffffffff;
+	gio->io->time_base.secs=0;
+	gio->io->time_base.nsecs=0;
 }
 
 
@@ -170,11 +183,14 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt _U_, void *du
 {
 	io_stat_graph_t *git=g;
 	io_stat_item_t *it;
+	nstime_t time_delta;
+	guint32 adjusted_time;
 
 	git->io->needs_redraw=1;
 
-	if(git->io->time_base==0xffffffff){
-		git->io->time_base=pinfo->fd->abs_secs;
+	if( (git->io->time_base.secs==0)&&(git->io->time_base.nsecs==0) ){
+		git->io->time_base.secs=pinfo->fd->abs_secs;
+		git->io->time_base.nsecs=pinfo->fd->abs_usecs*1000;
 	}
 
 	/* the prev item before the main one is always the last interval we saw packets for */
@@ -182,19 +198,36 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt _U_, void *du
 
 	/* XXX for the time being, just ignore all frames that are in the past.
 	   should be fixed in the future but hopefully it is uncommon */
-	if((pinfo->fd->abs_secs-git->io->time_base)<it->time){
+	time_delta.secs=pinfo->fd->abs_secs-git->io->time_base.secs;
+	time_delta.nsecs=pinfo->fd->abs_usecs*1000-git->io->time_base.nsecs;
+	if(time_delta.nsecs<0){
+		time_delta.secs--;
+		time_delta.nsecs+=1000000000;
+	}
+	if(time_delta.secs<0){
+		return TRUE;
+	}
+	/* time since start of capture in ms */
+	adjusted_time=time_delta.secs*1000+time_delta.nsecs/1000000;
+
+	/* timestamps jumped backwards, just ignore the packet.
+	   if this is common someone can fix this later */
+	if(adjusted_time<it->time){
 		return TRUE;
 	}
 
+
 	/* we have moved into a new interval, we need to create a new struct */
-	if((pinfo->fd->abs_secs-git->io->time_base)>=(it->time+git->io->interval)){
+	if(adjusted_time>=(it->time+git->io->interval)){
 		it->next=g_malloc(sizeof(io_stat_item_t));
 		it->next->prev=it;
 		it->next->next=NULL;
 		it=it->next;
 		git->counts->prev=it;
 
-		it->time=((pinfo->fd->abs_secs-git->io->time_base) / git->io->interval) * git->io->interval;
+		/* set time of new counter struct of adjusted_time rounded
+		   to multiple of intervals */
+		it->time=(adjusted_time/git->io->interval)*git->io->interval;
 		it->frames=0;
 		it->bytes=0;
 	}
@@ -213,7 +246,8 @@ gtk_iostat_draw(void *g)
 	io_stat_t *io;
 	io_stat_item_t *it;
 	int i;
-	guint32 last_interval, first_interval, interval_delta, current_interval, delta_multiplier;
+	guint32 last_interval, first_interval, interval_delta, delta_multiplier;
+	gint32 current_interval;
 	guint32 max_y;
 	guint32 left_x_border;
 	guint32 right_x_border;
@@ -249,8 +283,8 @@ gtk_iostat_draw(void *g)
 			last_interval=io->graphs[i].counts->prev->time;
 		}
 	}
-
 	
+
 	if(io->max_y_units==AUTO_MAX_YSCALE){
 		guint32 max_value=0;
 		for(i=0;i<MAX_GRAPHS;i++){
@@ -279,6 +313,7 @@ gtk_iostat_draw(void *g)
 	} else {
 		max_y=io->max_y_units;
 	}
+
 
 	/* just assume that max_y will be the longest string */
 	sprintf(label_string,"%d", max_y);
@@ -347,11 +382,14 @@ gtk_iostat_draw(void *g)
 
 	/* plot the x-scale */
 	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, left_x_border, io->pixmap_height-bottom_y_border+1, io->pixmap_width-right_x_border+1, io->pixmap_height-bottom_y_border+1);
-	if(last_interval>draw_width/io->pixels_per_tick+1){
-		first_interval=last_interval-draw_width/io->pixels_per_tick+1;
+
+	if((last_interval/io->interval)>draw_width/io->pixels_per_tick+1){
+		first_interval=(last_interval/io->interval)-draw_width/io->pixels_per_tick+1;
+		first_interval*=io->interval;
 	} else {
 		first_interval=0;
 	}
+
 
 	interval_delta=1;
 	delta_multiplier=5;
@@ -365,11 +403,11 @@ gtk_iostat_draw(void *g)
 	}
 
 
-	for(current_interval=last_interval;current_interval>first_interval;current_interval--){
+	for(current_interval=last_interval;current_interval>(gint32)first_interval;current_interval=current_interval-io->interval){
 		int x, xlen;
 
 		/* if pixels_per_tick is <5, only draw every 10 ticks */
-		if((io->pixels_per_tick<10) && (current_interval%10)){
+		if((io->pixels_per_tick<10) && (current_interval%(10*io->interval))){
 			continue;
 		}
 
@@ -378,7 +416,8 @@ gtk_iostat_draw(void *g)
 		} else {
 			xlen=10;
 		}
-		x=draw_width+left_x_border-(last_interval-current_interval)*io->pixels_per_tick;
+
+		x=draw_width+left_x_border-((last_interval-current_interval)/io->interval)*io->pixels_per_tick;
 		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, 
 			x-1-io->pixels_per_tick/2,
 			io->pixmap_height-bottom_y_border+1, 
@@ -387,9 +426,16 @@ gtk_iostat_draw(void *g)
 
 		if(xlen==10){
 			int lwidth;
-			sprintf(label_string,"%d", current_interval);
+			if(io->interval>=1000){
+				sprintf(label_string,"%d", current_interval/1000);
+			} else if(io->interval>=100){
+				sprintf(label_string,"%d.%1d", current_interval/1000,(current_interval/100)%10);
+			} else if(io->interval>=10){
+				sprintf(label_string,"%d.%2d", current_interval/1000,(current_interval/10)%100);
+			} else {
+				sprintf(label_string,"%d.%3d", current_interval/1000,current_interval%1000);
+			}
 #if GTK_MAJOR_VERSION < 2
-                        sprintf(label_string,"%d", current_interval);
                         lwidth=gdk_string_width(font, label_string);
                         gdk_draw_string(io->pixmap,
                                         font,
@@ -412,6 +458,7 @@ gtk_iostat_draw(void *g)
 #if GTK_MAJOR_VERSION >= 2
         g_object_unref(G_OBJECT(layout));
 #endif
+
 
 	/* loop over all items */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
@@ -440,7 +487,7 @@ gtk_iostat_draw(void *g)
 				break;
 			}
 
-			startx=draw_width-1-io->pixels_per_tick*(last_interval+1-it->time);
+			startx=draw_width-1-io->pixels_per_tick*((last_interval-it->time)/io->interval+1);
 			if(val>max_y){
 				starty=0;
 			} else {
@@ -484,7 +531,7 @@ gtk_iostat_draw(void *g)
 			   draw a bit more to connect to it. */
 			if((it->time+io->interval)<it->next->time){
 				int nextx;
-				nextx=draw_width-1-io->pixels_per_tick*(last_interval+1-it->next->time);
+				nextx=draw_width-1-io->pixels_per_tick*((last_interval-it->next->time)/io->interval+1);
 				gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+io->pixels_per_tick-1+10, starty+10, startx+io->pixels_per_tick-1+10, draw_height-1+10);
 				gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+io->pixels_per_tick-1+10, draw_height-1+10, nextx-1+10, draw_height-1+10);
 				gdk_draw_line(io->pixmap, io->graphs[i].gc, nextx-1+10, draw_height-1+10, nextx-1+10, nexty+10);
@@ -519,7 +566,7 @@ gtk_iostat_init(char *optarg _U_)
 
 	io=g_malloc(sizeof(io_stat_t));
 	io->needs_redraw=1;
-	io->interval=1;
+	io->interval=1000;
 	io->window=NULL;
 	io->draw_area=NULL;
 	io->pixmap=NULL;
@@ -528,7 +575,8 @@ gtk_iostat_init(char *optarg _U_)
 	io->pixels_per_tick=5;
 	io->max_y_units=AUTO_MAX_YSCALE;
 	io->count_type=0;
-	io->time_base=0xffffffff;
+	io->time_base.secs=0;
+	io->time_base.nsecs=0;
 
 	for(i=0;i<MAX_GRAPHS;i++){
 		io->graphs[i].counts=g_malloc(sizeof(io_stat_item_t));
@@ -696,6 +744,18 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 	gtk_box_pack_start(GTK_BOX(box), io->draw_area, TRUE, TRUE, 0);
 }
 
+
+static void
+tick_interval_select(GtkWidget *item _U_, gpointer key)
+{
+	io_stat_tick_interval_t *tiv =(io_stat_tick_interval_t *)key;
+
+	tiv->io->interval=tiv->interval;
+	redissect_packets(&cfile);
+	tiv->io->needs_redraw=1;
+	gtk_iostat_draw(&tiv->io->graphs[0]);
+}
+
 static void
 pixels_per_tick_select(GtkWidget *item _U_, gpointer key)
 {
@@ -722,7 +782,7 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
-	gtk_menu_set_active(GTK_MENU(menu), 2);
+	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_PIXELS_PER_TICK);
 	return;
 }
 
@@ -735,6 +795,35 @@ yscale_select(GtkWidget *item _U_, gpointer key)
 	ys->io->max_y_units=ys->yscale;
 	ys->io->needs_redraw=1;
 	gtk_iostat_draw(&ys->io->graphs[0]);
+}
+
+void 
+create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
+{
+	char str[15];
+	GtkWidget *menu_item;
+	int i;
+
+	for(i=0;i<MAX_TICK_VALUES;i++){
+		if(max_tick_values[i]>=1000){
+			sprintf(str,"%d sec", max_tick_values[i]/1000);
+		} else if(max_tick_values[i]>=100){
+			sprintf(str,"0.%1d sec", (max_tick_values[i]/100)%10);
+		} else if(max_tick_values[i]>=10){
+			sprintf(str,"0.%02d sec", (max_tick_values[i]/10)%10);
+		} else {
+			sprintf(str,"0.%03d sec", (max_tick_values[i])%10);
+		}
+
+		menu_item=gtk_menu_item_new_with_label(str);
+		io->tick_val[i].io=io;
+		io->tick_val[i].interval=max_tick_values[i];
+		SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, &io->tick_val[i]);
+		gtk_widget_show(menu_item);
+		gtk_menu_append(GTK_MENU(menu), menu_item);
+	}
+	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_TICK_VALUE);
+	return;
 }
 
 void 
@@ -823,6 +912,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	gtk_widget_show(vbox);
 
 	create_ctrl_menu(io, vbox, "Unit:", create_frames_or_bytes_menu_items);
+	create_ctrl_menu(io, vbox, "Tick Interval:", create_tick_interval_menu_items);
 	create_ctrl_menu(io, vbox, "Pixels Per Tick:", create_pixels_per_tick_menu_items);
 	create_ctrl_menu(io, vbox, "Y-scale Max:", create_yscale_max_menu_items);
 
