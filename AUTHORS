@@ -1008,7 +1008,7 @@ Pavel Novotny <Pavel.Novotny[AT]icn.siemens.de> {
 }
 
 Shinsuke Suzuki <suz[AT]kame.net> {
-	Fix to IPv6 PIM checksum calculation
+	DHCPv6 and PIM enhancements
 }
 
 Andrew C. Feren <aferen[AT]cetacean.com> {
