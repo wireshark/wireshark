@@ -341,13 +341,13 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		msg_category = pi->msg_tag / 3;
 		if(pi->msg_tag % 3 == 0) {		/* Request Message */
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 				&pinfo->dst, pinfo->ptype, pinfo->srcport,
 				pinfo->destport, 0);
 
 			if (conversation == NULL) {
 				/* It's not part of any conversation - create a new one. */
-				conversation = conversation_new(&pinfo->src,
+				conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 				    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 				    pinfo->destport, 0);
 
@@ -414,7 +414,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   		/* end of request message handling*/
 		}
 		else { 					/* Confirm or Reject Message */
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
     				&pinfo->dst, pinfo->ptype, pinfo->srcport,
   				pinfo->destport, 0);
   			if (conversation != NULL) {
