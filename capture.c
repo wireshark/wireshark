@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.145 2001/03/30 06:15:47 guy Exp $
+ * $Id: capture.c,v 1.146 2001/04/04 23:40:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1300,14 +1300,13 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     /* On Win32 OSes, the capture devices are probably available to all
        users; don't warn about permissions problems.
 
-       Do, however, warn that Token Ring and PPP devices aren't supported. */
+       Do, however, warn that WAN devices aren't supported. */
     snprintf(errmsg, sizeof errmsg,
 	"The capture session could not be initiated (%s).\n"
 	"Please check that you have the proper interface specified.\n"
 	"\n"
 	"Note that the driver Ethereal uses for packet capture on Windows\n"
-	"doesn't support capturing on Token Ring interfaces, and doesn't\n"
-	"support capturing on PPP/WAN interfaces in Windows NT/2000.\n",
+	"doesn't support capturing on PPP/WAN interfaces in Windows NT/2000.\n",
 	err_str);
     goto error;
 #else
