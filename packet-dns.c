@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.113 2003/12/17 08:51:36 guy Exp $
+ * $Id: packet-dns.c,v 1.114 2003/12/17 08:59:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1396,7 +1396,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 	key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
 	if (key_id == -1)
-	  proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: Unknown (algorithm 0x%02X not supported)", algo);
+	  proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: Unknown (algorithm %s not supported)",
+		val_to_str(algo, algo_vals, "0x%02X"));
 	else
 	  proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %d", key_id);
 
