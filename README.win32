@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.62 2004/02/19 15:08:38 gerald Exp $
+$Id: README.win32,v 1.63 2004/02/22 16:28:47 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -409,7 +409,7 @@ To get it running, execute the following steps:
      $ make install
 
 5. Patch Makefile.am in <ethereal-src>/gtk/Makefile.am by
-   removing "gtkclist.c" from the dependencies.
+   removing "ethclist.c" from the dependencies.
 
    This patch is required since the private GTK+ clist widget
    (was required for earlier versions of GTK+ but prevents Ethereal
