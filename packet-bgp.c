@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.5 1999/11/01 06:57:01 itojun Exp $
+ * $Id: packet-bgp.c,v 1.6 1999/11/01 09:51:59 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -709,28 +709,28 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     /* this is done twice, but this way each message type can be 
        printed in the COL_INFO field                              */
     while (i < l) {
-        /* look for bgp header */
-        if (p[i] != 0xff) {
-            i++;
-            continue;
-        }
-        CHECK_SIZE(i, sizeof(marker), l);
-        if (memcmp(&p[i], marker, sizeof(marker)) != 0) {
-            i++;
-            continue;
-        }
+	/* look for bgp header */
+	if (p[i] != 0xff) {
+	    i++;
+	    continue;
+	}
+	CHECK_SIZE(i, sizeof(marker), l);
+	if (memcmp(&p[i], marker, sizeof(marker)) != 0) {
+	    i++;
+	    continue;
+	}
 
-        memcpy(&bgp, &p[i], sizeof(bgp));
-        found++;
+	memcpy(&bgp, &p[i], sizeof(bgp));
+	found++;
 	hlen = ntohs(bgp.bgp_len);
-        typ = val_to_str(bgp.bgp_type, bgptypevals, "Unknown Message");
+	typ = val_to_str(bgp.bgp_type, bgptypevals, "Unknown Message");
 
-        if (check_col(fd, COL_INFO)) {
-            if (found == 0) 
-	        col_add_fstr(fd, COL_INFO, "%s", typ);
-            else
-	        col_append_fstr(fd, COL_INFO, ", %s", typ);
-        }
+	if (check_col(fd, COL_INFO)) {
+	    if (found == 0) 
+		col_add_fstr(fd, COL_INFO, "%s", typ);
+	    else
+		col_append_fstr(fd, COL_INFO, ", %s", typ);
+	}
 
 	i += hlen;
     }
@@ -767,19 +767,19 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    }
 	    bgp1_tree = proto_item_add_subtree(ti, ETT_BGP);
 
-            proto_tree_add_text(bgp1_tree, offset, BGP_MARKER_SIZE, "Marker", 
-                NULL);
-                            
+	    proto_tree_add_text(bgp1_tree, offset + i, BGP_MARKER_SIZE,
+		"Marker", NULL);
+		            
 	    if (hlen < BGP_HEADER_SIZE || hlen > BGP_MAX_PACKET_SIZE) {
 		proto_tree_add_text(bgp1_tree,
 		    offset + i + offsetof(struct bgp, bgp_len), 2,
 		    "Length: Invalid %u %s", hlen, 
-                    (hlen == 1) ? "byte" : "bytes");
+		    (hlen == 1) ? "byte" : "bytes");
 	    } else {
 		proto_tree_add_text(bgp1_tree,
 		    offset + i + offsetof(struct bgp, bgp_len), 2,
 		    "Length: %u %s", hlen, 
-                    (hlen == 1) ? "byte" : "bytes");
+		    (hlen == 1) ? "byte" : "bytes");
 	    }
 
 	    proto_tree_add_text(bgp1_tree,
@@ -788,7 +788,7 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	    CHECK_SIZE(i, hlen, l);
 
-            /* now, handle each message type */
+	    /* now, handle each message type */
 	    switch (bgp.bgp_type) {
 	    case BGP_OPEN:
 		dissect_bgp_open(pd, offset + i, fd, bgp1_tree);
@@ -799,11 +799,11 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    case BGP_NOTIFICATION:
 		dissect_bgp_notification(pd, offset + i, fd, bgp1_tree);
 		break;
-            case BGP_KEEPALIVE:
-                /* no data in KEEPALIVE messages */
-                break;
-            default:
-                break;
+	    case BGP_KEEPALIVE:
+		/* no data in KEEPALIVE messages */
+		break;
+	    default:
+		break;
 	    }
 
 	    i += hlen;
