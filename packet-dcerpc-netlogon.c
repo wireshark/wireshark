@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.102 2004/04/23 22:34:15 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.103 2004/04/23 23:31:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,7 +98,9 @@ static int hf_netlogon_unknown_short = -1;
 static int hf_netlogon_unknown_char = -1;
 static int hf_netlogon_logon_time = -1;
 static int hf_netlogon_logoff_time = -1;
+static int hf_netlogon_last_logoff_time = -1;
 static int hf_netlogon_kickoff_time = -1;
+static int hf_netlogon_pwd_age = -1;
 static int hf_netlogon_pwd_last_set_time = -1;
 static int hf_netlogon_pwd_can_change_time = -1;
 static int hf_netlogon_pwd_must_change_time = -1;
@@ -473,30 +475,20 @@ netlogon_dissect_VALIDATION_UAS_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_bad_pw_count, NULL);
 
-	/* XXX - are these all UNIX "time_t"s, like the time stamps in
-	   credentials?
 
-	   Or are they, as per some RAP-based operations, UTIMEs? */
-	proto_tree_add_text(tree, tvb, offset, 4, "Last Logon: unknown time format");
-	offset+= 4;
+	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, drep, hf_netlogon_logon_time, NULL);
 
-	proto_tree_add_text(tree, tvb, offset, 4, "Last Logoff: unknown time format");
-	offset+= 4;
+	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, drep, hf_netlogon_last_logoff_time, NULL);
 
-	proto_tree_add_text(tree, tvb, offset, 4, "Logoff Time: unknown time format");
-	offset+= 4;
+	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, drep, hf_netlogon_logoff_time, NULL);
 
-	proto_tree_add_text(tree, tvb, offset, 4, "Kickoff Time: unknown time format");
-	offset+= 4;
+	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, drep, hf_netlogon_kickoff_time, NULL);
 
-	proto_tree_add_text(tree, tvb, offset, 4, "Password Age: unknown time format");
-	offset+= 4;
+	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, drep, hf_netlogon_pwd_age, NULL);
 
-	proto_tree_add_text(tree, tvb, offset, 4, "PW Can Change: unknown time format");
-	offset+= 4;
+	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, drep, hf_netlogon_pwd_can_change_time, NULL);
 
-	proto_tree_add_text(tree, tvb, offset, 4, "PW Must Change: unknown time format");
-	offset+= 4;
+	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, drep, hf_netlogon_pwd_must_change_time, NULL);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_UNIQUE, "Computer", hf_netlogon_computer_name, 0);
@@ -3235,6 +3227,7 @@ static const value_string delta_type_vals[] = {
  * IDL   [case(3)][unique] rid only ;
  * IDL   [case(4)][unique] DELTA_RENAME_GROUP *rename_group;
  * IDL   [case(5)][unique] DELTA_USER *user;
+ * IDL   [case(6)][unique] rid only ;
  * IDL   [case(7)][unique] DELTA_RENAME_USER *rename_user;
  * IDL   [case(8)][unique] DELTA_GROUP_MEMBER *group_member;
  * IDL   [case(9)][unique] DELTA_ALIAS *alias;
@@ -7394,9 +7387,17 @@ static hf_register_info hf[] = {
 		{ "Logoff Time", "netlogon.logoff_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Time for last time this user logged off", HFILL }},
 
+	{ &hf_netlogon_last_logoff_time,
+		{ "Last Logoff Time", "netlogon.last_logoff_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Time for last time this user logged off", HFILL }},
+
 	{ &hf_netlogon_pwd_last_set_time,
 		{ "PWD Last Set", "netlogon.pwd_last_set_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Last time this users password was changed", HFILL }},
+
+	{ &hf_netlogon_pwd_age,
+		{ "PWD Age", "netlogon.pwd_age", FT_RELATIVE_TIME, BASE_NONE,
+		NULL, 0, "Time since this users password was changed", HFILL }},
 
 	{ &hf_netlogon_pwd_can_change_time,
 		{ "PWD Can Change", "netlogon.pwd_can_change_time", FT_ABSOLUTE_TIME, BASE_NONE,

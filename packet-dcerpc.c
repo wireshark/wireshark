@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.164 2004/03/05 23:09:32 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.165 2004/04/23 23:31:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -912,7 +912,12 @@ dissect_dcerpc_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     tv.secs=data;
     tv.nsecs=0;
     if (tree) {
-        proto_tree_add_time (tree, hfindex, tvb, offset, 4, &tv);
+        if(data==0xffffffff){
+            /* special case,   no time specified */
+            proto_tree_add_time_format(tree, hfindex, tvb, offset, 4, &tv, "%s: No time specified", proto_registrar_get_nth(hfindex)->name);
+        } else {
+            proto_tree_add_time (tree, hfindex, tvb, offset, 4, &tv);
+        }
     }
     if (pdata)
         *pdata = data;
