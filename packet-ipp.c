@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.13 2000/11/09 10:56:32 guy Exp $
+ * $Id: packet-ipp.c,v 1.14 2000/11/13 07:18:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "strutil.h"
 #include "packet-http.h"
 
 static int proto_ipp = -1;

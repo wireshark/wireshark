@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.19 2000/10/19 07:01:32 guy Exp $
+ * $Id: packet-q931.c,v 1.20 2000/11/13 07:18:56 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
+#include "strutil.h"
 #include "nlpid.h"
 #include "packet-q931.h"
 
@@ -581,7 +582,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		 */
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+		    tvb_bytes_to_str(tvb, offset, len));
 		return;
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1036,7 +1037,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		 */
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+		    tvb_bytes_to_str(tvb, offset, len));
 		return;
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1072,7 +1073,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	proto_tree_add_text(tree, tvb, offset, len,
 	    "Diagnostics: %s",
-	    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+	    tvb_bytes_to_str(tvb, offset, len));
 }
 
 /*
@@ -1129,7 +1130,7 @@ dissect_q931_call_state_ie(tvbuff_t *tvb, int offset, int len,
 		 */
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+		    tvb_bytes_to_str(tvb, offset, len));
 		return;
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1249,7 +1250,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 			 */
 			proto_tree_add_text(tree, tvb, offset,
 			    len, "Data: %s",
-			    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+			    tvb_bytes_to_str(tvb, offset, len));
 			return;
 		}
 		proto_tree_add_text(tree, tvb, offset, 1,
@@ -1301,7 +1302,7 @@ dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
 		 */
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+		    tvb_bytes_to_str(tvb, offset, len));
 		return;
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1391,7 +1392,7 @@ dissect_q931_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 	 	return;
 	proto_tree_add_text(tree, tvb, offset,
 	    len, "Network-specific facility specification: %s",
-	    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+	    tvb_bytes_to_str(tvb, offset, len));
 }
 
 /*
@@ -1913,7 +1914,7 @@ dissect_q931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	proto_tree_add_text(tree, tvb, offset, len, "Subaddress: %s",
-	    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+	    tvb_bytes_to_str(tvb, offset, len));
 }
 
 /*
@@ -1995,7 +1996,7 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 		 */
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+		    tvb_bytes_to_str(tvb, offset, len));
 		return;
 	}
 
@@ -2074,7 +2075,7 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, int offset, int len,
 
 	default:
 		proto_tree_add_text(tree, tvb, offset, len, "User information: %s",
-		    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+		    tvb_bytes_to_str(tvb, offset, len));
 		break;
 	}
 }

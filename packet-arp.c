@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.33 2000/08/13 14:07:58 deniel Exp $
+ * $Id: packet-arp.c,v 1.34 2000/11/13 07:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "strutil.h"
 #include "resolv.h"
 #include "packet-arp.h"
 #include "etypes.h"
@@ -278,7 +279,7 @@ arphrdtype_to_str(guint16 hwtype, const char *fmt) {
 #define MIN_ATMARP_HEADER_SIZE	12
 
 static void
-dissect_atm_number(const u_char *pd, int offset, int tl, int hf_e164,
+dissect_atm_number(tvbuff_t *tvb, int offset, int tl, int hf_e164,
     int hf_nsap, proto_tree *tree)
 {
 	int len = tl & ATMARP_LEN_MASK;
@@ -286,76 +287,78 @@ dissect_atm_number(const u_char *pd, int offset, int tl, int hf_e164,
 	proto_tree *nsap_tree;
 
 	if (tl & ATMARP_IS_E164)
-		proto_tree_add_string(tree, hf_e164, NullTVB, offset, len, &pd[offset]);
+		proto_tree_add_item(tree, hf_e164, tvb, offset, len, FALSE);
 	else {
-		ti = proto_tree_add_bytes(tree, hf_nsap, NullTVB, offset, len,
-		    &pd[offset]);
+		ti = proto_tree_add_item(tree, hf_nsap, tvb, offset, len, FALSE);
 		if (len >= 20) {
 			nsap_tree = proto_item_add_subtree(ti, ett_atmarp_nsap);
-			dissect_atm_nsap(pd, offset, len, nsap_tree);
+			dissect_atm_nsap(tvb, offset, len, nsap_tree);
 		}
 	}
 }
 
 void
-dissect_atm_nsap(const u_char *pd, int offset, int len, proto_tree *tree)
+dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 {
-	switch (pd[offset]) {
+	guint8 afi;
+
+	afi = tvb_get_guint8(tvb, offset);
+	switch (afi) {
 
 	case 0x39:	/* DCC ATM format */
 	case 0xBD:	/* DCC ATM group format */
-		proto_tree_add_text(tree, NullTVB, offset + 0, 3,
+		proto_tree_add_text(tree, tvb, offset + 0, 3,
 		    "Data Country Code%s: 0x%04X",
-		    (pd[offset] == 0xBD) ? " (group)" : "",
-		    pntohs(&pd[offset + 1]));
-		proto_tree_add_text(tree, NullTVB, offset + 3, 10,
+		    (afi == 0xBD) ? " (group)" : "",
+		    tvb_get_ntohs(tvb, offset + 1));
+		proto_tree_add_text(tree, tvb, offset + 3, 10,
 		    "High Order DSP: %s",
-		    bytes_to_str(&pd[offset + 3], 10));
-		proto_tree_add_text(tree, NullTVB, offset + 13, 6,
+		    tvb_bytes_to_str(tvb, offset + 3, 10));
+		proto_tree_add_text(tree, tvb, offset + 13, 6,
 		    "End System Identifier: %s",
-		    bytes_to_str(&pd[offset + 13], 6));
-		proto_tree_add_text(tree, NullTVB, offset + 19, 1,
-		    "Selector: 0x%02X", pd[offset + 19]);
+		    tvb_bytes_to_str(tvb, offset + 13, 6));
+		proto_tree_add_text(tree, tvb, offset + 19, 1,
+		    "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
 		break;
 
 	case 0x47:	/* ICD ATM format */
 	case 0xC5:	/* ICD ATM group format */
-		proto_tree_add_text(tree, NullTVB, offset + 0, 3,
+		proto_tree_add_text(tree, tvb, offset + 0, 3,
 		    "International Code Designator%s: 0x%04X",
-		    (pd[offset] == 0xC5) ? " (group)" : "",
-		    pntohs(&pd[offset + 1]));
-		proto_tree_add_text(tree, NullTVB, offset + 3, 10,
+		    (afi == 0xC5) ? " (group)" : "",
+		    tvb_get_ntohs(tvb, offset + 1));
+		proto_tree_add_text(tree, tvb, offset + 3, 10,
 		    "High Order DSP: %s",
-		    bytes_to_str(&pd[offset + 3], 10));
-		proto_tree_add_text(tree, NullTVB, offset + 13, 6,
+		    tvb_bytes_to_str(tvb, offset + 3, 10));
+		proto_tree_add_text(tree, tvb, offset + 13, 6,
 		    "End System Identifier: %s",
-		    bytes_to_str(&pd[offset + 13], 6));
-		proto_tree_add_text(tree, NullTVB, offset + 19, 1,
-		    "Selector: 0x%02X", pd[offset + 19]);
+		    tvb_bytes_to_str(tvb, offset + 13, 6));
+		proto_tree_add_text(tree, tvb, offset + 19, 1,
+		    "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
 		break;
 
 	case 0x45:	/* E.164 ATM format */
 	case 0xC3:	/* E.164 ATM group format */
-		proto_tree_add_text(tree, NullTVB, offset + 0, 9,
+		proto_tree_add_text(tree, tvb, offset + 0, 9,
 		    "E.164 ISDN%s: %s",
-		    (pd[offset] == 0xC3) ? " (group)" : "",
-		    bytes_to_str(&pd[offset + 1], 8));
-		proto_tree_add_text(tree, NullTVB, offset + 9, 4,
+		    (afi == 0xC3) ? " (group)" : "",
+		    tvb_bytes_to_str(tvb, offset + 1, 8));
+		proto_tree_add_text(tree, tvb, offset + 9, 4,
 		    "High Order DSP: %s",
-		    bytes_to_str(&pd[offset + 3], 10));
-		proto_tree_add_text(tree, NullTVB, offset + 13, 6,
+		    tvb_bytes_to_str(tvb, offset + 3, 10));
+		proto_tree_add_text(tree, tvb, offset + 13, 6,
 		    "End System Identifier: %s",
-		    bytes_to_str(&pd[offset + 13], 6));
-		proto_tree_add_text(tree, NullTVB, offset + 19, 1,
-		    "Selector: 0x%02X", pd[offset + 19]);
+		    tvb_bytes_to_str(tvb, offset + 13, 6));
+		proto_tree_add_text(tree, tvb, offset + 19, 1,
+		    "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
 		break;
 
 	default:
-		proto_tree_add_text(tree, NullTVB, offset, 1,
-		    "Unknown AFI: 0x%02X", pd[offset]);
-		proto_tree_add_text(tree, NullTVB, offset + 1, len - 1,
+		proto_tree_add_text(tree, tvb, offset, 1,
+		    "Unknown AFI: 0x%02X", afi);
+		proto_tree_add_text(tree, tvb, offset + 1, len - 1,
 		    "Rest of address: %s",
-		    bytes_to_str(&pd[offset + 1], len - 1));
+		    tvb_bytes_to_str(tvb, offset + 1, len - 1));
 		break;
 	}
 }
@@ -364,7 +367,7 @@ dissect_atm_nsap(const u_char *pd, int offset, int len, proto_tree *tree)
  * RFC 2225 ATMARP - it's just like ARP, except where it isn't.
  */
 static void
-dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16     ar_hrd;
   guint16     ar_pro;
@@ -385,95 +388,113 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   gchar       *op_str;
   int         sha_offset, ssa_offset, spa_offset;
   int         tha_offset, tsa_offset, tpa_offset;
+  guint8      *sha_val, *ssa_val, *spa_val;
+  guint8      *tha_val, *tsa_val, *tpa_val;
   gchar       *sha_str, *ssa_str, *spa_str;
   gchar       *tha_str, *tsa_str, *tpa_str;
 
-  if (!BYTES_ARE_IN_FRAME(offset, MIN_ATMARP_HEADER_SIZE)) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
+  CHECK_DISPLAY_AS_DATA(proto_arp, tvb, pinfo, tree);
 
-  ar_hrd = pntohs(&pd[offset + ATM_AR_HRD]);
-  ar_pro = pntohs(&pd[offset + ATM_AR_PRO]);
-  ar_shtl = (guint8) pd[offset + ATM_AR_SHTL];
+  pinfo->current_proto = "ATMARP";
+
+  ar_hrd = tvb_get_ntohs(tvb, ATM_AR_HRD);
+  ar_pro = tvb_get_ntohs(tvb, ATM_AR_PRO);
+  ar_shtl = tvb_get_guint8(tvb, ATM_AR_SHTL);
   ar_sht = ar_shtl & ATMARP_IS_E164;
   ar_shl = ar_shtl & ATMARP_LEN_MASK;
-  ar_ssl = (guint8) pd[offset + ATM_AR_SSL];
-  ar_op  = pntohs(&pd[offset + AR_OP]);
-  ar_spln = (guint8) pd[offset + ATM_AR_SPLN];
-  ar_thtl = (guint8) pd[offset + ATM_AR_THTL];
+  ar_ssl = tvb_get_guint8(tvb, ATM_AR_SSL);
+  ar_op  = tvb_get_ntohs(tvb, AR_OP);
+  ar_spln = tvb_get_guint8(tvb, ATM_AR_SPLN);
+  ar_thtl = tvb_get_guint8(tvb, ATM_AR_THTL);
   ar_tht = ar_thtl & ATMARP_IS_E164;
   ar_thl = ar_thtl & ATMARP_LEN_MASK;
-  ar_tsl = (guint8) pd[offset + ATM_AR_TSL];
-  ar_tpln = (guint8) pd[offset + ATM_AR_TPLN];
+  ar_tsl = tvb_get_guint8(tvb, ATM_AR_TSL);
+  ar_tpln = tvb_get_guint8(tvb, ATM_AR_TPLN);
 
   tot_len = MIN_ATMARP_HEADER_SIZE + ar_shtl + ar_ssl + ar_spln +
 				ar_thtl + ar_tsl + ar_tpln;
-  if (!BYTES_ARE_IN_FRAME(offset, tot_len)) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
 
   /* Extract the addresses.  */
-  sha_offset = offset + MIN_ATMARP_HEADER_SIZE;
-  if (ar_shl != 0)
-    sha_str = atmarpnum_to_str((guint8 *) &pd[sha_offset], ar_shtl);
-  else
+  sha_offset = MIN_ATMARP_HEADER_SIZE;
+  if (ar_shl != 0) {
+    sha_val = tvb_get_ptr(tvb, sha_offset, ar_shl);
+    sha_str = atmarpnum_to_str(sha_val, ar_shtl);
+  } else {
+    sha_val = NULL;
     sha_str = "<No address>";
+  }
+
   ssa_offset = sha_offset + ar_shl;
-  if (ar_ssl != 0)
-    ssa_str = atmarpsubaddr_to_str((guint8 *) &pd[ssa_offset], ar_ssl);
-  else
+  if (ar_ssl != 0) {
+    ssa_val = tvb_get_ptr(tvb, ssa_offset, ar_ssl);
+    ssa_str = atmarpsubaddr_to_str(ssa_val, ar_ssl);
+  } else {
+    ssa_val = NULL;
     ssa_str = NULL;
+  }
+
   spa_offset = ssa_offset + ar_ssl;
-  spa_str = arpproaddr_to_str((guint8 *) &pd[spa_offset], ar_spln, ar_pro);
+  spa_val = tvb_get_ptr(tvb, spa_offset, ar_spln);
+  spa_str = arpproaddr_to_str(spa_val, ar_spln, ar_pro);
+
   tha_offset = spa_offset + ar_spln;
-  if (ar_thl != 0)
-    tha_str = atmarpnum_to_str((guint8 *) &pd[tha_offset], ar_thtl);
-  else
+  if (ar_thl != 0) {
+    tha_val = tvb_get_ptr(tvb, tha_offset, ar_thl);
+    tha_str = atmarpnum_to_str(tha_val, ar_thtl);
+  } else {
+    tha_val = NULL;
     tha_str = "<No address>";
+  }
+
   tsa_offset = tha_offset + ar_thl;
-  if (ar_tsl != 0)
-    tsa_str = atmarpsubaddr_to_str((guint8 *) &pd[tsa_offset], ar_tsl);
-  else
+  if (ar_tsl != 0) {
+    tsa_val = tvb_get_ptr(tvb, tsa_offset, ar_tsl);
+    tsa_str = atmarpsubaddr_to_str(tsa_val, ar_tsl);
+  } else {
+    tsa_val = NULL;
     tsa_str = NULL;
+  }
+
   tpa_offset = tsa_offset + ar_tsl;
-  tpa_str = arpproaddr_to_str((guint8 *) &pd[tpa_offset], ar_tpln, ar_pro);
+  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_tpln);
+  tpa_str = arpproaddr_to_str(tpa_val, ar_tpln, ar_pro);
   
-  if (check_col(fd, COL_PROTOCOL)) {
+  if (check_col(pinfo->fd, COL_PROTOCOL)) {
     switch (ar_op) {
 
     case ARPOP_REQUEST:
     case ARPOP_REPLY:
     case ATMARPOP_NAK:
     default:
-      col_add_str(fd, COL_PROTOCOL, "ATMARP");
+      col_add_str(pinfo->fd, COL_PROTOCOL, "ATMARP");
       break;
 
     case ARPOP_RREQUEST:
     case ARPOP_RREPLY:
-      col_add_str(fd, COL_PROTOCOL, "ATMRARP");
+      col_add_str(pinfo->fd, COL_PROTOCOL, "ATMRARP");
       break;
 
     case ARPOP_IREQUEST:
     case ARPOP_IREPLY:
-      col_add_str(fd, COL_PROTOCOL, "Inverse ATMARP");
+      col_add_str(pinfo->fd, COL_PROTOCOL, "Inverse ATMARP");
       break;
     }
   }
 
-  if (check_col(fd, COL_INFO)) {
+  if (check_col(pinfo->fd, COL_INFO)) {
     switch (ar_op) {
       case ARPOP_REQUEST:
-        col_add_fstr(fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
+        col_add_fstr(pinfo->fd, COL_INFO, "Who has %s?  Tell %s",
+		tpa_str, spa_str);
         break;
       case ARPOP_REPLY:
-        col_add_fstr(fd, COL_INFO, "%s is at %s%s%s", spa_str, sha_str,
+        col_add_fstr(pinfo->fd, COL_INFO, "%s is at %s%s%s", spa_str, sha_str,
 		((ssa_str != NULL) ? "," : ""),
 		((ssa_str != NULL) ? ssa_str : ""));
         break;
       case ARPOP_IREQUEST:
-        col_add_fstr(fd, COL_INFO, "Who is %s%s%s?  Tell %s%s%s", tha_str,
+        col_add_fstr(pinfo->fd, COL_INFO, "Who is %s%s%s?  Tell %s%s%s",
+		tha_str,
 		((tsa_str != NULL) ? "," : ""),
 		((tsa_str != NULL) ? tsa_str : ""),
 		sha_str,
@@ -481,76 +502,68 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		((ssa_str != NULL) ? ssa_str : ""));
         break;
       case ARPOP_IREPLY:
-        col_add_fstr(fd, COL_INFO, "%s%s%s is at %s", sha_str,
+        col_add_fstr(pinfo->fd, COL_INFO, "%s%s%s is at %s",
+		sha_str,
 		((ssa_str != NULL) ? "," : ""),
 		((ssa_str != NULL) ? ssa_str : ""),
 		spa_str);
         break;
       case ATMARPOP_NAK:
-        col_add_fstr(fd, COL_INFO, "I don't know where %s is", spa_str);
+        col_add_fstr(pinfo->fd, COL_INFO, "I don't know where %s is", spa_str);
         break;
       default:
-        col_add_fstr(fd, COL_INFO, "Unknown ATMARP opcode 0x%04x", ar_op);
+        col_add_fstr(pinfo->fd, COL_INFO, "Unknown ATMARP opcode 0x%04x", ar_op);
         break;
     }
   }
 
   if (tree) {
     if ((op_str = match_strval(ar_op, atmop_vals)))
-      ti = proto_tree_add_protocol_format(tree, proto_arp, NullTVB, offset, tot_len,
+      ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
 					"ATM Address Resolution Protocol (%s)", 
 					op_str);
     else
-      ti = proto_tree_add_protocol_format(tree, proto_arp, NullTVB, offset, tot_len,
+      ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
 				      "ATM Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
-    proto_tree_add_uint(arp_tree, hf_arp_hard_type, NullTVB, offset + ATM_AR_HRD, 2,
-			       ar_hrd);
-    proto_tree_add_uint(arp_tree, hf_arp_proto_type, NullTVB, offset + ATM_AR_PRO, 2,
-			       ar_pro);
-    proto_tree_add_uint(arp_tree, hf_atmarp_shtl, NullTVB, offset + ATM_AR_SHTL, 1,
-			       ar_shtl);
-    proto_tree_add_uint(arp_tree, hf_atmarp_ssl, NullTVB, offset + ATM_AR_SSL, 1,
-			       ar_ssl);
-    proto_tree_add_uint(arp_tree, hf_arp_opcode, NullTVB, offset + AR_OP,  2,
-			       ar_op);
-    proto_tree_add_uint(arp_tree, hf_atmarp_spln, NullTVB, offset + ATM_AR_SPLN, 1,
-			       ar_spln);
-    proto_tree_add_uint(arp_tree, hf_atmarp_thtl, NullTVB, offset + ATM_AR_THTL, 1,
-			       ar_thtl);
-    proto_tree_add_uint(arp_tree, hf_atmarp_tsl, NullTVB, offset + ATM_AR_TSL, 1,
-			       ar_tsl);
-    proto_tree_add_uint(arp_tree, hf_atmarp_tpln, NullTVB, offset + ATM_AR_TPLN, 1,
-			       ar_tpln);
+    proto_tree_add_uint(arp_tree, hf_arp_hard_type, tvb, ATM_AR_HRD, 2, ar_hrd);
+    proto_tree_add_uint(arp_tree, hf_arp_proto_type, tvb, ATM_AR_PRO, 2,ar_pro);
+    proto_tree_add_uint(arp_tree, hf_atmarp_shtl, tvb, ATM_AR_SHTL, 1, ar_shtl);
+    proto_tree_add_uint(arp_tree, hf_atmarp_ssl, tvb, ATM_AR_SSL, 1, ar_ssl);
+    proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
+    proto_tree_add_uint(arp_tree, hf_atmarp_spln, tvb, ATM_AR_SPLN, 1, ar_spln);
+    proto_tree_add_uint(arp_tree, hf_atmarp_thtl, tvb, ATM_AR_THTL, 1, ar_thtl);
+    proto_tree_add_uint(arp_tree, hf_atmarp_tsl, tvb, ATM_AR_TSL, 1, ar_tsl);
+    proto_tree_add_uint(arp_tree, hf_atmarp_tpln, tvb, ATM_AR_TPLN, 1, ar_tpln);
     if (ar_shl != 0)
-      dissect_atm_number(pd, sha_offset, ar_shtl, hf_atmarp_src_atm_num_e164,
+      dissect_atm_number(tvb, sha_offset, ar_shtl, hf_atmarp_src_atm_num_e164,
 			       hf_atmarp_src_atm_num_nsap, arp_tree);
     if (ar_ssl != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_atmarp_src_atm_subaddr, NullTVB, ssa_offset,
+      proto_tree_add_bytes_format(arp_tree, hf_atmarp_src_atm_subaddr, tvb, ssa_offset,
 			       ar_ssl,
-			       &pd[ssa_offset],
+			       ssa_val,
 			       "Sender ATM subaddress: %s", ssa_str);
     if (ar_spln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_src_proto, NullTVB, spa_offset, ar_spln,
-			       &pd[spa_offset],
+      proto_tree_add_bytes_format(arp_tree, hf_arp_src_proto, tvb, spa_offset, ar_spln,
+			       spa_val,
 			       "Sender protocol address: %s", spa_str);
     if (ar_thl != 0)
-      dissect_atm_number(pd, tha_offset, ar_thtl, hf_atmarp_dst_atm_num_e164,
+      dissect_atm_number(tvb, tha_offset, ar_thtl, hf_atmarp_dst_atm_num_e164,
 			       hf_atmarp_dst_atm_num_nsap, arp_tree);
     if (ar_tsl != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_atmarp_dst_atm_subaddr, NullTVB, tsa_offset,
+      proto_tree_add_bytes_format(arp_tree, hf_atmarp_dst_atm_subaddr, tvb, tsa_offset,
 			       ar_tsl,
-			       &pd[tsa_offset],
+			       tsa_val,
 			       "Target ATM subaddress: %s", tsa_str);
     if (ar_tpln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_proto, NullTVB, tpa_offset, ar_tpln,
-			       &pd[tpa_offset],
+      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_proto, tvb, tpa_offset, ar_tpln,
+			       tpa_val,
 			       "Target protocol address: %s", tpa_str);
   }
 }
 
 static void
-dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16     ar_hrd;
   guint16     ar_pro;
@@ -562,80 +575,81 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   proto_item  *ti;
   gchar       *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
+  guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_arp, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_arp, tvb, pinfo, tree);
 
-  if (!BYTES_ARE_IN_FRAME(offset, MIN_ARP_HEADER_SIZE)) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
+  pinfo->current_proto = "ARP";
 
-  ar_hrd = pntohs(&pd[offset + AR_HRD]);
+  ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   if (ar_hrd == ARPHRD_ATM2225) {
-    dissect_atmarp(pd, offset, fd, tree);
+    dissect_atmarp(tvb, pinfo, tree);
     return;
   }
-  ar_pro = pntohs(&pd[offset + AR_PRO]);
-  ar_hln = (guint8) pd[offset + AR_HLN];
-  ar_pln = (guint8) pd[offset + AR_PLN];
-  ar_op  = pntohs(&pd[offset + AR_OP]);
+  ar_pro = tvb_get_ntohs(tvb, AR_PRO);
+  ar_hln = tvb_get_guint8(tvb, AR_HLN);
+  ar_pln = tvb_get_guint8(tvb, AR_PLN);
+  ar_op  = tvb_get_ntohs(tvb, AR_OP);
 
   tot_len = MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2;
-  if (!BYTES_ARE_IN_FRAME(offset, tot_len)) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
 
   /* Extract the addresses.  */
-  sha_offset = offset + MIN_ARP_HEADER_SIZE;
-  sha_str = arphrdaddr_to_str((guint8 *) &pd[sha_offset], ar_hln, ar_hrd);
+  sha_offset = MIN_ARP_HEADER_SIZE;
+  sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
+  sha_str = arphrdaddr_to_str(sha_val, ar_hln, ar_hrd);
+
   spa_offset = sha_offset + ar_hln;
-  spa_str = arpproaddr_to_str((guint8 *) &pd[spa_offset], ar_pln, ar_pro);
+  spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
+  spa_str = arpproaddr_to_str(spa_val, ar_pln, ar_pro);
+
   tha_offset = spa_offset + ar_pln;
-  tha_str = arphrdaddr_to_str((guint8 *) &pd[tha_offset], ar_hln, ar_hrd);
+  tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
+  tha_str = arphrdaddr_to_str(tha_val, ar_hln, ar_hrd);
+
   tpa_offset = tha_offset + ar_hln;
-  tpa_str = arpproaddr_to_str((guint8 *) &pd[tpa_offset], ar_pln, ar_pro);
+  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
+  tpa_str = arpproaddr_to_str(tpa_val, ar_pln, ar_pro);
   
-  if (check_col(fd, COL_PROTOCOL)) {
+  if (check_col(pinfo->fd, COL_PROTOCOL)) {
     switch (ar_op) {
 
     case ARPOP_REQUEST:
     case ARPOP_REPLY:
     default:
-      col_add_str(fd, COL_PROTOCOL, "ARP");
+      col_add_str(pinfo->fd, COL_PROTOCOL, "ARP");
       break;
 
     case ARPOP_RREQUEST:
     case ARPOP_RREPLY:
-      col_add_str(fd, COL_PROTOCOL, "RARP");
+      col_add_str(pinfo->fd, COL_PROTOCOL, "RARP");
       break;
 
     case ARPOP_IREQUEST:
     case ARPOP_IREPLY:
-      col_add_str(fd, COL_PROTOCOL, "Inverse ARP");
+      col_add_str(pinfo->fd, COL_PROTOCOL, "Inverse ARP");
       break;
     }
   }
 
-  if (check_col(fd, COL_INFO)) {
+  if (check_col(pinfo->fd, COL_INFO)) {
     switch (ar_op) {
       case ARPOP_REQUEST:
-        col_add_fstr(fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
+        col_add_fstr(pinfo->fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
         break;
       case ARPOP_REPLY:
-        col_add_fstr(fd, COL_INFO, "%s is at %s", spa_str, sha_str);
+        col_add_fstr(pinfo->fd, COL_INFO, "%s is at %s", spa_str, sha_str);
         break;
       case ARPOP_RREQUEST:
       case ARPOP_IREQUEST:
-        col_add_fstr(fd, COL_INFO, "Who is %s?  Tell %s", tha_str, sha_str);
+        col_add_fstr(pinfo->fd, COL_INFO, "Who is %s?  Tell %s", tha_str, sha_str);
         break;
       case ARPOP_RREPLY:
       case ARPOP_IREPLY:
-        col_add_fstr(fd, COL_INFO, "%s is at %s", sha_str, spa_str);
+        col_add_fstr(pinfo->fd, COL_INFO, "%s is at %s", sha_str, spa_str);
         break;
       default:
-        col_add_fstr(fd, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
+        col_add_fstr(pinfo->fd, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
         break;
     }
   }
@@ -649,49 +663,44 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     /* add sender address in all cases */
 
-    memcpy(&ip, &pd[spa_offset], sizeof(ip));
-    add_ether_byip(ip, &pd[sha_offset]);
+    tvb_memcpy(tvb, (guint8 *)&ip, spa_offset, sizeof(ip));
+    add_ether_byip(ip, tvb_get_ptr(tvb, sha_offset, 6));
     
     if (ar_op == ARPOP_REQUEST) {
       /* add destination address */
-      memcpy(&ip, &pd[tpa_offset], sizeof(ip));
-      add_ether_byip(ip, &pd[tha_offset]);
+      tvb_memcpy(tvb, (guint8 *)&ip, tpa_offset, sizeof(ip));
+      add_ether_byip(ip, tvb_get_ptr(tvb, tha_offset, 6));
     }
   }
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
-      ti = proto_tree_add_protocol_format(tree, proto_arp, NullTVB, offset, tot_len,
+      ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
 					"Address Resolution Protocol (%s)", op_str);
     else
-      ti = proto_tree_add_protocol_format(tree, proto_arp, NullTVB, offset, tot_len,
+      ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
 				      "Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
-    proto_tree_add_uint(arp_tree, hf_arp_hard_type, NullTVB, offset + AR_HRD, 2,
-			       ar_hrd);
-    proto_tree_add_uint(arp_tree, hf_arp_proto_type, NullTVB, offset + AR_PRO, 2,
-			       ar_pro);
-    proto_tree_add_uint(arp_tree, hf_arp_hard_size, NullTVB, offset + AR_HLN, 1,
-			       ar_hln);
-    proto_tree_add_uint(arp_tree, hf_arp_proto_size, NullTVB, offset + AR_PLN, 1,
-			       ar_pln);
-    proto_tree_add_uint(arp_tree, hf_arp_opcode, NullTVB, offset + AR_OP,  2,
-			       ar_op);
+    proto_tree_add_uint(arp_tree, hf_arp_hard_type, tvb, AR_HRD, 2, ar_hrd);
+    proto_tree_add_uint(arp_tree, hf_arp_proto_type, tvb, AR_PRO, 2, ar_pro);
+    proto_tree_add_uint(arp_tree, hf_arp_hard_size, tvb, AR_HLN, 1, ar_hln);
+    proto_tree_add_uint(arp_tree, hf_arp_proto_size, tvb, AR_PLN, 1, ar_pln);
+    proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
     if (ar_hln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_src_ether, NullTVB, sha_offset, ar_hln,
-			       &pd[sha_offset],
+      proto_tree_add_bytes_format(arp_tree, hf_arp_src_ether, tvb, sha_offset, ar_hln,
+			       sha_val,
 			       "Sender hardware address: %s", sha_str);
     if (ar_pln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_src_proto, NullTVB, spa_offset, ar_pln,
-			       &pd[spa_offset],
+      proto_tree_add_bytes_format(arp_tree, hf_arp_src_proto, tvb, spa_offset, ar_pln,
+			       spa_val,
 			       "Sender protocol address: %s", spa_str);
     if (ar_hln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_ether, NullTVB, tha_offset, ar_hln,
-			       &pd[tha_offset],
+      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_ether, tvb, tha_offset, ar_hln,
+			       tha_val,
 			       "Target hardware address: %s", tha_str);
     if (ar_pln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_proto, NullTVB, tpa_offset, ar_pln,
-			       &pd[tpa_offset],
+      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_proto, tvb, tpa_offset, ar_pln,
+			       tpa_val,
 			       "Target protocol address: %s", tpa_str);
   }
 }
@@ -818,6 +827,6 @@ proto_register_arp(void)
 void
 proto_reg_handoff_arp(void)
 {
-	old_dissector_add("ethertype", ETHERTYPE_ARP, dissect_arp);
-	old_dissector_add("ethertype", ETHERTYPE_REVARP, dissect_arp);
+  dissector_add("ethertype", ETHERTYPE_ARP, dissect_arp);
+  dissector_add("ethertype", ETHERTYPE_REVARP, dissect_arp);
 }

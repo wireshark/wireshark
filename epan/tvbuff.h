@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.5 2000/11/11 19:55:48 guy Exp $
+ * $Id: tvbuff.h,v 1.6 2000/11/13 07:19:37 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -324,6 +324,12 @@ gint tvb_strneql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size);
 
 /* Call strncasecmp after checking if enough chars left, otherwise return -1 */
 gint tvb_strncaseeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size);
+
+/*
+ * Format a bunch of data from a tvbuff as bytes, returning a pointer
+ * to the string with the formatted data.
+ */
+gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
 
 /************** END OF ACCESSORS ****************/
 

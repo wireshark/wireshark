@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.5 2000/11/10 06:50:37 guy Exp $
+ * $Id: strutil.c,v 1.6 2000/11/13 07:19:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -237,4 +237,42 @@ format_text(const u_char *string, int len)
   }
   fmtbuf[column] = '\0';
   return fmtbuf;
+}
+
+/* Max string length for displaying byte string.  */
+#define	MAX_BYTE_STR_LEN	32
+
+/* Turn an array of bytes into a string showing the bytes in hex. */
+#define	N_BYTES_TO_STR_STRINGS	6
+gchar *
+bytes_to_str(const guint8 *bd, int bd_len) {
+  static gchar  str[N_BYTES_TO_STR_STRINGS][MAX_BYTE_STR_LEN+3+1];
+  static int    cur_idx;
+  gchar        *cur;
+  gchar        *p;
+  int           len;
+  static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+  cur_idx++;
+  if (cur_idx >= N_BYTES_TO_STR_STRINGS)
+    cur_idx = 0;
+  cur = &str[cur_idx][0];
+  p = cur;
+  len = MAX_BYTE_STR_LEN;
+  while (bd_len > 0 && len > 0) {
+    *p++ = hex[(*bd) >> 4];
+    *p++ = hex[(*bd) & 0xF];
+    len -= 2;
+    bd++;
+    bd_len--;
+  }
+  if (bd_len != 0) {
+    /* Note that we're not showing the full string.  */
+    *p++ = '.';
+    *p++ = '.';
+    *p++ = '.';
+  }
+  *p = '\0';
+  return cur;
 }

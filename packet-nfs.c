@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.37 2000/08/27 02:03:31 guy Exp $
+ * $Id: packet-nfs.c,v 1.38 2000/11/13 07:18:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -416,7 +416,7 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 
 		hash_item = proto_tree_add_text(tree, tvb, 4, hashlen + 1,
 				"hash path: %s",
-				bytes_to_str(tvb_get_ptr(tvb,5,hashlen),hashlen));
+				tvb_bytes_to_str(tvb,5,hashlen));
 		if (hash_item) {
 			hash_tree = proto_item_add_subtree(hash_item, 
 					ett_nfs_fh_hp);
@@ -425,7 +425,7 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 					hf_nfs_fh_hp_len, tvb, 4, 1, hashlen);
 				proto_tree_add_text(hash_tree, tvb, 5, hashlen,
 					"key: %s",
-					bytes_to_str(tvb_get_ptr(tvb,5,hashlen),hashlen));
+					tvb_bytes_to_str(tvb,5,hashlen));
 			}
 		}
 	}
@@ -454,7 +454,7 @@ dissect_fhandle_data_unknown(tvbuff_t *tvb, proto_tree *tree, int fhlen)
 					"%s%s",
 					first_line ? "data: " :
 					             "      ",
-					bytes_to_str(tvb_get_ptr(tvb,offset,sublen),sublen));
+					tvb_bytes_to_str(tvb,offset,sublen));
 		bytes_left -= sublen;
 		offset += sublen;
 		first_line = FALSE;

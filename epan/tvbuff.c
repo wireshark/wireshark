@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.7 2000/11/12 00:59:09 guy Exp $
+ * $Id: tvbuff.c,v 1.8 2000/11/13 07:19:35 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1467,4 +1467,14 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 		}
 	}
 	return linelen;
+}
+
+/*
+ * Format a bunch of data from a tvbuff as bytes, returning a pointer
+ * to the string with the formatted data.
+ */
+gchar *
+tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len)
+{
+	return bytes_to_str(tvb_get_ptr(tvb, offset, len), len);
 }

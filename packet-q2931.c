@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.11 2000/08/13 14:08:42 deniel Exp $
+ * $Id: packet-q2931.c,v 1.12 2000/11/13 07:18:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -363,7 +363,7 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, int offset, int len,
 			len = 4;
 		proto_tree_add_text(tree, tvb, offset, len,
 		    "User defined AAL information: %s",
-		    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+		    tvb_bytes_to_str(tvb, offset, len));
 		return;
 	}
 
@@ -1153,7 +1153,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		case Q2931_REJ_USER_SPECIFIC:
 			proto_tree_add_text(tree, tvb, offset, len,
 			    "User specific diagnostic: %s",
-			    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+			    tvb_bytes_to_str(tvb, offset, len));
 			break;
 
 		case Q2931_REJ_IE_MISSING:
@@ -1173,7 +1173,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		default:
 			proto_tree_add_text(tree, tvb, offset, len,
 			    "Diagnostic: %s",
-			    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+			    tvb_bytes_to_str(tvb, offset, len));
 			break;
 		}
 		break;
@@ -1249,7 +1249,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 	default:
 		proto_tree_add_text(tree, tvb, offset, len,
 		    "Diagnostics: %s",
-		    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+		    tvb_bytes_to_str(tvb, offset, len));
 	}
 }
 
@@ -1385,17 +1385,17 @@ dissect_q2931_number_ie(tvbuff_t *tvb, int offset, int len,
 		if (len < 20) {
 			proto_tree_add_text(tree, tvb, offset, len,
 			    "Number (too short): %s",
-			    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+			    tvb_bytes_to_str(tvb, offset, len));
 			return;
 		}
 		ti = proto_tree_add_text(tree, tvb, offset, len, "Number");
 		nsap_tree = proto_item_add_subtree(ti, ett_q2931_nsap);
-		dissect_atm_nsap(tvb_get_ptr(tvb, 0, -1), offset, len, nsap_tree);
+		dissect_atm_nsap(tvb, offset, len, nsap_tree);
 		break;
 
 	default:
 		proto_tree_add_text(tree, tvb, offset, len, "Number: %s",
-		    bytes_to_str(tvb_get_ptr(tvb, 0, -1), len));
+		    tvb_bytes_to_str(tvb, offset, len));
 		break;
 	}
 }
@@ -1439,7 +1439,7 @@ dissect_q2931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	proto_tree_add_text(tree, tvb, offset, len, "Subaddress: %s",
-	    bytes_to_str(tvb_get_ptr(tvb, offset, len), len));
+	    tvb_bytes_to_str(tvb, offset, len));
 }
 
 /*
@@ -1965,7 +1965,7 @@ dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 		 * dump it as data and be done with it.
 		 */
 		proto_tree_add_text(ie_tree, tvb, offset + 4,  len,
-		    "Data: %s", bytes_to_str(tvb_get_ptr(tvb, offset + 4, len), len));
+		    "Data: %s", tvb_bytes_to_str(tvb, offset + 4, len));
 	}
 }
 

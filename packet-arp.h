@@ -2,7 +2,7 @@
  * Definitions of routines for ARP packet disassembly that are used
  * elsewhere
  *
- * $Id: packet-arp.h,v 1.3 2000/04/16 22:59:36 guy Exp $
+ * $Id: packet-arp.h,v 1.4 2000/11/13 07:18:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,6 @@
 gchar *arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type);
 gchar *arphrdtype_to_str(guint16 hwtype, const char *fmt);
 
-void dissect_atm_nsap(const u_char *pd, int offset, int len, proto_tree *tree);
+void dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree);
 
 #endif /* packet-atm.h */

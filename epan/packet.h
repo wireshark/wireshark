@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.3 2000/11/01 08:31:35 guy Exp $
+ * $Id: packet.h,v 1.4 2000/11/13 07:19:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -259,7 +259,6 @@ gchar*     ipx_addr_to_str(guint32, const guint8 *);
 gchar*	   abs_time_to_str(struct timeval*);
 gchar*	   rel_time_to_str(struct timeval*);
 gchar*     time_secs_to_str(guint32);
-gchar*     bytes_to_str(const guint8 *, int);
 gchar*     val_to_str(guint32, const value_string *, const char *);
 gchar*     match_strval(guint32, const value_string*);
 char * decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width);

@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.23 2000/11/13 04:26:53 guy Exp $
+ * $Id: packet-aarp.c,v 1.24 2000/11/13 07:18:37 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include "packet.h"
+#include "strutil.h"
 #include "etypes.h"
 
 static int proto_aarp = -1;

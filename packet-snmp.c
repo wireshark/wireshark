@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.51 2000/10/21 18:52:17 guy Exp $
+ * $Id: packet-snmp.c,v 1.52 2000/11/13 07:18:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,7 @@
 #include <glib.h>
 
 #include "packet.h"
+#include "strutil.h"
 #include "conversation.h"
 #include "etypes.h"
 #include "packet-ipx.h"

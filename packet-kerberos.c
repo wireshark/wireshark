@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.4 2000/09/06 19:05:41 gram Exp $
+ * $Id: packet-kerberos.c,v 1.5 2000/11/13 07:18:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,8 @@
 #include <glib.h>
 
 #include "packet.h"
+
+#include "strutil.h"
 
 #include "asn1.h"
 

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.2 2000/11/03 17:26:47 nneul Exp $
+ * $Id: proto.c,v 1.3 2000/11/13 07:19:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #endif
 
 #include "packet.h"
+#include "strutil.h"
 #include "resolv.h"
 #include "register.h"
 #include "packet-ipv6.h"

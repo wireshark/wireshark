@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.24 2000/08/13 14:08:02 deniel Exp $
+ * $Id: packet-atm.c,v 1.25 2000/11/13 07:18:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -328,7 +328,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 8;
 
     proto_tree_add_text(lane_tree, tvb, offset, 20, "Source ATM Address: %s",
-			bytes_to_str(tvb_get_ptr(tvb, offset, 20), 20));
+			tvb_bytes_to_str(tvb, offset, 20));
     offset += 20;
 
     proto_tree_add_text(lane_tree, tvb, offset, 1, "LAN type: %s",
@@ -350,11 +350,11 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
 
     proto_tree_add_text(lane_tree, tvb, offset, 20, "Target ATM Address: %s",
-			bytes_to_str(tvb_get_ptr(tvb, offset, 20), 20));
+			tvb_bytes_to_str(tvb, offset, 20));
     offset += 20;
 
     proto_tree_add_text(lane_tree, tvb, offset, 32, "ELAN name: %s",
-			bytes_to_str(tvb_get_ptr(tvb, offset, 32), 32));
+			tvb_bytes_to_str(tvb, offset, 32));
     offset += 32;
 
     while (num_tlvs != 0) {

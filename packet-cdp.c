@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.25 2000/08/13 14:08:04 deniel Exp $
+ * $Id: packet-cdp.c,v 1.26 2000/11/13 07:18:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "strutil.h"
 #include "nlpid.h"
 
 /*
