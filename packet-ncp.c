@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.56 2002/05/09 23:50:25 gram Exp $
+ * $Id: packet-ncp.c,v 1.57 2002/05/11 18:58:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -258,10 +258,16 @@ proto_register_ncp(void)
   static gint *ett[] = {
     &ett_ncp,
   };
+  module_t *ncp_module;
 
   proto_ncp = proto_register_protocol("NetWare Core Protocol", "NCP", "ncp");
   proto_register_field_array(proto_ncp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* Register an obsolete configuration option for what used to be the
+     initial size of the NCP hash. */
+  ncp_module = prefs_register_protocol_obsolete(proto_ncp);
+  prefs_register_obsolete_preference(ncp_module, "initial_hash_size");
 }
 
 void

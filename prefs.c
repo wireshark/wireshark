@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.81 2002/03/31 21:05:11 guy Exp $
+ * $Id: prefs.c,v 1.82 2002/05/11 18:58:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,7 @@ prefs_register_module(const char *name, const char *title,
 	module->prefs = NULL;	/* no preferences, to start */
 	module->numprefs = 0;
 	module->prefs_changed = FALSE;
+	module->obsolete = FALSE;
 
 	/*
 	 * Make sure that only lower-case ASCII letters, numbers,
@@ -162,6 +163,22 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
 }
 
 /*
+ * Register that a protocol used to have preferences but no longer does,
+ * by creating an "obsolete" module for it.
+ */
+module_t *
+prefs_register_protocol_obsolete(int id)
+{
+	module_t *module;
+
+	module = prefs_register_module(proto_get_protocol_filter_name(id),
+				       proto_get_protocol_short_name(id),
+				       NULL);
+	module->obsolete = TRUE;
+	return module;
+}
+
+/*
  * Find a module, given its name.
  */
 static gint
@@ -195,11 +212,15 @@ do_module_callback(gpointer data, gpointer user_data)
 	module_t *module = data;
 	module_cb_arg_t *arg = user_data;
 
-	(*arg->callback)(module, arg->user_data);
+	if (!module->obsolete)
+		(*arg->callback)(module, arg->user_data);
 }
 
 /*
  * Call a callback function, with a specified argument, for each module.
+ * Ignores "obsolete" modules; their sole purpose is to allow old
+ * preferences for dissectors that no longer have preferences to be
+ * silently ignored in preference files.
  */
 void
 prefs_module_foreach(module_cb callback, gpointer user_data)
@@ -216,6 +237,8 @@ call_apply_cb(gpointer data, gpointer user_data _U_)
 {
 	module_t *module = data;
 
+	if (module->obsolete)
+		return;
 	if (module->prefs_changed) {
 		if (module->apply_cb != NULL)
 			(*module->apply_cb)();
@@ -314,7 +337,9 @@ find_preference(module_t *module, const char *name)
 gboolean
 prefs_is_registered_protocol(char *name)
 {
-	return (find_module(name) != NULL);
+	module_t *m = find_module(name);
+	
+	return (m != NULL && !m->obsolete);
 }
 
 /*
@@ -324,7 +349,8 @@ const char *
 prefs_get_title_by_name(char *name)
 {
 	module_t *m = find_module(name);
-	return  (m) ? m->title : NULL;
+
+	return (m != NULL && !m->obsolete) ? m->title : NULL;
 }
 
 /*

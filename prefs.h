@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.37 2002/01/13 20:35:08 guy Exp $
+ * $Id: prefs.h,v 1.38 2002/05/11 18:58:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,7 +106,16 @@ typedef void (*module_cb)(module_t *module, gpointer user_data);
 extern module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 
 /*
+ * Register that a protocol used to have preferences but no longer does,
+ * by creating an "obsolete" module for it.
+ */
+extern module_t *prefs_register_protocol_obsolete(int id);
+
+/*
  * Call a callback function, with a specified argument, for each module.
+ * Ignores "obsolete" modules; their sole purpose is to allow old
+ * preferences for dissectors that no longer have preferences to be
+ * silently ignored in preference files.
  */
 extern void prefs_module_foreach(module_cb callback, gpointer user_data);
 

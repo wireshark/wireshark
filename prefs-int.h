@@ -2,7 +2,7 @@
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *
- * $Id: prefs-int.h,v 1.4 2001/11/04 02:50:19 guy Exp $
+ * $Id: prefs-int.h,v 1.5 2002/05/11 18:58:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,8 @@ struct pref_module {
 	GList	*prefs;		/* list of its preferences */
 	int	numprefs;	/* number of preferences */
 	gboolean prefs_changed;	/* if TRUE, a preference has changed since we last checked */
+	gboolean obsolete;	/* if TRUE, this is a module that used to
+				   exist but no longer does */
 };
 
 /*
