@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.48 2002/05/27 09:50:57 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.49 2002/05/31 00:31:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3974,7 +3974,7 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSAFUNCTION_3B, "LSAFUNCTION_3B",
 		lsa_dissect_lsafunction_3b_rqst,
 		lsa_dissect_lsafunction_3b_reply },
-	{0, NULL, NULL, NULL},
+	{0, NULL, NULL, NULL}
 };
 
 void 
@@ -4291,9 +4291,7 @@ proto_register_dcerpc_lsa(void)
 
 	{ &hf_lsa_remove_all,
 		{ "Remove All", "lsa.remove_all", FT_UINT8, BASE_DEC, 
-		NULL, 0x0, "Flag whether all rights should be removed or only the specified ones", HFILL }},
-
-
+		NULL, 0x0, "Flag whether all rights should be removed or only the specified ones", HFILL }}
 	};
 
         static gint *ett[] = {
@@ -4328,7 +4326,7 @@ proto_register_dcerpc_lsa(void)
 		&ett_lsa_trusted_domain_info,
 		&ett_lsa_trust_attr,
 		&ett_lsa_trusted_domain_auth_information,
-		&ett_lsa_auth_information,
+		&ett_lsa_auth_information
         };
 
         proto_dcerpc_lsa = proto_register_protocol(

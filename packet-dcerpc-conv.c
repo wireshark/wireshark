@@ -2,7 +2,7 @@
  * Routines for dcerpc conv dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-conv.c,v 1.2 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc-conv.c,v 1.3 2002/05/31 00:31:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,7 @@ static dcerpc_sub_dissector conv_dissectors[] = {
     { 2, "conv_are_you_there", NULL, NULL },
     { 3, "conv_who_are_you_auth", NULL, NULL },
     { 4, "conv_who_are_you_auth_more", NULL, NULL },
-    { 0, NULL, NULL, NULL },
+    { 0, NULL, NULL, NULL }
 };
 
 
@@ -67,7 +67,7 @@ proto_register_conv (void)
 #endif
 
 	static gint *ett[] = {
-		&ett_conv,
+		&ett_conv
 	};
 	proto_conv = proto_register_protocol ("DCE/RPC Conversation Manager", "CONV", "conv");
 #if 0

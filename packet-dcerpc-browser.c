@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.4 2002/05/30 10:06:58 sahlberg Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.5 2002/05/31 00:31:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1126,7 +1126,7 @@ static dcerpc_sub_dissector dcerpc_browser_dissectors[] = {
 		dissect_browser_UNKNOWN_0b_rqst,
 		dissect_browser_UNKNOWN_0b_reply },
 
-        {0, NULL, NULL,  NULL },
+        {0, NULL, NULL,  NULL }
 };
 
 void 
@@ -1151,11 +1151,11 @@ static hf_register_info hf[] = {
 
 	{ &hf_browser_unknown_string, { 
 		"Unknown string", "rpc_browser.unknown.string", FT_STRING, BASE_HEX, 
-		NULL, 0x0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
+		NULL, 0x0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }}
 
 	};
         static gint *ett[] = {
-                &ett_dcerpc_browser,
+                &ett_dcerpc_browser
         };
 
         proto_dcerpc_browser = proto_register_protocol(

@@ -2,7 +2,7 @@
  * Routines for dcerpc nspi dissection
  * Copyright 2001, Todd Sabin <tsabin@optonline.net>
  *
- * $Id: packet-dcerpc-nspi.c,v 1.1 2002/05/23 23:45:22 guy Exp $
+ * $Id: packet-dcerpc-nspi.c,v 1.2 2002/05/31 00:31:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,7 @@ static dcerpc_sub_dissector nspi_dissectors[] = {
     { 17, "NspiGetNamesFromIDs", NULL, NULL },
     { 18, "NspiGetIDsFromNames", NULL, NULL },
     { 19, "NspiResolveNames", NULL, NULL },
-    { 0, NULL, NULL, NULL },
+    { 0, NULL, NULL, NULL }
 };
 
 
@@ -73,7 +73,7 @@ void
 proto_register_nspi (void)
 {
    static gint *ett[] = {
-       &ett_nspi,
+       &ett_nspi
    };
    proto_nspi = proto_register_protocol ("NSPI", "NSPI", "nspi");
    proto_register_subtree_array (ett, array_length (ett));

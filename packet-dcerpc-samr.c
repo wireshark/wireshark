@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.46 2002/05/27 09:50:57 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.47 2002/05/31 00:31:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4287,7 +4287,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_UNKNOWN_3C, "Unknown 0x3c", 
 		samr_dissect_unknown_3c_rqst,
 		samr_dissect_unknown_3c_reply },
-        {0, NULL, NULL,  NULL },
+        {0, NULL, NULL,  NULL }
 };
 
 void 
@@ -4599,7 +4599,7 @@ proto_register_dcerpc_samr(void)
 
 	{ &hf_nt_acb_autolock, {
 		"", "nt.acb.autolock", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_acb_autolock), 0x0400, "If this account has been autolocked", HFILL }},
+		TFS(&tfs_nt_acb_autolock), 0x0400, "If this account has been autolocked", HFILL }}
         };
         static gint *ett[] = {
                 &ett_dcerpc_samr,
@@ -4653,7 +4653,7 @@ proto_register_dcerpc_samr(void)
                 &ett_samr_rids,
                 &ett_samr_sid_and_attributes_array,
                 &ett_samr_sid_and_attributes,
-                &ett_nt_acct_ctrl,
+                &ett_nt_acct_ctrl
         };
 
         proto_dcerpc_samr = proto_register_protocol(

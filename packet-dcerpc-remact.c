@@ -2,7 +2,7 @@
  * Routines for DCOM Remote Activation
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-remact.c,v 1.3 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc-remact.c,v 1.4 2002/05/31 00:31:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ proto_register_remact (void)
 #endif
 
 	static gint *ett[] = {
-		&ett_remact,
+		&ett_remact
 	};
 	proto_remact = proto_register_protocol ("DCOM Remote Activation", "REMACT", "remact");
 #if 0

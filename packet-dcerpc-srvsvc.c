@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.12 2002/05/30 00:20:32 tpot Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.13 2002/05/31 00:31:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -575,7 +575,7 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
         { SRV_NETFILEQUERYSECDESC, "SRV_NETFILEQUERYSECDESC", NULL, NULL },
         { SRV_NETFILESETSECDESC, "SRV_NETFILESETSECDESC", NULL, NULL },
 
-        {0, NULL, NULL,  NULL },
+        {0, NULL, NULL,  NULL }
 };
 
 static const value_string platform_id_vals[] = {
@@ -664,13 +664,13 @@ proto_register_dcerpc_srvsvc(void)
 	      BASE_DEC, NULL, 0x0, "Preferred Length", HFILL}},
 	  { &hf_srvsvc_enum_handle, 
 	    { "Enumeration handle", "srvsvc.enum_hnd", FT_BYTES,
-	      BASE_HEX, NULL, 0x0, "Enumeration Handle", HFILL}},
+	      BASE_HEX, NULL, 0x0, "Enumeration Handle", HFILL}}
 	};
 
         static gint *ett[] = {
                 &ett_dcerpc_srvsvc,
 		&ett_srvsvc_server_info,
-		&ett_srvsvc_share_info,
+		&ett_srvsvc_share_info
         };
 
         proto_dcerpc_srvsvc = proto_register_protocol(

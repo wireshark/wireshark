@@ -2,7 +2,7 @@
  * Routines for DCOM OXID Resolver
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-oxid.c,v 1.2 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc-oxid.c,v 1.3 2002/05/31 00:31:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,6 @@
 #include "config.h"
 #endif
 
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -38,14 +37,12 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
-
 static int proto_oxid = -1;
 
 static gint ett_oxid = -1;
 
 static e_uuid_t uuid_oxid = { 0x99fcfec4, 0x5260, 0x101b, { 0xbb, 0xcb, 0x00, 0xaa, 0x00, 0x21, 0x34, 0x7a } };
 static guint16  ver_oxid = 0;
-
 
 static dcerpc_sub_dissector oxid_dissectors[] = {
     { 0, "ResolveOxid", NULL, NULL },
@@ -54,7 +51,6 @@ static dcerpc_sub_dissector oxid_dissectors[] = {
     { 3, "ServerAlive", NULL, NULL },
     { 0, NULL, NULL, NULL },
 };
-
 
 void
 proto_register_oxid (void)
@@ -65,7 +61,7 @@ proto_register_oxid (void)
 #endif
 
 	static gint *ett[] = {
-		&ett_oxid,
+		&ett_oxid
 	};
 	proto_oxid = proto_register_protocol ("DCOM OXID Resolver", "OXID", "oxid");
 #if 0

@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\winreg packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.3 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.4 2002/05/31 00:31:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,14 +89,14 @@ static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { REG_ABORT_SHUTDOWN, "REG_ABORT_SHUTDOWN", NULL, NULL },
         { REG_UNK_1A, "REG_UNK_1A", NULL, NULL },
 
-        {0, NULL, NULL,  NULL },
+        { 0, NULL, NULL,  NULL }
 };
 
 void 
 proto_register_dcerpc_reg(void)
 {
         static gint *ett[] = {
-                &ett_dcerpc_reg,
+                &ett_dcerpc_reg
         };
 
         proto_dcerpc_reg = proto_register_protocol(

@@ -2,7 +2,7 @@
  * Routines for dcerpc mgmt dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-mgmt.c,v 1.2 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc-mgmt.c,v 1.3 2002/05/31 00:31:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,7 @@ static dcerpc_sub_dissector mgmt_dissectors[] = {
     { 2, "rpc__mgmt_is_server_listening", NULL, NULL },
     { 3, "rpc__mgmt_stop_server_listening", NULL, NULL },
     { 4, "rpc__mgmt_inq_princ_name", NULL, NULL },
-    { 0, NULL, NULL, NULL },
+    { 0, NULL, NULL, NULL }
 };
 
 
@@ -67,7 +67,7 @@ proto_register_mgmt (void)
 #endif
 
 	static gint *ett[] = {
-		&ett_mgmt,
+		&ett_mgmt
 	};
 	proto_mgmt = proto_register_protocol ("DCE/RPC Remote Management", "MGMT", "mgmt");
 #if 0

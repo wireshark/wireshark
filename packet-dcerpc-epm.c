@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.9 2002/05/28 11:45:56 sahlberg Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.10 2002/05/31 00:31:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -367,7 +367,7 @@ static dcerpc_sub_dissector epm_dissectors[] = {
     { 4, "ept_lookup_handle_free", NULL, NULL },
     { 5, "ept_inq_object", NULL, NULL },
     { 6, "ept_mgmt_delete", NULL, NULL },
-    { 0, NULL, NULL, NULL },
+    { 0, NULL, NULL, NULL }
 };
 
 
@@ -416,12 +416,12 @@ proto_register_epm (void)
         { &hf_epm_tower_lhs_len,
           { "LHS Length", "epm.tower.lhs.len", FT_UINT16, BASE_DEC, NULL, 0x0, "Length of LHS data", HFILL }},
         { &hf_epm_tower_proto_id,
-          { "Protocol", "epm.tower.proto_id", FT_UINT8, BASE_HEX, VALS(proto_id_vals), 0x0, "Protocol identifier", HFILL }},
+          { "Protocol", "epm.tower.proto_id", FT_UINT8, BASE_HEX, VALS(proto_id_vals), 0x0, "Protocol identifier", HFILL }}
     };
 
 	static gint *ett[] = {
 		&ett_epm,
-		&ett_epm_tower_floor,
+		&ett_epm_tower_floor
 	};
 	proto_epm = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
 	proto_register_field_array (proto_epm, hf, array_length (hf));

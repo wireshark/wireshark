@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.21 2002/05/10 23:20:38 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.22 2002/05/31 00:31:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5144,7 +5144,7 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_DSRDEREGISTERDNSHOSTRECORDS, "DSRDEREGISTERDNSHOSTRECORDS",
 		netlogon_dissect_dsrderegisterdnshostrecords_rqst,
 		netlogon_dissect_dsrderegisterdnshostrecords_reply },
-        {0, NULL, NULL,  NULL },
+        {0, NULL, NULL,  NULL }
 };
 
 void 
@@ -5492,7 +5492,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_pwd_must_change_time,
 		{ "PWD Must Change", "netlogon.pwd_must_change_time", FT_ABSOLUTE_TIME, BASE_NONE,
-		NULL, 0, "When this users password must be changed", HFILL }},
+		NULL, 0, "When this users password must be changed", HFILL }}
 
 	};
 
@@ -5556,7 +5556,7 @@ static hf_register_info hf[] = {
 		&ett_USER_SESSION_KEY,
 		&ett_BLOB,
 		&ett_rid_array,
-		&ett_attrib_array,
+		&ett_attrib_array
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(

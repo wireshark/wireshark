@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.8 2002/05/27 09:50:57 sahlberg Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.9 2002/05/31 00:31:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -360,7 +360,7 @@ static dcerpc_sub_dissector dcerpc_mapi_dissectors[] = {
 		mapi_unknown_02_request,
 		mapi_unknown_02_reply },
 
-        {0, NULL, NULL,  NULL },
+        {0, NULL, NULL,  NULL }
 };
 
 void 
@@ -418,14 +418,13 @@ static hf_register_info hf[] = {
 
 	{ &hf_mapi_pdu_extra_trailer,
 		{ "unknown", "mapi.pdu.extra_trailer", FT_BYTES, BASE_HEX, 
-		NULL, 0x0, "If you know what this is, contact ethereal developers", HFILL }},
-
+		NULL, 0x0, "If you know what this is, contact ethereal developers", HFILL }}
 	};
 
 
         static gint *ett[] = {
                 &ett_dcerpc_mapi,
-                &ett_mapi_decrypted_pdu,
+                &ett_mapi_decrypted_pdu
         };
 	module_t *mapi_module;
 

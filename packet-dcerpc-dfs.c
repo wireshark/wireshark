@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dfs.c,v 1.2 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc-dfs.c,v 1.3 2002/05/31 00:31:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,14 +49,14 @@ static dcerpc_sub_dissector dcerpc_dfs_dissectors[] = {
         { DFS_GET_INFO, "DFS_GET_INFO", NULL, NULL },
         { DFS_ENUM, "DFS_ENUM", NULL, NULL },
 
-        {0, NULL, NULL,  NULL },
+        {0, NULL, NULL,  NULL }
 };
 
 void 
 proto_register_dcerpc_dfs(void)
 {
         static gint *ett[] = {
-                &ett_dcerpc_dfs,
+                &ett_dcerpc_dfs
         };
 
         proto_dcerpc_dfs = proto_register_protocol(
