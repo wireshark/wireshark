@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.187 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: capture.c,v 1.188 2002/08/13 18:12:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1319,9 +1319,9 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
   case PD_PIPE_ERR:
     snprintf(errmsg, errmsgl, "Error reading from pipe: %s",
       strerror(errno));
+    /* Fall through */
   case PD_ERR:
-    /* Fall out */
-
+    break;
   }
 
   ld->pipe_err = PIPERR;
