@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.9 1998/10/28 21:38:07 gerald Exp $
+ * $Id: ethereal.c,v 1.10 1998/10/29 15:58:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -386,11 +386,11 @@ main(int argc, char *argv[])
   cf.snap      = 68;
   cf.count     = 0;
 
-  read_prefs();
-    
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
 
+  read_prefs();
+    
   /* Now get our args */
   while ((opt = getopt(argc, argv, "b:B:c:hi:m:nP:r:s:t:T:w:v")) != EOF) {
     switch (opt) {

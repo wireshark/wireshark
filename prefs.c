@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.8 1998/10/28 21:38:09 gerald Exp $
+ * $Id: prefs.c,v 1.9 1998/10/29 15:59:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,9 @@
 
 #include <gtk/gtk.h>
 
+#include <ctype.h>
+#include <errno.h>
+
 #include "ethereal.h"
 #include "packet.h"
 #include "file.h"
@@ -42,7 +45,7 @@
 #include "util.h"
 
 /* Internal functions */
-static int  set_prefs(gchar*, gchar*);
+static int  set_pref(gchar*, gchar*);
 static void write_prefs();
 static void prefs_main_ok_cb(GtkWidget *, gpointer);
 static void prefs_main_save_cb(GtkWidget *, gpointer);
@@ -204,8 +207,10 @@ read_prefs() {
   }
     
   if ((pf = fopen(pf_path, "r")) == NULL) {
-    simple_dialog(ESD_TYPE_WARN, NULL,
-      "Can't open preferences file\n\"%s\".");
+    if (errno != ENOENT) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Can't open preferences file\n\"%s\".", pf_path);
+    }
     return;
   }
     
@@ -333,7 +338,7 @@ write_prefs() {
     
   if ((pf = fopen(pf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_WARN, NULL,
-      "Can't open preferences file\n\"%s\".");
+      "Can't open preferences file\n\"%s\".", pf_path);
    return;
  }
     
