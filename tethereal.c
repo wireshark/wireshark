@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.226 2004/01/25 01:19:48 guy Exp $
+ * $Id: tethereal.c,v 1.227 2004/01/25 21:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -173,8 +173,8 @@ static void show_capture_file_io_error(const char *, int, gboolean);
 static void wtap_dispatch_cb_print(guchar *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const guchar *);
 static void show_print_file_io_error(int err);
-static char *cf_open_error_message(int err, gboolean for_writing,
-    int file_type);
+static char *cf_open_error_message(int err, gchar *err_info,
+    gboolean for_writing, int file_type);
 #ifdef HAVE_LIBPCAP
 #ifndef _WIN32
 static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
@@ -1814,7 +1814,7 @@ capture(int out_file_type)
 
     if (ld.pdh == NULL) {
       snprintf(errmsg, sizeof errmsg,
-	       cf_open_error_message(err, TRUE, out_file_type),
+	       cf_open_error_message(err, NULL, TRUE, out_file_type),
 	       *cfile.save_file == '\0' ? "stdout" : cfile.save_file);
       goto error;
     }
@@ -2206,6 +2206,7 @@ load_cap_file(capture_file *cf, int out_file_type)
   int          snapshot_length;
   wtap_dumper *pdh;
   int          err;
+  gchar        *err_info;
   int          success;
   cb_args_t    args;
 
@@ -2261,25 +2262,25 @@ load_cap_file(capture_file *cf, int out_file_type)
     args.cf = cf;
     args.pdh = pdh;
     success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_write, (guchar *) &args,
- 			&err);
-
-    /* Now close the capture file. */
-    if (!wtap_dump_close(pdh, &err))
-      show_capture_file_io_error(cfile.save_file, err, TRUE);
+ 			&err, &err_info);
   } else {
-    args.cf = cf;
-    args.pdh = NULL;
     print_preamble(stdout, print_format);
     if (ferror(stdout)) {
       err = errno;
       show_print_file_io_error(err);
       goto out;
     }
+    args.cf = cf;
+    args.pdh = NULL;
     success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_print, (guchar *) &args,
- 			&err);
+ 			&err, &err_info);
   }
   if (success) {
-    if (cf->save_file == NULL) {
+    if (cf->save_file != NULL) {
+      /* Now close the capture file. */
+      if (!wtap_dump_close(args.pdh, &err))
+        show_capture_file_io_error(cfile.save_file, err, TRUE);
+    } else {
       print_finale(stdout, print_format);
       if (ferror(stdout)) {
         err = errno;
@@ -2287,14 +2288,13 @@ load_cap_file(capture_file *cf, int out_file_type)
       }
     }
   } else {
-    /* Print up a message box noting that the read failed somewhere along
-       the line. */
+    /* Print a message noting that the read failed somewhere along the line. */
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       fprintf(stderr,
-"tethereal: \"%s\" is a capture file is for a network type that Tethereal doesn't support.\n",
-	cf->filename);
+"tethereal: \"%s\" is a capture file is for a network type that Tethereal doesn't support.\n(%s)\n",
+	cf->filename, err_info);
       break;
 
     case WTAP_ERR_CANT_READ:
@@ -2311,8 +2311,8 @@ load_cap_file(capture_file *cf, int out_file_type)
 
     case WTAP_ERR_BAD_RECORD:
       fprintf(stderr,
-"tethereal: \"%s\" appears to be damaged or corrupt.\n",
-	cf->filename);
+"tethereal: \"%s\" appears to be damaged or corrupt.\n(%s)\n",
+	cf->filename, err_info);
       break;
 
     default:
@@ -2320,6 +2320,11 @@ load_cap_file(capture_file *cf, int out_file_type)
 "tethereal: An error occurred while reading \"%s\": %s.\n",
 	cf->filename, wtap_strerror(err));
       break;
+    }
+    if (cf->save_file != NULL) {
+      /* Now close the capture file. */
+      if (!wtap_dump_close(args.pdh, &err))
+        show_capture_file_io_error(cfile.save_file, err, TRUE);
     }
   }
 
@@ -2861,7 +2866,8 @@ show_print_file_io_error(int err)
 }
 
 static char *
-cf_open_error_message(int err, gboolean for_writing, int file_type)
+cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
+                      int file_type)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
@@ -2875,9 +2881,17 @@ cf_open_error_message(int err, gboolean for_writing, int file_type)
       break;
 
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
-    case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
       errmsg = "The file \"%s\" is not a capture file in a format Tethereal understands.";
+      break;
+
+    case WTAP_ERR_UNSUPPORTED:
+      /* Seen only when opening a capture file for reading. */
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+               "The file \"%%s\" is not a capture file in a format Tethereal understands.\n"
+               "(%s)", err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_WRITE_TO_PIPE:
@@ -2894,6 +2908,17 @@ cf_open_error_message(int err, gboolean for_writing, int file_type)
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
+      if (for_writing)
+        errmsg = "Tethereal cannot save this capture in that format.";
+      else {
+        snprintf(errmsg_errno, sizeof(errmsg_errno),
+                 "The file \"%%s\" is a capture for a network type that Tethereal doesn't support.\n"
+                 "(%s)", err_info);
+        g_free(err_info);
+        errmsg = errmsg_errno;
+      }
+      break;
+
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
       if (for_writing)
         errmsg = "Tethereal cannot save this capture in that format.";
@@ -2902,7 +2927,12 @@ cf_open_error_message(int err, gboolean for_writing, int file_type)
       break;
 
     case WTAP_ERR_BAD_RECORD:
-      errmsg = "The file \"%s\" appears to be damaged or corrupt.";
+      /* Seen only when opening a capture file for reading. */
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+               "The file \"%%s\" appears to be damaged or corrupt.\n"
+               "(%s)", err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_OPEN:
@@ -2939,9 +2969,10 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   wtap       *wth;
   int         err;
+  gchar       *err_info;
   char        err_msg[2048+1];
 
-  wth = wtap_open_offline(fname, &err, FALSE);
+  wth = wtap_open_offline(fname, &err, &err_info, FALSE);
   if (wth == NULL)
     goto fail;
 
@@ -2984,8 +3015,8 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
   return (0);
 
 fail:
-  snprintf(err_msg, sizeof err_msg, cf_open_error_message(err, FALSE, 0),
-	   fname);
+  snprintf(err_msg, sizeof err_msg,
+           cf_open_error_message(err, err_info, FALSE, 0), fname);
   fprintf(stderr, "tethereal: %s\n", err_msg);
   return (err);
 }

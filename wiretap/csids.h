@@ -1,6 +1,6 @@
  /* csids.h
  *
- * $Id: csids.h,v 1.3 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: csids.h,v 1.4 2004/01/25 21:55:13 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) Cisco Systems
@@ -24,6 +24,6 @@
 #ifndef __CSIDS_H__
 #define __CSIDS_H__
 
-int csids_open(wtap *wth, int *err);
+int csids_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

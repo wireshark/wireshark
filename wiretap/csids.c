@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.15 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: csids.c,v 1.16 2004/01/25 21:55:12 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -44,9 +44,11 @@
  * ethereal.
  */
 
-static gboolean csids_read(wtap *wth, int *err, long *data_offset);
+static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
+	long *data_offset);
 static gboolean csids_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err, gchar **err_info);
 static void csids_close(wtap *wth);
 
 struct csids_header {
@@ -56,7 +58,7 @@ struct csids_header {
 };
 
 /* XXX - return -1 on I/O error and actually do something with 'err'. */
-int csids_open(wtap *wth, int *err)
+int csids_open(wtap *wth, int *err, gchar **err_info _U_)
 {
   /* There is no file header. There is only a header for each packet
    * so we read a packet header and compare the caplen with iplen. They
@@ -141,7 +143,8 @@ int csids_open(wtap *wth, int *err)
 }
 
 /* Find the next packet and parse it; called from wtap_loop(). */
-static gboolean csids_read(wtap *wth, int *err, long *data_offset)
+static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
+    long *data_offset)
 {
   guint8 *buf;
   int bytesRead = 0;
@@ -201,7 +204,8 @@ csids_seek_read (wtap *wth,
 		 union wtap_pseudo_header *pseudo_header _U_,
 		 guint8 *pd,
 		 int len,
-		 int *err)
+		 int *err,
+		 gchar **err_info)
 {
   int bytesRead;
   struct csids_header hdr;
@@ -222,6 +226,8 @@ csids_seek_read (wtap *wth,
 
   if( len != hdr.caplen ) {
     *err = WTAP_ERR_BAD_RECORD;
+    *err_info = g_strdup_printf("csids: record length %u doesn't match requested length %d",
+                                 hdr.caplen, len);
     return FALSE;
   }
 

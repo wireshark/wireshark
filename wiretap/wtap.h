@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.147 2003/12/18 19:07:14 guy Exp $
+ * $Id: wtap.h,v 1.148 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -427,16 +427,19 @@ typedef struct wtap_dumper wtap_dumper;
  *
  * a negative number, indicating the type of error, on other failures.
  */
-struct wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random);
+struct wtap* wtap_open_offline(const char *filename, int *err,
+    gchar **err_info, gboolean do_random);
 
 /* Returns TRUE if entire loop-reading was successful. If read failure
  * happened, FALSE is returned and err is set. */
-gboolean wtap_loop(wtap *wth, int, wtap_handler, guchar*, int *err);
+gboolean wtap_loop(wtap *wth, int, wtap_handler, guchar*, int *err,
+    gchar **err_info);
 
 /* Returns TRUE if read was successful. FALSE if failure. data_offset is
  * set the the offset in the file where the data for the read packet is
  * located. */
-gboolean wtap_read(wtap *wth, int *err, long *data_offset);
+gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 
 struct wtap_pkthdr *wtap_phdr(wtap *wth);
 union wtap_pseudo_header *wtap_pseudoheader(wtap *wth);
@@ -459,7 +462,8 @@ const char *wtap_strerror(int err);
 void wtap_sequential_close(wtap *wth);
 void wtap_close(wtap *wth);
 gboolean wtap_seek_read (wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err, gchar **err_info);
 
 gboolean wtap_dump_can_open(int filetype);
 gboolean wtap_dump_can_write_encap(int filetype, int encap);

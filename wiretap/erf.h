@@ -32,7 +32,7 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* $Id: erf.h,v 1.1 2003/08/26 07:10:38 guy Exp $
+* $Id: erf.h,v 1.2 2004/01/25 21:55:13 guy Exp $
 */
 
 #ifndef __W_ERF_H__
@@ -96,6 +96,6 @@ typedef struct erf_record {
 #define HDLC_WLEN(h, e)		(g_htons((h)->wlen))
 #define HDLC_SLEN(h, e)		min(HDLC_WLEN(h, e), g_htons((h)->rlen) - sizeof(*(h)))
 
-int erf_open(wtap *wth, int *err);
+int erf_open(wtap *wth, int *err, gchar **err_info);
 
 #endif /* __W_ERF_H__ */

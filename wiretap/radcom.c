@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.43 2004/01/24 16:48:12 jmayer Exp $
+ * $Id: radcom.c,v 1.44 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -89,16 +89,17 @@ struct radcomrec_hdr {
 	char	xxw[9];		/* unknown */
 };
 
-static gboolean radcom_read(wtap *wth, int *err, long *data_offset);
+static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
+	long *data_offset);
 static gboolean radcom_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-	int *err);
+	int *err, gchar **err_info);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
 	int *err);
 static gboolean radcom_read_rec_data(FILE_T fh, guchar *pd, int length,
 	int *err);
 
-int radcom_open(wtap *wth, int *err)
+int radcom_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	guint8 r_magic[8], t_magic[11], search_encap[7];
@@ -218,8 +219,8 @@ int radcom_open(wtap *wth, int *err)
 	else if (memcmp(search_encap, "ATM/", 4) == 0)
 		wth->file_encap = WTAP_ENCAP_ATM_RFC1483;
 	else {
-		g_message("pcap: network type \"%.4s\" unknown", search_encap);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("radcom: network type \"%.4s\" unknown", search_encap);
 		return -1;
 	}
 
@@ -264,7 +265,8 @@ read_error:
 }
 
 /* Read the next packet */
-static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
+static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
+    long *data_offset)
 {
 	int	ret;
 	struct radcomrec_hdr hdr;
@@ -372,7 +374,8 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 radcom_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info _U_)
 {
 	int	ret;
 	struct radcomrec_hdr hdr;

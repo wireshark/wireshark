@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.h,v 1.4 2003/11/06 22:45:28 guy Exp $
+ * $Id: network_instruments.h,v 1.5 2004/01/25 21:55:16 guy Exp $
  */
 
 /***************************************************************************
@@ -22,7 +22,7 @@
 #ifndef __NETWORK_INSTRUMENTS_H__
 #define __NETWORK_INSTRUMENTS_H__
 
-int network_instruments_open(wtap *wth, int *err);
+int network_instruments_open(wtap *wth, int *err, gchar **err_info);
 int network_instruments_dump_can_write_encap(int encap);
 gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
 

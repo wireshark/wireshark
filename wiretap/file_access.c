@@ -1,6 +1,6 @@
 /* file_access.c
  *
- * $Id: file_access.c,v 1.8 2003/12/02 19:37:05 guy Exp $
+ * $Id: file_access.c,v 1.9 2004/01/25 21:55:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -91,7 +91,7 @@
  * should be discovered as a libpcap file, not a toshiba file.
  */
 
-static int (*const open_routines[])(wtap *, int *) = {
+static int (*const open_routines[])(wtap *, int *, char **) = {
 	/* Files that have magic bytes in fixed locations. These
 	 * are easy to identify.
 	 */
@@ -156,7 +156,8 @@ static int (*const open_routines[])(wtap *, int *) = {
    so that it can do sequential I/O to a capture file that's being
    written to as new packets arrive independently of random I/O done
    to display protocol trees for packets when they're selected. */
-wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
+wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
+    gboolean do_random)
 {
 	struct stat statb;
 	wtap	*wth;
@@ -257,7 +258,7 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 			return NULL;
 		}
 		wth->data_offset = 0;
-		switch ((*open_routines[i])(wth, err)) {
+		switch ((*open_routines[i])(wth, err, err_info)) {
 
 		case -1:
 			/* I/O error - give up */

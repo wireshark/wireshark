@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.25 2004/01/06 20:05:39 guy Exp $
+ * $Id: ascend-grammar.y,v 1.26 2004/01/25 21:55:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -117,16 +117,16 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 
 #define NO_USER "<none>"
 
-extern int at_eof;
-
 int yyparse(void);
 void yyerror(char *);
 
-unsigned int bcur = 0, bcount;
-guint32 start_time, secs, usecs, caplen, wirelen;
-ascend_pkthdr *header;
+gchar *ascend_parse_error;
+
+static unsigned int bcur = 0, bcount;
+static guint32 start_time, secs, usecs, caplen, wirelen;
+static ascend_pkthdr *header;
 struct ascend_phdr *pseudo_header;
-guint8 *pkt_data;
+static guint8 *pkt_data;
 
 %}
  
@@ -409,6 +409,7 @@ parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
 }
 
 void
-yyerror (char *s _U_)
+yyerror (char *s)
 {
+  ascend_parse_error = s;
 }

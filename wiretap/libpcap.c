@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.107 2004/01/24 16:48:12 jmayer Exp $
+ * $Id: libpcap.c,v 1.108 2004/01/25 21:55:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -79,20 +79,22 @@ typedef enum {
 } libpcap_try_t;
 static libpcap_try_t libpcap_try(wtap *wth, int *err);
 
-static gboolean libpcap_read(wtap *wth, int *err, long *data_offset);
+static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean libpcap_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
-static int libpcap_read_header(wtap *wth, int *err,
-    struct pcaprec_ss990915_hdr *hdr, gboolean silent);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
+static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
+    struct pcaprec_ss990915_hdr *hdr);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static void libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean libpcap_get_irda_pseudoheader(const struct irda_sll_hdr *irda_phdr,
-    union wtap_pseudo_header *pseudo_header, int *err);
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_irda_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err);
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static void libpcap_close(wtap *wth);
@@ -490,7 +492,7 @@ int wtap_pcap_encap_to_wtap_encap(int encap)
 }
 
 
-int libpcap_open(wtap *wth, int *err)
+int libpcap_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	guint32 magic;
@@ -568,9 +570,9 @@ int libpcap_open(wtap *wth, int *err)
 	}
 	if (hdr.version_major < 2) {
 		/* We only support version 2.0 and later. */
-		g_message("pcap: major version %u unsupported",
-		    hdr.version_major);
 		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("pcap: major version %u unsupported",
+		    hdr.version_major);
 		return -1;
 	}
 
@@ -636,9 +638,9 @@ int libpcap_open(wtap *wth, int *err)
 	}
 	file_encap = wtap_pcap_encap_to_wtap_encap(hdr.network);
 	if (file_encap == WTAP_ENCAP_UNKNOWN) {
-		g_message("pcap: network type %u unknown or unsupported",
-		    hdr.network);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("pcap: network type %u unknown or unsupported",
+		    hdr.network);
 		return -1;
 	}
 
@@ -883,7 +885,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	/*
 	 * Attempt to read the first record's header.
 	 */
-	if (libpcap_read_header(wth, err, &first_rec_hdr, TRUE) == -1) {
+	if (libpcap_read_header(wth, err, NULL, &first_rec_hdr) == -1) {
 		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
 			 * EOF or short read - assume the file is in this
@@ -922,7 +924,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	/*
 	 * Now attempt to read the second record's header.
 	 */
-	if (libpcap_read_header(wth, err, &second_rec_hdr, TRUE) == -1) {
+	if (libpcap_read_header(wth, err, NULL, &second_rec_hdr) == -1) {
 		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
 			 * EOF or short read - assume the file is in this
@@ -960,7 +962,8 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
+static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	struct pcaprec_ss990915_hdr hdr;
 	guint packet_size;
@@ -968,7 +971,7 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	int bytes_read;
 	guchar fddi_padding[3];
 
-	bytes_read = libpcap_read_header(wth, err, &hdr, FALSE);
+	bytes_read = libpcap_read_header(wth, err, err_info, &hdr);
 	if (bytes_read == -1) {
 		/*
 		 * We failed to read the header.
@@ -1018,9 +1021,9 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
 			 */
-			g_message("libpcap: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
-			    packet_size);
 			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("libpcap: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+			    packet_size);
 			return FALSE;
 		}
 		if (!libpcap_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
@@ -1048,13 +1051,13 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
 			 */
-			g_message("libpcap: IrDA file has a %u-byte packet, too small to have even an IrDA pseudo-header\n",
-			    packet_size);
 			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("libpcap: IrDA file has a %u-byte packet, too small to have even an IrDA pseudo-header\n",
+			    packet_size);
 			return FALSE;
 		}
 		if (!libpcap_read_irda_pseudoheader(wth->fh, &wth->pseudo_header,
-		    err))
+		    err, err_info))
 			return FALSE;	/* Read error */
 
 		/*
@@ -1093,7 +1096,8 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 libpcap_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -1117,7 +1121,7 @@ libpcap_seek_read(wtap *wth, long seek_off,
 
 	case WTAP_ENCAP_IRDA:
 		if (!libpcap_read_irda_pseudoheader(wth->random_fh, pseudo_header,
-		    err)) {
+		    err, err_info)) {
 			/* Read error */
 			return FALSE;
 		}
@@ -1140,13 +1144,11 @@ libpcap_seek_read(wtap *wth, long seek_off,
 	return TRUE;
 }
 
-/* Read the header of the next packet; if "silent" is TRUE, don't complain
-   to the console, as we're testing to see if the file appears to be of a
-   particular type.
+/* Read the header of the next packet.
 
    Return -1 on an error, or the number of bytes of header read on success. */
-static int libpcap_read_header(wtap *wth, int *err,
-    struct pcaprec_ss990915_hdr *hdr, gboolean silent)
+static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
+    struct pcaprec_ss990915_hdr *hdr)
 {
 	int	bytes_to_read, bytes_read;
 
@@ -1196,11 +1198,11 @@ static int libpcap_read_header(wtap *wth, int *err,
 		 * this is can tell when it's not the type we're guessing
 		 * it is.
 		 */
-		if (!silent) {
-			g_message("pcap: File has %u-byte packet, bigger than maximum of %u",
+		*err = WTAP_ERR_BAD_RECORD;
+		if (err_info != NULL) {
+			*err_info = g_strdup_printf("pcap: File has %u-byte packet, bigger than maximum of %u",
 			    hdr->hdr.incl_len, WTAP_MAX_PACKET_SIZE);
 		}
-		*err = WTAP_ERR_BAD_RECORD;
 		return -1;
 	}
 
@@ -1213,11 +1215,11 @@ static int libpcap_read_header(wtap *wth, int *err,
 		 * this is can tell when it's not the type we're guessing
 		 * it is.
 		 */
-		if (!silent) {
-			g_message("pcap: File has %u-byte packet, bigger than maximum of %u",
+		*err = WTAP_ERR_BAD_RECORD;
+		if (err_info != NULL) {
+			*err_info = g_strdup_printf("pcap: File has %u-byte packet, bigger than maximum of %u",
 			    hdr->hdr.orig_len, WTAP_MAX_PACKET_SIZE);
 		}
-		*err = WTAP_ERR_BAD_RECORD;
 		return -1;
 	}
 
@@ -1369,22 +1371,23 @@ libpcap_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header
 
 static gboolean
 libpcap_get_irda_pseudoheader(const struct irda_sll_hdr *irda_phdr,
-    union wtap_pseudo_header *pseudo_header, int *err)
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
 	if (pntohs(&irda_phdr->sll_protocol) != 0x0017) {
-		g_message("libpcap: IrDA capture has a packet with an invalid sll_protocol field\n");
 		*err = WTAP_ERR_BAD_RECORD;
+		if (err_info != NULL)
+			*err_info = g_strdup("libpcap: IrDA capture has a packet with an invalid sll_protocol field\n");
 		return FALSE;
 	}
 
 	pseudo_header->irda.pkttype = pntohs(&irda_phdr->sll_pkttype);
 
-    return TRUE;
+	return TRUE;
 }
 
 static gboolean
 libpcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int *err)
+    int *err, gchar **err_info)
 {
 	struct irda_sll_hdr irda_phdr;
 	int	bytes_read;
@@ -1398,7 +1401,8 @@ libpcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_heade
 		return FALSE;
 	}
 
-	return libpcap_get_irda_pseudoheader(&irda_phdr, pseudo_header, err);
+	return libpcap_get_irda_pseudoheader(&irda_phdr, pseudo_header, err,
+	    err_info);
 }
 
 static gboolean
@@ -1529,7 +1533,7 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 			return NULL;
 		}
 		if (!libpcap_get_irda_pseudoheader((const struct irda_sll_hdr *)pd,
-			pseudo_header, err))
+			pseudo_header, err, NULL))
 			return NULL;
 
 		/*

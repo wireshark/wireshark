@@ -1,6 +1,6 @@
 /* cosine.h
  *
- * $Id: cosine.h,v 1.2 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: cosine.h,v 1.3 2004/01/25 21:55:12 guy Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
@@ -27,6 +27,6 @@
 #ifndef __W_COSINE_H__
 #define __W_COSINE_H__
 
-int cosine_open(wtap *wth, int *err);
+int cosine_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

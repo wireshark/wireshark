@@ -1,6 +1,6 @@
 /* 5views.h
  *
- * $Id: 5views.h,v 1.1 2003/07/29 19:42:00 guy Exp $
+ * $Id: 5views.h,v 1.2 2004/01/25 21:55:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -23,7 +23,7 @@
 #ifndef __5VIEWS_H__
 #define __5VIEWS_H__
 
-int _5views_open(wtap *wth, int *err);
+int _5views_open(wtap *wth, int *err, gchar **err_info);
 gboolean _5views_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
 int _5views_dump_can_write_encap(int encap);
 

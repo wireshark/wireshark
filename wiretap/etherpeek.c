@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.25 2003/12/18 03:43:40 guy Exp $
+ * $Id: etherpeek.c,v 1.26 2004/01/25 21:55:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -136,15 +136,19 @@ static const etherpeek_encap_lookup_t etherpeek_encap[] = {
 #define NUM_ETHERPEEK_ENCAPS \
 	(sizeof (etherpeek_encap) / sizeof (etherpeek_encap[0]))
 
-static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset);
+static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean etherpeek_seek_read_v7(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
-static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
+static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean etherpeek_seek_read_v56(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
 static void etherpeek_close(wtap *wth);
 
-int etherpeek_open(wtap *wth, int *err)
+int etherpeek_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	etherpeek_header_t ep_hdr;
 	struct timeval reference_time;
@@ -349,7 +353,8 @@ static void etherpeek_close(wtap *wth)
 	g_free(wth->capture.etherpeek);
 }
 
-static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
+static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	guchar ep_pkt[ETHERPEEK_V7_PKT_SIZE];
 	guint16 protoNum;
@@ -400,6 +405,7 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 			 * We don't *have* 4 bytes of packet data.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup("etherpeek: packet not long enough for 802.11 radio header");
 			return FALSE;
 		}
 		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->fh, err);
@@ -458,7 +464,8 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 etherpeek_seek_read_v7(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info)
 {
 	guchar ep_pkt[ETHERPEEK_V7_PKT_SIZE];
 	guint8  status;
@@ -484,6 +491,7 @@ etherpeek_seek_read_v7(wtap *wth, long seek_off,
 			 * We don't *have* 4 bytes of packet data.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup("etherpeek: packet not long enough for 802.11 radio header");
 			return FALSE;
 		}
 		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->random_fh,
@@ -510,7 +518,8 @@ etherpeek_seek_read_v7(wtap *wth, long seek_off,
 	return TRUE;
 }
 
-static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset)
+static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
+    long *data_offset)
 {
 	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
 	guint16 length;
@@ -594,7 +603,8 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 etherpeek_seek_read_v56(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info _U_)
 {
 	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
 	int pkt_encap;

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.112 2003/10/25 07:17:27 guy Exp $
+ * $Id: ngsniffer.c,v 1.113 2004/01/25 21:55:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -353,15 +353,17 @@ struct frame6_rec {
 #define NUM_NGSNIFF_TIMEUNITS 7
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
-static int process_header_records(wtap *wth, int *err, gint16 maj_vers);
+static int process_header_records(wtap *wth, int *err, gchar **err_info,
+    gint16 maj_vers);
 static int process_rec_header2_v2(wtap *wth, unsigned char *buffer,
-    guint16 length, int *err);
+    guint16 length, int *err, gchar **err_info);
 static int process_rec_header2_v145(wtap *wth, unsigned char *buffer,
-    guint16 length, gint16 maj_vers, int *err);
-static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset);
+    guint16 length, gint16 maj_vers, int *err, gchar **err_info);
+static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
-    int *err);
+    int *err, gchar **err_info);
 static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
     guint16 *typep, guint16 *lengthp, int *err);
 static gboolean ngsniffer_read_frame2(wtap *wth, gboolean is_random,
@@ -395,7 +397,7 @@ static int read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
 static long ng_file_seek_seq(wtap *wth, long offset, int whence, int *err);
 static long ng_file_seek_rand(wtap *wth, long offset, int whence, int *err);
 
-int ngsniffer_open(wtap *wth, int *err)
+int ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic[sizeof ngsniffer_magic];
@@ -457,8 +459,8 @@ int ngsniffer_open(wtap *wth, int *err)
 	length = pletohs(record_length);
 
 	if (type != REC_VERS) {
-		g_message("ngsniffer: Sniffer file doesn't start with a version record");
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("ngsniffer: Sniffer file doesn't start with a version record");
 		return -1;
 	}
 
@@ -475,16 +477,16 @@ int ngsniffer_open(wtap *wth, int *err)
 	/* Check the data link type. */
 	if (version.network >= NUM_NGSNIFF_ENCAPS
 	    || sniffer_encap[version.network] == WTAP_ENCAP_UNKNOWN) {
-		g_message("ngsniffer: network type %u unknown or unsupported",
-		    version.network);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("ngsniffer: network type %u unknown or unsupported",
+		    version.network);
 		return -1;
 	}
 
 	/* Check the time unit */
 	if (version.timeunit >= NUM_NGSNIFF_TIMEUNITS) {
-		g_message("ngsniffer: Unknown timeunit %u", version.timeunit);
 		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("ngsniffer: Unknown timeunit %u", version.timeunit);
 		return -1;
 	}
 
@@ -515,7 +517,7 @@ int ngsniffer_open(wtap *wth, int *err)
 	 * the DOS Sniffer understands?
 	 */
 	maj_vers = pletohs(&version.maj_vers);
-	if (process_header_records(wth, err, maj_vers) < 0)
+	if (process_header_records(wth, err, err_info, maj_vers) < 0)
 		return -1;
 	if (wth->file_encap == WTAP_ENCAP_PER_PACKET) {
 		/*
@@ -630,7 +632,7 @@ int ngsniffer_open(wtap *wth, int *err)
 }
 
 static int
-process_header_records(wtap *wth, int *err, gint16 maj_vers)
+process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers)
 {
 	int bytes_read;
 	char record_type[2];
@@ -713,7 +715,7 @@ process_header_records(wtap *wth, int *err, gint16 maj_vers)
 
 			case 2:
 				if (process_rec_header2_v2(wth, buffer,
-				    length, err) < 0)
+				    length, err, err_info) < 0)
 					return -1;
 				break;
 
@@ -721,7 +723,7 @@ process_header_records(wtap *wth, int *err, gint16 maj_vers)
 			case 4:
 			case 5:
 				if (process_rec_header2_v145(wth, buffer,
-				    length, maj_vers, err) < 0)
+				    length, maj_vers, err, err_info) < 0)
 					return -1;
 				break;
 			}
@@ -745,7 +747,7 @@ process_header_records(wtap *wth, int *err, gint16 maj_vers)
 
 static int
 process_rec_header2_v2(wtap *wth, unsigned char *buffer, guint16 length,
-    int *err)
+    int *err, gchar **err_info)
 {
 	static const char x_25_str[] = "HDLC\nX.25\n";
 
@@ -760,20 +762,20 @@ process_rec_header2_v2(wtap *wth, unsigned char *buffer, guint16 length,
 		/*
 		 * There's not enough data to compare.
 		 */
-		g_message("ngsniffer: WAN capture has too-short protocol list");
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("ngsniffer: WAN capture has too-short protocol list");
 		return -1;
 	}
 
-	if (strncmp(buffer, x_25_str, sizeof x_25_str - 1) == 0) {
+	if (strncmp((char *)buffer, x_25_str, sizeof x_25_str - 1) == 0) {
 		/*
 		 * X.25.
 		 */
 		wth->file_encap = WTAP_ENCAP_LAPB;
 	} else {
-		g_message("ngsniffer: WAN capture protocol string %.*s unknown",
-		    length, buffer);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("ngsniffer: WAN capture protocol string %.*s unknown",
+		    length, buffer);
 		return -1;
 	}
 	return 0;
@@ -781,7 +783,7 @@ process_rec_header2_v2(wtap *wth, unsigned char *buffer, guint16 length,
 
 static int
 process_rec_header2_v145(wtap *wth, unsigned char *buffer, guint16 length,
-    gint16 maj_vers, int *err)
+    gint16 maj_vers, int *err, gchar **err_info)
 {
 	/*
 	 * The 5th byte of the REC_HEADER2 record appears to be a
@@ -791,8 +793,8 @@ process_rec_header2_v145(wtap *wth, unsigned char *buffer, guint16 length,
 		/*
 		 * There is no 5th byte; give up.
 		 */
-		g_message("ngsniffer: WAN capture has no network subtype");
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup("ngsniffer: WAN capture has no network subtype");
 		return -1;
 	}
 
@@ -860,8 +862,8 @@ process_rec_header2_v145(wtap *wth, unsigned char *buffer, guint16 length,
 				/*
 				 * There is no 5th byte; give up.
 				 */
-				g_message("ngsniffer: WAN bridge/router capture has no ISDN flag");
 				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				*err_info = g_strdup("ngsniffer: WAN bridge/router capture has no ISDN flag");
 				return -1;
 			}
 			if (buffer[6] == 0x01)
@@ -878,16 +880,17 @@ process_rec_header2_v145(wtap *wth, unsigned char *buffer, guint16 length,
 		/*
 		 * Reject these until we can figure them out.
 		 */
-		g_message("ngsniffer: WAN network subtype %u unknown or unsupported",
-		    buffer[4]);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("ngsniffer: WAN network subtype %u unknown or unsupported",
+		    buffer[4]);
 		return -1;
 	}
 	return 0;
 }
 
 /* Read the next packet */
-static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
+static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	int	ret;
 	guint16	type, length;
@@ -919,8 +922,8 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 				 * We shouldn't get a frame2 record in
 				 * an ATM capture.
 				 */
-				g_message("ngsniffer: REC_FRAME2 record in an ATM Sniffer file");
 				*err = WTAP_ERR_BAD_RECORD;
+				*err_info = g_strdup("ngsniffer: REC_FRAME2 record in an ATM Sniffer file");
 				return FALSE;
 			}
 
@@ -951,8 +954,8 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 				 * We shouldn't get a frame2 record in
 				 * a non-ATM capture.
 				 */
-				g_message("ngsniffer: REC_FRAME4 record in a non-ATM Sniffer file");
 				*err = WTAP_ERR_BAD_RECORD;
+				*err_info = g_strdup("ngsniffer: REC_FRAME4 record in a non-ATM Sniffer file");
 				return FALSE;
 			}
 
@@ -1048,8 +1051,8 @@ found:
 		/*
 		 * Yes - treat this as an error.
 		 */
-		g_message("ngsniffer: Record length is less than packet size");
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup("ngsniffer: Record length is less than packet size");
 		return FALSE;
 	}
 
@@ -1078,7 +1081,7 @@ found:
 
 static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
-    int *err)
+    int *err, gchar **err_info _U_)
 {
 	int	ret;
 	guint16	type, length;

@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.31 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: ascend.c,v 1.32 2004/01/25 21:55:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -101,9 +101,11 @@ static const char ascend_w2magic[] = { 'W', 'D', '_', 'D', 'I', 'A', 'L', 'O', '
 #define ASCEND_W1_SIZE (sizeof ascend_w1magic / sizeof ascend_w1magic[0])
 #define ASCEND_W2_SIZE (sizeof ascend_w2magic / sizeof ascend_w2magic[0])
 
-static gboolean ascend_read(wtap *wth, int *err, long *data_offset);
-static gboolean ascend_seek_read (wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
+static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
+	long *data_offset);
+static gboolean ascend_seek_read(wtap *wth, long seek_off,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err, gchar **err_info);
 static void ascend_close(wtap *wth);
 
 /* Seeks to the beginning of the next packet, and returns the
@@ -232,7 +234,7 @@ found:
   return packet_off;
 }
 
-int ascend_open(wtap *wth, int *err)
+int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
 {
   long offset;
   struct stat statbuf;
@@ -283,7 +285,8 @@ int ascend_open(wtap *wth, int *err)
 }
 
 /* Read the next packet; called from wtap_loop(). */
-static gboolean ascend_read(wtap *wth, int *err, long *data_offset)
+static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
+	long *data_offset)
 {
   long offset;
   guint8 *buf = buffer_start_ptr(wth->frame_buffer);
@@ -301,6 +304,7 @@ static gboolean ascend_read(wtap *wth, int *err, long *data_offset)
     return FALSE;
   if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, 0)) {
     *err = WTAP_ERR_BAD_RECORD;
+    *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
   }
 
@@ -336,13 +340,15 @@ static gboolean ascend_read(wtap *wth, int *err, long *data_offset)
   return TRUE;
 }
 
-static gboolean ascend_seek_read (wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err)
+static gboolean ascend_seek_read(wtap *wth, long seek_off,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err, gchar **err_info)
 {
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
   if (! parse_ascend(wth->random_fh, pd, &pseudo_header->ascend, NULL, len)) {
     *err = WTAP_ERR_BAD_RECORD;
+    *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
   }
   return TRUE;

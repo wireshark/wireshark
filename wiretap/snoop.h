@@ -1,6 +1,6 @@
 /* snoop.h
  *
- * $Id: snoop.h,v 1.12 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: snoop.h,v 1.13 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -23,7 +23,7 @@
 #ifndef __W_SNOOP_H__
 #define __W_SNOOP_H__
 
-int snoop_open(wtap *wth, int *err);
+int snoop_open(wtap *wth, int *err, gchar **err_info);
 gboolean snoop_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
 int snoop_dump_can_write_encap(int encap);
 

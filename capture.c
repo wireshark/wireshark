@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.227 2004/01/24 01:44:28 guy Exp $
+ * $Id: capture.c,v 1.228 2004/01/25 21:55:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -677,7 +677,7 @@ do_capture(const char *save_file)
          supplies, allowing us to display only the ones it does. */
       cfile.drops = stats.ps_drop;
     }
-    switch (cf_read(&cfile, &err)) {
+    switch (cf_read(&cfile)) {
 
     case READ_SUCCESS:
     case READ_ERROR:

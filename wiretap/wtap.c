@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.86 2003/12/18 19:07:13 guy Exp $
+ * $Id: wtap.c,v 1.87 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -315,9 +315,9 @@ wtap_close(wtap *wth)
 }
 
 gboolean
-wtap_read(wtap *wth, int *err, long *data_offset)
+wtap_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
 {
-	if (!wth->subtype_read(wth, err, data_offset))
+	if (!wth->subtype_read(wth, err, err_info, data_offset))
 		return FALSE;	/* failure */
 
 	/*
@@ -348,7 +348,8 @@ wtap_buf_ptr(wtap *wth)
 }
 
 gboolean
-wtap_loop(wtap *wth, int count, wtap_handler callback, guchar* user, int *err)
+wtap_loop(wtap *wth, int count, wtap_handler callback, guchar* user, int *err,
+    gchar **err_info)
 {
 	long		data_offset;
 	int		loop = 0;
@@ -356,7 +357,7 @@ wtap_loop(wtap *wth, int count, wtap_handler callback, guchar* user, int *err)
 	/* Start by clearing error flag */
 	*err = 0;
 
-	while ( (wtap_read(wth, err, &data_offset)) ) {
+	while ( (wtap_read(wth, err, err_info, &data_offset)) ) {
 		callback(user, &wth->phdr, data_offset,
 		    &wth->pseudo_header, buffer_start_ptr(wth->frame_buffer));
 		if (count > 0 && ++loop >= count)
@@ -372,8 +373,8 @@ wtap_loop(wtap *wth, int count, wtap_handler callback, guchar* user, int *err)
 gboolean
 wtap_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
-	int *err)
+	int *err, gchar **err_info)
 {
 	return wth->subtype_seek_read(wth, seek_off, pseudo_header, pd, len,
-		err);
+		err, err_info);
 }

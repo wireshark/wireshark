@@ -1,6 +1,6 @@
 /* iptrace.h
  *
- * $Id: iptrace.h,v 1.7 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: iptrace.h,v 1.8 2004/01/25 21:55:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -24,6 +24,6 @@
 #ifndef __IPTRACE_H__
 #define __IPTRACE_H__
 
-int iptrace_open(wtap *wth, int *err);
+int iptrace_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

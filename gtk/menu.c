@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.146 2004/01/23 16:10:09 ulfl Exp $
+ * $Id: menu.c,v 1.147 2004/01/25 21:55:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -766,20 +766,19 @@ void
 menu_open_recent_file_cmd_cb(GtkWidget *w, gpointer unused _U_)
 {
 	GtkWidget *submenu_recent_files;
-	int        err;
 	GtkWidget *menu_item_child;
 	gchar     *cf_name;
-
+	int       err;
 
 	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
-    /* get capture filename from the menu item label */
+	/* get capture filename from the menu item label */
 	menu_item_child = (GTK_BIN(w))->child;
 	gtk_label_get(GTK_LABEL(menu_item_child), &cf_name);
 
 	/* open and read the capture file (this will close an existing file) */
 	if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
-		cf_read(&cfile, &err);
+		cf_read(&cfile);
 	} else {
 		/* the capture file isn't existing any longer, remove menu item */
 		/* XXX: ask user to remove item, it's maybe only a temporary problem */

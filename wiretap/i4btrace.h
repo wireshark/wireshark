@@ -1,6 +1,6 @@
 /* i4btrace.h
  *
- * $Id: i4btrace.h,v 1.3 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: i4btrace.h,v 1.4 2004/01/25 21:55:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -24,6 +24,6 @@
 #ifndef __I4BTRACE_H__
 #define __I4BTRACE_H__
 
-int i4btrace_open(wtap *wth, int *err);
+int i4btrace_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

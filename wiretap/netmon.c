@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.67 2003/12/23 00:15:02 ulfl Exp $
+ * $Id: netmon.c,v 1.68 2004/01/25 21:55:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -104,9 +104,11 @@ struct netmon_atm_hdr {
 	guint16	vci;		/* VCI */
 };
 
-static gboolean netmon_read(wtap *wth, int *err, long *data_offset);
+static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean netmon_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean netmon_read_rec_data(FILE_T fh, guchar *pd, int length,
@@ -117,7 +119,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
 
-int netmon_open(wtap *wth, int *err)
+int netmon_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic[sizeof netmon_1_x_magic];
@@ -184,17 +186,17 @@ int netmon_open(wtap *wth, int *err)
 		break;
 
 	default:
-		g_message("netmon: major version %u unsupported", hdr.ver_major);
 		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("netmon: major version %u unsupported", hdr.ver_major);
 		return -1;
 	}
 
 	hdr.network = pletohs(&hdr.network);
 	if (hdr.network >= NUM_NETMON_ENCAPS
 	    || netmon_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-		g_message("netmon: network type %u unknown or unsupported",
-		    hdr.network);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
+		    hdr.network);
 		return -1;
 	}
 
@@ -256,15 +258,15 @@ int netmon_open(wtap *wth, int *err)
 	frame_table_length = pletohl(&hdr.frametablelength);
 	frame_table_size = frame_table_length / sizeof (guint32);
 	if ((frame_table_size * sizeof (guint32)) != frame_table_length) {
-		g_message("netmon: frame table length is %u, which is not a multiple of the size of an entry",
-		    frame_table_length);
 		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("netmon: frame table length is %u, which is not a multiple of the size of an entry",
+		    frame_table_length);
 		return -1;
 	}
 	if (frame_table_size == 0) {
-		g_message("netmon: frame table length is %u, which means it's less than one entry in size",
-		    frame_table_length);
 		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("netmon: frame table length is %u, which means it's less than one entry in size",
+		    frame_table_length);
 		return -1;
 	}
 	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
@@ -298,7 +300,8 @@ int netmon_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
+static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	netmon_t *netmon = wth->capture.netmon;
 	guint32	packet_size = 0;
@@ -377,9 +380,9 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		g_message("netmon: File has %u-byte packet, bigger than maximum of %u",
-		    packet_size, WTAP_MAX_PACKET_SIZE);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("netmon: File has %u-byte packet, bigger than maximum of %u",
+		    packet_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
 	}
 
@@ -400,9 +403,9 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
 			 */
-			g_message("netmon: ATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
-			    packet_size);
 			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("netmon: ATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+			    packet_size);
 			return FALSE;
 		}
 		if (!netmon_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
@@ -465,7 +468,8 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 netmon_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info _U_)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;

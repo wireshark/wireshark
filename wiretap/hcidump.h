@@ -1,6 +1,6 @@
 /* hcidump.h
  *
- * $Id: hcidump.h,v 1.1 2003/10/30 03:11:02 guy Exp $
+ * $Id: hcidump.h,v 1.2 2004/01/25 21:55:14 guy Exp $
  *
  * Copyright (c) 2003 by Marcel Holtmann <marcel@holtmann.org>
  *
@@ -23,6 +23,6 @@
 #ifndef __HCIDUMP_H__
 #define __HCIDUMP_H__
 
-int hcidump_open(wtap *wth, int *err);
+int hcidump_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

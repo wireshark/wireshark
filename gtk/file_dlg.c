@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.83 2004/01/20 02:21:17 ulfl Exp $
+ * $Id: file_dlg.c,v 1.84 2004/01/25 21:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -391,7 +391,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-  switch (cf_read(&cfile, &err)) {
+  switch (cf_read(&cfile)) {
 
   case READ_SUCCESS:
   case READ_ERROR:
@@ -1010,7 +1010,6 @@ void
 file_reload_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
   gchar *filename;
   gboolean is_tempfile;
-  int err;
 
   /* If the file could be opened, "cf_open()" calls "cf_close()"
      to get rid of state for the old capture file before filling in state
@@ -1026,7 +1025,7 @@ file_reload_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
   is_tempfile = cfile.is_tempfile;
   cfile.is_tempfile = FALSE;
   if (cf_open(filename, is_tempfile, &cfile) == 0) {
-    switch (cf_read(&cfile, &err)) {
+    switch (cf_read(&cfile)) {
 
     case READ_SUCCESS:
     case READ_ERROR:

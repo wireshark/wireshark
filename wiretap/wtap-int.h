@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.43 2004/01/05 17:33:28 ulfl Exp $
+ * $Id: wtap-int.h,v 1.44 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -130,9 +130,9 @@ typedef struct {
 	gboolean	is_ppp;
 } erf_t;
 
-typedef gboolean (*subtype_read_func)(struct wtap*, int*, long*);
+typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, long*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, long, union wtap_pseudo_header*,
-					guint8*, int, int *);
+					guint8*, int, int *, char **);
 struct wtap {
 	FILE_T			fh;
         int                     fd;           /* File descriptor for cap file */

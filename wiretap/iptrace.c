@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.49 2004/01/24 16:48:12 jmayer Exp $
+ * $Id: iptrace.c,v 1.50 2004/01/25 21:55:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -32,15 +32,17 @@
 #include "atm.h"
 #include "iptrace.h"
 
-static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset);
+static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
-    int *err);
+    int *err, gchar **err_info);
 
-static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset);
+static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
-    int *err);
+    int *err, gchar **err_info);
 
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
     int *err);
@@ -50,7 +52,7 @@ static void fill_in_pseudo_header(int encap, const guint8 *pd, guint32 len,
     union wtap_pseudo_header *pseudo_header, guint8 *header);
 static int wtap_encap_ift(unsigned int  ift);
 
-int iptrace_open(wtap *wth, int *err)
+int iptrace_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	int bytes_read;
 	char name[12];
@@ -119,7 +121,8 @@ typedef struct {
 #define IPTRACE_1_0_PDATA_SIZE	22	/* packet data */
 
 /* Read the next packet */
-static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
+static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info _U_,
+    long *data_offset)
 {
 	int			ret;
 	guint32			packet_size;
@@ -180,9 +183,9 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 	wth->phdr.ts.tv_usec = 0;
 
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
-		g_message("iptrace: interface type IFT=0x%02x unknown or unsupported",
-		    pkt_hdr.if_type);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
+		    pkt_hdr.if_type);
 		return FALSE;
 	}
 
@@ -208,7 +211,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 
 static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
-    int *err)
+    int *err, gchar **err_info _U_)
 {
 	int			ret;
 	guint8			header[IPTRACE_1_0_PHDR_SIZE];
@@ -297,7 +300,8 @@ typedef struct {
 #define IPTRACE_2_0_PDATA_SIZE	32	/* packet data */
 
 /* Read the next packet */
-static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
+static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info _U_,
+    long *data_offset)
 {
 	int			ret;
 	guint32			packet_size;
@@ -362,9 +366,9 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 	wth->phdr.ts.tv_usec = pntohl(&header[36]) / 1000;
 
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
-		g_message("iptrace: interface type IFT=0x%02x unknown or unsupported",
-		    pkt_hdr.if_type);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
+		    pkt_hdr.if_type);
 		return FALSE;
 	}
 
@@ -390,7 +394,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 
 static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
-    int *err)
+    int *err, gchar **err_info _U_)
 {
 	int			ret;
 	guint8			header[IPTRACE_2_0_PHDR_SIZE];

@@ -1,6 +1,6 @@
 /* dbs-etherwatch.h
  *
- * $Id: dbs-etherwatch.h,v 1.4 2003/01/17 23:54:19 guy Exp $
+ * $Id: dbs-etherwatch.h,v 1.5 2004/01/25 21:55:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -24,6 +24,6 @@
 #ifndef __W_DBS_ETHERWATCH_H__
 #define __W_DBS_ETHERWATCH_H__
 
-int dbs_etherwatch_open(wtap *wth, int *err);
+int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

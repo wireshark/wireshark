@@ -1,6 +1,6 @@
 /* toshiba.h
  *
- * $Id: toshiba.h,v 1.5 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: toshiba.h,v 1.6 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -18,12 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifndef __W_TOSHIBA_H__
 #define __W_TOSHIBA_H__
 
-int toshiba_open(wtap *wth, int *err);
+int toshiba_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

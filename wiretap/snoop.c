@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.67 2004/01/05 17:33:28 ulfl Exp $
+ * $Id: snoop.c,v 1.68 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -88,9 +88,11 @@ struct shomiti_trailer {
 #define RX_STATUS_FIFO_ERROR		0x0080	/* receive FIFO error */
 #define RX_STATUS_TRIGGERED		0x0001	/* frame did trigger */
 
-static gboolean snoop_read(wtap *wth, int *err, long *data_offset);
+static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean snoop_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length,
@@ -171,7 +173,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * and distinguishing 4MB from 16MB Token Ring, and distinguishing both
  * of them from the "Shomiti" versions of same.
  */
-int snoop_open(wtap *wth, int *err)
+int snoop_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic[sizeof snoop_magic];
@@ -269,8 +271,8 @@ int snoop_open(wtap *wth, int *err)
 		break;
 
 	default:
-		g_message("snoop: version %u unsupported", hdr.version);
 		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("snoop: version %u unsupported", hdr.version);
 		return -1;
 	}
 
@@ -364,9 +366,9 @@ int snoop_open(wtap *wth, int *err)
 	if (is_shomiti) {
 		if (hdr.network >= NUM_SHOMITI_ENCAPS
 		    || shomiti_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-			g_message("snoop: Shomiti network type %u unknown or unsupported",
-			    hdr.network);
 			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err_info = g_strdup_printf("snoop: Shomiti network type %u unknown or unsupported",
+			    hdr.network);
 			return -1;
 		}
 		file_encap = shomiti_encap[hdr.network];
@@ -376,9 +378,9 @@ int snoop_open(wtap *wth, int *err)
 	} else {
 		if (hdr.network >= NUM_SNOOP_ENCAPS
 		    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-			g_message("snoop: network type %u unknown or unsupported",
-			    hdr.network);
 			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err_info = g_strdup_printf("snoop: network type %u unknown or unsupported",
+			    hdr.network);
 			return -1;
 		}
 		file_encap = snoop_encap[hdr.network];
@@ -400,7 +402,8 @@ int snoop_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
+static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	guint32 rec_size;
 	guint32	packet_size;
@@ -430,18 +433,18 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		g_message("snoop: File has %u-byte packet, bigger than maximum of %u",
-		    packet_size, WTAP_MAX_PACKET_SIZE);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("snoop: File has %u-byte packet, bigger than maximum of %u",
+		    packet_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
 	}
 	if (packet_size > rec_size) {
 		/*
 		 * Probably a corrupt capture file.
 		 */
-		g_message("snoop: File has %u-byte packet, bigger than record size %u",
-		    packet_size, rec_size);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("snoop: File has %u-byte packet, bigger than record size %u",
+		    packet_size, rec_size);
 		return FALSE;
 	}
 
@@ -461,9 +464,9 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
 			 */
-			g_message("snoop: atmsnoop file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
-			    packet_size);
 			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("snoop: atmsnoop file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+			    packet_size);
 			return FALSE;
 		}
 		if (!snoop_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
@@ -525,9 +528,9 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 		/*
 		 * What, *negative* padding?  Bogus.
 		 */
-		g_message("snoop: File has %u-byte record with packet size of %u",
-		    rec_size, packet_size);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("snoop: File has %u-byte record with packet size of %u",
+		    rec_size, packet_size);
 		return FALSE;
 	}
 	padbytes = rec_size - (sizeof hdr + packet_size);
@@ -552,7 +555,8 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 snoop_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info _U_)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;

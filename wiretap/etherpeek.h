@@ -1,6 +1,6 @@
 /* etherpeek.h
  *
- * $Id: etherpeek.h,v 1.3 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: etherpeek.h,v 1.4 2004/01/25 21:55:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -24,6 +24,6 @@
 #ifndef __W_ETHERPEEK_H__
 #define __W_ETHERPEEK_H__
 
-int etherpeek_open(wtap *wth, int *err);
+int etherpeek_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

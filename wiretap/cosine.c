@@ -1,6 +1,6 @@
 /* cosine.c
  *
- * $Id: cosine.c,v 1.7 2004/01/24 16:48:12 jmayer Exp $
+ * $Id: cosine.c,v 1.8 2004/01/25 21:55:12 guy Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
@@ -169,14 +169,15 @@
 static gboolean empty_line(const gchar *line);
 static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr);
 static gboolean cosine_check_file_type(wtap *wth, int *err);
-static gboolean cosine_read(wtap *wth, int *err, long *data_offset);
+static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
+	long *data_offset);
 static gboolean cosine_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd,
-	int len, int *err);
+	int len, int *err, gchar **err_info);
 static int parse_cosine_rec_hdr(wtap *wth, const char *line,
-	union wtap_pseudo_header *pseudo_header, int *err);
+	union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static int parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
-	int *err);
+	int *err, gchar **err_info);
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
 
@@ -279,7 +280,7 @@ static gboolean cosine_check_file_type(wtap *wth, int *err)
 }
 
 
-int cosine_open(wtap *wth, int *err)
+int cosine_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	/* Look for CoSine header */
 	if (!cosine_check_file_type(wth, err)) {
@@ -303,7 +304,8 @@ int cosine_open(wtap *wth, int *err)
 }
 
 /* Find the next packet and parse it; called from wtap_loop(). */
-static gboolean cosine_read(wtap *wth, int *err, long *data_offset)
+static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	long	offset;
 	guint8	*buf;
@@ -316,7 +318,8 @@ static gboolean cosine_read(wtap *wth, int *err, long *data_offset)
 		return FALSE;
 
 	/* Parse the header */
-	pkt_len = parse_cosine_rec_hdr(wth, line, &wth->pseudo_header, err);
+	pkt_len = parse_cosine_rec_hdr(wth, line, &wth->pseudo_header, err,
+	    err_info);
 	if (pkt_len == -1)
 		return FALSE;
 
@@ -325,7 +328,8 @@ static gboolean cosine_read(wtap *wth, int *err, long *data_offset)
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	/* Convert the ASCII hex dump to binary data */
-	if ((caplen = parse_cosine_hex_dump(wth->fh, pkt_len, buf, err)) == -1)
+	if ((caplen = parse_cosine_hex_dump(wth->fh, pkt_len, buf, err,
+	    err_info)) == -1)
 		return FALSE;
 
 	wth->data_offset = offset;
@@ -337,7 +341,8 @@ static gboolean cosine_read(wtap *wth, int *err, long *data_offset)
 /* Used to read packets in random-access fashion */
 static gboolean
 cosine_seek_read (wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err)
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err, gchar **err_info)
 {
 	char	line[COSINE_LINE_LENGTH];
 
@@ -352,10 +357,10 @@ cosine_seek_read (wtap *wth, long seek_off,
 		return FALSE;
 	}
 
-	if (parse_cosine_rec_hdr(NULL, line, pseudo_header, err) == -1)
+	if (parse_cosine_rec_hdr(NULL, line, pseudo_header, err, err_info) == -1)
 		return FALSE;
 
-	return parse_cosine_hex_dump(wth->random_fh, len, pd, err);
+	return parse_cosine_hex_dump(wth->random_fh, len, pd, err, err_info);
 }
 
 /* Parses a packet record header. There are two possible formats:
@@ -364,7 +369,8 @@ cosine_seek_read (wtap *wth, long seek_off,
     2) output to PE without date and time
         l2-tx (FR:3/7/1:1), Length:18, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0] */
 static int
-parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseudo_header, int *err)
+parse_cosine_rec_hdr(wtap *wth, const char *line,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
 	int	num_items_scanned;
 	int	yy, mm, dd, hr, min, sec, csec, pkt_len;
@@ -385,6 +391,7 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 
 		if (num_items_scanned != 17) {
 			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup("cosine: purported control blade line doesn't have code values");
 			return -1;
 		}
 	} else {
@@ -397,6 +404,7 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 
 		if (num_items_scanned != 10) {
 			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup("cosine: header line is neither control blade nor PE output");
 			return -1;
 		}
 		yy = mm = dd = hr = min = sec = csec = 0;
@@ -455,7 +463,8 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 /* Converts ASCII hex dump to binary data. Returns the capture length.
    If any error is encountered, -1 is returned. */
 static int
-parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
+parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
+    gchar **err_info)
 {
 	gchar	line[COSINE_LINE_LENGTH];
 	int	i, hex_lines, n, caplen = 0;
@@ -477,6 +486,7 @@ parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 		}
 		if ((n = parse_single_hex_dump_line(line, buf, i*16)) == -1) {
 			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup("cosine: hex dump line doesn't have 16 numbers");
 			return -1;
 		}
 		caplen += n;

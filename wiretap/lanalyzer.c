@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.45 2004/01/07 04:50:21 guy Exp $
+ * $Id: lanalyzer.c,v 1.46 2004/01/25 21:55:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -117,13 +117,15 @@ static const guint8 LA_CyclicInformationFake[] = {
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
       };
 
-static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset);
+static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
 static void     lanalyzer_close(wtap *wth);
 static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
-int lanalyzer_open(wtap *wth, int *err)
+int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char LE_record_type[2];
@@ -242,10 +244,10 @@ int lanalyzer_open(wtap *wth, int *err)
 						wth->file_encap = WTAP_ENCAP_TOKEN_RING;
 						break;
 					default:
-						g_message("lanalyzer: board type %u unknown",
-						    board_type);
 						g_free(wth->capture.lanalyzer);
 						*err = WTAP_ERR_UNSUPPORTED;
+						*err_info = g_strdup_printf("lanalyzer: board type %u unknown",
+						    board_type);
 						return -1;
 				}
 				break;
@@ -270,7 +272,8 @@ int lanalyzer_open(wtap *wth, int *err)
 #define DESCRIPTOR_LEN	32
 
 /* Read the next packet */
-static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset)
+static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	int		packet_size = 0;
 	int		bytes_read;
@@ -308,9 +311,9 @@ static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset)
 	 * the middle of reading packets.  If any other record type exists
 	 * after a Trace Packet Data Record, mark it as an error. */
 	if (record_type != RT_PacketData) {
-		g_message("lanalyzer: record type %u seen after trace summary record",
-		    record_type);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("lanalyzer: record type %u seen after trace summary record",
+		    record_type);
 		return FALSE;
 	}
 	else {
@@ -357,8 +360,8 @@ static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset)
 		/*
 		 * Yes - treat this as an error.
 		 */
-		g_message("lanalyzer: Record length is less than packet size");
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup("lanalyzer: Record length is less than packet size");
 		return FALSE;
 	}
 
@@ -396,7 +399,8 @@ static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset)
 }
 
 static gboolean lanalyzer_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info _U_)
 {
 	int bytes_read;
 

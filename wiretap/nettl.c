@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.33 2003/10/01 07:11:48 guy Exp $
+ * $Id: nettl.c,v 1.34 2004/01/25 21:55:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -123,18 +123,19 @@ struct nettlrec_ns_ls_drv_eth_hdr {
 };
 
 
-static gboolean nettl_read(wtap *wth, int *err, long *data_offset);
+static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
+		long *data_offset);
 static gboolean nettl_seek_read(wtap *wth, long seek_off,
 		union wtap_pseudo_header *pseudo_header, guchar *pd,
-		int length, int *err);
+		int length, int *err, gchar **err_info);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
-		int *err);
+		int *err, gchar **err_info);
 static gboolean nettl_read_rec_data(FILE_T fh, guchar *pd, int length,
 		int *err);
 static void nettl_close(wtap *wth);
 
-int nettl_open(wtap *wth, int *err)
+int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 {
     char magic[12], os_vers[2];
     int bytes_read;
@@ -185,14 +186,15 @@ int nettl_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean nettl_read(wtap *wth, int *err, long *data_offset)
+static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
     int ret;
 
     /* Read record header. */
     *data_offset = wth->data_offset;
     ret = nettl_read_rec_header(wth, wth->fh, &wth->phdr, &wth->pseudo_header,
-        err);
+        err, err_info);
     if (ret <= 0) {
 	/* Read error or EOF */
 	return FALSE;
@@ -213,7 +215,7 @@ static gboolean nettl_read(wtap *wth, int *err, long *data_offset)
 static gboolean
 nettl_seek_read(wtap *wth, long seek_off,
 		union wtap_pseudo_header *pseudo_header, guchar *pd,
-		int length, int *err)
+		int length, int *err, gchar **err_info)
 {
     int ret;
     struct wtap_pkthdr phdr;
@@ -223,7 +225,7 @@ nettl_seek_read(wtap *wth, long seek_off,
 
     /* Read record header. */
     ret = nettl_read_rec_header(wth, wth->random_fh, &phdr, pseudo_header,
-        err);
+        err, err_info);
     if (ret <= 0) {
 	/* Read error or EOF */
 	if (ret == 0) {
@@ -241,7 +243,8 @@ nettl_seek_read(wtap *wth, long seek_off,
 
 static int
 nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
-		union wtap_pseudo_header *pseudo_header, int *err)
+		union wtap_pseudo_header *pseudo_header, int *err,
+		gchar **err_info)
 {
     int bytes_read;
     struct nettlrec_sx25l2_hdr lapb_hdr;
@@ -435,9 +438,9 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	        (lapb_hdr.from_dce & 0x20 ? FROM_DCE : 0x00);
 	    break;
 	default:
-	    g_message("nettl: network type %u unknown or unsupported",
-		    encap[3]);
 	    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+	    *err_info = g_strdup_printf("nettl: network type %u unknown or unsupported",
+		    encap[3]);
 	    return -1;
     }
     return offset;

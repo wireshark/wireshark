@@ -1,6 +1,6 @@
 /* vms.h
  *
- * $Id: vms.h,v 1.2 2003/01/17 23:54:19 guy Exp $
+ * $Id: vms.h,v 1.3 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -24,6 +24,6 @@
 #ifndef __W_VMS_H__
 #define __W_VMS_H__
 
-int vms_open(wtap *wth, int *err);
+int vms_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

@@ -1,6 +1,6 @@
 /* 5views.c
  *
- * $Id: 5views.c,v 1.3 2003/10/01 07:11:46 guy Exp $
+ * $Id: 5views.c,v 1.4 2004/01/25 21:55:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -102,10 +102,15 @@ typedef struct
 #define CST_5VW_CAPTURES_RECORD		(CST_5VW_SECTION_CAPTURES << 28)	/* 0x80000000 */
 #define CST_5VW_SYSTEM_RECORD		0x00000000
 
-static gboolean _5views_read(wtap *wth, int *err, long *data_offset);
-static gboolean _5views_read_rec_data(FILE_T fh, guchar *pd, int length,int *err);
-static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   int *err);
-static gboolean _5views_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
+static gboolean _5views_read_rec_data(FILE_T fh, guchar *pd, int length,
+    int *err);
+static int _5views_read_header(wtap *wth, FILE_T fh,
+    t_5VW_TimeStamped_Header  *hdr, int *err);
+static gboolean _5views_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
 
 
 static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -113,7 +118,7 @@ static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static gboolean _5views_dump_close(wtap_dumper *wdh, int *err);
 
 
-int _5views_open(wtap *wth, int *err)
+int _5views_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	t_5VW_Capture_Header Capture_Header;
@@ -145,8 +150,8 @@ int _5views_open(wtap *wth, int *err)
 		break;
 
 	default:
-		g_message("5views: header version %u unsupported", Capture_Header.Info_Header.Version);
 		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("5views: header version %u unsupported", Capture_Header.Info_Header.Version);
 		return -1;
 	}
 
@@ -155,8 +160,8 @@ int _5views_open(wtap *wth, int *err)
 	    pletohl(&Capture_Header.Info_Header.FileType);
 	if((Capture_Header.Info_Header.FileType & CST_5VW_CAPTURE_FILE_TYPE_MASK) != CST_5VW_CAPTURE_FILEID)
 	{
-		g_message("5views: file is not a capture file (filetype is %u)", Capture_Header.Info_Header.Version);
 		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("5views: file is not a capture file (filetype is %u)", Capture_Header.Info_Header.Version);
 		return -1;
 	}
 
@@ -169,9 +174,9 @@ int _5views_open(wtap *wth, int *err)
 		break;
 */
 	default:
-		g_message("5views: network type %u unknown or unsupported",
-		    Capture_Header.Info_Header.FileType);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("5views: network type %u unknown or unsupported",
+		    Capture_Header.Info_Header.FileType);
 		return -1;
 	}
 
@@ -197,7 +202,7 @@ int _5views_open(wtap *wth, int *err)
 
 /* Read the next packet */
 static gboolean
-_5views_read(wtap *wth, int *err, long *data_offset)
+_5views_read(wtap *wth, int *err, gchar **err_info _U_, long *data_offset)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
 	int	bytes_read;
@@ -309,7 +314,8 @@ _5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   
 
 static gboolean
 _5views_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info _U_)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;

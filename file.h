@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.114 2004/01/25 00:58:12 guy Exp $
+ * $Id: file.h,v 1.115 2004/01/25 21:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,7 @@ typedef enum {
 
 int  cf_open(char *, gboolean, capture_file *);
 void cf_close(capture_file *);
-read_status_t cf_read(capture_file *, int *);
+read_status_t cf_read(capture_file *);
 int  cf_start_tail(char *, gboolean, capture_file *);
 read_status_t cf_continue_tail(capture_file *, int, int *);
 read_status_t cf_finish_tail(capture_file *, int *);
@@ -100,6 +100,6 @@ int file_mv(char *from, char *to);
 /* Copies a file. Returns 0 on failure, 1 on success */
 int file_cp(char *from, char *to);
 
-char *file_read_error_message(int);
+char *cf_read_error_message(int, gchar *);
 
 #endif /* file.h */

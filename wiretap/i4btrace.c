@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.23 2002/10/31 07:12:41 guy Exp $
+ * $Id: i4btrace.c,v 1.24 2004/01/25 21:55:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -32,9 +32,11 @@
 #include "buffer.h"
 #include "i4b_trace.h"
 
-static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset);
+static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean i4btrace_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
 static gboolean i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err);
@@ -50,7 +52,7 @@ static void i4btrace_close(wtap *wth);
 	    (unsigned)hdr.type > 4 || (unsigned)hdr.dir > 2 || \
 	    (unsigned)hdr.trunc > 2048))
 
-int i4btrace_open(wtap *wth, int *err)
+int i4btrace_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	int bytes_read;
 	i4b_trace_hdr_t hdr;
@@ -110,10 +112,9 @@ int i4btrace_open(wtap *wth, int *err)
 	return 1;
 }
 
-#define V120SABME	"\010\001\177"
-
 /* Read the next packet */
-static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset)
+static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	int	ret;
 	i4b_trace_hdr_t hdr;
@@ -131,6 +132,8 @@ static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset)
 	i4b_byte_swap_header(wth, &hdr);
 	if (hdr.length < sizeof(hdr)) {
 		*err = WTAP_ERR_BAD_RECORD;	/* record length < header! */
+		*err_info = g_strdup_printf("i4btrace: record length %u < header length %u",
+		    hdr.length, sizeof(hdr));
 		return FALSE;
 	}
 	length = hdr.length - sizeof(hdr);
@@ -178,7 +181,8 @@ static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 i4btrace_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info _U_)
 {
 	int	ret;
 	i4b_trace_hdr_t hdr;

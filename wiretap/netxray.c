@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.86 2004/01/19 02:23:18 guy Exp $
+ * $Id: netxray.c,v 1.87 2004/01/25 21:55:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -151,9 +151,11 @@ union netxrayrec_hdr {
 	struct netxrayrec_2_x_hdr hdr_2_x;
 };
 
-static gboolean netxray_read(wtap *wth, int *err, long *data_offset);
+static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean netxray_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
 static int netxray_read_rec_header(wtap *wth, FILE_T fh,
     union netxrayrec_hdr *hdr, int *err);
 static guint netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
@@ -170,7 +172,7 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
 
-int netxray_open(wtap *wth, int *err)
+int netxray_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic[sizeof netxray_magic];
@@ -274,8 +276,8 @@ int netxray_open(wtap *wth, int *err)
 			version_minor = 2;
 			file_type = WTAP_FILE_NETXRAY_2_00x;
 		} else {
-			g_message("netxray: version \"%.8s\" unsupported", hdr.version);
 			*err = WTAP_ERR_UNSUPPORTED;
+			*err_info = g_strdup_printf("netxray: version \"%.8s\" unsupported", hdr.version);
 			return -1;
 		}
 	}
@@ -302,17 +304,17 @@ int netxray_open(wtap *wth, int *err)
 		break;
 
 	default:
-		g_message("netxray: the byte after the network type has the value %u, which I don't understand",
-		    hdr.xxz[0]);
 		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("netxray: the byte after the network type has the value %u, which I don't understand",
+		    hdr.xxz[0]);
 		return -1;
 	}
 
 	if (network_type >= NUM_NETXRAY_ENCAPS
 	    || netxray_encap[network_type] == WTAP_ENCAP_UNKNOWN) {
-		g_message("netxray: network type %u (%u) unknown or unsupported",
-		    network_type, hdr.xxz[0]);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("netxray: network type %u (%u) unknown or unsupported",
+		    network_type, hdr.xxz[0]);
 		return -1;
 	}
 
@@ -380,9 +382,9 @@ int netxray_open(wtap *wth, int *err)
 			}
 		} else {
 			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
-				g_message("netxray: Unknown timeunit %u",
-				    hdr.timeunit);
 				*err = WTAP_ERR_UNSUPPORTED;
+				*err_info = g_strdup_printf("netxray: Unknown timeunit %u",
+				    hdr.timeunit);
 				return -1;
 			}
 			timeunit = TpS[hdr.timeunit];
@@ -442,9 +444,9 @@ int netxray_open(wtap *wth, int *err)
 					break;
 
 				default:
-					g_message("netxray: WAN HDLC capture subsubtype 0x%02x unknown or unsupported",
-					   hdr.xxb[28]);
 					*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+					*err_info = g_strdup_printf("netxray: WAN HDLC capture subsubtype 0x%02x unknown or unsupported",
+					   hdr.xxb[28]);
 					return -1;
 				}
 				break;
@@ -457,9 +459,9 @@ int netxray_open(wtap *wth, int *err)
 				break;
 
 			default:
-				g_message("netxray: WAN capture subtype 0x%02x unknown or unsupported",
-				   hdr.xxb[20]);
 				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				*err_info = g_strdup_printf("netxray: WAN capture subtype 0x%02x unknown or unsupported",
+				   hdr.xxb[20]);
 				return -1;
 			}
 		} else
@@ -544,7 +546,8 @@ int netxray_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean netxray_read(wtap *wth, int *err, long *data_offset)
+static gboolean netxray_read(wtap *wth, int *err, gchar **err_info _U_,
+    long *data_offset)
 {
 	guint32	packet_size;
 	union netxrayrec_hdr hdr;
@@ -650,7 +653,8 @@ reread:
 
 static gboolean
 netxray_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info _U_)
 {
 	union netxrayrec_hdr hdr;
 	gboolean ret;

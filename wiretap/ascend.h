@@ -1,6 +1,6 @@
 /* ascend.h
  *
- * $Id: ascend.h,v 1.9 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: ascend.h,v 1.10 2004/01/25 21:55:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -28,6 +28,6 @@
 #define ASCEND_MAX_DATA_COLS 16
 #define ASCEND_MAX_PKT_LEN (ASCEND_MAX_DATA_ROWS * ASCEND_MAX_DATA_COLS)
 
-int ascend_open(wtap *wth, int *err);
+int ascend_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

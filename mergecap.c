@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.15 2004/01/18 16:21:12 jmayer Exp $
+ * $Id: mergecap.c,v 1.16 2004/01/25 21:55:10 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -44,6 +44,7 @@ typedef struct in_file_t {
   const char *filename;
   wtap       *wth;
   int         err;
+  gchar      *err_info;
   long        data_offset;
   gboolean    ok;
 } in_file_t;
@@ -96,12 +97,21 @@ append(int count, in_file_t in_files[], out_file_t *out_file)
 {
   int i;
   int err;
+  gchar *err_info;
 
   for (i = 0; i < count; i++) {
     if (!wtap_loop(in_files[i].wth, 0, write_frame,
-                   (guchar*)out_file->pdh, &err)) {
-    fprintf(stderr, "mergecap: Error appending from %s to %s: %s\n",
-            in_files[i].filename, out_file->filename, wtap_strerror(err));
+                   (guchar*)out_file->pdh, &err, &err_info)) {
+      fprintf(stderr, "mergecap: Error reading %s to append to %s: %s\n",
+              in_files[i].filename, out_file->filename, wtap_strerror(err));
+      switch (err) {
+
+      case WTAP_ERR_UNSUPPORTED:
+      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_BAD_RECORD:
+	fprintf(stderr, "(%s)\n", err_info);
+	break;
+      }
     }
   }
 }
@@ -158,6 +168,7 @@ merge(int count, in_file_t in_files[], out_file_t *out_file)
   /* prime the pump (read in first frame from each file) */
   for (i = 0; i < count; i++) {
     in_files[i].ok = wtap_read(in_files[i].wth, &(in_files[i].err),
+                               &(in_files[i].err_info),
                                &(in_files[i].data_offset));
   }
 
@@ -173,7 +184,8 @@ merge(int count, in_file_t in_files[], out_file_t *out_file)
                 wtap_pseudoheader(in_files[i].wth),
                 wtap_buf_ptr(in_files[i].wth));
     in_files[i].ok = wtap_read(in_files[i].wth, &(in_files[i].err),
-                                &(in_files[i].data_offset));
+                               &(in_files[i].err_info),
+                               &(in_files[i].data_offset));
   }
 }
 
@@ -309,6 +321,7 @@ open_in_files(int argc, char *argv[], in_file_t *in_files[])
   int i;
   int count = 0;
   int err;
+  gchar *err_info;
   in_file_t *files;
   int files_size = argc * sizeof(in_file_t);
 
@@ -323,13 +336,21 @@ open_in_files(int argc, char *argv[], in_file_t *in_files[])
 
   for (i = 0; i < argc; i++) {
     files[count].filename    = argv[i];
-    files[count].wth         = wtap_open_offline(argv[i], &err, FALSE);
+    files[count].wth         = wtap_open_offline(argv[i], &err, &err_info, FALSE);
     files[count].err         = 0;
     files[count].data_offset = 0;
     files[count].ok          = TRUE;
     if (!files[count].wth) {
       fprintf(stderr, "mergecap: skipping %s: %s\n", argv[i],
               wtap_strerror(err));
+      switch (err) {
+
+      case WTAP_ERR_UNSUPPORTED:
+      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_BAD_RECORD:
+        fprintf(stderr, "(%s)\n", err_info);
+        break;
+      }
     } else {
       if (verbose) {
         fprintf(stderr, "mergecap: %s is type %s.\n", argv[i],

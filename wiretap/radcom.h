@@ -1,6 +1,6 @@
 /* radcom.h
  *
- * $Id: radcom.h,v 1.7 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: radcom.h,v 1.8 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -24,6 +24,6 @@
 #ifndef __RADCOM_H__
 #define __RADCOM_H__
 
-int radcom_open(wtap *wth, int *err);
+int radcom_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

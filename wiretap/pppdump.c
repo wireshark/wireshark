@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.24 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: pppdump.c,v 1.25 2004/01/25 21:55:17 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -98,9 +98,11 @@ typedef enum {
 	DIRECTION_RECV
 } direction_enum;
 
-static gboolean pppdump_read(wtap *wth, int *err, long *data_offset);
+static gboolean pppdump_read(wtap *wth, int *err, gchar **err_info,
+	long *data_offset);
 static gboolean pppdump_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err, gchar **err_info);
 
 /*
  * Information saved about a packet, during the initial sequential pass
@@ -211,8 +213,9 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
     int *err, pkt_id *pid);
 
 static gboolean
-collate(pppdump_t*, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
-		direction_enum *direction, pkt_id *pid, int num_bytes_to_skip);
+collate(pppdump_t*, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
+		int *num_bytes, direction_enum *direction, pkt_id *pid,
+		int num_bytes_to_skip);
 
 static void
 pppdump_close(wtap *wth);
@@ -244,7 +247,7 @@ init_state(pppdump_t *state)
 
 
 int
-pppdump_open(wtap *wth, int *err)
+pppdump_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	guint8		buffer[6];	/* Looking for: 0x07 t3 t2 t1 t0 ID */
 	pppdump_t	*state;
@@ -308,7 +311,7 @@ pppdump_open(wtap *wth, int *err)
 
 /* Find the next packet and parse it; called from wtap_loop(). */
 static gboolean
-pppdump_read(wtap *wth, int *err, long *data_offset)
+pppdump_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
 {
 	int		num_bytes;
 	direction_enum	direction;
@@ -333,7 +336,7 @@ pppdump_read(wtap *wth, int *err, long *data_offset)
 	} else
 		pid = NULL;	/* sequential only */
 
-	if (!collate(state, wth->fh, err, buf, &num_bytes, &direction,
+	if (!collate(state, wth->fh, err, err_info, buf, &num_bytes, &direction,
 	    pid, 0)) {
 	    	if (pid != NULL)
 			g_free(pid);
@@ -522,8 +525,9 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 
 /* Returns TRUE if packet data copied, FALSE if error occurred or EOF (no more records). */
 static gboolean
-collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
-		direction_enum *direction, pkt_id *pid, int num_bytes_to_skip)
+collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
+		int *num_bytes, direction_enum *direction, pkt_id *pid,
+		int num_bytes_to_skip)
 {
 	int		id;
 	pkt_t		*pkt = NULL;
@@ -660,8 +664,8 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 
 			default:
 				/* XXX - bad file */
-				g_message("pppdump: bad ID byte 0x%02x", id);
 				*err = WTAP_ERR_BAD_RECORD;
+				*err_info = g_strdup_printf("pppdump: bad ID byte 0x%02x", id);
 				return FALSE;
 		}
 
@@ -680,7 +684,8 @@ pppdump_seek_read(wtap *wth,
 		 union wtap_pseudo_header *pseudo_header,
 		 guint8 *pd,
 		 int len,
-		 int *err)
+		 int *err,
+		 gchar **err_info)
 {
 	int		num_bytes;
 	direction_enum	direction;
@@ -693,6 +698,7 @@ pppdump_seek_read(wtap *wth,
 	pid = g_ptr_array_index(state->pids, seek_off);
 	if (!pid) {
 		*err = WTAP_ERR_BAD_RECORD;	/* XXX - better error? */
+		*err_info = g_strdup("pppdump: PID not found for record");
 		return FALSE;
 	}
 
@@ -715,14 +721,16 @@ pppdump_seek_read(wtap *wth,
 	 */
 	num_bytes_to_skip = pid->num_bytes_to_skip;
 	do {
-		if (!collate(state->seek_state, wth->random_fh, err, pd,
-		    &num_bytes, &direction, NULL, num_bytes_to_skip))
+		if (!collate(state->seek_state, wth->random_fh, err, err_info,
+		    pd, &num_bytes, &direction, NULL, num_bytes_to_skip))
 			return FALSE;
 		num_bytes_to_skip = 0;
 	} while (direction != pid->dir);
 
 	if (len != num_bytes) {
 		*err = WTAP_ERR_BAD_RECORD;	/* XXX - better error? */
+		*err_info = g_strdup_printf("pppdump: requested length %d doesn't match record length %d",
+		    len, num_bytes);
 		return FALSE;
 	}
 

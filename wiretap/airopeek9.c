@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.3 2003/12/03 19:47:36 guy Exp $
+ * $Id: airopeek9.c,v 1.4 2004/01/25 21:55:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -69,9 +69,11 @@ typedef struct airopeek_utime {
 
 static const unsigned int mac2unix = 2082844800u;
 
-static gboolean airopeek_read_v9(wtap *wth, int *err, long *data_offset);
+static gboolean airopeek_read_v9(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean airopeek_seek_read_v9(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
 
 static int wtap_file_read_pattern (wtap *wth, char *pattern, int *err)
 {
@@ -162,7 +164,7 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err)
 }
 
 
-int airopeek9_open(wtap *wth, int *err)
+int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 {
     airopeek_section_header_t ap_hdr;
     int ret;
@@ -199,8 +201,9 @@ int airopeek9_open(wtap *wth, int *err)
     /* If we got this far, we assume it's an AiroPeek V9 file. */
     if (fileVersion != 9) {
 	/* We only support version 9 and later. */
-	g_message("airopeekv9: version %u unsupported", fileVersion);
 	*err = WTAP_ERR_UNSUPPORTED;
+	*err_info = g_strdup_printf("airopeekv9: version %u unsupported",
+	    fileVersion);
 	return -1;
     }
 
@@ -218,8 +221,8 @@ int airopeek9_open(wtap *wth, int *err)
     if (ret == -1)
 	return -1;
     if (ret == 0) {
-	g_message("airopeekv9: <MediaType> tag not found");
 	*err = WTAP_ERR_UNSUPPORTED;
+	*err_info = g_strdup("airopeekv9: <MediaType> tag not found");
 	return -1;
     }
     /* XXX - this appears to be 0, which is also the media type for
@@ -229,8 +232,8 @@ int airopeek9_open(wtap *wth, int *err)
     if (ret == -1)
 	return -1;
     if (ret == 0) {
-	g_message("airopeekv9: <MediaType> value not found");
 	*err = WTAP_ERR_UNSUPPORTED;
+	*err_info = g_strdup("airopeekv9: <MediaType> value not found");
 	return -1;
     }
 
@@ -264,7 +267,8 @@ int airopeek9_open(wtap *wth, int *err)
     return 1;
 }
 
-static gboolean airopeek_read_v9(wtap *wth, int *err, long *data_offset)
+static gboolean airopeek_read_v9(wtap *wth, int *err, gchar **err_info _U_,
+    long *data_offset)
 {
     guchar ap_pkt[AIROPEEK_V9_PKT_SIZE];
     guint32 length;
@@ -341,7 +345,8 @@ static gboolean airopeek_read_v9(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 airopeek_seek_read_v9(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info _U_)
 {
     guchar ap_pkt[AIROPEEK_V9_PKT_SIZE];
 

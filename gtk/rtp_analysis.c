@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.26 2004/01/25 02:14:05 guy Exp $
+ * $Id: rtp_analysis.c,v 1.27 2004/01/25 21:55:11 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -2204,6 +2204,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	capture_file *cf;
 	epan_dissect_t *edt;
 	gint err;
+	gchar *err_info;
 	gboolean frame_matched;
 	frame_data *fdata;
 	GList *strinfo_list;
@@ -2226,9 +2227,10 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 		return; /* if we exit here it's an error */
 
 	/* dissect the current frame */
-	if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header, cf->pd, fdata->cap_len, &err)) {
+	if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
+	    cf->pd, fdata->cap_len, &err, &err_info)) {
 		simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL,
-			file_read_error_message(err), cf->filename);
+			cf_read_error_message(err, err_info), cf->filename);
 		return;
 	}
 	edt = epan_dissect_new(TRUE, FALSE);

@@ -1,6 +1,6 @@
 /* pppdump.h
  *
- * $Id: pppdump.h,v 1.3 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: pppdump.h,v 1.4 2004/01/25 21:55:17 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -23,6 +23,6 @@
 #ifndef __PPPDUMP_H__
 #define __PPPDUMP_H__
 
-int pppdump_open(wtap *wth, int *err);
+int pppdump_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

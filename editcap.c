@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.27 2004/01/18 16:21:12 jmayer Exp $
+ * $Id: editcap.c,v 1.28 2004/01/25 21:55:09 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -307,6 +307,7 @@ int main(int argc, char *argv[])
 {
   wtap *wth;
   int i, err;
+  gchar *err_info;
   callback_arg args;
   extern char *optarg;
   extern int optind;
@@ -384,12 +385,19 @@ int main(int argc, char *argv[])
 
   }
 
-  wth = wtap_open_offline(argv[optind], &err, FALSE);
+  wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
 
   if (!wth) {
-
     fprintf(stderr, "editcap: Can't open %s: %s\n", argv[optind],
         wtap_strerror(err));
+    switch (err) {
+
+    case WTAP_ERR_UNSUPPORTED:
+    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_BAD_RECORD:
+      fprintf(stderr, "(%s)\n", err_info);
+      break;
+    }
     exit(1);
 
   }
@@ -430,7 +438,20 @@ int main(int argc, char *argv[])
     for (i = optind + 2; i < argc; i++)
       add_selection(argv[i]);
 
-    wtap_loop(wth, 0, edit_callback, (char *)&args, &err);
+    if (!wtap_loop(wth, 0, edit_callback, (char *)&args, &err, &err_info)) {
+      /* Print a message noting that the read failed somewhere along the line. */
+      fprintf(stderr,
+              "editcap: An error occurred while reading \"%s\": %s.\n",
+	      argv[optind], wtap_strerror(err));
+      switch (err) {
+
+      case WTAP_ERR_UNSUPPORTED:
+      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_BAD_RECORD:
+	fprintf(stderr, "(%s)\n", err_info);
+	break;
+      }
+    }
 
     if (!wtap_dump_close(args.pdh, &err)) {
 

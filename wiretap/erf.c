@@ -32,7 +32,7 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* $Id: erf.c,v 1.6 2004/01/05 17:33:27 ulfl Exp $
+* $Id: erf.c,v 1.7 2004/01/25 21:55:13 guy Exp $
 */
 
 /* 
@@ -61,12 +61,14 @@ static int erf_read_header(
 		erf_header_t *erf_header,
 		erf_t *erf,
 		int *err,
+		gchar **err_info,
 		guint32 *bytes_read,
 		guint32 *packet_size);
-static gboolean erf_read(wtap *wth, int *err, long *data_offset);
+static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
+		long *data_offset);
 static gboolean erf_seek_read(wtap *wth, long seek_off,
 		union wtap_pseudo_header *pseudo_header, guchar *pd,
-		int length, int *err);
+		int length, int *err, gchar **err_info);
 static void erf_close(wtap *wth);
 static int erf_encap_to_wtap_encap(erf_t *erf, guint8 erf_encap);
 static void erf_set_pseudo_header(
@@ -76,7 +78,7 @@ static void erf_set_pseudo_header(
 		int length,
 		union wtap_pseudo_header *pseudo_header);
 
-int erf_open(wtap *wth, int *err)
+int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	guint32 i, n;
 	char *s;
@@ -213,7 +215,8 @@ int erf_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean erf_read(wtap *wth, int *err, long *data_offset)
+static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	erf_header_t erf_header;
 	guint32 packet_size, bytes_read;
@@ -224,7 +227,7 @@ static gboolean erf_read(wtap *wth, int *err, long *data_offset)
 	if (!erf_read_header(
 			wth->fh,
 			&wth->phdr, &wth->pseudo_header, &erf_header, wth->capture.erf,
-			err, &bytes_read, &packet_size)) {
+			err, err_info, &bytes_read, &packet_size)) {
 		return FALSE;
 	}
 	wth->data_offset += bytes_read;
@@ -255,7 +258,7 @@ static gboolean erf_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean erf_seek_read(wtap *wth, long seek_off,
 		union wtap_pseudo_header *pseudo_header, guchar *pd,
-		int length, int *err)
+		int length, int *err, gchar **err_info)
 {
 	erf_header_t erf_header;
 	guint32 packet_size;
@@ -264,7 +267,9 @@ static gboolean erf_seek_read(wtap *wth, long seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	erf_read_header(wth->random_fh, NULL, pseudo_header, &erf_header, wth->capture.erf, err, NULL, &packet_size);
+	if (!erf_read_header(wth->random_fh, NULL, pseudo_header, &erf_header,
+	    wth->capture.erf, err, err_info, NULL, &packet_size))
+                return FALSE;
 
 	if (wth->capture.erf->is_rawatm) {
 		wtap_file_read_expected_bytes(pd, (int)sizeof(atm_hdr_t), wth->random_fh, err);
@@ -291,6 +296,7 @@ static int erf_read_header(
 	erf_header_t *erf_header,
 	erf_t *erf,
 	int *err,
+	gchar **err_info,
 	guint32 *bytes_read,
 	guint32 *packet_size)
 {
@@ -310,9 +316,9 @@ static int erf_read_header(
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		g_message("erf: File has %u-byte packet, bigger than maximum of %u",
-		    *packet_size, WTAP_MAX_PACKET_SIZE);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("erf: File has %u-byte packet, bigger than maximum of %u",
+		    *packet_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
 	}
 
@@ -339,7 +345,6 @@ static int erf_read_header(
 
 	case TYPE_ATM:
 	case TYPE_AAL5:
-
 		if (phdr != NULL) {
 			if (erf_header->type == TYPE_AAL5) {
 				phdr->caplen = phdr->len = *packet_size - sizeof(atm_hdr_t);
@@ -393,6 +398,8 @@ static int erf_read_header(
 		break;
 	default:
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("erf: unknown record encapsulation %u",
+		    erf_header->type);
 		return FALSE;
 	}
 

@@ -1,6 +1,6 @@
 /* airopeek9.h
  *
- * $Id: airopeek9.h,v 1.1 2003/12/02 19:37:05 guy Exp $
+ * $Id: airopeek9.h,v 1.2 2004/01/25 21:55:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -24,6 +24,6 @@
 #ifndef __W_AIROPEEK9_H__
 #define __W_AIROPEEK9_H__
 
-int airopeek9_open(wtap *wth, int *err);
+int airopeek9_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

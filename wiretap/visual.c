@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.14 2003/10/25 07:17:28 guy Exp $
+ * $Id: visual.c,v 1.15 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -112,11 +112,12 @@ struct visual_write_info
 
 
 /* Local functions to handle file reads and writes */
-static gboolean visual_read(wtap *wth, int *err, long *data_offset);
+static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static void visual_close(wtap *wth);
 static gboolean visual_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
-    int *err);
+    int *err, gchar **err_info);
 static void visual_set_pseudo_header(int encap, struct visual_pkt_hdr *vpkt_hdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -126,7 +127,7 @@ static void visual_dump_free(wtap_dumper *wdh);
 
 
 /* Open a file for reading */
-int visual_open(wtap *wth, int *err)
+int visual_open(wtap *wth, int *err, gchar **err_info)
 {
     int bytes_read;
     char magic[sizeof visual_magic];
@@ -164,8 +165,8 @@ int visual_open(wtap *wth, int *err)
     vfile_hdr.file_version = pletohs(&vfile_hdr.file_version);
     if (vfile_hdr.file_version != 1)
     {
-        g_message("visual: file version %u unsupported", vfile_hdr.file_version);
         *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = g_strdup_printf("visual: file version %u unsupported", vfile_hdr.file_version);
         return -1;
     }
 
@@ -195,9 +196,9 @@ int visual_open(wtap *wth, int *err)
         break;
 
     default:
-        g_message("visual: network type %u unknown or unsupported",
-                  vfile_hdr.media_type);
         *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+        *err_info = g_strdup_printf("visual: network type %u unknown or unsupported",
+                                     vfile_hdr.media_type);
         return -1;
     }
 
@@ -230,7 +231,8 @@ int visual_open(wtap *wth, int *err)
    in a loop to sequentially read the entire file one time.  After
    the file has been read once, any Future access to the packets is
    done through seek_read. */
-static gboolean visual_read(wtap *wth, int *err, long *data_offset)
+static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
     struct visual_read_info *visual = wth->capture.generic;
     guint32 packet_size = 0;
@@ -271,9 +273,9 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
     {
         /* Probably a corrupt capture file; don't blow up trying
           to allocate space for an immensely-large packet. */
-        g_message("visual: File has %u-byte packet, bigger than maximum of %u",
-            packet_size, WTAP_MAX_PACKET_SIZE);
         *err = WTAP_ERR_BAD_RECORD;
+        *err_info = g_strdup_printf("visual: File has %u-byte packet, bigger than maximum of %u",
+            packet_size, WTAP_MAX_PACKET_SIZE);
         return FALSE;
     }
     buffer_assure_space(wth->frame_buffer, packet_size);
@@ -330,7 +332,8 @@ static void visual_close(wtap *wth)
    This gets the packet data and rebuilds the pseudo header so that
    the direction flag works. */
 static gboolean visual_seek_read (wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err)
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+    int *err, gchar **err_info _U_)
 {
     struct visual_pkt_hdr vpkt_hdr;
     int phdr_size = sizeof(vpkt_hdr);

@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.20 2004/01/24 16:48:12 jmayer Exp $
+ * $Id: vms.c,v 1.21 2004/01/25 21:55:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -143,14 +143,16 @@ to handle them.
 #define VMS_HEADER_LINES_TO_CHECK    200
 #define VMS_LINE_LENGTH              240
 
-static gboolean vms_read(wtap *wth, int *err, long *data_offset);
+static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean vms_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+    int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
     long byte_offset, int in_off, int remaining_bytes);
 static gboolean parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
-    int *err);
-static int parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err);
+    int *err, gchar **err_info);
+static int parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info);
 
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
 /* Seeks to the beginning of the next packet, and returns the
@@ -253,7 +255,7 @@ static gboolean vms_check_file_type(wtap *wth, int *err)
 }
 
 
-int vms_open(wtap *wth, int *err)
+int vms_open(wtap *wth, int *err, gchar **err_info _U_)
 {
     /* Look for VMS header */
     if (!vms_check_file_type(wth, err)) {
@@ -274,7 +276,8 @@ int vms_open(wtap *wth, int *err)
 }
 
 /* Find the next packet and parse it; called from wtap_loop(). */
-static gboolean vms_read(wtap *wth, int *err, long *data_offset)
+static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
     long   offset = 0;
     guint8    *buf;
@@ -290,7 +293,7 @@ static gboolean vms_read(wtap *wth, int *err, long *data_offset)
         return FALSE;
 
     /* Parse the header */
-    pkt_len = parse_vms_rec_hdr(wth, wth->fh, err);
+    pkt_len = parse_vms_rec_hdr(wth, wth->fh, err, err_info);
     if (pkt_len == -1)
 	return FALSE;
 
@@ -299,7 +302,7 @@ static gboolean vms_read(wtap *wth, int *err, long *data_offset)
     buf = buffer_start_ptr(wth->frame_buffer);
 
     /* Convert the ASCII hex dump to binary data */
-    if (!parse_vms_hex_dump(wth->fh, pkt_len, buf, err))
+    if (!parse_vms_hex_dump(wth->fh, pkt_len, buf, err, err_info))
         return FALSE;
 
     wth->data_offset = offset;
@@ -311,22 +314,25 @@ static gboolean vms_read(wtap *wth, int *err, long *data_offset)
 static gboolean
 vms_seek_read (wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header _U_,
-    guint8 *pd, int len, int *err)
+    guint8 *pd, int len, int *err, gchar **err_info)
 {
     int    pkt_len;
 
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return FALSE;
 
-    pkt_len = parse_vms_rec_hdr(NULL, wth->random_fh, err);
+    pkt_len = parse_vms_rec_hdr(NULL, wth->random_fh, err, err_info);
 
     if (pkt_len != len) {
-        if (pkt_len != -1)
+        if (pkt_len != -1) {
             *err = WTAP_ERR_BAD_RECORD;
+            *err_info = g_strdup_printf("vms: requested length %d doesn't match length %d",
+                len, pkt_len);
+        }
         return FALSE;
     }
 
-    return parse_vms_hex_dump(wth->random_fh, pkt_len, pd, err);
+    return parse_vms_hex_dump(wth->random_fh, pkt_len, pd, err, err_info);
 }
 
 /* isdumpline assumes that dump lines start with some non-alphanumerics
@@ -356,7 +362,7 @@ isdumpline( gchar *line )
 
 /* Parses a packet record header. */
 static int
-parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
+parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 {
     char   line[VMS_LINE_LENGTH + 1];
     int    num_items_scanned;
@@ -406,6 +412,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 	    /* We will need to add code to handle new format */
 	    if (num_items_scanned != 8) {
 	        *err = WTAP_ERR_BAD_RECORD;
+	        *err_info = g_strdup_printf("vms: header line not valid");
 		return -1;
 	    }
 	}
@@ -416,6 +423,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 
             if ( !*p ) {
                 *err = WTAP_ERR_BAD_RECORD;
+	        *err_info = g_strdup_printf("vms: Length field not valid");
                 return -1;
             }
 
@@ -444,7 +452,8 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 
 /* Converts ASCII hex dump to binary data */
 static gboolean
-parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
+parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
+    gchar **err_info)
 {
     gchar line[VMS_LINE_LENGTH + 1];
     int    i;
@@ -476,6 +485,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 	if (!parse_single_hex_dump_line(line, buf, i,
 					offset, pkt_len - i)) {
             *err = WTAP_ERR_BAD_RECORD;
+	    *err_info = g_strdup_printf("vms: hex dump not valid");
             return FALSE;
         }
     }

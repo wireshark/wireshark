@@ -1,6 +1,6 @@
 /* hcidump.c
  *
- * $Id: hcidump.c,v 1.2 2003/10/30 11:53:48 guy Exp $
+ * $Id: hcidump.c,v 1.3 2004/01/25 21:55:13 guy Exp $
  *
  * Copyright (c) 2003 by Marcel Holtmann <marcel@holtmann.org>
  *
@@ -38,7 +38,8 @@ struct dump_hdr {
 
 #define DUMP_HDR_SIZE (sizeof(struct dump_hdr))
 
-static gboolean hcidump_read(wtap *wth, int *err, long *data_offset)
+static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	struct dump_hdr dh;
 	guint8 *buf;
@@ -61,9 +62,9 @@ static gboolean hcidump_read(wtap *wth, int *err, long *data_offset)
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		g_message("hcidump: File has %u-byte packet, bigger than maximum of %u",
-			packet_size, WTAP_MAX_PACKET_SIZE);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("hcidump: File has %u-byte packet, bigger than maximum of %u",
+			packet_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
 	}
 
@@ -90,7 +91,9 @@ static gboolean hcidump_read(wtap *wth, int *err, long *data_offset)
 	return TRUE;
 }
 
-static gboolean hcidump_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header, guint8 *pd, int length, int *err)
+static gboolean hcidump_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    int *err, gchar **err_info _U_)
 {
 	struct dump_hdr dh;
 	int bytes_read;
@@ -119,7 +122,7 @@ static gboolean hcidump_seek_read(wtap *wth, long seek_off, union wtap_pseudo_he
 	return TRUE;
 }
 
-int hcidump_open(wtap *wth, int *err)
+int hcidump_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	struct dump_hdr dh;
 	guint8 type;

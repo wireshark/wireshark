@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.c,v 1.6 2004/01/05 17:33:28 ulfl Exp $
+ * $Id: network_instruments.c,v 1.7 2004/01/25 21:55:16 guy Exp $
  */
 
 /***************************************************************************
@@ -96,14 +96,16 @@ static void init_time_offset(void)
 }
 
 static gboolean fill_time_struct(guint64 ns_since2000, observer_time* time_conversion);
-static gboolean observer_read(wtap *wth, int *err, long *data_offset);
+static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset);
 static gboolean observer_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info);
 static gboolean observer_dump_close(wtap_dumper *wdh, int *err);
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 
-int network_instruments_open(wtap *wth, int *err)
+int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 
@@ -128,8 +130,8 @@ int network_instruments_open(wtap *wth, int *err)
 
 	/* check the version */
 	if (strncmp(network_instruments_magic, file_header.observer_version, 30)!=0) {
-		g_message("Observer: unsupported file version %s", file_header.observer_version);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("Observer: unsupported file version %s", file_header.observer_version);
 		return -1;
 	}
 
@@ -155,15 +157,15 @@ int network_instruments_open(wtap *wth, int *err)
 	/* check the packet's magic number; the magic number is all 8's,
 	   so the byte order doesn't matter */
 	if (packet_header.packet_magic != observer_packet_magic) {
-		g_message("Observer: unsupported packet version %ul", packet_header.packet_magic);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("Observer: unsupported packet version %ul", packet_header.packet_magic);
 		return -1;
 	}
 
 	/* Check the data link type. */
 	if (packet_header.network_type >= NUM_OBSERVER_ENCAPS) {
-		g_message("observer: network type %u unknown or unsupported", packet_header.network_type);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err_info = g_strdup_printf("observer: network type %u unknown or unsupported", packet_header.network_type);
 		return -1;
 	}
 	wth->file_encap = observer_encap[packet_header.network_type];
@@ -192,7 +194,8 @@ int network_instruments_open(wtap *wth, int *err)
 }
 
 /* reads the next packet */
-static gboolean observer_read(wtap *wth, int *err, long *data_offset)
+static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
+    long *data_offset)
 {
 	int bytes_read;
 	long seek_increment;
@@ -217,8 +220,8 @@ static gboolean observer_read(wtap *wth, int *err, long *data_offset)
 	/* check the packet's magic number; the magic number is all 8's,
 	   so the byte order doesn't matter */
 	if (packet_header.packet_magic != observer_packet_magic) {
-		g_message("Observer: bad record");
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup("Observer: bad record");
 		return FALSE;
 	}
 
@@ -244,10 +247,10 @@ static gboolean observer_read(wtap *wth, int *err, long *data_offset)
 	packet_header.offset_to_frame =
 	    GUINT16_FROM_LE(packet_header.offset_to_frame);
 	if (packet_header.offset_to_frame < sizeof(packet_header)) {
-		g_message("Observer: bad record (offset to frame %u < %lu)",
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("Observer: bad record (offset to frame %u < %lu)",
 		    packet_header.offset_to_frame,
 		    (unsigned long)sizeof(packet_header));
-		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
 	seek_increment = packet_header.offset_to_frame - sizeof(packet_header);
@@ -276,7 +279,8 @@ static gboolean observer_read(wtap *wth, int *err, long *data_offset)
 
 /* reads a packet at an offset */
 static gboolean observer_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    int *err, gchar **err_info)
 {
 	packet_entry_header packet_header;
 
@@ -296,8 +300,8 @@ static gboolean observer_seek_read(wtap *wth, long seek_off,
 
 	/* check the packets magic number */
 	if (packet_header.packet_magic != observer_packet_magic) {
-		g_message("Observer: bad record in observer_seek_read");
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup("Observer: bad magic number for record in observer_seek_read");
 		return FALSE;
 	}
 
@@ -305,7 +309,6 @@ static gboolean observer_seek_read(wtap *wth, long seek_off,
 	bytes_read = file_read(pd, 1, length, wth->random_fh);
 	if (bytes_read != length) {
 		*err = file_error(wth->fh);
-		g_message("Observer: read error in observer_seek_read");
 		return FALSE;
 	}
 

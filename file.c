@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.348 2004/01/25 00:58:11 guy Exp $
+ * $Id: file.c,v 1.349 2004/01/25 21:55:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,8 +115,8 @@ static gboolean find_packet(capture_file *cf,
 	gboolean (*match_function)(capture_file *, frame_data *, void *),
 	void *criterion);
 
-static char *cf_open_error_message(int err, gboolean for_writing,
-    int file_type);
+static char *cf_open_error_message(int err, gchar *err_info,
+    gboolean for_writing, int file_type);
 static char *file_rename_error_message(int err);
 static char *cf_write_error_message(int);
 static char *cf_close_error_message(int err);
@@ -146,10 +146,11 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   wtap       *wth;
   int         err;
+  gchar       *err_info;
   int         fd;
   struct stat cf_stat;
 
-  wth = wtap_open_offline(fname, &err, TRUE);
+  wth = wtap_open_offline(fname, &err, &err_info, TRUE);
   if (wth == NULL)
     goto fail;
 
@@ -213,7 +214,7 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
 
 fail:
   simple_dialog(ESD_TYPE_CRIT, NULL,
-			cf_open_error_message(err, FALSE, 0), fname);
+			cf_open_error_message(err, err_info, FALSE, 0), fname);
   return (err);
 }
 
@@ -326,8 +327,10 @@ set_display_filename(capture_file *cf)
 }
 
 read_status_t
-cf_read(capture_file *cf, int *err)
+cf_read(capture_file *cf)
 {
+  int        err;
+  gchar      *err_info;
   gchar      *name_ptr, *load_msg, *load_fmt = "%s";
   size_t      msg_len;
   char       *errmsg;
@@ -375,7 +378,7 @@ cf_read(capture_file *cf, int *err)
   stop_flag = FALSE;
   g_get_current_time(&start_time);
 
-  while ((wtap_read(cf->wth, err, &data_offset))) {
+  while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
        to repaint what's pending, and doing so may involve an "ioctl()"
@@ -468,11 +471,11 @@ cf_read(capture_file *cf, int *err)
   if (cf->first_displayed != NULL)
     packet_list_select_row(0);
 
-  if (*err != 0) {
+  if (err != 0) {
     /* Put up a message box noting that the read failed somewhere along
        the line.  Don't throw out the stuff we managed to read, though,
        if any. */
-    switch (*err) {
+    switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       errmsg = "The capture file is for a network type that Ethereal doesn't support.";
@@ -489,13 +492,16 @@ cf_read(capture_file *cf, int *err)
       break;
 
     case WTAP_ERR_BAD_RECORD:
-      errmsg = "The capture file appears to be damaged or corrupt.";
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+               "The capture file appears to be damaged or corrupt.\n(%s)",
+               err_info);
+      errmsg = errmsg_errno;
       break;
 
     default:
       snprintf(errmsg_errno, sizeof(errmsg_errno),
 	       "An error occurred while reading the"
-	       " capture file: %s.", wtap_strerror(*err));
+	       " capture file: %s.", wtap_strerror(err));
       errmsg = errmsg_errno;
       break;
     }
@@ -531,12 +537,13 @@ read_status_t
 cf_continue_tail(capture_file *cf, int to_read, int *err)
 {
   long data_offset = 0;
+  gchar *err_info;
 
   *err = 0;
 
   packet_list_freeze();
 
-  while (to_read != 0 && (wtap_read(cf->wth, err, &data_offset))) {
+  while (to_read != 0 && (wtap_read(cf->wth, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to exit Ethereal.  Break out of the
          loop, and let the code below (which is called even if there
@@ -572,11 +579,12 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 read_status_t
 cf_finish_tail(capture_file *cf, int *err)
 {
+  gchar *err_info;
   long data_offset;
 
   packet_list_freeze();
 
-  while ((wtap_read(cf->wth, err, &data_offset))) {
+  while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to abort the read.  Break out of the
          loop, and let the code below (which is called even if there
@@ -1015,6 +1023,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   gboolean    stop_flag;
   int         count;
   int         err;
+  gchar      *err_info;
   frame_data *selected_frame, *preceding_frame, *following_frame, *prev_frame;
   int         selected_row, prev_row, preceding_row, following_row;
   gboolean    selected_frame_seen;
@@ -1146,9 +1155,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     }
 
     if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-    	cf->pd, fdata->cap_len, &err)) {
+    	cf->pd, fdata->cap_len, &err, &err_info)) {
 	simple_dialog(ESD_TYPE_CRIT, NULL,
-		      file_read_error_message(err), cf->filename);
+		      cf_read_error_message(err, err_info), cf->filename);
 	break;
     }
 
@@ -1276,6 +1285,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
 {
   frame_data *fdata;
   int         err;
+  gchar      *err_info;
   union wtap_pseudo_header pseudo_header;
   guint8      pd[WTAP_MAX_PACKET_SIZE+1];
   psp_return_t ret = PSP_FINISHED;
@@ -1356,9 +1366,9 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
 
     /* Get the packet */
     if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
-                        pd, fdata->cap_len, &err)) {
+                        pd, fdata->cap_len, &err, &err_info)) {
       /* Attempt to get the packet failed. */
-      simple_dialog(ESD_TYPE_CRIT, NULL, file_read_error_message(err),
+      simple_dialog(ESD_TYPE_CRIT, NULL, cf_read_error_message(err, err_info),
                     cf->filename);
       ret = PSP_FAILED;
       break;
@@ -2136,6 +2146,7 @@ find_packet(capture_file *cf,
   gboolean    stop_flag;
   int         count;
   int         err;
+  gchar      *err_info;
   int         row;
   float       prog_val;
   GTimeVal    start_time;
@@ -2214,11 +2225,11 @@ find_packet(capture_file *cf,
       if (fdata->flags.passed_dfilter) {
       	/* Yes.  Load its data. */
         if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
-        		cf->pd, fdata->cap_len, &err)) {
+        		cf->pd, fdata->cap_len, &err, &err_info)) {
           /* Read error.  Report the error, and go back to the frame
              where we started. */
           simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_read_error_message(err), cf->filename);
+			cf_read_error_message(err, err_info), cf->filename);
           new_fd = start_fd;
           break;
         }
@@ -2349,6 +2360,7 @@ select_packet(capture_file *cf, int row)
 {
   frame_data *fdata;
   int err;
+  gchar *err_info;
 
   /* Get the frame data struct pointer for this frame */
   fdata = (frame_data *)packet_list_get_row_data(row);
@@ -2386,9 +2398,9 @@ select_packet(capture_file *cf, int row)
 
   /* Get the data in that frame. */
   if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-  		       cf->pd, fdata->cap_len, &err)) {
+  		       cf->pd, fdata->cap_len, &err, &err_info)) {
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  file_read_error_message(err), cf->filename);
+		  cf_read_error_message(err, err_info), cf->filename);
     return;
   }
 
@@ -2601,7 +2613,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
     pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, &err);
     if (pdh == NULL) {
       simple_dialog(ESD_TYPE_CRIT, NULL,
-			cf_open_error_message(err, TRUE, save_format), fname);
+			cf_open_error_message(err, NULL, TRUE, save_format), fname);
       goto fail;
     }
 
@@ -2666,7 +2678,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
     if ((err = cf_open(fname, FALSE, cf)) == 0) {
       /* XXX - report errors if this fails?
          What should we return if it fails or is aborted? */
-      switch (cf_read(cf, &err)) {
+      switch (cf_read(cf)) {
 
       case READ_SUCCESS:
       case READ_ERROR:
@@ -2694,7 +2706,8 @@ fail:
 }
 
 static char *
-cf_open_error_message(int err, gboolean for_writing, int file_type)
+cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
+                      int file_type)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
@@ -2713,9 +2726,17 @@ cf_open_error_message(int err, gboolean for_writing, int file_type)
       break;
 
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
-    case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
       errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
+      break;
+
+    case WTAP_ERR_UNSUPPORTED:
+      /* Seen only when opening a capture file for reading. */
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+               "The file \"%%s\" is not a capture file in a format Ethereal understands.\n"
+               "(%s)", err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_WRITE_TO_PIPE:
@@ -2732,6 +2753,17 @@ cf_open_error_message(int err, gboolean for_writing, int file_type)
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
+      if (for_writing)
+        errmsg = "Ethereal cannot save this capture in that format.";
+      else {
+        snprintf(errmsg_errno, sizeof(errmsg_errno),
+                 "The file \"%%s\" is a capture for a network type that Ethereal doesn't support.\n"
+                 "(%s)", err_info);
+        g_free(err_info);
+        errmsg = errmsg_errno;
+      }
+      break;
+
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
       if (for_writing)
         errmsg = "Ethereal cannot save this capture in that format.";
@@ -2740,7 +2772,12 @@ cf_open_error_message(int err, gboolean for_writing, int file_type)
       break;
 
     case WTAP_ERR_BAD_RECORD:
-      errmsg = "The file \"%s\" appears to be damaged or corrupt.";
+      /* Seen only when opening a capture file for reading. */
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+               "The file \"%%s\" appears to be damaged or corrupt.\n"
+               "(%s)", err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_OPEN:
@@ -2799,13 +2836,26 @@ file_rename_error_message(int err)
 }
 
 char *
-file_read_error_message(int err)
+cf_read_error_message(int err, gchar *err_info)
 {
   static char errmsg_errno[1024+1];
 
-  snprintf(errmsg_errno, sizeof(errmsg_errno),
-		  "An error occurred while reading from the file \"%%s\": %s.",
-				wtap_strerror(err));
+  switch (err) {
+
+  case WTAP_ERR_UNSUPPORTED:
+  case WTAP_ERR_UNSUPPORTED_ENCAP:
+  case WTAP_ERR_BAD_RECORD:
+    snprintf(errmsg_errno, sizeof(errmsg_errno),
+	     "An error occurred while reading from the file \"%%s\": %s.\n(%s)",
+	     wtap_strerror(err), err_info);
+    break;
+
+  default:
+    snprintf(errmsg_errno, sizeof(errmsg_errno),
+	     "An error occurred while reading from the file \"%%s\": %s.",
+	     wtap_strerror(err));
+    break;
+  }
   return errmsg_errno;
 }
 
@@ -2914,7 +2964,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   if (nread < 0) {
     err = errno;
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  file_read_error_message(err), from_filename);
+		  cf_read_error_message(err, NULL), from_filename);
     close(from_fd);
     close(to_fd);
     goto done;

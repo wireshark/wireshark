@@ -1,6 +1,6 @@
 /* libpcap.h
  *
- * $Id: libpcap.h,v 1.14 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: libpcap.h,v 1.15 2004/01/25 21:55:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -91,7 +91,7 @@ struct pcaprec_nokia_hdr {
 	guint8 stuff[4];	/* mysterious stuff */
 };
 
-int libpcap_open(wtap *wth, int *err);
+int libpcap_open(wtap *wth, int *err, gchar **err_info);
 gboolean libpcap_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
 int libpcap_dump_can_write_encap(int encap);
 
