@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.223 2002/01/08 09:32:15 guy Exp $
+ * $Id: main.c,v 1.224 2002/01/10 09:51:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -752,8 +752,10 @@ do_quit(void)
 	   the capture and discard it, and return TRUE, before nuking
 	   any child capture, if they say they don't want to do so. */
 
+#ifdef HAVE_LIBPCAP
 	/* Nuke any child capture in progress. */
 	kill_capture_child();
+#endif
 
 	/* Are we in the middle of reading a capture? */
 	if (cfile.state == FILE_READ_IN_PROGRESS) {
@@ -888,6 +890,7 @@ get_positive_int(const char *string, const char *name)
   return number;
 }
 
+#ifdef HAVE_LIBPCAP
 /*
  * Given a string of the form "<autostop criterion>:<value>", as might appear
  * as an argument to a "-a" option, parse it and set the criterion in
@@ -932,6 +935,7 @@ set_autostop_criterion(const char *autostoparg)
   *colonp = ':'; /* put the colon back */
   return TRUE;
 }
+#endif
 
 /* And now our feature presentation... [ fade to music ] */
 int
@@ -1403,6 +1407,7 @@ main(int argc, char *argv[])
     arg_error = TRUE;
   }
 
+#ifdef HAVE_LIBPCAP
   if (cfile.ringbuffer_on) {
     /* Ring buffer works only under certain conditions:
        a) ring buffer does not work with temporary files;
@@ -1423,6 +1428,7 @@ main(int argc, char *argv[])
       cfile.ringbuffer_on = FALSE;
     }
   }
+#endif
 
 #ifdef WIN32
   /* Load wpcap if possible */
@@ -1492,6 +1498,7 @@ main(int argc, char *argv[])
       cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
+#ifdef HAVE_LIBPCAP
   if (cfile.snap < 1)
     cfile.snap = WTAP_MAX_PACKET_SIZE;
   else if (cfile.snap < MIN_PACKET_SIZE)
@@ -1502,6 +1509,7 @@ main(int argc, char *argv[])
     cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
   else if (cfile.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
     cfile.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+#endif
   
   rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);

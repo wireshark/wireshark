@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.114 2002/01/10 07:43:37 guy Exp $
+ * $Id: tethereal.c,v 1.115 2002/01/10 09:51:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,6 +211,7 @@ get_positive_int(const char *string, const char *name)
   return number;
 }
 
+#ifdef HAVE_LIBPCAP
 /*
  * Given a string of the form "<autostop criterion>:<value>", as might appear
  * as an argument to a "-a" option, parse it and set the criterion in
@@ -255,6 +256,7 @@ set_autostop_criterion(const char *autostoparg)
   *colonp = ':';	/* put the colon back */
   return TRUE;
 }
+#endif
 
 int
 main(int argc, char *argv[])
@@ -618,6 +620,7 @@ main(int argc, char *argv[])
     }
   }
 
+#ifdef HAVE_LIBPCAP
   /* If they didn't specify a "-w" flag, but specified a maximum capture
      file size, tell them that this doesn't work, and exit. */
   if (cfile.autostop_filesize != 0 && cfile.save_file == NULL) {
@@ -640,6 +643,7 @@ main(int argc, char *argv[])
       exit(2);
     }
   }
+#endif
 
 #ifdef WIN32
   /* Start windows sockets */
@@ -672,6 +676,7 @@ main(int argc, char *argv[])
       cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
+#ifdef HAVE_LIBPCAP
   if (cfile.snap < 1)
     cfile.snap = WTAP_MAX_PACKET_SIZE;
   else if (cfile.snap < MIN_PACKET_SIZE)
@@ -682,6 +687,7 @@ main(int argc, char *argv[])
     cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
   else if (cfile.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
     cfile.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+#endif
   
   if (rfilter != NULL) {
     if (!dfilter_compile(rfilter, &rfcode)) {
