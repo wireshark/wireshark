@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.126 2002/12/05 22:33:11 guy Exp $
+ * $Id: wtap.h,v 1.127 2002/12/20 05:40:52 sharpe Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -120,9 +120,10 @@
 #define WTAP_ENCAP_DOCSIS			28
 #define WTAP_ENCAP_COSINE			29
 #define WTAP_ENCAP_WLAN_HEADER			30
+#define WTAP_ENCAP_WFLEET_HDLC                  31
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			31
+#define WTAP_NUM_ENCAP_TYPES			32
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.91 2002/11/10 20:52:56 guy Exp $
+ * $Id: ngsniffer.c,v 1.92 2002/12/20 05:40:52 sharpe Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -325,7 +325,7 @@ static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
     struct frame6_rec *frame6);
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
     guchar *pd, int length, int *err);
-static int infer_pkt_encap(guint8 byte0);
+static int infer_pkt_encap(guint8 byte0, guint8 byte1);
 static void fix_pseudo_header(int, union wtap_pseudo_header *pseudo_header);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
@@ -932,7 +932,7 @@ found:
 		/*
 		 * Infer the packet type from the first byte.
 		 */
-		wth->phdr.pkt_encap = infer_pkt_encap(pd[0]);
+		wth->phdr.pkt_encap = infer_pkt_encap(pd[0], pd[1]);
 
 		/*
 		 * Fix up the pseudo-header; we may have set
@@ -1030,9 +1030,9 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 
 	if (pkt_encap == WTAP_ENCAP_PER_PACKET) {
 		/*
-		 * Infer the packet type from the first byte.
+		 * Infer the packet type from the first two bytes.
 		 */
-		pkt_encap = infer_pkt_encap(pd[0]);
+		pkt_encap = infer_pkt_encap(pd[0], pd[1]);
 
 		/*
 		 * Fix up the pseudo-header; we may have set
@@ -1501,8 +1501,11 @@ static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
  * (XXX - are there any "Internetwork analyzer" captures that don't
  * have type 7 records?  If so, is there some other field that will
  * tell us what type of capture it is?)
+ *
+ * We now use the first two bytes, perhaps we will need to generalize 
+ * this at some stage in the future.
  */
-static int infer_pkt_encap(guint8 byte0)
+static int infer_pkt_encap(guint8 byte0, guint8 byte1)
 {
 	if (byte0 == 0xFF) {
 		/*
@@ -1514,6 +1517,17 @@ static int infer_pkt_encap(guint8 byte0)
 		 * Frame Relay.
 		 */
 		return WTAP_ENCAP_FRELAY;
+	} else if (byte0 == 0x07 && byte1 == 0x03) {
+		/*
+		 * Wellfleet HDLC
+		 */
+		return WTAP_ENCAP_WFLEET_HDLC;
+	} else if ((byte0 == 0x08 && byte1 == 0x00) ||
+		   (byte0 == 0x8F && byte1 == 0x00)) {
+		/*
+		 * Cisco HDLC
+		 */
+		return WTAP_ENCAP_CHDLC;
 	} else if (byte0 & 1) {
 		/*
 		 * LAPB.
