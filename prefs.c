@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.102 2003/07/22 03:14:28 gerald Exp $
+ * $Id: prefs.c,v 1.103 2003/08/04 17:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,7 +168,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		/*
 		 * Yes.
 		 * Make sure that only lower-case ASCII letters, numbers,
-		 * underscores, and dots appear in the name.
+		 * underscores, hyphens, and dots appear in the name.
 		 *
 		 * Crash if there is, as that's an error in the code;
 		 * you can make the title a nice string with capitalization,
@@ -179,7 +179,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		for (p = name; *p != '\0'; p++)
 			g_assert(isascii(*p) &&
 			    (islower(*p) || isdigit(*p) || *p == '_' ||
-			     *p == '.'));
+			     *p == '-' || *p == '.'));
 
 		/*
 		 * Make sure there's not already a module with that
