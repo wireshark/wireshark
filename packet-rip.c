@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.4 1998/11/17 04:29:04 gerald Exp $
+ * $Id: packet-rip.c,v 1.5 1998/11/18 03:01:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,6 +107,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		auth = TRUE;
 		break;
             default:
+            	break;
 	        /* return; */
 	} 
 

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.8 1998/11/18 01:49:12 gerald Exp $
+ * $Id: packet-tcp.c,v 1.9 1998/11/18 03:01:37 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -312,7 +312,14 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
         dissect_lpd(pd, offset, fd, tree);
         break;
       default:
-        dissect_data(pd, offset, fd, tree);
+        /* check existence of high level protocols */
+
+        if (memcmp(&pd[offset], "GIOP",  4) == 0) {
+          dissect_giop(pd, offset, fd, tree);
+        }
+        else {
+          dissect_data(pd, offset, fd, tree);
+        }
     }
   }
  

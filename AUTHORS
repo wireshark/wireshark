@@ -39,6 +39,7 @@ Laurent Deniel       <deniel@worldnet.fr> {
     Name resolution
     Ethernet/Manufacturer files support
     FDDI support
+    OMG GIOP/IIOP support
     ISO/OSI CLNP/COTP support
     Miscellaneous enhancements and fixes
 }

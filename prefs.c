@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.10 1998/11/17 04:29:10 gerald Exp $
+ * $Id: prefs.c,v 1.11 1998/11/18 03:01:42 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,7 +192,7 @@ get_string_list(gchar *str) {
 
   gint      state = PRE_QUOT, i = 0, j = 0;
   gboolean  backslash = FALSE;
-  gchar     cur_c, *slstr;
+  gchar     cur_c, *slstr = NULL;
   GList    *sl = NULL;
   
   while ((cur_c = str[i]) != '\0') {
@@ -263,7 +263,7 @@ e_prefs *
 read_prefs() {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
   FILE     *pf;
-  gchar     cur_var[MAX_VAR_LEN], cur_val[MAX_VAL_LEN], **cfdata;
+  gchar     cur_var[MAX_VAR_LEN], cur_val[MAX_VAL_LEN];
   int       got_c, state = START, i;
   gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
   gboolean  got_val = FALSE;
@@ -302,7 +302,7 @@ read_prefs() {
       simple_dialog(ESD_TYPE_WARN, NULL,
         "Can't open preferences file\n\"%s\".", pf_path);
     }
-    return;
+    return &prefs;
   }
     
   while ((got_c = getc(pf)) != EOF) {
@@ -405,9 +405,8 @@ static gchar *pr_dests[]   = { "command", "file" };
 
 int
 set_pref(gchar *pref, gchar *value) {
-  gchar    *col_ptr;
   GList    *col_l;
-  gint      i, llen;
+  gint      llen;
   fmt_data *cfmt;
 
   if (strcmp(pref, PRS_PRINT_FMT) == 0) {

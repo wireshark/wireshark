@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.h,v 1.3 1998/10/22 04:50:21 gram Exp $
+ * $Id: packet-ncp.h,v 1.4 1998/11/18 03:01:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -52,7 +52,7 @@ struct ncp_request_header {
 	guint8    task       ;
 	guint8    conn_high  ;*/
 	guint8    function   ;
-	guint8    data[0]    ;
+/*	guint8    data[0]    ;*/
 };
 
 #define NCP_REPLY                (0x3333)
@@ -66,7 +66,7 @@ struct ncp_reply_header {
 	guint8    conn_high         ;*/
 	guint8    completion_code   ;
 	guint8    connection_state  ;
-	guint8    data[0]           ;
+/*	guint8    data[0]           ;*/
 };
 
 

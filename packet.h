@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.24 1998/11/17 04:29:09 gerald Exp $
+ * $Id: packet.h,v 1.25 1998/11/18 03:01:40 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -432,6 +432,7 @@ enum {
 	ETT_NBNS_RR,
 	ETT_NBIPX,
 	ETT_AARP,
+        ETT_GIOP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -531,6 +532,7 @@ void dissect_igmp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ip(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ipv6(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ipx(const u_char *, int, frame_data *, GtkTree *);
+void dissect_giop(const u_char *, int, frame_data *, GtkTree *);
 void dissect_llc(const u_char *, int, frame_data *, GtkTree *);
 void dissect_lpd(const u_char *, int, frame_data *, GtkTree *);
 void dissect_nbipx_ns(const u_char *, int, frame_data *, GtkTree *);

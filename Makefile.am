@@ -22,6 +22,7 @@ ethereal_SOURCES = \
 	packet-dns.c   \
 	packet-eth.c   \
 	packet-fddi.c  \
+	packet-giop.c  \
 	packet-llc.c   \
 	packet-lpd.c   \
 	packet-ip.c    \

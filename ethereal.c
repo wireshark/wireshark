@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.12 1998/11/17 04:28:44 gerald Exp $
+ * $Id: ethereal.c,v 1.13 1998/11/18 03:01:31 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -367,14 +367,14 @@ print_usage(void) {
 int
 main(int argc, char *argv[])
 {
-  int                  opt, i, j;
+  int                  opt, i;
   extern char         *optarg;
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
                       *tv_scrollw, *filter_bt, *filter_te;
   GtkStyle            *pl_style;
   GtkAcceleratorTable *accel;
-  gint                 col_width, pl_size = 280, tv_size = 95, bv_size = 75;
+  gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL;
   gchar               *medium_font = MONO_MEDIUM_FONT;
   gchar               *bold_font = MONO_BOLD_FONT;

@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.2 1998/11/17 05:04:03 gerald Exp $
+ * $Id: column.c,v 1.3 1998/11/18 03:01:26 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -224,15 +224,17 @@ get_column_width(gint format, GdkFont *font) {
 
 gint
 get_column_format(gint col) {
-  fmt_data *cfmt = (g_list_nth(prefs.col_list, col))->data;
+  GList    *clp = g_list_nth(prefs.col_list, col);
+  fmt_data *cfmt;
+  
+  cfmt = (fmt_data *) clp->data;
   
   return(get_column_format_from_str(cfmt->fmt));
 }
 
 static gint
 get_column_format_from_str(gchar *str) {
-  gchar *cptr = str, last_char = '\0';
-  gboolean  in_fmt = FALSE;
+  gchar *cptr = str;
   gint      res_off = RES_DEF, addr_off = ADDR_DEF;
 
   /* To do: Make this parse %-formatted strings "for real" */
@@ -282,7 +284,10 @@ get_column_format_from_str(gchar *str) {
 
 gchar *
 get_column_title(gint col) {
-  fmt_data *cfmt = (g_list_nth(prefs.col_list, col))->data;
+  GList    *clp = g_list_nth(prefs.col_list, col);
+  fmt_data *cfmt;
+  
+  cfmt = (fmt_data *) clp->data;
 
   return(cfmt->title);  
 }
@@ -339,18 +344,10 @@ col_format_to_pref_str() {
 GtkWidget *
 column_prefs_show() {
   GtkWidget   *main_vb, *top_hb, *list_bb, *new_bt, *column_sc, *nl_item,
-              *nl_lb, *tb, *lb, *bottom_hb, *column_lb, *menu, *mitem,
-              *arrow_hb, *arrow_pm;
-  GtkWidget   *l_select = NULL;
+              *nl_lb, *tb, *lb, *menu, *mitem, *arrow_hb;
   GList       *clp = NULL;
   fmt_data    *cfmt;
-  gchar       *column_te_str = NULL, **arrow;
   gint         i;
-  GdkPixmap   *pm;
-  GdkBitmap   *mask;
-  GtkStyle    *style;
-  GdkColormap *cmap;
-
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
