@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.428 2004/04/30 00:22:45 guy Exp $
+ * $Id: main.c,v 1.429 2004/05/04 20:40:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3677,6 +3677,12 @@ void main_widgets_rearrange(void) {
         gtk_widget_show(byte_nb_ptr);
     } else {
         gtk_widget_hide(byte_nb_ptr);
+    }
+    if (GTK_WIDGET_VISIBLE(pane_content[1]) ||
+        GTK_WIDGET_VISIBLE(pane_content[2])) {
+        gtk_widget_show(main_second_pane);
+    } else {
+        gtk_widget_hide(main_second_pane);
     }
 
     /* statusbar hbox */
