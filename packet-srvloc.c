@@ -9,7 +9,7 @@
  *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.44 2003/12/08 20:50:02 guy Exp $
+ * $Id: packet-srvloc.c,v 1.45 2004/02/01 20:46:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -889,10 +889,18 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 add_v1_string(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, encoding);
                 offset += length;
                 length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, encoding);
-                offset += length;
+                /* Updated by Greg Morris on 1-30-04 */
+                if (0xFFFF == length) {
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlenall, tvb, offset, 2, length);
+                    offset += 2;
+                } 
+                else 
+                {
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlen, tvb, offset, 2, length);
+                    offset += 2;
+                    add_v1_string(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, encoding);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_scopelistlen, tvb, offset, 2, length);
                 offset += 2;
