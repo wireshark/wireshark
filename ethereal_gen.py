@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.10 2001/08/03 20:44:58 guy Exp $
+# $Id: ethereal_gen.py,v 1.11 2001/08/11 04:37:31 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -9,7 +9,7 @@
 #    Copyright (C) 2001 Frank Singleton, Ericsson Inc.
 #
 #  This file is a backend to "omniidl", used to generate "Ethereal"
-#  dissectors from IDL descriptions. The output language generated
+#  dissectors from CORBA IDL descriptions. The output language generated
 #  is "C". It will generate code to use the GIOP/IIOP get_CDR_XXX API.
 #
 #  Please see packet-giop.h in Ethereal distro for API description.
@@ -83,16 +83,17 @@ import tempfile
 # 6. Handle pragmas.
 # 7. Exception can be common to many operations, so handle them outside the
 #    operation helper functions [done]
-# 8. Automatic variable declaration [done, improve]
+# 8. Automatic variable declaration [done, improve, still get some collisions.add variable delegator function ]
+#    For example, mutlidimensional arrays.
 # 9. wchar and wstring handling [giop API needs improving]
 # 10. Support Fixed [done]
 # 11. Support attributes (get/set) [started, needs language mapping option, perhaps ethereal GUI option
 #     to set the attribute function prefix or suffix ? ] For now the prefix is "_get" and "_set"
 #     eg: attribute string apple  =>   _get_apple and _set_apple
 #
-# 12. Implement IDL "union" code
+# 12. Implement IDL "union" code [done]
 # 13. Implement support for plugins [done]
-#
+# 14. Dont generate code for empty operations (cf: exceptions without members)
 #
 # Also test, Test, TEST
 #
@@ -136,6 +137,8 @@ class ethereal_gen_C:
     c_seq         = "gchar   *seq = NULL;"          # pointer to buffer of gchars
     c_i           = "guint32   i_";                 # loop index
     c_i_lim       = "guint32   u_octet4_loop_";     # loop limit
+    c_u_disc      = "guint32   disc_u_";            # unsigned int union discriminant variable name (enum)
+    c_s_disc      = "gint32    disc_s_";            # signed int union discriminant variable name (other cases, except Enum)
     
     #
     # Constructor
@@ -744,10 +747,11 @@ class ethereal_gen_C:
 
         if (rt.kind() == idltype.tk_alias): # a typdef return val possibly ?
             #self.getCDR3(rt.decl().alias().aliasType(),"dummy")    # return value maybe a typedef
-            self.get_CDR_alias(rt, "Operation Return Value" )
+            #self.get_CDR_alias(rt, "Operation_Return_Value" )
+            self.get_CDR_alias(rt, rt.name() )
                                
         else:            
-            self.getCDR3(rt, "Operation Return Value")    # return value is NOT an alias
+            self.getCDR3(rt, "Operation_Return_Value")    # return value is NOT an alias
               
         for p in opnode.parameters():
             if p.is_out():              # out or inout
@@ -815,7 +819,22 @@ class ethereal_gen_C:
                 self.st.out(v)
 
 
-            
+    #
+    # Given an enum node, and a enumerator node, return 
+    # the enumerator's numerical value.
+    #
+    # eg: enum Color {red,green,blue} should return
+    # val = 1 for green
+    #
+                
+    def valFromEnum(self,enumNode, enumeratorNode):
+        if self.DEBUG:
+            print "XXX valFromEnum, enumNode = ", enumNode, " from ", enumNode.repoId()
+            print "XXX valFromEnum, enumeratorNode = ", enumeratorNode, " from ", enumeratorNode.repoId()
+
+        if isinstance(enumeratorNode,idlast.Enumerator):
+            value = enumNode.enumerators().index(enumeratorNode)
+            return value
                 
 
 ## tk_null               = 0
@@ -912,6 +931,8 @@ class ethereal_gen_C:
             self.get_CDR_objref(type,pn)
         elif pt == idltype.tk_array:
             self.get_CDR_array(type,pn)
+        elif pt == idltype.tk_union:
+            self.get_CDR_union(type,pn)            
         elif pt == idltype.tk_alias:
             if self.DEBUG:
                 print "XXXXX Alias type XXXXX " , type
@@ -1012,6 +1033,124 @@ class ethereal_gen_C:
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn)
         self.addvar(self.c_u_octet4)
 
+    def get_CDR_union(self,type,pn):
+        if self.DEBUG:
+            print "XXX Union type =" , type, " pn = ",pn
+            print "XXX Union type.decl()" , type.decl()
+            print "XXX Union Scoped Name" , type.scopedName()
+
+       #  If I am a typedef union {..}; node then find the union node
+        
+        if isinstance(type.decl(), idlast.Declarator):
+            ntype = type.decl().alias().aliasType().decl()           
+        else:
+            ntype = type.decl()         # I am a union node
+
+        if self.DEBUG:    
+            print "XXX Union ntype =" , ntype
+
+        st = ntype.switchType()
+
+            
+
+        #std = st.decl()
+
+        if self.DEBUG:    
+            print "XXX Union ntype =" , ntype
+            print "XXX Union ntype.switchType =" , st
+            #print "XXX Union ntype.switchType().decl() = " , std
+            #print "XXX Union  std.repoId() = ", std.repoId()
+
+
+        self.st.out(self.template_comment_union_code_start, uname=ntype.repoId() )
+
+        self.getCDR3(st,pn);
+
+        # Depending on what kind of discriminant I come accross (enum,integer,char,
+        # boolean), make sure I cast the return value of the get_XXX accessor
+        # to an appropriate value. Omniidl idlast.CaseLabel.value() accessor will
+        # return an integer, or an Enumerator object that is then converted to its
+        # integer equivalent.
+        #
+        #
+        # NOTE - May be able to skip some of this stuff, but leave it in for now -- FS
+        #
+
+        if (st.kind() == idltype.tk_enum):
+            std = st.decl()            
+            self.st.out(self.template_comment_union_code_discriminant, uname=std.repoId() )
+            self.st.out(self.template_union_code_save_discriminant_enum, discname=pn )
+            self.addvar(self.c_s_disc + pn + ";")            
+
+        elif (st.kind() == idltype.tk_long):
+            self.st.out(self.template_union_code_save_discriminant_integer, discname=pn )
+            self.addvar(self.c_s_disc + pn + ";")            
+
+        elif (st.kind() == idltype.tk_boolean):
+            self.st.out(self.template_union_code_save_discriminant_boolean, discname=pn )
+            self.addvar(self.c_s_disc + pn + ";")            
+            
+        elif (st.kind() == idltype.tk_char):
+            self.st.out(self.template_union_code_save_discriminant_char, discname=pn )
+            self.addvar(self.c_s_disc + pn + ";")            
+
+        else:
+            print "XXX Unknown st.kind() = ", st.kind()
+            
+        #
+        # Loop over all cases in this union
+        #
+        
+        for uc in ntype.cases():        # for all UnionCase objects in this union
+            for cl in uc.labels():       # for all Caselabel objects in this UnionCase
+
+                # get integer value, even if discriminant is
+                # an Enumerator node
+                
+                if isinstance(cl.value(),idlast.Enumerator):
+                    if self.DEBUG:
+                        print "XXX clv.identifier()", cl.value().identifier()
+                        print "XXX clv.repoId()", cl.value().repoId()
+                        print "XXX clv.scopedName()", cl.value().scopedName()
+                                            
+                    # find index of enumerator in enum declaration
+                    # eg: RED is index 0 in enum Colors { RED, BLUE, GREEN }
+                    
+                    clv = self.valFromEnum(std,cl.value())
+                    
+                else:
+                    clv = cl.value()
+                    
+                #print "XXX clv = ",clv
+
+                #    
+                # if char, dont convert to int, but put inside single quotes so that it is understood by C.
+                # eg: if (disc == 'b')..
+                                          
+                if (st.kind() == idltype.tk_char):      
+                    string_clv = "'" + clv + "'"
+                else:                    
+                    string_clv = '%i ' % clv
+
+                #
+                # If default case, then skp comparison with discriminator
+                #
+                
+                if not cl.default():
+                    self.st.out(self.template_comment_union_code_label_compare_start, discname=pn,labelval=string_clv )
+                    self.st.inc_indent()       
+                else:
+                    self.st.out(self.template_comment_union_code_label_default_start  )
+                    
+
+                self.getCDR3(uc.caseType(),uc.declarator().identifier())
+
+                if not cl.default():
+                    self.st.dec_indent()       
+                    self.st.out(self.template_comment_union_code_label_compare_end )
+                else:
+                    self.st.out(self.template_comment_union_code_label_default_end  )
+            
 
     #
     # Currently, get_CDR_alias is geared to finding typdef 
@@ -2190,7 +2329,7 @@ if (!strcmp(operation, set_@sname@_at ) && (header->message_type == Request) ) {
 """
 
 #
-# template for exception helper code
+# template for attribute helper code
 #
 
 
@@ -2246,3 +2385,77 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
 /* WARNING - @message@ */
 """
+
+
+    
+#-------------------------------------------------------------#
+#                     IDL Union  templates                    #
+#-------------------------------------------------------------#
+
+
+
+    template_comment_union_code_start = """\
+/*
+ * IDL Union Start - @uname@
+ */
+ 
+ """
+
+
+    template_comment_union_code_end = """
+/*
+ * IDL union End - @uname@
+ */
+ 
+"""
+
+    template_comment_union_code_discriminant = """\
+/*
+ * IDL Union - Discriminant - @uname@
+ */
+ 
+ """
+
+    #
+    # Cast Unions types to something appropriate
+    # Enum value cast to guint32, all others cast to gint32 
+    # as omniidl accessor returns integer or Enum.
+    #
+
+    template_union_code_save_discriminant_enum = """\
+disc_s_@discname@ = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+"""
+    
+    template_union_code_save_discriminant_integer = """\
+disc_s_@discname@ = (gint32) s_octet4;     /* save gint32 discriminant and cast to gint32 */
+"""
+    
+    template_union_code_save_discriminant_char = """\
+disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast to gint32 */
+"""
+    
+    template_union_code_save_discriminant_boolean = """\
+disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast to gint32 */
+"""
+
+
+    template_comment_union_code_label_compare_start = """\
+if (disc_s_@discname@ == @labelval@) {
+
+ """
+    template_comment_union_code_label_compare_end = """\
+    break;
+}
+
+ """
+
+
+    template_comment_union_code_label_default_start = """
+/* Default Union Case Start */
+ 
+"""
+
+    template_comment_union_code_label_default_end = """\
+/* Default Union Case End */
+ 
+ """
