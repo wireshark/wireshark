@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.9 2000/03/22 07:06:56 guy Exp $
+ * $Id: nettl.c,v 1.10 2000/04/15 21:12:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -38,8 +38,6 @@ static char nettl_magic_hpux9[12] = {
 static char nettl_magic_hpux10[12] = {
     0x54, 0x52, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80
 };
-
-static gboolean is_hpux_11;
 
 /* HP nettl record header for the SX25L2 subsystem - The FCS is not included in the file. */
 struct nettlrec_sx25l2_hdr {
@@ -99,10 +97,6 @@ int nettl_open(wtap *wth, int *err)
 	    return -1;
 	return 0;
     }
-    if (os_vers[0] == '1' && os_vers[1] == '1')
-	is_hpux_11 = TRUE;
-    else
-	is_hpux_11 = FALSE;
 
     file_seek(wth->fh, 0x80, SEEK_SET);
     wth->data_offset = 0x80;
@@ -110,11 +104,13 @@ int nettl_open(wtap *wth, int *err)
     /* This is an nettl file */
     wth->file_type = WTAP_FILE_NETTL;
     wth->capture.nettl = g_malloc(sizeof(nettl_t));
+    if (os_vers[0] == '1' && os_vers[1] == '1')
+	wth->capture.nettl->is_hpux_11 = TRUE;
+    else
+	wth->capture.nettl->is_hpux_11 = FALSE;
     wth->subtype_read = nettl_read;
     wth->subtype_close = nettl_close;
     wth->snapshot_length = 16384;	/* not available in header, only in frame */
-
-    wth->capture.nettl->start = 0;
 
     return 1;
 }
@@ -162,7 +158,7 @@ static int nettl_read(wtap *wth, int *err)
 
 	/* The packet header in HP-UX 11 nettl traces is 4 octets longer than
 	 * HP-UX 9 and 10 */
-	if (is_hpux_11) {
+	if (wth->capture.nettl->is_hpux_11) {
 	    bytes_read = file_read(dummy, 1, 4, wth->fh);
 	    if (bytes_read != 4) {
 		*err = file_error(wth->fh);
@@ -184,8 +180,6 @@ static int nettl_read(wtap *wth, int *err)
 
 	wth->phdr.ts.tv_sec = pntohl(&ip_hdr.sec);
 	wth->phdr.ts.tv_usec = pntohl(&ip_hdr.usec);
-	if (wth->capture.nettl->start == 0)
-	    wth->capture.nettl->start = wth->phdr.ts.tv_sec;
 
 	/*
 	 * Read the packet data.
@@ -219,7 +213,7 @@ static int nettl_read(wtap *wth, int *err)
 	}
 	wth->data_offset += sizeof lapb_hdr;
 
-	if (is_hpux_11) {
+	if (wth->capture.nettl->is_hpux_11) {
 	    bytes_read = file_read(dummy, 1, 4, wth->fh);
 	    if (bytes_read != 4) {
 		*err = file_error(wth->fh);
@@ -241,8 +235,6 @@ static int nettl_read(wtap *wth, int *err)
 
 	wth->phdr.ts.tv_sec = pntohl(&lapb_hdr.sec);
 	wth->phdr.ts.tv_usec = pntohl(&lapb_hdr.usec);
-	if (wth->capture.nettl->start == 0)
-	    wth->capture.nettl->start = wth->phdr.ts.tv_sec;
 	wth->phdr.pseudo_header.x25.flags = (lapb_hdr.from_dce & 0x20 ? 0x80 : 0x00);
 
 	/*

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.66 2000/04/08 01:16:52 guy Exp $
+ * $Id: wtap.h,v 1.67 2000/04/15 21:12:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -156,17 +156,12 @@ typedef struct {
 } ngsniffer_t;
 
 typedef struct {
-	time_t	start;
-} radcom_t;
-
-typedef struct {
 	gboolean byte_swapped;
-	time_t	start;
 	int bchannel_prot[2];	/* For the V.120 heuristic */
 } i4btrace_t;
 
 typedef struct {
-	time_t	start;
+	gboolean is_hpux_11;
 } nettl_t;
 
 typedef struct {
@@ -333,7 +328,6 @@ typedef struct wtap {
 		libpcap_t		*pcap;
 		lanalyzer_t		*lanalyzer;
 		ngsniffer_t		*ngsniffer;
-		radcom_t		*radcom;
 		i4btrace_t		*i4btrace;
 		nettl_t			*nettl;
 		netmon_t		*netmon;

@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.19 2000/03/22 07:06:56 guy Exp $
+ * $Id: radcom.c,v 1.20 2000/04/15 21:12:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -68,7 +68,6 @@ struct radcomrec_hdr {
 };
 
 static int radcom_read(wtap *wth, int *err);
-static void radcom_close(wtap *wth);
 
 int radcom_open(wtap *wth, int *err)
 {
@@ -134,9 +133,7 @@ int radcom_open(wtap *wth, int *err)
 
 	/* This is a radcom file */
 	wth->file_type = WTAP_FILE_RADCOM;
-	wth->capture.radcom = g_malloc(sizeof(radcom_t));
 	wth->subtype_read = radcom_read;
-	wth->subtype_close = radcom_close;
 	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 
 	tm.tm_year = pletohs(&start_date.year)-1900;
@@ -147,7 +144,6 @@ int radcom_open(wtap *wth, int *err)
 	tm.tm_min = (sec%3600)/60;
 	tm.tm_sec = sec%60;
 	tm.tm_isdst = -1;
-	wth->capture.radcom->start = mktime(&tm);
 
 	file_seek(wth->fh, sizeof(struct frame_date), SEEK_CUR);
 	wth->data_offset += sizeof(struct frame_date);
@@ -214,11 +210,8 @@ int radcom_open(wtap *wth, int *err)
 
 read_error:
 	*err = file_error(wth->fh);
-	if (*err != 0) {
-		g_free(wth->capture.radcom);
+	if (*err != 0)
 		return -1;
-	}
-	g_free(wth->capture.radcom);
 	return 0;
 }
 
@@ -302,10 +295,4 @@ static int radcom_read(wtap *wth, int *err)
 	}
 
 	return data_offset;
-}
-
-static void
-radcom_close(wtap *wth)
-{
-	g_free(wth->capture.radcom);
 }

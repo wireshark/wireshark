@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.3 2000/01/13 07:09:16 guy Exp $
+ * $Id: i4btrace.c,v 1.4 2000/04/15 21:12:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -93,7 +93,6 @@ int i4btrace_open(wtap *wth, int *err)
 	wth->subtype_read = i4btrace_read;
 	wth->snapshot_length = 2048;	/* actual length set per packet */
 
-	wth->capture.i4btrace->start = hdr.time.tv_sec;
 	wth->capture.i4btrace->bchannel_prot[0] = -1;
 	wth->capture.i4btrace->bchannel_prot[1] = -1;
 	wth->capture.i4btrace->byte_swapped = byte_swapped;
