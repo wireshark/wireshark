@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.29 2001/11/02 10:09:47 guy Exp $
+ * $Id: packet-diameter.c,v 1.30 2001/11/03 04:09:46 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -351,6 +351,10 @@ addStaticAVP(int code, gchar *name, diameterDataType type, value_string *values)
   entry->values = vEntry;
   if (vEntry)
 	entry->type = DIAMETER_INTEGER32;
+
+  /* And, add it to the list */
+  entry->next = avpListHead;
+  avpListHead = entry;
 
   return (0);
 	
