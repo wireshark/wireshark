@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.6 2000/10/05 13:13:49 sharpe Exp $
+ * $Id: packet-bxxp.c,v 1.7 2000/10/07 04:48:40 sharpe Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -919,7 +919,9 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       pl_size = MIN(request_val->size, tvb_length_remaining(tvb, offset));
 
-      if (pl_size == 0) { /* The whole of the rest must be payload */
+      /* FIXME: May be redundent ... */
+
+      if (pl_size == 0 && offset == st_offset) { /* The whole of the rest must be payload */
       
 	pl_size = tvb_length_remaining(tvb, offset); /* Right place ? */
       
@@ -935,9 +937,9 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * another message here, then handle it correctly as well.
      */
 
-    /* If the pl_size == 0 and the offset == 0?, then we have not processed
-     * anything in this frame above, so we better treat all this data as 
-     * payload to avoid recursion loops
+    /* If the pl_size == 0 and the offset == st_offset, then we have not 
+     * processed anything in this frame above, so we better treat all this
+     * data as payload to avoid recursion loops
      */
 
     if (pl_size == 0 && offset == st_offset) 
