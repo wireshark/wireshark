@@ -1,0 +1,1329 @@
+<!-- EUG Chapter Work -->
+<chapter id="ChapterWork">
+  <title>Working with captured packets</title>
+
+  <section id="ChWorkViewPacketsSection"><title>Viewing packets you have captured</title>
+    <para>
+      Once you have captured some packets, or you have opened a previously 
+      saved capture file, you can view the packets that are displayed in 
+      the packet list pane by simply clicking on that packet in the 
+      packet list pane, which will bring up the selected packet in the 
+      tree view and byte view panes.
+    </para>
+    <para>
+      You can then expand any part of the tree view by clicking on the 
+      <command>plus</command> sign to the left of that part of the payload, 
+      and you can select individual fields by clicking on them in the tree 
+      view pane.  An example with a TCP packet selected is shown in 
+      <xref linkend="ChWorkSelPack1"/>. It also has the Acknowledgment number 
+	in the TCP header selected, which shows up in the byte view as the 
+	selected bytes.
+	<figure id="ChWorkSelPack1">
+	  <title>Ethereal with a TCP packet selected for viewing</title>
+	  <graphic entityref="EtherealPacketSelected1" format="PNG"/>
+	</figure>
+    </para>
+    <para>
+      You can also select and view packets the same way, while Ethereal is 
+	  capturing, if you selected "Update list of packets in real time" in the 
+	  Ethereal Capture Preferences dialog box.
+    </para>
+    <para>
+      In addition, you can view individual packets in a separate window as 
+      shown in <xref linkend="ChWorkPacketSepView"/>. Do this by selecting the 
+	packet you are interested in in the packet list pane, and then 
+	select "Show Packet in New Windows" from the Display menu. This 
+	allows you to easily compare two or more packets.
+	<figure id="ChWorkPacketSepView">
+	  <title>Viewing a packet in a separate window</title>
+	  <graphic entityref="EtherealPacketSepView" format="PNG"/>
+	</figure>
+    </para>
+    <para>
+      Finally, you can bring up a pop-up menu over either the "Packet List", 
+      "Packet Details" or "Packet Bytes" pane by clicking your right mouse button.
+    </para>
+	  <para>
+	  The following table will give an overwiev, which functions are available 
+	  in the panes, where to find the corresponding function in the menu, and 
+	  a short description of each item.
+	  </para>
+	<table id="PopupMenuTable">
+	  <title>Function overview of the pop-up menus</title>
+	  <tgroup cols="6">
+		<colspec colnum="1" colwidth="80pt"/>
+		<colspec colnum="2" colwidth="20pt"/>
+		<colspec colnum="3" colwidth="20pt"/>
+		<colspec colnum="4" colwidth="20pt"/>
+		<colspec colnum="5" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Item</entry>
+		<entry>List</entry>
+		<entry>Details</entry>
+		<entry>Bytes</entry>
+		<entry>Menu</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Follow TCP stream</command></entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>View all the data on a TCP stream between a pair of nodes.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Decode As...</command></entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Display Filters...</command></entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>Specify and manage filters.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Mark Packet</command></entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>Mark a packet.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Time Reference</command></entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>Set/reset and find time references.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Apply as Filter</command></entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Prepare a Filter</command></entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Coloring Rules...</command></entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>View</entry>
+		<entry>
+	    <para>Colorize packets in the "Packet List" pane.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Print...</command></entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>File</entry>
+		<entry>
+	    <para>Print packets.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Show Packet in New Window</command></entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>View</entry>
+		<entry>
+	    <para>Display the selected packet in another window.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Resolve name</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>
+	    <para>Cause a name resolution to be performed for the selected packet, 
+		but NOT for every packet in the capture.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Go to Corresponding Packet</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>Go</entry>
+		<entry>
+	    <para>If the selected field has a corresponding packet, go to it. 
+		  Corresponding packets will usually be a request/response packet pair 
+		  or such.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Export Selected Packet Bytes...</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>File->Export</entry>
+		<entry>
+	    <para>Export raw packet bytes to a binary file.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Protocol Preferences...</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>The menu item takes you to the preferences dialog and selects 
+		the page corresponding to the protocol if there are settings 
+		associated with the highlighted field. More information on preferences 
+		can be found in <xref linkend="ChCustProtocolsPrefPages"/>.
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Collapse All</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+	      Ethereal keeps a list of all the protocol subtrees that are 
+	      expanded, and uses it to ensure that the correct subtrees 
+	      are expanded when you display a packet. This menu item 
+	      collapses the tree view of all packets in the capture list.  
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Expand All</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>View</entry>
+		<entry>
+	    <para>Expand all subtrees in all packets in the capture.
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Expand Tree</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>View</entry>
+		<entry>
+	    <para>Expand the currently selected subtree.
+		</para>
+		</entry>
+	      </row>
+		</tbody>
+		</tgroup>
+	</table>
+    <para>
+      <figure id="ChWorkPacketListPanePopUpMenu">
+	<title>Pop-up menu of "Packet List" pane</title>
+	<graphic entityref="EtherealPacketPanePopupMenu" format="PNG"/>
+      </figure>
+      <variablelist>
+	<varlistentry><term><command>Follow TCP Stream</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of 
+	      the same name. It allows you to view all the data on a TCP 
+	      stream between a pair of nodes.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Decode As...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of the 
+	      same name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Display Filters...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of the same 
+	      name. It allows you to specify and manage display filters.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Mark Packet</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Edit menu item of the same 
+	      name. It allows you to mark a packet.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Time Reference</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Edit menu items of the same 
+	      name. It allows you to set and work with time references.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Apply as Filter</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu items of the same 
+	      name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Prepare a Filter</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu items of the same 
+	      name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>Coloring Rules...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the View menu item of the 
+	      same name. It allows you to colorize packets in the packet 
+	      list pane.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Print...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the File menu item of the same 
+	      name. It allows you to print packets.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>Show Packet in New Window</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the View menu item of the 
+	      same name. It allows you to display the selected packet in 
+	      another window.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	</variablelist>
+    </para>
+    <para>
+      <figure id="ChWorkPacketDetailsPanePopUpMenu">
+	<title>Pop-up menu of "Packet Details" pane</title>
+	<graphic entityref="EtherealDetailsPanePopupMenu" format="PNG"/>
+      </figure>
+      <variablelist>
+	<varlistentry><term><command>Follow TCP Stream</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of the 
+	      same name. It allows you to view all the data on a TCP stream 
+	      between a pair of nodes.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Decode As...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of the 
+	      same name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Display Filters...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of the same 
+	      name.  It allows you to specify and manage filters.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Resolve Name</command></term>
+	  <listitem>
+	    <para>
+	      This menu item causes name resolution to be performed for 
+	      the selected packet, but NOT every packet in the capture. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Go to Corresponding Packet</command></term>
+	  <listitem>
+	    <para>
+	      If the selected field has a corresponding packet, go to it. 
+		  Corresponding packets will usually be a request/response packet pair 
+		  or such.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Export Selected Packet Bytes...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the File menu item of the same 
+	      name. It allows you to export raw packet bytes to a binary file.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Protocol Properties...</command></term>
+	  <listitem>
+	    <para>
+	      The menu item takes you to the properties dialog and selects the 
+		  page corresponding to the protocol if there are properties 
+		  associated with the highlighted field.  
+	      More information on preferences can be found in 
+	      <xref linkend="ChCustGUIPrefPage"/>.
+	      </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Apply as Filter</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu items of the same 
+	      name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Prepare a Filter</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu items of the same 
+	      name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Collapse All</command></term>
+	  <listitem>
+	    <para>
+	      Ethereal keeps a list of all the protocol subtrees that are 
+	      expanded, and uses it to ensure that the correct subtrees 
+	      are expanded when you display a packet. This menu item 
+	      collapses the tree view of all packets in the capture list.  
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Expand All</command></term>
+	  <listitem>
+	    <para>
+	      This menu item expands all subtrees in all packets in the 
+	      capture. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Expand Tree</command></term>
+	  <listitem>
+	    <para>
+	      This menu item expands the currently selected subtree. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+    <para>
+      <figure id="ChWorkPacketBytesPanePopUpMenu">
+	<title>Pop-up menu of "Packet Bytes" pane</title>
+	<graphic entityref="EtherealBytesPanePopupMenu" format="PNG"/>
+      </figure>
+      <variablelist>
+	<varlistentry><term><command>Follow TCP Stream</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of the 
+	      same name. It allows you to view all the data on a TCP stream 
+	      between a pair of nodes.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Decode As...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of the 
+	      same name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Display Filters...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of the same 
+	      name.  It allows you to specify and manage filters.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Export Selected Packet Bytes...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the File menu item of the same 
+	      name. It allows you to export raw packet bytes to a binary file.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+  
+  <section id="ChWorkDisplayFilterSection"><title>Filtering packets while viewing</title>
+    <para>
+      Ethereal has two filtering languages: One used when capturing 
+      packets, and one used when displaying packets.  In this section we 
+      explore that second type of filters: Display filters.  The first one 
+      has already been dealt with in <xref linkend="ChCapCaptureFilterSection"/>.
+    </para>
+    <para>
+      Display filters allow you to concentrate on the packets you are 
+      interested in.  They allow you to select packets by:
+	<itemizedlist>
+	  <listitem><para>Protocol</para></listitem>
+	  <listitem><para>The presence of a field</para></listitem>
+	  <listitem><para>The values of fields</para></listitem>
+	  <listitem><para>A comparison between fields</para></listitem>
+	  <listitem><para>... and a lot more!</para></listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      To select packets based on protocol type, simply type the protocol you 
+      are interested in in the <command>Filter:</command> field in the filter 
+	  toolbar of the Ethereal window and press enter to initiate 
+      the filter. <xref linkend="ChWorkTCPFilter"/> shown an example of what 
+	happens when you type <command>tcp</command> in the filter field.
+    </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	All filter expressions are entered in lowercase.  Also, don't 
+	forget to press enter after entering the filter expression.
+      </para>
+    </note>
+    <figure id="ChWorkTCPFilter"><title>Filtering on the TCP protocol</title>
+      <graphic entityref="EtherealFilterTCP" format="JPG"/>
+    </figure>
+    <para>
+	As you might have noticed, only packets of the TCP protocol are displayed 
+	now (e.g. packets 1-10 are hidden). The packet numbering will remain as 
+	before, so the first packet shown is now packet number 11.
+    </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	  When using a display filter, all packets remain in the capture file.
+	  The display filter will only change the display of the capture file, but
+	  not it's content!	  
+      </para>
+    </note>
+    <para>
+      You can filter on any protocol that Ethereal understands.  However, 
+      you can also filter on any field that a dissector adds to the tree 
+      view, but only if the dissector has added an abbreviation for the 
+      field. A list of such fields is available in the Ethereal in the 
+      <command>Add Expression...</command> dialog box.  You can find more 
+      information on the <command>Add Expression...</command> dialog box 
+      in <xref linkend="ChWorkFilterAddExpressionSection"/>.
+    </para>
+    <para>
+      For example, to narrow the packet list pane down to only those 
+      packets to or from the IP address 192.168.0.1, use 
+      <command>ip.addr==192.168.0.1</command>.
+    </para>    
+    <note>
+      <title>Note!</title>
+      <para>
+	To remove the filter, click on the <command>Clear</command> button 
+	to the right of the filter field.
+      </para>
+    </note>
+    </section>
+	
+    <section id="ChWorkBuildDisplayFilterSection">
+      <title>Building display filter expressions</title>
+      <para>
+	Ethereal provides a simple but powerful display filter language that you 
+	can build quite complex filter expressions with.  You can compare 
+	values in packets as well as combine expressions into more 
+	specific expressions.  The following sections provide more 
+	information on doing this.
+      </para>
+      <section>
+	<title>Comparing values</title>
+	<para>
+	  You can build display filters that compare values using a number 
+	  of different comparison operators.  They are shown in 
+	  <xref linkend="DispCompOps"/>.
+	</para>
+	<tip><title></title>
+	<para>
+	You can use English and C-like terms in the same way, they can even be 
+	mixed in a filter string!
+	</para>
+	</tip>
+	<table id="DispCompOps">
+	  <title>Display Filter comparison operators</title>
+	  <tgroup cols="3">
+		<colspec colnum="1" colwidth="50pt"/>
+		<colspec colnum="2" colwidth="50pt"/>
+	    <thead>
+	      <row>
+		<entry>English</entry>
+		<entry>C-like</entry>
+		<entry>Description and example</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>eq</entry>
+		<entry><programlisting>==</programlisting></entry>
+		<entry><para>
+		    <command>Equal</command></para><para>
+		    <programlisting>ip.addr==10.0.0.5</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>ne</entry>
+		<entry><programlisting>!=</programlisting></entry>
+		<entry><para>
+		    <command>Not equal</command></para><para>
+		    <programlisting>ip.addr!=10.0.0.5</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>gt</entry>
+		<entry><programlisting>&gt;</programlisting></entry>
+		<entry><para>
+		    <command>Greater than</command></para><para>
+		    <programlisting>frame.pkt_len &gt; 10</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>lt</entry>
+		<entry><programlisting>&lt;</programlisting></entry>
+		<entry><para><command>Less than</command></para><para>
+		    <programlisting>frame.pkt_len &lt; 128</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>ge</entry>
+		<entry><programlisting>&gt;=</programlisting></entry>
+		<entry><para>
+		    <command>Greater than or equal to</command></para><para>
+		    <programlisting>frame.pkt_len ge 0x100</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>le</entry>
+		<entry><programlisting>&lt;=</programlisting></entry>
+		<entry><para>
+		    <command>Less than or equal to</command></para><para>
+		    <programlisting>frame.pkt_len &lt;= 0x20</programlisting>
+		  </para></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+	<para>
+	  In addition, all protocol fields are typed. 
+	  <xref linkend="ChWorkFieldTypes"/> provides a list of the types and 
+	    example of how to express them.
+	    <table id="ChWorkFieldTypes">
+	      <title>Display Filter Field Types</title>
+	      <tgroup cols="2">
+		<thead>
+		  <row>
+		    <entry>Type</entry>
+		    <entry>Example</entry>
+		  </row>
+		</thead>
+		<tbody>
+		  <row>
+		    <entry>
+		      Unsigned integer (8-bit, 16-bit, 24-bit, 32-bit)
+		    </entry>
+		    <entry><para>
+			You can express integers in decimal, octal, or 
+			hexadecimal. The following display filters are 
+			equivalent:
+			<programlisting>
+ip.len le 1500
+ip.len le 02734
+ip.len le 0x436
+			</programlisting>
+		      </para></entry>
+		  </row>
+		  <row>
+		    <entry>
+		      Signed integer (8-bit, 16-bit, 24-bit, 32-bit)
+		    </entry>
+		    <entry></entry>
+		  </row>
+		  <row>
+		    <entry>Boolean</entry>
+		    <entry><para>
+			A boolean field is present in the protocol decode 
+			only if its value is true. For example, 
+			<command>tcp.flags.syn</command> is present, and 
+			thus true, only if the SYN flag is present in a 
+			TCP segment header.</para><para>
+			Thus the filter expression 
+			<command>tcp.flags.syn</command> will select only 
+			those packets for which this flag exists, that is, 
+			TCP segments where the segment header contains the 
+			SYN flag. Similarly, to find source-routed token 
+			ring packets, use a filter expression of 
+			<command>tr.sr</command>.
+		      </para></entry>
+		  </row>
+		  <row>
+		    <entry>Ethernet address (6 bytes)</entry>
+		    <entry>eth.addr == ff:ff:ff:ff:ff:ff</entry>
+		  </row>
+		  <row>
+		    <entry>IPv4 address</entry>
+		    <entry>ip.addr == 192.168.0.1</entry>
+		  </row>
+		  <row>
+		    <entry>IPv6 address</entry>
+		    <entry>  </entry>
+		  </row>
+		  <row>
+		    <entry>IPX network number</entry>
+		    <entry>  </entry>
+		  </row>
+		  <row>
+		    <entry>String (text)</entry>
+		    <entry> </entry>
+		  </row>
+		  <row>
+		    <entry>
+		      Double-precision floating point number
+		    </entry>
+		    <entry>  </entry>
+		  </row>
+		</tbody>
+	      </tgroup>
+	    </table>
+	</para>
+      </section>
+      <section>
+	<title>Combining expressions</title>
+	<para>
+	  You can combine filter expressions in Ethereal using the 
+	  logical operators shown in <xref linkend="FiltLogOps"/>
+	</para>
+	<table id="FiltLogOps">
+	  <title>Display Filter Logical Operations</title>
+	  <tgroup cols="3">
+		<colspec colnum="1" colwidth="50pt"/>
+		<colspec colnum="2" colwidth="50pt"/>
+	    <thead>
+	      <row>
+		<entry>English</entry>
+		<entry>C-like</entry>
+		<entry>Description and example</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>and</entry>
+		<entry>&amp;&amp;</entry>
+		<entry><para>
+		    <command>Logical AND</command></para><para>
+		    <programlisting>ip.addr==10.0.0.5 and tcp.flags.fin</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>or</entry>
+		<entry>||</entry>
+		<entry><para>
+		    <command>Logical OR</command></para><para>
+		    <programlisting>ip.addr==10.0.0.5 or ip.addr==192.1.1.1</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>xor</entry>
+		<entry>^^</entry>
+		<entry><para>
+		    <command>Logical XOR</command></para><para>
+		    <programlisting>tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>not</entry>
+		<entry>!</entry>
+		<entry><para>
+		    <command>Logical NOT</command></para><para>
+		    <programlisting>not llc</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>[...]</entry>
+		<entry></entry>
+		<entry><para>
+		    <command>Substring Operator</command></para><para>
+		    Ethereal will allow you to select subsequences of a 
+		    sequence in rather elaborate ways.  After a label you 
+		    can place a pair of brackes [] containing a comma 
+		    separated list of range specifiers. </para><para>
+		    <programlisting>eth.src[0:3] == 00:00:83</programlisting></para><para>
+		    The example above uses the n:m format to specify a 
+		    single range.  In this case n is the beginning offset 
+		    and m is the length of the range 
+		    being specified.</para><para>
+		    <programlisting>
+eth.src[1-2] == 00:83
+		    </programlisting></para><para>
+		    The example above uses the n-m format to specify a 
+		    single range. In this case n is the beginning offset 
+		    and m is the ending offset. </para><para>
+		    <programlisting>eth.src[:4] == 00:00:83:00</programlisting></para><para>
+		    The example above uses the :m format, which takes 
+		    everything from the beginning of a sequence to offset m.  
+		    It is equivalent to 0:m</para><para>
+		    <programlisting>eth.src[4:] == 20:20</programlisting></para><para>
+		    The example above uses the n: format, which takes 
+		    everything from offset n to the end of the 
+		    sequence. </para><para>
+		    <programlisting>eth.src[2] == 83</programlisting></para><para>
+		    The example above uses the n format to specify a 
+		    single range.  In this case the element in the 
+		    sequence at offset n is selected.  This is equivalent 
+		    to n:1.</para><para>
+		    <programlisting>eth.src[0:3,1-2,:4,4:,2] == 
+00:00:83:00:83:00:00:83:00:20:20:83</programlisting></para><para>
+		    Ethereal will allow you to string together single ranges 
+		    in a comma separated list to form compound ranges as 
+		    shown above.
+		  </para></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+      </section>
+  </section>
+  
+  <section id="ChWorkFilterAddExpressionSection"><title>The "Filter Expression" dialog box</title>
+    <para>
+      When you are accustomed to Ethereal's filtering system and know what 
+      labels you wish to use in your filters it can be very quick to 
+      simply type a filter string.  However if you are new to Ethereal or 
+      are working with a slightly unfamiliar protocol it can be very 
+      confusing to try to figure out what to type.  The Filter Expression 
+      dialog box helps with this.
+    </para>
+    <tip><title>Tip!</title>
+	<para>
+      The "Filter Expression" dialog box is an excellent way to learn to write 
+      Ethereal display filter strings.
+	</para>
+    </tip>
+    <figure id="ChWorkFilterAddExpression1">
+      <title>The "Filter Expression" dialog box</title>
+      <graphic entityref="EtherealFilterAddExpression" format="PNG"/>
+    </figure>
+    <para>
+      When you first bring up the Filter Expression dialog box you are shown a 
+      tree list of field names, organized by protocol, and a box for 
+      selecting a relation.
+    </para>
+    <variablelist>
+      <varlistentry><term><command>Field Name</command></term>
+	<listitem>
+	  <para>
+	    Select a protocols field from the protocol field tree.  
+	    Every protocol with filterable fields is listed at the 
+	    top level.  By clicking on the "+" next to a protocol name 
+	    you can get a list of the field names available for filtering 
+	    for that protocol.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>Relation</command></term>
+	<listitem>
+	  <para>
+	    Select a relation from the list of available relation.  
+	    The <command>is present</command> is a unary relation which 
+	    is true if the selected field is present in a packet.  All 
+	    other listed relations are binary relations require additional 
+	    data ( ie a <command>Value</command> to match ) to complete.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+    <para> 
+      When you select a field from the field name list and select a 
+      binary relation ( like the equality relation == ) you will be 
+      given the opportunity to enter a value, and possible some range 
+      information. 
+    </para>
+    <variablelist>
+      <varlistentry><term><command>Value</command></term>
+	<listitem>
+	  <para>
+	    You may enter an appropriate value in the 
+	    <command>Value</command> text box.  The <command>Value</command> 
+	    will also indicate the type of value for the 
+	    <command>field name</command> you have selected ( like 
+	    character string ).
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>Predefined values</command></term>
+	<listitem>
+	  <para>
+	  Some of the protocol fields have predefined values available, much like
+	  enum's in C. If the selected protocol field has such values defined, you
+	  can choose it here.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>Range</command></term>
+	<listitem>
+	  <para>
+	  XXX - add an explanation here!
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>OK</command></term>
+	<listitem>
+	  <para>
+	    When you have built a satisfactory expression click 
+	    <command>OK</command> and a filter string will be 
+	    built for you. 
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>Cancel</command></term>
+	<listitem>
+	  <para>
+	    You can leave the <command>Add Expression...</command> dialog 
+	    box without any effect by clicking the <command>Cancel</command>
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="ChWorkDefineFilterSection"><title>Defining and saving filters</title>
+    <para>
+      You can define filters with Ethereal and give them labels for 
+      later use.  This can save time in remembering and retyping some of 
+      the more complex filters you use.
+    </para>
+    <para>
+      To define a new filter or edit an existing filter, select the 
+      <command>Capture Filters...</command> menu item from the Capture menu 
+	  or the <command>Display Filters...</command> menu item from the Analyze 
+	  menu. Ethereal will then pop up the Filters dialog as shown in 
+	  <xref linkend="FiltersDialog"/>.
+    </para>
+	<note>
+	  <title>Note!</title>
+	  <para>
+		The mechanisms for defining and saving capture filters and display 
+		filters are almost identical. So both will be described here, 
+		differences between these two will be marked as such.
+	  </para>
+	</note>
+	<warning><title>Warning!</title>
+	<para>
+	You must use <command>Save</command> to save your filters permanent. 
+	<command>Ok</command> or <command>Apply</command> will not save the filters,
+	so they will be lost when you close Ethereal.
+	</para>
+	</warning>
+    <figure id="FiltersDialog">
+      <title>The "Capture Filters" and "Display Filters" dialog boxes</title>
+      <graphic entityref="EtherealFilters" format="PNG"/>
+    </figure>
+    <para>
+      <variablelist>
+	<varlistentry><term><command>New</command></term>
+	  <listitem>
+	    <para>
+	      This button adds a new filter to the list of filters. The currently 
+		  entered values from Filter name and Filter string will be used. If 
+		  any of these fields are empty, it will be set to "new".
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Delete</command></term>
+	  <listitem>
+	  <para>
+	  This button deletes the selected filter. It will be greyed out, if no 
+	  filter is selected.
+	  </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Filter</command></term>
+	  <listitem>
+	    <para>
+		You can select a filter from this list (which will fill in the 
+		filter name and filter string in the fields down the bottom of the 
+		dialog box).
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Filter name:</command></term>
+	  <listitem>
+	    <para>
+		You can change the name of the currently selected filter here.
+	    </para>
+		<note><title>Note!</title>
+		<para>
+		The filter name will only be used in this dialog to identify the 
+		filter for your convenience, it will not be used elsewhere. You can 
+		add multiple filters with the same name, but this is not very useful.
+		</para>
+		</note>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Filter string:</command></term>
+	  <listitem>
+	    <para>
+		You can change the filter string of the currently selected filter here.
+		Display Filter only: the string will be syntax checked while you are 
+		typing.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Add Expression...</command></term>
+	  <listitem>
+	    <para>
+	      Display Filter only: This button brings up the Add Expression 
+		  dialog box which assists in building filter strings.  You can find 
+		  more information about the Add Expression dialog in 
+	      <xref linkend="ChWorkFilterAddExpressionSection"/>
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>OK</command></term>
+	  <listitem>
+	    <para>
+	      Display Filter only: This button applies the selected filter to the 
+		  current display and closes the dialog.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Apply</command></term>
+	  <listitem>
+	    <para>
+	      Display Filter only: This button applies the selected filter to the 
+		  current display, and keeps the dialog open.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Save</command></term>
+	  <listitem>
+	    <para>
+	      Save the current settings in this dialog. The file location and 
+		  format is explained in <xref linkend="AppFiles"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Close</command></term>
+	  <listitem>
+	    <para>
+	      Close this dialog. This will discard unsaved settings.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+  
+  <section id="ChWorkFindPacketSection"><title>Finding packets</title>
+    <para>
+      You can easily find packets once you have captured some packets or 
+      have read in a previously saved capture file. Simply select the 
+      <command>Find Packet...</command> menu item from the 
+      <command>Edit</command> menu.  Ethereal will pop up the dialog box 
+      shown in <xref linkend="ChWorkFindPacketDialog"/>.
+    </para>
+	<section><title>The "Find Packet" dialog box</title>
+    <figure id="ChWorkFindPacketDialog">
+      <title>The "Find Packet" dialog box</title>
+      <graphic entityref="EtherealFindPacket" format="PNG"/>
+    </figure>
+    <para>
+	You might first select the kind of thing to search for:
+	<itemizedlist>
+		<listitem>
+			<para>
+    		<command>Display filter</command>
+			</para>
+			<para>
+			Simply enter a display filter string into the 
+			<command>Filter:</command> field, select a direction, and click on OK.
+			</para>
+			<para>
+			For example, to find the three way handshake for a connection from 
+			host 192.168.0.1, use the following filter string:
+			<programlisting>ip.addr==192.168.0.1 and tcp.flags.syn</programlisting>
+			For more details on display filters, see <xref linkend="ChWorkDisplayFilterSection"/>
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+    		<command>Hex Value</command>
+			</para>
+			<para>
+			Search for a specific byte sequence in the packet data.
+			</para>
+			<para>
+			For example, use "00:00" to find the next packet including two 
+			null bytes in the packet data.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+    		<command>String</command>
+			</para>
+			<para>
+			Find a string in the packet data, with various options.
+			</para>
+		</listitem>
+	</itemizedlist>
+    </para>
+    <para>
+	The value to be found will by syntax checked while you type it in. If the 
+	syntax check of your value succeeded, the background of the entry field 
+	will turn green, if it fails, it will turn red.
+	</para>
+    <para>
+	You can choose the direction to be searched for:
+	<itemizedlist>
+		<listitem>
+    		<para><command>Up</command></para>
+			<para>Search upwards in the packet list (decreasing packet numbers).</para>
+		</listitem>
+	</itemizedlist>
+	<itemizedlist>
+		<listitem>
+    		<para><command>Down</command></para>
+			<para>Search downwards in the packet list (increasing packet numbers).</para>
+		</listitem>
+	</itemizedlist>
+	</para>
+  </section>
+  <section><title>The "Find Next" command</title>
+    <para>
+	"Find Next" will continue searching with the same options like in the last 
+	"Find Packet" run.
+	</para>
+  </section>
+  <section><title>The "Find Previous" command</title>
+    <para>
+	"Find Previous" will do the same thing as "Find Next", but with reverse 
+	search direction.
+	</para>
+  </section>
+  </section>
+    
+  <section id="ChWorkGoToPacketSection"><title>Go to a specific packet</title>
+  <para>
+  You can easily jump to specific packets with one of the menu items in the 
+  Go menu.  
+  </para>
+  <section><title>The "Go to Packet" dialog box</title>
+    <figure id="ChWorkGoToPacketDialog">
+      <title>The "Go To Packet" dialog box</title>
+      <graphic entityref="EtherealGoToPacket" format="PNG"/>
+    </figure>
+    <para>
+	This dialog box will let you enter a packet number. When you press 
+	<command>OK</command>, Ethereal will jump to that packet.
+	</para>
+  </section>
+  <section><title>The "Go to Corresponding Packet" command</title>
+    <para>
+	If a protocol field is selected, which points to another packet in the 
+	capture file, this command will jump to that packet.
+	</para>
+    <note><title>Note!</title>
+    <para>
+	As these protocol fields are now work like links (just like in your 
+	webbrowser), it's easier to simply doubleclick on the field to jump
+	to the corresponding field.
+    </para>
+    </note>
+  </section>
+  <section><title>The "Go to First Packet" command</title>
+    <para>
+	This command will simply jump to the first packet displayed.
+	</para>
+  </section>
+  <section><title>The "Go to Last Packet" command</title>
+    <para>
+	This command will simply jump to the last packet displayed.
+	</para>
+  </section>
+  </section>
+    
+  <section id="ChWorkMarkPacketSection"><title>Marking packets</title>
+    <para>
+	The user can mark packets in the "Packet List" pane. A marked packet will 
+	be shown with black background color, regardless of the coloring rules set.
+	Marking a packet can be useful to find it later while analyzing in a large 
+	capture file.
+    </para>
+    <warning><title>Warning!</title>
+    <para>
+	The packet marks are not stored in the capture file or somewhere else. 
+	So all packet marks will be lost if you close the capture file.
+    </para>
+    </warning>
+    <para>
+	You can use packet marking to control the output of packets when 
+	saving/exporting/printing. To do so, an option in the packet range is 
+	available, see <xref linkend="ChIOPacketRangeSection"/>.
+    </para>
+    <para>
+	There are three functions to manipulate the marked state of a packet:
+	<itemizedlist>
+		<listitem>
+    		<para>
+			<command>Mark packet</command> toggle the marked state of a single packet.
+    		</para>
+		</listitem>
+		<listitem>
+    		<para>
+			<command>Mark all packets</command> set the mark state of all packets.
+    		</para>
+		</listitem>
+		<listitem>
+    		<para>
+			<command>Unmark all packets</command> reset the mark state of all packets.
+    		</para>
+		</listitem>
+	</itemizedlist>
+	These mark function are available from the "Edit" menu, and the "Mark packet" 
+	function is also available from the popup menu of the "Packet List" pane.
+    </para>
+  </section>
+	
+  <section id="ChWorkTimeFormatsSection"><title>Time display formats and time 
+  references</title>
+	<para>
+	While packets are captured, each packet is timestamped. These timestamps 
+	will be saved to the capture file, so they will be available for later 
+	analysis.
+	</para>
+	<para>
+	When the packets are displayed, the presentation of these timestamps can 
+	be chosen by the user. There are four presentation formats available:
+	<itemizedlist>
+	<listitem><para><command>Time of Day</command>, e.g. 20:02:48.863096
+		The absolute time of the day when the packet was captured.</para>
+	</listitem>
+	<listitem><para><command>Date and Time of Day</command>, e.g. 2004-06-22 20:02:48.863096
+		The absolute date and time of the day when the packet was captured.</para>
+	</listitem>
+	<listitem><para><command>Seconds Since Beginning of Capture</command>, e.g. 123.299139
+		The time relative to the start of the capture file or the first 
+		"Time Reference" before this packet (see <xref 
+		linkend="ChWorkTimeReferencePacketSection"/>).</para>
+	</listitem>
+	<listitem><para><command>Seconds Since Previous Packet</command>, e.g. 1.162423
+		The time relative to the previous packet.</para>
+	</listitem>
+	</itemizedlist>
+	The time format can be selected from the View menu, see 
+	<xref linkend="ChUseEtherealViewMenu"/>.
+	</para>
+	<para>
+	XXX - how is the GMT / localtime thing handled.
+	</para>
+  <section id="ChWorkTimeReferencePacketSection"><title>Packet time referencing</title>
+    <para>
+	The user can set time references to packets. A time reference is the 
+	starting point for all subsequent packet time calculations. It will be 
+	useful, if you want to see the time values relative to a special packet,
+	e.g. the start of a new request. It's possible to set multiple time 
+	references in the capture file.
+    </para>
+    <warning><title>Warning!</title>
+    <para>
+	The time references will not be saved permanently and get lost, when you close the 
+	capture file.
+	</para>
+    </warning>
+    <note><title>Note!</title>
+    <para>
+	Time referencing will only be useful, if the time display format is set to 
+	"Seconds Since Beginning of Capture". If one of the other time display 
+	formats are used, time referencing will take no effect (and will make no 
+	sense either).
+	</para>
+    </note>
+    <para>
+	To work with time references, choose one of the "Time Reference" items 
+	in the "Edit" menu , see <xref linkend="ChUseEditMenuSection"/>, or from 
+	the popup menu of the "Packet List" pane.
+	</para>
+	<itemizedlist>
+	<listitem><para><command>Set Time Reference (toggle)</command>
+		Toggles the time reference state of the currently selected 
+		packet to on or off.</para>
+	</listitem>
+	<listitem><para><command>Find Next</command>
+		Find the next time referenced packet in the "Packet List" pane.
+		</para>
+	</listitem>
+	<listitem><para><command>Find Previous</command>
+		Find the previous time referenced packet in the "Packet List" 
+		pane.
+		</para>
+	</listitem>
+	</itemizedlist>
+    <para>
+    <figure id="ChWorkTimeReference">
+      <title>Ethereal showing a time referenced packet</title>
+      <graphic entityref="EtherealTimeReference" format="PNG"/>
+    </figure>
+	</para>
+	<para>
+	A time referenced packet will be marked with the string *REF* in the Time 
+	column (see packet number 10). All subsequent packets will show the time 
+	since the last time reference.
+	</para>
+  </section>
+  </section>
+
+</chapter>
+<!-- End of EUG Chapter Work -->
+

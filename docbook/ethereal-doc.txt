@@ -1,0 +1,93 @@
+ETHEREAL USER'S GUIDE OUTLINE
+
+Chapter 1.0 Introduction
+  - What is Ethereal
+  - A rose by any other name
+  - A brief history of Ethereal
+  - Platforms Ethereal runs on
+  - Where to get Ethereal
+
+Chapter 2.0 Building and Installing Ethereal
+  - Obtaining the source and binary distributions
+  - Before you build Ethereal
+  - Building the source
+  - Installing the binaries
+  - Installing from RPMs
+
+Chapter 3.0 Using Ethereal
+  - Starting Ethereal
+  - Capturing packets
+  - Filtering during capturing
+  - Viewing packets
+  - Viewing packets while you capture
+  - Saving captures
+  - Reading captures from other tools
+  - Filtering packets while viewing
+
+Chapter 4.0 Troubleshooting with Ethereal
+
+  - An approach to troubleshooting with Ethereal
+  - Examples of troubleshooting
+
+Chapter 5.0 Miscellaneous topics
+
+  - Capturing with tcpdump for viewing with Ethereal
+  - Using editpcap
+  - Other tools
+
+Glossary
+
+Index
+
+ETHEREAL DEVELOPERS GUIDE OUTLINE
+
+1.0 Introduction
+ 
+  - What is Ethereal
+  - A rose by any other name
+  - A brief history of Ethereal
+  - Platforms Ethereal runs on
+  - Where to get Ethereal
+ 
+2.0 What is packet sniffing
+
+  - The use of libpcap and other capture tools
+  - The structure of packets
+  - How a packet's payload is handled
+  - An introduction to wiretap
+
+3.0 An outline of what Ethereal does
+
+  - Capturing packets
+  - Passes across the data
+  - Calling the dissection routines
+  - Parameters passed
+
+4.0 Writing a new dissector by example
+
+  - The basics of writing a dissector
+  - Producing the code
+  - The files you have to produce and modify
+  - Running autoconf.sh
+  - The final product
+  - Contributing your new dissector
+
+5.0 Functions avalailable to dissector writers
+
+  - All the relevant functions
+
+6.0 A list of all the existing dissectors
+
+  - A list of all the dissectors
+
+Glossary
+
+Index
+
+Regards
+-------
+Richard Sharpe, sharpe@ns.aus.com
+Samba (Team member, www.samba.org), Ethereal (Team member, www.zing.org)
+ 
+
+

@@ -1,0 +1,288 @@
+<!-- EUG Appendix Files -->
+<appendix id="AppFiles">
+  <title>Configuration Files and Folders</title>
+    <para>
+      Ethereal uses a number of files while it is running. Some of these 
+      reside in the personal configuration folder and are used to maintain 
+	  information between runs of Ethereal, while some of them are maintained 
+	  in system areas.
+    </para>
+    <para>
+	XXX - Add info about "temporary capture file" folders.
+    </para>
+	<tip><title>Tip</title>
+	<para>A list of the folders Ethereal actually uses can be found under the 
+	"Folders" tab in the "About" dialog box.
+	</para>
+	</tip>
+    <para>
+	The content format of the configuration files is the same on all platforms.
+	However, to match the different policies for unix and windows platforms, 
+	different folders for these files are used.
+    </para>
+    <table id="AppFilesTabFolders" frame="none"><title>Configuration files overview</title>
+      <tgroup cols="4">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	  <colspec colnum="3" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>File</entry>
+		<entry>Description</entry>
+		<entry>Unix folders</entry>
+		<entry>Windows folders</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>preferences</command></entry>
+		<entry>Settings from the Preferences dialog box.</entry>
+		<entry>$HOME/.ethereal/preferences</entry>
+		<entry>%ETHEREAL%\preferences, %APPDATA%\Ethereal\preferences</entry>
+	      </row>
+	      <row>
+		<entry><command>recent</command></entry>
+		<entry>Recent GUI settings (e.g. recent files lists).</entry>
+		<entry>$HOME/.ethereal/recent</entry>
+		<entry>%APPDATA%\Ethereal\recent</entry>
+	      </row>
+	      <row>
+		<entry><command>cfilters</command></entry>
+		<entry>Capture filters.</entry>
+		<entry>$HOME/.ethereal/cfilters</entry>
+		<entry>%ETHEREAL%\cfilters, %APPDATA%\Ethereal\cfilters</entry>
+	      </row>
+	      <row>
+		<entry><command>dfilters</command></entry>
+		<entry>Display filters.</entry>
+		<entry>$HOME/.ethereal/dfilters</entry>
+		<entry>%ETHEREAL%\dfilters, %APPDATA%\Ethereal\dfilters</entry>
+	      </row>
+	      <row>
+		<entry><command>colorfilters</command></entry>
+		<entry>Coloring rules.</entry>
+		<entry>$HOME/.ethereal/colorfilters</entry>
+		<entry>%ETHEREAL%\colorfilters, %APPDATA%\Ethereal\colorfilters</entry>
+	      </row>
+	      <row>
+		<entry><command>disabled_protos</command></entry>
+		<entry>Disabled protocols.</entry>
+		<entry>$HOME/.ethereal/disabled_protos</entry>
+		<entry>%APPDATA%\Ethereal\disabled_protos</entry>
+	      </row>
+	      <row>
+		<entry><command>ethers</command></entry>
+		<entry>Ethernet name resolution.</entry>
+		<entry>/etc/ethers, $HOME/.ethereal/ethers</entry>
+		<entry>%ETHEREAL%\ethers, %APPDATA%\Ethereal\ethers</entry>
+	      </row>
+	      <row>
+		<entry><command>manuf</command></entry>
+		<entry>Ethernet name resolution.</entry>
+		<entry>/usr/local/etc/manuf</entry>
+		<entry>%ETHEREAL%\manuf</entry>
+	      </row>
+	      <row>
+		<entry><command>ipxnets</command></entry>
+		<entry>IPX name resolution.</entry>
+		<entry>$HOME/.ethereal/ipxnets</entry>
+		<entry>%ETHEREAL%\ipxnets</entry>
+	      </row>
+	      <row>
+		<entry><command>plugins</command></entry>
+		<entry>Plugin directories.</entry>
+		<entry>/usr/share/ethereal/plugins, 
+	      /usr/local/share/ethereals/plugins, 
+	      $HOME/.ethereal/plugins
+		</entry>
+		<entry>%ETHEREAL%\plugins\&lt;version&gt;, 
+		%APPDATA%\Ethereal\plugins</entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+	<note><title>Windows folders</title>
+	<para>
+	%APPDATA% points to the personal configuration folder, typically 
+	"C:\Documents and Settings\&lt;username&gt;\Application Data", 
+	%ETHEREAL% points to the Ethereal program folder, typically 
+	"C:\Program Files\Ethereal"
+	</para>
+	</note>
+    <para>
+      <variablelist>
+	<varlistentry>
+	  <term><command>preferences</command></term>
+	  <listitem>
+	    <para>
+	      This file contains your Ethereal preferences, 
+	      including defaults for capturing and displaying packets.  
+	      It is a simple text file containing statements of the form:
+	      <programlisting>
+variable: value
+		  </programlisting>
+	      The settings from this file are 
+		  read in at program start and written to disk when you press the
+		  Save button in the "Preferences" dialog box.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>recent</command></term>
+	  <listitem>
+	    <para>
+	      This file contains various GUI related settings like the main window
+		  position and size, the recent files list and such.
+	      It is a simple text file containing statements of the form:
+	      <programlisting>
+variable: value
+		  </programlisting>
+		  It is read at program start and written at program exit. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>cfilters</command></term>
+	  <listitem>
+	    <para>
+	      This file contains all the capture filters that you have defined 
+	      and saved. It consists of one or more lines, where each 
+	      line has the following format:
+	      <programlisting>
+"&lt;filter name>" &lt;filter string>
+	      </programlisting>
+ 		The settings from this file are read in at program start and written 
+		to disk when you press the Save button in the "Capture Filters" dialog 
+		box.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>dfilters</command></term>
+	  <listitem>
+	    <para>
+	      This file contains all the display filters that you have defined 
+	      and saved. It consists of one or more lines, where each 
+	      line has the following format:
+	      <programlisting>
+"&lt;filter name>" &lt;filter string>
+	      </programlisting>
+ 		The settings from this file are read in at program start and written 
+		to disk when you press the Save button in the "Display Filters" dialog 
+		box.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>colorfilters</command></term>
+	  <listitem>
+	    <para>
+	      This file contains all the color filters that you have 
+	      defined and saved. It consists of one or more lines, 
+	      where each line has the following format:
+	      <programlisting>
+@&lt;filter name>@&lt;filter string>
+@[&lt;bg RGB(16-bit)>][&lt;fg RGB(16-bit)>]
+	      </programlisting>
+	    </para>
+		<para>
+ 		The settings from this file are read in at program start and written 
+		to disk when you press the Save button in the "Coloring Rules" dialog 
+		box.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>disabled_protos</command></term>
+	  <listitem>
+	    <para>
+	      Each line in this file specifies a disabled protocol name. The 
+		  following are some examples:
+	      <programlisting>
+tcp
+udp
+		  </programlisting>
+	    </para>
+		<para>
+ 		The settings from this file are read in at program start and written 
+		to disk when you press the Save button in the "Enabled Protocols" 
+		dialog box.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <command>ethers</command>
+	  </term>
+	  <listitem>
+	    <para>
+	      When Ethereal is trying to translate Ethernet hardware 
+	      addresses to names, it consults the files listed above in the 
+	      order listed.  If an address is not found in /etc/ethers, 
+	      Etherereal looks in $HOME/.ethereal/etheres
+	    </para>
+	    <para>
+	      Each line in these files consists of one hardware address and 
+	      name separated by whitespace. The digits of hardware 
+	      addressses are spearated by colons (:), dashes (-) or 
+	      periods(.). The following are some examples:
+	      <programlisting>
+ff-ff-ff-ff-ff-ff    Broadcast
+c0-00-ff-ff-ff-ff    TR_broadcast
+00.2b.08.93.4b.a1    Freds_machine
+	      </programlisting>
+ 		The settings from this file are read in at program start and never be 
+		written by Ethereal.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>manuf</command></term>
+	  <listitem>
+	    <para>
+	      Ethereal uses the file listed above to translate the first 
+	      three bytes of an Ethernet address into a manufacturers 
+	      name.  This file has the same format as the ethers file, 
+	      except addresses are three bytes long.
+	    </para>
+		<para>
+ 		The settings from this file are read in at program start and never be 
+		written by Ethereal.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>ipxnets</command></term>
+	  <listitem>
+	    <para>
+	      Ethereal uses the above file to translate IPX network numbers 
+	      into names.
+	    </para>
+	    <para>
+	      An example is:
+	      <programlisting>
+C0.A8.2C.00      HR
+c0-a8-1c-00      CEO
+00:00:BE:EF      IT_Server1
+110f             FileServer3
+	      </programlisting>
+	    </para>
+		<para>
+ 		The settings from this file are read in at program start and never be 
+		written by Ethereal.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>plugins</command></term>
+	  <listitem>
+	    <para>
+	      Ethereal searches for plugins in the directories listed above. 
+	      They are searched in the order listed.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+<!--  </section> -->
+
+</appendix>
+<!-- End of EUG Appendix Files -->

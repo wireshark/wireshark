@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" 
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+
+<!--
+BIOGRAPHICAL SECTION
+-Use this section to encode all biographical information
+-->
+
+<!-- Authors Names -->
+  <!ENTITY AuthorFullName "Richard Sharpe">
+  <!ENTITY AuthorFirstName "Richard">
+  <!ENTITY AuthorOtherName "">
+  <!ENTITY AuthorSurname "Sharpe">
+
+<!--Authors Affiliation -->
+  <!ENTITY AuthorShortAffiliation "">
+  <!ENTITY AuthorJobTitle "Director">
+  <!ENTITY AuthorOrgName "NS Computer Software and Services P/L">
+  <!ENTITY AuthorOrgDiv "">
+
+<!--
+DOCUMENT SECTION
+-Use this section to encode all document information
+-->
+
+  <!ENTITY DocumentTitle "<application>Ethereal</application> Developer's Guide">
+  <!ENTITY DocumentSubTitle "">
+  <!ENTITY DocumentTitleAbbreviation "EDG">
+
+  <!ENTITY DocumentCopyrightHolder "NS Computer Software and Services P/L">
+  <!ENTITY DocumentCopyrightYear "2000">
+
+  <!ENTITY DocumentEdition "First edition">
+  <!ENTITY DocumentPubDate "2000">
+
+  <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.1 or any later version published by the Free Software Foundation; with the Invariant Sections being LIST THEIR TITLES, with the Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST. A copy of the license is included in the section entitled &quot;GNU Free Documentation License&quot;</para>">
+
+<!--
+Ethereal Info
+-->
+  <!ENTITY EtherealCurrentVersion "0.8.10">
+  <!ENTITY EtherealNextMinorVersion "0.8.11">
+
+<!--
+FILE SECTION
+-Use this section to specify the files that make up the book. Use FPI (public identifiers)
+-->
+
+
+<!-- These are the actual files that make up the document -->
+  <!ENTITY BookMetaInformation SYSTEM "dg-src/EDG_meta_info.xml">
+  <!ENTITY Chapter1 SYSTEM "dg-src/EDG_chapter_one.xml">
+  <!ENTITY Chapter2 SYSTEM "dg-src/EDG_chapter_two.xml">
+  <!ENTITY Chapter3 SYSTEM "dg-src/EDG_chapter_three.xml">
+  <!ENTITY Chapter4 SYSTEM "dg-src/EDG_chapter_four.xml">
+  <!ENTITY Chapter5 SYSTEM "dg-src/EDG_chapter_five.xml">
+
+<!-- These refer to graphics files and figures contained in the document -->
+  <!-- 1st Chapter -->
+]>
+
+<book>
+<title>&DocumentTitle;</title>
+<subtitle>&DocumentSubTitle;</subtitle>
+&BookMetaInformation;
+&Chapter1;
+&Chapter2;
+&Chapter3;
+&Chapter4;
+&Chapter5;
+<!--
+
+&Glossary;
+&Index;  -->
+</book>

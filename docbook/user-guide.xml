@@ -1,0 +1,282 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" 
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+
+<!--
+BIOGRAPHICAL SECTION
+-Use this section to encode all biographical information
+-->
+
+<!-- Author's Names -->
+  <!ENTITY AuthorFullName "Richard Sharpe">
+  <!ENTITY AuthorFirstName "Richard">
+  <!ENTITY AuthorOtherName "">
+  <!ENTITY AuthorSurname "Sharpe">
+
+  <!ENTITY AuthorFullName2 "Ed Warnicke">
+  <!ENTITY AuthorFirstName2 "Ed">
+  <!ENTITY AuthorOtherName2 "">
+  <!ENTITY AuthorSurname2 "Warnicke">
+
+  <!ENTITY AuthorFullName3 "Ulf Lamping">
+  <!ENTITY AuthorFirstName3 "Ulf">
+  <!ENTITY AuthorOtherName3 "">
+  <!ENTITY AuthorSurname3 "Lamping">
+
+<!--Author's Affiliation -->
+  <!ENTITY AuthorShortAffiliation "">
+  <!ENTITY AuthorJobTitle "Director">
+  <!ENTITY AuthorOrgName "NS Computer Software and Services P/L">
+  <!ENTITY AuthorOrgDiv "">
+  <!ENTITY AuthorEmail "rsharpe[AT]ns.aus.com">
+
+  <!ENTITY AuthorShortAffiliation2 "">
+  <!ENTITY AuthorJobTitle2 "">
+  <!ENTITY AuthorOrgName2 "">
+  <!ENTITY AuthorOrgDiv2 "">
+  <!ENTITY AuthorEmail2 "hagbard[AT]physics.rutgers.edu">
+
+  <!ENTITY AuthorShortAffiliation3 "">
+  <!ENTITY AuthorJobTitle3 "">
+  <!ENTITY AuthorOrgName3 "">
+  <!ENTITY AuthorOrgDiv3 "">
+  <!ENTITY AuthorEmail3 "ulf.lamping[AT]web.de">
+
+
+  
+
+<!--
+DOCUMENT SECTION
+-Use this section to encode all document information
+-->
+
+  <!ENTITY DocumentTitle "<application>Ethereal</application> User's Guide">
+  <!ENTITY DocumentSubTitle "&DocumentVersion; for Ethereal &EtherealCurrentVersion;">
+  <!ENTITY DocumentTitleAbbreviation "EUG">
+
+  <!ENTITY DocumentCopyrightHolder1 "Richard Sharpe">
+  <!ENTITY DocumentCopyrightHolder2 "Ed Warnicke">
+  <!ENTITY DocumentCopyrightHolder3 "Ulf Lamping">
+  <!ENTITY DocumentCopyrightYear "2004">
+
+  <!ENTITY DocumentEdition "Third ">
+  <!ENTITY DocumentVersion "V1.90">
+  <!ENTITY DocumentPubDate "2004">
+
+<!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.1 or any later version published by the Free Software Foundation; with no Invariant Sections, with no Front-Cover Texts, and with no Back-Cover Texts.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
+
+<!--
+Ethereal Info
+-->
+  <!ENTITY EtherealCurrentVersion "0.10.5">
+  <!ENTITY EtherealNextMinorVersion "0.10.6">
+  <!ENTITY EtherealWebSite "http://www.ethereal.com">
+  <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
+  <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#binaries">
+  <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
+  <!ENTITY EtherealProtocolsPage "&EtherealWebSite;/docs/dfref/">
+  <!ENTITY EtherealCurrentVersionTarFile "0.10.5">
+
+  <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
+  <!ENTITY EtherealUsersMailList "ethereal-users[AT]ethereal.com">
+
+  
+<!--
+Winpcap Info
+-->
+  <!ENTITY WinPcapWebsite "http://netgroup-serv.polito.it/winpcap/">
+  <!ENTITY WinPcapDownloadWebsite "http://netgroup-serv.polito.it/winpcap/install/Default.htm">
+
+<!--
+Gnu info
+-->
+  <!ENTITY GPLWebsite "http://www.gnu.org/copyleft/gpl.html">
+
+<!-- Self referential info
+-->
+
+  <!ENTITY LatestVersionWebsite "http://www.richardsharpe.com/richard/ethereal/user-guide/book1.html" >
+  <!ENTITY LatestVersionPDFWebsiteA4 "http://www.richardsharpe.com/richard/ethereal/user-guide/user-guide-a4.pdf" >
+  <!ENTITY LatestVersionPDFWebsiteUSLetter "http://www.richardsharpe.com/richard/ethereal/user-guide/user-guide-usletter.pdf" >
+<!--
+FILE SECTION
+-Use this section to specify the files that make up the book. Use FPI (public identifiers)
+-->
+<!-- These refer to graphics files and figures contained in the document -->
+  <!-- -->
+  <!ENTITY EtherealLogo SYSTEM "./graphics/ethereal-logo.png" NDATA PNG>
+  
+  <!-- 1st Chapter -->
+  <!ENTITY EtherealMain1 SYSTEM "./graphics/ethereal-main.png" NDATA PNG>
+
+  <!-- 2nd Chapter -->
+
+  <!-- Third Chapter -->
+  <!ENTITY EtherealEmpty SYSTEM "./graphics/ethereal-empty.png" NDATA PNG>
+  <!ENTITY EtherealThreePane1 SYSTEM "./graphics/ethereal-3pane.png" NDATA PNG>
+  <!ENTITY EtherealMenuOnly SYSTEM "./graphics/ethereal-menu.png" NDATA PNG>
+  <!ENTITY EtherealMainToolbar SYSTEM "./graphics/ethereal-main-toolbar.png" NDATA PNG>
+  <!ENTITY EtherealFilterToolbar SYSTEM "./graphics/ethereal-filter-toolbar.png" NDATA PNG>
+  <!ENTITY EtherealListPane SYSTEM "./graphics/ethereal-list-pane.png" NDATA PNG>
+  <!ENTITY EtherealDetailsPane SYSTEM "./graphics/ethereal-details-pane.png" NDATA PNG>
+  <!ENTITY EtherealBytesPane SYSTEM "./graphics/ethereal-bytes-pane.png" NDATA PNG>
+  <!ENTITY EtherealBytesPaneTabs SYSTEM "./graphics/ethereal-bytes-pane-tabs.png" NDATA PNG>
+  <!ENTITY EtherealStatusbarEmpty SYSTEM "./graphics/ethereal-statusbar-empty.png" NDATA PNG>
+  <!ENTITY EtherealStatusbarLoaded SYSTEM "./graphics/ethereal-statusbar-loaded.png" NDATA PNG>
+  <!ENTITY EtherealStatusbarSelected SYSTEM "./graphics/ethereal-statusbar-selected.png" NDATA PNG>
+  <!ENTITY EtherealSaveAs SYSTEM "./graphics/ethereal-save-as.png" NDATA PNG>
+  <!ENTITY EtherealOpen SYSTEM "./graphics/ethereal-open.png" NDATA PNG> 
+  <!ENTITY EtherealPacketSelected1 SYSTEM "./graphics/ethereal-packet-selected.png" NDATA PNG>
+  <!ENTITY EtherealPacketSepView SYSTEM "./graphics/ethereal-packet-sep-win.png" NDATA PNG>
+  <!ENTITY EtherealFilterTCP SYSTEM "./graphics/ethereal-display-filter-tcp.png" NDATA PNG>  
+  <!ENTITY EtherealColoringRulesDialog SYSTEM "./graphics/ethereal-coloring-rules-dialog.png" NDATA PNG>
+  <!ENTITY EtherealEditColorDialog SYSTEM "./graphics/ethereal-edit-color-rule-dialog.png" NDATA PNG>
+  <!ENTITY EtherealChooseColorDialog SYSTEM "./graphics/ethereal-choose-color-rule.png" NDATA PNG>
+  <!ENTITY EtherealFollowStream SYSTEM "./graphics/ethereal-follow-stream.png" NDATA PNG>
+  <!ENTITY EtherealFindPacket SYSTEM "./graphics/ethereal-find-packet.png" NDATA PNG>  
+  <!ENTITY EtherealGoToPacket SYSTEM "./graphics/ethereal-goto-packet.png" NDATA PNG>  
+  <!ENTITY EtherealPrint SYSTEM "./graphics/ethereal-print.png" NDATA PNG>
+  <!ENTITY EtherealGUIPreferences SYSTEM "./graphics/ethereal-gui-preferences.png" NDATA PNG>
+  <!ENTITY EtherealGUILayoutPreferences SYSTEM "./graphics/ethereal-gui-layout-preferences.png" NDATA PNG>
+  <!ENTITY EtherealGUIColumnsPreferences SYSTEM "./graphics/ethereal-gui-columns-preferences.png" NDATA PNG>
+  <!ENTITY EtherealGUIFontPreferences SYSTEM "./graphics/ethereal-gui-font-preferences.png" NDATA PNG>
+  <!ENTITY EtherealGUIColorsPreferences SYSTEM "./graphics/ethereal-gui-colors-preferences.png" NDATA PNG>
+  <!ENTITY EtherealCapturePreferences SYSTEM "./graphics/ethereal-capture-preferences.png" NDATA PNG>
+  <!ENTITY EtherealPrintingPreferences SYSTEM "./graphics/ethereal-printing-preferences.png" NDATA PNG>
+  <!ENTITY EtherealNameResolutionPreferences SYSTEM "./graphics/ethereal-nameresolution-preferences.png" NDATA PNG>
+  <!ENTITY EtherealFilters SYSTEM "./graphics/ethereal-filters.png" NDATA PNG>
+  <!ENTITY EtherealFileMenu SYSTEM "./graphics/ethereal-file-menu.png" NDATA PNG>
+  <!ENTITY EtherealEditMenu SYSTEM "./graphics/ethereal-edit-menu.png" NDATA PNG>
+  <!ENTITY EtherealViewMenu SYSTEM "./graphics/ethereal-view-menu.png" NDATA PNG>
+  <!ENTITY EtherealGoMenu SYSTEM "./graphics/ethereal-go-menu.png" NDATA PNG>
+  <!ENTITY EtherealCaptureMenu SYSTEM "./graphics/ethereal-capture-menu.png" NDATA PNG>
+  <!ENTITY EtherealAnalyzeMenu SYSTEM "./graphics/ethereal-analyze-menu.png" NDATA PNG>
+  <!ENTITY EtherealStatisticsMenu SYSTEM "./graphics/ethereal-statistics-menu.png" NDATA PNG>
+  <!ENTITY EtherealHelpMenu SYSTEM "./graphics/ethereal-help-menu.png" NDATA PNG>
+  <!ENTITY EtherealPacketPanePopupMenu SYSTEM "./graphics/ethereal-packet-pane-popup-menu.png" NDATA PNG>
+  <!ENTITY EtherealDetailsPanePopupMenu SYSTEM "./graphics/ethereal-details-pane-popup-menu.png" NDATA PNG>
+  <!ENTITY EtherealBytesPanePopupMenu SYSTEM "./graphics/ethereal-bytes-pane-popup-menu.png" NDATA PNG>
+  <!ENTITY EtherealFilterAddExpression SYSTEM "./graphics/ethereal-filter-add-expression.png" NDATA PNG>
+  <!ENTITY EtherealFilters2 SYSTEM "./graphics/ethereal-filters-2.png" NDATA PNG>
+  <!ENTITY EtherealExportPlainDialog SYSTEM "./graphics/ethereal-export-plain.png" NDATA PNG>
+  <!ENTITY EtherealExportPSDialog SYSTEM "./graphics/ethereal-export-ps.png" NDATA PNG>
+  <!ENTITY EtherealExportPSMLDialog SYSTEM "./graphics/ethereal-export-psml.png" NDATA PNG>
+  <!ENTITY EtherealExportPDMLDialog SYSTEM "./graphics/ethereal-export-pdml.png" NDATA PNG>
+  <!ENTITY EtherealExportSelectedDialog SYSTEM "./graphics/ethereal-export-selected.png" NDATA PNG>
+  <!ENTITY EtherealCaptureOptionsDialog SYSTEM "./graphics/ethereal-capture-options.png" NDATA PNG>
+  <!ENTITY EtherealCaptureInfoDialog SYSTEM "./graphics/ethereal-capture-info.png" NDATA PNG>
+  <!ENTITY EtherealMergeDialog SYSTEM "./graphics/ethereal-merge.png" NDATA PNG>
+  <!ENTITY EtherealPacketRangeFrame SYSTEM "./graphics/ethereal-packet-range.png" NDATA PNG>
+  <!ENTITY EtherealPacketFormatFrame SYSTEM "./graphics/ethereal-packet-format.png" NDATA PNG>
+  <!ENTITY EtherealTimeReference SYSTEM "./graphics/ethereal-time-reference.png" NDATA PNG>
+  <!ENTITY EtherealEnabledProtocols SYSTEM "./graphics/ethereal-enabled-protocols.png" NDATA PNG>
+  <!ENTITY EtherealDecodeAs SYSTEM "./graphics/ethereal-decode-as.png" NDATA PNG>
+  <!ENTITY EtherealDecodeAsShow SYSTEM "./graphics/ethereal-decode-as-show.png" NDATA PNG>
+
+  <!-- Third Chapter Toolbar-->
+  <!ENTITY EtherealToolbarCapture SYSTEM "./graphics/toolbar/capture_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarCaptureFilters SYSTEM "./graphics/toolbar/cfilter_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarDisplayFilters SYSTEM "./graphics/toolbar/dfilter_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarAdd SYSTEM "./graphics/toolbar/stock_add_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarGoLast SYSTEM "./graphics/toolbar/stock_bottom_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarClose SYSTEM "./graphics/toolbar/stock_close_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarColoringRules SYSTEM "./graphics/toolbar/stock_colorselector_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarHelp SYSTEM "./graphics/toolbar/stock_help_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarGoTo SYSTEM "./graphics/toolbar/stock_jump_to_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarFindPrevious SYSTEM "./graphics/toolbar/stock_left_arrow_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarOpen SYSTEM "./graphics/toolbar/stock_open_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarPreferences SYSTEM "./graphics/toolbar/stock_preferences_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarPrint SYSTEM "./graphics/toolbar/stock_print_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarProperties SYSTEM "./graphics/toolbar/stock_properties_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarReload SYSTEM "./graphics/toolbar/stock_refresh_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarFindNext SYSTEM "./graphics/toolbar/stock_right_arrow_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarSave SYSTEM "./graphics/toolbar/stock_save_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarSaveAs SYSTEM "./graphics/toolbar/stock_save_as_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarFind SYSTEM "./graphics/toolbar/stock_search_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarStop SYSTEM "./graphics/toolbar/stock_stop_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarGoFirst SYSTEM "./graphics/toolbar/stock_top_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarZoom100 SYSTEM "./graphics/toolbar/stock_zoom_1_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarZoomIn SYSTEM "./graphics/toolbar/stock_zoom_in_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarZoomOut SYSTEM "./graphics/toolbar/stock_zoom_out_24.png" NDATA PNG>
+
+  <!-- Third Chapter Statistics -->
+  <!ENTITY EtherealStatsSummary SYSTEM "./graphics/ethereal-stats-summary.png" NDATA PNG>
+  <!ENTITY EtherealStatsHierarchy SYSTEM "./graphics/ethereal-stats-hierarchy.png" NDATA PNG>
+  <!ENTITY EtherealStatsEndpoints SYSTEM "./graphics/ethereal-stats-endpoints.png" NDATA PNG>
+  <!ENTITY EtherealStatsConversations SYSTEM "./graphics/ethereal-stats-conversations.png" NDATA PNG>
+  <!ENTITY EtherealStatsIOGraphs SYSTEM "./graphics/ethereal-stats-iographs.png" NDATA PNG>
+  <!ENTITY EtherealStatsSrtDcerpcFilter SYSTEM "./graphics/ethereal-stats-srt-dcerpc-filter.png" NDATA PNG>
+  <!ENTITY EtherealStatsSrtDcerpc SYSTEM "./graphics/ethereal-stats-srt-dcerpc.png" NDATA PNG>
+
+  <!-- Fifth Chapter -->
+
+  <!-- Sixth Chapter -->
+
+  <!-- Appendices etc -->
+  <!ENTITY EtherealFormatError SYSTEM "./graphics/ethereal-error-open.png" NDATA PNG>
+  <!ENTITY EtherealFormatError SYSTEM "./graphics/ethereal-error-open.png" NDATA PNG>
+  <!ENTITY EtherealSaveError SYSTEM "./graphics/ethereal-save-error.png" NDATA PNG>
+
+
+<!-- These are the actual files that make up the document -->
+  <!ENTITY BookMetaInformation SYSTEM "ug-src/EUG_meta_info.xml">
+  <!ENTITY Preface SYSTEM  "ug-src/EUG_preface.xml">
+  <!ENTITY ChapterIntroduction SYSTEM "ug-src/EUG_chapter_introduction.xml">
+  <!ENTITY ChapterBuildInstall SYSTEM "ug-src/EUG_chapter_build_install.xml">
+  <!ENTITY ChapterUse SYSTEM "ug-src/EUG_chapter_use.xml">
+  <!ENTITY ChapterCapture SYSTEM "ug-src/EUG_chapter_capture.xml">
+  <!ENTITY ChapterIo SYSTEM "ug-src/EUG_chapter_io.xml">
+  <!ENTITY ChapterWork SYSTEM "ug-src/EUG_chapter_work.xml">
+  <!ENTITY ChapterAdvanced SYSTEM "ug-src/EUG_chapter_advanced.xml">
+  <!ENTITY ChapterStatistics SYSTEM "ug-src/EUG_chapter_statistics.xml">
+  <!ENTITY ChapterCustomize SYSTEM "ug-src/EUG_chapter_customize.xml">
+  <!ENTITY ChapterTroubleshoot SYSTEM "ug-src/EUG_chapter_troubleshoot.xml">
+  <!ENTITY AppMessages SYSTEM "ug-src/EUG_app_messages.xml">
+  <!ENTITY AppFiles SYSTEM "ug-src/EUG_app_files.xml">
+  <!ENTITY AppProtocols SYSTEM   "ug-src/EUG_app_protocols.xml">
+  <!ENTITY AppHowItWorks SYSTEM "ug-src/EUG_app_howitworks.xml">
+  <!ENTITY AppTools SYSTEM "ug-src/EUG_app_tools.xml">
+  <!ENTITY AppGFDPL SYSTEM    "GFDPL_appendix.xml">
+  <!ENTITY ProtoList SYSTEM    "protocols.xml">
+
+]>
+
+<book>
+  <title>&DocumentTitle;</title>
+  <subtitle>&DocumentSubTitle;</subtitle>
+  <!-- -->
+  &BookMetaInformation;
+  &Preface;
+  &ChapterIntroduction;
+  &ChapterBuildInstall;
+  &ChapterUse;
+  &ChapterCapture;
+  &ChapterIo;
+  &ChapterWork;
+  &ChapterAdvanced;
+  <!-- -->
+  &ChapterStatistics;  
+  &ChapterCustomize;
+
+  <!-- Removed, as this chapter has to be reworked first -->
+  <!-- &ChapterTroubleshoot; -->
+  
+  <!-- Removed, as this chapter is much too long and should form it's own document -->
+  <!-- &FilterFields; -->
+
+  <!-- Removed, as there are a lot more of warnings and messages right now, and 
+  the warnings and messages should be self explanatory. -->
+  <!-- &AppMessages; -->
+  
+  &AppFiles;
+  &AppProtocols;
+  &AppTools;
+  <!-- Removed, as this chapter is not finished
+  &AppHowItWorks;
+  -->
+  &AppGFDPL;
+  <!-- Removed, as these chapters must be reworked -->
+  <!--
+  &Glossary;
+  &Index;  -->
+</book>

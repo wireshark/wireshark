@@ -1,0 +1,231 @@
+<!-- EUG Chapter Advanced -->
+<chapter id="ChapterAdvanced">
+  <title>Advanced Features</title>
+  
+  <section id="ChAdvIntroduction"><title>Introduction</title>
+  <para>
+  In this chapter some advanced features of Ethereal will be described.
+  </para>
+  </section>
+  
+  <section id="ChAdvFollowTCPSection"><title>Following TCP streams</title>
+    <para>
+      There will be occasions when you would like to see the data from a TCP 
+      session in the order that the application layer would see it. Perhaps 
+      you are looking for passwords in a Telnet stream, or you are 
+      trying to make sense of a data stream.  If so, Ethereal's ability to 
+      follow a TCP stream will be useful to you. 
+    </para>
+    <para>
+      Simply select a TCP packet on the stream/connection you are interested 
+      in and then select the Follow TCP Stream menu item from the Ethereal 
+      Tools menu.  Ethereal will pop up a separate window with all the data 
+      from the TCP stream layed out in order, as shown in 
+      <xref linkend="ChAdvFollowStream"/>.
+    </para>
+	<section><title>The "Follow TCP stream" dialog box </title>
+    <figure id="ChAdvFollowStream">
+      <title>The "Follow TCP Stream" dialog box</title>
+      <graphic entityref="EtherealFollowStream" format="PNG"/>
+    </figure>
+    <para>
+      You can choose from the following actions:
+      <orderedlist>
+	<listitem>
+	  <para>
+	    <command>Save As</command> Save the stream data in the currently
+		selected format.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <command>Print</command> Print the stream data in the currently
+		selected format.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <command>Direction</command> Choose the stream direction to be 
+		displayed ("Entire conversation", "data from A to B only" or "data 
+		from B to A only").
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <command>Filter out this stream</command> Apply a display filter 
+		removing the current TCP stream data from the display.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <command>Close</command> Close this dialog box.
+	  </para>
+	</listitem>
+      </orderedlist>
+    </para>
+    <para>
+      You can then select to view the data in one of four formats:
+      <orderedlist>
+	<listitem>
+	  <para>
+	    <command>ASCII</command>. In this view you see the data from 
+	    each end in ASCII, but alternating according to when each 
+	    end sent data. Unfortunately, non-printing characters do not 
+	    print.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <command>EBCDIC</command>. For the big-iron freaks out there.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <command>HEX Dump</command>. This allows you to see all the 
+	    data, but you lose the ability to read it in ASCII.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <command>C Arrays</command>. This allows you to import the stream data
+		into your own C program.
+	  </para>
+	</listitem>
+      </orderedlist>
+    </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	It is worthwhile noting that Follow TCP Stream installs a filter 
+	to select all the packets on the TCP stream you have selected.
+      </para>
+    </note>
+  </section>
+  </section>
+  
+  <section id="ChAdvReassemblySection"><title>Packet Reassembling</title>
+    <section><title>What is it?</title>
+    <para>
+	Often network protocols needs to transport large chunks of data, which are 
+	complete in itself, e.g. when transferring a file. The underlying 
+	protocol might not be able to handle that chunk size (e.g. limitation of 
+	the network packet size), or is stream based like TCP, which doesn't know 
+	data chunks at all.
+    </para>
+    <para>
+	In that case the network protocol has to handle that chunks itself and 
+	(if required) spreading the data over multiple packets. It also needs a 
+	mechanism to find back the chunk boundaries on the receiving side.
+    </para>
+    </section>
+    <section><title>How Ethereal handles it</title>
+    <para>
+	For some of the network protocols Ethereal knows of, a mechanism is 
+	implemented to find, decode and display this chunks of data. 
+	Ethereal will try to find the corresponding packets of this chunk, 
+	and will show the combined data as additional pages in the 
+	"Packet Bytes" pane, see <xref linkend="ChUsePacketBytesPaneSection"/>.
+    </para>
+    <note><title>Note!</title>
+    <para>
+	Reassembling might take place in several protocol layers, so it's possible 
+	that multiple tabs in the "Packet Bytes" pane appear.
+	</para>
+    </note>
+    <note><title>Note!</title>
+    <para>
+	You will find the reassembled data in the last packet of the chunk.
+	</para>
+    </note>
+    <para>
+	Some examples:
+	<itemizedlist>
+	<listitem>
+	  <para>
+		In a <command>HTTP</command> GET response, the requested data (e.g. a 
+		HTML page) is returned. Ethereal will show the hexdump of the data in 
+		a new tab "Uncompressed entity body" in the "Packet Bytes" pane.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+		A <command>DCE-RPC</command> (Remote Procedure Call) client send a 
+		request to the server and expects a response back from it. Both the 
+		request and the response is a complete chunk of data and will be 
+		shown as a new tab "Reassembled DCE/RPC" in the "Packet Bytes" pane.
+	  </para>
+	</listitem>
+	</itemizedlist>
+    </para>
+    </section>
+  </section>
+
+  <section id="ChAdvNameResolutionSection"><title>Name Resolution</title>
+    <para>
+	Name resolution tries to resolve some of the address values to human 
+	readable names. This conversion might fail, e.g. if the specific name is 
+	just unknown. Some of the resolvings are done with data from your local 
+	machine, while others asking network services like DNS.
+    </para>
+    <para>
+	XXX - add ipxnets name resolution explanation.
+    </para>
+    <note><title>Note!</title>
+    <para>
+	You might see packets to/from your machine in your capture file, which are
+	caused by name resolution network services (e.g. DNS packets).
+    </para>
+    </note>
+    <note><title>Note!</title>
+    <para>
+	The resolved names are not stored in the capture file or somewhere else. 
+	So the resolved names might not be available if you open the capture file
+	later or on another machine.
+    </para>
+    </note>
+    <para>
+	The name resolution feature can be en-/disabled seperately for the 
+	following protocol layers:
+    </para>
+	<section><title>MAC Layer</title>
+    <para><command>ARP name resolution</command>
+	Convert an ethernet address to the corresponding IP address 
+	(e.g. 00:09:5b:01:02:03 -> 192.168.0.1). 
+    </para>
+    <para><command>Ethernet manufacturer codes</command>
+	If the ARP name resolution failed, Ethereal tries to convert the first 3 
+	bytes of an ethernet address to an abbreviated manufacturer name, which 
+	has been assigned by the IETF (e.g. 00:09:5b:01:02:03 -> Netgear_01:02:03).
+    </para>
+	</section>
+	<section><title>Network Layer</title>
+    <para><command>DNS name resolution</command>
+	Convert an IP address to the hostname associated with it 
+	(e.g. 65.208.228.223 -> www.ethereal.com).
+    </para>
+	<warning>
+	  <title>Warning!</title>
+	  <para>
+		Enabling network name resolution when your DNS server is 
+		unavailable may significantly slow ethereal while it waits 
+		for all of the DNS requests to time out. Use ADNS in that case.
+	  </para>
+	</warning>	
+	</section>
+	<section><title>Transport Layer</title>
+    <para><command>TCP/UDP port conversion</command>
+	Convert a TCP or UDP port to it's well known name (e.g. 80 -> http).
+    </para>
+	</section>
+	<section><title>ADNS</title>
+	<para>
+	As noted, DNS resolvings can significantly slow down Ethereal and make it 
+	appear freezed, which can be very annoying. To solve this, Ethereal can use
+	the ADNS library, which handles DNS calls asynchronous.
+	</para>
+	</section>
+  </section>
+
+</chapter>
+<!-- End of EUG Chapter Advanced -->
+

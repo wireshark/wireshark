@@ -1,0 +1,33 @@
+<!-- EDG Chapter Two -->
+<chapter id="Chap02">
+<title>What is packet sniffing</title>
+<section>
+<title>Introduction</title>
+<para>
+<application>Ethereal</application> is perhaps one of blah blah...
+</para>
+</section>
+
+<section>
+<title>tcpdump, libpcap and other tools</title>
+<para>A para here</para>
+</section>
+
+<section>
+<title>The structure of packets</title>
+<para>Another para</para>
+</section>
+
+<section>
+<title>How a packet's payload is handled</title>
+<para>Another para</para>
+
+</section>
+
+<section>
+<title>An introduction to wiretap</title>
+<para>Another para</para>
+</section>
+
+</chapter>
+<!-- End of EDG Chapter 2 -->

@@ -1,0 +1,32 @@
+<!-- EUG Appendix Messages -->
+<appendix id="AppMessages">
+  <title>Ethereal Warnings and Messages</title>
+  <section>
+    <title>Capture file format not understood</title>
+    <para>
+      If <application>Ethereal</application> cannot decode the capture 
+      file format of the file you have asked it to load, you will receive 
+      a warning box similar to that shown in <xref linkend="AppErr01"/>.
+	<figure id="AppErr01">
+	  <title>Read File Format warning</title>
+	  <graphic entityref="EtherealFormatError" format="PNG"/>
+	</figure>
+    </para>
+  </section>
+
+  <section>
+    <title>Save file error</title>
+    <para>
+      If <application>Ethereal</application> cannot open the file you 
+      requested it to save captured packets in, you will receive a 
+      warning box similar to that shown in <xref linkend="AppErr02"/>.
+	<figure id="AppErr02"><title>Save Error warning</title>
+	  <graphic scale="60" entityref="EtherealSaveError" format="JPG"/>
+	</figure>
+    </para>
+  </section>
+
+  <!-- Simply add more sections above here ... -->
+
+</appendix>
+<!-- End of EUG Appendix Messages -->
