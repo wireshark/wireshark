@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.80 2003/12/27 02:01:13 guy Exp $
+ * $Id: packet-clnp.c,v 1.81 2004/01/28 22:14:19 ulfl Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -748,8 +748,16 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   reason  = tvb_get_guint8(tvb, offset + P_REASON_IN_DR);
 
-  pinfo->srcport = src_ref;
-  pinfo->destport = dst_ref;
+  /* the settings of the TCP srcport and destport are currently disables,
+   * for the following reasons:
+   * a) only used for ISO conversation handling (which currently doesn't work)
+   * b) will prevent "ISO on TCP" (RFC1006) packets from using "follow TCP stream" correctly
+   *
+   * A future conversation handling might be able to handle different kinds of conversations
+   * (TCP, ISO, TCP on TCP, ...), but in that case this has to be fixed in any case.
+   */
+  /*pinfo->srcport = src_ref;*/
+  /*pinfo->destport = dst_ref;*/
   switch(reason) {
     case (128+0): str = "Normal Disconnect"; break;
     case (128+1): str = "Remote transport entity congestion"; break;
@@ -869,8 +877,8 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       break;
   }
 
-  pinfo->destport = dst_ref;
-  pinfo->srcport = 0;
+  /* pinfo->destport = dst_ref; */
+  /* pinfo->srcport = 0; */
   pinfo->fragmented = fragment;
   if (check_col(pinfo->cinfo, COL_INFO)) {
     if (is_class_234) {
@@ -1057,8 +1065,8 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
 
-  pinfo->destport = dst_ref;
-  pinfo->srcport = 0;
+  /* pinfo->destport = dst_ref; */
+  /* pinfo->srcport = 0; */
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
@@ -1138,8 +1146,8 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
 
-  pinfo->destport = dst_ref;
-  pinfo->srcport = 0;
+  /* pinfo->destport = dst_ref; */
+  /* pinfo->srcport = 0; */
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
@@ -1193,8 +1201,8 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     return -1;
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
-  pinfo->srcport = src_ref;
-  pinfo->destport = dst_ref;
+  /* pinfo->srcport = src_ref; */
+  /* pinfo->destport = dst_ref; */
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
@@ -1270,8 +1278,8 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
-  pinfo->srcport = src_ref;
-  pinfo->destport = dst_ref;
+  /* pinfo->srcport = src_ref; */
+  /* pinfo->destport = dst_ref; */
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x",
@@ -1328,8 +1336,8 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
     tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 
-    pinfo->srcport = 0;
-    pinfo->destport = dst_ref;
+    /* pinfo->srcport = 0; */
+    /* pinfo->destport = dst_ref; */
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x",
 		   tpdu_nr, dst_ref);
@@ -1467,8 +1475,8 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   } /* li */
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
-  pinfo->srcport = 0;
-  pinfo->destport = dst_ref;
+  /* pinfo->srcport = 0; */
+  /* pinfo->destport = dst_ref; */
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "EA TPDU (%u) dst-ref: 0x%04x", tpdu_nr, dst_ref);
@@ -1548,8 +1556,8 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   }
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
-  pinfo->srcport = 0;
-  pinfo->destport = dst_ref;
+  /* pinfo->srcport = 0; */
+  /* pinfo->destport = dst_ref; */
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
