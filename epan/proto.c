@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.24 2001/04/20 03:59:11 hagbard Exp $
+ * $Id: proto.c,v 1.25 2001/04/23 01:19:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1806,6 +1806,23 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 			(hfinfo->type == FT_INT32) ||
 			(hfinfo->type == FT_BOOLEAN) ));
 
+	/* Require integral types to have a number base */
+	switch (hfinfo->type) {
+
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+	case FT_INT8:
+	case FT_INT16:
+	case FT_INT24:
+	case FT_INT32:
+		g_assert(hfinfo->display != BASE_NONE);
+		break;
+
+	default:
+		break;
+	}
 	/* if this is a bitfield, compure bitshift */
 	if (hfinfo->bitmask) {
 		while ((hfinfo->bitmask & (1 << hfinfo->bitshift)) == 0)
@@ -2201,11 +2218,6 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 	char *format = NULL;
 
 	switch(hfinfo->display) {
-	        case BASE_NONE:
-		  g_printerr("** ERROR **: Illegal use of FIELDBASE: BASE_NONE for FIELDTYPE: %s by header_field: %s\n",
-			     ftype_name(hfinfo->type),
-			     hfinfo->abbrev);
-		  g_assert_not_reached();
 	        case BASE_DEC:
 		case BASE_BIN: /* I'm lazy */
 			format = "%s: %s (%u)";
@@ -2246,11 +2258,6 @@ hfinfo_uint_format(header_field_info *hfinfo)
 
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
-	        case BASE_NONE:
-		  g_printerr("** ERROR **: Illegal use of FIELDBASE: BASE_NONE for FIELDTYPE: %s by header_field: %s\n",
-			     ftype_name(hfinfo->type),
-			     hfinfo->abbrev);
-		  g_assert_not_reached();
 		case BASE_DEC:
 		case BASE_BIN: /* I'm lazy */
 			format = "%s: %u";
@@ -2290,11 +2297,6 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 	char *format = NULL;
 
 	switch(hfinfo->display) {
-	        case BASE_NONE:
-		  g_printerr("** ERROR **: Illegal use of FIELDBASE: BASE_NONE for FIELDTYPE: %s by header_field: %s\n",
-			     ftype_name(hfinfo->type),
-			     hfinfo->abbrev);
-		  g_assert_not_reached();
 		case BASE_DEC:
 		case BASE_BIN: /* I'm lazy */
 			format = "%s: %s (%d)";
@@ -2335,11 +2337,6 @@ hfinfo_int_format(header_field_info *hfinfo)
 
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
-	        case BASE_NONE:
-		  g_printerr("** ERROR **: Illegal use of FIELDBASE: BASE_NONE for FIELDTYPE: %s by header_field: %s\n",
-			     ftype_name(hfinfo->type),
-			     hfinfo->abbrev);
-		  g_assert_not_reached();
 		case BASE_DEC:
 		case BASE_BIN: /* I'm lazy */
 			format = "%s: %d";
@@ -2782,11 +2779,6 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
-	        case BASE_NONE:
-		  g_printerr("** ERROR **: Illegal use of FIELDBASE: BASE_NONE for FIELDTYPE: %s by header_field: %s\n",
-			     ftype_name(hfinfo->type),
-			     hfinfo->abbrev);
-		  g_assert_not_reached();
 		case BASE_DEC:
 		case BASE_OCT: /* I'm lazy */
 		case BASE_BIN: /* I'm lazy */
