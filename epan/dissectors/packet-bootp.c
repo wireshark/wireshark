@@ -739,7 +739,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		 */
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 			"Option %d: %s = \"%s\"", code, text,
-			tvb_format_text(tvb, voff+2, consumed-2));
+			tvb_format_stringzpad(tvb, voff+2, consumed-2));
 		if (tvb_memeql(tvb, voff+2, PACKETCABLE_MTA_CAP10, strlen(PACKETCABLE_MTA_CAP10)) == 0) {
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 			dissect_packetcable_mta_cap(v_tree, tvb, voff+2, vlen);
@@ -815,7 +815,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 		proto_tree_add_text(v_tree, tvb, voff+3, consumed-3,
 		    "%s = \"%s\"", text,
-		    tvb_format_text(tvb, voff+3, vlen-1));
+		    tvb_format_stringzpad(tvb, voff+3, vlen-1));
 		break;
 
 	case 82:        /* Relay Agent Information Option */
@@ -835,7 +835,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		if (novell_string) {
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 			    "Option %d: %s = \"%s\"", code, text,
-			    tvb_format_text(tvb, voff+2, consumed-2));
+			    tvb_format_stringzpad(tvb, voff+2, consumed-2));
 		} else {
 			if (vlen == 4) {
 				/* one IP address */
@@ -996,7 +996,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			 */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 					"Option %d: %s = \"%s\"", code, text,
-					tvb_format_text(tvb, voff+2, consumed-2));
+					tvb_format_stringzpad(tvb, voff+2, consumed-2));
 			break;
 
 		case opaque:
@@ -1317,7 +1317,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 				"Suboption %d: %s = \"%s\"", subopt,
 				o43cablelabs_opt[subopt].text,
-				tvb_format_text(tvb, optp+2, subopt_len));
+				tvb_format_stringzpad(tvb, optp+2, subopt_len));
 			break;
 
 		case bytes:
@@ -1704,7 +1704,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					case PKT_MDC_VENDOR_TLV:
 					default:
 						g_string_sprintfa(tlv_str, "%s",
-								tvb_format_text(tvb, off + 4, tlv_len * 2) );
+								tvb_format_stringzpad(tvb, off + 4, tlv_len * 2) );
 						break;
 				}
 			}
@@ -1909,7 +1909,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		case PKT_CCC_KRB_REALM:
 		case PKT_CCC_CMS_FQDN:
 			g_string_sprintfa(opt_str, "%s (%u byte%s)",
-					tvb_format_text(tvb, optp, subopt_len),
+					tvb_format_stringzpad(tvb, optp, subopt_len),
 					subopt_len,
 					plurality(subopt_len, "", "s") );
 			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
