@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.7 1999/10/22 08:53:40 guy Exp $
+ * $Id: packet-sna.c,v 1.8 1999/10/26 08:08:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -705,8 +705,6 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree_add_item(tree, hf_sna_th_oef, offset+2, 2, oef);
 	proto_tree_add_item(tree, hf_sna_th_snf, offset+4, 2, snf);
 	proto_tree_add_item(tree, hf_sna_th_snf, offset+6, 2, dcf);
-
-	g_assert(offset+8 == 26);
 
 	return bytes_in_header;
 }
