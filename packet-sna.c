@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.6 1999/10/22 07:17:41 guy Exp $
+ * $Id: packet-sna.c,v 1.7 1999/10/22 08:53:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-sna.h"
 
 /*
  * http://www.wanresources.com/snacell.html
@@ -524,6 +525,25 @@ dissect_fid3 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 }
 
 /* FID Type 4 */
+
+gchar *
+sna_fid_type_4_addr_to_str(const struct sna_fid_type_4_addr *addrp)
+{
+  static gchar	str[3][14];
+  static gchar	*cur;
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {
+    cur = &str[2][0];
+  } else {
+    cur = &str[0][0];
+  }
+
+  sprintf(cur, "%08X.%04X", addrp->saf, addrp->ef);
+  return cur;
+}
+
 static int
 dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
@@ -533,6 +553,7 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	guint16		th_word;
 	guint16		def, oef, snf, dcf;
 	guint32		dsaf, osaf;
+	static struct sna_fid_type_4_addr src, dst;
 
 	static int bytes_in_header = 26;
 
@@ -547,15 +568,19 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	snf = pntohs(&pd[offset+22]);
 	dcf = pntohs(&pd[offset+24]);
 
-	/* Addresses in FID 2 are FT_UINT8 */
-	if (check_col(fd, COL_RES_NET_DST))
-		col_add_fstr(fd, COL_RES_NET_DST, "%08X.%04X", dsaf, def);
-	if (check_col(fd, COL_UNRES_NET_DST))
-		col_add_fstr(fd, COL_UNRES_NET_DST, "%08X.%04X", dsaf, def);
-	if (check_col(fd, COL_RES_NET_SRC))
-		col_add_fstr(fd, COL_RES_NET_SRC, "%08X.%04X", osaf, oef);
-	if (check_col(fd, COL_RES_NET_SRC))
-		col_add_fstr(fd, COL_UNRES_NET_SRC, "%08X.%04X", osaf, oef);
+	/* Addresses in FID 4 are discontiguous, sigh */
+	src.saf = osaf;
+	src.ef = oef;
+	dst.saf = dsaf;
+	dst.ef = def;
+	SET_ADDRESS(&pi.net_src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
+	    (guint8 *)&src);
+	SET_ADDRESS(&pi.src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
+	    (guint8 *)&src);
+	SET_ADDRESS(&pi.net_dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
+	    (guint8 *)&dst);
+	SET_ADDRESS(&pi.dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
+	    (guint8 *)&dst);
 
 	if (!tree) {
 		return bytes_in_header;

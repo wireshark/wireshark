@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.112 1999/10/22 08:30:02 guy Exp $
+ * $Id: file.c,v 1.113 1999/10/22 08:53:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,6 +94,8 @@
 #include "packet-ipv6.h"
 
 #include "packet-ncp.h"
+
+#include "packet-sna.h"
 
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
@@ -590,6 +592,7 @@ col_set_addr(frame_data *fd, int col, address *addr, gboolean is_res)
   u_int ipv4_addr;
   struct e_in6_addr ipv6_addr;
   struct atalk_ddp_addr ddp_addr;
+  struct sna_fid_type_4_addr sna_fid_type_4_addr;
 
   switch (addr->type) {
 
@@ -631,6 +634,12 @@ col_set_addr(frame_data *fd, int col, address *addr, gboolean is_res)
     case 2:
       snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%04X",
         pntohs(&addr->data[0]));
+      break;
+
+    case SNA_FID_TYPE_4_ADDR_LEN:
+      memcpy(&sna_fid_type_4_addr, addr->data, SNA_FID_TYPE_4_ADDR_LEN);
+      strncpy(fd->cinfo->col_data[col],
+        sna_fid_type_4_addr_to_str(&sna_fid_type_4_addr), COL_MAX_LEN);
       break;
     }
     break;
