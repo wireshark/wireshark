@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.261 2002/02/18 01:08:35 guy Exp $
+ * $Id: file.c,v 1.262 2002/02/19 03:43:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1575,8 +1575,8 @@ select_packet(capture_file *cf, int row)
           NULL);
 
   /* Display the GUI protocol tree and hex dump.
-     XXX - why does the protocol tree not show up if we call
-     "proto_tree_draw()" before calling "add_byte_views()"? */
+     XXX - why do we dump core if we call "proto_tree_draw()"
+     before calling "add_byte_views()"? */
   add_byte_views(cf->current_frame, cf->edt->tree, tree_view,
       byte_nb_ptr);
   proto_tree_draw(cf->edt->tree, tree_view);
