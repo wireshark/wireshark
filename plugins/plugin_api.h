@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.56 2003/09/24 18:35:08 guy Exp $
+ * $Id: plugin_api.h,v 1.57 2003/10/29 10:37:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -41,9 +41,6 @@
 /* file generted by plugin_gen.py */
 #include "Xplugin_api.h"
 
-#define tvb_get_string			(*p_tvb_get_string)
-#define tvb_get_stringz			(*p_tvb_get_stringz)
-
 #endif
 
 #include <epan/packet.h>
@@ -57,6 +54,7 @@
 #include "asn1.h"
 #include "packet-per.h"
 #include "epan/except.h"
+#include "epan/filesystem.h"
 
 #include "plugin_table.h"
 
