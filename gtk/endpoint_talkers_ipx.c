@@ -1,7 +1,7 @@
 /* endpoint_talkers_ipx.c
  * endpoint_talkers_ipx   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ipx.c,v 1.1 2003/08/24 05:39:05 sahlberg Exp $
+ * $Id: endpoint_talkers_ipx.c,v 1.2 2003/08/24 22:34:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,13 +65,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	reset_ett_table_data(&ipx_talkers->talkers);
 	g_free(ipx_talkers);
-}
-
-
-static char *
-ipx_address_to_str(address *addr)
-{
-	return address_to_str(addr);
 }
 
 static void
@@ -141,7 +134,7 @@ gtk_ipx_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(ipx_talkers->win);
 
-	init_ett_table(&ipx_talkers->talkers, vbox, ipx_address_to_str, NULL);
+	init_ett_table(&ipx_talkers->talkers, vbox, address_to_str, NULL);
 
 	error_string=register_tap_listener("ipx", ipx_talkers, filter, ipx_talkers_reset, ipx_talkers_packet, ipx_talkers_draw);
 	if(error_string){

@@ -1,7 +1,7 @@
 /* endpoint_talkers_udpip.c
  * endpoint_talkers_udpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_udpip.c,v 1.4 2003/08/24 02:50:32 sahlberg Exp $
+ * $Id: endpoint_talkers_udpip.c,v 1.5 2003/08/24 22:34:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,13 +65,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	reset_ett_table_data(&udpip_talkers->talkers);
 	g_free(udpip_talkers);
-}
-
-
-static char *
-udpip_address_to_str(address *addr)
-{
-	return address_to_str(addr);
 }
 
 static char *
@@ -158,7 +151,7 @@ gtk_udpip_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(udpip_talkers->win);
 
-	init_ett_table(&udpip_talkers->talkers, vbox, udpip_address_to_str, udpip_port_to_str);
+	init_ett_table(&udpip_talkers->talkers, vbox, address_to_str, udpip_port_to_str);
 
 	error_string=register_tap_listener("udp", udpip_talkers, filter, udpip_talkers_reset, udpip_talkers_packet, udpip_talkers_draw);
 	if(error_string){

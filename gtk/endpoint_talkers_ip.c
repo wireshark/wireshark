@@ -1,7 +1,7 @@
 /* endpoint_talkers_ip.c
  * endpoint_talkers_ip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ip.c,v 1.3 2003/08/24 02:50:32 sahlberg Exp $
+ * $Id: endpoint_talkers_ip.c,v 1.4 2003/08/24 22:34:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,13 +65,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	reset_ett_table_data(&ip_talkers->talkers);
 	g_free(ip_talkers);
-}
-
-
-static char *
-ipv4_address_to_str(address *addr)
-{
-	return address_to_str(addr);
 }
 
 static void
@@ -141,7 +134,7 @@ gtk_ip_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(ip_talkers->win);
 
-	init_ett_table(&ip_talkers->talkers, vbox, ipv4_address_to_str, NULL);
+	init_ett_table(&ip_talkers->talkers, vbox, address_to_str, NULL);
 
 	error_string=register_tap_listener("ip", ip_talkers, filter, ip_talkers_reset, ip_talkers_packet, ip_talkers_draw);
 	if(error_string){
