@@ -2,7 +2,7 @@
  * Definitions for menu routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: merge.h,v 1.1 2004/06/18 10:01:59 ulfl Exp $
+ * $Id: merge.h,v 1.2 2004/06/18 12:04:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@ typedef struct merge_out_file_s {
 typedef enum {
     VERBOSE_NONE,
     VERBOSE_ERRORS,
-    VERBOSE_ALL,
+    VERBOSE_ALL
 } verbose_e;
 
 /** Current verbosity level, default is VERBOSE_NONE. */
@@ -137,7 +137,7 @@ merge_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out
  * @param err wiretap error, if failed
  * @return TRUE if function succeeded
  */
-extern boolean
+extern gboolean
 merge_append_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out_file, int *err);
 
 

@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: merge.c,v 1.3 2004/06/18 10:01:59 ulfl Exp $
+ * $Id: merge.c,v 1.4 2004/06/18 12:04:49 jmayer Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -93,7 +93,7 @@ append_loop(wtap *wth, int count, merge_out_file_t *out_file, int *err,
 /*
  * routine to concatenate files
  */
-boolean
+gboolean
 merge_append_files(int count, merge_in_file_t in_files[], merge_out_file_t *out_file, int *err)
 {
   int i;
