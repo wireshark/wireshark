@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.177 2001/02/01 20:21:21 gram Exp $
+ * $Id: main.c,v 1.178 2001/02/08 03:55:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1171,7 +1171,8 @@ main(int argc, char *argv[])
           if (s != NULL)
             last_open_dir = s;
         } else {
-          dfilter_free(rfcode);
+          if (rfcode != NULL)
+            dfilter_free(rfcode);
           cfile.rfcode = NULL;
         }
       }
