@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.43 2003/05/23 17:46:06 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.44 2003/05/23 18:34:58 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -167,6 +167,8 @@ static const value_string spnego_krb5_seal_alg_vals[] = {
  * than designating SPNEGO as the mechanism, offering Kerberos V5, and
  * getting it accepted.
  */
+static int
+dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static void
 dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -313,6 +315,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case KRB_TOKEN_GETMIC:
 
+	  offset = dissect_spnego_krb5_getmic_base(tvb, offset, pinfo, subtree); 
 	  break;
 
 	case KRB_TOKEN_WRAP:
@@ -330,6 +333,70 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
  done:
 	return;
+}
+
+/*
+ * XXX - This is for GSSAPI GetMIC tokens ...
+ */
+static int
+dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint16 sgn_alg;
+
+	/*
+	 * The KRB5 blob conforms to RFC1964:
+	 *   USHORT (0x0101 == GSS_GetMIC)
+	 *   and so on } 
+	 */
+
+	/* Now, the sign algorithm ... */
+
+	sgn_alg = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_spnego_krb5_sgn_alg, tvb, offset, 2,
+			    sgn_alg);
+
+	offset += 2;
+
+	/* Skip the filler */
+
+	offset += 4;
+
+	/* Encrypted sequence number */
+
+	proto_tree_add_item(tree, hf_spnego_krb5_snd_seq, tvb, offset, 8,
+			    TRUE);
+
+	offset += 8;
+
+	/* Checksum of plaintext padded data */
+
+	proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset, 8,
+			    TRUE);
+
+	offset += 8;
+
+	/*
+	 * At least according to draft-brezak-win2k-krb-rc4-hmac-04,
+	 * if the signing algorithm is KRB_SGN_ALG_HMAC, there's an
+	 * extra 8 bytes of "Random confounder" after the checksum.
+	 * It certainly confounds code expecting all Kerberos 5
+	 * GSS_Wrap() tokens to look the same....
+	 */
+	if (sgn_alg == KRB_SGN_ALG_HMAC) {
+	  proto_tree_add_item(tree, hf_spnego_krb5_confounder, tvb, offset, 8,
+			      TRUE);
+
+	  offset += 8;
+	}
+
+	/*
+	 * Return the offset past the checksum, so that we know where
+	 * the data we're wrapped around starts.  Also, set the length
+	 * of our top-level item to that offset, so it doesn't cover
+	 * the data we're wrapped around.
+	 */
+
+	return offset;
 }
 
 /*
