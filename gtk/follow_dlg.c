@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.63 2004/05/27 21:55:59 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.64 2004/05/27 23:09:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -463,9 +463,14 @@ static void
 follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
 	follow_info_t	*follow_info;
+    int i;
 
 	follow_info = OBJECT_GET_DATA(w, E_FOLLOW_INFO_KEY);
-	unlink(follow_info->data_out_filename);
+	i = unlink(follow_info->data_out_filename);
+    if(i != 0) {
+        g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", 
+            follow_info->data_out_filename, strerror(errno), errno);        
+    }
 	g_free(follow_info->filter_out_filter);
 	forget_follow_info(follow_info);
 	g_free(follow_info);
@@ -529,8 +534,8 @@ typedef enum {
 
 static frs_return_t
 follow_read_stream(follow_info_t *follow_info,
-		   gboolean (*print_line) (char *, int, gboolean, void *),
-		   void *arg)
+		   gboolean (*print_line) (char *, int, gboolean, void *, print_format_e),
+		   void *arg, print_format_e format)
 {
     tcp_stream_chunk	sc;
     int			bcount, iplen;
@@ -590,7 +595,7 @@ follow_read_stream(follow_info_t *follow_info,
 		case SHOW_EBCDIC:
 		    /* If our native arch is ASCII, call: */
 		    EBCDIC_to_ASCII(buffer, nchars);
-		    if (!(*print_line) (buffer, nchars, is_server, arg))
+		    if (!(*print_line) (buffer, nchars, is_server, arg, format))
 			goto print_error;
 		    break;
 
@@ -598,7 +603,7 @@ follow_read_stream(follow_info_t *follow_info,
 		    /* If our native arch is EBCDIC, call:
 		     * ASCII_TO_EBCDIC(buffer, nchars);
 		     */
-		    if (!(*print_line) (buffer, nchars, is_server, arg))
+		    if (!(*print_line) (buffer, nchars, is_server, arg, format))
 			goto print_error;
 		    break;
 
@@ -655,7 +660,7 @@ follow_read_stream(follow_info_t *follow_info,
 			(*global_pos) += i;
 			hexbuf[cur++] = '\n';
 			hexbuf[cur] = 0;
-			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
+			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg, format))
 			    goto print_error;
 		    }
 		    break;
@@ -664,7 +669,7 @@ follow_read_stream(follow_info_t *follow_info,
 		    current_pos = 0;
 		    g_snprintf(initbuf, 256, "char peer%d_%d[] = {\n", is_server ? 1 : 0,
 			    is_server ? server_packet_count++ : client_packet_count++);
-		    if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
+		    if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg, format))
 			goto print_error;
 		    while (current_pos < nchars) {
 			gchar hexbuf[256];
@@ -698,7 +703,7 @@ follow_read_stream(follow_info_t *follow_info,
 			(*global_pos) += i;
 			hexbuf[cur++] = '\n';
 			hexbuf[cur] = 0;
-			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
+			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg, format))
 			    goto print_error;
 		    }
 		    break;
@@ -715,6 +720,8 @@ follow_read_stream(follow_info_t *follow_info,
 	return FRS_READ_ERROR;
     }
 
+	fclose(data_out_file);
+	data_out_file = NULL;
     return FRS_OK;
 
 print_error:
@@ -725,18 +732,17 @@ print_error:
 
 /*
  * XXX - for text printing, we probably want to wrap lines at 80 characters;
- * for PostScript printing, we probably want to wrap them at the appropriate
- * width, and perhaps put some kind of dingbat (to use the technical term)
- * to indicate a wrapped line, along the lines of what's done when displaying
- * this in a window, as per Warren Young's suggestion.
- *
- * For now, we support only text printing.
+ * (PostScript printing is doing this already), and perhaps put some kind of 
+ * dingbat (to use the technical term) to indicate a wrapped line, along the 
+ * lines of what's done when displaying this in a window, as per Warren Young's 
+ * suggestion.
  */
 static gboolean
-follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
+follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg, print_format_e format)
 {
     FILE *fh = arg;
     int i;
+    char *str;
 
     /* convert non printable characters */
     for (i = 0; i < nchars; i++) {
@@ -747,8 +753,13 @@ follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
         }
     }
 
-    if (fwrite(buffer, nchars, 1, fh) != 1)
-      return FALSE;
+    /* convert unterminated char array to a zero terminated string */
+    str = g_malloc(nchars + 1);
+    memcpy(str, buffer, nchars);
+    str[nchars] = 0;
+    print_line(fh, /*indent*/ 0, format, str);
+    g_free(str);
+
     return TRUE;
 }
 
@@ -818,11 +829,11 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
         return;
     }
 
-    print_preamble(fh, PR_FMT_TEXT, cfile.filename);
+    print_preamble(fh, prefs.pr_format, cfile.filename);
     if (ferror(fh))
         goto print_error;
 
-    switch (follow_read_stream(follow_info, follow_print_text, fh)) {
+    switch (follow_read_stream(follow_info, follow_print_text, fh, prefs.pr_format)) {
     case FRS_OK:
     	break;
     case FRS_OPEN_ERROR:
@@ -834,7 +845,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 	    goto print_error;
     }
 
-    print_finale(fh, PR_FMT_TEXT);
+    print_finale(fh, prefs.pr_format);
     if (ferror(fh))
 	    goto print_error;
 
@@ -876,7 +887,7 @@ print_error:
 
 static gboolean
 follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
-		       void *arg)
+		       void *arg, print_format_e format _U_)
 {
     GtkWidget *text = arg;
     GdkColor   fg, bg;
@@ -951,7 +962,7 @@ follow_load_text(follow_info_t *follow_info)
 #else
     gtk_text_buffer_set_text(buf, "", -1);
 #endif
-    follow_read_stream(follow_info, follow_add_to_gtk_text, follow_info->text);
+    follow_read_stream(follow_info, follow_add_to_gtk_text, follow_info->text, PR_FMT_TEXT);
 #if GTK_MAJOR_VERSION < 2
     gtk_text_thaw(GTK_TEXT(follow_info->text));
 #endif
@@ -1052,7 +1063,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
     window_destroy(GTK_WIDGET(fs));
 
-    switch (follow_read_stream(follow_info, follow_print_text, fh)) {
+    switch (follow_read_stream(follow_info, follow_print_text, fh, PR_FMT_TEXT)) {
 
     case FRS_OK:
         if (fclose(fh) == EOF)
