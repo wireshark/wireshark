@@ -75,8 +75,22 @@ sub read_svn_info {
 	my $line;
 	my $version_format = $version_pref{"format"};
 	my $package_format = $version_pref{"pkg_format"};
+	# If any other odd paths pop up, put them here.
+	my @svn_paths = ("", "c:/cygwin/lib/subversion/bin/");
+	my $svn_cmd;
+	my $svn_pid;
 
-	open(SVNINFO, "svn info |") || die("Unable to get SVN info!");
+	foreach $svn_cmd (@svn_paths) {
+		$svn_cmd .= "svn info";
+		if ($svn_pid = open(SVNINFO, $svn_cmd . " |")) {
+			print ("Fetching version with command \"$svn_cmd\".\n");
+			last;
+		}
+	}
+	if (! defined($svn_pid)) {
+		print ("Unable to get SVN info.\n");
+		return;
+	}
 	while ($line = <SVNINFO>) {
 		if ($line =~ /^Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
 			$last = timegm($6, $5, $4, $3, $2 - 1, $1);
