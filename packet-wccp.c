@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.30 2002/04/02 01:34:15 guy Exp $
+ * $Id: packet-wccp.c,v 1.31 2002/04/15 21:12:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,7 +192,7 @@ static gboolean dissect_wccp2_router_query_info(tvbuff_t *tvb, int offset,
 static gboolean dissect_wccp2_capability_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
 static void dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
-    guint16 capability_len, gint ett, const capability_flag *flags,
+    guint16 capability_val_len, gint ett, const capability_flag *flags,
     proto_tree *element_tree);
 
 static void 
@@ -1142,17 +1142,17 @@ dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, int length,
     proto_tree *info_tree)
 {
 	guint16 capability_type;
-	guint16 capability_len;
+	guint16 capability_val_len;
 	int curr_offset;
 	proto_item *te;
 	proto_tree *element_tree;
 
 	for (curr_offset = offset; curr_offset < (length + offset);
-	    curr_offset += capability_len + 4) {
+	    curr_offset += (capability_val_len + 4)) {
 		capability_type = tvb_get_ntohs(tvb, curr_offset);
-		capability_len = tvb_get_ntohs(tvb, curr_offset + 2);
+		capability_val_len = tvb_get_ntohs(tvb, curr_offset + 2);
 		te = proto_tree_add_text(info_tree, tvb, curr_offset,
-		    capability_len, "%s",
+		    capability_val_len + 4, "%s",
 		    val_to_str(capability_type,
 		      capability_type_vals, "Unknown Capability Element (0x%08X)"));
 		element_tree = proto_item_add_subtree(te,
@@ -1163,40 +1163,44 @@ dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, int length,
 		    val_to_str(capability_type,
 		      capability_type_vals, "Unknown (0x%08X)"));
 
-		if (capability_len < 4) {
+		if (capability_val_len < 4) {
 			proto_tree_add_text(element_tree, tvb, curr_offset+2, 2,
-			    "Length: %u (illegal, must be >= 4)",
-			    capability_len);
+			    "Value Length: %u (illegal, must be >= 4)",
+			    capability_val_len);
 			break;
 		}
 		proto_tree_add_text(element_tree, tvb, curr_offset+2, 2,
-		    "Length: %u", capability_len);
+		    "Value Length: %u", capability_val_len);
 
 		switch (capability_type) {
 
 		case WCCP2_FORWARDING_METHOD:
 			dissect_32_bit_capability_flags(tvb, curr_offset,
-			    capability_len, ett_capability_forwarding_method,
+			    capability_val_len,
+			    ett_capability_forwarding_method,
 			    forwarding_method_flags, element_tree);
 			break;
 
 		case WCCP2_ASSIGNMENT_METHOD:
 			dissect_32_bit_capability_flags(tvb, curr_offset,
-			    capability_len, ett_capability_assignment_method,
+			    capability_val_len,
+			    ett_capability_assignment_method,
 			    assignment_method_flags, element_tree);
 			break;
 
 		case WCCP2_PACKET_RETURN_METHOD:
 			dissect_32_bit_capability_flags(tvb, curr_offset,
-			    capability_len, ett_capability_return_method,
+			    capability_val_len,
+			    ett_capability_return_method,
 			    packet_return_method_flags, element_tree);
 			break;
 
 		default:
 			proto_tree_add_text(element_tree, tvb,
-			    curr_offset+4, capability_len-4,
+			    curr_offset+4, capability_val_len,
 			    "Value: %s",
-			    tvb_bytes_to_str(tvb, curr_offset+4, capability_len-4));
+			    tvb_bytes_to_str(tvb, curr_offset+4,
+				    	     capability_val_len));
 			break;
 		}
 
@@ -1206,7 +1210,7 @@ dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, int length,
 
 static void
 dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
-    guint16 capability_len, gint ett, const capability_flag *flags,
+    guint16 capability_val_len, gint ett, const capability_flag *flags,
     proto_tree *element_tree)
 {
 	guint32 capability_val;
@@ -1218,9 +1222,9 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	int space_left;
 	char buf[1025];
 
-	if (capability_len != 4) {
+	if (capability_val_len != 4) {
 		proto_tree_add_text(element_tree, tvb,
-		    curr_offset+4, capability_len-4,
+		    curr_offset+4, capability_val_len,
 		    "Illegal length (must be 4)");
 		return;
 	}
