@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.48 2003/01/21 20:38:30 jmayer Exp $
+dnl $Id: acinclude.m4,v 1.49 2003/01/21 21:47:07 jmayer Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -339,15 +339,13 @@ AC_DEFUN(AC_ETHEREAL_PCAP_VERSION_CHECK,
 	AC_MSG_CHECKING(whether pcap_version is defined by libpcap)
 	ac_save_LIBS="$LIBS"
 	LIBS="$PCAP_LIBS $SOCKET_LIBS $NSL_LIBS $LIBS"
-	AC_TRY_LINK([],
+	AC_TRY_LINK(
 	   [
-char *
-return_pcap_version(void)
-{
-	extern char pcap_version[];
-
-	return pcap_version;
-}
+#	include <stdio.h>
+	extern char *pcap_version;
+	   ],
+	   [
+	printf ("%s\n", pcap_version);
 	   ],
 	   ac_cv_pcap_version_defined=yes,
 	   ac_cv_pcap_version_defined=no,
