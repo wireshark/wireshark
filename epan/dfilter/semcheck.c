@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.27 2004/06/03 07:33:46 guy Exp $
+ * $Id: semcheck.c,v 1.28 2004/06/15 10:16:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -915,7 +915,7 @@ dfw_semcheck(dfwork_t *dfw)
 	}
 	ENDTRY;
 
-	DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns FALSE\n",
+	DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns TRUE\n",
 				dfw, i++));
 	return TRUE;
 }
