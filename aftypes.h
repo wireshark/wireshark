@@ -1,7 +1,7 @@
 /* aftypes.h
  * AF_ values on various flavors of BSD
  *
- * $Id: aftypes.h,v 1.1 2000/11/17 06:02:20 guy Exp $
+ * $Id: aftypes.h,v 1.2 2002/07/30 07:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,3 +31,4 @@
 #define BSD_AF_IPX		23
 #define BSD_AF_INET6_BSD	24	/* OpenBSD (and probably NetBSD), BSD/OS */
 #define BSD_AF_INET6_FREEBSD	28
+#define BSD_AF_INET6_DARWIN	30

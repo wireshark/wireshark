@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.83 2002/06/07 10:11:39 guy Exp $
+ * $Id: packet-ipv6.c,v 1.84 2002/07/30 07:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1128,6 +1128,7 @@ proto_reg_handoff_ipv6(void)
   dissector_add("ip.proto", IP_PROTO_IPV6, ipv6_handle);
   dissector_add("null.type", BSD_AF_INET6_BSD, ipv6_handle);
   dissector_add("null.type", BSD_AF_INET6_FREEBSD, ipv6_handle);
+  dissector_add("null.type", BSD_AF_INET6_DARWIN, ipv6_handle);
   dissector_add("chdlctype", ETHERTYPE_IPv6, ipv6_handle);
   dissector_add("fr.ietf", NLPID_IP6, ipv6_handle);
   dissector_add("x.25.spi", NLPID_IP6, ipv6_handle);

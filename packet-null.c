@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.52 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-null.c,v 1.53 2002/07/30 07:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@ static const value_string family_vals[] = {
     {BSD_AF_IPX,           "Netware IPX/SPX"},
     {BSD_AF_INET6_BSD,     "IPv6"           },
     {BSD_AF_INET6_FREEBSD, "IPv6"           },
+    {BSD_AF_INET6_DARWIN,  "IPv6"           }, 
     {0,                    NULL             }
 };
 
