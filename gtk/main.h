@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.52 2004/06/17 16:35:25 ulfl Exp $
+ * $Id: main.h,v 1.53 2004/06/21 10:53:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -187,7 +187,7 @@ extern void resolve_name_cb(GtkWidget *widget, gpointer data);
 typedef enum {
     REFTIME_TOGGLE,     /**< toggle ref frame */
     REFTIME_FIND_NEXT,  /**< find next ref frame */
-    REFTIME_FIND_PREV,  /**< find previous ref frame */
+    REFTIME_FIND_PREV   /**< find previous ref frame */
 } REFTIME_ACTION_E;
 
 /** User requested one of the "Time Reference" functions by menu.
