@@ -78,6 +78,7 @@ References:
 #define EAP_TYPE_AKA	23
 #define EAP_TYPE_PEAP	25
 #define EAP_TYPE_MSCHAPV2 26
+#define EAP_TYPE_FAST	43
 
 static const value_string eap_type_vals[] = {
   {EAP_TYPE_ID,  "Identity [RFC3748]" },
@@ -122,7 +123,7 @@ static const value_string eap_type_vals[] = {
   { 40,          "DeviceConnect EAP [Pitard]" },
   { 41,          "EAP-SPEKE [Zick]" },
   { 42,          "EAP-MOBAC [Rixom]" },
-  { 43,          "EAP-FAST [Cam-Winget]" },
+  {EAP_TYPE_FAST,"EAP-FAST [Cam-Winget]" },
   { 44,          "ZoneLabs EAP (ZLXEAP) [Bogue]" },
   { 45,          "EAP-Link [Zick]" },
   { 254,         "RESERVED for the Expanded Type [RFC3748]" },
@@ -799,6 +800,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /*********************************************************************
                                   EAP-TLS
       **********************************************************************/
+      case EAP_TYPE_FAST:
       case EAP_TYPE_PEAP:
       case EAP_TYPE_TTLS:
       case EAP_TYPE_TLS:
@@ -821,9 +823,12 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			      has_length                      ? "Length ":"",
 			      more_fragments                  ? "More "  :"",
 			      test_flag(flags,EAP_TLS_FLAG_S) ? "Start " :"");
-	  if (eap_type == EAP_TYPE_PEAP) {
+	  if (eap_type == EAP_TYPE_PEAP || eap_type == EAP_TYPE_TTLS ||
+	      eap_type == EAP_TYPE_FAST) {
 	    proto_tree_add_text(eap_tree, tvb, offset, 1,
-				"PEAP version %d",
+				"%s version %d",
+				eap_type == EAP_TYPE_PEAP ? "PEAP" :
+				(eap_type == EAP_TYPE_TTLS ? "TTLS" : "FAST"),
 				flags & EAP_PEAP_FLAG_VERSION);
 	  }
 	}
