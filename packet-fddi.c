@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.16 1999/08/01 04:28:08 gram Exp $
+ * $Id: packet-fddi.c,v 1.17 1999/08/23 22:13:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,7 +82,6 @@ static int hf_fddi_src = -1;
 #define BIT_SWAPPED_MAC_ADDRS
 #endif
 
-#ifdef BIT_SWAPPED_MAC_ADDRS
 /* "swaptab[i]" is the value of "i" with the bits reversed. */
 static u_char swaptab[256] = {
   0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
@@ -118,7 +117,6 @@ static u_char swaptab[256] = {
   0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
   0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
-#endif
 
 static void get_mac_addr(u_char *swapped_addr, const u_char *addr)
 {
