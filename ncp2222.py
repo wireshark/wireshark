@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.22 2002/05/17 23:17:21 gram Exp $
+$Id: ncp2222.py,v 1.23 2002/05/24 11:38:22 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1019,6 +1019,73 @@ class nbytes32(Type, nbytes):
 	def __init__(self, abbrev, descr, endianness = LE):
 		Type.__init__(self, abbrev, descr, 4, endianness)
 
+class bf_uint(Type):
+	type	= "bf_uint"
+	disp	= None
+
+	def __init__(self, bitmask, abbrev, descr, endianness=LE):
+		Type.__init__(self, abbrev, descr, self.bytes, endianness)
+		self.bitmask = bitmask
+
+	def Mask(self):
+		return self.bitmask
+
+class bf_val_str(bf_uint):
+	type	= "bf_uint"
+	disp	= None
+
+	def __init__(self, bitmask, abbrev, descr, val_string_array, endiannes=LE):
+		bf_uint.__init__(self, bitmask, abbrev, descr, endiannes)
+		self.values = val_string_array
+
+	def ValuesName(self):
+		return "VALS(%s)" % (self.ValuesCName())
+
+class bf_val_str8(bf_val_str, val_string8):
+	type    = "bf_val_str8"
+	ftype   = "FT_UINT8"
+	disp    = "BASE_HEX"
+	bytes	= 1
+
+class bf_val_str16(bf_val_str, val_string16):
+	type    = "bf_val_str16"
+	ftype   = "FT_UINT16"
+	disp    = "BASE_HEX"
+	bytes	= 2
+
+class bf_val_str32(bf_val_str, val_string32):
+	type    = "bf_val_str32"
+	ftype   = "FT_UINT32"
+	disp    = "BASE_HEX"
+	bytes	= 4
+
+class bf_boolean:
+    pass
+
+class bf_boolean8(bf_uint, boolean8, bf_boolean):
+	type	= "bf_boolean8"
+	ftype	= "FT_BOOLEAN"
+	disp	= "8"
+	bytes	= 1
+
+class bf_boolean16(bf_uint, boolean16, bf_boolean):
+	type	= "bf_boolean16"
+	ftype	= "FT_BOOLEAN"
+	disp	= "16"
+	bytes	= 2
+
+class bf_boolean24(bf_uint, boolean24, bf_boolean):
+	type	= "bf_boolean24"
+	ftype	= "FT_BOOLEAN"
+	disp	= "24"
+	bytes	= 3
+
+class bf_boolean32(bf_uint, boolean32, bf_boolean):
+	type	= "bf_boolean32"
+	ftype	= "FT_BOOLEAN"
+	disp	= "32"
+	bytes	= 4
+
 class bitfield(Type):
 	type	= "bitfield"
 	disp	= 'BASE_HEX'
@@ -1026,6 +1093,11 @@ class bitfield(Type):
 	def __init__(self, vars):
 		var_hash = {}
 		for var in vars:
+		    if isinstance(var, bf_boolean):
+			if not isinstance(var, self.bf_type):
+				print "%s must be of type %s" % \
+					(var.Abbreviation(), self.bf_type)
+				sys.exit(1)
 			var_hash[var.bitmask] = var
 
 		bitmasks = var_hash.keys()
@@ -1051,9 +1123,11 @@ class bitfield(Type):
 	def PTVCName(self):
 		return self.ptvcname
 
+
 class bitfield8(bitfield, uint8):
 	type	= "bitfield8"
 	ftype	= "FT_UINT8"
+	bf_type = bf_boolean8
 
 	def __init__(self, abbrev, descr, vars):
 		uint8.__init__(self, abbrev, descr)
@@ -1062,6 +1136,7 @@ class bitfield8(bitfield, uint8):
 class bitfield16(bitfield, uint16):
 	type	= "bitfield16"
 	ftype	= "FT_UINT16"
+	bf_type = bf_boolean16
 
 	def __init__(self, abbrev, descr, vars, endianness=LE):
 		uint16.__init__(self, abbrev, descr, endianness)
@@ -1070,6 +1145,7 @@ class bitfield16(bitfield, uint16):
 class bitfield24(bitfield, uint24):
 	type	= "bitfield24"
 	ftype	= "FT_UINT24"
+	bf_type = bf_boolean24
 
 	def __init__(self, abbrev, descr, vars, endianness=LE):
 		uint24.__init__(self, abbrev, descr, endianness)
@@ -1078,74 +1154,12 @@ class bitfield24(bitfield, uint24):
 class bitfield32(bitfield, uint32):
 	type	= "bitfield32"
 	ftype	= "FT_UINT32"
+	bf_type = bf_boolean32
 
 	def __init__(self, abbrev, descr, vars, endianness=LE):
 		uint32.__init__(self, abbrev, descr, endianness)
 		bitfield.__init__(self, vars)
 
-class bf_uint(Type):
-	type	= "bf_uint"
-	disp	= None
-
-	def __init__(self, bitmask, abbrev, descr, endianness=LE):
-		Type.__init__(self, abbrev, descr, self.bytes, endianness)
-		self.bitmask = bitmask
-
-	def Mask(self):
-		return self.bitmask
-
-class bf_val_str(bf_uint):
-	type	= "bf_uint"
-	disp	= None
-
-	def __init__(self, bitmask, abbrev, descr, val_string_array, endiannes=LE):
-		bf_uint.__init__(self, bitmask, abbrev, descr, endiannes)
-		self.values = val_string_array
-
-	def ValuesName(self):
-		return "VALS(%s)" % (self.ValuesCName())
-
-class bf_boolean8(bf_uint, boolean8):
-	type	= "bf_boolean8"
-	ftype	= "FT_BOOLEAN"
-	disp	= "8"
-	bytes	= 1
-
-class bf_boolean16(bf_uint, boolean16):
-	type	= "bf_boolean16"
-	ftype	= "FT_BOOLEAN"
-	disp	= "16"
-	bytes	= 2
-
-class bf_boolean24(bf_uint, boolean24):
-	type	= "bf_boolean24"
-	ftype	= "FT_BOOLEAN"
-	disp	= "24"
-	bytes	= 3
-
-class bf_boolean32(bf_uint, boolean32):
-	type	= "bf_boolean32"
-	ftype	= "FT_BOOLEAN"
-	disp	= "32"
-	bytes	= 4
-
-class bf_val_str8(bf_val_str, val_string8):
-	type    = "bf_val_str8"
-	ftype   = "FT_UINT8"
-	disp    = "BASE_HEX"
-	bytes	= 1
-
-class bf_val_str16(bf_val_str, val_string16):
-	type    = "bf_val_str16"
-	ftype   = "FT_UINT16"
-	disp    = "BASE_HEX"
-	bytes	= 2
-
-class bf_val_str32(bf_val_str, val_string32):
-	type    = "bf_val_str32"
-	ftype   = "FT_UINT32"
-	disp    = "BASE_HEX"
-	bytes	= 4
 
 ##############################################################################
 # NCP Field Types. Defined in Appendix A of "Programmer's Guide..."
@@ -1183,7 +1197,7 @@ AccessPrivileges		= bitfield8("access_privileges", "Access Privileges", [
 	bf_boolean8(0x40, "acc_priv_search", "Search Privileges (directories only)"),
 	bf_boolean8(0x80, "acc_priv_modify", "Modify File Status Flags Privileges (files and directories)"),
 ])
-AccessRightsMask 		= bitfield16("access_rights_mask", "Access Rights", [
+AccessRightsMask 		= bitfield8("access_rights_mask", "Access Rights", [
 	bf_boolean8(0x0001, "acc_rights_read", "Read Rights"),
 	bf_boolean8(0x0002, "acc_rights_write", "Write Rights"),
 	bf_boolean8(0x0004, "acc_rights_open", "Open Rights"),
@@ -1192,7 +1206,17 @@ AccessRightsMask 		= bitfield16("access_rights_mask", "Access Rights", [
 	bf_boolean8(0x0020, "acc_rights_parent", "Parental Rights"),
 	bf_boolean8(0x0040, "acc_rights_search", "Search Rights"),
 	bf_boolean8(0x0080, "acc_rights_modify", "Modify Rights"),
-	bf_boolean8(0x0100, "acc_rights_supervisor", "Supervisor Access Rights"),
+])
+AccessRightsMaskWord 		= bitfield16("access_rights_mask_word", "Access Rights", [
+	bf_boolean16(0x0001, "acc_rights1_read", "Read Rights"),
+	bf_boolean16(0x0002, "acc_rights1_write", "Write Rights"),
+	bf_boolean16(0x0004, "acc_rights1_open", "Open Rights"),
+	bf_boolean16(0x0008, "acc_rights1_create", "Create Rights"),
+	bf_boolean16(0x0010, "acc_rights1_delete", "Delete Rights"),
+	bf_boolean16(0x0020, "acc_rights1_parent", "Parental Rights"),
+	bf_boolean16(0x0040, "acc_rights1_search", "Search Rights"),
+	bf_boolean16(0x0080, "acc_rights1_modify", "Modify Rights"),
+	bf_boolean16(0x0100, "acc_rights1_supervisor", "Supervisor Access Rights"),
 ])
 AccountBalance			= uint32("account_balance", "Account Balance")
 AccountVersion			= uint8("acct_version", "Acct Version")
@@ -2283,11 +2307,11 @@ JobControlFlags			= bitfield8("job_control_flags", "Job Control Flags", [
 
 ])
 JobControlFlagsWord		= bitfield16("job_control_flags_word", "Job Control Flags", [
-	bf_boolean8(0x0008, "job_control1_job_recovery", "Job Recovery"),
-	bf_boolean8(0x0010, "job_control1_reservice", "ReService Job"),
-	bf_boolean8(0x0020, "job_control1_file_open", "File Open"),
-	bf_boolean8(0x0040, "job_control1_user_hold", "User Hold"),
-	bf_boolean8(0x0080, "job_control1_operator_hold", "Operator Hold"),
+	bf_boolean16(0x0008, "job_control1_job_recovery", "Job Recovery"),
+	bf_boolean16(0x0010, "job_control1_reservice", "ReService Job"),
+	bf_boolean16(0x0020, "job_control1_file_open", "File Open"),
+	bf_boolean16(0x0040, "job_control1_user_hold", "User Hold"),
+	bf_boolean16(0x0080, "job_control1_operator_hold", "Operator Hold"),
 
 ])
 JobCount			= uint32("job_count", "Job Count")
@@ -4890,7 +4914,7 @@ TrendCounters			= struct("trend_counters", [
 ], "Trend Counters")
 TrusteeStruct			= struct("trustee_struct", [
 	ObjectID,
-	AccessRightsMask,
+	AccessRightsMaskWord,
 ])
 UpdateDateStruct                = struct("update_date_struct", [
         UpdateDate,
@@ -6713,7 +6737,7 @@ def define_ncp2222():
 	pkt.Reply(15, [
 		rec( 8, 1, NumberOfEntries, var="x" ),
 		rec( 9, 4, ObjectID, repeat="x" ),
-		rec( 13, 2, AccessRightsMask, repeat="x" ),
+		rec( 13, 2, AccessRightsMaskWord, repeat="x" ),
  	])
 	pkt.CompletionCodes([0x0000, 0x9800, 0x9b00, 0x9c00])
 	# 2222/1627, 22/39
@@ -6787,7 +6811,7 @@ def define_ncp2222():
 		rec( 11, (1, 255), Path ),
 	], info_str=(Path, "Get Effective Rights: %s", ", %s"))
 	pkt.Reply(10, [
-		rec( 8, 2, AccessRightsMask ),
+		rec( 8, 2, AccessRightsMaskWord ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9804, 0x9c03])
 	# 2222/162B, 22/43
@@ -10067,7 +10091,7 @@ def define_ncp2222():
 		rec( 8, 1, NameSpace ),
 		rec( 9, 1, Reserved ),
 		rec( 10, 2, SearchAttributesLow ),
-		rec( 12, 2, AccessRightsMask ),
+		rec( 12, 2, AccessRightsMaskWord ),
 		rec( 14, 2, ObjectIDCount, var="y" ),
 		rec( 16, 1, VolumeNumber ),
 		rec( 17, 4, DirectoryBase ),
@@ -10917,7 +10941,7 @@ def define_ncp2222():
 		rec( 10, 1, VolumeNumber ),
 		rec( 11, 1, NameSpace ),
 		rec( 12, 4, DirectoryNumber ),
-		rec( 16, 2, AccessRightsMask ),
+		rec( 16, 2, AccessRightsMaskWord ),
 		rec( 18, 2, NewAccessRights ),
 		rec( 20, 4, FileHandle, BE ),
 	])
