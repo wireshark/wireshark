@@ -831,7 +831,7 @@ decode_transport(GtkWidget *notebook_pg)
            else 
              return;
         decode_change_one_dissector(table_name, ppid, list);
-	    return;
+        return;
     }
     if (requested_srcdst != E_DECODE_DPORT) {
         portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_SPORT);
@@ -1538,8 +1538,7 @@ decode_add_tcpudp_page (gchar *prompt, gchar *table_name)
 }
 
 void
-decode_sctp_list_menu_start(GtkWidget *page, GtkWidget **list_p,
-                       GtkWidget **scrolled_win_p)
+decode_sctp_list_menu_start(GtkWidget **list_p, GtkWidget **scrolled_win_p)
 {
 #if GTK_MAJOR_VERSION < 2
     gchar             *titles[E_LIST_S_COLUMNS] = {"Short Name", "Table Name"};
@@ -1563,7 +1562,6 @@ decode_sctp_list_menu_start(GtkWidget *page, GtkWidget **list_p,
 #endif
     for (column = 0; column < E_LIST_S_COLUMNS; column++)
         gtk_clist_set_column_auto_resize(list, column, TRUE);
-    OBJECT_SET_DATA(page, E_PAGE_LIST, list);
 #else
     sctp_store = OBJECT_GET_DATA(decode_w, "sctp_data");
     list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(sctp_store)));
@@ -1580,7 +1578,6 @@ decode_sctp_list_menu_start(GtkWidget *page, GtkWidget **list_p,
                                                   NULL);
     gtk_tree_view_column_set_sizing(tc, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(list, tc);
-    OBJECT_SET_DATA(G_OBJECT(page), E_PAGE_LIST, list);
 #endif
 
     *scrolled_win_p = scrolled_window_new(NULL, NULL);
@@ -1588,85 +1585,69 @@ decode_sctp_list_menu_start(GtkWidget *page, GtkWidget **list_p,
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(*scrolled_win_p), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 #if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(*scrolled_win_p), GTK_SHADOW_IN);
-#endif
-#if GTK_MAJOR_VERSION < 2
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(*scrolled_win_p), GTK_WIDGET(list));
-#else
     gtk_container_add(GTK_CONTAINER(*scrolled_win_p), GTK_WIDGET(list));
 #endif
-
     *list_p = GTK_WIDGET(list);
 }
 
 static void
-decode_sctp_update_ppid_menu(GtkWidget *page)
+decode_sctp_update_ppid_menu(GtkWidget *w _U_, GtkWidget *page)
 {
     GtkWidget *menu, *menuitem, *list, *scrolled_window, *sctpmenu;
     gchar      tmp[100];
     guint      number_of_ppid;
-
 #if GTK_MAJOR_VERSION < 2
-
-	GtkCList	*sctp_list;
-
+    GtkCList *sctp_list;
 #else
     GtkListStore *sctp_store;
-
 #endif
 
     menu = gtk_menu_new();
 
     g_snprintf(tmp, 100, "PPID (%u)", 0);
-    menuitem = gtk_menu_item_new_with_label(tmp);  
-    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID));   
-    gtk_menu_append(GTK_MENU(menu), menuitem);  
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */    
+    menuitem = gtk_menu_item_new_with_label(tmp);
+    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID));
+    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
-      if (cfile.edt->pi.ppid[number_of_ppid] != 0) {      
-        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);	
-        menuitem = gtk_menu_item_new_with_label(tmp);	
-        OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));	
-        gtk_menu_append(GTK_MENU(menu), menuitem);	
-        gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */	
+      if (cfile.edt->pi.ppid[number_of_ppid] != 0) {
+        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
+        menuitem = gtk_menu_item_new_with_label(tmp);
+        OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+        gtk_menu_append(GTK_MENU(menu), menuitem);
+        gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
       } else
         break;
-                
+
     OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
-
-
-    sctpmenu=OBJECT_GET_DATA(decode_w, "user_data");
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, "sctp.ppi");
+    sctpmenu = OBJECT_GET_DATA(decode_w, "user_data");
     gtk_option_menu_set_menu(GTK_OPTION_MENU(sctpmenu), menu);
 
 #if GTK_MAJOR_VERSION < 2
-
-    sctp_list=OBJECT_GET_DATA(decode_w, "sctp_list");
-
+    sctp_list = OBJECT_GET_DATA(decode_w, "sctp_list");
     gtk_clist_clear(sctp_list);
-
 #else
     sctp_store = OBJECT_GET_DATA(G_OBJECT(decode_w), "sctp_data");
     gtk_list_store_clear(sctp_store);
-
 #endif
-    decode_sctp_list_menu_start(page, &list, &scrolled_window);
+    decode_sctp_list_menu_start(&list, &scrolled_window);
     dissector_table_foreach_handle("sctp.ppi", decode_proto_add_to_list, list);
     decode_list_menu_finish(list);
 }
 
 
 static void
-decode_sctp_update_srcdst_menu(GtkWidget *page)
+decode_sctp_update_srcdst_menu(GtkWidget *w _U_, GtkWidget *page)
 {
     GtkWidget  *menu, *menuitem, *scrolled_window, *list, *sctpmenu;
     gchar      tmp[100];
-
 #if GTK_MAJOR_VERSION < 2
-
     GtkCList	*sctp_list;
-
 #else
     GtkListStore *sctp_store;
 #endif
+
     menu = gtk_menu_new();
     g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
@@ -1686,24 +1667,19 @@ decode_sctp_update_srcdst_menu(GtkWidget *page)
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
-    sctpmenu=OBJECT_GET_DATA(decode_w,"user_data");
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, "sctp.port");
+    sctpmenu = OBJECT_GET_DATA(decode_w, "user_data");
     gtk_option_menu_set_menu(GTK_OPTION_MENU(sctpmenu), menu);
     OBJECT_SET_DATA(page, E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
     OBJECT_SET_DATA(page, E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));  
-
-
-
 #if GTK_MAJOR_VERSION < 2
-
-    sctp_list=OBJECT_GET_DATA(decode_w,"sctp_list");
-
+    sctp_list = OBJECT_GET_DATA(decode_w, "sctp_list");
     gtk_clist_clear(sctp_list);
-
 #else
-    sctp_store = OBJECT_GET_DATA(G_OBJECT(decode_w), "sctp_data");   
-    gtk_list_store_clear(sctp_store);    
+    sctp_store = OBJECT_GET_DATA(G_OBJECT(decode_w), "sctp_data");
+    gtk_list_store_clear(sctp_store);
 #endif
-    decode_sctp_list_menu_start(page, &list, &scrolled_window);
+    decode_sctp_list_menu_start(&list, &scrolled_window);
     dissector_table_foreach_handle("sctp.port", decode_proto_add_to_list, list);
     decode_list_menu_finish(list);
 }
@@ -1713,21 +1689,21 @@ decode_sctp_update_srcdst_menu(GtkWidget *page)
 static GtkWidget *
 decode_sctp_add_port_ppid (GtkWidget *page)
 {
-    GtkWidget	*format_vb, *radio_button;
-    GSList	*format_grp;
+    GtkWidget *format_vb, *radio_button;
+    GSList *format_grp;
 
     format_vb = gtk_vbox_new(FALSE, 2);
 
     radio_button = gtk_radio_button_new_with_label(NULL, "PPID");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
-    SIGNAL_CONNECT(radio_button, "clicked", decode_sctp_update_ppid_menu,page);
+    SIGNAL_CONNECT(radio_button, "clicked", decode_sctp_update_ppid_menu, page);
 
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Port");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
-    SIGNAL_CONNECT(radio_button, "clicked", decode_sctp_update_srcdst_menu,page);
+    SIGNAL_CONNECT(radio_button, "clicked", decode_sctp_update_srcdst_menu, page);
 
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
@@ -1753,7 +1729,7 @@ decode_add_sctp_page (gchar *prompt, gchar *table_name)
     sctpbox = gtk_hbox_new(FALSE, 5);
     label = gtk_label_new(prompt);
     gtk_box_pack_start(GTK_BOX(sctpbox), label, TRUE, TRUE, 0);  
-    sctpmenu = decode_add_ppid_menu(sctpbox);
+    sctpmenu = decode_add_ppid_menu(page);
     OBJECT_SET_DATA(decode_w, "user_data", sctpmenu);
     alignment = decode_add_pack_menu(sctpmenu);
 
@@ -1861,6 +1837,7 @@ decode_add_notebook (GtkWidget *format_hb)
     /* Notebook must be visible for set_page to work. */
     gtk_widget_show_all(notebook);
     gtk_notebook_set_page(GTK_NOTEBOOK(notebook), -1);
+
 }
 
 
