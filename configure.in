@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.164 2002/05/04 11:04:44 guy Exp $
+# $Id: configure.in,v 1.165 2002/05/16 21:47:22 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -541,7 +541,7 @@ AC_ARG_WITH(ucdsnmp,
 	# Set "want_ucdsnmp" to "ifpresent" to make the default "use it
 	# if you find it, otherwise don't".
 	#
-	want_ucdsnmp=no
+	want_ucdsnmp=yes
 	ucdsnmp_dir=
 ])
 
