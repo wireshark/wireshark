@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.65 2003/01/03 07:51:26 guy Exp $
+ * $Id: netxray.c,v 1.66 2003/01/03 07:54:01 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -347,11 +347,8 @@ int netxray_open(wtap *wth, int *err)
 	 * that look like FCS values.
 	 */
 	wth->capture.netxray->padding = 0;
-	if (netxray_encap[hdr.network] == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
+	if (netxray_encap[hdr.network] == WTAP_ENCAP_IEEE_802_11_WITH_RADIO)
 		wth->capture.netxray->padding = 4;
-	}
-	/*wth->frame_number = 0;*/
-	/*wth->file_byte_offset = 0x10b;*/
 
 	/* Remember the offset after the last packet in the capture (which
 	 * isn't necessarily the last packet in the file), as it appears
