@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.54 2002/02/22 07:23:24 guy Exp $
+ * $Id: packet-wsp.c,v 1.55 2002/04/02 20:16:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2102,16 +2102,17 @@ add_well_known_openwave_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* *********
 static void
 add_openwave_push_address_header (proto_tree *tree, tvbuff_t *header_buff,
     int headerLen, tvbuff_t *value_buff, value_type_t valueType,
     int valueLen)
 {
 
-/*	??? */
+	???
 	
 }
-
+********* */
 
 static int
 add_unknown_header (proto_tree *tree, tvbuff_t *tvb, int offset,
