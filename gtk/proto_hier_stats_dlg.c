@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.6 2001/12/31 04:41:50 gerald Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.7 2001/12/31 20:40:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,6 +113,8 @@ fill_in_ctree(GtkWidget *tree, ph_stats_t *ps)
 			fill_in_ctree_node, &di);
 }
 
+#define MAX_DLG_HEIGHT 450
+#define DEF_DLG_WIDTH  600
 static void
 create_tree(GtkWidget *container, ph_stats_t *ps)
 {
@@ -158,7 +160,8 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 	fill_in_ctree(tree, ps);
 
 	height = GTK_CLIST(tree)->rows * (GTK_CLIST(tree)->row_height + 5);
-	gtk_widget_set_usize(tree, 500, height);
+	height = MIN(height, MAX_DLG_HEIGHT);
+	gtk_widget_set_usize(tree, DEF_DLG_WIDTH, height);
 
 
 	gtk_container_add(GTK_CONTAINER(sw), tree);

@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.8 2001/12/18 19:09:02 gram Exp $
+ * $Id: proto_hier_stats.c,v 1.9 2001/12/31 20:40:32 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,7 @@ find_stat_node(GNode *parent_node, header_field_info *needle_hfinfo)
 	needle_node = g_node_first_child(parent_node);
 
 	while (needle_node) {
-		finfo = PITEM_FINFO(needle_node);
+		finfo = GNODE_PNODE(needle_node);
 		if (finfo && finfo->hfinfo && finfo->hfinfo->id == needle_hfinfo->id) {
 			return needle_node;
 		}
