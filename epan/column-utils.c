@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.36 2003/08/26 01:30:48 guy Exp $
+ * $Id: column-utils.c,v 1.37 2003/08/26 06:40:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -486,6 +486,8 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
 
   pinfo->cinfo->col_expr[col][0] = '\0';
   pinfo->cinfo->col_expr_val[col][0] = '\0';
+  if (addr->type == AT_NONE)
+    return;	/* no address, nothing to do */
   if (is_res) {
     switch (addr->type) {
 
