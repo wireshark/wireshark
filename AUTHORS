@@ -918,6 +918,7 @@ Andrew C. Feren <aferen[AT]cetacean.com> {
 	Solaris packaging fixes
 	Add ifdefs to the top-level Makefile.nmake to avoid using
 	    Python if PYTHON isn't defined
+	make-manuf fix
 }
 
 Tomas Kukosa <tomas.kukosa[AT]anfdata.cz> {
