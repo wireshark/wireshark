@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.1 1999/11/10 14:44:57 nneul Exp $
+ * $Id: packet-imap.c,v 1.2 1999/11/14 10:48:17 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,6 +44,8 @@
 #include "packet.h"
 
 static int proto_imap = -1;
+static int hf_imap_response = -1;
+static int hf_imap_request = -1;
 
 void
 dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -90,6 +92,7 @@ dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	  if (pi.match_port == pi.destport) { /* Request */
 
+	    proto_tree_add_item_hidden(imap_tree, hf_imap_request, offset, i1, TRUE);
 	    proto_tree_add_text(imap_tree, offset, i1, "Request Tag: %s", rr);
 
 	    proto_tree_add_text(imap_tree, offset + i1 + 1, END_OF_FRAME, "Request: %s", rd);
@@ -97,6 +100,7 @@ dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  }
 	  else {
 
+	    proto_tree_add_item_hidden(imap_tree, hf_imap_response, offset, i1, TRUE);
 	    proto_tree_add_text(imap_tree, offset, i1, "Response Tag: %s", rr);
 
 	    proto_tree_add_text(imap_tree, offset + i1 + 1, END_OF_FRAME, "Response: %s", rd);
@@ -108,11 +112,19 @@ dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_imap(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "imap.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  static hf_register_info hf[] = {
+    { &hf_imap_response,
+      { "Response",           "imap.response",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if IMAP response" }},
 
-	proto_imap = proto_register_protocol("IMAP", "imap");
- /*       proto_register_field_array(proto_imap, hf, array_length(hf));*/
+    { &hf_imap_request,
+      { "Request",            "imap.request",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if IMAP request" }}
+  };
+
+  proto_imap = proto_register_protocol("Internet Message Access Protocol", 
+				       "imap");
+  proto_register_field_array(proto_imap, hf, array_length(hf));
 }
