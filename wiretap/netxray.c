@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.70 2003/01/07 02:21:38 guy Exp $
+ * $Id: netxray.c,v 1.71 2003/01/07 06:09:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -31,6 +31,7 @@
 #include "file_wrappers.h"
 #include "netxray.h"
 #include "buffer.h"
+#include "atm.h"
 
 /* Capture file header, *including* magic number, is padded to 128 bytes. */
 #define	CAPTUREFILE_HEADER_SIZE	128
@@ -131,7 +132,7 @@ static gboolean netxray_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static int netxray_read_rec_header(wtap *wth, FILE_T fh,
     union netxrayrec_hdr *hdr, int *err);
-static void netxray_set_pseudo_header(wtap *wth,
+static void netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
     union wtap_pseudo_header *pseudo_header, union netxrayrec_hdr *hdr);
 static gboolean netxray_read_rec_data(FILE_T fh, guint8 *data_ptr,
     guint32 packet_size, int *err);
@@ -381,6 +382,7 @@ static gboolean netxray_read(wtap *wth, int *err, long *data_offset)
 	union netxrayrec_hdr hdr;
 	int	hdr_size;
 	double	t;
+	guint8  *pd;
 
 reread:
 	/* Have we reached the end of the packet data? */
@@ -432,15 +434,16 @@ reread:
 	else
 		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	if (!netxray_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    packet_size, err))
+	pd = buffer_start_ptr(wth->frame_buffer);
+	if (!netxray_read_rec_data(wth->fh, pd, packet_size, err))
 		return FALSE;
 	wth->data_offset += packet_size;
 
 	/*
 	 * Set the pseudo-header.
 	 */
-	netxray_set_pseudo_header(wth, &wth->pseudo_header, &hdr);
+	netxray_set_pseudo_header(wth, pd, packet_size, &wth->pseudo_header,
+	    &hdr);
 
 	if (wth->capture.netxray->version_major == 0) {
 		t = (double)pletohl(&hdr.old_hdr.timelo)
@@ -481,6 +484,7 @@ netxray_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
 	union netxrayrec_hdr hdr;
+	gboolean ret;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -498,14 +502,16 @@ netxray_seek_read(wtap *wth, long seek_off,
 	}
 
 	/*
-	 * Set the pseudo-header.
-	 */
-	netxray_set_pseudo_header(wth, pseudo_header, &hdr);
-
-	/*
 	 * Read the packet data.
 	 */
-	return netxray_read_rec_data(wth->random_fh, pd, length, err);
+	ret = netxray_read_rec_data(wth->random_fh, pd, length, err);
+	if (!ret)
+		return FALSE;
+	/*
+	 * Set the pseudo-header.
+	 */
+	netxray_set_pseudo_header(wth, pd, length, pseudo_header, &hdr);
+	return TRUE;
 }
 
 static int
@@ -551,12 +557,11 @@ netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
 }
 
 static void
-netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
-    union netxrayrec_hdr *hdr)
+netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
+    union wtap_pseudo_header *pseudo_header, union netxrayrec_hdr *hdr)
 {
 	/*
-	 * If this is 802.11, ISDN, or ATM, set the pseudo-header.
-	 * XXX - what about X.25?
+	 * If this is 802.11, ISDN, X.25, or ATM, set the pseudo-header.
 	 */
 	if (wth->capture.netxray->version_major == 2) {
 		switch (wth->file_encap) {
@@ -579,7 +584,8 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
 			 *
 			 * The bottom 5 bits of byte 13 of "hdr.hdr_2_x.xxx"
 			 * are the channel number, but some mapping is
-			 * required for PRI.
+			 * required for PRI.  (Is it really just the time
+			 * slot?)
 			 */
 			pseudo_header->isdn.uton =
 			    (hdr->hdr_2_x.xxx[12] & 0x01);
@@ -628,19 +634,83 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
 			break;
 
 		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
-			pseudo_header->atm.aal = AAL_5;		/* XXX */
-			pseudo_header->atm.type = TRAF_LLCMX;	/* XXX */
-			pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;	/* XXX */
 			pseudo_header->atm.vpi = hdr->hdr_2_x.xxx[11];
 			pseudo_header->atm.vci = pletohs(&hdr->hdr_2_x.xxx[12]);
-			pseudo_header->atm.channel = 0;		/* XXX */
+			pseudo_header->atm.channel =
+			    (hdr->hdr_2_x.xxx[15] & 0x10)? 0 : 1;
 			pseudo_header->atm.cells = 0;
 
-			if (pseudo_header->atm.vpi == 0) {
-				if (pseudo_header->atm.vci == 5)
+			switch (hdr->hdr_2_x.xxx[0] & 0xF0) {
+
+			case 0x00:	/* Unknown */
+				/*
+				 * Infer the AAL, traffic type, and subtype.
+				 */
+				atm_guess_traffic_type(pd, len,
+				    pseudo_header);
+				break;
+
+			case 0x50:	/* AAL5 (including signalling) */
+				pseudo_header->atm.aal = AAL_5;
+				switch (hdr->hdr_2_x.xxx[0] & 0x0F) {
+
+				case 0x09:
+				case 0x0a:	/* Signalling traffic */
 					pseudo_header->atm.aal = AAL_SIGNALLING;
-				else if (pseudo_header->atm.vci == 16)
+					pseudo_header->atm.type = TRAF_UNKNOWN;
+					pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+					break;
+
+				case 0x0b:	/* ILMI */
 					pseudo_header->atm.type = TRAF_ILMI;
+					pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+					break;
+
+				case 0x0c:	/* LANE LE Control */
+					pseudo_header->atm.type = TRAF_LANE;
+					pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
+					break;
+
+				case 0x0d:
+					/*
+					 * 0x0d is *mostly* LANE 802.3,
+					 * but I've seen an LE Control frame
+					 * with 0x0d.
+					 *
+					 * XXX - Sniffer knows the difference
+					 * between 802.3 and 802.3 multicast.
+					 */
+					pseudo_header->atm.type = TRAF_LANE;
+					atm_guess_lane_type(pd, len,
+					    pseudo_header);
+					break;
+
+				case 0x0f:	/* LLC multiplexed */
+					pseudo_header->atm.type = TRAF_LLCMX;	/* XXX */
+					pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;	/* XXX */
+					break;
+
+				default:
+					/*
+					 * XXX - discover the other types.
+					 */
+					pseudo_header->atm.type = TRAF_UNKNOWN;
+					pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+					break;
+				}
+				break;
+
+			default:
+				/*
+				 * 0x60 seen, and dissected by Sniffer
+				 * Pro as a raw cell.
+				 *
+				 * XXX - discover what those types are.
+				 */
+				pseudo_header->atm.aal = AAL_UNKNOWN;
+				pseudo_header->atm.type = TRAF_UNKNOWN;
+				pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+				break;
 			}
 			break;
 		}
