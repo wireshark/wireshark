@@ -1,7 +1,7 @@
 /* column-utils.h
  * Definitions for column utility structures and routines
  *
- * $Id: column-utils.h,v 1.1 2001/04/01 07:32:35 hagbard Exp $
+ * $Id: column-utils.h,v 1.2 2001/07/22 10:25:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,7 @@ void	   col_set_writable(frame_data *fd, gboolean writable);
 gint       check_col(frame_data *, gint);
 void       col_clear(frame_data *, gint);
 void       col_set_str(frame_data *, gint, gchar *);
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 void       col_add_fstr(frame_data *, gint, gchar *, ...)
     __attribute__((format (printf, 3, 4)));
 void       col_append_fstr(frame_data *, gint, gchar *, ...)

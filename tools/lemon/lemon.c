@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.10 2001/06/26 20:52:19 guy Exp $
+** $Id: lemon.c,v 1.11 2001/07/22 10:25:50 guy Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -263,7 +263,7 @@ void Configlist_eat(struct config *);
 void Configlist_reset(void);
 
 /********* From the file "error.h" ***************************************/
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 void ErrorMsg( char *, int, char *, ... )
   __attribute__((format (printf, 3, 4)));
 #else

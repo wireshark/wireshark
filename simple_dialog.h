@@ -2,7 +2,7 @@
  * Definitions for dialog box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.2 2000/10/09 06:38:34 guy Exp $
+ * $Id: simple_dialog.h,v 1.3 2001/07/22 10:25:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,7 @@ extern "C" {
 #define ESD_BTN_OK     0
 #define ESD_BTN_CANCEL 1
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 void simple_dialog(gint, gint *, gchar *, ...)
     __attribute__((format (printf, 3, 4)));
 #else

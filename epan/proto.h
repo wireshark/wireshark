@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.13 2001/06/18 02:18:24 guy Exp $
+ * $Id: proto.h,v 1.14 2001/07/22 10:25:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,7 +140,7 @@ void proto_init(const char *plugin_dir, void (register_all_protocols)(void),
 void proto_cleanup(void);
 
 /* Set text of proto_item after having already been created. */
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 void proto_item_set_text(proto_item *ti, const char *format, ...)
 	__attribute__((format (printf, 2, 3)));
 #else
@@ -187,7 +187,7 @@ proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian);
 
 /* Add a FT_NONE to a proto_tree */
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char *format, ...)
@@ -199,7 +199,7 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 #endif
 
 /* Add a FT_PROTOCOL to a proto_tree */
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char *format, ...)
@@ -219,7 +219,7 @@ proto_item *
 proto_tree_add_bytes_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr, const char *format, ...)
@@ -239,7 +239,7 @@ proto_item *
 proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, struct timeval* value_ptr);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, struct timeval* value_ptr, const char *format, ...)
@@ -259,7 +259,7 @@ proto_item *
 proto_tree_add_ipxnet_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...)
@@ -279,7 +279,7 @@ proto_item *
 proto_tree_add_ipv4_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...)
@@ -299,7 +299,7 @@ proto_item *
 proto_tree_add_ipv6_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr, const char *format, ...)
@@ -319,7 +319,7 @@ proto_item *
 proto_tree_add_ether_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value, const char *format, ...)
@@ -339,7 +339,7 @@ proto_item *
 proto_tree_add_string_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value, const char *format, ...)
@@ -359,7 +359,7 @@ proto_item *
 proto_tree_add_boolean_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...)
@@ -379,7 +379,7 @@ proto_item *
 proto_tree_add_double_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, double value);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, double value, const char *format, ...)
@@ -399,7 +399,7 @@ proto_item *
 proto_tree_add_uint_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...)
@@ -419,7 +419,7 @@ proto_item *
 proto_tree_add_int_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value);
 
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value, const char *format, ...)
@@ -432,7 +432,7 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 
 
 /* Add a text-only node to the proto_tree */
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *,
 	...) __attribute__((format (printf, 5, 6)));
@@ -453,7 +453,7 @@ proto_tree_add_notext(proto_tree *tree, tvbuff_t *tvb, gint start, gint length);
 
 /* Useful for quick debugging. Also sends string to STDOUT, so don't
  * leave call to this function in production code. */
-#if __GNUC__ == 2
+#if __GNUC__ >= 2
 proto_item *
 proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	__attribute__((format (printf, 2, 3)));
