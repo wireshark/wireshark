@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.5 2001/03/05 22:53:38 gram Exp $
+# $Id: configure.in,v 1.6 2001/04/11 16:35:02 jfoster Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -13,7 +13,7 @@ AC_INIT(epan.c)
 
 AC_PREREQ(2.13)
 
-AM_INIT_AUTOMAKE(libethereal.a, 0.8.16)
+AM_INIT_AUTOMAKE(libethereal.a, 0.8.17)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs.
