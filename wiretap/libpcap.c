@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.82 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: libpcap.c,v 1.83 2002/10/22 09:11:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -238,6 +238,7 @@ static const struct {
 	{ 118,		WTAP_ENCAP_CISCO_IOS },
 	{ 119,		WTAP_ENCAP_PRISM_HEADER }, /* Prism monitor mode hdr */
 	{ 121,		WTAP_ENCAP_HHDLC },	/* HiPath HDLC */
+	{ 122,		WTAP_ENCAP_IP_OVER_FC },   /* RFC 2625 IP-over-FC */
 	{ 123,		WTAP_ENCAP_ATM_SNIFFER }, /* SunATM */
 
 	/*

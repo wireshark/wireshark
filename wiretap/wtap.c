@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.71 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: wtap.c,v 1.72 2002/10/22 09:11:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -148,6 +148,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_COSINE */
 	{ "CoSine L2 debug log", "cosine" },
+
+	/* WTAP_ENCAP_IP_OVER_FC */
+	{ "RFC 2625 IP-over-Fibre Channel", "ip-over-fc" },
 };
 
 /* Name that should be somewhat descriptive. */
