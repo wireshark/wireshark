@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.40 2003/10/01 07:11:49 guy Exp $
+ * $Id: wtap-int.h,v 1.41 2003/10/24 23:55:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -77,8 +77,15 @@ typedef struct {
 	time_t	start;
 } lanalyzer_t;
 
+typedef enum {
+	NOT_SWAPPED,
+	SWAPPED,
+	MAYBE_SWAPPED
+} swapped_type_t;
+
 typedef struct {
 	gboolean byte_swapped;
+	swapped_type_t lengths_swapped;
 	guint16	version_major;
 	guint16	version_minor;
 } libpcap_t;

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.99 2003/10/24 10:52:04 sahlberg Exp $
+ * $Id: libpcap.c,v 1.100 2003/10/24 23:55:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -628,6 +628,42 @@ int libpcap_open(wtap *wth, int *err)
 	wth->file_encap = file_encap;
 	wth->snapshot_length = hdr.snaplen;
 
+	/* In file format version 2.3, the order of the "incl_len" and
+	   "orig_len" fields in the per-packet header was reversed,
+	   in order to match the BPF header layout.
+
+	   Therefore, in files with versions prior to that, we must swap
+	   those two fields.
+
+	   Unfortunately, some files were, according to a comment in the
+	   "libpcap" source, written with version 2.3 in their headers
+	   but without the interchanged fields, so if "incl_len" is
+	   greater than "orig_len" - which would make no sense - we
+	   assume that we need to swap them in version 2.3 files
+	   as well.
+
+	   In addition, DG/UX's tcpdump uses version 543.0, and writes
+	   the two fields in the pre-2.3 order. */
+	switch (hdr.version_major) {
+
+	case 2:
+		if (hdr.version_minor < 3)
+			wth->capture.pcap->lengths_swapped = SWAPPED;
+		else if (hdr.version_minor == 3)
+			wth->capture.pcap->lengths_swapped = MAYBE_SWAPPED;
+		else
+			wth->capture.pcap->lengths_swapped = NOT_SWAPPED;
+		break;
+
+	case 543:
+		wth->capture.pcap->lengths_swapped = SWAPPED;
+		break;
+
+	default:
+		wth->capture.pcap->lengths_swapped = NOT_SWAPPED;
+		break;
+	}
+
 	/*
 	 * Is this AIX format?
 	 */
@@ -1135,6 +1171,8 @@ static int libpcap_read_header(wtap *wth, int *err,
 static void
 adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 {
+	guint32 temp;
+
 	if (wth->capture.pcap->byte_swapped) {
 		/* Byte-swap the record header fields. */
 		hdr->ts_sec = BSWAP32(hdr->ts_sec);
@@ -1148,32 +1186,27 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 	if (wth->file_type == WTAP_FILE_PCAP_AIX)
 		hdr->ts_usec = hdr->ts_usec/1000;
 
-	/* In file format version 2.3, the "incl_len" and "orig_len" fields
-	   were swapped, in order to match the BPF header layout.
+	/* Swap the "incl_len" and "orig_len" fields, if necessary. */
+	switch (wth->capture.pcap->lengths_swapped) {
 
-	   Unfortunately, some files were, according to a comment in the
-	   "libpcap" source, written with version 2.3 in their headers
-	   but without the interchanged fields, so if "incl_len" is
-	   greater than "orig_len" - which would make no sense - we
-	   assume that we need to swap them.  */
-	if (wth->capture.pcap->version_major == 2 &&
-	    (wth->capture.pcap->version_minor < 3 ||
-	     (wth->capture.pcap->version_minor == 3 &&
-	      hdr->incl_len > hdr->orig_len))) {
-		guint32 temp;
+	case NOT_SWAPPED:
+		break;
 
+	case MAYBE_SWAPPED:
+		if (hdr->incl_len <= hdr->orig_len) {
+			/*
+			 * The captured length is <= the actual length,
+			 * so presumably they weren't swapped.
+			 */
+			break;
+		}
+		/* FALLTHROUGH */
+
+	case SWAPPED:
 		temp = hdr->orig_len;
 		hdr->orig_len = hdr->incl_len;
 		hdr->incl_len = temp;
-	}
-	/* DG/UX use v 543.0 and also swap these fields */
-	if(wth->capture.pcap->version_major == 543 &&
-	   wth->capture.pcap->version_minor == 0){
-		guint32 temp;
-
-		temp = hdr->orig_len;
-		hdr->orig_len = hdr->incl_len;
-		hdr->incl_len = temp;
+		break;
 	}
 }
 
