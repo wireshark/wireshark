@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.66 2002/06/02 23:55:11 gerald Exp $
+ * $Id: packet-rsvp.c,v 1.67 2002/06/06 11:02:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,21 +118,36 @@ static gint ett_rsvp_unknown_class = -1;
 
 
 /*
- * RSVP message types
+ * RSVP message types.
+ * See
+ *
+ *	http://www.iana.org/assignments/rsvp-parameters
  */
 typedef enum {
-    RSVP_MSG_PATH=1, 
-    RSVP_MSG_RESV, 
-    RSVP_MSG_PERR, 
-    RSVP_MSG_RERR,
-    RSVP_MSG_PTEAR, 
-    RSVP_MSG_RTEAR, 
-    RSVP_MSG_CONFIRM, 
-    RSVP_MSG_RTEAR_CONFIRM=10,
-    RSVP_MSG_BUNDLE = 12,
-    RSVP_MSG_ACK,
-    RSVP_MSG_SREFRESH = 15,
-    RSVP_MSG_HELLO = 20
+    RSVP_MSG_PATH=1,			/* RFC 2205 */
+    RSVP_MSG_RESV,			/* RFC 2205 */
+    RSVP_MSG_PERR,			/* RFC 2205 */
+    RSVP_MSG_RERR,			/* RFC 2205 */
+    RSVP_MSG_PTEAR,			/* RFC 2205 */
+    RSVP_MSG_RTEAR,			/* RFC 2205 */
+    RSVP_MSG_CONFIRM,			/* XXX - DREQ, RFC 2745? */
+    					/* 9 is DREP, RFC 2745 */
+    RSVP_MSG_RTEAR_CONFIRM=10,		/* from Fred Baker at Cisco */
+    					/* 11 is unassigned */
+    RSVP_MSG_BUNDLE = 12,		/* RFC 2961 */
+    RSVP_MSG_ACK,			/* RFC 2961 */
+    					/* 14 is reserved */
+    RSVP_MSG_SREFRESH = 15,		/* RFC 2961 */
+    					/* 16, 17, 18, 19 not listed */
+    RSVP_MSG_HELLO = 20			/* RFC 3209 */
+    					/* 25 is Integrity Challenge
+    					   RFC 2747, RFC 3097 */
+    					/* 26 is Integrity Response
+    					   RFC 2747, RFC 3097 */
+    					/* 66 is DSBM_willing [SBM] */
+    					/* 67 is I_AM_DSBM [SBM] */
+    					/* [SBM] is Subnet Bandwidth
+    					   Manager ID from July 1997 */
 } rsvp_message_types;
 
 static value_string message_type_vals[] = { 
@@ -526,6 +541,10 @@ enum rsvp_filter_keys {
     RSVPF_ACK,
     RSVPF_JUNK14,
     RSVPF_SREFRESH,
+    RSVPF_JUNK16,
+    RSVPF_JUNK17,
+    RSVPF_JUNK18,
+    RSVPF_JUNK19,
     RSVPF_HELLO,
     /* Does the message contain an object of this type? */
     RSVPF_OBJECT,
@@ -3591,13 +3610,25 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    ver_flags & 0xf);
 	proto_tree_add_uint(rsvp_header_tree, rsvp_filter[RSVPF_MSG], tvb, 
 			    offset+1, 1, message_type);
-	if (RSVPF_MSG + message_type <= RSVPF_RTEARCONFIRM &&
-			message_type != RSVPF_JUNK_MSG8 &&
-			message_type != RSVPF_JUNK_MSG9 &&
-			message_type > 0) {
+	switch (RSVPF_MSG + message_type) {
+
+	case RSVPF_PATH:
+	case RSVPF_RESV:
+	case RSVPF_PATHERR:
+	case RSVPF_RESVERR:
+	case RSVPF_PATHTEAR:
+	case RSVPF_RESVTEAR:
+	case RSVPF_RCONFIRM:
+	case RSVPF_RTEARCONFIRM:
+	case RSVPF_BUNDLE:
+	case RSVPF_ACK:
+	case RSVPF_SREFRESH:
+	case RSVPF_HELLO:
 	       proto_tree_add_boolean_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + message_type], tvb, 
 				   offset+1, 1, 1);
-	} else {
+	       break;
+
+	default:
 		proto_tree_add_protocol_format(rsvp_header_tree, proto_malformed, tvb, offset+1, 1,
 			"Invalid message type: %u", message_type);
 		return;
