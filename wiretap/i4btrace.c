@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.10 2000/09/07 05:34:08 gram Exp $
+ * $Id: i4btrace.c,v 1.11 2000/11/11 06:36:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -37,6 +37,8 @@ static int i4btrace_seek_read(wtap *wth, int seek_off,
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
 static int i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
+static void i4b_set_pseudo_header(wtap *wth, i4b_trace_hdr_t *hdr,
+    union wtap_pseudo_header *pseudo_header);
 
 /*
  * Test some fields in the header to see if they make sense.
@@ -116,6 +118,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, int *data_offset)
 	i4b_trace_hdr_t hdr;
 	guint16 length;
 	void *bufp;
+	int channel;
 
 	/* Read record header. */
 	*data_offset = wth->data_offset;
@@ -136,8 +139,6 @@ static gboolean i4btrace_read(wtap *wth, int *err, int *data_offset)
 	wth->phdr.ts.tv_sec = hdr.time.tv_sec;
 	wth->phdr.ts.tv_usec = hdr.time.tv_usec;
 
-	wth->pseudo_header.x25.flags = (hdr.dir == FROM_TE) ? 0x00 : 0x80;
-
 	/*
 	 * Read the packet data.
 	 */
@@ -147,36 +148,70 @@ static gboolean i4btrace_read(wtap *wth, int *err, int *data_offset)
 		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
-	/*
-	 * This heuristic tries to figure out whether the datastream is
-	 * V.120 or not. We cannot glean this from the Q.931 SETUP message,
-	 * because no commercial V.120 implementation I've seen actually
-	 * sets the V.120 protocol discriminator (that, or I'm misreading
-	 * the spec badly).
-	 * TODO: reset the flag to -1 (unknown) after a close on the B
-	 * channel is detected.
-	 */
-	if (hdr.type == TRC_CH_B1 || hdr.type == TRC_CH_B2) {
-		int channel = hdr.type - TRC_CH_B1;
+	switch (hdr.type) {
+
+	case TRC_CH_I:
+		/*
+		 * XXX - what is it?  It's probably not WTAP_ENCAP_NULL,
+		 * as that means it has a 4-byte AF_ type as the
+		 * encapsulation header.
+		 */
+		wth->phdr.pkt_encap = WTAP_ENCAP_NULL;
+		break;
+
+	case TRC_CH_D:
+		/*
+		 * D channel, so it's LAPD.
+		 */
+		wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;
+		break;
+
+	case TRC_CH_B1:
+	case TRC_CH_B2:
+		/*
+		 * B channel, so it could be any of a number of things.
+		 */
+		channel = hdr.type - TRC_CH_B1;
+
 		if (wth->capture.i4btrace->bchannel_prot[channel] == -1) {
+			/*
+			 * We don't know yet whether the datastream is
+			 * V.120 or not; this heuristic tries to figure
+			 * that out.
+			 *
+			 * We cannot glean this from the Q.931 SETUP message,
+			 * because no commercial V.120 implementation I've
+			 * seen actually sets the V.120 protocol discriminator
+			 * (that, or I'm misreading the spec badly).
+			 *
+			 * TODO: reset the flag to -1 (unknown) after a close
+			 * on the B channel is detected.
+			 */
 			if (memcmp(bufp, V120SABME, 3) == 0)
 			    wth->capture.i4btrace->bchannel_prot[channel] = 1;
 			else
 			    wth->capture.i4btrace->bchannel_prot[channel] = 0;
 		}
+		if (wth->capture.i4btrace->bchannel_prot[channel] == 1) {
+			/*
+			 * V.120.
+			 */
+			wth->phdr.pkt_encap = WTAP_ENCAP_V120;
+		} else {
+			/*
+			 * Not V.120.
+			 *
+			 * XXX - what is it?  It's probably not
+			 * WTAP_ENCAP_NULL, as that means it has a
+			 * 4-byte AF_ type as the encapsulation header.
+			 * If it's PPP, we should use WTAP_ENCAP_PPP here.
+			 */
+			wth->phdr.pkt_encap = WTAP_ENCAP_NULL;
+		}
+		break;
 	}
 
-	if (hdr.type == TRC_CH_I) {
-		wth->phdr.pkt_encap = WTAP_ENCAP_NULL;
-	} else if (hdr.type == TRC_CH_D) {
-		wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;
-	} else {
-		int channel = hdr.type - TRC_CH_B1;
-		if (wth->capture.i4btrace->bchannel_prot[channel] == 1)
-			wth->phdr.pkt_encap = WTAP_ENCAP_V120;
-		else
-			wth->phdr.pkt_encap = WTAP_ENCAP_NULL;
-	}
+	i4b_set_pseudo_header(wth, &hdr, &wth->pseudo_header);
 
 	return TRUE;
 }
@@ -199,7 +234,7 @@ i4btrace_seek_read(wtap *wth, int seek_off,
 	}
 	i4b_byte_swap_header(wth, &hdr);
 
-	pseudo_header->x25.flags = (hdr.dir == FROM_TE) ? 0x00 : 0x80;
+	i4b_set_pseudo_header(wth, &hdr, pseudo_header);
 
 	/*
 	 * Read the packet data.
@@ -260,4 +295,38 @@ i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 		return -1;
 	}
 	return 0;
+}
+
+static void
+i4b_set_pseudo_header(wtap *wth, i4b_trace_hdr_t *hdr,
+    union wtap_pseudo_header *pseudo_header)
+{
+	int channel;
+
+	switch (hdr->type) {
+
+	case TRC_CH_D:
+		/*
+		 * D channel, so it's LAPD; set "p2p.sent".
+		 */
+		pseudo_header->p2p.sent = (hdr->dir == FROM_TE) ? TRUE : FALSE;
+		break;
+
+	case TRC_CH_B1:
+	case TRC_CH_B2:
+		/*
+		 * B channel, so it could be any of a number of things;
+		 * if it's V.120, set "x25.flags".
+		 */
+		channel = hdr->type - TRC_CH_B1;
+
+		if (wth->capture.i4btrace->bchannel_prot[channel] == 1) {
+			/*
+			 * V.120.
+			 */
+			pseudo_header->x25.flags =
+			    (hdr->dir == FROM_TE) ? 0x00 : 0x80;
+		}
+		break;
+	}
 }

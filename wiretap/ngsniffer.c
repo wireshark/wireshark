@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.53 2000/10/17 18:07:52 gerald Exp $
+ * $Id: ngsniffer.c,v 1.54 2000/11/11 06:36:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -294,6 +294,8 @@ static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
     struct frame6_rec *frame6);
 static int ngsniffer_read_rec_data(wtap *wth, gboolean is_random, u_char *pd,
     int length, int *err);
+static void fix_pseudo_header(wtap *wth,
+    union wtap_pseudo_header *pseudo_header);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -737,6 +739,12 @@ found:
 		}
 	}
 
+	/*
+	 * Fix up the pseudo-header; we may have set "x25.flags",
+	 * but, for some traffic, we should set "p2p.sent" instead.
+	 */
+	fix_pseudo_header(wth, &wth->pseudo_header);
+
 	t = t/1000000.0 * wth->capture.ngsniffer->timeunit; /* t = # of secs */
 	t += wth->capture.ngsniffer->start;
 	wth->phdr.ts.tv_sec = (long)t;
@@ -804,6 +812,12 @@ static int ngsniffer_seek_read(wtap *wth, int seek_off,
 		g_assert_not_reached();
 		return -1;
 	}
+
+	/*
+	 * Fix up the pseudo-header; we may have set "x25.flags",
+	 * but, for some traffic, we should set "p2p.sent" instead.
+	 */
+	fix_pseudo_header(wth, pseudo_header);
 
 	/*
 	 * Got the pseudo-header (if any), now get the data.
@@ -951,6 +965,20 @@ static int ngsniffer_read_rec_data(wtap *wth, gboolean is_random, u_char *pd,
 		return -1;
 	}
 	return 0;
+}
+
+static void fix_pseudo_header(wtap *wth,
+    union wtap_pseudo_header *pseudo_header)
+{
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_LAPD:
+		if (pseudo_header->x25.flags == 0x00)
+			pseudo_header->p2p.sent = TRUE;
+		else
+			pseudo_header->p2p.sent = FALSE;
+		break;
+	}
 }
 
 /* Throw away the buffers used by the sequential I/O stream, but not
