@@ -1,0 +1,79 @@
+#!/usr/bin/make -f
+# MAde with the aid of dh_make, by Craig Small
+# Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
+# Some lines taken from debmake, by Cristoph Lameter.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+
+	(if [ -x ./autogen.sh ]; then \
+	   ./autogen.sh --prefix=/usr --sysconfdir=/etc --disable-static ; \
+	else \
+	   ./configure --prefix=/usr --sysconfdir=/etc --disable-static ; \
+	fi)
+	# Add here commands to compile the package.
+	make
+	make ethereal.1
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+
+	# Add here commands to clean up after the build process.
+	-$(MAKE) distclean
+	rm -f rdps
+	dh_clean
+
+# Build architecture-independent files here.
+binary-indep: build
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the files into debian/tmp
+	$(MAKE) install DESTDIR=`pwd`/debian/tmp
+	-rm -rf `pwd`/debian/tmp/usr/man
+
+	dh_installdocs
+#	dh_installexamples
+	dh_installmenu
+#	dh_installinit
+#	dh_installcron
+	dh_installmanpages 
+	dh_installchangelogs NEWS
+	dh_strip
+	dh_compress
+	dh_fixperms
+
+# debhelper isn't yet updated to support policy 3.0.0 so I have to play
+# with directories to comply with fhs 
+#	test -d debian/tmp/usr/share || mkdir debian/tmp/usr/share
+#	test -d debian/tmp/usr/doc && \
+#		mv debian/tmp/usr/doc debian/tmp/usr/share/
+#	test -d debian/tmp/usr/man && \
+#		mv debian/tmp/usr/man debian/tmp/usr/share/
+#	dh_suidregister
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+#	dh_makeshlibs
+	dh_md5sums
+	dh_builddeb
+
+source diff:                                                                  
+	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary

@@ -1,0 +1,15 @@
+Source: ethereal
+Section: net
+Priority: optional
+Maintainer: Frederic Peters <fpeters@debian.org>
+Standards-Version: 3.1.0
+Build-Depends: libgtk1.2-dev libpcap-dev libsnmp4.0-dev
+
+Package: ethereal
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Network traffic analyzer
+ Ethereal is a network traffic analyzer, or "sniffer", for Unix and
+ Unix-like operating systems.  It uses GTK+, a graphical user interface
+ library, and libpcap, a packet capture and filtering library.
+

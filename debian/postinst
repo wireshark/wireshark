@@ -1,0 +1,16 @@
+#! /bin/sh -e
+
+if test -e /usr/etc/manuf ; then rm /usr/etc/manuf ; fi
+
+# Automatically added by dh_installdocs
+if [ "$1" = "configure" ]; then
+	if [ -d /usr/doc -a ! -e /usr/doc/ethereal -a -d /usr/share/doc/ethereal ]; then
+		ln -sf ../share/doc/ethereal /usr/doc/ethereal
+	fi
+fi
+# End automatically added section
+
+# Automatically added by dh_installmenu
+if test -x /usr/bin/update-menus ; then update-menus ; fi
+# End automatically added section
+

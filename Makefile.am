@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.158 2000/01/24 18:46:44 guy Exp $
+# $Id: Makefile.am,v 1.159 2000/01/26 07:00:14 oabad Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -369,6 +369,16 @@ DISTCLEANFILES =	\
 
 EXTRA_DIST = \
 	config.h.win32		\
+	debian/README.debian	\
+	debian/changelog	\
+	debian/control		\
+	debian/copyright	\
+	debian/dirs		\
+	debian/docs		\
+	debian/menu		\
+	debian/postinst		\
+	debian/prerm		\
+	debian/rules		\
 	doc/Makefile.in         \
 	doc/Makefile.am         \
 	doc/dfilter2pod.in      \
