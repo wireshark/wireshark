@@ -3,7 +3,7 @@
  * dissection
  * Copyright 2003, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-ns.c,v 1.4 2003/09/09 08:53:48 guy Exp $
+ * $Id: packet-gprs-ns.c,v 1.5 2003/09/09 09:20:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,8 +120,16 @@ process_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 		length_len = 1;
 		length = tvb_get_guint8(tvb, offset);
 		if (length & 0x80) {
+			/*
+			 * This is the final octet of the length.
+			 */
+			length &= 0x7F;
+		} else {
+			/*
+			 * One more octet.
+			 */
 			length_len++;
-			length = ((length & 0x7F) << 8) | tvb_get_guint8(tvb, offset);
+			length = (length << 8) | tvb_get_guint8(tvb, offset);
 		}
 		proto_tree_add_uint(tree, hf_gprs_ns_ie_length,
 		    tvb, offset, length_len, length);
