@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.79 2003/12/09 18:49:31 guy Exp $
+# $Id: Makefile.am,v 1.80 2003/12/12 19:55:27 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@ CLEANFILES = \
 
 ETHEREAL_TAP_SRC = \
 	ansi_a_stat.c   \
+	ansi_map_stat.c \
 	bootp_stat.c    \
 	dcerpc_stat.c	\
 	endpoint_talkers_eth.c	\
@@ -45,6 +46,7 @@ ETHEREAL_TAP_SRC = \
 	h225_ras_srt.c	\
 	http_stat.c	\
 	io_stat.c	\
+	isup_stat.c     \
 	ldap_stat.c	\
 	mgcp_stat.c	\
 	rpc_stat.c	\

@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.40 2003/12/10 19:26:00 guy Exp $
+ * $Id: packet-isup.c,v 1.41 2003/12/12 19:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,9 @@
 
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
+#include <tap.h>
 #include "packet-q931.h"
+#include "packet-isup.h"
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
 #define MTP3_BICC_SERVICE_INDICATOR     13
@@ -101,7 +103,7 @@
 #define MESSAGE_TYPE_SUBSEQUENT_DIR_NUM 67
 
 
-static const value_string isup_message_type_value[] = {
+const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,          "Initial address"},
   { MESSAGE_TYPE_SUBSEQ_ADDR,           "Subsequent address"},
   { MESSAGE_TYPE_INFO_REQ,              "Information request (national use)"},
@@ -155,7 +157,7 @@ static const value_string isup_message_type_value[] = {
   { 0,                                  NULL}};
 
 /* Same as above but in acronym form (for the Info column) */
-static const value_string isup_message_type_value_acro[] = {
+const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,          "IAM"},
   { MESSAGE_TYPE_SUBSEQ_ADDR,           "SAM"},
   { MESSAGE_TYPE_INFO_REQ,              "INR"},
@@ -1176,6 +1178,8 @@ static int proto_isup = -1;
 static int proto_bicc = -1;
 static int hf_isup_cic = -1;
 static int hf_bicc_cic = -1;
+
+static int isup_tap = -1;
 
 static int hf_isup_message_type = -1;
 static int hf_isup_parameter_type = -1;
@@ -3765,7 +3769,6 @@ static const value_string isup_Pass_on_not_possible_indicator_vals[] = {
 	{ 0x02, "Discard parameter" },
 	{ 0x03, "Reserved (interpreted as 00)" },
 	{ 0, NULL },
-
 };
 static const value_string ISUP_Broadband_narrowband_interworking_indicator_vals[] = {
 	{ 0x00, "Pass on" },
@@ -5280,6 +5283,7 @@ dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 static void
 dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
 {
+  static isup_tap_rec_t tap_rec;
   tvbuff_t *parameter_tvb;
   tvbuff_t *optional_parameter_tvb;
   proto_item* pass_along_item;
@@ -5295,6 +5299,10 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 
    proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type, "Message type: %s (%u)", val_to_str(message_type, isup_message_type_value, "reserved"), message_type);
    offset +=  MESSAGE_TYPE_LENGTH;
+
+   tap_rec.message_type = message_type;
+
+   tap_queue_packet(isup_tap, pinfo, &tap_rec);
 
    bufferlength = tvb_ensure_length_remaining(message_tvb, offset);
    parameter_tvb = tvb_new_subset(message_tvb, offset, bufferlength, bufferlength);
@@ -6254,6 +6262,8 @@ proto_register_isup(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_isup, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	isup_tap = register_tap("isup");
 }
 
 

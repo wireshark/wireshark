@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.12 2003/12/08 23:40:12 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.13 2003/12/12 19:55:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,6 +111,11 @@
 
 #include "epan/packet.h"
 #include "asn1.h"
+#include "tap.h"
+
+#include "packet-ansi_a.h"
+#include "packet-ansi_map.h"
+
 
 /* PROTOTYPES/FORWARDS */
 
@@ -467,7 +472,7 @@ static const value_string ansi_cmp_type_strings[] = {
     { 0, NULL },
 };
 
-static const value_string ansi_opr_code_strings[] = {
+const value_string ansi_map_opr_code_strings[] = {
     { 1,	"Handoff Measurement Request" },
     { 2,	"Facilities Directive" },
     { 3,	"Mobile On Channel" },
@@ -621,104 +626,19 @@ static gchar *qos_pri_str[] = {
 };
 
 /*
- * ANSI A Interface
- * IOS 4.0.1 element IDs
- * Used for cdma2000 Handoff Invoke/Response IOS Data
- *
- * COPIED FROM packet-ansi_a.c
+ * would prefer to have had the define set to the exact number of
+ * elements in the array but that is not without it's own problems
+ * (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(value_string))
  */
-static const value_string ansi_map_ios401_elem_strings[] = {
-    { 0x20,	"Access Network Identifiers" },
-    { 0x3D,	"ADDS User Part" },
-    { 0x25,	"AMPS Hard Handoff Parameters" },
-    { 0x30,	"Anchor PDSN Address" },
-    { 0x7C,	"Anchor P-P Address" },
-    { 0x41,	"Authentication Challenge Parameter" },
-    { 0x28,	"Authentication Confirmation Parameter (RANDC)" },
-    { 0x59,	"Authentication Data" },
-    { 0x4A,	"Authentication Event" },
-    { 0x40,	"Authentication Parameter COUNT" },
-    { 0x42,	"Authentication Response Parameter" },
-    { 0x37,	"Band Class" },
-    { 0x5B,	"Called Party ASCII Number" },
-    { 0x5E,	"Called Party BCD Number" },
-    { 0x4B,	"Calling Party ASCII Number" },
-    { 0x04,	"Cause" },
-    { 0x08,	"Cause Layer 3" },
-    { 0x0C,	"CDMA Serving One Way Delay" },
-    { 0x05,	"Cell Identifier" },
-    { 0x1A,	"Cell Identifier List" },
-    { 0x23,	"Channel Number" },
-    { 0x0B,	"Channel Type" },
-    { 0x19,	"Circuit Group" },
-    { 0x01,	"Circuit Identity Code" },
-    { 0x24,	"Circuit Identity Code Extension" },
-    { 0x12,	"Classmark Information Type 2" },
-    { 0x29,	"Downlink Radio Environment" },
-    { 0x2B,	"Downlink Radio Environment List" },
-    { 0x0A,	"Encryption Information" },
-    { 0x10,	"Extended Handoff Direction Parameters" },
-    { 0x2C,	"Geographic Location" },
-    { 0x5A,	"Special Service Call Indicator" },
-    { 0x26,	"Handoff Power Level" },
-    { 0x16,	"Hard Handoff Parameters" },
-    { 0x2E,	"Information Element Requested" },
-    { 0x09,	"IS-2000 Channel Identity" },
-    { 0x27,	"IS-2000 Channel Identity 3X" },
-    { 0x11,	"IS-2000 Mobile Capabilities" },
-    { 0x0F,	"IS-2000 Non-Negotiable Service Configuration Record" },
-    { 0x0E,	"IS-2000 Service Configuration Record" },
-    { 0x62,	"IS-95/IS-2000 Cause Value" },
-    { 0x67,	"IS-2000 Redirection Record" },
-    { 0x22,	"IS-95 Channel Identity" },
-    { 0x64,	"IS-95 MS Measured Channel Identity" },
-    { 0x17,	"Layer 3 Information" },
-    { 0x13,	"Location Area Information" },
-    { 0x38,	"Message Waiting Indication" },
-    { 0x0D,	"Mobile Identity" },
-    { 0x15,	"MS Information Records" },
-    { 0xA0,	"Origination Continuation Indicator" },
-    { 0x5F,	"PACA Order" },
-    { 0x60,	"PACA Reorigination Indicator" },
-    { 0x4E,	"PACA Timestamp" },
-    { 0x70,	"Packet Session Parameters" },
-    { 0x14,	"PDSN IP Address" },
-    { 0xA2,	"Power Down Indicator" },
-    { 0x06,	"Priority" },
-    { 0x3B,	"Protocol Revision" },
-    { 0x18,	"Protocol Type" },
-    { 0x2D,	"PSMM Count" },
-    { 0x07,	"Quality of Service Parameters" },
-    { 0x1D,	"Radio Environment and Resources" },
-    { 0x1F,	"Registration Type" },
-    { 0x44,	"Reject Cause" },
-    { 0x1B,	"Response Request" },
-    { 0x68,	"Return Cause" },
-    { 0x21,	"RF Channel Identity" },
-    { 0x03,	"Service Option" },
-    { 0x1E,	"Service Option Connection Identifier (SOCI)" },
-    { 0x2A,	"Service Option List" },
-    { 0x69,	"Service Redirection Info" },
-    { 0x71,	"Session Reference Identifier (SR_ID)" },
-    { 0x32,	"SID" },
-    { 0x34,	"Signal" },
-    { 0x35,	"Slot Cycle Index" },
-    { 0x31,	"Software Version" },
-    { 0x39,	"Source RNC to Target RNC Transparent Container" },
-    { 0x14,	"Source PDSN Address" },
-    { 0x33,	"Tag" },
-    { 0x3A,	"Target RNC to Source RNC Transparent Container" },
-    { 0x36,	"Transcoder Mode" }, /* XXX 0x1C in IOS 4.0.1 */
-    { 0x02,	"User Zone ID" },
-    { 0xA1,	"Voice Privacy Request" },
-    { 0, NULL },
-};
-#define	NUM_IOS401_ELEM (sizeof(ansi_map_ios401_elem_strings)/sizeof(value_string))
+#define	NUM_IOS401_ELEM	ANSI_A_MAX_NUM_IOS401_ELEM_1_STRINGS
 static gint ett_ansi_map_ios401_elem[NUM_IOS401_ELEM];
 
 
 /* Initialize the protocol and registered fields */
 static int proto_ansi_map = -1;
+
+static int ansi_map_tap = -1;
+
 static int hf_ansi_map_tag = -1;
 static int hf_ansi_map_length = -1;
 static int hf_ansi_map_id = -1;
@@ -6353,7 +6273,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset,
 	    "Point Code %u-%u-%u  SSN %u",
-	    b1, b2, b3, b4);
+	    b3, b2, b1, b4);
     }
     else if (plan == 0x0e)
     {
@@ -6762,7 +6682,7 @@ dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
 	num_elems++;
 
 	asn1_int32_value_decode(asn1, 1, &value);
-	str = my_match_strval((guint32) value, ansi_map_ios401_elem_strings, &idx);
+	str = my_match_strval((guint32) value, ansi_a_ios401_elem_1_strings, &idx);
 
 	asn1_octet_decode(asn1, &elem_len);
 
@@ -11992,7 +11912,7 @@ param_pc_ssn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"Point Code %u-%u-%u  SSN %u",
-	b1, b2, b3, b4);
+	b3, b2, b1, b4);
 }
 
 static void
@@ -12479,6 +12399,7 @@ dissect_ansi_map_component(ASN1_SCK *asn1, proto_tree *tree, guint *len_p)
 static void
 dissect_ansi_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 {
+    static ansi_map_tap_rec_t tap_rec;
     guint saved_offset = 0;
     guint len;
     guint tag;
@@ -12541,9 +12462,13 @@ dissect_ansi_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_int(subtree, hf_ansi_map_opr_code, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset, val);
 
-	str = match_strval(val, ansi_opr_code_strings);
+	str = match_strval(val, ansi_map_opr_code_strings);
 
 	if (NULL == str) return;
+
+	tap_rec.message_type = val;
+
+	tap_queue_packet(ansi_map_tap, pinfo, &tap_rec);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
@@ -13192,7 +13117,7 @@ proto_register_ansi_map(void)
 	},
 	{ &hf_ansi_map_opr_code,
 	    { "Operation Code",	"ansi_map.oprcode",
-	    FT_INT32, BASE_DEC, VALS(ansi_opr_code_strings), 0,
+	    FT_INT32, BASE_DEC, VALS(ansi_map_opr_code_strings), 0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_map_param_id,
@@ -13267,6 +13192,8 @@ proto_register_ansi_map(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ansi_map, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ansi_map_tap = register_tap("ansi_map");
 }
 
 

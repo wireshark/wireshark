@@ -1,6 +1,6 @@
-/* packet-ansi_a.h
+/* packet-isup.h
  *
- * $Id: packet-ansi_a.h,v 1.3 2003/12/12 19:55:26 guy Exp $
+ * $Id: packet-isup.h,v 1.1 2003/12/12 19:55:27 guy Exp $
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -24,33 +24,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-typedef struct _ansi_a_tap_rec_t {
-    /*
-     * value from packet-bssap.h
-     */
-    guint8		pdu_type;
+typedef struct _isup_tap_rec_t {
     guint8		message_type;
-} ansi_a_tap_rec_t;
+} isup_tap_rec_t;
 
 
 /*
  * the following allows TAP code access to the messages
  * without having to duplicate it
  */
-extern const value_string ansi_a_ios401_bsmap_strings[];
-extern const value_string ansi_a_ios401_dtap_strings[];
-
-/*
- * allows ANSI MAP to use this for IS-880 enhancements
- */
-extern const value_string ansi_a_ios401_elem_1_strings[];
-
-/*
- * maximum number of strings that are allowed
- * 255 because IEI are 1 octet in length
- *
- * this define is required by dissectors that need to
- * size based on the 'ansi_a_ios401_elem_1_strings'
- * array
- */
-#define	ANSI_A_MAX_NUM_IOS401_ELEM_1_STRINGS	255
+extern const value_string isup_message_type_value[];
+extern const value_string isup_message_type_value_acro[];

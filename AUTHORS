@@ -1820,6 +1820,9 @@ Michael Lum <mlum [AT] telostech.com> {
 	GSM MAP fixes and parameter separation
 	Taps for ANSI A-interface statistics
 	Support for SS7 point codes as address types
+	Taps for GSM A-interface statistics
+	Tap for ANSI MAP message statistics
+	Tap for ISUP message statistics
 }
 
 Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {

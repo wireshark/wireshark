@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.13 2003/12/08 23:40:12 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.14 2003/12/12 19:55:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,7 +150,7 @@ const value_string ansi_a_ios401_dtap_strings[] = {
     { 0, NULL },
 };
 
-static const value_string ansi_elem_1_strings[] = {
+const value_string ansi_a_ios401_elem_1_strings[] = {
     { 0x20,	"Access Network Identifiers" },
     { 0x3D,	"ADDS User Part" },
     { 0x25,	"AMPS Hard Handoff Parameters" },
@@ -5896,7 +5896,7 @@ typedef enum
 }
 elem_idx_t;
 
-#define	NUM_ELEM_1 (sizeof(ansi_elem_1_strings)/sizeof(value_string))
+#define	NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(value_string))
 static gint ett_ansi_elem_1[NUM_ELEM_1];
 static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string) = {
     NULL,	/* Access Network Identifiers */
@@ -6005,7 +6005,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    if (oct == (guint8) ansi_elem_1_strings[idx].value)
+    if (oct == (guint8) ansi_a_ios401_elem_1_strings[idx].value)
     {
 	parm_len = tvb_get_guint8(tvb, curr_offset + 1);
 
@@ -6013,7 +6013,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, parm_len + 2,
 		"%s%s",
-		ansi_elem_1_strings[idx].strptr,
+		ansi_a_ios401_elem_1_strings[idx].strptr,
 		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
 	subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
@@ -6075,13 +6075,13 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, gchar *
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    if (oct == (guint8) ansi_elem_1_strings[idx].value)
+    if (oct == (guint8) ansi_a_ios401_elem_1_strings[idx].value)
     {
 	item =
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, -1,
 		"%s%s",
-		ansi_elem_1_strings[idx].strptr,
+		ansi_a_ios401_elem_1_strings[idx].strptr,
 		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
 	subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
@@ -6136,11 +6136,11 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, gchar *n
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    if (oct == (guint8) ansi_elem_1_strings[idx].value)
+    if (oct == (guint8) ansi_a_ios401_elem_1_strings[idx].value)
     {
 	proto_tree_add_uint_format(tree, hf_ansi_a_elem_id, tvb, curr_offset, 1, oct,
 	    "%s%s",
-	    ansi_elem_1_strings[idx].strptr,
+	    ansi_a_ios401_elem_1_strings[idx].strptr,
 	    (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
 	consumed = 1;
@@ -6171,7 +6171,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, parm_len + 1,
 	    "%s%s",
-	    ansi_elem_1_strings[idx].strptr,
+	    ansi_a_ios401_elem_1_strings[idx].strptr,
 	    (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
     subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
@@ -6255,8 +6255,8 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 	proto_tree_add_text(tree, \
 	    tvb, curr_offset, 0, \
 	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
-		ansi_elem_1_strings[elem_idx].value, \
-		ansi_elem_1_strings[elem_idx].strptr, \
+		ansi_a_ios401_elem_1_strings[elem_idx].value, \
+		ansi_a_ios401_elem_1_strings[elem_idx].strptr, \
 		(elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
 	    ); \
     } \
@@ -6285,8 +6285,8 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 	proto_tree_add_text(tree, \
 	    tvb, curr_offset, 0, \
 	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
-		ansi_elem_1_strings[elem_idx].value, \
-		ansi_elem_1_strings[elem_idx].strptr, \
+		ansi_a_ios401_elem_1_strings[elem_idx].value, \
+		ansi_a_ios401_elem_1_strings[elem_idx].strptr, \
 		(elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
 	    ); \
     } \
@@ -8249,7 +8249,7 @@ proto_register_ansi_a(void)
 	},
 	{ &hf_ansi_a_elem_id,
 	    { "Element ID",	"ansi_a.elem_id",
-	    FT_UINT8, BASE_DEC, VALS(ansi_elem_1_strings), 0,
+	    FT_UINT8, BASE_DEC, VALS(ansi_a_ios401_elem_1_strings), 0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_a_length,
