@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!-- Ethereal User's Guide and Developer's Guide catalog
 
+See the Readme.txt file for instructions.
 
-Intall this copy into the root directory of the book. Please note that if you shift any files in the directory structure you MUST adjust this catalog.
-
+Please note that if you shift any files in the directory structure you MUST adjust this catalog.
 
 -->
 <!DOCTYPE catalog

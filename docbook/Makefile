@@ -8,7 +8,9 @@ DOCBOOKXSL="/usr/share/docbook-xsl"
 
 # formatting objects processor
 # (comment this out, if you don't want pdf or don't have fop installed)
+# for win32 (cygwin) environments
 FOP="fop-0.20.5/fop.bat"
+# for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP="fop-0.20.5/fop.sh"
 
 # html help compiler (Win32 only)
