@@ -355,6 +355,10 @@ Jose Pedro Oliveira <jpo@di.uminho.pt> {
 	DHCP enhancements
 }
 
+David Frascone <dave@frascone.com> {
+	DIAMETER
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
@@ -368,4 +372,3 @@ We use the exception module from Kazlib, a C library written by
 Kaz Kylheku <kaz@ashi.footprints.net>. Thanks goes to him for his
 well-written library. The Kazlib home page can be found at
 http://users.footprint.net/~kaz/kazlib.html
-

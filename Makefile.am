@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.217 2000/07/28 20:03:39 gram Exp $
+# $Id: Makefile.am,v 1.218 2000/07/30 07:16:01 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -116,6 +116,7 @@ DISSECTOR_SOURCES = \
 	packet-q931.c  \
 	packet-quake.c \
 	packet-radius.c\
+	packet-diameter.c \
 	packet-raw.c   \
 	packet-rip.c   \
 	packet-ripng.c \
@@ -179,6 +180,8 @@ noinst_HEADERS = \
 	packet-clip.h  \
 	packet-clnp.h  \
 	packet-ddtp.h  \
+	packet-diameter.h \
+	packet-diameter-defs.h \
 	packet-dns.h   \
 	packet-esis.h  \
 	packet-eth.h   \

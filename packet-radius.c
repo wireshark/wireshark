@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.13 2000/05/31 05:07:33 guy Exp $
+ * $Id: packet-radius.c,v 1.14 2000/07/30 07:16:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -39,6 +39,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
+#include "packet-diameter.h"
 
 static int proto_radius = -1;
 static int hf_radius_length = -1;
@@ -679,6 +680,12 @@ proto_tree
   e_radiushdr rh;
 
   gchar *codestrval;
+
+  if (pd[offset] == 254) {
+	  /* We have a diameter packet */
+	  dissect_diameter(pd, offset, fd, tree);
+	  return;
+  }
 
   memcpy(&rh,&pd[offset],sizeof(e_radiushdr));
 
