@@ -591,6 +591,7 @@ Hannes Gredler <hannes@juniper.net> {
 	OSI network layer over PPP support
 	Many ISIS enhancements
 	Juniper Networks vendor ID in RADIUS dissector
+	hmac-md5 authentication support for IS-IS
 }
 
 Inoue <inoue@ainet.or.jp> {

@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.11 2001/05/14 18:40:15 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.12 2001/06/05 21:23:32 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -133,7 +133,7 @@ isis_dissect_authentication_clv(const u_char *pd, int offset, guint length,
 	u_char pw_type;
 	char sbuf[300];		/* 255 + header info area */
 	char *s = sbuf;
-	int use_cleartext;
+	int auth_unsupported;
 
 	if ( length <= 0 ) {
 		return;
@@ -141,38 +141,48 @@ isis_dissect_authentication_clv(const u_char *pd, int offset, guint length,
 
 	pw_type = pd[offset++];
 	length--;
-	use_cleartext = FALSE;
+	auth_unsupported = FALSE;
+
 	switch (pw_type) {
 	case 1:
-		s += sprintf ( s, "type 1, clear text"  );
-		use_cleartext = TRUE;
+		s += sprintf ( s, "clear text (1), password (length %d) = ", length );
+
+		if ( length > 0 ) {
+		  strncpy(s, &pd[offset], length);
+		  s[length] = 0;
+                } else {
+		  strcat(s, "no clear-text password found!!!" );
+		}
+		break;
+	case 54:
+	        s += sprintf ( s, "hmac-md5 (54), password (length %d) = ", length );
+
+                if ( length == 16 ) {
+		  s += sprintf ( s, "0x%02x", pd[offset++] );
+		  length--;
+		  while (length > 0) {
+		    s += sprintf ( s, "%02x", pd[offset++] );
+		    length--;
+		    }
+                    s = 0;
+                } else {
+                  strcat(s, "illegal hmac-md5 digest format (must be 16 bytes)" );
+		}
 		break;
 	default:
-		s += sprintf ( s, "type 0x%02x, (must be 1)", pw_type );
+		s += sprintf ( s, "type 0x%02x (0x%02x): ", pw_type, length );
+		auth_unsupported=TRUE;
 		break;
 	}
 
-	s += sprintf ( s, " (0x%02x): ", length );
-
-	if ( use_cleartext ) {
-		if ( length > 0 ) {
-			strncpy(s, &pd[offset], length);
-			/* null terminate */
-			s[length] = 0;
-		} else {
-			strcat(s, "<<no password found!!!>>" );
-		}
-	/* NOTE, s no longer valid */
-	}
 	proto_tree_add_text ( tree, NullTVB, offset - 1, length + 1,
 			"%s %s", meaning, sbuf );
-	if ( !use_cleartext ) {
-		if ( length ) {
-			isis_dissect_unknown(offset, length, tree, fd,
-				"Unknown autheticion type" );
-		}
-	}
-}
+
+       	if ( auth_unsupported ) {
+       		isis_dissect_unknown(offset, length, tree, fd,
+       			"Unknown authentication type" );
+	}	
+}	    
 
 /*
  * Name: isis_dissect_hostname_clv()

@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.14 2001/05/14 18:40:15 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.15 2001/06/05 21:23:32 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -352,7 +352,7 @@ static void
 dissect_hello_auth_clv(const u_char *pd, int offset, 
 		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_authentication_clv(pd, offset, length, fd, tree, 
-		"Per Link authentication" );
+		"authentication" );
 }
 
 /*
