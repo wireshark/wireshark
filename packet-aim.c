@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.3 2000/11/19 08:53:54 guy Exp $
+ * $Id: packet-aim.c,v 1.4 2000/11/28 06:38:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -75,14 +75,16 @@
 #define FAMILY_TRANSLATE  0x000C
 #define FAMILY_CHAT_NAV   0x000D
 #define FAMILY_CHAT       0x000E
+#define FAMILY_SIGNON     0x0017
 
 /* messaging */
-#define MSG_FROM_CLIENT   0x006
-#define MSG_TO_CLIENT     0x007
+#define MSG_TO_CLIENT     0x006
+#define MSG_FROM_CLIENT   0x007
 
 static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void get_message( u_char *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
-int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset);
+
+static void get_message( u_char *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
+static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset);
 
 /* Initialize the protocol and registered fields */
 static int proto_aim = -1;
@@ -179,7 +181,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }        
       if( tree )
       {
-        ti1 = proto_tree_add_text(aim_tree, tvb, 6, tvb_length(tvb), "FNAC");
+        ti1 = proto_tree_add_text(aim_tree, tvb, 6, tvb_length(tvb) - 6, "FNAC");
         aim_tree_fnac = proto_item_add_subtree(ti1, ett_aim_fnac);
         proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_family, tvb, 6, 2, family);
         proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_subtype, tvb, 8, 2, subtype);
@@ -191,6 +193,46 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       
         switch(family)
         {
+          case FAMILY_SIGNON:
+            switch(subtype)
+            {
+              case 0x0002:
+                buddyname_length = get_buddyname( buddyname, tvb, 19, 20 );
+
+                if (check_col(pinfo->fd, COL_INFO)) {
+                  col_add_fstr(pinfo->fd, COL_INFO, "Login");
+                  col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
+                }        
+
+                if( tree  )
+                {
+                  proto_tree_add_text(aim_tree_fnac, tvb, 20, buddyname_length, "Screen Name: %s", buddyname);       
+                }
+
+                break;
+              case 0x0003:
+                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Login information reply");        
+                break;
+              case 0x0006:
+                buddyname_length = get_buddyname( buddyname, tvb, 19, 20 );
+
+                if (check_col(pinfo->fd, COL_INFO)) {
+                  col_add_fstr(pinfo->fd, COL_INFO, "Sign-on");
+                  col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
+                }        
+                
+                if( tree )
+                {
+                  proto_tree_add_text(aim_tree_fnac, tvb, 20, buddyname_length, "Screen Name: %s", buddyname);       
+                }
+
+                break;
+              case 0x0007:
+                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Sign-on reply");        
+                break;
+            }
+            break;
+
           case FAMILY_GENERIC:
             switch(subtype)
             {
@@ -248,7 +290,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 buddyname_length = get_buddyname( buddyname, tvb, 16, 17 );
 
                 if (check_col(pinfo->fd, COL_INFO)) {
-                  col_add_str(pinfo->fd, COL_INFO, "Oncoming Buddy");
+                  col_add_fstr(pinfo->fd, COL_INFO, "Oncoming Buddy");
                   col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
                 }        
                 
@@ -264,7 +306,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 buddyname_length = get_buddyname( buddyname, tvb, 16, 17 );
 
                 if (check_col(pinfo->fd, COL_INFO)) {
-                  col_add_str(pinfo->fd, COL_INFO, "Offgoing Buddy");
+                  col_add_fstr(pinfo->fd, COL_INFO, "Offgoing Buddy");
                   col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
                 }        
                 
@@ -338,17 +380,50 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
           break;
 
+        case FAMILY_CHAT:
+          switch(subtype)
+          {
+            case 0x005:
+              /* channel message from client */
+              get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb) - 40 - buddyname_length );
+
+              if (check_col(pinfo->fd, COL_INFO)) {
+                col_add_fstr(pinfo->fd, COL_INFO, "Chat Message ");
+                col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);
+              }        
+              break;
+            
+            case 0x006:
+              /* channel message to client */
+              buddyname_length = get_buddyname( buddyname, tvb, 30, 31 );
+              get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) - 36 - buddyname_length );
+              
+              if (check_col(pinfo->fd, COL_INFO)) {
+                col_add_fstr(pinfo->fd, COL_INFO, "Chat Message ");
+                col_append_fstr(pinfo->fd, COL_INFO, "from: %s", buddyname);
+                col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);
+              }        
+              
+              if( tree )
+              {
+                proto_tree_add_text(aim_tree_fnac, tvb, 31, buddyname_length, "Screen Name: %s", buddyname);       
+              }
+              break;
+          }
+          break;
+
+
         case FAMILY_MESSAGING:
           switch(subtype)
           {
-            case MSG_FROM_CLIENT:
+            case MSG_TO_CLIENT:
               buddyname_length = get_buddyname( buddyname, tvb, 26, 27 );
 
               get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) - 36 - buddyname_length );
               
               if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_str(pinfo->fd, COL_INFO, "Message ");
-                col_append_fstr(pinfo->fd, COL_INFO, "from: %s", buddyname);
+                col_add_fstr(pinfo->fd, COL_INFO, "Message ");
+                col_append_fstr(pinfo->fd, COL_INFO, "to: %s", buddyname);
                 col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);
               }        
 
@@ -359,14 +434,14 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
               break;
 
-            case MSG_TO_CLIENT:
+            case MSG_FROM_CLIENT:
               buddyname_length = get_buddyname( buddyname, tvb, 26, 27 );
 
               get_message( msg, tvb, 36 + buddyname_length,  tvb_length(tvb) - 36 - buddyname_length);
 
               if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_str(pinfo->fd, COL_INFO, "Message");
-                col_append_fstr(pinfo->fd, COL_INFO, " to: %s", buddyname);
+                col_add_fstr(pinfo->fd, COL_INFO, "Message");
+                col_append_fstr(pinfo->fd, COL_INFO, " from: %s", buddyname);
 
                 col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);
               }        
@@ -409,7 +484,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset)
+static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset)
 {
   guint8 buddyname_length;
   
@@ -423,7 +498,7 @@ int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset)
 }
 
 
-void get_message( u_char *msg, tvbuff_t *tvb, int msg_offset, int msg_length)
+static void get_message( u_char *msg, tvbuff_t *tvb, int msg_offset, int msg_length)
 {
   int i,j,c;
   int bracket = FALSE;
@@ -502,7 +577,8 @@ void get_message( u_char *msg, tvbuff_t *tvb, int msg_offset, int msg_length)
              
 
 /* Register the protocol with Ethereal */
-void proto_register_aim(void)
+void 
+proto_register_aim(void)
 {                 
 
 /* Setup list of header fields */
