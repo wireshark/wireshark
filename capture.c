@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.37 1999/07/28 20:17:14 deniel Exp $
+ * $Id: capture.c,v 1.38 1999/07/31 23:06:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,10 @@
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
 #endif
 
 #include <gtk/gtk.h>
@@ -435,7 +439,7 @@ capture(void) {
       pcap_close(pch);
       return;
     }
-
+    chmod(cf.save_file, 0600);
     ld.linktype = pcap_datalink(pch);
 
     if (cf.cfilter) {
