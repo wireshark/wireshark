@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.13 2002/03/20 19:45:51 gram Exp $
+; $Id: ethereal.nsi.in,v 1.14 2002/04/08 02:18:14 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -28,6 +28,10 @@ LicenseData "GPL.txt"
 ; Component page configuration
 ; ============================================================================
 ComponentText "The following components are available for installation."
+
+; Component check boxes
+EnabledBitmap "..\..\image\nsis-checked.bmp"
+DisabledBitmap "..\..\image\nsis-unchecked.bmp"
 
 ; ============================================================================
 ; Directory selection page configuration
