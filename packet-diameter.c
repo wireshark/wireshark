@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.37 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-diameter.c,v 1.38 2002/01/07 20:05:20 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -126,7 +126,7 @@ typedef struct avp_info {
 typedef struct command_code {
   guint32              code;
   gchar               *name;
-  gchar               *vendorString;
+  gchar               *vendorName;
   struct command_code *next;
 } CommandCode;
 
@@ -491,9 +491,9 @@ addCommand(int code, char *name, char *vendorId)
   entry->name = g_strdup(name);
   entry->code = code;
   if (vendorId)
-	entry->vendorString = g_strdup(vendorId);
+	entry->vendorName = g_strdup(vendorId);
   else
-	entry->vendorString = NULL;
+	entry->vendorName = "None";
 
   /* Add the entry to the list */
   entry->next = commandListHead;
@@ -804,32 +804,18 @@ initializeDictionary()
  * These routines manipulate the diameter structures.
  */
 
-/* return command string, based on the code */
-static gchar *
-diameter_command_to_str(guint32 commandCode)
-{
-  CommandCode *probe;
-  static gchar buffer[64];
-
-  for (probe=commandListHead; probe; probe=probe->next) {
-	if (commandCode == probe->code) {
-	  return probe->name;
-	}
-  }
-
-  snprintf(buffer, sizeof(buffer),
-		   "Cmd-0x%08x", commandCode);
-  return buffer;
-}/*diameter_command_to_str */
 /* return vendor string, based on the id */
 static gchar *
-diameter_vendor_to_str(guint32 vendorId) {
+diameter_vendor_to_str(guint32 vendorId, gboolean longName) {
   VendorId *probe;
   static gchar buffer[64];
 
   for (probe=vendorListHead; probe; probe=probe->next) {
 	if (vendorId == probe->id) {
-	  return probe->longName;
+	  if (longName)
+		return probe->longName;
+	  else
+		return probe->name;
 	}
   }
 
@@ -837,6 +823,45 @@ diameter_vendor_to_str(guint32 vendorId) {
 		   "Vendor 0x%08x", vendorId);
   return buffer;
 } /*diameter_vendor_to_str */
+
+/* return command string, based on the code */
+static gchar *
+diameter_command_to_str(guint32 commandCode, guint32 vendorId)
+{
+  CommandCode *probe;
+  static gchar buffer[64];
+  gchar *vendorName=NULL;
+
+  if (vendorId)
+	vendorName = diameter_vendor_to_str(vendorId, FALSE);
+
+  for (probe=commandListHead; probe; probe=probe->next) {
+	if (commandCode == probe->code) {
+	  if (vendorId) {
+/* 		g_warning("Command: Comparing \"%s\" to \"%s\"", */
+/* 				  vendorName?vendorName:"(null)", */
+/* 				  probe->vendorName?probe->vendorName:"(null)"); */
+		/* Now check the vendor name */
+		if (!strcmp(vendorName, probe->vendorName))
+		  /* We found it */
+		  return probe->name;
+	  } else {
+		/* With no vendor id, the Command's entry should be "None" */
+		if (!strcmp(probe->vendorName, "None")) {
+		  /* We found it */
+		  return probe->name;
+		}
+	  }
+	}
+  }
+  
+  g_warning("Diameter: Unable to find name for command code 0x%08x, Vendor \"%d\"!", 
+			commandCode, vendorId);
+  snprintf(buffer, sizeof(buffer),
+		   "Cmd-0x%08x", commandCode);
+  return buffer;
+}/*diameter_command_to_str */
+
 /* return application string, based on the id */
 static gchar *
 diameter_app_to_str(guint32 vendorId) {
@@ -856,55 +881,116 @@ diameter_app_to_str(guint32 vendorId) {
 
 /* return an avp type, based on the code */
 diameterDataType
-diameter_avp_get_type(guint32 avpCode){
+diameter_avp_get_type(guint32 avpCode, guint32 vendorId){
   avpInfo *probe;
-
+  gchar *vendorName=NULL;
+  
+  if (vendorId)
+	vendorName = diameter_vendor_to_str(vendorId, FALSE);
+  
   for (probe=avpListHead; probe; probe=probe->next) {
 	if (avpCode == probe->code) {
-	  /* We found it! */
-	  return probe->type;
+	  
+	  if (vendorId) {
+/* 		g_warning("AvpType: Comparing \"%s\" to \"%s\"", */
+/* 				  vendorName?vendorName:"(null)", */
+/* 				  probe->vendorName?probe->vendorName:"(null)"); */
+		/* Now check the vendor name */
+		if (probe->vendorName && (!strcmp(vendorName, probe->vendorName)))
+		  /* We found it! */
+		  return probe->type;
+	  } else {
+		/* No Vendor ID -- vendorName should be null */
+		if (!probe->vendorName)
+		  /* We found it! */
+		  return probe->type;
+	  }
 	}
   }
 	
   /* If we don't find it, assume it's data */
-  g_warning("Diameter: Unable to find type for avpCode %d!", avpCode);
+  g_warning("Diameter: Unable to find type for avpCode %d, Vendor %d!", avpCode,
+			vendorId);
   return DIAMETER_OCTET_STRING;
 } /* diameter_avp_get_type */
 
 /* return an avp name from the code */
 static gchar *
-diameter_avp_get_name(guint32 avpCode)
+diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
 {
   static gchar buffer[64];
   avpInfo *probe;
+  gchar *vendorName=NULL;
+
+  if (vendorId)
+	vendorName = diameter_vendor_to_str(vendorId, FALSE);
 
   for (probe=avpListHead; probe; probe=probe->next) {
 	if (avpCode == probe->code) {
-	  /* We found it! */
-	  return probe->name;
+	  if (vendorId) {
+/* 		g_warning("AvpName: Comparing \"%s\" to \"%s\"", */
+/* 				  vendorName?vendorName:"(null)", */
+/* 				  probe->vendorName?probe->vendorName:"(null)"); */
+		/* Now check the vendor name */
+		if (probe->vendorName && (!strcmp(vendorName, probe->vendorName)))
+		  /* We found it! */
+		  return probe->name;
+	  } else {
+		/* No Vendor ID -- vendorName should be null */
+		if (!probe->vendorName)
+		  /* We found it! */
+		  return probe->name;
+	  }
 	}
   }
+
+  g_warning("Diameter: Unable to find name for AVP 0x%08x, Vendor %d!", 
+			avpCode, vendorId);
+
   /* If we don't find it, build a name string */
   sprintf(buffer, "Unknown AVP:0x%08x", avpCode);
   return buffer;
 } /* diameter_avp_get_name */
 static gchar *
-diameter_avp_get_value(guint32 avpCode, guint32 avpValue)
+diameter_avp_get_value(guint32 avpCode, guint32 vendorId, guint32 avpValue)
 {
   static gchar buffer[64];
 
   avpInfo *probe;
+  gchar *vendorName=NULL;
+
+  if (vendorId)
+	vendorName = diameter_vendor_to_str(vendorId, FALSE);
 
   for (probe=avpListHead; probe; probe=probe->next) {
 	if (avpCode == probe->code) {
-	  ValueName *vprobe;
-	  for(vprobe=probe->values; vprobe; vprobe=vprobe->next) {
-		if (avpValue == vprobe->value) {
-		  return vprobe->name;
+	  if (vendorId) {
+/* 		g_warning("AvpValue: Comparing \"%s\" to \"%s\"", */
+/* 				  vendorName?vendorName:"(null)", */
+/* 				  probe->vendorName?probe->vendorName:"(null)"); */
+		/* Now check the vendor name */
+		if (probe->vendorName && (!strcmp(vendorName, probe->vendorName))) {
+		  ValueName *vprobe;
+		  for(vprobe=probe->values; vprobe; vprobe=vprobe->next) {
+			if (avpValue == vprobe->value) {
+			  return vprobe->name;
+			}
+		  }
+		  sprintf(buffer, "Unknown Value: 0x%08x", avpValue);
+		  return buffer;
+		}
+	  } else {
+		if (!probe->vendorName) {
+		  ValueName *vprobe;
+		  for(vprobe=probe->values; vprobe; vprobe=vprobe->next) {
+			if (avpValue == vprobe->value) {
+			  return vprobe->name;
+			}
+		  }
+		  sprintf(buffer, "Unknown Value: 0x%08x", avpValue);
+		  return buffer;
 		}
 	  }
-	  sprintf(buffer, "Unknown Value: 0x%08x", avpValue);
-	  return buffer;
 	}
   }
   /* If we don't find the avp, build a value string */
@@ -953,7 +1039,7 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
   guint8           version, flags;
   gchar            flagstr[64] = "<None>";
   gchar           *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Error", "Proxyable", "Request" };
-  gchar            commandString[64], vendorString[64];
+  gchar            commandString[64], vendorName[64];
   gint        i;
   guint      bpos;
   static  int initialized=FALSE;
@@ -988,10 +1074,10 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
   dh.endToEndId = ntohl(dh.endToEndId);
 
   if (dh.vendorId) {
-	strcpy(vendorString, 
-		   diameter_vendor_to_str(dh.vendorId));
+	strcpy(vendorName, 
+		   diameter_vendor_to_str(dh.vendorId, TRUE));
   } else {
-	strcpy(vendorString, "None");
+	strcpy(vendorName, "None");
   }
 
 
@@ -1019,7 +1105,7 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
   }
   
   /* Set up our commandString */
-  strcpy(commandString, diameter_command_to_str(commandCode));
+  strcpy(commandString, diameter_command_to_str(commandCode, dh.vendorId));
   if (flags & DIAM_FLAGS_R) 
 	strcat(commandString, "-Request");
   else
@@ -1049,7 +1135,7 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
 				 ((BadPacket ||
 				   (flags & (DIAM_FLAGS_P|DIAM_FLAGS_E))) ?
 				   ": " : ""),
-				 commandString, vendorString,
+				 commandString, vendorName,
 				 dh.hopByHopId, dh.endToEndId,
 				 (flags & DIAM_FLAGS_R)?1:0,
 				 (flags & DIAM_FLAGS_P)?1:0,
@@ -1103,7 +1189,7 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
 
 	/* Vendor Id */
 	proto_tree_add_uint_format(diameter_tree,hf_diameter_vendor_id,
-							   tvb, offset, 4,	dh.vendorId, "Vendor-Id: %s", vendorString);
+							   tvb, offset, 4,	dh.vendorId, "Vendor-Id: %s", vendorName);
 	offset += 4;
 
 	/* Hop-by-hop Identifier */
@@ -1262,7 +1348,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
   gchar avpNameString[64];
   gchar *valstr;
   guint32 vendorId=0;
-  gchar    vendorString[64];
+  gchar    vendorName[64];
   int hdrLength;
   int fixAmt;
   proto_tree *avpi_tree;
@@ -1348,10 +1434,10 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	}
 
 	if (vendorId) {
-	  strcpy(vendorString, 
-			 diameter_vendor_to_str(vendorId));
+	  strcpy(vendorName, 
+			 diameter_vendor_to_str(vendorId, TRUE));
 	} else {
-	  vendorString[0]='\0';
+	  vendorName[0]='\0';
 	}
 
 	/* Check for bad length */
@@ -1390,9 +1476,10 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	}
 
 	/* Make avp Name & type */
-	strcpy(avpTypeString, val_to_str(diameter_avp_get_type(avph.avp_code), TypeValues, 
+	strcpy(avpTypeString, val_to_str(diameter_avp_get_type(avph.avp_code,vendorId),
+									 TypeValues, 
 									 "Unknown-Type: 0x%08x"));
-	strcpy(avpNameString, diameter_avp_get_name(avph.avp_code));
+	strcpy(avpNameString, diameter_avp_get_name(avph.avp_code, vendorId));
 
 	avptf = proto_tree_add_text(avp_tree, tvb,
 								offset, avpLength + fixAmt,
@@ -1428,7 +1515,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	  if (flags & AVP_FLAGS_V) {
 		proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_vendor_id,
-								   tvb, offset, 4, vendorId, vendorString);
+								   tvb, offset, 4, vendorId, vendorName);
 		offset += 4;
 	  }
 
@@ -1446,7 +1533,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		return;
 	  }
 
-	  avpType=diameter_avp_get_type(avph.avp_code);
+	  avpType=diameter_avp_get_type(avph.avp_code,vendorId);
 	  tvb_memcpy(tvb, (guint8*) dataBuffer, offset, MIN(4095,avpDataLength));
 	
 	  
@@ -1550,7 +1637,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		  
 		  memcpy(&data, dataBuffer, 4);
 		  data = ntohl(data);
-		  valstr = diameter_avp_get_value(avph.avp_code, data);
+		  valstr = diameter_avp_get_value(avph.avp_code, vendorId, data);
 		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
 									 tvb, offset, avpDataLength, data,
 									 "Value: 0x%08x (%u): %s", data, data, valstr);
@@ -1562,7 +1649,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		  
 		  memcpy(&data, dataBuffer, 4);
 		  data = ntohl(data);
-		  valstr = diameter_vendor_to_str(data);
+		  valstr = diameter_vendor_to_str(data, TRUE);
 		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
 									 tvb, offset, avpDataLength, data,
 									 "%s (0x%08x)", valstr, data);
