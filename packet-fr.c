@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.47 2004/01/18 08:32:45 guy Exp $
+ * $Id: packet-fr.c,v 1.48 2004/05/24 02:25:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -694,10 +694,10 @@ void proto_register_fr(void)
     &ett_fr_control,
   };
   static enum_val_t fr_encap_options[] = {
-    {"FRF 3.2/Cisco HDLC", FRF_3_2 },
-    {"GPRS Network Service", GPRS_NS },
-    {"Raw Ethernet", RAW_ETHER },
-    { NULL, 0 },
+    { "frf-3.2", "FRF 3.2/Cisco HDLC", FRF_3_2 },
+    { "gprs-ns", "GPRS Network Service", GPRS_NS },
+    { "ethernet", "Raw Ethernet", RAW_ETHER },
+    { NULL, NULL, 0 },
   };
   module_t *frencap_module;
 

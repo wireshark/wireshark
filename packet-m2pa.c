@@ -7,7 +7,7 @@
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2pa.c,v 1.23 2004/03/23 18:59:44 tuexen Exp $
+ * $Id: packet-m2pa.c,v 1.24 2004/05/24 02:25:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -420,9 +420,9 @@ proto_register_m2pa(void)
   };
 
   static enum_val_t m2pa_version_options[] = {
-    { "Internet Draft version 2", M2PA_V2 },
-    { "Internet Draft version 11", M2PA_V11 },
-    { NULL, 0 }
+    { "draft-2", "Internet Draft version 2", M2PA_V2 },
+    { "draft-11", "Internet Draft version 11", M2PA_V11 },
+    { NULL, NULL, 0 }
   };
 
   proto_m2pa = proto_register_protocol("MTP2 Peer Adaptation Layer", "M2PA", "m2pa");

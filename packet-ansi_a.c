@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.16 2004/03/27 11:32:28 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.17 2004/05/24 02:25:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8328,13 +8328,13 @@ proto_register_ansi_a(void)
     };
 
     static enum_val_t a_variant_options[] = {
-	    { "IS-634 rev. 0",	A_VARIANT_IS634 },
-	    { "TSB-80",		A_VARIANT_TSB80 },
-	    { "IS-634-A",	A_VARIANT_IS634A },
-	    { "IOS 2.x",	A_VARIANT_IOS2 },
-	    { "IOS 3.x",	A_VARIANT_IOS3 },
-	    { "IOS 4.0.1",	A_VARIANT_IOS401 },
-	    { NULL,		0 }
+	    { "is-634-rev0",	"IS-634 rev. 0",	A_VARIANT_IS634 },
+	    { "tsb-80",		"TSB-80",		A_VARIANT_TSB80 },
+	    { "is-634-a",	"IS-634-A",		A_VARIANT_IS634A },
+	    { "ios-2.x",	"IOS 2.x",		A_VARIANT_IOS2 },
+	    { "ios-3.x",	"IOS 3.x",		A_VARIANT_IOS3 },
+	    { "ios-4.0.1",	"IOS 4.0.1",		A_VARIANT_IOS401 },
+	    { NULL,		NULL,			0 }
 
     };
 

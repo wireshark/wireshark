@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.22 2004/03/23 21:19:58 guy Exp $
+ * $Id: packet-asn1.c,v 1.23 2004/05/24 02:25:21 guy Exp $
  *
  * A plugin for:
  *
@@ -4637,17 +4637,17 @@ void
 proto_register_asn1(void) {
 
   static const enum_val_t type_recursion_opts[] = {
-	  { "0", 0 },
-	  { "1", 1 },
-	  { "2", 2 },
-	  { "3", 3 },
-	  { "4", 4 },
-	  { "5", 5 },
-	  { "6", 6 },
-	  { "7", 7 },
-	  { "8", 8 },
-	  { "9", 9 },
-	  { NULL, -1},
+	  { "0", "0", 0 },
+	  { "1", "1", 1 },
+	  { "2", "2", 2 },
+	  { "3", "3", 3 },
+	  { "4", "4", 4 },
+	  { "4", "5", 5 },
+	  { "6", "6", 6 },
+	  { "7", "7", 7 },
+	  { "8", "8", 8 },
+	  { "9", "9", 9 },
+	  { NULL, NULL, -1},
   };
 
   static gint *ett[1+MAX_NEST+MAXPDU];

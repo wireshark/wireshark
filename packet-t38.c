@@ -2,7 +2,7 @@
  * Routines for T.38 packet dissection
  * 2003  Hans Viens
  *
- * $Id: packet-t38.c,v 1.6 2004/01/26 22:52:22 guy Exp $
+ * $Id: packet-t38.c,v 1.7 2004/05/24 02:25:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,10 +97,10 @@ static gboolean t38_tpkt_reassembly = TRUE;
 static gint t38_tpkt_usage = T38_TPKT_MAYBE;
 
 static const enum_val_t t38_tpkt_options[] = {
-  {"Never", T38_TPKT_NEVER},
-  {"Always", T38_TPKT_ALWAYS},
-  {"Maybe", T38_TPKT_MAYBE},
-  {NULL, -1}
+  {"never", "Never", T38_TPKT_NEVER},
+  {"always", "Always", T38_TPKT_ALWAYS},
+  {"maybe", "Maybe", T38_TPKT_MAYBE},
+  {NULL, NULL, -1}
 };
 
 

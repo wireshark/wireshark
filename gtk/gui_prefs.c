@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.69 2004/05/13 15:28:02 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.70 2004/05/24 02:25:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,73 +76,73 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define GUI_TOOLBAR_STYLE_KEY	"toolbar_style"
 
 static const enum_val_t scrollbar_placement_vals[] = {
-	{ "Left",  FALSE },
-	{ "Right", TRUE },
-	{ NULL,    0 }
+	{ "FALSE", "Left", FALSE },
+	{ "TRUE",  "Right", TRUE },
+	{ NULL,    NULL,    0 }
 };
 
 static const enum_val_t selection_mode_vals[] = {
-	{ "Selects", FALSE },
-	{ "Browses", TRUE },
-	{ NULL,      0 }
+	{ "FALSE", "Selects", FALSE },
+	{ "TRUE",  "Browses", TRUE },
+	{ NULL,    NULL,      0 }
 };
 
 #if GTK_MAJOR_VERSION < 2
 static const enum_val_t line_style_vals[] = {
-	{ "None",   0 },
-	{ "Solid",  1 },
-	{ "Dotted", 2 },
-	{ "Tabbed", 3 },
-	{ NULL,     0 }
+	{ "NONE",   "None",   0 },
+	{ "SOLID",  "Solid",  1 },
+	{ "DOTTED", "Dotted", 2 },
+	{ "TABBED", "Tabbed", 3 },
+	{ NULL,     NULL,     0 }
 };
 
 static const enum_val_t expander_style_vals[] = {
-	{ "None",     0 },
-	{ "Square",   1 },
-	{ "Triangle", 2 },
-	{ "Circular", 3 },
-	{ NULL,       0 }
+	{ "NONE",     "None",     0 },
+	{ "SQUARE",   "Square",   1 },
+	{ "TRIANGLE", "Triangle", 2 },
+	{ "CIRCULAR", "Circular", 3 },
+	{ NULL,       NULL,       0 }
 };
 #else
 static const enum_val_t altern_colors_vals[] = {
-	{ "No",  FALSE },
-	{ "Yes",  TRUE },
-	{ NULL,      0 }
+	{ "FALSE", "No",  FALSE },
+	{ "TRUE",  "Yes", TRUE },
+	{ NULL,    NULL,  0 }
 };
 #endif
 
 static const enum_val_t filter_toolbar_placement_vals[] = {
-    { "Below the main toolbar",  FALSE },
-    { "Insert into statusbar",  TRUE },
-    { NULL,      0 }
+	{ "FALSE", "Below the main toolbar", FALSE },
+	{ "TRUE",  "Insert into statusbar",  TRUE },
+	{ NULL,    NULL,                     0 }
 };
 
 static const enum_val_t highlight_style_vals[] = {
-  	{ "Bold",     FALSE },
-  	{ "Inverse",  TRUE },
-	{ NULL,       0 }
+  	{ "FALSE", "Bold",     FALSE },
+  	{ "TRUE",  "Inverse",  TRUE },
+	{ NULL,    NULL,       0 }
 };
 
 static const enum_val_t toolbar_style_vals[] = {
-  	{ "Icons only",     TB_STYLE_ICONS },
-  	{ "Text only",      TB_STYLE_TEXT },
-  	{ "Icons & Text",   TB_STYLE_BOTH },
-	{ NULL,             0 }
+  	{ "ICONS", "Icons only",     TB_STYLE_ICONS },
+  	{ "TEXT",  "Text only",      TB_STYLE_TEXT },
+  	{ "BOTH",  "Icons & Text",   TB_STYLE_BOTH },
+	{ NULL,    NULL,             0 }
 };
 
 #ifdef _WIN32
 static const enum_val_t gui_console_open_vals[] = {
-	{ "Never",                      console_open_never },
-	{ "Automatic (advanced user)",  console_open_auto },
-	{ "Always (debugging)",         console_open_always },
-	{ NULL,                         0 }
+	{ "NEVER",     "Never",                      console_open_never },
+	{ "AUTOMATIC", "Automatic (advanced user)",  console_open_auto },
+	{ "ALWAYS",    "Always (debugging)",         console_open_always },
+	{ NULL,        NULL,                         0 }
 };
 #endif
 
 static const enum_val_t gui_fileopen_vals[] = {
-	{ "Remember last directory", FO_STYLE_LAST_OPENED },
-	{ "Always start in:", FO_STYLE_SPECIFIED },
-	{ NULL,    0 }
+	{ "LAST_OPENED", "Remember last directory", FO_STYLE_LAST_OPENED },
+	{ "SPECIFIED",   "Always start in:",        FO_STYLE_SPECIFIED },
+	{ NULL,          NULL,                      0 }
 };
 
 /* Set to FALSE initially; set to TRUE if the user ever hits "OK" on

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.84 2004/05/23 23:07:17 guy Exp $
+ * $Id: packet-clnp.c,v 1.85 2004/05/24 02:25:18 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -365,10 +365,10 @@ static gboolean cotp_reassemble = FALSE;
 static gint32   tsap_display = TSAP_DISPLAY_AUTO;
 
 const enum_val_t tsap_display_options[] = {
-  {"auto", TSAP_DISPLAY_AUTO},
-  {"string", TSAP_DISPLAY_STRING},
-  {"bytes", TSAP_DISPLAY_BYTES},
-  {NULL, -1}
+  {"auto", "As strings if printable", TSAP_DISPLAY_AUTO},
+  {"string", "As strings", TSAP_DISPLAY_STRING},
+  {"bytes", "As bytes", TSAP_DISPLAY_BYTES},
+  {NULL, NULL, -1}
 };
 
 

@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.94 2004/03/25 16:01:12 ulfl Exp $
+$Id: README.developer,v 1.95 2004/05/24 02:25:20 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -363,12 +363,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.94 2004/03/25 16:01:12 ulfl Exp $"
+The "$Id: README.developer,v 1.95 2004/05/24 02:25:20 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.94 2004/03/25 16:01:12 ulfl Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.95 2004/05/24 02:25:20 guy Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -377,7 +377,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.94 2004/03/25 16:01:12 ulfl Exp $
+ * $Id: README.developer,v 1.95 2004/05/24 02:25:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2314,27 +2314,42 @@ Then you can register the fields that can be configured by the user with these r
 	/* Register a preference with an enumerated value. */
 	void prefs_register_enum_preference(module_t *module, const char *name,
 	    const char *title, const char *description, gint *var,
-	    const enum_val *enumvals, gboolean radio_buttons)
+	    const enum_val_t *enumvals, gboolean radio_buttons)
 
 	/* Register a preference with a character-string value. */
 	void prefs_register_string_preference(module_t *module, const char *name,
 	    const char *title, const char *description, char **var)
 
 Where: module - Returned by the prefs_register_protocol routine
-	 name   - This is appended to the name of the protocol, with a
-			"." between them, to construct a name that
-			identifies the field in the preference file;
-			the name itself should not include the protocol
-			name, as the name in the preference file will
-			already have it
-	 title  - Field title in the preferences dialog
+	 name     - This is appended to the name of the protocol, with a
+		    "." between them, to construct a name that identifies
+		    the field in the preference file; the name itself
+		    should not include the protocol name, as the name in
+		    the preference file will already have it
+	 title    - Field title in the preferences dialog
 	 description - Comments added to the preference file above the 
-			preference value
+		       preference value
 	 var	  - pointer to the storage location that is updated when the
 		    field is changed in the preference dialog box
-	 enumvals - an array of enum_val structures.  This must be NULL terminated
-	 radio_buttons - Is the enumvals a list of radio buttons?
+	 enumvals - an array of enum_val_t structures.  This must be
+		    NULL-terminated; the members of that structure are:
 
+			a short name, to be used with the "-o" flag - it
+			should not contain spaces or upper-case letters,
+			so that it's easier to put in a command line;
+
+			a description, which is used in the GUI (and
+			which, for compatibility reasons, is currently
+			what's written to the preferences file) - it can
+			contain spaces, capital letters, punctuation,
+			etc.;
+
+			the numerical value corresponding to that name
+			and description
+	 radio_buttons - TRUE if the field is to be displayed in the
+			 preferences dialog as a set of radio buttons,
+			 FALSE if it is to be displayed as an option
+			 menu
 
 An example from packet-beep.c -
 	

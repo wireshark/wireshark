@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.19 2004/03/29 22:40:58 guy Exp $
+ * $Id: print_prefs.c,v 1.20 2004/05/24 02:25:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,20 +54,20 @@ static void printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data);
 #define E_PRINT_DESTINATION_KEY   "print_destination"
 
 static const enum_val_t print_format_vals[] = {
-	{ "Plain Text", PR_FMT_TEXT },
-	{ "Postscript", PR_FMT_PS },
-	{ NULL,         0 }
+	{ "text",       "Plain Text", PR_FMT_TEXT },
+	{ "postscript", "Postscript", PR_FMT_PS },
+	{ NULL,         NULL,         0 }
 };
 
 static const enum_val_t print_dest_vals[] = {
 #ifdef _WIN32
 	/* "PR_DEST_CMD" means "to printer" on Windows */
-	{ "Printer", PR_DEST_CMD },
+	{ "command", "Printer", PR_DEST_CMD },
 #else
-	{ "Command", PR_DEST_CMD },
+	{ "command", "Command", PR_DEST_CMD },
 #endif
-	{ "File",    PR_DEST_FILE },
-	{ NULL,      0 }
+	{ "file",    "File",    PR_DEST_FILE },
+	{ NULL,      NULL,      0 }
 };
 
 GtkWidget * printer_prefs_show(void)

@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.63 2004/05/13 16:34:29 jmayer Exp $
+ * $Id: prefs.h,v 1.64 2004/05/24 02:25:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -255,6 +255,7 @@ extern void prefs_register_bool_preference(module_t *module, const char *name,
  */
 typedef struct {
 	char	*name;
+	char	*description;
 	gint	value;
 } enum_val_t;
 

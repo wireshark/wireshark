@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.37 2004/05/13 21:56:19 gerald Exp $
+ * $Id: packet-scsi.c,v 1.38 2004/05/24 02:25:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -644,9 +644,9 @@ static const value_string scsi_devtype_val[] = {
 };
 
 static const enum_val_t scsi_devtype_options[] = {
-    {"Block Device", SCSI_DEV_SBC},
-    {"Sequential Device", SCSI_DEV_SSC},
-    {NULL, -1},
+    {"block", "Block Device", SCSI_DEV_SBC},
+    {"sequential", "Sequential Device", SCSI_DEV_SSC},
+    {NULL, NULL, -1},
 };
 
 static const value_string scsi_inquiry_vers_val[] = {

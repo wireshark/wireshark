@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.132 2004/05/13 15:28:01 ulfl Exp $
+ * $Id: prefs.c,v 1.133 2004/05/24 02:25:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -804,21 +804,35 @@ clear_string_list(GList *sl)
  * Takes a string, a pointer to an array of "enum_val_t"s, and a default gint
  * value.
  * The array must be terminated by an entry with a null "name" string.
- * If the string matches a "name" strings in an entry, the value from that
- * entry is returned. Otherwise, the default value that was passed as the
- * third argument is returned.
+ *
+ * If the string matches a "name" string in an entry, the value from that
+ * entry is returned.
+ *
+ * Otherwise, if a string matches a "desctiption" string in an entry, the
+ * value from that entry is returned; we do that for backwards compatibility,
+ * as we used to have only a "name" string that was used both for command-line
+ * and configuration-file values and in the GUI (which meant either that
+ * the GUI had what might be somewhat cryptic values to select from or that
+ * the "-o" flag took long strings, often with spaces in them).
+ *
+ * Otherwise, the default value that was passed as the third argument is
+ * returned.
  */
 gint
 find_val_for_string(const char *needle, const enum_val_t *haystack,
     gint default_value)
 {
-	int i = 0;
+	int i;
 
-	while (haystack[i].name != NULL) {
+	for (i = 0; haystack[i].name != NULL; i++) {
 		if (strcasecmp(needle, haystack[i].name) == 0) {
 			return haystack[i].value;
 		}
-		i++;
+	}
+	for (i = 0; haystack[i].name != NULL; i++) {
+		if (strcasecmp(needle, haystack[i].description) == 0) {
+			return haystack[i].value;
+		}
 	}
 	return default_value;
 }
@@ -2006,13 +2020,20 @@ write_pref(gpointer data, gpointer user_data)
 		break;
 
 	case PREF_ENUM:
+		/*
+		 * For now, we save the "description" value, so that if we
+		 * save the preferences older versions of Ethereal can at
+		 * least read preferences that they supported; we support
+		 * either the short name or the description when reading
+		 * the preferences file or a "-o" option.
+		 */
 		fprintf(arg->pf, "# One of: ");
 		enum_valp = pref->info.enum_info.enumvals;
 		val_string = NULL;
 		while (enum_valp->name != NULL) {
 			if (enum_valp->value == *pref->varp.enump)
-				val_string = enum_valp->name;
-			fprintf(arg->pf, "%s", enum_valp->name);
+				val_string = enum_valp->description;
+			fprintf(arg->pf, "%s", enum_valp->description);
 			enum_valp++;
 			if (enum_valp->name == NULL)
 				fprintf(arg->pf, "\n");
@@ -2020,8 +2041,8 @@ write_pref(gpointer data, gpointer user_data)
 				fprintf(arg->pf, ", ");
 		}
 		fprintf(arg->pf, "# (case-insensitive).\n");
-		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
-		    val_string);
+		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name,
+		    pref->name, val_string);
 		break;
 
 	case PREF_STRING:

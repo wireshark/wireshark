@@ -3,7 +3,7 @@
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *  2004 Request/Response matching and Service Response Time: ronnie sahlberg
  *
- * $Id: packet-iscsi.c,v 1.49 2004/02/18 09:10:02 sahlberg Exp $
+ * $Id: packet-iscsi.c,v 1.50 2004/05/24 02:25:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,12 +49,12 @@
 #define ISCSI_PROTOCOL_DRAFT13 5
 
 static enum_val_t iscsi_protocol_versions[] = {
-    { "Draft 08", ISCSI_PROTOCOL_DRAFT08 },
-    { "Draft 09", ISCSI_PROTOCOL_DRAFT09 },
-    { "Draft 11", ISCSI_PROTOCOL_DRAFT11 },
-    { "Draft 12", ISCSI_PROTOCOL_DRAFT12 },
-    { "Draft 13", ISCSI_PROTOCOL_DRAFT13 },
-    { NULL, 0 }
+    { "draft-08", "Draft 08", ISCSI_PROTOCOL_DRAFT08 },
+    { "draft-09", "Draft 09", ISCSI_PROTOCOL_DRAFT09 },
+    { "draft-11", "Draft 11", ISCSI_PROTOCOL_DRAFT11 },
+    { "draft-12", "Draft 12", ISCSI_PROTOCOL_DRAFT12 },
+    { "draft-13", "Draft 13", ISCSI_PROTOCOL_DRAFT13 },
+    { NULL, NULL, 0 }
 };
 
 static gint iscsi_protocol_version = ISCSI_PROTOCOL_DRAFT13;

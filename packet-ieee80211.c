@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.107 2004/03/23 19:25:50 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.108 2004/05/24 02:25:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2739,12 +2739,12 @@ proto_register_ieee80211 (void)
   module_t *wlan_module;
 
   static const enum_val_t wep_keys_options[] = {
-    {"0", 0},
-    {"1", 1},
-    {"2", 2},
-    {"3", 3},
-    {"4", 4},
-    {NULL, -1},
+    {"0", "0", 0},
+    {"1", "1", 1},
+    {"2", "2", 2},
+    {"3", "3", 3},
+    {"4", "4", 4},
+    {NULL, NULL, -1},
   };
 
 

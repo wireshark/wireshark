@@ -7,7 +7,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-bssap.c,v 1.9 2003/12/17 23:54:44 guy Exp $
+ * $Id: packet-bssap.c,v 1.10 2004/05/24 02:25:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -444,9 +444,9 @@ proto_register_bssap(void)
     };
 
     static enum_val_t bssap_or_bsap_options[] = {
-	{ "BSSAP",		BSSAP },
-	{ "BSAP",		BSAP  },
-	{ NULL,			0 }
+	{ "bssap",	"BSSAP",	BSSAP },
+	{ "bsap",	"BSAP",		BSAP  },
+	{ NULL,		NULL,		0 }
     };
 
 

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.87 2004/03/06 03:25:09 guy Exp $
+ * $Id: packet-bgp.c,v 1.88 2004/05/24 02:25:17 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -2770,10 +2770,10 @@ proto_register_bgp(void)
     };
     module_t *bgp_module;
     static enum_val_t asn_len[] = {
-	{"Auto-detect", 0},
-	{"2 octet", 2},
-	{"4 octet", 4},
-	{NULL, -1}
+	{"auto-detect", "Auto-detect", 0},
+	{"2", "2 octet", 2},
+	{"4", "4 octet", 4},
+	{NULL, NULL, -1}
     };
 
     proto_bgp = proto_register_protocol("Border Gateway Protocol",

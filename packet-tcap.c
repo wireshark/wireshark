@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.10 2004/03/20 07:26:41 guy Exp $
+ * $Id: packet-tcap.c,v 1.11 2004/05/24 02:25:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2835,9 +2835,9 @@ proto_register_tcap(void)
     };
 
     static enum_val_t tcap_options[] = {
-	{ "ITU",  ITU_TCAP_STANDARD },
-	{ "ANSI", ANSI_TCAP_STANDARD },
-	{ NULL, 0 }
+	{ "itu", "ITU",  ITU_TCAP_STANDARD },
+	{ "ansi", "ANSI", ANSI_TCAP_STANDARD },
+	{ NULL, NULL, 0 }
     };
 
     module_t *tcap_module;

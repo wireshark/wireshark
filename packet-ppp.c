@@ -2,7 +2,7 @@
  * Routines for ppp packet disassembly
  * RFC 1661, RFC 1662
  *
- * $Id: packet-ppp.c,v 1.118 2004/04/29 20:21:28 gerald Exp $
+ * $Id: packet-ppp.c,v 1.119 2004/05/24 02:25:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,10 +177,10 @@ static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
 #define FCS_32 2
 
 const enum_val_t fcs_options[] = {
-  {"None", NO_FCS},
-  {"16-Bit", FCS_16},
-  {"32-Bit", FCS_32},
-  {NULL, -1}
+  {"none", "None", NO_FCS},
+  {"16-bit", "16-Bit", FCS_16},
+  {"32-bit", "32-Bit", FCS_32},
+  {NULL, NULL, -1}
 };
 
 gboolean ppp_vj_decomp = TRUE; /* Default to VJ header decompression */

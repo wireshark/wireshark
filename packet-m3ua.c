@@ -8,7 +8,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.39 2004/03/25 23:25:20 tuexen Exp $
+ * $Id: packet-m3ua.c,v 1.40 2004/05/24 02:25:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1953,11 +1953,11 @@ proto_register_m3ua(void)
   };
 
   static enum_val_t options[] = {
-    { "Internet Draft version 5",        M3UA_V5  },
-    { "Internet Draft version 6",        M3UA_V6  },
-    { "Internet Draft version 7",        M3UA_V7  },
-    { "RFC 3332",                        M3UA_RFC },
-    { NULL, 0 }
+    { "draft-5", "Internet Draft version 5",        M3UA_V5  },
+    { "draft-6", "Internet Draft version 6",        M3UA_V6  },
+    { "draft-7", "Internet Draft version 7",        M3UA_V7  },
+    { "rfc3332", "RFC 3332",                        M3UA_RFC },
+    { NULL, NULL, 0 }
   };
 
   /* Register the protocol name and description */

@@ -2,7 +2,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.27 2004/03/11 09:54:00 sahlberg Exp $
+ * $Id: packet-ndmp.c,v 1.28 2004/05/24 02:25:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,11 +235,11 @@ static gint ett_ndmp_state_invalids = -1;
 #define NDMP_PROTOCOL_V5	4
 
 static enum_val_t ndmp_protocol_versions[] = {
-	{ "Version 2",	NDMP_PROTOCOL_V2 },
-	{ "Version 3",	NDMP_PROTOCOL_V3 },
-	{ "Version 4",	NDMP_PROTOCOL_V4 },
-	{ "Version 5",	NDMP_PROTOCOL_V5 },
-	{ NULL, 0 }
+	{ "version2",	"Version 2",	NDMP_PROTOCOL_V2 },
+	{ "version3",	"Version 3",	NDMP_PROTOCOL_V3 },
+	{ "version4",	"Version 4",	NDMP_PROTOCOL_V4 },
+	{ "version5",	"Version 5",	NDMP_PROTOCOL_V5 },
+	{ NULL, NULL, 0 }
 };
 
 static gint ndmp_protocol_version = NDMP_PROTOCOL_V2;

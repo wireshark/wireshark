@@ -9,7 +9,7 @@
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.27 2004/04/21 05:53:56 guy Exp $
+ * $Id: packet-mtp3.c,v 1.28 2004/05/24 02:25:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -634,19 +634,19 @@ proto_register_mtp3(void)
   };
 
   static enum_val_t mtp3_options[] = {
-    { "ITU",         ITU_STANDARD },
-    { "ANSI",        ANSI_STANDARD },
-    { "Chinese ITU", CHINESE_ITU_STANDARD },
-    { NULL, 0 }
+    { "itu",         "ITU",         ITU_STANDARD },
+    { "ansi",        "ANSI",        ANSI_STANDARD },
+    { "chinese-itu", "Chinese ITU", CHINESE_ITU_STANDARD },
+    { NULL, NULL, 0 }
   };
 
   static enum_val_t mtp3_net_addr_fmt_str_e[] = {
-    { "Decimal",		MTP3_NET_ADDR_FMT_DEC },
-    { "Hexadecimal",		MTP3_NET_ADDR_FMT_HEX },
-    { "NI-Decimal",		MTP3_NET_ADDR_FMT_NI_DEC },
-    { "NI-Hexadecimal",		MTP3_NET_ADDR_FMT_NI_HEX },
-    { "Dashed",			MTP3_NET_ADDR_FMT_DASHED },
-    { NULL,			0 }
+    { "decimal",	"Decimal",		MTP3_NET_ADDR_FMT_DEC },
+    { "hexadecimal",	"Hexadecimal",		MTP3_NET_ADDR_FMT_HEX },
+    { "ni-decimal",	"NI-Decimal",		MTP3_NET_ADDR_FMT_NI_DEC },
+    { "ni-hexadecimal",	"NI-Hexadecimal",	MTP3_NET_ADDR_FMT_NI_HEX },
+    { "dashed",		"Dashed",		MTP3_NET_ADDR_FMT_DASHED },
+    { NULL,		NULL,			0 }
   };
 
   /* Register the protocol name and description */

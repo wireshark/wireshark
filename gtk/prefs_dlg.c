@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.81 2004/04/29 17:03:27 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.82 2004/05/24 02:25:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -738,7 +738,7 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 	for (enum_valp = enumvals, index = 0; enum_valp->name != NULL;
 	    enum_valp++, index++) {
 		button = gtk_radio_button_new_with_label(rb_group,
-		    enum_valp->name);
+		    enum_valp->description);
 		gtk_widget_show(button);
 		rb_group = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
 		gtk_box_pack_start(GTK_BOX(radio_button_hbox), button, FALSE,
@@ -770,13 +770,21 @@ static gint
 label_to_enum_val(GtkWidget *label, const enum_val_t *enumvals)
 {
 	char *label_string;
-	gint enumval;
+	int i;
 
-	/* Get the label's text, and translate it to a value. */
+	/* Get the label's text, and translate it to a value.
+	   We match only the descriptions, as those are what appear in
+	   the option menu items or as labels for radio buttons.
+	   We fail if we don't find a match, as that "can't happen". */
 	gtk_label_get(GTK_LABEL(label), &label_string);
-	enumval = find_val_for_string(label_string, enumvals, 1);
 
-	return enumval;
+	for (i = 0; enumvals[i].name != NULL; i++) {
+		if (strcasecmp(label_string, enumvals[i].description) == 0) {
+			return enumvals[i].value;
+		}
+	}
+	g_assert_not_reached();
+	return -1;
 }
 
 gint
@@ -826,7 +834,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
 	menu_index = -1;
 	for (enum_valp = enumvals, index = 0; enum_valp->name != NULL;
 	    enum_valp++, index++) {
-		menu_item = gtk_menu_item_new_with_label(enum_valp->name);
+		menu_item = gtk_menu_item_new_with_label(enum_valp->description);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 		if (enum_valp->value == current_val)
 			menu_index = index;

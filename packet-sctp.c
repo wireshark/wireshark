@@ -16,7 +16,7 @@
  *   * bundling errors
  *   * value errors
  *
- * $Id: packet-sctp.c,v 1.71 2004/05/08 17:54:54 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.72 2004/05/24 02:25:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2248,11 +2248,11 @@ proto_register_sctp(void)
   };
 
   static enum_val_t sctp_checksum_options[] = {
-    { "None",        SCTP_CHECKSUM_NONE },
-    { "Adler 32",    SCTP_CHECKSUM_ADLER32 },
-    { "CRC 32c",     SCTP_CHECKSUM_CRC32C },
-    { "Automatic",   SCTP_CHECKSUM_AUTOMATIC},
-    { NULL, 0 }
+    { "none",      "None",        SCTP_CHECKSUM_NONE },
+    { "adler-32",  "Adler 32",    SCTP_CHECKSUM_ADLER32 },
+    { "crc-32c",   "CRC 32c",     SCTP_CHECKSUM_CRC32C },
+    { "automatic", "Automatic",   SCTP_CHECKSUM_AUTOMATIC},
+    { NULL, NULL, 0 }
   };
 
   /* Register the protocol name and description */

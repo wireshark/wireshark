@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.20 2004/05/20 11:47:46 ulfl Exp $
+ * $Id: packet-lmp.c,v 1.21 2004/05/24 02:25:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2264,10 +2264,10 @@ register_lmp_prefs (void)
 {
     module_t *lmp_module;
     static enum_val_t lmp_ver[] = {
-	{"draft-ietf-ccamp-lmp-09", LMP_VER_DRAFT_CCAMP_09},
-	{"draft-ietf-ccamp-lmp-03", LMP_VER_DRAFT_CCAMP_03},
-	{"draft-ietf-ccamp-lmp-02", LMP_VER_DRAFT_CCAMP_02},
-	{NULL, -1}
+	{"draft-ietf-ccamp-lmp-09", "draft-ietf-ccamp-lmp-09", LMP_VER_DRAFT_CCAMP_09},
+	{"draft-ietf-ccamp-lmp-03", "draft-ietf-ccamp-lmp-03", LMP_VER_DRAFT_CCAMP_03},
+	{"draft-ietf-ccamp-lmp-02", "draft-ietf-ccamp-lmp-02", LMP_VER_DRAFT_CCAMP_02},
+	{NULL, NULL, -1}
     };
 
     lmp_module = prefs_register_protocol(proto_lmp, lmp_prefs_applied);

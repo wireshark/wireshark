@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2ua.c,v 1.14 2003/12/01 23:26:40 guy Exp $
+ * $Id: packet-m2ua.c,v 1.15 2004/05/24 02:25:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1123,9 +1123,9 @@ proto_register_m2ua(void)
   };
 
   static enum_val_t protocol_data_1_options[] = {
-    { "0x000e (Draft 7)", PROTOCOL_DATA_1_DRAFT_7 },
-    { "0x0300 (RFC3331)", PROTOCOL_DATA_1_PARAMETER_TAG },
-    { NULL,		0 }
+    { "draft-7", "0x000e (Draft 7)", PROTOCOL_DATA_1_DRAFT_7 },
+    { "rfc3331", "0x0300 (RFC3331)", PROTOCOL_DATA_1_PARAMETER_TAG },
+    { NULL, NULL, 0 }
   };
 
   module_t *m2ua_module;
