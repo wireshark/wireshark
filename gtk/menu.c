@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.199 2004/06/01 17:33:37 ulfl Exp $
+ * $Id: menu.c,v 1.200 2004/06/03 02:14:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -584,7 +584,7 @@ GList * tap_menu_item_add(
 void
 register_tap_menu_item(
     char *name, 
-    gint group,
+    REGISTER_TAP_GROUP_E group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *),
