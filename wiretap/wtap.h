@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.57 1999/12/11 10:02:13 guy Exp $
+ * $Id: wtap.h,v 1.58 1999/12/12 22:40:10 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -92,9 +92,10 @@
 #define WTAP_ENCAP_NULL				13
 #define WTAP_ENCAP_ASCEND			14
 #define WTAP_ENCAP_LAPD				15
+#define WTAP_ENCAP_V120				16
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			16
+#define WTAP_NUM_ENCAP_TYPES			17
 
 /* File types that can be read by wiretap.
    We may eventually support writing some or all of these file types,
@@ -118,9 +119,10 @@
 #define WTAP_FILE_ASCEND			16
 #define WTAP_FILE_NETTL				17
 #define WTAP_FILE_TOSHIBA			18
+#define WTAP_FILE_I4BTRACE			19
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			19
+#define WTAP_NUM_FILE_TYPES			20
 
 /*
  * Maximum packet size we'll support.
@@ -156,6 +158,11 @@ typedef struct {
 typedef struct {
 	time_t	start;
 } radcom_t;
+
+typedef struct {
+	time_t	start;
+	int bchannel_prot[2];	/* For the V.120 heuristic */
+} i4btrace_t;
 
 typedef struct {
 	time_t	start;
@@ -326,6 +333,7 @@ typedef struct wtap {
 		lanalyzer_t		*lanalyzer;
 		ngsniffer_t		*ngsniffer;
 		radcom_t		*radcom;
+		i4btrace_t		*i4btrace;
 		nettl_t			*nettl;
 		netmon_t		*netmon;
 		netxray_t		*netxray;

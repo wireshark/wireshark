@@ -206,6 +206,12 @@ James Coe <jammer@cin.net> {
 	NCP over IP support
 }
 
+Bert Driehuis <driehuis@playbeing.org> {
+	I4B (ISDN for BSD) wiretap module
+	V.120
+}
+
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

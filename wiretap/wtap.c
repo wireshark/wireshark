@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.33 1999/12/05 01:24:53 guy Exp $
+ * $Id: wtap.c,v 1.34 1999/12/12 22:40:10 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -108,7 +108,10 @@ const static struct encap_type_info {
 	{ "Lucent/Ascend access equipment", "ascend" },
 
 	/* WTAP_ENCAP_LAPD */
-	{ "LAPD", "lapd" }
+	{ "LAPD", "lapd" },
+
+	/* WTAP_ENCAP_V120 */
+	{ "V120", "v120" },
 };
 
 /* Name that should be somewhat descriptive. */

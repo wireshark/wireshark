@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.40 1999/12/12 21:34:51 guy Exp $
+ * $Id: file.c,v 1.41 1999/12/12 22:40:08 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -43,6 +43,7 @@
 #include "netmon.h"
 #include "netxray.h"
 #include "toshiba.h"
+#include "i4btrace.h"
 
 /* The open_file_* routines should return:
  *
@@ -86,6 +87,7 @@ static int (*open_routines[])(wtap *, int *) = {
 	 */
 	ascend_open,
 	toshiba_open,
+	i4btrace_open,
 };
 
 int wtap_def_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)
@@ -252,7 +254,12 @@ const static struct file_type_info {
 
 	/* WTAP_FILE_TOSHIBA */
 	{ "Toshiba Compact ISDN Router snoop trace", NULL,
-	  NULL, NULL }
+	  NULL, NULL },
+
+	/* WTAP_FILE_I4BTRACE */
+	{ "I4B ISDN trace", NULL,
+	  NULL, NULL },
+
 };
 
 /* Name that should be somewhat descriptive. */
