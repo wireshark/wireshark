@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.25 1999/12/08 23:25:37 nneul Exp $
+ * $Id: packet-atalk.c,v 1.26 1999/12/08 23:55:01 nneul Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -48,6 +48,14 @@ static int hf_ddp_dst_socket = -1;
 static int hf_ddp_src_socket = -1;
 static int hf_ddp_type = -1;
 
+static int proto_nbp = -1;
+static int hf_nbp_op = -1;
+static int hf_nbp_info = -1;
+static int hf_nbp_count = -1;
+static int hf_nbp_tid = -1;
+
+static gint ett_nbp = -1;
+static gint ett_nbp_info = -1;
 static gint ett_ddp = -1;
 
 /* P = Padding, H = Hops, L = Len */
@@ -76,6 +84,8 @@ typedef struct _e_ddp {
 #define DDP_ZIP		0x06
 #define DDP_ADSP	0x07
 #define DDP_HEADER_SIZE 13
+
+#define NBP_LOOKUP 2
 
 gchar *
 atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
@@ -106,6 +116,11 @@ static const value_string op_vals[] = {
   {0, NULL}
 };
 
+static const value_string nbp_op_vals[] = {
+  {NBP_LOOKUP, "lookup"},
+  {0, NULL}
+};
+
 static void
 dissect_rtmp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   dissect_data(pd, offset, fd, tree);
@@ -120,7 +135,41 @@ dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 static void
 dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-  dissect_data(pd, offset, fd, tree); 
+  proto_tree *nbp_tree;
+  proto_tree *nbp_info_tree;
+  proto_item *ti, *info_item;
+  guint op, count;
+
+  if (!BYTES_ARE_IN_FRAME(offset, 2)) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
+  op = pd[offset] >> 4;
+  count = pd[offset] & 0x0F;
+
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "NBP");
+
+  if (check_col(fd, COL_INFO))
+    col_add_fstr(fd, COL_INFO, "Op: %s  Count: %d",
+      val_to_str(op, nbp_op_vals, "unknown (%1x)"), count);
+  
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_nbp, offset, END_OF_FRAME, NULL);
+    nbp_tree = proto_item_add_subtree(ti, ett_nbp);
+
+    info_item = proto_tree_add_item_format(nbp_tree, hf_nbp_info, offset, 1,
+		pd[offset], 
+		"Info: 0x%01X  Operation: %s  Count: %d", pd[offset],
+		val_to_str(op, nbp_op_vals, "unknown"),
+		count);
+	nbp_info_tree = proto_item_add_subtree(info_item, ett_nbp_info);
+    proto_tree_add_item(nbp_info_tree, hf_nbp_op, offset, 1, pd[offset]);
+    proto_tree_add_item(nbp_info_tree, hf_nbp_count, offset, 1, pd[offset]);
+    proto_tree_add_item(nbp_tree, hf_nbp_tid, offset+1, 1, pd[offset+1]);
+  }
+
   return;
 }
 
@@ -196,7 +245,7 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 void
 proto_register_atalk(void)
 {
-  static hf_register_info hf[] = {
+  static hf_register_info hf_ddp[] = {
     { &hf_ddp_hopcount,
       { "Hop count",		"ddp.hopcount",	FT_UINT8,  BASE_DEC, NULL, 0x0,
       	"" }},
@@ -237,11 +286,33 @@ proto_register_atalk(void)
       { "Protocol type",       	"ddp.type",	FT_UINT8,  BASE_DEC, VALS(op_vals), 0x0,
       	"" }},
   };
+
+  static hf_register_info hf_nbp[] = {
+    { &hf_nbp_op,
+      { "Operation",		"nbp.op",	FT_UINT8,  BASE_DEC, 
+		VALS(nbp_op_vals), 0xF0, "Operation" }},
+    { &hf_nbp_info,
+      { "Info",		"nbp.info",	FT_UINT8,  BASE_HEX, 
+		NULL, 0x0, "Info" }},
+    { &hf_nbp_count,
+      { "Count",		"nbp.count",	FT_UINT8,  BASE_DEC, 
+		NULL, 0x0F, "Count" }},
+    { &hf_nbp_tid,
+      { "Transaction ID",		"nbp.tid",	FT_UINT8,  BASE_DEC, 
+		NULL, 0x0, "Transaction ID" }}
+  };
+
   static gint *ett[] = {
     &ett_ddp,
+	&ett_nbp,
+	&ett_nbp_info
   };
 
   proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "ddp");
-  proto_register_field_array(proto_ddp, hf, array_length(hf));
+  proto_register_field_array(proto_ddp, hf_ddp, array_length(hf_ddp));
+
+  proto_nbp = proto_register_protocol("Name Binding Protocol", "nbp");
+  proto_register_field_array(proto_nbp, hf_nbp, array_length(hf_nbp));
+
   proto_register_subtree_array(ett, array_length(ett));
 }
