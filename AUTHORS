@@ -2180,6 +2180,11 @@ Chris Maynard		<Christopher.Maynard [AT] GTECH.COM> {
 	Add Doxygen comments to the CRC-16 and CRC-32 headers
 }
 
+SEKINE Hideki		<sekineh [AT] gf7.so-net.ne.jp> {
+	Routines for AX/4000 Test Block dissection
+}
+
+
 And assorted fixes and enhancements by the people listed above and by:
 
 
