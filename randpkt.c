@@ -68,7 +68,9 @@ enum {
 	PKT_NCP2222,
 	PKT_GIOP,
 	PKT_BGP,
-	PKT_TDS
+	PKT_TDS,
+	PKT_SCTP,
+	PKT_MEGACO
 };
 
 typedef struct {
@@ -315,10 +317,53 @@ guint8 pkt_tds[] = {
 	0x0f, 0xda, 0x00, 0x00,
 };
 
+/* Ethernet+IP, indicating SCTP */
+guint8 pkt_sctp[] = {
+	0x00, 0xa0, 0x80, 0x00,
+	0x5e, 0x46, 0x08, 0x00,
+	0x03, 0x4a, 0x00, 0x35,
+	0x08, 0x00,
+
+	0x45, 0x00, 0x00, 0x7c,
+	0x14, 0x1c, 0x00, 0x00,
+	0x3b, 0x84, 0x4a, 0x54,
+	0x0a, 0x1c, 0x06, 0x2b,
+	0x0a, 0x1c, 0x06, 0x2c,
+};
+
+
+/* Ethernet+IP+SCTP, indicating MEGACO */
+guint8 pkt_megaco[] = {
+	0x00, 0xa0, 0x80, 0x00,
+	0x5e, 0x46, 0x08, 0x00,
+	0x03, 0x4a, 0x00, 0x35,
+	0x08, 0x00,
+
+	0x45, 0x00, 0x00, 0x7c,
+	0x14, 0x1c, 0x00, 0x00,
+	0x3b, 0x84, 0x4a, 0x54,
+	0x0a, 0x1c, 0x06, 0x2b,
+	0x0a, 0x1c, 0x06, 0x2c,
+
+	0x40, 0x00, 0x0b, 0x80,
+	0x00, 0x01, 0x6f, 0x0a,
+	0x6d, 0xb0, 0x18, 0x82,
+	0x00, 0x03, 0x00, 0x5b,
+	0x28, 0x02, 0x43, 0x45,
+	0x00, 0x00, 0xa0, 0xbd,
+	0x00, 0x00, 0x00, 0x07,
+};
+
 /* This little data table drives the whole program */
 pkt_example examples[] = {
 	{ "arp", "Address Resolution Protocol",
 		PKT_ARP,	pkt_arp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_arp) },
+
+	{ "bgp", "Border Gateway Protocol",
+		PKT_BGP,	pkt_bgp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_bgp) },
+
+	{ "bvlc", "BACnet Virtual Link Control",
+		PKT_BVLC,	pkt_bvlc,	WTAP_ENCAP_ETHERNET,	array_length(pkt_bvlc) },
 
 	{ "dns", "Domain Name Service",
 		PKT_DNS,	pkt_dns,	WTAP_ENCAP_ETHERNET,	array_length(pkt_dns) },
@@ -329,6 +374,9 @@ pkt_example examples[] = {
 	{ "fddi", "Fiber Distributed Data Interface",
 		PKT_FDDI,	NULL,		WTAP_ENCAP_FDDI,	0 },
 
+	{ "giop", "General Inter-ORB Protocol",
+		PKT_GIOP,	pkt_giop,	WTAP_ENCAP_ETHERNET,	array_length(pkt_giop) },
+
 	{ "icmp", "Internet Control Message Protocol",
 		PKT_ICMP,	pkt_icmp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_icmp) },
 
@@ -338,11 +386,23 @@ pkt_example examples[] = {
 	{ "llc", "Logical Link Control",
 		PKT_LLC,	pkt_llc,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_llc) },
 
+	{ "megaco", "MEGACO",
+		PKT_MEGACO,	pkt_megaco,	WTAP_ENCAP_ETHERNET,	array_length(pkt_megaco) },
+
 	{ "nbns", "NetBIOS-over-TCP Name Service",
 		PKT_NBNS,	pkt_nbns,	WTAP_ENCAP_ETHERNET,	array_length(pkt_nbns) },
 
+	{ "ncp2222", "NetWare Core Protocol",
+		PKT_NCP2222,	pkt_ncp2222,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_ncp2222) },
+
+	{ "sctp", "Stream Control Transmission Protocol",
+		PKT_SCTP,	pkt_sctp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_sctp) },
+
 	{ "syslog", "Syslog message",
 		PKT_SYSLOG,	pkt_syslog,	WTAP_ENCAP_ETHERNET,	array_length(pkt_syslog) },
+
+	{ "tds", "TDS NetLib",
+		PKT_TDS,	pkt_tds,	WTAP_ENCAP_ETHERNET,	array_length(pkt_tds) },
 
 	{ "tcp", "Transmission Control Protocol",
 		PKT_TCP,	pkt_tcp,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_tcp) },
@@ -352,21 +412,6 @@ pkt_example examples[] = {
 
 	{ "udp", "User Datagram Protocol",
 		PKT_UDP,	pkt_udp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_udp) },
-
-	{ "bvlc", "BACnet Virtual Link Control",
-		PKT_BVLC,	pkt_bvlc,	WTAP_ENCAP_ETHERNET,	array_length(pkt_bvlc) },
-
-	{ "ncp2222", "NetWare Core Protocol",
-		PKT_NCP2222,	pkt_ncp2222,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_ncp2222) },
-
-	{ "giop", "General Inter-ORB Protocol",
-		PKT_GIOP,	pkt_giop,	WTAP_ENCAP_ETHERNET,	array_length(pkt_giop) },
-
-	{ "bgp", "Border Gateway Protocol",
-		PKT_BGP,	pkt_bgp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_bgp) },
-
-	{ "tds", "TDS NetLib",
-		PKT_TDS,	pkt_tds,	WTAP_ENCAP_ETHERNET,	array_length(pkt_tds) },
 
 };
 
