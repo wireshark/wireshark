@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.2 2000/06/12 08:28:13 guy Exp $
+ * $Id: packet-x11.c,v 1.3 2000/06/12 09:32:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -48,29 +48,13 @@
 # include "config.h"
 #endif
 
-#include <X11/Xlib.h>
 #include <assert.h>
 #include <ctype.h>
-#include <gdk/gdk.h>
-#include <gdk/gdkx.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
-# include "snprintf.h"
 #endif
 
 #include <string.h>
@@ -510,7 +494,7 @@ static const value_string ordering_vals[] = {
 };
 
 static const value_string plane_mask_vals[] = {
-      { AllPlanes, "AllPlanes" },
+      { 0xFFFFFFFF, "AllPlanes" },
       { 0, NULL }
 };
 
