@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.38 2003/09/02 21:06:16 guy Exp $
+ * $Id: packet-fr.c,v 1.39 2003/09/02 23:37:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,8 @@
  * RFC-1490
  * RFC-2427
  * Cisco encapsulation
- * http://www.trillium.com/whats-new/wp_frmrly.html
+ * http://www.trillium.com/products/legacy/frame/technical/
+ * http://www.trillium.com/assets/legacyframe/white_paper/8771019.pdf
  */
 
 #ifdef HAVE_CONFIG_H
@@ -314,7 +315,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   fr_ctrl = tvb_get_guint8(tvb, offset);
   if (fr_ctrl == XDLC_U) {
       dissect_xdlc_control(tvb, offset, pinfo, fr_tree, hf_fr_control,
- 			   ett_fr_control, is_response, FALSE, TRUE);
+ 			   ett_fr_control, is_response, TRUE, TRUE);
       offset++;
 
       dissect_fr_nlpid(tvb, offset, pinfo, tree, ti, fr_tree, fr_ctrl);
@@ -326,14 +327,14 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* so this must be lapf (guessing) */
 		dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
 				     hf_fr_control, ett_fr_control,
-				     is_response, FALSE, TRUE);
+				     is_response, TRUE, TRUE);
 		dissect_lapf(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
 		return;
       }
       if (fr_ctrl == (XDLC_U|XDLC_XID)) {
 		dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
 				     hf_fr_control, ett_fr_control,
-				     is_response, FALSE, TRUE);
+				     is_response, TRUE, TRUE);
 		dissect_fr_xid(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
 		return;
       }
