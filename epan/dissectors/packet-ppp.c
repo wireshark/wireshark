@@ -72,7 +72,7 @@ static int proto_ipcp = -1;
 static gint ett_ipcp = -1;
 static gint ett_ipcp_options = -1;
 static gint ett_ipcp_ipaddrs_opt = -1;
-static gint ett_ipcp_compressprot_opt = -1;
+static gint ett_ipcp_compress_opt = -1;
 static gint ett_ipcp_iphc_disableprot_opt = -1;
 
 static int proto_osicp = -1;
@@ -166,7 +166,7 @@ static int proto_ipv6cp = -1;  /* IPv6CP vars */
 static gint ett_ipv6cp = -1;
 static gint ett_ipv6cp_options = -1;
 static gint ett_ipv6cp_if_id_opt = -1;
-static gint ett_ipv6cp_compressprot_opt = -1;  
+static gint ett_ipv6cp_compress_opt = -1;  
 
 static dissector_table_t ppp_subdissector_table;
 static dissector_handle_t chdlc_handle;
@@ -935,7 +935,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 	{
 		CI_COMPRESSTYPE,
 		"IP compression",
-		&ett_ipcp_compressprot_opt,
+		&ett_ipcp_compress_opt,
 		VARIABLE_LENGTH,
 		4,
 		dissect_ipcp_compress_opt
@@ -1415,7 +1415,7 @@ static const ip_tcp_opt ipv6cp_opts[] = {
 	{
 		CI_COMPRESSTYPE,
 		"IPv6 compression",
-		&ett_ipcp_compressprot_opt,
+		&ett_ipcp_compress_opt,
 		VARIABLE_LENGTH,
 		4,
 		dissect_ipcp_compress_opt
@@ -2048,7 +2048,7 @@ static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     length -= 2;
 
     us = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_text( field_tree, tvb, offset, 2, "%s (0x%04x)",
+    proto_tree_add_text( field_tree, tvb, offset, 2, "IP compression protocol: %s (0x%04x)",
 			 val_to_str( us, ipcp_compress_proto_vals, "Unknown protocol" ),
 			 us );
     offset += 2;	/* skip protocol */
@@ -3558,7 +3558,7 @@ proto_register_ipcp(void)
     &ett_ipcp,
     &ett_ipcp_options,
     &ett_ipcp_ipaddrs_opt,
-    &ett_ipcp_compressprot_opt,
+    &ett_ipcp_compress_opt,
   };
 
   proto_ipcp = proto_register_protocol("PPP IP Control Protocol", "PPP IPCP",
@@ -3951,7 +3951,7 @@ proto_register_ipv6cp(void)
     &ett_ipv6cp,
     &ett_ipv6cp_options,
     &ett_ipv6cp_if_id_opt,
-    &ett_ipv6cp_compressprot_opt,
+    &ett_ipv6cp_compress_opt,
   };
 
   proto_ipv6cp = proto_register_protocol("PPP IPv6 Control Protocol",
