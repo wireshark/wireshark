@@ -400,21 +400,25 @@ Closes the dialog without making any changes.
 The I<Capture Preferences> dialog lets you specify various parameters for
 capturing live packet data.
 
-The I<Interface:> entry box lets you specify the interface from which to
+The I<Interface:> combo box lets you specify the interface from which to
 capture packet data.  The I<Count:> entry specifies the number of packets
 to capture.  Entering 0 will capture packets indefinitely.  The I<Filter:>
 entry lets you specify the capture filter using a tcpdump-style filter
 string as described above.  The I<File:> entry specifies the file to save
-to, as in the I<Printer Options> dialog above.  You can choose to open the
-file after capture, and you can also specify the maximum number of bytes
-to capture per packet with the I<Capture length> entry.
+to, as in the I<Printer Options> dialog above.  You can specify the
+maximum number of bytes to capture per packet with the I<Capture length>
+entry, and can specify that the display should be updated as packets are
+captured with the I<Update list of packets in real time> check box.
 
 =item Display Options
 
 The I<Display Options> dialog lets you specify the format of the time stamp
 in the packet list.  You can select "Time of day" for absolute time stamps,
 "Seconds since beginning of capture" for relative time stamps, or
-"Seconds since previous frame" for delta time stamps.
+"Seconds since previous frame" for delta time stamps.  You can also
+specify whether, when the display is updated as packets are captured,
+the list should automatically scroll to show the most recently captured
+packets or not.
 
 =back
 
