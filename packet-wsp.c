@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.73 2003/07/29 21:30:32 guy Exp $
+ * $Id: packet-wsp.c,v 1.74 2003/08/04 23:36:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2299,28 +2299,41 @@ add_application_header (proto_tree *tree, tvbuff_t *tvb, int offset)
 	{
 		valueType = get_value_type_len (tvb, offset,
 		    &subvalueLen, &subvalueOffset, &offset);
-		if (get_integer (tvb, subvalueOffset, subvalueLen,
-		    valueType, &secs) == 0)
+		if (valueType == VALUE_IS_TEXT_STRING)
 		{
-			/*
-			 * Fill in the "struct timeval", and add it to the
-			 * protocol tree.
-			 * Note: this will succeed even if it's a Short-integer.
-			 * A Short-integer would work, but, as the time values
-			 * are UNIX seconds-since-the-Epoch value, and as
-			 * there weren't WAP phones or Web servers back in
-			 * late 1969/early 1970, they're unlikely to be used.
-			 */
-			timeValue.secs = secs;
-			timeValue.nsecs = 0;
-			proto_tree_add_time (tree, hf_wsp_header_x_wap_tod,
-			    tvb, startOffset, offset - startOffset, &timeValue);
+			proto_tree_add_text (tree, tvb, startOffset,
+			    offset - startOffset, "%s: %s", token,
+			    tvb_get_ptr (tvb, subvalueOffset, subvalueLen));
 		}
 		else
 		{
-			proto_tree_add_text (tree, tvb, startOffset,
-			    offset - startOffset,
-			    "%s: invalid date value", token);
+			if (get_integer (tvb, subvalueOffset, subvalueLen,
+			    valueType, &secs) == 0)
+			{
+				/*
+				 * Fill in the "struct timeval", and add it
+				 * to the protocol tree.
+				 * Note: this will succeed even if it's a
+				 * Short-integer rather than an Integer.
+				 * A Short-integer would work, but, as the
+				 * time values are UNIX seconds-since-the-
+				 * Epoch value, and as there weren't WAP
+				 * phones or Web servers back in late
+				 * 1969/early 1970, they're unlikely to be
+				 * used.
+				 */
+				timeValue.secs = secs;
+				timeValue.nsecs = 0;
+				proto_tree_add_time (tree, hf_wsp_header_x_wap_tod,
+				    tvb, startOffset, offset - startOffset,
+				    &timeValue);
+			}
+			else
+			{
+				proto_tree_add_text (tree, tvb, startOffset,
+				    offset - startOffset,
+				    "%s: invalid date value", token);
+			}
 		}
 	}
 	else
