@@ -4,7 +4,7 @@
  *
  * (C) Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.h,v 1.3 1999/08/12 05:19:06 gram Exp $
+ * $Id: packet-rsvp.h,v 1.4 1999/08/22 07:27:06 guy Exp $
  *
  * For license details, see the COPYING file with this distribution
  *
@@ -142,10 +142,10 @@ static value_string style_vals[] = {
  * Base RSVP object
  */
 typedef struct {
-    unsigned short length;
-    unsigned char class;	
-    unsigned char type;
-    unsigned char data[0];   /* Don't change this to a pointer */
+    guint16 length;
+    guint8 class;	
+    guint8 type;
+    /* Data follows, as a sequence of bytes */
 } rsvp_object;
 
 /*
@@ -153,13 +153,13 @@ typedef struct {
  */
 
 typedef struct {
-    unsigned char    ver_flags;			/* RSVP Version & flags */
-    unsigned char    message_type;		/* type of message */
-    unsigned short   cksum;			/* IP Checksum */
-    unsigned char    sending_ttl;		/* ttl of message */
-    unsigned char    reserved_byte;		/* reserved */
-    unsigned short   rsvp_length;		/* length of RSVP data */
-    rsvp_object rsvp_first_object[0];           /* Don't change this to a pointer */
+    guint8    ver_flags;		/* RSVP Version & flags */
+    guint8    message_type;		/* type of message */
+    guint16   cksum;			/* IP Checksum */
+    guint8    sending_ttl;		/* ttl of message */
+    guint8    reserved_byte;		/* reserved */
+    guint16   rsvp_length;		/* length of RSVP data */
+    /* Objects follow, as a sequence of "rsvp_object"s */
 } rsvp_header;
 
 /*
@@ -174,18 +174,18 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long destination;
-    unsigned char protocol;
-    unsigned char flags;
-    unsigned short port;
+    guint32 destination;
+    guint8 protocol;
+    guint8 flags;
+    guint16 port;
 } rsvp_session_ipv4;
 
 typedef struct {
     rsvp_object base;
     struct e_in6_addr destination;
-    unsigned char protocol;
-    unsigned char flags;
-    unsigned short port;
+    guint8 protocol;
+    guint8 flags;
+    guint16 port;
 } rsvp_session_ipv6;
 
 /*
@@ -194,14 +194,14 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long neighbor;
-    unsigned long lif_handle;
+    guint32 neighbor;
+    guint32 lif_handle;
 } rsvp_hop_ipv4;
 
 typedef struct {
     rsvp_object base;
     struct e_in6_addr neighbor;
-    unsigned long lif_handle;
+    guint32 lif_handle;
 } rsvp_hop_ipv6;
 
 /*
@@ -217,18 +217,18 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long error_node;
-    unsigned char flags;
-    unsigned char error_code;
-    unsigned short error_value;
+    guint32 error_node;
+    guint8 flags;
+    guint8 error_code;
+    guint16 error_value;
 } rsvp_error_ipv4;
 
 typedef struct {
     rsvp_object base;
     struct e_in6_addr error_node;
-    unsigned char flags;
-    unsigned char error_code;
-    unsigned short error_value;
+    guint8 flags;
+    guint8 error_code;
+    guint16 error_value;
 } rsvp_error_ipv6;
 
 /*
@@ -236,7 +236,7 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long receiver;
+    guint32 receiver;
 } rsvp_confirm_ipv4;
 
 typedef struct {
@@ -249,7 +249,7 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long source[0]; /* Don't change this to a pointer */
+    /* Source follows, as a sequence of 32-bit integers */
 } rsvp_scope;
 
 /*
@@ -257,7 +257,7 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long reservation_type;
+    guint32 reservation_type;
 } rsvp_style;
 
 /*
@@ -266,9 +266,9 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long source;			/* source sending data */
-    unsigned short unused;
-    unsigned short udp_source_port;		/* port number */
+    guint32 source;			/* source sending data */
+    guint16 unused;
+    guint16 udp_source_port;		/* port number */
 } rsvp_filter_ipv4;
 
 /*
@@ -278,16 +278,16 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long source;			/* source sending data */
-    unsigned short __reserved;
-    unsigned short source_port;		/* port number */
+    guint32 source;			/* source sending data */
+    guint16 __reserved;
+    guint16 source_port;		/* port number */
 } rsvp_template_ipv4;
 
 typedef struct {
     rsvp_object base;
-    struct e_in6_addr source;			/* source sending data */
-    unsigned short __reserved;
-    unsigned short source_port;		/* port number */
+    struct e_in6_addr source;		/* source sending data */
+    guint16 __reserved;
+    guint16 source_port;		/* port number */
 } rsvp_template_ipv6;
 
 /*
@@ -353,50 +353,50 @@ enum intsrv_field_name {
  */
 
 typedef struct {
-    unsigned char service_num;
-    unsigned char break_bit;
-    unsigned short length;
+    guint8 service_num;
+    guint8 break_bit;
+    guint16 length;
 } service_hdr;
 
 typedef struct {					
     service_hdr svchdr;
 
-    unsigned char	param_id;
-    unsigned char	flags_tspec;
-    unsigned short	parameter_length;
+    guint8	param_id;
+    guint8	flags_tspec;
+    guint16	parameter_length;
 
-    unsigned long	rate;
-    unsigned long	depth;
-    unsigned long	peak;
-    unsigned long	min_unit;
-    unsigned long	max_unit;
+    guint32	rate;
+    guint32	depth;
+    guint32	peak;
+    guint32	min_unit;
+    guint32	max_unit;
 } IS_tspec; /* RFC2210 */
 
 typedef struct {
     service_hdr svchdr;
     
-    unsigned char	param_id;
-    unsigned char	flags_tspec;
-    unsigned short	parameter_length;
+    guint8	param_id;
+    guint8	flags_tspec;
+    guint16	parameter_length;
 
-    unsigned long	max_unit;
+    guint32	max_unit;
 } QUAL_tspec; /* Qualitative */
 
 typedef struct {
     rsvp_object base;
-    unsigned char	version;	
-    unsigned char 	__reserved_;
-    unsigned short	length_in_words;
+    guint8	version;	
+    guint8 	__reserved_;
+    guint16	length_in_words;
 
-    unsigned char data[0];      /* Don't change this to a pointer */
+    /* Data follows, as a sequence of bytes */
 } rsvp_tspec;
 
 typedef struct {
-    unsigned char	param_id;
-    unsigned char	flags_rspec;
-    unsigned short	param2_length;
-    unsigned long	requested_rate;
-    unsigned long	slack;
+    guint8	param_id;
+    guint8	flags_rspec;
+    guint16	param2_length;
+    guint32	requested_rate;
+    guint32	slack;
 } IS_rspec;
 
 typedef struct {
@@ -407,29 +407,29 @@ typedef struct {
 typedef struct {
     service_hdr svchdr;
     
-    unsigned char	param_id;
-    unsigned char	flags_tspec;
-    unsigned short	parameter_length;
+    guint8	param_id;
+    guint8	flags_tspec;
+    guint16	parameter_length;
 
-    unsigned long	max_unit;
+    guint32	max_unit;
 } QUAL_flowspec; /* Qualitative */
 
 
 typedef struct {
     rsvp_object base;
-    unsigned char	version;	
-    unsigned char 	__reserved_;
-    unsigned short	length_in_words;
+    guint8	version;	
+    guint8 	__reserved_;
+    guint16	length_in_words;
 
-    unsigned char data[0];      /* Don't change this to a pointer */
+    /* Data follows, as a sequence of bytes */
 } rsvp_flowspec;
 					
 
 typedef struct {
-    unsigned char id;
-    unsigned char flags;
-    unsigned short length;
-    unsigned long dataval;
+    guint8 id;
+    guint8 flags;
+    guint16 length;
+    guint32 dataval;
 } param_hdr;
     
 static value_string adspec_params[] = { 
