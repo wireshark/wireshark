@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.14 2003/09/06 00:04:45 guy Exp $
+ * $Id: packet-sccp.c,v 1.15 2003/10/22 20:12:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -266,6 +266,9 @@ static const value_string sccp_ssn_values[] = {
   { 0x0c,  "Reserved for international use (ITU only)" },
   { 0x0d,  "Broadband ISDN edge-to-edge applications (ITU only)" },
   { 0x0e,  "TC test responder (ITU only)" },
+  { 0x8e,  "RANAP" },
+  { 0xfc,  "IOS" },
+  { 0xfe,  "BSSAP/BSAP" },
   { 0,     NULL } };
 
 
@@ -658,6 +661,8 @@ static guint8 calling_ssn = INVALID_SSN;
 
 static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
+
+static heur_dissector_list_t heur_subdissector_list;
 
 static void
 dissect_sccp_unknown_message(tvbuff_t *message_tvb, proto_tree *sccp_tree)
@@ -1190,6 +1195,12 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        dissector_try_port(sccp_ssn_dissector_table, calling_ssn, tvb, pinfo,
 			  tree)))
     return;
+
+    /* try heuristic subdissector list to see if there are any takers */
+    if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree))
+    {
+	return;
+    }
 
     /* No sub-dissection occured, treat it as raw data */
     call_dissector(data_handle, tvb, pinfo, tree);
@@ -2274,6 +2285,7 @@ proto_register_sccp(void)
 
   sccp_ssn_dissector_table = register_dissector_table("sccp.ssn", "SCCP SSN", FT_UINT8, BASE_DEC);
 
+  register_heur_dissector_list("sccp", &heur_subdissector_list);
 }
 
 void
