@@ -109,7 +109,7 @@ static int hf_h225_user_data = -1;                /* T_user_data */
 static int hf_h225_protocol_discriminator = -1;   /* INTEGER_0_255 */
 static int hf_h225_user_information = -1;         /* OCTET_STRING_SIZE_1_131 */
 static int hf_h225_h323_message_body = -1;        /* T_h323_message_body */
-static int hf_h225_setup = -1;                    /* T_setup */
+static int hf_h225_setup = -1;                    /* Setup_UUIE */
 static int hf_h225_callProceeding = -1;           /* CallProceeding_UUIE */
 static int hf_h225_connect = -1;                  /* Connect_UUIE */
 static int hf_h225_alerting = -1;                 /* Alerting_UUIE */
@@ -5256,23 +5256,15 @@ static const per_sequence_t Setup_UUIE_sequence[] = {
 
 static int
 dissect_h225_Setup_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  contains_faststart = FALSE;
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Setup_UUIE, Setup_UUIE_sequence);
 
-  return offset;
-}
-
-
-static int
-dissect_h225_T_setup(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-	contains_faststart = FALSE;
-  offset = dissect_h225_Setup_UUIE(tvb, offset, pinfo, tree, hf_index);
-
-	h225_pi.cs_type = H225_SETUP;
+  h225_pi.cs_type = H225_SETUP;
   return offset;
 }
 static int dissect_setup(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_T_setup(tvb, offset, pinfo, tree, hf_h225_setup);
+  return dissect_h225_Setup_UUIE(tvb, offset, pinfo, tree, hf_h225_setup);
 }
 
 static const per_sequence_t FeatureSet_sequence[] = {
@@ -5315,6 +5307,7 @@ dissect_h225_CallProceeding_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_CallProceeding_UUIE, CallProceeding_UUIE_sequence);
 
+  h225_pi.cs_type = H225_CALL_PROCEDING;
   return offset;
 }
 static int dissect_callProceeding(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5349,6 +5342,7 @@ dissect_h225_Connect_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Connect_UUIE, Connect_UUIE_sequence);
 
+  h225_pi.cs_type = H225_CONNECT;
   return offset;
 }
 static int dissect_connect(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5381,6 +5375,7 @@ dissect_h225_Alerting_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_Alerting_UUIE, Alerting_UUIE_sequence);
 
+  h225_pi.cs_type = H225_ALERTING;
   return offset;
 }
 static int dissect_alerting(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5562,6 +5557,7 @@ dissect_h225_ReleaseComplete_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo 
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_ReleaseComplete_UUIE, ReleaseComplete_UUIE_sequence);
 
+  h225_pi.cs_type = H225_RELEASE_COMPLET;
   return offset;
 }
 static int dissect_releaseComplete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -6292,6 +6288,7 @@ static int
 dissect_h225_RequestSeqNum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            1U, 65535U, &(h225_pi.requestSeqNum), NULL, FALSE);
+
 
 
   return offset;

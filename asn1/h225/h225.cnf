@@ -262,12 +262,28 @@ guint32 value_len;
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_HDR H323-UU-PDU/h323-message-body/setup
-	contains_faststart = FALSE;
+#.FN_HDR Setup-UUIE
+  contains_faststart = FALSE;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_FTR H323-UU-PDU/h323-message-body/setup
-	h225_pi.cs_type = H225_SETUP;
+#.FN_FTR Setup-UUIE
+  h225_pi.cs_type = H225_SETUP;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR CallProceeding-UUIE
+  h225_pi.cs_type = H225_CALL_PROCEDING;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR Alerting-UUIE
+  h225_pi.cs_type = H225_ALERTING;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR ReleaseComplete-UUIE
+  h225_pi.cs_type = H225_RELEASE_COMPLET;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR Connect-UUIE
+  h225_pi.cs_type = H225_CONNECT;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR H245TransportAddress
@@ -420,6 +436,7 @@ guint32 value_len;
                                            1U, 65535U, &(h225_pi.requestSeqNum), NULL, FALSE);
 
 #----------------------------------------------------------------------------------------
+
 #.TYPE_ATTR
 H221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
 TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
