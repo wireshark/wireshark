@@ -1281,7 +1281,6 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
 #define get_text_string(str,tvb,start,len,ok) \
 	if (is_text_string(tvb_get_guint8(tvb,start))) { \
 		str = (gchar *)tvb_get_stringz(tvb,start,(gint *)&len); \
-		DISSECTOR_ASSERT (str); \
 		ok = TRUE; \
 	} else { len = 0; str = NULL; ok = FALSE; }
 #define get_token_text(str,tvb,start,len,ok) \
@@ -1794,7 +1793,6 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 			/* Call header value dissector for given header */
 			if (val_id >= 0x20 && val_id <=0x7E) { /* OK! */
 				val_str = (gchar *)tvb_get_stringz(tvb, val_start, (gint *)&val_len);
-				DISSECTOR_ASSERT (val_str);
 				offset = val_start + val_len;
 				proto_tree_add_text(wsp_headers,tvb,hdr_start,offset-hdr_start,
 						"%s: %s", hdr_str, val_str);
@@ -1814,7 +1812,6 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 							tv.secs = val;
 							tv.nsecs = 0;
 							val_str = abs_time_to_str(&tv);
-							DISSECTOR_ASSERT (val_str);
 							ti = proto_tree_add_string (wsp_headers,
 									hf_hdr_x_wap_tod,
 									tvb, hdr_start, hdr_len + val_len, val_str);
@@ -1915,7 +1912,6 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 		/* END */ \
 	} else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
 		val_str = (gchar *)tvb_get_stringz (tvb, val_start, (gint *)&val_len); \
-		DISSECTOR_ASSERT (val_str); \
 		offset = val_start + val_len; \
 		/* Textual value processing starts HERE \
 		 * \
@@ -2789,7 +2785,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 				tv.secs = val; \
 				tv.nsecs = 0; \
 				str = abs_time_to_str(&tv); \
-				DISSECTOR_ASSERT (str); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
 				/* BEHOLD: do NOT try to free str, as this generates a core
@@ -2828,7 +2823,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 				tv.secs = val; \
 				tv.nsecs = 0; \
 				str = abs_time_to_str(&tv); \
-				DISSECTOR_ASSERT (str); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
 				/* BEHOLD: do NOT try to free str, as this generates a core
@@ -2883,7 +2877,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 					tv.secs = val; \
 					tv.nsecs = 0; \
 					str = abs_time_to_str(&tv); \
-					DISSECTOR_ASSERT (str); \
 					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 							tvb, hdr_start, offset - hdr_start, str); \
 				} \
@@ -3528,7 +3521,6 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 							tv.secs = val;
 							tv.nsecs = 0;
 							val_str = abs_time_to_str(&tv);
-							DISSECTOR_ASSERT (val_str);
 							str = g_strdup_printf("; date=%s", val_str);
 							proto_item_append_string(ti, str);
 							g_free(str); /* proto_XXX creates a copy */
@@ -3734,13 +3726,12 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
 			}
 		} else { /* TE in Token-text format */
 			get_token_text(val_str, tvb, off, len, ok);
-            if(ok) {
-			    ti = proto_tree_add_string(tree, hf_hdr_te,
-					    tvb, hdr_start, off - hdr_start, val_str);
-			    g_free(val_str);
-			    off += len;
-			    ok = TRUE;
-            }
+			if (ok) {
+				ti = proto_tree_add_string(tree, hf_hdr_te,
+						tvb, hdr_start, off - hdr_start, val_str);
+				g_free(val_str);
+				off += len;
+			}
 		}
 		if ((ok) && (off < offset)) { /* Q-token Q-value */
 			/* TODO */
