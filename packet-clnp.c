@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.16 2000/11/19 08:53:56 guy Exp $
+ * $Id: packet-clnp.c,v 1.17 2000/12/23 19:34:46 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -50,6 +50,7 @@
 
 static int  proto_clnp         = -1;
 static gint ett_clnp           = -1;
+static gint ett_clnp_disc_pdu  = -1;
 static int  proto_cotp         = -1;
 static gint ett_cotp           = -1;
 static int  proto_cltp         = -1;
@@ -1555,6 +1556,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   u_char      src_len, dst_len, nsel, opt_len = 0;
   guint8     *dst_addr, *src_addr;
   guint       len;
+  guint       next_length;
+  proto_tree *discpdu_tree;
   tvbuff_t   *next_tvb;
 
   CHECK_DISPLAY_AS_DATA(proto_clnp, tvb, pinfo, tree);
@@ -1765,9 +1768,23 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ER_NPDU:
       /* The payload is the header and "none, some, or all of the data
          part of the discarded PDU", i.e. it's like an ICMP error;
-	 just as we don't yet trust ourselves to be able to dissect
-	 the payload of an ICMP error packet, we don't yet trust
-	 ourselves to dissect the payload of a CLNP ER packet. */
+	 dissect it as a CLNP PDU. */
+      if (tree) {
+        next_length = tvb_length_remaining(tvb, offset);
+        if (next_length != 0) {
+          /* We have payload; dissect it.
+             Make the columns non-writable, so the packet isn't shown
+             in the summary based on what the discarded PDU's contents
+             are. */
+          col_set_writable(pinfo->fd, FALSE);
+          ti = proto_tree_add_text(clnp_tree, tvb, offset, next_length,
+            "Discarded PDU");
+          discpdu_tree = proto_item_add_subtree(ti, ett_clnp_disc_pdu);
+          next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+          dissect_clnp(next_tvb, pinfo, discpdu_tree);
+          offset += next_length;
+        }
+      }
       break;
 
     case ERQ_NPDU:
@@ -1823,6 +1840,7 @@ void proto_register_clnp(void)
   };
   static gint *ett[] = {
     &ett_clnp,
+    &ett_clnp_disc_pdu,
   };
 
   module_t *clnp_module;
