@@ -455,6 +455,7 @@ RasMessage_vals                 DATA
 read_prefs
 read_prefs_file
 reassembled_table_init
+register_all_plugin_tap_listeners
 register_all_protocols
 register_all_protocol_handoffs
 register_dissector
