@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.112 2004/03/18 15:53:22 gerald Exp $
+ * $Id: packet-wsp.c,v 1.113 2004/04/20 19:27:33 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -4166,7 +4166,9 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				proto_tree_add_uint (tree, hf_wsp_parameter_sec,
 						tvb, start, 2, peek);
 				str = match_strval(peek, vals_wsp_parameter_sec);
-				proto_item_append_text (ti, "; SEC=%s", str);
+				s = g_strdup_printf("; SEC=%s", str);
+				proto_item_append_string (ti, s);
+				g_free(s);
 				offset++;
 			} else { /* Error */
 				proto_tree_add_text (tree, tvb, start, len - start,
@@ -4185,7 +4187,9 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 			if (ok) {
 				proto_tree_add_string (tree, hf_wsp_parameter_level,
 						tvb, start, type_len + val_len, str);
-				proto_item_append_text (ti, "; level=%s", str);
+				s = g_strdup_printf("; level=%s", str);
+				proto_item_append_string (ti, s);
+				g_free(s);
 				offset += val_len;
 			} else {
 				proto_tree_add_text (tree, tvb, start, len - start,
@@ -4229,7 +4233,7 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
 {
 	int offset = start;
 	guint32 val = 0, val_len;
-	gchar *str = NULL;
+	gchar *str = NULL, *s = NULL;
 	guint8 ok;
 
 	get_uintvar_integer (val, tvb, offset, val_len, ok);
@@ -4239,7 +4243,9 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
 		} else { /* Q-value in 0.001 steps */
 			str = g_strdup_printf("0.%03u", val - 100);
 		}
-		proto_item_append_text (ti, "; q=%s", str);
+		s = g_strdup_printf("; q=%s", str);
+		proto_item_append_string (ti, s);
+		g_free(s);
 		proto_tree_add_string (tree, hf_parameter_q,
 				tvb, start, val_len, str);
 		g_free(str);
