@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.5 2000/11/19 03:47:36 guy Exp $
+ * $Id: pppdump.c,v 1.6 2000/11/19 20:56:17 gerald Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -332,6 +332,11 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 					pkt->cnt = 0;
 					if (num_written <= 0) {
 						return 0;
+					}
+
+					if (num_written > sizeof(pd)) {
+						*err = WTAP_ERR_UNC_OVERFLOW;
+						return -1;
 					}
 
 					memcpy(pd, pkt->buf, num_written);
