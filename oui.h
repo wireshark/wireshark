@@ -4,9 +4,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 - 2000 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,6 +34,7 @@
 #define	OUI_ATM_FORUM	0x00A03E	/* ATM Forum */
 #define OUI_CABLE_BPDU	0x00E02F	/* DOCSIS spanning tree BPDU */
 #define	OUI_APPLE_ATALK	0x080007	/* Appletalk */
+#define	OUI_HP		0x080009	/* Hewlett-Packard */
 
 extern const value_string oui_vals[];
 

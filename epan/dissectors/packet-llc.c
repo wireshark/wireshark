@@ -178,6 +178,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
 	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
 	{ OUI_NORTEL,      "Nortel Networks SONMP" },
+	{ OUI_HP,          "Hewlett-Packard" },
 	{ 0,               NULL }
 };
 
