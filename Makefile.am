@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.407 2002/01/29 09:45:55 guy Exp $
+# $Id: Makefile.am,v 1.408 2002/01/30 22:41:00 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -755,6 +755,7 @@ dftest_SOURCES = \
 	dftest.c
 
 dftest_additional_libs =		\
+	wiretap/libwiretap.a		\
 	epan/libethereal.a		\
 	epan/ftypes/libftypes.a		\
 	epan/dfilter/libdfilter.a
