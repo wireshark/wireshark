@@ -3,7 +3,7 @@
  * Routines for image/gif media dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-image-gif.c,v 1.2 2003/12/24 12:46:57 obiot Exp $
+ * $Id: packet-image-gif.c,v 1.3 2004/01/03 12:43:51 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -572,7 +572,7 @@ proto_register_gif(void)
 		},
 		{ &hf_local_image_bpp,
 			{	"Image bits per pixel minus 1",
-				IMG_GIF "local.bpp",
+				IMG_GIF ".local.bpp",
 				FT_UINT8, BASE_DEC, NULL, 0x07,
 				"The number of bits per pixel is one plus the field value.",
 				HFILL
