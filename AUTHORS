@@ -1989,6 +1989,10 @@ Tadaaki Nagao <nagao [AT] iij.ad.jp> {
 	Added a global version of disabled_protos
 }
 
+Aaron Woo <woo [AT] itd.nrl.navy.mil> {
+	Optimized Link State Routing Protocol (OLSR)
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
