@@ -5,7 +5,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.77 2003/02/13 03:05:14 guy Exp $
+ * $Id: packet-radius.c,v 1.78 2003/03/11 22:51:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2374,7 +2374,7 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     const guint8 *pd;
     guchar c;
 
-    if (!shared_secret || !authenticator ) {
+    if (shared_secret[0] == '\0' || !authenticator ) {
 	rdconvertbufftostr(dest,tvb,offset,length);
 	return;
     }

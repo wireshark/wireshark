@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.81 2003/02/25 02:03:11 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.82 2003/03/11 22:51:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1762,7 +1762,7 @@ samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 	proto_tree_add_text(tree, tvb, offset, NT_BLOCK_SIZE,
 	    "Encrypted NT Password Block");
 
-	if (nt_password != NULL) {
+	if (nt_password[0] != '\0') {
 		/* We have an NT password, so we can decrypt the password
 		   change block. */
 

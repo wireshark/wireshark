@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.95 2003/01/29 21:27:36 guy Exp $
+ * $Id: prefs.c,v 1.96 2003/03/11 22:51:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -547,6 +547,20 @@ prefs_register_string_preference(module_t *module, const char *name,
 
 	preference = register_preference(module, name, title, description,
 	    PREF_STRING);
+
+	/*
+	 * String preference values should be non-null (as you can't
+	 * keep them null after using the preferences GUI, you can at best
+	 * have them be null strings) and freeable (as we free them
+	 * if we change them.
+	 *
+	 * If the value is a null pointer, make it a copy of a null
+	 * string, otherwise make it a copy of the value.
+	 */
+	if (*var == NULL)
+		*var = g_strdup("");
+	else
+		*var = g_strdup(*var);
 	preference->varp.string = var;
 	preference->saved_val.string = NULL;
 }
@@ -1756,10 +1770,9 @@ set_pref(gchar *pref_name, gchar *value)
       break;
 
     case PREF_STRING:
-      if (*pref->varp.string == NULL || strcmp(*pref->varp.string, value) != 0) {
+      if (strcmp(*pref->varp.string, value) != 0) {
         module->prefs_changed = TRUE;
-        if (*pref->varp.string != NULL)
-          g_free(*pref->varp.string);
+        g_free(*pref->varp.string);
         *pref->varp.string = g_strdup(value);
       }
       break;

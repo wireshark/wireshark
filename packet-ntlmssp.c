@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.35 2003/03/04 20:52:33 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.36 2003/03/11 22:51:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -271,7 +271,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *challenge,
   memset(lm_password_upper, 0, sizeof(lm_password_upper));
 
   /* Create a Lan Manager hash of the input password */
-  if (nt_password) {
+  if (nt_password[0] != '\0') {
     password_len = strlen(nt_password);
     /* Truncate password if too long */
     if (password_len > 16)
