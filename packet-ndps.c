@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.14 2003/04/08 02:45:05 guy Exp $
+ * $Id: packet-ndps.c,v 1.15 2003/04/08 03:00:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6482,7 +6482,6 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     guint32                 ndps_prog=0;
     guint32                 error_val=0;
     guint32                 problem_type=0;
-    guint32                 frame_num=0;
     guint32                 field_len=0;
     guint32                 resource_type=0;
     guint32                 qualified_name_type=0;
@@ -6506,11 +6505,11 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     if (request_value) {
         ndps_prog = request_value->ndps_prog;
         ndps_func = request_value->ndps_func;
-        frame_num = request_value->ndps_frame_num;
+        proto_tree_add_uint_format(ndps_tree, hf_ndps_reqframe, tvb, 0, 
+           0, request_value->ndps_frame_num,
+           "Response to Request in Frame Number: %u",
+           request_value->ndps_frame_num);
     }
-
-    proto_tree_add_uint_format(ndps_tree, hf_ndps_reqframe, tvb, 0, 
-    0, frame_num, "Response to Request in Frame Number: %u", frame_num);
 
     if (tvb_length_remaining(tvb, foffset) < 12 && tvb_get_ntohl(tvb, foffset) == 0) /* No error and no return data */
     {
