@@ -20,6 +20,7 @@ Overview of changes in Ethereal 0.8.1:
 * Fix "Follow TCP Stream" print function (Guy)
 * Avoid segfault in SMB reported by
 	Aaron Bush <abush@microcenter.com> (Gilbert)
+* L2TP support (John Thomes)
 
 Overview of changes in Ethereal 0.8.0:
 * RPC and NFS updates, complete NFSv2 support (Uwe, Gilbert)
