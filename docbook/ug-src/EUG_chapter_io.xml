@@ -164,7 +164,7 @@
 	      <listitem><para>AIX's iptrace captures</para></listitem>
 	      <listitem><para>Cinco Networks NetXray captures</para></listitem>		  
 	      <listitem><para>Network Associates Windows-based Sniffer and Sniffer Pro captures</para></listitem>
-		  <listitem><para>Network General/Network Associates DOS-based Sniffer (compressed or unconpressed) captures</para></listitem>
+		  <listitem><para>Network General/Network Associates DOS-based Sniffer (compressed or uncompressed) captures</para></listitem>
 	      <listitem><para>AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/PacketGrabber captures</para></listitem>
 	      <listitem><para>RADCOM's WAN/LAN Analyzer captures</para></listitem>
 		  <listitem><para>Network Instruments Observer version 9 captures</para></listitem>

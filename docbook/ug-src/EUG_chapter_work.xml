@@ -950,8 +950,8 @@ eth.src[1-2] == 00:83
 	    You may enter an appropriate value in the 
 	    <command>Value</command> text box.  The <command>Value</command> 
 	    will also indicate the type of value for the 
-	    <command>field name</command> you have selected ( like 
-	    character string ).
+	    <command>field name</command> you have selected (like 
+	    character string).
 	  </para>
 	</listitem>
       </varlistentry>
@@ -1285,7 +1285,7 @@ eth.src[1-2] == 00:83
 		</listitem>
 	</itemizedlist>
 	These mark function are available from the "Edit" menu, and the "Mark packet" 
-	function is also available from the popup menu of the "Packet List" pane.
+	function is also available from the pop-up menu of the "Packet List" pane.
     </para>
   </section>
 	
@@ -1347,7 +1347,7 @@ eth.src[1-2] == 00:83
     <para>
 	To work with time references, choose one of the "Time Reference" items 
 	in the "Edit" menu , see <xref linkend="ChUseEditMenuSection"/>, or from 
-	the popup menu of the "Packet List" pane.
+	the pop-up menu of the "Packet List" pane.
 	</para>
 	<itemizedlist>
 	<listitem><para><command>Set Time Reference (toggle)</command>
