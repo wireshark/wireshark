@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.132 2001/05/20 22:20:33 guy Exp $
+ * $Id: packet-ip.c,v 1.133 2001/05/23 03:33:58 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,6 +64,9 @@ static gboolean g_ip_dscp_actif = TRUE;
 
 /* Defragment fragmented IP datagrams */
 static gboolean ip_defragment = FALSE;
+
+/* Place IP summary in proto tree */
+static gboolean ip_summary_in_tree = TRUE;
 
 static int proto_ip = -1;
 static int hf_ip_version = -1;
@@ -1147,7 +1150,14 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
  
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, FALSE);
+    if (ip_summary_in_tree && hlen >= IPH_MIN_LEN) {
+      ti = proto_tree_add_protocol_format(tree, proto_ip, tvb, offset, hlen,
+		"Internet Protocol, Src Addr: %s (%s), Dst Addr: %s (%s)",
+		get_hostname(iph.ip_src), ip_to_str((guint8 *) &iph.ip_src),
+		get_hostname(iph.ip_dst), ip_to_str((guint8 *) &iph.ip_dst));
+    } else {
+      ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, FALSE);
+    }
     ip_tree = proto_item_add_subtree(ti, ett_ip);
   }
 
@@ -1859,12 +1869,16 @@ proto_register_ip(void)
 	ip_module = prefs_register_protocol(proto_ip, NULL);
 	prefs_register_bool_preference(ip_module, "decode_tos_as_diffserv",
 	    "Decode IPv4 TOS field as DiffServ field",
-"Whether the IPv4 type-of-service field should be decoded as a Differentiated Services field",
+	    "Whether the IPv4 type-of-service field should be decoded as a Differentiated Services field",
 	    &g_ip_dscp_actif);
 	prefs_register_bool_preference(ip_module, "defragment",
 		"Reassemble fragmented IP datagrams",
 		"Whether fragmented IP datagrams should be reassembled",
 		&ip_defragment);
+	prefs_register_bool_preference(ip_module, "ip_summary_in_tree",
+	    "Show IP summary in protocol tree",
+	    "Whether the IP summary line should be shown in the protocol tree",
+	    &ip_summary_in_tree);
 
 	register_dissector("ip", dissect_ip, proto_ip);
 	register_init_routine(ip_defragment_init);

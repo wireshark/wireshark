@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.91 2001/04/23 17:56:42 guy Exp $
+ * $Id: packet-udp.c,v 1.92 2001/05/23 03:33:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 #include "resolv.h"
 #include "ipproto.h"
 #include "in_cksum.h"
+#include "prefs.h"
 
 #include "packet-udp.h"
 
@@ -61,6 +62,9 @@ static int hf_udp_checksum = -1;
 static int hf_udp_checksum_bad = -1;
 
 static gint ett_udp = -1;
+
+/* Place UDP summary in proto tree */
+static gboolean udp_summary_in_tree = TRUE;
 
 /* UDP structs and definitions */
 
@@ -138,7 +142,13 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    get_udp_port(uh_sport), get_udp_port(uh_dport));
     
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_udp, tvb, offset, 8, FALSE);
+    if (udp_summary_in_tree) {
+      ti = proto_tree_add_protocol_format(tree, proto_udp, tvb, offset, 8,
+      "User Datagram Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
+      get_udp_port(uh_sport), uh_sport, get_udp_port(uh_dport), uh_dport);
+    } else {
+      ti = proto_tree_add_item(tree, proto_udp, tvb, offset, 8, FALSE);
+    }
     udp_tree = proto_item_add_subtree(ti, ett_udp);
 
     proto_tree_add_uint_format(udp_tree, hf_udp_srcport, tvb, offset, 2, uh_sport,
@@ -221,6 +231,7 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_udp(void)
 {
+	module_t *udp_module;
 	static hf_register_info hf[] = {
 		{ &hf_udp_srcport,
 		{ "Source Port",	"udp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -259,6 +270,13 @@ proto_register_udp(void)
 	udp_dissector_table = register_dissector_table("udp.port");
 	register_heur_dissector_list("udp", &heur_subdissector_list);
 	register_conv_dissector_list("udp", &conv_subdissector_list);
+	
+	/* Register configuration preferences */
+	udp_module = prefs_register_protocol(proto_udp, NULL);
+	prefs_register_bool_preference(udp_module, "udp_summary_in_tree",
+	"Show UDP summary in protocol treee", 
+	"Whether the UDP summary line should be shown in the protocol tree",
+	&udp_summary_in_tree);
 }
 
 void
