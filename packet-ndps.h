@@ -1,11 +1,11 @@
-/* packet-ipx.h
+/* packet-ndps.h
  * Routines for NetWare's NDPS
  * Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ndps.h,v 1.1 2002/09/23 17:14:54 jmayer Exp $
+ * $Id: packet-ndps.h,v 1.2 2002/10/15 04:26:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@etheeal.com>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
