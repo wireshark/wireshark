@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.72 2000/07/28 20:03:43 gram Exp $
+ * $Id: proto.c,v 1.73 2000/07/30 06:54:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2385,6 +2385,7 @@ proto_registrar_dump(void)
 				break;
 			default:
 				g_assert_not_reached();
+				enum_name = NULL;
 			}
 			printf("F\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
 				enum_name,parent_hfinfo->abbrev);
