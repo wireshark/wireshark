@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.19 1999/12/02 04:27:46 gerald Exp $
+ * $Id: follow.c,v 1.20 1999/12/10 04:25:59 gram Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -29,7 +29,6 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -42,7 +41,6 @@
 #endif
 
 #include <glib.h>
-#include "gtk/main.h"
 #include "packet.h"
 #include "follow.h"
 
