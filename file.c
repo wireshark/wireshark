@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.282 2002/07/16 07:15:04 guy Exp $
+ * $Id: file.c,v 1.283 2002/07/21 16:54:22 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1725,6 +1725,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   struct wtap_pkthdr hdr;
   union wtap_pseudo_header pseudo_header;
   guint8        pd[65536];
+  struct stat   infile, outfile;
 
   name_ptr = get_basename(fname);
   msg_len = strlen(name_ptr) + strlen(save_fmt) + 2;
@@ -1736,8 +1737,15 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   /* 
    * Check that the from file is not the same as to file 
    * We do it here so we catch all cases ...
+   * Unfortunately, the file requester gives us an absolute file
+   * name and the read file name may be relative (if supplied on
+   * the command line). From Joerg Mayer.
    */
-  if (strcmp(cf->filename, fname) == 0) {
+   infile.st_ino = 1;   /* These prevent us from getting equality         */
+   outfile.st_ino = 2;  /* If one or other of the files is not accessible */
+   stat(cf->filename, &infile);
+   stat(fname, &outfile);
+   if (infile.st_ino == outfile.st_ino) {
     simple_dialog(ESD_TYPE_CRIT, NULL, 
 		      "Can't save over current capture file: %s!",
 		      cf->filename);
