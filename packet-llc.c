@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.108 2003/03/02 21:52:16 guy Exp $
+ * $Id: packet-llc.c,v 1.109 2003/04/18 03:41:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-netbios.h"
+#include "packet-vines.h"
 #include <epan/sna-utils.h>
 
 #include "packet-llc.h"
@@ -239,6 +240,11 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
 
 			case SAP_NETBIOS:
 				capture_netbios(ld);
+				break;
+
+			case SAP_VINES1:
+			case SAP_VINES2:
+				capture_vines(ld);
 				break;
 
 			default:
