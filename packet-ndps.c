@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.22 2003/06/04 08:38:09 guy Exp $
+ * $Id: packet-ndps.c,v 1.23 2003/07/25 04:11:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3915,6 +3915,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
     guint32             profiles_choice_type;
     guint32             integer_type_flag;
     guint32             local_servers_type;
+    gint	        length_remaining;
     proto_tree          *atree;
     proto_item          *aitem;
     proto_tree          *btree;
@@ -4046,7 +4047,8 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                         length = tvb_get_ntohl(tvb, foffset);
                         proto_tree_add_uint(btree, hf_ndps_included_doc_len, tvb, foffset, 4, length);
                         foffset += 4;
-                        if (length > tvb_length_remaining(tvb, foffset)) /* Segmented Data */
+                        length_remaining = tvb_length_remaining(tvb, foffset);
+                        if (length_remaining == -1 || length > (guint32) length_remaining) /* Segmented Data */
                         {
                             proto_tree_add_item(btree, hf_ndps_data, tvb, foffset, -1, FALSE);
                             return;
@@ -5579,7 +5581,8 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Item %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length=tvb_get_ntohl(tvb, foffset);
-                if(tvb_length_remaining(tvb, foffset) < length)
+                length_remaining = tvb_length_remaining(tvb, foffset);
+                if(length_remaining == -1 || (guint32) length_remaining < length)
                 {
                     return;
                 }
@@ -6093,6 +6096,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     guint32                 ndps_prog=0;
     guint32                 error_val=0;
     guint32                 resource_type=0;
+    gint		    length_remaining;
     
     if (!pinfo->fd->flags.visited) {
         /* Find the conversation whence the request would have come. */
@@ -6243,7 +6247,8 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Option %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 length=tvb_get_ntohl(tvb, foffset);
-                if(tvb_length_remaining(tvb, foffset) < length)
+                length_remaining = tvb_length_remaining(tvb, foffset);
+                if(length_remaining == -1 || (guint32) length_remaining < length)
                 {
                     return;
                 }
@@ -7215,7 +7220,8 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Item %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 length=tvb_get_ntohl(tvb, foffset);
-                if(tvb_length_remaining(tvb, foffset) < length)
+                length_remaining = tvb_length_remaining(tvb, foffset);
+                if(length_remaining == -1 || (guint32) length_remaining < length)
                 {
                     return;
                 }

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.78 2003/05/15 13:38:05 deniel Exp $
+ * $Id: capture_dlg.c,v 1.79 2003/07/25 04:11:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -900,10 +900,12 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 
   capture_opts.ringbuffer_num_files =
     gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(ringbuffer_nbf_sb));
-  if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
-  else if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
+  if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
     capture_opts.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+#if RINGBUFFER_MIN_NUM_FILES > 0
+  else if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+#endif
 
   capture_opts.has_ring_duration =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_duration_cb));

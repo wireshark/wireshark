@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.189 2003/06/30 00:58:18 guy Exp $
+ * $Id: tethereal.c,v 1.190 2003/07/25 04:11:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1209,10 +1209,12 @@ main(int argc, char *argv[])
     capture_opts.snaplen = MIN_PACKET_SIZE;
 
   /* Check the value range of the ringbuffer_num_files parameter */
-  if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
-  else if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
+  if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
     capture_opts.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+#if RINGBUFFER_MIN_NUM_FILES > 0
+  else if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+#endif
 #endif
 
   if (rfilter != NULL) {

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.302 2003/07/19 10:25:59 oabad Exp $
+ * $Id: main.c,v 1.303 2003/07/25 04:11:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2049,10 +2049,12 @@ main(int argc, char *argv[])
   }
 
   /* Check the value range of the ringbuffer_num_files parameter */
-  if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
-  else if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
+  if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
     capture_opts.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+#if RINGBUFFER_MIN_NUM_FILES > 0
+  else if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+#endif
 #endif
 
   rc_file = get_persconffile_path(RC_FILE, FALSE);

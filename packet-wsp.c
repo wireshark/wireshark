@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.71 2003/07/08 18:10:39 guy Exp $
+ * $Id: packet-wsp.c,v 1.72 2003/07/25 04:11:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3149,7 +3149,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 				if (value & 0x80)
 				{
 					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Confirmed push facility) ");
-					if (ret == -1 || ret >= VAL_STRING_SIZE-i) {
+					if (ret == -1 || (unsigned int) ret >= VAL_STRING_SIZE-i) {
 						/*
 						 * We've been truncated
 						 */
@@ -3164,7 +3164,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 						goto add_string;
 					}
 					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Push facility) ");
-					if (ret == -1 || ret >= VAL_STRING_SIZE-i) {
+					if (ret == -1 || (unsigned int) ret >= VAL_STRING_SIZE-i) {
 						/*
 						 * We've been truncated
 						 */
@@ -3179,7 +3179,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 						goto add_string;
 					}
 					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Session resume facility) ");
-					if (ret == -1 || ret >= VAL_STRING_SIZE-i) {
+					if (ret == -1 || (unsigned int) ret >= VAL_STRING_SIZE-i) {
 						/*
 						 * We've been truncated
 						 */
@@ -3194,7 +3194,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 						goto add_string;
 					}
 					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Acknowledgement headers) ");
-					if (ret == -1 || ret >= VAL_STRING_SIZE-i) {
+					if (ret == -1 || (unsigned int) ret >= VAL_STRING_SIZE-i) {
 						/*
 						 * We've been truncated
 						 */
@@ -3270,7 +3270,7 @@ add_capability_vals(tvbuff_t *tvb, gboolean add_string, int offsetStr,
 			ret = snprintf(valString+i,valStringSize-i,"(0x%02x) ",
 			    value);
 		}
-		if (ret == -1 || ret >= valStringSize-i) {
+		if (ret == -1 || (unsigned int) ret >= valStringSize-i) {
 			/*
 			 * We've been truncated.
 			 */

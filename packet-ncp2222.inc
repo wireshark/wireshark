@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.56 2003/07/21 09:21:53 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.57 2003/07/25 04:11:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1712,6 +1712,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
         guint16         rstate = 0;
         guint16         rnum = 0;
         guint16         revent = 0;
+	gint		length_remaining;
 
         voffset = vvalues->voffset;
         if(tvb_get_guint8(tvb, voffset) == 0x00)
@@ -1767,7 +1768,8 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                        case 0x00000009:        /* Binary String */
                        case 0x00000015:        /* Stream */
                                value1 = tvb_get_letohl(tvb, voffset); /* length of field */
-                               if(value1 > tvb_length_remaining(tvb, voffset))
+                               length_remaining = tvb_length_remaining(tvb, voffset);
+                               if(length_remaining == -1 || value1 > (guint32) length_remaining)
                                {
                                         break;
                                }
@@ -2552,6 +2554,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 	proto_item      *sub1item;
         proto_tree      *sub2tree;
 	proto_item      *sub2item;
+	gint		length_remaining;
                
        	strcpy(mval_buf.buffer, "");
         
@@ -3644,7 +3647,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                         if(values->vflags != 5)
                                         {
                                                 value1 = tvb_get_letohl(tvb, ioffset); /* length of field */
-                                                if(value1 > tvb_length_remaining(tvb, ioffset))
+                                                length_remaining = tvb_length_remaining(tvb, ioffset);
+                                                if(length_remaining == -1 || value1 > (guint32) length_remaining)
                                                 {
                                                          break;
                                                 }
