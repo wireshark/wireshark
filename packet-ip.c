@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.123 2001/02/21 19:35:49 guy Exp $
+ * $Id: packet-ip.c,v 1.124 2001/02/21 19:42:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,7 +87,7 @@ static int hf_ip_frag_offset = -1;
 static int hf_ip_ttl = -1;
 static int hf_ip_proto = -1;
 static int hf_ip_checksum = -1;
-static int hf_ip_checksum_bad = 0;
+static int hf_ip_checksum_bad = -1;
 
 static gint ett_ip = -1;
 static gint ett_ip_dsfield = -1;
