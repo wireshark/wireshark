@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.185 2002/10/23 18:24:04 guy Exp $
+# $Id: configure.in,v 1.186 2002/10/25 04:36:45 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -541,7 +541,7 @@ SNMP_LIBS=''
 AC_MSG_CHECKING(whether to use UCD SNMP/NET-SNMP library if available)
 
 AC_ARG_WITH(net-snmp,
-[  --with-net-snmp=PATH  use PATH as thee location of the net-snmp-config shell script that comes with the net-snmp package.],
+[  --with-net-snmp=PATH    use PATH as the location of the net-snmp-config shell script that comes with the net-snmp package.],
 [netsnmpconfig=$withval]
 )
 
