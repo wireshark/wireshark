@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.34 2002/04/24 19:26:18 guy Exp $
+ * $Id: packet-ldp.c,v 1.35 2002/04/24 19:35:52 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -423,6 +423,11 @@ static const value_string ldp_loose_vals[] = {
   {0, "strict hop"},
   {1, "loose hop"},
   {0, NULL}
+};
+
+static const true_false_string tlv_negotiable = {
+  "Negotiable",
+  "Not negotiable"
 };
 
 static const value_string freq_values[] = {
@@ -2322,28 +2327,28 @@ proto_register_ldp(void)
       { "Reserved", "ldp.msg.tlv.flags_reserv", FT_UINT8, BASE_HEX, NULL, 0xC0, "Reserved", HFILL}},
     
     { &hf_ldp_tlv_flags_pdr,
-      { "PDR", "ldp.msg.tlv.flags_pdr", FT_BOOLEAN, 8, NULL, 0x1, "PDR", HFILL}},
+      { "PDR", "ldp.msg.tlv.flags_pdr", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x1, "PDR negotiability flag", HFILL}},
     
     { &hf_ldp_tlv_flags_pbs,
-      { "PBS", "ldp.msg.tlv.flags_pbs", FT_BOOLEAN, 8, NULL, 0x2, "PBS", HFILL}},
+      { "PBS", "ldp.msg.tlv.flags_pbs", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x2, "PBS negotiability flag", HFILL}},
     
     { &hf_ldp_tlv_flags_cdr,
-      { "CDR", "ldp.msg.tlv.flags_cdr", FT_BOOLEAN, 8, NULL, 0x4, "CDR", HFILL}},
+      { "CDR", "ldp.msg.tlv.flags_cdr", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x4, "CDR negotiability flag", HFILL}},
     
     { &hf_ldp_tlv_flags_cbs,
-      { "CBS", "ldp.msg.tlv.flags_cbs", FT_BOOLEAN, 8, NULL, 0x8, "CBS", HFILL}},
+      { "CBS", "ldp.msg.tlv.flags_cbs", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x8, "CBS negotiability flag", HFILL}},
     
     { &hf_ldp_tlv_flags_ebs,
-      { "EBS", "ldp.msg.tlv.flags_ebs", FT_BOOLEAN, 8, NULL, 0x10, "EBS", HFILL}},
+      { "EBS", "ldp.msg.tlv.flags_ebs", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x10, "EBS negotiability flag", HFILL}},
     
     { &hf_ldp_tlv_flags_weight,
-      { "Weight", "ldp.msg.tlv.flags_weight", FT_BOOLEAN, 8, NULL, 0x20, "Weight", HFILL}},
+      { "Weight", "ldp.msg.tlv.flags_weight", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x20, "Weight negotiability flag", HFILL}},
     
     { &hf_ldp_tlv_frequency,
       { "Frequency", "ldp.msg.tlv.frequency", FT_UINT8, BASE_DEC, VALS(freq_values), 0, "Frequency", HFILL}},
     
     { &hf_ldp_tlv_weight,
-      { "Weight", "ldp.msg.tlv.weight", FT_UINT8, BASE_DEC, NULL, 0, "weight of the CR-LSP", HFILL}},
+      { "Weight", "ldp.msg.tlv.weight", FT_UINT8, BASE_DEC, NULL, 0, "Weight of the CR-LSP", HFILL}},
     
     { &hf_ldp_tlv_pdr,
       { "PDR", "ldp.msg.tlv.pdr", FT_DOUBLE, BASE_NONE, NULL, 0, "Peak Data Rate", HFILL}},
