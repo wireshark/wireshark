@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.38 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-rtsp.c,v 1.39 2001/06/19 04:46:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,7 +216,8 @@ static const char rtsp_cps[] = "client_port=";
 static const char rtsp_rtp[] = "rtp/avp";
 
 static void
-rtsp_create_conversation(const u_char *line_begin, int line_len)
+rtsp_create_conversation(packet_info *pinfo, const u_char *line_begin,
+    int line_len)
 {
 	conversation_t	*conv;
 	u_char		buf[256];
@@ -254,14 +255,14 @@ rtsp_create_conversation(const u_char *line_begin, int line_len)
 	if (!c_data_port || !s_data_port)
 		return;
 
-	conv = conversation_new(&pi.src, &pi.dst, PT_UDP, s_data_port,
+	conv = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP, s_data_port,
 		c_data_port, 0, 0);
 	conversation_set_dissector(conv, dissect_rtp);
 
 	if (!c_mon_port || !s_mon_port)
 		return;
 
-	conv = conversation_new(&pi.src, &pi.dst, PT_UDP, s_mon_port,
+	conv = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP, s_mon_port,
 		c_mon_port, 0, 0);
 	conversation_set_dissector(conv, dissect_rtcp);
 }
@@ -481,7 +482,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * a conversation that will be dissected
 				 * with the appropriate dissector.
 				 */
-				rtsp_create_conversation(line, linelen);
+				rtsp_create_conversation(pinfo, line, linelen);
 			} else if (MIME_HDR_MATCHES(rtsp_content_type)) {
 				/*
 				 * If the Content-Type: header says this
