@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.20 2003/04/20 11:36:14 guy Exp $
+ * $Id: packet-ndps.c,v 1.21 2003/04/21 23:06:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,12 @@ static guint32  save_frag_seq=0;
 static gboolean ndps_fragmented = FALSE;
 static gboolean more_fragment = FALSE;
 static guint32  tid = 1;
+
+/* Show ID's value */
+static gboolean ndps_show_oids=FALSE;
+
+/* Global Attribute for evaluation of Values */
+static char *global_attribute_name=NULL;
 
 static void dissect_ndps_request(tvbuff_t*, packet_info*, proto_tree*, guint32, guint32, int);
 
@@ -284,6 +290,25 @@ static int hf_packet_count = -1;
 static int hf_last_packet_flag = -1;
 static int hf_ndps_get_resman_session_type = -1;
 static int hf_problem_type = -1;
+static int hf_ndps_values = -1;
+static int hf_ndps_object_ids_7 = -1;
+static int hf_ndps_object_ids_8 = -1;
+static int hf_ndps_object_ids_9 = -1;
+static int hf_ndps_object_ids_10 = -1;
+static int hf_ndps_object_ids_11 = -1;
+static int hf_ndps_object_ids_12 = -1;
+static int hf_ndps_object_ids_13 = -1;
+static int hf_ndps_object_ids_14 = -1;
+static int hf_ndps_object_ids_15 = -1;
+static int hf_ndps_object_ids_16 = -1;
+static int hf_ndps_attribute_time = -1;
+static int hf_print_security = -1;
+static int hf_notify_time_interval = -1;
+static int hf_notify_sequence_number = -1;
+static int hf_notify_lease_exp_time = -1;
+static int hf_notify_printer_uri = -1;
+static int hf_level = -1;
+static int hf_interval = -1;
 
 static int hf_spx_ndps_program = -1;
 static int hf_spx_ndps_version = -1;
@@ -516,6 +541,8 @@ static const value_string spx_ndps_print_func_vals[] = {
     { 0x00000020, "Set Printer DS Information" },
     { 0x00000021, "Clean User Jobs" },
     { 0x00000022, "Map GUID to NDS Name" },
+    { 0x00000023, "Add Event Profile 2" },
+    { 0x00000024, "List Event Profile 2" },
     { 0,          NULL }
 };
 
@@ -784,6 +811,13 @@ static const value_string ndps_page_orientation_enum[] = {
     { 0x00000000, "Unknown" },
     { 0x00000001, "Face Up" },
     { 0x00000002, "Face Down" },
+    { 0,          NULL }
+};
+
+static const value_string ndps_print_security[] = {
+    { 0x00000001, "Low" },
+    { 0x00000002, "Medium" },
+    { 0x00000003, "High" },
     { 0,          NULL }
 };
 
@@ -1535,7 +1569,6 @@ ndps_string(tvbuff_t* tvb, int hfinfo, proto_tree *ndps_tree, int offset)
         str_length = tvb_get_ntohl(tvb, foffset);
         foffset += 4;
         length_remaining = tvb_length_remaining(tvb, foffset);
-        g_assert(length_remaining > 0);
         if(str_length > (guint)length_remaining || str_length > 1024)
         {
                 proto_tree_add_string(ndps_tree, hfinfo, tvb, foffset,
@@ -1591,26 +1624,171 @@ static int
 objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
     guint32  length=0;
+    char        *label=NULL;
+    guint32     label_value=0;
+    proto_tree  *atree;
+    proto_item  *aitem;
+    gboolean    found=TRUE;
  
     if (tvb_get_ntohl(tvb, foffset)==0) 
     {
         return foffset;
     }
-    proto_tree_add_item(ndps_tree, hf_oid_struct_size, tvb, foffset, 4, FALSE);
+    length = tvb_get_ntohl(tvb, foffset);
     foffset += 4;
-    proto_tree_add_item(ndps_tree, hf_oid_asn1_type, tvb, foffset, 1, FALSE);
-    foffset += 1;
-    length = tvb_get_guint8(tvb, foffset);
-    foffset += 1;
-    proto_tree_add_item(ndps_tree, hf_ndps_oid, tvb, foffset, length, FALSE);
-    foffset += length;
+    switch (length)
+    {
+    case 9:
+        label_value = tvb_get_ntohl(tvb, foffset+5);
+        label = match_strval(label_value, object_ids_7);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_7, tvb, foffset, length, label);
+        break;
+    case 10:
+        label_value = tvb_get_ntohl(tvb, foffset+6);
+        label = match_strval(label_value, object_ids_8);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_8, tvb, foffset, length, label);
+        break;
+    case 11:
+        label_value = tvb_get_ntohl(tvb, foffset+7);
+        label = match_strval(label_value, object_ids_9);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_9, tvb, foffset, length, label);
+        break;
+    case 12:
+        label_value = tvb_get_ntohl(tvb, foffset+8);
+        label = match_strval(label_value, object_ids_10);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_10, tvb, foffset, length, label);
+        break;
+    case 13:
+        label_value = tvb_get_ntohl(tvb, foffset+9);
+        label = match_strval(label_value, object_ids_11);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_11, tvb, foffset, length, label);
+        break;
+    case 14:
+        label_value = tvb_get_ntohl(tvb, foffset+10);
+        label = match_strval(label_value, object_ids_12);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_12, tvb, foffset, length, label);
+        break;
+    case 15:
+        label_value = tvb_get_ntohl(tvb, foffset+11);
+        label = match_strval(label_value, object_ids_13);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_13, tvb, foffset, length, label);
+        break;
+    case 16:
+        label_value = tvb_get_ntohl(tvb, foffset+12);
+        label = match_strval(label_value, object_ids_14);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_14, tvb, foffset, length, label);
+        break;
+    case 17:
+        label_value = tvb_get_ntohl(tvb, foffset+13);
+        label = match_strval(label_value, object_ids_15);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_15, tvb, foffset, length, label);
+        break;
+    case 18:
+        label_value = tvb_get_ntohl(tvb, foffset+14);
+        label = match_strval(label_value, object_ids_16);
+        if (label==NULL) 
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            found=FALSE;
+            break;
+        }
+        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_16, tvb, foffset, length, label);
+        break;
+    default:
+        aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+        found=FALSE;
+        break;
+    }
+    if (!found) 
+    {
+        label_value = 1;
+        label = match_strval(label_value, object_ids_7);
+    }
+    if (ndps_show_oids)
+    {
+        atree = proto_item_add_subtree(aitem, ett_ndps);
+        proto_tree_add_item(atree, hf_oid_asn1_type, tvb, foffset, 1, FALSE);
+        foffset += 1;
+        length = tvb_get_guint8(tvb, foffset);
+        foffset += 1;
+        proto_tree_add_item(atree, hf_ndps_oid, tvb, foffset, length, FALSE);
+        foffset += length;
+    }
+    else
+    {
+        if (!found) 
+        {
+            foffset += length;
+        }
+        else
+        {
+            foffset += 1;
+            length = tvb_get_guint8(tvb, foffset);
+            foffset += 1;
+            foffset += length;
+        }
+    }
+    global_attribute_name = label;
     return foffset+(length%2);
 }
 
 static int
 name_or_id(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
-    guint8  length=0;
 
     proto_tree_add_item(ndps_tree, hf_ndps_nameorid, tvb, foffset, 4, FALSE);
     foffset += 4;
@@ -1629,13 +1807,30 @@ name_or_id(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 }
 
 static int
+qualifiedname(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
+{
+    guint32     qualified_name_type=0;
+
+    qualified_name_type = tvb_get_ntohl(tvb, foffset);
+    proto_tree_add_uint(ndps_tree, hf_ndps_qualified_name, tvb, foffset, 4, qualified_name_type);
+    foffset += 4;
+    if (qualified_name_type != 0) {
+        if (qualified_name_type == 1) {
+            foffset = ndps_string(tvb, hf_printer_name, ndps_tree, foffset);
+        }
+        else
+        {
+            foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
+            foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
+        }
+    }
+    return foffset;
+}
+
+static int
 objectidentification(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
-    guint32     h=0;
-    guint32     object_count=0;
     guint32     object_type=0;
-    guint32     qualified_name_type=0;
-    guint32     length=0;
     proto_tree  *atree;
     proto_item  *aitem;
       
@@ -1653,9 +1848,6 @@ objectidentification(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             break;
         case 1:         /* Document Identifier */
             foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-            /*proto_tree_add_item(atree, hf_ndps_object, tvb, foffset, 
-            4, FALSE);
-            foffset += 4;*/
             proto_tree_add_item(atree, hf_ndps_document_number, tvb, foffset, 
             4, FALSE);
             foffset += 4;
@@ -1680,20 +1872,7 @@ objectidentification(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
             break;
         case 7:         /* Qualified Name */
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             break;
         case 8:         /* Event Object ID */
             foffset = ndps_string(tvb, hf_object_name, atree, foffset);
@@ -1703,74 +1882,6 @@ objectidentification(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
         default:
             break;
-    }
-    return foffset;
-}
-
-static int
-address_item(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
-{
-    guint32     address_type=0;
-    guint32     qualified_name_type;
-    guint32     transport_type=0;
-    guint32     octet_len=0;
-
-    address_type = tvb_get_ntohl(tvb, foffset); 
-    proto_tree_add_uint(ndps_tree, hf_address_type, tvb, foffset, 4, address_type);
-    foffset += 4;
-    switch(address_type)
-    {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-        qualified_name_type = tvb_get_ntohl(tvb, foffset);
-        proto_tree_add_uint(ndps_tree, hf_ndps_qualified_name, tvb, foffset, 
-        4, qualified_name_type);
-        foffset += 4;
-        if (qualified_name_type != 0) {
-            if (qualified_name_type == 1) {
-                foffset = ndps_string(tvb, hf_printer_name, ndps_tree, foffset);
-            }
-            else
-            {
-                foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-            }
-        }
-        break;
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 12:
-        foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
-        break;
-    case 13:
-        proto_tree_add_item(ndps_tree, hf_ndps_attrib_boolean, tvb, foffset, 4, FALSE);
-        foffset += 4;
-        break;
-    case 14:
-        proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
-        foffset += 4;
-        break;
-    case 15:
-        transport_type=tvb_get_ntohl(tvb, foffset);
-        proto_tree_add_item(ndps_tree, hf_ndps_address, tvb, foffset, 4, FALSE);
-        foffset += 4;
-        octet_len = tvb_get_ntohl(tvb, foffset);
-        proto_tree_add_item(ndps_tree, hf_ndps_add_bytes, tvb, foffset, 4, FALSE);
-        foffset += octet_len + 4;
-        break;
-    case 16:
-    case 17:
-    default:
-        foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
-        break;
     }
     return foffset;
 }
@@ -1809,18 +1920,280 @@ print_address(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     return foffset+(address_len%4);
 }
 
+static int
+address_item(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
+{
+    guint32     address_type=0;
+
+    address_type = tvb_get_ntohl(tvb, foffset); 
+    proto_tree_add_uint(ndps_tree, hf_address_type, tvb, foffset, 4, address_type);
+    foffset += 4;
+    switch(address_type)
+    {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+        foffset = qualifiedname(tvb, ndps_tree, foffset);
+        break;
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+        foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
+        break;
+    case 13:
+        proto_tree_add_item(ndps_tree, hf_ndps_attrib_boolean, tvb, foffset, 4, FALSE);
+        foffset += 4;
+        break;
+    case 14:
+        proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+        foffset += 4;
+        break;
+    case 15:
+        foffset = print_address(tvb, ndps_tree, foffset);
+        break;
+    case 16:
+    case 17:
+    default:
+        foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
+        break;
+    }
+    return foffset;
+}
+
+static int
+credentials(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
+{
+    guint32     cred_type=0;
+    guint32     length=0;
+    guint32     number_of_items=0;
+    guint32     i;
+    proto_tree  *atree;
+    proto_item  *aitem;
+
+    cred_type = tvb_get_ntohl(tvb, foffset);
+    proto_tree_add_item(ndps_tree, hf_ndps_cred_type, tvb, foffset, 4, FALSE);
+    foffset += 4;
+    switch (cred_type)
+    {
+    case 0:
+        foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
+        number_of_items=tvb_get_ntohl(tvb, foffset);
+        foffset += 4;
+        for (i = 1 ; i <= number_of_items; i++ )
+        {
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Password %d", i);
+            atree = proto_item_add_subtree(aitem, ett_ndps);
+            length = tvb_get_ntohl(tvb, foffset);
+            foffset += 4;
+            proto_tree_add_item(atree, hf_ndps_password, tvb, foffset, length, FALSE);
+            foffset += length;
+        }
+        break;
+    case 1:
+        length = tvb_get_ntohl(tvb, foffset);
+        foffset += 4;
+        proto_tree_add_item(ndps_tree, hf_ndps_certified, tvb, foffset, length, FALSE);
+        foffset += length;
+        break;
+    case 2:
+        foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
+        foffset += 2;
+        proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 2, FALSE);
+        foffset += 2;
+        break;
+    case 3:
+        length=tvb_get_ntohl(tvb, foffset);
+        foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
+        if (length == 0) 
+        {
+            foffset += 2;
+        }
+        if (tvb_get_ntohs(tvb, foffset)==0)  /* NDPS 1.0 */
+        {
+            foffset+=2;
+            if (tvb_get_ntohs(tvb, foffset)==0)  /* NDPS 1.1 */
+            {
+                foffset += 2;
+            }
+        }
+        proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 2, FALSE);
+        foffset += 2;
+        foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
+        break;
+    case 4:
+        foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
+        foffset += 2;
+        proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 2, FALSE);
+        foffset += 2;
+        foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
+        foffset += 8;   /* Don't know what these 8 bytes signify */
+        proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset, 4, FALSE);
+        foffset += 4;
+        foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
+        foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
+        break;
+    default:
+        break;
+    }
+    return foffset;
+}
+
+
+static int
+event_object_set(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
+{
+    guint32     number_of_items=0;
+    guint32     number_of_items2=0;
+    guint32     i=0;
+    guint32     j=0;
+    proto_tree  *atree;
+    proto_item  *aitem;
+    proto_tree  *btree;
+    proto_item  *bitem;
+    proto_tree  *ctree;
+    proto_item  *citem;
+
+    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event");
+    atree = proto_item_add_subtree(aitem, ett_ndps);
+    number_of_items = tvb_get_ntohl(tvb, foffset);
+    foffset += 4;
+    for (i = 1 ; i <= number_of_items; i++ )
+    {
+        bitem = proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
+        btree = proto_item_add_subtree(bitem, ett_ndps);
+        foffset += 4;
+        foffset = objectidentifier(tvb, btree, foffset);
+        foffset += align_4(tvb, foffset);
+        foffset = objectidentification(tvb, btree, foffset);
+        foffset += align_4(tvb, foffset);
+        proto_tree_add_item(btree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
+        foffset += 4;
+        proto_tree_add_uint(btree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
+        foffset += 4;
+        if(tvb_get_ntohl(tvb, foffset-4)==1)
+        {
+            foffset = objectidentifier(tvb, btree, foffset);
+            foffset += align_4(tvb, foffset);
+        }
+        else
+        {
+            if(tvb_get_ntohl(tvb, foffset-4)==2)
+            {
+                number_of_items2 = tvb_get_ntohl(tvb, foffset);
+                foffset += 4;
+                for (j = 1 ; j <= number_of_items2; j++ )
+                {
+                    citem = proto_tree_add_text(btree, tvb, foffset, 0, "Item %d", j);
+                    ctree = proto_item_add_subtree(citem, ett_ndps);
+                    foffset = objectidentifier(tvb, ctree, foffset);
+                    foffset += align_4(tvb, foffset);
+                }
+            }
+        }
+    }
+    return foffset;
+}
+
+
+static int
+cardinal_seq(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
+{
+    guint32     number_of_items=0;
+    guint32     length=0;
+    guint32     i=0;
+    proto_tree  *atree;
+    proto_item  *aitem;
+
+    number_of_items = tvb_get_ntohl(tvb, foffset);
+    foffset += 4;
+    for (i = 1 ; i <= number_of_items; i++ )
+    {
+        aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Cardinal %d", i);
+        atree = proto_item_add_subtree(aitem, ett_ndps);
+        length = tvb_get_ntohl(tvb, foffset);
+        foffset += 4;
+        proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
+        foffset += length;
+        foffset += (length%2);
+    }
+    return foffset;
+}
+
+
+static int
+server_entry(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
+{
+    guint32     number_of_items=0;
+    guint32     i=0;
+    guint32     data_type=0;
+    proto_tree  *atree;
+    proto_item  *aitem;
+    proto_tree  *btree;
+    proto_item  *bitem;
+    proto_tree  *ctree;
+    proto_item  *citem;
+
+    foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
+    aitem = proto_tree_add_item(ndps_tree, hf_ndps_server_type, tvb, foffset, 4, FALSE);
+    atree = proto_item_add_subtree(aitem, ett_ndps);
+    foffset += 4;
+    foffset = print_address(tvb, atree, foffset);
+    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Server Info");
+    btree = proto_item_add_subtree(bitem, ett_ndps);
+    number_of_items = tvb_get_ntohl(tvb, foffset); 
+    foffset += 4;
+    for (i = 1 ; i <= number_of_items; i++ )
+    {
+        citem = proto_tree_add_text(btree, tvb, foffset, 0, "Info %d", i);
+        ctree = proto_item_add_subtree(citem, ett_ndps);
+        data_type = tvb_get_ntohl(tvb, foffset);
+        proto_tree_add_item(ctree, hf_ndps_data_item_type, tvb, foffset, 4, FALSE);
+        foffset += 4;
+        switch (data_type) 
+        {
+        case 0:   /* Int8 */
+            proto_tree_add_item(ctree, hf_info_int, tvb, foffset, 1, FALSE);
+            foffset++;
+            break;
+        case 1:   /* Int16 */
+            proto_tree_add_item(ctree, hf_info_int16, tvb, foffset, 2, FALSE);
+            foffset += 2;
+            break;
+        case 2:   /* Int32 */
+            proto_tree_add_item(ctree, hf_info_int32, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            break;
+        case 3:   /* Boolean */
+            proto_tree_add_item(ctree, hf_info_boolean, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            break;
+        case 4:   /* String */
+        case 5:   /* Bytes */
+            foffset = ndps_string(tvb, hf_info_string, ctree, foffset);
+            break;
+        default:
+            break;
+        }
+    }
+    return foffset;
+}
+
 
 static int
 attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
-    guint8      h;
-    guint8      i;
-    guint8      j;
-    guint8      number_of_values=0;
-    guint8      number_of_items=0;
-    guint8      number_of_items2=0;
+    guint32     i;
+    guint32     j;
+    guint32     number_of_items=0;
+    guint32     number_of_items2=0;
     guint32     attribute_type=0;
-    guint32     qualified_name_type=0;
     guint32     integer_or_oid=0;
     guint32     event_object_type=0;
     guint32     ignored_type=0;
@@ -1835,21 +2208,29 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     guint32     numbers_up=0;
     guint32     colorant_set=0;
     guint32     length=0;
+    char        *label;
+    guint32     label_value=0;
     proto_tree  *atree;
     proto_item  *aitem;
     proto_tree  *btree;
     proto_item  *bitem;
-    proto_tree  *ctree;
-    proto_item  *citem;
 
+    if (global_attribute_name==NULL)
+    {
+        label_value = 1;
+        label = match_strval(label_value, object_ids_7);
+        global_attribute_name = label;
+    }
     attribute_type = tvb_get_ntohl(tvb, foffset); 
-    aitem = proto_tree_add_item(ndps_tree, hf_obj_attribute_type, tvb, foffset, 4, FALSE);
-    atree = proto_item_add_subtree(aitem, ett_ndps);
+    if (ndps_show_oids)
+    {
+        proto_tree_add_item(ndps_tree, hf_obj_attribute_type, tvb, foffset, 4, FALSE);
+    }
     foffset += 4;
     switch(attribute_type)
     {
         case 0:         /* Null */
-            proto_tree_add_item(atree, hf_ndps_data, tvb, foffset+4, tvb_get_ntohl(tvb, foffset), FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_data, tvb, foffset+4, tvb_get_ntohl(tvb, foffset), FALSE);
             break;
         case 1:         /* Text */
         case 2:         /* Descriptive Name */
@@ -1861,33 +2242,35 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 102:         /* File Path */
         case 103:         /* Uniform Resource Identifier */
         case 108:         /* Extended Resource Identifier */
-            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
+            foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
             break;
         case 4:         /* Message */
         case 5:         /* Error Message */
         case 38:         /* Name or OID */
-            foffset = name_or_id(tvb, atree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
             break;
         case 39:         /* Name or OID Seq */
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Item %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = name_or_id(tvb, atree, foffset);
             }
             break;
         case 7:         /* Distinguished Name String*/
         case 79:         /* File Reference */
-            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
-            foffset = name_or_id(tvb, atree, foffset);
+            foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
             break;
         case 8:         /* Distinguished Name String Seq */
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Name %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_object_name, atree, foffset);
                 foffset = name_or_id(tvb, atree, foffset);
             }
@@ -1903,8 +2286,16 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 57:         /* Job Priority */
         case 72:         /* Sides */
         case 95:         /* Enumeration */
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
-            foffset += 4;
+            if (strcmp(global_attribute_name,"(Novell) Attribute PRINTER SECURITY LEVEL")==0)
+            {
+                proto_tree_add_item(ndps_tree, hf_print_security, tvb, foffset, 4, FALSE);
+                foffset += 4;
+            }
+            else
+            {
+                proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+                foffset += 4;
+            }
             break;
         case 12:         /* Integer Seq */
         case 14:         /* Cardinal Seq */
@@ -1915,9 +2306,9 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             break;
         case 16:         /* Integer Range */
         case 17:         /* Cardinal Range */
-            proto_tree_add_item(atree, hf_ndps_lower_range, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_lower_range, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_upper_range, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_upper_range, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 20:         /* Integer 64 */
@@ -1925,17 +2316,18 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 24:         /* Positive Integer 64 */
         case 31:         /* Non-Negative Real */
         case 29:         /* Real */
-            proto_tree_add_item(atree, hf_ndps_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
             break;
         case 21:         /* Integer 64 Seq */
         case 23:         /* Cardinal 64 Seq */
         case 30:         /* Real Seq */
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Item %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
             }
@@ -1944,126 +2336,130 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 26:         /* Cardinal 64 Range */
         case 32:         /* Real Range */
         case 33:         /* Non-Negative Real Range */
-            proto_tree_add_item(atree, hf_ndps_lower_range_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_lower_range_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
-            proto_tree_add_item(atree, hf_ndps_upper_range_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_upper_range_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
             break;
         case 27:         /* Maximum Integer 64 */
-            proto_tree_add_item(atree, hf_ndps_lower_range_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_lower_range_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
             break;
         case 28:         /* Minimum Integer 64 */
-            proto_tree_add_item(atree, hf_ndps_upper_range_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_upper_range_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
             break;
         case 34:         /* Boolean */
-            proto_tree_add_item(atree, hf_ndps_attrib_boolean, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attrib_boolean, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 36:         /* Object Identifier */
-                foffset = objectidentifier(tvb, atree, foffset);
+                foffset = objectidentifier(tvb, ndps_tree, foffset);
             break;
         case 37:         /* Object Identifier Seq */
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = objectidentifier(tvb, atree, foffset);
             }
             break;
         case 41:         /* Relative Distinguished Name Seq */
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Name %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_object_name, atree, foffset);
             }
             break;
         case 42:         /* Realization */
-            proto_tree_add_item(atree, hf_ndps_realization, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_realization, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 43:         /* Medium Dimensions */
-            proto_tree_add_item(atree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
-            proto_tree_add_item(atree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
             break;
         case 44:         /* Dimension */
-            proto_tree_add_item(atree, hf_ndps_dim_value, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_dim_value, tvb, foffset, 8, FALSE);
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4) == 0) {
-                proto_tree_add_item(atree, hf_ndps_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
             }
             else
             {
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
             }
-            proto_tree_add_item(atree, hf_ndps_dim_flag, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_dim_flag, tvb, foffset, 8, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
             break;
         case 45:         /* XY Dimensions */
-            proto_tree_add_item(atree, hf_ndps_xydim_value, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_xydim_value, tvb, foffset, 8, FALSE);
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4) == 1) {
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
             }
             else
             {
-                proto_tree_add_item(atree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
             }
-            proto_tree_add_item(atree, hf_ndps_dim_flag, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_dim_flag, tvb, foffset, 8, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
             break;
         case 46:         /* Locations */
-            proto_tree_add_item(atree, hf_ndps_location_value, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_location_value, tvb, foffset, 8, FALSE);
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4) == 0) {
-                proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Location %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     proto_tree_add_item(atree, hf_ndps_n64, tvb, foffset, 8, FALSE);
                     foffset += 8;
                 }
             }
             else
             {
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
             }
-            proto_tree_add_item(atree, hf_ndps_dim_flag, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_dim_flag, tvb, foffset, 8, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
             break;
         case 47:         /* Area */
-            proto_tree_add_item(atree, hf_ndps_xmin_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_xmin_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
-            proto_tree_add_item(atree, hf_ndps_xmax_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_xmax_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
-            proto_tree_add_item(atree, hf_ndps_ymin_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_ymin_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
-            proto_tree_add_item(atree, hf_ndps_ymax_n64, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_ymax_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
             break;
         case 48:         /* Area Seq */
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Area %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_xmin_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
                 proto_tree_add_item(atree, hf_ndps_xmax_n64, tvb, foffset, 8, FALSE);
@@ -2075,85 +2471,76 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             break;
         case 49:         /* Edge */
-            proto_tree_add_item(atree, hf_ndps_edge_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_edge_value, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 51:         /* Cardinal or OID */
-            proto_tree_add_item(atree, hf_ndps_cardinal_or_oid, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_cardinal_or_oid, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4)==0) {
-                proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
                 foffset += 4;
             }
             else
             {
-                foffset = objectidentifier(tvb, atree, foffset);
+                foffset = objectidentifier(tvb, ndps_tree, foffset);
             }
             break;
         case 52:         /* OID Cardinal Map */
-            foffset = objectidentifier(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 53:         /* Cardinal or Name or OID */
-            proto_tree_add_item(atree, hf_ndps_cardinal_name_or_oid, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_cardinal_name_or_oid, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4)==0) {
-                proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
                 foffset += 4;
             }
             else
             {
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
             }
             break;
         case 54:         /* Positive Integer or OID */
             integer_or_oid = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_integer_or_oid, tvb, foffset, 4, integer_or_oid);
+            proto_tree_add_uint(ndps_tree, hf_ndps_integer_or_oid, tvb, foffset, 4, integer_or_oid);
             foffset += 4;
             if (integer_or_oid==0) {
-                foffset = objectidentifier(tvb, atree, foffset);
+                foffset = objectidentifier(tvb, ndps_tree, foffset);
             }
             else
             {
-                proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
                 foffset += 4;
             }
             break;
         case 55:         /* Event Handling Profile */
-            proto_tree_add_item(atree, hf_ndps_profile_id, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_profile_id, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
             foffset += 4;
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
             foffset += length;
-            proto_tree_add_item(atree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
             foffset += 4;
-            foffset = name_or_id(tvb, atree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Address Item %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += address_item(tvb, atree, foffset);
             }
             number_of_items = tvb_get_ntohl(tvb, foffset);
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 foffset = objectidentifier(tvb, atree, foffset);
@@ -2173,11 +2560,12 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                     if(event_object_type==0)
                     {
                         number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items2);
                         foffset += 4;
                         for (j = 1 ; j <= number_of_items2; j++ )
                         {
-                            foffset = objectidentifier(tvb, atree, foffset);
+                            bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Object %d", i);
+                            btree = proto_item_add_subtree(bitem, ett_ndps);
+                            foffset = objectidentifier(tvb, btree, foffset);
                         }
                     }
                 }
@@ -2186,14 +2574,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 56:         /* Octet String */
         case 63:         /* Job Password */
         case 66:         /* Print Checkpoint */
-            length = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
-            foffset += length;
-            foffset += (length%2);
+            foffset = ndps_string(tvb, hf_info_string, ndps_tree, foffset);
             break;
         case 59:         /* Method Delivery Address */
-            proto_tree_add_item(atree, hf_ndps_delivery_add_type, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_delivery_add_type, tvb, foffset, 4, FALSE);
             event_object_type = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             switch(event_object_type)
@@ -2201,72 +2585,54 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 case 0:     /*MHS ADDR*/
                 case 1:     /*DISTINGUISHED_NAME*/
                 case 2:     /*TEXT*/
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                    break;
                 case 3:     /*OCTET_STRING*/
-                    length = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
-                    foffset += length;
-                    foffset += (length%2);
+                    foffset = ndps_string(tvb, hf_info_string, ndps_tree, foffset);
                     break;
                 case 4:     /*DIST_NAME_STRING*/
-                    foffset = ndps_string(tvb, hf_object_name, atree, foffset);
-                    foffset = name_or_id(tvb, atree, foffset);
+                    foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
+                    foffset = name_or_id(tvb, ndps_tree, foffset);
                     break;
                 case 5:     /*RPC_ADDRESS*/
                 case 6:     /*QUALIFIED_NAME*/
-                    foffset = objectidentifier(tvb, atree, foffset);
-                    qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                    proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-                    4, qualified_name_type);
-                    foffset += 4;
-                    if (qualified_name_type != 0) {
-                        if (qualified_name_type == 1) {
-                            foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                        }
-                        else
-                        {
-                            foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                            foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                        }
-                    }
+                    foffset = objectidentifier(tvb, ndps_tree, foffset);
+                    foffset = qualifiedname(tvb, ndps_tree, foffset);
                     break;
                 default:
                     break;
             }
             break;
         case 60:         /* Object Identification */
-            foffset = objectidentification(tvb, atree, foffset);
+            foffset = objectidentification(tvb, ndps_tree, foffset);
             break;
         case 61:         /* Results Profile */
-            foffset = objectidentifier(tvb, atree, foffset);
-            foffset = name_or_id(tvb, atree, foffset);
-            foffset = address_item(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
+            foffset = address_item(tvb, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
-            foffset = name_or_id(tvb, atree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
             break;
         case 62:         /* Criteria */
-            foffset = objectidentifier(tvb, atree, foffset);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
             criterion_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_criterion_type, tvb, foffset, 4, criterion_type);
+            proto_tree_add_uint(ndps_tree, hf_ndps_criterion_type, tvb, foffset, 4, criterion_type);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 64:         /* Job Level */
-            foffset = objectidentifier(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 65:         /* Job Categories */
-            foffset = objectidentifier(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Job %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
                 proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
@@ -2275,14 +2641,15 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             break;
         case 67:         /* Ignored Attribute */
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
-            foffset = objectidentifier(tvb, atree, foffset);
-            proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Ignored Attribute %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 ignored_type = tvb_get_ntohl(tvb, foffset);
                 proto_tree_add_uint(atree, hf_ndps_ignored_type, tvb, foffset, 4, ignored_type);
                 foffset += 4;
@@ -2298,31 +2665,32 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             break;
         case 68:         /* Resource */
             resource_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_resource_type, tvb, foffset, 4, resource_type);
+            proto_tree_add_uint(ndps_tree, hf_ndps_resource_type, tvb, foffset, 4, resource_type);
             foffset += 4;
             if (resource_type == 0)
             {
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
             }
             else
             {
-                foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
+                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
             }
             break;
         case 69:         /* Medium Substitution */
-            foffset = name_or_id(tvb, atree, foffset);
-            foffset = name_or_id(tvb, atree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
             break;
         case 70:         /* Font Substitution */
-            foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-            foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
+            foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
+            foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
             break;
         case 71:         /* Resource Context Seq */
-            proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Resource %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 resource_type = tvb_get_ntohl(tvb, foffset);
                 proto_tree_add_uint(atree, hf_ndps_resource_type, tvb, foffset, 4, resource_type);
                 foffset += 4;
@@ -2337,11 +2705,12 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             break;
         case 73:         /* Page Select Seq */
-            proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Page Select %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_page_flag, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 identifier_type = tvb_get_ntohl(tvb, foffset);
@@ -2382,19 +2751,21 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             break;
         case 74:         /* Page Media Select */
             media_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_media_type, tvb, foffset, 4, media_type);
+            proto_tree_add_uint(ndps_tree, hf_ndps_media_type, tvb, foffset, 4, media_type);
             foffset += 4;
             if (media_type == 0)
             {
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
             }
             else
             {
-                foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
+                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Item %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     proto_tree_add_item(atree, hf_ndps_page_flag, tvb, foffset, 4, FALSE);
                     foffset += 4;
                     identifier_type = tvb_get_ntohl(tvb, foffset);
@@ -2418,114 +2789,115 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             break;
         case 75:         /* Document Content */
             doc_content = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_doc_content, tvb, foffset, 4, doc_content);
+            proto_tree_add_uint(ndps_tree, hf_ndps_doc_content, tvb, foffset, 4, doc_content);
             foffset += 4;
             if (doc_content == 0)
             {
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
                 foffset += length;
                 foffset += (length%2);
             }
             else
             {
-                foffset = ndps_string(tvb, hf_object_name, atree, foffset);
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
             }
             break;
         case 76:         /* Page Size */
             page_size = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_page_size, tvb, foffset, 4, page_size);
+            proto_tree_add_uint(ndps_tree, hf_ndps_page_size, tvb, foffset, 4, page_size);
             foffset += 4;
             if (page_size == 0)
             {
-                foffset = objectidentifier(tvb, atree, foffset);
+                foffset = objectidentifier(tvb, ndps_tree, foffset);
             }
             else
             {
-                proto_tree_add_item(atree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
             }
             break;
         case 77:         /* Presentation Direction */
-            proto_tree_add_uint(atree, hf_ndps_direction, tvb, foffset, 4, FALSE);
+            proto_tree_add_uint(ndps_tree, hf_ndps_direction, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 78:         /* Page Order */
-            proto_tree_add_uint(atree, hf_ndps_page_order, tvb, foffset, 4, FALSE);
+            proto_tree_add_uint(ndps_tree, hf_ndps_page_order, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 80:         /* Medium Source Size */
-            foffset = name_or_id(tvb, atree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
             medium_size = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_medium_size, tvb, foffset, 4, medium_size);
+            proto_tree_add_uint(ndps_tree, hf_ndps_medium_size, tvb, foffset, 4, medium_size);
             foffset += 4;
             if (medium_size == 0)
             {
                 page_size = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(atree, hf_ndps_page_size, tvb, foffset, 4, page_size);
+                proto_tree_add_uint(ndps_tree, hf_ndps_page_size, tvb, foffset, 4, page_size);
                 foffset += 4;
                 if (page_size == 0)
                 {
-                    foffset = objectidentifier(tvb, atree, foffset);
+                    foffset = objectidentifier(tvb, ndps_tree, foffset);
                 }
                 else
                 {
-                    proto_tree_add_item(atree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
+                    proto_tree_add_item(ndps_tree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
                     foffset += 8;
-                    proto_tree_add_item(atree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
+                    proto_tree_add_item(ndps_tree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
                     foffset += 8;
                 }
-                proto_tree_add_item(atree, hf_ndps_long_edge_feeds, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_long_edge_feeds, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_ndps_xmin_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_xmin_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_xmax_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_xmax_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_ymin_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_ymin_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_ymax_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_ymax_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
             }
             else
             {
-                proto_tree_add_item(atree, hf_ndps_lower_range_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_lower_range_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_upper_range_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_upper_range_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_inc_across_feed, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_inc_across_feed, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_lower_range_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_lower_range_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_upper_range_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_upper_range_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_size_inc_in_feed, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_size_inc_in_feed, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_long_edge_feeds, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_long_edge_feeds, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_ndps_xmin_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_xmin_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_xmax_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_xmax_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_ymin_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_ymin_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
-                proto_tree_add_item(atree, hf_ndps_ymax_n64, tvb, foffset, 8, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_ymax_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
             }
             break;
         case 81:         /* Input Tray Medium */
-            foffset = name_or_id(tvb, atree, foffset);
-            foffset = name_or_id(tvb, atree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
             break;
         case 82:         /* Output Bins Characteristics */
-            proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Page Information %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_uint(atree, hf_ndps_page_order, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 proto_tree_add_uint(atree, hf_ndps_page_orientation, tvb, foffset, 4, FALSE);
@@ -2533,58 +2905,60 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             break;
         case 83:         /* Page ID Type */
-            proto_tree_add_uint(atree, hf_ndps_identifier_type, tvb, foffset, 4, FALSE);
+            proto_tree_add_uint(ndps_tree, hf_ndps_identifier_type, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 84:         /* Level Range */
-            foffset = objectidentifier(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_lower_range, tvb, foffset, 4, FALSE);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_lower_range, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_upper_range, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_upper_range, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 85:         /* Category Set */
-            foffset = objectidentifier(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Category %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
                 proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 foffset += length;
                 foffset += (length%2);
             }
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Value %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 foffset += length;
                 foffset += (length%2);
             }
             break;
         case 86:         /* Numbers Up Supported */
-            proto_tree_add_uint(atree, hf_ndps_numbers_up, tvb, foffset, 4, FALSE);
+            proto_tree_add_uint(ndps_tree, hf_ndps_numbers_up, tvb, foffset, 4, FALSE);
             numbers_up=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             switch(numbers_up)
             {
             case 0:     /*Cardinal*/
-                proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 break;
             case 1:     /*Name or OID*/
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
                 break;
             case 2:     /*Cardinal Range*/
-                proto_tree_add_item(atree, hf_ndps_lower_range, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_lower_range, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_ndps_upper_range, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_upper_range, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 break;
             default:
@@ -2593,140 +2967,105 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             break;
         case 87:         /* Finishing */
         case 88:         /* Print Contained Object ID */
-            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 89:         /* Print Config Object ID */
-            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
+            foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             break;
         case 90:         /* Typed Name */
-            foffset = ndps_string(tvb, hf_object_name, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_level, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_interval, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 91:         /* Network Address */
-            proto_tree_add_item(atree, hf_ndps_address, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_address, tvb, foffset, 4, FALSE);
             foffset += 4;
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_add_bytes, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_add_bytes, tvb, foffset, 4, FALSE);
             foffset += length;
             break;
         case 92:         /* XY Dimensions Value */
-            proto_tree_add_item(atree, hf_ndps_xydim_value, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_xydim_value, tvb, foffset, 8, FALSE);
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4) == 1) {
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
             }
             else
             {
                 if (tvb_get_ntohl(tvb, foffset-4) == 0) 
                 {
-                    proto_tree_add_item(atree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
+                    proto_tree_add_item(ndps_tree, hf_ndps_xdimension_n64, tvb, foffset, 8, FALSE);
                     foffset += 8;
-                    proto_tree_add_item(atree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
+                    proto_tree_add_item(ndps_tree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
                     foffset += 8;
                 }
                 else
                 {
-                    proto_tree_add_item(atree, hf_ndps_xdimension, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(ndps_tree, hf_ndps_xdimension, tvb, foffset, 4, FALSE);
                     foffset += 4;
-                    proto_tree_add_item(atree, hf_ndps_ydimension, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(ndps_tree, hf_ndps_ydimension, tvb, foffset, 4, FALSE);
                     foffset += 4;
                 }
             }
             break;
         case 93:         /* Name or OID Dimensions Map */
-            foffset = name_or_id(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_xdimension, tvb, foffset, 4, FALSE);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_xdimension, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_ydimension, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_ydimension, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 94:         /* Printer State Reason */
-            foffset = name_or_id(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_state_severity, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_training, tvb, foffset, 4, FALSE);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_state_severity, tvb, foffset, 4, FALSE);
             foffset += 4;
-            foffset = objectidentifier(tvb, atree, foffset);
-            foffset = objectidentification(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_training, tvb, foffset, 4, FALSE);
             foffset += 4;
-            foffset = name_or_id(tvb, atree, foffset);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
+            foffset += align_4(tvb, foffset);
+            foffset = objectidentification(tvb, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            foffset = name_or_id(tvb, ndps_tree, foffset);
             break;
         case 96:         /* Qualified Name */
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             break;
         case 97:         /* Qualified Name Set */
-            proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-                4, qualified_name_type);
-                foffset += 4;
-                if (qualified_name_type != 0) {
-                    if (qualified_name_type == 1) {
-                        foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                    }
-                    else
-                    {
-                        foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                        foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                    }
-                }
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Name %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
+                foffset = qualifiedname(tvb, atree, foffset);
             }
             break;
         case 98:         /* Colorant Set */
             colorant_set = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_item(atree, hf_ndps_colorant_set, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_colorant_set, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (colorant_set==0)
             {
-                foffset = name_or_id(tvb, atree, foffset);
+                foffset = name_or_id(tvb, ndps_tree, foffset);
             }
             else
             {
 
-                foffset = objectidentifier(tvb, atree, foffset);
-                proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+                foffset = objectidentifier(tvb, ndps_tree, foffset);
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Colorant %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = name_or_id(tvb, atree, foffset);
                 }
             }
@@ -2736,78 +3075,55 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Printer %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_ndps_printer_type, atree, foffset);
                 foffset = ndps_string(tvb, hf_ndps_printer_manuf, atree, foffset);
                 foffset = ndps_string(tvb, hf_ndps_inf_file_name, atree, foffset);
             }
-            proto_tree_add_item(atree, hf_os_type, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 100:         /* Event Object ID */
-            foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-            foffset = objectidentifier(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
+            foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
             foffset +=4;
             break;
         case 101:         /* Qualified Name Map */
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             break;
         case 104:         /* Cardinal or Enum or Time */
             card_enum_time = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_item(atree, hf_ndps_card_enum_time, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_card_enum_time, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (card_enum_time==0)
             {
-                proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
                 foffset += 4;
             }
             else
             {
                 if (card_enum_time==1)
                 {
-                    proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
                     foffset += 4;
                 }
                 else
                 {
-                    proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
                     foffset += 4;
                 }
             }
             break;
         case 105:         /* Print Contained Object ID Set */
-            proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
                 proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
                 foffset += 4;
@@ -2816,54 +3132,41 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 106:         /* Octet String Pair */
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
             foffset += length;
             foffset += (length%2);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
             foffset += length;
             foffset += (length%2);
             break;
         case 107:         /* Octet String Integer Pair */
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
             foffset += length;
             foffset += (length%2);
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
             break;
         case 109:         /* Event Handling Profile 2 */
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
             foffset += 4;
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
             foffset += length;
             foffset += (length%2);
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
-            foffset = name_or_id(tvb, atree, foffset);
-            proto_tree_add_item(atree, hf_ndps_delivery_add_type, tvb, foffset, 4, FALSE);
+            foffset = name_or_id(tvb, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_delivery_add_type, tvb, foffset, 4, FALSE);
             event_object_type = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             switch(event_object_type)
@@ -2871,80 +3174,56 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 case 0:     /*MHS ADDR*/
                 case 1:     /*DISTINGUISHED_NAME*/
                 case 2:     /*TEXT*/
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
+                    foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
                     break;
                 case 3:     /*OCTET_STRING*/
                     length = tvb_get_ntohl(tvb, foffset);
                     foffset += 4;
-                    proto_tree_add_item(atree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
+                    proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
                     foffset += length;
                     foffset += (length%2);
                     break;
                 case 4:     /*DIST_NAME_STRING*/
-                    foffset = ndps_string(tvb, hf_object_name, atree, foffset);
-                    foffset = name_or_id(tvb, atree, foffset);
+                    foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset);
+                    foffset = name_or_id(tvb, ndps_tree, foffset);
                     break;
                 case 5:     /*RPC_ADDRESS*/
                 case 6:     /*QUALIFIED_NAME*/
-                    foffset = objectidentifier(tvb, atree, foffset);
-                    qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                    proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-                    4, qualified_name_type);
-                    foffset += 4;
-                    if (qualified_name_type != 0) {
-                        if (qualified_name_type == 1) {
-                            foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                        }
-                        else
-                        {
-                            foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                            foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                        }
-                    }
+                    foffset = objectidentifier(tvb, ndps_tree, foffset);
+                    foffset = qualifiedname(tvb, ndps_tree, foffset);
                     break;
                 default:
                     break;
             }
-            proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_object_name, atree, foffset);
                 foffset = objectidentifier(tvb, atree, foffset);
                 proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 
                 4, FALSE);
                 foffset += 4;
             }
-            foffset = objectidentifier(tvb, atree, foffset);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+            foffset = objectidentifier(tvb, ndps_tree, foffset);
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = objectidentifier(tvb, atree, foffset);
             }
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, 4, FALSE);
             foffset += 4;
-            foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
+            foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
             break;
         default:
             break;
@@ -2952,56 +3231,74 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     return foffset;
 }
 
-static int
-filteritem(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
-{
-    guint32     filter_op=0;
-    guint32     number_of_items=0;
-    guint32     i;
 
-    proto_tree_add_item(ndps_tree, hf_ndps_item_filter, tvb, foffset, 4, FALSE);
-    filter_op = tvb_get_ntohl(tvb, foffset);
+static int
+commonarguments(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
+{
+    guint32     number_of_items=0;
+    guint32     i=0;
+    proto_tree  *atree;
+    proto_item  *aitem;
+    proto_tree  *btree;
+    proto_item  *bitem;
+
+    number_of_items = tvb_get_ntohl(tvb, foffset); 
+    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
+    atree = proto_item_add_subtree(aitem, ett_ndps);
     foffset += 4;
-    switch(filter_op)
+    for (i = 1 ; i <= number_of_items; i++ )
     {
-    case 0:       /* Equality */
-    case 2:       /* Greater or Equal */
-    case 3:       /* Less or Equal */
-    case 5:       /* Subset of */
-    case 6:       /* Superset of */
-    case 7:       /* Non NULL Set Intersect */
-        foffset = objectidentifier(tvb, ndps_tree, foffset);
-        number_of_items = tvb_get_ntohl(tvb, foffset);
-        proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+        bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Argument %d", i);
+        btree = proto_item_add_subtree(bitem, ett_ndps);
+        foffset = attribute_value(tvb, atree, foffset);
+    }
+    return foffset;
+}
+
+static int
+res_add_input_data(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
+{
+    guint32     resource_type=0;
+
+    proto_tree_add_item(ndps_tree, hf_res_type, tvb, foffset, 4, FALSE);
+    resource_type = tvb_get_ntohl(tvb, foffset);
+    foffset += 4;
+    switch (resource_type) 
+    {
+    case 0:     /* Print Drivers */
+        proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
         foffset += 4;
-        for (i = 1 ; i <= number_of_items; i++ )
-        {
-            foffset = attribute_value(tvb, ndps_tree, foffset);
-        }
-        proto_tree_add_item(ndps_tree, hf_ndps_qualifier, tvb, foffset, 4, FALSE);
+        foffset = ndps_string(tvb, hf_ndps_prn_dir_name, ndps_tree, foffset);
+        foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
+        break;
+    case 1:     /* Printer Definitions */
+        foffset = ndps_string(tvb, hf_ndps_vendor_dir, ndps_tree, foffset);
+        foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
+        break;
+    case 2:     /* Banner Page Files */
+        foffset = ndps_string(tvb, hf_ndps_banner_name, ndps_tree, foffset);
+        break;
+    case 3:     /* Font Types */
+        proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
+        foffset += 4;
+        proto_tree_add_item(ndps_tree, hf_font_type, tvb, foffset, 4, FALSE);
+        foffset += 4;
+        foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
+        break;
+    case 4:     /* Generic Files/ Archive */
+    case 5:     /* Printer Driver Archive */
+        proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
+        foffset += 4;
+        foffset = ndps_string(tvb, hf_ndps_prn_dir_name, ndps_tree, foffset);
+        proto_tree_add_item(ndps_tree, hf_archive_type, tvb, foffset, 4, FALSE);
         foffset += 4;
         break;
-    case 1:        /* Substrings */
-        foffset = objectidentifier(tvb, ndps_tree, foffset);
-        proto_tree_add_item(ndps_tree, hf_ndps_substring_match, tvb, foffset, 4, FALSE);
-        foffset += 4;
-        foffset = attribute_value(tvb, ndps_tree, foffset); /* initial value */
-        number_of_items = tvb_get_ntohl(tvb, foffset);
-        proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-        foffset += 4;
-        for (i = 1 ; i <= number_of_items; i++ )
-        {
-            foffset = attribute_value(tvb, ndps_tree, foffset);   /* Any Value Set Option */
-        }
-        foffset = attribute_value(tvb, ndps_tree, foffset);   /* Final Value */
-        break;
-    case 4:       /* Present */
-        foffset = objectidentifier(tvb, ndps_tree, foffset);
     default:
         break;
     }
     return foffset;
 }
+
 
 static const fragment_items ndps_frag_items = {
 	&ett_ndps_segment,
@@ -3324,24 +3621,24 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint16         record_mark=0;
     guint16         ndps_length=0;
-    guint32         id=0;
     int             len=0;
     tvbuff_t        *next_tvb = NULL;
     fragment_data   *fd_head;
+    spx_info        *spx_info;
 
+    spx_info = pinfo->private_data;
     if (!ndps_defragment) {
         dissect_ndps(tvb, pinfo, tree);
         return;
     }
     record_mark = tvb_get_ntohs(tvb, 0);
     ndps_length = tvb_get_ntohs(tvb, 2);
-
     if (ndps_length > tvb_length_remaining(tvb, 0) || ndps_fragmented || ndps_length==0) 
     {
         more_fragment = TRUE;
         ndps_fragmented = TRUE;
 
-        /*
+        /*   
          * Fragment
          */
         tid = (pinfo->srcport+pinfo->destport);
@@ -3423,16 +3720,28 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             else
             {
+                if (spx_info->eom) 
+                {
+                    ndps_fragmented=FALSE;
+                }
                 dissect_ndps(tvb, pinfo, tree);
             }
         }
         else
         {
+            if (spx_info->eom) 
+            {
+                ndps_fragmented=FALSE;
+            }
             dissect_ndps(next_tvb, pinfo, tree);
         }
     }
     else
     {
+        if (spx_info->eom) 
+        {
+            ndps_fragmented=FALSE;
+        }
         dissect_ndps(tvb, pinfo, tree);
     }
 }
@@ -3471,14 +3780,11 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
     conversation_t      *conversation;
     guint32             i=0;
     guint32             j=0;
-    guint32             name_len=0;
     guint32             field_len=0;
     guint32             cred_type=0;
     guint32             resource_type=0;
     guint32             filter_type=0;
     guint32             print_type=0;
-    guint32             qualified_name_type=0;
-    guint32             data_type=0;
     guint32             length=0;
     guint32             number_of_items=0;
     guint32             number_of_items2=0;
@@ -3488,6 +3794,8 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
     proto_item          *bitem;
     proto_tree          *ctree;
     proto_item          *citem;
+    proto_tree          *dtree;
+    proto_item          *ditem;
 
     if (!pinfo->fd->flags.visited) 
     {
@@ -3522,112 +3830,23 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         switch(ndps_func)
         {
         case 0x00000001:    /* Bind PSM */
-            proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
-            4, FALSE);
-            foffset += 4;
-            name_len = tvb_get_ntohl(tvb, foffset);
-            foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-            /*if(name_len == 0)
-            {
-                foffset += 2;
-            }
-            foffset += 2;*/
-            proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-            2, FALSE);
-            foffset += 2;
-            foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
+            foffset = credentials(tvb, ndps_tree, foffset);
             break;
         case 0x00000002:    /* Bind PA */
-            /* Start of credentials */
-            cred_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_item(ndps_tree, hf_ndps_cred_type, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            switch (cred_type)
-            {
-            case 0:
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
-                {
-                    length = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    proto_tree_add_item(ndps_tree, hf_ndps_password, tvb, foffset, length, FALSE);
-                    foffset += length;
-                }
-                break;
-            case 1:
-                length = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_ndps_certified, tvb, foffset, length, FALSE);
-                foffset += length;
-                break;
-            case 2:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                break;
-            case 3:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                break;
-            case 4:
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                foffset += 8;   /* Don't know what these 8 bytes signify */
-                proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
-                4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-                break;
-            default:
-                break;
-            }
-            /* End of credentials */
+            foffset = credentials(tvb, ndps_tree, foffset);
             proto_tree_add_item(ndps_tree, hf_ndps_retrieve_restrictions, tvb, foffset, 4, FALSE);
             foffset += 4;
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
+            number_of_items=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Security %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_bind_security, tvb, foffset, length, FALSE);
+                proto_tree_add_item(atree, hf_bind_security, tvb, foffset, length, FALSE);
             }
-            /* Start of QualifiedName */
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(ndps_tree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, ndps_tree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             break;
         case 0x00000003:    /* Unbind */
             proto_tree_add_item(ndps_tree, hf_ndps_object, tvb, foffset, 
@@ -3648,18 +3867,19 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Transfer Method");
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_item(atree, hf_ndps_objects, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                    number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                    bitem = proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
+                    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
+                    foffset = objectidentifier(tvb, btree, foffset);
+                    number_of_items2 = tvb_get_ntohl(tvb, foffset);
                     foffset += 4;
                     for (j = 1 ; j <= number_of_items2; j++ )
                     {
-                        foffset = attribute_value(tvb, btree, foffset);
+                        citem = proto_tree_add_text(btree, tvb, foffset, 0, "Value %d", j);
+                        ctree = proto_item_add_subtree(citem, ett_ndps);
+                        foffset = attribute_value(tvb, ctree, foffset);
                     }
                     proto_tree_add_item(btree, hf_ndps_qualifier, tvb, foffset, 4, FALSE);
                     foffset += 4;
@@ -3667,35 +3887,37 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Document Content");
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_item(atree, hf_ndps_objects, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    foffset = objectidentifier(tvb, atree, foffset);
+                    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Type %d", i);
+                    btree = proto_item_add_subtree(bitem, ett_ndps);
+                    foffset = objectidentifier(tvb, btree, foffset);
                 }
                 foffset += align_4(tvb, foffset);
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_item(atree, hf_ndps_objects, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 proto_tree_add_item(atree, hf_doc_content, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Value %d", i);
+                    btree = proto_item_add_subtree(bitem, ett_ndps);
                     if (tvb_get_ntohl(tvb, foffset-4)==0)
                     {
                         if (tvb_get_ntohl(tvb, foffset) > tvb_length_remaining(tvb, foffset)) /* Segmented Data */
                         {
-                            proto_tree_add_item(atree, hf_ndps_data, tvb, foffset, tvb_length_remaining(tvb, foffset), FALSE);
+                            proto_tree_add_item(btree, hf_ndps_data, tvb, foffset, tvb_length_remaining(tvb, foffset), FALSE);
                             return;
                         }
-                        proto_tree_add_item(atree, hf_ndps_included_doc, tvb, foffset+4, tvb_get_ntohl(tvb, foffset), FALSE);
+                        proto_tree_add_item(btree, hf_ndps_included_doc, tvb, foffset+4, tvb_get_ntohl(tvb, foffset), FALSE);
                         foffset += tvb_get_ntohl(tvb, foffset)+4;
                         foffset += (length%2);
                     }
                     else
                     {
-                        foffset = ndps_string(tvb, hf_ndps_ref_name, atree, foffset);
-                        foffset = name_or_id(tvb, atree, foffset);
+                        foffset = ndps_string(tvb, hf_ndps_ref_name, btree, foffset);
+                        foffset = name_or_id(tvb, btree, foffset);
                     }
                 }
                 foffset += 4;
@@ -3706,18 +3928,19 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Document Type");
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_objects, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                foffset = objectidentifier(tvb, atree, foffset);
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                    bitem = proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
+                    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
+                    foffset = objectidentifier(tvb, btree, foffset);
+                    number_of_items2 = tvb_get_ntohl(tvb, foffset);
                     foffset += 4;
                     for (j = 1 ; j <= number_of_items2; j++ )
                     {
-                        foffset = attribute_value(tvb, btree, foffset);
+                        citem = proto_tree_add_text(btree, tvb, foffset, 0, "Value %d", j);
+                        ctree = proto_item_add_subtree(citem, ett_ndps);
+                        foffset = attribute_value(tvb, ctree, foffset);
                     }
                     proto_tree_add_item(btree, hf_ndps_qualifier, tvb, foffset, 4, FALSE);
                     foffset += 4;
@@ -3725,11 +3948,12 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Document Attributes");
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    foffset = attribute_value(tvb, atree, foffset);  /* Document Attributes */
+                    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
+                    btree = proto_item_add_subtree(bitem, ett_ndps);
+                    foffset = attribute_value(tvb, btree, foffset);  /* Document Attributes */
                 }
                 break;
             case 1:     /* Add Job */
@@ -3741,32 +3965,35 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Transfer Method");
                 atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_objects, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    foffset = objectidentifier(tvb, atree, foffset); /* Transfer Method */
+                    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Method %d", i);
+                    btree = proto_item_add_subtree(bitem, ett_ndps);
+                    foffset = objectidentifier(tvb, btree, foffset); /* Transfer Method */
                 }
                 proto_tree_add_item(ndps_tree, hf_doc_content, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Document Type");
                 atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_objects, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    foffset = objectidentifier(tvb, atree, foffset); /* Document Type */
+                    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Type %d", i);
+                    btree = proto_item_add_subtree(bitem, ett_ndps);
+                    foffset = objectidentifier(tvb, btree, foffset); /* Document Type */
                 }
                 foffset += align_4(tvb, foffset);
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Document Attributes");
                 atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    foffset = attribute_value(tvb, atree, foffset);  /* Document Attributes */
+                    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
+                    btree = proto_item_add_subtree(bitem, ett_ndps);
+                    foffset = attribute_value(tvb, btree, foffset);  /* Document Attributes */
                 }
                 break;
             case 2:     /* Close Job */
@@ -3789,20 +4016,22 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             number_of_items = tvb_get_ntohl(tvb, foffset);
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Job Modifications");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset = attribute_value(tvb, atree, foffset);  /* Job Modifications */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Modification %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = attribute_value(tvb, btree, foffset);  /* Job Modifications */
             }
             number_of_items = tvb_get_ntohl(tvb, foffset);
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Document Modifications");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset = attribute_value(tvb, atree, foffset);  /* Document Modifications */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Modification %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = attribute_value(tvb, btree, foffset);  /* Document Modifications */
             }
             break;
         case 0x00000006:    /* Cancel Job */
@@ -3841,11 +4070,11 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 proto_tree_add_item(ndps_tree, hf_ndps_abort_flag, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Attribute %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = attribute_value(tvb, atree, foffset);
                 }
             }
@@ -3863,14 +4092,14 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                     number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPSelector */
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Selector Option");
                     atree = proto_item_add_subtree(aitem, ett_ndps);
-                    proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
                     foffset += 4;
                     for (i = 1 ; i <= number_of_items; i++ )
                     {
-                        foffset = objectidentification(tvb, atree, foffset);
+                        bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Option %d", i);
+                        btree = proto_item_add_subtree(bitem, ett_ndps);
+                        foffset = objectidentification(tvb, btree, foffset);
                     }
                     foffset += align_4(tvb, foffset);
-                    /*foffset += 4;*/
                     proto_tree_add_item(ndps_tree, hf_ndps_filter, tvb, foffset, 4, FALSE);
                     filter_type = tvb_get_ntohl(tvb, foffset);
                     foffset += 4;
@@ -3898,23 +4127,20 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPObjectIdentifierSet */
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Requested Attributes");
                 atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_objects, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    foffset = objectidentifier(tvb, atree, foffset);
+                    bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
+                    btree = proto_item_add_subtree(bitem, ett_ndps);
+                    foffset = objectidentifier(tvb, btree, foffset);
                 } /* End of NWDPObjectIdentifierSet */
+                if (number_of_items == 0) 
+                {
+                    break;
+                }
                 proto_tree_add_item(ndps_tree, hf_ndps_operator, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
-                {
-                    foffset = attribute_value(tvb, atree, foffset);
-                } /* NWDPCommonArguments */
+                foffset = commonarguments(tvb, ndps_tree, foffset);
             }
             break;
         case 0x00000008:    /* Promote Job */
@@ -3932,15 +4158,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of nameorid */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000009:    /* Interrupt */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -3973,15 +4191,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             proto_tree_add_item(atree, hf_local_id, tvb, foffset, 4, FALSE);
             foffset += 4;
             /* End of NWDPPrtContainedObjectId */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x0000000a:    /* Pause */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4007,15 +4217,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of nameorid */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x0000000b:    /* Resume */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4032,15 +4234,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of nameorid */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x0000000c:    /* Clean */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4050,15 +4244,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of nameorid */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x0000000d:    /* Create */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4078,22 +4264,15 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             number_of_items = tvb_get_ntohl(tvb, foffset);
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object Attribute");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset = attribute_value(tvb, atree, foffset);  /* Object Attribute Set */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
             }
             /* End of AttributeSet */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x0000000e:    /* Delete */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4104,15 +4283,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object ID");
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = objectidentification(tvb, atree, foffset);
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x0000000f:    /* Disable PA */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4122,15 +4293,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000010:    /* Enable PA */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4140,35 +4303,12 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000011:    /* Resubmit Jobs */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of QualifiedName */
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(ndps_tree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, ndps_tree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             foffset = address_item(tvb, ndps_tree, foffset);
             proto_tree_add_item(ndps_tree, hf_resubmit_op_type, tvb, foffset, 4, FALSE);
             foffset += 4;
@@ -4192,22 +4332,24 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Job Attributes");
                 btree = proto_item_add_subtree(bitem, ett_ndps);
-                proto_tree_add_item(btree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
+                for (j = 1 ; j <= number_of_items; j++ )
                 {
-                    foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
+                    citem = proto_tree_add_text(btree, tvb, foffset, 0, "Attribute %d", j);
+                    ctree = proto_item_add_subtree(citem, ett_ndps);
+                    foffset = attribute_value(tvb, ctree, foffset);  /* Object Attribute Set */
                 }
                 /* End of AttributeSet */
                 /* Start of AttributeSet */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
                 bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Document Attributes");
                 btree = proto_item_add_subtree(bitem, ett_ndps);
-                proto_tree_add_item(btree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
+                for (j = 1 ; j <= number_of_items; j++ )
                 {
-                    foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
+                    citem = proto_tree_add_text(btree, tvb, foffset, 0, "Attribute %d", j);
+                    ctree = proto_item_add_subtree(citem, ett_ndps);
+                    foffset = attribute_value(tvb, ctree, foffset);  /* Object Attribute Set */
                 }
                 /* End of AttributeSet */
             } /* End of ResubmitJob Set */
@@ -4216,15 +4358,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000012:    /* Set */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4239,22 +4373,15 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             number_of_items = tvb_get_ntohl(tvb, foffset);
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Attribute Modifications");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset = attribute_value(tvb, atree, foffset);  /* Object Attribute Set */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Modification %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
             }
             /* End of AttributeSet */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000013:    /* Shutdown PA */
         case 0x0000001e:    /* Shutdown PSM */
@@ -4268,16 +4395,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
-            break;
+            foffset = commonarguments(tvb, ndps_tree, foffset);
         case 0x00000014:    /* Startup PA */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
             foffset += 4;
@@ -4287,15 +4405,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000015:    /* Reorder Job */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4314,15 +4424,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             proto_tree_add_item(atree, hf_local_id, tvb, foffset, 4, FALSE);
             foffset += 4;
             /* End of NWDPPrtContainedObjectId */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000016:    /* Pause PA */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4332,15 +4434,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000017:    /* Resume PA */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4350,15 +4444,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000018:    /* Transfer Data */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4375,111 +4461,38 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = objectidentifier(tvb, atree, foffset);
             /* End of Object Identifier */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x0000001a:    /* Add Event Profile */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of Eventhandling */
+            /* Start of Eventhandling2 */
             proto_tree_add_item(ndps_tree, hf_ndps_profile_id, tvb, foffset, 4, FALSE);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of QualifiedName */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Consumer Name");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
-            length = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
-            foffset += length;
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
+            foffset = ndps_string(tvb, hf_ndps_supplier_name, ndps_tree, foffset);
             proto_tree_add_item(ndps_tree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
             foffset += 4;
             /* Start of NameorID */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Method ID");
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
+            foffset += align_4(tvb, foffset);
             /* End of NameorID */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Delivery Address");
             atree = proto_item_add_subtree(aitem, ett_ndps);
             number_of_items = tvb_get_ntohl(tvb, foffset);
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset += address_item(tvb, atree, foffset);
-            }
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            number_of_items = tvb_get_ntohl(tvb, foffset);
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = objectidentifier(tvb, atree, foffset);
-                foffset = objectidentification(tvb, atree, foffset);
-                proto_tree_add_item(atree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                
-                proto_tree_add_uint(atree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==1)
-                {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                }
-                else
-                {
-                    if(tvb_get_ntohl(tvb, foffset-4)==0)
-                    {
-                        number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items2);
-                        foffset += 4;
-                        for (j = 1 ; j <= number_of_items2; j++ )
-                        {
-                            foffset = objectidentifier(tvb, atree, foffset);
-                        }
-                    }
-                }
-            }
-            /* End of Eventhandling */
-            /* Start of QualifiedName */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Account");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
             foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
+            for (i = 1 ; i <= number_of_items; i++ )
+            {
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Address %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = address_item(tvb, btree, foffset);
             }
-            /* End of QualifiedName */
+            foffset = event_object_set(tvb, ndps_tree, foffset);
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             break;
         case 0x0000001b:    /* Remove Event Profile */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4529,49 +4542,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             {
                 foffset = print_address(tvb, atree, foffset);
             }
-            /* Start of EventObjectSet */
-            length = tvb_get_ntohl(tvb, foffset);   /* Len of record */
-            if (length > 0) 
-            {
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of objectidentifier */
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Class ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentifier(tvb, btree, foffset);
-                /* End of objectidentifier */
-                /* Start of objectidentification */
-                bitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentification(tvb, btree, foffset);
-                /* End of objectidentification */
-                proto_tree_add_item(atree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of ObjectItem */
-                proto_tree_add_uint(atree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==1)
-                {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                }
-                else
-                {
-                    if(tvb_get_ntohl(tvb, foffset-4)==0)
-                    {
-                        number_of_items = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items);
-                        foffset += 4;
-                        for (j = 1 ; j <= number_of_items; j++ )
-                        {
-                            foffset = objectidentifier(tvb, atree, foffset);
-                        }
-                    }
-                }
-                /* End of ObjectItem */
-            }
-            /* End of EventObjectSet */
+            foffset = event_object_set(tvb, ndps_tree, foffset);
             break;
         case 0x0000001d:    /* List Event Profiles */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4580,62 +4551,18 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4)==0)   /* Spec */
             {
-                /* Start of QualifiedName */
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Supplier Alias");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-                4, qualified_name_type);
-                foffset += 4;
-                if (qualified_name_type != 0) {
-                    if (qualified_name_type == 1) {
-                        foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                    }
-                    else
-                    {
-                        foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                        foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                    }
-                }
-                /* End of QualifiedName */
+                foffset = qualifiedname(tvb, ndps_tree, foffset);
                 proto_tree_add_item(ndps_tree, hf_ndps_list_profiles_choice_type, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 if (tvb_get_ntohl(tvb, foffset-4)==0)   /* Choice */
                 {
-                    /* Start of CardinalSeq */
-                    proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                    number_of_items = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    for (i = 1 ; i <= number_of_items; i++ )
-                    {
-                        length = tvb_get_ntohl(tvb, foffset);
-                        foffset += 4;
-                        proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
-                        foffset += length;
-                        foffset += (length%2);
-                    }
-                    /* End of CardinalSeq */
+                    foffset = cardinal_seq(tvb, ndps_tree, foffset);
                 }
                 else
                 {
-                    /* Start of QualifiedName */
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Consumer");
                     atree = proto_item_add_subtree(aitem, ett_ndps);
-                    qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                    proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-                    4, qualified_name_type);
-                    foffset += 4;
-                    if (qualified_name_type != 0) {
-                        if (qualified_name_type == 1) {
-                            foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                        }
-                        else
-                        {
-                            foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                            foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                        }
-                    }
-                    /* End of QualifiedName */
+                    foffset = qualifiedname(tvb, atree, foffset);
                     /* Start of NameorID */
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Method ID");
                     atree = proto_item_add_subtree(aitem, ett_ndps);
@@ -4674,15 +4601,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000020:    /* Set Printer DS Information */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4690,24 +4609,9 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             proto_tree_add_item(ndps_tree, hf_ndps_ds_info_type, tvb, foffset, 4, FALSE);
             foffset += 4;
             foffset = ndps_string(tvb, hf_printer_name, ndps_tree, foffset);
-            /* Start of QualifiedName */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "DS Object Name");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, atree, foffset);
             break;
         case 0x00000021:    /* Clean User Jobs */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -4717,21 +4621,119 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of NWDPCommonArguments */
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Common Arguments");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                foffset = attribute_value(tvb, atree, foffset);
-            } /* NWDPCommonArguments */
+            foffset = commonarguments(tvb, ndps_tree, foffset);
             break;
         case 0x00000022:    /* Map GUID to NDS Name */
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_guid, tvb, foffset, length, FALSE);
             foffset += length;
+            break;
+        case 0x00000023:    /* AddEventProfile2 */
+            proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            /* Start of Eventhandling2 */
+            proto_tree_add_item(ndps_tree, hf_ndps_profile_id, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            proto_tree_add_item(ndps_tree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Consumer Name");
+            atree = proto_item_add_subtree(aitem, ett_ndps);
+            foffset = qualifiedname(tvb, atree, foffset);
+            foffset = ndps_string(tvb, hf_ndps_supplier_name, ndps_tree, foffset);
+            proto_tree_add_item(ndps_tree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            /* Start of NameorID */
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Method ID");
+            atree = proto_item_add_subtree(aitem, ett_ndps);
+            foffset = name_or_id(tvb, atree, foffset);
+            foffset += align_4(tvb, foffset);
+            /* End of NameorID */
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Delivery Address");
+            atree = proto_item_add_subtree(aitem, ett_ndps);
+            number_of_items = tvb_get_ntohl(tvb, foffset);
+            foffset += 4;
+            for (i = 1 ; i <= number_of_items; i++ )
+            {
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Address %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = address_item(tvb, btree, foffset);
+            }
+            foffset = event_object_set(tvb, ndps_tree, foffset);
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Account");
+            atree = proto_item_add_subtree(aitem, ett_ndps);
+            foffset = qualifiedname(tvb, atree, foffset);
+            /* Start of object identifier set */
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Notify Attributes");
+            atree = proto_item_add_subtree(aitem, ett_ndps);
+            number_of_items = tvb_get_ntohl(tvb, foffset);
+            foffset += 4;
+            for (i = 1 ; i <= number_of_items; i++ )
+            {
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
+            }
+            /* End of object identifier set */
+            proto_tree_add_item(ndps_tree, hf_notify_time_interval, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            proto_tree_add_item(ndps_tree, hf_notify_sequence_number, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            proto_tree_add_item(ndps_tree, hf_notify_lease_exp_time, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            foffset = ndps_string(tvb, hf_notify_printer_uri, ndps_tree, foffset);
+            /* End of Eventhandling2 */
+            break;
+        case 0x00000024:    /* ListEventProfiles2 */
+            proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            proto_tree_add_item(ndps_tree, hf_ndps_list_profiles_type, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            if (tvb_get_ntohl(tvb, foffset-4)==0)   /* Spec */
+            {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Supplier Alias");
+                atree = proto_item_add_subtree(aitem, ett_ndps);
+                foffset = qualifiedname(tvb, atree, foffset);
+                proto_tree_add_item(ndps_tree, hf_ndps_list_profiles_choice_type, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                if (tvb_get_ntohl(tvb, foffset-4)==0)   /* Choice */
+                {
+                    foffset = cardinal_seq(tvb, ndps_tree, foffset);
+                }
+                else
+                {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Consumer");
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
+                    foffset = qualifiedname(tvb, atree, foffset);
+                    /* Start of NameorID */
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Method ID");
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
+                    foffset = name_or_id(tvb, atree, foffset);
+                    /* End of NameorID */
+                    proto_tree_add_item(atree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
+                    foffset += 4;
+                }
+                proto_tree_add_item(ndps_tree, hf_ndps_list_profiles_result_type, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                /* Start of integeroption */
+                proto_tree_add_item(ndps_tree, hf_ndps_integer_type_flag, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                if (tvb_get_ntohl(tvb, foffset-4)!=0) 
+                {
+                    proto_tree_add_item(ndps_tree, hf_ndps_integer_type_value, tvb, foffset, 4, FALSE);
+                    foffset += 4;
+                }
+                /* End of integeroption */
+            }
+            else                                    /* Cont */
+            {
+                length = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_item(ndps_tree, hf_ndps_context, tvb, foffset, length, FALSE);
+                foffset += length;
+                foffset += (length%2);
+                proto_tree_add_item(ndps_tree, hf_ndps_abort_flag, tvb, foffset, 4, FALSE);
+                foffset += 4;
+            }
             break;
         default:
             break;
@@ -4741,79 +4743,18 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         switch(ndps_func)
         {
         case 0x00000001:    /* Bind */
-            /* Start of credentials */
-            cred_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_item(ndps_tree, hf_ndps_cred_type, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            switch (cred_type)
-            {
-            case 0:
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
-                {
-                    length = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    proto_tree_add_item(ndps_tree, hf_ndps_password, tvb, foffset, length, FALSE);
-                    foffset += length;
-                }
-                break;
-            case 1:
-                length = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_ndps_certified, tvb, foffset, length, FALSE);
-                foffset += length;
-                break;
-            case 2:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                break;
-            case 3:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                break;
-            case 4:
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                foffset += 8;   /* Don't know what these 8 bytes signify */
-                proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
-                4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-                break;
-            default:
-                break;
-            }
-            /* End of credentials */
+            foffset = credentials(tvb, ndps_tree, foffset);
             proto_tree_add_item(ndps_tree, hf_ndps_retrieve_restrictions, tvb, foffset, 4, FALSE);
             foffset += 4;
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
+            number_of_items=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Security %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_bind_security, tvb, foffset, length, FALSE);
+                proto_tree_add_item(atree, hf_bind_security, tvb, foffset, length, FALSE);
             }
             break;
         case 0x00000002:    /* Unbind */
@@ -4852,133 +4793,24 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         switch(ndps_func)
         {
         case 0x00000001:    /* Bind */
-            /* Start of credentials */
-            cred_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_item(ndps_tree, hf_ndps_cred_type, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            switch (cred_type)
-            {
-            case 0:
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
-                {
-                    length = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    proto_tree_add_item(ndps_tree, hf_ndps_password, tvb, foffset, length, FALSE);
-                    foffset += length;
-                }
-                break;
-            case 1:
-                length = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_ndps_certified, tvb, foffset, length, FALSE);
-                foffset += length;
-                break;
-            case 2:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                break;
-            case 3:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                break;
-            case 4:
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                foffset += 8;   /* Don't know what these 8 bytes signify */
-                proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
-                4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-                break;
-            default:
-                break;
-            }
-            /* End of credentials */
+            foffset = credentials(tvb, ndps_tree, foffset);
             proto_tree_add_item(ndps_tree, hf_ndps_retrieve_restrictions, tvb, foffset, 4, FALSE);
             foffset += 4;
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
+            number_of_items=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Security %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_bind_security, tvb, foffset, length, FALSE);
+                proto_tree_add_item(atree, hf_bind_security, tvb, foffset, length, FALSE);
             }
             break;
         case 0x00000002:    /* Unbind */
             break;
         case 0x00000003:    /* Register Server */
-            /* Start of Server Entry */
-            foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_server_type, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            foffset += 4;
-            foffset = print_address(tvb, atree, foffset);
-            bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Server Info");
-            btree = proto_item_add_subtree(bitem, ett_ndps);
-            number_of_items2 = tvb_get_ntohl(tvb, foffset); 
-            proto_tree_add_item(btree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            for (j = 1 ; j <= number_of_items2; j++ )
-            {
-                data_type = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_item(btree, hf_ndps_data_item_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                switch (data_type) 
-                {
-                case 0:   /* Int8 */
-                    proto_tree_add_item(btree, hf_info_int, tvb, foffset, 1, FALSE);
-                    foffset++;
-                    break;
-                case 1:   /* Int16 */
-                    proto_tree_add_item(btree, hf_info_int16, tvb, foffset, 2, FALSE);
-                    foffset += 2;
-                    break;
-                case 2:   /* Int32 */
-                    proto_tree_add_item(btree, hf_info_int32, tvb, foffset, 4, FALSE);
-                    foffset += 4;
-                    break;
-                case 3:   /* Boolean */
-                    proto_tree_add_item(btree, hf_info_boolean, tvb, foffset, 4, FALSE);
-                    foffset += 4;
-                    break;
-                case 4:   /* String */
-                case 5:   /* Bytes */
-                    foffset = ndps_string(tvb, hf_info_string, btree, foffset);
-                    break;
-                    /*length = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    proto_tree_add_item(btree, hf_info_bytes, tvb, foffset, length, FALSE);
-                    foffset += length;
-                    foffset += (length%4);*/
-                    break;
-                default:
-                    break;
-                }
-            }
-            /* End of Server Entry */
+            foffset = server_entry(tvb, ndps_tree, foffset);
             break;
         case 0x00000004:    /* Deregister Server */
         case 0x00000006:    /* Deregister Registry */
@@ -4993,115 +4825,23 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         case 0x00000007:    /* Registry Update */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Add");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+            number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                /* Start of Server Entry */
-                foffset = ndps_string(tvb, hf_ndps_server_name, atree, foffset);
-                bitem = proto_tree_add_item(atree, hf_ndps_server_type, tvb, foffset, 4, FALSE);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Entry %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset += 4;
-                foffset = print_address(tvb, btree, foffset);
-                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Server Info");
-                ctree = proto_item_add_subtree(citem, ett_ndps);
-                number_of_items2 = tvb_get_ntohl(tvb, foffset); 
-                proto_tree_add_item(ctree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                for (j = 1 ; j <= number_of_items2; j++ )
-                {
-                    data_type = tvb_get_ntohl(tvb, foffset);
-                    proto_tree_add_item(ctree, hf_ndps_data_item_type, tvb, foffset, 4, FALSE);
-                    foffset += 4;
-                    switch (data_type) 
-                    {
-                    case 0:   /* Int8 */
-                        proto_tree_add_item(ctree, hf_info_int, tvb, foffset, 1, FALSE);
-                        foffset++;
-                        break;
-                    case 1:   /* Int16 */
-                        proto_tree_add_item(ctree, hf_info_int16, tvb, foffset, 2, FALSE);
-                        foffset += 2;
-                        break;
-                    case 2:   /* Int32 */
-                        proto_tree_add_item(ctree, hf_info_int32, tvb, foffset, 4, FALSE);
-                        foffset += 4;
-                        break;
-                    case 3:   /* Boolean */
-                        proto_tree_add_item(ctree, hf_info_boolean, tvb, foffset, 4, FALSE);
-                        foffset += 4;
-                        break;
-                    case 4:   /* String */
-                    case 5:   /* Bytes */
-                        foffset = ndps_string(tvb, hf_info_string, ctree, foffset);
-                        break;
-                        /*length = tvb_get_ntohl(tvb, foffset);
-                        foffset += 4;
-                        proto_tree_add_item(ctree, hf_info_bytes, tvb, foffset, length, FALSE);
-                        foffset += length;
-                        foffset += (length%4);*/
-                        break;
-                    default:
-                        break;
-                    }
-                }
-                /* End of Server Entry */
+                foffset = server_entry(tvb, btree, foffset);
             }
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Remove");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+            number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                /* Start of Server Entry */
-                foffset = ndps_string(tvb, hf_ndps_server_name, atree, foffset);
-                bitem = proto_tree_add_item(atree, hf_ndps_server_type, tvb, foffset, 4, FALSE);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Entry %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset += 4;
-                foffset = print_address(tvb, btree, foffset);
-                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Server Info");
-                ctree = proto_item_add_subtree(citem, ett_ndps);
-                number_of_items2 = tvb_get_ntohl(tvb, foffset); 
-                proto_tree_add_item(ctree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                for (j = 1 ; j <= number_of_items2; j++ )
-                {
-                    data_type = tvb_get_ntohl(tvb, foffset);
-                    proto_tree_add_item(ctree, hf_ndps_data_item_type, tvb, foffset, 4, FALSE);
-                    foffset += 4;
-                    switch (data_type) 
-                    {
-                    case 0:   /* Int8 */
-                        proto_tree_add_item(ctree, hf_info_int, tvb, foffset, 1, FALSE);
-                        foffset++;
-                        break;
-                    case 1:   /* Int16 */
-                        proto_tree_add_item(ctree, hf_info_int16, tvb, foffset, 2, FALSE);
-                        foffset += 2;
-                        break;
-                    case 2:   /* Int32 */
-                        proto_tree_add_item(ctree, hf_info_int32, tvb, foffset, 4, FALSE);
-                        foffset += 4;
-                        break;
-                    case 3:   /* Boolean */
-                        proto_tree_add_item(ctree, hf_info_boolean, tvb, foffset, 4, FALSE);
-                        foffset += 4;
-                        break;
-                    case 4:   /* String */
-                    case 5:   /* Bytes */
-                        foffset = ndps_string(tvb, hf_info_string, ctree, foffset);
-                        break;
-                        /*length = tvb_get_ntohl(tvb, foffset);
-                        foffset += 4;
-                        proto_tree_add_item(ctree, hf_info_bytes, tvb, foffset, length, FALSE);
-                        foffset += length;
-                        foffset += (length%4);*/
-                        break;
-                    default:
-                        break;
-                    }
-                }
-                /* End of Server Entry */
+                foffset = server_entry(tvb, btree, foffset);
             }
             break;
         case 0x00000008:    /* List Local Servers */
@@ -5139,79 +4879,18 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         switch(ndps_func)
         {
         case 0x00000001:    /* Notify Bind */
-            /* Start of credentials */
-            cred_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_item(ndps_tree, hf_ndps_cred_type, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            switch (cred_type)
-            {
-            case 0:
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
-                {
-                    length = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    proto_tree_add_item(ndps_tree, hf_ndps_password, tvb, foffset, length, FALSE);
-                    foffset += length;
-                }
-                break;
-            case 1:
-                length = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_ndps_certified, tvb, foffset, length, FALSE);
-                foffset += length;
-                break;
-            case 2:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                break;
-            case 3:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                break;
-            case 4:
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                foffset += 8;   /* Don't know what these 8 bytes signify */
-                proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
-                4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-                break;
-            default:
-                break;
-            }
-            /* End of credentials */
+            foffset = credentials(tvb, ndps_tree, foffset);
             proto_tree_add_item(ndps_tree, hf_ndps_retrieve_restrictions, tvb, foffset, 4, FALSE);
             foffset += 4;
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
+            number_of_items=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Security %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_bind_security, tvb, foffset, length, FALSE);
+                proto_tree_add_item(atree, hf_bind_security, tvb, foffset, length, FALSE);
             }
             break;
         case 0x00000002:    /* Notify Unbind */
@@ -5228,24 +4907,9 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                /* Start of QualifiedName */
                 bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Supplier Alias");
                 btree = proto_item_add_subtree(bitem, ett_ndps);
-                qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(btree, hf_ndps_qualified_name, tvb, foffset, 
-                4, qualified_name_type);
-                foffset += 4;
-                if (qualified_name_type != 0) {
-                    if (qualified_name_type == 1) {
-                        foffset = ndps_string(tvb, hf_printer_name, btree, foffset);
-                    }
-                    else
-                    {
-                        foffset = ndps_string(tvb, hf_ndps_pa_name, btree, foffset);
-                        foffset = ndps_string(tvb, hf_ndps_tree, btree, foffset);
-                    }
-                }
-                /* End of QualifiedName */
+                foffset = qualifiedname(tvb, btree, foffset);
             }
             /* End of QualifiedName Set*/
             break;
@@ -5256,47 +4920,17 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         case 0x00000005:    /* Add Profile */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of QualifiedName */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Supplier Alias");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, atree, foffset);
             /* Start of Eventhandling */
             proto_tree_add_item(ndps_tree, hf_ndps_profile_id, tvb, foffset, 4, FALSE);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of QualifiedName */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Consumer Name");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, atree, foffset);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
@@ -5313,40 +4947,11 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             number_of_items = tvb_get_ntohl(tvb, foffset);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset += address_item(tvb, atree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Address %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset += address_item(tvb, btree, foffset);
             }
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            number_of_items = tvb_get_ntohl(tvb, foffset);
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = objectidentifier(tvb, atree, foffset);
-                foffset = objectidentification(tvb, atree, foffset);
-                proto_tree_add_item(atree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                
-                proto_tree_add_uint(atree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==1)
-                {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                }
-                else
-                {
-                    if(tvb_get_ntohl(tvb, foffset-4)==0)
-                    {
-                        number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items2);
-                        foffset += 4;
-                        for (j = 1 ; j <= number_of_items2; j++ )
-                        {
-                            foffset = objectidentifier(tvb, atree, foffset);
-                        }
-                    }
-                }
-            }
+            foffset = event_object_set(tvb, ndps_tree, foffset);
             /* End of Eventhandling */
             break;
         case 0x00000006:    /* Remove Profile */
@@ -5397,49 +5002,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             {
                 foffset = print_address(tvb, atree, foffset);
             }
-            /* Start of EventObjectSet */
-            length = tvb_get_ntohl(tvb, foffset);   /* Len of record */
-            if (length > 0) 
-            {
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of objectidentifier */
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Class ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentifier(tvb, btree, foffset);
-                /* End of objectidentifier */
-                /* Start of objectidentification */
-                bitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentification(tvb, btree, foffset);
-                /* End of objectidentification */
-                proto_tree_add_item(atree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of ObjectItem */
-                proto_tree_add_uint(atree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==1)
-                {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                }
-                else
-                {
-                    if(tvb_get_ntohl(tvb, foffset-4)==0)
-                    {
-                        number_of_items = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items);
-                        foffset += 4;
-                        for (j = 1 ; j <= number_of_items; j++ )
-                        {
-                            foffset = objectidentifier(tvb, atree, foffset);
-                        }
-                    }
-                }
-                /* End of ObjectItem */
-            }
-            /* End of EventObjectSet */
+            foffset = event_object_set(tvb, ndps_tree, foffset);
             break;
         case 0x00000008:    /* List Profiles */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -5448,62 +5011,20 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4)==0)   /* Spec */
             {
-                /* Start of QualifiedName */
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Supplier Alias");
                 atree = proto_item_add_subtree(aitem, ett_ndps);
-                qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-                4, qualified_name_type);
-                foffset += 4;
-                if (qualified_name_type != 0) {
-                    if (qualified_name_type == 1) {
-                        foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                    }
-                    else
-                    {
-                        foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                        foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                    }
-                }
-                /* End of QualifiedName */
-                proto_tree_add_item(ndps_tree, hf_ndps_list_profiles_choice_type, tvb, foffset, 4, FALSE);
+                foffset = qualifiedname(tvb, atree, foffset);
+                proto_tree_add_item(atree, hf_ndps_list_profiles_choice_type, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 if (tvb_get_ntohl(tvb, foffset-4)==0)   /* Choice */
                 {
-                    /* Start of CardinalSeq */
-                    proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                    number_of_items = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    for (i = 1 ; i <= number_of_items; i++ )
-                    {
-                        length = tvb_get_ntohl(tvb, foffset);
-                        foffset += 4;
-                        proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
-                        foffset += length;
-                        foffset += (length%2);
-                    }
-                    /* End of CardinalSeq */
+                    foffset = cardinal_seq(tvb, ndps_tree, foffset);
                 }
                 else
                 {
-                    /* Start of QualifiedName */
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Consumer");
                     atree = proto_item_add_subtree(aitem, ett_ndps);
-                    qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                    proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-                    4, qualified_name_type);
-                    foffset += 4;
-                    if (qualified_name_type != 0) {
-                        if (qualified_name_type == 1) {
-                            foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                        }
-                        else
-                        {
-                            foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                            foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                        }
-                    }
-                    /* End of QualifiedName */
+                    foffset = qualifiedname(tvb, atree, foffset);
                     /* Start of NameorID */
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Method ID");
                     atree = proto_item_add_subtree(aitem, ett_ndps);
@@ -5543,40 +5064,43 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             number_of_items = tvb_get_ntohl(tvb, foffset);
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Item %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
                 /* Start of ReportEventItem */
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(btree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Containing Class");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentifier(tvb, btree, foffset);
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Containing Object");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentification(tvb, btree, foffset);
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Filter Class");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentifier(tvb, btree, foffset);
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Object Class");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentifier(tvb, btree, foffset);
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Object ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentification(tvb, btree, foffset);
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Event Object ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentifier(tvb, btree, foffset);
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Containing Class");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
+                foffset = objectidentifier(tvb, ctree, foffset);
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Containing Object");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
+                foffset = objectidentification(tvb, ctree, foffset);
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Filter Class");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
+                foffset = objectidentifier(tvb, ctree, foffset);
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Object Class");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
+                foffset = objectidentifier(tvb, ctree, foffset);
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Object ID");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
+                foffset = objectidentification(tvb, ctree, foffset);
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Event Object ID");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
+                foffset = objectidentifier(tvb, ctree, foffset);
                 /* Start of AttributeSet */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute Modifications");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                proto_tree_add_item(btree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Attribute Modifications");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
                 foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
+                for (j = 1 ; j <= number_of_items; j++ )
                 {
-                    foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
+                    ditem = proto_tree_add_text(ctree, tvb, foffset, 0, "Modification %d", j);
+                    dtree = proto_item_add_subtree(ditem, ett_ndps);
+                    foffset = attribute_value(tvb, dtree, foffset);  /* Object Attribute Set */
                 }
                 /* End of AttributeSet */
-                foffset = ndps_string(tvb, hf_ndps_message, atree, foffset);
-                proto_tree_add_item(atree, hf_time, tvb, foffset, 4, FALSE);
+                foffset = ndps_string(tvb, hf_ndps_message, btree, foffset);
+                proto_tree_add_item(btree, hf_time, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 /* End of ReportEventItem */
             }
@@ -5584,16 +5108,17 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             break;
         case 0x0000000b:    /* Report Notification */
             /* Start of DestinationSet */
-            proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Destination %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 /* Start of Destination */
                 /* Start of NameorID */
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Method ID");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = name_or_id(tvb, atree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Method ID");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = name_or_id(tvb, btree, foffset);
                 /* End of NameorID */
                 /* Start of NotifyDeliveryAddr */
                 proto_tree_add_item(atree, hf_address_len, tvb, foffset, 4, FALSE);
@@ -5626,36 +5151,22 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset = objectidentifier(tvb, atree, foffset);
             /* Start of AttributeSet */
             number_of_items = tvb_get_ntohl(tvb, foffset);
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Attribute");
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Attributes");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset = attribute_value(tvb, atree, foffset);  
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = attribute_value(tvb, btree, foffset);  
             }
             /* End of AttributeSet */
             foffset = ndps_string(tvb, hf_ndps_message, ndps_tree, foffset);
             proto_tree_add_item(ndps_tree, hf_time, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of QualifiedName */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Account");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, atree, foffset);
             break;
         case 0x0000000c:    /* Add Delivery Method */
             foffset = ndps_string(tvb, hf_ndps_file_name, ndps_tree, foffset);
@@ -5715,79 +5226,18 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         switch(ndps_func)
         {
         case 0x00000001:    /* Bind */
-            /* Start of credentials */
-            cred_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_item(ndps_tree, hf_ndps_cred_type, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            switch (cred_type)
-            {
-            case 0:
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
-                {
-                    length = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    proto_tree_add_item(ndps_tree, hf_ndps_password, tvb, foffset, length, FALSE);
-                    foffset += length;
-                }
-                break;
-            case 1:
-                length = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_ndps_certified, tvb, foffset, length, FALSE);
-                foffset += length;
-                break;
-            case 2:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                break;
-            case 3:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                break;
-            case 4:
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                foffset += 8;   /* Don't know what these 8 bytes signify */
-                proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
-                4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-                break;
-            default:
-                break;
-            }
-            /* End of credentials */
+            foffset = credentials(tvb, ndps_tree, foffset);
             proto_tree_add_item(ndps_tree, hf_ndps_retrieve_restrictions, tvb, foffset, 4, FALSE);
             foffset += 4;
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
+            number_of_items=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Security %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_bind_security, tvb, foffset, length, FALSE);
+                proto_tree_add_item(atree, hf_bind_security, tvb, foffset, length, FALSE);
             }
             break;
         case 0x00000002:    /* Unbind */
@@ -5802,97 +5252,24 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_file_timestamp, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of NWDPResAddInputData */
-            proto_tree_add_item(ndps_tree, hf_res_type, tvb, foffset, 4, FALSE);
-            resource_type = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            switch (resource_type) 
-            {
-            case 0:     /* Print Drivers */
-                proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_prn_dir_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
-                break;
-            case 1:     /* Printer Definitions */
-                foffset = ndps_string(tvb, hf_ndps_vendor_dir, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
-                break;
-            case 2:     /* Banner Page Files */
-                foffset = ndps_string(tvb, hf_ndps_banner_name, ndps_tree, foffset);
-                break;
-            case 3:     /* Font Types */
-                proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_font_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
-                break;
-            case 4:     /* Generic Files/ Archive */
-            case 5:     /* Printer Driver Archive */
-                proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_prn_dir_name, ndps_tree, foffset);
-                proto_tree_add_item(ndps_tree, hf_archive_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                break;
-            default:
-                break;
-            }
-            /* End of NWDPResAddInputData */
-            proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+            foffset = res_add_input_data(tvb, ndps_tree, foffset);
             number_of_items=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Item %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length=tvb_get_ntohl(tvb, foffset);
                 if(tvb_length_remaining(tvb, foffset) < length)
                 {
                     return;
                 }
-                proto_tree_add_item(ndps_tree, hf_ndps_item_ptr, tvb, foffset, length, FALSE);
+                proto_tree_add_item(atree, hf_ndps_item_ptr, tvb, foffset, length, FALSE);
                 foffset += length;
             }
             break;
         case 0x00000004:    /* Delete Resource File */
-            /* Start of NWDPResAddInputData */
-            proto_tree_add_item(ndps_tree, hf_res_type, tvb, foffset, 4, FALSE);
-            resource_type = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            switch (resource_type) 
-            {
-            case 0:     /* Print Drivers */
-                proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_prn_dir_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
-                break;
-            case 1:     /* Printer Definitions */
-                foffset = ndps_string(tvb, hf_ndps_vendor_dir, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
-                break;
-            case 2:     /* Banner Page Files */
-                foffset = ndps_string(tvb, hf_ndps_banner_name, ndps_tree, foffset);
-                break;
-            case 3:     /* Font Types */
-                proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_font_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
-                break;
-            case 4:     /* Generic Files/ Archive */
-            case 5:     /* Printer Driver Archive */
-                proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_prn_dir_name, ndps_tree, foffset);
-                proto_tree_add_item(ndps_tree, hf_archive_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                break;
-            default:
-                break;
-            }
-            /* End of NWDPResAddInputData */
+            foffset = res_add_input_data(tvb, ndps_tree, foffset);
             break;
         case 0x00000005:    /* List Resources */
             proto_tree_add_item(ndps_tree, hf_ndps_max_items, tvb, foffset, 4, FALSE);
@@ -6008,44 +5385,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         case 0x00000007:    /* Get Resource File Date */
             proto_tree_add_item(ndps_tree, hf_ndps_status_flags, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of NWDPResAddInputData */
-            proto_tree_add_item(ndps_tree, hf_res_type, tvb, foffset, 4, FALSE);
-            resource_type = tvb_get_ntohl(tvb, foffset);
-            foffset += 4;
-            switch (resource_type) 
-            {
-            case 0:     /* Print Drivers */
-                proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_prn_dir_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
-                break;
-            case 1:     /* Printer Definitions */
-                foffset = ndps_string(tvb, hf_ndps_vendor_dir, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
-                break;
-            case 2:     /* Banner Page Files */
-                foffset = ndps_string(tvb, hf_ndps_banner_name, ndps_tree, foffset);
-                break;
-            case 3:     /* Font Types */
-                proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_font_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_prn_file_name, ndps_tree, foffset);
-                break;
-            case 4:     /* Generic Files/ Archive */
-            case 5:     /* Printer Driver Archive */
-                proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_prn_dir_name, ndps_tree, foffset);
-                proto_tree_add_item(ndps_tree, hf_archive_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                break;
-            default:
-                break;
-            }
-            /* End of NWDPResAddInputData */
+            foffset = res_add_input_data(tvb, ndps_tree, foffset);
             break;
         case 0x0000000a:    /* Set Resource Language Context */
             proto_tree_add_item(ndps_tree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
@@ -6059,197 +5399,107 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         switch(ndps_func)
         {
         case 0x00000001:    /* Delivery Bind */
-            /* Start of credentials */
-            cred_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_item(ndps_tree, hf_ndps_cred_type, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            switch (cred_type)
-            {
-            case 0:
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
-                {
-                    length = tvb_get_ntohl(tvb, foffset);
-                    foffset += 4;
-                    proto_tree_add_item(ndps_tree, hf_ndps_password, tvb, foffset, length, FALSE);
-                    foffset += length;
-                }
-                break;
-            case 1:
-                length = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_ndps_certified, tvb, foffset, length, FALSE);
-                foffset += length;
-                break;
-            case 2:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                break;
-            case 3:
-                name_len = tvb_get_ntohl(tvb, foffset);
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                break;
-            case 4:
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                foffset += align_4(tvb, foffset);
-                foffset += 2;
-                proto_tree_add_item(ndps_tree, hf_ndps_connection, tvb, foffset, 
-                2, FALSE);
-                foffset += 2;
-                foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset);
-                foffset += 8;   /* Don't know what these 8 bytes signify */
-                proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
-                4, FALSE);
-                foffset += 4;
-                foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-                break;
-            default:
-                break;
-            }
-            /* End of credentials */
+            foffset = credentials(tvb, ndps_tree, foffset);
             break;
         case 0x00000002:    /* Delivery Unbind */
             /* NoOp */
             break;
         case 0x00000003:    /* Delivery Send */
-            proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Supplier ID");
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Item %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
+                proto_tree_add_item(atree, hf_ndps_session, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Supplier ID");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
+                proto_tree_add_item(btree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 foffset += length;
-                proto_tree_add_item(ndps_tree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(btree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Containing Class");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentifier(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Containing Object");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentification(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Filter Class");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentifier(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object Class");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentifier(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object ID");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentification(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object ID");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentifier(tvb, atree, foffset);
-                foffset = attribute_value(tvb, ndps_tree, foffset);
-                foffset = ndps_string(tvb, hf_ndps_message, ndps_tree, foffset);
-                proto_tree_add_item(ndps_tree, hf_time, tvb, foffset, 4, FALSE);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Containing Class");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Containing Object");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentification(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Filter Class");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Object Class");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Object ID");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentification(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Event Object ID");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
+                foffset = attribute_value(tvb, atree, foffset);
+                foffset = ndps_string(tvb, hf_ndps_message, atree, foffset);
+                proto_tree_add_item(atree, hf_time, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                /* Start of QualifiedName */
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Account");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-                4, qualified_name_type);
-                foffset += 4;
-                if (qualified_name_type != 0) {
-                    if (qualified_name_type == 1) {
-                        foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                    }
-                    else
-                    {
-                        foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                        foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                    }
-                }
-                /* End of QualifiedName */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Account");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = qualifiedname(tvb, btree, foffset);
             }
             break;
         case 0x00000004:    /* Delivery Send2 */
-            proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Supplier ID");
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
+                proto_tree_add_item(atree, hf_ndps_session, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Supplier ID");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
+                proto_tree_add_item(btree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 foffset += length;
-                proto_tree_add_item(ndps_tree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Containing Class");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentifier(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Containing Object");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentification(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Filter Class");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentifier(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object Class");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentifier(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object ID");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentification(tvb, atree, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object ID");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentifier(tvb, atree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Containing Class");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Containing Object");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentification(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Filter Class");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Object Class");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Object ID");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentification(tvb, btree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Event Object ID");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
                 /* Start of AttributeSet */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Attribute");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                proto_tree_add_item(btree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    foffset = attribute_value(tvb, atree, foffset);  
+                    foffset = attribute_value(tvb, btree, foffset);  
                 }
                 /* End of AttributeSet */
-                foffset = ndps_string(tvb, hf_ndps_message, ndps_tree, foffset);
-                proto_tree_add_item(ndps_tree, hf_time, tvb, foffset, 4, FALSE);
+                foffset = ndps_string(tvb, hf_ndps_message, atree, foffset);
+                proto_tree_add_item(atree, hf_time, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                /* Start of QualifiedName */
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Account");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                qualified_name_type = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-                4, qualified_name_type);
-                foffset += 4;
-                if (qualified_name_type != 0) {
-                    if (qualified_name_type == 1) {
-                        foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                    }
-                    else
-                    {
-                        foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                        foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                    }
-                }
-                /* End of QualifiedName */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Account");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = qualifiedname(tvb, btree, foffset);
             }
             break;
         default:
@@ -6259,8 +5509,6 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
     default:
         break;
     }
-    /*proto_tree_add_uint_format(ndps_tree, hf_ndps_xid, tvb, 0, 
-    0, ndps_xid, "This is a Request Packet, XID %08x, Prog %08x, Func %08x", ndps_xid, ndps_prog, ndps_func);*/
     return;
 }
 
@@ -6269,17 +5517,15 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
 {
     guint32     number_of_items=0;
     guint32     problem_type=0;
-    int         i;
+    guint32     i;
     proto_tree  *atree;
     proto_item  *aitem;
+    proto_tree  *btree;
+    proto_item  *bitem;
 
     problem_type = tvb_get_ntohl(tvb, foffset);
-    /*if (problem_type == 0)
-    {
-        return FALSE;
-    }*/
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, "- Error");
+        col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
     proto_tree_add_item(ndps_tree, hf_ndps_problem_type, tvb, foffset, 4, FALSE);
     foffset += 4;
     switch(problem_type)
@@ -6406,27 +5652,27 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
         break;
     case 6:                 /* Attribute Error */
         number_of_items = tvb_get_ntohl(tvb, foffset); 
-        aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-        atree = proto_item_add_subtree(aitem, ett_ndps);
         foffset += 4;
         for (i = 1 ; i <= number_of_items; i++ )
         {
-            proto_tree_add_item(ndps_tree, hf_problem_type, tvb, foffset, 4, FALSE);
+            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Item %d", i);
+            atree = proto_item_add_subtree(aitem, ett_ndps);
+            proto_tree_add_item(atree, hf_problem_type, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (tvb_get_ntohl(tvb, foffset-4)==0) /* Standard Error */
             {
-                proto_tree_add_item(ndps_tree, hf_attribute_problem_type, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(atree, hf_attribute_problem_type, tvb, foffset, 4, FALSE);
                 foffset += 4;
             }
             else                /* Extended Error */
             {
                 /* Start of objectidentifier */
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Extended Error");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset = objectidentifier(tvb, atree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Extended Error");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentifier(tvb, btree, foffset);
                 /* End of objectidentifier */
             }
-            foffset = attribute_value(tvb, ndps_tree, foffset);  /* Object Attribute Set */
+            foffset = attribute_value(tvb, atree, foffset);  /* Object Attribute Set */
         }
         break;
     case 7:                 /* Update Error */
@@ -6453,6 +5699,22 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
     return foffset;
 }
 
+static int
+return_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset)
+{
+    proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
+    foffset += 4;
+    if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+    if (tvb_get_ntohl(tvb, foffset-4) == 0) 
+    {
+        return foffset;
+    }
+    proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
+    foffset += 4;
+    return foffset;
+}
+
 static void
 dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset)
 {
@@ -6464,6 +5726,8 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     proto_item              *bitem;
     proto_tree              *ctree;
     proto_item              *citem;
+    proto_tree              *dtree;
+    proto_item              *ditem;
     guint32                 i;
     guint32                 j;
     guint32                 k;
@@ -6474,11 +5738,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     guint32                 ndps_func=0;
     guint32                 ndps_prog=0;
     guint32                 error_val=0;
-    guint32                 problem_type=0;
-    guint32                 field_len=0;
     guint32                 resource_type=0;
-    guint32                 qualified_name_type=0;
-    guint32                 data_type=0;
     
     if (!pinfo->fd->flags.visited) {
         /* Find the conversation whence the request would have come. */
@@ -6531,6 +5791,14 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     error_val = tvb_get_ntohl(tvb, foffset);
     proto_tree_add_uint(ndps_tree, hf_ndps_error_val, tvb, foffset, 4, error_val);
     foffset += 4;
+    /* Some functions return an error with no data, 0 is ok */
+    if (match_strval(tvb_get_ntohl(tvb, foffset), ndps_error_types) && tvb_length_remaining(tvb,foffset) < 8 && (tvb_get_ntohl(tvb, foffset)!=0))  
+    {
+        proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_str(pinfo->cinfo, COL_INFO, "- Error");
+        return;
+    }
     if (check_col(pinfo->cinfo, COL_INFO))
         col_append_str(pinfo->cinfo, COL_INFO, "- Ok");
     switch(ndps_prog)
@@ -6551,24 +5819,9 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
                 foffset += 4;
             }
-            /* Start of QualifiedName */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "PSM Name");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, atree, foffset);
             break;
         case 0x00000002:    /* Bind PA */
             proto_tree_add_item(ndps_tree, hf_ndps_oid, tvb, foffset, 4, FALSE);
@@ -6605,11 +5858,12 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             number_of_items = tvb_get_ntohl(tvb, foffset);
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object Attribute Set");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset = attribute_value(tvb, atree, foffset);  /* Object Attribute Set */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
             }
             /* End of AttributeSet */
             if(error_val != 0)
@@ -6623,17 +5877,18 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             /* Continuation Option */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Continuation Option");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Option %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
                 length=tvb_get_ntohl(tvb, foffset);
                 if(tvb_length_remaining(tvb, foffset) < length)
                 {
                     return;
                 }
-                proto_tree_add_item(atree, hf_ndps_item_ptr, tvb, foffset, length, FALSE);
+                proto_tree_add_item(btree, hf_ndps_item_ptr, tvb, foffset, length, FALSE);
                 foffset += length;
             }
             /* Limit Encountered Option */
@@ -6646,32 +5901,34 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             /* Object Results Set */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object Results Set");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset = objectidentification(tvb, atree, foffset);
-                number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                bitem = proto_tree_add_item(atree, hf_ndps_objects, tvb, foffset, 4, FALSE);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Result %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = objectidentification(tvb, btree, foffset);
+                number_of_items2 = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                foffset = objectidentifier(tvb, btree, foffset);
                 for (j = 1 ; j <= number_of_items2; j++ )
                 {
-                    number_of_items3 = tvb_get_ntohl(tvb, foffset);
-                    citem = proto_tree_add_item(btree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
+                    citem = proto_tree_add_text(btree, tvb, foffset, 0, "Attribute %d", j);
                     ctree = proto_item_add_subtree(citem, ett_ndps);
+                    foffset = objectidentifier(tvb, ctree, foffset);
+                    foffset += align_4(tvb, foffset);
+                    number_of_items3 = tvb_get_ntohl(tvb, foffset);
                     foffset += 4;
                     for (k = 1 ; k <= number_of_items3; k++ )
                     {
-                        foffset = attribute_value(tvb, ctree, foffset);
+                        ditem = proto_tree_add_text(ctree, tvb, foffset, 0, "Value %d", k);
+                        dtree = proto_item_add_subtree(ditem, ett_ndps);
+                        foffset = attribute_value(tvb, dtree, foffset);
+                        foffset += align_4(tvb, foffset);
                     }
-                    foffset += align_4(tvb, foffset);
-                    proto_tree_add_item(btree, hf_ndps_qualifier, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(ctree, hf_ndps_qualifier, tvb, foffset, 4, FALSE);
                     foffset += 4;
-                    foffset = objectidentifier(tvb, btree, foffset);
                 }
+                foffset = objectidentifier(tvb, btree, foffset);
                 foffset += 2;
             }
             if(error_val != 0)
@@ -6692,11 +5949,12 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             number_of_items = tvb_get_ntohl(tvb, foffset);
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object Attribute Set");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset = attribute_value(tvb, atree, foffset);  /* Object Attribute Set */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Attribute %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
             }
             /* End of AttributeSet */
             if(error_val != 0)
@@ -6728,33 +5986,35 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             number_of_items = tvb_get_ntohl(tvb, foffset); /* Start of ResubmitJob Set */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Resubmit Job");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                /* Start of NWDPPrtContainedObjectId */
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Old Job");
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Job %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = ndps_string(tvb, hf_ndps_pa_name, btree, foffset);
-                proto_tree_add_item(btree, hf_local_id, tvb, foffset, 4, FALSE);
+                /* Start of NWDPPrtContainedObjectId */
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Old Job");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
+                foffset = ndps_string(tvb, hf_ndps_pa_name, ctree, foffset);
+                proto_tree_add_item(ctree, hf_local_id, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 /* End of NWDPPrtContainedObjectId */
                 /* Start of NWDPPrtContainedObjectId */
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "New Job");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = ndps_string(tvb, hf_ndps_pa_name, btree, foffset);
-                proto_tree_add_item(btree, hf_local_id, tvb, foffset, 4, FALSE);
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "New Job");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
+                foffset = ndps_string(tvb, hf_ndps_pa_name, ctree, foffset);
+                proto_tree_add_item(ctree, hf_local_id, tvb, foffset, 4, FALSE);
                 foffset += 4;
                 /* End of NWDPPrtContainedObjectId */
                 /* Start of AttributeSet */
-                number_of_items = tvb_get_ntohl(tvb, foffset);
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Job Status");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                proto_tree_add_item(btree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
+                number_of_items2 = tvb_get_ntohl(tvb, foffset);
+                citem = proto_tree_add_text(btree, tvb, foffset, 0, "Job Status");
+                ctree = proto_item_add_subtree(citem, ett_ndps);
                 foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
+                for (j = 1 ; j <= number_of_items2; j++ )
                 {
-                    foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
+                    ditem = proto_tree_add_text(ctree, tvb, foffset, 0, "Object %d", j);
+                    dtree = proto_item_add_subtree(ditem, ett_ndps);
+                    foffset = attribute_value(tvb, dtree, foffset);  /* Object Attribute Set */
                 }
                 /* End of AttributeSet */
             } /* End of ResubmitJob Set */
@@ -6768,11 +6028,12 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             number_of_items = tvb_get_ntohl(tvb, foffset);
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Job Status");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset = attribute_value(tvb, atree, foffset);  /* Object Attribute Set */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Object %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
             }
             /* End of AttributeSet */
             if(error_val != 0)
@@ -6786,10 +6047,11 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             number_of_items = tvb_get_ntohl(tvb, foffset);
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Printer Status");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_attributes, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Object %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = attribute_value(tvb, atree, foffset);  /* Object Attribute Set */
             }
             /* End of AttributeSet */
@@ -6816,24 +6078,9 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of QualifiedName */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Consumer Name");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, atree, foffset);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
@@ -6850,40 +6097,11 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             number_of_items = tvb_get_ntohl(tvb, foffset);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset += address_item(tvb, atree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Address %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset += address_item(tvb, btree, foffset);
             }
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            number_of_items = tvb_get_ntohl(tvb, foffset);
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = objectidentifier(tvb, atree, foffset);
-                foffset = objectidentification(tvb, atree, foffset);
-                proto_tree_add_item(atree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
-                foffset += 4;
-
-                proto_tree_add_uint(atree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==1)
-                {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                }
-                else
-                {
-                    if(tvb_get_ntohl(tvb, foffset-4)==0)
-                    {
-                        number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items2);
-                        foffset += 4;
-                        for (j = 1 ; j <= number_of_items2; j++ )
-                        {
-                            foffset = objectidentifier(tvb, atree, foffset);
-                        }
-                    }
-                }
-            }
+            foffset = event_object_set(tvb, ndps_tree, foffset);
             /* End of Eventhandling */
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
@@ -6895,27 +6113,88 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             }
             break;
         case 0x00000022:    /* Map GUID to NDS Name */
-            /* Start of QualifiedName */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "NDS Printer Name");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, atree, foffset);
             if(error_val != 0)
             {
                 foffset = ndps_error(tvb, pinfo, ndps_tree, foffset);
+            }
+            break;
+        case 0x00000023:    /* AddEventProfile2 */
+            proto_tree_add_item(ndps_tree, hf_ndps_profile_id, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            proto_tree_add_item(ndps_tree, hf_notify_lease_exp_time, tvb, foffset, 4, FALSE);
+            foffset += 4;
+            if(error_val != 0)
+            {
+                foffset = ndps_error(tvb, pinfo, ndps_tree, foffset);
+            }
+            break;
+        case 0x00000024:    /* ListEventProfiles2 */
+            number_of_items = tvb_get_ntohl(tvb, foffset);
+            foffset += 4;
+            for (i = 1 ; i <= number_of_items; i++ )
+            {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
+                /* Start of Eventhandling2 */
+                proto_tree_add_item(atree, hf_ndps_profile_id, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                proto_tree_add_item(atree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Consumer Name");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = qualifiedname(tvb, btree, foffset);
+                foffset = ndps_string(tvb, hf_ndps_supplier_name, atree, foffset);
+                proto_tree_add_item(atree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                /* Start of NameorID */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Method ID");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = name_or_id(tvb, btree, foffset);
+                foffset += align_4(tvb, foffset);
+                /* End of NameorID */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Delivery Address");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                number_of_items = tvb_get_ntohl(tvb, foffset);
+                foffset += 4;
+                for (i = 1 ; i <= number_of_items; i++ )
+                {
+                    citem = proto_tree_add_text(btree, tvb, foffset, 0, "Address %d", i);
+                    ctree = proto_item_add_subtree(citem, ett_ndps);
+                    foffset = address_item(tvb, ctree, foffset);
+                }
+                foffset = event_object_set(tvb, ndps_tree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Account");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset = qualifiedname(tvb, btree, foffset);
+                /* Start of object identifier set */
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Notify Attributes");
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                number_of_items = tvb_get_ntohl(tvb, foffset);
+                foffset += 4;
+                for (i = 1 ; i <= number_of_items; i++ )
+                {
+                    citem = proto_tree_add_text(btree, tvb, foffset, 0, "Attribute %d", i);
+                    ctree = proto_item_add_subtree(citem, ett_ndps);
+                    foffset = objectidentifier(tvb, ctree, foffset);
+                }
+                /* End of object identifier set */
+                proto_tree_add_item(atree, hf_notify_time_interval, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                proto_tree_add_item(atree, hf_notify_sequence_number, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                proto_tree_add_item(atree, hf_notify_lease_exp_time, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                foffset = ndps_string(tvb, hf_notify_printer_uri, atree, foffset);
+                /* End of Eventhandling2 */
+                proto_tree_add_item(ndps_tree, hf_ndps_continuation_option, tvb, foffset, length, FALSE);
+                foffset += length;
+                if(error_val != 0)
+                {
+                    foffset = ndps_error(tvb, pinfo, ndps_tree, foffset);
+                }
             }
             break;
         default:
@@ -6930,40 +6209,22 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         case 0x00000004:    /* Enable Service */
         case 0x00000005:    /* Disable Service */
         case 0x00000006:    /* Down Broker */
-            /* Start of NWDPBrokerReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPBrokerReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000003:    /* List Services */
             number_of_items = tvb_get_ntohl(tvb, foffset); 
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Service %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 bitem = proto_tree_add_item(atree, hf_ndps_service_type, tvb, foffset, 4, FALSE);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset += 4;
                 proto_tree_add_item(btree, hf_ndps_service_enabled, tvb, foffset, 4, FALSE);
                 foffset += 4;
             }
-            /* Start of NWDPBrokerReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPBrokerReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000007:    /* Get Broker NDS Object Name */
             proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
@@ -6971,16 +6232,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             foffset = ndps_string(tvb, hf_ndps_broker_name, ndps_tree, foffset);
             foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-            /* Start of NWDPBrokerReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPBrokerReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000008:    /* Get Broker Session Information */
         default:
@@ -6991,25 +6243,16 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         switch(ndps_func)
         {
         case 0x00000001:    /* Bind */
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
+            number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Attribute %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_ndps_attribute_set, tvb, foffset, length, FALSE);
+                proto_tree_add_item(atree, hf_ndps_attribute_set, tvb, foffset, length, FALSE);
             }
-            /* Start of NWDPRegReturnCode */
-            /*proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;*/
-            /* End of NWDPRegReturnCode */
             break;
         case 0x00000002:    /* Unbind */
             /* NoOp */
@@ -7019,88 +6262,23 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         case 0x00000005:    /* Register Registry */
         case 0x00000006:    /* Deregister Registry */
         case 0x00000007:    /* Registry Update */
-            /* Start of NWDPRegReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPRegReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000008:    /* List Local Servers */
         case 0x00000009:    /* List Servers */
             number_of_items = tvb_get_ntohl(tvb, foffset); 
-            proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                /* Start of Server Entry */
-                foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_server_type, tvb, foffset, 4, FALSE);
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Item %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset += 4;
-                foffset = print_address(tvb, atree, foffset);
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Server Info");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                number_of_items2 = tvb_get_ntohl(tvb, foffset); 
-                proto_tree_add_item(btree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                for (j = 1 ; j <= number_of_items2; j++ )
-                {
-                    data_type = tvb_get_ntohl(tvb, foffset);
-                    proto_tree_add_item(btree, hf_ndps_data_item_type, tvb, foffset, 4, FALSE);
-                    foffset += 4;
-                    switch (data_type) 
-                    {
-                    case 0:   /* Int8 */
-                        proto_tree_add_item(btree, hf_info_int, tvb, foffset, 1, FALSE);
-                        foffset++;
-                        break;
-                    case 1:   /* Int16 */
-                        proto_tree_add_item(btree, hf_info_int16, tvb, foffset, 2, FALSE);
-                        foffset += 2;
-                        break;
-                    case 2:   /* Int32 */
-                        proto_tree_add_item(btree, hf_info_int32, tvb, foffset, 4, FALSE);
-                        foffset += 4;
-                        break;
-                    case 3:   /* Boolean */
-                        proto_tree_add_item(btree, hf_info_boolean, tvb, foffset, 4, FALSE);
-                        foffset += 4;
-                        break;
-                    case 4:   /* String */
-                    case 5:   /* Bytes */
-                        foffset = ndps_string(tvb, hf_info_string, btree, foffset);
-                        break;
-                        /*length = tvb_get_ntohl(tvb, foffset);
-                        foffset += 4;
-                        proto_tree_add_item(btree, hf_info_bytes, tvb, foffset, length, FALSE);
-                        foffset += length;
-                        foffset += (length%4);*/
-                        break;
-                    default:
-                        break;
-                    }
-                }
-                /* End of Server Entry */
+                foffset = server_entry(tvb, atree, foffset);
             }
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_continuation_option, tvb, foffset, length, FALSE);
             foffset += length;
-            /* Start of NWDPRegReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPRegReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x0000000a:    /* List Known Registries */
             number_of_items = tvb_get_ntohl(tvb, foffset); 
@@ -7118,62 +6296,20 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_continuation_option, tvb, foffset, length, FALSE);
             foffset += length;
-            /* Start of NWDPRegReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPRegReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x0000000b:    /* Get Registry NDS Object Name */
-            /* Start of QualifiedName */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "NDS Printer Name");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
-            /* Start of NWDPRegReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPRegReturnCode */
+            foffset = qualifiedname(tvb, atree, foffset);
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x0000000c:    /* Get Registry Session Information */
             proto_tree_add_item(ndps_tree, hf_ndps_session_type, tvb, foffset, 4, FALSE);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_time, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of NWDPRegReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPRegReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         default:
             break;
@@ -7183,25 +6319,16 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         switch(ndps_func)
         {
         case 0x00000001:    /* Notify Bind */
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
+            number_of_items = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Attribute %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_ndps_attribute_set, tvb, foffset, length, FALSE);
+                proto_tree_add_item(atree, hf_ndps_attribute_set, tvb, foffset, length, FALSE);
             }
-            /* Start of NWDPNotifyReturnCode */
-            /*proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;*/
-            /* End of NWDPNotifyReturnCode */
             break;
         case 0x00000002:    /* Notify Unbind */
             /* NoOp */
@@ -7209,187 +6336,25 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         case 0x00000003:    /* Register Supplier */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of EventObjectSet */
-            length = tvb_get_ntohl(tvb, foffset);   /* Len of record */
-            if (length > 0) 
-            {
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of objectidentifier */
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Class ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentifier(tvb, btree, foffset);
-                /* End of objectidentifier */
-                /* Start of objectidentification */
-                bitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentification(tvb, btree, foffset);
-                /* End of objectidentification */
-                proto_tree_add_item(atree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of ObjectItem */
-                proto_tree_add_uint(atree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==1)
-                {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                }
-                else
-                {
-                    if(tvb_get_ntohl(tvb, foffset-4)==0)
-                    {
-                        number_of_items = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items);
-                        foffset += 4;
-                        for (j = 1 ; j <= number_of_items; j++ )
-                        {
-                            foffset = objectidentifier(tvb, atree, foffset);
-                        }
-                    }
-                }
-                /* End of ObjectItem */
-            }
-            /* End of EventObjectSet */
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = event_object_set(tvb, ndps_tree, foffset);
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000004:    /* Deregister Supplier */
         case 0x0000000b:    /* Report Notification */
         case 0x0000000d:    /* Remove Delivery Method */
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000005:    /* Add Profile */
             proto_tree_add_item(ndps_tree, hf_ndps_profile_id, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of EventObjectSet */
-            length = tvb_get_ntohl(tvb, foffset);   /* Len of record */
-            if (length > 0) 
-            {
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of objectidentifier */
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Class ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentifier(tvb, btree, foffset);
-                /* End of objectidentifier */
-                /* Start of objectidentification */
-                bitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentification(tvb, btree, foffset);
-                /* End of objectidentification */
-                proto_tree_add_item(atree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of ObjectItem */
-                proto_tree_add_uint(atree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==1)
-                {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                }
-                else
-                {
-                    if(tvb_get_ntohl(tvb, foffset-4)==0)
-                    {
-                        number_of_items = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items);
-                        foffset += 4;
-                        for (j = 1 ; j <= number_of_items; j++ )
-                        {
-                            foffset = objectidentifier(tvb, atree, foffset);
-                        }
-                    }
-                }
-                /* End of ObjectItem */
-            }
-            /* End of EventObjectSet */
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = event_object_set(tvb, ndps_tree, foffset);
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000006:    /* Remove Profile */
         case 0x00000007:    /* Modify Profile */
         case 0x00000009:    /* Report Event */
-            /* Start of EventObjectSet */
-            length = tvb_get_ntohl(tvb, foffset);   /* Len of record */
-            if (length > 0) 
-            {
-                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object");
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of objectidentifier */
-                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Class ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentifier(tvb, btree, foffset);
-                /* End of objectidentifier */
-                /* Start of objectidentification */
-                bitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Object ID");
-                btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = objectidentification(tvb, btree, foffset);
-                /* End of objectidentification */
-                proto_tree_add_item(atree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                /* Start of ObjectItem */
-                proto_tree_add_uint(atree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==1)
-                {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                }
-                else
-                {
-                    if(tvb_get_ntohl(tvb, foffset-4)==0)
-                    {
-                        number_of_items = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items);
-                        foffset += 4;
-                        for (j = 1 ; j <= number_of_items; j++ )
-                        {
-                            foffset = objectidentifier(tvb, atree, foffset);
-                        }
-                    }
-                }
-                /* End of ObjectItem */
-            }
-            /* End of EventObjectSet */
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = event_object_set(tvb, ndps_tree, foffset);
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000008:    /* List Profiles */
             /* Start of ProfileResultSet */
@@ -7400,24 +6365,9 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_persistence, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of QualifiedName */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Consumer Name");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(atree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, atree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, atree, foffset);
-                }
-            }
-            /* End of QualifiedName */
+            foffset = qualifiedname(tvb, atree, foffset);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
@@ -7436,54 +6386,14 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             {
                 foffset += address_item(tvb, atree, foffset);
             }
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Event Object");
-            atree = proto_item_add_subtree(aitem, ett_ndps);
-            number_of_items = tvb_get_ntohl(tvb, foffset);
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                foffset = objectidentifier(tvb, atree, foffset);
-                foffset = objectidentification(tvb, atree, foffset);
-                proto_tree_add_item(atree, hf_ndps_object_op, tvb, foffset, 4, FALSE);
-                foffset += 4;
-
-                proto_tree_add_uint(atree, hf_ndps_event_object_identifier, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(tvb_get_ntohl(tvb, foffset-4)==1)
-                {
-                    foffset = objectidentifier(tvb, atree, foffset);
-                }
-                else
-                {
-                    if(tvb_get_ntohl(tvb, foffset-4)==0)
-                    {
-                        number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                        proto_tree_add_uint(atree, hf_ndps_item_count, tvb, foffset, 4, number_of_items2);
-                        foffset += 4;
-                        for (j = 1 ; j <= number_of_items2; j++ )
-                        {
-                            foffset = objectidentifier(tvb, atree, foffset);
-                        }
-                    }
-                }
-            }
+            foffset = event_object_set(tvb, ndps_tree, foffset);
             /* End of Eventhandling */
             /* End of ProfileResultSet */
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_continuation_option, tvb, foffset, length, FALSE);
             foffset += length;
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x0000000a:    /* List Supported Languages */
             /* Start of IntegerSeq */
@@ -7492,16 +6402,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             proto_tree_add_item(ndps_tree, hf_ndps_language_id, tvb, foffset, length, FALSE);
             foffset += length;
             /* End of IntegerSeq */
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x0000000c:    /* Add Delivery Method */
             /* Start of NameorID */
@@ -7509,25 +6410,16 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = name_or_id(tvb, atree, foffset);
             /* End of NameorID */
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x0000000e:    /* List Delivery Methods */
             /* Start of DeliveryMethodSet */
             number_of_items = tvb_get_ntohl(tvb, foffset); 
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Method %d", i);
+                atree = proto_item_add_subtree(aitem, ett_ndps);
                 /* Start of DeliveryMethod */
                 /* Start of NameorID */
                 bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Method ID");
@@ -7543,16 +6435,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 /* End of DeliveryMethod */
             }
             /* End of DeliveryMethodSet */
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x0000000f:    /* Get Delivery Method Information */
             /* Start of DeliveryMethod */
@@ -7572,18 +6455,11 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             number_of_items = tvb_get_ntohl(tvb, foffset);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-                foffset += address_item(tvb, atree, foffset);
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Address %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
+                foffset += address_item(tvb, btree, foffset);
             }
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000010:    /* Get Notify NDS Object Name */
             proto_tree_add_item(ndps_tree, hf_ndps_items, tvb, foffset,
@@ -7591,32 +6467,14 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             foffset = ndps_string(tvb, hf_ndps_broker_name, ndps_tree, foffset);
             foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000011:    /* Get Notify Session Information */
             proto_tree_add_item(ndps_tree, hf_ndps_get_session_type, tvb, foffset, 4, FALSE);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_time, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of NWDPNotifyReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPNotifyReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         default:
             break;
@@ -7626,45 +6484,22 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         switch(ndps_func)
         {
         case 0x00000001:    /* Bind */
-            aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-            atree = proto_item_add_subtree(aitem, ett_ndps);
+            length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            for (i = 1 ; i <= number_of_items; i++ )
-            {
-                length = tvb_get_ntohl(tvb, foffset);
-                foffset += 4;
-                proto_tree_add_item(ndps_tree, hf_ndps_attribute_set, tvb, foffset, length, FALSE);
-            }
-            /* Start of NWDPResManReturnCode */
-            /*proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;*/
-            /* End of NWDPResManReturnCode */
+            proto_tree_add_item(ndps_tree, hf_ndps_attribute_set, tvb, foffset, length, FALSE);
             break;
         case 0x00000002:    /* Unbind */
             /* NoOp */
             break;
         case 0x00000003:    /* Add Resource File */
         case 0x00000004:    /* Delete Resource File */
-            /* Start of NWDPResManReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPResManReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x00000005:    /* List Resources */
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
+            if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
+                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0) 
             {
                 break;
@@ -7680,11 +6515,11 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             case 1:     /* Printer Definitions */
             case 2:     /* Printer Definitions Short */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Definition %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     if (tvb_get_ntohl(tvb, foffset)==0) {  /* Offset for old type support */
                         foffset += 2;
                     }
@@ -7704,31 +6539,31 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 break;
             case 3:     /* Banner Page Files */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Banner %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_ndps_banner_name, atree, foffset);
                 }
                 break;
             case 4:     /* Font Types */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Font %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_font_type_name, atree, foffset);
                 }
                 break;
             case 7:     /* Font Files */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Font File %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_font_file_name, atree, foffset);
                 }
                 break;
@@ -7736,11 +6571,11 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             case 12:    /* Printer Driver Files 2 */
             case 9:     /* Generic Files */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "File %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_ndps_prn_file_name, atree, foffset);
                     foffset = ndps_string(tvb, hf_ndps_prn_dir_name, atree, foffset);
                     foffset = ndps_string(tvb, hf_ndps_inf_file_name, atree, foffset);
@@ -7748,52 +6583,32 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 break;
             case 6:     /* Printer Definition File */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Definition %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_ndps_prn_file_name, atree, foffset);
                     foffset = ndps_string(tvb, hf_ndps_prn_dir_name, atree, foffset);
                     foffset = ndps_string(tvb, hf_ndps_inf_file_name, atree, foffset);
                 }
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                bitem = proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-                    foffset = ndps_string(tvb, hf_ndps_def_file_name, btree, foffset);
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Item %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
+                    foffset = ndps_string(tvb, hf_ndps_def_file_name, atree, foffset);
                     number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                    citem = proto_tree_add_item(btree, hf_ndps_win31_items, tvb, foffset, 4, FALSE);
-                    ctree = proto_item_add_subtree(citem, ett_ndps);
+                    bitem = proto_tree_add_item(atree, hf_ndps_win31_items, tvb, foffset, 4, FALSE);
+                    btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset += 4;
                     for (i = 1 ; i <= number_of_items2; i++ )
                     {
-                        foffset = ndps_string(tvb, hf_ndps_windows_key, ctree, foffset);
+                        foffset = ndps_string(tvb, hf_ndps_windows_key, btree, foffset);
                     }
                     number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                    citem = proto_tree_add_item(btree, hf_ndps_win95_items, tvb, foffset, 4, FALSE);
-                    ctree = proto_item_add_subtree(citem, ett_ndps);
-                    foffset += 4;
-                    for (i = 1 ; i <= number_of_items2; i++ )
-                    {
-                        foffset = ndps_string(tvb, hf_ndps_windows_key, ctree, foffset);
-                    }
-                }
-                break;
-            case 10:    /* Printer Definition File 2 */
-                foffset = ndps_string(tvb, hf_ndps_def_file_name, ndps_tree, foffset);
-                number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
-                foffset += 4;
-                for (i = 1 ; i <= number_of_items; i++ )
-                {
-                    proto_tree_add_item(ndps_tree, hf_os_type, tvb, foffset, 4, FALSE);
-                    foffset += 4;
-                    number_of_items2 = tvb_get_ntohl(tvb, foffset);
-                    bitem = proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
+                    bitem = proto_tree_add_item(atree, hf_ndps_win95_items, tvb, foffset, 4, FALSE);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset += 4;
                     for (i = 1 ; i <= number_of_items2; i++ )
@@ -7802,15 +6617,35 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                     }
                 }
                 break;
+            case 10:    /* Printer Definition File 2 */
+                foffset = ndps_string(tvb, hf_ndps_def_file_name, ndps_tree, foffset);
+                number_of_items = tvb_get_ntohl(tvb, foffset);
+                foffset += 4;
+                for (i = 1 ; i <= number_of_items; i++ )
+                {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "OS %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
+                    proto_tree_add_item(atree, hf_os_type, tvb, foffset, 4, FALSE);
+                    foffset += 4;
+                    number_of_items2 = tvb_get_ntohl(tvb, foffset);
+                    foffset += 4;
+                    for (i = 1 ; i <= number_of_items2; i++ )
+                    {
+                        bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Key %d", i);
+                        btree = proto_item_add_subtree(bitem, ett_ndps);
+                        foffset = ndps_string(tvb, hf_ndps_windows_key, btree, foffset);
+                    }
+                }
+                break;
             case 8:     /* Generic Type */
             case 11:    /* Printer Driver Types 2 */
             case 13:    /* Printer Driver Types Archive */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Type %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_ndps_printer_manuf, atree, foffset);
                     foffset = ndps_string(tvb, hf_ndps_printer_type, atree, foffset);
                     foffset = ndps_string(tvb, hf_ndps_prn_file_name, atree, foffset);
@@ -7823,11 +6658,11 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 break;
             case 14:    /* Languages Available */
                 number_of_items = tvb_get_ntohl(tvb, foffset);
-                aitem = proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-                atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
+                    aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Language %d", i);
+                    atree = proto_item_add_subtree(aitem, ett_ndps);
                     proto_tree_add_item(atree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
                     foffset += 4;
                 }
@@ -7839,6 +6674,8 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         case 0x00000006:    /* Get Resource File */
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
+            if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
+                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0) 
             {
                 break;
@@ -7852,6 +6689,8 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         case 0x00000007:    /* Get Resource File Date */
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
+            if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
+                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0) 
             {
                 break;
@@ -7860,20 +6699,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             break;
         case 0x00000008:    /* Get Resource Manager NDS Object Name */
-            qualified_name_type = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_uint(ndps_tree, hf_ndps_qualified_name, tvb, foffset, 
-            4, qualified_name_type);
-            foffset += 4;
-            if (qualified_name_type != 0) {
-                if (qualified_name_type == 1) {
-                    foffset = ndps_string(tvb, hf_printer_name, ndps_tree, foffset);
-                }
-                else
-                {
-                    foffset = ndps_string(tvb, hf_ndps_broker_name, ndps_tree, foffset);
-                    foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset);
-                }
-            }
+            foffset = qualifiedname(tvb, ndps_tree, foffset);
             proto_tree_add_uint(ndps_tree, hf_ndps_error_val, tvb, foffset, 4, error_val);
             foffset += 4;
             break;
@@ -7882,20 +6708,13 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_time, tvb, foffset, 4, FALSE);
             foffset += 4;
-            /* Start of NWDPResManReturnCode */
-            proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            if (tvb_get_ntohl(tvb, foffset-4) == 0) 
-            {
-                break;
-            }
-            proto_tree_add_item(ndps_tree, hf_ndps_ext_error, tvb, foffset, 4, FALSE);
-            foffset += 4;
-            /* End of NWDPResManReturnCode */
+            foffset = return_code(tvb, pinfo, ndps_tree, foffset);
             break;
         case 0x0000000a:    /* Set Resource Language Context */
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
+            if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
+                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0) 
             {
                 break;
@@ -7913,6 +6732,8 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         case 0x00000001:    /* Delivery Bind */
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
+            if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
+                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             break;
         case 0x00000002:    /* Delivery Unbind */
             /* NoOp */
@@ -7921,23 +6742,26 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         case 0x00000004:    /* Delivery Send2 */
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
+            if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
+                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0) 
             {
                 break;
             }
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, 0, "Failed Items");
             atree = proto_item_add_subtree(aitem, ett_ndps);
-            proto_tree_add_item(atree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
             number_of_items=tvb_get_ntohl(tvb, foffset);
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
+                bitem = proto_tree_add_text(atree, tvb, foffset, 0, "Item %d", i);
+                btree = proto_item_add_subtree(bitem, ett_ndps);
                 length=tvb_get_ntohl(tvb, foffset);
                 if(tvb_length_remaining(tvb, foffset) < length)
                 {
                     return;
                 }
-                proto_tree_add_item(atree, hf_ndps_item_ptr, tvb, foffset, length, FALSE);
+                proto_tree_add_item(btree, hf_ndps_item_ptr, tvb, foffset, length, FALSE);
                 foffset += length;
             }
             break;
@@ -8032,7 +6856,7 @@ proto_register_ndps(void)
         { &hf_ndps_objects,
         { "Number of Objects",    "ndps.objects",
           FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          "Number of Obejcts", HFILL }},
+          "Number of Objects", HFILL }},
 
         { &hf_ndps_attributes,
         { "Number of Attributes",    "ndps.attributes",
@@ -8256,9 +7080,9 @@ proto_register_ndps(void)
           "Abort?", HFILL }},
 
         { &hf_obj_attribute_type,
-        { "Attribute Type",    "ndps.ndps_attrib_type",
+        { "Value Syntax",    "ndps.ndps_attrib_type",
           FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
-          "Attribute Type", HFILL }},
+          "Value Syntax", HFILL }},
 
         { &hf_ndps_attribute_value,
         { "Value",    "ndps.attribue_value",
@@ -9092,6 +7916,101 @@ proto_register_ndps(void)
         { "Problem Type",    "ndps.ndps_get_resman_session_type",
           FT_UINT32,    BASE_HEX,   VALS(problem_type_enum),   0x0,
           "Problem Type", HFILL }},
+
+        { &hf_ndps_values,
+        { "Number of Values",    "ndps.values",
+          FT_UINT32,    BASE_HEX,   NULL,   0x0,
+          "Number of Values", HFILL }},
+        
+        { &hf_ndps_object_ids_7,
+        { "Object ID Definition",    "ndps.objectid_def7",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+        
+        { &hf_ndps_object_ids_8,
+        { "Object ID Definition",    "ndps.objectid_def8",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+
+        { &hf_ndps_object_ids_9,
+        { "Object ID Definition",    "ndps.objectid_def9",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+
+        { &hf_ndps_object_ids_10,
+        { "Object ID Definition",    "ndps.objectid_def10",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+
+        { &hf_ndps_object_ids_11,
+        { "Object ID Definition",    "ndps.objectid_def11",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+
+        { &hf_ndps_object_ids_12,
+        { "Object ID Definition",    "ndps.objectid_def12",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+
+        { &hf_ndps_object_ids_13,
+        { "Object ID Definition",    "ndps.objectid_def13",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+
+        { &hf_ndps_object_ids_14,
+        { "Object ID Definition",    "ndps.objectid_def14",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+
+        { &hf_ndps_object_ids_15,
+        { "Object ID Definition",    "ndps.objectid_def15",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+
+        { &hf_ndps_object_ids_16,
+        { "Object ID Definition",    "ndps.objectid_def16",
+          FT_NONE,    BASE_HEX,   NULL,
+          0x0, "Object ID Definition", HFILL }},
+
+        { &hf_ndps_attribute_time,
+        { "Time",    "ndps.attribute_time",
+          FT_ABSOLUTE_TIME,    BASE_DEC,   NULL,   0x0,
+          "Time", HFILL }},
+
+        { &hf_print_security,
+        { "Printer Security",    "ndps.print_security",
+          FT_UINT32,    BASE_HEX,   VALS(ndps_print_security),   0x0,
+          "Printer Security", HFILL }},
+        
+        { &hf_notify_time_interval,
+        { "Notify Time Interval",    "ndps.notify_time_interval",
+          FT_UINT32,    BASE_HEX,   NULL,   0x0,
+          "Notify Time Interval", HFILL }},
+
+        { &hf_notify_sequence_number,
+        { "Notify Sequence Number",    "ndps.notify_seq_number",
+          FT_UINT32,    BASE_HEX,   NULL,   0x0,
+          "Notify Sequence Number", HFILL }},
+
+        { &hf_notify_lease_exp_time,
+        { "Notify Lease Expiration Time",    "ndps.notify_lease_exp_time",
+          FT_UINT32,    BASE_HEX,   NULL,   0x0,
+          "Notify Lease Expiration Time", HFILL }},
+
+        { &hf_notify_printer_uri,
+        { "Notify Printer URI",    "ndps.notify_printer_uri",
+          FT_STRING,    BASE_NONE,   NULL,   0x0,
+          "Notify Printer URI", HFILL }},
+
+        { &hf_level,
+        { "Level",    "ndps.level",
+          FT_UINT32,    BASE_HEX,   NULL,   0x0,
+          "Level", HFILL }},
+
+        { &hf_interval,
+        { "Interval",    "ndps.interval",
+          FT_UINT32,    BASE_HEX,   NULL,   0x0,
+          "Interval", HFILL }},
     };
 
 	static gint *ett[] = {
@@ -9114,6 +8033,10 @@ proto_register_ndps(void)
 	    "Desegment all NDPS messages spanning multiple SPX packets",
 	    "Whether the NDPS dissector should desegment all messages spanning multiple SPX packets",
 	    &ndps_defragment);
+	prefs_register_bool_preference(ndps_module, "show_oid",
+	    "Display NDPS Details?",
+	    "Whether or not the NDPS dissector should show object id's and other details",
+	    &ndps_show_oids);
 
 	register_init_routine(&ndps_init_protocol);
 	register_postseq_cleanup_routine(&ndps_postseq_cleanup);
