@@ -2,7 +2,7 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.11 2002/10/19 03:03:42 guy Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.12 2002/11/02 22:14:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -194,6 +194,9 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     e_uuid_t uuid;
     dcerpc_info *di;
+    char uuid_str[DCERPC_UUID_STR_LEN]; 
+    int uuid_str_len;
+    char *proto_str;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -207,14 +210,18 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
     dcerpc_tvb_get_uuid (tvb, offset, drep, &uuid);
     if (tree) {
-        proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, "",
-                                      "%s: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                      proto_registrar_get_name(hfindex),
-                                      uuid.Data1, uuid.Data2, uuid.Data3,
-                                      uuid.Data4[0], uuid.Data4[1],
-                                      uuid.Data4[2], uuid.Data4[3],
-                                      uuid.Data4[4], uuid.Data4[5],
-                                      uuid.Data4[6], uuid.Data4[7]);
+	proto_str=proto_registrar_get_name(hfindex);
+	uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+                                "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                uuid.Data1, uuid.Data2, uuid.Data3,
+                                uuid.Data4[0], uuid.Data4[1],
+                                uuid.Data4[2], uuid.Data4[3],
+                                uuid.Data4[4], uuid.Data4[5],
+                                uuid.Data4[6], uuid.Data4[7]);
+        if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
+        proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, 
+		proto_str, "%s (%s)", proto_str, uuid_str);
     }
     if (pdata) {
         *pdata = uuid;

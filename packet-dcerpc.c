@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.83 2002/10/25 01:08:42 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.84 2002/11/02 22:14:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1562,6 +1562,8 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     guint32 trans_ver;
     guint16 if_ver, if_ver_minor;
     int offset = 16;
+    char uuid_str[DCERPC_UUID_STR_LEN]; 
+    int uuid_str_len;
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_max_xmit, NULL);
@@ -1587,14 +1589,17 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
       dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &if_id);
       if (dcerpc_tree) {
+	  uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+			          "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                  if_id.Data1, if_id.Data2, if_id.Data3,
+                                  if_id.Data4[0], if_id.Data4[1],
+                                  if_id.Data4[2], if_id.Data4[3],
+                                  if_id.Data4[4], if_id.Data4[5],
+                                  if_id.Data4[6], if_id.Data4[7]);
+	  if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
           proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_bind_if_id, tvb,
-                                        offset, 16, "HMMM",
-                                        "Interface UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                        if_id.Data1, if_id.Data2, if_id.Data3,
-                                        if_id.Data4[0], if_id.Data4[1],
-                                        if_id.Data4[2], if_id.Data4[3],
-                                        if_id.Data4[4], if_id.Data4[5],
-                                        if_id.Data4[6], if_id.Data4[7]);
+                                        offset, 16, uuid_str, "Interface UUID: %s", uuid_str);
       }
       offset += 16;
 
@@ -1669,14 +1674,17 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
       for (j = 0; j < num_trans_items; j++) {
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
         if (dcerpc_tree) {
+	    uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+                                  "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                  trans_id.Data1, trans_id.Data2, trans_id.Data3,
+                                  trans_id.Data4[0], trans_id.Data4[1],
+                                  trans_id.Data4[2], trans_id.Data4[3],
+                                  trans_id.Data4[4], trans_id.Data4[5],
+                                  trans_id.Data4[6], trans_id.Data4[7]);
+	  if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
             proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_bind_trans_id, tvb,
-                                          offset, 16, "HMMM",
-                                          "Transfer Syntax: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                          trans_id.Data1, trans_id.Data2, trans_id.Data3,
-                                          trans_id.Data4[0], trans_id.Data4[1],
-                                          trans_id.Data4[2], trans_id.Data4[3],
-                                          trans_id.Data4[4], trans_id.Data4[5],
-                                          trans_id.Data4[6], trans_id.Data4[7]);
+                                          offset, 16, uuid_str, "Transfer Syntax: %s", uuid_str);
         }
         offset += 16;
 
@@ -1705,6 +1713,8 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
     guint16 reason;
     e_uuid_t trans_id;
     guint32 trans_ver;
+    char uuid_str[DCERPC_UUID_STR_LEN]; 
+    int uuid_str_len;
 
     int offset = 16;
 
@@ -1753,14 +1763,17 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
 
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
         if (dcerpc_tree) {
+	    uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+                                  "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                  trans_id.Data1, trans_id.Data2, trans_id.Data3,
+                                  trans_id.Data4[0], trans_id.Data4[1],
+                                  trans_id.Data4[2], trans_id.Data4[3],
+                                  trans_id.Data4[4], trans_id.Data4[5],
+                                  trans_id.Data4[6], trans_id.Data4[7]);
+	    if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
             proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_ack_trans_id, tvb,
-                                          offset, 16, "HMMM",
-                                          "Transfer Syntax: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                          trans_id.Data1, trans_id.Data2, trans_id.Data3,
-                                          trans_id.Data4[0], trans_id.Data4[1],
-                                          trans_id.Data4[2], trans_id.Data4[3],
-                                          trans_id.Data4[4], trans_id.Data4[5],
-                                          trans_id.Data4[6], trans_id.Data4[7]);
+                                          offset, 16, uuid_str, "Transfer Syntax: %s", uuid_str);
         }
         offset += 16;
 
@@ -1969,6 +1982,8 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     int offset = 16;
     guint32 alloc_hint;
     int length;
+    char uuid_str[DCERPC_UUID_STR_LEN]; 
+    int uuid_str_len;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -1987,18 +2002,21 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     if (hdr->flags & PFC_OBJECT_UUID) {
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &obj_id);
         if (dcerpc_tree) {
+	    uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+                                    "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                    obj_id.Data1, obj_id.Data2, obj_id.Data3,
+                                    obj_id.Data4[0],
+                                    obj_id.Data4[1],
+                                    obj_id.Data4[2],
+                                    obj_id.Data4[3],
+                                    obj_id.Data4[4],
+                                    obj_id.Data4[5],
+                                    obj_id.Data4[6],
+                                    obj_id.Data4[7]);
+	    if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
             proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
-                                          offset, 16, "HMMM",
-                                          "Object UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                          obj_id.Data1, obj_id.Data2, obj_id.Data3,
-                                          obj_id.Data4[0],
-                                          obj_id.Data4[1],
-                                          obj_id.Data4[2],
-                                          obj_id.Data4[3],
-                                          obj_id.Data4[4],
-                                          obj_id.Data4[5],
-                                          obj_id.Data4[6],
-                                          obj_id.Data4[7]);
+                                          offset, 16, uuid_str, "Object UUID: %s", uuid_str);
         }
         offset += 16;
     }
@@ -3082,6 +3100,8 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset = 0;
     conversation_t *conv;
     int auth_level;
+    char uuid_str[DCERPC_UUID_STR_LEN]; 
+    int uuid_str_len;
 
     /*
      * Check if this looks like a CL DCERPC call.  All dg packets
@@ -3197,50 +3217,59 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset++;
 
     if (tree) {
+	uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+                                "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                hdr.obj_id.Data1, hdr.obj_id.Data2, hdr.obj_id.Data3,
+                                hdr.obj_id.Data4[0],
+                                hdr.obj_id.Data4[1],
+                                hdr.obj_id.Data4[2],
+                                hdr.obj_id.Data4[3],
+                                hdr.obj_id.Data4[4],
+                                hdr.obj_id.Data4[5],
+                                hdr.obj_id.Data4[6],
+                                hdr.obj_id.Data4[7]);
+        if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
-                                      offset, 16, "HMMM",
-                                      "Object: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                      hdr.obj_id.Data1, hdr.obj_id.Data2, hdr.obj_id.Data3,
-                                      hdr.obj_id.Data4[0],
-                                      hdr.obj_id.Data4[1],
-                                      hdr.obj_id.Data4[2],
-                                      hdr.obj_id.Data4[3],
-                                      hdr.obj_id.Data4[4],
-                                      hdr.obj_id.Data4[5],
-                                      hdr.obj_id.Data4[6],
-                                      hdr.obj_id.Data4[7]);
+                                      offset, 16, uuid_str, "Object: %s", uuid_str);
     }
     offset += 16;
 
     if (tree) {
+	uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+                                "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                hdr.if_id.Data1, hdr.if_id.Data2, hdr.if_id.Data3,
+                                hdr.if_id.Data4[0],
+                                hdr.if_id.Data4[1],
+                                hdr.if_id.Data4[2],
+                                hdr.if_id.Data4[3],
+                                hdr.if_id.Data4[4],
+                                hdr.if_id.Data4[5],
+                                hdr.if_id.Data4[6],
+                                hdr.if_id.Data4[7]);
+        if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
-                                      offset, 16, "HMMM",
-                                      "Interface: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                      hdr.if_id.Data1, hdr.if_id.Data2, hdr.if_id.Data3,
-                                      hdr.if_id.Data4[0],
-                                      hdr.if_id.Data4[1],
-                                      hdr.if_id.Data4[2],
-                                      hdr.if_id.Data4[3],
-                                      hdr.if_id.Data4[4],
-                                      hdr.if_id.Data4[5],
-                                      hdr.if_id.Data4[6],
-                                      hdr.if_id.Data4[7]);
+                                      offset, 16, uuid_str, "Interface: %s", uuid_str);
     }
     offset += 16;
 
     if (tree) {
+	uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+                                "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                hdr.act_id.Data1, hdr.act_id.Data2, hdr.act_id.Data3,
+                                hdr.act_id.Data4[0],
+                                hdr.act_id.Data4[1],
+                                hdr.act_id.Data4[2],
+                                hdr.act_id.Data4[3],
+                                hdr.act_id.Data4[4],
+                                hdr.act_id.Data4[5],
+                                hdr.act_id.Data4[6],
+                                hdr.act_id.Data4[7]);
+        if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_dg_act_id, tvb,
-                                      offset, 16, "HMMM",
-                                      "Activity: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                      hdr.act_id.Data1, hdr.act_id.Data2, hdr.act_id.Data3,
-                                      hdr.act_id.Data4[0],
-                                      hdr.act_id.Data4[1],
-                                      hdr.act_id.Data4[2],
-                                      hdr.act_id.Data4[3],
-                                      hdr.act_id.Data4[4],
-                                      hdr.act_id.Data4[5],
-                                      hdr.act_id.Data4[6],
-                                      hdr.act_id.Data4[7]);
+                                      offset, 16, uuid_str, "Activity: %s", uuid_str);
     }
     offset += 16;
 

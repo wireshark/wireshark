@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.24 2002/10/25 01:08:42 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.25 2002/11/02 22:14:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,9 @@ typedef struct _e_uuid_t {
     guint16 Data3;
     guint8 Data4[8];
 } e_uuid_t;
+
+/* %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x */
+#define DCERPC_UUID_STR_LEN 36+1
 
 typedef struct _e_ctx_hnd {
     guint32 Data1;
