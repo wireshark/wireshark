@@ -787,7 +787,7 @@ written by Larry Wall and Paul Eggert]]>
 
 
 	<section id="ChToolsWin32">
-	<title>Summary of recommended tools for the win32 platform</title>
+	<title>Win32: Summary of recommended tools</title>
 	<para>
 	The recommended tools are highlighted in bold face.
 	
@@ -884,7 +884,9 @@ written by Larry Wall and Paul Eggert]]>
 	<row>
 	  <entry>nsis</entry>
 	  <entry>-</entry>
-	  <entry><command><ulink url="http://nsis.sourceforge.net">NSIS</ulink></command></entry>
+	  <entry>
+	  <command><ulink url="http://nsis.sourceforge.net">NSIS</ulink></command>
+	  </entry>
 	</row>
 	</tbody>
 	</tgroup>
@@ -892,6 +894,48 @@ written by Larry Wall and Paul Eggert]]>
 	
 	</para>
 	</section>
+
+	<section id="ChToolsWin32Verify">
+	<title>Win32: Verify installed tools</title>
+	<para>
+	After you've installed the Ethereal sources (see <xref 
+	linkend="ChSrcObtaining"/>), you can check the correct installation of 
+	all tools by using the verify_tools target of the 
+	<filename>Makefile.nmake</filename> from the source package.
+	</para>
+	<warning><title>Warning!</title>
+	<para>
+	You will need the Ethereal sources and some tools (nmake, bash) installed, 
+	before this verification is able to work.
+	</para>
+	</warning>
+	<para>
+	Enter at the command line:
+	</para>
+	<para>
+	<prompt>&gt;</prompt> 
+	<userinput>nmake -f Makefile.nmake verify_tools</userinput>
+	</para>
+	<para>
+	This will check for the various tools needed to build Ethereal:
+	</para>
+	<para>
+	<programlisting>
+<![CDATA[Checking for required applications:
+        bash: /usr/bin/bash
+        bison: /usr/bin/bison
+        flex: /usr/bin/flex
+        grep: /usr/bin/grep
+        perl: /usr/bin/perl
+        env: /usr/bin/env
+        python: /usr/bin/python
+        sed: /usr/bin/sed
+        unzip: /usr/bin/unzip
+        wget: /usr/bin/wget]]>
+	</programlisting>
+	</para>
 	
+	</section>
+
 </chapter>
 <!-- End of EUG Chapter Tools -->
