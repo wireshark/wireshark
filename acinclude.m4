@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.58 2003/10/10 06:05:48 guy Exp $
+dnl $Id: acinclude.m4,v 1.59 2003/10/10 10:12:18 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -719,6 +719,7 @@ changequote([, ])dnl
 		  [
 		    ADNS_LIBS=-ladns
 	    	AC_DEFINE(HAVE_GNU_ADNS, 1, [Define to use GNU ADNS library])
+		have_good_adns=yes
 		  ],,
 		)
 	else

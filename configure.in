@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.224 2003/10/10 03:00:09 guy Exp $
+# $Id: configure.in,v 1.225 2003/10/10 10:12:18 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -634,7 +634,7 @@ AC_SUBST(SNMP_LIBS)
 dnl ADNS Check
 ADNS_LIBS=''
 AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
-if test "x$enable_adns" = "xno" ; then
+if test "x$with_adns" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
 	AC_MSG_RESULT(yes)
@@ -833,10 +833,10 @@ else
 	zlib_message="yes"
 fi
 
-if test "x$want_adns" = "xno" ; then
-	adns_message="no"
-else
+if test "x$have_good_adns" = "xyes" ; then
 	adns_message="yes"
+else
+	adns_message="no"
 fi
 
 if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCONFIG" ; then
