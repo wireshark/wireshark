@@ -6,7 +6,7 @@
  *
  * (C) Olivier Biot, 2004 <Olivier.Biot (ad) siemens.com>
  *
- * $Id: packet-text-media.c,v 1.2 2004/01/10 02:54:50 obiot Exp $
+ * $Id: packet-text-media.c,v 1.3 2004/01/13 07:55:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,6 +90,15 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		subtree = proto_item_add_subtree(ti, ett_text_lines);
 		/* Read the media line by line */
 		while (tvb_reported_length_remaining(tvb, offset) != 0) {
+			/*
+			 * XXX - we need to be passed the parameters
+			 * of the content type via "pinfo->private_data",
+			 * so that we know the character set.  We'd
+			 * have to handle that character set, which
+			 * might be a multibyte character set such
+			 * as "iso-10646-ucs-2", or might require other
+			 * special processing.
+			 */
 			len = tvb_find_line_end(tvb, offset,
 					tvb_ensure_length_remaining(tvb, offset),
 					&next_offset, FALSE);
