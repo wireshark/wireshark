@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.4 1999/11/10 14:54:37 nneul Exp $
+ * $Id: packet-rpc.c,v 1.5 1999/11/10 15:10:32 nneul Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -213,6 +213,7 @@ request/reply pairs. */
 #define STAT_PROGRAM	100024
 #define YPBIND_PROGRAM	100007
 #define YPSERV_PROGRAM	100004
+#define YPXFR_PROGRAM	100069
 
 static int proto_boot = -1;
 static int proto_mnt = -1;
@@ -221,6 +222,7 @@ static int proto_pmap = -1;
 static int proto_stat = -1;
 static int proto_ypbind = -1;
 static int proto_ypserv = -1;
+static int proto_ypxfr = -1;
 
 void init_incomplete_dissect(void)
 {
@@ -244,6 +246,9 @@ void init_incomplete_dissect(void)
 
 	proto_ypserv = proto_register_protocol("Yellow Page Server", "YPSERV");
 	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ETT_YPSERV);
+
+	proto_ypxfr = proto_register_protocol("Yellow Page Transfer", "YPXFR");
+	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ETT_YPXFR);
 }
 
 

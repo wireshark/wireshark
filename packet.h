@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.129 1999/11/10 14:44:58 nneul Exp $
+ * $Id: packet.h,v 1.130 1999/11/10 15:10:33 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -454,6 +454,7 @@ enum {
 	ETT_STAT,
 	ETT_YPBIND,
 	ETT_YPSERV,
+	ETT_YPXFR,
 	ETT_DDP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
