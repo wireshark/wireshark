@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.17 2002/03/03 00:11:04 gram Exp $
+$Id: ncp2222.py,v 1.14.2.18 2002/03/04 05:35:04 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -264,6 +264,10 @@ class PTVC(NamedList):
 
 			self.list.append(ptvc_rec)
 
+	def ETTName(self):
+		return "ett_%s" % (self.Name(),)
+
+
 	def Code(self):
 		x =  "static const ptvc_record %s[] = {\n" % (self.Name())
 		for ptvc_rec in self.list:
@@ -288,9 +292,6 @@ class PTVCBitfield(PTVC):
 				NO_VAR, NO_REPEAT, NO_REQ_COND)
 			self.list.append(ptvc_rec)
 
-	def ETTName(self):
-		return "ett_%s" % (self.Name(),)
-
 	def Code(self):
 		ett_name = self.ETTName()
 		x = "static gint %s;\n" % (ett_name,)
@@ -303,6 +304,7 @@ class PTVCBitfield(PTVC):
 
 		x = x + "static const sub_ptvc_record %s = {\n" % (self.Name(),)
 		x = x + "\t&%s,\n" % (ett_name,)
+		x = x + "\tNULL,\n"
 		x = x + "\tptvc_%s,\n" % (self.Name(),)
 		x = x + "};\n"
 		return x
@@ -754,11 +756,12 @@ class Type:
 		return cmp(self.hfname, other.hfname)
 
 class struct(PTVC, Type):
-	def __init__(self, name, vars):
+	def __init__(self, name, vars, descr=None):
 		name = "struct_%s" % (name,)
 		NamedList.__init__(self, name, [])
 
 		self.bytes = 0
+		self.descr = descr
 		for var in vars:
 			ptvc_rec = PTVCRecord(var, var.Length(), var.Endianness(),
 				NO_VAR, NO_REPEAT, NO_REQ_COND)
@@ -778,14 +781,20 @@ class struct(PTVC, Type):
 			(self.name, var, repeat, req_cond)
 
 	def Code(self):
-		x = "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
+		ett_name = self.ETTName()
+		x = "static gint %s;\n" % (ett_name,)
+		x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
 		x = x + "\t{ NULL, NO_LENGTH, NULL, NO_ENDIANNESS, NO_VAR, NO_REPEAT, NO_REQ_COND, NCP_FMT_NONE }\n"
 		x = x + "};\n"
 
 		x = x + "static const sub_ptvc_record %s = {\n" % (self.name,)
-		x = x + "\tNULL,\n"
+		x = x + "\t&%s,\n" % (ett_name,)
+		if self.descr:
+			x = x + '\t"%s",\n' % (self.descr,)
+		else:
+			x = x + "\tNULL,\n"
 		x = x + "\tptvc_%s,\n" % (self.Name(),)
 		x = x + "};\n"
 		return x
@@ -4175,7 +4184,7 @@ ModifyInfoStruct		= struct("modify_info_struct", [
 	ModifiedDate,
 	ModifierID,
 	LastAccessedDate,
-])
+], "Modify Info")
 nameInfo                        = struct("name_info_struct", [
         ObjectType,
         nstring8("login_name", "Login Name"),
@@ -5144,7 +5153,7 @@ static int hf_ncp_connection_status = -1;
 			print "/* %s */" % (sub_vars_ptvc.Name())
 			print sub_vars_ptvc.Code()
 			ett_list.append(sub_vars_ptvc.ETTName())
-	ett_list.sort()
+
 
 	# Print the PTVC's for structures
 	print "/* PTVC records for structs. */"
@@ -5152,11 +5161,16 @@ static int hf_ncp_connection_status = -1;
 	svhash = {}
 	for svar in structs_used_hash.values():
 		svhash[svar.HFName()] = svar
+		if svar.descr:
+			ett_list.append(svar.ETTName())
+
 	struct_vars = svhash.keys()
 	struct_vars.sort()
 	for varname in struct_vars:
 		var = svhash[varname]
 		print var.Code()
+
+	ett_list.sort()
 
 	# Print regular PTVC's
 	print "/* PTVC records. These are re-used to save space. */"

@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8.2.7 2002/03/04 05:29:07 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8.2.8 2002/03/04 05:35:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,11 +386,33 @@ process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 		const ncp_record *ncp_rec)
 {
 	const ptvc_record	*sub_rec;
+	gint			ett;
+	proto_tree		*old_tree=NULL, *new_tree;
+	proto_item		*item=NULL;
+	gint			offset=0;
+
+	/* Create a sub-proto_tree? */
+	if (rec->sub_ptvc_rec->descr) {
+		ett = *rec->sub_ptvc_rec->ett;
+		old_tree = ptvcursor_tree(ptvc);
+		offset = ptvcursor_current_offset(ptvc);
+		item = proto_tree_add_text(old_tree, ptvcursor_tvbuff(ptvc),
+				offset, PROTO_LENGTH_UNTIL_END,
+				rec->sub_ptvc_rec->descr);
+		new_tree = proto_item_add_subtree(item, ett);
+		ptvcursor_set_tree(ptvc, new_tree);
+	}
 
 	/* Get the ptvc_record for the struct and call our caller
 	 * to process it. */
 	sub_rec = rec->sub_ptvc_rec->ptvc_rec;
 	process_ptvc_record(ptvc, sub_rec, req_cond_results, really_decode, ncp_rec);
+
+	/* Re-set the tree */
+	if (rec->sub_ptvc_rec->descr) {
+		proto_item_set_len(item, ptvcursor_current_offset(ptvc) - offset);
+		ptvcursor_set_tree(ptvc, old_tree);
+	}
 }
 
 /* Run through the table of ptvc_record's and add info to the tree. This

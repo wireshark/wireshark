@@ -3,7 +3,7 @@
  * Proto Tree TVBuff cursor
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ptvcursor.h,v 1.5.2.2 2002/02/24 20:42:42 gram Exp $
+ * $Id: ptvcursor.h,v 1.5.2.3 2002/03/04 05:35:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,5 +68,13 @@ ptvcursor_tvbuff(ptvcursor_t*);
 /* Returns current offset. */
 gint
 ptvcursor_current_offset(ptvcursor_t*);
+
+/* Returns the proto_tree* */
+proto_tree*
+ptvcursor_tree(ptvcursor_t* ptvc);
+
+/* Sets a new proto_tree* for the ptvcursor_t */
+void
+ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree);
 
 #endif /* __PTVCURSOR_H__ */
