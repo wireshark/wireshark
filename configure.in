@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.273 2004/06/25 07:10:53 jmayer Exp $
+# $Id: configure.in,v 1.274 2004/07/06 16:29:18 gerald Exp $
 #
 AC_INIT(etypes.h)
 
@@ -8,7 +8,7 @@ dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(ethereal, 0.10.4)
+AM_INIT_AUTOMAKE(ethereal, 0.10.5)
 
 AM_DISABLE_STATIC
 

@@ -1,4 +1,103 @@
-$Id: NEWS,v 1.151 2004/05/14 04:25:41 gerald Exp $
+$Id: NEWS,v 1.152 2004/07/06 16:29:18 gerald Exp $
+
+== July ??, 2004
+
+Ethereal 0.10.5 has been released.
+
+
+
+
+New and updated features
+
+Ethereal can now merge multiple files (you don't have to resort to 
+mergecap on the command line).
+
+A preview pane has been added to the file dialog.
+
+The capture progress dialog can now be disabled.
+
+The about dialog has received further improvements.
+
+The behavior of Ethereal's dialog windows has been normalized somewhat.
+
+The Windows installer can now associate standard file extensions with
+Ethereal.
+
+Ethereal can be configured not to bug you about unsaved captures.
+
+Ethereal can open help documentation using the default web browser.
+
+New protocol support
+
+DNP,
+giFT,
+H.235,
+PacketCable,
+SigComp,
+SIR (Serial Infrared),
+
+
+Updated protocol support
+
+AIM,
+ASAP,
+ASN.1 BER,
+ARP,
+ATM,
+DHCP,
+CFPI,
+CLNP,
+DCERPC (DCERPC, LSA, NT, SAMR, SRVSVC, WKSSVC),
+EAP,
+ENIP,
+Frame Relay,
+GRE,
+H.225,
+H.245,
+H.450,
+HTTP,
+IAX2,
+IEEE 802.11,
+ISAKMP,
+iSNS,
+ISUP,
+JFIF,
+Kerberos,
+LMP,
+M3UA,
+MGCP,
+MPLS,
+MTP3,
+NCP,
+NetFlow,
+NFS,
+OSPF,
+RADIUS,
+RIP,
+RSVP,
+RTCP,
+RTP,
+RTSP,
+SCSI,
+SDP,
+SIP,
+SMB,
+SMTP,
+SNMP,
+SOCKS,
+SSL,
+T.35,
+TCP,
+VRRP,
+WBXML,
+WSP,
+X11,
+
+
+Capture file support
+
+Radcom,
+
 
 == May 13, 2004
 
