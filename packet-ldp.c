@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.51 2004/04/28 15:38:33 gerald Exp $
+ * $Id: packet-ldp.c,v 1.52 2004/05/11 11:20:34 guy Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -153,9 +153,31 @@ static int hf_ldp_tlv_fec_vc_intparam_tdmbps = -1;
 static int hf_ldp_tlv_fec_vc_intparam_id = -1;
 static int hf_ldp_tlv_fec_vc_intparam_maxcatmcells = -1;
 static int hf_ldp_tlv_fec_vc_intparam_desc = -1;
-static int hf_ldp_tlv_fec_vc_intparam_cembytes = -1;
-static int hf_ldp_tlv_fec_vc_intparam_vpnid_oui = -1;
-static int hf_ldp_tlv_fec_vc_intparam_vpnid_index = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepbytes = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepopt_ais = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepopt_une = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepopt_rtp = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepopt_ebm = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepopt_mah = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepopt_res = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepopt_ceptype = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepopt_t3 = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cepopt_e3 = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vlanid = -1;
+static int hf_ldp_tlv_fec_vc_intparam_dlcilen = -1;
+static int hf_ldp_tlv_fec_vc_intparam_tdmopt_r = -1;
+static int hf_ldp_tlv_fec_vc_intparam_tdmopt_d = -1;
+static int hf_ldp_tlv_fec_vc_intparam_tdmopt_f = -1;
+static int hf_ldp_tlv_fec_vc_intparam_tdmopt_res1 = -1;
+static int hf_ldp_tlv_fec_vc_intparam_tdmopt_pt = -1;
+static int hf_ldp_tlv_fec_vc_intparam_tdmopt_res2 = -1;
+static int hf_ldp_tlv_fec_vc_intparam_tdmopt_freq = -1;
+static int hf_ldp_tlv_fec_vc_intparam_tdmopt_ssrc = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cctype_cw = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd = -1;
 static int hf_ldp_tlv_lspid_act_flg = -1;
 static int hf_ldp_tlv_lspid_cr_lsp = -1;
 static int hf_ldp_tlv_lspid_ldpid = -1;
@@ -203,6 +225,8 @@ static int ett_ldp_tlv_val = -1;
 static int ett_ldp_tlv_ft_flags = -1;
 static int ett_ldp_fec = -1;
 static int ett_ldp_fec_vc_interfaceparam = -1;
+static int ett_ldp_fec_vc_interfaceparam_cepopt = -1;
+static int ett_ldp_fec_vc_interfaceparam_vccvtype = -1;
 static int ett_ldp_diffserv_map = -1;
 static int ett_ldp_diffserv_map_phbid = -1;
 
@@ -375,33 +399,68 @@ static const value_string fec_types[] = {
 
 static const value_string fec_vc_types_vals[] = {
   {0x0001, "Frame Relay DLCI"},
-  {0x0002, "ATM VCC transport"},
-  {0x0003, "ATM VPC transport"},
+  {0x0002, "ATM AAL5 SDU VCC transport"},
+  {0x0003, "ATM transparent cell transport"},
   {0x0004, "Ethernet VLAN"},
   {0x0005, "Ethernet"},
   {0x0006, "HDLC"},
   {0x0007, "PPP"},
   {0x0008, "SONET/SDH Circuit Emulation Service"},
   {0x0009, "ATM n-to-one VCC cell transport"},
-  {0x000A, "ATM n-to one VPC cell transport"},
+  {0x000A, "ATM n-to-one VPC cell transport"},
   {0x000B, "IP layer2 transport"},
   {0x000C, "ATM one-to-one VCC Cell Mode"},
   {0x000D, "ATM one-to-one VPC Cell Mode"},
   {0x000E, "ATM AAL5 PDU VCC transport"},
   {0x000F, "Frame-Relay Port mode"},
   {0x0010, "SONET/SDH Circuit Emulation over Packet"},
+  {0x0011, "Structure-agnostic E1 over Packet"},
+  {0x0012, "Structure-agnostic T1 (DS1) over Packet"},
+  {0x0013, "Structure-agnostic E3 over Packet"},
+  {0x0014, "Structure-agnostic T3 (DS3) over Packet"},
+  {0x0015, "CESoPSN basic mode"},
+  {0x0016, "TDMoIP basic mode"},
+  {0x0017, "CESoPSN TDM with CAS"},
+  {0x0018, "TDMoIP TDM with CAS"},
   {0, NULL}
+};
+
+
+static const value_string fec_vc_ceptype_vals[] = {
+  {0, "SPE mode (STS-1/STS-Mc)"},
+  {1, "VT mode (VT1.5/VT2/VT3/VT6)"},
+  {2, "Fractional SPE (STS-1/VC-3/VC-4)"},
+  {0, NULL}
+};
+
+static const true_false_string fec_vc_tdmopt_r = {
+  "Expects to receive RTP Header",
+  "Does not expect to receive RTP Header"
+};
+
+static const true_false_string fec_vc_tdmopt_d = {
+  "Expects the peer to use Differential timestamping",
+  "Does not expect the peer to use Differential timestamping"
+};
+
+static const true_false_string fec_vc_tdmopt_f = {
+  "Expects TDMoIP encapsulation",
+  "Expects CESoPSN encapsulation"
 };
 
 
 #define FEC_VC_INTERFACEPARAM_MTU          0x01
 #define FEC_VC_INTERFACEPARAM_MAXCATMCELLS 0x02
 #define FEC_VC_INTERFACEPARAM_DESCRIPTION  0x03
-#define FEC_VC_INTERFACEPARAM_CEMBYTES     0x04
-#define FEC_VC_INTERFACEPARAM_CEMOPTIONS   0x05
-#define FEC_VC_INTERFACEPARAM_VPNID        0x06
+#define FEC_VC_INTERFACEPARAM_CEPBYTES     0x04
+#define FEC_VC_INTERFACEPARAM_CEPOPTIONS   0x05
+#define FEC_VC_INTERFACEPARAM_VLANID       0x06
 #define FEC_VC_INTERFACEPARAM_TDMBPS       0x07
 #define FEC_VC_INTERFACEPARAM_FRDLCILEN    0x08
+#define FEC_VC_INTERFACEPARAM_FRAGIND      0x09
+#define FEC_VC_INTERFACEPARAM_FCSRETENT    0x0A
+#define FEC_VC_INTERFACEPARAM_TDMOPTION    0x0B
+#define FEC_VC_INTERFACEPARAM_VCCV         0x0C
 
 
 
@@ -409,11 +468,15 @@ static const value_string fec_vc_interfaceparm[] = {
   {FEC_VC_INTERFACEPARAM_MTU, "MTU"},
   {FEC_VC_INTERFACEPARAM_MAXCATMCELLS, "Max Concatenated ATM cells"},
   {FEC_VC_INTERFACEPARAM_DESCRIPTION, "Interface Description"},
-  {FEC_VC_INTERFACEPARAM_CEMBYTES, "CEM Payload Bytes"},
-  {FEC_VC_INTERFACEPARAM_CEMOPTIONS, "CEM options"},
-  {FEC_VC_INTERFACEPARAM_VPNID, "VPN Id"},
+  {FEC_VC_INTERFACEPARAM_CEPBYTES, "CEP/TDM Payload Bytes"},
+  {FEC_VC_INTERFACEPARAM_CEPOPTIONS, "CEP options"},
+  {FEC_VC_INTERFACEPARAM_VLANID, "Requested VLAN ID"},
   {FEC_VC_INTERFACEPARAM_TDMBPS, "CEP/TDM bit-rate"},
   {FEC_VC_INTERFACEPARAM_FRDLCILEN, "Frame-Relay DLCI Length"},
+  {FEC_VC_INTERFACEPARAM_FRAGIND, "Fragmentation indicator"},
+  {FEC_VC_INTERFACEPARAM_FCSRETENT, "FCS retention indicator"},
+  {FEC_VC_INTERFACEPARAM_TDMOPTION, "TDM options"},
+  {FEC_VC_INTERFACEPARAM_VCCV, "VCCV"},
   {0, NULL},
 };
 
@@ -640,6 +703,7 @@ static void
 dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti=NULL, *val_tree=NULL, *fec_tree=NULL, *vcintparam_tree=NULL;
+        proto_tree *cepopt_tree=NULL, *vccvtype_tree=NULL;
 	guint16	family, ix=1, ax;
 	guint8	addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
 	guint8  intparam_len;
@@ -856,6 +920,11 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			    if(vcintparam_tree == NULL) return;
 			    proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_id,tvb,offset,1,FALSE);
 			    proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_length,tvb, offset+1, 1, FALSE);
+                            if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
+                              proto_tree_add_text(vcintparam_tree, tvb, offset +1, 1, "malformed interface parameter");
+                              return;
+                            }
+
 			    if ( (vc_len -intparam_len) <0 && (rem -intparam_len) <0 ) { /* error condition */
 			      proto_tree_add_text(vcintparam_tree, tvb, offset +2, MIN(vc_len,rem), "malformed data");
  			      return;
@@ -866,8 +935,9 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_mtu,tvb, offset+2, 2, FALSE);
 			      break;
 			    case FEC_VC_INTERFACEPARAM_TDMBPS:
-			      proto_item_append_text(ti,": BPS %u", tvb_get_ntohs(tvb,offset+2));
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmbps,tvb, offset+2, 2, FALSE);
+                              /* draft-ietf-pwe3-control-protocol-06.txt */
+			      proto_item_append_text(ti,": BPS %u", tvb_get_ntohl(tvb,offset+2));
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmbps,tvb, offset+2, 4, FALSE);
 			      break;
 			    case FEC_VC_INTERFACEPARAM_MAXCATMCELLS:
 			      proto_item_append_text(ti,": Max ATM Concat Cells %u", tvb_get_ntohs(tvb,offset+2));
@@ -877,23 +947,78 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			      proto_item_append_text(ti,": Description");
 			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_desc,tvb, offset+2, (intparam_len -2), FALSE);
 			      break;
-			    case FEC_VC_INTERFACEPARAM_CEMBYTES:
-			      proto_item_append_text(ti,": CEM Payload Bytes %u", tvb_get_ntohs(tvb,offset+2));
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_cembytes,tvb, offset+2, 2, FALSE);
+			    case FEC_VC_INTERFACEPARAM_CEPBYTES:
+			      proto_item_append_text(ti,": CEP/TDM Payload Bytes %u", tvb_get_ntohs(tvb,offset+2));
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_cepbytes,tvb, offset+2, 2, FALSE);
 			      break;
-			    case FEC_VC_INTERFACEPARAM_VPNID:
-			      /* draft-lasserre-tls-mpls-00.txt */
-			      proto_item_append_text(ti,": VPN Id");
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_vpnid_oui, tvb, offset+2, 3, FALSE);
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_vpnid_index, tvb, offset+5, 4, FALSE);
+                            case FEC_VC_INTERFACEPARAM_CEPOPTIONS:
+                              /* draft-ietf-pwe3-sonet-05.txt */
+                              proto_item_append_text(ti,": CEP Options");
+                              ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 2, "CEP Options");
+                              cepopt_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_cepopt);
+                              if(cepopt_tree == NULL) return;
+                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_ais, tvb, offset + 2, 2, FALSE);
+                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_une, tvb, offset + 2, 2, FALSE);
+                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_rtp, tvb, offset + 2, 2, FALSE);
+                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_ebm, tvb, offset + 2, 2, FALSE);
+                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_mah, tvb, offset + 2, 2, FALSE);
+                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_res, tvb, offset + 2, 2, FALSE);
+                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_ceptype, tvb, offset + 2, 2, FALSE);
+                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_t3, tvb, offset + 2, 2, FALSE);
+                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_e3, tvb, offset + 2, 2, FALSE);
+                              break;
+			    case FEC_VC_INTERFACEPARAM_VLANID:
+                              proto_item_append_text(ti,": VLAN Id %u", tvb_get_ntohs(tvb,offset+2));
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_vlanid, tvb, offset+2, 2, FALSE);
 			      break;
-			    case FEC_VC_INTERFACEPARAM_CEMOPTIONS:
-				/* draft-malis-sonet-ces-mpls CEM options still undefined */
+                            case FEC_VC_INTERFACEPARAM_FRDLCILEN:
+                              proto_item_append_text(ti,": DLCI Length %u", tvb_get_ntohs(tvb,offset+2));
+                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_dlcilen, tvb, offset+2, 2, FALSE);
+                              break;
+                            case FEC_VC_INTERFACEPARAM_FRAGIND:
+                              /* draft-ietf-pwe3-fragmentation-05.txt */
+                              proto_item_append_text(ti,": Fragmentation");      
+                              break;
+                            case FEC_VC_INTERFACEPARAM_FCSRETENT:
+                              /* draft-ietf-pwe3-fcs-retention-00.txt */
+                              proto_item_append_text(ti,": FCS retention");      
+                              break;
+                            case FEC_VC_INTERFACEPARAM_TDMOPTION:
+                              /* draft-vainshtein-pwe3-tdm-control-protocol-extensions */
+                              proto_item_append_text(ti,": TDM Options");
+                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_r, tvb, offset+2, 2, FALSE);
+                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_d, tvb, offset+2, 2, FALSE);
+                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_f, tvb, offset+2, 2, FALSE);
+                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_res1, tvb, offset+2, 2, FALSE);
+                              if (intparam_len >= 8){
+                                proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_pt, tvb, offset+4, 1, FALSE);
+                                proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_res2, tvb, offset+5, 1, FALSE);
+                                proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_freq, tvb, offset+6, 2, FALSE);
+                              }
+                              if (intparam_len >= 12){
+                                proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_ssrc, tvb, offset+8, 4, FALSE);
+                              }
+                              break;
+                            case FEC_VC_INTERFACEPARAM_VCCV:
+                              /* draft-ietf-pwe3-vccv-02.txt */
+                              proto_item_append_text(ti,": VCCV");
+                              ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 1, "CC Type");
+                              vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
+                              if(vccvtype_tree == NULL) return;
+                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cctype_cw, tvb, offset+2, 1, FALSE);
+                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra, tvb, offset+2, 1, FALSE);
+                              ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 2, "CV Type");
+                              vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
+                              if(vccvtype_tree == NULL) return;
+                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping, tvb, offset+2, 2, FALSE);
+                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping, tvb, offset+2, 2, FALSE);
+                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd, tvb, offset+2, 2, FALSE);
+                              break;
 			    default: /* unknown */
 			      proto_item_append_text(ti," unknown");
 			      proto_tree_add_text(vcintparam_tree,tvb, offset+2, (intparam_len -2), "Unknown data");
 
-			      return;
+                              break;
 			    }
 			    rem -= intparam_len;
 			    vc_len -= intparam_len;
@@ -2727,7 +2852,7 @@ proto_register_ldp(void)
      {"MTU", "ldp.msg.tlv.fec.vc.intparam.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Paramater MTU", HFILL }},
 
     {&hf_ldp_tlv_fec_vc_intparam_tdmbps,
-     {"BPS", "ldp.msg.tlv.fec.vc.intparam.tdmbps", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Parameter CEP/TDM bit-rate", HFILL }},
+     {"BPS", "ldp.msg.tlv.fec.vc.intparam.tdmbps", FT_UINT32, BASE_DEC, NULL, 0x0, "VC FEC Interface Parameter CEP/TDM bit-rate", HFILL }},
 
     {&hf_ldp_tlv_fec_vc_intparam_id,
      {"ID", "ldp.msg.tlv.fec.vc.intparam.id", FT_UINT8, BASE_HEX, VALS(fec_vc_interfaceparm), 0x0, "VC FEC Interface Paramater ID", HFILL }},
@@ -2738,14 +2863,81 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_fec_vc_intparam_desc,
       { "Description", "ldp.msg.tlv.fec.vc.intparam.desc", FT_STRING, BASE_DEC, NULL, 0, "VC FEC Interface Description", HFILL }},
 
-    { &hf_ldp_tlv_fec_vc_intparam_cembytes,
-     {"Payload Bytes", "ldp.msg.tlv.fec.vc.intparam.cembytes", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param CEM Payload Bytes", HFILL }},
+    { &hf_ldp_tlv_fec_vc_intparam_cepbytes,
+     {"Payload Bytes", "ldp.msg.tlv.fec.vc.intparam.cepbytes", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param CEP/TDM Payload Bytes", HFILL }},
 
-    { &hf_ldp_tlv_fec_vc_intparam_vpnid_oui,
-      { "VPN OUI", "ldp.msg.tlv.fec.vc.intparam.vpnid.oui", FT_UINT24, BASE_HEX, NULL, 0x0, "VC FEC Interface Param VPN OUI", HFILL }},
+    { &hf_ldp_tlv_fec_vc_intparam_cepopt_ais,
+     {"AIS", "ldp.msg.tlv.fec.vc.intparam.cepopt_ais", FT_BOOLEAN, 16, NULL, 0x8000, "VC FEC Interface Param CEP Option AIS", HFILL }},
 
-    { &hf_ldp_tlv_fec_vc_intparam_vpnid_index,
-      { "VPN Index", "ldp.msg.tlv.fec.vc.intparam.vpnid.index", FT_UINT32, BASE_HEX, NULL, 0x0, "VC FEC Interface Param VPN Index", HFILL }},
+    { &hf_ldp_tlv_fec_vc_intparam_cepopt_une,
+     {"UNE", "ldp.msg.tlv.fec.vc.intparam.cepopt_une", FT_BOOLEAN, 16, NULL, 0x4000, "VC FEC Interface Param CEP Option Unequipped", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_cepopt_rtp,
+     {"RTP", "ldp.msg.tlv.fec.vc.intparam.cepopt_rtp", FT_BOOLEAN, 16, NULL, 0x2000, "VC FEC Interface Param CEP Option RTP Header", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_cepopt_ebm,
+     {"EBM", "ldp.msg.tlv.fec.vc.intparam.cepopt_ebm", FT_BOOLEAN, 16, NULL, 0x1000, "VC FEC Interface Param CEP Option EBM Header", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_cepopt_mah,
+     {"MAH", "ldp.msg.tlv.fec.vc.intparam.cepopt_mah", FT_BOOLEAN, 16, NULL, 0x0800, "VC FEC Interface Param CEP Option MPLS Adaptation header", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_cepopt_res,
+     {"Reserved", "ldp.msg.tlv.fec.vc.intparam.cepopt_res", FT_UINT16, BASE_HEX, NULL , 0x07E0, "VC FEC Interface Param CEP Option Reserved", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_cepopt_ceptype,
+     {"CEP Type", "ldp.msg.tlv.fec.vc.intparam.cepopt_ceptype", FT_UINT16, BASE_HEX, VALS(fec_vc_ceptype_vals), 0x001C, "VC FEC Interface Param CEP Option CEP Type", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_cepopt_t3,
+     {"Async T3", "ldp.msg.tlv.fec.vc.intparam.cepopt_t3", FT_BOOLEAN, 16, NULL, 0x0002, "VC FEC Interface Param CEP Option Async T3", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_cepopt_e3,
+     {"Async E3", "ldp.msg.tlv.fec.vc.intparam.cepopt_e3", FT_BOOLEAN, 16, NULL, 0x0001, "VC FEC Interface Param CEP Option Async E3", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_vlanid,
+      { "VLAN Id", "ldp.msg.tlv.fec.vc.intparam.vlanid", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param VLAN Id", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_dlcilen,
+     {"DLCI Length", "ldp.msg.tlv.fec.vc.intparam.dlcilen", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Parameter Frame-Relay DLCI Length", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_tdmopt_r,
+     {"R Bit", "ldp.msg.tlv.fec.vc.intparam.tdmopt_r", FT_BOOLEAN, 16, TFS(&fec_vc_tdmopt_r), 0x8000, "VC FEC Interface Param TDM Options RTP Header", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_tdmopt_d,
+     {"D Bit", "ldp.msg.tlv.fec.vc.intparam.tdmopt_d", FT_BOOLEAN, 16, TFS(&fec_vc_tdmopt_d), 0x4000, "VC FEC Interface Param TDM Options Dynamic Timestamp", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_tdmopt_f,
+     {"F Bit", "ldp.msg.tlv.fec.vc.intparam.tdmopt_f", FT_BOOLEAN, 16, TFS(&fec_vc_tdmopt_f), 0x2000, "VC FEC Interface Param TDM Options Flavor bit", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_tdmopt_res1,
+     {"RSVD-1", "ldp.msg.tlv.fec.vc.intparam.tdmopt_res1", FT_UINT16, BASE_HEX, NULL, 0x1FFF, "VC FEC Interface Param TDM Options Reserved", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_tdmopt_pt,
+     {"PT", "ldp.msg.tlv.fec.vc.intparam.tdmopt_pt", FT_UINT8, BASE_DEC, NULL, 0x7F, "VC FEC Interface Param TDM Options Payload Type", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_tdmopt_res2,
+     {"RSVD-2", "ldp.msg.tlv.fec.vc.intparam.tdmopt_res2", FT_UINT8, BASE_HEX, NULL, 0x00, "VC FEC Interface Param TDM Options Reserved", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_tdmopt_freq,
+     {"FREQ", "ldp.msg.tlv.fec.vc.intparam.tdmopt_freq", FT_UINT16, BASE_DEC, NULL, 0x00, "VC FEC Interface Param TDM Options Frequency", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_tdmopt_ssrc,
+     {"SSRC", "ldp.msg.tlv.fec.vc.intparam.tdmopt_ssrc", FT_UINT32, BASE_HEX, NULL, 0x00, "VC FEC Interface Param TDM Options SSRC", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_vccv_cctype_cw,
+     {"PWE3 Control Word", "ldp.msg.tlv.fec.vc.intparam.vccv.cctype_cw", FT_BOOLEAN, 8, NULL, 0x10, "VC FEC Interface Param VCCV CC Type PWE3 CW", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra,
+     {"MPLS Router Alert", "ldp.msg.tlv.fec.vc.intparam.vccv.cctype_mplsra", FT_BOOLEAN, 8, NULL, 0x20, "VC FEC Interface Param VCCV CC Type MPLS Router Alert", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping,
+     {"ICMP Ping", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_icmpping", FT_BOOLEAN, 16, NULL, 0x0001, "VC FEC Interface Param VCCV CV Type ICMP Ping", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping,
+     {"LSP Ping", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_lspping", FT_BOOLEAN, 16, NULL, 0x0002, "VC FEC Interface Param VCCV CV Type LSP Ping", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd,
+     {"BFD", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd", FT_BOOLEAN, 16, NULL, 0x0004, "VC FEC Interface Param VCCV CV Type BFD", HFILL }},
+
 
     { &hf_ldp_tlv_lspid_act_flg,
       { "Action Indicator Flag", "ldp.msg.tlv.lspid.actflg", FT_UINT16, BASE_HEX, VALS(ldp_act_flg_vals), 0x000F, "Action Indicator Flag", HFILL}},
@@ -2882,6 +3074,8 @@ proto_register_ldp(void)
     &ett_ldp_tlv_ft_flags,
     &ett_ldp_fec,
     &ett_ldp_fec_vc_interfaceparam,
+    &ett_ldp_fec_vc_interfaceparam_cepopt,
+    &ett_ldp_fec_vc_interfaceparam_vccvtype,
     &ett_ldp_diffserv_map,
     &ett_ldp_diffserv_map_phbid
   };
