@@ -552,7 +552,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 					if (if_info->description != NULL)
 						text[1] = g_strdup(if_info->description);
 					else
-						text[1] = "";
+						text[1] = g_strdup("");
 					/* check if interface is "hidden" */
 					if (prefs.capture_devices_hide != NULL) {
 						if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
@@ -607,7 +607,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 			if (if_info->description != NULL)
 				text[1] = g_strdup(if_info->description);
 			else
-				text[1] = "";
+				text[1] = g_strdup("");
 			/* set empty description */
 			text[2] = g_strdup("");
 			/* check if interface is "hidden" */
