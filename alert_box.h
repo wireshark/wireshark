@@ -2,7 +2,7 @@
  * Routines to put up various "standard" alert boxes used in multiple
  * places
  *
- * $Id: alert_box.h,v 1.1 2004/02/11 00:55:27 guy Exp $
+ * $Id: alert_box.h,v 1.2 2004/02/11 01:23:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+/*
+ * Alert box for a failed attempt to open or create a file.
+ * "err" is assumed to be a UNIX-style errno; "for_writing" is TRUE if
+ * the file is being opened for writing and FALSE if it's being opened
+ * for reading.
+ */
+extern void open_failure_alert_box(const char *filename, int err,
+                                   gboolean for_writing);
 
 /*
  * Alert box for an invalid display filter expression.

@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.11 2004/01/31 09:48:26 guy Exp $
+ * $Id: rtp_stream.c,v 1.12 2004/02/11 01:23:25 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -40,6 +40,7 @@
 
 #include <epan/filesystem.h>
 
+#include "alert_box.h"
 #include "simple_dialog.h"
 
 #ifdef HAVE_SYS_TYPES_H
@@ -285,8 +286,7 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 	/* open file for saving */
 	the_tapinfo_struct.save_file = fopen(filename, "wb");
 	if (the_tapinfo_struct.save_file==NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    file_open_error_message(errno, TRUE), filename);
+		open_failure_alert_box(filename, errno, TRUE);
 		return FALSE;
 	}
 

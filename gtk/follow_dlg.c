@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.43 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.44 2004/02/11 01:23:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@
 #include "globals.h"
 #include "gtkglobals.h"
 #include "main.h"
+#include "alert_box.h"
 #include "simple_dialog.h"
 #include "packet-ipv6.h"
 #include "prefs.h"
@@ -765,10 +766,9 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 
     fh = open_print_dest(to_file, print_dest);
     if (fh == NULL) {
-	if (to_file) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			  file_open_error_message(errno, TRUE), prefs.pr_file);
-	} else {
+	if (to_file)
+	    open_failure_alert_box(prefs.pr_file, errno, TRUE);
+	else {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Couldn't run print command %s.", prefs.pr_cmd);
 	}
@@ -977,8 +977,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 
 	fh = fopen(to_name, "wb");
 	if (fh == NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			file_open_error_message(errno, TRUE), to_name);
+		open_failure_alert_box(to_name, errno, TRUE);
 		g_free(to_name);
 		return;
 	}

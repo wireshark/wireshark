@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.237 2004/02/09 19:19:19 ulfl Exp $
+ * $Id: capture.c,v 1.238 2004/02/11 01:23:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,11 +130,11 @@
 
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
-#include <epan/filesystem.h>
 #include "file.h"
 #include "capture.h"
 #include "util.h"
 #include "pcap-util.h"
+#include "alert_box.h"
 #include "simple_dialog.h"
 #include "prefs.h"
 #include "globals.h"
@@ -322,8 +322,7 @@ do_capture(const char *save_file)
       if (capture_opts.ringbuffer_on) {
         ringbuf_error_cleanup();
       }
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	file_open_error_message(errno, TRUE), capfile_name);
+      open_failure_alert_box(capfile_name, errno, TRUE);
     }
     g_free(capfile_name);
     return FALSE;

@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.32 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.33 2004/02/11 01:23:25 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -60,6 +60,7 @@
 /* in /gtk ... */
 #include "dlg_utils.h"
 #include "ui_util.h"
+#include "alert_box.h"
 #include "simple_dialog.h"
 #include "menu.h"
 #include "main.h"
@@ -986,8 +987,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	if (GTK_TOGGLE_BUTTON(forw)->active || GTK_TOGGLE_BUTTON(both)->active) {
 		fp = fopen(g_dest, "w");
 		if (fp == NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			    file_open_error_message(errno, TRUE), g_dest);
+			open_failure_alert_box(g_dest, errno, TRUE);
 			return;
 		}
 		
@@ -1045,9 +1045,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		if (GTK_TOGGLE_BUTTON(both)->active) {
 			fp = fopen(g_dest, "a");
 			if (fp == NULL) {
-				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				    file_open_error_message(errno, TRUE),
-				    g_dest);
+				open_failure_alert_box(g_dest, errno, TRUE);
 				return;
 			}
 			fprintf(fp, "\nReverse\n");
@@ -1060,9 +1058,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		} else {
 			fp = fopen(g_dest, "w");
 			if (fp == NULL) {
-				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				    file_open_error_message(errno, TRUE),
-				    g_dest);
+				open_failure_alert_box(g_dest, errno, TRUE);
 				return;
 			}
 		}

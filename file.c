@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.358 2004/02/11 00:55:27 guy Exp $
+ * $Id: file.c,v 1.359 2004/02/11 01:23:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,7 @@
 #include "file.h"
 #include "menu.h"
 #include "util.h"
+#include "alert_box.h"
 #include "simple_dialog.h"
 #include "progress_dlg.h"
 #include "ui_util.h"
@@ -2979,9 +2980,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   /* Copy the raw bytes of the file. */
   from_fd = open(from_filename, O_RDONLY | O_BINARY);
   if (from_fd < 0) {
-    err = errno;
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  file_open_error_message(err, TRUE), from_filename);
+    open_failure_alert_box(from_filename, errno, FALSE);
     goto done;
   }
 
@@ -2992,9 +2991,7 @@ copy_binary_file(char *from_filename, char *to_filename)
      to be open in binary mode. */
   to_fd = open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
   if (to_fd < 0) {
-    err = errno;
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  file_open_error_message(err, TRUE), to_filename);
+    open_failure_alert_box(to_filename, errno, TRUE);
     close(from_fd);
     goto done;
   }

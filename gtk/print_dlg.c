@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.60 2004/01/31 20:31:20 ulfl Exp $
+ * $Id: print_dlg.c,v 1.61 2004/02/11 01:23:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include "keys.h"
 #include "print.h"
 #include "prefs.h"
+#include "alert_box.h"
 #include "simple_dialog.h"
 #include "file_dlg.h"
 #include "ui_util.h"
@@ -846,8 +847,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   case PP_OPEN_ERROR:
     if (print_args.to_file)
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        file_open_error_message(errno, TRUE), print_args.dest);
+      open_failure_alert_box(print_args.dest, errno, TRUE);
     else
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't run print command %s.",
         print_args.dest);
