@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.12 2000/12/03 22:12:19 guy Exp $
+ * $Id: packet.h,v 1.13 2000/12/03 22:53:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,8 +94,8 @@ typedef enum {
 } char_enc;
 
 /* XXX - some of this stuff is used only while a packet is being dissected;
-   should we keep around a separate data structure for that, to save
-   memory? */
+   should we keep that stuff in the "packet_info" structure, instead, to
+   save memory? */
 typedef struct _frame_data {
   struct _frame_data *next; /* Next element in list */
   struct _frame_data *prev; /* Previous element in list */
