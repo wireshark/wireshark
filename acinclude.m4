@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.44 2002/04/08 01:34:38 guy Exp $
+dnl $Id: acinclude.m4,v 1.45 2002/07/06 20:40:42 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -273,8 +273,10 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	  for pcap_dir in /usr/include/pcap /usr/local/include/pcap $prefix/include
 	  do
 	    if test -d $pcap_dir ; then
-		CFLAGS="$CFLAGS -I$pcap_dir"
-		CPPFLAGS="$CPPFLAGS -I$pcap_dir"
+		if test x$pcap_dir != x/usr/include; then
+		    CFLAGS="$CFLAGS -I$pcap_dir"
+		    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
+		fi
 		found_pcap_dir=" $found_pcap_dir -I$pcap_dir"
 	    fi
 	  done

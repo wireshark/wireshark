@@ -1306,6 +1306,11 @@ Christopher K. St. John <cks[AT]distributopia.com> {
 	Apache JServ Protocol v1.3 support
 }
 
+Nix <nix[AT]esperi.demon.co.uk> {
+	Don't add "-I/usr/include" to CFLAGS or CPPFLAGS
+	Expand the plugin directory path at install time
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

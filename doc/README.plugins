@@ -1,4 +1,4 @@
-$Id: README.plugins,v 1.5 2002/01/21 07:37:36 guy Exp $
+$Id: README.plugins,v 1.6 2002/07/06 20:40:43 guy Exp $
 
 Plugins
 
@@ -104,9 +104,9 @@ files.
 
 An example of the Makefile.am follows:
 
-INCLUDES = -I$(top_srcdir) -I$(includedir)
+INCLUDES = -I$(top_srcdir)
 
-plugindir = @PLUGIN_DIR@
+plugindir = @plugindir@
 
 plugin_LTLIBRARIES = xxx.la
 xxx_la_SOURCES = packet-xxx.c moduleinfo.h

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/GIOP subdissectors 
 #
-# $Id: Makefile.am,v 1.2 2001/07/20 20:56:18 guy Exp $
+# $Id: Makefile.am,v 1.3 2002/07/06 20:40:46 guy Exp $
 #
 # Copyright 2001, Ericsson Inc.
 # Frank Singleton <frank.singleton@ericsson.com>
@@ -26,9 +26,9 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-INCLUDES = -I$(top_srcdir) -I$(includedir)
+INCLUDES = -I$(top_srcdir)
 
-plugindir = @PLUGIN_DIR@
+plugindir = @plugindir@
 
 plugin_LTLIBRARIES = cosnaming.la coseventcomm.la
 cosnaming_la_SOURCES = packet-cosnaming.c moduleinfo.h

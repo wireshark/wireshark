@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/Gryphon
 #
-# $Id: Makefile.am,v 1.9 2001/07/10 13:18:42 hagbard Exp $
+# $Id: Makefile.am,v 1.10 2002/07/06 20:40:47 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Steve Limkemann <stevelim@dgtech.com>
@@ -23,9 +23,9 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-INCLUDES = -I$(top_srcdir) -I$(includedir)
+INCLUDES = -I$(top_srcdir)
 
-plugindir = @PLUGIN_DIR@
+plugindir = @plugindir@
 
 plugin_LTLIBRARIES = gryphon.la
 gryphon_la_SOURCES = packet-gryphon.c packet-gryphon.h moduleinfo.h

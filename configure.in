@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.168 2002/06/28 20:15:30 gerald Exp $
+# $Id: configure.in,v 1.169 2002/07/06 20:40:42 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -631,7 +631,8 @@ dnl
 dnl check whether plugins should be enabled and, if they should be,
 dnl check for plugins directory - stolen from Amanda's configure.in
 dnl
-PLUGIN_DIR="$libdir/ethereal/plugins/$VERSION"
+plugindir="$libdir/ethereal/plugins/$VERSION"
+PLUGIN_DIR="$plugindir"
 AC_ARG_WITH(plugins,
   [  --with-plugins[=DIR]    support plugins (installed in DIR, if supplied).],
   [
@@ -670,6 +671,7 @@ else
   AC_DEFINE(PLUGIN_DIR,NULL)
 fi
 AC_SUBST(PLUGIN_DIR)
+AC_SUBST(plugindir)
 
 dnl libtool defs
 AC_LIBTOOL_DLOPEN
