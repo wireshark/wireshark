@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.90 2003/09/12 10:32:20 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.91 2003/09/12 11:13:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5760,6 +5760,41 @@ netlogon_dissect_function_25_reply(tvbuff_t *tvb, int offset,
 
 
 static int
+netlogon_dissect_site_name_item(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_counted_string_cb(
+		tvb, offset, pinfo, tree, drep, hf_netlogon_site_name,
+		cb_wstr_postprocess, 
+		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
+
+	return offset;
+}
+static int
+netlogon_dissect_site_name_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_site_name_item);
+
+	return offset;
+}
+
+static int
+netlogon_dissect_site_names(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_count, NULL);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_site_name_array, NDR_POINTER_UNIQUE,
+		"Site name array", -1);
+
+	return offset;
+}
+
+static int
 netlogon_dissect_dsrgetdcsitecoverage_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
@@ -5774,9 +5809,9 @@ static int
 netlogon_dissect_dsrgetdcsitecoverage_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_TYPE_50_ptr, NDR_POINTER_UNIQUE,
-		"TYPE_50** pointer: unknown_TYPE_50", -1);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_site_names, NDR_POINTER_UNIQUE,
+		"Site names", -1);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
