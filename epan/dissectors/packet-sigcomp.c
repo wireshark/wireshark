@@ -307,6 +307,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		state_address;
 	guint16		state_instruction;
 	guint16		result_code;
+	gchar		*partial_state_str;
 
 /* Is this a SigComp message or not ? */
 	octet = tvb_get_guint8(tvb, offset);
@@ -411,8 +412,10 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = offset + len;
 		}
 		tvb_memcpy(tvb, partial_state, offset, partial_state_len);
-		proto_tree_add_bytes(sigcomp_tree,hf_sigcomp_partial_state,
-			tvb, offset, partial_state_len, partial_state);
+		partial_state_str = bytes_to_str(partial_state, partial_state_len);
+		proto_tree_add_string(sigcomp_tree,hf_sigcomp_partial_state,
+			tvb, offset, partial_state_len, partial_state_str);
+		g_free(partial_state_str);
 		offset = offset + partial_state_len;
 		proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
 			tvb_reported_length_remaining(tvb, offset));
@@ -429,7 +432,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * state_instruction	=
 			 * TRUE					= Indicates that state_* is in the stored state 
 			 */
-			buff = g_malloc(65536);
+			buff = g_malloc(UDVM_MEMORY_SIZE);
 			p_id_start = 0;
 			state_begin = 0;
 			/* These values will be loaded from the buffered state in sigcomp_state_hdlr 
@@ -451,10 +454,22 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if ( result_code != 0 ){
 				proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Ethereal UDVM diagnostic: %s.",
 					    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+				g_free(buff);
 				return tvb_length(tvb);
 			}
 
 			udvm_tvb = tvb_new_real_data(buff,state_length+128,state_length+128);
+			/* Arrange that the allocated packet data copy be freed when the
+			 * tvbuff is freed. 
+			 */
+			tvb_set_free_cb( udvm_tvb, g_free );
+			/* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+			 * were handed refers, so it'll get cleaned up when that tvbuff
+			 * is cleaned up. 
+			 */
+			tvb_set_child_real_data_tvbuff( tvb, udvm_tvb );
+
+
 			udvm2_tvb = tvb_new_subset(udvm_tvb, 128, state_length, state_length);
 			/* TODO Check if buff needs to be free'd */
 			udvm_exe_item = proto_tree_add_text(sigcomp_tree, udvm2_tvb, 0, state_length, 
@@ -1915,7 +1930,7 @@ proto_register_sigcomp(void)
 		},
 		{ &hf_sigcomp_partial_state,
 			{ "Partial state identifier", "sigcomp.partial.state.identifier",
-			FT_BYTES, BASE_HEX, NULL, 0x0,          
+			FT_STRING, BASE_NONE, NULL, 0x0,          
 			"Partial state identifier", HFILL }
 		},
 		{ &hf_sigcomp_returned_feedback_item_len,
