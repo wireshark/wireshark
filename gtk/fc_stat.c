@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.12 2003/09/26 02:09:44 guy Exp $
+ * $Id: fc_stat.c,v 1.13 2003/10/27 01:35:53 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 #include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
+#include "filter_prefs.h"
 #include "service_response_time_table.h"
 
 extern GtkWidget   *main_display_filter_widget;
@@ -224,9 +225,14 @@ static void
 gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	GtkWidget *dlg_box;
-	GtkWidget *filter_box, *filter_label;
+	GtkWidget *filter_box, *filter_bt;
 	GtkWidget *bbox, *start_button, *cancel_button;
 	char *filter;
+	static construct_args_t args = {
+	  "Service Response Time Statistics Filter",
+	  TRUE,
+	  FALSE
+	};
 
 	/* if the window is already open, bring it to front */
 	if(dlg){
@@ -245,14 +251,20 @@ gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* Filter box */
 	filter_box=gtk_hbox_new(FALSE, 3);
 
-	/* Filter label */
-	filter_label=gtk_label_new("Filter:");
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_label, FALSE, FALSE, 0);
-	gtk_widget_show(filter_label);
+	/* Filter button */
+	filter_bt=gtk_button_new_with_label("Filter:");
+	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
+	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
+	gtk_widget_show(filter_bt);
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
 	gtk_widget_set_usize(filter_entry, 300, -2);
+
+	/* filter prefs dialog */
+	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_entry);
+	/* filter prefs dialog */
+
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){
