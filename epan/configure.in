@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.52 2003/12/11 18:37:13 guy Exp $
+# $Id: configure.in,v 1.53 2003/12/13 18:05:48 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -17,7 +17,7 @@ dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(libethereal.a, 0.10.0)
+AM_INIT_AUTOMAKE(libethereal.a, 0.10.0a)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs.
