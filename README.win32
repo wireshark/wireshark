@@ -377,7 +377,7 @@ by a Windows version of Flex.
 Most of those tools are available for Win32 systems as part of the
 Cygwin package:
 
-	http://sources.redhat.com/cygwin/
+	http://www.cygwin.com/
 
 After installing them, you will probably have to modify the config.nmake
 file to specify where the Cygwin binaries are installed.
