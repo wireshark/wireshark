@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.29 1999/10/29 01:04:44 guy Exp $
+ * $Id: main.c,v 1.30 1999/10/30 06:41:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,6 +118,7 @@ static gint tree_selected_start=-1, tree_selected_len=-1;
 static void follow_destroy_cb(GtkWidget *win, gpointer data);
 static void follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w);
 static void follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii);
+static void follow_print_stream(GtkWidget *w, gpointer parent_w);
 
 /* About Ethereal window */
 void
@@ -157,6 +158,7 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Tomislav Vujec           <tvujec@carnet.hr>\n"
 		"Kojak                    <kojak@bigwig.net>\n"
 		"Uwe Girlich              <Uwe.Girlich@philosys.de>\n"
+		"Warren Young             <tangent@mail.com>\n"
 
 		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);
@@ -169,7 +171,7 @@ void
 follow_stream_cb( GtkWidget *w, gpointer data ) {
   char      filename1[128+1];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
-  GtkWidget *hbox, *close_bt, *button;
+  GtkWidget *hbox, *close_bt, *print_bt, *button;
   int        tmp_fd;
   gchar     *follow_filter;
 
@@ -282,6 +284,13 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     gtk_box_pack_end( GTK_BOX(hbox), close_bt, FALSE, FALSE, 0);
     gtk_widget_show( close_bt );
 
+    /* Create Print Button */
+    print_bt = gtk_button_new_with_label("Print");
+    gtk_signal_connect(GTK_OBJECT(print_bt), "clicked",
+                   GTK_SIGNAL_FUNC(follow_print_stream),
+                   GTK_OBJECT(streamwindow));
+    gtk_box_pack_end( GTK_BOX(hbox), print_bt, FALSE, FALSE, 0);
+    gtk_widget_show( print_bt );
 
     /* create the scrollbar */
     vscrollbar = gtk_vscrollbar_new( GTK_TEXT(text)->vadj );
@@ -348,6 +357,65 @@ follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w)
 		show_ascii = TRUE;
 
 	follow_load_text(text, filename, show_ascii);
+}
+
+static void follow_print_stream(GtkWidget *w, gpointer parent_w)
+{
+       FILE *fh = NULL;
+       int to_file = -1;
+       char* print_dest = NULL;
+       char* filename;
+
+       switch (prefs.pr_dest) {
+               case PR_DEST_CMD:
+                       print_dest = prefs.pr_cmd;
+                       to_file = FALSE;
+                       break;
+
+               case PR_DEST_FILE:
+                       print_dest = prefs.pr_file;
+                       to_file = TRUE;
+                       break;
+       }
+
+       if (print_dest != NULL) {
+               fh = open_print_dest(to_file, print_dest);
+       }
+
+       if (fh == NULL) {
+               switch (to_file) {
+                       case -1:
+                               simple_dialog(ESD_TYPE_WARN, NULL,
+                                               "Couldn't figure out where to send the print "
+                                               "job. Check your preferences.");
+                               break;
+
+                       case FALSE:
+                               simple_dialog(ESD_TYPE_WARN, NULL,
+                                               "Couldn't run print command %s.", prefs.pr_cmd);
+                               break;
+
+                       case TRUE:
+                               simple_dialog(ESD_TYPE_WARN, NULL, 
+                                               file_write_error_message(errno),
+                                               prefs.pr_file);
+                               break;
+               }
+               return;
+       }
+
+       filename = (char*) gtk_object_get_data(GTK_OBJECT(parent_w),
+                       E_FOLLOW_FILENAME_KEY);
+
+       if (filename != NULL) {
+               print_preamble(fh);
+               print_file(fh, filename);
+               print_finale(fh);
+               close_print_dest(to_file, fh);
+       }
+       else {
+               simple_dialog(ESD_TYPE_WARN, NULL, "Could not find data to print.");
+       }
 }
 
 static void
