@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.20 2000/05/22 17:56:01 guy Exp $
+ * $Id: packet-isakmp.c,v 1.21 2000/05/22 17:59:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1289,7 +1289,17 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
 	  case 64222: return "HybridRespRSA";
 	  case 64223: return "HybridInitDSS";
 	  case 64224: return "HybridRespDSS";
-          default: return "UNKNOWN-AUTH-METHOD";
+          case 65001: return "XAUTHInitPreShared";
+          case 65002: return "XAUTHRespPreShared";
+          case 65003: return "XAUTHInitDSS";
+          case 65004: return "XAUTHRespDSS";
+          case 65005: return "XAUTHInitRSA";
+          case 65006: return "XAUTHRespRSA";
+          case 65007: return "XAUTHInitRSAEncryption";
+          case 65008: return "XAUTHRespRSAEncryption";
+          case 65009: return "XAUTHInitRSARevisedEncryption";
+          case 65010: return "XAUTHRespRSARevisedEncryption";
+	  default: return "UNKNOWN-AUTH-METHOD";
         }
       case 4:
       case 6:
@@ -1361,7 +1371,17 @@ cfgattrident2str(guint16 ident) {
     return msgs[ident];
   if(ident < 16383)
     return "Future use";
-  return "Private use";
+  switch(ident) {
+  case 16520: return "XAUTH_TYPE";
+  case 16521: return "XAUTH_USER_NAME";
+  case 16522: return "XAUTH_USER_PASSWORD";
+  case 16523: return "XAUTH_PASSCODE";
+  case 16524: return "XAUTH_MESSAGE";
+  case 16525: return "XAUTH_CHALLANGE";
+  case 16526: return "XAUTH_DOMAIN";
+  case 16527: return "XAUTH_STATUS";
+  default: return "Private use";
+  }
 }
 
 static const char *

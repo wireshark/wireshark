@@ -305,6 +305,7 @@ Ralf Schneider <ralf.schneider@alcatel.se> {
 Yaniv Kaul <ykaul@checkpoint.com> {
 	ISAKMP Configuration Method support
 	Support for ISAKMP Hybrid mode authentication draft
+	Support for ISAKMP XAUTH authentication
 }
 
 Paul Ionescu <ipaul@romsys.ro> {
