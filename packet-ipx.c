@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.106 2002/07/02 07:32:04 guy Exp $
+ * $Id: packet-ipx.c,v 1.107 2002/07/04 20:47:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -306,9 +306,8 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	/*
-	 * Neither of them are known; try the packet type.
-	 *
-	 * XXX - should we do this?
+	 * Neither of them are known; try the packet type, which will
+	 * at least let us, for example, dissect SPX packets as SPX.
 	 */
 	if (dissector_try_port(ipx_type_dissector_table, ipx_type, next_tvb,
 	    pinfo, tree))
