@@ -410,7 +410,7 @@ read_keytab_file(char *filename, krb5_context *context)
 }
 
 
-statis guint8 *
+static guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
 			int length,
