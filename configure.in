@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.262 2004/05/15 21:56:08 guy Exp $
+# $Id: configure.in,v 1.263 2004/05/23 22:34:44 jmayer Exp $
 #
 AC_INIT(etypes.h)
 
@@ -438,7 +438,7 @@ AC_SUBST(idl2eth_man)
 # Enable/disable dftest
 
 AC_ARG_ENABLE(dftest,
-[  --enable-dftest         build dftest.  [default=no]],enable_dftest=$enableval,enable_dftest=no)
+[  --enable-dftest         build dftest.  [default=yes]],enable_dftest=$enableval,enable_dftest=yes)
 
 if test "x$enable_dftest" = "xyes" ; then
 	dftest_bin="dftest\$(EXEEXT)"
