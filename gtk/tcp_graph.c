@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.26 2002/12/18 23:54:01 guy Exp $
+ * $Id: tcp_graph.c,v 1.27 2003/01/08 02:19:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -619,7 +619,13 @@ static void display_text (struct graph *g)
 #endif
 
 	debug(DBS_FENTRY) puts ("display_text()");
-	gdk_color_parse ("SlateGray", &color);
+	if (!gdk_color_parse ("SlateGray", &color)) {
+		/*
+		 * XXX - do more than just warn.
+		 */
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Could not parse color SlateGray.");
+	}
 #if GTK_MAJOR_VERSION < 2
 	gtk_text_freeze (GTK_TEXT (g->text));
 #endif
@@ -777,14 +783,38 @@ static void create_drawing_area (struct graph *g)
 	if (!xor_gc) {
 		xor_gc = gdk_gc_new (g->drawing_area->window);
 		gdk_gc_set_function (xor_gc, GDK_XOR);
-		gdk_color_parse ("gray15", &color);
-		gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE);
+		if (!gdk_color_parse ("gray15", &color)) {
+			/*
+			 * XXX - do more than just warn.
+			 */
+			simple_dialog(ESD_TYPE_WARN, NULL,
+			    "Could not parse color gray15.");
+		}
+		if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
+			/*
+			 * XXX - do more than just warn.
+			 */
+			simple_dialog(ESD_TYPE_WARN, NULL,
+			    "Could not allocate color gray15.");
+		}
 		gdk_gc_set_foreground (xor_gc, &color);
 	}
 	g->fg_gc = gdk_gc_new (g->drawing_area->window);
 	g->bg_gc = gdk_gc_new (g->drawing_area->window);
-	gdk_color_parse ("white", &color);
-	gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE);
+	if (!gdk_color_parse ("white", &color)) {
+		/*
+		 * XXX - do more than just warn.
+		 */
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Could not parse color white.");
+	}
+	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
+		/*
+		 * XXX - do more than just warn.
+		 */
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Could not allocate color white.");
+	}
 	gdk_gc_set_foreground (g->bg_gc, &color);
 
 	/* this is probably quite an ugly way to get rid of the first configure
@@ -3322,14 +3352,50 @@ static void tseq_tcptrace_read_config (struct graph *g)
 	g->s.tseq_tcptrace.gc_ack[0] = gdk_gc_new (g->drawing_area->window);
 	g->s.tseq_tcptrace.gc_ack[1] = gdk_gc_new (g->drawing_area->window);
 	colormap = gdk_window_get_colormap (g->drawing_area->window);
-	gdk_color_parse ("black", &color);
-	gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE);
+	if (!gdk_color_parse ("black", &color)) {
+		/*
+		 * XXX - do more than just warn.
+		 */
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Could not parse color black.");
+	}
+	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
+		/*
+		 * XXX - do more than just warn.
+		 */
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Could not allocate color black.");
+	}
 	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_seq, &color);
-	gdk_color_parse ("LightSlateGray", &color);
-	gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE);
+	if (!gdk_color_parse ("LightSlateGray", &color)) {
+		/*
+		 * XXX - do more than just warn.
+		 */
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Could not parse color LightSlateGray.");
+	}
+	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
+		/*
+		 * XXX - do more than just warn.
+		 */
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Could not allocate color LightSlateGray.");
+	}
 	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_ack[0], &color);
-	gdk_color_parse ("LightGray", &color);
-	gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE);
+	if (!gdk_color_parse ("LightGray", &color)) {
+		/*
+		 * XXX - do more than just warn.
+		 */
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Could not parse color LightGray.");
+	}
+	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
+		/*
+		 * XXX - do more than just warn.
+		 */
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Could not allocate color LightGray.");
+	}
 	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_ack[1], &color);
 
 	g->elists->next = (struct element_list * )
