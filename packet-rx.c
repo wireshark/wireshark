@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.22 2001/06/18 02:17:52 guy Exp $
+ * $Id: packet-rx.c,v 1.23 2001/07/03 00:46:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,6 +128,10 @@ static int hf_rx_encrypted = -1;
 static int hf_rx_kvno = -1;
 static int hf_rx_ticket_len = -1;
 static int hf_rx_ticket = -1;
+static int hf_rx_ifmtu = -1;
+static int hf_rx_maxmtu = -1;
+static int hf_rx_rwind = -1;
+static int hf_rx_maxpackets = -1;
 
 static gint ett_rx = -1;
 static gint ett_rx_flags = -1;
@@ -364,7 +368,40 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 			offset, 1, tvb_get_guint8(tvb, offset) );
 		offset += 1;
 	}
-	
+
+	/* Some implementations adds some extra fields.
+	 * As far as I can see, these first add 3 padding bytes and then
+         * up to 4 32-bit values. (0,3,4 have been witnessed)
+	 *
+	 * RX as a protocol seems to be completely nondefined and seems to lack
+	 * any sort of documentation other than "read the source of any of the
+	 * (compatible?) implementations.
+         */
+	if (tvb_length_remaining(tvb, offset)>3) {
+		offset += 3;	/* guess. some implementations adds 3 bytes */
+
+		if (tvb_length_remaining(tvb, offset) >= 4){
+			proto_tree_add_uint(tree, hf_rx_ifmtu, tvb, offset, 4,
+				tvb_get_ntohl(tvb, offset));
+			offset += 4;
+		}
+		if (tvb_length_remaining(tvb, offset) >= 4){
+			proto_tree_add_uint(tree, hf_rx_maxmtu, tvb, offset, 4,
+				tvb_get_ntohl(tvb, offset));
+			offset += 4;
+		}
+		if (tvb_length_remaining(tvb, offset) >= 4){
+			proto_tree_add_uint(tree, hf_rx_rwind, tvb, offset, 4,
+				tvb_get_ntohl(tvb, offset));
+			offset += 4;
+		}
+		if (tvb_length_remaining(tvb, offset) >= 4){
+			proto_tree_add_uint(tree, hf_rx_maxpackets, tvb, offset, 4,
+				tvb_get_ntohl(tvb, offset));
+			offset += 4;
+		}
+	}
+
 	proto_item_set_len(item, offset-old_offset);	
 	return offset;
 }
@@ -668,6 +705,22 @@ proto_register_rx(void)
 		{ &hf_rx_ticket, {
 			"ticket", "rx.ticket", FT_BYTES, BASE_HEX,
 			NULL, 0, "Ticket", HFILL }},
+
+		{ &hf_rx_ifmtu, {
+			"Interface MTU", "rx.if_mtu", FT_UINT32, BASE_DEC,
+			NULL, 0, "Interface MTU", HFILL }},
+
+		{ &hf_rx_maxmtu, {
+			"Max MTU", "rx.max_mtu", FT_UINT32, BASE_DEC,
+			NULL, 0, "Max MTU", HFILL }},
+
+		{ &hf_rx_rwind, {
+			"rwind", "rx.rwind", FT_UINT32, BASE_DEC,
+			NULL, 0, "rwind", HFILL }},
+
+		{ &hf_rx_maxpackets, {
+			"Max Packets", "rx.max_packets", FT_UINT32, BASE_DEC,
+			NULL, 0, "Max Packets", HFILL }},
 
 	};
 	static gint *ett[] = {
