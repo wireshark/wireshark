@@ -2008,6 +2008,8 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 {
 	header_field_info	*hfinfo;
 	field_info		*fi;
+	gint			item_length;
+	gint			length_remaining;
 
 	/*
 	 * We only allow a null tvbuff if the item has a zero length,
@@ -2017,6 +2019,14 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
+	/*
+	 * XXX - in some protocols, there are 32-bit unsigned length
+	 * fields, so lengths in protocol tree and tvbuff routines
+	 * should really be unsigned.  We should have, for those
+	 * field types for which "to the end of the tvbuff" makes sense,
+	 * additional routines that take no length argument and
+	 * add fields that run to the end of the tvbuff.
+	 */
 	if (*length == -1) {
 		/*
 		 * For FT_NONE, FT_PROTOCOL, FT_BYTES, and FT_STRING fields,
@@ -2097,10 +2107,27 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 		}
+		item_length = *length;
 	} else {
-		if (*length < 0) {
+		item_length = *length;
+		if (hfinfo->type == FT_PROTOCOL || hfinfo->type == FT_NONE) {
+			/*
+			 * These types are for interior nodes of the
+			 * tree, and don't have data associated with
+			 * them; if the length is negative (XXX - see
+			 * above) or goes past the end of the tvbuff,
+			 * cut it short at the end of the tvbuff.
+			 * That way, if this field is selected in
+			 * Ethereal, we don't highlight stuff past
+			 * the end of the data.
+			 */
+			length_remaining = tvb_length_remaining(tvb, start);
+			if (item_length < 0 || length_remaining < item_length)
+				item_length = length_remaining;
+		}
+		if (item_length < 0) {
 			REPORT_DISSECTOR_BUG(g_strdup_printf("\"%s\" - \"%s\" invalid length: %d (%s:%u)",
-			    hfinfo->name, hfinfo->abbrev, *length,
+			    hfinfo->name, hfinfo->abbrev, item_length,
 			    __FILE__, __LINE__));
 		}
 	}
@@ -2110,7 +2137,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	fi->hfinfo = hfinfo;
 	fi->start = start;
 	fi->start+=(tvb)?TVB_RAW_OFFSET(tvb):0;
-	fi->length = *length;
+	fi->length = item_length;
 	fi->tree_type = -1;
 	fi->flags = 0;
 	if (!PTREE_DATA(tree)->visible)
