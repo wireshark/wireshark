@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.12 2000/02/15 21:02:22 gram Exp $
+ * $Id: packet-ipv6.h,v 1.13 2000/08/18 12:05:27 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -234,17 +234,23 @@ struct icmp6_hdr {
 
 #define ICMP6_ROUTER_RENUMBERING	138	/* router renumbering */
 
-/* xxx: actually not assigned yet */
-#define ICMP6_WRUREQUEST		140	/* who are you request */
-#define ICMP6_WRUREPLY			141	/* who are you reply */
-#define ICMP6_FQDN_QUERY		140	/* FQDN query */
-#define ICMP6_FQDN_REPLY		141	/* FQDN reply */
+#define ICMP6_WRUREQUEST		139	/* who are you request */
+#define ICMP6_WRUREPLY			140	/* who are you reply */
+#define ICMP6_FQDN_QUERY		139	/* FQDN query */
+#define ICMP6_FQDN_REPLY		140	/* FQDN reply */
+#define ICMP6_NI_QUERY			139	/* node information request */
+#define ICMP6_NI_REPLY			140	/* node information reply */
 
-#define ICMP6_MAXTYPE			141
+/* The definitions below are experimental. TBA */
+#define MLD6_MTRACE_RESP		141	/* mtrace response(to sender) */
+#define MLD6_MTRACE			142	/* mtrace messages */
+
+#define ICMP6_MAXTYPE			142
 
 #define ICMP6_DST_UNREACH_NOROUTE	0	/* no route to destination */
 #define ICMP6_DST_UNREACH_ADMIN	 	1	/* administratively prohibited */
-#define ICMP6_DST_UNREACH_NOTNEIGHBOR	2	/* not a neighbor */
+#define ICMP6_DST_UNREACH_NOTNEIGHBOR	2	/* not a neighbor(obsolete) */
+#define ICMP6_DST_UNREACH_BEYONDSCOPE	2	/* beyond scope of source address */
 #define ICMP6_DST_UNREACH_ADDR		3	/* address unreachable */
 #define ICMP6_DST_UNREACH_NOPORT	4	/* port unreachable */
 
@@ -256,6 +262,14 @@ struct icmp6_hdr {
 #define ICMP6_PARAMPROB_OPTION		2	/* unrecognized option */
 
 #define ICMP6_INFOMSG_MASK		0x80	/* all informational messages */
+
+#define ICMP6_NI_SUBJ_IPV6	0	/* Query Subject is an IPv6 address */
+#define ICMP6_NI_SUBJ_FQDN	1	/* Query Subject is a Domain name */
+#define ICMP6_NI_SUBJ_IPV4	2	/* Query Subject is an IPv4 address */
+
+#define ICMP6_NI_SUCCESS	0	/* node information successful reply */
+#define ICMP6_NI_REFUSED	1	/* node information request is refused */
+#define ICMP6_NI_UNKNOWN	2	/* unknown Qtype */
 
 #define ICMP6_ROUTER_RENUMBERING_COMMAND  0	/* rr command */
 #define ICMP6_ROUTER_RENUMBERING_RESULT   1	/* rr result */
@@ -389,23 +403,59 @@ struct nd_opt_mtu {		/* MTU option */
 	guint32	nd_opt_mtu_mtu;
 };
 
-#if 0
-/* disregard until used. We have to decide how to handle guint64 */ 
 /*
- * icmp6 namelookup
+ * icmp6 node information
  */
-
-struct icmp6_namelookup {
-	struct icmp6_hdr 	icmp6_nl_hdr;
-	guint64	icmp6_nl_nonce;
-	guint32	icmp6_nl_ttl;
-#if 0
-	guint8	icmp6_nl_len;
-	guint8	icmp6_nl_name[3];
-#endif
-	/* could be followed by options */
+struct icmp6_nodeinfo {
+	struct icmp6_hdr icmp6_ni_hdr;
+	guint8 icmp6_ni_nonce[8];
+	/* could be followed by reply data */
 };
+
+#define ni_type		icmp6_ni_hdr.icmp6_type
+#define ni_code		icmp6_ni_hdr.icmp6_code
+#define ni_cksum	icmp6_ni_hdr.icmp6_cksum
+#define ni_qtype	icmp6_ni_hdr.icmp6_data16[0]
+#define ni_flags	icmp6_ni_hdr.icmp6_data16[1]
+
+#define NI_QTYPE_NOOP		0 /* NOOP  */
+#define NI_QTYPE_SUPTYPES	1 /* Supported Qtypes */
+#define NI_QTYPE_FQDN		2 /* FQDN (draft 04) */
+#define NI_QTYPE_DNSNAME	2 /* DNS Name */
+#define NI_QTYPE_NODEADDR	3 /* Node Addresses */
+#define NI_QTYPE_IPV4ADDR	4 /* IPv4 Addresses */
+
+#if BYTE_ORDER == BIG_ENDIAN
+#define NI_SUPTYPE_FLAG_COMPRESS	0x1
+#define NI_FQDN_FLAG_VALIDTTL		0x1
+#elif BYTE_ORDER == LITTLE_ENDIAN
+#define NI_SUPTYPE_FLAG_COMPRESS	0x0100
+#define NI_FQDN_FLAG_VALIDTTL		0x0100
 #endif
+
+#if BYTE_ORDER == BIG_ENDIAN
+#define NI_NODEADDR_FLAG_TRUNCATE	0x1
+#define NI_NODEADDR_FLAG_ALL		0x2
+#define NI_NODEADDR_FLAG_COMPAT		0x4
+#define NI_NODEADDR_FLAG_LINKLOCAL	0x8
+#define NI_NODEADDR_FLAG_SITELOCAL	0x10
+#define NI_NODEADDR_FLAG_GLOBAL		0x20
+#define NI_NODEADDR_FLAG_ANYCAST	0x40 /* just experimental. not in spec */
+#elif BYTE_ORDER == LITTLE_ENDIAN
+#define NI_NODEADDR_FLAG_TRUNCATE	0x0100
+#define NI_NODEADDR_FLAG_ALL		0x0200
+#define NI_NODEADDR_FLAG_COMPAT		0x0400
+#define NI_NODEADDR_FLAG_LINKLOCAL	0x0800
+#define NI_NODEADDR_FLAG_SITELOCAL	0x1000
+#define NI_NODEADDR_FLAG_GLOBAL		0x2000
+#define NI_NODEADDR_FLAG_ANYCAST	0x4000 /* just experimental. not in spec */
+#endif
+
+struct ni_reply_fqdn {
+	guint32	ni_fqdn_ttl;	/* TTL */
+	guint8	ni_fqdn_namelen; /* length in octets of the FQDN */
+	guint8	ni_fqdn_name[3]; /* XXX: alignment */
+};
 
 /*
  * Router Renumbering. as router-renum-05.txt

@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.20 2000/08/13 14:08:13 deniel Exp $
+ * $Id: packet-icmpv6.c,v 1.21 2000/08/18 12:05:26 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,6 +67,20 @@ static int hf_icmpv6_checksum = -1;
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
 static gint ett_icmpv6flag = -1;
+static gint ett_nodeinfo_flag = -1;
+static gint ett_nodeinfo_subject4 = -1;
+static gint ett_nodeinfo_subject6 = -1;
+static gint ett_nodeinfo_node4 = -1;
+static gint ett_nodeinfo_node6 = -1;
+
+static const value_string names_nodeinfo_qtype[] = {
+    { NI_QTYPE_NOOP,		"NOOP" },
+    { NI_QTYPE_SUPTYPES,	"Supported query types" },
+    { NI_QTYPE_DNSNAME,		"DNS name" },
+    { NI_QTYPE_NODEADDR,	"Node addresses" },
+    { NI_QTYPE_IPV4ADDR, 	"IPv4 node addresses" },
+    { 0,			NULL }
+};
 
 static void
 dissect_icmpv6opt(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -195,126 +209,347 @@ again:
     goto again;
 }
 
+/*
+ * draft-ietf-ipngwg-icmp-name-lookups-06.txt
+ * Note that the packet format was changed several times in the past.
+ */
+static void
+dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+    proto_tree *parent)
+{
+    proto_tree *field_tree;
+	proto_item *tf;
+    struct icmp6_nodeinfo *ni;
+    int off;
+    int i, n;
+    guint16 flags;
+    u_char *p;
+
+    ni = (struct icmp6_nodeinfo *)&pd[offset];
+
+    /* flags */
+    flags = pntohs(&ni->ni_flags);
+    tf = proto_tree_add_text(tree, NullTVB,
+	offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+	sizeof(ni->ni_flags), "Flags: 0x%04x", flags);
+    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_flag);
+    switch (pntohs(&ni->ni_qtype)) {
+    case NI_QTYPE_SUPTYPES:
+	if (ni->ni_type == ICMP6_NI_QUERY) {
+	    proto_tree_add_text(field_tree, NullTVB,
+		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+		sizeof(ni->ni_flags), "%s",
+		decode_boolean_bitfield(flags, 0x0001, sizeof(flags) * 8,
+		    "Compressed reply supported",
+		    "No compressed reply support"));
+	} else {
+	    proto_tree_add_text(field_tree, NullTVB,
+		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+		sizeof(ni->ni_flags), "%s",
+		decode_boolean_bitfield(flags, 0x0001, sizeof(flags) * 8,
+		    "Compressed", "Not compressed"));
+	}
+	break;
+    case NI_QTYPE_DNSNAME:
+	if (ni->ni_type == ICMP6_NI_REPLY) {
+	    proto_tree_add_text(field_tree, NullTVB,
+		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+		sizeof(ni->ni_flags), "%s",
+		decode_boolean_bitfield(flags, 0x0001, sizeof(flags) * 8,
+		    "Valid TTL field", "Meaningless TTL field"));
+	}
+	break;
+    case NI_QTYPE_NODEADDR:
+	proto_tree_add_text(field_tree, NullTVB,
+	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+	    sizeof(ni->ni_flags), "%s",
+	    decode_boolean_bitfield(flags, 0x0020, sizeof(flags) * 8,
+		"Global address",
+		"Not global address"));
+	proto_tree_add_text(field_tree, NullTVB,
+	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+	    sizeof(ni->ni_flags), "%s",
+	    decode_boolean_bitfield(flags, 0x0010, sizeof(flags) * 8,
+		"Site-local address",
+		"Not site-local address"));
+	proto_tree_add_text(field_tree, NullTVB,
+	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+	    sizeof(ni->ni_flags), "%s",
+	    decode_boolean_bitfield(flags, 0x0008, sizeof(flags) * 8,
+		"Link-local address",
+		"Not link-local address"));
+	proto_tree_add_text(field_tree, NullTVB,
+	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+	    sizeof(ni->ni_flags), "%s",
+	    decode_boolean_bitfield(flags, 0x0004, sizeof(flags) * 8,
+		"IPv4 compatible/mapped address",
+		"Not IPv4 compatible/mapped address"));
+	/* fall through */
+    case NI_QTYPE_IPV4ADDR:
+	proto_tree_add_text(field_tree, NullTVB,
+	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+	    sizeof(ni->ni_flags), "%s",
+	    decode_boolean_bitfield(flags, 0x0002, sizeof(flags) * 8,
+		"All unicast address",
+		"Unicast addresses on the queried interface"));
+	proto_tree_add_text(field_tree, NullTVB,
+	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
+	    sizeof(ni->ni_flags), "%s",
+	    decode_boolean_bitfield(flags, 0x0001, sizeof(flags) * 8,
+		"Truncated", "Not truncated"));
+	break;
+    }
+
+    /* nonce */
+    proto_tree_add_text(tree, NullTVB,
+	offset + offsetof(struct icmp6_nodeinfo, icmp6_ni_nonce[0]),
+	sizeof(ni->icmp6_ni_nonce), "Nonce: 0x%08x%08x",
+	pntohl(&ni->icmp6_ni_nonce[0]), pntohl(&ni->icmp6_ni_nonce[4]));
+
+    /* offset for "the rest of data" */
+    off = sizeof(*ni);
+
+    if (ni->ni_type == ICMP6_NI_QUERY) {
+	switch (ni->ni_code) {
+	case ICMP6_NI_SUBJ_IPV6:
+	    n = pi.captured_len - (offset + sizeof(*ni));
+	    n /= sizeof(struct e_in6_addr);
+	    tf = proto_tree_add_text(tree, NullTVB,
+		offset + sizeof(*ni), END_OF_FRAME, "IPv6 subject addresses");
+	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject6);
+	    p = (u_char *)(ni + 1);
+	    for (i = 0; i < n; i++) {
+		proto_tree_add_text(field_tree, NullTVB,
+		    p - pd, sizeof(struct e_in6_addr),
+		    "%s", ip6_to_str((struct e_in6_addr *)p));
+		p += sizeof(struct e_in6_addr);
+	    }
+	    off = pi.captured_len - offset;
+	    break;
+	case ICMP6_NI_SUBJ_FQDN:
+	    tf = proto_tree_add_text(tree, NullTVB,
+		offset + sizeof(*ni), sizeof(gint32),
+		"TTL: %d", *(gint32 *)(ni + 1));
+	    /* XXX TBD */
+	    break;
+	case ICMP6_NI_SUBJ_IPV4:
+	    n = pi.captured_len - (offset + sizeof(*ni));
+	    n /= sizeof(guint32);
+	    tf = proto_tree_add_text(tree, NullTVB,
+		offset + sizeof(*ni), END_OF_FRAME, "IPv4 subject addresses");
+	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject4);
+	    p = (u_char *)(ni + 1);
+	    for (i = 0; i < n; i++) {
+		proto_tree_add_text(field_tree, NullTVB,
+		    p - pd, sizeof(guint32), "%s", ip_to_str(p));
+		p += sizeof(guint32);
+	    }
+	    off = pi.captured_len - offset;
+	    break;
+	}
+    } else {
+	switch (pntohs(&ni->ni_qtype)) {
+	case NI_QTYPE_NOOP:
+	case NI_QTYPE_SUPTYPES:
+	    /* XXX TBD */
+	case NI_QTYPE_DNSNAME:
+	    /* XXX TBD */
+	    break;
+	case NI_QTYPE_NODEADDR:
+	    n = pi.captured_len - (offset + sizeof(*ni));
+	    n /= sizeof(struct e_in6_addr);
+	    tf = proto_tree_add_text(tree, NullTVB,
+		offset + sizeof(*ni), END_OF_FRAME, "IPv6 node addresses");
+	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node6);
+	    p = (u_char *)(ni + 1);
+	    for (i = 0; i < n; i++) {
+		proto_tree_add_text(field_tree, NullTVB,
+		    p - pd, sizeof(struct e_in6_addr),
+		    "%s", ip6_to_str((struct e_in6_addr *)p));
+		p += sizeof(struct e_in6_addr);
+	    }
+	    off = pi.captured_len - offset;
+	    break;
+	case NI_QTYPE_IPV4ADDR:
+	    n = pi.captured_len - (offset + sizeof(*ni));
+	    n /= sizeof(guint32);
+	    tf = proto_tree_add_text(tree, NullTVB,
+		offset + sizeof(*ni), END_OF_FRAME, "IPv4 node addresses");
+	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node4);
+	    p = (u_char *)(ni + 1);
+	    for (i = 0; i < n; i++) {
+		proto_tree_add_text(field_tree, NullTVB,
+		    p - pd, sizeof(guint32), "%s", ip_to_str(p));
+		p += sizeof(guint32);
+	    }
+	    off = pi.captured_len - offset;
+	    break;
+	}
+    }
+
+    /* the rest of data */
+    old_dissect_data(pd, offset + off, fd, parent);
+}
+
 static void
 dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *icmp6_tree, *field_tree;
 	proto_item *ti, *tf = NULL;
     struct icmp6_hdr *dp;
+    struct icmp6_nodeinfo *ni = NULL;
     char *codename, *typename;
+    char *colcodename, *coltypename;
     int len;
 
     OLD_CHECK_DISPLAY_AS_DATA(proto_icmpv6, pd, offset, fd, tree);
 
     dp = (struct icmp6_hdr *)&pd[offset];
-    codename = typename = "Unknown";
+    codename = typename = colcodename = coltypename = "Unknown";
     len = sizeof(*dp);
     switch (dp->icmp6_type) {
     case ICMP6_DST_UNREACH:
-	typename = "Unreachable";
+	typename = coltypename = "Unreachable";
 	switch (dp->icmp6_code) {
 	case ICMP6_DST_UNREACH_NOROUTE:
-	    codename = "Route unreachable";
+	    codename = colcodename = "Route unreachable";
 	    break;
 	case ICMP6_DST_UNREACH_ADMIN:
-	    codename = "Administratively prohibited";
+	    codename = colcodename = "Administratively prohibited";
 	    break;
 	case ICMP6_DST_UNREACH_NOTNEIGHBOR:
-	    codename = "Not a neighbor";
+	    codename = colcodename = "Not a neighbor";
 	    break;
 	case ICMP6_DST_UNREACH_ADDR:
-	    codename = "Address unreachable";
+	    codename = colcodename = "Address unreachable";
 	    break;
 	case ICMP6_DST_UNREACH_NOPORT:
-	    codename = "Port unreachable";
+	    codename = colcodename = "Port unreachable";
 	    break;
 	}
 	break;
     case ICMP6_PACKET_TOO_BIG:
-	typename = "Too big";
-	codename = NULL;
+	typename = coltypename = "Too big";
+	codename = colcodename = NULL;
 	break;
     case ICMP6_TIME_EXCEEDED:
-	typename = "Time exceeded";
+	typename = coltypename = "Time exceeded";
 	switch (dp->icmp6_code) {
 	case ICMP6_TIME_EXCEED_TRANSIT:
-	    codename = "In-transit";
+	    codename = colcodename = "In-transit";
 	    break;
 	case ICMP6_TIME_EXCEED_REASSEMBLY:
-	    codename = "Reassembly";
+	    codename = colcodename = "Reassembly";
 	    break;
 	}
         break;
     case ICMP6_PARAM_PROB:
-	typename = "Parameter problem";
+	typename = coltypename = "Parameter problem";
 	switch (dp->icmp6_code) {
 	case ICMP6_PARAMPROB_HEADER:
-	    codename = "Header";
+	    codename = colcodename = "Header";
 	    break;
 	case ICMP6_PARAMPROB_NEXTHEADER:
-	    codename = "Next header";
+	    codename = colcodename = "Next header";
 	    break;
 	case ICMP6_PARAMPROB_OPTION:
-	    codename = "Option";
+	    codename = colcodename = "Option";
 	    break;
 	}
         break;
     case ICMP6_ECHO_REQUEST:
-	typename = "Echo request";
-	codename = NULL;
+	typename = coltypename = "Echo request";
+	codename = colcodename = NULL;
 	break;
     case ICMP6_ECHO_REPLY:
-	typename = "Echo reply";
-	codename = NULL;
+	typename = coltypename = "Echo reply";
+	codename = colcodename = NULL;
 	break;
     case ICMP6_MEMBERSHIP_QUERY:
-	typename = "Multicast listener query";
-	codename = NULL;
+	typename = coltypename = "Multicast listener query";
+	codename = colcodename = NULL;
 	break;
     case ICMP6_MEMBERSHIP_REPORT:
-	typename = "Multicast listener report";
-	codename = NULL;
+	typename = coltypename = "Multicast listener report";
+	codename = colcodename = NULL;
 	break;
     case ICMP6_MEMBERSHIP_REDUCTION:
-	typename = "Multicast listener done";
-	codename = NULL;
+	typename = coltypename = "Multicast listener done";
+	codename = colcodename = NULL;
 	break;
     case ND_ROUTER_SOLICIT:
-	typename = "Router solicitation";
-	codename = NULL;
+	typename = coltypename = "Router solicitation";
+	codename = colcodename = NULL;
 	len = sizeof(struct nd_router_solicit);
 	break;
     case ND_ROUTER_ADVERT:
-	typename = "Router advertisement";
-	codename = NULL;
+	typename = coltypename = "Router advertisement";
+	codename = colcodename = NULL;
 	len = sizeof(struct nd_router_advert);
 	break;
     case ND_NEIGHBOR_SOLICIT:
-	typename = "Neighbor solicitation";
-	codename = NULL;
+	typename = coltypename = "Neighbor solicitation";
+	codename = colcodename = NULL;
 	len = sizeof(struct nd_neighbor_solicit);
 	break;
     case ND_NEIGHBOR_ADVERT:
-	typename = "Neighbor advertisement";
-	codename = NULL;
+	typename = coltypename = "Neighbor advertisement";
+	codename = colcodename = NULL;
 	len = sizeof(struct nd_neighbor_advert);
 	break;
     case ND_REDIRECT:
-	typename = "Redirect";
-	codename = NULL;
+	typename = coltypename = "Redirect";
+	codename = colcodename = NULL;
 	len = sizeof(struct nd_redirect);
 	break;
     case ICMP6_ROUTER_RENUMBERING:
-	typename = "Router renumbering";
+	typename = coltypename = "Router renumbering";
 	switch (dp->icmp6_code) {
 	case ICMP6_ROUTER_RENUMBERING_COMMAND:
-	    codename = "Command";
+	    codename = colcodename = "Command";
 	    break;
 	case ICMP6_ROUTER_RENUMBERING_RESULT:
-	    codename = "Result";
+	    codename = colcodename = "Result";
 	    break;
 	}
 	len = sizeof(struct icmp6_router_renum);
+	break;
+    case ICMP6_NI_QUERY:
+    case ICMP6_NI_REPLY:
+	ni = (struct icmp6_nodeinfo *)dp;
+	if (ni->ni_type == ICMP6_NI_QUERY) {
+	    typename = coltypename = "Node information query";
+	    switch (ni->ni_code) {
+	    case ICMP6_NI_SUBJ_IPV6:
+		codename = "Query subject = IPv6 addresses";
+		break;
+	    case ICMP6_NI_SUBJ_FQDN:
+		if (IS_DATA_IN_FRAME(offset + sizeof(*ni)))
+		    codename = "Query subject = DNS name";
+		else
+		    codename = "Query subject = empty";
+		break;
+	    case ICMP6_NI_SUBJ_IPV4:
+		codename = "Query subject = IPv4 addresses";
+		break;
+	    }
+	} else {
+	    typename = coltypename = "Node information reply";
+	    switch (ni->ni_code) {
+	    case ICMP6_NI_SUCCESS:
+		codename = "Successful";
+		break;
+	    case ICMP6_NI_REFUSED:
+		codename = "Refused";
+		break;
+	    case ICMP6_NI_UNKNOWN:
+		codename = "Unknown query type";
+		break;
+	    }
+	}
+	colcodename = val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype,
+	    "Unknown");
+	len = sizeof(struct icmp6_nodeinfo);
 	break;
     }
 
@@ -323,21 +558,20 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (check_col(fd, COL_INFO)) {
 	char typebuf[256], codebuf[256];
 
-	if (typename && strcmp(typename, "Unknown") == 0) {
+	if (coltypename && strcmp(coltypename, "Unknown") == 0) {
 	    snprintf(typebuf, sizeof(typebuf), "Unknown (0x%02x)",
 		dp->icmp6_type);
-	    typename = typebuf;
+	    coltypename = typebuf;
 	}
-	if (codename && strcmp(codename, "Unknown") == 0) {
+	if (colcodename && strcmp(colcodename, "Unknown") == 0) {
 	    snprintf(codebuf, sizeof(codebuf), "Unknown (0x%02x)",
 		dp->icmp6_code);
-	    codename = codebuf;
+	    colcodename = codebuf;
 	}
-	if (codename) {
-	    col_add_fstr(fd, COL_INFO, "%s (%s)",
-		typename, codename);
+	if (colcodename) {
+	    col_add_fstr(fd, COL_INFO, "%s (%s)", coltypename, colcodename);
 	} else {
-	    col_add_fstr(fd, COL_INFO, "%s", typename);
+	    col_add_fstr(fd, COL_INFO, "%s", coltypename);
 	}
     }
 
@@ -355,6 +589,11 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		offset + offsetof(struct icmp6_hdr, icmp6_code), 1,
 		dp->icmp6_code,
 		"Code: 0x%02x (%s)", dp->icmp6_code, codename);
+	} else {
+	    proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_code, NullTVB,
+		offset + offsetof(struct icmp6_hdr, icmp6_code), 1,
+		dp->icmp6_code,
+		"Code: 0x%02x", dp->icmp6_code);
 	}
 	proto_tree_add_uint(icmp6_tree, hf_icmpv6_checksum, NullTVB,
 	    offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
@@ -567,6 +806,17 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
 	    old_dissect_data(pd, offset + sizeof(*rr), fd, tree);	/*XXX*/
 	  }
+	case ICMP6_NI_QUERY:
+	case ICMP6_NI_REPLY:
+	    ni = (struct icmp6_nodeinfo *)dp;
+	    proto_tree_add_text(icmp6_tree, NullTVB,
+		offset + offsetof(struct icmp6_nodeinfo, ni_qtype),
+		sizeof(ni->ni_qtype),
+		"Query type: 0x%04x (%s)", pntohs(&ni->ni_qtype),
+		val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype,
+		"Unknown"));
+	    dissect_nodeinfo(pd, offset, fd, icmp6_tree, tree);
+	    break;
 	default:
 	    old_dissect_data(pd, offset + sizeof(*dp), fd, tree);
 	    break;
@@ -592,6 +842,11 @@ proto_register_icmpv6(void)
     &ett_icmpv6,
     &ett_icmpv6opt,
     &ett_icmpv6flag,
+    &ett_nodeinfo_flag,
+    &ett_nodeinfo_subject4,
+    &ett_nodeinfo_subject6,
+    &ett_nodeinfo_node4,
+    &ett_nodeinfo_node6,
   };
 
   proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
