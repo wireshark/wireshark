@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.76 2004/01/23 02:09:18 guy Exp $
+ * $Id: prefs_dlg.c,v 1.77 2004/01/25 12:22:20 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -621,7 +621,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   /* Button row: OK and cancel buttons */
   bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
-  gtk_container_add(GTK_CONTAINER(cts.main_vb), bbox);
+  gtk_box_pack_start(GTK_BOX(cts.main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
