@@ -237,7 +237,8 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 		if test x$ucdsnmpdir != x
 		then
 			AC_MSG_RESULT(added $d to paths)
-			CFLAGS="$CFLAGS -I${ucdsnmpdir}/include/ucdsnmp"
+			CFLAGS="$CFLAGS -I${ucdsnmpdir}/include"
+			CPPFLAGS="$CPPFLAGS -I${ucdsnmpdir}/include"
 			LIBS="$LIBS -L${ucdsnmpdir}/lib"
 		fi
 	fi
