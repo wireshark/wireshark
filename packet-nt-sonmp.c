@@ -2,7 +2,7 @@
 * Routines for the disassembly of the "Nortel Networks / SynOptics Network Management Protocol"
 * (c) Copyright Giles Scott <gscott2@nortelnetworks.com> 
 *
-* $Id: packet-nt-sonmp.c,v 1.3 2003/12/06 19:26:04 oabad Exp $
+* $Id: packet-nt-sonmp.c,v 1.4 2003/12/07 02:42:54 guy Exp $
 *
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>
@@ -207,6 +207,7 @@ static gint ett_sonmp = -1;
 static void 
 dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	char *hello_type;
 	guint32 sonmp_ip_address;
 	guint32 sonmp_segment_identifier = 0; /* actually 3 bytes not 4 */
 	guint8 sonmp_chassis_type;
@@ -220,11 +221,24 @@ dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SONMP");
 	
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "SONMP - %s Hello",
-                pinfo->dl_dst.data == NULL ? "" :
-		pinfo->dl_dst.data[5] == 0 ? "Segment" :
-		pinfo->dl_dst.data[5] == 1 ? "FlatNet" : "");
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		hello_type = "";
+		if (pinfo->dl_dst.type == AT_ETHER) {
+
+			switch (pinfo->dl_dst.data[5]) {
+
+			case 0:
+				hello_type = "Segment ";
+				break;
+
+			case 1:
+				hello_type = "FlatNet ";
+				break;
+			}
+		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "SONMP - %sHello",
+		    hello_type);
+	}
 	
 	if (tree) {
 		ti = proto_tree_add_protocol_format(tree, proto_sonmp, tvb, 0, 11,
