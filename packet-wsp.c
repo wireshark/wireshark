@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.100 2003/12/21 05:51:34 jmayer Exp $
+ * $Id: packet-wsp.c,v 1.101 2003/12/22 22:57:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,6 +81,7 @@ static int wsp_tap = -1;
 
 /* File scoped variables for the protocol and registered fields */
 static int proto_wsp 					= HF_EMPTY;
+static int proto_sir 					= HF_EMPTY;
 
 /*
  * Initialize the header field pointers
@@ -4609,7 +4610,7 @@ static const value_string vals_sir_protocol_options[] = {
  * outside of WSP anyway.
  */
 static void
-dissect_sir(proto_tree *tree, tvbuff_t *tvb)
+dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 version;
 	guint32 val_len;
@@ -4619,6 +4620,12 @@ dissect_sir(proto_tree *tree, tvbuff_t *tvb)
 	tvbuff_t *tmp_tvb;
 	proto_tree *subtree;
 	proto_item *ti;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{ /* Append status code to INFO column */
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				": WAP Session Initiation Request");
+	}
 
 	if (! tree)
 		return;
@@ -5062,9 +5069,11 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					/*
 					 * Content type is a string.
 					 */
+					/*
 					if (strcasecmp(contentTypeStr, "application/vnd.wap.sia") == 0) {
 						dissect_sir(tree, tmp_tvb);
 					} else
+					*/
 					found_match = dissector_try_string(media_type_table,
 							contentTypeStr, tmp_tvb, pinfo, tree);
 				}
@@ -6919,115 +6928,10 @@ proto_register_wsp(void)
 				"Charset parameter", HFILL
 			}
 		},
-
-		/*
-		 * Session Initiation Request
-		 */
-		{ &hf_sir_section,
-			{	"Session Initiation Request",
-				"wsp.sir",
-				FT_NONE, BASE_NONE, NULL, 0x00,
-				"Session Initiation Request content", HFILL
-			}
-		},
-		{ &hf_sir_version,
-			{	"Version",
-				"wsp.sir.version",
-				FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Version of the Session Initiation Request document", HFILL
-			}
-		},
-		{ &hf_sir_app_id_list_len,
-			{	"Application-ID List Length",
-				"wsp.sir.app_id_list.length",
-				FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Length of the Application-ID list (bytes)", HFILL
-			}
-		},
-		{ &hf_sir_app_id_list,
-			{	"Application-ID List",
-				"wsp.sir.app_id_list",
-				FT_NONE, BASE_NONE, NULL, 0x00,
-				"Application-ID list", HFILL
-			}
-		},
-		{ &hf_sir_wsp_contact_points_len,
-			{	"WSP Contact Points Length",
-				"wsp.sir.wsp_contact_points.length",
-				FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Length of the WSP Contact Points list (bytes)", HFILL
-			}
-		},
-		{ &hf_sir_wsp_contact_points,
-			{	"WSP Contact Points",
-				"wsp.sir.wsp_contact_points",
-				FT_NONE, BASE_NONE, NULL, 0x00,
-				"WSP Contact Points list", HFILL
-			}
-		},
-		{ &hf_sir_contact_points_len,
-			{	"Non-WSP Contact Points Length",
-				"wsp.sir.contact_points.length",
-				FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Length of the Non-WSP Contact Points list (bytes)", HFILL
-			}
-		},
-		{ &hf_sir_contact_points,
-			{	"Non-WSP Contact Points",
-				"wsp.sir.contact_points",
-				FT_NONE, BASE_NONE, NULL, 0x00,
-				"Non-WSP Contact Points list", HFILL
-			}
-		},
-		{ &hf_sir_protocol_options_len,
-			{	"Protocol Options List Entries",
-				"wsp.sir.protocol_options.length",
-				FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Number of entries in the Protocol Options list", HFILL
-			}
-		},
-		{ &hf_sir_protocol_options,
-			{	"Protocol Options",
-				"wsp.sir.protocol_options",
-				FT_UINT16, BASE_DEC, VALS(vals_sir_protocol_options), 0x00,
-				"Protocol Options list", HFILL
-			}
-		},
-		{ &hf_sir_prov_url_len,
-			{ 	"X-Wap-ProvURL Length",
-				"wsp.sir.prov_url.length",
-				FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Length of the X-Wap-ProvURL (Identifies the WAP Client Provisioning Context)", HFILL
-			}
-		},
-		{ &hf_sir_prov_url,
-			{ 	"X-Wap-ProvURL",
-				"wsp.sir.prov_url",
-				FT_STRING, BASE_NONE, NULL, 0x00,
-				"X-Wap-ProvURL (Identifies the WAP Client Provisioning Context)", HFILL
-			}
-		},
-		{ &hf_sir_cpi_tag_len,
-			{	"CPITag List Entries",
-				"wsp.sir.cpi_tag.length",
-				FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Number of entries in the CPITag list", HFILL
-			}
-		},
-		{ &hf_sir_cpi_tag,
-			{	"CPITag",
-				"wsp.sir.cpi_tag",
-				FT_BYTES, BASE_HEX, NULL, 0x00,
-				"CPITag (OTA-HTTP)", HFILL
-			}
-		},
-
-
 	};
 
-
 /* Setup protocol subtree array */
-	static gint *ett[] = { /* TODO - remove unneeded subtrees */
+	static gint *ett[] = {
 		&ett_wsp,
 		&ett_header, /* Header field subtree */
 		&ett_headers, /* Subtree for WSP headers */
@@ -7038,7 +6942,6 @@ proto_register_wsp(void)
 		&ett_address_flags,
 		&ett_multiparts,
 		&ett_mpartlist,
-		&ett_sir,			/* Session Initiation Request */
 		&ett_addresses,		/* Addresses */
 		&ett_address,		/* Single address */
 	};
@@ -7090,4 +6993,145 @@ proto_reg_handoff_wsp(void)
 	dissector_add("smpp.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
 
 	/* This dissector is also called from the WTP and WTLS dissectors */
+}
+
+/*
+ * Session Initiation Request
+ */
+
+/* Register the protocol with Ethereal */
+void
+proto_register_sir(void)
+{
+	/* Setup list of header fields */
+	static hf_register_info hf[] = {
+		{ &hf_sir_section,
+			{	"Session Initiation Request",
+				"wap.sir",
+				FT_NONE, BASE_NONE, NULL, 0x00,
+				"Session Initiation Request content", HFILL
+			}
+		},
+		{ &hf_sir_version,
+			{	"Version",
+				"wap.sir.version",
+				FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Version of the Session Initiation Request document", HFILL
+			}
+		},
+		{ &hf_sir_app_id_list_len,
+			{	"Application-ID List Length",
+				"wap.sir.app_id_list.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Length of the Application-ID list (bytes)", HFILL
+			}
+		},
+		{ &hf_sir_app_id_list,
+			{	"Application-ID List",
+				"wap.sir.app_id_list",
+				FT_NONE, BASE_NONE, NULL, 0x00,
+				"Application-ID list", HFILL
+			}
+		},
+		{ &hf_sir_wsp_contact_points_len,
+			{	"WSP Contact Points Length",
+				"wap.sir.wsp_contact_points.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Length of the WSP Contact Points list (bytes)", HFILL
+			}
+		},
+		{ &hf_sir_wsp_contact_points,
+			{	"WSP Contact Points",
+				"wap.sir.wsp_contact_points",
+				FT_NONE, BASE_NONE, NULL, 0x00,
+				"WSP Contact Points list", HFILL
+			}
+		},
+		{ &hf_sir_contact_points_len,
+			{	"Non-WSP Contact Points Length",
+				"wap.sir.contact_points.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Length of the Non-WSP Contact Points list (bytes)", HFILL
+			}
+		},
+		{ &hf_sir_contact_points,
+			{	"Non-WSP Contact Points",
+				"wap.sir.contact_points",
+				FT_NONE, BASE_NONE, NULL, 0x00,
+				"Non-WSP Contact Points list", HFILL
+			}
+		},
+		{ &hf_sir_protocol_options_len,
+			{	"Protocol Options List Entries",
+				"wap.sir.protocol_options.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Number of entries in the Protocol Options list", HFILL
+			}
+		},
+		{ &hf_sir_protocol_options,
+			{	"Protocol Options",
+				"wap.sir.protocol_options",
+				FT_UINT16, BASE_DEC, VALS(vals_sir_protocol_options), 0x00,
+				"Protocol Options list", HFILL
+			}
+		},
+		{ &hf_sir_prov_url_len,
+			{ 	"X-Wap-ProvURL Length",
+				"wap.sir.prov_url.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Length of the X-Wap-ProvURL (Identifies the WAP Client Provisioning Context)", HFILL
+			}
+		},
+		{ &hf_sir_prov_url,
+			{ 	"X-Wap-ProvURL",
+				"wap.sir.prov_url",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"X-Wap-ProvURL (Identifies the WAP Client Provisioning Context)", HFILL
+			}
+		},
+		{ &hf_sir_cpi_tag_len,
+			{	"CPITag List Entries",
+				"wap.sir.cpi_tag.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Number of entries in the CPITag list", HFILL
+			}
+		},
+		{ &hf_sir_cpi_tag,
+			{	"CPITag",
+				"wap.sir.cpi_tag",
+				FT_BYTES, BASE_HEX, NULL, 0x00,
+				"CPITag (OTA-HTTP)", HFILL
+			}
+		},
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_sir,			/* Session Initiation Request */
+	};
+
+	/* Register header fields and protocol subtrees */
+	proto_register_field_array(proto_sir, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register the dissector */
+	proto_sir = proto_register_protocol(
+		"WAP Session Initiation Request",  	/* protocol name for use by ethereal */
+		"WAP SIR",                          /* short version of name */
+		"wap-sir"                   	    /* Abbreviated protocol name,
+											   should Match IANA:
+	    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
+										*/
+	);
+}
+
+void
+proto_reg_handoff_sir(void)
+{
+	dissector_handle_t sir_handle;
+
+	sir_handle = create_dissector_handle(dissect_sir, proto_sir);
+
+	/* Add dissector bindings for SIR dissection */
+	dissector_add_string("media_type", "application/vnd.wap.sia", sir_handle);
 }
