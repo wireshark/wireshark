@@ -58,6 +58,8 @@ Overview of changes in Ethereal 0.8.9:
 * Show ICMP sequence number as two bytes instead of integer of unknown-endianness (Gilbert)
 * Add gtk_set_locale() to main (Kaoru Kusunoki)
 * Make dissect_ah() use dissector handoff tables (Gilbert)
+* Fix L2TP dissector to call dissect_ppp() (Gilbert)
+* Support for COPS (Heikki)
 
 Overview of changes in Ethereal 0.8.8:
 * Implement dissector tables for various protocols (Gilbert, Guy)
