@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.22 2003/10/20 20:18:52 guy Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.23 2003/11/10 20:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,13 @@ static gint ett_epm_entry = -1;
 static e_uuid_t uuid_epm = { 0xe1af8308, 0x5d1f, 0x11c9, { 0x91, 0xa4, 0x08, 0x00, 0x2b, 0x14, 0xa0, 0xfa } };
 static guint16  ver_epm = 3;
 
+static const value_string ep_service[] = {
+	{ 0, "rpc_c_ep_all_elts" },
+	{ 1, "rpc_c_ep_match_by_if" },
+	{ 2, "rpc_c_ep_match_by_obj" },
+	{ 3, "rpc_c_ep_match_by_both" },
+	{ 0, NULL },
+};
 
 /* typedef struct {
       unsigned int tower_len,
@@ -351,10 +358,10 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
                           uuid.Data4[2], uuid.Data4[3],
                           uuid.Data4[4], uuid.Data4[5],
                           uuid.Data4[6], uuid.Data4[7]);
-            proto_tree_add_text(tr, tvb, offset+17, 2, "Version %d.%d", tvb_get_guint8(tvb, offset+18), tvb_get_guint8(tvb, offset+17));
+            proto_tree_add_text(tr, tvb, offset+17, 2, "Version %d.%d", tvb_get_guint8(tvb, offset+17), tvb_get_guint8(tvb, offset+18));
 
 	    {
-	        guint16 version = tvb_get_ntohs(tvb, offset+17);
+		guint16 version = tvb_get_ntohs(tvb, offset+17); 
 		char *service = dcerpc_get_proto_name(&uuid, version);
 		if (service)
 		    proto_item_append_text(tr, "UUID: %s", service);
@@ -364,8 +371,8 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 					   uuid.Data4[2], uuid.Data4[3],
 					   uuid.Data4[4], uuid.Data4[5],
 					   uuid.Data4[6], uuid.Data4[7],
-					   tvb_get_guint8(tvb, offset+18), 
-					   tvb_get_guint8(tvb, offset+17));
+					   tvb_get_guint8(tvb, offset+17), 
+					   tvb_get_guint8(tvb, offset+18));
 	    }
 	    break;
 	}
@@ -668,7 +675,7 @@ proto_register_epm (void)
 	  { "Operation", "epm.opnum", FT_UINT16, BASE_DEC,
 	    NULL, 0x0, "Operation", HFILL }},
         { &hf_epm_inquiry_type,
-          { "Inquiry type", "epm.inq_type", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+          { "Inquiry type", "epm.inq_type", FT_UINT32, BASE_DEC, VALS(ep_service), 0x0, "", HFILL }},
         { &hf_epm_object,
           { "Object", "epm.object", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_epm_if_id,
