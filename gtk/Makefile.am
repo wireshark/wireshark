@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.69 2003/09/24 06:15:51 oabad Exp $
+# $Id: Makefile.am,v 1.70 2003/09/24 07:48:10 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -45,7 +45,9 @@ ETHEREAL_TAP_SRC = \
 	rpc_stat.c	\
 	rpc_progs.c	\
 	smb_stat.c	\
-	tap_rtp.c	\
+	rtp_analysis.c  \
+	rtp_stream.c    \
+	rtp_stream_dlg.c \
 	wsp_stat.c
 
 ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
@@ -122,9 +124,12 @@ libui_a_SOURCES = \
 	proto_draw.h	\
 	proto_hier_stats_dlg.h	\
 	proto_hier_stats_dlg.c	\
-	simple_dialog.c	\
+	rtp_analysis.h	\
+	rtp_stream.h	\
+	rtp_stream_dlg.h \
 	service_response_time_table.c	\
 	service_response_time_table.h	\
+	simple_dialog.c	\
 	stream_prefs.c	\
 	stream_prefs.h	\
 	summary_dlg.c   \
@@ -205,6 +210,9 @@ libui_a_SOURCES = \
 	proto_draw.h	\
 	proto_hier_stats_dlg.h	\
 	proto_hier_stats_dlg.c	\
+	rtp_analysis.h	\
+	rtp_stream.h	\
+	rtp_stream_dlg.h \
 	service_response_time_table.c	\
 	service_response_time_table.h	\
 	simple_dialog.c	\

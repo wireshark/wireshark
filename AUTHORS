@@ -1678,6 +1678,7 @@ Lars Roland <Lars.Roland [AT] gmx.net> {
 Miha Jemec <m.jemec [AT] iskratel.si> {
 	Support to follow a RTP stream and save it as a file.
 	Support for G.711 codec
+	Original RTP analysis tap
 }
 
 Markus Friedl <markus [AT] openbsd.org> {
@@ -1851,6 +1852,10 @@ Emanuele Caratti <wiz [AT] libero.it> {
 
 Graeme Reid <graeme.reid [AT] norwoodsystems.com> {
 	H.450 support
+}
+
+Lars Ruoff <lars.ruoff [AT] sxb.bsf.alcatel.fr> {
+	Rewritten RTP analysis tap
 }
 
 And assorted fixes and enhancements by the people listed above and by:
