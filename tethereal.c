@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.17 2000/02/11 06:53:31 guy Exp $
+ * $Id: tethereal.c,v 1.18 2000/02/16 01:38:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -587,7 +587,8 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   loop_data *ld = (loop_data *) user;
   cb_args_t args;
 
-  whdr.ts = phdr->ts;
+  whdr.ts.tv_sec = phdr->ts.tv_sec;
+  whdr.ts.tv_usec = phdr->ts.tv_usec;
   whdr.caplen = phdr->caplen;
   whdr.len = phdr->len;
   whdr.pkt_encap = ld->linktype;
