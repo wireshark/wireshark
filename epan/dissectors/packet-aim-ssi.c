@@ -109,8 +109,11 @@ static const value_string aim_fnac_family_ssi_types[] = {
   { 0, NULL }
 };
 
-static const aim_tlv ssi_rights_tlvs[] = {
-	{ 0, NULL, NULL }
+#define SSI_RIGHTSINFO_TLV_MAX_ITEMS	0x0004
+
+static const aim_tlv ssi_rightsinfo_tlvs[] = {
+	{ SSI_RIGHTSINFO_TLV_MAX_ITEMS, "Maximums For Items", dissect_aim_tlv_value_bytes }, 
+	{ 0, NULL, NULL },
 };
 
 static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
@@ -205,7 +208,7 @@ static int dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo _U_,
 	  return dissect_aim_snac_ssi_list(tvb, pinfo, offset, ssi_tree, aiminfo->subtype);
 	case FAMILY_SSI_RIGHTSINFO:
 		while(tvb_length_remaining(tvb, offset) > 0) {
-			offset = dissect_aim_tlv(tvb, pinfo, offset, ssi_tree, ssi_rights_tlvs);
+			offset = dissect_aim_tlv(tvb, pinfo, offset, ssi_tree, ssi_rightsinfo_tlvs);
 		}
 	  return offset;
 	case FAMILY_SSI_REQRIGHTS:

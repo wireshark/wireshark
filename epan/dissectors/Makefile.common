@@ -46,6 +46,7 @@ DISSECTOR_SRC =	\
 	packet-aim-chat.c	\
 	packet-aim-chatnav.c \
 	packet-aim-directory.c	\
+	packet-aim-email.c \
 	packet-aim-generic.c	\
 	packet-aim-icq.c \
 	packet-aim-invitation.c \
@@ -55,6 +56,7 @@ DISSECTOR_SRC =	\
 	packet-aim-popup.c \
 	packet-aim-signon.c \
 	packet-aim-ssi.c \
+	packet-aim-sst.c \
 	packet-aim-stats.c \
 	packet-aim-translate.c \
 	packet-aim-userlookup.c \

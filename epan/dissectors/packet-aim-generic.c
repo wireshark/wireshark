@@ -72,6 +72,7 @@
 #define FAMILY_GENERIC_SETSTATUS      0x001e
 #define FAMILY_GENERIC_CLIENTVERREQ   0x001f
 #define FAMILY_GENERIC_CLIENTVERREPL  0x0020
+#define FAMILY_GENERIC_EXT_STATUS_REP 0x0021
 #define FAMILY_GENERIC_DEFAULT        0xffff
 
 static const value_string aim_fnac_family_generic[] = {
@@ -101,6 +102,7 @@ static const value_string aim_fnac_family_generic[] = {
   { FAMILY_GENERIC_SETSTATUS, "Set Status (ICQ specific)" },
   { FAMILY_GENERIC_CLIENTVERREQ, "Client Verification Requst" },
   { FAMILY_GENERIC_CLIENTVERREPL, "Client Verification Reply" },
+  { FAMILY_GENERIC_EXT_STATUS_REP, "Extended Status Reply" },
   { FAMILY_GENERIC_DEFAULT, "Generic Default" },
   { 0, NULL }
 };
@@ -144,6 +146,27 @@ static const value_string ratechange_msgs[] = {
 	{ 0, NULL },
 };
 
+#define EXT_STATUS_TYPE_BUDDY_ICON_0 0
+#define EXT_STATUS_TYPE_BUDDY_ICON_1 1
+#define EXT_STATUS_TYPE_AVAIL_MSG    2
+#define EXT_STATUS_TYPE_UNKNOWN		 6
+
+static const value_string ext_status_types[] = {
+	{ EXT_STATUS_TYPE_BUDDY_ICON_0, "Request to send buddy icon" },
+	{ EXT_STATUS_TYPE_BUDDY_ICON_1, "Request to send buddy icon" },
+	{ EXT_STATUS_TYPE_AVAIL_MSG, "Extended Status Update" },
+	{ 0, NULL },
+};
+
+#define EXT_STATUS_FLAG_INITIAL_SEND	0x41
+#define EXT_STATUS_FLAG_RESEND			0x81
+
+static const value_string ext_status_flags[] = {
+	{ EXT_STATUS_FLAG_INITIAL_SEND, "First Send Request" },
+	{ EXT_STATUS_FLAG_RESEND, 		"Request To Re-Send" },
+	{ 0, NULL },
+};
+
 static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo, 
 				     proto_tree *tree);
 
@@ -175,6 +198,10 @@ static int hf_generic_idle_time = -1;
 static int hf_generic_client_ver_req_offset = -1;
 static int hf_generic_client_ver_req_length = -1;
 static int hf_generic_client_ver_req_hash = -1;
+static int hf_generic_ext_status_type = -1;
+static int hf_generic_ext_status_length = -1;
+static int hf_generic_ext_status_flags = -1;
+static int hf_generic_ext_status_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_generic_clientready = -1;
@@ -435,6 +462,15 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 	case FAMILY_GENERIC_WELLKNOWNURL:
 	  /* FIXME */
 	  return 0;
+	case FAMILY_GENERIC_EXT_STATUS_REP:
+	  {
+		  guint8 length;
+	  proto_tree_add_item(gen_tree, hf_generic_ext_status_type, tvb, offset, 2, FALSE); offset += 2;
+	  proto_tree_add_item(gen_tree, hf_generic_ext_status_flags, tvb, offset, 1, FALSE); offset += 1;
+	  proto_tree_add_item(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, FALSE); length = tvb_get_guint8(tvb, offset); offset += 1;
+	  proto_tree_add_item(gen_tree, hf_generic_ext_status_data, tvb, offset, length, FALSE); offset += 1;
+	  return offset;
+	  }
 	default: return 0;
     }
   return 0;
@@ -527,6 +563,19 @@ proto_register_aim_generic(void)
 	{ &hf_generic_client_ver_req_hash,
 		{ "Client Verification MD5 Hash", "aim.client_verification.hash", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL },
 	},
+	{ &hf_generic_ext_status_type,
+		{ "Extended Status Type", "aim.ext_status.type", FT_UINT16, BASE_DEC, VALS(ext_status_types), 0x0, "", HFILL },
+	},
+	{ &hf_generic_ext_status_flags,
+		{ "Extended Status Flags", "aim.ext_status.flags", FT_UINT8, BASE_HEX, VALS(ext_status_flags), 0x0, "", HFILL },
+	},
+	{ &hf_generic_ext_status_length,
+		{ "Extended Status Length", "aim.ext_status.length", FT_UINT8, BASE_HEX, NULL, 0x0, "" , HFILL },
+	},
+	{ &hf_generic_ext_status_data,
+		{ "Extended Status Data", "aim.ext_status.data", FT_BYTES, BASE_HEX, NULL, 0x0, "" , HFILL },
+	},
+
   };
 
 /* Setup protocol subtree array */

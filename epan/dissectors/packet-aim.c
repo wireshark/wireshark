@@ -144,7 +144,7 @@ static const value_string aim_snac_errors[] = {
 #define AIM_CLIENT_TLV_CLIENT_MINOR_VERSION    0x0018
 #define AIM_CLIENT_TLV_CLIENT_LESSER_VERSION   0x0019
 #define AIM_CLIENT_TLV_CLIENT_BUILD_NUMBER     0x001a
-#define AIM_CLIENT_TLV_PASSWORD				0x0025
+#define AIM_CLIENT_TLV_PASSWORD_MD5 			0x0025
 #define AIM_CLIENT_TLV_LATESTBETABUILD     	0x0040
 #define AIM_CLIENT_TLV_LATESTBETAURL       	0x0041
 #define AIM_CLIENT_TLV_LATESTBETAINFO      	0x0042
@@ -157,6 +157,22 @@ static const value_string aim_snac_errors[] = {
 #define AIM_CLIENT_TLV_RELEASE_DIGEST_SIG   0x0049
 #define AIM_CLIENT_TLV_CLIENTUSESSI   			0x004a
 #define AIM_CLIENT_TLV_CHANGE_PASSWORD_URL		0x0054
+#define AIM_CLIENT_TLV_AWAITING_AUTH		0x0066
+#define AIM_CLIENT_TLV_MEMBERS				0x00c8
+#define AIM_CLIENT_TLV_VISIBILITY_BITS		0x00c9
+#define AIM_CLIENT_TLV_PRIVACY				0x00ca
+#define AIM_CLIENT_TLV_VISIBLE_CLASS		0x00cb
+#define AIM_CLIENT_TLV_VISIBLE_MISC			0x00cc
+#define AIM_CLIENT_TLV_ICQ2K_SHORTCUT		0x00cd
+#define AIM_CLIENT_TLV_FIRST_LOADED_TIME	0x00d4
+#define AIM_CLIENT_TLV_BUDDY_ICON_MD5SUM	0x00d5
+#define AIM_CLIENT_TLV_GIVEN_NAME			0x0131
+#define AIM_CLIENT_TLV_LOCAL_EMAIL			0x0137
+#define AIM_CLIENT_TLV_LOCAL_SMS			0x013a
+#define AIM_CLIENT_TLV_LOCAL_COMMENT		0x013c
+#define AIM_CLIENT_TLV_LOCAL_PERSONAL_ALERT 0x013d
+#define AIM_CLIENT_TLV_LOCAL_PERSONAL_SOUND	0x013e
+#define AIM_CLIENT_TLV_FIRST_MESSAGE_SENT	0x0145
 
 const aim_tlv client_tlvs[] = {
   {  AIM_CLIENT_TLV_SCREEN_NAME, "Screen name", dissect_aim_tlv_value_string },
@@ -168,6 +184,7 @@ const aim_tlv client_tlvs[] = {
   {  AIM_CLIENT_TLV_CLIENT_MINOR_VERSION, "Client minor version", dissect_aim_tlv_value_uint16 },
   {  AIM_CLIENT_TLV_CLIENT_LESSER_VERSION, "Client lesser version", dissect_aim_tlv_value_uint16 },
   {  AIM_CLIENT_TLV_CLIENT_BUILD_NUMBER, "Client build number", dissect_aim_tlv_value_uint16 },
+  {  AIM_CLIENT_TLV_PASSWORD_MD5, "Password Hash (MD5)", dissect_aim_tlv_value_bytes },
   {  AIM_CLIENT_TLV_CLIENT_DISTRIBUTION_NUM, "Client distribution number", dissect_aim_tlv_value_uint16 },
   {  AIM_CLIENT_TLV_CLIENT_LANGUAGE, "Client language", dissect_aim_tlv_value_string },
   {  AIM_CLIENT_TLV_CLIENT_COUNTRY, "Client country", dissect_aim_tlv_value_string },
@@ -194,6 +211,22 @@ const aim_tlv client_tlvs[] = {
   {  AIM_CLIENT_TLV_CLIENTUSESSI, "Use SSI", dissect_aim_tlv_value_uint8 },
   {  AIM_CLIENT_TLV_GENERIC_SERVICE_ID, "Service (Family) ID", dissect_aim_tlv_value_uint16 },
   { AIM_CLIENT_TLV_CHANGE_PASSWORD_URL, "Change password url", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_AWAITING_AUTH, "Awaiting Authorization", dissect_aim_tlv_value_bytes },
+  { AIM_CLIENT_TLV_MEMBERS, "Members of this Group", dissect_aim_tlv_value_bytes },
+  { AIM_CLIENT_TLV_VISIBILITY_BITS, "Bitfield", dissect_aim_tlv_value_bytes },
+  { AIM_CLIENT_TLV_PRIVACY, "Privacy Settings" , dissect_aim_tlv_value_uint8 },
+  { AIM_CLIENT_TLV_VISIBLE_CLASS, "Visible To Classes", dissect_aim_tlv_value_userclass },
+  { AIM_CLIENT_TLV_VISIBLE_MISC, "Allow Others to See Data", dissect_aim_tlv_value_bytes },
+  { AIM_CLIENT_TLV_ICQ2K_SHORTCUT, "ICQ2K Shortcut List", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_FIRST_LOADED_TIME, "First Time Buddy Was Added (Unix Timestamp)" , dissect_aim_tlv_value_uint32 },
+  { AIM_CLIENT_TLV_BUDDY_ICON_MD5SUM, "MD5SUM of Current Buddy Icon", dissect_aim_tlv_value_bytes },
+  { AIM_CLIENT_TLV_GIVEN_NAME, "Locally Specified Buddy Name", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_LOCAL_EMAIL, "Locally Specified Buddy Email", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_LOCAL_SMS, "Locally Specified Buddy SMS", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_LOCAL_COMMENT, "Locally Specified Buddy Comment", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_LOCAL_PERSONAL_ALERT, "Personal Alert for Buddy", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_LOCAL_PERSONAL_SOUND, "Personal Sound for Buddy", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_FIRST_MESSAGE_SENT, " First Time Message Sent to Buddy (Unix Timestamp)", dissect_aim_tlv_value_uint32 },
   { 0, "Unknown", NULL },
 };
 
@@ -284,6 +317,16 @@ static const value_string aim_snac_generic_motd_motdtypes[] = {
 #define CLASS_UNKNOWN400             0x0400
 #define CLASS_UNKNOWN800             0x0800
 
+#define FNAC_FLAG_NEXT_IS_RELATED 	 0x0001
+#define FNAC_FLAG_CONTAINS_VERSION	 0x8000
+
+#define FNAC_TLV_FAMILY_VERSION  0x0001
+
+static const aim_tlv fnac_tlvs[] = {
+  { FNAC_TLV_FAMILY_VERSION, "SNAC Family Version", dissect_aim_tlv_value_uint16 },
+  { 0, "Unknown", NULL }
+};
+
 static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_aim_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -314,6 +357,8 @@ static int hf_aim_signon_challenge = -1;
 static int hf_aim_fnac_family = -1;
 static int hf_aim_fnac_subtype = -1;
 static int hf_aim_fnac_flags = -1;
+static int hf_aim_fnac_flag_next_is_related = -1;
+static int hf_aim_fnac_flag_contains_version = -1;
 static int hf_aim_fnac_id = -1;
 static int hf_aim_infotype = -1;
 static int hf_aim_buddyname_len = -1;
@@ -348,6 +393,7 @@ static int hf_aim_messageblock_message = -1;
 static gint ett_aim          = -1;
 static gint ett_aim_buddyname= -1;
 static gint ett_aim_fnac     = -1;
+static gint ett_aim_fnac_flags = -1;
 static gint ett_aim_tlv      = -1;
 static gint ett_aim_userclass = -1;
 static gint ett_aim_messageblock = -1;
@@ -621,6 +667,14 @@ int dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo,
 	return dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
 }
 
+int dissect_aim_fnac_flags(tvbuff_t *tvb, int offset, int len, proto_item *ti, guint16 flags)
+{
+	proto_tree *entry = proto_item_add_subtree(ti, ett_aim_fnac_flags);
+	proto_tree_add_boolean(entry, hf_aim_fnac_flag_next_is_related, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_fnac_flag_contains_version, tvb, offset, len, flags);
+	return offset + len;
+}
+
 static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, 
 			     int offset, proto_tree *aim_tree, proto_tree *root_tree)
 {
@@ -665,13 +719,24 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
 			   tvb, offset, 2, "Subtype: %s (0x%04x)", subtype_name?subtype_name:"Unknown", subtype);
       offset += 2;
 
-      proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_flags, tvb, offset, 
+      ti1 = proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_flags, tvb, offset, 
 			  2, flags);
-      offset += 2;
+
+	  offset = dissect_aim_fnac_flags(tvb, offset, 2, ti1, flags);
+
       proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_id, tvb, offset,
 			  4, id);
       offset += 4;
     }
+  
+  if(flags & FNAC_FLAG_CONTAINS_VERSION) {
+	guint16 len = tvb_get_ntohs(tvb, offset); offset+=2;
+	int oldoffset = offset;
+	
+	while(offset < oldoffset + len) {
+	  offset = dissect_aim_tlv(tvb, pinfo, offset, aim_tree, fnac_tlvs);
+	}
+  }
 
   subtvb = tvb_new_subset(tvb, offset, -1, -1);
   aiminfo.tcpinfo = pinfo->private_data;
@@ -1097,6 +1162,12 @@ proto_register_aim(void)
 	{ &hf_aim_userclass_unknown800,
 		{ "Unknown bit", "aim.userclass.unknown800", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN800, "", HFILL },
 	},
+	{ &hf_aim_fnac_flag_next_is_related,
+		{ "Followed By SNAC with related information", "aim.fnac.flags.next_is_related", FT_BOOLEAN, 16, TFS(&flags_set_truth), FNAC_FLAG_NEXT_IS_RELATED, "", HFILL },
+	},
+	{ &hf_aim_fnac_flag_contains_version,
+		{ "Contains Version of Family this SNAC is in", "aim.fnac.flags.contains_version", FT_BOOLEAN, 16, TFS(&flags_set_truth), FNAC_FLAG_CONTAINS_VERSION, "", HFILL },
+	},
 	{ &hf_aim_userinfo_warninglevel,
 		{ "Warning Level", "aim.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
 	},
@@ -1130,6 +1201,7 @@ proto_register_aim(void)
   static gint *ett[] = {
 	  &ett_aim,
 	  &ett_aim_fnac,
+	  &ett_aim_fnac_flags,
 	  &ett_aim_tlv,
 	  &ett_aim_buddyname,
 	  &ett_aim_userclass,
