@@ -743,6 +743,7 @@ Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	JPEG File Interchange Format (JFIF) dissector
 	Dissector for message/http media type
 	Generic line-based textual data dissector
+	Multipart media dissector
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
@@ -1655,6 +1656,7 @@ Anders Broman <anders.broman [AT] ericsson.com> {
 	Assorted ISUP enhancements
 	MEGACO updates and fixes
 	T35 country code support for H245
+	Multipart media dissector
 }
 
 Christian Falckenberg <christian.falckenberg [AT] nortelnetworks.com> {

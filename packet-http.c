@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.90 2004/01/10 02:38:38 obiot Exp $
+ * $Id: packet-http.c,v 1.91 2004/01/16 01:32:19 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,10 +115,11 @@ typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
  */
 typedef struct {
 	char	*content_type;
+	char	*content_type_parameters;
 	long	content_length;	/* XXX - make it 64-bit? */
 } headers_t;
 
-static int is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
+static int is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		RequestDissector *req_dissector, int *req_strlen);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset, packet_info *pinfo,
@@ -147,7 +148,7 @@ base64_to_tvb(const char *base64)
 	size_t len;
 
 	len = base64_decode(data);
-	tvb = tvb_new_real_data(data, len, len);
+	tvb = tvb_new_real_data((const guint8 *)data, len, len);
 
 	tvb_set_free_cb(tvb, g_free);
 
@@ -173,6 +174,10 @@ cleanup_headers(void *arg)
 	headers_t *headers = arg;
 
 	g_free(headers->content_type);
+	/*
+	 * The content_type_parameters field actually points into the
+	 * content_type headers, so don't attempt at freeing it twice.
+	 */
 }
 
 /*
@@ -227,10 +232,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	line = tvb_get_ptr(tvb, offset, first_linelen);
 	http_type = HTTP_OTHERS;	/* type not known yet */
-	is_request_or_reply = is_http_request_or_reply(line, first_linelen,
-	    &http_type, NULL, NULL);
+	is_request_or_reply = is_http_request_or_reply((const gchar *)line,
+			first_linelen, &http_type, NULL, NULL);
 	if (is_request_or_reply) {
-                /*
+		/*
 		 * Yes, it's a request or response.
 		 * Do header desegmentation if we've been told to,
 		 * and do body desegmentation if we've been told to and
@@ -295,6 +300,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	headers.content_type = NULL;	/* content type not known yet */
+	headers.content_type_parameters = NULL;	/* content type parameters too */
 	headers.content_length = -1;	/* content length not known yet */
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
 	CLEANUP_PUSH(cleanup_headers, &headers);
@@ -319,8 +325,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * OK, does it look like an HTTP request or response?
 		 */
 		req_dissector = NULL;
-		is_request_or_reply = is_http_request_or_reply(line, linelen,
-		    &http_type, &req_dissector, &req_strlen);
+		is_request_or_reply = is_http_request_or_reply((const gchar *)line,
+				linelen, &http_type, &req_dissector, &req_strlen);
 		if (is_request_or_reply)
 			goto is_http;
 
@@ -605,7 +611,16 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * for that content type?
 			 */
 			save_private_data = pinfo->private_data;
-			pinfo->private_data = headers.content_type;
+			if (headers.content_type_parameters)
+				pinfo->private_data = g_strdup(headers.content_type_parameters);
+			else
+				pinfo->private_data = NULL;
+			/*
+			 * Calling the string handle for the media type
+			 * dissector table will set pinfo->match_string
+			 * to headers.content_type for us.
+			 */
+			pinfo->match_string = headers.content_type;
 			handle = dissector_get_string_handle(
 			    media_type_subdissector_table,
 			    headers.content_type);
@@ -637,6 +652,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    http_tree);
 		}
 
+		/*
+		 * Do *not* attempt at freeing the private data;
+		 * it may be in use by subdissectors
+		 */
 		if (save_private_data)
 			pinfo->private_data = save_private_data;
 		/*
@@ -675,7 +694,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen _U_)
 	int minor, major, status_code;
 
 	data = tvb_get_ptr(tvb, 5, 12);
-	if (sscanf(data, "%d.%d %d", &minor, &major, &status_code) == 3) {
+	if (sscanf((const gchar *)data, "%d.%d %d", &minor, &major, &status_code) == 3) {
 		proto_tree_add_uint(tree, hf_http_response_code, tvb, 9, 3, status_code);
 		stat_info->response_code = status_code;
 	}
@@ -686,7 +705,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen _U_)
  * anyway.
  */
 static int
-is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
+is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		RequestDissector *req_dissector, int *req_strlen)
 {
 	int isHttpRequestOrReply = FALSE;
@@ -962,11 +981,29 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				eh_ptr->content_type[i] = tolower(c);
 			}
 			eh_ptr->content_type[i] = '\0';
+			/*
+			 * Now find the start of the optional parameters;
+			 * skip the optional white space and the semicolon
+			 * if this has not been done before.
+			 */
+			i++;
+			while (i < value_len) {
+				c = value[i];
+				if (c == ';' || isspace(c))
+					/* Skip till start of parameters */
+					i++;
+				else
+					break;
+			}
+			if (i < value_len)
+				eh_ptr->content_type_parameters = value + i;
+			else
+				eh_ptr->content_type_parameters = NULL;
 			break;
 
 		case HDR_CONTENT_LENGTH:
 			eh_ptr->content_length = strtol(value, &p, 10);
-			up = p;
+			up = (guchar *)p;
 			if (eh_ptr->content_length < 0 || p == value ||
 			    (*up != '\0' && !isspace(*up)))
 				eh_ptr->content_length = -1;	/* not valid */
@@ -989,7 +1026,8 @@ find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len)
 
         for (i = 0; i < array_length(headers); i++) {
                 if (header_len == strlen(headers[i].name) &&
-                    tvb_strncaseeql(tvb, offset, headers[i].name, header_len) == 0)
+                    tvb_strncaseeql(tvb, offset,
+						(const guint8 *)headers[i].name, header_len) == 0)
                         return i;
         }
 
