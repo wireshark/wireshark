@@ -1251,11 +1251,11 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     while (TRUE) {
       data = tvb_get_guint8(bi->tvb, bi->offset);
 
-      digits[i] = get_masked_guint8(data, BSSGP_MASK_LEFT_OCTET_HALF);
+      digits[i] = get_masked_guint8(data, BSSGP_MASK_RIGHT_OCTET_HALF);
       i++;
       if (i >= num_digits) break;
 
-      digits[i] = get_masked_guint8(data, BSSGP_MASK_RIGHT_OCTET_HALF);
+      digits[i] = get_masked_guint8(data, BSSGP_MASK_LEFT_OCTET_HALF);
       i++;
       if (i >= num_digits) break;
       bi->offset++;
@@ -1284,7 +1284,7 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
         break;
       }
 	  if (tf)
-		  proto_tree_add_string(tf, hf_id, bi->tvb, 0, num_digits, digits_str);
+		  proto_tree_add_string(tf, hf_id, bi->tvb, ie_start_offset + 2, ((num_digits/2)+1), digits_str);
 
     } 
     if (check_col(bi->pinfo->cinfo, COL_INFO)) {
