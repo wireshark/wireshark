@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.50 2002/08/28 21:00:30 jmayer Exp $
+ * $Id: packet-rtsp.c,v 1.51 2003/12/17 21:03:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+#include "prefs.h"
+
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-rtp.h"
@@ -38,23 +40,31 @@
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 
-static int proto_rtsp = -1;
-static gint ett_rtsp = -1;
+static int proto_rtsp		= -1;
 
-static gint ett_rtspframe = -1;
+static gint ett_rtsp		= -1;
+static gint ett_rtspframe	= -1;
 
-static int hf_rtsp_method = -1;
-static int hf_rtsp_url = -1;
-static int hf_rtsp_status = -1;
+static int hf_rtsp_method	= -1;
+static int hf_rtsp_url		= -1;
+static int hf_rtsp_status	= -1;
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
 
+void proto_reg_handoff_rtsp(void);
+
 static GMemChunk *rtsp_vals = NULL;
 #define rtsp_hash_init_count 20
 
 #define TCP_PORT_RTSP			554
+static guint global_rtsp_tcp_port = TCP_PORT_RTSP;
+/*
+* Variables to allow for proper deletion of dissector registration when
+* the user changes port from the gui.
+*/
+static guint tcp_port = 0;
 
 /*
  * Takes an array of bytes, assumed to contain a null-terminated
@@ -814,11 +824,20 @@ proto_register_rtsp(void)
 	{ &hf_rtsp_status,
 	{ "Status", "rtsp.status", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	};
+	module_t *rtsp_module;
 
         proto_rtsp = proto_register_protocol("Real Time Streaming Protocol",
 		"RTSP", "rtsp");
 	proto_register_field_array(proto_rtsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register our configuration options, particularly our ports */
+
+	rtsp_module = prefs_register_protocol(proto_rtsp, proto_reg_handoff_rtsp);
+	prefs_register_uint_preference(rtsp_module, "tcp.port",
+		"RTSP TCP Port",
+		"Set the TCP port for RTSP messages",
+		10, &global_rtsp_tcp_port);
 
 	register_init_routine(rtsp_init);	/* register re-init routine */
 }
@@ -827,9 +846,22 @@ void
 proto_reg_handoff_rtsp(void)
 {
 	dissector_handle_t rtsp_handle;
+	static int rtsp_prefs_initialized = FALSE;
 
 	rtsp_handle = create_dissector_handle(dissect_rtsp, proto_rtsp);
-	dissector_add("tcp.port", TCP_PORT_RTSP, rtsp_handle);
+
+	if (!rtsp_prefs_initialized) {
+		rtsp_prefs_initialized = TRUE;
+	}
+	else {
+		dissector_delete("tcp.port", tcp_port, rtsp_handle);
+
+	}
+	/* Set our port number for future use */
+	
+	tcp_port = global_rtsp_tcp_port;
+	
+	dissector_add("tcp.port", tcp_port, rtsp_handle);
 
 	sdp_handle = find_dissector("sdp");
 	rtp_handle = find_dissector("rtp");
