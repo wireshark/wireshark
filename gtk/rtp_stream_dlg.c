@@ -718,11 +718,11 @@ static void rtpstream_dlg_create (void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_save);
     gtk_tooltips_set_tip (tooltips, bt_save, "Save stream payload in rtpdump format", NULL);
 
-	bt_mark = gtk_button_new_with_label ("Mark packets");
+	bt_mark = gtk_button_new_with_label ("Mark Packets");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_mark);
     gtk_tooltips_set_tip (tooltips, bt_mark, "Mark packets of the selected stream(s)", NULL);
 
-	bt_filter = gtk_button_new_with_label ("Prepare filter");
+	bt_filter = gtk_button_new_with_label ("Prepare Filter");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
     gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream(s)", NULL);
 
