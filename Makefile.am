@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.729 2004/05/09 10:03:36 guy Exp $
+# $Id: Makefile.am,v 1.730 2004/05/22 07:24:28 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -71,9 +71,9 @@ EXTRA_SCRIPTS = idl2eth
 
 #
 # Ethereal configuration files are put in $(pkgdatadir).  It currently
-# contains the "manuf" file and a "diameter" directory.
+# contains the "AUTHORS-SHORT" and "manuf" files and a "diameter" directory.
 #
-pkgdata_DATA = manuf
+pkgdata_DATA = AUTHORS-SHORT manuf
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -290,6 +290,12 @@ cvsversion.h: FORCE
 	$(PERL) $(srcdir)/make-version.pl
 
 #
+# Build the short version of the authors file for the about dialog
+#
+AUTHORS-SHORT: AUTHORS make-authors-short.pl
+	$(PERL) $(srcdir)/make-authors-short.pl < AUTHORS > AUTHORS-SHORT
+
+#
 # Build shell scripts by doing variable substitution.
 # Taken from autoconf 2.13.
 #
@@ -368,6 +374,7 @@ MAINTAINERCLEANFILES =		\
 	ps.c
 
 EXTRA_DIST = \
+	AUTHORS-SHORT		\
 	Ethereal.desktop	\
 	FAQ			\
 	INSTALL.configure       \
@@ -499,6 +506,7 @@ EXTRA_DIST = \
 	image/icon_layout_4.xpm \
 	image/icon_layout_5.xpm \
 	image/icon_layout_6.xpm \
+	make-authors-short.pl	\
 	make-manuf		\
 	make-reg-dotc		\
 	make-reg-dotc.py	\

@@ -11,6 +11,7 @@
 .deps
 .gdb_history
 .libs
+AUTHORS-SHORT
 Makefile
 Makefile.in
 aclocal.m4
