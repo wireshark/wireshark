@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.27 2000/04/15 06:47:43 guy Exp $
+ * $Id: packet-osi.c,v 1.28 2000/04/15 07:26:57 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -1371,14 +1371,15 @@ static int osi_decode_ER(const u_char *pd, int offset,
 
 } /* osi_decode_ER */
 
-static void dissect_cotp_internal(const u_char *pd, int offset, frame_data *fd,
-		  proto_tree *tree, gboolean uses_inactive_subset) 
+/* Returns TRUE if we found at least one valid COTP PDU, FALSE
+   otherwise. */
+static gboolean dissect_cotp_internal(const u_char *pd, int offset,
+		  frame_data *fd, proto_tree *tree,
+		  gboolean uses_inactive_subset) 
 {
   gboolean first_tpdu = TRUE;
   int new_offset;
-
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "COTP");
+  gboolean found_cotp = FALSE;
 
   /* Initialize the COL_INFO field; each of the TPDUs will have its
      information appended. */
@@ -1391,16 +1392,18 @@ static void dissect_cotp_internal(const u_char *pd, int offset, frame_data *fd,
         col_append_str(fd, COL_INFO, ", ");
     }
     if ((li = pd[offset + P_LI]) == 0) {
-      if (first_tpdu && check_col(fd, COL_INFO))
+      if (check_col(fd, COL_INFO))
         col_append_str(fd, COL_INFO, "Length indicator is zero");
-      dissect_data(pd, offset, fd, tree);
-      return;
+      if (!first_tpdu)
+        dissect_data(pd, offset, fd, tree);
+      return found_cotp;
     }
     if (!BYTES_ARE_IN_FRAME(offset, P_LI + li + 1)) {
-      if (first_tpdu && check_col(fd, COL_INFO))
+      if (check_col(fd, COL_INFO))
         col_append_str(fd, COL_INFO, "Captured data in frame doesn't include entire frame");
-      dissect_data(pd, offset, fd, tree);
-      return;
+      if (!first_tpdu)
+        dissect_data(pd, offset, fd, tree);
+      return found_cotp;
     }
 
     tpdu    = (pd[offset + P_TPDU] >> 4) & 0x0F;
@@ -1444,19 +1447,30 @@ static void dissect_cotp_internal(const u_char *pd, int offset, frame_data *fd,
     }
 
     if (new_offset == -1) { /* incorrect TPDU */
-      dissect_data(pd, offset, fd, tree);
-      return;
+      if (!first_tpdu)
+        dissect_data(pd, offset, fd, tree);
+      break;
+    }
+
+    if (first_tpdu) {
+      /* Well, we found at least one valid COTP PDU, so I guess this
+         is COTP. */
+      if (check_col(fd, COL_PROTOCOL))
+        col_add_str(fd, COL_PROTOCOL, "COTP");
+      found_cotp = TRUE;
     }
 
     offset = new_offset;
     first_tpdu = FALSE;
   }
+  return found_cotp;
 } /* dissect_cotp_internal */
 
 void dissect_cotp(const u_char *pd, int offset, frame_data *fd,
 		  proto_tree *tree) 
 {
-  dissect_cotp_internal(pd, offset, fd, tree, FALSE);
+  if (!dissect_cotp_internal(pd, offset, fd, tree, FALSE))
+    dissect_data(pd, offset, fd, tree);
 }
 
 
@@ -1691,8 +1705,8 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
          PDU, skip that? */
 
       if (nsel == NSEL_TP) { 	/* just guessing here - valid for DECNet-OSI */
-        dissect_cotp_internal(pd, offset, fd, tree, FALSE);
-        return;
+        if (dissect_cotp_internal(pd, offset, fd, tree, FALSE))
+          return;	/* yes, it appears to be COTP */
       }
       break;
 
