@@ -359,7 +359,10 @@ static struct {
 %%
 };
 
-static void yy_accept(void);  /* Forward declaration */
+static void yy_accept(
+  yyParser *yypParser           /* The parser */
+  ParseANSIARGDECL _U_          /* Extra arguments (if any) */
+);  /* Forward declaration */
 
 /*
 ** Perform a reduce action and the shift that must immediately
