@@ -170,7 +170,8 @@ Well, try this :
 
 
 See tap-rpcstat.c for an example
-
+See tap.c as well. It contains lots of comments and descriptions on the tap 
+system.
 
 
 
