@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.35 2004/03/03 00:07:01 jmayer Exp $
+# $Id: Makefile.am,v 1.36 2004/03/03 21:55:59 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -108,7 +108,8 @@ CLEANFILES = \
 	*~
 
 MAINTAINERCLEANFILES =	\
-	register.c
+	register.c	\
+	../packet-ncp2222.c
 
 #
 # Add the object files for missing routines, if any.
