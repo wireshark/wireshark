@@ -170,7 +170,7 @@ static guint32 opcode=0;
 
 static int
 dissect_gsm_map_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_index, &opcode);
+  offset = dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_index, &opcode);
 
   if (check_col(pinfo->cinfo, COL_INFO)){
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, gsm_map_opr_code_strings, "Unknown GSM-MAP (%u)"));
@@ -543,7 +543,7 @@ dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
 }
 
 static int dissect_invokeid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ber_integer(pinfo, tree, tvb, offset, hf_gsm_map_invokeid, NULL);
+  return dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_gsm_map_invokeid, NULL);
 }
 
 
