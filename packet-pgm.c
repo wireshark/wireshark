@@ -1,8 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
- * RFC 2705
  *
- * $Id: packet-pgm.c,v 1.1 2001/07/12 20:16:28 guy Exp $
+ * $Id: packet-pgm.c,v 1.2 2001/07/12 21:48:46 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
