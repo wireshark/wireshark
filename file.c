@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.320 2003/10/26 03:09:03 sahlberg Exp $
+ * $Id: file.c,v 1.321 2003/11/12 18:48:53 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,8 +87,6 @@
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
 #endif
-
-#define MAX_DECODE_BUFFER_SIZE 16536
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
