@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.42 1999/07/23 21:09:25 guy Exp $
+ * $Id: file.c,v 1.43 1999/07/24 02:42:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,18 +166,21 @@ close_cap_file(capture_file *cf, void *w, guint context) {
     g_list_free(cf->plist);
     cf->plist = NULL;
   }
-  gtk_text_freeze(GTK_TEXT(byte_view));
-  gtk_text_set_point(GTK_TEXT(byte_view), 0);
-  gtk_text_forward_delete(GTK_TEXT(byte_view),
-    gtk_text_get_length(GTK_TEXT(byte_view)));
-  gtk_text_thaw(GTK_TEXT(byte_view));
-  gtk_tree_clear_items(GTK_TREE(tree_view), 0,
-    g_list_length(GTK_TREE(tree_view)->children));
+  unselect_packet(cf);	/* nothing to select */
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
   gtk_clist_clear(GTK_CLIST(packet_list));
   gtk_clist_thaw(GTK_CLIST(packet_list));
   gtk_statusbar_pop(GTK_STATUSBAR(w), context);
+
+  /* Disable all menu items that make sense only if you have a capture. */
+  set_menu_sensitivity("/File/Save", FALSE);
+  set_menu_sensitivity("/File/Save As...", FALSE);
+  set_menu_sensitivity("/File/Close", FALSE);
+  set_menu_sensitivity("/File/Reload", FALSE);
+  set_menu_sensitivity("/File/Print...", FALSE);
+  set_menu_sensitivity("/Display/Options...", FALSE);
+  set_menu_sensitivity("/Tools/Summary", FALSE);
 }
 
 int
@@ -232,9 +235,12 @@ load_cap_file(char *fname, capture_file *cf) {
     g_free(load_msg);
 
 /*    name_ptr[-1] = '\0';  Why is this here? It causes problems with capture files */
+
+    /* Enable menu items that make sense if you have a capture. */
     set_menu_sensitivity("/File/Close", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
     set_menu_sensitivity("/File/Print...", TRUE);
+    set_menu_sensitivity("/Display/Options...", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
   } else {
     msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
@@ -242,12 +248,6 @@ load_cap_file(char *fname, capture_file *cf) {
     snprintf(load_msg, msg_len, err_fmt, name_ptr);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
     g_free(load_msg);
-    set_menu_sensitivity("/File/Close", FALSE);
-    set_menu_sensitivity("/File/Save", FALSE);
-    set_menu_sensitivity("/File/Save As...", FALSE);
-    set_menu_sensitivity("/File/Print...", FALSE);
-    set_menu_sensitivity("/File/Reload", FALSE);
-    set_menu_sensitivity("/Tools/Summary", FALSE);
   }
   return err;
 }
@@ -359,12 +359,8 @@ tail_cap_file(char *fname, capture_file *cf) {
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
 
     set_menu_sensitivity("/File/Open...", FALSE);
-    set_menu_sensitivity("/File/Close", FALSE);
-    set_menu_sensitivity("/File/Reload", FALSE);
-    set_menu_sensitivity("/File/Print...", FALSE);
     set_menu_sensitivity("/Capture/Start...", FALSE);
     set_menu_sensitivity("/Tools/Capture...", FALSE);
-    set_menu_sensitivity("/Tools/Summary", FALSE);
 
     cf->fh = fopen(fname, "r");
     tail_timeout_id = -1;
@@ -378,12 +374,6 @@ tail_cap_file(char *fname, capture_file *cf) {
 		       " <live capture in progress>");
   }
   else {
-    set_menu_sensitivity("/File/Close", FALSE);
-    set_menu_sensitivity("/File/Save", FALSE);
-    set_menu_sensitivity("/File/Save As...", FALSE);
-    set_menu_sensitivity("/File/Reload", FALSE);
-    set_menu_sensitivity("/File/Print...", FALSE);
-    set_menu_sensitivity("/Tools/Summary", FALSE);
     close(sync_pipe[0]);
   }
   return err;
@@ -457,6 +447,12 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   if (fdata->passed_dfilter) {
 	row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
 	gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
+
+	/* If this was the selected packet, remember the row it's in, so
+	   we can re-select it.  ("selected_packet" is 0-origin, as it's
+	   a GList index; "count", however, is 1-origin.) */
+	if (cf->selected_packet == cf->count - 1)
+	  cf->selected_row = row;
   }
   fdata->cinfo = NULL;
 }
@@ -522,6 +518,10 @@ filter_packets(capture_file *cf)
   /* Clear it out. */
   gtk_clist_clear(GTK_CLIST(packet_list));
 
+  /* If a packet was selected, we don't know yet what row, if any, it'll
+     get. */
+  cf->selected_row = -1;
+
   /*
    * Iterate through the list of packets, calling a routine
    * to run the filter on the packet, see if it matches, and
@@ -533,6 +533,14 @@ filter_packets(capture_file *cf)
   lastusec = 0;
   cf->count = 0;
   g_list_foreach(cf->plist, filter_packets_cb, cf);
+
+  if (cf->selected_row != -1) {
+    /* We had a selected packet and it passed the filter. */
+    gtk_clist_select_row(GTK_CLIST(packet_list), cf->selected_row, -1);
+  } else {
+    /* If we had one, it didn't pass the filter. */
+    unselect_packet(cf);
+  }
 
   /* Unfreeze the packet list. */
   gtk_clist_thaw(GTK_CLIST(packet_list));
@@ -665,6 +673,24 @@ change_time_formats(capture_file *cf)
 
   /* Unfreeze the packet list. */
   gtk_clist_thaw(GTK_CLIST(packet_list));
+}
+
+/* Unselect the selected packet, if any. */
+void
+unselect_packet(capture_file *cf)
+{
+  cf->selected_packet = -1;	/* nothing there to be selected */
+  cf->selected_row = -1;
+  gtk_text_freeze(GTK_TEXT(byte_view));
+  gtk_text_set_point(GTK_TEXT(byte_view), 0);
+  gtk_text_forward_delete(GTK_TEXT(byte_view),
+    gtk_text_get_length(GTK_TEXT(byte_view)));
+  gtk_text_thaw(GTK_TEXT(byte_view));
+  gtk_tree_clear_items(GTK_TREE(tree_view), 0,
+    g_list_length(GTK_TREE(tree_view)->children));
+
+  /* No packet is selected, so "File/Print Packet" has nothing to print. */
+  set_menu_sensitivity("/File/Print Packet", FALSE);
 }
 
 /* Tries to mv a file. If unsuccessful, tries to cp the file.

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.27 1999/07/23 08:29:23 guy Exp $
+ * $Id: menu.c,v 1.28 1999/07/24 02:42:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,6 +144,7 @@ menus_init(void) {
     set_menu_sensitivity("/File/Save As...", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
     set_menu_sensitivity("/File/Print...", FALSE);
+    set_menu_sensitivity("/File/Print Packet", FALSE);
     set_menu_sensitivity("/Edit/Cut", FALSE);
     set_menu_sensitivity("/Edit/Copy", FALSE);
     set_menu_sensitivity("/Edit/Paste", FALSE);

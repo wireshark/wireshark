@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.60 1999/07/23 21:09:23 guy Exp $
+ * $Id: ethereal.c,v 1.61 1999/07/24 02:42:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -194,8 +194,6 @@ file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   g_free(cf_name);
   set_menu_sensitivity("/File/Save", FALSE);
   set_menu_sensitivity("/File/Save As...", TRUE);
-  set_menu_sensitivity("/File/Print...", TRUE);
-  set_menu_sensitivity("/Tools/Summary", TRUE);
 }
 
 /* Update the progress bar */
@@ -427,10 +425,6 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 void
 file_close_cmd_cb(GtkWidget *widget, gpointer data) {
   close_cap_file(&cf, info_bar, file_ctx);
-  set_menu_sensitivity("/File/Close", FALSE);
-  set_menu_sensitivity("/File/Reload", FALSE);
-  set_menu_sensitivity("/File/Print...", FALSE);
-  set_menu_sensitivity("/Tools/Summary", FALSE);
 }
 
 void
@@ -892,6 +886,8 @@ packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
   /* get the frame data struct pointer for this frame */
   fd = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(w), row);
+  cf.selected_packet = g_list_index(cf.plist, (gpointer)fd);
+  cf.selected_row = row;
   fseek(cf.fh, fd->file_off, SEEK_SET);
   fread(cf.pd, sizeof(guint8), fd->cap_len, cf.fh);
 
@@ -905,17 +901,14 @@ packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
   proto_tree_draw(protocol_tree, tree_view);
   packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, -1, -1);
   gtk_text_thaw(GTK_TEXT(byte_view));
+
+  /* A packet is selected, so "File/Print Packet" has something to print. */
+  set_menu_sensitivity("/File/Print Packet", TRUE);
 }
 
 void
 packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
-  gtk_text_freeze(GTK_TEXT(byte_view));
-  gtk_text_set_point(GTK_TEXT(byte_view), 0);
-  gtk_text_forward_delete(GTK_TEXT(byte_view),
-    gtk_text_get_length(GTK_TEXT(byte_view)));
-  gtk_text_thaw(GTK_TEXT(byte_view));
-  gtk_tree_clear_items(GTK_TREE(tree_view), 0,
-    g_list_length(GTK_TREE(tree_view)->children));
+  unselect_packet(&cf);
 }
 
 void
@@ -1376,8 +1369,6 @@ main(int argc, char *argv[])
     }
     cf_name[0] = '\0';
     set_menu_sensitivity("/File/Save As...", TRUE);
-    set_menu_sensitivity("/File/Print...", TRUE);
-    set_menu_sensitivity("/Tools/Summary", TRUE);
   }
 
   /* If we failed to open the preferences file, pop up an alert box;

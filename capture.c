@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.34 1999/07/23 08:29:23 guy Exp $
+ * $Id: capture.c,v 1.35 1999/07/24 02:42:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -440,12 +440,21 @@ capture(void) {
       if (pcap_lookupnet (cf.iface, &netnum, &netmask, err_str) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL,
           "Can't use filter:  Couldn't obtain netmask info.");
+        pcap_dump_close(ld.pdh);
+        unlink(cf.save_file); /* silently ignore error */
+        pcap_close(pch);
         return;
       } else if (pcap_compile(pch, &cf.fcode, cf.cfilter, 1, netmask) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string.");
+        pcap_dump_close(ld.pdh);
+        unlink(cf.save_file); /* silently ignore error */
+        pcap_close(pch);
         return;
       } else if (pcap_setfilter(pch, &cf.fcode) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Can't install filter.");
+        pcap_dump_close(ld.pdh);
+        unlink(cf.save_file); /* silently ignore error */
+        pcap_close(pch);
         return;
       }
     }
@@ -559,17 +568,18 @@ capture(void) {
     gtk_exit(0);
   }
 
-  if (cf.save_file) {
+  if (pch) {
+    /* "pch" is non-NULL only if we successfully started a capture.
+       If we haven't, there's no capture file to load. */
     err = load_cap_file(cf.save_file, &cf);
     if (err != 0) {
       simple_dialog(ESD_TYPE_WARN, NULL,
 			file_open_error_message(err, FALSE), cf.save_file);
+    } else {
+      set_menu_sensitivity("/File/Save", TRUE);
+      set_menu_sensitivity("/File/Save As...", FALSE);
     }
   }
-  set_menu_sensitivity("/File/Save", TRUE);
-  set_menu_sensitivity("/File/Save As...", FALSE);
-  set_menu_sensitivity("/File/Print...", TRUE);
-  set_menu_sensitivity("/Tools/Summary", TRUE);
 }
 
 static float
