@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.141 2002/05/05 00:57:57 guy Exp $
+ * $Id: packet-tcp.c,v 1.142 2002/05/05 22:25:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,13 +58,15 @@
 static gboolean tcp_summary_in_tree = TRUE;
 
 /*
- * Don't check the TCP checksum (I've seen packets with bad TCP checksums
- * in Solaris network traces, but the traffic appears to indicate that
- * the packet *was* received; I suspect the packets were sent by the host
- * on which the capture was being done, on a network interface to which
+ * Flag to control whether to check the TCP checksum.
+ *
+ * In at least some Solaris network traces, there are packets with bad
+ * TCP checksums, but the traffic appears to indicate that the packets
+ * *were* received; the packets were probably sent by the host on which
+ * the capture was being done, on a network interface to which
  * checksumming was offloaded, so that DLPI supplied an un-checksummed
  * packet to the capture program but a checksummed packet got put onto
- * the wire).
+ * the wire.
  */
 static gboolean tcp_check_checksum = TRUE;
 
