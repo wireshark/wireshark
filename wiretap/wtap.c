@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.58 2001/11/30 07:14:22 guy Exp $
+ * $Id: wtap.c,v 1.59 2002/01/29 08:44:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -133,6 +133,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_PRISM_HEADER */
 	{ "IEEE 802.11 plus Prism II monitor mode header", "prism" },
+
+	/* WTAP_ENCAP_PFLOG  */
+	{ "OpenBSD PF Firewall logs", "pflog" },
 };
 
 /* Name that should be somewhat descriptive. */

@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.36 2002/01/05 04:12:17 gram Exp $
+ * $Id: plugin_table.h,v 1.37 2002/01/29 08:44:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -32,6 +32,7 @@ typedef gint (*addr_check_col)(column_info*, gint);
 typedef void (*addr_col_clear)(column_info*, gint);
 typedef void (*addr_col_add_fstr)(column_info*, gint, gchar*, ...);
 typedef void (*addr_col_append_fstr)(column_info*, gint, gchar*, ...);
+typedef void (*addr_col_prepend_fstr)(column_info*, gint, gchar*, ...);
 typedef void (*addr_col_add_str)(column_info*, gint, const gchar*);
 typedef void (*addr_col_append_str)(column_info*, gint, gchar*);
 typedef void (*addr_col_set_str)(column_info*, gint, gchar*);
@@ -215,6 +216,7 @@ typedef struct  {
 	addr_col_clear				p_col_clear;
 	addr_col_add_fstr			p_col_add_fstr;
 	addr_col_append_fstr			p_col_append_fstr;
+	addr_col_prepend_fstr			p_col_prepend_fstr;
 	addr_col_add_str			p_col_add_str;
 	addr_col_append_str			p_col_append_str;
 	addr_col_set_str			p_col_set_str;

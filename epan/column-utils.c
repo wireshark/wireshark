@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.10 2002/01/11 08:21:00 guy Exp $
+ * $Id: column-utils.c,v 1.11 2002/01/29 08:44:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,6 +154,7 @@ col_add_fstr(column_info *cinfo, gint el, gchar *format, ...) {
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
+  va_end(ap);
 }
 
 /* Appends a vararg list to a packet info string. */
@@ -182,6 +183,45 @@ col_append_fstr(column_info *cinfo, gint el, gchar *format, ...) {
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
+  va_end(ap);
+}
+
+/* Prepends a vararg list to a packet info string. */
+void
+col_prepend_fstr(column_info *cinfo, gint el, gchar *format, ...)
+{
+  va_list ap;
+  int     i, safe_orig = FALSE;
+  char   *orig = NULL;
+  size_t  max_len;
+  
+  if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+  else
+	max_len = COL_MAX_LEN;
+  
+  va_start(ap, format);
+  for (i = 0; i < cinfo->num_cols; i++) {
+    if (cinfo->fmt_matx[i][el]) {
+      if (cinfo->col_data[i] != cinfo->col_buf[i]) {
+      	/* This was set with "col_set_str()"; which is effectively const */
+        orig = cinfo->col_data[i];
+      } else {
+        /* Need to cache the original string */
+        if (!safe_orig) {
+          orig = alloca(max_len);
+          safe_orig = TRUE;
+        }
+	strncpy(orig, cinfo->col_buf[i], max_len);
+	orig[max_len - 1] = '\0';
+      }
+      vsnprintf(cinfo->col_buf[i], max_len, format, ap);
+      strncat(cinfo->col_buf[i], orig, max_len);
+      cinfo->col_buf[i][max_len - 1] = '\0';
+      cinfo->col_data[i] = cinfo->col_buf[i];
+    }
+  }
+  va_end(ap);
 }
 
 /* Use this if "str" points to something that won't stay around (and

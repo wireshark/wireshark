@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.62 2001/12/04 07:32:05 guy Exp $
+ * $Id: libpcap.c,v 1.63 2002/01/29 08:44:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -230,7 +230,12 @@ static const struct {
 	/*
 	 * 17 is DLT_LANE8023 in SuSE 6.3 libpcap; we don't currently
 	 * handle it.
+	 * It is also used as the PF (Packet Filter) logging format beginning
+	 * with OpenBSD 3.0.
 	 */
+#if defined(DLT_PFLOG) && (DLT_PFLOG == 17)
+	{ 17,		WTAP_ENCAP_PFLOG },
+#endif
 
 	/*
 	 * 18 is DLT_CIP in SuSE 6.3 libpcap; if it's the same as the
@@ -365,6 +370,13 @@ static const struct {
 	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
 
 	{ 114,		WTAP_ENCAP_LOCALTALK },	/* Localtalk */
+
+	/*
+	 * The tcpdump.org version of libpcap uses 117, rather than 17,
+	 * for OpenBSD packet filter logging, so as to avoid conflicting
+	 * with DLT_LANE8023 in SuSE 6.3 libpcap.
+	 */
+	{ 117,		WTAP_ENCAP_PFLOG },
 
 	{ 118,		WTAP_ENCAP_CISCO_IOS },
 	{ 119,		WTAP_ENCAP_PRISM_HEADER }, /* Prism monitor mode hdr */

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.45 2002/01/05 04:12:16 gram Exp $
+ * $Id: plugins.c,v 1.46 2002/01/29 08:44:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -288,6 +288,7 @@ init_plugins(const char *plugin_dir)
 	patable.p_col_clear			= col_clear;
 	patable.p_col_add_fstr			= col_add_fstr;
 	patable.p_col_append_fstr		= col_append_fstr;
+	patable.p_col_prepend_fstr		= col_prepend_fstr;
 	patable.p_col_add_str			= col_add_str;
 	patable.p_col_append_str		= col_append_str;
 	patable.p_col_set_str			= col_set_str;

@@ -1,7 +1,7 @@
 /* column-utils.h
  * Definitions for column utility structures and routines
  *
- * $Id: column-utils.h,v 1.5 2001/12/10 00:26:16 guy Exp $
+ * $Id: column-utils.h,v 1.6 2002/01/29 08:44:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,9 +48,12 @@ extern void	col_add_fstr(column_info *, gint, gchar *, ...)
     __attribute__((format (printf, 3, 4)));
 extern void	col_append_fstr(column_info *, gint, gchar *, ...)
     __attribute__((format (printf, 3, 4)));
+extern void	col_prepend_fstr(column_info *, gint, gchar *, ...)
+    __attribute__((format (printf, 3, 4)));
 #else
 extern void	col_add_fstr(column_info *, gint, gchar *, ...);
 extern void	col_append_fstr(column_info *, gint, gchar *, ...);
+extern void	col_prepend_fstr(column_info *, gint, gchar *, ...);
 #endif
 extern void	col_add_str(column_info *, gint, const gchar *);
 extern void	col_append_str(column_info *, gint, gchar *);

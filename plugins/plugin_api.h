@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.34 2002/01/21 07:37:45 guy Exp $
+ * $Id: plugin_api.h,v 1.35 2002/01/29 08:44:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -38,6 +38,7 @@
 #define	col_clear			(*p_col_clear)
 #define	col_add_fstr			(*p_col_add_fstr)
 #define	col_append_fstr			(*p_col_append_fstr)
+#define	col_prepend_fstr		(*p_col_prepend_fstr)
 #define	col_add_str			(*p_col_add_str)
 #define	col_append_str			(*p_col_append_str)
 #define	col_set_str			(*p_col_set_str)
