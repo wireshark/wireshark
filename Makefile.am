@@ -148,6 +148,7 @@ plugin_ldadd = \
 	plugins/gryphon/packet-gryphon.o \
 	plugins/irda/packet-irda.o \
 	plugins/irda/packet-ircomm.o \
+	plugins/irda/packet-sir.o \
 	plugins/lwres/packet-lwres.o \
 	plugins/megaco/packet-megaco.o \
 	plugins/mgcp/packet-mgcp.o \
