@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.60 2004/05/26 03:49:23 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.61 2004/05/26 21:23:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,7 +101,9 @@ static void follow_filter_out_stream(GtkWidget * w, gpointer parent_w);
 static void follow_print_stream(GtkWidget * w, gpointer parent_w);
 static void follow_save_as_cmd_cb(GtkWidget * w, gpointer data);
 static void follow_save_as_ok_cb(GtkWidget * w, gpointer fs);
+#if !((GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2)
 static void follow_save_as_destroy_cb(GtkWidget * win, gpointer user_data);
+#endif
 static void follow_stream_om_both(GtkWidget * w, gpointer data);
 static void follow_stream_om_client(GtkWidget * w, gpointer data);
 static void follow_stream_om_server(GtkWidget * w, gpointer data);
@@ -1039,6 +1041,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     g_free(to_name);
 }
 
+#if !((GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2)
 static void
 follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
@@ -1047,3 +1050,4 @@ follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 	/* Note that we no longer have a dialog box. */
 	follow_info->follow_save_as_w = NULL;
 }
+#endif
