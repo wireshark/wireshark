@@ -722,6 +722,7 @@ Hannes Gredler <hannes[AT]juniper.net> {
 	Support OSI over CHDLC
 	Show the type value for OSI protocols symbolically in GRE
 	Support MPLS over CHDLC
+	Bi-directional Fault Detection (BFD) support
 }
 
 Inoue <inoue[AT]ainet.or.jp> {
