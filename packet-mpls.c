@@ -3,12 +3,11 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.21 2001/06/18 02:17:49 guy Exp $
+ * $Id: packet-mpls.c,v 1.22 2001/11/07 20:26:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -108,7 +107,8 @@ static hf_register_info mplsf_info[] = {
       "", HFILL }},
 };
 
-static dissector_handle_t ip_handle;
+static dissector_handle_t ipv4_handle;
+static dissector_handle_t ipv6_handle;
 
 /*
  * Given a 4-byte MPLS label starting at offset "offset", in tvbuff "tvb",
@@ -138,6 +138,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 exp;
     guint8 bos;
     guint8 ttl;
+    guint8 ipvers;
 
     proto_tree  *mpls_tree;
     proto_item  *ti;
@@ -180,7 +181,13 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (bos) break;
     }
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-    call_dissector(ip_handle, next_tvb, pinfo, tree);
+
+    ipvers = (tvb_get_guint8(tvb, offset) >> 4) & 0x0F;
+    if (ipvers == 6) {
+	call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+    } else {
+        call_dissector(ipv4_handle, next_tvb, pinfo, tree);
+    }
 }
 
 void
@@ -200,9 +207,10 @@ void
 proto_reg_handoff_mpls(void)
 {
 	/*
-	 * Get a handle for the IP dissector.
+	 * Get a handle for the IPv4 and IPv6 dissectors.
 	 */
-	ip_handle = find_dissector("ip");
+	ipv4_handle = find_dissector("ip");
+	ipv6_handle = find_dissector("ipv6");
 
 	dissector_add("ethertype", ETHERTYPE_MPLS, dissect_mpls, proto_mpls);
 	dissector_add("ppp.protocol", PPP_MPLS_UNI, dissect_mpls, proto_mpls);

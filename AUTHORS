@@ -877,6 +877,11 @@ Pekka Nikander <pekka.nikander[AT]nomadiclab.com> {
 	PPP/EAPOL EAP support
 }
 
+Hamish Moffatt <hamish[AT]cloud.net.au> {
+	MPLS support for handling either IPv4 or IPv6 as the payload
+	    protocol type
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
