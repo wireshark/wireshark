@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.8 2003/10/10 08:52:19 sahlberg Exp $
+ * $Id: service_response_time_table.c,v 1.9 2003/10/10 08:59:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,8 @@
 #include "simple_dialog.h"
 #include "globals.h"
 #include "gtk/find_dlg.h"
+#include "color.h"
+#include "gtk/color_dlg.h"
 
 extern GtkWidget   *main_display_filter_widget;
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
@@ -141,6 +143,7 @@ srt_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	2: Find Frame
 	3:   Find Next
 	4:   Find Previous
+	5: Colorize Procedure
    filter_type:
 	0: Selected
 	1: Not Selected
@@ -224,6 +227,10 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		/* find previous */
 		find_previous_next_frame_with_filter(str, TRUE);
 		break;
+	case 5:
+		/* colorize procedure */
+		color_display_with_filter(str);
+		break;
 	}
 
 }
@@ -287,11 +294,19 @@ static GtkItemFactoryEntry srt_list_menu_items[] =
 	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/Not Selected", NULL,
 		srt_select_filter_cb, 3*256+1, NULL, NULL),
 
+	/* Find Previous */
 	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/Selected", NULL,
 		srt_select_filter_cb, 4*256+0, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/Not Selected", NULL,
 		srt_select_filter_cb, 4*256+1, NULL, NULL),
+
+	/* Colorize Procedure */
+	ITEM_FACTORY_ENTRY("/Colorize Procedure", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Procedure/Selected", NULL,
+		srt_select_filter_cb, 5*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Colorize Procedure/Not Selected", NULL,
+		srt_select_filter_cb, 5*256+1, NULL, NULL),
 
 };
 
