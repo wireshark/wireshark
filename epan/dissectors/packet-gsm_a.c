@@ -91,6 +91,8 @@
 #include "packet-gsm_ss.h"
 #include "packet-gsm_a.h"
 
+#include "packet-ppp.h"
+
 /* PROTOTYPES/FORWARDS */
 
 const value_string gsm_a_bssmap_msg_strings[] = {
@@ -6997,10 +6999,10 @@ de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     switch(oct&7)
     {
-    	case 0: str="GPRS detach/re-attach required"; break;
-    	case 1: str="IMSI detach/re-attach not required"; break;
-    	case 2: str="Combined GPRS/IMSI detach/IMSI detach (after VLR failure)"; break;
-    	default: str="Not specified";
+    	case 1: str="GPRS detach/re-attach required"; break;
+    	case 2: str="IMSI detach/re-attach not required"; break;
+    	case 3: str="Combined GPRS/IMSI detach/IMSI detach (after VLR failure)"; break;
+    	default: str="Combined GPRS/IMSI detach/re-attach not required";
     }
 
     switch(oct&8)
@@ -9236,7 +9238,7 @@ de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 }
 
 /*
- * [7] 10.5.5.20
+ * [8] 10.5.5.20
  */
 static guint8
 de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
@@ -9261,6 +9263,7 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     	case 0: str="Signalling"; break;
     	case 1: str="Data"; break;
     	case 2: str="Paging Response"; break;
+    	case 3: str="MBMS Notification Reponse"; break;
     	default: str="reserved";
     }
 
@@ -9424,7 +9427,7 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     	case 0: str="sec"; val*=2; break;
     	case 1: str="min"; break;
     	case 2: str="min"; val*=6; break;
-    	case 3:
+    	case 7:
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
 		"GPRS Timer: timer is deactivated");
@@ -9469,7 +9472,7 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     	case 0: str="sec"; val*=2; break;
     	case 1: str="min"; break;
     	case 2: str="min"; val*=6; break;
-    	case 3:
+    	case 7:
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
 		"GPRS Timer: timer is deactivated");
@@ -9689,6 +9692,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     guint32	curr_offset;
     guint	curr_len;
     guchar	oct;
+    struct e_in6_addr ipv6_addr;
     
     curr_len = len;
     add_string = add_string;
@@ -9706,7 +9710,8 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     	guchar e_len;
     	guint16 prot;
 	tvbuff_t *l3_tvb;
-	static packet_info pco_pinfo;
+	dissector_handle_t handle = NULL;
+	static packet_info p_info;
 	
 	prot = tvb_get_guint8(tvb, curr_offset);
 	prot <<= 8;
@@ -9719,18 +9724,13 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     	{
     		case 0x0001:
 		{
-		    guchar *addr;
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) P-CSCF Address" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
-	            addr = (guchar*)tvb_get_ptr(tvb, curr_offset, 16);
-  
-        	    proto_tree_add_text(tree,
-	    		tvb, curr_offset, 16,
-    			"IPv6: %4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x",
-			(addr[0]<<8)| addr[1], (addr[2]<<8)| addr[3],
-			(addr[4]<<8)| addr[5], (addr[6]<<8)| addr[7],
-			(addr[8]<<8)| addr[9], (addr[10]<<8)| addr[11],
-			(addr[12]<<8)| addr[13], (addr[14]<<8)| addr[15] );				
+
+		    tvb_memcpy(tvb, (guint8 *)&ipv6_addr, curr_offset, 16);
+		    proto_tree_add_text(tree,
+			tvb, curr_offset, 16,
+			"IPv6: %s", ip6_to_str(&ipv6_addr));
 	    	    break;
 	    	}
     		case 0x0002:
@@ -9739,19 +9739,13 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	    	    break;
     		case 0x0003:
     		{
-    		    guchar *addr;
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) DNS Server Address" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 
-	            addr = (guchar*)tvb_get_ptr(tvb, curr_offset, 16);
-  
-        	    proto_tree_add_text(tree,
-	    		tvb, curr_offset, 16,
-    			"IPv6: %4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x",
-			(addr[0]<<8)| addr[1], (addr[2]<<8)| addr[3],
-			(addr[4]<<8)| addr[5], (addr[6]<<8)| addr[7],
-			(addr[8]<<8)| addr[9], (addr[10]<<8)| addr[11],
-			(addr[12]<<8)| addr[13], (addr[14]<<8)| addr[15] );				
+		    tvb_memcpy(tvb, (guint8 *)&ipv6_addr, curr_offset, 16);
+		    proto_tree_add_text(tree,
+			tvb, curr_offset, 16,
+			"IPv6: %s", ip6_to_str(&ipv6_addr));
 	    	    break;
 	    	}
     		case 0x0004:
@@ -9760,54 +9754,29 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	    	    oct = tvb_get_guint8(tvb, curr_offset);
 	    	    proto_tree_add_text(tree,tvb, curr_offset, 1, "Reject Code: 0x%02x (%u)", e_len , e_len);
 	    	    break;
-    		case 0xC021:
-	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) LCP" , prot );
-	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
-		    /*
-		     * dissect the embedded LCP message
-		     */
-		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-		    if (!dissector_try_port(gprs_sm_pco_subdissector_table, prot, l3_tvb, &pco_pinfo, tree))
-			call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
-	    	    break;
-    		case 0xC023:
-	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) PAP" , prot );
-	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
-		    /*
-		     * dissect the embedded PAP message
-		     */
-		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-		    if (!dissector_try_port(gprs_sm_pco_subdissector_table, prot, l3_tvb, &pco_pinfo, tree))
-			call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
-	    	    break;
-    		case 0xC223:
-	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) CHAP" , prot );
-	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
-		    /*
-		     * dissect the embedded CHAP message
-		     */
-		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-		    if (!dissector_try_port(gprs_sm_pco_subdissector_table, prot, l3_tvb, &pco_pinfo, tree))
-			call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
-	    	    break;
-    		case 0x8021:
-	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) IPCP" , prot );
-	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
-		    /*
-		     * dissect the embedded IPCP message
-		     */
-		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-		    if (!dissector_try_port(gprs_sm_pco_subdissector_table, prot, l3_tvb, &pco_pinfo, tree))
-			call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
-	    	    break;
-    		default:
-	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol/Parameter: (%u) unknwown" , prot );
-	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
-		    /*
-		     * dissect the embedded DATA message
-		     */
-		    l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-		    call_dissector(data_handle, l3_tvb, &pco_pinfo, tree);
+		default:
+			handle = dissector_get_port_handle ( gprs_sm_pco_subdissector_table , prot );
+			if ( handle != NULL )
+			{
+				proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) %s" , 
+					prot , val_to_str(prot, ppp_vals, "Unknown"));
+				proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+				/*
+				 * dissect the embedded message
+				 */
+				l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
+				call_dissector(handle, l3_tvb ,  &p_info  , tree );
+			}
+			else
+			{
+				proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol/Parameter: (%u) unknwown" , prot );
+				proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+				/*
+				* dissect the embedded DATA message
+				*/
+				l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
+				call_dissector(data_handle, l3_tvb, &p_info , tree);
+			}
     	}
 
 	curr_len-= e_len;
@@ -9946,7 +9915,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	            tvb, curr_offset+2, 0,
     	            "IPv6: length is wrong");
     	    } else {
-    	        tvb_memcpy(tvb, (guint8 *)&ipv6_addr, offset+2, 16);
+    	        tvb_memcpy(tvb, (guint8 *)&ipv6_addr, curr_offset+2, 16);
                 proto_tree_add_text(tree,
                     tvb, curr_offset+2, len-2,
     	            "IPv6: %s", ip6_to_str(&ipv6_addr));
@@ -10523,7 +10492,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 }
 
 /*
- * [7] 10.5.6.6
+ * [8] 10.5.6.6
  */
 static guint8
 de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
@@ -10541,6 +10510,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     switch ( oct )
     {
     	case 0x08: str="Operator Determined Barring"; break;
+    	case 0x18: str="MBMS bearer capabilities insufficient for the service"; break;
     	case 0x19: str="LLC or SNDCP failure(GSM only)"; break;
     	case 0x1a: str="Insufficient resources"; break;
     	case 0x1b: str="Missing or unknown APN"; break;
@@ -10561,6 +10531,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     	case 0x2a: str="Syntactical error in the TFT operation"; break;
     	case 0x2b: str="Unknown PDP context"; break;
     	case 0x2e: str="PDP context without TFT already activated"; break;
+    	case 0x2f: str="Multicast group membership time-out"; break;
     	case 0x2c: str="Semantic errors in packet filter(s)"; break;
     	case 0x2d: str="Syntactical errors in packet filter(s)"; break;
     	case 0x51: str="Invalid transaction identifier value"; break;
@@ -10572,6 +10543,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     	case 0x64: str="Conditional IE error"; break;
     	case 0x65: str="Message not compatible with the protocol state"; break;
     	case 0x6f: str="Protocol error, unspecified"; break;
+    	case 0x70: str="APN restriction value incompatible with active PDP context"; break;
     	default: str="Protocol error, unspecified"; break;
     }
 
@@ -10861,24 +10833,19 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 		if (( pf_identifier == 0x10 ) && ( pf_length == 4 ))
 		{
-			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
-			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content: IPv4 %u.%u.%u.%u", 
-				pchar[0], pchar[1], pchar[2], pchar[3] );
+	                proto_tree_add_text(tree,
+    		            tvb, curr_offset, pf_length,
+    	        	    "Packet filter content: IPv4 %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 		}
 		else if (( pf_identifier == 0x20 ) && ( pf_length == 16 ))
 		{
-			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
-			
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset, pf_length ,
-				"Packet filter content: IPv6 %4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x",
-				(pchar[0]<<8)| pchar[1], (pchar[2]<<8)| pchar[3],
-				(pchar[4]<<8)| pchar[5], (pchar[6]<<8)| pchar[7],
-				(pchar[8]<<8)| pchar[9], (pchar[10]<<8)| pchar[11],
-				(pchar[12]<<8)| pchar[13], (pchar[14]<<8)| pchar[15] );				
+			struct e_in6_addr ipv6_addr;
+
+			tvb_memcpy(tvb, (guint8 *)&ipv6_addr, curr_offset, 16);
+			proto_tree_add_text(tree,
+				tvb, curr_offset+2, len-2,
+				"Packet filter content: IPv6 %s", ip6_to_str(&ipv6_addr));
+
 		}
 		else if (( pf_identifier == 0x30 ) && ( pf_length == 1 ))
 		{
@@ -10891,7 +10858,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 		}
 		else if (( pf_identifier == 0x40 ) && ( pf_length == 2 ))
 		{
-			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			pchar = (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
 			
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset, pf_length ,
@@ -10900,7 +10867,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 		}
 		else if (( pf_identifier == 0x50 ) && ( pf_length == 2 ))
 		{
-			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			pchar = (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
 			
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset, pf_length ,
@@ -10909,7 +10876,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 		}
 		else if (( pf_identifier == 0x41 ) && ( pf_length == 4 ))
 		{
-			pchar =  (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			pchar =  (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
 			
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset, pf_length ,
@@ -10918,7 +10885,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 		}
 		else if (( pf_identifier == 0x51 ) && ( pf_length == 4 ))
 		{
-			pchar = (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			pchar = (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
 			
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset, pf_length ,
@@ -10953,7 +10920,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 		}
 		else if (( pf_identifier == 0x60 ) && ( pf_length == 4 ))
 		{
-			pchar =  (guchar*)tvb_get_ptr(tvb, offset, pf_length);
+			pchar =  (guchar*)tvb_get_ptr(tvb, curr_offset, pf_length);
 			
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset, pf_length ,
@@ -11023,7 +10990,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	if (( p_identifier == 0x01 ) && ( p_length == 4 ))
 	{
-		pchar =  (guchar*)tvb_get_ptr(tvb, offset, p_length);
+		pchar =  (guchar*)tvb_get_ptr(tvb, curr_offset, p_length);
 		
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset, p_length ,
