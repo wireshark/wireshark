@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.127 2003/06/04 05:41:36 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.128 2003/06/10 05:53:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2997,8 +2997,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
      * the 4 bytes of null padding, and make that the dissector
      * used for "netbios".
      */
-    if (tvb_bytes_exist (tvb, offset, 4) &&
- 	tvb_memeql (tvb, offset, nulls, 4) == 0) {
+    if (tvb_memeql (tvb, offset, nulls, 4) == 0) {
 
         /*
          * Skip the padding.

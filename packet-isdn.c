@@ -1,7 +1,7 @@
 /* packet-isdn.c
  * Routines for ISDN packet disassembly
  *
- * $Id: packet-isdn.c,v 1.3 2002/11/08 01:00:04 guy Exp $
+ * $Id: packet-isdn.c,v 1.4 2003/06/10 05:53:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,14 +161,12 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * won't do the right thing if the PPP-over-HDLC
 			 * headers aren't being used....
 			 */
-			if (tvb_bytes_exist(tvb, 0, 3) &&
-			    tvb_memeql(tvb, 0, v120_sabme, 3) == 0) {
+			if (tvb_memeql(tvb, 0, v120_sabme, 3) == 0) {
 				/*
 				 * We assume this is V.120.
 				 */
 				circuit_set_dissector(circuit, v120_handle);
-			} else if (tvb_bytes_exist(tvb, 0, 2) &&
-			    tvb_memeql(tvb, 0, ppp, 2) == 0) {
+			} else if (tvb_memeql(tvb, 0, ppp, 2) == 0) {
 				/*
 				 * We assume this is PPP.
 				 */

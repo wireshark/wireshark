@@ -2,7 +2,7 @@
  * Routines for Financial Information eXchange (FIX) Protocol dissection
  * Copyright 2000, PC Drew <drewpc@ibsncentral.com>
  *
- * $Id: packet-fix.c,v 1.3 2003/05/19 03:23:11 gerald Exp $
+ * $Id: packet-fix.c,v 1.4 2003/06/10 05:53:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -837,7 +837,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int value_len = 0;
 
     /* get at least the fix version: 8=FIX.x.x */
-    if (!tvb_bytes_exist(tvb, 0, 6) || tvb_strneql(tvb, 0, "8=FIX.", 6) != 0) {
+    if (tvb_strneql(tvb, 0, "8=FIX.", 6) != 0) {
         /* not a fix packet */
         return FALSE;
     }
