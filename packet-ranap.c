@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.20 2003/10/06 08:35:30 guy Exp $
+ * $Id: packet-ranap.c,v 1.21 2003/12/01 22:25:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4115,6 +4115,39 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
+static gboolean
+dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8 temp;
+
+    /* Is it a ranap packet?
+     *
+     * 4th octet should be the length of the rest of the message.
+     *    note: I believe the length octet may actually be represented
+     *          by more than one octet.  Something like...
+     *          bit 01234567          octets
+     *              0xxxxxxx             1
+     *              10xxxxxx xxxxxxxx    2
+     *          For now, we have ignored this.  I hope that's safe.
+     *
+     * 2nd octet is the message-type e Z[0, 28]
+     * (obviously there must be at least four octets)
+     *
+     * If both hold true we'll assume its RANAP
+     */
+
+    #define LENGTH_OFFSET 3
+    #define MSG_TYPE_OFFSET 1
+    if (tvb_length(tvb) < 4) { return FALSE; }
+    if (tvb_get_guint8(tvb, LENGTH_OFFSET) != (tvb_length(tvb) - 4)) { return FALSE; }
+    temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
+    if (temp > 28) { return FALSE; }
+
+    dissect_ranap(tvb, pinfo, tree);
+
+    return TRUE;
+}
+
 
 /*****************************************************************************/
 /*                                                                           */
@@ -4822,4 +4855,10 @@ proto_reg_handoff_ranap(void)
   dissector_add("sua.ssn",  SCCP_SSN_RANAP, ranap_handle);
   */
   dissector_add("sccp.ssn", SCCP_SSN_RANAP, ranap_handle);
+
+  /* Add heuristic dissector
+   * Perhaps we want a preference whether the heuristic dissector
+   * is or isn't enabled
+   */
+  heur_dissector_add("sccp", dissect_sccp_ranap_heur, proto_ranap);
 }
