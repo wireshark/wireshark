@@ -1,3 +1,16 @@
+/* This dissector should not be accessing the fvalue_* functions
+   directly.
+   No other dissector needs to  so why does this one need to ?
+*/
+
+#define FAKE_TREE_IS_VISIBLE	1
+/* fake that the tree is visible so that proto.c will not try to
+ "fake" generation of finfo values/nodes.
+  Thus this means netware dissector is slower than it has to, but it wont crash.
+  once the dissector is refactored to avoid calling fvalue_ functions directly this faking of whether the tree is visible or not can be removed.
+*/
+
+
 /* packet-ncp2222.inc
  *
  * Routines for NetWare Core Protocol. This C code gets #include'd
@@ -912,18 +925,44 @@ ncp_record_find(guint8 func, guint8 subfunc)
 
 /* Given a proto_item*, assume it contains an integer value
  * and return a guint from it. */
-guint
+static guint
+get_finfo_value_integer(field_info *finfo)
+{
+	/* XXX the fvalue functions are no longer safe to call directly
+	   since we sometimes fake the entries to speed things up.
+	   this dissector should not call fvalue_ functions directly.
+	*/
+	if(!finfo->value.ftype->get_value_integer){
+		return 0;
+	}
+	return fvalue_get_integer(&finfo->value);
+}
+static guint
 get_item_value(proto_item *item)
 {
-	return fvalue_get_integer(&PITEM_FINFO(item)->value);
+	return get_finfo_value_integer(PITEM_FINFO(item));
 }
 
 
-char *
+static guint
+get_finfo_length(field_info *finfo)
+{
+	return fvalue_length(&finfo->value);
+}
+
+
+static char *
+get_finfo_value_string(field_info *finfo)
+{
+	return fvalue_get(&finfo->value);
+}
+#if 0
+static char *
 get_item_string(proto_item *item)
 {
-	return fvalue_get(&PITEM_FINFO(item)->value);
+	return get_finfo_value_string(PITEM_FINFO(item));
 }
+#endif
 
 char *
 get_item_name(proto_item *item)
@@ -4355,6 +4394,10 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         guint32                 length_remaining;
         guint32                 testvar;
 
+#ifdef FAKE_TREE_IS_VISIBLE
+	PTREE_DATA(ncp_tree)->visible=1;
+#endif
+
 	func = tvb_get_guint8(tvb, 6);
 
 	/* Determine which ncp_record to use. */
@@ -4624,7 +4667,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                 if (info_type != 0) {    /* Is this  a string or not? */
                                        
                                         if (info_type == 1) {   /* Is this bytes? */
-                                                byte_string = bytes_to_str(fvalue_get(&finfo->value), fvalue_length(&finfo->value));
+                                                byte_string = bytes_to_str(get_finfo_value_string(finfo), get_finfo_length(finfo));
                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
               		               	                (const gchar*) ncp_rec->req_info_str->first_string,
                                        	                byte_string);
@@ -4632,7 +4675,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                         else
                                         {
                                                 if (info_type == 2) {   /* Is this a String? */
-                                                        uni_to_string(fvalue_get(&finfo->value), fvalue_length(&finfo->value), non_uni_string);
+                                                        uni_to_string(get_finfo_value_string(finfo), get_finfo_length(finfo), non_uni_string);
                                                         col_append_fstr(pinfo->cinfo, COL_INFO,
                       		               	                (const gchar*) ncp_rec->req_info_str->first_string,
                                               	                non_uni_string);
@@ -4641,7 +4684,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                                 {
                                                         col_append_fstr(pinfo->cinfo, COL_INFO,
                       		               	                (const gchar*) ncp_rec->req_info_str->first_string,
-                                               	                fvalue_get(&finfo->value));
+                                               	                get_finfo_value_string(finfo));
                                                 }
                                         }
                                 }
@@ -4649,7 +4692,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                 {
             			        col_append_fstr(pinfo->cinfo, COL_INFO,
                 			        (const gchar*) ncp_rec->req_info_str->first_string,
-        		        	        fvalue_get_integer(&finfo->value));
+        		        	        get_finfo_value_integer(finfo));
                                 }
                         }
 			if (len > 1) {
@@ -4661,7 +4704,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                         if (info_type != 0) {    /* Is this  a string or not? */
                                               if (info_type == 1) 
                                               {   /* Is this bytes? */
-                                                byte_string = bytes_to_str(fvalue_get(&finfo->value), fvalue_length(&finfo->value));
+                                                byte_string = bytes_to_str(get_finfo_value_string(finfo), get_finfo_length(finfo));
                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
               		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
                                        	                byte_string);
@@ -4669,7 +4712,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                               else
                                               {
                                                         if (info_type == 2) {   /* Is this a String? */
-                                                                uni_to_string(fvalue_get(&finfo->value), fvalue_length(&finfo->value), non_uni_string);
+                                                                uni_to_string(get_finfo_value_string(finfo), get_finfo_length(finfo), non_uni_string);
                                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
                               		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
                                                        	                non_uni_string);
@@ -4678,7 +4721,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                                         {
                                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
                               		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                                       	                fvalue_get(&finfo->value));
+                                                       	                get_finfo_value_string(finfo));
                                                         }
                                               }
                                         }
@@ -4686,7 +4729,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                         {
                     			        col_append_fstr(pinfo->cinfo, COL_INFO,
                         			        (const gchar*) ncp_rec->req_info_str->repeat_string,
-                		        	        fvalue_get_integer(&finfo->value));
+                		        	        get_finfo_value_integer(finfo));
                                         }
                                 }
 			}
@@ -4731,6 +4774,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	int				i;
         guint32                         bvalue=0;
         
+#ifdef FAKE_TREE_IS_VISIBLE
+	PTREE_DATA(ncp_tree)->visible=1;
+#endif
+
 	strcpy(reply_buffer.buffer, "");
 	strcpy(global_object_name, "");
 	
@@ -6057,7 +6104,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         gboolean                resolve_eid=FALSE;
         guint32                 global_flags=0;
 	int			i;
-        
+
+#ifdef FAKE_TREE_IS_VISIBLE
+	PTREE_DATA(ncp_tree)->visible=1;
+#endif
+
 	for (i = 0; i < 9; i++) {
 		pvalues[i].vtype = 0;
 		pvalues[i].vvalue = 0;
@@ -8434,6 +8485,10 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 	nds_val			pvalue;
 	char			string_buffer[1024];
         
+#ifdef FAKE_TREE_IS_VISIBLE
+	PTREE_DATA(ncp_tree)->visible=1;
+#endif
+
 	pvalue.vvalue = 0;
 	pvalue.vlength = 0;
 	pvalue.voffset = 0;
