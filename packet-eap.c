@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.15 2002/02/26 11:55:37 guy Exp $
+ * $Id: packet-eap.c,v 1.16 2002/03/18 00:26:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,8 @@ static int hf_eap_type = -1;
 
 static gint ett_eap = -1;
 
+static int leap_state = -1;
+
 static dissector_handle_t ssl_handle;
 
 #define EAP_REQUEST	1
@@ -66,16 +68,19 @@ static const value_string eap_code_vals[] = {
     { 0,            NULL }
 };
 
+#define EAP_TYPE_ID     1
 #define EAP_TYPE_TLS	13
+#define EAP_TYPE_LEAP	17
 
 static const value_string eap_type_vals[] = { 
-    { 1,            "Identity" },
+    { EAP_TYPE_ID,  "Identity" },
     { 2,            "Notification" },
     { 3,            "Nak (Response only)" },
     { 4,            "MD5-Challenge" },
     { 5,            "One-Time Password (OTP) (RFC 1938)" },
     { 6,            "Generic Token Card" },
     { EAP_TYPE_TLS, "EAP/TLS (RFC2716)" },
+    { EAP_TYPE_LEAP,"Cisco LEAP" },
     { 0,            NULL }
 };
 
@@ -100,6 +105,9 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
+
+  if (eap_code == EAP_FAILURE)
+    leap_state = -1;
 
   eap_len = tvb_get_ntohs(tvb, 2);
   len = eap_len;
@@ -134,6 +142,10 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case EAP_REQUEST:
   case EAP_RESPONSE:
     eap_type = tvb_get_guint8(tvb, 4);
+
+    if(eap_type == EAP_TYPE_ID)
+      leap_state = 0;
+
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 		      val_to_str(eap_type, eap_type_vals,
@@ -177,6 +189,79 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    next_tvb = tvb_new_subset(tvb, offset, tvb_len, size);
 	    call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
 	  }
+	  }
+	  break;
+
+	  /*
+	    Cisco's LEAP
+	    http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
+	  */
+
+	case EAP_TYPE_LEAP:
+	  {
+	    guint8  field,count,namesize;
+
+	    /* Version (byte) */
+	    field = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(eap_tree, tvb, offset, 1, "Version: %i",field);
+	    size--;
+	    offset++;
+
+	    /* Unused  (byte) */
+	    field = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(eap_tree, tvb, offset, 1, "Reserved: %i",field);
+	    size--;
+	    offset++;
+
+	    /* Count   (byte) */
+	    count = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(eap_tree, tvb, offset, 1, "Count: %i",count);
+	    size--;
+	    offset++;
+
+	    /* Data    (byte*Count)
+	       This part is state-dependent. */
+	    if (leap_state==0) {
+	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+			       "Peer Challenge [R8] (%d byte%s) Value:'%s'",
+				  count, plurality(count, "", "s"),
+				  tvb_format_text(tvb, offset, count));
+	      leap_state++;
+	    } else if (leap_state==1) {
+	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+				  "Peer Response MSCHAP [24] (%d byte%s) NtChallengeResponse(%s)",
+				  count, plurality(count, "", "s"),
+				  tvb_format_text(tvb, offset, count));
+	      leap_state++;
+	    } else if (leap_state==2) {
+	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+			       "AP Challenge [R8] (%d byte%s) Value:'%s'",
+				  count, plurality(count, "", "s"),
+				  tvb_format_text(tvb, offset, count));
+	      leap_state++;
+	    } else if (leap_state==3) {
+	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+				  "AP Response [24] (%d byte%s) NtChallengeResponse(%s)",
+				  count, plurality(count, "", "s"),
+				  tvb_format_text(tvb, offset, count));
+	      leap_state++;
+	    } else 
+	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+				"Data (%d byte%s): %s",
+				count, plurality(count, "", "s"),
+				tvb_format_text(tvb, offset, count));
+
+	    size   -= count;
+	    offset += count;
+
+	    /* Name    (Length-(8+Count)) */
+	    namesize = eap_len - (8+count);
+	    proto_tree_add_text(eap_tree, tvb, offset, namesize, 
+				"Name (%d byte%s): %s",
+				namesize, plurality(count, "", "s"),
+				tvb_format_text(tvb, offset, namesize));
+	    size   -= namesize;
+	    offset += namesize;
 	  }
 	  break;
 

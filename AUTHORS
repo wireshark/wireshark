@@ -1069,6 +1069,7 @@ Adam Sulmicki <adam[AT]cfar.umd.edu> {
 	    RADIUS_STRING rather than a RADIUS_STRING_TAGGED
 	Dissect EAP messages inside RADIUS
 	Dissect SSL-encoded stuff inside EAP
+	Cisco LEAP support
 }
 
 Kari Tiirikainen <ktiirika[AT]stybba.ntc.nokia.com> {
