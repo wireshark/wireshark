@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.37 2003/11/27 00:22:12 ulfl Exp $
+ * $Id: help_dlg.c,v 1.38 2003/11/27 23:25:55 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -36,6 +36,7 @@
 #include "gtkglobals.h"
 #include "ui_util.h"
 #include "compat_macros.h"
+#include "dlg_utils.h"
 
 
 /* include texts from converted ascii ".txt" files */
@@ -126,15 +127,8 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
-#if GTK_MAJOR_VERSION < 2
-  help_w = gtk_window_new(GTK_WINDOW_DIALOG);
-#else
-  help_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-#endif
-  gtk_widget_set_name(help_w, "Ethereal Help window" );
-  gtk_window_set_title(GTK_WINDOW(help_w), "Ethereal: Help");
+  help_w = dlg_window_new("Ethereal: Help");
   SIGNAL_CONNECT(help_w, "destroy", help_destroy_cb, NULL);
-  SIGNAL_CONNECT(help_w, "realize", window_icon_realize_cb, NULL);
   /* XXX: improve this, e.g. remember the last window size in a file */
   WIDGET_SET_SIZE(help_w, DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
@@ -196,6 +190,12 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(close_bt);
 
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(help_w));
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(help_w, close_bt);
+
   gtk_widget_show(help_w);
 
 } /* help_cb */
