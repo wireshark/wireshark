@@ -53,8 +53,5 @@ libui.lib	: ..\config.h $(OBJECTS)
 	lib /out:libui.lib $(OBJECTS)	
 
 
-..\config.h	: ..\config.h.win32
-	copy ..\config.h.win32 ..\config.h
-
 clean:
 	rm -f $(OBJECTS) libui.lib

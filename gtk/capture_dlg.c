@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.38 2001/04/03 05:26:27 gram Exp $
+ * $Id: capture_dlg.c,v 1.39 2001/04/05 05:58:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -138,9 +138,9 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   /* Is WPcap loaded? */
   if (!has_wpcap) {
 	  simple_dialog(ESD_TYPE_CRIT, NULL,
-			  "Unable to load wpcap.dll: capturing not enabled.\n"
+			  "Unable to load WinPcap (wpcap.dll). Capturing not enabled.\n"
 			  "See http://netgroup-serv.polito.it/winpcap/ for\n"
-			  "more details.");
+			  "more details on WinPcap.");
 	  return;
   }
 #endif

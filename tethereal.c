@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.75 2001/04/03 05:55:44 guy Exp $
+ * $Id: tethereal.c,v 1.76 2001/04/05 05:58:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -176,7 +176,7 @@ main(int argc, char *argv[])
   gboolean             arg_error = FALSE;
 #ifdef HAVE_LIBPCAP
 #ifdef WIN32
-  char pcap_version[] = "0.4a6";
+  char pcap_version[] = WPCAP_STRING;
 #else
   extern char          pcap_version[];
 #endif

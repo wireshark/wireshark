@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.188 2001/04/03 05:26:27 gram Exp $
+ * $Id: main.c,v 1.189 2001/04/05 05:58:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -750,7 +750,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
 #ifdef WIN32
-  char pcap_version[] = "0.4a6";
+  char pcap_version[] = WPCAP_STRING;
 #else
   extern char          pcap_version[];
 #endif

@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.26 2001/04/05 04:39:23 gram Exp $ */
+/* $Id: config.h.win32,v 1.27 2001/04/05 05:58:03 gram Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -44,6 +44,7 @@
 #define NEED_MKSTEMP 1
 
 #define HAVE_LIBPCAP 1
+#define WPCAP_STRING "0.5.2 (WinPcap 2.1)"
 
 /* Define if you have the gethostbyname2 function.  */
 /* #undef HAVE_GETHOSTBYNAME2 */
@@ -142,5 +143,5 @@
 #define VERSION "@VERSION@"
 
 /* Plugin installation directory... */
-#define PLUGIN_DIR "C:/ethereal/plugins/0.8.16"
+#define PLUGIN_DIR "C:/ethereal/plugins/@VERSION@"
 
