@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.141 2001/02/11 22:36:57 guy Exp $
+ * $Id: capture.c,v 1.142 2001/02/11 22:46:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,6 +174,7 @@ static guint cap_input_id;
 #define SP_CAPSTART	';'	/* capture start message */
 #define SP_PACKET_COUNT	'*'	/* count of packets captured since last message */
 #define SP_ERROR	'!'	/* length of error message that follows */
+#define SP_DROPS	'#'	/* count of packets dropped in capture */
 
 #ifdef _WIN32
 static guint cap_timer_id;
@@ -733,6 +734,13 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
     switch (*q) {
     case SP_PACKET_COUNT :
       to_read += atoi(p);
+      p = q + 1;
+      q++;
+      nread--;
+      break;
+    case SP_DROPS :
+      cf->drops_known = TRUE;
+      cf->drops = atoi(p);
       p = q + 1;
       q++;
       nread--;
@@ -1650,12 +1658,27 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   {
     /* Get the capture statistics, so we know how many packets were
        dropped. */
-    if (pcap_stats(pch, stats) >= 0)
+    if (pcap_stats(pch, stats) >= 0) {
       *stats_known = TRUE;
-    else {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      if (capture_child) {
+      	/* Let the parent process know. */
+	char tmp[20];
+	sprintf(tmp, "%d%c", stats->ps_drop, SP_DROPS);
+	write(1, tmp, strlen(tmp));
+      }
+    } else {
+      snprintf(errmsg, sizeof(errmsg),
 		"Can't get packet-drop statistics: %s",
 		pcap_geterr(pch));
+      if (capture_child) {
+        /* Tell the parent, so that they can pop up the message;
+           we're going to exit, so if we try to pop it up, either
+           it won't pop up or it'll disappear as soon as we exit. */
+        send_errmsg_to_parent(errmsg);
+      } else {
+       /* Just pop up the message ourselves. */
+       simple_dialog(ESD_TYPE_WARN, NULL, "%s", errmsg);
+      }
     }
     pcap_close(pch);
   }
