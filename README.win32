@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.35 2002/05/19 17:12:25 gerald Exp $
+$Id: README.win32,v 1.36 2002/07/02 19:27:40 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -180,12 +180,15 @@ downloaded from:
 Be sure that your command-line environment is set up to compile
 and link with MSVC. When installing MSVC, you can have your
 system's environment set up to always allow compiling from the
-command line, or you can invoke the vcvars32.bat script.
+command line, or you can invoke the vcvars32.bat script, which can
+usually be found in the "VC98\Bin" subdirectory of the directory in
+which Visual Studio was installed.
 
-The first time you build Ethereal, run the script "cleanbld.bat" to make
-sure that the "config.h" files will be reconstructed from the
-"config.h.win32" files.  (If, for example, you have "config.h" files
-left over from a Unix build, a Windows build will fail.)
+The first time you build Ethereal, run the script "cleanbld.bat" in the
+top-level Ethereal source directory to make sure that the "config.h"
+files will be reconstructed from the "config.h.win32" files.  (If, for
+example, you have "config.h" files left over from a Unix build, a
+Windows build will fail.)
 
 In the ethereal directory, type "nmake -f makefile.nmake". It will
 recurse into the subdirectories as appropriate.
