@@ -215,7 +215,7 @@ static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, guint8* key) {
 	gop->last_pdu = pdu;
 	gop->gop_key = key;
 	gop->start_time = rd->now;
-	
+	gop->time_to_die = cfg->lifetime > 0.0 ? cfg->lifetime + rd->now : (float) -1.0 ;
 	pdu->gop = gop;
 	pdu->next = NULL;
 	pdu->is_start = TRUE;
@@ -466,6 +466,7 @@ static void analize_pdu(mate_pdu* pdu) {
 
 	apply_transforms(pdu);
 
+	/* is there a gop type for this pdu type? */
 	cfg = g_hash_table_lookup(mc->gops_by_pduname,pdu->cfg->name);
 	
 	if (!cfg) return;
@@ -475,6 +476,8 @@ static void analize_pdu(mate_pdu* pdu) {
 	if (! candidate_gop_key_match) return;
 	
 	dbg_print (dbg_gop,3,dbg_facility,"analize_pdu: got candidate key\n");
+	
+	/* does the pdu matches the prematch candidate key for the gop type? */
 	
 	gopkey_match = new_avpl_exact_match("",pdu->avpl,candidate_gop_key_match, TRUE);
 	
@@ -493,10 +496,20 @@ static void analize_pdu(mate_pdu* pdu) {
 			delete_avpl(is_start,FALSE);	
 		}
 		
-		g_hash_table_lookup_extended(cfg->gop_index,gop_key,(gpointer*)&orig_gop_key,(gpointer*)&gop);
+		g_hash_table_lookup_extended(cfg->gop_index,(gconstpointer)gop_key,(gpointer*)&orig_gop_key,(gpointer*)&gop);
 		
 		if ( gop ) {
 			g_free(gop_key);
+			
+			/* is the gop dead ? */
+			if ( ! gop->released &&
+				 ( ( gop->cfg->lifetime > 0.0 && gop->time_to_die >= rd->now) || 
+				   ( gop->cfg->idle_timeout > 0.0 && gop->time_to_timeout >= rd->now) ) ) {
+				gop->released = TRUE;
+				if (gop->gog) gop->gog->num_of_released_gops++;
+			}
+			
+			/* TODO: is the gop expired? */
 			
 			gop_key = orig_gop_key;
 			
@@ -539,7 +552,10 @@ static void analize_pdu(mate_pdu* pdu) {
 			}
 		}
 		
-		if ( gop ) gop->num_of_pdus++;
+		if ( gop ) {
+			gop->num_of_pdus++;
+			gop->time_to_timeout = cfg->idle_timeout > 0.0 ? cfg->idle_timeout + rd->now : (float) -1.0 ;
+		}
 		
 		dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: merge with key\n");
 

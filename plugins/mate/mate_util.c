@@ -136,7 +136,7 @@ guint8* scs_subscribe(SCS_collection* c, guint8* s) {
 	size_t len = 0;
 	GMemChunk* chunk = NULL;
 	
-	g_hash_table_lookup_extended(c->hash,s,(gpointer*)&orig,(gpointer*)&ip);
+	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer*)&orig,(gpointer*)&ip);
 
 	if (ip) {
 		(*ip)++;
@@ -187,7 +187,7 @@ void scs_unsubscribe(SCS_collection* c, guint8* s) {
 	size_t len = 0xffff;
 	GMemChunk* chunk = NULL;
 	
-	g_hash_table_lookup_extended(c->hash,s,(gpointer*)&orig,(gpointer*)&ip);
+	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer*)&orig,(gpointer*)&ip);
 
 	if (ip) {
 		if (*ip == 0) {

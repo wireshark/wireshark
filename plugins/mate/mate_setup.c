@@ -569,6 +569,9 @@ static gboolean config_settings(AVPL*avpl) {
 
 
 	matecfg->gog_expiration = extract_named_float(avpl, KEYWORD_GOGEXPIRE,matecfg->gog_expiration);
+	matecfg->gop_expiration = extract_named_float(avpl, KEYWORD_GOPEXPIRATION,matecfg->gop_expiration);
+	matecfg->gop_idle_timeout = extract_named_float(avpl, KEYWORD_GOPIDLETIMEOUT,matecfg->gop_idle_timeout);
+	matecfg->gop_lifetime = extract_named_float(avpl, KEYWORD_GOPLIFETIME,matecfg->gop_lifetime);
 	matecfg->discard_pdu_attributes = extract_named_bool(avpl, KEYWORD_DISCARDPDU,matecfg->discard_pdu_attributes);
 	matecfg->drop_pdu = extract_named_bool(avpl, KEYWORD_DROPPDU,matecfg->drop_pdu);
 	matecfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,matecfg->drop_gop);
@@ -731,7 +734,10 @@ static gboolean config_gop(AVPL* avpl) {
 	cfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,matecfg->drop_gop);
 	cfg->show_pdu_tree = extract_named_str(avpl, KEYWORD_SHOWPDUTREE, matecfg->show_pdu_tree);
 	cfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,matecfg->show_times);
-
+	cfg->expiration = extract_named_float(avpl, KEYWORD_GOPEXPIRATION,matecfg->gop_expiration);
+	cfg->idle_timeout = extract_named_float(avpl, KEYWORD_GOPIDLETIMEOUT,matecfg->gop_idle_timeout);
+	cfg->lifetime = extract_named_float(avpl, KEYWORD_GOPLIFETIME,matecfg->gop_lifetime);
+	
 	cfg->key = avpl;
 
 	return TRUE;
@@ -803,7 +809,10 @@ static gboolean config_gopextra(AVPL* avpl) {
 	cfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,cfg->drop_gop);
 	cfg->show_pdu_tree = extract_named_str(avpl, KEYWORD_SHOWPDUTREE, cfg->show_pdu_tree);
 	cfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,cfg->show_times);
-
+	cfg->expiration = extract_named_float(avpl, KEYWORD_GOPEXPIRATION,cfg->expiration);
+	cfg->idle_timeout = extract_named_float(avpl, KEYWORD_GOPIDLETIMEOUT,cfg->idle_timeout);
+	cfg->lifetime = extract_named_float(avpl, KEYWORD_GOPLIFETIME,cfg->lifetime);
+	
 	merge_avpl(cfg->extra,avpl,TRUE);
 
 	return TRUE;
@@ -891,6 +900,7 @@ static gboolean config_gogextra(AVPL* avpl) {
 	return TRUE;
 }
 
+#define true_false_str(v) ((v) ? "TRUE" : "FALSE")
 
 static void print_xxx_transforms(mate_cfg_item* cfg) {
 	guint8* tr_name;
@@ -956,7 +966,10 @@ static void print_gop_config(gpointer k _U_ , gpointer v, gpointer p _U_) {
 	gopdef = g_string_new("Action=GopDef; ");
 
 	show_pdu_tree = cfg->show_pdu_tree ? "TRUE" : "FALSE";
-	g_string_sprintfa(gopdef,"Name=%s; ShowPduTree=%s;",cfg->name,show_pdu_tree);
+	g_string_sprintfa(gopdef,"Name=%s; ShowPduTree=%s; ShowGopTimes=%s; "
+					  "GopExpiration=%f; GopIdleTimeout=%f GopLifetime=%f;",
+					  cfg->name,show_pdu_tree,true_false_str(cfg->show_times),
+					  cfg->expiration,cfg->idle_timeout,cfg->lifetime);
 
 	if (cfg->key) {
 		avplstr = avpl_to_str(cfg->key);

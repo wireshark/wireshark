@@ -121,7 +121,9 @@
 #define KEYWORD_NOTREE "NoTree"
 #define KEYWORD_PDUTREE "PduTree"
 #define KEYWORD_FRAMETREE "FrameTree"
-
+#define KEYWORD_GOPEXPIRATION "GopExpiration"
+#define KEYWORD_GOPIDLETIMEOUT "GopIdleTimeout"
+#define KEYWORD_GOPLIFETIME "GopLifetime"
 
 #define KEYWORD_DEBUGFILENAME "Debug_File"
 #define KEYWORD_DBG_GENERAL "Debug_General"
@@ -183,6 +185,7 @@ typedef struct _mate_cfg_item {
 	
 	
 	/* common to gop and gog */
+	float expiration;
 	int hfid_start_time;
 	int hfid_stop_time;
 	int hfid_last_time;
@@ -194,6 +197,8 @@ typedef struct _mate_cfg_item {
 	guint8* show_pdu_tree;
 	gboolean show_times;
 	gboolean drop_gop; 
+	float idle_timeout;
+	float lifetime;	
 	int hfid_gop_pdu;
 	int hfid_gop_num_pdus;
 	
@@ -203,7 +208,6 @@ typedef struct _mate_cfg_item {
 	/* gog */
 	gboolean gop_as_subtree;
 	LoAL* keys;
-	float expiration;
 	int hfid_gog_num_of_gops;
 	int hfid_gog_gop;
 	
@@ -223,6 +227,9 @@ typedef struct _mate_config {
 	avpl_replace_mode replace_mode;
 	gboolean gop_as_subtree;
 
+	float gop_expiration;
+	float gop_idle_timeout;
+	float gop_lifetime;
 	
 	guint8* accept;
 	guint8* reject;
@@ -307,6 +314,8 @@ struct _mate_item {
 			int num_of_after_release_pdus;  /* how many pdus have arrived since it's been released */
 			guint8* gop_key; /* used by gop */
 			mate_pdu* last_pdu; /* last pdu in pdu's list */
+			float time_to_die;
+			float time_to_timeout;
 		/* } gop; */
 		
 		/* struct _gog { */
