@@ -27,7 +27,9 @@ SignalInfo2 ::= OCTET STRING (  SIZE (1 .. 2560 ) )
 
 SupportedCamelPhases ::= BIT STRING {
   phase1  (0 ), 
-  phase2  (1 )}
+  phase2  (1 ),
+  phase3  (2 ),
+  phase4  (3 )}
 
 SignalInfo ::= OCTET STRING ( SIZE( 1 .. 200 ) )
 
@@ -35,7 +37,28 @@ Vlr-Capability ::= SEQUENCE {
             supportedCamelPhases    [0] IMPLICIT SupportedCamelPhases OPTIONAL, 
             extensionContainer   ExtensionContainer OPTIONAL, 
             ... , 
-            solsaSupportIndicator   [2] IMPLICIT NULL OPTIONAL}
+            solsaSupportIndicator   [2] IMPLICIT NULL OPTIONAL,
+         istSupportIndicator                           [1] IMPLICIT ENUMERATED {
+            basicISTSupported      (0 ), 
+            istCommandSupported    (1 ), 
+            ... } OPTIONAL, 
+         superChargerSupportedInServingNetworkEntity   [3] CHOICE {
+            sendSubscriberData       [0] IMPLICIT NULL, 
+            subscriberDataStored     [1] IMPLICIT OCTET STRING (  SIZE (1 .. 6 ) )} OPTIONAL, 
+         longFTN-Supported                             [4] IMPLICIT NULL OPTIONAL, 
+         supportedLCS-CapabilitySets                   [5] IMPLICIT BIT STRING {
+            lcsCapabilitySet1  (0 ), 
+            lcsCapabilitySet2  (1 ), 
+            lcsCapabilitySet3  (2 ), 
+            lcsCapabilitySet4  (3 )} (  SIZE (2 .. 16 ) ) OPTIONAL, 
+         offeredCamel4CSIs                             [6] IMPLICIT BIT STRING {
+            ocsi  (0 ), 
+            dcsi  (1 ), 
+            vtcsi  (2 ), 
+            tcsi  (3 ), 
+            mtsmscsi  (4 ), 
+            mgcsi  (5 ), 
+            psienhancements  (6 )} (  SIZE (7 .. 16 ) ) OPTIONAL} 
 
 Imsi ::= OCTET STRING 
 Lmsi ::= OCTET STRING ( SIZE( 4 ) )
@@ -48,7 +71,16 @@ UpdateLocationArg ::= SEQUENCE {
          lmsi                 [10] IMPLICIT Lmsi OPTIONAL, 
          extensionContainer   ExtensionContainer OPTIONAL, 
          ... , 
-         vlr-Capability       [6] IMPLICIT Vlr-Capability OPTIONAL}
+         vlr-Capability       [6] IMPLICIT Vlr-Capability OPTIONAL,
+ 
+      informPreviousNetworkEntity   [11] IMPLICIT NULL OPTIONAL, 
+      cs-LCS-NotSupportedByUE       [12] IMPLICIT NULL OPTIONAL, 
+      v-gmlc-Address                [2] IMPLICIT OCTET STRING (  SIZE (5 .. 17 ) ) OPTIONAL, 
+      add-info                      [13] IMPLICIT SEQUENCE {
+         imeisv                     [0] IMPLICIT OCTET STRING (  SIZE (8 ) ), 
+         skipSubscriberDataUpdate   [1] IMPLICIT NULL OPTIONAL, 
+         ... } OPTIONAL}
+
 --   RESULT
 UpdateLocationRes ::= SEQUENCE {
          hlr-Number           Hlr-Number, 
@@ -151,6 +183,76 @@ PrepareHO-Arg ::= SEQUENCE {
          bss-APDU               Bss-APDU OPTIONAL, 
          ... }
 --   RESULT
+-- V3 def: ?
+-- prepareHandover OPERATION  ::=  {
+--   ARGUMENT     [3] IMPLICIT SEQUENCE {
+
+PrepareHandoverV3Arg ::= [3] IMPLICIT SEQUENCE {
+      targetCellId                 [0] IMPLICIT OCTET STRING (  SIZE (5 .. 7 ) ) OPTIONAL, 
+      ho-NumberNotRequired         NULL OPTIONAL, 
+      targetRNCId                  [1] IMPLICIT OCTET STRING (  SIZE (7 ) ) OPTIONAL, 
+      an-APDU                      [2] IMPLICIT An-APDU OPTIONAL, 
+      multipleBearerRequested      [3] IMPLICIT NULL OPTIONAL, 
+      imsi                         [4] IMPLICIT Imsi OPTIONAL, 
+      integrityProtectionInfo      [5] IMPLICIT OCTET STRING (  SIZE (18 .. 100 ) ) OPTIONAL, 
+      encryptionInfo               [6] IMPLICIT OCTET STRING (  SIZE (18 .. 100 ) ) OPTIONAL, 
+      radioResourceInformation     [7] IMPLICIT OCTET STRING (  SIZE (3 .. 13 ) ) OPTIONAL, 
+      allowedGSM-Algorithms        [9] IMPLICIT OCTET STRING (  SIZE (1 ) ) OPTIONAL, 
+      allowedUMTS-Algorithms       [10] IMPLICIT SEQUENCE {
+         integrityProtectionAlgorithms   [0] IMPLICIT OCTET STRING (  SIZE (1 .. 9 ) ) OPTIONAL, 
+         encryptionAlgorithms            [1] IMPLICIT OCTET STRING (  SIZE (1 .. 9 ) ) OPTIONAL, 
+         extensionContainer              [2] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL, 
+      radioResourceList            [11] IMPLICIT SEQUENCE  (  SIZE (1 .. 7 ) ) OF
+         SEQUENCE {
+            radioResourceInformation   OCTET STRING (  SIZE (3 .. 13 ) ), 
+            rab-Id                     INTEGER ( 1 .. 255 ), 
+            ... } OPTIONAL, 
+      extensionContainer           [8] IMPLICIT ExtensionContainer OPTIONAL, 
+      ... , 
+      rab-Id                       [12] IMPLICIT INTEGER ( 1 .. 255 ) OPTIONAL, 
+      bssmap-ServiceHandover       [13] IMPLICIT OCTET STRING (  SIZE (1 ) ) OPTIONAL, 
+      ranap-ServiceHandover        [14] IMPLICIT OCTET STRING (  SIZE (1 ) ) OPTIONAL, 
+      bssmap-ServiceHandoverList   [15] IMPLICIT SEQUENCE  (  SIZE (1 .. 7 ) ) OF
+         SEQUENCE {
+            bssmap-ServiceHandover   OCTET STRING (  SIZE (1 ) ), 
+            rab-Id                   INTEGER ( 1 .. 255 ), 
+            ... } OPTIONAL, 
+      asciCallReference            [20] IMPLICIT OCTET STRING (  SIZE (1 .. 8 ) ) OPTIONAL, 
+      geran-classmark              [16] IMPLICIT OCTET STRING (  SIZE (2 .. 87 ) ) OPTIONAL, 
+      iuCurrentlyUsedCodec         [17] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+      iuSupportedCodecsList        [18] IMPLICIT SEQUENCE {
+         utranCodecList       [0] IMPLICIT SEQUENCE {
+            codec1               [1] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ), 
+            codec2               [2] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec3               [3] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec4               [4] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec5               [5] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec6               [6] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec7               [7] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec8               [8] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            extensionContainer   [9] IMPLICIT ExtensionContainer OPTIONAL, 
+         geranCodecList       [1] IMPLICIT SEQUENCE {
+            codec1               [1] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ), 
+            codec2               [2] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec3               [3] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec4               [4] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec5               [5] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec6               [6] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec7               [7] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            codec8               [8] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+            extensionContainer   [9] IMPLICIT ExtensionContainer } OPTIONAL, 
+            ... } OPTIONAL, 
+         extensionContainer   [2] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL, 
+      rab-ConfigurationIndicator   [19] IMPLICIT NULL OPTIONAL, 
+      uesbi-Iu                     [21] IMPLICIT SEQUENCE {
+         uesbi-IuA   [0] IMPLICIT BIT STRING (  SIZE (1 .. 128 ) ) OPTIONAL, 
+         uesbi-IuB   [1] IMPLICIT BIT STRING (  SIZE (1 .. 128 ) ) OPTIONAL, 
+         ... } OPTIONAL}
+
+
+
 PrepareHO-Res ::= SEQUENCE {
          handoverNumber   OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
          bss-APDU         Bss-APDU OPTIONAL, 
@@ -343,7 +445,7 @@ Msisdn ::= OCTET STRING
 --insertSubscriberData OPERATION
 --   ARGUMENT
 InsertSubscriberDataArg ::= SEQUENCE {
-         imsi                                             [0] IMPLICIT Imsi OPTIONAL, 
+         imsi                                        [0] IMPLICIT Imsi OPTIONAL, 
          msisdn                                      [1] IMPLICIT Msisdn OPTIONAL, 
          category                                    [2] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
          subscriberStatus                            [3] IMPLICIT SubscriberStatus OPTIONAL, 
@@ -373,13 +475,7 @@ InsertSubscriberDataArg ::= SEQUENCE {
                         ... } OPTIONAL, 
                   extensionContainer     [0] IMPLICIT ExtensionContainer OPTIONAL, 
                   ... }, 
-               ss-Data2             [3] IMPLICIT SEQUENCE {
-                  ss-Code                 Ss-Code, 
-                  ss-Status               [4] IMPLICIT Ss-Status, 
-                  ss-SubscriptionOption   Ss-SubscriptionOption OPTIONAL, 
-                  basicServiceGroupList   BasicServiceGroupList OPTIONAL, 
-                  extensionContainer      [5] IMPLICIT ExtensionContainer OPTIONAL, 
-                  ... }, 
+               ss-Data             [3] IMPLICIT Ss-Data, 
                emlpp-Info          [4] IMPLICIT SEQUENCE {
                   maximumentitledPriority   INTEGER ( 0 .. 15 ), 
                   defaultPriority           INTEGER ( 0 .. 15 ), 
@@ -1079,9 +1175,9 @@ Ss-Data ::= SEQUENCE {
             ss-Status               [4] IMPLICIT Ss-Status OPTIONAL, 
             ss-SubscriptionOption   Ss-SubscriptionOption OPTIONAL, 
             basicServiceGroupList   BasicServiceGroupList OPTIONAL, 
-            ... , 
-            defaultPriority         INTEGER ( 0 .. 15 ) OPTIONAL}
-
+            defaultPriority         INTEGER ( 0 .. 15 ) OPTIONAL,
+		extensionContainer      [5] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... }
 
 --registerSS OPERATION
 --   ARGUMENT

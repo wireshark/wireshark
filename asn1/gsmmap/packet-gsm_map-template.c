@@ -57,7 +57,11 @@ static int hf_gsm_map_invokeId = -1;              /* InvokeId */
 static int hf_gsm_map_invoke = -1;                /* InvokePDU */
 static int hf_gsm_map_returnResult = -1;          /* InvokePDU */
 static int hf_gsm_map_returnResult_result = -1;
+static int hf_gsm_map_returnError_result = -1;
 static int hf_gsm_map_returnError = -1;
+static int hf_gsm_map_local_errorCode = -1;
+static int hf_gsm_map_global_errorCode_oid = -1;
+static int hf_gsm_map_global_errorCode = -1;
 static int hf_gsm_map_SendAuthenticationInfoArg = -1;
 static int hf_gsm_mapSendEndSignal = -1;
 static int hf_gsm_map_getPassword = -1;  
@@ -241,7 +245,72 @@ const value_string gsm_map_opr_code_strings[] = {
   {  86, "subscriberLocationReport" },
   { 0, NULL }
 };
-
+static const value_string gsm_map_err_code_string_vals[] = {
+    { 1,	"Unknown Subscriber" },
+    { 3,	"Unknown MSC" },
+    { 5,	"Unidentified Subscriber" },
+    { 6,	"Absent Subscriber SM" },
+    { 7,	"Unknown Equipment" },
+    { 8,	"Roaming Not Allowed" },
+    { 9,	"Illegal Subscriber" },
+    { 10,	"Bearer Service Not Provisioned" },
+    { 11,	"Teleservice Not Provisioned" },
+    { 12,	"Illegal Equipment" },
+    { 13,	"Call Barred" },
+    { 14,	"Forwarding Violation" },
+    { 15,	"CUG Reject" },
+    { 16,	"Illegal SS Operation" },
+    { 17,	"SS Error Status" },
+    { 18,	"SS Not Available" },
+    { 19,	"SS Subscription Violation" },
+    { 20,	"SS Incompatibility" },
+    { 21,	"Facility Not Supported" },
+    { 25,	"No Handover Number Available" },
+    { 26,	"Subsequent Handover Failure" },
+    { 27,	"Absent Subscriber" },
+    { 28,	"Incompatible Terminal" },
+    { 29,	"Short Term Denial" },
+    { 30,	"Long Term Denial" },
+    { 31,	"Subscriber Busy For MT SMS" },
+    { 32,	"SM Delivery Failure" },
+    { 33,	"Message Waiting List Full" },
+    { 34,	"System Failure" },
+    { 35,	"Data Missing" },
+    { 36,	"Unexpected Data Value" },
+    { 37,	"PW Registration Failure" },
+    { 38,	"Negative PW Check" },
+    { 39,	"No Roaming Number Available" },
+    { 40,	"Tracing Buffer Full" },
+    { 42,	"Target Cell Outside Group Call Area" },
+    { 43,	"Number Of PW Attempts Violation" },
+    { 44,	"Number Changed" },
+    { 45,	"Busy Subscriber" },
+    { 46,	"No Subscriber Reply" },
+    { 47,	"Forwarding Failed" },
+    { 48,	"OR Not Allowed" },
+    { 49,	"ATI Not Allowed" },
+    { 50,	"No Group Call Number Available" },
+    { 51,	"Resource Limitation" },
+    { 52,	"Unauthorized Requesting Network" },
+    { 53,	"Unauthorized LCS Client" },
+    { 54,	"Position Method Failure" },
+    { 58,	"Unknown Or Unreachable LCS Client" },
+    { 59,	"MM Event Not Supported" },
+    { 60,	"ATSI Not Allowed" },
+    { 61,	"ATM Not Allowed" },
+    { 62,	"Information Not Available" },
+    { 71,	"Unknown Alphabet" },
+    { 72,	"USSD Busy" },
+    { 120,	"Nbr Sb Exceeded" },
+    { 121,	"Rejected By User" },
+    { 122,	"Rejected By Network" },
+    { 123,	"Deflection To Served Subscriber" },
+    { 124,	"Special Service Code" },
+    { 125,	"Invalid Deflected To Number" },
+    { 126,	"Max Number Of MPTY Participants Exceeded" },
+    { 127,	"Resources Not Available" },
+    { 0, NULL }
+};
 static const true_false_string gsm_map_extension_value = {
   "No Extension",
   "Extension"
@@ -608,6 +677,8 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 55: /*sendIdentification*/
     offset=dissect_gsm_map_SendIdentificationRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 56:
+	  offset = dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, -1);
   case 57: /*restoreData*/
 	offset=dissect_gsm_map_RestoreDataRes(FALSE, tvb, offset, pinfo, tree, -1);
 	break;
@@ -760,26 +831,37 @@ dissect_gsm_map_returnResultPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 static int dissect_returnResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_returnResultPDU(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnResult);
 }
-/* TODO code this part
-static const ber_sequence_t ReturnError_result_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_errorCode },
-  { BER_CLASS_UNI, -1 depends on Cmd, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_errorCodeparam },
+
+static int
+dissect_local_errorCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_gsm_map_local_errorCode, NULL);
+}
+
+static int
+dissect_global_errorCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  offset =  dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_gsm_map_global_errorCode_oid, NULL);
+  return dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_gsm_map_global_errorCode, NULL);
+}
+static const ber_choice_t ReturnError_result_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_local_errorCode },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_global_errorCode },
   { 0, 0, 0, NULL }
 };
-*/
+
+
 static int
 dissect_ReturnError_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-		return tvb_length_remaining(tvb,offset);
-		/*
-  offset = dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset,
-                                ReturnError_result_sequence, hf_gsm_map_returnResult_result, ett_gsm_map_ReturnError_result);
-*/
+
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              ReturnError_result_choice, hf_gsm_map_returnError_result, ett_gsm_map_ReturnError_result);
+
   return offset;
 }
 
 static const ber_sequence_t ReturnErrorPDU_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ReturnError_result },
+  { BER_CLASS_UNI, -1/*choice*/,BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ReturnError_result },
   { 0, 0, 0, NULL }
 };
 
@@ -806,8 +888,8 @@ static const value_string GSMMAPPDU_vals[] = {
 static const ber_choice_t GSMMAPPDU_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResult_impl },
-#ifdef REMOVED
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
+#ifdef REMOVED
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_reject_impl },
 #endif
   { 0, 0, 0, 0, NULL }
@@ -1069,10 +1151,30 @@ void proto_register_gsm_map(void) {
       { "returnResult", "gsm_map.returnResult",
         FT_NONE, BASE_NONE, NULL, 0,
         "GSMMAPPDU/returnResult", HFILL }},
+	{&hf_gsm_map_returnResult_result,
+      { "returnResult_result", "gsm_map.returnresultresult",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "returnResult_result", HFILL }},
+	{&hf_gsm_map_returnError_result,
+      { "returnError_result", "gsm_map.returnerrorresult",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "returnError_result", HFILL }},
 	{&hf_gsm_map_returnError,
       { "returnError", "gsm_map.returnError",
         FT_NONE, BASE_NONE, NULL, 0,
         "GSMMAPPDU/returnError", HFILL }},
+	{&hf_gsm_map_local_errorCode,
+      { "Local Error Code", "gsm_map.localerrorCode",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_err_code_string_vals), 0,
+        "localerrorCode", HFILL }},
+	{&hf_gsm_map_global_errorCode_oid,
+      { "Global Error Code OID", "gsm_map.hlobalerrorCodeoid",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "globalerrorCodeoid", HFILL }},
+	{&hf_gsm_map_global_errorCode,
+      { "Global Error Code", "gsm_map.globalerrorCode",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "globalerrorCode", HFILL }},
     { &hf_gsm_map_getPassword,
       { "Password", "gsm_map.password",
         FT_UINT8, BASE_DEC, VALS(gsm_map_GetPasswordArg_vals), 0,
@@ -1161,9 +1263,11 @@ void proto_register_gsm_map(void) {
 		"GSM SMS TPDU",FT_UINT8, BASE_DEC);
 
 	gsm_map_tap = register_tap("gsm_map");
+	register_ber_oid_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.1.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.2.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.2.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version1(1)" );
+	register_ber_oid_name("0.4.0.0.1.0.3.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.3.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.3.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.5.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version3(3)" );
