@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.47 2003/04/29 21:27:19 guy Exp $
+ * $Id: plugin_api.c,v 1.48 2003/04/30 19:19:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -241,4 +241,20 @@ plugin_address_table_init(plugin_address_table_t *pat)
 
 	p_proto_item_set_end			= pat->p_proto_item_set_end;
 	p_proto_tree_add_none_format		= pat->p_proto_tree_add_none_format;
+
+	p_except_init				= pat->p_except_init;
+	p_except_deinit				= pat->p_except_deinit;
+	p_except_rethrow			= pat->p_except_rethrow;
+	p_except_throw				= pat->p_except_throw;
+	p_except_throwd				= pat->p_except_throwd;
+	p_except_throwf				= pat->p_except_throwf;
+	p_except_unhandled_catcher     		= pat->p_except_unhandled_catcher;
+	p_except_code				= pat->p_except_code;
+	p_except_group				= pat->p_except_group;
+	p_except_message			= pat->p_except_message;
+	p_except_data				= pat->p_except_data;
+	p_except_take_data			= pat->p_except_take_data;
+	p_except_set_allocator			= pat->p_except_set_allocator;
+	p_except_alloc				= pat->p_except_alloc;
+	p_except_free				= pat->p_except_free;
 }

@@ -2,7 +2,7 @@
  * Declarations of a list of "p_" names; included in various places
  * to declare them as variables or as function members.
  *
- * $Id: plugin_api_decls.h,v 1.10 2003/04/29 21:27:19 guy Exp $
+ * $Id: plugin_api_decls.h,v 1.11 2003/04/30 19:19:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -280,3 +280,19 @@ addr_asn1_err_to_str			p_asn1_err_to_str;
 
 addr_proto_item_set_end			p_proto_item_set_end;
 addr_proto_tree_add_none_format		p_proto_tree_add_none_format;
+
+addr_except_init			p_except_init;
+addr_except_deinit			p_except_deinit;
+addr_except_rethrow			p_except_rethrow;
+addr_except_throw			p_except_throw;
+addr_except_throwd			p_except_throwd;
+addr_except_throwf			p_except_throwf;
+addr_except_unhandled_catcher		p_except_unhandled_catcher;
+addr_except_code			p_except_code;
+addr_except_group			p_except_group;
+addr_except_message			p_except_message;
+addr_except_data			p_except_data;
+addr_except_take_data			p_except_take_data;
+addr_except_set_allocator		p_except_set_allocator;
+addr_except_alloc			p_except_alloc;
+addr_except_free			p_except_free;

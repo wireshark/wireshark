@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.48 2003/04/29 21:27:19 guy Exp $
+ * $Id: plugin_api.h,v 1.49 2003/04/30 19:19:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -272,6 +272,22 @@
 #define proto_item_set_len		(*p_proto_item_set_len)
 #define	proto_tree_add_none_format	(*p_proto_tree_add_none_format)
 
+#define except_init			(*p_except_init)
+#define except_deinit			(*p_except_deinit)
+#define except_rethrow			(*p_except_rethrow)
+#define except_throw			(*p_except_throw)
+#define except_throwd			(*p_except_throwd)
+#define except_throwf			(*p_except_throwf)
+#define except_unhandled_catcher       	(*p_except_unhandled_catcher)
+#define except_code			(*p_except_code)
+#define except_group			(*p_except_group)
+#define except_message			(*p_except_message)
+#define except_data			(*p_except_data)
+#define except_take_data	       	(*p_except_take_data)
+#define except_set_allocator	       	(*p_except_set_allocator)
+#define except_alloc			(*p_except_alloc)
+#define except_free			(*p_except_free)
+
 #endif
 
 #include <epan/packet.h>
@@ -283,6 +299,7 @@
 #include "packet-tcp.h"
 #include "tap.h"
 #include "asn1.h"
+#include "epan/except.h"
 
 #include "plugin_table.h"
 
