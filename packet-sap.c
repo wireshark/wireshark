@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.1 1999/11/17 02:17:06 guy Exp $
+ * $Id: packet-sap.c,v 1.2 1999/11/17 06:52:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -165,7 +165,7 @@ void dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
           proto_tree_add_item(sap_flags_tree, hf_sap_flags_c, offset, 1, pd[offset]);
           offset++;
 
-          proto_tree_add_text(sap_tree, offset, 1, "Authentication Length: %d", pd[offset]);
+          proto_tree_add_text(sap_tree, offset, 1, "Authentication Length: %u", pd[offset]);
           auth_len = pd[offset];
           offset++;
 
@@ -200,15 +200,15 @@ void dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                   if (has_pad) pad_len = *(pd+offset+auth_data_len-1);
 
                   proto_tree_add_text(sa_tree, offset+1, auth_data_len-pad_len-1,
-                                      "Authentication subheader: (%d byte%s)",
-                                      auth_data_len-1, (auth_len-1 > 1) ? "s" : "");
+                                      "Authentication subheader: (%u byte%s)",
+                                      auth_data_len-1, plurality(auth_data_len-1, "", "s"));
                   if (has_pad) {
                           proto_tree_add_text(sa_tree, offset+auth_data_len-pad_len, pad_len,
-                                              "Authentication data padding: (%d byte%s)",
-                                              pad_len, (pad_len > 1) ? "s" : "");
+                                              "Authentication data padding: (%u byte%s)",
+                                              pad_len, plurality(pad_len, "", "s"));
                           proto_tree_add_text(sa_tree, offset+auth_data_len-1, 1,
-                                              "Authentication data pad count: %d byte%s",
-                                              pad_len, (pad_len > 1) ? "s" : "");
+                                              "Authentication data pad count: %u byte%s",
+                                              pad_len, plurality(pad_len, "", "s"));
                   }
 
                   offset += auth_data_len;
@@ -216,7 +216,7 @@ void dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
           if (is_enc) { /* Encrypted payload implies valid timeout in the SAP header */
                   tmp2 = pntohl(pd+offset);
-                  proto_tree_add_text(sap_tree, offset, 4, "Timeout: %d", tmp2);
+                  proto_tree_add_text(sap_tree, offset, 4, "Timeout: %u", tmp2);
                   offset += sizeof(guint32);
           }
 
