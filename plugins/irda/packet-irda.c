@@ -6,7 +6,7 @@
  * Extended by Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: packet-irda.c,v 1.6 2004/03/02 23:45:34 jmayer Exp $
+ * $Id: packet-irda.c,v 1.7 2004/03/08 23:19:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,11 @@
 
 /*
  * This plugin dissects infrared data transmissions as defined by the IrDA
- * specification (www.irda.org).
+ * specification (www.irda.org).  See
+ *
+ *	http://www.irda.org/standards/specifications.asp
+ *
+ * for various IrDA specifications.
  *
  * The plugin operates both offline with libpcap files and online on supported
  * platforms. Live dissection is currently available for Linux-IrDA
