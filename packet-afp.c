@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.9 2002/04/28 23:47:44 guy Exp $
+ * $Id: packet-afp.c,v 1.10 2002/04/29 08:20:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -257,7 +257,9 @@ static gint ett_afp_path_name = -1;
 static gint ett_afp_lock_flags = -1;
 static gint ett_afp_dir_ar = -1;
 
+#ifdef AFP_UNUSED_HANDLES
 static dissector_handle_t afp_handle;
+#endif
 static dissector_handle_t data_handle;
 
 static const value_string vol_signature_vals[] = {
@@ -827,7 +829,6 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap,
 {
 	guint16 lnameoff = 0;
 	guint16 snameoff = 0;
-	guint16 unameoff = 0;
 	gint 	max_offset = 0;
 
 	gint 	org_offset = offset;

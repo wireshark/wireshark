@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.34 2002/04/22 02:04:37 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.35 2002/04/29 08:20:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,7 +182,9 @@ static gint ett_samr_rids = -1;
 static gint ett_nt_acct_ctrl = -1;
 static gint ett_samr_sid_and_attributes_array = -1;
 static gint ett_samr_sid_and_attributes = -1;
+#ifdef SAMR_UNUSED_HANDLES
 static gint ett_samr_hnd = -1;
+#endif
 
 static e_uuid_t uuid_dcerpc_samr = {
         0x12345778, 0x1234, 0xabcd, 
@@ -846,7 +848,6 @@ samr_dissect_PASSWORD_INFO(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep)
 {
-	guint32 count;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	int old_offset=offset;
@@ -1064,6 +1065,7 @@ samr_dissect_USER_GROUP_ARRAY_ptr(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+#if 0
 static int
 samr_dissect_get_user_groups_rqst(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree, 
@@ -1077,6 +1079,7 @@ samr_dissect_get_user_groups_rqst(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+#endif
 
 static int
 samr_dissect_get_groups_for_user_rqst(tvbuff_t *tvb, int offset, 
@@ -1146,7 +1149,7 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-
+#if 0
 static int
 samr_dissect_context_handle_SID(tvbuff_t *tvb, int offset, 
                              packet_info *pinfo, proto_tree *tree, 
@@ -1160,6 +1163,7 @@ samr_dissect_context_handle_SID(tvbuff_t *tvb, int offset,
 			"SID", -1, 0);
 	return offset;
 }
+#endif
 
 static int
 samr_dissect_add_member_to_group_rqst(tvbuff_t *tvb, int offset, 
@@ -2299,7 +2303,6 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	int old_offset=offset;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
@@ -2346,7 +2349,6 @@ samr_dissect_index(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
-	int old_offset=offset;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -2436,6 +2438,7 @@ samr_dissect_get_alias_membership_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+#if 0
 static int
 samr_dissect_get_alias_membership_response(tvbuff_t *tvb, int offset, 
 					   packet_info *pinfo, 
@@ -2449,6 +2452,7 @@ samr_dissect_get_alias_membership_response(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+#endif
 
 static int
 samr_dissect_get_alias_membership_reply(tvbuff_t *tvb, int offset, 

@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.15 2002/04/14 23:04:03 guy Exp $
+ * $Id: packet-pgm.c,v 1.16 2002/04/29 08:20:09 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -343,11 +343,13 @@ static int hf_pgm_opt_parity_prm_prmtgsz = -1;
 static int hf_pgm_opt_parity_grp_res = -1;
 static int hf_pgm_opt_parity_grp_prmgrp = -1;
 
+#ifdef PGM_UNUSED_HANDLES
 static int hf_pgm_opt_curr_tgsize_type = -1;
 static int hf_pgm_opt_curr_tgsize_len = -1;
 static int hf_pgm_opt_curr_tgsize_opx = -1;
 static int hf_pgm_opt_curr_tgsize_res = -1;
 static int hf_pgm_opt_curr_tgsize_prmatgsz = -1;
+#endif
 
 static int hf_pgm_opt_nak_res = -1;
 static int hf_pgm_opt_nak_list = -1;

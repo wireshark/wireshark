@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.25 2002/04/08 20:30:52 gram Exp $
+ * $Id: packet-gtp.c,v 1.26 2002/04/29 08:20:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,19 +83,25 @@ static int hf_gtpv0_flags			= -1;
 static int hf_gtpv0_flags_ver		= -1;
 static int hf_gtpv0_flags_pt		= -1;
 static int hf_gtpv0_flags_spare		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv0_flags_e		= -1;
 static int hf_gtpv0_flags_s		= -1;
 static int hf_gtpv0_flags_pn		= -1;
+#endif
 static int hf_gtpv0_flags_snn		= -1;
 static int hf_gtpv0_message_type		= -1;
 static int hf_gtpv0_length		= -1;
 static int hf_gtpv0_seq_number		= -1;
 static int hf_gtpv0_flow_label		= -1;
 static int hf_gtpv0_sndcp_number		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv0_npdu_number		= -1;
+#endif
 static int hf_gtpv0_tid			= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv0_teid			= -1;
 static int hf_gtpv0_next			= -1;
+#endif
 static int hf_gtpv0_cause			= -1;
 static int hf_gtpv0_imsi			= -1;
 static int hf_gtpv0_rai_mcc		= -1;
@@ -119,13 +125,20 @@ static int hf_gtpv0_ms_valid		= -1;
 static int hf_gtpv0_recovery		= -1;
 static int hf_gtpv0_sel_mode		= -1;
 static int hf_gtpv0_ext_flow_label	= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv0_teid_data		= -1;	/* 3G */
+#endif
 static int hf_gtpv0_flow_sig		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv0_teid_cp		= -1;	/* 3G */
+#endif
 static int hf_gtpv0_nsapi			= -1;
 static int hf_gtpv0_flow_ii		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv0_teid_ii		= -1;	/* 3G */
+#endif
 static int hf_gtpv0_ms_reason		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv0_tear_ind		= -1;	/* 3G */
 static int hf_gtpv0_ranap_cause		= -1;	/* 3G */
 static int hf_gtpv0_rab_gtpu_dn		= -1;	/* 3G */
@@ -145,6 +158,7 @@ static int hf_gtpv0_chrg_char_h		= -1;	/* 3G */
 static int hf_gtpv0_chrg_char_r		= -1;	/* 3G */
 static int hf_gtpv0_trace_ref		= -1;	/* 3G */
 static int hf_gtpv0_trace_type		= -1;	/* 3G */
+#endif
 static int hf_gtpv0_tr_comm		= -1;	/* charging */
 static int hf_gtpv0_chrg_id		= -1;
 static int hf_gtpv0_user_ipv4		= -1;
@@ -157,6 +171,7 @@ static int hf_gtpv0_gsn_ipv6		= -1;
 static int hf_gtpv0_gsn_addr_type		= -1;
 static int hf_gtpv0_gsn_addr_len		= -1;
 static int hf_gtpv0_msisdn		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv0_qos_al_ret_priority	= -1;
 static int hf_gtpv0_qos_traf_class	= -1;
 static int hf_gtpv0_qos_del_order		= -1;
@@ -172,6 +187,7 @@ static int hf_gtpv0_qos_guar_ul		= -1;
 static int hf_gtpv0_qos_guar_dl		= -1;
 static int hf_gtpv0_rnc_ipv4		= -1;
 static int hf_gtpv0_rnc_ipv6		= -1;
+#endif
 static int hf_gtpv0_chrg_ipv4		= -1;
 static int hf_gtpv0_chrg_ipv6		= -1;
 static int hf_gtpv0_node_ipv4		= -1;
@@ -187,14 +203,20 @@ static int hf_gtpv1_flags_spare		= -1;
 static int hf_gtpv1_flags_e		= -1;
 static int hf_gtpv1_flags_s		= -1;
 static int hf_gtpv1_flags_pn		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv1_flags_snn		= -1;
+#endif
 static int hf_gtpv1_message_type		= -1;
 static int hf_gtpv1_length		= -1;
 static int hf_gtpv1_seq_number		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv1_flow_label		= -1;
 static int hf_gtpv1_sndcp_number		= -1;
+#endif
 static int hf_gtpv1_npdu_number		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv1_tid			= -1;
+#endif
 static int hf_gtpv1_teid			= -1;
 static int hf_gtpv1_next			= -1;
 static int hf_gtpv1_cause			= -1;
@@ -219,12 +241,18 @@ static int hf_gtpv1_ptmsi_sig		= -1;
 static int hf_gtpv1_ms_valid		= -1;
 static int hf_gtpv1_recovery		= -1;
 static int hf_gtpv1_sel_mode		= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv1_ext_flow_label	= -1;
+#endif
 static int hf_gtpv1_teid_data		= -1;	/* 3G */
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv1_flow_sig		= -1;
+#endif
 static int hf_gtpv1_teid_cp		= -1;	/* 3G */
 static int hf_gtpv1_nsapi			= -1;
+#ifdef GTP_UNUSED_HANDLES
 static int hf_gtpv1_flow_ii		= -1;
+#endif
 static int hf_gtpv1_teid_ii		= -1;	/* 3G */
 static int hf_gtpv1_ms_reason		= -1;
 static int hf_gtpv1_tear_ind		= -1;	/* 3G */
@@ -4809,7 +4837,7 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_item	*ti, *tf;
 	proto_tree	*gtpv1_tree, *flags_tree;
 	guint16		seq_no;
-	guint8		ext_hdr_val, i, hdr_offset = 4, next_hdr, npdu_no, probe;
+	guint8		ext_hdr_val, i, hdr_offset = 4, next_hdr, npdu_no;
 	tvbuff_t	*next_tvb;
 	int		offset, length, mandatory, checked_field;
 	

@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.17 2002/03/05 12:03:27 guy Exp $
+ * $Id: tcp_graph.c,v 1.18 2002/04/29 08:20:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -388,8 +388,10 @@ int debugging = 0;
 /*int debugging = DBS_TPUT_ELMTS;*/
 
 static void create_gui (struct graph * );
+#if 0
 static void create_text_widget (struct graph * );
 static void display_text (struct graph * );
+#endif
 static void create_drawing_area (struct graph * );
 static void control_panel_create (struct graph * );
 static GtkWidget *control_panel_create_zoom_group (struct graph * );
@@ -573,6 +575,7 @@ static void create_gui (struct graph *g)
 	create_drawing_area(g);
 }
 
+#if 0
 static void create_text_widget (struct graph *g)
 {
 	GtkWidget *streamwindow, *txt_scrollw, *box;
@@ -601,7 +604,6 @@ static void create_text_widget (struct graph *g)
 	gtk_widget_show (g->text);
 	gtk_widget_show (streamwindow);
 }
-
 static void display_text (struct graph *g)
 {
 	char *line[256];
@@ -663,6 +665,7 @@ static void display_text (struct graph *g)
 	}
 	gtk_text_thaw (GTK_TEXT (g->text));
 }
+#endif
 
 static void create_drawing_area (struct graph *g)
 {

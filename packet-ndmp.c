@@ -2,7 +2,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.17 2002/04/03 13:24:12 girlich Exp $
+ * $Id: packet-ndmp.c,v 1.18 2002/04/29 08:20:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2686,8 +2686,6 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	int len;
-	proto_item *ndmp_item = NULL;
-	proto_tree *ndmp_tree = NULL;
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*

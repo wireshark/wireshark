@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.251 2002/04/28 01:19:27 guy Exp $
+ * $Id: packet-smb.c,v 1.252 2002/04/29 08:20:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -323,7 +323,9 @@ static int hf_smb_nt_ioctl_function_code = -1;
 static int hf_smb_nt_ioctl_isfsctl = -1;
 static int hf_smb_nt_ioctl_flags_root_handle = -1;
 static int hf_smb_nt_ioctl_data = -1;
+#ifdef SMB_UNUSED_HANDLES
 static int hf_smb_nt_security_information = -1;
+#endif
 static int hf_smb_nt_notify_action = -1;
 static int hf_smb_nt_notify_watch_tree = -1;
 static int hf_smb_nt_notify_stream_write = -1;
@@ -6633,14 +6635,13 @@ dissect_security_information_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	return offset;
 }
-
+#if 0
 static void
 free_g_string(void *arg)
 {
-	GString *gstring = arg;
-
 	g_string_free(arg, TRUE);
 }
+#endif
 
 int
 dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, char *name)
@@ -6876,7 +6877,7 @@ dissect_nt_acl(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset = offset;
-	guint16 revision, size;
+	guint16 revision;
 	guint32 num_aces;
 
 	if(parent_tree){
@@ -11906,7 +11907,6 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
 	guint8 sc, wc;
 	guint16 od=0, po=0, pc=0, pd=0, dc=0, dd=0, td=0, tp=0;
-	gboolean reassembled = FALSE;
 	smb_info_t *si;
 	smb_transact2_info_t *t2i = NULL;
 	guint16 bc;

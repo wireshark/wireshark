@@ -440,6 +440,7 @@ David Frascone <dave[AT]frascone.com> {
 	DIAMETER
 	Bug fixes and enhancements to Mobile IP
 	Support for Mobile IP's use of ICMP Router Advertisements
+	Removal of unused variables and functions
 }
 
 Peter Kjellerstedt <pkj[AT]axis.com> {

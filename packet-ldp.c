@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.37 2002/04/28 00:18:50 guy Exp $
+ * $Id: packet-ldp.c,v 1.38 2002/04/29 08:20:08 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1047,7 +1047,10 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 static void 
 dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
-	proto_tree *ti = NULL, *val_tree = NULL;
+#if 0
+	proto_tree *ti = NULL;
+#endif
+	proto_tree *val_tree = NULL;
 
 	if (tree) {
 #if 0

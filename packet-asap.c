@@ -5,7 +5,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-asap.c,v 1.1 2002/04/15 21:47:59 guy Exp $
+ * $Id: packet-asap.c,v 1.2 2002/04/29 08:20:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,9 @@ static int proto_asap = -1;
 static int hf_asap_message_type = -1;
 static int hf_asap_message_flags = -1;
 static int hf_asap_message_length = -1;
+#ifdef ASAP_UNUSED_HANDLES
 static int hf_asap_message_value = -1;
+#endif
 static int hf_asap_parameter_type = -1;
 static int hf_asap_parameter_length = -1;
 static int hf_asap_parameter_value = -1;

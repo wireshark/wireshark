@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.44 2002/04/22 09:43:03 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.45 2002/04/29 08:20:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -490,7 +490,7 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_tree *tree, char *drep, 
 		dcerpc_dissect_fnct_t *fnct)
 {
-	guint32 i, count;
+	guint32 i;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -519,7 +519,7 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_tree *tree, char *drep, 
 		dcerpc_dissect_fnct_t *fnct)
 {
-	guint32 i, count;
+	guint32 i;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -775,7 +775,6 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/*TOP LEVEL UNIQUE POINTER*/
 	if( pointers_are_top_level
 	&& (type==NDR_POINTER_UNIQUE) ){
-		int idx;
 		guint32 id;
 		proto_item *item;
 		proto_tree *tr;
@@ -821,7 +820,6 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/*EMBEDDED UNIQUE POINTER*/
 	if( (!pointers_are_top_level)
 	&& (type==NDR_POINTER_UNIQUE) ){
-		int idx;
 		guint32 id;
 		proto_item *item;
 		proto_tree *tr;

@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.31 2002/04/29 06:23:03 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.32 2002/04/29 08:20:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,7 +116,9 @@ static int hf_lsa_unknown_long = -1;
 static int hf_lsa_unknown_short = -1;
 static int hf_lsa_unknown_char = -1;
 static int hf_lsa_unknown_string = -1;
+#ifdef LSA_UNUSED_HANDLES
 static int hf_lsa_unknown_time = -1;
+#endif
 
 
 static gint ett_dcerpc_lsa = -1;

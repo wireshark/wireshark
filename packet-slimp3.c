@@ -6,7 +6,7 @@
  * Adds support for the data packet protocol for the SliMP3
  * See www.slimdevices.com for details.
  *
- * $Id: packet-slimp3.c,v 1.4 2002/02/02 02:59:23 guy Exp $
+ * $Id: packet-slimp3.c,v 1.5 2002/04/29 08:20:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,15 +171,10 @@ static void
 dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree	*slimp3_tree = NULL;
-    proto_tree	*el_tree = NULL;
     proto_item	*ti = NULL;
-    conversation_t  *conversation;
     gint		i1;
     gint		offset = 0;
     guint16		opcode;
-    guint16         error;
-    guint32      i;
-    guint8       subcode;
     char addc_str[101];
     char *addc_strp;
     
@@ -455,7 +450,6 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SLIMP3_DISC_RSP:
 	if (tree) {
-	    guint8 fw_ver;
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_discover_response,
 				       tvb, offset, 1, FALSE);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 4,
@@ -466,7 +460,6 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    guint8 fw_ver = tvb_get_guint8(tvb, offset+2);
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Server Address: %s. Server Port: %d", 
 			    ip_to_str(tvb_get_ptr(tvb, offset+2, 4)),
 			    tvb_get_ntohs(tvb, offset + 6));

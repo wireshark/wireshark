@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.17 2002/04/20 07:15:19 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.18 2002/04/29 08:20:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -402,7 +402,7 @@ netlogon_dissect_TYPE_2(tvbuff_t *tvb, int offset,
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
-
+#if 0
 static int
 netlogon_dissect_CYPHER_BLOCK(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
@@ -410,7 +410,6 @@ netlogon_dissect_CYPHER_BLOCK(tvbuff_t *tvb, int offset,
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	int i;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -431,6 +430,7 @@ netlogon_dissect_CYPHER_BLOCK(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+#endif
 
 static int
 netlogon_dissect_8_unknown_bytes(tvbuff_t *tvb, int offset,
@@ -439,7 +439,6 @@ netlogon_dissect_8_unknown_bytes(tvbuff_t *tvb, int offset,
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	int i;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -466,7 +465,6 @@ netlogon_dissect_NETLOGON_CREDENTIAL(tvbuff_t *tvb, int offset,
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	int i;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -633,7 +631,6 @@ netlogon_dissect_NETLOGON_LOGON_IDENTITY_INFO(tvbuff_t *tvb, int offset,
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
- 	int old_offset=offset;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
@@ -729,7 +726,6 @@ netlogon_dissect_GROUP_MEMBERSHIP(tvbuff_t *tvb, int offset,
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
- 	int old_offset=offset;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
@@ -1678,7 +1674,7 @@ netlogon_dissect_TYPE_31(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-
+#if 0
 static int
 netlogon_dissect_TYPE_32(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
@@ -1700,7 +1696,7 @@ netlogon_dissect_TYPE_32(tvbuff_t *tvb, int offset,
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
-
+#endif
 
 static int
 netlogon_dissect_attrs(tvbuff_t *tvb, int offset,
@@ -2278,7 +2274,6 @@ netlogon_dissect_BLOB(tvbuff_t *tvb, int offset,
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
- 	int old_offset=offset;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,

@@ -3,7 +3,7 @@
  * (From IEEE Draft P802.1X/D11; is there a later draft, or a
  * final standard?  If so, check it.)
  *
- * $Id: packet-eapol.c,v 1.9 2002/03/11 08:47:46 guy Exp $
+ * $Id: packet-eapol.c,v 1.10 2002/04/29 08:20:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,7 +91,6 @@ static void
 dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int         offset = 0;
-  guint8      eapol_ver;
   guint8      eapol_type;
   guint16     eapol_len;
   guint       len;

@@ -7,7 +7,7 @@
  * draft-ietf-ips-iscsi-09.txt by defining DRAFT09
  * draft-ietf-ips-iscsi-08.txt by defining DRAFT08
  *
- * $Id: packet-iscsi.c,v 1.29 2002/04/04 23:24:09 guy Exp $
+ * $Id: packet-iscsi.c,v 1.30 2002/04/29 08:20:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,7 +155,9 @@ static int hf_iscsi_Login_X = -1;
 static int hf_iscsi_Login_T = -1;
 static int hf_iscsi_Login_CSG = -1;
 static int hf_iscsi_Login_NSG = -1;
+#ifdef ISCSI_UNUSED_HANDLES
 static int hf_iscsi_Login_Stage = -1;
+#endif
 static int hf_iscsi_Login_Status = -1;
 static int hf_iscsi_KeyValue = -1;
 static int hf_iscsi_Text_F = -1;
@@ -721,7 +723,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
     guint original_offset = offset;
     proto_tree *ti = NULL;
-    char *scsi_command_name = NULL;
     guint8 scsi_status = 0;
     guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
     guint end_offset = offset + tvb_length_remaining(tvb, offset);

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.20 2002/04/24 03:08:49 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.21 2002/04/29 08:20:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -398,7 +398,6 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 	guint32 size, type;
 
 	/* Update information fields */
@@ -592,7 +591,6 @@ static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 
 	/* Update informational fields */
 
@@ -622,7 +620,6 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 	char *key_name, *value_name;
 	guint32 type, max_len;
 	const guint8 *policy_hnd;
@@ -680,7 +677,6 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 
 	/* Update informational fields */
 
@@ -705,7 +701,7 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree *tree, void **data, char *name)
 {
-	gint len = 0, remaining, i;
+	gint len = 0, remaining;
 	char *text;
 
 	offset = prs_align(offset, 2);
@@ -740,7 +736,6 @@ static int prs_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 ptr = 0;
 	guint16 extra;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "DEVMODE");
@@ -816,9 +811,7 @@ static int prs_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item;
 	proto_tree *subtree;
 	guint32 relstr_offset, relstr_start, relstr_end;
-	guint16 *ptr;
 	char *text = strdup("NULL");
-	gint len = 0, remaining, i;
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &relstr_offset, NULL);
 
@@ -1194,7 +1187,6 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *printer_name;
 	guint32 ptr = 0;
 
 	/* Update informational fields */
@@ -1246,7 +1238,6 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 	guint32 status;
 	const guint8 *policy_hnd;
 
@@ -1361,7 +1352,7 @@ static int prs_NOTIFY_OPTION_CTR(tvbuff_t *tvb, int offset,
 	GList *child_dp_list = NULL;
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 count, i, ptr;
+	guint32 count, i;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, 
 				   "NOTIFY_OPTION_CTR");
@@ -1510,7 +1501,7 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 ptr = 0, type;
+	guint32 type;
 
 	/* Update informational fields */
 
@@ -1548,7 +1539,6 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 	const guint8 *policy_hnd;
 
 	/* Update informational fields */
@@ -1593,7 +1583,7 @@ static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item *item, *subitem;
 	proto_tree *subtree, *subsubtree;
-	guint32 ptr = 0, size;
+	guint32 size;
 	int data8_offset;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "BUFFER_DATA");
@@ -1663,7 +1653,6 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 	guint32 level;
 	const guint8 *policy_hnd;
 
@@ -1781,7 +1770,7 @@ static int prs_SPOOL_PRINTER_INFO_LEVEL(tvbuff_t *tvb, int offset,
 {
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 ptr = 0, level;
+	guint32 level;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, 
 				   "SPOOL_PRINTER_INFO_LEVEL");
@@ -1807,7 +1796,6 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 	guint32 level;
 	const guint8 *policy_hnd;
 
@@ -1852,7 +1840,6 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 
 	/* Update informational fields */
 
@@ -1934,7 +1921,6 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	GList *dp_list = NULL;
 	guint32 level;
 	const guint8 *policy_hnd;
 
@@ -1976,7 +1962,6 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 count;
-	GList *dp_list = NULL;
 	struct BUFFER_DATA *bd = NULL;
 	void **data_list;
 
@@ -2101,7 +2086,7 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 /*
  * AddPrinterEx
  */
-
+#if 0
 static int SpoolssAddPrinterEx_q(tvbuff_t *tvb, int offset, 
                                  packet_info *pinfo, proto_tree *tree, 
                                  char *drep)
@@ -2151,7 +2136,7 @@ static int SpoolssAddPrinterEx_q(tvbuff_t *tvb, int offset,
 	
 	return offset;
 }      
-
+#endif
 static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 proto_tree *tree, char *drep)
 {
@@ -2376,7 +2361,7 @@ static int SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /*
  * AddPrinterDriver
  */
-
+#if 0
 static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset, 
 				     packet_info *pinfo, proto_tree *tree, 
 				     char *drep)
@@ -2399,7 +2384,7 @@ static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset,
 
 	return offset;
 }      
-
+#endif
 static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset, 
 				     packet_info *pinfo, proto_tree *tree, 
 				     char *drep)
@@ -2694,7 +2679,6 @@ static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	proto_item *info_item;
 
 	/* Update informational fields */
 
@@ -2856,13 +2840,12 @@ static int SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static gint ett_JOB_INFO_1;
-
+#if 0
 static int prs_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree *tree, GList **dp_list, void **data)
 {
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 level;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "JOB_INFO_1");
 
@@ -2870,19 +2853,19 @@ static int prs_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	return offset;
 }
+#endif
 
 /*
  * JOB_INFO_2
  */
 
 static gint ett_JOB_INFO_2;
-
+#if 0
 static int prs_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree *tree, GList **dp_list, void **data)
 {
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 level;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "JOB_INFO_2");
 
@@ -2890,6 +2873,7 @@ static int prs_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	return offset;
 }
+#endif
 
 /*
  * EnumJobs

@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.45 2002/03/05 00:24:24 guy Exp $
+ * $Id: packet-diameter.c,v 1.46 2002/04/29 08:20:07 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -174,7 +174,6 @@ static int hf_diameter_length = -1;
 static int hf_diameter_code = -1;
 static int hf_diameter_hopbyhopid =-1;
 static int hf_diameter_endtoendid =-1;
-static int hf_diameter_reserved = -1;
 static int hf_diameter_version = -1;
 static int hf_diameter_vendor_id = -1;
 static int hf_diameter_flags = -1;
@@ -189,7 +188,6 @@ static int hf_diameter_flags_reserved7 = -1;
 
 static int hf_diameter_avp_code = -1;
 static int hf_diameter_avp_length = -1;
-static int hf_diameter_avp_reserved = -1;
 static int hf_diameter_avp_flags = -1;
 static int hf_diameter_avp_flags_vendor_specific = -1;
 static int hf_diameter_avp_flags_mandatory = -1;

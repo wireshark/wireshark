@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.4 2002/04/25 06:34:41 guy Exp $
+ * $Id: packet-lmp.c,v 1.5 2002/04/29 08:20:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -762,13 +762,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 message_type;
     guint16 cksum, computed_cksum;
     vec_t cksum_vec[1];
-    int i, j, k, l, len;
+    int j, k, l, len;
     int msg_length;
     int obj_length;
     int mylen;
     int offset2;
-    char *objtype;
-    int session_off, tempfilt_off;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMP");
@@ -1412,7 +1410,6 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 		    
 	    default :
-	    default_class:
 		proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
 				    "Data (%d bytes)", mylen);
 		break;

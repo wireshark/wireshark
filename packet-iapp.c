@@ -2,7 +2,7 @@
  * Routines for IAPP dissection
  * Copyright 2002, Alfred Arnold <aarnold@elsa.de>
  *
- * $Id: packet-iapp.c,v 1.1 2002/02/02 12:04:22 guy Exp $
+ * $Id: packet-iapp.c,v 1.2 2002/04/29 08:20:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -259,9 +259,7 @@ static gchar*
 authval_to_str(int type, int len, tvbuff_t *tvb, int offset)
 {
 	gchar *run;
-	const guint8 *mac;
 	int z, val;
-	gchar *strval;
 
 	run = textbuffer;
 	run += sprintf(run, "Value: ");
