@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.1 2001/01/02 01:32:21 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.2 2001/01/02 19:38:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1140,6 +1140,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	for (i = 0; i < len; i++) {
  		if (proto_registrar_is_protocol(i)) {
 			hfinfo = proto_registrar_get_nth(i);
+			if (hfinfo->type == FT_TEXT_ONLY)
+				continue;	/* "text" isn't a filterable field */
 			/* Create a node for the protocol,
 			   and remember it for later use. */
 			protocol_node = gtk_ctree_insert_node(GTK_CTREE(tree),
