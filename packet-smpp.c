@@ -2,7 +2,7 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-smpp.c,v 1.9 2002/08/13 09:03:23 guy Exp $
+ * $Id: packet-smpp.c,v 1.10 2003/03/08 14:21:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1293,6 +1293,7 @@ data_sm_resp(proto_tree *tree, tvbuff_t *tvb)
  * a genuine SMPP PDU here.
  * Only works when:
  *	at least the fixed header is there
+ *	it has a correct overall PDU length
  *	it is a 'well-known' operation
  *	has a 'well-known' status
  */
@@ -1301,8 +1302,12 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint	 command_id;		/* SMPP command		*/
     guint	 command_status;	/* Status code		*/
+    guint	 command_length;	/* length of PDU	*/
 
     if (tvb_reported_length(tvb) < 4 * 4)	/* Mandatory header	*/
+	return FALSE;
+    command_length = tvb_get_ntohl(tvb, 0);
+    if (command_length > 64 * 1024)
 	return FALSE;
     command_id = tvb_get_ntohl(tvb, 4);		/* Only known commands	*/
     if (match_strval(command_id, vals_command_id) == NULL)
