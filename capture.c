@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.105 2000/05/25 07:42:23 gram Exp $
+ * $Id: capture.c,v 1.106 2000/05/26 22:08:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -546,7 +546,7 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
 int
 capture(void)
 {
-  GtkWidget  *cap_w, *main_vb, *count_lb, *tcp_lb, *udp_lb, *icmp_lb,
+  GtkWidget  *cap_w, *main_vb, *count_lb, *sctp_lb, *tcp_lb, *udp_lb, *icmp_lb,
              *ospf_lb, *gre_lb, *netbios_lb, *ipx_lb, *vines_lb, *other_lb, *stop_bt;
   pcap_t     *pch;
   gchar       err_str[PCAP_ERRBUF_SIZE], label_str[32];
@@ -583,6 +583,7 @@ capture(void)
   ld.max            = cf.count;
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
   ld.sync_packets   = 0;
+  ld.counts.sctp    = 0;
   ld.counts.tcp     = 0;
   ld.counts.udp     = 0;
   ld.counts.icmp    = 0;
@@ -697,6 +698,10 @@ capture(void)
   gtk_box_pack_start(GTK_BOX(main_vb), count_lb, FALSE, FALSE, 3);
   gtk_widget_show(count_lb);
 
+  sctp_lb = gtk_label_new("SCTP: 0 (0.0%)");
+  gtk_box_pack_start(GTK_BOX(main_vb), sctp_lb, FALSE, FALSE, 3);
+  gtk_widget_show(sctp_lb);
+
   tcp_lb = gtk_label_new("TCP: 0 (0.0%)");
   gtk_box_pack_start(GTK_BOX(main_vb), tcp_lb, FALSE, FALSE, 3);
   gtk_widget_show(tcp_lb);
@@ -796,6 +801,10 @@ capture(void)
 
       sprintf(label_str, "Count: %d", ld.counts.total);
       gtk_label_set(GTK_LABEL(count_lb), label_str);
+
+      sprintf(label_str, "SCTP: %d (%.1f%%)", ld.counts.sctp,
+                pct(ld.counts.sctp, ld.counts.total));
+      gtk_label_set(GTK_LABEL(sctp_lb), label_str);
 
       sprintf(label_str, "TCP: %d (%.1f%%)", ld.counts.tcp,
 		pct(ld.counts.tcp, ld.counts.total));
