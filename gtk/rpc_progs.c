@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.23 2004/04/12 09:48:18 ulfl Exp $
+ * $Id: rpc_progs.c,v 1.24 2004/05/17 20:06:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply RTT statistics to tethereal.
+/* This module provides rpc call/reply SRT statistics to tethereal.
  * It is only used by tethereal and not ethereal
  *
  * It serves as an example on how to use the tap api.
@@ -370,15 +370,15 @@ gtk_rpcprogs_init(char *optarg _U_)
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 2,3,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 
-	tmp=gtk_label_new("Min RTT");
+	tmp=gtk_label_new("Min SRT");
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 3,4,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 
-	tmp=gtk_label_new("Max RTT");
+	tmp=gtk_label_new("Max SRT");
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 4,5,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 
-	tmp=gtk_label_new("Avg RTT");
+	tmp=gtk_label_new("Avg SRT");
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 5,6,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 

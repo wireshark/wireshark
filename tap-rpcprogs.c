@@ -1,7 +1,7 @@
 /* tap-rpcprogs.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcprogs.c,v 1.5 2003/04/23 08:20:02 guy Exp $
+ * $Id: tap-rpcprogs.c,v 1.6 2004/05/17 20:06:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply RTT statistics to tethereal.
+/* This module provides rpc call/reply SRT statistics to tethereal.
  * It is only used by tethereal and not ethereal
  */
 
@@ -193,7 +193,7 @@ rpcprogs_draw(void *dummy _U_)
 	printf("\n");
 	printf("===================================================================\n");
 	printf("ONC-RPC Program Statistics:\n");
-	printf("Program    Version  Calls   Min RTT   Max RTT   Avg RTT\n");
+	printf("Program    Version  Calls   Min SRT   Max SRT   Avg SRT\n");
 	for(rp=prog_list;rp;rp=rp->next){
 		/* scale it to units of 10us.*/
 		/* for long captures with a large tot time, this can overflow on 32bit */
