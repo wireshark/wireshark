@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening EtherPeek and AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.8 2004/02/06 04:27:19 guy Exp $
+ * $Id: airopeek9.c,v 1.9 2004/02/06 04:48:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -317,12 +317,16 @@ typedef struct {
  * are present.
  */
 static int
-airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err)
+airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
+    gchar **err_info)
 {
     long header_len = 0;
     int bytes_read;
     guint8 tag_value[6];
     guint16 tag;
+    gboolean saw_length = FALSE;
+    gboolean saw_timestamp_lower = FALSE;
+    gboolean saw_timestamp_upper = FALSE;
 
     hdr_info->ieee_802_11.fcs_len = 0;		/* assume no FCS for 802.11 */
 
@@ -352,15 +356,33 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err)
 	switch (tag) {
 
 	case TAG_AIROPEEK_V9_LENGTH:
+	    if (saw_length) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup("airopeekv9: record has two length fields");
+		return FALSE;
+	    }
 	    hdr_info->length = pletohl(&tag_value[2]);
+	    saw_length = TRUE;
 	    break;
     
 	case TAG_AIROPEEK_V9_TIMESTAMP_LOWER:
+	    if (saw_timestamp_lower) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup("airopeekv9: record has two timestamp-lower fields");
+		return FALSE;
+	    }
 	    hdr_info->timestamp.lower = pletohl(&tag_value[2]);
+	    saw_timestamp_lower = TRUE;
 	    break;
 
 	case TAG_AIROPEEK_V9_TIMESTAMP_UPPER:
+	    if (saw_timestamp_upper) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup("airopeekv9: record has two timestamp-upper fields");
+		return FALSE;
+	    }
 	    hdr_info->timestamp.upper = pletohl(&tag_value[2]);
+	    saw_timestamp_upper = TRUE;
 	    break;
 
 	case TAG_AIROPEEK_V9_FLAGS_AND_STATUS:
@@ -404,6 +426,22 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err)
         }
     } while (tag != TAG_AIROPEEK_V9_SLICE_LENGTH);	/* last tag */
 
+    if (!saw_length) {
+	*err = WTAP_ERR_BAD_RECORD;
+	*err_info = g_strdup("airopeekv9: record has no length field");
+	return FALSE;
+    }
+    if (!saw_timestamp_lower) {
+	*err = WTAP_ERR_BAD_RECORD;
+	*err_info = g_strdup("airopeekv9: record has no timestamp-lower field");
+	return FALSE;
+    }
+    if (!saw_timestamp_upper) {
+	*err = WTAP_ERR_BAD_RECORD;
+	*err_info = g_strdup("airopeekv9: record has no timestamp-upper field");
+	return FALSE;
+    }
+
     return header_len;
 }
 
@@ -417,7 +455,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err)
  */
 #define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
 
-static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     long *data_offset)
 {
     hdr_info_t hdr_info;
@@ -427,7 +465,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info _U_,
     *data_offset = wth->data_offset;
 
     /* Process the packet header. */
-    hdrlen = airopeekv9_process_header(wth->fh, &hdr_info, err);
+    hdrlen = airopeekv9_process_header(wth->fh, &hdr_info, err, err_info);
     if (hdrlen == -1)
 	return FALSE;
     wth->data_offset += hdrlen;
@@ -501,7 +539,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info _U_,
 static gboolean
 airopeekv9_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
     hdr_info_t hdr_info;
 
@@ -509,7 +547,7 @@ airopeekv9_seek_read(wtap *wth, long seek_off,
 	return FALSE;
 
     /* Process the packet header. */
-    if (airopeekv9_process_header(wth->random_fh, &hdr_info, err) == -1)
+    if (airopeekv9_process_header(wth->random_fh, &hdr_info, err, err_info) == -1)
 	return FALSE;
 
     switch (wth->file_encap) {
