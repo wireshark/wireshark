@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.111 2003/10/22 22:13:12 guy Exp $
+ * $Id: prefs.c,v 1.112 2003/11/09 01:36:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2238,6 +2238,9 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;
   dest->gui_toolbar_main_show = src->gui_toolbar_main_show;
   dest->gui_toolbar_main_style = src->gui_toolbar_main_style;
+  dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
+  dest->gui_fileopen_remembered_dir = g_strdup(src->gui_fileopen_remembered_dir);
+  dest->gui_fileopen_style = src->gui_fileopen_style;
   dest->gui_font_name = g_strdup(src->gui_font_name);
   dest->gui_marked_fg = src->gui_marked_fg;
   dest->gui_marked_bg = src->gui_marked_bg;
@@ -2280,7 +2283,7 @@ free_prefs(e_prefs *pr)
     g_free(pr->gui_fileopen_dir);
     pr->gui_fileopen_dir = NULL;
   }
-  if (pr->gui_fileopen_dir != NULL) {
+  if (pr->gui_fileopen_remembered_dir != NULL) {
     g_free(pr->gui_fileopen_remembered_dir);
     pr->gui_fileopen_remembered_dir = NULL;
   }
