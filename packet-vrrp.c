@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.22 2002/03/06 06:33:37 itojun Exp $
+ * $Id: packet-vrrp.c,v 1.23 2002/03/28 07:40:54 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,8 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         int offset = 0;
         gint vrrp_len;
         guint8  ver_type;
-	vec_t cksum_vec[1];
+	vec_t cksum_vec[4];
+	guint32 phdr[2];
 
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "VRRP");
@@ -166,9 +167,28 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (!pinfo->fragmented && (gint)tvb_length(tvb) >= vrrp_len) {
                         /* The packet isn't part of a fragmented datagram
                            and isn't truncated, so we can checksum it. */
-                        cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
-                        cksum_vec[0].len = vrrp_len;
-                        computed_cksum = in_cksum(&cksum_vec[0], 1);
+			switch(hi_nibble(ver_type)) {
+			case 3:
+				/* Set up the fields of the pseudo-header. */
+				cksum_vec[0].ptr = pinfo->src.data;
+				cksum_vec[0].len = pinfo->src.len;
+				cksum_vec[1].ptr = pinfo->dst.data;
+				cksum_vec[1].len = pinfo->dst.len;
+				cksum_vec[2].ptr = (const guint8 *)&phdr;
+				phdr[0] = htonl(vrrp_len);
+				phdr[1] = htonl(IP_PROTO_VRRP);
+				cksum_vec[2].len = 8;
+				cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
+				cksum_vec[3].len = vrrp_len;
+				computed_cksum = in_cksum(cksum_vec, 4);
+				break;
+			case 2:
+			default:
+				cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
+				cksum_vec[0].len = vrrp_len;
+				computed_cksum = in_cksum(&cksum_vec[0], 1);
+				break;
+			}
                         if (computed_cksum == 0) {
                                 proto_tree_add_text(vrrp_tree, tvb, offset, 2,
                                                     "Checksum: 0x%04x (correct)",
