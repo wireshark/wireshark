@@ -1511,6 +1511,7 @@ Ulf Lamping <ulf.lamping[AT]web.de> {
 	Count ARP packets in capture progress dialog box
 	Show total running time of capture in capture progress dialog box
 	Toolbar
+	Redesign of the print dialog
 }
 
 Matthew Smart <smart[AT]monkey.org> {
@@ -1966,6 +1967,10 @@ Jan Kiszka <jan.kiszka [AT] web.de> {
 Joshua Craig Douglas <jdouglas [AT] enterasys.com> {
 	Enterasys Interswitch Message Protocol (ISMP)
 	Enterasys Discovery Protocol (EDP) (ISMP subprotocol)
+}
+
+Dick Gooris <gooris [AT] lucent.com> {
+	Added packet range selections in the save(as) dialog
 }
 
 And assorted fixes and enhancements by the people listed above and by:
