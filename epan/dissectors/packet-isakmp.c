@@ -332,7 +332,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
   proto_tree *		ntree;
   struct payload_func *	f;
 
-  for (payload = initial_payload; length != 0; payload = next_payload) {
+  for (payload = initial_payload; length > 0; payload = next_payload) {
     if (payload == LOAD_TYPE_NONE) {
       /*
        * What?  There's more stuff in this chunk of data, but the
@@ -348,6 +348,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
     if (ntree == NULL)
       break;
     if (payload_length >= 4) {	/* XXX = > 4? */
+      tvb_ensure_bytes_exist(tvb, offset + 4, payload_length - 4);
       if ((f = getpayload_func(payload)) != NULL && f->func != NULL)
         (*f->func)(tvb, offset + 4, payload_length - 4, ntree, pinfo, -1);
       else {
@@ -356,13 +357,13 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
       }
     }
     else if (payload_length > length) {
-        proto_tree_add_text(ntree, tvb, offset + 4, 0,
+        proto_tree_add_text(ntree, tvb, 0, 0,
             "Payload (bogus, length is %u, greater than remaining length %d",
             payload_length, length);
         return;
     }
     else {
-        proto_tree_add_text(ntree, tvb, offset + 4, 0,
+        proto_tree_add_text(ntree, tvb, 0, 0,
             "Payload (bogus, length is %u, must be at least 4)",
             payload_length);
         payload_length = 4;
