@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.125 2003/04/09 20:45:04 guy Exp $
+ * $Id: packet-ipx.c,v 1.126 2003/04/09 22:33:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,14 +77,20 @@ static dissector_table_t spx_socket_dissector_table;
 
 static int proto_spx = -1;
 static int hf_spx_connection_control = -1;
+static int hf_spx_connection_control_sys = -1;
+static int hf_spx_connection_control_send_ack = -1;
+static int hf_spx_connection_control_attn = -1;
+static int hf_spx_connection_control_eom = -1;
 static int hf_spx_datastream_type = -1;
 static int hf_spx_src_id = -1;
 static int hf_spx_dst_id = -1;
 static int hf_spx_seq_nr = -1;
 static int hf_spx_ack_nr = -1;
 static int hf_spx_all_nr = -1;
+static int hf_spx_rexmt_frame = -1;
 
 static gint ett_spx = -1;
+static gint ett_spx_connctrl = -1;
 
 static int proto_ipxrip = -1;
 static int hf_ipxrip_request = -1;
@@ -361,10 +367,18 @@ typedef struct {
         guint32             num;
 } spx_hash_value;
 
+/*
+ * Structure attached to retransmitted SPX frames; it contains the
+ * frame number of the original transmission.
+ */
+typedef struct {
+        guint32             num;
+} spx_rexmit_info;
+
 static GHashTable *spx_hash = NULL;
 static GMemChunk *spx_hash_keys = NULL;
 static GMemChunk *spx_hash_values = NULL;
-static GMemChunk *spx_infos = NULL;
+static GMemChunk *spx_rexmit_infos = NULL;
 
 /* Hash Functions */
 gint
@@ -399,8 +413,8 @@ spx_init_protocol(void)
 		g_mem_chunk_destroy(spx_hash_keys);
 	if (spx_hash_values)
 		g_mem_chunk_destroy(spx_hash_values);
-	if (spx_infos)
-		g_mem_chunk_destroy(spx_infos);
+	if (spx_rexmit_infos)
+		g_mem_chunk_destroy(spx_rexmit_infos);
 
 	spx_hash = g_hash_table_new(spx_hash_func, spx_equal);
 	spx_hash_keys = g_mem_chunk_new("spx_hash_keys",
@@ -411,9 +425,9 @@ spx_init_protocol(void)
 			sizeof(spx_hash_value),
 			SPX_PACKET_INIT_COUNT * sizeof(spx_hash_value),
 			G_ALLOC_ONLY);
-	spx_infos = g_mem_chunk_new("spx_infos",
-			sizeof(spx_infos),
-			SPX_PACKET_INIT_COUNT * sizeof(spx_infos),
+	spx_rexmit_infos = g_mem_chunk_new("spx_rexmit_infos",
+			sizeof(spx_rexmit_infos),
+			SPX_PACKET_INIT_COUNT * sizeof(spx_rexmit_infos),
 			G_ALLOC_ONLY);
 }
 
@@ -437,7 +451,7 @@ spx_postseq_cleanup(void)
 		g_mem_chunk_destroy(spx_hash_values);
 		spx_hash_values = NULL;
 	}
-	/* Don't free the spx_infos, as they're
+	/* Don't free the spx_rexmit_infos, as they're
 	 * needed during random-access processing of the proto_tree.*/
 }
 
@@ -478,19 +492,25 @@ spx_hash_lookup(conversation_t *conversation, guint32 spx_src)
 /* ================================================================= */
 /* SPX                                                               */
 /* ================================================================= */
+
+#define SPX_SYS_PACKET	0x80
+#define SPX_SEND_ACK	0x40
+#define SPX_ATTN	0x20
+#define SPX_EOM		0x10
+
 static const char*
 spx_conn_ctrl(guint8 ctrl)
 {
 	const char *p;
 
 	static const value_string conn_vals[] = {
-		{ 0x10, "End-of-Message" },
-		{ 0x20, "Attention" },
-		{ 0x40, "Acknowledgment Required"},
-		{ 0x50, "Send Ack: End Message"},
-		{ 0x80, "System Packet"},
-		{ 0xc0, "System Packet: Send Ack"},
-		{ 0x00, NULL }
+		{ SPX_EOM,                     "End-of-Message" },
+		{ SPX_ATTN,                    "Attention" },
+		{ SPX_SEND_ACK,                "Acknowledgment Required"},
+		{ SPX_SEND_ACK|SPX_EOM,        "Send Ack: End Message"},
+		{ SPX_SYS_PACKET,              "System Packet"},
+		{ SPX_SYS_PACKET|SPX_SEND_ACK, "System Packet: Send Ack"},
+		{ 0x00,                        NULL }
 	};
 
 	p = match_strval((ctrl & 0xf0), conn_vals );
@@ -524,15 +544,16 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*spx_tree = NULL;
 	proto_item	*ti;
 	tvbuff_t	*next_tvb;
-
 	guint8		conn_ctrl;
+	proto_tree	*cc_tree;
 	guint8		datastream_type;
 	const char	*spx_msg_string;
 	guint16		low_socket, high_socket;
 	guint32		src;
 	conversation_t	*conversation;
 	spx_hash_value	*pkt_value;
-	spx_info	*spx_info;
+	spx_rexmit_info	*spx_rexmit_info;
+	spx_info	spx_info;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
@@ -549,12 +570,23 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spx_msg_string);
 	if (tree) {
-		proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, tvb,
-					   0, 1, conn_ctrl,
-					   "Connection Control: %s (0x%02X)",
-					   spx_msg_string, conn_ctrl);
+		ti = proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, tvb,
+						0, 1, conn_ctrl,
+						"Connection Control: %s (0x%02X)",
+						spx_msg_string, conn_ctrl);
+		cc_tree = proto_item_add_subtree(ti, ett_spx_connctrl);
+		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_sys, tvb,
+				       0, 1, conn_ctrl);
+		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_send_ack, tvb,
+				       0, 1, conn_ctrl);
+		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_attn, tvb,
+				       0, 1, conn_ctrl);
+		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_eom, tvb,
+				       0, 1, conn_ctrl);
+	}
 
-		datastream_type = tvb_get_guint8(tvb, 1);
+	datastream_type = tvb_get_guint8(tvb, 1);
+	if (tree) {
 		proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type, tvb,
 					   1, 1, datastream_type,
 					   "Datastream Type: %s (0x%02X)",
@@ -625,15 +657,15 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * This is not a retransmission, so we shouldn't
 			 * have any retransmission indicator.
 			 */
-			spx_info = NULL;
+			spx_rexmit_info = NULL;
 		} else {
 			/*
 			 * Found in the hash table.  Mark this frame as
 			 * a retransmission.
 			 */
-			spx_info = g_mem_chunk_alloc(spx_infos);
-			spx_info->num = pkt_value->num;
-			p_add_proto_data(pinfo->fd, proto_spx, spx_info);
+			spx_rexmit_info = g_mem_chunk_alloc(spx_rexmit_infos);
+			spx_rexmit_info->num = pkt_value->num;
+			p_add_proto_data(pinfo->fd, proto_spx, spx_rexmit_info);
 		}
 	} else {
 		/*
@@ -642,21 +674,27 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * data indicates which frame had the original
 		 * transmission.
 		 */
-		spx_info = p_get_proto_data(pinfo->fd, proto_spx);
+		spx_rexmit_info = p_get_proto_data(pinfo->fd, proto_spx);
 	}
 
 	/*
 	 * It's a retransmission if we have a retransmission indicator.
-	 *
-	 * XXX - put something into the protocol tree as well?
-	 * If so, give the frame number, as an FT_FRAMENUM.
+	 * Flag this as a retransmission, but don't pass it to the
+	 * subdissector.
 	 */
-	if (spx_info != NULL) {
+	if (spx_rexmit_info != NULL) {
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "[Retransmission] Original Packet %u",
-			    spx_info->num);
+			    spx_rexmit_info->num);
 		}
+		if (tree) {
+			proto_tree_add_uint_format(spx_tree, hf_spx_rexmt_frame,
+			    tvb, SPX_HEADER_LEN, -1, spx_rexmit_info->num,
+			    "This is a retransmission of frame %u",
+			    spx_rexmit_info->num);
+		}
+		return;
 	}
 
 	if (tvb_reported_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
@@ -684,11 +722,11 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/*
-		 * Pass the retransmission info, if any, to subdissectors,
-		 * so they know whether it's a retransmission or not and,
-		 * if it is, what frame had the original packet.
+		 * Pass information to subdissectors.
 		 */
-		pinfo->private_data = spx_info;
+		spx_info.eom = conn_ctrl & SPX_EOM;
+		spx_info.datastream_type = datastream_type;
+		pinfo->private_data = &spx_info;
 
 		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
 		if (dissector_try_port(spx_socket_dissector_table, low_socket,
@@ -1191,6 +1229,26 @@ proto_register_ipx(void)
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
 		  "", HFILL }},
 
+		{ &hf_spx_connection_control_sys,
+		{ "System Packet",		"spx.ctl.sys",
+		  FT_BOOLEAN,	8,	NULL,	SPX_SYS_PACKET,
+		  "", HFILL }},
+
+		{ &hf_spx_connection_control_send_ack,
+		{ "Send Ack",		"spx.ctl.send_ack",
+		  FT_BOOLEAN,	8,	NULL,	SPX_SEND_ACK,
+		  "", HFILL }},
+
+		{ &hf_spx_connection_control_attn,
+		{ "Attention",		"spx.ctl.attn",
+		  FT_BOOLEAN,	8,	NULL,	SPX_ATTN,
+		  "", HFILL }},
+
+		{ &hf_spx_connection_control_eom,
+		{ "End of Message",	"spx.ctl.eom",
+		  FT_BOOLEAN,	8,	NULL,	SPX_EOM,
+		  "", HFILL }},
+
 		{ &hf_spx_datastream_type,
 		{ "Datastream type",	       	"spx.type",
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
@@ -1219,7 +1277,13 @@ proto_register_ipx(void)
 		{ &hf_spx_all_nr,
 		{ "Allocation Number",		"spx.alloc",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }}    };
+		  "", HFILL }},
+
+		{ &hf_spx_rexmt_frame,
+		{ "Retransmitted Frame Number",	"spx.rexmt_frame",
+		  FT_FRAMENUM,	BASE_NONE,	NULL,	0x0,
+		  "", HFILL }},
+	};
 
 	static hf_register_info hf_ipxrip[] = {
 		{ &hf_ipxrip_request,
@@ -1260,6 +1324,7 @@ proto_register_ipx(void)
 	static gint *ett[] = {
 		&ett_ipx,
 		&ett_spx,
+		&ett_spx_connctrl,
 		&ett_ipxmsg,
 		&ett_ipxrip,
 		&ett_ipxsap,
