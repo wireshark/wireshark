@@ -2,7 +2,7 @@
  * Routines for dcerpc conv dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-conv.c,v 1.9 2004/01/19 20:10:33 jmayer Exp $
+ * $Id: packet-dcerpc-conv.c,v 1.10 2004/04/23 16:46:54 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,13 +43,13 @@
 static int proto_conv = -1;
 static int hf_conv_opnum = -1;
 static int hf_conv_rc = -1;
-static int hf_conv_who_are_you_resp_seq = -1;
 static int hf_conv_who_are_you_rqst_actuid = -1;
 static int hf_conv_who_are_you_rqst_boot_time = -1;
-static int hf_conv_who_are_you2_resp_seq = -1;
-static int hf_conv_who_are_you2_resp_casuuid = -1;
 static int hf_conv_who_are_you2_rqst_actuid = -1;
 static int hf_conv_who_are_you2_rqst_boot_time = -1;
+static int hf_conv_who_are_you_resp_seq = -1;
+static int hf_conv_who_are_you2_resp_seq = -1;
+static int hf_conv_who_are_you2_resp_casuuid = -1;
 
 static gint ett_conv = -1;
 
@@ -98,7 +98,7 @@ conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
 	
 
        if (check_col(pinfo->cinfo, COL_INFO)) {
-         col_add_fstr(pinfo->cinfo, COL_INFO, "conv_who_are_you reply seq:%u st:%s", 
+         col_add_fstr(pinfo->cinfo, COL_INFO, "conv_who_are_you response seq:%u st:%s", 
                seq, val_to_str(st, dce_error_vals, "%u")); 
        }
 
@@ -123,7 +123,7 @@ conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
            col_add_fstr(pinfo->cinfo, COL_INFO,
-                "conv_who_are_you request actuid: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                "conv_who_are_you2 request actuid: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                  actuid.Data1, actuid.Data2, actuid.Data3, actuid.Data4[0], actuid.Data4[1],
                  actuid.Data4[2], actuid.Data4[3], actuid.Data4[4], actuid.Data4[5], actuid.Data4[6], actuid.Data4[7]);
         }
@@ -150,7 +150,7 @@ conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
 
        if (check_col(pinfo->cinfo, COL_INFO)) {
          col_add_fstr(pinfo->cinfo, COL_INFO, 
-               "conv_who_are_you2 reply seq:%u st:%s cas:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", 
+               "conv_who_are_you2 response seq:%u st:%s cas:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", 
                 seq, val_to_str(st, dce_error_vals, "%u"), 
                 cas_uuid.Data1, cas_uuid.Data2, cas_uuid.Data3, cas_uuid.Data4[0], cas_uuid.Data4[1],
                 cas_uuid.Data4[2], cas_uuid.Data4[3], cas_uuid.Data4[4], cas_uuid.Data4[5], cas_uuid.Data4[6], cas_uuid.Data4[7]); 
@@ -177,22 +177,24 @@ proto_register_conv (void)
 	static hf_register_info hf[] = {
         { &hf_conv_opnum,
             { "Operation", "conv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
-        { &hf_conv_who_are_you_resp_seq,
-            {"hf_conv_who_are_you_resp_seq", "conv.who_are_you_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_conv_rc,
             {"Status", "conv.status", FT_UINT32, BASE_DEC, VALS(dce_error_vals), 0x0, "", HFILL }},
+
         { &hf_conv_who_are_you_rqst_actuid,
-            {"hf_conv_who_are_you_rqst_actuid", "conv.who_are_you_rqst_actuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
+            {"Activity UID", "conv.who_are_you_rqst_actuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
         { &hf_conv_who_are_you_rqst_boot_time,
-            {"hf_conv_who_are_you_rqst_boot_time", "conv.who_are_you_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+            {"Boot time", "conv.who_are_you_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_conv_who_are_you2_rqst_actuid,
-            {"hf_conv_who_are_you2_rqst_actuid", "conv.who_are_you2_rqst_actuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
+            {"Activity UID", "conv.who_are_you2_rqst_actuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
         { &hf_conv_who_are_you2_rqst_boot_time,
-            {"hf_conv_who_are_you2_rqst_boot_time", "conv.who_are_you2_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+            {"Boot time", "conv.who_are_you2_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+        { &hf_conv_who_are_you_resp_seq,
+            {"Sequence Number", "conv.who_are_you_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_conv_who_are_you2_resp_seq,
-            {"hf_conv_who_are_you2_resp_seq", "conv.who_are_you2_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+            {"Sequence Number", "conv.who_are_you2_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_conv_who_are_you2_resp_casuuid,
-            {"hf_conv_who_are_you2_resp_casuuid", "conv.who_are_you2_resp_casuuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }}
+            {"Client's address space UUID", "conv.who_are_you2_resp_casuuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }}
 	};
 
 	static gint *ett[] = {
