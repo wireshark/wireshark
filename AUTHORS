@@ -215,6 +215,7 @@ Uwe Girlich <Uwe.Girlich[AT]philosys.de> {
 	Mount Protocol support started
 	NLM support started
 	PC NFS support started
+	TSP support
 	Quake dissector
 	QuakeWorld dissector
 	Quake II dissector
