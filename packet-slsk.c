@@ -9,7 +9,7 @@
  * http://cvs.sourceforge.net/viewcvs.py/soleseek/SoleSeek/doc/protocol.html?rev=HEAD
  * Updated for SoulSeek client version 151
  *
- * $Id: packet-slsk.c,v 1.1 2004/02/11 20:23:19 jmayer Exp $
+ * $Id: packet-slsk.c,v 1.2 2004/02/12 20:58:01 guy Exp $
  *
  *
  * Ethereal - Network traffic analyzer
@@ -304,19 +304,31 @@ static tvbuff_t* uncompress_packet(tvbuff_t *tvb, int offset, int comprlen){
 	*             or NULL if uncompression failed
 	*/
 	
-	char compr[comprlen];
-	int i = 0;
+	int err;
 	long uncomprlen = (comprlen*10);
-	char uncompr[uncomprlen];
-	int err = 0;
+	guint8 * compr;
+	guint8 * uncompr;
 	tvbuff_t *uncompr_tvb;
 
-	while (i < comprlen) { compr[i] = tvb_get_guint8(tvb, offset+i); i++;}
+	compr = tvb_memdup(tvb, offset, comprlen);
+	if (!compr)
+		return NULL;
+
+	uncompr = g_malloc(uncomprlen);
+	if (!uncompr){
+		g_free(compr);
+		return NULL;
+	}
 
 	err = uncompress((Bytef *)uncompr, &uncomprlen, (Bytef *)compr, comprlen);
-	if (err != 0) return NULL;
+	g_free(compr);
+	if (err != 0) {
+		g_free(uncompr);
+		return NULL;
+	}
 	
 	uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, uncomprlen, uncomprlen);
+	g_free(uncompr);
 	return uncompr_tvb;
 }
 #else
