@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.5 1998/10/14 04:09:13 gram Exp $
+ * $Id: packet-udp.c,v 1.6 1998/10/14 08:47:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,16 +45,17 @@
 
 void
 dissect_udp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
-  e_udphdr  *uh;
+  e_udphdr  uh;
   guint16    uh_sport, uh_dport, uh_ulen, uh_sum;
   GtkWidget *udp_tree, *ti;
 
   /* To do: Check for {cap len,pkt len} < struct len */
-  uh = (e_udphdr *) &pd[offset];
-  uh_sport = ntohs(uh->uh_sport);
-  uh_dport = ntohs(uh->uh_dport);
-  uh_ulen  = ntohs(uh->uh_ulen);
-  uh_sum   = ntohs(uh->uh_sum);
+  /* Avoids alignment problems on many architectures. */
+  memcpy(&uh, &pd[offset], sizeof(e_udphdr));
+  uh_sport = ntohs(uh.uh_sport);
+  uh_dport = ntohs(uh.uh_dport);
+  uh_ulen  = ntohs(uh.uh_ulen);
+  uh_sum   = ntohs(uh.uh_sum);
   
   if (fd->win_info[COL_NUM]) {
     strcpy(fd->win_info[COL_PROTOCOL], "UDP");
