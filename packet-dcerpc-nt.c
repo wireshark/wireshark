@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.40 2002/06/28 01:23:26 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.41 2002/06/28 07:17:34 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -976,7 +976,6 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, char *drep, int hfindex, 
 		      e_ctx_hnd *pdata, gboolean is_open, gboolean is_close)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	proto_item *item;
 	proto_tree *subtree;
 	e_ctx_hnd hnd;
