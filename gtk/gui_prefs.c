@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.25 2001/03/02 23:10:12 gram Exp $
+ * $Id: gui_prefs.c,v 1.26 2001/04/17 18:49:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -510,8 +510,10 @@ gui_prefs_destroy(GtkWidget *w)
 	}
 
 	/* Free up any saved font name. */
-	if (new_font_name != NULL)
+	if (new_font_name != NULL) {
 		g_free(new_font_name);
+		new_font_name = NULL;
+	}
 }
 
 /* color selection part */
