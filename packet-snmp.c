@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.5 1999/07/29 05:47:05 gram Exp $
+ * $Id: packet-snmp.c,v 1.6 1999/07/29 07:11:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -54,6 +54,8 @@
 
 #define in_addr_t u_int
 
+static int proto_snmp = -1;
+
 #ifdef WITH_SNMP_UCD
 /* should be defined only if supported in ucd-snmp */
 #define OPAQUE_SPECIAL_TYPES 1
@@ -62,8 +64,6 @@
 #include <ucd-snmp/snmp_api.h>
 #include <ucd-snmp/snmp_impl.h>
 #include <ucd-snmp/mib.h>
-
-static int proto_snmp = -1;
 
 typedef long SNMP_INT;
 typedef unsigned  long SNMP_UINT;
