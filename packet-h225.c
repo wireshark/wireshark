@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.41 2004/05/25 10:17:34 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.42 2004/05/25 19:48:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10216,15 +10216,15 @@ proto_register_h225(void)
         "GatekeeperConfirm/authenticationMode", HFILL }},
     { &hf_h225_alertingTime,
       { "alertingTime", "h225.alertingTime",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RasUsageInformation/alertingTime", HFILL }},
     { &hf_h225_connectTime,
       { "connectTime", "h225.connectTime",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RasUsageInformation/connectTime", HFILL }},
     { &hf_h225_endTimeStamp,
       { "endTime", "h225.endTime",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RasUsageInformation/endTime", HFILL }},
 
 /*ddd*/
