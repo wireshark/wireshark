@@ -1,6 +1,6 @@
 /* packet-tzsp.c
  *
- * $Id: packet-tzsp.c,v 1.3 2003/10/05 22:44:24 jmayer Exp $
+ * $Id: packet-tzsp.c,v 1.4 2003/11/12 21:22:37 guy Exp $
  *
  * Copyright 2002, Tazmen Technologies Inc
  *
@@ -42,8 +42,18 @@
 
 static int proto_tzsp = -1;
 static int hf_tzsp_version = -1;
-static int hf_tzsp_reserved = -1;
+static int hf_tzsp_type = -1;
 static int hf_tzsp_encap = -1;
+
+static const value_string tzsp_type[] = {
+	{0,     "Received tag list"},
+	{1,	"Packet for transmit"},
+	{2,     "Reserved"},
+	{3,     "Configuration"},
+	{4,     "Keepalive"},
+	{5,     "Port opener"},
+	{0,     NULL}
+};
 
 static gint ett_tzsp = -1;
 
@@ -66,33 +76,18 @@ static int hf_silence = -1;
 static int hf_signal = -1;
 static int hf_rate = -1;
 static int hf_channel = -1;
+static int hf_unknown = -1;
+static int hf_original_length = -1;
+static int hf_sensormac = -1;
 
 /* ************************************************************************* */
 /*                        Encapsulation type values                          */
 /* ************************************************************************* */
 
 #define TZSP_ENCAP_ETHERNET			1
-#define TZSP_ENCAP_TOKEN_RING			2
-#define TZSP_ENCAP_SLIP				3
-#define TZSP_ENCAP_PPP				4
-#define TZSP_ENCAP_FDDI				5
-#define TZSP_ENCAP_FDDI_BITSWAPPED		6
-#define TZSP_ENCAP_RAW_IP			7
-#define TZSP_ENCAP_ARCNET			8
-#define TZSP_ENCAP_ATM_RFC1483			9
-#define TZSP_ENCAP_LINUX_ATM_CLIP		10
-#define TZSP_ENCAP_LAPB				11
-#define TZSP_ENCAP_NULL				13
-#define TZSP_ENCAP_IP_OVER_FC			16
 #define TZSP_ENCAP_IEEE_802_11			18
-#define TZSP_ENCAP_SLL				20
-#define TZSP_ENCAP_FRELAY			21
-#define TZSP_ENCAP_CHDLC			22
-#define TZSP_ENCAP_LOCALTALK			24
-#define TZSP_ENCAP_PRISM_HEADER			25
-#define TZSP_ENCAP_WLAN_HEADER			30
-#define TZSP_ENCAP_WFLEET_HDLC			32
-#define TZSP_ENCAP_SDLC				33
+#define TZSP_ENCAP_PRISM_HEADER			119
+#define TZSP_ENCAP_WLAN_HEADER			127
 
 /* ************************************************************************* */
 /*                          Generic header options                           */
@@ -100,6 +95,8 @@ static int hf_channel = -1;
 
 #define TZSP_HDR_PAD 0 /* Pad. */
 #define TZSP_HDR_END 1 /* End of the list. */
+#define TZSP_HDR_ORIGINAL_LENGTH 41 /* Length of the packet before slicing. 2 bytes. */
+#define TZSP_HDR_SENSOR 60 /* Sensor MAC address packet was received on, 6 byte ethernet address.*/
 
 /* ************************************************************************* */
 /*                          Options for 802.11 radios                        */
@@ -120,10 +117,9 @@ static int hf_channel = -1;
 /* ************************************************************************* */
 
 static int 
-add_option_info(tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
+add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 {
-	guint8 tag, length, fcs_err = 0, encr = 0;
-	int pos = 0;
+	guint8 tag, length, fcs_err = 0, encr = 0, seen_fcs_err = 0;
 	
 	/*
 	 * Read all option tags in an endless loop. If the packet is malformed this
@@ -139,34 +135,40 @@ add_option_info(tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 
 		case TZSP_HDR_END:
 			/* Fill in header with information from other tags. */
-			if (tree)
-				proto_item_append_text(ti,"%s", fcs_err?"FCS Error":(encr?"Encrypted":"Good"));
+			if (seen_fcs_err) {
+				if (tree)
+					proto_item_append_text(ti,"%s", fcs_err?"FCS Error":(encr?"Encrypted":"Good"));
+			}
 			return pos;
+
+		case TZSP_HDR_ORIGINAL_LENGTH:
+			length = tvb_get_guint8(tvb, pos++);
+			if (tree)
+				proto_tree_add_int (tree, hf_original_length, tvb, pos-2, 4,
+						tvb_get_ntohs(tvb, pos));
+			pos += length;
+			break;
 
 		case WLAN_RADIO_HDR_SIGNAL:
 			length = tvb_get_guint8(tvb, pos++);
 			if (tree)
-				proto_tree_add_uint_format (tree, hf_signal, tvb, pos-2, 3,
-						  tvb_get_guint8(tvb, pos),
-					    "Signal: 0x%02X",
-					    tvb_get_guint8(tvb, pos));
+				proto_tree_add_int (tree, hf_signal, tvb, pos-2, 3,
+						tvb_get_ntohs(tvb, pos));
 			pos += length;
 			break;
 
 		case WLAN_RADIO_HDR_NOISE:
 			length = tvb_get_guint8(tvb, pos++);
 			if (tree)
-				proto_tree_add_uint_format (tree, hf_silence, tvb, pos-2, 3,
-						  tvb_get_guint8(tvb, pos),
-					    "Silence: 0x%02X",
-					    tvb_get_guint8(tvb, pos));
+				proto_tree_add_int (tree, hf_silence, tvb, pos-2, 3,
+						tvb_get_ntohs(tvb, pos));
 			pos += length;
 			break;
 
 		case WLAN_RADIO_HDR_RATE:
 			length = tvb_get_guint8(tvb, pos++);
 			if (tree)
-				proto_tree_add_uint (tree, hf_rate, tvb, pos-2, 3,
+				proto_tree_add_int (tree, hf_rate, tvb, pos-2, 3,
 							tvb_get_guint8(tvb, pos));
 			pos += length;
 			break;
@@ -205,6 +207,7 @@ add_option_info(tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 			break;
 
 		case WLAN_RADIO_HDR_FCS_ERR:
+			seen_fcs_err = 1;
 			length = tvb_get_guint8(tvb, pos++);
 			if (tree)
 				proto_tree_add_boolean (tree, hf_status_fcs_error, tvb, pos-2, 3,
@@ -218,6 +221,22 @@ add_option_info(tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 			if (tree)
 				proto_tree_add_uint (tree, hf_channel, tvb, pos-2, 3,
 							tvb_get_guint8(tvb, pos));
+			pos += length;
+			break;
+
+		case TZSP_HDR_SENSOR:
+			length = tvb_get_guint8(tvb, pos++);
+			if (tree)
+				proto_tree_add_ether(tree, hf_sensormac, tvb, pos-2, 6,
+							tvb_get_ptr (tvb, pos, 6));
+			pos += length;
+			break;
+
+		default:
+			length = tvb_get_guint8(tvb, pos++);
+			if (tree)
+				proto_tree_add_bytes(tree, hf_unknown, tvb, pos-2, length+2,
+							tvb_get_ptr(tvb, pos, length));
 			pos += length;
 			break;
 		}
@@ -234,27 +253,9 @@ struct encap_map {
 
 static const struct encap_map map_table[] = {
 	{ TZSP_ENCAP_ETHERNET,		WTAP_ENCAP_ETHERNET },
-	{ TZSP_ENCAP_TOKEN_RING,	WTAP_ENCAP_TOKEN_RING },
-	{ TZSP_ENCAP_SLIP,		WTAP_ENCAP_SLIP },
-	{ TZSP_ENCAP_PPP,		WTAP_ENCAP_PPP },
-	{ TZSP_ENCAP_FDDI,		WTAP_ENCAP_FDDI },
-	{ TZSP_ENCAP_FDDI_BITSWAPPED,	WTAP_ENCAP_FDDI_BITSWAPPED },
-	{ TZSP_ENCAP_RAW_IP,		WTAP_ENCAP_RAW_IP },
-	{ TZSP_ENCAP_ARCNET,		WTAP_ENCAP_ARCNET },
-	{ TZSP_ENCAP_ATM_RFC1483,	WTAP_ENCAP_ATM_RFC1483 },
-	{ TZSP_ENCAP_LINUX_ATM_CLIP,	WTAP_ENCAP_LINUX_ATM_CLIP },
-	{ TZSP_ENCAP_LAPB,		WTAP_ENCAP_LAPB },
-	{ TZSP_ENCAP_NULL,		WTAP_ENCAP_NULL },
-	{ TZSP_ENCAP_IP_OVER_FC,	WTAP_ENCAP_IP_OVER_FC },
-	{ TZSP_ENCAP_IEEE_802_11,	WTAP_ENCAP_IEEE_802_11 },
-	{ TZSP_ENCAP_SLL,		WTAP_ENCAP_SLL },
-	{ TZSP_ENCAP_FRELAY,		WTAP_ENCAP_FRELAY },
-	{ TZSP_ENCAP_CHDLC,		WTAP_ENCAP_CHDLC },
-	{ TZSP_ENCAP_LOCALTALK,		WTAP_ENCAP_LOCALTALK },
 	{ TZSP_ENCAP_PRISM_HEADER,	WTAP_ENCAP_PRISM_HEADER },
 	{ TZSP_ENCAP_WLAN_HEADER,	WTAP_ENCAP_WLAN_HEADER },
-	{ TZSP_ENCAP_WFLEET_HDLC,	WTAP_ENCAP_WFLEET_HDLC },
-	{ TZSP_ENCAP_SDLC,		WTAP_ENCAP_SDLC },
+	{ TZSP_ENCAP_IEEE_802_11,	WTAP_ENCAP_IEEE_802_11 },
 	{ 0,				-1 }
 };
 
@@ -284,51 +285,71 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 encapsulation = 0;
 	int wtap_encap;
 	dissector_handle_t encap_dissector;
-	char *encap_name;
+	char *encap_name, *info;
+	guint8 type;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TZSP");
-
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Tazmen Sniffer Protocol");
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	type = tvb_get_guint8(tvb, 1);
 
 	/* Find the dissector. */
 	encapsulation = tvb_get_ntohs(tvb, 2);
-	wtap_encap = tzsp_encap_to_wtap_encap(encapsulation);
-	if ( wtap_encap != -1 &&
-	    (encap_dissector = dissector_get_port_handle(encap_dissector_table, wtap_encap)) ) {
-		encap_name = dissector_handle_get_short_name(encap_dissector);
+	if (encapsulation != 0) {
+		wtap_encap = tzsp_encap_to_wtap_encap(encapsulation);
+		if (wtap_encap != -1 &&
+		    (encap_dissector = dissector_get_port_handle(encap_dissector_table, wtap_encap))) {
+			encap_name = dissector_handle_get_short_name(encap_dissector);
+		}
+		else {
+			encap_name = "Unknown";
+		}
+		info = encap_name;
 	}
 	else {
-		encap_name = "UNKNOWN";
+		wtap_encap = -1;
+		encap_name = "Nothing";
+		info = tzsp_type[type].strptr;
 	}
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, info);
 
 	if (tree) {
 		/* Adding TZSP item and subtree */
 		ti = proto_tree_add_protocol_format(tree, proto_tzsp, tvb, 0,
-		    tvb_length(tvb), "TZSP: %s: ", encap_name);
+		    -1, "TZSP: %s: ", info);
 		tzsp_tree = proto_item_add_subtree(ti, ett_tzsp);
 
-		proto_tree_add_uint (tzsp_tree, hf_tzsp_version, tvb, 0, 1,
-					tvb_get_guint8(tvb, 0));
+		proto_tree_add_item (tzsp_tree, hf_tzsp_version, tvb, 0, 1,
+					FALSE);
+		proto_tree_add_uint (tzsp_tree, hf_tzsp_type, tvb, 1, 1,
+					type);
 		proto_tree_add_uint_format (tzsp_tree, hf_tzsp_encap, tvb, 2, 2,
-					encapsulation, "Encapsulates: %s (%d)", encap_name, encapsulation);
+					encapsulation, "Encapsulates: %s (%d)",
+					encap_name, encapsulation);
 	}
 
-	tvb = tvb_new_subset(tvb, 4, -1, -1);
-	pos = add_option_info(tvb, tzsp_tree, ti);
-	next_tvb = tvb_new_subset(tvb, pos, -1, -1);
+	if (type != 4 && type != 5) {
+		pos = add_option_info(tvb, 4, tzsp_tree, ti);
 
-	if (wtap_encap == -1
-	    || !dissector_try_port(encap_dissector_table, wtap_encap,
-		next_tvb, pinfo, tree)) {
+		if (tree)
+			proto_item_set_end(ti, tvb, pos);
+		next_tvb = tvb_new_subset(tvb, pos, -1, -1);
+		if (encapsulation != 0
+		    && (wtap_encap == -1
+			|| !dissector_try_port(encap_dissector_table, wtap_encap,
+				next_tvb, pinfo, tree))) {
 
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "TZSP_ENCAP = %u",
-			    encapsulation);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+			if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_add_fstr(pinfo->cinfo, COL_INFO, "TZSP_ENCAP = %u",
+				    encapsulation);
+			call_dissector(data_handle, next_tvb, pinfo, tree);
+		}
 	}
 }
 
@@ -339,45 +360,90 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_tzsp(void)
 {
+	static const value_string msg_type[] = {
+		{0,	"Normal"},
+		{1,	"RFC1042 encoded"},
+		{2,	"Bridge-tunnel encoded"},
+		{4,	"802.11 management frame"},
+		{0,	NULL}
+	};
 
-  static const value_string msg_type[] = {
-    {0,     "Normal"},
-    {1,	    "RFC1042 encoded"},
-    {2,     "Bridge-tunnel encoded"},
-    {4,     "802.11 management frame"},
-    {0,     NULL}
-  };
+	static const true_false_string pcf_flag = {
+		"CF: Frame received during CF period",
+		"Not CF"
+	};
 
-  static const true_false_string pcf_flag = {
-    "CF: Frame received during CF period",
-    "Not CF"
-  };
+	static const true_false_string undecr_flag = {
+		"Encrypted frame could not be decrypted",
+		"Unencrypted"
+	};
 
-  static const true_false_string undecr_flag = {
-    "Encrypted frame could not be decrypted",
-    "Unencrypted"
-  };
+	static const true_false_string fcs_err_flag = {
+		"FCS error, frame is corrupted",
+		"Frame is valid"
+	};
 
-  static const true_false_string fcs_err_flag = {
-    "FCS error, frame is corrupted",
-    "Frame is valid"
-  };
+	static const value_string channels[] = {
+		/* 802.11b/g */
+		{1, "1 (2.412 GHz)"},
+		{2, "2 (2.417 GHz)"},
+		{3, "3 (2.422 GHz)"},
+		{4, "4 (2.427 GHz)"},
+		{5, "5 (2.432 GHz)"},
+		{6, "6 (2.437 GHz)"},
+		{7, "7 (2.442 GHz)"},
+		{8, "8 (2.447 GHz)"},
+		{9, "9 (2.452 GHz)"},
+		{10, "10 (2.457 GHz)"},
+		{11, "11 (2.462 GHz)"},
+		{12, "12 (2.467 GHz)"},
+		{13, "13 (2.472 GHz)"},
+		{14, "14 (2.484 GHz)"},
+		/* 802.11a */
+		{36, "36 (5.180 GHz)"},
+		{40, "40 (5.200 GHz)"},
+		{44, "44 (5.220 GHz)"},
+		{48, "48 (5.240 GHz)"},
+		{52, "52 (5.260 GHz)"},
+		{56, "56 (5.280 GHz)"},
+		{60, "60 (5.300 GHz)"},
+		{64, "64 (5.320 GHz)"},
+		{149, "149 (5.745 GHz)"},
+		{153, "153 (5.765 GHz)"},
+		{157, "157 (5.785 GHz)"},
+		{161, "161 (5.805 GHz)"},
+		{0, NULL}
+	};
 
-  static const value_string rates[] = {
-    {0x0A, "1 Mbit/s"},
-    {0x14, "2 Mbit/s"},
-    {0x37, "5.5 Mbit/s"},
-    {0x6E, "11 Mbit/s"},
-    {0, NULL}
-  };
+	static const value_string rates[] = {
+		/* Old PRISM rates */
+		{0x0A, "1 Mbit/s"},
+		{0x14, "2 Mbit/s"},
+		{0x37, "5.5 Mbit/s"},
+		{0x6E, "11 Mbit/s"},
+		/* MicroAP rates */
+		{2, "1 Mbit/s"},
+		{4, "2 Mbit/s"},
+		{11, "5.5 Mbit/s"},
+		{12, "6 Mbit/s"},
+		{18, "9 Mbit/s"},
+		{22, "11 Mbit/s"},
+		{24, "12 Mbit/s"},
+		{36, "18 Mbit/s"},
+		{48, "24 Mbit/s"},
+		{72, "36 Mbit/s"},
+		{96, "48 Mbit/s"},
+		{108, "54 Mbit/s"},
+		{0, NULL}
+	};
 
 	static hf_register_info hf[] = {
 		{ &hf_tzsp_version, {
 			"Version", "tzsp.version", FT_UINT8, BASE_DEC,
 			NULL, 0, "Version", HFILL }},
-		{ &hf_tzsp_reserved, {
-			"Reserved", "tzsp.reserved", FT_UINT8, BASE_DEC,
-			NULL, 0, "Reserved", HFILL }},
+		{ &hf_tzsp_type, {
+			"Type", "tzsp.type", FT_UINT8, BASE_DEC,
+			VALS(tzsp_type), 0, "Type", HFILL }},
 		{ &hf_tzsp_encap, {
 			"Encapsulation", "tzsp.encap", FT_UINT16, BASE_DEC,
 			NULL, 0, "Encapsulation", HFILL }},
@@ -403,17 +469,26 @@ proto_register_tzsp(void)
 			"Time", "tzsp.wlan.time", FT_UINT32, BASE_HEX,
 			NULL, 0, "Time", HFILL }},
 		{ &hf_silence, {
-			"Silence", "tzsp.wlan.silence", FT_UINT8, BASE_HEX,
+			"Silence", "tzsp.wlan.silence", FT_INT8, BASE_HEX,
 			NULL, 0, "Silence", HFILL }},
+		{ &hf_original_length, {
+			"Original Length", "tzsp.original_length", FT_INT16, BASE_DEC,
+			NULL, 0, "OrigLength", HFILL }},
 		{ &hf_signal, {
-			"Signal", "tzsp.wlan.signal", FT_UINT8, BASE_HEX,
+			"Signal", "tzsp.wlan.signal", FT_INT8, BASE_HEX,
 			NULL, 0, "Signal", HFILL }},
 		{ &hf_rate, {
 			"Rate", "tzsp.wlan.rate", FT_UINT8, BASE_HEX,
 			VALS(rates), 0, "Rate", HFILL }},
 		{ &hf_channel, {
 			"Channel", "tzsp.wlan.channel", FT_UINT8, BASE_DEC,
-			NULL, 0, "Channel", HFILL }}
+			VALS(channels), 0, "Channel", HFILL }},
+		{ &hf_unknown, {
+			"Unknown tag", "tzsp.unknown", FT_BYTES, BASE_HEX,
+			NULL, 0, "Unknown", HFILL }},
+		{ &hf_sensormac, {
+			"Sensor Address", "tzsp.sensormac", FT_ETHER, BASE_HEX,
+			NULL, 0, "Sensor MAC", HFILL }}
 	};
 
 	static gint *ett[] = {
