@@ -1,9 +1,13 @@
+/* XXX fixme   can not reassemple multiple isns PDU fragments into one
+  isns PDU
+*/
+
 /* packet-isns.c
  * Routines for iSNS dissection
  * Copyright 2003, Elipsan, Gareth Bushell <gbushell@elipsan.com>
  * (c) 2004 Ronnie Sahlberg   updates
  *
- * $Id: packet-isns.c,v 1.3 2004/04/29 08:13:08 sahlberg Exp $
+ * $Id: packet-isns.c,v 1.4 2004/05/06 10:24:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +51,9 @@
 #endif
 
 #include <epan/packet.h>
+#include "packet-tcp.h"
+#include "prefs.h"
+
 
 #define ISNS_PROTO_VER 0x1
 #define ISNS_HEADER_SIZE 12
@@ -172,6 +179,11 @@ static int hf_isns_not_decoded_yet = -1;
 static int hf_isns_portal_group_tag = -1;
 static int hf_isns_pg_portal_ip_addr = -1;
 static int hf_isns_pg_portal_port = -1;
+
+
+
+/* Desegment iSNS over TCP messages */
+static gboolean isns_desegment = TRUE;
 
 /* Function Id's */
 #define ISNS_FUNC_DEVATTRREG     0x0001
@@ -554,8 +566,8 @@ static gint ett_isns = -1;
 
 
 /* Code to actually dissect the packets */
-static int
-dissect_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint offset = 0;
     guint16 function_id;
@@ -567,7 +579,7 @@ dissect_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *isns_tree = NULL;
     
     if( packet_len < 12 )
-	return 0;
+	return;
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -582,7 +594,7 @@ dissect_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Get the protocol version - only version one at the moment*/ 
     isns_protocol_version = tvb_get_ntohs(tvb, offset + 0);
     if( (function_id_str == NULL) || (isns_protocol_version != ISNS_PROTO_VER) )
-	return 0;
+	return;
     
     /* Add the function name in the info col */
     if (check_col(pinfo->cinfo, COL_INFO)) 
@@ -713,7 +725,44 @@ dissect_isns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
     }
 
-    return tvb_length(tvb);
+    return;
+}
+
+
+static guint
+get_isns_pdu_len(tvbuff_t *tvb, int offset)
+{
+    guint16 isns_len;
+
+    isns_len = tvb_get_ntohs(tvb, offset+4);
+    return (isns_len+12);
+}
+
+static void
+dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{	
+	/* Make entries in Protocol column and Info column on summary display*/
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "isns");
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	tcp_dissect_pdus(tvb, pinfo, tree, isns_desegment, 12, get_isns_pdu_len,
+		dissect_isns_pdu);
+
+
+}
+
+static void
+dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{	
+	/* Make entries in Protocol column and Info column on summary display*/
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "isns");
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	dissect_isns_pdu(tvb, pinfo, tree);
 }
 
 
@@ -757,8 +806,13 @@ dissect_isns_attr_integer(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, 
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+	if(len){
+		if(parent_tree){
+			item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+			tree = proto_item_add_subtree(item, ett_isns_attribute);
+		}
+	} else {
+		item=proto_tree_add_text(parent_tree, tvb, offset, 8, "Oops, you surprised me here. a 0 byte integer.");
 		tree = proto_item_add_subtree(item, ett_isns_attribute);
 	}
 
@@ -1749,14 +1803,20 @@ void proto_register_isns(void)
 	&ett_isns_port,
 	&ett_isns_isnt
     };
+    module_t *isns_module;
 
 /* Register the protocol name and description */
     proto_isns = proto_register_protocol("iSNS",
 					 "iSNS", "isns");
-
     proto_register_field_array(proto_isns, hf, array_length(hf));
-
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register preferences */
+    isns_module = prefs_register_protocol(proto_isns, NULL);
+    prefs_register_bool_preference(isns_module, "desegment",
+	"Desegment iSNS over TCP messages",
+	"Whether the dissector should desegment "
+	"multi-segment iSNS messages", &isns_desegment);
 
 }
 
@@ -1768,8 +1828,10 @@ void proto_register_isns(void)
 void
 proto_reg_handoff_isns(void)
 {
-    dissector_handle_t isns_handle;
-    isns_handle = new_create_dissector_handle(dissect_isns,proto_isns);
-    dissector_add("udp.port",ISNS_UDP_PORT,isns_handle);
-    dissector_add("tcp.port",ISNS_TCP_PORT,isns_handle);
+    dissector_handle_t isns_tcp_handle;
+    dissector_handle_t isns_udp_handle;
+    isns_tcp_handle = create_dissector_handle(dissect_isns_tcp,proto_isns);
+    isns_udp_handle = create_dissector_handle(dissect_isns_udp,proto_isns);
+    dissector_add("tcp.port",ISNS_TCP_PORT,isns_tcp_handle);
+    dissector_add("udp.port",ISNS_UDP_PORT,isns_udp_handle);
 }
