@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.110 2004/02/24 05:52:30 guy Exp $
+ * $Id: capture_dlg.c,v 1.111 2004/02/28 13:06:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,8 @@
 #define E_CAP_RING_ON_TB_KEY  "cap_ringbuffer_on_tb"
 #define E_CAP_RING_NBF_LB_KEY "cap_ringbuffer_nbf_lb"
 #define E_CAP_RING_NBF_SB_KEY "cap_ringbuffer_nbf_sb"
+#define E_CAP_RING_FILESIZE_CB_KEY "cap_ringbuffer_filesize_cb"
+#define E_CAP_RING_FILESIZE_SB_KEY "cap_ringbuffer_filesize_sb"
 #define E_CAP_RING_DURATION_CB_KEY "cap_ringbuffer_duration_cb"
 #define E_CAP_RING_DURATION_SB_KEY "cap_ringbuffer_duration_sb"
 #define E_CAP_SYNC_KEY        "cap_sync"
@@ -294,13 +296,14 @@ capture_prep(void)
                 *file_fr, *file_vb,
                 *file_hb, *file_bt, *file_lb, *file_te,
                 *ringbuffer_hb, *ringbuffer_on_tb, *ringbuffer_nbf_lb, *ringbuffer_nbf_sb,
+                *ring_filesize_hb, *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_lb,
+                *ring_duration_hb, *ring_duration_cb, *ring_duration_sb, 
+                *ring_duration_lb,
 
                 *limit_fr, *limit_vb,
                 *count_hb, *count_cb, *count_sb, *count_lb,
                 *filesize_hb, *filesize_cb, *filesize_sb, *filesize_lb,
                 *duration_hb, *duration_cb, *duration_sb, *duration_lb,
-		*ring_duration_hb, *ring_duration_cb, *ring_duration_sb, 
-		*ring_duration_lb,
 
                 *display_fr, *display_vb,
                 *sync_cb, *auto_scroll_cb,
@@ -313,7 +316,7 @@ capture_prep(void)
   GtkAccelGroup *accel_group;
 #endif
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
-		*count_adj, *filesize_adj, *duration_adj, *ring_duration_adj;
+		*count_adj, *filesize_adj, *duration_adj, *ring_filesize_adj, *ring_duration_adj;
   GList         *if_list, *combo_list;
   int           err;
   char          err_str[PCAP_ERRBUF_SIZE];
@@ -555,12 +558,37 @@ capture_prep(void)
   gtk_box_pack_start (GTK_BOX(ringbuffer_hb), ringbuffer_nbf_sb, TRUE, TRUE, 0);
   gtk_widget_show(ringbuffer_nbf_sb);
 
+  /* Ring buffer filesize row */
+  ring_filesize_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(file_vb), ring_filesize_hb);
+  gtk_widget_show(ring_filesize_hb);
+
+  ring_filesize_cb = gtk_check_button_new_with_label("Next capture file every");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_filesize_cb),
+		capture_opts.has_autostop_filesize); /* TBD */
+  SIGNAL_CONNECT(ring_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_box_pack_start(GTK_BOX(ring_filesize_hb), ring_filesize_cb, FALSE, FALSE, 0);
+  gtk_widget_show(ring_filesize_cb);
+
+  ring_filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
+    1, (gfloat)INT_MAX, 1.0, 10.0, 0.0); /* TBD */
+  ring_filesize_sb = gtk_spin_button_new (ring_filesize_adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ring_filesize_sb), TRUE);
+  WIDGET_SET_SIZE(ring_filesize_sb, 80, -1);
+  gtk_box_pack_start (GTK_BOX(ring_filesize_hb), ring_filesize_sb, FALSE, FALSE, 0);
+  gtk_widget_show(ring_filesize_sb);
+
+  ring_filesize_lb = gtk_label_new("kilobyte(s)");
+  gtk_misc_set_alignment(GTK_MISC(ring_filesize_lb), 0, 0.5);
+  gtk_box_pack_start(GTK_BOX(ring_filesize_hb), ring_filesize_lb, FALSE, FALSE, 0);
+  gtk_widget_show(ring_filesize_lb);
+
   /* Ring buffer duration row */
   ring_duration_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(file_vb), ring_duration_hb);
   gtk_widget_show(ring_duration_hb);
 
-  ring_duration_cb = gtk_check_button_new_with_label("Rotate capture file every");
+  ring_duration_cb = gtk_check_button_new_with_label("Next capture file every");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_duration_cb),
 			      capture_opts.has_ring_duration);
   SIGNAL_CONNECT(ring_duration_cb, "toggled", 
@@ -594,7 +622,7 @@ capture_prep(void)
   gtk_container_add(GTK_CONTAINER(limit_fr), limit_vb);
   gtk_widget_show(limit_vb);
 
-  /* Count row */
+  /* Packet count row */
   count_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(limit_vb), count_hb);
   gtk_widget_show(count_hb);
@@ -614,7 +642,7 @@ capture_prep(void)
   gtk_box_pack_start (GTK_BOX(count_hb), count_sb, FALSE, FALSE, 0);
   gtk_widget_show(count_sb);
 
-  count_lb = gtk_label_new("packet(s) captured");
+  count_lb = gtk_label_new("packet(s)");
   gtk_misc_set_alignment(GTK_MISC(count_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(count_hb), count_lb, FALSE, FALSE, 0);
   gtk_widget_show(count_lb);
@@ -624,7 +652,7 @@ capture_prep(void)
   gtk_container_add(GTK_CONTAINER(limit_vb), filesize_hb);
   gtk_widget_show(filesize_hb);
 
-  filesize_cb = gtk_check_button_new_with_label("");
+  filesize_cb = gtk_check_button_new_with_label("Stop capture after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filesize_cb),
 		capture_opts.has_autostop_filesize);
   SIGNAL_CONNECT(filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
@@ -639,7 +667,7 @@ capture_prep(void)
   gtk_box_pack_start (GTK_BOX(filesize_hb), filesize_sb, FALSE, FALSE, 0);
   gtk_widget_show(filesize_sb);
 
-  filesize_lb = gtk_label_new("");
+  filesize_lb = gtk_label_new("kilobyte(s)");
   gtk_misc_set_alignment(GTK_MISC(filesize_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(filesize_hb), filesize_lb, FALSE, FALSE, 0);
   gtk_widget_show(filesize_lb);
@@ -752,6 +780,8 @@ capture_prep(void)
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_ON_TB_KEY,  ringbuffer_on_tb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_LB_KEY,  ringbuffer_nbf_lb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_SB_KEY,  ringbuffer_nbf_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_FILESIZE_CB_KEY,  ring_filesize_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_FILESIZE_SB_KEY,  ring_filesize_sb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_DURATION_CB_KEY,  ring_duration_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_RING_DURATION_SB_KEY,  ring_duration_sb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_SYNC_KEY,  sync_cb);
@@ -965,6 +995,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
             *count_cb, *count_sb,
             *filesize_cb, *filesize_sb,
             *duration_cb, *duration_sb,
+            *ring_filesize_cb, *ring_filesize_sb,
             *ring_duration_cb, *ring_duration_sb,
             *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
   gchar *entry_text;
@@ -985,6 +1016,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   file_te   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_TE_KEY);
   ringbuffer_on_tb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_ON_TB_KEY);
   ringbuffer_nbf_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_SB_KEY);
+  ring_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_CB_KEY);
+  ring_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_SB_KEY);
   ring_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_CB_KEY);
   ring_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_SB_KEY);
   sync_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
@@ -1065,12 +1098,6 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     capture_opts.autostop_count =
       gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(count_sb));
 
-  capture_opts.has_autostop_filesize =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb));
-  if (capture_opts.has_autostop_filesize)
-    capture_opts.autostop_filesize =
-      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(filesize_sb));
-
   capture_opts.has_autostop_duration =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(duration_cb));
   if (capture_opts.has_autostop_duration)
@@ -1095,17 +1122,32 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_on_tb)) &&
 	!(capture_opts.sync_mode);
   if (capture_opts.ringbuffer_on) {
+    capture_opts.has_autostop_filesize =
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_filesize_cb));
+    if (capture_opts.has_autostop_filesize)
+      capture_opts.autostop_filesize =
+        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(ring_filesize_sb));
+
+    /* test if the settings are ok for a ringbuffer */
     if (save_file == NULL) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        "You must specify a save file if you want to use the ring buffer.");
+        PRIMARY_TEXT_START "Multiple files: No capture file name given!\n\n" PRIMARY_TEXT_END
+        "You must specify a filename if you want to use multiple files.");
       return;
     } else if (!capture_opts.has_autostop_filesize) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        "You must specify a file size at which to rotate the capture files\n"
-        "if you want to use the ring buffer.");
+        PRIMARY_TEXT_START "Multiple files: No file limit given!\n\n" PRIMARY_TEXT_END
+        "You must specify a file size at which is switched to the next capture file\n"
+        "if you want to use multiple files.");
       g_free(save_file);
       return;
     }
+  } else {
+    capture_opts.has_autostop_filesize =
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb));
+    if (capture_opts.has_autostop_filesize)
+      capture_opts.autostop_filesize =
+        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(filesize_sb));
   }
 
   capture_opts.ringbuffer_num_files =
@@ -1173,6 +1215,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
   GtkWidget *if_cb,
             *snap_cb, *snap_sb,
             *ringbuffer_on_tb, *ringbuffer_nbf_lb, *ringbuffer_nbf_sb,
+            *ring_filesize_cb, *ring_filesize_sb,
             *sync_cb, *auto_scroll_cb,
             *count_cb, *count_sb,
             *filesize_cb, *filesize_sb, *filesize_lb,
@@ -1185,6 +1228,8 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
   ringbuffer_on_tb  = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_ON_TB_KEY);
   ringbuffer_nbf_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_LB_KEY);
   ringbuffer_nbf_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_SB_KEY);
+  ring_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_CB_KEY);
+  ring_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_SB_KEY);
   ring_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_CB_KEY);
   ring_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_DURATION_SB_KEY);
   sync_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
@@ -1197,7 +1242,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
   duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_CB_KEY);
   duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_SB_KEY);
 
-  /* The snapshot length spinbox is sensitive iff the "Limit each packet
+  /* The snapshot length spinbox is sensitive if the "Limit each packet
      to" checkbox is on. */
   gtk_widget_set_sensitive(GTK_WIDGET(snap_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb)));
@@ -1232,48 +1277,49 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
        of ring buffer files, and its label, sensitive. */
     gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_nbf_lb), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_nbf_sb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(ring_filesize_cb), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_cb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(filesize_cb), FALSE);
 
-    /* Also, indicate that the file size is a size at which to switch
-       ring buffer files, not a size at which to stop the capture,
-       turn its button on. */
-    gtk_label_set_text(GTK_LABEL(GTK_BIN(filesize_cb)->child),
-        "Rotate capture file every");
-    gtk_label_set_text(GTK_LABEL(filesize_lb), "kilobyte(s)");
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filesize_cb), TRUE);
+    /* The ring filesize spinbox is sensitive if the "Next capture file
+         after N kilobytes" checkbox is on. */
+    gtk_widget_set_sensitive(GTK_WIDGET(ring_filesize_sb),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_filesize_cb)));
+    /* The ring duration spinbox is sensitive if the "Next capture file
+         after N seconds" checkbox is on. */
+    gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_sb),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_duration_cb)));
+
+    gtk_widget_set_sensitive(GTK_WIDGET(filesize_sb), FALSE);
+
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ring_filesize_cb), TRUE);
   } else {
     /* Ring buffer mode disabled.  Make the spin button for the number
        of ring buffer files, and its label insensitive. */
     gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_nbf_lb), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_nbf_sb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(ring_filesize_cb), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_cb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(filesize_cb), TRUE);
 
-    /* Also, indicate that the file size is a size at which to stop the
-       capture, not a size at which to switch ring buffer files. */
-    gtk_label_set_text(GTK_LABEL(GTK_BIN(filesize_cb)->child),
-        "Stop capture after");
-    gtk_label_set_text(GTK_LABEL(filesize_lb), "kilobyte(s) captured");
+    gtk_widget_set_sensitive(GTK_WIDGET(ring_filesize_sb),FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_sb),FALSE);
+    /* The maximum file size spinbox is sensitive if the "Stop capture
+         after N kilobytes" checkbox is on. */
+    gtk_widget_set_sensitive(GTK_WIDGET(filesize_sb),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb)));
+
   }
 
   /* The maximum packet count spinbox is sensitive if the "Stop capture
-     after N packets captured" checkbox is on. */
+     after N packets" checkbox is on. */
   gtk_widget_set_sensitive(GTK_WIDGET(count_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(count_cb)));
-
-  /* The maximum file size spinbox is sensitive if the "Stop capture
-     after N kilobytes captured" checkbox is on. */
-  gtk_widget_set_sensitive(GTK_WIDGET(filesize_sb),
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filesize_cb)));
 
   /* The capture duration spinbox is sensitive if the "Stop capture
      after N seconds" checkbox is on. */
   gtk_widget_set_sensitive(GTK_WIDGET(duration_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(duration_cb)));
-
-  /* The ring duration spinbox is sensitive if the "Rotate capture file
-     after N seconds" checkbox is on. */
-  gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_sb),
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_duration_cb)));
 }
 
 #endif /* HAVE_LIBPCAP */
