@@ -99,8 +99,10 @@ extern GtkWidget *dlg_window_new(const gchar *title);
 
 /** the action a file selection is designed for */
 typedef enum {
-	FILE_SELECTION_OPEN,    /**< open a file */
-	FILE_SELECTION_SAVE     /**< save/export a file */
+	FILE_SELECTION_OPEN,            /**< open a file */
+	FILE_SELECTION_READ_BROWSE,     /**< browse for a file to read */
+	FILE_SELECTION_SAVE,            /**< save/export a file */
+	FILE_SELECTION_WRITE_BROWSE     /**< browse for a file to write to */
 } file_selection_action_t;
 
 /** Create a file selection dialog box window that belongs to Ethereal's
