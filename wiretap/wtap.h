@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.79 2000/09/15 07:52:43 guy Exp $
+ * $Id: wtap.h,v 1.80 2000/09/19 17:22:11 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -124,9 +124,10 @@
 #define WTAP_FILE_TOSHIBA			21
 #define WTAP_FILE_I4BTRACE			22
 #define WTAP_FILE_CSIDS				23
+#define WTAP_FILE_PPPDUMP			24
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			24
+#define WTAP_NUM_FILE_TYPES			25
 
 /*
  * Maximum packet size we'll support.

@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.61 2000/09/15 07:52:41 guy Exp $
+ * $Id: file.c,v 1.62 2000/09/19 17:22:09 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -58,6 +58,7 @@
 #include "toshiba.h"
 #include "i4btrace.h"
 #include "csids.h"
+#include "pppdump.h"
 
 /* The open_file_* routines should return:
  *
@@ -94,6 +95,7 @@ static int (*open_routines[])(wtap *, int *) = {
 	netxray_open,
 	radcom_open,
 	nettl_open,
+	pppdump_open,
 
 	/* Files whose magic headers are in text *somewhere* in the
 	 * file (usually because the trace is just a saved copy of
@@ -337,6 +339,10 @@ const static struct file_type_info {
 
         /* WTAP_FILE_CSIDS */
         { "CSIDS IPLog", NULL,
+          NULL, NULL },
+
+        /* WTAP_FILE_PPPDUMP */
+        { "pppd log (pppdump format)", NULL,
           NULL, NULL },
 
 };

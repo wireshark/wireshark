@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.8 2000/09/07 05:34:21 gram Exp $
+ * $Id: wtap-int.h,v 1.9 2000/09/19 17:22:10 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -141,6 +141,7 @@ struct wtap {
 		netxray_t		*netxray;
 		ascend_t		*ascend;
 		csids_t			*csids;
+		void			*generic;
 	} capture;
 
 	subtype_read_func	subtype_read;
@@ -266,5 +267,33 @@ struct wtap_dumper {
                     (guint32)*((guint8 *)p+1)<<8|   \
                     (guint32)*((guint8 *)p+0)<<0)
 #endif
+
+
+#define wtap_file_read_unknown_bytes(target, num_bytes, fh, err) \
+	G_STMT_START \
+	{ \
+		int _bytes_read; \
+		_bytes_read = file_read((target), 1, (num_bytes), (fh)); \
+		if (_bytes_read != (num_bytes)) { \
+			*(err) = file_error((fh)); \
+			return FALSE; \
+		} \
+	} \
+	G_STMT_END
+
+#define wtap_file_read_expected_bytes(target, num_bytes, fh, err) \
+	G_STMT_START \
+	{ \
+		int _bytes_read; \
+		_bytes_read = file_read((target), 1, (num_bytes), (fh)); \
+		if (_bytes_read != (num_bytes)) { \
+			*(err) = file_error((fh)); \
+			if (*(err) == 0 && _bytes_read > 0) { \
+				*(err) = WTAP_ERR_SHORT_READ; \
+			} \
+			return FALSE; \
+		} \
+	} \
+	G_STMT_END
 
 #endif /* __WTAP_INT_H__ */
