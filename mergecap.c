@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.23 2004/06/30 06:58:57 guy Exp $
+ * $Id: mergecap.c,v 1.24 2004/06/30 07:04:42 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -94,7 +94,7 @@ main(int argc, char *argv[])
   merge_in_file_t   *in_files      = NULL;
   merge_out_file_t   out_file;
   int          err;
-  char        *out_filename;
+  char        *out_filename = NULL;
 
   /* initialize out_file */
   out_file.fd         = 0;
@@ -111,7 +111,7 @@ main(int argc, char *argv[])
 
     switch (opt) {
     case 'w':
-	  out_filename = optarg;
+      out_filename = optarg;
       break;
 
     case 'a':
