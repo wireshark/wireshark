@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.21 2001/01/18 09:54:09 guy Exp $
+dnl $Id: acinclude.m4,v 1.22 2001/04/19 01:08:16 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -385,7 +385,6 @@ AC_DEFUN(AC_ETHEREAL_SSL_CHECK,
 		if test x$ssldir != x
 		then
 			SSL_LIBS=-lcrypto
-			AC_MSG_RESULT(added $d to paths)
 			CFLAGS="$CFLAGS -I${ssldir}/include"
 			CPPFLAGS="$CPPFLAGS -I${ssldir}/include"
 			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${ssldir}/lib)

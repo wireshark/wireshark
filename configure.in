@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.119 2001/04/11 23:52:50 guy Exp $
+# $Id: configure.in,v 1.120 2001/04/19 01:08:16 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -350,7 +350,6 @@ if test "x$enable_ssl" = "xno" ; then
 else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_SSL_CHECK
-	AC_MSG_CHECKING(SSL_LIBS=$SSL_LIBS)
 fi
 AC_SUBST(SSL_LIBS)
 
