@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.23 2001/01/22 07:19:38 guy Exp $
+ * $Id: packet-portmap.c,v 1.24 2001/01/28 03:39:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -222,7 +222,7 @@ int dissect_dump_reply(const u_char *pd, int offset, frame_data *fd,
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
-static const vsff portmap1_proc[] = {
+static const old_vsff portmap1_proc[] = {
 	{ PORTMAPPROC_NULL,	"NULL",		NULL,				NULL },
 	{ PORTMAPPROC_SET,	"SET",		NULL,				NULL },
 	{ PORTMAPPROC_UNSET,	"UNSET",		NULL,				NULL },
@@ -233,7 +233,7 @@ static const vsff portmap1_proc[] = {
 };
 /* end of Portmap version 1 */
 
-static const vsff portmap2_proc[] = {
+static const old_vsff portmap2_proc[] = {
 	{ PORTMAPPROC_NULL, "NULL",
 		NULL, NULL },
 	{ PORTMAPPROC_SET, "SET",
@@ -327,7 +327,7 @@ int dissect_rpcb3_dump_reply(const u_char *pd, int offset, frame_data *fd,
 
 
 /* Portmapper version 3, RFC 1833, Page 7 */
-static const vsff portmap3_proc[] = {
+static const old_vsff portmap3_proc[] = {
 	{ RPCBPROC_NULL,	"NULL",
 		NULL, NULL },
 	{ RPCBPROC_SET,		"SET",
@@ -352,7 +352,7 @@ static const vsff portmap3_proc[] = {
 
 
 /* Portmapper version 4, RFC 1833, Page 8 */
-static const vsff portmap4_proc[] = {
+static const old_vsff portmap4_proc[] = {
 	{ RPCBPROC_NULL,	"NULL",
 		NULL, NULL },
 	{ RPCBPROC_SET,		"SET",
@@ -444,8 +444,8 @@ proto_reg_handoff_portmap(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ett_portmap);
 	/* Register the procedure tables */
-	rpc_init_proc_table(PORTMAP_PROGRAM, 1, portmap1_proc);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc);
+	old_rpc_init_proc_table(PORTMAP_PROGRAM, 1, portmap1_proc);
+	old_rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc);
+	old_rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc);
+	old_rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc);
 }

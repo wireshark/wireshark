@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.42 2001/01/18 09:55:09 guy Exp $
+ * $Id: packet-nfs.c,v 1.43 2001/01/28 03:39:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -233,10 +233,11 @@ const value_string names_fhtype[] =
 
 /* SVR4: checked with ReliantUNIX (5.43, 5.44, 5.45) */
 
-void
-dissect_fhandle_data_SVR4(tvbuff_t* tvb, proto_tree *tree, int fhlen)
+static void
+dissect_fhandle_data_SVR4(tvbuff_t* tvb, int offset, proto_tree *tree,
+    int fhlen)
 {
-	guint32 nof = 0;
+	guint32 nof = offset;
 
 	/* file system id */
 	{
@@ -383,8 +384,9 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 
 /* Checked with RedHat Linux 6.2 (kernel 2.2.14 knfsd) */
 
-void
-dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
+static void
+dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, int offset, proto_tree *tree,
+    int fhlen)
 {
 	guint32 dentry;
 	guint32 inode;
@@ -397,25 +399,25 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 	guint32 xinode;
 	guint32 gen;
 
-	dentry   = tvb_get_letohl(tvb, 0);
-	inode    = tvb_get_letohl(tvb, 4);
-	dirinode = tvb_get_letohl(tvb, 8);
-	temp     = tvb_get_letohs (tvb,12);
+	dentry   = tvb_get_letohl(tvb, offset+0);
+	inode    = tvb_get_letohl(tvb, offset+4);
+	dirinode = tvb_get_letohl(tvb, offset+8);
+	temp     = tvb_get_letohs (tvb,offset+12);
 	fsid_major = (temp >> 8) & 0xff;
 	fsid_minor = (temp     ) & 0xff;
-	temp     = tvb_get_letohs(tvb,16);
+	temp     = tvb_get_letohs(tvb,offset+16);
 	xfsid_major = (temp >> 8) & 0xff;
 	xfsid_minor = (temp     ) & 0xff;
-	xinode   = tvb_get_letohl(tvb,20);
-	gen      = tvb_get_letohl(tvb,24);
+	xinode   = tvb_get_letohl(tvb,offset+20);
+	gen      = tvb_get_letohl(tvb,offset+24);
 
 	if (tree) {
 		proto_tree_add_uint(tree, hf_nfs_fh_dentry,
-			tvb, 0, 4, dentry);
+			tvb, offset+0, 4, dentry);
 		proto_tree_add_uint(tree, hf_nfs_fh_fn_inode,
-			tvb, 4, 4, inode);
+			tvb, offset+4, 4, inode);
 		proto_tree_add_uint(tree, hf_nfs_fh_dirinode,
-			tvb, 8, 4, dirinode);
+			tvb, offset+8, 4, dirinode);
 
 		/* file system id (device) */
 		{
@@ -423,15 +425,15 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 		proto_tree* fsid_tree = NULL;
 
 		fsid_item = proto_tree_add_text(tree, tvb,
-			12, 4, 
+			offset+12, 4, 
 			"file system ID: %d,%d", fsid_major, fsid_minor);
 		if (fsid_item) {
 			fsid_tree = proto_item_add_subtree(fsid_item, 
 					ett_nfs_fh_fsid);
 			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
-				tvb, 13, 1, fsid_major);
+				tvb, offset+13, 1, fsid_major);
 			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
-				tvb, 12, 1, fsid_minor);
+				tvb, offset+12, 1, fsid_minor);
 		}
 		}
 
@@ -441,22 +443,22 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 		proto_tree* xfsid_tree = NULL;
 
 		xfsid_item = proto_tree_add_text(tree, tvb,
-			16, 4, 
+			offset+16, 4, 
 			"exported file system ID: %d,%d", xfsid_major, xfsid_minor);
 		if (xfsid_item) {
 			xfsid_tree = proto_item_add_subtree(xfsid_item, 
 					ett_nfs_fh_xfsid);
 			proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_major,
-				tvb, 17, 1, xfsid_major);
+				tvb, offset+17, 1, xfsid_major);
 			proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_minor,
-				tvb, 16, 1, xfsid_minor);
+				tvb, offset+16, 1, xfsid_minor);
 		}
 		}
 
 		proto_tree_add_uint(tree, hf_nfs_fh_xfn_inode,
-			tvb, 20, 4, xinode);
+			tvb, offset+20, 4, xinode);
 		proto_tree_add_uint(tree, hf_nfs_fh_fn_generation,
-			tvb, 24, 4, gen);
+			tvb, offset+24, 4, gen);
 	}
 }
 
@@ -464,15 +466,16 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 /* Checked with RedHat Linux 5.2 (nfs-server 2.2beta47 user-land nfsd) */
 
 void
-dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
+dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, int offset, proto_tree *tree,
+    int fhlen)
 {
 	/* pseudo inode */
 	{
 	guint32 pinode;
-	pinode   = tvb_get_letohl(tvb, 0);
+	pinode   = tvb_get_letohl(tvb, offset+0);
 	if (tree) {
 		proto_tree_add_uint(tree, hf_nfs_fh_pinode,
-			tvb, 0, 4, pinode);
+			tvb, offset+0, 4, pinode);
 	}
 	}
 
@@ -480,23 +483,26 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 	{
 	guint32 hashlen;
 
-	hashlen  = tvb_get_guint8(tvb, 4);
+	hashlen  = tvb_get_guint8(tvb, offset+4);
 	if (tree) {
 		proto_item* hash_item = NULL;
 		proto_tree* hash_tree = NULL;
 
-		hash_item = proto_tree_add_text(tree, tvb, 4, hashlen + 1,
+		hash_item = proto_tree_add_text(tree, tvb, offset+4,
+				hashlen + 1,
 				"hash path: %s",
-				tvb_bytes_to_str(tvb,5,hashlen));
+				tvb_bytes_to_str(tvb,offset+5,hashlen));
 		if (hash_item) {
 			hash_tree = proto_item_add_subtree(hash_item, 
 					ett_nfs_fh_hp);
 			if (hash_tree) {
 		 		proto_tree_add_uint(hash_tree,
-					hf_nfs_fh_hp_len, tvb, 4, 1, hashlen);
-				proto_tree_add_text(hash_tree, tvb, 5, hashlen,
+					hf_nfs_fh_hp_len, tvb, offset+4, 1,
+					hashlen);
+				proto_tree_add_text(hash_tree, tvb, offset+5,
+					hashlen,
 					"key: %s",
-					tvb_bytes_to_str(tvb,5,hashlen));
+					tvb_bytes_to_str(tvb,offset+5,hashlen));
 			}
 		}
 	}
@@ -505,15 +511,12 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
 
 
 static void
-dissect_fhandle_data_unknown(tvbuff_t *tvb, proto_tree *tree, int fhlen)
+dissect_fhandle_data_unknown(tvbuff_t *tvb, int offset, proto_tree *tree,
+    int fhlen)
 {
-	int offset;
-
 	int sublen;
 	int bytes_left;
 	gboolean first_line;
-
-	offset = 0;
 
 	bytes_left = fhlen;
 	first_line = TRUE;
@@ -534,37 +537,38 @@ dissect_fhandle_data_unknown(tvbuff_t *tvb, proto_tree *tree, int fhlen)
 
 
 static void
-dissect_fhandle_data(const u_char *pd, int offset, frame_data* fd, proto_tree *tree, int fhlen)
+dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, int fhlen)
 {
-	tvbuff_t *tvb = tvb_create_from_top(offset);
 	int fhtype = FHT_UNKNOWN;
 
 	/* filehandle too long */
 	if (fhlen>64) goto type_ready;
 	/* Not all bytes there. Any attempt to deduce the type would be
 	   senseless. */
-	if (!tvb_bytes_exist(tvb,0,fhlen)) goto type_ready;
+	if (!tvb_bytes_exist(tvb,offset,fhlen)) goto type_ready;
 		
 	/* calculate (heuristically) fhtype */
 	switch (fhlen) {
 		case 32: {
 			guint32 len1;
 			guint32 len2;
-			if (tvb_get_ntohs(tvb,4) == 0) {
-				len1= tvb_get_ntohs(tvb,8);
-				if (tvb_bytes_exist(tvb,10+len1,2)) {
-						len2 = tvb_get_ntohs(tvb,10+len1);
-						if (fhlen==12+len1+len2) {
-							fhtype=FHT_SVR4;
-							goto type_ready;
-						}
+			if (tvb_get_ntohs(tvb,offset+4) == 0) {
+				len1=tvb_get_ntohs(tvb,offset+8);
+				if (tvb_bytes_exist(tvb,offset+10+len1,2)) {
+					len2=tvb_get_ntohs(tvb,
+					    offset+10+len1);
+					if (fhlen==12+len1+len2) {
+						fhtype=FHT_SVR4;
+						goto type_ready;
+					}
 				}
 			}
-			len1 = tvb_get_guint8(tvb,4);
-			if (len1<28 && tvb_bytes_exist(tvb,5,len1)) {
+			len1 = tvb_get_guint8(tvb,offset+4);
+			if (len1<28 && tvb_bytes_exist(tvb,offset+5,len1)) {
 				int wrong=0;
 				for (len2=5+len1;len2<32;len2++) {
-					if (tvb_get_guint8(tvb,len2)) {
+					if (tvb_get_guint8(tvb,offset+len2)) {
 						wrong=1;	
 						break;
 					}
@@ -574,9 +578,9 @@ dissect_fhandle_data(const u_char *pd, int offset, frame_data* fd, proto_tree *t
 					goto type_ready;
 				}
 			}
-			if (tvb_get_ntohl(tvb,28) == 0) {
-				if (tvb_get_ntohs(tvb,14) == 0) {
-					if (tvb_get_ntohs(tvb,18) == 0) {
+			if (tvb_get_ntohl(tvb,offset+28) == 0) {
+				if (tvb_get_ntohs(tvb,offset+14) == 0) {
+					if (tvb_get_ntohs(tvb,offset+18) == 0) {
 						fhtype=FHT_LINUX_KNFSD_LE;
 						goto type_ready;
 					}
@@ -587,22 +591,25 @@ dissect_fhandle_data(const u_char *pd, int offset, frame_data* fd, proto_tree *t
 
 type_ready:
 
-	proto_tree_add_text(tree, tvb, 0, 0, 
+	proto_tree_add_text(tree, tvb, offset, 0, 
 		"type: %s", val_to_str(fhtype, names_fhtype, "Unknown"));
 
 	switch (fhtype) {
 		case FHT_SVR4:
-			dissect_fhandle_data_SVR4          (tvb, tree, fhlen);
+			dissect_fhandle_data_SVR4          (tvb, offset, tree,
+			    fhlen);
 		break;
 		case FHT_LINUX_KNFSD_LE:
-			dissect_fhandle_data_LINUX_KNFSD_LE(tvb, tree, fhlen);
+			dissect_fhandle_data_LINUX_KNFSD_LE(tvb, offset, tree,
+			    fhlen);
 		break;
 		case FHT_LINUX_NFSD_LE:
-			dissect_fhandle_data_LINUX_NFSD_LE (tvb, tree, fhlen);
+			dissect_fhandle_data_LINUX_NFSD_LE (tvb, offset, tree,
+			    fhlen);
 		break;
 		case FHT_UNKNOWN:
 		default:
-			dissect_fhandle_data_unknown(tvb, tree, fhlen);
+			dissect_fhandle_data_unknown(tvb, offset, tree, fhlen);
 		break;
 	}
 }
@@ -724,20 +731,30 @@ char* name)
 
 /* RFC 1094, Page 15 */
 int
-dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+old_dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	tvbuff_t *tvb = tvb_create_from_top(offset);
+
+	offset = dissect_fhandle(tvb, 0, &pi, tree, name);
+	return tvb_raw_offset(tvb) + offset;
+}
+
+int
+dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+    char *name)
 {
 	proto_item* fitem;
 	proto_tree* ftree = NULL;
 
 	if (tree) {
-		fitem = proto_tree_add_text(tree, NullTVB, offset, FHSIZE,
+		fitem = proto_tree_add_text(tree, tvb, offset, FHSIZE,
 			"%s", name);
 		if (fitem)
 			ftree = proto_item_add_subtree(fitem, ett_nfs_fhandle);
 	}
 
 	if (ftree)
-		dissect_fhandle_data(pd, offset, fd, ftree, FHSIZE);
+		dissect_fhandle_data(tvb, offset, pinfo, ftree, FHSIZE);
 
 	offset += FHSIZE;
 	return offset;
@@ -747,7 +764,7 @@ dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 int
 dissect_nfs2_fhandle_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	offset = dissect_fhandle(pd, offset, fd, tree, "object");
+	offset = old_dissect_fhandle(pd, offset, fd, tree, "object");
 
 	return offset;
 }
@@ -1023,7 +1040,7 @@ dissect_diropargs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			diropargs_tree = proto_item_add_subtree(diropargs_item, ett_nfs_diropargs);
 	}
 
-	offset = dissect_fhandle (pd,offset,fd,diropargs_tree,"dir");
+	offset = old_dissect_fhandle (pd,offset,fd,diropargs_tree,"dir");
 	offset = dissect_filename(pd,offset,fd,diropargs_tree,hf_nfs_name,NULL);
 
 	/* now we know, that diropargs is shorter */
@@ -1054,7 +1071,7 @@ dissect_diropres(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	offset = dissect_stat(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_fhandle(pd, offset, fd, tree, "file");
+			offset = old_dissect_fhandle(pd, offset, fd, tree, "file");
 			offset = dissect_fattr  (pd, offset, fd, tree, "attributes");
 		break;
 		default:
@@ -1091,7 +1108,7 @@ dissect_nfs2_diropres_reply(const u_char* pd, int offset, frame_data* fd, proto_
 int
 dissect_nfs2_setattr_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	offset = dissect_fhandle(pd, offset, fd, tree, "file"      );
+	offset = old_dissect_fhandle(pd, offset, fd, tree, "file"      );
 	offset = dissect_sattr  (pd, offset, fd, tree, "attributes");
 
 	return offset;
@@ -1126,7 +1143,7 @@ dissect_nfs2_read_call(const u_char *pd, int offset, frame_data *fd, proto_tree 
 	guint32 count;
 	guint32 totalcount;
 
-	offset = dissect_fhandle(pd, offset, fd, tree, "file"      );
+	offset = old_dissect_fhandle(pd, offset, fd, tree, "file"      );
 	if (!BYTES_ARE_IN_FRAME(offset,12)) return offset;
 	offset_value = EXTRACT_UINT(pd, offset+0);
 	count        = EXTRACT_UINT(pd, offset+4);
@@ -1174,7 +1191,7 @@ dissect_nfs2_write_call(const u_char *pd, int offset, frame_data *fd, proto_tree
 	guint32 offset_value;
 	guint32 totalcount;
 
-	offset = dissect_fhandle(pd, offset, fd, tree, "file"      );
+	offset = old_dissect_fhandle(pd, offset, fd, tree, "file"      );
 	if (!BYTES_ARE_IN_FRAME(offset,12)) return offset;
 	beginoffset  = EXTRACT_UINT(pd, offset+0);
 	offset_value = EXTRACT_UINT(pd, offset+4);
@@ -1221,7 +1238,7 @@ dissect_nfs2_rename_call(const u_char *pd, int offset, frame_data *fd, proto_tre
 int
 dissect_nfs2_link_call(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	offset = dissect_fhandle  (pd, offset, fd, tree, "from");
+	offset = old_dissect_fhandle  (pd, offset, fd, tree, "from");
 	offset = dissect_diropargs(pd, offset, fd, tree, "to"  );
 
 	return offset;
@@ -1247,7 +1264,7 @@ dissect_nfs2_readdir_call(const u_char *pd, int offset, frame_data *fd, proto_tr
 	guint32	cookie;
 	guint32	count;
 
-	offset = dissect_fhandle (pd, offset, fd, tree, "dir");
+	offset = old_dissect_fhandle (pd, offset, fd, tree, "dir");
 	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
 	cookie  = EXTRACT_UINT(pd, offset+ 0);
 	count = EXTRACT_UINT(pd, offset+ 4);
@@ -1387,7 +1404,7 @@ dissect_nfs2_statfs_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
-static const vsff nfs2_proc[] = {
+static const old_vsff nfs2_proc[] = {
 	{ 0,	"NULL",		/* OK */
 	NULL,				NULL },
 	{ 1,	"GETATTR",	/* OK */
@@ -1756,7 +1773,17 @@ dissect_specdata3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 /* RFC 1813, Page 21 */
 int
-dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+old_dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	tvbuff_t *tvb = tvb_create_from_top(offset);
+
+	offset = dissect_nfs_fh3(tvb, 0, &pi, tree, name);
+	return tvb_raw_offset(tvb) + offset;
+}
+
+int
+dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+    char *name)
 {
 	guint fh3_len;
 	guint fh3_len_full;
@@ -1764,21 +1791,21 @@ dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	proto_item* fitem;
 	proto_tree* ftree = NULL;
 
-	fh3_len = EXTRACT_UINT(pd, offset+0);
+	fh3_len = tvb_get_ntohl(tvb, offset+0);
 	fh3_len_full = rpc_roundup(fh3_len);
 	fh3_fill = fh3_len_full - fh3_len;
 	
 	if (tree) {
-		fitem = proto_tree_add_text(tree, NullTVB, offset, 4+fh3_len_full,
+		fitem = proto_tree_add_text(tree, tvb, offset, 4+fh3_len_full,
 			"%s", name);
 		if (fitem)
 			ftree = proto_item_add_subtree(fitem, ett_nfs_fh3);
 	}
 
 	if (ftree) {
-		proto_tree_add_text(ftree, NullTVB,offset+0,4,
+		proto_tree_add_text(ftree, tvb, offset+0, 4,
 					"length: %u", fh3_len);
-		dissect_fhandle_data(pd, offset+4, fd, ftree, fh3_len);
+		dissect_fhandle_data(tvb, offset+4, pinfo, ftree, fh3_len);
 	}
 	offset += 4 + fh3_len_full;
 	return offset;
@@ -2025,7 +2052,7 @@ dissect_post_op_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	offset += 4;
 	switch (handle_follows) {
 		case TRUE:
-			offset = dissect_nfs_fh3(pd, offset, fd, post_op_fh3_tree,
+			offset = old_dissect_nfs_fh3(pd, offset, fd, post_op_fh3_tree,
 					"handle");
 		break;
 		case FALSE:
@@ -2382,7 +2409,7 @@ dissect_diropargs3(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 			diropargs3_tree = proto_item_add_subtree(diropargs3_item, ett_nfs_diropargs3);
 	}
 
-	offset = dissect_nfs_fh3  (pd, offset, fd, diropargs3_tree, "dir");
+	offset = old_dissect_nfs_fh3  (pd, offset, fd, diropargs3_tree, "dir");
 	offset = dissect_filename3(pd, offset, fd, diropargs3_tree, hf_nfs_name,NULL);
 
 	/* now we know, that diropargs3 is shorter */
@@ -2446,7 +2473,7 @@ dissect_access(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 int
 dissect_nfs3_nfs_fh3_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3(pd, offset, fd, tree, "object");
+	offset = old_dissect_nfs_fh3(pd, offset, fd, tree, "object");
 	return offset;
 }
 
@@ -2468,7 +2495,7 @@ dissect_nfs3_any_reply(const u_char* pd, int offset, frame_data* fd, proto_tree*
 int
 dissect_nfs3_getattr_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3(pd, offset, fd, tree, "object");
+	offset = old_dissect_nfs_fh3(pd, offset, fd, tree, "object");
 	return offset;
 }
 
@@ -2543,7 +2570,7 @@ dissect_sattrguard3(const u_char* pd, int offset, frame_data* fd, proto_tree* tr
 int
 dissect_nfs3_setattr_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3    (pd, offset, fd, tree, "object");
+	offset = old_dissect_nfs_fh3    (pd, offset, fd, tree, "object");
 	offset = dissect_sattr3     (pd, offset, fd, tree, "new_attributes");
 	offset = dissect_sattrguard3(pd, offset, fd, tree, "guard");
 	return offset;
@@ -2588,7 +2615,7 @@ dissect_nfs3_lookup_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 	offset = dissect_nfsstat3(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_fh3     (pd, offset, fd, tree, "object");
+			offset = old_dissect_nfs_fh3     (pd, offset, fd, tree, "object");
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "dir_attributes");
 		break;
@@ -2605,7 +2632,7 @@ dissect_nfs3_lookup_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 int
 dissect_nfs3_access_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3(pd, offset, fd, tree, "object");
+	offset = old_dissect_nfs_fh3(pd, offset, fd, tree, "object");
 	offset = dissect_access (pd, offset, fd, tree, "access");
 
 	return offset;
@@ -2658,7 +2685,7 @@ dissect_nfs3_readlink_reply(const u_char* pd, int offset, frame_data* fd, proto_
 int
 dissect_nfs3_read_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3(pd, offset, fd, tree, "file");
+	offset = old_dissect_nfs_fh3(pd, offset, fd, tree, "file");
 	offset = dissect_offset3(pd, offset, fd, tree, "offset");
 	offset = dissect_count3 (pd, offset, fd, tree, "count");
 
@@ -2720,7 +2747,7 @@ dissect_stable_how(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 int
 dissect_nfs3_write_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3   (pd, offset, fd, tree, "file");
+	offset = old_dissect_nfs_fh3   (pd, offset, fd, tree, "file");
 	offset = dissect_offset3   (pd, offset, fd, tree, "offset");
 	offset = dissect_count3    (pd, offset, fd, tree, "count");
 	offset = dissect_stable_how(pd, offset, fd, tree, hf_nfs_write_stable);
@@ -2932,7 +2959,7 @@ dissect_nfs3_rename_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 int
 dissect_nfs3_link_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3   (pd, offset, fd, tree, "file");
+	offset = old_dissect_nfs_fh3   (pd, offset, fd, tree, "file");
 	offset = dissect_diropargs3(pd, offset, fd, tree, "link");
 	
 	return offset;
@@ -2965,7 +2992,7 @@ dissect_nfs3_link_reply(const u_char* pd, int offset, frame_data* fd, proto_tree
 int
 dissect_nfs3_readdir_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3    (pd, offset, fd, tree, "dir");
+	offset = old_dissect_nfs_fh3    (pd, offset, fd, tree, "dir");
 	offset = dissect_cookie3    (pd, offset, fd, tree, "cookie");
 	offset = dissect_cookieverf3(pd, offset, fd, tree);
 	offset = dissect_count3     (pd, offset, fd, tree, "count");
@@ -3043,7 +3070,7 @@ dissect_nfs3_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 int
 dissect_nfs3_readdirplus_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3    (pd, offset, fd, tree, "dir");
+	offset = old_dissect_nfs_fh3    (pd, offset, fd, tree, "dir");
 	offset = dissect_cookie3    (pd, offset, fd, tree, "cookie");
 	offset = dissect_cookieverf3(pd, offset, fd, tree);
 	offset = dissect_count3     (pd, offset, fd, tree, "dircount");
@@ -3316,7 +3343,7 @@ dissect_nfs3_pathconf_reply(const u_char* pd, int offset, frame_data* fd, proto_
 int
 dissect_nfs3_commit_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
-	offset = dissect_nfs_fh3(pd, offset, fd, tree, "file");
+	offset = old_dissect_nfs_fh3(pd, offset, fd, tree, "file");
 	offset = dissect_offset3(pd, offset, fd, tree, "offset");
 	offset = dissect_count3 (pd, offset, fd, tree, "count");
 	
@@ -3696,7 +3723,7 @@ int
 dissect_nfs_fh4(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree, char *name)
 {
-	return dissect_nfs_fh3(pd, offset, fd, tree, name);
+	return old_dissect_nfs_fh3(pd, offset, fd, tree, name);
 }
 
 int
@@ -4925,7 +4952,7 @@ dissect_nfs4_compound_reply(const u_char* pd, int offset, frame_data* fd,
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
-static const vsff nfs3_proc[] = {
+static const old_vsff nfs3_proc[] = {
 	{ 0,	"NULL",		/* OK */
 	NULL,				NULL },
 	{ 1,	"GETATTR",	/* OK */
@@ -4974,7 +5001,7 @@ static const vsff nfs3_proc[] = {
 };
 /* end of NFS Version 3 */
 
-static const vsff nfs4_proc[] = {
+static const old_vsff nfs4_proc[] = {
 	{ 0, "NULL",
 	NULL, NULL },
 	{ 1, "COMPOUND",
@@ -5341,7 +5368,7 @@ proto_reg_handoff_nfs(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc);
-	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc);
-	rpc_init_proc_table(NFS_PROGRAM, 4, nfs4_proc);
+	old_rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc);
+	old_rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc);
+	old_rpc_init_proc_table(NFS_PROGRAM, 4, nfs4_proc);
 }

@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.1 2001/01/27 20:33:01 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.2 2001/01/28 03:39:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -624,7 +624,7 @@ dissect_hclnfsd_get_printq_reply(const u_char *pd, int offset,
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 
-const vsff hclnfsd1_proc[] = {
+static const old_vsff hclnfsd1_proc[] = {
     { HCLNFSDPROC_NULL, "NULL", 
 	 	NULL, NULL },
     { HCLNFSDPROC_SPOOL_INQUIRE, "SPOOL_INQUIRE",
@@ -758,5 +758,5 @@ proto_reg_handoff_hclnfsd(void)
 	rpc_init_prog(proto_hclnfsd, HCLNFSD_PROGRAM, ett_hclnfsd);
 
 	/* Register the procedure tables */
-	rpc_init_proc_table(HCLNFSD_PROGRAM, 1, hclnfsd1_proc);
+	old_rpc_init_proc_table(HCLNFSD_PROGRAM, 1, hclnfsd1_proc);
 }

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.50 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-rpc.c,v 1.51 2001/01/28 03:39:48 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -180,6 +180,35 @@ static GHashTable *rpc_progs;
 /* Hash table with info on RPC procedure numbers */
 static GHashTable *rpc_procs;
 
+typedef struct _rpc_proc_info_key {
+	guint32	prog;
+	guint32	vers;
+	guint32	proc;
+} rpc_proc_info_key;
+
+typedef struct _rpc_proc_info_value {
+	gchar		*name;
+	gboolean	is_old_dissector;
+	union {
+		old_dissect_function_t *old;
+		dissect_function_t *new;
+	} dissect_call;
+	union {
+		old_dissect_function_t *old;
+		dissect_function_t *new;
+	} dissect_reply;
+} rpc_proc_info_value;
+
+typedef struct _rpc_prog_info_key {
+	guint32 prog;
+} rpc_prog_info_key;
+
+typedef struct _rpc_prog_info_value {
+	int proto;
+	int ett;
+	char* progname;
+} rpc_prog_info_value;
+
 
 /***********************************/
 /* Hash array with procedure names */
@@ -210,6 +239,30 @@ rpc_proc_hash(gconstpointer k)
 
 /* insert some entries */
 void
+old_rpc_init_proc_table(guint prog, guint vers, const old_vsff *proc_table)
+{
+	const old_vsff *proc;
+
+	for (proc = proc_table ; proc->strptr!=NULL; proc++) {
+		rpc_proc_info_key *key;
+		rpc_proc_info_value *value;
+
+		key = (rpc_proc_info_key *) g_malloc(sizeof(rpc_proc_info_key));
+		key->prog = prog;
+		key->vers = vers;
+		key->proc = proc->value;
+
+		value = (rpc_proc_info_value *) g_malloc(sizeof(rpc_proc_info_value));
+		value->name = proc->strptr;
+		value->is_old_dissector = TRUE;
+		value->dissect_call.old = proc->dissect_call;
+		value->dissect_reply.old = proc->dissect_reply;
+
+		g_hash_table_insert(rpc_procs,key,value);
+	}
+}
+
+void
 rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table)
 {
 	const vsff *proc;
@@ -225,8 +278,9 @@ rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table)
 
 		value = (rpc_proc_info_value *) g_malloc(sizeof(rpc_proc_info_value));
 		value->name = proc->strptr;
-		value->dissect_call = proc->dissect_call;
-		value->dissect_reply = proc->dissect_reply;
+		value->is_old_dissector = FALSE;
+		value->dissect_call.new = proc->dissect_call;
+		value->dissect_reply.new = proc->dissect_reply;
 
 		g_hash_table_insert(rpc_procs,key,value);
 	}
@@ -460,7 +514,7 @@ int hfindex, int offset)
 
 
 static int
-dissect_rpc_opaque_data(const u_char *pd, int offset, frame_data *fd,
+dissect_rpc_opaque_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, int hfindex, gboolean string_data,
     char **string_buffer_ret)
 {
@@ -484,92 +538,86 @@ dissect_rpc_opaque_data(const u_char *pd, int offset, frame_data *fd,
 	char *string_buffer = NULL;
 	char *string_buffer_print = NULL;
 
-	if (BYTES_ARE_IN_FRAME(offset,4)) {
-		string_length = EXTRACT_UINT(pd,offset+0);
-		string_length_full = rpc_roundup(string_length);
-		string_length_packet = pi.captured_len - (offset + 4);
-		if (string_length_packet < string_length) {
-			/* truncated string */
-			string_truncated = 1;
-			string_length_copy = string_length_packet;
-			fill_truncated = 2;
-			fill_length = 0;
-			fill_length_packet = 0;
-			fill_length_copy = 0;
+	string_length = tvb_get_ntohl(tvb,offset+0);
+	string_length_full = rpc_roundup(string_length);
+	/* XXX - just let the tvbuff stuff throw an exception? */
+	string_length_packet = tvb_length_remaining(tvb, offset + 4);
+	if (string_length_packet < string_length) {
+		/* truncated string */
+		string_truncated = 1;
+		string_length_copy = string_length_packet;
+		fill_truncated = 2;
+		fill_length = 0;
+		fill_length_packet = 0;
+		fill_length_copy = 0;
+	}
+	else {
+		/* full string data */
+		string_truncated = 0;
+		string_length_copy = string_length;
+		fill_length = string_length_full - string_length;
+		/* XXX - just let the tvbuff stuff throw an exception? */
+		fill_length_packet = tvb_length_remaining(tvb,
+		    offset + 4 + string_length);
+		if (fill_length_packet < fill_length) {
+			/* truncated fill bytes */
+			fill_length_copy = fill_length_packet;
+			fill_truncated = 1;
 		}
 		else {
-			/* full string data */
-			string_truncated = 0;
-			string_length_copy = string_length;
-			fill_length = string_length_full - string_length;
-			fill_length_packet = pi.captured_len - (offset + 4 + string_length);
-			if (fill_length_packet < fill_length) {
-				/* truncated fill bytes */
-				fill_length_copy = fill_length_packet;
-				fill_truncated = 1;
-			}
-			else {
-				/* full fill bytes */
-				fill_length_copy = fill_length;
-				fill_truncated = 0;
-			}
+			/* full fill bytes */
+			fill_length_copy = fill_length;
+			fill_truncated = 0;
 		}
-		string_buffer = (char*)g_malloc(string_length_copy + 
+	}
+	string_buffer = (char*)g_malloc(string_length_copy + 
 			(string_data ? 1 : 0));
-		memcpy(string_buffer,pd+offset+4,string_length_copy);
-		if (string_data)
-			string_buffer[string_length_copy] = '\0';
+	tvb_memcpy(tvb,string_buffer,offset+4,string_length_copy);
+	if (string_data)
+		string_buffer[string_length_copy] = '\0';
 
-		/* calculate a nice printable string */
-		if (string_length) {
-			if (string_length != string_length_copy) {
-				if (string_data) {
-					/* alloc maximum data area */
-					string_buffer_print = (char*)g_malloc(string_length_copy + 12 + 1);
-					/* copy over the data */
-					memcpy(string_buffer_print,string_buffer,string_length_copy);
-					/* append a 0 byte for sure printing */
-					string_buffer_print[string_length_copy] = '\0';
-					/* append <TRUNCATED> */
-					/* This way, we get the TRUNCATED even
-					   in the case of totally wrong packets,
-					   where \0 are inside the string.
-					   TRUNCATED will appear at the
-					   first \0 or at the end (where we 
-					   put the securing \0).
-					*/
-					strcat(string_buffer_print,"<TRUNCATED>");
-				}
-				else {
-					string_buffer_print = g_strdup("<DATA><TRUNCATED>");
-				}
+	/* calculate a nice printable string */
+	if (string_length) {
+		if (string_length != string_length_copy) {
+			if (string_data) {
+				/* alloc maximum data area */
+				string_buffer_print = (char*)g_malloc(string_length_copy + 12 + 1);
+				/* copy over the data */
+				memcpy(string_buffer_print,string_buffer,string_length_copy);
+				/* append a 0 byte for sure printing */
+				string_buffer_print[string_length_copy] = '\0';
+				/* append <TRUNCATED> */
+				/* This way, we get the TRUNCATED even
+				   in the case of totally wrong packets,
+				   where \0 are inside the string.
+				   TRUNCATED will appear at the
+				   first \0 or at the end (where we 
+				   put the securing \0).
+				*/
+				strcat(string_buffer_print,"<TRUNCATED>");
 			}
 			else {
-				if (string_data) {
-					string_buffer_print = g_strdup(string_buffer);
-				}
-				else {
-					string_buffer_print = g_strdup("<DATA>");
-				}
+				string_buffer_print = g_strdup("<DATA><TRUNCATED>");
 			}
 		}
 		else {
-			string_buffer_print = g_strdup("<EMPTY>");
+			if (string_data) {
+				string_buffer_print = g_strdup(string_buffer);
+			}
+			else {
+				string_buffer_print = g_strdup("<DATA>");
+			}
 		}
 	}
 	else {
-		length_truncated = 1;
-		string_truncated = 2;
-		fill_truncated = 2;
-		string_buffer = g_strdup("");
-		string_buffer_print = g_strdup("<TRUNCATED>");
+		string_buffer_print = g_strdup("<EMPTY>");
 	}
 
 	if (tree) {
-		string_item = proto_tree_add_text(tree, NullTVB,offset+0, END_OF_FRAME,
+		string_item = proto_tree_add_text(tree, tvb,offset+0, END_OF_FRAME,
 			"%s: %s", proto_registrar_get_name(hfindex), string_buffer_print);
 		if (string_data) {
-			proto_tree_add_string_hidden(tree, hfindex, NullTVB, offset+4,
+			proto_tree_add_string_hidden(tree, hfindex, tvb, offset+4,
 				string_length_copy, string_buffer);
 		}
 		if (string_item) {
@@ -578,29 +626,29 @@ dissect_rpc_opaque_data(const u_char *pd, int offset, frame_data *fd,
 	}
 	if (length_truncated) {
 		if (string_tree)
-			proto_tree_add_text(string_tree, NullTVB,
+			proto_tree_add_text(string_tree, tvb,
 				offset,pi.captured_len-offset,
 				"length: <TRUNCATED>");
 		offset = pi.captured_len;
 	} else {
 		if (string_tree)
-			proto_tree_add_text(string_tree, NullTVB,offset+0,4,
+			proto_tree_add_text(string_tree, tvb,offset+0,4,
 				"length: %u", string_length);
 		offset += 4;
 
 		if (string_tree)
-			proto_tree_add_text(string_tree, NullTVB,offset,string_length_copy,
+			proto_tree_add_text(string_tree, tvb,offset,string_length_copy,
 				"contents: %s", string_buffer_print);
 		offset += string_length_copy;
 		if (fill_length) {
 			if (string_tree) {
 				if (fill_truncated) {
-					proto_tree_add_text(string_tree, NullTVB,
+					proto_tree_add_text(string_tree, tvb,
 					offset,fill_length_copy,
 					"fill bytes: opaque data<TRUNCATED>");
 				}
 				else {
-					proto_tree_add_text(string_tree, NullTVB,
+					proto_tree_add_text(string_tree, tvb,
 					offset,fill_length_copy,
 					"fill bytes: opaque data");
 				}
@@ -628,26 +676,20 @@ int
 dissect_rpc_string(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree, int hfindex, char **string_buffer_ret)
 {
-	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, TRUE,
-	    string_buffer_ret);
+	tvbuff_t *tvb = tvb_create_from_top(offset);
 
-	return offset;
+	offset = dissect_rpc_string_tvb(tvb, &pi, tree, hfindex, 0,
+	    string_buffer_ret);
+	return tvb_raw_offset(tvb) + offset;
 }
 
 
 int
-dissect_rpc_string_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hfindex, int offset, char **string_buffer_ret)
+dissect_rpc_string_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int hfindex, int offset, char **string_buffer_ret)
 {
-	const guint8 *pd;
-	int compat_offset;
-	int compat_offset_new;
-
-	tvb_compat(tvb, &pd, &compat_offset);
-	compat_offset += offset;
-	
-	compat_offset_new = dissect_rpc_string(pd, compat_offset, pinfo->fd,
-				tree, hfindex, string_buffer_ret);
-	offset += (compat_offset_new - compat_offset);
+	offset = dissect_rpc_opaque_data(tvb, offset, pinfo, tree,
+	    hfindex, TRUE, string_buffer_ret);
 	return offset;
 }
 
@@ -656,33 +698,28 @@ int
 dissect_rpc_data(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree, int hfindex)
 {
-	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, FALSE,
-	    NULL);
+	tvbuff_t *tvb = tvb_create_from_top(offset);
 
-	return offset;
+	offset = dissect_rpc_data_tvb(tvb, &pi, tree, hfindex, 0);
+
+	return tvb_raw_offset(tvb) + offset;
 }
 
 
 int
-dissect_rpc_data_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hfindex, int offset)
+dissect_rpc_data_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int hfindex, int offset)
 {
-	const guint8 *pd;
-	int compat_offset;
-	int compat_offset_new;
+	offset = dissect_rpc_opaque_data(tvb, offset, pinfo, tree, hfindex,
+	    FALSE, NULL);
 
-	tvb_compat(tvb, &pd, &compat_offset);
-	compat_offset += offset;
-	
-	compat_offset_new = dissect_rpc_data(pd, compat_offset, pinfo->fd,
-				tree, hfindex);
-	offset += (compat_offset_new - compat_offset);
 	return offset;
 }
 
 
 int
 dissect_rpc_list(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, dissect_function_t *rpc_list_dissector)
+	proto_tree *tree, old_dissect_function_t *rpc_list_dissector)
 {
 	guint32 value_follows;
 
@@ -694,6 +731,28 @@ dissect_rpc_list(const u_char *pd, int offset, frame_data *fd,
 		offset += 4;
 		if (value_follows == 1) {
 			offset = rpc_list_dissector(pd, offset, fd, tree);
+		}
+		else {
+			break;
+		}
+	}
+
+	return offset;
+}
+
+int
+dissect_rpc_list_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	int offset, dissect_function_t *rpc_list_dissector)
+{
+	guint32 value_follows;
+
+	while (1) {
+		value_follows = tvb_get_ntohl(tvb, offset+0);
+		proto_tree_add_boolean(tree,hf_rpc_value_follows, tvb,
+			offset+0, 4, value_follows);
+		offset += 4;
+		if (value_follows == 1) {
+			offset = rpc_list_dissector(tvb, offset, pinfo, tree);
 		}
 		else {
 			break;
@@ -951,38 +1010,34 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 
 static int
 call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, dissect_function_t* dissect_function, const char *progname)
+	int offset, old_dissect_function_t *old_dissect_function,
+	dissect_function_t* dissect_function, const char *progname)
 {
 	const char *saved_proto;
 
-	if (dissect_function != NULL) {
-		tvbuff_t *next_tvb;
-		const guint8 *next_pd;
-		int next_offset;
-		int offset_diff;
-
-		/* make a new tvbuff subset */
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-
-		/* make a new pd,offset pair */
-		tvb_compat(next_tvb, &next_pd, &next_offset);
-
-		/* with this difference we can switch to/from old offsets */
-		offset_diff = next_offset - offset;
-
+	if (old_dissect_function != NULL || dissect_function != NULL) {
 		/* set the current protocol name */
 		saved_proto = pinfo->current_proto;
 		pinfo->current_proto = progname;
 
 		/* call the dissector for the next level */
-		next_offset = dissect_function(next_pd, next_offset,
-					pinfo->fd, tree);
+		if (dissect_function == NULL) {
+			const guint8 *tvb_pd;
+			int tvb_offset;
+
+			/*
+			 * It's an old-style dissector.
+			 * Make a pd, offset pair.
+			 */
+			tvb_compat(tvb, &tvb_pd, &tvb_offset);
+
+			offset = old_dissect_function(tvb_pd,
+			    tvb_offset + offset, pinfo->fd, tree) - tvb_offset;
+		} else
+			offset = dissect_function(tvb, offset, pinfo, tree);
 
 		/* restore the protocol name */
 		pinfo->current_proto = saved_proto;
-
-		/* correct the tvb offset */
-		offset = next_offset - offset_diff;
 	}
 
 	return offset;
@@ -991,7 +1046,9 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, int offset, dissect_function_t* dissect_function,
+	proto_tree *tree, int offset,
+	old_dissect_function_t *old_dissect_function,
+	dissect_function_t* dissect_function,
 	const char *progname)
 {
 	guint32 length, seq;
@@ -1013,10 +1070,11 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(gtree, hf_rpc_authgss_seq,
 				    tvb, offset+4, 4, seq);
 	}
-	if (dissect_function != NULL) {
+	if (old_dissect_function != NULL || dissect_function != NULL) {
 		/* offset = */
 		call_dissect_function(tvb, pinfo, gtree, offset,
-				      dissect_function, progname);
+				      old_dissect_function, dissect_function,
+				      progname);
 	}
 	offset += 8 + length;
 	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_rpc_authgss_checksum,
@@ -1085,6 +1143,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t* conversation;
 	static address null_address = { AT_NONE, 0, NULL };
 
+	old_dissect_function_t *old_dissect_function = NULL;
 	dissect_function_t *dissect_function = NULL;
 
 	/* TCP uses record marking */
@@ -1256,13 +1315,18 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		key.proc = proc;
 
 		if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL) {
-			dissect_function = value->dissect_call;
+			if (value->is_old_dissector)
+				old_dissect_function = value->dissect_call.old;
+			else
+				dissect_function = value->dissect_call.new;
 			procname = value->name;
 		}
 		else {
 			/* happens only with strange program versions or
 			   non-existing dissectors */
+#if 0
 			dissect_function = NULL;
+#endif
 			sprintf(procname_static, "proc-%u", proc);
 			procname = procname_static;
 		}
@@ -1371,7 +1435,10 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    rpc_call->req_num);
 
 		if (rpc_call->proc_info != NULL) {
-			dissect_function = rpc_call->proc_info->dissect_reply;
+			if (rpc_call->proc_info->is_old_dissector)
+				old_dissect_function = rpc_call->proc_info->dissect_reply.old;
+			else
+				dissect_function = rpc_call->proc_info->dissect_reply.new;
 			if (rpc_call->proc_info->name != NULL) {
 				procname = rpc_call->proc_info->name;
 			}
@@ -1381,7 +1448,9 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 		else {
+#if 0
 			dissect_function = NULL;
+#endif
 			sprintf(procname_static, "proc-%u", proc);
 			procname = procname_static;
 		}
@@ -1559,6 +1628,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (!proto_is_protocol_enabled(proto)) {
+		old_dissect_function = NULL;
 		dissect_function = NULL;
 	}
 
@@ -1580,12 +1650,14 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (gss_svc == RPCSEC_GSS_SVC_NONE) {
 				offset = call_dissect_function(tvb, 
 						pinfo, ptree, offset,
+						old_dissect_function,
 						dissect_function,
 						progname);
 			}
 			else if (gss_svc == RPCSEC_GSS_SVC_INTEGRITY) {
 				offset = dissect_rpc_authgss_integ_data(tvb,
 						pinfo, ptree, offset,
+						old_dissect_function,
 						dissect_function,
 						progname);
 			}
@@ -1600,7 +1672,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else {
 		offset=call_dissect_function(tvb, pinfo, ptree, offset,
-				dissect_function, progname);
+				old_dissect_function, dissect_function, progname);
 	}
 
 	/* dissect any remaining bytes (incomplete dissection) as pure data in

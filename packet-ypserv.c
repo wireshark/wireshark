@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.13 2001/01/18 09:55:10 guy Exp $
+ * $Id: packet-ypserv.c,v 1.14 2001/01/28 03:39:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,7 +153,7 @@ int dissect_firstnext_reply(const u_char *pd, int offset, frame_data *fd,
 /* NULL as function pointer means: type of arguments is "void". */
 
 /* someone please get me a version 1 trace */
-static const vsff ypserv1_proc[] = {
+static const old_vsff ypserv1_proc[] = {
     { 0, "NULL", NULL, NULL },
     { YPPROC_ALL,   "ALL",      
 		NULL, NULL },
@@ -181,7 +181,7 @@ static const vsff ypserv1_proc[] = {
 };
 /* end of YPServ version 2 */
 
-static const vsff ypserv2_proc[] = {
+static const old_vsff ypserv2_proc[] = {
     { 0, "NULL", NULL, NULL },
     { YPPROC_ALL,   "ALL",      
 		NULL, NULL },
@@ -252,6 +252,6 @@ proto_reg_handoff_ypserv(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ett_ypserv);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPSERV_PROGRAM, 1, ypserv1_proc);
-	rpc_init_proc_table(YPSERV_PROGRAM, 2, ypserv2_proc);
+	old_rpc_init_proc_table(YPSERV_PROGRAM, 1, ypserv1_proc);
+	old_rpc_init_proc_table(YPSERV_PROGRAM, 2, ypserv2_proc);
 }

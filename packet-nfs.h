@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.7 2000/12/01 00:38:18 guy Exp $ */
+/* $Id: packet-nfs.h,v 1.8 2001/01/28 03:39:48 guy Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -97,8 +97,13 @@
 
 
 /* the RPC mount protocol needs both function to decode a MNT reply */
-int dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name);
-int dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name);
+int old_dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name);
+int old_dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name);
+
+int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+    char *name);
+int dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+    char *name);
 
 #endif /* packet-nfs.h */
 

@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.15 2001/01/18 09:55:09 guy Exp $
+ * $Id: packet-bootparams.c,v 1.16 2001/01/28 03:39:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,7 +140,7 @@ int dissect_whoami_reply(const u_char *pd, int offset, frame_data *fd,
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
-static const vsff bootparams1_proc[] = {
+static const old_vsff bootparams1_proc[] = {
 	{ BOOTPARAMSPROC_NULL, "NULL",
 		NULL, NULL },
 	{ BOOTPARAMSPROC_WHOAMI, "WHOAMI", 
@@ -191,5 +191,5 @@ proto_reg_handoff_bootparams(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ett_bootparams);
 	/* Register the procedure tables */
-	rpc_init_proc_table(BOOTPARAMS_PROGRAM, 1, bootparams1_proc);
+	old_rpc_init_proc_table(BOOTPARAMS_PROGRAM, 1, bootparams1_proc);
 }

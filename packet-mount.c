@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.19 2001/01/18 09:55:09 guy Exp $
+ * $Id: packet-mount.c,v 1.20 2001/01/28 03:39:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,7 +92,7 @@ dissect_fhstatus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	switch (status) {
 		case 0:
-			offset = dissect_fhandle(pd,offset,fd,tree,"fhandle");
+			offset = old_dissect_fhandle(pd,offset,fd,tree,"fhandle");
 		break;
 		default:
 			/* void */
@@ -439,7 +439,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 /* NULL as function pointer means: type of arguments is "void". */
 
 /* Mount protocol version 1, RFC 1094 */
-static const vsff mount1_proc[] = {
+static const old_vsff mount1_proc[] = {
     { 0, "NULL", NULL, NULL },
     { MOUNTPROC_MNT,        "MNT",      
 		dissect_mount_dirpath_call, dissect_mount_mnt_reply },
@@ -461,7 +461,7 @@ static const vsff mount1_proc[] = {
 /* Mount protocol version 2, private communication from somebody at Sun;
    mount V2 is V1 plus MOUNTPROC_PATHCONF to fetch information for the
    POSIX "pathconf()" call. */
-static const vsff mount2_proc[] = {
+static const old_vsff mount2_proc[] = {
     { 0, "NULL", NULL, NULL },
     { MOUNTPROC_MNT,        "MNT",      
 		dissect_mount_dirpath_call, dissect_mount_mnt_reply },
@@ -532,7 +532,7 @@ dissect_mount3_mnt_reply(const u_char *pd, int offset, frame_data *fd,
 	offset = dissect_mountstat3(pd, offset, fd, tree, hf_mount_status, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_fh3(pd,offset,fd,tree,"fhandle");
+			offset = old_dissect_nfs_fh3(pd,offset,fd,tree,"fhandle");
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			auth_flavors = EXTRACT_UINT(pd,offset+0);
 			proto_tree_add_uint(tree,hf_mount_flavors, NullTVB,
@@ -555,7 +555,7 @@ dissect_mount3_mnt_reply(const u_char *pd, int offset, frame_data *fd,
 }
 
 /* Mount protocol version 3, RFC 1813 */
-static const vsff mount3_proc[] = {
+static const old_vsff mount3_proc[] = {
 	{ 0, "NULL", NULL, NULL },
 	{ MOUNTPROC_MNT, "MNT",
 		dissect_mount_dirpath_call, dissect_mount3_mnt_reply },
@@ -701,7 +701,7 @@ proto_reg_handoff_mount(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ett_mount);
 	/* Register the procedure tables */
-	rpc_init_proc_table(MOUNT_PROGRAM, 1, mount1_proc);
-	rpc_init_proc_table(MOUNT_PROGRAM, 2, mount2_proc);
-	rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc);
+	old_rpc_init_proc_table(MOUNT_PROGRAM, 1, mount1_proc);
+	old_rpc_init_proc_table(MOUNT_PROGRAM, 2, mount2_proc);
+	old_rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc);
 }

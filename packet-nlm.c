@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.13 2001/01/20 08:38:10 guy Exp $
+ * $Id: packet-nlm.c,v 1.14 2001/01/28 03:39:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,10 +153,6 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
-	const guint8 *pd;
-	int compat_offset;
-
-	tvb_compat(tvb, &pd, &compat_offset);
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_lock, tvb,
@@ -167,7 +163,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 
 	offset = dissect_rpc_string_tvb(tvb,pinfo,lock_tree,
 			hf_nlm_lock_caller_name, offset, NULL);
-	offset = dissect_nfs_fh3(pd, compat_offset+offset, pinfo->fd, lock_tree,"fh") - compat_offset;
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree,"fh");
 
 	offset = dissect_rpc_data_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_owner, offset);
 
@@ -187,171 +183,165 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 
 
 static int
-dissect_nlm_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version)
+dissect_nlm_test(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, int version)
 {
-	int noffset;
-
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
-	dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, noffset);
-	noffset += 4;
-	noffset = dissect_lock(tvb, pinfo, tree, version, noffset);
-	return tvb_raw_offset(tvb) + noffset;
+	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, offset);
+	dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, offset);
+	offset += 4;
+	offset = dissect_lock(tvb, pinfo, tree, version, offset);
+	return offset;
 }
 
 static int
-dissect_nlm_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int version)
+dissect_nlm_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree,int version)
 {
-	int noffset;
-
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
-	noffset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_block, noffset);
-	noffset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, noffset);
-	noffset = dissect_lock(tvb, pinfo, tree, version, noffset);
-	noffset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_reclaim, noffset);
-	noffset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_nlm_state, noffset);
-	return tvb_raw_offset(tvb) + noffset;
+	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, offset);
+	offset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_block, offset);
+	offset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, offset);
+	offset = dissect_lock(tvb, pinfo, tree, version, offset);
+	offset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_reclaim, offset);
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_nlm_state, offset);
+	return offset;
 }
 
 static int
-dissect_nlm_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int version)
+dissect_nlm_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree,int version)
 {
-	int noffset;
-
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
-	noffset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_block, noffset);
-	noffset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, noffset);
-	noffset = dissect_lock(tvb, pinfo, tree, version, noffset);
-	return tvb_raw_offset(tvb) + noffset;
+	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, offset);
+	offset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_block, offset);
+	offset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, offset);
+	offset = dissect_lock(tvb, pinfo, tree, version, offset);
+	return offset;
 }
 
 static int
-dissect_nlm_unlock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int version)
+dissect_nlm_unlock(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree,int version)
 {
-	int noffset;
-
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
-	noffset = dissect_lock(tvb, pinfo, tree, version, noffset);
-	return tvb_raw_offset(tvb) + noffset;
+	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, offset);
+	offset = dissect_lock(tvb, pinfo, tree, version, offset);
+	return offset;
 }
 
 static int
-dissect_nlm_granted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int version)
+dissect_nlm_granted(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree,int version)
 {
-	int noffset;
-
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
-	noffset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, noffset);
-	noffset = dissect_lock(tvb, pinfo, tree, version, noffset);
-	return tvb_raw_offset(tvb) + noffset;
+	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, offset);
+	offset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_exclusive, offset);
+	offset = dissect_lock(tvb, pinfo, tree, version, offset);
+	return offset;
 }
 
 
 static int
-dissect_nlm_test_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int version)
+dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree,int version)
 {
-	int noffset;
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
-	const guint8 *pd;
-	int compat_offset;
 
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
-
-	tvb_compat(tvb, &pd, &compat_offset);
+	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, offset);
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_test_stat, tvb,
-				noffset, 
-				tvb_length_remaining(tvb, noffset), 
+				offset, 
+				tvb_length_remaining(tvb, offset),
 				FALSE);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, 
 				ett_nlm_lock);
 	}
 
-	noffset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_test_stat_stat, noffset);
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_test_stat_stat,
+	    offset);
 
 	/* last structure is optional, only supplied for stat==1 (LOCKED) */
-	if(!tvb_length_remaining(tvb, noffset)){
-		return tvb_raw_offset(tvb) + noffset;
+	if(!tvb_length_remaining(tvb, offset)){
+		return offset;
 	}
 
 	if (tree) {
 		lock_item = proto_tree_add_item(lock_tree, hf_nlm_holder, tvb,
-				noffset, 
-				tvb_length_remaining(tvb, noffset), 
+				offset, 
+				tvb_length_remaining(tvb, offset), 
 				FALSE);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, 
 				ett_nlm_lock);
 	}
 
-	noffset = dissect_rpc_bool_tvb(tvb, pinfo, lock_tree, hf_nlm_exclusive, noffset);
-	noffset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_svid, noffset);
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_owner, noffset);
+	offset = dissect_rpc_bool_tvb(tvb, pinfo, lock_tree, hf_nlm_exclusive,
+	    offset);
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_svid,
+	    offset);
+	offset = dissect_rpc_data_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_owner,
+	    offset);
 
 	if (version == 4) {
-		noffset = dissect_rpc_uint64_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_l_offset, noffset);
-		noffset = dissect_rpc_uint64_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_l_len, noffset);
+		offset = dissect_rpc_uint64_tvb(tvb, pinfo, lock_tree,
+		    hf_nlm_lock_l_offset, offset);
+		offset = dissect_rpc_uint64_tvb(tvb, pinfo, lock_tree,
+		    hf_nlm_lock_l_len, offset);
 	}
 	else {
-		noffset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_l_offset, noffset);
-		noffset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_l_len, noffset);
+		offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree,
+		    hf_nlm_lock_l_offset, offset);
+		offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree,
+		    hf_nlm_lock_l_len, offset);
 	}
 
-	return tvb_raw_offset(tvb) + noffset;
+	return offset;
 }
 
 
 static int
-dissect_nlm_share(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int version)
+dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree,int version)
 {
-	int noffset;
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
-	const guint8 *pd;
-	int compat_offset;
 
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
-
-	tvb_compat(tvb, &pd, &compat_offset);
+	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, offset);
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_share, tvb,
-				noffset, 
-				tvb_length_remaining(tvb, noffset), 
+				offset, 
+				tvb_length_remaining(tvb, offset), 
 				FALSE);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, 
 				ett_nlm_lock);
 	}
 
-	noffset = dissect_rpc_string_tvb(tvb,pinfo,lock_tree,
-			hf_nlm_lock_caller_name, noffset, NULL);
+	offset = dissect_rpc_string_tvb(tvb,pinfo,lock_tree,
+			hf_nlm_lock_caller_name, offset, NULL);
 	
-	noffset = dissect_nfs_fh3(pd, compat_offset+noffset, pinfo->fd, lock_tree,"fh") - compat_offset;
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh");
 
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_owner, noffset);
+	offset = dissect_rpc_data_tvb(tvb, pinfo, lock_tree, hf_nlm_lock_owner, offset);
 
-	noffset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_share_mode, noffset);
-	noffset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_share_access, noffset);
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_share_mode, offset);
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, hf_nlm_share_access, offset);
 
 
-	noffset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_reclaim, noffset);
-	return tvb_raw_offset(tvb) + noffset;
+	offset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_nlm_reclaim, offset);
+	return offset;
 }
 
 static int
-dissect_nlm_freeall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int version)
+dissect_nlm_freeall(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree,int version)
 {
-	int noffset;
+	offset = dissect_rpc_string_tvb(tvb,pinfo,tree,
+			hf_nlm_share_name, offset, NULL);
 
-	noffset = dissect_rpc_string_tvb(tvb,pinfo,tree,
-			hf_nlm_share_name, 0, NULL);
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_nlm_state, offset);
 
-	noffset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_nlm_state, noffset);
-
-	return tvb_raw_offset(tvb) + noffset;
+	return offset;
 }
 
 
@@ -359,238 +349,116 @@ dissect_nlm_freeall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int vers
 
 
 /* This function is identical for all NLM protocol versions (1-4)*/
-#if 0
 static int
-dissect_nlm_gen_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm_gen_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm_gen_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-	int noffset;
-
-	noffset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, 0);
-	noffset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_nlm_state, noffset);
-	return tvb_raw_offset(tvb) + noffset;
+	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, offset);
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_nlm_state, offset);
+	return offset;
 }
 
-#if 0
 static int
-dissect_nlm1_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm1_test(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm1_test(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_test(tvb,pinfo,tree,1);
+	return dissect_nlm_test(tvb,offset,pinfo,tree,1);
 }
 
-#if 0
 static int
-dissect_nlm4_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm4_test(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm4_test(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_test(tvb,pinfo,tree,4);
+	return dissect_nlm_test(tvb,offset,pinfo,tree,4);
 }
 
 
-#if 0
 static int
-dissect_nlm1_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm1_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm1_lock(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_lock(tvb,pinfo,tree,1);
+	return dissect_nlm_lock(tvb,offset,pinfo,tree,1);
 }
 
-#if 0
 static int
-dissect_nlm4_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm4_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm4_lock(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_lock(tvb,pinfo,tree,4);
+	return dissect_nlm_lock(tvb,offset,pinfo,tree,4);
 }
 
 
-#if 0
 static int
-dissect_nlm1_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm1_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm1_cancel(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_cancel(tvb,pinfo,tree,1);
+	return dissect_nlm_cancel(tvb,offset,pinfo,tree,1);
 }
 
-#if 0
 static int
-dissect_nlm4_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm4_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm4_cancel(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_cancel(tvb,pinfo,tree,4);
+	return dissect_nlm_cancel(tvb,offset,pinfo,tree,4);
 }
 
 
-#if 0
 static int
-dissect_nlm1_unlock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm1_unlock(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm1_unlock(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_unlock(tvb,pinfo,tree,1);
+	return dissect_nlm_unlock(tvb,offset,pinfo,tree,1);
 }
 
-#if 0
 static int
-dissect_nlm4_unlock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm4_unlock(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm4_unlock(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_unlock(tvb,pinfo,tree,4);
+	return dissect_nlm_unlock(tvb,offset,pinfo,tree,4);
 }
 
 
-#if 0
 static int
-dissect_nlm1_granted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm1_granted(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm1_granted(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_granted(tvb,pinfo,tree,1);
+	return dissect_nlm_granted(tvb,offset,pinfo,tree,1);
 }
 
-#if 0
 static int
-dissect_nlm4_granted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm4_granted(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm4_granted(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_granted(tvb,pinfo,tree,4);
+	return dissect_nlm_granted(tvb,offset,pinfo,tree,4);
 }
 
 
-#if 0
 static int
-dissect_nlm1_test_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm1_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm1_test_res(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_test_res(tvb,pinfo,tree,1);
+	return dissect_nlm_test_res(tvb,offset,pinfo,tree,1);
 }
 
-#if 0
 static int
-dissect_nlm4_test_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm4_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm4_test_res(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_test_res(tvb,pinfo,tree,4);
+	return dissect_nlm_test_res(tvb,offset,pinfo,tree,4);
 }
 
-
-#if 0
 static int
-dissect_nlm3_share(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm3_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm3_share(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_share(tvb,pinfo,tree,3);
+	return dissect_nlm_share(tvb,offset,pinfo,tree,3);
 }
 
-#if 0
 static int
-dissect_nlm3_freeall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlm3_freeall(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
 {
-#else
-int
-dissect_nlm3_freeall(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-	packet_info *pinfo = &pi;
-#endif
-
-	return dissect_nlm_freeall(tvb,pinfo,tree,3);
+	return dissect_nlm_freeall(tvb,offset,pinfo,tree,3);
 }
 
 

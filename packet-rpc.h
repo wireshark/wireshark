@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.22 2001/01/22 08:03:46 guy Exp $
+ * $Id: packet-rpc.h,v 1.23 2001/01/28 03:39:48 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -71,7 +71,15 @@
 #define RPCSEC_GSS_SVC_INTEGRITY 2
 #define RPCSEC_GSS_SVC_PRIVACY 3
 
-typedef int (dissect_function_t)(const u_char* pd, int offset, frame_data* fd, proto_tree* tree);
+typedef int (old_dissect_function_t)(const u_char* pd, int offset, frame_data* fd, proto_tree* tree);
+typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree);
+
+typedef struct _old_vsff {
+	guint32	value;
+	gchar   *strptr;
+	old_dissect_function_t *dissect_call;
+	old_dissect_function_t *dissect_reply;
+} old_vsff;
 
 typedef struct _vsff {
 	guint32	value;
@@ -80,30 +88,9 @@ typedef struct _vsff {
 	dissect_function_t *dissect_reply;
 } vsff;
 
-typedef struct _rpc_proc_info_key {
-	guint32	prog;
-	guint32	vers;
-	guint32	proc;
-} rpc_proc_info_key;
-
-typedef struct _rpc_proc_info_value {
-	gchar		*name;
-	dissect_function_t	*dissect_call;
-	dissect_function_t	*dissect_reply;
-} rpc_proc_info_value;
-
-typedef struct _rpc_prog_info_key {
-	guint32 prog;
-} rpc_prog_info_key;
-
-typedef struct _rpc_prog_info_value {
-	int proto;
-	int ett;
-	char* progname;
-} rpc_prog_info_value;
-
 extern const value_string rpc_auth_flavor[];
 
+extern void old_rpc_init_proc_table(guint prog, guint vers, const old_vsff *proc_table);
 extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table);
 extern void rpc_init_prog(int proto, guint32 prog, int ett);
 extern char *rpc_prog_name(guint32 prog);
@@ -122,7 +109,9 @@ extern int dissect_rpc_data(const u_char *pd, int offset, frame_data *fd,
 extern int dissect_rpc_data_tvb(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int hfindex, int offset);
 extern int dissect_rpc_list(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, dissect_function_t *rpc_list_dissector);
+	proto_tree *tree, old_dissect_function_t *rpc_list_dissector);
+extern int dissect_rpc_list_tvb(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, dissect_function_t *rpc_list_dissector);
 extern int dissect_rpc_uint32(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree, char* name);
 extern int dissect_rpc_uint32_tvb(tvbuff_t *tvb, packet_info *pinfo,
