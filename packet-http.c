@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.76 2003/12/07 03:34:36 guy Exp $
+ * $Id: packet-http.c,v 1.77 2003/12/22 00:57:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include <epan/strutil.h>
 
 #include "util.h"
+#include "rreh.h"
 #include "packet-http.h"
 #include "prefs.h"
 
@@ -184,7 +185,6 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
-	gint		next_offset_sav;
 	const guchar	*linep, *lineend;
 	int		first_linelen, linelen;
 	gboolean	is_request_or_reply;
@@ -196,8 +196,6 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		req_strlen;
 	proto_tree	*req_tree;
 	int		colon_offset;
-	long int	content_length;
-	gboolean	content_length_found = FALSE;
 	entity_headers_t entity_headers;
 	dissector_handle_t handle;
 	gboolean	dissected;
@@ -216,117 +214,17 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	is_request_or_reply = is_http_request_or_reply(line, first_linelen,
 	    &http_type, NULL, NULL);
 	if (is_request_or_reply) {
-		/*
+                /*
 		 * Yes, it's a request or response.
-		 * Do header desegmentation if we've been told to.
-		 *
-		 * RFC 2616 defines HTTP messages as being either of the
-		 * Request or the Response type
-		 * (HTTP-message = Request | Response).
-		 * Request and Response are defined as:
-		 *     Request = Request-Line
-		 *         *(( general-header
-		 *         | request-header
-		 *         | entity-header ) CRLF)
-		 *         CRLF
-		 *         [ message-body ]
-		 *     Response = Status-Line
-		 *         *(( general-header
-		 *         | response-header
-		 *         | entity-header ) CRLF)
-		 *         CRLF
-		 *         [ message-body ]
-		 * that's why we can always assume two consecutive line
-		 * endings (we allow CR, LF, or CRLF, as some clients
-		 * or servers might not use a full CRLF) to mark the end
-		 * of the headers.  The worst thing that would happen
-		 * otherwise would be the packet not being desegmented
-		 * or being interpreted as only headers.
+		 * Do header desegmentation if we've been told to,
+		 * and do body desegmentation if we've been told to and
+		 * we find a Content-Length header.
 		 */
-
-		/*
-		 * If header desegmentation is activated, check that all
-		 * headers are in this tvbuff (search for an empty line
-		 * marking end of headers) or request one more byte (we
-		 * don't know how many bytes we'll need, so we just ask
-		 * for one).
-		 */
-		if (http_desegment_headers && pinfo->can_desegment) {
-			next_offset = offset;
-			for (;;) {
-				next_offset_sav = next_offset;
-
-				/*
-				 * Request one more byte if there're no
-				 * bytes left.
-				 */
-				if (tvb_offset_exists(tvb, next_offset) == FALSE) {
-					pinfo->desegment_offset = offset;
-					pinfo->desegment_len = 1;
-					return;
-				}
-
-				/*
-				 * Request one more byte if we cannot find a
-				 * header (i.e. a line end).
-				 */
-				linelen = tvb_find_line_end(tvb, next_offset,
-				    -1, &next_offset, TRUE);
-				if (linelen == -1) {
-					/*
-					 * Not enough data; ask for one more
-					 * byte.
-					 */
-					pinfo->desegment_offset = offset;
-					pinfo->desegment_len = 1;
-					return;
-				} else if (linelen == 0) {
-					/*
-					 * We found the end of the headers.
-					 */
-					break;
-				}
-
-				/*
-				 * Is this a Content-Length header?
-				 * If not, it either means that we are in
-				 * a different header line, or that we are
-				 * at the end of the headers, or that there
-				 * isn't enough data; the two latter cases
-				 * have already been handled above.
-				 */
-				if (http_desegment_body) {
-					/*
-					 * Check if we've found Content-Length.
-					 */
-					if (tvb_strneql(tvb, next_offset_sav,
-					    "Content-Length:", 15) == 0) {
-						if (sscanf(
-						    tvb_get_string(tvb,
-						        next_offset_sav + 15,
-						        linelen - 15),
-						    "%li", &content_length)
-						    == 1)
-							content_length_found = TRUE;
-					}
-				}
-			}
-		}
-	}
-
-	/*
-	 * The above loop ends when we reached the end of the headers, so
-	 * there should be content_length byte after the 4 terminating bytes
-	 * and next_offset points to after the end of the headers.
-	 */
-	if (http_desegment_body && content_length_found) {
-		/* next_offset has been set because content-length was found */
-		if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
-			gint length = tvb_length_remaining(tvb, next_offset);
-			if (length == -1)
-				length = 0;
-			pinfo->desegment_offset = offset;
-			pinfo->desegment_len = content_length - length;
+		if (!rreh_do_reassembly(tvb, pinfo, http_desegment_headers,
+		    http_desegment_body)) {
+			/*
+			 * More data needed for desegmentation.
+			 */
 			return;
 		}
 	}
