@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.64 1999/12/09 20:41:23 oabad Exp $
+# $Id: configure.in,v 1.65 1999/12/11 05:30:31 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -156,7 +156,7 @@ else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_UCDSNMP_CHECK
 	AC_CHECK_HEADERS(ucd-snmp/snmp.h ucd-snmp/version.h snmp/snmp.h snmp/version.h)
-	AC_CHECK_LIB(snmp, asn_parse_header,
+	AC_CHECK_LIB(snmp, sprint_objid,
 		[
 		SNMP_A=-lsnmp
 		], )
