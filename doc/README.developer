@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.29 2001/07/10 01:22:58 hagbard Exp $
+$Id: README.developer,v 1.30 2001/07/16 06:16:14 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -62,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.29 2001/07/10 01:22:58 hagbard Exp $"
+The "$Id: README.developer,v 1.30 2001/07/16 06:16:14 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,7 +72,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.29 2001/07/10 01:22:58 hagbard Exp $
+ * $Id: README.developer,v 1.30 2001/07/16 06:16:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -621,7 +621,16 @@ type
 ----
 The type of value this field holds. The current field types are:
 
-	FT_NONE			No field type. Used for protocol labels.
+	FT_NONE			No field type. Used for fields that
+				aren't given a value, and that can only
+				be tested for presence or absence; a
+				field that represents a data structure,
+				with a subtree below it containing
+				fields for the members of the structure,
+				or that represents an array with a
+				subtree below it containing fields for
+				the members of the array, might be an
+				FT_NONE field.
 	FT_BOOLEAN		0 means "false", any other value means
 				"true".
 	FT_UINT8		An 8-bit unsigned integer.
@@ -640,7 +649,11 @@ The type of value this field holds. The current field types are:
 	FT_RELATIVE_TIME	Seconds (4 bytes) and microseconds (4 bytes)
 				of time displayed as seconds and 6 digits
 				after the decimal point.
-	FT_STRING		A string of characters.
+	FT_STRING		A string of characters, not necessarily
+				NUL-terminated, but possibly NUL-padded.
+				This, and the other string-of-characters
+				types, are to be used for text strings,
+				not raw binary data.
 	FT_STRINGZ		A NUL-terminated string of characters.
 	FT_UINT_STRING		A counted string of characters, consisting
 				of a count (represented as an integral
@@ -648,7 +661,8 @@ The type of value this field holds. The current field types are:
 				specified number of characters.
 	FT_ETHER		A six octet string displayed in
 				Ethernet-address format.
-	FT_BYTES		A string of bytes.
+	FT_BYTES		A string of bytes with arbitrary values;
+				used for raw binary data.
 	FT_IPv4			A version 4 IP address (4 bytes) displayed
 				in dotted-quad IP address format (4
 				decimal numbers separated by dots).
@@ -657,9 +671,6 @@ The type of value this field holds. The current field types are:
 	FT_IPXNET		An IPX address displayed in hex as a 6-byte
 				network number followed by a 6-byte station
 				address. 
-	FT_TEXT_ONLY		A reserved, non-filterable type for
-				converting old style trees. You shouldn't
-				be using this.
 
 Some of these field types are still not handled in the display filter
 routines, but the most common ones are. The FT_UINT* variables all
