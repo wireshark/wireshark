@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.26 2001/08/18 23:21:31 guy Exp $
+ * $Id: plugins.c,v 1.27 2001/08/19 00:42:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -279,8 +279,8 @@ init_plugins(const char *plugin_dir)
 #ifdef WIN32
     char prog_pathname[_MAX_PATH+2];
     char *dir_end;
-    size_t plugin_dir_len;
-    char *plugin_dir;
+    size_t install_plugin_dir_len;
+    char *install_plugin_dir;
 #else
     struct stat std_dir_stat, local_dir_stat, plugin_dir_stat;
 #endif
@@ -464,17 +464,18 @@ init_plugins(const char *plugin_dir)
 			 * (dir_end - prog_pathname), plus the length of
 			 * the plugin directory's relative pathname.
 			 */
-			plugin_dir_len = (dir_end - prog_pathname) +
+			install_plugin_dir_len = (dir_end - prog_pathname) +
 			    strlen("plugins\\"VERSION);
 
 			/*
 			 * Allocate a buffer for the plugin directory
 			 * pathname, and construct it.
 			 */
-			plugin_dir = g_malloc(plugin_dir_len + 1);
-			strncpy(plugin_dir, prog_pathname,
+			install_plugin_dir =
+			    g_malloc(install_plugin_dir_len + 1);
+			strncpy(install_plugin_dir, prog_pathname,
 			    dir_end - prog_pathname);
-			strcpy(plugin_dir + (dir_end - prog_pathname),
+			strcpy(install_plugin_dir + (dir_end - prog_pathname),
 			    "plugins\\"VERSION);
 
 			/*
@@ -485,11 +486,11 @@ init_plugins(const char *plugin_dir)
 			 * XXX - is there another way to determine whether
 			 * two pathnames refer to the same file?
 			 */
-			if (g_strcasecmp(std_plug_dir, plugin_dir) != 0) {
+			if (g_strcasecmp(std_plug_dir, install_plugin_dir) != 0) {
 				/*
 				 * It's a different directory - scan it.
 				 */
-				plugins_scan_dir(plugin_dir);
+				plugins_scan_dir(install_plugin_dir);
 			}
 		}
 	}
