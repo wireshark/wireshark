@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.45 2002/04/29 08:20:07 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.46 2002/04/30 01:43:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -702,21 +702,28 @@ find_pointer_index(guint32 id)
 	return -1;
 }
 
-/* this function dissects an NDR pointer and stores the callback for later deferred dissection.
- * fnct is the callback function for when we have reached this object in the bytestream.
- * type is what type of pointer this is
- * text is what text we should put in any created tree node
- * hf_index is what hf value we want to pass to the callback function when it is called,
- *    the callback can later pich this one up from di->hf_index.
- * levels is a generic int we want to pass to teh callback function.
- *    the callback can later pick it up from di->levels
+/* This function dissects an NDR pointer and stores the callback for later
+ * deferred dissection.  
+ *
+ *   fnct is the callback function for when we have reached this object in
+ *   the bytestream.  
+ * 
+ *   type is what type of pointer.
+ *
+ *   this is text is what text we should put in any created tree node.
+ *
+ *   hf_index is what hf value we want to pass to the callback function when
+ *   it is called, the callback can later pich this one up from di->hf_index.
+ * 
+ *   levels is a generic int we want to pass to teh callback function.  the
+ *   callback can later pick it up from di->levels
  *
  * See packet-dcerpc-samr.c for examples
  */
 int 
 dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep, 
-                        dcerpc_dissect_fnct_t *fnct, int type, char *text, int hf_index, int levels)
+		    proto_tree *tree, char *drep, dcerpc_dissect_fnct_t *fnct,
+		    int type, char *text, int hf_index, int levels)
 {
 	dcerpc_info *di;
 	
@@ -948,8 +955,8 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     }
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_add_fstr (pinfo->cinfo, COL_INFO, "%s %s(...)",
-                      is_rqst ? "rqst" : "rply", name);
+        col_add_fstr (pinfo->cinfo, COL_INFO, "%s %s",
+                      name, is_rqst ? "request" : "reply");
     }
 
     if (tree) {
