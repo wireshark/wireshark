@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.12 2000/11/10 06:50:36 guy Exp $
+ * $Id: packet-sdp.c,v 1.13 2000/11/12 21:23:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,7 +66,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "SDP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "SDP");
+		col_append_str(pinfo->fd, COL_PROTOCOL, "/SDP");
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		/* XXX: Needs description. */
