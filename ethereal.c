@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.92 1999/08/17 00:10:22 guy Exp $
+ * $Id: ethereal.c,v 1.93 1999/08/17 00:26:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1450,7 +1450,7 @@ main(int argc, char *argv[])
 
   /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop
-     up an alert box, the alert box is more likely to cmoe up on
+     up an alert box, the alert box is more likely to come up on
      top of the main window - but before the preference-file-error
      alert box, so, if we get one of those, it's more likely to come
      up on top of us. */
