@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.18 2000/01/13 00:41:09 guy Exp $
+ * $Id: packet-cdp.c,v 1.19 2000/01/13 18:02:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,7 +148,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			case TYPE_ADDRESS:
 				/* Addresses */
 				tlvi = proto_tree_add_text(cdp_tree, offset,
-				    4, "Address",
+				    4, "Addresses",
 				    type, length);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
