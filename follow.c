@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.3 1998/10/10 03:32:09 gerald Exp $
+ * $Id: follow.c,v 1.4 1998/10/28 01:29:16 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -142,7 +142,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data, int synflag, u
       tmp_frag->data = (u_char *)malloc( length );
       tmp_frag->seq = sequence;
       tmp_frag->len = length;
-      bcopy( data, tmp_frag->data, length );
+      memcpy( tmp_frag->data, data, length );
       if( frags[src_index] ) {
 	tmp_frag->next = frags[src_index];
       } else {
