@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.35 2002/03/16 22:02:55 guy Exp $
+ * $Id: filter_prefs.c,v 1.36 2002/05/02 23:49:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,7 +67,7 @@ static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg,
 			      gpointer activate);
 static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer dummy);
 static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy);
-static void filter_apply(GtkWidget *main_w);
+static void filter_apply(GtkWidget *main_w, gboolean destroy);
 static void filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w);
 static void filter_dlg_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void filter_dlg_destroy(GtkWidget *win, gpointer data);
@@ -88,13 +88,6 @@ static void       filter_name_te_destroy_cb(GtkWidget *, gpointer);
 static void       filter_filter_te_destroy_cb(GtkWidget *, gpointer);
 
 #ifdef HAVE_LIBPCAP
-/* XXX - we can have one global dialog box for editing, and a bunch
-   of dialog boxes associated with browse buttons; we want the dialog
-   boxes associated with browse buttons to at least let you save the
-   current filter, so they have to allow editing; however, how do we
-   arrange that if a change is made to the filter list, other dialog
-   boxes get updated appropriately? */
-
 /* Create a filter dialog for constructing a capture filter.
 
    This is to be used as a callback for a button next to a text entry box,
@@ -103,11 +96,7 @@ static void       filter_filter_te_destroy_cb(GtkWidget *, gpointer);
    for constructing expressions assumes display filter syntax, not
    capture filter syntax).  The "OK" button sets the text entry box to the
    constructed filter and activates that text entry box (which should have
-   no effect in the main capture dialog); this dialog is then dismissed.
-
-   XXX - we probably want to have separate capture and display filter
-   lists, but we don't yet have that, so the list of filters this
-   shows is a list of all filters. */
+   no effect in the main capture dialog); this dialog is then dismissed. */
 void
 capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 {
@@ -162,11 +151,7 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
    dismissed.
 
    If "wants_apply_button" is non-null, we add an "Apply" button that
-   acts like "OK" but doesn't dismiss this dialog.
-
-   XXX - we probably want to have separate capture and display filter
-   lists, but we don't yet have that, so the list of filters this
-   shows is a list of all filters. */
+   acts like "OK" but doesn't dismiss this dialog. */
 void
 display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 {
@@ -672,27 +657,23 @@ filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg, gpointer activate)
 static void
 filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data _U_)
 {
-	GtkWidget  *main_w = gtk_widget_get_toplevel(ok_bt);
-
 	/*
-	 * Apply the filter.
+	 * Destroy the dialog box and apply the filter.
 	 */
-	filter_apply(main_w);
-
-	/*
-	 * Now dismiss the dialog box.
-	 */
-	gtk_widget_destroy(main_w);
+	filter_apply(gtk_widget_get_toplevel(ok_bt), TRUE);
 }
 
 static void
 filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy _U_)
 {
-	filter_apply(gtk_widget_get_toplevel(apply_bt));
+	/*
+	 * Apply the filter, but don't destroy the dialog box.
+	 */
+	filter_apply(gtk_widget_get_toplevel(apply_bt), FALSE);
 }
 
 static void
-filter_apply(GtkWidget *main_w)
+filter_apply(GtkWidget *main_w, gboolean destroy)
 {
 	construct_args_t *construct_args =
 	    gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_CONSTRUCT_ARGS_KEY);
@@ -705,14 +686,42 @@ filter_apply(GtkWidget *main_w)
 		/*
 		 * We have a text entry widget associated with this dialog
 		 * box; put the filter in our text entry widget into that
-		 * text entry widget, and then activate that widget to
-		 * cause the filter we put there to be applied if we're
-		 * supposed to do so.
+		 * text entry widget.
 		 */
 		filter_te = gtk_object_get_data(GTK_OBJECT(main_w),
 		    E_FILT_FILTER_TE_KEY);
 		filter_string = gtk_entry_get_text(GTK_ENTRY(filter_te));
 		gtk_entry_set_text(GTK_ENTRY(parent_filter_te), filter_string);
+
+	}
+
+	if (destroy) {
+		/*
+		 * Destroy the filter dialog box.
+		 */
+		gtk_widget_destroy(main_w);
+	}
+
+	if (parent_filter_te != NULL) {
+		/*
+		 * We have a text entry widget associated with this dialog
+		 * box; activate that widget to cause the filter we put
+		 * there to be applied if we're supposed to do so.
+		 *
+		 * We do this after dismissing the filter dialog box,
+		 * as activating the widget the dialog box to which
+		 * it belongs to be dismissed, and that may cause it
+		 * to destroy our dialog box if the filter succeeds.
+		 * This means that our subsequent attempt to destroy
+		 * it will fail.
+		 *
+		 * We don't know whether it'll destroy our dialog box,
+		 * so we can't rely on it to do so.  Instead, we
+		 * destroy it ourselves, which will clear the
+		 * E_FILT_DIALOG_PTR_KEY pointer for their dialog box,
+		 * meaning they won't think it has one and won't try
+		 * to destroy it.
+		 */
 		if (construct_args->activate_on_ok) {
 			gtk_signal_emit_by_name(GTK_OBJECT(parent_filter_te),
 			    "activate");
