@@ -650,6 +650,7 @@ static gchar		isup_called_number[255], isup_calling_number[255];
 static guint16		isup_cic;
 static guint8		isup_message_type;
 static guint8		isup_cause_value;
+static guint32		isup_frame_num;
 
 /****************************************************************************/
 /* whenever a isup_ packet is seen by the tap listener */
@@ -669,6 +670,8 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	isup_cause_value = pi->cause_value;
 	isup_cic = pinfo->circuit_id;
 
+	isup_frame_num = pinfo->fd->num;
+	
 	return 0;
 }
 
@@ -738,6 +741,9 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 	const mtp3_tap_rec_t *pi = mtp3_info;
 
+	/* check if the upper layer is ISUP matching the frame number */
+	if (isup_frame_num != pinfo->fd->num) return 0;
+	
 	/* check wether we already have a call with these parameters in the list */
 	list = g_list_first(tapinfo->strinfo_list);
 	while (list)
