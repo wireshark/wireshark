@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.4 2002/04/28 21:04:04 guy Exp $
+ * $Id: packet-afp.c,v 1.5 2002/04/28 21:22:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -268,57 +268,57 @@ static const value_string vol_signature_vals[] = {
 };
 
 static const value_string CommandCode_vals[] = {
-  {AFP_BYTELOCK,	"afpByteRangeLock" },
-  {AFP_CLOSEVOL,	"afpVolClose" },
-  {AFP_CLOSEDIR,	"afpDirClose" },
-  {AFP_CLOSEFORK,	"afpForkClose" },
-  {AFP_COPYFILE,	"afpCopyFile" },
-  {AFP_CREATEDIR,	"afpDirCreate" },
-  {AFP_CREATEFILE,	"afpFileCreate" },
-  {AFP_DELETE,		"afpDelete" },
-  {AFP_ENUMERATE,	"afpEnumerate" },
-  {AFP_FLUSH,		"afpFlush" },
-  {AFP_FLUSHFORK,	"afpForkFlush" },
-  {AFP_GETFORKPARAM,	"afpGetForkParms" },
-  {AFP_GETSRVINFO,	"afpGetSInfo" },
-  {AFP_GETSRVPARAM,	"afpGetSParms" },
-  {AFP_GETVOLPARAM,	"afpGetVolParms" },
-  {AFP_LOGIN,		"afpLogin" },
-  {AFP_LOGINCONT,	"afpContLogin" },
-  {AFP_LOGOUT,		"afpLogout" },
-  {AFP_MAPID,		"afpMapID" },
-  {AFP_MAPNAME,		"afpMapName" },
-  {AFP_MOVE,		"afpMove" },
-  {AFP_OPENVOL,		"afpOpenVol" },
-  {AFP_OPENDIR,		"afpOpenDir" },
-  {AFP_OPENFORK,	"afpOpenFork" },
-  {AFP_READ,		"afpRead" },
-  {AFP_RENAME,		"afpRename" },
-  {AFP_SETDIRPARAM,	"afpSetDirParms" },
-  {AFP_SETFILEPARAM,	"afpSetFileParms" },
-  {AFP_SETFORKPARAM,	"afpSetForkParms" },
-  {AFP_SETVOLPARAM,	"afpSetVolParms" },
-  {AFP_WRITE,		"afpWrite" },
-  {AFP_GETFLDRPARAM,	"afpGetFlDrParms" },
-  {AFP_SETFLDRPARAM,	"afpSetFlDrParms" },
-  {AFP_CHANGEPW,	"afpChangePw" },
-  {AFP_GETSRVRMSG,	"afpGetSrvrMsg" },
-  {AFP_CREATEID,	"afpCreateID" },
-  {AFP_DELETEID,	"afpDeleteID" },
-  {AFP_RESOLVEID,	"afpResolveID" },
-  {AFP_EXCHANGEFILE,	"afpExchangeFiles" },
-  {AFP_CATSEARCH,	"afpCatSearch" },
-  {AFP_OPENDT,		"afpDTOpen" },
-  {AFP_CLOSEDT,		"afpDTClose" },
-  {AFP_GETICON,		"afpGetIcon" },
-  {AFP_GTICNINFO,	"afpGtIcnInfo" },
-  {AFP_ADDAPPL,		"afpAddAPPL" },
-  {AFP_RMVAPPL,		"afpRmvAPPL" },
-  {AFP_GETAPPL,		"afpGetAPPL" },
-  {AFP_ADDCMT,		"afpAddCmt" },
-  {AFP_RMVCMT,		"afpRmvCmt" },
-  {AFP_GETCMT,		"afpGetCmt" },
-  {AFP_ADDICON,		"afpAddIcon" },
+  {AFP_BYTELOCK,	"FPByteRangeLock" },
+  {AFP_CLOSEVOL,	"FPVolClose" },
+  {AFP_CLOSEDIR,	"FPDirClose" },
+  {AFP_CLOSEFORK,	"FPForkClose" },
+  {AFP_COPYFILE,	"FPCopyFile" },
+  {AFP_CREATEDIR,	"FPDirCreate" },
+  {AFP_CREATEFILE,	"FPFileCreate" },
+  {AFP_DELETE,		"FPDelete" },
+  {AFP_ENUMERATE,	"FPEnumerate" },
+  {AFP_FLUSH,		"FPFlush" },
+  {AFP_FLUSHFORK,	"FPForkFlush" },
+  {AFP_GETFORKPARAM,	"FPGetForkParms" },
+  {AFP_GETSRVINFO,	"FPGetSInfo" },
+  {AFP_GETSRVPARAM,	"FPGetSParms" },
+  {AFP_GETVOLPARAM,	"FPGetVolParms" },
+  {AFP_LOGIN,		"FPLogin" },
+  {AFP_LOGINCONT,	"FPContLogin" },
+  {AFP_LOGOUT,		"FPLogout" },
+  {AFP_MAPID,		"FPMapID" },
+  {AFP_MAPNAME,		"FPMapName" },
+  {AFP_MOVE,		"FPMove" },
+  {AFP_OPENVOL,		"FPOpenVol" },
+  {AFP_OPENDIR,		"FPOpenDir" },
+  {AFP_OPENFORK,	"FPOpenFork" },
+  {AFP_READ,		"FPRead" },
+  {AFP_RENAME,		"FPRename" },
+  {AFP_SETDIRPARAM,	"FPSetDirParms" },
+  {AFP_SETFILEPARAM,	"FPSetFileParms" },
+  {AFP_SETFORKPARAM,	"FPSetForkParms" },
+  {AFP_SETVOLPARAM,	"FPSetVolParms" },
+  {AFP_WRITE,		"FPWrite" },
+  {AFP_GETFLDRPARAM,	"FPGetFlDrParms" },
+  {AFP_SETFLDRPARAM,	"FPSetFlDrParms" },
+  {AFP_CHANGEPW,	"FPChangePw" },
+  {AFP_GETSRVRMSG,	"FPGetSrvrMsg" },
+  {AFP_CREATEID,	"FPCreateID" },
+  {AFP_DELETEID,	"FPDeleteID" },
+  {AFP_RESOLVEID,	"FPResolveID" },
+  {AFP_EXCHANGEFILE,	"FPExchangeFiles" },
+  {AFP_CATSEARCH,	"FPCatSearch" },
+  {AFP_OPENDT,		"FPDTOpen" },
+  {AFP_CLOSEDT,		"FPDTClose" },
+  {AFP_GETICON,		"FPGetIcon" },
+  {AFP_GTICNINFO,	"FPGtIcnInfo" },
+  {AFP_ADDAPPL,		"FPAddAPPL" },
+  {AFP_RMVAPPL,		"FPRmvAPPL" },
+  {AFP_GETAPPL,		"FPGetAPPL" },
+  {AFP_ADDCMT,		"FPAddCmt" },
+  {AFP_RMVCMT,		"FPRmvCmt" },
+  {AFP_GETCMT,		"FPGetCmt" },
+  {AFP_ADDICON,		"FPAddIcon" },
   {0,			 NULL }
 };
 
@@ -794,7 +794,7 @@ decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
 	attribute = tvb_get_ntohs(tvb, offset);
 	if (tree) {
 		item = proto_tree_add_text(tree, tvb, offset, 2,
-					"file Attributes: 0x%04x", attribute);
+					"File Attributes: 0x%04x", attribute);
 		sub_tree = proto_item_add_subtree(item, ett_afp_file_attribute);
 	}
 	proto_tree_add_item(sub_tree, hf_afp_file_attribute_Invisible    , tvb, offset, 2,FALSE);  
@@ -962,7 +962,7 @@ decode_dir_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset)
 	attribute = tvb_get_ntohs(tvb, offset);
 	if (tree) {
 		item = proto_tree_add_text(tree, tvb, offset, 2,
-					"dir Attributes: 0x%04x", attribute);
+					"Directory Attributes: 0x%04x", attribute);
 		sub_tree = proto_item_add_subtree(item, ett_afp_dir_attribute);
 	}
 	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_Invisible    , tvb, offset, 2,FALSE);  
@@ -2475,7 +2475,7 @@ proto_register_afp(void)
       	"Volume attributes", HFILL }},
 
     { &hf_afp_vol_attribute,
-      { "Attributes",         "afp.vol_attribute",
+      { "Attributes",         "afp.vol_attributes",
 		FT_UINT16, BASE_HEX, NULL, 0,
 	"Volume attributes", HFILL }},
 
