@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.14 2003/08/23 05:19:01 guy Exp $
+ * $Id: packet-tds.c,v 1.15 2003/08/23 05:59:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,6 +132,11 @@
  * TDS_ROW_TOKEN), getting rid of the stuff to handle data split across
  * TCP segment boundaries in favor of simple reassembly code, and
  * fixing some otherwise nasty-looking crashing bugs.
+ *
+ * NOTE: we assume that all the data in a NETLIB packet *can* be put into
+ * a single TDS PTU, so that we have separate reassembly of NETLIB
+ * packets and TDS PDUs; it seems to work, and it really did clean stuff
+ * up and fix crashes.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -758,19 +763,20 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	const char *val;
 
 	/*
-	 * This appears to start with a little-endian string length,
-	 * followed by a little-endian Unicode string (or perhaps
-	 * it's Unicode-or-ASCII).
+	 * RPC name.
+	 * XXX - how can we determine whether this is ASCII or Unicode?
 	 */
 	len = tvb_get_letohs(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 2, "String Length: %u", len);
+	proto_tree_add_text(tree, tvb, offset, 2, "RPC Name Length: %u", len);
 	offset += 2;
 	if (len != 0) {
 		val = tvb_fake_unicode(tvb, offset, len, TRUE);
 		len *= 2;
-		proto_tree_add_text(tree, tvb, offset, len, "String: %s", val);
+		proto_tree_add_text(tree, tvb, offset, len, "RPC Name: %s",
+		    val);
 		offset += len;
 	}
+	
 	proto_tree_add_text(tree, tvb, offset, -1, "Unknown data");
 }
 
