@@ -1,7 +1,7 @@
 /* packet-scsi.h
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.h,v 1.6 2003/03/05 07:41:24 guy Exp $
+ * $Id: packet-scsi.h,v 1.7 2003/03/08 08:02:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,7 @@ extern const value_string scsi_status_val[];
 #define SCSI_DEV_RBC       0xE
 #define SCSI_DEV_OCRW      0xF
 #define SCSI_DEV_OSD       0x11
+#define SCSI_DEV_ADC       0x12
 #define SCSI_DEV_NOLUN     0x1F
 
 #define SCSI_DEV_BITS      0x1F /* the lower 5 bits indicate device type */

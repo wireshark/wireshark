@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.25 2003/03/05 20:25:59 guy Exp $
+ * $Id: packet-scsi.c,v 1.26 2003/03/08 08:02:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,6 +134,7 @@ static int hf_scsi_rdwr10_xferlen        = -1;
 static int hf_scsi_readdefdata_flags     = -1;
 static int hf_scsi_cdb_defectfmt         = -1;
 static int hf_scsi_reassignblks_flags    = -1;
+static int hf_scsi_inq_qualifier         = -1;
 static int hf_scsi_inq_devtype           = -1;
 static int hf_scsi_inq_version           = -1;
 static int hf_scsi_rluns_lun             = -1;
@@ -593,13 +594,19 @@ static const value_string scsi_persresv_type_val[] = {
     {0, NULL},
 };
 
+static const value_string scsi_qualifier_val[] = {
+    {0x0, "Device type is connected to logical unit"},
+    {0x1, "Device type is supported by server but is not connected to logical unit"},
+    {0x3, "Device type is not supported by server"},
+};
+
 static const value_string scsi_devtype_val[] = {
     {SCSI_DEV_SBC   , "Direct Access Device"},
     {SCSI_DEV_SSC   , "Sequential Access Device"},
     {SCSI_DEV_PRNT  , "Printer"},
     {SCSI_DEV_PROC  , "Processor"},
     {SCSI_DEV_WORM  , "WORM"},
-    {SCSI_DEV_CDROM , "CD ROM"},
+    {SCSI_DEV_CDROM , "CD-ROM"},
     {SCSI_DEV_SCAN  , "Scanner"},
     {SCSI_DEV_OPTMEM, "Optical Memory"},
     {SCSI_DEV_SMC   , "Medium Changer"},
@@ -607,8 +614,11 @@ static const value_string scsi_devtype_val[] = {
     {SCSI_DEV_RAID  , "Storage Array"},
     {SCSI_DEV_SES   , "Enclosure Services"},
     {SCSI_DEV_RBC   , "Simplified Block Device"},
-    {SCSI_DEV_OCRW  , "OCRW"},
-    {SCSI_DEV_OSD   , "OSD"},
+    {SCSI_DEV_OCRW  , "Optical Card Reader/Writer"},
+    {SCSI_DEV_OSD   , "Object-based Storage Device"},
+    {SCSI_DEV_ADC   , "Automation/Drive Interface"},
+    {0x1E           , "Well known logical unit"},
+    {SCSI_DEV_NOLUN , "Unknown or no device type"},
     {0, NULL},
 };
 
@@ -1389,9 +1399,8 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                               "Unknown (0x%08x)"));
         evpd_tree = proto_item_add_subtree (ti, ett_scsi_page);
 
-        proto_tree_add_text (evpd_tree, tvb, offset, 1,
-                             "Peripheral Qualifier: 0x%x",
-                             (tvb_get_guint8 (tvb, offset) & 0xF0)>>4);
+        proto_tree_add_item (evpd_tree, hf_scsi_inq_qualifier, tvb, offset,
+                             1, 0);
         proto_tree_add_item (evpd_tree, hf_scsi_inq_devtype, tvb, offset,
                              1, 0);
         proto_tree_add_text (evpd_tree, tvb, offset+1, 1,
@@ -1472,9 +1481,8 @@ dissect_scsi_cmddt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         ti = proto_tree_add_text (tree, tvb, offset, plen, "Command Data");
         cmdt_tree = proto_item_add_subtree (ti, ett_scsi_page);
 
-        proto_tree_add_text (cmdt_tree, tvb, offset, 1,
-                             "Peripheral Qualifier: 0x%x",
-                             (tvb_get_guint8 (tvb, offset) & 0xF0)>>4);
+        proto_tree_add_item (cmdt_tree, hf_scsi_inq_qualifier, tvb, offset,
+                             1, 0);
         proto_tree_add_item (cmdt_tree, hf_scsi_inq_devtype, tvb, offset,
                              1, 0);
         proto_tree_add_text (cmdt_tree, tvb, offset+1, 1, "Support: %s",
@@ -1573,8 +1581,8 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return;
         }
 
-        proto_tree_add_text (tree, tvb, offset, 1, "Peripheral Qualifier: 0x%x",
-                             (tvb_get_guint8 (tvb, offset) & 0xF0)>>4);
+        proto_tree_add_item (tree, hf_scsi_inq_qualifier, tvb, offset,
+                             1, 0);
         proto_tree_add_item (tree, hf_scsi_inq_devtype, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_inq_version, tvb, offset+2, 1, 0);
 
@@ -2892,7 +2900,7 @@ dissect_scsi_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
                          gboolean iscdb, guint payload_len)
 {
     guint8 flags;
-    guint numelem, i;
+    guint listlen, i;
 
     if (!tree)
         return;
@@ -2907,16 +2915,16 @@ dissect_scsi_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
     else if (!isreq) {
-        numelem = tvb_get_ntohl (tvb, offset);
+        listlen = tvb_get_ntohl (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 4, "LUN List Length: %u",
-                             numelem);
+                             listlen);
         offset += 8;
+        payload_len -= 8;
         if (payload_len != 0) {
-            numelem = (numelem < payload_len) ? numelem : payload_len;
+            listlen = (listlen < payload_len) ? listlen : payload_len;
         }
         
-        numelem -= 8;
-        for (i = 0; i < numelem/8; i++) {
+        for (i = 0; i < listlen/8; i++) {
             if (!tvb_get_guint8 (tvb, offset))
                 proto_tree_add_item (tree, hf_scsi_rluns_lun, tvb, offset+1, 1,
                                      0);
@@ -4950,8 +4958,11 @@ proto_register_scsi (void)
         { &hf_scsi_reassignblks_flags,
           {"Flags", "scsi.reassignblks.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},
+        { &hf_scsi_inq_qualifier,
+          {"Peripheral Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
+           VALS (scsi_qualifier_val), 0xE0, "", HFILL}},
         { &hf_scsi_inq_devtype,
-          {"Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
+          {"Peripheral Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
            VALS (scsi_devtype_val), 0x1F, "", HFILL}},
         { & hf_scsi_inq_version,
           {"Version", "scsi.inquiry.version", FT_UINT8, BASE_HEX,
