@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.17 2003/07/19 22:33:55 gerald Exp $
+# $Id: Makefile.am,v 1.18 2003/07/22 18:37:33 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -25,11 +25,19 @@ SUBDIRS = artnet docsis giop gryphon megaco mgcp pcli rtnet
 
 plugindir = @plugindir@
 
-Xplugin_api.c: plugin_gen.py plugin_api.c plugin_api_list.c
-	$(PYTHON) plugin_gen.py xyzzy
+ADDRESS_EXPORT_FILES = \
+	xyzzy	\
+	plugin_api_list.c	\
+	Xplugin_api.c	\
+	Xplugin_api.h	\
+	Xplugin_api_decls.h	\
+	Xplugin_table.h
+
+$(ADDRESS_EXPORT_FILES): xyzzy plugin_gen.py plugin_api.c plugin_api_list.c
+	$(PYTHON) $(srcdir)/plugin_gen.py xyzzy
 
 xyzzy: plugin_api_list.c
-	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GLIB_CFLAGS) -I.. -c $(srcdir)/plugin_api_list.c
+	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GLIB_CFLAGS) -I$(top_srcdir) -I$(top_builddir) -c $(srcdir)/plugin_api_list.c
 
 EXTRA_DIST = \
 	plugin_api.c	\
@@ -45,3 +53,13 @@ EXTRA_DIST = \
 	Xplugin_api.h	\
 	Xplugin_api_decls.h	\
 	Xplugin_table.h
+
+CLEANFILES = \
+	Xass-list	\
+	Xepan_plugins.c	\
+	Xplugin_api.c	\
+	Xplugin_api.h	\
+	Xplugin_api_decls.h	\
+	Xplugin_table.h	\
+	plugin_api_list.o	\
+	xyzzy
