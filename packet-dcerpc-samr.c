@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.79 2003/02/21 00:19:02 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.80 2003/02/21 02:04:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5392,7 +5392,7 @@ proto_register_dcerpc_samr(void)
 	{ &hf_access_domain_lookup_alias_by_mem,
 	  { "Lookup alias", "samr_access_mask.domain_lookup_alias_by_mem",
 	    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-	    DOMAIN_ACCESS_UNKNOWN_80, "Lookup alias", HFILL }},
+	    DOMAIN_ACCESS_LOOKUP_ALIAS, "Lookup alias", HFILL }},
 
 	{ &hf_access_domain_enum_accounts,
 	  { "Enum accounts", "samr_access_mask.domain_enum_accounts",

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.h,v 1.8 2002/08/28 21:00:10 jmayer Exp $
+ * $Id: packet-dcerpc-samr.h,v 1.9 2003/02/21 02:04:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,7 +108,7 @@
 #define DOMAIN_ACCESS_CREATE_USER    0x00000010
 #define DOMAIN_ACCESS_CREATE_GROUP   0x00000020
 #define DOMAIN_ACCESS_CREATE_ALIAS   0x00000040
-#define DOMAIN_ACCESS_UNKNOWN_80     0x00000080
+#define DOMAIN_ACCESS_LOOKUP_ALIAS   0x00000080
 #define DOMAIN_ACCESS_ENUM_ACCOUNTS  0x00000100
 #define DOMAIN_ACCESS_OPEN_ACCOUNT   0x00000200
 #define DOMAIN_ACCESS_SET_INFO_3     0x00000400
