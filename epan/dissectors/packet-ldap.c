@@ -57,6 +57,12 @@
  * ronnie sahlberg
  */
 
+/*
+ * 17-DEC-2004 - added basic decoding for LDAP Controls
+ *
+ * Stefan Metzmacher <metze@samba.org>
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -129,6 +135,10 @@ static int hf_ldap_message_modify_delete = -1;
 
 static int hf_ldap_message_abandon_msgid = -1;
 
+static int hf_ldap_message_controls_oid = -1;
+static int hf_ldap_message_controls_critical = -1;
+static int hf_ldap_message_controls_value = -1;
+
 static int hf_mscldap_netlogon_type = -1;
 static int hf_mscldap_netlogon_flags = -1;
 static int hf_mscldap_netlogon_flags_pdc = -1;
@@ -158,6 +168,8 @@ static gint ett_ldap = -1;
 static gint ett_ldap_gssapi_token = -1;
 static gint ett_ldap_referrals = -1;
 static gint ett_ldap_attribute = -1;
+static gint ett_ldap_controls = -1;
+static gint ett_ldap_control = -1;
 static gint ett_mscldap_netlogon_flags = -1;
 
 static int ldap_tap = -1;
@@ -610,6 +622,28 @@ static int read_bytestring(ASN1_SCK *a, proto_tree *tree, int hf_id,
   }
 
   return read_bytestring_value(a, tree, hf_id, new_item, s, start, length);
+}
+
+static int check_optional_tag(ASN1_SCK *a, guint expected_cls, guint expected_tag)
+{
+  guint cls, con, tag;
+  gboolean def;
+  guint length;
+  int ret;
+  int replay_offset;
+
+  replay_offset = a->offset;
+
+  ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
+  if (ret == ASN1_ERR_NOERROR) {
+    if (cls != expected_cls || con != ASN1_PRI || tag != expected_tag) {
+      ret = ASN1_ERR_WRONG_TYPE;
+    }
+  }
+
+  a->offset = replay_offset;
+
+  return ret;
 }
 
 static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length, const guchar *operation)
@@ -1896,6 +1930,87 @@ static void dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
 			    start, length);
 }
 
+static void dissect_ldap_controls(ASN1_SCK *a, proto_tree *tree)
+{
+  guint cls, con, tag;
+  gboolean def;
+  guint length;
+  int ret;
+  proto_item *ctrls_item = NULL;
+  proto_tree *ctrls_tree = NULL;
+  int start = a->offset;
+  int end;
+
+  ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
+  if (ret != ASN1_ERR_NOERROR) {
+    proto_tree_add_text(tree, a->tvb, a->offset, 0,
+                        "ERROR: Couldn't parse LDAP Controls: %s",
+                        asn1_err_to_str(ret));
+    return;
+  }
+  if (cls != ASN1_CTX || con != ASN1_CON || tag != ASN1_EOC) {
+    proto_tree_add_text(tree, a->tvb, a->offset, 0,
+                        "ERROR: Couldn't parse LDAP Controls: %s",
+                        asn1_err_to_str(ASN1_ERR_WRONG_TYPE));
+  }
+
+  ctrls_item = proto_tree_add_text(tree, a->tvb, start, length, "LDAP Controls");
+  ctrls_tree = proto_item_add_subtree(ctrls_item, ett_ldap_controls);
+
+  end = a->offset + length;
+  while (a->offset < end) {
+    proto_item *ctrl_item = NULL;
+    proto_tree *ctrl_tree = NULL;
+    guint seq_length;
+    int seq_start = a->offset;
+    int seq_end;
+
+    ret = read_sequence(a, &seq_length);
+    if (ret != ASN1_ERR_NOERROR) {
+      proto_tree_add_text(ctrls_tree, a->tvb, a->offset, 0,
+                          "ERROR: Couldn't parse LDAP Control: %s",
+                          asn1_err_to_str(ret));
+      return;
+    }
+
+    ctrl_item = proto_tree_add_text(ctrls_tree, a->tvb, seq_start, seq_length, "LDAP Control");
+    ctrl_tree = proto_item_add_subtree(ctrl_item, ett_ldap_control);
+
+    seq_end = a->offset + seq_length;
+
+    ret = read_string(a, ctrl_tree, hf_ldap_message_controls_oid, 0, 0, 0, ASN1_UNI, ASN1_OTS);
+    if (ret != ASN1_ERR_NOERROR) {
+      return;
+    }
+
+    if (a->offset >= seq_end) {
+      /* skip optional data */
+      break;
+    }
+
+    ret = check_optional_tag(a, ASN1_UNI, ASN1_BOL);
+    if (ret == ASN1_ERR_NOERROR) {
+      ret = read_boolean(a, ctrl_tree, hf_ldap_message_controls_critical, 0, 0);
+      if (ret != ASN1_ERR_NOERROR) {
+        return;
+      }
+    }
+
+    if (a->offset >= seq_end) {
+      /* skip optional data */
+      break;
+    }
+
+    ret = check_optional_tag(a, ASN1_UNI, ASN1_OTS);
+    if (ret == ASN1_ERR_NOERROR) {
+      ret = read_bytestring(a, ctrl_tree, hf_ldap_message_controls_value, NULL, NULL, ASN1_UNI, ASN1_OTS);
+      if (ret != ASN1_ERR_NOERROR) {
+        return;
+      }
+    }
+  }
+}
+
 static ldap_call_response_t *
 ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info, guint messageId, guint protocolOpTag)
 {
@@ -2196,6 +2311,10 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
       }
       break;
     }
+  }
+
+  if ((int)messageLength > 0 && (message_id_start + (int)messageLength) > a.offset) {
+    dissect_ldap_controls(&a, ldap_tree);
   }
 
   /*
@@ -2850,6 +2969,21 @@ proto_register_ldap(void)
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Abandon Msg Id", HFILL }},
 
+    { &hf_ldap_message_controls_oid,
+      { "Control OID",	"ldap.controls.oid",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"LDAP Control OID", HFILL }},
+
+    { &hf_ldap_message_controls_critical,
+      { "Control Critical",	"ldap.controls.critical",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"LDAP Control Critical", HFILL }},
+
+    { &hf_ldap_message_controls_value,
+      { "Control Value",	"ldap.controls.value",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+	"LDAP Control Value", HFILL }},
+
     { &hf_mscldap_netlogon_type,
       { "Type", "mscldap.netlogon.type",
         FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2967,6 +3101,8 @@ proto_register_ldap(void)
     &ett_ldap_gssapi_token,
     &ett_ldap_referrals,
     &ett_ldap_attribute,
+    &ett_ldap_controls,
+    &ett_ldap_control,
     &ett_mscldap_netlogon_flags
   };
   module_t *ldap_module;

@@ -2248,6 +2248,10 @@ Peter Johansson		<Peter.Johansson [AT] contactor.se> {
 	"Template" conversations
 }
 
+Stefan Metzmacher	<metze [AT] samba.org> {
+	LDAP Controls support in the LDAP dissector
+}
+
 
 And assorted fixes and enhancements by the people listed above
 and by:
