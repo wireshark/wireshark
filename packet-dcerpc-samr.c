@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.26 2002/03/24 12:25:40 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.27 2002/03/25 04:02:37 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <string.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-samr.h"
