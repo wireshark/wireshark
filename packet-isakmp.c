@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.53 2002/01/21 23:35:31 guy Exp $
+ * $Id: packet-isakmp.c,v 1.54 2002/05/01 10:05:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -490,7 +490,7 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length, guint8 payload,
 
 static void
 dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   guint32		doi;
   guint32		situation;
@@ -534,7 +534,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   guint8		protocol_id;
   guint8		spi_size;
@@ -682,14 +682,14 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Key Exchange Data");
 }
 
 static void
 dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   guint8		id_type;
   guint8		protocol_id;
@@ -747,7 +747,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   guint8		cert_enc;
 
@@ -763,7 +763,7 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   guint8		cert_type;
 
@@ -779,28 +779,28 @@ dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Hash Data");
 }
 
 static void
 dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Signature Data");
 }
 
 static void
 dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Nonce Data");
 }
 
 static void
 dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   guint32		doi;
   guint8		protocol_id;
@@ -845,7 +845,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   guint32		doi;
   guint8		protocol_id;
@@ -894,14 +894,14 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Vendor ID");
 }
 
 static void
 dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    int unused)
+    int unused _U_)
 {
   guint8		type;
 
