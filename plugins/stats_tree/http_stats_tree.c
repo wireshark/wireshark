@@ -174,6 +174,7 @@ static int http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, ep
 }
 
 static const guint8* st_str_packets = "Total HTTP Packets";
+static const guint8* st_str_requests = "HTTP Request Packets";
 static const guint8* st_str_responses = "HTTP Response Packets";
 static const guint8* st_str_resp_broken = "???: broken";
 static const guint8* st_str_resp_100 = "1xx: Informational";
@@ -181,10 +182,10 @@ static const guint8* st_str_resp_200 = "2xx: Success";
 static const guint8* st_str_resp_300 = "3xx: Redirection";
 static const guint8* st_str_resp_400 = "4xx: Client Error";
 static const guint8* st_str_resp_500 = "5xx: Server Error";
-static const guint8* st_str_requests = "HTTP Request Packets";
 static const guint8* st_str_other = "Other HTTP Packets";
 
 static int st_node_packets = -1;
+static int st_node_requests = -1;
 static int st_node_responses = -1;
 static int st_node_resp_broken = -1;
 static int st_node_resp_100 = -1;
@@ -192,12 +193,12 @@ static int st_node_resp_200 = -1;
 static int st_node_resp_300 = -1;
 static int st_node_resp_400 = -1;
 static int st_node_resp_500 = -1;
-static int st_node_requests = -1;
 static int st_node_other = -1;
 
 
 static void http_stats_tree_init(stats_tree* st) {
 	st_node_packets = create_node(st, st_str_packets, 0, TRUE);	
+		st_node_requests = create_pivot_node(st, st_str_requests, st_node_packets);
 		st_node_responses = create_node(st, st_str_responses, st_node_packets, TRUE);
 			st_node_resp_broken = create_node(st, st_str_resp_broken, st_node_responses, TRUE);
 			st_node_resp_100    = create_node(st, st_str_resp_100,    st_node_responses, TRUE);
@@ -205,7 +206,6 @@ static void http_stats_tree_init(stats_tree* st) {
 			st_node_resp_300    = create_node(st, st_str_resp_300,    st_node_responses, TRUE);
 			st_node_resp_400    = create_node(st, st_str_resp_400,    st_node_responses, TRUE);
 			st_node_resp_500    = create_node(st, st_str_resp_500,    st_node_responses, TRUE);
-		st_node_requests = create_pivot_node(st, st_str_requests, st_node_packets);
 		st_node_other = create_node(st, st_str_other, st_node_packets,FALSE);
 }
 
@@ -256,8 +256,8 @@ static int http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_d
 
 /* register all http trees */
 extern void register_http_stat_trees(void) {
-	register_stats_tree("http","http","HTTP Tree/General", http_stats_tree_packet, http_stats_tree_init );
-	register_stats_tree("http","http_req","HTTP Tree/Requests", http_req_stats_tree_packet, http_req_stats_tree_init );
-	register_stats_tree("http","http_srv","HTTP Tree/Servers",http_reqs_stats_tree_packet,http_reqs_stats_tree_init);
+	register_stats_tree("http","http","HTTP/Packet Tree", http_stats_tree_packet, http_stats_tree_init );
+	register_stats_tree("http","http_req","HTTP/Request Tree", http_req_stats_tree_packet, http_req_stats_tree_init );
+	register_stats_tree("http","http_srv","HTTP/Server Tree",http_reqs_stats_tree_packet,http_reqs_stats_tree_init);
 }
 

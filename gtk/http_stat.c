@@ -407,10 +407,10 @@ gtk_httpstat_init(char *optarg)
 
 	if(filter){
 		sp->filter=g_strdup(filter);
-		title=g_strdup_printf("HTTP statistics with filter: %s", filter);
+		title=g_strdup_printf("HTTP Packet Counter with filter: %s", filter);
 	} else {
 		sp->filter=NULL;
-		title=g_strdup("HTTP statistics");
+		title=g_strdup("HTTP Packet Counter");
 	}
 
     gtk_window_set_title(GTK_WINDOW(sp->win), title);
@@ -517,6 +517,6 @@ register_tap_listener_gtkhttpstat(void)
 {
 	register_ethereal_tap("http,stat", gtk_httpstat_init);
 
-	register_tap_menu_item("HTTP", REGISTER_TAP_GROUP_NONE,
+	register_tap_menu_item("HTTP/Packet Counter", REGISTER_TAP_GROUP_NONE,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(http_stat_dlg));
 }
