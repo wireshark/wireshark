@@ -1017,8 +1017,10 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	proto_tree_add_string(tree, tag_interpretation, tvb, offset,
 			      tag_len, out_buff);
       } else
-        proto_tree_add_string(tree, tag_interpretation, 
-        		tvb, offset, tag_len, "Not interpreted");
+	proto_tree_add_string_format(tree, tag_interpretation,
+		tvb, offset, tag_len, "",
+		"Tag interpretation: Vendor \"%s\" not interpreted",
+		get_manuf_name(tag_val));
 }
 
 static void 
