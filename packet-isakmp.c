@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.73 2003/12/02 09:05:02 guy Exp $
+ * $Id: packet-isakmp.c,v 1.74 2003/12/02 18:35:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1025,7 +1025,9 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 			break;
 		case 5003: proto_item_append_text(pt, "NG Feature Pack 3");
 			break;
-		case 5004: proto_item_append_text(pt, "NG Application Intelligence");
+		case 5004: proto_item_append_text(pt, "NG with Application Intelligence");
+			break;
+		case 5005: proto_item_append_text(pt, "NG with Application Intelligence R55");
 			break;
 		default: proto_item_append_text(pt, " Unknown CP version!");
 			break;
