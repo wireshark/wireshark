@@ -127,6 +127,10 @@ static gint ett_dhcpv6_option = -1;
 #define	DUID_LL			3
 #define	DUID_LL_OLD		4
 
+static void
+dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean downstream, int off, int eoff);
+
 static const value_string msgtype_vals[] = {
 	{ SOLICIT,	"Solicit" },
 	{ ADVERTISE,	"Advertise" },
@@ -147,7 +151,7 @@ static const value_string msgtype_vals[] = {
 static const value_string opttype_vals[] = {
 	{ OPTION_CLIENTID,	"Client Identifier" },
 	{ OPTION_SERVERID,	"Server Identifier" },
-	{ OPTION_IA_NA,		"Identity Association" },
+	{ OPTION_IA_NA,		"Identity Association for Non-temporary Address" },
 	{ OPTION_IA_TA,		"Identity Association for Temporary Address" },
 	{ OPTION_IAADDR,	"IA Address" },
 	{ OPTION_ORO,		"Option Request" },
@@ -248,8 +252,8 @@ dhcpv6_domain(proto_tree * subtree, tvbuff_t *tvb, int off, guint16 optlen)
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
-    gboolean *at_end)
+dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, 
+		gboolean downstream, int off, int eoff, gboolean *at_end)
 {
 	guint8 *buf;
 	guint16	opttype;
@@ -260,7 +264,6 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	int i;
 	struct e_in6_addr in6;
 	guint16 duidtype;
-	guint32 xid;
 
 	/* option type and length must be present */
 	if (eoff - off < 4) {
@@ -380,8 +383,8 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 
           temp_optlen = 12;
 	  while ((optlen - temp_optlen) > 0) {
-	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
-					 off + optlen, at_end);
+	    temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
+			    off+temp_optlen, off + optlen, at_end);
 	    if (*at_end) {
 	      /* Bad option - just skip to the end */
 	      temp_optlen = optlen;
@@ -399,8 +402,8 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 			      tvb_get_ntohl(tvb, off));
           temp_optlen = 4;
 	  while ((optlen - temp_optlen) > 0) {
-	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
-					 off + optlen, at_end);
+	    temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
+			    off+temp_optlen, off + optlen, at_end);
 	    if (*at_end) {
 	      /* Bad option - just skip to the end */
 	      temp_optlen = optlen;
@@ -441,8 +444,8 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
            
            temp_optlen = 24;
            while ((optlen - temp_optlen) > 0) {
-              temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
-                                           off + optlen, at_end);
+              temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
+			      off+temp_optlen, off + optlen, at_end);
               if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -486,18 +489,9 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	  if (optlen == 0) {
 	    proto_tree_add_text(subtree, tvb, off,
 				optlen, "RELAY-MSG: malformed option");
-	    break;
 	  } else {
-	    /* XXX - shouldn't we be dissecting a full DHCP message
-	       here? */
-	    proto_tree_add_uint(subtree, hf_dhcpv6_msgtype, tvb, off, 1, (guint32)tvb_get_guint8(tvb, off));
-	    xid = tvb_get_ntohl(tvb, off) & 0x00ffffff;
-	    proto_tree_add_text(subtree, tvb, off+1, 3, "Transaction-ID: 0x%08x", xid);
-	    temp_optlen = 4;
-	    while (optlen > temp_optlen)
-		temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, at_end);
-	    if (*at_end)
-	      return 0;
+	    /* here, we should dissect a full DHCP message */
+	    dissect_dhcpv6(tvb, pinfo, subtree, downstream, off, off + optlen);
           } 
 	  break;
 	case OPTION_AUTH:
@@ -766,8 +760,8 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
                 
                 temp_optlen = 25;
                 while ((optlen - temp_optlen) > 0) {
-                   temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
-                                                off + optlen, at_end);
+                   temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
+				   off+temp_optlen, off + optlen, at_end);
                    if (*at_end) {
                      /* Bad option - just skip to the end */
                      temp_optlen = optlen;
@@ -814,25 +808,16 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean downstream)
+    gboolean downstream, int off, int eoff)
 {
 	proto_tree *bp_tree = NULL;
 	proto_item *ti;
 	guint8 msgtype, hop_count ;
 	guint32 xid;
-	int off = 0;
-        int eoff;
 	struct e_in6_addr in6;
 	gboolean at_end;
-        gboolean relay_msg_option = FALSE;
-        int length;
 
-	eoff = tvb_reported_length(tvb);
 	downstream = 0; /* feature reserved */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
 
 	msgtype = tvb_get_guint8(tvb, off);
 
@@ -841,14 +826,16 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		bp_tree = proto_item_add_subtree(ti, ett_dhcpv6);
         }
 
-        while (msgtype == RELAY_FORW || msgtype == RELAY_REPLY) {
+        if (msgtype == RELAY_FORW || msgtype == RELAY_REPLY) {
            
-           if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_set_str(pinfo->cinfo, COL_INFO,
-                          val_to_str(msgtype,
-                                     msgtype_vals,
-                                     "Message Type %u"));
-           }
+           if (!off) {
+              if (check_col(pinfo->cinfo, COL_INFO)) {
+                 col_set_str(pinfo->cinfo, COL_INFO,
+                             val_to_str(msgtype,
+                                        msgtype_vals,
+                                        "Message Type %u"));
+              }
+	   }
 
            proto_tree_add_uint(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, msgtype);
 
@@ -864,69 +851,56 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                "Peer-address: %s",ip6_to_str(&in6));
 
            off += 34;
-           relay_msg_option = FALSE;
-
-           while (!relay_msg_option && off < eoff) {
-              length = dhcpv6_option(tvb, bp_tree, off, eoff, &at_end);
-              if (at_end)
-                return;
-
-              if (tvb_get_ntohs(tvb, off) == OPTION_RELAY_MSG) {
-                 relay_msg_option = TRUE;
-                 off += 4;
-              }
-              else {
-                 if (length > 0)
-                    off += length;
-                 else {
-                    proto_tree_add_text(bp_tree, tvb, off, eoff, "Message: malformed");
-                    return;
-                 }
-              }
-           }
-           
-           msgtype = tvb_get_guint8(tvb, off);
-        }
+        } else {
         
-	xid = tvb_get_ntohl(tvb, off) & 0x00ffffff;
+	   xid = tvb_get_ntohl(tvb, off) & 0x00ffffff;
 
-        if (!off) {
-           if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_set_str(pinfo->cinfo, COL_INFO,
-                          val_to_str(msgtype,
-                                     msgtype_vals,
-                                     "Message Type %u"));
+           if (!off) {
+              if (check_col(pinfo->cinfo, COL_INFO)) {
+                 col_set_str(pinfo->cinfo, COL_INFO,
+                             val_to_str(msgtype,
+                                        msgtype_vals,
+                                        "Message Type %u"));
+              }
            }
-        }
 
-	if (tree) {
-		proto_tree_add_uint(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1,
-			msgtype);
-		proto_tree_add_text(bp_tree, tvb, off+1, 3, "Transaction-ID: 0x%08x", xid);
+	   if (tree) {
+		   proto_tree_add_uint(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1,
+			   msgtype);
+		   proto_tree_add_text(bp_tree, tvb, off+1, 3, "Transaction-ID: 0x%08x", xid);
 #if 0
-		tvb_memcpy(tvb, (guint8 *)&in6, 4, sizeof(in6));
-		proto_tree_add_text(bp_tree, tvb, 4, sizeof(in6),
-			"Server address: %s", ip6_to_str(&in6));
+		   tvb_memcpy(tvb, (guint8 *)&in6, 4, sizeof(in6));
+		   proto_tree_add_text(bp_tree, tvb, 4, sizeof(in6),
+			   "Server address: %s", ip6_to_str(&in6));
 #endif
-	}
+	   }
 
-	off += 4;
+	   off += 4;
+	}
 
 	at_end = FALSE;
 	while (off < eoff && !at_end)
-		off += dhcpv6_option(tvb, bp_tree, off, eoff, &at_end);
+		off += dhcpv6_option(tvb, pinfo, bp_tree, downstream, off, eoff, &at_end);
 }
 
 static void
 dissect_dhcpv6_downstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_dhcpv6(tvb, pinfo, tree, TRUE);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+	dissect_dhcpv6(tvb, pinfo, tree, TRUE, 0, tvb_reported_length(tvb));
 }
 
 static void
 dissect_dhcpv6_upstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_dhcpv6(tvb, pinfo, tree, FALSE);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+	dissect_dhcpv6(tvb, pinfo, tree, FALSE, 0, tvb_reported_length(tvb));
 }
 
 
