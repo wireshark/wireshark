@@ -5,7 +5,7 @@
  *
  * Copyright 2002, 2003 Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-sua.c,v 1.13 2003/01/22 17:45:31 tuexen Exp $
+ * $Id: packet-sua.c,v 1.14 2003/01/23 19:45:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1588,7 +1588,7 @@ proto_register_sua(void)
     &ett_sua_first_remaining,
     &ett_sua_return_on_error_bit_and_protocol_class
   };
-
+  module_t *sua_module;
 
   /* Register the protocol name and description */
   proto_sua = proto_register_protocol("SS7 SCCP-User Adaptation Layer", "SUA", "sua");
@@ -1596,6 +1596,9 @@ proto_register_sua(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  sua_module = prefs_register_protocol(proto_sua, NULL);
+  prefs_register_obsolete_preference(sua_module, "sua_version");
 }
 
 void
