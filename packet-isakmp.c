@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.71 2003/10/09 22:40:28 guy Exp $
+ * $Id: packet-isakmp.c,v 1.72 2003/11/04 21:44:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -221,11 +221,6 @@ struct isakmp_hdr {
   guint32	length;
 };
 
-struct udp_encap_hdr {
-  guint8	non_esp_marker[4];
-  guint32	esp_SPI;
-};
-
 static proto_tree *dissect_payload_header(tvbuff_t *, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
@@ -404,9 +399,6 @@ static const guint8 VID_draft_ietf_ipsec_heartbeats_00[VID_LEN_8]= {0x8D, 0xB7, 
 */
 static const guint8 VID_HeartBeat_Notify[VID_LEN] = {0x48, 0x65, 0x61, 0x72, 0x74, 0x42, 0x65, 0x61, 0x74, 0x5f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79}; 
 
-static dissector_handle_t esp_handle;
-static dissector_handle_t ah_handle;
-
 static void
 dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
 		 int offset, int length)
@@ -458,42 +450,19 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct isakmp_hdr 	hdr;
   proto_item *		ti;
   proto_tree *		isakmp_tree = NULL;
-  struct udp_encap_hdr  encap_hdr;
   guint32		len;
-  static const guint8	non_esp_marker[4] = { 0, 0, 0, 0 };
-  tvbuff_t *		next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
-  hdr.length = tvb_get_ntohl(tvb, offset + sizeof(hdr) - sizeof(hdr.length));
-
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, hdr.length, FALSE);
+    ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, -1, FALSE);
     isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
   }
 
-  tvb_memcpy(tvb, (guint8 *)&encap_hdr, 0, sizeof(encap_hdr));
-
-  if (encap_hdr.non_esp_marker[0] == 0xFF) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - NAT Keepalive");
-    return;
-  }
-  if (memcmp(encap_hdr.non_esp_marker,non_esp_marker,4) == 0) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-          col_add_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - ESP");
-    if (tree)
-      proto_tree_add_text(isakmp_tree, tvb, offset,
-			  sizeof(encap_hdr.non_esp_marker),
-			  "Non-ESP-Marker");
-    offset += sizeof(encap_hdr.non_esp_marker);
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-    call_dissector(esp_handle, next_tvb, pinfo, tree);
-    return;
-  }
+  hdr.length = tvb_get_ntohl(tvb, offset + sizeof(hdr) - sizeof(hdr.length));
   hdr.exch_type = tvb_get_guint8(tvb, sizeof(hdr.icookie) + sizeof(hdr.rcookie) + sizeof(hdr.next_payload) + sizeof(hdr.version));
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO, exchtype2str(hdr.exch_type));
@@ -1733,12 +1702,6 @@ void
 proto_reg_handoff_isakmp(void)
 {
   dissector_handle_t isakmp_handle;
-
-  /*
-   * Get handle for the AH & ESP dissectors.
-   */
-  esp_handle = find_dissector("esp");
-  ah_handle = find_dissector("ah");
 
   isakmp_handle = find_dissector("isakmp");
   dissector_add("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
