@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.103 2001/08/11 18:33:22 guy Exp $
+ * $Id: packet-smb.c,v 1.104 2001/08/11 19:15:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2674,7 +2674,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (ByteCount > 0) {
 
- 	/* Build displat for: Password */
+ 	/* Build display for: Password */
 
         Password = pd + offset;
 
