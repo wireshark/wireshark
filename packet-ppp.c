@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.84 2002/01/03 20:30:32 guy Exp $
+ * $Id: packet-ppp.c,v 1.85 2002/01/11 21:37:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,7 +82,10 @@ static gint ett_ccp = -1;
 static gint ett_ccp_options = -1;
 static gint ett_ccp_stac_opt = -1;
 static gint ett_ccp_mppc_opt = -1;
+static gint ett_ccp_bsdcomp_opt = -1;
 static gint ett_ccp_lzsdcp_opt = -1;
+static gint ett_ccp_mvrca_opt = -1;
+static gint ett_ccp_deflate_opt = -1;
 
 static int proto_cbcp = -1;
 
@@ -871,9 +874,9 @@ static const ip_tcp_opt ipcp_opts[] = {
 #define CI_CCP_HPPPC	16	/* Hewlett-Packard PPC (RFC1962) */
 #define CI_CCP_STAC	17	/* stac Electronics LZS (RFC1974) */
 #define CI_CCP_MPPC	18	/* Microsoft PPC (RFC2218/3078) */
-#define CI_CCP_GFZA	19	/* Gandalf FZA */
+#define CI_CCP_GFZA	19	/* Gandalf FZA (RFC1962) */
 #define CI_CCP_V42BIS	20	/* V.42bis compression */
-#define CI_CCP_BSDLZW	21	/* BSD LZW Compress */
+#define CI_CCP_BSDLZW	21	/* BSD LZW Compress (RFC1977) */
 #define CI_CCP_LZSDCP	23	/* LZS-DCP (RFC1967) */
 #define CI_CCP_MVRCA	24	/* MVRCA (Magnalink) (RFC1975) */
 #define CI_CCP_DEFLATE	26	/* Deflate (RFC1979) */
@@ -898,7 +901,19 @@ static void dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                         int offset, guint length, packet_info *pinfo,
 			proto_tree *tree);
 
+static void dissect_ccp_bsdcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+
 static void dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+
+static void dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+
+static void dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                         int offset, guint length, packet_info *pinfo,
 			proto_tree *tree);
 
@@ -923,14 +938,37 @@ static const ip_tcp_opt ccp_opts[] = {
 		dissect_ccp_mppc_opt
 	},
 	{
+		CI_CCP_BSDLZW,
+		"BSD Compress",
+		&ett_ccp_bsdcomp_opt,
+		FIXED_LENGTH,
+		3,
+		dissect_ccp_bsdcomp_opt
+	},
+	{
 		CI_CCP_LZSDCP,
 		"LZS-DCP",
 		&ett_ccp_lzsdcp_opt,
 		FIXED_LENGTH,
 		6,
 		dissect_ccp_lzsdcp_opt
-	}
-
+	},
+	{
+		CI_CCP_MVRCA,
+		"MVRCA (Magnalink)",
+		&ett_ccp_mvrca_opt,
+		FIXED_LENGTH,
+		4,
+		dissect_ccp_mvrca_opt
+	},
+	{
+		CI_CCP_DEFLATE,
+		"Deflate",
+		&ett_ccp_deflate_opt,
+		FIXED_LENGTH,
+		4,   /* RFC1979 says the length is 3 but it's actually 4. */
+		dissect_ccp_deflate_opt
+	},
 };
 
 #define N_CCP_OPTS	(sizeof ccp_opts / sizeof ccp_opts[0])
@@ -1770,6 +1808,22 @@ dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
+dissect_ccp_bsdcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree)
+{
+  proto_item *tf;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+
+  proto_tree_add_text(tf, tvb, offset + 2, 1,
+		      "Version: %u", tvb_get_guint8(tvb, offset + 2) >> 5);
+  proto_tree_add_text(tf, tvb, offset + 2, 1,
+		      "Dict: %u bits", 
+		      tvb_get_guint8(tvb, offset + 2) & 0x1f);
+}
+
+static void
 dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			int offset, guint length, packet_info *pinfo,
 			proto_tree *tree)
@@ -1788,6 +1842,47 @@ dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   process_mode = tvb_get_guint8(tvb, offset + 5);
   proto_tree_add_text(tf, tvb, offset + 5, 1, "Process Mode: %s (0x%02X)", 
       val_to_str(process_mode, lzsdcp_processmode_vals, "Unkown"), process_mode); 
+}
+
+static void
+dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree)
+{
+  proto_item *tf;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+
+  proto_tree_add_text(tf, tvb, offset + 2, 1,
+		      "Features: %u", tvb_get_guint8(tvb, offset + 2) >> 5);
+  proto_tree_add_text(tf, tvb, offset + 2, 1,
+		      "Packet by Packet flag: %s", 
+		      tvb_get_guint8(tvb, offset + 2) & 0x20 ? "true" : "false");
+  proto_tree_add_text(tf, tvb, offset + 2, 1,
+		      "History: %u", tvb_get_guint8(tvb, offset + 2) & 0x20);
+  proto_tree_add_text(tf, tvb, offset + 3, 1,
+		      "Number of contexts: %u", tvb_get_guint8(tvb, offset + 3));
+}
+
+static void
+dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree)
+{
+  proto_item *tf;
+  guint8 method;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+
+  proto_tree_add_text(tf, tvb, offset + 2, 1,
+		      "Window: %u", hi_nibble(tvb_get_guint8(tvb, offset + 2)));
+  method = lo_nibble(tvb_get_guint8(tvb, offset + 2));
+  proto_tree_add_text(tf, tvb, offset + 2, 1,
+		      "Method: %s (0x%02x)", 
+		      method == 0x08 ?  "zlib compression" : "other", method);
+  proto_tree_add_text(tf, tvb, offset + 3, 1,
+		      "Sequence number check method: %u", 
+		      tvb_get_guint8(tvb, offset + 2) & 0x03);
 }
 
 static void
@@ -2929,7 +3024,10 @@ proto_register_ccp(void)
     &ett_ccp_options,
     &ett_ccp_stac_opt,
     &ett_ccp_mppc_opt,
-    &ett_ccp_lzsdcp_opt
+    &ett_ccp_bsdcomp_opt,
+    &ett_ccp_lzsdcp_opt,
+    &ett_ccp_mvrca_opt,
+    &ett_ccp_deflate_opt,
   };
 
   proto_ccp = proto_register_protocol("PPP Compression Control Protocol", 
