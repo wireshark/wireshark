@@ -872,6 +872,11 @@ Tomas Kukosa <tomas.kukosa[AT]anfdata.cz> {
 	IPCOMP transformation and ID_IPV4_ADDR_SUBNET for ISAKMP
 }
 
+Pekka Nikander <pekka.nikander[AT]nomadiclab.com> {
+	IEEE 802.1x, a/k/a EAPOL
+	PPP/EAPOL EAP support
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1212,6 +1212,7 @@ B<http://www.ethereal.com>.
   Andrew C. Feren          <aferen[AT]cetacean.com>
   Tomas Kukosa             <tomas.kukosa[AT]anfdata.cz>
                            <a.stockmeier[AT]avm.de>
+  Pekka Nikander           <pekka.nikander[AT]nomadiclab.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
