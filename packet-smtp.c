@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.28 2002/07/14 08:27:34 guy Exp $
+ * $Id: packet-smtp.c,v 1.29 2002/07/15 09:40:20 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -119,7 +119,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_t          *conversation;
     struct smtp_request_val *request_val;
     const u_char            *line;
-    guint8                  code;
+    guint32                 code;
     int                     linelen;
     gboolean                eom_seen = FALSE;
     gint                    next_offset;
@@ -532,7 +532,7 @@ proto_register_smtp(void)
       	"", HFILL }},
 
     { &hf_smtp_rsp_code,
-      { "Response code", "smtp.response.code", FT_UINT8, BASE_DEC, NULL, 0x0,
+      { "Response code", "smtp.response.code", FT_UINT32, BASE_DEC, NULL, 0x0,
       	"", HFILL }},
 
     { &hf_smtp_rsp_parameter,

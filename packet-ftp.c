@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.45 2002/07/14 00:40:07 guy Exp $
+ * $Id: packet-ftp.c,v 1.46 2002/07/15 09:40:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -214,7 +214,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	gint		offset = 0;
 	const u_char	*line;
-	guint8		code;
+	guint32		code;
 	gboolean	is_pasv_response = FALSE;
 	gint		next_offset;
 	int		linelen;
@@ -451,7 +451,7 @@ proto_register_ftp(void)
 
     { &hf_ftp_response_code,
       { "Response code",      "ftp.response.code",
-      	FT_UINT8,   BASE_DEC, NULL, 0x0,
+      	FT_UINT32,   BASE_DEC, NULL, 0x0,
       	"", HFILL }},
 
     { &hf_ftp_response_arg,
