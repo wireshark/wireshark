@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.1 2000/08/12 05:41:01 guy Exp $
+ * $Id: packet-rsh.c,v 1.2 2000/08/12 12:56:23 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,9 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -38,6 +40,8 @@
 #include "packet.h"
 
 static int proto_rsh = -1;
+static int hf_rsh_response = -1;
+static int hf_rsh_request = -1;
 static gint ett_rsh = -1;
 
 #define TCP_PORT_RSH			514
@@ -83,6 +87,13 @@ dissect_rsh(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			data = lineend;
 		}
 
+		if (pi.match_port == pi.destport) 
+			proto_tree_add_boolean_hidden(rsh_tree, 
+						      hf_rsh_request, NullTVB, 0, 0, 1);
+		else
+			proto_tree_add_boolean_hidden(rsh_tree, 
+						      hf_rsh_response, NullTVB, 0, 0, 1);
+
 		if (data < dataend)
 			old_dissect_data(&pd[offset], offset, fd, rsh_tree);
 	}
@@ -91,11 +102,24 @@ dissect_rsh(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_rsh(void)
 {
+
+	static hf_register_info hf[] = {
+		{ &hf_rsh_response,
+		{ "Response",		"rsh.response",  
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"TRUE if rsh response" }},
+		{ &hf_rsh_request,
+		{ "Request",		"rsh.request",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"TRUE if rsh request" }},
+	};
+
 	static gint *ett[] = {
 		&ett_rsh,
 	};
 
 	proto_rsh = proto_register_protocol("Remote Shell", "rsh");
+	proto_register_field_array(proto_rsh, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
