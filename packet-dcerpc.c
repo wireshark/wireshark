@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.24 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.25 2002/01/23 05:37:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,6 +92,8 @@ static const true_false_string flags_set_truth = {
 static int proto_dcerpc = -1;
 
 /* field defines */
+static int hf_dcerpc_request_in = -1;
+static int hf_dcerpc_response_in = -1;
 static int hf_dcerpc_ver = -1;
 static int hf_dcerpc_ver_minor = -1;
 static int hf_dcerpc_packet_type = -1;
@@ -177,6 +179,7 @@ static gint ett_dcerpc_dg_flags2 = -1;
 /* try to desegment big DCE/RPC packets over TCP? */
 static gboolean dcerpc_cn_desegment = TRUE;
 
+
 /*
  * Subdissectors
  */
@@ -234,65 +237,60 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
 
 
 /*
- * To keep track of ctx_id mappings.  Should really use some
- * generic conversation support instead.
+ * To keep track of ctx_id mappings.
+ *
+ * Everytime we see a bind call we update this table.
+ * Note that we always specify a SMB FID. For non-SMB transports this
+ * value is 0.
  */
-static GHashTable *dcerpc_convs;
+static GHashTable *dcerpc_binds=NULL;
 
-typedef struct _dcerpc_conv_key {
+typedef struct _dcerpc_bind_key {
     conversation_t *conv;
     guint16 ctx_id;
     guint16 smb_fid;
-} dcerpc_conv_key;
+} dcerpc_bind_key;
 
-static GMemChunk *dcerpc_conv_key_chunk;
+typedef struct _dcerpc_bind_value {
+	e_uuid_t uuid;
+	guint16 ver;
+} dcerpc_bind_value;
 
-typedef struct _dcerpc_conv_value {
-    e_uuid_t uuid;
-    guint16 ver;
-} dcerpc_conv_value;
-
-static GMemChunk *dcerpc_conv_value_chunk;
+static GMemChunk *dcerpc_bind_key_chunk=NULL;
+static GMemChunk *dcerpc_bind_value_chunk=NULL;
 
 static gint
-dcerpc_conv_equal (gconstpointer k1, gconstpointer k2)
+dcerpc_bind_equal (gconstpointer k1, gconstpointer k2)
 {
-    dcerpc_conv_key *key1 = (dcerpc_conv_key *)k1;
-    dcerpc_conv_key *key2 = (dcerpc_conv_key *)k2;
+    dcerpc_bind_key *key1 = (dcerpc_bind_key *)k1;
+    dcerpc_bind_key *key2 = (dcerpc_bind_key *)k2;
     return (key1->conv == key2->conv
             && key1->ctx_id == key2->ctx_id
             && key1->smb_fid == key2->smb_fid);
 }
 
 static guint
-dcerpc_conv_hash (gconstpointer k)
+dcerpc_bind_hash (gconstpointer k)
 {
-    dcerpc_conv_key *key = (dcerpc_conv_key *)k;
+    dcerpc_bind_key *key = (dcerpc_bind_key *)k;
     return ((guint)key->conv) + key->ctx_id + key->smb_fid;
 }
-
-
 
 /*
  * To keep track of callid mappings.  Should really use some generic
  * conversation support instead.
  */
-static GHashTable *dcerpc_calls;
+static GHashTable *dcerpc_calls=NULL;
 
 typedef struct _dcerpc_call_key {
     conversation_t *conv;
     guint32 call_id;
+    guint16 smb_fid;
 } dcerpc_call_key;
 
-static GMemChunk *dcerpc_call_key_chunk;
+static GMemChunk *dcerpc_call_key_chunk=NULL;
 
-typedef struct _dcerpc_call_value {
-    e_uuid_t uuid;
-    guint16 ver;
-    guint16 opnum;
-} dcerpc_call_value;
-
-static GMemChunk *dcerpc_call_value_chunk;
+static GMemChunk *dcerpc_call_value_chunk=NULL;
 
 static gint
 dcerpc_call_equal (gconstpointer k1, gconstpointer k2)
@@ -300,40 +298,34 @@ dcerpc_call_equal (gconstpointer k1, gconstpointer k2)
     dcerpc_call_key *key1 = (dcerpc_call_key *)k1;
     dcerpc_call_key *key2 = (dcerpc_call_key *)k2;
     return (key1->conv == key2->conv
-            && key1->call_id == key2->call_id);
+            && key1->call_id == key2->call_id
+            && key1->smb_fid == key2->smb_fid);
 }
 
 static guint
 dcerpc_call_hash (gconstpointer k)
 {
     dcerpc_call_key *key = (dcerpc_call_key *)k;
-    return ((guint32)key->conv) ^ key->call_id;
+    return ((guint32)key->conv) + key->call_id + key->smb_fid;
 }
 
-static void
-dcerpc_call_add_map (guint32 call_id, conversation_t *conv,
-                     guint16 opnum, guint16 ver, e_uuid_t *uuid)
+
+/* to keep track of matched calls/responses
+   this one uses the same value struct as calls, but the key is the frame id
+*/
+static GHashTable *dcerpc_matched=NULL;
+static gint
+dcerpc_matched_equal (gconstpointer k1, gconstpointer k2)
 {
-    dcerpc_call_key *key = g_mem_chunk_alloc (dcerpc_call_key_chunk);
-    dcerpc_call_value *value = g_mem_chunk_alloc (dcerpc_call_value_chunk);
-
-    key->call_id = call_id;
-    key->conv = conv;
-    value->uuid = *uuid;
-    value->ver = ver;
-    value->opnum = opnum;
-    g_hash_table_insert (dcerpc_calls, key, value);
+	return (guint32)k1 == (guint32)k2;
 }
 
-static dcerpc_call_value*
-dcerpc_call_lookup (guint32 call_id, conversation_t *conv)
+static guint
+dcerpc_matched_hash (gconstpointer k)
 {
-    dcerpc_call_key key;
-
-    key.call_id = call_id;
-    key.conv = conv;
-    return g_hash_table_lookup (dcerpc_calls, &key);
+	return (guint32)k;
 }
+
 
 
 /*
@@ -434,7 +426,6 @@ static int
 dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     proto_tree *dcerpc_tree,
                     tvbuff_t *tvb, gint offset,
-                    e_uuid_t *uuid, guint16 ver, 
                     guint16 opnum, gboolean is_rqst,
                     char *drep, dcerpc_info *info)
 {
@@ -448,8 +439,8 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     const char *saved_proto;
     void *saved_private_data;
 
-    key.uuid = *uuid;
-    key.ver = ver;
+    key.uuid = info->call_data->uuid;
+    key.ver = info->call_data->ver;
 
     
     if ((sub_proto = g_hash_table_lookup (dcerpc_uuids, &key)) == NULL
@@ -597,8 +588,6 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                         e_dce_cn_common_hdr_t *hdr)
 {
     conversation_t *conv = NULL;
-    dcerpc_conv_key *key;
-    dcerpc_conv_value *value;
     guint8 num_ctx_items;
     guint i;
     gboolean saw_ctx_item = FALSE;
@@ -666,16 +655,32 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                                      pinfo->srcport, pinfo->destport, 0);
         }
 
-        key = g_mem_chunk_alloc (dcerpc_conv_key_chunk);
-        key->conv = conv;
-        key->ctx_id = ctx_id;
-        key->smb_fid = get_smb_fid(pinfo->private_data);
+	/* if this is the first time we see this packet, we need to
+	   update the dcerpc_binds table so that any later calls can
+	   match to the interface.
+	   XXX We assume that BINDs will NEVER be fragmented.
+	*/
+	if(!(pinfo->fd->flags.visited)){
+		dcerpc_bind_key *key;
+		dcerpc_bind_value *value;
 
-        value = g_mem_chunk_alloc (dcerpc_conv_value_chunk);
-        value->uuid = if_id;
-        value->ver = if_ver;
+	        key = g_mem_chunk_alloc (dcerpc_bind_key_chunk);
+        	key->conv = conv;
+        	key->ctx_id = ctx_id;
+        	key->smb_fid = get_smb_fid(pinfo->private_data);
 
-        g_hash_table_insert (dcerpc_convs, key, value);
+        	value = g_mem_chunk_alloc (dcerpc_bind_value_chunk);
+        	value->uuid = if_id;
+        	value->ver = if_ver;
+
+		/* add this entry to the bind table, first removing any
+		   previous ones that are identical
+		 */
+		if(g_hash_table_lookup(dcerpc_binds, key)){
+			g_hash_table_remove(dcerpc_binds, key);
+		}
+        	g_hash_table_insert (dcerpc_binds, key, value);
+	}
 
         if (check_col (pinfo->cinfo, COL_INFO)) {
           col_add_fstr (pinfo->cinfo, COL_INFO, "%s: UUID %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %d.%d",
@@ -844,20 +849,58 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     if (!conv) {
 
     } else {
-        dcerpc_conv_key key;
-        dcerpc_conv_value *value;
+        dcerpc_call_value *value;
         int length, reported_length, stub_length;
 	dcerpc_info di;
 
-        key.conv = conv;
-        key.ctx_id = ctx_id;
-        key.smb_fid = get_smb_fid(pinfo->private_data);
+	/* !!! we can NOT check flags.visited here since this will interact
+	   badly with when SMB handles (i.e. calls the subdissector)
+	   and desegmented pdu's .
+	   Instead we check if this pdu is already in the matched table or not
+	*/
+	if(!g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num)){
+		dcerpc_bind_key bind_key;
+		dcerpc_bind_value *bind_value;
 
-        value = g_hash_table_lookup (dcerpc_convs, &key);
+		bind_key.conv=conv;
+		bind_key.ctx_id=ctx_id;
+		bind_key.smb_fid=get_smb_fid(pinfo->private_data);
+
+		if((bind_value=g_hash_table_lookup(dcerpc_binds, &bind_key))){
+			dcerpc_call_key *call_key;
+			dcerpc_call_value *call_value;
+
+			/* We found the binding so just add the call
+			   to both the call table and the matched table
+			*/
+			call_key=g_mem_chunk_alloc (dcerpc_call_key_chunk);
+			call_key->conv=conv;
+			call_key->call_id=hdr->call_id;
+			call_key->smb_fid=get_smb_fid(pinfo->private_data);
+
+			/* if there is already a matching call in the table
+			   remove it so it is replaced with the new one */
+			if(g_hash_table_lookup(dcerpc_calls, call_key)){
+				g_hash_table_remove(dcerpc_calls, call_key);
+			}
+
+			call_value=g_mem_chunk_alloc (dcerpc_call_value_chunk);
+			call_value->uuid = bind_value->uuid;
+			call_value->ver = bind_value->ver;
+			call_value->opnum = opnum;
+			call_value->req_frame=pinfo->fd->num;
+			call_value->rep_frame=-1;
+			call_value->private_data = NULL;
+			g_hash_table_insert (dcerpc_calls, call_key, call_value);
+
+			g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);	
+		}
+	}
+
+	value=g_hash_table_lookup (dcerpc_matched, (void *)pinfo->fd->num);
+
+
         if (value) {
-            /* add an entry for this call, so we can catch the reply */
-            dcerpc_call_add_map (hdr->call_id, conv, opnum,
-                                 value->ver, &value->uuid);
 
             /* handoff this call */
             length = tvb_length_remaining(tvb, offset);
@@ -869,12 +912,18 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
               reported_length = stub_length;
 	    di.conv = conv;
 	    di.call_id = hdr->call_id;
-	    di.smb_fid = key.smb_fid;
+	    di.smb_fid = get_smb_fid(pinfo->private_data);
+	    di.call_data = value;
+
+	    if(value->rep_frame!=-1){
+		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in, 
+				    tvb, 0, 0, value->rep_frame);
+	    }
+
             dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
-                                0, &value->uuid, value->ver,
-                                opnum, TRUE, hdr->drep, &di);
+                                0, opnum, TRUE, hdr->drep, &di);
         }
     }
 }
@@ -883,6 +932,7 @@ static void
 dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
                         proto_tree *tree, e_dce_cn_common_hdr_t *hdr)
 {
+    dcerpc_call_value *value = NULL;
     conversation_t *conv;
     guint16 ctx_id;
     int auth_sz = 0;
@@ -911,10 +961,33 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     if (!conv) {
         /* no point in creating one here, really */
     } else {
-        dcerpc_call_value *value = dcerpc_call_lookup (hdr->call_id, conv);
-        int length, reported_length, stub_length;
+
+	/* !!! we can NOT check flags.visited here since this will interact
+	   badly with when SMB handles (i.e. calls the subdissector)
+	   and desegmented pdu's .
+	   Instead we check if this pdu is already in the matched table or not
+	*/
+	if(!g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num)){
+		dcerpc_call_key call_key;
+		dcerpc_call_value *call_value;
+
+		call_key.conv=conv;
+		call_key.call_id=hdr->call_id;
+		call_key.smb_fid=get_smb_fid(pinfo->private_data);
+
+		if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
+			g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
+			if(call_value->rep_frame==-1){
+				call_value->rep_frame=pinfo->fd->num;
+			}
+
+		}
+	}
+
+	value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
 
         if (value) {
+	    int length, reported_length, stub_length;
             dcerpc_info di;
 
             /* handoff this call */
@@ -928,11 +1001,17 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	    di.conv = conv;
 	    di.call_id = hdr->call_id;
 	    di.smb_fid = get_smb_fid(pinfo->private_data);
+	    di.call_data = value;
+
+	    if(value->req_frame!=-1){
+		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in, 
+				    tvb, 0, 0, value->req_frame);
+	    }
+
             dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
-                                0, &value->uuid, value->ver,
-                                value->opnum, FALSE, hdr->drep, &di);
+                                0, value->opnum, FALSE, hdr->drep, &di);
         }
     }
 }
@@ -1054,6 +1133,8 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_call_id, tvb, offset, 4, hdr.call_id);
         offset += 4;
     }
+
+
     /*
      * Packet type specific stuff is next.
      */
@@ -1363,26 +1444,76 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
 
     switch (hdr.ptype) {
+	dcerpc_info di;
+        dcerpc_call_value *value, v;
+
     case PDU_REQ:
-        dcerpc_call_add_map (hdr.seqnum, conv, hdr.opnum,
-                             hdr.if_ver, &hdr.if_id);
+
+	if(!(pinfo->fd->flags.visited)){
+	        dcerpc_call_value *call_value;
+		dcerpc_call_key *call_key;
+
+		call_key=g_mem_chunk_alloc (dcerpc_call_key_chunk);
+		call_key->conv=conv;
+		call_key->call_id=hdr.seqnum;
+		call_key->smb_fid=get_smb_fid(pinfo->private_data);
+
+		call_value=g_mem_chunk_alloc (dcerpc_call_value_chunk);
+		call_value->uuid = hdr.if_id;
+		call_value->ver = hdr.if_ver;
+		call_value->opnum = hdr.opnum;
+		call_value->req_frame=pinfo->fd->num;
+		call_value->rep_frame=-1;
+		call_value->private_data = NULL;
+		g_hash_table_insert (dcerpc_calls, call_key, call_value);
+
+		g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);	
+	}
+
+	value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
+
+	di.conv = conv;
+	di.call_id = hdr.seqnum;
+	di.smb_fid = -1;
+	di.call_data = value;
+
         dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-                            &hdr.if_id, hdr.if_ver, hdr.opnum, TRUE,
-			    hdr.drep, NULL);
+                            hdr.opnum, TRUE, hdr.drep, &di);
         break;
     case PDU_RESP:
-        {
-            dcerpc_call_value *v = dcerpc_call_lookup (hdr.seqnum, conv);
-            if (v) {
-                dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-                                    &v->uuid, v->ver, v->opnum, FALSE, 
-				    hdr.drep, NULL);
-            } else {
-                dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-                                    &hdr.if_id, hdr.if_ver, hdr.opnum, FALSE, 
-				    hdr.drep, NULL);
-            }
-        }
+	if(!(pinfo->fd->flags.visited)){
+	        dcerpc_call_value *call_value;
+		dcerpc_call_key call_key;
+
+		call_key.conv=conv;
+		call_key.call_id=hdr.seqnum;
+		call_key.smb_fid=get_smb_fid(pinfo->private_data);
+
+		if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
+			g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
+			if(call_value->rep_frame==-1){
+				call_value->rep_frame=pinfo->fd->num;
+			}
+		}
+	}
+
+	value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
+
+	di.conv = conv;
+	di.call_id = 0; 
+	di.smb_fid = -1;
+	if(value) {
+		di.call_data = value;
+	} else {
+		v.uuid = hdr.if_id;
+		v.ver=hdr.if_ver;
+		v.req_frame=-1;
+		v.rep_frame=pinfo->fd->num;
+		v.private_data=NULL;
+		di.call_data = &v;
+	}
+	dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
+			hdr.opnum, FALSE, hdr.drep, &di);
         break;
     }
 
@@ -1392,43 +1523,64 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dcerpc_init_protocol (void)
 {
-    if (dcerpc_convs)
-        g_hash_table_destroy (dcerpc_convs);
-    if (dcerpc_calls)
-        g_hash_table_destroy (dcerpc_calls);
-    if (dcerpc_conv_key_chunk)
-        g_mem_chunk_destroy (dcerpc_conv_key_chunk);
-    if (dcerpc_conv_value_chunk)
-        g_mem_chunk_destroy (dcerpc_conv_value_chunk);
-    if (dcerpc_call_key_chunk)
-        g_mem_chunk_destroy (dcerpc_call_key_chunk);
-    if (dcerpc_call_value_chunk)
-        g_mem_chunk_destroy (dcerpc_call_value_chunk);
+	/* structures and data for BIND */
+	if (dcerpc_binds){
+		g_hash_table_destroy (dcerpc_binds);
+	}
+	dcerpc_binds = g_hash_table_new (dcerpc_bind_hash, dcerpc_bind_equal);
 
-    dcerpc_convs = g_hash_table_new (dcerpc_conv_hash, dcerpc_conv_equal);
-    dcerpc_calls = g_hash_table_new (dcerpc_call_hash, dcerpc_call_equal);
-    dcerpc_conv_key_chunk = g_mem_chunk_new ("dcerpc_conv_key_chunk",
-                                             sizeof (dcerpc_conv_key),
-                                             200 * sizeof (dcerpc_conv_key),
+	if (dcerpc_bind_key_chunk){
+		g_mem_chunk_destroy (dcerpc_bind_key_chunk);
+	}
+	dcerpc_bind_key_chunk = g_mem_chunk_new ("dcerpc_bind_key_chunk",
+                                             sizeof (dcerpc_bind_key),
+                                             200 * sizeof (dcerpc_bind_key),
                                              G_ALLOC_ONLY);
-    dcerpc_conv_value_chunk = g_mem_chunk_new ("dcerpc_conv_value_chunk",
-                                             sizeof (dcerpc_conv_value),
-                                             200 * sizeof (dcerpc_conv_value),
+	if (dcerpc_bind_value_chunk){
+		g_mem_chunk_destroy (dcerpc_bind_value_chunk);
+	}
+	dcerpc_bind_value_chunk = g_mem_chunk_new ("dcerpc_bind_value_chunk",
+                                             sizeof (dcerpc_bind_value),
+                                             200 * sizeof (dcerpc_bind_value),
                                              G_ALLOC_ONLY);
-    dcerpc_call_key_chunk = g_mem_chunk_new ("dcerpc_call_key_chunk",
+	/* structures and data for CALL */
+	if (dcerpc_calls){
+		g_hash_table_destroy (dcerpc_calls);
+	}
+	dcerpc_calls = g_hash_table_new (dcerpc_call_hash, dcerpc_call_equal);
+	if (dcerpc_call_key_chunk){
+		g_mem_chunk_destroy (dcerpc_call_key_chunk);
+	}
+	dcerpc_call_key_chunk = g_mem_chunk_new ("dcerpc_call_key_chunk",
                                              sizeof (dcerpc_call_key),
                                              200 * sizeof (dcerpc_call_key),
                                              G_ALLOC_ONLY);
-    dcerpc_call_value_chunk = g_mem_chunk_new ("dcerpc_call_value_chunk",
+	if (dcerpc_call_value_chunk){
+		g_mem_chunk_destroy (dcerpc_call_value_chunk);
+	}
+	dcerpc_call_value_chunk = g_mem_chunk_new ("dcerpc_call_value_chunk",
                                              sizeof (dcerpc_call_value),
                                              200 * sizeof (dcerpc_call_value),
                                              G_ALLOC_ONLY);
+
+	/* structure and data for MATCHED */
+	if (dcerpc_matched){
+		g_hash_table_destroy (dcerpc_matched);
+	}
+	dcerpc_matched = g_hash_table_new (dcerpc_matched_hash, dcerpc_matched_equal);
+
 }
 
 void
 proto_register_dcerpc (void)
 {
     static hf_register_info hf[] = {
+	{ &hf_dcerpc_request_in,
+		{ "Request in", "dcerpc.request_in", FT_UINT32, BASE_DEC,
+		NULL, 0, "This packet is a response to the packet in this frame", HFILL }},
+	{ &hf_dcerpc_response_in, 
+		{ "Response in", "dcerpc.response_in", FT_UINT32, BASE_DEC,
+		NULL, 0, "The response to this packet is in this packet", HFILL }},
         { &hf_dcerpc_ver,
           { "Version", "dcerpc.ver", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_ver_minor,
