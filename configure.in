@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.47 1999/09/30 16:24:07 gram Exp $
+# $Id: configure.in,v 1.48 1999/10/01 21:41:38 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -164,6 +164,24 @@ if test "$ac_cv_func_strerror" = no ; then
 fi
 AC_SUBST(STRERROR_C)
 AC_SUBST(STRERROR_O)
+
+AC_CHECK_FUNC(strncasecmp, STRNCASECMP_O="",
+  STRNCASECMP_O="strncasecmp.o")
+if test "$ac_cv_func_strncasecmp" = no ; then
+  STRNCASECMP_C="strncasecmp.c"
+  STRNCASECMP_O="strncasecmp.o"
+fi
+AC_SUBST(STRNCASECMP_C)
+AC_SUBST(STRNCASECMP_O)
+
+AC_CHECK_FUNC(mkstemp, MKSTEMP_O="",
+  MKSTEMP_O="mkstemp.o")
+if test "$ac_cv_func_mkstemp" = no ; then
+  MKSTEMP_C="mkstemp.c"
+  MKSTEMP_O="mkstemp.o"
+fi
+AC_SUBST(MKSTEMP_C)
+AC_SUBST(MKSTEMP_O)
 
 dnl blank for now, but will be used in future
 AC_SUBST(ethereal_SUBDIRS)
