@@ -12,6 +12,7 @@
 	<para>
 	The Ethereal capture engine provides the following features:
 	</para>
+	<para>
 	<itemizedlist>
 	<listitem><para>
 	Capture from different kinds of network hardware (Ethernet, Token Ring, 
@@ -46,6 +47,7 @@
 	data.
 	</para></listitem>
 	</itemizedlist>
+	</para>
   </section>
   
   <section id="ChCapCapturingSection"><title>Start Capturing</title>
