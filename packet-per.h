@@ -2,7 +2,7 @@
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.h,v 1.13 2004/03/04 07:07:00 guy Exp $
+ * $Id: packet-per.h,v 1.14 2004/04/09 00:31:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,8 +27,12 @@
 #define __PACKET_PER_H__
 
 #define NOT_DECODED_YET(x) \
-proto_tree_add_text(tree, tvb, offset, 0, "something unknown here"); \
-fprintf(stderr,"Not decoded yet in packet : %d  [%s]\n", pinfo->fd->num,x);
+proto_tree_add_text(tree, tvb, offset, 0, "something unknown here [%s]",x); \
+fprintf(stderr,"Not decoded yet in packet : %d  [%s]\n", pinfo->fd->num,x); \
+if (check_col(pinfo->cinfo, COL_INFO)){ \
+	col_append_fstr(pinfo->cinfo, COL_INFO, "[UNKNOWN PER: %s]", x); \
+} \
+tvb_get_guint8(tvb, 9999);
 
 /* in all functions here, offset is guint32 and is
    byteposition<<3 + bitposition
