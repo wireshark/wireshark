@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.29 2001/06/05 21:21:38 guy Exp $
+ * $Id: packet-radius.c,v 1.30 2001/06/14 08:23:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -255,6 +255,7 @@ static value_string radius_terminating_action_vals[]=
 static value_string radius_accounting_status_type_vals[]=
 {{1, "Start"},
 {2, "Stop"},
+{3, "Interim-Update"},
 {7,"Accounting-On"},
 {8,"Accounting-Off"},
 {0,NULL}};
