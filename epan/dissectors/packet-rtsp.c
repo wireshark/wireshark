@@ -379,7 +379,6 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 		rdt_transport = TRUE;
 	else
 	{
-		g_warning("Frame %u: rtsp: unknown transport %s", pinfo->fd->num, tmp);
 		return;
 	}
 	
