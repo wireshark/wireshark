@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.60 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-wsp.c,v 1.61 2002/08/07 08:34:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,12 +192,12 @@ static gint ett_header_warning				= ETT_EMPTY;
 static gint ett_header_cache_control_parameters		= ETT_EMPTY;
 static gint ett_header_cache_control_field_names	= ETT_EMPTY;
 static gint ett_capabilities				= ETT_EMPTY;
+static gint ett_post					= ETT_EMPTY;
 static gint ett_content_type				= ETT_EMPTY;
 static gint ett_redirect_flags				= ETT_EMPTY;
 static gint ett_redirect_afl				= ETT_EMPTY;
 static gint ett_multiparts				= ETT_EMPTY;
 static gint ett_mpartlist				= ETT_EMPTY;
-static gint ett_post_data				= ETT_EMPTY;
 
 /* Handle for WSP-over-UDP dissector */
 static dissector_handle_t wsp_fromudp_handle;
@@ -944,8 +944,8 @@ static int add_parameter_charset (proto_tree *, tvbuff_t *, int, int);
 static int add_constrained_encoding (proto_tree *, tvbuff_t *, int, int);
 static int add_parameter_type (proto_tree *, tvbuff_t *, int, int);
 static int add_parameter_text (proto_tree *, tvbuff_t *, int, int, int, const char *);
-static void add_post_data (proto_tree *, tvbuff_t *, guint, const char *);
 static void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
+static void add_multipart_data (proto_tree *, tvbuff_t *);
 static void add_pragma_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
     value_type_t, int);
 static void add_transfer_encoding_header (proto_tree *, tvbuff_t *, int,
@@ -1343,8 +1343,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* Runs from start of headers+headerLength to end of frame */
 				offset = nextOffset+headerLength;
 				tmp_tvb = tvb_new_subset (tvb, offset, tvb_reported_length (tvb)-offset, tvb_reported_length (tvb)-offset);
-				add_post_data (wsp_tree, tmp_tvb,
-				    contentType, contentTypeStr);
+				add_post_data (wsp_tree, tmp_tvb, contentType, contentTypeStr);
 			}
 			if (tvb_reported_length_remaining(tvb, headerStart + count + uriLength + headersLength) > 0)
 			{
@@ -3786,7 +3785,7 @@ add_parameter_text (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 	return offset;
 }
 
-static void
+void
 add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
     const char *contentTypeStr)
 {
@@ -3797,11 +3796,11 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 	guint valueEnd = 0;
 	guint8 peek = 0;
 	proto_item *ti;
-	proto_tree *subtree;
+	proto_tree *sub_tree;
 	
 	/* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian); */
 	ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian);
-	subtree = proto_item_add_subtree(ti, ett_post_data);
+	sub_tree = proto_item_add_subtree(ti, ett_post);
 
 	if (contentTypeStr == NULL && contentType == 0x12)
 	{
@@ -3821,7 +3820,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 			{
 				if (variableEnd > 0)
 				{
-					add_post_variable (subtree, tvb, variableStart, variableEnd, valueStart, offset);
+					add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
 				}
 				variableStart = offset+1;
 				variableEnd = 0;
@@ -3833,13 +3832,13 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 		/* See if there's outstanding data */
 		if (variableEnd > 0)
 		{
-			add_post_variable (subtree, tvb, variableStart, variableEnd, valueStart, offset);
+			add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
 		}
 	}
 	else if ((contentType == 0x22) || (contentType == 0x23) || (contentType == 0x23) || (contentType == 0x24) ||
 		 (contentType == 0x25) || (contentType == 0x26) || (contentType == 0x33))
 	{
-		add_multipart_data(subtree, tvb);
+		add_multipart_data(sub_tree, tvb);
 	}
 }
 
@@ -3883,7 +3882,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 	g_free (valueBuffer);
 }
 
-void
+static void
 add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
 {
 	int		 offset = 0;
@@ -4762,7 +4761,7 @@ proto_register_wsp(void)
 			}
 		},
 		{ &hf_wsp_post_data,
-			{ 	"Post Data",           
+			{ 	"Data (Post)",           
 				"wsp.post.data",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Post Data", HFILL
@@ -4885,12 +4884,12 @@ proto_register_wsp(void)
 		&ett_header_cache_control_parameters,
 		&ett_header_cache_control_field_names,
 		&ett_capabilities,
+		&ett_post,
 		&ett_content_type,
 		&ett_redirect_flags,
 		&ett_redirect_afl,
 		&ett_multiparts,
 		&ett_mpartlist,
-		&ett_post_data
 	};
 
 /* Register the protocol name and description */

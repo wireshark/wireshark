@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.15 2002/08/05 08:37:45 guy Exp $
+ * $Id: packet-mmse.c,v 1.16 2002/08/07 08:34:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -613,8 +613,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (field == MM_CTYPE_HDR) {
 	    /*
 	     * Eeehh, we're now actually back to good old WSP content-type
-	     * encoding for multipart/related and multipart/mixed MIME-types.
-	     * Let's steal that from the WSP-dissector.
+	     * encoding. Let's steal that from the WSP-dissector.
 	     */
 	    tvbuff_t	*tmp_tvb;
 	    guint	 type;
@@ -622,7 +621,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    offset = add_content_type(mmse_tree, tvb, offset, &type, &type_str);
 	    tmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	    add_multipart_data(mmse_tree, tmp_tvb);
+	    add_post_data(mmse_tree, tmp_tvb, type, type_str);
 	}
     }
 
