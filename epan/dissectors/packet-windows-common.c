@@ -1164,7 +1164,7 @@ nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv)
 
 	/* Split into seconds and nanoseconds. */
 	secs = d / 10000000;
-	nsecs = (d % 10000000)*100;
+	nsecs = (int)((d % 10000000)*100);
 
 	/* Now adjust the seconds. */
 	secs -= TIME_FIXUP_CONSTANT;
