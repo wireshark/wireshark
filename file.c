@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.65 1999/08/14 03:36:30 guy Exp $
+ * $Id: file.c,v 1.66 1999/08/14 04:23:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,6 +75,7 @@
 #include "util.h"
 #include "gtkpacket.h"
 #include "dfilter.h"
+#include "timestamp.h"
 
 #include "packet-ncp.h"
 
@@ -86,7 +87,7 @@ extern int        sync_pipe[];
 guint cap_input_id;
 
 static guint32 firstsec, firstusec;
-static guint32 lastsec, lastusec;
+static guint32 prevsec, prevusec;
 
 static dfilter *rfcode = NULL; 
 
@@ -131,7 +132,7 @@ open_cap_file(char *fname, capture_file *cf) {
   cf->eusec     = 0;
   cf->snap      = 0;
   firstsec = 0, firstusec = 0;
-  lastsec = 0, lastusec = 0;
+  prevsec = 0, prevusec = 0;
  
   cf->wth = wtap_open_offline(fname);
   if (cf->wth == NULL) {
@@ -395,21 +396,66 @@ tail_cap_file(char *fname, capture_file *cf) {
 }
 #endif
 
+/* To do: Add check_col checks to the col_add* routines */
+
 static void
-compute_time_stamps(frame_data *fdata, capture_file *cf)
+col_add_abs_time(frame_data *fd, gint el)
 {
-  /* If we don't have the time stamp of the first packet, it's because this
-     is the first packet.  Save the time stamp of this packet as the time
-     stamp of the first packet. */
+  struct tm *tmp;
+  time_t then;
+
+  then = fd->abs_secs;
+  tmp = localtime(&then);
+  col_add_fstr(fd, el, "%02d:%02d:%02d.%04ld",
+    tmp->tm_hour,
+    tmp->tm_min,
+    tmp->tm_sec,
+    (long)fd->abs_usecs/100);
+}
+
+static void
+col_add_rel_time(frame_data *fd, gint el)
+{
+  col_add_fstr(fd, el, "%d.%06d", fd->rel_secs, fd->rel_usecs);
+}
+
+static void
+col_add_delta_time(frame_data *fd, gint el)
+{
+  col_add_fstr(fd, el, "%d.%06d", fd->del_secs, fd->del_usecs);
+}
+
+/* Add "command-line-specified" time. */
+static void
+col_add_cls_time(frame_data *fd)
+{
+  switch (timestamp_type) {
+    case ABSOLUTE:
+      col_add_abs_time(fd, COL_CLS_TIME);
+      break;
+
+    case RELATIVE:
+      col_add_rel_time(fd, COL_CLS_TIME);
+      break;
+
+    case DELTA:
+      col_add_delta_time(fd, COL_CLS_TIME);
+      break;
+  }
+}
+
+static void
+add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
+{
+  gint          i, row;
+  proto_tree   *protocol_tree;
+
+  /* If we don't have the time stamp of the first packet in the
+     capture, it's because this is the first packet.  Save the time
+     stamp of this packet as the time stamp of the first packet. */
   if (!firstsec && !firstusec) {
     firstsec  = fdata->abs_secs;
     firstusec = fdata->abs_usecs;
-  }
-
-  /* Do the same for the time stamp of the previous packet. */
-  if (!lastsec && !lastusec) {
-    lastsec  = fdata->abs_secs;
-    lastusec = fdata->abs_usecs;
   }
 
   /* Get the time elapsed between the first packet and this packet. */
@@ -420,35 +466,12 @@ compute_time_stamps(frame_data *fdata, capture_file *cf)
     cf->eusec = (fdata->abs_usecs + 1000000) - firstusec;
     cf->esec--;
   }
-  fdata->rel_secs = cf->esec;
-  fdata->rel_usecs = cf->eusec;
-  
-  /* Do the same for the previous packet */
-  fdata->del_secs = fdata->abs_secs - lastsec;
-  if (lastusec <= fdata->abs_usecs) {
-    fdata->del_usecs = fdata->abs_usecs - lastusec;
-  } else {
-    fdata->del_usecs = (fdata->abs_usecs + 1000000) - lastusec;
-    fdata->del_secs--;
-  }
-  lastsec = fdata->abs_secs;
-  lastusec = fdata->abs_usecs;
-}
-
-static void
-add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
-{
-  gint          i, row;
-  proto_tree   *protocol_tree;
-
-  compute_time_stamps(fdata, cf);
 
   fdata->cinfo = &cf->cinfo;
   for (i = 0; i < fdata->cinfo->num_cols; i++) {
     fdata->cinfo->col_data[i][0] = '\0';
   }
-  if (check_col(fdata, COL_NUMBER))
-    col_add_fstr(fdata, COL_NUMBER, "%d", cf->count);
+
   /* Apply the display filter */
   if (DFILTER_CONTAINS_FILTER(cf->dfcode)) {
 	protocol_tree = proto_tree_create_root();
@@ -461,16 +484,57 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 	fdata->passed_dfilter = TRUE;
   }
   if (fdata->passed_dfilter) {
-	row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
-	fdata->row = row;
+    if (check_col(fdata, COL_NUMBER))
+      col_add_fstr(fdata, COL_NUMBER, "%d", cf->count);
 
-	/* If this was the selected packet, remember the row it's in, so
-	   we can re-select it.  ("selected_packet" is 0-origin, as it's
-	   a GList index; "count", however, is 1-origin.) */
-	if (cf->selected_packet == cf->count - 1)
-	  cf->selected_row = row;
+    /* If we don't have the time stamp of the previous displayed packet,
+       it's because this is the first displayed packet.  Save the time
+       stamp of this packet as the time stamp of the previous displayed
+       packet. */
+    if (!prevsec && !prevusec) {
+      prevsec  = fdata->abs_secs;
+      prevusec = fdata->abs_usecs;
+    }
+
+    /* Get the time elapsed between the first packet and this packet. */
+    fdata->rel_secs = cf->esec;
+    fdata->rel_usecs = cf->eusec;
+  
+    /* Get the time elapsed between the previous displayed packet and
+       this packet. */
+    fdata->del_secs = fdata->abs_secs - prevsec;
+    if (prevusec <= fdata->abs_usecs) {
+      fdata->del_usecs = fdata->abs_usecs - prevusec;
+    } else {
+      fdata->del_usecs = (fdata->abs_usecs + 1000000) - prevusec;
+      fdata->del_secs--;
+    }
+    prevsec = fdata->abs_secs;
+    prevusec = fdata->abs_usecs;
+
+    /* Set any time stamp columns. */
+    if (check_col(fdata, COL_CLS_TIME))
+      col_add_cls_time(fdata);
+    if (check_col(fdata, COL_ABS_TIME))
+      col_add_abs_time(fdata, COL_ABS_TIME);
+    if (check_col(fdata, COL_REL_TIME))
+      col_add_rel_time(fdata, COL_REL_TIME);
+    if (check_col(fdata, COL_DELTA_TIME))
+      col_add_delta_time(fdata, COL_DELTA_TIME);
+
+    if (check_col(fdata, COL_PACKET_LENGTH))
+      col_add_fstr(fdata, COL_PACKET_LENGTH, "%d", fdata->pkt_len);
+
+    row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
+    fdata->row = row;
+
+    /* If this was the selected packet, remember the row it's in, so
+       we can re-select it.  ("selected_packet" is 0-origin, as it's
+       a GList index; "count", however, is 1-origin.) */
+    if (cf->selected_packet == cf->count - 1)
+      cf->selected_row = row;
   } else
-	fdata->row = -1;	/* not in the display */
+    fdata->row = -1;	/* not in the display */
   fdata->cinfo = NULL;
 }
 
@@ -556,8 +620,8 @@ filter_packets(capture_file *cf)
      put it in the display list if so.  */
   firstsec = 0;
   firstusec = 0;
-  lastsec = 0;
-  lastusec = 0;
+  prevsec = 0;
+  prevusec = 0;
   cf->unfiltered_count = cf->count;
   cf->count = 0;
 
