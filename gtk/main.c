@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.251 2002/05/27 22:00:37 guy Exp $
+ * $Id: main.c,v 1.252 2002/05/30 00:44:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2195,6 +2195,20 @@ boldify(const char *font_name)
 	/* Is this an XLFD font?  If it begins with "-", yes, otherwise no. */
 	if (font_name[0] == '-') {
 		xlfd_tokens = g_strsplit(font_name, "-", XLFD_WEIGHT+1);
+
+		/*
+		 * Make sure we *have* a weight (this might not be a valid
+		 * XLFD font name).
+		 */
+		for (i = 0; i < XLFD_WEIGHT+1; i++) {
+			if (xlfd_tokens[i] == NULL) {
+				/*
+				 * We don't, so treat this as a non-XLFD
+				 * font name.
+				 */
+				goto not_xlfd;
+			}
+		}
 		for (i = 0; i < N_WEIGHTS; i++) {
 			if (strcmp(xlfd_tokens[XLFD_WEIGHT],
 			    weight_map[i].light) == 0) {
@@ -2206,10 +2220,15 @@ boldify(const char *font_name)
 		}
 		bold_font_name = g_strjoinv("-", xlfd_tokens);
 		g_strfreev(xlfd_tokens);
-	} else {
-		/* Append "bold" to the name of the font. */
-		bold_font_name = g_strconcat(font_name, "bold", NULL);
+		return bold_font_name;
 	}
+
+not_xlfd:
+	/*
+	 * This isn't an XLFD font name; just append "bold" to the name
+	 * of the font.
+	 */
+	bold_font_name = g_strconcat(font_name, "bold", NULL);
 	return bold_font_name;
 }
 
