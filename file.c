@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.212 2000/08/24 09:16:39 guy Exp $
+ * $Id: file.c,v 1.213 2000/09/07 05:33:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -327,7 +327,7 @@ read_cap_file(capture_file *cf, int *err)
   progbar = create_progress_dlg(load_msg, "Stop", &stop_flag);
   g_free(load_msg);
 
-  while ((data_offset = wtap_read(cf->wth, err)) > 0) {
+  while ((wtap_read(cf->wth, err, &data_offset))) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
        when we update it, we have to run the GTK+ main loop to get it
        to repaint what's pending, and doing so may involve an "ioctl()"
@@ -466,7 +466,7 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
 
-  while (to_read != 0 && (data_offset = wtap_read(cf->wth, err)) > 0) {
+  while (to_read != 0 && (wtap_read(cf->wth, err, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to exit Ethereal.  Break out of the
          loop, and let the code below (which is called even if there
@@ -507,7 +507,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
 
-  while ((data_offset = wtap_read(cf->wth, err)) > 0) {
+  while ((wtap_read(cf->wth, err, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to abort the read.  Break out of the
          loop, and let the code below (which is called even if there

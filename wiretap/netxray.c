@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.30 2000/08/25 21:25:40 gram Exp $
+ * $Id: netxray.c,v 1.31 2000/09/07 05:34:14 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -93,7 +93,7 @@ struct netxrayrec_2_x_hdr {
 	guint32	xxx[7];		/* unknown */
 };
 
-static int netxray_read(wtap *wth, int *err);
+static gboolean netxray_read(wtap *wth, int *err, int *data_offset);
 static void netxray_close(wtap *wth);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
@@ -219,7 +219,7 @@ int netxray_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static int netxray_read(wtap *wth, int *err)
+static gboolean netxray_read(wtap *wth, int *err, int *data_offset)
 {
 	guint32	packet_size;
 	int	bytes_read;
@@ -228,14 +228,13 @@ static int netxray_read(wtap *wth, int *err)
 		struct netxrayrec_2_x_hdr hdr_2_x;
 	}	hdr;
 	int	hdr_size = 0;
-	int	data_offset;
 	double	t;
 
 reread:
 	/* Have we reached the end of the packet data? */
 	if (wth->data_offset == wth->capture.netxray->end_offset) {
 		/* Yes. */
-		return 0;
+		return FALSE;
 	}
 	/* Read record header. */
 	switch (wth->capture.netxray->version_major) {
@@ -253,10 +252,10 @@ reread:
 	if (bytes_read != hdr_size) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
-			return -1;
+			return FALSE;
 		if (bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
-			return -1;
+			return FALSE;
 		}
 
 		/* We're at EOF.  Wrap? */
@@ -269,13 +268,13 @@ reread:
 		}
 
 		/* We've already wrapped - don't wrap again. */
-		return 0;
+		return FALSE;
 	}
 	wth->data_offset += hdr_size;
 
 	packet_size = pletohs(&hdr.hdr_1_x.incl_len);
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_offset = wth->data_offset;
+	*data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
@@ -284,7 +283,7 @@ reread:
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 	wth->data_offset += packet_size;
 
@@ -299,7 +298,7 @@ reread:
 	wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len);
 	wth->phdr.pkt_encap = wth->file_encap;
 
-	return data_offset;
+	return TRUE;
 }
 
 static void

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.77 2000/08/11 13:32:37 deniel Exp $
+ * $Id: wtap.h,v 1.78 2000/09/07 05:34:23 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -273,8 +273,16 @@ typedef struct wtap_dumper wtap_dumper;
  * a negative number, indicating the type of error, on other failures.
  */
 struct wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random);
-int wtap_loop(wtap *wth, int, wtap_handler, u_char*, int*);
-int wtap_read(wtap *wth, int *err);
+
+/* Returns TRUE if entire loop-reading was successful. If read failure
+ * happened, FALSE is returned and err is set. */
+gboolean wtap_loop(wtap *wth, int, wtap_handler, u_char*, int *err);
+
+/* Returns TRUE if read was successful. FALSE if failure. data_offset is
+ * set the the offset in the file where the data for the read packet is
+ * located. */
+gboolean wtap_read(wtap *wth, int *err, int *data_offset);
+
 struct wtap_pkthdr *wtap_phdr(wtap *wth);
 union wtap_pseudo_header *wtap_pseudoheader(wtap *wth);
 guint8 *wtap_buf_ptr(wtap *wth);

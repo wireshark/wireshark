@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.30 2000/08/25 21:25:37 gram Exp $
+ * $Id: iptrace.c,v 1.31 2000/09/07 05:34:09 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -31,12 +31,14 @@
 #include "buffer.h"
 #include "iptrace.h"
 
-static int iptrace_read_1_0(wtap *wth, int *err);
+static gboolean iptrace_read_1_0(wtap *wth, int *err, int *data_offset);
 static int iptrace_seek_read_1_0(wtap *wth, int seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
-static int iptrace_read_2_0(wtap *wth, int *err);
+
+static gboolean iptrace_read_2_0(wtap *wth, int *err, int *data_offset);
 static int iptrace_seek_read_2_0(wtap *wth, int seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
+
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
     int *err);
 static int iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size,
@@ -96,9 +98,8 @@ typedef struct {
 } iptrace_1_0_phdr;
 
 /* Read the next packet */
-static int iptrace_read_1_0(wtap *wth, int *err)
+static gboolean iptrace_read_1_0(wtap *wth, int *err, int *data_offset)
 {
-	int			record_offset;
 	int			ret;
 	guint32			packet_size;
 	guint8			header[30];
@@ -106,11 +107,11 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 	iptrace_1_0_phdr	pkt_hdr;
 
 	/* Read the descriptor data */
-	record_offset = wth->data_offset;
+	*data_offset = wth->data_offset;
 	ret = iptrace_read_rec_header(wth->fh, header, 30, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
-		return ret;
+		return FALSE;
 	}
 	wth->data_offset += 30;
 
@@ -119,7 +120,7 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 	buffer_assure_space( wth->frame_buffer, packet_size );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
 	if (iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err) < 0)
-		return -1;	/* Read error */
+		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
 	wth->phdr.len = packet_size;
@@ -139,7 +140,7 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 		g_message("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    pkt_hdr.if_type);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		return -1;
+		return FALSE;
 	}
 
 	if ( wth->phdr.pkt_encap == WTAP_ENCAP_ATM_SNIFFER ) {
@@ -159,7 +160,7 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
-	return record_offset;
+	return TRUE;
 }
 
 static int iptrace_seek_read_1_0(wtap *wth, int seek_off,
@@ -205,9 +206,8 @@ typedef struct {
 } iptrace_2_0_phdr;
 
 /* Read the next packet */
-static int iptrace_read_2_0(wtap *wth, int *err)
+static gboolean iptrace_read_2_0(wtap *wth, int *err, int *data_offset)
 {
-	int			record_offset;
 	int			ret;
 	guint32			packet_size;
 	guint8			header[40];
@@ -215,11 +215,11 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 	iptrace_2_0_phdr	pkt_hdr;
 
 	/* Read the descriptor data */
-	record_offset = wth->data_offset;
+	*data_offset = wth->data_offset;
 	ret = iptrace_read_rec_header(wth->fh, header, 40, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
-		return ret;
+		return FALSE;
 	}
 	wth->data_offset += 40;
 
@@ -228,7 +228,7 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 	buffer_assure_space( wth->frame_buffer, packet_size );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
 	if (iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err) < 0)
-		return -1;	/* Read error */
+		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
 	/* AIX saves time in nsec, not usec. It's easier to make iptrace
@@ -252,7 +252,7 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 		g_message("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    pkt_hdr.if_type);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		return -1;
+		return FALSE;
 	}
 
 	if ( wth->phdr.pkt_encap == WTAP_ENCAP_ATM_SNIFFER ) {
@@ -272,7 +272,7 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
-	return record_offset;
+	return TRUE;
 }
 
 static int iptrace_seek_read_2_0(wtap *wth, int seek_off,

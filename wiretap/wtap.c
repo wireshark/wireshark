@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.46 2000/08/19 18:31:23 deniel Exp $
+ * $Id: wtap.c,v 1.47 2000/09/07 05:34:22 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -30,27 +30,32 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 
-FILE* wtap_file(wtap *wth)
+FILE*
+wtap_file(wtap *wth)
 {
 	return wth->fh;
 }
 
-int wtap_fd(wtap *wth)
+int
+wtap_fd(wtap *wth)
 {
 	return wth->fd;
 }
 
-int wtap_file_type(wtap *wth)
+int
+wtap_file_type(wtap *wth)
 {
 	return wth->file_type;
 }
 
-int wtap_snapshot_length(wtap *wth)
+int
+wtap_snapshot_length(wtap *wth)
 {
 	return wth->snapshot_length;
 }
 
-int wtap_file_encap(wtap *wth)
+int
+wtap_file_encap(wtap *wth)
 {
 	return wth->file_encap;
 }
@@ -113,7 +118,8 @@ const static struct encap_type_info {
 };
 
 /* Name that should be somewhat descriptive. */
-const char *wtap_encap_string(int encap)
+const char
+*wtap_encap_string(int encap)
 {
 	if (encap < 0 || encap >= WTAP_NUM_ENCAP_TYPES)
 		return NULL;
@@ -122,7 +128,8 @@ const char *wtap_encap_string(int encap)
 }
 
 /* Name to use in, say, a command-line flag specifying the type. */
-const char *wtap_encap_short_string(int encap)
+const char
+*wtap_encap_short_string(int encap)
 {
 	if (encap < 0 || encap >= WTAP_NUM_ENCAP_TYPES)
 		return NULL;
@@ -131,7 +138,8 @@ const char *wtap_encap_short_string(int encap)
 }
 
 /* Translate a short name to a capture file type. */
-int wtap_short_string_to_encap(const char *short_name)
+int
+wtap_short_string_to_encap(const char *short_name)
 {
 	int encap;
 
@@ -162,7 +170,8 @@ static const char *wtap_errlist[] = {
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 
-const char *wtap_strerror(int err)
+const char
+*wtap_strerror(int err)
 {
 	static char errbuf[128];
 	int wtap_errlist_index;
@@ -196,7 +205,8 @@ const char *wtap_strerror(int err)
    
    Instead, if the subtype has a "sequential close" function, we call it,
    to free up stuff used only by the sequential side. */
-void wtap_sequential_close(wtap *wth)
+void
+wtap_sequential_close(wtap *wth)
 {
 	if (wth->subtype_sequential_close != NULL)
 		(*wth->subtype_sequential_close)(wth);
@@ -213,7 +223,8 @@ void wtap_sequential_close(wtap *wth)
 	}
 }
 
-void wtap_close(wtap *wth)
+void
+wtap_close(wtap *wth)
 {
 	wtap_sequential_close(wth);
 
@@ -226,47 +237,53 @@ void wtap_close(wtap *wth)
 	g_free(wth);
 }
 
-int wtap_read(wtap *wth, int *err)
+gboolean
+wtap_read(wtap *wth, int *err, int *data_offset)
 {
-	return wth->subtype_read(wth, err);
+	return wth->subtype_read(wth, err, data_offset);
 }
 
-struct wtap_pkthdr *wtap_phdr(wtap *wth)
+struct wtap_pkthdr*
+wtap_phdr(wtap *wth)
 {
 	return &wth->phdr;
 }
 
-union wtap_pseudo_header *wtap_pseudoheader(wtap *wth)
+union wtap_pseudo_header*
+wtap_pseudoheader(wtap *wth)
 {
 	return &wth->pseudo_header;
 }
 
-guint8 *wtap_buf_ptr(wtap *wth)
+guint8*
+wtap_buf_ptr(wtap *wth)
 {
 	return buffer_start_ptr(wth->frame_buffer);
 }
 
-int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
-	int *err)
+gboolean
+wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user, int *err)
 {
-	int data_offset, loop = 0;
+	int		data_offset, loop = 0;
 
-	/* Start be clearing error flag */
+	/* Start by clearing error flag */
 	*err = 0;
 
-	while ((data_offset = wtap_read(wth, err)) > 0) {
+	while ( (wtap_read(wth, err, &data_offset)) ) {
 		callback(user, &wth->phdr, data_offset,
 		    &wth->pseudo_header, buffer_start_ptr(wth->frame_buffer));
 		if (count > 0 && ++loop >= count)
 			break;
 	}
-	if (data_offset < 0)
-		return FALSE;	/* failure */
-	else
+
+	if (*err == 0)
 		return TRUE;	/* success */
+	else
+		return FALSE;	/* failure */
 }
 
-int wtap_seek_read(wtap *wth, int seek_off,
+int
+wtap_seek_read(wtap *wth, int seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
 {
 	return wth->subtype_seek_read(wth, seek_off, pseudo_header, pd, len);

@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.24 2000/08/25 21:25:38 gram Exp $
+ * $Id: lanalyzer.c,v 1.25 2000/09/07 05:34:10 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -47,7 +47,7 @@
 #define BOARD_325		226	/* LANalyzer 325 (Ethernet) */
 #define BOARD_325TR		227	/* LANalyzer 325TR (Token-ring) */
 
-static int lanalyzer_read(wtap *wth, int *err);
+static gboolean lanalyzer_read(wtap *wth, int *err, int *data_offset);
 static void lanalyzer_close(wtap *wth);
 
 int lanalyzer_open(wtap *wth, int *err)
@@ -199,7 +199,7 @@ int lanalyzer_open(wtap *wth, int *err)
 #define DESCRIPTOR_LEN	32
 
 /* Read the next packet */
-static int lanalyzer_read(wtap *wth, int *err)
+static gboolean lanalyzer_read(wtap *wth, int *err, int *data_offset)
 {
 	int		packet_size = 0;
 	int		bytes_read;
@@ -207,7 +207,6 @@ static int lanalyzer_read(wtap *wth, int *err)
 	char		LE_record_length[2];
 	guint16		record_type, record_length;
 	gchar		descriptor[DESCRIPTOR_LEN];
-	int		data_offset;
 	guint16		time_low, time_med, time_high, true_size;
 	double		t;
 
@@ -216,13 +215,10 @@ static int lanalyzer_read(wtap *wth, int *err)
 	bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
 	if (bytes_read != 2) {
 		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
+		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
-			return -1;
 		}
-		return 0;
+		return FALSE;
 	}
 	wth->data_offset += 2;
 	bytes_read = file_read(LE_record_length, 1, 2, wth->fh);
@@ -230,7 +226,7 @@ static int lanalyzer_read(wtap *wth, int *err)
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 	wth->data_offset += 2;
 
@@ -244,7 +240,7 @@ static int lanalyzer_read(wtap *wth, int *err)
 		g_message("lanalyzer: record type %u seen after trace summary record",
 		    record_type);
 		*err = WTAP_ERR_BAD_RECORD;
-		return -1;
+		return FALSE;
 	}
 	else {
 		packet_size = record_length - DESCRIPTOR_LEN;
@@ -257,13 +253,13 @@ static int lanalyzer_read(wtap *wth, int *err)
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 	wth->data_offset += DESCRIPTOR_LEN;
 
 	/* Read the packet data */
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_offset = wth->data_offset;
+	*data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 		packet_size, wth->fh);
@@ -272,7 +268,7 @@ static int lanalyzer_read(wtap *wth, int *err)
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 	wth->data_offset += packet_size;
 
@@ -294,7 +290,7 @@ static int lanalyzer_read(wtap *wth, int *err)
 	wth->phdr.caplen = packet_size;
 	wth->phdr.pkt_encap = wth->file_encap;
 
-	return data_offset;
+	return TRUE;
 }
 
 static void

@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.25 2000/08/25 21:25:42 gram Exp $
+ * $Id: radcom.c,v 1.26 2000/09/07 05:34:18 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -66,7 +66,7 @@ struct radcomrec_hdr {
 	char	xxw[9];		/* unknown */
 };
 
-static int radcom_read(wtap *wth, int *err);
+static gboolean radcom_read(wtap *wth, int *err, int *data_offset);
 static int radcom_seek_read(wtap *wth, int seek_off,
 	union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
@@ -221,9 +221,8 @@ read_error:
 }
 
 /* Read the next packet */
-static int radcom_read(wtap *wth, int *err)
+static gboolean radcom_read(wtap *wth, int *err, int *data_offset)
 {
-	int	record_offset;
 	int	ret;
 	struct radcomrec_hdr hdr;
 	guint16 length;
@@ -233,15 +232,15 @@ static int radcom_read(wtap *wth, int *err)
 	char	fcs[2];
 
 	/* Read record header. */
-	record_offset = wth->data_offset;
+	*data_offset = wth->data_offset;
 	ret = radcom_read_rec_header(wth->fh, &hdr, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
-		return ret;
+		return FALSE;
 	}
 	wth->data_offset += sizeof hdr;
 	length = pletohs(&hdr.length);
-	if (length == 0) return 0;
+	if (length == 0) return FALSE;
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB)
 		length -= 2; /* FCS */
@@ -267,7 +266,7 @@ static int radcom_read(wtap *wth, int *err)
 	buffer_assure_space(wth->frame_buffer, length);
 	if (radcom_read_rec_data(wth->fh,
 	    buffer_start_ptr(wth->frame_buffer), length, err) < 0)
-		return -1;	/* Read error */
+		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
 	wth->phdr.pkt_encap = wth->file_encap;
@@ -281,12 +280,12 @@ static int radcom_read(wtap *wth, int *err)
 			*err = file_error(wth->fh);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
-			return -1;
+			return FALSE;
 		}
 		wth->data_offset += sizeof fcs;
 	}
 
-	return record_offset;
+	return TRUE;
 }
 
 static int

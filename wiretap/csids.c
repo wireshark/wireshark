@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.3 2000/08/31 16:44:47 gram Exp $
+ * $Id: csids.c,v 1.4 2000/09/07 05:34:07 gram Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -44,7 +44,7 @@
  *
  */
 
-static int csids_read(wtap *wth, int *err);
+static gboolean csids_read(wtap *wth, int *err, int *data_offset);
 static int csids_seek_read(wtap *wth, int seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
 
@@ -140,21 +140,18 @@ int csids_open(wtap *wth, int *err)
 }
 
 /* Find the next packet and parse it; called from wtap_loop(). */
-static int csids_read(wtap *wth, int *err)
+static gboolean csids_read(wtap *wth, int *err, int *data_offset)
 {
   guint8 *buf;
   int bytesRead = 0;
   struct csids_header hdr;
-  int packet_offset = wth->data_offset;
+
+  *data_offset = wth->data_offset;
 
   bytesRead = file_read( &hdr, 1, sizeof( struct csids_header) , wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
     *err = file_error( wth->fh );
-    if( *err != 0 ) {
-      return -1;
-    } else {
-      return 0;
-    }
+    return FALSE;
   }
   hdr.seconds = pntohl(&hdr.seconds);
   hdr.caplen = pntohs(&hdr.caplen);
@@ -168,9 +165,7 @@ static int csids_read(wtap *wth, int *err)
   bytesRead = file_read( buf, 1, hdr.caplen, wth->fh );
   if( bytesRead != hdr.caplen ) {
     *err = file_error( wth->fh );
-    if( *err != 0 ) {
-      return -1;
-    }       
+    return FALSE;
   }
   
   wth->data_offset += hdr.caplen;
@@ -188,12 +183,7 @@ static int csids_read(wtap *wth, int *err)
     *(++swap) = BSWAP16(*swap); /* ip flags and fragoff */
   }
 
-  /* This is a hack to fix the fact that have to atleast return 1 
-   * or we stop processing. csids has no file header. We recover from 
-   * this hack in csids_seek_read by checking the seek_off == 1 and 
-   * setting it back to 0.
-   */
-  return packet_offset ? packet_offset : 1;
+  return TRUE;
 }
 
 /* Used to read packets in random-access fashion */
@@ -208,18 +198,7 @@ csids_seek_read (wtap *wth,
   int bytesRead = 0;
   struct csids_header hdr;
 
-  /* hack to fix a problem with the way error checking is done. If the 
-   * the return value from csids_read is 0 for the first packet, then
-   * we stop there. So I return 1. But that messes up the offset for 
-   * the seek_off on this call. So if seek_off is 1 then make it 0 and 
-   * if it is not 1 leave it alone. --mlh 
-   */
-  int real_seek_off = seek_off;
-  if( real_seek_off == 1 ) {
-    real_seek_off = 0;
-  }
-
-  file_seek(wth->random_fh, real_seek_off , SEEK_SET);
+  file_seek(wth->random_fh, seek_off , SEEK_SET);
 
   bytesRead = file_read( &hdr, 1, sizeof( struct csids_header) , wth->random_fh );
   if( bytesRead != sizeof( struct csids_header) ) {

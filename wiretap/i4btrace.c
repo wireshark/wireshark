@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.9 2000/08/25 21:25:37 gram Exp $
+ * $Id: i4btrace.c,v 1.10 2000/09/07 05:34:08 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -31,7 +31,7 @@
 #include "buffer.h"
 #include "i4b_trace.h"
 
-static int i4btrace_read(wtap *wth, int *err);
+static gboolean i4btrace_read(wtap *wth, int *err, int *data_offset);
 static int i4btrace_seek_read(wtap *wth, int seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
@@ -110,26 +110,25 @@ int i4btrace_open(wtap *wth, int *err)
 #define V120SABME	"\010\001\177"
 
 /* Read the next packet */
-static int i4btrace_read(wtap *wth, int *err)
+static gboolean i4btrace_read(wtap *wth, int *err, int *data_offset)
 {
-	int	record_offset;
 	int	ret;
 	i4b_trace_hdr_t hdr;
 	guint16 length;
 	void *bufp;
 
 	/* Read record header. */
-	record_offset = wth->data_offset;
+	*data_offset = wth->data_offset;
 	ret = i4b_read_rec_header(wth->fh, &hdr, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
-		return ret;
+		return FALSE;
 	}
 	wth->data_offset += sizeof hdr;
 	i4b_byte_swap_header(wth, &hdr);
 	length = hdr.length - sizeof(hdr);
 	if (length == 0)
-		return 0;
+		return FALSE;
 
 	wth->phdr.len = length;
 	wth->phdr.caplen = length;
@@ -145,7 +144,7 @@ static int i4btrace_read(wtap *wth, int *err)
 	buffer_assure_space(wth->frame_buffer, length);
 	bufp = buffer_start_ptr(wth->frame_buffer);
 	if (i4b_read_rec_data(wth->fh, bufp, length, err) < 0)
-		return -1;	/* Read error */
+		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
 	/*
@@ -179,17 +178,7 @@ static int i4btrace_read(wtap *wth, int *err)
 			wth->phdr.pkt_encap = WTAP_ENCAP_NULL;
 	}
 
-	/*
-	 * XXX - there is no file header for i4btrace files, so the
-	 * first record begins at the beginning of the file, hence
-	 * its offset is 0.
-	 *
-	 * Unfortunately, a return value of 0 means "end of file".
-	 *
-	 * Therefore, we return the record offset + 1, and compensate
-	 * for that in "i4btrace_seek_read()".
-	 */
-	return record_offset + 1;
+	return TRUE;
 }
 
 static int
@@ -200,11 +189,7 @@ i4btrace_seek_read(wtap *wth, int seek_off,
 	int	err;		/* XXX - return this */
 	i4b_trace_hdr_t hdr;
 
-	/*
-	 * We subtract 1 because we added 1 before returning the record
-	 * offset in "i4btrace_read()"; see the comment above.
-	 */
-	file_seek(wth->random_fh, seek_off - 1, SEEK_SET);
+	file_seek(wth->random_fh, seek_off, SEEK_SET);
 
 	/* Read record header. */
 	ret = i4b_read_rec_header(wth->random_fh, &hdr, &err);

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.50 2000/08/25 21:25:41 gram Exp $
+ * $Id: ngsniffer.c,v 1.51 2000/09/07 05:34:16 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -250,7 +250,7 @@ struct frame4_rec {
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
 static int skip_header_records(wtap *wth, int *err, gint16 version);
-static int ngsniffer_read(wtap *wth, int *err);
+static gboolean ngsniffer_read(wtap *wth, int *err, int *data_offset);
 static int ngsniffer_seek_read(wtap *wth, int seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
 static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
@@ -533,9 +533,8 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 }
 
 /* Read the next packet */
-static int ngsniffer_read(wtap *wth, int *err)
+static gboolean ngsniffer_read(wtap *wth, int *err, int *data_offset)
 {
-	int	record_offset;
 	int	ret;
 	guint16	type, length;
 	struct frame2_rec frame2;
@@ -548,12 +547,12 @@ static int ngsniffer_read(wtap *wth, int *err)
 		/*
 		 * Read the record header.
 		 */
-		record_offset = wth->data_offset;
+		*data_offset = wth->data_offset;
 		ret = ngsniffer_read_rec_header(wth, FALSE, &type, &length,
 		    err);
 		if (ret <= 0) {
 			/* Read error or EOF */
-			return ret;
+			return FALSE;
 		}
 		wth->data_offset += 6;
 
@@ -567,14 +566,14 @@ static int ngsniffer_read(wtap *wth, int *err)
 				 */
 				g_message("ngsniffer: REC_FRAME2 record in an ATM Sniffer file");
 				*err = WTAP_ERR_BAD_RECORD;
-				return -1;
+				return FALSE;
 			}
 
 			/* Read the f_frame2_struct */
 			ret = ngsniffer_read_frame2(wth, FALSE, &frame2, err);
 			if (ret < 0) {
 				/* Read error */
-				return ret;
+				return FALSE;
 			}
 			wth->data_offset += sizeof frame2;
 			time_low = pletohs(&frame2.time_low);
@@ -599,7 +598,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 				 */
 				g_message("ngsniffer: REC_FRAME4 record in a non-ATM Sniffer file");
 				*err = WTAP_ERR_BAD_RECORD;
-				return -1;
+				return FALSE;
 			}
 
 			/* Read the f_frame4_struct */
@@ -627,7 +626,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 			/*
 			 * End of file.  Return an EOF indication.
 			 */
-			return 0;
+			return FALSE;
 
 		default:
 			break;	/* unknown type, skip it */
@@ -652,7 +651,7 @@ found:
 	buffer_assure_space(wth->frame_buffer, length);
 	pd = buffer_start_ptr(wth->frame_buffer);
 	if (ngsniffer_read_rec_data(wth, FALSE, pd, length, err) < 0)
-		return -1;	/* Read error */
+		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
 	if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
@@ -685,7 +684,7 @@ found:
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
 			*1.0e6);
 	wth->phdr.pkt_encap = wth->file_encap;
-	return record_offset;
+	return TRUE;
 }
 
 static int ngsniffer_seek_read(wtap *wth, int seek_off,

@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.29 2000/07/26 00:20:06 guy Exp $
+ * $Id: snoop.c,v 1.30 2000/09/07 05:34:19 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -55,7 +55,7 @@ struct snooprec_hdr {
 	guint32	ts_usec;	/* timestamp microseconds */
 };
 
-static int snoop_read(wtap *wth, int *err);
+static gboolean snoop_read(wtap *wth, int *err, int *data_offset);
 static int snoop_seek_read(wtap *wth, int seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int snoop_read_atm_pseudoheader(FILE_T fh,
@@ -206,12 +206,11 @@ int snoop_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static int snoop_read(wtap *wth, int *err)
+static gboolean snoop_read(wtap *wth, int *err, int *data_offset)
 {
 	guint32 rec_size;
 	guint32	packet_size;
 	guint32 orig_size;
-	int	data_offset;
 	int	bytes_read;
 	struct snooprec_hdr hdr;
 	char	padbuf[4];
@@ -223,13 +222,10 @@ static int snoop_read(wtap *wth, int *err)
 	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
+		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
-			return -1;
 		}
-		return 0;
+		return FALSE;
 	}
 	wth->data_offset += sizeof hdr;
 
@@ -244,10 +240,10 @@ static int snoop_read(wtap *wth, int *err)
 		g_message("snoop: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
 		*err = WTAP_ERR_BAD_RECORD;
-		return -1;
+		return FALSE;
 	}
 
-	data_offset = wth->data_offset;
+	*data_offset = wth->data_offset;
 
 	/*
 	 * If this is an ATM packet, the first four bytes are the
@@ -264,11 +260,11 @@ static int snoop_read(wtap *wth, int *err)
 			g_message("snoop: atmsnoop file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
 			    packet_size);
 			*err = WTAP_ERR_BAD_RECORD;
-			return -1;
+			return FALSE;
 		}
 		if (snoop_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
 		    err) < 0)
-			return -1;	/* Read error */
+			return FALSE;	/* Read error */
 
 		/*
 		 * Don't count the pseudo-header as part of the packet.
@@ -282,7 +278,7 @@ static int snoop_read(wtap *wth, int *err)
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 	    packet_size, err) < 0)
-		return -1;	/* Read error */
+		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
 	wth->phdr.ts.tv_sec = ntohl(hdr.ts_sec);
@@ -309,13 +305,13 @@ static int snoop_read(wtap *wth, int *err)
 			*err = file_error(wth->fh);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
-			return -1;
+			return FALSE;
 		}
 		wth->data_offset += bytes_read;
 		padbytes -= bytes_read;
 	}
 
-	return data_offset;
+	return TRUE;
 }
 
 static int

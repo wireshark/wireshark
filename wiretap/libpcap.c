@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.38 2000/08/25 06:25:21 guy Exp $
+ * $Id: libpcap.c,v 1.39 2000/09/07 05:34:11 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -38,7 +38,7 @@
 #define BIT_SWAPPED_MAC_ADDRS
 #endif
 
-static int libpcap_read(wtap *wth, int *err);
+static gboolean libpcap_read(wtap *wth, int *err, int *data_offset);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static void libpcap_close(wtap *wth);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -453,12 +453,11 @@ give_up:
 }
 
 /* Read the next packet */
-static int libpcap_read(wtap *wth, int *err)
+static gboolean libpcap_read(wtap *wth, int *err, int *data_offset)
 {
 	guint	packet_size;
 	int	bytes_to_read, bytes_read;
 	struct pcaprec_ss990915_hdr hdr;
-	int	data_offset;
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
@@ -484,13 +483,10 @@ static int libpcap_read(wtap *wth, int *err)
 	bytes_read = file_read(&hdr, 1, bytes_to_read, wth->fh);
 	if (bytes_read != bytes_to_read) {
 		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
+		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
-			return -1;
 		}
-		return 0;
+		return FALSE;
 	}
 	wth->data_offset += bytes_read;
 
@@ -505,11 +501,11 @@ static int libpcap_read(wtap *wth, int *err)
 		g_message("pcap: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
 		*err = WTAP_ERR_BAD_RECORD;
-		return -1;
+		return FALSE;
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_offset = wth->data_offset;
+	*data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
@@ -518,7 +514,7 @@ static int libpcap_read(wtap *wth, int *err)
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 	wth->data_offset += packet_size;
 
@@ -528,7 +524,7 @@ static int libpcap_read(wtap *wth, int *err)
 	wth->phdr.len = hdr.hdr.orig_len;
 	wth->phdr.pkt_encap = wth->file_encap;
 
-	return data_offset;
+	return TRUE;
 }
 
 static void

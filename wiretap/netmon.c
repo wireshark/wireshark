@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.32 2000/08/25 21:25:39 gram Exp $
+ * $Id: netmon.c,v 1.33 2000/09/07 05:34:12 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -93,7 +93,7 @@ struct netmonrec_2_x_hdr {
 	guint32	incl_len;	/* number of octets captured in file */
 };
 
-static int netmon_read(wtap *wth, int *err);
+static gboolean netmon_read(wtap *wth, int *err, int *data_offset);
 static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
@@ -277,7 +277,7 @@ int netmon_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static int netmon_read(wtap *wth, int *err)
+static gboolean netmon_read(wtap *wth, int *err, int *data_offset)
 {
 	netmon_t *netmon = wth->capture.netmon;
 	guint32	packet_size = 0;
@@ -287,7 +287,7 @@ static int netmon_read(wtap *wth, int *err)
 		struct netmonrec_2_x_hdr hdr_2_x;
 	}	hdr;
 	int	hdr_size = 0;
-	int	data_offset;
+	int	rec_offset;
 	time_t	secs;
 	guint32	usecs;
 	double	t;
@@ -305,9 +305,9 @@ static int netmon_read(wtap *wth, int *err)
 	   not there already (seeking to the current position
 	   may still cause a seek and a read of the underlying file,
 	   so we don't want to do it unconditionally). */
-	data_offset = netmon->frame_table[netmon->current_frame];
-	if (wth->data_offset != data_offset) {
-		wth->data_offset = data_offset;
+	rec_offset = netmon->frame_table[netmon->current_frame];
+	if (wth->data_offset != rec_offset) {
+		wth->data_offset = rec_offset;
 		file_seek(wth->fh, wth->data_offset, SEEK_SET);
 	}
 	netmon->current_frame++;
@@ -328,13 +328,10 @@ static int netmon_read(wtap *wth, int *err)
 	bytes_read = file_read(&hdr, 1, hdr_size, wth->fh);
 	if (bytes_read != hdr_size) {
 		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
+		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
-			return -1;
 		}
-		return 0;
+		return FALSE;
 	}
 	wth->data_offset += hdr_size;
 
@@ -356,10 +353,10 @@ static int netmon_read(wtap *wth, int *err)
 		g_message("netmon: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
 		*err = WTAP_ERR_BAD_RECORD;
-		return -1;
+		return FALSE;
 	}
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_offset = wth->data_offset;
+	*data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
@@ -368,7 +365,7 @@ static int netmon_read(wtap *wth, int *err)
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 	wth->data_offset += packet_size;
 
@@ -401,7 +398,7 @@ static int netmon_read(wtap *wth, int *err)
 	}
 	wth->phdr.pkt_encap = wth->file_encap;
 
-	return data_offset;
+	return TRUE;
 }
 
 static void

@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.15 2000/08/25 21:25:40 gram Exp $
+ * $Id: nettl.c,v 1.16 2000/09/07 05:34:13 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -63,7 +63,7 @@ struct nettlrec_ns_ls_ip_hdr {
 
 /* header is followed by data and once again the total length (2 bytes) ! */
 
-static int nettl_read(wtap *wth, int *err);
+static gboolean nettl_read(wtap *wth, int *err, int *data_offset);
 static int nettl_seek_read(wtap *wth, int seek_off,
 		union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
@@ -122,18 +122,17 @@ int nettl_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static int nettl_read(wtap *wth, int *err)
+static gboolean nettl_read(wtap *wth, int *err, int *data_offset)
 {
-    int record_offset;
     int ret;
 
     /* Read record header. */
-    record_offset = wth->data_offset;
+    *data_offset = wth->data_offset;
     ret = nettl_read_rec_header(wth, wth->fh, &wth->phdr, &wth->pseudo_header,
         err);
     if (ret <= 0) {
 	/* Read error or EOF */
-	return ret;
+	return FALSE;
     }
     wth->data_offset += ret;
 
@@ -143,9 +142,9 @@ static int nettl_read(wtap *wth, int *err)
     buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
     if (nettl_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 		wth->phdr.caplen, err) < 0)
-	return -1;	/* Read error */
+	return FALSE;	/* Read error */
     wth->data_offset += wth->phdr.caplen;
-    return record_offset;
+    return TRUE;
 }
 
 static int
