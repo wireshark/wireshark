@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.176 2004/03/08 23:45:25 guy Exp $
+ * $Id: menu.c,v 1.177 2004/03/13 17:50:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1041,7 +1041,12 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	gtk_widget_show (menu_item);
 
 	/* add new "clear list" item at last position */
+#if GTK_MAJOR_VERSION < 2
 	menu_item = gtk_menu_item_new_with_label("<Clear File List>");
+#else
+    menu_item = gtk_image_menu_item_new_from_stock
+                    (GTK_STOCK_CLEAR, NULL);
+#endif
 	gtk_menu_append (GTK_MENU(submenu_recent_files), menu_item);
 	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate", 
 		clear_menu_recent_capture_file_cmd_cb, (GtkObject *) menu_item);
