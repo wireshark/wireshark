@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.48 2002/04/07 19:10:10 gerald Exp $
+ * $Id: netxray.c,v 1.49 2002/04/07 21:29:01 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -65,9 +65,6 @@ struct netxray_hdr {
  */
 static double TpS[] = { 1e6, 1193000.0, 1193180.0 };
 #define NUM_NETXRAY_TIMEUNITS (sizeof TpS / sizeof TpS[0])
-
-/* End-of-packet padding.  (802.11 captures appear to have four bytes of it.) */
-guint padding;
 
 /* Version number strings. */
 static const char vers_1_0[] = {
@@ -203,10 +200,6 @@ int netxray_open(wtap *wth, int *err)
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return -1;
 	}
-	padding = 0;
-	if (netxray_encap[hdr.network] == WTAP_ENCAP_IEEE_802_11) {
-		padding = 4;
-	}
 
 	/* This is a netxray file */
 	wth->file_type = file_type;
@@ -223,6 +216,17 @@ int netxray_open(wtap *wth, int *err)
 	t = t/timeunit;
 	wth->capture.netxray->start_timestamp = t;
 	wth->capture.netxray->version_major = version_major;
+
+	/*
+	 * End-of-packet padding.  802.11 captures appear to have four
+	 * bytes of it; is this the FCS, rather than padding?  I think
+	 * we've seen padding at the end of some Ethernet captures; is
+	 * that an FCS as well?
+	 */
+	wth->capture.netxray->padding = 0;
+	if (netxray_encap[hdr.network] == WTAP_ENCAP_IEEE_802_11) {
+		wth->capture.netxray->padding = 4;
+	}
 	/*wth->frame_number = 0;*/
 	/*wth->file_byte_offset = 0x10b;*/
 
@@ -246,7 +250,7 @@ int netxray_open(wtap *wth, int *err)
 /* Read the next packet */
 static gboolean netxray_read(wtap *wth, int *err, long *data_offset)
 {
-	guint32	packet_size, buffer_size;
+	guint32	packet_size;
 	int	bytes_read;
 	union {
 		struct netxrayrec_1_x_hdr hdr_1_x;
@@ -303,24 +307,18 @@ reread:
 	wth->data_offset += hdr_size;
 
 	packet_size = pletohs(&hdr.hdr_1_x.incl_len);
-	buffer_size = packet_size - padding;
-	buffer_assure_space(wth->frame_buffer, buffer_size);
+	buffer_assure_space(wth->frame_buffer, packet_size);
 	*data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-			buffer_size, wth->fh);
+			packet_size, wth->fh);
 
-	if ((guint32)bytes_read != buffer_size) {
+	if ((guint32)bytes_read != packet_size) {
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-        if (file_seek(wth->fh, padding, SEEK_CUR) == -1) {
-		*err = file_error(wth->fh);
-		return FALSE;
-	}
-
 	wth->data_offset += packet_size;
 
 	t = (double)pletohl(&hdr.hdr_1_x.timelo)
@@ -330,8 +328,22 @@ reread:
 	wth->phdr.ts.tv_sec = wth->capture.netxray->start_time + (long)t;
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(unsigned long)(t))
 		*1.0e6);
-	wth->phdr.caplen = buffer_size;
-	wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - padding;
+	/*
+	 * We subtract the padding from the packet size, so our caller
+	 * doesn't see it.
+	 *
+	 * However, if it turns out the padding is really the FCS, we'd
+	 * probably want to supply it, along with an indication of whether
+	 * the frame has an FCS or not, so that Ethereal and Tethereal
+	 * could display it.
+	 *
+	 * That may also mean that if incl_len is shorter than orig_len
+	 * by less than 4 bytes, we shouldn't just subtract the length
+	 * of the padding from it, as the snapshot length would have
+	 * cut it off.
+	 */
+	wth->phdr.caplen = packet_size - wth->capture.netxray->padding;
+	wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - wth->capture.netxray->padding;
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return TRUE;
