@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.14 1999/08/20 21:19:28 gram Exp $
+ * $Id: dfilter.c,v 1.15 1999/08/25 22:54:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -247,16 +247,10 @@ clear_byte_array(gpointer data, gpointer user_data)
 void
 dfilter_error(char *s)
 {
-/*	fprintf(stderr, "%s\n", s);
-	Do not report the error, just let yyparse() return 1 */
-}
-
-void
-dfilter_yyerror(char *fmt, ...)
-{
-	/* XXX - is this cool? check for mem leak */
+	/* Setting to NULL here is fine, since global_df is a copy of a pointer.
+           dfilter_clear_filter() will free the memory when called from the
+	   next dfilter_compile() */
 	global_df->dftree = NULL;
-	dfilter_error(fmt);
 }
 
 /* lookup an abbreviation in our token tree, returing the ID #
