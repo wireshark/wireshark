@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.17 1999/08/23 22:13:35 gram Exp $
+ * $Id: packet-fddi.c,v 1.18 1999/08/24 03:19:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,11 +77,6 @@ static int hf_fddi_src = -1;
 #define FDDI_P_DHOST		1
 #define FDDI_P_SHOST		7
 
-/* On some systems, the FDDI MAC addresses are bit-swapped. */
-#if !defined(ultrix) && !defined(__alpha) && !defined(__bsdi)
-#define BIT_SWAPPED_MAC_ADDRS
-#endif
-
 /* "swaptab[i]" is the value of "i" with the bits reversed. */
 static u_char swaptab[256] = {
   0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
@@ -117,19 +112,6 @@ static u_char swaptab[256] = {
   0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
   0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
-
-static void get_mac_addr(u_char *swapped_addr, const u_char *addr)
-{
-  int i;
-
-  for (i = 0; i < 6; i++) {
-#ifdef BIT_SWAPPED_MAC_ADDRS
-    swapped_addr[i] = swaptab[addr[i]];
-#else
-    swapped_addr[i] = addr[i];
-#endif
-  }
-}
 
 static void
 swap_mac_addr(u_char *swapped_addr, const u_char *orig_addr)
@@ -184,7 +166,8 @@ capture_fddi(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 
 } /* capture_fddi */
 
-void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree) 
+void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
+		gboolean bitswapped)
 {
   int        offset = 0, fc;
   proto_tree *fh_tree;
@@ -199,8 +182,13 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree)
 
   /* Extract the source and destination addresses, possibly bit-swapping
      them. */
-  get_mac_addr(dst, (u_char *)&pd[FDDI_P_DHOST]);
-  get_mac_addr(src, (u_char *)&pd[FDDI_P_SHOST]);
+  if (bitswapped) {
+    swap_mac_addr(dst, (u_char *)&pd[FDDI_P_DHOST]);
+    swap_mac_addr(src, (u_char *)&pd[FDDI_P_SHOST]);
+  } else {
+    memcpy(dst, (u_char *)&pd[FDDI_P_DHOST], sizeof dst);
+    memcpy(src, (u_char *)&pd[FDDI_P_SHOST], sizeof src);
+  }
 
   fc = (int) pd[FDDI_P_FC];
 

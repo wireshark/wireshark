@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.7 1999/08/22 02:29:38 guy Exp $
+ * $Id: snoop.c,v 1.8 1999/08/24 03:19:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -70,7 +70,7 @@ int snoop_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* HDLC */
 		WTAP_ENCAP_UNKNOWN,	/* Character Synchronous */
 		WTAP_ENCAP_UNKNOWN,	/* IBM Channel-to-Channel */
-		WTAP_ENCAP_FDDI,
+		WTAP_ENCAP_FDDI_BITSWAPPED,
 		WTAP_ENCAP_UNKNOWN	/* Other */
 	};
 	#define NUM_SNOOP_ENCAPS (sizeof snoop_encap / sizeof snoop_encap[0])

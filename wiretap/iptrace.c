@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.8 1999/08/22 02:29:40 guy Exp $
+ * $Id: iptrace.c,v 1.9 1999/08/24 03:19:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -116,7 +116,7 @@ static int iptrace_read(wtap *wth, int *err)
 		wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
 	}
 	else if (if_name1 == 'f' && if_name2 == 'd') {
-		wth->phdr.pkt_encap = WTAP_ENCAP_FDDI;
+		wth->phdr.pkt_encap = WTAP_ENCAP_FDDI_BITSWAPPED;
 	}
 	else if (if_name1 == 'l' && if_name2 == 'o') { /* loopback */
 		wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;

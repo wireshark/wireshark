@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.14 1999/08/22 19:08:40 guy Exp $
+ * $Id: libpcap.c,v 1.15 1999/08/24 03:19:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -51,6 +51,11 @@
 #define	BSWAP16(x) \
 	 ((((x)&0xFF00)>>8) | \
 	  (((x)&0x00FF)<<8))
+
+/* On some systems, the FDDI MAC addresses are bit-swapped. */
+#if !defined(ultrix) && !defined(__alpha) && !defined(__bsdi)
+#define BIT_SWAPPED_MAC_ADDRS
+#endif
 
 /* "libpcap" file header (minus magic number). */
 struct pcap_hdr {
@@ -108,7 +113,11 @@ static const int pcap_encap[] = {
 	WTAP_ENCAP_ARCNET,
 	WTAP_ENCAP_SLIP,
 	WTAP_ENCAP_PPP,
+#ifdef BIT_SWAPPED_MAC_ADDRS
+	WTAP_ENCAP_FDDI_BITSWAPPED,
+#else
 	WTAP_ENCAP_FDDI,
+#endif
 	WTAP_ENCAP_ATM_RFC1483,	/* or, on BSD/OS, Frame Relay */
 	WTAP_ENCAP_RAW_IP,	/* or, on OpenBSD, DLT_LOOP, and on BSD/OS,
 				   Cisco HDLC */
@@ -307,6 +316,7 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 		8,		/* WTAP_ENCAP_SLIP -> DLT_SLIP */
 		9,		/* WTAP_ENCAP_PPP -> DLT_PPP */
 		10,		/* WTAP_ENCAP_FDDI -> DLT_FDDI */
+		10,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> DLT_FDDI */
 		12,		/* WTAP_ENCAP_RAW_IP -> DLT_RAW */
 		7,		/* WTAP_ENCAP_ARCNET -> DLT_ARCNET */
 		11,		/* WTAP_ENCAP_ATM_RFC1483 -> DLT_ATM_RFC1483 */

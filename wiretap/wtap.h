@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.33 1999/08/22 03:50:30 guy Exp $
+ * $Id: wtap.h,v 1.34 1999/08/24 03:19:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -35,6 +35,21 @@
  * WTAP_ENCAP_UNKNOWN is returned by "wtap_pcap_encap_to_wtap_encap()"
  * if it's handed an unknown encapsulation.
  *
+ * WTAP_ENCAP_FDDI_BITSWAPPED is for FDDI captures on systems where the
+ * MAC addresses you get from the hardware are bit-swapped.  Ideally,
+ * the driver would tell us that, but I know of none that do, so, for
+ * now, we base it on the machine on which we're *reading* the
+ * capture, rather than on the machine on which the capture was taken
+ * (they're probably likely to be the same).  We assume that they're
+ * bit-swapped on everything except for systems running Ultrix, Alpha
+ * systems, and BSD/OS systems (that's what "tcpdump" does; I guess
+ * Digital decided to bit-swap addresses in the hardware or in the
+ * driver, and I guess BSDI bit-swapped them in the driver, given that
+ * BSD/OS generally runs on Boring Old PC's).  If we create a wiretap
+ * save file format, we'd use the WTAP_ENCAP values to flag the
+ * encapsulation of a packet, so there we'd at least be able to base
+ * it on the machine on which the capture was taken.
+ *
  * WTAP_ENCAP_LINUX_ATM_CLIP is the encapsulation you get with the
  * ATM on Linux code from <http://lrcwww.epfl.ch/linux-atm/>;
  * that code adds a DLT_ATM_CLIP DLT_ code of 19, and that
@@ -65,16 +80,17 @@
 #define WTAP_ENCAP_SLIP				3
 #define WTAP_ENCAP_PPP				4
 #define WTAP_ENCAP_FDDI				5
-#define WTAP_ENCAP_RAW_IP			6
-#define WTAP_ENCAP_ARCNET			7
-#define WTAP_ENCAP_ATM_RFC1483			8
-#define WTAP_ENCAP_LINUX_ATM_CLIP		9
-#define WTAP_ENCAP_LAPB				10
-#define WTAP_ENCAP_ATM_SNIFFER			11
-#define WTAP_ENCAP_NULL				12
+#define WTAP_ENCAP_FDDI_BITSWAPPED		6
+#define WTAP_ENCAP_RAW_IP			7
+#define WTAP_ENCAP_ARCNET			8
+#define WTAP_ENCAP_ATM_RFC1483			9
+#define WTAP_ENCAP_LINUX_ATM_CLIP		10
+#define WTAP_ENCAP_LAPB				11
+#define WTAP_ENCAP_ATM_SNIFFER			12
+#define WTAP_ENCAP_NULL				13
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			12
+#define WTAP_NUM_ENCAP_TYPES			13
 
 /* File types that can be read by wiretap.
    We may eventually support writing some or all of these file types,

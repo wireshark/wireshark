@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.39 1999/08/22 00:47:45 guy Exp $
+ * $Id: packet.c,v 1.40 1999/08/24 03:19:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -658,7 +658,10 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 			dissect_eth(pd, 0, fd, tree);
 			break;
 		case WTAP_ENCAP_FDDI :
-			dissect_fddi(pd, fd, tree);
+			dissect_fddi(pd, fd, tree, FALSE);
+			break;
+		case WTAP_ENCAP_FDDI_BITSWAPPED :
+			dissect_fddi(pd, fd, tree, TRUE);
 			break;
 		case WTAP_ENCAP_TR :
 			dissect_tr(pd, 0, fd, tree);

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.11 1999/08/22 02:29:39 guy Exp $
+ * $Id: netxray.c,v 1.12 1999/08/24 03:19:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -101,7 +101,7 @@ int netxray_open(wtap *wth, int *err)
 	static const int netxray_encap[] = {
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TR,
-		WTAP_ENCAP_FDDI,
+		WTAP_ENCAP_FDDI_BITSWAPPED,
 		WTAP_ENCAP_UNKNOWN,	/* WAN */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
 		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */

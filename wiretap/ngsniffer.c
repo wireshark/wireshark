@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.19 1999/08/22 02:29:39 guy Exp $
+ * $Id: ngsniffer.c,v 1.20 1999/08/24 03:19:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -261,7 +261,7 @@ int ngsniffer_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* Znet */
 		WTAP_ENCAP_LAPB,	/* Internetwork analyzer */
 		WTAP_ENCAP_UNKNOWN,	/* type 8 not defined in Sniffer */
-		WTAP_ENCAP_FDDI,
+		WTAP_ENCAP_FDDI_BITSWAPPED,
 		WTAP_ENCAP_ATM_SNIFFER	/* ATM */
 	};
 	#define NUM_NGSNIFF_ENCAPS (sizeof sniffer_encap / sizeof sniffer_encap[0])

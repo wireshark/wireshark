@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.86 1999/08/20 06:55:05 guy Exp $
+ * $Id: packet.h,v 1.87 1999/08/24 03:19:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -386,11 +386,18 @@ void capture_ip(const u_char *, int, guint32, packet_counts *);
  */
 void dissect_atm(const u_char *, frame_data *, proto_tree *);
 void dissect_clip(const u_char *, frame_data *, proto_tree *);
-void dissect_fddi(const u_char *, frame_data *, proto_tree *);
 void dissect_lapb(const u_char *, frame_data *, proto_tree *);
 void dissect_null(const u_char *, frame_data *, proto_tree *);
 void dissect_ppp(const u_char *, frame_data *, proto_tree *);
 void dissect_raw(const u_char *, frame_data *, proto_tree *);
+
+/*
+ * Routines in packet-*.c
+ * Routines should take four args: packet data *, frame_data *, tree *,
+ * gboolean
+ * They should never modify the packet data.
+ */
+void dissect_fddi(const u_char *, frame_data *, proto_tree *, gboolean);
 
 /*
  * Routines in packet-*.c

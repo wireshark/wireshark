@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.11 1999/08/22 02:29:40 guy Exp $
+ * $Id: netmon.c,v 1.12 1999/08/24 03:19:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -102,7 +102,7 @@ int netmon_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TR,
-		WTAP_ENCAP_FDDI,
+		WTAP_ENCAP_FDDI_BITSWAPPED,
 		WTAP_ENCAP_UNKNOWN,	/* WAN */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
 		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
