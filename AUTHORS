@@ -132,6 +132,10 @@ Peter Torvals <petertv@xoommail.com> {
 	Internet Cache Protocol support
 }
 
+Christophe Tronche <ch.tronche@computer.org> {
+	BPDU (spanning tree protocol) support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
