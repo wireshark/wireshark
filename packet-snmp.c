@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.90 2002/03/31 22:43:47 guy Exp $
+ * $Id: packet-snmp.c,v 1.91 2002/04/01 21:59:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,7 @@
 #include "packet-ipx.h"
 
 #ifdef HAVE_UCD_SNMP
+# include <ucd-snmp/ucd-snmp-config.h>
 # include <ucd-snmp/asn1.h>
 # include <ucd-snmp/snmp_api.h>
 # include <ucd-snmp/snmp_impl.h>

@@ -1127,6 +1127,11 @@ Blair Cooper <blair[AT]teamon.com> {
 	WebDAV support
 }
 
+Kikuchi Ayamura <ayamura[AT]ayamura.org> {
+	Include <ucd-snmp/ucd-snmp-config.h> to fix IRIX compilation
+	    problems
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
