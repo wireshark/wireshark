@@ -2,7 +2,7 @@
  *
  * Routines for ITU-T Recommendation H.261 dissection
  *
- * $Id: packet-h261.c,v 1.17 2002/08/28 21:00:15 jmayer Exp $
+ * $Id: packet-h261.c,v 1.18 2003/01/03 20:42:43 sahlberg Exp $
  *
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
@@ -98,10 +98,11 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 		/* QUANT 3rd octet, 5 bits (starting at bit 2!) */
 		proto_tree_add_uint( h261_tree, hf_h261_quant, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 124 );
+
 		/* HMVD 3rd octet 2 bits, 4th octet 3 bits */
-		proto_tree_add_uint( h261_tree, hf_h261_hmvd, tvb, offset, 1,
-		    ( ( tvb_get_guint8( tvb, offset ) << 4) >> 4 )
-		     + ( tvb_get_guint8( tvb, offset ) >> 5 ) );
+		proto_tree_add_uint( h261_tree, hf_h261_hmvd, tvb, offset, 2,
+		    ( ( tvb_get_guint8( tvb, offset ) & 0x03 ) << 3 )
+		     + ( tvb_get_guint8( tvb, offset+1 ) >> 5 ) );
 		offset++;
 
 		/* VMVD 4th octet, last 5 bits */
