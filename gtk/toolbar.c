@@ -133,7 +133,7 @@ typedef struct stock_pixmap_tag{
 } stock_pixmap_t;
 
 /* generate application specific stock items */
-void ethereal_stock_icons(void) {
+static void ethereal_stock_icons(void) {
     GtkIconFactory * factory;
     gint32 i;
 
