@@ -9,7 +9,7 @@
 # seds for each input file.  I wrote this python version so that
 # less processes would have to be started.
 #
-# $Id: make-reg-dotc.py,v 1.3 2001/06/19 08:29:32 guy Exp $
+# $Id: make-reg-dotc.py,v 1.4 2003/07/21 07:05:44 girlich Exp $
 
 import os
 import sys
@@ -37,7 +37,10 @@ reg_code.write('#include "register.h"\n')
 # Create the proper list of filenames
 filenames = []
 for file in files:
-	filenames.append("%s/%s" % (srcdir, file))
+	if os.path.isfile(file):
+		filenames.append(file)
+	else:
+		filenames.append("%s/%s" % (srcdir, file))
 
 
 # Look through all files, applying the regex to each line.
