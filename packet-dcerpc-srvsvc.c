@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.14 2002/06/07 23:05:12 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.15 2002/06/08 10:58:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,6 +119,9 @@ srvsvc_dissect_SHARE_INFO_1_item(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
   
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "Share");
 		tree = proto_item_add_subtree(item, ett_srvsvc_share_info_1);
@@ -126,7 +129,7 @@ srvsvc_dissect_SHARE_INFO_1_item(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"Share", hf_srvsvc_share, 3);
+		"Share", hf_srvsvc_share, di->levels);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_share_type, NULL);
@@ -374,7 +377,7 @@ srvsvc_dissect_net_share_get_info_reply(tvbuff_t *tvb, int offset,
 
   offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			       srvsvc_dissect_SHARE_INFO_1_item, 
-			       NDR_POINTER_UNIQUE, "Info", -1, 0);
+			       NDR_POINTER_UNIQUE, "Info", -1, 1);
 
   offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			    hf_srvsvc_rc, NULL);
@@ -513,7 +516,7 @@ srvsvc_dissect_SHARE_INFO_1(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		srvsvc_dissect_SHARE_INFO_1_array, NDR_POINTER_UNIQUE,
-		"SHARE_INFO_1 array:", -1, -1);
+		"SHARE_INFO_1 array:", -1, 3);
 
 	return offset;
 }
@@ -636,7 +639,7 @@ srvsvc_dissect_SHARE_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1:",
-			-1, 0);
+			-1, 1);
 		break;
 	case 2:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
