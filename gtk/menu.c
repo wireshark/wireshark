@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.9 1999/12/09 20:41:41 oabad Exp $
+ * $Id: menu.c,v 1.10 1999/12/10 04:21:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,7 +42,7 @@
 #include "capture_dlg.h"
 #include "find_dlg.h"
 #include "goto_dlg.h"
-#include "summary.h"
+#include "summary_dlg.h"
 #include "display_opts.h"
 #include "prefs_dlg.h"
 #include "print.h"
@@ -113,7 +113,7 @@ static GtkItemFactoryEntry menu_items[] =
 #endif
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
-  {"/Tools/_Summary", NULL, GTK_MENU_FUNC(summary_prep_cb), 0, NULL},
+  {"/Tools/_Summary", NULL, GTK_MENU_FUNC(summary_open_cb), 0, NULL},
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
   {"/Help/_About Ethereal...", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL}
 };

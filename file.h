@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.60 1999/12/04 11:32:25 guy Exp $
+ * $Id: file.h,v 1.61 1999/12/10 04:20:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,10 @@
 
 #ifndef __COLORS_H__
 #include "colors.h"
+#endif
+
+#ifndef __PRINT_H__
+#include "print.h"
 #endif
 
 #include <errno.h>

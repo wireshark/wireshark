@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.24 1999/11/22 08:03:31 guy Exp $
+ * $Id: print.c,v 1.25 1999/12/10 04:20:53 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -31,7 +31,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <gtk/gtk.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

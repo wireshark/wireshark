@@ -1,7 +1,7 @@
 /* summary.h
- * Definitions for capture file summary windows
+ * Definitions for capture file summary data
  *
- * $Id: summary.h,v 1.3 1999/07/13 03:08:06 gram Exp $
+ * $Id: summary.h,v 1.4 1999/12/10 04:20:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,16 +27,25 @@
 #define __SUMMARY_H__
 
 typedef struct _summary_tally {
-    guint32  bytes;
-    double  start_time;
-    double  stop_time;
-    guint32  filtered_count;
+    guint32	bytes;		/* total bytes */
+    double	start_time;	/* seconds, with msec resolution */
+    double	stop_time;	/* seconds, with msec resolution */
+    double	elapsed_time;	/* seconds, with msec resolution,
+				   includes time before first packet
+				   and after last packet */
+    int		filtered_count; /* number of filtered packets */
+    int		packet_count;	/* total number of packets in trace */
+    const char	*filename;
+    long	file_length;	/* file length in bytes */
+    int		encap_type;	/* wiretap encapsulation type */
+    int		snap;		/* snapshot length */
+    int         drops;		/* number of packet drops */
+    const char	*iface;		/* interface name */
+    const char	*dfilter;	/* display filter */
+    const char	*cfilter;	/* capture filter */
 } summary_tally;
 
-
-
-void   summary_prep_cb(GtkWidget *, gpointer);
-/*void   summary_prep_close_cb(GtkWidget *, gpointer);*/
+void summary_fill_in(summary_tally *st);
 
 #endif /* summary.h */
 
