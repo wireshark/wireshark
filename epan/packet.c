@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.100 2003/12/29 22:44:50 guy Exp $
+ * $Id: packet.c,v 1.101 2004/02/01 02:35:06 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,15 +105,16 @@ static GSList *init_routines;
 void
 register_init_routine(void (*func)(void))
 {
-	init_routines = g_slist_append(init_routines, func);
+	init_routines = g_slist_append(init_routines, (gpointer)func);
 }
+
+typedef void (*void_func_t)(void);
 
 /* Initialize all data structures used for dissection. */
 static void
 call_init_routine(gpointer routine, gpointer dummy _U_)
 {
-	void (*func)(void) = routine;
-
+	void_func_t func = (void_func_t)routine;
 	(*func)();
 }
 
@@ -143,18 +144,17 @@ init_dissection(void)
 static GSList *postseq_cleanup_routines;
 
 void
-register_postseq_cleanup_routine(void (*func)(void))
+register_postseq_cleanup_routine(void_func_t func)
 {
 	postseq_cleanup_routines = g_slist_append(postseq_cleanup_routines,
-			func);
+			(gpointer)func);
 }
 
 /* Call all the registered "postseq_cleanup" routines. */
 static void
 call_postseq_cleanup_routine(gpointer routine, gpointer dummy _U_)
 {
-	void (*func)(void) = routine;
-
+	void_func_t func = (void_func_t)routine;
 	(*func)();
 }
 
@@ -224,14 +224,14 @@ void
 register_final_registration_routine(void (*func)(void))
 {
 	final_registration_routines = g_slist_append(final_registration_routines,
-			func);
+			(gpointer)func);
 }
 
 /* Call all the registered "final_registration" routines. */
 static void
 call_final_registration_routine(gpointer routine, gpointer dummy _U_)
 {
-	void (*func)(void) = routine;
+	void_func_t func = (void_func_t)routine;
 
 	(*func)();
 }
