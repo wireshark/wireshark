@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.50 2004/02/09 19:36:19 guy Exp $
+ * $Id: packet-isup.c,v 1.51 2004/02/29 08:47:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
 #include <tap.h>
+#include <prefs.h>
 #include "packet-q931.h"
 #include "packet-isup.h"
 
@@ -1181,6 +1182,10 @@ static const true_false_string isup_Sequence_ind_value = {
 /* Initialize the protocol and registered fields */
 static int proto_isup = -1;
 static int proto_bicc = -1;
+static module_t *isup_module;
+
+static gboolean isup_show_cic_in_info = TRUE;
+
 static int hf_isup_cic = -1;
 static int hf_bicc_cic = -1;
 
@@ -5694,8 +5699,17 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   recursive message dissector call */
 	cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
 
+
+	pinfo->ctype = CT_ISUP;
+	pinfo->circuit_id = cic;
+
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s(CIC %u)", val_to_str(message_type, isup_message_type_value_acro, "reserved"),cic);
+	{
+		if (isup_show_cic_in_info)
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s(CIC %u) ", val_to_str(message_type, isup_message_type_value_acro, "reserved"), cic);
+		else
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
+	}
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -6484,6 +6498,12 @@ proto_register_isup(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	isup_tap = register_tap("isup");
+
+	isup_module = prefs_register_protocol(proto_isup, NULL);
+
+	prefs_register_bool_preference(isup_module, "show_cic_in_info", "Show CIC in Info column",
+				 "Show the CIC value (in addition to the message type) in the Info column",
+				 (gint *)&isup_show_cic_in_info);
 }
 
 

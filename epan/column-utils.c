@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.45 2004/02/05 23:57:15 obiot Exp $
+ * $Id: column-utils.c,v 1.46 2004/02/29 08:47:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -769,6 +769,13 @@ col_set_circuit_id(packet_info *pinfo, int col)
 
   case CT_X25:
     snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    break;
+
+  case CT_ISUP:
+    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    strcpy(pinfo->cinfo->col_expr[col], "isup.cic");
+    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
   default:
