@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.69 2004/04/29 18:11:08 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.70 2004/05/04 17:46:44 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2159,12 +2159,12 @@ proto_register_sctp(void)
     { &hf_init_chunk_initiate_tag,                  { "Initiate tag",                                "sctp.init_initiate_tag",                     FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_init_chunk_adv_rec_window_credit,         { "Advertised receiver window credit (a_rwnd)",  "sctp.init_credit",                           FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_init_chunk_number_of_outbound_streams,    { "Number of outbound streams",                  "sctp.init_nr_out_streams",                   FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
-    { &hf_init_chunk_number_of_inbound_streams,     { "Number of inbound streams",                   "sctp.init_nr.in.streams",                    FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_init_chunk_number_of_inbound_streams,     { "Number of inbound streams",                   "sctp.init_nr_in_streams",                    FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_init_chunk_initial_tsn,                   { "Initial TSN",                                 "sctp.init_initial_tsn",                      FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_initack_chunk_initiate_tag,               { "Initiate tag",                                "sctp.initack_initiate_tag",                  FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_initack_chunk_adv_rec_window_credit,      { "Advertised receiver window credit (a_rwnd)",  "sctp.initack_credit",                        FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_initack_chunk_number_of_outbound_streams, { "Number of outbound streams",                  "sctp.initack_nr_out_streams",                FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
-    { &hf_initack_chunk_number_of_inbound_streams,  { "Number of inbound streams",                   "sctp.initack_nr.in.streams",                 FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_initack_chunk_number_of_inbound_streams,  { "Number of inbound streams",                   "sctp.initack_nr_in_streams",                 FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_initack_chunk_initial_tsn,                { "Initial TSN",                                 "sctp.initack_initial_tsn",                   FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_cumulative_tsn_ack,                       { "Cumulative TSN Ack",                          "sctp.cumulative_tsn_ack",                    FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_data_chunk_tsn,                           { "TSN",                                         "sctp.data_tsn",                              FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
@@ -2184,9 +2184,9 @@ proto_register_sctp(void)
     { &hf_shutdown_chunk_cumulative_tsn_ack,        { "Cumulative TSN Ack",                          "sctp.shutdown_cumulative_tsn_ack",           FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_ecne_chunk_lowest_tsn,                    { "Lowest TSN",                                  "sctp.ecne_lowest_tsn",                       FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_cwr_chunk_lowest_tsn,                     { "Lowest TSN",                                  "sctp.cwr_lowest_tsn",                        FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
-    { &hf_shutdown_complete_chunk_t_bit,            { "T-Bit",                                       "sctp.shutdown_complete.t_bit",               FT_BOOLEAN, 8,         TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT, "", HFILL } },
+    { &hf_shutdown_complete_chunk_t_bit,            { "T-Bit",                                       "sctp.shutdown_complete_t_bit",               FT_BOOLEAN, 8,         TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT, "", HFILL } },
     { &hf_abort_chunk_t_bit,                        { "T-Bit",                                       "sctp.abort_t_bit",                           FT_BOOLEAN, 8,         TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT, "", HFILL } },
-    { &hf_forward_tsn_chunk_tsn,                    { "New cumulative TSN",                          "sctp.forward_tsn.tsn",                       FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_forward_tsn_chunk_tsn,                    { "New cumulative TSN",                          "sctp.forward_tsn_tsn",                       FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_forward_tsn_chunk_sid,                    { "Stream identifier",                           "sctp.forward_tsn_sid",                       FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_forward_tsn_chunk_ssn,                    { "Stream sequence number",                      "sctp.forward_tsn_ssn",                       FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_parameter_type,                           { "Parameter type",                              "sctp.parameter_type",                        FT_UINT16,  BASE_HEX,  VALS(parameter_identifier_values),              0x0,                                "", HFILL } },
