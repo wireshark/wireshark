@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.25 2000/03/15 07:05:10 guy Exp $
+ * $Id: packet-snmp.c,v 1.26 2000/03/15 07:12:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -908,8 +908,6 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 	case SNMP_MSG_GETNEXT:
 	case SNMP_MSG_RESPONSE:
 	case SNMP_MSG_SET:
-	/* XXX - we should dissect non-repeaters and max-repetitions
-	   as those two INTEGER values in a SNMP_MSG_GETBULK PDU */
 	case SNMP_MSG_GETBULK:
 	case SNMP_MSG_INFORM:
 	case SNMP_MSG_TRAP2:
@@ -926,31 +924,45 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		offset += length;
 		
-		/* error status (getbulk non-repeaters) */
+		/* error status, or getbulk non-repeaters */
 		ret = asn1_uint32_decode (&asn1, &error_status, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(pd, offset, fd, tree,
-			    "error status", ret);
+			    (pdu_type == SNMP_MSG_GETBULK) ? "non-repeaters"
+			    				   : "error status",
+			    ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
-			    "Error Status: %s",
-			    val_to_str(error_status, error_statuses,
-			      "Unknown (%d)"));
+			if (pdu_type == SNMP_MSG_GETBULK) {
+				proto_tree_add_text(snmp_tree, offset, length,
+				    "Non-repeaters: %u", error_status);
+			} else {
+				proto_tree_add_text(snmp_tree, offset, length,
+				    "Error Status: %s",
+				    val_to_str(error_status, error_statuses,
+				      "Unknown (%d)"));
+			}
 		}
 		offset += length;
 
-		/* error index (getbulk max-repetitions) */
+		/* error index, or getbulk max-repetitions */
 		ret = asn1_uint32_decode (&asn1, &error_index, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(pd, offset, fd, tree,
-			    "error index", ret);
+			    (pdu_type == SNMP_MSG_GETBULK) ? "max repetitions"
+			    				   : "error index",
+			    ret);
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
-			    "Error Index: %u", error_index);
+			if (pdu_type == SNMP_MSG_GETBULK) {
+				proto_tree_add_text(snmp_tree, offset, length,
+				    "Max repetitions: %u", error_index);
+			} else {
+				proto_tree_add_text(snmp_tree, offset, length,
+				    "Error Index: %u", error_index);
+			}
 		}
 		offset += length;
 		break;
