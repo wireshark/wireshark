@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.91 2002/09/28 15:23:13 gerald Exp $
+ * $Id: prefs.c,v 1.92 2002/12/20 01:48:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,9 @@
 
 /* Internal functions */
 static module_t *find_module(const char *name);
+static module_t *prefs_register_module_or_subtree(module_t *parent,
+    const char *name, const char *title, gboolean is_subtree,
+    void (*apply_cb)(void));
 static struct preference *find_preference(module_t *, const char *);
 static int    set_pref(gchar*, gchar*);
 static GList *get_string_list(gchar *);
@@ -85,9 +88,15 @@ gchar	*gui_hex_dump_highlight_style_text[] =
 	{ "BOLD", "INVERSE", NULL };
 
 /*
- * List of modules with preference settings.
+ * List of all modules with preference settings.
  */
 static GList *modules;
+
+/*
+ * List of all modules that should show up at the top level of the
+ * tree in the preference dialog box.
+ */
+static GList *top_level_modules;
 
 static gint
 module_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
@@ -98,15 +107,46 @@ module_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 	return g_strcasecmp(p1->name, p2->name);
 }
 
+static gint
+module_compare_title(gconstpointer p1_arg, gconstpointer p2_arg)
+{
+	const module_t *p1 = p1_arg;
+	const module_t *p2 = p2_arg;
+
+	return g_strcasecmp(p1->title, p2->title);
+}
+
 /*
  * Register a module that will have preferences.
- * Specify the name used for the module in the preferences file, the
- * title used in the tab for it in a preferences dialog box, and a
+ * Specify the module under which to register it or NULL to register it
+ * at the top level, the name used for the module in the preferences file,
+ * the title used in the tab for it in a preferences dialog box, and a
  * routine to call back when we apply the preferences.
  */
 module_t *
-prefs_register_module(const char *name, const char *title,
+prefs_register_module(module_t *parent, const char *name, const char *title,
     void (*apply_cb)(void))
+{
+	return prefs_register_module_or_subtree(parent, name, title, FALSE,
+	    apply_cb);
+}
+
+/*
+ * Register a subtree that will have modules under it.
+ * Specify the module under which to register it or NULL to register it
+ * at the top level and the title used in the tab for it in a preferences
+ * dialog box.
+ */
+module_t *
+prefs_register_subtree(module_t *parent, const char *title)
+{
+	return prefs_register_module_or_subtree(parent, NULL, title, TRUE,
+	    NULL);
+}
+
+static module_t *
+prefs_register_module_or_subtree(module_t *parent, const char *name,
+    const char *title, gboolean is_subtree, void (*apply_cb)(void))
 {
 	module_t *module;
 	const guchar *p;
@@ -114,6 +154,7 @@ prefs_register_module(const char *name, const char *title,
 	module = g_malloc(sizeof (module_t));
 	module->name = name;
 	module->title = title;
+	module->is_subtree = is_subtree;
 	module->apply_cb = apply_cb;
 	module->prefs = NULL;	/* no preferences, to start */
 	module->numprefs = 0;
@@ -121,28 +162,69 @@ prefs_register_module(const char *name, const char *title,
 	module->obsolete = FALSE;
 
 	/*
-	 * Make sure that only lower-case ASCII letters, numbers,
-	 * underscores, and dots appear in the module name.
-	 *
-	 * Crash if there is, as that's an error in the code;
-	 * you can make the title a nice string with capitalization,
-	 * white space, punctuation, etc., but the name can be used
-	 * on the command line, and shouldn't require quoting,
-	 * shifting, etc.
+	 * Do we have a module name?
 	 */
-	for (p = name; *p != '\0'; p++)
-		g_assert(isascii(*p) &&
-		    (islower(*p) || isdigit(*p) || *p == '_' || *p == '.'));
+	if (name != NULL) {
+		/*
+		 * Yes.
+		 * Make sure that only lower-case ASCII letters, numbers,
+		 * underscores, and dots appear in the name.
+		 *
+		 * Crash if there is, as that's an error in the code;
+		 * you can make the title a nice string with capitalization,
+		 * white space, punctuation, etc., but the name can be used
+		 * on the command line, and shouldn't require quoting,
+		 * shifting, etc.
+		 */
+		for (p = name; *p != '\0'; p++)
+			g_assert(isascii(*p) &&
+			    (islower(*p) || isdigit(*p) || *p == '_' ||
+			     *p == '.'));
+
+		/*
+		 * Make sure there's not already a module with that
+		 * name.  Crash if there is, as that's an error in the
+		 * code, and the code has to be fixed not to register
+		 * more than one module with the same name.
+		 *
+		 * We search the list of all modules; the subtree stuff
+		 * doesn't require preferences in subtrees to have names
+		 * that reflect the subtree they're in (that would require
+		 * protocol preferences to have a bogus "protocol.", or
+		 * something such as that, to be added to all their names).
+		 */
+		g_assert(find_module(name) == NULL);
+
+		/*
+		 * Insert this module in the list of all modules.
+		 */
+		modules = g_list_insert_sorted(modules, module,
+		    module_compare_name);
+	} else {
+		/*
+		 * This has no name, just a title; check to make sure it's a
+		 * subtree, and crash if it's not.
+		 */
+		g_assert(is_subtree);
+	}
 
 	/*
-	 * Make sure there's not already a module with that
-	 * name.  Crash if there is, as that's an error in the
-	 * code, and the code has to be fixed not to register
-	 * more than one module with the same name.
+	 * Insert this module into the appropriate place in the display
+	 * tree.
 	 */
-	g_assert(find_module(name) == NULL);
-
-	modules = g_list_insert_sorted(modules, module, module_compare_name);
+	if (parent == NULL) {
+		/*
+		 * It goes at the top.
+		 */
+		top_level_modules = g_list_insert_sorted(top_level_modules,
+		    module, module_compare_title);
+	} else {
+		/*
+		 * It goes into the list for this module.
+		 */
+		parent->prefs = g_list_insert_sorted(parent->prefs, module,
+		    module_compare_title);
+	}
 
 	return module;
 }
@@ -150,12 +232,23 @@ prefs_register_module(const char *name, const char *title,
 /*
  * Register that a protocol has preferences.
  */
+module_t *protocols_module;
+
 module_t *
 prefs_register_protocol(int id, void (*apply_cb)(void))
 {
-	return prefs_register_module(proto_get_protocol_filter_name(id),
-				     proto_get_protocol_short_name(id),
-				     apply_cb);
+	/*
+	 * Have we yet created the "Protocols" subtree?
+	 */
+	if (protocols_module == NULL) {
+		/*
+		 * No.  Do so.
+		 */
+		protocols_module = prefs_register_subtree(NULL, "Protocols");
+	}
+	return prefs_register_module(protocols_module,
+	    proto_get_protocol_filter_name(id),
+	    proto_get_protocol_short_name(id), apply_cb);
 }
 
 /*
@@ -167,9 +260,18 @@ prefs_register_protocol_obsolete(int id)
 {
 	module_t *module;
 
-	module = prefs_register_module(proto_get_protocol_filter_name(id),
-				       proto_get_protocol_short_name(id),
-				       NULL);
+	/*
+	 * Have we yet created the "Protocols" subtree?
+	 */
+	if (protocols_module == NULL) {
+		/*
+		 * No.  Do so.
+		 */
+		protocols_module = prefs_register_subtree(NULL, "Protocols");
+	}
+	module = prefs_register_module(protocols_module,
+	    proto_get_protocol_filter_name(id),
+	    proto_get_protocol_short_name(id), NULL);
 	module->obsolete = TRUE;
 	return module;
 }
@@ -213,19 +315,41 @@ do_module_callback(gpointer data, gpointer user_data)
 }
 
 /*
- * Call a callback function, with a specified argument, for each module.
+ * Call a callback function, with a specified argument, for each module
+ * in a list of modules.  If the list is NULL, searches the top-level
+ * list in the display tree of modules.
+ *
+ * Ignores "obsolete" modules; their sole purpose is to allow old
+ * preferences for dissectors that no longer have preferences to be
+ * silently ignored in preference files.  Does not ignore subtrees,
+ * as this can be used when walking the display tree of modules.
+ */
+void
+prefs_module_list_foreach(GList *module_list, module_cb callback,
+    gpointer user_data)
+{
+	module_cb_arg_t arg;
+
+	if (module_list == NULL)
+		module_list = top_level_modules;
+
+	arg.callback = callback;
+	arg.user_data = user_data;
+	g_list_foreach(module_list, do_module_callback, &arg);
+}
+
+/*
+ * Call a callback function, with a specified argument, for each module
+ * in the list of all modules.  (This list does not include subtrees.)
+ *
  * Ignores "obsolete" modules; their sole purpose is to allow old
  * preferences for dissectors that no longer have preferences to be
  * silently ignored in preference files.
  */
 void
-prefs_module_foreach(module_cb callback, gpointer user_data)
+prefs_modules_foreach(module_cb callback, gpointer user_data)
 {
-	module_cb_arg_t arg;
-
-	arg.callback = callback;
-	arg.user_data = user_data;
-	g_list_foreach(modules, do_module_callback, &arg);
+	prefs_module_list_foreach(modules, callback, user_data);
 }
 
 static void

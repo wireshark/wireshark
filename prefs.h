@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.41 2002/09/14 10:07:37 oabad Exp $
+ * $Id: prefs.h,v 1.42 2002/12/20 01:48:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,18 +88,27 @@ typedef struct pref_module module_t;
 
 /*
  * Register a module that will have preferences.
- * Specify the name used for the module in the preferences file, the
- * title used in the tab for it in a preferences dialog box, and a
+ * Specify the module under which to register it or NULL to register it
+ * at the top level, the name used for the module in the preferences file,
+ * the title used in the tab for it in a preferences dialog box, and a
  * routine to call back when we apply the preferences.
- * Note:
- * In case of dissectors, the specified name should be the protocol
- * name specified at the proto_register_protocol() call in order to
- * make the "Protocol Properties..." menu item work.
+ *
+ * This should not be used for dissector preferences;
+ * "prefs_register_protocol()" should be used for that, so that the
+ * preferences go under the "Protocols" subtree, and so that the
+ * name is the protocol name specified at the "proto_register_protocol()"
+ * call so that the "Protocol Properties..." menu item works.
  */
-extern module_t *prefs_register_module(const char *name, const char *title,
-    void (*apply_cb)(void));
+extern module_t *prefs_register_module(module_t *parent, const char *name,
+    const char *title, void (*apply_cb)(void));
 
-typedef void (*module_cb)(module_t *module, gpointer user_data);
+/*
+ * Register a subtree that will have modules under it.
+ * Specify the module under which to register it or NULL to register it
+ * at the top level and the title used in the tab for it in a preferences
+ * dialog box.
+ */
+extern module_t *prefs_register_subtree(module_t *parent, const char *title);
 
 /*
  * Register that a protocol has preferences.
@@ -113,12 +122,32 @@ extern module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 extern module_t *prefs_register_protocol_obsolete(int id);
 
 /*
- * Call a callback function, with a specified argument, for each module.
+ * Callback function for module list scanners.
+ */
+typedef void (*module_cb)(module_t *module, gpointer user_data);
+
+/*
+ * Call a callback function, with a specified argument, for each module
+ * in a list of modules.  If the list is NULL, searches the top-level
+ * list in the display tree of modules.
+ *
+ * Ignores "obsolete" modules; their sole purpose is to allow old
+ * preferences for dissectors that no longer have preferences to be
+ * silently ignored in preference files.  Does not ignore subtrees,
+ * as this can be used when walking the display tree of modules.
+ */
+extern void prefs_module_list_foreach(GList *module_list, module_cb callback,
+    gpointer user_data);
+
+/*
+ * Call a callback function, with a specified argument, for each module
+ * in the list of all modules.  (This list does not include subtrees.)
+ *
  * Ignores "obsolete" modules; their sole purpose is to allow old
  * preferences for dissectors that no longer have preferences to be
  * silently ignored in preference files.
  */
-extern void prefs_module_foreach(module_cb callback, gpointer user_data);
+extern void prefs_modules_foreach(module_cb callback, gpointer user_data);
 
 /*
  * Call the "apply" callback function for each module if any of its

@@ -2,7 +2,7 @@
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *
- * $Id: prefs-int.h,v 1.9 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: prefs-int.h,v 1.10 2002/12/20 01:48:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,13 +29,19 @@
 struct pref_module {
 	const char *name;	/* name of module */
 	const char *title;	/* title of module (displayed in preferences notebook) */
+	gboolean is_subtree;	/* if TRUE, this has other modules, not preferences, under it */
 	void (*apply_cb)(void);	/* routine to call when preferences applied */
-	GList	*prefs;		/* list of its preferences */
+	GList	*prefs;		/* list of its preferences or submodules */
 	int	numprefs;	/* number of non-obsolete preferences */
 	gboolean prefs_changed;	/* if TRUE, a preference has changed since we last checked */
 	gboolean obsolete;	/* if TRUE, this is a module that used to
 				   exist but no longer does */
 };
+
+/*
+ * Module used for protocol preferences.
+ */
+extern module_t *protocols_module;
 
 /*
  * PREF_OBSOLETE is used for preferences that a module used to support

@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.56 2002/11/28 01:58:27 guy Exp $
+ * $Id: prefs_dlg.c,v 1.57 2002/12/20 01:48:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,7 +78,7 @@ static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #define E_NAMERES_PAGE_KEY "nameres_options_page"
 #define E_TOOLTIPS_KEY     "tooltips"
 
-#define FIRST_PROTO_PREFS_PAGE	6
+static int first_proto_prefs_page = -1;
 
 /*
  * Keep a static pointer to the notebook to be able to choose the
@@ -102,14 +102,17 @@ static GtkWidget *prefs_w;
 static e_prefs saved_prefs;
 
 struct ct_struct {
+  GtkWidget    *main_vb;
   GtkWidget    *notebook;
   GtkWidget    *tree;
-#if GTK_MAJOR_VERSION >= 2
-  GtkTreeIter  proto_iter;
-#endif
+#if GTK_MAJOR_VERSION < 2
   GtkCTreeNode *node;
+#else
+  GtkTreeIter  iter;
+#endif
   GtkTooltips  *tooltips;
   gint         page;
+  gboolean     is_protocol;
 };
 
 static void
@@ -203,57 +206,108 @@ static void
 module_prefs_show(module_t *module, gpointer user_data)
 {
   struct ct_struct *cts = user_data;
+  struct ct_struct child_cts;
   GtkWidget        *main_vb, *main_tb, *frame;
   gchar            label_str[MAX_TREE_NODE_NAME_LEN];
 #if GTK_MAJOR_VERSION < 2
-  gchar           *label_ptr = label_str;
+  gchar            *label_ptr = label_str;
   GtkCTreeNode     *ct_node;
 #else
   GtkTreeStore     *model;
   GtkTreeIter      iter;
 #endif
 
-  /* Frame */
-  frame = gtk_frame_new(module->title);
-  gtk_widget_show(frame);
-
-  /* Main vertical box */
-  main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  gtk_container_add(GTK_CONTAINER(frame), main_vb);
-
-  /* Main table */
-  main_tb = gtk_table_new(module->numprefs, 2, FALSE);
-  gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-  gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-  gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-  OBJECT_SET_DATA(main_tb, E_TOOLTIPS_KEY, cts->tooltips);
-
-  /* Add items for each of the preferences */
-  prefs_pref_foreach(module, pref_show, main_tb);
-
-  gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), frame, NULL);
+  /*
+   * Add this module to the tree.
+   */
   strcpy(label_str, module->title);
 #if GTK_MAJOR_VERSION < 2
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts->tree), cts->node, NULL,
-  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
-  gtk_ctree_node_set_row_data(GTK_CTREE(cts->tree), ct_node,
-  		GINT_TO_POINTER(cts->page));
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, !module->is_subtree,
+  		FALSE);
 #else
   model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
-  gtk_tree_store_append(model, &iter, &cts->proto_iter);
-  gtk_tree_store_set(model, &iter, 0, label_str, 1, cts->page, -1);
+  gtk_tree_store_append(model, &iter, &cts->iter);
 #endif
-  cts->page++;
 
-  /* Show 'em what we got */
-  gtk_widget_show_all(main_vb);
+  /*
+   * Is this a subtree?
+   */
+  if (module->is_subtree) {
+    /*
+     * Yes.
+     */
+
+    /* Note that there's no page attached to this item */
+#if GTK_MAJOR_VERSION < 2
+    gtk_ctree_node_set_row_data(GTK_CTREE(cts->tree), ct_node,
+  		GINT_TO_POINTER(-1));
+#else
+    gtk_tree_store_set(model, &iter, 0, label_str, 1, -1, -1);
+#endif
+
+    /*
+     * Walk the subtree and attach stuff to it.
+     */
+    child_cts = *cts;
+#if GTK_MAJOR_VERSION < 2
+    child_cts.node = ct_node;
+#else
+    child_cts.iter = iter;
+#endif
+    if (module == protocols_module)
+      child_cts.is_protocol = TRUE;
+    prefs_module_list_foreach(module->prefs, module_prefs_show, &child_cts);
+  } else {
+    /*
+     * No.
+     * Create a notebook page for it.
+     */
+
+    /* Frame */
+    frame = gtk_frame_new(module->title);
+    gtk_widget_show(frame);
+
+    /* Main vertical box */
+    main_vb = gtk_vbox_new(FALSE, 5);
+    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_add(GTK_CONTAINER(frame), main_vb);
+
+    /* Main table */
+    main_tb = gtk_table_new(module->numprefs, 2, FALSE);
+    gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+    gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
+    gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+    OBJECT_SET_DATA(main_tb, E_TOOLTIPS_KEY, cts->tooltips);
+
+    /* Add items for each of the preferences */
+    prefs_pref_foreach(module, pref_show, main_tb);
+
+    /* Add the page to the notebook */
+    gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), frame, NULL);
+
+    /* Attach the page to the tree item */
+#if GTK_MAJOR_VERSION < 2
+    gtk_ctree_node_set_row_data(GTK_CTREE(cts->tree), ct_node,
+  		GINT_TO_POINTER(cts->page));
+#else
+    gtk_tree_store_set(model, &iter, 0, label_str, 1, cts->page, -1);
+#endif
+
+    /* If this is the first protocol page, remember its page number */
+    if (first_proto_prefs_page == -1)
+      first_proto_prefs_page = cts->page;
+    cts->page++;
+
+    /* Show 'em what we got */
+    gtk_widget_show_all(main_vb);
+  }
 }
 
 void
 prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 {
-  GtkWidget         *main_vb, *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
+  GtkWidget         *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
                     *ok_bt, *apply_bt, *save_bt, *cancel_bt;
   GtkWidget         *print_pg, *column_pg, *stream_pg, *gui_pg;
 #ifdef HAVE_LIBPCAP
@@ -266,7 +320,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gchar             *label_ptr = label_str;
   GtkCTreeNode      *ct_node;
 #else
-  GtkTreeStore      *store;
   GtkTreeSelection  *selection;
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
@@ -297,14 +350,14 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   cts.tooltips = gtk_tooltips_new();
 
   /* Container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  gtk_container_add(GTK_CONTAINER(prefs_w), main_vb);
-  gtk_widget_show(main_vb);
+  cts.main_vb = gtk_vbox_new(FALSE, 5);
+  gtk_container_border_width(GTK_CONTAINER(cts.main_vb), 5);
+  gtk_container_add(GTK_CONTAINER(prefs_w), cts.main_vb);
+  gtk_widget_show(cts.main_vb);
 
   /* Top row: Preferences tree and notebook */
   top_hb = gtk_hbox_new(FALSE, 10);
-  gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
+  gtk_container_add(GTK_CONTAINER(cts.main_vb), top_hb);
   gtk_widget_show(top_hb);
 
   /* Place a Ctree on the left for preference categories */
@@ -331,7 +384,8 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 #endif
-  cts.page  = 0;
+  cts.page = 0;
+  cts.node = NULL;
   gtk_container_add(GTK_CONTAINER(ct_sb), cts.tree);
 
 #if GTK_MAJOR_VERSION < 2
@@ -344,8 +398,8 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   /* A notebook widget sans tabs is used to flip between prefs */
   notebook = prefs_nb = gtk_notebook_new();
-  gtk_notebook_set_show_tabs(GTK_NOTEBOOK(notebook), FALSE);
-  gtk_notebook_set_show_border(GTK_NOTEBOOK(notebook), FALSE);
+  gtk_notebook_set_show_tabs(GTK_NOTEBOOK(prefs_nb), FALSE);
+  gtk_notebook_set_show_border(GTK_NOTEBOOK(prefs_nb), FALSE);
   gtk_container_add(GTK_CONTAINER(top_hb), prefs_nb);
   gtk_widget_show(prefs_nb);
 
@@ -474,26 +528,14 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   /* Registered prefs */
   cts.notebook = prefs_nb;
-  strcpy(label_str, "Protocols");
-#if GTK_MAJOR_VERSION < 2
-  cts.node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), NULL, NULL,
-  		&label_ptr, 5, NULL, NULL, NULL, NULL, FALSE, FALSE);
-  gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), cts.node,
-  		GINT_TO_POINTER(-1));
-  gtk_ctree_node_set_selectable(GTK_CTREE(cts.tree), cts.node, FALSE);
-#else
-  gtk_tree_store_append(store, &cts.proto_iter, NULL);
-  gtk_tree_store_set(store, &cts.proto_iter, 0, label_str, 1, -1, -1);
-#endif
-
-  prefs_module_foreach(module_prefs_show, &cts);
-
+  cts.is_protocol = FALSE;
+  prefs_module_list_foreach(NULL, module_prefs_show, &cts);
 
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
   gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_container_add(GTK_CONTAINER(cts.main_vb), bbox);
   gtk_widget_show(bbox);
 
 #if GTK_MAJOR_VERSION < 2
@@ -914,7 +956,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
   nameres_prefs_fetch(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
-  prefs_module_foreach(module_prefs_fetch, &must_redissect);
+  prefs_modules_foreach(module_prefs_fetch, &must_redissect);
 
   /* Now apply those preferences. */
   printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
@@ -966,7 +1008,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
   nameres_prefs_fetch(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
-  prefs_module_foreach(module_prefs_fetch, &must_redissect);
+  prefs_modules_foreach(module_prefs_fetch, &must_redissect);
 
   /* Now apply those preferences. */
   printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
@@ -1018,7 +1060,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
   nameres_prefs_fetch(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
-  prefs_module_foreach(module_prefs_fetch, &must_redissect);
+  prefs_modules_foreach(module_prefs_fetch, &must_redissect);
 
   /* Create the directory that holds personal configuration files, if
      necessary.  */
@@ -1151,7 +1193,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
   copy_prefs(&prefs, &saved_prefs);
 
   /* Now revert the registered preferences. */
-  prefs_module_foreach(module_prefs_revert, &must_redissect);
+  prefs_modules_foreach(module_prefs_revert, &must_redissect);
 
   /* Now apply the reverted-to preferences. */
   printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
@@ -1203,10 +1245,11 @@ prefs_main_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */
   free_prefs(&saved_prefs);
-  prefs_module_foreach(module_prefs_clean, NULL);
+  prefs_modules_foreach(module_prefs_clean, NULL);
 
   /* Note that we no longer have a "Preferences" dialog box. */
   prefs_w = NULL;
+  first_proto_prefs_page = -1;
 }
 
 struct properties_data {
@@ -1258,11 +1301,11 @@ properties_cb(GtkWidget *w, gpointer dummy)
   }
 
   p.w = notebook;
-  p.page_num = FIRST_PROTO_PREFS_PAGE;
+  p.page_num = first_proto_prefs_page;
   p.title = title;
 
-  prefs_module_foreach(module_search_properties, &p);
-
+  prefs_module_list_foreach(protocols_module->prefs, module_search_properties,
+      &p);
 }
 
 /* Prefs tree selection callback.  The node data has been loaded with
