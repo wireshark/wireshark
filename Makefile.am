@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.594 2003/06/25 13:42:17 deniel Exp $
+# $Id: Makefile.am,v 1.595 2003/06/26 18:21:29 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -952,7 +952,7 @@ SUFFIXES = .sh
 register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
 	@if test -n $(PYTHON); then \
 		echo Making register.c with python ; \
-		$(PYTHON) make-reg-dotc.py . $(DISSECTOR_SRC) ; \
+		$(PYTHON) $(srcdir)/make-reg-dotc.py $(srcdir) $(DISSECTOR_SRC) ; \
 	else \
 		echo Making register.c with shell script ; \
 		$(srcdir)/make-reg-dotc register.c $(srcdir) \
