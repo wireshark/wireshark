@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.14 1999/12/09 12:54:10 girlich Exp $
+ * $Id: packet-nfs.c,v 1.15 1999/12/10 10:52:40 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -66,6 +66,21 @@ static int hf_nfs_statfs_blocks = -1;
 static int hf_nfs_statfs_bfree = -1;
 static int hf_nfs_statfs_bavail = -1;
 static int hf_nfs_createmode3 = -1;
+static int hf_nfs_fsstat_invarsec = -1;
+static int hf_nfs_fsinfo_rtmax = -1;
+static int hf_nfs_fsinfo_rtpref = -1;
+static int hf_nfs_fsinfo_rtmult = -1;
+static int hf_nfs_fsinfo_wtmax = -1;
+static int hf_nfs_fsinfo_wtpref = -1;
+static int hf_nfs_fsinfo_wtmult = -1;
+static int hf_nfs_fsinfo_dtpref = -1;
+static int hf_nfs_fsinfo_properties = -1;
+static int hf_nfs_pathconf_linkmax = -1;
+static int hf_nfs_pathconf_name_max = -1;
+static int hf_nfs_pathconf_no_trunc = -1;
+static int hf_nfs_pathconf_chown_restricted = -1;
+static int hf_nfs_pathconf_case_insensitive = -1;
+static int hf_nfs_pathconf_case_preserving = -1;
 
 
 static gint ett_nfs = -1;
@@ -96,6 +111,7 @@ static gint ett_nfs_post_op_attr = -1;
 static gint ett_nfs_wcc_attr = -1;
 static gint ett_nfs_wcc_data = -1;
 static gint ett_nfs_access = -1;
+static gint ett_nfs_fsinfo_properties = -1;
 
 
 /***************************/
@@ -842,7 +858,7 @@ dissect_nfs2_statfs_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 	offset = dissect_stat(pd, offset, fd, tree, "status", &status);
 	switch (status) {
 		case 0:
-			if (!BYTES_ARE_IN_FRAME(offset,20)) return offset;
+			if (!BYTES_ARE_IN_FRAME(offset,5 * 4)) return offset;
 			tsize  = EXTRACT_UINT(pd, offset+ 0);
 			bsize  = EXTRACT_UINT(pd, offset+ 4);
 			blocks = EXTRACT_UINT(pd, offset+ 8);
@@ -2284,7 +2300,222 @@ dissect_nfs3_link_reply(const u_char* pd, int offset, frame_data* fd, proto_tree
 }
 
 
-/* 14 missing functions */
+/* RFC 1813, Page 84..86 */
+int
+dissect_nfs3_fsstat_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+	guint32 invarsec;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+			offset = dissect_size3 (pd, offset, fd, tree, "tbytes");
+			offset = dissect_size3 (pd, offset, fd, tree, "fbytes");
+			offset = dissect_size3 (pd, offset, fd, tree, "abytes");
+			offset = dissect_size3 (pd, offset, fd, tree, "tfiles");
+			offset = dissect_size3 (pd, offset, fd, tree, "ffiles");
+			offset = dissect_size3 (pd, offset, fd, tree, "afiles");
+			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+			invarsec = EXTRACT_UINT(pd, offset + 0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_fsstat_invarsec,
+				offset+0, 4, invarsec);
+			offset += 4;
+		break;
+		default:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+		break;
+	}
+
+	return offset;
+}
+
+
+#define FSF3_LINK        0x0001
+#define FSF3_SYMLINK     0x0002
+#define FSF3_HOMOGENEOUS 0x0008
+#define FSF3_CANSETTIME  0x0010
+
+
+/* RFC 1813, Page 86..90 */
+int
+dissect_nfs3_fsinfo_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+	guint32 rtmax;
+	guint32 rtpref;
+	guint32 rtmult;
+	guint32 wtmax;
+	guint32 wtpref;
+	guint32 wtmult;
+	guint32 dtpref;
+	guint32 properties;
+	proto_item*	properties_item = NULL;
+	proto_tree*	properties_tree = NULL;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			rtmax = EXTRACT_UINT(pd, offset+0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_fsinfo_rtmax,
+				offset+0, 4, rtmax);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			rtpref = EXTRACT_UINT(pd, offset+0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_fsinfo_rtpref,
+				offset+0, 4, rtpref);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			rtmult = EXTRACT_UINT(pd, offset+0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_fsinfo_rtmult,
+				offset+0, 4, rtmult);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			wtmax = EXTRACT_UINT(pd, offset+0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_fsinfo_wtmax,
+				offset+0, 4, wtmax);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			wtpref = EXTRACT_UINT(pd, offset+0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_fsinfo_wtpref,
+				offset+0, 4, wtpref);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			wtmult = EXTRACT_UINT(pd, offset+0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_fsinfo_wtmult,
+				offset+0, 4, wtmult);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			dtpref = EXTRACT_UINT(pd, offset+0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_fsinfo_dtpref,
+				offset+0, 4, dtpref);
+			offset += 4;
+
+			offset = dissect_size3   (pd, offset, fd, tree, "maxfilesize");
+			offset = dissect_nfstime3(pd, offset, fd, tree, "time_delta");
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			properties = EXTRACT_UINT(pd, offset+0);
+			if (tree) {
+				properties_item = proto_tree_add_item(tree,
+				hf_nfs_fsinfo_properties,
+				offset+0, 4, properties);
+				if (properties_item) 
+					properties_tree = proto_item_add_subtree(properties_item, ett_nfs_fsinfo_properties);
+				if (properties_tree) {
+					proto_tree_add_text(properties_tree,
+					offset, 4, "%s",
+					decode_boolean_bitfield(properties,
+					FSF3_CANSETTIME,5,
+					"SETATTR can set time on server",
+					"SETATTR can't set time on server"));
+
+					proto_tree_add_text(properties_tree,
+					offset, 4, "%s",
+					decode_boolean_bitfield(properties,
+					FSF3_HOMOGENEOUS,5,
+					"PATHCONF is valid for all files",
+					"PATHCONF should be get for every single file"));
+
+					proto_tree_add_text(properties_tree,
+					offset, 4, "%s",
+					decode_boolean_bitfield(properties,
+					FSF3_SYMLINK,5,
+					"File System supports symbolic links",
+					"File System does not symbolic hard links"));
+
+					proto_tree_add_text(properties_tree,
+					offset, 4, "%s",
+					decode_boolean_bitfield(properties,
+					FSF3_LINK,5,
+					"File System supports hard links",
+					"File System does not support hard links"));
+				}
+			}
+			offset += 4;
+		break;
+		default:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+		break;
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 90..92 */
+int
+dissect_nfs3_pathconf_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+	guint32 linkmax;
+	guint32 name_max;
+	guint32 no_trunc;
+	guint32 chown_restricted;
+	guint32 case_insensitive;
+	guint32 case_preserving;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+			linkmax = EXTRACT_UINT(pd, offset + 0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_pathconf_linkmax,
+				offset+0, 4, linkmax);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+			name_max = EXTRACT_UINT(pd, offset + 0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_pathconf_name_max,
+				offset+0, 4, name_max);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+			no_trunc = EXTRACT_UINT(pd, offset + 0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_pathconf_no_trunc,
+				offset+0, 4, no_trunc);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+			chown_restricted = EXTRACT_UINT(pd, offset + 0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_pathconf_chown_restricted,
+				offset+0, 4, chown_restricted);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+			case_insensitive = EXTRACT_UINT(pd, offset + 0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_pathconf_case_insensitive,
+				offset+0, 4, case_insensitive);
+			offset += 4;
+			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+			case_preserving = EXTRACT_UINT(pd, offset + 0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_pathconf_case_preserving,
+				offset+0, 4, case_preserving);
+			offset += 4;
+		break;
+		default:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
+		break;
+	}
+
+	return offset;
+}
+
+
+/* 11 missing functions */
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
@@ -2326,12 +2557,12 @@ const vsff nfs3_proc[] = {
 	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
 	{ 17,	"READDIRPLUS",	/* todo: call, reply */
 	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
-	{ 18,	"FSSTAT",	/* todo: reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
-	{ 19,	"FSINFO",	/* todo: reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
-	{ 20,	"PATHCONF",	/* todo: reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 18,	"FSSTAT",	/* OK */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_fsstat_reply },
+	{ 19,	"FSINFO",	/* OK */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_fsinfo_reply },
+	{ 20,	"PATHCONF",	/* OK */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_pathconf_reply },
 	{ 21,	"COMMIT",	/* todo: call, reply */
 	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
 	{ 0,NULL,NULL,NULL }
@@ -2417,7 +2648,52 @@ proto_register_nfs(void)
 			NULL, 0, "Available Blocks" }},
 		{ &hf_nfs_createmode3, {
 			"Create Mode", "nfs.createmode", FT_UINT32, BASE_DEC,
-			VALS(text_createmode3), 0, "Create Mode" }}
+			VALS(text_createmode3), 0, "Create Mode" }},
+		{ &hf_nfs_fsstat_invarsec, {
+			"invarsec", "nfs.fsstat.invarsec", FT_UINT32, BASE_DEC,
+			NULL, 0, "probable number of seconds of file system invariance" }},
+		{ &hf_nfs_fsinfo_rtmax, {
+			"rtmax", "nfs.fsinfo.rtmax", FT_UINT32, BASE_DEC,
+			NULL, 0, "maximum READ request" }},
+		{ &hf_nfs_fsinfo_rtpref, {
+			"rtpref", "nfs.fsinfo.rtpref", FT_UINT32, BASE_DEC,
+			NULL, 0, "preferred READ request" }},
+		{ &hf_nfs_fsinfo_rtmult, {
+			"rtmult", "nfs.fsinfo.rtmult", FT_UINT32, BASE_DEC,
+			NULL, 0, "suggested READ multiple" }},
+		{ &hf_nfs_fsinfo_wtmax, {
+			"wtmax", "nfs.fsinfo.rtmax", FT_UINT32, BASE_DEC,
+			NULL, 0, "maximum WRITE request" }},
+		{ &hf_nfs_fsinfo_wtpref, {
+			"wtpref", "nfs.fsinfo.rtpref", FT_UINT32, BASE_DEC,
+			NULL, 0, "preferred WRITE request" }},
+		{ &hf_nfs_fsinfo_wtmult, {
+			"wtmult", "nfs.fsinfo.rtmult", FT_UINT32, BASE_DEC,
+			NULL, 0, "suggested WRITE multiple" }},
+		{ &hf_nfs_fsinfo_dtpref, {
+			"dtpref", "nfs.fsinfo.dtpref", FT_UINT32, BASE_DEC,
+			NULL, 0, "preferred READDIR request" }},
+		{ &hf_nfs_fsinfo_properties, {
+			"Properties", "nfs.fsinfo.propeties", FT_UINT32, BASE_HEX,
+			NULL, 0, "File System Properties" }},
+		{ &hf_nfs_pathconf_linkmax, {
+			"linkmax", "nfs.pathconf.linkmax", FT_UINT32, BASE_DEC,
+			NULL, 0, "Maximum number of hard links" }},
+		{ &hf_nfs_pathconf_name_max, {
+			"name_max", "nfs.pathconf.name_max", FT_UINT32, BASE_DEC,
+			NULL, 0, "Maximum file name length" }},
+		{ &hf_nfs_pathconf_no_trunc, {
+			"no_trunc", "nfs.pathconf.no_trunc", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "No long file name truncation" }},
+		{ &hf_nfs_pathconf_chown_restricted, {
+			"chown_restricted", "nfs.pathconf.chown_restricted", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "chown is restricted to root" }},
+		{ &hf_nfs_pathconf_case_insensitive, {
+			"case_insensitive", "nfs.pathconf.case_insensitive", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "file names are treated case insensitive" }},
+		{ &hf_nfs_pathconf_case_preserving, {
+			"case_preserving", "nfs.pathconf.case_preserving", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "file name cases are preserved" }}
 	};
 
 	static gint *ett[] = {
@@ -2448,7 +2724,8 @@ proto_register_nfs(void)
 		&ett_nfs_post_op_attr,
 		&ett_nfs_wcc_attr,
 		&ett_nfs_wcc_data,
-		&ett_nfs_access
+		&ett_nfs_access,
+		&ett_nfs_fsinfo_properties
 	};
 	proto_nfs = proto_register_protocol("Network File System", "nfs");
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
