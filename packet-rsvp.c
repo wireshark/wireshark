@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.49 2001/12/10 00:25:33 guy Exp $
+ * $Id: packet-rsvp.c,v 1.50 2001/12/26 22:32:57 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,7 @@
 # include "snprintf.h"
 #endif
 
+#include "tvbuff.h"
 #include "packet.h"
 #include "in_cksum.h"
 #include "ieee-float.h"
@@ -100,6 +101,7 @@ static gint ett_rsvp_explicit_route = -1;
 static gint ett_rsvp_explicit_route_subobj = -1;
 static gint ett_rsvp_record_route = -1;
 static gint ett_rsvp_record_route_subobj = -1;
+static gint ett_rsvp_hop_subobj = -1;
 static gint ett_rsvp_unknown_class = -1;
 
 
@@ -165,12 +167,18 @@ enum rsvp_classes {
     RSVP_CLASS_EXPLICIT_ROUTE,
     RSVP_CLASS_RECORD_ROUTE,
 
-    RSVP_CLASS_MESSAGE_ID = 23,
+    RSVP_CLASS_HELLO,
+
+    RSVP_CLASS_MESSAGE_ID,
     RSVP_CLASS_MESSAGE_ID_ACK,
     RSVP_CLASS_MESSAGE_ID_LIST,
 
-    RSVP_CLASS_SESSION_ATTRIBUTE=207,
-    RSVP_CLASS_HELLO = 22
+    RSVP_CLASS_UPSTREAM_LABEL,         /* Number is TBA */
+    RSVP_CLASS_LABEL_SET,              /* Number is TBA */
+
+    RSVP_CLASS_SUGGESTED_LABEL = 140,  /* Number is TBA */
+
+    RSVP_CLASS_SESSION_ATTRIBUTE = 207,
 };
 
 static value_string rsvp_class_vals[] = { 
@@ -198,6 +206,9 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_MESSAGE_ID_ACK, "MESSAGE-ID ACK/NACK object"},
     {RSVP_CLASS_MESSAGE_ID_LIST, "MESSAGE-ID LIST object"},
     {RSVP_CLASS_HELLO, "HELLO object"},
+    {RSVP_CLASS_UPSTREAM_LABEL, "UPSTREAM-LABEL object"},
+    {RSVP_CLASS_LABEL_SET, "LABEL-SET object"},
+    {RSVP_CLASS_SUGGESTED_LABEL, "SUGGESTED-LABEL object"},
     {0, NULL}
 };
 
@@ -341,6 +352,71 @@ static value_string adspec_params[] = {
     { 0, NULL }
 };
 
+static const value_string gmpls_lsp_enc_str[] = {
+    { 1, "Packet"},
+    { 2, "Ethernet v2/DIX"},
+    { 3, "ANSI PDH"},
+    { 4, "ETSI PDH"},
+    { 5, "SDH ITU-T G.707"},
+    { 6, "SONET ANSI T1.105"},
+    { 7, "Digital Wrapper"},
+    { 8, "Lambda (photonic)"},
+    { 9, "Fiber"},
+    {10, "Ethernet 802.3"},
+    {11, "FiberChannel"},
+    { 0, NULL }
+};
+
+static const value_string gmpls_switching_type_str[] = {
+    {  1, "Packet-Switch Capable-1 (PSC-1)"},
+    {  2, "Packet-Switch Capable-2 (PSC-2)"},
+    {  3, "Packet-Switch Capable-3 (PSC-3)"},
+    {  4, "Packet-Switch Capable-4 (PSC-4)"},
+    { 51, "Layer-2 Switch Capable (L2SC)"},
+    {100, "Time-Division-Multiplex Capable (TDM)"},
+    {150, "Lambda-Switch Capable (LSC)"},
+    {200, "Fiber-Switch Capable (FSC)"},
+    { 0, NULL }
+};
+
+static const value_string gmpls_gpid_str[] = {
+    { 5, "Asynchronous mapping of E3 (SONET, SDH)"},
+    { 8, "Bit synchronous mapping of E3 (SDH)"},
+    { 9, "Byte synchronous mapping of E3 (SDH)"},
+    {10, "Asynchronous mapping of DS2/T2 (SONET, SDH)"},
+    {11, "Bit synchronous mapping of DS2/T2 (SONET, SDH)"},
+    {13, "Asynchronous mapping of E1 (SONET, SDH)"},
+    {14, "Byte synchronous mapping of E1 (SONET, SDH)"},
+    {15, "Byte synchronous mapping of 31 * DS0 (SONET, SDH)"},
+    {16, "Asynchronous mapping of DS1/T1 (SONET, SDH)"},
+    {17, "Bit synchronous mapping of DS1/T1 (SONET, SDH)"},
+    {18, "Byte synchronous mapping of DS1/T1 (SONET, SDH)"},
+    {19, "VC-11 in VC-12 (SDH)"},
+    {22, "DS1 SF Asynchronous (SONET)"},
+    {23, "DS1 ESF Asynchronous (SONET)"},
+    {24, "DS3 M23 Asynchronous (SONET)"},
+    {25, "DS3 C-Bit Parity Asynchronous (SONET)"},
+    {26, "VT/LOVC (SONET, SDH)"},
+    {27, "STS SPE/HOVC (SONET, SDH)"},
+    {28, "POS - No Scrambling, 16 bit CRC (SONET, SDH)"},
+    {29, "POS - No Scrambling, 32 bit CRC (SONET, SDH)"},
+    {30, "POS - Scrambling, 16 bit CRC (SONET, SDH)"},
+    {31, "POS - Scrambling, 32 bit CRC (SONET, SDH)"},
+    {32, "ATM Mapping (SONET, SDH)"},
+    {33, "Ethernet (SDH, Lambda, Fiber)"},
+    {34, "SDH (Lambda, Fiber)"},
+    {35, "SONET (Lambda, Fiber)"},
+    {36, "Digital Wrapper (Lambda, Fiber)"},
+    {37, "Lambda (Fiber)"},
+    {38, "ETSI PDH (SDH)"},
+    {39, "ANSI PDH (SONET, SDH)"},
+    {40, "Link Access Protocol SDH: LAPS - X.85 and X.86 (SONET, SDH)"},
+    {41, "FDDI (SONET, SDH, Lambda, Fiber)"},
+    {42, "DQDB: ETSI ETS 300 216 (SONET, SDH)"},
+    {43, "FiberChannel-3 Services (FiberChannel)"},
+    { 0, NULL },
+};
+
 /* -------------------- Stuff for MPLS/TE objects -------------------- */
 
 static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
@@ -396,11 +472,14 @@ enum rsvp_filter_keys {
     RSVPF_LABEL_REQUEST,
     RSVPF_EXPLICIT_ROUTE,
     RSVPF_RECORD_ROUTE,
-    RSVPF_DUMMY_4,
+    RSVPF_HELLO_OBJ,
     RSVPF_MESSAGE_ID,
     RSVPF_MESSAGE_ID_ACK,
     RSVPF_MESSAGE_ID_LIST,
-    RSVPF_HELLO_OBJ,
+    RSVPF_UPSTREAM_LABEL,
+    RSVPF_LABEL_SET,
+
+    RSVPF_SUGGESTED_LABEL,
     RSVPF_SESSION_ATTRIBUTE,
     RSVPF_UNKNOWN_OBJ, 
 
@@ -536,6 +615,18 @@ static hf_register_info rsvpf_info[] = {
      { "LABEL", "rsvp.label", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
+    {&rsvp_filter[RSVPF_UPSTREAM_LABEL], 
+     { "UPSTREAM LABEL", "rsvp.upstream_label", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_SUGGESTED_LABEL], 
+     { "SUGGESTED LABEL", "rsvp.suggested_label", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_LABEL_SET], 
+     { "RESTRICTED LABEL SET", "rsvp.label_set", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
     {&rsvp_filter[RSVPF_LABEL_REQUEST], 
      { "LABEL REQUEST", "rsvp.label_request", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -625,7 +716,10 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_POLICY :
     case RSVP_CLASS_CONFIRM :
     case RSVP_CLASS_LABEL :
+    case RSVP_CLASS_UPSTREAM_LABEL :
+    case RSVP_CLASS_LABEL_SET :
     case RSVP_CLASS_LABEL_REQUEST :
+    case RSVP_CLASS_HELLO :
     case RSVP_CLASS_EXPLICIT_ROUTE :
     case RSVP_CLASS_RECORD_ROUTE :
     case RSVP_CLASS_MESSAGE_ID :
@@ -633,10 +727,10 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_MESSAGE_ID_LIST :    
 	return classnum + RSVPF_OBJECT;
 	break;
-    case RSVP_CLASS_HELLO :
-        return RSVPF_HELLO_OBJ;
-        break;
 
+    case RSVP_CLASS_SUGGESTED_LABEL :
+	return RSVPF_SUGGESTED_LABEL;
+	
     case RSVP_CLASS_SESSION_ATTRIBUTE :
 	return RSVPF_SESSION_ATTRIBUTE;
 	
@@ -654,6 +748,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *rsvp_object_tree;
     proto_tree *rsvp_sa_flags_tree;
     proto_tree *rsvp_ero_subtree;
+    proto_tree *rsvp_hop_subtree;
     guint8 ver_flags;
     guint8 message_type;
     guint16 cksum, computed_cksum;
@@ -866,6 +961,78 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		}
 		
+		case 3: {
+		    guint16   tlv_off;
+		    guint16   tlv_type;
+		    guint16   tlv_len;
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 3 - IPv4 Out-Of-Band");
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+					"Neighbor address: %s", 
+					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
+					"Logical interface: %u", 
+					tvb_get_ntohl(tvb, offset2+4));
+
+		    for (tlv_off = 0; tlv_off < mylen - 8; ) {
+			tlv_type = tvb_get_ntohs(tvb, offset2+8+tlv_off);
+			tlv_len = tvb_get_ntohs(tvb, offset2+8+tlv_off+2);
+			switch(tlv_type) {
+			case 1: 
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+						      offset2+8+tlv_off, 8,
+						      "IPv4 TLV - %s",
+						      ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
+			    rsvp_hop_subtree = 
+				proto_item_add_subtree(ti2, ett_rsvp_hop_subobj); 
+			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off, 2,
+						"Type: 1 (IPv4)");
+			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+2, 2,
+						"Length: %u",
+						tvb_get_ntohs(tvb, offset2+8+tlv_off+2));
+			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+4, 4, 
+						"IPv4 address: %s", 
+						ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
+			    proto_item_set_text(ti, "HOP: Out-of-band. Control IPv4: %s. Data IPv4: %s", 
+						ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
+						ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
+			    break;
+
+			case 3: 
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+						      offset2+8+tlv_off, 12,
+						      "Interface-Index TLV - %s, %d",
+						      ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)),
+						      tvb_get_ntohl(tvb, offset2+8+tlv_off+8));
+			    rsvp_hop_subtree = 
+				proto_item_add_subtree(ti2, ett_rsvp_hop_subobj); 
+			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off, 2,
+						"Type: 3 (Interface Index)");
+			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+2, 2,
+						"Length: %u",
+						tvb_get_ntohs(tvb, offset2+8+tlv_off+2));
+			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+4, 4, 
+						"IPv4 address: %s", 
+						ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
+			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+8, 4, 
+						"Interface-ID: %d", 
+						tvb_get_ntohl(tvb, offset2+8+tlv_off+8));
+			    proto_item_set_text(ti, "HOP: Out-of-band. Control IPv4: %s. Data If-Index: %s, %d", 
+						ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
+						ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)), 
+						tvb_get_ntohl(tvb, offset2+8+tlv_off+8));
+			    break;
+
+			default:
+			    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
+						"Logical interface: %u", 
+						tvb_get_ntohl(tvb, offset2+4));
+			}
+			tlv_off += tlv_len;
+		    }
+		    break;
+		}
+
 		default: {
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
 					"C-type: Unknown (%u)",
@@ -931,12 +1098,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    error_code = tvb_get_guint8(tvb, offset2+5);
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
 					"Error code: %u - %s", error_code,
-					val_to_str(error_code, rsvp_error_vals, "Unknown"));
+					val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"));
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+6, 2,
 					"Error value: %u",
 					tvb_get_ntohs(tvb, offset2+6));
-                    proto_item_set_text(ti, "ERROR: IPv4, %d, %d, %s", 
-                                        tvb_get_guint8(tvb, offset2+5),
+                    proto_item_set_text(ti, "ERROR: IPv4, %s, %d, %s", 
+                                        val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"),
                                         tvb_get_ntohs(tvb, offset2+6),
                                         ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
 		    break;
@@ -1546,34 +1713,32 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		}
 
-		default: {
+		case 4: {
+		    unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
+		    unsigned char  lsp_enc = tvb_get_guint8(tvb,offset2);
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-		}
-		}
-		break;
-	    
-	    case RSVP_CLASS_LABEL : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_label);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
-                                        "Label: %u", 
-                                        tvb_get_ntohl(tvb, offset2));
-                    proto_item_set_text(ti, "LABEL: %d", 
-                                        tvb_get_ntohl(tvb, offset2));
+					"C-type: 4 (Generalized Label Request)");
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+					"LSP Encoding Type: %s",
+					val_to_str(lsp_enc, gmpls_lsp_enc_str, "Unknown (%d)"));
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
+					"Switching Type: %s",
+					val_to_str(tvb_get_guint8(tvb,offset2+1), 
+						   gmpls_switching_type_str, "Unknown (%d)"));
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
+					"G-PID: %s (0x%0x)",
+					val_to_str(l3pid, gmpls_gpid_str, 
+						   val_to_str(l3pid, etype_vals, 
+							      "Unknown G-PID(0x%04x)")),
+					l3pid);
+                    proto_item_set_text(ti, "LABEL REQUEST: Generalized: LSP Encoding=%s, "
+					"Switching Type=%s, G-PID=%s ",
+					val_to_str(lsp_enc, gmpls_lsp_enc_str, "Unknown (%d)"),
+					val_to_str(tvb_get_guint8(tvb,offset2+1), 
+						   gmpls_switching_type_str, "Unknown (%d)"),
+					val_to_str(l3pid, gmpls_gpid_str, 
+						   val_to_str(l3pid, etype_vals, 
+							      "Unknown (0x%04x)")));
 		    break;
 		}
 
@@ -1587,6 +1752,63 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		}
 		break;
+	    
+	    case RSVP_CLASS_UPSTREAM_LABEL : 
+	    case RSVP_CLASS_SUGGESTED_LABEL : 
+	    case RSVP_CLASS_LABEL : {
+		char *name;
+		name = (class==RSVP_CLASS_SUGGESTED_LABEL ? "SUGGESTED LABEL" : 
+			(class==RSVP_CLASS_UPSTREAM_LABEL ? "UPSTREAM LABEL" :
+			 "LABEL"));
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_label);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				    "Length: %u", obj_length);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+				    "Class number: %u - %s", 
+				    class, object_type);
+		mylen = obj_length - 4;
+		switch(type) {
+		case 1: {
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 1 (Packet Label)");
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
+                                        "Label: %u", 
+                                        tvb_get_ntohl(tvb, offset2));
+                    proto_item_set_text(ti, "%s: %d", name,
+                                        tvb_get_ntohl(tvb, offset2));
+		    break;
+		}
+
+		case 2: {
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 2 (Generalized Label)");
+                    proto_item_set_text(ti, "%s: Generalized: ", name);
+		    for (i = 0; i < mylen; i += 4) {
+			proto_tree_add_text(rsvp_object_tree, tvb, offset2+i, 4,
+					    "Generalized Label: %u", 
+					    tvb_get_ntohl(tvb, offset2+i));
+			if (i < 16) {
+			    proto_item_append_text(ti, "%d%s", 
+						   tvb_get_ntohl(tvb, offset2+i),
+						   i+4<mylen?", ":"");
+			} else if (i == 16) {
+			    proto_item_append_text(ti, "...");
+			}			    
+		    }
+		    break;
+		}
+
+		default: {
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: Unknown (%u)",
+					type);
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+		}
+		}
+		break;
+	    }
 	    
 	    case RSVP_CLASS_SESSION_ATTRIBUTE : 
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_session_attribute);
@@ -1634,6 +1856,14 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"Name: %.*s",
 					name_len,
 					tvb_get_ptr(tvb, offset2+4, name_len));
+
+		    proto_item_set_text(ti, "SESSION ATTRIBUTE: SetupPrio %d, HoldPrio %d, %s%s%s [%s]",
+					tvb_get_guint8(tvb, offset2), 
+					tvb_get_guint8(tvb, offset2+1),
+					flags &0x01 ? "Local Protection, " : "",
+					flags &0x02 ? "Merging, " : "",
+					flags &0x04 ? "May Reroute, " : "",
+					name_len ? (char*)tvb_format_text(tvb, offset2+4, name_len) : "");
 		    break;
 		}
 
@@ -1660,6 +1890,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 1: {
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
 					"C-type: 1");
+		    proto_item_set_text(ti, "EXPLICIT ROUTE: ");
 		    for (i=1, l = 0; l < mylen; i++) {
 			j = tvb_get_guint8(tvb, offset2+l) & 0x7f;
 			switch(j) {
@@ -1685,6 +1916,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+6, 1, 
 						"Prefix length: %u",
 						tvb_get_guint8(tvb, offset2+l+6));
+			    if (i < 4) {
+				proto_item_append_text(ti, "IPv4 %s%s", 
+						       ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)),
+						       k ? " [L]":"");
+			    }
+
 			    break;
 
 			case 2: /* IPv6 */
@@ -1707,6 +1944,74 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+18, 1,
 						"Prefix length: %u",
 						tvb_get_guint8(tvb, offset2+l+6));
+			    if (i < 4) {
+				proto_item_append_text(ti, "IPv6 [...]%s", k ? " [L]":"");
+			    }
+
+			    break;
+
+			case 3: /* Label */
+			    k = tvb_get_guint8(tvb, offset2+l) & 0x80;
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+						      offset2+l, 8,
+						      "Label Subobject - %d, %s",
+						      tvb_get_ntohl(tvb, offset2+l+4), 
+						      k ? "Loose" : "Strict");
+			    rsvp_ero_subtree = 
+				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+						k ? "Loose Hop " : "Strict Hop");
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+						"Type: 3 (Label)");
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+						"Length: %u",
+						tvb_get_guint8(tvb, offset2+l+1));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 1,
+						"Flags: %0x", 
+						tvb_get_guint8(tvb, offset2+l+2));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+3, 1,
+						"C-Type: %u",
+						tvb_get_guint8(tvb, offset2+l+3));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
+						"Label: %d",
+						tvb_get_ntohl(tvb, offset2+l+4));
+			    if (i < 4) {
+				proto_item_append_text(ti, "Label %d%s", 
+						       tvb_get_ntohl(tvb, offset2+l+4), 
+						       k ? " [L]":"");
+			    }
+			    break;
+
+			case 4: /* Unnumbered Interface-ID */
+			    k = tvb_get_guint8(tvb, offset2+l) & 0x80;
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+						      offset2+l, 8,
+						      "Unnumbered Interface-ID - %s, %d, %s",
+						      ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+						      tvb_get_ntohl(tvb, offset2+l+8), 
+						      k ? "Loose" : "Strict");
+			    rsvp_ero_subtree = 
+				proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+						k ? "Loose Hop " : "Strict Hop");
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+						"Type: 4 (Unnumbered Interface-ID)");
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+						"Length: %u",
+						tvb_get_guint8(tvb, offset2+l+1));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
+						"Router-ID: %s",
+						ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+8, 4,
+						"Interface-ID: %d",
+						tvb_get_ntohl(tvb, offset2+l+8));
+			    if (i < 4) {
+				proto_item_append_text(ti, "Unnum %s/%d%s", 
+						       ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+						       tvb_get_ntohl(tvb, offset2+l+8),
+						       k ? " [L]":"");
+			    }
+
 			    break;
 
 			case 32: /* AS */
@@ -1718,14 +2023,17 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    rsvp_ero_subtree = 
 				proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						k ? "Loose Hop " : "Strict Hop");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
 						"Type: 32 (Autonomous System Number)");
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
 						"Length: %u",
 						tvb_get_guint8(tvb, offset2+l+1));
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 2,
 						"Autonomous System %u", k);
+			    if (i < 4) {
+				proto_item_append_text(ti, "AS %d", 
+						       tvb_get_ntohs(tvb, offset2+l+2));
+			    }
+
 			    break;
 
 			case 64: /* Path Term */
@@ -1742,6 +2050,9 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
 						"Length: %u",
 						tvb_get_guint8(tvb, offset2+l+1));
+			    if (i < 4) {
+				proto_item_append_text(ti, "Path Term");
+			    }
 			    break;
 
 			default: /* Unknown subobject */
@@ -1763,6 +2074,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 
 			l += tvb_get_guint8(tvb, offset2+l+1);
+			if (l < mylen) {
+			    if (i < 4)
+				proto_item_append_text(ti, ", ");
+			    else if (i==4)
+				proto_item_append_text(ti, "...");
+			}
 		    }
 		    break;
 		}
@@ -1785,6 +2102,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
 				    "Class number: %u - %s", 
 				    class, object_type);
+		proto_item_set_text(ti, "RECORD ROUTE: ");
 		mylen = obj_length - 4;
 		switch(type) {
 		case 1: {
@@ -1811,6 +2129,11 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+6, 1,
 						"Prefix length: %u",
 						tvb_get_guint8(tvb, offset2+l+6));
+			    if (i < 4) {
+				proto_item_append_text(ti, "IPv4 %s", 
+						       ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
+			    }
+
 			    break;
 
 			case 2: /* IPv6 */
@@ -1830,10 +2153,68 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+18, 1,
 						"Prefix length: %u",
 						tvb_get_guint8(tvb, offset2+l+6));
+			    if (i < 4) {
+				proto_item_append_text(ti, "IPv6 [...]");
+			    }
+			    break;
+
+			case 3: /* Label */
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+						      offset2+l, 8,
+						      "Label Subobject - %d",
+						      tvb_get_ntohl(tvb, offset2+l+4));
+			    rsvp_ero_subtree = 
+				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+						"Type: 3 (Label)");
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+						"Length: %u",
+						tvb_get_guint8(tvb, offset2+l+1));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 1,
+						"Flags: %0x", 
+						tvb_get_guint8(tvb, offset2+l+2));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+3, 1,
+						"C-Type: %u",
+						tvb_get_guint8(tvb, offset2+l+3));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
+						"Label: %d",
+						tvb_get_ntohl(tvb, offset2+l+4));
+			    if (i < 4) {
+				proto_item_append_text(ti, "Label %d", 
+						       tvb_get_ntohl(tvb, offset2+l+4));
+			    }
+			    break;
+
+			case 4: /* Unnumbered Interface-ID */
+			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+						      offset2+l, 8,
+						      "Unnumbered Interface-ID - %s, %d",
+						      ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+						      tvb_get_ntohl(tvb, offset2+l+8));
+			    rsvp_ero_subtree = 
+				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+						"Type: 4 (Unnumbered Interface-ID)");
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+						"Length: %u",
+						tvb_get_guint8(tvb, offset2+l+1));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+						"Flags: %u",
+						tvb_get_guint8(tvb, offset2+l+2));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
+						"Router-ID: %s",
+						ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
+			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+8, 4,
+						"Interface-ID: %d",
+						tvb_get_ntohl(tvb, offset2+l+8));
+			    if (i < 4) {
+				proto_item_append_text(ti, "Unnum %s/%d", 
+						       ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+						       tvb_get_ntohl(tvb, offset2+l+8));
+			    }
 			    break;
 
 			default: /* Unknown subobject */
-			    k = tvb_get_guint8(tvb, offset2+l) & 0x80;
 			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
 						      offset2+l,
 						      tvb_get_guint8(tvb, offset2+l+1),
@@ -1841,8 +2222,6 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						      j);
 			    rsvp_ero_subtree = 
 				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						k ? "Loose Hop " : "Strict Hop");
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
 						"Type: %u (Unknown)", j);
 			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
@@ -1852,6 +2231,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 
 			l += tvb_get_guint8(tvb, offset2+l+1);
+			if (l < mylen) {
+			    if (i < 4)
+				proto_item_append_text(ti, ", ");
+			    else if (i==4)
+				proto_item_append_text(ti, "...");
+			}
 		    }
 		    break;
 		}
@@ -2034,6 +2419,7 @@ proto_register_rsvp(void)
 		&ett_rsvp_hdr,
 		&ett_rsvp_session,
 		&ett_rsvp_hop,
+		&ett_rsvp_hop_subobj,
 		&ett_rsvp_time_values,
 		&ett_rsvp_error,
 		&ett_rsvp_scope,
