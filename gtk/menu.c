@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.110 2003/11/24 22:11:55 guy Exp $
+ * $Id: menu.c,v 1.111 2003/11/27 20:34:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,17 +106,16 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_OPEN),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Close", "<control>W", file_close_cmd_cb,
                              0, GTK_STOCK_CLOSE),
+    ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Save", "<control>S", file_save_cmd_cb,
                              0, GTK_STOCK_SAVE),
     ITEM_FACTORY_STOCK_ENTRY("/File/Save _As...", "<shift><control>S", file_save_as_cmd_cb,
                              0, GTK_STOCK_SAVE_AS),
-    ITEM_FACTORY_STOCK_ENTRY("/File/_Reload", "<control>R", file_reload_cmd_cb,
-                             0, GTK_STOCK_REFRESH),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", NULL, file_print_cmd_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", "<control>P", file_print_cmd_cb,
                              0, GTK_STOCK_PRINT),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/File/Print Pac_ket", "<control>P",
+    ITEM_FACTORY_ENTRY("/File/Print Pac_ket", NULL,
                        file_print_packet_cmd_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Quit", "<control>Q", file_quit_cmd_cb,
@@ -134,14 +133,17 @@ static GtkItemFactoryEntry menu_items[] =
 #endif
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Find Frame...", "<control>F",
                              find_frame_cb, 0, GTK_STOCK_FIND),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/Find _Next", "<control>N", find_next_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/Find Ne_xt", "<control>N", find_next_cb,
                              0, GTK_STOCK_GO_FORWARD),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/Find _Previous", "<control>B",
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/Find Pre_vious", "<control>B",
                              find_previous_cb, 0, GTK_STOCK_GO_BACK),
+    ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Go To Frame...", "<control>G",
                              goto_frame_cb, 0, GTK_STOCK_JUMP_TO),
+    ITEM_FACTORY_ENTRY("/Edit/Go To _Corresponding Frame", NULL, goto_framenum_cb,
+                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Edit/Time Reference", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Edit/Time _Reference", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Next", NULL, reftime_frame_cb, 1, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Previous", NULL, reftime_frame_cb, 2, NULL, NULL),
@@ -154,13 +156,28 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", "<shift><control>P", prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
-#ifdef HAVE_LIBPCAP
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Capture Filters...", NULL, cfilter_dialog_cb,
-                       0, ETHEREAL_STOCK_CAPTURE_FILTER),
-#endif /* HAVE_LIBPCAP */
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Display Filters...", NULL, dfilter_dialog_cb,
-                       0, ETHEREAL_STOCK_DISPLAY_FILTER),
-    ITEM_FACTORY_ENTRY("/Edit/P_rotocols...", "<shift><control>R", proto_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/_View", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Options...", NULL, display_opt_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Collapse _All", NULL, collapse_all_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/_Expand All", NULL, expand_all_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
+                       0, GTK_STOCK_SELECT_COLOR),
+    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Enabled _Protocols...", "<shift><control>R", proto_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/_Decode As...", NULL, decode_as_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/_User Specified Decodes...", NULL,
+                       decode_show_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Show Packet In New Window", NULL,
+                       new_window_cb, 0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/View/_Reload", "<control>R", file_reload_cmd_cb,
+                             0, GTK_STOCK_REFRESH),
 #ifdef HAVE_LIBPCAP
     ITEM_FACTORY_ENTRY("/_Capture", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Start...", "<control>K",
@@ -172,76 +189,64 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/Capture/S_top", "<control>E", capture_stop_cb,
                              0, GTK_STOCK_STOP),
 #endif /* _WIN32 */
+    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Capture Filters...", NULL, cfilter_dialog_cb,
+                       0, ETHEREAL_STOCK_CAPTURE_FILTER),
 #endif /* HAVE_LIBPCAP */
-    ITEM_FACTORY_ENTRY("/_Display", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Display/_Options...", NULL, display_opt_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/_Match", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Display/Match/_Selected", NULL,
+    ITEM_FACTORY_ENTRY("/_Analyze", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Analyze/_Display Filters...", NULL, dfilter_dialog_cb,
+                       0, ETHEREAL_STOCK_DISPLAY_FILTER),
+    ITEM_FACTORY_ENTRY("/Analyze/_Match", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/Match/_Selected", NULL,
                        match_selected_cb_replace_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Match/_Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Match/_Not Selected", NULL,
                        match_selected_cb_not_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Match/_And Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Match/_And Selected", NULL,
                        match_selected_cb_and_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Match/_Or Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Match/_Or Selected", NULL,
                        match_selected_cb_or_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Match/A_nd Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Match/A_nd Not Selected", NULL,
                        match_selected_cb_and_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Match/O_r Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Match/O_r Not Selected", NULL,
                        match_selected_cb_or_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/_Prepare", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Display/Prepare/_Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/_Prepare", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare/_Selected", NULL,
                        prepare_selected_cb_replace_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Prepare/_Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare/_Not Selected", NULL,
                        prepare_selected_cb_not_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Prepare/_And Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare/_And Selected", NULL,
                        prepare_selected_cb_and_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Prepare/_Or Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare/_Or Selected", NULL,
                        prepare_selected_cb_or_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Prepare/A_nd Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare/A_nd Not Selected", NULL,
                        prepare_selected_cb_and_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/Prepare/O_r Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare/O_r Not Selected", NULL,
                        prepare_selected_cb_or_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Display/_Colorize Display...", NULL, color_display_cb,
-                       0, GTK_STOCK_SELECT_COLOR),
-    ITEM_FACTORY_ENTRY("/Display/Collapse _All", NULL, collapse_all_cb,
+    ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/_Expand All", NULL, expand_all_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/_Show Packet In New Window", NULL,
-                       new_window_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/User Specified Decodes...", NULL,
-                       decode_show_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Tools", NULL, NULL, 0, "<Branch>", NULL),
-#ifdef HAVE_PLUGINS
-    ITEM_FACTORY_ENTRY("/Tools/_Plugins...", NULL, tools_plugins_cmd_cb,
-                       0, NULL, NULL),
-#endif /* HAVE_PLUGINS */
-    ITEM_FACTORY_ENTRY("/Tools/_Follow TCP Stream", NULL, follow_stream_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/_Decode As...", NULL, decode_as_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/_Go To Corresponding Frame", NULL, goto_framenum_cb,
-                       0, NULL, NULL),
-/*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
-    ITEM_FACTORY_ENTRY("/_Tools/TCP Stream Analysis", NULL, NULL,
+/*  {"/Analyze/Graph", NULL, NULL, 0, NULL}, future use */
+    ITEM_FACTORY_ENTRY("/Analyze/_TCP Stream Analysis", NULL, NULL,
                        0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/_Tools/TCP Stream Analysis/Time-Sequence Graph (Stevens)",
+    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/Time-Sequence Graph (Stevens)",
                        NULL, tcp_graph_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Tools/TCP Stream Analysis/Time-Sequence Graph (tcptrace)",
+    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/Time-Sequence Graph (tcptrace)",
                        NULL, tcp_graph_cb, 1, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Tools/TCP Stream Analysis/Throughput Graph", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/Throughput Graph", NULL,
                        tcp_graph_cb, 2, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Tools/TCP Stream Analysis/RTT Graph", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/RTT Graph", NULL,
                        tcp_graph_cb, 3, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/_Summary", NULL, summary_open_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Protocol Hierarchy Statistics", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/_Summary", NULL, summary_open_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/Protocol _Hierarchy Statistics", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Help/_Help", NULL, help_cb, 0, GTK_STOCK_HELP),
+    ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Help/_About Ethereal...", NULL, about_ethereal,
+#ifdef HAVE_PLUGINS
+    ITEM_FACTORY_ENTRY("/Help/About _Plugins", NULL, tools_plugins_cmd_cb,
+                       0, NULL, NULL),
+#endif /* HAVE_PLUGINS */
+    ITEM_FACTORY_ENTRY("/Help/_About Ethereal", NULL, about_ethereal,
                        0, NULL, NULL)
 };
 
@@ -290,7 +295,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Prepare/O_r Not Selected", NULL,
                        prepare_selected_cb_or_plist_not, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Colorize Display...", NULL, color_display_cb,
+    ITEM_FACTORY_ENTRY("/Coloring Rules...", NULL, color_display_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Print...", NULL, file_print_cmd_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Print Packet", NULL, file_print_packet_cmd_cb,
@@ -462,7 +467,7 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *))
 {
-	static const char toolspath[] = "/Tools/";
+	static const char toolspath[] = "/Analyze/";
 	char *p;
 	char *menupath;
 	size_t menupathlen;
@@ -696,10 +701,11 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 void
 set_menus_for_capture_file(gboolean have_capture_file)
 {
+  set_menu_sensitivity(main_menu_factory, "/File/Open...", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Save As...",
       have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Close", have_capture_file);
-  set_menu_sensitivity(main_menu_factory, "/File/Reload", have_capture_file);
+  set_menu_sensitivity(main_menu_factory, "/View/Reload", have_capture_file);
   set_toolbar_for_capture_file(have_capture_file);
 }
 
@@ -820,14 +826,14 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Edit/Go To Frame...",
       have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Display/Colorize Display...",
+  set_menu_sensitivity(main_menu_factory, "/View/Coloring Rules...",
       have_captured_packets);
-  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Display...",
+  set_menu_sensitivity(packet_list_menu_factory, "/Coloring Rules...",
       have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Tools/Summary",
+  set_menu_sensitivity(main_menu_factory, "/Analyze/Summary",
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory,
-      "/Tools/Protocol Hierarchy Statistics", have_captured_packets);
+      "/Analyze/Protocol Hierarchy Statistics", have_captured_packets);
   set_menu_sensitivity(packet_list_menu_factory, "/Match",
       have_captured_packets);
   set_menu_sensitivity(packet_list_menu_factory, "/Prepare",
@@ -903,35 +909,37 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Mark Frame",
       cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/Edit/Time Reference",
+      cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Mark Frame",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Frames",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Frames",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Display/Collapse All",
+  set_menu_sensitivity(main_menu_factory, "/View/Collapse All",
       cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Collapse All",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Display/Expand All",
+  set_menu_sensitivity(main_menu_factory, "/View/Expand All",
       cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Display/Show Packet In New Window",
+  set_menu_sensitivity(main_menu_factory, "/View/Show Packet In New Window",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Show Packet In New Window",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Tools/Follow TCP Stream",
+  set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(NULL, "/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-  set_menu_sensitivity(main_menu_factory, "/Tools/Decode As...",
+  set_menu_sensitivity(main_menu_factory, "/View/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(NULL, "/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
       cf->current_frame != NULL && g_resolv_flags == 0);
-  set_menu_sensitivity(main_menu_factory, "/Tools/TCP Stream Analysis",
+  set_menu_sensitivity(main_menu_factory, "/Analyze/TCP Stream Analysis",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   walk_menu_tree_for_selected_packet(&tap_menu_tree_root, cf->current_frame,
       cf->edt);
@@ -1006,28 +1014,28 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
 	}
 	set_menu_sensitivity(main_menu_factory,
-	  "/Tools/Go To Corresponding Frame", hfinfo->type == FT_FRAMENUM);
+	  "/Edit/Go To Corresponding Frame", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(tree_view_menu_factory,
 	  "/Go To Corresponding Frame", hfinfo->type == FT_FRAMENUM);
-	set_menu_sensitivity(main_menu_factory, "/Display/Match",
+	set_menu_sensitivity(main_menu_factory, "/Analyze/Match",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Match",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(main_menu_factory, "/Display/Prepare",
+	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
 	  properties);
   } else {
+	set_menu_sensitivity(main_menu_factory,
+	    "/Edit/Go To Corresponding Frame", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory,
 	    "/Go To Corresponding Frame", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Display/Match", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/Analyze/Match", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Match", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Display/Prepare", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare", FALSE);
-	set_menu_sensitivity(main_menu_factory,
-	    "/Tools/Go To Corresponding Frame", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
 	  FALSE);
   }
