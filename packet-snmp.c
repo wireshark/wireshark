@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.16 1999/12/10 09:49:27 guy Exp $
+ * $Id: packet-snmp.c,v 1.17 1999/12/10 20:45:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -51,6 +51,38 @@
 #include <ucd-snmp/parse.h>
 #elif defined(HAVE_SNMP_SNMP_H)
 #include <snmp/snmp.h>
+
+/*
+ * Now undo all the definitions it "helpfully" gave us, so we don't get
+ * complaints about redefining them.
+ *
+ * (At least UCD SNMP lets you get only the header files you need for
+ * the MIB-handling routines.)
+ */
+#undef SNMP_ERR_NOERROR
+#undef SNMP_ERR_TOOBIG
+#undef SNMP_ERR_NOSUCHNAME
+#undef SNMP_ERR_BADVALUE
+#undef SNMP_ERR_READONLY
+#undef SNMP_ERR_NOACCESS
+#undef SNMP_ERR_WRONGTYPE
+#undef SNMP_ERR_WRONGLENGTH
+#undef SNMP_ERR_WRONGENCODING
+#undef SNMP_ERR_WRONGVALUE
+#undef SNMP_ERR_NOCREATION
+#undef SNMP_ERR_INCONSISTENTVALUE
+#undef SNMP_ERR_RESOURCEUNAVAILABLE
+#undef SNMP_ERR_COMMITFAILED
+#undef SNMP_ERR_UNDOFAILED
+#undef SNMP_ERR_AUTHORIZATIONERROR
+#undef SNMP_ERR_NOTWRITABLE
+#undef SNMP_ERR_INCONSISTENTNAME
+#undef SNMP_TRAP_COLDSTART
+#undef SNMP_TRAP_WARMSTART
+#undef SNMP_TRAP_LINKDOWN
+#undef SNMP_TRAP_LINKUP
+#undef SNMP_TRAP_EGPNEIGHBORLOSS
+#undef SNMP_TRAP_ENTERPRISESPECIFIC
 #endif
 
 #include <glib.h>
