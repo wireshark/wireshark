@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.97 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-ppp.c,v 1.98 2002/10/14 23:23:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,6 +149,13 @@ static gint ett_chap_data		= -1;
 static gint ett_chap_value		= -1;
 static gint ett_chap_name		= -1;
 static gint ett_chap_message		= -1;
+
+static int proto_ipv6cp = -1;  /* IPv6CP vars */
+
+static gint ett_ipv6cp = -1;
+static gint ett_ipv6cp_options = -1;
+static gint ett_ipv6cp_if_token_opt = -1;
+static gint ett_ipv6cp_compressprot_opt = -1;  
 
 static dissector_table_t subdissector_table;
 static dissector_handle_t chdlc_handle;
@@ -1279,6 +1286,38 @@ static const ip_tcp_opt pppmuxcp_opts[] = {
 };
 
 #define N_PPPMUXCP_OPTS (sizeof pppmuxcp_opts / sizeof pppmuxcp_opts[0])
+
+/*
+ * Options.  (IPv6CP)
+ */
+#define CI_IPV6CP_IF_TOKEN	1	/* Interface Token (RFC 2472) */
+#define CI_IPV6CP_COMPRESSTYPE	2	/* Compression Type (RFC 2472) */
+
+static void dissect_ipv6cp_if_token_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+
+static const ip_tcp_opt ipv6cp_opts[] = {
+	{
+		CI_IPV6CP_IF_TOKEN,
+		"Interface Token",
+		&ett_ipv6cp_if_token_opt,
+		FIXED_LENGTH,
+		10,
+		dissect_ipv6cp_if_token_opt
+	},
+	{
+		CI_COMPRESSTYPE,
+		"IPv6 compression protocol",
+		&ett_ipcp_compressprot_opt,
+		VARIABLE_LENGTH,
+		4,
+		dissect_lcp_protocol_opt
+	},
+};
+
+#define N_IPV6CP_OPTS	(sizeof ipv6cp_opts / sizeof ipv6cp_opts[0])
+
 
 static const unsigned int fcstab_32[256] =
       {
@@ -3091,6 +3130,29 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   }
 }
 
+static void
+dissect_ipv6cp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb, proto_ipv6cp, ett_ipv6cp, cp_vals, ett_ipv6cp_options,
+	     ipv6cp_opts, N_IPV6CP_OPTS, pinfo, tree);
+}
+
+static void dissect_ipv6cp_if_token_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+  proto_tree_add_text(tree, tvb, offset, length, "%s: %x:%x:%x:%x:%x:%x:%x:%x",
+		      optp->name,
+		      tvb_get_guint8(tvb, offset + 2),
+		      tvb_get_guint8(tvb, offset + 3),
+		      tvb_get_guint8(tvb, offset + 4),
+		      tvb_get_guint8(tvb, offset + 5),
+		      tvb_get_guint8(tvb, offset + 6),
+		      tvb_get_guint8(tvb, offset + 7),
+		      tvb_get_guint8(tvb, offset + 8),
+		      tvb_get_guint8(tvb, offset + 9)
+		      );
+}
 
 void
 proto_register_ppp(void)
@@ -3614,4 +3676,34 @@ proto_reg_handoff_cdpcp(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_CDPCP, cdpcp_handle);
+}
+
+void
+proto_register_ipv6cp(void)
+{
+  static gint *ett[] = {
+    &ett_ipv6cp,
+    &ett_ipv6cp_options,
+    &ett_ipv6cp_if_token_opt,
+    &ett_ipv6cp_compressprot_opt,
+  };
+
+  proto_ipv6cp = proto_register_protocol("PPP IPv6 Control Protocol",
+					 "PPP IPV6CP", "ipv6cp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ipv6cp(void)
+{
+  dissector_handle_t ipv6cp_handle;
+
+  ipv6cp_handle = create_dissector_handle(dissect_ipv6cp, proto_ipv6cp);
+  dissector_add("ppp.protocol", PPP_IPV6CP, ipv6cp_handle);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_IPV6CP, ipv6cp_handle);
 }

@@ -787,6 +787,7 @@ B. Johannessen <bob[AT]havoq.com> {
 Thierry Pelle <thierry.pelle[AT]rd.francetelecom.fr> {
 	MP-BGP message support
 	Redback vendor-specific items for RADIUS and L2TP
+	IPv6CP support
 }
 
 Francisco Javier Cabello <fjcabello[AT]vtools.es> {
