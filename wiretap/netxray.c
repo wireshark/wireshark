@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.71 2003/01/07 06:09:08 guy Exp $
+ * $Id: netxray.c,v 1.72 2003/01/07 07:16:24 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -337,21 +337,32 @@ int netxray_open(wtap *wth, int *err)
 
 	/*
 	 * End-of-packet padding.  802.11 captures appear to have four
-	 * bytes of it, as do some ISDN captures.
+	 * bytes of it, as do some ISDN captures; those 4 bytes don't
+	 * show up as frame data.
 	 *
 	 * We've seen what appears to be an FCS at the end of some frames
 	 * in some Ethernet captures, but this stuff appears to be just
 	 * padding - Sniffers don't show it, and it doesn't have values
-	 * that look like FCS values.  The same applies to those ISDN
-	 * captures.
-	 *
-	 * XXX - but some ISDN captures *don't* have the extra end-of-packet
-	 * stuff; how to tell?
+	 * that look like FCS values, so it looks like padding.
 	 */
 	wth->capture.netxray->padding = 0;
-	if (file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO
-	    /*|| file_encap == WTAP_ENCAP_ISDN*/)
+	switch (file_encap) {
+
+	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 		wth->capture.netxray->padding = 4;
+		break;
+
+	case WTAP_ENCAP_ISDN:
+		/*
+		 * The only captures we've seen with padding are PRI
+		 * captures; until we see PRI captures with no padding,
+		 * or BRI captures with padding, we assume that PRI
+		 * captures have padding and BRI captures don't.
+		 */
+		if (isdn_type == 1 || isdn_type == 2)
+			wth->capture.netxray->padding = 4;
+		break;
+	}
 
 	/*
 	 * Remember the ISDN type, as we need it to interpret the
@@ -676,9 +687,6 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 					 * 0x0d is *mostly* LANE 802.3,
 					 * but I've seen an LE Control frame
 					 * with 0x0d.
-					 *
-					 * XXX - Sniffer knows the difference
-					 * between 802.3 and 802.3 multicast.
 					 */
 					pseudo_header->atm.type = TRAF_LANE;
 					atm_guess_lane_type(pd, len,
