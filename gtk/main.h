@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.5 1999/09/30 06:11:51 guy Exp $
+ * $Id: main.h,v 1.6 1999/10/08 07:29:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __ETHEREAL_H__
-#define __ETHEREAL_H__
+#ifndef __MAIN_H__
+#define __MAIN_H__
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -67,4 +67,4 @@ void file_print_packet_cmd_cb(GtkWidget *, gpointer);
 void expand_all_cb(GtkWidget *, gpointer);
 void collapse_all_cb(GtkWidget *, gpointer);
 
-#endif /* ethereal.h */
+#endif /* __MAIN_H__ */
