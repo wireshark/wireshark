@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.85 2002/12/19 11:22:35 sahlberg Exp $
+ * $Id: packet-smb-pipe.c,v 1.86 2003/02/17 01:59:39 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -470,8 +470,9 @@ static int
 add_server_type(tvbuff_t *tvb, int offset, int count _U_,
     packet_info *pinfo, proto_tree *tree, int convert _U_, int hf_index _U_)
 {
-	dissect_smb_server_type_flags(tvb, pinfo, tree, offset, FALSE);
-	offset += 4;
+	char drep = 0x10;	/* Assume little-endian */
+	offset = dissect_smb_server_type_flags(
+		tvb, offset, pinfo, tree, &drep, FALSE);
 	return offset;
 }
 
@@ -479,8 +480,9 @@ static int
 add_server_type_info(tvbuff_t *tvb, int offset, int count _U_,
     packet_info *pinfo, proto_tree *tree, int convert _U_, int hf_index _U_)
 {
-	dissect_smb_server_type_flags(tvb, pinfo, tree, offset, TRUE);
-	offset += 4;
+	char drep = 0x10;	/* Assume little-endian */
+	offset = dissect_smb_server_type_flags(
+		tvb, offset, pinfo, tree, &drep, TRUE);
 	return offset;
 }
 

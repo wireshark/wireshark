@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.52 2003/02/07 22:44:53 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.53 2003/02/17 01:59:39 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "packet-dcerpc-lsa.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-smb-common.h"
+#include "packet-smb-browse.h"
 #include "smb.h"
 
 static int proto_dcerpc_srvsvc = -1;
@@ -88,7 +89,6 @@ static int hf_srvsvc_rc = -1;
 static int hf_srvsvc_platform_id = -1;
 static int hf_srvsvc_ver_major = -1;
 static int hf_srvsvc_ver_minor = -1;
-static int hf_srvsvc_server_type = -1;
 static int hf_srvsvc_client_type = -1;
 static int hf_srvsvc_comment = -1;
 static int hf_srvsvc_users = -1;
@@ -3175,8 +3175,8 @@ srvsvc_dissect_SERVER_INFO_101(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_ver_minor, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			hf_srvsvc_server_type, NULL);
+	offset = dissect_smb_server_type_flags(
+		tvb, offset, pinfo, tree, drep, TRUE);
 
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment, 0);
@@ -3218,8 +3218,8 @@ srvsvc_dissect_SERVER_INFO_102(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_ver_minor, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			hf_srvsvc_server_type, NULL);
+	offset = dissect_smb_server_type_flags(
+		tvb, offset, pinfo, tree, drep, TRUE);
 
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Comment", hf_srvsvc_comment, 0);
@@ -6928,12 +6928,6 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_ver_minor,
 	    { "Minor Version", "srvsvc.version.minor", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Minor Version", HFILL}},
-	  /* XXX - Should break this out. We know it from browsing.
-	     See "dissect_smb_server_type_flags()"
-	     in "packet-smb-browse.c" */
-	  { &hf_srvsvc_server_type,
-	    { "Server Type", "srvsvc.server.type", FT_UINT32,
-	      BASE_HEX, NULL, 0x0, "Server Type", HFILL}},
 	  { &hf_srvsvc_client_type,
 	    { "Client Type", "srvsvc.client.type", FT_STRING,
 	      BASE_NONE, NULL, 0x0, "Client Type", HFILL}},
