@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.179 2001/02/11 09:28:17 guy Exp $
+ * $Id: main.c,v 1.180 2001/02/20 04:09:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,6 +99,11 @@
 #include "getopt.h"
 #endif
 
+#ifdef WIN32 /* Needed for console I/O */
+#include <fcntl.h>
+#include <conio.h>
+#endif
+
 #include <epan.h>
 
 #include "main.h"
@@ -145,6 +150,15 @@ GtkStyle *item_style;
 
 /* Specifies the field currently selected in the GUI protocol tree */
 field_info *finfo_selected = NULL;
+
+#ifdef WIN32
+static gboolean has_no_console;	/* TRUE if app has no console */
+static gboolean console_was_created; /* TRUE if console was created */
+static void create_console(void);
+static void destroy_console(void);
+static void console_log_handler(const char *log_domain,
+    GLogLevelFlags log_level, const char *message, gpointer user_data);
+#endif
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 
@@ -660,6 +674,16 @@ print_usage(void) {
 #endif
 }
 
+static void 
+show_version(void)
+{
+#ifdef WIN32
+  create_console();
+#endif
+
+  printf("%s %s, with %s\n", PACKAGE, VERSION, comp_info_str);
+}
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -706,6 +730,24 @@ main(int argc, char *argv[])
   char                *bold_font_name;
 
   ethereal_path = argv[0];
+
+#ifdef WIN32
+  /* Arrange that if we have no console window, and a GLib message logging
+     routine is called to log a message, we pop up a console window.
+
+     We do that by inserting our own handler for all messages logged
+     to the default domain; that handler pops up a console if necessary,
+     and then calls the default handler. */
+  g_log_set_handler(NULL,
+		    G_LOG_LEVEL_ERROR|
+		    G_LOG_LEVEL_CRITICAL|
+		    G_LOG_LEVEL_WARNING|
+		    G_LOG_LEVEL_MESSAGE|
+		    G_LOG_LEVEL_INFO|
+		    G_LOG_LEVEL_DEBUG|
+		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION,
+		    console_log_handler, NULL);
+#endif
 
 #ifdef HAVE_LIBPCAP
   command_name = get_basename(ethereal_path);
@@ -962,7 +1004,11 @@ main(int argc, char *argv[])
         tv_size = atoi(optarg);
         break;
       case 'v':        /* Show version and exit */
-        printf("%s %s, with %s\n", PACKAGE, VERSION, comp_info_str);
+        show_version();
+#ifdef WIN32
+        if (console_was_created)
+          destroy_console();
+#endif
         exit(0);
         break;
       case 'w':        /* Write to capture file xxx */
@@ -1254,6 +1300,12 @@ main(int argc, char *argv[])
 #ifdef WIN32
   /* Shutdown windows sockets */
   WSACleanup();
+
+  /* For some unknown reason, the "atexit()" call in "create_console()"
+     doesn't arrange that "destroy_console()" be called when we exit,
+     so we call it here if a console was created. */
+  if (console_was_created)
+    destroy_console();
 #endif
 
   gtk_exit(0);
@@ -1282,9 +1334,70 @@ WinMain (struct HINSTANCE__ *hInstance,
 	 char               *lpszCmdLine,
 	 int                 nCmdShow)
 {
+  has_no_console = TRUE;
   return main (__argc, __argv);
 }
 
+/*
+ * If this application has no console window to which its standard output
+ * would go, create one.
+ */
+static void
+create_console(void)
+{
+  if (has_no_console) {
+    /* We have no console to which to print the version string, so
+       create one and make it the standard input, output, and error. */
+    if (!AllocConsole())
+      return;   /* couldn't create console */
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+
+    /* Well, we have a console now. */
+    has_no_console = FALSE;
+    console_was_created = TRUE;
+
+    /* Now register "destroy_console()" as a routine to be called just
+       before the application exits, so that we can destroy the console
+       after the user has typed a key (so that the console doesn't just
+       disappear out from under them, giving the user no chance to see
+       the message(s) we put in there). */
+    atexit(destroy_console);
+  }
+}
+
+static void
+destroy_console(void)
+{
+  printf("\n\nPress any key to exit\n");
+  _getch();
+  FreeConsole();
+}
+
+/* This routine should not be necessary, at least as I read the GLib
+   source code, as it looks as if GLib is, on Win32, *supposed* to
+   create a console window into which to display its output.
+
+   That doesn't happen, however.  I suspect there's something completely
+   broken about that code in GLib-for-Win32, and that it may be related
+   to the breakage that forces us to just call "printf()" on the message
+   rather than passing the message on to "g_log_default_handler()"
+   (which is the routine that does the aforementioned non-functional
+   console window creation). */
+static void
+console_log_handler(const char *log_domain, GLogLevelFlags log_level,
+		    const char *message, gpointer user_data)
+{
+  create_console();
+  if (console_was_created) {
+    /* For some unknown reason, the above doesn't appear to actually cause
+       anything to be sent to the standard output, so we'll just splat the
+       message out directly, just to make sure it gets out. */
+    printf("%s\n", message);
+  } else
+    g_log_default_handler(log_domain, log_level, message, user_data);
+}
 #endif
 
 /* Given a font name, construct the name of the next heavier version of
