@@ -739,6 +739,7 @@ if test "x$enable_ssl" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
 	AC_MSG_RESULT(yes)
+	AC_MSG_CHECKING(whether SSL library is available)
 	AC_ETHEREAL_SSL_CHECK
 fi
 AC_SUBST(SSL_LIBS)
@@ -816,7 +817,7 @@ if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCO
 	AC_CHECK_HEADERS(net-snmp/net-snmp-config.h net-snmp/library/default_store.h)
 	if test "x$ac_cv_header_net_snmp_net_snmp_config_h" = "xyes" -a "x$ac_cv_header_net_snmp_library_default_store_h" = "xyes" ; then
 		SNMP_LIBS=`$NETSNMPCONFIG --libs`
-		if echo "$SNMP_LIBS" | grep crypto  && test "x$SSL_LIBS" = "x"; then
+		if echo "$SNMP_LIBS" | grep crypto >/dev/null  && test "x$SSL_LIBS" = "x"; then
 			AC_MSG_RESULT(Net-SNMP requires openssl but ssl not enabled - disabling Net-SNMP)
 			CFLAGS="$ethereal_save_CFLAGS"
 			CPPFLAGS="$ethereal_save_CPPFLAGS"
