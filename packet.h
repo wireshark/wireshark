@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.137 1999/11/11 23:13:43 nneul Exp $
+ * $Id: packet.h,v 1.138 1999/11/13 04:06:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -422,6 +422,7 @@ enum {
 	ETT_X25,
 	ETT_XDLC_CONTROL,
 	ETT_Q931,
+	ETT_Q931_IE,
 	ETT_ATM,
 	ETT_ATM_LANE,
 	ETT_ATM_LANE_LC_FLAGS,
