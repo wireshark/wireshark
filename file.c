@@ -975,60 +975,136 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append)
 {
   merge_in_file_t  *in_files;
-  merge_out_file_t  out_file;
-  int               err, close_err;
+  wtap             *wth;
+  wtap_dumper      *pdh;
+  int               open_err, read_err, write_err, close_err;
   gchar            *err_info;
   int               err_fileno; 
-  merge_status_e    status;
   int               i;
   char              errmsg_errno[1024+1];
   gchar             err_str[2048+1];
   char             *errmsg;
+  gboolean          got_read_error = FALSE, got_write_error = FALSE;
+  long              data_offset;
+  progdlg_t        *progbar = NULL;
+  gboolean          stop_flag;
+  /*
+   * XXX - should be "off_t", but Wiretap would need more work to handle
+   * the full size of "off_t" on platforms where it's more than a "long"
+   * as well.
+   */
+  long        f_len, file_pos;
+  float       prog_val;
+  GTimeVal    start_time;
+  gchar       status_str[100];
+  int         progbar_nextstep;
+  int         progbar_quantum;
 
   /* open the input files */
   if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
-                           &err, &err_info, &err_fileno)) {
+                           &open_err, &err_info, &err_fileno)) {
     free(in_files);
-    cf_open_failure_alert_box(in_filenames[err_fileno], err, err_info, FALSE, 0);
+    cf_open_failure_alert_box(in_filenames[err_fileno], open_err, err_info,
+                              FALSE, 0);
     return FALSE;
   }
 
-  if (!merge_open_outfile(&out_file, out_fd, file_type,
+  pdh = wtap_dump_fdopen(out_fd, file_type,
       merge_select_frame_type(in_file_count, in_files),
-      merge_max_snapshot_length(in_file_count, in_files), &err)) {
+      merge_max_snapshot_length(in_file_count, in_files), &open_err);
+  if (pdh == NULL) {
     merge_close_in_files(in_file_count, in_files);
     free(in_files);
-    cf_open_failure_alert_box(out_filename, err, err_info, TRUE, file_type);
+    cf_open_failure_alert_box(out_filename, open_err, err_info, TRUE,
+                              file_type);
     return FALSE;
   }
 
+  /* Get the sum of the sizes of all the files. */
+  f_len = 0;
+  for (i = 0; i < in_file_count; i++)
+    f_len += in_files[i].size;
+
+  /* Update the progress bar when it gets to this value. */
+  progbar_nextstep = 0;
+  /* When we reach the value that triggers a progress bar update,
+     bump that value by this amount. */
+  progbar_quantum = f_len/N_PROGBAR_UPDATES;
+
+  stop_flag = FALSE;
+  g_get_current_time(&start_time);
+
   /* do the merge (or append) */
-  if (do_append)
-    status = merge_append_files(in_file_count, in_files, &out_file, &err);
-  else
-    status = merge_files(in_file_count, in_files, &out_file, &err);
+  for (;;) {
+    if (do_append)
+      wth = merge_append_read_packet(in_file_count, in_files, &read_err,
+                                     &err_info);
+    else
+      wth = merge_read_packet(in_file_count, in_files, &read_err,
+                              &err_info);
+    if (wth == NULL) {
+      if (read_err != 0)
+        got_read_error = TRUE;
+      break;
+    }
+
+    /* Get the sum of the data offsets in all of the files. */
+    data_offset = 0;
+    for (i = 0; i < in_file_count; i++)
+      data_offset += in_files[i].data_offset;
+
+    if (data_offset >= progbar_nextstep) {
+        /* Get the sum of the seek positions in all of the files. */
+        file_pos = 0;
+        for (i = 0; i < in_file_count; i++)
+          file_pos += lseek(wtap_fd(in_files[i].wth), 0, SEEK_CUR);
+        prog_val = (gfloat) file_pos / (gfloat) f_len;
+        if (prog_val > 1.0) {
+          /* Some file probably grew while we were reading it.
+             That "shouldn't happen", so we'll just clip the progress
+             value at 1.0. */
+          prog_val = 1.0;
+        }
+        if (progbar == NULL) {
+          /* Create the progress bar if necessary */
+          progbar = delayed_create_progress_dlg("Merging", "files",
+            &stop_flag, &start_time, prog_val);
+        }
+        if (progbar != NULL) {
+          g_snprintf(status_str, sizeof(status_str),
+                     "%luKB of %luKB", file_pos / 1024, f_len / 1024);
+          update_progress_dlg(progbar, prog_val, status_str);
+        }
+        progbar_nextstep += progbar_quantum;
+    }
+
+    if (!wtap_dump(pdh, wtap_phdr(wth), wtap_pseudoheader(wth),
+         wtap_buf_ptr(wth), &write_err)) {
+      got_write_error = TRUE;
+      break;
+    }
+  }
+
+  /* We're done merging the files; destroy the progress bar if it was created. */
+  if (progbar != NULL)
+    destroy_progress_dlg(progbar);
 
   merge_close_in_files(in_file_count, in_files);
-  if (status == MERGE_SUCCESS) {
-    if (!merge_close_outfile(&out_file, &err))
-      status = MERGE_WRITE_ERROR;
+  if (!got_read_error && !got_write_error) {
+    if (!wtap_dump_close(pdh, &write_err))
+      got_write_error = TRUE;
   } else
-    merge_close_outfile(&out_file, &close_err);
+    wtap_dump_close(pdh, &close_err);
 
-  switch (status) {
-
-  case MERGE_SUCCESS:
-    break;
-
-  case MERGE_READ_ERROR:
+  if (got_read_error) {
     /*
      * Find the file on which we got the error, and report the error.
      */
     for (i = 0; i < in_file_count; i++) {
-      if (!in_files[i].ok) {
-	/* Put up a message box noting that the read failed somewhere along
+      if (in_files[i].state == GOT_ERROR) {
+	/* Put up a message box noting that a read failed somewhere along
 	   the line. */
-	switch (err) {
+	switch (read_err) {
 
 	case WTAP_ERR_UNSUPPORTED_ENCAP:
 	  snprintf(errmsg_errno, sizeof(errmsg_errno),
@@ -1050,7 +1126,7 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
 
 	case WTAP_ERR_BAD_RECORD:
 	  snprintf(errmsg_errno, sizeof(errmsg_errno),
-		   "The capture file %%sappears to be damaged or corrupt.\n(%s)",
+		   "The capture file %%s appears to be damaged or corrupt.\n(%s)",
 		   err_info);
 	  g_free(err_info);
 	  errmsg = errmsg_errno;
@@ -1059,7 +1135,7 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
 	default:
 	  snprintf(errmsg_errno, sizeof(errmsg_errno),
 		   "An error occurred while reading the"
-		   " capture file %%s: %s.", wtap_strerror(err));
+		   " capture file %%s: %s.", wtap_strerror(read_err));
 	  errmsg = errmsg_errno;
 	  break;
 	}
@@ -1067,13 +1143,14 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_str);
       }
     }
-    break;
-
-  case MERGE_WRITE_ERROR:
-    cf_write_failure_alert_box(out_filename, err);
-    break;
   }
-  return (status == MERGE_SUCCESS);
+
+  if (got_write_error) {
+    /* Put up an alert box for the write error. */
+    cf_write_failure_alert_box(out_filename, write_err);
+  }
+
+  return (!got_read_error && !got_write_error);
 }
 
 gboolean

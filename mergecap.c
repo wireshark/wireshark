@@ -131,18 +131,21 @@ main(int argc, char *argv[])
   gboolean     do_append     = FALSE;
   gboolean     verbose       = FALSE;
   int          in_file_count = 0;
-  int          snaplen = 0;
+  guint        snaplen = 0;
   int          file_type = WTAP_FILE_PCAP;	/* default to libpcap format */
   int          frame_type = -2;
   int          out_fd;
   merge_in_file_t   *in_files      = NULL;
   int          i;
-  merge_out_file_t   out_file;
-  int          err, close_err;
+  wtap        *wth;
+  struct wtap_pkthdr *phdr, snap_phdr;
+  wtap_dumper *pdh;
+  int          open_err, read_err, write_err, close_err;
   gchar       *err_info;
   int          err_fileno;
   char        *out_filename = NULL;
-  merge_status_e status;
+  gboolean     got_read_error = FALSE, got_write_error = FALSE;
+  int          count;
 
   /* Process the options first */
   while ((opt = getopt(argc, argv, "hvas:T:F:w:")) != -1) {
@@ -217,10 +220,10 @@ main(int argc, char *argv[])
 
   /* open the input files */
   if (!merge_open_in_files(in_file_count, &argv[optind], &in_files,
-                           &err, &err_info, &err_fileno)) {
+                           &open_err, &err_info, &err_fileno)) {
     fprintf(stderr, "mergecap: Can't open %s: %s\n", argv[optind + err_fileno],
-        wtap_strerror(err));
-    switch (err) {
+        wtap_strerror(open_err));
+    switch (open_err) {
 
     case WTAP_ERR_UNSUPPORTED:
     case WTAP_ERR_UNSUPPORTED_ENCAP:
@@ -298,60 +301,83 @@ main(int argc, char *argv[])
   }  
     
   /* prepare the outfile */
-  if (!merge_open_outfile(&out_file, out_fd, file_type, frame_type, snaplen,
-                          &err)) {
+  pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, &open_err);
+  if (pdh == NULL) {
     merge_close_in_files(in_file_count, in_files);
     free(in_files);
     fprintf(stderr, "mergecap: Can't open or create %s: %s\n", out_filename,
-            wtap_strerror(err));
+            wtap_strerror(open_err));
     exit(1);
   }
 
   /* do the merge (or append) */
-  if (do_append)
-    status = merge_append_files(in_file_count, in_files, &out_file, &err);
-  else
-    status = merge_files(in_file_count, in_files, &out_file, &err);
+  count = 1;
+  for (;;) {
+    if (do_append)
+      wth = merge_append_read_packet(in_file_count, in_files, &read_err,
+                                     &err_info);
+    else
+      wth = merge_read_packet(in_file_count, in_files, &read_err,
+                              &err_info);
+    if (wth == NULL) {
+      if (read_err != 0)
+        got_read_error = TRUE;
+      break;
+    }
+
+    if (verbose)
+      fprintf(stderr, "Record: %u\n", count++);
+
+    /* We simply write it, perhaps after truncating it; we could do other
+     * things, like modify it. */
+    phdr = wtap_phdr(wth);
+    if (snaplen != 0 && phdr->caplen > snaplen) {
+      snap_phdr = *phdr;
+      snap_phdr.caplen = snaplen;
+      phdr = &snap_phdr;
+    }
+
+    if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth),
+         wtap_buf_ptr(wth), &write_err)) {
+      got_write_error = TRUE;
+      break;
+    }
+  }
 
   merge_close_in_files(in_file_count, in_files);
-  if (status == MERGE_SUCCESS) {
-    if (!merge_close_outfile(&out_file, &err))
-      status = MERGE_WRITE_ERROR;
+  if (!got_read_error && !got_write_error) {
+    if (!wtap_dump_close(pdh, &write_err))
+      got_write_error = TRUE;
   } else
-    merge_close_outfile(&out_file, &close_err);
-  switch (status) {
+    wtap_dump_close(pdh, &close_err);
 
-  case MERGE_SUCCESS:
-    break;
-
-  case MERGE_READ_ERROR:
+  if (got_read_error) {
     /*
      * Find the file on which we got the error, and report the error.
      */
     for (i = 0; i < in_file_count; i++) {
-      if (!in_files[i].ok) {
+      if (in_files[i].state == GOT_ERROR) {
         fprintf(stderr, "mergecap: Error reading %s: %s\n",
-                in_files[i].filename, wtap_strerror(in_files[i].err));
-        switch (err) {
+                in_files[i].filename, wtap_strerror(read_err));
+        switch (read_err) {
 
         case WTAP_ERR_UNSUPPORTED:
         case WTAP_ERR_UNSUPPORTED_ENCAP:
         case WTAP_ERR_BAD_RECORD:
-          fprintf(stderr, "(%s)\n", in_files[i].err_info);
-          g_free(in_files[i].err_info);
+          fprintf(stderr, "(%s)\n", err_info);
+          g_free(err_info);
           break;
         }
       }
     }
-    break;
+  }
 
-  case MERGE_WRITE_ERROR:
+  if (got_write_error) {
     fprintf(stderr, "mergecap: Error writing to outfile: %s\n",
-            wtap_strerror(err));
-    break;
+            wtap_strerror(write_err));
   }
 
   free(in_files);
 
-  return (status == MERGE_SUCCESS) ? 0 : 2;
+  return (!got_read_error && !got_write_error) ? 0 : 2;
 }

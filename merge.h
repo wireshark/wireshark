@@ -29,26 +29,23 @@
 extern "C" {
 #endif /* __cplusplus */
 
+typedef enum {
+  PACKET_PRESENT,
+  PACKET_NOT_PRESENT,
+  AT_EOF,
+  GOT_ERROR
+} in_file_state_e;
+
 /**
  * Structures to manage our input files.
  */
 typedef struct merge_in_file_s {
-  const char *filename;
-  wtap       *wth;
-  int         err;
-  gchar      *err_info;
-  long        data_offset;
-  gboolean    ok;
+  const char     *filename;
+  wtap           *wth;
+  long            data_offset;
+  in_file_state_e state;
+  long            size;		/* file size */
 } merge_in_file_t;
-
-/**
- * Structures to manage our output file.
- */
-typedef struct merge_out_file_s {
-  wtap_dumper *pdh;
-  unsigned int snaplen;
-  int          count;
-} merge_out_file_t;
 
 /** Open a number of input files to merge.
  * 
@@ -73,29 +70,6 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
 extern void
 merge_close_in_files(int in_file_count, merge_in_file_t in_files[]);
 
-/** Open the output file.
- * 
- * @param out_file the output file array, which we fill in
- * @param fd the file descriptor to use for the output file
- * @param file_type the file type to write
- * @param frame_type the frame type to write
- * @param snapshot_len the snapshot length of the output file
- * @param err wiretap error, if failed
- * @return TRUE, if the output file could be opened, and FALSE otherwise
- */
-extern gboolean
-merge_open_outfile(merge_out_file_t *out_file, int fd, int file_type,
-                   int frame_type, int snapshot_len, int *err);
-
-/** Close the output file again.
- * 
- * @param out_file the output file array
- * @param err wiretap error, if failed
- * @return TRUE if the close succeeded, FALSE otherwise
- */
-extern gboolean
-merge_close_outfile(merge_out_file_t *out_file, int *err);
-
 /** Try to get the frame type from the input files.
  * 
  * @param in_file_count number of entries in in_files
@@ -114,39 +88,34 @@ merge_select_frame_type(int in_file_count, merge_in_file_t in_files[]);
 extern int
 merge_max_snapshot_length(int in_file_count, merge_in_file_t in_files[]);
 
-/*
- * Status from the merge-files routines.
- */
-typedef enum {
-	MERGE_SUCCESS,
-	MERGE_READ_ERROR,
-	MERGE_WRITE_ERROR
-} merge_status_e;
-
-/** Merge the packets from the input files into the output file sorted chronologically.
+/** Read the next packet, in chronological order, from the set of files to
+ * be merged.
  * 
  * @param in_file_count number of entries in in_files
  * @param in_files input file array
- * @param out_file the output file array
  * @param err wiretap error, if failed
- * @return MERGE_SUCCESS on success, MERGE_READ_ERROR on read error,
- *         MERGE_WRITE_ERROR on write error
+ * @param err_info wiretap error string, if failed
+ * @return pointer to wtap for file from which that packet came, or NULL on
+ * error or EOF
  */
-extern merge_status_e
-merge_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out_file, int *err);
+extern wtap *
+merge_read_packet(int in_file_count, merge_in_file_t in_files[], int *err,
+                  gchar **err_info);
 
-/** Append the packets from the input files into the output file.
+
+/** Read the next packet, in file sequence order, from the set of files
+ * to be merged.
  * 
  * @param in_file_count number of entries in in_files
  * @param in_files input file array
- * @param out_file the output file array
  * @param err wiretap error, if failed
- * @return MERGE_SUCCESS on success, MERGE_READ_ERROR on read error,
- *         MERGE_WRITE_ERROR on write error
+ * @param err_info wiretap error string, if failed
+ * @return pointer to wtap for file from which that packet came, or NULL on
+ * error or EOF
  */
-extern merge_status_e
-merge_append_files(int in_file_count, merge_in_file_t in_files[],
-                   merge_out_file_t *out_file, int *err);
+extern wtap *
+merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
+                         int *err, gchar **err_info);
 
 #ifdef __cplusplus
 }
