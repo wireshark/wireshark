@@ -60,11 +60,17 @@ XPStyle on
 !define MUI_UNICON "..\..\image\ethereal.ico"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
+!define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_UNFINISHPAGE_NOAUTOCLOSE
 !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Ethereal.\r\n\r\nBefore starting the installation, make sure Ethereal is not running.\r\n\r\nClick 'Next' to continue."
 !define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network!"
 !define MUI_FINISHPAGE_LINK_LOCATION "http://winpcap.polito.it"
-; show readme doesn't seem to work even with NSIS 2.0rc3
-;!define MUI_FINISHPAGE_SHOWREADME "..\..\README.win32"
+
+; NSIS shows Readme files by opening the Readme file with the default application for
+; the file's extension. "README.win32" won't work in most cases, because extension "win32" 
+; is usually not associated with an appropriate text editor. We should use extension "txt" 
+; for a text file or "html" for an html README file.  
+;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\help\overview.txt"
 ;!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 
 ; ============================================================================
