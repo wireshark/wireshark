@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.15 2000/11/19 08:53:55 guy Exp $
+ * $Id: packet-bpdu.c,v 1.16 2000/11/30 09:31:50 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -43,6 +43,9 @@
 #include "packet.h"
 #include "llcsaps.h"
 #include "resolv.h"
+
+/* Include this for GVRP dissector */
+#include "packet-gvrp.h"
 
 /* Offsets of fields within a BPDU */
 
@@ -99,6 +102,46 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       CHECK_DISPLAY_AS_DATA(proto_bpdu, tvb, pinfo, tree);
 
+      /* GARP application frames require special interpretation of the
+         destination address field; otherwise, they will be mistaken as
+         BPDU frames.  
+         Fortunately, they can be recognized by checking the first 6 octets
+         of the destination address, which are in the range from
+         01-80-C2-00-00-20 to 01-80-C2-00-00-2F. */
+      if (pinfo->dl_dst.data[0] == 0x01 && pinfo->dl_dst.data[1] == 0x80 &&
+	  pinfo->dl_dst.data[2] == 0xC2 && pinfo->dl_dst.data[3] == 0x00 &&
+	  pinfo->dl_dst.data[4] == 0x00 && ((pinfo->dl_dst.data[5] & 0x20) == 0x20)) {
+
+	    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
+
+	    switch (pinfo->dl_dst.data[5]) {
+
+	    case 0x20:
+		  /* Future expansion for GMRP */
+		  break;
+
+	    case 0x21:
+		  /* for GVRP */
+		  dissect_gvrp(tvb, pinfo, tree);
+		  return;
+	    }
+
+	    pinfo->current_proto = "GARP";
+
+	    if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		    col_set_str(pinfo->fd, COL_PROTOCOL, "GARP");
+		    /* Generic Attribute Registration Protocol */
+	    }
+
+	    if (check_col(pinfo->fd, COL_INFO)) {
+		    col_add_fstr(pinfo->fd, COL_INFO,
+		        "Unknown GARP application (0x%02X)",
+			pinfo->dl_dst.data[5]);
+            }
+
+	    return;
+      }
+
       pinfo->current_proto = "STP";
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
@@ -142,7 +185,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				BPDU_VERSION_IDENTIFIER, 1, 
 				protocol_version_identifier);
 	    if (protocol_version_identifier != 0)
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_IDENTIFIER, 1, "   (Warning: this version of packet-bpdu only knows about version = 0)");
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_IDENTIFIER, 1,
+		  "   (Warning: this version of Ethereal only knows about version = 0)");
 	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_type, tvb,
 				       BPDU_TYPE, 1, 
 				       bpdu_type,

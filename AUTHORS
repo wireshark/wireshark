@@ -444,6 +444,10 @@ Frank Singleton <frank.singleton@ericsson.com> {
 	Short integer CDR support for GIOP
 }
 
+Kevin Shi <techishi@ms22.hinet.net> {
+	GVRP support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1005,6 +1005,7 @@ B<http://www.ethereal.com>.
   Ed Warnicke              <hagbard@physics.rutgers.edu>
   Johan Jorgensen          <johan.jorgensen@axis.com>
   Frank Singleton          <frank.singleton@ericsson.com>
+  Kevin Shi                <techishi@ms22.hinet.net>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
