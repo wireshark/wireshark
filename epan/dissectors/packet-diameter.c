@@ -636,7 +636,7 @@ xmlParseVendor(xmlNodePtr cur)
 	return -1;
   }
 
-  return (addVendor(atoi(code), id, name));
+  return (addVendor(atoi(id), code, name));
 
 } /* addVendor */
 
