@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.132 2001/11/05 05:39:31 guy Exp $
+ * $Id: packet-smb.c,v 1.133 2001/11/05 07:46:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4374,6 +4374,7 @@ static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, pro
  */
 static tvbuff_t *our_tvb;
 static packet_info *our_pinfo;
+static proto_tree *our_tree;
 
 static void
 wrap_dissect_smb_command(proto_tree *top_tree, const guint8 *pd, int offset,
@@ -4396,7 +4397,7 @@ wrap_dissect_smb_command(proto_tree *top_tree, const guint8 *pd, int offset,
 			 (si->request)? "Request" : "Response");
 	  }
 
-	  cmd_item = proto_tree_add_text(smb_tree, NullTVB, offset,
+	  cmd_item = proto_tree_add_text(our_tree, NullTVB, offset,
 			0, "%s %s (0x%02x)",
 			decode_smb_name(cmd), 
 			(si->request)?"Request":"Response",
@@ -10764,6 +10765,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	our_tvb = tvb;
 	our_pinfo = pinfo;
+	our_tree = tree;
 	if((sip->request)? smb_dissector[sip->cmd].request :
 			   smb_dissector[sip->cmd].response){ 
 	  /* call smb command dissector */
