@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.23 2000/11/10 15:44:11 gram Exp $
+ * $Id: packet-netbios.c,v 1.24 2000/11/11 06:47:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -616,7 +616,7 @@ static void  dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
 	/* Weird.  In some datagrams, this is 10 octets of 0, followed
 	   by a MAC address.... */
 
-	if (memcmp( tvb_get_ptr( tvb,offset + NB_SENDER_NAME + 10, 6), zeroes, 10) == 0) {
+	if (memcmp( tvb_get_ptr( tvb,offset + NB_SENDER_NAME, 10), zeroes, 10) == 0) {
 		proto_tree_add_text( tree, tvb, offset + NB_SENDER_NAME + 10, 6,
 		    "Sender's MAC Address: %s",
 		    ether_to_str( tvb_get_ptr( tvb,offset + NB_SENDER_NAME + 10, 6)));
