@@ -1510,16 +1510,16 @@ main(int argc, char *argv[])
       epan_cleanup();
 #ifdef HAVE_PCAP_OPEN_DEAD
       {
-        pcap_t *p;
+        pcap_t *pc;
 
-        p = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
-        if (p != NULL) {
-          if (pcap_compile(p, &fcode, rfilter, 0, 0) != -1) {
+        pc = pcap_open_dead(DLT_EN10MB, MIN_PACKET_SIZE);
+        if (pc != NULL) {
+          if (pcap_compile(pc, &fcode, rfilter, 0, 0) != -1) {
             fprintf(stderr,
               "  Note: That display filter code looks like a valid capture filter;\n"
               "        maybe you mixed them up?\n");
           }
-          pcap_close(p);
+          pcap_close(pc);
         }
       }
 #endif
@@ -2161,14 +2161,14 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
 {
   struct wtap_pkthdr whdr;
   union wtap_pseudo_header pseudo_header;
-  loop_data *ld = (loop_data *) user;
+  loop_data *ldat = (loop_data *) user;
   int loop_err;
   int err;
 
   /* Convert from libpcap to Wiretap format.
      If that fails, ignore the packet (wtap_process_pcap_packet has
      written an error message). */
-  pd = wtap_process_pcap_packet(ld->linktype, phdr, pd, &pseudo_header,
+  pd = wtap_process_pcap_packet(ldat->linktype, phdr, pd, &pseudo_header,
 				&whdr, &err);
   if (pd == NULL)
     return;
@@ -2189,17 +2189,17 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
    */
   if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
     /* time elapsed for this ring file, switch to the next */
-    if (ringbuf_switch_file(&cfile, &ld->pdh, &loop_err)) {
+    if (ringbuf_switch_file(&cfile, &ldat->pdh, &loop_err)) {
       /* File switch succeeded: reset the condition */
       cnd_reset(cnd_ring_timeout);
     } else {
       /* File switch failed: stop here */
       /* XXX - we should do something with "loop_err" */
-      ld->go = FALSE;
+      ldat->go = FALSE;
     }
   }
 
-  if (!process_packet(&cfile, ld->pdh, 0, &whdr, &pseudo_header, pd, &err)) {
+  if (!process_packet(&cfile, ldat->pdh, 0, &whdr, &pseudo_header, pd, &err)) {
     /* Error writing to a capture file */
     if (!quiet) {
       /* We're capturing packets, so (if -q not specified) we're printing
@@ -2207,8 +2207,8 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
       fprintf(stderr, "\n");
     }
     show_capture_file_io_error(cfile.save_file, err, FALSE);
-    pcap_close(ld->pch);
-    wtap_dump_close(ld->pdh, &err);
+    pcap_close(ldat->pch);
+    wtap_dump_close(ldat->pdh, &err);
     exit(2);
   }
 
@@ -3242,9 +3242,9 @@ fail:
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
 static void
-adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
+adjust_header(loop_data *ldat, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
 {
-  if (ld->byte_swapped) {
+  if (ldat->byte_swapped) {
     /* Byte-swap the record header fields. */
     rechdr->ts_sec = BSWAP32(rechdr->ts_sec);
     rechdr->ts_usec = BSWAP32(rechdr->ts_usec);
@@ -3276,7 +3276,7 @@ adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
  * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
  * because we can't seek on pipes (see wiretap/libpcap.c for details) */
 static int
-pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
+pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
                  char *errmsg, int errmsgl)
 {
   struct stat pipe_stat;
@@ -3293,12 +3293,12 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   else {
     if (stat(pipename, &pipe_stat) < 0) {
       if (errno == ENOENT || errno == ENOTDIR)
-        ld->pipe_err = PIPNEXIST;
+        ldat->pipe_err = PIPNEXIST;
       else {
         snprintf(errmsg, errmsgl,
           "The capture session could not be initiated "
           "due to error on pipe: %s", strerror(errno));
-        ld->pipe_err = PIPERR;
+        ldat->pipe_err = PIPERR;
       }
       return -1;
     }
@@ -3308,12 +3308,12 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
          * Assume the user specified an interface on a system where
          * interfaces are in /dev.  Pretend we haven't seen it.
          */
-         ld->pipe_err = PIPNEXIST;
+         ldat->pipe_err = PIPNEXIST;
       } else {
         snprintf(errmsg, errmsgl,
             "The capture session could not be initiated because\n"
             "\"%s\" is neither an interface nor a pipe", pipename);
-        ld->pipe_err = PIPERR;
+        ldat->pipe_err = PIPERR;
       }
       return -1;
     }
@@ -3322,12 +3322,12 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       snprintf(errmsg, errmsgl,
           "The capture session could not be initiated "
           "due to error on pipe open: %s", strerror(errno));
-      ld->pipe_err = PIPERR;
+      ldat->pipe_err = PIPERR;
       return -1;
     }
   }
 
-  ld->from_pipe = TRUE;
+  ldat->from_pipe = TRUE;
 
   /* read the pcap header */
   bytes_read = 0;
@@ -3348,28 +3348,28 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   case PCAP_MAGIC:
     /* Host that wrote it has our byte order, and was running
        a program using either standard or ss990417 libpcap. */
-    ld->byte_swapped = FALSE;
-    ld->modified = FALSE;
+    ldat->byte_swapped = FALSE;
+    ldat->modified = FALSE;
     break;
   case PCAP_MODIFIED_MAGIC:
     /* Host that wrote it has our byte order, but was running
        a program using either ss990915 or ss991029 libpcap. */
-    ld->byte_swapped = FALSE;
-    ld->modified = TRUE;
+    ldat->byte_swapped = FALSE;
+    ldat->modified = TRUE;
     break;
   case PCAP_SWAPPED_MAGIC:
     /* Host that wrote it has a byte order opposite to ours,
        and was running a program using either standard or
        ss990417 libpcap. */
-    ld->byte_swapped = TRUE;
-    ld->modified = FALSE;
+    ldat->byte_swapped = TRUE;
+    ldat->modified = FALSE;
     break;
   case PCAP_SWAPPED_MODIFIED_MAGIC:
     /* Host that wrote it out has a byte order opposite to
        ours, and was running a program using either ss990915
        or ss991029 libpcap. */
-    ld->byte_swapped = TRUE;
-    ld->modified = TRUE;
+    ldat->byte_swapped = TRUE;
+    ldat->modified = TRUE;
     break;
   default:
     /* Not a "libpcap" type we know about. */
@@ -3393,7 +3393,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
     bytes_read += b;
   }
 
-  if (ld->byte_swapped) {
+  if (ldat->byte_swapped) {
     /* Byte-swap the header fields about which we care. */
     hdr->version_major = BSWAP16(hdr->version_major);
     hdr->version_minor = BSWAP16(hdr->version_minor);
@@ -3406,12 +3406,12 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
     goto error;
   }
 
-  ld->pipe_state = STATE_EXPECT_REC_HDR;
-  ld->pipe_err = PIPOK;
+  ldat->pipe_state = STATE_EXPECT_REC_HDR;
+  ldat->pipe_err = PIPOK;
   return fd;
 
 error:
-  ld->pipe_err = PIPERR;
+  ldat->pipe_err = PIPERR;
   close(fd);
   return -1;
 
@@ -3420,7 +3420,7 @@ error:
  * header, write the record in the capture file, and update capture statistics. */
 
 static int
-pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
+pipe_dispatch(int fd, loop_data *ldat, struct pcap_hdr *hdr,
                 struct pcaprec_modified_hdr *rechdr, guchar *data,
                 char *errmsg, int errmsgl)
 {
@@ -3429,18 +3429,18 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
   enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
           PD_ERR } result;
 
-  switch (ld->pipe_state) {
+  switch (ldat->pipe_state) {
 
   case STATE_EXPECT_REC_HDR:
-    ld->bytes_to_read = ld->modified ?
+    ldat->bytes_to_read = ldat->modified ?
       sizeof(struct pcaprec_modified_hdr) : sizeof(struct pcaprec_hdr);
-    ld->bytes_read = 0;
-    ld->pipe_state = STATE_READ_REC_HDR;
+    ldat->bytes_read = 0;
+    ldat->pipe_state = STATE_READ_REC_HDR;
     /* Fall through */
 
   case STATE_READ_REC_HDR:
-    b = read(fd, ((char *)rechdr)+ld->bytes_read,
-      ld->bytes_to_read - ld->bytes_read);
+    b = read(fd, ((char *)rechdr)+ldat->bytes_read,
+      ldat->bytes_to_read - ldat->bytes_read);
     if (b <= 0) {
       if (b == 0)
         result = PD_PIPE_EOF;
@@ -3448,18 +3448,18 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
         result = PD_PIPE_ERR;
       break;
     }
-    if ((ld->bytes_read += b) < ld->bytes_to_read)
+    if ((ldat->bytes_read += b) < ldat->bytes_to_read)
         return 0;
     result = PD_REC_HDR_READ;
     break;
 
   case STATE_EXPECT_DATA:
-    ld->bytes_read = 0;
-    ld->pipe_state = STATE_READ_DATA;
+    ldat->bytes_read = 0;
+    ldat->pipe_state = STATE_READ_DATA;
     /* Fall through */
 
   case STATE_READ_DATA:
-    b = read(fd, data+ld->bytes_read, rechdr->hdr.incl_len - ld->bytes_read);
+    b = read(fd, data+ldat->bytes_read, rechdr->hdr.incl_len - ldat->bytes_read);
     if (b <= 0) {
       if (b == 0)
         result = PD_PIPE_EOF;
@@ -3467,7 +3467,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
         result = PD_PIPE_ERR;
       break;
     }
-    if ((ld->bytes_read += b) < rechdr->hdr.incl_len)
+    if ((ldat->bytes_read += b) < rechdr->hdr.incl_len)
       return 0;
     result = PD_DATA_READ;
     break;
@@ -3476,7 +3476,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     snprintf(errmsg, errmsgl, "pipe_dispatch: invalid state");
     result = PD_ERR;
 
-  } /* switch (ld->pipe_state) */
+  } /* switch (ldat->pipe_state) */
 
   /*
    * We've now read as much data as we were expecting, so process it.
@@ -3485,13 +3485,13 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 
   case PD_REC_HDR_READ:
     /* We've read the header. Take care of byte order. */
-    adjust_header(ld, hdr, &rechdr->hdr);
+    adjust_header(ldat, hdr, &rechdr->hdr);
     if (rechdr->hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
       snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
-        ld->packet_count+1, rechdr->hdr.incl_len);
+        ldat->packet_count+1, rechdr->hdr.incl_len);
       break;
     }
-    ld->pipe_state = STATE_EXPECT_DATA;
+    ldat->pipe_state = STATE_EXPECT_DATA;
     return 0;
 
   case PD_DATA_READ:
@@ -3501,13 +3501,13 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     phdr.caplen = rechdr->hdr.incl_len;
     phdr.len = rechdr->hdr.orig_len;
 
-    capture_pcap_cb((guchar *)ld, &phdr, data);
+    capture_pcap_cb((guchar *)ldat, &phdr, data);
 
-    ld->pipe_state = STATE_EXPECT_REC_HDR;
+    ldat->pipe_state = STATE_EXPECT_REC_HDR;
     return 1;
 
   case PD_PIPE_EOF:
-    ld->pipe_err = PIPEOF;
+    ldat->pipe_err = PIPEOF;
     return -1;
 
   case PD_PIPE_ERR:
@@ -3518,7 +3518,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     break;
   }
 
-  ld->pipe_err = PIPERR;
+  ldat->pipe_err = PIPERR;
   /* Return here rather than inside the switch to prevent GCC warning */
   return -1;
 }

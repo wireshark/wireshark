@@ -369,15 +369,15 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
     int	   pkt_len = 0;
     int	   pktnum;
     int	   csec = 101;
-    struct tm time;
+    struct tm tm;
     char mon[4] = {'J', 'A', 'N', 0};
     gchar *p;
     static gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
 
-    time.tm_year = 1970;
-    time.tm_hour = 1;
-    time.tm_min = 1;
-    time.tm_sec = 1;
+    tm.tm_year = 1970;
+    tm.tm_hour = 1;
+    tm.tm_min = 1;
+    tm.tm_sec = 1;
 
     /* Skip lines until one starts with a hex number */
     do {
@@ -397,16 +397,16 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 	    /* First look for the Format 1 type sequencing */
 	    num_items_scanned = sscanf(p,  
 		  		       "packet %d at %d-%3s-%d %d:%d:%d.%d",
-			  	       &pktnum, &time.tm_mday, mon,
-				       &time.tm_year, &time.tm_hour,
-				       &time.tm_min, &time.tm_sec, &csec);
+			  	       &pktnum, &tm.tm_mday, mon,
+				       &tm.tm_year, &tm.tm_hour,
+				       &tm.tm_min, &tm.tm_sec, &csec);
 	    /* Next look for the Format 2 type sequencing */
 	    if (num_items_scanned != 8) {
 	      num_items_scanned = sscanf(p,
 		  		         "packet seq # = %d at %d-%3s-%d %d:%d:%d.%d",
-			  	         &pktnum, &time.tm_mday, mon,
-				         &time.tm_year, &time.tm_hour,
-				         &time.tm_min, &time.tm_sec, &csec);
+			  	         &pktnum, &tm.tm_mday, mon,
+				         &tm.tm_year, &tm.tm_hour,
+				         &tm.tm_min, &tm.tm_sec, &csec);
 	    }
 	    /* if unknown format then exit with error        */
 	    /* We will need to add code to handle new format */
@@ -435,11 +435,11 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
     if (wth) {
         p = strstr(months, mon);
         if (p)
-            time.tm_mon = (p - months) / 3;
-        time.tm_year -= 1900;
+            tm.tm_mon = (p - months) / 3;
+        tm.tm_year -= 1900;
 
-	time.tm_isdst = -1;
-        wth->phdr.ts.tv_sec = mktime(&time);
+	tm.tm_isdst = -1;
+        wth->phdr.ts.tv_sec = mktime(&tm);
 
         wth->phdr.ts.tv_usec = csec * 10000;
         wth->phdr.caplen = pkt_len;

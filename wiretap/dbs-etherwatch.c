@@ -318,7 +318,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	int	num_items_scanned;
 	int	eth_hdr_len, pkt_len, csec;
 	int length_pos, length_from, length;
-	struct tm time;
+	struct tm tm;
 	char mon[4];
 	gchar *p;
 	static gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
@@ -390,9 +390,9 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	num_items_scanned = sscanf(line + LENGTH_POS,
 				"%d byte buffer at %d-%3s-%d %d:%d:%d.%d",
 				&pkt_len,
-				&time.tm_mday, mon,
-				&time.tm_year, &time.tm_hour, &time.tm_min,
-				&time.tm_sec, &csec);
+				&tm.tm_mday, mon,
+				&tm.tm_year, &tm.tm_hour, &tm.tm_min,
+				&tm.tm_sec, &csec);
 
 	if (num_items_scanned != 8) {
 		*err = WTAP_ERR_BAD_RECORD;
@@ -470,11 +470,11 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	if (wth) {
 		p = strstr(months, mon);
 		if (p)
-			time.tm_mon = (p - months) / 3;
-		time.tm_year -= 1900;
+			tm.tm_mon = (p - months) / 3;
+		tm.tm_year -= 1900;
 
-		time.tm_isdst = -1;
-		wth->phdr.ts.tv_sec = mktime(&time);
+		tm.tm_isdst = -1;
+		wth->phdr.ts.tv_sec = mktime(&tm);
 
 		wth->phdr.ts.tv_usec = csec * 10000;
 		wth->phdr.caplen = eth_hdr_len + pkt_len;

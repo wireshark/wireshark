@@ -342,6 +342,6 @@ guint
 fvalue_length(fvalue_t *fv);
 
 fvalue_t*
-fvalue_slice(fvalue_t *fv, drange *drange);
+fvalue_slice(fvalue_t *fv, drange *dr);
 
 #endif /* ftypes.h */
