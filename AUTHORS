@@ -1030,6 +1030,7 @@ Bernd Becker <bb[AT]bernd-becker.de> {
 	ethereal_gen.py cleanups
 	Reset the Protocol column to GIOP if no heuristic dissectors
 	    succeed
+	Enhancements to TNS dissector
 }
 
 Heinz Prantner <Heinz.Prantner[AT]radisys.com> {

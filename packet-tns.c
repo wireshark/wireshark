@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.31 2002/06/05 17:41:59 nneul Exp $
+ * $Id: packet-tns.c,v 1.32 2002/06/06 13:17:49 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,6 +197,46 @@ static const value_string tns_control_cmds[] = {
 	{0, NULL}
 };
 
+static void dissect_tns_service_options(tvbuff_t *tvb, int offset,
+	proto_tree *sopt_tree)
+{
+
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_bconn, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_pc, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_hc, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_fd, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_hd, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dc1, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dc2, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dio, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_ap, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_ra, tvb,
+			offset, 2, FALSE);
+	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_sa, tvb,
+			offset, 2, FALSE);
+	
+}
+
+static void dissect_tns_connect_flag(tvbuff_t *tvb, int offset,
+	proto_tree *cflag_tree)
+{
+
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nareq, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nalink, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_enablena, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_ichg, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_wantna, tvb, offset, 1, FALSE);
+}
+
 static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
@@ -315,32 +355,11 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		
 		ti = proto_tree_add_item(connect_tree, hf_tns_service_options, tvb,
 			offset, 2, FALSE);
-		
+
 		sopt_tree = proto_item_add_subtree(ti, ett_tns_sopt_flag);
 
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_bconn, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_pc, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_hc, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_fd, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_hd, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dc1, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dc2, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dio, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_ap, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_ra, tvb,
-			offset, 2, FALSE);
-		proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_sa, tvb,
-			offset, 2, FALSE);
-	
+		dissect_tns_service_options(tvb, offset, sopt_tree);
+		
 
 	}
 	offset += 2;
@@ -430,14 +449,10 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		
 		ti = proto_tree_add_item(connect_tree, hf_tns_connect_flags0, tvb,
 			offset, 1, FALSE);
-		
+
 		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
 
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nareq, tvb, offset, 1, FALSE);
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nalink, tvb, offset, 1, FALSE);
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_enablena, tvb, offset, 1, FALSE);
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_ichg, tvb, offset, 1, FALSE);
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_wantna, tvb, offset, 1, FALSE);
+		dissect_tns_connect_flag(tvb, offset, cflag_tree);
 	}
 	offset += 1;
 
@@ -447,14 +462,10 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		
 		ti = proto_tree_add_item(connect_tree, hf_tns_connect_flags1, tvb,
 			offset, 1, FALSE);
-		
+
 		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
 
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nareq, tvb, offset, 1, FALSE);
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nalink, tvb, offset, 1, FALSE);
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_enablena, tvb, offset, 1, FALSE);
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_ichg, tvb, offset, 1, FALSE);
-		proto_tree_add_item(cflag_tree, hf_tns_conn_flag_wantna, tvb, offset, 1, FALSE);
+		dissect_tns_connect_flag(tvb, offset, cflag_tree);
 	}
 	offset += 1;
 
@@ -519,8 +530,15 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	if ( accept_tree )
 	{
-		proto_tree_add_item(accept_tree, hf_tns_service_options, tvb,
-			offset, 2, FALSE);
+		proto_tree *sopt_tree = NULL;
+		
+		ti = proto_tree_add_item(accept_tree, hf_tns_service_options, 
+			tvb, offset, 2, FALSE);
+
+		sopt_tree = proto_item_add_subtree(ti, ett_tns_sopt_flag);
+
+		dissect_tns_service_options(tvb, offset, sopt_tree);
+	
 	}
 	offset += 2;
 
@@ -563,15 +581,29 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( accept_tree )
 	{
-		proto_tree_add_item(accept_tree, hf_tns_connect_flags0, tvb,
+		proto_tree *cflag_tree = NULL;
+		
+		ti = proto_tree_add_item(accept_tree, hf_tns_connect_flags0, tvb,
 			offset, 1, FALSE);
+
+		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
+
+		dissect_tns_connect_flag(tvb, offset, cflag_tree);
+		
 	}
 	offset += 1;
 
 	if ( accept_tree )
 	{
-		proto_tree_add_item(accept_tree, hf_tns_connect_flags1, tvb,
+		proto_tree *cflag_tree = NULL;
+		
+		ti = proto_tree_add_item(accept_tree, hf_tns_connect_flags1, tvb,
 			offset, 1, FALSE);
+
+		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
+
+		dissect_tns_connect_flag(tvb, offset, cflag_tree);
+		
 	}
 	offset += 1;
 
