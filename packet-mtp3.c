@@ -9,7 +9,7 @@
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.16 2003/04/19 20:13:23 tuexen Exp $
+ * $Id: packet-mtp3.c,v 1.17 2003/07/09 10:41:07 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,7 +203,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, proto_tree *mtp3_tree)
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
     label = tvb_get_letohl(tvb, ITU_ROUTING_LABEL_OFFSET);
-    sls   = tvb_get_guint8(tvb, ITU_ROUTING_LABEL_OFFSET);
+    sls   = tvb_get_guint8(tvb, ITU_SLS_OFFSET);
 
     proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb,
 			ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH,
