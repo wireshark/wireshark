@@ -570,8 +570,10 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * Do we have information for this OUI?
 		 */
-		oui_info = g_hash_table_lookup(oui_info_table, GUINT_TO_POINTER(oui));
-		if (oui_info != NULL) {
+		if (oui_info_table != NULL &&
+		    (oui_info =
+		     g_hash_table_lookup(oui_info_table,
+		      GUINT_TO_POINTER(oui))) != NULL) {
 			/*
 			 * Yes - use it.
 			 */
@@ -755,5 +757,6 @@ proto_reg_handoff_llc(void)
 	/*
 	 * Register all the fields for PIDs for various OUIs.
 	 */
-	g_hash_table_foreach(oui_info_table, register_hf, NULL);
+	if (oui_info_table != NULL)
+		g_hash_table_foreach(oui_info_table, register_hf, NULL);
 }
