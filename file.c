@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.307 2003/09/03 23:40:06 guy Exp $
+ * $Id: file.c,v 1.308 2003/09/08 21:08:43 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -686,6 +686,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t *edt;
 
+  /* just add some value here until we know if it is being displayed or not */
+  fdata->cul_bytes  = cul_bytes + fdata->pkt_len;
+
   /* We don't yet have a color filter to apply. */
   args.colorf = NULL;
 
@@ -779,6 +782,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (fdata->flags.passed_dfilter) {
     /* This frame passed the display filter, so add it to the clist. */
 
+    /* increase cul_bytes with this packets length */
+    cul_bytes += fdata->pkt_len;
+
     epan_dissect_fill_in_columns(edt);
 
     /* If we haven't yet seen the first frame, this is it.
@@ -840,8 +846,6 @@ read_packet(capture_file *cf, long offset)
   fdata->prev = NULL;
   fdata->pfd  = NULL;
   fdata->pkt_len  = phdr->len;
-  cul_bytes += phdr->len;
-  fdata->cul_bytes  = cul_bytes;
   fdata->cap_len  = phdr->caplen;
   fdata->file_off = offset;
   fdata->lnk_t = phdr->pkt_encap;
