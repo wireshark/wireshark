@@ -1200,6 +1200,7 @@ Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	    editing code without having specified a filter name and string
 	Fix to treat the "send buffer length" in SMB RAP messages as
 	    being present in the packet
+	Dissection of NTLMSSP packets for DCERPC
 }
 
 Chenjiang Hu <chu[AT]chiaro.com> {
@@ -1317,8 +1318,12 @@ Liviu Daia <Liviu.Daia[AT]imar.ro> {
 	    from the command line
 }
 
-Devin Heitmueller <dheitmueller[AT]netilla.com> {
-	Dissection of NTLMSSP packets for DCERPC
+Anand V. Narwani <anarwani[AT]cisco.com> {
+	DOCSIS support, including support for "Ethernet" captures where
+	    the raw frame is a DOCSIS frame rather than an Ethernet
+	    frame (some Cisco cable-modem head-end gear can send out a
+	    trace of all traffic on an Ethernet, but what it sends are
+	    the raw bytes of DOCSIS frames, not Ethernet frames)
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to

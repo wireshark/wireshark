@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.15 2002/06/01 22:17:22 guy Exp $
+; $Id: ethereal.nsi.in,v 1.16 2002/07/12 22:52:38 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -127,10 +127,11 @@ SectionEnd
 Section "Plugins"
 ;-------------------------------------------
 SetOutPath $INSTDIR\plugins\@VERSION@
+File "..\..\plugins\docsis\docsis.dll"
+File "..\..\plugins\giop\coseventcomm.dll"
+File "..\..\plugins\giop\cosnaming.dll"
 File "..\..\plugins\gryphon\gryphon.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
-File "..\..\plugins\giop\cosnaming.dll"
-File "..\..\plugins\giop\coseventcomm.dll"
 SectionEnd
 
 SectionDivider
@@ -167,6 +168,7 @@ Delete "$INSTDIR\*.html"
 Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\plugins\@VERSION@\coseventcomm.dll"
 Delete "$INSTDIR\plugins\@VERSION@\cosnaming.dll"
+Delete "$INSTDIR\plugins\@VERSION@\docsis.dll"
 Delete "$INSTDIR\plugins\@VERSION@\gryphon.dll"
 Delete "$INSTDIR\plugins\@VERSION@\mgcp.dll"
 Delete "$SMPROGRAMS\Ethereal\*.*"

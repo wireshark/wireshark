@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.13 2002/02/27 09:42:44 guy Exp $
+# $Id: Makefile.nmake,v 1.14 2002/07/12 22:52:39 guy Exp $
 #
 
 include ..\config.nmake
@@ -13,7 +13,17 @@ CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap /I. \
 
 OBJECTS=plugin_api.obj 
 
-all: plugin_api.obj gryphon mgcp giop
+all: plugin_api.obj docsis giop gryphon mgcp
+
+docsis::
+	cd docsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd .. 
+
+giop::
+	cd giop
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd .. 
 
 gryphon::
 	cd gryphon
@@ -21,22 +31,18 @@ gryphon::
 	cd ..
 
 mgcp::
-    cd mgcp
-    $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-    cd .. 
-
-giop::
-    cd giop
-    $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-    cd .. 
-
+	cd mgcp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd .. 
 
 clean:
 	rm -f plugin_api.obj $(PDB_FILE)
-	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../mgcp
+	cd docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../giop
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../gryphon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..

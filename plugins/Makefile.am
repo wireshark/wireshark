@@ -1,12 +1,11 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.10 2002/07/06 20:40:45 guy Exp $
+# $Id: Makefile.am,v 1.11 2002/07/12 22:52:39 guy Exp $
 #
 # Ethereal - Network traffic analyzer
-# By Gerald Combs <gerald@zing.org>
+# By Gerald Combs <gerald@ethereal.com>
 # Copyright 1998 Gerald Combs
-#
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,7 +21,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-SUBDIRS = gryphon mgcp giop
+SUBDIRS = docsis giop gryphon mgcp
 
 plugindir = @plugindir@
 

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.54 2002/05/14 10:39:29 guy Exp $
+ * $Id: plugins.c,v 1.55 2002/07/12 22:52:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -455,6 +455,9 @@ init_plugins(const char *plugin_dir)
 	patable.p_decode_boolean_bitfield	= decode_boolean_bitfield;
 	patable.p_decode_numeric_bitfield	= decode_numeric_bitfield;
 	patable.p_decode_enumerated_bitfield	= decode_enumerated_bitfield;
+	patable.p_register_dissector_table	= register_dissector_table;
+	patable.p_except_throw			= except_throw;
+	patable.p_dissector_try_port		= dissector_try_port;
 #endif
 
 #ifdef WIN32

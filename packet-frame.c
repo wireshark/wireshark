@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.26 2002/05/04 20:57:18 guy Exp $
+ * $Id: packet-frame.c,v 1.27 2002/07/12 22:52:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,9 +52,11 @@ static int proto_unreassembled = -1;
 static gint ett_frame = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t docsis_handle;
 
 /* Preferences */
 static gboolean show_file_off = FALSE;
+static gboolean force_docsis_encap;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_SENT,	"Sent" },
@@ -91,6 +93,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    P2P_DIR_RECV : P2P_DIR_SENT;
 			break;
 		}
+	}
+
+	if ((force_docsis_encap) && (docsis_handle)) {
+		pinfo->fd->lnk_t = WTAP_ENCAP_DOCSIS;
 	}
 
 	/* Put in frame header information. */
@@ -278,10 +284,13 @@ proto_register_frame(void)
 	frame_module = prefs_register_protocol(proto_frame, NULL);
 	prefs_register_bool_preference(frame_module, "show_file_off",
 	    "Show File Offset", "Show File Offset", &show_file_off);
+	prefs_register_bool_preference(frame_module, "force_docsis_encap",
+	    "Treat all frames as DOCSIS frames", "Treat all frames as DOCSIS Frames", &force_docsis_encap);
 }
 
 void
 proto_reg_handoff_frame(void)
 {
 	data_handle = find_dissector("data");
+	docsis_handle = find_dissector("docsis");
 }

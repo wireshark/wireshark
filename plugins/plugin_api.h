@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.40 2002/05/05 00:34:12 guy Exp $
+ * $Id: plugin_api.h,v 1.41 2002/07/12 22:52:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -202,6 +202,9 @@
 #define decode_boolean_bitfield		(*p_decode_boolean_bitfield)
 #define decode_numeric_bitfield		(*p_decode_numeric_bitfield)
 #define decode_enumerated_bitfield	(*p_decode_enumerated_bitfield)
+#define register_dissector_table	(*p_register_dissector_table)
+#define except_throw			(*p_except_throw)
+#define dissector_try_port		(*p_dissector_try_port)
 
 #endif
 

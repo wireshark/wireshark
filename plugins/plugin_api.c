@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.39 2002/05/05 00:34:12 guy Exp $
+ * $Id: plugin_api.c,v 1.40 2002/07/12 22:52:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -172,4 +172,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_decode_boolean_bitfield		= pat->p_decode_boolean_bitfield;
 	p_decode_numeric_bitfield		= pat->p_decode_numeric_bitfield;
 	p_decode_enumerated_bitfield		= pat->p_decode_enumerated_bitfield;
+	p_register_dissector_table		= pat->p_register_dissector_table;
+	p_except_throw				= pat->p_except_throw;
+	p_dissector_try_port			= pat->p_dissector_try_port; 
 }

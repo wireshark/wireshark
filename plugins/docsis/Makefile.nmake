@@ -1,0 +1,43 @@
+#
+# $Id: Makefile.nmake,v 1.1 2002/07/12 22:52:41 guy Exp $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+OBJECTS=packet-docsis.obj packet-bpkmattr.obj \
+	packet-dsarsp.obj packet-macmgmt.obj \
+	packet-rngrsp.obj packet-bpkmreq.obj \
+	packet-dscack.obj packet-map.obj \
+	packet-tlv.obj packet-bpkmrsp.obj \
+	packet-dscreq.obj packet-regack.obj \
+	packet-uccreq.obj packet-dscrsp.obj \
+	packet-regreq.obj packet-uccrsp.obj \
+	packet-dsaack.obj packet-dsdreq.obj \
+	packet-regrsp.obj packet-ucd.obj \
+	packet-dsareq.obj packet-dsdrsp.obj \
+	packet-rngreq.obj
+
+docsis.dll docsis.exp docsis.lib : packet-docsis.obj packet-bpkmattr.obj packet-dsarsp.obj packet-macmgmt.obj packet-rngrsp.obj packet-bpkmreq.obj packet-dscack.obj packet-map.obj packet-tlv.obj packet-bpkmrsp.obj packet-dscreq.obj packet-regack.obj packet-uccreq.obj packet-dscrsp.obj packet-regreq.obj packet-uccrsp.obj packet-dsaack.obj packet-dsdreq.obj packet-regrsp.obj packet-ucd.obj packet-dsareq.obj packet-dsdrsp.obj packet-rngreq.obj ..\plugin_api.obj 
+	link -dll /out:docsis.dll packet-docsis.obj \
+		packet-bpkmattr.obj packet-dsarsp.obj \
+		packet-macmgmt.obj packet-rngrsp.obj \
+		packet-bpkmreq.obj packet-dscack.obj \
+		packet-map.obj packet-tlv.obj \
+		packet-bpkmrsp.obj packet-dscreq.obj \
+		packet-regack.obj packet-uccreq.obj \
+		packet-dscrsp.obj packet-regreq.obj \
+		packet-uccrsp.obj packet-dsaack.obj \
+		packet-dsdreq.obj packet-regrsp.obj \
+		packet-ucd.obj packet-dsareq.obj \
+		packet-dsdrsp.obj packet-rngreq.obj ..\plugin_api.obj  \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+
+clean:
+	rm -f $(OBJECTS) docsis.dll docsis.exp docsis.lib $(PDB_FILE)

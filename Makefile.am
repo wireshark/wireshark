@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.446 2002/07/11 18:43:35 gerald Exp $
+# $Id: Makefile.am,v 1.447 2002/07/12 22:52:33 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -336,29 +336,77 @@ DISSECTOR_SRC = \
 
 if HAVE_PLUGINS
 plugin_src = \
-	plugins/gryphon/packet-gryphon.c \
-	plugins/mgcp/packet-mgcp.c \
+	plugins/docsis/packet-bpkmattr.c \
+	plugins/docsis/packet-bpkmreq.c \
+	plugins/docsis/packet-bpkmrsp.c \
+	plugins/docsis/packet-docsis.c \
+	plugins/docsis/packet-dsaack.c \
+	plugins/docsis/packet-dsareq.c \
+	plugins/docsis/packet-dsarsp.c \
+	plugins/docsis/packet-dscack.c \
+	plugins/docsis/packet-dscreq.c \
+	plugins/docsis/packet-dscrsp.c \
+	plugins/docsis/packet-dsdreq.c \
+	plugins/docsis/packet-dsdrsp.c \
+	plugins/docsis/packet-macmgmt.c \
+	plugins/docsis/packet-map.c \
+	plugins/docsis/packet-regack.c \
+	plugins/docsis/packet-regreq.c \
+	plugins/docsis/packet-regrsp.c \
+	plugins/docsis/packet-rngreq.c \
+	plugins/docsis/packet-rngrsp.c \
+	plugins/docsis/packet-tlv.c \
+	plugins/docsis/packet-uccreq.c \
+	plugins/docsis/packet-uccrsp.c \
+	plugins/docsis/packet-ucd.c \
 	plugins/giop/packet-cosnaming.c \
-	plugins/giop/packet-coseventcomm.c
+	plugins/giop/packet-coseventcomm.c \
+	plugins/gryphon/packet-gryphon.c \
+	plugins/mgcp/packet-mgcp.c
+
 
 plugin_static_ldadd = \
-	plugins/gryphon/packet-gryphon-static.o		\
-	plugins/mgcp/packet-mgcp-static.o		\
-	plugins/giop/packet-cosnaming-static.o		\
-	plugins/giop/packet-coseventcomm-static.o
+	plugins/docsis/packet-bpkmattr-static.o \
+	plugins/docsis/packet-bpkmreq-static.o \
+	plugins/docsis/packet-bpkmrsp-static.o \
+	plugins/docsis/packet-docsis-static.o \
+	plugins/docsis/packet-dsaack-static.o \
+	plugins/docsis/packet-dsareq-static.o \
+	plugins/docsis/packet-dsarsp-static.o \
+	plugins/docsis/packet-dscack-static.o \
+	plugins/docsis/packet-dscreq-static.o \
+	plugins/docsis/packet-dscrsp-static.o \
+	plugins/docsis/packet-dsdreq-static.o \
+	plugins/docsis/packet-dsdrsp-static.o \
+	plugins/docsis/packet-macmgmt-static.o \
+	plugins/docsis/packet-map-static.o \
+	plugins/docsis/packet-regack-static.o \
+	plugins/docsis/packet-regreq-static.o \
+	plugins/docsis/packet-regrsp-static.o \
+	plugins/docsis/packet-rngreq-static.o \
+	plugins/docsis/packet-rngrsp-static.o \
+	plugins/docsis/packet-tlv-static.o \
+	plugins/docsis/packet-uccreq-static.o \
+	plugins/docsis/packet-uccrsp-static.o \
+	plugins/giop/packet-cosnaming-static.o \
+	plugins/giop/packet-coseventcomm-static.o \
+	plugins/gryphon/packet-gryphon-static.o \
+	plugins/mgcp/packet-mgcp-static.o
 
 plugin_libs = \
-	plugins/gryphon/gryphon.la \
-	plugins/mgcp/mgcp.la \
+	plugins/docsis/docsis.la \
 	plugins/giop/cosnaming.la \
-	plugins/giop/coseventcomm.la
+	plugins/giop/coseventcomm.la \
+	plugins/gryphon/gryphon.la \
+	plugins/mgcp/mgcp.la
 
 plugin_ldadd = \
 	"-dlopen" self	\
-	"-dlopen" plugins/gryphon/gryphon.la \
-	"-dlopen" plugins/mgcp/mgcp.la \
+	"-dlopen" plugins/docsis/docsis.la \
 	"-dlopen" plugins/giop/cosnaming.la \
-	"-dlopen" plugins/giop/coseventcomm.la
+	"-dlopen" plugins/giop/coseventcomm.la \
+	"-dlopen" plugins/gryphon/gryphon.la \
+	"-dlopen" plugins/mgcp/mgcp.la
 else
 plugin_src =
 
