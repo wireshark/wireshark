@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.45 2001/12/06 02:21:26 guy Exp $
+ * $Id: file_dlg.c,v 1.46 2001/12/06 03:09:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -462,6 +462,10 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
    * has rejected some packets, so that not all packets are currently
    * being displayed, and if it has accepted some packets, so that some
    * packets are currently being displayed?
+   *
+   * I'd say "no", as that complicates the UI code, and as one could,
+   * I guess, argue that the user may want to "save all the displayed
+   * packets" even if there aren't any, i.e. save an empty file.
    */
   filter_cb = gtk_check_button_new_with_label("Save only packets currently being displayed");
   gtk_container_add(GTK_CONTAINER(main_vb), filter_cb);
@@ -472,8 +476,13 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
   gtk_widget_show(filter_cb);
 
   /*
-   * XXX - if the number of marked frames changes to or from 0, we
-   * should change whether this is sensitive or not.
+   * The argument above could, I guess, be applied to the marked packets,
+   * except that you can't easily tell whether there are any marked
+   * packets, so I could imagine users doing "Save only marked packets"
+   * when there aren't any marked packets, not knowing that they'd
+   * failed to mark them, so I'm more inclined to have the "Save only
+   * marked packets" toggle button enabled only if there are marked
+   * packets to save.
    */
   mark_cb = gtk_check_button_new_with_label("Save only marked packets");
   gtk_container_add(GTK_CONTAINER(main_vb), mark_cb);
@@ -500,11 +509,11 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
   gtk_widget_show(ft_om);
 
   /*
-   * Make the "Save only marked packets" toggle sensitive if there are
-   * marked frames; make it insensitive, turn it off, and set the
-   * file type option menu appropriately, if there aren't.
+   * Set the sensitivity of the "Save only marked packets" toggle
+   * button
    *
-   * This has to be done after we create the file type menu option.
+   * This has to be done after we create the file type menu option,
+   * as the routine that sets it also sets that menu.
    */
   file_set_save_marked_sensitive();
 
@@ -526,12 +535,18 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
 /*
  * Set the "Save only marked packets" toggle button as appropriate for
  * the current output file type and count of marked packets.
+ *
  * Called when the "Save As..." dialog box is created and when either
  * the file type or the marked count changes.
  */
 void
 file_set_save_marked_sensitive(void)
 {
+  if (file_save_as_w == NULL) {
+    /* We don't currently have a "Save As..." dialog box up. */
+    return;
+  }
+
   /* We can request that only the marked packets be saved only if we
      can use Wiretap to save the file and if there *are* marked packets. */
   if (can_save_with_wiretap(filetype) && cfile.marked_count != 0)
