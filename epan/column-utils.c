@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.42 2004/01/19 03:46:41 ulfl Exp $
+ * $Id: column-utils.c,v 1.43 2004/01/29 03:37:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -900,24 +900,22 @@ fill_in_columns(packet_info *pinfo)
       break;
 
     case COL_SRCIDX:
-        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x",
-                  pinfo->src_idx);
-        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
-        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-        break;
+      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->src_idx);
+      pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      break;
 
     case COL_DSTIDX:
-        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x",
-                  pinfo->dst_idx);
-        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
-        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-        break;
+      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->dst_idx);
+      pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      break;
 
     case COL_VSAN:
-        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%d", pinfo->vsan);
-        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
-        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-        break;
+      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->vsan);
+      pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      break;
         
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
