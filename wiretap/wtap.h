@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.16 1999/03/22 02:46:46 guy Exp $
+ * $Id: wtap.h,v 1.17 1999/03/28 18:32:03 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -172,6 +172,19 @@ void wtap_close(wtap *wth);
 
 #ifndef pntohl
 #define pntohl(p)  ((guint32)*((guint8 *)p+0)<<24|  \
+                    (guint32)*((guint8 *)p+1)<<16|  \
+                    (guint32)*((guint8 *)p+2)<<8|   \
+                    (guint32)*((guint8 *)p+3)<<0)
+#endif
+
+#ifndef phtons
+#define phtons(p)  ((guint16)                       \
+                    ((guint16)*((guint8 *)p+0)<<8|  \
+                     (guint16)*((guint8 *)p+1)<<0))
+#endif
+
+#ifndef phtonl
+#define phtonl(p)  ((guint32)*((guint8 *)p+0)<<24|  \
                     (guint32)*((guint8 *)p+1)<<16|  \
                     (guint32)*((guint8 *)p+2)<<8|   \
                     (guint32)*((guint8 *)p+3)<<0)

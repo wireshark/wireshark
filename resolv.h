@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.3 1998/09/25 23:24:07 gerald Exp $
+ * $Id: resolv.h,v 1.4 1999/03/28 18:32:01 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -53,6 +53,10 @@ extern u_char *get_tcp_port(u_int port);
 
 /* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
 extern u_char *get_hostname(u_int addr);
+
+/* get_hostname returns the host name, or numeric addr if not found */
+struct e_in6_addr;
+gchar* get_hostname6(struct e_in6_addr *ad);
 
 /* get_ether_name returns the logical name if found in ethers files else
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else

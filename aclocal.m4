@@ -60,6 +60,9 @@ dnl Written by David MacKenzie, with help from
 dnl Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
 dnl Roland McGrath, Noah Friedman, david d zuhn, and many others.
 
+#
+# AC_ETHEREAL_STRUCT_SA_LEN
+#
 dnl AC_STRUCT_ST_BLKSIZE extracted from the file in qustion,
 dnl "acspecific.m4" in GNU Autoconf 2.12, and turned into
 dnl AC_ETHEREAL_STRUCT_SA_LEN, which checks if "struct sockaddr"
@@ -69,7 +72,6 @@ dnl Done by Guy Harris <guy@netapp.com> on 1998-11-14.
 
 dnl ### Checks for structure members
 
-
 AC_DEFUN(AC_ETHEREAL_STRUCT_SA_LEN,
 [AC_CACHE_CHECK([for sa_len in struct sockaddr], ac_cv_ethereal_struct_sa_len,
 [AC_TRY_COMPILE([#include <sys/types.h>
@@ -78,6 +80,96 @@ ac_cv_ethereal_struct_sa_len=yes, ac_cv_ethereal_struct_sa_len=no)])
 if test $ac_cv_ethereal_struct_sa_len = yes; then
   AC_DEFINE(HAVE_SA_LEN)
 fi
+])
+
+
+#
+# AC_ETHEREAL_IPV6_STACK
+#
+# By Jun-ichiro "itojun" Hagino, <itojun@iijlab.net>
+
+AC_DEFUN(AC_ETHEREAL_IPV6_STACK,
+[
+	v6type=unknown
+	v6lib=none
+
+	AC_MSG_CHECKING([ipv6 stack type])
+	for i in v6d toshiba kame inria zeta linux; do
+		case $i in
+		v6d)
+			AC_EGREP_CPP(yes, [dnl
+#include </usr/local/v6/include/sys/types.h>
+#ifdef __V6D__
+yes
+#endif],
+				[v6type=$i; v6lib=v6;
+				v6libdir=/usr/local/v6/lib;
+				CFLAGS="-I/usr/local/v6/include $CFLAGS"])
+			;;
+		toshiba)
+			AC_EGREP_CPP(yes, [dnl
+#include <sys/param.h>
+#ifdef _TOSHIBA_INET6
+yes
+#endif],
+				[v6type=$i; v6lib=inet6;
+				v6libdir=/usr/local/v6/lib;
+				CFLAGS="-DINET6 $CFLAGS"])
+			;;
+		kame)
+			AC_EGREP_CPP(yes, [dnl
+#include <netinet/in.h>
+#ifdef __KAME__
+yes
+#endif],
+				[v6type=$i; v6lib=inet6;
+				v6libdir=/usr/local/v6/lib;
+				CFLAGS="-DINET6 $CFLAGS"])
+			;;
+		inria)
+			AC_EGREP_CPP(yes, [dnl
+#include <netinet/in.h>
+#ifdef IPV6_INRIA_VERSION
+yes
+#endif],
+				[v6type=$i; CFLAGS="-DINET6 $CFLAGS"])
+			;;
+		zeta)
+			AC_EGREP_CPP(yes, [dnl
+#include <sys/param.h>
+#ifdef _ZETA_MINAMI_INET6
+yes
+#endif],
+				[v6type=$i; v6lib=inet6;
+				v6libdir=/usr/local/v6/lib;
+				CFLAGS="-DINET6 $CFLAGS"])
+			;;
+		linux)
+			if test -d /usr/inet6; then
+				v6type=$i
+				v6lib=inet6
+				v6libdir=/usr/inet6
+				CFLAGS="-DINET6 $CFLAGS"
+			fi
+			;;
+		esac
+		if test "$v6type" != "unknown"; then
+			break
+		fi
+	done
+
+	if test "$v6lib" != "none"; then
+		for dir in $v6libdir /usr/local/v6/lib /usr/local/lib; do
+			if test -d $dir -a -f $dir/lib$v6lib.a; then
+				LIBS="-L$dir -l$v6lib $LIBS"
+				break
+			fi
+		done
+		enable_ipv6="yes"
+	else
+		enable_ipv6="no"
+	fi
+	AC_MSG_RESULT(["$v6type, $v6lib"])
 ])
 
 # Do all the work for Automake.  This macro actually does too much --
@@ -244,10 +336,13 @@ int
 main ()
 {
   int major, minor, micro;
+  char *tmp_version;
 
   system ("touch conf.gtktest");
 
-  if (sscanf("$min_gtk_version", "%d.%d.%d", &major, &minor, &micro) != 3) {
+  /* HP/UX 9 (%@#!) writes to sscanf strings */
+  tmp_version = g_strdup("$min_gtk_version");
+  if (sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3) {
      printf("%s, bad version string\n", "$min_gtk_version");
      exit(1);
    }

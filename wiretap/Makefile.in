@@ -64,11 +64,13 @@ GLIB_LIBS = @GLIB_LIBS@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
+LEX = @LEX@
 LIBWIRETAP_A = @LIBWIRETAP_A@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
+YACC = @YACC@
 
 bin_PROGRAMS = wiretap filterc
 noinst_LIBRARIES = @LIBWIRETAP_A@
@@ -126,10 +128,10 @@ FILTERS = \
 	filter-eth		\
 	filter-tr
 
-CT_YACC=bison -y
-CT_LEX=flex -i
-RT_YACC=bison -y -p wtap_
-RT_LEX=flex -i -Pwtap_
+CT_YACC=@YACC@
+CT_LEX=@LEX@ -i
+RT_YACC=@YACC@ -p wtap_
+RT_LEX=@LEX@ -i -Pwtap_
 
 wiretap_SOURCES = \
 	wiretap.c 		\

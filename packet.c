@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.21 1999/03/23 03:14:45 gram Exp $
+ * $Id: packet.c,v 1.22 1999/03/28 18:31:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,7 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
+#include <sys/socket.h>
 
 #include <glib.h>
 

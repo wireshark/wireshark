@@ -13,13 +13,17 @@ The latest distribution can be found in the subdirectory
 
     http://ethereal.zing.org/distribution
 
+Interesting and exotic packet traces can be found at
+
+    http://ethereal.zing.org/~gram/sample.html
+
 
 Installation
 ------------
 
 Ethereal is known to compile and run on the following systems:
 
-  - Linux (2.0.x)
+  - Linux (2.0.x, 2.1.x, 2.2.x)
   - Solaris (2.5.1, 2.6)
   - FreeBSD (2.2.5, 2.2.6)
 
@@ -64,8 +68,22 @@ If you want to add support for other packet-capture file formats, please
 look at the wiretap source code in the wiretap directory.
 
 Please report any problems that are wiretap related to
-Gilbert Ramirez <gram@verdict.uthscsa.edu>. He uses token-ring at work, so he
-is especially interested in any non-token-ring trace files you can send him.
+Gilbert Ramirez <gram@verdict.uthscsa.edu>.
+
+
+IPv6
+----
+If your operating system includes IPv6 support, ethereal will attempt to
+use reverse name resolution capabilities when decoding IPv6 packets. If
+you want to turn off name resolution while using ethereal, start ethereal
+with the "-n" option. If you would like to compile ethereal without
+support for IPv6 name resolution, use the "--disable-ipv6" option with
+"./configure". If you compile ethereal without IPv6 name resolution,
+you will still be able to decode IPv6 packets, but you'll only see IPv6
+addresses, not host names.
+
+The "Follow TCP Stream" feature only supports TCP over IPv4. Support for TCP
+over IPv6 is planned.
 
 
 Disclaimer

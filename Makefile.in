@@ -71,7 +71,6 @@ RANLIB = @RANLIB@
 SNPRINTF_C = @SNPRINTF_C@
 SNPRINTF_O = @SNPRINTF_O@
 VERSION = @VERSION@
-WIRETAP_DIR = @WIRETAP_DIR@
 
 bin_PROGRAMS = ethereal
 
@@ -101,11 +100,13 @@ ethereal_SOURCES = \
 	packet-fddi.c  \
 	packet-giop.c  \
 	packet-http.c  \
-	packet-llc.c   \
-	packet-lpd.c   \
 	packet-ip.c    \
+	packet-icmpv6.c \
+	packet-ipsec.c \
 	packet-ipv6.c  \
 	packet-ipx.c   \
+	packet-llc.c   \
+	packet-lpd.c   \
 	packet-nbipx.c \
 	packet-nbns.c  \
 	packet-ncp.c   \
@@ -157,9 +158,10 @@ EXTRA_ethereal_SOURCES = \
 ethereal_DEPENDENCIES = @SNPRINTF_O@ @LIBWIRETAP_A@
 ethereal_LDADD = @SNPRINTF_O@ @LIBWIRETAP_A@
 
-DISTCLEANFILES = \
-	rdps \
-	ps.c
+DISTCLEANFILES =			\
+	rdps 					\
+	ps.c 					\
+	*~
 
 EXTRA_DIST =                \
 	doc/Makefile            \
@@ -172,7 +174,7 @@ EXTRA_DIST =                \
 	print.ps                \
 	rdps.c
 
-SUBDIRS= wiretap
+SUBDIRS = @SUBDIRS@
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
@@ -188,11 +190,11 @@ ethereal_OBJECTS =  capture.o column.o ethereal.o ethertype.o file.o \
 filter.o follow.o gtkpacket.o menu.o packet.o packet-aarp.o \
 packet-arp.o packet-atalk.o packet-bootp.o packet-cdp.o packet-data.o \
 packet-dns.o packet-eth.o packet-fddi.o packet-giop.o packet-http.o \
-packet-llc.o packet-lpd.o packet-ip.o packet-ipv6.o packet-ipx.o \
-packet-nbipx.o packet-nbns.o packet-ncp.o packet-null.o packet-osi.o \
-packet-ospf.o packet-ppp.o packet-raw.o packet-rip.o packet-tcp.o \
-packet-tftp.o packet-tr.o packet-trmac.o packet-udp.o packet-vines.o \
-prefs.o print.o ps.o resolv.o util.o
+packet-ip.o packet-icmpv6.o packet-ipsec.o packet-ipv6.o packet-ipx.o \
+packet-llc.o packet-lpd.o packet-nbipx.o packet-nbns.o packet-ncp.o \
+packet-null.o packet-osi.o packet-ospf.o packet-ppp.o packet-raw.o \
+packet-rip.o packet-tcp.o packet-tftp.o packet-tr.o packet-trmac.o \
+packet-udp.o packet-vines.o prefs.o print.o ps.o resolv.o util.o
 ethereal_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
@@ -219,14 +221,15 @@ DEP_FILES =  .deps/capture.P .deps/column.P .deps/ethereal.P \
 .deps/packet-atalk.P .deps/packet-bootp.P .deps/packet-cdp.P \
 .deps/packet-data.P .deps/packet-dns.P .deps/packet-eth.P \
 .deps/packet-fddi.P .deps/packet-giop.P .deps/packet-http.P \
-.deps/packet-ip.P .deps/packet-ipv6.P .deps/packet-ipx.P \
-.deps/packet-llc.P .deps/packet-lpd.P .deps/packet-nbipx.P \
-.deps/packet-nbns.P .deps/packet-ncp.P .deps/packet-null.P \
-.deps/packet-osi.P .deps/packet-ospf.P .deps/packet-ppp.P \
-.deps/packet-raw.P .deps/packet-rip.P .deps/packet-tcp.P \
-.deps/packet-tftp.P .deps/packet-tr.P .deps/packet-trmac.P \
-.deps/packet-udp.P .deps/packet-vines.P .deps/packet.P .deps/prefs.P \
-.deps/print.P .deps/ps.P .deps/resolv.P .deps/snprintf.P .deps/util.P
+.deps/packet-icmpv6.P .deps/packet-ip.P .deps/packet-ipsec.P \
+.deps/packet-ipv6.P .deps/packet-ipx.P .deps/packet-llc.P \
+.deps/packet-lpd.P .deps/packet-nbipx.P .deps/packet-nbns.P \
+.deps/packet-ncp.P .deps/packet-null.P .deps/packet-osi.P \
+.deps/packet-ospf.P .deps/packet-ppp.P .deps/packet-raw.P \
+.deps/packet-rip.P .deps/packet-tcp.P .deps/packet-tftp.P \
+.deps/packet-tr.P .deps/packet-trmac.P .deps/packet-udp.P \
+.deps/packet-vines.P .deps/packet.P .deps/prefs.P .deps/print.P \
+.deps/ps.P .deps/resolv.P .deps/snprintf.P .deps/util.P
 SOURCES = $(ethereal_SOURCES) $(EXTRA_ethereal_SOURCES)
 OBJECTS = $(ethereal_OBJECTS)
 

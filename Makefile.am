@@ -26,11 +26,13 @@ ethereal_SOURCES = \
 	packet-fddi.c  \
 	packet-giop.c  \
 	packet-http.c  \
-	packet-llc.c   \
-	packet-lpd.c   \
 	packet-ip.c    \
+	packet-icmpv6.c \
+	packet-ipsec.c \
 	packet-ipv6.c  \
 	packet-ipx.c   \
+	packet-llc.c   \
+	packet-lpd.c   \
 	packet-nbipx.c \
 	packet-nbns.c  \
 	packet-ncp.c   \
@@ -88,9 +90,10 @@ ps.c: print.ps rdps
 rdps: rdps.c
 	$(CC) -o rdps rdps.c
 
-DISTCLEANFILES = \
-	rdps \
-	ps.c
+DISTCLEANFILES =			\
+	rdps 					\
+	ps.c 					\
+	*~
 
 EXTRA_DIST =                \
 	doc/Makefile            \
@@ -103,4 +106,4 @@ EXTRA_DIST =                \
 	print.ps                \
 	rdps.c
 
-SUBDIRS= wiretap
+SUBDIRS = @SUBDIRS@

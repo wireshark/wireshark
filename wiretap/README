@@ -1,4 +1,4 @@
-$Id: README,v 1.13 1999/03/01 22:59:47 guy Exp $
+$Id: README,v 1.14 1999/03/28 18:32:01 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -35,12 +35,8 @@ which we could support.
 Wiretap is very good at reading many file formats, as per #2
 above. Display filters are now appearing in wiretap, but they are
 still basic. Development is continuing on the BPF compiler, so display
-filters will continue to be enhanced. Wiretap can't capture packets yet,
-but once it can, it will have the ability to do capture-filtering via
-BPF, either through BPF kernel facilities or through a user-space BPF
-implementation. BPF is my first target, but the filter compiler will
-be generic enough so that as per #6, other packet-filtering engines can
-be used.
+filters will continue to be enhanced. Please read the README.filters file for
+information regarding the syntax of wiretap filters.
 
 
 File Formats
@@ -57,7 +53,7 @@ Sniffer (uncompressed)
 The Sniffer format is documented in the Sniffer manual.  Unfortunately,
 Sniffer manuals tend to document only the format for the Sniffer model
 they document. Token-Ring and ethernet seems to work well, though.
-If you have an ATM Sniffer file, both Guy and I would be *very*
+If you have an ATM Sniffer file, both Guy and Gilbert would be *very*
 interested in receiving a sample. (see 'AUTHORS' file for our e-mail
 addresses).
 
@@ -85,7 +81,7 @@ Network Monitor
 ---------------
 Microsoft's Network Monitor file format is supported, at least under Ethernet
 and token-ring. If you have capture files of other datalink types, please send
-them to Guy Harris.
+them to Guy.
 
 "snoop"
 -------

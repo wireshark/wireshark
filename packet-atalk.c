@@ -29,10 +29,8 @@
 #include <glib.h>
 #include "packet.h"
 
-#if BYTE_ORDER == LITTLE_ENDIAN
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
-#endif
 #endif
 
 extern packet_info pi;

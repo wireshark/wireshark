@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.5 1998/12/17 05:42:32 gram Exp $
+ * $Id: resolv.c,v 1.6 1999/03/28 18:32:00 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -57,6 +57,7 @@
 
 #include "ethereal.h"
 #include "packet.h"
+#include "packet-ipv6.h"
 #include "resolv.h"
 
 #ifndef MAXNAMELEN
@@ -252,6 +253,40 @@ static u_char *host_name_lookup(u_int addr)
   return (tp->name);
 
 } /* host_name_lookup */
+
+static u_char *host_name_lookup6(struct e_in6_addr *addr)
+{
+  static u_char name[MAXNAMELEN];
+#ifdef INET6
+  struct hostent *hostp;
+
+#ifdef AVOID_DNS_TIMEOUT
+    
+  /* Quick hack to avoid DNS/YP timeout */
+  
+  if (!setjmp(hostname_env)) {
+    signal(SIGALRM, abort_network_query);
+    alarm(DNS_TIMEOUT);
+#endif /* AVOID_DNS_TIMEOUT */
+    hostp = gethostbyaddr((char *)addr, sizeof(*addr), AF_INET6);
+#ifdef AVOID_DNS_TIMEOUT
+    alarm(0);
+#endif
+    if (hostp != NULL) {
+      strncpy(name, hostp->h_name, MAXNAMELEN);
+      name[MAXNAMELEN-1] = '\0';
+      return name;
+    }
+#ifdef AVOID_DNS_TIMEOUT
+  }
+#endif
+
+  /* unknown host or DNS timeout */
+#endif /* INET6 */
+  sprintf(name, "%s", ip6_to_str(addr));  
+
+  return (name);
+}
 
 /*
  *  Miscellaneous functions
@@ -661,6 +696,17 @@ extern u_char *get_hostname(u_int addr)
     return ip_to_str((guint8 *)&addr);
 
   return host_name_lookup(addr);
+}
+
+extern gchar *get_hostname6(struct e_in6_addr *addr) 
+{
+#ifdef INET6
+  if (!g_resolving_actif)
+    return ip6_to_str(addr);
+  if (IN6_IS_ADDR_LINKLOCAL(addr) || IN6_IS_ADDR_MULTICAST(addr))
+    return ip6_to_str(addr);
+#endif
+  return host_name_lookup6(addr);
 }
 
 extern void add_host_name(u_int addr, u_char *name)

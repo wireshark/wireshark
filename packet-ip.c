@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.18 1999/03/23 03:14:38 gram Exp $
+ * $Id: packet-ip.c,v 1.19 1999/03/28 18:31:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -565,6 +565,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		  { IPTOS_PREC_INTERNETCONTROL, "internetwork control" },
 		  { IPTOS_PREC_NETCONTROL,      "network control"      },
 		  { 0,                          NULL                   } };
+  int advance;
+  guint8 nxt;
 
   /* To do: check for runts, errs, etc. */
   /* Avoids alignment problems on many architectures. */
@@ -582,6 +584,9 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     case IP_PROTO_TCP:
     case IP_PROTO_UDP:
     case IP_PROTO_OSPF:
+    case IP_PROTO_ESP:
+    case IP_PROTO_AH:
+    case IP_PROTO_IPV6:
       /* Names are set in the associated dissect_* routines */
       break;
     default:
@@ -701,7 +706,18 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   pi.ip_src = iph.ip_src;
 
   offset += hlen;
-  switch (iph.ip_p) {
+  nxt = iph.ip_p;
+  if (iph.ip_off & IP_OFFSET) {
+    /* fragmented */
+    if (check_col(fd, COL_INFO))
+      col_add_fstr(fd, COL_INFO, "Fragmented IP protocol (proto=%02x, off=%d)",
+	iph.ip_p, iph.ip_off & IP_OFFSET);
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
+again:
+  switch (nxt) {
     case IP_PROTO_ICMP:
       dissect_icmp(pd, offset, fd, tree);
      break;
@@ -717,6 +733,17 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     case IP_PROTO_OSPF:
       dissect_ospf(pd, offset, fd, tree);
      break;
+    case IP_PROTO_AH:
+      advance = dissect_ah(pd, offset, fd, tree);
+      nxt = pd[offset];
+      offset += advance;
+      goto again;
+    case IP_PROTO_ESP:
+      dissect_esp(pd, offset, fd, tree);
+      break;
+    case IP_PROTO_IPV6:
+      dissect_ipv6(pd, offset, fd, tree);
+      break;
   }
 }
 

@@ -54,10 +54,10 @@ FILTERS = \
 	filter-eth		\
 	filter-tr
 
-CT_YACC=bison -y
-CT_LEX=flex -i
-RT_YACC=bison -y -p wtap_
-RT_LEX=flex -i -Pwtap_
+CT_YACC=@YACC@
+CT_LEX=@LEX@ -i
+RT_YACC=@YACC@ -p wtap_
+RT_LEX=@LEX@ -i -Pwtap_
 
 ct-grammar.c : ct-grammar.y
 	@rm -f $@ ct-tokdefs.h

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.8 1999/03/03 08:51:58 guy Exp $
+# $Id: configure.in,v 1.9 1999/03/28 18:32:02 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(wtap.c)
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
@@ -7,6 +7,8 @@ AM_CONFIG_HEADER(config.h)
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_RANLIB
+AC_PROG_YACC
+AM_PROG_LEX
 
 # If we're running gcc, add '-Wall' to CFLAGS.
 AC_MSG_CHECKING(to see if we can add '-Wall' to CFLAGS)

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.19 1999/01/10 21:23:41 gerald Exp $
+# $Id: configure.in,v 1.20 1999/03/28 18:31:58 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -81,9 +81,12 @@ AC_ARG_WITH(wiretap,
 		yes)
 			AC_MSG_RESULT(yes)
 			AC_DEFINE(WITH_WIRETAP)
-			CFLAGS="$CFLAGS -Iwiretap"
-			LIBWIRETAP_A="wiretap/libwiretap.a"
 			WIRETAP_DIR="wiretap"
+			if test x$WIRETAP_DIR != x ; then
+				CFLAGS="$CFLAGS -Iwiretap"
+				LIBWIRETAP_A="wiretap/libwiretap.a"
+				SUBDIRS="$SUBDIRS wiretap"
+			fi
 			;;
 		*)
 			AC_MSG_RESULT(no)
@@ -94,7 +97,20 @@ AC_ARG_WITH(wiretap,
 	AC_MSG_RESULT(no)
 )
 AC_SUBST(LIBWIRETAP_A)
-AC_SUBST(WIRETAP_DIR)
+AC_SUBST(SUBDIRS)
+
+dnl ipv6 check
+AC_ARG_ENABLE(ipv6,
+[  --enable-ipv6           use ipv6 name resolution, if available.  [default=yes]],,enable_ipv6=yes)
+
+AC_MSG_CHECKING(whether to enable ipv6 name resolution if available)
+if test "x$enable_ipv6" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_ETHEREAL_IPV6_STACK
+fi
+
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -132,6 +148,6 @@ AC_SUBST(SNPRINTF_O)
 
 AM_CONFIG_HEADER(config.h)
 if test x$WIRETAP_DIR != x ; then
-  AC_CONFIG_SUBDIRS(wiretap)
+	AC_CONFIG_SUBDIRS($WIRETAP_DIR)
 fi
 AC_OUTPUT(Makefile)

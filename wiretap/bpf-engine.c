@@ -22,7 +22,6 @@
  * 2 of the License, or (at your option) any later version.
  */
 
-#include <netinet/in.h>
 #include <glib.h>
 #include "wtap.h"
 #include "bpf-engine.h"

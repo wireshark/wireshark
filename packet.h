@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.41 1999/03/23 03:14:45 gram Exp $
+ * $Id: packet.h,v 1.42 1999/03/28 18:32:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,8 +54,19 @@
 #define hi_nibble(b) ((b & 0xf0) >> 4)
 #define lo_nibble(b) (b & 0x0f)
 
+/* Byte ordering */
+#ifndef BYTE_ORDER
+  #define LITTLE_ENDIAN 4321
+  #define BIG_ENDIAN 1234
+  #ifdef WORDS_BIGENDIAN
+    #define BYTE_ORDER BIG_ENDIAN
+  #else
+    #define BYTE_ORDER LITTLE_ENDIAN
+  #endif
+#endif
+
 /* Useful when highlighting regions inside a dissect_*() function. With this
- * macro, you can highlight from the start of the packet to the end of the
+ * macro, you can highlight from an arbitrary offset to the end of the
  * frame. See dissect_data() for an example.
  */
 #define END_OF_FRAME	(fd->cap_len - offset)
@@ -196,6 +207,11 @@ enum {
 	ETT_CDP,
 	ETT_HTTP,
 	ETT_TFTP,
+ 	ETT_AH,
+ 	ETT_ESP,
+ 	ETT_ICMPv6,
+ 	ETT_ICMPv6OPT,
+ 	ETT_ICMPv6FLAG,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -250,7 +266,7 @@ proto_item* proto_tree_add_item(proto_tree *tree, gint start, gint len,
     __attribute__((format (printf, 4, 5)));
 #else
 proto_item* proto_tree_add_item(proto_tree *tree, gint start, gint len,
-		gchar *format, ...)
+		gchar *format, ...);
 #endif
 
 void dissect_packet(const u_char *, frame_data *, proto_tree *);
@@ -293,6 +309,7 @@ void dissect_tr(const u_char *, frame_data *, proto_tree *);
  * tree *
  * They should never modify the packet data.
  */
+int dissect_ah(const u_char *, int, frame_data *, proto_tree *);
 void dissect_aarp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_arp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_bootp(const u_char *, int, frame_data *, proto_tree *);
@@ -300,9 +317,11 @@ void dissect_cdp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ddp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_dns(const u_char *, int, frame_data *, proto_tree *);
+void dissect_esp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_giop(const u_char *, int, frame_data *, proto_tree *);
 void dissect_http(const u_char *, int, frame_data *, proto_tree *);
 void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_icmpv6(const u_char *, int, frame_data *, proto_tree *);
 void dissect_igmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipv6(const u_char *, int, frame_data *, proto_tree *);

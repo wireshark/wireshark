@@ -114,15 +114,6 @@ bpf_code_unit_alloc(guint8 label, guint16 code, guint8 jt, guint8 jf, guint32 k)
 }
 
 
-#define phtons(p)  ((guint16)                       \
-                    ((guint16)*((guint8 *)p+0)<<8|  \
-                     (guint16)*((guint8 *)p+1)<<0))
-
-#define phtonl(p)  ((guint32)*((guint8 *)p+0)<<24|  \
-                    (guint32)*((guint8 *)p+1)<<16|  \
-                    (guint32)*((guint8 *)p+2)<<8|   \
-                    (guint32)*((guint8 *)p+3)<<0)
-
 /* Finds ftype in the bytecmp_table, the relation, and the n-string
 byte array, and creates BPF that will check those bytes */
 static GList*
@@ -179,8 +170,8 @@ bpf_mk_bytecmp(int ftype, int rel_opcode, guint8 *bytes)
 
 			bpf = bpf_code_unit_alloc(NO_LABEL,
 					BPF_ALU|BPF_AND,
-					0, 0,
-					htonl(0xffffff));
+					0, 0, 0xffffff);
+					/*htonl(0xffffff));*/
 			g_list_append(L, bpf);
 
 			bpf = bpf_code_unit_alloc(NO_LABEL,
