@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.5 1999/11/16 11:42:41 guy Exp $
+ * $Id: packet-nfs.c,v 1.6 1999/11/19 13:09:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -442,7 +442,7 @@ dissect_nfs2_setattr_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 const vsff nfs2_proc[] = {
 	{ 0,	"NULL",		NULL,				NULL },
 	{ 1,	"GETATTR",	dissect_nfs2_getattr_call,	dissect_nfs2_getattr_reply },
-	{ 2,	"SETATTR",	dissect_nfs2_any_call,		dissect_nfs2_setattr_reply },
+	{ 2,	"SETATTR",	dissect_nfs2_setattr_call,	dissect_nfs2_setattr_reply },
 	{ 3,	"ROOT",		NULL,				NULL },
 	{ 4,	"LOOKUP",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
 	{ 5,	"READLINK",	dissect_nfs2_any_call,		dissect_nfs2_any_reply },
@@ -723,18 +723,18 @@ dissect_specdata3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 int
 dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
 {
-	guint fh_len;
-	guint fh_len_full;
-	guint fh_fill;
+	guint fh3_len;
+	guint fh3_len_full;
+	guint fh3_fill;
 	proto_item* fitem;
 	proto_tree* ftree = NULL;
 
-	fh_len = EXTRACT_UINT(pd, offset+0);
-	fh_len_full = rpc_roundup(fh_len);
-	fh_fill = fh_len_full - fh_len;
+	fh3_len = EXTRACT_UINT(pd, offset+0);
+	fh3_len_full = rpc_roundup(fh3_len);
+	fh3_fill = fh3_len_full - fh3_len;
 	
 	if (tree) {
-		fitem = proto_tree_add_text(tree, offset, 4+fh_len_full,
+		fitem = proto_tree_add_text(tree, offset, 4+fh3_len_full,
 			"%s", name);
 		if (fitem)
 			ftree = proto_item_add_subtree(fitem, ett_nfs_fh3);
@@ -742,14 +742,14 @@ dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 
 	if (ftree) {
 		proto_tree_add_text(ftree,offset+0,4,
-					"length: %u", fh_len);
-		proto_tree_add_text(ftree,offset+4,fh_len,
+					"length: %u", fh3_len);
+		proto_tree_add_text(ftree,offset+4,fh3_len,
 					"file handle (opaque data)");
-		if (fh_fill)
-			proto_tree_add_text(ftree,offset+4+fh_len,fh_fill,
+		if (fh3_fill)
+			proto_tree_add_text(ftree,offset+4+fh3_len,fh3_fill,
 				"fill bytes");
 	}
-	offset += 4 + fh_len_full;
+	offset += 4 + fh3_len_full;
 	return offset;
 }
 

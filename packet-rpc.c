@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.17 1999/11/17 21:58:32 guy Exp $
+ * $Id: packet-rpc.c,v 1.18 1999/11/19 13:09:56 gram Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,6 +42,11 @@
 #include "packet-rpc.h"
 
 
+#define RPC_RM_FRAGLEN  0x7fffffffL
+
+static struct true_false_string yesno = { "Yes", "No" };
+
+
 static const value_string rpc_msg_type[3] = {
 	{ RPC_CALL, "Call" },
 	{ RPC_REPLY, "Reply" },
@@ -54,7 +59,7 @@ static const value_string rpc_reply_state[3] = {
 	{ 0, NULL }
 };
 
-static const value_string rpc_auth_flavor[5] = {
+value_string rpc_auth_flavor[] = {
 	{ AUTH_NULL, "AUTH_NULL" },
 	{ AUTH_UNIX, "AUTH_UNIX" },
 	{ AUTH_SHORT, "AUTH_SHORT" },
@@ -89,6 +94,8 @@ static const value_string rpc_auth_state[6] = {
 
 /* the protocol number */
 static int proto_rpc = -1;
+static int hf_rpc_lastfrag = -1;
+static int hf_rpc_fraglen = -1;
 static int hf_rpc_xid = -1;
 static int hf_rpc_msgtype = -1;
 static int hf_rpc_version = -1;
@@ -378,33 +385,66 @@ char* name, char* type)
 }
 
 
-
-/* arbitrary limit */
-#define RPC_STRING_MAXBUF 2048
-
 int
 dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
 {
-	proto_item *string_item;
+	proto_item *string_item = NULL;
 	proto_tree *string_tree = NULL;
+	int old_offset = offset;
 
-	guint32 string_length;
-	guint32 string_fill;
+	int truncated_length = 0;
+	guint32 string_length = 0;
+	guint32 string_length_packet;
+	guint32 string_length_copy = 0;
 	guint32 string_length_full;
-	char string_buffer[RPC_STRING_MAXBUF];
+	guint32 string_fill = 0;
+	char *string_buffer = NULL;
+	char *string_buffer_print = NULL;
 
-	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
-	string_length = EXTRACT_UINT(pd,offset+0);
-	string_length_full = rpc_roundup(string_length);
-	string_fill = string_length_full - string_length;
-	if (!BYTES_ARE_IN_FRAME(offset+4,string_length_full)) return offset;
-	if (string_length>=sizeof(string_buffer)) return offset;
-	memcpy(string_buffer,pd+offset+4,string_length);
-	string_buffer[string_length] = '\0';
+	if (BYTES_ARE_IN_FRAME(offset,4)) {
+		string_length = EXTRACT_UINT(pd,offset+0);
+		string_length_full = rpc_roundup(string_length);
+		string_length_packet = pi.captured_len - (offset + 4);
+		if (string_length > string_length_packet) {
+			string_length_copy = string_length_packet;
+			string_fill = 0;
+		}
+		else {
+			string_length_copy = string_length;
+			string_fill = string_length_full - string_length;
+		}
+		string_buffer = (char*)g_malloc(string_length_copy + 1);
+		memcpy(string_buffer,pd+offset+4,string_length_copy);
+		string_buffer[string_length_copy] = '\0';
+
+		/* I use here strdup functions. This works only, if the
+		   string does not contain 0 bytes. */
+
+		/* calculate a nice printable string */
+		if (string_length) {
+			if (string_length != string_length_copy) {
+				string_buffer_print = (char*)g_malloc(string_length_copy + 1 + 12);
+				memcpy(string_buffer_print,string_buffer,string_length_copy);
+				memcpy(string_buffer_print+string_length_copy,
+					"<TRUNCATED>", 12);
+			}
+			else {
+				string_buffer_print = g_strdup(string_buffer);
+			}
+		}
+		else {
+			string_buffer_print = g_strdup("<EMPTY>");
+		}
+	}
+	else {
+		truncated_length = 1;
+		string_buffer = g_strdup("");
+		string_buffer_print = g_strdup("<TRUNCATED>");
+	}
+
 	if (tree) {
-		string_item = proto_tree_add_text(tree,offset+0,
-			4+string_length_full,
-			"%s: %s", proto_registrar_get_name(hfindex), string_buffer);
+		string_item = proto_tree_add_text(tree,offset+0, END_OF_FRAME,
+			"%s: %s", proto_registrar_get_name(hfindex), string_buffer_print);
 		proto_tree_add_item_hidden(tree, hfindex, offset+4,
 			string_length, string_buffer);
 		if (string_item) {
@@ -412,16 +452,33 @@ dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 		}
 	}
 	if (string_tree) {
-		proto_tree_add_text(string_tree,offset+0,4,
-			"length: %u", string_length);
-		proto_tree_add_text(string_tree,offset+4,string_length,
-			"text: %s", string_buffer);
-		if (string_fill)
-			proto_tree_add_text(string_tree,offset+4+string_length,string_fill,
+		if (truncated_length) {
+			proto_tree_add_text(string_tree,
+				offset,pi.captured_len-offset,
+				"length: <TRUNCATED>");
+			offset = pi.captured_len;
+		}
+		else {
+			proto_tree_add_text(string_tree,offset+0,4,
+				"length: %u", string_length);
+			offset += 4;
+		}
+		proto_tree_add_text(string_tree,offset,string_length_copy,
+			"text: %s", string_buffer_print);
+		offset += string_length_copy;
+		if (string_fill) {
+			proto_tree_add_text(string_tree,offset,string_fill,
 				"fill bytes: opaque data");
+			offset += string_fill;
+		}
 	}
 
-	offset += 4 + string_length_full;
+	if (string_item) {
+		proto_item_set_len(string_item, offset - old_offset);
+	}
+
+	if (string_buffer       != NULL) g_free (string_buffer      );
+	if (string_buffer_print != NULL) g_free (string_buffer_print);
 	return offset;
 }
 
@@ -613,6 +670,9 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree *ptree = NULL;
 	int offset_old = offset;
 
+	int use_rm = 0;
+	guint32 rpc_rm = 0;
+
 	rpc_call_info	rpc_call_msg;
 	rpc_proc_info_key	key;
 	rpc_proc_info_value	*value = NULL;
@@ -620,6 +680,17 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	static address null_address = { AT_NONE, 0, NULL };
 
 	dissect_function_t *dissect_function = NULL;
+
+	/* TCP uses record marking */
+	use_rm = (pi.ptype == PT_TCP);
+
+	/* the first 4 bytes are special in "record marking  mode" */
+	if (use_rm) {
+		if (!BYTES_ARE_IN_FRAME(offset,4))
+			return FALSE;
+		rpc_rm = EXTRACT_UINT(pd,offset);
+		offset += 4;
+	}
 
 	/*
 	 * Check to see whether this looks like an RPC call or reply.
@@ -698,6 +769,13 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		if (rpc_item) {
 			rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
 		}
+	}
+
+	if (use_rm && rpc_tree) {
+		proto_tree_add_item(rpc_tree,hf_rpc_lastfrag,
+			offset-4, 4, (rpc_rm >> 31) & 0x1);
+		proto_tree_add_item(rpc_tree,hf_rpc_fraglen,
+			offset-4, 4, rpc_rm & RPC_RM_FRAGLEN);
 	}
 
 	xid      = EXTRACT_UINT(pd,offset+0);
@@ -1015,6 +1093,7 @@ dissect_rpc_prog:
 	return TRUE;
 }
 
+
 /* Discard any state we've saved. */
 static void
 rpc_init_protocol(void)
@@ -1030,6 +1109,12 @@ void
 proto_register_rpc(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_rpc_lastfrag, {
+			"Last Fragment", "rpc.lastfrag", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "Last Fragment" }},
+		{ &hf_rpc_fraglen, {
+			"Fragment Length", "rpc.fraglen", FT_UINT32, BASE_DEC,
+			NULL, 0, "Fragment Length" }},
 		{ &hf_rpc_xid, {
 			"XID", "rpc.xid", FT_UINT32, BASE_HEX,
 			NULL, 0, "XID" }},

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.44 1999/11/16 11:42:59 guy Exp $
+ * $Id: packet-tcp.c,v 1.45 1999/11/19 13:09:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -476,7 +476,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
      (it could be an ACK-only packet) */
   if (packet_max > offset) {
 
-    /* ONC RPC.  We can't base this on anything in the UDP header; we have
+    /* ONC RPC.  We can't base this on anything in the TCP header; we have
        to look at the payload.  If "dissect_rpc()" returns TRUE, it was
        an RPC packet, otherwise it's some other type of packet. */
     if (dissect_rpc(pd, offset, fd, tree))

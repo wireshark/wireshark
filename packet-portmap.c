@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.7 1999/11/16 11:42:47 guy Exp $
+ * $Id: packet-portmap.c,v 1.8 1999/11/19 13:09:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -37,6 +37,7 @@
 #include "packet-rpc.h"
 #include "packet-portmap.h"
 
+
 static int proto_portmap = -1;
 static int hf_portmap_proto = -1;
 static int hf_portmap_prog = -1;
@@ -44,8 +45,22 @@ static int hf_portmap_proc = -1;
 static int hf_portmap_version = -1;
 static int hf_portmap_port = -1;
 static int hf_portmap_answer = -1;
+static int hf_portmap_rpcb = -1;
+static int hf_portmap_rpcb_prog = -1;
+static int hf_portmap_rpcb_version = -1;
+static int hf_portmap_rpcb_netid = -1;
+static int hf_portmap_rpcb_addr = -1;
+static int hf_portmap_rpcb_owner = -1;
+static int hf_portmap_uaddr = -1;
+static int hf_portmap_value_follows = -1;
+
 
 static gint ett_portmap = -1;
+static gint ett_portmap_rpcb = -1;
+
+
+static struct true_false_string yesno = { "Yes", "No" };
+
 
 /* Dissect a getport call */
 int dissect_getport_call(const u_char *pd, int offset, frame_data *fd,
@@ -59,14 +74,14 @@ int dissect_getport_call(const u_char *pd, int offset, frame_data *fd,
 	{
 		prog = pntohl(&pd[offset+0]);
 		proto_tree_add_item_format(tree, hf_portmap_prog,
-			offset, 4, prog, "Program: %s (%d)",
+			offset, 4, prog, "Program: %s (%u)",
 			rpc_prog_name(prog), prog);
 		proto_tree_add_item(tree, hf_portmap_version,
 			offset+4, 4, pntohl(&pd[offset+4]));
 
 		proto = pntohl(&pd[offset+8]);
 		proto_tree_add_item_format(tree, hf_portmap_proto,
-			offset+8, 4, proto, "Proto: %s (%d)", ipprotostr(proto), proto);
+			offset+8, 4, proto, "Proto: %s (%u)", ipprotostr(proto), proto);
 
 		proto_tree_add_item(tree, hf_portmap_port,
 			offset+12, 4, pntohl(&pd[offset+12]));
@@ -188,6 +203,95 @@ const vsff portmap2_proc[] = {
 /* end of Portmap version 2 */
 
 
+/* RFC 1833, Page 3 */
+int dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
+{
+	proto_item* rpcb_item = NULL;
+	proto_tree* rpcb_tree = NULL;
+	int old_offset = offset;
+	guint32 prog;
+	guint32 version;
+
+	if (tree) {
+		rpcb_item = proto_tree_add_item(tree, hfindex,
+			offset+0, END_OF_FRAME, NULL);
+		if (rpcb_item)
+			rpcb_tree = proto_item_add_subtree(rpcb_item, ett_portmap_rpcb);
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+	prog = EXTRACT_UINT(pd, offset + 0);
+	if (rpcb_tree)
+		proto_tree_add_item_format(rpcb_tree, hf_portmap_rpcb_prog,
+			offset+0, 4, prog, 
+			"Program: %s (%u)", rpc_prog_name(prog), prog);
+	offset += 4;
+
+	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+	version = EXTRACT_UINT(pd, offset + 0);
+	if (rpcb_tree)
+		proto_tree_add_item(rpcb_tree, hf_portmap_rpcb_version,
+			offset+0, 4, version);
+	offset += 4;
+
+	offset = dissect_rpc_string(pd, offset, fd, rpcb_tree, hf_portmap_rpcb_netid);
+	offset = dissect_rpc_string(pd, offset, fd, rpcb_tree, hf_portmap_rpcb_addr);
+	offset = dissect_rpc_string(pd, offset, fd, rpcb_tree, hf_portmap_rpcb_owner);
+
+	/* now we know, that rpcb is shorter */
+	if (rpcb_item) {
+		proto_item_set_len(rpcb_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+
+/* RFC 1833, Page 7 */
+int dissect_rpcb3_getaddr_call(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	offset = dissect_rpcb(pd, offset, fd, tree, hf_portmap_rpcb);
+
+	return offset;
+}
+
+
+/* RFC 1833, Page 7 */
+int dissect_rpcb3_getaddr_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	offset = dissect_rpc_string(pd, offset, fd, tree, hf_portmap_uaddr);
+
+	return offset;
+}
+
+
+/* RFC 1833, Page 7 */
+int dissect_rpcb3_dump_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	guint32 value_follows;
+	
+	while (1) {
+		if (!BYTES_ARE_IN_FRAME(offset,4)) break;
+		value_follows = EXTRACT_UINT(pd, offset+0);
+		proto_tree_add_item(tree,hf_portmap_value_follows,
+			offset+0, 4, value_follows);
+		offset += 4;
+		if (value_follows == 1) {
+			offset = dissect_rpcb(pd, offset, fd, tree, hf_portmap_rpcb);
+		}
+		else {
+			break;
+		}
+	}
+
+	return offset;
+}
+
+
 /* Portmapper version 3, RFC 1833, Page 7 */
 const vsff portmap3_proc[] = {
 	{ RPCBPROC_NULL,	"NULL",
@@ -197,9 +301,9 @@ const vsff portmap3_proc[] = {
 	{ RPCBPROC_UNSET,	"UNSET",
 		NULL, NULL },
 	{ RPCBPROC_GETADDR,	"GETADDR",
-		NULL, NULL},
+		dissect_rpcb3_getaddr_call, dissect_rpcb3_getaddr_reply},
 	{ RPCBPROC_DUMP,	"DUMP",
-		NULL, NULL },
+		NULL, dissect_rpcb3_dump_reply },
 	{ RPCBPROC_CALLIT,	"CALLIT",
 		NULL, NULL },
 	{ RPCBPROC_GETTIME,	"GETTIME",
@@ -222,9 +326,9 @@ const vsff portmap4_proc[] = {
 	{ RPCBPROC_UNSET,	"UNSET",
 		NULL, NULL },
 	{ RPCBPROC_GETADDR,	"GETADDR",
-		NULL, NULL},
+		dissect_rpcb3_getaddr_call, dissect_rpcb3_getaddr_reply},
 	{ RPCBPROC_DUMP,	"DUMP",
-		NULL, NULL },
+		NULL, dissect_rpcb3_dump_reply },
 	{ RPCBPROC_BCAST,	"BCAST",
 		NULL, NULL },
 	{ RPCBPROC_GETTIME,	"GETTIME",
@@ -267,9 +371,34 @@ proto_register_portmap(void)
 		{ &hf_portmap_answer, {
 			"Answer", "portmap.answer", FT_BOOLEAN, BASE_DEC,
 			NULL, 0, "Answer" }},
+		{ &hf_portmap_rpcb, {
+			"RPCB", "portmap.rpcb", FT_NONE, 0,
+			NULL, 0, "RPCB" }},
+		{ &hf_portmap_rpcb_prog, {
+			"Program", "portmap.rpcb.prog", FT_UINT32, BASE_DEC,
+			NULL, 0, "Program" }},
+		{ &hf_portmap_rpcb_version, {
+			"Version", "portmap.rpcb.version", FT_UINT32, BASE_DEC,
+			NULL, 0, "Version" }},
+		{ &hf_portmap_rpcb_netid, {
+			"Network Id", "portmap.rpcb.netid", FT_STRING, BASE_DEC,
+			NULL, 0, "Network Id" }},
+		{ &hf_portmap_rpcb_addr, {
+			"Universal Address", "portmap.rpcb.addr", FT_STRING, BASE_DEC,
+			NULL, 0, "Universal Address" }},
+		{ &hf_portmap_rpcb_owner, {
+			"Owner of this Service", "portmap.rpcb.owner", FT_STRING, BASE_DEC,
+			NULL, 0, "Owner of this Service" }},
+		{ &hf_portmap_uaddr, {
+			"Universal Address", "portmap.uaddr", FT_STRING, BASE_DEC,
+			NULL, 0, "Universal Address" }},
+		{ &hf_portmap_value_follows, {
+			"Value Follows", "portmap.value_follows", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "Value Follows" }},
 	};
 	static gint *ett[] = {
 		&ett_portmap,
+		&ett_portmap_rpcb
 	};
 
 	proto_portmap = proto_register_protocol("Portmap", "portmap");
