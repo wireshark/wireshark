@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.320 2003/10/07 04:36:36 guy Exp $
+ * $Id: main.c,v 1.321 2003/10/10 08:39:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,6 +118,7 @@
 #include "../tap.h"
 #include "../util.h"
 #include "compat_macros.h"
+#include "find_dlg.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -795,13 +796,30 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
 }
 #endif
 
-void reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
-  if (cfile.current_frame) {
-    /* XXX hum, should better have a "cfile->current_row" here ... */
-    set_frame_reftime(!cfile.current_frame->flags.ref_time,
-		   cfile.current_frame,
-		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
-						cfile.current_frame));
+/* 0: toggle ref time status for the selected frame 
+ * 1: find next ref time frame
+ * 2: find previous reftime frame
+ */
+void 
+reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, guint action)
+{
+
+  switch(action){
+  case 0: /* toggle ref frame */
+    if (cfile.current_frame) {
+      /* XXX hum, should better have a "cfile->current_row" here ... */
+      set_frame_reftime(!cfile.current_frame->flags.ref_time,
+	  	     cfile.current_frame,
+		     gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
+			  			  cfile.current_frame));
+    }
+    break;
+  case 1: /* find next ref frame */
+    find_previous_next_frame_with_filter("frame.ref_time", FALSE);
+    break;
+  case 2: /* find previous ref frame */
+    find_previous_next_frame_with_filter("frame.ref_time", TRUE);
+    break;
   }
 }
 

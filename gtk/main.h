@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.31 2003/09/12 02:48:23 sahlberg Exp $
+ * $Id: main.h,v 1.32 2003/10/10 08:39:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,7 +95,7 @@ void tools_plugins_cmd_cb(GtkWidget *, gpointer);
 void expand_all_cb(GtkWidget *, gpointer);
 void collapse_all_cb(GtkWidget *, gpointer);
 void resolve_name_cb(GtkWidget *, gpointer);
-void reftime_frame_cb(GtkWidget *, gpointer);
+void reftime_frame_cb(GtkWidget *, gpointer, guint);
 void mark_frame_cb(GtkWidget *, gpointer);
 void mark_all_frames_cb(GtkWidget *w, gpointer);
 void unmark_all_frames_cb(GtkWidget *w, gpointer);
