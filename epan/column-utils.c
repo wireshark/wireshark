@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.25 2002/11/11 19:23:14 guy Exp $
+ * $Id: column-utils.c,v 1.26 2002/12/02 23:34:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,7 @@ col_set_str(column_info *cinfo, gint el, gchar* str) {
 
 /* Adds a vararg list to a packet info string. */
 void
-col_add_fstr(column_info *cinfo, gint el, gchar *format, ...) {
+col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_list ap;
   int     i;
   size_t  max_len;
@@ -146,7 +146,7 @@ col_add_fstr(column_info *cinfo, gint el, gchar *format, ...) {
 
 /* Appends a vararg list to a packet info string. */
 void
-col_append_fstr(column_info *cinfo, gint el, gchar *format, ...) {
+col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_list ap;
   int     i;
   size_t  len, max_len;
@@ -177,7 +177,7 @@ col_append_fstr(column_info *cinfo, gint el, gchar *format, ...) {
 #define COL_BUF_MAX_LEN (((COL_MAX_INFO_LEN) > (COL_MAX_LEN)) ? \
 	(COL_MAX_INFO_LEN) : (COL_MAX_LEN))
 void
-col_prepend_fstr(column_info *cinfo, gint el, gchar *format, ...)
+col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
 {
   va_list ap;
   int     i;
@@ -232,7 +232,7 @@ col_add_str(column_info *cinfo, gint el, const gchar* str) {
 }
 
 void
-col_append_str(column_info *cinfo, gint el, gchar* str) {
+col_append_str(column_info *cinfo, gint el, const gchar* str) {
   int    i;
   size_t len, max_len;
 

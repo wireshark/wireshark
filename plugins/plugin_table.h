@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.55 2002/11/28 22:13:52 guy Exp $
+ * $Id: plugin_table.h,v 1.56 2002/12/02 23:34:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -33,11 +33,11 @@
 /* Typedefs to make our plugin_address_table_t struct look prettier */
 typedef gint (*addr_check_col)(column_info*, gint);
 typedef void (*addr_col_clear)(column_info*, gint);
-typedef void (*addr_col_add_fstr)(column_info*, gint, gchar*, ...);
-typedef void (*addr_col_append_fstr)(column_info*, gint, gchar*, ...);
-typedef void (*addr_col_prepend_fstr)(column_info*, gint, gchar*, ...);
+typedef void (*addr_col_add_fstr)(column_info*, gint, const gchar*, ...);
+typedef void (*addr_col_append_fstr)(column_info*, gint, const gchar*, ...);
+typedef void (*addr_col_prepend_fstr)(column_info*, gint, const gchar*, ...);
 typedef void (*addr_col_add_str)(column_info*, gint, const gchar*);
-typedef void (*addr_col_append_str)(column_info*, gint, gchar*);
+typedef void (*addr_col_append_str)(column_info*, gint, const gchar*);
 typedef void (*addr_col_set_str)(column_info*, gint, gchar*);
 
 typedef void (*addr_register_init_routine)(void (*func)(void));

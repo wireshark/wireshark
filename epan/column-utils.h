@@ -1,7 +1,7 @@
 /* column-utils.h
  * Definitions for column utility structures and routines
  *
- * $Id: column-utils.h,v 1.8 2002/11/11 19:23:14 guy Exp $
+ * $Id: column-utils.h,v 1.9 2002/12/02 23:34:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,19 +45,19 @@ extern gint	check_col(column_info *, gint);
 extern void	col_clear(column_info *, gint);
 extern void	col_set_str(column_info *, gint, gchar *);
 #if __GNUC__ >= 2
-extern void	col_add_fstr(column_info *, gint, gchar *, ...)
+extern void	col_add_fstr(column_info *, gint, const gchar *, ...)
     __attribute__((format (printf, 3, 4)));
-extern void	col_append_fstr(column_info *, gint, gchar *, ...)
+extern void	col_append_fstr(column_info *, gint, const gchar *, ...)
     __attribute__((format (printf, 3, 4)));
-extern void	col_prepend_fstr(column_info *, gint, gchar *, ...)
+extern void	col_prepend_fstr(column_info *, gint, const gchar *, ...)
     __attribute__((format (printf, 3, 4)));
 #else
-extern void	col_add_fstr(column_info *, gint, gchar *, ...);
-extern void	col_append_fstr(column_info *, gint, gchar *, ...);
-extern void	col_prepend_fstr(column_info *, gint, gchar *, ...);
+extern void	col_add_fstr(column_info *, gint, const gchar *, ...);
+extern void	col_append_fstr(column_info *, gint, const gchar *, ...);
+extern void	col_prepend_fstr(column_info *, gint, const gchar *, ...);
 #endif
 extern void	col_add_str(column_info *, gint, const gchar *);
-extern void	col_append_str(column_info *, gint, gchar *);
+extern void	col_append_str(column_info *, gint, const gchar *);
 extern void	col_set_cls_time(frame_data *, column_info *, int);
 extern void	fill_in_columns(packet_info *);
 
