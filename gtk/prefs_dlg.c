@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.74 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.75 2004/01/23 01:12:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -358,6 +358,9 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   GtkTreeIter       iter;
   GtkTreeIter       base_iter;
 #endif
+#if GTK_MAJOR_VERSION < 2
+	static gchar *fixedwidths[] = { "c", "m", NULL };
+#endif
 
   if (prefs_w != NULL) {
     /* There's already a "Preferences" dialog box; reactivate it. */
@@ -490,6 +493,24 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
    * frame to the notebook (at least in GTK2) */
   gtk_font_selection_set_font_name(
 	    GTK_FONT_SELECTION(gui_font_pg), prefs.PREFS_GUI_FONT_NAME);
+
+#if GTK_MAJOR_VERSION < 2
+  /* gtk_font_selection_set_filter doesn't work correct, 
+   * when run before appending the frame to the notebook */
+  
+  /* Set its filter to show only fixed_width fonts. */
+  gtk_font_selection_set_filter(
+	    GTK_FONT_SELECTION(gui_font_pg),
+	    GTK_FONT_FILTER_BASE, /* user can't change the filter */
+	    GTK_FONT_ALL,	  /* bitmap or scalable are fine */
+	    NULL,		  /* all foundries are OK */
+	    NULL,		  /* all weights are OK (XXX - normal only?) */
+	    NULL,		  /* all slants are OK (XXX - Roman only?) */
+	    NULL,		  /* all setwidths are OK */
+	    fixedwidths,	  /* ONLY fixed-width fonts */
+	    NULL);	/* all charsets are OK (XXX - ISO 8859/1 only?) */
+#endif  
+  
   strcpy(label_str, "Font");
 #if GTK_MAJOR_VERSION < 2
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), ct_base_node, NULL,
