@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.38 2003/12/26 12:27:47 ulfl Exp $
+; $Id: ethereal.nsi,v 1.39 2004/01/05 15:27:35 ulfl Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -51,7 +51,7 @@ XPStyle on
 ; ============================================================================
 
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "GPL.txt"
+!insertmacro MUI_PAGE_LICENSE "..\..\COPYING"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -74,7 +74,7 @@ XPStyle on
 ; License page configuration
 ; ============================================================================
 LicenseText "Ethereal is distributed under the GNU General Public License."
-LicenseData "GPL.txt"
+LicenseData "..\..\COPYING"
 
 ; ============================================================================
 ; Component page configuration
