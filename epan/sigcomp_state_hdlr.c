@@ -3,7 +3,7 @@
  * used for Signaling Compression (SigComp) dissection.
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: udvm.c 11445 2004-07-20 19:04:48Z etxrab $
+ * $Id: sigcomp_state_hdlr.c 12788 2004-12-20 10:56:25Z jmayer $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -540,7 +540,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 	/* debug 
 	 *g_warning(" state_begin %u state_address %u",state_begin , *state_address);
 	 */
-	while ( n < (*state_length + 8)){
+	while ( n < (state_begin + *state_length + 8)){
 		buff[k] = state_buff[n];
 		/*  debug 
 		 *	g_warning(" Loading 0x%x at address %u",buff[k] , k);
