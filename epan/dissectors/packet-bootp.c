@@ -18,6 +18,7 @@
  * RFC 3203: DHCP reconfigure extension
  * RFC 3495: DHCP Option (122) for CableLabs Client Configuration
  * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
+ * draft-ietf-dhc-fqdn-option-07.txt
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
  * PacketCable(TM) MTA Device Provisioning Specification
@@ -91,12 +92,22 @@ static int hf_bootp_file = -1;
 static int hf_bootp_cookie = -1;
 static int hf_bootp_vendor = -1;
 static int hf_bootp_dhcp = -1;
+static int hf_bootp_fqdn_s = -1;
+static int hf_bootp_fqdn_o = -1;
+static int hf_bootp_fqdn_e = -1;
+static int hf_bootp_fqdn_n = -1;
+static int hf_bootp_fqdn_mbz = -1;
+static int hf_bootp_fqdn_rcode1 = -1;
+static int hf_bootp_fqdn_rcode2 = -1;
+static int hf_bootp_fqdn_name = -1;
+static int hf_bootp_fqdn_asciiname = -1;
 static int hf_bootp_pkt_mdc_len = -1;
 static int hf_bootp_pkt_cm_len = -1;
 
 static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
 static gint ett_bootp_option = -1;
+static gint ett_bootp_fqdn = -1;
 
 gboolean novell_string = FALSE;
 
@@ -105,6 +116,35 @@ gboolean novell_string = FALSE;
 
 #define BOOTP_BC	0x8000
 #define BOOTP_MBZ	0x7FFF
+
+/* FQDN stuff */
+#define F_FQDN_S	0x01
+#define F_FQDN_O	0x02
+#define F_FQDN_E	0x04
+#define F_FQDN_N	0x08
+#define F_FQDN_MBZ	0xf0
+
+static const true_false_string tfs_fqdn_s = {
+  "Server",
+  "Client"
+};
+
+static const true_false_string tfs_fqdn_o = {
+  "Override",
+  "No override"
+};
+
+static const true_false_string tfs_fqdn_e = {
+  "Binary encoding",
+  "ASCII encoding"
+};
+
+static const true_false_string tfs_fqdn_n = {
+  "No server updates",
+  "Some server updates"
+};
+
+#define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
@@ -217,11 +257,12 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	guchar			byte;
 	int			i,optp, consumed;
 	gulong			time_secs;
-	proto_tree		*v_tree, *o52tree;
+	proto_tree		*v_tree, *o52tree, *flags_tree, *ft;
 	proto_item		*vti;
 	guint8			protocol;
 	guint8			algorithm;
 	guint8			rdm;
+	guint8			fqdn_flags;
 	int			o52voff, o52eoff;
 	gboolean		o52at_end;
 	gboolean		skip_opaque = FALSE;
@@ -345,7 +386,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*  78 */ { "Directory Agent Information",		special },
 		/*  79 */ { "Service Location Agent Scope",		special },
 		/*  80 */ { "Naming Authority",				opaque },
-		/*  81 */ { "Client Fully Qualified Domain Name",	opaque },
+		/*  81 */ { "Client Fully Qualified Domain Name",	special },
 		/*  82 */ { "Agent Information Option",                 special },
 		/*  83 */ { "Unassigned",				opaque },
 		/*  84 */ { "Unassigned",				opaque },
@@ -823,6 +864,33 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		proto_tree_add_text(v_tree, tvb, voff+3, consumed-3,
 		    "%s = \"%s\"", text,
 		    tvb_format_stringzpad(tvb, voff+3, vlen-1));
+		break;
+
+	case 81:	/* Client Fully Qualified Domain Name */
+		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: FQDN", code);
+		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+		fqdn_flags = tvb_get_guint8(tvb, voff+2);
+		ft = proto_tree_add_text(v_tree, tvb, voff+2, 1, "Flags: 0x%02x", fqdn_flags);
+		flags_tree = proto_item_add_subtree(ft, ett_bootp_fqdn);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_mbz, tvb, voff+2, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_n, tvb, voff+2, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_e, tvb, voff+2, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_o, tvb, voff+2, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_s, tvb, voff+2, 1, FALSE);
+		/* XXX: use code from packet-dns for return code decoding */
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode1, tvb, voff+3, 1, FALSE);
+		/* XXX: use code from packet-dns for return code decoding */
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode2, tvb, voff+4, 1, FALSE);
+		if (fqdn_flags & F_FQDN_E) {
+			/* XXX: use code from packet-dns for binary encoded name */
+			proto_tree_add_item(v_tree, hf_bootp_fqdn_name, tvb, voff+5,
+				vlen-5, FALSE);
+
+		} else {
+			proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname, tvb, voff+5,
+				vlen-5, FALSE);
+		}
 		break;
 
 	case 82:        /* Relay Agent Information Option */
@@ -2492,6 +2560,51 @@ proto_register_bootp(void)
         BASE_NONE,			NULL,		 0x0,
       	"", HFILL }},
 
+    { &hf_bootp_fqdn_s,
+      { "Server",		"bootp.fqdn.s",		FT_BOOLEAN,
+        8,			TFS(&tfs_fqdn_s),	F_FQDN_S,
+      	"Server should do ddns update", HFILL }},
+
+    { &hf_bootp_fqdn_o,
+      { "Serveroverrides",	"bootp.fqdn.o",		FT_BOOLEAN,
+        8,			TFS(&tfs_fqdn_o),	F_FQDN_O,
+      	"Server insists on doing ddns update", HFILL }},
+
+    { &hf_bootp_fqdn_e,
+      { "Binary encoding",	"bootp.fqdn.e",		FT_BOOLEAN,
+        8,			TFS(&tfs_fqdn_e),	F_FQDN_E,
+      	"Name is binary encoded", HFILL }},
+
+    { &hf_bootp_fqdn_n,
+      { "No server ddns",	"bootp.fqdn.n",		FT_BOOLEAN,
+        8,			TFS(&tfs_fqdn_n),	F_FQDN_N,
+      	"Server should not do any ddns updates", HFILL }},
+
+    { &hf_bootp_fqdn_mbz,
+      { "Reserved flags",	"bootp.fqdn.mbz",	FT_UINT8,
+        BASE_HEX,		NULL,			F_FQDN_MBZ,
+      	"", HFILL }},
+
+    { &hf_bootp_fqdn_rcode1,
+      { "A-RR result",	       	"bootp.fqdn.rcode1",	 FT_UINT8,
+        BASE_DEC,		NULL,			 0x0,
+      	"Result code of A-RR update", HFILL }},
+
+    { &hf_bootp_fqdn_rcode2,
+      { "PTR-RR result",       	"bootp.fqdn.rcode2",	 FT_UINT8,
+        BASE_DEC,		NULL,			 0x0,
+      	"Result code of PTR-RR update", HFILL }},
+
+    { &hf_bootp_fqdn_name,
+      { "Client name",		"bootp.fqdn.name",	FT_BYTES,
+        BASE_NONE,		NULL,			0x0,
+      	"Name to register via ddns", HFILL }},
+
+    { &hf_bootp_fqdn_asciiname,
+      { "Client name",		"bootp.fqdn.name",	FT_STRING,
+        BASE_NONE,		NULL,			0x0,
+      	"Name to register via ddns", HFILL }},
+
     { &hf_bootp_pkt_mdc_len,
       { "MTA DC Length",	"bootp.vendor.pkt.mdc_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2501,10 +2614,12 @@ proto_register_bootp(void)
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "PacketCable Cable Modem Device Capabilities Length", HFILL }},
   };
+
   static gint *ett[] = {
     &ett_bootp,
     &ett_bootp_flags,
     &ett_bootp_option,
+    &ett_bootp_fqdn,
   };
 
   module_t *bootp_module;
