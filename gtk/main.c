@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.261 2002/09/06 22:45:42 sahlberg Exp $
+ * $Id: main.c,v 1.262 2002/09/07 10:02:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,9 @@
 #include "ui_util.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
+#include "../tap.h"
+#include "rpc_stat.h"
+#include "rpc_progs.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -1164,6 +1167,26 @@ set_autostop_criterion(const char *autostoparg)
 }
 #endif
 
+/* 
+   Once every 3 seconds we get a callback here which we use to update
+   the tap extensions. Since Gtk1 is single threaded we dont have to
+   worry about any locking or critical regions.
+ */
+static gint
+update_cb(gpointer data _U_)
+{
+	draw_tap_listeners(FALSE);
+	return 1;
+}
+void
+protect_thread_critical_region(void)
+{
+}
+void
+unprotect_thread_critical_region(void)
+{
+}
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -1210,7 +1233,7 @@ main(int argc, char *argv[])
   gint                 desk_x, desk_y;
   gboolean             prefs_write_needed = FALSE;
 
-#define OPTSTRING_INIT "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:v"
+#define OPTSTRING_INIT "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:vz:"
 
 #ifdef HAVE_LIBPCAP
 #ifdef WIN32
@@ -1304,6 +1327,9 @@ main(int argc, char *argv[])
     }
     exit(0);
   }
+
+  /* this is to keep tap extensions updating once every 3 seconds */
+  gtk_timeout_add(3000, (GtkFunction)update_cb,(gpointer)NULL);
 
   /* Set the current locale according to the program environment.
    * We haven't localized anything, but some GTK widgets are localized
@@ -1613,6 +1639,29 @@ main(int argc, char *argv[])
         cfile.save_file_fd = atoi(optarg);
 	break;
 #endif
+        case 'z':
+            if(!strncmp(optarg,"rpc,",4)){
+              if(!strncmp(optarg,"rpc,rtt,",8)){
+                int rpcprogram, rpcversion;
+                if(sscanf(optarg,"rpc,rtt,%d,%d",&rpcprogram,&rpcversion)==2){
+                  gtk_rpcstat_init(rpcprogram,rpcversion);
+                } else {
+                  fprintf(stderr, "ethereal: invalid \"-z rpc,rtt,<program>,<version>\" argument\n");
+                  exit(1);
+                }
+              } else if(!strncmp(optarg,"rpc,programs",12)){
+                gtk_rpcprogs_init();
+              } else {
+                fprintf(stderr, "ethereal: invalid -z argument. Argument must be one of:\n");
+                fprintf(stderr, "   \"-z rpc,rtt,<program>,<version>\"\n");
+                fprintf(stderr, "   \"-z rpc,programs\"\n");
+                exit(1);
+              }
+            } else {
+              fprintf(stderr, "ethereal: invalid -z argument. Argument must be \"-z rpc,...\"\n");
+              exit(1);
+            }
+            break;
 
 #ifdef _WIN32
 #ifdef HAVE_LIBPCAP

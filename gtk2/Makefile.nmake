@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.4 2002/09/06 10:13:17 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.5 2002/09/07 10:02:36 sahlberg Exp $
 
 include ..\config.nmake
 
@@ -38,8 +38,6 @@ OBJECTS=capture_dlg.obj \
 	find_dlg.obj \
 	follow_dlg.obj \
 	goto_dlg.obj \
-	gtk2-rpcstat.obj	\
-	gtk2-rpcprogs.obj	\
 	gui_prefs.obj \
 	help_dlg.obj \
 	main.obj 	\
@@ -55,6 +53,8 @@ OBJECTS=capture_dlg.obj \
 	proto_dlg.obj \
 	proto_draw.obj \
 	proto_hier_stats_dlg.obj	\
+	rpc_stat.obj	\
+	rpc_progs.obj	\
 	simple_dialog.obj \
 	stream_prefs.obj \
 	summary_dlg.obj \
