@@ -998,143 +998,152 @@ B<http://www.ethereal.com>.
 
   Original Author
   -------- ------
-  Gerald Combs  <gerald@ethereal.com>
+  Gerald Combs  <gerald[AT]ethereal.com>
 
 
   Contributors
   ------------
-  Gilbert Ramirez          <gram@xiexie.org>
-  Hannes R. Boehm          <hannes@boehm.org>
-  Mike Hall                <mlh@io.com>
-  Bobo Rajec               <bobo@bsp-consulting.sk>
-  Laurent Deniel           <deniel@worldnet.fr>
-  Don Lafontaine           <lafont02@cn.ca>
-  Guy Harris               <guy@alum.mit.edu>
-  Simon Wilkinson          <sxw@dcs.ed.ac.uk>
-  Joerg Mayer              <jmayer@loplof.de>
-  Martin Maciaszek         <fastjack@i-s-o.net>
-  Didier Jorand            <Didier.Jorand@alcatel.fr>
-  Jun-ichiro itojun Hagino <itojun@iijlab.net>
-  Richard Sharpe           <sharpe@ns.aus.com>
-  John McDermott           <jjm@jkintl.com> 
-  Jeff Jahr                <jjahr@shastanets.com>
-  Brad Robel-Forrest       <bradr@watchguard.com>
-  Ashok Narayanan          <ashokn@cisco.com>
-  Aaron Hillegass          <aaron@classmax.com>
-  Jason Lango              <jal@netapp.com>
-  Johan Feyaerts           <Johan.Feyaerts@siemens.atea.be>
-  Olivier Abad             <oabad@cybercable.fr>
-  Thierry Andry            <Thierry.Andry@advalvas.be>
-  Jeff Foster              <jjfoste@woodward.com>
-  Peter Torvals            <petertv@xoommail.com>
-  Christophe Tronche       <ch.tronche@computer.org>
-  Nathan Neulinger         <nneul@umr.edu>
-  Tomislav Vujec           <tvujec@carnet.hr>
-  Kojak                    <kojak@bigwig.net>
-  Uwe Girlich              <Uwe.Girlich@philosys.de>
-  Warren Young             <tangent@mail.com>
-  Heikki Vatiainen         <hessu@cs.tut.fi>
-  Greg Hankins             <gregh@twoguys.org>
-  Jerry Talkington         <jerryt@netapp.com>
-  Dave Chapeskie           <dchapes@ddm.on.ca>
-  James Coe                <jammer@cin.net>
-  Bert Driehuis            <driehuis@playbeing.org>
-  Stuart Stanley           <stuarts@mxmail.net>
-  John Thomes              <john@ensemblecom.com>
-  Laurent Cazalet          <laurent.cazalet@mailclub.net>
-  Thomas Parvais           <thomas.parvais@advalvas.be>
-  Gerrit Gehnen            <G.Gehnen@atrie.de>
-  Craig Newell             <craign@cheque.uq.edu.au>
-  Ed Meaney                <emeaney@altiga.com>
-  Dietmar Petras           <DPetras@ELSA.de> 
-  Fred Reimer              <fwr@ga.prestige.net>
-  Florian Lohoff           <flo@rfc822.org>
-  Jochen Friedrich         <jochen+ethereal@scram.de>
-  Paul Welchinski          <paul.welchinski@telusplanet.net>
-  Doug Nazar               <nazard@dragoninc.on.ca>
-  Andreas Sikkema          <andreas.sikkema@philips.com>
-  Mark Muhlestein          <mmm@netapp.com>
-  Graham Bloice            <graham.bloice@trihedral.com>
-  Ralf Schneider           <ralf.schneider@alcatel.se>
-  Yaniv Kaul               <ykaul@netvision.net.il>
-  Paul Ionescu             <ipaul@romsys.ro>
-  Mark Burton              <markb@ordern.com>
-  Stefan Raab              <sraab@cisco.com>
-  Mark Clayton             <clayton@shore.net>
-  Michael Rozhavsky        <mike@tochna.technion.ac.il>
-  Dug Song                 <dugsong@monkey.org>
-  Michael Tuexen           <Michael.Tuexen@icn.siemens.de>
-  Bruce Korb               <bkorb@sco.com>
-  Jose Pedro Oliveira      <jpo@di.uminho.pt>
-  David Frascone           <dave@frascone.com>
-  Peter Kjellerstedt       <pkj@axis.com>
-  Phil Techau              <phil_t@altavista.net>
-  Wes Hardaker             <wjhardaker@ucdavis.edu>
-  Robert Tsai              <rtsai@netapp.com>
-  Craig Metz               <cmetz@inner.net>
-  Per Flock                <per.flock@axis.com>
-  Jack Keane               <jkeane@OpenReach.com>
-  Brian Wellington         <bwelling@xbill.org>
-  Santeri Paavolainen      <santtu@ssh.com>
-  Ulrich Kiermayr          <uk@ap.univie.ac.at>
-  Neil Hunter              <neil.hunter@energis-squared.com>
-  Ralf Holzer              <ralf@well.com>
-  Craig Rodrigues          <rodrigc@mediaone.net>
-  Ed Warnicke              <hagbard@physics.rutgers.edu>
-  Johan Jorgensen          <johan.jorgensen@axis.com>
-  Frank Singleton          <frank.singleton@ericsson.com>
-  Kevin Shi                <techishi@ms22.hinet.net>
-  Mike Frisch              <mfrisch@saturn.tlug.org>
-  Burke Lau                <burke_lau@agilent.com>
-  Martti Kuparinen         <martti.kuparinen@nomadiclab.com>
-  David Hampton            <dhampton@mac.com>
-  Kent Engström            <kent@unit.liu.se>
-  Ronnie Sahlberg          <rsahlber@bigpond.net.au>
-  Alexandre P. Ferreira    <alexandref@spliceip.com.br>
-  Simharajan Srishylam     <Simharajan.Srishylam@netapp.com>
-  Greg Kilfoyle            <gregk@redback.com>
-  James E. Flemer          <jflemer@acm.jhu.edu>
-  Peter Lei                <peterlei@cisco.com>
-  Thomas Gimpel            <thomas.gimpel@ferrari.de>
-  Albert Chin              <china@thewrittenword.com>
-  Charles Levert           <charles@comm.polymtl.ca>
-  Todd Sabin               <tas@webspan.net>
-  Eduardo Pérez Ureta      <eperez@dei.inf.uc3m.es>
-  Martin Thomas            <martin_a_thomas@yahoo.com>
-  Hartmut Mueller          <hartmut@wendolene.ping.de>
-  Michal Melerowicz        <Michal.Melerowicz@nokia.com>
-  Hannes Gredler           <hannes@juniper.net>
-  Inoue                    <inoue@ainet.or.jp>
-  Olivier Biot             <Olivier.Biot@siemens.atea.be>
-  Patrick Wolfe            <pjw@zocalo.cellular.ameritech.com>
-  Martin Held              <Martin.Held@icn.siemens.de>
-  Riaan Swart              <rswart@cs.sun.ac.za>
-  Christian Lacunza        <celacunza@gmx.net>
-  Michael Rozhavsky        <mike@tochna.technion.ac.il>
-  Scott Renfro             <scott@renfro.org>
-  Juan Toledo              <toledo@users.sourceforge.net>
-  Jean-Christian Pennetier <jeanchristian.pennetier@rd.francetelecom.fr>
-  Jian Yu                  <bgp4news@yahoo.com>
-  Eran Mann                <emann@opticalaccess.com>
-  Andy Hood                <ahood@westpac.com.au>
-  Randy McEoin             <rmceoin@pe.net>
-  Edgar Iglesias           <edgar.iglesias@axis.com>
-  Martina Obermeier        <Martina.Obermeier@icn.siemens.de>
-  Mark Burton              <markb@ordern.com>
-  Javier Achirica          <achirica@ttd.net>
-  B. Johannessen           <bob@havoq.com>
-  Thierry Pelle            <thierry.pelle@rd.francetelecom.fr>
-  Francisco Javier Cabello <fjcabello@vtools.es>
-  Laurent Rabret           <laurent.rabret@rd.francetelecom.fr>
-  nuf si                   <gnippiks@yahoo.com>
-  Jeff Morriss             <jeff.morriss@ulticom.com>
-  Aamer Akhter             <aakhter@cisco.com>
-  Pekka Savola             <pekkas@netcore.fi>
-  David Eisner             <cradle@Glue.umd.edu>
-  Steve Dickson            <steved@talarian.com>
+  Gilbert Ramirez          <gram[AT]xiexie.org>
+  Hannes R. Boehm          <hannes[AT]boehm.org>
+  Mike Hall                <mlh[AT]io.com>
+  Bobo Rajec               <bobo[AT]bsp-consulting.sk>
+  Laurent Deniel           <deniel[AT]worldnet.fr>
+  Don Lafontaine           <lafont02[AT]cn.ca>
+  Guy Harris               <guy[AT]alum.mit.edu>
+  Simon Wilkinson          <sxw[AT]dcs.ed.ac.uk>
+  Joerg Mayer              <jmayer[AT]loplof.de>
+  Martin Maciaszek         <fastjack[AT]i-s-o.net>
+  Didier Jorand            <Didier.Jorand[AT]alcatel.fr>
+  Jun-ichiro itojun Hagino <itojun[AT]iijlab.net>
+  Richard Sharpe           <sharpe[AT]ns.aus.com>
+  John McDermott           <jjm[AT]jkintl.com> 
+  Jeff Jahr                <jjahr[AT]shastanets.com>
+  Brad Robel-Forrest       <bradr[AT]watchguard.com>
+  Ashok Narayanan          <ashokn[AT]cisco.com>
+  Aaron Hillegass          <aaron[AT]classmax.com>
+  Jason Lango              <jal[AT]netapp.com>
+  Johan Feyaerts           <Johan.Feyaerts[AT]siemens.atea.be>
+  Olivier Abad             <oabad[AT]cybercable.fr>
+  Thierry Andry            <Thierry.Andry[AT]advalvas.be>
+  Jeff Foster              <jjfoste[AT]woodward.com>
+  Peter Torvals            <petertv[AT]xoommail.com>
+  Christophe Tronche       <ch.tronche[AT]computer.org>
+  Nathan Neulinger         <nneul[AT]umr.edu>
+  Tomislav Vujec           <tvujec[AT]carnet.hr>
+  Kojak                    <kojak[AT]bigwig.net>
+  Uwe Girlich              <Uwe.Girlich[AT]philosys.de>
+  Warren Young             <tangent[AT]mail.com>
+  Heikki Vatiainen         <hessu[AT]cs.tut.fi>
+  Greg Hankins             <gregh[AT]twoguys.org>
+  Jerry Talkington         <jerryt[AT]netapp.com>
+  Dave Chapeskie           <dchapes[AT]ddm.on.ca>
+  James Coe                <jammer[AT]cin.net>
+  Bert Driehuis            <driehuis[AT]playbeing.org>
+  Stuart Stanley           <stuarts[AT]mxmail.net>
+  John Thomes              <john[AT]ensemblecom.com>
+  Laurent Cazalet          <laurent.cazalet[AT]mailclub.net>
+  Thomas Parvais           <thomas.parvais[AT]advalvas.be>
+  Gerrit Gehnen            <G.Gehnen[AT]atrie.de>
+  Craig Newell             <craign[AT]cheque.uq.edu.au>
+  Ed Meaney                <emeaney[AT]altiga.com>
+  Dietmar Petras           <DPetras[AT]ELSA.de> 
+  Fred Reimer              <fwr[AT]ga.prestige.net>
+  Florian Lohoff           <flo[AT]rfc822.org>
+  Jochen Friedrich         <jochen+ethereal[AT]scram.de>
+  Paul Welchinski          <paul.welchinski[AT]telusplanet.net>
+  Doug Nazar               <nazard[AT]dragoninc.on.ca>
+  Andreas Sikkema          <andreas.sikkema[AT]philips.com>
+  Mark Muhlestein          <mmm[AT]netapp.com>
+  Graham Bloice            <graham.bloice[AT]trihedral.com>
+  Ralf Schneider           <ralf.schneider[AT]alcatel.se>
+  Yaniv Kaul               <ykaul[AT]netvision.net.il>
+  Paul Ionescu             <ipaul[AT]romsys.ro>
+  Mark Burton              <markb[AT]ordern.com>
+  Stefan Raab              <sraab[AT]cisco.com>
+  Mark Clayton             <clayton[AT]shore.net>
+  Michael Rozhavsky        <mike[AT]tochna.technion.ac.il>
+  Dug Song                 <dugsong[AT]monkey.org>
+  Michael Tuexen           <Michael.Tuexen[AT]icn.siemens.de>
+  Bruce Korb               <bkorb[AT]sco.com>
+  Jose Pedro Oliveira      <jpo[AT]di.uminho.pt>
+  David Frascone           <dave[AT]frascone.com>
+  Peter Kjellerstedt       <pkj[AT]axis.com>
+  Phil Techau              <phil_t[AT]altavista.net>
+  Wes Hardaker             <wjhardaker[AT]ucdavis.edu>
+  Robert Tsai              <rtsai[AT]netapp.com>
+  Craig Metz               <cmetz[AT]inner.net>
+  Per Flock                <per.flock[AT]axis.com>
+  Jack Keane               <jkeane[AT]OpenReach.com>
+  Brian Wellington         <bwelling[AT]xbill.org>
+  Santeri Paavolainen      <santtu[AT]ssh.com>
+  Ulrich Kiermayr          <uk[AT]ap.univie.ac.at>
+  Neil Hunter              <neil.hunter[AT]energis-squared.com>
+  Ralf Holzer              <ralf[AT]well.com>
+  Craig Rodrigues          <rodrigc[AT]mediaone.net>
+  Ed Warnicke              <hagbard[AT]physics.rutgers.edu>
+  Johan Jorgensen          <johan.jorgensen[AT]axis.com>
+  Frank Singleton          <frank.singleton[AT]ericsson.com>
+  Kevin Shi                <techishi[AT]ms22.hinet.net>
+  Mike Frisch              <mfrisch[AT]saturn.tlug.org>
+  Burke Lau                <burke_lau[AT]agilent.com>
+  Martti Kuparinen         <martti.kuparinen[AT]nomadiclab.com>
+  David Hampton            <dhampton[AT]mac.com>
+  Kent Engström            <kent[AT]unit.liu.se>
+  Ronnie Sahlberg          <rsahlber[AT]bigpond.net.au>
+  Alexandre P. Ferreira    <alexandref[AT]spliceip.com.br>
+  Simharajan Srishylam     <Simharajan.Srishylam[AT]netapp.com>
+  Greg Kilfoyle            <gregk[AT]redback.com>
+  James E. Flemer          <jflemer[AT]acm.jhu.edu>
+  Peter Lei                <peterlei[AT]cisco.com>
+  Thomas Gimpel            <thomas.gimpel[AT]ferrari.de>
+  Albert Chin              <china[AT]thewrittenword.com>
+  Charles Levert           <charles[AT]comm.polymtl.ca>
+  Todd Sabin               <tas[AT]webspan.net>
+  Eduardo Pérez Ureta      <eperez[AT]dei.inf.uc3m.es>
+  Martin Thomas            <martin_a_thomas[AT]yahoo.com>
+  Hartmut Mueller          <hartmut[AT]wendolene.ping.de>
+  Michal Melerowicz        <Michal.Melerowicz[AT]nokia.com>
+  Hannes Gredler           <hannes[AT]juniper.net>
+  Inoue                    <inoue[AT]ainet.or.jp>
+  Olivier Biot             <Olivier.Biot[AT]siemens.atea.be>
+  Patrick Wolfe            <pjw[AT]zocalo.cellular.ameritech.com>
+  Martin Held              <Martin.Held[AT]icn.siemens.de>
+  Riaan Swart              <rswart[AT]cs.sun.ac.za>
+  Christian Lacunza        <celacunza[AT]gmx.net>
+  Michael Rozhavsky        <mike[AT]tochna.technion.ac.il>
+  Scott Renfro             <scott[AT]renfro.org>
+  Juan Toledo              <toledo[AT]users.sourceforge.net>
+  Jean-Christian Pennetier <jeanchristian.pennetier[AT]rd.francetelecom.fr>
+  Jian Yu                  <bgp4news[AT]yahoo.com>
+  Eran Mann                <emann[AT]opticalaccess.com>
+  Andy Hood                <ahood[AT]westpac.com.au>
+  Randy McEoin             <rmceoin[AT]pe.net>
+  Edgar Iglesias           <edgar.iglesias[AT]axis.com>
+  Martina Obermeier        <Martina.Obermeier[AT]icn.siemens.de>
+  Mark Burton              <markb[AT]ordern.com>
+  Javier Achirica          <achirica[AT]ttd.net>
+  B. Johannessen           <bob[AT]havoq.com>
+  Thierry Pelle            <thierry.pelle[AT]rd.francetelecom.fr>
+  Francisco Javier Cabello <fjcabello[AT]vtools.es>
+  Laurent Rabret           <laurent.rabret[AT]rd.francetelecom.fr>
+  nuf si                   <gnippiks[AT]yahoo.com>
+  Jeff Morriss             <jeff.morriss[AT]ulticom.com>
+  Aamer Akhter             <aakhter[AT]cisco.com>
+  Pekka Savola             <pekkas[AT]netcore.fi>
+  David Eisner             <cradle[AT]Glue.umd.edu>
+  Steve Dickson            <steved[AT]talarian.com>
+  Markus Seehofer          <mseehofe[AT]nt.hirschmann.de>
 
-Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
+Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
 
-Dan Lasley <dlasley@promus.com> gave permission for his dumpit() hex-dump
+Dan Lasley <dlasley[AT]promus.com> gave permission for his dumpit() hex-dump
 routine to be used.
+
+Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the hex dump
+display routine.
+
+We use the exception module from Kazlib, a C library written by
+Kaz Kylheku <kaz[AT]ashi.footprints.net>. Thanks goes to him for his
+well-written library. The Kazlib home page can be found at
+http://users.footprints.net/~kaz/kazlib.html

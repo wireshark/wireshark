@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.26 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-bpdu.c,v 1.27 2001/07/23 18:21:30 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -77,6 +77,7 @@ static int hf_bpdu_forward_delay = -1;
 static gint ett_bpdu = -1;
 
 static dissector_handle_t gvrp_handle;
+static dissector_handle_t gmrp_handle;
 
 static void
 dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -120,8 +121,9 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    switch (pinfo->dl_dst.data[5]) {
 
 	    case 0x20:
-		  /* Future expansion for GMRP */
-		  break;
+		   /* for GMRP */
+		  call_dissector(gmrp_handle, tvb, pinfo, tree);
+		  return;
 
 	    case 0x21:
 		  /* for GVRP */
@@ -339,6 +341,11 @@ proto_reg_handoff_bpdu(void)
    * Get handle for the GVRP dissector.
    */
   gvrp_handle = find_dissector("gvrp");
+  
+  /*
+   * Get handle for the GMRP dissector.
+   */
+  gmrp_handle = find_dissector("gmrp");
 
   dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu, proto_bpdu);
   dissector_add("ppp.protocol", PPP_BPDU, dissect_bpdu, proto_bpdu);
