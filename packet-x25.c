@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.66 2002/05/09 05:49:26 guy Exp $
+ * $Id: packet-x25.c,v 1.67 2002/05/09 11:18:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1301,7 +1301,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 
 static void
 x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
-	 packet_info *pinfo, gboolean toa)
+	 packet_info *pinfo, gboolean is_registration)
 {
     int len1, len2;
     int i;
@@ -1311,23 +1311,19 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     int localoffset;
 
     byte = tvb_get_guint8(tvb, *offset);
-    len1 = (byte >> 4) & 0x0F;
-    len2 = (byte >> 0) & 0x0F;
-
-    if (!toa) { /* then switch the length indicators.. */
-      i = len1;
-      len1 = len2;
-      len2 = i;
-    }
+    len1 = (byte >> 0) & 0x0F;
+    len2 = (byte >> 4) & 0x0F;
 
     if (tree) {
 	proto_tree_add_text(tree, tvb, *offset, 1,
 		decode_numeric_bitfield(byte, 0xF0, 1*8,
-		    toa ? "Called address length : %u" :
+			is_registration ?
+		          "DTE address length : %u" :
 		          "Calling address length : %u"));
 	proto_tree_add_text(tree, tvb, *offset, 1,
 		decode_numeric_bitfield(byte, 0x0F, 1*8,
-		    toa ? "Calling address length : %u" :
+			is_registration ?
+		          "DCE address length : %u" :
 		          "Called address length : %u"));
     }
     (*offset)++;
@@ -1361,35 +1357,107 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     *second = '\0';
 
     if (len1) {
-	if (toa) {
-	    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-		col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
-	}
-	else {
-	    if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-		col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr1);
-	}
+	if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
 	if (tree)
 	    proto_tree_add_text(tree, tvb, *offset,
 				(len1 + 1) / 2,
-				"%s address : %s",
-				toa ? "Called" : "Calling",
+				is_registration ?
+				  "DCE address : %s" :
+				  "Called address : %s",
 				addr1);
     }
     if (len2) {
-	if (toa) {
-	    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-		col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
-	}
-	else {
-	    if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-		col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr2);
-	}
+	if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
 	if (tree)
 	    proto_tree_add_text(tree, tvb, *offset + len1/2,
 				(len2+1)/2+(len1%2+(len2+1)%2)/2,
-				"%s address : %s",
-				toa ? "Calling" : "Called",
+				is_registration ?
+				  "DTE address : %s" :
+				  "Calling address : %s",
+				addr2);
+    }
+    (*offset) += ((len1 + len2 + 1) / 2);
+}
+
+static void
+x25_toa(proto_tree *tree, int *offset, tvbuff_t *tvb,
+	packet_info *pinfo)
+{
+    int len1, len2;
+    int i;
+    char addr1[256], addr2[256];
+    char *first, *second;
+    guint8 byte;
+    int localoffset;
+
+    len1 = tvb_get_guint8(tvb, *offset);
+    if (tree) {
+	proto_tree_add_text(tree, tvb, *offset, 1,
+		    "Called address length : %u",
+		    len1);
+    }
+    (*offset)++;
+
+    len2 = tvb_get_guint8(tvb, *offset);
+    if (tree) {
+	proto_tree_add_text(tree, tvb, *offset, 1,
+		    "Calling address length : %u",
+		    len2);
+    }
+    (*offset)++;
+
+    localoffset = *offset;
+    byte = tvb_get_guint8(tvb, localoffset);
+
+    /*
+     * XXX - the first two half-octets of the address are the TOA and
+     * NPI; process them as such and, if the TOA says an address is
+     * an alternative address, process it correctly (i.e., not as a
+     * sequence of half-octets containing digit values).
+     */
+    first=addr1;
+    second=addr2;
+    for (i = 0; i < (len1 + len2); i++) {
+	if (i < len1) {
+	    if (i % 2 != 0) {
+		*first++ = ((byte >> 0) & 0x0F) + '0';
+		localoffset++;
+		byte = tvb_get_guint8(tvb, localoffset);
+	    } else {
+		*first++ = ((byte >> 4) & 0x0F) + '0';
+	    }
+	} else {
+	    if (i % 2 != 0) {
+		*second++ = ((byte >> 0) & 0x0F) + '0';
+		localoffset++;
+		byte = tvb_get_guint8(tvb, localoffset);
+	    } else {
+		*second++ = ((byte >> 4) & 0x0F) + '0';
+	    }
+	}
+    }
+
+    *first  = '\0';
+    *second = '\0';
+
+    if (len1) {
+	if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
+	if (tree)
+	    proto_tree_add_text(tree, tvb, *offset,
+				(len1 + 1) / 2,
+				"Called address : %s",
+				addr1);
+    }
+    if (len2) {
+	if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
+	if (tree)
+	    proto_tree_add_text(tree, tvb, *offset + len1/2,
+				(len2+1)/2+(len1%2+(len2+1)%2)/2,
+				"Calling address : %s",
 				addr2);
     }
     (*offset) += ((len1 + len2 + 1) / 2);
@@ -1594,8 +1662,12 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    X25_CALL_REQUEST, "%s", long_name);
 	}
 	localoffset = 3;
-	if (localoffset < x25_pkt_len) /* calling/called addresses */
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, toa);
+	if (localoffset < x25_pkt_len) { /* calling/called addresses */
+	    if (toa)
+		x25_toa(x25_tree, &localoffset, tvb, pinfo);
+	    else
+		x25_ntoa(x25_tree, &localoffset, tvb, pinfo, FALSE);
+	}
 
 	if (localoffset < x25_pkt_len) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
@@ -1842,8 +1914,12 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    	    X25_CALL_ACCEPTED, "%s", long_name);
 	}
 	localoffset = 3;
-        if (localoffset < x25_pkt_len) /* calling/called addresses */
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, toa);
+        if (localoffset < x25_pkt_len) { /* calling/called addresses */
+	    if (toa)
+		x25_toa(x25_tree, &localoffset, tvb, pinfo);
+	    else
+		x25_ntoa(x25_tree, &localoffset, tvb, pinfo, FALSE);
+	}
 
 	if (localoffset < x25_pkt_len) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
@@ -1900,8 +1976,12 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	localoffset = x25_pkt_len;
 
-	if (localoffset < tvb_reported_length(tvb)) /* extended clear conf format */
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, toa);
+	if (localoffset < tvb_reported_length(tvb)) { /* extended clear conf format */
+	    if (toa)
+		x25_toa(x25_tree, &localoffset, tvb, pinfo);
+	    else
+		x25_ntoa(x25_tree, &localoffset, tvb, pinfo, FALSE);
+	}
 
 	if (localoffset < tvb_reported_length(tvb)) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
@@ -2034,7 +2114,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    X25_REGISTRATION_REQUEST);
 	localoffset = 3;
 	if (localoffset < x25_pkt_len)
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, FALSE);
+	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, TRUE);
 
 	if (x25_tree) {
 	    if (localoffset < x25_pkt_len)
