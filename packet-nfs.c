@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.76 2002/08/06 05:43:30 guy Exp $
+ * $Id: packet-nfs.c,v 1.77 2002/08/06 05:51:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -382,6 +382,8 @@ static gint ett_nfs_stateid4 = -1;
 static gint ett_nfs_fattr4_fh_expire_type = -1;
 static gint ett_nfs_ace4 = -1;
 static gint ett_nfs_clientaddr4 = -1;
+static gint ett_nfs_aceflag4 = -1;
+static gint ett_nfs_acemask4 = -1;
 
 
 /* fhandle displayfilters to match also corresponding request/response
@@ -4526,16 +4528,153 @@ dissect_nfs_fsid4(tvbuff_t *tvb, int offset, proto_tree *tree, char *name)
 	return offset;
 }
 
+static const value_string names_acetype4[] = {
+#define ACE4_ACCESS_ALLOWED_ACE_TYPE	0x00000000
+	{	ACE4_ACCESS_ALLOWED_ACE_TYPE, "ACE4_ACCESS_ALLOWED_ACE_TYPE"  },
+#define ACE4_ACCESS_DENIED_ACE_TYPE		0x00000001
+	{	ACE4_ACCESS_DENIED_ACE_TYPE, "ACE4_ACCESS_DENIED_ACE_TYPE" },
+#define ACE4_SYSTEM_AUDIT_ACE_TYPE		0x00000002
+	{	ACE4_SYSTEM_AUDIT_ACE_TYPE, "ACE4_SYSTEM_AUDIT_ACE_TYPE" },
+#define ACE4_SYSTEM_ALARM_ACE_TYPE		0x00000003
+	{	ACE4_SYSTEM_ALARM_ACE_TYPE, "ACE4_SYSTEM_ALARM_ACE_TYPE"	},
+	{ 0, NULL }
+};
+
+/* ACE mask values */
+#define ACE4_READ_DATA				0x00000001
+#define ACE4_LIST_DIRECTORY		0x00000001
+#define ACE4_WRITE_DATA				0x00000002
+#define ACE4_ADD_FILE				0x00000002
+#define ACE4_APPEND_DATA			0x00000004
+#define ACE4_ADD_SUBDIRECTORY		0x00000004
+#define ACE4_READ_NAMED_ATTRS		0x00000008
+#define ACE4_WRITE_NAMED_ATTRS	0x00000010
+#define ACE4_EXECUTE					0x00000020
+#define ACE4_DELETE_CHILD			0x00000040
+#define ACE4_READ_ATTRIBUTES		0x00000080
+#define ACE4_WRITE_ATTRIBUTES		0x00000100
+#define ACE4_DELETE					0x00010000
+#define ACE4_READ_ACL				0x00020000
+#define ACE4_WRITE_ACL				0x00040000
+#define ACE4_WRITE_OWNER			0x00080000
+#define ACE4_SYNCHRONIZE			0x00100000
+
+static int
+dissect_nfs_acemask4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint32 acemask;
+	proto_item *acemask_item = NULL;
+	proto_tree *acemask_tree = NULL;
+
+	acemask = tvb_get_ntohl(tvb, offset);
+
+	acemask_item = proto_tree_add_text(tree, tvb, offset, 4, 
+		"acemask: 0x%08x", acemask);
+
+	if (acemask_item)
+		acemask_tree = proto_item_add_subtree(acemask_item, ett_nfs_acemask4);
+
+	if (acemask_tree)
+	{
+		if (acemask & ACE4_READ_DATA)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4, 
+				"ACE4_READ_DATA/ACE4_LIST_DIRECTORY (0x%08x)",
+				ACE4_READ_DATA);
+
+		if (acemask & ACE4_WRITE_DATA)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_WRITE_DATA/ACE4_ADD_FILE (0x%08x)",
+				ACE4_WRITE_DATA);
+
+		if (acemask & ACE4_APPEND_DATA)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_ADD_FILE/ACE4_ADD_SUBDIRECTORY (0x%08x)",
+				ACE4_APPEND_DATA);
+
+		if (acemask & ACE4_READ_NAMED_ATTRS)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_READ_NAMED_ATTRS (0x%08x)",
+				ACE4_READ_NAMED_ATTRS);
+
+		if (acemask & ACE4_WRITE_NAMED_ATTRS)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_WRITE_NAMED_ATTRS (0x%08x)",
+				ACE4_WRITE_NAMED_ATTRS);
+
+		if (acemask & ACE4_EXECUTE)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_EXECUTE (0x%08x)",
+				ACE4_EXECUTE);
+
+		if (acemask & ACE4_DELETE_CHILD)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_DELETE_CHILD (0x%08x)",
+				ACE4_DELETE_CHILD);
+					
+		if (acemask & ACE4_READ_ATTRIBUTES)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_READ_ATTRIBUTES (0x%08x)",
+				ACE4_READ_ATTRIBUTES);
+
+		if (acemask & ACE4_WRITE_ATTRIBUTES)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_WRITE_ATTRIBUTES (0x%08x)",
+				ACE4_WRITE_ATTRIBUTES);
+
+		if (acemask & ACE4_DELETE)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_DELETE (0x%08x)",
+				ACE4_DELETE);
+
+		if (acemask & ACE4_READ_ACL)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_READ_ACL (0x%08x)",
+				ACE4_READ_ACL);
+
+		if (acemask & ACE4_WRITE_ACL)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_WRITE_ACL (0x%08x)",
+				ACE4_WRITE_ACL);
+
+		if (acemask & ACE4_WRITE_OWNER)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_WRITE_OWNER (0x%08x)",
+				ACE4_WRITE_OWNER);
+
+		if (acemask & ACE4_SYNCHRONIZE)
+			proto_tree_add_text(acemask_tree, tvb, offset, 4,
+				"ACE4_SYNCHRONIZE (0x%08x)",
+				ACE4_SYNCHRONIZE);
+	}
+
+	offset += 4;
+
+	return offset;
+}
+
+/* ACE flag values */
+#define ACE4_FILE_INHERIT_ACE					0x00000001
+#define ACE4_DIRECTORY_INHERIT_ACE			0x00000002
+#define ACE4_NO_PROPAGATE_INHERIT_ACE		0x00000004
+#define ACE4_INHERIT_ONLY_ACE					0x00000008
+#define ACE4_SUCCESSFUL_ACCESS_ACE_FLAG	0x00000010
+#define ACE4_FAILED_ACCESS_ACE_FLAG			0x00000020
+#define ACE4_IDENTIFIER_GROUP					0x00000040
+
+
 static int
 dissect_nfs_ace4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 	proto_tree *tree)
 {
 	proto_item* ace_item = NULL;
 	proto_tree* ace_tree = NULL;
+	proto_item *aceflag_item = NULL;
+	proto_tree *aceflag_tree = NULL;
+	guint32 aceflag4;
 
 	if (tree) {
 		ace_item = proto_tree_add_text(tree, tvb, offset, 4, 
-			"Access Control Entry");
+			"ACE");
 
 		if (ace_item)
 			ace_tree = proto_item_add_subtree(ace_item, ett_nfs_ace4);
@@ -4543,8 +4682,53 @@ dissect_nfs_ace4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if (ace_tree) {
 		offset = dissect_rpc_uint32(tvb, ace_tree, hf_nfs_acetype4, offset);
-		offset = dissect_rpc_uint32(tvb, ace_tree, hf_nfs_aceflag4, offset);
-		offset = dissect_rpc_uint32(tvb, ace_tree, hf_nfs_acemask4, offset);
+
+		aceflag4 = tvb_get_ntohl(tvb, offset);
+
+		aceflag_item = proto_tree_add_text(ace_tree, tvb, offset, 4, 
+			"aceflag: 0x%08x", aceflag4);
+
+		if (aceflag_item)
+		{
+			aceflag_tree = proto_item_add_subtree(aceflag_item, ett_nfs_aceflag4);
+
+			if (aceflag_tree)
+			{
+				if (aceflag4 & ACE4_FILE_INHERIT_ACE)
+					proto_tree_add_text(aceflag_tree, tvb, offset, 4, 
+						"ACE4_FILE_INHERIT_ACE (0x%08x)", ACE4_FILE_INHERIT_ACE);
+
+				if (aceflag4 & ACE4_DIRECTORY_INHERIT_ACE)
+					proto_tree_add_text(aceflag_tree, tvb, offset, 4,
+						"ACE4_DIRECTORY_INHERIT_ACE (0x%08x)",
+						 ACE4_DIRECTORY_INHERIT_ACE);
+
+				if (aceflag4 & ACE4_INHERIT_ONLY_ACE)
+					proto_tree_add_text(aceflag_tree, tvb, offset, 4, 
+						"ACE4_INHERIT_ONLY_ACE (0x%08x)", 
+						ACE4_INHERIT_ONLY_ACE);
+
+				if (aceflag4 & ACE4_SUCCESSFUL_ACCESS_ACE_FLAG)
+					proto_tree_add_text(aceflag_tree, tvb, offset, 4,
+						"ACE4_SUCCESSFUL_ACCESS_ACE_FLAG (0x%08x)",
+						ACE4_SUCCESSFUL_ACCESS_ACE_FLAG);
+
+				if (aceflag4 & ACE4_FAILED_ACCESS_ACE_FLAG)
+					proto_tree_add_text(aceflag_tree, tvb, offset, 4,
+						"ACE4_FAILED_ACCESS_ACE_FLAG (0x%08x)",
+						ACE4_FAILED_ACCESS_ACE_FLAG);
+
+				if (aceflag4 & ACE4_IDENTIFIER_GROUP)
+					proto_tree_add_text(aceflag_tree, tvb, offset, 4,
+						"ACE4_IDENTIFIER_GROUP (0x%08x)",
+						ACE4_IDENTIFIER_GROUP);
+			}
+		}
+
+		offset += 4;
+
+		offset = dissect_nfs_acemask4(tvb, offset, ace_tree);
+		
 		offset = dissect_nfs_utf8string(tvb, offset, ace_tree, hf_nfs_who, NULL);
 	}
 
@@ -7058,7 +7242,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_acetype4, {
 			"acetype", "nfs.acetype4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.acetype4", HFILL }},
+			VALS(names_acetype4), 0, "nfs.acetype4", HFILL }},
 
 		{ &hf_nfs_aceflag4, {
 			"aceflag", "nfs.aceflag4", FT_UINT32, BASE_DEC,
@@ -7317,7 +7501,7 @@ proto_register_nfs(void)
 			NULL, 0, "Data", HFILL }},
 
 		{ &hf_nfs_acl4, {
-			"Access Control List", "nfs.acl", FT_NONE, BASE_NONE,
+			"ACL", "nfs.acl", FT_NONE, BASE_NONE,
 			NULL, 0, "Access Control List", HFILL }},
 
 		{ &hf_nfs_callback_ident, {
@@ -7432,6 +7616,8 @@ proto_register_nfs(void)
 		&ett_nfs_fattr4_fh_expire_type,
 		&ett_nfs_ace4,
 		&ett_nfs_clientaddr4,
+		&ett_nfs_aceflag4,
+		&ett_nfs_acemask4,
 	};
 	module_t *nfs_module;
 
