@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.2 1998/10/14 19:34:59 guy Exp $
+ * $Id: packet-nbns.c,v 1.3 1998/10/14 22:37:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -329,8 +329,8 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 					break;
 				}
 				add_item_to_tree(rr_tree, offset, 4,
-				    "Addr: %d.%d.%d.%d",
-				    *dptr, *(dptr+1), *(dptr+2), *(dptr+3));
+				    "Addr: %s",
+				    ip_to_str((guint8 *)dptr));
 				dptr += 4;
 				offset += 4;
 				data_len -= 4;
@@ -397,9 +397,8 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				break;
 			}
 			add_item_to_tree(rr_tree, offset, 6,
-			    "Unit ID: %02x:%02x:%02x:%02x:%02x:%02x",
-			    *dptr, *(dptr + 1), *(dptr + 2),
-			    *(dptr + 3), *(dptr + 4), *(dptr + 5));
+			    "Unit ID: %s",
+			    ether_to_str((guint8 *)dptr));
 			dptr += 6;
 			offset += 6;
 			data_len -= 6;

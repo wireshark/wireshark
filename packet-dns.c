@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.5 1998/10/14 19:34:58 guy Exp $
+ * $Id: packet-dns.c,v 1.6 1998/10/14 22:37:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -351,14 +351,14 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
   switch (type) {
   case T_A: 		/* "A" record */
     trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s, addr %d.%d.%d.%d",
+		     "%s: type %s, class %s, addr %s",
 		     name, type_name, class_name,
-		     *dptr, *(dptr+1), *(dptr+2), *(dptr+3));
+		     ip_to_str((guint8 *)dptr));
     rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len, type_name,
                      class_name, ttl, data_len);
     offset += (dptr - data_start);
-    add_item_to_tree(rr_tree, offset, 4, "Addr: %d.%d.%d.%d",
-		     *dptr, *(dptr+1), *(dptr+2), *(dptr+3));
+    add_item_to_tree(rr_tree, offset, 4, "Addr: %s",
+                     ip_to_str((guint8 *)dptr));
     break;
 
   case T_NS: 		/* "NS" record */
