@@ -2002,6 +2002,7 @@ Joshua Craig Douglas <jdouglas [AT] enterasys.com> {
 
 Dick Gooris <gooris [AT] lucent.com> {
 	Added packet range selections in the save(as) dialog
+	PacketCable support in the COPS dissector
 }
 
 Michael Shuldman <michaels [AT] inet.no> {

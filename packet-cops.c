@@ -4,7 +4,16 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.43 2004/02/18 10:11:51 guy Exp $
+ * Added PacketCable specifications by Dick Gooris <gooris@lucent.com>
+ * 
+ * Taken from PacketCable specifications :
+ *    PacketCable Dynamic Quality-of-Service Specification
+ *    PKT-SP-DQOS-I09-040402  (April 2, 2004)
+ *    www.packetcable.com
+ * 
+ * Implemented in ethereal at April 7-8, 2004
+ * 
+ * $Id: packet-cops.c,v 1.44 2004/04/15 09:24:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,6 +70,7 @@
 #include "format-oid.h"
 #include "prefs.h"
 
+/* For PacketCable, port 2126 */
 #define TCP_PORT_COPS 3288
 
 /* Preference: Variable to hold the tcp port preference */
@@ -378,6 +388,99 @@ static const value_string cops_report_type_vals[] = {
   {0, NULL },
 };
 
+/* The next tables are for PacketCable */
+
+/* Transaction ID table */
+static const value_string table_cops_transaction_id[] =
+{
+  { 0x1,  "Gate Alloc" },
+  { 0x2,  "Gate Alloc Ack" },
+  { 0x3,  "Gate Alloc Err" },
+  { 0x4,  "Gate Set" },
+  { 0x5,  "Gate Set Ack" },
+  { 0x6,  "Gate Set Err" },
+  { 0x7,  "Gate Info" },
+  { 0x8,  "Gate Info Ack" },
+  { 0x9,  "Gate Info Err" },
+  { 0xa,  "Gate Delete" },
+  { 0xb,  "Gate Delete Ack" },
+  { 0xc,  "Gate Delete Err" },
+  { 0xd,  "Gate Open" },
+  { 0xe,  "Gate Close" },        
+  { 0xFF, NULL },
+};
+
+/* Direction */
+static const value_string table_cops_direction[] =
+{
+  { 0x0,  "Downstream gate" },
+  { 0x1,  "Upstream gate" },
+  { 0xFF, NULL },
+};
+
+/* Session Class */
+static const value_string table_cops_session_class[] =
+{
+  { 0x0,  "Unspecified" },
+  { 0x1,  "Normal priority VoIP session" },
+  { 0x2,  "High priority VoIP session" },
+  { 0x3,  "Reserved" },
+  { 0xFF, NULL },
+};
+
+/* Reason Code */
+static const value_string table_cops_reason_code[] =
+{
+  { 0x0,  "Gate Delete Operation" },
+  { 0x1,  "Gate Close Operation" },        
+  { 0xFF, NULL },
+};
+
+/* Reason Sub Code - Delete */
+static const value_string table_cops_reason_subcode_delete[] =
+{
+  { 0x0,  "Normal Operation" },
+  { 0x1,  "Local Gate-coordination not completed" },        
+  { 0x2,  "Remote Gate-coordination not completed" },        
+  { 0x3,  "Authorization revoked" },        
+  { 0x4,  "Unexpected Gate-Open" },        
+  { 0x5,  "Local Gate-Close failure" },        
+  { 0x127,"Unspecified error" },        
+  { 0xFF, NULL },
+};
+
+/* Reason Sub Code - Close */
+static const value_string table_cops_reason_subcode_close[] =
+{
+  { 0x0,  "Client initiated release (normal operation)" },
+  { 0x1,  "Reservation reassignment" },
+  { 0x2,  "Lack of reservation maintenance" },
+  { 0x3,  "Lack of Docsis Mac-layer responses" },
+  { 0x4,  "Timer T0 expiration; no Gate-Set received from CMS" },
+  { 0x5,  "Timer T1 expiration; no Commit received from MTA" },
+  { 0x6,  "Timer T7 expiration; Service Flow reservation timeout" },
+  { 0x7,  "Timer T8 expiration; Service Flow inactivity in the upstream direction" },
+  { 0x127,"Unspecified error" },
+  { 0xFF, NULL },
+};
+
+/* PacketCable Error */
+static const value_string table_cops_packetcable_error[] =
+{
+  { 0x1,  "No gates urrently available" },
+  { 0x2,  "Unknown Gate ID" },
+  { 0x3,  "Illegal Session Class value" },
+  { 0x4,  "Subscriber exceeded gate limit" },
+  { 0x5,  "Gate already set" },
+  { 0x6,  "Missing Required Object" },
+  { 0x7,  "Invalid Object" },
+  { 0x127,"Unspecified error" },
+  { 0xFF, NULL },
+};
+
+/* End of PacketCable Tables */
+
+
 /* Initialize the protocol and registered fields */
 static gint proto_cops = -1;
 static gint hf_cops_ver_flags = -1;
@@ -436,6 +539,45 @@ static gint hf_cops_accttimer = -1;
 static gint hf_cops_key_id = -1;
 static gint hf_cops_seq_num = -1;
 
+/* For PacketCable */
+static gint hf_cops_subtree = -1;
+static gint hf_cops_pc_activity_count = -1;
+static gint hf_cops_pc_algorithm = -1;
+static gint hf_cops_pc_close_subcode = -1;
+static gint hf_cops_pc_cmts_ip = -1;
+static gint hf_cops_pc_cmts_ip_port = -1;
+static gint hf_cops_pc_delete_subcode = -1;
+static gint hf_cops_pc_dest_ip = -1;
+static gint hf_cops_pc_dest_port = -1;
+static gint hf_cops_pc_direction = -1;
+static gint hf_cops_pc_ds_field = -1;
+static gint hf_cops_pc_gate_id = -1;
+static gint hf_cops_pc_gate_spec_flags = -1;
+static gint hf_cops_pc_gate_command_type = -1;
+static gint hf_cops_pc_key = -1;
+static gint hf_cops_pc_max_packet_size = -1;
+static gint hf_cops_pc_min_policed_unit = -1;
+static gint hf_cops_pc_packetcable_err_code = -1;
+static gint hf_cops_pc_packetcable_sub_code = -1;
+static gint hf_cops_pc_peak_data_rate = -1;
+static gint hf_cops_pc_protocol_id = -1;
+static gint hf_cops_pc_reason_code = -1;
+static gint hf_cops_pc_remote_flags = -1;
+static gint hf_cops_pc_remote_gate_id = -1;
+static gint hf_cops_pc_reserved = -1;
+static gint hf_cops_pc_session_class = -1;
+static gint hf_cops_pc_slack_term = -1;
+static gint hf_cops_pc_spec_rate = -1;
+static gint hf_cops_pc_src_ip = -1;
+static gint hf_cops_pc_src_port = -1;
+static gint hf_cops_pc_subscriber_id = -1;
+static gint hf_cops_pc_t1_value = -1;
+static gint hf_cops_pc_t7_value = -1;
+static gint hf_cops_pc_t8_value = -1;
+static gint hf_cops_pc_token_bucket_rate = -1;
+static gint hf_cops_pc_token_bucket_size = -1;
+static gint hf_cops_pc_transaction_id = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_cops = -1;
 static gint ett_cops_ver_flags = -1;
@@ -453,6 +595,9 @@ static gint ett_cops_gperror = -1;
 static gint ett_cops_cperror = -1;
 static gint ett_cops_pdp = -1;
 
+/* For PacketCable */
+static gint ett_cops_subtree = -1;
+
 void proto_reg_handoff_cops(void);
 
 static guint get_cops_pdu_len(tvbuff_t *tvb, int offset);
@@ -465,6 +610,25 @@ static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *
 static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len);
 static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
                                        guint8 s_num, guint8 s_type, guint16 len);
+
+/* Added for PacketCable */
+proto_tree *cops_to_subtree(tvbuff_t *, proto_tree *, int, int, char *);
+void   cops_to_disp_fmt(tvbuff_t *, proto_item *, int, int, char *, const value_string *, int, gint *);
+void   cops_transaction_id(tvbuff_t *, proto_tree *, guint, guint32);
+void   cops_subscriber_id_v4(tvbuff_t *, proto_tree *, guint, guint32);
+void   cops_gate_id(tvbuff_t *, proto_tree *, guint, guint32);
+void   cops_activity_count(tvbuff_t *, proto_tree *, guint, guint32);
+void   cops_gate_specs(tvbuff_t *, proto_tree *, guint, guint32);
+void   cops_remote_gate_info(tvbuff_t *, proto_tree *, guint, guint32);
+void   cops_packetcable_reason(tvbuff_t *, proto_tree *, guint, guint32);
+void   cops_packetcable_error(tvbuff_t *, proto_tree *, guint, guint32);
+void   cops_analyze_packetcable_obj(tvbuff_t *, proto_tree *, guint32);
+
+static packet_info *cpinfo;
+static guint8 opcode_idx;
+static gboolean cops_packetcable = FALSE;
+/* End of addition for PacketCable */ 
+
 
 /* Code to actually dissect the packets */
 static void
@@ -499,6 +663,10 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "COPS %s",
                  val_to_str(op_code, cops_op_code_vals, "Unknown Op Code"));
 
+  /* PacketCable: Remember the next two values to manipulate the info field in the Gui */
+  cpinfo = pinfo;
+  opcode_idx = op_code;
+	
   if (tree) {
     proto_item *ti, *tv;
     proto_tree *cops_tree, *ver_flags_tree;
@@ -793,6 +961,9 @@ static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *
       dissect_cops_pr_objects(tvb, offset, dec_tree, len);
     }
 
+    /* PacketCable : Analyze the remaining data if available */
+    cops_analyze_packetcable_obj(tvb, tree, offset);
+	  
     break;
   case COPS_OBJ_ERROR:
     if (c_type != 1)
@@ -814,6 +985,12 @@ static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *
 
     break;
   case COPS_OBJ_CLIENTSI:
+
+    /* For PacketCable */
+    if (c_type == 1) {
+       cops_analyze_packetcable_obj(tvb, tree, offset);
+       break;
+    }
 
     if (c_type != 2) /*Not COPS-PR data*/
       break;
@@ -1508,6 +1685,195 @@ void proto_register_cops(void)
       "Error Sub-code in Error object", HFILL }
     },
 
+    /* Added for PacketCable */
+
+    { &hf_cops_subtree,
+      { "Object Subtree", "cops.pc_subtree",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        "Object Subtree", HFILL }
+    },          
+    { &hf_cops_pc_ds_field,
+      { "DS Field (DSCP or TOS)", "cops.pc_ds_field",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        "DS Field (DSCP or TOS)", HFILL }
+    },        
+    { &hf_cops_pc_direction,
+      { "Direction", "cops.pc_direction",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        "Direction", HFILL }
+    },        
+    { &hf_cops_pc_gate_spec_flags,
+      { "Flags", "cops.pc_gate_spec_flags",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        "Flags", HFILL }
+    },        
+    { &hf_cops_pc_protocol_id,
+      { "Protocol ID", "cops.pc_protocol_id",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        "Protocol ID", HFILL }
+    },        
+    { &hf_cops_pc_session_class,
+      { "Session Class", "cops.pc_session_class",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        "Session Class", HFILL }
+    },        
+    { &hf_cops_pc_algorithm,
+      { "Algorithm", "cops.pc_algorithm",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Algorithm", HFILL }
+    },        
+    { &hf_cops_pc_cmts_ip_port,
+      { "CMTS IP Port", "cops.pc_cmts_ip_port",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "CMTS IP Port", HFILL }
+    },        
+    { &hf_cops_pc_dest_port,
+      { "Destination IP Port", "cops.pc_dest_port",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Destination IP Port", HFILL }
+    },        
+    { &hf_cops_pc_packetcable_err_code,
+      { "Error Code", "cops.pc_packetcable_err_code",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Error Code", HFILL }
+    },        
+    { &hf_cops_pc_packetcable_sub_code,
+      { "Error Sub Code", "cops.pc_packetcable_sub_code",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Error Sub Code", HFILL }
+    },        
+    { &hf_cops_pc_remote_flags,
+      { "Flags", "cops.pc_remote_flags",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Flags", HFILL }
+    },        
+    { &hf_cops_pc_close_subcode,
+      { "Reason Sub Code", "cops.pc_close_subcode",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Reason Sub Code", HFILL }
+    },
+    { &hf_cops_pc_gate_command_type,
+      { "Gate Command Type", "cops.pc_gate_command_type",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Gate Command Type", HFILL }
+    },
+    { &hf_cops_pc_reason_code,
+      { "Reason Code", "cops.pc_reason_code",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Reason Code", HFILL }
+    },        
+    { &hf_cops_pc_delete_subcode,
+      { "Reason Sub Code", "cops.pc_delete_subcode",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Reason Sub Code", HFILL }
+    },        
+    { &hf_cops_pc_src_port,
+      { "Source IP Port", "cops.pc_src_port",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Source IP Port", HFILL }
+    },        
+    { &hf_cops_pc_t1_value,
+      { "Timer T1 Value (sec)", "cops.pc_t1_value",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Timer T1 Value (sec)", HFILL }
+    },        
+    { &hf_cops_pc_t7_value,
+      { "Timer T7 Value (sec)", "cops.pc_t7_value",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Timer T7 Value (sec)", HFILL }
+    },        
+    { &hf_cops_pc_t8_value,
+      { "Timer T8 Value (sec)", "cops.pc_t8_value",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Timer T8 Value (sec)", HFILL }
+    },        
+    { &hf_cops_pc_transaction_id,
+      { "Transaction Identifier", "cops.pc_transaction_id",
+        FT_UINT16, BASE_HEX, NULL, 0x00,
+        "Transaction Identifier", HFILL }
+    },        
+    { &hf_cops_pc_cmts_ip,
+      { "CMTS IP Address", "cops.pc_cmts_ip",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "CMTS IP Address", HFILL }
+    },        
+    { &hf_cops_pc_activity_count,
+      { "Count", "cops.pc_activity_count",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Count", HFILL }
+    },        
+    { &hf_cops_pc_dest_ip,
+      { "Destination IP Address", "cops.pc_dest_ip",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Destination IP Address", HFILL }
+    },        
+    { &hf_cops_pc_gate_id,
+      { "Gate Identifier", "cops.pc_gate_id",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Gate Identifier", HFILL }
+    },        
+    { &hf_cops_pc_max_packet_size,
+      { "Maximum Packet Size", "cops.pc_max_packet_size",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Maximum Packet Size", HFILL }
+    },        
+    { &hf_cops_pc_min_policed_unit,
+      { "Minimum Policed Unit", "cops.pc_min_policed_unit",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Minimum Policed Unit", HFILL }
+    },        
+    { &hf_cops_pc_peak_data_rate,
+      { "Peak Data Rate", "cops.pc_peak_data_rate",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Peak Data Rate", HFILL }
+    },        
+    { &hf_cops_pc_spec_rate,
+      { "Rate", "cops.pc_spec_rate",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Rate", HFILL }
+    },        
+    { &hf_cops_pc_remote_gate_id,
+      { "Remote Gate ID", "cops.pc_remote_gate_id",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Remote Gate ID", HFILL }
+    },        
+    { &hf_cops_pc_reserved,
+      { "Reserved", "cops.pc_reserved",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Reserved", HFILL }
+    },        
+    { &hf_cops_pc_key,
+      { "Security Key", "cops.pc_key",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Security Key", HFILL }
+    },        
+    { &hf_cops_pc_slack_term,
+      { "Slack Term", "cops.pc_slack_term",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Slack Term", HFILL }
+    },        
+    { &hf_cops_pc_src_ip,
+      { "Source IP Address", "cops.pc_src_ip",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Source IP Address", HFILL }
+    },        
+    { &hf_cops_pc_subscriber_id,
+      { "Subscriber Identifier (IPv4)", "cops.pc_subscriber_id",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Subscriber Identifier (IPv4)", HFILL }
+    },        
+    { &hf_cops_pc_token_bucket_rate,
+      { "Token Bucket Rate", "cops.pc_token_bucket_rate",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Token Bucket Rate", HFILL }
+    },        
+    { &hf_cops_pc_token_bucket_size,
+      { "Token Bucket Size", "cops.pc_token_bucket_size",
+        FT_UINT32, BASE_HEX, NULL, 0x00,
+        "Token Bucket Size", HFILL }
+    }
+    /* End of addition for PacketCable */
+
   };
 
   /* Setup protocol subtree array */
@@ -1527,6 +1893,7 @@ void proto_register_cops(void)
     &ett_cops_gperror,
     &ett_cops_cperror,
     &ett_cops_pdp,
+    &ett_cops_subtree,	  
   };
 
   module_t* cops_module;
@@ -1549,6 +1916,13 @@ void proto_register_cops(void)
                                  "Desegment all COPS messages\nspanning multiple TCP segments",
                                  "Whether the COPS dissector should desegment all messages spanning multiple TCP segments",
                                  &cops_desegment);
+	
+  /* For PacketCable */
+  prefs_register_bool_preference(cops_module, "packetcable",
+                                 "Decode for PacketCable clients",
+                                 "Decode the COPS messages using PacketCable clients",
+                                 &cops_packetcable);
+	
 #ifdef HAVE_NET_SNMP /*enable preference only if compiled with NET-SNMP*/
   prefs_register_bool_preference(cops_module, "typefrommib",
                                  "Decode COPS-PR ASN.1 types by reading them\nfrom PIBs (converted to MIBs)",
@@ -1573,3 +1947,489 @@ void proto_reg_handoff_cops(void)
   
   dissector_add("tcp.port", cops_tcp_port, cops_handle);
 }
+
+        
+/* Additions for PacketCable ( Added by Dick Gooris, Lucent Technologies ) */
+
+/* Definitions for print formatting */
+#define   FMT_DEC   0
+#define   FMT_HEX   1
+#define   FMT_IP    2
+#define   FMT_FLT   3
+
+/* Print the translated information in the display gui in a formatted way...
+ * 
+ * octets = The number of octets to obtain from the buffer
+ *
+ * vsp    = If not a NULL pointer, it points to an array with text, indexed by the obtained value
+ * 
+ * mode   = 0 -> print decimal value
+ *          1 -> print hexadecial vaue
+ *          2 -> print value as an ip address
+ *          3 -> print value as an ieee float 
+ * 
+ * This function could well be generalized. Using this function in combination with the
+ * separate function cops_to_subtree() for subtrees, will give great structure to table formatted messages
+ * like PacketCable cops, and many other protocols.
+ * 
+ */
+
+void cops_to_disp_fmt(tvbuff_t *tvb, proto_item *stt, int offset, int octets, char *str, const value_string *vsp, int mode,gint *hf_cops_parameter)
+{
+
+     guint8   code8  = 0;
+     guint16  code16 = 0;
+     guint32  code32 = 0L;
+     guint32  codeip = 0L;	
+     float    codefl = 0L;
+	
+     /* Print information elements in the specified way */
+     switch (octets) {
+             
+     case 1:
+             /* Get the octet */
+             code8 = tvb_get_guint8( tvb, offset );
+             if (vsp == NULL) {
+                /* Hexadecimal format */
+                if (mode==FMT_HEX)
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, 
+                       offset, octets, code8,"%-28s : 0x%02x",str,code8);                   
+                else
+                   /* Print an 8 bits integer */
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, 
+                       offset, octets, code8,"%-28s : %u",str,code8);
+             } else {
+               if (mode==FMT_HEX)
+                  /* Hexadecimal format */
+                  proto_tree_add_uint_format(
+                      stt, *hf_cops_parameter,tvb, offset, octets, code8,
+                      "%-28s : %s (0x%02x)",str,val_to_str(code8, vsp, "Unknown"),code8);
+               else
+                  /* String table indexed */
+                  proto_tree_add_uint_format(
+                      stt, *hf_cops_parameter,tvb, offset, octets, code8,
+                      "%-28s : %s (%u)",str,val_to_str(code8, vsp, "Unknown"),code8);
+             }
+             break;
+
+       case 2:
+	     
+             /* Get the next two octets */
+             code16 = tvb_get_ntohs(tvb,offset);
+             if (vsp == NULL) {
+                /* Hexadecimal format */
+                if (mode==FMT_HEX)
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, 
+                       offset, octets, code16,"%-28s : 0x%04x",str,code16);
+                else
+                   /* Print a 16 bits integer */
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, 
+                       offset, octets, code16,"%-28s : %u",str,code16);
+             }  else {
+                if (mode==FMT_HEX)
+                   /* Hexadecimal format */                           
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, 
+                       offset, octets, code16,"%-28s : %s (0x%04x)", str,
+                       val_to_str(code16, vsp, "Unknown (0x%04x)"),code16);
+                else
+                   /* Print a 16 bits integer */
+                   proto_tree_add_uint_format(
+                       stt, *hf_cops_parameter,tvb, offset, octets, code16,
+                       "%-28s : %s (%u)",str,val_to_str(code16, vsp, "Unknown (0x%04x)"),code16);
+             }
+             break;
+     
+        case 4:
+	     
+             /* Get the next four octets */
+             switch (mode) {
+               case FMT_FLT:  codefl  = tvb_get_ntohieee_float(tvb,offset);
+                              break;
+               case FMT_IP:   tvb_memcpy(tvb, (guint8 *)&code32, offset, 4);
+                              codeip  = tvb_get_ntohl(tvb,offset);		     
+                              break;
+               default:       code32  = tvb_get_ntohl(tvb,offset);
+	     }
+              
+             if (vsp == NULL) {
+                /* Hexadecimal format */
+                if (mode==FMT_HEX) {
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, 
+                       offset, octets, code32,"%-28s : 0x%08x",str,code32);
+                   break;
+                } 
+                /* Ip address format*/
+                if (mode==FMT_IP) {
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, offset,octets,
+                       codeip,"%-28s : %s",str,ip_to_str((guint8 *)&code32));
+                   break;
+                }
+                /* Ieee float format */
+                if (mode==FMT_FLT) {
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, offset, octets, 
+                       codefl,"%-28s : %.10g",str,codefl);
+                   break;
+                }
+                /* Print a 32 bits integer */
+                proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, offset, octets, 
+                    code32,"%-28s : %u",str,code32);
+             } else {
+                /* Hexadecimal format */                   
+                if (mode==FMT_HEX)
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, offset, octets, 
+                           code32,"%-28s : %s (0x%08x)",str,val_to_str(code32, vsp, "Unknown"),code32);
+                else
+                   /* String table indexed */
+                   proto_tree_add_uint_format(stt, *hf_cops_parameter,tvb, offset, octets, 
+                       code32,"%-28s : %s (%u)",str,val_to_str(code32, vsp, "Unknown"),code32);
+             }
+             break;
+     
+        /* In case of more than 4 octets.... */
+        default: {
+             if (mode==FMT_HEX)
+                proto_tree_add_bytes(stt, *hf_cops_parameter,
+                   tvb, offset, octets,  tvb_get_ptr(tvb, offset,octets));
+             else
+                proto_tree_add_uint_format(stt, *hf_cops_parameter,
+                   tvb, offset, octets, code32,"%s",str);
+             break;
+        }
+     }
+}
+
+/* Print the subtree information */
+proto_tree *cops_to_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, char *str) {
+     proto_item *tv;
+
+     tv  = proto_tree_add_uint_format( st, hf_cops_subtree, tvb, offset, n, (guint)NULL, str);
+     return( proto_item_add_subtree( tv, ett_cops_subtree ) );
+}
+
+/* Cops - Section : Transaction ID */
+void cops_transaction_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+        
+     proto_tree *stt;
+     guint16  code16;
+     char info[50];
+
+     /* Create a subtree */
+     stt = cops_to_subtree(tvb,st,n,offset,"Transaction ID");
+
+     /* Transaction Identifier */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Transaction Identifier", NULL,FMT_DEC,&hf_cops_pc_transaction_id);
+     offset +=2;
+
+     /* Gate Command Type */
+     code16 = tvb_get_ntohs(tvb,offset);
+     proto_tree_add_uint_format(stt, hf_cops_pc_gate_command_type,tvb, offset, 2, 
+            code16,"%-28s : %s (%u)", "Gate Command Type",
+            val_to_str(code16,table_cops_transaction_id, "Unknown (0x%04x)"),code16);
+        
+     /* Write the right data into the 'info field' on the Gui */
+     sprintf(info,"COPS %-20s - ",val_to_str(opcode_idx,cops_op_code_vals, "Unknown"));
+     strcat(info,val_to_str(code16,table_cops_transaction_id, "Unknown"));
+
+     if (check_col(cpinfo->cinfo, COL_INFO)) {
+          col_clear(cpinfo->cinfo, COL_INFO); 
+          col_add_str(cpinfo->cinfo, COL_INFO,info);
+     }
+        
+}
+
+/* Cops - Section : Subscriber ID */
+void cops_subscriber_id_v4(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+        
+     proto_item *tv;
+        
+     /* Create a subtree */        
+     tv = cops_to_subtree(tvb,st,n,offset,"Subscriber ID");
+
+     /* Subscriber Identifier */
+     cops_to_disp_fmt(tvb,tv,offset,4,"Subscriber Identifier (IPv4)", NULL,FMT_IP,&hf_cops_pc_subscriber_id);
+}
+
+/* Cops - Section : Gate ID */
+void cops_gate_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+        
+     proto_tree *stt;
+        
+     /* Create a subtree */        
+     stt = cops_to_subtree(tvb,st,n,offset,"Gate ID");
+        
+     /* Gate Identifier */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Gate Identifier", NULL,FMT_HEX,&hf_cops_pc_gate_id);
+}
+
+/* Cops - Section : Activity Count */
+void cops_activity_count(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+        
+     proto_tree *stt;
+        
+     /* Create a subtree */        
+     stt = cops_to_subtree(tvb,st,n,offset,"Activity Count");
+        
+     /* Activity Count */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Count", NULL,FMT_DEC,&hf_cops_pc_activity_count);
+}
+
+/* Cops - Section : Gate Specifications */
+void cops_gate_specs(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+        
+     proto_tree *stt;
+        
+     /* Create a subtree */        
+     stt = cops_to_subtree(tvb,st,n,offset,"Gate Specifications");
+        
+     /* Direction */
+     cops_to_disp_fmt(tvb,stt,offset,1,"Direction",table_cops_direction,FMT_DEC,&hf_cops_pc_direction);
+     offset += 1;        
+        
+     /* Protocol ID */
+     cops_to_disp_fmt(tvb,stt,offset,1,"Protocol ID",NULL,FMT_DEC,&hf_cops_pc_protocol_id);
+     offset += 1;
+        
+     /* Flags */
+     cops_to_disp_fmt(tvb,stt,offset,1,"Flags",NULL,FMT_DEC,&hf_cops_pc_gate_spec_flags);
+     offset += 1;
+        
+     /* Session Class */
+     cops_to_disp_fmt(tvb,stt,offset,1,"Session Class",table_cops_session_class,FMT_DEC,&hf_cops_pc_session_class);
+     offset += 1;
+        
+     /* Source IP Address */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Source IP Address",NULL,FMT_IP,&hf_cops_pc_src_ip);
+     offset += 4;
+        
+     /* Destination IP Address */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Destination IP Address",NULL,FMT_IP,&hf_cops_pc_dest_ip);
+     offset += 4;
+        
+     /* Source IP Port */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Source IP Port",NULL,FMT_DEC,&hf_cops_pc_src_port);
+     offset += 2;
+        
+     /* Destination IP Port */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Destination IP Port",NULL,FMT_DEC,&hf_cops_pc_dest_port);
+     offset += 2;
+        
+     /* DiffServ Code Point */
+     cops_to_disp_fmt(tvb,stt,offset,1,"DS Field (DSCP or TOS)",NULL,FMT_HEX,&hf_cops_pc_ds_field);
+     offset += 1;
+        
+     /* 3 octets Not specified */
+     offset += 3;
+        
+     /* Timer T1 Value */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Timer T1 Value (sec)",NULL,FMT_DEC,&hf_cops_pc_t1_value);
+     offset += 2;
+        
+     /* Reserved */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Reserved",NULL,FMT_DEC,&hf_cops_pc_reserved);
+     offset += 2;
+
+     /* Timer T7 Value */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Timer T7 Value (sec)",NULL,FMT_DEC,&hf_cops_pc_t7_value);
+     offset += 2;
+        
+     /* Timer T8 Value */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Timer T8 Value (sec)",NULL,FMT_DEC,&hf_cops_pc_t8_value);
+     offset += 2;
+        
+     /* Token Bucket Rate */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Token Bucket Rate",NULL,FMT_FLT,&hf_cops_pc_token_bucket_rate);
+     offset += 4;
+        
+     /* Token Bucket Size */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Token Bucket Size",NULL,FMT_FLT,&hf_cops_pc_token_bucket_size);
+     offset += 4;
+        
+     /* Peak Data Rate */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Peak Data Rate",NULL,FMT_FLT,&hf_cops_pc_peak_data_rate);
+     offset += 4;
+        
+     /* Minimum Policed Unit */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Minimum Policed Unit",NULL,FMT_DEC,&hf_cops_pc_min_policed_unit);
+     offset += 4;
+        
+     /* Maximum Packet Size */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Maximum Packet Size",NULL,FMT_DEC,&hf_cops_pc_max_packet_size);
+     offset += 4;
+        
+     /* Rate */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Rate",NULL,FMT_FLT,&hf_cops_pc_spec_rate);
+     offset += 4;
+        
+     /* Slack Term */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Slack Term",NULL,FMT_DEC,&hf_cops_pc_slack_term);
+     offset += 4;
+
+}
+
+/* Cops - Section : Remote Gate */
+void cops_remote_gate_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+        
+     proto_tree *stt;
+        
+     /* Create a subtree */        
+     stt = cops_to_subtree(tvb,st,n,offset,"Remote Gate Info");
+        
+     /* CMTS IP Address */
+     cops_to_disp_fmt(tvb,stt,offset,4,"CMTS IP Address", NULL,FMT_IP,&hf_cops_pc_cmts_ip);
+     offset += 4;
+        
+     /* CMTS IP Port */
+     cops_to_disp_fmt(tvb,stt,offset,2,"CMTS IP Port",NULL,FMT_DEC,&hf_cops_pc_cmts_ip_port);
+     offset += 2;
+        
+     /* Flags */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Flags",NULL,FMT_DEC,&hf_cops_pc_remote_flags);
+     offset += 2;
+
+     /* Remote Gate ID */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Remote Gate ID", NULL,FMT_HEX,&hf_cops_pc_remote_gate_id);
+     offset += 4;
+
+     /* Algorithm */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Algorithm", NULL,FMT_IP,&hf_cops_pc_algorithm);
+     offset += 2;
+        
+     /* Reserved */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Reserved", NULL,FMT_IP,&hf_cops_pc_reserved);
+     offset += 4;
+        
+     /* Security Key */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Security Key", NULL,FMT_HEX,&hf_cops_pc_key);
+     offset += 4;
+        
+     /* Security Key */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Security Key (cont)", NULL,FMT_HEX,&hf_cops_pc_key);
+     offset += 4;
+        
+     /* Security Key */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Security Key (cont)", NULL,FMT_HEX,&hf_cops_pc_key);
+     offset += 4;
+        
+     /* Security Key */
+     cops_to_disp_fmt(tvb,stt,offset,4,"Security Key (cont)", NULL,FMT_HEX,&hf_cops_pc_key);
+}
+
+/* Cops - Section : PacketCable reason */
+void cops_packetcable_reason(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+        
+     proto_tree *stt;
+     guint16  code16;
+        
+     /* Create a subtree */        
+     stt = cops_to_subtree(tvb,st,n,offset,"PacketCable Reason");
+        
+     /* Reason Code */
+     code16 = tvb_get_ntohs(tvb,offset);
+     proto_tree_add_uint_format(stt, hf_cops_pc_reason_code,tvb, offset, 2, 
+       code16, "%-28s : %s (%u)","Reason Code",
+       val_to_str(code16, table_cops_reason_code, "Unknown (0x%04x)"),code16);        
+     offset += 2;        
+        
+     if ( code16 == 0 ) {
+        /* Reason Sub Code with Delete */
+        cops_to_disp_fmt(tvb,stt,offset,2,"Reason Sub Code",table_cops_reason_subcode_delete,FMT_DEC,&hf_cops_pc_delete_subcode);
+     } else {
+        /* Reason Sub Code with Close */
+        cops_to_disp_fmt(tvb,stt,offset,2,"Reason Sub Code",table_cops_reason_subcode_close,FMT_DEC,&hf_cops_pc_close_subcode);
+     }
+}
+
+/* Cops - Section : PacketCable error */
+void cops_packetcable_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+        
+     proto_tree *stt;
+        
+     /* Create a subtree */        
+     stt = cops_to_subtree(tvb,st,n,offset,"PacketCable Error");
+        
+     /* Error Code */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Error Code",table_cops_packetcable_error,FMT_DEC,&hf_cops_pc_packetcable_err_code);
+     offset += 2;
+        
+     /* Error Sub Code */
+     cops_to_disp_fmt(tvb,stt,offset,2,"Error Sub Code",NULL,FMT_HEX,&hf_cops_pc_packetcable_sub_code);
+        
+}
+
+/* Analyze the PacketCable objects */
+void cops_analyze_packetcable_obj(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
+        
+    gint remdata;
+    guint16 object_len;
+    guint8 s_num, s_type;        
+    
+    /* Only if this option is enabled by the Gui */
+    if ( cops_packetcable == FALSE ) {
+       return;
+    }
+        
+    /* Do the remaining client specific objects */
+    remdata = tvb_length_remaining(tvb, offset);
+    while (remdata > 4) {
+          
+       /* In case we have remaining data, then lets try to get this analyzed */
+       object_len   = tvb_get_ntohs(tvb, offset);
+       s_num        = tvb_get_guint8(tvb, offset + 2);
+       s_type       = tvb_get_guint8(tvb, offset + 3);
+          
+       /* Tune offset */
+       offset += 4;
+            
+       /* Perform the appropriate functions */            
+       switch (s_num){
+        case 1:
+               if (s_type == 1) {
+                  cops_transaction_id(tvb, tree, object_len, offset);
+               }
+               break;               
+        case 2:
+               if (s_type == 1) {
+                  cops_subscriber_id_v4(tvb, tree, object_len, offset);
+               }
+               break;               
+        case 3:
+               if (s_type == 1) {
+                  cops_gate_id(tvb, tree, object_len, offset);
+               }
+               break;               
+        case 4:
+               if (s_type == 1) {
+                  cops_activity_count(tvb, tree, object_len, offset);
+               }
+               break;               
+        case 5:
+               if (s_type == 1) {
+                  cops_gate_specs(tvb, tree, object_len, offset);
+               }
+               break;               
+        case 6:
+               if (s_type == 1) {
+                  cops_remote_gate_info(tvb, tree, object_len, offset);
+               }
+               break;               
+        case 9:
+               if (s_type == 1) {
+                  cops_packetcable_error(tvb, tree, object_len, offset);
+               }
+               break;
+        case 13:
+               if (s_type == 1) {
+                  cops_packetcable_reason(tvb, tree, object_len, offset);
+               }
+               break;               
+       }
+
+       /* Tune offset */
+       offset += object_len-4;
+
+       /* See what we can still get from the buffer */
+       remdata = tvb_length_remaining(tvb, offset);
+    }
+}
+
+/* End of PacketCable Addition */
