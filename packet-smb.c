@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.26 1999/10/03 01:14:30 sharpe Exp $
+ * $Id: packet-smb.c,v 1.27 1999/10/03 05:01:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -333,7 +333,7 @@ dissect_smbu_date(guint16 date, guint16 time)
 
 {
   static char         datebuf[4+2+2+2+1];
-  guint32             ltime = (date << 16) + time;
+  time_t              ltime = (date << 16) + time;
 
   gtime = gmtime(&ltime);
   sprintf(datebuf, "%04d-%02d-%02d",
