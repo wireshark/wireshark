@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.41 2001/08/21 06:39:18 guy Exp $
+ * $Id: file_dlg.c,v 1.42 2001/09/10 08:49:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -376,6 +376,7 @@ select_file_type_cb(GtkWidget *w, gpointer data)
     /* We can select only the filtered or marked packets to be saved if we can
        use Wiretap to save the file. */
     gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(new_filetype));
+    gtk_widget_set_sensitive(mark_cb, can_save_with_wiretap(new_filetype));
     filetype = new_filetype;
   }
 }
@@ -454,6 +455,12 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
     main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);
   
+  /*
+   * XXX - should this be sensitive only if the current display filter
+   * has rejected some packets, so that not all packets are currently
+   * being displayed, and if it has accepted some packets, so that some
+   * packets are currently being displayed?
+   */
   filter_cb = gtk_check_button_new_with_label("Save only packets currently being displayed");
   gtk_container_add(GTK_CONTAINER(main_vb), filter_cb);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
@@ -462,6 +469,12 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
   gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(filetype));
   gtk_widget_show(filter_cb);
 
+  /*
+   * XXX - should this be sensitive only if at least one packet is
+   * marked, so that there are marked packets to save, and if not
+   * all packets are marked, so that "only marked packets" is different
+   * from "all packets"?
+   */
   mark_cb = gtk_check_button_new_with_label("Save only marked packets");
   gtk_container_add(GTK_CONTAINER(main_vb), mark_cb);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(mark_cb), FALSE);
