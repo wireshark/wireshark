@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.71 2003/02/03 02:14:00 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.72 2003/02/07 22:31:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1398,7 +1398,7 @@ netlogon_dissect_netserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, 
-		dissect_ndr_wchar_array, NDR_POINTER_REF, 
+		dissect_ndr_wchar_string, NDR_POINTER_REF, 
 		"Computer Name", hf_netlogon_computer_name, 
 		cb_str_postprocess, 
 		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
@@ -4424,7 +4424,7 @@ netlogon_dissect_UNICODE_STRING(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_wchar_array, type,
+			dissect_ndr_wchar_string, type,
 			name, hf_index, callback, NULL);
 
 	proto_item_set_len(item, offset-old_offset);

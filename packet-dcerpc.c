@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.102 2003/02/07 19:45:56 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.103 2003/02/07 22:31:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -912,13 +912,21 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
-/* Dissect an array of bytes.  This corresponds to
-   IDL of the form '[string] char *foo'.  Used when the bytes
-   should be shown as a big blob, rather than showing each one
-   as an individual element.
+/* Dissect an string of bytes.  This corresponds to
+   IDL of the form '[string] byte *foo'.
+
+   It can also be used for a conformant varying array of bytes if
+   the contents of the array should be shown as a big blob, rather
+   than showing each byte as an individual element.
+
+   XXX - which of those is really the IDL type for, for example,
+   the encrypted data in some MAPI packets?  (Microsoft haven't
+   released that IDL.)
 
    XXX - does this need to do all the conformant array stuff that
-   "dissect_ndr_ucvarray()" does?  */
+   "dissect_ndr_ucvarray()" does?  These are presumably for strings
+   that are conformant and varying - they're stored like conformant
+   varying arrays of bytes.  */
 int
 dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                             proto_tree *tree, char *drep)
@@ -1055,11 +1063,11 @@ dissect_ndr_character_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-/* Dissect an array of chars.  This corresponds to
+/* Dissect an string of chars.  This corresponds to
    IDL of the form '[string] char *foo' */
 
 int
-dissect_ndr_char_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_ndr_char_string(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			proto_tree *tree, char *drep)
 {
     return dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
@@ -1067,11 +1075,11 @@ dissect_ndr_char_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                        FALSE);
 }
 
-/* Dissect an array of wchars (wide characters).  This corresponds to
+/* Dissect an string of wchars (wide characters).  This corresponds to
    IDL of the form '[string] wchar *foo' */
 
 int
-dissect_ndr_wchar_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_ndr_wchar_string(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			proto_tree *tree, char *drep)
 {
     return dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
