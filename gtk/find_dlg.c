@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.38 2003/10/07 09:30:34 sahlberg Exp $
+ * $Id: find_dlg.c,v 1.39 2003/11/28 19:01:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,9 +78,9 @@ static void
 filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
 
 /*
- * Keep a static pointer to the current "Find Frame" window, if any, so
- * that if somebody tries to do "Find Frame" while there's already a
- * "Find Frame" window up, we just pop up the existing one, rather than
+ * Keep a static pointer to the current "Find Packet" window, if any, so
+ * that if somebody tries to do "Find Packet" while there's already a
+ * "Find Packet" window up, we just pop up the existing one, rather than
  * creating a new one.
  */
 static GtkWidget *find_frame_w;
@@ -111,12 +111,12 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   };
 
   if (find_frame_w != NULL) {
-    /* There's already a "Find Frame" dialog box; reactivate it. */
+    /* There's already a "Find Packet" dialog box; reactivate it. */
     reactivate_window(find_frame_w);
     return;
   }
 
-  find_frame_w = dlg_window_new("Ethereal: Find Frame");
+  find_frame_w = dlg_window_new("Ethereal: Find Packet");
   SIGNAL_CONNECT(find_frame_w, "destroy", find_frame_destroy_cb, NULL);
 
   tooltips = gtk_tooltips_new ();
@@ -254,14 +254,14 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(data_hb);
 
 #if GTK_MAJOR_VERSION < 2
-  hex_data_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "Frame data",
+  hex_data_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "Packet data",
                                                              accel_group);
 #else
-  hex_data_rb = gtk_radio_button_new_with_mnemonic(NULL, "Frame data");
+  hex_data_rb = gtk_radio_button_new_with_mnemonic(NULL, "Packet data");
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_data_rb), !decode_data && !summary_data);
   gtk_box_pack_start(GTK_BOX(data_hb), hex_data_rb, TRUE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, hex_data_rb, ("Search for string in the frame data"), NULL);
+  gtk_tooltips_set_tip (tooltips, hex_data_rb, ("Search for string in the packet data"), NULL);
   gtk_widget_show(hex_data_rb);
 
   /* Search Decode Window */
@@ -728,7 +728,7 @@ find_frame_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 static void
 find_frame_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-  /* Note that we no longer have a "Find Frame" dialog box. */
+  /* Note that we no longer have a "Find Packet" dialog box. */
   find_frame_w = NULL;
 }
 

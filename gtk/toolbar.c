@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.15 2003/11/18 00:46:40 ulfl Exp $
+ * $Id: toolbar.c,v 1.16 2003/11/28 18:59:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -459,7 +459,7 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                              NULL, -1);
 #endif /* GTK_MAJOR_VERSION */
 
-    /* print frame(s) button */
+    /* print packet(s) button */
 #if GTK_MAJOR_VERSION < 2
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
                                         &window->style->white,
@@ -467,20 +467,20 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     iconw = gtk_pixmap_new(icon, mask);
 
     print_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
-                                           "Print", "Print frame(s)",
+                                           "Print", "Print packet(s)",
                                            "Private", iconw,
                                            GTK_SIGNAL_FUNC(file_print_cmd_cb),
                                            NULL);
 #else
     print_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                            GTK_STOCK_PRINT, "Print frame(s)",
+                                            GTK_STOCK_PRINT, "Print packets(s)",
                                             "Private",
                                             G_CALLBACK(file_print_cmd_cb),
                                             NULL, -1);
 #endif /* GTK_MAJOR_VERSION */
     toolbar_append_separator(*toolbar);
 
-    /* find frame button */
+    /* find packet button */
 #if GTK_MAJOR_VERSION < 2
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
                                         &window->style->white,
@@ -488,18 +488,18 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     iconw = gtk_pixmap_new(icon, mask);
 
     find_button = gtk_toolbar_append_item(GTK_TOOLBAR (*toolbar), "Find",
-                                          "Find frame...",
+                                          "Find packet...",
                                           "Private", iconw,
                                           GTK_SIGNAL_FUNC(find_frame_cb), NULL);
 #else
     find_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                            GTK_STOCK_FIND,
-                                           "Find frame...",
+                                           "Find packet...",
                                            "Private", G_CALLBACK(find_frame_cb),
                                            NULL, -1);
 #endif /* GTK_MAJOR_VERSION */
 
-    /* find next frame button */
+    /* find next packet button */
 #if GTK_MAJOR_VERSION < 2
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
                                         &window->style->white,
@@ -507,19 +507,19 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     iconw = gtk_pixmap_new(icon, mask);
 
     find_next_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "Next",
-                                               "Find next frame", "Private",
+                                               "Find next packet", "Private",
                                                iconw,
                                                GTK_SIGNAL_FUNC(find_next_cb),
                                                NULL);
 #else
     find_next_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                                 GTK_STOCK_GO_FORWARD,
-                                                "Find next frame", "Private",
+                                                "Find next packet", "Private",
                                                 G_CALLBACK(find_next_cb), NULL,
                                                 -1);
 #endif /* GTK_MAJOR_VERSION */
 
-    /* go to frame button */
+    /* go to packet button */
 #if GTK_MAJOR_VERSION < 2
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
                                         &window->style->white,
@@ -527,14 +527,14 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     iconw = gtk_pixmap_new(icon, mask);
 
     go_to_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "GoTo",
-                                           "Go to frame number...", "Private",
+                                           "Go to packet number...", "Private",
                                            iconw,
                                            GTK_SIGNAL_FUNC(goto_frame_cb),
                                            NULL);
 #else
     go_to_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                             GTK_STOCK_JUMP_TO,
-                                            "Go to frame number...", "Private",
+                                            "Go to packet number...", "Private",
                                             G_CALLBACK(goto_frame_cb), NULL,
                                             -1);
 #endif /* GTK_MAJOR_VERSION */
@@ -580,7 +580,7 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                  G_CALLBACK(dfilter_dialog_cb), NULL, -1);
 #endif /* GTK_MAJOR_VERSION */
 
-    /* color filter button */
+    /* coloring rules button */
 #if GTK_MAJOR_VERSION < 2
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
                                         &window->style->white,
@@ -589,12 +589,12 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
 
     color_display_button =
         gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "Color",
-                                "Apply Color Filters...", "Private", iconw,
+                                "Edit Coloring Rules...", "Private", iconw,
                                 GTK_SIGNAL_FUNC(color_display_cb), NULL);
 #else
     color_display_button =
         gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar), GTK_STOCK_SELECT_COLOR,
-                                 "Apply color filters...", "Private",
+                                 "Edit Coloring Rules...", "Private",
                                  G_CALLBACK(color_display_cb), NULL, -1);
 #endif /* GTK_MAJOR_VERSION */
 

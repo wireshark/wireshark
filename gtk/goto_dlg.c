@@ -1,7 +1,7 @@
 /* goto_dlg.c
- * Routines for "go to frame" window
+ * Routines for "go to packet" window
  *
- * $Id: goto_dlg.c,v 1.20 2003/03/02 22:07:25 guy Exp $
+ * $Id: goto_dlg.c,v 1.21 2003/11/28 19:02:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkWidget     *goto_frame_w, *main_vb, *fnumber_hb, *fnumber_lb, *fnumber_te,
                 *bbox, *ok_bt, *cancel_bt;
 
-  goto_frame_w = dlg_window_new("Ethereal: Go To Frame");
+  goto_frame_w = dlg_window_new("Ethereal: Go To Packet");
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -65,7 +65,7 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), fnumber_hb);
   gtk_widget_show(fnumber_hb);
 
-  fnumber_lb = gtk_label_new("Frame number:");
+  fnumber_lb = gtk_label_new("Packet number:");
   gtk_box_pack_start(GTK_BOX(fnumber_hb), fnumber_lb, FALSE, FALSE, 0);
   gtk_widget_show(fnumber_lb);
 
@@ -115,7 +115,7 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
      been selected. */
   dlg_set_cancel(goto_frame_w, cancel_bt);
 
-  /* Give the initial focus to the "Frame number" entry box. */
+  /* Give the initial focus to the "Packet number" entry box. */
   gtk_widget_grab_focus(fnumber_te);
 
   gtk_widget_show(goto_frame_w);
@@ -139,7 +139,7 @@ goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
        Can we hack up signal handlers for the widget to make it
        reject attempts to type in characters other than digits? */
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		"The frame number you entered isn't a valid number.");
+		"The packet number you entered isn't a valid number.");
     return;
   }
 
