@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.77 2002/08/06 05:51:13 guy Exp $
+ * $Id: packet-nfs.c,v 1.78 2002/08/07 02:54:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1634,6 +1634,8 @@ static const value_string names_nfs_stat4[] = {
 	{	10035,	"NFS4ERR_RECLAIM_CONFLICT"			},
 	{	10036,	"NFS4ERR_BADXDR"				},
 	{	10037,	"NFS4ERR_LOCKS_HELD"				},
+	{	10038,	"NFS4ERR_OPENMODE"	},
+	{	10039,	"NFS4ERR_BADOWNER"	},
 	{ 0, NULL }
 };
 
@@ -5110,8 +5112,8 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						break;
 
 					case FATTR4_RDATTR_ERROR:
-						attr_vals_offset = dissect_nfs_nfsstat4(tvb, attr_vals_offset,
-							attr_newftree, NULL);
+						attr_vals_offset = dissect_nfs_nfsstat4(tvb, 
+							attr_vals_offset, attr_newftree, NULL);
 						break;
 
 					case FATTR4_ACL:
@@ -5121,7 +5123,8 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 					case FATTR4_ACLSUPPORT:
 						attr_vals_offset = dissect_rpc_uint32(tvb,
-							attr_newftree, hf_nfs_fattr4_aclsupport, offset);
+							attr_newftree, hf_nfs_fattr4_aclsupport, 
+							attr_vals_offset);
 						break;
 
 					case FATTR4_ARCHIVE:
@@ -5629,6 +5632,7 @@ static const value_string names_nfsv4_operation[] = {
 	{	NFS4_OP_LOCKT,						"LOCKT"	},
 	{	NFS4_OP_LOCKU,						"LOCKU"	},
 	{	NFS4_OP_LOOKUP,					"LOOKUP"	},
+	{	NFS4_OP_LOOKUPP,					"LOOKUPP" },
 	{	NFS4_OP_NVERIFY,					"NVERIFY"	},
 	{	NFS4_OP_OPEN,						"OPEN"	},
 	{	NFS4_OP_OPENATTR,					"OPENATTR"	},
