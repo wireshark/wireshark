@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.54 2000/10/02 17:42:29 guy Exp $
+ * $Id: packet-dns.c,v 1.55 2000/10/11 04:12:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,8 +61,9 @@ static gint ett_t_key_flags = -1;
 
 /* DNS structs and definitions */
 
-/* Port used for DNS. */
+/* Ports used for DNS. */
 #define UDP_PORT_DNS     53
+#define TCP_PORT_DNS     53
 
 /* Offsets of fields in the DNS header. */
 #define	DNS_ID		0
@@ -99,21 +100,25 @@ static gint ett_t_key_flags = -1;
 #define T_RT            21              /* route-through (RFC 1183) */
 #define T_NSAP          22              /* OSI NSAP (RFC 1706) */
 #define T_NSAP_PTR      23              /* PTR equivalent for OSI NSAP (RFC 1348 - obsolete) */
-#define T_SIG           24              /* digital signature (RFC 2065) */
-#define T_KEY           25              /* public key (RFC 2065) */
+#define T_SIG           24              /* digital signature (RFC 2535) */
+#define T_KEY           25              /* public key (RFC 2535) */
 #define T_PX            26              /* pointer to X.400/RFC822 mapping info (RFC 1664) */
 #define T_GPOS          27              /* geographical position (RFC 1712) */
 #define T_AAAA          28              /* IPv6 address (RFC 1886) */
 #define T_LOC           29              /* geographical location (RFC 1876) */
-#define T_NXT           30              /* "next" name (RFC 2065) */
+#define T_NXT           30              /* "next" name (RFC 2535) */
 #define T_EID           31              /* ??? (Nimrod?) */
 #define T_NIMLOC        32              /* ??? (Nimrod?) */
 #define T_SRV           33              /* service location (RFC 2052) */
 #define T_ATMA          34              /* ??? */
 #define T_NAPTR         35              /* naming authority pointer (RFC 2168) */
+#define	T_KX		36		/* Key Exchange (RFC 2230) */
+#define	T_CERT		37		/* Certificate (RFC 2538) */
 #define T_A6		38              /* IPv6 address with indirection (RFC 2874) */
 #define T_DNAME         39              /* Non-terminal DNS name redirection (RFC 2672) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
+#define T_TKEY		249		/* Transaction Key (RFC 2930) */
+#define T_TSIG		250		/* Transaction Signature (RFC 2845) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
 #define T_WINS_R	65282		/* Microsoft's WINS-R RR */
 
@@ -122,6 +127,8 @@ static gint ett_t_key_flags = -1;
 #define C_CS		2		/* CSNET (obsolete) */
 #define C_CH		3		/* CHAOS */
 #define C_HS		4		/* Hesiod */
+#define	C_NONE		254		/* none */
+#define	C_ANY		255		/* any */
 
 /* Bit fields in the flags */
 #define F_RESPONSE      (1<<15)         /* packet is response */
@@ -138,14 +145,58 @@ static gint ett_t_key_flags = -1;
 #define OPCODE_QUERY    (0<<11)         /* standard query */
 #define OPCODE_IQUERY   (1<<11)         /* inverse query */
 #define OPCODE_STATUS   (2<<11)         /* server status request */
+#define OPCODE_NOTIFY   (4<<11)         /* zone change notification */
+#define OPCODE_UPDATE   (5<<11)         /* dynamic update */
 
 /* Reply codes */
 #define RCODE_NOERROR   (0<<0)
-#define RCODE_FMTERROR  (1<<0)
+#define RCODE_FORMERR   (1<<0)
 #define RCODE_SERVFAIL  (2<<0)
-#define RCODE_NAMEERROR (3<<0)
+#define RCODE_NXDOMAIN  (3<<0)
 #define RCODE_NOTIMPL   (4<<0)
 #define RCODE_REFUSED   (5<<0)
+#define RCODE_YXDOMAIN  (6<<0)
+#define RCODE_YXRRSET   (7<<0)
+#define RCODE_NXRRSET   (8<<0)
+#define RCODE_NOTAUTH   (9<<0)
+#define RCODE_NOTZONE   (10<<0)
+
+static const value_string rcode_vals[] = {
+	  { RCODE_NOERROR,   "No error"             },
+	  { RCODE_FORMERR,   "Format error"         },
+	  { RCODE_SERVFAIL,  "Server failure"       },
+	  { RCODE_NXDOMAIN,  "No such name"         },
+	  { RCODE_NOTIMPL,   "Not implemented"      },
+	  { RCODE_REFUSED,   "Refused"              },
+	  { RCODE_YXDOMAIN,  "Name exists"          },
+	  { RCODE_YXRRSET,   "RRset exists"         },
+	  { RCODE_NXRRSET,   "RRset does not exist" },
+	  { RCODE_NOTAUTH,   "Not authoritative"    },
+	  { RCODE_NOTZONE,   "Name out of zone"     },
+	  { 0,               NULL                   } };
+
+/* TSIG/TKEY extended errors */
+#define TSIGERROR_BADSIG   (16)
+#define TSIGERROR_BADKEY   (17)
+#define TSIGERROR_BADTIME  (18)
+#define TSIGERROR_BADMODE  (19)
+#define TSIGERROR_BADNAME  (20)
+#define TSIGERROR_BADALG   (21)
+
+static const value_string tsigerror_vals[] = {
+	  { TSIGERROR_BADSIG,   "Bad signature"        },
+	  { TSIGERROR_BADKEY,   "Bad key"              },
+	  { TSIGERROR_BADTIME,  "Bad time failure"     },
+	  { TSIGERROR_BADMODE,  "Bad mode such name"   },
+	  { TSIGERROR_BADNAME,  "Bad name implemented" },
+	  { TSIGERROR_BADALG,   "Bad algorithm"        },
+	  { 0,                  NULL                   } };
+
+#define TKEYMODE_SERVERASSIGNED             (1)
+#define TKEYMODE_DIFFIEHELLMAN              (2)
+#define TKEYMODE_GSSAPI                     (3)
+#define TKEYMODE_RESOLVERASSIGNED           (4)
+#define TKEYMODE_DELETE                     (5)
 
 /* See RFC 1035 for all RR types for which no RFC is listed, except for
    the ones with "???", and for the Microsoft WINS and WINS-R RRs, for
@@ -186,20 +237,20 @@ dns_type_name (u_int type)
     "RT",				/* RFC 1183 */
     "NSAP",				/* RFC 1706 */
     "NSAP-PTR",				/* RFC 1348 */
-    "SIG",				/* RFC 2065 */
-    "KEY",				/* RFC 2065 */
+    "SIG",				/* RFC 2535 */
+    "KEY",				/* RFC 2535 */
     "PX",				/* RFC 1664 */
     "GPOS",				/* RFC 1712 */
     "AAAA",				/* RFC 1886 */
     "LOC",				/* RFC 1876 */
-    "NXT",				/* RFC 2065 */
+    "NXT",				/* RFC 2535 */
     "EID",
     "NIMLOC",
     "SRV",				/* RFC 2052 */
     "ATMA",
     "NAPTR",				/* RFC 2168 */
-    NULL,
-    NULL,
+    "KX",				/* RFC 2230 */
+    "CERT",				/* RFC 2538 */
     "A6",				/* RFC 2874 */
     "DNAME",				/* RFC 2672 */
     NULL,
@@ -225,6 +276,12 @@ dns_type_name (u_int type)
       return "WINS";
     case T_WINS_R:
       return "WINS-R";
+
+      /* meta */
+    case T_TKEY:
+      return "TKEY";
+    case T_TSIG:
+      return "TSIG";
 
       /* queries  */
     case 251:
@@ -272,20 +329,20 @@ dns_long_type_name (u_int type)
     "Route through",			/* RFC 1183 */
     "OSI NSAP",				/* RFC 1706 */
     "OSI NSAP name pointer",		/* RFC 1348 */
-    "Signature",			/* RFC 2065 */
-    "Public key",			/* RFC 2065 */
+    "Signature",			/* RFC 2535 */
+    "Public key",			/* RFC 2535 */
     "Pointer to X.400/RFC822 mapping info", /* RFC 1664 */
     "Geographical position",		/* RFC 1712 */
     "IPv6 address",			/* RFC 1886 */
     "Location",				/* RFC 1876 */
-    "Next",				/* RFC 2065 */
+    "Next",				/* RFC 2535 */
     "EID",
     "NIMLOC",
     "Service location",			/* RFC 2052 */
     "ATMA",
     "Naming authority pointer",		/* RFC 2168 */
-    NULL,
-    NULL,
+    "Key Exchange",			/* RFC 2230 */
+    "Certificate",			/* RFC 2538 */
     "IPv6 address with indirection",	/* RFC 2874 */
     "Non-terminal DNS name redirection", /* RFC 2672 */
     NULL,
@@ -312,6 +369,12 @@ dns_long_type_name (u_int type)
       return "WINS";
     case T_WINS_R:
       return "WINS-R";
+
+      /* meta */
+    case T_TKEY:
+      return "Transaction Key";
+    case T_TSIG:
+      return "Transaction Signature";
 
       /* queries  */
     case 251:
@@ -348,6 +411,12 @@ dns_class_name(int class)
     break;
   case C_HS:
     class_name = "hesiod";
+    break;
+  case C_NONE:
+    class_name = "none";
+    break;
+  case C_ANY:
+    class_name = "any";
     break;
   default:
     class_name = "unknown";
@@ -667,7 +736,7 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
 }
 
 /*
- * SIG and KEY RR algorithms.
+ * SIG, KEY, and CERT RR algorithms.
  */
 #define	DNS_ALGO_RSAMD5		1	/* RSA/MD5 */
 #define	DNS_ALGO_DH		2	/* Diffie-Hellman */
@@ -685,6 +754,21 @@ static const value_string algo_vals[] = {
 	  { DNS_ALGO_INDIRECT,   "Indirect key" },
 	  { DNS_ALGO_PRIVATEDNS, "Private, domain name" },
 	  { DNS_ALGO_PRIVATEOID, "Private, OID" },
+	  { 0,                   NULL }
+};
+
+#define DNS_CERT_PGP		1	/* PGP */
+#define DNS_CERT_PKIX		2	/* PKIX */
+#define DNS_CERT_SPKI		3	/* SPKI */
+#define DNS_CERT_PRIVATEURI	253	/* Private, URI */
+#define DNS_CERT_PRIVATEOID	254	/* Private, OID */
+
+static const value_string cert_vals[] = {
+	  { DNS_CERT_PGP,        "PGP" },
+	  { DNS_CERT_PKIX,       "PKIX" },
+	  { DNS_CERT_SPKI,       "SPKI" },
+	  { DNS_CERT_PRIVATEURI, "Private, URI" },
+	  { DNS_CERT_PRIVATEOID, "Private, OID" },
 	  { 0,                   NULL }
 };
 
@@ -1592,10 +1676,322 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
     }
     break;
 
+  case T_KX:
+    {
+      guint16 preference = 0;
+      char kx_name[MAXDNAME];
+      int kx_name_len;
+      
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	/* We ran past the end of the captured data in the packet. */
+      	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		       "%s: type %s, class %s, <preference goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
+      }
+      preference = pntohs(&pd[cur_offset]);
+      kx_name_len = get_dns_name(pd, cur_offset + 2, dns_data_offset, kx_name, sizeof(kx_name));
+      if (kx_name_len < 0) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		       "%s: type %s, class %s, preference %u, <kx goes past end of captured data in packet>",
+		       name, type_name, class_name, preference);
+	}
+	return 0;
+      }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %u %s", preference, kx_name);
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr,
+		       "%s: type %s, class %s, preference %u, kx %s",
+		       name, type_name, class_name, preference, kx_name);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 2, "Preference: %u", preference);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset + 2, kx_name_len, "Key exchange: %s",
+			kx_name);
+      }
+    }
+    break;
+
+  case T_CERT:
+    {
+      guint16 cert_type, cert_keytag;
+      guint8 cert_keyalg;
+      int rr_len = data_len;
+
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+        /* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		       "%s: type %s, class %s, <preference goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
+      }
+      cert_type = pntohs(&pd[cur_offset]);
+      cur_offset += 2;
+      rr_len -= 2;
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+        /* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		       "%s: type %s, class %s, <preference goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
+      }
+      cert_keytag = pntohs(&pd[cur_offset]);
+      cur_offset += 2;
+      rr_len -= 2;
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+        /* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		       "%s: type %s, class %s, <preference goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
+      }
+      cert_keyalg = pd[cur_offset];
+      cur_offset += 1;
+      rr_len -= 1;
+
+      if (dns_tree != NULL) {
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 1, "Type: %s",
+		val_to_str(cert_keyalg, cert_vals,
+	            "Unknown (0x%02X)"));
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 2, "Key footprint: 0x%04x",
+		cert_keytag);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 1, "Algorithm: %s",
+		val_to_str(cert_keyalg, algo_vals,
+	            "Unknown (0x%02X)"));
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, rr_len, "Public key");
+      }
+
+    }
+    break;
+
   case T_OPT:
     if (dns_tree != NULL) {
       proto_item_set_text(trr, "%s: type %s", name, type_name);
       proto_tree_add_text(rr_tree, NullTVB, cur_offset, data_len, "Data");
+    }
+    break;
+
+  case T_TKEY:
+    {
+      char tkey_algname[MAXDNAME];
+      int tkey_algname_len;
+      guint16 tkey_mode, tkey_error, tkey_keylen, tkey_otherlen;
+      int rr_len = data_len;
+      struct timeval unixtime;
+      static const value_string tkey_modes[] = {
+		  { TKEYMODE_SERVERASSIGNED,   "Server assigned"   },
+		  { TKEYMODE_DIFFIEHELLMAN,    "Diffie Hellman"    },
+		  { TKEYMODE_GSSAPI,           "GSSAPI "           },
+		  { TKEYMODE_RESOLVERASSIGNED, "Resolver assigned" },
+		  { TKEYMODE_DELETE,           "Delete"            },
+		  { 0,                         NULL                } };
+
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr,
+		"%s: type %s, class %s", name, type_name, class_name);
+	tkey_algname_len = get_dns_name(pd, cur_offset, dns_data_offset, tkey_algname, sizeof(tkey_algname));
+	if (tkey_algname_len < 0) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, tkey_algname_len,
+		"Algorithm name: %s", tkey_algname);
+	cur_offset += tkey_algname_len;
+	rr_len -= tkey_algname_len;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	unixtime.tv_sec = pntohl(&pd[cur_offset]);
+	unixtime.tv_usec = 0;
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Signature inception: %s",
+		abs_time_to_str(&unixtime));
+	cur_offset += 4;
+	rr_len -= 4;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	unixtime.tv_sec = pntohl(&pd[cur_offset]);
+	unixtime.tv_usec = 0;
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Signature expiration: %s",
+		abs_time_to_str(&unixtime));
+	cur_offset += 4;
+	rr_len -= 4;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	tkey_mode = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 1, "Mode: %s",
+		val_to_str(tkey_mode, tkey_modes,
+	            "Unknown (0x%02X)"));
+
+	tkey_error = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+
+        proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Error: %s",
+		val_to_str(tkey_error, rcode_vals,
+		val_to_str(tkey_error, tsigerror_vals, "Unknown error (%x)")));
+
+	tkey_keylen = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, tkey_keylen)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, tkey_keylen, "Key");
+	cur_offset += tkey_keylen;
+	rr_len -= tkey_keylen;
+
+	tkey_otherlen = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, tkey_otherlen)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, tkey_otherlen, "Other");
+	cur_offset += tkey_otherlen;
+	rr_len -= tkey_otherlen;
+      }
+    }
+    break;
+
+  case T_TSIG:
+    {
+      guint8 tsig_fudge;
+      guint16 tsig_originalid, tsig_error, tsig_timehi, tsig_siglen, tsig_otherlen;
+      guint32 tsig_timelo;
+      char tsig_algname[MAXDNAME];
+      int tsig_algname_len;
+      struct timeval unixtime;
+      int rr_len = data_len;
+
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr,
+		"%s: type %s, class %s", name, type_name, class_name);
+	tsig_algname_len = get_dns_name(pd, cur_offset, dns_data_offset, tsig_algname, sizeof(tsig_algname));
+	if (tsig_algname_len < 0) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, tsig_algname_len,
+		"Algorithm name: %s", tsig_algname);
+	cur_offset += tsig_algname_len;
+	rr_len -= tsig_algname_len;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 6)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	tsig_timehi = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	tsig_timelo = pntohl(&pd[cur_offset]);
+	cur_offset += 4;
+	rr_len -= 4;
+
+	unixtime.tv_sec = tsig_timelo;
+	unixtime.tv_usec = 0;
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 6, "Time signed: %s%s",
+		abs_time_to_str(&unixtime), tsig_timehi == 0 ? "" : "(high bits set)");
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	tsig_fudge = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 2, "Fudge: %d",
+		tsig_fudge);
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	tsig_siglen = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, tsig_siglen)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, tsig_siglen, "Signature");
+	cur_offset += tsig_siglen;
+	rr_len -= tsig_siglen;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	tsig_originalid = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Original id: %d",
+		tsig_originalid);
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	tsig_error = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+
+        proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Error: %s",
+		val_to_str(tsig_error, rcode_vals,
+		val_to_str(tsig_error, tsigerror_vals, "Unknown error (%x)")));
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	tsig_otherlen = pntohs(&pd[cur_offset]);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (!BYTES_ARE_IN_FRAME(cur_offset, tsig_otherlen)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, tsig_otherlen, "Other");
+	cur_offset += tsig_otherlen;
+	rr_len -= tsig_otherlen;
+      }
     }
     break;
 
@@ -1774,7 +2170,7 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 
 static int
 dissect_query_records(const u_char *pd, int cur_off, int dns_data_offset,
-    int count, frame_data *fd, proto_tree *dns_tree)
+    int count, frame_data *fd, proto_tree *dns_tree, int isupdate)
 {
   int start_off, add_off;
   proto_tree *qatree = NULL;
@@ -1782,7 +2178,8 @@ dissect_query_records(const u_char *pd, int cur_off, int dns_data_offset,
   
   start_off = cur_off;
   if (dns_tree) {
-    ti = proto_tree_add_text(dns_tree, NullTVB, start_off, 0, "Queries");
+    char *s = (isupdate ?  "Zone" : "Queries");
+    ti = proto_tree_add_text(dns_tree, NullTVB, start_off, 0, s);
     qatree = proto_item_add_subtree(ti, ett_dns_qry);
   }
   while (count-- > 0) {
@@ -1835,19 +2232,14 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   guint16    id, flags, quest, ans, auth, add;
   char buf[128+1];
   int cur_off;
+  int isupdate;
   static const value_string opcode_vals[] = {
-		  { OPCODE_QUERY,  "Standard query"        },
-		  { OPCODE_IQUERY, "Inverse query"         },
-		  { OPCODE_STATUS, "Server status request" },
-		  { 0,              NULL                   } };
-  static const value_string rcode_vals[] = {
-		  { RCODE_NOERROR,   "No error"        },
-		  { RCODE_FMTERROR,  "Format error"    },
-		  { RCODE_SERVFAIL,  "Server failure"  },
-		  { RCODE_NAMEERROR, "Name error"      },
-		  { RCODE_NOTIMPL,   "Not implemented" },
-		  { RCODE_REFUSED,   "Refused"         },
-		  { 0,               NULL              } };
+		  { OPCODE_QUERY,  "Standard query"           },
+		  { OPCODE_IQUERY, "Inverse query"            },
+		  { OPCODE_STATUS, "Server status request"    },
+		  { OPCODE_NOTIFY, "Zone change notification" },
+		  { OPCODE_UPDATE, "Dynamic update"           },
+		  { 0,              NULL                      } };
 
   OLD_CHECK_DISPLAY_AS_DATA(proto_dns, pd, offset, fd, tree);
 
@@ -1856,7 +2248,7 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "DNS");
 
-  if (pi.captured_len < DNS_HDRLEN) {
+  if (!BYTES_ARE_IN_FRAME(offset, DNS_HDRLEN)) {
     col_add_str(fd, COL_INFO, "Short DNS packet");
     old_dissect_data(pd, offset, fd, tree);
     return;
@@ -1888,6 +2280,10 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
        is more expensive than a check that a pointer isn't NULL). */
     fd = NULL;
   }
+  if ((flags & F_OPCODE) == OPCODE_UPDATE)
+    isupdate = 1;
+  else
+    isupdate = 0;
   
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_dns, NullTVB, offset, 4,
@@ -1980,28 +2376,45 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
        to the summary, just add information about the answers. */
     cur_off += dissect_query_records(pd, cur_off, dns_data_offset, quest,
 					(!(flags & F_RESPONSE) ? fd : NULL),
-					dns_tree);
+					dns_tree, isupdate);
   }
     
   if (ans > 0) {
     /* If this is a request, don't add information about the answers
        to the summary, just add information about the queries. */
+    char *s = (isupdate ?  "Prerequisites" : "Answers");
     cur_off += dissect_answer_records(pd, cur_off, dns_data_offset, ans,
 					((flags & F_RESPONSE) ? fd : NULL),
-					dns_tree, "Answers");
+					dns_tree, s);
   }
     
   if (tree) {
     /* Don't add information about the authoritative name servers, or the
        additional records, to the summary. */
-    if (auth > 0)
+    if (auth > 0) {
+      char *s = (isupdate ?  "Updates" : "Authoritative nameservers");
       cur_off += dissect_answer_records(pd, cur_off, dns_data_offset, auth,
-          NULL, dns_tree, "Authoritative nameservers");
+          NULL, dns_tree, s);
+    }
 
     if (add > 0)
       cur_off += dissect_answer_records(pd, cur_off, dns_data_offset, add,
           NULL, dns_tree, "Additional records");
   }
+}
+
+static void
+dissect_dns_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	guint16 plen;
+
+	if (pi.captured_len < 2)
+		return;
+	plen = pntohs(&pd[offset]);
+	offset += 2;
+	if (END_OF_FRAME != plen)
+		return;
+	dissect_dns(pd, offset, fd, tree);
 }
 
 void
@@ -2060,4 +2473,5 @@ void
 proto_reg_handoff_dns(void)
 {
   old_dissector_add("udp.port", UDP_PORT_DNS, dissect_dns);
+  old_dissector_add("tcp.port", TCP_PORT_DNS, dissect_dns_tcp);
 }
