@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.90 2004/02/14 10:37:22 obiot Exp $
+$Id: README.developer,v 1.91 2004/02/19 11:45:02 jmayer Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -262,12 +262,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.90 2004/02/14 10:37:22 obiot Exp $"
+The "$Id: README.developer,v 1.91 2004/02/19 11:45:02 jmayer Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.90 2004/02/14 10:37:22 obiot Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.91 2004/02/19 11:45:02 jmayer Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -276,7 +276,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.90 2004/02/14 10:37:22 obiot Exp $
+ * $Id: README.developer,v 1.91 2004/02/19 11:45:02 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1005,11 +1005,6 @@ For fields of that type, you would declare an array of "value_string"s:
 (the last entry in the array must have a NULL 'strptr' value, to
 indicate the end of the array).  The 'strings' field would be set to
 'VALS(valstringname)'.
-
-(Note: before Ethereal 0.7.6, we had separate field types like
-FT_VALS_UINT8 which denoted the use of value_strings.  Now, the
-non-NULLness of the pointer lets the proto_tree know that a value_string
-is meant for this field).
 
 If the field has a numeric rather than an enumerated type, the 'strings'
 field would be set to NULL.
