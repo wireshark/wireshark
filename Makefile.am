@@ -57,6 +57,7 @@ ethereal_SOURCES = \
 	packet-ipx.c   \
 	packet-ipx.h   \
 	packet-isakmp.c\
+	packet-lapb.c  \
 	packet-llc.c   \
 	packet-lpd.c   \
 	packet-nbipx.c \
@@ -89,6 +90,7 @@ ethereal_SOURCES = \
 	packet-udp.c   \
 	packet-vines.c \
 	packet-vines.h \
+	packet-x25.c   \
 	packet.c       \
 	packet.h       \
 	prefs.c        \

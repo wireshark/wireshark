@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.6 1999/07/13 03:08:06 gram Exp $
+ * $Id: summary.c,v 1.7 1999/08/02 02:04:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,29 +82,6 @@ extern capture_file  cf;
 
 /* Summary filter key */
 #define E_SUM_FILT_TE_KEY "sum_filt_te"
-
-char * string_for_format(guint16 cd_t){
-  switch (cd_t) {
-  case WTAP_FILE_WTAP:
-    return "wiretap";
-  case WTAP_FILE_PCAP:
-    return "pcap";
-  case WTAP_FILE_LANALYZER:
-    return "LanAlyzer";
-  case WTAP_FILE_NGSNIFFER:
-    return "Sniffer";
-  case WTAP_FILE_SNOOP:
-    return "snoop";
-  case WTAP_FILE_IPTRACE:
-    return "iptrace";
-  case WTAP_FILE_NETMON:
-    return "Network Monitor";
-  case WTAP_FILE_NETXRAY:
-    return "NetXray/Sniffer Pro";
-  default:
-    return "unknown";
-  }
-}
 
 double
 secs_usecs( guint32 s, guint32 us) {
@@ -202,8 +179,11 @@ summary_prep_cb(GtkWidget *w, gpointer d) {
   add_string_to_box(string_buff, file_box);
 
   /* format */
-  snprintf(string_buff, SUM_STR_MAX, "Format: %s", 
-string_for_format(cf.cd_t));
+  snprintf(string_buff, SUM_STR_MAX, "Format: %s", cf.cd_t_desc);
+  add_string_to_box(string_buff, file_box);
+
+  /* snapshot length */
+  snprintf(string_buff, SUM_STR_MAX, "Snapshot length: %u", cf.snap);
   add_string_to_box(string_buff, file_box);
 
   /* Data frame */

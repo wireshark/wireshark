@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.13 1999/07/13 02:53:25 gram Exp $
+ * $Id: ngsniffer.c,v 1.14 1999/08/02 02:04:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -253,7 +253,7 @@ static int sniffer_encap[] = {
 		WTAP_ENCAP_NONE,	/* PC Network broadband */
 		WTAP_ENCAP_NONE,	/* LocalTalk */
 		WTAP_ENCAP_NONE,	/* Znet */
-		WTAP_ENCAP_NONE,	/* Internetwork analyzer */
+		WTAP_ENCAP_LAPB,	/* Internetwork analyzer */
 		WTAP_ENCAP_NONE,	/* type 8 not defined in Sniffer */
 		WTAP_ENCAP_FDDI,
 		WTAP_ENCAP_NONE		/* ATM */
@@ -640,6 +640,8 @@ int ngsniffer_read(wtap *wth)
 
 			t = (double)time_low+(double)(time_med)*65536.0 +
 			    (double)time_high*4294967296.0;
+
+			wth->phdr.flags = frame2.fs & 0x80;
 
 			goto found;
 

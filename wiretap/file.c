@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.11 1999/07/13 02:53:23 gram Exp $
+ * $Id: file.c,v 1.12 1999/08/02 02:04:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -30,6 +30,7 @@
 #include "buffer.h"
 #include "lanalyzer.h"
 #include "ngsniffer.h"
+#include "radcom.h"
 #include "libpcap.h"
 #include "snoop.h"
 #include "iptrace.h"
@@ -64,6 +65,10 @@ wtap* wtap_open_offline(char *filename)
 	}
 	/* WTAP_FILE_NGSNIFFER */
 	if ((wth->file_type = ngsniffer_open(wth)) != WTAP_FILE_UNKNOWN) {
+		goto success;
+	}
+	/* WTAP_FILE_RADCOM */
+	if ((wth->file_type = radcom_open(wth)) != WTAP_FILE_UNKNOWN) {
 		goto success;
 	}
 	/* WTAP_FILE_LANALYZER */

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.52 1999/07/28 20:53:40 deniel Exp $
+ * $Id: file.c,v 1.53 1999/08/02 02:04:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,12 +119,13 @@ open_cap_file(char *fname, capture_file *cf) {
   cf->filename = g_strdup( fname );
 
   /* Next, find out what type of file we're dealing with */
-  cf->cd_t  = WTAP_FILE_UNKNOWN;
-  cf->count = 0;
-  cf->drops = 0;
-  cf->esec  = 0;
-  cf->eusec = 0;
-  cf->snap  = 0;
+  cf->cd_t      = WTAP_FILE_UNKNOWN;
+  cf->cd_t_desc = "unknown";
+  cf->count     = 0;
+  cf->drops     = 0;
+  cf->esec      = 0;
+  cf->eusec     = 0;
+  cf->snap      = 0;
   firstsec = 0, firstusec = 0;
   lastsec = 0, lastusec = 0;
  
@@ -139,6 +140,7 @@ open_cap_file(char *fname, capture_file *cf) {
 
   cf->fh = wtap_file(cf->wth);
   cf->cd_t = wtap_file_type(cf->wth);
+  cf->cd_t_desc = wtap_file_type_string(cf->wth);
   cf->snap = wtap_snapshot_length(cf->wth);
   return (0);
 }
@@ -468,6 +470,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata->lnk_t = phdr->pkt_encap;
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
+  fdata->flags = phdr->flags;
   fdata->cinfo = NULL;
 
   add_packet_to_packet_list(fdata, cf, buf);

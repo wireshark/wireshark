@@ -23,6 +23,8 @@ libwiretap_a_SOURCES = \
 	netxray.h		\
 	ngsniffer.c		\
 	ngsniffer.h		\
+	radcom.c		\
+	radcom.h		\
 	snoop.c			\
 	snoop.h			\
 	wtap.c			\

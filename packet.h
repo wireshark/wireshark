@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.77 1999/07/31 18:18:43 guy Exp $
+ * $Id: packet.h,v 1.78 1999/08/02 02:04:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,6 +114,7 @@ typedef struct _frame_data {
   column_info *cinfo;     /* Column formatting information */
   int          lnk_t;     /* Per-packet encapsulation/data-link type */
   gboolean     passed_dfilter; /* TRUE = display, FALSE = no display */
+  guint8       flags;     /* for ENCAP_LAPB : 1st bit means From DCE */
 } frame_data;
 
 typedef struct _packet_info {
@@ -294,6 +295,8 @@ enum {
 	ETT_SDP,
 	ETT_RADIUS,
 	ETT_RADIUS_AVP,
+	ETT_LAPB,
+	ETT_X25,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -379,6 +382,7 @@ void capture_ip(const u_char *, int, guint32, packet_counts *);
 void dissect_clip(const u_char *, frame_data *, proto_tree *);
 void dissect_eth(const u_char *, frame_data *, proto_tree *);
 void dissect_fddi(const u_char *, frame_data *, proto_tree *);
+void dissect_lapb(const u_char *, frame_data *, proto_tree *);
 void dissect_null(const u_char *, frame_data *, proto_tree *);
 void dissect_ppp(const u_char *, frame_data *, proto_tree *);
 void dissect_raw(const u_char *, frame_data *, proto_tree *);
@@ -395,6 +399,7 @@ void dissect_aarp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_arp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_bootp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_cdp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_cotp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ddp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_dns(const u_char *, int, frame_data *, proto_tree *);
@@ -438,6 +443,7 @@ void dissect_vines_ipc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_rtp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_payload_ppp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_x25(const u_char *, int, frame_data *, proto_tree *);
 
 void dissect_ftp(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_ftpdata(const u_char *, int, frame_data *, proto_tree *, int);
@@ -450,6 +456,7 @@ void dissect_pptp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_gre(const u_char *, int, frame_data *, proto_tree *);
 
 void init_dissect_udp(void);
+void init_dissect_x25(void);
 
 /* These functions are in ethertype.c */
 void capture_ethertype(guint16 etype, int offset,

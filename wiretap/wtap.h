@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.21 1999/07/28 23:16:42 guy Exp $
+ * $Id: wtap.h,v 1.22 1999/08/02 02:04:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -43,9 +43,10 @@
 #define WTAP_ENCAP_ARCNET			7
 #define WTAP_ENCAP_ATM_RFC1483			8
 #define WTAP_ENCAP_LINUX_ATM_CLIP		9
+#define WTAP_ENCAP_LAPB				10
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			10
+#define WTAP_NUM_ENCAP_TYPES			11
 
 /* File types that can be read by wiretap */
 #define WTAP_FILE_UNKNOWN			0
@@ -57,6 +58,7 @@
 #define WTAP_FILE_IPTRACE			7
 #define WTAP_FILE_NETMON			8
 #define WTAP_FILE_NETXRAY			9
+#define WTAP_FILE_RADCOM			10
 
 /* Filter types that wiretap can create. An 'offline' filter is really
  * a BPF filter, but it is treated specially because wiretap might not know
@@ -88,6 +90,10 @@ typedef struct {
 	double	t;
 	int	is_atm;
 } ngsniffer_t;
+
+typedef struct {
+	time_t	start;
+} radcom_t;
 
 typedef struct {
 	guint16	pkt_len;
@@ -122,6 +128,7 @@ struct wtap_pkthdr {
 	guint32	caplen;
 	guint32 len;
 	int pkt_encap;
+	guint8	flags; /* ENCAP_LAPB : 1st bit means From DCE */
 };
 
 typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,
@@ -143,6 +150,7 @@ typedef struct wtap {
 		libpcap_t		*pcap;
 		lanalyzer_t		*lanalyzer;
 		ngsniffer_t		*ngsniffer;
+		radcom_t		*radcom;
 		netmon_t		*netmon;
 		netxray_t		*netxray;
 	} capture;
@@ -161,6 +169,7 @@ void wtap_loop(wtap *wth, int, wtap_handler, u_char*);
 FILE* wtap_file(wtap *wth);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
+const char *wtap_file_type_string(wtap *wth);
 void wtap_close(wtap *wth);
 
 

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.11 1999/07/28 20:17:24 deniel Exp $
+ * $Id: wtap.c,v 1.12 1999/08/02 02:04:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -36,10 +36,45 @@ int wtap_file_type(wtap *wth)
 	return wth->file_type;
 }
 
-
 int wtap_snapshot_length(wtap *wth)
 {
 	return wth->snapshot_length;
+}
+
+const char *wtap_file_type_string(wtap *wth)
+{
+	switch (wth->file_type) {
+		case WTAP_FILE_WTAP:
+			return "wiretap";
+
+		case WTAP_FILE_PCAP:
+			return "pcap";
+
+		case WTAP_FILE_LANALYZER:
+			return "Novell LANalyzer";
+
+		case WTAP_FILE_NGSNIFFER:
+			return "Network Associates Sniffer (DOS-based)";
+
+		case WTAP_FILE_SNOOP:
+			return "snoop";
+
+		case WTAP_FILE_IPTRACE:
+			return "iptrace";
+
+		case WTAP_FILE_NETMON:
+			return "Microsoft Network Monitor";
+
+		case WTAP_FILE_NETXRAY:
+			return "Cinco Networks NetXRay/Network Associates Sniffer (Windows-based)";
+
+		case WTAP_FILE_RADCOM:
+			return "RADCOM WAN/LAN analyzer";
+
+		default:
+			g_error("Unknown capture file type %d", wth->file_type);
+			return NULL;
+	}
 }
 
 void wtap_close(wtap *wth)
