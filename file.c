@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.283 2002/07/21 16:54:22 sharpe Exp $
+ * $Id: file.c,v 1.284 2002/07/30 10:13:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -317,12 +317,13 @@ read_cap_file(capture_file *cf, int *err)
   char        errmsg_errno[1024+1];
   gchar       err_str[2048+1];
   long        data_offset;
-  progdlg_t  *progbar;
+  progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
   int         file_pos;
   float       prog_val;
   int         fd;
   struct stat cf_stat;
+  GTimeVal    start_time;
 
   name_ptr = get_basename(cf->filename);
 
@@ -344,8 +345,7 @@ read_cap_file(capture_file *cf, int *err)
   freeze_clist(cf);
 
   stop_flag = FALSE;
-  progbar = create_progress_dlg(load_msg, "Stop", &stop_flag);
-  g_free(load_msg);
+  g_get_current_time(&start_time);
 
   while ((wtap_read(cf->wth, err, &data_offset))) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -371,7 +371,15 @@ read_cap_file(capture_file *cf, int *err)
           if (prog_val > 1.0)
             prog_val = 1.0;
         }
-        update_progress_dlg(progbar, prog_val);
+        if (progbar == NULL) {
+          /* Create the progress bar if necessary */
+          progbar = delayed_create_progress_dlg(load_msg, "Stop",
+            &stop_flag, &start_time, prog_val);
+          if (progbar != NULL)
+            g_free(load_msg);
+        }
+        if (progbar != NULL)
+          update_progress_dlg(progbar, prog_val);
         cf->progbar_nextstep += cf->progbar_quantum;
     }
 
@@ -388,8 +396,11 @@ read_cap_file(capture_file *cf, int *err)
     read_packet(cf, data_offset);
   }
 
-  /* We're done reading the file; destroy the progress bar. */
-  destroy_progress_dlg(progbar);
+  /* We're done reading the file; destroy the progress bar if it was created. */
+  if (progbar == NULL)
+    g_free(load_msg);
+  else
+    destroy_progress_dlg(progbar);
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
@@ -911,15 +922,15 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
 		gboolean redissect)
 {
   frame_data *fdata;
-  progdlg_t *progbar;
-  gboolean stop_flag;
-  guint32 progbar_quantum;
-  guint32 progbar_nextstep;
-  unsigned int count;
-  int err;
+  progdlg_t  *progbar = NULL;
+  gboolean    stop_flag;
+  long        count;
+  int         err;
   frame_data *selected_frame;
-  int selected_row;
-  int row;
+  int         selected_row;
+  int         row;
+  float       prog_val;
+  GTimeVal    start_time;
 
   /* Which frame, if any, is the currently selected frame?
      XXX - should the selected frame or the focus frame be the "current"
@@ -961,15 +972,15 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
   prevusec = 0;
 
   /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
+  cf->progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
   count = 0;
 
   stop_flag = FALSE;
-  progbar = create_progress_dlg(action, "Stop", &stop_flag);
+  g_get_current_time(&start_time);
 
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -977,15 +988,22 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
        to repaint what's pending, and doing so may involve an "ioctl()"
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
-    if (count >= progbar_nextstep) {
+    if (count >= cf->progbar_nextstep) {
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
       g_assert(cf->count > 0);
+      prog_val = (gfloat) count / cf->count;
 
-      update_progress_dlg(progbar, (gfloat) count / cf->count);
+      if (progbar == NULL)
+        /* Create the progress bar if necessary */
+        progbar = delayed_create_progress_dlg(action, "Stop", &stop_flag,
+          &start_time, prog_val);
 
-      progbar_nextstep += progbar_quantum;
+      if (progbar != NULL)
+        update_progress_dlg(progbar, prog_val);
+
+      cf->progbar_nextstep += cf->progbar_quantum;
     }
 
     if (stop_flag) {
@@ -1047,8 +1065,10 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
     }
   }
 
-  /* We're done filtering the packets; destroy the progress bar. */
-  destroy_progress_dlg(progbar);
+  /* We're done filtering the packets; destroy the progress bar if it
+     was created. */
+  if (progbar != NULL)
+    destroy_progress_dlg(progbar);
 
   /* Unfreeze the packet list. */
   gtk_clist_thaw(GTK_CLIST(packet_list));
@@ -1071,11 +1091,9 @@ print_packets(capture_file *cf, print_args_t *print_args)
 {
   int         i;
   frame_data *fdata;
-  progdlg_t  *progbar;
+  progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
-  guint32     progbar_quantum;
-  guint32     progbar_nextstep;
-  guint32     count;
+  long        count;
   int         err;
   gint       *col_widths = NULL;
   gint        data_width;
@@ -1086,6 +1104,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
   int         column_len;
   int         line_len;
   epan_dissect_t *edt = NULL;
+  float       prog_val;
+  GTimeVal    start_time;
 
   cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
   if (cf->print_fh == NULL)
@@ -1144,15 +1164,15 @@ print_packets(capture_file *cf, print_args_t *print_args)
   print_separator = FALSE;
 
   /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
+  cf->progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
   count = 0;
 
   stop_flag = FALSE;
-  progbar = create_progress_dlg("Printing", "Stop", &stop_flag);
+  g_get_current_time(&start_time);
 
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
@@ -1162,15 +1182,22 @@ print_packets(capture_file *cf, print_args_t *print_args)
        to repaint what's pending, and doing so may involve an "ioctl()"
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
-    if (count >= progbar_nextstep) {
+    if (count >= cf->progbar_nextstep) {
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
       g_assert(cf->count > 0);
+      prog_val = (gfloat) count / cf->count;
 
-      update_progress_dlg(progbar, (gfloat) count / cf->count);
+      if (progbar == NULL)
+        /* Create the progress bar if necessary */
+        progbar = delayed_create_progress_dlg("Printing", "Stop", &stop_flag,
+          &start_time, prog_val);
 
-      progbar_nextstep += progbar_quantum;
+      if (progbar != NULL)
+        update_progress_dlg(progbar, prog_val);
+
+      cf->progbar_nextstep += cf->progbar_quantum;
     }
 
     if (stop_flag) {
@@ -1250,8 +1277,10 @@ print_packets(capture_file *cf, print_args_t *print_args)
     }
   }
 
-  /* We're done printing the packets; destroy the progress bar. */
-  destroy_progress_dlg(progbar);
+  /* We're done printing the packets; destroy the progress bar if
+     it was created. */
+  if (progbar != NULL)
+    destroy_progress_dlg(progbar);
 
   if (col_widths != NULL)
     g_free(col_widths);
@@ -1274,14 +1303,14 @@ void
 change_time_formats(capture_file *cf)
 {
   frame_data *fdata;
-  progdlg_t *progbar;
-  gboolean stop_flag;
-  guint32 progbar_quantum;
-  guint32 progbar_nextstep;
-  unsigned int count;
-  int row;
-  int i;
-  GtkStyle  *pl_style;
+  progdlg_t  *progbar = NULL;
+  gboolean    stop_flag;
+  long        count;
+  int         row;
+  int         i;
+  GtkStyle   *pl_style;
+  float       prog_val;
+  GTimeVal    start_time;
 
   /* Are there any columns with time stamps in the "command-line-specified"
      format?
@@ -1300,15 +1329,15 @@ change_time_formats(capture_file *cf)
   freeze_clist(cf);
 
   /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
+  cf->progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
   count = 0;
 
   stop_flag = FALSE;
-  progbar = create_progress_dlg("Changing time display", "Stop", &stop_flag);
+  g_get_current_time(&start_time);
 
   /* Iterate through the list of packets, checking whether the packet
      is in a row of the summary list and, if so, whether there are
@@ -1320,15 +1349,23 @@ change_time_formats(capture_file *cf)
        to repaint what's pending, and doing so may involve an "ioctl()"
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
-    if (count >= progbar_nextstep) {
+    if (count >= cf->progbar_nextstep) {
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
       g_assert(cf->count > 0);
 
-      update_progress_dlg(progbar, (gfloat) count / cf->count);
+      prog_val = (gfloat) count / cf->count;
 
-      progbar_nextstep += progbar_quantum;
+      if (progbar == NULL)
+        /* Create the progress bar if necessary */
+        progbar = delayed_create_progress_dlg("Changing time display", "Stop",
+          &stop_flag, &start_time, prog_val);
+
+      if (progbar != NULL)
+        update_progress_dlg(progbar, prog_val);
+
+      cf->progbar_nextstep += cf->progbar_quantum;
     }
 
     if (stop_flag) {
@@ -1361,8 +1398,10 @@ change_time_formats(capture_file *cf)
     }
   }
 
-  /* We're done redisplaying the packets; destroy the progress bar. */
-  destroy_progress_dlg(progbar);
+  /* We're done redisplaying the packets; destroy the progress bar if it
+     was created. */
+  if (progbar != NULL)
+    destroy_progress_dlg(progbar);
 
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
@@ -1384,15 +1423,15 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
   frame_data *start_fd;
   frame_data *fdata;
   frame_data *new_fd = NULL;
-  progdlg_t *progbar = NULL;
-  gboolean stop_flag;
-  guint32 progbar_quantum;
-  guint32 progbar_nextstep;
-  unsigned int count;
-  int err;
-  gboolean frame_matched;
-  int row;
+  progdlg_t  *progbar = NULL;
+  gboolean    stop_flag;
+  long        count;
+  int         err;
+  gboolean    frame_matched;
+  int         row;
   epan_dissect_t	*edt;
+  float       prog_val;
+  GTimeVal    start_time;
 
   start_fd = cf->current_frame;
   if (start_fd != NULL)  {
@@ -1402,18 +1441,13 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
     count = 0;
     fdata = start_fd;
 
-    /* Update the progress bar when it gets to this value.  We start at
-       20, not 0, so that we don't get a progress bar until we've
-       checked at least that many frames, so that a very quick search
-       doesn't pop up and immediately destroy a progress bar.
-
-       XXX - should use a timer?  Like 50 ms. */
-    progbar_nextstep = 20;
+    cf->progbar_nextstep = 0;
     /* When we reach the value that triggers a progress bar update,
        bump that value by this amount. */
-    progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+    cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
 
     stop_flag = FALSE;
+    g_get_current_time(&start_time);
 
     fdata = start_fd;
     for (;;) {
@@ -1422,21 +1456,23 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
          to repaint what's pending, and doing so may involve an "ioctl()"
          to see if there's any pending input from an X server, and doing
          that for every packet can be costly, especially on a big file. */
-      if (count >= progbar_nextstep) {
+      if (count >= cf->progbar_nextstep) {
         /* let's not divide by zero. I should never be started
          * with count == 0, so let's assert that
          */
         g_assert(cf->count > 0);
 
-        /* Create the progress bar if it doesn't exist; we don't create it
-           immediately, so that we don't have it appear and immediately
-           disappear if the search is quick. */
-        if (progbar == NULL)
-           progbar = create_progress_dlg("Searching", "Cancel", &stop_flag);
-        
-        update_progress_dlg(progbar, (gfloat) count / cf->count);
+        prog_val = (gfloat) count / cf->count;
 
-        progbar_nextstep += progbar_quantum;
+        /* Create the progress bar if necessary */
+        if (progbar == NULL)
+           progbar = delayed_create_progress_dlg("Searching", "Cancel",
+             &stop_flag, &start_time, prog_val);
+        
+        if (progbar != NULL)
+          update_progress_dlg(progbar, prog_val);
+
+        cf->progbar_nextstep += cf->progbar_quantum;
       }
 
       if (stop_flag) {
@@ -1485,8 +1521,8 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
       }
     }
 
-    /* We're done scanning the packets; destroy the progress bar, if
-       we created it. */
+    /* We're done scanning the packets; destroy the progress bar if it
+       was created. */
     if (progbar != NULL)
       destroy_progress_dlg(progbar);
   }

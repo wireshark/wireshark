@@ -913,6 +913,7 @@ Graeme Hewson <graeme.hewson[AT]oracle.com> {
 	Add some sanity checks to DNS dissector to avoid loops
 	Command-line interface cleanups
 	Varargs code cleanup in "simple_dialog.c"
+	Make dialog box pop up only after a minimum period of time
 }
 
 Pasi Eronen <pasi.eronen[at]nixu.com> {

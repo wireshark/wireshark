@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.13 2002/03/31 20:37:48 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.14 2002/07/30 10:13:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,11 +152,11 @@ ph_stats_new(void)
 	ph_stats_t	*ps;
 	frame_data	*frame;
 	guint		tot_packets, tot_bytes;
-	progdlg_t	*progbar;
+	progdlg_t	*progbar = NULL;
 	gboolean	stop_flag;
-	guint32		progbar_quantum;
-	guint32		progbar_nextstep;
-	unsigned int	count;
+	long		count;
+	float		prog_val;
+	GTimeVal	start_time;
 
 	/* Initialize the data */
 	ps = g_new(ph_stats_t, 1);
@@ -165,16 +165,15 @@ ph_stats_new(void)
 	ps->stats_tree = g_node_new(NULL);
 
 	/* Update the progress bar when it gets to this value. */
-	progbar_nextstep = 0;
+	cfile.progbar_nextstep = 0;
 	/* When we reach the value that triggers a progress bar update,
 	   bump that value by this amount. */
-	progbar_quantum = cfile.count/N_PROGBAR_UPDATES;
+	cfile.progbar_quantum = cfile.count/N_PROGBAR_UPDATES;
 	/* Count of packets at which we've looked. */
 	count = 0;
 
 	stop_flag = FALSE;
-	progbar = create_progress_dlg("Computing protocol statistics", "Stop",
-	    &stop_flag);
+	g_get_current_time(&start_time);
 
 	tot_packets = 0;
 	tot_bytes = 0;
@@ -186,16 +185,24 @@ ph_stats_new(void)
 		   may involve an "ioctl()" to see if there's any pending
 		   input from an X server, and doing that for every packet
 		   can be costly, especially on a big file. */
-		if (count >= progbar_nextstep) {
+		if (count >= cfile.progbar_nextstep) {
 			/* let's not divide by zero. I should never be started
 			 * with count == 0, so let's assert that
 			 */
 			g_assert(cfile.count > 0);
 
-			update_progress_dlg(progbar,
-			    (gfloat) count / cfile.count);
+			prog_val = (gfloat) count / cfile.count;
 
-			progbar_nextstep += progbar_quantum;
+			if (progbar == NULL)
+				/* Create the progress bar if necessary */
+				progbar = delayed_create_progress_dlg(
+				    "Computing protocol statistics", "Stop",
+				    &stop_flag, &start_time, prog_val);
+
+			if (progbar != NULL)
+				update_progress_dlg(progbar, prog_val);
+
+			cfile.progbar_nextstep += cfile.progbar_quantum;
 		}
 
 		if (stop_flag) {
@@ -219,8 +226,10 @@ ph_stats_new(void)
 		count++;
 	}
 
-	/* We're done calculating the statistics; destroy the progress bar. */
-	destroy_progress_dlg(progbar);
+	/* We're done calculating the statistics; destroy the progress bar
+           if it was created. */
+	if (progbar != NULL)
+		destroy_progress_dlg(progbar);
 
 	if (stop_flag) {
 		/*

@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.10 2002/03/05 11:56:00 guy Exp $
+ * $Id: progress_dlg.c,v 1.11 2002/07/30 10:13:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -136,6 +136,66 @@ create_progress_dlg(const gchar *title, const gchar *stop_title,
 	dlg->dlg_w = dlg_w;
 
 	return dlg;
+}
+
+progdlg_t *
+delayed_create_progress_dlg(const gchar *title, const gchar *stop_title,
+    gboolean *stop_flag, GTimeVal *start_time, gfloat progress)
+{
+  GTimeVal    time_now;
+  gfloat      delta_time;
+  gfloat      min_display;
+
+#define INIT_DELAY          0.5 * 1e6
+#define MIN_DISPLAY_DEFAULT 2.0 * 1e6
+
+/* Create a progress dialog, but only if it's not likely to disappear
+ * immediately, which can be disconcerting for the user.
+ *
+ * Arguments are as for create_progress_dlg(), plus:
+ *
+ * (a) A pointer to a GTimeVal structure which holds the time at which
+ *     the caller started to process the data.
+ * (b) The current progress as a real number between 0 and 1.
+ */
+
+  g_get_current_time(&time_now);
+
+  /* Get the time elapsed since the caller started processing the data */
+
+  delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
+    time_now.tv_usec - start_time->tv_usec;
+
+  /* Do nothing for the first INIT_DELAY microseconds */
+
+  if (delta_time < INIT_DELAY)
+    return NULL;
+
+  /* If we create the progress dialog we want it to be displayed for a
+   * minimum of MIN_DISPLAY_DEFAULT microseconds.  However, if we
+   * previously estimated that the progress dialog didn't need to be
+   * created and the caller's processing is slowing down (perhaps due
+   * to the action of the operating system's scheduler on a compute-
+   * intensive task), we tail off the minimum display time such that
+   * the progress dialog will always be created after
+   * 2*MIN_DISPLAY_DEFAULT microseconds.
+   */
+
+  if (delta_time <= INIT_DELAY + MIN_DISPLAY_DEFAULT)
+    min_display = MIN_DISPLAY_DEFAULT;
+  else
+    min_display = 2 * MIN_DISPLAY_DEFAULT - delta_time;
+             /* = MIN_DISPLAY_DEFAULT - (delta_time - MIN_DISPLAY_DEFAULT) */
+ 
+  /* Assuming the progress increases linearly, see if the progress
+   * dialog would be displayed for at least min_display microseconds if
+   * we created it now.
+   */
+
+  if (progress >= (delta_time / (delta_time + min_display)))
+    return NULL;
+
+  return create_progress_dlg(title, stop_title, stop_flag);
 }
 
 /*

@@ -1,7 +1,7 @@
 /* progress_dlg.h
  * Definitions for progress dialog box routines
  *
- * $Id: progress_dlg.h,v 1.1 2001/03/24 02:07:20 guy Exp $
+ * $Id: progress_dlg.h,v 1.2 2002/07/30 10:13:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,18 @@ typedef struct progdlg progdlg_t;
  */
 progdlg_t *create_progress_dlg(const gchar *title, const gchar *stop_title,
     gboolean *stop_flag);
+
+/* Create a progress dialog, but only if it's not likely to disappear
+ * immediately, which can be disconcerting for the user.
+ *
+ * The first three arguments are as for create_progress_dlg().
+ * Following those is a pointer to a GTimeVal structure which holds
+ * the time at which the caller started to process the data, and the
+ * current progress (0..1).
+ */
+progdlg_t *delayed_create_progress_dlg(const gchar *title,
+    const gchar *stop_title, gboolean *stop_flag, GTimeVal *start_time,
+    gfloat progress);
 
 /*
  * Set the percentage value of the progress bar.
