@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.21 2002/10/18 22:10:53 guy Exp $
+ * $Id: column-utils.c,v 1.22 2002/10/19 00:10:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -479,7 +479,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
 
   case AT_DLCI:
     snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u",
-      *(guint16 *)addr);
+      *(guint16 *)(addr->data));
     pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
     strcpy(pinfo->cinfo->col_expr[col], "fr.dlci");
     pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
