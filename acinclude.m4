@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.31 2001/08/18 20:09:43 guy Exp $
+dnl $Id: acinclude.m4,v 1.32 2001/08/21 06:52:25 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -353,6 +353,10 @@ return_pcap_version(void)
 #
 AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 [
+	#
+	# Make sure we have "zlib.h".  If we don't, it means we probably
+	# don't have zlib, so don't use it.
+	#
 	AC_CHECK_HEADER(zlib.h,,enable_zlib=no)
 
 	if test x$enable_zlib != xno
@@ -362,7 +366,7 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 		#
 		# Check for "gzgets()" in zlib, because we need it, but
 		# some older versions of zlib don't have it.  It appears
-		# from the ChangeLog that any released version of zlib
+		# from the zlib ChangeLog that any released version of zlib
 		# with "gzgets()" should have the other routines we
 		# depend on, such as "gzseek()", "gztell()", and "zError()".
 		#
@@ -381,11 +385,11 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 		# and they appear sometimes to misconfigure XFree86 so that,
 		# even on systems with zlib, it assumes there is no zlib,
 		# so the XFree86 build process builds and installs its
-		# own "mini-zlib" in the X11 library directory.
+		# own zlib in the X11 library directory.
 		#
-		# The "mini-zlib" lacks "gzgets()", and that's the zlib
-		# with which Ethereal gets linked, so the build of
-		# Ethereal fails.
+		# The XFree86 zlib is an older version that lacks
+		# "gzgets()", and that's the zlib with which Ethereal
+		# gets linked, so the build of Ethereal fails.
 		#
 		ac_save_CFLAGS="$CFLAGS"
 		ac_save_LIBS="$LIBS"
@@ -395,7 +399,7 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 	        AC_TRY_LINK_FUNC(gzgets, AC_MSG_RESULT(no),
 		  [
 		    AC_MSG_RESULT(yes)
-		    AC_MSG_ERROR(XFree86 mini-zlib found - rebuild XFree86 without it or configure without compressed file support.)
+		    AC_MSG_ERROR(old XFree86 zlib found - rebuild XFree86 using system zlib or configure Ethereal without compressed file support.)
 		  ])
 		CFLAGS="$ac_save_CFLAGS"
 		LIBS="$ac_save_LIBS"
