@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.1 1999/11/11 08:35:10 guy Exp $
+ * $Id: packet-q931.c,v 1.2 1999/11/11 10:17:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,7 +129,7 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree	*q931_tree = NULL;
 	proto_item	*ti;
 	guint8		call_ref_len;
-	guint16		call_ref;
+	guint8		call_ref[15];
 	guint8		message_type;
 
 	if (check_col(fd, COL_PROTOCOL))
@@ -142,32 +142,17 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_item(q931_tree, hf_q931_discriminator, offset, 1, pd[offset]);
 	}
 	offset += 1;
-	call_ref_len = pd[offset];
+	call_ref_len = pd[offset] & 0xF;	/* XXX - do as a bit field? */
 	if (q931_tree != NULL)
 		proto_tree_add_item(q931_tree, hf_q931_call_ref_len, offset, 1, call_ref_len);
 	offset += 1;
-	switch (call_ref_len) {
-
-	case 1:
-		call_ref = pd[offset];
-		break;
-
-	case 2:
-		call_ref = pntohs(&pd[offset]);
-		break;
-
-	default:
-		if (check_col(fd, COL_INFO))
-			col_add_str(fd, COL_INFO, "Bad call reference value length");
-		if (q931_tree != NULL) {
-			proto_tree_add_text(q931_tree, offset, 0,
-			    "<Call reference value length is neither 1 nor 2>");
-		}
-		return;
+	if (call_ref_len != 0) {
+		/* XXX - split this into flag and value */
+		memcpy(call_ref, &pd[offset], call_ref_len);
+		if (q931_tree != NULL)
+			proto_tree_add_item(q931_tree, hf_q931_call_ref, offset, call_ref_len, call_ref);
+		offset += call_ref_len;
 	}
-	if (q931_tree != NULL)
-		proto_tree_add_item(q931_tree, hf_q931_call_ref, offset, call_ref_len, call_ref);
-	offset += call_ref_len;
 	message_type = pd[offset];
 	if (check_col(fd, COL_INFO)) {
 		col_add_str(fd, COL_INFO,
@@ -191,7 +176,7 @@ proto_register_q931(void)
 	  	"" }},
 
 	{ &hf_q931_call_ref,
-	  { "Call reference value", "q931.call_ref", FT_UINT16, BASE_HEX, NULL, 0x0,
+	  { "Call reference value", "q931.call_ref", FT_BYTES, BASE_HEX, NULL, 0x0,
 	  	"" }},
 
 	{ &hf_q931_message_type,
@@ -203,5 +188,3 @@ proto_register_q931(void)
     proto_q931 = proto_register_protocol ("Q.931", "q931");
     proto_register_field_array (proto_q931, hf, array_length(hf));
 }
-
-
