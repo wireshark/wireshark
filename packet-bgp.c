@@ -390,7 +390,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
                 /* must be freed by second switch!                         */
                 /* "alen * 6" (5 digits + space) should be a good estimate
                    of how long the AS path string could be                 */
-                as_path_str = malloc(alen * 6);
+                as_path_str = malloc((alen + 1) * 6);
                 if (as_path_str == NULL) break;
                 as_path_str[0] = '\0';
    
@@ -425,13 +425,15 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
                     }
                 }
 
-		if (as_path_str[0] == '\0')
-		    goto default_attribute_top;
+                /* check for empty AS_PATH */
+		if (alen == 0)
+                    strncpy(as_path_str, "empty", 6);
+
 		ti = proto_tree_add_text(subtree, p - pd + i, alen + aoff,
-			"%s: %s (%u %s)",
-			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			as_path_str, alen + aoff, (alen + aoff == 1) ? "byte" :
-                        "bytes");
+                        "%s: %s (%u %s)",
+                        val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
+                        as_path_str, alen + aoff,
+                        (alen + aoff == 1) ? "byte" : "bytes");
 		break;
 	    case BGPTYPE_NEXT_HOP:
 		if (alen != 4)
@@ -598,6 +600,12 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		}
 		break;
 	    case BGPTYPE_AS_PATH:
+                /* check for empty AS_PATH */
+                if (alen == 0) {
+                    free(as_path_str);
+                    break;
+                }
+
 	        ti = proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
                         "AS path: %s", as_path_str);
 	        as_paths_tree = proto_item_add_subtree(ti, ett_bgp_as_paths);
@@ -911,12 +919,12 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 
         /* NLRI */
         len = hlen - (p - &pd[offset]);
-        ti = proto_tree_add_text(tree, p - pd, len,
-                "Network layer reachability information: %u %s", len,
-                (len == 1) ? "byte" : "bytes");
 
         /* parse prefixes */
         if (len > 0) {
+           ti = proto_tree_add_text(tree, p - pd, len,
+                   "Network layer reachability information: %u %s", len,
+                   (len == 1) ? "byte" : "bytes");
 	    subtree = proto_item_add_subtree(ti, ett_bgp_nlri);
             end = p + len;
             while (p < end) {
