@@ -2,7 +2,7 @@
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id: packet-h235-template.c,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id: packet-h235-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@ int proto_h235 = -1;
 
 static guint32
 dissect_xxx_ToBeSigned(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-NOT_DECODED_YET("ToBeSigned");
+PER_NOT_DECODED_YET("ToBeSigned");
   return offset;
 }
 
