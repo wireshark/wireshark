@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.50 2003/02/08 05:05:17 guy Exp $
+$Id: ncp2222.py,v 1.51 2003/02/08 05:32:10 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -9018,7 +9018,7 @@ def define_ncp2222():
 	], info_str=(ObjectName, "Keyed Object Login: %s", ", %s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9602, 0xc101, 0xc200, 0xc500, 0xd900, 0xda00,
-			     0xdb00, 0xdc00, 0xde00])
+			     0xdb00, 0xdc00, 0xde00, 0xff00])
 	# 2222/171A, 23/26
 	#
 	# XXX - for NCP-over-IP, the NetworkAddress field appears to be
