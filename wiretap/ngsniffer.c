@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.96 2003/01/03 06:45:45 guy Exp $
+ * $Id: ngsniffer.c,v 1.97 2003/01/03 20:09:01 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -302,13 +302,14 @@ struct frame6_rec {
  * Network type values in type 7 records.
  *
  * Note: captures with a major version number of 2 appear to have
- * type 7 records with text in them (at least one I have does); captures
- * with a major version number of 5 appear not to have type 7 records
- * at all (at least one I have doesn't), but do appear to put
+ * type 7 records with text in them (at least one I have does); some
+ * captures with a major version number of 5 appear not to have type 7
+ * records at all (at least one I have doesn't), but do appear to put
  * non-zero values in the "rsvd" field of the version header (at least
  * one I have does) - at least some other captures with smaller version
  * numbers appear to put 0 there, so *maybe* that's where the network
- * (sub)type is hidden.
+ * (sub)type is hidden.  Unfortunately, other version 5 captures, of
+ * multiple network types, put 0 there, so that's not it.
  *
  * The semantics of these network types is inferred from the Sniffer
  * documentation, as they correspond to types described in the UI;
