@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.35 2001/09/28 05:41:44 guy Exp $
+dnl $Id: acinclude.m4,v 1.36 2002/01/03 20:09:55 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -209,10 +209,8 @@ AC_DEFUN(AC_ETHEREAL_GETHOSTBY_LIB_CHECK,
     # needs -lnsl.
     # The nsl library prevents programs from opening the X display
     # on Irix 5.2, according to dickey@clark.net.
-    AC_CHECK_FUNC(gethostbyname)
-    if test $ac_cv_func_gethostbyname = no; then
-      AC_CHECK_LIB(nsl, gethostbyname, NSL_LIBS="-lnsl")
-    fi
+    AC_CHECK_FUNC(gethostbyname, ,
+	AC_CHECK_LIB(nsl, gethostbyname, NSL_LIBS="-lnsl"))
     AC_SUBST(NSL_LIBS)
 ])
 
@@ -239,11 +237,9 @@ AC_DEFUN(AC_ETHEREAL_SOCKET_LIB_CHECK,
     # gethostby* variants that don't use the nameserver (or something).
     # -lsocket must be given before -lnsl if both are needed.
     # We assume that if connect needs -lnsl, so does gethostbyname.
-    AC_CHECK_FUNC(connect)
-    if test $ac_cv_func_connect = no; then
+    AC_CHECK_FUNC(connect, ,
       AC_CHECK_LIB(socket, connect, SOCKET_LIBS="-lsocket",
-		AC_MSG_ERROR(Function 'socket' not found.), $NSL_LIBS)
-    fi
+		AC_MSG_ERROR(Function 'socket' not found.), $NSL_LIBS))
     AC_SUBST(SOCKET_LIBS)
 ])
 

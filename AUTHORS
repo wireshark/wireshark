@@ -605,6 +605,7 @@ Albert Chin <china[AT]thewrittenword.com> {
 	    versions of Tru64 UNIX) that define TRUE and FALSE
 	Fixes to some Tru64 compiler warninngs
 	Fix to TCP graph code to eliminate a GCCism
+	Simplify some autoconf code
 }
 
 Charles Levert <charles[AT]comm.polymtl.ca> {
