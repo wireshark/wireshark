@@ -1,12 +1,12 @@
 #
-# $Id: Makefile.nmake,v 1.4 2000/04/12 21:51:53 gram Exp $
+# $Id: Makefile.nmake,v 1.5 2000/10/11 07:35:02 guy Exp $
 #
 
 include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../wiretap \
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../epan /I../../wiretap \
 	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)

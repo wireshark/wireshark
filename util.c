@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.46 2000/09/28 03:16:06 gram Exp $
+ * $Id: util.c,v 1.47 2000/10/11 07:35:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,7 +137,7 @@ test_for_directory(const char *path)
  * character in the pathname, or NULL if the pathname contains no
  * separators.
  */
-static char *
+char *
 find_last_pathname_separator(char *path)
 {
 	char *separator;

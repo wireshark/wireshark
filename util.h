@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.21 2000/09/10 06:44:39 guy Exp $
+ * $Id: util.h,v 1.22 2000/10/11 07:35:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,13 @@ extern "C" {
  *	to be a directory.
  */
 int test_for_directory(const char *);
+
+/*
+ * Given a pathname, return a pointer to the last pathname separator
+ * character in the pathname, or NULL if the pathname contains no
+ * separators.
+ */
+char *find_last_pathname_separator(char *);
 
 /*
  * Given a pathname, return the last component.

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.54 2000/09/11 16:16:01 gram Exp $
+# $Id: Makefile.nmake,v 1.55 2000/10/11 07:35:00 guy Exp $
 
 include config.nmake
 
@@ -13,7 +13,7 @@ LINK= link
 LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
 CFLAGS=/MT -DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule \
-	/I$(GTK_DIR) /Iwiretap /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(GTK_DIR) /Iepan /Iwiretap /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)/include
 
 {$S}.c{$O}.obj::
@@ -31,6 +31,7 @@ DISSECTOR_SOURCES = \
 	packet-bootp.c \
 	packet-bootparams.c \
 	packet-bpdu.c  \
+	packet-bxxp.c \
 	packet-cdp.c   \
 	packet-cgmp.c  \
 	packet-clip.c  \
@@ -45,6 +46,7 @@ DISSECTOR_SOURCES = \
 	packet-eth.c   \
 	packet-ethertype.c   \
 	packet-fddi.c  \
+	packet-frame.c  \
 	packet-ftp.c   \
 	packet-giop.c  \
 	packet-gre.c   \
@@ -123,6 +125,7 @@ DISSECTOR_SOURCES = \
 	packet-smb-logon.c \
 	packet-smb-mailslot.c \
 	packet-smb-pipe.c \
+        packet-smtp.c \
 	packet-sna.c   \
 	packet-snmp.c	\
 	packet-socks.c \
@@ -159,26 +162,14 @@ DISSECTOR_OBJECTS = $(DISSECTOR_SOURCES:.c=.obj)
 ETHEREAL_COMMON_OBJECTS = \
 	asn1.obj         \
 	column.obj       \
-	conversation.obj \
-	dfilter-grammar.obj \
-	dfilter-scanner.obj \
-	dfilter.obj      \
-	except.obj       \
 	follow.obj       \
 	getopt.obj	 \
 	ipproto.obj      \
-	ipv4.obj         \
-	packet.obj       \
-	plugins.obj      \
 	prefs.obj        \
 	print.obj        \
-	proto.obj        \
 	ps.obj           \
 	ptvcursor.obj    \
 	register.obj     \
-	resolv.obj       \
-	strutil.obj      \
-	tvbuff.obj       \
 	util.obj         \
 	xdlc.obj         \
 
@@ -202,14 +193,16 @@ EXTRA_OBJECTS = \
 	inet_pton.obj     \
 	inet_ntop.obj
 
-ethereal_LIBS= wiretap\libwtap.lib gtk\libui.lib wsock32.lib user32.lib \
+ethereal_LIBS= wiretap\libwtap.lib gtk\libui.lib epan\libepan.lib \
+	wsock32.lib user32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
 	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib \
 	$(PCAP_DIR)\lib\libpcap.lib
 
-tethereal_LIBS= wiretap\libwtap.lib wsock32.lib user32.lib \
+tethereal_LIBS= wiretap\libwtap.lib epan\libepan.lib \
+	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib \
 	$(PCAP_DIR)\lib\libpcap.lib
@@ -222,7 +215,7 @@ EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
 
 RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res
 
-all: wiretap gtk $(EXECUTABLES) $(RESOURCES)
+all: wiretap gtk epan $(EXECUTABLES) $(RESOURCES)
 
 ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap\libwtap.lib gtk\libui.lib plugins
 	@echo Linking $@
@@ -251,17 +244,9 @@ ps.c	: rdps.exe print.ps
 packet-ncp2222.c : ncp2222.py
 	$(PYTHON) ncp2222.py > packet-ncp2222.c
 
-dfilter-scanner.obj : dfilter-scanner.c dfilter-grammar.h
-
-dfilter-scanner.c : dfilter-scanner.l
-	$(LEX) -Pdfilter_ -odfilter-scanner.c dfilter-scanner.l
-
-dfilter-grammar.c dfilter-grammar.h : dfilter-grammar.y
-	$(YACC) $(YACC_OPTS) -d -p dfilter_ dfilter-grammar.y -o dfilter-grammar.c
-
-register.c: packet.c $(DISSECTOR_SOURCES)
+register.c: $(DISSECTOR_SOURCES)
 	@echo Making register.c
-	@sh make-reg-dotc . packet.c $(DISSECTOR_SOURCES)
+	@sh make-reg-dotc . $(DISSECTOR_SOURCES)
 
 clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) \
@@ -270,6 +255,8 @@ clean:
 	cd wiretap
 	nmake -f Makefile.nmake clean
 	cd ../gtk
+	nmake -f Makefile.nmake clean
+	cd ../epan
 	nmake -f Makefile.nmake clean
 	cd ../plugins
 	nmake -f Makefile.nmake clean
@@ -282,6 +269,11 @@ wiretap::
 
 gtk::
 	cd gtk
+	nmake -f Makefile.nmake
+	cd ..
+
+epan::
+	cd epan
 	nmake -f Makefile.nmake
 	cd ..
 

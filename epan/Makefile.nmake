@@ -1,0 +1,43 @@
+include ..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/MT /DHAVE_CONFIG_H /I. /I.. /I../wiretap \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
+
+{$S}.c{$O}.obj::
+   $(CC) $(CFLAGS) -Fd$O\ -c $<
+
+OBJECTS=conversation.obj \
+	dfilter-grammar.obj \
+	dfilter-scanner.obj \
+	dfilter.obj      \
+	epan.obj         \
+	except.obj       \
+	filesystem.obj   \
+	ipv4.obj         \
+	packet.obj       \
+	plugins.obj      \
+	proto.obj        \
+	resolv.obj       \
+	strutil.obj      \
+	tvbuff.obj       \
+
+libepan.lib	: ..\config.h $(OBJECTS)
+	lib /out:libepan.lib $(OBJECTS)	
+
+dfilter-scanner.obj : dfilter-scanner.c dfilter-grammar.h
+
+dfilter-scanner.c : dfilter-scanner.l
+	$(LEX) -Pdfilter_ -odfilter-scanner.c dfilter-scanner.l
+
+dfilter-grammar.c dfilter-grammar.h : dfilter-grammar.y
+	$(YACC) $(YACC_OPTS) -d -p dfilter_ dfilter-grammar.y -o dfilter-grammar.c
+
+..\config.h	: ..\config.h.win32
+	copy ..\config.h.win32 ..\config.h
+
+clean:
+	rm -f $(OBJECTS) libepan.lib

@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.1 2000/09/28 03:16:16 gram Exp $
+ * $Id: filesystem.c,v 1.2 2000/10/11 07:35:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 #include <glib.h>
 
 #ifdef HAVE_UNISTD_H
@@ -39,6 +40,7 @@
 #endif
 
 #include "filesystem.h"
+#include "util.h"
 
 const char*
 get_home_dir(void)
