@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.97 2000/08/04 22:43:45 guy Exp $
+ * $Id: packet-ip.c,v 1.98 2000/08/05 05:08:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -776,14 +776,14 @@ static const true_false_string flags_set_truth = {
   "Not set"
 };
 
-static guint16 ip_checksum(e_ip *iph)
+static guint16 ip_checksum(const guint8 *ptr, int len)
 {
 	unsigned long Sum;
-	unsigned char *Ptr, *PtrEnd;
+	const unsigned char *Ptr, *PtrEnd;
 
 	Sum    = 0;
-	PtrEnd = (lo_nibble(iph->ip_v_hl) * 4 + (char *)iph);
-	for (Ptr = (unsigned char *) iph; Ptr < PtrEnd; Ptr += 2) {
+	PtrEnd = ptr + len;
+	for (Ptr = ptr; Ptr < PtrEnd; Ptr += 2) {
 		Sum += pntohs(Ptr);
 	}
 	Sum = (Sum & 0xFFFF) + (Sum >> 16);
@@ -792,31 +792,35 @@ static guint16 ip_checksum(e_ip *iph)
 	return (guint16)~Sum;
 }
 
-static gboolean ip_checksum_state(e_ip *iph)
+static guint16 ip_checksum_shouldbe(guint16 sum, guint16 computed_sum)
 {
-	guint16 Sum;
+	guint32 shouldbe;
 
-	Sum = ip_checksum(iph);
-
-	if (Sum != 0)
-		return FALSE;
-
-	return TRUE;
-}
-
-static guint16 ip_checksum_shouldbe(e_ip *iph)
-{
-	guint16 ipsum;
-	guint16 Sum;
-
-	ipsum = iph->ip_sum;
-	iph->ip_sum = 0;
-
-	Sum = ip_checksum(iph);
-
-	iph->ip_sum = ipsum;
-
-	return Sum;
+	/*
+	 * The value that should have gone into the checksum field
+	 * is the negative of the value gotten by summing up everything
+	 * *but* the checksum field.
+	 *
+	 * We can compute that by subtracting the value of the checksum
+	 * field from the sum of all the data in the packet, and then
+	 * computing the negative of that value.
+	 *
+	 * "sum" is the value of the checksum field, and "computed_sum"
+	 * is the negative of the sum of all the data in the packets,
+	 * so that's -(-computed_sum - sum), or (sum + computed_sum).
+	 *
+	 * All the arithmetic in question is one's complement, so the
+	 * addition must include an end-around carry; we do this by
+	 * doing the arithmetic in 32 bits (with no sign-extension),
+	 * and then adding the upper 16 bits of the sum, which contain
+	 * the carry, to the lower 16 bits of the sum, and then do it
+	 * again in case *that* sum produced a carry.
+	 */
+	shouldbe = sum;
+	shouldbe += computed_sum;
+	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
+	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
+	return shouldbe;
 }
 
 void
@@ -827,6 +831,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint      hlen, optlen, len;
   guint16    flags;
   guint8     nxt;
+  guint16    ipsum;
 
   /* To do: check for errs, etc. */
   if (!BYTES_ARE_IN_FRAME(offset, IPH_MIN_LEN)) {
@@ -899,14 +904,15 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_uint_format(ip_tree, hf_ip_proto, NullTVB, offset +  9, 1, iph.ip_p,
 	"Protocol: %s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
 
-    if (ip_checksum_state((e_ip*) &pd[offset])) {
+    ipsum = ip_checksum(&pd[offset], hlen);
+    if (ipsum == 0) {
 	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, NullTVB, offset + 10, 2, iph.ip_sum,
             "Header checksum: 0x%04x (correct)", iph.ip_sum);
     }
     else {
 	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, NullTVB, offset + 10, 2, iph.ip_sum,
             "Header checksum: 0x%04x (incorrect, should be 0x%04x)", iph.ip_sum,
-	    ip_checksum_shouldbe((e_ip*) &pd[offset]));
+	    ip_checksum_shouldbe(iph.ip_sum, ipsum));
     }
 
     proto_tree_add_ipv4(ip_tree, hf_ip_src, NullTVB, offset + 12, 4, iph.ip_src);
