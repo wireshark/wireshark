@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.32 2000/07/09 03:29:28 guy Exp $
+ * $Id: prefs.c,v 1.33 2000/08/07 22:31:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -623,7 +623,7 @@ read_prefs_file(const char *pf_path, FILE *pf)
           cur_val[val_len] = got_c;
           val_len++;
         } else {
-          while (isspace(cur_val[val_len]) && val_len > 0)
+          while (isspace((guchar)cur_val[val_len]) && val_len > 0)
             val_len--;
           state = IN_SKIP;
         }
