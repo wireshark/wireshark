@@ -39,9 +39,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "epan/packet.h"
+#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/strutil.h>
 
 #include "packet-bssap.h"
 #include "packet-ansi_a.h"
@@ -2771,7 +2772,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	tvb, curr_offset, len - (curr_offset - offset),
 	poctets,
 	"Digits: %s",
-	poctets);
+	format_text(poctets, len - (curr_offset - offset)));
 
     curr_offset += len - (curr_offset - offset);
 
@@ -5311,7 +5312,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	tvb, curr_offset, len - (curr_offset - offset),
 	poctets,
 	"Digits: %s",
-	poctets);
+	format_text(poctets, len - (curr_offset - offset)));
 
     curr_offset += len - (curr_offset - offset);
 
