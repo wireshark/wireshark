@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.36 2002/10/05 06:26:42 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.37 2002/10/25 04:22:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,13 +144,29 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	/*
 	 * The KRB5 blob conforms to RFC1964:
-	 * APLICATION (0) {
+	 * [APPLICATION 0] {
 	 *   OID,
 	 *   USHORT (0x0001 == AP-REQ, 0x0002 == AP-REP, 0x0003 == ERROR,
 	 *   OCTET STRING } 
          *
          * However, for some protocols, the KRB5 blob stars at the SHORT
 	 * and has no DER encoded header etc.
+	 *
+	 * It appears that for some other protocols the KRB5 blob is just
+	 * a Kerberos message, with no [APPLICATION 0] header, no OID,
+	 * and no USHORT.
+	 *
+	 * So:
+	 *
+	 *	If we see an [APPLICATION 0] HEADER, we show the OID and
+	 *	the USHORT, and then dissect the rest as a Kerberos message.
+	 *
+	 *	If we see an [APPLICATION 14] or [APPLICATION 15] header,
+	 *	we assume it's an AP-REQ or AP-REP message, and dissect
+	 *	it all as a Kerberos message.
+	 *
+	 *	Otherwise, we show the USHORT, and then dissect the rest
+	 *	as a Kerberos message.
 	 */
 
 	asn1_open(&hnd, tvb, offset);
@@ -167,52 +183,77 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		goto done;
 	}
 
-	if ((cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
-	/*	proto_tree_add_text(
-			subtree, tvb, offset, 0,
-			"Unknown header (cls=%d, con=%d, tag=%d)",
-			cls, con, tag);
-		goto done;
-	}*/
+	if (cls == ASN1_APL && con == ASN1_CON) {
+	    /*
+	     * [APPLICATION <tag>]
+	     */
+	    switch (tag) {
 
-	    offset = hnd.offset;
+	    case 0:
+		/*
+		 * [APPLICATION 0]
+		 */
 
-	    /* Next, the OID */
+		offset = hnd.offset;
 
-	    ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
+		/* Next, the OID */
 
-	    if (ret != ASN1_ERR_NOERROR) {
+		ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
+
+		if (ret != ASN1_ERR_NOERROR) {
 		    dissect_parse_error(tvb, offset, pinfo, subtree,
 			 	        "SPNEGO supportedMech token", ret);
 		    goto done;
-	    }
+		}
 
-	    oid_string = format_oid(oid, oid_len);
+		oid_string = format_oid(oid, oid_len);
 
-	    value = gssapi_lookup_oid(oid, oid_len);
+		value = gssapi_lookup_oid(oid, oid_len);
 
-	    if (value) 
-	        proto_tree_add_text(subtree, tvb, offset, nbytes, 
-		  	            "OID: %s (%s)",
-			            oid_string, value->comment);
-	    else
-	        proto_tree_add_text(subtree, tvb, offset, oid_len, "OID: %s",
-			            oid_string);
+		if (value) 
+		    proto_tree_add_text(subtree, tvb, offset, nbytes, 
+					"OID: %s (%s)",
+					oid_string, value->comment);
+		else
+		    proto_tree_add_text(subtree, tvb, offset, nbytes,
+					"OID: %s",
+					oid_string);
 	  
-	    g_free(oid_string);
+		g_free(oid_string);
 
-	    offset += nbytes;
+		offset += nbytes;
+
+		/* Next, the token ID ... */
+
+		proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
+				    TRUE);
+
+		hnd.offset += 2;
+
+		offset += 2;
+
+		break;
+
+	    case 14:	/* [APPLICATION 14] */
+	    case 15:	/* [APPLICATION 15] */
+		break;
+
+	    default:
+		proto_tree_add_text(subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	    }
+	} else {
+	    /* Next, the token ID ... */
+
+	    proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
+				TRUE);
+
+	    hnd.offset += 2;
+
+	    offset += 2;
 	}
-
-	/* Next, the token ID ... */
-
-	proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
-			    TRUE);
-
-
-	hnd.offset += 2;
-
-	offset += 2;
 
 	krb5_tvb = tvb_new_subset(tvb, offset, -1, -1); 
 
