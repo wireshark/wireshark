@@ -142,7 +142,6 @@ static int dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb, int offset, int
 static void
 dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
    proto_item *ti;
    proto_tree *daap_tree;
    int offset = 0;
@@ -162,8 +161,7 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  */
 	 col_add_str(pinfo->cinfo, COL_INFO, "DAAP Response");
 	 col_append_fstr(pinfo->cinfo, COL_INFO, " [tag: %s, size: %d]",
-			 tvb_get_string(tvb, offset, 4), 
-			 tvb_get_ntohl(tvb, offset+4));
+	 	 tvb_format_text(tvb, offset, 4), tvb_get_ntohl(tvb, offset+4));
       }
    }
 
@@ -246,8 +244,8 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb, int offset, int length)
       case daap_asdt:
       case daap_asul:
 	 /* Tags contain strings */
-	 proto_item_append_text(ti, ", Data: %s", 
-				tvb_get_string(tvb, offset, tagsize));
+	 proto_item_append_text(ti, ", Data: %s",
+				tvb_format_text(tvb, offset, tagsize));
 	 break;
       case daap_mper:
 	 /* Tags conain uint64 */
