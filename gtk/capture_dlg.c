@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.8 1999/10/02 19:33:14 guy Exp $
+ * $Id: capture_dlg.c,v 1.9 1999/11/06 02:05:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,9 +85,6 @@
 #define E_CAP_SNAP_KEY     "cap_snap"
 #define E_CAP_SYNC_KEY     "cap_sync"
 #define E_CAP_RESOLVE_KEY  "cap_resolve"
-
-/* Capture filter key */
-#define E_CAP_FILT_TE_KEY "cap_filt_te"
 
 static GList*
 get_interface_list();
