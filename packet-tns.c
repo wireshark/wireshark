@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for MSX tns packet dissection
  *
- * $Id: packet-tns.c,v 1.1 1999/11/29 19:43:26 nneul Exp $
+ * $Id: packet-tns.c,v 1.2 1999/11/30 09:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -92,7 +92,7 @@ void dissect_tns_accept(const u_char *pd, int offset, frame_data *fd,
 void
 dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	proto_tree      *tns_tree, *ti;
+	proto_tree      *tns_tree = NULL, *ti;
 	guint16 length;
 	guint16 type;
 
