@@ -78,6 +78,21 @@ gboolean color_filters_export(gchar *path, gboolean only_marked);
  */
 void color_filters_prime_edt(epan_dissect_t *edt);
 
+/** Color filters currently used?
+ *
+ * @return TRUE, if filters are used
+ */
+gboolean color_filters_used(void);
+
+/** Colorize a specific packet.
+ *
+ * @param row the row in the packet list
+ * @param edt the dissected packet
+ * @return the matching color filter or NULL
+ */
+color_filter_t *
+color_filters_colorize_packet(gint row, epan_dissect_t *edt);
+
 /** Create a new color filter.
  *
  * @param name the name of the filter

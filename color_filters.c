@@ -41,6 +41,7 @@
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
 #include "simple_dialog.h"
+#include "ui_util.h"
 
 static gboolean read_filters(void);
 static gboolean read_global_filters(void);
@@ -134,6 +135,59 @@ prime_edt(gpointer data, gpointer user_data)
 
 	if (colorf->c_colorfilter != NULL)
 		epan_dissect_prime_dfilter(edt, colorf->c_colorfilter);
+}
+
+gboolean 
+color_filters_used(void)
+{
+    return color_filter_list != NULL;
+}
+
+
+typedef struct {
+  color_filter_t *colorf;
+  epan_dissect_t *edt;
+} apply_color_filter_args;
+
+/*
+ * If no color filter has been applied, apply this one.
+ * (The "if no color filter has been applied" is to handle the case where
+ * more than one color filter matches the packet.)
+ */
+static void
+apply_color_filter(gpointer filter_arg, gpointer argp)
+{
+  color_filter_t *colorf = filter_arg;
+  apply_color_filter_args *args = argp;
+
+  if (colorf->c_colorfilter != NULL && args->colorf == NULL) {
+    if (dfilter_apply_edt(colorf->c_colorfilter, args->edt))
+      args->colorf = colorf;
+  }
+}
+
+
+color_filter_t *
+color_filters_colorize_packet(gint row, epan_dissect_t *edt)
+{
+  apply_color_filter_args args;
+
+
+  /* We don't yet have a color filter to apply. */
+  args.colorf = NULL;
+
+  /* If we have color filters, "search" for the matching one. */
+    if (color_filters_used()) {
+      args.edt = edt;
+      g_slist_foreach(color_filter_list, apply_color_filter, &args);
+
+    /* If the packet matches a color filter, apply the colors. */
+    if (args.colorf != NULL) {
+      packet_list_set_colors(row, &(args.colorf->fg_color), &(args.colorf->bg_color));
+    }
+    }
+
+    return args.colorf;
 }
 
 /* Prime the epan_dissect_t with all the compiler

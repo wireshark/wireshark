@@ -688,43 +688,17 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
     cf->rfcode = rfcode;
 }
 
-typedef struct {
-  color_filter_t *colorf;
-  epan_dissect_t *edt;
-} apply_color_filter_args;
-
-/*
- * If no color filter has been applied, apply this one.
- * (The "if no color filter has been applied" is to handle the case where
- * more than one color filter matches the packet.)
- */
-static void
-apply_color_filter(gpointer filter_arg, gpointer argp)
-{
-  color_filter_t *colorf = filter_arg;
-  apply_color_filter_args *args = argp;
-
-  if (colorf->c_colorfilter != NULL && args->colorf == NULL) {
-    if (dfilter_apply_edt(colorf->c_colorfilter, args->edt))
-      args->colorf = colorf;
-  }
-}
-
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	union wtap_pseudo_header *pseudo_header, const guchar *buf,
 	gboolean refilter)
 {
-  apply_color_filter_args args;
   gint          row;
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t *edt;
 
   /* just add some value here until we know if it is being displayed or not */
   fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
-
-  /* We don't yet have a color filter to apply. */
-  args.colorf = NULL;
 
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
@@ -778,7 +752,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      allocate a protocol tree root node, so that we'll construct
      a protocol tree against which a filter expression can be
      evaluated. */
-  if ((cf->dfcode != NULL && refilter) || color_filter_list != NULL
+  if ((cf->dfcode != NULL && refilter) || color_filters_used()
         || num_tap_filters != 0)
 	  create_proto_tree = TRUE;
 
@@ -788,7 +762,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (cf->dfcode != NULL && refilter) {
       epan_dissect_prime_dfilter(edt, cf->dfcode);
   }
-  if (color_filter_list) {
+  if (color_filters_used()) {
       color_filters_prime_edt(edt);
   }
   tap_queue_init(edt);
@@ -805,16 +779,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     }
   } else
     fdata->flags.passed_dfilter = 1;
-
-  /* If we have color filters, and the frame is to be displayed, apply
-     the color filters. */
-  if (fdata->flags.passed_dfilter) {
-    if (color_filter_list != NULL) {
-      args.edt = edt;
-      g_slist_foreach(color_filter_list, apply_color_filter, &args);
-    }
-  }
-
 
   if( (fdata->flags.passed_dfilter) 
    || (edt->pi.fd->flags.ref_time) ){
@@ -853,25 +817,14 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
     row = packet_list_append(cf->cinfo.col_data, fdata);
 
-    /* If the packet matches a color filter,
-     * store matching color_filter_t object in frame data. */
-    if (color_filter_list != NULL && (args.colorf != NULL)) {
-      /* add the matching colorfilter to the frame data */
-      fdata->color_filter = args.colorf;
-      /* If packet is marked, use colors from preferences */
+    /* colorize packet: if packet is marked, use preferences, 
+       otherwise try to apply color filters */
       if (fdata->flags.marked) {
+          fdata->color_filter = NULL;
           packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
-      } else /* if (color_filter_list != NULL && (args.colorf != NULL)) */ {
-          packet_list_set_colors(row, &(args.colorf->fg_color),
-	      &(args.colorf->bg_color));
+      } else {
+          fdata->color_filter = color_filters_colorize_packet(row, edt);
       }
-    } else {
-      /* No color filter match */
-      fdata->color_filter = NULL;
-      if (fdata->flags.marked) {
-          packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
-      }
-    }
 
     /* Set the time of the previous displayed frame to the time of this
        frame. */
