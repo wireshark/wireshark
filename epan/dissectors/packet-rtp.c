@@ -353,6 +353,8 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 }
 
+static struct _rtp_info rtp_info;
+
 static void
 dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
@@ -376,8 +378,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint32     timestamp;
 	guint32     sync_src;
 	guint32     csrc_item;
-
-	static struct _rtp_info rtp_info;
 
 	/* Get the fields in the first octet */
 	octet1 = tvb_get_guint8( tvb, offset );
@@ -430,6 +430,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	rtp_info.info_seq_num = seq_num;
 	rtp_info.info_timestamp = timestamp;
 	rtp_info.info_sync_src = sync_src;
+	rtp_info.info_setup_frame_num = 0;
 
 	/*
 	 * Do we have all the data?
@@ -517,6 +518,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		proto_tree_add_uint( rtp_tree, hf_rtp_ssrc, tvb, offset, 4, sync_src );
 		offset += 4;
 	} else {
+		show_setup_info(tvb, pinfo, NULL);
 		offset += 12;
 	}
 	/* CSRC list*/
@@ -653,7 +655,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 
 /* Look for conversation info and display any setup info found */
-void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* Conversation and current data */
 	conversation_t *p_conv = NULL;
@@ -705,6 +707,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			                             tvb, 0, 0, p_conv_data->method);
 			PROTO_ITEM_SET_GENERATED(item);
 		}
+		rtp_info.info_setup_frame_num = p_conv_data->frame_number;
 	}
 }
 
