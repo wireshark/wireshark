@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.11 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-quakeworld.c,v 1.12 2002/04/02 06:29:48 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -245,7 +245,7 @@ Cmd_TokenizeString(char* text)
 
 			
 void
-dissect_id_infostring(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, 
+dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree, 
 	int offset, char* infostring,
 	gint ett_key_value, int hf_key_value, int hf_key, int hf_value)
 {
@@ -470,7 +470,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 				if (info_item)
 					info_tree = proto_item_add_subtree(
 						info_item, ett_quakeworld_connectionless_connect_infostring);
-				dissect_id_infostring(tvb, pinfo, info_tree, offset + Cmd_Argv_start(4),
+				dissect_id_infostring(tvb, info_tree, offset + Cmd_Argv_start(4),
 					infostring,
 					ett_quakeworld_connectionless_connect_infostring_key_value,
 					hf_quakeworld_connectionless_connect_infostring_key_value,
