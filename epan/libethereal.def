@@ -227,6 +227,7 @@ fragment_set_partial_reassembly
 fragment_set_tot_len
 fragment_table_init
 free_prefs
+free_stats_tree
 ftype_can_contains
 ftype_can_eq
 ftype_can_ge
@@ -335,6 +336,7 @@ mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
 new_create_dissector_handle
 new_register_dissector
+new_stats_tree
 nt_cmd_vals                     DATA
 num_tap_filters                 DATA
 num_tree_types                  DATA
