@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.15 2004/05/30 11:54:37 ulfl Exp $
+ * $Id: recent.c,v 1.16 2004/05/31 02:42:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -209,7 +209,7 @@ write_recent(char **rf_path_return)
 
 /* write the geometry values of a window to recent file */
 void 
-write_recent_geom(gpointer key, gpointer value, gpointer rf)
+write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 {
     window_geometry_t *geom = value;
 
