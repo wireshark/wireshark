@@ -957,10 +957,12 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
 	  if test -x "$KRB5_CONFIG"
 	  then
+set -x
 	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
             CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
-	    KRB5_LIBS=`"$KRB5_CONFIG" --libs | sed 's/-lcrypto//'` $SSL_LIBS
+	    KRB5_LIBS=`"$KRB5_CONFIG" --libs | sed 's/-lcrypto//'`
+	    KRB5_LIBS="$KRB5_LIBS $SSL_LIBS"
 	    # Looks like krb5-config is lacking -lresolv on some systems
 	    AC_MSG_CHECKING(whether library list looks OK)
 	    if echo "$KRB5_LIBS" | grep resolv >/dev/null
@@ -973,6 +975,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 
 	    #LIBS="$LIBS $KRB5_LIBS"
 	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'`
+set +x
  	  fi
 	fi
 
