@@ -686,6 +686,7 @@ DISSECTOR_INCLUDES =	\
 	packet-hpext.h	\
 	packet-http.h	\
 	packet-iax2.h	\
+	packet-idp.h	\
 	packet-ieee80211.h	\
 	packet-ieee8023.h	\
 	packet-ieee802a.h	\
