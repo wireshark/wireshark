@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.40 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-atm.c,v 1.41 2002/03/31 21:23:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,7 +150,7 @@ static const value_string le_control_lan_type_vals[] = {
 };
 
 static void
-dissect_le_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_le_client(tvbuff_t *tvb, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *lane_tree;
@@ -250,7 +250,7 @@ static void
 dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
-  proto_tree *lane_tree;
+  proto_tree *lane_tree = NULL;
   int offset = 0;
   proto_item *tf;
   proto_tree *flags_tree;
@@ -271,27 +271,40 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_text(lane_tree, tvb, offset, 2, "Marker: 0x%04X",
 			tvb_get_ntohs(tvb, offset));
-    offset += 2;
+  }
+  offset += 2;
 
+  if (tree) {
     proto_tree_add_text(lane_tree, tvb, offset, 1, "Protocol: 0x%02X",
 			tvb_get_guint8(tvb, offset));
-    offset += 1;
+  }
+  offset += 1;
 
+  if (tree) {
     proto_tree_add_text(lane_tree, tvb, offset, 1, "Version: 0x%02X",
 			tvb_get_guint8(tvb, offset));
-    offset += 1;
+  }
+  offset += 1;
 
-    opcode = tvb_get_ntohs(tvb, offset);
+  opcode = tvb_get_ntohs(tvb, offset);
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+	val_to_str(opcode, le_control_opcode_vals,
+				"Unknown opcode (0x%04X)"));
+  }
+  if (tree) {
     proto_tree_add_text(lane_tree, tvb, offset, 2, "Opcode: %s",
 	val_to_str(opcode, le_control_opcode_vals,
 				"Unknown (0x%04X)"));
-    offset += 2;
+  }
+  offset += 2;
 
-    if (opcode == READY_QUERY || opcode == READY_IND) {
-      /* There's nothing more in this packet. */
-      return;
-    }
+  if (opcode == READY_QUERY || opcode == READY_IND) {
+    /* There's nothing more in this packet. */
+    return;
+  }
 
+  if (tree) {
     if (opcode & 0x0100) {
       /* Response; decode status. */
       proto_tree_add_text(lane_tree, tvb, offset, 2, "Status: %s",
@@ -382,8 +395,6 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM LANE");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "ATM LANE");
 
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
   switch (pinfo->pseudo_header->ngsniffer_atm.AppHLType) {
@@ -394,7 +405,9 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case AHLT_LANE_802_3:
   case AHLT_LANE_802_3_MC:
-    dissect_le_client(tvb, pinfo, tree);
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "LE Client - Ethernet/802.3");
+    dissect_le_client(tvb, tree);
 
     /* Dissect as Ethernet */
     next_tvb_le_client	= tvb_new_subset(tvb, 2, -1, -1);
@@ -403,7 +416,9 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case AHLT_LANE_802_5:
   case AHLT_LANE_802_5_MC:
-    dissect_le_client(tvb, pinfo, tree);
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "LE Client - 802.5");
+    dissect_le_client(tvb, tree);
 
     /* Dissect as Token-Ring */
     next_tvb_le_client	= tvb_new_subset(tvb, 2, -1, -1);
@@ -412,6 +427,9 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   default:
     /* Dump it as raw data. */
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown LANE traffic type %x",
+		  pinfo->pseudo_header->ngsniffer_atm.AppHLType);
     next_tvb		= tvb_new_subset(tvb, 0, -1, -1);
     call_dissector(data_handle,next_tvb, pinfo, tree);
     break;
