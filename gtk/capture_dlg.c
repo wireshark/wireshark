@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.96 2004/01/21 21:19:31 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.97 2004/01/26 09:05:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,48 @@ capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 /*
+ * Given text that contains an interface name possibly prefixed by an
+ * interface description, extract the interface name.
+ */
+static char *
+get_if_name(char *if_text)
+{
+  char *if_name;
+
+#ifdef WIN32
+  /*
+   * We cannot assume that the interface name doesn't contain a space;
+   * however, we can assume it begins with "\Device\".  Search forwards
+   * for a backslash; if it's followed by "Device\", stop there,
+   * otherwise keep scanning until we find "\Device\".  If we don't find
+   * it, just return the entire string.
+   */
+   if_name = if_text;
+   for (;;) {
+     if_name = strchr(if_name, '\\');
+     if (if_name == NULL)
+       return if_text;	/* give up */
+     if (strncmp(if_name + 1, "Device\\", 7) == 0)
+       return if_name;
+     if_name++;
+   }
+#else
+  /*
+   * There's a space between the interface description and name, and
+   * the interface name shouldn't have a space in it (it doesn't, on
+   * UNIX systems); look backwards in the string for a space.
+   */
+  if_name = strrchr(if_text, ' ');
+  if (if_name == NULL) {
+    if_name = if_text;
+  } else {
+    if_name++;
+  }
+#endif
+  return if_name;
+}
+
+/*
  * Keep a static pointer to the current "Capture Options" window, if
  * any, so that if somebody tries to do "Capture:Start" while there's
  * already a "Capture Options" window up, we just pop up the existing
@@ -151,12 +193,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   lt_menu = gtk_menu_new();
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
   if_text = g_strstrip(entry_text);
-  if_name = strrchr(if_text, ' ');
-  if (if_name == NULL) {
-    if_name = if_text;
-  } else {
-    if_name++;
-  }
+  if_name = get_if_name(if_text);
 
   /*
    * If the interface name is in the list of known interfaces, get
@@ -880,16 +917,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   entry_text =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
   if_text = g_strstrip(entry_text);
-  /* Remove interface description; if it's present, it comes before
-     the interface name, and there's a space between them, and the
-     interface name is assumed to contain no space, so we look backwards
-     in the string for a space. */
-  if_name = strrchr(if_text, ' ');
-  if (if_name == NULL) {
-    if_name = if_text;
-  } else {
-    if_name++;
-  }
+  if_name = get_if_name(if_text);
   if (*if_name == '\0') {
     simple_dialog(ESD_TYPE_CRIT, NULL,
       "You didn't specify an interface on which to capture packets.");
