@@ -2,12 +2,11 @@
  * Routines for QLLC protocol - Qualified? LLC
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-qllc.c,v 1.1 2001/11/15 21:11:01 gram Exp $
+ * $Id: packet-qllc.c,v 1.2 2001/11/15 21:32:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
