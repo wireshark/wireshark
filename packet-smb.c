@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.215 2002/03/10 23:13:04 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.216 2002/03/14 05:45:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6560,9 +6560,11 @@ static const true_false_string tfs_ace_flags_failed_access = {
 };
 
 #define APPEND_ACE_TEXT(flag, item, string) \
-        if(item && flag){                                     \
-                  proto_item_append_text(item, string);       \
-        }
+	if(flag){							\
+		if(item)						\
+			proto_item_append_text(item, string, sep);	\
+		sep = ", ";						\
+	}
 
 static int
 dissect_nt_v2_ace_flags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree)
@@ -6570,41 +6572,42 @@ dissect_nt_v2_ace_flags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint8 mask;
+	char *sep = " ";
 
 	mask = tvb_get_guint8(tvb, offset);
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-					   "NT ACE Flags:0x%02x", mask);
+					   "NT ACE Flags: 0x%02x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_ace_flags);
 	}
 
 	proto_tree_add_boolean(tree, hf_smb_ace_flags_failed_access,
 		       tvb, offset, 1, mask);
-	APPEND_ACE_TEXT(mask&0x80, item, "  Failed Access,");
+	APPEND_ACE_TEXT(mask&0x80, item, "%sFailed Access");
 
 	proto_tree_add_boolean(tree, hf_smb_ace_flags_successful_access,
 		       tvb, offset, 1, mask);
-	APPEND_ACE_TEXT(mask&0x40, item, "  Successful Access,");
+	APPEND_ACE_TEXT(mask&0x40, item, "%sSuccessful Access");
 
 	proto_tree_add_boolean(tree, hf_smb_ace_flags_inherited_ace,
 		       tvb, offset, 1, mask);
-	APPEND_ACE_TEXT(mask&0x10, item, "  Inherited ACE,");
+	APPEND_ACE_TEXT(mask&0x10, item, "%sInherited ACE");
 
 	proto_tree_add_boolean(tree, hf_smb_ace_flags_inherit_only,
 		       tvb, offset, 1, mask);
-	APPEND_ACE_TEXT(mask&0x08, item, "  Inherit Only,");
+	APPEND_ACE_TEXT(mask&0x08, item, "%sInherit Only");
 
 	proto_tree_add_boolean(tree, hf_smb_ace_flags_non_propagate_inherit,
 		       tvb, offset, 1, mask);
-	APPEND_ACE_TEXT(mask&0x04, item, "  No Propagate Inherit,");
+	APPEND_ACE_TEXT(mask&0x04, item, "%sNo Propagate Inherit");
 
 	proto_tree_add_boolean(tree, hf_smb_ace_flags_container_inherit,
 		       tvb, offset, 1, mask);
-	APPEND_ACE_TEXT(mask&0x02, item, "  Container Inherit,");
+	APPEND_ACE_TEXT(mask&0x02, item, "%sContainer Inherit");
 
 	proto_tree_add_boolean(tree, hf_smb_ace_flags_object_inherit,
 		       tvb, offset, 1, mask);
-	APPEND_ACE_TEXT(mask&0x01, item, "  Object Inherit,");
+	APPEND_ACE_TEXT(mask&0x01, item, "%sObject Inherit");
 
 
 	offset += 1;
@@ -15988,7 +15991,7 @@ proto_register_smb(void)
 		TFS(&tfs_ace_flags_failed_access), 0x80, "Should failed accesses be audited?", HFILL }},
 
 	{ &hf_smb_sec_desc_type_owner_defaulted,
-		{ "Onwer Defaulted", "smb.sec_desc.type.owner_defaulted", FT_BOOLEAN, 16,
+		{ "Owner Defaulted", "smb.sec_desc.type.owner_defaulted", FT_BOOLEAN, 16,
 		TFS(&tfs_sec_desc_type_owner_defaulted), 0x0001, "Is Owner Defaulted set?", HFILL }},
 
 	{ &hf_smb_sec_desc_type_group_defaulted,
