@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/time.tar.gz time/service/dtsstime_req.idl
  *           
- * $Id: packet-dcerpc-dtsstime_req.c,v 1.1 2002/09/11 09:40:33 sahlberg Exp $
+ * $Id: packet-dcerpc-dtsstime_req.c,v 1.2 2002/09/11 09:42:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,7 +61,7 @@ static dcerpc_sub_dissector dtsstime_req_dissectors[] = {
 static const value_string dtsstime_req_opnum_vals[] = {
     { 0, "ClerkRequestTime" },
     { 1, "ServerRequestTime" },
-    { 0, NULL, NULL, NULL }
+    { 0, NULL }
 };
 
 void
@@ -69,7 +69,7 @@ proto_register_dtsstime_req (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_dtsstime_req_opnum,
-		{ "Operation", "dtsstime_req.opnum", FT_UINT16, BASE_DEC, VALS(dtsstime_req_opnum_vals), 0x0, "Operation", HFILL }},
+		{ "Operation", "dtsstime_req.opnum", FT_UINT16, BASE_DEC, VALS(dtsstime_req_opnum_vals), 0x0, "Operation", HFILL }}
 	};
 
 	static gint *ett[] = {
