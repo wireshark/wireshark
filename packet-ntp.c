@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.39 2003/11/12 20:44:36 guy Exp $
+ * $Id: packet-ntp.c,v 1.40 2003/11/18 19:28:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -634,14 +634,13 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 		offset += tvb_length_remaining(tvb, offset);
 		return offset;
 	}
-	if (extlen % 8) {
-		/* Extension length isn't a multiple of 8.  (Is it
-		 * required to be?)  Report the error, and return an
-		 * offset that goes to the end of the tvbuff, so we
-		 * stop dissecting.
+	if (extlen % 4) {
+		/* Extension length isn't a multiple of 4.
+		 * Report the error, and return an offset that goes
+		 * to the end of the tvbuff, so we stop dissecting.
 		 */
 		proto_tree_add_text(ntp_tree, tvb, offset+2, 2,
-				    "Extension length %u isn't a multiple of 8",
+			"Extension length %u isn't a multiple of 4",
 				    extlen);
 		offset += tvb_length_remaining(tvb, offset);
 		return offset;
@@ -679,6 +678,7 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 			    FALSE);
 	offset += 4;
 
+	/* check whether everything up to "vallen" is present */
 	if (extlen < MAX_MAC_LEN) {
 		/* XXX - report as error? */
 		return endoffset;
@@ -695,6 +695,7 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 	vallen = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_uint(ext_tree, hf_ntp_ext_vallen, tvb, offset, 4,
 			    vallen);
+	offset += 4;
 	vallen_round = (vallen + 3) & (-4);
 	if (vallen != 0) {
 		if ((guint32)(endoffset - offset) < vallen_round) {
