@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.333 2004/01/02 21:01:40 ulfl Exp $
+ * $Id: file.c,v 1.334 2004/01/02 21:47:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2257,7 +2257,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
   struct stat   infile, outfile;
   range_process_e process_this;
 
-  progdlg_t    *progbar;
+  progdlg_t    *progbar = NULL;
   int           progbar_count;
   float         progbar_val;
   gboolean      progbar_stop_flag;
@@ -2363,7 +2363,6 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
     /* Count of packets at which we've looked. */
     progbar_count = 0;
 
-    progbar = NULL;
     progbar_stop_flag = FALSE;
     g_get_current_time(&progbar_start_time);
 
