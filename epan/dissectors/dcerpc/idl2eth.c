@@ -1510,44 +1510,56 @@ void parsetypedefstruct(int pass)
 
 			sprintf(tmpstr, "%s_dissect_%s_%s", ifname, struct_name, field_name);
 			ptmpstr=strdup(tmpstr);
-			sprintf(filter_name, "%s.%s.%s", ifname, struct_name, field_name);
-			hf=register_hf_field(hf_index, field_name, filter_name, type_item->ft_type, type_item->base_type, type_item->vals, type_item->mask, "");
 
-			FPRINTF(eth_code, "static int\n");
-			FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", ptmpstr);
-			FPRINTF(eth_code, "{\n");
-			FPRINTF(eth_code, "    guint32 param=%s;\n",find_dissector_param_value(ptmpstr));
-			FPRINTF(eth_code, "    offset=%s(tvb, offset, pinfo, tree, drep, %s, param);\n", type_item->dissector, hf);
-			FPRINTF(eth_code, "    return offset;\n");
-			FPRINTF(eth_code, "}\n");
-			FPRINTF(eth_code, "\n");
+			if(check_if_to_emit(tmpstr)){
+			  sprintf(filter_name, "%s.%s.%s", ifname, struct_name, field_name);
+			  hf=register_hf_field(hf_index, field_name, filter_name, type_item->ft_type, type_item->base_type, type_item->vals, type_item->mask, "");
+			  FPRINTF(eth_code, "static int\n");
+			  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", ptmpstr);
+			  FPRINTF(eth_code, "{\n");
+			  FPRINTF(eth_code, "    guint32 param=%s;\n",find_dissector_param_value(ptmpstr));
+			  FPRINTF(eth_code, "    offset=%s(tvb, offset, pinfo, tree, drep, %s, param);\n", type_item->dissector, hf);
+			  FPRINTF(eth_code, "    return offset;\n");
+			  FPRINTF(eth_code, "}\n");
+			  FPRINTF(eth_code, "\n");
+			} else {
+			  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+			}
 
 			if(is_array_of_pointers){
 				pointer_type=pi->type;
 				pi=pi->next;
 				sprintf(tmpstr, "%s_%s", pointer_type, ptmpstr);
-				FPRINTF(eth_code, "static int\n");
-				FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-				FPRINTF(eth_code, "{\n");
-				FPRINTF(eth_code, "    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, %s, %s, \"%s\", -1);\n", ptmpstr, ptr_to_define(pointer_type), field_name);
-				FPRINTF(eth_code, "    return offset;\n");
-				FPRINTF(eth_code, "}\n");
-				FPRINTF(eth_code, "\n");
+				if(check_if_to_emit(tmpstr)){
+				  FPRINTF(eth_code, "static int\n");
+				  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+				  FPRINTF(eth_code, "{\n");
+				  FPRINTF(eth_code, "    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, %s, %s, \"%s\", -1);\n", ptmpstr, ptr_to_define(pointer_type), field_name);
+				  FPRINTF(eth_code, "    return offset;\n");
+				  FPRINTF(eth_code, "}\n");
+				  FPRINTF(eth_code, "\n");
+				} else {
+				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+				}
 				
 				ptmpstr=strdup(tmpstr);
 			} else if(fixed_array_size){
 				sprintf(tmpstr, "fixedarray_%s", ptmpstr);
-				FPRINTF(eth_code, "static int\n");
-				FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-				FPRINTF(eth_code, "{\n");
-				FPRINTF(eth_code, "    int count=%d;\n",fixed_array_size);
-				FPRINTF(eth_code, "    while(count--){\n");
-				FPRINTF(eth_code, "        offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
-				FPRINTF(eth_code, "    }\n");
-				FPRINTF(eth_code, "\n");
-				FPRINTF(eth_code, "    return offset;\n");
-				FPRINTF(eth_code, "}\n");
-				FPRINTF(eth_code, "\n");
+				if(check_if_to_emit(tmpstr)){
+				  FPRINTF(eth_code, "static int\n");
+				  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+				  FPRINTF(eth_code, "{\n");
+				  FPRINTF(eth_code, "    int count=%d;\n",fixed_array_size);
+				  FPRINTF(eth_code, "    while(count--){\n");
+				  FPRINTF(eth_code, "        offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
+				  FPRINTF(eth_code, "    }\n");
+				  FPRINTF(eth_code, "\n");
+				  FPRINTF(eth_code, "    return offset;\n");
+				  FPRINTF(eth_code, "}\n");
+				  FPRINTF(eth_code, "\n");
+				} else {
+				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+				}
 				ptmpstr=strdup(tmpstr);
 			}
 
@@ -1558,35 +1570,47 @@ void parsetypedefstruct(int pass)
 			    break;
 			  case BI_SIZE_IS:
 			    sprintf(tmpstr, "ucarray_%s", ptmpstr);
-			    FPRINTF(eth_code, "static int\n");
-			    FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-			    FPRINTF(eth_code, "{\n");
-			    FPRINTF(eth_code, "    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
-			    FPRINTF(eth_code, "    return offset;\n");
-			    FPRINTF(eth_code, "}\n");
-			    FPRINTF(eth_code, "\n");
+			    if(check_if_to_emit(tmpstr)){
+			      FPRINTF(eth_code, "static int\n");
+			      FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+			      FPRINTF(eth_code, "{\n");
+			      FPRINTF(eth_code, "    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
+			      FPRINTF(eth_code, "    return offset;\n");
+			      FPRINTF(eth_code, "}\n");
+			      FPRINTF(eth_code, "\n");
+			    } else {
+			      FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+			    }
 			    ptmpstr=strdup(tmpstr);
 			    break;
 			  case BI_LENGTH_IS:
 			    sprintf(tmpstr, "uvarray_%s", ptmpstr);
-			    FPRINTF(eth_code, "static int\n");
-			    FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-			    FPRINTF(eth_code, "{\n");
-			    FPRINTF(eth_code, "    offset=dissect_ndr_uvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
-			    FPRINTF(eth_code, "    return offset;\n");
-			    FPRINTF(eth_code, "}\n");
-			    FPRINTF(eth_code, "\n");
+			    if(check_if_to_emit(tmpstr)){
+			      FPRINTF(eth_code, "static int\n");
+			      FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+			      FPRINTF(eth_code, "{\n");
+			      FPRINTF(eth_code, "    offset=dissect_ndr_uvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
+			      FPRINTF(eth_code, "    return offset;\n");
+			      FPRINTF(eth_code, "}\n");
+			      FPRINTF(eth_code, "\n");
+			    } else {
+			      FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+			    }
 			    ptmpstr=strdup(tmpstr);
 			    break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
 			    sprintf(tmpstr, "ucvarray_%s", ptmpstr);
-			    FPRINTF(eth_code, "static int\n");
-			    FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-			    FPRINTF(eth_code, "{\n");
-			    FPRINTF(eth_code, "    offset=dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
-			    FPRINTF(eth_code, "    return offset;\n");
-			    FPRINTF(eth_code, "}\n");
-			    FPRINTF(eth_code, "\n");
+			    if(check_if_to_emit(tmpstr)){
+			      FPRINTF(eth_code, "static int\n");
+			      FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+			      FPRINTF(eth_code, "{\n");
+			      FPRINTF(eth_code, "    offset=dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
+			      FPRINTF(eth_code, "    return offset;\n");
+			      FPRINTF(eth_code, "}\n");
+			      FPRINTF(eth_code, "\n");
+			    } else {
+			      FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+			    }
 			    ptmpstr=strdup(tmpstr);
 			    break;
 			  default:
@@ -1600,13 +1624,17 @@ void parsetypedefstruct(int pass)
 				pointer_type=pi->type;
 				pi=pi->next;
 				sprintf(tmpstr, "%s_%s", pointer_type, ptmpstr);
-				FPRINTF(eth_code, "static int\n");
-				FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-				FPRINTF(eth_code, "{\n");
-				FPRINTF(eth_code, "    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, %s, %s, \"%s\", -1);\n", ptmpstr, ptr_to_define(pointer_type), field_name);
-				FPRINTF(eth_code, "    return offset;\n");
-				FPRINTF(eth_code, "}\n");
-				FPRINTF(eth_code, "\n");
+				if(check_if_to_emit(tmpstr)){
+				  FPRINTF(eth_code, "static int\n");
+				  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+				  FPRINTF(eth_code, "{\n");
+				  FPRINTF(eth_code, "    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, %s, %s, \"%s\", -1);\n", ptmpstr, ptr_to_define(pointer_type), field_name);
+				  FPRINTF(eth_code, "    return offset;\n");
+				  FPRINTF(eth_code, "}\n");
+				  FPRINTF(eth_code, "\n");
+				} else {
+				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+				}
 				
 				ptmpstr=strdup(tmpstr);
 			}

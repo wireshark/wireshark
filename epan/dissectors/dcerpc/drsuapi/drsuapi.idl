@@ -120,10 +120,10 @@ interface drsuapi
 		uint32 unknown1;
 		uint32 unknown2;
 		GUID guid1;
-		/* this looks like a SID followed by a uint32 which is zero */
+		/* this looks like a domain SID followed by a uint32 which is zero */
 		uint8 byte_array[28];
 		uint32 str_len;
-		[size_is(str_len)] uint16 nc_dn[];
+		[size_is(str_len+1)] uint16 nc_dn[];
 	} drsuapi_DsReplicaSyncRequest1Info;
 
 	typedef bitmap {

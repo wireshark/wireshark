@@ -41,9 +41,52 @@
 #include "packet-dcerpc-drsuapi.h"
 
 static int proto_drsuapi = -1;
+static int hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn = -1;
 ETH_HF
 
 ETH_ETT
+
+static int
+ucarray_drsuapi_dissect_DsReplicaSyncRequest1Info_nc_dn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	header_field_info *hfinfo;
+	static guint32 len;
+	dcerpc_info *di;
+	char *s;
+	int old_offset;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect 
+		  but we need to remember how long this array was.
+		  see packet-dcerpc.c for examples of conformant_run
+		  and what it is.
+		*/
+		old_offset=offset;
+		offset=dissect_dcerpc_uint32(tvb, offset, pinfo, NULL, drep, -1, &len);
+		di->array_max_count_offset=offset-4;
+		di->conformant_run=1;
+		di->conformant_eaten=offset-old_offset;
+		return offset;
+	}
+
+	ALIGN_TO_2_BYTES;
+
+	s = tvb_fake_unicode(tvb, offset, len, TRUE);
+        if (tree && len) {
+            hfinfo = proto_registrar_get_nth(hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn);
+            if (hfinfo->type == FT_STRING) {
+                proto_tree_add_string(tree, hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn, tvb, offset,
+                                      len, s);
+            } else {
+                proto_tree_add_item(tree, hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn, tvb, offset,
+                                    len, drep[0] & 0x10);
+            }
+        }
+
+	offset+=2*len;
+	return offset;
+}
 
 static int
 drsuapi_dissect_a_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
@@ -58,6 +101,10 @@ void
 proto_register_drsuapi(void)
 {
         static hf_register_info hf[] = {
+        { &hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn,
+          { "nc_dn", "drsuapi.DsReplicaSyncRequest1Info.nc_dn", FT_STRING, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
 
 ETH_HFARR
 	};
