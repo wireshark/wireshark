@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.9 2003/11/04 18:37:30 guy Exp $
+ * $Id: packet-asn1.c,v 1.10 2003/11/09 22:15:29 guy Exp $
  *
  * A plugin for:
  *
@@ -1765,7 +1765,6 @@ typedef struct _TBLTypeRef	TBLTypeRef;
 typedef struct _TBLNamedNumber	TBLNamedNumber;
 typedef struct _TBLRange	TBLRange;
 
-typedef enum _tbl_t tbl_t;
 enum _tbl_t {
 	TBLTYPE_Module,
 	TBLTYPE_TypeDef,
@@ -1775,6 +1774,7 @@ enum _tbl_t {
 	TBLTYPE_NamedNumber,
 	TBLTYPE_Range,
 };
+typedef enum _tbl_t tbl_t;
 /* text for 'tbl_t' type for debugging */
 char *data_types[] = {	"Module",
 			"TypeDef",
@@ -1785,13 +1785,13 @@ char *data_types[] = {	"Module",
 			"Range",
 };
 
-typedef enum _TBLTypeContent_t TBLTypeContent_t;
 enum _TBLTypeContent_t {
 	TBLTYPETYPE_None,
 	TBLTYPETYPE_Primitive,
 	TBLTYPETYPE_Elements,
 	TBLTYPETYPE_TypeRef,
 };
+typedef enum _TBLTypeContent_t TBLTypeContent_t;
 
 struct _TBLNamedNumber {
 	tbl_t	type;
