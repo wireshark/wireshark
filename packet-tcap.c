@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.7 2004/02/20 10:43:12 guy Exp $
+ * $Id: packet-tcap.c,v 1.8 2004/03/05 10:05:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1557,6 +1557,8 @@ dissect_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
 	/* process component data */
 	if (dissector_try_port(tcap_itu_ssn_dissector_table, g_pinfo->match_port, next_tvb, g_pinfo, g_tcap_tree))
 	{
+	    proto_tree_add_text(subtree, asn1->tvb, asn1->offset, comp_len, "Component");
+
 	    asn1->offset += comp_len;
 	}
 	else
