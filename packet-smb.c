@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.80 2001/03/18 03:23:30 guy Exp $
+ * $Id: packet-smb.c,v 1.81 2001/03/20 04:46:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -10827,6 +10827,34 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
+	  /*
+	   * The document at
+	   *
+	   *	http://www.samba.org/samba/ftp/specs/smbpub.txt
+	   *
+	   * (a text version of "Microsoft Networks SMB FILE SHARING
+	   * PROTOCOL, Document Version 6.0p") says that:
+	   *
+	   *	the first 2 bytes of these 12 bytes are, for NT Create and X,
+	   *	the "High Part of PID";
+	   *
+	   *	the next four bytes are reserved;
+	   *
+	   *	the next four bytes are, for SMB-over-IPX (with no
+	   *	NetBIOS involved) two bytes of Session ID and two bytes
+	   *	of SequenceNumber.
+	   *
+	   * If we ever implement SMB-over-IPX (which I suspect goes over
+	   * IPX sockets 0x0550, 0x0552, and maybe 0x0554, as per the
+	   * document in question), we'd probably want to have some way
+	   * to determine whether this is SMB-over-IPX or not (which could
+	   * be done by adding a PT_IPXSOCKET port type, having the
+	   * IPX dissector set "pinfo->srcport" and "pinfo->destport",
+	   * and having the SMB dissector check for a port type of
+	   * PT_IPXSOCKET and for "pinfo->match_port" being either
+	   * IPX_SOCKET_NWLINK_SMB_SERVER or IPX_SOCKET_NWLINK_SMB_REDIR
+	   * or, if it also uses 0x0554, IPX_SOCKET_NWLINK_SMB_MESSENGER).
+	   */
 	  proto_tree_add_text(smb_tree, NullTVB, offset, 12, "Reserved: 6 WORDS");
 
 	}
