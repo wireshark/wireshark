@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.99 2002/10/24 06:39:09 tpot Exp $
+ * $Id: packet-snmp.c,v 1.100 2002/10/24 07:08:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,11 +53,13 @@
 #include "etypes.h"
 #include "packet-ipx.h"
 
+#ifdef HAVE_SOME_SNMP
 #ifdef HAVE_NET_SNMP
 # include <net-snmp/net-snmp-config.h>
 # include <net-snmp/mib_api.h>
 # include <net-snmp/library/default_store.h>
-#elif defined(HAVE_UCD_SNMP)
+# include <net-snmp/config_api.h>
+#else /* HAVE_NET_SNMP */
 # include <ucd-snmp/ucd-snmp-config.h>
 # include <ucd-snmp/asn1.h>
 # include <ucd-snmp/snmp_api.h>
@@ -71,9 +73,8 @@
 # define NETSNMP_DS_LIBRARY_ID DS_LIBRARY_ID
 # define NETSNMP_DS_LIB_NO_TOKEN_WARNINGS DS_LIB_NO_TOKEN_WARNINGS
 # define NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY DS_LIB_PRINT_SUFFIX_ONLY
-#endif
+#endif /* HAVE_NET_SNMP */
 
-#ifdef HAVE_SOME_SNMP
    /*
     * Define values "sprint_realloc_value()" expects.
     */
@@ -89,7 +90,7 @@
 # define VALTYPE_BITSTR		ASN_BIT_STR
 # define VALTYPE_COUNTER64	ASN_COUNTER64
 
-#endif
+#endif /* HAVE_SOME_SNMP */
 
 #include "asn1.h"
 
