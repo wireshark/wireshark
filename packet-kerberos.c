@@ -2,10 +2,15 @@
  * Routines for Kerberos
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
- * Richard Share (C) 2002, rsharpe@samba.org, modularized a bit more and
- *                         added AP-REQ and AP-REP dissection
+ * Richard Sharpe (C) 2002, rsharpe@samba.org, modularized a bit more and
+ *                          added AP-REQ and AP-REP dissection
  *
- * $Id: packet-kerberos.c,v 1.35 2002/09/10 02:15:55 guy Exp $
+ * See RFC 1510, and various I-Ds and other documents showing additions,
+ * e.g. ones listed under
+ *
+ *	http://www.isi.edu/people/bcn/krb-revisions/
+ *
+ * $Id: packet-kerberos.c,v 1.36 2002/09/10 08:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,6 +136,7 @@ static gint ett_additional_tickets = -1;
 #define KRB5_ADDR_DECNET     0x0c
 #define KRB5_ADDR_APPLETALK  0x10
 #define KRB5_ADDR_NETBIOS    0x14
+#define KRB5_ADDR_IPv6       0x18
 
 /* encryption type constants */
 #define KRB5_ENCTYPE_NULL                0
@@ -141,7 +147,7 @@ static gint ett_additional_tickets = -1;
 #define KRB5_ENCTYPE_DES3_CBC_SHA        5
 #define KRB5_ENCTYPE_DES3_CBC_RAW        6
 #define KRB5_ENCTYPE_DES_HMAC_SHA1       8
-#define KRB5_ENCTYPE_DES3_CBC_SHA1       0x10	/* 16 */
+#define KRB5_ENCTYPE_DES3_CBC_SHA1       16
 #define KERB_ENCTYPE_RC4_HMAC            23 
 #define KERB_ENCTYPE_RC4_HMAC_EXP        24
 #define KRB5_ENCTYPE_UNKNOWN                0x1ff
@@ -166,10 +172,18 @@ static gint ett_additional_tickets = -1;
 #define KRB5_PA_OSF_DCE                8
 #define KRB5_PA_CYBERSAFE_SECUREID     9
 #define KRB5_PA_AFS3_SALT              10
-#define KRB5_PA_ENCTYPE_INFO             11
+#define KRB5_PA_ENCTYPE_INFO           11
 #define KRB5_PA_SAM_CHALLENGE          12
 #define KRB5_PA_SAM_RESPONSE           13
 #define KRB5_PA_DASS                   16
+#define KRB5_PA_USE_SPECIFIED_KVNO     20
+#define KRB5_PA_SAM_REDIRECT           21
+#define KRB5_PA_GET_FROM_TYPED_DATA    22
+#define KRB5_PA_SAM_ETYPE_INFO         23
+#define KRB5_PA_ALT_PRINC              24
+#define KRB5_PA_SAM_CHALLENGE2         30
+#define KRB5_PA_SAM_RESPONSE2          31
+#define KRB5_PA_PAC_REQUEST            128
 
 /* Type tags within Ticket */
 #define KRB5_TKT_TKT_VNO  0
@@ -316,6 +330,14 @@ static const value_string krb5_preauthentication_types[] = {
     { KRB5_PA_SAM_CHALLENGE        , "PA-SAM-CHALLENGE" },
     { KRB5_PA_SAM_RESPONSE         , "PA-SAM-RESPONSE" },
     { KRB5_PA_DASS                 , "PA-DASS" },
+    { KRB5_PA_USE_SPECIFIED_KVNO   , "PA-USE-SPECIFIED-KVNO" },
+    { KRB5_PA_SAM_REDIRECT         , "PA-SAM-REDIRECT" },
+    { KRB5_PA_GET_FROM_TYPED_DATA  , "PA-GET-FROM-TYPED-DATA" },
+    { KRB5_PA_SAM_ETYPE_INFO       , "PA-SAM-ETYPE-INFO" },
+    { KRB5_PA_ALT_PRINC            , "PA-ALT-PRINC" },
+    { KRB5_PA_SAM_CHALLENGE2       , "PA-SAM-CHALLENGE2" },
+    { KRB5_PA_SAM_RESPONSE2        , "PA-SAM-RESPONSE2" },
+    { KRB5_PA_PAC_REQUEST          , "PA-PAC-REQUEST" },
     { 0                            , NULL },
 };
 
@@ -344,6 +366,7 @@ static const value_string krb5_address_types[] = {
     { KRB5_ADDR_DECNET,		"DECNET"},
     { KRB5_ADDR_APPLETALK,	"APPLETALK"},
     { KRB5_ADDR_NETBIOS,     	"NETBIOS"},
+    { KRB5_ADDR_IPv6,		"IPv6"},
     { 0,                        NULL },
 };
 
@@ -1246,6 +1269,8 @@ dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
                                             str_len, format_text(str, str_len));
                     }
                	    break;
+
+                /* XXX - do KRB5_ADDR_IPv6 */
 
                 default:
                     proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos2,
