@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.8 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-prism.c,v 1.9 2002/11/06 21:49:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 #include <epan/packet.h>
 #include "packet-ieee80211.h"
 #include "packet-prism.h"
+#include "packet-wlancap.h"
 
 /* protocol */
 static int proto_prism = -1;
@@ -80,18 +81,40 @@ VALFIELDS(frmlen);
 static gint ett_prism = -1;
 
 static dissector_handle_t ieee80211_handle;
+static dissector_handle_t wlancap_handle;
 
 void
 capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
 {
-    if(!BYTES_ARE_IN_FRAME(offset, len, (int)sizeof(struct prism_hdr))) {
-        ld->other ++;
+    guint32 cookie = 0;
+    guint32 length = 0;
+    if (!BYTES_ARE_IN_FRAME(offset, len, sizeof(guint32) *2 )) {
+        ld->other++;
         return;
     }
-    offset += sizeof(struct prism_hdr);
+
+    cookie = pntohl(pd);
+    length = pntohl(pd+sizeof(guint32));
+
+    /* Handle the new type of capture format */
+    if (cookie == WLANCAP_MAGIC_COOKIE_V1) {
+      if(!BYTES_ARE_IN_FRAME(offset, len, length)) {
+        ld->other++;
+        return;
+      }
+      offset += length;
+    } else {
+      /* We have an old capture format */
+      if(!BYTES_ARE_IN_FRAME(offset, len, (int)sizeof(struct prism_hdr))) {
+        ld->other++;
+        return;
+      }
+      offset += sizeof(struct prism_hdr);
+    }
 
     /* 802.11 header follows */
     capture_ieee80211(pd, offset, len, ld);
+
 }
 
 /*
@@ -119,14 +142,23 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti;
     tvbuff_t *next_tvb;
     int offset;
+    guint32 msgcode;
+
+    offset = 0;
+
+    /* handle the new capture type. */
+    msgcode = tvb_get_ntohl(tvb, offset);
+    if (msgcode == WLANCAP_MAGIC_COOKIE_V1) {
+	    call_dissector(wlancap_handle, tvb, pinfo, tree);
+	    return;
+    }
+      
+    tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
 
     if(check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "Prism");
     if(check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
-
-    offset = 0;
-    tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof hdr);
 
     if(check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %.16s  "
@@ -202,6 +234,7 @@ proto_reg_handoff_prism(void)
 
     /* handle for 802.11 dissector */
     ieee80211_handle = find_dissector("wlan");
+    wlancap_handle = find_dissector("wlancap");
 
     prism_handle = create_dissector_handle(dissect_prism, proto_prism);
     dissector_add("wtap_encap", WTAP_ENCAP_PRISM_HEADER, prism_handle);

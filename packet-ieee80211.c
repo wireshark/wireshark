@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.77 2002/10/31 20:46:00 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.78 2002/11/06 21:49:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1873,7 +1873,7 @@ wlan_defragment_init(void)
 }
 
 void
-proto_register_wlan (void)
+proto_register_ieee80211 (void)
 {
   static const value_string frame_type[] = {
     {MGT_FRAME,     "Management frame"},
@@ -2370,7 +2370,7 @@ proto_register_wlan (void)
 }
 
 void
-proto_reg_handoff_wlan(void)
+proto_reg_handoff_ieee80211(void)
 {
   dissector_handle_t ieee80211_handle;
   dissector_handle_t ieee80211_radio_handle;

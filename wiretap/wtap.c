@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.73 2002/10/31 07:12:42 guy Exp $
+ * $Id: wtap.c,v 1.74 2002/11/06 21:49:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -148,6 +148,10 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_COSINE */
 	{ "CoSine L2 debug log", "cosine" },
+
+	/* WTAP_ENCAP_WLAN_HEADER */
+	{ "IEEE 802.11 plus AVS WLAN monitor header", "wlan" },
+
 };
 
 /* Name that should be somewhat descriptive. */

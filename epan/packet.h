@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.63 2002/10/25 23:23:28 guy Exp $
+ * $Id: packet.h,v 1.64 2002/11/06 21:49:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,8 @@
 /* Check whether the "len" bytes of data starting at "offset" is
  * entirely inside the captured data for this packet. */
 #define	BYTES_ARE_IN_FRAME(offset, captured_len, len) \
-	((offset) + (len) <= (captured_len))
+	((guint)(offset) + (guint)(len) > (guint)(offset) && \
+	 (guint)(offset) + (guint)(len) <= (guint)(captured_len))
 
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
