@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.77 2002/09/08 12:04:42 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.78 2002/09/09 22:11:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -363,6 +363,9 @@ static int hf_dcerpc_opnum = -1;
 static int hf_dcerpc_dg_seqnum = -1;
 static int hf_dcerpc_dg_server_boot = -1;
 static int hf_dcerpc_dg_if_ver = -1;
+static int hf_dcerpc_krb5_av_prot_level = -1;
+static int hf_dcerpc_krb5_av_key_vers_num = -1;
+static int hf_dcerpc_krb5_av_key_auth_verifier = -1;
 static int hf_dcerpc_dg_cancel_vers = -1;
 static int hf_dcerpc_dg_cancel_id = -1;
 static int hf_dcerpc_dg_server_accepting_cancels = -1;
@@ -395,6 +398,7 @@ static gint ett_dcerpc_dg_flags2 = -1;
 static gint ett_dcerpc_pointer_data = -1;
 static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
+static gint ett_decrpc_krb5_auth_verf = -1;
 
 static dissector_handle_t ntlmssp_handle, gssapi_handle;
 
@@ -2618,6 +2622,10 @@ static void
 dissect_dcerpc_dg_auth (tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
                         e_dce_dg_common_hdr_t *hdr, int *auth_level_p)
 {
+    proto_item *ti = NULL;
+    proto_tree *auth_tree = NULL;
+    guint8 protection_level;
+
     /*
      * Initially set "*auth_level_p" to -1 to indicate that we haven't
      * yet seen any authentication level information.
@@ -2634,8 +2642,32 @@ dissect_dcerpc_dg_auth (tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
      * packet body, then dissect the auth info.
      */
     offset += hdr->frag_len;
-    if (tvb_length_remaining(tvb, offset) > 0)
-        proto_tree_add_text (dcerpc_tree, tvb, offset, -1, "Auth data");
+    if (tvb_length_remaining(tvb, offset) > 0) {
+    	switch (hdr->auth_proto) {
+
+        case DCE_C_RPC_AUTHN_PROTOCOL_KRB5:
+            ti = proto_tree_add_text (dcerpc_tree, tvb, offset, -1, "Kerberos authentication verifier");
+            auth_tree = proto_item_add_subtree (ti, ett_decrpc_krb5_auth_verf);
+            protection_level = tvb_get_guint8 (tvb, offset);
+            if (auth_level_p != NULL)
+                *auth_level_p = protection_level;
+            proto_tree_add_uint (auth_tree, hf_dcerpc_krb5_av_prot_level, tvb, offset, 1, protection_level);
+            offset++;
+            proto_tree_add_item (auth_tree, hf_dcerpc_krb5_av_key_vers_num, tvb, offset, 1, FALSE);
+            offset++;
+            if (protection_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY)
+                offset += 6;    /* 6 bytes of padding */
+            else
+                offset += 2;    /* 6 bytes of padding */
+            proto_tree_add_item (auth_tree, hf_dcerpc_krb5_av_key_auth_verifier, tvb, offset, 16, FALSE);
+            offset += 16;
+            break;
+
+    	default:
+            proto_tree_add_text (dcerpc_tree, tvb, offset, -1, "Authentication verifier");
+            break;
+        }
+    }
 }
 
 static void
@@ -2963,6 +2995,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     e_dce_dg_common_hdr_t hdr;
     int offset = 0;
     conversation_t *conv;
+    int auth_level;
 
     /*
      * Check if this looks like a CL DCERPC call.  All dg packets
@@ -3184,11 +3217,12 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         /*
-         * XXX - for Kerberos, we can get a protection level; if it's
+         * XXX - for Kerberos, we get a protection level; if it's
          * DCE_C_AUTHN_LEVEL_PKT_PRIVACY, we can't dissect the
          * stub data.
          */
-        dissect_dcerpc_dg_auth (tvb, offset, dcerpc_tree, &hdr, NULL);
+        dissect_dcerpc_dg_auth (tvb, offset, dcerpc_tree, &hdr,
+                                &auth_level);
     }
 
     /*
@@ -3486,6 +3520,12 @@ proto_register_dcerpc (void)
           { "Server boot time", "dcerpc.dg_server_boot", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_if_ver,
           { "Interface Ver", "dcerpc.dg_if_ver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_krb5_av_prot_level,
+          { "Protection Level", "dcerpc.krb5_av.prot_level", FT_UINT8, BASE_DEC, VALS(authn_level_vals), 0x0, "", HFILL }},
+        { &hf_dcerpc_krb5_av_key_vers_num,
+          { "Key Version Number", "dcerpc.krb5_av.key_vers_num", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_krb5_av_key_auth_verifier,
+          { "Authentication Verifier", "dcerpc.krb5_av.auth_verifier", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_obj_id,
           { "Object", "dcerpc.obj_id", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_if_id,
@@ -3573,6 +3613,7 @@ proto_register_dcerpc (void)
         &ett_dcerpc_pointer_data,
         &ett_dcerpc_fragments,
         &ett_dcerpc_fragment,
+        &ett_decrpc_krb5_auth_verf,
     };
     module_t *dcerpc_module;
 
