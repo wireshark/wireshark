@@ -1,7 +1,7 @@
 /* layout_prefs.c
  * Dialog box for layout preferences
  *
- * $Id: layout_prefs.c,v 1.5 2004/04/30 06:30:13 ulfl Exp $
+ * $Id: layout_prefs.c,v 1.6 2004/04/30 21:32:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,7 +286,7 @@ layout_prefs_show(void)
 		icon_layout_4_xpm, icon_layout_3_xpm, icon_layout_6_xpm };
     GtkWidget ** layout_type_buttons = g_malloc (sizeof(GtkWidget*) * LAYOUT_QTY);
 
-    gint i;
+    int i;
 
 
     /* main vertical box */
@@ -314,7 +314,8 @@ layout_prefs_show(void)
     for (i=0; i<LAYOUT_QTY; ++i)
     {
 	type_tb = gtk_toggle_button_new ();
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(type_tb), (i + 1) == prefs.gui_layout_type);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(type_tb),
+	    (layout_type_e)(i + 1) == prefs.gui_layout_type);
 
 	gtk_container_add (GTK_CONTAINER(type_tb), xpm_to_widget(top_level, inline_txt[i]));
 
