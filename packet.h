@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.15 1998/10/14 04:28:47 gram Exp $
+ * $Id: packet.h,v 1.16 1998/10/14 05:18:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -521,6 +521,7 @@ void dissect_lpd(const u_char *, int, frame_data *, GtkTree *);
 void dissect_nbipx_ns(const u_char *, int, frame_data *, GtkTree *);
 void dissect_nbns(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ncp(const u_char *, int, frame_data *, GtkTree *);
+void dissect_nwlink_dg(const u_char *, int, frame_data *, GtkTree *);
 void dissect_osi(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ospf(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, GtkTree *);

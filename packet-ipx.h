@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.h,v 1.1 1998/09/23 05:25:10 gram Exp $
+ * $Id: packet-ipx.h,v 1.2 1998/10/14 05:18:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -91,3 +91,5 @@ struct ipx_rip_packet
 #define IPX_NODE_LEN (6)
 #endif
 
+gchar*
+ipxnet_to_string(const guint8 *ad);

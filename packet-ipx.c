@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.10 1998/10/14 04:28:48 gram Exp $
+ * $Id: packet-ipx.c,v 1.11 1998/10/14 05:18:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -91,6 +91,8 @@ static struct port_info	ports[] = {
 	{ 0x0455, NULL,				"NetBIOS" },
 	{ 0x0456, NULL,				"Diagnostic" },
 	{ 0x0457, NULL,				"Serialization" },
+	{ 0x0551, NULL,				"NWLink SMB Name Query" },
+	{ 0x0553, dissect_nwlink_dg,"NWLink SMB Datagram" },
 	{ 0x055d, NULL,				"Attachmate Gateway" },
 	{ 0x0000, NULL,				NULL }
 };
@@ -134,7 +136,7 @@ ipx_packet_type(u_char val)
 		return "NCP";
 	}
 	else if (val == 20) {
-		return "NetBIOS Name Packet";
+		return "NetBIOS Broadcast";
 	}
 	else if (val >= 16 && val <= 31) {
 		return "Experimental Protocol";
@@ -224,8 +226,11 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			break;
 
 		case 20: /* NetBIOS */
-			dissect_nbipx_ns(pd, offset, fd, tree);
-			break;
+			if (dsocket == 0x0455) {
+				dissect_nbipx_ns(pd, offset, fd, tree);
+				break;
+			}
+			/* else fall through */
 
 		case 0: /* IPX, fall through to default */
 		default:
