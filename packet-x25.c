@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.42 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-x25.c,v 1.43 2001/01/03 23:30:50 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,6 +91,8 @@
 #define X25_FAC_PRIORITY		0xD2
 
 static int proto_x25 = -1;
+static int hf_x25_gfi = -1;
+static int hf_x25_abit = -1;
 static int hf_x25_qbit = -1;
 static int hf_x25_dbit = -1;
 static int hf_x25_mod = -1;
@@ -100,6 +102,8 @@ static int hf_x25_p_r = -1;
 static int hf_x25_mbit = -1;
 static int hf_x25_p_s = -1;
 static int proto_ex25 = -1;
+static int hf_ex25_gfi = -1;
+static int hf_ex25_abit = -1;
 static int hf_ex25_qbit = -1;
 static int hf_ex25_dbit = -1;
 static int hf_ex25_mod = -1;
@@ -110,6 +114,7 @@ static int hf_ex25_mbit = -1;
 static int hf_ex25_p_s = -1;
 
 static gint ett_x25 = -1;
+static gint ett_x25_gfi = -1;
 static gint ett_x25_fac = -1;
 static gint ett_x25_fac_unknown = -1;
 static gint ett_x25_fac_mark = -1;
@@ -1391,7 +1396,8 @@ static const value_string sharing_strategy_vals[] = {
 void
 dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *x25_tree=0, *ti;
+    proto_tree *x25_tree=0, *gfi_tree=0;
+    proto_item *ti;
     int localoffset=0;
     int x25_pkt_len;
     int modulo;
@@ -1432,24 +1438,37 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb_length(tvb), "Invalid/short X.25 packet");
 	return;
     }
+
+    pkt_type = tvb_get_guint8(tvb, 2);
+
     if (tree) {
 	ti = proto_tree_add_protocol_format(tree,
 		(modulo == 8) ? proto_x25 : proto_ex25, tvb, 0, x25_pkt_len,
 		"X.25");
 	x25_tree = proto_item_add_subtree(ti, ett_x25);
-	if (bytes0_1 & 0x8000)
-	    proto_tree_add_boolean(x25_tree,
+	ti = proto_tree_add_item(x25_tree,
+		(modulo == 8) ? hf_x25_gfi : hf_ex25_gfi, tvb, 0, 2, FALSE);
+	gfi_tree = proto_item_add_subtree(ti, ett_x25_gfi);
+	if ((pkt_type & 0x01) == X25_DATA)
+	    proto_tree_add_boolean(gfi_tree,
 		    (modulo == 8) ? hf_x25_qbit : hf_ex25_qbit, tvb, 0, 2,
 		    bytes0_1);
-	if (bytes0_1 & 0x4000)
-	    proto_tree_add_boolean(x25_tree,
+	else if (pkt_type == X25_CALL_REQUEST ||
+		pkt_type == X25_CALL_ACCEPTED ||
+		pkt_type == X25_CLEAR_REQUEST ||
+		pkt_type == X25_CLEAR_CONFIRMATION)
+	    proto_tree_add_boolean(gfi_tree,
+		    (modulo == 8) ? hf_x25_abit : hf_ex25_abit, tvb, 0, 2,
+		    bytes0_1);
+	if (pkt_type == X25_CALL_REQUEST || pkt_type == X25_CALL_ACCEPTED ||
+		(pkt_type & 0x01) == X25_DATA)
+	    proto_tree_add_boolean(gfi_tree,
 		    (modulo == 8) ? hf_x25_dbit : hf_ex25_dbit, tvb, 0, 2,
 		    bytes0_1);
-	proto_tree_add_uint(x25_tree, (modulo == 8) ? hf_x25_mod : hf_ex25_mod,
+	proto_tree_add_uint(gfi_tree, (modulo == 8) ? hf_x25_mod : hf_ex25_mod,
 		tvb, 0, 2, bytes0_1);
     }
 
-    pkt_type = tvb_get_guint8(tvb, 2);
     switch (pkt_type) {
     case X25_CALL_REQUEST:
 	if (check_col(pinfo->fd, COL_INFO))
@@ -1941,60 +1960,73 @@ void
 proto_register_x25(void)
 {
     static hf_register_info hf8[] = {
+	{ &hf_x25_gfi,
+	  { "GFI", "x.25.gfi", FT_UINT16, BASE_BIN, NULL, 0xF000,
+	  	"General format identifier" } },
+	{ &hf_x25_abit,
+	  { "A Bit", "x.25.a", FT_BOOLEAN, 16, NULL, 0x8000,
+	  	"Address Bit" } },
 	{ &hf_x25_qbit,
-	  { "Q Bit", "x25.q", FT_BOOLEAN, 16, NULL, 0x8000,
+	  { "Q Bit", "x.25.q", FT_BOOLEAN, 16, NULL, 0x8000,
 	  	"Qualifier Bit" } },
 	{ &hf_x25_dbit,
-	  { "D Bit", "x25.d", FT_BOOLEAN, 16, NULL, 0x4000,
+	  { "D Bit", "x.25.d", FT_BOOLEAN, 16, NULL, 0x4000,
 	  	"Delivery Confirmation Bit" } },
 	{ &hf_x25_mod,
-	  { "Modulo", "x25.mod", FT_UINT16, BASE_DEC, VALS(vals_modulo), 0x3000,
+	  { "Modulo", "x.25.mod", FT_UINT16, BASE_DEC, VALS(vals_modulo), 0x3000,
 	  	"Specifies whether the frame is modulo 8 or 128" } },
 	{ &hf_x25_lcn,
-	  { "Logical Channel", "x25.lcn", FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+	  { "Logical Channel", "x.25.lcn", FT_UINT16, BASE_DEC, NULL, 0x0FFF,
 	  	"Logical Channel Number" } },
 	{ &hf_x25_type,
-	  { "Packet Type", "x25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x0,
+	  { "Packet Type", "x.25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x0,
 	  	"Packet Type" } },
 	{ &hf_x25_p_r,
-	  { "P(R)", "x25.p_r", FT_UINT8, BASE_HEX, NULL, 0xE0,
+	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_HEX, NULL, 0xE0,
 	  	"Packet Receive Sequence Number" } },
 	{ &hf_x25_mbit,
-	  { "M Bit", "x25.m", FT_BOOLEAN, 8, NULL, 0x10,
+	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, NULL, 0x10,
 	  	"More Bit" } },
 	{ &hf_x25_p_s,
-	  { "P(S)", "x25.p_s", FT_UINT8, BASE_HEX, NULL, 0x0E,
+	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_HEX, NULL, 0x0E,
 	  	"Packet Send Sequence Number" } },
     };
 
     static hf_register_info hf128[] = {
+	{ &hf_ex25_gfi,
+	  { "GFI", "ex.25.gfi", FT_UINT16, BASE_BIN, NULL, 0xF000,
+	  	"General format identifier" } },
+	{ &hf_ex25_abit,
+	  { "A Bit", "ex.25.a", FT_BOOLEAN, 16, NULL, 0x8000,
+	  	"Address Bit" } },
 	{ &hf_ex25_qbit,
-	  { "Q Bit", "ex25.q", FT_BOOLEAN, 16, NULL, 0x8000,
+	  { "Q Bit", "ex.25.q", FT_BOOLEAN, 16, NULL, 0x8000,
 	  	"Qualifier Bit" } },
 	{ &hf_ex25_dbit,
-	  { "D Bit", "ex25.d", FT_BOOLEAN, 16, NULL, 0x4000,
+	  { "D Bit", "ex.25.d", FT_BOOLEAN, 16, NULL, 0x4000,
 	  	"Delivery Confirmation Bit" } },
 	{ &hf_ex25_mod,
-	  { "Modulo", "ex25.mod", FT_UINT16, BASE_DEC, VALS(vals_modulo), 0x3000,
+	  { "Modulo", "ex.25.mod", FT_UINT16, BASE_DEC, VALS(vals_modulo), 0x3000,
 	  	"Specifies whether the frame is modulo 8 or 128" } },
 	{ &hf_ex25_lcn,
-	  { "Logical Channel", "ex25.lcn", FT_UINT16, BASE_HEX, NULL, 0x0FFF,
+	  { "Logical Channel", "ex.25.lcn", FT_UINT16, BASE_HEX, NULL, 0x0FFF,
 	  	"Logical Channel Number" } },
 	{ &hf_ex25_type,
-	  { "Packet Type", "ex25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x0,
+	  { "Packet Type", "ex.25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x0,
 	  	"Packet Type" } },
 	{ &hf_ex25_p_r,
-	  { "P(R)", "ex25.p_r", FT_UINT8, BASE_HEX, NULL, 0xFE,
+	  { "P(R)", "ex.25.p_r", FT_UINT8, BASE_HEX, NULL, 0xFE,
 	  	"Packet Receive Sequence Number" } },
 	{ &hf_ex25_mbit,
-	  { "M Bit", "ex25.m", FT_BOOLEAN, 8, NULL, 0x01,
+	  { "M Bit", "ex.25.m", FT_BOOLEAN, 8, NULL, 0x01,
 	  	"More Bit" } },
 	{ &hf_ex25_p_s,
-	  { "P(S)", "ex25.p_s", FT_UINT8, BASE_HEX, NULL, 0xFE,
+	  { "P(S)", "ex.25.p_s", FT_UINT8, BASE_HEX, NULL, 0xFE,
 	  	"Packet Send Sequence Number" } },
     };
     static gint *ett[] = {
         &ett_x25,
+	&ett_x25_gfi,
 	&ett_x25_fac,
 	&ett_x25_fac_unknown,
 	&ett_x25_fac_mark,
