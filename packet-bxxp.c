@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.4 2000/10/02 01:44:58 sharpe Exp $
+ * $Id: packet-bxxp.c,v 1.5 2000/10/03 10:59:10 sharpe Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -291,76 +291,6 @@ int num_len(tvbuff_t *tvb, int offset)
 
 }
 
-/* Get the MIME header length */
-int header_len(tvbuff_t *tvb, int offset)
-{
-  int i = 0;
-
-  while (tvb_get_guint8(tvb, offset + i) != 0x0d 
-	 && tvb_get_guint8(tvb, offset + i + 1) != 0x0a) i++;
-
-  return i;
-
-}
-
-int
-dissect_bxxp_mime_header(tvbuff_t *tvb, int offset, frame_data *fd,
-			 proto_tree *tree)
-{
-  proto_tree    *ti = NULL, *mime_tree = NULL;
-  int           mime_length = header_len(tvb, offset);
-
-  if (tree) {
-    ti = proto_tree_add_text(tree, tvb, offset, mime_length + 2, "Mime header: %s", tvb_format_text(tvb, offset, mime_length + 2));
-    mime_tree = proto_item_add_subtree(ti, ett_mime_header);
-  }
-
-  if (mime_length == 0) { /* Default header */
-
-    if (tree) {
-    proto_tree_add_text(mime_tree, tvb, offset, 2, "Default values");
-    }
-
-  }
-  else {  /* FIXME: Process the headers */
-
-
-  }
-
-  return mime_length + 2;  /* FIXME: Check that the CRLF is there */
-
-}
-
-int
-dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
-		    proto_tree *tree, int hf, int *val, int *hfa[])
-{
-  int ival, ind = 0, i = num_len(tvb, offset);
-  guint8 int_buff[100];
-
-  memset(int_buff, '\0', sizeof(int_buff));
-
-  tvb_memcpy(tvb, int_buff, offset, MIN(sizeof(int_buff), i));
-
-  sscanf(int_buff, "%d", &ival);  /* FIXME: Dangerous */
-
-  if (tree) {
-    proto_tree_add_uint(tree, hf, tvb, offset, i, ival);
-  }
-
-  while (hfa[ind]) {
-
-    proto_tree_add_uint_hidden(tree, *hfa[ind], tvb, offset, i, ival);
-    ind++;
-
-  }
-
-  *val = ival;  /* Return the value */
-
-  return i;
-
-}
-
 /*
  * We check for a terminator. This can be CRLF, which will be recorded
  * as a terminator, or CR or LF by itself, which will be redorded as
@@ -369,7 +299,7 @@ dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
  */ 
 
 int 
-check_term(tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree)
+check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 
   /* First, check for CRLF, or, if global_bxxp_strict_term is false, 
@@ -413,6 +343,112 @@ check_term(tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree)
     return -1;
 
   }
+
+}
+
+/* Get the MIME header length */
+int header_len(tvbuff_t *tvb, int offset)
+{
+  int i = 0;
+  guint8 sc;
+
+  /* FIXME: Have to make sure we stop looking at the end of the tvb ... */
+
+  /* We look for CRLF, or CR or LF if global_bxxp_strict_term is 
+   * not set.
+   */
+
+  while (1) {
+
+    if (tvb_length_remaining(tvb, offset + i) < 1)
+      return i;   /* Not enough characters left ... */
+
+    if ((sc = tvb_get_guint8(tvb, offset + i)) == 0x0d 
+	&& tvb_get_guint8(tvb, offset + i + 1) == 0x0a)
+      return i;   /* Done here ... */
+
+    if (!global_bxxp_strict_term && (sc == 0x0d || sc == 0x0a))
+      return i;   /* Done here also ... */
+	  
+    i++;
+
+  }
+}
+
+int
+dissect_bxxp_mime_header(tvbuff_t *tvb, int offset, frame_data *fd,
+			 proto_tree *tree)
+{
+  proto_tree    *ti = NULL, *mime_tree = NULL;
+  int           mime_length = header_len(tvb, offset), cc = 0;
+
+  if (tree) {
+
+    /* FIXME: Should calculate the whole length of the mime headers */
+
+    ti = proto_tree_add_text(tree, tvb, offset, mime_length, "Mime header: %s", tvb_format_text(tvb, offset, mime_length));
+    mime_tree = proto_item_add_subtree(ti, ett_mime_header);
+  }
+
+  if (mime_length == 0) { /* Default header */
+
+    if (tree) {
+      proto_tree_add_text(mime_tree, tvb, offset, 0, "Default values");
+    }
+
+    if ((cc = check_term(tvb, offset, mime_tree)) <= 0) {
+
+      /* Ignore it, it will cause funnies in the rest of the dissect */
+
+    }
+
+  }
+  else {  /* FIXME: Process the headers */
+
+    if (tree) {
+      proto_tree_add_text(mime_tree, tvb, offset, mime_length, "Header: %s", 
+			  tvb_format_text(tvb, offset, mime_length));
+    }
+
+    if ((cc = check_term(tvb, offset + mime_length, mime_tree)) <= 0) {
+
+      /* Ignore it, it will cause funnies in the rest of the dissect */
+
+    }
+
+  }
+
+  return mime_length + cc;  /* FIXME: Check that the CRLF is there */
+
+}
+
+int
+dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
+		    proto_tree *tree, int hf, int *val, int *hfa[])
+{
+  int ival, ind = 0, i = num_len(tvb, offset);
+  guint8 int_buff[100];
+
+  memset(int_buff, '\0', sizeof(int_buff));
+
+  tvb_memcpy(tvb, int_buff, offset, MIN(sizeof(int_buff), i));
+
+  sscanf(int_buff, "%d", &ival);  /* FIXME: Dangerous */
+
+  if (tree) {
+    proto_tree_add_uint(tree, hf, tvb, offset, i, ival);
+  }
+
+  while (hfa[ind]) {
+
+    proto_tree_add_uint_hidden(tree, *hfa[ind], tvb, offset, i, ival);
+    ind++;
+
+  }
+
+  *val = ival;  /* Return the value */
+
+  return i;
 
 }
 
@@ -497,7 +533,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_channel, &channel, req_chan_hfa);
       
-    if ((cc = check_term(tvb, offset, pinfo->fd, hdr)) <= 0) {
+    if ((cc = check_term(tvb, offset, hdr)) <= 0) {
 
       /* We dissect the rest as data and bail ... */
 
@@ -611,7 +647,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset += 1;
 
-    if ((cc = check_term(tvb, offset, pinfo->fd, hdr)) <= 0) {
+    if ((cc = check_term(tvb, offset, hdr)) <= 0) {
 
       /* We dissect the rest as data and bail ... */
 
@@ -691,7 +727,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_window, &window, seq_window_hfa);
 
-    if ((cc = check_term(tvb, offset, pinfo->fd, tree)) <= 0) {
+    if ((cc = check_term(tvb, offset, tree)) <= 0) {
 
       /* We dissect the rest as data and bail ... */
 
@@ -727,7 +763,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset += 3;
 
-    if ((cc = check_term(tvb, offset, pinfo->fd, tr)) <= 0) {
+    if ((cc = check_term(tvb, offset, tr)) <= 0) {
 
       /* We dissect the rest as data and bail ... */
 
