@@ -1002,6 +1002,7 @@ B<http://www.ethereal.com>.
   Neil Hunter              <neil.hunter@energis-squared.com>
   Ralf Holzer              <ralf@well.com>
   Craig Rodrigues          <rodrigc@mediaone.net>
+  Ed Warnicke              <hagbard@physics.rutgers.edu>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

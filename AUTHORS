@@ -430,6 +430,10 @@ Craig Rodrigues <rodrigc@mediaone.net> {
 	GIOP 1.2 support and other GIOP enhancements
 }
 
+Ed Warnicke <hagbard@physics.rutgers.edu> {
+	MGCP dissector plugin
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
