@@ -1,7 +1,7 @@
 /* frame_data.h
  * Definitions for frame_data structures and routines
  *
- * $Id: frame_data.h,v 1.7 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: frame_data.h,v 1.8 2003/07/08 05:29:42 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,7 @@ typedef struct {
 
 extern void p_add_proto_data(frame_data *, int, void *);
 extern void *p_get_proto_data(frame_data *, int);
+extern void p_rem_proto_data(frame_data *fd, int proto);
 
 /* An init routine to be called by epan_init */
 extern void frame_data_init(void);

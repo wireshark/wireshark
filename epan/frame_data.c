@@ -1,7 +1,7 @@
 /* frame_data.c
  * Routines for packet disassembly
  *
- * $Id: frame_data.c,v 1.4 2002/11/27 22:44:41 guy Exp $
+ * $Id: frame_data.c,v 1.5 2003/07/08 05:29:42 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -142,12 +142,6 @@ p_rem_proto_data(frame_data *fd, int proto)
   item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
 
   if (item) {
-
-    fd->pfd = g_slist_remove(fd->pfd, item);
-
+    fd->pfd = g_slist_remove(fd->pfd, item->data);
   }
-
 }
-
-
-
