@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.5 2004/03/25 23:57:09 guy Exp $
+ * $Id: packet-ber.c,v 1.6 2004/03/26 00:21:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,7 +100,7 @@ static const value_string ber_uni_tag_codes[] = {
 	{ BER_UNI_TAG_GeneralizedTime	, "GeneralizedTime" },
 	{ BER_UNI_TAG_GraphicString	, "GraphicString" },
 	{ BER_UNI_TAG_VisibleString	, "VisibleString, ISO64String" },
-	{ BER_UNI_TAG_GenerealString	, "GenerealString" },
+	{ BER_UNI_TAG_GeneralString	, "GeneralString" },
 	{ BER_UNI_TAG_UniversalString	, "UniversalString" },
 	{ BER_UNI_TAG_CHARACTERSTRING	, "CHARACTER STRING" },
 	{ BER_UNI_TAG_BMPString		, "BMPString" },
@@ -604,7 +604,7 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 {
 	tvbuff_t *out_tvb;
 
-	offset = dissect_ber_restricted_string(FALSE, BER_UNI_TAG_GenerealString, pinfo, tree, tvb, offset, hf_id, (name_string)?&out_tvb:NULL);
+	offset = dissect_ber_restricted_string(FALSE, BER_UNI_TAG_GeneralString, pinfo, tree, tvb, offset, hf_id, (name_string)?&out_tvb:NULL);
 
 	if (name_string) {
 		if (tvb_length(out_tvb) >= name_len) {

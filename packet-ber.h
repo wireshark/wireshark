@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.h,v 1.4 2004/03/25 23:57:10 guy Exp $
+ * $Id: packet-ber.h,v 1.5 2004/03/26 00:21:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,31 +34,31 @@ typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 #define BER_CLASS_PRI	3
 
 
-#define BER_UNI_TAG_EOC					 0	/* 'end-of-content' */
-#define BER_UNI_TAG_BOOLEAN				 1
-#define BER_UNI_TAG_INTEGER				 2
-#define BER_UNI_TAG_BITSTRING			 3
-#define BER_UNI_TAG_OCTETSTRING			 4
-#define BER_UNI_TAG_NULL				 5
-#define BER_UNI_TAG_OID			 		 6	/* OBJECT IDENTIFIER */
-#define BER_UNI_TAG_ObjectDescriptor	 7
-#define BER_UNI_TAG_REAL				 9
-#define BER_UNI_TAG_ENUMERATED			10
-#define BER_UNI_TAG_EMBEDDED_PDV		11
-#define BER_UNI_TAG_UTF8String			12
-#define BER_UNI_TAG_RELATIVE_OID		13
-#define BER_UNI_TAG_SEQUENCE			16	/* SEQUENCE, SEQUENCE OF */
-#define BER_UNI_TAG_SET					17	/* SET, SET OF */
+#define BER_UNI_TAG_EOC			     0	/* 'end-of-content' */
+#define BER_UNI_TAG_BOOLEAN		     1
+#define BER_UNI_TAG_INTEGER		     2
+#define BER_UNI_TAG_BITSTRING		     3
+#define BER_UNI_TAG_OCTETSTRING		     4
+#define BER_UNI_TAG_NULL		     5
+#define BER_UNI_TAG_OID			     6	/* OBJECT IDENTIFIER */
+#define BER_UNI_TAG_ObjectDescriptor	     7
+#define BER_UNI_TAG_REAL		     9
+#define BER_UNI_TAG_ENUMERATED		    10
+#define BER_UNI_TAG_EMBEDDED_PDV	    11
+#define BER_UNI_TAG_UTF8String		    12
+#define BER_UNI_TAG_RELATIVE_OID	    13
+#define BER_UNI_TAG_SEQUENCE		    16	/* SEQUENCE, SEQUENCE OF */
+#define BER_UNI_TAG_SET			    17	/* SET, SET OF */
 #define BER_UNI_TAG_NumericString	    18
 #define BER_UNI_TAG_PrintableString	    19
 #define BER_UNI_TAG_TeletextString	    20  /* TeletextString, T61String */
 #define BER_UNI_TAG_VideotexString	    21
 #define BER_UNI_TAG_IA5String		    22
-#define BER_UNI_TAG_UCTTime			    23
-#define BER_UNI_TAG_GeneralizedTime		24
+#define BER_UNI_TAG_UCTTime		    23
+#define BER_UNI_TAG_GeneralizedTime	    24
 #define BER_UNI_TAG_GraphicString	    25
 #define BER_UNI_TAG_VisibleString	    26  /* VisibleString, ISO64String */
-#define BER_UNI_TAG_GenerealString	    27
+#define BER_UNI_TAG_GeneralString	    27
 #define BER_UNI_TAG_UniversalString	    28
 #define BER_UNI_TAG_CHARACTERSTRING	    29
 #define BER_UNI_TAG_BMPString		    30
@@ -86,8 +86,8 @@ extern int dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 #define BER_FLAGS_OPTIONAL	0x00000001
 #define BER_FLAGS_IMPLTAG	0x00000002
-#define BER_FLAGS_NOOWNTAG  0x00000004
-#define BER_FLAGS_NOTCHKTAG 0x00000008
+#define BER_FLAGS_NOOWNTAG	0x00000004
+#define BER_FLAGS_NOTCHKTAG	0x00000008
 typedef struct _ber_sequence {
 	guint8	class;
 	guint32	tag;
