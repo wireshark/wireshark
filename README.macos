@@ -1,4 +1,4 @@
-$Id: README.macos,v 1.3 2004/03/21 19:04:44 jmayer Exp $
+$Id: README.macos,v 1.4 2004/03/21 22:55:59 guy Exp $
 
 This file tries to help building Ethereal for Mac OS X (Ethereal does
 not work on earlier versions of Mac OS).
@@ -28,11 +28,20 @@ following:
 pcap-util.c: In function `get_interface_list_findalldevs':
 pcap-util.c:195: error: `pcap_if_t' undeclared (first use in this function)
 
-On first sight, it seems that Mac OS X 10.3.2 ships with a weird version of
-libpcap that includes pcap_findalldevs, but no definition for pcap_if_t.
-As it turns out, this isn't true. 10.3.2 ships with an 0.6[.x]-derived
-libpcap that doesn't include "pcap_findalldevs()". The problem is caused
-by a Security Update - it updates the libpcap dylib to 0.8.1, but doesn't
+On first sight, it would appear that Mac OS X 10.x ships with a weird
+version of libpcap that includes pcap_findalldevs, but no definition for
+pcap_if_t.
+
+As it turns out, this isn't true for Mac OS X 10.3 through 10.3.2; they
+ships with an 0.6[.x]-derived libpcap that doesn't include
+"pcap_findalldevs()".  The problem in those releases is caused by a
+Security Update - it updates the libpcap dylib to 0.8.1, but doesn't
 update the header files (or the man page - and also doesn't update the
-tcpdump man page to 3.8.1). As a workaround, install pcap.h, pcap-bpf.h
-and pcap-stdinc.h from libpcap 0.8.1 in "/usr/include".
+tcpdump man page to 3.8.1).
+
+In addition, the Software Update to 10.3.3 and later will update the
+libpcap dylib but not the header files.  If systems come pre-installed
+with 10.3.3, they might have the correct header files (and man pages).
+
+As a workaround, install pcap.h, pcap-bpf.h and pcap-stdinc.h from
+tcpdump.org's libpcap 0.8.1 in "/usr/include".
