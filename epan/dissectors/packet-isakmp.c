@@ -155,7 +155,7 @@ static gboolean get_num(tvbuff_t *, int, guint16, guint32 *);
 #define	LOAD_TYPE_TRANSFORM	3	/* payload type for Transform */
 
 struct payload_func {
-  gint8 type;
+  guint8 type;
   const char *	str;
   void (*func)(tvbuff_t *, int, int, proto_tree *, packet_info *, int);
 };
@@ -1651,8 +1651,8 @@ static void
 dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo _U_, int unused _U_)
 {
-  guint8	num, tstype, protocol_id, len, addrlen;
-  guint16	port;
+  guint8	num, tstype, protocol_id, addrlen;
+  guint16	len, port;
 
   proto_tree_add_text(tree, tvb, offset, length, "Traffic Selector");
 

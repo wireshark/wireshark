@@ -360,11 +360,11 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
         available = tvb_reported_length_remaining(tvb, offset);
         if (available < (int)content_length) {
-            needed = available - content_length;
+            needed = available - (int)content_length;
             break;
         }
 
-        offset += content_length;
+        offset += (int)content_length;
 
         break;
     }
@@ -404,7 +404,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, jxta_udp_tree, &content_length, &content_type);
         tree_offset += processed;
 
-        jxta_message_tvb = tvb_new_subset(tvb, tree_offset, content_length, content_length);
+        jxta_message_tvb = tvb_new_subset(tvb, tree_offset, (gint) content_length, (gint) content_length);
         dissected = dissector_try_string(media_type_dissector_table, content_type, jxta_message_tvb, pinfo, jxta_udp_tree);
         g_free((char *)content_type);
 
@@ -413,7 +413,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
             call_dissector(data_handle, jxta_message_tvb, pinfo, jxta_udp_tree);
         }
 
-        tree_offset += content_length;
+        tree_offset += (int)content_length;
 
         proto_item_set_end(jxta_udp_tree_item, tvb, tree_offset);
 
@@ -471,7 +471,7 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
                 available = tvb_reported_length_remaining(tvb, msg_offset);
                 if (available >= (int)content_length) {
-                    tvbuff_t *jxta_message_tvb = tvb_new_subset(tvb, msg_offset, content_length, content_length);
+                    tvbuff_t *jxta_message_tvb = tvb_new_subset(tvb, msg_offset, (gint)content_length, (gint)content_length);
 
                     if (check_col(pinfo->cinfo, COL_INFO)) {
                         col_set_str(pinfo->cinfo, COL_INFO, "Message");
@@ -486,9 +486,9 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
                         call_dissector(data_handle, jxta_message_tvb, pinfo, tree);
                     }
 
-                    processed += content_length;
+                    processed += (int)content_length;
                 } else {
-                    processed = available - content_length;
+                    processed = available - (int)content_length;
                 }
 
                 g_free((char *)content_type);
@@ -863,7 +863,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             g_free((char *)namespaces[each_namespace]);
         }
 
-        g_free(namespaces);
+        g_free((char *)namespaces);
 
         proto_item_set_end(jxta_msg_tree_item, tvb, tree_offset);
 
