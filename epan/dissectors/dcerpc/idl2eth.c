@@ -1501,6 +1501,17 @@ void parsetypedefstruct(int pass)
 			    FPRINTF(eth_code, "\n");
 			    ptmpstr=strdup(tmpstr);
 			    break;
+			  case BI_LENGTH_IS:
+			    sprintf(tmpstr, "uvarray_%s", ptmpstr);
+			    FPRINTF(eth_code, "static int\n");
+			    FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+			    FPRINTF(eth_code, "{\n");
+			    FPRINTF(eth_code, "    offset=dissect_ndr_uvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
+			    FPRINTF(eth_code, "    return offset;\n");
+			    FPRINTF(eth_code, "}\n");
+			    FPRINTF(eth_code, "\n");
+			    ptmpstr=strdup(tmpstr);
+			    break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
 			    sprintf(tmpstr, "ucvarray_%s", ptmpstr);
 			    FPRINTF(eth_code, "static int\n");
@@ -1557,6 +1568,10 @@ void parsetypedefstruct(int pass)
 			    break;
 			  case BI_SIZE_IS:
 			    sprintf(tmpstr, "ucarray_%s", ptmpstr);
+			    ptmpstr=strdup(tmpstr);
+			    break;
+			  case BI_LENGTH_IS:
+			    sprintf(tmpstr, "uvarray_%s", ptmpstr);
 			    ptmpstr=strdup(tmpstr);
 			    break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
