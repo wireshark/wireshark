@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: osi-utils.c,v 1.13 2003/09/10 06:48:55 guy Exp $
+ * $Id: osi-utils.c,v 1.14 2003/11/20 19:05:40 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -81,7 +81,7 @@ print_system_id( const guint8 *ad, int length )
   gchar        *cur;
 
   cur = str;
-  print_nsap_net_buf( ad, length, cur );
+  print_system_id_buf(ad, length, cur );
   return( cur );
 }
 
