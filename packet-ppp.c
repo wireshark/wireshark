@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.45 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-ppp.c,v 1.46 2000/12/03 09:59:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1108,7 +1108,7 @@ dissect_payload_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   dissect_ppp_stuff(tvb, pinfo, tree, fh_tree);
 }
 
-void
+static void
 dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   e_ppphdr   ph;
   proto_item *ti;
