@@ -151,7 +151,6 @@ EXTRA_DIST = \
 
 SUBDIRS = wiretap @SUBDIRS@
 
-ethereal.1: doc/ethereal.pod VERSION
+ethereal.1: ethereal doc/ethereal.pod.template VERSION
 	(cd doc ; \
 	make ../ethereal.1 )
-

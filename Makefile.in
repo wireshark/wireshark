@@ -611,7 +611,7 @@ ps.c: print.ps rdps
 rdps: rdps.c
 	$(CC) -o rdps rdps.c
 
-ethereal.1: doc/ethereal.pod VERSION
+ethereal.1: ethereal doc/ethereal.pod.template VERSION
 	(cd doc ; \
 	make ../ethereal.1 )
 
