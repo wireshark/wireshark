@@ -70,8 +70,9 @@ XPStyle on
 ; the file's extension. "README.win32" won't work in most cases, because extension "win32" 
 ; is usually not associated with an appropriate text editor. We should use extension "txt" 
 ; for a text file or "html" for an html README file.  
-;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\help\overview.txt"
-;!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
+!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 
 ; ============================================================================
 ; MUI Pages
@@ -96,6 +97,36 @@ XPStyle on
 !insertmacro MUI_LANGUAGE "English"
 
 !endif ; MAKENSIS_MODERN_UI
+
+; ============================================================================
+; Section macros
+; ============================================================================
+!include "Sections.nsh"
+
+; ========= Macro to unselect and disable a section =========
+
+!macro DisableSection SECTION
+
+  Push $0
+    SectionGetFlags "${SECTION}" $0
+    IntOp $0 $0 & ${SECTION_OFF}
+    IntOp $0 $0 | ${SF_RO}
+    SectionSetFlags "${SECTION}" $0
+  Pop $0
+
+!macroend
+
+; ========= Macro to enable (unreadonly) a section =========
+!define SECTION_ENABLE   0xFFFFFFEF
+!macro EnableSection SECTION
+
+  Push $0
+    SectionGetFlags "${SECTION}" $0
+    IntOp $0 $0 & ${SECTION_ENABLE}
+    SectionSetFlags "${SECTION}" $0
+  Pop $0
+
+!macroend
 
 ; ============================================================================
 ; License page configuration
@@ -232,6 +263,7 @@ File "..\..\README"
 File "..\..\README.win32"
 File "..\..\AUTHORS-SHORT"
 File "..\..\COPYING"
+File /oname=NEWS.txt "..\..\NEWS"
 File "..\..\manuf"
 File "..\..\doc\ethereal.html"
 File "..\..\doc\ethereal-filter.html"
@@ -308,10 +340,8 @@ SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\immodules
 File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_INST_VERSION}.0\immodules\im-*.dll"
 SetOutPath $INSTDIR\lib\pango\${PANGO_INST_VERSION}.0\modules
 File "${GTK2_DIR}\lib\pango\${PANGO_INST_VERSION}.0\modules\pango-*.dll"
-
 SectionEnd
-!endif
-
+ 
 !ifdef GTK_WIMP_DIR
 Section "GTK-Wimp" SecGTKWimp
 ;-------------------------------------------
@@ -319,8 +349,8 @@ SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\engines
 File "${GTK_WIMP_DIR}\libwimp.dll"
 SetOutPath $INSTDIR\share\themes\Default\gtk-2.0
 File "${GTK_WIMP_DIR}\Theme\gtk-2.0\gtkrc"
-
 SectionEnd
+!endif
 !endif
 
 Section "Tethereal" SecTethereal
@@ -586,6 +616,7 @@ Delete "$INSTDIR\COPYING"
 Delete "$INSTDIR\AUTHORS-SHORT"
 Delete "$INSTDIR\README*"
 Delete "$INSTDIR\FAQ"
+Delete "$INSTDIR\NEWS.txt"
 Delete "$INSTDIR\manuf"
 Delete "$INSTDIR\pcrepattern.3.txt"
 Delete "$SMPROGRAMS\Ethereal\*.*"
@@ -628,7 +659,6 @@ NoFinalErrorMsg:
 
 SectionEnd
 
-
 !ifdef MAKENSIS_MODERN_UI
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !ifdef GTK1_DIR
@@ -636,10 +666,10 @@ SectionEnd
 !endif  
 !ifdef GTK2_DIR  
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK2} "${PROGRAM_NAME} is a GUI network protocol analyzer (using the modern GTK2 GUI toolkit)."
-!endif  
 !ifdef GTK_WIMP_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTKWimp is the GTK2 windows impersonator (native Win32 look and feel)."
 !endif  
+!endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a network protocol analyzer."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
@@ -656,10 +686,26 @@ SectionEnd
 ; ============================================================================
 ; Callback functions
 ; ============================================================================
-; We simulate the XOR operator
 !ifdef GTK1_DIR & GTK2_DIR
+;Disable GTK-Wimp for GTK1
+Function .onSelChange
+	Push $0
+	SectionGetFlags ${SecEtherealGTK1} $0
+	IntOp  $0 $0 & 1
+	IntCmp $0 1 onSelChange.disableGTK2Sections
+	;enable GTK2Sections
+	!insertmacro EnableSection ${SecGTKWimp}
+	Goto onSelChange.end
+onSelChange.disableGTK2Sections:
+	!insertmacro DisableSection ${SecGTKWimp}
+	Goto onSelChange.end
+onSelChange.end:
+	Pop $0
+FunctionEnd	
+
 !else
 !ifdef GTK1_DIR | GTK2_DIR
+; Disable FileExtension if Ethereal isn't selected
 Function .onSelChange
 	Push $0
 !ifdef GTK1_DIR
