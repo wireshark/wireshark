@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.12 2001/07/13 07:04:23 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.13 2001/07/20 07:11:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -540,7 +540,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	int namelen;
 	guint8 server_count;
 	int i;
-	guint32 criterion;
 	guint32 uptime;
 
 	if (!proto_is_protocol_enabled(proto_smb_browse)) {

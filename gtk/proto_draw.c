@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.36 2001/07/09 22:54:15 guy Exp $
+ * $Id: proto_draw.c,v 1.37 2001/07/20 07:11:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,8 +188,6 @@ collapse_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data)
 static void
 toggle_tree(GtkCTree *ctree, GdkEventKey *event, gpointer user_data)
 {
-	GtkCTreeNode *node;
-
 	if (event->keyval != GDK_Return)
 		return;
 	gtk_ctree_toggle_expansion(ctree, GTK_CTREE_NODE(ctree->clist.selection->data));

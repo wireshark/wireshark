@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.139 2001/06/29 09:46:52 guy Exp $
+ * $Id: packet-ip.c,v 1.140 2001/07/20 07:11:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -793,7 +793,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti, *tf;
   int        offset = 0;
   guint      hlen, optlen, len;
-  int        padding;
   guint16    flags;
   guint8     nxt;
   guint16    ipsum;
