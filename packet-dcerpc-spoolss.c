@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.55 2002/11/08 19:25:42 sharpe Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.56 2002/11/08 19:29:39 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5853,6 +5853,137 @@ static int SpoolssEnumPrinterKey_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree, 
+				      char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *key_name;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
+
+ 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
+ 					  prs_UNISTR2_dp, (void **)&key_name,
+ 					  NULL);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
+
+	g_free(key_name);
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Size");
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
+static int
+dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset, 
+				    packet_info *pinfo, proto_tree *tree)
+{
+	dcerpc_info *di = pinfo->private_data;
+	guint32 start = offset;
+	guint32 name_offset, name_len, val_offset, val_len, val_type;
+	char *name;
+
+	if (di->conformant_run)
+		return offset;
+
+	/* Get offset of value name */
+
+	offset = prs_uint32(tvb, offset, pinfo, NULL, &name_offset, NULL);
+	offset = prs_uint32(tvb, offset, pinfo, NULL, &name_len, NULL);
+	prs_uint16uni(tvb, start + name_offset, pinfo, NULL, (void **) &name, 
+		      NULL);
+	offset = prs_uint32(tvb, offset, pinfo, NULL, &val_type, NULL);
+	offset = prs_uint32(tvb, offset, pinfo, NULL, &val_offset, NULL);
+	offset = prs_uint32(tvb, offset, pinfo, NULL, &val_len, NULL);
+
+	switch(val_type) {
+	case DCERPC_REG_DWORD: {
+		/* needs to be broken into two 16-byte ints because it may
+		   not be aligned */
+		guint32 value;
+		guint16 low, hi;
+		prs_uint16(tvb, start + val_offset, pinfo, NULL, &low, NULL);
+		prs_uint16(tvb, start + val_offset +2, pinfo, NULL, &hi, NULL);
+		value = (hi << 16) | low;
+		proto_tree_add_text(tree, tvb, start + val_offset, 4, 
+				    "%s: REG_DWORD: %d", name, value);
+		break;
+	}
+	case DCERPC_REG_SZ: {
+		char *value;
+		prs_uint16uni(tvb, start + val_offset, pinfo, NULL, 
+			      (void **) &value, NULL);
+		proto_tree_add_text(tree, tvb, start + val_offset, val_len, 
+				    "%s: REG_SZ: %s", name, value);
+		break;
+	}
+	case DCERPC_REG_BINARY:
+		proto_tree_add_text(tree, tvb, start + val_offset, val_len,
+				    "%s: REG_BINARY", name);
+		break;
+
+	default:
+		proto_tree_add_text(tree, tvb, start + val_offset, val_len,
+				    "%s: unknown type %d", name, val_type);
+	}
+	return offset;
+}
+
+
+static int SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	guint32 size, start, numvals, i;
+	int len=tvb_length(tvb);
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "Request in frame %u", dcv->req_frame);
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, &size, "Buffer size");
+
+	if (size) {
+		start = offset;
+
+		/* get number of values */
+		prs_uint32(tvb, len-8, pinfo, NULL, &numvals, NULL);
+
+		for (i=0; i < numvals; i++) {
+			offset = dissect_spoolss_printer_enum_values(tvb, 
+						 offset, pinfo, tree);
+		}
+	/* go to end of buffer data */
+	offset = start + size; 
+	}
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, 
+			    "Number of Values");
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -6058,7 +6189,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
         { SPOOLSS_SETPRINTERDATAEX, "SetPrinterDataEx",
 	  SpoolssSetPrinterDataEx_q, SpoolssSetPrinterDataEx_r },
 	{ SPOOLSS_ENUMPRINTERDATAEX, "EnumPrinterDataEx",
-	  NULL, SpoolssGeneric_r },
+	  SpoolssEnumPrinterDataEx_q, SpoolssEnumPrinterDataEx_r },
 	{ SPOOLSS_ENUMPRINTERKEY, "EnumPrinterKey",
 	  SpoolssEnumPrinterKey_q, SpoolssEnumPrinterKey_r },
 	{ SPOOLSS_DELETEPRINTERDATAEX, "DeletePrinterDataEx",
