@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.48 2003/12/02 21:15:49 guy Exp $
+ * $Id: io_stat.c,v 1.49 2003/12/14 10:24:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,9 +86,9 @@ static char *plot_style_name[MAX_PLOT_STYLES] = {
 static char *count_type_names[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick", "advanced..."};
 
 /* unit is in ms */
-#define MAX_TICK_VALUES 4
-#define DEFAULT_TICK_VALUE 2
-static guint tick_interval_values[MAX_TICK_VALUES] = { 10, 100, 1000, 10000 };
+#define MAX_TICK_VALUES 5
+#define DEFAULT_TICK_VALUE 3
+static guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000 };
 
 #define CALC_TYPE_SUM	0
 #define CALC_TYPE_COUNT	1
