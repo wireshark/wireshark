@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.5 2000/08/06 07:22:37 guy Exp $
+ * $Id: packet-rlogin.c,v 1.6 2000/08/06 08:53:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,7 +65,7 @@
 # include "snprintf.h"
 #endif
 
-#define CHECK_PACKET_LENGTH(X) if ((offset+X) > pi.captured_len){  \
+#define CHECK_PACKET_LENGTH(X) if (!BYTES_ARE_IN_FRAME(offset, X)){  \
         proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***"); \
         return; }
 
@@ -115,6 +115,23 @@ static GMemChunk *rlogin_vals = NULL;
 
 static guint32 last_abs_sec = 0;
 static guint32 last_abs_usec= 0;
+
+/* Find the length of a '\0'-terminated string, *INCLUDING* the terminating
+   '\0', but don't run past the end of the packet doing so. */
+static int
+string_len(const char *str, int maxlen)
+{
+	const char *str_end;
+
+	str_end = memchr(str, '\0', maxlen);
+	if (str_end == NULL) {
+		/* No '\0' found - return the length as of when we stopped,
+		   plus one to force the length to be too long and and
+		   CHECK_PACKET_LENGTH to fail. */
+		return maxlen + 1;
+	}
+	return str_end - str + 1;
+}
 
 static void
 rlogin_init( void){
@@ -203,6 +220,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 	proto_item      *ti;
 	guint8 *Ptr;
 	const char *str;
+	int str_len;
 	proto_item      *user_info_item,  *window_info_item;
 
  	ti = proto_tree_add_item( tree, proto_rlogin, NullTVB, offset,
@@ -210,7 +228,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 
 	rlogin_tree = proto_item_add_subtree(ti, ett_rlogin);
 
-	if ( !END_OF_FRAME)			/* exit if no data */
+	if ( !IS_DATA_IN_FRAME(offset))		/* exit if no data */
 		return;
 
 	if ( tcp_urgent_pointer &&		/* if control message */
@@ -244,37 +262,44 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 		++offset;
 	}
 		
-	if ( hash_info->info_framenum == fd->num){		/* user info ?*/
+        if (!IS_DATA_IN_FRAME(offset))
+        	return;	/* No more data to check */
 
+	if ( hash_info->info_framenum == fd->num){		/* user info ?*/
 		user_info_item = proto_tree_add_item( rlogin_tree, hf_user_info, NullTVB,
 			offset, END_OF_FRAME, FALSE);
 
 		str = &pd[ offset];		/* do server user name */
-
-		CHECK_PACKET_LENGTH( strlen( str));
-		
+		str_len = string_len( str, END_OF_FRAME);
+		CHECK_PACKET_LENGTH( str_len);
 		user_info_tree = proto_item_add_subtree( user_info_item,
 			ett_rlogin_user_info);
-			
-		proto_tree_add_text(  user_info_tree, NullTVB, offset, strlen( str) + 1, 
-				"Server User Name:  %s", str);
-				
-		offset += strlen( str) + 1;
-		str = &pd[ offset];		/* do client user name */
-		CHECK_PACKET_LENGTH( strlen( str));
-		proto_tree_add_text(  user_info_tree, NullTVB, offset, strlen( str) + 1, 
-				"Client User Name:  %s", str);
-				
-		offset += strlen( str) + 1;
-		
-		str = &pd[ offset];		/* do terminal type/speed */
-		CHECK_PACKET_LENGTH( strlen( str));
-		proto_tree_add_text(  user_info_tree, NullTVB, offset, strlen( str) + 1, 
-				"Terminal Type/Speed:  %s", str);
+		proto_tree_add_text(  user_info_tree, NullTVB, offset, str_len,
+				"Server User Name:  %.*s", str_len, str);
+		offset += str_len;
 
-		offset += strlen( str) + 1;
+	        if (!IS_DATA_IN_FRAME(offset))
+	        	return;	/* No more data to check */
+		str = &pd[ offset];		/* do client user name */
+		str_len = string_len( str, END_OF_FRAME);
+		CHECK_PACKET_LENGTH( str_len);
+		proto_tree_add_text(  user_info_tree, NullTVB, offset, str_len,
+				"Client User Name:  %.*s", str_len, str);
+		offset += str_len;
+		
+	        if (!IS_DATA_IN_FRAME(offset))
+	        	return;	/* No more data to check */
+		str = &pd[ offset];		/* do terminal type/speed */
+		str_len = string_len( str, END_OF_FRAME);
+		CHECK_PACKET_LENGTH( str_len);
+		proto_tree_add_text(  user_info_tree, NullTVB, offset, str_len,
+				"Terminal Type/Speed:  %.*s", str_len, str);
+		offset += str_len;
    	}
   
+        if (!IS_DATA_IN_FRAME(offset))
+        	return;	/* No more data to check */
+
 /* test for terminal information, the data will have 2 0xff bytes */
   
   						/* look for first 0xff byte */
