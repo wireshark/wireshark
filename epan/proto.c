@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.10 2001/02/13 18:34:49 guy Exp $
+ * $Id: proto.c,v 1.11 2001/03/01 20:24:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2721,10 +2721,11 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 	switch(hfinfo->type) {
 
 		case FT_BOOLEAN:
-		        dfilter_len = abbrev_len + 2;
+		        dfilter_len = abbrev_len + 6;
 		        buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s%s", fvalue_get_integer(finfo->value) ? "" : "!",
-					hfinfo->abbrev);
+			snprintf(buf, dfilter_len, "%s == %s",
+					hfinfo->abbrev,
+					fvalue_get_integer(finfo->value) ? "1" : "0");
 			break;
 
 		case FT_UINT8:
