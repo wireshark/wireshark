@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.103 2003/12/18 23:50:44 guy Exp $
+ * $Id: libpcap.c,v 1.104 2003/12/21 06:02:06 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1774,7 +1774,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		 */
 		memset(&irda_hdr, 0, sizeof(irda_hdr));
 		irda_hdr.sll_pkttype  = phtons(&pseudo_header->irda.pkttype);
-		irda_hdr.sll_protocol = htons(0x0017);
+		irda_hdr.sll_protocol = g_htons(0x0017);
 		nwritten = fwrite(&irda_hdr, 1, sizeof(irda_hdr), wdh->fh);
 		if (nwritten != sizeof(irda_hdr)) {
 			if (nwritten == 0 && ferror(wdh->fh))
