@@ -1,0 +1,6 @@
+#
+#
+TYPE	butcNameString_t butc_dissect_NameString_t FT_STRING BASE_NONE 0 NULL 4
+#
+UNION_TAG_SIZE tc_statusInfoSwitch 4
+#
