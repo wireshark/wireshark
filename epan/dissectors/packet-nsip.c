@@ -52,22 +52,20 @@
 #define NSIP_SEP ", " /* Separator string */
 #define NSIP_LITTLE_ENDIAN 0
 
-#define ERICSSON_INTERNAL
 
-#ifdef ERICSSON_INTERNAL
+
 #define ERICSSON_DESCR_LEN 50
 #define ERICSSON_RIP_TYPE 223 /* Ip address of format x.x.223.x */
 #define ERICSSON_LIP_TYPE 80 /* Ip address of format x.x.80.x */
 static int hf_nsip_ericsson_rip = -1;
 static int hf_nsip_ericsson_lip = -1;
 static int hf_nsip_ericsson_rp = -1;
-#endif
 
 static int nsip_udp_port1 = NSIP_UDP_PORT1;
 static int nsip_udp_port2 = NSIP_UDP_PORT2;
 static int global_nsip_udp_port1 = NSIP_UDP_PORT1;
 static int global_nsip_udp_port2 = NSIP_UDP_PORT2;
-
+static gboolean ericsson_decode = FALSE;
 void proto_reg_handoff_nsip(void);
 
 /* Initialize the protocol and registered fields */
@@ -272,7 +270,7 @@ static true_false_string set_unset = {
   "Not set"
 };
 
-#ifdef ERICSSON_INTERNAL
+
 static void
 add_ericsson_internal_info(address addr, build_info_t *bi, char *descr) {
   const guint8 MIN_RIP_ID = 3;
@@ -343,7 +341,7 @@ add_ericsson_internal_info(address addr, build_info_t *bi, char *descr) {
 	       addr_type, addr_id);
   }
 }
-#endif
+
 
 static void 
 get_value_length(nsip_ie_t *ie, build_info_t *bi) {
@@ -1075,22 +1073,23 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
   decode_pdu(pdu_type, &bi);
 
-#ifdef ERICSSON_INTERNAL
-  add_ericsson_internal_info(bi.pinfo->src, &bi, ericsson_src);
-  if (ericsson_src != NULL) {
-    pinfo->src.type = AT_NONE;
-    if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
-      col_set_str(pinfo->cinfo, COL_DEF_SRC, ericsson_src);
-    }
-  }
-  add_ericsson_internal_info(bi.pinfo->dst, &bi, ericsson_dst);
-  if (ericsson_dst != NULL) {
-    pinfo->dst.type = AT_NONE;
-    if (check_col(pinfo->cinfo, COL_DEF_DST)) {
-      col_set_str(pinfo->cinfo, COL_DEF_DST, ericsson_dst);
-    }
-  }
-#endif
+  if (ericsson_decode){
+	 add_ericsson_internal_info(bi.pinfo->src, &bi, ericsson_src);
+	 if (ericsson_src != NULL) {
+	    pinfo->src.type = AT_NONE;
+	    if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
+	      col_set_str(pinfo->cinfo, COL_DEF_SRC, ericsson_src);
+	    }
+	  }
+	  add_ericsson_internal_info(bi.pinfo->dst, &bi, ericsson_dst);
+	  if (ericsson_dst != NULL) {
+	    pinfo->dst.type = AT_NONE;
+	    if (check_col(pinfo->cinfo, COL_DEF_DST)) {
+	      col_set_str(pinfo->cinfo, COL_DEF_DST, ericsson_dst);
+	    }
+	  }
+  }/* ericsson_decode */
+
 }
 
 void
@@ -1207,7 +1206,6 @@ proto_register_nsip(void)
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
 	"", HFILL }
     },
-#ifdef ERICSSON_INTERNAL
     { &hf_nsip_ericsson_rip,
       { "Ericsson RIP", "nsip.ericsson.rip",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
@@ -1223,7 +1221,6 @@ proto_register_nsip(void)
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
 	"", HFILL }
     },
-#endif
   };
 
   /* Setup protocol subtree array */
@@ -1255,6 +1252,9 @@ proto_register_nsip(void)
   prefs_register_uint_preference(nsip_module, "udp.port2", "NSIP UDP Port 2",
 				 "Set the second UDP port",
 				 10, &nsip_udp_port2);
+  prefs_register_bool_preference(nsip_module,"ericsson_decode", "Ericsson internal IP addr decode",
+				"Display Ericsson internal decode of IP address in SRC and DST Col",
+				&ericsson_decode);
 }
 
 void
