@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.49 2003/11/18 08:13:10 guy Exp $
+# $Id: configure.in,v 1.50 2003/12/24 14:45:21 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -44,7 +44,7 @@ AC_ARG_WITH(extra-gcc-checks,
 [
 	if test $withval != no
 	then
-		ethereal_extra_gcc_flags=" -Wcast-align"
+		ethereal_extra_gcc_flags=" -Wcast-align -pedantic"
 	fi
 ],)
 AC_MSG_CHECKING(to see if we can add '-Wall -W -Wcast-qual$ethereal_extra_gcc_flags' to CFLAGS)
