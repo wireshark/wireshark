@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/GIOP subdissectors 
 #
-# $Id: Makefile.am,v 1.1 2001/07/19 21:30:17 guy Exp $
+# $Id: Makefile.am,v 1.2 2001/07/20 20:56:18 guy Exp $
 #
 # Copyright 2001, Ericsson Inc.
 # Frank Singleton <frank.singleton@ericsson.com>
@@ -30,9 +30,12 @@ INCLUDES = -I$(top_srcdir) -I$(includedir)
 
 plugindir = @PLUGIN_DIR@
 
-plugin_LTLIBRARIES = cosnaming.la
+plugin_LTLIBRARIES = cosnaming.la coseventcomm.la
 cosnaming_la_SOURCES = packet-cosnaming.c moduleinfo.h
 cosnaming_la_LDFLAGS = -module -avoid-version
+
+coseventcomm_la_SOURCES = packet-coseventcomm.c moduleinfo.h
+coseventcomm_la_LDFLAGS = -module -avoid-version
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
@@ -40,12 +43,18 @@ cosnaming_la_LDFLAGS = -module -avoid-version
 LIBS =
 
 cosnaming_la_DEPENDENCIES = packet-cosnaming-static.o
+coseventcomm_la_DEPENDENCIES = packet-coseventcomm-static.o
 
 packet-cosnaming-static.o:	packet-cosnaming.c moduleinfo.h
 	$(LTCOMPILE) -c -o packet-cosnaming-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-cosnaming.c 
 
+packet-coseventcomm-static.o:	packet-coseventcomm.c moduleinfo.h
+	$(LTCOMPILE) -c -o packet-coseventcomm-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-coseventcomm.c 
+
+
 CLEANFILES = \
 	cosnaming \
+	coseventcomm \
 	*~
 
 EXTRA_DIST = \

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.1 2001/07/19 21:30:17 guy Exp $
+# $Id: Makefile.nmake,v 1.2 2001/07/20 20:56:18 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -11,11 +11,17 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../epan /I../../wiretap \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
 
-OBJECTS=packet-cosnaming.obj 
+OBJECTS=packet-cosnaming.obj  packet-coseventcomm.obj
 
 cosnaming.dll cosnaming.exp cosnaming.lib : packet-cosnaming.obj ..\plugin_api.obj
 	link -dll /out:cosnaming.dll packet-cosnaming.obj ..\plugin_api.obj \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
 
+coseventcomm.dll coseventcomm.exp coseventcomm.lib : packet-coseventcomm.obj ..\plugin_api.obj
+	link -dll /out:coseventcomm.dll packet-coseventcomm.obj ..\plugin_api.obj \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+
+
 clean:
 	rm -f $(OBJECTS) cosnaming.dll cosnaming.exp cosnaming.lib
+	rm -f $(OBJECTS) coseventcomm.dll coseventcomm.exp coseventcomm.lib

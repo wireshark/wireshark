@@ -12,6 +12,7 @@ this directory (plugins/giop)
 Plugin             Description
 ======             ===========================================
 cosnaming          Based on CosNaming.idl from OMG
+coseventcomm       Based on CosEventComm.idl from OMG
 
 
 
