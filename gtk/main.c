@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.70 1999/12/13 03:45:33 gram Exp $
+ * $Id: main.c,v 1.71 1999/12/13 04:20:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -864,7 +864,7 @@ main(int argc, char *argv[])
   gboolean             capture_option_specified = FALSE;
 #endif
   GtkWidget           *main_vbox, *menubar, *u_pane, *l_pane,
-                      *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
+                      *bv_table, *bv_vscroll, *stat_hbox,
                       *tv_scrollw, *filter_bt, *filter_cm, *filter_te,
                       *filter_reset;
   GList               *filter_list = NULL;
@@ -1222,6 +1222,8 @@ main(int argc, char *argv[])
   packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, cf.cinfo.col_title);
   gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
   packet_sw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(packet_sw),
+    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_widget_show(packet_sw);
   gtk_container_add(GTK_CONTAINER(packet_sw), packet_list);
   pl_style = gtk_style_new();
@@ -1287,10 +1289,12 @@ main(int argc, char *argv[])
     GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
   gtk_widget_show(byte_view);
 
-  bv_hscroll = gtk_hscrollbar_new(GTK_TEXT(byte_view)->hadj);
-  gtk_table_attach(GTK_TABLE(bv_table), bv_hscroll, 0, 1, 1, 2,
-    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
-  gtk_widget_show (bv_hscroll);
+  /* The gtk_text widget doesn't scroll horizontally (see gtktext.c)
+   * in the GTK+ distribution, so I removed the horizontal scroll bar
+   * that used to be here. I tried the gtk_text widget with a 
+   * gtk_scrolled_window w/ viewport, but the vertical scrollowing
+   * did not work well, and sometimes a few pixels were cut off on
+   * the bottom. */
 
   bv_vscroll = gtk_vscrollbar_new(GTK_TEXT(byte_view)->vadj);
   gtk_table_attach(GTK_TABLE(bv_table), bv_vscroll, 1, 2, 0, 1,
