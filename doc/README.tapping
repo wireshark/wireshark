@@ -9,6 +9,10 @@ As examples on how to use the tap system see the implementation of
 tap-rpcstat.c     	(tethereal version)
 gtk2/gtk2-rpcstat.c	(gtk2-ethereal version)
 
+If all you need is to keep some counters there's the stats_tree API that
+offers a simple way to make a GUI and tethereal tap-listener see
+README.stats_tree. However keep reading as you'll need much of what's in
+this document.
 
 The tap system consists of two parts:
 1, code in the actual dissectors to allow tapping data from that particular
