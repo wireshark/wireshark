@@ -42,6 +42,10 @@
  *
  *	http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/frames.htm
  *
+ * and
+ *
+ *	http://www.cisco.com/en/US/tech/tk389/tk390/technologies_tech_note09186a0080094665.shtml
+ *
  * for information on ISL.
  */
 static int proto_isl = -1;
