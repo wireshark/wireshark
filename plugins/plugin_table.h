@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.61 2003/04/30 19:19:15 guy Exp $
+ * $Id: plugin_table.h,v 1.62 2003/04/30 23:40:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -318,21 +318,20 @@ typedef void (*addr_proto_item_set_end)(proto_item*, tvbuff_t *, gint);
 
 typedef proto_item* (*addr_proto_tree_add_none_format)(proto_tree*, int, tvbuff_t*, gint, gint, const char*, ...);
 
-typedef int (*except_init)(void);
-typedef void (*except_deinit)(void);
-typedef void (*except_rethrow)(except_t *);
-typedef void (*except_throw)(long, long, const char *);
-typedef void (*except_throwd)(long, long, const char *, void *);
-typedef void (*except_throwf)(long, long, const char *, ...);
-typedef void (*(*except_unhandled_catcher)(void (*)(except_t *)))(except_t *);
-typedef unsigned long (*except_code)(except_t *);
-typedef unsigned long (*except_group)(except_t *);
-typedef const char *(*except_message)(except_t *);
-typedef void *(*except_data)(except_t *);
-typedef void *(*except_take_data)(except_t *);
-typedef void (*except_set_allocator)(void *(*)(size_t), void (*)(void *));
-typedef void *(*except_alloc)(size_t);
-typedef void (*except_free)(void *);
+typedef int (*addr_except_init)(void);
+typedef void (*addr_except_deinit)(void);
+typedef void (*addr_except_rethrow)(except_t *);
+typedef void (*addr_except_throwd)(long, long, const char *, void *);
+typedef void (*addr_except_throwf)(long, long, const char *, ...);
+typedef void (*(*addr_except_unhandled_catcher)(void (*)(except_t *)))(except_t *);
+typedef unsigned long (*addr_except_code)(except_t *);
+typedef unsigned long (*addr_except_group)(except_t *);
+typedef const char *(*addr_except_message)(except_t *);
+typedef void *(*addr_except_data)(except_t *);
+typedef void *(*addr_except_take_data)(except_t *);
+typedef void (*addr_except_set_allocator)(void *(*)(size_t), void (*)(void *));
+typedef void *(*addr_except_alloc)(size_t);
+typedef void (*addr_except_free)(void *);
 
 typedef struct  {
 
