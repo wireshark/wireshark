@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-lapb.c,v 1.18 2000/05/25 21:34:56 oabad Exp $
+ * $Id: packet-lapb.c,v 1.19 2000/05/26 05:52:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,8 +58,6 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const guint8	*this_pd;
     int			this_offset;
     tvbuff_t		*next_tvb;
-    const guint8	*next_pd;
-    int			next_offset;
 
     pinfo->current_proto = "LAPB";
 
