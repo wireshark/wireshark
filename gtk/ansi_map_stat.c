@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_map_stat.c,v 1.17 2004/02/22 18:44:00 ulfl Exp $
+ * $Id: ansi_map_stat.c,v 1.18 2004/02/23 19:19:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -468,6 +468,6 @@ register_tap_listener_gtkansi_map_stat(void)
 	exit(1);
     }
 
-    register_tap_menu_item("ANSI/MAP Operation", REGISTER_TAP_LAYER_APPLICATION,
+    register_tap_menu_item("ANSI/MAP Operation", REGISTER_TAP_GROUP_NONE,
         ansi_map_stat_gtk_cb, NULL, NULL, NULL);
 }

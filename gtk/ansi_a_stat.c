@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_a_stat.c,v 1.14 2004/02/22 18:44:00 ulfl Exp $
+ * $Id: ansi_a_stat.c,v 1.15 2004/02/23 19:19:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -535,8 +535,8 @@ register_tap_listener_gtkansi_a_stat(void)
 	exit(1);
     }
 
-    register_tap_menu_item("ANSI/A-Interface BSMAP", REGISTER_TAP_LAYER_APPLICATION, 
+    register_tap_menu_item("ANSI/A-Interface BSMAP", REGISTER_TAP_GROUP_NONE, 
         ansi_a_stat_gtk_bsmap_cb, NULL, NULL ,NULL);
-    register_tap_menu_item("ANSI/A-Interface DTAP", REGISTER_TAP_LAYER_APPLICATION,
+    register_tap_menu_item("ANSI/A-Interface DTAP", REGISTER_TAP_GROUP_NONE,
         ansi_a_stat_gtk_dtap_cb, NULL, NULL ,NULL);
 }

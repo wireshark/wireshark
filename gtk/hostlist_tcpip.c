@@ -1,7 +1,7 @@
 /* hostlist_tcpip.c   2004 Ian Schorr
  * modified from endpoint_talkers_tcpip.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_tcpip.c,v 1.4 2004/02/23 05:35:47 guy Exp $
+ * $Id: hostlist_tcpip.c,v 1.5 2004/02/23 19:19:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,7 @@ register_tap_listener_tcpip_hostlist(void)
 {
 	register_ethereal_tap("endpoints,tcp", gtk_tcpip_hostlist_init);
 
-	register_tap_menu_item("TCP/Endpoint List (IPv4 & IPv6)", REGISTER_TAP_LAYER_TRANSPORT,
+	register_tap_menu_item("TCP (IPv4 & IPv6)", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_tcpip_hostlist_cb, NULL, NULL, NULL);
 }
 

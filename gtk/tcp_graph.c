@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.53 2004/02/22 19:48:10 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.54 2004/02/23 19:19:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3974,13 +3974,13 @@ gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_disse
 void
 register_tap_listener_tcp_graph(void)
 {
-    register_tap_menu_item("TCP/Stream Analysis/Time-Sequence Graph (Stevens)", REGISTER_TAP_LAYER_TRANSPORT,
+    register_tap_menu_item("TCP Stream Analysis/Time-Sequence Graph (Stevens)", REGISTER_TAP_GROUP_NONE,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(0));
-    register_tap_menu_item("TCP/Stream Analysis/Time-Sequence Graph (tcptrace)", REGISTER_TAP_LAYER_TRANSPORT,
+    register_tap_menu_item("TCP Stream Analysis/Time-Sequence Graph (tcptrace)", REGISTER_TAP_GROUP_NONE,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(1));
-    register_tap_menu_item("TCP/Stream Analysis/Throughput Graph", REGISTER_TAP_LAYER_TRANSPORT,
+    register_tap_menu_item("TCP Stream Analysis/Throughput Graph", REGISTER_TAP_GROUP_NONE,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(2));
-    register_tap_menu_item("TCP/Stream Analysis/Round Trip Time Graph", REGISTER_TAP_LAYER_TRANSPORT,
+    register_tap_menu_item("TCP Stream Analysis/Round Trip Time Graph", REGISTER_TAP_GROUP_NONE,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(3));
 }
 

@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.27 2004/02/22 18:58:35 ulfl Exp $
+ * $Id: fc_stat.c,v 1.28 2004/02/23 19:19:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,6 +313,6 @@ register_tap_listener_gtkfcstat(void)
 {
 	register_ethereal_tap("fc,srt", gtk_fcstat_init);
 
-	register_tap_menu_item("Fibre Channel/Service Response Time...", REGISTER_TAP_LAYER_DATA_LINK,
+	register_tap_menu_item("Fibre Channel...", REGISTER_TAP_GROUP_RESPONSE_TIME,
 	    gtk_fcstat_cb, NULL, NULL, NULL);
 }

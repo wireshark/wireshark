@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.21 2004/02/22 21:35:58 ulfl Exp $
+ * $Id: wsp_stat.c,v 1.22 2004/02/23 19:19:39 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -508,6 +508,6 @@ register_tap_listener_gtkwspstat(void)
 {
 	register_ethereal_tap("wsp,stat,", gtk_wspstat_init);
 
-	register_tap_menu_item("WAP-WSP (Statistics...)", REGISTER_TAP_LAYER_APPLICATION,
+	register_tap_menu_item("WAP-WSP...", REGISTER_TAP_GROUP_NONE,
 	    gtk_wspstat_cb, NULL, NULL, NULL);
 }

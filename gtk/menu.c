@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.171 2004/02/22 23:31:36 ulfl Exp $
+ * $Id: menu.c,v 1.172 2004/02/23 19:19:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,7 +78,7 @@ clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 
 typedef struct _menu_item {
 	char	*name;
-    gint    layer;
+    gint    group;
 	gboolean enabled;
     GtkItemFactoryCallback callback;
     gpointer callback_data;
@@ -291,11 +291,12 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/_User Specified Decodes...", NULL,
                        decode_show_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Summar_y", NULL, summary_open_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Protocol _Hierarchy Statistics", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL,
+                       follow_stream_cb, 0, NULL, NULL),    
+    ITEM_FACTORY_ENTRY("/_Statistics", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Statistics/Summar_y", NULL, summary_open_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Statistics/Protocol _Hierarchy", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Transport", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/App_lication", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
@@ -505,8 +506,8 @@ gint tap_menu_item_add_compare(gconstpointer a, gconstpointer b)
 
 /* add a menuitem below the current node */
 GList * tap_menu_item_add(
-    gint layer, 
     char *name, 
+    gint group, 
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *),
@@ -518,7 +519,7 @@ GList * tap_menu_item_add(
 
 
 	child = g_malloc(sizeof (menu_item_t));
-    child->layer            = layer;
+    child->group            = group;
 	child->name             = name;
     child->callback         = callback;
 	child->selected_packet_enabled = selected_packet_enabled;
@@ -560,13 +561,13 @@ GList * tap_menu_item_add(
 void
 register_tap_menu_item(
     char *name, 
-    gint layer, 
+    gint group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *),
     gpointer callback_data)
 {
-	/* static const char toolspath[] = "/Analyze/"; */
+	/*static const char toolspath[] = "/Statistics/";*/
 	char *toolspath;
 	char *p;
 	char *menupath;
@@ -580,29 +581,13 @@ register_tap_menu_item(
      */
 	g_assert(*name != '/');
 
-#if 0
-    switch(layer) {
-    case(REGISTER_TAP_LAYER_GENERIC): toolspath = "/Analyze/"; break;
-    case(REGISTER_TAP_LAYER_PHYSICAL): toolspath = "/Physical/"; break;
-    case(REGISTER_TAP_LAYER_DATA_LINK): toolspath = "/Link/"; break;
-    case(REGISTER_TAP_LAYER_NETWORK): toolspath = "/Network/"; break;
-    case(REGISTER_TAP_LAYER_TRANSPORT): toolspath = "/Transport/"; break;
-    case(REGISTER_TAP_LAYER_SESSION): toolspath = "/Session/"; break;
-    case(REGISTER_TAP_LAYER_PRESENTATION): toolspath = "/Presentation/"; break;
-    case(REGISTER_TAP_LAYER_APPLICATION): toolspath = "/Application/"; break;
-    default:
-        g_assert(0);
-    }
-#endif
-    switch(layer) {
-    case(REGISTER_TAP_LAYER_GENERIC): toolspath = "/Analyze/"; break;
-    case(REGISTER_TAP_LAYER_PHYSICAL): toolspath = "/Transport/"; break;
-    case(REGISTER_TAP_LAYER_DATA_LINK): toolspath = "/Transport/"; break;
-    case(REGISTER_TAP_LAYER_NETWORK): toolspath = "/Transport/"; break;
-    case(REGISTER_TAP_LAYER_TRANSPORT): toolspath = "/Transport/"; break;
-    case(REGISTER_TAP_LAYER_SESSION): toolspath = "/Application/"; break;
-    case(REGISTER_TAP_LAYER_PRESENTATION): toolspath = "/Application/"; break;
-    case(REGISTER_TAP_LAYER_APPLICATION): toolspath = "/Application/"; break;
+    switch(group) {
+    case(REGISTER_TAP_GROUP_GENERIC): toolspath = "/Statistics/"; break;
+    case(REGISTER_TAP_GROUP_CONVERSATION_LIST): toolspath = "/Statistics/Conversation List/"; break;
+    case(REGISTER_TAP_GROUP_ENDPOINT_LIST): toolspath = "/Statistics/Endpoint List/"; break;
+    case(REGISTER_TAP_GROUP_HOST_LIST): toolspath = "/Statistics/Host List/"; break;
+    case(REGISTER_TAP_GROUP_RESPONSE_TIME): toolspath = "/Statistics/Service Response Time/"; break;
+    case(REGISTER_TAP_GROUP_NONE): toolspath = "/Statistics/"; break;
     default:
         g_assert(0);
         toolspath = NULL;
@@ -648,7 +633,7 @@ register_tap_menu_item(
              * add it to the Tools menu tree.
              */
             childnode = tap_menu_item_add(
-                layer, menupath, NULL, NULL ,NULL, NULL, curnode);
+                menupath, group, NULL, NULL ,NULL, NULL, curnode);
         } else {
             /*
              * Yes.  We don't need this "menupath" any longer.
@@ -676,13 +661,13 @@ register_tap_menu_item(
      * the main menu.
      */
     tap_menu_item_add(
-        layer, menupath, callback, 
+        menupath, group, callback, 
         selected_packet_enabled, selected_tree_row_enabled, 
         callback_data, curnode);
 }
 
 
-guint merge_tap_menus_layered(GList *node, gint layer) {
+guint merge_tap_menus_layered(GList *node, gint group) {
     GtkItemFactoryEntry *entry;
     GList       *child;
     guint       added = 0;
@@ -700,7 +685,7 @@ guint merge_tap_menus_layered(GList *node, gint layer) {
          * The root node doesn't correspond to a menu tree item; it
          * has a null name pointer.
          */
-        if (node_data->name != NULL && layer == node_data->layer) {
+        if (node_data->name != NULL && group == node_data->group) {
             entry = g_malloc0(sizeof (GtkItemFactoryEntry));
             entry->path = node_data->name;
             entry->callback = node_data->callback;
@@ -718,7 +703,7 @@ guint merge_tap_menus_layered(GList *node, gint layer) {
          * The root node doesn't correspond to a menu tree item; it
          * has a null name pointer.
          */
-        if (node_data->name != NULL && layer == node_data->layer) {
+        if (node_data->name != NULL && group == node_data->group) {
             entry = g_malloc0(sizeof (GtkItemFactoryEntry));
             entry->path = node_data->name;
             entry->item_type = "<Branch>";
@@ -731,7 +716,7 @@ guint merge_tap_menus_layered(GList *node, gint layer) {
 
         for (child = node_data->children; child != NULL; child =
             child->next) {
-            added += merge_tap_menus_layered(child, layer);
+            added += merge_tap_menus_layered(child, group);
         }
     }
 
@@ -744,31 +729,30 @@ void merge_all_tap_menus(GList *node) {
 
     entry = g_malloc0(sizeof (GtkItemFactoryEntry));
     entry->item_type = "<Separator>";
+    entry->path = "/Statistics/";
 
     /* 
-     * merge only the menu items of the specific layer,
+     * merge only the menu items of the specific group,
      * and then append a seperator
      */
-    entry->path = "/Analyze/";
-    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_GENERIC))
+    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_GENERIC)) {
+        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+    }
+    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_CONVERSATION_LIST)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
-
-    entry->path = "/Transport/";
-    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_PHYSICAL))
-        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
-    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_DATA_LINK))
-        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
-    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_NETWORK))
-        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
-    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_TRANSPORT))
+    }
+    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_ENDPOINT_LIST)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
-
-    entry->path = "/Application/";
-    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_SESSION))
+    }
+    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_HOST_LIST)) {
+        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+    }
+    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_RESPONSE_TIME)) {
         gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
-    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_PRESENTATION))
-        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
-    merge_tap_menus_layered(node, REGISTER_TAP_LAYER_APPLICATION);
+    }
+    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_NONE)) {
+        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+    }
 }
 
 
@@ -1558,9 +1542,9 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_menu_sensitivity(packet_list_menu_factory, "/Coloring Rules...",
       have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Analyze/Summary",
+  set_menu_sensitivity(main_menu_factory, "/Statistics/Summary",
       have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Analyze/Protocol Hierarchy Statistics", 
+  set_menu_sensitivity(main_menu_factory, "/Statistics/Protocol Hierarchy", 
       have_captured_packets);
       
   walk_menu_tree_for_captured_packets(tap_menu_tree_root,
@@ -1654,6 +1638,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Show Packet In New Window",
       cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(NULL, "/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",

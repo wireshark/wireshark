@@ -1,7 +1,7 @@
 /* endpoint_talkers_ip.c
  * endpoint_talkers_ip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ip.c,v 1.24 2004/02/22 18:44:00 ulfl Exp $
+ * $Id: endpoint_talkers_ip.c,v 1.25 2004/02/23 19:19:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,7 +79,7 @@ register_tap_listener_ip_talkers(void)
 {
 	register_ethereal_tap("conv,ip", gtk_ip_talkers_init);
 
-	register_tap_menu_item("IP/Conversation List (IPv4)", REGISTER_TAP_LAYER_NETWORK,
+	register_tap_menu_item("IPv4", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    gtk_ip_endpoints_cb, NULL, NULL, NULL);
 }
 

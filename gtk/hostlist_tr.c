@@ -1,7 +1,7 @@
 /* hostlist_tr.c   2004 Ian Schorr
  * modified from endpoint_talkers_tr.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_tr.c,v 1.3 2004/02/23 05:35:47 guy Exp $
+ * $Id: hostlist_tr.c,v 1.4 2004/02/23 19:19:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,7 @@ register_tap_listener_tr_hostlist(void)
 {
 	register_ethereal_tap("hosts,tr", gtk_tr_hostlist_init);
 
-	register_tap_menu_item("Token Ring/Host List", REGISTER_TAP_LAYER_DATA_LINK,
+	register_tap_menu_item("Token Ring", REGISTER_TAP_GROUP_HOST_LIST,
 	    gtk_tr_hostlist_cb, NULL, NULL, NULL);
 }
 

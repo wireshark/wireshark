@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.406 2004/02/23 16:12:52 gerald Exp $
+ * $Id: main.c,v 1.407 2004/02/23 19:19:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3787,7 +3787,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
     set_menu_object_data("/Analyze/Display Filters...", E_FILT_TE_PTR_KEY,
                          filter_te);
-    set_menu_object_data("/Transport/TCP/Follow Stream", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Analyze/Follow TCP Stream", E_DFILTER_TE_KEY,
                          filter_te);
     set_menu_object_data("/Analyze/Match/Selected", E_DFILTER_TE_KEY,
                          filter_te);
@@ -3814,9 +3814,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     set_menu_object_data("/Analyze/Prepare/Or Not Selected", E_DFILTER_TE_KEY,
                          filter_te);
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
-    /* XXX: why does the popup menues depend on this? */
-    set_menu_object_data("/Follow TCP Stream", E_DFILTER_TE_KEY,
-                         filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_KEY, packet_list);
 

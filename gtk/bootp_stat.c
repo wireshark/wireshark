@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.21 2004/02/22 21:35:57 ulfl Exp $
+ * $Id: bootp_stat.c,v 1.22 2004/02/23 19:19:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -358,6 +358,6 @@ register_tap_listener_gtkdhcpstat(void)
 {
 	register_ethereal_tap("bootp,stat,", gtk_dhcpstat_init);
 
-	register_tap_menu_item("BOOTP-DHCP (Statistics)", REGISTER_TAP_LAYER_NETWORK,
+	register_tap_menu_item("BOOTP-DHCP", REGISTER_TAP_GROUP_NONE,
 	    gtk_dhcpstat_cb, NULL, NULL, NULL);
 }

@@ -1,7 +1,7 @@
 /* endpoint_talkers_ipx.c
  * endpoint_talkers_ipx   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ipx.c,v 1.22 2004/02/22 18:44:00 ulfl Exp $
+ * $Id: endpoint_talkers_ipx.c,v 1.23 2004/02/23 19:19:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,7 @@ register_tap_listener_ipx_talkers(void)
 {
 	register_ethereal_tap("conv,ipx", gtk_ipx_talkers_init);
 
-	register_tap_menu_item("IPX/Conversation List", REGISTER_TAP_LAYER_NETWORK,
+	register_tap_menu_item("IPX", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    gtk_ipx_endpoints_cb, NULL, NULL, NULL);
 }
 
