@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.13 2000/11/22 04:03:22 gram Exp $
+# $Id: autogen.sh,v 1.14 2001/12/09 00:02:44 guy Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -69,7 +69,7 @@ esac
 
 $DIE
 
-libtoolize --copy --force || exit 1
+libtoolize --copy || exit 1
 
 if test -z "$*"; then
 	echo "Running ./configure with no arguments. If you wish to pass any,"
