@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.19 2004/01/19 23:35:32 obiot Exp $
+ * $Id: rtp_analysis.c,v 1.20 2004/01/20 19:31:46 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1558,7 +1558,7 @@ void create_rtp_dialog(user_data_t* user_data)
 
 	GtkWidget *main_vb, *page, *page_r, *label, *label1, *label2, *label3;
 	GtkWidget *scrolled_window, *scrolled_window_r/*, *frame, *text, *label4, *page_help*/;
-	GtkWidget *box4, *voice_bt, *refresh_bt, *goto_bt, *close_bt, *csv_bt, *next_bt;
+	GtkWidget *box4, *voice_bt, /**refresh_bt,*/ *goto_bt, *close_bt, *csv_bt, *next_bt;
 #ifdef USE_CONVERSATION_GRAPH
 	GtkWidget *graph_bt;
 #endif
