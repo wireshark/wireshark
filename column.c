@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.20 1999/07/28 03:29:00 guy Exp $
+ * $Id: column.c,v 1.21 1999/07/28 03:47:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -168,11 +168,17 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
   }
 }
 
-/* Returns the longest possible width for a particular column type */
-/* XXX - this is somewhat fragile; we should probably generate */
-/* the summary lines for all the packets first, and compute the */
-/* maximum column width as the maximum string width of all the */
-/* values in that column. */
+/* Returns the longest possible width for a particular column type.
+
+   Except for the COL...SRC and COL...DST columns, these are used
+   only when a capture is being displayed while it's taking place;
+   they are arguably somewhat fragile, as changes to the code that
+   generates them don't cause these widths to change, but that's
+   probably not too big a problem, given that the sizes are
+   recomputed based on the actual data in the columns when the capture
+   is done, and given that the width for COL...SRC and COL...DST columns
+   is somewhat arbitrary in any case.  We should probably clean
+   that up eventually, though. */
 gint
 get_column_width(gint format, GdkFont *font) {
   switch (format) {
