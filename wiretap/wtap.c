@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.78 2003/01/08 05:03:54 guy Exp $
+ * $Id: wtap.c,v 1.79 2003/01/23 04:04:01 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -85,6 +85,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_ARCNET */
 	{ "ARCNET", "arcnet" },
+
+	/* WTAP_ENCAP_ARCNET_LINUX */
+	{ "Linux ARCNET", "arcnet_linux" },
 
 	/* WTAP_ENCAP_ATM_RFC1483 */
 	{ "RFC 1483 ATM", "atm-rfc1483" },

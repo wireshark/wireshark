@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.132 2003/01/10 04:04:42 guy Exp $
+ * $Id: wtap.h,v 1.133 2003/01/23 04:04:01 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -98,35 +98,36 @@
 #define WTAP_ENCAP_FDDI_BITSWAPPED		6
 #define WTAP_ENCAP_RAW_IP			7
 #define WTAP_ENCAP_ARCNET			8
-#define WTAP_ENCAP_ATM_RFC1483			9
-#define WTAP_ENCAP_LINUX_ATM_CLIP		10
-#define WTAP_ENCAP_LAPB				11
-#define WTAP_ENCAP_ATM_PDUS			12
-#define WTAP_ENCAP_ATM_PDUS_UNTRUNCATED		13
-#define WTAP_ENCAP_NULL				14
-#define WTAP_ENCAP_ASCEND			15
-#define WTAP_ENCAP_ISDN				16
-#define WTAP_ENCAP_IP_OVER_FC			17
-#define WTAP_ENCAP_PPP_WITH_PHDR		18
-#define WTAP_ENCAP_IEEE_802_11			19
-#define WTAP_ENCAP_IEEE_802_11_WITH_RADIO	20
-#define WTAP_ENCAP_SLL				21
-#define WTAP_ENCAP_FRELAY			22
-#define WTAP_ENCAP_CHDLC			23
-#define WTAP_ENCAP_CISCO_IOS			24
-#define WTAP_ENCAP_LOCALTALK			25
-#define WTAP_ENCAP_PRISM_HEADER			26
-#define WTAP_ENCAP_PFLOG			27
-#define WTAP_ENCAP_HHDLC			28
-#define WTAP_ENCAP_DOCSIS			29
-#define WTAP_ENCAP_COSINE			30
-#define WTAP_ENCAP_WLAN_HEADER			31
-#define WTAP_ENCAP_WFLEET_HDLC			32
-#define WTAP_ENCAP_SDLC				33
-#define WTAP_ENCAP_TZSP				34
+#define WTAP_ENCAP_ARCNET_LINUX			9
+#define WTAP_ENCAP_ATM_RFC1483			10
+#define WTAP_ENCAP_LINUX_ATM_CLIP		11
+#define WTAP_ENCAP_LAPB				12
+#define WTAP_ENCAP_ATM_PDUS			13
+#define WTAP_ENCAP_ATM_PDUS_UNTRUNCATED		14
+#define WTAP_ENCAP_NULL				15
+#define WTAP_ENCAP_ASCEND			16
+#define WTAP_ENCAP_ISDN				17
+#define WTAP_ENCAP_IP_OVER_FC			18
+#define WTAP_ENCAP_PPP_WITH_PHDR		19
+#define WTAP_ENCAP_IEEE_802_11			20
+#define WTAP_ENCAP_IEEE_802_11_WITH_RADIO	21
+#define WTAP_ENCAP_SLL				22
+#define WTAP_ENCAP_FRELAY			23
+#define WTAP_ENCAP_CHDLC			24
+#define WTAP_ENCAP_CISCO_IOS			25
+#define WTAP_ENCAP_LOCALTALK			26
+#define WTAP_ENCAP_PRISM_HEADER			27
+#define WTAP_ENCAP_PFLOG			28
+#define WTAP_ENCAP_HHDLC			29
+#define WTAP_ENCAP_DOCSIS			30
+#define WTAP_ENCAP_COSINE			31
+#define WTAP_ENCAP_WLAN_HEADER			32
+#define WTAP_ENCAP_WFLEET_HDLC			33
+#define WTAP_ENCAP_SDLC				34
+#define WTAP_ENCAP_TZSP				35
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			35
+#define WTAP_NUM_ENCAP_TYPES			36
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we

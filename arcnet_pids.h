@@ -2,7 +2,7 @@
  * ARCNET protocol ID values
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: arcnet_pids.h,v 1.1 2002/10/18 20:59:57 guy Exp $
+ * $Id: arcnet_pids.h,v 1.2 2003/01/23 04:03:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,6 +23,33 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#define ARCNET_PROTO_IP		0xd4
-#define ARCNET_PROTO_ARP	0xd5
-#define ARCNET_PROTO_IPX	0xfa
+/* RFC 1051 */
+#define ARCNET_PROTO_IP_1051	240
+#define ARCNET_PROTO_ARP_1051	241
+
+/* RFC 1201 */
+#define ARCNET_PROTO_IP_1201	212
+#define ARCNET_PROTO_ARP_1201	213
+#define ARCNET_PROTO_RARP_1201	214
+
+#define ARCNET_PROTO_IPX	250
+#define ARCNET_PROTO_NOVELL_EC	236
+
+#define ARCNET_PROTO_IPv6	196	/* or so BSD's arcnet.h claims */
+
+/*
+ * Raw Ethernet over ARCNET - Linux's "if_arcnet.h" calls this
+ * "MS LAanMan/WfWg 'NDIS' encapsuation".
+ */
+#define ARCNET_PROTO_ETHERNET	232
+
+#define ARCNET_PROTO_DATAPOINT_BOOT	0
+#define ARCNET_PROTO_DATAPOINT_MOUNT	1
+#define ARCNET_PROTO_POWERLAN_BEACON	8
+#define ARCNET_PROTO_POWERLAN_BEACON2	243
+#define ARCNET_PROTO_LANSOFT	251
+
+#define ARCNET_PROTO_APPLETALK	221
+#define ARCNET_PROTO_BANYAN	247	/* Banyan VINES */
+
+#define ARCNET_PROTO_DIAGNOSE	128	/* as per ANSI/ATA 878.1 */

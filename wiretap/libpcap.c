@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.90 2003/01/10 04:04:41 guy Exp $
+ * $Id: libpcap.c,v 1.91 2003/01/23 04:04:00 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -242,6 +242,7 @@ static const struct {
 	{ 123,		WTAP_ENCAP_ATM_PDUS },  /* SunATM */
 	{ 127,		WTAP_ENCAP_WLAN_HEADER },  /* 802.11 plus WLAN header */
 	{ 128,		WTAP_ENCAP_TZSP },	/* Tazmen Sniffer Protocol */
+	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
 
 	/*
 	 * The following are entries for libpcap type values that have
