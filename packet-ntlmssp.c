@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.28 2002/11/08 01:45:37 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.29 2002/11/08 04:25:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -526,7 +526,6 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   int data_start, data_end;
   guint32 *flag_info;
   conversation_t *conversation;
-  gboolean no_sess_key = FALSE;
   gboolean unicode_strings = FALSE;
 
   /* need to find unicode flag */
@@ -797,7 +796,7 @@ proto_register_ntlmssp(void)
       { "NTLM Message Type", "ntlmssp.messagetype", FT_UINT32, BASE_HEX, VALS(ntlmssp_message_types), 0x0, "", HFILL }},
 
     { &hf_ntlmssp_negotiate_flags,
-      { "Flags", "dcerpc.negotiateflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Flags", "ntlmssp.negotiateflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_01,
 
       { "Negotiate UNICODE", "ntlmssp.negotiateunicode", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_UNICODE, "", HFILL }},
