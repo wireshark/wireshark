@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.29 2003/01/27 19:28:52 guy Exp $
+ * $Id: packet-mpls.c,v 1.30 2004/05/12 20:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,10 +41,13 @@
 #include <epan/packet.h>
 #include "ppptypes.h"
 #include "etypes.h"
+#include "prefs.h"
+#include "packet-ppp.h"
 
 static gint proto_mpls = -1;
 
 static gint ett_mpls = -1;
+static gint ett_mpls_control = -1;
 
 /* Special labels in MPLS */
 enum {
@@ -80,6 +83,9 @@ enum mpls_filter_keys {
 };
 
 static int mpls_filter[MPLSF_MAX];
+static int hf_mpls_control_control = -1;
+static int hf_mpls_control_res = -1;
+
 static hf_register_info mplsf_info[] = {
 
 /*    {&mpls_filter[MPLSF_PACKET],
@@ -101,11 +107,21 @@ static hf_register_info mplsf_info[] = {
     {&mpls_filter[MPLSF_TTL],
      {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
       "", HFILL }},
+
+    {&hf_mpls_control_control,
+     {"MPLS Control Channel", "mpls.cw.control", FT_UINT8, BASE_DEC, NULL, 0xF0,
+      "First nibble", HFILL }},
+
+    {&hf_mpls_control_res,
+     {"Reserved", "mpls.cw.res", FT_UINT16, BASE_HEX, NULL, 0xFFF, 
+      "Reserved", HFILL }},
 };
 
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t eth_handle;
+static dissector_handle_t data_handle;
+static dissector_table_t ppp_subdissector_table;
 
 /*
  * Given a 4-byte MPLS label starting at offset "offset", in tvbuff "tvb",
@@ -125,6 +141,45 @@ void decode_mpls_label(tvbuff_t *tvb, int offset,
     *exp = (octet2 >> 1) & 0x7;
     *bos = (octet2 & 0x1);
     *ttl = tvb_get_guint8(tvb, offset+3);
+}
+
+static void
+dissect_mpls_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree  *mpls_control_tree = NULL;
+    proto_item  *ti;
+    tvbuff_t    *next_tvb;
+    guint8      ctrl;
+    guint16     res, ppp_proto;
+
+    if (tvb_reported_length_remaining(tvb, 0) < 4){
+        if(tree)
+            proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
+        return;
+    }
+    ctrl = (tvb_get_guint8(tvb, 0) & 0xF0) >> 4;
+    res = tvb_get_ntohs(tvb, 0) & 0x0FFF;
+    ppp_proto = tvb_get_ntohs(tvb, 2);
+    if (tree) {
+        ti = proto_tree_add_text(tree, tvb, 0, 4, "MPLS PW Control Channel Header");
+        mpls_control_tree = proto_item_add_subtree(ti, ett_mpls_control);
+        if(mpls_control_tree == NULL) return;
+
+        proto_tree_add_uint_format(mpls_control_tree, hf_mpls_control_control, tvb, 0, 1,
+            ctrl, "Control Channel: 0x%1x", ctrl);
+        proto_tree_add_uint_format(mpls_control_tree, hf_mpls_control_res, tvb, 0, 2,
+            res, "Reserved: 0x%03x", res);
+        proto_tree_add_text(mpls_control_tree, tvb, 2, 2,
+            "PPP DLL Protocol Number: %s (0x%04X)", 
+                val_to_str(ppp_proto, ppp_vals, "Unknown"), ppp_proto);
+    }
+    next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+    if (!dissector_try_port(ppp_subdissector_table, ppp_proto, 
+        next_tvb, pinfo, tree)) {
+            call_dissector(data_handle, next_tvb, pinfo, tree);
+    }
+
+
 }
 
 static void
@@ -184,6 +239,8 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     } else if (ipvers == 4) {
       call_dissector(ipv4_handle, next_tvb, pinfo, tree);
+    } else if (ipvers == 1) {
+      dissect_mpls_control(next_tvb, pinfo, tree);
     } else {
       call_dissector(eth_handle, next_tvb, pinfo, tree);
     }
@@ -194,6 +251,7 @@ proto_register_mpls(void)
 {
 	static gint *ett[] = {
 		&ett_mpls,
+                &ett_mpls_control,
 	};
 
 	proto_mpls = proto_register_protocol("MultiProtocol Label Switching Header",
@@ -208,11 +266,14 @@ proto_reg_handoff_mpls(void)
 	dissector_handle_t mpls_handle;
 
 	/*
-	 * Get a handle for the IPv4 and IPv6 dissectors.
+	 * Get a handle for the IPv4 and IPv6 dissectors and PPP protocol dissector table.
 	 */
 	ipv4_handle = find_dissector("ip");
 	ipv6_handle = find_dissector("ipv6");
 	eth_handle = find_dissector("eth");
+        data_handle = find_dissector("data");
+        ppp_subdissector_table = find_dissector_table("ppp.protocol");
+
 
 	mpls_handle = create_dissector_handle(dissect_mpls, proto_mpls);
 	dissector_add("ethertype", ETHERTYPE_MPLS, mpls_handle);
