@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.100 2002/08/21 21:10:10 guy Exp $
+ * $Id: packet-rpc.c,v 1.101 2002/08/22 20:22:22 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -165,7 +165,7 @@ static int hf_rpc_authgss_ctx = -1;
 static int hf_rpc_authgss_major = -1;
 static int hf_rpc_authgss_minor = -1;
 static int hf_rpc_authgss_window = -1;
-static int hf_rpc_authgss_token = -1;
+static int hf_rpc_authgss_token_length = -1;
 static int hf_rpc_authgss_data_length = -1;
 static int hf_rpc_authgss_data = -1;
 static int hf_rpc_authgss_checksum = -1;
@@ -203,11 +203,13 @@ static gint ett_rpc_string = -1;
 static gint ett_rpc_cred = -1;
 static gint ett_rpc_verf = -1;
 static gint ett_rpc_gids = -1;
+static gint ett_rpc_gss_token = -1;
 static gint ett_rpc_gss_data = -1;
 static gint ett_rpc_array = -1;
 
 static dissector_handle_t rpc_tcp_handle;
 static dissector_handle_t rpc_handle;
+static dissector_handle_t gssapi_handle;
 static dissector_handle_t data_handle;
 
 fragment_items rpc_frag_items = {
@@ -1002,28 +1004,58 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type)
 	return offset;
 }
 
+/*
+ * XDR opaque object, the contents of which are interpreted as a GSS-API
+ * token.
+ */
 static int
-dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset)
+dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
+    packet_info *pinfo)
 {
-	/*
-	 * XXX - should this use the GSS-API token dissector?
-	 * We'd have to extract the length ourselves, construct
-	 * a tvbuff containing the body of the opaque data,
-	 * and then hand that to the GSS-API token dissector.
-	 */
-	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_token,
-			offset);
+	guint32 opaque_length, rounded_length;
+	gint length, reported_length;
+	tvbuff_t *new_tvb;
+
+	proto_item *gitem;
+	proto_tree *gtree = NULL;
+
+	opaque_length = tvb_get_ntohl(tvb, offset+0);
+	rounded_length = rpc_roundup(opaque_length);
+	if (tree) {
+		gitem = proto_tree_add_text(tree, tvb, offset,
+					    4+rounded_length, "GSS Token");
+		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_token);
+		proto_tree_add_uint(gtree, hf_rpc_authgss_token_length,
+				    tvb, offset+0, 4, opaque_length);
+	}
+	offset += 4;
+	length = tvb_length_remaining(tvb, offset);
+	reported_length = tvb_reported_length_remaining(tvb, offset);
+	g_assert(length >= 0);
+	g_assert(reported_length >= 0);
+	if (length > reported_length)
+		length = reported_length;
+	if ((guint32)length > opaque_length)
+		length = opaque_length;
+	if ((guint32)reported_length > opaque_length)
+		reported_length = opaque_length;
+	new_tvb = tvb_new_subset(tvb, offset, length, reported_length);
+	call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
+	offset += rounded_length;
+
 	return offset;
 }
 
 static int
-dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset)
+dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
+    packet_info *pinfo)
 {
-	return dissect_rpc_authgss_token(tvb, tree, offset);
+	return dissect_rpc_authgss_token(tvb, tree, offset, pinfo);
 }
 
 static int
-dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset)
+dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
+    packet_info *pinfo)
 {
 	int major, minor, window;
 	
@@ -1048,7 +1080,7 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset)
 				    offset+0, 4, window);
 	offset += 4;
 
-	offset = dissect_rpc_authgss_token(tvb, tree, offset);
+	offset = dissect_rpc_authgss_token(tvb, tree, offset, pinfo);
 
 	return offset;
 }
@@ -1083,18 +1115,21 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	dissect_function_t* dissect_function,
 	const char *progname)
 {
-	guint32 length, seq;
+	guint32 length, rounded_length, seq;
 	
 	proto_item *gitem;
 	proto_tree *gtree = NULL;
 
 	length = tvb_get_ntohl(tvb, offset+0);
-	length = rpc_roundup(length);
+	rounded_length = rpc_roundup(length);
 	seq = tvb_get_ntohl(tvb, offset+4);
 
 	if (tree) {
+		/*
+		 * XXX - is the "GSS Data" a GSS token?
+		 */
 		gitem = proto_tree_add_text(tree, tvb, offset,
-					    4+length, "GSS Data");
+					    4+rounded_length, "GSS Data");
 		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_data);
 		proto_tree_add_uint(gtree, hf_rpc_authgss_data_length,
 				    tvb, offset+0, 4, length);
@@ -1108,7 +1143,7 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 		call_dissect_function(tvb, pinfo, gtree, offset,
 				      dissect_function, progname);
 	}
-	offset += length - 4;
+	offset += rounded_length - 4;
 	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_checksum,
 			offset);
 	return offset;
@@ -2126,11 +2161,11 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case RPCSEC_GSS_CONTINUE_INIT:
 			if (msg_type == RPC_CALL) {
 				offset = dissect_rpc_authgss_initarg(tvb,
-					ptree, offset);
+					ptree, offset, pinfo);
 			}
 			else {
 				offset = dissect_rpc_authgss_initres(tvb,
-					ptree, offset);
+					ptree, offset, pinfo);
 			}
 			break;
 
@@ -2921,9 +2956,9 @@ proto_register_rpc(void)
 		{ &hf_rpc_authgss_window, {
 			"GSS Sequence Window", "rpc.authgss.window", FT_UINT32,
 			BASE_DEC, NULL, 0, "GSS Sequence Window", HFILL }},
-		{ &hf_rpc_authgss_token, {
-			"GSS Token", "rpc.authgss.token", FT_BYTES,
-			BASE_HEX, NULL, 0, "GSS Token", HFILL }},
+		{ &hf_rpc_authgss_token_length, {
+			"GSS Token Length", "rpc.authgss.token_length", FT_UINT32,
+			BASE_DEC, NULL, 0, "GSS Token Length", HFILL }},
 		{ &hf_rpc_authgss_data_length, {
 			"Length", "rpc.authgss.data.length", FT_UINT32,
 			BASE_DEC, NULL, 0, "Length", HFILL }},
@@ -3017,6 +3052,7 @@ proto_register_rpc(void)
 		&ett_rpc_cred,
 		&ett_rpc_verf,
 		&ett_rpc_gids,
+		&ett_rpc_gss_token,
 		&ett_rpc_gss_data,
 		&ett_rpc_array,
 	};
@@ -3063,5 +3099,6 @@ proto_reg_handoff_rpc(void)
 {
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, proto_rpc);
 	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);
+	gssapi_handle = find_dissector("gssapi");
 	data_handle = find_dissector("data");
 }
