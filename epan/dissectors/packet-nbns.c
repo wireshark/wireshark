@@ -438,7 +438,7 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		offset += 2;
 
 		proto_tree_add_text(q_tree, tvb, offset, 2, "Class: %s",
-		    dns_class_description(class));
+		    dns_class_name(class));
 		offset += 2;
 	}
 
@@ -653,8 +653,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		strcat(name, netbios_name_type_descr(name_type));
 		strcat(name, ")");
 		rr_tree = add_rr_to_tree(trr, ett_nbns_rr, tvb, offset, name,
-		    name_len, type_name, dns_class_description(class),
-		    ttl, data_len);
+		    name_len, type_name, dns_class_name(class), ttl, data_len);
 		while (data_len > 0) {
 			if (opcode == OPCODE_WACK) {
 				/* WACK response.  This doesn't contain the
@@ -706,8 +705,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		    "%s: type %s, class %s",
 		    name, type_name, class_name);
 		rr_tree = add_rr_to_tree(trr, ett_nbns_rr, tvb, offset, name,
-		    name_len, type_name, dns_class_description(class),
-		    ttl, data_len);
+		    name_len, type_name, dns_class_name(class), ttl, data_len);
 		if (data_len < 1) {
 			proto_tree_add_text(rr_tree, tvb, cur_offset,
 			    data_len, "(incomplete entry)");
@@ -951,8 +949,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
                     "%s: type %s, class %s",
 		    name, type_name, class_name);
 		rr_tree = add_rr_to_tree(trr, ett_nbns_rr, tvb, offset, name,
-		    name_len, type_name, dns_class_description(class),
-		    ttl, data_len);
+		    name_len, type_name, dns_class_name(class), ttl, data_len);
 		proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
 		cur_offset += data_len;
 		break;

@@ -503,51 +503,6 @@ dns_class_name(int class)
   return val_to_str(class, dns_classes, "Unknown (%u)");
 }
 
-char *
-dns_class_description(int class)
-{
-  char *short_name, *long_name;
-  static char strbuf[1024+1];
-
-  short_name = dns_class_name(class);
-  if (short_name == NULL) {
-    snprintf(strbuf, sizeof strbuf, "Unknown (%u)", class);
-    return strbuf;
-  }
-  switch (class) {
-  case C_IN:
-    long_name = "Internet";
-    break;
-  case ( C_IN | C_FLUSH ):
-    long_name = "Internet (data flush)";
-    break;
-  case C_CS:
-    long_name = "CSNET";
-    break;
-  case C_CH:
-    long_name = "CHAOS";
-    break;
-  case C_HS:
-    long_name = "Hesiod";
-    break;
-  case C_NONE:
-    long_name = "None";
-    break;
-  case C_ANY:
-    long_name = "Any";
-    break;
-  default:
-    long_name = NULL;
-    break;
-  }
-
-  if (long_name != NULL)
-    snprintf(strbuf, sizeof strbuf, "%s (%s)", short_name, long_name);
-  else
-    snprintf(strbuf, sizeof strbuf, "%s", short_name);
-  return strbuf;
-}
-
 int
 get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
     char *name, int maxname)
@@ -823,8 +778,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 		"Type: %s", dns_type_description(type));
     offset += 2;
 
-    proto_tree_add_uint_format(q_tree, hf_dns_qry_class, tvb, offset, 2, class,
-		"Class: %s", dns_class_description(class));
+    proto_tree_add_uint(q_tree, hf_dns_qry_class, tvb, offset, 2, class);
     offset += 2;
   }
 
@@ -845,8 +799,7 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, offset, 2, type,
 		"Type: %s", dns_type_description(type));
   offset += 2;
-  proto_tree_add_uint_format(rr_tree, hf_dns_rr_class, tvb, offset, 2, class,
-		"Class: %s", dns_class_description(class));
+  proto_tree_add_uint(rr_tree, hf_dns_rr_class, tvb, offset, 2, class);
   offset += 2;
   proto_tree_add_uint_format(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl,
 		"Time to live: %s", time_secs_to_str(ttl));

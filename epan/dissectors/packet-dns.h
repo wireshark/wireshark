@@ -28,7 +28,6 @@
 #define __PACKET_DNS_H__
 
 char *dns_class_name(int class);
-char *dns_class_description(int class);
 
 int get_dns_name(tvbuff_t *, int, int, char *, int);
 
