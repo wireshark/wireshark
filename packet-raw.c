@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.14 2000/05/11 08:15:40 gram Exp $
+ * $Id: packet-raw.c,v 1.15 2000/05/19 05:29:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-raw.h"
 #include "packet-ip.h"
 
 static gint ett_raw = -1;

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.41 2000/05/16 04:44:12 gram Exp $
+ * $Id: packet-tr.c,v 1.42 2000/05/19 05:29:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-tr.h"
 #include "packet-llc.h"
 #include "packet-trmac.h"
 	

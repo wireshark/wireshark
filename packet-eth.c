@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.40 2000/05/19 04:54:33 gram Exp $
+ * $Id: packet-eth.c,v 1.41 2000/05/19 05:29:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,7 @@
 #include "packet.h"
 #include "etypes.h"
 #include "resolv.h"
+#include "packet-eth.h"
 #include "packet-ipx.h"
 #include "packet-isl.h"
 #include "packet-llc.h"
