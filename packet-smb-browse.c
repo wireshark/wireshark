@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.27 2003/02/20 07:55:00 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.28 2003/03/21 05:28:04 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@ static int hf_update_count = -1;
 static int hf_periodicity = -1;
 static int hf_server_name = -1;
 static int hf_mb_server_name = -1;
+static int hf_mb_reset_command = -1;
 static int hf_os_major = -1;
 static int hf_os_minor = -1;
 static int hf_server_type = -1;
@@ -160,6 +161,13 @@ static const value_string server_types[] = {
 	{SERVER_LOCAL_LIST_ONLY,	"Local List Only"},
 	{SERVER_DOMAIN_ENUM,		"Domain Enum"},
 	{0,	NULL}
+};
+
+static const value_string resetbrowserstate_command_names[] = {
+  { 0x01, "Stop being a master browser and become a backup browser"},
+  { 0x02, "Discard browse lists, stop being a master browser, and try again"},
+  { 0x04, "Stop being a master browser for ever"},
+  { 0, NULL}
 };
 
 static const true_false_string tfs_workstation = {
@@ -309,6 +317,7 @@ static const true_false_string tfs_desire_nt = {
 #define BROWSE_BECOME_BACKUP			11
 #define BROWSE_DOMAIN_ANNOUNCEMENT		12
 #define BROWSE_MASTER_ANNOUNCEMENT		13
+#define BROWSE_RESETBROWSERSTATE_ANNOUNCEMENT   14
 #define BROWSE_LOCAL_MASTER_ANNOUNCEMENT	15
 
 static const value_string commands[] = {
@@ -320,6 +329,7 @@ static const value_string commands[] = {
 	{BROWSE_BECOME_BACKUP,		"Become Backup Browser"},
 	{BROWSE_DOMAIN_ANNOUNCEMENT,	"Domain/Workgroup Announcement"},
 	{BROWSE_MASTER_ANNOUNCEMENT,	"Master Announcement"},
+	{BROWSE_RESETBROWSERSTATE_ANNOUNCEMENT, "Reset Browser State Announcement"},
 	{BROWSE_LOCAL_MASTER_ANNOUNCEMENT,"Local Master Announcement"},
 	{0,				NULL}
 };
@@ -750,6 +760,14 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += namelen;
 		break;
 
+	case BROWSE_RESETBROWSERSTATE_ANNOUNCEMENT:
+		/* the subcommand follows ... one of three values */
+
+		proto_tree_add_item(tree, hf_mb_reset_command,
+			tvb, offset, 1, TRUE);
+		offset += 1;
+		break;
+
 	case BROWSE_BECOME_BACKUP:
 		/* name of browser to promote */
 		namelen = tvb_strsize(tvb, offset);
@@ -897,6 +915,10 @@ proto_register_smb_browse(void)
 			{ "Master Browser Server Name", "browser.mb_server", FT_STRING, BASE_NONE,
 			NULL, 0, "BROWSE Master Browser Server Name", HFILL }},
 
+		{ &hf_mb_reset_command,
+		  { "ResetBrowserState Command", "browser.reset_cmd", FT_UINT8,
+		    BASE_HEX, VALS(&resetbrowserstate_command_names), 0,
+		    "ResetBrowserState Command", HFILL }},
 		{ &hf_os_major,
 			{ "OS Major Version", "browser.os_major", FT_UINT8, BASE_DEC,
 			NULL, 0, "Operating System Major Version", HFILL }},
