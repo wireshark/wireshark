@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.8 2002/03/06 10:01:17 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.9 2002/03/09 22:46:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -562,7 +562,15 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 	}
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+		/*
+		 * XXX - this means that if we throw an exception, this
+		 * item might have an empty string as its tag.
+		 *
+		 * Some versions of GCC warn of a zero-length format
+		 * string.  I'm leaving that warning in, as a note that
+		 * we need to handle this better.
+		 */
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 			"");
 		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
 	}
