@@ -1,4 +1,35 @@
 ------------------------------------------------------------------------
+r12759 | gerald | 2004-12-15 11:03:33 -0600 (Wed, 15 Dec 2004) | 3 lines
+Changed paths:
+   M /releases/ethereal-0.10.8/gtk/h323_conversations.c
+   M /releases/ethereal-0.10.8/gtk/sctp_assoc_analyse.c
+   M /releases/ethereal-0.10.8/gtk/sctp_byte_graph_dlg.c
+   M /releases/ethereal-0.10.8/gtk/sctp_error_dlg.c
+   M /releases/ethereal-0.10.8/gtk/sctp_graph_dlg.c
+   M /releases/ethereal-0.10.8/gtk/sctp_stat.c
+   M /releases/ethereal-0.10.8/gtk/sctp_stat.h
+   M /releases/ethereal-0.10.8/gtk/sctp_stat_dlg.c
+   M /releases/ethereal-0.10.8/plugins/enttec/packet-enttec.c
+
+Copy over some indentation and C/C++ comment fixes from r12710 that
+didn't make it the first time around.
+
+------------------------------------------------------------------------
+r12758 | gerald | 2004-12-15 10:29:34 -0600 (Wed, 15 Dec 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.8/NEWS
+
+Final changes for 0.10.8.
+
+------------------------------------------------------------------------
+r12754 | gerald | 2004-12-14 17:15:46 -0600 (Tue, 14 Dec 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.8/ChangeLog
+   M /releases/ethereal-0.10.8/NEWS
+
+Updates for the 0.10.8 release.
+
+------------------------------------------------------------------------
 r12753 | gerald | 2004-12-14 14:25:11 -0600 (Tue, 14 Dec 2004) | 19 lines
 Changed paths:
    M /releases/ethereal-0.10.8/AUTHORS
