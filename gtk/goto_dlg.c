@@ -136,18 +136,7 @@ goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 void
 goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-    if (cfile.finfo_selected) {
-	header_field_info	*hfinfo;
-	guint32			framenum;
-
-	hfinfo = cfile.finfo_selected->hfinfo;
-	g_assert(hfinfo);
-	if (hfinfo->type == FT_FRAMENUM) {
-	    framenum = fvalue_get_integer(&cfile.finfo_selected->value);
-	    if (framenum != 0)
-		goto_frame(&cfile, framenum);
-	}
-    }
+    goto_framenum(&cfile);
 }
 
 void
