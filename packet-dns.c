@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.32 1999/12/07 00:22:10 nneul Exp $
+ * $Id: packet-dns.c,v 1.33 1999/12/29 10:36:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1346,7 +1346,7 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   dns_data_offset = offset;
 
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "DNS (UDP)");
+    col_add_str(fd, COL_PROTOCOL, "DNS");
 
   if (pi.captured_len < DNS_HDRLEN) {
     col_add_str(fd, COL_INFO, "Short DNS packet");
@@ -1363,10 +1363,16 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   add   = pntohs(&pd[offset + DNS_ADD]);
 
   if (check_col(fd, COL_INFO)) {
-    col_add_fstr(fd, COL_INFO, "%s%s",
-                val_to_str(flags & F_OPCODE, opcode_vals,
-                           "Unknown operation (%x)"),
-                (flags & F_RESPONSE) ? " response" : "");
+    strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown operation (%x)"));
+    if (flags & F_RESPONSE) {
+      strcat(buf, " response");
+      if ((flags & F_RCODE) != RCODE_NOERROR) {
+        strcat(buf, ", ");
+        strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
+            "Unknown error (%x)"));
+      }
+    }
+    col_add_str(fd, COL_INFO, buf);
   } else {
     /* Set "fd" to NULL; we pass a NULL "fd" to the query and answer
        dissectors, as a way of saying that they shouldn't add stuff
