@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.175 2000/04/03 08:42:44 guy Exp $
+ * $Id: file.c,v 1.176 2000/04/03 08:57:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -699,7 +699,11 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     /* XXX - if we didn't have read filters, or if we could avoid
        allocating the "frame_data" structure until we knew whether
        the frame passed the read filter, we could use a G_ALLOC_ONLY
-       memory chunk, probably saving time and space. */
+       memory chunk...
+
+       ...but, at least in one test I did, where I just made the chunk
+       a G_ALLOC_ONLY chunk and read in a huge capture file, it didn't
+       seem to save a noticeable amount of time or space. */
     g_mem_chunk_free(cf->plist_chunk, fdata);
   }
 }
