@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.34 2003/04/20 11:36:13 guy Exp $
+ * $Id: packet-eap.c,v 1.35 2004/02/03 18:22:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,7 @@ References:
 #define EAP_TYPE_NAK    3
 #define EAP_TYPE_TLS	13
 #define EAP_TYPE_LEAP	17
+#define EAP_TYPE_TTLS	21
 
 static const value_string eap_type_vals[] = {
   {EAP_TYPE_ID,  "Identity [RFC2284]" },
@@ -92,7 +93,7 @@ static const value_string eap_type_vals[] = {
   { 18,          "Nokia IP smart card authentication [Haverinen]" },
   { 19,          "SRP-SHA1 Part 1 [Carlson]" },
   { 20,          "SRP-SHA1 Part 2 [Carlson]" },
-  { 21,          "EAP-TTLS [Funk]" },
+  {EAP_TYPE_TTLS,"EAP-TTLS [Funk]" },
   { 22,          "Remote Access Service [Fields]" },
   { 23,          "UMTS Authentication and Key Agreement [Haverinen]" },
   { 24,          "EAP-3Com Wireless [Young]" },
@@ -431,6 +432,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /*********************************************************************
                                   EAP-TLS
       **********************************************************************/
+      case EAP_TYPE_TTLS:
       case EAP_TYPE_TLS:
 	{
 	guint8 flags   = tvb_get_guint8(tvb, offset);
