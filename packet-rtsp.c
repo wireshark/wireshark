@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.32 2001/01/09 06:31:41 guy Exp $
+ * $Id: packet-rtsp.c,v 1.33 2001/01/11 19:30:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,8 @@
 static int proto_rtsp = -1;
 static gint ett_rtsp = -1;
 
+static gint ett_rtspframe = -1;
+
 static int hf_rtsp_method = -1;
 static int hf_rtsp_url = -1;
 static int hf_rtsp_status = -1;
@@ -60,6 +62,78 @@ static int hf_rtsp_status = -1;
  * i.e., the size of the array, minus 1 for the null terminator.
  */
 #define STRLEN_CONST(str)	(sizeof (str) - 1)
+
+#define RTSP_FRAMEHDR	('$')
+
+static int
+dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree)
+{
+	proto_tree	*rtspframe_tree;
+	proto_item	*ti;
+	int		orig_offset, len;
+	guint8		rf_start;	/* always RTSP_FRAMEHDR */
+	guint8		rf_chan;        /* interleaved channel id */
+	guint16		rf_len;         /* packet length */
+	gint		framelen;
+	tvbuff_t	*next_tvb;
+
+	orig_offset = offset;
+	rf_start = tvb_get_guint8(tvb, offset);
+	rf_chan = tvb_get_guint8(tvb, offset+1);
+	rf_len = tvb_get_ntohs(tvb, offset+2);
+
+	if (check_col(pinfo->fd, COL_INFO))
+		col_add_fstr(pinfo->fd, COL_INFO, 
+			"Interleaved channel 0x%02x, %u bytes",
+			rf_chan, rf_len);
+
+	if (tree == NULL) {
+		/*
+		 * We're not building a full protocol tree; all we care
+		 * about is setting the column info.
+		 */
+		return -1;
+	}
+	ti = proto_tree_add_text(tree, tvb, offset, 4,
+		"RTSP Interleaved Frame, Channel: 0x%02x, %u bytes",
+		rf_chan, rf_len);
+	rtspframe_tree = proto_item_add_subtree(ti, ett_rtspframe);
+
+	proto_tree_add_text(rtspframe_tree, tvb, offset, 1,
+		"Magic: 0x%02x",
+		rf_start);
+	offset += 1;
+
+	proto_tree_add_text(rtspframe_tree, tvb, offset, 1,
+		"Channel: 0x%02x",
+		rf_chan);
+	offset += 1;
+
+	len = 2;
+	proto_tree_add_text(rtspframe_tree, tvb, offset, 2,
+		"Length: %u bytes",
+		rf_len);
+	offset += 2;
+
+	/*
+	 * We set the actual length of the tvbuff for the interleaved
+	 * stuff to the minimum of what's left in the tvbuff and the
+	 * length in the header.
+	 *
+	 * XXX - what if there's nothing left in the tvbuff?
+	 * We'd want a BoundsError exception to be thrown, so
+	 * that a Short Frame would be reported.
+	 */
+	framelen = tvb_length_remaining(tvb, offset);
+	if (framelen > rf_len)
+		framelen = rf_len;
+	next_tvb = tvb_new_subset(tvb, offset, framelen, rf_len);
+	dissect_data(next_tvb, 0, pinfo, tree);
+	offset += rf_len;
+
+	return offset - orig_offset;
+}
 
 static void process_rtsp_request(tvbuff_t *tvb, int offset, const u_char *data,
 	int linelen, proto_tree *tree);
@@ -484,8 +558,19 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    content_length);
 			call_dissector(sdp_handle, new_tvb, pinfo, tree);
 		} else {
-			proto_tree_add_text(rtsp_tree, tvb, offset, datalen,
-			    "Data (%d bytes)", datalen);
+			if (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR) {
+				/*
+				 * This is interleaved stuff; don't
+				 * treat it as raw data - set "datalen"
+				 * to 0, so we won't skip the offset
+				 * past it, which will cause our
+				 * caller to process that stuff itself.
+				 */
+				datalen = 0;
+			} else {
+				proto_tree_add_text(rtsp_tree, tvb, offset,
+				    datalen, "Data (%d bytes)", datalen);
+			}
 		}
 
 		/*
@@ -582,7 +667,9 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->fd, COL_PROTOCOL, "RTSP");
 
 	while (tvb_offset_exists(tvb, offset)) {
-		len = dissect_rtspmessage(tvb, offset, pinfo, tree);
+		len = (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR)
+			? dissect_rtspinterleaved(tvb, offset, pinfo, tree)
+			: dissect_rtspmessage(tvb, offset, pinfo, tree);
 		if (len == -1)
 			break;
 		offset += len;
@@ -600,6 +687,7 @@ void
 proto_register_rtsp(void)
 {
 	static gint *ett[] = {
+		&ett_rtspframe,
 		&ett_rtsp,
 	};
 	static hf_register_info hf[] = {
