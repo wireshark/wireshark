@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.22 2004/01/21 22:00:28 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.23 2004/01/23 00:29:52 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -65,6 +65,9 @@
 #include "progress_dlg.h"
 #include "compat_macros.h"
 
+#include "image/clist_ascend.xpm"
+#include "image/clist_descend.xpm"
+
 #include <math.h>
 #include <fcntl.h>
 #include <string.h>
@@ -83,12 +86,20 @@
 
 /****************************************************************************/
 
+typedef struct column_arrows {
+	GtkWidget *table;
+	GtkWidget *ascend_pm;
+	GtkWidget *descend_pm;
+} column_arrows;
+
 typedef struct _dialog_data_t {
 	GtkWidget *window;
 	GtkCList *clist_fwd;
 	GtkCList *clist_rev;
 	GtkWidget *label_stats_fwd;
 	GtkWidget *label_stats_rev;
+	column_arrows *col_arrows_fwd;
+	column_arrows *col_arrows_rev;
 	GtkWidget *notebook;
 	GtkCList *selected_clist;
 	GtkWidget *save_voice_as_w;
@@ -200,8 +211,10 @@ typedef const guint8 * ip_addr_p;
 /****************************************************************************/
 /* when there is a [re]reading of packet's */
 static void
-rtp_reset(user_data_t *user_data _U_)
+rtp_reset(void *user_data_arg)
 {
+	user_data_t *user_data = user_data_arg;
+
 	user_data->forward.statinfo.first_packet = TRUE;
 	user_data->reversed.statinfo.first_packet = TRUE;
 	user_data->forward.statinfo.max_delay = 0;
@@ -285,8 +298,10 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
-static int rtp_packet(user_data_t *user_data, packet_info *pinfo, epan_dissect_t *edt _U_, struct _rtp_info *rtpinfo)
+static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, void *rtpinfo_arg)
 {
+	user_data_t *user_data = user_data_arg;
+	struct _rtp_info *rtpinfo = rtpinfo_arg;
 #ifdef USE_CONVERSATION_GRAPH
 	value_pair_t vp;
 #endif
@@ -635,10 +650,7 @@ void unprotect_thread_critical_region(void);
 /* close the dialog window and remove the tap listener */
 static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 {
-	protect_thread_critical_region();
-	remove_tap_listener(user_data);
-	unprotect_thread_critical_region();
-
+	/* close and remove temporary files */
 	if (user_data->forward.saveinfo.fp != NULL)
 		fclose(user_data->forward.saveinfo.fp);
 	if (user_data->reversed.saveinfo.fp != NULL)
@@ -646,16 +658,18 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 	remove(user_data->f_tempname);
 	remove(user_data->r_tempname);
 
-	/* Is there a save voice window open? */
+	/* destroy save_voice_as window if open */
 	if (user_data->dlg.save_voice_as_w != NULL)
 		gtk_widget_destroy(user_data->dlg.save_voice_as_w);
 
 #ifdef USE_CONVERSATION_GRAPH
-	/* Is there a graph window open? */
+	/* destroy graph window if open */
 	if (user_data->dlg.graph_window != NULL)
 		gtk_widget_destroy(user_data->dlg.graph_window);
 #endif
 
+	g_free(user_data->dlg.col_arrows_fwd);
+	g_free(user_data->dlg.col_arrows_rev);
 	g_free(user_data);
 }
 
@@ -785,13 +799,54 @@ static void draw_stat(user_data_t *user_data);
 /* re-dissects all packets */
 static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 {
-/*
-	***TODO: WILL NOT WORK THIS WAY ANY MORE!***
+	gchar filter_text[256];
+	dfilter_t *sfcode;
+	GString *error_string;
+
+	/* clear the dialog box clists */
 	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_fwd));
 	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_rev));
+
+	/* try to compile the filter. */
+	strcpy(filter_text,"rtp && ip");
+	if (!dfilter_compile(filter_text, &sfcode)) {
+		simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, dfilter_error_msg);
+		return;
+	}
+
+	sprintf(filter_text,"rtp && (( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ) || ( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ))",
+		ip_to_str((ip_addr_p)&(user_data->ip_src_fwd)),
+		user_data->port_src_fwd,
+		ip_to_str((ip_addr_p)&(user_data->ip_dst_fwd)),
+		user_data->port_dst_fwd,
+		ip_to_str((ip_addr_p)&(user_data->ip_src_rev)),
+		user_data->port_src_rev,
+		ip_to_str((ip_addr_p)&(user_data->ip_dst_rev)),
+		user_data->port_dst_rev
+		);
+
+	/* register tap listener */
+	error_string = register_tap_listener("rtp", user_data, filter_text,
+		rtp_reset, rtp_packet, rtp_draw);
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, error_string->str);
+			g_string_free(error_string, TRUE);
+		return;
+	}
+
+	/* retap all packets */
 	retap_packets(&cfile);
+
+	/* remove tap listener again */
+	protect_thread_critical_region();
+	remove_tap_listener(user_data);
+	unprotect_thread_critical_region();
+
+	/* draw statistics info */
 	draw_stat(user_data);
-*/
+
+	gtk_clist_sort(user_data->dlg.clist_fwd);
+	gtk_clist_sort(user_data->dlg.clist_rev);
 }
 
 /****************************************************************************/
@@ -810,10 +865,7 @@ static void on_next_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gint row;
 	if (user_data->dlg.selected_clist==NULL)
 		return;
-/*
-	if (user_data->dlg.selected_row==-1)
-		user_data->dlg.selected_row = 0;
-*/
+
 	clist = user_data->dlg.selected_clist;
 	row = user_data->dlg.selected_row + 1;
 
@@ -1512,6 +1564,9 @@ static void draw_stat(user_data_t *user_data)
 	return ;
 }
 
+
+#define NUM_COLS 8
+
 /****************************************************************************/
 /* append a line to clist */
 static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
@@ -1545,6 +1600,169 @@ static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
 	gtk_clist_set_background(GTK_CLIST(clist), added_row, color);
 }
 
+
+/****************************************************************************/
+/* callback for sorting columns of clist */
+static gint rtp_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
+{
+	char *text1 = NULL;
+	char *text2 = NULL;
+	int i1, i2;
+	double f1, f2;
+
+	const GtkCListRow *row1 = (GtkCListRow *) ptr1;
+	const GtkCListRow *row2 = (GtkCListRow *) ptr2;
+
+	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
+	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
+
+	switch(clist->sort_column){
+	/* columns representing strings */
+	case 4:
+	case 5:
+	case 6:
+		return strcmp (text1, text2);
+	/* columns representing ints */
+	case 0:
+	case 1:
+	case 7:
+		i1=atoi(text1);
+		i2=atoi(text2);
+		return i1-i2;
+	/* columns representing floats */
+	case 2:
+	case 3:
+		f1=atof(text1);
+		f2=atof(text2);
+		if (f1<f2) return -1;
+		else if (f1>f2) return 1;
+		else return 0;
+	}
+	g_assert_not_reached();
+	return 0;
+}
+
+
+/****************************************************************************/
+static void
+click_column_cb(GtkCList *clist, gint column, gpointer data)
+{
+	column_arrows *col_arrows = (column_arrows *) data;
+	int i;
+
+	gtk_clist_freeze(clist);
+
+	for (i = 0; i < NUM_COLS; i++) {
+		gtk_widget_hide(col_arrows[i].ascend_pm);
+		gtk_widget_hide(col_arrows[i].descend_pm);
+	}
+
+	if (column == clist->sort_column) {
+		if (clist->sort_type == GTK_SORT_ASCENDING) {
+			clist->sort_type = GTK_SORT_DESCENDING;
+			gtk_widget_show(col_arrows[column].descend_pm);
+		} else {
+			clist->sort_type = GTK_SORT_ASCENDING;
+			gtk_widget_show(col_arrows[column].ascend_pm);
+		}
+	} else {
+		clist->sort_type = GTK_SORT_ASCENDING;
+		gtk_widget_show(col_arrows[column].ascend_pm);
+		gtk_clist_set_sort_column(clist, column);
+	}
+	gtk_clist_thaw(clist);
+
+	gtk_clist_sort(clist);
+}
+
+
+/****************************************************************************/
+/* Add the packet list */
+static
+GtkWidget* create_clist(user_data_t* user_data)
+{
+	GtkWidget* clist_fwd;
+
+	/* clist for the information */
+	clist_fwd = gtk_clist_new(8);
+	gtk_widget_show(clist_fwd);
+	SIGNAL_CONNECT(clist_fwd, "select_row", on_clist_select_row, user_data);
+
+	gtk_clist_column_titles_show(GTK_CLIST(clist_fwd));
+	gtk_clist_set_compare_func(GTK_CLIST(clist_fwd), rtp_sort_column);
+	gtk_clist_set_sort_column(GTK_CLIST(clist_fwd), 0);
+	gtk_clist_set_sort_type(GTK_CLIST(clist_fwd), GTK_SORT_ASCENDING);
+
+	/* hide date and length column */
+	gtk_clist_set_column_visibility(GTK_CLIST(clist_fwd), 6, FALSE);
+	gtk_clist_set_column_visibility(GTK_CLIST(clist_fwd), 7, FALSE);
+
+	/* column widths and justification */
+	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 0, 60);
+	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 1, 75);
+	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 2, 75);
+	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 3, 75);
+	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 4, 50);
+	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 0, GTK_JUSTIFY_RIGHT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 1, GTK_JUSTIFY_RIGHT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 2, GTK_JUSTIFY_CENTER);
+	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 3, GTK_JUSTIFY_CENTER);
+	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 4, GTK_JUSTIFY_CENTER);
+	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 5, GTK_JUSTIFY_CENTER);
+
+	return clist_fwd;
+}
+
+
+/****************************************************************************/
+/* Add the sort by column feature for a packet clist */
+static
+column_arrows* add_sort_by_column(GtkWidget* window, GtkWidget* clist,
+								  user_data_t* user_data _U_)
+{
+	gchar *titles[8] =  {"Packet", "Sequence",  "Delay (s)", "Jitter (s)", "Marker", "Status", "Date", "Length"};
+	column_arrows *col_arrows;
+	GdkBitmap *ascend_bm, *descend_bm;
+	GdkPixmap *ascend_pm, *descend_pm;
+	GtkStyle *win_style;
+	GtkWidget *column_lb;
+	int i;
+
+	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
+	win_style = gtk_widget_get_style(window);
+	ascend_pm = gdk_pixmap_create_from_xpm_d(window->window,
+			&ascend_bm,
+			&win_style->bg[GTK_STATE_NORMAL],
+			(gchar **)clist_ascend_xpm);
+	descend_pm = gdk_pixmap_create_from_xpm_d(window->window,
+			&descend_bm,
+			&win_style->bg[GTK_STATE_NORMAL],
+			(gchar **)clist_descend_xpm);
+
+	for (i=0; i<NUM_COLS; i++) {
+		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
+		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
+		column_lb = gtk_label_new(titles[i]);
+		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+		gtk_widget_show(column_lb);
+
+		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
+		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+		/* make packet-nr be the default sort order */
+		if (i == 0) {
+			gtk_widget_show(col_arrows[i].ascend_pm);
+		}
+		gtk_clist_set_column_widget(GTK_CLIST(clist), i, col_arrows[i].table);
+		gtk_widget_show(col_arrows[i].table);
+	}
+
+	SIGNAL_CONNECT(clist, "click-column", click_column_cb, col_arrows);
+
+	return col_arrows;
+}
+
 /****************************************************************************/
 /* Create the dialog box with all widgets */
 void create_rtp_dialog(user_data_t* user_data)
@@ -1556,19 +1774,21 @@ void create_rtp_dialog(user_data_t* user_data)
 	GtkWidget *label_stats_rev;
 	GtkWidget *notebook;
 
-	GtkWidget *main_vb, *page, *page_r, *label, *label1, *label2, *label3;
+	GtkWidget *main_vb, *page, *page_r;
+	GtkWidget *label;
 	GtkWidget *scrolled_window, *scrolled_window_r/*, *frame, *text, *label4, *page_help*/;
-	GtkWidget *box4, *voice_bt, /**refresh_bt,*/ *goto_bt, *close_bt, *csv_bt, *next_bt;
+	GtkWidget *box4, *voice_bt, *refresh_bt, *goto_bt, *close_bt, *csv_bt, *next_bt;
 #ifdef USE_CONVERSATION_GRAPH
 	GtkWidget *graph_bt;
 #endif
 
-	gchar *titles[8] =  {"Packet", "Sequence",  "Delay (s)", "Jitter (s)", "Marker", "Status", "Date", "Length"};
 	gchar label_forward[150];
 	gchar label_reverse[150];
 
 	gchar str_ip_src[16];
 	gchar str_ip_dst[16];
+	column_arrows *col_arrows_fwd;
+	column_arrows *col_arrows_rev;
 	
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -1582,20 +1802,19 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_container_add(GTK_CONTAINER(window), main_vb);
 	gtk_widget_show(main_vb);
 
-
 	/* Notebooks... */
 	strcpy(str_ip_src, ip_to_str((ip_addr_p)&user_data->ip_src_fwd));
 	strcpy(str_ip_dst, ip_to_str((ip_addr_p)&user_data->ip_dst_fwd));
 
 	g_snprintf(label_forward, 149, 
-		"Analysing connection from  %s port %u  to  %s port %u   SSRC = %u\n", 
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u\n", 
 		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 	strcpy(str_ip_src, ip_to_str((ip_addr_p)&user_data->ip_src_rev));
 	strcpy(str_ip_dst, ip_to_str((ip_addr_p)&user_data->ip_dst_rev));
 
 	g_snprintf(label_reverse, 149,
-		"Analysing connection from  %s port %u  to  %s port %u   SSRC = %u\n", 
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u\n", 
 		str_ip_src, user_data->port_src_rev, str_ip_dst, user_data->port_dst_rev, user_data->ssrc_rev);
 
 	/* Start a notebook for flipping between sets of changes */
@@ -1609,86 +1828,57 @@ void create_rtp_dialog(user_data_t* user_data)
 	page = gtk_vbox_new(FALSE, 5);
 	gtk_container_set_border_width(GTK_CONTAINER(page), 20);
 
-	/* scrolled window */
-	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(scrolled_window, 600, 200);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), 
-		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-
 	/* direction label */
-	label1 = gtk_label_new(label_forward);
-	gtk_box_pack_start(GTK_BOX(page), label1, FALSE, FALSE, 0);
+	label = gtk_label_new(label_forward);
+	gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
 
 	/* place for some statistics */
 	label_stats_fwd = gtk_label_new("\n\n");
 	gtk_box_pack_end(GTK_BOX(page), label_stats_fwd, FALSE, FALSE, 5);
 
-	/* clist for the information */
-	clist_fwd = gtk_clist_new_with_titles(8, titles);
+	/* scrolled window */
+	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	WIDGET_SET_SIZE(scrolled_window, 520, 200);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), 
+		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+
+	/* packet clist */
+	clist_fwd = create_clist(user_data);
 	gtk_widget_show(clist_fwd);
 	gtk_container_add(GTK_CONTAINER(scrolled_window), clist_fwd);
 	gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
-	SIGNAL_CONNECT(clist_fwd, "select_row", on_clist_select_row, user_data);
-	/* Hide date and length column */
-	gtk_clist_set_column_visibility(GTK_CLIST(clist_fwd), 6, FALSE);
-	gtk_clist_set_column_visibility(GTK_CLIST(clist_fwd), 7, FALSE);
+	gtk_widget_show(scrolled_window);
 
-	/* label */
-	label = gtk_label_new("     Forward Direction     ");
+	/* tab */
+	label = gtk_label_new("  Forward Direction  ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-
-	/* column width and justification */
-	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 0, 80);
-	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 1, 80);
-	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 2, 80);
-	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 3, 80);
-	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 4, 40);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 0, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 1, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 2, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 3, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 4, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 5, GTK_JUSTIFY_CENTER);
 
 	/* same page for reversed connection */
 	page_r = gtk_vbox_new(FALSE, 5);
 	gtk_container_set_border_width(GTK_CONTAINER(page_r), 20);
+	label = gtk_label_new(label_reverse);
+	gtk_box_pack_start(GTK_BOX(page_r), label, FALSE, FALSE, 0);
+	label_stats_rev = gtk_label_new("\n\n");
+	gtk_box_pack_end(GTK_BOX(page_r), label_stats_rev, FALSE, FALSE, 5);
+
 	scrolled_window_r = gtk_scrolled_window_new(NULL, NULL);
 	WIDGET_SET_SIZE(scrolled_window_r, 600, 200);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window_r), 
 		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-	label3 = gtk_label_new(label_reverse);
-	gtk_box_pack_start(GTK_BOX(page_r), label3, FALSE, FALSE, 0);
-	label_stats_rev = gtk_label_new("\n\n");
-	gtk_box_pack_end(GTK_BOX(page_r), label_stats_rev, FALSE, FALSE, 5);
-	clist_rev = gtk_clist_new_with_titles(8, titles);
+
+	clist_rev = create_clist(user_data);
 	gtk_widget_show(clist_rev);
-	gtk_clist_set_column_visibility(GTK_CLIST(clist_rev), 6, FALSE);
-	gtk_clist_set_column_visibility(GTK_CLIST(clist_rev), 7, FALSE);
-
-	SIGNAL_CONNECT(clist_rev, "select_row", on_clist_select_row, user_data);
-
 	gtk_container_add(GTK_CONTAINER(scrolled_window_r), clist_rev);
 	gtk_box_pack_start(GTK_BOX(page_r), scrolled_window_r, TRUE, TRUE, 0);
-	label2 = gtk_label_new("     Reversed Direction     ");
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_r, label2);
+	gtk_widget_show(scrolled_window_r);
 
-	gtk_clist_set_column_width(GTK_CLIST(clist_rev), 0, 80);
-	gtk_clist_set_column_width(GTK_CLIST(clist_rev), 1, 80);
-	gtk_clist_set_column_width(GTK_CLIST(clist_rev), 2, 80);
-	gtk_clist_set_column_width(GTK_CLIST(clist_rev), 3, 80);
-	gtk_clist_set_column_width(GTK_CLIST(clist_rev), 4, 40);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_rev), 0, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_rev), 1, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_rev), 2, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_rev), 3, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_rev), 4, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist_rev), 5, GTK_JUSTIFY_CENTER);
+	label = gtk_label_new("  Reversed Direction  ");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_r, label);
 
 	/* page for help&about or future
 	page_help = gtk_hbox_new(FALSE, 5);
-	label4 = gtk_label_new("     Future    ");
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_help, label4);
+	label = gtk_label_new("     Future    ");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_help, label);
 	frame = gtk_frame_new("");
 	text = gtk_label_new("\n\nMaybe some more statistics: delay and jitter distribution,...");
 	gtk_label_set_justify(GTK_LABEL(text), GTK_JUSTIFY_LEFT);
@@ -1718,12 +1908,12 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_container_add(GTK_CONTAINER(box4), csv_bt);
 	gtk_widget_show(csv_bt);
 	SIGNAL_CONNECT(csv_bt, "clicked", save_csv_as_cb, user_data);
-/*
+
 	refresh_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_REFRESH);
 	gtk_container_add(GTK_CONTAINER(box4), refresh_bt);
 	gtk_widget_show(refresh_bt);
 	SIGNAL_CONNECT(refresh_bt, "clicked", on_refresh_bt_clicked, user_data);
-*/
+
 	goto_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
 	gtk_container_add(GTK_CONTAINER(box4), goto_bt);
 	gtk_widget_show(goto_bt);
@@ -1736,18 +1926,23 @@ void create_rtp_dialog(user_data_t* user_data)
 	SIGNAL_CONNECT(graph_bt, "clicked", on_graph_bt_clicked, user_data);
 #endif
 
-	next_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_FORWARD);
+	next_bt = gtk_button_new_with_label("Next non-Ok");
 	gtk_container_add(GTK_CONTAINER(box4), next_bt);
 	gtk_widget_show(next_bt);
 	SIGNAL_CONNECT(next_bt, "clicked", on_next_bt_clicked, user_data);
 
-    close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
 	gtk_widget_show(close_bt);
 	SIGNAL_CONNECT(close_bt, "clicked", on_close_bt_clicked, user_data);
 
 	gtk_widget_show(window);
 
+	/* sort by column feature */
+	col_arrows_fwd = add_sort_by_column(window, clist_fwd, user_data);
+	col_arrows_rev = add_sort_by_column(window, clist_rev, user_data);
+
+	/* some widget references need to be saved for outside use */
 	user_data->dlg.window = window;
 	user_data->dlg.clist_fwd = GTK_CLIST(clist_fwd);
 	user_data->dlg.clist_rev = GTK_CLIST(clist_rev);
@@ -1756,12 +1951,14 @@ void create_rtp_dialog(user_data_t* user_data)
 	user_data->dlg.notebook = notebook;
 	user_data->dlg.selected_clist = GTK_CLIST(clist_fwd);
 	user_data->dlg.selected_row = 0;
+	user_data->dlg.col_arrows_fwd = col_arrows_fwd;
+	user_data->dlg.col_arrows_rev = col_arrows_rev;
 }
 
 
 /****************************************************************************/
 static gboolean process_node(proto_node *ptree_node, header_field_info *hfinformation,
-							const gchar* proto_field, guint32* p_result)
+							gchar* proto_field, guint32* p_result)
 {
 	field_info            *finfo;
 	proto_node            *proto_sibling_node;
@@ -1771,7 +1968,7 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 	finfo = PITEM_FINFO(ptree_node);
 
 	if (hfinformation==(finfo->hfinfo)) {
-		hfssrc = proto_registrar_get_byname((gchar*) proto_field);
+		hfssrc = proto_registrar_get_byname(proto_field);
 		if (hfssrc == NULL)
 			return FALSE;
 		for(ptree_node=ptree_node->first_child; ptree_node!=NULL; 
@@ -1801,14 +1998,14 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 
 /****************************************************************************/
 static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
-											 const gchar* proto_name,
-											 const gchar* proto_field,
+											 gchar* proto_name,
+											 gchar* proto_field,
 											 guint32* p_result)
 {
 	proto_node      *ptree_node;
 	header_field_info     *hfinformation;
 
-	hfinformation = proto_registrar_get_byname((gchar*) proto_name);
+	hfinformation = proto_registrar_get_byname(proto_name);
 	if (hfinformation == NULL)
 		return FALSE;
 
@@ -1840,10 +2037,8 @@ void rtp_analysis(
 		)
 {
 	user_data_t *user_data;
-	gchar filter_text[256];
-	dfilter_t *sfcode;
-	GString *error_string;
 
+	/* init */
 	user_data = g_malloc(sizeof(user_data_t));
 
 	user_data->ip_src_fwd = ip_src_fwd;
@@ -1856,37 +2051,6 @@ void rtp_analysis(
 	user_data->ip_dst_rev = ip_dst_rev;
 	user_data->port_dst_rev = port_dst_rev;
 	user_data->ssrc_rev = ssrc_rev;
-
-	create_rtp_dialog(user_data);
-
-	/* Try to compile the filter. */
-	strcpy(filter_text,"rtp && ip");
-	if (!dfilter_compile(filter_text, &sfcode)) {
-		simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, dfilter_error_msg);
-		return;
-	}
-
-	sprintf(filter_text,"rtp && ip && !icmp && (( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ) || ( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ))",
-		ip_to_str((ip_addr_p)&ip_src_fwd),
-		port_src_fwd,
-		ip_to_str((ip_addr_p)&ip_dst_fwd),
-		port_dst_fwd,
-		ip_to_str((ip_addr_p)&ip_src_rev),
-		port_src_rev,
-		ip_to_str((ip_addr_p)&ip_dst_rev),
-		port_dst_rev
-		);
-
-	/* register tap listener */
-	error_string = register_tap_listener("rtp", user_data, filter_text,
-		(void*)rtp_reset, (void*)rtp_packet, (void*)rtp_draw);
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, error_string->str);
-			g_string_free(error_string, TRUE);
-		g_free(user_data);
-		return;
-		/*exit(1);*/
-	}
 
 	/* file names for storing sound data */
 	strncpy(user_data->f_tempname, "f_tempnameXXXXXX", TMPNAMSIZE);
@@ -1903,14 +2067,11 @@ void rtp_analysis(
 	user_data->series_rev.value_pairs = NULL;
 #endif
 
-	retap_packets(&cfile);
+	/* create the dialog box */
+	create_rtp_dialog(user_data);
 
-	/* remove tap listener again */
-	protect_thread_critical_region();
-	remove_tap_listener(user_data);
-	unprotect_thread_critical_region();
-
-	draw_stat(user_data);
+	/* proceed as if the Refresh button would have been pressed */
+	on_refresh_bt_clicked(NULL, user_data);
 }
 
 /****************************************************************************/
@@ -1968,13 +2129,9 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	/* if it is not an rtp frame, show the rtpstream dialog */
 	frame_matched = dfilter_apply_edt(sfcode, edt);
 	if (frame_matched != 1) {
-		rtpstream_dlg_show(rtpstream_get_info()->strinfo_list);
-		return;
-/*
 		epan_dissect_free(edt);
 		simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, "You didn't choose a RTP packet!");
 		return;
-*/
 	}
 
 	/* ok, it is a RTP frame, so let's get the ip and port values */
