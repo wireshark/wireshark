@@ -33,6 +33,7 @@ ethereal
 ethereal.1
 ethereal.spec
 ethereal_static
+ethereal-filter.4
 idl2eth
 idl2eth.1
 install-sh
