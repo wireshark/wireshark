@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.23 2001/12/15 05:37:43 guy Exp $
+ * $Id: packet-sdp.c,v 1.24 2001/12/15 20:22:47 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 
 static int proto_sdp = -1;
 
+/* Top level fields */
 static int hf_protocol_version = -1;
 static int hf_owner = -1;
 static int hf_session_name = -1;
@@ -49,7 +50,7 @@ static int hf_email = -1;
 static int hf_phone = -1;
 static int hf_connection_info = -1;
 static int hf_bandwidth = -1;
-static int hf_time_zone = -1;
+static int hf_timezone = -1;
 static int hf_encryption_key = -1;
 static int hf_session_attribute = -1;
 static int hf_media_attribute = -1;
@@ -61,13 +62,102 @@ static int hf_unknown = -1;
 static int hf_misplaced = -1;
 static int hf_invalid = -1;
 
+/* hf_owner subfields*/
+static int hf_owner_username = -1;
+static int hf_owner_sessionid = -1;
+static int hf_owner_version = -1;
+static int hf_owner_network_type = -1;
+static int hf_owner_address_type = -1;
+static int hf_owner_address = -1;
+
+/* hf_connection_info subfields */
+static int hf_connection_info_network_type = -1;
+static int hf_connection_info_address_type = -1;
+static int hf_connection_info_connection_address = -1;
+static int hf_connection_info_ttl = -1;
+static int hf_connection_info_num_addr = -1;
+
+/* hf_bandwidth subfields */
+static int hf_bandwidth_modifier = -1;
+static int hf_bandwidth_value = -1;
+
+/* hf_time subfields */
+static int hf_time_start = -1;
+static int hf_time_stop = -1;
+
+/* hf_repeat_time subfield */
+static int hf_repeat_time_interval = -1;
+static int hf_repeat_time_duration = -1;
+static int hf_repeat_time_offset = -1;
+
+/* hf_timezone subfields */
+static int hf_timezone_time = -1;
+static int hf_timezone_offset = -1;
+
+/* hf_encryption_key subfields */
+static int hf_encryption_key_type = -1;
+static int hf_encryption_key_data = -1;
+
+/* hf_session_attribute subfields */
+static int hf_session_attribute_field = -1;
+static int hf_session_attribute_value = -1;
+
+/* hf_media subfields */
+static int hf_media_media = -1;
+static int hf_media_port = -1;
+static int hf_media_portcount = -1;
+static int hf_media_proto = -1;
+static int hf_media_format = -1;
+
+/* hf_session_attribute subfields */
+static int hf_media_attribute_field = -1;
+static int hf_media_attribute_value = -1;
+
+/* trees */
 static int ett_sdp = -1;
+static int ett_sdp_owner = -1;
+static int ett_sdp_connection_info = -1;
+static int ett_sdp_bandwidth = -1;
+static int ett_sdp_time = -1;
+static int ett_sdp_repeat_time = -1;
+static int ett_sdp_timezone = -1;
+static int ett_sdp_encryption_key = -1;
+static int ett_sdp_session_attribute = -1;
+static int ett_sdp_media = -1;
+static int ett_sdp_media_attribute = -1;
+
+/* static functions */
+
+static void call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, 
+				  proto_tree *tree, int hf, proto_tree* ti);
+
+/* Subdissector functions */
+static void dissect_sdp_owner(tvbuff_t *tvb, packet_info *pinfo, 
+			      proto_tree *tree, proto_item* ti);
+static void dissect_sdp_connection_info(tvbuff_t *tvb, packet_info *pinfo,
+					proto_tree *tree, proto_item* ti);
+static void dissect_sdp_bandwidth(tvbuff_t *tvb, packet_info *pinfo,
+				  proto_tree *tree, proto_item *ti);
+static void dissect_sdp_time(tvbuff_t *tvb, packet_info *pinfo,
+			     proto_tree *tree, proto_item* ti);
+static void dissect_sdp_repeat_time(tvbuff_t *tvb, packet_info *pinfo,
+				    proto_tree *tree, proto_item* ti);
+static void dissect_sdp_timezone(tvbuff_t *tvb, packet_info *pinfo,
+				 proto_tree *tree, proto_item* ti);
+static void dissect_sdp_encryption_key(tvbuff_t *tvb, packet_info *pinfo,
+				       proto_tree *tree, proto_item * ti);
+static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info *pinfo,
+				  proto_tree *tree,proto_item *ti);
+static void dissect_sdp_media(tvbuff_t *tvb, packet_info *pinfo,
+			      proto_tree *tree, proto_item *ti);
+static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo,
+				  proto_tree *tree,proto_item *ti);
 
 static void
 dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sdp_tree;
-	proto_item	*ti;
+	proto_item	*ti, *sub_ti;
 	gint		offset = 0;
 	gint		next_offset;
 	int		linelen;
@@ -201,7 +291,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 		case 'z':
-		        hf = hf_time_zone;
+		        hf = hf_timezone;
 			break;
 		default:
 		        hf = hf_unknown;
@@ -210,10 +300,14 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tokenoffset = 2;
 		if( hf == hf_unknown || hf == hf_misplaced )
 		  tokenoffset = 0;
-		proto_tree_add_string(sdp_tree,hf,tvb, offset, 
-				      linelen,
-				      tvb_format_text(tvb,offset+tokenoffset,
+		sub_ti = proto_tree_add_string(sdp_tree,hf,tvb, offset, 
+					       linelen,
+					       tvb_format_text(tvb,
+						      offset+tokenoffset,
 						      linelen - tokenoffset));
+		call_sdp_subdissector(tvb_new_subset(tvb,offset+tokenoffset,
+						     linelen-tokenoffset,-1),
+				      pinfo,tree,hf,sub_ti);
 		offset = next_offset;
 	}
 
@@ -222,6 +316,526 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(sdp_tree, tvb, offset, datalen,
 		    "Data (%d bytes)", datalen);
 	}
+}
+
+static void 
+call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, 
+		      proto_tree *tree, int hf, proto_tree* ti){
+  if(hf == hf_owner){
+    dissect_sdp_owner(tvb,pinfo,tree,ti);
+  } else if ( hf == hf_connection_info) {
+    dissect_sdp_connection_info(tvb,pinfo,tree,ti);
+  } else if ( hf == hf_bandwidth) {
+    dissect_sdp_bandwidth(tvb,pinfo,tree,ti);
+  } else if ( hf == hf_time) {
+    dissect_sdp_time(tvb,pinfo,tree,ti);
+  } else if ( hf == hf_repeat_time ){
+    dissect_sdp_repeat_time(tvb,pinfo,tree,ti);
+  } else if ( hf == hf_timezone ) {
+    dissect_sdp_timezone(tvb,pinfo,tree,ti);
+  } else if ( hf == hf_encryption_key ) {
+    dissect_sdp_encryption_key(tvb,pinfo,tree,ti);
+  } else if ( hf == hf_session_attribute ){
+    dissect_sdp_session_attribute(tvb,pinfo,tree,ti);
+  } else if ( hf == hf_media ) {
+    dissect_sdp_media(tvb,pinfo,tree,ti);
+  } else if ( hf == hf_media_attribute ){
+    dissect_sdp_media_attribute(tvb,pinfo,tree,ti);
+  }
+}
+
+static void 
+dissect_sdp_owner(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  proto_item *ti){
+  proto_tree *sdp_owner_tree;
+  gint offset,next_offset,tokenlen;
+
+  if(!tree)
+    return;
+  
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+
+  sdp_owner_tree = proto_item_add_subtree(ti,ett_sdp_owner);
+  
+  /* Find the username */
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+  tokenlen = next_offset - offset;
+
+  proto_tree_add_string(sdp_owner_tree,hf_owner_username,tvb, offset,tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+  offset = next_offset  + 1;
+
+  /* Find the session id */
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+  tokenlen = next_offset - offset;
+
+  proto_tree_add_string(sdp_owner_tree,hf_owner_sessionid, tvb, 
+			offset,tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+  offset = next_offset + 1;
+
+  /* Find the version */
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+  tokenlen = next_offset - offset;
+
+  proto_tree_add_string(sdp_owner_tree,hf_owner_version, tvb, offset,tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+  offset = next_offset + 1;
+
+  /* Find the network type */
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+  tokenlen = next_offset - offset;
+
+  proto_tree_add_string(sdp_owner_tree,hf_owner_network_type, tvb, 
+			offset,tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+  offset = next_offset + 1;
+  
+  /* Find the address type */
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+  tokenlen = next_offset - offset;
+
+  proto_tree_add_string(sdp_owner_tree,hf_owner_address_type, tvb, 
+			offset,tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+  offset = next_offset + 1;
+
+  /* Find the address */
+  tokenlen = tvb_length_remaining(tvb,offset);
+
+  proto_tree_add_string(sdp_owner_tree,hf_owner_address, tvb, 
+			offset,tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+}
+
+static void 
+dissect_sdp_connection_info(tvbuff_t *tvb, packet_info *pinfo,
+			    proto_tree *tree, proto_item* ti){
+  proto_tree *sdp_connection_info_tree;
+  gint offset,next_offset,tokenlen;
+
+  if(!tree)
+    return;
+  
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+  
+  sdp_connection_info_tree = proto_item_add_subtree(ti,
+						    ett_sdp_connection_info);
+  
+  /* Find the network type */
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+  tokenlen = next_offset - offset;
+
+  proto_tree_add_string(sdp_connection_info_tree,
+			hf_connection_info_network_type,tvb, 
+			offset,tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+  offset = next_offset + 1;
+
+  /* Find the address type */
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+  tokenlen = next_offset - offset;
+
+  proto_tree_add_string(sdp_connection_info_tree,
+			hf_connection_info_address_type,tvb, 
+			offset,tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+  offset = next_offset + 1;
+
+  /* Find the connection address */
+  next_offset = tvb_find_guint8(tvb,offset,-1,'/');
+  if( next_offset == -1){
+    tokenlen = tvb_length_remaining(tvb,offset);
+  } else {
+    tokenlen = next_offset - offset;
+  }
+  proto_tree_add_string(sdp_connection_info_tree,
+			hf_connection_info_connection_address, tvb, 
+			offset,tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+  if(next_offset != -1){
+    offset = next_offset + 1;
+    next_offset = tvb_find_guint8(tvb,offset,-1,'/');
+    if( next_offset == -1){
+      tokenlen = tvb_length_remaining(tvb,offset);
+    } else {
+      tokenlen = next_offset - offset;
+    }
+    proto_tree_add_string(sdp_connection_info_tree,
+			  hf_connection_info_ttl,tvb,offset,tokenlen,
+			  tvb_format_text(tvb,offset,tokenlen));
+    if(next_offset != -1){
+      offset = next_offset + 1;
+      tokenlen = tvb_length_remaining(tvb,offset);
+      proto_tree_add_string(sdp_connection_info_tree,
+			    hf_connection_info_num_addr, tvb,
+			    offset, tokenlen,
+			    tvb_format_text(tvb,offset,tokenlen));
+    }
+  }
+}
+
+static void 
+dissect_sdp_bandwidth(tvbuff_t *tvb, packet_info *pinfo,
+		      proto_tree *tree,proto_item *ti){
+  proto_tree * sdp_bandwidth_tree;
+  gint offset, next_offset, tokenlen;
+  
+  if(!tree)
+    return;
+
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+
+  sdp_bandwidth_tree = proto_item_add_subtree(ti,ett_sdp_bandwidth);
+
+  /* find the modifier */
+  next_offset = tvb_find_guint8(tvb,offset,-1,':');
+
+  if( next_offset == -1)
+    return;
+  
+  tokenlen = next_offset - offset;
+  
+  proto_tree_add_string(sdp_bandwidth_tree, hf_bandwidth_modifier,
+			tvb, offset, tokenlen, 
+			tvb_format_text(tvb,offset,tokenlen));
+
+  offset = next_offset + 1;
+  
+  tokenlen = tvb_length_remaining(tvb,offset);
+  
+  proto_tree_add_string(sdp_bandwidth_tree, hf_bandwidth_value,
+			tvb, offset, tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+
+}
+
+static void dissect_sdp_time(tvbuff_t *tvb, packet_info *pinfo,
+			     proto_tree *tree, proto_item* ti){
+  proto_tree *sdp_time_tree;
+  gint offset,next_offset, tokenlen;
+
+  if(!tree)
+    return;
+  
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+  
+  sdp_time_tree = proto_item_add_subtree(ti,ett_sdp_time);
+
+  /* get start time */
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+
+  tokenlen = next_offset - offset;
+  proto_tree_add_string(sdp_time_tree, hf_time_start, tvb,
+			offset, tokenlen, 
+			tvb_format_text(tvb,offset,tokenlen));
+
+  /* get stop time */
+  offset = next_offset + 1;
+  tokenlen = tvb_length_remaining(tvb,offset);
+  proto_tree_add_string(sdp_time_tree,hf_time_start, tvb,
+			offset, tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+}
+
+static void dissect_sdp_repeat_time(tvbuff_t *tvb, packet_info *pinfo,
+				    proto_tree *tree, proto_item* ti){
+  proto_tree *sdp_repeat_time_tree;
+  gint offset,next_offset, tokenlen;
+
+  if(!tree)
+    return;
+  
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+  
+  sdp_repeat_time_tree = proto_item_add_subtree(ti,ett_sdp_time);
+
+  /* get interval */
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+
+  tokenlen = next_offset - offset;
+  proto_tree_add_string(sdp_repeat_time_tree, hf_repeat_time_interval, tvb,
+			offset, tokenlen, 
+			tvb_format_text(tvb,offset,tokenlen));
+
+  /* get duration */
+  offset = next_offset + 1;
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  if( next_offset == -1 )
+    return;
+
+  tokenlen = next_offset - offset;
+  proto_tree_add_string(sdp_repeat_time_tree,hf_repeat_time_duration, tvb,
+			offset, tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+
+  /* get offsets */
+  do{
+    offset = next_offset +1;
+    next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+    if(next_offset != -1){
+      tokenlen = next_offset - offset;
+    } else {
+      tokenlen = tvb_length_remaining(tvb,offset);
+    }
+    proto_tree_add_string(sdp_repeat_time_tree, hf_repeat_time_offset,
+			  tvb, offset, tokenlen,
+			  tvb_format_text(tvb,offset,tokenlen));
+  } while( next_offset != -1 );
+  
+}
+static void 
+dissect_sdp_timezone(tvbuff_t *tvb, packet_info *pinfo,
+		     proto_tree *tree, proto_item* ti){
+  proto_tree* sdp_timezone_tree;
+  gint offset, next_offset, tokenlen;
+  if(!tree)
+    return;
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+  
+  sdp_timezone_tree = proto_item_add_subtree(ti,ett_sdp_timezone);
+  
+  do{
+    next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+    if(next_offset == -1)
+      break;
+    tokenlen = next_offset - offset;
+    
+    proto_tree_add_string(sdp_timezone_tree,hf_timezone_time,tvb,
+			  offset, tokenlen,
+			  tvb_format_text(tvb,offset,tokenlen));
+    offset = next_offset + 1;
+    next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+    if(next_offset != -1){
+      tokenlen = next_offset - offset;
+    } else {
+      tokenlen = tvb_length_remaining(tvb,offset);
+    }
+    proto_tree_add_string(sdp_timezone_tree,hf_timezone_offset,tvb,
+			  offset, tokenlen,
+			  tvb_format_text(tvb,offset,tokenlen));
+    offset = next_offset + 1;
+  } while (next_offset != -1);
+    
+}
+
+
+static void dissect_sdp_encryption_key(tvbuff_t *tvb, packet_info *pinfo,
+				       proto_tree *tree, proto_item * ti){
+  proto_tree *sdp_encryption_key_tree;
+  gint offset, next_offset, tokenlen;
+
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+
+  sdp_encryption_key_tree = proto_item_add_subtree(ti,ett_sdp_encryption_key);
+
+  next_offset = tvb_find_guint8(tvb,offset,-1,':');
+
+  if(next_offset == -1)
+    return;
+
+  tokenlen = next_offset - offset;
+  
+  proto_tree_add_string(sdp_encryption_key_tree,hf_encryption_key_type,
+			tvb, offset, tokenlen, 
+			tvb_format_text(tvb,offset,tokenlen));
+  
+  offset = next_offset + 1;
+  tokenlen = tvb_length_remaining(tvb,offset);
+  proto_tree_add_string(sdp_encryption_key_tree,hf_encryption_key_data,
+			tvb, offset, tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+
+}
+
+
+
+static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info *pinfo,
+					  proto_tree *tree, proto_item * ti){
+  proto_tree *sdp_session_attribute_tree;
+  gint offset, next_offset, tokenlen;
+
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+
+  sdp_session_attribute_tree = proto_item_add_subtree(ti,
+						      ett_sdp_session_attribute);
+
+  next_offset = tvb_find_guint8(tvb,offset,-1,':');
+
+  if(next_offset == -1)
+    return;
+
+  tokenlen = next_offset - offset;
+  
+  proto_tree_add_string(sdp_session_attribute_tree,
+			hf_session_attribute_field,
+			tvb, offset, tokenlen, 
+			tvb_format_text(tvb,offset,tokenlen));
+  
+  offset = next_offset + 1;
+  tokenlen = tvb_length_remaining(tvb,offset);
+  proto_tree_add_string(sdp_session_attribute_tree,
+			hf_session_attribute_value,
+			tvb, offset, tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+
+}
+
+static void 
+dissect_sdp_media(tvbuff_t *tvb, packet_info *pinfo,
+		  proto_tree *tree, proto_item *ti){
+  proto_tree *sdp_media_tree;
+  gint offset, next_offset, tokenlen;
+
+  if(!tree)
+    return;
+  
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+
+  sdp_media_tree = proto_item_add_subtree(ti,ett_sdp_media);
+
+  next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
+  
+  if(next_offset == -1)
+    return;
+
+  tokenlen = next_offset - offset;
+  
+  proto_tree_add_string(sdp_media_tree, hf_media_media, tvb, 
+			offset ,tokenlen, 
+			tvb_format_text(tvb,offset,tokenlen));
+
+  offset = next_offset + 1;
+
+  next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
+  if(next_offset == -1)
+    return;
+  tokenlen = next_offset - offset;
+  next_offset = tvb_find_guint8(tvb,offset, tokenlen, '/');
+  
+  if(next_offset != -1){
+    tokenlen = next_offset - offset;
+  
+    proto_tree_add_string(sdp_media_tree, hf_media_port, tvb, 
+			  offset ,tokenlen, 
+			  tvb_format_text(tvb,offset,tokenlen));
+    offset = next_offset + 1;
+    next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
+    if(next_offset == -1)
+      return;
+    tokenlen = next_offset - offset;
+    proto_tree_add_string(sdp_media_tree, hf_media_portcount, tvb,
+			  offset, tokenlen,
+			  tvb_format_text(tvb,offset,tokenlen));
+    offset = next_offset + 1;
+  } else {
+    next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
+    
+    if(next_offset == -1)
+      return;
+    tokenlen = next_offset - offset;
+    
+    proto_tree_add_string(sdp_media_tree, hf_media_port, tvb,
+			  offset, tokenlen,
+			  tvb_format_text(tvb,offset,tokenlen));
+    offset = next_offset + 1;
+  }
+
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+  
+  if( next_offset == -1)
+    return;
+  
+  tokenlen = next_offset - offset;
+
+  proto_tree_add_string(sdp_media_tree, hf_media_proto, tvb,
+			offset, tokenlen, 
+			tvb_format_text(tvb,offset, tokenlen));
+
+  do{
+    offset = next_offset + 1;
+    next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+    
+    if(next_offset == -1){
+      tokenlen = tvb_length_remaining(tvb,offset);
+    } else {
+      tokenlen = next_offset - offset;
+    }
+
+    proto_tree_add_string(sdp_media_tree, hf_media_format, tvb,
+			  offset, tokenlen, 
+			  tvb_format_text(tvb,offset,tokenlen));
+  } while (next_offset != -1);
+
+}
+
+static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo,
+					  proto_tree *tree, proto_item * ti){
+  proto_tree *sdp_media_attribute_tree;
+  gint offset, next_offset, tokenlen;
+
+  offset = 0;
+  next_offset = 0;
+  tokenlen = 0;
+
+  sdp_media_attribute_tree = proto_item_add_subtree(ti,
+						      ett_sdp_media_attribute);
+
+  next_offset = tvb_find_guint8(tvb,offset,-1,':');
+
+  if(next_offset == -1)
+    return;
+
+  tokenlen = next_offset - offset;
+  
+  proto_tree_add_string(sdp_media_attribute_tree,
+			hf_media_attribute_field,
+			tvb, offset, tokenlen, 
+			tvb_format_text(tvb,offset,tokenlen));
+  
+  offset = next_offset + 1;
+  tokenlen = tvb_length_remaining(tvb,offset);
+  proto_tree_add_string(sdp_media_attribute_tree,
+			hf_media_attribute_value,
+			tvb, offset, tokenlen,
+			tvb_format_text(tvb,offset,tokenlen));
+
 }
 
 void
@@ -264,7 +878,7 @@ proto_register_sdp(void)
       { "Bandwidth Information (b)",
 	"sdp.bandwidth", FT_STRING, BASE_NONE, NULL, 0x0,
 	"Bandwidth Information", HFILL }},
-    { &hf_time_zone,
+    { &hf_timezone,
       { "Time Zone Adjustments (z)",
 	"sdp.timezone", FT_STRING, BASE_NONE, NULL, 0x0,
 	"Time Zone Adjustments", HFILL }},
@@ -308,9 +922,144 @@ proto_register_sdp(void)
       { "Invalid line",
 	"sdp.invalid",FT_STRING, BASE_NONE, NULL, 0x0,
 	"Invalid line", HFILL }},
+    { &hf_owner_username,
+      { "Owner Username",
+	"sdp.owner.username",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Owner Username", HFILL }},
+    { &hf_owner_sessionid,
+      { "Session ID",
+	"sdp.owner.sessionid",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Session ID", HFILL }},
+    { &hf_owner_version,
+      { "Session Version",
+	"sdp.owner.version",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Session Version", HFILL }},
+    { &hf_owner_network_type,
+      { "Owner Network Type",
+	"sdp.owner.network_type",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Owner Network Type", HFILL }},
+    { &hf_owner_address_type,
+      { "Owner Address Type",
+	"sdp.owner.address_type",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Owner Address Type", HFILL }},
+    { &hf_owner_address,
+      { "Owner Address",
+	"sdp.owner.address",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Owner Address", HFILL }},
+    { &hf_connection_info_network_type,
+      { "Connection Network Type",
+	"sdp.connection_info.network_type",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Connection Network Type", HFILL }},
+    { &hf_connection_info_address_type,
+      { "Connection Address Type",
+	"sdp.connection_info.address_type",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Connection Address Type", HFILL }},
+    { &hf_connection_info_connection_address,
+      { "Connection Address",
+	"sdp.connection_info.address",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Connection Address", HFILL }},
+    { &hf_connection_info_ttl,
+      { "Connection TTL",
+	"sdp.connection_info.ttl",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Connection TTL", HFILL }},
+    { &hf_connection_info_num_addr,
+      { "Connection Number of Addresses",
+	"sdp.connection_info.num_addr",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Connection Number of Addresses", HFILL }},
+    { &hf_bandwidth_modifier,
+      { "Bandwidth Modifier",
+	"sdp.bandwidth.modifier",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Bandwidth Modifier", HFILL }},    
+    { &hf_bandwidth_value,
+      { "Bandwidth Value",
+	"sdp.bandwidth.value",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Bandwidth Value", HFILL }},    
+    { &hf_time_start,
+      { "Session Start Time",
+	"sdp.time.start",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Session Start Time", HFILL }},
+    { &hf_time_stop,
+      { "Session Stop Time",
+	"sdp.time.stop",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Session Stop Time", HFILL }},
+    { &hf_repeat_time_interval,
+      { "Repeat Interval",
+	"sdp.repeat_time.interval",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Repeat Interval", HFILL }},
+    { &hf_repeat_time_duration,
+      { "Repeat Duration",
+	"sdp.repeat_time.duration",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Repeat Duration", HFILL }},
+    { &hf_repeat_time_offset,
+      { "Repeat Offset",
+	"sdp.repeat_time.offset",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Repeat Offset", HFILL }},
+    { &hf_timezone_time,
+      { "Timezone Time",
+	"sdp.timezone.time",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Timezone Time", HFILL }},
+    { &hf_timezone_offset,
+      { "Timezone Offset",
+	"sdp.timezone.offset",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Timezone Offset", HFILL }},
+    { &hf_encryption_key_type,
+      { "Key Type",
+	"sdp.encryption_key.type",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Type", HFILL }},
+    { &hf_encryption_key_data,
+      { "Key Data",
+	"sdp.encryption_key.data",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Data", HFILL }},
+    { &hf_session_attribute_field,
+      { "Session Attribute Fieldname",
+	"sdp.session_attr.field",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Session Attribute Fieldname", HFILL }},
+    { &hf_session_attribute_value,
+      { "Session Attribute Value",
+	"sdp.session_attr.value",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Session Attribute Value", HFILL }},
+    { &hf_media_media,
+      { "Media Type",
+	"sdp.media.media",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Media Type", HFILL }},
+    { &hf_media_port,
+      { "Media Port",
+	"sdp.media.port",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Media Port", HFILL }},
+    { &hf_media_portcount,
+      { "Media Port Count",
+	"sdp.media.portcount",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Media Port Count", HFILL }},
+    { &hf_media_proto,
+      { "Media Proto",
+	"sdp.media.proto",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Media Proto", HFILL }},
+    { &hf_media_format,
+      { "Media Format",
+	"sdp.media.format",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Media Format", HFILL }},
+    { &hf_media_attribute_field,
+      { "Media Attribute Fieldname",
+	"sdp.media_attribute.field",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Media Attribute Fieldname", HFILL }},
+    { &hf_media_attribute_value,
+      { "Media Attribute Value",
+	"sdp.media_attribute.value",FT_STRING, BASE_NONE, NULL, 0x0,
+	"Media Attribute Value", HFILL }},
+
   };
   static gint *ett[] = {
     &ett_sdp,
+    &ett_sdp_owner,
+    &ett_sdp_connection_info,
+    &ett_sdp_bandwidth,
+    &ett_sdp_time,
+    &ett_sdp_repeat_time,
+    &ett_sdp_timezone,
+    &ett_sdp_encryption_key,
+    &ett_sdp_session_attribute,
+    &ett_sdp_media,
+    &ett_sdp_media_attribute,
   };
   
   proto_sdp = proto_register_protocol("Session Description Protocol",
