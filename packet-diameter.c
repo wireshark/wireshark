@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.16 2001/02/19 23:14:01 guy Exp $
+ * $Id: packet-diameter.c,v 1.17 2001/02/19 23:16:36 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -67,7 +67,6 @@ typedef enum {
 	DIAMETER_GROUPED
 } diameterDataTypes;
 
-#include "packet-diameter.h"
 #include "packet-diameter-defs.h"
 
 #define  NTP_TIME_DIFF                   (2208988800UL)
