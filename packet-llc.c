@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.50 2000/04/08 07:55:11 guy Exp $
+ * $Id: packet-llc.c,v 1.51 2000/04/09 18:33:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -445,7 +445,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			      "Group" : "Individual",
 			    val_to_str(pd[offset+1] & SAP_MASK, sap_vals, "%02x"),
 			    pd[offset+1] & SSAP_CR_BIT ?
-			      "Command" : "Response"
+			      "Response" : "Command"
 			);
 		}
 
@@ -461,8 +461,10 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			else {
 				dissect_data(pd, offset, fd, tree);
 			}
-		} else
+		} else {
+			offset += llc_header_len;
 			dissect_data(pd, offset, fd, tree);
+		}
 	}
 }
 
