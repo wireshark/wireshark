@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.47 2002/09/17 19:50:12 guy Exp $
+ * $Id: packet-q931.c,v 1.48 2002/09/28 23:31:39 gerald Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -1983,6 +1983,8 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Coding standard: %s",
 	    val_to_str(coding_standard, q931_coding_standard_vals, NULL));
+	offset += 1;
+	len -= 1;
 	if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
 		/*
 		 * We don't know how the call state is encoded,
