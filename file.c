@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.133 1999/12/04 08:59:12 guy Exp $
+ * $Id: file.c,v 1.134 1999/12/04 11:32:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -163,7 +163,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   cf->user_saved = !is_tempfile;
 
   cf->cd_t      = wtap_file_type(cf->wth);
-  cf->first_packet = TRUE;
   cf->count     = 0;
   cf->drops     = 0;
   cf->esec      = 0;
@@ -308,6 +307,11 @@ read_cap_file(capture_file *cf)
   freeze_clist(cf);
   proto_tree_is_visible = FALSE;
   success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
+  /* Set the file encapsulation type now; we don't know what it is until
+     we've looked at all the packets, as we don't know until then whether
+     there's more than one type (and thus whether it's
+     WTAP_ENCAP_PER_PACKET). */
+  cf->lnk_t = wtap_file_encap(cf->wth);
   wtap_close(cf->wth);
   cf->wth = NULL;
   cf->filed = open(cf->filename, O_RDONLY);
@@ -453,6 +457,12 @@ finish_tail_cap_file(capture_file *cf)
   if (auto_scroll_live && cf->plist_end != NULL)
     gtk_clist_moveto(GTK_CLIST(packet_list), 
 		       cf->plist_end->row, -1, 1.0, 1.0);
+
+  /* Set the file encapsulation type now; we don't know what it is until
+     we've looked at all the packets, as we don't know until then whether
+     there's more than one type (and thus whether it's
+     WTAP_ENCAP_PER_PACKET). */
+  cf->lnk_t = wtap_file_encap(cf->wth);
 
   /* There's nothing more to read from the capture file - close it. */
   wtap_close(cf->wth);
@@ -895,19 +905,6 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
       cf->progbar_nextstep += cf->progbar_quantum;
       while (gtk_events_pending())
       gtk_main_iteration();
-  }
-
-  if (cf->first_packet) {
-    /* Tentatively make the encapsulation type the type of the first
-       packet. */
-    cf->lnk_t = phdr->pkt_encap;
-  } else {
-    /* If this packet's encapsulation type isn't the same as the type
-       type we've chosen so far, make the type for this file
-       WTAP_ENCAP_PER_PACKET, because there is no single encapsulation
-       type for the entire file. */
-    if (cf->lnk_t != phdr->pkt_encap)
-      cf->lnk_t = WTAP_ENCAP_PER_PACKET;
   }
 
   /* Allocate the next list entry, and add it to the list. */
