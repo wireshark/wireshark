@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.6 2000/11/21 05:38:51 guy Exp $
+ * $Id: packet-mgcp.c,v 1.7 2000/11/22 06:22:35 gram Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -1041,7 +1041,8 @@ static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin,
 
 
 /* Start the functions we need for the plugin stuff */
-void plugin_reg_handoff(void){
+DLLEXPORT void
+plugin_reg_handoff(void){
   proto_reg_handoff_mgcp();
 
   /*
@@ -1050,7 +1051,8 @@ void plugin_reg_handoff(void){
   sdp_handle = find_dissector("sdp");
 }
 
-DLLEXPORT void plugin_init(plugin_address_table_t *pat){
+DLLEXPORT void
+plugin_init(plugin_address_table_t *pat){
   /* initialise the table of pointers needed in Win32 DLLs */
   plugin_address_table_init(pat);
   /* destroy the dfilter tree */
