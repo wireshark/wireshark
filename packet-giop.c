@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.14 2000/05/31 05:07:04 guy Exp $
+ * $Id: packet-giop.c,v 1.15 2000/07/27 17:11:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -233,13 +233,30 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     return FALSE;
   }
 
+  if (check_col(fd, COL_PROTOCOL)) {
+    col_add_str(fd, COL_PROTOCOL, "GIOP");
+  }
+
+
   if (header.GIOP_version.major != GIOP_MAJOR ||
       ((minor_version = header.GIOP_version.minor) >  GIOP_MINOR)) {
     /* Bad version number; should we note that and dissect the rest
        as data, or should we return FALSE on the theory that it
        might have been some other packet that happened to begin with
        "GIOP"? */
-    dissect_data(pd, offset, fd, tree);
+    if (check_col(fd, COL_INFO)) {
+      col_add_fstr(fd, COL_INFO, "Version %d.%d",
+		header.GIOP_version.major, header.GIOP_version.minor);
+    }
+    if (tree) {
+      ti = proto_tree_add_item(tree, proto_giop, NullTVB, offset, 
+			  GIOP_HEADER_SIZE, FALSE);
+      clnp_tree = proto_item_add_subtree(ti, ett_giop);
+      proto_tree_add_text(clnp_tree, NullTVB, offset, GIOP_HEADER_SIZE,
+		"Version %d.%d not supported", 
+		header.GIOP_version.major, header.GIOP_version.minor);
+    }
+    dissect_data(pd, offset + GIOP_HEADER_SIZE, fd, tree);
     return TRUE;
   }
 
@@ -264,10 +281,6 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     message_size = pntohl(&header.message_size);
   else
     message_size = pletohl(&header.message_size);
-
-  if (check_col(fd, COL_PROTOCOL)) {
-    col_add_str(fd, COL_PROTOCOL, "GIOP");
-  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_giop, NullTVB, offset, 
