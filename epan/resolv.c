@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.4 2000/11/19 19:45:54 gerald Exp $
+ * $Id: resolv.c,v 1.5 2001/01/09 09:57:06 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -306,7 +306,7 @@ static u_char *host_name_lookup(u_int addr, gboolean *found)
 
   /* unknown host or DNS timeout */
 
-  sprintf(tp->name, "%s", ip_to_str((guint8 *)&addr));  
+  ip_to_str_buf((guint8 *)&addr, tp->name);
   tp->is_dummy_entry = TRUE;
   *found = FALSE;
 

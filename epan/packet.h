@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.17 2001/01/09 06:32:06 guy Exp $
+ * $Id: packet.h,v 1.18 2001/01/09 09:57:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -302,6 +302,7 @@ void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 gchar*     ether_to_str(const guint8 *);
 gchar*     ether_to_str_punct(const guint8 *, char);
 gchar*     ip_to_str(const guint8 *);
+void       ip_to_str_buf(const guint8 *, gchar *);
 struct e_in6_addr;
 gchar*     ip6_to_str(struct e_in6_addr *);
 gchar*     ipx_addr_to_str(guint32, const guint8 *);

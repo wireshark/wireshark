@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.13 2001/01/09 06:32:06 guy Exp $
+ * $Id: packet.c,v 1.14 2001/01/09 09:57:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -181,10 +181,6 @@ gchar *
 ip_to_str(const guint8 *ad) {
   static gchar  str[3][16];
   static gchar *cur;
-  gchar        *p;
-  int           i;
-  guint32       octet;
-  guint32       digit;
 
   if (cur == &str[0][0]) {
     cur = &str[1][0];
@@ -193,25 +189,41 @@ ip_to_str(const guint8 *ad) {
   } else {  
     cur = &str[0][0];
   }
-  p = &cur[16];
-  *--p = '\0';
-  i = 3;
+  ip_to_str_buf(ad, cur);
+  return cur;
+}
+
+void
+ip_to_str_buf(const guint8 *ad, gchar *buf)
+{
+  gchar        *p;
+  int           i;
+  guint32       octet;
+  guint32       digit;
+  gboolean      saw_nonzero;
+
+  p = buf;
+  i = 0;
   for (;;) {
+    saw_nonzero = FALSE;
     octet = ad[i];
-    *--p = (octet%10) + '0';
-    octet /= 10;
+    digit = octet/100;
+    if (digit != 0) {
+      *p++ = digit + '0';
+      saw_nonzero = TRUE;
+    }
+    octet %= 100;
+    digit = octet/10;
+    if (saw_nonzero || digit != 0)
+      *p++ = digit + '0';
     digit = octet%10;
-    octet /= 10;
-    if (digit != 0 || octet != 0)
-      *--p = digit + '0';
-    if (octet != 0)
-      *--p = octet + '0';
-    if (i == 0)
+    *p++ = digit + '0';
+    if (i == 3)
       break;
-    *--p = '.';
-    i--;
+    *p++ = '.';
+    i++;
   }
-  return p;
+  *p = '\0';
 }
 
 gchar *
