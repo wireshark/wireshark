@@ -9,7 +9,7 @@
  * Portions Copyright (c) by James Coe 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp.c,v 1.75 2003/10/23 07:52:56 guy Exp $
+ * $Id: packet-ncp.c,v 1.76 2003/12/22 02:04:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -504,10 +504,20 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
-	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
-        	nds_defrag(next_tvb, pinfo, nw_connection, header.sequence,
-        	    header.type, ncp_tree);
+		nds_defrag(next_tvb, pinfo, nw_connection, header.sequence,
+		    header.type, ncp_tree);
+		break;
+
+	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
+		/*
+		 * XXX - this used to call "nds_defrag()", which would
+		 * clear out "frags".  Was that the right thing to
+		 * do?
+		 */
+		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
+		    header.sequence, header.type, ncp_tree);
 		break;
 
 	case NCP_WATCHDOG:		/* Watchdog Packet */

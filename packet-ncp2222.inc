@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.68 2003/12/03 09:28:17 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.69 2003/12/22 02:04:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4094,6 +4094,23 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
  * these values on the first fragment and then populate the values in the final
  * fragment. We only do this on the first dissection.
  *
+ * XXX - this has several problems:
+ *
+ *	1) it uses global variables ("frags");
+ *
+ *	2) the sequence numbers don't start at a fixed value, they're
+ *	   per-connection sequence numbers;
+ *
+ *	3) the fragment size and handle aren't put into the protocol
+ *	   tree for fragments other than the last fragment.
+ *
+ * 2) needs to be fixed by having a way of doing defragmentation using
+ * connection sequence numbers; that's needed for fragmentation in
+ * connection-oriented protocols, e.g. COTP, as well.
+ * That might let us fix 1) as well.
+ *
+ * 3) should be fixed by putting that into the protocol tree ourselves
+ * if this isn't the first fragment.
 */         
 void
 nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequence, guint16 type, proto_tree *tree)
@@ -4114,7 +4131,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
         }
     }
     /* Check to see if defragmentation is enabeled in the dissector */
-    if (!nds_defragment || type != NCP_SERVICE_REPLY) {
+    if (!nds_defragment) {
         dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
         return;
     }
