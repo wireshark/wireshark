@@ -7,12 +7,12 @@
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-08.txt for the add-IP extension
  * - http://www.ietf.org/internet-drafts/draft-stewart-tsvwg-prsctp-04.txt for the 'Partial Reliability' extension
  * - another upcoming ID on packetdrop stuff.
- * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Still to do (so stay tuned)
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.66 2004/03/19 20:40:23 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.67 2004/03/23 18:04:20 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,9 +39,12 @@
 # include "config.h"
 #endif
 
+#include <string.h>
 #include "prefs.h"
 #include <epan/packet.h>
+#include "tap.h"
 #include "ipproto.h"
+#include "packet-sctp.h"
 #include "sctpppids.h"
 
 #define NETWORK_BYTE_ORDER     FALSE
@@ -158,7 +161,7 @@ static int hf_pktdrop_chunk_data_field = -1;
 static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
 static heur_dissector_list_t sctp_heur_subdissector_list;
-
+static int sctp_tap = -1;
 static module_t *sctp_module;
 
 /* Initialize the subtree pointers */
@@ -280,6 +283,7 @@ static const value_string sctp_payload_proto_id_values[] = {
 
 static gboolean show_always_control_chunks = TRUE;
 static gint sctp_checksum = SCTP_CHECKSUM_CRC32C;
+static struct _sctp_info sctp_info;
 
 /* adler32.c -- compute the Adler-32 checksum of a data stream
  * Copyright (C) 1995-1996 Mark Adler
@@ -1943,7 +1947,7 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
   guint16 length, total_length, remaining_length;
   gint last_offset, offset;
   gboolean sctp_item_length_set;
-
+  
   /* the common header of the datagram is already handled */
   last_offset = 0;
   offset = COMMON_HEADER_LENGTH;
@@ -1957,6 +1961,13 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the chunk including the padding bytes */
     chunk_tvb    = tvb_new_subset(tvb, offset, total_length, total_length);
+
+    /* save it in the sctp_info structure */
+    if (sctp_info.number_of_tvbs < MAXIMUM_NUMBER_OF_TVBS)
+      sctp_info.tvb[sctp_info.number_of_tvbs++] = chunk_tvb;
+    else
+      sctp_info.incomplete = TRUE;
+
     /* call dissect_sctp_chunk for a actual work */
     if (dissect_sctp_chunk(chunk_tvb, pinfo, tree, sctp_tree, TRUE) && (tree)) {
       proto_item_set_len(sctp_item, offset - last_offset + DATA_CHUNK_HEADER_LENGTH);
@@ -1981,12 +1992,41 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 static void
 dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint32 checksum, calculated_crc32c, calculated_adler32;
+  guint32 checksum = 0, calculated_crc32c = 0, calculated_adler32 = 0;
   guint length;
-  gboolean crc32c_correct, adler32_correct;
+  gboolean crc32c_correct = FALSE, adler32_correct = FALSE;
   proto_item *sctp_item;
   proto_tree *sctp_tree;
 
+  length    = tvb_length(tvb);
+  checksum  = tvb_get_ntohl(tvb, CHECKSUM_OFFSET);
+  switch(sctp_checksum) {
+  case SCTP_CHECKSUM_NONE:
+    break;
+  case SCTP_CHECKSUM_ADLER32:
+    calculated_adler32           = sctp_adler32(tvb_get_ptr(tvb, 0, length), length);
+    adler32_correct              = (checksum == calculated_adler32);
+    sctp_info.adler32_calculated = TRUE;
+    sctp_info.adler32_correct    = adler32_correct;
+    break;
+  case SCTP_CHECKSUM_CRC32C:
+    calculated_crc32c            = sctp_crc32c(tvb_get_ptr(tvb, 0, length), length);
+    crc32c_correct               = (checksum == calculated_crc32c);
+    sctp_info.crc32c_calculated  = TRUE;
+    sctp_info.crc32c_correct     = crc32c_correct;
+    break;
+  case SCTP_CHECKSUM_AUTOMATIC:
+    calculated_adler32           = sctp_adler32(tvb_get_ptr(tvb, 0, length), length);
+    adler32_correct              = (checksum == calculated_adler32);
+    calculated_crc32c            = sctp_crc32c(tvb_get_ptr(tvb, 0, length), length);
+    crc32c_correct               = (checksum == calculated_crc32c);
+    sctp_info.adler32_calculated = TRUE;
+    sctp_info.adler32_correct    = adler32_correct;
+    sctp_info.crc32c_calculated  = TRUE;
+    sctp_info.crc32c_correct     = crc32c_correct;
+    break;
+  }
+  
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
@@ -2008,8 +2048,6 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum, "Checksum: 0x%08x (not verified)", checksum);
       break;
     case SCTP_CHECKSUM_ADLER32:
-      calculated_adler32 = sctp_adler32(tvb_get_ptr(tvb, 0, length), length);
-      adler32_correct    = (checksum == calculated_adler32);
       if (adler32_correct)
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
                                    checksum, "Checksum: 0x%08x (correct Adler32)", checksum);
@@ -2017,10 +2055,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
                                    checksum, "Checksum: 0x%08x (incorrect Adler32, should be 0x%08x)", checksum, calculated_adler32);
       proto_tree_add_boolean_hidden(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
-      break;
+     break;
     case SCTP_CHECKSUM_CRC32C:
-      calculated_crc32c = sctp_crc32c(tvb_get_ptr(tvb, 0, length), length);
-      crc32c_correct    = (checksum == calculated_crc32c);
       if (crc32c_correct)
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
                                    checksum, "Checksum: 0x%08x (correct CRC32C)", checksum);
@@ -2030,10 +2066,6 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_boolean_hidden(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
       break;
     case SCTP_CHECKSUM_AUTOMATIC:
-      calculated_adler32 = sctp_adler32(tvb_get_ptr(tvb, 0, length), length);
-      adler32_correct    = (checksum == calculated_adler32);
-      calculated_crc32c  = sctp_crc32c(tvb_get_ptr(tvb, 0, length), length);
-      crc32c_correct     = (checksum == calculated_crc32c);
       if ((adler32_correct) && !(crc32c_correct))
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
                                    checksum, "Checksum: 0x%08x (correct Adler32)", checksum);
@@ -2062,7 +2094,7 @@ static void
 dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16 source_port, destination_port;
-
+  
   /* Extract the common header */
   source_port      = tvb_get_ntohs(tvb, SOURCE_PORT_OFFSET);
   destination_port = tvb_get_ntohs(tvb, DESTINATION_PORT_OFFSET);
@@ -2079,8 +2111,12 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Clear entries in Info column on summary display */
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "");
-    
+      
+  memset(&sctp_info, 0, sizeof(struct _sctp_info));
+  sctp_info.verification_tag = tvb_get_ntohl(tvb, VERIFICATION_TAG_OFFSET);
   dissect_sctp_packet(tvb, pinfo, tree);
+  if (!pinfo->in_error_pkt)
+    tap_queue_packet(sctp_tap, pinfo, &sctp_info);
 }
 
 /* Register the protocol with Ethereal */
@@ -2219,7 +2255,7 @@ proto_register_sctp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sctp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
+  sctp_tap = register_tap("sctp");
   /* subdissector code */
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", FT_UINT16, BASE_DEC);
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", FT_UINT32, BASE_HEX);
