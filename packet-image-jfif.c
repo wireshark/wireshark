@@ -3,7 +3,7 @@
  * Routines for JFIF image/jpeg media dissection
  * Copyright 2004, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-image-jfif.c,v 1.1 2004/01/04 02:59:46 obiot Exp $
+ * $Id: packet-image-jfif.c,v 1.2 2004/01/06 00:09:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,12 +227,6 @@ static const value_string vals_units[] = {
 	{ 1, "Dots per inch" },
 	{ 2, "Dots per centimeter" },
 	{ 0x00, NULL }
-};
-
-static const value_string vals_true_false[] = {
-	{ 0, "False" },
-	{ 1, "True" },
-	{ 0, NULL },
 };
 
 static const value_string vals_extension_code[] = {
