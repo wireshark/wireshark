@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include <epan/proto.h>
+#include <epan/packet.h>
 
 #include "clopts_common.h"
 
@@ -52,6 +53,8 @@ handle_dashG_option(int argc, char **argv, char *progname)
         proto_registrar_dump_protocols();
       else if (strcmp(argv[2], "values") == 0)
         proto_registrar_dump_values();
+      else if (strcmp(argv[2], "decodes") == 0)
+        dissector_dump_decodes();
       else {
         fprintf(stderr, "%s: Invalid \"%s\" option for -G flag\n", progname,
                 argv[2]);

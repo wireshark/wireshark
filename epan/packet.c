@@ -1696,3 +1696,58 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 	}
 	return ret;
 }
+
+/*
+ * Dumps the "layer type"/"decode as" associations to stdout, similar
+ * to the proto_registrar_dump_*() routines.
+ *
+ * There is one record per line. The fields are tab-delimited.
+ *
+ * Field 1 = layer type, e.g. "tcp.port"
+ * Field 2 = selector in decimal
+ * Field 3 = "decode as" name, e.g. "http"
+ */
+
+
+static void
+dissector_dump_decodes_display(gchar *table_name, ftenum_t selector_type _U_,
+    gpointer key, gpointer value, gpointer user_data _U_)
+{
+	guint32 selector = (guint32) key;
+	dissector_table_t sub_dissectors = find_dissector_table(table_name);
+	dtbl_entry_t *dtbl_entry;
+	dissector_handle_t handle;
+	gint proto_id;
+	gchar *decode_as;
+
+	g_assert(sub_dissectors);
+	switch (sub_dissectors->type) {
+
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+			dtbl_entry = value;
+			g_assert(dtbl_entry);
+
+			handle = dtbl_entry->current;
+			g_assert(handle);
+
+			proto_id = dissector_handle_get_protocol_index(handle);
+
+			if (proto_id != -1) {
+				decode_as = proto_get_protocol_filter_name(proto_id);
+				g_assert(decode_as != NULL);
+				printf("%s\t%d\t%s\n", table_name, selector, decode_as);
+			}
+			break;
+
+	default:
+		break;
+	}
+}
+
+void
+dissector_dump_decodes() {
+	dissector_all_tables_foreach(dissector_dump_decodes_display, NULL);
+}

@@ -367,4 +367,10 @@ extern void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
 		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 		int etype_id, int trailer_id, int fcs_len);
 
+/*
+ * Dump layer/selector/dissector records in a fashion similar to the
+ * proto_registrar_dump_* routines.
+ */
+extern void dissector_dump_decodes();
+
 #endif /* packet.h */
