@@ -6,14 +6,14 @@
  *
  * See
  *
- *	http://www.modicon.com./openmbus/
+ *	http://www.modicon.com/openmbus/
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.1 2001/04/24 19:29:12 guy Exp $
+ * $Id: packet-mbtcp.c,v 1.2 2001/04/24 19:31:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
