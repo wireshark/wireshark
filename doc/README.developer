@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.72 2003/03/06 22:41:39 guy Exp $
+$Id: README.developer,v 1.73 2003/03/07 21:50:34 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -134,6 +134,20 @@ Don't include <unistd.h> without protecting it with
 
 	#endif
 
+and, if you're including it to get routines such as "open()", "close()",
+"read()", and "write()" declared, also include <io.h> if present:
+
+	#ifdef HAVE_IO_H
+	#include <io.h>
+	#endif
+
+in order to declare the Windows C library routines "_open()",
+"_close()", "_read()", and "_write()".  Your file must include <glib.h>
+- which many of the Ethereal header files include, so you might not have
+to include it explicitly - in order to get "open()", "close()",
+"read()", "write()", etc. mapped to "_open()", "_close()", "_read()",
+"_write()", etc..
+
 When opening a file with "fopen()", "freopen()", or "fdopen()", if the
 file contains ASCII text, use "r", "w", "a", and so on as the open mode
 - but if it contains binary data, use "rb", "wb", and so on.  On
@@ -194,7 +208,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.72 2003/03/06 22:41:39 guy Exp $"
+The "$Id: README.developer,v 1.73 2003/03/07 21:50:34 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -204,7 +218,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.72 2003/03/06 22:41:39 guy Exp $
+ * $Id: README.developer,v 1.73 2003/03/07 21:50:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
