@@ -168,7 +168,7 @@ EXTRA_DIST =                \
 	print.ps                \
 	rdps.c
 
-SUBDIRS=@WIRETAP_DIR@
+SUBDIRS= wiretap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h

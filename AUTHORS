@@ -56,6 +56,10 @@ Joerg Mayer      <jmayer@telemation.de> {
 	Banyan Vines support
 }
 
+Martin Maciaszek <fastjack@i-s-o.net> {
+	RPM .spec file
+}
+
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

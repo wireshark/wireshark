@@ -1,9 +1,11 @@
 Overview of changes in Ethereal 0.5.1:
 * Updated Vines support (Joerg Mayer)
-* Bitfield decoding (Guy)
+* Bitfield decoding support (Guy)
 * GTK+ 1.1/1.2 support (Gilbert, Gerald)
 * Make TCP info more verbose (Gerald)
 * Fix resize problems w/main window (Gerald)
+* Fix time output (Gerald)
+* Add support for AIX iptrace files to wiretap (Gilbert)
 
 Overview of changes in Ethereal 0.5.0:
 * Initial release of wiretap library (Gilbert)

@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.7 1998/12/29 04:05:33 gerald Exp $
+ * $Id: column.c,v 1.8 1999/01/04 01:31:17 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,8 +83,9 @@ col_format_to_string(gint fmt) {
   description */
 static gchar *
 col_format_desc(gint fmt) {
-  gchar *dlist[] = { "Number", "Time", "Relative time", "Absolute time",
-                     "Delta time", "Source address", "Src addr (resolved)",
+  gchar *dlist[] = { "Number", "Time (command line specified)",
+                     "Relative time", "Absolute time", "Delta time",
+                     "Source address", "Src addr (resolved)",
                      "Src addr (unresolved)", "Hardware src addr",
                      "Hw src addr (resolved)", "Hw src addr (unresolved)",
                      "Network src addr", "Net scr addr (resolved)",
@@ -348,7 +349,7 @@ col_format_to_pref_str() {
       if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
         cur_len--;
         cur_pos = 0;
-        pref_str[cur_len] = '\n'; cur_len++;
+	        pref_str[cur_len] = '\n'; cur_len++;
         pref_str[cur_len] = '\t'; cur_len++;
       }
       sprintf(&pref_str[cur_len], "\"%s\", ", cfmt->title);

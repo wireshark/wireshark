@@ -75,6 +75,7 @@ libwiretap_a_SOURCES = \
 	debug.h			\
 	file.c			\
 	iptrace.c		\
+	iptrace.h		\
 	lanalyzer.c		\
 	lanalyzer.h		\
 	libpcap.c		\

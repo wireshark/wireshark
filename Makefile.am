@@ -93,10 +93,11 @@ EXTRA_DIST =                \
 	doc/Makefile            \
 	doc/ethereal.pod        \
 	ethereal.1              \
+	ethereal.spec           \
 	image/icon-excl.xpm     \
 	image/icon-ethereal.xpm \
 	manuf                   \
 	print.ps                \
 	rdps.c
 
-SUBDIRS=@WIRETAP_DIR@
+SUBDIRS= wiretap
