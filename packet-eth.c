@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.17 1999/08/22 00:47:43 guy Exp $
+ * $Id: packet-eth.c,v 1.18 1999/08/24 06:10:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -117,9 +117,7 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_UNRES_DL_SRC))
     col_add_str(fd, COL_UNRES_DL_SRC, ether_to_str((u_char *)&pd[offset+6]));
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "N/A");
-  if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "Ethernet II");
+    col_add_str(fd, COL_PROTOCOL, "Ethernet");
 
   etype = (pd[offset+12] << 8) | pd[offset+13];
 
@@ -127,12 +125,12 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (etype <= IEEE_802_3_MAX_LEN) {
     length = etype;
 
-  /* Is there an 802.2 layer? I can tell by looking at the first 2
-     bytes after the 802.3 header. If they are 0xffff, then what
-     follows the 802.3 header is an IPX payload, meaning no 802.2.
-     (IPX/SPX is they only thing that can be contained inside a
-     straight 802.3 packet). A non-0xffff value means that there's an
-     802.2 layer inside the 802.3 layer */
+    /* Is there an 802.2 layer? I can tell by looking at the first 2
+       bytes after the 802.3 header. If they are 0xffff, then what
+       follows the 802.3 header is an IPX payload, meaning no 802.2.
+       (IPX/SPX is they only thing that can be contained inside a
+       straight 802.3 packet). A non-0xffff value means that there's an
+       802.2 layer inside the 802.3 layer */
     if (pd[offset+14] == 0xff && pd[offset+15] == 0xff) {
       ethhdr_type = ETHERNET_802_3;
     }
@@ -140,8 +138,10 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       ethhdr_type = ETHERNET_802_2;
     }
 
-    if (check_col(fd, COL_INFO))
-      col_add_str(fd, COL_INFO, "802.3");
+    if (check_col(fd, COL_INFO)) {
+      col_add_fstr(fd, COL_INFO, "IEEE 802.3 %s",
+		(ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
+    }
     if (tree) {
 
 	ti = proto_tree_add_item_format(tree, proto_eth, 0, ETH_HEADER_SIZE,
@@ -166,6 +166,8 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   } else {
     ethhdr_type = ETHERNET_II;
+    if (check_col(fd, COL_INFO))
+      col_add_str(fd, COL_INFO, "Ethernet II");
     if (tree) {
 
 	ti = proto_tree_add_item_format(tree, proto_eth, 0, ETH_HEADER_SIZE,
