@@ -5,7 +5,7 @@
  * ISO 10589 ISIS (Intradomain Routing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.9 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-osi-options.c,v 1.10 2002/04/07 21:54:48 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -25,8 +25,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -342,10 +340,9 @@ dissect_option_rfd( const u_char error, const u_char field, u_char offset,
  * Input:
  *   u_char       : PDU type to check if option is allowed or not
  *   u_char       : length of option section 
- *   u_char *     : packet data
+ *   tvbuff_t *   : tvbuff containing packet data
  *   int          : offset into packet where we are (packet_data[offset]== start
  *                  of what we care about)
- *   frame_data * : frame data (whole packet with extra info)
  *   proto_tree * : tree of display data.  May be NULL.
  *
  * Output:
@@ -353,7 +350,7 @@ dissect_option_rfd( const u_char error, const u_char field, u_char offset,
  */
 void
 dissect_osi_options( u_char pdu_type, u_char opt_len, tvbuff_t *tvb, 
-                     int offset, packet_info *pinfo, proto_tree *tree) {
+                     int offset, proto_tree *tree) {
    proto_item *ti;
    proto_tree *osi_option_tree = NULL;
    u_char      parm_len        = 0;
