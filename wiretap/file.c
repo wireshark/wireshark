@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.30 1999/12/04 03:36:21 guy Exp $
+ * $Id: file.c,v 1.31 1999/12/04 05:14:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -211,9 +211,10 @@ const static struct dump_type {
 	guint	type;
 	int	(*dump_open)(wtap_dumper *, int *);
 } dump_open_table[] = {
-	{ WTAP_FILE_PCAP,	libpcap_dump_open },
-	{ WTAP_FILE_SNOOP,	snoop_dump_open },
-	{ 0,			NULL }
+	{ WTAP_FILE_PCAP,		libpcap_dump_open },
+	{ WTAP_FILE_SNOOP,		snoop_dump_open },
+	{ WTAP_FILE_NETMON_1_x,		netmon_dump_open },
+	{ 0,				NULL }
 };
 
 static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
@@ -258,18 +259,18 @@ FILE* wtap_dump_file(wtap_dumper *wdh)
 	return wdh->fh;
 }
 
-int wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err)
 {
 	return (wdh->subtype_write)(wdh, phdr, pd, err);
 }
 
-int wtap_dump_close(wtap_dumper *wdh, int *err)
+gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 {
-	int ret = 1;
+	gboolean ret = TRUE;
 
 	if (!(wdh->subtype_close)(wdh, err))
-		ret = 0;
+		ret = FALSE;
 	errno = WTAP_ERR_CANT_CLOSE;
 	if (fclose(wdh->fh) == EOF) {
 		if (ret) {
@@ -279,8 +280,10 @@ int wtap_dump_close(wtap_dumper *wdh, int *err)
 			if (err != NULL)
 				*err = errno;
 		}
-		ret = 0;
+		ret = FALSE;
 	}
+	if (wdh->private.opaque != NULL)
+		g_free(wdh->private.opaque);
 	g_free(wdh);
 	return ret;
 }

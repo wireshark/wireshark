@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.17 1999/11/26 22:50:51 guy Exp $
+ * $Id: netmon.c,v 1.18 1999/12/04 05:14:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -94,6 +94,9 @@ struct netmonrec_2_x_hdr {
 };
 
 static int netmon_read(wtap *wth, int *err);
+static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+    const u_char *pd, int *err);
+static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
 
 int netmon_open(wtap *wth, int *err)
 {
@@ -364,4 +367,237 @@ static int netmon_read(wtap *wth, int *err)
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
+}
+
+static const int wtap_encap[] = {
+	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
+	1,		/* WTAP_ENCAP_ETHERNET -> NDIS Ethernet */
+	2,		/* WTAP_ENCAP_TR -> NDIS Token Ring */
+	-1,		/* WTAP_ENCAP_SLIP -> unsupported */
+	-1,		/* WTAP_ENCAP_PPP -> unsupported */
+	3,		/* WTAP_ENCAP_FDDI -> NDIS FDDI */
+	3,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> NDIS FDDI */
+	-1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
+	-1,		/* WTAP_ENCAP_ARCNET -> unsupported */
+	-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
+	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
+	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
+	-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
+	0		/* WTAP_ENCAP_NULL -> DLT_NULL */
+};
+#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+
+/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   failure */
+gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
+{
+	/* Per-packet encapsulations aren't supported. */
+	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
+		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return FALSE;
+	}
+
+	if (wdh->encap < 0 || wdh->encap >= NUM_WTAP_ENCAPS
+	    || wtap_encap[wdh->encap] == -1) {
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return FALSE;
+	}
+
+	/* This is a netmon file */
+	wdh->subtype_write = netmon_dump;
+	wdh->subtype_close = netmon_dump_close;
+
+	/* We can't fill in all the fields in the file header, as we
+	   haven't yet written any packets.  As we'll have to rewrite
+	   the header when we've written out all the packets, we just
+	   skip over the header for now. */
+	fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+
+	wdh->private.netmon = g_malloc(sizeof(netmon_dump_t));
+	wdh->private.netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;
+	wdh->private.netmon->got_first_record_time = FALSE;
+	wdh->private.netmon->frame_table = NULL;
+	wdh->private.netmon->frame_table_index = 0;
+	wdh->private.netmon->frame_table_size = 0;
+
+	return TRUE;
+}
+
+/* Write a record for a packet to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+    const u_char *pd, int *err)
+{
+	netmon_dump_t *priv = wdh->private.netmon;
+	struct netmonrec_1_x_hdr rec_1_x_hdr;
+	struct netmonrec_2_x_hdr rec_2_x_hdr;
+	char *hdrp;
+	int hdr_size;
+	int nwritten;
+
+	/* NetMon files have a capture start time in the file header,
+	   and have times relative to that in the packet headers;
+	   pick the time of the first packet as the capture start
+	   time. */
+	if (!priv->got_first_record_time) {
+		priv->first_record_time = phdr->ts;
+		priv->got_first_record_time = TRUE;
+	}
+	
+	switch (wdh->file_type) {
+
+	case WTAP_FILE_NETMON_1_x:
+		rec_1_x_hdr.ts_delta = htolel(
+		    (phdr->ts.tv_sec - priv->first_record_time.tv_sec)*1000
+		  + (phdr->ts.tv_usec - priv->first_record_time.tv_usec + 500)/1000);
+		rec_1_x_hdr.orig_len = htoles(phdr->len);
+		rec_1_x_hdr.incl_len = htoles(phdr->caplen);
+		hdrp = (char *)&rec_1_x_hdr;
+		hdr_size = sizeof rec_1_x_hdr;
+		break;
+
+	case WTAP_FILE_NETMON_2_x:
+		/* XXX - fill in 64-bit time diff in microseconds */
+		rec_2_x_hdr.orig_len = htolel(phdr->len);
+		rec_2_x_hdr.incl_len = htolel(phdr->caplen);
+		hdrp = (char *)&rec_2_x_hdr;
+		hdr_size = sizeof rec_2_x_hdr;
+		break;
+
+	default:
+		/* We should never get here - our open routine
+		   should only get called for the types above. */
+		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		return FALSE;
+	}
+
+	nwritten = fwrite(hdrp, 1, hdr_size, wdh->fh);
+	if (nwritten != hdr_size) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return FALSE;
+	}
+	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
+	if (nwritten != phdr->caplen) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return FALSE;
+	}
+
+	/*
+	 * Stash the file offset of this frame.
+	 */
+	if (priv->frame_table_size == 0) {
+		/*
+		 * Haven't yet allocated the buffer for the frame table.
+		 */
+		priv->frame_table = g_malloc(1024 * sizeof *priv->frame_table);
+		priv->frame_table_size = 1024;
+	} else {
+		/*
+		 * We've allocated it; are we at the end?
+		 */
+		if (priv->frame_table_index >= priv->frame_table_size) {
+			/*
+			 * Yes - double the size of the frame table.
+			 */
+			priv->frame_table_size *= 2;
+			priv->frame_table = g_realloc(priv->frame_table,
+			    priv->frame_table_size * sizeof *priv->frame_table);
+		}
+	}
+	priv->frame_table[priv->frame_table_index] =
+	    htolel(priv->frame_table_offset);
+	priv->frame_table_index++;
+	priv->frame_table_offset += hdr_size + phdr->caplen;
+
+	return TRUE;
+}
+
+/* Finish writing to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
+{
+	netmon_dump_t *priv = wdh->private.netmon;
+	int n_to_write;
+	int nwritten;
+	struct netmon_hdr file_hdr;
+	const char *magicp;
+	int magic_size;
+	struct tm *tm;
+
+	/* Write out the frame table.  "priv->frame_table_index" is
+	   the number of entries we've put into it. */
+	n_to_write = priv->frame_table_index * sizeof *priv->frame_table;
+	nwritten = fwrite(priv->frame_table, 1, n_to_write, wdh->fh);
+	if (nwritten != n_to_write) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return FALSE;
+	}
+
+	/* Now go fix up the file header. */
+	fseek(wdh->fh, 0, SEEK_SET);
+	memset(&file_hdr, '\0', sizeof file_hdr);
+	switch (wdh->file_type) {
+
+	case WTAP_FILE_NETMON_1_x:
+		magicp = netmon_1_x_magic;
+		magic_size = sizeof netmon_1_x_magic;
+		/* current NetMon version, for 1.x, is 1.1 */
+		file_hdr.ver_minor = 1;
+		file_hdr.ver_major = 1;
+		break;
+
+	case WTAP_FILE_NETMON_2_x:
+		magicp = netmon_2_x_magic;
+		magic_size = sizeof netmon_2_x_magic;
+		/* XXX - fill in V2 stuff. */
+		break;
+
+	default:
+		/* We should never get here - our open routine
+		   should only get called for the types above. */
+		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		return FALSE;
+	}
+	nwritten = fwrite(magicp, 1, magic_size, wdh->fh);
+	if (nwritten != magic_size) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return FALSE;
+	}
+
+	file_hdr.network = htoles(wtap_encap[wdh->encap]);
+	tm = localtime(&priv->first_record_time.tv_sec);
+	file_hdr.ts_year = htoles(1900 + tm->tm_year);
+	file_hdr.ts_month = htoles(tm->tm_mon + 1);
+	file_hdr.ts_dow = htoles(tm->tm_wday);
+	file_hdr.ts_day = htoles(tm->tm_mday);
+	file_hdr.ts_hour = htoles(tm->tm_hour);
+	file_hdr.ts_min = htoles(tm->tm_min);
+	file_hdr.ts_sec = htoles(tm->tm_sec);
+	file_hdr.ts_msec = htoles(priv->first_record_time.tv_usec/1000);
+		/* XXX - what about rounding? */
+	file_hdr.frametableoffset = htolel(priv->frame_table_offset);
+	file_hdr.frametablelength =
+	    htolel(priv->frame_table_index * sizeof *priv->frame_table);
+	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
+	if (nwritten != sizeof file_hdr) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return FALSE;
+	}
+
+	return TRUE;
 }

@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.18 1999/12/04 03:36:21 guy Exp $
+ * $Id: snoop.c,v 1.19 1999/12/04 05:14:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -56,9 +56,9 @@ struct snooprec_hdr {
 };
 
 static int snoop_read(wtap *wth, int *err);
-static int snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err);
-static int snoop_dump_close(wtap_dumper *wdh, int *err);
+static gboolean snoop_dump_close(wtap_dumper *wdh, int *err);
 
 /*
  * See
@@ -350,9 +350,9 @@ static int snoop_read(wtap *wth, int *err)
 	return data_offset;
 }
 
-/* Returns 1 on success, 0 on failure; sets "*err" to an error code on
+/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-int snoop_dump_open(wtap_dumper *wdh, int *err)
+gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 {
 	struct snoop_hdr file_hdr;
 	static const int wtap_encap[] = {
@@ -377,13 +377,13 @@ int snoop_dump_open(wtap_dumper *wdh, int *err)
 	/* Per-packet encapsulations aren't supported. */
 	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-		return 0;
+		return FALSE;
 	}
 
 	if (wdh->encap < 0 || wdh->encap >= NUM_WTAP_ENCAPS
 	    || wtap_encap[wdh->encap] == -1) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		return 0;
+		return FALSE;
 	}
 
 	/* This is a snoop file */
@@ -397,7 +397,7 @@ int snoop_dump_open(wtap_dumper *wdh, int *err)
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-		return 0;
+		return FALSE;
 	}
 
 	/* current "snoop" format is 2 */
@@ -409,15 +409,15 @@ int snoop_dump_open(wtap_dumper *wdh, int *err)
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-		return 0;
+		return FALSE;
 	}
 
-	return 1;
+	return TRUE;
 }
 
 /* Write a record for a packet to a dump file.
-   Returns 1 on success, 0 on failure. */
-static int snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+   Returns TRUE on success, FALSE on failure. */
+static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err)
 {
 	struct snooprec_hdr rec_hdr;
@@ -445,7 +445,7 @@ static int snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-		return 0;
+		return FALSE;
 	}
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
@@ -453,7 +453,7 @@ static int snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-		return 0;
+		return FALSE;
 	}
 
 	/* Now write the padding. */
@@ -463,15 +463,15 @@ static int snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-		return 0;
+		return FALSE;
 	}
-	return 1;
+	return TRUE;
 }
 
 /* Finish writing to a dump file.
-   Returns 1 on success, 0 on failure. */
-static int snoop_dump_close(wtap_dumper *wdh, int *err)
+   Returns TRUE on success, FALSE on failure. */
+static gboolean snoop_dump_close(wtap_dumper *wdh, int *err)
 {
 	/* Nothing to do here. */
-	return 1;
+	return TRUE;
 }

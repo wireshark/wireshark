@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.23 1999/11/06 10:31:47 guy Exp $
+ * $Id: libpcap.c,v 1.24 1999/12/04 05:14:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -98,9 +98,9 @@ struct pcaprec_modified_hdr {
 
 static int libpcap_read(wtap *wth, int *err);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
-static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err);
-static int libpcap_dump_close(wtap_dumper *wdh, int *err);
+static gboolean libpcap_dump_close(wtap_dumper *wdh, int *err);
 
 /*
  * XXX - this is a bit of a mess.  OpenBSD, and perhaps NetBSD, and
@@ -460,9 +460,9 @@ int wtap_pcap_encap_to_wtap_encap(int encap)
 	return pcap_encap[encap];
 }
 
-/* Returns 1 on success, 0 on failure; sets "*err" to an error code on
+/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-int libpcap_dump_open(wtap_dumper *wdh, int *err)
+gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 {
 	static const guint32 pcap_magic = PCAP_MAGIC;
 	struct pcap_hdr file_hdr;
@@ -488,13 +488,13 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 	/* Per-packet encapsulations aren't supported. */
 	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-		return 0;
+		return FALSE;
 	}
 
 	if (wdh->encap < 0 || wdh->encap >= NUM_WTAP_ENCAPS
 	    || wtap_encap[wdh->encap] == -1) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		return 0;
+		return FALSE;
 	}
 
 	/* This is a libpcap file */
@@ -508,7 +508,7 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-		return 0;
+		return FALSE;
 	}
 
 	/* current "libpcap" format is 2.4 */
@@ -524,15 +524,15 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-		return 0;
+		return FALSE;
 	}
 
-	return 1;
+	return TRUE;
 }
 
 /* Write a record for a packet to a dump file.
-   Returns 1 on success, 0 on failure. */
-static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+   Returns TRUE on success, FALSE on failure. */
+static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err)
 {
 	struct pcaprec_hdr rec_hdr;
@@ -548,7 +548,7 @@ static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-		return 0;
+		return FALSE;
 	}
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
@@ -556,15 +556,15 @@ static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-		return 0;
+		return FALSE;
 	}
-	return 1;
+	return TRUE;
 }
 
 /* Finish writing to a dump file.
-   Returns 1 on success, 0 on failure. */
-static int libpcap_dump_close(wtap_dumper *wdh, int *err)
+   Returns TRUE on success, FALSE on failure. */
+static gboolean libpcap_dump_close(wtap_dumper *wdh, int *err)
 {
 	/* Nothing to do here. */
-	return 1;
+	return TRUE;
 }
