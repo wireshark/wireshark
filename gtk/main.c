@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.283 2003/03/02 22:07:25 guy Exp $
+ * $Id: main.c,v 1.284 2003/03/02 22:31:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,7 +127,6 @@
 #include "register.h"
 #include "ringbuffer.h"
 #include "ui_util.h"
-#include "../ui_util.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "../tap.h"
