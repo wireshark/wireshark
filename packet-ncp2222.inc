@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.17 2002/08/23 22:44:57 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.18 2002/08/25 21:41:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1078,7 +1078,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree		*temp_tree = NULL;
         guint8                  nds_verb = 0;
         char *                  verb_string = "";
-        guint16                 nds_frag = 0;
+        guint32                 nds_frag = 0;
 
 	func = tvb_get_guint8(tvb, 6);
 	subfunc = tvb_get_guint8(tvb, 7);
@@ -1089,7 +1089,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 	nds_frag = tvb_get_ntohl(tvb, 8);
 
 	/* Get NDS Verb */
-	if (nds_frag == 0xffff) {
+	if (nds_frag == 0xffffffff) {
 		nds_verb = tvb_get_guint8(tvb, 24);
 		if (nds_verb == 0xfe) {
 			nds_verb = tvb_get_guint8(tvb, 32);
@@ -1104,7 +1104,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        		if (ncp_rec) {
 			
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
-			if (nds_frag != 0xffff) {
+			if (nds_frag != 0xffffffff) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Continuation Fragment");
 			}
 			else {
@@ -1187,11 +1187,10 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 					subfunc, "SubFunction: %d (0x%02x)",
 					subfunc, subfunc);
 					
-				proto_tree_add_uint_format(ncp_tree, hf_ncp_fragment_handle, tvb, 8, 4,
-					nds_frag, "Fragment Handle: (0x%x)",
+				proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, 8, 4,
 					nds_frag);
 					
-				if (nds_frag == 0xffff) {
+				if (nds_frag == 0xffffffff) {
 					proto_tree_add_item(ncp_tree, hf_ncp_fragment_size, tvb, 12, 4, TRUE);
 					proto_tree_add_item(ncp_tree, hf_ncp_message_size, tvb, 16, 4, TRUE);
 					proto_tree_add_item(ncp_tree, hf_ncp_nds_flag, tvb, 20, 4, FALSE);
