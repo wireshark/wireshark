@@ -556,8 +556,7 @@ gtk_h225counter_init(char *optarg)
 	gtk_widget_show_all(hs->win);
     window_present(hs->win);
 
-    /* XXX - shouldn't this be retap_packets? */
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 void
