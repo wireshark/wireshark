@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.40 2002/12/17 21:53:57 oabad Exp $
+ * $Id: radcom.c,v 1.41 2003/01/07 08:41:23 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -63,16 +63,28 @@ static guint8 active_time_magic[11] = {
 };
 
 /* RADCOM record header - followed by frame data (perhaps including FCS).
-   The first two bytes of "xxz" appear to equal "length", as do the
-   second two bytes; if a RADCOM box can be told not to save all of
-   the captured packet, might one or the other of those be the
-   captured length of the packet? */
+
+   "data_length" appears to be the length of packet data following
+   the record header.  It's 0 in the last record.
+
+   "length" appears to be the amount of captured packet data, and
+   "real_length" might be the actual length of the frame on the wire -
+   in some captures, it's the same as "length", and, in others,
+   it's greater than "length".  In the last record, however, those
+   may have bogus values (or is that some kind of trailer record?).
+
+   "xxx" appears to be all-zero in all but the last record in one
+   capture; if so, perhaps this indicates that the last record is,
+   in fact, a trailer of some sort, and some field in the header
+   is a record type. */
 struct radcomrec_hdr {
 	char	xxx[4];		/* unknown */
-	char	length[2];	/* packet length */
+	char	data_length[2];	/* packet length? */
 	char	xxy[5];		/* unknown */
 	struct unaligned_frame_date date; /* date/time stamp of packet */
-	char	xxz[6];		/* unknown */
+	char	real_length[2];	/* actual length of packet */
+	char	length[2];	/* captured length of packet */
+	char	xxz[2];		/* unknown */
 	char	dce;		/* DCE/DTE flag (and other flags?) */
 	char	xxw[9];		/* unknown */
 };
@@ -199,10 +211,12 @@ int radcom_open(wtap *wth, int *err)
 		goto read_error;
 	}
 	wth->data_offset += 4;
-	if (!memcmp(search_encap, "LAPB", 4))
+	if (memcmp(search_encap, "LAPB", 4) == 0)
 		wth->file_encap = WTAP_ENCAP_LAPB;
-	else if (!memcmp(search_encap, "Ethe", 4))
+	else if (memcmp(search_encap, "Ethe", 4) == 0)
 		wth->file_encap = WTAP_ENCAP_ETHERNET;
+	else if (memcmp(search_encap, "ATM/", 4) == 0)
+		wth->file_encap = WTAP_ENCAP_ATM_RFC1483;
 	else {
 		g_message("pcap: network type \"%.4s\" unknown", search_encap);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
@@ -234,6 +248,10 @@ int radcom_open(wtap *wth, int *err)
 		if (file_seek(wth->fh, 297, SEEK_CUR, err) == -1)
 			return -1;
 		wth->data_offset += 297;
+	} else if (wth->file_encap == WTAP_ENCAP_ATM_RFC1483) {
+		if (file_seek(wth->fh, 504, SEEK_CUR, err) == -1)
+			return -1;
+		wth->data_offset += 504;
 	}
 
 	return 1;
@@ -250,10 +268,11 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 {
 	int	ret;
 	struct radcomrec_hdr hdr;
-	guint16 length;
+	guint16 data_length, real_length, length;
 	guint32 sec;
 	int	bytes_read;
 	struct tm tm;
+	char	phdr[8];
 	char	fcs[2];
 
 	/* Read record header. */
@@ -264,17 +283,28 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 		return FALSE;
 	}
 	wth->data_offset += sizeof hdr;
+	data_length = pletohs(&hdr.data_length);
+	if (data_length == 0) {
+		/*
+		 * The last record appears to have 0 in its "data_length"
+		 * field, but non-zero values in other fields, so we
+		 * check for that and treat it as an EOF indication.
+		 */
+		return FALSE;
+	}
 	length = pletohs(&hdr.length);
-	if (length == 0) return FALSE;
+	real_length = pletohs(&hdr.real_length);
 
-	if (wth->file_encap == WTAP_ENCAP_LAPB)
+	if (wth->file_encap == WTAP_ENCAP_LAPB) {
 		length -= 2; /* FCS */
+		real_length -= 2;
+	}
 
-	wth->phdr.len = length;
+	wth->phdr.len = real_length;
 	wth->phdr.caplen = length;
 
 	tm.tm_year = pletohs(&hdr.date.year)-1900;
-	tm.tm_mon = hdr.date.month-1;
+	tm.tm_mon = (hdr.date.month&0x0f)-1;
 	tm.tm_mday = hdr.date.day;
 	sec = pletohl(&hdr.date.sec);
 	tm.tm_hour = sec/3600;
@@ -283,7 +313,27 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 	tm.tm_isdst = -1;
 	wth->phdr.ts.tv_sec = mktime(&tm);
 	wth->phdr.ts.tv_usec = pletohl(&hdr.date.usec);
-	wth->pseudo_header.x25.flags = (hdr.dce & 0x1) ? 0x00 : FROM_DCE;
+
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_LAPB:
+		wth->pseudo_header.x25.flags = (hdr.dce & 0x1) ?
+		    0x00 : FROM_DCE;
+		break;
+
+	case WTAP_ENCAP_ATM_RFC1483:
+		/*
+		 * XXX - is this stuff a pseudo-header?
+		 * The direction appears to be in the "hdr.dce" field.
+		 */
+		if (!radcom_read_rec_data(wth->fh, phdr, sizeof phdr, err))
+			return FALSE;	/* Read error */
+		wth->data_offset += 8;
+		length -= 8;
+		wth->phdr.len -= 8;
+		wth->phdr.caplen -= 8;
+		break;
+	}
 
 	/*
 	 * Read the packet data.
@@ -298,7 +348,9 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB) {
 		/* Read the FCS.
-		   XXX - should we put it in the pseudo-header? */
+		   XXX - should we have some way of indicating the
+		   presence and size of an FCS to our caller?
+		   That'd let us handle other file types as well. */
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(&fcs, 1, sizeof fcs, wth->fh);
 		if (bytes_read != sizeof fcs) {
@@ -319,6 +371,7 @@ radcom_seek_read(wtap *wth, long seek_off,
 {
 	int	ret;
 	struct radcomrec_hdr hdr;
+	char	phdr[8];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -334,7 +387,22 @@ radcom_seek_read(wtap *wth, long seek_off,
 		return FALSE;
 	}
 
-	pseudo_header->x25.flags = (hdr.dce & 0x1) ? 0x00 : FROM_DCE;
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_LAPB:
+		pseudo_header->x25.flags = (hdr.dce & 0x1) ? 0x00 : FROM_DCE;
+		break;
+
+	case WTAP_ENCAP_ATM_RFC1483:
+		/*
+		 * XXX - is this stuff a pseudo-header?
+		 * The direction appears to be in the "hdr.dce" field.
+		 */
+		if (!radcom_read_rec_data(wth->random_fh, phdr, sizeof phdr,
+		    err))
+			return FALSE;	/* Read error */
+		break;
+	}
 
 	/*
 	 * Read the packet data.
