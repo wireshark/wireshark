@@ -706,30 +706,39 @@ void filter_dialog_filter_changed (win32_element_t *filter_tb) {
        dialogs, like we do with the other callbacks. */
     if (DFILTER_LIST == list) {
 	/* colorize filter string entry */
-	filter_tb_syntax_check(filter_tb->h_wnd);
+	filter_tb_syntax_check(filter_tb->h_wnd, NULL);
     }
 
 }
 
+/* XXX - The only reason for the "filter_text" parameter is to be able to feed
+ * in the "real" filter string in the case of a CBN_SELCHANGE notification message.
+ */
 void
-filter_tb_syntax_check(HWND hwnd) {
-    gchar     *strval;
+filter_tb_syntax_check(HWND hwnd, gchar *filter_text) {
+    gchar     *strval = NULL;
     gint       len;
     dfilter_t *dfp;
 
-    len = GetWindowTextLength(hwnd);
+    /* If filter_text is non-NULL, use it.  Otherwise, grab the text from
+     * the window */
+    if (filter_text) {
+	strval = g_strdup(filter_text);
+	len = lstrlen(filter_text);
+    } else {
+	len = GetWindowTextLength(hwnd);
+	if (len > 0) {
+	    len++;
+	    strval = g_malloc(len);
+	    GetWindowText(hwnd, strval, len);
+	}
+    }
+
     if (len == 0) {
 	/* Default window background */
 	SendMessage(hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, COLOR_WINDOW);
-	RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
 	return;
-    }
-
-    len++;
-    strval = g_malloc(len);
-
-    /* colorize filter string entry */
-    if (GetWindowText(hwnd, strval, len) > 0 && dfilter_compile(strval, &dfp)) {
+    } else if (dfilter_compile(strval, &dfp)) {	/* colorize filter string entry */
 	if (dfp != NULL)
 	    dfilter_free(dfp);
 	/* Valid (light green) */
@@ -739,8 +748,7 @@ filter_tb_syntax_check(HWND hwnd) {
 	SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, 0x00afafff);
     }
 
-    RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
-    g_free(strval);
+    if (strval) g_free(strval);
 }
 
 /*

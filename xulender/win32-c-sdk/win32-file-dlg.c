@@ -52,9 +52,12 @@
 #include "simple_dialog.h"
 #include "util.h"
 
+#include "win32-c-sdk.h"
+
 #include "win32-file-dlg.h"
 #include "win32-main.h"
 #include "capture-util.h"
+#include "filter-util.h"
 #include "win32-menu.h"
 
 typedef enum {
@@ -932,6 +935,16 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 		    break;
 	    }
 	    break;
+	case WM_COMMAND:
+	    cur_ctrl = (HWND) l_param;
+	    switch(w_param) {
+		case (EN_UPDATE << 16) | EWFD_FILTER_EDIT:
+		    filter_tb_syntax_check(cur_ctrl, NULL);
+		    break;
+		default:
+		    break;
+	    }
+	    break;
 	default:
 	    break;
     }
@@ -1314,6 +1327,16 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 		    parent = GetParent(mf_hwnd);
 		    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
 		    preview_set_filename(mf_hwnd, sel_name);
+		    break;
+		default:
+		    break;
+	    }
+	    break;
+	case WM_COMMAND:
+	    cur_ctrl = (HWND) l_param;
+	    switch(w_param) {
+		case (EN_UPDATE << 16) | EWFD_FILTER_EDIT:
+		    filter_tb_syntax_check(cur_ctrl, NULL);
 		    break;
 		default:
 		    break;

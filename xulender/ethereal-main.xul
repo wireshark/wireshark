@@ -534,6 +534,7 @@
         id="dfilter-entry"
         flex="1"
         oninput="filter_changed_cb"
+	onchange="filter_changed_cb"
       />
       <button
         label="Clear"

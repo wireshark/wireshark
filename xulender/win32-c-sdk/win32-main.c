@@ -1766,10 +1766,25 @@ filter_clear_cb(win32_element_t *el) {
 void
 filter_changed_cb(win32_element_t *el) {
     win32_element_t *dfilter_el = win32_identifier_get_str("dfilter-entry");
+    gchar           *filter_text;
+    gint             cur_sel, len;
 
     win32_element_assert(dfilter_el);
 
-    filter_tb_syntax_check(dfilter_el->h_wnd);
+    cur_sel = SendMessage(dfilter_el->h_wnd, CB_GETCURSEL, 0, 0);
+    if (cur_sel != CB_ERR) {	/* The user selected something */
+	len = SendMessage(dfilter_el->h_wnd, CB_GETLBTEXTLEN, (WPARAM) cur_sel, 0);
+	if (len >= 0) {
+	    len++;
+	    filter_text = g_malloc(len);
+	    SendMessage(dfilter_el->h_wnd, CB_GETLBTEXT, (WPARAM) cur_sel, (LPARAM) filter_text);
+	    filter_tb_syntax_check(dfilter_el->h_wnd, filter_text);
+	    g_free(filter_text);
+	}
+    } else {	/* The user typed something in */
+	filter_tb_syntax_check(dfilter_el->h_wnd, NULL);
+    }
+    RedrawWindow(dfilter_el->h_wnd, NULL, NULL, RDW_INVALIDATE);
 }
 
 /* Write all non empty display filters (until maximum count)

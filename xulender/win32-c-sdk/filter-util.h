@@ -21,7 +21,7 @@ void display_filter_construct(win32_element_t *btn_el, win32_element_t *parent_f
 void cfilter_dialog();
 void dfilter_dialog();
 
-void filter_tb_syntax_check(HWND hwnd);
+void filter_tb_syntax_check(HWND hwnd, gchar *filter_text);
 
 #define E_FILT_BT_PTR_KEY "filter_bt_ptr"
 
