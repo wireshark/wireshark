@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.17 2002/04/18 02:35:45 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.18 2002/04/18 02:42:43 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2065,13 +2065,6 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{0, NULL, NULL, NULL},
 };
 
-static void lsa_init(void)
-{
-	/* Initialise DCERPC/SMB data structures */
-
-	dcerpc_smb_init();
-}
-
 void 
 proto_register_dcerpc_lsa(void)
 {
@@ -2331,8 +2324,6 @@ proto_register_dcerpc_lsa(void)
 
         proto_register_field_array (proto_dcerpc_lsa, hf, array_length (hf));
         proto_register_subtree_array(ett, array_length(ett));
-
-        register_init_routine(lsa_init);
 }
 
 /* Protocol handoff */
