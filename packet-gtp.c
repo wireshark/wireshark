@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.26 2002/04/29 08:20:07 guy Exp $
+ * $Id: packet-gtp.c,v 1.27 2002/05/02 11:05:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2475,7 +2475,7 @@ check_field_presence(guint8 message, guint8 field, int *position) {
  * UMTS:	29.060 v4.0, chapter
  */
 static int
-decode_gtp_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint8	cause;
 	
@@ -2490,7 +2490,7 @@ decode_gtp_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
  * UMTS:	29.060 v4.0, chapter 7.7.2
  */
 static int 
-decode_gtp_imsi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_imsi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8	tid_val[8];
 	gchar	*tid_str;
@@ -2509,7 +2509,7 @@ decode_gtp_imsi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
  * TODO: Add details about MCC, MNC, LAC, RAC (show each digit) ?
  */
 static int
-decode_gtp_rai(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_rai(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	proto_tree	*ext_tree_rai;
 	proto_item	*te;
@@ -2536,7 +2536,7 @@ decode_gtp_rai(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
  * UMTS:	29.060 v4.0, chapter 7.7.4, page 47
  */
 static int
-decode_gtp_tlli(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_tlli(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint32	tlli;
 	
@@ -2550,7 +2550,7 @@ decode_gtp_tlli(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
  * UMTS:	29.060 v4.0, chapter 7.7.5, page 47
  */
 static int
-decode_gtp_ptmsi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_ptmsi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint32	ptmsi;
 	
@@ -2603,7 +2603,7 @@ decode_qos_gprs(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
  * TODO:	check if length is included: ETSI 4.08 vs 9.60 
  */
 static int
-decode_gtp_qos_gprs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_qos_gprs(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	return (1+decode_qos_gprs(tvb, offset+1, tree, "Quality of Service", 1));
 	
@@ -2613,7 +2613,7 @@ decode_gtp_qos_gprs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * UMTS:	29.060 v4.0, chapter 7.7.6, page 47
  */
 static int
-decode_gtp_reorder(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_reorder(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint8	reorder;
 	
@@ -2629,7 +2629,7 @@ decode_gtp_reorder(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
  * TODO: Add blurb support by registering items in the protocol registration
  */
 static int
-decode_gtp_auth_tri(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_auth_tri(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	proto_tree	*ext_tree_auth_tri;
 	proto_item	*te;
@@ -2655,7 +2655,7 @@ decode_gtp_auth_tri(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * 		29.002 v4.2.1, chapter 17.5, page 268
  */
 static int
-decode_gtp_map_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_map_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8	map_cause;
 	
@@ -2669,7 +2669,7 @@ decode_gtp_map_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	29.060 v4.0, chapter 7.7.9, page 48
  */
 static int
-decode_gtp_ptmsi_sig(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_ptmsi_sig(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint32	ptmsi_sig;
 	
@@ -2683,7 +2683,7 @@ decode_gtp_ptmsi_sig(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	29.060 v4.0, chapter 7.7.10, page 49
  */
 static int
-decode_gtp_ms_valid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_ms_valid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8	ms_valid;
 	
@@ -2697,7 +2697,7 @@ decode_gtp_ms_valid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * UMTS:	29.060 v4.0, chapter 7.7.11, page 49
  */
 static int
-decode_gtp_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8	recovery;
 	
@@ -2711,7 +2711,7 @@ decode_gtp_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * UMTS:	29.060 v4.0, chapter 7.7.12, page 49
  */
 static int
-decode_gtp_sel_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_sel_mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8	sel_mode;
 	
@@ -2725,7 +2725,7 @@ decode_gtp_sel_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * UMTS:	29.060 v4.0, chapter 7.7.13, page 50
  */
 static int
-decode_gtp_16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint16	ext_flow_label;	
 	guint32	teid_data;
@@ -2752,7 +2752,7 @@ decode_gtp_16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
  * UMTS:	29.060 v4.0, chapter 7.7.14, page 42
  */
 static int
-decode_gtp_17(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_17(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		flow_sig;
 	guint32		teid_cp;
@@ -2779,7 +2779,7 @@ decode_gtp_17(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
  * UMTS:	29.060 v4.0, chapter 7.7.15, page 51
  */
 static int
-decode_gtp_18(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_18(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		flow_ii;
 	guint32		teid_ii;
@@ -2820,7 +2820,7 @@ decode_gtp_18(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
  * Check if all ms_reason types are included
  */
 static int
-decode_gtp_19(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_19(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8		field19;	
 	
@@ -2848,7 +2848,7 @@ decode_gtp_19(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
  * UMTS:	29.060 v4.0, chapter 7.7.17, page 51
  */
 static int
-decode_gtp_nsapi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_nsapi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8		nsapi;
 	
@@ -2862,7 +2862,7 @@ decode_gtp_nsapi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
  * UMTS:	29.060 v4.0, chapter 7.7.18, page 52
  */
 static int
-decode_gtp_ranap_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_ranap_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8		ranap;
 	
@@ -2893,7 +2893,7 @@ decode_gtp_ranap_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
  * UMTS:	29.060 v4.0, chapter 7.7.19, page 52
  */
 static int
-decode_gtp_rab_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_rab_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8		nsapi, dl_pdcp_seq, ul_pdcp_seq;
 	guint16		dl_gtpu_seq, ul_gtpu_seq;
@@ -2923,7 +2923,7 @@ decode_gtp_rab_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	29.060 v4.0, chapter 7.7.20, page 53
  */
 static int
-decode_gtp_rp_sms(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_rp_sms(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8		rp_sms;
 	
@@ -2937,7 +2937,7 @@ decode_gtp_rp_sms(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
  * UMTS:	29.060 v4.0, chapter 7.7.21, page 53
  */
 static int
-decode_gtp_rp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_rp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	proto_tree	*ext_tree_rp;
 	proto_item	*te;
@@ -2961,7 +2961,7 @@ decode_gtp_rp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
  * UMTS:	29.060 v4.0, chapter 7.7.22, page 53
  */
 static int
-decode_gtp_pkt_flow_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_pkt_flow_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	proto_tree	*ext_tree_pkt_flow_id;
 	proto_item	*te;
@@ -2984,7 +2984,7 @@ decode_gtp_pkt_flow_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
  * TODO: Differenciate these uints?
  */
 static int
-decode_gtp_chrg_char(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_chrg_char(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint16		chrg_char;
 	proto_item	*te;
@@ -3009,7 +3009,7 @@ decode_gtp_chrg_char(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	29.060 v4.0, chapter 7.7.24, page 
  */
 static int
-decode_gtp_trace_ref(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_trace_ref(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint16		trace_ref;
 	
@@ -3024,7 +3024,7 @@ decode_gtp_trace_ref(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	29.060 v4.0, chapter 7.7.25, page 
  */
 static int
-decode_gtp_trace_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_trace_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint16		trace_type;
 	
@@ -3039,7 +3039,7 @@ decode_gtp_trace_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
  * UMTS:	29.060 v4.0, chapter 7.7.25A, page 
  */
 static int
-decode_gtp_ms_reason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_ms_reason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8		reason;	
 	
@@ -3055,7 +3055,7 @@ decode_gtp_ms_reason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	33.015
  */
 static int
-decode_gtp_tr_comm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_tr_comm(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint8	tr_command;	
 	
@@ -3070,7 +3070,7 @@ decode_gtp_tr_comm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
  * UMTS:	29.060 v4.0, chapter 7.7.26, page 55
  */
 static int
-decode_gtp_chrg_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_chrg_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint32	chrg_id;	
 	
@@ -3084,7 +3084,7 @@ decode_gtp_chrg_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
  * UMTS:	29.060 v4.0, chapter 7.7.27, page 55
  */
 static int
-decode_gtp_user_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_user_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint16		length;
 	guint8		pdp_typ, pdp_org;	
@@ -3207,7 +3207,7 @@ decode_quintuplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count, gu
  * 		- finish displaying last 3 parameters
  */
 static int
-decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint16		length, quint_len, net_cap, con_len;	
 	guint8		cksn, count, sec_mode, cipher, trans_id, proto_disc, message, drx_split, drx_len, drx_ccch, non_drx_timer;
@@ -3509,7 +3509,7 @@ decode_apn(tvbuff_t *tvb, int offset, guint16 length, proto_tree *tree) {
  * TODO:	unify addr functions 
  */
 static int
-decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint8		ggsn_addr_len, apn_len, trans_id, vaa, order, nsapi, sapi, pdu_send_no, pdu_rec_no, pdp_cntxt_id,
 			pdp_type_org, pdp_type_num, pdp_addr_len;
@@ -3660,7 +3660,7 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	29.060, v4.0, chapter 7.7.30
  */
 static int
-decode_gtp_apn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_apn(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length;
 	proto_tree	*ext_tree_apn;
@@ -3743,7 +3743,7 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
  * UMTS:	29.060 v4.0, chapter 7.7.32
  */
 static int
-decode_gtp_gsn_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_gsn_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 	
 	guint8		addr_type, addr_len;	
 	guint16		length;	
@@ -3802,7 +3802,7 @@ decode_gtp_gsn_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * UMTS:	29.060 v4.0, chapter 7.7.33
  */
 static int
-decode_gtp_msisdn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_msisdn(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	const guint8	*msisdn_val;
 	gchar		*msisdn_str;
@@ -3825,7 +3825,7 @@ decode_gtp_msisdn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
  * 		24.008 v4.2, chapter 10.5.6.5
  */
 static int
-decode_gtp_qos_umts(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_qos_umts(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	return decode_qos_umts(tvb, offset, tree, "Quality of Service", 2);
 }
@@ -3834,7 +3834,7 @@ decode_gtp_qos_umts(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * UMTS:	29.060 v4.0, chapter 7.7.35
  */
 static int
-decode_gtp_auth_qui(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_auth_qui(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 	
 	return (1 + decode_quintuplet(tvb, offset+1, tree, 1, 1));
 
@@ -3845,7 +3845,7 @@ decode_gtp_auth_qui(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * 		24.008 v4.2, chapter 10.5.6.12
  */
 static int
-decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length, port1, port2, tos;
 	guint8		tft_code, no_packet_filters, i, pf_id, pf_eval, pf_len, pf_content_id, pf_offset, proto;
@@ -3983,7 +3983,7 @@ decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
  * 		25.413 v3.4, chapter ???
  */
 static int
-decode_gtp_target_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_target_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length;
 
@@ -3999,7 +3999,7 @@ decode_gtp_target_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	29.060 v4.0, chapter 7.7.38
  */
 static int
-decode_gtp_utran_cont(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_utran_cont(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length;
 
@@ -4016,7 +4016,7 @@ decode_gtp_utran_cont(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
  * UMTS:	29.060 v4.0, chapter 7.7.39
  */
 static int
-decode_gtp_rab_setup(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_rab_setup(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint32		teid, addr_ipv4;
 	guint16		length;
@@ -4062,7 +4062,7 @@ decode_gtp_rab_setup(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	29.060 v4.0, chapter 7.7.40
  */
 static int
-decode_gtp_hdr_list(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_hdr_list(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	int		i;
 	guint8		length, hdr;
@@ -4090,7 +4090,7 @@ decode_gtp_hdr_list(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * TODO:	find TriggerID description
  */
 static int
-decode_gtp_trigger_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_trigger_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length;
 
@@ -4107,7 +4107,7 @@ decode_gtp_trigger_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
  * TODO:	find OMC-ID description
  */
 static int
-decode_gtp_omc_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_omc_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length;
 
@@ -4123,7 +4123,7 @@ decode_gtp_omc_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
  * UMTS:	29.060 v4.0, chapter 7.7.43
  */
 static int
-decode_gtp_chrg_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_chrg_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint16		length;	
 	guint32		addr_ipv4;
@@ -4161,7 +4161,7 @@ decode_gtp_chrg_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	33.015
  */
 static int
-decode_gtp_rel_pack(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_rel_pack(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 	
 	guint16		length, n, number;
 	proto_tree	*ext_tree_rel_pack;
@@ -4189,7 +4189,7 @@ decode_gtp_rel_pack(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * UMTS:	33.015
  */
 static int
-decode_gtp_can_pack(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_can_pack(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 	
 	guint16		length, n, number;
 	proto_tree	*ext_tree_can_pack;
@@ -4215,7 +4215,7 @@ decode_gtp_can_pack(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 /* CDRs dissector */
 static int
-decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 	
 	guint16		length, format_ver, data_len, i, j;
 	guint8		no, format, rectype;
@@ -4621,7 +4621,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
  * UMTS:	33.015
  */
 static int
-decode_gtp_data_resp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_data_resp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 	
 	guint16		length, n, number;
 	proto_tree	*ext_tree_data_resp;
@@ -4650,7 +4650,7 @@ decode_gtp_data_resp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	33.015
  */
 static int
-decode_gtp_node_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_node_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 		
 	guint16		length;	
 	guint32		addr_ipv4;
@@ -4689,7 +4689,7 @@ decode_gtp_node_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
  * UMTS:	29.060 v4.0, chapter 7.7.44
  */
 static int
-decode_gtp_priv_ext(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {	
+decode_gtp_priv_ext(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {	
 		
 	guint16		length, ext_id;	
 	gchar		ext_val[64];
@@ -4712,7 +4712,7 @@ decode_gtp_priv_ext(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 }
 
 static int
-decode_gtp_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+decode_gtp_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	proto_tree_add_text(tree, tvb, offset, 1, "Unknown extension header");
 
