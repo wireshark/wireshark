@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.73 2001/04/02 00:38:33 hagbard Exp $
+ * $Id: tethereal.c,v 1.74 2001/04/03 05:26:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,6 +94,10 @@
 #include "conversation.h"
 #include "plugins.h"
 #include "register.h"
+
+#ifdef WIN32
+#include "capture-wpcap.h"
+#endif
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
@@ -230,6 +234,9 @@ main(int argc, char *argv[])
     fprintf(stderr, "Can't open your preferences file \"%s\": %s.\n", pf_path,
         strerror(pf_open_errno));
   }
+
+  /* Load Wpcap, if possible */
+  load_wpcap();
     
   /* Initialize the capture file struct */
   cfile.plist		= NULL;
@@ -540,6 +547,14 @@ main(int argc, char *argv[])
     /* No capture file specified, so we're supposed to do a live capture;
        do we have support for live captures? */
 #ifdef HAVE_LIBPCAP
+
+#ifdef _WIN32
+    if (!has_wpcap) {
+	fprintf(stderr, "tethereal: Could not load wpcap.dll.\n");
+	exit(2);
+    }
+#endif
+
     /* Yes; did the user specify an interface to use? */
     if (cfile.iface == NULL) {
         /* No - pick the first one from the list of interfaces. */

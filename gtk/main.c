@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.187 2001/04/02 09:53:46 guy Exp $
+ * $Id: main.c,v 1.188 2001/04/03 05:26:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,6 +136,11 @@
 #include "colors.h"
 #include "strutil.h"
 #include "register.h"
+
+#ifdef WIN32
+#include "capture-wpcap.h"
+#endif
+
 
 packet_info  pi;
 capture_file cfile;
@@ -1113,6 +1118,9 @@ main(int argc, char *argv[])
   }
 
 #ifdef WIN32
+  /* Load wpcap if possible */
+  load_wpcap();
+
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 #endif

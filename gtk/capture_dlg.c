@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.37 2001/01/28 23:56:29 guy Exp $
+ * $Id: capture_dlg.c,v 1.38 2001/04/03 05:26:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,10 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "util.h"
+
+#ifdef _WIN32
+#include "capture-wpcap.h"
+#endif
 
 /* Capture callback data keys */
 #define E_CAP_IFACE_KEY       "cap_iface"
@@ -129,6 +133,18 @@ capture_prep_cb(GtkWidget *w, gpointer d)
     reactivate_window(cap_open_w);
     return;
   }
+
+#ifdef _WIN32
+  /* Is WPcap loaded? */
+  if (!has_wpcap) {
+	  simple_dialog(ESD_TYPE_CRIT, NULL,
+			  "Unable to load wpcap.dll: capturing not enabled.\n"
+			  "See http://netgroup-serv.polito.it/winpcap/ for\n"
+			  "more details.");
+	  return;
+  }
+#endif
+	  
 
   if_list = get_interface_list(&err, err_str);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {

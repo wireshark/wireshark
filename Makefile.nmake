@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.91 2001/03/31 10:13:10 guy Exp $
+# $Id: Makefile.nmake,v 1.92 2001/04/03 05:26:25 gram Exp $
 
 include config.nmake
 include <win32.mak>
@@ -196,6 +196,7 @@ DISSECTOR_OBJECTS = $(DISSECTOR_SOURCES:.c=.obj)
 
 ETHEREAL_COMMON_OBJECTS = \
 	asn1.obj         \
+	capture-wpcap.obj	\
 	column.obj       \
 	follow.obj       \
 	getopt.obj	 \
@@ -212,11 +213,11 @@ ETHEREAL_COMMON_OBJECTS = \
 ethereal_OBJECTS = \
 	$(DISSECTOR_OBJECTS) \
 	$(ETHEREAL_COMMON_OBJECTS) \
-	capture.obj      \
-	file.obj         \
-	filters.obj      \
+	capture.obj		\
+	file.obj         	\
+	filters.obj      	\
 	proto_hier_stats.obj	\
-	summary.obj      \
+	summary.obj
 
 tethereal_OBJECTS = \
 	$(DISSECTOR_OBJECTS) \
@@ -240,16 +241,15 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
 	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
-	$(PCAP_DIR)\lib\wpcap.lib
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
+#	$(PCAP_DIR)\lib\wpcap.lib
 
 tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
-	$(PCAP_DIR)\lib\wpcap.lib
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
 editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
@@ -260,8 +260,7 @@ dftest_LIBS= epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
-	$(PCAP_DIR)\lib\wpcap.lib
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
 EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
 

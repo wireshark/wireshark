@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.299 2001/04/01 06:11:24 hagbard Exp $
+# $Id: Makefile.am,v 1.300 2001/04/03 05:26:25 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -585,6 +585,8 @@ DISTCLEANFILES =	\
 
 EXTRA_DIST = \
 	aclocal-flags		\
+	capture-wpcap.c		\
+	capture-wpcap.h		\
 	config.h.win32		\
 	config.nmake		\
 	debian/README.debian	\
