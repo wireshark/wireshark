@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.101 2003/05/07 03:00:32 guy Exp $
+ * $Id: packet-dns.c,v 1.102 2003/05/24 17:45:10 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -561,9 +561,9 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 	  if (maxname > 0) {
 	    print_len = snprintf(np, maxname + 1, "\\[x");
-	    if (print_len != -1) {
+	    if (print_len != -1 && print_len <= maxname) {
 	      /* Some versions of snprintf return -1 if they'd truncate
-	         the output. */
+	         the output.  Others return <buf_size> or greater. */
 	      np += print_len;
 	      maxname -= print_len;
 	    } else {
@@ -576,9 +576,9 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	    if (maxname > 0) {
 	      print_len = snprintf(np, maxname + 1, "%02x",
 	        tvb_get_guint8(tvb, offset));
-	      if (print_len != -1) {
+	      if (print_len != -1 && print_len <= maxname) {
 		/* Some versions of snprintf return -1 if they'd truncate
-		 the output. */
+		 the output.  Others return <buf_size> or greater. */
 		np += print_len;
 		maxname -= print_len;
 	      } else {
@@ -591,9 +591,9 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	  }
 	  if (maxname > 0) {
 	    print_len = snprintf(np, maxname + 1, "/%d]", bit_count);
-	    if (print_len != -1) {
+	    if (print_len != -1 && print_len <= maxname) {
 	      /* Some versions of snprintf return -1 if they'd truncate
-	         the output. */
+	         the output.  Others return <buf_size> or greater. */
 	      np += print_len;
 	      maxname -= print_len;
 	    } else {

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.67 2003/05/08 08:36:25 guy Exp $
+ * $Id: packet-wsp.c,v 1.68 2003/05/24 17:45:10 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -976,6 +976,8 @@ enum {
 	POST			= 0x60,
 	PUT			= 0x61,			/* No sample data */
 };
+
+#define VAL_STRING_SIZE 200
 
 typedef enum {
 	VALUE_LEN_SUPPLIED,
@@ -2330,7 +2332,7 @@ add_accept_xxx_header (proto_tree *tree, tvbuff_t *header_buff,
 	int subvalueLen;
 	int subvalueOffset;
 	guint value = 0;
-	char valString[100];
+	char valString[VAL_STRING_SIZE];
 	const char *valMatch;
 	guint peek;
 	double q_value = 1.0;
@@ -2420,13 +2422,14 @@ add_accept_xxx_header (proto_tree *tree, tvbuff_t *header_buff,
 	/* Build string including Q-value if present */
 	if (q_value == 1.0)			/* Default */
 	{
-		snprintf (valString, 100, "%s", valMatch);
+		snprintf (valString, VAL_STRING_SIZE, "%s", valMatch);
 	}
 	else
 	{
-		snprintf (valString, 100, "%s; Q=%5.3f", valMatch, q_value);
+		snprintf (valString, VAL_STRING_SIZE, "%s; Q=%5.3f", valMatch, q_value);
 	}
 	/* Add string to tree */
+	
 	proto_tree_add_string (tree, hf_string,
 	    header_buff, 0, headerLen, valString);
 }
@@ -3064,7 +3067,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 	guint value = 0;
 	guint i;
 	int ret;
-	char valString[200];
+	char valString[VAL_STRING_SIZE];
 
 #ifdef DEBUG
 	fprintf (stderr, "dissect_wsp: Offset is %d, size is %d\n", offset, capabilitiesLen);
@@ -3119,12 +3122,10 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 				valString[0]=0;
 				if (value & 0x80)
 				{
-					ret = snprintf(valString+i,200-i,"%s","(Confirmed push facility) ");
-					if (ret == -1) {
+					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Confirmed push facility) ");
+					if (ret == -1 || ret >= VAL_STRING_SIZE-i) {
 						/*
-						 * Some versions of snprintf
-						 * return -1 if they'd
-						 * truncate the output.
+						 * We've been truncated
 						 */
 						goto add_string;
 					}
@@ -3136,12 +3137,10 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 						/* No more room. */
 						goto add_string;
 					}
-					ret = snprintf(valString+i,200-i,"%s","(Push facility) ");
-					if (ret == -1) {
+					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Push facility) ");
+					if (ret == -1 || ret >= VAL_STRING_SIZE-i) {
 						/*
-						 * Some versions of snprintf
-						 * return -1 if they'd
-						 * truncate the output.
+						 * We've been truncated
 						 */
 						goto add_string;
 					}
@@ -3153,12 +3152,10 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 						/* No more room. */
 						goto add_string;
 					}
-					ret = snprintf(valString+i,200-i,"%s","(Session resume facility) ");
-					if (ret == -1) {
+					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Session resume facility) ");
+					if (ret == -1 || ret >= VAL_STRING_SIZE-i) {
 						/*
-						 * Some versions of snprintf
-						 * return -1 if they'd
-						 * truncate the output.
+						 * We've been truncated
 						 */
 						goto add_string;
 					}
@@ -3166,22 +3163,21 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 				}
 				if (value & 0x10)
 				{
-					if (i >= 200) {
+					if (i >= VAL_STRING_SIZE) {
 						/* No more room. */
 						goto add_string;
 					}
-					ret = snprintf(valString+i,200-i,"%s","(Acknowledgement headers) ");
-					if (ret == -1) {
+					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Acknowledgement headers) ");
+					if (ret == -1 || ret >= VAL_STRING_SIZE-i) {
 						/*
-						 * Some versions of snprintf
-						 * return -1 if they'd
-						 * truncate the output.
+						 * We've been truncated
 						 */
 						goto add_string;
 					}
 					i += ret;
 				}
 			add_string:
+				valString[VAL_STRING_SIZE] = '\0';
 				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_protocol_opt, tvb, capabilitiesStart, length+1, valString);
 				break;
 			case 0x03 : /* Method-MOR */
@@ -3248,10 +3244,9 @@ add_capability_vals(tvbuff_t *tvb, gboolean add_string, int offsetStr,
 			ret = snprintf(valString+i,valStringSize-i,"(0x%02x) ",
 			    value);
 		}
-		if (ret == -1) {
+		if (ret == -1 || ret >= valStringSize-i) {
 			/*
-			 * Some versions of snprintf return -1
-			 * if they'd truncate the output.
+			 * We've been truncated.
 			 */
 			break;
 		}

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.86 2003/04/27 20:57:58 deniel Exp $
+ * $Id: packet-ieee80211.c,v 1.87 2003/05/24 17:45:10 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -755,9 +755,9 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 	    ret = snprintf (out_buff + n, SHORT_STR - n, "%2.1f%s ",
 			   (tag_data_ptr[i] & 0x7F) * 0.5,
 			   (tag_data_ptr[i] & 0x80) ? "(B)" : "");
-	    if (ret == -1) {
+	    if (ret == -1 || ret >= SHORT_STR - n) {
 	      /* Some versions of snprintf return -1 if they'd truncate
-	         the output. */
+	         the output. Others return <buf_size> or greater.  */
 	      break;
 	    }
 	    n += ret;
@@ -765,6 +765,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       if (n < SHORT_STR)
 	snprintf (out_buff + n, SHORT_STR - n, "[Mbit/sec]");
 
+      out_buff[SHORT_STR] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
       break;
