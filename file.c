@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.203 2000/08/03 12:44:18 gram Exp $
+ * $Id: file.c,v 1.204 2000/08/09 06:18:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,6 +105,7 @@ static void thaw_clist(capture_file *cf);
 
 static char *file_rename_error_message(int err);
 static char *file_close_error_message(int err);
+static gboolean copy_binary_file(char *from_filename, char *to_filename);
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
@@ -1954,7 +1955,7 @@ file_close_error_message(int err)
  * Returns TRUE on success, FALSE on failure. If a failure, it also
  * displays a simple dialog window with the error message.
  */
-gboolean
+static gboolean
 copy_binary_file(char *from_filename, char *to_filename)
 {
 	int           from_fd, to_fd, nread, nwritten, err;
