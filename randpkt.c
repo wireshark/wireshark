@@ -471,7 +471,13 @@ main(int argc, char **argv)
 		pkthdr.ts.tv_sec = i; /* just for variety */
 
 		for (j = example->sample_length; j < len_random; j++) {
-			buffer[j] = (rand() % 0x100);
+			/* Add format strings here and there */
+			if ((int) (100.0*rand()/(RAND_MAX+1.0)) < 3 && j < (len_random - 3)) {
+				memcpy(&buffer[j], "%s", 3);
+				j += 2;
+			} else {
+				buffer[j] = (rand() % 0x100);
+			}
 		}
 
 		wtap_dump(dump, &pkthdr, &ps_header, &buffer[0], &err);
