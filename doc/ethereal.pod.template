@@ -31,17 +31,18 @@ S<[ B<-w> savefile]>
 B<Ethereal> is a GUI network protocol analyzer.  It lets you
 interactively browse packet data from a live network or from a
 previously saved capture file.  B<Ethereal> knows how to read B<libpcap>
-capture files, including those of B<tcpdump>.  In addition, B<Ethereal> can
-read capture files from B<snoop> (including B<Shomiti>) and B<atmsnoop>,
-B<LanAlyzer>, uncompressed B<Sniffer>, Microsoft B<Network Monitor>,
-AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<RADCOM>'s WAN/LAN
-analyzer, B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, and
-the dump output from B<Toshiba's> ISDN routers.  There is no need to
-tell B<Ethereal> what type of file you are reading; it will determine the
-file type by itself.  B<Ethereal> is also capable of reading any of these
-file formats if they are compressed using gzip.  B<Ethereal> recognizes
-this directly from the file; the '.gz' extension is not required for
-this purpose.
+capture files, including those of B<tcpdump>.  In addition, B<Ethereal>
+can read capture files from B<snoop> (including B<Shomiti>) and
+B<atmsnoop>, B<LanAlyzer>, uncompressed B<Sniffer>, Microsoft B<Network
+Monitor>, AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<RADCOM>'s
+WAN/LAN analyzer, B<Lucent/Ascend> router debug output, HP-UX's
+B<nettl>, the dump output from B<Toshiba's> ISDN routers, and
+B<i4btrace> from the ISDN4BSD project.  There is no need to tell
+B<Ethereal> what type of file you are reading; it will determine the
+file type by itself.  B<Ethereal> is also capable of reading any of
+these file formats if they are compressed using gzip.  B<Ethereal>
+recognizes this directly from the file; the '.gz' extension is not
+required for this purpose.
 
 Like other protocol analyzers, B<Ethereal>'s main window shows 3 views
 of a packet.  It shows a summary line, briefly describing what the

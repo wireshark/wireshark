@@ -25,18 +25,18 @@ B<Tethereal> is a network protocol analyzer.  It lets you capture packet
 data from a live network, either printing a decoded form of those
 packets to the standard output or saving the captured packets to a file,
 and lets you print a decoded form of packets from a previously saved
-capture file.  B<Tethereal> knows how to read B<libpcap>
-capture files, including those of B<tcpdump>.  In addition, B<Tethereal> can
-read capture files from B<snoop> (including B<Shomiti>) and B<atmsnoop>,
+capture file.  B<Tethereal> knows how to read B<libpcap> capture files,
+including those of B<tcpdump>.  In addition, B<Tethereal> can read
+capture files from B<snoop> (including B<Shomiti>) and B<atmsnoop>,
 B<LanAlyzer>, uncompressed B<Sniffer>, Microsoft B<Network Monitor>,
 AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<RADCOM>'s WAN/LAN
-analyzer, B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, and
-the dump output from B<Toshiba's> ISDN routers.  There is no need to
-tell B<Tethereal> what type of file you are reading; it will determine the
-file type by itself.  B<Tethereal> is also capable of reading any of these
-file formats if they are compressed using gzip.  B<Tethereal> recognizes
-this directly from the file; the '.gz' extension is not required for
-this purpose.
+analyzer, B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, the
+dump output from B<Toshiba's> ISDN routers, and B<i4btrace> from the
+ISDN4BSD project.  There is no need to tell B<Tethereal> what type of
+file you are reading; it will determine the file type by itself. 
+B<Tethereal> is also capable of reading any of these file formats if
+they are compressed using gzip.  B<Tethereal> recognizes this directly
+from the file; the '.gz' extension is not required for this purpose.
 
 By default, when printing a decoded form of packets, B<Tethereal> prints
 a summary line giving a time stamp for the packet, the source and
