@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.85 2003/11/13 05:08:58 gerald Exp $
+ * $Id: packet-wsp.c,v 1.86 2003/11/13 23:44:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1243,9 +1243,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb);
 	if (val & 0x80) { /* High nibble "." Low nibble */ \
 		len = 1; \
 		val &= 0x7F; \
-		str = g_malloc (6 * sizeof(char)); \
-		g_assert (str); \
-		snprintf (str,5,"%u.%u",val>>4,val&0x0F); \
+		str = g_strdup_printf("%u.%u", val >> 4, val & 0x0F); \
 	} else { get_text_string(str,tvb,start,len,ok); }
 	
 /* Parameter parser */
@@ -2771,9 +2769,7 @@ wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 
 	wkh_1_WellKnownValue;
 		val = val_id & 0x7F;
-		val_str = malloc(20 * sizeof(gchar));
-		g_assert(val_str);
-		sprintf(val_str, "%u second%s", val, PLURALIZE(val));
+		val_str = g_strdup_printf("%u second%s", val, PLURALIZE(val));
 		ti = proto_tree_add_string(tree, hf_hdr_age,
 				tvb, hdr_start, offset - hdr_start, val_str);
 		g_free(val_str); /* proto_XXX creates a copy */
@@ -2784,9 +2780,7 @@ wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 		if (val_id <= 4) { /* Length field already parsed by macro! */
 			get_long_integer(val, tvb, off, len, ok);
 			if (ok) {
-				val_str = malloc(20 * sizeof(gchar));
-				g_assert(val_str);
-				sprintf(val_str, "%u second%s", val, PLURALIZE(val));
+				val_str = g_strdup_printf("%u second%s", val, PLURALIZE(val));
 				ti = proto_tree_add_string(tree, hf_hdr_age,
 						tvb, hdr_start, offset - hdr_start, val_str);
 				g_free(val_str); /* proto_XXX creates a copy */
@@ -2879,8 +2873,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 				proto_tree_add_string(subtree, \
 						hf_hdr_ ## underscored ## _realm, \
 						tvb, off, len, str); \
-				val_str = malloc((len + 11) * sizeof(char)); \
-				sprintf(val_str, "; realm=%s", str); \
+				val_str = g_strdup_printf("; realm=%s", str); \
 				proto_item_append_string(ti, val_str); \
 				g_free(val_str); \
 				g_free(str); \
@@ -2903,8 +2896,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 					proto_tree_add_string(subtree, \
 							hf_hdr_ ## underscored ## _realm, \
 							tvb, off, len, str); \
-					val_str = malloc((len + 11) * sizeof(char)); \
-					sprintf(val_str, "; realm=%s", str); \
+					val_str = g_strdup_printf("; realm=%s", str); \
 					proto_item_append_string(ti, val_str); \
 					g_free(val_str); \
 					g_free(str); \
@@ -2962,8 +2954,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 				proto_tree_add_string(subtree, \
 						hf_hdr_ ## underscored ## _user_id, \
 						tvb, off, len, str); \
-				val_str = malloc((len + 13) * sizeof(char)); \
-				sprintf(val_str, "; user-id=%s", str); \
+				val_str = g_strdup_printf("; user-id=%s", str); \
 				proto_item_append_string(ti, val_str); \
 				g_free(val_str); \
 				g_free(str); \
@@ -2974,8 +2965,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 					proto_tree_add_string(subtree, \
 							hf_hdr_ ## underscored ## _password, \
 							tvb, off, len, str); \
-					val_str = malloc((len + 14) * sizeof(char)); \
-					sprintf(val_str, "; password=%s", str); \
+					val_str = g_strdup_printf("; password=%s", str); \
 					proto_item_append_string(ti, val_str); \
 					g_free(val_str); \
 					g_free(str); \
@@ -3022,9 +3012,7 @@ wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 	wkh_3_ValueWithLength;
 		off = val_start + val_len_len;
 		if (val_len == 16) {
-			val_str = g_malloc((1 + 32) * sizeof(char));
-			g_assert(val_str);
-			sprintf(val_str,
+			val_str = g_strdup_printf(
 					"%02x%02x%02x%02x%02x%02x%02x%02x"
 					"%02x%02x%02x%02x%02x%02x%02x%02x",
 					tvb_get_guint8(tvb, off),
@@ -3095,9 +3083,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 	gchar *str; /* may not be freed! */ \
 	\
 	wkh_1_WellKnownValue; \
-		str = malloc(4 * sizeof(gchar)); \
-		g_assert(str); \
-		sprintf(str, "%u", val_id & 0x7F); \
+		str = g_strdup_printf("%u", val_id & 0x7F); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, str); \
 		g_free(str); \
@@ -3108,9 +3094,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
 			get_long_integer(val, tvb, off, len, ok); \
 			if (ok) { \
-				str = malloc(11 * sizeof(gchar)); \
-				g_assert(str); \
-				sprintf(str, "%u", val); \
+				str = g_strdup_printf("%u", val); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
 				g_free(str); \
@@ -3236,9 +3220,8 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 								"<Unknown cache control directive 0x%02X>"));
 					get_delta_seconds_value(val, tvb, off, len, ok);
 					if (ok) {
-						val_str = malloc(22 * sizeof(gchar));
-						g_assert(val_str);
-						sprintf(val_str, "=%u second%s", val, PLURALIZE(val));
+						val_str = g_strdup_printf("=%u second%s",
+								val, PLURALIZE(val));
 						proto_item_append_string(ti, val_str);
 						g_free(val_str); /* proto_XXX creates a copy */
 					}
@@ -3256,9 +3239,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 				g_free(val_str);
 				get_integer_value(val, tvb, off, len, ok);
 				if (ok) { /* Integer-value */
-					val_str = g_malloc(20 * sizeof(char));
-					g_assert(val_str);
-					sprintf(val_str, " = %u", val);
+					val_str = g_strdup_printf("=%u", val);
 					proto_item_append_string(ti, val_str);
 					g_free(val_str); /* proto_XXX creates a copy */
 				} else { /* Text-string */
@@ -3321,9 +3302,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 				if (ok) { /* Valid warn-agent string */
 					proto_tree_add_string(subtree, hf_hdr_warning_agent,
 							tvb, off, len, str);
-					val_str = g_malloc((len + 11) * sizeof(char));
-					g_assert(val_str);
-					sprintf(val_str, "; agent=%s", str);
+					val_str = g_strdup_printf("; agent=%s", str);
 					proto_item_append_string(ti, val_str);
 					g_free(val_str); /* proto_XXX creates a copy */
 					g_free(str);
@@ -3333,9 +3312,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 						proto_tree_add_string(subtree,
 								hf_hdr_warning_text,
 								tvb, off, len, str);
-						val_str = g_malloc((len + 10) * sizeof(char));
-						g_assert(val_str);
-						sprintf(val_str, "; text=%s", str);
+						val_str = g_strdup_printf("; text=%s", str);
 						proto_item_append_string(ti, val_str);
 						g_free(val_str); /* proto_XXX creates a copy */
 						g_free(str);
@@ -3383,9 +3360,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 				get_uri_value(str, tvb, off, len, ok);
 				if (ok) { /* Valid warn-target string */
 					off += len;
-					str = g_malloc((len+12) * sizeof(char));
-					g_assert(str);
-					sprintf(str, "; target=%s", val_str);
+					str = g_strdup_printf("; target=%s", val_str);
 					proto_item_append_string(ti, str);
 					g_free(str); /* proto_XXX creates a copy */
 					/* Add zero or more dates */
@@ -3397,9 +3372,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 							tv.nsecs = 0;
 							val_str = abs_time_to_str(&tv);
 							g_assert(val_str);
-							str = g_malloc((strlen(val_str)+10) * sizeof(char));
-							g_assert(str);
-							sprintf(str,"; date=%s", val_str);
+							str = g_strdup_printf("; date=%s", val_str);
 							proto_item_append_string(ti, str);
 							g_free(str); /* proto_XXX creates a copy */
 							/* BEHOLD: do NOT try to free val_str, as this
@@ -3429,9 +3402,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 
 	wkh_1_WellKnownValue;
 		val = val_id & 0x7F;
-		val_str = g_malloc(6 * sizeof(char));
-		g_assert(val_str);
-		sprintf(val_str, "%u.%u", val >> 4, val & 0x0F);
+		val_str = g_strdup_printf("%u.%u", val >> 4, val & 0x0F);
 		proto_tree_add_string(tree, hf_hdr_encoding_version,
 				tvb, hdr_start, offset - hdr_start, val_str);
 		g_free(val_str);
@@ -3444,9 +3415,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 		off = val_start + val_len_len;
 		val = tvb_get_guint8(tvb, off);
 		if (val & 0x80) { /* Header Code Page */
-			val_str = g_malloc(14 * sizeof(char));
-			g_assert(val_str);
-			sprintf(val_str, "code-page %u", val & 0x7F);
+			val_str = g_strdup_printf("code-page=%u", val & 0x7F);
 			ti = proto_tree_add_string(tree, hf_hdr_encoding_version,
 					tvb, hdr_start, off - hdr_start, val_str);
 			g_free(val_str);
@@ -3455,9 +3424,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 			if (off < offset) { /* Extra version-value */
 				get_version_value(val,val_str,tvb,off,len,ok);
 				if (ok) { /* Always creates a string if OK */
-					str = g_malloc((len + 2) * sizeof(char));
-					g_assert(str);
-					sprintf(str, ": %s", val_str);
+					str = g_strdup_printf(": %s", val_str);
 					proto_item_append_string(ti, str);
 					g_free(str);
 					g_free(val_str);
@@ -3487,9 +3454,7 @@ wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 		off = val_start + val_len_len;
 		get_uintvar_integer (val, tvb, off, len, ok); /* Uintvar start */
 		if (ok) {
-			val_str = g_malloc(26 * sizeof(char));
-			g_assert(val_str);
-			sprintf(val_str, "first-byte-pos=%u", val);
+			val_str = g_strdup_printf("first-byte-pos=%u", val);
 			ti = proto_tree_add_string(tree, hf_hdr_content_range,
 					tvb, hdr_start, offset - hdr_start, val_str);
 			subtree = proto_item_add_subtree(ti, ett_header);
@@ -3504,9 +3469,7 @@ wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 			} else { /* Uintvar entity length */
 				get_uintvar_integer (val, tvb, off, len, ok);
 				if (ok) {
-					val_str = g_malloc(27 * sizeof(char));
-					g_assert(val_str);
-					sprintf(val_str, "; entity-length=%u", val);
+					val_str = g_strdup_printf("; entity-length=%u", val);
 					proto_item_append_string(ti, val_str);
 					proto_tree_add_uint(subtree,
 							hf_hdr_content_range_entity_length,
@@ -3546,9 +3509,7 @@ wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 			/* Get the First-byte-pos (Uintvar-integer) */
 			get_uintvar_integer (val, tvb, off, len, ok);
 			if (ok) {
-				val_str = g_malloc(28 * sizeof(char));
-				g_assert(val_str);
-				sprintf(val_str, "; first-byte-pos=%u", val);
+				val_str = g_strdup_printf("; first-byte-pos=%u", val);
 				proto_item_append_string(ti, val_str);
 				proto_tree_add_uint(subtree, hf_hdr_range_first_byte_pos,
 						tvb, off, len, val);
@@ -3558,9 +3519,7 @@ wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 				if (off < offset) {
 					get_uintvar_integer (val, tvb, off, len, ok);
 					if (ok) {
-						val_str = g_malloc(27 * sizeof(char));
-						g_assert(val_str);
-						sprintf(val_str, "; last-byte-pos=%u", val);
+						val_str = g_strdup_printf("; last-byte-pos=%u", val);
 						proto_item_append_string(ti, val_str);
 						proto_tree_add_uint(subtree,
 								hf_hdr_range_last_byte_pos,
@@ -3576,9 +3535,7 @@ wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 			/* Get the Suffix-length (Uintvar-integer) */
 			get_uintvar_integer (val, tvb, off, len, ok);
 			if (ok) {
-				val_str = g_malloc(28 * sizeof(char));
-				g_assert(val_str);
-				sprintf(val_str, "; suffix-length=%u", val);
+				val_str = g_strdup_printf("; suffix-length=%u", val);
 				proto_item_append_string(ti, val_str);
 				proto_tree_add_uint(subtree, hf_hdr_range_suffix_length,
 						tvb, off, len, val);
@@ -3794,9 +3751,7 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
 	get_text_string(val_str, tvb, offset, val_len, ok); \
 	if (ok) { \
 		proto_tree_add_string(tree, hf, tvb, start, type_len + val_len, val_str); \
-		str = g_malloc((1+val_len) * sizeof(char) + sizeof(lowercase)); \
-		g_assert(str); \
-		sprintf(str, "; " lowercase "=%s", val_str); \
+		str = g_strdup_printf("; " lowercase "=%s", val_str); \
 		proto_item_append_string(ti, str); \
 		g_free(str); \
 		g_free(val_str); \
@@ -3873,9 +3828,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 		case 0x03:	/* WSP 1.1 encoding - Type: Integer-value */
 			get_integer_value (val,tvb,offset,val_len,ok);
 			if (ok) {
-				val_str = g_malloc(19 * sizeof(char));
-				g_assert(val_str);
-				sprintf(val_str, "; Type=%u", val);
+				val_str = g_strdup_printf("; Type=%u", val);
 				proto_tree_add_uint (tree, hf_wsp_parameter_type,
 						tvb, start, type_len + val_len, val);
 				proto_item_append_string (ti, val_str);
@@ -3926,9 +3879,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 			if (ok) {
 				proto_tree_add_string (tree, hf_wsp_parameter_upart_type,
 						tvb, start, offset - start, val_str);
-				str = g_malloc((8 * sizeof(char)) + strlen(val_str));
-				g_assert(str);
-				sprintf(str, "; type=%s", val_str);
+				str = g_strdup_printf("; type=%s", val_str);
 				proto_item_append_string(ti, str);
 				g_free(str);
 			} else { /* Invalid parameter value */
@@ -4038,13 +3989,9 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
 	get_uintvar_integer (val, tvb, offset, val_len, ok);
 	if (ok && (val < 1100)) {
 		if (val <= 100) { /* Q-value in 0.01 steps */
-			str = g_malloc (5 * sizeof (char));
-			g_assert (str);
-			sprintf (str, "0.%02u", val - 1);
+			str = g_strdup_printf("0.%02u", val - 1);
 		} else { /* Q-value in 0.001 steps */
-			str = g_malloc (6 * sizeof (char));
-			g_assert (str);
-			sprintf (str, "0.%03u", val - 100);
+			str = g_strdup_printf("0.%03u", val - 100);
 		}
 		proto_item_append_text (ti, "; q=%s", str);
 		proto_tree_add_string (tree, hf_parameter_q,
