@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.140 2004/01/20 18:47:24 ulfl Exp $
+ * $Id: menu.c,v 1.141 2004/01/20 21:20:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,9 +159,9 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/Edit/Find Pre_vious", "<control>B",
                              find_previous_cb, 0, GTK_STOCK_GO_BACK),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Go To First Packet...", NULL,
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/Go To Firs_t Packet", NULL,
                              goto_top_frame_cb, 0, GTK_STOCK_GOTO_TOP),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Go To Last Packet...", NULL,
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/Go To _Last Packet", NULL,
                              goto_bottom_frame_cb, 0, GTK_STOCK_GOTO_BOTTOM),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Go To Packet...", "<control>G",
                              goto_frame_cb, 0, GTK_STOCK_JUMP_TO),
