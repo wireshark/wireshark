@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.42 1999/12/09 20:41:26 oabad Exp $
+ * $Id: packet-udp.c,v 1.43 1999/12/12 03:05:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,6 +95,7 @@ typedef struct _e_udphdr {
 #define UDP_PORT_RX_LOW 7000
 #define UDP_PORT_RX_HIGH 7009
 #define UDP_PORT_RX_AFS_BACKUPS 7021
+#define UDP_PORT_WCCP	2048
 
 struct hash_struct {
   guint16 proto;
@@ -308,6 +309,8 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	dissect_icp(pd,offset,fd,tree);
  } else if ( PORT_IS(UDP_PORT_ICQ)) {
         dissect_icq(pd,offset,fd,tree);
+ } else if (PORT_IS(UDP_PORT_WCCP) ) {
+ 	dissect_wccp(pd, offset, fd, tree);
  } else {
       /* OK, find a routine in the table, else use the default */
 

@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.11 1999/12/10 21:27:13 guy Exp $
+ * $Id: packet-gre.c,v 1.12 1999/12/12 03:05:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -39,6 +39,7 @@
 #include "packet.h"
 
 static int proto_gre = -1;
+static int hf_gre_proto = -1;
 
 static gint ett_gre = -1;
 static gint ett_gre_flags = -1;
@@ -57,20 +58,22 @@ static gint ett_gre_flags = -1;
 
 #define GRE_PPP		0x880B
 #define	GRE_IP		0x0800
+#define GRE_WCCP	0x883E
 
-static int calc_len(guint16, int);
 static void add_flags_and_ver(proto_tree *, guint16, int, int);
+
+static const value_string typevals[] = {
+	{ GRE_PPP,  "PPP" },
+	{ GRE_IP,   "IP" },
+	{ GRE_WCCP, "WCCP"},
+	{ 0,        NULL  }
+};
 
 void
 dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   guint16	flags_and_ver = pntohs(pd + offset);
   guint16	type	      = pntohs(pd + offset + sizeof(flags_and_ver));
-  static const value_string typevals[] = {
-    { GRE_PPP, "PPP" },
-    { GRE_IP,  "IP" },
-    { 0,       NULL  }
-  };
   guint16	sre_af;
   guint8	sre_length;
 
@@ -83,14 +86,39 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 		
   if (IS_DATA_IN_FRAME(offset) && tree) {
-    gboolean		is_ppp;
+    gboolean		is_ppp = FALSE;
+    gboolean		is_wccp2 = FALSE;
     proto_item *	ti;
     proto_tree *	gre_tree;
+    guint 		len = 4;
 
-    is_ppp = (type == GRE_PPP);
+    if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R)
+      len += 4;
+    if (flags_and_ver & GH_B_K)
+      len += 4;
+    if (flags_and_ver & GH_B_S)
+      len += 4;
+    switch (type) {
 
-    ti = proto_tree_add_item_format(tree, proto_gre, offset,
-      calc_len(flags_and_ver, type), NULL,
+    case GRE_PPP:
+      if (flags_and_ver & GH_P_A)
+        len += 4;
+      is_ppp = TRUE;
+      break;
+
+    case GRE_WCCP:
+      /* WCCP2 apparently puts an extra 4 octets into the header, but uses
+         the same encapsulation type; if it looks as if the first octet of
+	 the packet isn't the beginning of an IPv4 header, assume it's
+	 WCCP2. */
+      if ((pd[offset + sizeof(flags_and_ver) + sizeof(type)] & 0xF0) != 0x40) {
+	len += 4;
+	is_wccp2 = TRUE;
+      }
+      break;
+    }
+
+    ti = proto_tree_add_item_format(tree, proto_gre, offset, len, NULL,
       "Generic Routing Encapsulation (%s)",
       val_to_str(type, typevals, "0x%04X - unknown"));
     gre_tree = proto_item_add_subtree(ti, ett_gre);
@@ -98,10 +126,8 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     offset += sizeof(flags_and_ver);
 
-    proto_tree_add_text(gre_tree, offset, sizeof(type),
-			"Protocol Type: %s (%#04x)",
-			val_to_str(type, typevals, "Unknown"), type);
-    offset += sizeof(type);    
+    proto_tree_add_item(gre_tree, hf_gre_proto, offset, sizeof(type), type);
+    offset += sizeof(type);
 
     if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R) {
       guint16 checksum = pntohs(pd + offset);
@@ -172,39 +198,24 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       }
     }
 
+    if (is_wccp2) {
+    	proto_tree_add_text(gre_tree, offset, sizeof(guint32), "WCCPv2 Data");
+    	offset += 4;
+    }
+
     switch (type) {
       case GRE_PPP:
- 	dissect_payload_ppp(pd, offset, fd, tree);
+	dissect_payload_ppp(pd, offset, fd, tree);
  	break;
       case GRE_IP:
+      case GRE_WCCP:
         dissect_ip(pd, offset, fd, tree);
         break;
       default:
 	dissect_data(pd, offset, fd, gre_tree);
+	break;
     }
   }
-}
-
-static int
-calc_len(guint16 flags_and_ver, int type)
-{
-  int	len = 4;
-  
-  if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R)
-    len += 4;
-  if (flags_and_ver & GH_B_K)
-    len += 4;
-  if (flags_and_ver & GH_B_S)
-    len += 4;
-  switch (type) {
-
-  case GRE_PPP:
-    if (flags_and_ver & GH_P_A)
-      len += 4;
-    break;
-  }
-  
-  return len;
 }
 
 static void
@@ -258,16 +269,18 @@ add_flags_and_ver(proto_tree *tree, guint16 flags_and_ver, int offset, int is_pp
 void
 proto_register_gre(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "gre.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+	static hf_register_info hf[] = {
+		{ &hf_gre_proto,
+			{ "Protocol Type", "gre.proto", FT_UINT16, BASE_HEX, VALS(typevals), 0x0,
+				"The protocol that is GRE encapsulated"}
+		},
+	};
 	static gint *ett[] = {
 		&ett_gre,
 		&ett_gre_flags,
 	};
 
         proto_gre = proto_register_protocol("Generic Routing Encapsulation", "gre");
- /*       proto_register_field_array(proto_gre, hf, array_length(hf));*/
+        proto_register_field_array(proto_gre, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
