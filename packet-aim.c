@@ -3,7 +3,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.c,v 1.35 2004/03/23 07:23:43 guy Exp $
+ * $Id: packet-aim.c,v 1.36 2004/03/23 07:39:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -252,7 +252,7 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, 
-			     int offset, proto_tree *tree, proto_tree *root_tree);
+			     int offset, proto_tree *tree);
 static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo, 
 				 int offset, proto_tree *tree);
 static void dissect_aim_keep_alive(tvbuff_t *tvb, packet_info *pinfo, 
@@ -373,7 +373,7 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_aim_newconn(tvb, pinfo, offset, aim_tree);
       break;
     case CHANNEL_SNAC_DATA:
-      dissect_aim_snac(tvb, pinfo, offset, aim_tree, tree);
+      dissect_aim_snac(tvb, pinfo, offset, aim_tree);
       break;
     case CHANNEL_FLAP_ERR:
       dissect_aim_flap_err(tvb, pinfo, offset, aim_tree);
@@ -549,7 +549,7 @@ int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, 
-			     int offset, proto_tree *aim_tree, proto_tree *root_tree)
+			     int offset, proto_tree *aim_tree)
 {
   guint16 family;
   guint16 subtype;
