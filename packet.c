@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.106 2000/09/12 07:04:30 sharpe Exp $
+ * $Id: packet.c,v 1.107 2000/09/12 08:38:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -539,11 +539,11 @@ col_get_writable(frame_data *fd)
 {
   if (fd) {
 
-    return (fd->cinfo ? fd->cinfo->writable : NULL);
+    return (fd->cinfo ? fd->cinfo->writable : FALSE);
 
   }
 
-  return NULL;
+  return FALSE;
 
 }
 
