@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.22 2002/12/02 02:28:52 gerald Exp $
+ * $Id: proto_dlg.c,v 1.23 2002/12/02 10:59:23 oabad Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -62,6 +62,8 @@ static void proto_list_select_cb(GtkCList *proto_list, gint row, gint col,
                                  GdkEventButton *ev, gpointer gp);
 static gboolean proto_list_keypress_cb(GtkWidget *pl, GdkEventKey *ev,
                                    gpointer gp);
+#else
+static void status_toggled(GtkCellRendererToggle *, gchar *, gpointer);
 #endif
 
 static GtkWidget *proto_w = NULL;
@@ -92,7 +94,6 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   GtkWidget *main_vb, *bbox, *proto_list, *label, *proto_sw, *proto_frame,
             *proto_vb, *button;
   gchar *titles[] = { "Status", "Protocol", "Description" };
-  gint width;
 #if GTK_MAJOR_VERSION >= 2
   GtkListStore *proto_store;
   GtkCellRenderer *proto_rend;
@@ -150,31 +151,34 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   SIGNAL_CONNECT(proto_list, "select-row", proto_list_select_cb, NULL);
   SIGNAL_CONNECT(proto_list, "key-press-event", proto_list_keypress_cb, NULL);
   show_proto_selection(GTK_CLIST(proto_list));
-  gtk_widget_show(proto_list);
 #else
-  proto_store = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+  proto_store = gtk_list_store_new(4, G_TYPE_BOOLEAN, G_TYPE_STRING,
+                                   G_TYPE_STRING, G_TYPE_POINTER);
   show_proto_selection(proto_store);
+  /* default sort on "abbrev" column */
+  gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(proto_store), 1,
+                                       GTK_SORT_ASCENDING);
   proto_list = tree_view_new(GTK_TREE_MODEL(proto_store));
-  gtk_tree_view_set_search_column(GTK_TREE_VIEW(proto_list), 0);
-  g_object_unref(G_OBJECT(proto_store));
   gtk_container_add(GTK_CONTAINER(proto_sw), proto_list);
-  proto_rend = gtk_cell_renderer_text_new();
+  proto_rend = gtk_cell_renderer_toggle_new();
+  SIGNAL_CONNECT(proto_rend, "toggled", status_toggled, proto_store);
   proto_col = gtk_tree_view_column_new_with_attributes(titles[0], proto_rend,
-                                                    "status", 0, NULL);
+                                                    "active", 0, NULL);
   gtk_tree_view_column_set_sort_column_id(proto_col, 0);
   gtk_tree_view_append_column(GTK_TREE_VIEW(proto_list), proto_col);
   proto_rend = gtk_cell_renderer_text_new();
   proto_col = gtk_tree_view_column_new_with_attributes(titles[1], proto_rend,
-                                                    "abbrev", 1, NULL);
+                                                    "text", 1, NULL);
   gtk_tree_view_column_set_sort_column_id(proto_col, 1);
   gtk_tree_view_append_column(GTK_TREE_VIEW(proto_list), proto_col);
   proto_rend = gtk_cell_renderer_text_new();
   proto_col = gtk_tree_view_column_new_with_attributes(titles[2], proto_rend,
-                                                    "name", 2, NULL);
+                                                    "text", 2, NULL);
   gtk_tree_view_column_set_sort_column_id(proto_col, 2);
   gtk_tree_view_append_column(GTK_TREE_VIEW(proto_list), proto_col);
+  g_object_unref(G_OBJECT(proto_store));
 #endif
-
+  gtk_widget_show(proto_list);
 
   label = gtk_label_new("Disabling a protocol prevents higher "
 			"layer protocols from being displayed");
@@ -281,6 +285,27 @@ proto_list_keypress_cb(GtkWidget *pl, GdkEventKey *ev, gpointer gp _U_) {
   return TRUE;
 }
 
+#else
+static void
+status_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
+{
+  GtkTreeModel    *model = (GtkTreeModel *)data;
+  GtkTreeIter      iter;
+  GtkTreePath     *path = gtk_tree_path_new_from_string(path_str);
+  protocol_data_t *p;
+
+  gtk_tree_model_get_iter(model, &iter, path);
+  gtk_tree_model_get(model, &iter, 3, &p, -1);
+
+  if (p->enabled)
+    p->enabled = FALSE;
+  else
+    p->enabled = TRUE;
+
+  gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, p->enabled, -1);
+
+  gtk_tree_path_free(path);
+} /* status toggled */
 #endif
 
 /* XXX - We need callbacks for Gtk2 */
@@ -290,10 +315,11 @@ proto_list_keypress_cb(GtkWidget *pl, GdkEventKey *ev, gpointer gp _U_) {
 static void
 toggle_all_cb(GtkWidget *button _U_, gpointer pl)
 {
-
   GSList *entry;
 #if GTK_MAJOR_VERSION < 2
   GtkCList *proto_list = GTK_CLIST(pl);
+#else
+  GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pl)));
 #endif
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
@@ -306,6 +332,8 @@ toggle_all_cb(GtkWidget *button _U_, gpointer pl)
     
 #if GTK_MAJOR_VERSION < 2
     gtk_clist_set_text(proto_list, p->row, 0, STATUS_TXT(p->enabled) );
+#else
+    gtk_list_store_set(s, &p->iter, 0, p->enabled, -1);
 #endif
   }
 }
@@ -317,6 +345,8 @@ set_active_all(GtkWidget *w, gboolean new_state)
 
 #if GTK_MAJOR_VERSION < 2
   GtkCList *proto_list = GTK_CLIST(w);
+#else
+  GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(w)));
 #endif
   GSList *entry;
 
@@ -329,6 +359,8 @@ set_active_all(GtkWidget *w, gboolean new_state)
     p->enabled = new_state;
 #if GTK_MAJOR_VERSION < 2
     gtk_clist_set_text(proto_list, p->row, 0, STATUS_TXT(new_state) );
+#else
+    gtk_list_store_set(s, &p->iter, 0, new_state, -1);
 #endif
   }
 #if GTK_MAJOR_VERSION < 2
@@ -472,8 +504,6 @@ show_proto_selection(GtkListStore *proto_store)
   protocol_data_t *p;
 #if GTK_MAJOR_VERSION < 2
   gchar *proto_text[3];
-#else
-  GtkTreeIter proto_iter;
 #endif
 
   /* Iterate over all the protocols */
@@ -507,11 +537,12 @@ show_proto_selection(GtkListStore *proto_store)
     p->row = gtk_clist_append(proto_list, proto_text);
     gtk_clist_set_row_data(proto_list, p->row, p);
 #else
-    gtk_list_store_append(proto_store, &proto_iter);
-    gtk_list_store_set(proto_store, &proto_iter,
-                       0, STATUS_TXT (p->enabled),
+    gtk_list_store_append(proto_store, &p->iter);
+    gtk_list_store_set(proto_store, &p->iter,
+                       0, p->enabled,
                        1, p->abbrev,
                        2, p->name,
+                       3, p,
                       -1);
 #endif
   }
