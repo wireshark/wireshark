@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.15 2004/01/22 18:13:57 ulfl Exp $
+ * $Id: ui_util.c,v 1.16 2004/01/22 20:47:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,7 @@ void main_window_quit(void)
 typedef struct pipe_input_tag {
     gint                source;
     gpointer            user_data;
-    HANDLE              *child_process;
+    int                 *child_process;
     pipe_input_cb_t     input_cb;
     guint               pipe_input_id;
 } pipe_input_t;
@@ -114,7 +114,8 @@ pipe_timer_cb(gpointer data)
   result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
   /* Get the child process exit status */
-  result1 = GetExitCodeProcess(*(pipe_input->child_process), &childstatus);
+  result1 = GetExitCodeProcess((HANDLE)*(pipe_input->child_process),
+                               &childstatus);
 
   /* If the Peek returned an error, or there are bytes to be read
      or the childwatcher thread has terminated then call the normal
@@ -171,7 +172,7 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
     static pipe_input_t pipe_input;
 
     pipe_input.source        = source;
-    pipe_input.child_process = (HANDLE *)child_process;
+    pipe_input.child_process = child_process;
     pipe_input.user_data     = user_data;
     pipe_input.input_cb      = input_cb;
 
