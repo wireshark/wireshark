@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.256 2002/08/01 03:15:29 jmayer Exp $
+ * $Id: main.c,v 1.257 2002/08/02 22:34:53 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,10 +52,6 @@
 
 #include <errno.h>
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
@@ -66,10 +62,6 @@
 
 #ifdef HAVE_DIRECT_H
 #include <direct.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #include <signal.h>
@@ -1151,7 +1143,7 @@ get_positive_int(const char *string, const char *name)
 static gboolean
 set_autostop_criterion(const char *autostoparg)
 {
-  u_char *p, *colonp;
+  guchar *p, *colonp;
 
   colonp = strchr(autostoparg, ':');
   if (colonp == NULL)

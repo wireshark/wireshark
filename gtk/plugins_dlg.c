@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.24 2002/03/05 11:55:59 guy Exp $
+ * $Id: plugins_dlg.c,v 1.25 2002/08/02 22:34:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,10 +27,6 @@
 #endif
 
 #include <errno.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include <stdlib.h>
 #include <string.h>

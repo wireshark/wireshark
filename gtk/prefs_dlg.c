@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.50 2002/08/01 03:15:29 jmayer Exp $
+ * $Id: prefs_dlg.c,v 1.51 2002/08/02 22:34:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
 #endif
 
 #include <gtk/gtk.h>

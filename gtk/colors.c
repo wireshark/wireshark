@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.21 2002/07/29 06:30:01 guy Exp $
+ * $Id: colors.c,v 1.22 2002/08/02 22:34:53 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,10 +35,6 @@
 #include <string.h>
 
 #include <errno.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include <epan/filesystem.h>
 

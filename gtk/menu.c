@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.63 2002/05/03 21:55:15 guy Exp $
+ * $Id: menu.c,v 1.64 2002/08/02 22:34:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,10 +31,6 @@
 
 #include <string.h>
 #include <stdio.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
 
 #include "../menu.h"
 

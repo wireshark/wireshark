@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.23 2002/03/05 11:55:58 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.24 2002/08/02 22:34:53 jmayer Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -33,10 +33,6 @@
 #include <string.h>
 
 #include <errno.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include "decode_as_dlg.h"
 #include "dlg_utils.h"

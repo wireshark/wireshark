@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.23 2002/05/03 03:24:47 guy Exp $
+ * $Id: follow_dlg.c,v 1.24 2002/08/02 22:34:53 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,10 +32,6 @@
 #include <string.h>
 
 #include <errno.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>

@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.11 2002/03/31 22:58:27 guy Exp $
+ * $Id: proto_dlg.c,v 1.12 2002/08/02 22:34:54 jmayer Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -31,10 +31,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include "prefs.h"
 #include "globals.h"

@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.18 2002/04/29 08:20:18 guy Exp $
+ * $Id: tcp_graph.c,v 1.19 2002/08/02 22:34:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,19 +34,11 @@
 #include <string.h>
 #include <math.h>		/* rint() */
 
-#include <sys/types.h>		/* freebsd requires this */
-
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
 #endif
 
-#ifndef WIN32
-# include <netinet/in.h>	/* ntohs(), IPPROTO_TCP */
-# include <arpa/inet.h>		/* inet_ntoa() */
-#else /* WIN32 */
-# include <stdlib.h>
-#endif /* WIN32 */
-
+#include "ipproto.h"
 #include "globals.h" 		/* cfile */
 #include <epan/packet.h>		/* frame_data */
 #include "gtkglobals.h"		/* packet_list */
@@ -106,11 +98,11 @@ struct tcphdr {
 	guint16 urg_ptr;
 };
 
-#define TCP_SYN(tcphdr)		( ntohs ((tcphdr).flags) & TH_SYN )
-#define TCP_ACK(tcphdr)		( ntohs ((tcphdr).flags) & TH_ACK )
+#define TCP_SYN(tcphdr)		( g_ntohs ((tcphdr).flags) & TH_SYN )
+#define TCP_ACK(tcphdr)		( g_ntohs ((tcphdr).flags) & TH_ACK )
 #define TCP_DOFF_SHIFT		12
 #define TCP_DOFF_MASK		(0xf << TCP_DOFF_SHIFT)
-#define DOFF(tcphdr)		( ( ntohs ((tcphdr).flags) & TCP_DOFF_MASK) >> TCP_DOFF_SHIFT )
+#define DOFF(tcphdr)		( ( g_ntohs ((tcphdr).flags) & TCP_DOFF_MASK) >> TCP_DOFF_SHIFT )
 
 #define TXT_WIDTH	850
 #define TXT_HEIGHT	550
@@ -626,13 +618,13 @@ static void display_text (struct graph *g)
 	/* we have to find Initial Sequence Number for both ends of connection */
 	for (ptr=g->segments; ptr; ptr=ptr->next) {
 		if (compare_headers (g->current, ptr, COMPARE_CURR_DIR)) {
-			isn_this = ntohl (ptr->tcphdr.seq);
+			isn_this = g_ntohl (ptr->tcphdr.seq);
 			break;
 		}
 	}
 	for (ptr=g->segments; ptr; ptr=ptr->next) {
 		if (!compare_headers (g->current, ptr, COMPARE_CURR_DIR)) {
-			isn_opposite = ntohl (ptr->tcphdr.seq);
+			isn_opposite = g_ntohl (ptr->tcphdr.seq);
 			break;
 		}
 	}
@@ -640,7 +632,7 @@ static void display_text (struct graph *g)
 	seq_opposite_prev = isn_opposite;
 	for (ptr=g->segments; ptr; ptr=ptr->next) {
 		double time=ptr->rel_secs + ptr->rel_usecs/1000000.0;
-		unsigned int seq = ntohl (ptr->tcphdr.seq);
+		unsigned int seq = g_ntohl (ptr->tcphdr.seq);
 		int seq_delta_isn, seq_delta_prev;
 
 		if (compare_headers (g->current, ptr, COMPARE_CURR_DIR)) {
@@ -657,7 +649,7 @@ static void display_text (struct graph *g)
 		snprintf ((char *)line, 256, "%10d%15.6f%15.6f%15.6f%15u%15d%15d%10u\n",
 						ptr->num, time, time-first_time, time-prev_time,
 						seq, seq_delta_isn, seq_delta_prev,
-						ntohs (ptr->iphdr.tot_len) - 4*IHL(&(ptr->iphdr)) -
+						g_ntohs (ptr->iphdr.tot_len) - 4*IHL(&(ptr->iphdr)) -
 						4*DOFF(ptr->tcphdr));
 		gtk_text_insert (GTK_TEXT (g->text), g->font, c, NULL,
 						(const char * )line, -1);
@@ -1770,7 +1762,7 @@ static void graph_segment_list_get (struct graph *g)
 			segment->rel_usecs = ptr->rel_usecs;
 			segment->abs_secs = ptr->abs_secs;
 			segment->abs_usecs = ptr->abs_usecs;
-			segment->data = ntohs (segment->iphdr.tot_len) -
+			segment->data = g_ntohs (segment->iphdr.tot_len) -
 							4*IHL(&(segment->iphdr)) - 4*DOFF(segment->tcphdr);
 			if (g->segments) {
 				last->next = segment;
@@ -1830,7 +1822,7 @@ static int get_headers (frame_data *fd, char *pd, struct segment *hdrs)
 		/* Those are the only encapsulation types we handle */
 		return FALSE;
 	}
-	if (((struct iphdr *)ip)->protocol != IPPROTO_TCP) {
+	if (((struct iphdr *)ip)->protocol != IP_PROTO_TCP) {
 		/* printf ("transport protocol not TCP: %#1x\n", ip->protocol); */
 		return FALSE;
 	}
@@ -3166,9 +3158,9 @@ static void tseq_stevens_get_bounds (struct graph *g)
 		unsigned int highest_byte_num;
 		last = tmp;
 		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR))
-			highest_byte_num = ntohl (tmp->tcphdr.seq) + tmp->data;
+			highest_byte_num = g_ntohl (tmp->tcphdr.seq) + tmp->data;
 		else
-			highest_byte_num = ntohl (tmp->tcphdr.ack_seq);
+			highest_byte_num = g_ntohl (tmp->tcphdr.ack_seq);
 		if (highest_byte_num > ymax)
 			ymax = highest_byte_num;
 	}
@@ -3179,7 +3171,7 @@ static void tseq_stevens_get_bounds (struct graph *g)
 
 	t0 = g->segments->rel_secs + g->segments->rel_usecs / 1000000.0;
 	tmax = last->rel_secs + last->rel_usecs / 1000000.0;
-	y0 = ntohl (first->tcphdr.seq);
+	y0 = g_ntohl (first->tcphdr.seq);
 
 	g->bounds.x0 = t0;
 	g->bounds.y0 = y0;
@@ -3209,7 +3201,7 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 			continue;
 
 		secs = g->zoom.x * (tmp->rel_secs + tmp->rel_usecs / 1000000.0 - x0);
-		seqno = g->zoom.y * (ntohl (tmp->tcphdr.seq) - y0);
+		seqno = g->zoom.y * (g_ntohl (tmp->tcphdr.seq) - y0);
 
 		e->type = ELMT_ARC;
 		e->parent = tmp;
@@ -3319,10 +3311,10 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 		if (!compare_headers (g->current, tmp, COMPARE_CURR_DIR))
 			break;
 	/*
-	p_ackno = (unsigned int )(g->zoom.y * (ntohl (tmp->tcphdr.ack_seq) - y0));
+	p_ackno = (unsigned int )(g->zoom.y * (g_ntohl (tmp->tcphdr.ack_seq) - y0));
 	 */
 	p_ackno = 0;
-	p_win = g->zoom.y * ntohs (tmp->tcphdr.window);
+	p_win = g->zoom.y * g_ntohs (tmp->tcphdr.window);
 	p_t = g->segments->rel_secs + g->segments->rel_usecs/1000000.0 - x0;
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		double secs, seqno, data;
@@ -3335,7 +3327,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			/* forward direction -> we need seqno and amount of data */
 			double y1, y2;
 
-			seqno = ntohl (tmp->tcphdr.seq);
+			seqno = g_ntohl (tmp->tcphdr.seq);
 			if (TCP_SYN (tmp->tcphdr))
 				data = 1;
 			else
@@ -3370,8 +3362,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				/* SYN's have ACK==0 and are useless here */
 				continue;
 			/* backward direction -> we need ackno and window */
-			ackno = (ntohl (tmp->tcphdr.ack_seq) - y0) * g->zoom.y;
-			win = ntohs (tmp->tcphdr.window) * g->zoom.y;
+			ackno = (g_ntohl (tmp->tcphdr.ack_seq) - y0) * g->zoom.y;
+			win = g_ntohs (tmp->tcphdr.window) * g->zoom.y;
 
 			/* ack line */
 			e0->type = ELMT_LINE;
@@ -3590,7 +3582,7 @@ static void rtt_initialize (struct graph *g)
 
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
-			unsigned int seqno = ntohl (tmp->tcphdr.seq);
+			unsigned int seqno = g_ntohl (tmp->tcphdr.seq);
 			
 			if (!first)
 				first= tmp;
@@ -3605,7 +3597,7 @@ static void rtt_initialize (struct graph *g)
 			if (seqno + tmp->data > xmax)
 				xmax = seqno + tmp->data;
 		} else {
-			unsigned int ackno = ntohl (tmp->tcphdr.ack_seq);
+			unsigned int ackno = g_ntohl (tmp->tcphdr.ack_seq);
 			double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 			struct unack *v;
 
@@ -3621,7 +3613,7 @@ static void rtt_initialize (struct graph *g)
 		}
 	}
 
-	x0 = ntohl (first->tcphdr.seq);
+	x0 = g_ntohl (first->tcphdr.seq);
 	y0 = 0;
 	ymax = rttmax;
 
@@ -3706,7 +3698,7 @@ static void rtt_make_elmtlist (struct graph *g)
 
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
-			unsigned int seqno = ntohl (tmp->tcphdr.seq);
+			unsigned int seqno = g_ntohl (tmp->tcphdr.seq);
 
 			if (tmp->data && !rtt_is_retrans (unack, seqno)) {
 				double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
@@ -3715,7 +3707,7 @@ static void rtt_make_elmtlist (struct graph *g)
 				rtt_put_unack_on_list (&unack, u);
 			}
 		} else {
-			unsigned int ackno = ntohl (tmp->tcphdr.ack_seq);
+			unsigned int ackno = g_ntohl (tmp->tcphdr.ack_seq);
 			double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 			struct unack *v;
 
