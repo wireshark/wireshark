@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.7 2003/04/22 20:34:19 guy Exp $
+ * $Id: packet-nfsacl.c,v 1.8 2003/06/10 17:14:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@ static int hf_nfsacl_aclent = -1;
 static int hf_nfsacl_aclent_type = -1;
 static int hf_nfsacl_aclent_uid = 1;
 static int hf_nfsacl_aclent_perm = -1;
+static int hf_nfsacl_create = -1;
 
 static gint ett_nfsacl = -1;
 static gint ett_nfsacl_mask = -1;
@@ -61,46 +62,14 @@ static gint ett_nfsacl_aclent_entries = -1;
 #define NFSACLPROC2_SETACL	2
 #define NFSACLPROC2_GETATTR	3
 #define NFSACLPROC2_ACCESS	4
+#define NFSACLPROC2_GETXATTRDIR 5
 
 #define NFSACLPROC3_GETACL	1
 #define NFSACLPROC3_SETACL	2
+#define NFSACLPROC3_GETXATTRDIR 3
 
 #define ACL2_OK 0
 #define ACL3_OK 0
-
-/* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
-static const vsff nfsacl1_proc[] = {
-	{ NFSACLPROC_NULL,	"NULL",
-		NULL,	NULL },
-	{ 0,	NULL,	NULL,	NULL }
-};
-static const value_string nfsacl1_proc_vals[] = {
-	{ NFSACLPROC_NULL,	"NULL" },
-	{ 0,	NULL }
-};
-
-static const vsff nfsacl2_proc[] = {
-	{ NFSACLPROC_NULL,	"NULL",
-		NULL,	NULL },
-	{ NFSACLPROC2_GETACL,	"GETACL",
-		NULL,	NULL },
-	{ NFSACLPROC2_SETACL,	"SETACL",
-		NULL,	NULL },
-	{ NFSACLPROC2_GETATTR,	"GETATTR",
-		NULL,	NULL },
-	{ NFSACLPROC2_ACCESS,	"ACCESS",
-		NULL,	NULL },
-	{ 0,	NULL,	NULL,	NULL }
-};
-static const value_string nfsacl2_proc_vals[] = {
-	{ NFSACLPROC_NULL,	"NULL" },
-	{ NFSACLPROC2_GETACL,	"GETACL" },
-	{ NFSACLPROC2_SETACL,	"SETACL" },
-	{ NFSACLPROC2_GETATTR,	"GETATTR" },
-	{ NFSACLPROC2_ACCESS,	"ACCESS" },
-	{ 0,	NULL }
-};
 
 static int
 dissect_nfsacl_mask(tvbuff_t *tvb, int offset, proto_tree *tree, 
@@ -138,16 +107,6 @@ dissect_nfsacl_mask(tvbuff_t *tvb, int offset, proto_tree *tree,
 	}
 
 	offset += 4;
-	return offset;
-}
-
-static int
-dissect_nfsacl3_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-		proto_tree *tree)
-{
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
-	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
-
 	return offset;
 }
 
@@ -224,6 +183,7 @@ dissect_nfsacl_aclent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	return offset;
 }
 
+
 static int
 dissect_nfsacl_secattr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree)
@@ -277,6 +237,191 @@ dissect_nfsacl_secattr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	return offset;
 }
 
+/* proc number, "proc name", dissect_request, dissect_reply */
+/* NULL as function pointer means: type of arguments is "void". */
+static const vsff nfsacl1_proc[] = {
+	{ NFSACLPROC_NULL,	"NULL",
+		NULL,	NULL },
+	{ 0,	NULL,	NULL,	NULL }
+};
+static const value_string nfsacl1_proc_vals[] = {
+	{ NFSACLPROC_NULL,	"NULL" },
+	{ 0,	NULL }
+};
+
+static int
+dissect_nfsacl2_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
+	return offset;
+}
+
+static int
+dissect_nfsacl2_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	guint32 status;
+
+	status = tvb_get_ntohl(tvb, offset + 0);
+
+	proto_tree_add_uint(tree, hf_nfsacl2_status, tvb, offset + 0, 4, status);
+
+	offset += 4;
+
+	if (status == ACL2_OK)
+	{
+		offset = dissect_fattr(tvb, offset, tree, "attr");
+		offset = dissect_nfsacl_secattr(tvb, offset, pinfo, tree);
+	}
+	
+	return offset;
+}
+
+static int
+dissect_nfsacl2_setacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_nfsacl_secattr(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
+static int
+dissect_nfsacl2_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	guint32 status;
+
+	status = tvb_get_ntohl(tvb, offset + 0);
+
+	proto_tree_add_uint(tree, hf_nfsacl2_status, tvb, offset + 0, 4, status);
+
+	offset += 4;
+
+	if (status == ACL2_OK)
+		offset = dissect_fattr(tvb, offset, tree, "attr");
+
+	return offset;
+}
+
+static int
+dissect_nfsacl2_getattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+
+	return offset;
+}
+
+static int
+dissect_nfsacl2_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	offset = dissect_fattr(tvb, offset, tree, "attr");
+
+	return offset;
+}
+
+static int
+dissect_nfsacl2_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_access(tvb, offset, tree, "access");
+
+	return offset;
+}
+
+static int
+dissect_nfsacl2_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	guint32 status;
+
+	status = tvb_get_ntohl(tvb, offset + 0);
+
+	proto_tree_add_uint(tree, hf_nfsacl2_status, tvb, offset + 0, 4, status);
+
+	offset += 4;
+
+	if (status == ACL2_OK)
+	{
+		offset = dissect_fattr(tvb, offset, tree, "attr");
+		offset = dissect_access(tvb, offset, tree, "access");
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfsacl2_getxattrdir_call(tvbuff_t *tvb, int offset, 
+	packet_info *pinfo _U_, proto_tree *tree)
+{
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_rpc_bool(tvb, tree, hf_nfsacl_create, offset);
+
+	return offset;
+}
+
+static int
+dissect_nfsacl2_getxattrdir_reply(tvbuff_t *tvb, int offset, 
+	packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint32 status;
+
+	status = tvb_get_ntohl(tvb, offset + 0);
+
+	proto_tree_add_uint(tree, hf_nfsacl2_status, tvb, offset + 0, 4, status);
+
+	offset += 4;
+
+	if (status == ACL2_OK)
+	{
+		offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+		offset = dissect_fattr(tvb, offset, tree, "attr");
+	}
+
+	return offset;
+}
+
+static const vsff nfsacl2_proc[] = {
+	{ NFSACLPROC_NULL,	"NULL",
+		NULL,	NULL },
+	{ NFSACLPROC2_GETACL,	"GETACL",
+		dissect_nfsacl2_getacl_call,	dissect_nfsacl2_getacl_reply },
+	{ NFSACLPROC2_SETACL,	"SETACL",
+		dissect_nfsacl2_setacl_call,	dissect_nfsacl2_setacl_reply },
+	{ NFSACLPROC2_GETATTR,	"GETATTR",
+		dissect_nfsacl2_getattr_call,	dissect_nfsacl2_getattr_reply },
+	{ NFSACLPROC2_ACCESS,	"ACCESS",
+		dissect_nfsacl2_access_call,	dissect_nfsacl2_access_reply },
+	{ NFSACLPROC2_GETXATTRDIR,	"GETXATTRDIR",
+		dissect_nfsacl2_getxattrdir_call, dissect_nfsacl2_getxattrdir_reply },
+	{ 0,	NULL,	NULL,	NULL }
+};
+static const value_string nfsacl2_proc_vals[] = {
+	{ NFSACLPROC_NULL,	"NULL" },
+	{ NFSACLPROC2_GETACL,	"GETACL" },
+	{ NFSACLPROC2_SETACL,	"SETACL" },
+	{ NFSACLPROC2_GETATTR,	"GETATTR" },
+	{ NFSACLPROC2_ACCESS,	"ACCESS" },
+	{ NFSACLPROC2_GETXATTRDIR, "GETXATTRDIR" },
+	{ 0,	NULL }
+};
+
+static int
+dissect_nfsacl3_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
+
+	return offset;
+}
+
 static int
 dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree)
@@ -302,7 +447,7 @@ dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	if (entry_tree)
-		offset = dissect_nfs_post_op_attr(tvb, offset, entry_tree, "fattr");
+		offset = dissect_nfs_post_op_attr(tvb, offset, entry_tree, "attr");
 
 	if (status != ACL3_OK)
 		return offset;
@@ -350,9 +495,41 @@ dissect_nfsacl3_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset += 4;
 
-	/* if (entry_tree)
-		offset = dissect_nfs_post_op_attr(tvb, offset, tree, "fattr"); */
+	offset = dissect_nfs_post_op_attr(tvb, offset, tree, "attr");
 
+	return offset;
+}
+
+static int
+dissect_nfsacl3_getxattrdir_call(tvbuff_t *tvb, int offset, 
+	packet_info *pinfo _U_, proto_tree *tree)
+
+{
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_rpc_bool(tvb, tree, hf_nfsacl_create, offset);
+
+	return offset;
+}
+
+static int
+dissect_nfsacl3_getxattrdir_reply(tvbuff_t *tvb, int offset, 
+	packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint32 status;
+
+	status = tvb_get_ntohl(tvb, offset + 0);
+
+	if (tree)
+		proto_tree_add_uint(tree, hf_nfsacl3_status, tvb, offset + 0, 4,
+				status);
+
+	offset += 4;
+
+	if (status == ACL3_OK)
+	{
+		offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
+		offset = dissect_nfs_post_op_attr(tvb, offset, tree, "attr");
+	}
 
 	return offset;
 }
@@ -364,6 +541,8 @@ static const vsff nfsacl3_proc[] = {
 		dissect_nfsacl3_getacl_call,	dissect_nfsacl3_getacl_reply },
 	{ NFSACLPROC3_SETACL,	"SETACL",
 		dissect_nfsacl3_setacl_call,	dissect_nfsacl3_setacl_reply },
+	{ NFSACLPROC3_GETXATTRDIR,	"GETXATTRDIR",
+		dissect_nfsacl3_getxattrdir_call, dissect_nfsacl3_getxattrdir_reply },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string nfsacl3_proc_vals[] = {
@@ -382,6 +561,8 @@ static const value_string names_nfsacl3_status[] = {
 	{ ACL3_OK,	"ACL3_OK" },
 	{ 0, NULL }
 };
+
+static struct true_false_string yesno = { "Yes", "No" };
 
 void
 proto_register_nfsacl(void)
@@ -426,6 +607,9 @@ proto_register_nfsacl(void)
 		{ &hf_nfsacl3_status, {
 			"Status", "nfsacl.status3", FT_UINT32, BASE_DEC,
 			VALS(names_nfsacl3_status), 0, "Status", HFILL }},
+		{ &hf_nfsacl_create, {
+			"create", "nfsacl.create", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "Create?", HFILL }},
 	};
 
 	static gint *ett[] = {

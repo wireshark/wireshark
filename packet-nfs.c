@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.89 2003/05/22 21:37:54 sharpe Exp $
+ * $Id: packet-nfs.c,v 1.90 2003/06/10 17:14:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1898,7 +1898,7 @@ dissect_mode(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 
 
 /* RFC 1094, Page 15 */
-static int
+int
 dissect_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 {
 	proto_item* fattr_item = NULL;
@@ -3452,7 +3452,7 @@ dissect_nfs3_diropargs3_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 /* RFC 1813, Page 40 */
-static int
+int
 dissect_access(tvbuff_t *tvb, int offset, proto_tree *tree,
 	char* name)
 {

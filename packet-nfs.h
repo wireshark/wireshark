@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.14 2003/05/21 02:48:40 sharpe Exp $ */
+/* $Id: packet-nfs.h,v 1.15 2003/06/10 17:14:28 guy Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -119,6 +119,16 @@ typedef struct nfs_fhandle_data {
 void dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, nfs_fhandle_data_t *nfd);
 
 typedef int (diss_p)(tvbuff_t *tvb, int offset, proto_tree *tree, int hf);
+
+/* Used in packet-nfsacl.c for NFS_ACL dissection */
+extern int dissect_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, 
+	char* name);
+
+extern int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+	proto_tree *tree, char *name);
+
+extern int dissect_access(tvbuff_t *tvb, int offset, proto_tree *tree,
+	char* name);
 
 #endif /* packet-nfs.h */
 
