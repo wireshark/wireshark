@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.119 2004/06/20 18:36:16 ulfl Exp $
+ * $Id: file_dlg.c,v 1.120 2004/06/21 05:48:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -416,7 +416,13 @@ file_open_cmd(GtkWidget *w)
 
   file_open_w = file_selection_new("Ethereal: Open Capture File",
                                    FILE_SELECTION_OPEN);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  /* it's annoying, that the file chooser dialog is already shown here, 
+     so we cannot use the correct gtk_window_set_default_size() to resize it */
+  WIDGET_SET_SIZE(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
+#else
   gtk_window_set_default_size(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
+#endif
 
 #if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
@@ -727,8 +733,13 @@ file_merge_cmd(GtkWidget *w)
 
   file_merge_w = file_selection_new("Ethereal: Merge with Capture File",
                                    FILE_SELECTION_OPEN);
-  /* window is already shown here, gtk_window_set_default_size() will not work */
-  WIDGET_SET_SIZE(file_merge_w, DEF_WIDTH, DEF_HEIGHT);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  /* it's annoying, that the file chooser dialog is already shown here, 
+     so we cannot use the correct gtk_window_set_default_size() to resize it */
+  WIDGET_SET_SIZE(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
+#else
+  gtk_window_set_default_size(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
+#endif
 
 #if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
