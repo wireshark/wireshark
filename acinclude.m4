@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.52 2003/02/26 20:08:30 guy Exp $
+dnl $Id: acinclude.m4,v 1.53 2003/02/28 06:04:30 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -538,10 +538,10 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 	fi
 
 	#
-	# Check for the UCD SNMP header file, to see whether we
-	# have UCD SNMP installed.
+	# Check for one of the UCD SNMP header files we include,
+	# to see whether we have UCD SNMP installed.
 	#
-	AC_CHECK_HEADER(ucd-snmp/snmp.h,
+	AC_CHECK_HEADER(ucd-snmp/ucd-snmp-config.h,
 	[
 		#
 		# UCD SNMP may require "-lkstat" on Solaris, sigh.
