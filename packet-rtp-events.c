@@ -3,7 +3,7 @@
  * Routines for RFC 2833 RTP Events dissection
  * Copyright 2003, Kevin A. Noll <knoll[AT]poss.com>
  *
- * $Id: packet-rtp-events.c,v 1.1 2003/09/19 04:16:23 guy Exp $
+ * $Id: packet-rtp-events.c,v 1.2 2003/09/19 04:27:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,14 +76,8 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_tree *rtp_events_tree     = NULL;
 	unsigned int offset       = 0;
 
-	guint8      octet;
-
 	guint8      rtp_evt;
-	gboolean    rtp_end;
-	gboolean    rtp_reserved;
-	guint8      rtp_volume;
-	guint16     rtp_duration;
-
+	guint8      octet;
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )
 	  {
@@ -97,16 +91,6 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	rtp_evt = tvb_get_guint8(tvb, offset );
 
-	octet = tvb_get_guint8(tvb, offset +1 );
-
-	rtp_volume = ((octet << 2) >> 2);
-
-	rtp_end = (octet >> 7);
-	rtp_reserved = ((octet << 1) >> 7 );
-
-	rtp_duration = tvb_get_ntohs(tvb, offset +2);
-
-
 	if ( check_col( pinfo->cinfo, COL_INFO) )
 	  {
 		col_add_fstr( pinfo->cinfo, COL_INFO,
@@ -116,17 +100,19 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	  }
 
-
 	if ( tree )
 	  {
 	    ti = proto_tree_add_item( tree, proto_rtp_events, tvb, offset, -1, FALSE );
 	    rtp_events_tree = proto_item_add_subtree( ti, ett_rtp_events );
 
 	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_event, tvb, offset, 1, rtp_evt);
-	    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset, 1, rtp_end);
-	    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset, 1, rtp_reserved);
-	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset, 1, rtp_volume);
-	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_duration, tvb, offset, 2, rtp_duration);
+
+	    octet = tvb_get_guint8(tvb, offset +1 );
+	    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset, 1, octet);
+	    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset, 1, octet);
+	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset, 1, octet);
+
+	    proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset, 2, FALSE);
 	  }
 }
 
@@ -143,7 +129,7 @@ proto_register_rtp_events(void)
 			&hf_rtp_events_event,
 			{
 				"Event ID",
-				"rtp.payload_rtp_events_event",
+				"rtpevent.event_id",
 				FT_UINT8,
 				BASE_DEC,
 				VALS(rtp_event_type_values),
@@ -155,11 +141,11 @@ proto_register_rtp_events(void)
 			&hf_rtp_events_end,
 			{
 				"End of Event",
-				"rtp.payload_rtp_events_end",
+				"rtpevent.end_of_event",
 				FT_BOOLEAN,
-				BASE_DEC,
+				8,
 				NULL,
-				0x0,
+				0x80,
 				"", HFILL
 			}
 		},
@@ -167,11 +153,11 @@ proto_register_rtp_events(void)
 			&hf_rtp_events_reserved,
 			{
 				"Reserved",
-				"rtp.payload_rtp_events_reserved",
+				"rtpevent.reserved",
 				FT_BOOLEAN,
-				BASE_DEC,
+				8,
 				NULL,
-				0x0,
+				0x40,
 				"", HFILL
 			}
 		},
@@ -179,11 +165,11 @@ proto_register_rtp_events(void)
 			&hf_rtp_events_volume,
 			{
 				"Volume",
-				"rtp.payload_rtp_events_volume",
+				"rtpevent.volume",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x3F,
 				"", HFILL
 			}
 		},
@@ -192,7 +178,7 @@ proto_register_rtp_events(void)
 			&hf_rtp_events_duration,
 			{
 				"Event Duration",
-				"rtp.payload_rtp_events_duration",
+				"rtpevent.duration",
 				FT_UINT16,
 				BASE_DEC,
 				NULL,
