@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.64 2002/04/25 23:58:02 guy Exp $
+ * $Id: packet-atalk.c,v 1.65 2002/04/26 07:41:31 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -85,10 +85,9 @@ static int hf_ddp_type = -1;
 
 /* flags for ATP options (and control byte)
 */
-#define ATP_NONE        0
-#define ATP_STS         1 /* (1<<3)          Transaction Status */
-#define ATP_EOM         2 /* (1<<4)          End Of Message */
-#define ATP_XO          4 /* (1<<5)          eXactly Once mode */
+#define ATP_XO          0x20 /* (1<<5)          eXactly Once mode */
+#define ATP_EOM         0x10 /* (1<<4)          End Of Message */
+#define ATP_STS         0x08 /* (1<<3)          Transaction Status */
  
 /* function codes
 */
@@ -102,9 +101,12 @@ static int hf_ddp_type = -1;
 static dissector_handle_t asp_handle;
 
 static int proto_atp = -1;
-static int hf_atp_ctrlinfo = -1; /* u_int8_t  control information */
-static int hf_atp_function = -1; /* bits 7,6  function */
-static int hf_atp_option   = -1; /* bits 5,4,3  option */
+static int hf_atp_ctrlinfo  = -1; /* u_int8_t    control information */
+static int hf_atp_function  = -1; /* bits 7,6    function */
+static int hf_atp_xo        = -1; /* bit 5       exactly-once */
+static int hf_atp_eom       = -1; /* bit 4       end-of-message */
+static int hf_atp_sts       = -1; /* bit 3       send transaction status */
+static int hf_atp_treltimer = -1; /* bits 2,1,0  TRel timeout indicator */
 
 static int hf_atp_bitmap = -1;   /* u_int8_t  bitmap or sequence number */
 static int hf_atp_tid = -1;      /* u_int16_t transaction id. */
@@ -275,11 +277,12 @@ static const value_string atp_function_vals[] = {
   {0, NULL}
 };
 
-static const value_string atp_option_vals[] = {
-  {ATP_NONE	   ,"None"},
-  {ATP_STS         ,"Transaction Status"},
-  {ATP_EOM         ,"End Of Message"},
-  {ATP_XO          ,"eXactly Once mode"},
+static const value_string atp_trel_timer_vals[] = {
+  {0, "30 seconds"},
+  {1, "1 minute"},
+  {2, "2 minutes"},
+  {3, "4 minutes"},
+  {4, "8 minutes"},
   {0, NULL}
 };
 
@@ -292,7 +295,7 @@ static const value_string asp_func_vals[] = {
   {ASPFUNC_OPEN,	"OpenSession" },
   {ASPFUNC_TICKLE,	"Tickle" },
   {ASPFUNC_WRITE,	"Write" },
-  {ASPFUNC_WRTCONT, "Write Cont" },
+  {ASPFUNC_WRTCONT,	"Write Cont" },
   {ASPFUNC_ATTN,	"Attention" },
   {0,			NULL } };
 
@@ -352,6 +355,8 @@ static const value_string asp_error_vals[] = {
  * XXX - do this with an FT_UINT_STRING?
  * Unfortunately, you can't extract from an FT_UINT_STRING the string,
  * which we'd want to do in order to put it into the "Data:" portion.
+ *
+ * Are these always in the Mac extended character set?
  */
 int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 	int hf_index)
@@ -600,8 +605,8 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     	val_to_str(op, atp_function_vals, "Unknown (0x%01x)"), 
     	tid);
   }  
-  aspinfo.reply   = (0x80 == (ctrlinfo & 0xC0))?1:0;
-  aspinfo.release = (0xC0 == (ctrlinfo & 0xC0))?1:0;
+  aspinfo.reply   = (0x80 == (ctrlinfo & ATP_FUNCMASK))?1:0;
+  aspinfo.release = (0xC0 == (ctrlinfo & ATP_FUNCMASK))?1:0;
 
   aspinfo.seq = tid;
   aspinfo.code = 0;
@@ -609,29 +614,35 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (tree) {
     ti = proto_tree_add_item(tree, proto_atp, tvb, offset, -1, FALSE);
     atp_tree = proto_item_add_subtree(ti, ett_atp);
-	proto_item_set_len(atp_tree, ATP_HDRSIZE -1);
+    proto_item_set_len(atp_tree, ATP_HDRSIZE -1);
 
     info_item = proto_tree_add_item(atp_tree, hf_atp_ctrlinfo, tvb, offset, 1, FALSE);
     atp_info_tree = proto_item_add_subtree(info_item, ett_atp_info);
 
-	proto_tree_add_item(atp_info_tree, hf_atp_function, tvb, offset, 1, FALSE);
-	proto_tree_add_item(atp_info_tree, hf_atp_option, tvb, offset, 1, FALSE);
+    proto_tree_add_item(atp_info_tree, hf_atp_function, tvb, offset, 1, FALSE);
+    proto_tree_add_item(atp_info_tree, hf_atp_xo, tvb, offset, 1, FALSE);
+    proto_tree_add_item(atp_info_tree, hf_atp_eom, tvb, offset, 1, FALSE);
+    proto_tree_add_item(atp_info_tree, hf_atp_sts, tvb, offset, 1, FALSE);
+    if ((ctrlinfo & (ATP_FUNCMASK|ATP_XO)) == (0x40|ATP_XO)) {
+      /* TReq with XO set */
+      proto_tree_add_item(atp_info_tree, hf_atp_treltimer, tvb, offset, 1, FALSE);
+    }
 
-	if (!aspinfo.reply) {
-		guint8 bitmap = tvb_get_guint8(tvb, offset +1);
-		guint8 nbe = 0;
-		guint8 t = bitmap;
+    if (!aspinfo.reply) {
+      guint8 bitmap = tvb_get_guint8(tvb, offset +1);
+      guint8 nbe = 0;
+      guint8 t = bitmap;
 		
-		while(t) {
-			nbe++;
-			t >>= 1;
-		}
-		proto_tree_add_text(atp_tree, tvb, offset +1, 1, "Bitmap: 0x%02x  %d packet(s) max",
-							bitmap, nbe);
-	}
+      while(t) {
+	nbe++;
+	t >>= 1;
+      }
+      proto_tree_add_text(atp_tree, tvb, offset +1, 1,
+			  "Bitmap: 0x%02x  %d packet(s) max", bitmap, nbe);
+    }
     else {
-    	proto_tree_add_item(atp_tree, hf_atp_bitmap, tvb, offset +1, 1, FALSE);
-	}
+      proto_tree_add_item(atp_tree, hf_atp_bitmap, tvb, offset +1, 1, FALSE);
+    }
     proto_tree_add_item(atp_tree, hf_atp_tid, tvb, offset +2, 2, FALSE);
   }
 
@@ -680,7 +691,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (!request_val && !aspinfo->reply && !aspinfo->release)  {
 	 fn = tvb_get_guint8(tvb, offset);
-     new_request_key = g_mem_chunk_alloc(asp_request_keys);
+	 new_request_key = g_mem_chunk_alloc(asp_request_keys);
 	 *new_request_key = request_key;
 
 	 request_val = g_mem_chunk_alloc(asp_request_vals);
@@ -698,11 +709,11 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	if (aspinfo->reply)
-    	col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %d",aspinfo->seq);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %d",aspinfo->seq);
 	else if (aspinfo->release)
-    	col_add_fstr(pinfo->cinfo, COL_INFO, "Release tid %d",aspinfo->seq);
-    else
-    	col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %d",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Release tid %d",aspinfo->seq);
+	else
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %d",
       				val_to_str(fn, asp_func_vals, "Unknown (0x%01x)"), aspinfo->seq);
   }
 
@@ -710,12 +721,12 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_asp, tvb, offset, -1, FALSE);
     asp_tree = proto_item_add_subtree(ti, ett_asp);
     if (!aspinfo->reply && !aspinfo->release) {
-    	proto_tree_add_item(asp_tree, hf_asp_func, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_func, tvb, offset, 1, FALSE);
     }
     else { /* error code */
-		error = tvb_get_ntohl(tvb, offset);
-		if (error <= 0) 
-	    	proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, FALSE);
+      error = tvb_get_ntohl(tvb, offset);
+      if (error <= 0) 
+	proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, FALSE);
     }
   }
   aspinfo->command = fn;
@@ -1079,17 +1090,29 @@ proto_register_atalk(void)
 
   static hf_register_info hf_atp[] = {
     { &hf_atp_ctrlinfo,
-      { "control info",		"atp.ctrlinfo",	FT_UINT8,  BASE_HEX, 
+      { "Control info",		"atp.ctrlinfo",	FT_UINT8,  BASE_HEX, 
 		NULL, 0, "control info", HFILL }},
 
     { &hf_atp_function,
-      { "function",		"atp.function",	FT_UINT8,  BASE_DEC, 
-		VALS(atp_function_vals), 0xC0, "function code", HFILL }},
+      { "Function",		"atp.function",	FT_UINT8,  BASE_DEC, 
+		VALS(atp_function_vals), ATP_FUNCMASK, "function code", HFILL }},
 
-    
-    { &hf_atp_option,
-      { "option",		"atp.option",	FT_UINT8,  BASE_DEC, 
-		VALS(atp_option_vals), 0x38, "options", HFILL }},
+
+    { &hf_atp_xo,
+      { "XO",		"atp.xo",	FT_BOOLEAN,  8,
+		NULL, ATP_XO, "Exactly-once flag", HFILL }},
+
+    { &hf_atp_eom,
+      { "EOM",		"atp.eom",	FT_BOOLEAN,  8,
+		NULL, ATP_EOM, "End-of-message", HFILL }},
+
+    { &hf_atp_sts,
+      { "STS",		"atp.sts",	FT_BOOLEAN,  8,
+		NULL, ATP_STS, "Send transaction status", HFILL }},
+
+    { &hf_atp_treltimer,
+      { "TRel timer",		"atp.treltimer",	FT_UINT8,  BASE_DEC,
+		VALS(atp_trel_timer_vals), 0x07, "TRel timer", HFILL }},
 
     { &hf_atp_bitmap,
       { "Bitmap",		"atp.bitmap",	FT_UINT8,  BASE_HEX, 
@@ -1135,7 +1158,7 @@ proto_register_atalk(void)
   proto_atp = proto_register_protocol("AppleTalk Transaction Protocol packet", "ATP", "atp");
   proto_register_field_array(proto_atp, hf_atp, array_length(hf_atp));
 
-  proto_asp = proto_register_protocol("AppleTalk Stream Protocol", "ASP", "asp");
+  proto_asp = proto_register_protocol("AppleTalk Session Protocol", "ASP", "asp");
   proto_register_field_array(proto_asp, hf_asp, array_length(hf_asp));
 
   proto_rtmp = proto_register_protocol("Routing Table Maintenance Protocol",
