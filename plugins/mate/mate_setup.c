@@ -1138,7 +1138,7 @@ static void print_gops_by_pduname(gpointer k, gpointer v, gpointer p _U_) {
 			  "PduName=%s; GopName=%s;\n", (guint8*)k,((mate_cfg_gop*)v)->name);
 }
 
-static void print_config() {
+static void print_config(void) {
 	guint i;
 
 	/* FIXME: print the settings */
@@ -1171,14 +1171,17 @@ static void print_config() {
 static void new_attr_hfri(mate_cfg_item* cfg, guint8* name) {
 	int* p_id = g_malloc(sizeof(int));
 
-	hf_register_info hfri = {
-		p_id,
-	{
-		g_strdup_printf("%s",name),
-		g_strdup_printf("mate.%s.%s",cfg->name,name),
-		FT_STRING,BASE_NONE,NULL,0,
-		g_strdup_printf("%s attribute of %s",name,cfg->name),HFILL
-	}};
+	hf_register_info hfri;
+
+	hfri.p_id = p_id;
+	hfri.hfinfo.name = g_strdup_printf("%s",name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.%s",cfg->name,name);
+	hfri.hfinfo.type = FT_STRING;
+	hfri.hfinfo.display = BASE_NONE;
+	hfri.hfinfo.strings = NULL;
+	hfri.hfinfo.bitmask = 0;
+	hfri.hfinfo.blurb = g_strdup_printf("%s attribute of %s",name,cfg->name);
+	hfri.hfinfo.id = HFILL;
 
 	*p_id = -1;
 	g_hash_table_insert(cfg->my_hfids,name,p_id);
@@ -1449,7 +1452,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	
 }
 
-static void analyze_config() {
+static void analyze_config(void) {
 	guint i;
 
 	for (i=0; i<matecfg->pducfglist->len; i++) {
@@ -1466,7 +1469,7 @@ static void new_action(guint8* name, config_action* action) {
 
 }
 
-static void init_actions() {
+static void init_actions(void) {
 	AVP* avp;
 
 	all_keywords = new_avpl("all_keywords");
