@@ -11,6 +11,8 @@
  * RFC 1542: Clarifications and Extensions for the Bootstrap Protocol
  * RFC 2131: Dynamic Host Configuration Protocol
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
+ * RFC 2241: DHCP Options for Novell Directory Services
+ * RFC 2242: NetWare/IP Domain Name and Information
  * RFC 2489: Procedure for Defining New DHCP Options
  * RFC 2610: DHCP Options for Service Location Protocol
  * RFC 3046: DHCP Relay Agent Information Option
@@ -149,18 +151,24 @@ static const true_false_string tfs_fqdn_n = {
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 
 enum field_type {
+	special,
 	none,
 	presence,
 	ipv4,			/* single IPv4 address */
 	ipv4_list,		/* list of IPv4 addresses */
 	string,
+	bytes,
+	opaque,
 	toggle,
 	yes_no,
-	special,
-	opaque,
+	val_u_byte,
+	val_u_short,
+	val_u_short_list,
+	val_u_le_short,
+	val_u_long,
 	time_in_secs,
-	val_u_byte, val_u_short, val_u_le_short, val_u_long,
-	val_s_long, fqdn, ipv4_or_fqdn, bytes
+	fqdn,
+	ipv4_or_fqdn
 };
 
 struct opt_info {
@@ -322,7 +330,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 	static struct opt_info opt[] = {
 		/*   0 */ { "Padding",					none },
-		/*   1 */ { "Subnet Mask",				ipv4_list },
+		/*   1 */ { "Subnet Mask",				ipv4 },
 		/*   2 */ { "Time Offset",				time_in_secs },
 		/*   3 */ { "Router",					ipv4_list },
 		/*   4 */ { "Time Server",				ipv4_list },
@@ -337,7 +345,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*  13 */ { "Boot File Size",				val_u_short },
 		/*  14 */ { "Merit Dump File",				string },
 		/*  15 */ { "Domain Name",				string },
-		/*  16 */ { "Swap Server",				ipv4_list },
+		/*  16 */ { "Swap Server",				ipv4 },
 		/*  17 */ { "Root Path",				string },
 		/*  18 */ { "Extensions Path",				string },
 		/*  19 */ { "IP Forwarding",				toggle },
@@ -346,14 +354,14 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*  22 */ { "Maximum Datagram Reassembly Size",		val_u_short },
 		/*  23 */ { "Default IP Time-to-Live",			val_u_byte },
 		/*  24 */ { "Path MTU Aging Timeout",			time_in_secs },
-		/*  25 */ { "Path MTU Plateau Table",			val_u_short },
+		/*  25 */ { "Path MTU Plateau Table",			val_u_short_list },
 		/*  26 */ { "Interface MTU",				val_u_short },
 		/*  27 */ { "All Subnets are Local",			yes_no },
-		/*  28 */ { "Broadcast Address",			ipv4_list },
+		/*  28 */ { "Broadcast Address",			ipv4 },
 		/*  29 */ { "Perform Mask Discovery",			toggle },
 		/*  30 */ { "Mask Supplier",				yes_no },
 		/*  31 */ { "Perform Router Discover",			toggle },
-		/*  32 */ { "Router Solicitation Address",		ipv4_list },
+		/*  32 */ { "Router Solicitation Address",		ipv4 },
 		/*  33 */ { "Static Route",				special },
 		/*  34 */ { "Trailer Encapsulation",			toggle },
 		/*  35 */ { "ARP Cache Timeout",			time_in_secs },
@@ -371,11 +379,11 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*  47 */ { "NetBIOS over TCP/IP Scope",		string },
 		/*  48 */ { "X Window System Font Server",		ipv4_list },
 		/*  49 */ { "X Window System Display Manager",		ipv4_list },
-		/*  50 */ { "Requested IP Address",			ipv4_list },
+		/*  50 */ { "Requested IP Address",			ipv4 },
 		/*  51 */ { "IP Address Lease Time",			time_in_secs },
 		/*  52 */ { "Option Overload",				special },
 		/*  53 */ { "DHCP Message Type",			special },
-		/*  54 */ { "Server Identifier",			ipv4_list },
+		/*  54 */ { "Server Identifier",			ipv4 },
 		/*  55 */ { "Parameter Request List",			special },
 		/*  56 */ { "Message",					string },
 		/*  57 */ { "Maximum DHCP Message Size",		val_u_short },
@@ -1146,6 +1154,17 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		case special:
 			return consumed;
 
+		case ipv4:
+			if (optlen != 4) {
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: length isn't 4", code);
+				break;
+			}
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: %s = %s", code, text,
+				ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
+			break;
+
 		case ipv4_list:
 			if (optlen == 4) {
 				/* one IP address */
@@ -1187,52 +1206,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			}
 			break;
 
-		case val_u_short:
-			if (optlen == 2) {
-				/* one gushort */
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-						"Option %d: %s = %d", code, text,
-						tvb_get_ntohs(tvb, optoff));
-			} else {
-				/* > 1 gushort */
-				vti = proto_tree_add_text(bp_tree, tvb, voff,
-					consumed, "Option %d: %s", code, text);
-				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (i = optoff, optleft = optlen; optleft > 0;
-				    i += 2, optleft -= 2) {
-					if (optleft < 2) {
-						proto_tree_add_text(v_tree, tvb, i, voff + consumed - i,
-						    "Option length isn't a multiple of 2");
-						break;
-					}
-					proto_tree_add_text(v_tree, tvb, i, 4, "Value: %d",
-						tvb_get_ntohs(tvb, i));
-				}
-			}
-			break;
-
-		case val_u_long:
-			if (optlen != 4) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: length isn't 4", code);
-				break;
-			}
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = %d", code, text,
-					tvb_get_ntohl(tvb, optoff));
-			break;
-
-		case val_u_byte:
-			if (optlen != 1) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: length isn't 1", code);
-				break;
-			}
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = %d", code, text,
-					tvb_get_guint8(tvb, optoff));
-			break;
-
 		case toggle:
 			if (optlen != 1) {
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
@@ -1267,6 +1240,63 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 						"Option %d: %s = %s", code, text,
 						i == 0 ? "No" : "Yes");
 			}
+			break;
+
+		case val_u_byte:
+			if (optlen != 1) {
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: length isn't 1", code);
+				break;
+			}
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: %s = %d", code, text,
+					tvb_get_guint8(tvb, optoff));
+			break;
+
+		case val_u_short:
+			if (optlen != 2) {
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: length isn't 2", code);
+				break;
+			}
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: %s = %d", code, text,
+					tvb_get_ntohs(tvb, optoff));
+			break;
+
+		case val_u_short_list:
+			if (optlen == 2) {
+				/* one gushort */
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+						"Option %d: %s = %d", code, text,
+						tvb_get_ntohs(tvb, optoff));
+			} else {
+				/* > 1 gushort */
+				vti = proto_tree_add_text(bp_tree, tvb, voff,
+					consumed, "Option %d: %s", code, text);
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				for (i = optoff, optleft = optlen; optleft > 0;
+				    i += 2, optleft -= 2) {
+					if (optleft < 2) {
+						proto_tree_add_text(v_tree, tvb, i, voff + consumed - i,
+						    "Option length isn't a multiple of 2");
+						break;
+					}
+					proto_tree_add_text(v_tree, tvb, i, 4, "Value: %d",
+						tvb_get_ntohs(tvb, i));
+				}
+			}
+			break;
+
+		case val_u_long:
+			if (optlen != 4) {
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: length isn't 4", code);
+				break;
+			}
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: %s = %d", code, text,
+					tvb_get_ntohl(tvb, optoff));
 			break;
 
 		case time_in_secs:
@@ -1423,39 +1453,12 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	} else {
 		switch (o43pxeclient_opt[subopt].ft) {
 
-/* XXX		case string:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s", subopt, o43pxeclient_opt[subopt].text);
-			break;
-   XXX */
 		case special:
 			/* I may need to decode that properly one day */
 			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 				"Suboption %d: %s (%d byte%s)",
 		 		subopt, o43pxeclient_opt[subopt].text,
 				subopt_len, plurality(subopt_len, "", "s"));
-			break;
-
-		case val_u_le_short:
-			if (subopt_len != 2) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: suboption length isn't 2", subopt);
-				break;
-			}
-			proto_tree_add_text(v_tree, tvb, optoff, 4, "Suboption %d: %s = %u",
-			    subopt, o43pxeclient_opt[subopt].text,
-			    tvb_get_letohs(tvb, suboptoff));
-			break;
-
-		case val_u_byte:
-			if (subopt_len != 1) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: suboption length isn't 1", subopt);
-				break;
-			}
-			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
-			    subopt, o43pxeclient_opt[subopt].text,
-			    tvb_get_guint8(tvb, suboptoff));
 			break;
 
 		case ipv4_list:
@@ -1484,6 +1487,34 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 					    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
 				}
 			}
+			break;
+
+/* XXX		case string:
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s", subopt, o43pxeclient_opt[subopt].text);
+			break;
+   XXX */
+
+		case val_u_byte:
+			if (subopt_len != 1) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+					"Suboption %d: suboption length isn't 1", subopt);
+				break;
+			}
+			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
+			    subopt, o43pxeclient_opt[subopt].text,
+			    tvb_get_guint8(tvb, suboptoff));
+			break;
+
+		case val_u_le_short:
+			if (subopt_len != 2) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+					"Suboption %d: suboption length isn't 2", subopt);
+				break;
+			}
+			proto_tree_add_text(v_tree, tvb, optoff, 4, "Suboption %d: %s = %u",
+			    subopt, o43pxeclient_opt[subopt].text,
+			    tvb_get_letohs(tvb, suboptoff));
 			break;
 
 		default:
@@ -1593,20 +1624,6 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	} else {
 		switch (o43cablelabs_opt[subopt].ft) {
 
-		case string:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s = \"%s\"", subopt,
-				o43cablelabs_opt[subopt].text,
-				tvb_format_stringzpad(tvb, optoff, subopt_len));
-			break;
-
-		case bytes:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s = 0x%s", subopt,
-				o43cablelabs_opt[subopt].text,
-				tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-			break;
-
 		case special:
 			if ( subopt == 8 ) {	/* OUI */
 				if (subopt_len != 3) {
@@ -1644,6 +1661,20 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 					subopt, o43cablelabs_opt[subopt].text,
 					subopt_len, plurality(subopt_len, "", "s"));
 			}
+			break;
+
+		case string:
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s = \"%s\"", subopt,
+				o43cablelabs_opt[subopt].text,
+				tvb_format_stringzpad(tvb, optoff, subopt_len));
+			break;
+
+		case bytes:
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s = 0x%s", subopt,
+				o43cablelabs_opt[subopt].text,
+				tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 			break;
 
 		default:
@@ -1716,27 +1747,6 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			proto_tree_add_text(v_tree, tvb, optoff, 2, "Suboption %d: %s", subopt, o63_opt[subopt].truet);
 			break;
 
-		case yes_no:
-			if (subopt_len != 1) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Suboption %d: length isn't 1", subopt);
-				suboptoff += subopt_len;
-				break;
-			}
-			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
-			 	return (optend);
-			}
-			if (tvb_get_guint8(tvb, suboptoff)==1) {
-				proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s", subopt, o63_opt[subopt].truet);
-			} else {
-				proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s" , subopt, o63_opt[subopt].falset);
-			}
-			suboptoff += 3;
-			break;
-
 		case ipv4:
 			if (subopt_len != 4) {
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
@@ -1755,25 +1765,6 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			    subopt, o63_opt[subopt].truet,
 			    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
 			suboptoff += 6;
-			break;
-
-		case val_u_byte:
-			if (subopt_len != 1) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Suboption %d: length isn't 1", subopt);
-				suboptoff += subopt_len;
-				break;
-			}
-			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
-			 	return (optend);
-			}
-			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
-			    subopt, o63_opt[subopt].truet,
-			    tvb_get_guint8(tvb, suboptoff));
-			suboptoff += 1;
 			break;
 
 		case ipv4_list:
@@ -1803,6 +1794,46 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 					    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
 				}
 			}
+			break;
+
+		case yes_no:
+			if (subopt_len != 1) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"Suboption %d: length isn't 1", subopt);
+				suboptoff += subopt_len;
+				break;
+			}
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			if (tvb_get_guint8(tvb, suboptoff)==1) {
+				proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s", subopt, o63_opt[subopt].truet);
+			} else {
+				proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s" , subopt, o63_opt[subopt].falset);
+			}
+			suboptoff += 3;
+			break;
+
+		case val_u_byte:
+			if (subopt_len != 1) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"Suboption %d: length isn't 1", subopt);
+				suboptoff += subopt_len;
+				break;
+			}
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
+			    subopt, o63_opt[subopt].truet,
+			    tvb_get_guint8(tvb, suboptoff));
+			suboptoff += 1;
 			break;
 
 		default:
