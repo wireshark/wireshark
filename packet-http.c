@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.88 2004/01/01 23:34:06 guy Exp $
+ * $Id: packet-http.c,v 1.89 2004/01/09 21:45:29 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1242,4 +1242,65 @@ proto_reg_handoff_http(void)
 	dissector_add("udp.port", UDP_PORT_SSDP, http_udp_handle);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
+}
+
+/*
+ * Content-Type: message/http
+ */
+
+static gint proto_message_http = -1;
+static gint ett_message_http = -1;
+static dissector_handle_t message_http_handle;
+
+static void
+dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree	*subtree;
+	proto_item	*ti;
+	gint		offset = 0, next_offset;
+	gint		len;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, " (message/http)");
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_message_http,
+				tvb, 0, -1, FALSE);
+		subtree = proto_item_add_subtree(ti, ett_message_http);
+		while (tvb_reported_length_remaining(tvb, offset) != 0) {
+			len = tvb_find_line_end(tvb, offset,
+					tvb_ensure_length_remaining(tvb, offset),
+					&next_offset, FALSE);
+			if (len == -1)
+				break;
+			proto_tree_add_text(subtree, tvb, offset, next_offset - offset,
+					"%s", tvb_format_text(tvb, offset, len));
+			offset = next_offset;
+		}
+	}
+}
+
+void
+proto_register_message_http(void)
+{
+	static gint *ett[] = {
+		&ett_message_http,
+	};
+
+	proto_message_http = proto_register_protocol(
+			"Media Type: message/http",
+			"message/http",
+			"message-http"
+	);
+	proto_register_subtree_array(ett, array_length(ett));
+	message_http_handle = create_dissector_handle(dissect_message_http,
+			proto_message_http);
+}
+
+void
+proto_reg_handoff_message_http(void)
+{
+	message_http_handle = create_dissector_handle(dissect_message_http,
+			proto_message_http);
+
+	dissector_add_string("media_type", "message/http", message_http_handle);
 }
