@@ -1,7 +1,7 @@
 /* layout_prefs.c
  * Dialog box for layout preferences
  *
- * $Id: layout_prefs.c,v 1.6 2004/04/30 21:32:42 guy Exp $
+ * $Id: layout_prefs.c,v 1.7 2004/05/02 08:54:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,7 @@
 /*#include <epan/resolv.h>*/
 #include "prefs.h"
 /*#include "prefs_dlg.h"*/
-/*#include "ui_util.h"*/
+#include "ui_util.h"
 #include "main.h"
 #include "compat_macros.h"
 #include "dlg_utils.h"
@@ -69,29 +69,6 @@ typedef struct {
 #define LAYOUT_CONTENT1_VB_KEY      "layout_content1_vbox"
 #define LAYOUT_CONTENT2_VB_KEY      "layout_content2_vbox"
 #define LAYOUT_CONTENT3_VB_KEY      "layout_content3_vbox"
-
-
-/* be sure to use a parent widget which is already being displayed */
-static GtkWidget *xpm_to_widget(GtkWidget *parent, const char ** xpm) {
-#if GTK_MAJOR_VERSION < 2
-    GdkPixmap *icon;
-    GdkBitmap * mask;
-
-
-    icon = gdk_pixmap_create_from_xpm_d(parent->window, &mask, &parent->style->white, (char **) xpm);
-    return gtk_pixmap_new(icon, mask);
-#else
-    GdkPixbuf * pixbuf;
-    GdkPixmap * pixmap;
-    GdkBitmap * bitmap;
-
-
-    pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
-    gdk_pixbuf_render_pixmap_and_mask_for_colormap (pixbuf, gtk_widget_get_colormap(parent), &pixmap, &bitmap, 128);
-
-    return gtk_image_new_from_pixmap (pixmap, bitmap);
-#endif
-}
 
 
 static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *tooltips, int i, layout_pane_content_e content) {
@@ -317,7 +294,7 @@ layout_prefs_show(void)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(type_tb),
 	    (layout_type_e)(i + 1) == prefs.gui_layout_type);
 
-	gtk_container_add (GTK_CONTAINER(type_tb), xpm_to_widget(top_level, inline_txt[i]));
+	gtk_container_add (GTK_CONTAINER(type_tb), xpm_to_widget(inline_txt[i]));
 
 	SIGNAL_CONNECT(type_tb, "toggled", layout_type_changed_cb, layout_type_buttons);
 	layout_type_buttons[i] = type_tb;

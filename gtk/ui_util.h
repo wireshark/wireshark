@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.7 2004/02/13 00:53:37 guy Exp $
+ * $Id: ui_util.h,v 1.8 2004/05/02 08:54:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,5 +56,8 @@ GtkWidget *tree_view_new(GtkTreeModel *model);
 
 /* Set the styles of all Trees based upon user preferences. */
 void set_tree_styles_all(void);
+
+/* convert an xpm picture into a GtkWidget showing it (top_level must already be visible!) */
+GtkWidget *xpm_to_widget(const char ** xpm);
 
 #endif /* __GTKGUIUI_UTIL_H__ */
