@@ -70,7 +70,7 @@ void conversation_set_dissector(conversation_t *,
 
 int proto_register_protocol(char*, char*, char*);
 void proto_register_field_array(int, hf_register_info*, int);
-void proto_register_subtree_array(int**, int);
+void proto_register_subtree_array(int *const *, int);
 
 void dissector_add(const char *, guint32, dissector_handle_t);
 void dissector_delete(const char *, guint32,
