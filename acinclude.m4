@@ -1101,27 +1101,55 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		    # Kerberos library, even when we tried linking
 		    # with -lresolv; we can't link with kerberos.
 		    #
+		    if test "x$want_krb5" = "xyes"
+		    then
+			#
+			# The user tried to force us to use the library,
+			# but we can't do so; report an error.
+			#
+			AC_MSG_ERROR(Usable Heimdal not found)
+		    else
+			#
+			# Restore the versions of CFLAGS and CPPFLAGS
+			# from before we added the flags for Kerberos.
+			#
+			AC_MSG_RESULT(Usable Heimdal not found - disabling dissection for some kerberos data in packet decoding)
+			CFLAGS="$ethereal_save_CFLAGS"
+			CPPFLAGS="$ethereal_save_CPPFLAGS"
+			LIBS="$ethereal_save_LIBS"
+			KRB5_LIBS=""
+			want_krb5=no
+		    fi
+		fi
+	    else
+		#
+		# It's not Heimdal.
+		#
+		if test "x$want_krb5" = "xyes"
+		then
+		    #
+		    # The user tried to force us to use the library,
+		    # but we can't do so; report an error.
+		    #
+		    AC_MSG_ERROR(Heimdal not found)
+		else
+		    #
 		    # Restore the versions of CFLAGS and CPPFLAGS
 		    # from before we added the flags for Kerberos.
 		    #
-		    AC_MSG_RESULT(usable Heimdal not found - disabling dissection for some kerberos data in packet decoding)
+		    AC_MSG_RESULT(no)
+		    AC_MSG_RESULT(Heimdal not found - disabling dissection for some kerberos data in packet decoding)
 		    CFLAGS="$ethereal_save_CFLAGS"
 		    CPPFLAGS="$ethereal_save_CPPFLAGS"
-		    LIBS="$ethereal_save_LIBS"
 		    KRB5_LIBS=""
 		    want_krb5=no
 		fi
-	    else
-		AC_MSG_RESULT(no)
-		AC_MSG_RESULT(Heimdal not found - disabling dissection for some kerberos data in packet decoding)
 	    fi
 	else
 	    #
-	    # The user didn't ask for Kerberos, or they did but we don't
-	    # have Heimdal.
-	    # XXX - if they did ask for it, should we fail and tell
-	    # them that the Kerberos library they have isn't one we can
-	    # use?
+	    # The user asked us not to use Kerberos, or they didn't
+	    # say whether they wanted us to use it but we found
+	    # that we couldn't.
 	    #
 	    # Restore the versions of CFLAGS and CPPFLAGS
 	    # from before we added the flags for Kerberos.
