@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.11 1999/11/22 07:05:20 itojun Exp $
+ * $Id
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -193,7 +193,7 @@ static gint ett_bgp_nlri = -1;
 static gint ett_bgp_open = -1;
 static gint ett_bgp_update = -1;
 static gint ett_bgp_notification = -1;
-static gint ett_bgp_aspaths = -1;
+static gint ett_bgp_as_paths = -1;
 
 /*
  * Decode an IPv4 prefix.
@@ -327,7 +327,6 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
     /* parse unfeasible prefixes */
     if (len > 0) {
         ti = proto_tree_add_text(tree, p - pd, len, "Withdrawn routes:");
-        /* TODO: unfeasible */
 	subtree = proto_item_add_subtree(ti, ett_bgp_unfeas);
 
         /* parse each prefixes */
@@ -341,7 +340,6 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
     else {
         p += len;
     }
-    p += 2 + len;
 
     /* check for advertisements */
     len = ntohs(*(guint16 *)p);
@@ -602,7 +600,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	    case BGPTYPE_AS_PATH:
 	        ti = proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
                         "AS path: %s", as_path_str);
-	        as_paths_tree = proto_item_add_subtree(ti, ett_bgp_aspaths);
+	        as_paths_tree = proto_item_add_subtree(ti, ett_bgp_as_paths);
 
                 /* (p + i + 3) =
                    (p + current attribute + 3 bytes to first tuple) */ 
@@ -645,7 +643,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	            ti = proto_tree_add_text(as_paths_tree, 
                             q - pd - length * 2 - 2,
                             length * 2 + 2, "AS path segment: %s", as_path_str);
-	            as_path_tree = proto_item_add_subtree(ti, ett_bgp_aspaths);
+	            as_path_tree = proto_item_add_subtree(ti, ett_bgp_as_paths);
 	            proto_tree_add_text(as_path_tree, q - pd - length * 2 - 2,
                             1, "Path segment type: %s (%u)",
                             val_to_str(type, as_segment_type, "Unknown"), type);
@@ -1142,7 +1140,7 @@ proto_register_bgp(void)
       &ett_bgp_open,
       &ett_bgp_update,
       &ett_bgp_notification,
-      &ett_bgp_aspaths,
+      &ett_bgp_as_paths,
     };
 
     proto_bgp = proto_register_protocol("Border Gateway Protocol", "bgp");
