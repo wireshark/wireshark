@@ -318,7 +318,8 @@ Set the capture filter expression.
 
 =item -F
 
-Set the file format of the output capture file.
+Set the file format of the output capture file written using the B<-w>
+flag.
 
 =item -h
 
@@ -434,7 +435,8 @@ memory, or saved to disk.
 
 =item -S
 
-Decode and display packets even while writing to file.
+Decode and display packets even while writing raw packet data using the
+B<-w> flag.
 
 =item -t
 
@@ -449,7 +451,8 @@ captured.  The default is relative.
 
 =item -T
 
-Set the format of the output when viewing packet data.  The options are:
+Set the format of the output when viewing decoded packet data.  The
+options are:
 
 =for man .RS
 
@@ -494,8 +497,8 @@ than a one-line summary of the packet.
 
 =item -w
 
-Write packet data to I<savefile> or to the standard output if
-I<savefile> is "-".
+Write raw packet data to I<savefile> or to the standard output if
+I<savefile> is "-". 
 
 =item -x
 
