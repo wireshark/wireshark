@@ -2,7 +2,7 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp-int.h,v 1.6 2002/01/10 04:44:34 gram Exp $
+ * $Id: packet-ncp-int.h,v 1.6.2.2 2002/02/16 20:41:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,14 +33,22 @@ typedef struct _sub_ptvc_record sub_ptvc_record;
 struct _ptvc_record {
 	int			*hf_ptr;
 	gint			length;
-	gboolean		endianness;
+	gboolean		endianness;	/* Move down to indexes; make bitfield */
 	const sub_ptvc_record	*sub_ptvc_rec;
+	gint			var_index;
+	gint			repeat_index;
+	gint			req_cond_index;
 };
 
 struct _sub_ptvc_record {
 	gint			*ett;
 	const ptvc_record	*ptvc_rec;
 };
+
+typedef struct {
+	const char		*dfilter_text;
+	dfilter_t		*dfilter;
+} conditional_record;
 
 typedef struct {
 	guint8		error_in_packet;
@@ -54,9 +62,7 @@ typedef struct {
 	gchar*			name;
 	gint			group;
 	const ptvc_record	*request_ptvc;
-	void			*requst_func;
 	const ptvc_record	*reply_ptvc;
-	void			*reply_func;
 	const error_equivalency	*errors;
 } ncp_record;
 

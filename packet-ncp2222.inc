@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8 2002/01/10 04:44:34 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8.2.2 2002/02/16 20:41:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+static void
+process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec);
 
 /* Does NCP func require a subfunction code? */
 static gboolean
@@ -85,7 +88,7 @@ ncp_record_find(guint8 func, guint8 subfunc)
 /* Add a value for a ptvc_record, and process the sub-ptvc_record
  * that it points to. */
 static void
-process_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
+process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
 	proto_item		*item;
 	proto_tree		*sub_tree;
@@ -123,22 +126,76 @@ process_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
 	ptvcursor_free(sub_ptvc);
 }
 
+/* Process a sub-ptvc_record that points to a "struct" ptvc_record. */
+static void
+process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
+{
+	const ptvc_record	*sub_rec;
+
+	/* Get the ptvc_record for the struct and call our caller
+	 * to process it. */
+	sub_rec = rec->sub_ptvc_rec->ptvc_rec;
+	process_ptvc_record(ptvc, sub_rec);
+}
+
+guint
+get_item_value(proto_item *item)
+{
+	return PITEM_FINFO(item)->value->value.integer;
+}
+
 /* Run through the table of ptvc_record's and add info to the tree */
 static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
+	proto_item *item;
+	guint i, repeat_index;
+
 	while(rec->hf_ptr != NULL) {
 		if (rec->sub_ptvc_rec) {
-			process_sub_ptvc_record(ptvc, rec);
+			if (rec->hf_ptr == PTVC_STRUCT) {
+				process_struct_sub_ptvc_record(ptvc, rec);
+			}
+			else {
+				process_bitfield_sub_ptvc_record(ptvc, rec);
+			}
 		}
 		else {
-			ptvcursor_add(ptvc, *rec->hf_ptr, rec->length,
-				rec->endianness);
+			/* If we can't repeat this field, we might use it
+			 * to set a 'var'. */
+			if (rec->repeat_index == NO_REPEAT) {
+				item = ptvcursor_add(ptvc, *rec->hf_ptr, rec->length,
+					rec->endianness);
+
+				/* Set the value as a 'var' ? */
+				if (rec->var_index != NO_VAR) {
+					repeat_vars[rec->var_index] = get_item_value(item);
+				}
+			}
+			else {
+				/* We do repeat this field. */
+				repeat_index = repeat_vars[rec->repeat_index];
+				for (i = 0; i < repeat_index; i++ ) {
+					ptvcursor_add(ptvc, *rec->hf_ptr,
+						rec->length, rec->endianness);
+				}
+			}
 		}
 		rec++;
 	}
 }
 
+
+/* Clear the repeat_vars array. */
+static void
+clear_repeat_vars(void)
+{
+	guint i;
+
+	for (i = 0 ; i < NUM_REPEAT_VARS; i++ ) {
+		repeat_vars[i] = 0;
+	}
+}
 
 /* Given an error_equivalency table and a completion code, return
  * the string representing the error. */
@@ -157,8 +214,7 @@ ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 
 static const ncp_record ncp1111_request =
 	{ 0x01, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
-		NULL, NULL, NULL, NULL,
-		ncp_0x2_errors };
+		NULL, NULL, ncp_0x2_errors };
 
 
 void
@@ -206,12 +262,12 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		else {
 			if (requires_subfunc) {
 				col_add_fstr(pinfo->cinfo, COL_INFO,
-					"C Unknown Function 0x%02X/0x%02x (%d %d)",
+					"C Unknown Function %d %d (0x%02X/0x%02x)",
 					func, subfunc, func, subfunc);
 			}
 			else {
 				col_add_fstr(pinfo->cinfo, COL_INFO,
-					"C Unknown Function 0x%02x (%d)",
+					"C Unknown Function %d (0x%02x)",
 					func, func);
 			}
 		}
@@ -248,8 +304,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
 			case 0x2222:
 				proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
-					func, "Function Code: 0x%02X (%s)",
-					func, ncp_rec ? ncp_rec->name : "Unknown");
+					func, "Function Code: %d (0x%02X), %s",
+					func, func, ncp_rec ? ncp_rec->name : "Unknown");
 				break;
 
 			default:
@@ -260,14 +316,16 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		if (requires_subfunc) {
 			if (has_length) {
 				proto_tree_add_item(ncp_tree, hf_ncp_length, tvb, 7,
-						2, FALSE);
-				proto_tree_add_item(ncp_tree, hf_ncp_subfunc, tvb, 9,
-						1, FALSE);
+					2, FALSE);
+				proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 9, 1,
+					subfunc, "SubFunction: %d (0x%02x)",
+					subfunc, subfunc);
 				ptvc = ptvcursor_new(ncp_tree, tvb, 10);
 			}
 			else {
-				proto_tree_add_item(ncp_tree, hf_ncp_subfunc, tvb, 7,
-						1, FALSE);
+				proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 7, 1,
+					subfunc, "SubFunction: %d (0x%02x)",
+					subfunc, subfunc);
 				ptvc = ptvcursor_new(ncp_tree, tvb, 8);
 			}
 		}
@@ -283,6 +341,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		if (ncp_rec && ncp_rec->request_ptvc) {
+			clear_repeat_vars();
 			process_ptvc_record(ptvc, ncp_rec->request_ptvc);
 		}
 		ptvcursor_free(ptvc);
@@ -354,8 +413,8 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		proto_tree_add_uint_format(ncp_tree, hf_ncp_completion_code, tvb, 6, 1,
-			completion_code, "Completion Code: 0x%02x (%s)",
-			completion_code, error_string);
+			completion_code, "Completion Code: %d (0x%02x), %s",
+			completion_code, completion_code, error_string);
 
 		proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb, 7, 1, FALSE);
 
@@ -372,6 +431,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 				return;
 			}
 			/*printf("func=0x%x subfunc=0x%x\n", ncp_rec->func, ncp_rec->subfunc);*/
+			clear_repeat_vars();
 			ptvc = ptvcursor_new(ncp_tree, tvb, 8);
 			process_ptvc_record(ptvc, ncp_rec->reply_ptvc);
 			ptvcursor_free(ptvc);
