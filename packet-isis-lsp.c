@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.14 2001/05/23 18:44:59 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.15 2001/06/07 19:13:35 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -414,24 +414,42 @@ dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
 			memcpy(&src, &pd[offset+4], 4);
 			memcpy(&mask, &pd[offset+8], 4);
 			ti = proto_tree_add_text ( tree, NullTVB, offset, 12, 
-				"IP prefix: %s (%s) : %s",
-				get_hostname(src), ip_to_str((guint8*)&src),
+				"IPv4 prefix: %s : %s",
+				ip_to_str((guint8*)&src),
 				ip_to_str((guint8*)&mask) );
 			ntree = proto_item_add_subtree(ti, 
 				ett_isis_lsp_clv_ip_reachability);
 
 			proto_tree_add_text (ntree, NullTVB, offset, 1,
-				"Default Metric: %s %s %d:%d",
-				ISIS_LSP_CLV_METRIC_SUPPORTED(pd[offset]) ? "External" : "Internal",
-				ISIS_LSP_CLV_METRIC_RESERVED(pd[offset]) ? "(reserved bit != 0)" : "",
+				"Default Metric: %d, %s, Distribution: %s",
 				ISIS_LSP_CLV_METRIC_VALUE(pd[offset]),
-				pd[offset] );
-			dissect_metric ( ntree, offset + 1, pd[offset+1], 
-				"Delay", FALSE );
-			dissect_metric ( ntree, offset + 2, pd[offset+2], 
-				"Expense",FALSE );
-			dissect_metric ( ntree, offset + 3, pd[offset+3], 
-				"Error", FALSE );
+				ISIS_LSP_CLV_METRIC_IE(pd[offset]) ? "External" : "Internal",
+				ISIS_LSP_CLV_METRIC_UPDOWN(pd[offset]) ? "down" : "up");
+
+
+			if (ISIS_LSP_CLV_METRIC_SUPPORTED(pd[offset+1])) {
+			  proto_tree_add_text (ntree, NullTVB, offset+1, 1, "Delay Metric:   Not supported");
+					       } else {
+                          proto_tree_add_text (ntree, NullTVB, offset+1, 1, "Delay Metric:   %d, %s",
+					       ISIS_LSP_CLV_METRIC_VALUE(pd[offset+1]),
+					       ISIS_LSP_CLV_METRIC_IE(pd[offset+1]) ? "External" : "Internal");
+					       }
+
+                        if (ISIS_LSP_CLV_METRIC_SUPPORTED(pd[offset+2])) {
+                          proto_tree_add_text (ntree, NullTVB, offset+2, 1, "Expense Metric: Not supported");
+			} else {
+                          proto_tree_add_text (ntree, NullTVB, offset+2, 1, "Exense Metric:  %d, %s",
+                                               ISIS_LSP_CLV_METRIC_VALUE(pd[offset+2]),
+					       ISIS_LSP_CLV_METRIC_IE(pd[offset+2]) ? "External" : "Internal");
+			}
+
+                        if (ISIS_LSP_CLV_METRIC_SUPPORTED(pd[offset+3])) {
+                          proto_tree_add_text (ntree, NullTVB, offset+3, 1, "Error Metric:   Not supported");
+			} else {
+                          proto_tree_add_text (ntree, NullTVB, offset+3, 1, "Error Metric:   %d, %s",
+                                               ISIS_LSP_CLV_METRIC_VALUE(pd[offset+3]),
+					       ISIS_LSP_CLV_METRIC_IE(pd[offset+3]) ? "External" : "Internal");
+			}
 		}
 		offset += 12;
 		length -= 12;
@@ -845,15 +863,40 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 			}
 			ntree = proto_item_add_subtree(ti, 
 				ett_isis_lsp_clv_is_neighbors);
-			dissect_metric ( ntree, offset, pd[offset], "Default", 
-				TRUE );
-			dissect_metric ( ntree, offset + 1, pd[offset+1], 
-				"Delay", FALSE );
-			dissect_metric ( ntree, offset + 2, pd[offset+2], 
-				"Expense",FALSE );
-			dissect_metric ( ntree, offset + 3, pd[offset+3], 
-				"Error", FALSE );
 
+
+
+                        proto_tree_add_text (ntree, NullTVB, offset, 1,
+					     "Default Metric: %d, %s",
+					     ISIS_LSP_CLV_METRIC_VALUE(pd[offset]),
+					     ISIS_LSP_CLV_METRIC_IE(pd[offset]) ? "External" : "Internal");
+					    
+			if (ISIS_LSP_CLV_METRIC_SUPPORTED(pd[offset+1])) {
+                          proto_tree_add_text (ntree, NullTVB, offset+1, 1, "Delay Metric:   Not supported");
+			} else {
+                          proto_tree_add_text (ntree, NullTVB, offset+1, 1, "Delay Metric:   %d, %s",
+                                             ISIS_LSP_CLV_METRIC_VALUE(pd[offset+1]),
+					     ISIS_LSP_CLV_METRIC_IE(pd[offset+1]) ? "External" : "Internal");
+			}
+
+
+                        if (ISIS_LSP_CLV_METRIC_SUPPORTED(pd[offset+2])) {
+                          proto_tree_add_text (ntree, NullTVB, offset+2, 1, "Expense Metric: Not supported");
+                        } else {
+                          proto_tree_add_text (ntree, NullTVB, offset+2, 1, "Expense Metric: %d, %s",
+					       ISIS_LSP_CLV_METRIC_VALUE(pd[offset+2]),
+					       ISIS_LSP_CLV_METRIC_IE(pd[offset+2]) ? "External" : "Internal");
+                        }
+
+                        if (ISIS_LSP_CLV_METRIC_SUPPORTED(pd[offset+3])) {
+                          proto_tree_add_text (ntree, NullTVB, offset+3, 1, "Error Metric:   Not supported");
+                        } else {
+                          proto_tree_add_text (ntree, NullTVB, offset+3, 1, "Error Metric:   %d, %s",
+					       ISIS_LSP_CLV_METRIC_VALUE(pd[offset+3]),
+					       ISIS_LSP_CLV_METRIC_IE(pd[offset+3]) ? "External" : "Internal");
+                        }
+	 
+			
 /* this is redundant information
 			Proto_tree_add_text ( ntree, NullTVB, offset + 4, id_length, 
 				"Neighbour ID: %s",
@@ -1002,7 +1045,7 @@ dissect_subclv_max_bw (const u_char *pd, int offset, proto_tree *tree) {
 	ui = pntohl (&pd[offset]);
 	memcpy (&bw, &ui, 4);
 	proto_tree_add_text (tree, NullTVB, offset-2, 6,
-		"Maximum link bandwidth : %f bytes/second", bw );
+		"Maximum link bandwidth : %.2f Mbps", bw*8/1000000 );
 }
 
 /*
@@ -1029,7 +1072,7 @@ dissect_subclv_rsv_bw (const u_char *pd, int offset, proto_tree *tree) {
 	ui = pntohl (&pd[offset]);
 	memcpy (&bw, &ui, 4);
 	proto_tree_add_text (tree, NullTVB, offset-2, 6,
-		"Reservable link bandwidth: %f bytes/second", bw );
+		"Reservable link bandwidth: %.2f Mbps", bw*8/1000000 );
 }
 
 /*
@@ -1063,7 +1106,7 @@ dissect_subclv_unrsv_bw (const u_char *pd, int offset, proto_tree *tree) {
 		ui = pntohl (&pd[offset]);
 		memcpy (&bw, &ui, 4);
 		proto_tree_add_text (ntree, NullTVB, offset+4*i, 4,
-			"priority level %d: %f bytes/second", i, bw );
+			"priority level %d: %.2f Mbps", i, bw*8/1000000 );
 	}
 }
 
@@ -1408,7 +1451,7 @@ isis_dissect_isis_lsp(int lsp_type, int header_length, int id_length,
 			inx++;
 		}
 		if (!some) { 
-			strcat ( sbuf, "<none set!>" );
+			strcat ( sbuf, "default-only" );
 		}
 		proto_tree_add_text(lsp_tree, NullTVB, offset + 18, 1, 
 			"Type block(0x%02x): P:%d, Supported metric(s): %s, OL:%d, istype:%s",

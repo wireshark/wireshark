@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.5 2001/05/14 18:40:15 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.6 2001/06/07 19:13:35 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -50,7 +50,9 @@
 #define ISIS_LSP_TYPE_LEVEL_2		3
 
 #define ISIS_LSP_CLV_METRIC_SUPPORTED(x)	((x)&0xf0)
+#define ISIS_LSP_CLV_METRIC_IE(x)               ((x)&0x20)
 #define ISIS_LSP_CLV_METRIC_RESERVED(x)		((x)&0x40)
+#define ISIS_LSP_CLV_METRIC_UPDOWN(x)           ((x)&0x40)
 #define ISIS_LSP_CLV_METRIC_VALUE(x)		((x)&0x3f)
 
 /*
