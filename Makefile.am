@@ -147,7 +147,7 @@ EXTRA_DIST = \
 	doc/Makefile.in         \
 	doc/dfilter2pod.in      \
 	doc/ethereal.pod.template \
-	ethereal.spec           \
+	ethereal.spec.in         \
 	image/icon-excl.xpm     \
 	image/icon-ethereal.xpm \
 	Makefile.nmake		\
