@@ -4,7 +4,7 @@
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-dccp.c,v 1.1 2002/05/03 15:50:11 nneul Exp $
+ * $Id: packet-dccp.c,v 1.2 2002/05/03 16:23:25 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+#include <packet-dccp.h>
+
 static int proto_dccp = -1;
 static int hf_dccp_len = -1;
 static int hf_dccp_pkt_vers = -1;
@@ -56,43 +58,6 @@ static int hf_dccp_opnums_report = -1;
 static int hf_dccp_opnums_retrans = -1;
 
 static gint ett_dccp = -1;
-
-#define TCP_PORT_DCC	6277
-
-/* Some structures retrieved from DCC protocol headers */
-/* DCC Code Copyright (c) 2002 by Rhyolite Software */
-
-typedef enum {
-    DCC_OP_INVALID=0,
-    DCC_OP_NOP,                         /* see if the server is alive */
-    DCC_OP_REPORT,                      /* client reporting and querying */
-    DCC_OP_QUERY,                       /* client querying */
-    DCC_OP_QUERY_RESP,                  /* server responding */
-    DCC_OP_ADMN,                        /* local control of the server */
-    DCC_OP_OK,                          /* administrative operation ok */
-    DCC_OP_ERROR,                       /* server failing or complaining */
-    DCC_OP_DELETE                       /* delete some checksums */
-} DCC_OPS;
-
-typedef struct {
-    guint32   h;                      /* client host ID, e.g. IP address */
-    guint32   p;                      /* process ID, serial #, timestamp */
-    guint32   r;                      /* report ID */
-    guint32   t;                      /* client (re)transmission # */
-} DCC_OP_NUMS;
-
-/* The start of any DCC packet.
- *      The length and version are early, since they are they only fields
- *      that are constrained in future versions. */
-typedef guint32 DCC_CLNT_ID;
-typedef struct {
-    guint16   len;                    /* total DCC packet length (for TCP) */
-    guchar      pkt_vers;               /* packet protocol version */
-    guchar      op;                     /* one of DCC_OPS */
-    DCC_CLNT_ID sender;                 /* official DCC client-ID */
-    DCC_OP_NUMS op_nums;                /* op_num.t must be last */
-} DCC_HDR;
-
 
 /* Lookup string tables */
 static const value_string dccp_op_vals[] = {
@@ -116,7 +81,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	int client_is_le = 0;
 
-	if (pinfo->srcport != TCP_PORT_DCC && pinfo->destport != TCP_PORT_DCC) {
+	if (pinfo->srcport != DCC_PORT && pinfo->destport != DCC_PORT) {
 		/* Not the right port - not a DCC packet. */
 		return FALSE;
 	}
@@ -134,7 +99,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, 
 			"%s: %s", 
-			( pinfo->destport == TCP_PORT_DCC ) ? "Request" : "Response", 
+			( pinfo->destport == DCC_PORT ) ? "Request" : "Response", 
 			val_to_str(tvb_get_guint8(tvb, offset+3),
 				 dccp_op_vals, "Unknown Op: %u")
 		);
@@ -147,6 +112,11 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(dccp_tree, hf_dccp_len, tvb, 
 			offset, 2, FALSE);
+
+		if ( !tvb_bytes_exist(tvb, 0, tvb_get_ntohs(tvb, offset))) {
+			/* Doesn't have number of bytes that header claims. */
+			proto_tree_add_text(dccp_tree, tvb, offset, 2, "Error - packet is shorter than header claims!");
+		}
 		offset += 2;
 
 		proto_tree_add_item(dccp_tree, hf_dccp_pkt_vers, tvb, 
