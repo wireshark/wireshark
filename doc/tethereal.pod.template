@@ -586,8 +586,22 @@ main installation directory (for example, F</usr/local/etc>) on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, matches the
 3-byte vendor portion of a 6-byte hardware address with the
-manufacturer's name.  The format of the file is the same as the
-F<ethers> file, except that each address is three bytes instead of six.
+manufacturer's name; it can also contain well-known MAC addresses and
+address ranges specified with a netmask.  The format of the file is the
+same as the F<ethers> file, except that entries of the form
+
+  00:00:0C      Cisco
+
+can be provided, with the 3-byte OUI and the name for a vendor, and
+entries of the form
+
+  00-00-0C-07-AC/40     All-HSRP-routers
+
+can be specified, with a MAC address and a mask indicating how many bits
+of the address must match.  Trailing zero bytes can be omitted from
+address ranges.  That entry, for example, will match addresses from
+00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF.  The mask need not be a
+multiple of 8.
 
 The F<ipxnets> file, which is found in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
