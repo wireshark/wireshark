@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.44 2001/01/03 07:53:43 guy Exp $
+ * $Id: packet-ncp.c,v 1.45 2001/01/03 16:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,6 +86,7 @@ struct ncp_ip_rqhdr {
 static const value_string ncp_ip_signature[] = {
 	{ NCPIP_RQST, "Demand Transport (Request)" },
 	{ NCPIP_RPLY, "Transport is NCP (Reply)" },
+	{ 0, NULL },
 };
 
 /* The information in this module comes from:

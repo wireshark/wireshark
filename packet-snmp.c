@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.55 2001/01/03 06:55:33 guy Exp $
+ * $Id: packet-snmp.c,v 1.56 2001/01/03 16:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -324,7 +324,8 @@ static const value_string smux_prio[] = {
 
 static const value_string smux_sout[] = {
 	{ SMUX_SOUT_COMMIT,		"Commit" },
-	{ SMUX_SOUT_ROLLBACK,		"Rollback" }
+	{ SMUX_SOUT_ROLLBACK,		"Rollback" },
+	{ 0,			        NULL }
 };
 
 /* Error status values */

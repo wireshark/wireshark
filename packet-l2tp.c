@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.18 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-l2tp.c,v 1.19 2001/01/03 16:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,6 +148,7 @@ static const char *data_msg	= "Data    Message";
 static const value_string l2tp_type_vals[] = {
 	{ 0, "Data Message" },
 	{ 1, "Control Message" },
+	{ 0, NULL },
 };
 
 static const true_false_string l2tp_length_bit_truth =

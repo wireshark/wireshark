@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.77 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-smb.c,v 1.78 2001/01/03 16:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -421,6 +421,7 @@ static const value_string smb_cmd_vals[] = {
   { 0xFD, "unknown-0xFD" },
   { 0xFE, "SMBinvalid" },
   { 0xFF, "unknown-0xFF" },
+  { 0x00, NULL },
 };
 
 char *SMB_names[256] = {
@@ -10447,7 +10448,7 @@ static const value_string errcls_types[] = {
   { SMB_ERRSRV, "Server Error"},
   { SMB_ERRHRD, "Hardware Error"},
   { SMB_ERRCMD, "Command Error - Not an SMB format command"},
-  { 0, 0}
+  { 0, NULL }
 };
 
 char *decode_smb_name(unsigned char cmd)
@@ -10491,7 +10492,7 @@ static const value_string DOS_errors[] = {
   {SMBE_notify_buf_small, "Buffer too small to return change notify."},
   {SMBE_unknownipc, "Unknown IPC Operation"},
   {SMBE_noipc, "Don't support ipc"},
-  {0, 0}
+  {0, NULL}
   };
 
 /* Error codes for the ERRSRV class */
@@ -10529,7 +10530,7 @@ static const value_string SRV_errors[] = {
   {SMBE_contMPX, "Resume MPX mode"},
   {SMBE_badPW, "Bad Password???"},
   {SMBE_nosupport, "Operation not supported"},
-  { 0, 0}
+  { 0, NULL}
 };
 
 /* Error codes for the ERRHRD class */
@@ -10554,7 +10555,7 @@ static const value_string HRD_errors[] = {
   {SMBE_FCBunavail, "FCB unavailable???"},
   {SMBE_sharebufexc, "Share buffer excluded???"},
   {SMBE_diskfull, "Disk full???"},
-  {0, 0}
+  {0, NULL}
 };
 
 char *decode_smb_error(guint8 errcls, guint16 errcode)

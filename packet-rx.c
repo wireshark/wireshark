@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.16 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-rx.c,v 1.17 2001/01/03 16:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,7 +71,8 @@ static const value_string rx_flags[] = {
 	{ RX_REQUEST_ACK,	"req-ack" },
 	{ RX_LAST_PACKET,	"last-pckt" },
 	{ RX_MORE_PACKETS,	"more-pckts" },
-	{ RX_FREE_PACKET,	"free-pckt" }
+	{ RX_FREE_PACKET,	"free-pckt" },
+	{ 0,                    NULL }
 };
 
 static int proto_rx = -1;

@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.12 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-kerberos.c,v 1.13 2001/01/03 16:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -265,7 +265,8 @@ static const value_string krb5_error_codes[] = {
 	{ KRB5_ET_KRB5KRB_AP_ERR_BADSEQ, "KRB5KRB_AP_ERR_BADSEQ" },
 	{ KRB5_ET_KRB5KRB_AP_ERR_INAPP_CKSUM, "KRB5KRB_AP_ERR_INAPP_CKSUM" },
 	{ KRB5_ET_KRB5KRB_ERR_GENERIC, "KRB5KRB_ERR_GENERIC" },
-	{ KRB5_ET_KRB5KRB_ERR_FIELD_TOOLONG, "KRB5KRB_ERR_FIELD_TOOLONG" }
+	{ KRB5_ET_KRB5KRB_ERR_FIELD_TOOLONG, "KRB5KRB_ERR_FIELD_TOOLONG" },
+	{ 0, NULL }
 };
 
 
@@ -276,6 +277,7 @@ static const value_string krb5_princ_types[] = {
     { KRB5_NT_SRV_HST              , "Service and Host" },
     { KRB5_NT_SRV_XHST             , "Service and Host Components" },
     { KRB5_NT_UID                  , "Unique ID" },
+    { 0                            , NULL },
 };
 
 static const value_string krb5_preauthentication_types[] = {
@@ -293,6 +295,7 @@ static const value_string krb5_preauthentication_types[] = {
     { KRB5_PA_SAM_CHALLENGE        , "PA-SAM-CHALLENGE" },
     { KRB5_PA_SAM_RESPONSE         , "PA-SAM-RESPONSE" },
     { KRB5_PA_DASS                 , "PA-DASS" },
+    { 0                            , NULL },
 };
 
 static const value_string krb5_encryption_types[] = {
@@ -307,6 +310,7 @@ static const value_string krb5_encryption_types[] = {
     { KRB5_ENCTYPE_DES3_CBC_SHA1  , "des3-cbc-sha1" },
     { KRB5_ENCTYPE_UNKNOWN        , "unknown" },
     { KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1    , "local-des3-hmac-sha1" },
+    { 0                            , NULL },
 };
 
 static const value_string krb5_address_types[] = {
@@ -315,7 +319,8 @@ static const value_string krb5_address_types[] = {
     { KRB5_ADDR_XEROX,		"XEROX"},
     { KRB5_ADDR_ISO,		"ISO"},
     { KRB5_ADDR_DECNET,		"DECNET"},
-    { KRB5_ADDR_APPLETALK,	"APPLETALK"}
+    { KRB5_ADDR_APPLETALK,	"APPLETALK"},
+    { 0,                        NULL },
 };
 
 static const value_string krb5_msg_types[] = {
@@ -328,7 +333,8 @@ static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_SAFE,	"KRB-SAFE" },
 	{ KRB5_MSG_PRIV,	"KRB-PRIV" },
 	{ KRB5_MSG_CRED,	"KRB-CRED" },
-	{ KRB5_MSG_ERROR,	"KRB-ERROR" }
+	{ KRB5_MSG_ERROR,	"KRB-ERROR" },
+        { 0,                    NULL },
 };
 
 static int dissect_PrincipalName(char *title, ASN1_SCK *asn1p,

@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.19 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-ldap.c,v 1.20 2001/01/03 16:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,6 +133,7 @@ static value_string msgTypes [] = {
   {LDAP_RES_MODRDN, "Modify RDN Result"},
   {LDAP_RES_COMPARE, "Compare Result"},
   {LDAP_REQ_EXTENDED, "Extended Response"},
+  {0, NULL},
 };
 
 static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
@@ -1035,6 +1036,7 @@ proto_register_ldap(void)
     {69, "Objectclass modification prohibited"},
     {71, "Affects multiple DSAs"},
     {80, "Other"},
+    {0,  NULL},
   };
 
   static value_string auth_types[] = {
@@ -1042,12 +1044,14 @@ proto_register_ldap(void)
     {LDAP_AUTH_KRBV4LDAP, "Kerberos V4 to the LDAP server"},
     {LDAP_AUTH_KRBV4DSA,  "Kerberos V4 to the DSA"},
     {LDAP_AUTH_SASL,      "SASL"},
+    {0, NULL},
   };
   
   static value_string search_scope[] = {
     {0x00, "Base"},
     {0x01, "Single"},
     {0x02, "Subtree"},
+    {0x00, NULL},
   };
     
   static value_string search_dereference[] = {
@@ -1055,6 +1059,7 @@ proto_register_ldap(void)
     {0x01, "Searching"},
     {0x02, "Base Object"},
     {0x03, "Always"},
+    {0x00, NULL},
   };
   
   static hf_register_info hf[] = {

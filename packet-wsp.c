@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.7 2001/01/03 08:42:48 guy Exp $
+ * $Id: packet-wsp.c,v 1.8 2001/01/03 16:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,6 +133,8 @@ static const value_string vals_pdu_type[] = {
 	/* 0x70 - 0x7F Extended method (Post PDU) */
 	/* 0x80 - 0xFF Reserved */
 
+	{ 0x00, NULL }
+
 };
 
 static const value_string vals_status[] = {
@@ -179,6 +181,7 @@ static const value_string vals_status[] = {
 	{ 0x63, "Service Unavailable" },
 	{ 0x64, "Gateway Timeout" },
 	{ 0x65, "HTTP Version Not Supported" },
+	{ 0x00, NULL }
 };
 
 static const value_string vals_content_types[] = {
@@ -235,6 +238,7 @@ static const value_string vals_content_types[] = {
 	{ 0x32, "application/vnd.wap.coc" },
 	{ 0x33, "application/vnd.wap.multipart.related" },
 	{ 0x34, "application/vnd.wap.sia" },
+	{ 0x00, NULL }
 };
 
 static const value_string vals_character_sets[] = {
@@ -252,15 +256,18 @@ static const value_string vals_character_sets[] = {
 	{ 0x006A, "utf-8" },
 	{ 0x03E8, "iso-10646-ucs-2" },
 	{ 0x07EA, "big5" },
+	{ 0x00, NULL }
 };
 
 static const value_string vals_languages[] = {
 	{ 0x19, "English (en)" },
+	{ 0x00, NULL }
 };
 
 static const value_string vals_accept_ranges[] = {
 	{ 0x80, "None" },
 	{ 0x81, "Bytes" },
+	{ 0x00, NULL }
 };
 
 static const value_string vals_cache_control[] = {
@@ -275,6 +282,7 @@ static const value_string vals_cache_control[] = {
 	{ 0x88, "No-transform" },
 	{ 0x89, "Must-revalidate" },
 	{ 0x8A, "Proxy-revalidate" },
+	{ 0x00, NULL }
 };
 
 /*

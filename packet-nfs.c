@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.40 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-nfs.c,v 1.41 2001/01/03 16:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,16 +216,16 @@ static gint ett_nfs_bitmap4 = -1;
 
 /* file handle dissection */
 
+#define FHT_UNKNOWN	0
+#define FHT_SVR4	1
+#define FHT_LINUX_KNFSD_LE	2
+#define FHT_LINUX_NFSD_LE	3
 
 const value_string names_fhtype[] =
 {
-#define FHT_UNKNOWN	0
 	{	FHT_UNKNOWN,	"unknown"	},
-#define FHT_SVR4	1
 	{	FHT_SVR4,	"System V R4"	},
-#define FHT_LINUX_KNFSD_LE	2
 	{	FHT_LINUX_KNFSD_LE,	"Linux knfsd (little-endian)"	},
-#define FHT_LINUX_NFSD_LE	3
 	{	FHT_LINUX_NFSD_LE,	"Linux user-land nfsd (little-endian)"	},
 	{		0,	NULL		}
 };
@@ -3550,14 +3550,15 @@ dissect_nfs_open_claim_delegate_cur4(const u_char *pd, int offset,
 	return offset;
 }
 
-static const value_string names_claim_type4[] = {
-#define CLAIM_NULL					0
-	{	CLAIM_NULL,  			"CLAIM_NULL"  },
-#define CLAIM_PREVIOUS				1
-	{	CLAIM_PREVIOUS, 		"CLAIM_PREVIOUS" },
-#define CLAIM_DELEGATE_CUR			2
-	{	CLAIM_DELEGATE_CUR, 	"CLAIM_DELEGATE_CUR" },
+#define CLAIM_NULL			0
+#define CLAIM_PREVIOUS			1
+#define CLAIM_DELEGATE_CUR		2
 #define CLAIM_DELEGATE_PREV		3
+
+static const value_string names_claim_type4[] = {
+	{	CLAIM_NULL,  		"CLAIM_NULL"  },
+	{	CLAIM_PREVIOUS, 	"CLAIM_PREVIOUS" },
+	{	CLAIM_DELEGATE_CUR, 	"CLAIM_DELEGATE_CUR" },
 	{	CLAIM_DELEGATE_PREV,	"CLAIM_DELEGATE_PREV" },
 	{ 0, NULL }
 };
@@ -3643,10 +3644,10 @@ dissect_nfs_createhow4(const u_char *pd, int offset, frame_data *fd,
 	return offset;
 }
 
-static const value_string names_opentype4[] = {
 #define OPEN4_NOCREATE				0
-	{	OPEN4_NOCREATE,  "OPEN4_NOCREATE"  },
 #define OPEN4_CREATE					1
+static const value_string names_opentype4[] = {
+	{	OPEN4_NOCREATE,  "OPEN4_NOCREATE"  },
 	{	OPEN4_CREATE, "OPEN4_CREATE" },
 	{ 0, NULL }
 };
@@ -4230,10 +4231,10 @@ dissect_nfs_modified_limit4(const u_char *pd, int offset, frame_data *fd,
 	return dissect_rpc_uint32(pd, offset, fd, tree, "bytes_per_block");
 }
 
-static const value_string names_limit_by4[] = {
 #define NFS_LIMIT_SIZE						1
-	{	NFS_LIMIT_SIZE,  "NFS_LIMIT_SIZE"  },
 #define NFS_LIMIT_BLOCKS					2
+static const value_string names_limit_by4[] = {
+	{	NFS_LIMIT_SIZE,  "NFS_LIMIT_SIZE"  },
 	{	NFS_LIMIT_BLOCKS, "NFS_LIMIT_BLOCKS" },
 	{ 0, NULL }
 };
@@ -4275,12 +4276,12 @@ dissect_nfs_open_write_delegation4(const u_char *pd, int offset,
 	return dissect_nfs_ace4(pd, offset, fd, tree, "permissions");
 }
 
-static const value_string names_open_delegation_type4[] = {
 #define OPEN_DELEGATE_NONE 0
-	{	OPEN_DELEGATE_NONE,  "OPEN_DELEGATE_NONE"  },
 #define OPEN_DELEGATE_READ 1
-	{	OPEN_DELEGATE_READ, 	"OPEN_DELEGATE_READ" },
 #define OPEN_DELEGATE_WRITE 2
+static const value_string names_open_delegation_type4[] = {
+	{	OPEN_DELEGATE_NONE,  "OPEN_DELEGATE_NONE"  },
+	{	OPEN_DELEGATE_READ, 	"OPEN_DELEGATE_READ" },
 	{	OPEN_DELEGATE_WRITE,	"OPEN_DELEGATE_WRITE" },
 	{ 0, NULL }
 };

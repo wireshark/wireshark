@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.33 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-ospf.c,v 1.34 2001/01/03 16:41:07 gram Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -500,6 +500,7 @@ static const value_string mpls_link_stlv_str[] = {
     {MPLS_LINK_MAX_RES_BW, "Maximum Reservable Bandwidth"},
     {MPLS_LINK_UNRES_BW, "Unreserved Bandwidth"},
     {MPLS_LINK_COLOR, "Resource Class/Color"},
+    {0, NULL},
 };
 
 /* 

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.117 2001/01/03 07:53:43 guy Exp $
+ * $Id: packet-ip.c,v 1.118 2001/01/03 16:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -523,7 +523,9 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   /* Router-Alert, as defined by RFC2113 */
   int opt = tvb_get_ntohs(tvb, offset + 2);
   static const value_string ra_opts[] = { 
-	{0, "Every router examines packet"} };
+	{0, "Every router examines packet"},
+	{0, NULL}
+  };
   
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: %s", optp->name, val_to_str(opt, ra_opts, "Unknown (%d)"));

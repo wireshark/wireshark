@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.10 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-mip.c,v 1.11 2001/01/03 16:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -101,7 +101,8 @@ struct mip_reply_packet{
 
 static const value_string mip_types[] = {
   {1, "Registration Request"},
-  {3, "Registration Reply"}
+  {3, "Registration Reply"},
+  {0, NULL},
 };
 
 static const value_string mip_reply_codes[]= {
@@ -130,6 +131,7 @@ static const value_string mip_reply_codes[]= {
   {134, "Registration Denied by HA, poorly formed request"},
   {135, "Registration Denied by HA, too many simul bindings"},
   {136, "Registration Denied by HA, unknown HA address"},
+  {0, NULL},
 };
 
 /* Code to actually dissect the packets */

@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.17 2001/01/03 06:55:33 guy Exp $
+ * $Id: packet-srvloc.c,v 1.18 2001/01/03 16:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,6 +107,7 @@ static const value_string srvloc_functions[] = {
     { DAADVERT, "DA Advertisement" }, 
     { SRVTYPERQST, "Service Type Request" }, 
     { SRVTYPERPLY, "Service Type Reply" }, 
+    { 0, NULL }
 };
 
 /* List to resolve flag values to names */
@@ -142,6 +143,7 @@ static const value_string srvloc_errs[] = {
     { CHRSET_NOT_UND, "Character set not understood" },
     { AUTH_ABSENT, "Authentication absent" },
     { AUTH_FAILED, "Authentication failed" },
+    { 0, NULL }
 };
 
 static int

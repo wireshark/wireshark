@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.29 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-rsvp.c,v 1.30 2001/01/03 16:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,7 +119,8 @@ static value_string message_type_vals[] = {
     {RSVP_MSG_PTEAR, "PATH TEAR Message"},
     {RSVP_MSG_RTEAR, "RESV TEAR Message"},
     {RSVP_MSG_CONFIRM, "CONFIRM Message"},
-    {RSVP_MSG_RTEAR_CONFIRM, "RESV TEAR CONFIRM Message"}
+    {RSVP_MSG_RTEAR_CONFIRM, "RESV TEAR CONFIRM Message"},
+    {0, NULL}
 };
 
 /* 
@@ -174,6 +175,7 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_EXPLICIT_ROUTE, "EXPLICIT ROUTE object"},
     {RSVP_CLASS_RECORD_ROUTE, "RECORD ROUTE object"},
     {RSVP_CLASS_SESSION_ATTRIBUTE, "SESSION ATTRIBUTE object"},
+    {0, NULL}
 };
 
 /*
@@ -211,7 +213,8 @@ static value_string rsvp_error_vals[] = {
     {RSVP_ERROR_UNKNOWN_CLASS, "Unknown object class"},
     {RSVP_ERROR_UNKNOWN_C_TYPE, "Unknown object C-type"},
     {RSVP_ERROR_TRAFFIC, "Traffic Control Error"},
-    {RSVP_ERROR_TRAFFIC_SYSTEM, "Traffic Control System Error"}
+    {RSVP_ERROR_TRAFFIC_SYSTEM, "Traffic Control System Error"},
+    {0, NULL}
 };
 
 /*
@@ -233,7 +236,8 @@ static value_string rsvp_error_vals[] = {
 static value_string style_vals[] = {
     { RSVP_WF, "Wildcard Filter" },
     { RSVP_FF, "Fixed Filter" },
-    { RSVP_SE, "Shared-Explicit" }
+    { RSVP_SE, "Shared-Explicit" },
+    { 0,       NULL }
 };
 
 /*------------------------------*
@@ -407,12 +411,14 @@ static value_string qos_vals[] = {
     { QOS_CONTROLLED_LOAD, "Controlled-load QoS" },
     { QOS_GUARANTEED, "Guaranteed rate QoS" },
     { QOS_TSPEC, "Traffic specification" },
+    { 0, NULL }
 };
 
 static value_string svc_vals[] = {
     { 127, "Token bucket TSpec" },
     { 128, "Qualitative TSpec" },
-    { 130, "Guaranteed-rate RSpec" }
+    { 130, "Guaranteed-rate RSpec" },
+    { 0, NULL }
 };
 
 enum rsvp_spec_types { INTSRV = 2 };
@@ -429,6 +435,7 @@ static value_string intsrv_services_str[] = {
     {INTSRV_GTD, "Guaranteed"},
     {INTSRV_CLOAD, "Controlled Load"},
     {INTSRV_QUALITATIVE, "Qualitative"},
+    { 0, NULL }
 };
 
 enum intsrv_field_name {
@@ -543,6 +550,7 @@ static value_string adspec_params[] = {
     {134, "End-to-end composed value for D"},
     {135, "Since-last-reshaping point composed C"},
     {136, "Since-last-reshaping point composed D"},
+    { 0, NULL }
 };
 
 /* -------------------- Stuff for MPLS/TE objects -------------------- */

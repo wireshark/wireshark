@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.8 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-cops.c,v 1.9 2001/01/03 16:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -185,6 +185,7 @@ static const value_string cops_error_vals[] = {
         {13, "Unknown COPS Object" },
         {14, "Authentication Failure" },
         {15, "Authentication Required" },
+	{0,  NULL },
 };
 
 /* Report-Type from Report-Type object */
@@ -192,6 +193,7 @@ static const value_string cops_report_type_vals[] = {
         {1, " Success   : Decision was successful at the PEP" },
         {2, " Failure   : Decision could not be completed by PEP" },
         {3, " Accounting: Accounting update for an installed state" },
+	{0, NULL },
 };
 
 /* Initialize the protocol and registered fields */

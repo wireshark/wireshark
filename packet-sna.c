@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.20 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-sna.c,v 1.21 2001/01/03 16:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -111,7 +111,7 @@ static int hf_sna_rh_csi = -1;
 static int hf_sna_rh_edi = -1;
 static int hf_sna_rh_pdi = -1;
 static int hf_sna_rh_cebi = -1;
-static int hf_sna_ru = -1;
+/*static int hf_sna_ru = -1;*/
 
 static gint ett_sna = -1;
 static gint ett_sna_th = -1;
@@ -145,13 +145,15 @@ static const value_string sna_th_mpf_vals[] = {
 /* Expedited Flow Indicator */
 static const value_string sna_th_efi_vals[] = {
 	{ 0, "Normal Flow" },
-	{ 1, "Expedited Flow" }
+	{ 1, "Expedited Flow" },
+	{ 0x0,	NULL }
 };
 
 /* Request/Response Indicator */
 static const value_string sna_rh_rri_vals[] = {
 	{ 0, "Request" },
-	{ 1, "Response" }
+	{ 1, "Response" },
+	{ 0x0,	NULL }
 };
 
 /* Request/Response Unit Category */
@@ -160,6 +162,7 @@ static const value_string sna_rh_ru_category_vals[] = {
 	{ 0x01, "Network Control (NC)" },
 	{ 0x10, "Data Flow Control (DFC)" },
 	{ 0x11, "Session Control (SC)" },
+	{ 0x0,	NULL }
 };
 
 /* Format Indicator */
@@ -197,31 +200,36 @@ static const true_false_string sna_rh_qri_truth =
 /* Code Selection Indicator */
 static const value_string sna_rh_csi_vals[] = {
 	{ 0, "EBCDIC" },
-	{ 1, "ASCII" }
+	{ 1, "ASCII" },
+	{ 0x0,	NULL }
 };
 
 /* TG Sweep */
 static const value_string sna_th_tg_sweep_vals[] = {
 	{ 0, "This PIU may overtake any PU ahead of it." },
-	{ 1, "This PIU does not ovetake any PIU ahead of it." }
+	{ 1, "This PIU does not ovetake any PIU ahead of it." },
+	{ 0x0,	NULL }
 };
 
 /* ER_VR_SUPP_IND */
 static const value_string sna_th_er_vr_supp_ind_vals[] = {
 	{ 0, "Each node supports ER and VR protocols" },
-	{ 1, "Includes at least one node that does not support ER and VR protocols"  }
+	{ 1, "Includes at least one node that does not support ER and VR protocols"  },
+	{ 0x0,	NULL }
 };
 
 /* VR_PAC_CNT_IND */
 static const value_string sna_th_vr_pac_cnt_ind_vals[] = {
 	{ 0, "Pacing count on the VR has not reached 0" },
-	{ 1, "Pacing count on the VR has reached 0" }
+	{ 1, "Pacing count on the VR has reached 0" },
+	{ 0x0,	NULL }
 };
 
 /* NTWK_PRTY */
 static const value_string sna_th_ntwk_prty_vals[] = {
 	{ 0, "PIU flows at a lower priority" },
-	{ 1, "PIU flows at network priority (highest transmission priority)" }
+	{ 1, "PIU flows at network priority (highest transmission priority)" },
+	{ 0x0,	NULL }
 };
 
 /* TGSF */
@@ -229,7 +237,8 @@ static const value_string sna_th_tgsf_vals[] = {
 	{ 0x00, "Not segmented" },
 	{ 0x01, "Last segment" },
 	{ 0x10, "First segment" },
-	{ 0x11, "Middle segment" }
+	{ 0x11, "Middle segment" },
+	{ 0x0,	NULL }
 };
 
 /* PIUBF */
@@ -237,13 +246,15 @@ static const value_string sna_th_piubf_vals[] = {
 	{ 0x00, "Single PIU frame" },
 	{ 0x01, "Last PIU of a multiple PIU frame" },
 	{ 0x10, "First PIU of a multiple PIU frame" },
-	{ 0x11, "Middle PIU of a multiple PIU frame" }
+	{ 0x11, "Middle PIU of a multiple PIU frame" },
+	{ 0x0,	NULL }
 };
 
 /* NLPOI */
 static const value_string sna_th_nlpoi_vals[] = {
 	{ 0x0, "NLP starts within this FID4 TH" },
 	{ 0x1, "NLP byte 0 starts after RH byte 0 following NLP C/P pad" },
+	{ 0x0,	NULL }
 };
 
 /* TPF */
@@ -251,12 +262,14 @@ static const value_string sna_th_tpf_vals[] = {
 	{ 0x00, "Low Priority" },
 	{ 0x01, "Medium Priority" },
 	{ 0x10, "High Priority" },
+	{ 0x0,	NULL }
 };
 
 /* VR_CWI */
 static const value_string sna_th_vr_cwi_vals[] = {
 	{ 0x0, "Increment window size" },
 	{ 0x1, "Decrement window size" },
+	{ 0x0,	NULL }
 };
 
 /* TG_NONFIFO_IND */
@@ -268,6 +281,7 @@ static const value_string sna_th_vr_sqti_vals[] = {
 	{ 0x00, "Non-sequenced, Non-supervisory" },
 	{ 0x01, "Non-sequenced, Supervisory" },
 	{ 0x10, "Singly-sequenced" },
+	{ 0x0,	NULL }
 };
 
 /* VRPRQ */
@@ -286,6 +300,7 @@ static const true_false_string sna_th_vrprs_truth = {
 static const value_string sna_th_vr_cwri_vals[] = {
 	{ 0, "Increment window size by 1" },
 	{ 1, "Decrement window size by 1" },
+	{ 0x0,	NULL }
 };
 
 /* VR_RWI */
@@ -1168,7 +1183,7 @@ proto_register_sna(void)
 			"" }},
 
 		{ &hf_sna_rh_csi,
-		{ "Code Selection Indicator",	"sna.rh.csi", FT_BOOLEAN, 8, VALS(sna_rh_csi_vals), 0x08,
+		{ "Code Selection Indicator",	"sna.rh.csi", FT_UINT8, BASE_DEC, VALS(sna_rh_csi_vals), 0x08,
 			"Specifies the encoding used for the associated FMD RU." }},
 
 		{ &hf_sna_rh_edi,
@@ -1186,9 +1201,9 @@ proto_register_sna(void)
 			"Used to indicate the beginning or end of a group of exchanged "
 			"requests and responses called a bracket. Only used on LU-LU sessions." }},
 
-                { &hf_sna_ru,
+/*                { &hf_sna_ru,
                 { "Request/Response Unit",	"sna.ru", FT_NONE, BASE_NONE, NULL, 0x0,
-			""}},
+			""}},*/
         };
 	static gint *ett[] = {
 		&ett_sna,

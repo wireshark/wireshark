@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.10 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-vrrp.c,v 1.11 2001/01/03 16:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,7 +69,8 @@ struct vrrp_header {
 
 #define VRRP_TYPE_ADVERTISEMENT 1
 static const value_string vrrp_type_vals[] = {
-        {VRRP_TYPE_ADVERTISEMENT, "Advertisement"}
+        {VRRP_TYPE_ADVERTISEMENT, "Advertisement"},
+	{0, NULL}
 };
 
 #define VRRP_AUTH_TYPE_NONE 0
@@ -78,7 +79,8 @@ static const value_string vrrp_type_vals[] = {
 static const value_string vrrp_auth_vals[] = {
         {VRRP_AUTH_TYPE_NONE,        "No Authentication"},
         {VRRP_AUTH_TYPE_SIMPLE_TEXT, "Simple Text Authentication"},
-        {VRRP_AUTH_TYPE_IP_AUTH_HDR, "IP Authentication Header"}
+        {VRRP_AUTH_TYPE_IP_AUTH_HDR, "IP Authentication Header"},
+	{0,                          NULL}
 };
 
 #define VRRP_PRIORITY_MASTER_STOPPING 0
@@ -88,7 +90,8 @@ static const value_string vrrp_auth_vals[] = {
 static const value_string vrrp_prio_vals[] = {
         {VRRP_PRIORITY_MASTER_STOPPING,  "Current Master has stopped participating in VRRP"},
         {VRRP_PRIORITY_DEFAULT,          "Default priority for a backup VRRP router"},
-        {VRRP_PRIORITY_OWNER,            "This VRRP router owns the virtual router's IP address(es)"}
+        {VRRP_PRIORITY_OWNER,            "This VRRP router owns the virtual router's IP address(es)"},
+	{0,                              NULL }
 };
 
 

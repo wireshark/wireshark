@@ -3,7 +3,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.7 2001/01/03 08:42:48 guy Exp $
+ * $Id: packet-wtp.c,v 1.8 2001/01/03 16:41:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,7 +93,8 @@ static const value_string vals_pdu_type[] = {
 	{ 4, "Abort" },
 	{ 5, "Segmented Invoke" },
 	{ 6, "Segmented Result" },
-	{ 6, "Negative Ack" },
+	{ 7, "Negative Ack" },
+	{ 0, NULL }
 };
 
 static const value_string vals_transmission_trailer[] = {
@@ -101,6 +102,7 @@ static const value_string vals_transmission_trailer[] = {
 	{ 1, "Last packet of message" },
 	{ 2, "Last packet of group" },
 	{ 3, "Re-assembly not supported" },
+	{ 0, NULL }
 };
 
 static const value_string vals_version[] = {
@@ -108,11 +110,13 @@ static const value_string vals_version[] = {
 	{ 1, "Undefined" },
 	{ 2, "Undefined" },
 	{ 3, "Undefined" },
+	{ 0, NULL }
 };
 
 static const value_string vals_abort_type[] = {
 	{ 0, "Provider" },
-	{ 1, "User (WSP)" }
+	{ 1, "User (WSP)" },
+	{ 0, NULL }
 };
 
 static const value_string vals_abort_reason_provider[] = {
@@ -125,7 +129,8 @@ static const value_string vals_abort_reason_provider[] = {
 	{ 0x06, "WTP Version Zero" },
 	{ 0x07, "Capacity Temporarily Exceeded" },
 	{ 0x08, "No Response" },
-	{ 0x09, "Message Too Large" }
+	{ 0x09, "Message Too Large" },
+	{ 0x00, NULL }
 };
 
 /* File scoped variables for the protocol and registered fields */

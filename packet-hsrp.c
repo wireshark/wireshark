@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.13 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-hsrp.c,v 1.14 2001/01/03 16:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,7 +82,8 @@ struct hsrp_packet {          /* Multicast to 224.0.0.2, TTL 1, UDP, port 1985 *
 static const value_string hsrp_opcode_vals[] = {
         {HSRP_OPCODE_HELLO,  "Hello"},
         {HSRP_OPCODE_COUP,   "Coup"},
-        {HSRP_OPCODE_RESIGN, "Resign"}
+        {HSRP_OPCODE_RESIGN, "Resign"},
+	{0, NULL},
 };
 
 #define HSRP_STATE_INITIAL  0
@@ -97,7 +98,8 @@ static const value_string hsrp_state_vals[] = {
         {HSRP_STATE_LISTEN,  "Listen"},
         {HSRP_STATE_SPEAK,   "Speak"},
         {HSRP_STATE_STANDBY, "Standby"},
-        {HSRP_STATE_ACTIVE,  "Active"}
+        {HSRP_STATE_ACTIVE,  "Active"},
+	{0, NULL},
 };
 
 static void
