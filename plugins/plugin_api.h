@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.52 2003/06/03 02:32:55 gerald Exp $
+ * $Id: plugin_api.h,v 1.53 2003/06/12 10:10:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -286,6 +286,9 @@
 #define except_setup_try		(*p_except_setup_try)
 
 #define col_set_fence			(*p_col_set_fence)
+
+#define tvb_get_string			(*p_tvb_get_string)
+#define tvb_get_stringz			(*p_tvb_get_stringz)
 
 #endif
 

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.72 2003/06/04 00:11:02 guy Exp $
+ * $Id: plugins.c,v 1.73 2003/06/12 10:10:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -563,6 +563,9 @@ init_plugins(const char *plugin_dir)
 	patable.p_except_setup_try		= except_setup_try;
 
 	patable.p_col_set_fence			= col_set_fence;
+
+	patable.p_tvb_get_string		= tvb_get_string;
+	patable.p_tvb_get_stringz		= tvb_get_stringz;
 #endif
 
 #ifdef WIN32

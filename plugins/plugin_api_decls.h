@@ -2,7 +2,7 @@
  * Declarations of a list of "p_" names; included in various places
  * to declare them as variables or as function members.
  *
- * $Id: plugin_api_decls.h,v 1.14 2003/06/03 02:32:56 gerald Exp $
+ * $Id: plugin_api_decls.h,v 1.15 2003/06/12 10:10:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -295,3 +295,6 @@ addr_except_pop				p_except_pop;
 addr_except_setup_try			p_except_setup_try;
 
 addr_col_set_fence			p_col_set_fence;
+
+addr_tvb_get_string			p_tvb_get_string;
+addr_tvb_get_stringz			p_tvb_get_stringz;
