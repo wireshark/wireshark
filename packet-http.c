@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.35 2001/01/11 05:41:47 guy Exp $
+ * $Id: packet-http.c,v 1.36 2001/01/11 06:30:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,8 @@
 #include "packet.h"
 #include "strutil.h"
 
+#include "packet-http.h"
+
 typedef enum _http_type {
 	HTTP_REQUEST,
 	HTTP_RESPONSE,
@@ -62,12 +64,7 @@ static gint ett_http = -1;
 #define TCP_ALT_PORT_HTTP		8080
 
 /*
- * IPP is encapsulated in HTTP.
- */
-#define TCP_PORT_IPP			631
-
-/*
- * So is SSDP (yes, it really *does* run over UDP).
+ * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
  */
 #define TCP_PORT_SSDP			1900
 #define UDP_PORT_SSDP			1900
@@ -77,13 +74,12 @@ static gint ett_http = -1;
  */
 typedef enum {
 	PROTO_HTTP,		/* just HTTP */
-	PROTO_IPP,		/* Internet Printing Protocol */
 	PROTO_SSDP		/* Simple Service Discovery Protocol */
 } http_proto_t;
 
 static int is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type);
 
-static dissector_handle_t ipp_handle;
+static dissector_table_t subdissector_table;
 
 static void
 dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -106,11 +102,6 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "HTTP";
 
 	switch (pinfo->match_port) {
-
-	case TCP_PORT_IPP:
-		proto = PROTO_IPP;
-		proto_tag = "IPP";
-		break;
 
 	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
 		proto = PROTO_SSDP;
@@ -146,101 +137,101 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_http, tvb, offset,
 		    tvb_length_remaining(tvb, offset), FALSE);
 		http_tree = proto_item_add_subtree(ti, ett_http);
+	}
+
+	/*
+	 * Process the packet data, a line at a time.
+	 */
+	http_type = HTTP_OTHERS;	/* type not known yet */
+	while (tvb_offset_exists(tvb, offset)) {
+		/*
+		 * Find the end of the line.
+		 */
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
 
 		/*
-		 * Process the packet data, a line at a time.
+		 * Get a buffer that refers to the line.
 		 */
-		http_type = HTTP_OTHERS;	/* type not known yet */
-		while (tvb_offset_exists(tvb, offset)) {
-			/*
-			 * Find the end of the line.
-			 */
-			linelen = tvb_find_line_end(tvb, offset, -1,
-			    &next_offset);
+		line = tvb_get_ptr(tvb, offset, linelen);
+		lineend = line + linelen;
 
-			/*
-			 * Get a buffer that refers to the line.
-			 */
-			line = tvb_get_ptr(tvb, offset, linelen);
-			lineend = line + linelen;
+		/*
+		 * OK, does it look like an HTTP request or response?
+		 */
+		if (is_http_request_or_reply(line, linelen, &http_type))
+			goto is_http;
 
-			/*
-			 * OK, does it look like an HTTP request or
-			 * response?
-			 */
-			if (is_http_request_or_reply(line, linelen, &http_type))
+		/*
+		 * No.  Does it look like a blank line (as would appear
+		 * at the end of an HTTP request)?
+		 */
+		if (linelen == 0)
+			goto is_http;
+
+		/*
+		 * No.  Does it look like a MIME header?
+		 */
+		linep = line;
+		while (linep < lineend) {
+			c = *linep++;
+			if (!isprint(c))
+				break;	/* not printable, not a MIME header */
+			switch (c) {
+
+			case '(':
+			case ')':
+			case '<':
+			case '>':
+			case '@':
+			case ',':
+			case ';':
+			case '\\':
+			case '"':
+			case '/':
+			case '[':
+			case ']':
+			case '?':
+			case '=':
+			case '{':
+			case '}':
+				/*
+				 * It's a tspecial, so it's not part of a
+				 * token, so it's not a field name for the
+				 * beginning of a MIME header.
+				 */
+				goto not_http;
+
+			case ':':
+				/*
+				 * This ends the token; we consider this
+				 * to be a MIME header.
+				 */
 				goto is_http;
-
-			/*
-			 * No.  Does it look like a blank line (as would
-			 * appear at the end of an HTTP request)?
-			 */
-			if (linelen == 0)
-				goto is_http;
-
-			/*
-			 * No.  Does it look like a MIME header?
-			 */
-			linep = line;
-			while (linep < lineend) {
-				c = *linep++;
-				if (!isprint(c))
-					break;	/* not printable, not a MIME header */
-				switch (c) {
-
-				case '(':
-				case ')':
-				case '<':
-				case '>':
-				case '@':
-				case ',':
-				case ';':
-				case '\\':
-				case '"':
-				case '/':
-				case '[':
-				case ']':
-				case '?':
-				case '=':
-				case '{':
-				case '}':
-					/*
-					 * It's a tspecial, so it's not
-					 * part of a token, so it's not
-					 * a field name for the beginning
-					 * of a MIME header.
-					 */
-					goto not_http;
-
-				case ':':
-					/*
-					 * This ends the token; we consider
-					 * this to be a MIME header.
-					 */
-					goto is_http;
-				}
 			}
+		}
 
-		not_http:
-			/*
-			 * We don't consider this part of an HTTP request or
-			 * reply, so we don't display it.
-			 * (Yeah, that means we don't display, say, a
-			 * text/http page, but you can get that from the
-			 * data pane.)
-			 */
-			break;
+	not_http:
+		/*
+		 * We don't consider this part of an HTTP request or
+		 * reply, so we don't display it.
+		 * (Yeah, that means we don't display, say, a text/http
+		 * page, but you can get that from the data pane.)
+		 */
+		break;
 
-		is_http:
-			/*
-			 * Put this line.
-			 */
+	is_http:
+		/*
+		 * Put this line.
+		 */
+		if (tree) {
 			proto_tree_add_text(http_tree, tvb, offset,
 			    next_offset - offset, "%s",
 			    tvb_format_text(tvb, offset, next_offset - offset));
-			offset = next_offset;
 		}
+		offset = next_offset;
+	}
 
+	if (tree) {
 		switch (http_type) {
 
 		case HTTP_NOTIFICATION:
@@ -266,17 +257,20 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
-		if (proto == PROTO_IPP) {
-			tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
+		/*
+		 * OK, has some subdissector asked that they be called
+		 * if something was on some particular port?
+		 */
+		if (dissector_try_port(subdissector_table, pinfo->match_port,
+		    next_tvb, pinfo, tree)) {
 			/*
-			 * Fix up the top-level item so that it doesn't
-			 * include the IPP stuff.
+			 * Yes.  Fix up the top-level item so that it
+			 * doesn't include the stuff for that protocol.
 			 */
 			if (ti != NULL)
 				proto_item_set_len(ti, offset);
-
-			call_dissector(ipp_handle, new_tvb, pinfo, tree);
 		} else
 			dissect_data(tvb, offset, pinfo, http_tree);
 	}
@@ -398,6 +392,35 @@ proto_register_http(void)
 	    "HTTP", "http");
 	proto_register_field_array(proto_http, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/*
+	 * Dissectors shouldn't register themselves in this table;
+	 * instead, they should call "http_dissector_add()", and
+	 * we'll register the port number they specify as a port
+	 * for HTTP, and register them in our subdissector table.
+	 *
+	 * This only works for protocols such as IPP that run over
+	 * HTTP on a specific non-HTTP port.
+	 */
+	subdissector_table = register_dissector_table("http.port");
+}
+
+/*
+ * Called by dissectors for protocols that run atop HTTP/TCP.
+ */
+void
+http_dissector_add(guint32 port, dissector_t dissector, int proto)
+{
+	/*
+	 * Register ourselves as the handler for that port number
+	 * over TCP.
+	 */
+	dissector_add("tcp.port", port, dissect_http, proto_http);
+
+	/*
+	 * And register them in *our* table for that port.
+	 */
+	dissector_add("http.port", port, dissector, proto);
 }
 
 void
@@ -411,34 +434,9 @@ proto_reg_handoff_http(void)
 	    proto_http);
 
 	/*
-	 * XXX - this is a bit ugly; we probably really want to have
-	 * protocols based atop HTTP call a routine to register
-	 * themselves with the HTTP dissector, giving an optional
-	 * port number (if the port number is "missing", e.g. -1 or 0,
-	 * the protocol would be assumed to use a standard HTTP port),
-	 * and an optional Content-Type: value (or some other way for
-	 * the dissector to tell what the next protocol is).
-	 *
-	 * The HTTP dissector would register itself for the port in
-	 * question (if it's not missing), and would use either the
-	 * port number or the Content-Type: (or whatever) value to
-	 * determine whether to hand the payload to that dissector.
-	 *
-	 * It would also pass a protocol number, so we could arrange
-	 * that the HTTP part of an IPP packet be dissected iff HTTP
-	 * is enabled, and the IPP part be dissected iff IPP is enabled.
-	 */
-	dissector_add("tcp.port", TCP_PORT_IPP, dissect_http, proto_http);
-
-	/*
 	 * XXX - is there anything to dissect in the body of an SSDP
 	 * request or reply?  I.e., should there be an SSDP dissector?
 	 */
 	dissector_add("tcp.port", TCP_PORT_SSDP, dissect_http, proto_http);
 	dissector_add("udp.port", UDP_PORT_SSDP, dissect_http, proto_http);
-
-	/*
-	 * Get a handle for the IPP dissector.
-	 */
-	ipp_handle = find_dissector("ipp");
 }

@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.21 2001/01/11 05:41:47 guy Exp $
+ * $Id: packet-ipp.c,v 1.22 2001/01/11 06:30:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "strutil.h"
+#include "packet-http.h"
 
 static int proto_ipp = -1;
 
@@ -559,12 +560,13 @@ proto_register_ipp(void)
 	    "IPP", "ipp");
  /*       proto_register_field_array(proto_ipp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_ipp(void)
+{
 	/*
-	 * Register the dissector by name, so other dissectors can
-	 * grab it by name rather than just referring to it directly
-	 * (you can't refer to it directly from a plugin dissector
-	 * on Windows without stuffing it into the Big Transfer Vector).
+	 * Register ourselves as running atop HTTP and using port 631.
 	 */
-	register_dissector("ipp", dissect_ipp, proto_ipp);
+	http_dissector_add(631, dissect_ipp, proto_ipp);
 }
