@@ -646,6 +646,8 @@ Ronnie Sahlberg <ronnie_sahlberg[AT]ozemail.com.au> {
 	TAP system and ONC RPC and DCE RPC examples
 	DISTCC updates
 	H225 and H245 dissectors and PER dissector helpers
+	Kerberos decryption
+	PacketCable protocol
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {
@@ -2127,6 +2129,10 @@ Rich Coe <Richard.Coe [AT] med.ge.com> {
 
 Dominic Béchaz <bdo [AT] zhwin.ch> {
 	IEEE 1588 / PTP support
+}
+
+Thomas Anders <thomas.anders [AT] blue-cable.de> {
+	PacketCable updates and enhancements
 }
 
 And assorted fixes and enhancements by the people listed above and by:

@@ -1,9 +1,14 @@
 /* packet-pktc.c
- * Declarations of routines for PKTC PacketCable packet disassembly
- * Ronnie Sahlberg 2004
- * See the spec: PKT-SP-SEC-I10-040113.pdf
+ * Routines for PacketCable (PKTC) Kerberized Key Management packet disassembly
  *
- * $Id: packet-pktc.c,v 1.2 2004/05/18 11:08:26 sahlberg Exp $
+ * References: 
+ * [1] PacketCable Security Specification, PKT-SP-SEC-I10-040113, January 13, 
+ *     2004, Cable Television Laboratories, Inc., http://www.PacketCable.com/
+ *
+  * Ronnie Sahlberg 2004
+ * Thomas Anders 2004 * Declarations of routines for PKTC PacketCable packet disassembly
+ *
+ * $Id: packet-pktc.c,v 1.3 2004/05/21 10:36:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,15 +50,15 @@ static gint hf_pktc_version_minor = -1;
 static gint hf_pktc_server_nonce = -1;
 static gint hf_pktc_snmpEngineID_len = -1;
 static gint hf_pktc_snmpEngineID = -1;
-static gint hf_pktc_snmpEngineID_boots = -1;
-static gint hf_pktc_snmpEngineID_time = -1;
+static gint hf_pktc_snmpEngineBoots = -1;
+static gint hf_pktc_snmpEngineTime = -1;
 static gint hf_pktc_usmUserName_len = -1;
 static gint hf_pktc_usmUserName = -1;
 static gint hf_pktc_snmpAuthenticationAlgorithm = -1;
 static gint hf_pktc_snmpEncryptionTransformID = -1;
 static gint hf_pktc_reestablish_flag = -1;
 static gint hf_pktc_ack_required_flag = -1;
-static gint hf_pktc_sha1_mac = -1;
+static gint hf_pktc_sha1_hmac = -1;
 static gint hf_pktc_sec_param_lifetime = -1;
 static gint hf_pktc_grace_period = -1;
 
@@ -79,21 +84,54 @@ static const value_string kmmid_types[] = {
 
 #define DOI_IPSEC	1
 #define DOI_SNMPv3	2
-static const value_string doi_types[] = {
+#define SNMPv3_NULL    0x20
+#define SNMPv3_DES     0x21
+#define SNMPv3_HMAC_MD5        0x21
+#define SNMPv3_HMAC_SHA1 0x22
+#define ESP_3DES       0x03
+#define ESP_RC5                0x04
+#define ESP_IDEA       0x05
+#define ESP_CAST       0x06
+#define ESP_BLOWFISH   0x07
+#define ESP_NULL       0x0b
+#define ESP_AES                0x0c
+#define HMAC_MD5_96    0x01
+#define HMAC_SHA1_96   0x02
+
+
+/* Domain of Interpretation */static const value_string doi_types[] = {
     { DOI_IPSEC		, "IPSec" },
     { DOI_SNMPv3	, "SNMPv3" },
     { 0, NULL }
 };
 
+/* SNMPv3 ciphersuites */
+static const value_string snmp_authentication_algorithm_vals[] = {
+    { SNMPv3_HMAC_MD5  , "HMAC-MD5" },
+    { SNMPv3_HMAC_SHA1 , "HMAC-SHA1" },
+    { 0        , NULL }
+};
+static const value_string snmp_transform_id_vals[] = {
+    { SNMPv3_NULL      , "NULL (no encryption)" },
+    { SNMPv3_DES       , "DES" },
+    { 0        , NULL }
+};
 
-static const value_string snmpAlgorithmIdentifiers_vals[] = {
-    { 0x21		, "MD5-HMAC" },
-    { 0x22		, "SHA1-HMAC" },
+/* IPsec ciphersuites */
+static const value_string ipsec_transform_id_vals[] = {
+    { ESP_3DES         , "3DES" },
+    { ESP_RC5          , "RC5" },
+    { ESP_IDEA         , "IDEA" },
+    { ESP_CAST         , "CAST" },
+    { ESP_BLOWFISH     , "BLOWFISH" },
+    { ESP_NULL         , "NULL (no encryption)" },
+    { ESP_AES          , "AES-128" },
     { 0	, NULL }
 };
-static const value_string snmpEncryptionTransformID_vals[] = {
-    { 0x20		, "SNMPv3 NULL (no encryption)" },
-    { 0x21		, "SNMPv3 DES" },
+
+static const value_string ipsec_authentication_algorithm_vals[] = {
+    { HMAC_MD5_96      , "HMAC-MD5-96" },
+    { HMAC_SHA1_96     , "HMAC-SHA-1-96" },
     { 0	, NULL }
 };
 
@@ -128,11 +166,11 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
             offset+=len;
 
             /* boots */
-            proto_tree_add_item(tree, hf_pktc_snmpEngineID_boots, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_pktc_snmpEngineBoots, tvb, offset, 4, FALSE);
             offset+=4;
 
             /* time */
-            proto_tree_add_item(tree, hf_pktc_snmpEngineID_time, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_pktc_snmpEngineTime, tvb, offset, 4, FALSE);
             offset+=4;
 
             /* usmUserName Length */
@@ -225,8 +263,8 @@ dissect_pktc_ap_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
     proto_tree_add_item(tree, hf_pktc_reestablish_flag, tvb, offset, 1, FALSE);
     offset+=1;
 
-    /* sha1-mac */
-    proto_tree_add_item(tree, hf_pktc_sha1_mac, tvb, offset, 20, FALSE);
+    /* sha-1 hmac */
+    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, FALSE);
     offset+=20;
 
     return offset;
@@ -263,8 +301,8 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     proto_tree_add_item(tree, hf_pktc_ack_required_flag, tvb, offset, 1, FALSE);
     offset+=1;
 
-    /* sha1-mac */
-    proto_tree_add_item(tree, hf_pktc_sha1_mac, tvb, offset, 20, FALSE);
+    /* sha-1 hmac */
+    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, FALSE);
     offset+=20;
 
     return offset;
@@ -332,7 +370,7 @@ proto_register_pktc(void)
 	    "Server Nonce", "pktc.server_nonce", FT_UINT32, BASE_HEX,
 	    NULL, 0, "Server Nonce random number", HFILL }},
 	{ &hf_pktc_app_spec_data, {
-	    "Application Specific data", "pktc.app_spec_data", FT_NONE, BASE_HEX,
+	    "Application Specific data", "pktc.asd", FT_NONE, BASE_HEX,
 	    NULL, 0, "KMMID/DOI application specific data", HFILL }},
 	{ &hf_pktc_list_of_ciphersuites, {
 	    "List of Ciphersuites", "pktc.list_of_ciphersuites", FT_NONE, BASE_HEX,
@@ -340,42 +378,42 @@ proto_register_pktc(void)
 	{ &hf_pktc_list_of_ciphersuites_len, {
 	    "Number of Ciphersuites", "pktc.list_of_ciphersuites.len", FT_UINT8, BASE_DEC,
 	    NULL, 0, "Number of Ciphersuites", HFILL }},
-	{ &hf_pktc_snmpEngineID_len, {
-	    "Engine ID Length", "pktc.EngineID.len", FT_UINT8, BASE_DEC,
-	    NULL, 0, "Length of SNMP Engine ID", HFILL }},
 	{ &hf_pktc_snmpAuthenticationAlgorithm, {
-	    "snmpAuthentication Algorithm", "pktc.snmpAuthenticationAlgorithm", FT_UINT8, BASE_DEC,
-	    VALS(snmpAlgorithmIdentifiers_vals), 0, "snmpAuthentication Algorithm", HFILL }},
+           "SNMPv3 Authentication Algorithm", "pktc.asd.snmp_auth_alg", FT_UINT8, BASE_HEX,
+           VALS(snmp_authentication_algorithm_vals), 0, "SNMPv3 Authentication Algorithm", HFILL }},
 	{ &hf_pktc_snmpEncryptionTransformID, {
-	    "snmpEncryption Transform ID", "pktc.snmpEncryptionTransformID", FT_UINT8, BASE_DEC,
-	    VALS(snmpEncryptionTransformID_vals), 0, "snmpEncryption Transform ID", HFILL }},
+           "SNMPv3 Encryption Transform ID", "pktc.asd.snmp_enc_alg", FT_UINT8, BASE_HEX,
+           VALS(snmp_transform_id_vals), 0, "SNMPv3 Encryption Transform ID", HFILL }},
+       { &hf_pktc_snmpEngineID_len, {
+           "SNMPv3 Engine ID Length", "pktc.asd.snmp_engine_id.len", FT_UINT8, BASE_DEC,
+           NULL, 0, "Length of SNMPv3 Engine ID", HFILL }},
 	{ &hf_pktc_snmpEngineID, {
-	    "Engine ID", "pktc.EngineID", FT_BYTES, BASE_HEX,
-	    NULL, 0, "SNMP Engine ID", HFILL }},
-	{ &hf_pktc_snmpEngineID_boots, {
-	    "Engine ID Boots", "pktc.EngineID.boots", FT_UINT32, BASE_HEX,
-	    NULL, 0, "SNMP Engine ID Boots", HFILL }},
-	{ &hf_pktc_snmpEngineID_time, {
-	    "Engine ID Time", "pktc.EngineID.time", FT_UINT32, BASE_HEX,
-	    NULL, 0, "SNMP Engine ID Time", HFILL }},
+           "SNMPv3 Engine ID", "pktc.asd.snmp_engine_id", FT_BYTES, BASE_HEX,
+           NULL, 0, "SNMPv3 Engine ID", HFILL }},
+       { &hf_pktc_snmpEngineBoots, {
+           "SNMPv3 Engine Boots", "pktc.asd.snmp_engine_boots", FT_UINT32, BASE_DEC,
+           NULL, 0, "SNMPv3 Engine Boots", HFILL }},
+       { &hf_pktc_snmpEngineTime, {
+           "SNMPv3 Engine Time", "pktc.asd.snmp_engine_time", FT_UINT32, BASE_DEC,
+           NULL, 0, "SNMPv3 Engine ID Time", HFILL }},
 	{ &hf_pktc_usmUserName_len, {
-	    "usmUserName Length", "pktc.usmUserName.len", FT_UINT8, BASE_DEC,
-	    NULL, 0, "Length of usmUserName", HFILL }},
+           "SNMPv3 USM User Name Length", "pktc.asd.snmp_usm_username.len", FT_UINT8, BASE_DEC,
+           NULL, 0, "Length of SNMPv3 USM User Name", HFILL }},
 	{ &hf_pktc_usmUserName, {
-	    "usmUserName", "pktc.usmUserName", FT_STRING, BASE_DEC,
-	    NULL, 0, "usmUserName", HFILL }},
+           "SNMPv3 USM User Name", "pktc.asd.snmp_usm_username", FT_STRING, BASE_DEC,
+           NULL, 0, "SNMPv3 USM User Name", HFILL }},
 	{ &hf_pktc_reestablish_flag, {
 	    "Re-establish Flag", "pktc.reestablish_flag", FT_UINT8, BASE_DEC,
 	    NULL, 0, "Re-establish Flag", HFILL }},
 	{ &hf_pktc_ack_required_flag, {
 	    "ACK Required Flag", "pktc.ack_required_flag", FT_UINT8, BASE_DEC,
 	    NULL, 0, "ACK Required Flag", HFILL }},
-	{ &hf_pktc_sha1_mac, {
-	    "SHA1 MAC", "pktc.sha1_mac", FT_BYTES, BASE_HEX,
-	    NULL, 0, "SHA1 MAC", HFILL }},
 	{ &hf_pktc_sec_param_lifetime, {
 	    "Security Parameter Lifetime", "pktc.sec_param_lifetime", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Lifetime in seconds of security parameter", HFILL }},
+        { &hf_pktc_sha1_hmac, {
+           "SHA-1 HMAC", "pktc.sha1_hmac", FT_BYTES, BASE_HEX,
+           NULL, 0, "SHA-1 HMAC", HFILL }},
 	{ &hf_pktc_grace_period, {
 	    "Grace Period", "pktc.grace_period", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Grace Period in seconds", HFILL }},
