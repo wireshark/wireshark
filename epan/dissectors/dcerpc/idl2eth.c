@@ -459,6 +459,12 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 			continue;
 		}
 
+		/* gensize : we dont care about this one */
+		if(!strcmp(ti->str, "gensize")){
+			ti=ti->next;
+			continue;
+		}
+
 		/* switch_is */
 		if(!strcmp(ti->str, "switch_is")){
 			fprintf(stderr, "WARNING: parsebrackets can not handle switch_is properly yet  so we can not verify the tag size\n");
@@ -1485,10 +1491,12 @@ void parsetypedefstruct(int pass)
 				fprintf(stderr, "ERROR: typedefstruct (%s) fixed array size looks different to calculated one %s!=%s\n", struct_name, fss, ti->str);
 				ti=ti->next;
 				Exit(10);
+			} else {
+				ti=ti->next;
 			}
 
 			if(strcmp(ti->str, "]")){
-				fprintf(stderr, "ERROR: typedefstruct  fixed array does not end with ']''\n");
+				fprintf(stderr, "ERROR: typedefstruct  fixed array does not end with ']' it ended with %s\n",ti->str);
 				Exit(10);
 			}
 			ti=ti->next;
