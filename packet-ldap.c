@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.52 2002/11/28 07:01:30 guy Exp $
+ * $Id: packet-ldap.c,v 1.53 2003/04/21 07:58:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1504,11 +1504,11 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (ldap_tree)
   {
-    proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_id, tvb, message_id_start, message_id_length, messageId);
-    proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_type, tvb,
-			       start, a.offset - start, protocolOpTag);
     ti = proto_tree_add_text(ldap_tree, tvb, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
     msg_tree = proto_item_add_subtree(ti, ett_ldap_message);
+    proto_tree_add_uint(msg_tree, hf_ldap_message_id, tvb, message_id_start, message_id_length, messageId);
+    proto_tree_add_uint(msg_tree, hf_ldap_message_type, tvb,
+			       start, a.offset - start, protocolOpTag);
   }
   start = a.offset;
   if (read_length(&a, msg_tree, hf_ldap_message_length, &opLen) != ASN1_ERR_NOERROR)
