@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.1 2000/11/09 10:04:48 gram Exp $
+ * $Id: packet-mgcp.c,v 1.2 2000/11/10 04:58:29 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -181,8 +181,7 @@ static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength);
 static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint maxlength); 
 static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin, 
 			       gint tvb_sectionend);
-static gboolean is_alpha(guint8 c);
-static gboolean is_digit(guint8 c);
+static gboolean is_rfc2234_alpha(guint8 c);
 
 /*
  * dissect_mgcp - The dissector for the Media Gateway Control Protocol
@@ -281,23 +280,23 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_sdp(next_pd, next_offset,pinfo->fd,tree);
       }
     }
-  }
-  /* 
-   * Add our column information we do this after dissecting SDP 
-   * in order to prevent the column info changing to reflect the SDP.
-   */
-  tvb_sectionbegin = 0;
-  tvb_current_len = tvb_len;
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "MGCP");
-  if (check_col(pinfo->fd, COL_INFO) && 
-      ((tvb_sectionend = tvb_find_guint8(tvb,tvb_sectionbegin,
-					 tvb_current_len, '\n')) != -1)){
-    sectionlen = tvb_section_length(tvb,tvb_sectionbegin,tvb_sectionend);
-    sectionlen = tvb_crlf_strip(tvb,tvb_sectionbegin,sectionlen);
-    col_add_fstr(pinfo->fd,COL_INFO, "%s", 
-		 tvb_format_text(tvb,tvb_sectionbegin,sectionlen));
-  } 
+    /* 
+     * Add our column information we do this after dissecting SDP 
+     * in order to prevent the column info changing to reflect the SDP.
+     */
+    tvb_sectionbegin = 0;
+    tvb_current_len = tvb_len;
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+      col_add_str(pinfo->fd, COL_PROTOCOL, "MGCP");
+    if (check_col(pinfo->fd, COL_INFO) && 
+	((tvb_sectionend = tvb_find_guint8(tvb,tvb_sectionbegin,
+					   tvb_current_len, '\n')) != -1)){
+      sectionlen = tvb_section_length(tvb,tvb_sectionbegin,tvb_sectionend);
+      sectionlen = tvb_crlf_strip(tvb,tvb_sectionbegin,sectionlen);
+      col_add_fstr(pinfo->fd,COL_INFO, "%s", 
+		   tvb_format_text(tvb,tvb_sectionbegin,sectionlen));
+    } 
+  }  
 }
 
 /* 
@@ -555,8 +554,8 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength){
 	strncasecmp(word, "AUEP", 4) == 0 ||
 	strncasecmp(word, "AUCX", 4) == 0 ||
 	strncasecmp(word, "RSIP", 4) == 0 ||
-	(word[0] == 'X' && is_alpha(word[1]) && is_alpha(word[2]) &&
-	 is_alpha(word[3]))
+	(word[0] == 'X' && is_rfc2234_alpha(word[1]) && is_rfc2234_alpha(word[2]) &&
+	 is_rfc2234_alpha(word[3]))
 	){
       returnvalue = TRUE;
     }
@@ -588,9 +587,9 @@ static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength){
   guint8 word[4];
   if(maxlength >= 3){  
     tvb_get_nstringz0(tvb,offset,3,word);
-    if( is_digit(word[0]) &&
-	is_digit(word[1]) &&
-	is_digit(word[2])){ 
+    if( isdigit(word[0]) &&
+	isdigit(word[1]) &&
+	isdigit(word[2])){ 
       returnvalue = TRUE;
     }
   }
@@ -634,7 +633,10 @@ static gint tvb_crlf_strip(tvbuff_t *tvb, gint offset, gint maxlength){
 }      
 
 /*
- * is_alpha - Indicates whether the character c is an alphabetical character.
+ * is_rfc2234_alpha - Indicates whether the character c is an alphabetical 
+ *                    character.  This function is used instead of 
+ *                    isalpha because isalpha may deviate from the rfc2234
+ *                    definition of ALPHA in some locales.
  * 
  * Parameter:
  * c - The character being checked for being an alphabetical character.
@@ -642,25 +644,8 @@ static gint tvb_crlf_strip(tvbuff_t *tvb, gint offset, gint maxlength){
  * Return: TRUE if c is an upper or lower case alphabetical character,
  *         FALSE otherwise.
  */
-static gboolean is_digit(guint8 c){
-  int returnvalue = FALSE;
-  if(c <= '9' && c >= '0'){
-    returnvalue = TRUE;
-  }
-  return ( returnvalue );
-}
 
-
-/*
- * is_digit - Indicates whether the character c is a digit..
- * 
- * Parameter:
- * c - The character being checked for being a digit.
- *
- * Return: TRUE if c is a digit 0-9,
- *         FALSE otherwise.
- */
-static gboolean is_alpha(guint8 c){
+static gboolean is_rfc2234_alpha(guint8 c){
   int returnvalue = FALSE;
   if(( c <= 'Z' && c >= 'A' ) || (c <= 'z' && c >= 'a')){
     returnvalue = TRUE;
@@ -727,9 +712,10 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
 	tvb_current_offset++;
 	for(counter = 1;(counter <= 6) && (len > (counter + tvb_current_offset
 						  - offset))
-	      && ( is_alpha(tempchar = 
-			    tvb_get_guint8(tvb,tvb_current_offset+counter))
-		   || is_digit(tempchar));counter++);
+	      && ( is_rfc2234_alpha(tempchar = 
+				    tvb_get_guint8(tvb,
+						   tvb_current_offset+counter))
+		   || isdigit(tempchar));counter++);
 	if(tempchar == ':'){
 	  tvb_current_offset += counter;
 	  *hf = &hf_mgcp_param_extention;
