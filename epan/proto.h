@@ -50,8 +50,8 @@
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"
 
-/** The header-field index for the special text pseudo-field */
-extern int hf_text_only;
+/** The header-field index for the special text pseudo-field. Exported by libethereal.dll */
+ETH_VAR_IMPORT int hf_text_only;
 
 /** the maximum length of a protocol field string representation */
 #define ITEM_LABEL_LENGTH	240

@@ -281,6 +281,11 @@ g_resolv_flags                  DATA
 h323_message_body_vals          DATA
 have_tap_listeners
 heur_dissector_add
+hf_frame_arrival_time           DATA
+hf_frame_capture_len            DATA
+hf_frame_number                 DATA
+hf_frame_packet_len             DATA
+hf_text_only                    DATA
 host_name_lookup_process
 incomplete_tcp_stream           DATA
 InfoRequestNakReason_vals       DATA
@@ -318,16 +323,14 @@ prefs_register_protocol
 prefs_register_string_preference
 prefs_register_uint_preference
 prefs_set_pref
-print_finale
-print_hex_data
-print_line
-print_preamble
 protocols_module                DATA
 proto_can_match_selected
 proto_can_toggle_protocol
 proto_construct_dfilter_string
+proto_data                      DATA
 proto_find_field_from_offset
 proto_find_finfo
+proto_frame                     DATA
 proto_get_finfo_ptr_array
 proto_get_first_protocol
 proto_get_first_protocol_field
@@ -402,9 +405,6 @@ proto_tree_add_uint_format
 proto_tree_add_uint_hidden
 proto_tree_children_foreach
 proto_tree_get_parent
-proto_tree_print
-proto_tree_write_pdml
-proto_tree_write_psml
 p_add_proto_data
 p_get_proto_data
 RasMessage_vals                 DATA
@@ -434,7 +434,6 @@ rpc_init_proc_table
 rpc_init_prog
 rpc_procs                       DATA
 rpc_proc_name
-rpc_prog_hf
 rpc_progs                       DATA
 rpc_prog_hf
 rpc_prog_name
@@ -498,10 +497,6 @@ vals_pdu_type                   DATA
 vals_status                     DATA
 val_to_str
 write_prefs
-write_pdml_finale
-write_pdml_preamble
-write_psml_finale
-write_psml_preamble
 xml_escape
 
 

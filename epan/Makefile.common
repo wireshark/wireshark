@@ -42,8 +42,6 @@ DISSECTOR_SUPPORT_SRC =	\
 	../in_cksum.c	\
 	../ipproto.c	\
 	../prefs.c	\
-	../print.c	\
-	../ps.c	\
 	../ptvcursor.c	\
 	../reassemble.c	\
 	../req_resp_hdrs.c	\
