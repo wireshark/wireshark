@@ -8,7 +8,7 @@
  * IAX2 is a VoIP protocol for the open source PBX Asterisk. Please see
  * http://www.asterisk.org for more information.
  *
- * $Id: packet-iax2.c,v 1.5 2004/02/18 14:30:45 jmayer Exp $
+ * $Id: packet-iax2.c,v 1.6 2004/05/15 21:26:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,11 +192,17 @@ static const value_string codec_types[] = {
   {AST_FORMAT_GSM, "GSM compression"},
   {AST_FORMAT_ULAW, "Raw mu-law data (G.711)"},
   {AST_FORMAT_ALAW, "Raw A-law data (G.711)"},
-  {AST_FORMAT_MP3, "MPEG-2 layer 3"},
-  {AST_FORMAT_ADPCM, "ADPCM (whose?)"},
+  {AST_FORMAT_G726, "ADPCM (G.726, 32kbps)"},
+  {AST_FORMAT_ADPCM, "ADPCM (IMA)"},
   {AST_FORMAT_SLINEAR, "Raw 16-bit Signed Linear (8000 Hz) PCM"},
   {AST_FORMAT_LPC10, "LPC10, 180 samples/frame"},
-  {AST_FORMAT_G729A, "G.729a Audio"}
+  {AST_FORMAT_G729A, "G.729a Audio"},
+  {AST_FORMAT_SPEEX, "SpeeX Free Compression"},
+  {AST_FORMAT_ILBC, "iLBC Free Compression"},
+  {AST_FORMAT_JPEG, "JPEG Images"},
+  {AST_FORMAT_PNG, "PNG Images"},
+  {AST_FORMAT_H261, "H.261 Video"},
+  {AST_FORMAT_H263, "H.263 Video"}
 };
 
 static void

@@ -7,7 +7,7 @@
  *
  * Mark Spencer <markster@linux-support.net>
  *
- * $Id: packet-iax2.h,v 1.1 2004/01/27 01:35:25 guy Exp $
+ * $Id: packet-iax2.h,v 1.2 2004/05/15 21:26:09 guy Exp $
  *
  * This program is free software, distributed under the terms of
  * the GNU General Public License
@@ -130,10 +130,16 @@
 #define AST_FORMAT_GSM      (1 << 1)    /* GSM compression */
 #define AST_FORMAT_ULAW     (1 << 2)    /* Raw mu-law data (G.711) */
 #define AST_FORMAT_ALAW     (1 << 3)    /* Raw A-law data (G.711) */
-#define AST_FORMAT_MP3      (1 << 4)    /* MPEG-2 layer 3 */
-#define AST_FORMAT_ADPCM    (1 << 5)    /* ADPCM (whose?) */
+#define AST_FORMAT_G726	    (1 << 4)    /* ADPCM (G.726, 32kbps) */
+#define AST_FORMAT_ADPCM    (1 << 5)    /* ADPCM (IMA) */
 #define AST_FORMAT_SLINEAR  (1 << 6)    /* Raw 16-bit Signed Linear (8000 Hz) PCM */
 #define AST_FORMAT_LPC10    (1 << 7)    /* LPC10, 180 samples/frame */
 #define AST_FORMAT_G729A    (1 << 8)    /* G.729a Audio */
+#define AST_FORMAT_SPEEX    (1 << 9)    /* SpeeX Free Compression */
+#define AST_FORMAT_ILBC	    (1 << 10)   /* iLBC Free Compression */
+#define AST_FORMAT_JPEG	    (1 << 16)   /* JPEG Images */
+#define AST_FORMAT_PNG	    (1 << 17)   /* PNG Images */
+#define AST_FORMAT_H261	    (1 << 18)   /* H.261 Video */
+#define AST_FORMAT_H263	    (1 << 19)   /* H.263 Video */
 
 #endif
