@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.5 2000/11/30 03:19:27 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.6 2000/12/02 09:09:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -745,6 +745,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   cap_len = pinfo->captured_len;
   fcf = tvb_get_letohs (tvb, 0);
+
+  CHECK_DISPLAY_AS_DATA(proto_wlan, tvb, pinfo, tree);
 
   pinfo->current_proto = capture_proto_name;
 
