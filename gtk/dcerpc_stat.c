@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.18 2003/09/15 19:05:00 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.19 2003/09/15 20:37:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,8 +88,8 @@ dcerpcstat_reset(rpcstat_t *rs)
 	char title_string[256];
 	reset_srt_table_data(&rs->srt_table);
 
-	if (cfile.filename)
-		snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, get_basename(cfile.filename));
+	if (cfile.displayname)
+		snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, cfile.displayname);
 	else
 		snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d", rs->prog, rs->ver&0xff, rs->ver>>8);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
@@ -215,8 +215,8 @@ gtk_dcerpcstat_init(char *optarg)
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
-	if (cfile.filename)
-		snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, get_basename(cfile.filename));
+	if (cfile.displayname)
+		snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, cfile.displayname);
 	else
 		snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d", rs->prog, rs->ver&0xff, rs->ver>>8);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);

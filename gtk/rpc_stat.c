@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.17 2003/09/15 19:05:01 guy Exp $
+ * $Id: rpc_stat.c,v 1.18 2003/09/15 20:37:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,8 @@ rpcstat_reset(rpcstat_t *rs)
 
 	reset_srt_table_data(&rs->srt_table);
 
-	if (cfile.filename)
-		snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d : %s", rs->prog, rs->version, get_basename(cfile.filename));
+	if (cfile.displayname)
+		snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d: %s", rs->prog, rs->version, cfile.displayname);
 	else
 		snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d", rs->prog, rs->version);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
@@ -219,8 +219,8 @@ gtk_rpcstat_init(char *optarg)
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
-	if (cfile.filename)
-		snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d : %s", rs->prog, rs->version, get_basename(cfile.filename));
+	if (cfile.displayname)
+		snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d: %s", rs->prog, rs->version, cfile.displayname);
 	else
 		snprintf(title_string, 256, "ONC-RPC Service Response Time statistics for %s version %d", rs->prog, rs->version);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);

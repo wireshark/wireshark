@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.17 2003/09/15 19:05:00 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.18 2003/09/15 20:37:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -206,8 +206,8 @@ reset_ett_table_data(endpoints_table *et)
 	guint32 i;
 	char title[256];
 
-	if (cfile.filename)
-		snprintf(title, 255, "%s Conversations: %s", et->name, get_basename(cfile.filename));
+	if (cfile.displayname)
+		snprintf(title, 255, "%s Conversations: %s", et->name, cfile.displayname);
 	else
 		snprintf(title, 255, "%s Conversations", et->name);
 	gtk_window_set_title(GTK_WINDOW(et->win), title);
@@ -884,8 +884,8 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	talkers->name=table_name;
 	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
-	if (cfile.filename)
-		snprintf(title, 255, "%s Conversations: %s", table_name, get_basename(cfile.filename));
+	if (cfile.displayname)
+		snprintf(title, 255, "%s Conversations: %s", table_name, cfile.displayname);
 	else
 		snprintf(title, 255, "%s Conversations", table_name);
 	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
