@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.4 1998/09/27 22:12:29 gerald Exp $
+ * $Id: packet-ip.c,v 1.5 1998/10/10 03:32:12 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,7 +61,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   iph.ip_off = ntohs(iph.ip_off);
   iph.ip_sum = ntohs(iph.ip_sum);
   
-  if (fd->win_info[COL_NUM]) {
+  if (fd->win_info[0]) {
     switch (iph.ip_p) {
       case IP_PROTO_ICMP:
       case IP_PROTO_IGMP:
@@ -71,12 +71,12 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
         /* Names are set in the associated dissect_* routines */
         break;
       default:
-        strcpy(fd->win_info[COL_PROTOCOL], "IP");
-        sprintf(fd->win_info[COL_INFO], "Unknown IP protocol (%02x)", iph.ip_p);
+        strcpy(fd->win_info[3], "IP");
+        sprintf(fd->win_info[4], "Unknown IP protocol (%02x)", iph.ip_p);
     }
 
-    strcpy(fd->win_info[COL_SOURCE], get_hostname(iph.ip_src));
-    strcpy(fd->win_info[COL_DESTINATION], get_hostname(iph.ip_dst));
+    strcpy(fd->win_info[1], get_hostname(iph.ip_src));
+    strcpy(fd->win_info[2], get_hostname(iph.ip_dst));
   }
   
   iph.ip_tos = IPTOS_TOS(iph.ip_tos);
@@ -248,9 +248,9 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       strcpy(type_str, "Unknown ICMP (obsolete or malformed?)");
   }
 
-  if (fd->win_info[COL_NUM]) {    
-    strcpy(fd->win_info[COL_PROTOCOL], "ICMP");
-    strcpy(fd->win_info[COL_INFO], type_str);
+  if (fd->win_info[0]) {    
+    strcpy(fd->win_info[3], "ICMP");
+    strcpy(fd->win_info[4], type_str);
   }
   
   if (tree) {
@@ -307,8 +307,8 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       strcpy(type_str, "Unknown IGMP");
   }
 
-  if (fd->win_info[COL_NUM]) {    
-    strcpy(fd->win_info[COL_PROTOCOL], "IGMP");
+  if (fd->win_info[0]) {    
+    strcpy(fd->win_info[3], "IGMP");
   }
   
   if (tree) {

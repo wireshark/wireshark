@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.1 1998/09/25 23:24:05 gerald Exp $
+ * $Id: prefs.h,v 1.2 1998/10/10 03:32:18 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 
 void prefs_cb();
 void prefs_main_ok_cb(GtkWidget *, gpointer);
+void prefs_main_save_cb(GtkWidget *, gpointer);
 void prefs_main_cancel_cb(GtkWidget *, gpointer);
 
 #endif /* prefs.h */

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.4 1998/09/27 22:12:29 gerald Exp $
+ * $Id: packet-eth.c,v 1.5 1998/10/10 03:32:11 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,10 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
 #endif
 
 #include <gtk/gtk.h>
@@ -56,7 +60,7 @@ void
 dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
   guint16    etype, length;
   int        offset = 14;
-  GtkWidget *fh_tree, *ti;
+  GtkWidget *fh_tree = NULL, *ti;
   int   	ethhdr_type;	/* the type of ethernet frame */
 
   if (fd->win_info[COL_NUM]) {

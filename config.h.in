@@ -12,6 +12,8 @@
 
 #undef DATAFILE_DIR
 
+#undef NEED_SNPRINTF_H
+
 /* Define if you have the <netinet/in.h> header file.  */
 #undef HAVE_NETINET_IN_H
 

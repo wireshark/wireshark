@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.10 1998/09/27 22:12:42 gerald Exp $
+ * $Id: packet.h,v 1.11 1998/10/10 03:32:17 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,28 +29,27 @@
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
- * Handy for 
+ * The pletoh[sl] versions return the little-endian representation.
  */
 
-#if BYTE_ORDER == LITTLE_ENDIAN
-#define pntohs(p)        ((guint16)                             \
-                          ((guint16)*((guint8 *)p+0)<<8|        \
-                           (guint16)*((guint8 *)p+1)<<0))
+#define pntohs(p)  ((guint16)                       \
+                    ((guint16)*((guint8 *)p+0)<<8|  \
+                     (guint16)*((guint8 *)p+1)<<0))
 
-#define pntohl(p)       ((guint32)*((guint8 *)p+0)<<24|          \
-                         (guint32)*((guint8 *)p+1)<<16|          \
-                         (guint32)*((guint8 *)p+2)<<8|           \
-                         (guint32)*((guint8 *)p+3)<<0)
-#else /* BIG_ENDIAN */
-#define pntohs(p)        ((guint16)                             \
-                          ((guint16)*((guint8 *)p+1)<<8|        \
-                           (guint16)*((guint8 *)p+0)<<0))
+#define pntohl(p)  ((guint32)*((guint8 *)p+0)<<24|  \
+                    (guint32)*((guint8 *)p+1)<<16|  \
+                    (guint32)*((guint8 *)p+2)<<8|   \
+                    (guint32)*((guint8 *)p+3)<<0)
 
-#define pntohl(p)       ((guint32)*((guint8 *)p+3)<<24|          \
-                         (guint32)*((guint8 *)p+2)<<16|          \
-                         (guint32)*((guint8 *)p+1)<<8|           \
-                         (guint32)*((guint8 *)p+0)<<0)
-#endif /* LITTLE_ENDIAN */
+#define pletohs(p) ((guint16)                       \
+                    ((guint16)*((guint8 *)p+1)<<8|  \
+                     (guint16)*((guint8 *)p+0)<<0))
+
+#define pletohl(p) ((guint32)*((guint8 *)p+3)<<24|  \
+                    (guint32)*((guint8 *)p+2)<<16|  \
+                    (guint32)*((guint8 *)p+1)<<8|   \
+                    (guint32)*((guint8 *)p+0)<<0)
+
 
 /* Useful when highlighting regions inside a dissect_*() function. With this
  * macro, you can highlight from the start of the packet to the end of the
@@ -80,6 +79,13 @@ typedef struct _packet_info {
   int iplen;
   int iphdrlen;
 } packet_info;
+
+/* Struct for the match_strval function */
+
+typedef struct _value_string {
+  guint32  value;
+  gchar   *strptr;
+} value_string;
 
 /* Many of the structs and definitions below were taken from include files
  * in the Linux distribution. */
@@ -316,9 +322,10 @@ typedef struct _e_udphdr {
 #define ETT_IPXSAP        40
 #define ETT_IPXSAP_SERVER 41
 #define ETT_NULL          42
+#define ETT_FDDI          43
 
 /* Should be the last item number plus one */
-#define NUM_TREE_TYPES 43
+#define NUM_TREE_TYPES 44
 
 /* The version of pcap.h that comes with some systems is missing these
  * #defines.
@@ -347,6 +354,7 @@ GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...)
 GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...);
 #endif
 void       decode_start_len(GtkTreeItem *, gint*, gint*);
+gchar*     match_strval(guint32, value_string*, gint);
 
 /* Routines in packet.c */
 void dissect_packet(const u_char *, guint32 ts_secs, guint32 ts_usecs,
@@ -361,6 +369,7 @@ void collapse_tree(GtkWidget *, gpointer);
  * They should never modify the packet data.
  */
 void dissect_eth(const u_char *, frame_data *, GtkTree *);
+void dissect_fddi(const u_char *, frame_data *, GtkTree *);
 void dissect_null(const u_char *, frame_data *, GtkTree *);
 void dissect_ppp(const u_char *, frame_data *, GtkTree *);
 void dissect_raw(const u_char *, frame_data *, GtkTree *);

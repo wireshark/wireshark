@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.4 1998/09/27 22:12:44 gerald Exp $
+ * $Id: print.c,v 1.5 1998/10/10 03:32:19 gerald Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -57,15 +57,14 @@ static void ps_clean_string(unsigned char *out, const unsigned char *in,
 pr_opts printer_opts;
 
 /* Key for gtk_object_set_data */
-const gchar *print_opt_key = "printer_options_data";
-GtkWidget * printer_opts_pg()
+const gchar *print_prefs_key = "printer_prefs_data";
+GtkWidget * printer_prefs_show()
 {
 	GtkWidget	*main_vb, *button;
 	GtkWidget	*format_hb, *format_lb;
 	GtkWidget	*dest_hb, *dest_lb;
 	GtkWidget	*cmd_hb, *cmd_lb, *cmd_te;
 	GtkWidget	*file_hb, *file_bt, *file_te;
-	GtkWidget	*bbox, *ok_bt, *cancel_bt;
 	GSList		*format_grp, *dest_grp;
 	pr_opts		*temp_pr_opts = g_malloc(sizeof(pr_opts));
 
@@ -78,7 +77,7 @@ GtkWidget * printer_opts_pg()
 	main_vb = gtk_vbox_new(FALSE, 3);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_widget_show(main_vb);
-        gtk_object_set_data(GTK_OBJECT(main_vb), print_opt_key,
+        gtk_object_set_data(GTK_OBJECT(main_vb), print_prefs_key,
           temp_pr_opts);
 
 	/* Output format */
@@ -169,28 +168,8 @@ GtkWidget * printer_opts_pg()
 	gtk_signal_connect_object(GTK_OBJECT(file_bt), "clicked",
 			GTK_SIGNAL_FUNC(printer_opts_file_cb), GTK_OBJECT(file_te));
 
-
-	/* Button row: OK and cancel buttons */
-/* 	bbox = gtk_hbutton_box_new();
-	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
-	gtk_container_add(GTK_CONTAINER(main_vb), bbox);
-	gtk_widget_show(bbox);
-
-	ok_bt = gtk_button_new_with_label ("OK");
-	gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		GTK_SIGNAL_FUNC(printer_opts_ok_cb), (gpointer)temp_pr_opts);
-	gtk_container_add(GTK_CONTAINER(bbox), ok_bt);
-	gtk_widget_show(ok_bt);
-
-	cancel_bt = gtk_button_new_with_label ("Cancel");
-	gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
-		GTK_SIGNAL_FUNC(printer_opts_close_cb), (gpointer)temp_pr_opts);
-	gtk_container_add(GTK_CONTAINER(bbox), cancel_bt);
-	gtk_widget_show(cancel_bt);
-
- */
  
-   return(main_vb);
+	return(main_vb);
 }
 
 
@@ -232,9 +211,9 @@ printer_opts_fs_cancel_cb(GtkWidget *w, gpointer data) {
 } 
 
 void
-printer_opts_ok(GtkWidget *w)
+printer_prefs_ok(GtkWidget *w)
 {
-	pr_opts *data = gtk_object_get_data(GTK_OBJECT(w), print_opt_key);
+	pr_opts *data = gtk_object_get_data(GTK_OBJECT(w), print_prefs_key);
         
 	printer_opts.output_format = ((pr_opts*)data)->output_format;
 	printer_opts.output_dest = ((pr_opts*)data)->output_dest;
@@ -251,9 +230,9 @@ printer_opts_ok(GtkWidget *w)
 }
 
 void
-printer_opts_close(GtkWidget *w)
+printer_prefs_cancel(GtkWidget *w)
 {
-	pr_opts *data = gtk_object_get_data(GTK_OBJECT(w), print_opt_key);
+	pr_opts *data = gtk_object_get_data(GTK_OBJECT(w), print_prefs_key);
         
 	g_free(data);
 }

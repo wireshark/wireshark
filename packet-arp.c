@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.3 1998/09/27 22:12:26 gerald Exp $
+ * $Id: packet-arp.c,v 1.4 1998/10/10 03:32:10 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,9 +48,12 @@ void
 dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   e_ether_arp *ea;
   guint16      ar_hrd, ar_pro, ar_op;
-  gchar       *req_type[] = { "ARP request", "ARP reply",
-               "RARP request", "RARP reply" };
   GtkWidget   *arp_tree, *ti;
+  gchar       *op_str;
+  value_string op_vals[] = { ARPOP_REQUEST,  "ARP request",
+                             ARPOP_REPLY,    "ARP reply",
+                             ARPOP_RREQUEST, "RARP request",
+                             ARPOP_RREPLY,   "RARP reply" };
 
   /* To do: Check for {cap len,pkt len} < struct len */
   ea = (e_ether_arp *) &pd[offset];
@@ -62,7 +65,11 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   if (fd->win_info[COL_NUM]) { strcpy(fd->win_info[COL_PROTOCOL], "ARP"); }
   
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28, req_type[ar_op - 1]);
+    if (op_str = match_strval(ar_op, op_vals, 4))
+      ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28, op_str);
+    else
+      ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28,
+        "Unkown ARP (opcode 0x%04x)", ar_op);
     arp_tree = gtk_tree_new();
     add_subtree(ti, arp_tree, ETT_ARP);
     add_item_to_tree(arp_tree, offset,      2,
@@ -74,7 +81,7 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     add_item_to_tree(arp_tree, offset +  5, 1,
       "Protocol size: 0x%02x", ea->ar_pln);
     add_item_to_tree(arp_tree, offset +  6, 2,
-      "Opcode: 0x%04x", ar_op);
+      "Opcode: 0x%04x (%s)", ar_op, op_str ? op_str : "Unknown");
     add_item_to_tree(arp_tree, offset +  8, 6,
       "Sender ether: %s", ether_to_str((guint8 *) ea->arp_sha));
     add_item_to_tree(arp_tree, offset + 14, 4,

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.4 1998/09/29 21:39:28 hannes Exp $
+ * $Id: capture.c,v 1.5 1998/10/10 03:32:02 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,8 +23,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
 #endif
 
 #include <gtk/gtk.h>
@@ -34,6 +39,10 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 #ifdef HAVE_SYS_SOCKIO_H
 # include <sys/sockio.h>
@@ -289,7 +298,6 @@ cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data) {
 void
 capture_prep_ok_cb(GtkWidget *w, gpointer data) {
   GtkWidget *if_cb, *file_te, *count_cb, *open_ck, *snap_sb;
-  gchar   *file;
   gint     open;
 
   if_cb    = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), cap_iface_key);

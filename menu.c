@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.5 1998/09/26 19:28:49 gerald Exp $
+ * $Id: menu.c,v 1.6 1998/10/10 03:32:09 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,6 @@
 #include "menu.h"
 #include "ethereal.h"
 #include "capture.h"
-#include "filter.h"
 #include "packet.h"
 #include "print.h"
 #include "follow.h"
@@ -74,7 +73,6 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/Edit/<separator>", NULL, NULL, NULL},
   {"<Main>/Edit/Preferences", NULL, prefs_cb, NULL},
   {"<Main>/Tools/Capture", "<control>K", capture_prep_cb, NULL},
-  {"<Main>/Tools/Filter", NULL, filter_sel_cb, NULL},
   {"<Main>/Tools/Follow TCP Stream", NULL, follow_stream_cb, NULL},
   {"<Main>/Tools/Graph", NULL, NULL, NULL},
   {"<Main>/Help/About Ethereal", NULL, NULL, NULL}

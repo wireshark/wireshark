@@ -694,7 +694,7 @@ fi
 
 PACKAGE=ethereal
 
-VERSION=0.3.17
+VERSION=0.3.18
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { echo "configure: error: source directory already configured; run "make distclean" there first" 1>&2; exit 1; }
@@ -1696,15 +1696,16 @@ else
 { echo "configure: error: Function 'socket' not found." 1>&2; exit 1; }
 fi
 
+
 # If there's a system out there that has snprintf and _doesn't_ have vsnprintf,
 # then this won't work.
 echo $ac_n "checking for snprintf""... $ac_c" 1>&6
-echo "configure:1703: checking for snprintf" >&5
+echo "configure:1704: checking for snprintf" >&5
 if eval "test \"`echo '$''{'ac_cv_func_snprintf'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1708 "configure"
+#line 1709 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char snprintf(); below.  */
@@ -1727,7 +1728,7 @@ snprintf();
 
 ; return 0; }
 EOF
-if { (eval echo configure:1731: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:1732: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_func_snprintf=yes"
 else
@@ -1744,7 +1745,10 @@ if eval "test \"`echo '$ac_cv_func_'snprintf`\" = yes"; then
   SNPRINTF_C="" SNPRINTF_O=""
 else
   echo "$ac_t""no" 1>&6
-SNPRINTF_C="snprintf.c" SNPRINTF_O="snprintf.o"
+SNPRINTF_C="snprintf.c" SNPRINTF_O="snprintf.o" cat >> confdefs.h <<\EOF
+#define NEED_SNPRINTF_H 1
+EOF
+
 fi
 
 

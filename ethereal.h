@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.4 1998/09/27 22:12:23 gerald Exp $
+ * $Id: ethereal.h,v 1.5 1998/10/10 03:32:05 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,7 +48,7 @@
 
 /* Byte ordering */
 #ifndef BYTE_ORDER
-  #define LITTLE_ENDIAN 1234
+  #define LITTLE_ENDIAN 4321
   #define BIG_ENDIAN 1234
   #ifdef WORDS_BIGENDIAN
     #define BYTE_ORDER BIG_ENDIAN

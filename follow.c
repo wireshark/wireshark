@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.2 1998/09/27 22:12:25 gerald Exp $
+ * $Id: follow.c,v 1.3 1998/10/10 03:32:09 gerald Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -25,9 +25,17 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <gtk/gtk.h>
 #include <string.h>
 #include <unistd.h>
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
 
 #include "ethereal.h"
 #include "packet.h"

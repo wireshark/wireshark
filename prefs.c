@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.3 1998/09/27 22:12:43 gerald Exp $
+ * $Id: prefs.c,v 1.4 1998/10/10 03:32:18 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,17 +37,19 @@
 #include "packet.h"
 #include "file.h"
 #include "print.h"
+#include "filter.h"
 #include "prefs.h"
 
 extern capture_file  cf;
 
-const gchar *print_page_key = "printer_options_page";
+const gchar *print_page_key  = "printer_options_page";
+const gchar *filter_page_key = "filter_options_page";
 
 void
 prefs_cb() {
   GtkWidget *prefs_w, *main_vb, *top_hb, *bbox, *prefs_nb,
-            *ok_bt, *cancel_bt;
-  GtkWidget *pr_opt_pg;
+            *ok_bt, *save_bt, *cancel_bt;
+  GtkWidget *print_pg, *filter_pg;
   GtkWidget *nlabel, *label;
 
   prefs_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -69,17 +71,23 @@ prefs_cb() {
   gtk_widget_show(prefs_nb);
   
   /* General prefs */
-  nlabel = gtk_label_new("Nothing here yet");
+  nlabel = gtk_label_new("Nothing here yet...");
   gtk_widget_show (nlabel);
 
   label = gtk_label_new ("General");
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), nlabel, label);
   
   /* Printing prefs */
-  pr_opt_pg = printer_opts_pg();
-  gtk_object_set_data(GTK_OBJECT(prefs_w), print_page_key, pr_opt_pg);
+  print_pg = printer_prefs_show();
+  gtk_object_set_data(GTK_OBJECT(prefs_w), print_page_key, print_pg);
   label = gtk_label_new ("Printing");
-  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), pr_opt_pg, label);
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), print_pg, label);
+    
+  /* Filter prefs */
+  filter_pg = filter_prefs_show();
+  gtk_object_set_data(GTK_OBJECT(prefs_w), filter_page_key, filter_pg);
+  label = gtk_label_new ("Filters");
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), filter_pg, label);
     
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -95,6 +103,12 @@ prefs_cb() {
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
+  save_bt = gtk_button_new_with_label ("Save");
+  gtk_signal_connect_object(GTK_OBJECT(save_bt), "clicked",
+    GTK_SIGNAL_FUNC(prefs_main_save_cb), GTK_OBJECT(prefs_w));
+  gtk_container_add(GTK_CONTAINER(bbox), save_bt);
+  gtk_widget_show(save_bt);
+  
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
     GTK_SIGNAL_FUNC(prefs_main_cancel_cb), GTK_OBJECT(prefs_w));
@@ -107,14 +121,21 @@ prefs_cb() {
 void
 prefs_main_ok_cb(GtkWidget *w, gpointer win) {
   
-  printer_opts_ok(gtk_object_get_data(GTK_OBJECT(win), print_page_key));
+  printer_prefs_ok(gtk_object_get_data(GTK_OBJECT(win), print_page_key));
+  filter_prefs_ok(gtk_object_get_data(GTK_OBJECT(win), filter_page_key));
   gtk_widget_destroy(GTK_WIDGET(win));
+}
+
+void
+prefs_main_save_cb(GtkWidget *w, gpointer win) {
+  filter_prefs_save(gtk_object_get_data(GTK_OBJECT(win), filter_page_key));
 }
 
 void
 prefs_main_cancel_cb(GtkWidget *w, gpointer win) {
 
-  printer_opts_close(gtk_object_get_data(GTK_OBJECT(win), print_page_key));
+  printer_prefs_cancel(gtk_object_get_data(GTK_OBJECT(win), print_page_key));
+  filter_prefs_cancel(gtk_object_get_data(GTK_OBJECT(win), filter_page_key));
   gtk_widget_destroy(GTK_WIDGET(win));
 }
 

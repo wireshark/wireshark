@@ -1,8 +1,8 @@
-# $Id: configure.in,v 1.5 1998/09/25 23:23:58 gerald Exp $
+# $Id: configure.in,v 1.6 1998/10/10 03:32:05 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
-AM_INIT_AUTOMAKE(ethereal, 0.3.17)
+AM_INIT_AUTOMAKE(ethereal, 0.3.18)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
@@ -62,10 +62,11 @@ AC_C_BIGENDIAN
 dnl Checks for library functions.
 AC_PROG_GCC_TRADITIONAL
 AC_CHECK_FUNC(socket,, AC_MSG_ERROR(Function 'socket' not found.))
+
 # If there's a system out there that has snprintf and _doesn't_ have vsnprintf,
 # then this won't work.
 AC_CHECK_FUNC(snprintf, SNPRINTF_C="" SNPRINTF_O="",
-	SNPRINTF_C="snprintf.c" SNPRINTF_O="snprintf.o")
+	SNPRINTF_C="snprintf.c" SNPRINTF_O="snprintf.o" AC_DEFINE(NEED_SNPRINTF_H))
 AC_SUBST(SNPRINTF_C)
 AC_SUBST(SNPRINTF_O)
 

@@ -1,7 +1,7 @@
 /* filter.h
  * Definitions for packet filter window
  *
- * $Id: filter.h,v 1.2 1998/09/16 03:21:59 gerald Exp $
+ * $Id: filter.h,v 1.3 1998/10/10 03:32:08 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,22 +36,15 @@ typedef struct _filter_cb_data {
   GtkWidget *win;
 } filter_cb_data;
 
-GList *read_filter_list();
-void   filter_sel_cb(GtkWidget *, gpointer);
-void   filter_sel_list_cb(GtkWidget *, gpointer);
-void   filter_sel_new_cb(GtkWidget *, gpointer);
-void   filter_sel_chg_cb(GtkWidget *, gpointer);
-void   filter_sel_copy_cb(GtkWidget *, gpointer);
-void   filter_sel_del_cb(GtkWidget *, gpointer);
-void   filter_sel_ok_cb(GtkWidget *, gpointer);
-void   filter_sel_save_cb(GtkWidget *, gpointer);
-void   filter_sel_cancel_cb(GtkWidget *, gpointer);
+GList     *read_filter_list();
+GtkWidget *filter_prefs_show();
+void       filter_sel_list_cb(GtkWidget *, gpointer);
+void       filter_sel_new_cb(GtkWidget *, gpointer);
+void       filter_sel_chg_cb(GtkWidget *, gpointer);
+void       filter_sel_copy_cb(GtkWidget *, gpointer);
+void       filter_sel_del_cb(GtkWidget *, gpointer);
+void       filter_prefs_ok(GtkWidget *);
+void       filter_prefs_save(GtkWidget *);
+void       filter_prefs_cancel(GtkWidget *);
 
-/* GList *get_interface_list();
-void   capture_prep_file_cb(GtkWidget *, gpointer);
-void   cap_prep_fs_ok_cb(GtkWidget *, gpointer);
-void   cap_prep_fs_cancel_cb(GtkWidget *, gpointer);
-void   capture_prep_ok_cb(GtkWidget *, gpointer);
-void   capture_prep_close_cb(GtkWidget *, gpointer);
- */
-#endif /* capture.h */
+#endif /* filter.h */

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.4 1998/09/27 22:12:42 gerald Exp $
+ * $Id: packet.c,v 1.5 1998/10/10 03:32:16 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,11 +27,19 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
 #include <gtk/gtk.h>
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <ctype.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
@@ -198,6 +206,21 @@ decode_start_len(GtkTreeItem *ti, gint *pstart, gint *plen)
 	*plen =	t_info & 0xffff;
 }
 
+/* Tries to match val against each element in the value_string array vs.
+   Returns the associated string ptr on a match, or NULL on failure.
+   Len is the length of the array. */
+gchar*
+match_strval(guint32 val, value_string *vs, gint len) {
+  gint i;
+  
+  for (i = 0; i < len; i++) {
+    if (vs[i].value == val)
+      return(vs[i].strptr);
+  }
+  
+  return(NULL);
+}
+
 static const char *mon_names[12] = {
 	"Jan",
 	"Feb",
@@ -264,6 +287,9 @@ dissect_packet(const u_char *pd, guint32 ts_secs, guint32 ts_usecs,
 	switch (cf.lnk_t) {
 		case DLT_EN10MB :
 			dissect_eth(pd, fd, tree);
+			break;
+		case DLT_FDDI :
+			dissect_fddi(pd, fd, tree);
 			break;
 		case DLT_IEEE802 :
 			dissect_tr(pd, fd, tree);

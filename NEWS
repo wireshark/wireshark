@@ -1,3 +1,10 @@
+Overview of changes in Ethereal 0.3.18:
+
+* Lots of fixes from Guy Harris
+* Preferences dialog (Gerald)
+* OSPF alignment fixes (Gerald)
+* FDDI support (Laurent, Guy)
+
 Overview of changes in Ethereal 0.3.17:
 
 * Ethernet manufacturer support (Laurent)

@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.3 1998/09/27 22:12:24 gerald Exp $
+ * $Id: filter.c,v 1.4 1998/10/10 03:32:07 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,10 +42,10 @@
 
 extern capture_file cf;
 
-const gchar *fn_key = "filter_name";
-const gchar *fl_key = "filter_label";
+const gchar *fn_key     = "filter_name";
+const gchar *fl_key     = "filter_label";
+const gchar *cancel_key = "in_cancel_mode";
 GtkWidget   *filter_l, *chg_bt, *copy_bt, *del_bt, *name_te, *filter_te;
-gint         in_cancel = FALSE;
 GList       *fl = NULL;
 
 GList *
@@ -55,8 +55,6 @@ read_filter_list() {
   gchar      *ff_path, *ff_name = ".ethereal/filters", f_buf[256];
   gchar      *name_begin, *name_end, *filt_begin;
   int         len, line = 0;
-  
-  in_cancel = FALSE;
   
   /* To do: generalize this */
   ff_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(ff_name) +  4);
@@ -103,27 +101,24 @@ read_filter_list() {
   return fl;
 }
 
-/* filter_sel_cb - Create and display the filter selection dialog. */
-/* Called when the 'Filter' menu item is selected. */
-void
-filter_sel_cb(GtkWidget *w, gpointer d) {
-  GtkWidget      *filter_w, *main_vb, *top_hb, *list_bb, *bbox,
-                 *new_bt, *ok_bt, *save_bt, *cancel_bt, *filter_sc, *nl_item,
-                 *nl_lb, *middle_hb, *name_lb, *bottom_hb, *filter_lb;
-  GtkWidget      *l_select = NULL;
-  GList          *flp = NULL;
-  filter_def     *filt;
+/* filter_sel_pg - Create and display the filter selection widgets. */
+/* Called when the 'Filter' preference notebook page is selected. */
+GtkWidget *
+filter_prefs_show() {
+  GtkWidget  *main_vb, *top_hb, *list_bb, *new_bt, *filter_sc,
+             *nl_item, *nl_lb, *middle_hb, *name_lb, *bottom_hb,
+             *filter_lb;
+  GtkWidget  *l_select = NULL;
+  GList      *flp = NULL;
+  filter_def *filt;
   
   fl = read_filter_list();
 
-  filter_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title(GTK_WINDOW(filter_w), "Ethereal: Filters");
-  
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  gtk_container_add(GTK_CONTAINER(filter_w), main_vb);
   gtk_widget_show(main_vb);
+  gtk_object_set_data(GTK_OBJECT(main_vb), cancel_key, (gpointer)FALSE);
   
   /* Top row: Filter list and buttons */
   top_hb = gtk_hbox_new(FALSE, 5);
@@ -171,7 +166,7 @@ filter_sel_cb(GtkWidget *w, gpointer d) {
 
   filter_l = gtk_list_new();
   gtk_signal_connect(GTK_OBJECT(filter_l), "selection_changed",
-    GTK_SIGNAL_FUNC(filter_sel_list_cb), NULL);
+    GTK_SIGNAL_FUNC(filter_sel_list_cb), main_vb);
   gtk_container_add(GTK_CONTAINER(filter_sc), filter_l);
   gtk_widget_show(filter_l);
 
@@ -219,36 +214,10 @@ filter_sel_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start(GTK_BOX(bottom_hb), filter_te, TRUE, TRUE, 3);
   gtk_widget_show(filter_te);
 
-  /* Button row: OK and cancel buttons */
-  bbox = gtk_hbutton_box_new();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
-  gtk_widget_show(bbox);
-  
-  ok_bt = gtk_button_new_with_label ("OK");
-  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_sel_ok_cb), (gpointer) filter_w);
-  gtk_container_add(GTK_CONTAINER(bbox), ok_bt);
-  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-  gtk_widget_grab_default(ok_bt);  
-  gtk_widget_show(ok_bt);
-
-  save_bt = gtk_button_new_with_label ("Save");
-  gtk_signal_connect(GTK_OBJECT(save_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_sel_save_cb), (gpointer) fl);
-  gtk_container_add(GTK_CONTAINER(bbox), save_bt);
-  gtk_widget_show(save_bt);
-  
-  cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_sel_cancel_cb), (gpointer) filter_w);
-  gtk_container_add(GTK_CONTAINER(bbox), cancel_bt);
-  gtk_widget_show(cancel_bt);
-  
-  gtk_widget_show(filter_w);
-
   if (l_select)
     gtk_list_select_child(GTK_LIST(filter_l), l_select);
+    
+  return(main_vb);
 }
 
 void
@@ -274,7 +243,7 @@ filter_sel_list_cb(GtkWidget *l, gpointer data) {
 
   /* Did you know that this function is called when the window is destroyed? */
   /* Funny, that. */
-  if (!in_cancel) {
+  if (!gtk_object_get_data(GTK_OBJECT(data), cancel_key)) {
     gtk_entry_set_text(GTK_ENTRY(name_te), name);
     gtk_entry_set_text(GTK_ENTRY(filter_te), strval);
     gtk_widget_set_sensitive(chg_bt, sensitivity);
@@ -398,7 +367,7 @@ filter_sel_del_cb(GtkWidget *w, gpointer data) {
 }
 
 void
-filter_sel_ok_cb(GtkWidget *w, gpointer data) {
+filter_prefs_ok(GtkWidget *w) {
   GList      *flp, *sl;
   GtkObject  *l_item;
   filter_def *filt;
@@ -418,11 +387,11 @@ filter_sel_ok_cb(GtkWidget *w, gpointer data) {
     }
   }
 
-  filter_sel_cancel_cb(w, data);
+  filter_prefs_cancel(w);
 }
 
 void
-filter_sel_save_cb(GtkWidget *w, gpointer data) {
+filter_prefs_save(GtkWidget *w) {
   GList       *flp;
   filter_def  *filt;
   gchar       *ff_path, *ff_dir = ".ethereal", *ff_name = "filters";
@@ -452,7 +421,7 @@ filter_sel_save_cb(GtkWidget *w, gpointer data) {
 }
 
 void
-filter_sel_cancel_cb(GtkWidget *w, gpointer win) {
+filter_prefs_cancel(GtkWidget *w) {
   filter_def *filt;
   
   while (fl) {
@@ -467,6 +436,6 @@ filter_sel_cancel_cb(GtkWidget *w, gpointer win) {
 
   /* Let the list cb know we're about to destroy the widget tree, so it */
   /* doesn't operate on widgets that don't exist. */  
-  in_cancel = TRUE;    
-  gtk_widget_destroy(GTK_WIDGET(win));
+  gtk_object_set_data(GTK_OBJECT(w), cancel_key, (gpointer)TRUE);
+  gtk_widget_destroy(GTK_WIDGET(w));
 } 
