@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.42 2004/01/28 03:36:37 gerald Exp $
+ * $Id: packet-ethertype.c,v 1.43 2004/01/28 20:09:44 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -263,22 +263,25 @@ add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
 	   a trailer. */
 	if (length < length_before) {
 		/*
-		 * Create a tvbuff for the padding.
+		 * Is any of the padding present in the tvbuff?
 		 */
-		TRY {
+		if (tvb_offset_exists(tvb, offset_after_etype + length)) {
+			/*
+			 * Yes - create a tvbuff for the padding.
+			 */
 			trailer_tvb = tvb_new_subset(tvb,
 			    offset_after_etype + length, -1, -1);
-		}
-		CATCH2(BoundsError, ReportedBoundsError) {
-			/* The packet doesn't have "length" bytes worth of
-			   captured data left in it.  No trailer to display. */
+		} else {
+			/*
+			 * No - don't bother showing the trailer.
+			 * XXX - show a Short Frame indication?
+			 */
 			trailer_tvb = NULL;
-			add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 		}
-		ENDTRY;
 	} else
 		trailer_tvb = NULL;	/* no trailer */
 
+	add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 }
 
 void
