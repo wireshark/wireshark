@@ -3,7 +3,7 @@
  * time, so that we only need one Ethereal binary and one Tethereal binary
  * for Windows, regardless of whether WinPcap is installed or not.
  *
- * $Id: capture-wpcap.c,v 1.9 2004/03/13 22:49:29 ulfl Exp $
+ * $Id: capture-wpcap.c,v 1.10 2004/06/12 07:47:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -409,6 +409,28 @@ get_interface_list(int *err, char *err_str)
 	}
 
 	return il;
+}
+
+/*
+ * Get an error message string for a CANT_GET_INTERFACE_LIST error from
+ * "get_interface_list()".
+ */
+gchar *
+cant_get_if_list_error_message(const char *err_str)
+{
+	/*
+	 * If the error message includes "Not enough storage is available
+	 * to process this command" or "The operation completed successfully",
+	 * suggest that they install a WinPcap version later than 3.0.
+	 */
+	if (strstr(err_str, "Not enough storage is available to process this command") != NULL ||
+	    strstr(err_str, "The operation completed successfully") != NULL) {
+		return g_strdup_printf("Can't get list of interfaces: %s\n"
+"This might be a problem with WinPcap 3.0; you should try updating to\n"
+"a later version of WinPcap - see the WinPcap site at winpcap.polito.it",
+		    err_str);
+	}
+	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
 }
 
 /*

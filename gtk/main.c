@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.440 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: main.c,v 1.441 2004/06/12 07:47:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1551,6 +1551,7 @@ main(int argc, char *argv[])
   GList               *lt_list, *lt_entry;
   data_link_info_t    *data_link_info;
   gchar                err_str[PCAP_ERRBUF_SIZE];
+  gchar               *cant_get_if_list_errstr;
   gboolean             stats_known;
   struct pcap_stat     stats;
 #else
@@ -2227,8 +2228,9 @@ main(int argc, char *argv[])
           switch (err) {
 
           case CANT_GET_INTERFACE_LIST:
-              fprintf(stderr, "ethereal: Can't get list of interfaces: %s\n",
-  			err_str);
+              cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
+              fprintf(stderr, "%s\n", cant_get_if_list_errstr);
+              g_free(cant_get_if_list_errstr);
               break;
 
           case NO_INTERFACES_FOUND:

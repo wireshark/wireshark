@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.243 2004/06/10 08:01:51 guy Exp $
+ * $Id: tethereal.c,v 1.244 2004/06/12 07:47:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -816,6 +816,7 @@ main(int argc, char *argv[])
   long                 adapter_index;
   char                *p;
   gchar                err_str[PCAP_ERRBUF_SIZE];
+  gchar               *cant_get_if_list_errstr;
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
@@ -1000,8 +1001,10 @@ main(int argc, char *argv[])
             switch (err) {
 
             case CANT_GET_INTERFACE_LIST:
-                fprintf(stderr, "tethereal: Can't get list of interfaces: %s\n",
-			err_str);
+                cant_get_if_list_errstr =
+                    cant_get_if_list_error_message(err_str);
+                fprintf(stderr, "tethereal: %s\n", cant_get_if_list_errstr);
+                g_free(cant_get_if_list_errstr);
                 break;
 
             case NO_INTERFACES_FOUND:
@@ -1081,8 +1084,10 @@ main(int argc, char *argv[])
             switch (err) {
 
             case CANT_GET_INTERFACE_LIST:
-                fprintf(stderr, "tethereal: Can't get list of interfaces: %s\n",
-                        err_str);
+                cant_get_if_list_errstr =
+                    cant_get_if_list_error_message(err_str);
+                fprintf(stderr, "tethereal: %s\n", cant_get_if_list_errstr);
+                g_free(cant_get_if_list_errstr);
                 break;
 
             case NO_INTERFACES_FOUND:
@@ -1567,8 +1572,10 @@ main(int argc, char *argv[])
                 switch (err) {
 
                 case CANT_GET_INTERFACE_LIST:
-                    fprintf(stderr, "tethereal: Can't get list of interfaces: %s\n",
-			    err_str);
+                    cant_get_if_list_errstr =
+                        cant_get_if_list_error_message(err_str);
+                    fprintf(stderr, "tethereal: %s\n", cant_get_if_list_errstr);
+                    g_free(cant_get_if_list_errstr);
                     break;
 
                 case NO_INTERFACES_FOUND:

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.132 2004/05/26 04:21:48 guy Exp $
+ * $Id: capture_dlg.c,v 1.133 2004/06/12 07:47:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -478,6 +478,7 @@ capture_prep(void)
   int           err;
   int           row;
   char          err_str[PCAP_ERRBUF_SIZE];
+  gchar         *cant_get_if_list_errstr;
 #ifdef _WIN32
   GtkAdjustment *buffer_size_adj;
   GtkWidget     *buffer_size_lb, *buffer_size_sb;
@@ -515,8 +516,10 @@ capture_prep(void)
 
   if_list = get_interface_list(&err, err_str);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't get list of interfaces: %s",
-			err_str);
+    cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+                  cant_get_if_list_errstr);
+    g_free(cant_get_if_list_errstr);
   }
 
   cap_open_w = dlg_window_new("Ethereal: Capture Options");

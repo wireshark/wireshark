@@ -1,7 +1,7 @@
 /* pcap-util-unix.c
  * UN*X-specific utility routines for packet capture
  *
- * $Id: pcap-util-unix.c,v 1.2 2003/10/10 06:05:48 guy Exp $
+ * $Id: pcap-util-unix.c,v 1.3 2004/06/12 07:47:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -269,6 +269,16 @@ search_for_if_cb(gpointer data, gpointer user_data)
 		search_user_data->found = TRUE;
 }
 #endif /* HAVE_PCAP_FINDALLDEVS */
+
+/*
+ * Get an error message string for a CANT_GET_INTERFACE_LIST error from
+ * "get_interface_list()".
+ */
+gchar *
+cant_get_if_list_error_message(const char *err_str)
+{
+	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
+}
 
 /*
  * Append the version of libpcap with which we were compiled to a GString.

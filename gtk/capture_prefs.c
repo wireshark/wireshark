@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.36 2004/05/31 11:22:58 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.37 2004/06/12 07:47:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -664,16 +664,20 @@ static void
 ifopts_if_clist_add(void)
 {
 	GList		*if_list;
-	int			err;
+	int		err;
 	char		err_str[PCAP_ERRBUF_SIZE];
+	gchar		*cant_get_if_list_errstr;
 	if_info_t	*if_info;
 	guint		i;
 	guint		nitems;
 	
 	if_list = get_interface_list(&err, err_str);
 	if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				"Can't get list of interfaces: %s", err_str);
+		cant_get_if_list_errstr =
+		    cant_get_if_list_error_message(err_str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+		    cant_get_if_list_errstr);
+		g_free(cant_get_if_list_errstr);
 		return;
 	}
 	

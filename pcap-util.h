@@ -1,7 +1,7 @@
 /* pcap-util.h
  * Utility definitions for packet capture
  *
- * $Id: pcap-util.h,v 1.6 2003/11/01 02:30:14 guy Exp $
+ * $Id: pcap-util.h,v 1.7 2004/06/12 07:47:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,12 @@ GList *get_interface_list(int *err, char *err_str);
 #define	NO_INTERFACES_FOUND	1	/* list is empty */
 
 void free_interface_list(GList *if_list);
+
+/*
+ * Get an error message string for a CANT_GET_INTERFACE_LIST error from
+ * "get_interface_list()".
+ */
+gchar *cant_get_if_list_error_message(const char *err_str);
 
 /*
  * The list of data link types returned by "get_pcap_linktype_list()" is
