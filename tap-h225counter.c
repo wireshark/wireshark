@@ -364,7 +364,7 @@ h225counter_draw(void *phs)
 	printf("Call Signalling:\n");
 	for(i=0;i<=CS_MSG_TYPES;i++) {
 		if(hs->cs_msg[i]!=0) {
-			printf("  %s : %u\n", val_to_str(i,h323_message_body_vals,"unknown cs-messages   "), hs->cs_msg[i]);
+			printf("  %s : %u\n", val_to_str(i,T_h323_message_body_vals,"unknown cs-messages   "), hs->cs_msg[i]);
 			/* reason counter */
 			switch(i) {
 			case 5: /* ReleaseComplete */
