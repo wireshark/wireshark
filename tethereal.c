@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.93 2001/10/22 22:59:23 guy Exp $
+ * $Id: tethereal.c,v 1.94 2001/10/25 06:41:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -641,7 +641,8 @@ main(int argc, char *argv[])
 static int
 capture(int packet_count, int out_file_type)
 {
-  gchar       err_str[PCAP_ERRBUF_SIZE];
+  gchar       open_err_str[PCAP_ERRBUF_SIZE];
+  gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
   void        (*oldhandler)(int);
@@ -668,8 +669,13 @@ capture(int packet_count, int out_file_type)
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
   ld.pdh            = NULL;
 
-  /* Open the network interface to capture from it. */
-  ld.pch = pcap_open_live(cfile.iface, cfile.snap, promisc_mode, 1000, err_str);
+  /* Open the network interface to capture from it.
+     Some versions of libpcap may put warnings into the error buffer
+     if they succeed; to tell if that's happened, we have to clear
+     the error buffer, and check if it's still a null string.  */
+  open_err_str[0] = '\0';
+  ld.pch = pcap_open_live(cfile.iface, cfile.snap, promisc_mode, 1000,
+			  open_err_str);
 
   if (ld.pch == NULL) {
     /* Well, we couldn't start the capture. */
@@ -685,14 +691,14 @@ capture(int packet_count, int out_file_type)
 	"Note that the driver Tethereal uses for packet capture on Windows\n"
 	"doesn't support capturing on Token Ring interfaces, and doesn't\n"
 	"support capturing on PPP/WAN interfaces in Windows NT/2000.\n",
-	err_str);
+	open_err_str);
 #else
       /* If we got a "can't find PPA for XXX" message, warn the user (who
          is running Ethereal on HP-UX) that they don't have a version
 	 of libpcap that properly handles HP-UX (libpcap 0.6.x and later
 	 versions, which properly handle HP-UX, say "can't find /dev/dlpi
 	 PPA for XXX" rather than "can't find PPA for XXX"). */
-      if (strncmp(err_str, ppamsg, sizeof ppamsg - 1) == 0)
+      if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
 	libpcap_warn =
 	  "\n\n"
 	  "You are running Tethereal with a version of the libpcap library\n"
@@ -709,21 +715,21 @@ capture(int packet_count, int out_file_type)
     snprintf(errmsg, sizeof errmsg,
       "The capture session could not be initiated (%s).\n"
       "Please check to make sure you have sufficient permissions, and that\n"
-      "you have the proper interface specified.%s", err_str, libpcap_warn);
+      "you have the proper interface specified.%s", open_err_str, libpcap_warn);
 #endif
     goto error;
   }
 
   if (cfile.cfilter) {
     /* A capture filter was specified; set it up. */
-    if (pcap_lookupnet (cfile.iface, &netnum, &netmask, err_str) < 0) {
+    if (pcap_lookupnet(cfile.iface, &netnum, &netmask, lookup_net_err_str) < 0) {
       /*
        * Well, we can't get the netmask for this interface; it's used
        * only for filters that check for broadcast IP addresses, so
        * we just warn the user, and punt and use 0.
        */
       fprintf(stderr, 
-        "Warning:  Couldn't obtain netmask info (%s)\n.", err_str);
+        "Warning:  Couldn't obtain netmask info (%s)\n.", lookup_net_err_str);
       netmask = 0;
     }
     if (pcap_compile(ld.pch, &fcode, cfile.cfilter, 1, netmask) < 0) {
@@ -755,6 +761,11 @@ capture(int packet_count, int out_file_type)
       goto error;
     }
   }
+
+  /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
+     returned a warning; print it, but keep capturing. */
+  if (open_err_str[0] != '\0')
+    fprintf(stderr, "tethereal: WARNING: %s.\n", open_err_str);
 
   /* Catch SIGINT and SIGTERM and, if we get either of them, clean up
      and exit.

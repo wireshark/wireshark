@@ -1,12 +1,11 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.153 2001/06/18 01:49:16 guy Exp $
+ * $Id: capture.c,v 1.154 2001/10/25 06:41:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -171,9 +170,9 @@ static guint cap_input_id;
  * Indications sent out on the sync pipe.
  */
 #define SP_CAPSTART	';'	/* capture start message */
-#define SP_PACKET_COUNT	'*'	/* count of packets captured since last message */
-#define SP_ERROR_MSG	'!'	/* length of error message that follows */
-#define SP_DROPS	'#'	/* count of packets dropped in capture */
+#define SP_PACKET_COUNT	'*'	/* followed by count of packets captured since last message */
+#define SP_ERROR_MSG	'!'	/* followed by length of error message that follows */
+#define SP_DROPS	'#'	/* followed by count of packets dropped in capture */
 
 #ifdef _WIN32
 static guint cap_timer_id;
@@ -1204,7 +1203,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   pcap_t     *pch;
   int         pcap_encap;
   int         snaplen;
-  gchar       err_str[PCAP_ERRBUF_SIZE], label_str[64];
+  gchar       open_err_str[PCAP_ERRBUF_SIZE];
+  gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
+  gchar       label_str[64];
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
   time_t      upd_time, cur_time;
@@ -1284,9 +1285,13 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* We haven't yet gotten the capture statistics. */
   *stats_known      = FALSE;
 
-  /* Open the network interface to capture from it. */
+  /* Open the network interface to capture from it.
+     Some versions of libpcap may put warnings into the error buffer
+     if they succeed; to tell if that's happened, we have to clear
+     the error buffer, and check if it's still a null string.  */
+  open_err_str[0] = '\0';
   pch = pcap_open_live(cfile.iface, cfile.snap, prefs.capture_prom_mode,
-			CAP_READ_TIMEOUT, err_str);
+		       CAP_READ_TIMEOUT, open_err_str);
 
   if (pch == NULL) {
 #ifdef _WIN32
@@ -1309,11 +1314,11 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	"\n"
 	"Note that the driver Ethereal uses for packet capture on Windows\n"
 	"doesn't support capturing on PPP/WAN interfaces in Windows NT/2000.\n",
-	err_str);
+	open_err_str);
     goto error;
 #else
     /* try to open cfile.iface as a pipe */
-    pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld, err_str);
+    pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld, open_err_str);
 
     if (pipe_fd == -1) {
       /* Well, we couldn't start the capture.
@@ -1330,7 +1335,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	 of libpcap that properly handles HP-UX (libpcap 0.6.x and later
 	 versions, which properly handle HP-UX, say "can't find /dev/dlpi
 	 PPA for XXX" rather than "can't find PPA for XXX"). */
-      if (strncmp(err_str, ppamsg, sizeof ppamsg - 1) == 0)
+      if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
 	libpcap_warn =
 	  "\n\n"
 	  "You are running Ethereal with a version of the libpcap library\n"
@@ -1347,7 +1352,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       snprintf(errmsg, sizeof errmsg,
 	  "The capture session could not be initiated (%s).\n"
 	  "Please check to make sure you have sufficient permissions, and that\n"
-	  "you have the proper interface or pipe specified.%s", err_str,
+	  "you have the proper interface or pipe specified.%s", open_err_str,
 	  libpcap_warn);
       goto error;
     }
@@ -1357,7 +1362,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* capture filters only work on real interfaces */
   if (cfile.cfilter && !ld.from_pipe) {
     /* A capture filter was specified; set it up. */
-    if (pcap_lookupnet (cfile.iface, &netnum, &netmask, err_str) < 0) {
+    if (pcap_lookupnet(cfile.iface, &netnum, &netmask, lookup_net_err_str) < 0) {
       /*
        * Well, we can't get the netmask for this interface; it's used
        * only for filters that check for broadcast IP addresses, so
@@ -1432,6 +1437,11 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     }
     goto error;
   }
+
+  /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
+     returned a warning; print it, but keep capturing. */
+  if (open_err_str[0] != '\0')
+    fprintf(stderr, "ethereal: WARNING: %s.\n", open_err_str);
 
   /* XXX - capture SIGTERM and close the capture, in case we're on a
      Linux 2.0[.x] system and you have to explicitly close the capture
