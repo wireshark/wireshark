@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.19 1999/12/11 06:58:41 guy Exp $
+ * $Id: packet-snmp.c,v 1.20 1999/12/12 01:51:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -45,50 +45,91 @@
 # include <netinet/in.h>
 #endif
 
-#if defined(HAVE_UCD_SNMP_SNMP_H)
-#include <ucd-snmp/asn1.h>
-#include <ucd-snmp/mib.h>
-#include <ucd-snmp/parse.h>
-#elif defined(HAVE_SNMP_SNMP_H)
-#include <snmp/snmp.h>
-
-/*
- * Now undo all the definitions it "helpfully" gave us, so we don't get
- * complaints about redefining them.
- *
- * (At least UCD SNMP lets you get only the header files you need for
- * the MIB-handling routines.)
- */
-#undef SNMP_ERR_NOERROR
-#undef SNMP_ERR_TOOBIG
-#undef SNMP_ERR_NOSUCHNAME
-#undef SNMP_ERR_BADVALUE
-#undef SNMP_ERR_READONLY
-#undef SNMP_ERR_NOACCESS
-#undef SNMP_ERR_WRONGTYPE
-#undef SNMP_ERR_WRONGLENGTH
-#undef SNMP_ERR_WRONGENCODING
-#undef SNMP_ERR_WRONGVALUE
-#undef SNMP_ERR_NOCREATION
-#undef SNMP_ERR_INCONSISTENTVALUE
-#undef SNMP_ERR_RESOURCEUNAVAILABLE
-#undef SNMP_ERR_COMMITFAILED
-#undef SNMP_ERR_UNDOFAILED
-#undef SNMP_ERR_AUTHORIZATIONERROR
-#undef SNMP_ERR_NOTWRITABLE
-#undef SNMP_ERR_INCONSISTENTNAME
-#undef SNMP_TRAP_COLDSTART
-#undef SNMP_TRAP_WARMSTART
-#undef SNMP_TRAP_LINKDOWN
-#undef SNMP_TRAP_LINKUP
-#undef SNMP_TRAP_EGPNEIGHBORLOSS
-#undef SNMP_TRAP_ENTERPRISESPECIFIC
-#endif
-
 #define MAX_STRING_LEN 1024	/* TBC */
 
 #include <glib.h>
+
 #include "packet.h"
+
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+ /*
+  * UCD or CMU SNMP?
+  */
+# if defined(HAVE_UCD_SNMP_SNMP_H)
+   /*
+    * UCD SNMP.
+    */
+#  define CMU_COMPATIBLE	/* get the SMI_ type definitions */
+#  include <ucd-snmp/asn1.h>
+#  include <ucd-snmp/snmp.h>
+#  include <ucd-snmp/snmp_api.h>
+#  include <ucd-snmp/snmp_impl.h>
+#  include <ucd-snmp/mib.h>
+# elif defined(HAVE_SNMP_SNMP_H)
+   /*
+    * CMU SNMP.
+    */
+#  include <snmp/snmp.h>
+# endif
+
+ /*
+  * Now undo all the definitions they "helpfully" gave us, so we don't get
+  * complaints about redefining them.
+  *
+  * Why, oh why, is there no library that provides code to
+  *
+  *	1) read MIB files;
+  *
+  *	2) translate object IDs into names;
+  *
+  *	3) let you find out, for a given object ID, what the type, enum
+  *	   values, display hint, etc. are;
+  *
+  * in a *simple* fashion, without assuming that your code is part of an
+  * SNMP agent or client that wants a pile of definitions of PDU types,
+  * etc.?  Is it just that 99 44/100% of the code that uses an SNMP library
+  * *is* part of an agent or client, and really *does* need that stuff,
+  * and *doesn't* need the interfaces we want?
+  */
+# undef SNMP_MSG_GET
+# undef SNMP_MSG_GETNEXT
+# undef SNMP_MSG_RESPONSE
+# undef SNMP_MSG_SET
+# undef SNMP_MSG_TRAP
+# undef SNMP_MSG_GETBULK
+# undef SNMP_MSG_INFORM
+# undef SNMP_MSG_TRAP2
+# undef SNMP_MSG_REPORT
+# undef SNMP_ERR_NOERROR
+# undef SNMP_ERR_TOOBIG
+# undef SNMP_ERR_NOSUCHNAME
+# undef SNMP_ERR_BADVALUE
+# undef SNMP_ERR_READONLY
+# undef SNMP_ERR_NOACCESS
+# undef SNMP_ERR_WRONGTYPE
+# undef SNMP_ERR_WRONGLENGTH
+# undef SNMP_ERR_WRONGENCODING
+# undef SNMP_ERR_WRONGVALUE
+# undef SNMP_ERR_NOCREATION
+# undef SNMP_ERR_INCONSISTENTVALUE
+# undef SNMP_ERR_RESOURCEUNAVAILABLE
+# undef SNMP_ERR_COMMITFAILED
+# undef SNMP_ERR_UNDOFAILED
+# undef SNMP_ERR_AUTHORIZATIONERROR
+# undef SNMP_ERR_NOTWRITABLE
+# undef SNMP_ERR_INCONSISTENTNAME
+# undef SNMP_TRAP_COLDSTART
+# undef SNMP_TRAP_WARMSTART
+# undef SNMP_TRAP_LINKDOWN
+# undef SNMP_TRAP_LINKUP
+# undef SNMP_TRAP_EGPNEIGHBORLOSS
+# undef SNMP_TRAP_ENTERPRISESPECIFIC
+# undef SNMP_TRAP_AUTHFAIL
+# undef SNMP_NOSUCHOBJECT
+# undef SNMP_NOSUCHINSTANCE
+# undef SNMP_ENDOFMIBVIEW
+#endif
+
 #include "asn1.h"
 
 #include "packet-snmp.h"
@@ -371,9 +412,72 @@ format_oid(gchar *buf, subid_t *oid, guint oid_length)
 	}
 }
 
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+static void
+format_value(gchar *buf, struct variable_list *variable, subid_t *variable_oid,
+    guint variable_oid_length, gushort vb_type, guint vb_length)
+{
+	variable->next_variable = NULL;
+	variable->name = variable_oid;
+	variable->name_length = variable_oid_length;
+	switch (vb_type) {
+
+	case SNMP_INTEGER:
+		variable->type = SMI_INTEGER;
+		break;
+
+	case SNMP_COUNTER:
+		variable->type = SMI_COUNTER32;
+		break;
+
+	case SNMP_GAUGE:
+		variable->type = SMI_GAUGE32;
+		break;
+
+	case SNMP_TIMETICKS:
+		variable->type = SMI_TIMETICKS;
+		break;
+
+	case SNMP_OCTETSTR:
+		variable->type = SMI_STRING;
+		break;
+
+	case SNMP_IPADDR:
+		variable->type = SMI_IPADDRESS;
+		break;
+
+	case SNMP_OPAQUE:
+		variable->type = SMI_OPAQUE;
+		break;
+
+	case SNMP_NSAP:
+#ifdef ASN_NSAP
+		variable->type = ASN_NSAP;
+#else
+		variable->type = SMI_STRING;
+#endif
+		break;
+
+	case SNMP_OBJECTID:
+		variable->type = SMI_OBJID;
+		break;
+
+	case SNMP_BITSTR:
+		variable->type = ASN_BIT_STR;
+		break;
+
+	case SNMP_COUNTER64:
+		variable->type = SMI_COUNTER64;
+		break;
+	}
+	variable->val_len = vb_length;
+	sprint_value(buf, variable_oid, variable_oid_length, variable);
+}
+#endif
+
 static int
-snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
-			guint *lengthp)
+snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
+    guint variable_oid_length, ASN1_SCK *asn1, int offset, guint *lengthp)
 {
 	const guchar *start;
 	guint length;
@@ -388,14 +492,22 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 	guint32 vb_uinteger_value;
 
 	guint8 *vb_octet_string;
-	gchar vb_string[MAX_STRING_LEN]; /* TBC */
 
 	subid_t *vb_oid;
 	guint vb_oid_length;
 
+	gchar vb_display_string[MAX_STRING_LEN]; /* TBC */
+
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+	struct variable_list variable;
+#if defined(HAVE_UCD_SNMP_SNMP_H)
+	long value;
+#endif
+#else	/* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
 	int i;
 	gchar *buf;
 	int len;
+#endif	/* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
 
 	/* parse the type of the object */
 	start = asn1->pointer;
@@ -407,8 +519,14 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 
 	/* Convert the class, constructed flag, and tag to a type. */
 	vb_type_name = snmp_tag_cls2syntax(tag, cls, &vb_type);
-	if (vb_type_name == NULL)
-		return -1;	/* XXX - do something here */
+	if (vb_type_name == NULL) {
+		/*
+		 * Unsupported type.
+		 * Dissect the value as an opaque string of octets.
+		 */
+		vb_type_name = "unsupported type";
+		vb_type = SNMP_OPAQUE;
+	}
 
 	/* parse the value */
 	switch (vb_type) {
@@ -420,9 +538,23 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 			return ret;
 		length = asn1->pointer - start;
 		if (snmp_tree) {
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+#if defined(HAVE_UCD_SNMP_SNMP_H)
+			value = vb_integer_value;
+			variable.val.integer = &value;
+#elif defined(HAVE_SNMP_SNMP_H)
+			variable.val.integer = &vb_integer_value;
+#endif
+			format_value(vb_display_string, &variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
 			proto_tree_add_text(snmp_tree, offset, length,
-			    "Value: <%s> %d (%#x)", vb_type_name,
+			    "Value: %s", vb_display_string);
+#else
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: %s: %d (%#x)", vb_type_name,
 			    vb_integer_value, vb_integer_value);
+#endif
 		}
 		break;
 
@@ -435,9 +567,23 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 			return ret;
 		length = asn1->pointer - start;
 		if (snmp_tree) {
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+#if defined(HAVE_UCD_SNMP_SNMP_H)
+			value = vb_uinteger_value;
+			variable.val.integer = &value;
+#elif defined(HAVE_SNMP_SNMP_H)
+			variable.val.integer = &vb_uinteger_value;
+#endif
+			format_value(vb_display_string, &variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
 			proto_tree_add_text(snmp_tree, offset, length,
-			    "Value: <%s> %u (%#x)", vb_type_name,
+			    "Value: %s", vb_display_string);
+#else
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: %s: %u (%#x)", vb_type_name,
 			    vb_uinteger_value, vb_uinteger_value);
+#endif
 		}
 		break;
 
@@ -445,12 +591,22 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 	case SNMP_IPADDR:
 	case SNMP_OPAQUE:
 	case SNMP_NSAP:
+	case SNMP_BITSTR:
+	case SNMP_COUNTER64:
 		ret = asn1_octet_string_value_decode (asn1, vb_length,
 		    &vb_octet_string);
 		if (ret != ASN1_ERR_NOERROR)
 			return ret;
 		length = asn1->pointer - start;
 		if (snmp_tree) {
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+			variable.val.string = vb_octet_string;
+			format_value(vb_display_string, &variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: %s", vb_display_string);
+#else
 			/*
 			 * If some characters are not printable, display
 			 * the string as bytes.
@@ -466,7 +622,7 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 				 * character, before we got to the end
 				 * of the string.
 				 */
-				buf = &vb_string[0];
+				buf = &vb_display_string[0];
 				len = sprintf(buf, "%03u", vb_octet_string[0]);
 				buf += len;
 				for (i = 1; i < vb_length; i++) {
@@ -475,12 +631,14 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 					buf += len;
 				}
 				proto_tree_add_text(snmp_tree, offset, length,
-				    "Value: <%s> %s", vb_type_name, vb_string);
+				    "Value: %s: %s", vb_type_name,
+				    vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, offset, length,
-				    "Value: <%s> %.*s", vb_type_name, vb_length,
+				    "Value: %s: %.*s", vb_type_name, vb_length,
 				    vb_octet_string);
 			}
+#endif
 		}
 		g_free(vb_octet_string);
 		break;
@@ -492,7 +650,7 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 		length = asn1->pointer - start;
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, offset, length,
-			    "Value: <%s>", vb_type_name);
+			    "Value: %s", vb_type_name);
 		}
 		break;
 
@@ -503,9 +661,18 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 			return ret;
 		length = asn1->pointer - start;
 		if (snmp_tree) {
-			format_oid(vb_string, vb_oid, vb_oid_length);
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+			variable.val.objid = vb_oid;
+			format_value(vb_display_string, &variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length*sizeof (subid_t));
 			proto_tree_add_text(snmp_tree, offset, length,
-			    "Value: <%s> %s", vb_type_name);
+			    "Value: %s", vb_display_string);
+#else
+			format_oid(vb_display_string, vb_oid, vb_oid_length);
+			proto_tree_add_text(snmp_tree, offset, length,
+			    "Value: %s: %s", vb_type_name, vb_display_string);
+#endif
 		}
 		g_free(vb_oid);
 		break;
@@ -514,32 +681,29 @@ snmp_variable_decode(proto_tree *snmp_tree, ASN1_SCK *asn1, int offset,
 		length = asn1->pointer - start;
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, offset, length,
-			    "Value: <err> no such object");
-		}			
+			    "Value: %s: no such object", vb_type_name);
+		}
 		break;
 
 	case SNMP_NOSUCHINSTANCE:
 		length = asn1->pointer - start;
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, offset, length,
-			    "Value: <err> no such instance");
-		}			
+			    "Value: %s: no such instance", vb_type_name);
+		}
 		break;
 
 	case SNMP_ENDOFMIBVIEW:
 		length = asn1->pointer - start;
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, offset, length,
-			    "Value: <err> end of mib view");
-		}			
+			    "Value: %s: end of mib view", vb_type_name);
+		}
 		break;
 
 	default:
-		length = asn1->pointer - start;
-		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
-			    "Value: <unsupported type>");
-		}
+		g_assert_not_reached();
+		return ASN1_ERR_WRONG_TYPE;
 	}
 	*lengthp = length;
 	return ASN1_ERR_NOERROR;
@@ -696,11 +860,9 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 	case SNMP_MSG_GETNEXT:
 	case SNMP_MSG_RESPONSE:
 	case SNMP_MSG_SET:
-#if 0
 	/* XXX - are they like V1 non-trap PDUs? */
 	case SNMP_MSG_GETBULK:
 	case SNMP_MSG_INFORM:
-#endif
 		/* request id */
 		ret = asn1_uint32_decode (&asn1, &request_id, &length);
 		if (ret != ASN1_ERR_NOERROR) {
@@ -898,13 +1060,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 			sprint_objid(vb_oid_string, variable_oid,
 			    variable_oid_length);
-#endif
-			
 			proto_tree_add_text(snmp_tree, offset, sequence_length,
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) || defined(HAVE_SMI_H)
 			    "Object identifier %d: %s (%s)", vb_index,
 			    oid_string, vb_oid_string);
 #else
+			
+			proto_tree_add_text(snmp_tree, offset, sequence_length,
 			    "Object identifier %d: %s", vb_index,
 			    oid_string);
 #endif
@@ -913,7 +1074,8 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		variable_bindings_length -= sequence_length;
 				
 		/* Parse the variable's value */
-		ret = snmp_variable_decode(snmp_tree, &asn1, offset, &length);
+		ret = snmp_variable_decode(snmp_tree, variable_oid,
+		    variable_oid_length, &asn1, offset, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(pd, offset, fd, tree,
 			    "variable", ret);
@@ -944,6 +1106,9 @@ proto_register_snmp(void)
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 	/* UCD or CMU SNMP */
 	init_mib();
+#ifdef HAVE_UCD_SNMP_SNMP_H
+	snmp_set_full_objid(TRUE);
+#endif
 #endif
         proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
  /*       proto_register_field_array(proto_snmp, hf, array_length(hf));*/
