@@ -8,7 +8,7 @@
  * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.20 2003/11/21 22:18:30 guy Exp $
+ * $Id: packet-smpp.c,v 1.21 2003/12/12 23:47:42 obiot Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -1564,10 +1564,14 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 			/* Show all fragments */
 			show_fragment_seq_tree (fd_sm, &sm_frag_items,
 					sm_tree, pinfo, sm_tvb);
-		} else {
 			if (check_col (pinfo->cinfo, COL_INFO))
 				col_append_str (pinfo->cinfo, COL_INFO,
-						" (Short Message unreassembled)");
+						" (Short Message Reassembled)");
+		} else {
+			/* Not last packet of reassembled Short Message */
+			if (check_col (pinfo->cinfo, COL_INFO))
+				col_append_fstr (pinfo->cinfo, COL_INFO,
+						" (Short Message fragment %u of %u)", frag, frags);
 		}
 	}
 
@@ -1969,8 +1973,10 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items.
+	 *
+	 * Exception: sm_submit (command_id == 0x00000004) - for SMS reassembly
      */
-    if (tree) {
+    if (tree || (command_id == 4)) {
 
 	/* create display subtree for the protocol	*/
 	ti = proto_tree_add_item(tree, proto_smpp, tvb, 0,
