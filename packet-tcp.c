@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.194 2003/05/21 05:43:27 guy Exp $
+ * $Id: packet-tcp.c,v 1.195 2003/05/21 05:57:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2149,10 +2149,18 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * If we've been handed an IP fragment, we don't know how big the TCP
    * segment is, so don't do anything that requires that we know that.
+   *
+   * The same applies if we're part of an error packet.  (XXX - if the
+   * ICMP and ICMPv6 dissectors could set a "this is how big the IP
+   * header says it is" length in the tvbuff, we could use that; such
+   * a length might also be useful for handling packets where the IP
+   * length is bigger than the actual data available in the frame; the
+   * dissectors should trust that length, and then throw a
+   * ReportedBoundsError exception when they go past the end of the frame.)
    */
   reported_len = tvb_reported_length(tvb);
 
-  if (!pinfo->fragmented) {
+  if (!pinfo->fragmented && !pinfo->in_error_pkt) {
     /* Compute the length of data in this segment. */
     tcph->th_seglen = reported_len - tcph->th_hlen;
 
@@ -2222,11 +2230,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     if (tcp_summary_in_tree) {
       proto_item_append_text(ti, ", Ack: %u", tcph->th_ack);
-      if (!pinfo->fragmented)
+      if (!pinfo->fragmented && !pinfo->in_error_pkt)
         proto_item_append_text(ti, ", Len: %u", tcph->th_seglen);
     }
     proto_item_set_len(ti, tcph->th_hlen);
-    if (!pinfo->fragmented) {
+    if (!pinfo->fragmented && !pinfo->in_error_pkt) {
       if (nxtseq != tcph->th_seq) {
         proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
       }
@@ -2360,7 +2368,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else
     tcpinfo.urgent = FALSE;
 
-  if (!pinfo->fragmented) {
+  if (!pinfo->fragmented && !pinfo->in_error_pkt) {
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", tcph->th_seglen);
   }
@@ -2384,7 +2392,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      (it could be an ACK-only packet) */
   length_remaining = tvb_length_remaining(tvb, offset);
 
-  if (!pinfo->fragmented) {
+  if (!pinfo->fragmented && !pinfo->in_error_pkt) {
     if( data_out_file ) {
       reassemble_tcp( tcph->th_seq,		/* sequence number */
           tcph->th_seglen,			/* data length */
