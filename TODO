@@ -1,4 +1,4 @@
-$Id: TODO,v 1.14 2004/03/15 02:24:42 jmayer Exp $
+$Id: TODO,v 1.15 2004/03/31 01:31:00 jmayer Exp $
 
 Things to do:
 =============
@@ -101,7 +101,7 @@ we have krb5, but not krb4
 *) Display filters: add regexes to strings and byte ranges
 
 *) Build process:
-  - Merge epan/configure.in back into toplevel configure.in
+  - Merge epan/configure.in back into toplevel configure.in [DONE]
   - Run make-version.pl only once per make
   - --enable-static doesn't build on all platforms any more (e.g. Suse 9.0)
     because all static builds are not supported on those platforms. Try to
@@ -109,4 +109,5 @@ we have krb5, but not krb4
   - Support native win32 builds using auto-tools and gcc
   - Move dissectors and supporting files into the epan tree
   - Move plugins into the epan tree
+  - move libs/objects to be linked into LDADD_xxx where appropriate
 
