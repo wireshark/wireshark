@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.11 1999/11/15 06:32:12 gram Exp $
+ * $Id: dfilter-int.h,v 1.12 2000/07/22 15:58:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,18 +63,19 @@ gboolean check_relation_ipv4(gint operand, GArray *a, GArray *b);
 gboolean check_relation_ipv6(gint operand, GArray *a, GArray *b);
 gboolean check_relation_bytes(gint operand, GArray *a, GArray *b);
 
+void fill_array_numeric_variable(field_info*, GArray*, const guint8*);
+void fill_array_floating_variable(field_info*, GArray*, const guint8*);
+void fill_array_ether_variable(field_info*, GArray*, const guint8*);
+void fill_array_ipv4_variable(field_info*, GArray*, const guint8*);
+void fill_array_ipv6_variable(field_info*, GArray*, const guint8*);
+void fill_array_bytes_variable(field_info*, GArray*, const guint8*);
+
 gboolean fill_array_numeric_value(GNode *gnode, gpointer data);
-gboolean fill_array_numeric_variable(GNode *gnode, gpointer data);
 gboolean fill_array_floating_value(GNode *gnode, gpointer data);
-gboolean fill_array_floating_variable(GNode *gnode, gpointer data);
 gboolean fill_array_ether_value(GNode *gnode, gpointer data);
-gboolean fill_array_ether_variable(GNode *gnode, gpointer data);
 gboolean fill_array_ipv4_value(GNode *gnode, gpointer data);
-gboolean fill_array_ipv4_variable(GNode *gnode, gpointer data);
 gboolean fill_array_ipv6_value(GNode *gnode, gpointer data);
-gboolean fill_array_ipv6_variable(GNode *gnode, gpointer data);
 gboolean fill_array_bytes_value(GNode *gnode, gpointer data);
-gboolean fill_array_bytes_variable(GNode *gnode, gpointer data);
 
 #ifdef WIN32
 #define boolean truth_value
@@ -99,6 +100,7 @@ enum node_type {
 };
 
 typedef gboolean(*CheckRelationFunc) (gint operand, GArray *a, GArray *b);
+typedef void(*FillArrayFunc) (field_info*, GArray*, const guint8*);
 
 /* This struct is the parse tree node created by this grammary and used
  * directly in the display filter routines to filter packets.
@@ -109,7 +111,8 @@ typedef struct dfilter_node {
 						when finding elements for each packet. Saves time
 						in get_values_from_ptree() */
 	CheckRelationFunc		check_relation_func;
-	GNodeTraverseFunc		fill_array_func;
+	FillArrayFunc			fill_array_variable_func;
+	GNodeTraverseFunc		fill_array_value_func;
 
 	/* copied from proto.h */
 	union {

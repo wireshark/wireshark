@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.38 2000/02/05 06:07:16 guy Exp $
+ * $Id: dfilter-grammar.y,v 1.39 2000/07/22 15:58:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -586,7 +586,8 @@ dfilter_mknode_join(GNode *n1, enum node_type ntype, int operand, GNode *n2)
 	node_root = g_mem_chunk_alloc(global_df->node_memchunk);
 	node_root->ntype = ntype;
 	node_root->elem_size = 0;
-	node_root->fill_array_func = NULL;
+	node_root->fill_array_variable_func = NULL;
+	node_root->fill_array_value_func = NULL;
 	node_root->check_relation_func = NULL;
 	if (ntype == relation) {
 		node_root->value.relation = operand;
@@ -615,7 +616,8 @@ dfilter_mknode_unary(int operand, GNode *n2)
 	node_root->ntype = logical;
 	node_root->value.logical = operand;
 	node_root->elem_size = 0;
-	node_root->fill_array_func = NULL;
+	node_root->fill_array_variable_func = NULL;
+	node_root->fill_array_value_func = NULL;
 	node_root->check_relation_func = NULL;
 
 	gnode_root = g_node_new(node_root);
@@ -634,7 +636,8 @@ dfilter_mknode_numeric_variable(gint id)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(guint32);
-	node->fill_array_func = fill_array_numeric_variable;
+	node->fill_array_variable_func = fill_array_numeric_variable;
+	node->fill_array_value_func = NULL;
 	node->check_relation_func = check_relation_numeric;
 	node->value.variable = id;
 	gnode = g_node_new(node);
@@ -651,7 +654,8 @@ dfilter_mknode_ether_variable(gint id)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(guint8) * 6;
-	node->fill_array_func = fill_array_ether_variable;
+	node->fill_array_variable_func = fill_array_ether_variable;
+	node->fill_array_value_func = NULL;
 	node->check_relation_func = check_relation_ether;
 	node->value.variable = id;
 	gnode = g_node_new(node);
@@ -668,7 +672,8 @@ dfilter_mknode_floating_variable(gint id)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(double);
-	node->fill_array_func = fill_array_floating_variable;
+	node->fill_array_variable_func = fill_array_floating_variable;
+	node->fill_array_value_func = NULL;
 	node->check_relation_func = check_relation_floating;
 	node->value.variable = id;
 	gnode = g_node_new(node);
@@ -685,7 +690,8 @@ dfilter_mknode_ipxnet_variable(gint id)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(guint8) * 4;
-	node->fill_array_func = fill_array_numeric_variable; /* cheating ! */
+	node->fill_array_variable_func = fill_array_numeric_variable; /* cheating ! */
+	node->fill_array_value_func = NULL;
 	node->check_relation_func = check_relation_numeric; /* cheating ! */
 	node->value.variable = id;
 	gnode = g_node_new(node);
@@ -702,7 +708,8 @@ dfilter_mknode_ipv4_variable(gint id)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(ipv4_addr);
-	node->fill_array_func = fill_array_ipv4_variable;
+	node->fill_array_variable_func = fill_array_ipv4_variable;
+	node->fill_array_value_func = NULL;
 	node->check_relation_func = check_relation_ipv4;
 	node->value.variable = id;
 	gnode = g_node_new(node);
@@ -719,7 +726,8 @@ dfilter_mknode_ipv6_variable(gint id)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = 16;
-	node->fill_array_func = fill_array_ipv6_variable;
+	node->fill_array_variable_func = fill_array_ipv6_variable;
+	node->fill_array_value_func = NULL;
 	node->check_relation_func = check_relation_ipv6; 
 	node->value.variable = id;
 	gnode = g_node_new(node);
@@ -736,7 +744,8 @@ dfilter_mknode_bytes_variable(gint id, gint offset, guint length)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(GByteArray*);
-	node->fill_array_func = fill_array_bytes_variable;
+	node->fill_array_variable_func = fill_array_bytes_variable;
+	node->fill_array_value_func = NULL;
 	node->check_relation_func = check_relation_bytes;
 	node->value.variable = id;
 	node->offset = offset;
@@ -753,7 +762,7 @@ dfilter_get_bytes_variable_field_registered_length(GNode *gnode)
 	dfilter_node	*node = gnode->data;
 
 	/* Is this really a bytes_variable? */
-	g_assert(node->fill_array_func = fill_array_bytes_variable);
+	g_assert(node->fill_array_variable_func == fill_array_bytes_variable);
 
 	return proto_registrar_get_length(node->value.variable);
 }
@@ -765,7 +774,7 @@ dfilter_set_bytes_variable_length(GNode *gnode, guint length)
 	dfilter_node	*node = gnode->data;
 
 	/* Is this really a bytes_variable? */
-	g_assert(node->fill_array_func = fill_array_bytes_variable);
+	g_assert(node->fill_array_variable_func == fill_array_bytes_variable);
 
 	node->length = length;
 }
@@ -777,7 +786,7 @@ dfilter_get_bytes_variable_length(GNode *gnode)
 	dfilter_node	*node = gnode->data;
 
 	/* Is this really a bytes_variable? */
-	g_assert(node->fill_array_func = fill_array_bytes_variable);
+	g_assert(node->fill_array_variable_func == fill_array_bytes_variable);
 
 	return node->length;
 }
@@ -789,7 +798,7 @@ dfilter_get_bytes_variable_offset(GNode *gnode)
 	dfilter_node	*node = gnode->data;
 
 	/* Is this really a bytes_variable? */
-	g_assert(node->fill_array_func = fill_array_bytes_variable);
+	g_assert(node->fill_array_variable_func == fill_array_bytes_variable);
 
 	return node->offset;
 }
@@ -811,7 +820,8 @@ dfilter_mknode_numeric_value(guint32 val)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = numeric;
 	node->elem_size = sizeof(guint32);
-	node->fill_array_func = fill_array_numeric_value;
+	node->fill_array_variable_func = NULL;
+	node->fill_array_value_func = fill_array_numeric_value;
 	node->check_relation_func = check_relation_numeric;
 	node->value.numeric = val;
 	gnode = g_node_new(node);
@@ -828,7 +838,8 @@ dfilter_mknode_floating_value(double val)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = floating;
 	node->elem_size = sizeof(double);
-	node->fill_array_func = fill_array_floating_value;
+	node->fill_array_variable_func = NULL;
+	node->fill_array_value_func = fill_array_floating_value;
 	node->check_relation_func = check_relation_floating;
 	node->value.floating = val;
 	gnode = g_node_new(node);
@@ -846,7 +857,8 @@ dfilter_mknode_ether_value(gchar *byte_string)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = ether;
 	node->elem_size = sizeof(guint8) * 6;
-	node->fill_array_func = fill_array_ether_value;
+	node->fill_array_variable_func = NULL;
+	node->fill_array_value_func = fill_array_ether_value;
 	node->check_relation_func = check_relation_ether;
 
 	if (!ether_str_to_guint8_array(byte_string, &node->value.ether[0])) {
@@ -871,7 +883,8 @@ dfilter_mknode_ipxnet_value(guint32 ipx_net_val)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = ipxnet;
 	node->elem_size = sizeof(guint8) * 4;
-	node->fill_array_func = fill_array_numeric_value; /* cheating ! */
+	node->fill_array_variable_func = NULL;
+	node->fill_array_value_func = fill_array_numeric_value; /* cheating ! */
 	node->check_relation_func = check_relation_numeric; /* cheating ! */
 	node->value.numeric = ipx_net_val;
 	gnode = g_node_new(node);
@@ -890,7 +903,8 @@ dfilter_mknode_ipv4_value(char *host, int nmask_bits)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = numeric;
 	node->elem_size = sizeof(ipv4_addr);
-	node->fill_array_func = fill_array_ipv4_value;
+	node->fill_array_variable_func = NULL;
+	node->fill_array_value_func = fill_array_ipv4_value;
 	node->check_relation_func = check_relation_ipv4;
 	if (!get_host_ipaddr(host, &addr)) {
 		/* Rather than free the mem_chunk allocation, let it
@@ -917,7 +931,8 @@ dfilter_mknode_ipv6_value(char *host)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = ipv6;
 	node->elem_size = 16;
-	node->fill_array_func = fill_array_ipv6_value;
+	node->fill_array_variable_func = NULL;
+	node->fill_array_value_func = fill_array_ipv6_value;
 	node->check_relation_func = check_relation_ipv6;
 
 	if (!get_host_ipaddr6(host, (struct e_in6_addr*)&node->value.ipv6[0])) {
@@ -942,7 +957,8 @@ dfilter_mknode_bytes_value(GByteArray *barray)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = bytes;
 	node->elem_size = sizeof(GByteArray*);
-	node->fill_array_func = fill_array_bytes_value;
+	node->fill_array_variable_func = NULL;
+	node->fill_array_value_func = fill_array_bytes_value;
 	node->check_relation_func = check_relation_bytes;
 	node->value.bytes = barray;
 	node->offset = G_MAXINT;
@@ -1027,7 +1043,8 @@ dfilter_mknode_existence(gint id)
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = existence;
 	node->elem_size = sizeof(guint32);
-	node->fill_array_func = NULL;
+	node->fill_array_variable_func = NULL;
+	node->fill_array_value_func = NULL;
 	node->check_relation_func = NULL;
 	node->value.variable = id;
 	gnode = g_node_new(node);

@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.34 2000/04/14 05:39:36 gram Exp $
+ * $Id: dfilter.c,v 1.35 2000/07/22 15:58:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -403,6 +403,21 @@ check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 
 	return FALSE;
 }
 
+
+static void
+free_array_of_byte_arrays(GArray *array)
+{
+	int		i, len;
+	GByteArray	*ba_ptr;
+
+	len = array->len;
+
+	for (i = 0; i < len ; i++) {
+		ba_ptr = g_array_index(array, GByteArray*, i);
+		g_byte_array_free(ba_ptr, TRUE);
+	}
+}
+
 /* this is inefficient. I get arrays for both a and b that represent all the values present. That is,
  * if a is bootp.option, e.g., i'll get an array showing all the bootp.option values in the protocol
  * tree. Then I'll get an array for b, which more than likely is a single int, and then I'll compare
@@ -432,11 +447,21 @@ check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8
 
 	retval =  node_a->check_relation_func(operand, vals_a, vals_b);
 
+	/* Free GByteArrays alloated by fill_array_bytes_variable() */
+	if (node_a->fill_array_variable_func == fill_array_bytes_variable) {
+		free_array_of_byte_arrays(vals_a);
+	}
+
+	if (node_b->fill_array_variable_func == fill_array_bytes_variable) {
+		free_array_of_byte_arrays(vals_b);
+	}
+
 	g_array_free(vals_a, FALSE);
 	g_array_free(vals_b, FALSE);
 
 	return retval;
 }
+
 
 static gboolean
 check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree)
@@ -450,32 +475,97 @@ check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree)
 static GArray*
 get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd)
 {
-	GArray		*array;
-	int		parent_protocol;
-	proto_tree_search_info sinfo;
+	GArray		*result_array;
+	GPtrArray	*finfo_array;
+	int		i, len;
+	field_info	*finfo;
 
+	/* Prepare the array for results */
 	g_assert(dnode->elem_size > 0);
-	array = g_array_new(FALSE, FALSE, dnode->elem_size);
+	result_array = g_array_new(FALSE, FALSE, dnode->elem_size);
 
-	sinfo.target = dnode->value.variable;
-	sinfo.result.array = array;
-	sinfo.packet_data = pd;
-	sinfo.traverse_func = dnode->fill_array_func;
-
-	/* Find the proto_tree subtree where we should start searching.*/
-	if (proto_registrar_is_protocol(sinfo.target)) {
-		proto_find_protocol_multi(ptree, sinfo.target,
-				(GNodeTraverseFunc)proto_get_field_values, &sinfo);
+	/* Cull the finfos from the proto_tree */
+	finfo_array = proto_get_finfo_ptr_array(ptree, dnode->value.variable);
+	if (!finfo_array) {
+		return result_array;
 	}
-	else {
-		parent_protocol = proto_registrar_get_parent(sinfo.target);
-		if (parent_protocol >= 0) {
-			proto_find_protocol_multi(ptree, parent_protocol,
-					(GNodeTraverseFunc)proto_get_field_values, &sinfo);
+
+	len = g_ptr_array_len(finfo_array);
+
+	for (i = 0; i < len; i++) {
+		finfo = g_ptr_array_index(finfo_array, i);
+		dnode->fill_array_variable_func(finfo, result_array, pd);
+	}
+
+	g_ptr_array_free(finfo_array, FALSE);
+
+	return result_array;
+}
+
+
+void
+fill_array_numeric_variable(field_info *finfo, GArray *array, const guint8 *pd)
+{
+	g_array_append_val(array, finfo->value.numeric);
+}
+
+void
+fill_array_floating_variable(field_info *finfo, GArray *array, const guint8 *pd)
+{
+	g_array_append_val(array, finfo->value.floating);
+}
+
+void
+fill_array_ether_variable(field_info *finfo, GArray *array, const guint8 *pd)
+{
+	/* hmmm, yes, I *can* copy a pointer instead of memcpy() */
+	g_array_append_val(array, finfo->value.ether);
+}
+
+void
+fill_array_ipv4_variable(field_info *finfo, GArray *array, const guint8 *pd)
+{
+	/* hmmm, yes, I *can* copy a pointer instead of memcpy() */
+	g_array_append_val(array, finfo->value.ipv4);
+}
+
+void
+fill_array_ipv6_variable(field_info *finfo, GArray *array, const guint8 *pd)
+{
+	/* hmmm, yes, I *can* copy a pointer instead of memcpy() */
+	g_array_append_val(array, finfo->value.ipv6);
+}
+
+void
+fill_array_bytes_variable(field_info *finfo, GArray *array, const guint8 *pd)
+{
+	GByteArray		*barray;
+	guint			read_start, pkt_end;
+
+	if (bytes_offset < 0) {
+		/* Handle negative byte offsets */
+		bytes_offset = finfo->length + bytes_offset;
+		if (bytes_offset < 0) {
+			return;
 		}
 	}
 
-	return array;
+	/* Check to make sure offset exists for this field */
+	if (bytes_offset >= finfo->length) {
+		return;
+	}
+
+	pkt_end = finfo->start + finfo->length;
+	read_start = finfo->start + bytes_offset;
+
+	/* Check to make sure entire length requested is inside field */
+	if (pkt_end < read_start + bytes_length) {
+		return;
+	}
+
+	barray = g_byte_array_new();
+	g_byte_array_append(barray, pd + read_start, bytes_length);
+	g_array_append_val(array, barray);
 }
 
 static GArray*
@@ -486,105 +576,9 @@ get_values_from_dfilter(dfilter_node *dnode, GNode *gnode)
 	g_assert(dnode->elem_size > 0);
 	array = g_array_new(FALSE, FALSE, dnode->elem_size);
 
-	g_node_traverse(gnode, G_IN_ORDER, G_TRAVERSE_ALL, -1, dnode->fill_array_func, array);
+	g_node_traverse(gnode, G_IN_ORDER, G_TRAVERSE_ALL, -1,
+			dnode->fill_array_value_func, array);
 	return array;
-}
-
-gboolean fill_array_numeric_variable(GNode *gnode, gpointer data)
-{
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
-	field_info		*fi = (field_info*) (gnode->data);
-
-	if (fi->hfinfo->id == sinfo->target) {
-		g_array_append_val(sinfo->result.array, fi->value.numeric);
-	}
-
-	return FALSE; /* FALSE = do not end traversal of GNode tree */
-}
-
-gboolean fill_array_floating_variable(GNode *gnode, gpointer data)
-{
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
-	field_info		*fi = (field_info*) (gnode->data);
-
-	if (fi->hfinfo->id == sinfo->target) {
-		g_array_append_val(sinfo->result.array, fi->value.floating);
-	}
-
-	return FALSE; /* FALSE = do not end traversal of GNode tree */
-}
-
-gboolean fill_array_ether_variable(GNode *gnode, gpointer data)
-{
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
-	field_info		*fi = (field_info*) (gnode->data);
-
-	if (fi->hfinfo->id == sinfo->target) {
-		g_array_append_val(sinfo->result.array, fi->value.ether);
-	}
-
-	return FALSE; /* FALSE = do not end traversal of GNode tree */
-}
-
-gboolean fill_array_ipv4_variable(GNode *gnode, gpointer data)
-{
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
-	field_info		*fi = (field_info*) (gnode->data);
-
-	if (fi->hfinfo->id == sinfo->target) {
-		g_array_append_val(sinfo->result.array, fi->value.ipv4);
-	}
-
-	return FALSE; /* FALSE = do not end traversal of GNode tree */
-}
-gboolean fill_array_ipv6_variable(GNode *gnode, gpointer data)
-{
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
-	field_info		*fi = (field_info*) (gnode->data);
-
-	if (fi->hfinfo->id == sinfo->target) {
-		g_array_append_val(sinfo->result.array, fi->value.ipv6);
-	}
-
-	return FALSE; /* FALSE = do not end traversal of GNode tree */
-}
-
-gboolean fill_array_bytes_variable(GNode *gnode, gpointer data)
-{
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
-	field_info		*fi = (field_info*) (gnode->data);
-	GByteArray		*barray;
-	guint			read_start, pkt_end;
-
-	if (fi->hfinfo->id == sinfo->target) {
-		if (bytes_offset < 0) {
-			/* Handle negative byte offsets */
-			bytes_offset = fi->length + bytes_offset;
-			if (bytes_offset < 0) {
-				goto FAIL;
-			}
-		}
-
-		/* Check to make sure offset exists for this field */
-		if (bytes_offset >= fi->length) {
-			goto FAIL;
-		}
-
-		pkt_end = fi->start + fi->length;
-		read_start = fi->start + bytes_offset;
-
-		/* Check to make sure entire length requested is inside field */
-		if (pkt_end < read_start + bytes_length) {
-			goto FAIL;
-		}
-
-		barray = g_byte_array_new();
-		g_byte_array_append(barray, sinfo->packet_data + read_start, bytes_length);
-		g_array_append_val(sinfo->result.array, barray);
-	}
-
- FAIL:
-	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
 
 gboolean fill_array_numeric_value(GNode *gnode, gpointer data)

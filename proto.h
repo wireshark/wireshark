@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.35 2000/06/15 03:48:45 gram Exp $
+ * $Id: proto.h,v 1.36 2000/07/22 15:58:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,20 +137,6 @@ typedef struct field_info {
 		guint8		ipv6[16];
 	}				value;
 } field_info;
-
-
-/* used when calling proto search functions */
-typedef struct proto_tree_search_info {
-	int			target;
-	int			parent;
-	const guint8		*packet_data;
-	guint			packet_len;
-	GNodeTraverseFunc	traverse_func;
-	union {
-		GArray			*array;
-		GNode			*node;
-	} 			result;
-} proto_tree_search_info;
 
 
 /* For use while converting dissectors to use tvbuff's */
@@ -497,18 +483,15 @@ gboolean proto_registrar_is_protocol(int n);
 gint proto_registrar_get_length(int n);
 
 /* Checks for existence any protocol or field within a tree.
+ * "Protocols" are assumed to be a child of the [empty] root node.
  * TRUE = found, FALSE = not found */
 gboolean proto_check_for_protocol_or_field(proto_tree* tree, int id);
 
-/* Search for a protocol subtree, which can occur more than once, and for each successful
- * find, call the calback function, passing sinfo as the second argument */
-void proto_find_protocol_multi(proto_tree* tree, int target, GNodeTraverseFunc callback,
-			proto_tree_search_info *sinfo);
-
-/* Just a wrapper to call sinfo->traverse_func() for all nodes in the subtree, with the GNode
- * and sinfo as the two arguments to sinfo->traverse_func(). Useful when you have to process
- * all nodes in a subtree. */
-gboolean proto_get_field_values(proto_tree* subtree, proto_tree_search_info *sinfo);
+/* Return GPtrArray* of field_info pointers for all hfindex that appear in
+ * tree. Assume that a field will only appear under its registered parent's
+ * subtree, and that the parent's subtree is a child of the
+ * [empty] root node. */
+GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
 
 /* Dumps a glossary of the protocol and field registrations to STDOUT */
 void proto_registrar_dump(void);
@@ -529,5 +512,10 @@ extern gboolean	     *tree_is_expanded;
 
 /* Number of elements in that array. */
 extern int           num_tree_types;
+
+/* glib doesn't have g_ptr_array_len of all things!*/
+#ifndef g_ptr_array_len
+#define g_ptr_array_len(a)      ((a)->len)
+#endif
 
 #endif /* proto.h */

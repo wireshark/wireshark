@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.69 2000/06/15 03:48:44 gram Exp $
+ * $Id: proto.c,v 1.70 2000/07/22 15:58:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,7 +87,6 @@ static char* hfinfo_int_vals_format(header_field_info *hfinfo);
 static char* hfinfo_int_format(header_field_info *hfinfo);
 
 static gboolean check_for_protocol_or_field_id(GNode *node, gpointer data);
-static gboolean check_for_field_within_protocol(GNode *node, gpointer data);
 
 static proto_item*
 proto_tree_add_node(proto_tree *tree, field_info *fi);
@@ -2083,40 +2082,53 @@ proto_registrar_get_length(int n)
 	return -1;
 }
 
-/* Looks for a protocol or a field in a proto_tree. Returns TRUE if
- * it exists anywhere, or FALSE if it exists nowhere. */
-gboolean
-proto_check_for_protocol_or_field(proto_tree* tree, int id)
+
+/* =================================================================== */
+/* used when calling proto search functions */
+typedef struct {
+	int			target;
+	int			parent;
+	const guint8		*packet_data;
+	guint			packet_len;
+	gboolean		halt_on_first_hit;
+	GNodeTraverseFunc	traverse_func; /* for traverse_subtree_for_field() */
+	union {
+		GPtrArray		*ptr_array;
+		GNode			*node;
+	} 			result;
+} proto_tree_search_info;
+
+/* Looks for a protocol at the top layer of the tree. The protocol can occur
+ * more than once, for those encapsulated protocols. For each protocol subtree
+ * that is found, the callback function is called.
+ */
+static void
+proto_find_protocol_multi(proto_tree* tree, int target, GNodeTraverseFunc callback,
+			proto_tree_search_info *sinfo)
 {
-	proto_tree_search_info	sinfo;
+	g_assert(callback != NULL);
+	g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, 2, callback, (gpointer*)sinfo);
+}
 
-	sinfo.target = id;
-	sinfo.result.node = NULL;
-	sinfo.parent = -1;
-	sinfo.traverse_func = NULL;
+/* Calls a traversal function for all subtrees where:
+ * 1. Subtree is immediate child of root node. That is, subtree is a "protocol"
+ * 2. Subtree has finfo such that finfo->hfinfo->id == sinfo->parent
+ */
+static gboolean
+traverse_subtree_for_field(GNode *node, gpointer data)
+{
+	field_info		*fi = (field_info*) (node->data);
+	proto_tree_search_info	*sinfo = (proto_tree_search_info*) data;
 
-	/* do a quicker check if target is a protocol */
-	if (proto_registrar_is_protocol(id) == TRUE) {
-		proto_find_protocol_multi(tree, id, &check_for_protocol_or_field_id, &sinfo);
+	if (fi) { /* !fi == the top most container node which holds nothing */
+		if (fi->hfinfo->id == sinfo->parent) {
+			g_node_traverse(node, G_IN_ORDER, G_TRAVERSE_ALL, -1,
+					sinfo->traverse_func, sinfo);
+			if (sinfo->result.node)
+				return sinfo->halt_on_first_hit; /* halt? continue? */
+		}
 	}
-	else {
-		/* find the field's parent protocol */
-		sinfo.parent = proto_registrar_get_parent(id);
-
-		/* Go through each protocol subtree, checking if the protocols
-		 * is the parent protocol of the field that we're looking for.
-		 * We may have protocols that occur more than once (e.g., IP in IP),
-		 * so we do indeed have to check all protocol subtrees, looking
-		 * for the parent protocol. That's why proto_find_protocol()
-		 * is not used --- it assumes a protocol occurs only once. */
-		g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, 2,
-						check_for_field_within_protocol, &sinfo);
-	}
-
-	if (sinfo.result.node)
-		return TRUE;
-	else
-		return FALSE;
+	return FALSE; /* keep traversing */
 }
 
 static gboolean
@@ -2134,46 +2146,99 @@ check_for_protocol_or_field_id(GNode *node, gpointer data)
 	return FALSE; /* keep traversing */
 }
 
+/* Looks for a protocol or a field in a proto_tree. Returns TRUE if
+ * it exists anywhere, or FALSE if it exists nowhere. */
+gboolean
+proto_check_for_protocol_or_field(proto_tree* tree, int id)
+{
+	proto_tree_search_info	sinfo;
+
+	sinfo.target		= id;
+	sinfo.result.node	= NULL;
+	sinfo.parent		= -1;
+	sinfo.traverse_func	= check_for_protocol_or_field_id;
+	sinfo.halt_on_first_hit	= TRUE;
+
+	/* do a quicker check if target is a protocol */
+	if (proto_registrar_is_protocol(id) == TRUE) {
+		proto_find_protocol_multi(tree, id, check_for_protocol_or_field_id, &sinfo);
+	}
+	else {
+		/* find the field's parent protocol */
+		sinfo.parent = proto_registrar_get_parent(id);
+
+		/* Go through each protocol subtree, checking if the protocols
+		 * is the parent protocol of the field that we're looking for.
+		 * We may have protocols that occur more than once (e.g., IP in IP),
+		 * so we do indeed have to check all protocol subtrees, looking
+		 * for the parent protocol. That's why proto_find_protocol()
+		 * is not used --- it assumes a protocol occurs only once. */
+		g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, 2,
+						traverse_subtree_for_field, &sinfo);
+	}
+
+	if (sinfo.result.node)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+
 static gboolean
-check_for_field_within_protocol(GNode *node, gpointer data)
+get_finfo_ptr_array(GNode *node, gpointer data)
 {
 	field_info		*fi = (field_info*) (node->data);
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*) data;
 
 	if (fi) { /* !fi == the top most container node which holds nothing */
-		if (fi->hfinfo->id == sinfo->parent) {
-			g_node_traverse(node, G_IN_ORDER, G_TRAVERSE_ALL, -1,
-					check_for_protocol_or_field_id, sinfo);
-			if (sinfo->result.node)
-				return TRUE; /* halt traversal */
+		if (fi->hfinfo->id == sinfo->target) {
+			if (!sinfo->result.ptr_array) {
+				sinfo->result.ptr_array = g_ptr_array_new();
+			}
+			g_ptr_array_add(sinfo->result.ptr_array,
+					(gpointer)fi);
+			return FALSE; /* keep traversing */
 		}
 	}
 	return FALSE; /* keep traversing */
 }
 
-/* Looks for a protocol at the top layer of the tree. The protocol can occur
- * more than once, for those encapsulated protocols. For each protocol subtree
- * that is found, the callback function is called.
- */
-void
-proto_find_protocol_multi(proto_tree* tree, int target, GNodeTraverseFunc callback,
-			proto_tree_search_info *sinfo)
+/* Return GPtrArray* of field_info pointers for all hfindex that appear in tree
+ * (we assume that a field will only appear under its registered parent's subtree) */
+GPtrArray*
+proto_get_finfo_ptr_array(proto_tree *tree, int id)
 {
-	g_assert(callback != NULL);
-	g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, 2, callback, (gpointer*)sinfo);
-}
+	proto_tree_search_info	sinfo;
 
-/* Simple wrappter to traverse all nodes, calling the sinfo traverse function with sinfo as an arg */
-gboolean
-proto_get_field_values(proto_tree* subtree, proto_tree_search_info *sinfo)
-{
-	/* Don't try to check value of top-level NULL GNode */
-	if (!((GNode*)subtree)->data) {
-		return FALSE; /* don't halt */
+	sinfo.target		= id;
+	sinfo.result.ptr_array	= NULL;
+	sinfo.parent		= -1;
+	sinfo.traverse_func	= get_finfo_ptr_array;
+	sinfo.halt_on_first_hit	= FALSE;
+
+	/* do a quicker check if target is a protocol */
+	if (proto_registrar_is_protocol(id) == TRUE) {
+		proto_find_protocol_multi(tree, id, get_finfo_ptr_array, &sinfo);
 	}
-	g_node_traverse((GNode*)subtree, G_IN_ORDER, G_TRAVERSE_ALL, -1, sinfo->traverse_func, (gpointer*)sinfo);
-	return FALSE; /* don't halt */
+	else {
+		/* find the field's parent protocol */
+		sinfo.parent = proto_registrar_get_parent(id);
+
+		/* Go through each protocol subtree, checking if the protocols
+		 * is the parent protocol of the field that we're looking for.
+		 * We may have protocols that occur more than once (e.g., IP in IP),
+		 * so we do indeed have to check all protocol subtrees, looking
+		 * for the parent protocol. That's why proto_find_protocol()
+		 * is not used --- it assumes a protocol occurs only once. */
+		sinfo.traverse_func = get_finfo_ptr_array;
+		g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, 2,
+						traverse_subtree_for_field, &sinfo);
+	}
+
+	return sinfo.result.ptr_array;
 }
+	
 
 /* Dumps the contents of the registration database to stdout. An indepedent program can take
  * this output and format it into nice tables or HTML or whatever.
