@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.7 1999/10/22 07:17:33 guy Exp $
+ * $Id: packet-ipv6.h,v 1.8 1999/11/03 06:13:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,9 +95,6 @@ struct ip6_hdr {
 #define	IP6H_CTL_VFC	0
 #define	IP6H_SRC	8
 #define	IP6H_DST	24
-
-#define IPV6_VERSION		0x60
-#define IPV6_VERSION_MASK	0xf0
 
 #if BYTE_ORDER == BIG_ENDIAN
 #define IPV6_FLOWINFO_MASK	0x0fffffff	/* flow info (28 bits) */
