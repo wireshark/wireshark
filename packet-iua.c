@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen[AT]siemens.com>
  *
- * $Id: packet-iua.c,v 1.17 2002/12/02 10:54:57 tuexen Exp $
+ * $Id: packet-iua.c,v 1.18 2002/12/02 20:04:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,7 +118,7 @@ dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree 
 
   proto_tree_add_item(parameter_tree, hf_text_interface_id, parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%.*s)", interface_id_length,
-                         (char *)tvb_get_ptr(parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length));
+                         (const char *)tvb_get_ptr(parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length));
 }
 
 #define INFO_STRING_OFFSET PARAMETER_VALUE_OFFSET
@@ -131,7 +131,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
-                         (char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
+                         (const char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
 }
 
 #define DLCI_SAPI_LENGTH  1
