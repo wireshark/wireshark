@@ -2,11 +2,11 @@
  * Routines for EtherNet/IP (Industrial Protocol) dissection
  * EtherNet/IP Home: www.odva.org
  *
- * Copyright 2003
+ * Copyright 2003-2004
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.8 2004/01/27 04:43:35 guy Exp $
+ * $Id: packet-enip.c,v 1.9 2004/02/04 20:34:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -189,6 +189,11 @@
 #define CI_DATA_SEG_SIMPLE          0x80
 #define CI_DATA_SEG_SYMBOL          0x91
 
+#define CI_NETWORK_SEG_TYPE_MASK    0x07
+#define CI_NETWORK_SEG_SCHEDULE     0x01
+#define CI_NETWORK_SEG_FIXED_TAG    0x02
+#define CI_NETWORK_SEG_PROD_INHI    0x03
+
 
 /* Device Profile:s */
 #define DP_GEN_DEV                           0x00
@@ -248,6 +253,10 @@ static int hf_enip_ucm_fwo_fixed_var   = -1;
 static int hf_enip_ucm_fwo_prio        = -1;
 static int hf_enip_ucm_fwo_typ         = -1;
 static int hf_enip_ucm_fwo_own         = -1;
+
+static int hf_enip_ucm_fwo_dir         = -1;
+static int hf_enip_ucm_fwo_trigg       = -1;
+static int hf_enip_ucm_fwo_class       = -1;
 
 static int hf_enip_cpf_lsr_tcp         = -1;
 static int hf_enip_cpf_lsr_udp         = -1;
@@ -405,6 +414,33 @@ static const value_string enip_con_owner_vals[] = {
 	{ 0,        NULL        }
 };
 
+/* Translate function to string - Connection direction */
+static const value_string enip_con_dir_vals[] = {
+	{ 0,	      "Client" },
+	{ 1,	      "Server" },
+
+	{ 0,        NULL        }
+};
+
+/* Translate function to string - Production trigger */
+static const value_string enip_con_trigg_vals[] = {
+	{ 0,	      "Cyclic" },
+	{ 1,	      "Change-Of-State" },
+	{ 2,	      "Application Object" },
+
+	{ 0,        NULL        }
+};
+
+/* Translate function to string - Transport class */
+static const value_string enip_con_class_vals[] = {
+	{ 0,	      "0" },
+	{ 1,	      "1" },
+	{ 2,	      "2" },
+	{ 3,	      "3" },
+
+	{ 0,        NULL        }
+};
+
 
 /* Translate function to string - Connection type */
 static const value_string enip_con_type_vals[] = {
@@ -435,44 +471,44 @@ static const value_string enip_con_time_mult_vals[] = {
 static const value_string encap_cip_gs_vals[] = {
 	{ CI_GRC_SUCCESS,             "Success" },
    { CI_GRC_FAILURE,             "Connection failure" },
-   { CI_GRC_NO_RESOURCE,         "Resource(s) unavailable" },
-   { CI_GRC_BAD_DATA,            "Obj specific data bad" },
-   { CI_GRC_BAD_PATH,            "Bad path segment" },
-   { CI_GRC_BAD_CLASS_INSTANCE,  "Class/Instance unknown" },
-   { CI_GRC_PARTIAL_DATA,        "Not all expected data sent" },
-   { CI_GRC_CONN_LOST,           "Messaging connection lost" },
-   { CI_GRC_BAD_SERVICE,         "Unimplemented service code" },
-   { CI_GRC_BAD_ATTR_DATA,       "Bad attribute data value" },
-   { CI_GRC_ATTR_LIST_ERROR,     "Get/Set attr list failed" },
-   { CI_GRC_ALREADY_IN_MODE,     "Obj already in requested mode" },
-   { CI_GRC_BAD_OBJ_MODE,        "Obj not in proper mode" },
-   { CI_GRC_OBJ_ALREADY_EXISTS,  "Object already created" },
-   { CI_GRC_ATTR_NOT_SETTABLE,   "Set of get only attr tried" },
-   { CI_GRC_PERMISSION_DENIED,   "Insufficient access permission" },
-   { CI_GRC_DEV_IN_WRONG_STATE,  "Device not in proper mode" },
-   { CI_GRC_REPLY_DATA_TOO_LARGE,"Response packet too large" },
-   { CI_GRC_FRAGMENT_PRIMITIVE,  "Primitive value will fragment" },
-   { CI_GRC_CONFIG_TOO_SMALL,    "Configuration too small" },
-   { CI_GRC_UNDEFINED_ATTR,      "Attribute is undefined" },
-   { CI_GRC_CONFIG_TOO_BIG,      "Configuration too big" },
-   { CI_GRC_OBJ_DOES_NOT_EXIST,  "Non-existant object specified" },
-   { CI_GRC_NO_FRAGMENTATION,    "Fragmentation not active" },
-   { CI_GRC_DATA_NOT_SAVED,      "Attr data not previously saved" },
-   { CI_GRC_DATA_WRITE_FAILURE,  "Attr data not saved this time" },
-   { CI_GRC_REQUEST_TOO_LARGE,   "Routing failure on request" },
-   { CI_GRC_RESPONSE_TOO_LARGE,  "Routing failure on response" },
-   { CI_GRC_MISSING_LIST_DATA,   "Attr data not found in list" },
-   { CI_GRC_INVALID_LIST_STATUS, "Returned list of attr w/status" },
-   { CI_GRC_SERVICE_ERROR,       "Embedded service failed" },
-   { CI_GRC_CONN_RELATED_FAILURE,"Error in conn processing" },
-   { CI_GRC_INVALID_PARAMETER,   "Param associated with req inv" },
-   { CI_GRC_WRITE_ONCE_FAILURE,  "Write once previously done" },
-   { CI_GRC_INVALID_REPLY,       "Invalid reply received" },
-   { CI_GRC_BAD_KEY_IN_PATH,     "Electronic key in path failed" },
-   { CI_GRC_BAD_PATH_SIZE,       "Invalid path size" },
-   { CI_GRC_UNEXPECTED_ATTR,     "Cannot set attr at this time" },
-   { CI_GRC_INVALID_MEMBER,      "Member ID in list nonexistant" },
-   { CI_GRC_MEMBER_NOT_SETTABLE, "Cannot set value of member" },
+   { CI_GRC_NO_RESOURCE,         "Resource unavailable" },
+   { CI_GRC_BAD_DATA,            "Invalid parameter value" },
+   { CI_GRC_BAD_PATH,            "Path segment error" },
+   { CI_GRC_BAD_CLASS_INSTANCE,  "Path destination unknown" },
+   { CI_GRC_PARTIAL_DATA,        "Partial transfer" },
+   { CI_GRC_CONN_LOST,           "Connection lost" },
+   { CI_GRC_BAD_SERVICE,         "Service not supported" },
+   { CI_GRC_BAD_ATTR_DATA,       "Invalid attribute value" },
+   { CI_GRC_ATTR_LIST_ERROR,     "Attribute list error" },
+   { CI_GRC_ALREADY_IN_MODE,     "Already in requested mode/state" },
+   { CI_GRC_BAD_OBJ_MODE,        "Object state conflict" },
+   { CI_GRC_OBJ_ALREADY_EXISTS,  "Object already exists" },
+   { CI_GRC_ATTR_NOT_SETTABLE,   "Attribute not settable" },
+   { CI_GRC_PERMISSION_DENIED,   "Privilege violation" },
+   { CI_GRC_DEV_IN_WRONG_STATE,  "Device state conflict" },
+   { CI_GRC_REPLY_DATA_TOO_LARGE,"Reply data too large" },
+   { CI_GRC_FRAGMENT_PRIMITIVE,  "Fragmentation of a primitive value" },
+   { CI_GRC_CONFIG_TOO_SMALL,    "Not enough data" },
+   { CI_GRC_UNDEFINED_ATTR,      "Attribute not supported" },
+   { CI_GRC_CONFIG_TOO_BIG,      "Too much data" },
+   { CI_GRC_OBJ_DOES_NOT_EXIST,  "Object does not exist" },
+   { CI_GRC_NO_FRAGMENTATION,    "Service fragmentation sequence not in progress" },
+   { CI_GRC_DATA_NOT_SAVED,      "No stored attribute data" },
+   { CI_GRC_DATA_WRITE_FAILURE,  "Store operation failure" },
+   { CI_GRC_REQUEST_TOO_LARGE,   "Routing failure, request packet too large" },
+   { CI_GRC_RESPONSE_TOO_LARGE,  "Routing failure, response packet too large" },
+   { CI_GRC_MISSING_LIST_DATA,   "Missing attribute list entry data" },
+   { CI_GRC_INVALID_LIST_STATUS, "Invalid attribute value list" },
+   { CI_GRC_SERVICE_ERROR,       "Embedded service error" },
+   { CI_GRC_CONN_RELATED_FAILURE,"Vendor specific error" },
+   { CI_GRC_INVALID_PARAMETER,   "Invalid parameter" },
+   { CI_GRC_WRITE_ONCE_FAILURE,  "Write-once value or medium already written" },
+   { CI_GRC_INVALID_REPLY,       "Invalid Reply Received" },
+   { CI_GRC_BAD_KEY_IN_PATH,     "Key Failure in path" },
+   { CI_GRC_BAD_PATH_SIZE,       "Path Size Invalid" },
+   { CI_GRC_UNEXPECTED_ATTR,     "Unexpected attribute in list" },
+   { CI_GRC_INVALID_MEMBER,      "Invalid Member ID" },
+   { CI_GRC_MEMBER_NOT_SETTABLE, "Member not settable" },
 
   	{ 0,				               NULL }
 };
@@ -482,7 +518,10 @@ static const value_string encap_cip_gs_vals[] = {
 static const value_string encap_cip_vendor_vals[] = {
    { 1,     "Rockwell Automation/Allen-Bradley"                   },
    { 5,     "Rockwell Automation/Reliance Electric"               },
+   { 24,    "ODVA Special Reserve"                                },
+   { 26,    "Festo Corporation"                                   },
    { 40,    "WAGO Corporation"                                    },
+   { 48,    "Turck, Inc."                                         },
    { 49,    "Grayhill Inc."                                       },
    { 50,    "Real Time Automation (C&ID)"                         },
    { 52,    "Numatics, Inc."                                      },
@@ -490,13 +529,17 @@ static const value_string encap_cip_vendor_vals[] = {
    { 81,    "IXXAT Automation GmbH"                               },
    { 90,    "HMS Industrial Networks AB"                          },
    { 96,    "Digital Electronics Corp"                            },
+   { 128,   "MAC Valves, Inc."                                    },
    { 133,   "Balogh T.A.G., Corporation"                          },
    { 170,   "Pyramid Solutions, Inc."                             },
    { 256,   "InterlinkBT LLC"                                     },
    { 258,   "Hardy Instruments, Inc."                             },
+   { 275,   "Lantronix, Inc."                                     },
    { 283,   "Hilscher GmbH"                                       },
    { 287,   "Bosch Rexroth Corporation, Indramat"                 },
    { 356,   "Fanuc Robotics America"                              },
+   { 553,   "Control Techniques PLC-NA"                           },
+   { 562,   "Phoenix Contact"                                     },
    { 579,   "Applicom international"                              },
    { 588,   "West Instruments Limited"                            },
    { 590,   "Delta Computer Systems Inc."                         },
@@ -506,6 +549,7 @@ static const value_string encap_cip_vendor_vals[] = {
    { 651,   "Fife Corporation"                                    },
    { 668,   "Rockwell Automation/Entek IRD Intl."                 },
    { 678,   "Cognex Corporation"                                  },
+   { 691,   "Startco Engineering Ltd"                             },
    { 734,   "Hakko Electronics Co., Ltd"                          },
    { 735,   "Tang & Associates"                                   },
    { 743,   "Linux Network Services"                              },
@@ -518,13 +562,19 @@ static const value_string encap_cip_vendor_vals[] = {
    { 798,   "Tyco Electronics"                                    },
    { 803,   "ICP DAS Co., LTD"                                    },
    { 805,   "Digi International, Inc."                            },
+   { 808,   "SICK AG"                                             },
+   { 809,   "Ethernet Peripherals, Inc."                          },
    { 812,   "Process Control Corporation"                         },
    { 832,   "Quest Technical Solutions, Inc."                     },
    { 841,   "Panduit Corporation"                                 },
    { 850,   "Datalogic, Inc."                                     },
    { 851,   "SoftPLC Corporation"                                 },
+   { 854,   "Frontline Test Equipment, Inc."                      },
    { 857,   "RVSI"                                                },
    { 859,   "Tennessee Rand Automation"                           },
+   { 866,   "ATR Industrie-Elektronik GmbH Co."                   },
+   { 875,   "FieldServer Technologies (Div Sierra Monitor Corp)"  },
+   { 883,   "Automa SRL"                                          },
 
 	{ 0,		NULL                                                  }
 };
@@ -680,10 +730,10 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
    int temp_data;
    int temp_data2;
    unsigned char segment_type, temp_byte, opt_link_size;
-   proto_tree *path_tree, *port_tree;
+   proto_tree *path_tree, *port_tree, *net_tree;
    proto_item *qi, *cia_item, *ds_item;
    proto_tree *e_key_tree, *cia_tree, *ds_tree;
-   proto_item *mcpi, *temp_item, *port_item, *ext_link_item;
+   proto_item *mcpi, *temp_item, *port_item, *ext_link_item, *net_item;
    proto_tree *mc_tree;
    int seg_size, i, temp_word;
    char *temp_string;
@@ -707,10 +757,14 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
       {
       case CI_PATH_SEGMENT:
 
-         port_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 0, "Port Segment (0x00)" );
+         port_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 0, "Port Segment" );
          port_tree = proto_item_add_subtree( port_item, ett_port_path );
 
-         /* Add Extended Link Address Size */
+         /* Add port number */
+         proto_tree_add_text( port_tree, tvb, offset+pathpos, 1, "Port Identifier: %d", (segment_type & 0x0F)  );
+         proto_item_append_text( pi, ", Port: %d", (segment_type & 0x0F)  );
+
+         /* Add Extended Link Address flag */
          temp_item = proto_tree_add_text( port_tree, tvb, offset+pathpos, 1, "Extended Link Address: " );
 
          if( segment_type & 0x10 )
@@ -721,11 +775,14 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
             proto_tree_add_text( port_tree, tvb, offset+pathpos+1, 1, "Link Address Size: %d", opt_link_size  );
             ext_link_item = proto_tree_add_text( port_tree, tvb, offset+pathpos+2, opt_link_size, "Link Address: " );
 
+            proto_item_append_text(pi, ", Addess: " );
+
             /* Add extended link address */
             for( i=0; i < opt_link_size; i++ )
             {
                temp_byte = tvb_get_guint8( tvb, offset + pathpos+2+i );
                proto_item_append_text(ext_link_item, "%c", temp_byte );
+               proto_item_append_text(pi, "%c", temp_byte );
             }
 
             /* Pad byte */
@@ -743,8 +800,9 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
          }
          else
          {
+            proto_item_append_text(pi, ", Address: %d", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+
             proto_item_append_text(temp_item, "FALSE");
-            proto_tree_add_text( port_tree, tvb, offset+pathpos, 1, "Port Identifier: %d", (segment_type & 0x0F)  );
             proto_tree_add_text( port_tree, tvb, offset+pathpos+1, 1, "Link Address: %d", tvb_get_guint8( tvb, offset + pathpos + 1 )  );
             proto_item_set_len(port_item, 2);
             pathpos += 2;
@@ -1195,6 +1253,50 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
 
             break;
 
+      case CI_NETWORK_SEGMENT:
+
+         /* Network segment -Determine the segment sub-type */
+
+         switch( segment_type & CI_NETWORK_SEG_TYPE_MASK )
+         {
+            case CI_NETWORK_SEG_SCHEDULE:
+               net_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "Network Segment - Schedule" );
+               net_tree = proto_item_add_subtree( net_item, ett_port_path );
+
+               proto_tree_add_text( net_tree, tvb, offset + pathpos + 1, 1, "Multiplier/Phase: %02X", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+
+               /* 2 bytes of path used */
+               pathpos += 2;
+               break;
+
+            case CI_NETWORK_SEG_FIXED_TAG:
+               net_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "Network Segment - Fixed Tag" );
+               net_tree = proto_item_add_subtree( net_item, ett_port_path );
+
+               proto_tree_add_text( net_tree, tvb, offset + pathpos + 1, 1, "Fixed Tag: %02X", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+
+               /* 2 bytes of path used */
+               pathpos += 2;
+               break;
+
+            case CI_NETWORK_SEG_PROD_INHI:
+               net_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "Network Segment - Production Inhibit" );
+               net_tree = proto_item_add_subtree( net_item, ett_port_path );
+
+               proto_tree_add_text( net_tree, tvb, offset + pathpos + 1, 1, "Production Inhibit Time: %dms", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+
+               /* 2 bytes of path used */
+               pathpos += 2;
+               break;
+
+            default:
+               proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Sub-Segment Type" );
+               return;
+
+            } /* End of switch sub-type */
+
+      break;
+
       default:
 
          /* Unsupported segment type */
@@ -1210,7 +1312,7 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
 
 
 static void
-add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length )
+add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
 {
    proto_item *pi, *rrsci, *ncppi, *ar_item, *temp_item, *temp_item2;
 	proto_tree *temp_tree;
@@ -1236,9 +1338,20 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length 
 
    proto_item_append_text( rrsci, "%s (%s)",
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                  encap_sc_vals , "Unknown Service Code (%x)"),
+                  encap_sc_vals , "Unknown Service (%x)"),
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x80 )>>7,
                   encap_sc_rr, "") );
+
+
+
+   /* Add service to info column */
+   if(check_col(pinfo->cinfo, COL_INFO))
+   {
+      col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
+               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
+                  encap_sc_vals , "Unknown Service (%x)") );
+   }
+
 
 	/* Add Service code */
 	proto_tree_add_item(rrsci_tree, hf_enip_ucm_sc,
@@ -1410,7 +1523,7 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length 
 
                   temp_item2 = proto_tree_add_text( cmd_data_tree, tvb, offset+serv_offset+4, serv_length, "Service Reply #%d", i+1 );
                   temp_tree = proto_item_add_subtree( temp_item2, ett_mult_ser );
-                  add_cip_data( temp_tree, tvb, offset+serv_offset+4, serv_length );
+                  add_cip_data( temp_tree, tvb, offset+serv_offset+4, serv_length, pinfo );
                }
             } /* End if Multiple service Packet */
             else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_GET_ATT_LIST )
@@ -1586,9 +1699,21 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length 
    			proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_con_size,
    					tvb, offset+2+req_path_size+32, 2, TRUE );
 
-            /* Transport type/trigger */
+            /* Transport type/trigger in tree*/
             temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+34 );
-            proto_tree_add_text( cmd_data_tree, tvb, offset+6+req_path_size+34, 1, "Transport Type/Trigger: 0x%02X", temp_data );
+
+   	      ncppi = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+34, 1, "Transport Type/Trigger: 0x%02X", temp_data );
+   	      ncp_tree = proto_item_add_subtree(ncppi, ett_ncp);
+
+            /* Add the data to the tree */
+            proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_dir,
+   					tvb, offset+2+req_path_size+34, 1, TRUE );
+
+   			proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_trigg,
+   					tvb, offset+2+req_path_size+34, 1, TRUE );
+
+            proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_class,
+   					tvb, offset+2+req_path_size+34, 1, TRUE );
 
             /* Add path size */
             conn_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+35 )*2;
@@ -1609,6 +1734,10 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length 
             /* Display the time-out ticks */
             temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+1 );
             proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+1, 1, "Time-out_ticks: %d", temp_data );
+
+            /* Display the actual time out */
+            temp_data = ( 1 << ( temp_byte & 0x0F ) ) * temp_data;
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Actual Time Out: %dms", temp_data );
 
             /* Display connection serial number */
             temp_data = tvb_get_letohs( tvb, offset+2+req_path_size+2 );
@@ -1646,6 +1775,10 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length 
             temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+1 );
             proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+1, 1, "Time-out_ticks: %d", temp_data );
 
+            /* Display the actual time out */
+            temp_data = ( 1 << ( temp_byte & 0x0F ) ) * temp_data;
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Actual Time Out: %dms", temp_data );
+
             /* Message request size */
             msg_req_siz = tvb_get_letohs( tvb, offset+2+req_path_size+2 );
             proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+2, 2, "Message Request Size: 0x%04X", msg_req_siz );
@@ -1657,6 +1790,14 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length 
             /* MR - Service */
             temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+4 );
             proto_tree_add_text( temp_tree, tvb, offset+2+req_path_size+4, 1, "Service: %s (0x%02X)", val_to_str( temp_data, encap_sc_vals , "" ), temp_data );
+
+            /* Add service to info column */
+            if(check_col(pinfo->cinfo, COL_INFO))
+            {
+               col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
+                        val_to_str( ( temp_data & 0x7F ),
+                           encap_sc_vals , ", Unknown Service (%x)") );
+            }
 
             /* MR - Request path Size */
    		   mr_req_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+5 )*2;
@@ -1724,7 +1865,7 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length 
 
                temp_item2 = proto_tree_add_text( cmd_data_tree, tvb, offset+serv_offset+6, serv_length, "Service Packet #%d", i+1 );
                temp_tree = proto_item_add_subtree( temp_item2, ett_mult_ser );
-               add_cip_data( temp_tree, tvb, offset+serv_offset+6, serv_length );
+               add_cip_data( temp_tree, tvb, offset+serv_offset+6, serv_length, pinfo );
             }
          } /* End if Multiple service Packet */
          else if( tvb_get_guint8( tvb, offset ) == SC_GET_ATT_LIST )
@@ -1800,13 +1941,22 @@ show_cdf( int encap_service, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			   case CONNECTION_BASED:
 
 			      /* Add Connection identifier */
-			      proto_tree_add_text( item_tree, tvb, offset+6, 4, "Connection Identifier: 0x%04X", tvb_get_letohl( tvb, offset + 6 )  );
+			      proto_tree_add_text( item_tree, tvb, offset+6, 4, "Connection Identifier: 0x%08X", tvb_get_letohl( tvb, offset + 6 )  );
+
+			      /* Add Connection ID to Info col */
+			      if(check_col(pinfo->cinfo, COL_INFO))
+	            {
+                  col_append_fstr(pinfo->cinfo, COL_INFO,
+				         ", CONID: 0x%08X",
+				         tvb_get_letohl( tvb, offset+6 ) );
+				   }
+
 			      break;
 
 			   case UNCONNECTED_MSG:
 
 					/* Add CIP data tree*/
-					add_cip_data( item_tree, tvb, offset+6, item_length );
+					add_cip_data( item_tree, tvb, offset+6, item_length, pinfo );
 
 					break;
 
@@ -1823,7 +1973,18 @@ show_cdf( int encap_service, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                   proto_tree_add_text( item_tree, tvb, offset+6, 2, "Sequence Count: 0x%04X", tvb_get_letohs( tvb, offset+6 ) );
 
                   /* Add CIP data tree */
-                  add_cip_data( item_tree, tvb, offset+8, item_length-2 );
+                  add_cip_data( item_tree, tvb, offset+8, item_length-2, pinfo );
+
+                  /* Add SEQ Count to Info col */
+
+   			      /*
+   			      if(check_col(pinfo->cinfo, COL_INFO))
+   	            {
+                     col_append_fstr(pinfo->cinfo, COL_INFO,
+   				         ", SEQ=0x%04X",
+   				         tvb_get_letohs( tvb, offset+6 ) );
+   				   }
+   				   */
                }
                else
                {
@@ -1937,7 +2098,7 @@ show_cdf( int encap_service, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	               col_clear(pinfo->cinfo, COL_INFO);
 
                   col_add_fstr(pinfo->cinfo, COL_INFO,
-				         "Connection: ID=0x%08X, SEQ=%010d",
+				         "Connection:  ID=0x%08X, SEQ=%010d",
 				         tvb_get_letohl( tvb, offset+6 ),
 				         tvb_get_letohl( tvb, offset+10 ) );
 				   }
@@ -2045,29 +2206,32 @@ dissect_cipencap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_clear(pinfo->cinfo, COL_INFO);
 
    encap_cmd = tvb_get_letohs( tvb, 0 );
-   if(check_col(pinfo->cinfo, COL_INFO))
+
+   if( check_col(pinfo->cinfo, COL_INFO) )
    {
       packet_type = classify_packet(pinfo);
 
       switch ( packet_type )
       {
          case REQUEST_PACKET:
-            strcpy(pkt_type_str, "Request");
+            strcpy(pkt_type_str, "Req");
             break;
 
          case RESPONSE_PACKET:
-            strcpy(pkt_type_str, "Response");
+            strcpy(pkt_type_str, "Rsp");
             break;
 
          default:
-            strcpy(pkt_type_str, "Unknown");
+            strcpy(pkt_type_str, "?");
       }
 
+      /* Add service and request/response to info column */
       col_add_fstr(pinfo->cinfo, COL_INFO,
-                   "%s: %s, Session=0x%08X",
-		   pkt_type_str,
-		   val_to_str(encap_cmd, encap_cmd_vals, "Unknown (0x%04x)"),
-		   tvb_get_letohl( tvb, 4 ) );
+                "%-20s (%s)",
+	      val_to_str(encap_cmd, encap_cmd_vals, "Unknown (0x%04x)"),
+	      pkt_type_str );
+
+
    } /* end of if( col exists ) */
 
    /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -2103,6 +2267,24 @@ dissect_cipencap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text( headertree, tvb, 20, 4, "Options: 0x%08X",
                           tvb_get_letohl( tvb, 20 ) );
 
+      /*
+      ** For some commands we want to add some info to the info column
+      */
+
+      if( check_col( pinfo->cinfo, COL_INFO ) )
+      {
+
+         switch( encap_cmd )
+         {
+            case REGISTER_SESSION:
+            case UNREGISTER_SESSION:
+                  col_append_fstr( pinfo->cinfo, COL_INFO, ", Session: 0x%08X",
+                                   tvb_get_letohl( tvb, 4 ) );
+
+         } /* end of switch() */
+
+      } /* end of id info column */
+
       /* Command specific data - create tree */
       if( encap_data_length )
       {
@@ -2116,7 +2298,6 @@ dissect_cipencap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          switch( encap_cmd )
          {
             case NOP:
-               show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
                break;
 
             case LIST_SERVICES:
@@ -2383,6 +2564,21 @@ proto_register_cipencap(void)
 			{ "Owner", "enip.cip.fwo.own",
 			FT_UINT16, BASE_DEC, VALS(enip_con_owner_vals), 0x8000,
 			"Redundant owner bit", HFILL }
+		},
+		{ &hf_enip_ucm_fwo_dir,
+			{ "Direction", "enip.cip.fwo.dir",
+			FT_UINT8, BASE_DEC, VALS(enip_con_dir_vals), 0x80,
+			"Direction", HFILL }
+		},
+      { &hf_enip_ucm_fwo_trigg,
+			{ "Trigger", "enip.cip.fwo.trigg",
+			FT_UINT8, BASE_DEC, VALS(enip_con_trigg_vals), 0x70,
+			"Production trigger", HFILL }
+		},
+      { &hf_enip_ucm_fwo_class,
+			{ "Class", "enip.cip.fwo.class",
+			FT_UINT8, BASE_DEC, VALS(enip_con_class_vals), 0x0F,
+			"Transport Class", HFILL }
 		},
 		/* Sequenced Address Type */
       { &hf_enip_cpf_sat_connid,
