@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.h,v 1.18 2002/09/10 23:47:07 guy Exp $
+ * $Id: packet-ipx.h,v 1.19 2002/09/23 17:14:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@etheeal.com>
@@ -143,7 +143,12 @@ struct ipx_rip_packet
 #define IPX_SOCKET_PING_NOVELL          0x9086 /* In cisco this is set with: ipx ping-default novell */
 #define IPX_SOCKET_TCP_TUNNEL           0x9091 /* RFC 1791 */
 #define IPX_SOCKET_UDP_TUNNEL           0x9092 /* RFC 1791 */
-
+#define SPX_SOCKET_PA                   0x90b2 /* NDPS Printer Agent */
+#define SPX_SOCKET_BROKER               0x90b3 /* NDPS Broker */
+#define SPX_SOCKET_SRS                  0x90b4 /* NDPS Service Registry Service */
+#define SPX_SOCKET_ENS                  0x90b5 /* NDPS Event Notification Service */
+#define SPX_SOCKET_RMS                  0x90b6 /* NDPS Remote Management Service */
+#define SPX_SOCKET_NOTIFY_LISTENER      0x90b7 /* NDPS Notify Listener */
 
 void capture_ipx(packet_counts *);
 

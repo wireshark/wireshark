@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.110 2002/09/10 23:47:07 guy Exp $
+ * $Id: packet-ipx.c,v 1.111 2002/09/23 17:14:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,6 +142,12 @@ static const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_ADSM,			"ADSM" },
 	{ IPX_SOCKET_EIGRP,			"Cisco EIGRP for IPX" },
 	{ IPX_SOCKET_WIDE_AREA_ROUTER,		"Wide Area Router" },
+    { SPX_SOCKET_PA,            "NDPS Printer Agent/PSM" },
+    { SPX_SOCKET_BROKER,        "NDPS Broker" },
+    { SPX_SOCKET_SRS,           "NDPS Service Registry Service" },
+    { SPX_SOCKET_ENS,           "NDPS Event Notification Service" },
+    { SPX_SOCKET_RMS,           "NDPS Remote Management Service" },
+    { SPX_SOCKET_NOTIFY_LISTENER,    "NDPS Notify Listener" },
 	{ 0xE885,				"NT Server-RPC/GW" },
 	{ 0x400C,				"HP LaserJet/QuickSilver" },
 	{ 0x907B,				"SMS Testing and Development" },
@@ -189,6 +195,7 @@ static const value_string ipxmsg_sigchar_vals[] = {
 	{ '!', "Broadcast message waiting" },
 	{ 0, NULL }
 };
+
 
 void
 capture_ipx(packet_counts *ld)
@@ -323,20 +330,22 @@ spx_conn_ctrl(guint8 ctrl)
 	const char *p;
 
 	static const value_string conn_vals[] = {
-		{ 0x10, "End-of-Message" },
-		{ 0x20, "Attention" },
-		{ 0x40, "Acknowledgment Required"},
-		{ 0x80, "System Packet"},
+		{ 0x10, " End-of-Message" },
+		{ 0x20, " Attention" },
+		{ 0x40, " Acknowledgment Required"},
+        { 0x50, " Send Ack: End Message"},
+        { 0x80, " System Packet"},
+        { 0xc0, " System Packet: Send Ack"},
 		{ 0x00, NULL }
 	};
 
-	p = match_strval(ctrl, conn_vals);
+	p = match_strval((ctrl & 0xf0), conn_vals );
 
 	if (p) {
 		return p;
 	}
 	else {
-		return "Unknown";
+		return " Unknown";
 	}
 }
 
@@ -364,6 +373,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint8		conn_ctrl;
 	guint8		datastream_type;
+    const char        *spx_msg_string = '\0';
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
@@ -375,6 +385,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		spx_tree = proto_item_add_subtree(ti, ett_spx);
 
 		conn_ctrl = tvb_get_guint8(tvb, 0);
+        spx_msg_string = spx_conn_ctrl(conn_ctrl);
 		proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, tvb,
 					   0, 1, conn_ctrl,
 					   "Connection Control: %s (0x%02X)",
@@ -391,6 +402,8 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(spx_tree, hf_spx_seq_nr, tvb,  6, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
+        if (check_col(pinfo->cinfo, COL_INFO))
+           col_append_str(pinfo->cinfo, COL_INFO, (gchar*) spx_msg_string);
 
 		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
 		call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -932,8 +945,7 @@ proto_register_ipx(void)
 		{ &hf_spx_all_nr,
 		{ "Allocation Number",		"spx.alloc",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }}
-	};
+		  "", HFILL }}    };
 
 	static hf_register_info hf_ipxrip[] = {
 		{ &hf_ipxrip_request,
