@@ -1203,6 +1203,7 @@ Didier Gautheron <dgautheron[AT]magic.fr> {
 	    addresses
 	AppleTalk Zone Information Protocol support
 	Fix to work with automake 1.7
+	Fix gtk Makefile entry to rebuild "ethereal-tap-register.c"
 }
 
 Phil Williams <csypbw[AT]comp.leeds.ac.uk> {
