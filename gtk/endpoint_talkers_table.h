@@ -2,7 +2,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers taps.
  *
- * $Id: endpoint_talkers_table.h,v 1.12 2004/06/01 20:37:09 ulfl Exp $
+ * $Id: endpoint_talkers_table.h,v 1.13 2004/06/03 21:46:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,17 +23,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include "sat.h"
+
 /** @file
  *  Conversation definitions.
  */
-
-/** Address type */
-typedef enum {
-    SAT_NONE,       /**< no address type */
-    SAT_ETHER,      /**< ethernet */
-    SAT_FDDI,       /**< fddi */
-    SAT_TOKENRING   /**< token ring */
-} SAT_E;
 
 /** Conversation information */
 typedef struct _endpoint_talker_t {
@@ -55,7 +49,7 @@ typedef struct _endpoints_table {
 	char                *name;              /**< the name of the table */
 	GtkWidget           *win;               /**< GTK window */
 	GtkWidget           *page_lb;           /**< label */
-    GtkWidget           *scrolled_window;   /**< the scrolled window */
+	GtkWidget           *scrolled_window;   /**< the scrolled window */
 	GtkCList            *table;             /**< the GTK table */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
@@ -85,6 +79,13 @@ extern void register_ett_table(gboolean hide_ports, char *table_name, char *tap_
  */
 extern void init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
+/** Callback for "Conversations" statistics item.
+ *
+ * @param w unused
+ * @param d unused
+ */
+extern void init_ett_notebook_cb(GtkWidget *w, gpointer d);
+
 /** Add some data to the table.
  *
  * @param et the table to add the data to
@@ -99,4 +100,3 @@ extern void init_ett_table(gboolean hide_ports, char *table_name, char *tap_name
  */
 extern void add_ett_table_data(endpoints_table *et, address *src, address *dst, 
                         guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type);
-

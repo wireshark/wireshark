@@ -2,22 +2,22 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.16 2004/06/02 07:12:10 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.17 2004/06/03 21:46:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -87,7 +87,7 @@ hostlist_port_to_str(int port_type, guint32 port)
    return a string for the filter name
 
    some addresses, like AT_ETHER may actually be any of multiple types
-   of protocols,   either ethernet, tokenring, fddi etc so we must be more 
+   of protocols,   either ethernet, tokenring, fddi etc so we must be more
    specific there  thats why we need specific_addr_type
 */
 static char *
@@ -141,32 +141,32 @@ typedef struct column_arrows {
 static void
 reset_hostlist_table_data(hostlist_table *hosts)
 {
-	guint32 i;
-	char title[256];
+    guint32 i;
+    char title[256];
 
     if(hosts->page_lb) {
-	    g_snprintf(title, 255, "Endpoints: %s", cf_get_display_name(&cfile));
-		gtk_window_set_title(GTK_WINDOW(hosts->win), title);
-	    g_snprintf(title, 255, "%s", hosts->name);
-		gtk_label_set_text(GTK_LABEL(hosts->page_lb), title);
+        g_snprintf(title, 255, "Endpoints: %s", cf_get_display_name(&cfile));
+        gtk_window_set_title(GTK_WINDOW(hosts->win), title);
+        g_snprintf(title, 255, "%s", hosts->name);
+        gtk_label_set_text(GTK_LABEL(hosts->page_lb), title);
         gtk_widget_set_sensitive(hosts->page_lb, FALSE);
     } else {
-	    g_snprintf(title, 255, "%s Endpoints: %s", hosts->name, cf_get_display_name(&cfile));
-		gtk_window_set_title(GTK_WINDOW(hosts->win), title);
+        g_snprintf(title, 255, "%s Endpoints: %s", hosts->name, cf_get_display_name(&cfile));
+        gtk_window_set_title(GTK_WINDOW(hosts->win), title);
     }
 
-	/* remove all entries from the clist */
-	for(i=0;i<hosts->num_hosts;i++){
-		gtk_clist_remove(hosts->table, hosts->num_hosts-i-1);
-	}
+    /* remove all entries from the clist */
+    for(i=0;i<hosts->num_hosts;i++){
+        gtk_clist_remove(hosts->table, hosts->num_hosts-i-1);
+    }
 
-	/* delete all hosts */
-	for(i=0;i<hosts->num_hosts;i++){
-		g_free((gpointer)hosts->hosts[i].address.data);
-	}
-	g_free(hosts->hosts);
-	hosts->hosts=NULL;
-	hosts->num_hosts=0;
+    /* delete all hosts */
+    for(i=0;i<hosts->num_hosts;i++){
+        g_free((gpointer)hosts->hosts[i].address.data);
+    }
+    g_free(hosts->hosts);
+    hosts->hosts=NULL;
+    hosts->num_hosts=0;
 }
 
 
@@ -249,7 +249,7 @@ hostlist_click_column_cb(GtkCList *clist, gint column, gpointer data)
 }
 
 
-/* action is encoded as 
+/* action is encoded as
    filter_action*256+filter_type
 
    filter_action:
@@ -292,7 +292,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 	sport=hostlist_port_to_str(hl->hosts[selection].port_type, hl->hosts[selection].port);
 
 	g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-		hostlist_get_filter_name(&hl->hosts[selection].address, 
+		hostlist_get_filter_name(&hl->hosts[selection].address,
 		hl->hosts[selection].sat, hl->hosts[selection].port_type,  FN_ANY_ADDRESS),
 		address_to_str(&hl->hosts[selection].address),
 		sport?" && ":"",
@@ -375,7 +375,7 @@ hostlist_show_popup_menu_cb(void *widg _U_, GdkEvent *event, hostlist_table *et)
             gtk_clist_unselect_all(et->table);
             gtk_clist_select_row(et->table, row, -1);
 
-            gtk_menu_popup(GTK_MENU(et->menu), NULL, NULL, NULL, NULL, 
+            gtk_menu_popup(GTK_MENU(et->menu), NULL, NULL, NULL, NULL,
                 bevent->button, bevent->time);
         }
     }
@@ -387,32 +387,32 @@ static GtkItemFactoryEntry hostlist_list_menu_items[] =
 {
 	/* Match */
 	ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
-	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected", NULL,
 		hostlist_select_filter_cb, 0*256+0, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected", NULL,
 		hostlist_select_filter_cb, 0*256+1, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected", NULL,
 		hostlist_select_filter_cb, 0*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected", NULL,
 		hostlist_select_filter_cb, 0*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected", NULL,
 		hostlist_select_filter_cb, 0*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected", NULL,
 		hostlist_select_filter_cb, 0*256+5, NULL, NULL),
 
 	/* Prepare */
 	ITEM_FACTORY_ENTRY("/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
-	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected", NULL,
 		hostlist_select_filter_cb, 1*256+0, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected", NULL,
 		hostlist_select_filter_cb, 1*256+1, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected", NULL,
 		hostlist_select_filter_cb, 1*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected", NULL,
 		hostlist_select_filter_cb, 1*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected", NULL,
 		hostlist_select_filter_cb, 1*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected", NULL,
 		hostlist_select_filter_cb, 1*256+5, NULL, NULL),
 
 	/* Find Frame */
@@ -446,7 +446,7 @@ hostlist_create_popup_menu(hostlist_table *hl)
 
 
 /* XXX should freeze/thaw table here and in the srt thingy? */
-static void 
+static void
 draw_hostlist_table_addresses(hostlist_table *hl)
 {
     guint32 i;
@@ -494,7 +494,7 @@ draw_hostlist_table_addresses(hostlist_table *hl)
 
 
 /* XXX should freeze/thaw table here and in the srt thingy? */
-static void 
+static void
 draw_hostlist_table_data(hostlist_table *hl)
 {
     guint32 i;
@@ -540,7 +540,7 @@ draw_hostlist_table_data(hostlist_table *hl)
     draw_hostlist_table_addresses(hl);
 }
 
-gboolean
+static gboolean
 init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
     int i;
@@ -652,7 +652,7 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
     GtkWidget *close_bt;
     gboolean ret;
 
-    
+
     hosttable=g_malloc(sizeof(hostlist_table));
 
     hosttable->name=table_name;
@@ -707,7 +707,7 @@ hostlist_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 
 
 
-hostlist_table *
+static hostlist_table *
 init_hostlist_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
     gboolean ret;
@@ -741,7 +741,7 @@ typedef struct {
 } register_hostlist_t;
 
 
-GSList *registered_hostlist_tables = NULL;
+static GSList *registered_hostlist_tables = NULL;
 
 void
 register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
@@ -820,7 +820,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     while(current_table) {
         registered = current_table->data;
         page_lb = gtk_label_new("");
-        hosttable = init_hostlist_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name, 
+        hosttable = init_hostlist_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
             registered->filter, registered->packet_func);
         gtk_notebook_append_page(GTK_NOTEBOOK(nb), hosttable->win, page_lb);
         hosttable->win = win;
@@ -866,13 +866,13 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 
-void 
+void
 add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type)
 {
     hostlist_talker_t *talker=NULL;
     int talker_idx=0;
     gboolean new_talker;
-    
+
     new_talker=FALSE;
     /* XXX should be optimized to allocate n extra entries at a time
        instead of just one */

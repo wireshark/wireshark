@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.200 2004/06/03 02:14:50 guy Exp $
+ * $Id: menu.c,v 1.201 2004/06/03 21:46:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,27 +69,25 @@
 #include "recent.h"
 #include "../ui_util.h"
 #include "proto_draw.h"
+#include "endpoint_talkers_table.h"
+#include "hostlist_table.h"
 #include "simple_dialog.h"
 #include <epan/timestamp.h>
 
 GtkWidget *popup_menu_object;
 
-extern void savehex_cb(GtkWidget * w, gpointer data _U_);
-extern void init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_);
-extern void init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_);
-
 static void
 clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 
 typedef struct _menu_item {
-	char	*name;
+    char    *name;
     gint    group;
-	gboolean enabled;
+    gboolean enabled;
     GtkItemFactoryCallback callback;
     gpointer callback_data;
-	gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *);
-	gboolean (*selected_tree_row_enabled)(field_info *);
-	GList *children;
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *);
+    gboolean (*selected_tree_row_enabled)(field_info *);
+    GList *children;
 } menu_item_t;
 
 static GList *tap_menu_tree_root = NULL;

@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all host talkers taps.
  *
- * $Id: hostlist_table.h,v 1.6 2004/06/02 06:44:40 ulfl Exp $
+ * $Id: hostlist_table.h,v 1.7 2004/06/03 21:46:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,17 +23,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include "sat.h"
+
 /** @file
  *  Hostlist definitions.
  */
-
-/** Address type */
-typedef enum {
-    SAT_NONE,       /**< no address type */
-    SAT_ETHER,      /**< ethernet */
-    SAT_FDDI,       /**< fddi */
-    SAT_TOKENRING   /**< token ring */
-} SAT_E;
 
 /** Hostlist information */
 typedef struct _hostlist_talker_t {
@@ -82,6 +76,13 @@ extern void register_hostlist_table(gboolean hide_ports, char *table_name, char 
  * @todo get values from register_hostlist_table() instead of own parameters
  */
 extern void init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
+
+/** Callback for "Endpoints" statistics item.
+ *
+ * @param w unused
+ * @param d unused
+ */
+extern void init_hostlist_notebook_cb(GtkWidget *w, gpointer d);
 
 /** Add some data to the table.
  *

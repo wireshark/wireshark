@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.26 2004/06/02 20:14:51 ulfl Exp $
+ * $Id: proto_draw.h,v 1.27 2004/06/03 21:46:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,6 +88,13 @@ extern void add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
  * @return TRUE if could be selected
  */
 extern gboolean byte_view_select(GtkWidget *widget, GdkEventButton *event);
+
+/** Callback for "Export Selected Packet Bytes" operation.
+ *
+ * @param w unused
+ * @param data unused
+ */
+extern void savehex_cb(GtkWidget * w, gpointer data);
 
 #if GTK_MAJOR_VERSION < 2
 /** Redraw a given byte view window.
