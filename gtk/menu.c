@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.170 2004/02/22 22:42:17 guy Exp $
+ * $Id: menu.c,v 1.171 2004/02/22 23:31:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -566,12 +566,12 @@ register_tap_menu_item(
     gboolean (*selected_tree_row_enabled)(field_info *),
     gpointer callback_data)
 {
-    /*static const char toolspath[] = "/Analyze/";*/
-    char *toolspath;
-    char *p;
-    char *menupath;
-    size_t menupathlen;
-    menu_item_t *child;
+	/* static const char toolspath[] = "/Analyze/"; */
+	char *toolspath;
+	char *p;
+	char *menupath;
+	size_t menupathlen;
+	menu_item_t *child;
     GList *curnode;
     GList *childnode;
 
@@ -580,7 +580,7 @@ register_tap_menu_item(
      */
 	g_assert(*name != '/');
 
-/*#if 0*/
+#if 0
     switch(layer) {
     case(REGISTER_TAP_LAYER_GENERIC): toolspath = "/Analyze/"; break;
     case(REGISTER_TAP_LAYER_PHYSICAL): toolspath = "/Physical/"; break;
@@ -593,7 +593,7 @@ register_tap_menu_item(
     default:
         g_assert(0);
     }
-/*#endif*/
+#endif
     switch(layer) {
     case(REGISTER_TAP_LAYER_GENERIC): toolspath = "/Analyze/"; break;
     case(REGISTER_TAP_LAYER_PHYSICAL): toolspath = "/Transport/"; break;
