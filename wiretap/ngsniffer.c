@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.60 2001/01/16 20:26:26 guy Exp $
+ * $Id: ngsniffer.c,v 1.61 2001/01/17 18:58:42 jfoster Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -436,17 +436,14 @@ int ngsniffer_open(wtap *wth, int *err)
 		wth->file_type = WTAP_FILE_NGSNIFFER_UNCOMPRESSED;
 	}
 
-	/*
-	 * Set encap type before reading header records because the
+	/* Set encap type before reading header records because the
 	 * header record may change encap type.
 	 */
 	wth->file_encap = sniffer_encap[version.network];
 
 	/*
 	 * We don't know how to handle the remaining header record types,
-	 * so we just skip them - except for REC_HEADER2 records, which
-	 * we look at, for "Internetwork analyzer" captures, to attempt to
-	 * determine what the link-layer encapsulation is.
+	 * so we just skip them
 	 */
 	if (skip_header_records(wth, err, version.maj_vers) < 0)
 		return -1;
@@ -552,6 +549,9 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 
 		type = pletohs(record_type);
 		if ((type != REC_HEADER1) && (type != REC_HEADER2)
+			&& (type != REC_HEADER3) && (type != REC_HEADER4)
+			&& (type != REC_HEADER5) && (type != REC_HEADER6)
+			&& (type != REC_HEADER7)
 			&& ((type != REC_V2DESC) || (version > 2)) ) {
 			/*
 			 * Well, this is either some unknown header type
@@ -590,17 +590,22 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 			 * Yes, get the first 32 bytes of the record
 			 * data.
 			 */
-			bytes_to_read = length;
-			if (length > sizeof buffer)
-				length = sizeof buffer;
+			bytes_to_read = MIN(length, sizeof buffer);
 			bytes_read = file_read(buffer, 1, bytes_to_read,
-			    wth->fh);
+				wth->fh);
 			if (bytes_read != bytes_to_read) {
 				*err = file_error(wth->fh);
 				if (*err == 0) {
 					*err = WTAP_ERR_SHORT_READ;
 					return -1;
 				}
+			}
+			/*
+			 * Skip the rest of the record.
+			 */
+			if (length > sizeof buffer) {
+				file_seek(wth->fh, length - sizeof buffer,
+				    SEEK_CUR);
 			}
 
 			/*
@@ -631,13 +636,6 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 				break;
 			}
 
-			/*
-			 * Skip the rest of the record.
-			 */
-			if (length > sizeof buffer) {
-				file_seek(wth->fh, length - sizeof buffer,
-				    SEEK_CUR);
-			}
 		} else {
 			/* Nope, just skip over the data. */
 			file_seek(wth->fh, length, SEEK_CUR);
