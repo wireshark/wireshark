@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.17 1999/08/18 02:59:05 guy Exp $
+ * $Id: util.c,v 1.18 1999/08/18 15:29:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -212,11 +212,15 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 	return mkstemp(namebuf);
 }
 
-static char *tmpdir;
+static char *tmpdir = NULL;
 #ifdef WIN32
-static char *temp;
+static char *temp = NULL;
 #endif
 static char *E_tmpdir;
+
+#ifndef P_tmpdir
+#define P_tmpdir "/var/tmp"
+#endif
 
 int
 create_tempfile(char *namebuf, int namebuflen, const char *pfx)
@@ -232,11 +236,8 @@ create_tempfile(char *namebuf, int namebuflen, const char *pfx)
 		if ((dir = getenv("TEMP")) != NULL)
 			temp = setup_tmpdir(dir);
 #endif
-#ifdef P_tmpdir
+
 		E_tmpdir = setup_tmpdir(P_tmpdir);
-#else
-		E_tmpdir = setup_tmpdir("/var/tmp/");
-#endif
 		initialized = TRUE;
 	}
 
