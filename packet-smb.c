@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.100 2001/08/11 17:31:13 guy Exp $
+ * $Id: packet-smb.c,v 1.101 2001/08/11 17:46:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9583,7 +9583,8 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s", format_text(pd + offset, pad1Count));
+	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s",
+			    bytes_to_str(pd + offset, pad1Count));
       }
 
       offset += pad1Count; /* Skip Pad1 */
@@ -9846,7 +9847,8 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s", format_text(pd + offset, pad1Count));
+	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s",
+			    bytes_to_str(pd + offset, pad1Count));
       }
 
       offset += pad1Count; /* Skip Pad1 */
@@ -10036,7 +10038,8 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s", format_text(pd + offset, pad2Count));
+	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s",
+			    bytes_to_str(pd + offset, pad2Count));
 
       }
 
@@ -10052,7 +10055,9 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, SMB_offset + DataOffset, DataCount, "Data: %s", format_text(pd + SMB_offset + DataOffset, DataCount));
+	proto_tree_add_text(tree, NullTVB, SMB_offset + DataOffset, DataCount,
+			    "Data: %s",
+			    bytes_to_str(pd + SMB_offset + DataOffset, DataCount));
 
       }
 
@@ -10430,7 +10435,8 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s", format_text(pd + offset, pad1Count));
+	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s",
+			    bytes_to_str(pd + offset, pad1Count));
       }
 
       offset += pad1Count; /* Skip Pad1 */
@@ -10685,7 +10691,8 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s", format_text(pd + offset, pad1Count));
+	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s",
+			    bytes_to_str(pd + offset, pad1Count));
       }
 
       offset += pad1Count; /* Skip Pad1 */
