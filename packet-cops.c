@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.17 2002/01/24 09:20:47 guy Exp $
+ * $Id: packet-cops.c,v 1.18 2002/02/22 02:56:58 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,8 +36,18 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ipv6.h"
+#include "prefs.h"
 
 #define TCP_PORT_COPS 3288
+
+/* Variable to hold the tcp port preference */
+static guint global_cops_tcp_port = TCP_PORT_COPS;
+
+/* Variable to allow for proper deletion of dissector registration 
+ * when the user changes port from the gui
+ */
+
+static guint cops_tcp_port = 0;
 
 #define COPS_OBJECT_HDR_SIZE 4
 
@@ -255,6 +265,8 @@ static gint ett_cops_reason = -1;
 static gint ett_cops_decision = -1;
 static gint ett_cops_error = -1;
 static gint ett_cops_pdp = -1;
+
+void proto_reg_handoff_cops(void);
 
 static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree);
 static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
@@ -814,6 +826,8 @@ void proto_register_cops(void)
                 &ett_cops_pdp,
         };
 
+	module_t* cops_module;
+
         /* Register the protocol name and description */
         proto_cops = proto_register_protocol("Common Open Policy Service",
 	    "COPS", "cops");
@@ -821,13 +835,34 @@ void proto_register_cops(void)
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_cops, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+	
+	/* Register our configuration options for cops, 
+	 * particularly our ports
+	 */
+	cops_module = prefs_register_protocol(proto_cops,
+					      proto_reg_handoff_cops);
+	prefs_register_uint_preference(cops_module,"tcp.cops_port",
+				       "COPS TCP Port",
+				       "Set the TCP port for COPS messages",
+				       10,&global_cops_tcp_port);
 };
 
 void
 proto_reg_handoff_cops(void)
 {
-	dissector_handle_t cops_handle;
+        static int cops_prefs_initialized = FALSE;
+	static dissector_handle_t cops_handle;
 
-	cops_handle = create_dissector_handle(dissect_cops, proto_cops);
-        dissector_add("tcp.port", TCP_PORT_COPS, cops_handle);
+	if(!cops_prefs_initialized){
+	  cops_handle = create_dissector_handle(dissect_cops, proto_cops);
+	  cops_prefs_initialized = TRUE;
+	}
+	else {
+	  dissector_delete("tcp.port",cops_tcp_port,cops_handle);
+	}
+	
+	/* Set our port numbers for future use */
+	cops_tcp_port = global_cops_tcp_port;
+
+        dissector_add("tcp.port", cops_tcp_port, cops_handle);
 }
