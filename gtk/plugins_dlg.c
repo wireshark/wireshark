@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.4 1999/12/26 22:37:28 gerald Exp $
+ * $Id: plugins_dlg.c,v 1.5 1999/12/28 04:40:13 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,8 +46,8 @@ static gint selected_row;
 static gchar *selected_name;
 static gchar *selected_version;
 static gchar *selected_enabled;
-static gchar std_plug_dir[] = "/usr/share/ethereal/plugins";
-static gchar local_plug_dir[] = "/usr/local/share/ethereal/plugins";
+static gchar std_plug_dir[] = "/usr/lib/ethereal/plugins/0.8";
+static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/0.8";
 static gchar *user_plug_dir = NULL;
 
 static void plugins_close_cb(GtkWidget *, gpointer);
@@ -173,6 +173,11 @@ plugins_scan(GtkWidget *clist)
     {
 	plugins_scan_dir(std_plug_dir);
 	plugins_scan_dir(local_plug_dir);
+        if ((strcmp(std_plug_dir, PLUGIN_DIR) != 0) &&
+            (strcmp(local_plug_dir, PLUGIN_DIR) != 0))
+        {
+          plugins_scan_dir(PLUGIN_DIR);
+        }
 	if (!user_plug_dir)
 	{
 	    user_plug_dir = (gchar *)g_malloc(strlen(getenv("HOME")) + 19);

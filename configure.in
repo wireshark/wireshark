@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.67 1999/12/26 22:37:19 gerald Exp $
+# $Id: configure.in,v 1.68 1999/12/28 04:40:06 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -272,6 +272,28 @@ AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
 
 dnl blank for now, but will be used in future
 AC_SUBST(ethereal_SUBDIRS)
+
+dnl check for plugins directory - stolen from Amanda's configure.in
+AC_ARG_WITH(plugindir,
+  [  --with-plugindir=DIR   install plugins in DIR],
+  [
+  case "$withval" in
+  "" | y | ye | yes | n | no)
+    AC_MSG_ERROR([*** You must supply an argument to the --with-plugindir option.])
+  ;;
+  *) PLUGIN_DIR="$withval"
+  esac
+  ],
+  : ${PLUGIN_DIR=$libdir/ethereal/0.8}
+)
+
+PLUGIN_DIR=`(
+  test "x$prefix" = xNONE && prefix=$ac_default_prefix
+  test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
+  eval echo "$PLUGIN_DIR"
+)`
+AC_DEFINE_UNQUOTED(PLUGIN_DIR,"$PLUGIN_DIR", [Plugin installation directory])
+AC_SUBST(PLUGIN_DIR)
 
 dnl libtool defs
 AC_LIBLTDL_CONVENIENCE(libltdl)
