@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.46 2001/08/20 09:10:27 guy Exp $
+ * $Id: packet-giop.c,v 1.47 2001/08/20 09:16:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3568,7 +3568,6 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   }
   
 
-
   g_free(operation);
   g_free(reserved);
 }
@@ -3963,9 +3962,15 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
     }				/* switch message_type */
 
 
+  /*
+   * XXX - we should catch exceptions here, so that we can free
+   * this if an exception is thrown.
+   * We'd then have to forward the exception.
+   */
+  if (header.exception_id != NULL)
+    g_free(header.exception_id);
 
-
-    return TRUE;
+  return TRUE;
 }
 
 void
