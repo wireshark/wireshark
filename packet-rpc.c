@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.141 2004/02/25 09:31:06 guy Exp $
+ * $Id: packet-rpc.c,v 1.142 2004/04/03 00:29:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,12 @@ static gboolean rpc_desegment = TRUE;
 
 /* defragmentation of fragmented RPC over TCP records */
 static gboolean rpc_defragment = FALSE;
+
+/* try to dissect RPC packets for programs that are not known
+ * (proprietary ones) by ethereal.
+ */
+static gboolean rpc_dissect_unknown_programs = FALSE;
+
 
 static struct true_false_string yesno = { "Yes", "No" };
 
@@ -215,6 +221,7 @@ static int hf_rpc_fragment_too_long_fragment = -1;
 static int hf_rpc_fragment_error = -1;
 
 static gint ett_rpc = -1;
+static gint ett_rpc_unknown_program = -1;
 static gint ett_rpc_fragments = -1;
 static gint ett_rpc_fragment = -1;
 static gint ett_rpc_fraghdr = -1;
@@ -1677,6 +1684,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	dissect_function_t *dissect_function = NULL;
 	gboolean dissect_rpc = TRUE;
 
+
 	/*
 	 * Check to see whether this looks like an RPC call or reply.
 	 */
@@ -1698,7 +1706,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return FALSE;
 		}
 
-		/* XID can be anything, we don't check it.
+		/* XID can be anything, so dont check it.
 		   We already have the message type.
 		   Check whether an RPC version number of 2 is in the
 		   location where it would be, and that an RPC program
@@ -1718,9 +1726,44 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   and report it as RPC (but not dissect the payload if
 		   we don't have a subdissector) if it matches. */
 		rpc_prog_key.prog = tvb_get_ntohl(tvb, offset + 12);
-		if (tvb_get_ntohl(tvb, offset + 8) != 2 ||
-		    ((rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key))
-		       == NULL)) {
+
+		/* we only dissect version 2 */
+		if (tvb_get_ntohl(tvb, offset + 8) != 2 ){
+			return FALSE;
+		}
+		/* let the user be able to weaken the heuristics if he need
+		 * to look at proprietary protocols not known
+		 * to ethereal.
+		 */
+		if(rpc_dissect_unknown_programs){
+			/* if the user has specified that he wants to try to 
+			 * dissect even completely unknown RPC program numbers
+			 * then let him do that.
+			 * In this case we only check that the program number 
+			 * is neither 0 nor -1 which is better than nothing.
+			 */
+			if(rpc_prog_key.prog==0 || rpc_prog_key.prog==0xffffffff){
+				return FALSE;
+			}
+			if( (rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key)) == NULL) {
+				/* ok this is not a known rpc program so we
+				 * will have to fake it.
+				 */
+				int proto_rpc_unknown_program;
+				char *NAME, *Name, *name;
+
+				NAME=g_malloc(36);
+				Name=g_malloc(32);
+				name=g_malloc(32);
+				sprintf(NAME, "Unknown RPC Program:%d",rpc_prog_key.prog);
+				sprintf(Name, "RPC:%d",rpc_prog_key.prog);
+				sprintf(name, "rpc%d",rpc_prog_key.prog);
+				proto_rpc_unknown_program = proto_register_protocol(NAME, Name, name);
+
+				rpc_init_prog(proto_rpc_unknown_program, rpc_prog_key.prog, ett_rpc_unknown_program);
+			}
+		}
+		if( (rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key)) == NULL) {
 			/* They're not, so it's probably not an RPC call. */
 			return FALSE;
 		}
@@ -2370,9 +2413,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	*/
 	tap_queue_packet(rpc_tap, pinfo, rpc_call);
 
-
-	if (!proto_is_protocol_enabled(proto))
+	/* proto==0 if this is an unknown program */
+	if( (proto==0) || !proto_is_protocol_enabled(proto)){
 		dissect_function = NULL;
+	}
 
 	/*
 	 * Handle RPCSEC_GSS and AUTH_GSSAPI specially.
@@ -3431,11 +3475,13 @@ proto_register_rpc(void)
 		&ett_rpc_gss_data,
 		&ett_rpc_array,
 		&ett_rpc_authgssapi_msg,
+		&ett_rpc_unknown_program,
 	};
 	module_t *rpc_module;
 
 	proto_rpc = proto_register_protocol("Remote Procedure Call",
 	    "RPC", "rpc");
+	/* this is a dummy dissector for all those unknown rpc programs */
 	proto_register_field_array(proto_rpc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&rpc_init_protocol);
@@ -3455,6 +3501,11 @@ proto_register_rpc(void)
 		" If the size field of the record marker is larger "
 		"than this value it will not be considered a valid RPC PDU",
 		 10, &max_rpc_tcp_pdu_size);
+
+	prefs_register_bool_preference(rpc_module, "dissect_unknown_programs",
+		"Dissect unknown RPC program numbers",
+		"Whether the RPC dissector should attempt to dissect RPC PDUs containing programs that are not known to Ethereal. This will make the heuristics significantly weaker and elevate the risk for falsely identifying and misdissecting packets significantly.",
+		&rpc_dissect_unknown_programs);
 
 	register_dissector("rpc", dissect_rpc, proto_rpc);
 	rpc_handle = find_dissector("rpc");
