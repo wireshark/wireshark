@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.240 2004/05/31 07:52:27 guy Exp $
+ * $Id: tethereal.c,v 1.241 2004/05/31 08:41:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1312,11 +1312,16 @@ main(int argc, char *argv[])
   ld.output_to_pipe = FALSE;
 #endif
   if (cfile.save_file != NULL) {
+    /* We're writing to a capture file. */
     if (strcmp(cfile.save_file, "-") == 0) {
-      /* stdout */
+      /* Write to the standard output. */
       g_free(cfile.save_file);
       cfile.save_file = g_strdup("");
 #ifdef HAVE_LIBPCAP
+      /* XXX - should we check whether it's a pipe?  It's arguably
+         silly to do "-w - >output_file" rather than "-w output_file",
+         but by not checking we might be violating the Principle Of
+         Least Astonishment. */
       ld.output_to_pipe = TRUE;
 #endif
     }
@@ -1343,8 +1348,10 @@ main(int argc, char *argv[])
     }
 #endif
   } else {
-    /* We're not writing to a file, so we should print packet information. */
-    print_packet_info = TRUE;
+    /* We're not writing to a file, so we should print packet information
+       unless "-q" was specified. */
+    if (!quiet)
+      print_packet_info = TRUE;
   }
 
 #ifndef HAVE_LIBPCAP

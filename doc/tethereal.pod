@@ -397,11 +397,18 @@ machine.
 
 =item -q
 
-Don't display the continuous count of packets captured that is normally
-shown when saving a capture to a file; instead, just display, at the end
-of the capture, a count of packets captured.  On systems that support
-the SIGINFO signal, such as various BSDs, typing your "status" character
-(typically control-T) will cause the current count to be displayed.
+When capturing packets, don't display the continuous count of packets
+captured that is normally shown when saving a capture to a file;
+instead, just display, at the end of the capture, a count of packets
+captured.  On systems that support the SIGINFO signal, such as various
+BSDs, typing your "status" character (typically control-T, although it
+might be set to "disabled" by default on at least some BSDs, so you'd
+have to explicitly set it to use it) will cause the current count to be
+displayed.
+
+When reading a capture file, don't print packet information; this is
+useful if you're using a B<-z> flag to calculate statistics and don't
+want the packet information printed, just the statistics.
 
 =item -r
 
@@ -467,7 +474,19 @@ reported by B<-L> are the values that can be used.
 =item -z
 
 Get B<Tethereal> to collect various types of statistics and display the result
-after finishing reading the capture file.
+after finishing reading the capture file.  Use the B<-q> flag if you're
+reading a capture file and only want the statistics printed, not any
+per-packet information.
+
+Note that the B<-z proto> option is different - it doesn't cause
+statistics to be gathered and printed when the capture is complete, it
+modifies the regular packet summary output to include the values of
+fields specified with the option.  Therefore you must not use the B<-q>
+option, as that option would suppress the printing of the regular packet
+summary output, and must also not use the B<-V> option, as that would
+cause packet detail information rather than packet summary information
+to be printed.
+
 Currently implemented statistics are:
 
 B<-z> dcerpc,rtt,I<uuid>,I<major>.I<minor>[,I<filter>]
