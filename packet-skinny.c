@@ -11,7 +11,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.22 2004/02/20 21:25:15 gerald Exp $
+ * $Id: packet-skinny.c,v 1.23 2004/02/20 23:03:16 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -913,8 +913,8 @@ static const value_string cast_callSecurityStatusTypes[] = {
 #define StationMaxDataCapabilities   5
 #define MAX_LEVEL_PREFERENCE		 4
 #define MaxAnnouncementList	32
-#define StationMaxMonitorParties	16          // Max Monitor Bridge whisper matrix parties,  rm, M&R in Parche
-#define StationMaxServiceURLSize     256// max number of service URLs length
+#define StationMaxMonitorParties	16          /* Max Monitor Bridge whisper matrix parties,  rm, M&R in Parche */
+#define StationMaxServiceURLSize     256	/* max number of service URLs length */
 #define MAX_PICTURE_FORMAT			 5
 #define MAX_REFERENCE_PICTURE		 4
 
@@ -1527,7 +1527,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         count+= 4;
 	      proto_tree_add_item(skinny_sub_tree, hf_skinny_maxFramesPerPacket, tvb, count, 2, TRUE);
         count+= 4;
-        // skip past union it is only for G723
+        /* skip past union it is only for G723 */
         count+= 8;
       }
       for ( i = 0; i < StationMaxVideoCapabilities; i++ ) {
@@ -1558,7 +1558,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         }
         val = count;
 
-        // H.261
+        /* H.261 */
 		    ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
 		    skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
 	      proto_tree_add_item(skinny_sub_tree, hf_skinny_temporalSpatialTradeOffCapability, tvb, count, 4, TRUE);
@@ -1566,7 +1566,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	      proto_tree_add_item(skinny_sub_tree, hf_skinny_stillImageTransmission, tvb, count, 4, TRUE);
         count+= 4;
 
-        // H.263
+        /* H.263 */
         count = val;
 		    ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
 		    skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
@@ -1575,7 +1575,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	      proto_tree_add_item(skinny_sub_tree, hf_skinny_annexNandWFutureUse, tvb, count, 4, TRUE);
         count+= 4;
 
-        // Vieo
+        /* Video */
         count = val;
 		    ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
 		    skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
