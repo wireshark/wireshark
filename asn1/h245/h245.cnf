@@ -164,6 +164,36 @@ OpenLogicalChannel
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, codec_type);
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_BODY AudioMode
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_AudioMode, AudioMode_choice, "AudioMode",
+                              &value);
+  codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_AudioMode_vals, "ukn"));
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY VideoMode
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_VideoMode, VideoMode_choice, "VideoMode",
+                              &value);
+  codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_VideoMode_vals, "ukn"));
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY DataModeApplication
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_DataModeApplication, DataModeApplication_choice, "DataModeApplication",
+                              &value);
+  codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_DataModeApplication_vals, "ukn"));
+#.END
+#----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationAck
 
   h245_pi->msg_type = H245_MastSlvDetAck;
@@ -375,7 +405,7 @@ guint32 tsapIdentifier;
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, 0);
 	}
 	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
 		address src_addr;
