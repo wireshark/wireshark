@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.35 2002/05/05 00:57:59 guy Exp $
+ * $Id: tvbuff.c,v 1.36 2002/05/05 21:07:52 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -610,18 +610,15 @@ tvb_length_remaining(tvbuff_t *tvb, gint offset)
 guint
 tvb_ensure_length_remaining(tvbuff_t *tvb, gint offset)
 {
-	gint retval;
+	guint	abs_offset, abs_length;
+	int	exception;
 
-	retval = tvb_length_remaining(tvb, offset);
+	g_assert(tvb->initialized);
 
-	if (retval == -1) {
-		THROW(ReportedBoundsError);
-		return -1;	/* squelch compiler complaint */
+	if (!compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, &exception)) {
+		THROW(exception);
 	}
-	else {
-		g_assert(retval >= 0);
-		return retval;
-	}
+	return abs_length;
 }
 
 
@@ -1599,7 +1596,7 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
  * *bytes_copied will contain the number of bytes actually copied,
  * including the terminating-NUL.
  */
-gint
+static gint
 _tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer,
 		gint *bytes_copied)
 {
