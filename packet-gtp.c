@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.11 2001/10/04 00:25:57 guy Exp $
+ * $Id: packet-gtp.c,v 1.12 2001/10/30 10:18:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3105,8 +3105,8 @@ decode_gtp_user_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	} else if (length > 2) {
 		switch (pdp_typ) {
 			case 0x21:
-				addr_ipv4 = tvb_get_letohl(tvb, offset+5);
-				proto_tree_add_ipv4(ext_tree_user, gtp_version ? hf_gtpv1_user_ipv4 : hf_gtpv0_user_ipv4, tvb, offset+5, 4, addr_ipv4);  
+				tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+5, sizeof addr_ipv4);
+				proto_tree_add_ipv4(ext_tree_user, gtp_version ? hf_gtpv1_user_ipv4 : hf_gtpv0_user_ipv4, tvb, offset+5, 4, addr_ipv4);
 				proto_item_append_text(te, " : %s", ip_to_str((guint8 *)&addr_ipv4));
 				break;
 			case 0x57:
@@ -3731,7 +3731,7 @@ decode_gtp_gsn_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	switch (length) {
 		case 4:
 			proto_tree_add_text(ext_tree_gsn_addr, tvb, offset+1, 2, "GSN address length : %u", length);
-			addr_ipv4 = tvb_get_letohl(tvb, offset+3);
+			tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+3, sizeof addr_ipv4);
 			proto_item_append_text(te, "%s", ip_to_str((guint8 *)&addr_ipv4));
 			proto_tree_add_ipv4(ext_tree_gsn_addr, gtp_version ? hf_gtpv1_gsn_ipv4 : hf_gtpv0_gsn_ipv4, tvb, offset+3, 4, addr_ipv4);
 			break;
@@ -3741,7 +3741,7 @@ decode_gtp_gsn_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 			proto_tree_add_uint(ext_tree_gsn_addr, gtp_version ? hf_gtpv1_gsn_addr_type : hf_gtpv0_gsn_addr_type, tvb, offset+3, 1, addr_type);
 			addr_len = tvb_get_guint8(tvb, offset+3) & 0x3F;
 			proto_tree_add_uint(ext_tree_gsn_addr, gtp_version ? hf_gtpv1_gsn_addr_len : hf_gtpv0_gsn_addr_len, tvb, offset+3, 1, addr_len);
-			addr_ipv4 = tvb_get_letohl(tvb, offset+4);
+			tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+4, sizeof addr_ipv4);
 			proto_item_append_text(te, "%s", ip_to_str((guint8 *)&addr_ipv4));
 			proto_tree_add_ipv4(ext_tree_gsn_addr, gtp_version ? hf_gtpv1_gsn_ipv4 : hf_gtpv0_gsn_ipv4, tvb, offset+4, 4, addr_ipv4);
 			break;
@@ -4013,7 +4013,7 @@ decode_gtp_rab_setup(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	
 		switch (length) {
 			case 12:
-				addr_ipv4 = tvb_get_letohl(tvb, offset + 8);
+				tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+8, sizeof addr_ipv4);
 				proto_tree_add_ipv4(ext_tree_rab_setup, hf_gtpv1_rnc_ipv4, tvb, offset+8, 4, addr_ipv4);
 				break;
 			case 24: 
@@ -4111,7 +4111,7 @@ decode_gtp_chrg_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	
 	switch (length) {
 		case 4:
-			addr_ipv4 = tvb_get_letohl(tvb, offset+3);
+			tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+3, sizeof addr_ipv4);
 			proto_item_append_text(te, "%s", ip_to_str((guint8 *)&addr_ipv4));
 			proto_tree_add_ipv4(ext_tree_chrg_addr, gtp_version ? hf_gtpv1_chrg_ipv4 : hf_gtpv0_chrg_ipv4, tvb, offset+3, 4, addr_ipv4);
 			break;
@@ -4637,7 +4637,7 @@ decode_gtp_node_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	
 	switch (length) {
 		case 4:
-			addr_ipv4 = tvb_get_letohl(tvb, offset+3);
+			tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+3, sizeof addr_ipv4);
 			proto_item_append_text(te, "%s", ip_to_str((guint8 *)&addr_ipv4));
 			proto_tree_add_ipv4(ext_tree_node_addr, gtp_version ? hf_gtpv1_node_ipv4 : hf_gtpv0_node_ipv4, tvb, offset+3, 4, addr_ipv4);
 			break;
