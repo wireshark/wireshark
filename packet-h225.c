@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.40 2004/05/25 10:09:03 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.41 2004/05/25 10:17:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3022,7 +3022,7 @@ dissect_h225_CallLinkage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	return offset;
 }
 
-static guint32 
+static int 
 dissect_h225_authenticationCapability_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_AuthenticationMechanism(tvb, offset, pinfo, tree, hf_h225_authenticationCapability_item);
 } 
@@ -3057,12 +3057,14 @@ dissect_h225_tokens(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 }
 
 
-static guint32 dissect_h225_timeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+static int
+dissect_h225_timeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
 	return dissect_h235_TimeStamp(tvb, offset, pinfo, tree, hf_h225_timeStamp);
 }
 
-static guint32 dissect_h225_token(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+static int
+dissect_h225_token(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
 	return dissect_h235_HASHEDxxx(tvb, offset, pinfo, tree, hf_h225_token);
 }
@@ -3101,32 +3103,38 @@ dissect_h225_cryptoGKPwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	return offset;
 }
 
-static guint32 dissect_h225_cryptoEPPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+static int
+dissect_h225_cryptoEPPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
 	return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoEPPwdEncr);
 }
 
-static guint32 dissect_h225_cryptoGKPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+static int
+dissect_h225_cryptoGKPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
 	return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoGKPwdEncr);
 }
 
-static guint32 dissect_h225_cryptoEPCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+static int
+dissect_h225_cryptoEPCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
 	return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoEPCert);
 }
 
-static guint32 dissect_h225_cryptoGKCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+static int
+dissect_h225_cryptoGKCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
 	return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoGKCert);
 }
 
-static guint32 dissect_h225_cryptoFastStart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+static int
+dissect_h225_cryptoFastStart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
 	return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h225_cryptoFastStart);
 }
 
-static guint32 dissect_h225_nestedcryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
+static int
+dissect_h225_nestedcryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 {
 	return dissect_h235_CryptoToken(tvb, offset, pinfo, tree, hf_h225_nestedcryptoToken);
 }
