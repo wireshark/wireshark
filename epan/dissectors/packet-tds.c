@@ -354,6 +354,7 @@ static gboolean tds_defragment = TRUE;
 
 static dissector_handle_t tds_tcp_handle;
 static dissector_handle_t ntlmssp_handle;
+static dissector_handle_t gssapi_handle;
 static dissector_handle_t data_handle;
 
 /* TDS protocol type preference */
@@ -415,7 +416,7 @@ static const value_string packet_type_names[] = {
 	{TDS_QUERY5_PKT, "TDS5 Query Packet"},
 	{TDS_LOGIN7_PKT, "TDS7/8 Login Packet"},
 	{TDS_XXX7_PKT, "TDS7/8 0x12 Packet"},
-	{TDS_NTLMAUTH_PKT, "NTLM Authentication Packet"},
+	{TDS_NTLMAUTH_PKT, "NT Authentication Packet"},
 	{0, NULL},
 };
 
@@ -565,13 +566,16 @@ static GMemChunk *tds_column = NULL;
 /* support routines */
 
 static void
-dissect_tds_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_tds_nt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint offset, guint length)
 {
-	tvbuff_t *ntlmssp_tvb;
+	tvbuff_t *nt_tvb;
 
-	ntlmssp_tvb = tvb_new_subset(tvb, offset, length, length);
-	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
+	nt_tvb = tvb_new_subset(tvb, offset, -1, length);
+	if(tvb_strneql(tvb, offset, "NTLMSSP", 7) == 0)
+		call_dissector(ntlmssp_handle, nt_tvb, pinfo, tree);
+	else
+		call_dissector(gssapi_handle, nt_tvb, pinfo, tree);
 }
 
 /*  */
@@ -876,7 +880,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	length_remaining = tvb_reported_length_remaining(tvb, offset2 + len);
 	if (length_remaining > 0) {
-		dissect_tds_ntlmssp(tvb, pinfo, login_tree, offset2 + len,
+		dissect_tds_nt(tvb, pinfo, login_tree, offset2 + len,
 		    length_remaining);
 	}
 }
@@ -1519,7 +1523,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		case TDS_AUTH_TOKEN:
-			dissect_tds_ntlmssp(tvb, pinfo, token_tree, pos + 3, token_sz - 3);
+			dissect_tds_nt(tvb, pinfo, token_tree, pos + 3, token_sz - 3);
 			break;
 		case TDS_ERR_TOKEN:
 		case TDS_MSG_TOKEN:
@@ -1666,7 +1670,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_tds_query5_packet(next_tvb, pinfo, tds_tree);
 			break;
 		case TDS_NTLMAUTH_PKT:
-			dissect_tds_ntlmssp(next_tvb, pinfo, tds_tree, offset - 8, -1);
+			dissect_tds_nt(next_tvb, pinfo, tds_tree, offset - 8, -1);
 			break;
 		default:
 			proto_tree_add_text(tds_tree, next_tvb, 0, -1,
@@ -2154,5 +2158,6 @@ proto_reg_handoff_tds(void)
 	heur_dissector_add("tcp", dissect_tds_tcp_heur, proto_tds);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
+	gssapi_handle = find_dissector("gssapi");
 	data_handle = find_dissector("data");
 }
