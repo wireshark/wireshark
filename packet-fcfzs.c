@@ -2,7 +2,7 @@
  * Routines for FC Fabric Zone Server
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-fcfzs.c,v 1.1 2003/01/14 01:17:44 guy Exp $
+ * $Id: packet-fcfzs.c,v 1.2 2003/12/02 06:06:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,26 +158,39 @@ dissect_fcfzs_zoneset (tvbuff_t *tvb, proto_tree *tree, int offset)
     int numzones, nummbrs, i, j, len;
     
     /* The zoneset structure has the following format */
-    /* number of zones,
+    /* zoneset name (len[not including pad], name, pad),
+     * number of zones,
      * for each zone,
-     *     Zone name (len, name, pad), num zone mbrs
+     *     Zone name (len[not including pad], name, pad), num zone mbrs
      *     for each zone mbr,
      *         zone mbr id type, zone mbr id (len, name, pad)
      */
     if (tree) {
-        numzones = tvb_get_ntohl (tvb, offset);
-        proto_tree_add_item (tree, hf_fcfzs_numzonesetattrs, tvb, offset, 4, 0);
 
+        /* Zoneset Name */   
+        len = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_item (tree, hf_fcfzs_zonesetnmlen, tvb, offset,
+                                1, 0);
+        proto_tree_add_item (tree, hf_fcfzs_zonesetname, tvb, offset+4,
+                                len, 0);
+        offset += 4 + len + (4-(len % 4));
+
+        
+        /* Number of zones */   
+        numzones = tvb_get_ntohl (tvb, offset);
+        proto_tree_add_item (tree, hf_fcfzs_numzones, tvb, offset, 4, 0);
         offset += 4;
+        
+        /* For each zone... */   
         for (i = 0; i < numzones; i++) {
             len = tvb_get_guint8 (tvb, offset);
             proto_tree_add_item (tree, hf_fcfzs_zonenmlen, tvb, offset,
                                  1, 0);
-            proto_tree_add_item (tree, hf_fcfzs_zonename, tvb, offset+1,
+            proto_tree_add_item (tree, hf_fcfzs_zonename, tvb, offset+4,
                                  len, 0);
-            offset += len;
+            offset += 4 + len + (4-(len % 4));
 
-            nummbrs = tvb_get_guint8 (tvb, offset);
+            nummbrs = tvb_get_ntohl (tvb, offset);
             proto_tree_add_item (tree, hf_fcfzs_nummbrentries, tvb, offset,
                                  4, 0);
 
@@ -443,17 +456,9 @@ static void
 dissect_fcfzs_gazs (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    int len;
     
     if (tree) {
         if (!isreq) {
-            len = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_item (tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                 1, 0);
-            proto_tree_add_item (tree, hf_fcfzs_zonesetname, tvb, offset+4,
-                                 len, 0);
-            offset += (len + (len % 4));
-
             dissect_fcfzs_zoneset (tvb, tree, offset);
         }
     }
@@ -474,13 +479,6 @@ dissect_fcfzs_gzs (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
                                  len, 0);
         }
         else {
-            len = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_item (tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                 1, 0);
-            proto_tree_add_item (tree, hf_fcfzs_zonesetname, tvb, offset+4,
-                                 len, 0);
-            offset += (len + (len % 4));
-
             dissect_fcfzs_zoneset (tvb, tree, offset);
         }
     }
@@ -490,17 +488,9 @@ static void
 dissect_fcfzs_adzs (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    int len;
     
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_item (tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                 1, 0);
-            proto_tree_add_item (tree, hf_fcfzs_zonesetname, tvb, offset+4,
-                                 len, 0);
-            offset += (len + (len % 4));
-
             dissect_fcfzs_zoneset (tvb, tree, offset);
         }
     }
@@ -510,17 +500,9 @@ static void
 dissect_fcfzs_azsd (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    int len;
     
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_item (tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                 1, 0);
-            proto_tree_add_item (tree, hf_fcfzs_zonesetname, tvb, offset+4,
-                                 len, 0);
-            offset += (len + (len % 4));
-
             dissect_fcfzs_zoneset (tvb, tree, offset);
         }
     }
