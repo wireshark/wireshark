@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.10 2004/02/17 14:49:11 ulfl Exp $
+ * $Id: recent.c,v 1.11 2004/02/19 10:48:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,19 +162,27 @@ write_recent(char **rf_path_return)
   fprintf(rf, RECENT_GUI_ZOOM_LEVEL ": %d\n",
 		  recent.gui_zoom_level);
 
-  fprintf(rf, "\n# Main window geometry.\n");
-  fprintf(rf, "# Decimal integers.\n");
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_X ": %d\n", recent.gui_geometry_main_x);
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_Y ": %d\n", recent.gui_geometry_main_y);
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
-  		  recent.gui_geometry_main_width);
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
-  		  recent.gui_geometry_main_height);
-  
-  fprintf(rf, "\n# Main window maximized (GTK2 only).\n");
-  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
+  if (prefs.gui_geometry_save_position || prefs.gui_geometry_save_size) {
+    fprintf(rf, "\n# Main window geometry.\n");
+    fprintf(rf, "# Decimal integers.\n");
+    if (prefs.gui_geometry_save_position) {
+      fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_X ": %d\n", recent.gui_geometry_main_x);
+      fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_Y ": %d\n", recent.gui_geometry_main_y);
+    }
+    if (prefs.gui_geometry_save_size) {
+      fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
+		recent.gui_geometry_main_width);
+      fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
+		recent.gui_geometry_main_height);
+    }
+  }
+
+  if (prefs.gui_geometry_save_maximized) {
+    fprintf(rf, "\n# Main window maximized (GTK2 only).\n");
+    fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+    fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
 		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
+  }
 
   if (last_open_dir != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
