@@ -157,6 +157,7 @@ Nathan Neulinger <nneul@umr.edu> {
 	Misc. RPC program dissectors
 	TNS/Oracle dissector
 	Tacacs+/XTacacs dissector
+	IRC dissector
 }
 
 Tomislav Vujec <tvujec@carnet.hr> {
