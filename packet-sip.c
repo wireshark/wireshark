@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.23 2002/02/02 02:56:19 guy Exp $
+ * $Id: packet-sip.c,v 1.24 2002/03/21 03:08:46 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,10 @@ static const char *sip_methods[] = {
         "INFO",
         "REFER",
         "SUBSCRIBE",
-        "NOTIFY"
+        "NOTIFY",
+	"MESSAGE",
+	"QAUTH",
+	"DO"
 };
 
 static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset);

@@ -1100,6 +1100,10 @@ Paul E. Erkkila <pee[AT]erkkila.org> {
 	Skinny Client Control Protocol enhancements
 }
 
+Jakob Schlyter <jakob[AT]crt.se> {
+	SIP method additions
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
