@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.35 2002/09/18 08:36:25 tpot Exp $
+ * $Id: packet-spnego.c,v 1.36 2002/10/05 06:26:42 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,6 +148,9 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	 *   OID,
 	 *   USHORT (0x0001 == AP-REQ, 0x0002 == AP-REP, 0x0003 == ERROR,
 	 *   OCTET STRING } 
+         *
+         * However, for some protocols, the KRB5 blob stars at the SHORT
+	 * and has no DER encoded header etc.
 	 */
 
 	asn1_open(&hnd, tvb, offset);
@@ -164,41 +167,42 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		goto done;
 	}
 
-	if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
-		proto_tree_add_text(
+	if ((cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
+	/*	proto_tree_add_text(
 			subtree, tvb, offset, 0,
 			"Unknown header (cls=%d, con=%d, tag=%d)",
 			cls, con, tag);
 		goto done;
-	}
+	}*/
 
-	offset = hnd.offset;
+	    offset = hnd.offset;
 
-	/* Next, the OID */
+	    /* Next, the OID */
 
-	ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
+	    ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
 
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_parse_error(tvb, offset, pinfo, subtree,
-				    "SPNEGO supportedMech token", ret);
-		goto done;
-	}
+	    if (ret != ASN1_ERR_NOERROR) {
+		    dissect_parse_error(tvb, offset, pinfo, subtree,
+			 	        "SPNEGO supportedMech token", ret);
+		    goto done;
+	    }
 
-	oid_string = format_oid(oid, oid_len);
+	    oid_string = format_oid(oid, oid_len);
 
-	value = gssapi_lookup_oid(oid, oid_len);
+	    value = gssapi_lookup_oid(oid, oid_len);
 
-	if (value) 
-	  proto_tree_add_text(subtree, tvb, offset, nbytes, 
-			      "OID: %s (%s)",
-			      oid_string, value->comment);
-	else
-	  proto_tree_add_text(subtree, tvb, offset, oid_len, "OID: %s",
-			      oid_string);
+	    if (value) 
+	        proto_tree_add_text(subtree, tvb, offset, nbytes, 
+		  	            "OID: %s (%s)",
+			            oid_string, value->comment);
+	    else
+	        proto_tree_add_text(subtree, tvb, offset, oid_len, "OID: %s",
+			            oid_string);
 	  
-	g_free(oid_string);
+	    g_free(oid_string);
 
-	offset += nbytes;
+	    offset += nbytes;
+	}
 
 	/* Next, the token ID ... */
 
