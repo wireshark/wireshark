@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.28 2002/02/01 04:34:17 gram Exp $
+ * $Id: tvbuff.c,v 1.29 2002/02/01 07:03:32 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -615,6 +615,7 @@ tvb_ensure_length_remaining(tvbuff_t *tvb, gint offset)
 
 	if (retval == -1) {
 		THROW(ReportedBoundsError);
+		return -1;	/* squelch compiler complaint */
 	}
 	else {
 		return retval;
