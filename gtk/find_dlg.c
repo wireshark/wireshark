@@ -37,7 +37,7 @@
 
 #include "ui_util.h"
 #include "find_dlg.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"

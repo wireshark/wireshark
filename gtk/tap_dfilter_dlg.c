@@ -41,7 +41,7 @@
 #include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
 #include "ui_util.h"

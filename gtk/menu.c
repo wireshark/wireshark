@@ -39,7 +39,7 @@
 #include "about_dlg.h"
 #include "capture_dlg.h"
 #include "color_dlg.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "dlg_utils.h"
 #include "file_dlg.h"
 #include "find_dlg.h"

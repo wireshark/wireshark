@@ -49,7 +49,7 @@
 #include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "service_response_time_table.h"
 #include "gtkglobals.h"
 

@@ -53,7 +53,7 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "proto_dlg.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "dfilter_expr_dlg.h"
 #include "compat_macros.h"
 

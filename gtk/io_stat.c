@@ -51,10 +51,7 @@
 #include "../color.h"
 #include "compat_macros.h"
 #include "dlg_utils.h"
-
-/* filter prefs dialog */
-#include "filter_prefs.h"
-/* filter prefs dialog */
+#include "filter_dlg.h"
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);

@@ -39,7 +39,7 @@
 #include "main.h"
 #include "ui_util.h"
 #include "capture_dlg.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "pcap-util.h"

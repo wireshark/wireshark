@@ -37,7 +37,7 @@
 #include "gtkglobals.h"
 #include <epan/resolv.h>
 #include "keys.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "ui_util.h"
 #include "alert_box.h"
 #include "simple_dialog.h"

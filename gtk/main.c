@@ -86,7 +86,7 @@
 #include "filters.h"
 #include "disabled_protos.h"
 #include "prefs.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "layout_prefs.h"
 #include "color.h"
 #include "color_filters.h"

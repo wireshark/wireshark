@@ -1,7 +1,5 @@
-/* filter_prefs.c
- * Dialog boxes for filter editing
- * (This used to be a notebook page under "Preferences", hence the
- * "prefs" in the file name.)
+/* filter_dlg.c
+ * Dialog boxes for (display and capture) filter editing
  *
  * $Id$
  *
@@ -36,7 +34,7 @@
 
 #include "filters.h"
 #include "gtk/main.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "simple_dialog.h"

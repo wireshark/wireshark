@@ -48,7 +48,7 @@
 #include "tap.h"
 #include "../register.h"
 #include "../globals.h"
-#include "filter_prefs.h"
+#include "filter_dlg.h"
 #include "compat_macros.h"
 #include "ui_util.h"
 
