@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.223 2002/03/16 22:39:45 guy Exp $
+ * $Id: packet-smb.c,v 1.224 2002/03/17 10:59:35 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -541,6 +541,8 @@ static int hf_smb_fs_attr_vic = -1;
 static int hf_smb_quota_flags_deny_disk = -1;
 static int hf_smb_quota_flags_log_limit = -1;
 static int hf_smb_quota_flags_log_warning = -1;
+static int hf_smb_soft_quota_limit = -1;
+static int hf_smb_hard_quota_limit = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -8282,7 +8284,7 @@ static const value_string trans2_cmd_vals[] = {
 	{ 0x01,		"FIND_FIRST2" },
 	{ 0x02,		"FIND_NEXT2" },
 	{ 0x03,		"QUERY_FS_INFORMATION" },
-	{ 0x04,		"QUOTAS" },
+	{ 0x04,		"SET_QUOTA" },
 	{ 0x05,		"QUERY_PATH_INFORMATION" },
 	{ 0x06,		"SET_PATH_INFORMATION" },
 	{ 0x07,		"QUERY_FILE_INFORMATION" },
@@ -9679,6 +9681,74 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 }
 
 
+static const true_false_string tfs_quota_flags_deny_disk = {
+	"DENY DISK SPACE for users exceeding quota limit",
+	"Do NOT deny disk space for users exceeding quota limit"
+};
+static const true_false_string tfs_quota_flags_log_limit = {
+	"LOG EVENT when a user exceeds their QUOTA LIMIT",
+	"Do NOT log event when a user exceeds their quota limit"
+};
+static const true_false_string tfs_quota_flags_log_warning = {
+	"LOG EVENT when a user exceeds their WARNING LEVEL",
+	"Do NOT log event when a user exceeds their warning level"
+};
+static void
+dissect_quota_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint8 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_guint8(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
+			"Quota Flags: 0x%02x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_quotaflags);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_quota_flags_log_limit,
+		tvb, offset, 1, mask);
+	proto_tree_add_boolean(tree, hf_smb_quota_flags_log_warning,
+		tvb, offset, 1, mask);
+	proto_tree_add_boolean(tree, hf_smb_quota_flags_deny_disk,
+		tvb, offset, 1, mask);
+}
+
+static int
+dissect_nt_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp)
+{
+	/* first 24 bytes are unknown */
+	CHECK_BYTE_COUNT_TRANS_SUBR(24);
+	proto_tree_add_item(tree, hf_smb_unknown, tvb,
+		    offset, 24, TRUE);
+	COUNT_BYTES_TRANS_SUBR(24);
+
+	/* number of bytes for quota warning */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_soft_quota_limit, tvb, offset, 8, TRUE);
+	COUNT_BYTES_TRANS_SUBR(8);
+
+	/* number of bytes for quota limit */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_hard_quota_limit, tvb, offset, 8, TRUE);
+	COUNT_BYTES_TRANS_SUBR(8);
+
+	/* one byte of quota flags */
+	CHECK_BYTE_COUNT_TRANS_SUBR(1);
+	dissect_quota_flags(tvb, pinfo, tree, offset);
+	COUNT_BYTES_TRANS_SUBR(1);
+
+	/* these 7 bytes are unknown */
+	CHECK_BYTE_COUNT_TRANS_SUBR(7);
+	proto_tree_add_item(tree, hf_smb_unknown, tvb,
+		    offset, 7, TRUE);
+	COUNT_BYTES_TRANS_SUBR(7);
+
+	return offset;
+}
+
 static int
 dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *parent_tree, int offset, int subcmd, guint16 dc)
@@ -9709,6 +9779,9 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
 		/* no data field in this request */
+		break;
+	case 0x04:	/* TRANS2_SET_QUOTA */
+		offset = dissect_nt_quota(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		/* no data field in this request */
@@ -10948,67 +11021,6 @@ dissect_device_characteristics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	return offset;
 }
 
-/* dissect 4 bytes specifying the number of 256 byte blocks for a quota limit */
-static void
-dissect_quota_32bit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-		char *str)
-{ 
-	guint32 quota;
-	int i;
-	char *prefix = "KMGTPE";
-
-	quota = tvb_get_letohl(tvb, offset);
-
-	/* divide by four to get number of KB*/
-	quota >>= 2;
-
-	/* divide by 1024 until the result is less than 1024 */
-	i=0;
-	while( quota>1023 ){
-		i++;
-		quota >>= 10;
-	}
-
-	proto_tree_add_text(tree, tvb, offset, 4,
-			"%s is %d%cB",str, quota, prefix[i]);
-}
-
-
-static const true_false_string tfs_quota_flags_deny_disk = {
-	"DENY DISK SPACE for users exceeding quota limit",
-	"Do NOT deny disk space for users exceeding quota limit"
-};
-static const true_false_string tfs_quota_flags_log_limit = {
-	"LOG EVENT when a user exceeds their QUOTA LIMIT",
-	"Do NOT log event when a user exceeds their quota limit"
-};
-static const true_false_string tfs_quota_flags_log_warning = {
-	"LOG EVENT when a user exceeds their WARNING LEVEL",
-	"Do NOT log event when a user exceeds their warning level"
-};
-static void
-dissect_quota_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
-{
-	guint8 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
-	mask = tvb_get_guint8(tvb, offset);
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-			"Quota Flags: 0x%02x", mask);
-		tree = proto_item_add_subtree(item, ett_smb_quotaflags);
-	}
-
-	proto_tree_add_boolean(tree, hf_smb_quota_flags_log_limit,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_quota_flags_log_warning,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_quota_flags_deny_disk,
-		tvb, offset, 1, mask);
-}
-
 /*dissect the data block for TRANS2_QUERY_FS_INFORMATION*/
 static int
 dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
@@ -11163,45 +11175,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		break;
 	case 1006:	/* QUERY_FS_QUOTA_INFO */
-		/* first 25 bytes are unknown */
-		CHECK_BYTE_COUNT_TRANS_SUBR(25);
-		proto_tree_add_item(tree, hf_smb_unknown, tvb,
-			    offset, 25, TRUE);
-		COUNT_BYTES_TRANS_SUBR(25);
-
-		/* This really calls for a separate routing, but this will do for testing */
-		/* number of 256byte blocks for WARNING LEVEL, 32bit integer */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		dissect_quota_32bit(tvb, pinfo, tree, offset, "Default (Soft) Quota Warning Level");
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* these 4 bytes are unknown */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_unknown, tvb,
-			    offset, 4, TRUE);
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* number of 256byte blocks for QUOTA LIMIT, 64bit integer */
-		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		dissect_quota_32bit(tvb, pinfo, tree, offset, "Default (Hard) Quota Limit");
-		COUNT_BYTES_TRANS_SUBR(4);
-
-		/* these 3 bytes are unknown */
-		CHECK_BYTE_COUNT_TRANS_SUBR(3);
-		proto_tree_add_item(tree, hf_smb_unknown, tvb,
-			    offset, 3, TRUE);
-		COUNT_BYTES_TRANS_SUBR(3);
-
-		/* one byte of quota flags */
-		CHECK_BYTE_COUNT_TRANS_SUBR(1);
-		dissect_quota_flags(tvb, pinfo, tree, offset);
-		COUNT_BYTES_TRANS_SUBR(1);
-
-		/* these 7 bytes are unknown */
-		CHECK_BYTE_COUNT_TRANS_SUBR(7);
-		proto_tree_add_item(tree, hf_smb_unknown, tvb,
-			    offset, 7, TRUE);
-		COUNT_BYTES_TRANS_SUBR(7);
+		offset = dissect_nt_quota(tvb, pinfo, tree, offset, bcp);
 	}
  
 	return offset;
@@ -16057,6 +16031,14 @@ proto_register_smb(void)
 	{ &hf_smb_free_alloc_units64,
 		{ "Free Units", "smb.free_alloc_units", FT_UINT64, BASE_DEC,
 		NULL, 0, "Number of free allocation units", HFILL }},
+
+	{ &hf_smb_soft_quota_limit,
+		{ "Default (Soft) Quota Warning", "smb.quota.soft.default", FT_UINT64, BASE_DEC,
+		NULL, 0, "Default Soft Quota limit", HFILL }},
+
+	{ &hf_smb_hard_quota_limit,
+		{ "Default (Hard) Quota Limit", "smb.quota.hard.default", FT_UINT64, BASE_DEC,
+		NULL, 0, "Default Hard Quota limit", HFILL }},
 
 	{ &hf_smb_max_name_len,
 		{ "Max name length", "smb.fs_max_name_len", FT_UINT32, BASE_DEC,
