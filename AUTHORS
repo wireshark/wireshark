@@ -1626,10 +1626,13 @@ Wayne Parrott <wayne_p [AT] pacific.net.au> {
 	Yahoo Messenger YMSG protocol support
 }
 
+Laurent Meyer <laurent.meyer [AT] thales-avionics.com> {
+	X.25 reassembly
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
-	Laurent Meyer <laurent.meyer [AT] thales-avionics.com>
 	Georgi Guninski <guninski [AT] guninski.com>
 	Jason Copenhaver <jcopenha [AT] typedef.org>
 

@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.80 2003/03/01 10:02:35 guy Exp $
+ * $Id: packet-x25.c,v 1.81 2003/03/04 19:50:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include "llcsaps.h"
 #include <epan/packet.h>
 #include <epan/circuit.h>
+#include "reassemble.h"
 #include "prefs.h"
 #include "nlpid.h"
 #include "x264_prt_id.h"
@@ -142,6 +143,16 @@ static gint ett_x25_fac_call_deflect = -1;
 static gint ett_x25_fac_priority = -1;
 static gint ett_x25_user_data = -1;
 
+static gint ett_x25_segment = -1;
+static gint ett_x25_segments = -1;
+static gint hf_x25_segments = -1;
+static gint hf_x25_segment = -1;
+static gint hf_x25_segment_overlap = -1;
+static gint hf_x25_segment_overlap_conflict = -1;
+static gint hf_x25_segment_multiple_tails = -1;
+static gint hf_x25_segment_too_long_segment = -1;
+static gint hf_x25_segment_error = -1;
+
 static const value_string vals_modulo[] = {
 	{ 1, "8" },
 	{ 2, "128" },
@@ -174,6 +185,19 @@ static struct true_false_string m_bit_tfs = {
 	"End of data"
 };
 
+static const fragment_items x25_frag_items = {
+	&ett_x25_segment,
+	&ett_x25_segments,
+	&hf_x25_segments,
+	&hf_x25_segment,
+	&hf_x25_segment_overlap,
+	&hf_x25_segment_overlap_conflict,
+	&hf_x25_segment_multiple_tails,
+	&hf_x25_segment_too_long_segment,
+	&hf_x25_segment_error,
+	"segments"
+};
+
 static dissector_handle_t ip_handle;
 static dissector_handle_t clnp_handle;
 static dissector_handle_t ositp_handle;
@@ -182,6 +206,12 @@ static dissector_handle_t data_handle;
 
 /* Preferences */
 static gboolean payload_is_qllc_sna = FALSE;
+static gboolean reassemble_x25 = FALSE;
+
+/* Reassembly of X.25 */
+
+static GHashTable *x25_segment_table = NULL;
+static GHashTable *x25_reassembled_table = NULL;
 
 static dissector_table_t x25_subdissector_table;
 static heur_dissector_list_t x25_heur_subdissector_list;
@@ -1420,9 +1450,10 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16 bytes0_1;
     guint8 pkt_type;
     char *short_name = NULL, *long_name = NULL;
-    tvbuff_t *next_tvb;
+    tvbuff_t *next_tvb = NULL;
     gboolean q_bit_set = FALSE;
     void *saved_private_data;
+    fragment_data *fd_head;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.25");
@@ -1730,7 +1761,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * If there's only one octet of user data, it's just
 		 * an NLPID; don't try to dissect it.
 		 */
-		if (localoffset + 1 <= tvb_reported_length(tvb))
+		if (localoffset + 1 == tvb_reported_length(tvb))
 		    return;
 
 		/*
@@ -2078,6 +2109,30 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	    }
 	    localoffset += (modulo == 8) ? 1 : 2;
+	    if (reassemble_x25)
+	      {
+		fd_head = fragment_add_seq_next(tvb, localoffset, 
+						pinfo, vc, x25_segment_table,
+						x25_reassembled_table,
+						tvb_reported_length(tvb) - localoffset,
+						(pkt_type >> 4) & 0x01);
+		pinfo->fragmented = (pkt_type >> 4) & 0x01;
+	      
+		if (fd_head)
+		  if (fd_head->next)
+		    {
+		      /* This is the last packet */
+		      next_tvb = tvb_new_real_data(fd_head->data, 
+						   fd_head->len,
+						   fd_head->len);
+		      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+		      add_new_data_source(pinfo, next_tvb, "Reassembled X25");
+		      show_fragment_seq_tree(fd_head, 
+					     &x25_frag_items, 
+					     x25_tree, 
+					     pinfo, next_tvb);
+	       }
+	      }
 	    break;
 	}
 	switch (PACKET_TYPE_FC(pkt_type))
@@ -2166,8 +2221,11 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (localoffset >= tvb_reported_length(tvb)) return;
+    if (pinfo->fragmented)
+      return;
 
-    next_tvb = tvb_new_subset(tvb, localoffset, -1, -1);
+    if (!next_tvb)
+      next_tvb = tvb_new_subset(tvb, localoffset, -1, -1);
 
     saved_private_data = pinfo->private_data;
     pinfo->private_data = &q_bit_set;
@@ -2246,6 +2304,13 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_x25_common(tvb, pinfo, tree, X25_UNKNOWN);
 }
 
+static void
+x25_reassemble_init(void)
+{
+  fragment_table_init(&x25_segment_table);
+  reassembled_table_init(&x25_reassembled_table);
+}
+
 void
 proto_register_x25(void)
 {
@@ -2295,6 +2360,33 @@ proto_register_x25(void)
 	{ &hf_x25_p_s_mod128,
 	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_DEC, NULL, 0xFE,
 	  	"Packet Send Sequence Number", HFILL }},
+	{ &hf_x25_segment_overlap,
+	  { "Fragment overlap",	"x25.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	    "Fragment overlaps with other fragments", HFILL }},
+	
+	{ &hf_x25_segment_overlap_conflict,
+	  { "Conflicting data in fragment overlap",	"x25.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	    "Overlapping fragments contained conflicting data", HFILL }},
+	
+	{ &hf_x25_segment_multiple_tails,
+	  { "Multiple tail fragments found",	"x25.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	    "Several tails were found when defragmenting the packet", HFILL }},
+	
+	{ &hf_x25_segment_too_long_segment,
+	  { "Fragment too long",	"x25.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	    "Fragment contained data past end of packet", HFILL }},
+	
+	{ &hf_x25_segment_error,
+	  { "Defragmentation error", "x25.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+	    "Defragmentation error due to illegal fragments", HFILL }},
+	
+	{ &hf_x25_segment,
+	  { "X.25 Fragment", "x25.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+	    "X25 Fragment", HFILL }},
+	
+	{ &hf_x25_segments,
+	  { "X.25 Fragments", "x25.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+	    "X.25 Fragments", HFILL }},
     };
     static gint *ett[] = {
         &ett_x25,
@@ -2320,7 +2412,9 @@ proto_register_x25(void)
 	&ett_x25_fac_calling_addr_ext,
 	&ett_x25_fac_call_deflect,
 	&ett_x25_fac_priority,
-	&ett_x25_user_data
+	&ett_x25_user_data,
+	&ett_x25_segment,
+	&ett_x25_segments
     };
     module_t *x25_module;
 
@@ -2342,6 +2436,11 @@ proto_register_x25(void)
             "Default to QLLC/SNA",
             "If CALL REQUEST not seen or didn't specify protocol, dissect as QLLC/SNA",
             &payload_is_qllc_sna);
+    prefs_register_bool_preference(x25_module, "reassemble_x25",
+				   "Reassemble fragmented X.25 packets",
+				   "Reassemble fragmented X.25 packets",
+				   &reassemble_x25);
+    register_init_routine(&x25_reassemble_init);
 }
 
 void
