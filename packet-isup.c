@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.47 2004/01/15 02:29:43 guy Exp $
+ * $Id: packet-isup.c,v 1.48 2004/01/18 04:26:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1835,10 +1835,12 @@ dissect_isup_event_information_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 static void
 dissect_isup_user_to_user_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_reported_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "User-to-user info (-> Q.931)");
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, 
+	  "User-to-user info (-> Q.931)");
   dissect_q931_user_user_ie(parameter_tvb, 0, length,
     parameter_tree );
-  proto_item_set_text(parameter_item, "User-to-user information, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
+  proto_item_set_text(parameter_item, "User-to-user information,(%u byte%s length)",
+	length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Call Reference
@@ -1869,7 +1871,8 @@ dissect_isup_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   
   dissect_q931_IEs(parameter_tvb, pinfo, NULL, parameter_tree, FALSE, offset);
 
-  proto_item_set_text(parameter_item, "Access transport (%u byte%s length)", length , plurality(length, "", "s"));
+  proto_item_set_text(parameter_item, "Access transport (%u byte%s length)",
+	  length , plurality(length, "", "s"));
 }
 
 /* dissect x.213 NSAP coded Address */
@@ -2964,13 +2967,20 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
 			case BEARER_CONTROL_INFORMATION :              	
 				BCTP_Indicator_field_1 = tvb_get_guint8(parameter_tvb, offset);
-				proto_tree_add_uint(bat_ase_element_tree, hf_BCTP_Version_Indicator, parameter_tvb, offset, 1, BCTP_Indicator_field_1 );
-				proto_tree_add_boolean(bat_ase_element_tree, hf_BVEI, parameter_tvb, offset, 1, BCTP_Indicator_field_1 );
+				proto_tree_add_uint(bat_ase_element_tree, hf_BCTP_Version_Indicator, 
+					parameter_tvb, offset, 1, BCTP_Indicator_field_1 );
+				
+				proto_tree_add_boolean(bat_ase_element_tree, hf_BVEI,
+					parameter_tvb, offset, 1, BCTP_Indicator_field_1 );
 				offset = offset + 1;
 
 				BCTP_Indicator_field_2 = tvb_get_guint8(parameter_tvb, offset);
-				proto_tree_add_uint(bat_ase_element_tree, hf_Tunnelled_Protocol_Indicator , parameter_tvb, offset, 1, BCTP_Indicator_field_2 );
-				proto_tree_add_boolean(bat_ase_element_tree, hf_TPEI, parameter_tvb, offset, 1, BCTP_Indicator_field_2 );
+				
+				proto_tree_add_uint(bat_ase_element_tree, hf_Tunnelled_Protocol_Indicator ,
+					parameter_tvb, offset, 1, BCTP_Indicator_field_2 );
+				
+				proto_tree_add_boolean(bat_ase_element_tree, hf_TPEI,
+					parameter_tvb, offset, 1, BCTP_Indicator_field_2 );
 				offset = offset + 1;
 
 				sdp_length = ( length_indicator & 0x7f) - 3;
@@ -3435,8 +3445,10 @@ dissect_isup_closed_user_group_interlock_code_parameter(tvbuff_t *parameter_tvb,
 static void
 dissect_isup_user_service_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User service information (-> Q.931 Bearer_capability)");
-  proto_item_set_text(parameter_item, "User service information, (%u byte%s length)", length , plurality(length, "", "s"));
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length,
+	  "User service information (-> Q.931 Bearer_capability)");
+  proto_item_set_text(parameter_item, "User service information, (%u byte%s length)",
+	  length , plurality(length, "", "s"));
   dissect_q931_bearer_capability_ie(parameter_tvb,
 					    0, length,
 					    parameter_tree);
@@ -3670,12 +3682,14 @@ dissect_isup_network_specific_facility_parameter(tvbuff_t *parameter_tvb, proto_
 static void
 dissect_isup_user_service_information_prime_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User service information prime (-> Q.931)");
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length,
+	  "User service information prime (-> Q.931 Bearer capability information IE)");
   dissect_q931_bearer_capability_ie(parameter_tvb,
 					    0, length,
 					    parameter_tree);
 
-  proto_item_set_text(parameter_item, "User service information prime, (%u byte%s length)", length , plurality(length, "", "s"));
+  proto_item_set_text(parameter_item, "User service information prime, (%u byte%s length)",
+	  length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Propagation delay counter
@@ -3721,7 +3735,7 @@ dissect_isup_user_teleservice_information_parameter(tvbuff_t *parameter_tvb, pro
 { 
   guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, length,
-	  "User teleservice information (-> Q.931)");
+	  "User teleservice information (-> Q.931 High Layer Compatibility IE)");
 
   dissect_q931_high_layer_compat_ie(parameter_tvb, 0, length, parameter_tree);
 
@@ -4365,12 +4379,27 @@ dissect_isup_conference_treatment_indicators_parameter(tvbuff_t *parameter_tvb, 
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Display information
+ * TODO Output Display info :
+ * Quote from Q.931:
+ * 4.5.16 Display
+ * The purpose of the Display information element is to supply display information 
+ * that may be displayed by the user. The information contained in this element is coded
+ * in IA5 characters.
+ * 8 7 6 5 4 3 2 1   Octet
+ * 0 0 1 0 1 0 0 0   1      Display information element identifier
+ *                   2      Length of display contents 
+ * 0                 3      Display information (IA5 characters) 
+ * etc.
+ * - end - quote -
+ * Assuming octet 2 and onwards is pased here - just output text ?
  */
 static void
 dissect_isup_display_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Display information (-> Q.931)");
-  proto_item_set_text(parameter_item, "Display information (%u Byte%s)", length , plurality(length, "", "s"));
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length,
+	  "Display information (-> Q.931)");
+  proto_item_set_text(parameter_item, "Display information (%u Byte%s)",
+	  length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------
  Parameter UID action indicators
@@ -6311,7 +6340,7 @@ proto_register_isup(void)
 			"", HFILL }},
 	
 		{ &hf_BVEI,
-			{ "BCTP Version Error Indicator",  "bicc.bat_ase_BCTP_BVEI",
+			{ "BVEI",  "bicc.bat_ase_BCTP_BVEI",
 			FT_BOOLEAN, 8, TFS(&BCTP_BVEI_value), 0x40,
 			"", HFILL }},
 
@@ -6321,7 +6350,7 @@ proto_register_isup(void)
 			"", HFILL }},
 
 		{ &hf_TPEI,
-			{ "Tunnelled Protocol Error Indicator value",  "bicc.bat_ase_BCTP_tpei",
+			{ "TPEI",  "bicc.bat_ase_BCTP_tpei",
 			FT_BOOLEAN, 8, TFS(&BCTP_TPEI_value), 0x40,
 			"", HFILL }},
 
