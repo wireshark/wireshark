@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.471 2002/09/07 00:29:28 jmayer Exp $
+# $Id: Makefile.am,v 1.472 2002/09/07 10:04:41 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1051,6 +1051,9 @@ endif
 # empty directroy in the distribution tarball.
 dist-hook:
 	mkdir -p aclocal-missing
+
+DIST_SUBDIRS = tools wiretap doc epan plugins packaging \
+	gtk gtk2
 
 if HAVE_PLUGINS
 SUBDIRS = tools wiretap doc epan plugins packaging @ethereal_SUBDIRS@
