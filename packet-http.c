@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.38 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-http.c,v 1.39 2001/09/04 01:01:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -392,6 +392,8 @@ proto_register_http(void)
 	    "HTTP", "http");
 	proto_register_field_array(proto_http, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("http", dissect_http, proto_http);
 
 	/*
 	 * Dissectors shouldn't register themselves in this table;

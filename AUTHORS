@@ -772,6 +772,10 @@ Jean-Francois Mule <jfmule[AT]clarent.com> {
 	Additional SIP methods
 }
 
+Thomas Wittwer <thomas.wittwer[AT]iclip.ch> {
+	HTTP dissector registered by name
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
