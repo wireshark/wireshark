@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.16 2000/08/23 06:55:32 guy Exp $
+ * $Id: display_opts.c,v 1.17 2000/10/19 22:59:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,7 @@
 #endif
 
 #include "globals.h"
+#include "resolv.h"
 #include "timestamp.h"
 #include "packet.h"
 #include "file.h"

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.31 2000/08/21 15:45:32 deniel Exp $
+ * $Id: file_dlg.c,v 1.32 2000/10/19 22:59:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,7 @@
 
 #include "globals.h"
 #include "gtkglobals.h"
+#include "resolv.h"
 #include "keys.h"
 #include "filter_prefs.h"
 #include "ui_util.h"

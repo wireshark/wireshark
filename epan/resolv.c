@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.2 2000/10/16 23:17:40 guy Exp $
+ * $Id: resolv.c,v 1.3 2000/10/19 22:59:24 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -80,7 +80,6 @@
 #include "packet.h"
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
-#include "globals.h"
 #include "resolv.h"
 #include "util.h"
 

@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.2 2000/10/16 23:17:40 guy Exp $
+ * $Id: resolv.h,v 1.3 2000/10/19 22:59:24 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -34,6 +34,7 @@
 
 /* global variables */
 
+extern int    g_resolving_actif;
 extern gchar *g_ethers_path;
 extern gchar *g_ipxnets_path;
 extern gchar *g_manuf_path;
