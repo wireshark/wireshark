@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.115 1999/10/29 01:04:17 guy Exp $
+ * $Id: file.c,v 1.116 1999/10/31 17:45:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1086,7 +1086,7 @@ colorize_packets(capture_file *cf)
 
     cf->count++;
 
-    wtap_seek_read (cf-> cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
+    wtap_seek_read (cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
 
     add_packet_to_packet_list(fd, cf, cf->pd);
   }

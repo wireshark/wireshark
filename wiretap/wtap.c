@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.26 1999/10/18 01:51:32 guy Exp $
+ * $Id: wtap.c,v 1.27 1999/10/31 17:46:10 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -30,6 +30,7 @@
 #include "file.h"
 #include "buffer.h"
 #include "ascend.h"
+#include "toshiba.h"
 
 FILE* wtap_file(wtap *wth)
 {
@@ -75,7 +76,7 @@ const char *wtap_file_type_string(wtap *wth)
 			return "snoop";
 
 		case WTAP_FILE_IPTRACE:
-			return "iptrace";
+			return "AIX iptrace";
 
 		case WTAP_FILE_NETMON_1_x:
 			return "Microsoft Network Monitor 1.x";
@@ -99,7 +100,10 @@ const char *wtap_file_type_string(wtap *wth)
 			return "Lucent/Ascend access server trace";
 
 		case WTAP_FILE_NETTL:
-			return "HP-UX nettl traces";
+			return "HP-UX nettl trace";
+
+		case WTAP_FILE_TOSHIBA:
+			return "Toshiba Compact ISDN Router snoop trace";
 
 		default:
 			g_error("Unknown capture file type %d", wth->file_type);
@@ -215,12 +219,15 @@ int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
 		return TRUE;	/* success */
 }
 
-int wtap_seek_read(int encaps, FILE *fh, int seek_off, guint8 *pd, int len)
+int wtap_seek_read(int file_type, FILE *fh, int seek_off, guint8 *pd, int len)
 {
-	switch (encaps) {
+	switch (file_type) {
 
-	case WTAP_ENCAP_ASCEND:
+	case WTAP_FILE_ASCEND:
 		return ascend_seek_read(fh, seek_off, pd, len);
+
+	case WTAP_FILE_TOSHIBA:
+		return toshiba_seek_read(fh, seek_off, pd, len);
 
 	default:
 		return wtap_def_seek_read(fh, seek_off, pd, len);

@@ -73,9 +73,10 @@ its infancy. However, wiretap is used in ethereal for its ability
 to read multiple file types. You can read the following file
 formats, and create display filters for them as well:
 
-libpcap, Sniffer (uncompresed), NetXray, Sniffer Pro, snoop,
-Shomiti, LANalyzer, Network Monitor, iptrace 2.0 (AIX), RADCOM's
-WAN/LAN Analyzer, Lucent/Ascend access products, and HP-UX's nettl.
+libpcap (tcpdump -w), Sniffer (uncompressed), NetXray, Sniffer Pro,
+snoop, Shomiti, LANalyzer, Network Monitor, AIX's iptrace 2.0,
+RADCOM's WAN/LAN Analyzer, Lucent/Ascend access products, HP-UX's nettl,
+and Toshiba's ISDN routers.
 
 Although Ethereal can read AIX iptrace files, the documentation on
 AIX's iptrace packet-trace command is sparse.  The 'iptrace' command
@@ -103,9 +104,25 @@ the following pages:
 "wdd" on the Pipeline series:
   http://aos.ascend.com/aos:/gennavviewer.html?doc_id=0900253d80006877
 
-To use these commands in conjunction with Ethereal, you must capture the
-trace output to a file on disk.  An easy way of doing this under Unix is
-to run "telnet <ascend> | tee <outfile>".
+Ethereal can also read dump trace output from the Toshiba "Compact Router"
+line of ISDN routers (TR-600 and TR-650). You can telnet to the router
+and start a dump session with "snoop dump".
+
+To use the Lucent/Ascend and Toshiba traces with Ethereal, you must capture
+the trace output to a file on disk.  The trace is happening inside the router
+and the router has no way of saving the trace to a file for you.
+An easy way of doing this under Unix is to run "telnet <ascend> | tee <outfile>".
+Or, if your system has the "script" command installed, you can save
+a shell session, including telnet to a file. For example, to a file named
+tracefile.out:
+
+$ script tracefile.out
+Script started on <date/time>
+$ telnet router
+..... do your trace, then exit from the router's telnet session.
+$ exit
+Script done on <date/time>
+
 
 
 IPv6

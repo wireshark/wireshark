@@ -1,4 +1,4 @@
-$Id: README,v 1.16 1999/08/20 07:55:49 guy Exp $
+$Id: README,v 1.17 1999/10/31 17:46:05 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -96,5 +96,22 @@ RADCOM WAN/LAN Analyzers
 Olivier Abad has added code to read Ethernet and LAPB captures from
 RADCOM WAN/LAN Analyzers (see http://www.radcom-inc.com/).
 
-Gilbert Ramirez <gram@verdict.uthscsa.edu>
+Lucent/Ascend access products
+-----------------------------
+Gerald
+
+HP-UX nettl
+-----------
+Olivier
+
+Toshiba ISDN Router
+-------------------
+An under-documented command that the router supports in a telnet session is "snoop".
+If you give it the "dump" option, you'll get a hex dump of all packets across the
+router (except of your own telnet session -- good thinking Toshiba!). You can
+select a certain channel to sniff (LAN, B1, B2, D), but the default is all channels.
+You save this hex dump to disk with 'script' or by 'telnet | tee'. Wiretap will
+read the ASCII hex dump and convert it to binary data.
+
+Gilbert Ramirez <gram@xiexie.org>
 Guy Harris <guy@netapp.com>

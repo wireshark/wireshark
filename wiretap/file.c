@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.26 1999/10/18 01:51:34 guy Exp $
+ * $Id: file.c,v 1.27 1999/10/31 17:46:06 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -42,6 +42,7 @@
 #include "iptrace.h"
 #include "netmon.h"
 #include "netxray.h"
+#include "toshiba.h"
 
 /* The open_file_* routines should return:
  *
@@ -58,9 +59,17 @@
  * declare a "const" array of pointers to functions; putting "const"
  * right after "static" isn't the right answer, at least according
  * to GCC, which whines if I do that.
+ *
+ * Put the trace files that are merely saved telnet-sessions last, since it's
+ * possible that you could have captured someone a router telnet-session
+ * using another tool. So, a libpcap trace of an toshiba "snoop" session
+ * should be discovered as a libpcap file, not a toshiba file.
  */
 
 static int (*open_routines[])(wtap *, int *) = {
+	/* Files that have magic bytes in fixed locations. These
+	 * are easy to identify.
+	 */
 	libpcap_open,
 	lanalyzer_open,
 	ngsniffer_open,
@@ -69,8 +78,14 @@ static int (*open_routines[])(wtap *, int *) = {
 	netmon_open,
 	netxray_open,
 	radcom_open,
+	nettl_open,
+
+	/* Files whose magic headers are in text *somewhere* in the
+	 * file (usually because the trace is just a saved copy of
+	 * the telnet session). 
+	 */
 	ascend_open,
-	nettl_open
+	toshiba_open,
 };
 
 int wtap_def_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)
@@ -130,6 +145,8 @@ wtap* wtap_open_offline(const char *filename, int *err)
 
 		case -1:
 			/* I/O error - give up */
+			/* XXX - why pass err to open_routines[i]() if err is
+			 * overwritten here? */
 			*err = errno;
 			file_close(wth->fh);
 			free(wth);
