@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.6 2002/01/04 06:57:08 guy Exp $
+# $Id: Makefile.nmake,v 1.7 2002/01/04 21:20:17 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,11 @@ ethereal.html: ethereal.pod ../config.h
 	--title="The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
 	> ethereal.html
+
+../tethereal.exe:
+	cd ..
+	$(MAKE) -f makefile.nmake tethereal.exe
+	cd doc
 
 ethereal.pod: ethereal.pod.template  ../tethereal.exe
 	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl ethereal.pod.template > ethereal.pod

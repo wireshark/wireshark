@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.21 2002/01/04 06:57:07 guy Exp $
+# $Id: config.nmake,v 1.22 2002/01/04 21:20:16 guy Exp $
 
 VERSION=0.9.0
 RC_VERSION=0.9.0
@@ -16,10 +16,10 @@ LOCAL_CFLAGS=-Zi
 LOCAL_LDFLAGS=/DEBUG
 
 # Set PDB_FILE according to your VC++ version 
-PDB_FILE=vc60.pdb
+PDB_FILE=vc*.pdb
 
 # Set path if you need to find some binary
-PATH=c:\cygnus\cygwin-b20\H-i586-cygwin32\bin;c:\python22;c:\ethereal-0.9.0\wiretap;c:\program files\gnu;$(PATH)
+PATH=c:\cygnus\cygwin-b20\H-i586-cygwin32\bin;c:\python22;c:\ethereal\wiretap;c:\program files\common files\gnu;$(PATH)
 
 PERL=perl
 POD2MAN=pod2man

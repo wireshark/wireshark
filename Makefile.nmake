@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.161 2002/01/04 06:57:07 guy Exp $
+# $Id: Makefile.nmake,v 1.162 2002/01/04 21:20:16 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -329,6 +329,7 @@ mergecap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 dftest_LIBS= epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
+        wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
@@ -338,13 +339,17 @@ RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res image\mergeca
 
 all: tools wiretap gtk epan image $(EXECUTABLES) $(RESOURCES)
 
-ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
+$(RESOURCES): image
+
+wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
+
+ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
 <<
 
-tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
@@ -410,7 +415,7 @@ clean:
 		tethereal.obj editcap.obj mergecap.obj text2pcap.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c register.c \
 		rdps.obj rdps.pdb config.h ps.c packet-ncp2222.c register.c \
-		rdps.exe rdps.ilk $(RESOURCES)
+		rdps.exe rdps.ilk dftest.obj dftest.exe $(RESOURCES)
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../gtk
@@ -423,7 +428,11 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../image
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
+	cd ../doc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../packaging/nsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../..
 
 tools::
 	cd tools
