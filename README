@@ -1,4 +1,4 @@
-$Id: README,v 1.42 2000/08/24 23:33:09 guy Exp $
+$Id: README,v 1.43 2000/09/20 12:09:37 gram Exp $
 
 General Information
 ------- -----------
@@ -101,6 +101,7 @@ HP-UX's nettl
 Toshiba's ISDN routers
 ISDN4BSD "i4btrace" utility
 Cisco Secure Intrustion Detection System iplogging facility
+pppd logs (pppdump-format files)
 
 In addition, it can read gzipped versions of any of these files
 automatically, if you have the zlib library available when compiling
