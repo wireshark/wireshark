@@ -120,6 +120,8 @@
 #define KEYWORD_ACCEPT "Accept"
 #define KEYWORD_REJECT "Reject"
 #define KEYWORD_NOTREE "NoTree"
+#define KEYWORD_BASICTREE "BasicTree"
+#define KEYWORD_FULLTREE "FullTree"
 #define KEYWORD_PDUTREE "PduTree"
 #define KEYWORD_FRAMETREE "FrameTree"
 #define KEYWORD_GOPEXPIRATION "GopExpiration"
@@ -208,11 +210,12 @@ typedef struct _mate_cfg_item {
 	GHashTable* gog_index;
 	
 	/* gog */
-	gboolean gop_as_subtree;
+	guint8* gop_as_subtree;
 	LoAL* keys;
 	int hfid_gog_num_of_gops;
 	int hfid_gog_gop;
 	int hfid_gog_gopstart;
+	int hfid_gog_gopstop;	
 	gint ett_gog_gop;
 	
 } mate_cfg_item;
@@ -229,19 +232,21 @@ typedef struct _mate_config {
 	gboolean last_to_be_created;
 	avpl_match_mode match_mode;
 	avpl_replace_mode replace_mode;
-	gboolean gop_as_subtree;
+	guint8* gop_as_subtree;
 	int hfid_mate;
 	
 	float gop_expiration;
 	float gop_idle_timeout;
 	float gop_lifetime;
 	
+	/* text "constants" */
 	guint8* accept;
 	guint8* reject;
-	
 	guint8* no_tree;
 	guint8* frame_tree;
 	guint8* pdu_tree;
+	guint8* full_tree;
+	guint8* basic_tree;
 	
 	/* what to dbgprint */
 	int dbg_lvl;	

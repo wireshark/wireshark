@@ -1,5 +1,5 @@
 # mms.mate
-# $Id: $
+# $Id$
 
 # MMSE over HTTP
 Action=PduDef;   Name=mmse_over_http_pdu; Proto=http; Transport=tcp/ip; Payload=mmse; addr=ip.addr; port=tcp.port; http_rq=http.request; content=http.content_type;

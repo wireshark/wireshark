@@ -42,7 +42,7 @@ static char* current_mate_config_filename = NULL;
 
 static proto_item *mate_i = NULL;
 
-void attrs_tree(proto_tree* tree, tvbuff_t *tvb,mate_item* item) {
+void attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_item* item) {
 	AVPN* c;
 	proto_item *avpl_i;
 	proto_tree *avpl_t;
@@ -75,7 +75,8 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	mate_gop* gog_gops;
 	proto_item *gog_gop_item;
 	proto_tree *gog_gop_tree;
-
+	mate_pdu* pdu;
+	
 #ifdef _MATE_DEBUGGING
 	proto_item* gog_key_item;
 	proto_tree* gog_key_tree;
@@ -103,19 +104,41 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	for (gog_gops = gog->gops; gog_gops; gog_gops = gog_gops->next) {
 		
 		if (gop != gog_gops) {
-			if (gog->cfg->gop_as_subtree) {
+			if (gog->cfg->gop_as_subtree == mc->full_tree) {
 				mate_gop_tree(gog_gops_tree, tvb, gog_gops);
 			} else {
 				gog_gop_item = proto_tree_add_uint(gog_gops_tree,gog_gops->cfg->hfid,tvb,0,0,gog_gops->id);
 				
-				if (gop->pdus && gop->cfg->show_pdu_tree == mc->frame_tree) {
+				if (gog->cfg->gop_as_subtree == mc->basic_tree) {
 					gog_gop_tree = proto_item_add_subtree(gog_gop_item, gog->cfg->ett_gog_gop);
-					proto_tree_add_uint(gog_gop_tree,gog->cfg->hfid_gog_gopstart,tvb,0,0,gog_gops->pdus->frame);
+					
+					proto_tree_add_text(gog_gop_tree, tvb,0,0, "Started at: %f", gog_gops->start_time);
+					
+					
+					proto_tree_add_text(gog_gop_tree, tvb,0,0, "%s Duration: %f",
+										gog_gops->cfg->name, gog_gops->last_time - gog_gops->start_time);
+					
+					if (gog_gops->released)
+						proto_tree_add_text(gog_gop_tree, tvb,0,0, "%s has been released, Time: %f",
+											gog_gops->cfg->name, gog_gops->release_time - gog_gops->start_time);
+					
+					proto_tree_add_text(gog_gop_tree, tvb,0,0, "Number of Pdus: %u",gog_gops->num_of_pdus);
+					
+					if (gop->pdus && gop->cfg->show_pdu_tree == mc->frame_tree) {
+						proto_tree_add_uint(gog_gop_tree,gog->cfg->hfid_gog_gopstart,tvb,0,0,gog_gops->pdus->frame);
+						
+						for (pdu = gog_gops->pdus->next ; pdu; pdu = pdu->next) {
+							if (pdu->is_stop) {
+								proto_tree_add_uint(gog_gop_tree,gog->cfg->hfid_gog_gopstop,tvb,0,0,pdu->frame);
+								break;
+							}
+						}
+					}
 				}
 				
 			}
 		} else {
-			 proto_tree_add_uint_format(gog_gops_tree,gop->cfg->hfid,tvb,0,0,gop->id,"%s of current frame: %d",gop->cfg->name,gop->id);
+			 proto_tree_add_uint_format(gog_gops_tree,gop->cfg->hfid,tvb,0,0,gop->id,"current %s Gop: %d",gop->cfg->name,gop->id);
 		}
 	}
 }

@@ -166,7 +166,7 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->gop_index = NULL;
 	new->gog_index = NULL;
 
-	new->gop_as_subtree = FALSE;
+	new->gop_as_subtree = NULL;
 	new->keys = NULL;
 	new->hfid_gog_num_of_gops = -1;
 	new->hfid_gog_gop = -1;
@@ -879,7 +879,7 @@ static gboolean config_gog(AVPL* avpl) {
 	cfg = new_gogcfg(name);
 
 	cfg->expiration = extract_named_float(avpl, KEYWORD_GOGEXPIRE,matecfg->gog_expiration);
-	cfg->gop_as_subtree = extract_named_bool(avpl, KEYWORD_GOPTREE,matecfg->gop_as_subtree);
+	cfg->gop_as_subtree = extract_named_str(avpl, KEYWORD_GOPTREE,matecfg->gop_as_subtree);
 	
 	return TRUE;
 }
@@ -942,7 +942,7 @@ static gboolean config_gogextra(AVPL* avpl) {
 	}
 
 	cfg->expiration = extract_named_float(avpl, KEYWORD_GOGEXPIRE,cfg->expiration);
-	cfg->gop_as_subtree = extract_named_bool(avpl, KEYWORD_GOPTREE,cfg->gop_as_subtree);
+	cfg->gop_as_subtree = extract_named_str(avpl, KEYWORD_GOPTREE,cfg->gop_as_subtree);
 
 	merge_avpl(cfg->extra,avpl,TRUE);
 
@@ -1461,6 +1461,15 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	
 	g_array_append_val(matecfg->hfrs,hfri);
 	
+	hfri.p_id = &(cfg->hfid_gog_gopstop);
+	hfri.hfinfo.name = "GopStop frame";
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.GopStop",cfg->name);
+	hfri.hfinfo.type = FT_FRAMENUM;
+	hfri.hfinfo.display = BASE_DEC;
+	hfri.hfinfo.blurb = g_strdup("The stop frame of a GOP");
+	
+	g_array_append_val(matecfg->hfrs,hfri);
+	
 	hfri.p_id = &(cfg->hfid_start_time);
 	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.StartTime",cfg->name);
@@ -1628,6 +1637,14 @@ static void init_actions(void) {
 	matecfg->pdu_tree = avp->n;
 	insert_avp(all_keywords,avp);
 	
+	avp = new_avp(KEYWORD_BASICTREE,"",'=');
+	matecfg->basic_tree = avp->n;
+	insert_avp(all_keywords,avp);
+
+	avp = new_avp(KEYWORD_FULLTREE,"",'=');
+	matecfg->full_tree = avp->n;
+	insert_avp(all_keywords,avp);
+	
 	if (actions) {
 		g_hash_table_destroy(actions);
 	}
@@ -1703,7 +1720,8 @@ extern mate_config* mate_make_config(guint8* filename, int mate_hfid) {
 	init_actions();
 
 	matecfg->show_pdu_tree = matecfg->frame_tree;
-
+	matecfg->gop_as_subtree = matecfg->basic_tree;
+	
 	config_error = g_string_new("");
 	
 	if ( mate_load_config(filename) ) {
