@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.31 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-radius.c,v 1.32 2001/06/18 09:31:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -727,17 +727,19 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
         avplength= rhlength -hdrlength;
 
-        /* list the attribute value pairs */
+        if (avplength > 0) {
+                /* list the attribute value pairs */
 
-        avptf = proto_tree_add_text(radius_tree,
-                        tvb,hdrlength,avplength,
-                        "Attribute value pairs");
-        avptree = proto_item_add_subtree(avptf, ett_radius_avp);
+                avptf = proto_tree_add_text(radius_tree,
+                                tvb,hdrlength,avplength,
+                                "Attribute value pairs");
+                avptree = proto_item_add_subtree(avptf, ett_radius_avp);
 
-        if (avptree !=NULL)
-        {
-                dissect_attribute_value_pairs(tvb, hdrlength,
+                if (avptree !=NULL)
+                {
+                        dissect_attribute_value_pairs(tvb, hdrlength,
                                 avptree,avplength);
+                }
         }
   }
 }
