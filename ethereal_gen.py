@@ -1,7 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.9 2001/07/27 18:35:22 guy Exp $
-#
+# $Id: ethereal_gen.py,v 1.10 2001/08/03 20:44:58 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -2158,6 +2157,10 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
     #
     # template for Attribute delegation code
     #
+    # Note: _get_xxx() should only be called for Reply with NO_EXCEPTION
+    # Note: _set_xxx() should only be called for Request
+    #
+    #
 
     template_at_delegate_code_get = """\
 if (!strcmp(operation, get_@sname@_at ) && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
@@ -2167,7 +2170,7 @@ if (!strcmp(operation, get_@sname@_at ) && (header->message_type == Reply) && (h
 """
     
     template_at_delegate_code_set = """\
-if (!strcmp(operation, set_@sname@_at )) {
+if (!strcmp(operation, set_@sname@_at ) && (header->message_type == Request) ) {
    decode_set_@sname@_at(tvb, pinfo, tree, offset, header, operation);
    return TRUE;
 }
