@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.57 2002/11/13 21:49:58 guy Exp $
+ * $Id: snoop.c,v 1.58 2002/12/05 22:33:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -127,11 +127,12 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * direction.  That appears to be the case.
  *
  * I don't know what the encapsulation of any of the other types is, so I
- * leave them all as WTAP_ENCAP_UNKNOWN.  I also don't know whether "snoop"
- * can handle any of them (it presumably can't handle ATM, otherwise Sun
- * wouldn't have supplied "atmsnoop"; even if it can't, this may be useful
- * reference information for anybody doing code to use DLPI to do raw packet
- * captures on those network types.
+ * leave them all as WTAP_ENCAP_UNKNOWN, except for those for which Brian
+ * Ginsbach has supplied information about the way UNICOS/mp uses them.
+ * I also don't know whether "snoop" can handle any of them (it presumably
+ * can't handle ATM, otherwise Sun wouldn't have supplied "atmsnoop"; even
+ * if it can't, this may be useful reference information for anybody doing
+ * code to use DLPI to do raw packet captures on those network types.
  *
  * See
  *
@@ -149,6 +150,9 @@ int snoop_open(wtap *wth, int *err)
 	int bytes_read;
 	char magic[sizeof snoop_magic];
 	struct snoop_hdr hdr;
+	struct snooprec_hdr rec_hdr;
+	int padbytes;
+	gboolean is_shomiti;
 	static const int snoop_encap[] = {
 		WTAP_ENCAP_ETHERNET,	/* IEEE 802.3 */
 		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.4 Token Bus */
@@ -225,6 +229,26 @@ int snoop_open(wtap *wth, int *err)
 	wth->data_offset += sizeof hdr;
 
 	/*
+	 * Make sure it's a version we support.
+	 */
+	hdr.version = g_ntohl(hdr.version);
+	switch (hdr.version) {
+
+	case 2:		/* Solaris 2.x and later snoop, and Shomiti
+			   Surveyor prior to 3.0, or 3.0 and later
+			   with NDIS card */
+	case 3:		/* Surveyor 3.0 and later, with Shomiti CMM2 hardware */
+	case 4:		/* Surveyor 3.0 and later, with Shomiti GAM hardware */
+	case 5:		/* Surveyor 3.0 and later, with Shomiti THG hardware */
+		break;
+
+	default:
+		g_message("snoop: version %u unsupported", hdr.version);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
+	}
+
+	/*
 	 * Oh, this is lovely.
 	 *
 	 * I suppose Shomiti could give a bunch of lawyerly noise about
@@ -235,54 +259,66 @@ int snoop_open(wtap *wth, int *err)
 	 * their own purposes - especially given that Sun also used
 	 * one of them in atmsnoop.
 	 *
-	 * For now, we treat a version number of 2 as indicating that
-	 * this is a Sun snoop file, and version numbers of 3, 4, and 5
-	 * as indicating that this is a Shomiti file, even though
-	 * their capture file format documentation claims that they
-	 * use 2 if the data "was captured using an NDIS card", which
-	 * presumably means "captured with an ordinary boring network
-	 * card via NDIS" as opposed to "captured with our whizzo
-	 * special capture hardware".
+	 * We can't determine whether it's a Shomiti capture based on
+	 * the version number, as, according to their documentation on
+	 * their capture file format, Shomiti uses a version number of 2
+	 * if the data "was captured using an NDIS card", which presumably
+	 * means "captured with an ordinary boring network card via NDIS"
+	 * as opposed to "captured with our whizzo special capture
+	 * hardware".
 	 *
-	 * This runs the risk that we may misinterpret the network
-	 * type of Shomiti captures not done using their hardware.
-	 * Currently, the only not-in-RFC-1761 type we interpret in
-	 * Sun snoop files is 18, for atmsnoop, and that's not used
-	 * by Shomiti, but if any of the types used by Shomiti are
-	 * also used by Snoop or a variant thereof - e.g.:
-	 *
-	 *	value	snoop			Shomiti
-	 *	10	Frame Relay		100MB Ethernet
-	 *	11	MP over Frame Relay	4MB 802.5
-	 *	12	"Character Async"	1000MB Ethernet
-	 *	13	X.25 Classical IP	"IEEE 802.5 Shomiti"
-	 *	14	"software loopback"	"4MB IEEE 802.5 Shomiti"
-	 *
-	 * then we have a problem that may be resolvable only by checking
-	 * how much padding there is in the first packet - if there're 3
-	 * bytes or less, it's probably Sun snoop, which uses the padding
-	 * only for padding, but if there's more, it's probably a Shomiti
-	 * tool, which uses the padding for additional information.
+	 * The only way I can see to determine that is to check how much
+	 * padding there is in the first packet - if there're 3 bytes or
+	 * fewer, it's probably Sun snoop, which uses the padding only
+	 * for padding, but if there's more, it's probably a Shomiti tool,
+	 * which uses the padding for additional information.
 	 */
-	hdr.version = g_ntohl(hdr.version);
-	hdr.network = g_ntohl(hdr.network);
-	switch (hdr.version) {
 
-	case 2:		/* Solaris 2.x and later snoop, and Shomiti
-			   Surveyor prior to 3.0 (or 3.x with NDIS card?) */
-		if (hdr.network >= NUM_SNOOP_ENCAPS
-		    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-			g_message("snoop: network type %u unknown or unsupported",
-			    hdr.network);
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+	/* Read first record header. */
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&rec_hdr, 1, sizeof rec_hdr, wth->fh);
+	if (bytes_read != sizeof rec_hdr) {
+		*err = file_error(wth->fh);
+		if (*err == 0 && bytes_read != 0)
+			*err = WTAP_ERR_SHORT_READ;
+		if (*err != 0) {
+			/*
+			 * A real-live error.
+			 */
 			return -1;
+		} else {
+			/*
+			 * The file ends after the record header,
+			 * which means this is a capture with no
+			 * packets.
+			 *
+			 * Assume it's a snoop file; the actual type
+			 * of file is irrelevant, as there are no
+			 * records in it, and thus no extra information
+			 * if it's a Shomiti capture, and no link-layer
+			 * headers whose type we have to know.
+			 */
+			is_shomiti = FALSE;
 		}
-		file_encap = snoop_encap[hdr.network];
-		break;
+	} else {
+		/*
+		 * Compute the number of bytes of padding in the
+		 * record.  If it's greater than 3, this must be a
+		 * Shomiti capture.
+		 */
+		padbytes = g_ntohl(rec_hdr.rec_len) -
+		    (sizeof rec_hdr + g_ntohl(rec_hdr.incl_len));
+		is_shomiti = (padbytes > 3);
+	}
 
-	case 3:		/* Surveyor 3.0 and later, with Shomiti CMM2 hardware */
-	case 4:		/* Surveyor 3.0 and later, with Shomiti GAM hardware */
-	case 5:		/* Surveyor 3.0 and later, with Shomiti THG hardware */
+	/*
+	 * Seek back to the beginning of the first record.
+	 */
+	if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1)
+		return -1;
+
+	hdr.network = g_ntohl(hdr.network);
+	if (is_shomiti) {
 		if (hdr.network >= NUM_SHOMITI_ENCAPS
 		    || shomiti_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
 			g_message("snoop: Shomiti network type %u unknown or unsupported",
@@ -291,16 +327,28 @@ int snoop_open(wtap *wth, int *err)
 			return -1;
 		}
 		file_encap = shomiti_encap[hdr.network];
-		break;
 
-	default:
-		g_message("snoop: version %u unsupported", hdr.version);
-		*err = WTAP_ERR_UNSUPPORTED;
-		return -1;
+		/* This is a Shomiti file */
+		wth->file_type = WTAP_FILE_SHOMITI;
+	} else {
+		if (hdr.network >= NUM_SNOOP_ENCAPS
+		    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
+			g_message("snoop: network type %u unknown or unsupported",
+			    hdr.network);
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			return -1;
+		}
+		file_encap = snoop_encap[hdr.network];
+
+		/* This is a snoop file */
+		wth->file_type = WTAP_FILE_SNOOP;
 	}
 
-	/* This is a snoop file */
-	wth->file_type = WTAP_FILE_SNOOP;
+	/*
+	 * We don't currently use the extra information in Shomiti
+	 * records, so we use the same routines to read snoop and
+	 * Shomiti files.
+	 */
 	wth->subtype_read = snoop_read;
 	wth->subtype_seek_read = snoop_seek_read;
 	wth->file_encap = file_encap;
@@ -325,9 +373,8 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh);
-		if (*err == 0 && bytes_read != 0) {
+		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
-		}
 		return FALSE;
 	}
 	wth->data_offset += sizeof hdr;

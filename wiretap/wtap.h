@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.125 2002/11/06 21:49:34 guy Exp $
+ * $Id: wtap.h,v 1.126 2002/12/05 22:33:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -139,30 +139,31 @@
 #define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	9
 #define WTAP_FILE_NGSNIFFER_COMPRESSED		10
 #define WTAP_FILE_SNOOP				11
-#define WTAP_FILE_IPTRACE_1_0			12
-#define WTAP_FILE_IPTRACE_2_0			13
-#define WTAP_FILE_NETMON_1_x			14
-#define WTAP_FILE_NETMON_2_x			15
-#define WTAP_FILE_NETXRAY_OLD			16
-#define WTAP_FILE_NETXRAY_1_0			17
-#define WTAP_FILE_NETXRAY_1_1			18
-#define WTAP_FILE_NETXRAY_2_00x			19
-#define WTAP_FILE_RADCOM			20
-#define WTAP_FILE_ASCEND			21
-#define WTAP_FILE_NETTL				22
-#define WTAP_FILE_TOSHIBA			23
-#define WTAP_FILE_I4BTRACE			24
-#define WTAP_FILE_CSIDS				25
-#define WTAP_FILE_PPPDUMP			26
-#define WTAP_FILE_ETHERPEEK_V56			27
-#define WTAP_FILE_ETHERPEEK_V7			28
-#define WTAP_FILE_VMS				29
-#define WTAP_FILE_DBS_ETHERWATCH		30
-#define WTAP_FILE_VISUAL_NETWORKS		31
-#define WTAP_FILE_COSINE			32
+#define WTAP_FILE_SHOMITI			12
+#define WTAP_FILE_IPTRACE_1_0			13
+#define WTAP_FILE_IPTRACE_2_0			14
+#define WTAP_FILE_NETMON_1_x			15
+#define WTAP_FILE_NETMON_2_x			16
+#define WTAP_FILE_NETXRAY_OLD			17
+#define WTAP_FILE_NETXRAY_1_0			18
+#define WTAP_FILE_NETXRAY_1_1			19
+#define WTAP_FILE_NETXRAY_2_00x			20
+#define WTAP_FILE_RADCOM			21
+#define WTAP_FILE_ASCEND			22
+#define WTAP_FILE_NETTL				23
+#define WTAP_FILE_TOSHIBA			24
+#define WTAP_FILE_I4BTRACE			25
+#define WTAP_FILE_CSIDS				26
+#define WTAP_FILE_PPPDUMP			27
+#define WTAP_FILE_ETHERPEEK_V56			28
+#define WTAP_FILE_ETHERPEEK_V7			29
+#define WTAP_FILE_VMS				30
+#define WTAP_FILE_DBS_ETHERWATCH		31
+#define WTAP_FILE_VISUAL_NETWORKS		32
+#define WTAP_FILE_COSINE			33
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			33
+#define WTAP_NUM_FILE_TYPES			34
 
 /*
  * Maximum packet size we'll support.

@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.96 2002/07/31 19:27:57 guy Exp $
+ * $Id: file.c,v 1.97 2002/12/05 22:33:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -359,6 +359,10 @@ static const struct file_type_info {
 	/* WTAP_FILE_SNOOP */
 	{ "Sun snoop", "snoop",
 	  snoop_dump_can_write_encap, snoop_dump_open },
+
+	/* WTAP_FILE_SHOMITI */
+	{ "Shomiti/Finisar Surveyor", "shomiti",
+	  NULL, NULL },
 
 	/* WTAP_FILE_IPTRACE_1_0 */
 	{ "AIX iptrace 1.0", NULL,
