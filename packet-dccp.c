@@ -4,7 +4,7 @@
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-dccp.c,v 1.5 2002/05/03 20:34:14 nneul Exp $
+ * $Id: packet-dccp.c,v 1.6 2002/07/17 06:55:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,9 +102,10 @@ static gint ett_dccp_trace = -1;
 #define D_TEXT(label, endpad) { \
 	int next_offset,linelen,left; \
 	const char *line; \
-    while (tvb_offset_exists(tvb, offset+endpad)) { \
+	while (tvb_offset_exists(tvb, offset+endpad)) { \
 		left = tvb_length_remaining(tvb,offset) - endpad; \
-		linelen = tvb_find_line_end(tvb, offset, left, &next_offset); \
+		linelen = tvb_find_line_end(tvb, offset, left, &next_offset, \
+		    FALSE); \
 		line = tvb_get_ptr(tvb, offset, linelen); \
 		proto_tree_add_text(dccp_optree, tvb, offset, \
 			next_offset - offset, "%s: %s", \

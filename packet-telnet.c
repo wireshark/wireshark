@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.29 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-telnet.c,v 1.30 2002/07/17 06:55:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -311,7 +311,7 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
     /*
      * Find the end of the line.
      */
-    linelen = tvb_find_line_end(tvb, offset, len, &next_offset);
+    linelen = tvb_find_line_end(tvb, offset, len, &next_offset, FALSE);
     len -= next_offset - offset;	/* subtract out the line's characters */
 
     /*

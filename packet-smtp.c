@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.29 2002/07/15 09:40:20 guy Exp $
+ * $Id: packet-smtp.c,v 1.30 2002/07/17 06:55:20 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -64,6 +64,9 @@ static int hf_smtp_rsp_parameter = -1;
 static int ett_smtp = -1;
 
 static int global_smtp_tcp_port = TCP_PORT_SMTP;
+
+/* desegmentation of SMTP command and response lines */
+static gboolean smtp_desegment = TRUE;
 
 /*
  * A CMD is an SMTP command, MESSAGE is the message portion, and EOM is the
@@ -157,11 +160,26 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Get the first line from the buffer.
      *
-     * Note that "tvb_find_line_end()" will return a value that
-     * is not longer than what's in the buffer, so the
-     * "tvb_get_ptr()" call won't throw an exception.
+     * Note that "tvb_find_line_end()" will, if it doesn't return
+     * -1, return a value that is not longer than what's in the buffer,
+     * and "tvb_find_line_end()" will always return a value that is not
+     * longer than what's in the buffer, so the "tvb_get_ptr()" call
+     * won't throw an exception.
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+      smtp_desegment && pinfo->can_desegment);
+    if (linelen == -1) {
+      /*
+       * We didn't find a line ending, and we're doing desegmentation;
+       * tell the TCP dissector where the data for this message starts
+       * in the data it handed us, and tell it we need one more byte
+       * (we may need more, but we'll try again if what we get next
+       * isn't enough), and return.
+       */
+      pinfo->desegment_offset = offset;
+      pinfo->desegment_len = 1;
+      return;
+    }
     line = tvb_get_ptr(tvb, offset, linelen);
 
     frame_data = p_get_proto_data(pinfo->fd, proto_smtp);
@@ -387,7 +405,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /*
 	     * Find the end of the line.
 	     */
-	    tvb_find_line_end(tvb, offset, -1, &next_offset);
+	    tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 	    /*
 	     * Put this line.
@@ -460,7 +478,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /*
 	   * Find the end of the line.
 	   */
-	  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+	  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 	  /*
 	   * Is it a continuation line?
@@ -542,7 +560,7 @@ proto_register_smtp(void)
   static gint *ett[] = {
     &ett_smtp
   };
-  /*module_t *smtp_module = NULL; */  /* Not yet used */
+  module_t *smtp_module;
 
   /* No Configuration options to register? */
 
@@ -553,6 +571,11 @@ proto_register_smtp(void)
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine(&smtp_init_protocol);
 
+  smtp_module = prefs_register_protocol(proto_smtp, NULL);
+  prefs_register_bool_preference(smtp_module, "desegment_lines",
+    "Desegment all SMTP command and response lines spanning multiple TCP segments",
+    "Whether the SMTP dissector should desegment all command and response lines spanning multiple TCP segments",
+    &smtp_desegment);
 }
 
 /* The registration hand-off routine */

@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.29 2002/05/09 08:27:51 guy Exp $
+ * $Id: packet-sip.c,v 1.30 2002/07/17 06:55:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,7 +107,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * "tvb_get_ptr()" call s below won't throw exceptions.
          */
         offset = 0;
-        eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
+        eol = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
         /* XXX - Check for a valid status message as well. */
         is_request = sip_is_request(tvb, eol);
         is_known_request = sip_is_known_request(tvb, 0);
@@ -153,7 +153,8 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* - 2 since we have a CRLF separating the message-body */
                 while (msg_offset - 2 > (int) offset) {
-                        eol = tvb_find_line_end(tvb, offset, -1, &next_offset);
+                        eol = tvb_find_line_end(tvb, offset, -1, &next_offset,
+                            FALSE);
                         proto_tree_add_text(hdr_tree, tvb, offset, next_offset - offset, "%s",
                                             tvb_format_text(tvb, offset, eol));
                         offset = next_offset;
@@ -207,7 +208,7 @@ dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  * We don't, so this isn't a response; check for a request.
                  * They *end* with "SIP/2.0".
                  */
-                eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
+                eol = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
                 if (eol <= (gint)SIP2_HDR_LEN) {
                         /*
                          * The line isn't long enough to end with "SIP/2.0".

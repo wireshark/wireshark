@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.47 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-rtsp.c,v 1.48 2002/07/17 06:55:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -425,7 +425,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * line terminator).
 		 * Otherwise, just call it a continuation.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+		    FALSE);
 		line = tvb_get_ptr(tvb, offset, linelen);
 		switch (is_rtsp_request_or_reply(line, linelen)) {
 
@@ -458,7 +459,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * Find the end of the line.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+		    FALSE);
 
 		/*
 		 * Get a buffer that refers to the line.

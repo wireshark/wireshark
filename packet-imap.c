@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.19 2002/01/24 09:20:48 guy Exp $
+ * $Id: packet-imap.c,v 1.20 2002/07/17 06:55:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,7 +74,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * not longer than what's in the buffer, so the "tvb_get_ptr()"
 	 * call won't throw an exception.
 	 */
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
 	if (pinfo->match_port == pinfo->destport)

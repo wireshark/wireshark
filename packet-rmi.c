@@ -2,7 +2,7 @@
  * Routines for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.c,v 1.2 2002/07/17 00:42:42 guy Exp $
+ * $Id: packet-rmi.c,v 1.3 2002/07/17 06:55:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,7 +105,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMI");
 
-    datalen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+    datalen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
     data = tvb_get_ptr(tvb, offset, datalen);
     
     rmitype = get_rmi_type(data, datalen);

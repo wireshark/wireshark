@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.24 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-nntp.c,v 1.25 2002/07/17 06:55:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,7 +77,8 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * is not longer than what's in the buffer, so the
 		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+		    FALSE);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", type,
 		    tvb_format_text(tvb, offset, linelen));
 	}
@@ -107,7 +108,8 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * Find the end of the line.
 			 */
-			tvb_find_line_end(tvb, offset, -1, &next_offset);
+			tvb_find_line_end(tvb, offset, -1, &next_offset,
+			    FALSE);
 
 			/*
 			 * Put this line.

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.45 2002/05/30 01:56:54 guy Exp $
+ * $Id: packet-cdp.c,v 1.46 2002/07/17 06:55:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -530,7 +530,7 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 	blanks[i] = ' ';
     blanks[i] = '\0';
     while (len > 0) {
-	line_len = tvb_find_line_end(tvb, start, len, &next);
+	line_len = tvb_find_line_end(tvb, start, len, &next, FALSE);
 	data_len = next - start;
 	proto_tree_add_text(tree, tvb, start, data_len, "%s%.*s", prefix,
 	   line_len, tvb_get_ptr(tvb, start, line_len));

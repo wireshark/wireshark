@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for IRC packet dissection
  *
- * $Id: packet-irc.c,v 1.18 2002/01/24 09:20:48 guy Exp $
+ * $Id: packet-irc.c,v 1.19 2002/07/17 06:55:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,7 +104,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Find the end of the line.
 			 */
 			linelen = tvb_find_line_end(tvb, offset, -1,
-			    &next_offset);
+			    &next_offset, FALSE);
 
 			/*
 			 * Get a buffer that refers to the line (without

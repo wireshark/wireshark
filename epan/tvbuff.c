@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.37 2002/05/13 01:24:47 guy Exp $
+ * $Id: tvbuff.c,v 1.38 2002/07/17 06:55:24 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1763,15 +1763,20 @@ tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
  * length.
  *
  * Return the length of the line (not counting the line terminator at
- * the end), or the amount of data remaining in the buffer if we don't
- * find a line terminator.
+ * the end), or, if we don't find a line terminator:
+ *
+ *	if "deseg" is true, return -1;
+ *
+ *	if "deseg" is false, return the amount of data remaining in
+ *	the buffer.
  *
  * Set "*next_offset" to the offset of the character past the line
  * terminator, or past the end of the buffer if we don't find a line
- * terminator.
+ * terminator.  (It's not set if we return -1.)
  */
 gint
-tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset)
+tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset,
+    gboolean desegment)
 {
 	gint eob_offset;
 	gint eol_offset;
@@ -1792,10 +1797,21 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset)
 	if (eol_offset == -1) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
-		 * We pretend the line runs to the end of the tvbuff.
 		 */
-		linelen = eob_offset - offset;
-		*next_offset = eob_offset;
+		if (desegment) {
+			/*
+			 * Tell our caller we saw no EOL, so they can
+			 * try to desegment and get the entire line
+			 * into one tvbuff.
+			 */
+			return -1;
+		} else {
+			/*
+			 * Pretend the line runs to the end of the tvbuff.
+			 */
+			linelen = eob_offset - offset;
+			*next_offset = eob_offset;
+		}
 	} else {
 		/*
 		 * Find the number of bytes between the starting offset
@@ -1810,12 +1826,36 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset)
 			/*
 			 * Yes - is it followed by an LF?
 			 */
-			if (eol_offset + 1 < eob_offset &&
-			    tvb_get_guint8(tvb, eol_offset + 1) == '\n') {
+			if (eol_offset + 1 >= eob_offset) {
 				/*
-				 * Yes; skip over the CR.
+				 * Dunno - the next byte isn't in this
+				 * tvbuff.
 				 */
-				eol_offset++;
+				if (desegment) {
+					/*
+					 * We'll return -1, although that
+					 * runs the risk that if the line
+					 * really *is* terminated with a CR,
+					 * we won't properly dissect this
+					 * tvbuff.
+					 *
+					 * It's probably more likely that
+					 * the line ends with CR-LF than
+					 * that it ends with CR by itself.
+					 */
+					return -1;
+				}
+			} else {
+				/*
+				 * Well, we can at least look at the next
+				 * byte.
+				 */
+				if (tvb_get_guint8(tvb, eol_offset + 1) == '\n') {
+					/*
+					 * It's an LF; skip over the CR.
+					 */
+					eol_offset++;
+				}
 			}
 		}
 

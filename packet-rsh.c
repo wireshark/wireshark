@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.17 2002/04/14 23:04:04 guy Exp $
+ * $Id: packet-rsh.c,v 1.18 2002/07/17 06:55:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSH");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/* Put the first line from the buffer into the summary. */
-		tvb_find_line_end(tvb, offset, -1, &next_offset);
+		tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 		linelen = next_offset - offset;	/* include the line terminator */
 
 		/*
@@ -82,7 +82,8 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * Find the end of the line.
 			 */
-			tvb_find_line_end(tvb, offset, -1, &next_offset);
+			tvb_find_line_end(tvb, offset, -1, &next_offset,
+			    FALSE);
 
 			/*
 			 * Put this line.

@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.32 2002/04/30 10:37:37 guy Exp $
+ * $Id: packet-mgcp.c,v 1.33 2002/07/17 06:55:29 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -280,7 +280,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
     if (check_col(pinfo->cinfo, COL_INFO) ){
       sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin,-1,
-				     &tvb_sectionend);
+				     &tvb_sectionend,FALSE);
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s", 
 		   tvb_format_text(tvb,tvb_sectionbegin,sectionlen));
     } 
@@ -317,7 +317,7 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       tvb_sectionbegin = 0;
       tvb_current_len = tvb_len;
       tvb_sectionend = tvb_sectionbegin;
-      sectionlen = tvb_find_line_end(tvb,0,-1,&tvb_sectionend);
+      sectionlen = tvb_find_line_end(tvb,0,-1,&tvb_sectionend,FALSE);
       if( sectionlen > 0){
 	dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
 					      sectionlen,-1), 
@@ -372,7 +372,7 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
   tvb_len = tvb_length(tvb);
 
   do {
-    tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend);    
+    tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend,FALSE);
     linelen = tvb_lineend - tvb_linebegin;
     proto_tree_add_text(tree, tvb, tvb_linebegin, linelen, 
 			"%s", tvb_format_text(tvb,tvb_linebegin, 
@@ -940,7 +940,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
 	else if(mgcp_type == MGCP_RESPONSE){
 	  if(tvb_current_offset < tvb_len){
 	    tokenlen = tvb_find_line_end(tvb, tvb_previous_offset, 
-					 -1,&tvb_current_offset);
+					 -1,&tvb_current_offset,FALSE);
 	  }
 	  else{
 	    tokenlen = tvb_current_len;
@@ -955,7 +955,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
       if( (tokennum == 3 && mgcp_type == MGCP_REQUEST) ){
 	if(tvb_current_offset < tvb_len ){
 	  tokenlen = tvb_find_line_end(tvb, tvb_previous_offset, 
-				       -1,&tvb_current_offset);
+				       -1,&tvb_current_offset,FALSE);
 	}
 	else{
 	  tokenlen = tvb_current_len;
@@ -1031,11 +1031,11 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree){
 
     /* Parse the parameters */
     while(tvb_lineend < tvb_len){
-      linelen = tvb_find_line_end(tvb, tvb_linebegin, -1,&tvb_lineend); 
+      linelen = tvb_find_line_end(tvb, tvb_linebegin, -1,&tvb_lineend,FALSE);
       tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen, 
 				       &my_param);
       if( my_param != NULL ){
-	tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend);
+	tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
 	my_proto_tree_add_string(mgcp_param_tree,*my_param, tvb,
 				 tvb_linebegin, linelen, 
 				 tvb_format_text(tvb,tvb_tokenbegin,
@@ -1122,7 +1122,7 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset,
   do {
     tvb_linebegin = tvb_lineend;
     tvb_current_len = tvb_length_remaining(tvb,tvb_linebegin);
-    tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend);
+    tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend,FALSE);
     tempchar = tvb_get_guint8(tvb,tvb_linebegin);
   } 
   while( tempchar != '\r' && tempchar != '\n' &&
@@ -1233,7 +1233,7 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset,
     *next_offset = maxoffset + 1;
   }
   else {
-    tvb_find_line_end(tvb,tvb_current_offset,tvb_current_len,next_offset);
+    tvb_find_line_end(tvb,tvb_current_offset,tvb_current_len,next_offset,FALSE);
   }
 
   if( tvb_current_offset == offset ){

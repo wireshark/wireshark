@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.48 2002/05/30 01:56:54 guy Exp $
+ * $Id: packet-http.c,v 1.49 2002/07/17 06:55:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * is not longer than what's in the buffer, so the
 		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+		    FALSE);
 		line = tvb_get_ptr(tvb, offset, linelen);
 		http_type = HTTP_OTHERS;	/* type not known yet */
 		if (is_http_request_or_reply(line, linelen, &http_type))
@@ -148,7 +149,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Find the end of the line.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+		    FALSE);
 
 		/*
 		 * Get a buffer that refers to the line.

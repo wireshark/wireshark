@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.27 2002/05/13 01:24:47 guy Exp $
+ * $Id: tvbuff.h,v 1.28 2002/07/17 06:55:24 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -341,10 +341,20 @@ extern gint tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength,
  * specified offset in the tvbuff, going no further than the specified
  * length.
  *
- * Return the offset right past the end of the line as the return value,
- * and return the offset of the EOL character(s) in "*eol".
+ * Return the length of the line (not counting the line terminator at
+ * the end), or, if we don't find a line terminator:
+ *
+ *	if "deseg" is true, return -1;
+ *
+ *	if "deseg" is false, return the amount of data remaining in
+ *	the buffer.
+ *
+ * Set "*next_offset" to the offset of the character past the line
+ * terminator, or past the end of the buffer if we don't find a line
+ * terminator.  (It's not set if we return -1.)
  */
-extern gint tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *eol);
+extern gint tvb_find_line_end(tvbuff_t *tvb, gint offset, int len,
+    gint *next_offset, gboolean desegment);
 
 /*
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
