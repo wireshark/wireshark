@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.41 2002/01/21 07:37:42 guy Exp $
+ * $Id: prefs_dlg.c,v 1.42 2002/02/14 10:58:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,7 @@ static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint, gpointer);
 #define E_NAMERES_PAGE_KEY "nameres_options_page"
 #define E_TOOLTIPS_KEY     "tooltips"
 
-#define FIRST_PROTO_PREFS_PAGE	4
+#define FIRST_PROTO_PREFS_PAGE	6
 
 /* 
  * Keep a static pointer to the notebook to be able to choose the 
