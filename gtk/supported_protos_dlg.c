@@ -221,7 +221,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
   /* Buttons ("Close" only one for now) */
   bbox = gtk_hbutton_box_new();
-  //bbox = gtk_hbox_new(FALSE, 1);
+  /*bbox = gtk_hbox_new(FALSE, 1);*/
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 #if GTK_MAJOR_VERSION < 2
