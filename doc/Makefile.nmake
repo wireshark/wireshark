@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.7 2002/01/04 21:20:17 guy Exp $
+# $Id: Makefile.nmake,v 1.8 2003/02/13 22:35:10 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -30,16 +30,16 @@ doc: ethereal.html tethereal.html editcap.html idl2eth.html \
 	mergecap.html text2pcap.html
 
 ethereal.1: ethereal.pod ../config.h
-	$(POD2MAN) ethereal.pod                     \
+	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> ethereal.1
+	 ethereal.pod > ethereal.1
 
 ethereal.html: ethereal.pod ../config.h
-	$(POD2HTML) ethereal.pod                     \
+	$(POD2HTML)                    \
 	--title="The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	> ethereal.html
+	ethereal.pod > ethereal.html
 
 ../tethereal.exe:
 	cd ..
@@ -50,67 +50,67 @@ ethereal.pod: ethereal.pod.template  ../tethereal.exe
 	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl ethereal.pod.template > ethereal.pod
 
 tethereal.1: tethereal.pod ../config.h
-	$(POD2MAN) tethereal.pod                     \
+	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> tethereal.1
+	tethereal.pod > tethereal.1
 
 tethereal.html: tethereal.pod ../config.h
-	$(POD2HTML) tethereal.pod                     \
+	$(POD2HTML)                    \
 	--title="The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	> tethereal.html
+	tethereal.pod > tethereal.html
 
 tethereal.pod: tethereal.pod.template  ../tethereal.exe
 	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl tethereal.pod.template > tethereal.pod
 
 editcap.1: editcap.pod ../config.h
-	$(POD2MAN) editcap.pod                     \
+	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> editcap.1
+	editcap.pod > editcap.1
 
 editcap.html: editcap.pod ../config.h
-	$(POD2HTML) editcap.pod                     \
+	$(POD2HTML)                     \
 	--title="The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	> editcap.html
-
-mergecap.1: mergecap.pod ../config.h
-	$(POD2MAN) mergecap.pod                     \
-	--center="The Ethereal Network Analyzer" \
-	--release=$(VERSION)			 \
-	> mergecap.1
-
-mergecap.html: mergecap.pod ../config.h
-	$(POD2HTML) mergecap.pod                     \
-	--title="The Ethereal Network Analyzer $(VERSION)" \
-	--noindex                                 \
-	> mergecap.html
+	editcap.pod > editcap.html
 
 idl2eth.1: idl2eth.pod ../config.h
-	$(POD2MAN) idl2eth.pod                       \
+	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> idl2eth.1
+	idl2eth.pod > idl2eth.1
 
 idl2eth.html: idl2eth.pod ../config.h
-	$(POD2HTML) idl2eth.pod                     \
+	$(POD2HTML)                     \
 	--title="The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	> idl2eth.html
+	idl2eth.pod > idl2eth.html
 
-text2pcap.1: text2pcap.pod ../config.h
-	$(POD2MAN) text2pcap.pod                     \
+mergecap.1: mergecap.pod ../config.h
+	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> text2pcap.1
+	mergecap.pod > mergecap.1
 
-text2pcap.html: text2pcap.pod ../config.h
-	$(POD2HTML) text2pcap.pod                     \
+mergecap.html: mergecap.pod ../config.h
+	$(POD2HTML)                     \
 	--title="The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	> text2pcap.html
+	mergecap.pod > mergecap.html
+
+text2pcap.1: text2pcap.pod ../config.h
+	$(POD2MAN)                      \
+	--center="The Ethereal Network Analyzer" \
+	--release=$(VERSION)			 \
+	text2pcap.pod > text2pcap.1
+
+text2pcap.html: text2pcap.pod ../config.h
+	$(POD2HTML)                     \
+	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	text2pcap.pod > text2pcap.html
 
 clean:
 	rm -f ethereal.html ethereal.1 ethereal.pod
