@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.10 2002/01/20 22:36:02 guy Exp $
+ * $Id: text2pcap.c,v 1.11 2002/01/23 08:35:17 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -650,7 +650,19 @@ parse_preamble (void)
 	 * This should cover line breaks etc that get counted.
 	 */
 	if ( strlen(packet_preamble) > 2 ) {
-		memset(&timecode, '\0', sizeof timecode);
+		/*
+		 * Initialize to the Epoch, just in case not all fields
+		 * of the date and time are specified.
+		 */
+		timecode.tm_sec = 0;
+		timecode.tm_min = 0;
+		timecode.tm_hour = 0;
+		timecode.tm_mday = 1;
+		timecode.tm_mon = 0;
+		timecode.tm_year = 70;
+		timecode.tm_wday = 0;
+		timecode.tm_yday = 0;
+		timecode.tm_isdst = -1;
 
 		/* Get Time leaving subseconds */
 		subsecs = strptime( packet_preamble, ts_fmt, &timecode );
