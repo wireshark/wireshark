@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.11 2002/04/02 01:32:46 guy Exp $
+ * $Id: packet-chdlc.c,v 1.12 2002/04/13 09:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -307,6 +307,7 @@ proto_register_slarp(void)
   };
   static gint *ett[] = {
     &ett_chdlc,
+    &ett_slarp,
   };
 
   proto_slarp = proto_register_protocol("Cisco SLARP", "SLARP", "slarp");

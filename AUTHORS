@@ -783,6 +783,7 @@ Aamer Akhter <aakhter[AT]cisco.com> {
 	    code updates, and small LDP cleanups
 	LDP support for draft-martini-l2circuit-encap-mpls for
             Ethernet-over-MPLS
+	Fix initialization of ett_slarp in CHDLC dissector
 }
 
 Pekka Savola <pekkas[AT]netcore.fi> {
