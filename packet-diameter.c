@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.43 2002/01/30 23:08:26 guy Exp $
+ * $Id: packet-diameter.c,v 1.44 2002/01/31 01:55:14 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -1002,21 +1002,6 @@ diameter_avp_get_value(guint32 avpCode, guint32 vendorId, guint32 avpValue)
   return buffer;
 } /* diameter_avp_get_value */
 
-static gchar *
-diameter_time_to_string(gchar *timeValue)
-{
-  static gchar buffer[64];
-  int intval;
-  struct tm lt;
-
-  intval=pntohl(timeValue);
-  intval -= NTP_TIME_DIFF;
-  lt=*localtime((time_t *)&intval);
-  strftime(buffer, 1024, 
-		   "%a, %d %b %Y %H:%M:%S %z",&lt);
-  return buffer;
-} /* diameter_time_to_string */
-
 
 /* Code to actually dissect the packets */
 
@@ -1356,8 +1341,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
   int hdrLength;
   int fixAmt;
   proto_tree *avpi_tree;
-  size_t offset = 0 ;
-  char dataBuffer[4096];
+  size_t offset = 0;
   tvbuff_t        *group_tvb;
   proto_tree *group_tree;
   proto_item *grouptf;
@@ -1533,15 +1517,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	  if (BadPacket) {
 		offset -= hdrLength;
 		proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-									tvb, offset, tvb_length(tvb) - offset, dataBuffer,
-									"Bad AVP (Suspect Data Not Dissected)");
+					tvb, offset, tvb_length(tvb) - offset,
+					tvb_get_ptr(tvb, offset, tvb_length(tvb) - offset),
+					"Bad AVP (Suspect Data Not Dissected)");
 		return;
 	  }
 
 	  avpType=diameter_avp_get_type(avph.avp_code,vendorId);
-	  tvb_memcpy(tvb, (guint8*) dataBuffer, offset, MIN(4095,avpDataLength));
-	
-	  
+
 	  switch(avpType) {
 	  case DIAMETER_GROUPED:
 		sprintf(buffer, "%s Grouped AVPs", avpNameString);
@@ -1561,115 +1544,170 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		break;
 
 	  case DIAMETER_IDENTITY:
-		proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
-									 tvb, offset, avpDataLength, dataBuffer,
-									 "Identity: %*.*s", (int)avpDataLength, (int)avpDataLength,
-									 dataBuffer);
+		{
+		  const guint8 *data;
+
+		  data = tvb_get_ptr(tvb, offset, avpDataLength);
+		  proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
+				               tvb, offset, avpDataLength, data,
+					       "Identity: %*.*s",
+					       (int)avpDataLength,
+					       (int)avpDataLength, data);
+		}
 		break;
 	  case DIAMETER_UTF8STRING:
-		proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
-									 tvb, offset, avpDataLength, dataBuffer,
-									 "UTF8String: %*.*s", (int)avpDataLength, (int)avpDataLength,
-									 dataBuffer);
+		{
+		  const guint8 *data;
+
+		  data = tvb_get_ptr(tvb, offset, avpDataLength);
+		  proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
+					       tvb, offset, avpDataLength, data,
+					       "UTF8String: %*.*s",
+					       (int)avpDataLength,
+					       (int)avpDataLength, data);
+		}
 		break;
 	  case DIAMETER_IP_ADDRESS:
 		if (avpDataLength == 4) {
-		  guint32 ipv4Address = ntohl((*(guint32*)dataBuffer));
-		  proto_tree_add_ipv4_format(avpi_tree, hf_diameter_avp_data_v4addr,
-									 tvb, offset, avpDataLength, ipv4Address,
-									 "IPv4 Address: %u.%u.%u.%u",
-									 (ipv4Address&0xff000000)>>24,
-									 (ipv4Address&0xff0000)>>16,
-									 (ipv4Address&0xff00)>>8,
-									 (ipv4Address&0xff));
+		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v4addr,
+				      tvb, offset, avpDataLength, FALSE);
 		} else if (avpDataLength == 16) {
-		  proto_tree_add_ipv6_format(avpi_tree, hf_diameter_avp_data_v6addr,
-									 tvb, offset, avpDataLength, dataBuffer, 
-									 "IPv6 Address: %04x:%04x:%04x:%04x",
-									 *((guint32*)dataBuffer),
-									 *((guint32*)&dataBuffer[4]),
-									 *((guint32*)&dataBuffer[8]),
-									 *((guint32*)&dataBuffer[12]));
+		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v6addr,
+				      tvb, offset, avpDataLength, FALSE);
 		} else {
 		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-									  tvb, offset, avpDataLength, dataBuffer,
-									  "Error!  Bad Address Length");
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Address Length");
 		}
 		break;
 
 	  case DIAMETER_INTEGER32:
-		{
-		  gint32 data;
-		  memcpy(&data, dataBuffer, 4);
-		  data = ntohl(data);
-		  proto_tree_add_int_format(avpi_tree, hf_diameter_avp_data_int32,
-									tvb, offset, avpDataLength, data,
-									"Value: %d", data );
+		if (avpDataLength == 4) {
+		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_int32,
+				      tvb, offset, avpDataLength, FALSE);
+		} else {
+		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Integer32 Length");
 		}
 		break;
 
 	  case DIAMETER_UNSIGNED32:
-		{
+		if (avpDataLength == 4) {
 		  guint32 data;
 
-		  memcpy(&data, dataBuffer, 4);
-		  data=ntohl(data);
+		  data = tvb_get_ntohl(tvb, offset);
 		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
-									 tvb, offset, avpDataLength, data,
-									 "Value: 0x%08x (%u)", data,
-									 data );
+					     tvb, offset, avpDataLength, data,
+					     "Value: 0x%08x (%u)", data, data);
+		} else {
+		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Unsigned32 Length");
 		}
 		break;
 
 	  case DIAMETER_INTEGER64:
-		proto_tree_add_item(avpi_tree, hf_diameter_avp_data_int64, tvb, offset, 8, FALSE);
+		if (avpDataLength == 8) {
+		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_int64,
+				      tvb, offset, 8, FALSE);
+		} else {
+		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Integer64 Length");
+		}
 		break;
 
 	  case DIAMETER_UNSIGNED64:
-		proto_tree_add_item(avpi_tree, hf_diameter_avp_data_uint64, tvb, offset, 8, FALSE);
+		if (avpDataLength == 8) {
+		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_uint64,
+				      tvb, offset, 8, FALSE);
+		} else {
+		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Unsigned64 Length");
+		}
 		break;
 
 	  case DIAMETER_TIME:
-		valstr=diameter_time_to_string(dataBuffer);
+		if (avpDataLength == 4) {
+		  nstime_t data;
+		  gchar buffer[64];
+		  struct tm *ltp;
 
-		proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-									tvb, offset, avpDataLength, dataBuffer, "Time: %s", valstr);
+		  data.secs = tvb_get_ntohl(tvb, offset);
+		  data.secs -= NTP_TIME_DIFF;
+		  data.nsecs = 0;
+
+		  ltp = localtime(&data.secs);
+		  strftime(buffer, 64, 
+			   "%a, %d %b %Y %H:%M:%S %z", ltp);
+
+		  proto_tree_add_time_format(avpi_tree, hf_diameter_avp_data_time,
+					     tvb, offset, avpDataLength, &data,
+					     "Time: %s", buffer);
+		} else {
+		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Time Length");
+		}
 		break;
 
 	  case DIAMETER_ENUMERATED:
-		{
+		if (avpDataLength == 4) {
 		  guint32 data;
 		  
-		  memcpy(&data, dataBuffer, 4);
-		  data = ntohl(data);
+		  data = tvb_get_ntohl(tvb, offset);
 		  valstr = diameter_avp_get_value(avph.avp_code, vendorId, data);
 		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
-									 tvb, offset, avpDataLength, data,
-									 "Value: 0x%08x (%u): %s", data, data, valstr);
+					     tvb, offset, avpDataLength, data,
+					     "Value: 0x%08x (%u): %s", data,
+					     data, valstr);
+		} else {
+		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Enumerated Length");
 		}
 		break;
 	  case DIAMETER_VENDOR_ID:
-		{
+		if (avpDataLength == 4) {
 		  guint32 data;
 		  
-		  memcpy(&data, dataBuffer, 4);
-		  data = ntohl(data);
+		  data = tvb_get_ntohl(tvb, offset);
 		  valstr = diameter_vendor_to_str(data, TRUE);
 		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
-									 tvb, offset, avpDataLength, data,
-									 "%s (0x%08x)", valstr, data);
+					     tvb, offset, avpDataLength, data,
+					     "Vendor ID: %s (0x%08x)", valstr,
+					     data);
+		} else {
+		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Vendor ID Length");
 		}
 		break;
 	  case DIAMETER_APPLICATION_ID:
-		{
+		if (avpDataLength == 4) {
 		  guint32 data;
 		  
-		  memcpy(&data, dataBuffer, 4);
-		  data = ntohl(data);
+		  data = tvb_get_ntohl(tvb, offset);
 		  valstr = diameter_app_to_str(data);
 		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
-									 tvb, offset, avpDataLength, data,
-									 "%s (0x%08x)", valstr, data);
+					     tvb, offset, avpDataLength, data,
+					     "Application ID: %s (0x%08x)",
+					     valstr, data);
+		} else {
+		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+					      tvb, offset, avpDataLength,
+					      tvb_get_ptr(tvb, offset, avpDataLength),
+					      "Error!  Bad Application ID Length");
 		}
 		break;
 	  case DIAMETER_MIP_REG_REQ:
@@ -1679,8 +1717,9 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	  default:
 	  case DIAMETER_OCTET_STRING:
 		proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
-									tvb, offset, avpDataLength, dataBuffer,
-									"Hex Data Highlighted Below");
+					    tvb, offset, avpDataLength,
+					    tvb_get_ptr(tvb, offset, avpDataLength),
+					   "Hex Data Highlighted Below");
 		break;
 				
 	  } /* switch type */
@@ -1816,32 +1855,31 @@ proto_register_diameter(void)
 		  { "AVP Vendor Id","diameter.avp.vendorId", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_uint64,
-		  { "AVP Data","diameter.avp.data.uint64", FT_UINT64, BASE_DEC,
+		  { "Value","diameter.avp.data.uint64", FT_UINT64, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_int64,
-		  { "AVP Data","diameter.avp.data.int64", FT_INT64, BASE_DEC,
+		  { "Value","diameter.avp.data.int64", FT_INT64, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_uint32,
-		  { "AVP Data","diameter.avp.data.uint32", FT_UINT32, BASE_DEC,
+		  { "Value","diameter.avp.data.uint32", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_int32,
-		  { "AVP Data","diameter.avp.data.int32", FT_INT32, BASE_DEC,
+		  { "Value","diameter.avp.data.int32", FT_INT32, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_bytes,
-		  { "AVP Data","diameter.avp.data.bytes", FT_BYTES, BASE_NONE,
+		  { "Value","diameter.avp.data.bytes", FT_BYTES, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
-		
 		{ &hf_diameter_avp_data_string,
-		  { "AVP Data","diameter.avp.data.string", FT_STRING, BASE_NONE,
+		  { "Value","diameter.avp.data.string", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_v4addr,
-		  { "AVP Data","diameter.avp.data.v4addr", FT_IPv4, BASE_NONE,
+		  { "IPv4 Address","diameter.avp.data.v4addr", FT_IPv4, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_v6addr,
-		  { "AVP Data","diameter.avp.data.v6addr", FT_IPv6, BASE_NONE,
+		  { "IPv6 Address","diameter.avp.data.v6addr", FT_IPv6, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_time,
-		  { "AVP Data","diameter.avp.data.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		  { "Time","diameter.avp.data.time", FT_ABSOLUTE_TIME, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
 
 	};
