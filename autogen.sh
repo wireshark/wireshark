@@ -2,10 +2,24 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.10 2000/07/26 08:03:39 guy Exp $
+# $Id: autogen.sh,v 1.11 2000/10/14 04:09:04 gram Exp $
 
 DIE=true
 PROJECT="Ethereal"
+
+
+# Check for python. There's no "--version" option!
+python -c "print 'Checking for python.'"
+if [ $? != 0 ] ; then
+  cat >&2 <<_EOF_
+
+  	You must have Python in order to compiler $PROJECT.
+	Download the appropriate package for your distribution/OS,
+	or get the source tarball at http://www.python.org/
+_EOF_
+  DIE="exit 1"
+fi
+
 
 VER=`autoconf --version | grep '^autoconf' | sed 's/.*)//'`
 case "$VER" in
