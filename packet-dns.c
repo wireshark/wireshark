@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.23 1999/10/07 07:44:28 guy Exp $
+ * $Id: packet-dns.c,v 1.24 1999/10/07 09:21:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -368,7 +368,11 @@ error:
 overflow:
   /* We ran past the end of the captured data in the packet. */
   strcpy(name, "<Name goes past end of captured data in packet>");
-  return -1;
+  /* If "len" is negative, we haven't seen a pointer, and thus haven't
+     set the length, so set it. */
+  if (len < 0)
+    len = dp - dptr;
+  return len;
 }
 
 
@@ -384,15 +388,19 @@ get_dns_name_type_class(const u_char *pd, int offset, int dns_data_offset,
   int start_offset = offset;
 
   name_len = get_dns_name(pd, offset, dns_data_offset, name, sizeof(name));
-  if (name_len < 0) {
+  offset += name_len;
+  
+  if (!BYTES_ARE_IN_FRAME(offset, 2)) {
     /* We ran past the end of the captured data in the packet. */
     return -1;
   }
-  offset += name_len;
-  
   type = pntohs(&pd[offset]);
   offset += 2;
 
+  if (!BYTES_ARE_IN_FRAME(offset, 2)) {
+    /* We ran past the end of the captured data in the packet. */
+    return -1;
+  }
   class = pntohs(&pd[offset]);
   offset += 2;
 

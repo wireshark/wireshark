@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.29 1999/10/07 07:44:29 guy Exp $
+ * $Id: packet-nbns.c,v 1.30 1999/10/07 09:21:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -159,13 +159,6 @@ get_nbns_name(const u_char *pd, int offset, int nbns_data_offset,
 
 	name_len = get_dns_name(pd, offset, nbns_data_offset, name,
 	    sizeof(name));
-	if (name_len < 0) {
-		/* We ran past the end of the captured data in the packet. */
-		strcpy(name_ret, name);
-		if (name_type_ret != NULL)
-			*name_type_ret = -1;
-		return -1;
-	}
 
 	/* OK, now undo the first-level encoding. */
 	pname = &name[0];
@@ -258,14 +251,19 @@ get_nbns_name_type_class(const u_char *pd, int offset, int nbns_data_offset,
 
 	name_len = get_nbns_name(pd, offset, nbns_data_offset, name_ret,
 	   name_type_ret);
-	if (name_len < 0) {
+	offset += name_len;
+	
+	if (!BYTES_ARE_IN_FRAME(offset, 2)) {
 		/* We ran past the end of the captured data in the packet. */
 		return -1;
 	}
-	offset += name_len;
-	
 	type = pntohs(&pd[offset]);
 	offset += 2;
+
+	if (!BYTES_ARE_IN_FRAME(offset, 2)) {
+		/* We ran past the end of the captured data in the packet. */
+		return -1;
+	}
 	class = pntohs(&pd[offset]);
 
 	*type_ret = type;
@@ -1271,11 +1269,6 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		/* Source name */
 		len = get_nbns_name(pd, offset, offset, name, &name_type);
-		if (len < 0) {
-			/* We ran past the end of the captured data in the
-			   packet. */
-			return;
-		}
 
 		if (tree) {
 			add_name_and_type(nbdgm_tree, offset, len,
@@ -1286,11 +1279,6 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		/* Destination name */
 		len = get_nbns_name(pd, offset, offset, name, &name_type);
-		if (len < 0) {
-			/* We ran past the end of the captured data in the
-			   packet. */
-			return;
-		}
 
 		if (tree) {
 			add_name_and_type(nbdgm_tree, offset, len,
@@ -1312,11 +1300,6 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			header.msg_type == 0x15 || header.msg_type == 0x16) {
 		/* Destination name */
 		len = get_nbns_name(pd, offset, offset, name, &name_type);
-		if (len < 0) {
-			/* We ran past the end of the captured data in the
-			   packet. */
-			return;
-		}
 
 		if (tree) {
 			add_name_and_type(nbdgm_tree, offset, len,
@@ -1416,20 +1399,12 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 	case SESSION_REQUEST:
 	  len = get_nbns_name(pd, offset, offset, name, &name_type);
-	  if (len < 0) {
-	    /* We ran past the end of the captured data in the packet. */
-	    break;
-	  }
 	  if (tree)
 	    add_name_and_type(nbss_tree, offset, len,
 				"Called name", name, name_type);
 	  offset += len;
 
 	  len = get_nbns_name(pd, offset, offset, name, &name_type);
-	  if (len < 0) {
-	    /* We ran past the end of the captured data in the packet. */
-	    break;
-	  }
 	  
 	  if (tree)
 	    add_name_and_type(nbss_tree, offset, len,
