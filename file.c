@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.172 2000/03/26 07:03:52 sharpe Exp $
+ * $Id: file.c,v 1.173 2000/03/28 08:11:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1410,6 +1410,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
       /* The file being saved is a temporary file from a live
          capture, so it doesn't need to stay around under that name;
 	 first, try renaming the capture buffer file to the new name. */
+#ifndef WIN32
       if (rename(cf->filename, fname) == 0) {
       	/* That succeeded - there's no need to copy the source file. */
       	from_filename = NULL;
@@ -1434,13 +1435,16 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 	  goto done;
 	}
       }
+#else
+		do_copy = TRUE;
+		from_filename = cf->filename;
+#endif
     } else {
       /* It's a permanent file, so we should copy it, and not remove the
          original. */
       do_copy = TRUE;
       from_filename = cf->filename;
     }
-
     /* Copy the file, if we haven't moved it. */
     if (do_copy) {
       /* Copy the raw bytes of the file. */
@@ -1452,7 +1456,12 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 	goto done;
       }
 
-      to_fd = creat(fname, 0644);
+      /* Use open() instead of creat() so that we can pass the O_BINARY
+         flag, which is relevant on Win32; it appears that "creat()"
+	 may open the file in text mode, not binary mode, but we want
+	 to copy the raw bytes of the file, so we need the output file
+	 to be open in binary mode. */
+      to_fd = open(fname, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
       if (to_fd < 0) {
       	err = errno;
 	simple_dialog(ESD_TYPE_WARN, NULL,
