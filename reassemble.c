@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.12 2002/04/17 08:25:04 guy Exp $
+ * $Id: reassemble.c,v 1.13 2002/04/17 08:57:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,13 +38,7 @@ typedef struct _fragment_key {
 	guint32	id;
 } fragment_key;
 
-typedef struct _reassembled_key {
-	guint32 frame;
-	guint32	id;
-} reassembled_key;
-
 static GMemChunk *fragment_key_chunk = NULL;
-static GMemChunk *reassembled_key_chunk = NULL;
 static GMemChunk *fragment_data_chunk = NULL;
 static int fragment_init_count = 200;
 
@@ -102,38 +96,36 @@ fragment_hash(gconstpointer k)
 	return hash_val;
 }
 
+/*
+ * XXX - we use the frame_data structure for a frame as the key
+ * structure, with the frame number as the item compared.
+ *
+ * This won't work if there's more than one form of reassembly using
+ * the reassembled-packet hash tables going on in the frame, and two
+ * or more are using the same protocol and thus the same hash table.
+ *
+ * We could use the addresses, or the reassembly ID, to distinguish
+ * between the reassemblies, if necessary.
+ *
+ * Hopefully, we won't see anything perverse such as that (say, some
+ * form of IP-in-IP tunneling, with fragments of an IP datagram
+ * tunneled inside IP datagrams that are themselves fragmented).
+ */
 static gint
 reassembled_equal(gconstpointer k1, gconstpointer k2)
 {
-	reassembled_key* key1 = (reassembled_key*) k1;
-	reassembled_key* key2 = (reassembled_key*) k2;
+	frame_data* key1 = (frame_data*) k1;
+	frame_data* key2 = (frame_data*) k2;
 
-	/*key.frame is the first item to compare since item is most
-	  likely to differ between sessions, thus shortcircuiting
-	  the comparasion of addresses.
-	*/
-	return ( ( (key1->frame == key2->frame) &&
-		   (key1->id    == key2->id)
-		 ) ?
-		 TRUE : FALSE);
+	return (key1->num == key2->num);
 }
 
 static guint
 reassembled_hash(gconstpointer k)
 {
-	reassembled_key* key = (reassembled_key*) k;
-	guint hash_val;
+	frame_data* key = (frame_data*) k;
 
-	hash_val = 0;
-
-/* 	The frame number is probably good enough as a hash value;
-	there's probably not going to be too many reassembled
-	packets that end at the same frame.
-*/
-
-	hash_val = key->frame;
-
-	return hash_val;
+	return key->num;
 }
 
 /*
@@ -176,7 +168,7 @@ free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 /*
  * For a reassembled-packet hash table entry, free the fragment data
  * to which the value refers.
- * (The actual key and value structures get freed by "reassemble_init()".)
+ * (The actual value structures get freed by "reassemble_init()".)
  */
 static gboolean
 free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
@@ -246,18 +238,12 @@ reassemble_init(void)
 {
 	if (fragment_key_chunk != NULL)
 		g_mem_chunk_destroy(fragment_key_chunk);
-	if (reassembled_key_chunk != NULL)
-		g_mem_chunk_destroy(reassembled_key_chunk);
 	if (fragment_data_chunk != NULL)
 		g_mem_chunk_destroy(fragment_data_chunk);
 	fragment_key_chunk = g_mem_chunk_new("fragment_key_chunk",
 	    sizeof(fragment_key),
 	    fragment_init_count * sizeof(fragment_key),
-	    G_ALLOC_ONLY);
-	reassembled_key_chunk = g_mem_chunk_new("reassembled_key_chunk",
-	    sizeof(reassembled_key),
-	    fragment_init_count * sizeof(reassembled_key),
-	    G_ALLOC_ONLY);
+	    G_ALLOC_AND_FREE);
 	fragment_data_chunk = g_mem_chunk_new("fragment_data_chunk",
 	    sizeof(fragment_data),
 	    fragment_init_count * sizeof(fragment_data),
@@ -911,18 +897,13 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 
 /*
  * This function adds fragment_data structure to a reassembled-packet
- * hash table, using the reassembly ID and frame number as the key.
+ * hash table, using the frame data structure as the key.
  */
 static void
 fragment_reassembled(fragment_data *fd_head, packet_info *pinfo, guint32 id,
 	     GHashTable *reassembled_table)
 {
-	reassembled_key *new_key;
-
-	new_key = g_mem_chunk_alloc(reassembled_key_chunk);
-	new_key->frame = pinfo->fd->num;
-	new_key->id = id;
-	g_hash_table_insert(reassembled_table, new_key, fd_head);
+	g_hash_table_insert(reassembled_table, pinfo->fd, fd_head);
 }
 
 /*
@@ -957,7 +938,6 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     GHashTable *reassembled_table, guint32 frag_number,
 	     guint32 frag_data_len, gboolean more_frags)
 {
-	reassembled_key reass_key;
 	fragment_key key, *new_key, *old_key;
 	gpointer orig_key, value;
 	fragment_data *fd_head;
@@ -970,12 +950,8 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * Have we already seen this frame?
 	 * If so, look for it in the table of reassembled packets.
 	 */
-	if (pinfo->fd->flags.visited) {
-		reass_key.frame = pinfo->fd->num;
-		reass_key.id = id;
-
-		return g_hash_table_lookup(reassembled_table, &reass_key);
-	}
+	if (pinfo->fd->flags.visited)
+		return g_hash_table_lookup(reassembled_table, pinfo->fd);
 
 	/* create key to search hash with */
 	key.src = pinfo->src;
@@ -1052,7 +1028,12 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		g_hash_table_remove(fragment_table, &key);
 
 		/*
-		 * Add it to the table of reassembled packets.
+		 * Free the key itself.
+		 */
+		g_mem_chunk_free(fragment_key_chunk, old_key);
+
+		/*
+		 * Add this item to the table of reassembled packets.
 		 */
 		fragment_reassembled(fd_head, pinfo, id, reassembled_table);
 		return fd_head;
