@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.30 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-ftp.c,v 1.31 2001/09/03 02:32:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -66,14 +67,126 @@ static void
 dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
+handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
+{
+	char *args;
+	char *p, *endp;
+	u_char c;
+	int i;
+	u_long byte;
+	guint32 address_val;
+	guint16 server_port;
+
+	/*
+	 * Copy the rest of the line into a null-terminated buffer.
+	 */
+	args = g_malloc(linelen + 1);
+	memcpy(args, line, linelen);
+	args[linelen] = '\0';
+	p = args;
+
+	/*
+	 * Skip any leading non-digit characters.
+	 */
+	while ((c = *p) != '\0' && !isdigit(c))
+		p++;
+
+	/*
+	 * Get the server's IP address.
+	 * XXX - RFC 959 doesn't say much about the syntax of the 227
+	 * reply; we infer that the 6 tokens are separated by commas.
+	 * XXX - what about IPv6?
+	 */
+	address_val = 0;
+	for (i = 0; i < 4; i++) {
+		if (*p == '-') {
+			/*
+			 * Negative numbers aren't allowed (and "strtoul()
+			 * doesn't reject them, sigh.
+			 */
+			goto done;
+		}
+		byte = strtoul(p, &endp, 10);
+		if (p == endp || *endp != ',') {
+			/*
+			 * Not a valid number.
+			 */
+			goto done;
+		}
+		address_val = (address_val << 8) | byte;
+		p = endp + 1;
+	}
+
+	/*
+	 * Get the port number.
+	 */
+	if (*p == '-') {
+		/*
+		 * Negative numbers aren't allowed (and "strtoul()
+		 * doesn't reject them, sigh.
+		 */
+		goto done;
+	}
+	byte = strtoul(p, &endp, 10);
+	if (p == endp || *endp != ',') {
+		/*
+		 * Not a valid number.
+		 */
+		goto done;
+	}
+	server_port = byte << 8;
+	p = endp + 1;
+	if (*p == '-') {
+		/*
+		 * Negative numbers aren't allowed (and "strtoul()
+		 * doesn't reject them, sigh.
+		 */
+		goto done;
+	}
+	byte = strtoul(p, &endp, 10);
+	if (p == endp || (*endp != '\0' && *endp != ')' && !isspace(*endp))) {
+		/*
+		 * Not a valid number.
+		 */
+		goto done;
+	}
+	server_port |= byte;
+
+	/*
+	 * Set up a conversation.
+	 */
+	if (!find_conversation(&pinfo->src, &pinfo->dst, PT_TCP, server_port, 0,
+	    NO_PORT_B)) {
+		conversation_t 	*conversation;
+		address server_addr;
+
+		server_addr.type = AT_IPv4;
+		server_addr.len = 4;
+		address_val = ntohl(address_val);
+		server_addr.data = (guint8 *)&address_val;
+
+		/*
+		 * XXX - should this just use "server_addr" and "server_port",
+		 * and wildcard everything else?
+		 */
+		conversation = conversation_new(&server_addr, &pinfo->dst,
+		    PT_TCP, server_port, 0, NULL, NO_PORT2);
+		conversation_set_dissector(conversation, dissect_ftpdata);
+	}
+
+done:
+	g_free(args);
+}	
+
+static void
 dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gboolean        is_request;
-        proto_tree      *ftp_tree;
+        proto_tree      *ftp_tree = NULL;
 	proto_item	*ti;
 	gint		offset = 0;
 	const u_char	*line;
-	guint16		passive_port = 0;
+	gboolean	is_pasv_response = FALSE;
 	gint		next_offset;
 	int		linelen;
 	int		tokenlen;
@@ -107,46 +220,6 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    format_text(line, linelen));
 	}
    
-	/*
-	 * Check for passive ftp response. Such response is in the form
-	 * 227 some_text (a,b,c,d,p1,p2) , where a.b.c.d is the IP address
-	 * of the server, and p1, p2 are the hi and low bytes of the tcp
-	 * port the server will open for the client to connect to.
-	 */
-	tokenlen = get_token_len(line, line + linelen, &next_token);
-	if (tokenlen!=0 && !strcmp ("227", format_text (line, tokenlen)))
-	  {
-		u_char          *token;
-		gint		hi_byte;
-		gint		low_byte;
-		guint8 		i;
-		  
-		strtok (format_text(line, linelen), "(,)");
-		for (i = 1; i <= 4; i++)
-	          strtok (NULL, "(,)");
-		  
-		if ( (token = strtok (NULL, "(,)")) && sscanf (token, "%d", &hi_byte)
-		  && (token = strtok (NULL, "(,)")) && sscanf (token, "%d", &low_byte) )
-		  passive_port = hi_byte * 256 + low_byte;
-	  }
-	
-	/*
-	 * If a passive response has been found and a conversation,
-	 * was not registered already, register the new conversation
-	 * and dissector
-	 */
-	if (passive_port && !find_conversation(&pinfo->src, &pinfo->dst, PT_TCP,
-					       passive_port, 0, NO_PORT_B))
-	  {
-		conversation_t 	*conversation;
-		  
-		conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_TCP,
-						  passive_port, 0, NULL,
-						  NO_PORT2);
-		conversation_set_dissector(conversation, dissect_ftpdata);
-
-	  }
-
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ftp, tvb, offset,
 		    tvb_length_remaining(tvb, offset), FALSE);
@@ -163,48 +236,78 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_boolean_hidden(ftp_tree,
 			    hf_ftp_response, tvb, 0, 0, TRUE);
 		}
+	}
 
-		/*
-		 * Extract the first token, and, if there is a first
-		 * token, add it as the request or reply code.
-		 */
-		tokenlen = get_token_len(line, line + linelen, &next_token);
-		if (tokenlen != 0) {
-			if (is_request) {
+	/*
+	 * Extract the first token, and, if there is a first
+	 * token, add it as the request or reply code.
+	 */
+	tokenlen = get_token_len(line, line + linelen, &next_token);
+	if (tokenlen != 0) {
+		if (is_request) {
+			if (tree) {
 				proto_tree_add_string_format(ftp_tree,
 				    hf_ftp_request_command, tvb, offset,
 				    tokenlen, line, "Request: %s",
 				    format_text(line, tokenlen));
-			} else {
+			}
+		} else {
+			/*
+			 * This is a response; see if it's a passive-mode
+			 * response.
+			 */
+			if (strncmp("227", line, tokenlen) == 0)
+				is_pasv_response = TRUE;
+			if (tree) {
 				proto_tree_add_uint_format(ftp_tree,
 				    hf_ftp_response_code, tvb, offset,
 				    tokenlen, atoi(line), "Response: %s",
 				    format_text(line, tokenlen));
 			}
-			offset += next_token - line;
-			linelen -= next_token - line;
-			line = next_token;
+		}
+		offset += next_token - line;
+		linelen -= next_token - line;
+		line = next_token;
+
+		/*
+		 * If this is a passive response, handle it.
+		 * Such a response is in the form 227 some_text
+		 * (a,b,c,d,p1,p2) , where a.b.c.d is the IP address
+		 * of the server, and p1, p2 are the hi and low bytes
+		 * of the TCP port the server will open for the client
+		 * to connect to.
+		 */
+		if (is_pasv_response) {
+			/*
+			 * This is a 227 response; set up a conversation
+			 * for the data.
+			 */
+			handle_pasv_response(line, linelen, pinfo);
 		}
 
 		/*
 		 * Add the rest of the first line as request or
 		 * reply data.
 		 */
-		if (linelen != 0) {
-			if (is_request) {
-				proto_tree_add_string_format(ftp_tree,
-				    hf_ftp_request_data, tvb, offset,
-				    linelen, line, "Request Arg: %s",
-				    format_text(line, linelen));
-			} else {
-				proto_tree_add_string_format(ftp_tree,
-				    hf_ftp_response_data, tvb, offset,
-				    linelen, line, "Response Arg: %s",
-				    format_text(line, linelen));
+		if (tree) {
+			if (linelen != 0) {
+				if (is_request) {
+					proto_tree_add_string_format(ftp_tree,
+					    hf_ftp_request_data, tvb, offset,
+					    linelen, line, "Request Arg: %s",
+					    format_text(line, linelen));
+				} else {
+					proto_tree_add_string_format(ftp_tree,
+					    hf_ftp_response_data, tvb, offset,
+					    linelen, line, "Response Arg: %s",
+					    format_text(line, linelen));
+				}
 			}
 		}
 		offset = next_offset;
+	}
 
+	if (tree) {
 		/*
 		 * Show the rest of the request or response as text,
 		 * a line at a time.
