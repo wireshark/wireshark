@@ -370,7 +370,9 @@ make
 	<section id="ChSrcSVNDiff">
 	<title>Using the svn command-line client</title>
 	<para>
-	svn diff > your-changes.patch
+	svn diff -u [changed_files] > svn.diff
+	</para>
+	<para>
 	XXX - add more details
 	</para>
 	</section>
