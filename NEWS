@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.134 2003/09/08 03:13:14 gerald Exp $
+$Id: NEWS,v 1.135 2003/09/09 03:34:26 gerald Exp $
 
 == September 9, 2003
 
@@ -6,13 +6,16 @@ Ethereal 0.9.15 has been released.
 
 New and updated features
 
-  Endpoint Talker (aka "top talker") support has been added.  Protocol 
-  statistics in general have been updated.
+  Many major features have been added with this release.  If you're
+  running an older version of Ethereal, you may want to have a look.
+
+  Conversation List (aka "top talker") support has been added to Ethereal
+  and Tethereal.  Protocol  statistics in general have been updated.
 
   Searching capture files has been improved even more -- a new "contains"
-  display filter that searches for strings in PDUs has been added.  The
-  Find dialog now supports case-insensitive searches, hex data searches,
-  and more.
+  display filter operator that searches for strings in PDUs has been
+  added.  The Find dialog now supports case-insensitive searches, hex data
+  searches, and more.
 
   An H.225 dissector has been added.  It can automatically recognize RTP
   and RTCP conversations.
@@ -21,38 +24,55 @@ New and updated features
   
   Color filters may now be imported and exported from within Ethereal.
   
+  A new column type has been added for cumulative bytes.
+  
 
 New protocols
 
+GPRS BSSGP,
+GPRS NS,
 H.225,
 H.263,
 Laplink,
+LWAPP,
+Q.933,
 STUN,
 
 
 Updated protocols
 
 ArtNet,
+BOOTP/DHCP,
 DCE/RPC,
+DCERPCSTAT,
 DHCPv6,
 ENIP,
 Ethernet,
+FCIP,
+Frame Relay,
 H.245,
+HTTP,
 IPsec,
 LDAP,
 LWRES,
+M2UA,
+M3UA,
 MEGACO,
+MTP3,
 NCP,
 NDPS,
 NFS,
+NTLMSSP,
 PPTP,
 Q.931,
 RPC,
 SAMR,
+SCCP,
 SCTP,
 SMB,
 SMPP,
 SNA,
+SNMP,
 SRVLOC,
 SIP,
 SUA,

@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.28 2003/09/08 03:13:14 gerald Exp $
+$Id: ChangeLog,v 1.29 2003/09/09 03:34:26 gerald Exp $
  
 Overview of changes in Ethereal 0.9.15:
 
@@ -217,13 +217,144 @@ Overview of changes in Ethereal 0.9.15:
 * Fix the dissection of TDS7 login packets, and add dissection for several
   fields in that packet (Yaniv Kaul)
 * Make various lengths unsigned in "dissect_fhandle_data_unknown()" (Guy)
+* Add Nortel/SynOptics Network Management Protocol support (Giles Scott)
+* Add an OUI dissector table API to LLC (Guy)
+* Use "process_reassembled_data()" in packet-tds.c (Guy)
+* Use the TDS sequence number when reassembling (Guy)
+* Add a "reassembled in" field to TCP (Guy)
+* Enhance the "process_reassembled_data()" function (Guy)
+* Update to H.245 to decode county codes (Ronnie)
+* Support H.245 octet string tunneling in H.225 (Ronnie)
+* Fix a small PER display bug (Ronnie)
+* Fix signed/unsigned comparison warning in packet-ncp22222.inc (Gilbert)
+* Allow marking packets with the middle mouse button in GTK2 (Olivier)
+* Beautify and tooltipify the Find dialog (Greg, Guy)
+* Fix a RISC bus error in packet-ip.c (Gerald)
+* Add support for Teredo (Vincent Jardin)
+* Add a pile of Find enhancements (Guy)
+* Make the configure flag --with-ucd-snmp consistent with --with-net-snmp
+  (Guy)
+* Make the CList of Find character sets non-editable (Guy)
+* Make the Find hex code c handle ':' (Guy)
+* Add endpoint talkers support for FDDI (Ronnie)
+* If the TCP FIN flag is set it is NOT a keepalive (Ronnie)
+* TCP keepalives are not dup ACKs (Ronnie)
+* Add a trailing '\0' in asn1_string_value_decode() (Matthijs)
+* Fix the RISC bus error fixes in packet-ip.c (Guy)
+* Add LWAPP support (David Frascone)
+* Give the name of the I-D for LWAPP (Guy)
+* Major cleanups in the endpoint talkers code (Ronnie)
+* Updates and bugfixes for H.225 and H.245 (Andreas, Martin)
+* Include "tap.h" in endpoint_talkers_table.c (Guy)
+* Fix RAS message and H.245 display in H.225 (Andreas)
+* Update PER field display (Andreas)
+* Add support for building with ucd-snmp on RH9.0 (Richard)
+* Make NTLMSSP offsets into tvbuffs 32-bit (Devin)
+* Fix capitalization in prefs_dlg.c (Gerald)
+* Remove a mid-block declaration in packet-per.c (Guy)
+* Put the basename in the talkers dialogs (Guy)
+* Fixed a bug regarding the summary of in/outbound streams in SCTP
+  INIT/INIT-ACK chunks (Michael)
+* Make sure the color selection dialog displays a color selection widget
+  (Gerald)
+* Q.933 NLPID and address field fixes for FR (Guy)
+* Don't show the FR DTE/DCE direction indicators if they're not supplied
+  (Guy)
+* Use "dissect_xdlc_control()" to dissect the control field of Frame Relay
+  packets that have one (Guy)
+* Fix encapsulation indicator in FR (Guy)
+* Fix SOF and EOF display in FCIP and add a desegmentation check (Dinesh)
+* Add a few more user IDs to the M3UA Service Indicator (Anders Broman)
+* Update ENIP additional status display (Joakim)
+* Add a pref to display SIP messages as text lines (Anders)
+* Remove a redundant tvb_new_subset() call in MGCP (Guy)
+* Improved Info column output for multiple H.225 messages and faststart
+  (Andreas)
+* Facility for H.245 to display short message types instead of long ones
+  (Andreas)
+* Enhance the Tools:Summary statistics (Jean-Michel Fayard, Guy)
+* Add BOOTP/DHCP, HTTP, and WSP statistics taps (Jean-Michel)
+* The code in an HTTP reply is a response code, not a response method (Guy)
+* Update the FR control field (Guy)
+* Fix the Q.931 bit mask for the parity level 1 information (Guy)
+* Add a Q.933 dissector (Guy)
+* Fix up the API for adding support for new OUI's to the LLC dissector
+  (Guy)
+* Add Cisco and Nortel OUI tables (Guy)
+* Improve MEGACO error code display, remove spurious code (Anders, Guy)
+* Fix RPC conversation handling (Guy)
+* Fix the --with-ucd-snmp documentation (Tom Uijldert, Richard)
+* Update to LSA LookupPrivilegeDisplayName (Ronnie)
+* UDP tap fix (Ronnie)
+* Fixes for the various stats tables (Ronnie)
+* Add a cumulative bytes column (yay!) (Ronnie)
+* Get rid of stuff not used in Q.933 (Guy)
+* Don't include <epan/conversation.h> if you don't need it (Guy)
+* Add GPRS Network Service-over-Frame-Relay support (Josef Korelus)
+* Check for "wtap_seek_read()" failing in file.c (Guy)
+* Handle read errors while searching (Guy)
+* Back out of previous SNMP formatting changes (Guy)
+* Put in a note telling people how to add a new libpcap encapsulation
+  type (Guy)
+* Uglify endpoint_talkers_table.c (Ronnie)
+* Fix an SUA DRST message bug, update for ID version 15 (Michael)
+* Indicate the Standard (ITU, ANSI, Chin. ITU) in the protocol column for
+  MTP3 and SCCP (Michael)
+* M2UA and M3UA version printing fix (Michael)
+* Update M2PA for version 09 of the ID (Michael)
+* Display H.245 T35 manufacturer codes as strings (Anders)
+* Clean up SMPP reassembly, add dissection prefs (Olivier)
+* Add translation of M3UA SI values to strings (Anders)
+* Decode the Push-Flag WSP header (Oliver)
+* Remove lots of duplicated talker code (Ronnie)
+* Fix a talker out of bounds bug (Ronnie)
+* Rename endpoint talkers to Conversation List (Ronnie)
+* Sort the program menu in DCERPCSTAT (Ronnie)
+* Change how conversation enpoints are selected (Ronnie)
+* Update conversation sorting (Ronnie)
+* Add some descriptive text to the add filter expression dialog (Ronnie)
+* Make even the non-heuristic STUN dissector reject packets that don't
+  look like STUN packets (Guy)
+* If a dfilter blurb isn't present, don't display it (Guy)
+* Add a Find Frame item to the popup menu for the conversation list
+  (Ronnie)
+* Add conversation popups to the Ethereal man page (Ronnie)
+* Don't try to align display filter dialog content (Guy)
+* Reenable static linking (Joerg)
+* Reject unknown Laplink UDP packets (Guy)
+* Add a popup to the ServicveResponseTime tables (Ronnie)
+* Add SCTP tunneling (Michael)
+* Include <string.h> to get "strcmp()" declared in dcerpc_stat.c (Guy)
+* Fix a bug affecting M3UA, MTP3, and SCCP (Michael)
+* Fix protocol check in MTP3, MTP3MG, SCCP, and SCCPMG (Guy)
+* Fix dissection of non-standard H.245 parameters (Martin)
+* Handle SNMP-over-TCP (Guy)
+* Handle the interface index in "-D" and "-i" (Graham Bloice, Guy)
+* GPRS BSSGP support (Josef Korelus)
+* Fix some GPRS BSSGP typos (Guy)
+* Add an option to save tap data in CSV form (Brian K. Teravskis)
+* Add Raw Ethernet "encapsulation type" to framerelay (Ronnie)
+* Dissector table hashing improvements (Guy)
+* Support string dissector tables in the Tethereal "decode as" stuff (Guy)
+* More int vs. uint fixes in decode_as_dlg.c (Guy)
+* Better TCP keepalive ACK handling (Ronnie)
+* Update COPS to handle PIB information and decode PRID instanceids
+  correctly (Kari Tiirikainen)
+* Add a MIB module list preference (Kari)
+* Don't unload the MIBs unless we've loaded them (Guy)
+* Fix null string pref handling in SNMP (Guy)
+* Calculate cumulative bytes only on displayed packets (Ronnie)
+* Add support for user-supplied interface descriptions and interface hiding
+ (Nathan Jennings, Guy)
+* Have Find support periods and dashes as hex separators (Gerald)
 * 
 
 
 
 
 
-Left off at http://www.ethereal.com/lists/ethereal-cvs/200308/msg00221.html
+
+Left off at http://www.ethereal.com/lists/ethereal-cvs/200309/msg00124.html
 
 
 
