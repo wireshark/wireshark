@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.32 2004/04/15 22:38:22 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.33 2004/04/16 22:44:24 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -14,8 +14,13 @@
  *
  * WAP Binary XML decoding functionality provided by Olivier Biot.
  * 
- * The WAP specifications are found at the WAP Forum:
- * http://www.wapforum.org/what/Technical.htm
+ * The WAP specifications used to be found at the WAP Forum:
+ *	<http://www.wapforum.org/what/Technical.htm>
+ * But now the correct link is at the Open Mobile Alliance:
+ *	<http://www.openmobilealliance.org/tech/affiliates/wap/wapindex.html>
+ * Media types defined by OMA affiliates will have their standards at:
+ *	<http://www.openmobilealliance.org/tech/affiliates/index.html>
+ *	<http://www.openmobilealliance.org/release_program/index.html>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -178,17 +183,659 @@ val_to_valstr(guint32 val, const value_valuestring *vvs)
  */
 typedef char * (* ext_t_func_ptr)(tvbuff_t *, guint32, guint32);
 
+/* Note on parsing of OPAQUE data
+ * ------------------------------
+ *
+ * The WBXML encapsulation allows the insertion of opaque binary data in the
+ * WBXML body. Although this opaque data has no meaning in WBXML, the media
+ * type itself may define compact encoding of given input by encoding it in
+ * such a OPAQUE blob of bytes.
+ *
+ * The WBXML dissector now supports dissection of OPAQUE data by means of a
+ * mapping function that will operate based on the token (well-known or literal)
+ * and the active code page.
+ *
+ * For well-known tokens the simplest approach is to use a switch for the code
+ * pages and another switch for the relevant tokens within a code page.
+ *
+ * For literal tokens (tags and attribute names), the only approach is a string
+ * comparison with the literal representation of the given tag or attribute
+ * name.
+ *
+ * opaque_token_func_ptr is a pointer to a function handling OPAQUE values
+ * for binary tokens representing tags or attribute starts.
+ * opaque_literal_func_ptr is a pointer to a function handling OPAQUE values
+ * for literal tokens representing tags or attribute starts.
+ * 
+ * The length field of the OPAQUE entry starts at offset (not offset + 1).
+ * 
+ * The length of the processed OPAQUE value is returned by reference.
+ *
+ * char * opaque_token_function(tvbuff_t *tvb, guint32 offset,
+ * 		guint8 token, guint8 codepage, guint32 *length);
+ * char * opaque_literal_function(tvbuff_t *tvb, guint32 offset,
+ * 		const char *token, guint8 codepage, guint32 *length);
+ */
+typedef char * (* opaque_token_func_ptr)(tvbuff_t *, guint32, guint8, guint8, guint32 *);
+typedef char * (* opaque_literal_func_ptr)(tvbuff_t *, guint32, const char *, guint8, guint32 *);
+
+char *
+default_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
+		guint8 token _U_, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = g_strdup_printf("(%d bytes of opaque data)", data_len);
+	*length += data_len;
+	return str;
+}
+
+char *
+default_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
+		const char *token _U_, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = g_strdup_printf("(%d bytes of opaque data)", data_len);
+	*length += data_len;
+	return str;
+}
+
+char *
+default_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
+		guint8 token _U_, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = g_strdup_printf("(%d bytes of opaque data)", data_len);
+	*length += data_len;
+	return str;
+}
+
+char *
+default_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
+		const char *token _U_, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = g_strdup_printf("(%d bytes of opaque data)", data_len);
+	*length += data_len;
+	return str;
+}
+
+/* Render a hex %dateTime encoded timestamp as a string.
+ * 0x20011231123456 becomes "2001-12-31T12:34:56Z" */
+char *
+date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
+{
+	char *str;
+
+	switch (data_len) {
+		case 4: /* YYYY-MM-DD[T00:00:00Z] */
+			str = g_strdup_printf("%%DateTime: "
+					"%02x%02x-%02x-%02xT00:00:00Z",
+					tvb_get_guint8(tvb, offset),
+					tvb_get_guint8(tvb, offset + 1),
+					tvb_get_guint8(tvb, offset + 2),
+					tvb_get_guint8(tvb, offset + 3));
+			break;
+		case 5: /* YYYY-MM-DDThh[:00:00Z] */
+			str = g_strdup_printf("%%DateTime: "
+					"%02x%02x-%02x-%02xT%02x:00:00Z",
+					tvb_get_guint8(tvb, offset),
+					tvb_get_guint8(tvb, offset + 1),
+					tvb_get_guint8(tvb, offset + 2),
+					tvb_get_guint8(tvb, offset + 3),
+					tvb_get_guint8(tvb, offset + 4));
+			break;
+		case 6: /* YYYY-MM-DDThh:mm[:00Z] */
+			str = g_strdup_printf("%%DateTime: "
+					"%02x%02x-%02x-%02xT%02x:%02x:00Z",
+					tvb_get_guint8(tvb, offset),
+					tvb_get_guint8(tvb, offset + 1),
+					tvb_get_guint8(tvb, offset + 2),
+					tvb_get_guint8(tvb, offset + 3),
+					tvb_get_guint8(tvb, offset + 4),
+					tvb_get_guint8(tvb, offset + 5));
+			break;
+		case 7: /* YYYY-MM-DDThh:mm[:00Z] */
+			str = g_strdup_printf("%%DateTime: "
+					"%02x%02x-%02x-%02xT%02x:%02x%02xZ",
+					tvb_get_guint8(tvb, offset),
+					tvb_get_guint8(tvb, offset + 1),
+					tvb_get_guint8(tvb, offset + 2),
+					tvb_get_guint8(tvb, offset + 3),
+					tvb_get_guint8(tvb, offset + 4),
+					tvb_get_guint8(tvb, offset + 5),
+					tvb_get_guint8(tvb, offset + 6));
+			break;
+		default:
+			str = g_strdup_printf("<Error: invalid binary %%DateTime "
+					"(%d bytes of opaque data)>", data_len);
+			break;
+	}
+
+	return str;
+}
+
+/* Is ALWAYS 6 bytes long:
+ * 00YY YYYY  YYYY YYMM  MMDD DDDh  hhhh mmmm  mmss ssss  ZZZZ ZZZZ */
+char *
+wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
+{
+	char *str;
+	guint16 year;
+	guint8 month, day, hour, minute, second, timezone;
+	guint8 peek;
+
+	if (data_len == 6) { /* Valid */
+
+		/* Octet 1: 00YY YYYY */
+		year = tvb_get_guint8(tvb, offset) & 0x3F; /* ..11 1111 */
+		year <<=6;
+		/* Octet 2: YYYY YYMM */
+		peek = tvb_get_guint8(tvb, offset + 1);
+		year += (peek >> 2); /* 1111 11.. */
+		month = (peek & 0x03) << 2; /* .... ..11 */
+		/* Octet 3: MMDD DDDh */
+		peek = tvb_get_guint8(tvb, offset + 2);
+		month += (peek >> 6); /* 11.. .... */
+		day = (peek & 0x3E) >> 1; /* ..11 111. */
+		hour = (peek & 0x01) << 4; /* .... ...1 */
+		/* Octet 4: hhhh mmmm */
+		peek = tvb_get_guint8(tvb, offset + 3);
+		hour += (peek >> 4);
+		minute = (peek & 0x0F) << 2; /* .... 1111 */
+		/* Octet 5: mmss ssss */
+		peek = tvb_get_guint8(tvb, offset + 4);
+		minute += (peek >> 6); /* 11.. .... */
+		second = peek & 0x3F; /* ..11 1111 */
+		/* octet 6: ZZZZZZZZ */
+		timezone = tvb_get_guint8(tvb, offset + 5);
+		/* Now construct the string */
+		str = g_strdup_printf("WV-CSP DateTime: "
+				"%04d-%02d-%02dT%02d:%02d:%02d%c",
+				year, month, day, hour, minute, second, timezone);
+	} else { /* Invalid length for a WV-CSP DateTime tag value */
+		str = g_strdup_printf("<Error: invalid binary WV-CSP DateTime value "
+				"(%d bytes of opaque data)>", data_len);
+	}
+	return str;
+}
+
+/* WV-CSP integer values for tag content is encoded in a fashion similar
+ * to a Long-Integer in WSP */
+char *
+wv_integer_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
+{
+	char *str;
+
+	switch (data_len) {
+		case 1:
+			str = g_strdup_printf("WV-CSP Integer: %d",
+					tvb_get_guint8(tvb, offset));
+			break;
+		case 2:
+			str = g_strdup_printf("WV-CSP Integer: %d",
+					tvb_get_ntohs(tvb, offset));
+			break;
+		case 3:
+			str = g_strdup_printf("WV-CSP Integer: %d",
+					tvb_get_ntoh24(tvb, offset));
+			break;
+		case 4:
+			str = g_strdup_printf("WV-CSP Integer: %d",
+					tvb_get_ntohl(tvb, offset));
+			break;
+		default:
+			str = g_strdup_printf("<Error: invalid binary WV-CSP Integer value "
+					"(%d bytes of opaque data)>", data_len);
+			break;
+	}
+
+	return str;
+}
+
+char *
+wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
+		const char *token, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	if (   (strcmp(token, "Code") == 0)
+		|| (strcmp(token, "ContentSize") == 0)
+		|| (strcmp(token, "MessageCount") == 0)
+		|| (strcmp(token, "Validity") == 0)
+		|| (strcmp(token, "KeepAliveTime") == 0)
+		|| (strcmp(token, "TimeToLive") == 0)
+		|| (strcmp(token, "AcceptedContentLength") == 0)
+		|| (strcmp(token, "MultiTrans") == 0)
+		|| (strcmp(token, "ParserSize") == 0)
+		|| (strcmp(token, "ServerPollMin") == 0)
+		|| (strcmp(token, "TCPAddress") == 0)
+		|| (strcmp(token, "TCPPort") == 0)
+		|| (strcmp(token, "UDPPort") == 0) )
+	{
+		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+	}
+	else if (strcmp(token, "DateTime") == 0)
+	{
+		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+	}
+
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+	return str;
+}
+
+char *
+wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
+		guint8 token, guint8 codepage, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	switch (codepage) {
+		case 0: /* Common code page */
+			switch (token) {
+				case 0x0B: /* <Code> */
+				case 0x0F: /* <ContentSize> */
+				case 0x1A: /* <MessageCount> */
+				case 0x3C: /* <Validity> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				case 0x11: /* <DateTime> */
+					str = wv_datetime_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		case 1: /* Access code page */
+			switch (token) {
+				case 0x1C: /* <KeepAliveTime> */
+				case 0x32: /* <TimeToLive> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+		case 3: /* Client capability code page */
+			switch (token) {
+				case 0x06: /* <AcceptedContentLength> */
+				case 0x0C: /* <MultiTrans> */
+				case 0x0D: /* <ParserSize> */
+				case 0x0E: /* <ServerPollMin> */
+				case 0x11: /* <TCPAddress> */
+				case 0x12: /* <TCPPort> */
+				case 0x13: /* <UDPPort> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+
+	return str;
+}
+
+char *
+wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
+		const char *token, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	if (   (strcmp(token, "Code") == 0)
+		|| (strcmp(token, "ContentSize") == 0)
+		|| (strcmp(token, "MessageCount") == 0)
+		|| (strcmp(token, "Validity") == 0)
+		|| (strcmp(token, "KeepAliveTime") == 0)
+		|| (strcmp(token, "TimeToLive") == 0)
+		|| (strcmp(token, "AcceptedContentLength") == 0)
+		|| (strcmp(token, "MultiTrans") == 0)
+		|| (strcmp(token, "ParserSize") == 0)
+		|| (strcmp(token, "ServerPollMin") == 0)
+		|| (strcmp(token, "TCPAddress") == 0)
+		|| (strcmp(token, "TCPPort") == 0)
+		|| (strcmp(token, "UDPPort") == 0) )
+	{
+		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+	}
+	else
+	if (   (strcmp(token, "DateTime") == 0)
+		|| (strcmp(token, "DeliveryTime") == 0) )
+	{
+		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+	}
+
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+	return str;
+}
+
+char *
+wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
+		guint8 token, guint8 codepage, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	switch (codepage) {
+		case 0: /* Common code page */
+			switch (token) {
+				case 0x0B: /* <Code> */
+				case 0x0F: /* <ContentSize> */
+				case 0x1A: /* <MessageCount> */
+				case 0x3C: /* <Validity> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				case 0x11: /* <DateTime> */
+					str = wv_datetime_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		case 1: /* Access code page */
+			switch (token) {
+				case 0x1C: /* <KeepAliveTime> */
+				case 0x32: /* <TimeToLive> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+		case 3: /* Client capability code page */
+			switch (token) {
+				case 0x06: /* <AcceptedContentLength> */
+				case 0x0C: /* <MultiTrans> */
+				case 0x0D: /* <ParserSize> */
+				case 0x0E: /* <ServerPollMin> */
+				case 0x11: /* <TCPAddress> */
+				case 0x12: /* <TCPPort> */
+				case 0x13: /* <UDPPort> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		case 6: /* Messaging code page */
+			switch (token) {
+				case 0x1A: /* <DeliveryTime> - not in 1.0 */
+					str = wv_datetime_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+
+	return str;
+}
+
+char *
+wv_csp12_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
+		const char *token, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	if (   (strcmp(token, "Code") == 0)
+		|| (strcmp(token, "ContentSize") == 0)
+		|| (strcmp(token, "MessageCount") == 0)
+		|| (strcmp(token, "Validity") == 0)
+		|| (strcmp(token, "KeepAliveTime") == 0)
+		|| (strcmp(token, "TimeToLive") == 0)
+		|| (strcmp(token, "AcceptedContentLength") == 0)
+		|| (strcmp(token, "MultiTrans") == 0)
+		|| (strcmp(token, "ParserSize") == 0)
+		|| (strcmp(token, "ServerPollMin") == 0)
+		|| (strcmp(token, "TCPAddress") == 0)
+		|| (strcmp(token, "TCPPort") == 0)
+		|| (strcmp(token, "UDPPort") == 0)
+		|| (strcmp(token, "HistoryPeriod") == 0)
+		|| (strcmp(token, "MaxWatcherList") == 0) )
+	{
+		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+	}
+	else
+	if (   (strcmp(token, "DateTime") == 0)
+		|| (strcmp(token, "DeliveryTime") == 0) )
+	{
+		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+	}
+
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+	return str;
+}
+
+char *
+wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
+		guint8 token, guint8 codepage, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	switch (codepage) {
+		case 0: /* Common code page */
+			switch (token) {
+				case 0x0B: /* <Code> */
+				case 0x0F: /* <ContentSize> */
+				case 0x1A: /* <MessageCount> */
+				case 0x3C: /* <Validity> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				case 0x11: /* <DateTime> */
+					str = wv_datetime_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		case 1: /* Access code page */
+			switch (token) {
+				case 0x1C: /* <KeepAliveTime> */
+				case 0x32: /* <TimeToLive> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+		case 3: /* Client capability code page */
+			switch (token) {
+				case 0x06: /* <AcceptedContentLength> */
+				case 0x0C: /* <MultiTrans> */
+				case 0x0D: /* <ParserSize> */
+				case 0x0E: /* <ServerPollMin> */
+				case 0x11: /* <TCPAddress> */
+				case 0x12: /* <TCPPort> */
+				case 0x13: /* <UDPPort> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		case 6: /* Messaging code page */
+			switch (token) {
+				case 0x1A: /* <DeliveryTime> - not in 1.0 */
+					str = wv_datetime_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		case 9: /* Common code page (continued) */
+			switch (token) {
+				case 0x08: /* <HistoryPeriod> - 1.2 only */
+				case 0x0A: /* <MaxWatcherList> - 1.2 only */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+
+	return str;
+}
+
+char *
+sic10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
+		const char *token, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	if (   (strcmp(token, "created") == 0)
+		|| (strcmp(token, "si-expires") == 0) )
+	{
+		str = date_time_from_opaque(tvb, offset + *length, data_len);
+	}
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+
+	return str;
+}
+
+char *
+sic10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
+		guint8 token, guint8 codepage, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	switch (codepage) {
+		case 0: /* Only valid codepage for SI */
+			switch (token) {
+				case 0x0A: /* created= */
+				case 0x10: /* si-expires= */
+					str = date_time_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+
+	return str;
+}
+
+char *
+emnc10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
+		const char *token, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	if (   (strcmp(token, "timestamp") == 0) )
+	{
+		str = date_time_from_opaque(tvb, offset + *length, data_len);
+	}
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+
+	return str;
+}
+
+char *
+emnc10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
+		guint8 token, guint8 codepage, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	switch (codepage) {
+		case 0: /* Only valid codepage for EMN */
+			switch (token) {
+				case 0x05: /* timestamp= */
+					str = date_time_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+
+	return str;
+}
+
 typedef struct _wbxml_decoding {
     const char *name;
     const char *abbrev;
     ext_t_func_ptr ext_t[3];
+	opaque_token_func_ptr	opaque_binary_tag;
+	opaque_literal_func_ptr	opaque_literal_tag;
+	opaque_token_func_ptr	opaque_binary_attr;
+	opaque_literal_func_ptr	opaque_literal_attr;
     const value_valuestring *global;
     const value_valuestring *tags;
     const value_valuestring *attrStart;
     const value_valuestring *attrValue;
 } wbxml_decoding;
 
-typedef wbxml_decoding * (* discriminator_func_ptr)(tvbuff_t *);
+/* Define a pointer to a discriminator function taking a tvb and the start
+ * offset of the WBXML tokens in the body as arguments.
+ */
+typedef const wbxml_decoding * (* discriminator_func_ptr)(tvbuff_t *, guint32);
 
 /* For the decoding lists based on the known WBXML public ID */
 typedef struct _wbxml_integer_list {
@@ -556,6 +1203,10 @@ static const wbxml_decoding decode_wmlc_10 = {
     "Wireless Markup Language 1.0",
     "WML 1.0",
     { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     wbxml_wmlc10_global,
     wbxml_wmlc10_tags,
     wbxml_wmlc10_attrStart,
@@ -768,6 +1419,10 @@ static const wbxml_decoding decode_wmlc_11 = {
     "Wireless Markup Language 1.1",
     "WML 1.1",
     { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     wbxml_wmlc11_global,
     wbxml_wmlc11_tags,
     wbxml_wmlc11_attrStart,
@@ -953,6 +1608,10 @@ static const wbxml_decoding decode_wmlc_12 = {
     "Wireless Markup Language 1.2",
     "WML 1.2",
     { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     wbxml_wmlc12_global,
     wbxml_wmlc12_tags,
     wbxml_wmlc12_attrStart,
@@ -1099,6 +1758,10 @@ static const wbxml_decoding decode_wmlc_13 = {
     "Wireless Markup Language 1.3",
     "WML 1.3",
     { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     wbxml_wmlc13_global,
     wbxml_wmlc13_tags,
     wbxml_wmlc13_attrStart,
@@ -1179,6 +1842,10 @@ static const wbxml_decoding decode_sic_10 = {
     "Service Indication 1.0",
     "SI 1.0",
     { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	sic10_opaque_binary_attr,
+	sic10_opaque_literal_attr,
     NULL,
     wbxml_sic10_tags,
     wbxml_sic10_attrStart,
@@ -1242,6 +1909,10 @@ static const wbxml_decoding decode_slc_10 = {
     "Service Loading 1.0",
     "SL 1.0",
     { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     NULL,
     wbxml_slc10_tags,
     wbxml_slc10_attrStart,
@@ -1304,6 +1975,10 @@ static const wbxml_decoding decode_coc_10 = {
     "Cache Operation 1.0",
     "CO 1.0",
     { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     NULL,
     wbxml_coc10_tags,
     wbxml_coc10_attrStart,
@@ -1587,6 +2262,10 @@ static const wbxml_decoding decode_provc_10 = {
     "WAP Client Provisioning Document 1.0",
     "WAP ProvisioningDoc 1.0",
     { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     NULL,
     wbxml_provc10_tags,
     wbxml_provc10_attrStart,
@@ -1651,6 +2330,10 @@ static const wbxml_decoding decode_emnc_10 = {
     "E-Mail Notification 1.0",
     "EMN 1.0",
     { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	emnc10_opaque_binary_attr,
+	emnc10_opaque_literal_attr,
     NULL,
     wbxml_emnc10_tags,
     wbxml_emnc10_attrStart,
@@ -1758,6 +2441,10 @@ static const wbxml_decoding decode_syncmlc_10 = {
     "SyncML Representation Protocol 1.0",
     "SyncML 1.0",
     { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     NULL,
     wbxml_syncmlc10_tags,
     NULL,
@@ -1868,6 +2555,10 @@ static const wbxml_decoding decode_syncmlc_11 = {
     "SyncML Representation Protocol 1.1",
     "SyncML 1.1",
     { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     NULL,
     wbxml_syncmlc11_tags,
     NULL,
@@ -1935,6 +2626,10 @@ static const wbxml_decoding decode_channelc_10 = {
     "Wireless Telephony Application (WTA) Channel 1.0",
     "CHANNEL 1.0",
     { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     NULL,
     wbxml_channelc10_tags,
     wbxml_channelc10_attrStart,
@@ -2041,6 +2736,10 @@ static const wbxml_decoding decode_nokiaprovc_70 = {
     "Nokia Client Provisioning 7.0",
     "Nokia Client Provisioning 7.0",
     { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     NULL,
     wbxml_nokiaprovc70_tags,
     wbxml_nokiaprovc70_attrStart,
@@ -2568,6 +3267,10 @@ static const wbxml_decoding decode_wv_cspc_10 = {
     "Wireless-Village Client-Server Protocol 1.0",
     "WV-CSP 1.0",
     { NULL, NULL, NULL },
+	wv_csp10_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     NULL,
     wbxml_wv_csp_10_tags,
     wbxml_wv_csp_10_attrStart,
@@ -3076,6 +3779,10 @@ static const wbxml_decoding decode_wv_cspc_11 = {
     "Wireless-Village Client-Server Protocol 1.1",
     "WV-CSP 1.1",
     { ext_t_0_wv_cspc_11, NULL, NULL },
+	wv_csp11_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     wbxml_wv_csp_11_global,
     wbxml_wv_csp_11_tags,
     wbxml_wv_csp_11_attrStart,
@@ -3655,6 +4362,10 @@ static const wbxml_decoding decode_wv_cspc_12 = {
     "Wireless-Village Client-Server Protocol 1.2",
     "WV-CSP 1.2",
     { ext_t_0_wv_cspc_12, NULL, NULL },
+	wv_csp12_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
     wbxml_wv_csp_12_global,
     wbxml_wv_csp_12_tags,
     wbxml_wv_csp_12_attrStart,
@@ -3666,11 +4377,38 @@ static const wbxml_decoding decode_wv_cspc_12 = {
 
 
 
+/****************************** Discriminators ******************************/
+/* Discriminator for WV-CSP; allows version detection based on parsing parts
+ * of the start of the WBXML body.
+ */
+const wbxml_decoding *
+wv_csp_discriminator(tvbuff_t *tvb, guint32 offset)
+{
+	guint32 magic_1 = tvb_get_ntohl(tvb, offset + 0);
+	guint16 magic_2 = tvb_get_ntohs(tvb, offset + 4);
+
+	if (magic_1 == 0xFE050331 && magic_2 == 0x2e30) {
+		/* FE 05 03 31 23 30 --> WV-CSP 1.0 */
+		return &decode_wv_cspc_10;
+	} else if (magic_1 == 0xC9050331 && magic_2 == 0x2e31) {
+		/* C9 05 03 31 23 31 --> WV-CSP 1.1 */
+		return &decode_wv_cspc_11;
+#ifdef Remove_this_comment_when_WV_CSP_will_be_an_approved_spec
+	} else if (magic_1 == 0xC9050331 && magic_2 == 0x2e31) {
+		/* C9 05 03 31 23 32 --> WV-CSP 1.2 */
+		return &decode_wv_cspc_12;
+#endif /* Remove_this_comment_when_WV_CSP_will_be_an_approved_spec */
+	}
+
+	/* Default: WV-CSP 1.1 */
+	return &decode_wv_cspc_11;
+}
+
 /********************** WBXML token mapping aggregation **********************/
 
 static const wbxml_decoding *get_wbxml_decoding_from_public_id (guint32 publicid);
 static const wbxml_decoding *get_wbxml_decoding_from_content_type (
-	const char *content_type);
+	const char *content_type, tvbuff_t *tvb, guint32 offset);
 
 
 /**
@@ -3724,7 +4462,7 @@ static const wbxml_literal_list content_type_list[] = {
 	&decode_nokiaprovc_70
     },
     {	"application/vnd.wv.csp.wbxml",
-	NULL,
+	wv_csp_discriminator,
 	&decode_wv_cspc_11
     },
     {	NULL, NULL, NULL }
@@ -3754,7 +4492,7 @@ static const wbxml_decoding *get_wbxml_decoding_from_public_id (guint32 public_i
 }
 
 static const wbxml_decoding *get_wbxml_decoding_from_content_type (
-	const char *content_type)
+	const char *content_type, tvbuff_t *tvb, guint32 offset)
 {
     const wbxml_decoding *map = NULL;
 
@@ -3765,7 +4503,13 @@ static const wbxml_decoding *get_wbxml_decoding_from_content_type (
 
 	while (item && item->content_type) {
 	    if (strcasecmp(content_type, item->content_type) == 0) {
-		map = item->map;
+		/* Try the discriminator */
+		if (item->discriminator != NULL) {
+		    map = item->discriminator(tvb, offset);
+		}
+		if (map == NULL) {
+    		    map = item->map;
+		}
 		break;
 	    }
 	    item++;
@@ -4039,7 +4783,7 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    /* Retrieve the content token mapping if available */
 		    content_map = get_wbxml_decoding_from_public_id (publicid);
 		    if (! content_map) {
-			content_map = get_wbxml_decoding_from_content_type (pinfo->match_string);
+			content_map = get_wbxml_decoding_from_content_type (pinfo->match_string, tvb, offset);
 			if (! content_map) {
 			    proto_tree_add_text (wbxml_content_tree,
 				    tvb, offset, -1,
@@ -4344,13 +5088,31 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
-					index = tvb_get_guintvar (tvb, off+1, &len);
-					proto_tree_add_text (tree, tvb, off, 1 + len + index,
+					char *str;
+					if (tag_save_known) { /* Knwon tag */
+						if (map->opaque_binary_tag) {
+							str = map->opaque_binary_tag(tvb, off + 1,
+									tag_save_known, *codepage_stag, &len);
+						} else {
+							str = default_opaque_binary_tag(tvb, off + 1,
+									tag_save_known, *codepage_stag, &len);
+						}
+					} else { /* lITERAL tag */
+						if (map->opaque_literal_tag) {
+							str = map->opaque_literal_tag(tvb, off + 1,
+									tag_save_literal, *codepage_stag, &len);
+						} else {
+							str = default_opaque_literal_tag(tvb, off + 1,
+									tag_save_literal, *codepage_stag, &len);
+						}
+					}
+					proto_tree_add_text (tree, tvb, off, 1 + len,
 							"  %3d | Tag   | T %3d    "
 							"| OPAQUE (Opaque data)            "
-							"| %s(%d bytes of opaque data)",
-							*level, *codepage_stag, Indent (*level), index);
-					off += 1+len+index;
+							"| %s%s",
+							*level, *codepage_stag, Indent (*level), str);
+					g_free(str);
+					off += 1 + len;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
 							"  %3d | Tag   | T %3d    "
@@ -5000,6 +5762,8 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 	guint32 ent;
 	guint32 index;
 	guint8 peek;
+	guint8 attr_save_known = 0; /* Will contain peek & 0x3F (attr identity) */
+	const char *attr_save_literal = NULL; /* Will contain the LITERAL attr identity */
 
 	DebugLog(("parse_wbxml_attr_defined (level = %u, offset = %u)\n",
 				level, offset));
@@ -5048,14 +5812,20 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				off += 1+len;
 				break;
 			case 0x04: /* LITERAL */
+				/* ALWAYS means the start of a new attribute,
+				 * and may only contain the NAME of the attribute.
+				 */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
+				attr_save_known = 0;
+				attr_save_literal = tvb_format_text (tvb,
+						str_tbl+index, str_len-1);
 				proto_tree_add_text (tree, tvb, off, 1+len,
 						"  %3d |  Attr | A %3d    "
 						"| LITERAL (Literal Attribute)     "
 						"|   %s<%s />",
 						level, *codepage_attr, Indent (level),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
+						attr_save_literal);
 				off += 1+len;
 				break;
 			case 0x40: /* EXT_I_0 */
@@ -5131,13 +5901,31 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
-					index = tvb_get_guintvar (tvb, off+1, &len);
-					proto_tree_add_text (tree, tvb, off, 1 + len + index,
+					char *str;
+					if (attr_save_known) { /* Knwon attribute */
+						if (map->opaque_binary_attr) {
+							str = map->opaque_binary_attr(tvb, off + 1,
+									attr_save_known, *codepage_attr, &len);
+						} else {
+							str = default_opaque_binary_attr(tvb, off + 1,
+									attr_save_known, *codepage_attr, &len);
+						}
+					} else { /* lITERAL attribute */
+						if (map->opaque_literal_tag) {
+							str = map->opaque_literal_attr(tvb, off + 1,
+									attr_save_literal, *codepage_attr, &len);
+						} else {
+							str = default_opaque_literal_attr(tvb, off + 1,
+									attr_save_literal, *codepage_attr, &len);
+						}
+					}
+					proto_tree_add_text (tree, tvb, off, 1 + len,
 							"  %3d |  Attr | A %3d    "
 							"| OPAQUE (Opaque data)            "
-							"|       %s(%d bytes of opaque data)",
-							level, *codepage_attr, Indent (level), index);
-					off += 1+len+index;
+							"|       %s%s",
+							level, *codepage_attr, Indent (level), str);
+					g_free(str);
+					off += 1 + len;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
 							"  %3d |  Attr | A %3d    "
@@ -5172,11 +5960,12 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 						map_token (map->attrValue, *codepage_attr, peek));
 				off++;
 			} else { /* attrStart */
+				attr_save_known = peek & 0x7f;
 				proto_tree_add_text (tree, tvb, off, 1,
 						"  %3d |  Attr | A %3d    "
 						"|   Known attrStart 0x%02X          "
 						"|   %s%s",
-						level, *codepage_attr, peek & 0x7f, Indent (level),
+						level, *codepage_attr, attr_save_known, Indent (level),
 						map_token (map->attrStart, *codepage_attr, peek));
 				off++;
 			}
