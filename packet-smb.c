@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.308 2003/02/11 04:33:24 tpot Exp $
+ * $Id: packet-smb.c,v 1.309 2003/02/14 04:54:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7424,6 +7424,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int old_offset = offset;
 	guint16 size;
 	char *sid_str;
+	guint8 type;
 	guint8 flags;
 
 	if(parent_tree){
@@ -7433,7 +7434,8 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/* type */
-	proto_tree_add_item(tree, hf_smb_ace_type, tvb, offset, 1, TRUE);
+	type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_ace_type, tvb, offset, 1, type);
 	offset += 1;
 
 	/* flags */
@@ -7455,8 +7457,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (item)
 		proto_item_append_text(
 			item, "%s, flags 0x%02x, %s", sid_str, flags,
-			val_to_str(tvb_get_guint8(tvb, offset), ace_type_vals, 
-				   "Unknown ACE type"));
+			val_to_str(type, ace_type_vals, "Unknown ACE type (0x%02x)"));
 
 	g_free(sid_str);
 
