@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.11 2000/11/30 03:24:16 gram Exp $
+ * $Id: tvbuff.c,v 1.12 2000/11/30 06:11:32 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1030,12 +1030,17 @@ tvb_find_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 needle)
 	/* Only search to end of tvbuff, w/o throwing exception. */
 	tvbufflen = tvb_length_remaining(tvb, abs_offset);
 	if (maxlength == -1) {
+		/* No maximum length specified; search to end of tvbuff. */
 		limit = tvbufflen;
 	}
 	else if (tvbufflen < maxlength) {
-		limit = maxlength - (tvb_length(tvb) - abs_offset);
+		/* Maximum length goes past end of tvbuff; search to end
+		   of tvbuff. */
+		limit = tvbufflen;
 	}
 	else {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
 		limit = maxlength;
 	}
 
@@ -1088,12 +1093,17 @@ tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 *needles)
 	/* Only search to end of tvbuff, w/o throwing exception. */
 	tvbufflen = tvb_length_remaining(tvb, abs_offset);
 	if (maxlength == -1) {
+		/* No maximum length specified; search to end of tvbuff. */
 		limit = tvbufflen;
 	}
 	else if (tvbufflen < maxlength) {
-		limit = maxlength - (tvb_length(tvb) - abs_offset);
+		/* Maximum length goes past end of tvbuff; search to end
+		   of tvbuff. */
+		limit = tvbufflen;
 	}
 	else {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
 		limit = maxlength;
 	}
 
@@ -1411,7 +1421,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 			char_offset = tvb_pbrk_guint8(tvb, cur_offset, len,
 			    "\r\n\"");
 		}
-		if (cur_offset == -1) {
+		if (char_offset == -1) {
 			/*
 			 * Not found - line is presumably continued in
 			 * next packet.
