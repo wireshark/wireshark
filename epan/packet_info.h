@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.27 2003/01/06 11:27:03 sahlberg Exp $
+ * $Id: packet_info.h,v 1.28 2003/01/06 19:08:37 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,8 +153,7 @@ typedef struct _packet_info {
   guint8  r_ctl;                /* R_CTL field in Fibre Channel Protocol */
   guint8  pad;
   void    *private_data;	/* pointer to data passed from one dissector to another */
-
-  void    *decrypted_data;	/* pinter to description of decrypted payload structure */
+  void    *decrypted_data;	/* pointer to description of decrypted payload structure */
 } packet_info;
 
 #endif /* __PACKET_INFO_H__ */
