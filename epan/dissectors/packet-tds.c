@@ -1476,6 +1476,16 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		length_remaining = tvb_ensure_length_remaining(tvb, pos);
 
+		if ((int) token_sz < 0) {
+		    proto_tree_add_text(tree, tvb, pos, 0, "Bogus token size: %u",
+			token_sz);
+		    break;
+		}
+		if ((int) token_len_field_size < 0) {
+		    proto_tree_add_text(tree, tvb, pos, 0, "Bogus token length field size: %u",
+			token_len_field_size);
+		    break;
+		}
 		token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
                     "Token 0x%02x %s", token,
                     val_to_str(token, token_names, "Unknown Token Type"));
