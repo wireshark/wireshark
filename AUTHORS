@@ -1932,6 +1932,7 @@ Brian Fundakowski Feldman <bfeldman [AT] fla.fujitsu.com> {
 
 Yuriy Sidelnikov <ysidelnikov [AT] hotmail.com> {
 	ISO 8327-1 Session Protocol support
+	ISO 8823 Presentation Protocol support
 }
 
 Matthias Drochner <M.Drochner [AT] fz-juelich.de> {

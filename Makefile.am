@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.688 2004/01/11 22:17:42 guy Exp $
+# $Id: Makefile.am,v 1.689 2004/01/13 02:10:25 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -364,6 +364,7 @@ DISSECTOR_SRC = \
 	packet-ppp.c   \
 	packet-pppoe.c \
 	packet-pptp.c  \
+	packet-pres.c  \
 	packet-prism.c \
 	packet-q2931.c \
 	packet-q931.c  \
@@ -728,6 +729,7 @@ noinst_HEADERS = \
 	packet-pim.h   \
 	packet-portmap.h   \
 	packet-ppp.h   \
+	packet-pres.h  \
 	packet-prism.h \
 	packet-q931.h  \
 	packet-raw.h   \
