@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.139 2001/11/08 10:57:09 guy Exp $
+ * $Id: packet-smb.c,v 1.140 2001/11/09 06:43:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -375,6 +375,18 @@ static int hf_smb_device_type = -1;
 static int hf_smb_is_directory = -1;
 static int hf_smb_next_entry_offset = -1;
 static int hf_smb_change_time = -1;
+static int hf_smb_setup_len = -1;
+static int hf_smb_print_mode = -1;
+static int hf_smb_print_identifier = -1;
+static int hf_smb_restart_index = -1;
+static int hf_smb_print_queue_date = -1;
+static int hf_smb_print_queue_dos_date = -1;
+static int hf_smb_print_queue_dos_time = -1;
+static int hf_smb_print_status = -1;
+static int hf_smb_print_spool_file_number = -1;
+static int hf_smb_print_spool_file_size = -1;
+static int hf_smb_print_spool_file_name = -1;
+static int hf_smb_start_index = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -422,6 +434,7 @@ static gint ett_smb_nt_trans_setup = -1;
 static gint ett_smb_nt_notify_completion_filter = -1;
 static gint ett_smb_nt_ioctl_flags = -1;
 static gint ett_smb_security_information_mask = -1;
+static gint ett_smb_print_queue_entry = -1;
 
 
 static char *decode_smb_name(unsigned char);
@@ -3667,6 +3680,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint32 to;
 	proto_item *litem = NULL;
 	proto_tree *ltree = NULL;
+	proto_item *it = NULL;
+	proto_tree *tr = NULL;
+	int old_offset = offset;
 
 	WORD_COUNT;
 
@@ -3739,9 +3755,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* unlocks */
 	if(un){
-		proto_item *it = NULL;
-		proto_tree *tr = NULL;
-		int old_offset = offset;
+		old_offset = offset;
 
 		it = proto_tree_add_text(tree, tvb, offset, 0,
 			"Unlocks");
@@ -3756,20 +3770,24 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				ltree = proto_item_add_subtree(litem, ett_smb_unlock);
 				
 				/* PID */
+				CHECK_BYTE_COUNT(2);
 				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
-				offset += 2;
+				COUNT_BYTES(2);
 
 				/* 2 reserved bytes */
+				CHECK_BYTE_COUNT(2);
 				proto_tree_add_item(ltree, hf_smb_reserved, tvb, offset, 2, TRUE);
-				offset += 2;
+				COUNT_BYTES(2);
 
 				/* offset */
+				CHECK_BYTE_COUNT(8);
 				proto_tree_add_item(ltree, hf_smb_lock_long_offset, tvb, offset, 8, TRUE);
-				offset += 8;
+				COUNT_BYTES(8);
 
 				/* length */
+				CHECK_BYTE_COUNT(8);
 				proto_tree_add_item(ltree, hf_smb_lock_long_length, tvb, offset, 8, TRUE);
-				offset += 8;
+				COUNT_BYTES(8);
 			} else {
 				/* normal lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 10,
@@ -3777,26 +3795,28 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				ltree = proto_item_add_subtree(litem, ett_smb_unlock);
 				
 				/* PID */
+				CHECK_BYTE_COUNT(2);
 				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
-				offset += 2;
+				COUNT_BYTES(2);
 
 				/* offset */
+				CHECK_BYTE_COUNT(4);
 				proto_tree_add_item(ltree, hf_smb_offset, tvb, offset, 4, TRUE);
-				offset += 4;
+				COUNT_BYTES(4);
 
 				/* lock count */
+				CHECK_BYTE_COUNT(4);
 				proto_tree_add_item(ltree, hf_smb_count, tvb, offset, 4, TRUE);
-				offset += 4;
+				COUNT_BYTES(4);
 			}
 		}
 		proto_item_set_len(it, offset-old_offset);
+		it = NULL;
 	}
 
 	/* locks */
 	if(ln){
-		proto_item *it = NULL;
-		proto_tree *tr = NULL;
-		int old_offset = offset;
+		old_offset = offset;
 
 		it = proto_tree_add_text(tree, tvb, offset, 0,
 			"Locks");
@@ -3811,20 +3831,24 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				ltree = proto_item_add_subtree(litem, ett_smb_lock);
 				
 				/* PID */
+				CHECK_BYTE_COUNT(2);
 				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
-				offset += 2;
+				COUNT_BYTES(2);
 
 				/* 2 reserved bytes */
+				CHECK_BYTE_COUNT(2);
 				proto_tree_add_item(ltree, hf_smb_reserved, tvb, offset, 2, TRUE);
-				offset += 2;
+				COUNT_BYTES(2);
 
 				/* offset */
+				CHECK_BYTE_COUNT(8);
 				proto_tree_add_item(ltree, hf_smb_lock_long_offset, tvb, offset, 8, TRUE);
-				offset += 8;
+				COUNT_BYTES(8);
 
 				/* length */
+				CHECK_BYTE_COUNT(8);
 				proto_tree_add_item(ltree, hf_smb_lock_long_length, tvb, offset, 8, TRUE);
-				offset += 8;
+				COUNT_BYTES(8);
 			} else {
 				/* normal lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 10,
@@ -3832,22 +3856,35 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				ltree = proto_item_add_subtree(litem, ett_smb_unlock);
 				
 				/* PID */
+				CHECK_BYTE_COUNT(2);
 				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
-				offset += 2;
+				COUNT_BYTES(2);
 
 				/* offset */
+				CHECK_BYTE_COUNT(4);
 				proto_tree_add_item(ltree, hf_smb_offset, tvb, offset, 4, TRUE);
-				offset += 4;
+				COUNT_BYTES(4);
 
 				/* lock count */
+				CHECK_BYTE_COUNT(4);
 				proto_tree_add_item(ltree, hf_smb_count, tvb, offset, 4, TRUE);
-				offset += 4;
+				COUNT_BYTES(4);
 			}
 		}
 		proto_item_set_len(it, offset-old_offset);
+		it = NULL;
 	}
 
 	END_OF_SMB
+
+	if (it != NULL) {
+		/*
+		 * We ran out of byte count in the middle of dissecting
+		 * the locks or the unlocks; set the site of the item
+		 * we were dissecting.
+		 */
+		proto_item_set_len(it, offset-old_offset);
+	}
 
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, tree, andxoffset, smb_tree, cmd);
@@ -6300,6 +6337,243 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    NT Transaction command  ends here
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
+static const value_string print_mode_vals[] = {
+	{0,	"Text Mode"},
+	{1,	"Graphics Mode"},
+	{0, NULL}
+};
+ 
+static int
+dissect_open_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	int fn_len;
+	const char *fn;
+	guint8 wc;
+	guint16 bc;
+
+	WORD_COUNT;
+
+	/* setup len */
+        proto_tree_add_item(tree, hf_smb_setup_len, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* print mode */
+        proto_tree_add_item(tree, hf_smb_print_mode, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	BYTE_COUNT;
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* print identifier */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, TRUE, FALSE, &bc);
+	if (fn == NULL)
+		goto endofcommand;
+	proto_tree_add_string(tree, hf_smb_print_identifier, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES(fn_len);
+
+	END_OF_SMB
+
+	return offset;
+}
+
+
+static int
+dissect_write_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	int cnt;
+	guint8 wc;
+	guint16 bc;
+
+	WORD_COUNT;
+
+	/* fid */
+	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	BYTE_COUNT;
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* data len */
+	CHECK_BYTE_COUNT(2);
+	cnt = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len, tvb, offset, 2, cnt);
+	COUNT_BYTES(2);
+
+	/* file data */
+	offset = dissect_file_data(tvb, pinfo, tree, offset, cnt, cnt);
+
+	END_OF_SMB
+
+	return offset;
+}
+
+
+static const value_string print_status_vals[] = {
+	{1,	"Held or Stopped"},
+	{2,	"Printing"},
+	{3,	"Awaiting print"},
+	{4,	"In intercept"},
+	{5,	"File had error"},
+	{6,	"Printer error"},
+	{0, NULL}
+};
+ 
+static int
+dissect_get_print_queue_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	guint8 wc;
+	guint16 bc;
+
+	WORD_COUNT;
+
+	/* max count */
+	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* start index */
+	proto_tree_add_item(tree, hf_smb_start_index, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	BYTE_COUNT;
+
+	END_OF_SMB
+
+	return offset;
+}
+
+static int
+dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *parent_tree, int offset, guint16 *bc, gboolean *trunc)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int fn_len;
+	const char *fn;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 28,
+			"Queue entry");
+		tree = proto_item_add_subtree(item, ett_smb_print_queue_entry);
+	}
+
+	/* queued time */
+	if (*bc < 4) {
+		*trunc = TRUE;
+		return offset;
+	}
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_print_queue_date,
+		hf_smb_print_queue_dos_date, hf_smb_print_queue_dos_time, FALSE);
+	*bc -= 4;
+
+	/* status */
+	if (*bc < 1) {
+		*trunc = TRUE;
+		return offset;
+	}
+	proto_tree_add_item(tree, hf_smb_print_status, tvb, offset, 1, TRUE);
+	offset += 1;
+	*bc -= 1;
+
+	/* spool file number */
+	if (*bc < 2) {
+		*trunc = TRUE;
+		return offset;
+	}
+	proto_tree_add_item(tree, hf_smb_print_spool_file_number, tvb, offset, 2, TRUE);
+	offset += 2;
+	*bc -= 2;
+
+	/* spool file size */
+	if (*bc < 4) {
+		*trunc = TRUE;
+		return offset;
+	}
+	proto_tree_add_item(tree, hf_smb_print_spool_file_size, tvb, offset, 4, TRUE);
+	offset += 4;
+	*bc -= 4;
+
+	/* reserved byte */
+	if (*bc < 1) {
+		*trunc = TRUE;
+		return offset;
+	}
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	offset += 1;
+	*bc -= 1;
+
+	/* file name */
+	fn_len = 16;
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, TRUE, TRUE, bc);
+	if (fn == NULL) {
+		*trunc = TRUE;
+		return offset;
+	}
+	proto_tree_add_string(tree, hf_smb_print_spool_file_name, tvb, offset, 16,
+		fn);
+	offset += fn_len;
+	*bc -= fn_len;
+
+	*trunc = FALSE;
+	return offset;
+}
+
+static int
+dissect_get_print_queue_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	guint16 cnt=0, len;
+	guint8 wc;
+	guint16 bc;
+	gboolean trunc;
+
+	WORD_COUNT;
+
+	/* count */
+	cnt = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_count, tvb, offset, 2, cnt);
+	offset += 2;
+
+	/* restart index */
+	proto_tree_add_item(tree, hf_smb_restart_index, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	BYTE_COUNT;
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* data len */
+	CHECK_BYTE_COUNT(2);
+	len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len, tvb, offset, 2, len);
+	COUNT_BYTES(2);
+
+	/* queue elements */
+	while(cnt--){
+		offset = dissect_print_queue_element(tvb, pinfo, tree, offset,
+		    &bc, &trunc);
+		if (trunc)
+			goto endofcommand;
+	}
+
+	END_OF_SMB
+
+	return offset;
+}
+
+ 
+
 
 
 typedef struct _smb_function {
@@ -6510,11 +6784,10 @@ smb_function smb_dissector[256] = {
   /* 0xbd */  {NULL, NULL},
   /* 0xbe */  {NULL, NULL},
   /* 0xbf */  {NULL, NULL},
-
-  /* 0xc0 */  {NULL, NULL},
-  /* 0xc1 */  {NULL, NULL},
+  /* 0xc0 Open Print File*/	{dissect_open_print_file_request, dissect_fid},
+  /* 0xc1 Write Print File*/	{dissect_write_print_file_request, dissect_empty},
   /* 0xc2 Close Print File*/  {dissect_fid, dissect_empty},
-  /* 0xc3 */  {NULL, NULL},
+  /* 0xc3 Get Print Queue*/	{dissect_get_print_queue_request, dissect_get_print_queue_response},
   /* 0xc4 */  {NULL, NULL},
   /* 0xc5 */  {NULL, NULL},
   /* 0xc6 */  {NULL, NULL},
@@ -7570,408 +7843,6 @@ get_unicode_or_ascii_string_tvb(tvbuff_t *tvb, int *offsetp,
  */
 
 
-
-
-
-void
-dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
-
-{
-  static const value_string Mode_0x03[] = {
-	{ 0, "Text mode (DOS expands TABs)"},
-	{ 1, "Graphics mode"},
-	{ 0, NULL}
-  };
-  proto_tree    *Mode_tree;
-  proto_item    *ti;
-  guint8        WordCount;
-  guint8        BufferFormat;
-  guint16       SetupLength;
-  guint16       Mode;
-  guint16       FID;
-  guint16       ByteCount;
-  const char    *IdentifierString;
-  int           string_len;
-
-  if (si.request) {
-    /* Request(s) dissect code */
-
-    /* Build display for: Word Count (WCT) */
-
-    WordCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
-
-    }
-
-    offset += 1; /* Skip Word Count (WCT) */
-
-    /* Build display for: Setup Length */
-
-    SetupLength = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Setup Length: %u", SetupLength);
-
-    }
-
-    offset += 2; /* Skip Setup Length */
-
-    /* Build display for: Mode */
-
-    Mode = GSHORT(pd, offset);
-
-    if (tree) {
-
-      ti = proto_tree_add_text(tree, NullTVB, offset, 2, "Mode: 0x%02x", Mode);
-      Mode_tree = proto_item_add_subtree(ti, ett_smb_mode);
-      proto_tree_add_text(Mode_tree, NullTVB, offset, 2, "%s",
-                          decode_enumerated_bitfield(Mode, 0x03, 16, Mode_0x03, "%s"));
-    
-    }
-
-    offset += 2; /* Skip Mode */
-
-    /* Build display for: Byte Count (BCC) */
-
-    ByteCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
-
-    }
-
-    offset += 2; /* Skip Byte Count (BCC) */
-
-    /* Build display for: Buffer Format */
-
-    BufferFormat = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
-			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
-			  BufferFormat);
-
-    }
-
-    offset += 1; /* Skip Buffer Format */
-
-    /* Build display for: Identifier String */
-
-    IdentifierString = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, string_len, "Identifier String: %s", IdentifierString);
-
-    }
-
-    offset += string_len; /* Skip Identifier String */
-
-  } else {
-    /* Response(s) dissect code */
-
-    /* Build display for: Word Count (WCT) */
-
-    WordCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
-
-    }
-
-    offset += 1; /* Skip Word Count (WCT) */
-
-    /* Build display for: FID */
-
-    FID = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "FID: 0x%04x", FID);
-
-    }
-
-    offset += 2; /* Skip FID */
-
-    /* Build display for: Byte Count (BCC) */
-
-    ByteCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
-
-    }
-
-    offset += 2; /* Skip Byte Count (BCC) */
-
-  }
-
-}
-
-
-void
-dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
-
-{
-  guint8        WordCount;
-  guint8        BufferFormat;
-  guint16       StartIndex;
-  guint16       RestartIndex;
-  guint16       MaxCount;
-  guint16       DataLength;
-  guint16       Count;
-  guint16       ByteCount;
-
-  if (si.request) {
-    /* Request(s) dissect code */
-
-    /* Build display for: Word Count */
-
-    WordCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
-
-    }
-
-    offset += 1; /* Skip Word Count */
-
-    /* Build display for: Max Count */
-
-    MaxCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Max Count: %u", MaxCount);
-
-    }
-
-    offset += 2; /* Skip Max Count */
-
-    /* Build display for: Start Index */
-
-    StartIndex = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Start Index: %u", StartIndex);
-
-    }
-
-    offset += 2; /* Skip Start Index */
-
-    /* Build display for: Byte Count (BCC) */
-
-    ByteCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
-
-    }
-
-    offset += 2; /* Skip Byte Count (BCC) */
-
-  } else {
-    /* Response(s) dissect code */
-
-    /* Build display for: Word Count (WCT) */
-
-    WordCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
-
-    }
-
-    offset += 1; /* Skip Word Count (WCT) */
-
-    if (WordCount != 0) {
-
-      /* Build display for: Count */
-
-      Count = GSHORT(pd, offset);
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Count: %u", Count);
-
-      }
-
-      offset += 2; /* Skip Count */
-
-      /* Build display for: Restart Index */
-
-      RestartIndex = GSHORT(pd, offset);
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Restart Index: %u", RestartIndex);
-
-      }
-
-      offset += 2; /* Skip Restart Index */
-
-      /* Build display for: Byte Count (BCC) */
-
-    }
-
-    ByteCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
-
-    }
-
-    offset += 2; /* Skip Byte Count (BCC) */
-
-    /* Build display for: Buffer Format */
-
-    BufferFormat = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
-			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
-			  BufferFormat);
-
-    }
-
-    offset += 1; /* Skip Buffer Format */
-
-    /* Build display for: Data Length */
-
-    DataLength = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Data Length: %u", DataLength);
-
-    }
-
-    offset += 2; /* Skip Data Length */
-
-  }
-
-}
-
-
-void
-dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
-
-{
-  guint8        WordCount;
-  guint8        BufferFormat;
-  guint16       FID;
-  guint16       DataLength;
-  guint16       ByteCount;
-
-  if (si.request) {
-    /* Request(s) dissect code */
-
-    /* Build display for: Word Count (WCT) */
-
-    WordCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
-
-    }
-
-    offset += 1; /* Skip Word Count (WCT) */
-
-    /* Build display for: FID */
-
-    FID = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "FID: 0x%04x", FID);
-
-    }
-
-    offset += 2; /* Skip FID */
-
-    /* Build display for: Byte Count (BCC) */
-
-    ByteCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
-
-    }
-
-    offset += 2; /* Skip Byte Count (BCC) */
-
-    /* Build display for: Buffer Format */
-
-    BufferFormat = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
-			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
-			  BufferFormat);
-
-    }
-
-    offset += 1; /* Skip Buffer Format */
-
-    /* Build display for: Data Length */
-
-    DataLength = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Data Length: %u", DataLength);
-
-    }
-
-    offset += 2; /* Skip Data Length */
-
-  } else {
-    /* Response(s) dissect code */
-
-    /* Build display for: Word Count (WCT) */
-
-    WordCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
-
-    }
-
-    offset += 1; /* Skip Word Count (WCT) */
-
-    /* Build display for: Byte Count (BCC) */
-
-    ByteCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
-
-    }
-
-    offset += 2; /* Skip Byte Count (BCC) */
-
-  }
-
-}
 
 
 static const value_string trans2_cmd_vals[] = {
@@ -9733,10 +9604,10 @@ static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, pro
   dissect_unknown_smb,      /* unknown SMB 0xbe */
   dissect_unknown_smb,      /* unknown SMB 0xbf */
 
-  dissect_open_print_file_smb,/* SMBsplopen open a print spool file */
-  dissect_write_print_file_smb,/* SMBsplwr write to a print spool file */
   dissect_unknown_smb,
-  dissect_get_print_queue_smb, /* SMBsplretq return print queue */
+  dissect_unknown_smb,
+  dissect_unknown_smb,
+  dissect_unknown_smb,
   dissect_unknown_smb,      /* unknown SMB 0xc4 */
   dissect_unknown_smb,      /* unknown SMB 0xc5 */
   dissect_unknown_smb,      /* unknown SMB 0xc6 */
@@ -12274,6 +12145,54 @@ proto_register_smb(void)
 		{ "Change", "smb.change.time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Last Change Time", HFILL }},
 
+	{ &hf_smb_setup_len,
+		{ "Setup Len", "smb.print.setup.len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of prionter setup data", HFILL }},
+
+	{ &hf_smb_print_mode,
+		{ "Mode", "smb.print.mode", FT_UINT16, BASE_DEC,
+		VALS(print_mode_vals), 0, "Text or Graphics mode", HFILL }},
+
+	{ &hf_smb_print_identifier,
+		{ "Identifier", "smb.print.identifier", FT_STRING, BASE_NONE,
+		NULL, 0, "Identifier string for this print job", HFILL }},
+
+	{ &hf_smb_restart_index,
+		{ "Restart Index", "smb.print.restart_index", FT_UINT16, BASE_DEC,
+		NULL, 0, "Index of entry after last returned", HFILL }},
+
+	{ &hf_smb_print_queue_date,
+		{ "Queued", "smb.print.queued.date", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Date when this entry was queued", HFILL }},
+
+	{ &hf_smb_print_queue_dos_date,
+		{ "Queued Date", "smb.print.queued.smb.date", FT_UINT16, BASE_HEX,
+		NULL, 0, "Date when this print job was queued, SMB_DATE format", HFILL }},
+
+	{ &hf_smb_print_queue_dos_time,
+		{ "Queued Time", "smb.print.queued.smb.time", FT_UINT16, BASE_HEX,
+		NULL, 0, "Time when this print job was queued, SMB_TIME format", HFILL }},
+
+	{ &hf_smb_print_status,
+		{ "Status", "smb.print.status", FT_UINT8, BASE_HEX,
+		VALS(print_status_vals), 0, "Status of this entry", HFILL }},
+
+	{ &hf_smb_print_spool_file_number,
+		{ "Spool File Number", "smb.print.spool.file_number", FT_UINT16, BASE_DEC,
+		NULL, 0, "Spool File Number, assigned by the spooler", HFILL }},
+
+	{ &hf_smb_print_spool_file_size,
+		{ "Spool File Size", "smb.print.spool.file_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of bytes in spool file", HFILL }},
+
+	{ &hf_smb_print_spool_file_name,
+		{ "Name", "smb.print.spool.name", FT_BYTES, BASE_HEX,
+		NULL, 0, "Name of client that submitted this job", HFILL }},
+
+	{ &hf_smb_start_index,
+		{ "Start Index", "smb.print.start_index", FT_UINT16, BASE_DEC,
+		NULL, 0, "First queue entry to return", HFILL }},
+
 
 	};
 	static gint *ett[] = {
@@ -12323,6 +12242,7 @@ proto_register_smb(void)
 		&ett_smb_nt_notify_completion_filter,
 		&ett_smb_nt_ioctl_flags,
 		&ett_smb_security_information_mask,
+		&ett_smb_print_queue_entry,
 	};
 
 	proto_smb = proto_register_protocol("SMB (Server Message Block Protocol)",
