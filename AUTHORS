@@ -1461,6 +1461,7 @@ Ulf Lamping <ulf.lamping[AT]web.de> {
 
 Matthew Smart <smart[AT]monkey.org> {
 	Original Cisco NetFlow protocol support
+	Partial NetFlow V9 support
 }
 
 Luke Howard <lukeh[AT]au.padl.com> {
