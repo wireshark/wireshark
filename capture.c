@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.73 1999/09/30 06:11:43 guy Exp $
+ * $Id: capture.c,v 1.74 1999/09/30 06:49:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,14 +97,11 @@ typedef struct _loop_data {
   wtap_dumper   *pdh;
 } loop_data;
 
+/* Create a temporary file and start a capture to it. */
 void
 do_capture(void)
 {
   char tmpname[128+1];
-  u_char c;
-  int i;
-  guint byte_count;
-  char *msg;
 
   /* Choose a random name for the capture buffer */
   cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
@@ -123,7 +120,21 @@ do_capture(void)
   }
   cf.save_file = g_strdup(tmpname);
   cf.user_saved = 0;
-  
+
+  run_capture();
+}
+
+/* Start a capture to a file we've opened; "cf.save_file" is the
+   pathname of the file, and "cf.save_file_fd" is the file descriptor
+   we got when we opened it. */
+void
+run_capture(void)
+{ 
+  u_char c;
+  int i;
+  guint byte_count;
+  char *msg;
+
   if (sync_mode || fork_mode) {	/*  use fork() for capture */
     int  fork_child;
     char ssnap[24];
@@ -234,6 +245,7 @@ do_capture(void)
     capture();
 }
 
+/* Do the low-level work of a capture. */
 void
 capture(void)
 {
@@ -265,11 +277,12 @@ capture(void)
   pch = pcap_open_live(cf.iface, cf.snap, 1, 250, err_str);
 
   if (pch == NULL) {
-    /* Well, we couldn't start the capture. */
-    if (!sync_mode && !fork_mode) {
-      /* In fork mode, we shouldn't do any UI stuff until we pop up the
-         capture-progress window, and, since we couldn't start the
-	 capture, we haven't popped it up. */
+    /* Well, we couldn't start the capture.
+       If this is a child process that does the capturing in sync
+       mode or fork mode, it shouldn't do any UI stuff until we pop up the
+       capture-progress window, and, since we couldn't start the
+       capture, we haven't popped it up. */
+    if (!capture_child) {
       while (gtk_events_pending()) gtk_main_iteration();
     }
     snprintf(errmsg, sizeof errmsg,
@@ -337,14 +350,15 @@ capture(void)
     goto error;
   }
 
-  if (sync_mode) {
+  if (capture_child && sync_mode) {
     /* Well, we should be able to start capturing.
 
-       Sync out the capture file, so the header makes it to the file
-       system, and send a "capture started successfully and capture
-       file created" message to our parent so that they'll open the
-       capture file and update its windows to indicate that we have
-       a live capture in progress. */
+       This is the child process for a sync mode capture, so sync out
+       the capture file, so the header makes it to the file system,
+       and send a "capture started successfully and capture file created"
+       message to our parent so that they'll open the capture file and
+       update its windows to indicate that we have a live capture in
+       progress. */
     fflush(wtap_dump_file(ld.pdh));
     write(1, "0;", 2);
   }
@@ -447,7 +461,10 @@ capture(void)
 
       /* do sync here, too */
       fflush(wtap_dump_file(ld.pdh));
-      if (sync_mode && ld.sync_packets) {
+      if (capture_child && sync_mode && ld.sync_packets) {
+	/* This is the child process for a sync mode capture, so send
+	   our parent a message saying we've written out "ld.sync_packets"
+	   packets to the capture file. */
 	char tmp[20];
 	sprintf(tmp, "%d*", ld.sync_packets);
 	write(1, tmp, strlen(tmp));
@@ -515,8 +532,9 @@ error:
   /* We couldn't even start the capture, so get rid of the capture
      file. */
   unlink(cf.save_file); /* silently ignore error */
-  if (sync_mode) {
-    /* Send the error message to our parent, so they can display a
+  if (capture_child && sync_mode) {
+    /* This is the child process for a sync mode capture.
+       Send the error message to our parent, so they can display a
        dialog box containing it. */
     int msglen = strlen(errmsg);
     char lenbuf[10+1+1];

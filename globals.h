@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.8 1999/09/29 22:19:13 guy Exp $
+ * $Id: globals.h,v 1.9 1999/09/30 06:49:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,7 +89,6 @@ extern GtkWidget   *file_sel, *packet_list, *tree_view, *byte_view, *prog_bar,
             *info_bar;
 extern GdkFont     *m_r_font, *m_b_font;
 extern guint        main_ctx, file_ctx;
-extern gint         start_capture;
 extern gchar        comp_info_str[256];
 extern gchar       *ethereal_path;
 extern gchar       *medium_font;
@@ -107,6 +106,7 @@ extern int sync_mode;	/* allow sync */
 extern int sync_pipe[2]; /* used to sync father */
 extern int fork_mode;	/* fork a child to do the capture */
 extern int quit_after_cap; /* Makes a "capture only mode". Implies -k */
+extern gboolean capture_child;	/* if this is the child for "-F"/"-S" */
 #endif
 
 #define PF_DIR ".ethereal"

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.10 1999/09/30 06:11:50 guy Exp $
+ * $Id: main.c,v 1.11 1999/09/30 06:50:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -103,7 +103,6 @@ GtkWidget   *file_sel, *packet_list, *tree_view, *byte_view, *prog_bar,
             *info_bar;
 GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
-gint         start_capture = 0;
 gchar        comp_info_str[256];
 gchar       *ethereal_path = NULL;
 gchar       *medium_font = MONO_MEDIUM_FONT;
@@ -119,6 +118,7 @@ int sync_mode;	/* fork a child to do the capture, and sync between them */
 int sync_pipe[2]; /* used to sync father */
 int fork_mode;	/* fork a child to do the capture */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
+gboolean capture_child;	/* if this is the child for "-F"/"-S" */
 #endif
 
 /* Specifies byte offsets for object selected in tree */
@@ -462,7 +462,7 @@ print_usage(void) {
 int
 main(int argc, char *argv[])
 {
-  char               *command_name, *s;
+  char                *command_name, *s;
   int                  i;
 #ifndef WIN32
   int                  opt;
@@ -471,6 +471,9 @@ main(int argc, char *argv[])
   char                *pf_path;
   int                 pf_open_errno = 0;
   int                 err;
+#ifdef HAVE_LIBPCAP
+  gboolean            start_capture = FALSE;
+#endif
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
                       *tv_scrollw, *filter_bt, *filter_te;
@@ -501,7 +504,11 @@ main(int argc, char *argv[])
     proto_registrar_dump();
     exit(0);
   }
-  
+
+  /* Set "capture_child" to indicate whether this is going to be a child
+     process for a "-S" or "-F" capture? */
+  capture_child = (strcmp(command_name, CHILD_NAME) == 0);
+
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
   
@@ -589,7 +596,7 @@ main(int argc, char *argv[])
 	break;
 #ifdef HAVE_LIBPCAP
       case 'k':        /* Start capture immediately */
-        start_capture = 1;
+        start_capture = TRUE;
         break;
 #endif
       case 'P':        /* Packet list pane height */
@@ -598,7 +605,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
       case 'Q':        /* Quit after capture (just capture to file) */
         quit_after_cap = 1;
-        start_capture = 1;  /*** -Q implies -k !! ***/
+        start_capture = TRUE;  /*** -Q implies -k !! ***/
         break;
 #endif
       case 'r':        /* Read capture file xxx */
@@ -659,7 +666,7 @@ main(int argc, char *argv[])
       exit(1);
     }
 #ifdef HAVE_LIBPCAP
-    if (sync_mode || fork_mode) {
+    if (capture_child && (sync_mode || fork_mode)) {
       if (cf.save_file_fd == -1) {
         fprintf(stderr, "ethereal: \"-k\" flag was specified with \"-%c\" flag but without \"-W\" flag\n",
             (sync_mode ? 'S' : 'F'));
@@ -859,7 +866,7 @@ main(int argc, char *argv[])
   /* Is this a "child" ethereal, which is only supposed to pop up a
      capture box to let us stop the capture, and run a capture
      to a file that our parent will read? */
-  if (strcmp(command_name, CHILD_NAME) != 0) {
+  if (!capture_child) {
     /* No.  Pop up the main window, and read in a capture file if
        we were told to. */
 
@@ -907,28 +914,36 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  if (start_capture) {
-    /* "-k" was specified; start a capture. */
+  if (capture_child) {
+    /* This is the child process for a sync mode or fork mode capture,
+       so just do the low-level work of a capture - don't create
+       a temporary file (so don't call "do_capture()"), and don't
+       fork off *another* child process (so don't call "run_capture()"). */
 
-    /* Try to open/create the file specified on the command line with
-       the "-w" flag.  (We already checked in "main()" that "-w" was
-       specified. */
-    cf.save_file_fd = open(cf.save_file, O_RDWR|O_TRUNC|O_CREAT, 0600);
-    if (cf.save_file_fd == -1) {
-      /* XXX - display the error in a message box, or on the command line? */
-      simple_dialog(ESD_TYPE_WARN, NULL,
-	"The file to which the capture would be saved (\"%s\")"
-	"could not be opened: %s.", cf.save_file, strerror(errno));
-    } else {
-      /* XXX - "capture()" used to do this, but we now do it in
-         "do_capture()", before calling "capture()"; will we ever
-         have a capture file open here?
-	 Yes, if "-r" was specified - but that's arguably silly, so
-	 perhaps we should treate that as an error. */
-      close_cap_file(&cf, info_bar, file_ctx);
-      capture();
+       capture();
+  } else {
+    if (start_capture) {
+      /* "-k" was specified; start a capture. */
+
+      /* Try to open/create the file specified on the command line with
+         the "-w" flag.  (We already checked in "main()" that "-w" was
+         specified. */
+      cf.save_file_fd = open(cf.save_file, O_RDWR|O_TRUNC|O_CREAT, 0600);
+      if (cf.save_file_fd == -1) {
+        /* XXX - display the error in a message box, or on the command line? */
+        simple_dialog(ESD_TYPE_WARN, NULL,
+		"The file to which the capture would be saved (\"%s\")"
+		"could not be opened: %s.", cf.save_file, strerror(errno));
+      } else {
+        /* XXX - "capture()" used to do this, but we now do it in
+           "do_capture()", before calling "capture()"; will we ever
+           have a capture file open here?
+           Yes, if "-r" was specified - but that's arguably silly, so
+           perhaps we should treate that as an error. */
+        close_cap_file(&cf, info_bar, file_ctx);
+        run_capture();
+      }
     }
-    start_capture = 0;
   }
 #endif
 
