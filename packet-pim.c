@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.1 1999/10/13 06:47:45 guy Exp $
+ * $Id: packet-pim.c,v 1.2 1999/10/13 15:25:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -263,10 +263,10 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    ip = &pd[flagoff + sizeof(guint32)];
 	    switch((*ip & 0xf0) >> 4) {
 	    case 4:	/* IPv4 */
-		    dissect_ip(pd, ip - pd, fd, pimopt_tree);
+		    dissect_ip(pd, ip - pd, fd, tree);
 		    break;
 	    case 6:	/* IPv6 */
-		    dissect_ipv6(pd, ip - pd, fd, pimopt_tree);
+		    dissect_ipv6(pd, ip - pd, fd, tree);
 		    break;
 	    default:
 		    proto_tree_add_text(pimopt_tree,
