@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.6 2001/10/22 22:59:25 guy Exp $
+ * $Id: filesystem.h,v 1.7 2001/10/22 23:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,12 +71,8 @@ const char *get_datafile_dir(void);
  */
 const char *get_systemfile_dir(void);
 
-/* Returns the user's home directory, via the HOME environment
- * variable, or a default directory if HOME is not set */
-const char* get_home_dir(void);
-
 /*
- * Get the directory in which personal configuration files reside.
+ * Get the directory in which personal configuration files are stored.
  */
 const char *get_persconffile_dir(void);
 

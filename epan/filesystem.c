@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.8 2001/10/22 22:59:25 guy Exp $
+ * $Id: filesystem.c,v 1.9 2001/10/22 23:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -285,23 +285,36 @@ get_systemfile_dir(void)
 #endif
 }
 
-/* Returns the user's home directory, via the HOME environment
- * variable, or a default directory if HOME is not set */
-const char*
-get_home_dir(void)
+/*
+ * Name of directory, under the user's home directory, in which
+ * personal configuration files are stored.
+ *
+ * XXX - should this be ".libepan"? For backwards-compatibility, I'll keep
+ * it ".ethereal" for now.
+ */
+#define PF_DIR ".ethereal"
+
+/*
+ * Get the directory in which personal configuration files reside;
+ * it's PF_DIR, under the user's home directory.
+ */
+const char *
+get_persconffile_dir(void)
 {
-	static const char *home = NULL;
 #ifdef WIN32
 	char *homedrive, *homepath;
-	char *homestring;
+	char *homestring = NULL;
 	char *lastsep;
 #else
 	struct passwd *pwd;
 #endif
+	char *homedir;
+	static char *pf_dir = NULL;
 
 	/* Return the cached value, if available */
-	if (home)
-		return home;
+	if (pf_dir != NULL)
+		return pf_dir;
+
 #ifdef WIN32
 	/*
 	 * XXX - should we use USERPROFILE anywhere in this process?
@@ -332,18 +345,21 @@ get_home_dir(void)
 				 */
 				*lastsep = '\0';
 			}
-			home = homestring;
+			homedir = homestring;
 		} else
-			home = homedrive;
+			homedir = homedrive;
 	} else {
 		/*
 		 * Try using "windir?
 		 */
-		home = "C:";
+		homedir = "C:";
 	}
 #else
-	home = getenv("HOME");
-	if (home == NULL) {
+	/*
+	 * If $HOME is set, use that.
+	 */
+	homedir = getenv("HOME");
+	if (homedir == NULL) {
 		/*
 		 * Get their home directory from the password file.
 		 * If we can't even find a password file entry for them,
@@ -355,40 +371,17 @@ get_home_dir(void)
 			 * This is cached, so we don't need to worry
 			 * about allocating multiple ones of them.
 			 */
-			home = g_strdup(pwd->pw_dir);
+			homedir = g_strdup(pwd->pw_dir);
 		} else
-			home = "/tmp";
+			homedir = "/tmp";
 	}
 #endif
 
-	return home;
-}
-
-/*
- * Name of directory, under the user's home directory, in which
- * personal configuration files are stored.
- *
- * XXX - should this be ".libepan"? For backwards-compatibility, I'll keep
- * it ".ethereal" for now.
- */
-#define PF_DIR ".ethereal"
-
-/*
- * Get the directory in which personal configuration files reside;
- * it's PF_DIR, under the user's home directory.
- */
-const char *
-get_persconffile_dir(void)
-{
-	static char *pf_dir = NULL;
-	const char *homedir;
-
-	/* Return the cached value, if available */
-	if (pf_dir != NULL)
-		return pf_dir;
-
-	homedir = get_home_dir();
 	pf_dir = g_malloc(strlen(homedir) + strlen(PF_DIR) + 2);
 	sprintf(pf_dir, "%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
+#ifdef WIN32
+	if (homestring != NULL)
+		g_free(homestring);
+#endif
 	return pf_dir;
 }
