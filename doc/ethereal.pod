@@ -2012,6 +2012,7 @@ B<http://www.ethereal.com>.
   Marcel Holtmann          <marcel [AT] holtmann.org>
   Scott Emberley           <scotte [AT] netinst.com>
   Brian Fundakowski Feldman <bfeldman [AT] fla.fujitsu.com>
+  Yuriy Sidelnikov         <ysidelnikov [AT] hotmail.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>

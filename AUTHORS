@@ -1909,6 +1909,10 @@ Brian Fundakowski Feldman <bfeldman [AT] fla.fujitsu.com> {
 	Support for setting link-layer type when capturing
 }
 
+Yuriy Sidelnikov <ysidelnikov [AT] hotmail.com> {
+	ISO 8327-1 Session Protocol support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
