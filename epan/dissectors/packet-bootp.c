@@ -1583,7 +1583,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		else {
 			proto_tree_add_text(bp_tree,  tvb,
-						   28, 0, "Client address not given");
+						   28, 16, "Client address not given");
 		}
 
 		/* The server host name is optional */
