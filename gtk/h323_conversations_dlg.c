@@ -56,7 +56,7 @@
 
 typedef const guint8 * ip_addr_p;
 
-static const gchar FWD_LABEL_TEXT[] = "Select one conversation with left mouse button\n";
+static const gchar FWD_LABEL_TEXT[] = "Select one conversation.";
 
 /****************************************************************************/
 /* pointer to the one and only dialog window */
@@ -66,6 +66,10 @@ static GtkWidget *clist = NULL;
 static GtkWidget *top_label = NULL;
 static GtkWidget *status_label = NULL;
 static GtkWidget *label_fwd = NULL;
+
+/*static GtkWidget *bt_unselect = NULL;*/
+static GtkWidget *bt_filter = NULL;
+static GtkWidget *bt_analyze = NULL;
 
 static h323_conversations_info_t* selected_conversations_fwd = NULL;  /* current selection */
 static GList *last_list = NULL;
@@ -122,14 +126,16 @@ static void add_to_clist(h323_conversations_info_t* strinfo)
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, strinfo);
 
 	/* Update the top label with the number of detected conversationss */
-	sprintf(label_text,
-	        "Detected %d H323 Conversations. Choose one for analysis",
-	        ++conversationss_nb);
+    conversationss_nb++;
+	g_snprintf(label_text, 256,
+	        "Detected %d H.323 %s.",
+	        conversationss_nb, 
+            plurality(conversationss_nb, "Conversation", "Conversations"));
 	gtk_label_set(GTK_LABEL(top_label), label_text);
 
 	/* Update the status label with the number of total messages */
-        sprintf(label_text,
-        	"Total Setup packets: %d   Completed calls: %d   Rejected calls: %d\n",
+        g_snprintf(label_text, 256,
+        	"Total: Setup packets: %d   Completed calls: %d   Rejected calls: %d",
 	                h323conversations_get_info()->setup_packets, 
 			h323conversations_get_info()->completed_calls,
 			h323conversations_get_info()->rejected_calls);
@@ -164,6 +170,10 @@ h323conversations_on_unselect                  (GtkButton       *button _U_,
 	selected_conversations_fwd = NULL;
 	gtk_clist_unselect_all(GTK_CLIST(clist));
 	gtk_label_set_text(GTK_LABEL(label_fwd), FWD_LABEL_TEXT);
+
+    /*gtk_widget_set_sensitive(bt_unselect, FALSE);*/
+    gtk_widget_set_sensitive(bt_filter, FALSE);
+    gtk_widget_set_sensitive(bt_analyze, FALSE);
 }
 
 
@@ -262,7 +272,7 @@ h323conversations_on_select_row(GtkCList *clist,
 	gchar label_text[80];
 
 	selected_conversations_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
-	g_snprintf(label_text, 80, "Conversation: %s:%u <---> %s:%u\n",
+	g_snprintf(label_text, 80, "Selected Conversation: %s:%u <---> %s:%u",
 		ip_to_str((ip_addr_p)&selected_conversations_fwd->src_addr),
 		selected_conversations_fwd->src_port,
 		ip_to_str((ip_addr_p)&selected_conversations_fwd->dest_addr),
@@ -270,11 +280,10 @@ h323conversations_on_select_row(GtkCList *clist,
 	);
 	gtk_label_set_text(GTK_LABEL(label_fwd), label_text);
 
-/*
-	gtk_widget_set_sensitive(save_bt, TRUE);
-	gtk_widget_set_sensitive(filter_bt, TRUE);
-	gtk_widget_set_sensitive(mark_bt, TRUE);
-*/
+    /*gtk_widget_set_sensitive(bt_unselect, TRUE);*/
+    gtk_widget_set_sensitive(bt_filter, TRUE);
+    gtk_widget_set_sensitive(bt_analyze, TRUE);
+
 	/* TODO: activate other buttons when implemented */
 }
 
@@ -365,9 +374,6 @@ static void h323conversations_dlg_create (void)
 	GtkWidget *main_vb;
 	GtkWidget *scrolledwindow;
 	GtkWidget *hbuttonbox;
-	GtkWidget *bt_unselect;
-	GtkWidget *bt_filter;
-	GtkWidget *bt_analyze;
 	GtkWidget *bt_close;
     GtkTooltips *tooltips = gtk_tooltips_new();
 
@@ -376,14 +382,14 @@ static void h323conversations_dlg_create (void)
 	GtkWidget *column_lb;
 	int i;
 
-	h323conversations_dlg_w = dlg_window_new("Ethereal: H.323 Conversations");
+	h323conversations_dlg_w = dlg_window_new("Ethereal: H.323 VoIP Conversations");
 	gtk_window_set_default_size(GTK_WINDOW(h323conversations_dlg_w), 700, 300);
 
 	main_vb = gtk_vbox_new (FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(h323conversations_dlg_w), main_vb);
 	gtk_container_set_border_width (GTK_CONTAINER (main_vb), 12);
 
-	top_label = gtk_label_new ("Detected 0 H.323 Conversations. Choose one conversation for analysis");
+	top_label = gtk_label_new ("Detected 0 H.323 Conversations.");
 	gtk_box_pack_start (GTK_BOX (main_vb), top_label, FALSE, FALSE, 8);
 
 	scrolledwindow = scrolled_window_new (NULL, NULL);
@@ -445,7 +451,7 @@ static void h323conversations_dlg_create (void)
 	label_fwd = gtk_label_new (FWD_LABEL_TEXT);
 	gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
 
-	status_label = gtk_label_new ("Total Setup packets: 0   Completed calls: 0   Rejected calls: 0\n");
+	status_label = gtk_label_new ("Total: Setup packets: 0   Completed calls: 0   Rejected calls: 0");
 	gtk_box_pack_start (GTK_BOX (main_vb), status_label, FALSE, FALSE, 8);
 
         /* button row */
@@ -454,14 +460,13 @@ static void h323conversations_dlg_create (void)
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 30);
 
-	bt_unselect = gtk_button_new_with_label ("Unselect");
+	/*bt_unselect = gtk_button_new_with_label ("Unselect");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
-    /* what's the use of an unselect button? */
-    /*gtk_tooltips_set_tip (tooltips, bt_unselect, "Unselect what?", NULL);*/
+    gtk_tooltips_set_tip (tooltips, bt_unselect, "Unselect this conversation", NULL);*/
 
-	bt_filter = gtk_button_new_with_label ("Set filter");
+	bt_filter = gtk_button_new_with_label ("Prepare filter");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
-    gtk_tooltips_set_tip (tooltips, bt_filter, "Set display filter of the selected conversation", NULL);
+    gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected conversation", NULL);
 
 	bt_analyze = gtk_button_new_with_label ("Analyze");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
@@ -473,7 +478,7 @@ static void h323conversations_dlg_create (void)
     gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
 
 	SIGNAL_CONNECT(clist, "select_row", h323conversations_on_select_row, NULL);
-	SIGNAL_CONNECT(bt_unselect, "clicked", h323conversations_on_unselect, NULL);
+	/*SIGNAL_CONNECT(bt_unselect, "clicked", h323conversations_on_unselect, NULL);*/
 	SIGNAL_CONNECT(bt_filter, "clicked", h323conversations_on_filter, NULL);
 	SIGNAL_CONNECT(bt_analyze, "clicked", h323conversations_on_analyse, NULL);
 
@@ -505,8 +510,8 @@ void h323conversations_dlg_update(GList *list)
 	if (h323_conversations_dlg != NULL) {
 		gtk_clist_clear(GTK_CLIST(clist));
 		conversationss_nb = 0;
-        	sprintf(label_text,
-        		"Total Setup packets: %d   Completed calls: %d   Rejected calls: %d\n",
+        	g_snprintf(label_text, 256,
+        		"Total: Setup packets: %d   Completed calls: %d   Rejected calls: %d",
 		                h323conversations_get_info()->setup_packets, 
 				h323conversations_get_info()->completed_calls,
 				h323conversations_get_info()->rejected_calls);
@@ -518,6 +523,12 @@ void h323conversations_dlg_update(GList *list)
 			add_to_clist((h323_conversations_info_t*)(list->data));
 			list = g_list_next(list);
 		}
+
+		g_snprintf(label_text, 256,
+		        "Detected %d H.323 %s.",
+	    	    conversationss_nb, 
+            	plurality(conversationss_nb, "Conversation", "Conversations"));
+		gtk_label_set(GTK_LABEL(top_label), label_text);
 
 		h323conversations_on_unselect(NULL, NULL);
 	}
