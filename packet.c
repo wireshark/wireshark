@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.61 1999/12/29 07:25:48 guy Exp $
+ * $Id: packet.c,v 1.62 1999/12/29 07:37:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1063,7 +1063,8 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	/* Put in frame header information. */
 	if (tree) {
 	  ti = proto_tree_add_item_format(tree, proto_frame, 0, fd->cap_len,
-	    NULL, "Frame (%d on wire, %d captured)", fd->pkt_len, fd->cap_len);
+	    NULL, "Frame %u (%u on wire, %u captured)", fd->num,
+	    fd->pkt_len, fd->cap_len);
 
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
 
