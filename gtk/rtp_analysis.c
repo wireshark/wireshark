@@ -1968,10 +1968,11 @@ static void create_yscale_max_menu_items(user_data_t* user_data, GtkWidget *menu
                 if(yscale_max[i]==AUTO_MAX_YSCALE){
                         strcpy(str,"Auto");
                 } else {
-                        g_snprintf(str, 15, "%d ms", yscale_max[i]/1000);
+                        g_snprintf(str, 15, "%u ms", yscale_max[i]/1000);
                 }
                 menu_item=gtk_menu_item_new_with_label(str);
-                OBJECT_SET_DATA(menu_item, "yscale_max", yscale_max[i]);
+                OBJECT_SET_DATA(menu_item, "yscale_max",
+                                GUINT_TO_POINTER(yscale_max[i]));
                 SIGNAL_CONNECT(menu_item, "activate", yscale_select, user_data);
                 gtk_widget_show(menu_item);
                 gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1987,11 +1988,11 @@ static void create_pixels_per_tick_menu_items(user_data_t* user_data, GtkWidget 
         int i;
 
         for(i=0;i<MAX_PIXELS_PER_TICK;i++){
-                g_snprintf(str, 5, "%d", pixels_per_tick[i]);
+                g_snprintf(str, 5, "%u", pixels_per_tick[i]);
                 menu_item=gtk_menu_item_new_with_label(str);
 
                 OBJECT_SET_DATA(menu_item, "pixels_per_tick",
-                                pixels_per_tick[i]);
+                                GUINT_TO_POINTER(pixels_per_tick[i]));
                 SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, user_data);
                 gtk_widget_show(menu_item);
                 gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -2010,18 +2011,18 @@ static void create_tick_interval_menu_items(user_data_t* user_data, GtkWidget *m
 
         for(i=0;i<MAX_TICK_VALUES;i++){
                 if(tick_interval_values[i]>=1000){
-                        g_snprintf(str, 15, "%d sec", tick_interval_values[i]/1000);
+                        g_snprintf(str, 15, "%u sec", tick_interval_values[i]/1000);
                 } else if(tick_interval_values[i]>=100){
-                        g_snprintf(str, 15, "0.%1d sec", (tick_interval_values[i]/100)%10);
+                        g_snprintf(str, 15, "0.%1u sec", (tick_interval_values[i]/100)%10);
                 } else if(tick_interval_values[i]>=10){
-                        g_snprintf(str, 15, "0.%02d sec", (tick_interval_values[i]/10)%10);
+                        g_snprintf(str, 15, "0.%02u sec", (tick_interval_values[i]/10)%10);
                 } else {
-                        g_snprintf(str, 15, "0.%03d sec", (tick_interval_values[i])%10);
+                        g_snprintf(str, 15, "0.%03u sec", (tick_interval_values[i])%10);
                 }
 
                 menu_item=gtk_menu_item_new_with_label(str);
                 OBJECT_SET_DATA(menu_item, "tick_interval",
-                                tick_interval_values[i]);
+                                GUINT_TO_POINTER(tick_interval_values[i]));
                 SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, (gpointer)user_data);
                 gtk_widget_show(menu_item);
                 gtk_menu_append(GTK_MENU(menu), menu_item);

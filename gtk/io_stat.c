@@ -1307,11 +1307,11 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 	int i;
 
 	for(i=0;i<MAX_PIXELS_PER_TICK;i++){
-		g_snprintf(str, 5, "%d", pixels_per_tick[i]);
+		g_snprintf(str, 5, "%u", pixels_per_tick[i]);
 		menu_item=gtk_menu_item_new_with_label(str);
 
 		OBJECT_SET_DATA(menu_item, "pixels_per_tick",
-                                pixels_per_tick[i]);
+                                GUINT_TO_POINTER(pixels_per_tick[i]));
 		SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1343,18 +1343,18 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
 		if(tick_interval_values[i]>=1000){
-			g_snprintf(str, 15, "%d sec", tick_interval_values[i]/1000);
+			g_snprintf(str, 15, "%u sec", tick_interval_values[i]/1000);
 		} else if(tick_interval_values[i]>=100){
-			g_snprintf(str, 15, "0.%1d sec", (tick_interval_values[i]/100)%10);
+			g_snprintf(str, 15, "0.%1u sec", (tick_interval_values[i]/100)%10);
 		} else if(tick_interval_values[i]>=10){
-			g_snprintf(str, 15, "0.%02d sec", (tick_interval_values[i]/10)%10);
+			g_snprintf(str, 15, "0.%02u sec", (tick_interval_values[i]/10)%10);
 		} else {
-			g_snprintf(str, 15, "0.%03d sec", (tick_interval_values[i])%10);
+			g_snprintf(str, 15, "0.%03u sec", (tick_interval_values[i])%10);
 		}
 
 		menu_item=gtk_menu_item_new_with_label(str);
 		OBJECT_SET_DATA(menu_item, "tick_interval",
-                                tick_interval_values[i]);
+                                GUINT_TO_POINTER(tick_interval_values[i]));
 		SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, (gpointer)io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1374,10 +1374,11 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 		if(yscale_max[i]==AUTO_MAX_YSCALE){
 			strcpy(str,"Auto");
 		} else {
-			g_snprintf(str, 15, "%d", yscale_max[i]);
+			g_snprintf(str, 15, "%u", yscale_max[i]);
 		}
 		menu_item=gtk_menu_item_new_with_label(str);
-		OBJECT_SET_DATA(menu_item, "yscale_max", yscale_max[i]);
+		OBJECT_SET_DATA(menu_item, "yscale_max",
+		                GUINT_TO_POINTER(yscale_max[i]));
 		SIGNAL_CONNECT(menu_item, "activate", yscale_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1428,7 +1429,7 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 
 	for(i=0;i<MAX_COUNT_TYPES;i++){
 		menu_item=gtk_menu_item_new_with_label(count_type_names[i]);
-		OBJECT_SET_DATA(menu_item, "count_type", i);
+		OBJECT_SET_DATA(menu_item, "count_type", GINT_TO_POINTER(i));
 		SIGNAL_CONNECT(menu_item, "activate", count_type_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1825,7 +1826,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	menu=gtk_menu_new();
 	for(i=0;i<MAX_PLOT_STYLES;i++){
 		menu_item=gtk_menu_item_new_with_label(plot_style_name[i]);
-		OBJECT_SET_DATA(menu_item, "plot_style", i);
+		OBJECT_SET_DATA(menu_item, "plot_style", GINT_TO_POINTER(i));
 		SIGNAL_CONNECT(menu_item, "activate", plot_style_select, &gio->io->graphs[num-1]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
