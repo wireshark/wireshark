@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.4 2000/03/27 08:26:23 guy Exp $
+ * $Id: asn1.c,v 1.5 2000/06/26 00:08:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -774,7 +774,7 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
     subid_t      *optr;
 
     eoc = asn1->pointer + enc_len;
-    size = eoc - asn1->pointer + 1;
+    size = enc_len + 1;
     *oid = g_malloc(size * sizeof(gulong));
     optr = *oid;
  
