@@ -771,6 +771,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	Additional vendor (CoSine) for Radius
         CoSine VSA support for Radius
 	Patches to PPP for CHAP support
+	Patches to packet-x11-keysym.h clean up for 8-bit chars
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {
