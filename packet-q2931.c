@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.3 1999/11/25 22:52:20 guy Exp $
+ * $Id: packet-q2931.c,v 1.4 1999/11/27 02:14:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1401,7 +1401,7 @@ dissect_q2931_number_ie(const u_char *pd, int offset, int len,
 
 		case 0x47:	/* ICD ATM format */
 		case 0xC5:	/* ICD ATM group format */
-			proto_tree_add_text(nsap_tree, offset, 1,
+			proto_tree_add_text(nsap_tree, offset + 0, 3,
 			    "International Code Designator%s: 0x%04X",
 			    (pd[offset] == 0xC5) ? " (group)" : "",
 			    pntohs(&pd[offset + 1]));
