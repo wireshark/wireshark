@@ -37,7 +37,7 @@ filters.
 
 I<ethereal(1)>, I<tethereal(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
-head1 AUTHORS
+=head1 AUTHORS
 
 See the list of authors in the B<Ethereal> man page for a list of authors of
 that code.
