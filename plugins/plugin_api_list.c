@@ -295,7 +295,7 @@ gboolean show_fragment_tree(fragment_data *, const fragment_items *, proto_tree 
 gboolean show_fragment_seq_tree(fragment_data *, const fragment_items *, proto_tree *, packet_info *, tvbuff_t *);
 
 int register_tap(char *);
-void tap_queue_packet(int, packet_info *, void *);
+void tap_queue_packet(int, packet_info *, const void *);
 
 void asn1_open(ASN1_SCK *, tvbuff_t *, int );
 void asn1_close(ASN1_SCK *, int *);
