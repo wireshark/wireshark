@@ -1,4 +1,4 @@
-/* packet-cip.c
+/* packet-enip.c
  * Routines for EtherNet/IP (Industrial Protocol) dissection
  * EtherNet/IP Home: www.odva.org
  *
@@ -6,7 +6,7 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.3 2003/07/25 04:17:36 gram Exp $
+ * $Id: packet-enip.c,v 1.4 2003/08/16 01:53:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 
 #include <epan/packet.h>
 
+/* Defines */
 #define ENIP_ENCAP_PORT		44818	/* EtherNet/IP located on port 44818 */
 #define ENIP_IO_PORT		   2222	/* EtherNet/IP IO located on port 2222  */
 
@@ -93,6 +94,7 @@
 #define SC_STOP                  0x07
 #define SC_CREATE                0x08
 #define SC_DELETE                0x09
+#define SC_MULT_SERV_PACK        0x0A
 #define SC_APPLY_ATTRIBUTES      0x0D
 #define SC_GET_ATT_SINGLE        0x0E
 #define SC_SET_ATT_SINGLE        0x10
@@ -225,7 +227,6 @@ static int hf_enip_cpf_lir_sinaddr     = -1;
 static int hf_enip_cpf_lir_sinzero     = -1;
 static int hf_enip_cpf_lir_devtype     = -1;
 static int hf_enip_cpf_lir_prodcode    = -1;
-static int hf_enip_cpf_lir_revision    = -1;
 static int hf_enip_cpf_lir_status      = -1;
 static int hf_enip_cpf_lir_sernbr      = -1;
 static int hf_enip_cpf_lir_namelength  = -1;
@@ -269,6 +270,7 @@ static gint ett_lsrcf      = -1;
 static gint ett_mes_req    = -1;
 static gint ett_cmd_data   = -1;
 static gint ett_port_path  = -1;
+static gint ett_mult_ser   = -1;
 
 
 
@@ -292,12 +294,12 @@ static const value_string encap_cmd_vals[] = {
 /* Translate function to string - Encapsulation status */
 static const value_string encap_status_vals[] = {
 	{ SUCCESS,			      "Success" },
-	{ INVALID_CMD,	         "Invalid command" },
-	{ NO_RESOURCES,		   "No memory resources" },
-	{ INCORRECT_DATA,	      "Incorrect data" },
-	{ INVALID_SESSION,	   "Invalid session handle" },
-	{ INVALID_LENGTH,       "Invalid length" },
-	{ UNSUPPORTED_PROT_REV,	"Unsupported protocol revision" },
+	{ INVALID_CMD,	         "Invalid Command" },
+	{ NO_RESOURCES,		   "No Memory Resources" },
+	{ INCORRECT_DATA,	      "Incorrect Data" },
+	{ INVALID_SESSION,	   "Invalid Session Handle" },
+	{ INVALID_LENGTH,       "Invalid Length" },
+	{ UNSUPPORTED_PROT_REV,	"Unsupported Protocol Revision" },
 
 	{ 0,				         NULL }
 };
@@ -320,7 +322,7 @@ static const value_string cdf_type_vals[] = {
 /* Translate function to string - CIP Service codes */
 static const value_string encap_sc_vals[] = {
 	{ SC_GET_ATT_ALL,	         "Get Attribute All" },
-	{ SC_SET_ATT_ALL,	         "Get Attribute All" },
+	{ SC_SET_ATT_ALL,	         "Set Attribute All" },
 	{ SC_GET_ATT_LIST,	      "Get Attribute List" },
 	{ SC_SET_ATT_LIST,	      "Set Attribute List" },
 	{ SC_RESET,	               "Reset" },
@@ -337,6 +339,7 @@ static const value_string encap_sc_vals[] = {
 	{ SC_NO_OP,	               "Nop" },
 	{ SC_GET_MEMBER,	         "Get Member" },
 	{ SC_SET_MEMBER,	         "Set Member" },
+	{ SC_MULT_SERV_PACK,       "Multiple Service Packet" },
 
 	/* Some class specific services */
 	{ SC_FWD_CLOSE,	         "Forward Close" },
@@ -603,7 +606,8 @@ static const value_string enip_class_names_vals[] = {
 
 
 
-proto_item* add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char* str )
+static proto_item*
+add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char* str )
 {
   char   *tmp, *tmp2, *tmp2start;
   proto_item* pi;
@@ -765,7 +769,7 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
 
                /* Display the 8-bit class number */
-               proto_tree_add_text( cia_tree, tvb, offset + pathpos + 1, 1, "Class: %s (0x%02X)", val_to_str( temp_data, enip_class_names_vals , "" ), temp_data );
+               proto_tree_add_text( cia_tree, tvb, offset + pathpos + 1, 1, "Class: %s (0x%02X)", val_to_str( temp_data, enip_class_names_vals , "Unknown class" ), temp_data );
 
                temp_string = match_strval( temp_data, enip_class_names_vals );
 
@@ -784,13 +788,13 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
             else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
             {
                temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 3, "16-Bit Logical Class Segment (0x%04X)", segment_type );
+               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 3, "16-Bit Logical Class Segment (0x%02X)", segment_type );
 
                /* Create a sub tree for the class */
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
 
                /* Display the 16-bit class number */
-               proto_tree_add_text( cia_tree, tvb, offset + pathpos + 2, 2, "Class: %s (0x%04X)", val_to_str( temp_data, enip_class_names_vals , "" ), temp_data );
+               proto_tree_add_text( cia_tree, tvb, offset + pathpos + 2, 2, "Class: %s (0x%04X)", val_to_str( temp_data, enip_class_names_vals , "Unknown class" ), temp_data );
                temp_string = match_strval( temp_data, enip_class_names_vals );
 
                if( temp_string )
@@ -808,13 +812,13 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
             else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
             {
                temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 5, "32-Bit Logical Instance Segment (0x%08X)", segment_type );
+               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 5, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
 
                /* Create a sub tree for the class */
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
 
                /* Display the 32-bit instance number */
-               proto_tree_add_text( cia_tree, tvb, offset + pathpos + 2, 4, "Class: %s (0x%08X)", val_to_str( temp_data, enip_class_names_vals , "" ), temp_data );
+               proto_tree_add_text( cia_tree, tvb, offset + pathpos + 2, 4, "Class: %s (0x%08X)", val_to_str( temp_data, enip_class_names_vals , "Unknown class" ), temp_data );
                temp_string = match_strval( temp_data, enip_class_names_vals );
 
                if( temp_string )
@@ -860,7 +864,7 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
             else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
             {
                temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 3, "16-Bit Logical Instance Segment (0x%04X)", segment_type );
+               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 3, "16-Bit Logical Instance Segment (0x%02X)", segment_type );
 
                /* Create a sub tree for the instance */
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
@@ -875,7 +879,7 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
             else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
             {
                temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 5, "32-Bit Logical Instance Segment (0x%08X)", segment_type );
+               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 5, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
 
                /* Create a sub tree for the instance */
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
@@ -918,7 +922,7 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
             else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
             {
                temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 3, "16-Bit Logical Attribute Segment (0x%04X)", segment_type );
+               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 3, "16-Bit Logical Attribute Segment (0x%02X)", segment_type );
 
                /* Create a sub tree for the attribute */
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
@@ -933,7 +937,7 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
             else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
             {
                temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 5, "32-Bit Logical Attribute Segment (0x%08X)", segment_type );
+               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 5, "32-Bit Logical Attribute Segment (0x%02X)", segment_type );
 
                /* Create a sub tree for the attribute */
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
@@ -976,7 +980,7 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
             else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
             {
                temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 3, "16-Bit Logical Connection Point Segment (0x%04X)", segment_type );
+               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 3, "16-Bit Logical Connection Point Segment (0x%02X)", segment_type );
 
                /* Create a sub tree for the connection point */
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
@@ -991,7 +995,7 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
             else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
             {
                temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 5, "32-Bit Logical Connection Point Segment (0x%08X)", segment_type );
+               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 5, "32-Bit Logical Connection Point Segment (0x%02X)", segment_type );
 
                /* Create a sub tree for the connection point */
                cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
@@ -1202,465 +1206,623 @@ show_epath( tvbuff_t *tvb, proto_item *pi, int offset, int path_length )
 } /* end of show_epath() */
 
 
-/* Add Common Data Structure to tree */
+
 static void
-show_cdf( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset )
+add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length )
 {
-   proto_item *ri, *ci, *pi, *rrsci, *ncppi, *sockaddr_item, *ar_item, *temp_item;
-   proto_item *mr_data_item;
-	proto_tree *cip_tree, *temp_tree;
-	proto_tree *item_tree;
-   proto_tree *sockaddr_tree;
+   proto_item *pi, *rrsci, *ncppi, *ar_item, *temp_item, *temp_item2;
+	proto_tree *temp_tree;
    proto_tree *rrsci_tree;
    proto_tree *ncp_tree;
    proto_tree *cmd_data_tree;
-	int item_count;
-	int item;
-	int item_length;
 	int req_path_size, conn_path_size, mr_req_path_size;
 	int temp_data;
 	unsigned char gen_stat;
-   unsigned char name_length;
    unsigned char add_stat_size;
    unsigned char temp_byte, route_path_size;
    unsigned char app_rep_size, i;
-   char temp_char;
-   int msg_req_siz;
+   int msg_req_siz, num_services, serv_offset;
 
 
-   /* Show Common Data Format sub tree */
-   item_count = tvb_get_letohs( tvb, offset );
-   ri = proto_tree_add_text( tree, tvb, offset, 2, "Item count: %d", item_count );
-   cip_tree = proto_item_add_subtree(ri, ett_cip);
+   /* Add Service code & Request/Response tree */
+	rrsci = proto_tree_add_text(item_tree, tvb, offset, 1, "Service: ");
+	rrsci_tree = proto_item_add_subtree(rrsci, ett_rrsc);
 
-   while( item_count-- )
-   {
-      /* Add item type tree */
-      ci = proto_tree_add_item(cip_tree, hf_enip_cpf_typeid, tvb, offset+2, 2, TRUE );
-      item_tree = proto_item_add_subtree(ci, ett_cpf);
+	/* Add Request/Response */
+   proto_tree_add_item(rrsci_tree, hf_enip_ucm_rr,
+			tvb, offset, 1, TRUE );
 
-      /* Add length field */
+   proto_item_append_text( rrsci, "%s (%s)",
+               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
+                  encap_sc_vals , "Unknown Service Code (%x)"),
+               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x80 )>>7,
+                  encap_sc_rr, "") );
+
+	/* Add Service code */
+	proto_tree_add_item(rrsci_tree, hf_enip_ucm_sc,
+			tvb, offset, 1, TRUE );
+
+
+	if( tvb_get_guint8( tvb, offset ) & 0x80 )
+	{
+	   /* Response message */
+
+		/* Add general status */
+		gen_stat = tvb_get_guint8( tvb, offset+2 );
+
+		proto_tree_add_item(item_tree, hf_enip_ucm_genstat,
+			tvb, offset+2, 1, TRUE );
+
+      /* Add additional status size */
+      temp_data = tvb_get_guint8( tvb, offset+3 );
+      proto_tree_add_text( item_tree, tvb, offset+3, 1, "Additional Status Size: %d (word)", temp_data );
+
+		add_stat_size = tvb_get_guint8( tvb, offset+3 )*2;
+
+		if( add_stat_size )
+		{
+         /* Add additional status */
+         add_byte_array_text_to_proto_tree( item_tree, tvb, offset+4, add_stat_size, "Additional Status: " );
+		}
+
+      /* If there is any command specific data create a sub-tree for it */
+      if( ( item_length-4-add_stat_size ) != 0 )
+      {
+         pi = proto_tree_add_text( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific data" );
+         cmd_data_tree = proto_item_add_subtree( pi, ett_cmd_data );
+
+		   if( gen_stat == CI_GRC_SUCCESS )
+   		{
+   			/* Success responses */
+
+   			if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_FWD_OPEN )
+            {
+               /* Forward open Response (Success) */
+
+               /* Display originator to target connection ID */
+               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 4, "O->T Network Connection ID: 0x%08X", temp_data );
+
+               /* Display target to originator connection ID */
+               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+4 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+4, 4, "T->O Network Connection ID: 0x%08X", temp_data );
+
+               /* Display connection serial number */
+               temp_data = tvb_get_letohs( tvb, offset+4+add_stat_size+8 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+8, 2, "Connection Serial Number: 0x%04X", temp_data );
+
+               /* Display the originator vendor id */
+               proto_tree_add_item( cmd_data_tree, hf_enip_vendors, tvb, offset+4+add_stat_size+10, 2, TRUE);
+
+               /* Display the originator serial number */
+               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+12 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+12, 4, "Originator Serial Number: 0x%08X", temp_data );
+
+               /* Display originator to target actual packet interval */
+               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+16 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+16, 4, "O->T API: %dms (0x%08X)", temp_data / 1000, temp_data );
+
+               /* Display originator to target actual packet interval */
+               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+20 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+20, 4, "T->O API: %dms (0x%08X)", temp_data / 1000, temp_data );
+
+               /* Display the application reply size */
+               app_rep_size = tvb_get_guint8( tvb, offset+4+add_stat_size+24 ) * 2;
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+24, 1, "Application Reply Size: %d (words)", app_rep_size / 2 );
+
+               /* Display the Reserved byte */
+               temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+25 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+25, 1, "Reserved: 0x%02X", temp_byte );
+
+               if( app_rep_size != 0 )
+               {
+                  /* Display application Reply data */
+                  ar_item = proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+26, app_rep_size, "Application Reply:" );
+
+                  for( i=0; i < app_rep_size; i++ )
+                  {
+                    temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+26+i );
+                    proto_item_append_text(ar_item, " 0x%02X", temp_byte );
+                  }
+
+                } /* End of if reply data */
+
+            } /* End of if forward open response */
+   			else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_FWD_CLOSE )
+            {
+               /* Forward close response (Success) */
+
+               /* Display connection serial number */
+               temp_data = tvb_get_letohs( tvb, offset+4+add_stat_size );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 2, "Connection Serial Number: 0x%04X", temp_data );
+
+               /* Display the originator vendor id */
+               proto_tree_add_item( cmd_data_tree, hf_enip_vendors, tvb, offset+4+add_stat_size+2, 2, TRUE);
+
+               /* Display the originator serial number */
+               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+4 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+4, 4, "Originator Serial Number: 0x%08X", temp_data );
+
+               /* Display the application reply size */
+               app_rep_size = tvb_get_guint8( tvb, offset+4+add_stat_size+8 ) * 2;
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+8, 1, "Application Reply Size: %d (words)", app_rep_size / 2 );
+
+               /* Display the Reserved byte */
+               temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+9 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+9, 1, "Reserved: 0x%02X", temp_byte );
+
+               if( app_rep_size != 0 )
+               {
+                  /* Display application Reply data */
+                  ar_item = proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+10, app_rep_size, "Application Reply:" );
+
+                  for( i=0; i < app_rep_size; i ++ )
+                  {
+                    temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+10+i );
+                    proto_item_append_text(ar_item, " 0x%02X", temp_byte );
+                  }
+
+                } /* End of if reply data */
+
+            } /* End of if forward close response */
+            else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_UNCON_SEND )
+            {
+               /* Unconnected send response (Success) */
+
+               /* Display service response data */
+               add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Data: " );
+            }
+            else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_MULT_SERV_PACK )
+            {
+               /* Multiple Service Reply (Success)*/
+
+               /* Add number of replies */
+               num_services = tvb_get_letohs( tvb, offset+4+add_stat_size );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 2, "Number of Replies: %d", num_services );
+
+               /* Add replies */
+               temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+add_stat_size+4, num_services*2, "Offsets: " );
+
+               for( i=0; i < num_services; i++ )
+               {
+                  int serv_length;
+
+                  serv_offset = tvb_get_letohs( tvb, offset+6+add_stat_size+(i*2) );
+
+                  if( i == (num_services-1) )
+                  {
+                     /* Last service to add */
+                     proto_item_append_text(temp_item, "%d", serv_offset );
+                     serv_length = item_length-add_stat_size-serv_offset-4;
+                  }
+                  else
+                  {
+                     proto_item_append_text(temp_item, "%d, ", serv_offset );
+                     serv_length = tvb_get_letohs( tvb, offset+6+add_stat_size+((i+1)*2) ) - serv_offset;
+                  }
+
+                  temp_item2 = proto_tree_add_text( cmd_data_tree, tvb, offset+serv_offset+4, serv_length, "Service Reply #%d", i+1 );
+                  temp_tree = proto_item_add_subtree( temp_item2, ett_mult_ser );
+                  add_cip_data( temp_tree, tvb, offset+serv_offset+4, serv_length );
+               }
+            } /* End if Multiple service Packet */
+            else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_GET_ATT_LIST )
+            {
+               /* Get Attribute List Reply (Success)*/
+
+               int att_count;
+
+               /* Add Attribute Count */
+               att_count = tvb_get_letohs( tvb, offset+4+add_stat_size );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 2, "Attribute Count: %d", att_count );
+
+               /* Add the data */
+               add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+6+add_stat_size, item_length-6-add_stat_size, "Data: " );
+
+            } /* End if Multiple service Packet */
+            else
+   			{
+   			   /* Add data */
+               add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Data: " );
+   		   } /* end of check service code */
+
+   	   }
+         else
+         {
+            /* Error responses */
+
+            if( ( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_FWD_OPEN ) ||
+                ( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_FWD_CLOSE ) )
+            {
+               /* Forward open and forward close error response look the same */
+
+               /* Display connection serial number */
+               temp_data = tvb_get_letohs( tvb, offset+4+add_stat_size );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 2, "Connection Serial Number: 0x%04X", temp_data );
+
+               /* Display the originator vendor id */
+               proto_tree_add_item( cmd_data_tree, hf_enip_vendors, tvb, offset+4+add_stat_size+2, 2, TRUE);
+
+               /* Display the originator serial number */
+               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+4 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+4, 4, "Originator Serial Number: 0x%08X", temp_data );
+
+               /* Display remaining path size */
+               temp_data = tvb_get_guint8( tvb, offset+4+add_stat_size+8 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+8, 1, "Remaining Path Size: %d", temp_data );
+
+               /* Display reserved data */
+               temp_data = tvb_get_guint8( tvb, offset+4+add_stat_size+9 );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+9, 1, "Reserved: 0x%02X", temp_data );
+            }
+            else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_UNCON_SEND )
+            {
+               /* Unconnected send response (Unsuccess) */
+
+               /* Display remaining path size */
+               temp_data = tvb_get_guint8( tvb, offset+4+add_stat_size);
+               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 1, "Remaining Path Size: %d", temp_data );
+            }
+            else
+            {
+               /* Add data */
+               add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Data: " );
+            }
+
+         } /* end of if-else( CI_CRC_SUCCESS ) */
+
+      } /* End of if command-specific data present */
+
+	} /* End of if reply */
+	else
+	{
+	   /* Request */
+
+	   /* Add path size */
+	   req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
+	   proto_tree_add_text( item_tree, tvb, offset+1, 1, "Request Path Size: %d (words)", req_path_size/2 );
+
+      /* Add the epath */
+      pi = proto_tree_add_text(item_tree, tvb, offset+2, req_path_size, "Request Path: ");
+      show_epath( tvb, pi, offset+2, req_path_size );
+
+      /* If there is any command specific data creat a sub-tree for it */
+      if( (item_length-req_path_size-2) != 0 )
+      {
+
+         pi = proto_tree_add_text( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2, "Command Specific Data" );
+         cmd_data_tree = proto_item_add_subtree( pi, ett_cmd_data );
+
+         /* Check what service code that recived */
+
+         if( tvb_get_guint8( tvb, offset ) == SC_FWD_OPEN )
+         {
+            /* Forward open Request*/
+
+            /* Display the priority/tick timer */
+            temp_byte = tvb_get_guint8( tvb, offset+2+req_path_size );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 1, "Priority/Time_tick: 0x%02X", temp_byte );
+
+            /* Display the time-out ticks */
+            temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+1 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+1, 1, "Time-out_ticks: %d", temp_data );
+
+            /* Display the actual time out */
+            temp_data = ( 1 << ( temp_byte & 0x0F ) ) * temp_data;
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Actual Time Out: %dms", temp_data );
+
+            /* Display originator to taget connection ID */
+            temp_data = tvb_get_letohl( tvb, offset+2+req_path_size+2 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+2, 4, "O->T Network Connection ID: 0x%08X", temp_data );
+
+            /* Display target to originator connection ID */
+            temp_data = tvb_get_letohl( tvb, offset+2+req_path_size+6 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+6, 4, "T->O Network Connection ID: 0x%08X", temp_data );
+
+            /* Display connection serial number */
+            temp_data = tvb_get_letohs( tvb, offset+2+req_path_size+10 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+10, 2, "Connection Serial Number: 0x%04X", temp_data );
+
+            /* Display the originator vendor id */
+            proto_tree_add_item( cmd_data_tree, hf_enip_vendors, tvb, offset+2+req_path_size+12, 2, TRUE);
+
+            /* Display the originator serial number */
+            temp_data = tvb_get_letohl( tvb, offset+2+req_path_size+14 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+14, 4, "Originator Serial Number: 0x%08X", temp_data );
+
+            /* Display the timeout multiplier */
+            temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+18 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+18, 1, "Connection Timeout Multiplier: %s (%d)", val_to_str( temp_data, enip_con_time_mult_vals , "Reserved" ), temp_data );
+
+            /* Put out an indicator for the reserved bytes */
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+19, 3, "Reserved Data" );
+
+            /* Display originator to target requested packet interval */
+            temp_data = tvb_get_letohl( tvb, offset+2+req_path_size+22 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+22, 4, "O->T RPI: %dms (0x%08X)", temp_data / 1000, temp_data );
+
+   	      /* Display originator to target network connection patameterts, in a tree */
+   	      temp_data = tvb_get_letohs( tvb, offset+2+req_path_size+26 );
+   	      ncppi = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+26, 2, "O->T Network Connection Parameters: 0x%04X", temp_data );
+   	      ncp_tree = proto_item_add_subtree(ncppi, ett_ncp);
+
+            /* Add the data to the tree */
+            proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_own,
+   					tvb, offset+2+req_path_size+26, 2, TRUE );
+   			proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_typ,
+   					tvb, offset+2+req_path_size+26, 2, TRUE );
+            proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_prio,
+   					tvb, offset+2+req_path_size+26, 2, TRUE );
+   			proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_fixed_var,
+   					tvb, offset+2+req_path_size+26, 2, TRUE );
+   			proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_con_size,
+   					tvb, offset+2+req_path_size+26, 2, TRUE );
+
+            /* Display target to originator requested packet interval */
+            temp_data = tvb_get_letohl( tvb, offset+2+req_path_size+28 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+28, 4, "T->O RPI: %dms (0x%08X)", temp_data / 1000, temp_data );
+
+   	      /* Display target to originator network connection patameterts, in a tree */
+   	      temp_data = tvb_get_letohs( tvb, offset+2+req_path_size+32 );
+   	      ncppi = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+32, 2, "T->O Network Connection Parameters: 0x%04X", temp_data );
+   	      ncp_tree = proto_item_add_subtree(ncppi, ett_ncp);
+
+            /* Add the data to the tree */
+            proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_own,
+   					tvb, offset+2+req_path_size+32, 2, TRUE );
+   			proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_typ,
+   					tvb, offset+2+req_path_size+32, 2, TRUE );
+            proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_prio,
+   					tvb, offset+2+req_path_size+32, 2, TRUE );
+   			proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_fixed_var,
+   					tvb, offset+2+req_path_size+32, 2, TRUE );
+   			proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_con_size,
+   					tvb, offset+2+req_path_size+32, 2, TRUE );
+
+            /* Transport type/trigger */
+            temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+34 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+6+req_path_size+34, 1, "Transport Type/Trigger: 0x%02X", temp_data );
+
+            /* Add path size */
+            conn_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+35 )*2;
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+35, 1, "Connection Path Size: %d (words)", conn_path_size / 2 );
+
+            /* Add the epath */
+            pi = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+36, conn_path_size, "Connection Path: ");
+            show_epath( tvb, pi, offset+2+req_path_size+36, conn_path_size );
+         }
+         else if( tvb_get_guint8( tvb, offset ) == SC_FWD_CLOSE )
+         {
+            /* Forward Close Request */
+
+            /* Display the priority/tick timer */
+            temp_byte = tvb_get_guint8( tvb, offset+2+req_path_size );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 1, "Priority/Time_tick: 0x%02X", temp_byte );
+
+            /* Display the time-out ticks */
+            temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+1 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+1, 1, "Time-out_ticks: %d", temp_data );
+
+            /* Display connection serial number */
+            temp_data = tvb_get_letohs( tvb, offset+2+req_path_size+2 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+2, 2, "Connection Serial Number: 0x%04X", temp_data );
+
+            /* Display the originator vendor id */
+            proto_tree_add_item( cmd_data_tree, hf_enip_vendors, tvb, offset+2+req_path_size+4, 2, TRUE);
+
+            /* Display the originator serial number */
+            temp_data = tvb_get_letohl( tvb, offset+2+req_path_size+6 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+6, 4, "Originator Serial Number: 0x%08X", temp_data );
+
+            /* Add the path size */
+            conn_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+10 )*2;
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+10, 1, "Connection Path Size: %d (words)", conn_path_size / 2 );
+
+            /* Add the reserved byte */
+            temp_byte = tvb_get_guint8( tvb, offset+2+req_path_size+11 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+11, 1, "Reserved: 0x%02X", temp_byte );
+
+            /* Add the EPATH */
+            pi = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+12, conn_path_size, "Connection Path: ");
+            show_epath( tvb, pi, offset+2+req_path_size+12, conn_path_size );
+
+         } /* End of forward close */
+         else if( tvb_get_guint8( tvb, offset ) == SC_UNCON_SEND )
+         {
+            /* Unconnected send */
+
+            /* Display the priority/tick timer */
+            temp_byte = tvb_get_guint8( tvb, offset+2+req_path_size );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 1, "Priority/Time_tick: 0x%02X", temp_byte );
+
+            /* Display the time-out ticks */
+            temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+1 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+1, 1, "Time-out_ticks: %d", temp_data );
+
+            /* Message request size */
+            msg_req_siz = tvb_get_letohs( tvb, offset+2+req_path_size+2 );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+2, 2, "Message Request Size: 0x%04X", msg_req_siz );
+
+            /* Message Request */
+            temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+4, msg_req_siz, "Message Request" );
+            temp_tree = proto_item_add_subtree(temp_item, ett_mes_req );
+
+            /* MR - Service */
+            temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+4 );
+            proto_tree_add_text( temp_tree, tvb, offset+2+req_path_size+4, 1, "Service: %s (0x%02X)", val_to_str( temp_data, encap_sc_vals , "" ), temp_data );
+
+            /* MR - Request path Size */
+   		   mr_req_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+5 )*2;
+   		   proto_tree_add_text( temp_tree, tvb, offset+2+req_path_size+5, 1, "Request Path Size: %d (words)", mr_req_path_size/2 );
+
+            /* MR - EPATH */
+            temp_item = proto_tree_add_text(temp_tree, tvb, offset+2+req_path_size+6, mr_req_path_size, "Request Path: ");
+            show_epath( tvb, temp_item, offset+2+req_path_size+6, mr_req_path_size );
+
+            /* MR - Request data */
+            if( ( msg_req_siz-2-mr_req_path_size ) != 0 )
+            {
+               add_byte_array_text_to_proto_tree( temp_tree, tvb, offset+2+req_path_size+6+mr_req_path_size, msg_req_siz-2-mr_req_path_size, "Request Data: " );
+            }
+
+            if( msg_req_siz % 2 )
+            {
+               /* Pad byte */
+               proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz-3, 1, "Pad Byte (0x%02X)",
+                  tvb_get_guint8( tvb, offset+2+req_path_size+6+msg_req_siz-3 ) );
+            }
+
+            /* Route Path Size */
+   		   route_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+6+msg_req_siz-2 )*2;
+   		   proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz-2, 1, "Route Path Size: %d (words)", route_path_size/2 );
+
+   		   /* Reserved */
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz-1, 1, "Reserved (0x%02X)",
+                tvb_get_guint8( tvb, offset+2+req_path_size+6+msg_req_siz-1 ) );
+
+            /* Route Path */
+            temp_item = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz, route_path_size, "Route Path");
+            show_epath( tvb, temp_item, offset+2+req_path_size+6+msg_req_siz, route_path_size );
+
+         } /* End if unconnected send */
+         else if( tvb_get_guint8( tvb, offset ) == SC_MULT_SERV_PACK )
+         {
+            /* Multiple service packet */
+
+            /* Add number of services */
+            num_services = tvb_get_letohs( tvb, offset+2+req_path_size );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Number of Services: %d", num_services );
+
+            /* Add services */
+            temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+2, num_services*2, "Offsets: " );
+
+            for( i=0; i < num_services; i++ )
+            {
+               int serv_length;
+
+               serv_offset = tvb_get_letohs( tvb, offset+4+req_path_size+(i*2) );
+
+               if( i == (num_services-1) )
+               {
+                  /* Last service to add */
+                  serv_length = item_length-2-req_path_size-serv_offset;
+                  proto_item_append_text(temp_item, "%d", serv_offset );
+               }
+               else
+               {
+                  serv_length = tvb_get_letohs( tvb, offset+4+req_path_size+((i+1)*2) ) - serv_offset;
+                  proto_item_append_text(temp_item, "%d, ", serv_offset );
+               }
+
+               temp_item2 = proto_tree_add_text( cmd_data_tree, tvb, offset+serv_offset+6, serv_length, "Service Packet #%d", i+1 );
+               temp_tree = proto_item_add_subtree( temp_item2, ett_mult_ser );
+               add_cip_data( temp_tree, tvb, offset+serv_offset+6, serv_length );
+            }
+         } /* End if Multiple service Packet */
+         else if( tvb_get_guint8( tvb, offset ) == SC_GET_ATT_LIST )
+         {
+            /* Get attribute list request */
+
+            int att_count;
+
+            /* Add number of services */
+            att_count = tvb_get_letohs( tvb, offset+2+req_path_size );
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Attribute Count: %d", att_count );
+
+            /* Add Attribute List */
+            temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+2, att_count*2, "Attribute List: " );
+
+            for( i=0; i < att_count; i++ )
+            {
+               if( i == (att_count-1) )
+                  proto_item_append_text(temp_item, "%d",tvb_get_letohs( tvb, offset+4+req_path_size+(i*2) ) );
+               else
+                  proto_item_append_text(temp_item, "%d, ",tvb_get_letohs( tvb, offset+4+req_path_size+(i*2) ) );
+            }
+
+         } /* End of Get attribute list request */
+         else
+         {
+		      /* Add data */
+            add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2, "Data: " );
+         } /* End of check service code */
+
+      } /* End of if command-specific data present */
+
+	} /* end of if-else( request ) */
+
+} /* end of add_cip_data() */
+
+
+
+static void
+show_cdf( int encap_service, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset )
+{
+   proto_item *temp_item, *ri, *ci;
+   proto_item *sockaddr_item;
+	proto_tree *temp_tree, *cip_tree, *item_tree, *sockaddr_tree;
+	int temp_data, item_count, item_length, item, i;
+	char temp_char;
+	unsigned char name_length;
+
+	/* Show Common Data Format sub tree */
+	item_count = tvb_get_letohs( tvb, offset );
+   ri = proto_tree_add_text( tree, tvb, offset, 2, "Item Count: %d", item_count );
+	cip_tree = proto_item_add_subtree(ri, ett_cip);
+
+	while( item_count-- )
+	{
+		/* Add item type tree */
+		ci = proto_tree_add_item(cip_tree, hf_enip_cpf_typeid, tvb, offset+2, 2, TRUE );
+		item_tree = proto_item_add_subtree(ci, ett_cpf);
+
+		/* Add length field */
       temp_data = tvb_get_letohs( tvb, offset+4 );
       proto_tree_add_text( item_tree, tvb, offset+4, 2, "Length: %d", temp_data );
 
-      item        = tvb_get_letohs( tvb, offset+2 );
-      item_length = tvb_get_letohs( tvb, offset+4 );
+		item        = tvb_get_letohs( tvb, offset+2 );
+		item_length = tvb_get_letohs( tvb, offset+4 );
 
-      if( item_length )
-      {
-         /* Add item data field */
+		if( item_length )
+		{
+		   /* Add item data field */
 
-	 switch( item )
-	 {
-            case CONNECTION_BASED:
+			switch( item )
+			{
+			   case CONNECTION_BASED:
 
-               /* Add Connection identifier */
-               proto_tree_add_text( item_tree, tvb, offset+6, 4, "Connection Identifier: 0x%04X", tvb_get_letohl( tvb, offset + 6 )  );
-               break;
+			      /* Add Connection identifier */
+			      proto_tree_add_text( item_tree, tvb, offset+6, 4, "Connection Identifier: 0x%04X", tvb_get_letohl( tvb, offset + 6 )  );
+			      break;
 
-            case UNCONNECTED_MSG:
+			   case UNCONNECTED_MSG:
 
-               /* Add Service code & Request/Response tree */
-               rrsci = proto_tree_add_text(item_tree, tvb, offset+6, 1, "Service: ");
-               rrsci_tree = proto_item_add_subtree(rrsci, ett_rrsc);
+					/* Add CIP data tree*/
+					add_cip_data( item_tree, tvb, offset+6, item_length );
 
-               /* Add Request/Response */
-               proto_tree_add_item(rrsci_tree, hf_enip_ucm_rr,
-							tvb, offset+6, 1, TRUE );
+					break;
 
-               proto_item_append_text( rrsci, "%s (%s)",
-                           val_to_str( ( tvb_get_guint8( tvb, offset+6 ) & 0x7F ),
-                              encap_sc_vals , "Unknown service code (%x)"),
-                           val_to_str( ( tvb_get_guint8( tvb, offset+6 ) & 0x80 )>>7,
-                              encap_sc_rr, "") );
+            case CONNECTION_TRANSPORT:
 
-               /* Add Service code */
-               proto_tree_add_item(rrsci_tree, hf_enip_ucm_sc,
-                           tvb, offset+6, 1, TRUE );
-
-               if( tvb_get_guint8( tvb, offset+6 ) & 0x80 )
+               if( encap_service == SEND_UNIT_DATA )
                {
-                  /* Response */
-                  /* Add status */
-                  gen_stat = tvb_get_guint8( tvb, offset+8 );
+                  /*
+                  ** If the encapsulation service is SendUnit Data, this is a
+                  ** encapsulated connected message
+                  */
 
-                  proto_tree_add_item(item_tree, hf_enip_ucm_genstat,
-                           tvb, offset+8, 1, TRUE );
+                  /* Add sequence count ( Transport Class 1,2,3 )*/
+                  proto_tree_add_text( item_tree, tvb, offset+6, 2, "Sequence Count: 0x%04X", tvb_get_letohs( tvb, offset+6 ) );
 
-                  temp_data = tvb_get_guint8( tvb, offset+9 );
-                  proto_tree_add_text( item_tree, tvb, offset+9, 1, "Additional status size: %d (word)", temp_data );
-
-                  add_stat_size = tvb_get_guint8( tvb, offset+9 )*2;
-
-                  if( add_stat_size )
-                  {
-                     add_byte_array_text_to_proto_tree( item_tree, tvb, offset+10, add_stat_size, "Additional status: " );
-                  }
-
-                  /* If there is any command specific data create a sub-tree for it */
-                  if( ( item_length-4-add_stat_size ) != 0 )
-                  {
-                     pi = proto_tree_add_text( item_tree, tvb, offset+10+add_stat_size, item_length-4-add_stat_size, "Command specific data" );
-                     cmd_data_tree = proto_item_add_subtree( pi, ett_cmd_data );
-                     if( gen_stat == CI_GRC_SUCCESS )
-                     {
-                        if( ( tvb_get_guint8( tvb, offset+6 ) & 0x7F ) == SC_FWD_OPEN )
-                        {
-                           /* Forward open Response */
-
-                           /* Display originator to target connection ID */
-                           temp_data = tvb_get_letohl( tvb, offset+10+add_stat_size );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size, 4, "O->T Network Connection ID: 0x%08X", temp_data );
-
-                           /* Display target to originator connection ID */
-                           temp_data = tvb_get_letohl( tvb, offset+10+add_stat_size+4 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+4, 4, "T->O Network Connection ID: 0x%08X", temp_data );
-
-                           /* Display connection serial number */
-                           temp_data = tvb_get_letohs( tvb, offset+10+add_stat_size+8 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+8, 2, "Connection Serial Number: 0x%04X", temp_data );
-
-                           /* Display the originator vendor id */
-                           proto_tree_add_item( cmd_data_tree, hf_enip_vendors, tvb, offset+10+add_stat_size+10, 2, TRUE);
-
-   		           /* Display the originator serial number */
-                           temp_data = tvb_get_letohl( tvb, offset+10+add_stat_size+12 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+12, 4, "Originator Serial Number: 0x%08X", temp_data );
-
-                           /* Display originator to target actual packet interval */
-                           temp_data = tvb_get_letohl( tvb, offset+10+add_stat_size+16 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+16, 4, "O->T API: %dms (0x%08X)", temp_data / 1000, temp_data );
-
-                           /* Display originator to target actual packet interval */
-                           temp_data = tvb_get_letohl( tvb, offset+10+add_stat_size+20 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+20, 4, "T->O API: %dms (0x%08X)", temp_data / 1000, temp_data );
-
-                           /* Display the application reply size */
-                           app_rep_size = tvb_get_guint8( tvb, offset+10+add_stat_size+24 ) * 2;
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+24, 1, "Application Reply Size: 0x%02X (words)", app_rep_size / 2 );
-
-                           /* Display the Reserved byte */
-                           temp_byte = tvb_get_guint8( tvb, offset+10+add_stat_size+25 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+25, 1, "Reserved: 0x%02X", temp_byte );
-
-                           if( app_rep_size != 0 )
-                           {
-                              /* Display application Reply data */
-                              ar_item = proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+26, app_rep_size, "Application Reply:" );
-
-                              for( i=0; i < app_rep_size; i ++ )
-                              {
-                                temp_byte = tvb_get_guint8( tvb, offset+10+add_stat_size+26+i );
-                                proto_item_append_text(ar_item, " 0x%02X", temp_byte );
-                              }
-
-                            } /* End of if reply data */
-
-                        } /* End of if forward open response */
-                        else if( ( tvb_get_guint8( tvb, offset+6 ) & 0x7F ) == SC_FWD_CLOSE )
-                        {
-                           /* Forward close response */
-
-                           /* Display connection serial number */
-                           temp_data = tvb_get_letohs( tvb, offset+10+add_stat_size );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size, 2, "Connection Serial Number: 0x%04X", temp_data );
-
-                           /* Display the originator vendor id */
-                           proto_tree_add_item( cmd_data_tree, hf_enip_vendors, tvb, offset+10+add_stat_size+2, 2, TRUE);
-
-                           /* Display the originator serial number */
-                           temp_data = tvb_get_letohl( tvb, offset+10+add_stat_size+4 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+4, 4, "Originator Serial Number: 0x%08X", temp_data );
-
-                           /* Display the application reply size */
-                           app_rep_size = tvb_get_guint8( tvb, offset+10+add_stat_size+8 ) * 2;
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+8, 1, "Application Reply Size: 0x%02X (words)", app_rep_size / 2 );
-
-                           /* Display the Reserved byte */
-                           temp_byte = tvb_get_guint8( tvb, offset+10+add_stat_size+9 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+9, 1, "Reserved: 0x%02X", temp_byte );
-
-                           if( app_rep_size != 0 )
-                           {
-                              /* Display application Reply data */
-                              ar_item = proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+10, app_rep_size, "Application Reply:" );
-
-                              for( i=0; i < app_rep_size; i ++ )
-                              {
-                                temp_byte = tvb_get_guint8( tvb, offset+10+add_stat_size+10+i );
-                                proto_item_append_text(ar_item, " 0x%02X", temp_byte );
-                              }
-
-                            } /* End of if reply data */
-
-                        } /* End of if forward close response */
-                        else if( ( tvb_get_guint8( tvb, offset+6 ) & 0x7F ) == SC_UNCON_SEND )
-                        {
-                           /* Unconnected send response */
-
-                           /* Display reply service */
-                           temp_data = tvb_get_guint8( tvb, offset+10+add_stat_size );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size, 1, "Reply Service: 0x%02X", temp_data );
-
-                           /* Display reseved byte */
-                           temp_data = tvb_get_guint8( tvb, offset+10+add_stat_size+1 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+1, 1, "Reserved: 0x%02X", temp_data );
-
-                           /* Display general status */
-                           temp_data = tvb_get_guint8( tvb, offset+10+add_stat_size+2 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+2, 1, "General Status: 0x%02X", temp_data );
-
-                           /* Display reseved byte */
-                           temp_data = tvb_get_guint8( tvb, offset+10+add_stat_size+3 );
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+10+add_stat_size+3, 1, "Reserved: 0x%02X", temp_data );
-
-                           /* Display service responce data */
-                           add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+10+add_stat_size+4, item_length-8-add_stat_size, "Data: " );
-                        }
-                        else
-                        {
-                           /* Add data */
-                           add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+10+add_stat_size, item_length-4-add_stat_size, "Data: " );
-                        } /* End of check service code */
-
-                     } /* End of if CI_GRC_SUCCESS */
-
-                  } /* End of if command-specific data present */
-
-               } /* End of if reply */
+                  /* Add CIP data tree */
+                  add_cip_data( item_tree, tvb, offset+8, item_length-2 );
+               }
                else
                {
-                  /* Request */
+                  /* Display data */
+                  add_byte_array_text_to_proto_tree( item_tree, tvb, offset+6, item_length, "Data: " );
 
-                  /* Add path size */
-                  req_path_size = tvb_get_guint8( tvb, offset+7 )*2;
-                  proto_tree_add_text( item_tree, tvb, offset+7, 1, "Request Path Size: %d (words)", req_path_size/2 );
-
-                  /* Add the epath */
-                  pi = proto_tree_add_text(item_tree, tvb, offset+8, req_path_size, "Request Path: ");
-                  show_epath( tvb, pi, offset+8, req_path_size );
-
-                  /* If there is any command specific data creat a sub-tree for it */
-                  if( (item_length-req_path_size-2) != 0 )
-                  {
-
-                     pi = proto_tree_add_text( item_tree, tvb, offset+8+req_path_size, item_length-req_path_size-2, "Command specific data" );
-                     cmd_data_tree = proto_item_add_subtree( pi, ett_cmd_data );
-
-                     /* Check what service code that recived */
-
-                     if( tvb_get_guint8( tvb, offset+6 ) == SC_FWD_OPEN )
-                     {
-                        /* Forward open Request*/
-
-                        /* Display the priority/tick timer */
-                        temp_byte = tvb_get_guint8( tvb, offset+8+req_path_size );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size, 1, "Priority/Time_tick: 0x%02X", temp_byte );
-
-                        /* Display the time-out ticks */
-                        temp_data = tvb_get_guint8( tvb, offset+8+req_path_size+1 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+1, 1, "Time-out_ticks: %d", temp_data );
-
-                        /* Display the actual time out */
-                        temp_data = ( 1 << ( temp_byte & 0x0F ) ) * temp_data;
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size, 2, "Actual Time Out: %dms", temp_data );
-
-                        /* Display originator to taget connection ID */
-                        temp_data = tvb_get_letohl( tvb, offset+8+req_path_size+2 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+2, 4, "O->T Network Connection ID: 0x%08X", temp_data );
-
-                        /* Display target to originator connection ID */
-                        temp_data = tvb_get_letohl( tvb, offset+8+req_path_size+6 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+6, 4, "T->O Network Connection ID: 0x%08X", temp_data );
-
-                        /* Display connection serial number */
-                        temp_data = tvb_get_letohs( tvb, offset+8+req_path_size+10 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+10, 2, "Connection Serial Number: 0x%04X", temp_data );
-
-                        /* Display the originator vendor id */
-                        proto_tree_add_item( cmd_data_tree, hf_enip_vendors, tvb, offset+8+req_path_size+12, 2, TRUE);
-
-                        /* Display the originator serial number */
-                        temp_data = tvb_get_letohl( tvb, offset+8+req_path_size+14 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+14, 4, "Originator Serial Number: 0x%08X", temp_data );
-
-                        /* Display the timeout multiplier */
-                        temp_data = tvb_get_guint8( tvb, offset+8+req_path_size+18 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+18, 1, "Connection Timeout Multiplier: %s (%d)", val_to_str( temp_data, enip_con_time_mult_vals , "Reserved" ), temp_data );
-
-                        /* Put out an indicator for the reserved bytes */
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+19, 3, "Reserved data" );
-
-                        /* Display originator to target requested packet interval */
-                        temp_data = tvb_get_letohl( tvb, offset+8+req_path_size+22 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+22, 4, "O->T RPI: %dms (0x%08X)", temp_data / 1000, temp_data );
-
-                        /* Display originator to target network connection patameterts, in a tree */
-                        temp_data = tvb_get_letohs( tvb, offset+8+req_path_size+26 );
-                        ncppi = proto_tree_add_text(cmd_data_tree, tvb, offset+8+req_path_size+26, 2, "O->T Network Connection Parameters: 0x%04X", temp_data );
-                        ncp_tree = proto_item_add_subtree(ncppi, ett_ncp);
-
-                        /* Add the data to the tree */
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_own,
-                           tvb, offset+8+req_path_size+26, 2, TRUE );
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_typ,
-                           tvb, offset+8+req_path_size+26, 2, TRUE );
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_prio,
-                           tvb, offset+8+req_path_size+26, 2, TRUE );
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_fixed_var,
-                           tvb, offset+8+req_path_size+26, 2, TRUE );
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_con_size,
-                           tvb, offset+8+req_path_size+26, 2, TRUE );
-
-                        /* Display target to originator requested packet interval */
-                        temp_data = tvb_get_letohl( tvb, offset+8+req_path_size+28 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+28, 4, "T->O RPI: %dms (0x%08X)", temp_data / 1000, temp_data );
-
-                        /* Display target to originator network connection patameterts, in a tree */
-                        temp_data = tvb_get_letohs( tvb, offset+8+req_path_size+32 );
-                        ncppi = proto_tree_add_text(cmd_data_tree, tvb, offset+8+req_path_size+32, 2, "T->O Network Connection Parameters: 0x%04X", temp_data );
-                        ncp_tree = proto_item_add_subtree(ncppi, ett_ncp);
-
-                        /* Add the data to the tree */
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_own,
-                           tvb, offset+8+req_path_size+32, 2, TRUE );
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_typ,
-                           tvb, offset+8+req_path_size+32, 2, TRUE );
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_prio,
-                           tvb, offset+8+req_path_size+32, 2, TRUE );
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_fixed_var,
-                           tvb, offset+8+req_path_size+32, 2, TRUE );
-                        proto_tree_add_item(ncp_tree, hf_enip_ucm_fwo_con_size,
-                           tvb, offset+8+req_path_size+32, 2, TRUE );
-
-                        /* Transport type/trigger */
-                        temp_data = tvb_get_guint8( tvb, offset+8+req_path_size+34 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+34, 1, "Transport Type/Trigger: 0x%02X", temp_data );
-
-                        /* Add path size */
-                        conn_path_size = tvb_get_guint8( tvb, offset+8+req_path_size+35 )*2;
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+35, 1, "Connection Path Size: %d (words)", conn_path_size / 2 );
-
-                        /* Add the epath */
-                        pi = proto_tree_add_text(cmd_data_tree, tvb, offset+8+req_path_size+36, conn_path_size, "Connection Path: ");
-                        show_epath( tvb, pi, offset+8+req_path_size+36, conn_path_size );
-                     }
-                     else if( tvb_get_guint8( tvb, offset+6 ) == SC_FWD_CLOSE )
-                     {
-                        /* Forward Close Request */
-
-                        /* Display the priority/tick timer */
-                        temp_byte = tvb_get_guint8( tvb, offset+8+req_path_size );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size, 1, "Priority/Time_tick: 0x%02X", temp_byte );
-
-                        /* Display the time-out ticks */
-                        temp_data = tvb_get_guint8( tvb, offset+8+req_path_size+1 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+1, 1, "Time-out_ticks: %d", temp_data );
-
-                        /* Display connection serial number */
-                        temp_data = tvb_get_letohs( tvb, offset+8+req_path_size+2 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+2, 2, "Connection Serial Number: 0x%04X", temp_data );
-
-                        /* Display the originator vendor id */
-                        proto_tree_add_item( cmd_data_tree, hf_enip_vendors, tvb, offset+8+req_path_size+4, 2, TRUE);
-
-                        /* Display the originator serial number */
-                        temp_data = tvb_get_letohl( tvb, offset+8+req_path_size+6 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+6, 4, "Originator Serial Number: 0x%08X", temp_data );
-
-                        /* Add the path size */
-                        conn_path_size = tvb_get_guint8( tvb, offset+8+req_path_size+10 )*2;
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+10, 1, "Connection Path Size: %d (words)", conn_path_size / 2 );
-
-                        /* Add the reserved byte */
-                        temp_byte = tvb_get_guint8( tvb, offset+8+req_path_size+11 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+11, 1, "Reserved: 0x%02X", temp_byte );
-
-                        /* Add the EPATH */
-                        pi = proto_tree_add_text(cmd_data_tree, tvb, offset+8+req_path_size+12, conn_path_size, "Connection Path: ");
-                        show_epath( tvb, pi, offset+8+req_path_size+12, conn_path_size );
-
-                     } /* End of forward close */
-                     else if( tvb_get_guint8( tvb, offset+6 ) == SC_UNCON_SEND )
-                     {
-                        /* Unconnected send */
-
-                        /* Display the priority/tick timer */
-                        temp_byte = tvb_get_guint8( tvb, offset+8+req_path_size );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size, 1, "Priority/Time_tick: 0x%02X", temp_byte );
-
-                        /* Display the time-out ticks */
-                        temp_data = tvb_get_guint8( tvb, offset+8+req_path_size+1 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+1, 1, "Time-out_ticks: %d", temp_data );
-
-                        /* Message request size */
-                        msg_req_siz = tvb_get_letohs( tvb, offset+8+req_path_size+2 );
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+2, 2, "Message Request Size: 0x%04X", msg_req_siz );
-
-                        /* Message Request */
-                        temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+4, msg_req_siz, "Message Request" );
-                        temp_tree = proto_item_add_subtree(temp_item, ett_mes_req );
-
-                        /* MR - Service */
-                        temp_data = tvb_get_guint8( tvb, offset+8+req_path_size+4 );
-                        proto_tree_add_text( temp_tree, tvb, offset+8+req_path_size+4, 1, "Service: %s (0x%02X)", val_to_str( temp_data, encap_sc_vals , "" ), temp_data );
-
-                        /* MR - Request path Size */
-                        mr_req_path_size = tvb_get_guint8( tvb, offset+8+req_path_size+5 )*2;
-                        proto_tree_add_text( temp_tree, tvb, offset+8+req_path_size+5, 1, "Request Path Size: %d (words)", mr_req_path_size/2 );
-
-                        /* MR - EPATH */
-                        temp_item = proto_tree_add_text(temp_tree, tvb, offset+8+req_path_size+6, mr_req_path_size, "Request Path: ");
-                        show_epath( tvb, temp_item, offset+8+req_path_size+6, mr_req_path_size );
-
-                        /* MR - Request data */
-
-                        i=0;
-
-                        if( ( msg_req_siz-2-mr_req_path_size ) != 0 )
-                        {
-                           mr_data_item = proto_tree_add_text( temp_tree, tvb, offset+8+req_path_size+6+mr_req_path_size, 0, "Request Data: " );
-
-                           for( i=0; i < msg_req_siz; i++ )
-                           {
-                             temp_byte = tvb_get_guint8( tvb, offset+8+req_path_size+6+mr_req_path_size+i );
-                             proto_item_append_text(mr_data_item, "%c", temp_byte );
-                           }
-                        }
-
-                        if( msg_req_siz % 2 )
-                        {
-                           /* PAD BYTE */
-                           proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+6+mr_req_path_size+i, 1, "Pad Byte (0x%02X)",
-                              tvb_get_guint8( tvb, offset+8+req_path_size+6+mr_req_path_size+i ) );
-
-                           offset++;
-                        }
-
-                        /* Route Path Size */
-                        route_path_size = tvb_get_guint8( tvb, offset+8+req_path_size+6+mr_req_path_size+i )*2;
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+6+mr_req_path_size+i, 1, "Route Path Size: %d (words)", route_path_size/2 );
-
-                        /* Reserved */
-                        proto_tree_add_text( cmd_data_tree, tvb, offset+8+req_path_size+6+mr_req_path_size+i+1, 1, "Reserved (0x%02X)",
-                           tvb_get_guint8( tvb, offset+8+req_path_size+6+mr_req_path_size+i+1 ) );
-
-                        /* Route Path */
-                        temp_item = proto_tree_add_text(cmd_data_tree, tvb, offset+8+req_path_size+6+mr_req_path_size+i+2, route_path_size, "Route Path");
-                        show_epath( tvb, temp_item, offset+8+req_path_size+6+mr_req_path_size+i+2, route_path_size );
-
-                     } /* End if unconnected send */
-                     else
-                     {
-                        /* For all other service codes just display the data */
-
-                        /* Add data */
-                        add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+8+req_path_size, item_length-req_path_size-2, "Data: " );
-                     } /* End of check service code */
-
-                  } /* End of if command-specific data present */
-
-               } /* end of if-else( request ) */
+               } /* End of if send unit data */
 
                break;
 
@@ -1669,7 +1831,7 @@ show_cdf( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset )
 
                /* Encapsulation version */
                temp_data = tvb_get_letohs( tvb, offset+6 );
-               proto_tree_add_text( item_tree, tvb, offset+6, 2, "Encapsulation version: %d", temp_data );
+               proto_tree_add_text( item_tree, tvb, offset+6, 2, "Encapsulation Version: %d", temp_data );
 
                /* Socket Address */
                sockaddr_item = proto_tree_add_text( item_tree, tvb, offset+8, 16, "Socket Address");
@@ -1704,8 +1866,8 @@ show_cdf( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset )
 							tvb, offset+28, 2, TRUE );
 
                /* Revision */
-               proto_tree_add_item(item_tree, hf_enip_cpf_lir_revision,
-							tvb, offset+30, 2, TRUE );
+               temp_data = tvb_get_letohs( tvb, offset+30 );
+               proto_tree_add_text( item_tree, tvb, offset+30, 2, "Revision: v.%d.%02d", temp_data & 0xFF, ( temp_data & 0xFF00 ) >> 8 );
 
                /* Status */
                proto_tree_add_item(item_tree, hf_enip_cpf_lir_status,
@@ -1767,7 +1929,7 @@ show_cdf( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset )
 	               col_clear(pinfo->cinfo, COL_INFO);
 
                   col_add_fstr(pinfo->cinfo, COL_INFO,
-				         "Connection: ID=0x%04X, SEQ=%05d",
+				         "Connection: ID=0x%08X, SEQ=%010d",
 				         tvb_get_letohl( tvb, offset+6 ),
 				         tvb_get_letohl( tvb, offset+10 ) );
 				   }
@@ -1778,7 +1940,7 @@ show_cdf( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset )
 
                /* Encapsulation version */
                temp_data = tvb_get_letohs( tvb, offset+6 );
-               proto_tree_add_text( item_tree, tvb, offset+6, 2, "Encapsulation version: %d", temp_data );
+               proto_tree_add_text( item_tree, tvb, offset+6, 2, "Encapsulation Version: %d", temp_data );
 
                /* Capability flags */
                temp_data = tvb_get_letohs( tvb, offset+8 );
@@ -1791,13 +1953,13 @@ show_cdf( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset )
       			   tvb, offset+8, 2, TRUE );
 
                /* Name of service */
-               temp_item = proto_tree_add_text( item_tree, tvb, offset+10, 16, "Name of service: " );
+               temp_item = proto_tree_add_text( item_tree, tvb, offset+10, 16, "Name Of Service: " );
 
                for( i=0; i<16; i++ )
                {
                     temp_char = tvb_get_guint8( tvb, offset+10+i );
 
-                    if( temp_char == '\0' )
+                    if( temp_char == 0 )
                      break;
 
                     proto_item_append_text(temp_item, "%c", temp_char );
@@ -1879,13 +2041,13 @@ dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		cmd_string = val_to_str(tvb_get_letohs( tvb, 0 ), encap_cmd_vals,
-	    "Unknown command (%u)");
+	    "Unknown Command (%u)");
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%s: %s, Session=0x%08X",
 				pkt_type_str, cmd_string, tvb_get_letohl( tvb, 4 ) );
 
-		if( strstr( cmd_string, "Unknown command" ) != NULL )
+		if( strstr( cmd_string, "Unknown Command" ) != NULL )
 		{
          /* Unknown command, since we don't have any information about this command
          just print the info column and the tree header. */
@@ -1924,10 +2086,10 @@ dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text( headertree, tvb, 2, 2, "Length: %d", encap_data_length );
 
       temp_data = tvb_get_letohl( tvb, 4 );
-      proto_tree_add_text( headertree, tvb, 4, 4, "Session handle: 0x%08X", temp_data );
+      proto_tree_add_text( headertree, tvb, 4, 4, "Session Handle: 0x%08X", temp_data );
 
       temp_data = tvb_get_letohl( tvb, 8 );
-      proto_tree_add_text( headertree, tvb, 8, 4, "Status: %s (0x%08X)", val_to_str( temp_data, encap_status_vals , "Unknown status code" ), temp_data );
+      proto_tree_add_text( headertree, tvb, 8, 4, "Status: %s (0x%08X)", val_to_str( temp_data, encap_status_vals , "Unknown Status Code" ), temp_data );
 
       add_byte_array_text_to_proto_tree( headertree, tvb, 12, 8, "Sender context: " );
 
@@ -1949,27 +2111,27 @@ dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		   switch( encap_cmd )
 			{
             case NOP:
-				   show_cdf( tvb, pinfo, csftree, 24 );
+				   show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
 					break;
 
 				case LIST_SERVICES:
-				   show_cdf( tvb, pinfo, csftree, 24 );
+				   show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
 					break;
 
 				case LIST_IDENTITY:
-				   show_cdf( tvb, pinfo, csftree, 24 );
+				   show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
 					break;
 
 				case LIST_INTERFACES:
-				   show_cdf( tvb, pinfo, csftree, 24 );
+				   show_cdf( encap_cmd, tvb, pinfo, csftree, 24 );
 					break;
 
 				case REGISTER_SESSION:
                temp_data = tvb_get_letohs( tvb, 24 );
-               proto_tree_add_text( csftree, tvb, 24, 2, "Protocol version: 0x%04X", temp_data );
+               proto_tree_add_text( csftree, tvb, 24, 2, "Protocol Version: 0x%04X", temp_data );
 
                temp_data = tvb_get_letohs( tvb, 26 );
-               proto_tree_add_text( csftree, tvb, 26, 2, "Option flags: 0x%04X", temp_data );
+               proto_tree_add_text( csftree, tvb, 26, 2, "Option Flags: 0x%04X", temp_data );
 
 					break;
 
@@ -1983,7 +2145,7 @@ dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                temp_data = tvb_get_letohs( tvb, 28 );
                proto_tree_add_text( csftree, tvb, 28, 2, "Timeout: %d", temp_data );
 
-					show_cdf( tvb, pinfo, csftree, 30 );
+					show_cdf( encap_cmd, tvb, pinfo, csftree, 30 );
 					break;
 
 				case INDICATE_STATUS:
@@ -1991,7 +2153,7 @@ dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   default:
 
 				   /* Can not decode - Just show the data */
-               add_byte_array_text_to_proto_tree( headertree, tvb, 24, encap_data_length, "Encap data: " );
+               add_byte_array_text_to_proto_tree( headertree, tvb, 24, encap_data_length, "Encap Data: " );
                break;
 
 			} /* end of switch() */
@@ -2001,7 +2163,8 @@ dissect_cipencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
    /* If this protocol has a sub-dissector call it here, see section 1.8 */
-}
+
+} /* end of dissect_cipencap() */
 
 
 /* Code to actually dissect the io packets*/
@@ -2025,9 +2188,10 @@ dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		cipencap_tree = proto_item_add_subtree(ti, ett_cipencap);
 
-      show_cdf( tvb, pinfo, cipencap_tree, 0 );
+      show_cdf( 0xFFFF, tvb, pinfo, cipencap_tree, 0 );
 	}
-}
+
+} /* end of dissect_enipio() */
 
 
 /* Register the protocol with Ethereal */
@@ -2115,11 +2279,6 @@ proto_register_cipencap(void)
 			{ "Product Code", "enip.lir.prodcode",
 			FT_UINT16, BASE_DEC, NULL, 0,
 			"Product Code", HFILL }
-		},
-      { &hf_enip_cpf_lir_revision,
-			{ "Revision", "enip.lir.revision",
-			FT_BYTES, BASE_DEC, NULL, 0,
-			"Revision", HFILL }
 		},
       { &hf_enip_cpf_lir_status,
 			{ "Status", "enip.lir.status",
@@ -2230,7 +2389,8 @@ proto_register_cipencap(void)
 		&ett_lsrcf,
 		&ett_mes_req,
 		&ett_cmd_data,
-		&ett_port_path
+		&ett_port_path,
+		&ett_mult_ser
 	};
 
 /* Register the protocol name and description */
@@ -2240,7 +2400,8 @@ proto_register_cipencap(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_cipencap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-}
+
+} /* end of proto_register_cipencap() */
 
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -2262,4 +2423,5 @@ proto_reg_handoff_cipencap(void)
 	/* Register for IO data over UDP */
 	enipio_handle = create_dissector_handle(dissect_enipio, proto_cipencap);
 	dissector_add("udp.port", ENIP_IO_PORT, enipio_handle);
-}
+
+} /* end of proto_reg_handoff_cipencap() */
