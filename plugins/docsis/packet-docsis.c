@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-docsis.c,v 1.4 2002/07/21 00:22:17 guy Exp $
+ * $Id: packet-docsis.c,v 1.5 2002/07/22 20:18:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,6 +105,10 @@ static int hf_docsis_lensid = -1;
 static int hf_docsis_eh_type = -1;
 static int hf_docsis_eh_len = -1;
 static int hf_docsis_eh_val = -1;
+static int hf_docsis_frag_rsvd = -1;
+static int hf_docsis_frag_first = -1;
+static int hf_docsis_frag_last = -1;
+static int hf_docsis_frag_seq = -1;
 static int hf_docsis_sid = -1;
 static int hf_docsis_mini_slots = -1;
 static int hf_docsis_hcs = -1;
@@ -173,6 +177,12 @@ static const true_false_string ena_dis_tfs = {
   "Disabled"
 };
 
+static const value_string true_false_vals[] = {
+  { 0x00 , "False"},
+  { 0x01 , "True" },
+  { 0x00 , NULL }
+};
+
 static const value_string ena_dis_vals[] = {
   {0, "Disabled"},
   {1, "Enabled"},
@@ -187,7 +197,7 @@ static const value_string odd_even_vals[] = {
 /* Code to actually dissect the packets */
 /* Code to Dissect the extended header */
 static void
-dissect_ehdr (tvbuff_t * tvb, proto_tree * tree)
+dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
 {
   proto_tree *ehdr_tree;
   proto_item *it;
@@ -250,6 +260,17 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree)
 			       FALSE);
 	  proto_tree_add_item (ehdr_tree, hf_docsis_mini_slots, tvb, pos + 4,
 			       1, FALSE);
+	  if (isfrag) 
+	    {
+	      proto_tree_add_item (ehdr_tree, hf_docsis_frag_rsvd, tvb, pos+5,
+	                          1, FALSE);
+	      proto_tree_add_item (ehdr_tree, hf_docsis_frag_first, tvb, pos+5,
+			          1, FALSE);
+	      proto_tree_add_item (ehdr_tree, hf_docsis_frag_last, tvb, pos+5,
+			          1, FALSE);
+	      proto_tree_add_item (ehdr_tree, hf_docsis_frag_seq, tvb, pos+5,
+			          1, FALSE);
+	    }
 	  break;
 	case EH_BP_DOWN:
 	  proto_tree_add_item (ehdr_tree, hf_docsis_key_seq, tvb, pos + 1, 1,
@@ -289,6 +310,8 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint16 len_sid;
   tvbuff_t *next_tvb, *mgt_tvb;
   guint16 pdulen, captured_length, framelen;
+  gboolean isfrag = FALSE;
+  
 /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *ti;
   proto_tree *docsis_tree;
@@ -360,9 +383,9 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			  "Request Frame SID = %u Mini Slots = %u", len_sid,
 			  mac_parm);
 	  else if (fcparm == 0x03)
-	    col_set_str (pinfo->cinfo, COL_INFO, "Mac Specific");
-	  else
 	    col_set_str (pinfo->cinfo, COL_INFO, "Fragmented Frame");
+	  else
+	    col_set_str (pinfo->cinfo, COL_INFO, "Mac Specific");
 	  break;
 	}			/* switch */
     }				/* if */
@@ -392,7 +415,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				   FALSE);
 	      proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
 				   FALSE);
-	      dissect_ehdr (tvb, docsis_tree);
+	      dissect_ehdr (tvb, docsis_tree, isfrag);
 	      proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
 				   4 + mac_parm, 2, FALSE);
 	    }
@@ -422,6 +445,11 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				   FALSE);
 	      break;
 	    }
+	  /* Check if this is a fragmentation header */
+	  if (fcparm == 0x03)
+	    {
+	      isfrag = TRUE;
+	    }
 	  /* Decode for a Concatenated Header.  No Extended Header */
 	  if (fcparm == 0x1c)
 	    {
@@ -441,7 +469,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				   FALSE);
 	      proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
 				   FALSE);
-	      dissect_ehdr (tvb, docsis_tree);
+	      dissect_ehdr (tvb, docsis_tree, isfrag);
 	      proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
 				   4 + mac_parm, 2, FALSE);
 	      break;
@@ -585,6 +613,26 @@ proto_register_docsis (void)
      {"Value", "docsis.ehdr.value",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "TLV Value", HFILL}
+     },
+    {&hf_docsis_frag_rsvd,
+     {"Reserved", "docsis.frag_rsvd",
+      FT_UINT8, BASE_DEC, NULL, 0xC0,
+      "Reserved", HFILL}
+     },
+    {&hf_docsis_frag_first,
+     {"First Frame", "docsis.frag_first",
+      FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x20,
+      "First Frame", HFILL}
+     },
+    {&hf_docsis_frag_last,
+     {"Last Frame", "docsis.frag_last",
+      FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x10,
+      "Last Frame", HFILL}
+     },
+    {&hf_docsis_frag_seq,
+     {"Fragmentation Sequence #", "docsis.frag_seq",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
+      "Fragmentation Sequence Number", HFILL}
      },
     {&hf_docsis_sid,
      {"SID", "docsis.ehdr.sid",
