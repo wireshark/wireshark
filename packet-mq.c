@@ -3,7 +3,7 @@
  *
  * metatech <metatech@flashmail.com>
  *
- * $Id: packet-mq.c,v 1.5 2004/05/01 21:18:09 guy Exp $
+ * $Id: packet-mq.c,v 1.6 2004/05/11 11:27:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,6 @@
 *   - Find the semantics of the unknown fields
 *   - Display EBCDIC strings as ASCII
 *   - Packets which structures built on different platforms
-*   - Reassembly of MQ segments
 */
 
 #ifdef HAVE_CONFIG_H
@@ -72,6 +71,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include "reassemble.h"
 #include "prefs.h"
 #include "packet-tcp.h"
 #include "packet-mq.h"
@@ -184,8 +184,11 @@ static int hf_mq_put_length = -1;
 static int hf_mq_open_options = -1;
 static int hf_mq_ping_length = -1;
 static int hf_mq_ping_buffer = -1;
+static int hf_mq_reset_length = -1;
+static int hf_mq_reset_seqnum = -1;
 static int hf_mq_status_length = -1;
 static int hf_mq_status_code = -1;
+static int hf_mq_status_value = -1;
 static int hf_mq_od_structid = -1;
 static int hf_mq_od_version = -1;
 static int hf_mq_od_objecttype = -1;
@@ -336,6 +339,7 @@ static gint ett_mq_spi_options = -1;
 static gint ett_mq_put = -1;
 static gint ett_mq_open = -1;
 static gint ett_mq_ping = -1;
+static gint ett_mq_reset = -1;
 static gint ett_mq_status = -1;
 static gint ett_mq_od = -1;
 static gint ett_mq_or = -1;
@@ -360,6 +364,11 @@ static dissector_handle_t data_handle;
 static heur_dissector_list_t mq_heur_subdissector_list;
 
 static gboolean mq_desegment = TRUE;
+static gboolean mq_reassembly = FALSE;
+
+static GHashTable *mq_fragment_table = NULL;
+static GHashTable *mq_reassembled_table = NULL;
+
 
 #define MQ_PORT_TCP    1414
 #define MQ_SOCKET_SPX  0x5E86
@@ -555,7 +564,6 @@ static gboolean mq_desegment = TRUE;
 #define MQ_XA_RBPROTO      105
 #define MQ_XA_RBTIMEOUT    106
 #define MQ_XA_RBTRANSIENT  107
-#define MQ_XA_RBEND        107
 #define MQ_XA_NOMIGRATE    9
 #define MQ_XA_HEURHAZ      8
 #define MQ_XA_HEURCOM      7
@@ -603,6 +611,7 @@ static gboolean mq_desegment = TRUE;
 #define MQ_TEXT_PUT   "MQPUT/MQGET"
 #define MQ_TEXT_OPEN  "MQOPEN/MQCLOSE"
 #define MQ_TEXT_PING  "PING"
+#define MQ_TEXT_RESET "RESET"
 #define MQ_TEXT_STAT  "STATUS"
 #define MQ_TEXT_SPI   "SPI"
 #define MQ_TEXT_XA    "XA"
@@ -729,7 +738,6 @@ static const value_string mq_xaer_vals[] = {
   { MQ_XA_RBPROTO,            "XA_RBPROTO" },
   { MQ_XA_RBTIMEOUT,          "XA_RBTIMEOUT" },
   { MQ_XA_RBTRANSIENT,        "XA_RBTRANSIENT" },
-  { MQ_XA_RBEND,              "XA_RBEND" },
   { MQ_XA_NOMIGRATE,          "XA_NOMIGRATE" },
   { MQ_XA_HEURHAZ,            "XA_HEURHAZ" },
   { MQ_XA_HEURCOM,            "XA_HEURCOM" },
@@ -838,7 +846,6 @@ static gint
 dissect_mq_md(tvbuff_t *tvb, proto_tree *tree, gboolean bLittleEndian, gint offset, struct mq_msg_properties* tMsgProps)
 {
 	proto_tree	*mq_tree = NULL;
-	proto_item	*ti = NULL;
 	guint32 structId;
 	gint iSizeMD = 0;
 
@@ -863,6 +870,7 @@ dissect_mq_md(tvbuff_t *tvb, proto_tree *tree, gboolean bLittleEndian, gint offs
 				tMsgProps->iOffsetFormat   = offset + 32;
 				if (tree)
 				{
+					proto_item	*ti = NULL;
 					ti = proto_tree_add_text(tree, tvb, offset, iSizeMD, MQ_TEXT_MD);
 					mq_tree = proto_item_add_subtree(ti, ett_mq_md);
 	
@@ -1363,22 +1371,30 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					{
 						/* Some status are 28 bytes long and some are 36 bytes long */
 						guint32 iStatus = 0;
+						gint iStatusLength = 0;
 						iStatus = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
+						iStatusLength = tvb_get_guint32_endian(tvb, offset, bLittleEndian);
 
-						if (check_col(pinfo->cinfo, COL_INFO)) 
+						if (tvb_length_remaining(tvb, offset) >= iStatusLength)
 						{
-							if (iStatus != 0)
-								col_append_fstr(pinfo->cinfo, COL_INFO, ": Code=%s", val_to_str(iStatus, mq_status_vals, "Unknown (0x%08x)"));
+							if (check_col(pinfo->cinfo, COL_INFO)) 
+							{
+								if (iStatus != 0)
+									col_append_fstr(pinfo->cinfo, COL_INFO, ": Code=%s", val_to_str(iStatus, mq_status_vals, "Unknown (0x%08x)"));
+							}
+							if (tree)
+							{
+								ti = proto_tree_add_text(mqroot_tree, tvb, offset, 8, MQ_TEXT_STAT);
+								mq_tree = proto_item_add_subtree(ti, ett_mq_status);
+		
+								proto_tree_add_item(mq_tree, hf_mq_status_length, tvb, offset, 4, bLittleEndian);
+								proto_tree_add_item(mq_tree, hf_mq_status_code, tvb, offset + 4, 4, bLittleEndian);
+								
+								if (iStatusLength >= 12)
+									proto_tree_add_item(mq_tree, hf_mq_status_value, tvb, offset + 8, 4, bLittleEndian);
+							}
+							offset += iStatusLength;
 						}
-						if (tree)
-						{
-							ti = proto_tree_add_text(mqroot_tree, tvb, offset, 8, MQ_TEXT_STAT);
-							mq_tree = proto_item_add_subtree(ti, ett_mq_status);
-	
-							proto_tree_add_item(mq_tree, hf_mq_status_length, tvb, offset, 4, bLittleEndian);
-							proto_tree_add_item(mq_tree, hf_mq_status_code, tvb, offset + 4, 4, bLittleEndian);
-						}
-						offset += 8;
 					}
 					else if (opcode == MQ_TST_PING && tvb_length_remaining(tvb, offset) > 4)
 					{
@@ -1389,6 +1405,18 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 							proto_tree_add_item(mq_tree, hf_mq_ping_length, tvb, offset, 4, bLittleEndian);
 							proto_tree_add_item(mq_tree, hf_mq_ping_buffer, tvb, offset + 4, -1, FALSE);
+						}
+						offset = tvb_length(tvb);
+					}
+					else if (opcode == MQ_TST_RESET && tvb_length_remaining(tvb, offset) >= 8)
+					{
+						if (tree)
+						{
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, MQ_TEXT_RESET);
+							mq_tree = proto_item_add_subtree(ti, ett_mq_reset);
+	
+							proto_tree_add_item(mq_tree, hf_mq_reset_length, tvb, offset, 4, bLittleEndian);
+							proto_tree_add_item(mq_tree, hf_mq_reset_seqnum, tvb, offset + 4, 4, bLittleEndian);
 						}
 						offset = tvb_length(tvb);
 					}
@@ -2238,6 +2266,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								/* Call subdissector for the payload */
 								tvbuff_t* next_tvb = NULL;
 								struct mqinfo mqinfo;
+								/* Format, encoding and character set are "data type" information, not subprotocol information */
 								mqinfo.encoding = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetEncoding, bLittleEndian);
 								mqinfo.ccsid    = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetCcsid, bLittleEndian);
 								tvb_memcpy(tvb, mqinfo.format, tMsgProps.iOffsetFormat, 8);
@@ -2261,8 +2290,8 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				else
 				{
-					/* This is a MQ segment continuation (no PDU reassembly is done) */
-					if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " [Segment Continuation]");
+					/* This is a MQ segment continuation (if MQ reassembly is not enabled) */
+					if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
 					call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 				}
 			}
@@ -2270,12 +2299,97 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else
 		{
 			/* This packet is a TCP continuation of a segment (if desegmentation is not enabled) */
-			if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "Continuation");
+			if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " [Undesegmented]");
 			if (tree)
 			{
 				proto_tree_add_item(tree, proto_mq, tvb, offset, -1, FALSE);
 			}
 			call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+		}
+	}
+}
+
+
+static void
+reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	/* Reassembly of the MQ messages that span several PDU (several TSH) */
+	/* Typically a TCP PDU is 1460 bytes and a MQ PDU is 32766 bytes */
+	if (tvb_length(tvb) >= 28)
+	{
+		guint32 structId;
+		structId = tvb_get_ntohl(tvb, 0);
+
+		if (structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC) 
+		{
+			guint8 iControlFlags = 0;
+			guint32 iSegmentLength = 0;
+			guint32 iBeginLength = 0;
+			guint8 opcode;
+			gboolean bFirstSegment; 
+			gboolean bLastSegment;
+			opcode = tvb_get_guint8(tvb, 9);
+			iControlFlags = tvb_get_guint8(tvb, 10);
+			iSegmentLength = tvb_get_ntohl(tvb, 4);
+			bFirstSegment = ((iControlFlags & MQ_TCF_FIRST) != 0);
+			bLastSegment = ((iControlFlags & MQ_TCF_LAST) != 0);
+
+			if (opcode > 0x80 && !(bFirstSegment && bLastSegment)) 
+			{
+				/* Optimisation : only fragmented segments go through the reassembly process */
+				if (mq_reassembly)
+				{
+					tvbuff_t* next_tvb;
+					fragment_data* fd_head;
+					guint32 iConnectionId = (pinfo->srcport + pinfo->destport);
+					if (opcode > 0x80 && !bFirstSegment) iBeginLength = 28;
+					fd_head = fragment_add_seq_next(tvb, iBeginLength, pinfo, iConnectionId, mq_fragment_table, mq_reassembled_table, iSegmentLength - iBeginLength, !bLastSegment);
+					if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in) 
+					{
+						/* Reassembly finished */
+						if (fd_head->next != NULL) 
+						{
+							/* 2 or more fragments */
+							next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
+							tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+							add_new_data_source(pinfo, next_tvb, "Reassembled MQ");
+						}
+						else
+						{
+							/* Only 1 fragment */
+							next_tvb = tvb;
+						}
+						dissect_mq_pdu(next_tvb, pinfo, tree);
+						return;
+					}
+					else
+					{
+						/* Reassembly in progress */
+						if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");	  
+						if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "%s [Reassembled MQ]", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
+						if (tree)
+						{
+							proto_item* ti = NULL;
+							ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, FALSE);
+							proto_item_append_text(ti, " (%s) [Reassembled MQ]", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
+						}
+						return;
+					}				
+				}
+				else
+				{
+					dissect_mq_pdu(tvb, pinfo, tree);
+					if (bFirstSegment)
+					{
+						/* MQ segment is the first of a unreassembled series */
+						if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
+					}
+					return;					
+				}
+			}
+			/* Reassembly not enabled or non-fragmented message */
+			dissect_mq_pdu(tvb, pinfo, tree);
+			return;
 		}
 	}
 }
@@ -2294,12 +2408,13 @@ get_mq_pdu_len(tvbuff_t *tvb, int offset)
 static void
 dissect_mq_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, mq_desegment, 28, get_mq_pdu_len, dissect_mq_pdu);
+	tcp_dissect_pdus(tvb, pinfo, tree, mq_desegment, 28, get_mq_pdu_len, reassemble_mq);
 }
 
 static void
 dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	/* Since SPX has no standard desegmentation, MQ cannot be performed as well */
 	dissect_mq_pdu(tvb, pinfo, tree);
 }
 
@@ -2326,7 +2441,7 @@ dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto
 			if (iProto == MQ_XPT_TCP) conversation_set_dissector(conversation, mq_tcp_handle); 
 
 			/* Dissect the packet */
-			dissect_mq_pdu(tvb, pinfo, tree);
+			reassemble_mq(tvb, pinfo, tree);
 			return TRUE;
 		}
 	}
@@ -2349,6 +2464,13 @@ static gboolean
 dissect_mq_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_HTTP);
+}
+
+static void
+mq_init(void)
+{
+	fragment_table_init(&mq_fragment_table);
+	reassembled_table_init(&mq_reassembled_table);
 }
 
 void
@@ -2385,18 +2507,6 @@ proto_register_mq(void)
     { &hf_mq_tsh_padding,
       { "Padding", "mq.tsh.padding", FT_UINT16, BASE_HEX, NULL, 0x0, "TSH Padding", HFILL }},
 
-    { &hf_mq_api_replylength,
-      { "Reply length", "mq.tsh.replylength", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reply length", HFILL }},
-
-    { &hf_mq_api_completioncode,
-      { "Completion code", "mq.tsh.completioncode", FT_UINT32, BASE_DEC, NULL, 0x0, "API Completion code", HFILL }},
-
-    { &hf_mq_api_reasoncode,
-      { "Reason code", "mq.tsh.reasoncode", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reason code", HFILL }},
-
-    { &hf_mq_api_objecthandle,
-      { "Object handle", "mq.tsh.hobj", FT_UINT32, BASE_HEX, NULL, 0x0, "API Object handle", HFILL }},
-
     { &hf_mq_tsh_tcf_confirmreq,
       { "Confirm request", "mq.tsh.tcf.confirmreq", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_CONFIRM_REQUEST, "TSH TCF Confirm request", HFILL }},
 
@@ -2420,6 +2530,18 @@ proto_register_mq(void)
 
     { &hf_mq_tsh_tcf_dlq,
       { "DLQ used", "mq.tsh.tcf.dlq", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_DLQ_USED, "TSH TCF DLQ used", HFILL }},
+
+    { &hf_mq_api_replylength,
+      { "Reply length", "mq.api.replylength", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reply length", HFILL }},
+
+    { &hf_mq_api_completioncode,
+      { "Completion code", "mq.api.completioncode", FT_UINT32, BASE_DEC, NULL, 0x0, "API Completion code", HFILL }},
+
+    { &hf_mq_api_reasoncode,
+      { "Reason code", "mq.api.reasoncode", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reason code", HFILL }},
+
+    { &hf_mq_api_objecthandle,
+      { "Object handle", "mq.api.hobj", FT_UINT32, BASE_HEX, NULL, 0x0, "API Object handle", HFILL }},
 
     { &hf_mq_id_icf_msgseq,
       { "Message sequence", "mq.id.icf.msgseq", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_ICF_MSG_SEQ, "ID ICF Message sequence", HFILL }},
@@ -2676,11 +2798,20 @@ proto_register_mq(void)
     { &hf_mq_ping_buffer,
       { "Buffer", "mq.ping.buffer", FT_BYTES, BASE_DEC, NULL, 0x0, "PING buffer", HFILL }},
 
+    { &hf_mq_reset_length,
+      { "Length", "mq.ping.length", FT_UINT32, BASE_DEC, NULL, 0x0, "RESET length", HFILL }},
+
+    { &hf_mq_reset_seqnum,
+      { "Sequence number", "mq.ping.seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, "RESET sequence number", HFILL }},
+
     { &hf_mq_status_length,
       { "Length", "mq.status.length", FT_UINT32, BASE_DEC, NULL, 0x0, "STATUS length", HFILL }},
 
     { &hf_mq_status_code,
       { "Code", "mq.status.code", FT_UINT32, BASE_DEC, VALS(mq_status_vals), 0x0, "STATUS code", HFILL }},
+
+    { &hf_mq_status_value,
+      { "Value", "mq.status.value", FT_UINT32, BASE_DEC, NULL, 0x0, "STATUS value", HFILL }},
 
     { &hf_mq_od_structid,
       { "OD structid", "mq.od.structid", FT_STRINGZ, BASE_HEX, NULL, 0x0, "OD structid", HFILL }},
@@ -3095,6 +3226,7 @@ proto_register_mq(void)
     &ett_mq_put,
     &ett_mq_open,
     &ett_mq_ping,
+    &ett_mq_reset,
     &ett_mq_status,
     &ett_mq_od,
     &ett_mq_or,
@@ -3120,12 +3252,17 @@ proto_register_mq(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   register_heur_dissector_list("mq", &mq_heur_subdissector_list);
+  register_init_routine(mq_init);
 
   mq_module = prefs_register_protocol(proto_mq, NULL);
-  prefs_register_bool_preference(mq_module, "reassembly", /*"desegment",*/
+  prefs_register_bool_preference(mq_module, "desegment",
     "Desegment all MQ messages spanning multiple TCP segments",
     "Whether the MQ dissector should desegment all messages spanning multiple TCP segments",
     &mq_desegment);
+  prefs_register_bool_preference(mq_module, "reassembly",
+    "Reassemble segmented MQ messages",
+    "Whether the MQ dissector should reassemble all MQ messages spanning multiple TSH segments",
+    &mq_reassembly);
 }
 
 void
