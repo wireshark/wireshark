@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2ua.c,v 1.10 2003/04/22 13:47:37 tuexen Exp $
+ * $Id: packet-m2ua.c,v 1.11 2003/07/07 12:51:38 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -502,7 +502,7 @@ dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
   tvbuff_t *payload_tvb;
   guint32 payload_length;
 
-  payload_length = tvb_length(parameter_tvb) - PARAMETER_HEADER_LENGTH;
+  payload_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
 
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_1_MTP3_OFFSET, payload_length, payload_length);
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH);
@@ -519,7 +519,7 @@ dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
   tvbuff_t *payload_tvb;
   guint32 payload_length;
 
-  payload_length = tvb_length(parameter_tvb) - PARAMETER_HEADER_LENGTH - DATA_2_LI_LENGTH;
+  payload_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - DATA_2_LI_LENGTH;
 
   proto_tree_add_item(parameter_tree, hf_data_2_li, parameter_tvb, DATA_2_LI_OFFSET, DATA_2_LI_LENGTH, NETWORK_BYTE_ORDER);
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_2_MTP3_OFFSET, payload_length, payload_length);
