@@ -89,7 +89,7 @@ libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter dissector
 		/DEF:libethereal.def /OUT:libethereal.dll \
 		/IMPLIB:libethereal.lib $(OBJECTS) $(libethereal_LIBS) \
 		..\image\libethereal.res  dissectors\register.obj \
-		 $(DISSECTOR_SUPPORT_OBJECTS:../=) $(EXTRA_OBJECTS)
+		 $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS)
 
 ethereal.lib	: ..\config.h $(OBJECTS)
 	link /lib /out:ethereal.lib $(OBJECTS) $(EXTRA_OBJECTS)
