@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.h,v 1.15 2002/11/15 04:55:36 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.h,v 1.16 2002/12/04 06:05:42 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -353,5 +353,11 @@
 
 #define DEVMODE_ORIENTATION_PORTRAIT    1
 #define DEVMODE_ORIENTATION_LANDSCAPE   2
+
+/* Printer info level 7 */
+
+#define DS_PUBLISH   1
+#define DS_UPDATE    2
+#define DS_UNPUBLISH 3
 
 #endif /* packet-dcerpc-spoolss.h */
