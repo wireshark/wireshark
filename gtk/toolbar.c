@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.24 2004/01/21 03:54:31 ulfl Exp $
+ * $Id: toolbar.c,v 1.25 2004/01/21 09:02:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,12 +95,18 @@
 #endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/dfilter_24.xpm"
 /* these icons are standard stock icons, but used for ethereal specific stock icon labels */
+#if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_add_24.xpm"
+#endif
 #include "../image/toolbar/stock_open_24.xpm"
+#if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_ok_20.xpm"
+#endif
 #include "../image/toolbar/stock_save_24.xpm"
 #include "../image/toolbar/stock_preferences_24.xpm"
+#if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_properties_24.xpm"
+#endif
 
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
