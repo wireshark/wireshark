@@ -1326,7 +1326,11 @@ main_cf_cb_live_capture_started(capture_options *capture_opts)
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
 
-    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
+    if(capture_opts->iface) {
+        capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
+    } else {
+        capture_msg = g_strdup_printf(" <live capture in progress>");
+    }
 
     statusbar_push_file_msg(capture_msg);
 

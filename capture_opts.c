@@ -97,7 +97,7 @@ capture_opts_info(capture_options *capture_opts) {
     g_warning("SnapLen         (%u): %u", capture_opts->has_snaplen, capture_opts->snaplen);
     g_warning("Promisc            : %u", capture_opts->promisc_mode);
     g_warning("LinkType           : %d", capture_opts->linktype);
-    g_warning("SaveFile           : %s", capture_opts->save_file);
+    g_warning("SaveFile           : %s", (capture_opts->save_file) ? capture_opts->save_file : "");
     g_warning("RealTimeMode       : %u", capture_opts->real_time_mode);
     g_warning("ShowInfo           : %u", capture_opts->show_info);
     g_warning("QuitAfterCap       : %u", capture_opts->quit_after_cap);

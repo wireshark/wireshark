@@ -324,7 +324,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
       argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
 
-    if (!capture_opts->show_info) {
+    if (!capture_opts->show_info && capture_opts->real_time_mode /* XXX */) {
       argv = sync_pipe_add_arg(argv, &argc, "-H");
     }
 

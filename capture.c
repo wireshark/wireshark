@@ -221,6 +221,9 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
             return FALSE;
             break;
         }
+
+        /* XXX - currently won't work with non real-time mode */
+        cf_callback_invoke(cf_cb_live_capture_started, capture_opts->cf);
     }
 
     return TRUE;
@@ -292,6 +295,9 @@ capture_input_closed(capture_options *capture_opts)
              we registered get called. */
           main_window_quit();
         }
+
+        cf_callback_invoke(cf_cb_live_capture_finished, capture_opts->cf);
+
     } else {
         /* this is a normal mode capture, read in the capture file data */
         capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf), 

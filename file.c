@@ -503,9 +503,6 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
   cf_status_t cf_status;
 
   cf_status = cf_open(cf, fname, is_tempfile, err);
-  if (cf_status == CF_OK) {
-    cf_callback_invoke(cf_cb_live_capture_started, cf);
-  }
   return cf_status;
 }
 
@@ -611,8 +608,6 @@ cf_finish_tail(capture_file *cf, int *err)
      there's more than one type (and thus whether it's
      WTAP_ENCAP_PER_PACKET). */
   cf->lnk_t = wtap_file_encap(cf->wth);
-
-  cf_callback_invoke(cf_cb_live_capture_finished, cf);
 
   if (*err != 0) {
     /* We got an error reading the capture file.
