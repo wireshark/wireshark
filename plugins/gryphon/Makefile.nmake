@@ -11,3 +11,6 @@ OBJECTS=packet-gryphon.obj
 
 gryphon.dll gryphon.exp gryphon.lib : packet-gryphon.obj ..\plugin_api.obj
 	link -dll /out:gryphon.dll packet-gryphon.obj ..\plugin_api.obj
+
+clean:
+	rm -f $(OBJECTS) gryphon.dll gryphon.exp gryphon.lib

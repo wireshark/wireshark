@@ -16,3 +16,7 @@ gryphon::
 	nmake -f Makefile.nmake
 	cd ..
 
+clean:
+	cd gryphon
+	nmake -f Makefile.nmake clean
+	cd ..
