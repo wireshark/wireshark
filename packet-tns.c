@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.16 2001/10/06 14:24:36 nneul Exp $
+ * $Id: packet-tns.c,v 1.17 2001/10/06 15:27:47 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,20 @@ static int hf_tns_connect = -1;
 static int hf_tns_version = -1;
 static int hf_tns_compat_version = -1;
 static int hf_tns_service_options = -1;
+static int hf_tns_sdu_size = -1;
+static int hf_tns_max_tdu_size = -1;
+static int hf_tns_nt_proto_characteristics = -1;
+static int hf_tns_line_turnaround = -1;
+static int hf_tns_value_of_one = -1;
+static int hf_tns_connect_data_length = -1;
+static int hf_tns_connect_data_offset = -1;
+static int hf_tns_connect_data_max = -1;
+static int hf_tns_connect_flags0 = -1;
+static int hf_tns_connect_flags1 = -1;
+static int hf_tns_connect_data = -1;
+static int hf_tns_trace_cf1 = -1;
+static int hf_tns_trace_cf2 = -1;
+static int hf_tns_trace_cid = -1;
 
 static gint ett_tns = -1;
 static gint ett_tns_sns = -1;
@@ -139,6 +153,8 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *connect_tree = NULL, *ti;
+	int cd_offset;
+	int tns_offset = offset-8;
 
 	if ( tree )
 	{
@@ -179,7 +195,102 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( connect_tree )
 	{
-		dissect_data(tvb,offset,pinfo,connect_tree);
+		proto_tree_add_uint(connect_tree, hf_tns_sdu_size, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_max_tdu_size, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_nt_proto_characteristics, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_line_turnaround, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_bytes(connect_tree, hf_tns_value_of_one, tvb,
+			offset, 2, tvb_get_ptr(tvb, offset, 2));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_connect_data_length, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	cd_offset = tvb_get_ntohs(tvb, offset);
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_connect_data_offset, tvb,
+			offset, 2, cd_offset);
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_connect_data_max, tvb,
+			offset, 4, tvb_get_ntohl(tvb, offset));
+	}
+	offset += 4;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_connect_flags0, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_connect_flags1, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_trace_cf1, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_trace_cf2, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_trace_cid, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_string(connect_tree, hf_tns_connect_data, tvb,
+			tns_offset+cd_offset, tvb_length(tvb)-(tns_offset+cd_offset), 
+			tvb_get_ptr(tvb, tns_offset+cd_offset,
+			tvb_length(tvb)-(tns_offset+cd_offset)));
 	}
 	return;
 }
@@ -326,6 +437,48 @@ void proto_register_tns(void)
 		{ &hf_tns_service_options, { 	
 			"Service Options", "tns.service_options", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "Service Options", HFILL }},
+		{ &hf_tns_sdu_size, { 	
+			"Session Data Unit Size", "tns.sdu_size", FT_UINT16, BASE_DEC, 
+			NULL, 0x0, "Session Data Unit Size", HFILL }},
+		{ &hf_tns_max_tdu_size, { 	
+			"Maximum Transmission Data Unit Size", "tns.max_tdu_size", FT_UINT16, BASE_DEC, 
+			NULL, 0x0, "Maximum Transmission Data Unit Size", HFILL }},
+		{ &hf_tns_nt_proto_characteristics, { 	
+			"NT Protocol Characteristics", "tns.nt_proto_characteristics", FT_UINT16, BASE_HEX, 
+			NULL, 0x0, "NT Protocol Characteristics", HFILL }},
+		{ &hf_tns_line_turnaround, { 	
+			"Line Turnaround Value", "tns.line_turnaround", FT_UINT16, BASE_DEC, 
+			NULL, 0x0, "Line Turnaround Value", HFILL }},
+		{ &hf_tns_value_of_one, { 	
+			"Value of 1 in Hardware", "tns.value_of_one", FT_BYTES, BASE_NONE, 
+			NULL, 0x0, "Value of 1 in Hardware", HFILL }},		
+		{ &hf_tns_connect_data_length, { 	
+			"Length of Connect Data", "tns.connect_data_length", FT_UINT16, BASE_DEC, 
+			NULL, 0x0, "Length of Connect Data", HFILL }},
+		{ &hf_tns_connect_data_offset, { 	
+			"Offset to Connect Data", "tns.connect_data_offset", FT_UINT16, BASE_DEC, 
+			NULL, 0x0, "Offset to Connect Data", HFILL }},
+		{ &hf_tns_connect_data_max, { 	
+			"Maximum Receivable Connect Data", "tns.connect_data_max", FT_UINT32, BASE_DEC, 
+			NULL, 0x0, "Maximum Receivable Connect Data", HFILL }},
+		{ &hf_tns_connect_flags0, { 	
+			"Connect Flags 0", "tns.connect_flags0", FT_UINT16, BASE_HEX, 
+			NULL, 0x0, "Connect Flags 0", HFILL }},
+		{ &hf_tns_connect_flags1, { 	
+			"Connect Flags 1", "tns.connect_flags1", FT_UINT16, BASE_HEX, 
+			NULL, 0x0, "Connect Flags 1", HFILL }},
+		{ &hf_tns_trace_cf1, { 	
+			"Trace Cross Facility Item 1", "tns.trace_cf1", FT_UINT16, BASE_HEX, 
+			NULL, 0x0, "Trace Cross Facility Item 1", HFILL }},
+		{ &hf_tns_trace_cf2, { 	
+			"Trace Cross Facility Item 2", "tns.trace_cf2", FT_UINT16, BASE_HEX, 
+			NULL, 0x0, "Trace Cross Facility Item 2", HFILL }},
+		{ &hf_tns_trace_cid, { 	
+			"Trace Unique Connection ID", "tns.trace_cid", FT_UINT16, BASE_HEX, 
+			NULL, 0x0, "Trace Unique Connection ID", HFILL }},
+		{ &hf_tns_connect_data, { 	
+			"Connect Data", "tns.connect_data", FT_STRING, BASE_NONE, 
+			NULL, 0x0, "Connect Data", HFILL }},
 		{ &hf_tns_reserved_byte, { 	
 			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_HEX, 
 			NULL, 0x0, "Reserved Byte", HFILL }},
