@@ -6,7 +6,7 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.4 2003/08/16 01:53:41 guy Exp $
+ * $Id: packet-enip.c,v 1.5 2003/09/02 21:17:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1262,7 +1262,12 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length 
 		if( add_stat_size )
 		{
          /* Add additional status */
-         add_byte_array_text_to_proto_tree( item_tree, tvb, offset+4, add_stat_size, "Additional Status: " );
+         pi = proto_tree_add_text( item_tree, tvb, offset+4, add_stat_size, "Additional Status:" );
+
+         for( i=0; i < add_stat_size/2; i ++ )
+         {
+           proto_item_append_text( pi, " 0x%04X", tvb_get_letohs( tvb, offset+4+(i*2) ) );
+         }
 		}
 
       /* If there is any command specific data create a sub-tree for it */
