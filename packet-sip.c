@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.65 2004/04/22 20:09:41 etxrab Exp $
+ * $Id: packet-sip.c,v 1.66 2004/05/01 14:19:21 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -369,9 +369,10 @@ static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree,
     guint meth_len);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
-static int sip_is_packet_resend(packet_info *pinfo,
+static guint sip_is_packet_resend(packet_info *pinfo,
 				gchar* cseq_method,
-				gchar* call_id, guint32 cseq_number,
+				gchar* call_id,
+				guchar cseq_number_set, guint32 cseq_number,
 				line_type_t line_type);
 
 
@@ -394,9 +395,9 @@ static sip_info_value_t *stat_info;
  * transaction, in order to be able to detect retransmissions.
  *
  * Don't use the conservation mechanism, but instead:
- * - store with each dissected packet whether its a resend (1=yes, 2=no)
+ * - store with each dissected packet original frame (if any)
  * - maintain a global hash table of
- *   (call_id, source_addr, dest_addr) -> (cseq, transaction_state)
+ *   (call_id, source_addr, dest_addr) -> (cseq, transaction_state, frame)
  ****************************************************************************/
 
 static GHashTable *sip_hash = NULL;           /* Hash table */
@@ -417,7 +418,9 @@ typedef struct
 
 typedef enum
 {
-	request_outstanding,
+	nothing_seen,
+	request_seen,
+	provisional_response_seen,
 	final_response_seen
 } transaction_state_t;
 
@@ -425,6 +428,7 @@ typedef struct
 {
 	guint32 cseq;
 	transaction_state_t transaction_state;
+	gint frame_number;
 } sip_hash_value;
 
 
@@ -443,29 +447,11 @@ gint sip_equal(gconstpointer v, gconstpointer v2)
 		return 0;
 	}
 
-	/* Addresses must match (in either direction) */
-
-	/* Same way */
-	if (	(ADDRESSES_EQUAL(&(val1->source_address), &(val2->source_address))) &&
+	/* Addresses must match */
+	return  (ADDRESSES_EQUAL(&(val1->source_address), &(val2->source_address))) &&
 		(val1->source_port == val2->source_port) &&
 		(ADDRESSES_EQUAL(&(val1->dest_address), &(val2->dest_address))) &&
-		(val1->dest_port == val2->dest_port))
-	{
-		return 1;
-	}
-	else
-	/* Opposite way */
-	if (	(ADDRESSES_EQUAL(&(val1->source_address), &(val2->dest_address))) &&
-		(val1->source_port == val2->dest_port) &&
-		(ADDRESSES_EQUAL(&(val1->dest_address), &(val2->source_address))) &&
-		(val1->dest_port == val2->source_port))
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+		(val1->dest_port == val2->dest_port);
 }
 
 /* Compute a hash value for a given key. */
@@ -553,12 +539,13 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, *sip_element_tree = NULL, *message_body_tree = NULL;
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
 	guint32 cseq_number = 0;
+	guchar  cseq_number_set = 0;
 	char    cseq_method[16] = "";
 	char	call_id[MAX_CALL_ID_SIZE] = "";
 	char *media_type_str = NULL;
 	char *media_type_str_lower_case = NULL;
 	char *content_type_parameter_str = NULL;
-	gboolean packet_is_resend = FALSE;
+	guint resend_for_packet = 0;
 
 	/* Initialise stat info for passing to tap */
 	stat_info = g_malloc(sizeof(sip_info_value_t));
@@ -839,6 +826,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				case POS_CSEQ :
 					/* Store the sequence number */
 					cseq_number = atoi(value);
+					cseq_number_set = 1;
 
 					/* Extract method name from value */
 					for (value_offset = 0; value_offset < (gint)strlen(value); value_offset++)
@@ -1025,15 +1013,23 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* Check if this packet is a resend. */
-	packet_is_resend = sip_is_packet_resend(pinfo, cseq_method, call_id,
-						cseq_number, line_type);
+	resend_for_packet = sip_is_packet_resend(pinfo, cseq_method, call_id,
+						cseq_number_set, cseq_number,
+						line_type);
 	/* Mark whether this is a resend for the tap */
-	stat_info->resend = packet_is_resend;
+	stat_info->resend = (resend_for_packet > 0);
 
+	/* And add the filterable field to the request/response line */
 	if (reqresp_tree)
 	{
 		proto_tree_add_boolean(reqresp_tree, hf_sip_resend, tvb, 0, 0,
-					packet_is_resend);
+					resend_for_packet > 0);
+		if (resend_for_packet > 0)
+		{
+			proto_tree_add_text(reqresp_tree, tvb, 0, 0,
+						"(suspected resend of frame %d)",
+						resend_for_packet);
+		}
 	}
 
 
@@ -1041,7 +1037,10 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 tvb_raw_text_add(tvb, tree);
 
 	/* Report this packet to the tap */
-	tap_queue_packet(sip_tap, pinfo, stat_info);
+	if (!pinfo->in_error_pkt)
+	{
+		tap_queue_packet(sip_tap, pinfo, stat_info);
+	}
 
         return TRUE;
 }
@@ -1285,18 +1284,19 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
         }
 }
 
-/* Check to see if this packet is a resent request */
-int sip_is_packet_resend(packet_info *pinfo,
+/* Check to see if this packet is a resent request.  Return value is number
+   of the original frame this packet seems to be resending (0 = no resend). */
+guint sip_is_packet_resend(packet_info *pinfo,
 			gchar *cseq_method,
 			gchar *call_id,
+			guchar cseq_number_set,
 			guint32 cseq_number, line_type_t line_type)
 {
 	guint32 cseq_to_compare = 0;
 	sip_hash_key   key;
 	sip_hash_key   *p_key = 0;
 	sip_hash_value *p_val = 0;
-	int result = 0;
-	guint32 stored_answer;
+	guint result = 0;
 
 	/* Only consider retransmission of UDP packets */
 	if (pinfo->ptype != PT_UDP)
@@ -1304,11 +1304,24 @@ int sip_is_packet_resend(packet_info *pinfo,
 		return 0;
 	}
 
-	/* Get any packet-stored answer seen in previous dissection */
-	stored_answer = (gint32)(p_get_proto_data(pinfo->fd, proto_sip));
-	if (stored_answer != 0)
+	/* Don't consider packets that appear to be resent only because
+	   they are e.g. returned in ICMP unreachable messages. */
+	if (pinfo->in_error_pkt)
 	{
-		return (stored_answer == 1);
+		return 0;
+	}
+
+	/* A broken packet may have no cseq number set. Don't consider it as
+	   a resend */
+	if (!cseq_number_set)
+	{
+		return 0;
+	}
+
+	/* Return any answer stored from previous dissection */
+	if (pinfo->fd->flags.visited)
+	{
+		return (guint)(p_get_proto_data(pinfo->fd, proto_sip));
 	}
 
 	/* No packet entry found, consult global hash table */
@@ -1326,14 +1339,14 @@ int sip_is_packet_resend(packet_info *pinfo,
 	/* Do the lookup */
 	p_val = (sip_hash_value*)g_hash_table_lookup(sip_hash, &key);
 
-	/* Table entry found, we'll use its value for comparison */
 	if (p_val)
 	{
+		/* Table entry found, we'll use its value for comparison */
 		cseq_to_compare = p_val->cseq;
 	}
 	else
 	{
-		/* Create a new table entry for this call-id */
+		/* Need to create a new table entry */
 
 		/* Allocate a new key and value */
 		p_key = g_mem_chunk_alloc(sip_hash_keys);
@@ -1353,56 +1366,68 @@ int sip_is_packet_resend(packet_info *pinfo,
 		p_key->source_port = pinfo->srcport;
 
 		p_val->cseq = cseq_number;
+		p_val->transaction_state = nothing_seen;
+		p_val->frame_number = 0;
 
-
-		/* Insert into the table */
+		/* Add entry */
 		g_hash_table_insert(sip_hash, p_key, p_val);
 
 		/* Assume have seen no cseq yet */
 		cseq_to_compare = 0;
 	}
 
-	/* Update the hash value */
-	p_val->cseq = cseq_number;
-
 
 	/******************************************/
 	/* Is it a resend???                      */
 
 	/* Does this look like a resent request ? */
-	if ((line_type == REQUEST_LINE) && (cseq_number <= cseq_to_compare) &&
-		(p_val->transaction_state == request_outstanding) &&
+	if ((line_type == REQUEST_LINE) && (cseq_number == cseq_to_compare) &&
+		(p_val->transaction_state == request_seen) &&
 		(strcmp(cseq_method, "ACK") != 0))
 	{
-		result = 1;
+		result = p_val->frame_number;
 	}
 
 	/* Does this look like a resent final response ? */
-	if ((line_type == STATUS_LINE) && (cseq_number <= cseq_to_compare) &&
+	if ((line_type == STATUS_LINE) && (cseq_number == cseq_to_compare) &&
 		(p_val->transaction_state == final_response_seen) &&
 		(stat_info->response_code >= 200))
 	{
-		result = 1;
+		result = p_val->frame_number;
 	}
 
-	/* Update state of transaction */
+	/* Update state for this entry */
+	p_val->cseq = cseq_number;
+
 	switch (line_type)
 	{
 		case REQUEST_LINE:
-			p_val->transaction_state = request_outstanding;
+			p_val->transaction_state = request_seen;
+			if (!result)
+			{
+				p_val->frame_number = pinfo->fd->num;
+			}
 			break;
 		case STATUS_LINE:
 			if (stat_info->response_code >= 200)
 			{
 				p_val->transaction_state = final_response_seen;
+				if (!result)
+				{
+					p_val->frame_number = pinfo->fd->num;
+				}
+			}
+			else
+			{
+				p_val->transaction_state = provisional_response_seen;
 			}
 			break;
 		default:
 			break;
 	}
 
-	/* Store value with packet to indicate not a resend (1=yes, 2=no) */
-	p_add_proto_data(pinfo->fd, proto_sip, result ? (void*)1 : (void*) 2);
+	/* Store return value with this packet */
+	p_add_proto_data(pinfo->fd, proto_sip, (void*)result);
 
 	return result;
 }
