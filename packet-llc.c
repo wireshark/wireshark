@@ -1,8 +1,8 @@
 /* packet-llc.c
  * Routines for IEEE 802.2 LLC layer
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.14 1999/03/23 03:14:39 gram Exp $
+ * $Id: packet-llc.c,v 1.15 1999/07/07 22:51:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -34,64 +34,105 @@
 
 #include <glib.h>
 #include "packet.h"
+	
+int proto_llc = -1;
+int hf_llc_dsap = -1;
+int hf_llc_ssap = -1;
+int hf_llc_ctrl = -1;
+int hf_llc_type = -1;
+int hf_llc_oui = -1;
 
 typedef void (capture_func_t)(const u_char *, int, guint32, packet_counts *);
 typedef void (dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
 
+/* The SAP info is split into two tables, one value_string table and one table of sap_info. This is
+ * so that the value_string can be used in the header field registration.
+ */
 struct sap_info {
 	guint8	sap;
 	capture_func_t *capture_func;
 	dissect_func_t *dissect_func;
-	char	*text;
+};
+
+static const value_string sap_vals[] = {
+	{ 0x00, "NULL LSAP" },
+	{ 0x02, "LLC Sub-Layer Management Individual" },
+	{ 0x03, "LLC Sub-Layer Management Group" },
+	{ 0x04, "SNA Path Control Individual" },
+	{ 0x05, "SNA Path Control Group" },
+	{ 0x06, "TCP/IP" },
+	{ 0x08, "SNA" },
+	{ 0x0C, "SNA" },
+	{ 0x42, "Spanning Tree BPDU" },
+	{ 0x7F, "ISO 802.2" },
+	{ 0x80, "XNS" },
+	{ 0xAA, "SNAP" },
+	{ 0xBA, "Banyan Vines" },
+	{ 0xBC, "Banyan Vines" },
+	{ 0xE0, "NetWare" },
+	{ 0xF0, "NetBIOS" },
+	{ 0xF4, "IBM Net Management Individual" },
+	{ 0xF5, "IBM Net Management Group" },
+	{ 0xF8, "Remote Program Load" },
+	{ 0xFC, "Remote Program Load" },
+	{ 0xFE, "ISO Network Layer" },
+	{ 0xFF, "Global LSAP" },
+	{ 0x00, NULL }
 };
 
 static struct sap_info	saps[] = {
-	{ 0x00, NULL,		NULL,		"NULL LSAP" },
-	{ 0x02, NULL,		NULL,		"LLC Sub-Layer Management Individual" },
-	{ 0x03, NULL,		NULL,		"LLC Sub-Layer Management Group" },
-	{ 0x04, NULL,		NULL,		"SNA Path Control Individual" },
-	{ 0x05, NULL,		NULL,		"SNA Path Control Group" },
-	{ 0x06, capture_ip,	dissect_ip,	"TCP/IP" },
-	{ 0x08, NULL,		NULL,		"SNA" },
-	{ 0x0C, NULL,		NULL,		"SNA" },
-	{ 0x42, NULL,		NULL,		"Spanning Tree BPDU" },
-	{ 0x7F, NULL,		NULL,		"ISO 802.2" },
-	{ 0x80, NULL,		NULL,		"XNS" },
-	{ 0xAA, NULL,		NULL,		"SNAP" },
-	/*{ 0xBA, NULL,		dissect_vines,	"Banyan Vines" },
-	{ 0xBC, NULL,		dissect_vines,	"Banyan Vines" },*/
-	{ 0xBA, NULL,		NULL,		"Banyan Vines" },
-	{ 0xBC, NULL,		NULL,		"Banyan Vines" },
-	{ 0xE0, NULL,		dissect_ipx,	"NetWare" },
-	{ 0xF0, NULL,		NULL,		"NetBIOS" },
-	{ 0xF4, NULL,		NULL,		"IBM Net Management Individual" },
-	{ 0xF5, NULL,		NULL,		"IBM Net Management Group" },
-	{ 0xF8, NULL,		NULL,		"Remote Program Load" },
-	{ 0xFC, NULL,		NULL,		"Remote Program Load" },
-	{ 0xFE, NULL,		dissect_osi,	"ISO Network Layer" },
-	{ 0xFF, NULL,		NULL,		"Global LSAP" },
-	{ 0x00, NULL,		NULL,		NULL }
+	{ 0x00, NULL,		NULL },
+	{ 0x02, NULL,		NULL },
+	{ 0x03, NULL,		NULL },
+	{ 0x04, NULL,		NULL },
+	{ 0x05, NULL,		NULL },
+	{ 0x06, capture_ip,	dissect_ip },
+	{ 0x08, NULL,		NULL },
+	{ 0x0C, NULL,		NULL },
+	{ 0x42, NULL,		NULL },
+	{ 0x7F, NULL,		NULL },
+	{ 0x80, NULL,		NULL },
+	{ 0xAA, NULL,		NULL },
+	{ 0xBA, NULL,		NULL },
+	{ 0xBC, NULL,		NULL },
+	{ 0xE0, NULL,		dissect_ipx },
+	{ 0xF0, NULL,		NULL },
+	{ 0xF4, NULL,		NULL },
+	{ 0xF5, NULL,		NULL },
+	{ 0xF8, NULL,		NULL },
+	{ 0xFC, NULL,		NULL },
+	{ 0xFE, NULL,		dissect_osi },
+	{ 0xFF, NULL,		NULL },
+	{ 0x00, NULL,		NULL}
 };
 
+static const value_string llc_ctrl_vals[] = {
+	{ 0, "Information Transfer" },
+	{ 1, "Supervisory" },
+	{ 2, "Unknown" },
+	{ 3, "Unnumbered Information" },
+	{ 0, NULL }
+};
 
-static char*
-sap_text(u_char sap) {
-	int i=0;
-
-	while (saps[i].text != NULL) {
-		if (saps[i].sap == sap) {
-			return saps[i].text;
-		}
-		i++;
-	}
-	return "Unknown";
-}
+static const value_string llc_oui_vals[] = {
+	{ 0x000000, "Encapsulated Ethernet" },
+/*
+http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
+*/
+	{ 0x0000f8, "Cisco 90-Compatible" },
+	{ 0x0000c0, "Cisco" },
+	{ 0x0080c2, "Bridged Frame-Relay" }, /* RFC 2427 */
+	{ 0,        NULL }
+};
 
 static capture_func_t *
 sap_capture_func(u_char sap) {
 	int i=0;
 
-	while (saps[i].text != NULL) {
+	/* look for the second record where sap == 0, which should
+	 * be the last record
+	 */
+	while (saps[i].sap > 0 || i == 0) {
 		if (saps[i].sap == sap) {
 			return saps[i].capture_func;
 		}
@@ -104,7 +145,10 @@ static dissect_func_t *
 sap_dissect_func(u_char sap) {
 	int i=0;
 
-	while (saps[i].text != NULL) {
+	/* look for the second record where sap == 0, which should
+	 * be the last record
+	 */
+	while (saps[i].sap > 0 || i == 0) {
 		if (saps[i].sap == sap) {
 			return saps[i].dissect_func;
 		}
@@ -113,20 +157,6 @@ sap_dissect_func(u_char sap) {
 	return dissect_data;
 }
 
-static char*
-llc_org(const u_char *ptr) {
-
-	unsigned long org = (ptr[0] << 16) | (ptr[1] << 8) | ptr[2];
-	char *llc_org[1] = {
-		"Encapsulated Ethernet"};
-
-	if (org > 0) {
-		return "Unknown";
-	}
-	else {
-		return llc_org[org];
-	}
-}
 
 void
 capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
@@ -166,11 +196,6 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	int		is_snap;
 	dissect_func_t	*dissect;
 
-	/* LLC Strings */
-	char *llc_ctrl[4] = {
-		"Information Transfer", "Supervisory",
-		"", "Unnumbered Information" };
-
 	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
 
 	if (check_col(fd, COL_PROTOCOL)) {
@@ -178,16 +203,11 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
   
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, (is_snap ? 8 : 3),
-			"Logical-Link Control");
-		llc_tree = proto_tree_new();
-		proto_item_add_subtree(ti, llc_tree, ETT_LLC);
-		proto_tree_add_item(llc_tree, offset,      1, "DSAP: %s (0x%02X)",
-			sap_text(pd[offset]), pd[offset]);
-		proto_tree_add_item(llc_tree, offset+1,    1, "SSAP: %s (0x%02X)",
-			sap_text(pd[offset+1]), pd[offset+1]);
-		proto_tree_add_item(llc_tree, offset+2,    1, "Control: %s",
-			llc_ctrl[pd[offset+2] & 3]);
+		ti = proto_tree_add_item(tree, proto_llc, offset, (is_snap ? 8 : 3), NULL);
+		llc_tree = proto_item_add_subtree(ti, ETT_LLC);
+		proto_tree_add_item(llc_tree, hf_llc_dsap, offset, 1, pd[offset]);
+		proto_tree_add_item(llc_tree, hf_llc_ssap, offset+1, 1, pd[offset+1]);
+		proto_tree_add_item(llc_tree, hf_llc_ctrl, offset+2, 1, pd[offset+2] & 3);
 	}
 
 	if (is_snap) {
@@ -195,18 +215,18 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			col_add_str(fd, COL_INFO, "802.2 LLC (SNAP)");
 		}
 		if (tree) {
-			proto_tree_add_item(llc_tree, offset+3,    3,
-				"Organization Code: %s (%02X-%02X-%02X)",
-				llc_org(&pd[offset+3]), 
-				pd[offset+3], pd[offset+4], pd[offset+5]);
+			proto_tree_add_item(llc_tree, hf_llc_oui, offset+3, 3,
+				pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5]);
 		}
-		etype  = (pd[offset+6] << 8) | pd[offset+7];
+		etype = pntohs(&pd[offset+6]);
 		offset += 8;
-		ethertype(etype, offset, pd, fd, tree, llc_tree);
+		/* w/o even checking, assume OUI is ethertype */
+		ethertype(etype, offset, pd, fd, tree, llc_tree, hf_llc_type);
 	}		
 	else {
 		if (check_col(fd, COL_INFO)) {
-			col_add_fstr(fd, COL_INFO, "802.2 LLC (%s)", sap_text(pd[offset]));
+			col_add_fstr(fd, COL_INFO, "802.2 LLC (%s)",
+				val_to_str(pd[offset], sap_vals, "%02x"));
 		}
 
 		dissect = sap_dissect_func(pd[offset]);
@@ -222,4 +242,22 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		}
 
 	}
+}
+
+void
+proto_register_llc(void)
+{
+	const hf_register_info hf[] = {
+		{ "DSAP",		"llc.dsap", &hf_llc_dsap, FT_VALS_UINT8, VALS(sap_vals) },
+		{ "SSAP",		"llc.ssap", &hf_llc_ssap, FT_VALS_UINT8, VALS(sap_vals) },
+		{ "Control",		"llc.control", &hf_llc_ctrl, FT_VALS_UINT8, VALS(llc_ctrl_vals) },
+
+		/* registered here but handled in ethertype.c */	
+		{ "Type",		"llc.type", &hf_llc_type, FT_VALS_UINT16, VALS(etype_vals) },
+
+		{ "Organization Code",	"llc.oui", &hf_llc_oui, FT_VALS_UINT24, VALS(llc_oui_vals) }
+	};
+
+	proto_llc = proto_register_protocol ("Logical-Link Control", "llc" );
+	proto_register_field_array(proto_llc, hf, array_length(hf));
 }

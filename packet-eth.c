@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.9 1999/03/23 03:14:37 gram Exp $
+ * $Id: packet-eth.c,v 1.10 1999/07/07 22:51:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,17 @@
 #include "packet.h"
 #include "etypes.h"
 #include "resolv.h"
+
+extern const value_string etype_vals[];
+
+/* protocols and header fields */
+int proto_eth = -1;
+int hf_eth_dst = -1;
+int hf_eth_dst_vendor = -1;
+int hf_eth_src = -1;
+int hf_eth_src_vendor = -1;
+int hf_eth_len = -1;
+int hf_eth_type = -1;
 
 #define IEEE_802_3_MAX_LEN 1500
 
@@ -135,32 +146,36 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
     if (check_col(fd, COL_INFO))
       col_add_str(fd, COL_INFO, "802.3");
     if (tree) {
-      ti = proto_tree_add_item(tree, 0, offset,
-        "IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
-      fh_tree = proto_tree_new();
-      proto_item_add_subtree(ti, fh_tree, ETT_IEEE8023);
-      proto_tree_add_item(fh_tree, 0, 6, "Destination: %s (%s)",
-	ether_to_str((guint8 *) &pd[0]),
-        get_ether_name((u_char *) &pd[0]));
-      proto_tree_add_item(fh_tree, 6, 6, "Source: %s (%s)",
-	ether_to_str((guint8 *) &pd[6]),
-	get_ether_name((u_char *)&pd[6]));
-      proto_tree_add_item(fh_tree, 12, 2, "Length: %d", length);
+	ti = proto_tree_add_item_format(tree, proto_eth, 0, offset,
+		NULL, "IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
+
+	fh_tree = proto_item_add_subtree(ti, ETT_IEEE8023);
+
+	proto_tree_add_item(fh_tree, hf_eth_dst, 0, 6, &pd[0]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_dst_vendor, 0, 3, &pd[0]);
+	proto_tree_add_item(fh_tree, hf_eth_src, 6, 6, &pd[6]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_src_vendor, 6, 3, &pd[6]);
+	proto_tree_add_item(fh_tree, hf_eth_len, 12, 2, length);
     }
 
   } else {
     ethhdr_type = ETHERNET_II;
     if (tree) {
-      ti = proto_tree_add_item(tree, 0, 14, "Ethernet II");
-      fh_tree = proto_tree_new();
-      proto_item_add_subtree(ti, fh_tree, ETT_ETHER2);
-      proto_tree_add_item(fh_tree, 0, 6, "Destination: %s (%s)",
-	ether_to_str((guint8 *) &pd[0]),
-	get_ether_name((u_char *)&pd[0]));
-      proto_tree_add_item(fh_tree, 6, 6, "Source: %s (%s)",
-        ether_to_str((guint8 *) &pd[6]),
-        get_ether_name((u_char *)&pd[6]));
+
+	ti = proto_tree_add_item_format(tree, proto_eth, 0, 14, NULL,
+		"Ethernet II");
+
+	fh_tree = proto_item_add_subtree(ti, ETT_ETHER2);
+
+	proto_tree_add_item_format(fh_tree, hf_eth_dst, 0, 6, &pd[0],
+		"Destination: %s (%s)", ether_to_str((guint8 *) &pd[0]),
+		get_ether_name((u_char *) &pd[0]));
+
+	proto_tree_add_item_format(fh_tree, hf_eth_src, 6, 6, &pd[6],
+		"Source: %s (%s)", ether_to_str((guint8 *) &pd[6]),
+		get_ether_name((u_char *) &pd[6]));
+
     }
   }
 
@@ -172,8 +187,58 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
       dissect_llc(pd, offset, fd, tree);
       break;
     case ETHERNET_II:
-      ethertype(etype, offset, pd, fd, tree, fh_tree);
+      ethertype(etype, offset, pd, fd, tree, fh_tree, hf_eth_type);
       break;
   }
 }
 
+void
+proto_register_eth(void)
+{
+	proto_eth = proto_register_protocol (
+		/* name */	"Ethernet",
+		/* abbrev */	"eth" );
+
+	hf_eth_dst = proto_register_field (
+		/* name */	"Destination",
+		/* abbrev */	"eth.dst",
+		/* ftype */	FT_ETHER,
+		/* parent */	proto_eth,
+		/* vals[] */	NULL );
+
+	hf_eth_src = proto_register_field (
+		/* name */	"Source",
+		/* abbrev */	"eth.src",
+		/* ftype */	FT_ETHER,
+		/* parent */	proto_eth,
+		/* vals[] */	NULL );
+
+	hf_eth_dst_vendor = proto_register_field (
+		/* name */	"Destination Hardware Vendor",
+		/* abbrev */	"eth.dst_vendor",
+		/* ftype */	FT_ETHER_VENDOR,
+		/* parent */	proto_eth,
+		/* vals[] */	NULL );
+
+	hf_eth_src_vendor = proto_register_field (
+		/* name */	"Source Hardware Vendor",
+		/* abbrev */	"eth.src_vendor",
+		/* ftype */	FT_ETHER_VENDOR,
+		/* parent */	proto_eth,
+		/* vals[] */	NULL );
+
+	hf_eth_len = proto_register_field (
+		/* name */	"Length",
+		/* abbrev */	"eth.len",
+		/* ftype */	FT_UINT16,
+		/* parent */	proto_eth,
+		/* vals[] */	NULL );
+	
+	/* registered here but handled in ethertype.c */	
+	hf_eth_type = proto_register_field (
+		/* name */	"Type",
+		/* abbrev */	"eth.type",
+		/* ftype */	FT_VALS_UINT16,
+		/* parent */	proto_eth,
+		/* vals[] */	VALS(etype_vals) );
+}

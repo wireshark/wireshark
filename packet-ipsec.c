@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.1 1999/03/29 02:21:34 gram Exp $
+ * $Id: packet-ipsec.c,v 1.2 1999/07/07 22:51:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,19 +85,18 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_item(tree, offset, advance, "Authentication Header");
-	ah_tree = proto_tree_new();
-	proto_item_add_subtree(ti, ah_tree, ETT_AH);
+	ti = proto_tree_add_text(tree, offset, advance, "Authentication Header");
+	ah_tree = proto_item_add_subtree(ti, ETT_AH);
 
-	proto_tree_add_item(ah_tree, offset + offsetof(struct newah, ah_nxt), 1,
+	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_nxt), 1,
 	    "Next Header: %d", ah.ah_nxt);
-	proto_tree_add_item(ah_tree, offset + offsetof(struct newah, ah_len), 1,
+	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_len), 1,
 	    "Length: %d", ah.ah_len << 2);
-	proto_tree_add_item(ah_tree, offset + offsetof(struct newah, ah_spi), 4,
+	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_spi), 4,
 	    "SPI: %08x", (guint32)ntohl(ah.ah_spi));
-	proto_tree_add_item(ah_tree, offset + offsetof(struct newah, ah_seq), 4,
+	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_seq), 4,
 	    "Sequence?: %08x", (guint32)ntohl(ah.ah_seq));
-	proto_tree_add_item(ah_tree, offset + sizeof(ah), (ah.ah_len - 1) << 2,
+	proto_tree_add_text(ah_tree, offset + sizeof(ah), (ah.ah_len - 1) << 2,
 	    "ICV");
     }
 
@@ -130,12 +129,11 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      * (ie none)
      */
     if(tree) {
-	ti = proto_tree_add_item(tree, 0, 0, "Encapsulated Security Payload");
-	esp_tree = proto_tree_new();
-	proto_item_add_subtree(ti, esp_tree, ETT_ESP);
-	proto_tree_add_item(esp_tree, offset + offsetof(struct newesp, esp_spi), 4,
+	ti = proto_tree_add_text(tree, 0, 0, "Encapsulated Security Payload");
+	esp_tree = proto_item_add_subtree(ti, ETT_ESP);
+	proto_tree_add_text(esp_tree, offset + offsetof(struct newesp, esp_spi), 4,
 	    "SPI: %08x", (guint32)ntohl(esp.esp_spi));
-	proto_tree_add_item(esp_tree, offset + offsetof(struct newesp, esp_seq), 4,
+	proto_tree_add_text(esp_tree, offset + offsetof(struct newesp, esp_seq), 4,
 	    "Sequence?: %08x", (guint32)ntohl(esp.esp_seq));
     }
 }

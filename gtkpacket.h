@@ -1,7 +1,7 @@
 /* gtkpacket.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: gtkpacket.h,v 1.1 1999/03/23 03:14:35 gram Exp $
+ * $Id: gtkpacket.h,v 1.2 1999/07/07 22:51:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,5 +31,7 @@ void       packet_hex_print(GtkText *, guint8 *, gint, gint, gint);
 
 #define E_TREEINFO_START_KEY "tree_info_start"
 #define E_TREEINFO_LEN_KEY   "tree_info_len"
+
+void proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view);
 
 #endif

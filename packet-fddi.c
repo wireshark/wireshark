@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.11 1999/03/23 03:14:37 gram Exp $
+ * $Id: packet-fddi.c,v 1.12 1999/07/07 22:51:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,13 @@
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
+
+int proto_fddi = -1;
+int hf_fddi_fc = -1;
+int hf_fddi_dst = -1;
+int hf_fddi_dst_vendor = -1;
+int hf_fddi_src = -1;
+int hf_fddi_src_vendor = -1;
 
 /* FDDI Frame Control values */
 
@@ -128,6 +135,17 @@ static void get_mac_addr(u_char *swapped_addr, const u_char *addr)
   }
 }
 
+static void
+swap_mac_addr(u_char *swapped_addr, const u_char *orig_addr)
+{
+	int i;
+
+	for (i = 0; i < 6; i++) {
+		swapped_addr[i] = swaptab[orig_addr[i]];
+	}
+}
+
+
 void
 capture_fddi(const u_char *pd, guint32 cap_len, packet_counts *ld) {
   int        offset = 0, fc;
@@ -162,7 +180,6 @@ capture_fddi(const u_char *pd, guint32 cap_len, packet_counts *ld) {
     case FDDI_FC_LLC_ASYNC + 15 :
       capture_llc(pd, offset, cap_len, ld);
       return;
-      
     default :
       ld->other++;
       return;
@@ -177,6 +194,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree)
   proto_tree *fh_tree;
   proto_item *ti;
   u_char     src[6], dst[6];
+  u_char     src_swapped[6], dst_swapped[6];
 
   if (fd->cap_len < FDDI_HEADER_SIZE) {
     dissect_data(pd, offset, fd, tree);
@@ -206,20 +224,28 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree)
   offset = FDDI_HEADER_SIZE;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, 0, offset,
-			  "FDDI %s",
-			  (fc >= FDDI_FC_LLC_ASYNC_MIN && fc <= FDDI_FC_LLC_ASYNC_MAX) ?
+	ti = proto_tree_add_item_format(tree, proto_fddi, 0, offset, NULL,
+		"Fiber Distributed Data Interface, %s",
+		(fc >= FDDI_FC_LLC_ASYNC_MIN && fc <= FDDI_FC_LLC_ASYNC_MAX) ?
 			  "Async LLC" : "unsupported FC");
 
-      fh_tree = proto_tree_new();
-      proto_item_add_subtree(ti, fh_tree, ETT_FDDI);
-      proto_tree_add_item(fh_tree, FDDI_P_FC, 1, "Frame Control: 0x%02x", fc);
-      proto_tree_add_item(fh_tree, FDDI_P_DHOST, 6, "Destination: %s (%s)",
-		       ether_to_str(dst), get_ether_name(dst));
-      proto_tree_add_item(fh_tree, FDDI_P_SHOST, 6, "Source: %s (%s)",
-		       ether_to_str(src), get_ether_name(src));
-    }
+      swap_mac_addr(dst_swapped, (u_char*)&pd[FDDI_P_DHOST]);
+      swap_mac_addr(src_swapped, (u_char*)&pd[FDDI_P_SHOST]);
 
+      fh_tree = proto_item_add_subtree(ti, ETT_FDDI);
+      proto_tree_add_item(fh_tree, hf_fddi_fc, FDDI_P_FC, 1, fc);
+      proto_tree_add_item(fh_tree, hf_fddi_dst, FDDI_P_DHOST, 6, dst);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_dst_vendor, FDDI_P_DHOST, 3, dst);
+      proto_tree_add_item(fh_tree, hf_fddi_src, FDDI_P_SHOST, 6, src);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_src_vendor, FDDI_P_SHOST, 3, src);
+
+      /* hide some bit-swapped mac address fields in the proto_tree, just in case */
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, FDDI_P_DHOST, 6, dst_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, FDDI_P_SHOST, 6, src_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_dst_vendor, FDDI_P_DHOST, 3, dst_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_src_vendor, FDDI_P_SHOST, 3, src_swapped);
+
+    }
   switch (fc) {
 
     /* From now, only 802.2 SNAP (Async. LCC frame) is supported */
@@ -248,5 +274,47 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree)
       return;
 
   } /* fc */
-
 } /* dissect_fddi */
+
+void
+proto_register_fddi(void)
+{
+	proto_fddi = proto_register_protocol (
+		/* name */	"Fiber Distributed Data Interface",
+		/* abbrev */	"fddi" );
+
+	hf_fddi_fc = proto_register_field (
+		/* name */	"Frame Control",
+		/* abbrev */	"fddi.fc",
+		/* ftype */	FT_UINT8,
+		/* parent */	proto_fddi,
+		/* vals[] */	NULL );
+
+	hf_fddi_dst = proto_register_field (
+		/* name */	"Destination",
+		/* abbrev */	"fddi.dst",
+		/* ftype */	FT_ETHER,
+		/* parent */	proto_fddi,
+		/* vals[] */	NULL );
+
+	hf_fddi_src = proto_register_field (
+		/* name */	"Source",
+		/* abbrev */	"fddi.src",
+		/* ftype */	FT_ETHER,
+		/* parent */	proto_fddi,
+		/* vals[] */	NULL );
+
+	hf_fddi_dst_vendor = proto_register_field (
+		/* name */	"Destination Hardware Vendor",
+		/* abbrev */	"fddi.dst_vendor",
+		/* ftype */	FT_ETHER_VENDOR,
+		/* parent */	proto_fddi,
+		/* vals[] */	NULL );
+
+	hf_fddi_src_vendor = proto_register_field (
+		/* name */	"Source Hardware Vendor",
+		/* abbrev */	"fddi.src_vendor",
+		/* ftype */	FT_ETHER_VENDOR,
+		/* parent */	proto_fddi,
+		/* vals[] */	NULL );
+}

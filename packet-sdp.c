@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-sdp.c,v 1.1 1999/07/07 00:34:56 guy Exp $
+ * $Id: packet-sdp.c,v 1.2 1999/07/07 22:51:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,10 +68,9 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 	if (!tree)
 		return;
 
-	ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+	ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 		"Session Description Protocol");
-	sdp_tree = proto_tree_new();
-	proto_item_add_subtree(ti, sdp_tree, ETT_SDP);
+	sdp_tree = proto_item_add_subtree(ti, ETT_SDP);
 
 	section = 0;
 	for (; data < dataend; offset += linelen, data = lineend) {
@@ -89,7 +88,7 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 
 		type = data[0];
 		if (data[1] != '=') {
-			proto_tree_add_item(sdp_tree, offset, linelen,
+			proto_tree_add_text(sdp_tree, offset, linelen,
 				"Invalid line: %s",
 				format_text(data, linelen));
 			continue;
@@ -164,13 +163,13 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 			break;
 		}
 
-		proto_tree_add_item(sdp_tree, offset, linelen,
+		proto_tree_add_text(sdp_tree, offset, linelen,
 			"%s (%c): %s", typename, type,
 			format_text(value, valuelen));
 	}
 
 	if (data < dataend) {
-		proto_tree_add_item(sdp_tree, offset, END_OF_FRAME,
+		proto_tree_add_text(sdp_tree, offset, END_OF_FRAME,
 		    "Data (%d bytes)", END_OF_FRAME);
 	}
 }

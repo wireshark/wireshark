@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-data.c,v 1.8 1999/03/23 03:14:36 gram Exp $
+ * $Id: packet-data.c,v 1.9 1999/07/07 22:51:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -35,12 +35,21 @@
 #include <glib.h>
 #include "packet.h"
 
+int proto_data = -1;
+
 void
 dissect_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (fd->cap_len > offset && tree) {
-		proto_tree_add_item(tree, offset, END_OF_FRAME,
-			"Data (%d bytes)", END_OF_FRAME);
+		proto_tree_add_item_format(tree, proto_data, offset,
+			END_OF_FRAME, NULL, "Data (%d bytes)", END_OF_FRAME);
 	}
 }
 
+void
+proto_register_data(void)
+{
+	proto_data = proto_register_protocol (
+		/* name */	"Data",
+		/* abbrev */	"data" );
+}

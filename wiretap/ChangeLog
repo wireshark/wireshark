@@ -1,3 +1,6 @@
+July 7, 1999
+	Removed display filter support.
+
 May 12, 1999
 	Guy added support for Netmon 2.0 files.
 
@@ -26,3 +29,4 @@ January 1, 1999
 
 December 10, 1998
 	Proper timestamp calculations added to ngsniffer.c and lanalyzer.c
+

@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.18 1999/06/25 07:15:02 guy Exp $
+ * $Id: packet-udp.c,v 1.19 1999/07/07 22:51:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -191,15 +191,14 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     col_add_fstr(fd, COL_UNRES_DST_PORT, "%u", uh_dport);
     
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, 8, "User Datagram Protocol");
-    udp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, udp_tree, ETT_UDP);
-    proto_tree_add_item(udp_tree, offset,     2, "Source port: %s (%u)",
+    ti = proto_tree_add_text(tree, offset, 8, "User Datagram Protocol");
+    udp_tree = proto_item_add_subtree(ti, ETT_UDP);
+    proto_tree_add_text(udp_tree, offset,     2, "Source port: %s (%u)",
       get_udp_port(uh_sport), uh_sport);
-    proto_tree_add_item(udp_tree, offset + 2, 2, "Destination port: %s (%u)",
+    proto_tree_add_text(udp_tree, offset + 2, 2, "Destination port: %s (%u)",
       get_udp_port(uh_dport), uh_dport);
-    proto_tree_add_item(udp_tree, offset + 4, 2, "Length: %u", uh_ulen);
-    proto_tree_add_item(udp_tree, offset + 6, 2, "Checksum: 0x%04x", uh_sum);
+    proto_tree_add_text(udp_tree, offset + 4, 2, "Length: %u", uh_ulen);
+    proto_tree_add_text(udp_tree, offset + 6, 2, "Checksum: 0x%04x", uh_sum);
   }
 
   /* Skip over header */

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.28 1999/06/22 03:39:06 guy Exp $
+ * $Id: packet.c,v 1.29 1999/07/07 22:51:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,11 @@
 #include "timestamp.h"
 
 extern capture_file  cf;
+
+int proto_frame = -1;
+int hf_frame_arrival_time = -1;
+int hf_frame_packet_len = -1;
+int hf_frame_capture_len = -1;
 
 gchar *
 ether_to_str(const guint8 *ad) {
@@ -175,6 +180,50 @@ bytes_to_str(const guint8 *bd, int bd_len) {
   *p = '\0';
   return cur;
 }
+
+static const char *mon_names[12] = {
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec"
+};
+
+gchar *
+abs_time_to_str(struct timeval *abs_time)
+{
+        struct tm *tmp;
+        static gchar *cur;
+        static char str[3][3+1+2+2+4+1+2+1+2+1+2+1+4+1 + 5 /* extra */];
+
+        if (cur == &str[0][0]) {
+                cur = &str[1][0];
+        } else if (cur == &str[1][0]) {
+                cur = &str[2][0];
+        } else {
+                cur = &str[0][0];
+        }
+
+        tmp = localtime(&abs_time->tv_sec);
+        sprintf(cur, "%s %2d, %d %02d:%02d:%02d.%04ld",
+            mon_names[tmp->tm_mon],
+            tmp->tm_mday,
+            tmp->tm_year + 1900,
+            tmp->tm_hour,
+            tmp->tm_min,
+            tmp->tm_sec,
+            (long)abs_time->tv_usec/100);
+
+        return cur;
+}
+
 
 /*
  * Given a pointer into a data buffer, and to the end of the buffer,
@@ -396,7 +445,7 @@ match_strval(guint32 val, const value_string *vs) {
       return(vs[i].strptr);
     i++;
   }
-  
+
   return(NULL);
 }
 
@@ -485,7 +534,7 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
 gint
 check_col(frame_data *fd, gint el) {
   int i;
-  
+
   if (fd->cinfo) {
     for (i = 0; i < fd->cinfo->num_cols; i++) {
       if (fd->cinfo->fmt_matx[i][el])
@@ -568,29 +617,13 @@ col_add_str(frame_data *fd, gint el, const gchar* str) {
   }
 }
 
-static const char *mon_names[12] = {
-	"Jan",
-	"Feb",
-	"Mar",
-	"Apr",
-	"May",
-	"Jun",
-	"Jul",
-	"Aug",
-	"Sep",
-	"Oct",
-	"Nov",
-	"Dec"
-};
-
 /* this routine checks the frame type from the cf structure */
 void
 dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 {
 	proto_tree *fh_tree;
 	proto_item *ti;
-	struct tm *tmp;
-	time_t then;
+	struct timeval tv;
 
 	/* Put in frame header information. */
 	if (check_col(fd, COL_CLS_TIME))
@@ -603,31 +636,26 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	  col_add_delta_time(fd, COL_DELTA_TIME);
 
 	if (tree) {
-	  ti = proto_tree_add_item(tree, 0, fd->cap_len,
-	    "Frame (%d on wire, %d captured)",
-	    fd->pkt_len, fd->cap_len);
+	  ti = proto_tree_add_item_format(tree, proto_frame, 0, fd->cap_len,
+	    NULL, "Frame (%d on wire, %d captured)", fd->pkt_len, fd->cap_len);
 
-	  fh_tree = proto_tree_new();
-	  proto_item_add_subtree(ti, fh_tree, ETT_FRAME);
-	  then = fd->abs_secs;
-	  tmp = localtime(&then);
-	  proto_tree_add_item(fh_tree, 0, 0,
-	    "Frame arrived on %s %2d, %d %02d:%02d:%02d.%04ld",
-	    mon_names[tmp->tm_mon],
-	    tmp->tm_mday,
-	    tmp->tm_year + 1900,
-	    tmp->tm_hour,
-	    tmp->tm_min,                                                      
-	    tmp->tm_sec,
-	    (long)fd->abs_usecs/100);
+	  fh_tree = proto_item_add_subtree(ti, ETT_FRAME);
 
-	  proto_tree_add_item(fh_tree, 0, 0, "Total frame length: %d bytes",
-	    fd->pkt_len);
-	  proto_tree_add_item(fh_tree, 0, 0, "Capture frame length: %d bytes",
-	    fd->cap_len);
+	  tv.tv_sec = fd->abs_secs;
+	  tv.tv_usec = fd->abs_usecs;
+
+	  proto_tree_add_item(fh_tree, hf_frame_arrival_time,
+		0, 0, &tv);
+
+	  proto_tree_add_item_format(fh_tree, hf_frame_packet_len,
+		0, 0, fd->pkt_len, "Packet Length: %d byte%s", fd->pkt_len,
+		plurality(fd->pkt_len, "", "s"));
+		
+	  proto_tree_add_item_format(fh_tree, hf_frame_capture_len,
+		0, 0, fd->cap_len, "Capture Length: %d byte%s", fd->cap_len,
+		plurality(fd->cap_len, "", "s"));
 	}
 
-#ifdef WITH_WIRETAP
 	switch (fd->lnk_t) {
 		case WTAP_ENCAP_ETHERNET :
 			dissect_eth(pd, fd, tree);
@@ -648,26 +676,33 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 			dissect_raw(pd, fd, tree);
 			break;
 	}
-#else
-	switch (cf.lnk_t) {
-		case DLT_EN10MB :
-			dissect_eth(pd, fd, tree);
-			break;
-		case DLT_FDDI :
-			dissect_fddi(pd, fd, tree);
-			break;
-		case DLT_IEEE802 :
-			dissect_tr(pd, fd, tree);
-			break;
-		case DLT_NULL :
-			dissect_null(pd, fd, tree);
-			break;
-		case DLT_PPP :
-			dissect_ppp(pd, fd, tree);
-			break;
-		case DLT_RAW :
-			dissect_raw(pd, fd, tree);
-			break;
-	}
-#endif
+}
+
+void
+proto_register_frame(void)
+{
+	proto_frame = proto_register_protocol (
+		/* name */	"Frame",
+		/* abbrev */	"frame");
+
+	hf_frame_arrival_time = proto_register_field (
+		/* name */	"Arrival Time",
+		/* abbrev */	"frame.time",
+		/* ftype */	FT_ABSOLUTE_TIME,
+		/* parent */	proto_frame,
+		/* vals[] */	NULL );
+
+	hf_frame_packet_len = proto_register_field(
+		/* name */	"Total Frame Length",
+		/* abbrev */	"frame.frame_len",
+		/* ftype */	FT_UINT32,
+		/* parent */	proto_frame,
+		/* vals[] */	NULL );
+
+	hf_frame_capture_len = proto_register_field(
+		/* name */	"Capture Frame Length",
+		/* abbrev */	"frame.cap_len",
+		/* ftype */	FT_UINT32,
+		/* parent */	proto_frame,
+		/* vals[] */	NULL );
 }

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.7 1999/03/01 18:57:07 gram Exp $
+ * $Id: wtap.c,v 1.8 1999/07/07 22:52:56 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -75,35 +75,9 @@ void wtap_close(wtap *wth)
 void wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user)
 {
 	int data_offset;
-	int ret;
-	int pkt_encap;
 
 	while ((data_offset = wth->subtype_read(wth)) > 0) {
-		/* offline filter? */
-		if (wth->filter_type == WTAP_FILTER_OFFLINE) {
-			pkt_encap = wth->phdr.pkt_encap;
-
-			/* do we have a compiled filter for this
-			 * encapsulation type? */
-			if (!wth->filter.offline[pkt_encap])
-				wtap_offline_filter_compile(wth, pkt_encap);
-
-			/* run the filter */
-			ret = bpf_run_filter(
-					buffer_start_ptr(wth->frame_buffer),
-					wth->phdr.caplen,
-					wth->filter.offline[pkt_encap],
-					wth->offline_filter_lengths[pkt_encap]
-					);
-			
-			/* if the packet made it through the filter,
-			 * send the data to the user */
-			if (ret > 0)
-				callback(user, &wth->phdr, data_offset,
-				    buffer_start_ptr(wth->frame_buffer));
-		}
-		else
-			callback(user, &wth->phdr, data_offset,
-			    buffer_start_ptr(wth->frame_buffer));
+		callback(user, &wth->phdr, data_offset,
+		    buffer_start_ptr(wth->frame_buffer));
 	}
 }

@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.7 1999/03/23 03:14:39 gram Exp $
+ * $Id: packet-lpd.c,v 1.8 1999/07/07 22:51:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -93,18 +93,17 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, fd->cap_len - offset,
+		ti = proto_tree_add_text(tree, offset, fd->cap_len - offset,
 		  "Line Printer Daemon Protocol");
-		lpd_tree = proto_tree_new();
-		proto_item_add_subtree(ti, lpd_tree, ETT_LPD);
+		lpd_tree = proto_item_add_subtree(ti, ETT_LPD);
 
 		if (lpr_packet_type == request) {
 			if (pd[offset] <= 9) {
-				proto_tree_add_item(lpd_tree, offset,		1,
+				proto_tree_add_text(lpd_tree, offset,		1,
 					lpd_client_code[pd[offset]]);
 			}
 			else {
-				proto_tree_add_item(lpd_tree, offset,		1,
+				proto_tree_add_text(lpd_tree, offset,		1,
 					lpd_client_code[0]);
 			}
 			printer = g_strdup(&pd[offset+1]);
@@ -113,14 +112,14 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			if (printer[fd->cap_len - offset - 2] == 0x0a) {
 				printer[fd->cap_len - offset - 2] = 0;
 			}
-			proto_tree_add_item(lpd_tree, offset+1, fd->cap_len - (offset+1),
+			proto_tree_add_text(lpd_tree, offset+1, fd->cap_len - (offset+1),
 					/*"Printer/options: %s", &pd[offset+1]);*/
 					"Printer/options: %s", printer);
 			g_free(printer);
 		}
 		else {
 			if (pd[offset] <= 3) {
-				proto_tree_add_item(lpd_tree, offset, 2, "Response: %s",
+				proto_tree_add_text(lpd_tree, offset, 2, "Response: %s",
 					lpd_server_code[pd[offset]]);
 			}
 			else {
@@ -130,13 +129,13 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				while (fd->cap_len > curr_offset) {
 					newline = strchr(line_pos, '\n');
 					if (!newline) {
-						proto_tree_add_item(lpd_tree, curr_offset,
+						proto_tree_add_text(lpd_tree, curr_offset,
 							fd->cap_len - offset, "Text: %s", line_pos);
 						break;
 					}
 					*newline = 0;
 					substr_len = strlen(line_pos);
-					proto_tree_add_item(lpd_tree, curr_offset, substr_len + 1,
+					proto_tree_add_text(lpd_tree, curr_offset, substr_len + 1,
 						"Text: %s", line_pos);
 					curr_offset += substr_len + 1;
 					line_pos = newline + 1;

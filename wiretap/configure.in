@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.9 1999/03/28 18:32:02 gram Exp $
+# $Id: configure.in,v 1.10 1999/07/07 22:52:53 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(wtap.c)
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
@@ -27,25 +27,6 @@ if test "x$GLIB_CFLAGS" = x ; then
                     AC_MSG_ERROR(GTK+ library not found.))
  AC_DEFINE(HAVE_GLIB10)
 fi
-
-# Wiretap check (copied and modified from ethereal)
-AC_MSG_CHECKING(whether to include wiretap library)
-AC_ARG_WITH(wiretap,
-[  --with-wiretap          Include wiretap library.
-  --without-wiretap       Don't include wiretap library (default)],
-	[ case "$withval" in
-		yes)
-			AC_MSG_RESULT(yes)
-			LIBWIRETAP_A="libwiretap.a"
-			;;
-		*)
-			AC_MSG_RESULT(no)
-			LIBWIRETAP_A=""
-			;;
-	esac ],
-	AC_MSG_RESULT(no)
-)
-AC_SUBST(LIBWIRETAP_A)
 
 dnl Checks for header files
 AC_HEADER_STDC

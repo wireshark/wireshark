@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.33 1999/06/22 22:02:11 gram Exp $
+ * $Id: file.c,v 1.34 1999/07/07 22:51:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,9 +29,7 @@
 
 #include <gtk/gtk.h>
 
-#ifdef WITH_WIRETAP
 #include <pcap.h>
-#endif
 
 #include <stdio.h>
 #include <unistd.h>
@@ -67,6 +65,7 @@
 #include "packet.h"
 #include "file.h"
 #include "util.h"
+#include "dfilter.h"
 
 #include "packet-ncp.h"
 
@@ -83,13 +82,11 @@ guint cap_input_id, tail_timeout_id;
 static guint32 firstsec, firstusec;
 static guint32 lastsec, lastusec;
 
-#ifdef WITH_WIRETAP
+/* Used when applying a display filter */
+static proto_tree *dfilter_proto_tree = NULL;
+
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
     const u_char *);
-#else
-static void pcap_dispatch_cb(u_char *, const struct pcap_pkthdr *,
-    const u_char *);
-#endif
 
 static void init_col_widths(capture_file *);
 static void set_col_widths(capture_file *);
@@ -98,10 +95,6 @@ static gint tail_timeout_cb(gpointer);
 
 int
 open_cap_file(char *fname, capture_file *cf) {
-#ifndef WITH_WIRETAP
-  guint32     magic[2];
-  char        err_str[PCAP_ERRBUF_SIZE];
-#endif
   struct stat cf_stat;
 
   /* First, make sure the file is valid */
@@ -117,24 +110,13 @@ open_cap_file(char *fname, capture_file *cf) {
 
   fseek(cf->fh, 0L, SEEK_END);
   cf->f_len = ftell(cf->fh);
-#ifndef WITH_WIRETAP
-  fseek(cf->fh, 0L, SEEK_SET);
-  fread(magic, sizeof(guint32), 2, cf->fh);
-  fseek(cf->fh, 0L, SEEK_SET);
-#endif
   fclose(cf->fh);
   cf->fh = NULL;
   /* set the file name beacuse we need it to set the follow stream filter */
   cf->filename = g_strdup( fname );
 
   /* Next, find out what type of file we're dealing with */
-#ifdef WITH_WIRETAP 
   cf->cd_t  = WTAP_FILE_UNKNOWN;
-#else
-  cf->cd_t  = CD_UNKNOWN;
-  cf->lnk_t = DLT_NULL;
-  cf->swap  = 0;
-#endif
   cf->count = 0;
   cf->drops = 0;
   cf->esec  = 0;
@@ -143,16 +125,8 @@ open_cap_file(char *fname, capture_file *cf) {
   firstsec = 0, firstusec = 0;
   lastsec = 0, lastusec = 0;
  
-#ifndef WITH_WIRETAP
-  if (magic[0] == PCAP_MAGIC || magic[0] == SWAP32(PCAP_MAGIC)) {
-
-    /* Pcap/Tcpdump file */
-    cf->pfh = pcap_open_offline(fname, err_str);
-    if (cf->pfh == NULL) {
-#else
 	cf->wth = wtap_open_offline(fname);
 	if (cf->wth == NULL) {
-#endif
 
       /* XXX - we assume that, because we were able to open it above,
          this must have failed because it's not a capture file in
@@ -160,47 +134,16 @@ open_cap_file(char *fname, capture_file *cf) {
       return (OPEN_CAP_FILE_UNKNOWN_FORMAT);
     }
 
-#ifndef WITH_WIRETAP
     if (cf->dfilter) {
-      if (pcap_compile(cf->pfh, &cf->fcode, cf->dfilter, 1, 0) < 0) {
+	dfilter_compile(cf->dfilter, &cf->dfcode);
+/*      if (wtap_offline_filter(cf->wth, cf->dfilter) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string "
           "\"%s\".", cf->dfilter);
-      } else if (pcap_setfilter(cf->pfh, &cf->fcode) < 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "Can't install filter.");
-      }
-    }
-
-    cf->fh   = pcap_file(cf->pfh);
-    cf->swap = pcap_is_swapped(cf->pfh);    
-    if ((cf->swap && BYTE_ORDER == BIG_ENDIAN) ||
-      (!cf->swap && BYTE_ORDER == LITTLE_ENDIAN)) {
-      /* Data is big-endian */
-      cf->cd_t = CD_PCAP_BE;
-    } else {
-      cf->cd_t = CD_PCAP_LE;
-    }
-    cf->vers  = ( ((pcap_major_version(cf->pfh) & 0x0000ffff) << 16) |
-                  pcap_minor_version(cf->pfh) );
-    cf->snap  = pcap_snapshot(cf->pfh);
-    cf->lnk_t = pcap_datalink(cf->pfh);
-  } else if (ntohl(magic[0]) == SNOOP_MAGIC_1 && ntohl(magic[1]) == SNOOP_MAGIC_2) {
-    return (OPEN_CAP_FILE_UNKNOWN_FORMAT);
-  }
-  
-  if (cf->cd_t == CD_UNKNOWN)
-    return (OPEN_CAP_FILE_UNKNOWN_FORMAT);
-#else
-    if (cf->dfilter) {
-      if (wtap_offline_filter(cf->wth, cf->dfilter) < 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string "
-          "\"%s\".", cf->dfilter);
-      }
+      }*/
     }
   cf->fh = wtap_file(cf->wth);
   cf->cd_t = wtap_file_type(cf->wth);
   cf->snap = wtap_snapshot_length(cf->wth);
-#endif
-
   return (0);
 }
 
@@ -217,17 +160,10 @@ close_cap_file(capture_file *cf, void *w, guint context) {
     fclose(cf->fh);
     cf->fh = NULL;
   }
-#ifdef WITH_WIRETAP
   if (cf->wth) {
     wtap_close(cf->wth);
     cf->wth = NULL;
   }
-#else
-  if (cf->pfh) {
-    pcap_close(cf->pfh);
-    cf->pfh = NULL;
-  }
-#endif
   if (cf->plist) {
     g_list_foreach(cf->plist, free_packets_cb, NULL);
     g_list_free(cf->plist);
@@ -258,7 +194,7 @@ load_cap_file(char *fname, capture_file *cf) {
 
   close_cap_file(cf, info_bar, file_ctx);
 
-  /* Initialize protocol-specific variables */
+  /* Initialize protocol-speficic variables */
   ncp_init_protocol();
 
   if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
@@ -272,22 +208,15 @@ load_cap_file(char *fname, capture_file *cf) {
   timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) &cf);
   
   err = open_cap_file(fname, cf);
-#ifdef WITH_WIRETAP
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
-#else
-  if ((err == 0) && (cf->cd_t != CD_UNKNOWN)) {
-#endif
+
+    if (dfilter_proto_tree)
+
     gtk_clist_freeze(GTK_CLIST(packet_list));
     init_col_widths(cf);
-#ifdef WITH_WIRETAP
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
     wtap_close(cf->wth);
     cf->wth = NULL;
-#else
-    pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
-    pcap_close(cf->pfh);
-    cf->pfh = NULL;
-#endif
     cf->fh = fopen(fname, "r");
 
     set_col_widths(cf);
@@ -360,22 +289,13 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     /* process data until end of file and stop capture (restore menu items) */
     gtk_clist_freeze(GTK_CLIST(packet_list));
     init_col_widths(cf);
-#ifdef WITH_WIRETAP
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
-#else
-    pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
-#endif
 
     set_col_widths(cf);
     gtk_clist_thaw(GTK_CLIST(packet_list));
 
-#ifdef WITH_WIRETAP
     wtap_close(cf->wth);
     cf->wth = NULL;
-#else
-    pcap_close(cf->pfh);
-    cf->pfh = NULL;
-#endif
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Open...", TRUE);
     set_menu_sensitivity("/File/Close", TRUE);
@@ -400,11 +320,7 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
   init_col_widths(cf);
-#ifdef WITH_WIRETAP
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
-#else
-  pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
-#endif
 
   set_col_widths(cf);
   gtk_clist_thaw(GTK_CLIST(packet_list));
@@ -432,11 +348,7 @@ tail_timeout_cb(gpointer data) {
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
   init_col_widths(cf);
-#ifdef WITH_WIRETAP
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
-#else
-  pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
-#endif
 
   set_col_widths(cf);
   gtk_clist_thaw(GTK_CLIST(packet_list));
@@ -459,13 +371,9 @@ tail_cap_file(char *fname, capture_file *cf) {
 
   /* Initialize protocol-speficic variables */
   ncp_init_protocol();
-  
+
   err = open_cap_file(fname, cf);
-#ifdef WITH_WIRETAP
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
-#else
-  if ((err == 0) && (cf->cd_t != CD_UNKNOWN)) {
-#endif
 
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Open...", FALSE);
@@ -593,7 +501,7 @@ change_time_format_in_packet_list(frame_data *fdata, capture_file *cf)
 static void
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
 {
-  gint          i, row, col_width;
+  gint          i, col_width, row;
 
   compute_time_stamps(fdata, cf);
 
@@ -609,19 +517,19 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     if (col_width > fdata->cinfo->col_width[i])
       fdata->cinfo->col_width[i] = col_width;
   }
-  row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
+  if (fdata->passed_dfilter) {
+	row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
+	gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
+  }
   fdata->cinfo = NULL;
 }
 
 static void
-#ifdef WITH_WIRETAP
 wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-#else
-pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
-#endif
   const u_char *buf) {
   frame_data   *fdata;
   capture_file *cf = (capture_file *) user;
+  proto_tree *protocol_tree = NULL;
 
   while (gtk_events_pending())
     gtk_main_iteration();
@@ -635,60 +543,23 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
 
   fdata->pkt_len  = phdr->len;
   fdata->cap_len  = phdr->caplen;
-#ifdef WITH_WIRETAP
   fdata->file_off = offset;
   fdata->lnk_t = phdr->pkt_encap;
-#else
-  fdata->file_off = ftell(pcap_file(cf->pfh)) - phdr->caplen;
-#endif
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
+  fdata->cinfo = NULL;
+
+  /* Apply the display filter */
+  if (cf->dfcode) {
+	protocol_tree = proto_tree_create_root();
+	dissect_packet(buf, fdata, protocol_tree);
+	fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf);
+  }
+  else {
+	fdata->passed_dfilter = TRUE;
+  }
 
   add_packet_to_packet_list(fdata, cf, buf);
-}
-
-static void
-filter_packets_cb(gpointer data, gpointer user_data)
-{
-  frame_data *fd = data;
-  capture_file *cf = user_data;
-
-  cf->cur = fd;
-  cf->count++;
-
-  fseek(cf->fh, fd->file_off, SEEK_SET);
-  fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
-
-  add_packet_to_packet_list(fd, cf, cf->pd);
-}
-
-void
-filter_packets(capture_file *cf)
-{
-  /* Freeze the packet list while we redo it, so we don't get any
-     screen updates while it happens. */
-  gtk_clist_freeze(GTK_CLIST(packet_list));
-
-  /* Clear it out. */
-  gtk_clist_clear(GTK_CLIST(packet_list));
-
-  /*
-   * Iterate through the list of packets, calling a routine
-   * to run the filter on the packet, see if it matches, and
-   * put it in the display list if so.
-   *
-   * XXX - we don't yet have anything to run a filter on a packet;
-   * this code awaits the arrival of display filter code.
-   */
-  firstsec = 0;
-  firstusec = 0;
-  lastsec = 0;
-  lastusec = 0;
-  cf->count = 0;
-  g_list_foreach(cf->plist, filter_packets_cb, cf);
-
-  /* Unfreeze the packet list. */
-  gtk_clist_thaw(GTK_CLIST(packet_list));
 }
 
 static void

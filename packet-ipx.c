@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.20 1999/05/10 20:51:36 gram Exp $
+ * $Id: packet-ipx.c,v 1.21 1999/07/07 22:51:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -223,30 +223,29 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ipx_checksum = pntohs(&pd[offset]);
 		ipx_hops = pd[offset+4];
 
-		ti = proto_tree_add_item(tree, offset, 30,
+		ti = proto_tree_add_text(tree, offset, 30,
 			"Internetwork Packet Exchange");
-		ipx_tree = proto_tree_new();
-		proto_item_add_subtree(ti, ipx_tree, ETT_IPX);
-		proto_tree_add_item(ipx_tree, offset,      2, "Checksum: 0x%04x",
+		ipx_tree = proto_item_add_subtree(ti, ETT_IPX);
+		proto_tree_add_text(ipx_tree, offset,      2, "Checksum: 0x%04x",
 				ipx_checksum);
-		proto_tree_add_item(ipx_tree, offset+2,    2, "Length: %d bytes",
+		proto_tree_add_text(ipx_tree, offset+2,    2, "Length: %d bytes",
 				ipx_length);
-		proto_tree_add_item(ipx_tree, offset+4,    1, "Transport Control: %d hops",
+		proto_tree_add_text(ipx_tree, offset+4,    1, "Transport Control: %d hops",
 				ipx_hops);
-		proto_tree_add_item(ipx_tree, offset+5,    1, "Packet Type: %s",
+		proto_tree_add_text(ipx_tree, offset+5,    1, "Packet Type: %s",
 			ipx_packet_type(ipx_type));
-		proto_tree_add_item(ipx_tree, offset+6,    4, "Destination Network: %s",
+		proto_tree_add_text(ipx_tree, offset+6,    4, "Destination Network: %s",
 			str_dnet);
-		proto_tree_add_item(ipx_tree, offset+10,   6, "Destination Node: %s",
+		proto_tree_add_text(ipx_tree, offset+10,   6, "Destination Node: %s",
 			ether_to_str(ipx_dnode));
-		proto_tree_add_item(ipx_tree, offset+16,   2,
+		proto_tree_add_text(ipx_tree, offset+16,   2,
 			"Destination Socket: %s (0x%04X)", port_text(ipx_dsocket),
 			ipx_dsocket);
-		proto_tree_add_item(ipx_tree, offset+18,   4, "Source Network: %s",
+		proto_tree_add_text(ipx_tree, offset+18,   4, "Source Network: %s",
 			str_snet);
-		proto_tree_add_item(ipx_tree, offset+22,   6, "Source Node: %s",
+		proto_tree_add_text(ipx_tree, offset+22,   6, "Source Node: %s",
 			ether_to_str(ipx_snode));
-		proto_tree_add_item(ipx_tree, offset+28,   2,
+		proto_tree_add_text(ipx_tree, offset+28,   2,
 			"Source Socket: %s (0x%04X)", port_text(ipx_ssocket), ipx_ssocket);
 	}
 	offset += 30;
@@ -257,8 +256,11 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			break;
 
 		case 17: /* NCP */
+			/* Is the destination node 00:00:00:00:00:01 ? */
 			if (pntohl(ipx_dnode) == 0 && pntohs(ipx_dnode + 4) == 1)
 				nw_server_address = pntohl(ipx_dnet);
+
+			/* Is the source node 00:00:00:00:00:01 ? */
 			else if (pntohl(ipx_snode) == 0 && pntohs(ipx_snode + 4) == 1)
 				nw_server_address = pntohl(ipx_snet);
 			else
@@ -344,31 +346,30 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 		col_add_str(fd, COL_INFO, "SPX");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, 12, "Sequenced Packet Exchange");
-		spx_tree = proto_tree_new();
-		proto_item_add_subtree(ti, spx_tree, ETT_SPX);
+		ti = proto_tree_add_text(tree, offset, 12, "Sequenced Packet Exchange");
+		spx_tree = proto_item_add_subtree(ti, ETT_SPX);
 
-		proto_tree_add_item(spx_tree, offset,      1,
+		proto_tree_add_text(spx_tree, offset,      1,
 			"Connection Control: %s (0x%02X)",
 			spx_conn_ctrl(pd[offset]), pd[offset]);
 
-		proto_tree_add_item(spx_tree, offset+1,     1,
+		proto_tree_add_text(spx_tree, offset+1,     1,
 			"Datastream Type: %s (0x%02X)",
 			spx_datastream(pd[offset+1]), pd[offset+1]);
 
-		proto_tree_add_item(spx_tree, offset+2,     2,
+		proto_tree_add_text(spx_tree, offset+2,     2,
 			"Source Connection ID: %d", pntohs( &pd[offset+2] ) );
 
-		proto_tree_add_item(spx_tree, offset+4,     2,
+		proto_tree_add_text(spx_tree, offset+4,     2,
 			"Destination Connection ID: %d", pntohs( &pd[offset+4] ) );
 
-		proto_tree_add_item(spx_tree, offset+6,     2,
+		proto_tree_add_text(spx_tree, offset+6,     2,
 			"Sequence Number: %d", pntohs( &pd[offset+6] ) );
 
-		proto_tree_add_item(spx_tree, offset+8,     2,
+		proto_tree_add_text(spx_tree, offset+8,     2,
 			"Acknowledgment Number: %d", pntohs( &pd[offset+8] ) );
 
-		proto_tree_add_item(spx_tree, offset+10,     2,
+		proto_tree_add_text(spx_tree, offset+10,     2,
 			"Allocation Number: %d", pntohs( &pd[offset+10] ) );
 
 		offset += 12;
@@ -405,17 +406,16 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 			"IPX Routing Information Protocol");
-		rip_tree = proto_tree_new();
-		proto_item_add_subtree(ti, rip_tree, ETT_IPXRIP);
+		rip_tree = proto_item_add_subtree(ti, ETT_IPXRIP);
 
 		if (operation < 2) {
-			proto_tree_add_item(rip_tree, offset, 2,
+			proto_tree_add_text(rip_tree, offset, 2,
 			"RIP packet type: %s", rip_type[operation]);
 		}
 		else {
-			proto_tree_add_item(rip_tree, offset, 2, "Unknown RIP packet type");
+			proto_tree_add_text(rip_tree, offset, 2, "Unknown RIP packet type");
 		}
 
 		for (cursor = offset + 2; cursor < fd->cap_len; cursor += 8) {
@@ -424,14 +424,14 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			route.ticks = pntohs(&pd[cursor+6]);
 
 			if (operation == IPX_RIP_REQUEST - 1) {
-				proto_tree_add_item(rip_tree, cursor,      8,
+				proto_tree_add_text(rip_tree, cursor,      8,
 					"Route Vector: %s, %d hop%s, %d tick%s",
 					ipxnet_to_string((guint8*)&route.network),
 					route.hops,  route.hops  == 1 ? "" : "s",
 					route.ticks, route.ticks == 1 ? "" : "s");
 			}
 			else {
-				proto_tree_add_item(rip_tree, cursor,      8,
+				proto_tree_add_text(rip_tree, cursor,      8,
 					"Route Vector: %s, %d hop%s, %d tick%s (%d ms)",
 					ipxnet_to_string((guint8*)&route.network),
 					route.hops,  route.hops  == 1 ? "" : "s",
@@ -527,16 +527,15 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 			"Service Advertising Protocol");
-		sap_tree = proto_tree_new();
-		proto_item_add_subtree(ti, sap_tree, ETT_IPXSAP);
+		sap_tree = proto_item_add_subtree(ti, ETT_IPXSAP);
 
 		if (query.query_type < 4) {
-			proto_tree_add_item(sap_tree, offset, 2, sap_type[query.query_type - 1]);
+			proto_tree_add_text(sap_tree, offset, 2, sap_type[query.query_type - 1]);
 		}
 		else {
-			proto_tree_add_item(sap_tree, offset, 2,
+			proto_tree_add_text(sap_tree, offset, 2,
 					"Unknown SAP Packet Type %d", query.query_type);
 		}
 
@@ -551,26 +550,25 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				server.server_port = pntohs(&pd[cursor+60]);
 				server.intermediate_network = pntohs(&pd[cursor+62]);
 
-				ti = proto_tree_add_item(sap_tree, cursor+2, 48,
+				ti = proto_tree_add_text(sap_tree, cursor+2, 48,
 					"Server Name: %s", server.server_name);
-				s_tree = proto_tree_new();
-				proto_item_add_subtree(ti, s_tree, ETT_IPXSAP_SERVER);
+				s_tree = proto_item_add_subtree(ti, ETT_IPXSAP_SERVER);
 
-				proto_tree_add_item(s_tree, cursor, 2, "Server Type: %s (0x%04X)",
+				proto_tree_add_text(s_tree, cursor, 2, "Server Type: %s (0x%04X)",
 						server_type(server.server_type), server.server_type);
-				proto_tree_add_item(s_tree, cursor+50, 4, "Network: %s",
+				proto_tree_add_text(s_tree, cursor+50, 4, "Network: %s",
 						ipxnet_to_string((guint8*)&pd[cursor+50]));
-				proto_tree_add_item(s_tree, cursor+54, 6, "Node: %s",
+				proto_tree_add_text(s_tree, cursor+54, 6, "Node: %s",
 						ether_to_str((guint8*)&pd[cursor+54]));
-				proto_tree_add_item(s_tree, cursor+60, 2, "Socket: %s (0x%04X)",
+				proto_tree_add_text(s_tree, cursor+60, 2, "Socket: %s (0x%04X)",
 						port_text(server.server_port), server.server_port);
-				proto_tree_add_item(s_tree, cursor+62, 2,
+				proto_tree_add_text(s_tree, cursor+62, 2,
 						"Intermediate Networks: %d",
 						server.intermediate_network);
 			}
 		}
 		else {  /* queries */
-			proto_tree_add_item(sap_tree, offset+2, 2, "Server Type: %s (0x%04X)",
+			proto_tree_add_text(sap_tree, offset+2, 2, "Server Type: %s (0x%04X)",
 					server_type(query.server_type), query.server_type);
 		}
 	}

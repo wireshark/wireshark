@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.25 1999/07/07 00:34:57 guy Exp $
+ * $Id: packet-tcp.c,v 1.26 1999/07/07 22:51:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,7 +144,7 @@ static void
 dissect_tcpopt_maxseg(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  proto_tree_add_item(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, offset,      optlen,
     "%s: %u bytes", name, pntohs(opd));
   tcp_info_append_uint("MSS", pntohs(opd));
 }
@@ -153,7 +153,7 @@ static void
 dissect_tcpopt_wscale(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  proto_tree_add_item(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, offset,      optlen,
     "%s: %u bytes", name, *opd);
   tcp_info_append_uint("WS", *opd);
 }
@@ -166,17 +166,16 @@ dissect_tcpopt_sack(proto_tree *opt_tree, const char *name, const u_char *opd,
   proto_item *tf;
   guint leftedge, rightedge;
 
-  tf = proto_tree_add_item(opt_tree, offset,      optlen, "%s:", name);
+  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", name);
   offset += 2;	/* skip past type and length */
   optlen -= 2;	/* subtract size of type and length */
   while (optlen > 0) {
     if (field_tree == NULL) {
       /* Haven't yet made a subtree out of this option.  Do so. */
-      field_tree = proto_tree_new();
-      proto_item_add_subtree(tf, field_tree, ETT_TCP_OPTION_SACK);
+      field_tree = proto_item_add_subtree(tf, ETT_TCP_OPTION_SACK);
     }
     if (optlen < 4) {
-      proto_tree_add_item(field_tree, offset,      optlen,
+      proto_tree_add_text(field_tree, offset,      optlen,
         "(suboption would go past end of option)");
       break;
     }
@@ -185,7 +184,7 @@ dissect_tcpopt_sack(proto_tree *opt_tree, const char *name, const u_char *opd,
     opd += 4;
     optlen -= 4;
     if (optlen < 4) {
-      proto_tree_add_item(field_tree, offset,      optlen,
+      proto_tree_add_text(field_tree, offset,      optlen,
         "(suboption would go past end of option)");
       break;
     }
@@ -193,7 +192,7 @@ dissect_tcpopt_sack(proto_tree *opt_tree, const char *name, const u_char *opd,
     rightedge = pntohl(opd);
     opd += 4;
     optlen -= 4;
-    proto_tree_add_item(field_tree, offset,      8,
+    proto_tree_add_text(field_tree, offset,      8,
         "left edge = %u, right edge = %u", leftedge, rightedge);
     tcp_info_append_uint("SLE", leftedge);
     tcp_info_append_uint("SRE", rightedge);
@@ -205,7 +204,7 @@ static void
 dissect_tcpopt_echo(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  proto_tree_add_item(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, offset,      optlen,
     "%s: %u", name, pntohl(opd));
   tcp_info_append_uint("ECHO", pntohl(opd));
 }
@@ -214,7 +213,7 @@ static void
 dissect_tcpopt_timestamp(proto_tree *opt_tree, const char *name,
     const u_char *opd, int offset, guint optlen)
 {
-  proto_tree_add_item(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, offset,      optlen,
     "%s: tsval %u, tsecr %u", name, pntohl(opd), pntohl(opd + 4));
   tcp_info_append_uint("TSV", pntohl(opd));
   tcp_info_append_uint("TSER", pntohl(opd + 4));
@@ -224,7 +223,7 @@ static void
 dissect_tcpopt_cc(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  proto_tree_add_item(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, offset,      optlen,
     "%s: %u", name, pntohl(opd));
   tcp_info_append_uint("CC", pntohl(opd));
 }
@@ -389,45 +388,43 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, hlen,
+    ti = proto_tree_add_text(tree, offset, hlen,
       "Transmission Control Protocol");
-    tcp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, tcp_tree, ETT_TCP);
-    proto_tree_add_item(tcp_tree, offset,      2, "Source port: %s (%u)",
+    tcp_tree = proto_item_add_subtree(ti, ETT_TCP);
+    proto_tree_add_text(tcp_tree, offset,      2, "Source port: %s (%u)",
       get_tcp_port(th.th_sport), th.th_sport);
-    proto_tree_add_item(tcp_tree, offset +  2, 2, "Destination port: %s (%u)",
+    proto_tree_add_text(tcp_tree, offset +  2, 2, "Destination port: %s (%u)",
       get_tcp_port(th.th_dport), th.th_dport);
-    proto_tree_add_item(tcp_tree, offset +  4, 4, "Sequence number: %u",
+    proto_tree_add_text(tcp_tree, offset +  4, 4, "Sequence number: %u",
       th.th_seq);
     if (th.th_flags & TH_ACK)
-      proto_tree_add_item(tcp_tree, offset +  8, 4, "Acknowledgement number: %u",
+      proto_tree_add_text(tcp_tree, offset +  8, 4, "Acknowledgement number: %u",
         th.th_ack);
-    proto_tree_add_item(tcp_tree, offset + 12, 1, "Header length: %u bytes", hlen);
-     tf = proto_tree_add_item(tcp_tree, offset + 13, 1, "Flags: 0x%x", th.th_flags);
-     field_tree = proto_tree_new();
-     proto_item_add_subtree(tf, field_tree, ETT_TCP_FLAGS);
-     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
+    proto_tree_add_text(tcp_tree, offset + 12, 1, "Header length: %u bytes", hlen);
+     tf = proto_tree_add_text(tcp_tree, offset + 13, 1, "Flags: 0x%x", th.th_flags);
+     field_tree = proto_item_add_subtree(tf, ETT_TCP_FLAGS);
+     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_URG, sizeof (th.th_flags)*8,
                          "Urgent pointer", "No urgent pointer"));
-     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_ACK, sizeof (th.th_flags)*8,
                          "Acknowledgment", "No acknowledgment"));
-     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_PUSH, sizeof (th.th_flags)*8,
                          "Push", "No push"));
-     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_RST, sizeof (th.th_flags)*8,
                          "Reset", "No reset"));
-     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_SYN, sizeof (th.th_flags)*8,
                          "Syn", "No Syn"));
-     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_text(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_FIN, sizeof (th.th_flags)*8,
                          "Fin", "No Fin"));
-    proto_tree_add_item(tcp_tree, offset + 14, 2, "Window size: %u", th.th_win);
-    proto_tree_add_item(tcp_tree, offset + 16, 2, "Checksum: 0x%04x", th.th_sum);
+    proto_tree_add_text(tcp_tree, offset + 14, 2, "Window size: %u", th.th_win);
+    proto_tree_add_text(tcp_tree, offset + 16, 2, "Checksum: 0x%04x", th.th_sum);
     if (th.th_flags & TH_URG)
-      proto_tree_add_item(tcp_tree, offset + 18, 2, "Urgent pointer: 0x%04x",
+      proto_tree_add_text(tcp_tree, offset + 18, 2, "Urgent pointer: 0x%04x",
         th.th_urp);
   }
 
@@ -436,10 +433,9 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     /* There's more than just the fixed-length header.  Decode the
        options. */
     optlen = hlen - sizeof (e_tcphdr); /* length of options, in bytes */
-    tf = proto_tree_add_item(tcp_tree, offset +  20, optlen,
+    tf = proto_tree_add_text(tcp_tree, offset +  20, optlen,
       "Options: (%d bytes)", optlen);
-    field_tree = proto_tree_new();
-    proto_item_add_subtree(tf, field_tree, ETT_TCP_OPTIONS);
+    field_tree = proto_item_add_subtree(tf, ETT_TCP_OPTIONS);
     dissect_ip_tcp_options(field_tree, &pd[offset + 20], offset + 20, optlen,
       tcpopts, N_TCP_OPTS, TCPOPT_EOL);
   }

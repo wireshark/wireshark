@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.27 1999/06/24 16:25:58 gram Exp $
+# $Id: configure.in,v 1.28 1999/07/07 22:51:36 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -10,6 +10,7 @@ AC_CANONICAL_HOST
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_RANLIB
+AC_PROG_YACC
 
 # If we're running gcc, add '-Wall' to CFLAGS.
 AC_MSG_CHECKING(to see if we can add '-Wall' to CFLAGS)
@@ -19,6 +20,8 @@ if test x$GCC != x ; then
 else
   AC_MSG_RESULT(no)
 fi
+
+CFLAGS="$CFLAGS -Iwiretap"
 
 # Create DATAFILE_DIR #define for config.h
 DATAFILE_DIR=$sysconfdir
@@ -45,7 +48,7 @@ case "$host_os" in
 esac
 
 # GTK checks
-AM_PATH_GTK(1.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
+AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
                    AC_MSG_ERROR(GTK+ distribution not found.))
 
 # Evidently, some systems have pcap.h, etc. in */include/pcap
@@ -72,31 +75,6 @@ AC_CHECK_HEADER(net/bpf.h,, AC_MSG_ERROR(Header file net/bpf.h not found.))
 AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
 AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
 
-# Wiretap check
-AC_MSG_CHECKING(whether to include wiretap library)
-AC_ARG_WITH(wiretap,
-[  --with-wiretap          Include wiretap library.
-  --without-wiretap       Don't include wiretap library (default)],
-	[ case "$withval" in
-		yes)
-			AC_MSG_RESULT(yes)
-			AC_DEFINE(WITH_WIRETAP)
-			WIRETAP_DIR="wiretap"
-			if test x$WIRETAP_DIR != x ; then
-				CFLAGS="$CFLAGS -Iwiretap"
-				LIBWIRETAP_A="wiretap/libwiretap.a"
-				SUBDIRS="$SUBDIRS wiretap"
-			fi
-			;;
-		*)
-			AC_MSG_RESULT(no)
-			LIBWIRETAP_A=""
-			WIRETAP_DIR=""
-			;;
-	esac ],
-	AC_MSG_RESULT(no)
-)
-AC_SUBST(LIBWIRETAP_A)
 AC_SUBST(SUBDIRS)
 
 dnl ipv6 check
@@ -178,7 +156,5 @@ AC_SUBST(STRERROR_C)
 AC_SUBST(STRERROR_O)
 
 AM_CONFIG_HEADER(config.h)
-if test x$WIRETAP_DIR != x ; then
-	AC_CONFIG_SUBDIRS($WIRETAP_DIR)
-fi
+AC_CONFIG_SUBDIRS(wiretap)
 AC_OUTPUT(Makefile)

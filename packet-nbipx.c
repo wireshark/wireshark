@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.7 1999/05/10 19:01:32 gram Exp $
+ * $Id: packet-nbipx.c,v 1.8 1999/07/07 22:51:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -141,18 +141,17 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, 68,
+		ti = proto_tree_add_text(tree, offset, 68,
 				"NetBIOS over IPX");
-		nbipx_tree = proto_tree_new();
-		proto_item_add_subtree(ti, nbipx_tree, ETT_NBIPX);
+		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
 
 		if (header.packet_type <= 1) {
-			proto_tree_add_item(nbipx_tree, offset+33, 1,
+			proto_tree_add_text(nbipx_tree, offset+33, 1,
 					"Packet Type: %s (%02X)", packet_type[header.packet_type],
 					header.packet_type);
 		}
 		else {
-			proto_tree_add_item(nbipx_tree, offset+33, 1,
+			proto_tree_add_text(nbipx_tree, offset+33, 1,
 					"Packet Type: Unknown (%02X)", header.packet_type);
 		}
 
@@ -161,22 +160,22 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			rtr_offset = offset + (i << 2);
 			memcpy(&header.router[i], &pd[rtr_offset], 4);
 			if (header.router[i] != 0) {
-				proto_tree_add_item(nbipx_tree, rtr_offset, 4, "IPX Network: %s",
+				proto_tree_add_text(nbipx_tree, rtr_offset, 4, "IPX Network: %s",
 						ipxnet_to_string((guint8*)&header.router[i]));
 			}
 		}
 
-		proto_tree_add_item(nbipx_tree, offset+32, 1, "Name Type: %02X",
+		proto_tree_add_text(nbipx_tree, offset+32, 1, "Name Type: %02X",
 				header.name_type);
 
 		if (nbipx == NETBIOS_NETWARE) {
-			proto_tree_add_item(nbipx_tree, offset+name_offset, 16,
+			proto_tree_add_text(nbipx_tree, offset+name_offset, 16,
 					"Name String: %s", header.name);
 		}
 		else {
-			proto_tree_add_item(nbipx_tree, offset+name_offset, 16,
+			proto_tree_add_text(nbipx_tree, offset+name_offset, 16,
 					"Group Name String: %s", header.name);
-			proto_tree_add_item(nbipx_tree, offset+52, 16,
+			proto_tree_add_text(nbipx_tree, offset+52, 16,
 					"Node Name String: %s", header.node_name);
 
 		}

@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.3 1999/03/30 04:41:01 guy Exp $
+ * $Id: packet-http.c,v 1.4 1999/07/07 22:51:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,10 +70,9 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 		  "Hypertext Transfer Protocol");
-		http_tree = proto_tree_new();
-		proto_item_add_subtree(ti, http_tree, ETT_HTTP);
+		http_tree = proto_item_add_subtree(ti, ETT_HTTP);
 
 		while (data < dataend) {
 			/*
@@ -160,14 +159,14 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			/*
 			 * Put this line.
 			 */
-			proto_tree_add_item(http_tree, offset, linelen, "%s",
+			proto_tree_add_text(http_tree, offset, linelen, "%s",
 			    format_text(data, linelen));
 			offset += linelen;
 			data = lineend;
 		}
 
 		if (data < dataend) {
-			proto_tree_add_item(http_tree, offset, END_OF_FRAME,
+			proto_tree_add_text(http_tree, offset, END_OF_FRAME,
 			    "Data (%d bytes)", END_OF_FRAME);
 		}
 	}

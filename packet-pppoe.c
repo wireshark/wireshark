@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-pppoe.c,v 1.1 1999/06/11 15:30:39 gram Exp $
+ * $Id: packet-pppoe.c,v 1.2 1999/07/07 22:51:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,9 +101,8 @@ dissect_pppoe_tags(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	/* Start Decoding Here. */
 
 	if (tree) {
-		ti = proto_tree_add_item(tree,offset,payload_length,"PPPoE Tags");
-		pppoe_tree = proto_tree_new();
-		proto_item_add_subtree(ti, pppoe_tree, ETT_PPPOED_TAGS);
+		ti = proto_tree_add_text(tree,offset,payload_length,"PPPoE Tags");
+		pppoe_tree = proto_item_add_subtree(ti, ETT_PPPOED_TAGS);
 
 		tagstart = offset;
 		while(tagstart <= payload_length-2 ) {
@@ -111,7 +110,7 @@ dissect_pppoe_tags(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 			poe_tag = pntohs(&pd[tagstart]);
 			poe_tag_length = pntohs(&pd[tagstart + 2]);
 
-			proto_tree_add_item(pppoe_tree,tagstart,4,
+			proto_tree_add_text(pppoe_tree,tagstart,4,
 				"Tag: %s", pppoetag_to_str(poe_tag,"Unknown (0x%02x)"));
 			
 			switch(poe_tag) {
@@ -123,13 +122,13 @@ dissect_pppoe_tags(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 				/* tag value should be interpreted as a utf-8 unterminated string.*/
 				if(poe_tag_length > 0 ) {
 					/* really should do some limit checking here.  :( */
-					proto_tree_add_item(pppoe_tree,tagstart+4,poe_tag_length,
+					proto_tree_add_text(pppoe_tree,tagstart+4,poe_tag_length,
 						"  String Data: %s", format_text(&pd[tagstart+4],poe_tag_length ));
 				}
 				break;
 			default:
 				if(poe_tag_length > 0 ) {
-				 proto_tree_add_item(pppoe_tree,tagstart+4,poe_tag_length,
+				 proto_tree_add_text(pppoe_tree,tagstart+4,poe_tag_length,
 						"  Binary Data: (%d bytes)", poe_tag_length );
 				}
 			}
@@ -168,18 +167,17 @@ dissect_pppoed(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree,offset,pppoe_length+6,"PPPoE Discovery");
-		pppoe_tree = proto_tree_new();
-		proto_item_add_subtree(ti, pppoe_tree, ETT_PPPOED);
-		proto_tree_add_item(pppoe_tree,offset,1,
+		ti = proto_tree_add_text(tree,offset,pppoe_length+6,"PPPoE Discovery");
+		pppoe_tree = proto_item_add_subtree(ti, ETT_PPPOED);
+		proto_tree_add_text(pppoe_tree,offset,1,
 			"Version: %d", pppoe_ver);
-		proto_tree_add_item(pppoe_tree,offset,1,
+		proto_tree_add_text(pppoe_tree,offset,1,
 			"Type: %d", pppoe_type);
-		proto_tree_add_item(pppoe_tree,offset+1,1,
+		proto_tree_add_text(pppoe_tree,offset+1,1,
 			"Code: %s", pppoecode_to_str(pppoe_code,"Unknown (0x%02x)"));
-		proto_tree_add_item(pppoe_tree,offset+2,2,
+		proto_tree_add_text(pppoe_tree,offset+2,2,
 			"Session ID: %04x", pppoe_session_id);
-		proto_tree_add_item(pppoe_tree,offset+4,2,
+		proto_tree_add_text(pppoe_tree,offset+4,2,
 			"Payload Length: %d", pppoe_length);
 	}
 	dissect_pppoe_tags(pd,offset+6,fd,tree,offset+6+pppoe_length);
@@ -213,18 +211,17 @@ dissect_pppoes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree,offset,pppoe_length+6,"PPPoE Session");
-		pppoe_tree = proto_tree_new();
-		proto_item_add_subtree(ti, pppoe_tree, ETT_PPPOED);
-		proto_tree_add_item(pppoe_tree,offset,1,
+		ti = proto_tree_add_text(tree,offset,pppoe_length+6,"PPPoE Session");
+		pppoe_tree = proto_item_add_subtree(ti, ETT_PPPOED);
+		proto_tree_add_text(pppoe_tree,offset,1,
 			"Version: %d", pppoe_ver);
-		proto_tree_add_item(pppoe_tree,offset,1,
+		proto_tree_add_text(pppoe_tree,offset,1,
 			"Type: %d", pppoe_type);
-		proto_tree_add_item(pppoe_tree,offset+1,1,
+		proto_tree_add_text(pppoe_tree,offset+1,1,
 			"Code: %s", pppoecode_to_str(pppoe_code,"Unknown (0x%02x)"));
-		proto_tree_add_item(pppoe_tree,offset+2,2,
+		proto_tree_add_text(pppoe_tree,offset+2,2,
 			"Session ID: %04x", pppoe_session_id);
-		proto_tree_add_item(pppoe_tree,offset+4,2,
+		proto_tree_add_text(pppoe_tree,offset+4,2,
 			"Payload Length: %d", pppoe_length);
 	}
 	/* dissect_ppp is apparently done as a 'top level' dissector,

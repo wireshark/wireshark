@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.2 1999/07/04 06:41:19 guy Exp $
+ * $Id: summary.c,v 1.3 1999/07/07 22:52:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,7 +83,6 @@ extern capture_file  cf;
 
 char * string_for_format(guint16 cd_t){
   switch (cd_t) {
-#ifdef WITH_WIRETAP
   case WTAP_FILE_WTAP:
     return "wiretap";
   case WTAP_FILE_PCAP:
@@ -100,18 +99,6 @@ char * string_for_format(guint16 cd_t){
     return "Network Monitor";
   case WTAP_FILE_NETXRAY:
     return "NetXray/Sniffer Pro";
-#else
-  case CD_WIRE:
-    return "wiretap";
-  case CD_SNOOP:
-    return "snoop";
-  case CD_PCAP_BE:
-    return "pcap-be";
-  case CD_PCAP_LE:
-    return "pcap-le";
-  case CD_NA_UNCOMPR:
-    return "network-associates";
-#endif
   default:
     return "unknown";
   }
@@ -136,7 +123,8 @@ tally_frame_data(gpointer cf, gpointer st) {
     sum_tally->stop_time = cur_time;
   }
   sum_tally->bytes += cur_frame->pkt_len;
-  sum_tally->count++;
+  if (cur_frame->passed_dfilter)
+	  sum_tally->filtered_count++;
 }
 
 void
@@ -171,7 +159,7 @@ summary_prep_cb(GtkWidget *w, gpointer d) {
   st->stop_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs) 
 ;
   st->bytes = 0;
-  st->count = 0;
+  st->filtered_count = 0;
   cur_glist = cf.plist;
 
   for (i = 0; i < cf.count; i++){
@@ -238,6 +226,10 @@ seconds", seconds);
   snprintf(string_buff, SUM_STR_MAX, "Packet count: %i", cf.count);
   add_string_to_box(string_buff, data_box);
 
+  /* Filtered Packet count */
+  snprintf(string_buff, SUM_STR_MAX, "Filtered packet count: %i", st->filtered_count);
+  add_string_to_box(string_buff, data_box);
+
   /* Packets per second */
   if (seconds > 0){
     snprintf(string_buff, SUM_STR_MAX, "Avg. packets/sec: %.3f", 
@@ -279,14 +271,14 @@ traffic_bytes/seconds);
   }
   add_string_to_box(string_buff, capture_box);
 
-  /* Display filter */
-  if (cf.dfilter) {
+  /* Display filter. The situation where cf.dfilter="" and cf.dfcode=NULL can exist,
+	so I'll check for both */
+  if (cf.dfilter && cf.dfcode) {
     snprintf(string_buff, SUM_STR_MAX, "Display filter: %s", cf.dfilter);
   } else {
     sprintf(string_buff, "Display filter: none");
   }
   add_string_to_box(string_buff, capture_box);
-
 
   /* Capture filter */
   if (cf.cfilter) {
@@ -295,11 +287,7 @@ traffic_bytes/seconds);
     sprintf(string_buff, "Capture filter: none");
   }
   add_string_to_box(string_buff, capture_box);
-#if (GTK_MINOR_VERSION > 1) || ((GTK_MICRO_VERSION > 1) &&  (GTK_MINOR_VERSION > 0))
   gtk_window_set_position(GTK_WINDOW(sum_open_w), GTK_WIN_POS_MOUSE);
-#else
-  gtk_window_position(GTK_WINDOW(sum_open_w), GTK_WIN_POS_MOUSE);
-#endif
   gtk_widget_show(sum_open_w);
 }
 

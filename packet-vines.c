@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.6 1999/03/23 03:14:45 gram Exp $
+ * $Id: packet-vines.c,v 1.7 1999/07/07 22:51:57 gram Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -84,11 +84,10 @@ dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   }
   
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, 2, "Vines Fragmentation Protocol");
-    vines_frp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, vines_frp_tree, ETT_VINES_FRP);
-    proto_tree_add_item(vines_frp_tree, offset,     1, "Control Flags: 0x%02x = %s fragment", vines_frp_ctrl, frp_flags_str);
-    proto_tree_add_item(vines_frp_tree, offset + 1, 1, "Sequence Number: 0x%02x", vines_frp_seqno);
+    ti = proto_tree_add_text(tree, offset, 2, "Vines Fragmentation Protocol");
+    vines_frp_tree = proto_item_add_subtree(ti, ETT_VINES_FRP);
+    proto_tree_add_text(vines_frp_tree, offset,     1, "Control Flags: 0x%02x = %s fragment", vines_frp_ctrl, frp_flags_str);
+    proto_tree_add_text(vines_frp_tree, offset + 1, 1, "Sequence Number: 0x%02x", vines_frp_seqno);
   }
 
   /* Skip over header */
@@ -195,14 +194,13 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   */
   	if (tree) 
   		{
-    	ti = proto_tree_add_item(tree, offset, (viph.vip_pktlen), "Vines IP");
-    	vip_tree = proto_tree_new();
-    	proto_item_add_subtree(ti, vip_tree, ETT_VINES);
-    	proto_tree_add_item(vip_tree, offset,      2, "Packet checksum: 0x%04x", viph.vip_chksum);
-    	proto_tree_add_item(vip_tree, offset +  2, 2, "Packet length: 0x%04x (%d)", viph.vip_pktlen, viph.vip_pktlen); 
-    	proto_tree_add_item(vip_tree, offset +  4, 1, "Transport control: 0x%02x",
+    	ti = proto_tree_add_text(tree, offset, (viph.vip_pktlen), "Vines IP");
+    	vip_tree = proto_item_add_subtree(ti, ETT_VINES);
+    	proto_tree_add_text(vip_tree, offset,      2, "Packet checksum: 0x%04x", viph.vip_chksum);
+    	proto_tree_add_text(vip_tree, offset +  2, 2, "Packet length: 0x%04x (%d)", viph.vip_pktlen, viph.vip_pktlen); 
+    	proto_tree_add_text(vip_tree, offset +  4, 1, "Transport control: 0x%02x",
       		viph.vip_tctl);
-    	proto_tree_add_item(vip_tree, offset +  5, 1, "Protocol: 0x%02x", viph.vip_proto);
+    	proto_tree_add_text(vip_tree, offset +  5, 1, "Protocol: 0x%02x", viph.vip_proto);
   		}
 
 
@@ -283,18 +281,17 @@ void dissect_vines_spp(const u_char *pd, int offset, frame_data *fd, proto_tree 
 */ 
   	if (tree) 
   		{
-    	ti = proto_tree_add_item(tree, offset, sizeof(viph), "Vines SPP");
-    	vspp_tree = proto_tree_new();
-    	proto_item_add_subtree(ti, vspp_tree, ETT_VINES_SPP);
-    	proto_tree_add_item(vspp_tree, offset,      2, "Source port: 0x%04x", viph.vspp_sport);
-    	proto_tree_add_item(vspp_tree, offset+2,    2, "Destination port: 0x%04x", viph.vspp_dport); 
-    	proto_tree_add_item(vspp_tree, offset+4,    1, "Packet type: 0x%02x", viph.vspp_pkttype);
-    	proto_tree_add_item(vspp_tree, offset+5,    1, "Control: 0x%02x", viph.vspp_control);
-    	proto_tree_add_item(vspp_tree, offset+6,    2, "Local Connection ID: 0x%04x", viph.vspp_lclid);
-    	proto_tree_add_item(vspp_tree, offset+8,    2, "Remote Connection ID: 0x%04x", viph.vspp_rmtid);
-    	proto_tree_add_item(vspp_tree, offset+10,   2, "Sequence number: 0x%04x", viph.vspp_seqno);
-    	proto_tree_add_item(vspp_tree, offset+12,   2, "Ack number: 0x%04x", viph.vspp_ack);
-    	proto_tree_add_item(vspp_tree, offset+14,   2, "Window: 0x%04x", viph.vspp_win);
+    	ti = proto_tree_add_text(tree, offset, sizeof(viph), "Vines SPP");
+    	vspp_tree = proto_item_add_subtree(ti, ETT_VINES_SPP);
+    	proto_tree_add_text(vspp_tree, offset,      2, "Source port: 0x%04x", viph.vspp_sport);
+    	proto_tree_add_text(vspp_tree, offset+2,    2, "Destination port: 0x%04x", viph.vspp_dport); 
+    	proto_tree_add_text(vspp_tree, offset+4,    1, "Packet type: 0x%02x", viph.vspp_pkttype);
+    	proto_tree_add_text(vspp_tree, offset+5,    1, "Control: 0x%02x", viph.vspp_control);
+    	proto_tree_add_text(vspp_tree, offset+6,    2, "Local Connection ID: 0x%04x", viph.vspp_lclid);
+    	proto_tree_add_text(vspp_tree, offset+8,    2, "Remote Connection ID: 0x%04x", viph.vspp_rmtid);
+    	proto_tree_add_text(vspp_tree, offset+10,   2, "Sequence number: 0x%04x", viph.vspp_seqno);
+    	proto_tree_add_text(vspp_tree, offset+12,   2, "Ack number: 0x%04x", viph.vspp_ack);
+    	proto_tree_add_text(vspp_tree, offset+14,   2, "Window: 0x%04x", viph.vspp_win);
   		}
 
 	}

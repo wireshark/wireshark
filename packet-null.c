@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.7 1999/03/23 03:14:41 gram Exp $
+ * $Id: packet-null.c,v 1.8 1999/07/07 22:51:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,11 @@
 #include <sys/socket.h>
 
 #include "packet.h"
+	
+int proto_null = -1;
+int hf_null_next = -1;
+int hf_null_len = -1;
+int hf_null_family = -1;
 
 /* Null/loopback structs and definitions */
 
@@ -100,12 +105,11 @@ dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_item(tree, 0, 4, "Null/Loopback" );
-    fh_tree = proto_tree_new();
-    proto_item_add_subtree(ti, fh_tree, ETT_NULL);
-    proto_tree_add_item(fh_tree, 0, 1, "Next: %02x", nh.null_next);
-    proto_tree_add_item(fh_tree, 1, 1, "Length: %02x", nh.null_len);
-    proto_tree_add_item(fh_tree, 2, 2, "Family: %04x", nh.null_family);
+    ti = proto_tree_add_item(tree, proto_null, 0, 4, NULL);
+    fh_tree = proto_item_add_subtree(ti, ETT_NULL);
+    proto_tree_add_item(fh_tree, hf_null_next, 0, 1, nh.null_next);
+    proto_tree_add_item(fh_tree, hf_null_len, 1, 1, nh.null_len);
+    proto_tree_add_item(fh_tree, hf_null_family, 2, 2, nh.null_family);
   }
 
   /* 
@@ -131,4 +135,33 @@ dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree ) {
       dissect_data(pd, 4, fd, tree);
       break;
   }
+}
+
+void
+proto_register_null(void)
+{
+	proto_null = proto_register_protocol (
+		/* name */	"Null/Loopback",
+		/* abbrev */	"null" );
+
+	hf_null_next = proto_register_field (
+		/* name */	"Next",
+		/* abbrev */	"null.next",
+		/* ftype */	FT_UINT8,
+		/* parent */	proto_null,
+		/* vals[] */	NULL );
+
+	hf_null_len = proto_register_field (
+		/* name */	"Length",
+		/* abbrev */	"null.len",
+		/* ftype */	FT_UINT8,
+		/* parent */	proto_null,
+		/* vals[] */	NULL );
+
+	hf_null_family = proto_register_field (
+		/* name */	"Family",
+		/* abbrev */	"null.family",
+		/* ftype */	FT_UINT16,
+		/* parent */	proto_null,
+		/* vals[] */	NULL );
 }

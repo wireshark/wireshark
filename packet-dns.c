@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.18 1999/05/27 05:35:07 guy Exp $
+ * $Id: packet-dns.c,v 1.19 1999/07/07 22:51:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -416,18 +416,17 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
   class_name = dns_class_name(class);
   long_type_name = dns_long_type_name(type);
 
-  tq = proto_tree_add_item(dns_tree, offset, len, "%s: type %s, class %s", 
+  tq = proto_tree_add_text(dns_tree, offset, len, "%s: type %s, class %s", 
 		   name, type_name, class_name);
-  q_tree = proto_tree_new();
-  proto_item_add_subtree(tq, q_tree, ETT_DNS_QD);
+  q_tree = proto_item_add_subtree(tq, ETT_DNS_QD);
 
-  proto_tree_add_item(q_tree, offset, name_len, "Name: %s", name);
+  proto_tree_add_text(q_tree, offset, name_len, "Name: %s", name);
   offset += name_len;
 
-  proto_tree_add_item(q_tree, offset, 2, "Type: %s", long_type_name);
+  proto_tree_add_text(q_tree, offset, 2, "Type: %s", long_type_name);
   offset += 2;
 
-  proto_tree_add_item(q_tree, offset, 2, "Class: %s", class_name);
+  proto_tree_add_text(q_tree, offset, 2, "Class: %s", class_name);
   offset += 2;
   
   return dptr - data_start;
@@ -441,18 +440,17 @@ add_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
 {
   proto_tree *rr_tree;
 
-  rr_tree = proto_tree_new();
-  proto_item_add_subtree(trr, rr_tree, rr_type);
-  proto_tree_add_item(rr_tree, offset, namelen, "Name: %s", name);
+  rr_tree = proto_item_add_subtree(trr, rr_type);
+  proto_tree_add_text(rr_tree, offset, namelen, "Name: %s", name);
   offset += namelen;
-  proto_tree_add_item(rr_tree, offset, 2, "Type: %s", type_name);
+  proto_tree_add_text(rr_tree, offset, 2, "Type: %s", type_name);
   offset += 2;
-  proto_tree_add_item(rr_tree, offset, 2, "Class: %s", class_name);
+  proto_tree_add_text(rr_tree, offset, 2, "Class: %s", class_name);
   offset += 2;
-  proto_tree_add_item(rr_tree, offset, 4, "Time to live: %s",
+  proto_tree_add_text(rr_tree, offset, 4, "Time to live: %s",
 						time_secs_to_str(ttl));
   offset += 4;
-  proto_tree_add_item(rr_tree, offset, 2, "Data length: %u", data_len);
+  proto_tree_add_text(rr_tree, offset, 2, "Data length: %u", data_len);
   return rr_tree;
 }
 
@@ -494,14 +492,14 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
 
   switch (type) {
   case T_A:
-    trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
+    trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, addr %s",
 		     name, type_name, class_name,
 		     ip_to_str((guint8 *)dptr));
     rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                      long_type_name, class_name, ttl, data_len);
     offset += (dptr - data_start);
-    proto_tree_add_item(rr_tree, offset, 4, "Addr: %s",
+    proto_tree_add_text(rr_tree, offset, 4, "Addr: %s",
                      ip_to_str((guint8 *)dptr));
     break;
 
@@ -511,13 +509,13 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
       int ns_name_len;
       
       ns_name_len = get_dns_name(dns_data_ptr, dptr, ns_name, sizeof(ns_name));
-      trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
+      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
 		       "%s: type %s, class %s, ns %s",
 		       name, type_name, class_name, ns_name);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
-      proto_tree_add_item(rr_tree, offset, ns_name_len, "Name server: %s", ns_name);
+      proto_tree_add_text(rr_tree, offset, ns_name_len, "Name server: %s", ns_name);
     }
     break;
 
@@ -527,13 +525,13 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
       int cname_len;
       
       cname_len = get_dns_name(dns_data_ptr, dptr, cname, sizeof(cname));
-      trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
+      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, cname %s",
 		     name, type_name, class_name, cname);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
-      proto_tree_add_item(rr_tree, offset, cname_len, "Primary name: %s", cname);
+      proto_tree_add_text(rr_tree, offset, cname_len, "Primary name: %s", cname);
     }
     break;
 
@@ -552,42 +550,42 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
       rrptr = dptr;
       mname_len = get_dns_name(dns_data_ptr, rrptr, mname, sizeof(mname));
       rrptr += mname_len;
-      trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
+      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, mname %s",
 		     name, type_name, class_name, mname);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
-      proto_tree_add_item(rr_tree, offset, mname_len, "Primary name server: %s",
+      proto_tree_add_text(rr_tree, offset, mname_len, "Primary name server: %s",
                        mname);
       offset += mname_len;
       rname_len = get_dns_name(dns_data_ptr, rrptr, rname, sizeof(rname));
-      proto_tree_add_item(rr_tree, offset, rname_len, "Responsible authority's mailbox: %s",
+      proto_tree_add_text(rr_tree, offset, rname_len, "Responsible authority's mailbox: %s",
                        rname);
       rrptr += rname_len;
       offset += rname_len;
       serial = pntohl(rrptr);
-      proto_tree_add_item(rr_tree, offset, 4, "Serial number: %u",
+      proto_tree_add_text(rr_tree, offset, 4, "Serial number: %u",
                        serial);
       rrptr += 4;
       offset += 4;
       refresh = pntohl(rrptr);
-      proto_tree_add_item(rr_tree, offset, 4, "Refresh interval: %s",
+      proto_tree_add_text(rr_tree, offset, 4, "Refresh interval: %s",
                        time_secs_to_str(refresh));
       rrptr += 4;
       offset += 4;
       retry = pntohl(rrptr);
-      proto_tree_add_item(rr_tree, offset, 4, "Retry interval: %s",
+      proto_tree_add_text(rr_tree, offset, 4, "Retry interval: %s",
                        time_secs_to_str(retry));
       rrptr += 4;
       offset += 4;
       expire = pntohl(rrptr);
-      proto_tree_add_item(rr_tree, offset, 4, "Expiration limit: %s",
+      proto_tree_add_text(rr_tree, offset, 4, "Expiration limit: %s",
                        time_secs_to_str(expire));
       rrptr += 4;
       offset += 4;
       minimum = pntohl(rrptr);
-      proto_tree_add_item(rr_tree, offset, 4, "Minimum TTL: %s",
+      proto_tree_add_text(rr_tree, offset, 4, "Minimum TTL: %s",
                        time_secs_to_str(minimum));
     }
     break;
@@ -598,13 +596,13 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
       int pname_len;
       
       pname_len = get_dns_name(dns_data_ptr, dptr, pname, sizeof(pname));
-      trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
+      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, ptr %s",
 		     name, type_name, class_name, pname);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
-      proto_tree_add_item(rr_tree, offset, pname_len, "Domain name: %s", pname);
+      proto_tree_add_text(rr_tree, offset, pname_len, "Domain name: %s", pname);
       break;
     }
     break;
@@ -612,13 +610,13 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
     /* TODO: parse more record types */
 
   default:
-    trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
+    trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
                      "%s: type %s, class %s",
 		     name, type_name, class_name);
     rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
     offset += (dptr - data_start);
-    proto_tree_add_item(rr_tree, offset, data_len, "Data");
+    proto_tree_add_text(rr_tree, offset, data_len, "Data");
   }
   
   dptr += data_len;
@@ -635,9 +633,8 @@ dissect_query_records(const u_char *dns_data_ptr, int count, const u_char *pd,
   proto_item *ti;
   
   start_off = cur_off;
-  ti = proto_tree_add_item(dns_tree, start_off, 0, "Queries");
-  qatree = proto_tree_new();
-  proto_item_add_subtree(ti, qatree, ETT_DNS_QRY);
+  ti = proto_tree_add_text(dns_tree, start_off, 0, "Queries");
+  qatree = proto_item_add_subtree(ti, ETT_DNS_QRY);
   while (count-- > 0)
     cur_off += dissect_dns_query(dns_data_ptr, pd, cur_off, qatree);
   proto_item_set_len(ti, cur_off - start_off);
@@ -657,9 +654,8 @@ dissect_answer_records(const u_char *dns_data_ptr, int count,
   proto_item *ti;
   
   start_off = cur_off;
-  ti = proto_tree_add_item(dns_tree, start_off, 0, name);
-  qatree = proto_tree_new();
-  proto_item_add_subtree(ti, qatree, ETT_DNS_ANS);
+  ti = proto_tree_add_text(dns_tree, start_off, 0, name);
+  qatree = proto_item_add_subtree(ti, ETT_DNS_ANS);
   while (count-- > 0)
     cur_off += dissect_dns_answer(dns_data_ptr, pd, cur_off, qatree);
   proto_item_set_len(ti, cur_off - start_off);
@@ -710,13 +706,12 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, 4,
+    ti = proto_tree_add_text(tree, offset, 4,
 			  (flags & F_RESPONSE) ? "DNS response" : "DNS query");
     
-    dns_tree = proto_tree_new();
-    proto_item_add_subtree(ti, dns_tree, ETT_DNS);
+    dns_tree = proto_item_add_subtree(ti, ETT_DNS);
     
-    proto_tree_add_item(dns_tree, offset + DNS_ID, 2, "Transaction ID: 0x%04x",
+    proto_tree_add_text(dns_tree, offset + DNS_ID, 2, "Transaction ID: 0x%04x",
     			id);
 
     strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown operation"));
@@ -726,47 +721,46 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
             "Unknown error"));
     }
-    tf = proto_tree_add_item(dns_tree, offset + DNS_FLAGS, 2, "Flags: 0x%04x (%s)",
+    tf = proto_tree_add_text(dns_tree, offset + DNS_FLAGS, 2, "Flags: 0x%04x (%s)",
                           flags, buf);
-    field_tree = proto_tree_new();
-    proto_item_add_subtree(tf, field_tree, ETT_DNS_FLAGS);
-    proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
+    field_tree = proto_item_add_subtree(tf, ETT_DNS_FLAGS);
+    proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
        decode_boolean_bitfield(flags, F_RESPONSE,
             2*8, "Response", "Query"));
-    proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
+    proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
        decode_enumerated_bitfield(flags, F_OPCODE,
             2*8, opcode_vals, "%s"));
     if (flags & F_RESPONSE) {
-      proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
+      proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
          decode_boolean_bitfield(flags, F_AUTHORITATIVE,
               2*8,
               "Server is an authority for domain",
               "Server isn't an authority for domain"));
     }
-    proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
+    proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
        decode_boolean_bitfield(flags, F_TRUNCATED,
             2*8,
             "Message is truncated",
             "Message is not truncated"));
-    proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
+    proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
        decode_boolean_bitfield(flags, F_RECDESIRED,
             2*8,
             "Do query recursively",
             "Don't do query recursively"));
     if (flags & F_RESPONSE) {
-      proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
+      proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
          decode_boolean_bitfield(flags, F_RECAVAIL,
               2*8,
               "Server can do recursive queries",
               "Server can't do recursive queries"));
-      proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
+      proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
          decode_enumerated_bitfield(flags, F_RCODE,
               2*8, rcode_vals, "%s"));
     }
-    proto_tree_add_item(dns_tree, offset + DNS_QUEST, 2, "Questions: %d", quest);
-    proto_tree_add_item(dns_tree, offset + DNS_ANS, 2, "Answer RRs: %d", ans);
-    proto_tree_add_item(dns_tree, offset + DNS_AUTH, 2, "Authority RRs: %d", auth);
-    proto_tree_add_item(dns_tree, offset + DNS_ADD, 2, "Additional RRs: %d", add);
+    proto_tree_add_text(dns_tree, offset + DNS_QUEST, 2, "Questions: %d", quest);
+    proto_tree_add_text(dns_tree, offset + DNS_ANS, 2, "Answer RRs: %d", ans);
+    proto_tree_add_text(dns_tree, offset + DNS_AUTH, 2, "Authority RRs: %d", auth);
+    proto_tree_add_text(dns_tree, offset + DNS_ADD, 2, "Additional RRs: %d", add);
 
     cur_off = offset + DNS_HDRLEN;
     

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.11 1999/06/11 15:30:39 gram Exp $
+ * $Id: packet-ppp.c,v 1.12 1999/07/07 22:51:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -207,14 +207,13 @@ dissect_ipcp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
 			val_to_str(ipcpcode, cp_vals, "Unknown"));
 
   if(tree) {
-    ti = proto_tree_add_item(tree, 0+offset, 4, "IP Control Protocol" );
-    fh_tree = proto_tree_new();
-    proto_item_add_subtree(ti, fh_tree, ETT_IPCP);
-    proto_tree_add_item(fh_tree, 0+offset, 1, "Code: %s (0x%02x)",
+    ti = proto_tree_add_text(tree, 0+offset, 4, "IP Control Protocol" );
+    fh_tree = proto_item_add_subtree(ti, ETT_IPCP);
+    proto_tree_add_text(fh_tree, 0+offset, 1, "Code: %s (0x%02x)",
       val_to_str(ipcpcode, cp_vals, "Unknown"), ipcpcode);
-    proto_tree_add_item(fh_tree, 1+offset, 1, "Identifier: 0x%02x",
+    proto_tree_add_text(fh_tree, 1+offset, 1, "Identifier: 0x%02x",
 			ipcpid);
-    proto_tree_add_item(fh_tree, 2+offset, 2, "Length: %d",
+    proto_tree_add_text(fh_tree, 2+offset, 2, "Length: %d",
 			optionslength);
   }
 
@@ -244,14 +243,13 @@ dissect_lcp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
 			val_to_str(lcpcode, lcp_vals, "Unknown"));
 
   if(tree) {
-    ti = proto_tree_add_item(tree, 0+offset, 4, "Link Control Protocol" );
-    fh_tree = proto_tree_new();
-    proto_item_add_subtree(ti, fh_tree, ETT_LCP);
-    proto_tree_add_item(fh_tree, 0+offset, 1, "Code: %s (0x%02x)",
+    ti = proto_tree_add_text(tree, 0+offset, 4, "Link Control Protocol" );
+    fh_tree = proto_item_add_subtree(ti, ETT_LCP);
+    proto_tree_add_text(fh_tree, 0+offset, 1, "Code: %s (0x%02x)",
       val_to_str(lcpcode, lcp_vals, "Unknown"), lcpcode);
-    proto_tree_add_item(fh_tree, 1+offset, 1, "Identifier: 0x%02x",
+    proto_tree_add_text(fh_tree, 1+offset, 1, "Identifier: 0x%02x",
 			lcpid);
-    proto_tree_add_item(fh_tree, 2+offset, 2, "Length: %d",
+    proto_tree_add_text(fh_tree, 2+offset, 2, "Length: %d",
 			optionslength);
   }
 
@@ -276,10 +274,9 @@ dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *t
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_item(tree, 0+offset, 2, "Point-to-Point Protocol" );
-    fh_tree = proto_tree_new();
-    proto_item_add_subtree(ti, fh_tree, ETT_PPP);
-    proto_tree_add_item(fh_tree, 0+offset, 2, "Protocol: %s (0x%04x)",
+    ti = proto_tree_add_text(tree, 0+offset, 2, "Point-to-Point Protocol" );
+    fh_tree = proto_item_add_subtree(ti, ETT_PPP);
+    proto_tree_add_text(fh_tree, 0+offset, 2, "Protocol: %s (0x%04x)",
       val_to_str(ph.ppp_prot, ppp_vals, "Unknown"), ph.ppp_prot);
   }
 
@@ -347,12 +344,11 @@ dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_item(tree, 0, 4, "Point-to-Point Protocol" );
-    fh_tree = proto_tree_new();
-    proto_item_add_subtree(ti, fh_tree, ETT_PPP);
-    proto_tree_add_item(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
-    proto_tree_add_item(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
-    proto_tree_add_item(fh_tree, 2, 2, "Protocol: %s (0x%04x)",
+    ti = proto_tree_add_text(tree, 0, 4, "Point-to-Point Protocol" );
+    fh_tree = proto_item_add_subtree(ti, ETT_PPP);
+    proto_tree_add_text(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
+    proto_tree_add_text(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
+    proto_tree_add_text(fh_tree, 2, 2, "Protocol: %s (0x%04x)",
       val_to_str(ph.ppp_prot, ppp_vals, "Unknown"), ph.ppp_prot);
   }
 

@@ -91,19 +91,18 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
   
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, 13, "Datagram Delivery Protocol");
-    ddp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, ddp_tree, ETT_IP);
-    proto_tree_add_item(ddp_tree, offset,      1, "Hop count: %d", ddp_hops(ddp.hops_len));
-    proto_tree_add_item(ddp_tree, offset,	    2, "Datagram length: %d", ddp_len(ddp.hops_len));
-    proto_tree_add_item(ddp_tree, offset + 2,  2, "Checksum: %d",ddp.sum);
-    proto_tree_add_item(ddp_tree, offset + 4,  2, "Destination Net: %d",ddp.dnet);
-    proto_tree_add_item(ddp_tree, offset + 6,  2, "Source Net: %d",ddp.snet);
-    proto_tree_add_item(ddp_tree, offset + 8,  1, "Destination Node: %d",ddp.dnode);
-    proto_tree_add_item(ddp_tree, offset + 9,  1, "Source Node: %d",ddp.snode);
-    proto_tree_add_item(ddp_tree, offset + 10, 1, "Destination Socket: %d",ddp.dport);
-    proto_tree_add_item(ddp_tree, offset + 11, 1, "Source Socket: %d",ddp.sport);
-    proto_tree_add_item(ddp_tree, offset + 12, 1, "Type: %d",ddp.type);  
+    ti = proto_tree_add_text(tree, offset, 13, "Datagram Delivery Protocol");
+    ddp_tree = proto_item_add_subtree(ti, ETT_IP);
+    proto_tree_add_text(ddp_tree, offset,      1, "Hop count: %d", ddp_hops(ddp.hops_len));
+    proto_tree_add_text(ddp_tree, offset,	    2, "Datagram length: %d", ddp_len(ddp.hops_len));
+    proto_tree_add_text(ddp_tree, offset + 2,  2, "Checksum: %d",ddp.sum);
+    proto_tree_add_text(ddp_tree, offset + 4,  2, "Destination Net: %d",ddp.dnet);
+    proto_tree_add_text(ddp_tree, offset + 6,  2, "Source Net: %d",ddp.snet);
+    proto_tree_add_text(ddp_tree, offset + 8,  1, "Destination Node: %d",ddp.dnode);
+    proto_tree_add_text(ddp_tree, offset + 9,  1, "Source Node: %d",ddp.snode);
+    proto_tree_add_text(ddp_tree, offset + 10, 1, "Destination Socket: %d",ddp.dport);
+    proto_tree_add_text(ddp_tree, offset + 11, 1, "Source Socket: %d",ddp.sport);
+    proto_tree_add_text(ddp_tree, offset + 12, 1, "Type: %d",ddp.type);  
   }
 
   offset += 13;

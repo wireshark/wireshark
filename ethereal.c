@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.47 1999/07/07 00:34:57 guy Exp $
+ * $Id: ethereal.c,v 1.48 1999/07/07 22:51:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,6 +86,7 @@
 #include "follow.h"
 #include "util.h"
 #include "gtkpacket.h"
+#include "dfilter.h"
 
 static void file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
@@ -93,6 +94,7 @@ static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 FILE        *data_out_file = NULL;
 packet_info  pi;
 capture_file cf;
+proto_tree	*protocol_tree = NULL;
 GtkWidget   *file_sel, *packet_list, *tree_view, *byte_view, *prog_bar,
             *info_bar;
 GdkFont     *m_r_font, *m_b_font;
@@ -303,14 +305,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 void
 match_selected_cb(GtkWidget *w, gpointer data)
 {
-#ifndef WITH_WIRETAP
-    int i;
-    unsigned char *c;
-#endif
     char *buf = malloc(1024);
-#ifndef WITH_WIRETAP
-    char *ptr;
-#endif
     GtkWidget *filter_te = NULL;
 
     if (w)
@@ -323,12 +318,7 @@ match_selected_cb(GtkWidget *w, gpointer data)
 		      "view to be matched.");
 	return;
     }
-
-#ifdef WITH_WIRETAP
-    simple_dialog(ESD_TYPE_WARN, NULL,
-		  "This functionality currently unsupported with Wiretap");
-    return;
-#else
+#if 0
     switch (cf.lnk_t) {
     case DLT_EN10MB :
 	c="ether";
@@ -337,10 +327,12 @@ match_selected_cb(GtkWidget *w, gpointer data)
 	c="fddi";
 	break;
     default :
+#endif
 	simple_dialog(ESD_TYPE_WARN, NULL,
 		      "Unsupported frame type format. Only Ethernet and FDDI\n"
 		      "frame formats are supported.");
 	return;
+#if 0
     }
 
     sprintf(buf, "("); ptr = buf+strlen(buf);
@@ -364,7 +356,6 @@ match_selected_cb(GtkWidget *w, gpointer data)
     }
 
     sprintf(ptr, "))");
-#endif
 
     if( cf.dfilter != NULL ) {
       /* get rid of this one */
@@ -382,6 +373,7 @@ match_selected_cb(GtkWidget *w, gpointer data)
       g_free( cf.dfilter );
       cf.dfilter = NULL;
     }
+#endif
 }
 
 /* Open a file */
@@ -549,28 +541,30 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data) {
 /* What to do when a list item is selected/unselected */
 void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
-  GList      *l;
 
   if (!sync_mode) {
-#ifdef WITH_WIRETAP
   if (cf.wth) return; 
-#else
-  if (cf.pfh) return;
-#endif
   }
   blank_packetinfo();
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
-    gtk_text_get_length(GTK_TEXT(byte_view)));
-  l = g_list_nth(cf.plist, row);
-  if (l) {
-    fd = (frame_data *) l->data;
-    fseek(cf.fh, fd->file_off, SEEK_SET);
-    fread(cf.pd, sizeof(guint8), fd->cap_len, cf.fh);
-    dissect_packet(cf.pd, fd, (proto_tree*)tree_view);
-    packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, -1, -1);
-  }
+  gtk_text_get_length(GTK_TEXT(byte_view)));
+
+  /* get the frame data struct pointer for this frame */
+  fd = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(w), row);
+  fseek(cf.fh, fd->file_off, SEEK_SET);
+  fread(cf.pd, sizeof(guint8), fd->cap_len, cf.fh);
+
+  /* create the logical protocol tree */
+  if (protocol_tree)
+      proto_tree_free(protocol_tree);
+  protocol_tree = proto_tree_create_root();
+  dissect_packet(cf.pd, fd, protocol_tree);
+
+  /* display the GUI protocol tree and hex dump */
+  proto_tree_draw(protocol_tree, tree_view);
+  packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, -1, -1);
   gtk_text_thaw(GTK_TEXT(byte_view));
 }
 
@@ -642,11 +636,12 @@ sigusr2_handler(int sig) {
   signal(SIGUSR2, sigusr2_handler);
 }
 
+/* call initialization routines at program startup time */
 static void
 ethereal_proto_init(void) {
-
+  proto_init();
   init_dissect_udp();
-
+  dfilter_init();
 }
 
 static void 
@@ -703,14 +698,11 @@ main(int argc, char *argv[])
     
   /* Initialize the capture file struct */
   cf.plist		= NULL;
-#ifdef WITH_WIRETAP
   cf.wth		= NULL;
-#else
-  cf.pfh		= NULL;
-#endif
   cf.fh			= NULL;
   cf.dfilter		= NULL;
   cf.cfilter		= NULL;
+  cf.dfcode		= NULL;
   cf.iface		= NULL;
   cf.save_file		= NULL;
   cf.user_saved		= 0;
@@ -725,16 +717,12 @@ main(int argc, char *argv[])
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
 #ifdef GTK_MAJOR_VERSION
-    "GTK+ %d.%d.%d and %s", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
-    GTK_MICRO_VERSION,
+    "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+    GTK_MICRO_VERSION
 #else
-    "GTK+ (version unknown) and %s",
+    "GTK+ (version unknown)"
 #endif
-#ifdef WITH_WIRETAP
-    "wiretap");
-#else
-    "libpcap");
-#endif
+   );
 
   /* Now get our args */
   while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:Ss:t:T:w:v")) != EOF) {

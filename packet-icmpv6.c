@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.2 1999/03/29 02:24:29 gram Exp $
+ * $Id: packet-icmpv6.c,v 1.3 1999/07/07 22:51:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,9 +79,8 @@ again:
     len = opt->nd_opt_len << 3;
 
     /* !!! specify length */
-    ti = proto_tree_add_item(tree, offset, len, "ICMPv6 options");
-    icmp6opt_tree = proto_tree_new();
-    proto_item_add_subtree(ti, icmp6opt_tree, ETT_ICMPv6OPT);
+    ti = proto_tree_add_text(tree, offset, len, "ICMPv6 options");
+    icmp6opt_tree = proto_item_add_subtree(ti, ETT_ICMPv6OPT);
 
     switch (opt->nd_opt_type) {
     case ND_OPT_SOURCE_LINKADDR:
@@ -104,10 +103,10 @@ again:
 	break;
     }
 
-    proto_tree_add_item(icmp6opt_tree,
+    proto_tree_add_text(icmp6opt_tree,
 	offset + offsetof(struct nd_opt_hdr, nd_opt_type), 1,
 	"Type: 0x%02x (%s)", opt->nd_opt_type, typename);
-    proto_tree_add_item(icmp6opt_tree,
+    proto_tree_add_text(icmp6opt_tree,
 	offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
 	"Length: %d bytes (0x%02x)", opt->nd_opt_len << 3, opt->nd_opt_len);
 
@@ -128,7 +127,7 @@ again:
 		t[i * 3 - 1] = ':';
 	    sprintf(&t[i * 3], "%02x", p[i] & 0xff);
 	}
-	proto_tree_add_item(icmp6opt_tree,
+	proto_tree_add_text(icmp6opt_tree,
 	    offset + sizeof(*opt), len, "Link-layer address: %s", t);
 	break;
       }
@@ -136,37 +135,36 @@ again:
       {
 	struct nd_opt_prefix_info *pi = (struct nd_opt_prefix_info *)opt;
 	int flagoff;
-	proto_tree_add_item(icmp6opt_tree,
+	proto_tree_add_text(icmp6opt_tree,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_prefix_len),
 	    1, "Prefix length: %d", pi->nd_opt_pi_prefix_len);
 
 	flagoff = offsetof(struct nd_opt_prefix_info, nd_opt_pi_flags_reserved);
-	tf = proto_tree_add_item(icmp6opt_tree, flagoff, 1, "Flags: 0x%02x",
+	tf = proto_tree_add_text(icmp6opt_tree, flagoff, 1, "Flags: 0x%02x",
 	    pntohl(&pi->nd_opt_pi_flags_reserved));
-	field_tree = proto_tree_new();
-	proto_item_add_subtree(tf, field_tree, ETT_ICMPv6FLAG);
-	proto_tree_add_item(field_tree, flagoff, 1, "%s",
+	field_tree = proto_item_add_subtree(tf, ETT_ICMPv6FLAG);
+	proto_tree_add_text(field_tree, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
 		    0x80, 8, "Onlink", "Not onlink"));
-	proto_tree_add_item(field_tree, flagoff, 1, "%s",
+	proto_tree_add_text(field_tree, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
 		    0x40, 8, "Auto", "Not auto"));
 
-	proto_tree_add_item(icmp6opt_tree,
+	proto_tree_add_text(icmp6opt_tree,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_valid_time),
 	    4, "Valid lifetime: 0x%08x",
 	    pntohl(&pi->nd_opt_pi_valid_time));
-	proto_tree_add_item(icmp6opt_tree,
+	proto_tree_add_text(icmp6opt_tree,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_preferred_time),
 	    4, "Preferred lifetime: 0x%08x",
 	    pntohl(&pi->nd_opt_pi_preferred_time));
-	proto_tree_add_item(icmp6opt_tree,
+	proto_tree_add_text(icmp6opt_tree,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_prefix),
 	    16, "Prefix: %s", ip6_to_str(&pi->nd_opt_pi_prefix));
 	break;
       }
     case ND_OPT_REDIRECTED_HEADER:
-	proto_tree_add_item(icmp6opt_tree,
+	proto_tree_add_text(icmp6opt_tree,
 	    offset + 8, (opt->nd_opt_len << 3) - 8, "Redirected packet");
 	/* tiny sanity check */
 	if ((pd[offset + 8] & 0xf0) == 0x60)
@@ -177,7 +175,7 @@ again:
     case ND_OPT_MTU:
       {
 	struct nd_opt_mtu *pi = (struct nd_opt_mtu *)opt;
-	proto_tree_add_item(icmp6opt_tree,
+	proto_tree_add_text(icmp6opt_tree,
 	    offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu), 4,
 	    "MTU: %d", pi->nd_opt_mtu_mtu);
 	break;
@@ -332,20 +330,19 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_item(tree, offset, len,
+	ti = proto_tree_add_text(tree, offset, len,
 	    "ICMPv6");
-	icmp6_tree = proto_tree_new();
-	proto_item_add_subtree(ti, icmp6_tree, ETT_ICMPv6);
+	icmp6_tree = proto_item_add_subtree(ti, ETT_ICMPv6);
 
-	proto_tree_add_item(icmp6_tree,
+	proto_tree_add_text(icmp6_tree,
 	    offset + offsetof(struct icmp6_hdr, icmp6_type), 1,
 	    "Type: 0x%02x (%s)", dp->icmp6_type, typename);
 	if (codename) {
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct icmp6_hdr, icmp6_code), 1,
 		"Code: 0x%02x (%s)", dp->icmp6_code, codename);
 	}
-	proto_tree_add_item(icmp6_tree,
+	proto_tree_add_text(icmp6_tree,
 	    offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
 	    "Checksum: 0x%04x", (guint16)htons(dp->icmp6_cksum));
 
@@ -361,7 +358,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    }
 	    break;
 	case ICMP6_PACKET_TOO_BIG:
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct icmp6_hdr, icmp6_mtu), 4,
 		"MTU: %d", pntohl(&dp->icmp6_mtu));
 	    /* tiny sanity check */
@@ -372,7 +369,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    }
 	    break;
 	case ICMP6_PARAM_PROB:
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct icmp6_hdr, icmp6_pptr), 4,
 		"Problem pointer: 0x%04x", pntohl(&dp->icmp6_pptr));
 	    /* tiny sanity check */
@@ -384,10 +381,10 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    break;
 	case ICMP6_ECHO_REQUEST:
 	case ICMP6_ECHO_REPLY:
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct icmp6_hdr, icmp6_id), 2,
 		"ID: 0x%04x", (guint16)ntohs(dp->icmp6_id));
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct icmp6_hdr, icmp6_seq), 2,
 		"Sequence: 0x%04x", (guint16)ntohs(dp->icmp6_seq));
 	    dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
@@ -395,11 +392,11 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	case ICMP6_MEMBERSHIP_QUERY:
 	case ICMP6_MEMBERSHIP_REPORT:
 	case ICMP6_MEMBERSHIP_REDUCTION:
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct icmp6_hdr, icmp6_maxdelay), 2,
 		"Maximum response delay: %d",
 		(guint16)ntohs(dp->icmp6_maxdelay));
-	    proto_tree_add_item(icmp6_tree, offset + sizeof(*dp), 16,
+	    proto_tree_add_text(icmp6_tree, offset + sizeof(*dp), 16,
 		"Multicast Address: %s",
 		ip6_to_str((struct e_in6_addr *)(dp + 1)));
 	    break;
@@ -412,30 +409,29 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    int flagoff;
 	    guint32 ra_flags;
 
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct nd_router_advert, nd_ra_curhoplimit),
 		1, "Cur hop limit: %d", ra->nd_ra_curhoplimit);
 
 	    flagoff = offset + offsetof(struct nd_router_advert, nd_ra_flags_reserved);
 	    ra_flags = pntohl(&pd[flagoff]);
-	    tf = proto_tree_add_item(icmp6_tree, flagoff, 4, "Flags: 0x%08x", ra_flags);
-	    field_tree = proto_tree_new();
-	    proto_item_add_subtree(tf, field_tree, ETT_ICMPv6FLAG);
-	    proto_tree_add_item(field_tree, flagoff, 4, "%s",
+	    tf = proto_tree_add_text(icmp6_tree, flagoff, 4, "Flags: 0x%08x", ra_flags);
+	    field_tree = proto_item_add_subtree(tf, ETT_ICMPv6FLAG);
+	    proto_tree_add_text(field_tree, flagoff, 4, "%s",
 		decode_boolean_bitfield(ra_flags,
 			0x80000000, 32, "Managed", "Not managed"));
-	    proto_tree_add_item(field_tree, flagoff, 4, "%s",
+	    proto_tree_add_text(field_tree, flagoff, 4, "%s",
 		decode_boolean_bitfield(ra_flags,
 			0x40000000, 32, "Other", "Not other"));
 
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct nd_router_advert, nd_ra_router_lifetime),
 		2, "Router lifetime: %d",
 		(guint16)ntohs(ra->nd_ra_router_lifetime));
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct nd_router_advert, nd_ra_reachable), 4,
 		"Reachable time: %d", pntohl(&ra->nd_ra_reachable));
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct nd_router_advert, nd_ra_retransmit), 4,
 		"Retrans time: %d", pntohl(&ra->nd_ra_retransmit));
 	    dissect_icmpv6opt(pd, offset + sizeof(struct nd_router_advert), fd, icmp6_tree);
@@ -445,7 +441,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  {
 	    struct nd_neighbor_solicit *ns = (struct nd_neighbor_solicit *)dp;
 
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 			offset + offsetof(struct nd_neighbor_solicit, nd_ns_target), 16,
 #ifdef INET6
 			"Target: %s (%s)",
@@ -467,22 +463,21 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    flagoff = offset + offsetof(struct nd_neighbor_advert, nd_na_flags_reserved);
 	    na_flags = pntohl(&pd[flagoff]);
 
-	    tf = proto_tree_add_item(icmp6_tree, flagoff, 4, "Flags: 0x%08x", na_flags);
-	    field_tree = proto_tree_new();
-	    proto_item_add_subtree(tf, field_tree, ETT_ICMPv6FLAG);
-	    proto_tree_add_item(field_tree, flagoff, 4, "%s",
+	    tf = proto_tree_add_text(icmp6_tree, flagoff, 4, "Flags: 0x%08x", na_flags);
+	    field_tree = proto_item_add_subtree(tf, ETT_ICMPv6FLAG);
+	    proto_tree_add_text(field_tree, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
 			0x80000000, 32, "Router", "Not router"));
-	    proto_tree_add_item(field_tree, flagoff, 4, "%s",
+	    proto_tree_add_text(field_tree, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
 			0x40000000, 32, "Solicited", "Not adverted"));
-	    proto_tree_add_item(field_tree, flagoff, 4, "%s",
+	    proto_tree_add_text(field_tree, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
 			0x20000000, 32, "Override", "Not override"));
 
 		targetoff = offset + offsetof(struct nd_neighbor_advert, nd_na_target);
 	    na_target_p = (struct e_in6_addr*) &pd[targetoff];
-	    proto_tree_add_item(icmp6_tree, targetoff, 16,
+	    proto_tree_add_text(icmp6_tree, targetoff, 16,
 #ifdef INET6
 			"Target: %s (%s)",
 			get_hostname6(na_target_p),
@@ -498,7 +493,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  {
 	    struct nd_redirect *rd = (struct nd_redirect *)dp;
 
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 			offset + offsetof(struct nd_redirect, nd_rd_target), 16,
 #ifdef INET6
 			"Target: %s (%s)",
@@ -508,7 +503,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #endif
 			ip6_to_str(&rd->nd_rd_target));
 
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 			offset + offsetof(struct nd_redirect, nd_rd_dst), 16,
 #ifdef INET6
 			"Destination: %s (%s)",
@@ -525,36 +520,35 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  {
 	    struct icmp6_router_renum *rr = (struct icmp6_router_renum *)dp;
 	    int flagoff;
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct icmp6_router_renum, rr_seqnum), 4,
 		/*"Sequence number: 0x%08x", (u_int32_t)htonl(rr->rr_seqnum));*/
 		"Sequence number: 0x%08x", pntohl(&rr->rr_seqnum));
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct icmp6_router_renum, rr_segnum), 1,
 		"Segment number: 0x%02x", rr->rr_segnum);
 
 	    flagoff = offset + offsetof(struct icmp6_router_renum, rr_segnum) + 1;
-	    tf = proto_tree_add_item(icmp6_tree, flagoff, 4, "Flags: 0x%08x",
+	    tf = proto_tree_add_text(icmp6_tree, flagoff, 4, "Flags: 0x%08x",
 		pd[flagoff]);
-	    field_tree = proto_tree_new();
-	    proto_item_add_subtree(tf, field_tree, ETT_ICMPv6FLAG);
-	    proto_tree_add_item(field_tree, flagoff, 1, "%s",
+	    field_tree = proto_item_add_subtree(tf, ETT_ICMPv6FLAG);
+	    proto_tree_add_text(field_tree, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x80, 8,
 		    "Test command", "Not test command"));
-	    proto_tree_add_item(field_tree, flagoff, 1, "%s",
+	    proto_tree_add_text(field_tree, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x40, 8,
 		    "Result requested", "Result not requested"));
-	    proto_tree_add_item(field_tree, flagoff, 1, "%s",
+	    proto_tree_add_text(field_tree, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x20, 8,
 		    "All interfaces", "Not all interfaces"));
-	    proto_tree_add_item(field_tree, flagoff, 1, "%s",
+	    proto_tree_add_text(field_tree, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x10, 8,
 		    "Site specific", "Not site specific"));
-	    proto_tree_add_item(field_tree, flagoff, 1, "%s",
+	    proto_tree_add_text(field_tree, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x08, 8,
 		    "Processed previously", "Complete result"));
 
-	    proto_tree_add_item(icmp6_tree,
+	    proto_tree_add_text(icmp6_tree,
 		offset + offsetof(struct icmp6_router_renum, rr_segnum), 2,
 		"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
 	    dissect_data(pd, offset + sizeof(*rr), fd, tree);	/*XXX*/

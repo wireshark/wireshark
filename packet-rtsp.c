@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-rtsp.c,v 1.1 1999/07/07 00:34:56 guy Exp $
+ * $Id: packet-rtsp.c,v 1.2 1999/07/07 22:51:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,10 +104,9 @@ void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 	rtsp_tree = NULL;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 			"Real Time Streaming Protocol");
-		rtsp_tree = proto_tree_new();
-		proto_item_add_subtree(ti, rtsp_tree, ETT_RTSP);
+		rtsp_tree = proto_item_add_subtree(ti, ETT_RTSP);
 	}
 
 	while (data < dataend) {
@@ -195,7 +194,7 @@ void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 		 * Put this line.
 		 */
 		if (rtsp_tree) {
-			proto_tree_add_item(rtsp_tree, offset, linelen, "%s",
+			proto_tree_add_text(rtsp_tree, offset, linelen, "%s",
 			    format_text(data, linelen));
 		}
 		offset += linelen;
@@ -208,7 +207,7 @@ void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 			col_add_str(fd, COL_PROTOCOL, "RTSP/SDP");
 	}
 	else if (rtsp_tree && data < dataend) {
-		proto_tree_add_item(rtsp_tree, offset, END_OF_FRAME,
+		proto_tree_add_text(rtsp_tree, offset, END_OF_FRAME,
 		    "Data (%d bytes)", END_OF_FRAME);
 	}
 }

@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: gtkpacket.c,v 1.5 1999/05/01 05:39:06 gram Exp $
+ * $Id: gtkpacket.c,v 1.6 1999/07/07 22:51:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,9 @@
 
 extern GtkWidget    *byte_view;
 extern GdkFont      *m_r_font, *m_b_font;
+
+static void
+proto_tree_draw_node(GNode *node, gpointer data);
 
 void
 packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen) {
@@ -136,49 +139,53 @@ set_item_style(GtkWidget *widget, gpointer dummy)
   gtk_widget_set_style(widget, item_style);
 }
 
-proto_item *
-proto_tree_add_item(proto_tree *tree, gint start, gint len,
-  gchar *format, ...) {
-  GtkWidget *ti;
-  va_list    ap;
-  gchar      label_str[256];
-
-  if (!tree)
-    return(NULL);
-  
-  va_start(ap, format);
-  vsnprintf(label_str, 256, format, ap);
-  ti = gtk_tree_item_new_with_label(label_str);
-  gtk_container_foreach(GTK_CONTAINER(ti), set_item_style, NULL);
-  gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_START_KEY, (gpointer) start);
-  gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_LEN_KEY, (gpointer) len);
-  gtk_tree_append(GTK_TREE(tree), ti);
-  gtk_widget_show(ti);
-
-  return (proto_item*) ti;
-}
-
 void
-proto_item_set_len(proto_item *ti, gint len)
+proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 {
-  gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_LEN_KEY, (gpointer) len);
+	g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
+		proto_tree_draw_node, tree_view);
 }
 
-void
-proto_item_add_subtree(proto_item *ti, proto_tree *subtree, gint idx) {
-  static gint tree_type[NUM_TREE_TYPES];
-
-  gtk_tree_item_set_subtree(GTK_TREE_ITEM(ti), GTK_WIDGET(subtree));
-  if (tree_type[idx])
-    gtk_tree_item_expand(GTK_TREE_ITEM(ti));
-  gtk_signal_connect(GTK_OBJECT(ti), "expand", (GtkSignalFunc) expand_tree,
-    (gpointer) &tree_type[idx]);
-  gtk_signal_connect(GTK_OBJECT(ti), "collapse", (GtkSignalFunc) collapse_tree,
-    (gpointer) &tree_type[idx]);
-}
-
-proto_tree*
-proto_tree_new(void)
+static void
+proto_tree_draw_node(GNode *node, gpointer data)
 {
-	return (proto_tree*) gtk_tree_new();
+	GtkWidget	*tree_view = (GtkWidget*) data;
+	field_info	*fi = (field_info*) (node->data);
+	GtkWidget	*ti, *subtree;
+	gchar		label_str[ITEM_LABEL_LENGTH];
+	gchar		*label_ptr;
+	static gint	tree_type[NUM_TREE_TYPES];
+
+	if (!fi->visible)
+		return;
+
+	/* was a free format label produced? */
+	if (fi->representation) {
+		label_ptr = fi->representation;
+	}
+	else { /* no, make a generic label */
+		label_ptr = label_str;
+		proto_item_fill_label(fi, label_str);
+	}
+		
+	ti = gtk_tree_item_new_with_label(label_ptr);
+	gtk_container_foreach(GTK_CONTAINER(ti), set_item_style, NULL);
+	gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_START_KEY, (gpointer) fi->start);
+	gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_LEN_KEY, (gpointer) fi->length);
+	gtk_tree_append(GTK_TREE(tree_view), ti);
+	gtk_widget_show(ti);
+
+	if (g_node_n_children(node) > 0) {
+		subtree = gtk_tree_new();
+		gtk_tree_item_set_subtree(GTK_TREE_ITEM(ti), GTK_WIDGET(subtree));
+		if (tree_type[fi->tree_type])
+			gtk_tree_item_expand(GTK_TREE_ITEM(ti));
+		gtk_signal_connect(GTK_OBJECT(ti), "expand", (GtkSignalFunc) expand_tree,
+			(gpointer) &tree_type[fi->tree_type]);
+		gtk_signal_connect(GTK_OBJECT(ti), "collapse", (GtkSignalFunc) collapse_tree,
+			(gpointer) &tree_type[fi->tree_type]);
+
+		g_node_children_foreach(node, G_TRAVERSE_ALL,
+			proto_tree_draw_node, subtree);
+	}
 }

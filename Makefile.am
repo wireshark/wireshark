@@ -4,6 +4,8 @@ man_MANS = ethereal.1
 
 sysconf_DATA = manuf
 
+YFLAGS=-d
+
 ethereal_SOURCES = \
 	alignment.h    \
 	capture.c      \
@@ -11,6 +13,9 @@ ethereal_SOURCES = \
 	column.c       \
 	column.h       \
 	config.h       \
+	dfilter-grammar.y \
+	dfilter.c      \
+	dfilter.h      \
 	display.c      \
 	display.h      \
 	ethereal.c     \
@@ -87,15 +92,17 @@ ethereal_SOURCES = \
 	prefs.h        \
 	print.c        \
 	print.h        \
+	proto.c        \
+	proto.h        \
 	ps.c           \
 	ps.h           \
 	resolv.c       \
 	resolv.h       \
 	smb.h          \
-        summary.h      \
-        summary.c      \
 	timestamp.h    \
 	util.c         \
+        summary.c      \
+        summary.h      \
 	util.h
 
 EXTRA_ethereal_SOURCES = \
@@ -106,8 +113,8 @@ EXTRA_ethereal_SOURCES = \
 	strerror.c	\
 	strerror.h
 
-ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ @LIBWIRETAP_A@
-ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ @LIBWIRETAP_A@ @SNMP_A@
+ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ wiretap/libwiretap.a
+ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ wiretap/libwiretap.a @SNMP_A@
 
 ps.c: print.ps rdps
 	./rdps print.ps ps.c
@@ -134,7 +141,7 @@ EXTRA_DIST =                \
 	ylwrap			\
 	VERSION
 
-SUBDIRS = @SUBDIRS@
+SUBDIRS = wiretap @SUBDIRS@
 
 ethereal.1: doc/ethereal.pod VERSION
 	(cd doc ; \

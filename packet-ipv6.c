@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.8 1999/04/09 13:32:31 gram Exp $
+ * $Id: packet-ipv6.c,v 1.9 1999/07/07 22:51:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,12 +85,11 @@ dissect_dstopts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_item(tree, offset, len,
+	ti = proto_tree_add_text(tree, offset, len,
 	    "Destination Option Header");
-	dstopt_tree = proto_tree_new();
-	proto_item_add_subtree(ti, dstopt_tree, ETT_IPv6);
+	dstopt_tree = proto_item_add_subtree(ti, ETT_IPv6);
 
-	proto_tree_add_item(dstopt_tree,
+	proto_tree_add_text(dstopt_tree,
 	    offset + offsetof(struct ip6_dest, ip6d_len), 1,
 	    "Length: %d (%d bytes)", dstopt.ip6d_len, len);
   
@@ -125,38 +124,37 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     /* !!! specify length */
-    ti = proto_tree_add_item(tree, offset, 40, "Internet Protocol Version 6");
-    ipv6_tree = proto_tree_new();
-    proto_item_add_subtree(ti, ipv6_tree, ETT_IPv6);
+    ti = proto_tree_add_text(tree, offset, 40, "Internet Protocol Version 6");
+    ipv6_tree = proto_item_add_subtree(ti, ETT_IPv6);
 
     /* !!! warning: version also contains 4 Bit priority */
-    proto_tree_add_item(ipv6_tree,
+    proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_vfc), 1,
 		"Version: %d", ipv6.ip6_vfc >> 4);
 
-    proto_tree_add_item(ipv6_tree,
+    proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
 		"Traffic class: 0x%02x", (ntohl(ipv6.ip6_flow) >> 20) & 0xff);
 
     /* there should be no alignment problems for ip6_flow, since it's the first
     guint32 in the ipv6 struct */
-    proto_tree_add_item(ipv6_tree,
+    proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
 		"Flowlabel: 0x%05x", ntohl(ipv6.ip6_flow & IPV6_FLOWLABEL_MASK));
 
-    proto_tree_add_item(ipv6_tree,
+    proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_plen), 2,
 		"Payload Length: %d", ntohs(ipv6.ip6_plen));
 
-    proto_tree_add_item(ipv6_tree,
+    proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_nxt), 1,
 		"Next Header: %d", ipv6.ip6_nxt);
 
-    proto_tree_add_item(ipv6_tree,
+    proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_hlim), 1,
 		"Hop limit: %d", ipv6.ip6_hlim);
 
-    proto_tree_add_item(ipv6_tree,
+    proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_src), 16,
 #ifdef INET6
 		"Source address: %s (%s)",
@@ -166,7 +164,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 #endif
 		ip6_to_str(&ipv6.ip6_src));
 
-	proto_tree_add_item(ipv6_tree,
+	proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_dst), 16,
 #ifdef INET6
 		"Destination address: %s (%s)",

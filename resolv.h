@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.4 1999/03/28 18:32:01 gram Exp $
+ * $Id: resolv.h,v 1.5 1999/07/07 22:51:59 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -71,5 +71,8 @@ extern u_char *get_ether_addr(u_char *name);
 
 /* adds a hostname/IP in the hash table */
 extern void add_host_name(u_int addr, u_char *name);
+
+/* Returns IP address for a string representing the hostname or dotted-decial IP address */
+unsigned long get_host_ipaddr(const char *host);
 
 #endif /* __RESOLV_H__ */

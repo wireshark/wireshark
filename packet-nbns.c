@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.21 1999/06/01 20:40:34 guy Exp $
+ * $Id: packet-nbns.c,v 1.22 1999/07/07 22:51:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -303,18 +303,17 @@ dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	type_name = nbns_type_name(type);
 	class_name = dns_class_name(class);
 
-	tq = proto_tree_add_item(nbns_tree, offset, len, "%s: type %s, class %s", 
+	tq = proto_tree_add_text(nbns_tree, offset, len, "%s: type %s, class %s", 
 	    name, type_name, class_name);
-	q_tree = proto_tree_new();
-	proto_item_add_subtree(tq, q_tree, ETT_NBNS_QD);
+	q_tree = proto_item_add_subtree(tq, ETT_NBNS_QD);
 
-	proto_tree_add_item(q_tree, offset, name_len, "Name: %s", name);
+	proto_tree_add_text(q_tree, offset, name_len, "Name: %s", name);
 	offset += name_len;
 
-	proto_tree_add_item(q_tree, offset, 2, "Type: %s", type_name);
+	proto_tree_add_text(q_tree, offset, 2, "Type: %s", type_name);
 	offset += 2;
 
-	proto_tree_add_item(q_tree, offset, 2, "Class: %s", class_name);
+	proto_tree_add_text(q_tree, offset, 2, "Class: %s", class_name);
 	offset += 2;
 	
 	return dptr - data_start;
@@ -347,49 +346,48 @@ nbns_add_nbns_flags(proto_tree *nbns_tree, int offset, u_short flags,
 		strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
 		    "Unknown error"));
 	}
-	tf = proto_tree_add_item(nbns_tree, offset, 2,
+	tf = proto_tree_add_text(nbns_tree, offset, 2,
 			"Flags: 0x%04x (%s)", flags, buf);
-	field_tree = proto_tree_new();
-	proto_item_add_subtree(tf, field_tree, ETT_NBNS_FLAGS);
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	field_tree = proto_item_add_subtree(tf, ETT_NBNS_FLAGS);
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, F_RESPONSE,
 				2*8, "Response", "Query"));
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_enumerated_bitfield(flags, F_OPCODE,
 				2*8, opcode_vals, "%s"));
 	if (flags & F_RESPONSE) {
-		proto_tree_add_item(field_tree, offset, 2,
+		proto_tree_add_text(field_tree, offset, 2,
 			"%s",
 			decode_boolean_bitfield(flags, F_AUTHORITATIVE,
 				2*8,
 				"Server is an authority for domain",
 				"Server isn't an authority for domain"));
 	}
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, F_TRUNCATED,
 				2*8,
 				"Message is truncated",
 				"Message is not truncated"));
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, F_RECDESIRED,
 				2*8,
 				"Do query recursively",
 				"Don't do query recursively"));
 	if (flags & F_RESPONSE) {
-		proto_tree_add_item(field_tree, offset, 2,
+		proto_tree_add_text(field_tree, offset, 2,
 			"%s",
 			decode_boolean_bitfield(flags, F_RECAVAIL,
 				2*8,
 				"Server can do recursive queries",
 				"Server can't do recursive queries"));
 	}
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, F_BROADCAST,
 				2*8,
 				"Broadcast packet",
 				"Not a broadcast packet"));
 	if (flags & F_RESPONSE && !is_wack) {
-		proto_tree_add_item(field_tree, offset, 2,
+		proto_tree_add_text(field_tree, offset, 2,
 			"%s",
 			decode_enumerated_bitfield(flags, F_RCODE,
 				2*8,
@@ -418,16 +416,15 @@ nbns_add_nb_flags(proto_tree *rr_tree, int offset, u_short flags)
 		strcat(buf, "group");
 	else
 		strcat(buf, "unique");
-	tf = proto_tree_add_item(rr_tree, offset, 2, "Flags: 0x%x (%s)", flags,
+	tf = proto_tree_add_text(rr_tree, offset, 2, "Flags: 0x%x (%s)", flags,
 			buf);
-	field_tree = proto_tree_new();
-	proto_item_add_subtree(tf, field_tree, ETT_NBNS_NB_FLAGS);
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	field_tree = proto_item_add_subtree(tf, ETT_NBNS_NB_FLAGS);
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NB_FLAGS_G,
 				2*8,
 				"Group name",
 				"Unique name"));
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_enumerated_bitfield(flags, NB_FLAGS_ONT,
 				2*8, nb_flags_ont_vals, "%s"));
 }
@@ -460,34 +457,33 @@ nbns_add_name_flags(proto_tree *rr_tree, int offset, u_short flags)
 		strcat(buf, ", active");
 	if (flags & NAME_FLAGS_PRM)
 		strcat(buf, ", permanent node name");
-	tf = proto_tree_add_item(rr_tree, offset, 2, "Name flags: 0x%x (%s)",
+	tf = proto_tree_add_text(rr_tree, offset, 2, "Name flags: 0x%x (%s)",
 			flags, buf);
-	field_tree = proto_tree_new();
-	proto_item_add_subtree(tf, field_tree, ETT_NBNS_NAME_FLAGS);
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	field_tree = proto_item_add_subtree(tf, ETT_NBNS_NAME_FLAGS);
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_G,
 				2*8,
 				"Group name",
 				"Unique name"));
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_enumerated_bitfield(flags, NAME_FLAGS_ONT,
 				2*8, name_flags_ont_vals, "%s"));
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_DRG,
 				2*8,
 				"Name is being deregistered",
 				"Name is not being deregistered"));
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_CNF,
 				2*8,
 				"Name is in conflict",
 				"Name is not in conflict"));
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_ACT,
 				2*8,
 				"Name is active",
 				"Name is not active"));
-	proto_tree_add_item(field_tree, offset, 2, "%s",
+	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_PRM,
 				2*8,
 				"Permanent node name",
@@ -530,7 +526,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 
 	switch (type) {
 	case T_NB: 		/* "NB" record */
-		trr = proto_tree_add_item(nbns_tree, offset,
+		trr = proto_tree_add_text(nbns_tree, offset,
 		    (dptr - data_start) + data_len,
 		    "%s: type %s, class %s",
 		    name, type_name, class_name);
@@ -543,7 +539,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				 * same type of RR data as other T_NB
 				 * responses.  */
 				if (data_len < 2) {
-					proto_tree_add_item(rr_tree, offset,
+					proto_tree_add_text(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					break;
 				}
@@ -554,7 +550,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				data_len -= 2;
 			} else {
 				if (data_len < 2) {
-					proto_tree_add_item(rr_tree, offset,
+					proto_tree_add_text(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					break;
 				}
@@ -565,11 +561,11 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				data_len -= 2;
 
 				if (data_len < 4) {
-					proto_tree_add_item(rr_tree, offset,
+					proto_tree_add_text(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					break;
 				}
-				proto_tree_add_item(rr_tree, offset, 4,
+				proto_tree_add_text(rr_tree, offset, 4,
 				    "Addr: %s",
 				    ip_to_str((guint8 *)dptr));
 				dptr += 4;
@@ -585,7 +581,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			char nbname[16+4+1];	/* 4 for [<last char>] */
 			u_short name_flags;
 			
-			trr = proto_tree_add_item(nbns_tree, offset,
+			trr = proto_tree_add_text(nbns_tree, offset,
 			    (dptr - data_start) + data_len,
 			    "%s: type %s, class %s",
 			    name, type_name, class_name);
@@ -593,32 +589,32 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			    name_len, type_name, class_name, ttl, data_len);
 			offset += (dptr - data_start);
 			if (data_len < 1) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
 			num_names = *dptr;
 			dptr += 1;
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Number of names: %u", num_names);
 			offset += 1;
 
 			while (num_names != 0) {
 				if (data_len < 16) {
-					proto_tree_add_item(rr_tree, offset,
+					proto_tree_add_text(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					goto out;
 				}
 				memcpy(nbname, dptr, 16);
 				dptr += 16;
 				canonicalize_netbios_name(nbname);
-				proto_tree_add_item(rr_tree, offset, 16,
+				proto_tree_add_text(rr_tree, offset, 16,
 				    "Name: %s", nbname);
 				offset += 16;
 				data_len -= 16;
 
 				if (data_len < 2) {
-					proto_tree_add_item(rr_tree, offset,
+					proto_tree_add_text(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					goto out;
 				}
@@ -632,11 +628,11 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			}
 
 			if (data_len < 6) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 6,
+			proto_tree_add_text(rr_tree, offset, 6,
 			    "Unit ID: %s",
 			    ether_to_str((guint8 *)dptr));
 			dptr += 6;
@@ -644,181 +640,181 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			data_len -= 6;
 
 			if (data_len < 1) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 1,
+			proto_tree_add_text(rr_tree, offset, 1,
 			    "Jumpers: 0x%x", *dptr);
 			dptr += 1;
 			offset += 1;
 			data_len -= 1;
 
 			if (data_len < 1) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 1,
+			proto_tree_add_text(rr_tree, offset, 1,
 			    "Test result: 0x%x", *dptr);
 			dptr += 1;
 			offset += 1;
 			data_len -= 1;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Version number: 0x%x", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Period of statistics: 0x%x", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Number of CRCs: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Number of alignment errors: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Number of collisions: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Number of send aborts: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 4) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 4,
+			proto_tree_add_text(rr_tree, offset, 4,
 			    "Number of good sends: %u", pntohl(dptr));
 			dptr += 4;
 			offset += 4;
 			data_len -= 4;
 
 			if (data_len < 4) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 4,
+			proto_tree_add_text(rr_tree, offset, 4,
 			    "Number of good receives: %u", pntohl(dptr));
 			dptr += 4;
 			offset += 4;
 			data_len -= 4;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Number of retransmits: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Number of no resource conditions: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Number of command blocks: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Number of pending sessions: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Max number of pending sessions: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Max total sessions possible: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				proto_tree_add_item(rr_tree, offset,
+				proto_tree_add_text(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_item(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, offset, 2,
 			    "Session data packet size: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
@@ -828,14 +824,14 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 		break;
 
 	default:
-		trr = proto_tree_add_item(nbns_tree, offset,
+		trr = proto_tree_add_text(nbns_tree, offset,
 		    (dptr - data_start) + data_len,
                     "%s: type %s, class %s",
 		    name, type_name, class_name);
 		rr_tree = add_rr_to_tree(trr, ETT_NBNS_RR, offset, name,
 		    name_len, type_name, class_name, ttl, data_len);
 		offset += (dptr - data_start);
-		proto_tree_add_item(rr_tree, offset, data_len, "Data");
+		proto_tree_add_text(rr_tree, offset, data_len, "Data");
 		break;
 	}
 	dptr += data_len;
@@ -852,9 +848,8 @@ dissect_query_records(const u_char *nbns_data_ptr, int count, const u_char *pd,
 	proto_item *ti;
 	
 	start_off = cur_off;
-	ti = proto_tree_add_item(nbns_tree, start_off, 0, "Queries");
-	qatree = proto_tree_new();
-	proto_item_add_subtree(ti, qatree, ETT_NBNS_QRY);
+	ti = proto_tree_add_text(nbns_tree, start_off, 0, "Queries");
+	qatree = proto_item_add_subtree(ti, ETT_NBNS_QRY);
 	while (count-- > 0)
 		cur_off += dissect_nbns_query(nbns_data_ptr, pd, cur_off, qatree);
 	proto_item_set_len(ti, cur_off - start_off);
@@ -873,9 +868,8 @@ dissect_answer_records(const u_char *nbns_data_ptr, int count,
 	proto_item *ti;
 	
 	start_off = cur_off;
-	ti = proto_tree_add_item(nbns_tree, start_off, 0, name);
-	qatree = proto_tree_new();
-	proto_item_add_subtree(ti, qatree, ETT_NBNS_ANS);
+	ti = proto_tree_add_text(nbns_tree, start_off, 0, name);
+	qatree = proto_item_add_subtree(ti, ETT_NBNS_ANS);
 	while (count-- > 0)
 		cur_off += dissect_nbns_answer(nbns_data_ptr, pd, cur_off,
 					qatree, opcode);
@@ -912,25 +906,24 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 				"NetBIOS Name Service");
-		nbns_tree = proto_tree_new();
-		proto_item_add_subtree(ti, nbns_tree, ETT_NBNS);
+		nbns_tree = proto_item_add_subtree(ti, ETT_NBNS);
 
-		proto_tree_add_item(nbns_tree, offset + NBNS_ID, 2,
+		proto_tree_add_text(nbns_tree, offset + NBNS_ID, 2,
 				"Transaction ID: 0x%04X", id);
 
 		nbns_add_nbns_flags(nbns_tree, offset + NBNS_FLAGS, flags, 0);
-		proto_tree_add_item(nbns_tree, offset + NBNS_QUEST, 2,
+		proto_tree_add_text(nbns_tree, offset + NBNS_QUEST, 2,
 					"Questions: %d",
 					quest);
-		proto_tree_add_item(nbns_tree, offset + NBNS_ANS, 2,
+		proto_tree_add_text(nbns_tree, offset + NBNS_ANS, 2,
 					"Answer RRs: %d",
 					ans);
-		proto_tree_add_item(nbns_tree, offset + NBNS_AUTH, 2,
+		proto_tree_add_text(nbns_tree, offset + NBNS_AUTH, 2,
 					"Authority RRs: %d",
 					auth);
-		proto_tree_add_item(nbns_tree, offset + NBNS_ADD, 2,
+		proto_tree_add_text(nbns_tree, offset + NBNS_ADD, 2,
 					"Additional RRs: %d",
 					add);
 
@@ -1052,25 +1045,24 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, header.dgm_length,
+		ti = proto_tree_add_text(tree, offset, header.dgm_length,
 				"NetBIOS Datagram Service");
-		nbdgm_tree = proto_tree_new();
-		proto_item_add_subtree(ti, nbdgm_tree, ETT_NBDGM);
+		nbdgm_tree = proto_item_add_subtree(ti, ETT_NBDGM);
 
-		proto_tree_add_item(nbdgm_tree, offset, 1, "Message Type: %s",
+		proto_tree_add_text(nbdgm_tree, offset, 1, "Message Type: %s",
 				message[message_index]);
-		proto_tree_add_item(nbdgm_tree, offset+1, 1, "More fragments follow: %s",
+		proto_tree_add_text(nbdgm_tree, offset+1, 1, "More fragments follow: %s",
 				yesno[header.flags.more]);
-		proto_tree_add_item(nbdgm_tree, offset+1, 1, "This is first fragment: %s",
+		proto_tree_add_text(nbdgm_tree, offset+1, 1, "This is first fragment: %s",
 				yesno[header.flags.first]);
-		proto_tree_add_item(nbdgm_tree, offset+1, 1, "Node Type: %s",
+		proto_tree_add_text(nbdgm_tree, offset+1, 1, "Node Type: %s",
 				node[header.flags.node_type]);
 
-		proto_tree_add_item(nbdgm_tree, offset+2, 2, "Datagram ID: 0x%04X",
+		proto_tree_add_text(nbdgm_tree, offset+2, 2, "Datagram ID: 0x%04X",
 				header.dgm_id);
-		proto_tree_add_item(nbdgm_tree, offset+4, 4, "Source IP: %s",
+		proto_tree_add_text(nbdgm_tree, offset+4, 4, "Source IP: %s",
 				ip_to_str((guint8 *)&header.src_ip));
-		proto_tree_add_item(nbdgm_tree, offset+8, 2, "Source Port: %d",
+		proto_tree_add_text(nbdgm_tree, offset+8, 2, "Source Port: %d",
 				header.src_port);
 	}
 
@@ -1081,9 +1073,9 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			header.msg_type == 0x11 || header.msg_type == 0x12) {
 
 		if (tree) {
-			proto_tree_add_item(nbdgm_tree, offset, 2,
+			proto_tree_add_text(nbdgm_tree, offset, 2,
 					"Datagram length: %d bytes", header.dgm_length);
-			proto_tree_add_item(nbdgm_tree, offset+2, 2,
+			proto_tree_add_text(nbdgm_tree, offset+2, 2,
 					"Packet offset: %d bytes", header.pkt_offset);
 		}
 
@@ -1094,7 +1086,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		len = get_nbns_name(&pd[offset], pd, offset, name);
 
 		if (tree) {
-			proto_tree_add_item(nbdgm_tree, offset, len, "Source name: %s",
+			proto_tree_add_text(nbdgm_tree, offset, len, "Source name: %s",
 					name);
 		}
 		offset += len;
@@ -1104,7 +1096,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		len = get_nbns_name(&pd[offset], pd, offset, name);
 
 		if (tree) {
-			proto_tree_add_item(nbdgm_tree, offset, len, "Destination name: %s",
+			proto_tree_add_text(nbdgm_tree, offset, len, "Destination name: %s",
 					name);
 		}
 		offset += len;
@@ -1115,7 +1107,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 	else if (header.msg_type == 0x13) {
 		if (tree) {
-			proto_tree_add_item(nbdgm_tree, offset, 1, "Error code: %s",
+			proto_tree_add_text(nbdgm_tree, offset, 1, "Error code: %s",
 				val_to_str(header.error_code, error_codes, "Unknown (0x%x)"));
 		}
 	}
@@ -1125,7 +1117,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		len = get_nbns_name(&pd[offset], pd, offset, name);
 
 		if (tree) {
-			proto_tree_add_item(nbdgm_tree, offset, len, "Destination name: %s",
+			proto_tree_add_text(nbdgm_tree, offset, len, "Destination name: %s",
 					name);
 		}
 	}
@@ -1192,22 +1184,20 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 		length += 65536;
 
 	if (tree) {
-	  ti = proto_tree_add_item(tree, offset, length + 4,
+	  ti = proto_tree_add_text(tree, offset, length + 4,
 				   "NetBIOS Session Service");
-	  nbss_tree = proto_tree_new();
-	  proto_item_add_subtree(ti, nbss_tree, ETT_NBSS);
+	  nbss_tree = proto_item_add_subtree(ti, ETT_NBSS);
 	  
-	  proto_tree_add_item(nbss_tree, offset, 1, "Message Type: %s",
+	  proto_tree_add_text(nbss_tree, offset, 1, "Message Type: %s",
 			      val_to_str(msg_type, message_types, "Unknown (%x)"));
 	}
 
 	offset += 1;
 
 	if (tree) {
-	  tf = proto_tree_add_item(nbss_tree, offset, 1, "Flags: 0x%04x", flags);
-	  field_tree = proto_tree_new();
-	  proto_item_add_subtree(tf, field_tree, ETT_NBSS_FLAGS);
-	  proto_tree_add_item(field_tree, offset, 1, "%s",
+	  tf = proto_tree_add_text(nbss_tree, offset, 1, "Flags: 0x%04x", flags);
+	  field_tree = proto_item_add_subtree(tf, ETT_NBSS_FLAGS);
+	  proto_tree_add_text(field_tree, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, NBSS_FLAGS_E,
 						      8, "Add 65536 to length", "Add 0 to length"));
 	}
@@ -1215,7 +1205,7 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	offset += 1;
 
 	if (tree) {
-	  proto_tree_add_item(nbss_tree, offset, 2, "Length: %u", length);
+	  proto_tree_add_text(nbss_tree, offset, 2, "Length: %u", length);
 	}
 
 	offset += 2;
@@ -1225,35 +1215,35 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	case SESSION_REQUEST:
 	  len = get_nbns_name(&pd[offset], pd, offset, name);
 	  if (tree)
-	    proto_tree_add_item(nbss_tree, offset, len,
+	    proto_tree_add_text(nbss_tree, offset, len,
 				"Called name: %s", name);
 	  offset += len;
 
 	  len = get_nbns_name(&pd[offset], pd, offset, name);
 	  
 	  if (tree)
-	    proto_tree_add_item(nbss_tree, offset, len,
+	    proto_tree_add_text(nbss_tree, offset, len,
 				"Calling name: %s", name);
 
 	  break;
 
 	case NEGATIVE_SESSION_RESPONSE:
 	  if (tree) 
-	    proto_tree_add_item(nbss_tree, offset, 1,
+	    proto_tree_add_text(nbss_tree, offset, 1,
 				"Error code: %s",
 				val_to_str(pd[offset], error_codes, "Unknown (%x)"));
 	  break;
 
 	case RETARGET_SESSION_RESPONSE:
 	  if (tree)
-	    proto_tree_add_item(nbss_tree, offset, 4,
+	    proto_tree_add_text(nbss_tree, offset, 4,
 				"Retarget IP address: %s",
 				ip_to_str((guint8 *)&pd[offset]));
 	  
 	  offset += 4;
 
 	  if (tree)
-	    proto_tree_add_item(nbss_tree, offset, 2,
+	    proto_tree_add_text(nbss_tree, offset, 2,
 				"Retarget port: %u", pntohs(&pd[offset]));
 
 	  break;

@@ -3,7 +3,7 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-tftp.c,v 1.3 1999/05/13 05:46:04 guy Exp $
+ * $Id: packet-tftp.c,v 1.4 1999/07/07 22:51:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -88,55 +88,54 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 				"Trivial File Transfer Protocol");
-	  tftp_tree = proto_tree_new();
-	  proto_item_add_subtree(ti, tftp_tree, ETT_TFTP);
+	  tftp_tree = proto_item_add_subtree(ti, ETT_TFTP);
 
 	  switch (i1 = pntohs(pd+offset)) {
 	  case RRQ:
-	    proto_tree_add_item(tftp_tree, offset, 2, "Read Request");
+	    proto_tree_add_text(tftp_tree, offset, 2, "Read Request");
 	    offset += 2;
 	    i1 = strlen(pd+offset);
-	    proto_tree_add_item(tftp_tree, offset, i1+1, "Source File: %s", pd+offset);
+	    proto_tree_add_text(tftp_tree, offset, i1+1, "Source File: %s", pd+offset);
 	    offset += i1 + 1;
-	    proto_tree_add_item(tftp_tree, offset, END_OF_FRAME, "Type: %s",pd+offset);
+	    proto_tree_add_text(tftp_tree, offset, END_OF_FRAME, "Type: %s",pd+offset);
 	    break;
 	  case WRQ:
-	    proto_tree_add_item(tftp_tree, offset, 2, "Write Request");
+	    proto_tree_add_text(tftp_tree, offset, 2, "Write Request");
 	    offset += 2;
 	    i1 = strlen(pd+offset);
-	    proto_tree_add_item(tftp_tree, offset, i1+1, "Destination File: %s", pd+offset);
+	    proto_tree_add_text(tftp_tree, offset, i1+1, "Destination File: %s", pd+offset);
 	    offset += i1 + 1;
-	    proto_tree_add_item(tftp_tree, offset+2, END_OF_FRAME, "Type: %s",pd+offset);
+	    proto_tree_add_text(tftp_tree, offset+2, END_OF_FRAME, "Type: %s",pd+offset);
 	    break;
 	  case DATA:
-	    proto_tree_add_item(tftp_tree, offset, 2, "Data Packet");
+	    proto_tree_add_text(tftp_tree, offset, 2, "Data Packet");
 	    offset += 2;
 	    i1 = pntohs(pd+offset);
-	    proto_tree_add_item(tftp_tree, offset, 2, "Block = %u", i1);
+	    proto_tree_add_text(tftp_tree, offset, 2, "Block = %u", i1);
 	    offset += 2;
-	    proto_tree_add_item(tftp_tree, offset, END_OF_FRAME,
+	    proto_tree_add_text(tftp_tree, offset, END_OF_FRAME,
 		"Data (%d bytes)", END_OF_FRAME);
 	    break;
 	  case ACK:
-	    proto_tree_add_item(tftp_tree, offset, 2, "Acknowledgement");
+	    proto_tree_add_text(tftp_tree, offset, 2, "Acknowledgement");
 	    offset += 2;
 	    i1 = pntohs(pd+offset);
-	    proto_tree_add_item(tftp_tree, offset, END_OF_FRAME, "Block = %u", i1);
+	    proto_tree_add_text(tftp_tree, offset, END_OF_FRAME, "Block = %u", i1);
 	    break;
 	  case ERROR:
-	    proto_tree_add_item(tftp_tree, offset, 2, "Error Code");
+	    proto_tree_add_text(tftp_tree, offset, 2, "Error Code");
 	    offset += 2;
 	    i1 = pntohs(pd+offset);
-	    proto_tree_add_item(tftp_tree, offset, 2, "Code = %s", tftp_errors[i1 % 8]);
+	    proto_tree_add_text(tftp_tree, offset, 2, "Code = %s", tftp_errors[i1 % 8]);
 	    offset += 2;
-	    proto_tree_add_item(tftp_tree, offset, END_OF_FRAME, "Error Message: %s", pd + offset);
+	    proto_tree_add_text(tftp_tree, offset, END_OF_FRAME, "Error Message: %s", pd + offset);
 	    break;
 	  default:
-	    proto_tree_add_item(tftp_tree, offset, 2, "Unknown TFTP Request: %0X.", i1);
+	    proto_tree_add_text(tftp_tree, offset, 2, "Unknown TFTP Request: %0X.", i1);
 	    offset += 2;
-	    proto_tree_add_item(tftp_tree, offset, END_OF_FRAME,
+	    proto_tree_add_text(tftp_tree, offset, END_OF_FRAME,
 		"Data (%d bytes)", END_OF_FRAME);
 	    break;
 	  }

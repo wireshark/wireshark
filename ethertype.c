@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.15 1999/06/22 22:02:11 gram Exp $
+ * $Id: ethertype.c,v 1.16 1999/07/07 22:51:38 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -38,10 +38,7 @@
 #include "packet.h"
 #include "etypes.h"
 
-gchar *
-ethertype_to_str(guint16 etype, const char *fmt)
-{
-  static const value_string etype_vals[] = {
+const value_string etype_vals[] = {
     {ETHERTYPE_IP,     "IP"             },
     {ETHERTYPE_IPv6,   "IPv6"           },
     {ETHERTYPE_ARP,    "ARP"            },
@@ -53,12 +50,9 @@ ethertype_to_str(guint16 etype, const char *fmt)
     {ETHERTYPE_CDP,    "CDP"            }, /* Cisco Discovery Protocol */
     {ETHERTYPE_TRAIN,   "Netmon Train"  },
     {ETHERTYPE_LOOP,   "Loopback"       }, /* Ethernet Loopback */
-		{ETHERTYPE_PPPOED, "PPPoE Discovery"}, 
-		{ETHERTYPE_PPPOES, "PPPoE Session"  }, 
+    {ETHERTYPE_PPPOED, "PPPoE Discovery"}, 
+    {ETHERTYPE_PPPOES, "PPPoE Session"  }, 
     {0,                 NULL            } };
-
-    return val_to_str(etype, etype_vals, fmt);
-}
 
 void
 capture_ethertype(guint16 etype, int offset,
@@ -77,11 +71,10 @@ capture_ethertype(guint16 etype, int offset,
 void
 ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, proto_tree *tree, proto_tree
-		*fh_tree)
+		*fh_tree, int item_id)
 {
   if (tree) {
-    proto_tree_add_item(fh_tree, offset - 2, 2, "Type: %s (0x%04x)",
-      ethertype_to_str(etype, "Unknown"), etype);
+	proto_tree_add_item(fh_tree, item_id, offset - 2, 2, etype);
   }
   switch (etype) {
     case ETHERTYPE_IP:
@@ -115,12 +108,12 @@ ethertype(guint16 etype, int offset,
       dissect_data(pd, offset, fd, tree);
       if (check_col(fd, COL_PROTOCOL)) { col_add_fstr(fd, COL_PROTOCOL, "LOOP"); }
       break;
-		case ETHERTYPE_PPPOED:
-			dissect_pppoed(pd, offset, fd, tree);
-			break;
-		case ETHERTYPE_PPPOES:
-			dissect_pppoes(pd, offset, fd, tree);
-			break;
+    case ETHERTYPE_PPPOED:
+      dissect_pppoed(pd, offset, fd, tree);
+      break;
+    case ETHERTYPE_PPPOES:
+      dissect_pppoes(pd, offset, fd, tree);
+      break;
     default:
       dissect_data(pd, offset, fd, tree);
       if (check_col(fd, COL_PROTOCOL)) { col_add_fstr(fd, COL_PROTOCOL, "0x%04x", etype); }

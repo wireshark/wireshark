@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.3 1999/05/13 01:05:11 sharpe Exp $
+ * $Id: packet-pop.c,v 1.4 1999/07/07 22:51:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -81,23 +81,22 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 				"Post Office Protocol");
-	  pop_tree = proto_tree_new();
-	  proto_item_add_subtree(ti, pop_tree, ETT_POP);
+	  pop_tree = proto_item_add_subtree(ti, ETT_POP);
 
 	  if (pi.match_port == pi.destport) { /* Request */
 
-	    proto_tree_add_item(pop_tree, offset, i1, "Request: %s", rr);
+	    proto_tree_add_text(pop_tree, offset, i1, "Request: %s", rr);
 
-	    proto_tree_add_item(pop_tree, offset + i1 + 1, END_OF_FRAME, "Request Arg: %s", rd);
+	    proto_tree_add_text(pop_tree, offset + i1 + 1, END_OF_FRAME, "Request Arg: %s", rd);
 
 	  }
 	  else {
 
-	    proto_tree_add_item(pop_tree, offset, i1, "Response: %s", rr);
+	    proto_tree_add_text(pop_tree, offset, i1, "Response: %s", rr);
 
-	    proto_tree_add_item(pop_tree, offset + i1 + 1, END_OF_FRAME, "Response Arg: %s", rd);
+	    proto_tree_add_text(pop_tree, offset + i1 + 1, END_OF_FRAME, "Response Arg: %s", rd);
 	  }
 
 	}

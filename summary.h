@@ -1,7 +1,7 @@
 /* summary.h
  * Definitions for capture file summary windows
  *
- * $Id: summary.h,v 1.1 1999/06/22 22:02:12 gram Exp $
+ * $Id: summary.h,v 1.2 1999/07/07 22:52:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,7 +30,7 @@ typedef struct _summary_tally {
     guint32  bytes;
     double  start_time;
     double  stop_time;
-    guint32  count;
+    guint32  filtered_count;
 } summary_tally;
 
 

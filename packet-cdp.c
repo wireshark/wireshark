@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.8 1999/03/23 03:14:36 gram Exp $
+ * $Id: packet-cdp.c,v 1.9 1999/07/07 22:51:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,16 +66,15 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         col_add_str(fd, COL_INFO, "Cisco Discovery Protocol"); 
 
     if(tree){
-        ti = proto_tree_add_item(tree, offset, (fd->cap_len - offset), 
+        ti = proto_tree_add_text(tree, offset, (fd->cap_len - offset), 
                                                           "Cisco Discovery Protocol");
-	cdp_tree = proto_tree_new(); 
-	proto_item_add_subtree(ti, cdp_tree, ETT_CDP);
+	cdp_tree = proto_item_add_subtree(ti, ETT_CDP);
 	
 	/* CDP header */
 	cdp_hdr = (e_cdp_hdr *) &pd[offset];
-	proto_tree_add_item(cdp_tree, offset, 1, "Version: %d", cdp_hdr->version);
-	proto_tree_add_item(cdp_tree, offset+1, 1, "Flags (unknown)");
-	proto_tree_add_item(cdp_tree, offset+2, 2, "TTL (unknown)");
+	proto_tree_add_text(cdp_tree, offset, 1, "Version: %d", cdp_hdr->version);
+	proto_tree_add_text(cdp_tree, offset+1, 1, "Flags (unknown)");
+	proto_tree_add_text(cdp_tree, offset+2, 2, "TTL (unknown)");
 	offset+=4;
 
 	/* CVS -> exit here 
@@ -91,7 +90,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				offset+=length + 4;
 				break;
 			case 1: /* ??? Chassis ID */
-				proto_tree_add_item(cdp_tree, offset + 4,
+				proto_tree_add_text(cdp_tree, offset + 4,
 				    length - 4, "Chassis ID: %s", &pd[offset+4] );
 				offset+=length;
 				break;
@@ -102,7 +101,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				offset+=4; 
 				break;
 			case 3: /* ??? Port  */    
-				proto_tree_add_item(cdp_tree, offset + 4,
+				proto_tree_add_text(cdp_tree, offset + 4,
 				  length - 4, "Sent through Interface: %s", &pd[offset+4] );
 				offset+=length;
 				break;
@@ -117,13 +116,13 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				stringmem = malloc(length);
 				memset(stringmem, '\0', length);
 				memcpy(stringmem, &pd[offset+4], length - 4 );
-				proto_tree_add_item(cdp_tree, offset + 4, length - 4, 
+				proto_tree_add_text(cdp_tree, offset + 4, length - 4, 
                                                      "Platform: %s", stringmem );
 				free(stringmem);
 				offset+=length;
 				break;
 			case 0x01cc: /* ??? Mgmt Addr */
-				proto_tree_add_item(cdp_tree, offset + 4, length, 
+				proto_tree_add_text(cdp_tree, offset + 4, length, 
                                                      "Mgmt IP: %s",
 						     ip_to_str(&pd[offset+4]) );
 				offset+=length + 4;
@@ -136,11 +135,11 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				}
 */
 /*
-				proto_tree_add_item(cdp_tree, offset + TLV_TYPE,
+				proto_tree_add_text(cdp_tree, offset + TLV_TYPE,
 				    2, "Type: %d", type);
-				proto_tree_add_item(cdp_tree, offset + TLV_LENGTH,
+				proto_tree_add_text(cdp_tree, offset + TLV_LENGTH,
 				    2, "Length: %d", length);
-				proto_tree_add_item(cdp_tree, offset + 4,
+				proto_tree_add_text(cdp_tree, offset + 4,
 				    length - 4, "Data");
 */
 
@@ -179,7 +178,7 @@ add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
 	    line_len = strlen(p);
 	    data_len = line_len;
 	}
-	proto_tree_add_item(tree, start, data_len, "%s%.*s", prefix,
+	proto_tree_add_text(tree, start, data_len, "%s%.*s", prefix,
 	   line_len, p);
 	if (q == NULL)
 	    break;

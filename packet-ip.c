@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.26 1999/06/21 16:20:18 gram Exp $
+ * $Id: packet-ip.c,v 1.27 1999/07/07 22:51:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,14 @@
 #endif
 
 extern packet_info pi;
+	
+int proto_ip = -1;
+int hf_ip_version = -1;
+int hf_ip_hdr_len = -1;
+int hf_ip_tos = -1;
+int hf_ip_tos_precedence = -1;
+int hf_ip_dst = -1;
+int hf_ip_src = -1;
 
 /* ICMP structs and definitions */
 typedef struct _e_icmp {
@@ -236,29 +244,28 @@ dissect_ipopt_security(proto_tree *opt_tree, const char *name,
     {IPSEC_RESERVED8,    "Reserved"    },
     {0,                  NULL          } };
 
-  tf = proto_tree_add_item(opt_tree, offset,      optlen, "%s:", name);
-  field_tree = proto_tree_new();
-  proto_item_add_subtree(tf, field_tree, ETT_IP_OPTION_SEC);
+  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", name);
+  field_tree = proto_item_add_subtree(tf, ETT_IP_OPTION_SEC);
   offset += 2;
 
   val = pntohs(opd);
-  proto_tree_add_item(field_tree, offset,       2,
+  proto_tree_add_text(field_tree, offset,       2,
               "Security: %s", val_to_str(val, secl_vals, "Unknown (0x%x)"));
   offset += 2;
   opd += 2;
 
   val = pntohs(opd);
-  proto_tree_add_item(field_tree, offset,         2,
+  proto_tree_add_text(field_tree, offset,         2,
               "Compartments: %d", val);
   offset += 2;
   opd += 2;
 
-  proto_tree_add_item(field_tree, offset,         2,
+  proto_tree_add_text(field_tree, offset,         2,
               "Handling restrictions: %c%c", opd[0], opd[1]);
   offset += 2;
   opd += 2;
 
-  proto_tree_add_item(field_tree, offset,         3,
+  proto_tree_add_text(field_tree, offset,         3,
               "Transmission control code: %c%c%c", opd[0], opd[1], opd[2]);
 }
 
@@ -272,16 +279,15 @@ dissect_ipopt_route(proto_tree *opt_tree, const char *name,
   int optoffset = 0;
   struct in_addr addr;
 
-  tf = proto_tree_add_item(opt_tree, offset,      optlen, "%s (%d bytes)", name,
+  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s (%d bytes)", name,
               optlen);
-  field_tree = proto_tree_new();
-  proto_item_add_subtree(tf, field_tree, ETT_IP_OPTION_ROUTE);
+  field_tree = proto_item_add_subtree(tf, ETT_IP_OPTION_ROUTE);
 
   optoffset += 2;	/* skip past type and length */
   optlen -= 2;		/* subtract size of type and length */
 
   ptr = *opd;
-  proto_tree_add_item(field_tree, offset + optoffset, 1,
+  proto_tree_add_text(field_tree, offset + optoffset, 1,
               "Pointer: %d%s", ptr,
               ((ptr < 4) ? " (points before first address)" :
                ((ptr & 3) ? " (points to middle of address)" : "")));
@@ -292,7 +298,7 @@ dissect_ipopt_route(proto_tree *opt_tree, const char *name,
 
   while (optlen > 0) {
     if (optlen < 4) {
-      proto_tree_add_item(field_tree, offset,      optlen,
+      proto_tree_add_text(field_tree, offset,      optlen,
         "(suboption would go past end of option)");
       break;
     }
@@ -300,7 +306,7 @@ dissect_ipopt_route(proto_tree *opt_tree, const char *name,
     /* Avoids alignment problems on many architectures. */
     memcpy((char *)&addr, (char *)opd, sizeof(addr));
 
-    proto_tree_add_item(field_tree, offset + optoffset, 4,
+    proto_tree_add_text(field_tree, offset + optoffset, 4,
               "%s%s",
               ((addr.s_addr == 0) ? "-" : (char *)get_hostname(addr.s_addr)),
               ((optoffset == ptr) ? " <- (current)" : ""));
@@ -314,7 +320,7 @@ static void
 dissect_ipopt_sid(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  proto_tree_add_item(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, offset,      optlen,
     "%s: %d", name, pntohs(opd));
   return;
 }
@@ -337,15 +343,14 @@ dissect_ipopt_timestamp(proto_tree *opt_tree, const char *name, const u_char *op
   struct in_addr addr;
   guint ts;
 
-  tf = proto_tree_add_item(opt_tree, offset,      optlen, "%s:", name);
-  field_tree = proto_tree_new();
-  proto_item_add_subtree(tf, field_tree, ETT_IP_OPTION_TIMESTAMP);
+  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", name);
+  field_tree = proto_item_add_subtree(tf, ETT_IP_OPTION_TIMESTAMP);
 
   optoffset += 2;	/* skip past type and length */
   optlen -= 2;		/* subtract size of type and length */
 
   ptr = *opd;
-  proto_tree_add_item(field_tree, offset + optoffset, 1,
+  proto_tree_add_text(field_tree, offset + optoffset, 1,
               "Pointer: %d%s", ptr,
               ((ptr < 5) ? " (points before first address)" :
                (((ptr - 1) & 3) ? " (points to middle of address)" : "")));
@@ -355,10 +360,10 @@ dissect_ipopt_timestamp(proto_tree *opt_tree, const char *name, const u_char *op
   ptr--;	/* ptr is 1-origin */
 
   flg = *opd;
-  proto_tree_add_item(field_tree, offset + optoffset,   1,
+  proto_tree_add_text(field_tree, offset + optoffset,   1,
         "Overflow: %d", flg >> 4);
   flg &= 0xF;
-  proto_tree_add_item(field_tree, offset + optoffset, 1,
+  proto_tree_add_text(field_tree, offset + optoffset, 1,
         "Flag: %s", val_to_str(flg, flag_vals, "Unknown (0x%x)"));
   optoffset++;
   opd++;
@@ -367,7 +372,7 @@ dissect_ipopt_timestamp(proto_tree *opt_tree, const char *name, const u_char *op
   while (optlen > 0) {
     if (flg == IPOPT_TS_TSANDADDR) {
       if (optlen < 4) {
-        proto_tree_add_item(field_tree, offset + optoffset, optlen,
+        proto_tree_add_text(field_tree, offset + optoffset, optlen,
           "(suboption would go past end of option)");
         break;
       }
@@ -376,7 +381,7 @@ dissect_ipopt_timestamp(proto_tree *opt_tree, const char *name, const u_char *op
       opd += 4;
       optlen -= 4;
       if (optlen < 4) {
-        proto_tree_add_item(field_tree, offset + optoffset, optlen,
+        proto_tree_add_text(field_tree, offset + optoffset, optlen,
           "(suboption would go past end of option)");
         break;
       }
@@ -384,14 +389,14 @@ dissect_ipopt_timestamp(proto_tree *opt_tree, const char *name, const u_char *op
       memcpy((char *)&addr, (char *)opd, sizeof(addr));
       opd += 4;
       optlen -= 4;
-      proto_tree_add_item(field_tree, offset,      8,
+      proto_tree_add_text(field_tree, offset,      8,
           "Address = %s, time stamp = %u",
           ((addr.s_addr == 0) ? "-" :  (char *)get_hostname(addr.s_addr)),
           ts);
       optoffset += 8;
     } else {
       if (optlen < 4) {
-        proto_tree_add_item(field_tree, offset + optoffset, optlen,
+        proto_tree_add_text(field_tree, offset + optoffset, optlen,
           "(suboption would go past end of option)");
         break;
       }
@@ -399,7 +404,7 @@ dissect_ipopt_timestamp(proto_tree *opt_tree, const char *name, const u_char *op
       ts = pntohl(opd);
       opd += 4;
       optlen -= 4;
-      proto_tree_add_item(field_tree, offset + optoffset, 4,
+      proto_tree_add_text(field_tree, offset + optoffset, 4,
           "Time stamp = %u", ts);
       optoffset += 4;
     }
@@ -483,7 +488,7 @@ dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
         break;
     }
     if (optp == &opttab[nopts]) {
-      proto_tree_add_item(opt_tree, offset,      1, "Unknown");
+      proto_tree_add_text(opt_tree, offset,      1, "Unknown");
       /* We don't know how long this option is, so we don't know how much
          of it to skip, so we just bail. */
       return;
@@ -494,7 +499,7 @@ dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
       if (length == 0) {
         /* Bogus - packet must at least include option code byte and
            length byte! */
-        proto_tree_add_item(opt_tree, offset,      1,
+        proto_tree_add_text(opt_tree, offset,      1,
               "%s (length byte past end of header)", optp->name);
         return;
       }
@@ -503,25 +508,25 @@ dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
       if (len < 2) {
         /* Bogus - option length is too short to include option code and
            option length. */
-        proto_tree_add_item(opt_tree, offset,      2,
+        proto_tree_add_text(opt_tree, offset,      2,
               "%s (with too-short option length = %u bytes)", optp->name, 2);
         return;
       } else if (len - 2 > length) {
         /* Bogus - option goes past the end of the header. */
-        proto_tree_add_item(opt_tree, offset,      length,
+        proto_tree_add_text(opt_tree, offset,      length,
               "%s (option goes past end of header)", optp->name);
         return;
       } else if (optp->len_type == FIXED_LENGTH && len != optp->optlen) {
         /* Bogus - option length isn't what it's supposed to be for this
            option. */
-        proto_tree_add_item(opt_tree, offset,      len,
+        proto_tree_add_text(opt_tree, offset,      len,
               "%s (with option length = %u bytes; should be %u)", optp->name,
               len, optp->optlen);
         return;
       } else if (optp->len_type == VARIABLE_LENGTH && len < optp->optlen) {
         /* Bogus - option length is less than what it's supposed to be for
            this option. */
-        proto_tree_add_item(opt_tree, offset,      len,
+        proto_tree_add_text(opt_tree, offset,      len,
               "%s (with option length = %u bytes; should be >= %u)", optp->name,
               len, optp->optlen);
         return;
@@ -531,7 +536,7 @@ dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
           (*optp->dissect)(opt_tree, optp->name, opd, offset, len);
         } else {
           /* Option has no data, hence no dissector. */
-          proto_tree_add_item(opt_tree, offset,      len, "%s", optp->name);
+          proto_tree_add_text(opt_tree, offset,      len, "%s", optp->name);
         }
         len -= 2;	/* subtract size of type and length */
         offset += 2 + len;
@@ -539,7 +544,7 @@ dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
       opd += len;
       length -= len;
     } else {
-      proto_tree_add_item(opt_tree, offset,      1, "%s", optp->name);
+      proto_tree_add_text(opt_tree, offset,      1, "%s", optp->name);
       offset += 1;
     }
     if (opt == eol)
@@ -547,20 +552,14 @@ dissect_ip_tcp_options(proto_tree *opt_tree, const u_char *opd, int offset,
   }
 }
 
-void
-dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-  e_ip       iph;
-  proto_tree *ip_tree, *field_tree;
-  proto_item *ti, *tf;
-  gchar      tos_str[32];
-  guint      hlen, optlen;
-  static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
-                                             {IP_PROTO_IGMP, "IGMP"},
-                                             {IP_PROTO_TCP,  "TCP" },
-                                             {IP_PROTO_UDP,  "UDP" },
-                                             {IP_PROTO_OSPF, "OSPF"},
-                                             {0,             NULL  } };
-  static const value_string precedence_vals[] = {
+static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
+                                           {IP_PROTO_IGMP, "IGMP"},
+                                           {IP_PROTO_TCP,  "TCP" },
+                                           {IP_PROTO_UDP,  "UDP" },
+                                           {IP_PROTO_OSPF, "OSPF"},
+                                           {0,             NULL  } };
+
+static const value_string precedence_vals[] = {
 		  { IPTOS_PREC_ROUTINE,         "routine"              },
 		  { IPTOS_PREC_PRIORITY,        "priority"             },
 		  { IPTOS_PREC_IMMEDIATE,       "immediate"            },
@@ -570,6 +569,24 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		  { IPTOS_PREC_INTERNETCONTROL, "internetwork control" },
 		  { IPTOS_PREC_NETCONTROL,      "network control"      },
 		  { 0,                          NULL                   } };
+
+static const value_string iptos_vals[] = {
+	{ IPTOS_NONE,		"None" },
+	{ IPTOS_LOWCOST,	"Minimize cost" },
+	{ IPTOS_RELIABILITY,	"Maximize reliability" },
+	{ IPTOS_THROUGHPUT,	"Maximize throughput" },
+	{ IPTOS_LOWDELAY,	"Minimize delay" },
+	{ IPTOS_SECURITY,	"Maximize security" },
+	{ 0,			NULL }
+};
+
+void
+dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+  e_ip       iph;
+  proto_tree *ip_tree, *field_tree;
+  proto_item *ti, *tf;
+  gchar      tos_str[32];
+  guint      hlen, optlen;
   int advance;
   guint8 nxt;
 
@@ -637,68 +654,65 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         break;
     }
 
-    ti = proto_tree_add_item(tree, offset, hlen, "Internet Protocol");
-    ip_tree = proto_tree_new();
-    proto_item_add_subtree(ti, ip_tree, ETT_IP);
-    proto_tree_add_item(ip_tree, offset,      1, "Version: %d", hi_nibble(iph.ip_v_hl));
-    proto_tree_add_item(ip_tree, offset,      1, "Header length: %d bytes", hlen); 
-    tf = proto_tree_add_item(ip_tree, offset +  1, 1, "Type of service: 0x%02x (%s)",
-      iph.ip_tos, tos_str);
-    field_tree = proto_tree_new();
-    proto_item_add_subtree(tf, field_tree, ETT_IP_TOS);
-    proto_tree_add_item(field_tree, offset + 1, 1, "%s",
-       decode_enumerated_bitfield(iph.ip_tos, IPTOS_PREC_MASK,
-                                   sizeof (iph.ip_tos)*8, precedence_vals,
-                                   "%s precedence"));
-    proto_tree_add_item(field_tree, offset + 1, 1, "%s",
+    ti = proto_tree_add_item(tree, proto_ip, offset, hlen, NULL);
+    ip_tree = proto_item_add_subtree(ti, ETT_IP);
+
+    proto_tree_add_item(ip_tree, hf_ip_version, offset, 1, hi_nibble(iph.ip_v_hl));
+    proto_tree_add_item_format(ip_tree, hf_ip_hdr_len, offset, 1, hlen,
+	"Header length: %d bytes", hlen); 
+    tf = proto_tree_add_item_format(ip_tree, hf_ip_tos, offset + 1, 1, iph.ip_tos,
+	"Type of service: 0x%02x (%s)", iph.ip_tos,
+	val_to_str( IPTOS_TOS(iph.ip_tos), iptos_vals, "Unknown") );
+
+    field_tree = proto_item_add_subtree(tf, ETT_IP_TOS);
+    proto_tree_add_item_format(field_tree, hf_ip_tos_precedence, offset + 1, 1,
+	iph.ip_tos & IPTOS_PREC_MASK, decode_enumerated_bitfield(iph.ip_tos, IPTOS_PREC_MASK,
+			   sizeof (iph.ip_tos)*8, precedence_vals, "%s precedence"));
+
+    proto_tree_add_text(field_tree, offset + 1, 1, "%s",
        decode_boolean_bitfield(iph.ip_tos, IPTOS_LOWDELAY,
                 sizeof (iph.ip_tos)*8, "low delay", "normal delay"));
-    proto_tree_add_item(field_tree, offset + 1, 1, "%s",
+    proto_tree_add_text(field_tree, offset + 1, 1, "%s",
        decode_boolean_bitfield(iph.ip_tos, IPTOS_THROUGHPUT,
             sizeof (iph.ip_tos)*8, "high throughput", "normal throughput"));
-    proto_tree_add_item(field_tree, offset + 1, 1, "%s",
+    proto_tree_add_text(field_tree, offset + 1, 1, "%s",
        decode_boolean_bitfield(iph.ip_tos, IPTOS_RELIABILITY,
             sizeof (iph.ip_tos)*8, "high reliability", "normal reliability"));
-    proto_tree_add_item(field_tree, offset + 1, 1, "%s",
+    proto_tree_add_text(field_tree, offset + 1, 1, "%s",
        decode_boolean_bitfield(iph.ip_tos, IPTOS_LOWCOST,
             sizeof (iph.ip_tos)*8, "low cost", "normal cost"));
-    proto_tree_add_item(ip_tree, offset +  2, 2, "Total length: %d", iph.ip_len);
-    proto_tree_add_item(ip_tree, offset +  4, 2, "Identification: 0x%04x",
+    proto_tree_add_text(ip_tree, offset +  2, 2, "Total length: %d", iph.ip_len);
+    proto_tree_add_text(ip_tree, offset +  4, 2, "Identification: 0x%04x",
       iph.ip_id);
-    tf = proto_tree_add_item(ip_tree, offset +  6, 2, "Flags: 0x%x",
+    tf = proto_tree_add_text(ip_tree, offset +  6, 2, "Flags: 0x%x",
       (iph.ip_off & (IP_DF|IP_MF)) >> 12);
-    field_tree = proto_tree_new();
-    proto_item_add_subtree(tf, field_tree, ETT_IP_OFF);
-    proto_tree_add_item(field_tree, offset + 6, 2, "%s",
+    field_tree = proto_item_add_subtree(tf, ETT_IP_OFF);
+    proto_tree_add_text(field_tree, offset + 6, 2, "%s",
       decode_boolean_bitfield(iph.ip_off >> 8, IP_DF >> 8, 8, "don't fragment",
                                            "may fragment"));
-    proto_tree_add_item(field_tree, offset + 6, 2, "%s",
+    proto_tree_add_text(field_tree, offset + 6, 2, "%s",
       decode_boolean_bitfield(iph.ip_off >> 8, IP_MF >> 8, 8, "more fragments",
                                            "last fragment"));
-    proto_tree_add_item(ip_tree, offset +  6, 2, "Fragment offset: %d",
+    proto_tree_add_text(ip_tree, offset +  6, 2, "Fragment offset: %d",
       iph.ip_off & IP_OFFSET);
-    proto_tree_add_item(ip_tree, offset +  8, 1, "Time to live: %d",
+    proto_tree_add_text(ip_tree, offset +  8, 1, "Time to live: %d",
       iph.ip_ttl);
-    proto_tree_add_item(ip_tree, offset +  9, 1, "Protocol: %s",
+    proto_tree_add_text(ip_tree, offset +  9, 1, "Protocol: %s",
       val_to_str(iph.ip_p, proto_vals, "Unknown (0x%x)"));
-    proto_tree_add_item(ip_tree, offset + 10, 2, "Header checksum: 0x%04x",
+    proto_tree_add_text(ip_tree, offset + 10, 2, "Header checksum: 0x%04x",
       iph.ip_sum);
-    proto_tree_add_item(ip_tree, offset + 12, 4, "Source address: %s (%s)",
-		     get_hostname(iph.ip_src),
-                     ip_to_str((guint8 *) &iph.ip_src));
-    proto_tree_add_item(ip_tree, offset + 16, 4, "Destination address: %s (%s)",
-		     get_hostname(iph.ip_dst),
-                     ip_to_str((guint8 *) &iph.ip_dst));
+
+    proto_tree_add_item(ip_tree, hf_ip_src, offset + 12, 4, iph.ip_src);
+    proto_tree_add_item(ip_tree, hf_ip_dst, offset + 16, 4, iph.ip_dst);
 
     /* Decode IP options, if any. */
     if (hlen > sizeof (e_ip)) {
       /* There's more than just the fixed-length header.  Decode the
          options. */
       optlen = hlen - sizeof (e_ip);	/* length of options, in bytes */
-      tf = proto_tree_add_item(ip_tree, offset +  20, optlen,
+      tf = proto_tree_add_text(ip_tree, offset +  20, optlen,
         "Options: (%d bytes)", optlen);
-      field_tree = proto_tree_new();
-      proto_item_add_subtree(tf, field_tree, ETT_IP_OPTIONS);
+      field_tree = proto_item_add_subtree(tf, ETT_IP_OPTIONS);
       dissect_ip_tcp_options(field_tree, &pd[offset + 20], offset + 20, optlen,
          ipopts, N_IP_OPTS, IPOPT_END);
     }
@@ -882,17 +896,16 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     col_add_str(fd, COL_PROTOCOL, "ICMP");
   if (check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, type_str);
-  
+
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, 4,
+    ti = proto_tree_add_text(tree, offset, 4,
       "Internet Control Message Protocol");
-    icmp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, icmp_tree, ETT_ICMP);
-    proto_tree_add_item(icmp_tree, offset,      1, "Type: %d (%s)",
+    icmp_tree = proto_item_add_subtree(ti, ETT_ICMP);
+    proto_tree_add_text(icmp_tree, offset,      1, "Type: %d (%s)",
       ih.icmp_type, type_str);
-    proto_tree_add_item(icmp_tree, offset +  1, 1, "Code: %d %s",
+    proto_tree_add_text(icmp_tree, offset +  1, 1, "Code: %d %s",
       ih.icmp_code, code_str);
-    proto_tree_add_item(icmp_tree, offset +  2, 2, "Checksum: 0x%04x",
+    proto_tree_add_text(icmp_tree, offset +  2, 2, "Checksum: 0x%04x",
       ih.icmp_cksum);
 
     /* Decode the second 4 bytes of the packet. */
@@ -905,30 +918,30 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       case ICMP_IREQREPLY:
       case ICMP_MASKREQ:
       case ICMP_MASKREPLY:
-	proto_tree_add_item(icmp_tree, offset +  4, 2, "Identifier: 0x%04x",
+	proto_tree_add_text(icmp_tree, offset +  4, 2, "Identifier: 0x%04x",
 	  pntohs(&pd[offset +  4]));
-	proto_tree_add_item(icmp_tree, offset +  6, 2, "Sequence number: %u",
+	proto_tree_add_text(icmp_tree, offset +  6, 2, "Sequence number: %u",
 	  pntohs(&pd[offset +  6]));
 	break;
 
       case ICMP_RTRADVERT:
         num_addrs = pd[offset + 4];
-	proto_tree_add_item(icmp_tree, offset +  4, 1, "Number of addresses: %u",
+	proto_tree_add_text(icmp_tree, offset +  4, 1, "Number of addresses: %u",
 	  num_addrs);
 	addr_entry_size = pd[offset + 5];
-	proto_tree_add_item(icmp_tree, offset +  5, 1, "Address entry size: %u",
+	proto_tree_add_text(icmp_tree, offset +  5, 1, "Address entry size: %u",
 	  addr_entry_size);
-	proto_tree_add_item(icmp_tree, offset +  6, 2, "Lifetime: %s",
+	proto_tree_add_text(icmp_tree, offset +  6, 2, "Lifetime: %s",
 	  time_secs_to_str(pntohs(&pd[offset +  6])));
 	break;
 
       case ICMP_PARAMPROB:
-	proto_tree_add_item(icmp_tree, offset +  4, 1, "Pointer: %u",
+	proto_tree_add_text(icmp_tree, offset +  4, 1, "Pointer: %u",
 	  pd[offset +  4]);
 	break;
 
       case ICMP_REDIRECT:
-	proto_tree_add_item(icmp_tree, offset +  4, 4, "Gateway address: %s",
+	proto_tree_add_text(icmp_tree, offset +  4, 4, "Gateway address: %s",
 	  ip_to_str((guint8 *)&pd[offset +  4]));
 	break;
     }
@@ -956,10 +969,10 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       case ICMP_RTRADVERT:
         if (addr_entry_size == 2) {
 	  for (i = 0; i < num_addrs; i++) {
-	    proto_tree_add_item(icmp_tree, offset + 8 + (i*8), 4,
+	    proto_tree_add_text(icmp_tree, offset + 8 + (i*8), 4,
 	      "Router address: %s",
 	      ip_to_str((guint8 *)&pd[offset +  8 + (i*8)]));
-	    proto_tree_add_item(icmp_tree, offset + 12 + (i*8), 4,
+	    proto_tree_add_text(icmp_tree, offset + 12 + (i*8), 4,
 	      "Preference level: %d", pntohl(&pd[offset + 12 + (i*8)]));
 	  }
 	} else
@@ -968,19 +981,19 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
       case ICMP_TSTAMP:
       case ICMP_TSTAMPREPLY:
-	proto_tree_add_item(icmp_tree, offset +  8, 4, "Originate timestamp: %u",
+	proto_tree_add_text(icmp_tree, offset +  8, 4, "Originate timestamp: %u",
 	  pntohl(&pd[offset +  8]));
-	proto_tree_add_item(icmp_tree, offset + 12, 4, "Originate timestamp: %u",
+	proto_tree_add_text(icmp_tree, offset + 12, 4, "Originate timestamp: %u",
 	  pntohl(&pd[offset + 12]));
-	proto_tree_add_item(icmp_tree, offset + 16, 4, "Receive timestamp: %u",
+	proto_tree_add_text(icmp_tree, offset + 16, 4, "Receive timestamp: %u",
 	  pntohl(&pd[offset + 16]));
-	proto_tree_add_item(icmp_tree, offset + 20, 4, "Transmit timestamp: %u",
+	proto_tree_add_text(icmp_tree, offset + 20, 4, "Transmit timestamp: %u",
 	  pntohl(&pd[offset + 20]));
 	break;
 
     case ICMP_MASKREQ:
     case ICMP_MASKREPLY:
-	proto_tree_add_item(icmp_tree, offset +  8, 4, "Address mask: %s (0x%8x)",
+	proto_tree_add_text(icmp_tree, offset +  8, 4, "Address mask: %s (0x%8x)",
 	  ip_to_str((guint8 *)&pd[offset +  8]), pntohl(&pd[offset +  8]));
 	break;
     }
@@ -1033,21 +1046,69 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     col_add_str(fd, COL_PROTOCOL, "IGMP");
   if (check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, type_str);
-  
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, 4,
+    ti = proto_tree_add_text(tree, offset, 4,
       "Internet Group Management Protocol");
-    igmp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, igmp_tree, ETT_IGMP);
-    proto_tree_add_item(igmp_tree, offset,     1, "Version: %d",
+    igmp_tree = proto_item_add_subtree(ti, ETT_IGMP);
+    proto_tree_add_text(igmp_tree, offset,     1, "Version: %d",
       hi_nibble(ih.igmp_v_t));
-    proto_tree_add_item(igmp_tree, offset    , 1, "Type: %d (%s)",
+    proto_tree_add_text(igmp_tree, offset    , 1, "Type: %d (%s)",
       lo_nibble(ih.igmp_v_t), type_str);
-    proto_tree_add_item(igmp_tree, offset + 1, 1, "Unused: 0x%02x",
+    proto_tree_add_text(igmp_tree, offset + 1, 1, "Unused: 0x%02x",
       ih.igmp_unused);
-    proto_tree_add_item(igmp_tree, offset + 2, 2, "Checksum: 0x%04x",
+    proto_tree_add_text(igmp_tree, offset + 2, 2, "Checksum: 0x%04x",
       ih.igmp_cksum);
-    proto_tree_add_item(igmp_tree, offset + 4, 4, "Group address: %s",
+    proto_tree_add_text(igmp_tree, offset + 4, 4, "Group address: %s",
       ip_to_str((guint8 *) &ih.igmp_gaddr));
   }
+}
+
+void
+proto_register_ip(void)
+{
+	proto_ip = proto_register_protocol (
+		/* name */	"Internet Protocol",
+		/* abbrev */	"ip" );
+
+	hf_ip_version = proto_register_field (
+		/* name */	"Version",
+		/* abbrev */	"ip.version",
+		/* ftype */	FT_UINT8,
+		/* parent */	proto_ip,
+		/* vals[] */	NULL );
+
+	hf_ip_hdr_len = proto_register_field (
+		/* name */	"Header Length",
+		/* abbrev */	"ip.hdr_len",
+		/* ftype */	FT_UINT8,
+		/* parent */	proto_ip,
+		/* vals[] */	NULL );
+
+	hf_ip_tos = proto_register_field (
+		/* name */	"Type of Service",
+		/* abbrev */	"ip.tos",
+		/* ftype */	FT_UINT8,
+		/* parent */	proto_ip,
+		/* vals[] */	NULL );
+
+	hf_ip_tos_precedence = proto_register_field (
+		/* name */	"Precedence",
+		/* abbrev */	"ip.tos_precedence",
+		/* ftype */	FT_VALS_UINT8,
+		/* parent */	proto_ip,
+		/* vals[] */	VALS(precedence_vals) );
+
+	hf_ip_dst = proto_register_field (
+		/* name */	"Destination",
+		/* abbrev */	"ip.dst",
+		/* ftype */	FT_IPv4,
+		/* parent */	proto_ip,
+		/* vals[] */	NULL );
+
+	hf_ip_src = proto_register_field (
+		/* name */	"Source",
+		/* abbrev */	"ip.src",
+		/* ftype */	FT_IPv4,
+		/* parent */	proto_ip,
+		/* vals[] */	NULL );
 }

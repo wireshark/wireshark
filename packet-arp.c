@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.13 1999/05/11 08:21:39 guy Exp $
+ * $Id: packet-arp.c,v 1.14 1999/07/07 22:51:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,30 +216,29 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
-      ti = proto_tree_add_item(tree, offset, 8 + 2*ar_hln + 2*ar_pln,
+      ti = proto_tree_add_text(tree, offset, 8 + 2*ar_hln + 2*ar_pln,
         op_str);
     else
-      ti = proto_tree_add_item(tree, offset, 8 + 2*ar_hln + 2*ar_pln,
+      ti = proto_tree_add_text(tree, offset, 8 + 2*ar_hln + 2*ar_pln,
         "Unknown ARP (opcode 0x%04x)", ar_op);
-    arp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, arp_tree, ETT_ARP);
-    proto_tree_add_item(arp_tree, offset + AR_HRD, 2,
+    arp_tree = proto_item_add_subtree(ti, ETT_ARP);
+    proto_tree_add_text(arp_tree, offset + AR_HRD, 2,
       "Hardware type: %s", arphrdtype_to_str(ar_hrd, "Unknown (0x%04x)"));
-    proto_tree_add_item(arp_tree, offset + AR_PRO, 2,
-      "Protocol type: %s", ethertype_to_str(ar_pro, "Unknown (0x%04x)"));
-    proto_tree_add_item(arp_tree, offset + AR_HLN, 1,
+    proto_tree_add_text(arp_tree, offset + AR_PRO, 2,
+      "Protocol type: %s", val_to_str(ar_pro, etype_vals, "Unknown (0x%04x)"));
+    proto_tree_add_text(arp_tree, offset + AR_HLN, 1,
       "Hardware size: %d", ar_hln);
-    proto_tree_add_item(arp_tree, offset + AR_PLN, 1,
+    proto_tree_add_text(arp_tree, offset + AR_PLN, 1,
       "Protocol size: %d", ar_pln);
-    proto_tree_add_item(arp_tree, offset + AR_OP,  2,
+    proto_tree_add_text(arp_tree, offset + AR_OP,  2,
       "Opcode: 0x%04x (%s)", ar_op, op_str ? op_str : "Unknown");
-    proto_tree_add_item(arp_tree, sha_offset, ar_hln,
+    proto_tree_add_text(arp_tree, sha_offset, ar_hln,
       "Sender hardware address: %s", sha_str);
-    proto_tree_add_item(arp_tree, spa_offset, ar_pln,
+    proto_tree_add_text(arp_tree, spa_offset, ar_pln,
       "Sender protocol address: %s", spa_str);
-    proto_tree_add_item(arp_tree, tha_offset, ar_hln,
+    proto_tree_add_text(arp_tree, tha_offset, ar_hln,
       "Target hardware address: %s", tha_str);
-    proto_tree_add_item(arp_tree, tpa_offset, ar_pln,
+    proto_tree_add_text(arp_tree, tpa_offset, ar_pln,
       "Target protocol address: %s", tpa_str);
   }
 }

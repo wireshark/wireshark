@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.15 1999/05/26 21:46:07 gram Exp $
+ * $Id: packet-ncp.c,v 1.16 1999/07/07 22:51:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -60,9 +60,10 @@ parse_ncp_svc_fields(const u_char *pd, proto_tree *ncp_tree, int offset,
 
 
 /* Hash functions */
-gint  ncp_equal (const gpointer v, const gpointer v2);
-guint ncp_hash  (const gpointer v);
+gint  ncp_equal (gconstpointer v, gconstpointer v2);
+guint ncp_hash  (gconstpointer v);
 
+int ncp_packet_init_count = 200;
 
 /* The information in this module comes from:
 	NetWare LAN Analysis, Second Edition
@@ -343,7 +344,7 @@ GMemChunk *ncp_request_keys = NULL;
 GMemChunk *ncp_request_records = NULL;
 
 /* Hash Functions */
-gint  ncp_equal (const gpointer v, const gpointer v2)
+gint  ncp_equal (gconstpointer v, gconstpointer v2)
 {
 	struct ncp_request_key	*val1 = (struct ncp_request_key*)v;
 	struct ncp_request_key	*val2 = (struct ncp_request_key*)v2;
@@ -362,7 +363,7 @@ gint  ncp_equal (const gpointer v, const gpointer v2)
 	return 0;
 }
 
-guint ncp_hash  (const gpointer v)
+guint ncp_hash  (gconstpointer v)
 {
 	struct ncp_request_key	*ncp_key = (struct ncp_request_key*)v;
 #if defined(DEBUG_NCP_HASH)
@@ -393,10 +394,10 @@ ncp_init_protocol(void)
 	ncp_request_hash = g_hash_table_new(ncp_hash, ncp_equal);
 	ncp_request_keys = g_mem_chunk_new("ncp_request_keys",
 			sizeof(struct ncp_request_key),
-			1000 * sizeof(struct ncp_request_key), G_ALLOC_AND_FREE);
+			ncp_packet_init_count * sizeof(struct ncp_request_key), G_ALLOC_AND_FREE);
 	ncp_request_records = g_mem_chunk_new("ncp_request_records",
 			sizeof(struct ncp_request_val),
-			1000 * sizeof(struct ncp_request_val), G_ALLOC_AND_FREE);
+			ncp_packet_init_count * sizeof(struct ncp_request_val), G_ALLOC_AND_FREE);
 }
 
 static struct ncp2222_record *
@@ -448,22 +449,21 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	nw_ncp_type = header.type;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 			"NetWare Core Protocol");
-		ncp_tree = proto_tree_new();
-		proto_item_add_subtree(ti, ncp_tree, ETT_NCP);
+		ncp_tree = proto_item_add_subtree(ti, ETT_NCP);
 
-		proto_tree_add_item(ncp_tree, offset,      2,
+		proto_tree_add_text(ncp_tree, offset,      2,
 			"Type: %s", val_to_str( header.type,
 			request_reply_values, "Unknown (%04X)"));
 
-		proto_tree_add_item(ncp_tree, offset+2,    1,
+		proto_tree_add_text(ncp_tree, offset+2,    1,
 			"Sequence Number: %d", header.sequence);
 
-		proto_tree_add_item(ncp_tree, offset+3,    3,
+		proto_tree_add_text(ncp_tree, offset+3,    3,
 			"Connection Number: %d", nw_connection);
 
-		proto_tree_add_item(ncp_tree, offset+4,    1,
+		proto_tree_add_text(ncp_tree, offset+4,    1,
 			"Task Number: %d", header.task);
 	}
 
@@ -508,16 +508,16 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 	}
 
 	if (ncp_tree) {
-		proto_tree_add_item(ncp_tree, offset+6, 1,
+		proto_tree_add_text(ncp_tree, offset+6, 1,
 			"Function Code: 0x%02X (%s)",
 			request.function, description);
 
 	 	if (ncp_request) {
 
 			if (ncp_request->submask == SUBFUNC) {
-				proto_tree_add_item(ncp_tree, offset+7, 2,
+				proto_tree_add_text(ncp_tree, offset+7, 2,
 					"Packet Length: %d bytes", pntohs(&pd[offset+7]));
-				proto_tree_add_item(ncp_tree, offset+9, 1,
+				proto_tree_add_text(ncp_tree, offset+9, 1,
 					"Subfunction Code: 0x%02x", pd[offset+9]);
 				offset += 7 + 3;
 			}
@@ -526,10 +526,9 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 			}
 
 			if (ncp_request->req) {
-				ti = proto_tree_add_item(ncp_tree, offset, END_OF_FRAME,
+				ti = proto_tree_add_text(ncp_tree, offset, END_OF_FRAME,
 				"NCP Request Packet");
-				field_tree = proto_tree_new();
-				proto_item_add_subtree(ti, field_tree, ETT_NCP_REQUEST_FIELDS);
+				field_tree = proto_item_add_subtree(ti, ETT_NCP_REQUEST_FIELDS);
 
 				parse_ncp_svc_fields(pd, field_tree, offset, ncp_request->req);
 			}
@@ -596,26 +595,25 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
 		/* A completion code of 0 always means OK. Other values have different
 		 * meanings */
 		if (ncp_request) {
-			proto_tree_add_item(ncp_tree, offset+6,    1,
+			proto_tree_add_text(ncp_tree, offset+6,    1,
 				"Completion Code: 0x%02x (%s)", reply.completion_code,
 				ncp_completion_code(reply.completion_code, ncp_request->family));
 		}
 		else {
-			proto_tree_add_item(ncp_tree, offset+6,    1,
+			proto_tree_add_text(ncp_tree, offset+6,    1,
 				"Completion Code: 0x%02x (%s)", reply.completion_code,
 				reply.completion_code == 0 ? "OK" : "Unknown");
 		}
 
-		proto_tree_add_item(ncp_tree, offset+7,    1,
+		proto_tree_add_text(ncp_tree, offset+7,    1,
 			"Connection Status: %d", reply.connection_state);
 
 		if (ncp_request) {
 
 			if (ncp_request->rep) {
-				ti = proto_tree_add_item(ncp_tree, offset+8, END_OF_FRAME,
+				ti = proto_tree_add_text(ncp_tree, offset+8, END_OF_FRAME,
 				"NCP Reply Packet");
-				field_tree = proto_tree_new();
-				proto_item_add_subtree(ti, field_tree, ETT_NCP_REPLY_FIELDS);
+				field_tree = proto_item_add_subtree(ti, ETT_NCP_REPLY_FIELDS);
 
 				parse_ncp_svc_fields(pd, field_tree, offset+8, ncp_request->rep);
 			}
@@ -637,20 +635,20 @@ parse_ncp_svc_fields(const u_char *pd, proto_tree *ncp_tree, int offset,
 		switch(rec->type) {
 			case nbeshort:
 				field_length = 2;
-				proto_tree_add_item(ncp_tree, field_offset,
+				proto_tree_add_text(ncp_tree, field_offset,
 					field_length, rec->description, pntohs(&pd[field_offset]));
 				break;
 
 			case nasciile:
 				field_length = pd[field_offset];
-				proto_tree_add_item(ncp_tree, field_offset,
+				proto_tree_add_text(ncp_tree, field_offset,
 					field_length + 1, rec->description, field_length,
 					&pd[field_offset+1]);
 				break;
 
 			case nhex:
 				field_length = rec->length;
-				proto_tree_add_item(ncp_tree, field_offset,
+				proto_tree_add_text(ncp_tree, field_offset,
 					field_length, rec->description);
 				break;	
 

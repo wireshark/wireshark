@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.6 1999/03/23 03:14:41 gram Exp $
+ * $Id: packet-osi.c,v 1.7 1999/07/07 22:51:49 gram Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -245,18 +245,17 @@ static int osi_decode_DR(const u_char *pd, int offset,
 	    src_ref, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-    cotp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-    proto_tree_add_item(cotp_tree, offset,      1,
+    ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    proto_tree_add_text(cotp_tree, offset,      1,
 		     "Length indicator: %d", li);
-    proto_tree_add_item(cotp_tree, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		     "TPDU code: Ox%x (DR)", tpdu); 
-    proto_tree_add_item(cotp_tree, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		     "Destination reference: 0x%04x", dst_ref);
-    proto_tree_add_item(cotp_tree, offset +  4, 2, 
+    proto_tree_add_text(cotp_tree, offset +  4, 2, 
 		     "Source reference: 0x%04x", src_ref);
-    proto_tree_add_item(cotp_tree, offset +  6, 1, 
+    proto_tree_add_text(cotp_tree, offset +  6, 1, 
 		     "Cause: %s", str);
   }
 
@@ -338,63 +337,62 @@ static int osi_decode_DT(const u_char *pd, int offset,
 	    (fragment)? "(fragment)" : "");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-    cotp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-    proto_tree_add_item(cotp_tree, offset,      1,
+    ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    proto_tree_add_text(cotp_tree, offset,      1,
 		     "Length indicator: %d", li);
-    proto_tree_add_item(cotp_tree, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		     "TPDU code: Ox%x (DT)", tpdu); 
 
     if (li != LI_NORMAL_DT_CLASS_01)
-      proto_tree_add_item(cotp_tree, offset +  2, 2, 
+      proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		       "Destination reference: 0x%04x", dst_ref);
 
     switch (li) {
       case LI_NORMAL_DT_WITH_CHECKSUM      :
-	proto_tree_add_item(cotp_tree, offset +  4, 1, 
+	proto_tree_add_text(cotp_tree, offset +  4, 1, 
 			 "TPDU number: 0x%02x (%s)", 
 			 tpdu_nr,
 			 (fragment)? "fragment":"complete");
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_NDT, 1, 
 			 "Parameter code: 0x%02x (checksum)", code);
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_NDT + 1, 1, 
 			 "Parameter length: 0x%02x", length);
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_NDT + 2, length, 
 			 "Checksum: 0x%04x", checksum);
 	break;
       case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-	proto_tree_add_item(cotp_tree, offset +  4, 1, 
+	proto_tree_add_text(cotp_tree, offset +  4, 1, 
 			 "TPDU number: 0x%02x (%s)", 
 			 tpdu_nr,
 			 (fragment)? "fragment":"complete");
 	break;
       case LI_EXTENDED_DT_WITH_CHECKSUM    :
-	proto_tree_add_item(cotp_tree, offset +  4, 4, 
+	proto_tree_add_text(cotp_tree, offset +  4, 4, 
 			 "TPDU number: 0x%08x (%s)", 
 			 tpdu_nr,
 			 (fragment)? "fragment":"complete");
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_EDT, 1, 
 			 "Parameter code: 0x%02x (checksum)", code);
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_EDT + 1, 1, 
 			 "Parameter length: 0x%02x", length);
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_EDT + 2, length, 
 			 "Checksum: 0x%04x", checksum);
 	break;
       case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
-	proto_tree_add_item(cotp_tree, offset +  4, 4, 
+	proto_tree_add_text(cotp_tree, offset +  4, 4, 
 			 "TPDU number: 0x%08x (%s)", 
 			 tpdu_nr,
 			 (fragment)? "fragment":"complete");
 	break;
       case LI_NORMAL_DT_CLASS_01           :
-	proto_tree_add_item(cotp_tree, offset +  2, 1, 
+	proto_tree_add_text(cotp_tree, offset +  2, 1, 
 			 "TPDU number: 0x%02x (%s)", 
 			 tpdu_nr,
 			 (fragment)? "fragment":"complete");
@@ -473,49 +471,48 @@ static int osi_decode_ED(const u_char *pd, int offset,
     col_add_fstr(fd, COL_INFO, "ED TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-    cotp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-    proto_tree_add_item(cotp_tree, offset,      1,
+    ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    proto_tree_add_text(cotp_tree, offset,      1,
 		     "Length indicator: %d", li);
-    proto_tree_add_item(cotp_tree, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		     "TPDU code: Ox%x (ED)", tpdu); 
-    proto_tree_add_item(cotp_tree, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		     "Destination reference: 0x%04x", dst_ref);
 
     switch (li) {
       case LI_NORMAL_DT_WITH_CHECKSUM      :
-	proto_tree_add_item(cotp_tree, offset +  4, 1, 
+	proto_tree_add_text(cotp_tree, offset +  4, 1, 
 			 "TPDU number: 0x%02x", tpdu_nr);	
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_NDT, 1, 
 			 "Parameter code: 0x%02x (checksum)", code);
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_NDT + 1, 1, 
 			 "Parameter length: 0x%02x", length);
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_NDT + 2, length, 
 			 "Checksum: 0x%04x", checksum);
 	break;
       case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-	proto_tree_add_item(cotp_tree, offset +  4, 1, 
+	proto_tree_add_text(cotp_tree, offset +  4, 1, 
 			 "TPDU number: 0x%02x", tpdu_nr);
 	break;
       case LI_EXTENDED_DT_WITH_CHECKSUM    :
-	proto_tree_add_item(cotp_tree, offset +  4, 4, 
+	proto_tree_add_text(cotp_tree, offset +  4, 4, 
 			 "TPDU number: 0x%02x", tpdu_nr);	
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_EDT, 1, 
 			 "Parameter code: 0x%02x (checksum)", code);
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_EDT + 1, 1, 
 			 "Parameter length: 0x%02x", length);
-	proto_tree_add_item(cotp_tree, 
+	proto_tree_add_text(cotp_tree, 
 			 offset +  P_VAR_PART_EDT + 2, length, 
 			 "Checksum: 0x%04x", checksum);
 	break;
       case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
-	proto_tree_add_item(cotp_tree, offset +  4, 4, 
+	proto_tree_add_text(cotp_tree, offset +  4, 4, 
 			 "TPDU number: 0x%02x", tpdu_nr);
 	break;
     }
@@ -556,25 +553,24 @@ static int osi_decode_RJ(const u_char *pd, int offset,
     col_add_fstr(fd, COL_INFO, "RJ TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-    cotp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-    proto_tree_add_item(cotp_tree, offset,      1,
+    ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    proto_tree_add_text(cotp_tree, offset,      1,
 		     "Length indicator: %d", li);
-    proto_tree_add_item(cotp_tree, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		     "TPDU code: Ox%x (RJ)", tpdu); 
     if (li == LI_NORMAL_RJ)
-      proto_tree_add_item(cotp_tree, offset +  1, 1, 
+      proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		       "Credit: %d", cdt);
-    proto_tree_add_item(cotp_tree, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		     "Destination reference: 0x%04x", dst_ref);
     if (li == LI_NORMAL_RJ)
-      proto_tree_add_item(cotp_tree, offset +  4, 1, 
+      proto_tree_add_text(cotp_tree, offset +  4, 1, 
 		       "Your TPDU number: 0x%02x", tpdu_nr);
     else {
-      proto_tree_add_item(cotp_tree, offset +  4, 4, 
+      proto_tree_add_text(cotp_tree, offset +  4, 4, 
 		       "Your TPDU number: 0x%02x", tpdu_nr);
-      proto_tree_add_item(cotp_tree, offset +  8, 2, 
+      proto_tree_add_text(cotp_tree, offset +  8, 2, 
 		       "Credit: 0x%02x", credit);
     }
   }
@@ -645,19 +641,18 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	    dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-    cotp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-    proto_tree_add_item(cotp_tree, offset,      1,
+    ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    proto_tree_add_text(cotp_tree, offset,      1,
 		     "Length indicator: %d", li);
-    proto_tree_add_item(cotp_tree, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		     "TPDU code: Ox%x (%s)", tpdu,
 		     (tpdu == CR_TPDU) ? "CR" : "CC"); 
-    proto_tree_add_item(cotp_tree, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		     "Destination reference: 0x%04x", dst_ref);
-    proto_tree_add_item(cotp_tree, offset +  4, 2, 
+    proto_tree_add_text(cotp_tree, offset +  4, 2, 
 		     "Source reference: 0x%04x", src_ref);
-    proto_tree_add_item(cotp_tree, offset +  6, 1, 
+    proto_tree_add_text(cotp_tree, offset +  6, 1, 
 		     "Class option: 0x%02x", class_option);
   }
 
@@ -672,26 +667,26 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	case VP_CHECKSUM :
 	  length   = pd[offset + P_VAR_PART_CC + i + 1];
 	  checksum = EXTRACT_SHORT(&pd[offset + P_VAR_PART_CC + i + 2]);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i, 1, 
 			   "Parameter code: 0x%02x (checksum)", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 2, length, 
 			   "Checksum: 0x%04x", checksum);
 	  i += length + 2;
 	  break;
 	case VP_SRC_TSAP    :
 	  length = pd[offset + P_VAR_PART_CC + i + 1];
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i, 1, 
 			   "Parameter code: 0x%02x (src-tsap)", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 2, length, 
 			   "Calling TSAP: 0x%s", 
 			   print_tsap(&pd[offset + P_VAR_PART_CC + i + 2],
@@ -700,13 +695,13 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	  break;
 	case VP_DST_TSAP    :
 	  length = pd[offset + P_VAR_PART_CC + i + 1];
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i, 1, 
 			   "Parameter code: 0x%02x (dst-tsap)", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 2, length, 
 			   "Called TSAP: 0x%s", 
 			   print_tsap(&pd[offset + P_VAR_PART_CC + i + 2],
@@ -716,13 +711,13 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	case VP_TPDU_SIZE   :
 	  length = pd[offset + P_VAR_PART_CC + i + 1];
 	  c1 = pd[offset + P_VAR_PART_CC + i + 2] & 0x0F;
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i, 1, 
 			   "Parameter code: 0x%02x (tpdu-size)", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 2, length, 
 			   "TPDU size: %d", 2 << c1);
 	  i += length + 2;
@@ -730,45 +725,45 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	case VP_OPT_SEL     :
 	  length = pd[offset + P_VAR_PART_CC + i + 1];
 	  c1 = pd[offset + P_VAR_PART_CC + i + 2] & 0x0F;
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i, 1, 
 			   "Parameter code: 0x%02x (options)", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
 	  if (class_option == 1) {
 	    if (c1 & 0x8)
-	      proto_tree_add_item(cotp_tree, 
+	      proto_tree_add_text(cotp_tree, 
 			       offset +  P_VAR_PART_CC + i + 2, 1,
 			       "Use of network expedited data");
 	    else
-	      proto_tree_add_item(cotp_tree, 
+	      proto_tree_add_text(cotp_tree, 
 			       offset +  P_VAR_PART_CC + i + 2, 1,
 			       "Non use of network expedited data");
 	    if (c1 & 0x4)
-	      proto_tree_add_item(cotp_tree, 
+	      proto_tree_add_text(cotp_tree, 
 			       offset +  P_VAR_PART_CC + i + 2, 1,
 			       "Use of Receipt confirmation");
 	    else
-	      proto_tree_add_item(cotp_tree, 
+	      proto_tree_add_text(cotp_tree, 
 			       offset +  P_VAR_PART_CC + i + 2, 1,
 			       "Use of explicit AK variant");
 	  } else if (class_option == 4) {
 	    if (c1 & 0x2)
-	      proto_tree_add_item(cotp_tree, 
+	      proto_tree_add_text(cotp_tree, 
 			       offset +  P_VAR_PART_CC + i + 2, 1,
 			       "Use 16 bit checksum ");
 	    else
-	      proto_tree_add_item(cotp_tree, 
+	      proto_tree_add_text(cotp_tree, 
 			       offset +  P_VAR_PART_CC + i + 2, 1,
 			       "Non-use 16 bit checksum in class 4");
 	  }
 	  if (c1 & 0x1)
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_CC + i + 2, 1,
 			     "Use of transport expedited data transfer\n");
 	  else
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_CC + i + 2, 1,
 			     "Non-use of transport expedited data transfer");
 	  i += length + 2;
@@ -776,13 +771,13 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	case VP_ACK_TIME    :
 	  length = pd[offset + P_VAR_PART_CC + i + 1];
 	  s = EXTRACT_SHORT(&pd[offset + P_VAR_PART_CC + i + 2]);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i, 1, 
 			   "Parameter code: 0x%02x (ack time)", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 2, length, 
 			   "Ack time (ms): %d", s);
 	  i += length + 2;
@@ -793,22 +788,22 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	  t2 = EXTRACT_LONG(&pd[offset + P_VAR_PART_CC + i + 4]);
 	  t3 = EXTRACT_LONG(&pd[offset + P_VAR_PART_CC + i + 7]);
 	  t4 = EXTRACT_LONG(&pd[offset + P_VAR_PART_CC + i + 10]);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i, 1, 
 			   "Parameter code: 0x%02x (throughput)", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 2, 4, 
 			   "Target value / calling-called: %d o/s", t1);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 6, 4, 
 			   "Minimum / calling-called: %d o/s", t2);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 10, 4, 
 			   "Target value / called-calling: %d o/s", t3);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 14, 4, 
 			   "Minimum / called-calling: %d o/s", t4);
 	  i += length + 2;
@@ -819,22 +814,22 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	  s2 = EXTRACT_SHORT(&pd[offset + P_VAR_PART_CC + i + 4]);
 	  s3 = EXTRACT_SHORT(&pd[offset + P_VAR_PART_CC + i + 6]);
 	  s4 = EXTRACT_SHORT(&pd[offset + P_VAR_PART_CC + i + 8]);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i, 1, 
 			   "Parameter code: 0x%02x (transit delay)", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 2, 2, 
 			   "Target value / calling-called: %d ms", s1);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 4, 2, 
 			   "Minimum / calling-called: %d ms", s2);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 6, 2, 
 			   "Target value / called-calling: %d ms", s3);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 8, 2, 
 			   "Minimum / called-calling: %d ms", s4);
 	  i += length + 2;
@@ -842,13 +837,13 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	case VP_PRIORITY    :
 	  length = pd[offset + P_VAR_PART_CC + i + 1];
 	  s = EXTRACT_SHORT(&pd[offset + P_VAR_PART_CC + i + 2]);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i, 1, 
 			   "Parameter code: 0x%02x (priority)", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 2, length,
 			   "Priority: %d", s);
 	  i += length + 2;
@@ -861,13 +856,13 @@ static int osi_decode_CC(const u_char *pd, int offset,
 	case VP_PROTO_CLASS :
 	default             :	  /* no decoding */
 	  length = pd[offset + P_VAR_PART_CC + i + 1];
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 0, 1, 
 			   "Parameter code: 0x%02x", code);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 1, 1, 
 			   "Parameter length: 0x%02x", length);
-	  proto_tree_add_item(cotp_tree, 
+	  proto_tree_add_text(cotp_tree, 
 			   offset +  P_VAR_PART_CC + i + 2, length, 
 			   "Parameter value: <not shown>");
 	  i += length + 2;
@@ -918,25 +913,24 @@ static int osi_decode_DC(const u_char *pd, int offset,
 	    dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-    cotp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-    proto_tree_add_item(cotp_tree, offset,      1,
+    ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    proto_tree_add_text(cotp_tree, offset,      1,
 		     "Length indicator: %d", li);
-    proto_tree_add_item(cotp_tree, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		     "TPDU code: Ox%x (DC)", tpdu); 
-    proto_tree_add_item(cotp_tree, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		     "Destination reference: 0x%04x", dst_ref);
-    proto_tree_add_item(cotp_tree, offset +  4, 2, 
+    proto_tree_add_text(cotp_tree, offset +  4, 2, 
 		     "Source reference: 0x%04x", src_ref);
     if (code) {
-      proto_tree_add_item(cotp_tree, 
+      proto_tree_add_text(cotp_tree, 
 		       offset +  P_VAR_PART_DC + 0, 1, 
 		       "Parameter code: 0x%02x (checksum)", code);
-      proto_tree_add_item(cotp_tree, 
+      proto_tree_add_text(cotp_tree, 
 		       offset +  P_VAR_PART_DC + 1, 1, 
 		       "Parameter length: 0x%02x", length);
-      proto_tree_add_item(cotp_tree, 
+      proto_tree_add_text(cotp_tree, 
 		       offset +  P_VAR_PART_DC + 2, 2, 
 		       "Checksum: 0x%04x", checksum);
     }
@@ -972,18 +966,17 @@ static int osi_decode_AK(const u_char *pd, int offset,
 	      tpdu_nr, dst_ref);
     
     if (tree) {
-      ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-      cotp_tree = proto_tree_new();
-      proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-      proto_tree_add_item(cotp_tree, offset,      1,
+      ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+      cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+      proto_tree_add_text(cotp_tree, offset,      1,
 		       "Length indicator: %d", li);
-      proto_tree_add_item(cotp_tree, offset +  1, 1, 
+      proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		       "TPDU code: Ox%x (AK)", tpdu); 
-      proto_tree_add_item(cotp_tree, offset +  1, 1, 
+      proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		       "Credit: %d", cdt);
-      proto_tree_add_item(cotp_tree, offset +  2, 2, 
+      proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		       "Destination reference: 0x%04x", dst_ref);
-      proto_tree_add_item(cotp_tree, offset +  4, 1, 
+      proto_tree_add_text(cotp_tree, offset +  4, 1, 
 		       "Your TPDU number: 0x%02x", tpdu_nr);
     }
 
@@ -993,13 +986,13 @@ static int osi_decode_AK(const u_char *pd, int offset,
 	  length   = pd[offset + P_VAR_PART_NAK + i + 1];
 	  checksum = EXTRACT_SHORT(&pd[offset + P_VAR_PART_NAK + i + 2]);
 	  if (tree) {
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 0, 1, 
 			     "Parameter code: 0x%02x (checksum)", code);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 1, 1, 
 			     "Parameter length: 0x%02x", length);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 2, 2, 
 			     "Checksum: 0x%04x", checksum);
 	  }
@@ -1012,22 +1005,22 @@ static int osi_decode_AK(const u_char *pd, int offset,
 	  r_seq_nr = EXTRACT_SHORT(&pd[offset + P_VAR_PART_NAK + i + 6]);
 	  r_cdt = EXTRACT_SHORT(&pd[offset + P_VAR_PART_NAK + i + 8]);
 	  if (tree) {
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 0, 1, 
 			     "Parameter code: 0x%02x (flow control)", 
 			     code);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 1, 1, 
 			     "Parameter length: 0x%02x", length);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 2, 4, 
 			     "Lower window edge: 0x%08x", 
 			     r_lower_window_edge);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 6, 2, 
 			     "Sequence number: 0x%04x", 
 			     r_seq_nr);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 8, 2, 
 			     "Credit: 0x%04x", 
 			     r_cdt);
@@ -1038,13 +1031,13 @@ static int osi_decode_AK(const u_char *pd, int offset,
 	  length = pd[offset + P_VAR_PART_NAK + i + 1];
 	  seq_nr = EXTRACT_SHORT(&pd[offset + P_VAR_PART_NAK + i + 2]);
 	  if (tree) {
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 0, 1, 
 			     "Parameter code: 0x%02x (seq number)", code);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 1, 1, 
 			     "Parameter length: 0x%02x", length);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 2, 2, 
 			     "Sequence number: 0x%04x", seq_nr);
 	  }
@@ -1053,13 +1046,13 @@ static int osi_decode_AK(const u_char *pd, int offset,
         default :
 	  length = pd[offset + P_VAR_PART_NAK + i + 1];
 	  if (tree) {
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 0, 1, 
 			     "Parameter code: 0x%02x (unknown)", code);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 1, 1, 
 			     "Parameter length: 0x%02x", length);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_NAK + i + 2, length, 
 			     "Parameter value: <not shown>");
 	  }
@@ -1079,18 +1072,17 @@ static int osi_decode_AK(const u_char *pd, int offset,
 	      tpdu_nr, dst_ref);
     
     if (tree) {
-      ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-      cotp_tree = proto_tree_new();
-      proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-      proto_tree_add_item(cotp_tree, offset,      1,
+      ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+      cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+      proto_tree_add_text(cotp_tree, offset,      1,
 		       "Length indicator: %d", li);
-      proto_tree_add_item(cotp_tree, offset +  1, 1, 
+      proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		       "TPDU code: Ox%x (AK)", tpdu); 
-      proto_tree_add_item(cotp_tree, offset +  2, 2, 
+      proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		       "Destination reference: 0x%04x", dst_ref);
-      proto_tree_add_item(cotp_tree, offset +  4, 4, 
+      proto_tree_add_text(cotp_tree, offset +  4, 4, 
 		       "Your TPDU number: 0x%08x", tpdu_nr);
-      proto_tree_add_item(cotp_tree, offset +  8, 2, 
+      proto_tree_add_text(cotp_tree, offset +  8, 2, 
 		       "Credit: 0x%04x", cdt_in_ak);
     }
     
@@ -1100,13 +1092,13 @@ static int osi_decode_AK(const u_char *pd, int offset,
 	  length   = pd[offset + P_VAR_PART_EAK + i + 1];
 	  checksum = EXTRACT_SHORT(&pd[offset + P_VAR_PART_EAK + i + 2]);
 	  if (tree) {
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 0, 1, 
 			     "Parameter code: 0x%02x (checksum)", code);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 1, 1, 
 			     "Parameter length: 0x%02x", length);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 2, 2, 
 			     "Checksum: 0x%04x", checksum);
 	  }
@@ -1119,22 +1111,22 @@ static int osi_decode_AK(const u_char *pd, int offset,
 	  r_seq_nr = EXTRACT_SHORT(&pd[offset + P_VAR_PART_EAK + i + 6]);
 	  r_cdt = EXTRACT_SHORT(&pd[offset + P_VAR_PART_EAK + i + 8]);
 	  if (tree) {
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 0, 1, 
 			     "Parameter code: 0x%02x (flow control)",
 			     code);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 1, 1, 
 			     "Parameter length: 0x%02x", length);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 2, 4, 
 			     "Lower window edge: 0x%08x", 
 			     r_lower_window_edge);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 6, 2, 
 			     "Sequence number: 0x%04x", 
 			     r_seq_nr);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 8, 2, 
 			     "Credit: 0x%04x", 
 			     r_cdt);
@@ -1145,13 +1137,13 @@ static int osi_decode_AK(const u_char *pd, int offset,
 	  length   = pd[offset + P_VAR_PART_EAK + i + 1];
 	  seq_nr = EXTRACT_SHORT(&pd[offset + P_VAR_PART_EAK + i + 2]);
 	  if (tree) {
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 0, 1, 
 			     "Parameter code: 0x%02x (seq number)", code);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 1, 1, 
 			     "Parameter length: 0x%02x", length);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 2, 2, 
 			     "Sequence number: 0x%04x", seq_nr);
 	  }
@@ -1160,13 +1152,13 @@ static int osi_decode_AK(const u_char *pd, int offset,
         default :
 	  length   = pd[offset + P_VAR_PART_EAK + i + 1];
 	  if (tree) {
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 0, 1, 
 			     "Parameter code: 0x%02x (unknown)", code);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 1, 1, 
 			     "Parameter length: 0x%02x", length);
-	    proto_tree_add_item(cotp_tree, 
+	    proto_tree_add_text(cotp_tree, 
 			     offset +  P_VAR_PART_EAK + i + 2, length, 
 			     "Parameter value: <not shown>");
 	  }
@@ -1232,43 +1224,42 @@ static int osi_decode_EA(const u_char *pd, int offset,
     col_add_fstr(fd, COL_INFO, "EA TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-    cotp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-    proto_tree_add_item(cotp_tree, offset,      1,
+    ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    proto_tree_add_text(cotp_tree, offset,      1,
 		     "Length indicator: %d", li);
-    proto_tree_add_item(cotp_tree, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		     "TPDU code: Ox%x (EA)", tpdu); 
-    proto_tree_add_item(cotp_tree, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		     "Destination reference: 0x%04x", dst_ref);
 
     switch (li) {
       case LI_NORMAL_EA_WITH_CHECKSUM      :
-	proto_tree_add_item(cotp_tree, offset +  4, 1, 
+	proto_tree_add_text(cotp_tree, offset +  4, 1, 
 			 "Your TPDU number: 0x%02x", tpdu_nr);
-	proto_tree_add_item(cotp_tree, offset +  5, 1, 
+	proto_tree_add_text(cotp_tree, offset +  5, 1, 
 			 "Parameter code: 0x%02x (checksum)", code);
-	proto_tree_add_item(cotp_tree, offset +  6, 1, 
+	proto_tree_add_text(cotp_tree, offset +  6, 1, 
 			 "Parameter length: 0x%02x", length);
-	proto_tree_add_item(cotp_tree, offset +  7, 2, 
+	proto_tree_add_text(cotp_tree, offset +  7, 2, 
 			 "Checksum: 0x%04x", checksum);
 	break;
       case LI_NORMAL_EA_WITHOUT_CHECKSUM   :
-	proto_tree_add_item(cotp_tree, offset +  4, 1, 
+	proto_tree_add_text(cotp_tree, offset +  4, 1, 
 			 "Your TPDU number: 0x%02x", tpdu_nr);
 	break;
       case LI_EXTENDED_EA_WITH_CHECKSUM    :
-	proto_tree_add_item(cotp_tree, offset +  4, 4, 
+	proto_tree_add_text(cotp_tree, offset +  4, 4, 
 			 "Your TPDU number: 0x%08x", tpdu_nr);
-	proto_tree_add_item(cotp_tree, offset +  8, 1, 
+	proto_tree_add_text(cotp_tree, offset +  8, 1, 
 			 "Parameter code: 0x%02x (checksum)", code);
-	proto_tree_add_item(cotp_tree, offset +  9, 1, 
+	proto_tree_add_text(cotp_tree, offset +  9, 1, 
 			 "Parameter length: 0x%02x", length);
-	proto_tree_add_item(cotp_tree, offset +  10, 2, 
+	proto_tree_add_text(cotp_tree, offset +  10, 2, 
 			 "Checksum: 0x%04x", checksum);
 	break;
       case LI_EXTENDED_EA_WITHOUT_CHECKSUM :
-	proto_tree_add_item(cotp_tree, offset +  4, 4, 
+	proto_tree_add_text(cotp_tree, offset +  4, 4, 
 			 "Your TPDU number: 0x%08x", tpdu_nr);
 	break;
       default :
@@ -1318,16 +1309,15 @@ static int osi_decode_ER(const u_char *pd, int offset,
     col_add_fstr(fd, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, li + 1, "ISO COTP");
-    cotp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, cotp_tree, ETT_COTP);
-    proto_tree_add_item(cotp_tree, offset,      1,
+    ti = proto_tree_add_text(tree, offset, li + 1, "ISO COTP");
+    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    proto_tree_add_text(cotp_tree, offset,      1,
 		     "Length indicator: %d", li);
-    proto_tree_add_item(cotp_tree, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, offset +  1, 1, 
 		     "TPDU code: Ox%x (ER)", tpdu); 
-    proto_tree_add_item(cotp_tree, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, offset +  2, 2, 
 		     "Destination reference: 0x%04x", dst_ref);
-    proto_tree_add_item(cotp_tree, offset +  4, 1, 
+    proto_tree_add_text(cotp_tree, offset +  4, 1, 
 		     "Reject cause: %s", str);
   }
 
@@ -1456,29 +1446,28 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   /* fixed part decoding */
 
   if (tree) {
-    ti = proto_tree_add_item(tree, offset, clnp.cnf_hdr_len, "ISO CLNP");
-    clnp_tree = proto_tree_new();
-    proto_item_add_subtree(ti, clnp_tree, ETT_CLNP);
-    proto_tree_add_item(clnp_tree, offset,      1,
+    ti = proto_tree_add_text(tree, offset, clnp.cnf_hdr_len, "ISO CLNP");
+    clnp_tree = proto_item_add_subtree(ti, ETT_CLNP);
+    proto_tree_add_text(clnp_tree, offset,      1,
 		     "Protocol identifier: 0x%02x", clnp.cnf_proto_id);
-    proto_tree_add_item(clnp_tree, offset +  1, 1, 
+    proto_tree_add_text(clnp_tree, offset +  1, 1, 
 		     "Length: %d", clnp.cnf_hdr_len); 
-    proto_tree_add_item(clnp_tree, offset +  2, 1, 
+    proto_tree_add_text(clnp_tree, offset +  2, 1, 
 		     "Version: %d", clnp.cnf_vers);
-    proto_tree_add_item(clnp_tree, offset +  3, 1, 
+    proto_tree_add_text(clnp_tree, offset +  3, 1, 
 		     "TTL: %d (%d secs)", 
 		     clnp.cnf_ttl, clnp.cnf_ttl / 2);
-    proto_tree_add_item(clnp_tree, offset +  4, 1, 
+    proto_tree_add_text(clnp_tree, offset +  4, 1, 
 		     "Type code: 0x%02x (%s%s%s%s)", 
 		     clnp.cnf_type,
 		     (clnp.cnf_type & CNF_SEG_OK) ? "S " : "",
 		     (clnp.cnf_type & CNF_MORE_SEGS) ? "M " : "",
 		     (clnp.cnf_type & CNF_ERR_OK) ? "E " : "",
 		     (clnp.cnf_type & CNF_TYPE) == DT_NPDU ? "DT" : "ER");
-    proto_tree_add_item(clnp_tree, offset +  5, 2, 
+    proto_tree_add_text(clnp_tree, offset +  5, 2, 
 		     "PDU segment length: %d",
 		     EXTRACT_SHORT(&clnp.cnf_seglen_msb));
-    proto_tree_add_item(clnp_tree, offset +  7, 2, 
+    proto_tree_add_text(clnp_tree, offset +  7, 2, 
 		     "Checksum: 0x%04x",
 		     EXTRACT_SHORT(&clnp.cnf_cksum_msb));
   } /* tree */
@@ -1498,14 +1487,14 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   src_len = pd[offset + dst_len + 1];
 
   if (tree) {
-    proto_tree_add_item(clnp_tree, offset, 1, 
+    proto_tree_add_text(clnp_tree, offset, 1, 
 		     "Destination address length: 0x%02x", dst_len);
-    proto_tree_add_item(clnp_tree, offset + 1 , dst_len, 
+    proto_tree_add_text(clnp_tree, offset + 1 , dst_len, 
 		     "Destination address: %s", 
 		     print_nsap(&pd[offset + 1], dst_len));
-    proto_tree_add_item(clnp_tree, offset + 1 + dst_len, 1, 
+    proto_tree_add_text(clnp_tree, offset + 1 + dst_len, 1, 
 		     "Source address length: 0x%02x", src_len);
-    proto_tree_add_item(clnp_tree, offset + dst_len + 2, src_len, 
+    proto_tree_add_text(clnp_tree, offset + dst_len + 2, src_len, 
 		     "Source address: %s", 
 		     print_nsap(&pd[offset + dst_len + 2], src_len));
   }
@@ -1525,13 +1514,13 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
     struct clnp_segment seg;
     memcpy(&seg, &pd[offset], sizeof(seg));
     
-    proto_tree_add_item(clnp_tree, offset, 2, 
+    proto_tree_add_text(clnp_tree, offset, 2, 
 		     "Data unit identifier: 0x%04x",
 		     EXTRACT_SHORT(&pd[offset]));
-    proto_tree_add_item(clnp_tree, offset + 2 , 2,
+    proto_tree_add_text(clnp_tree, offset + 2 , 2,
 		     "Segment offset: 0x%04x", 
 		     EXTRACT_SHORT(&pd[offset + 2]));
-    proto_tree_add_item(clnp_tree, offset + 4 , 2,
+    proto_tree_add_text(clnp_tree, offset + 4 , 2,
 		     "Total length: 0x%04x", 
 		     EXTRACT_SHORT(&pd[offset + 4]));
     
@@ -1541,7 +1530,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   if (tree) {
     /* To do : decode options  */
 
-    proto_tree_add_item(clnp_tree, offset, 
+    proto_tree_add_text(clnp_tree, offset, 
 		     clnp.cnf_hdr_len + first_offset - offset,
 		     "Options/Data: <not shown>");
   }

@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.6 1999/03/28 18:32:00 gram Exp $
+ * $Id: resolv.c,v 1.7 1999/07/07 22:51:59 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -284,7 +284,6 @@ static u_char *host_name_lookup6(struct e_in6_addr *addr)
   /* unknown host or DNS timeout */
 #endif /* INET6 */
   sprintf(name, "%s", ip6_to_str(addr));  
-
   return (name);
 }
 
@@ -834,3 +833,25 @@ extern u_char *get_manuf_name(u_char *addr)
   return manufp->name;
 
 } /* get_manuf_name */
+
+
+
+/* return IP address of either hostname or IP address in text format.
+ * Used more in the dfilter parser rather than in packet dissectors */
+unsigned long get_host_ipaddr(const char *host)
+{
+	struct hostent		*hp = NULL;
+	unsigned long		ipaddr;
+
+	hp = gethostbyname(host);
+	if (hp == NULL) {
+		hp = gethostbyaddr(host, strlen(host), AF_INET);
+		if (hp == NULL) {
+			return 0;
+		}
+	}
+
+	memcpy(&ipaddr, hp->h_addr, hp->h_length);
+
+	return ntohl(ipaddr);
+}

@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.3 1999/06/12 04:17:19 guy Exp $
+ * $Id: packet-snmp.c,v 1.4 1999/07/07 22:51:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -452,18 +452,17 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		if(tree) {
 			/* all_length=header_length+pdu_type_length+request_id_length+error_status_length+error_index_length; */
 			all_length=fd->pkt_len-offset;
-			item = proto_tree_add_item(tree, offset, all_length, "Simple Network Management Protocol");
-			snmp_tree = proto_tree_new();
-			proto_item_add_subtree(item, snmp_tree, ETT_SNMP);
-			proto_tree_add_item(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
+			item = proto_tree_add_text(tree, offset, all_length, "Simple Network Management Protocol");
+			snmp_tree = proto_item_add_subtree(item, ETT_SNMP);
+			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
 			offset+=header_length;
-			proto_tree_add_item(snmp_tree, offset, pdu_type_length, "%s", pdu_type_string);
+			proto_tree_add_text(snmp_tree, offset, pdu_type_length, "%s", pdu_type_string);
 			offset+=pdu_type_length;
-			proto_tree_add_item(snmp_tree, offset, request_id_length, "Request Id.: %#x", (unsigned int)request_id);
+			proto_tree_add_text(snmp_tree, offset, request_id_length, "Request Id.: %#x", (unsigned int)request_id);
 			offset+=request_id_length;
-			proto_tree_add_item(snmp_tree, offset, error_status_length, "Error Status: %s", val_to_str(error_status, error_statuses, "Unknown (%d)"));
+			proto_tree_add_text(snmp_tree, offset, error_status_length, "Error Status: %s", val_to_str(error_status, error_statuses, "Unknown (%d)"));
 			offset+=error_status_length;
-			proto_tree_add_item(snmp_tree, offset, error_index_length, "Error Index: %d", (int)error_index);
+			proto_tree_add_text(snmp_tree, offset, error_index_length, "Error Index: %d", (int)error_index);
 			offset+=error_index_length;
 		} else {
 			offset+=header_length;
@@ -481,12 +480,11 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			col_add_str(fd, COL_INFO, pdu_type_string);
 		if(tree) {
 			all_length=fd->pkt_len-offset;
-			item = proto_tree_add_item(tree, offset, all_length, "Simple Network Management Protocol");
-			snmp_tree = proto_tree_new();
-			proto_item_add_subtree(item, snmp_tree, ETT_SNMP);
-			proto_tree_add_item(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
+			item = proto_tree_add_text(tree, offset, all_length, "Simple Network Management Protocol");
+			snmp_tree = proto_item_add_subtree(item, ETT_SNMP);
+			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
 			offset+=header_length;
-			proto_tree_add_item(snmp_tree, offset, pdu_type_length, "Pdu type: %s", pdu_type_string);
+			proto_tree_add_text(snmp_tree, offset, pdu_type_length, "Pdu type: %s", pdu_type_string);
 			offset+=pdu_type_length;
 		} else {
 			offset+=header_length;
@@ -510,7 +508,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			strcat(vb_string,tmp_string);
 		}
 		if(tree) {
-			proto_tree_add_item(snmp_tree, offset, tmp_length, "Enterprise: %s", vb_string);
+			proto_tree_add_text(snmp_tree, offset, tmp_length, "Enterprise: %s", vb_string);
 		}
 		offset+=tmp_length;
 
@@ -525,7 +523,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		}
 		tmp_length-=length;
 		if(tree) {
-			proto_tree_add_item(snmp_tree, offset, tmp_length, "Agent address: %d.%d.%d.%d",
+			proto_tree_add_text(snmp_tree, offset, tmp_length, "Agent address: %d.%d.%d.%d",
 							 vb_string_value[0],vb_string_value[1],vb_string_value[2],vb_string_value[3]);
 		}
 		offset+=tmp_length;
@@ -540,7 +538,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		}
 		tmp_length-=length;
 		if(tree) {
-			proto_tree_add_item(snmp_tree, offset, tmp_length, "Trap type: %s", val_to_str(trap_type, trap_types, "Unknown (%d)"));
+			proto_tree_add_text(snmp_tree, offset, tmp_length, "Trap type: %s", val_to_str(trap_type, trap_types, "Unknown (%d)"));
 		}		
 		offset+=tmp_length;
 		
@@ -554,7 +552,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		}
 		tmp_length-=length;
 		if(tree) {
-			proto_tree_add_item(snmp_tree, offset, tmp_length, "Specific trap type: %ld (%#lx)", (long)specific_type, (long)specific_type);
+			proto_tree_add_text(snmp_tree, offset, tmp_length, "Specific trap type: %ld (%#lx)", (long)specific_type, (long)specific_type);
 		}		
 		offset+=tmp_length;
 		
@@ -568,7 +566,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		}
 		tmp_length-=length;
 		if(tree) {
-			proto_tree_add_item(snmp_tree, offset, tmp_length, "Timestamp: %lu", (unsigned long)timestamp);
+			proto_tree_add_text(snmp_tree, offset, tmp_length, "Timestamp: %lu", (unsigned long)timestamp);
 		}		
 		offset+=tmp_length;
 	}
@@ -640,7 +638,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			
 			sprint_objid(vb_string2, vb_name, vb_name_length);
 			
-			proto_tree_add_item(snmp_tree, offset, tmp_length, "Object identifier %d: %s (%s)", vb_index, vb_string, vb_string2);
+			proto_tree_add_text(snmp_tree, offset, tmp_length, "Object identifier %d: %s (%s)", vb_index, vb_string, vb_string2);
 		}
 		offset+=tmp_length;
 				
@@ -664,7 +662,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return;
 			}
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: NULL");
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: NULL");
 			}
 			offset+=tmp_length;
 			break;
@@ -679,7 +677,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return;
 			}
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <i> %ld (%#lx)", (long)vb_integer_value, (long)vb_integer_value);
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <i> %ld (%#lx)", (long)vb_integer_value, (long)vb_integer_value);
 			}
 			offset+=tmp_length;
 			break;
@@ -697,7 +695,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return;
 			}
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <u> %lu (%#lx)", (unsigned long)vb_unsigned_value, (unsigned long)vb_unsigned_value);
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <u> %lu (%#lx)", (unsigned long)vb_unsigned_value, (unsigned long)vb_unsigned_value);
 			}
 			offset+=tmp_length;
 			break;
@@ -718,7 +716,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return;
 			}
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <i64> %lu:%lu (%#lx:%lx)",
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <i64> %lu:%lu (%#lx:%lx)",
 								 vb_counter64_value.high,
 								 vb_counter64_value.low,
 								 vb_counter64_value.high,
@@ -744,7 +742,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					sprintf(tmp_string, OID_FORMAT_STRING1, vb_oid_value[i]);
 					strcat(vb_string,tmp_string);
 				}
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <oid> %s", vb_string);
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <oid> %s", vb_string);
 			}			
 			offset+=tmp_length;
 			break;
@@ -774,9 +772,9 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 						sprintf(tmp_string, ".%03d", (int)vb_string_value[i]);
 						strcat(vb_string,tmp_string);
 					}
-					proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <str> %s", vb_string);
+					proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <str> %s", vb_string);
 				}else {
-					proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <str> %s", vb_string_value);
+					proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <str> %s", vb_string_value);
 				}
 			}
 			offset+=tmp_length;
@@ -793,7 +791,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return;
 			}
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <i64> %ld:%lu (%#lx:%lx)",
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <i64> %ld:%lu (%#lx:%lx)",
 								 vb_counter64_value.high,
 								 vb_counter64_value.low,
 								 vb_counter64_value.high,
@@ -813,7 +811,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return;
 			}
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <f> %f", (double)vb_float_value);
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <f> %f", (double)vb_float_value);
 			}
 			offset+=tmp_length;
 			break;
@@ -828,7 +826,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return;
 			}
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <d> %f", vb_double_value);
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <d> %f", vb_double_value);
 			}
 			offset+=tmp_length;
 			break;
@@ -836,17 +834,17 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			
 		case SNMP_NOSUCHOBJECT:
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <err> no such object");
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <err> no such object");
 			}			
 			break;
 		case SNMP_NOSUCHINSTANCE:
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <err> no such instance");
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <err> no such instance");
 			}			
 			break;
 		case SNMP_ENDOFMIBVIEW:
 			if(tree) {
-				proto_tree_add_item(snmp_tree, offset, tmp_length, "Value: <err> end of mib view");
+				proto_tree_add_text(snmp_tree, offset, tmp_length, "Value: <err> end of mib view");
 			}			
 			break;
 			

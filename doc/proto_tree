@@ -1,0 +1,235 @@
+The Ethereal Protocol Tree
+==========================
+
+Up until version 0.6.3 of ethereal, the protocol tree that is displayed
+in the middle pane of the ethereal GUI had been created by having the
+protocol dissection routines add strings to a GTK+ tree. This GUI
+container was not easily manipulated; the print routines had to reach
+inside what should be an opaque structure and pull out the data. The
+tree of strings also did not lend itself to filtering on the data
+available in the tree.
+
+Mostly to solve the display filter problem, I decided to have the
+protocol dissection routines put their data into a logical tree instead
+of a GUI tree. This tree structure would provide a generic way for
+multiple routines, like the dissection routines, the display filter
+routines, and the print routines, to retrieve data about the protocol
+fields. The GUI routines would then be modified to draw the GUI tree
+based on the data in the logical tree. By structuring this logical tree
+well, with well-defined field types, ethereal can have a very powerful
+display filter option. No longer would display filters be limited to the
+ability of the BPF compiler (libpcap or wiretap), but would have access to the
+full range of C field types available within ethereal.
+
+The dissection routines are still passed a proto_tree pointer, but a
+proto_tree is no longer the same as a GtkTree. Now a proto_tree is a
+GNode, the N-way tree structure available within GLIB. Of course the
+protocol dissectors don't care what a proto_tree really is; they just
+pass the proto_tree pointer as an argument to the routines which allow
+them to add items and new branches to the tree.
+
+In packet_list_select_cb() you'll now find this:
+
+    if (protocol_tree)
+        proto_tree_free(protocol_tree);
+    protocol_tree = proto_tree_create_root();
+    dissect_packet(cf.pd, fd, protocol_tree);
+    proto_tree_draw(protocol_tree, tree_view);
+
+When a packet is selected in the packet-list pane, a new logical
+protocol tree (proto_tree) is created. The pointer to the proto_tree (in
+this case, 'protocol tree'), is passed to the top-level protocol
+dissector, and then the GUI tree is drawn via proto_tree_draw().
+
+Programming for the proto_tree
+==============================
+The logical proto_tree now needs to know detail information about the
+protocols and fields about which information will be collected from the
+dissection routines. No longer will is the data just a bunch of strings.
+Now the data will be typed so that searching and filtering on protocol
+header fields will be possible. This means that the for every protocol
+and field (which I also call "header fields", since they are fields in
+the protocol headers) which might be attached to a tree, some
+information is needed.
+
+Every dissector routine will need to register its protocols and fields
+with the central protocol routines (in proto.c). At first I thought I
+might keep all the protocol and field information about all the
+dissectors in one file, but decentralization seemed like a better idea.
+That one file would have gotten very large; one small change would have
+required a re-compilation of the entire file. Also, by allowing
+registration of protocols and fields at run-time, loadable modules of
+protocol dissectors (perhaps even user-supplied) is feasible.
+
+For every protocol or field that a dissector wants to register, a variable of
+type int needs to be used to keep track of the protocol. The IDs are
+needed for establishing parent/child relationships between protocols and
+fields, as well as associating data with a particular field so that it
+can be stored in the logical tree and displayed in the GUI protocol
+tree.
+
+Some dissectors will need to create branches within their tree to help
+organize header fields. These branches should be registered as header
+fields. Only true protocols should be registered as protocols. This is
+so that a display filter user interface knows how to distinguish
+protocols from fields.
+
+A protocol is registered with the name of the protocol and its
+abbreviation.
+
+Here is how the frame "protocol" is registered.
+
+	int proto_frame;
+
+        proto_frame = proto_register_protocol (
+                /* name */      "Frame",
+                /* abbrev */    "frame" );
+
+
+A header field is also registered with its name and abbreviation, but
+information about the its data type is needed. Some fields will use
+value_strings to represent their values, so the value_string
+is also passed. And of course the parent protocol for the field is indicated
+during registration.
+
+	int hf_frame_arrival_time;
+
+        hf_frame_arrival_time = proto_register_field (
+                /* name */      "Arrival Time",
+                /* abbrev */    "frame.time",
+                /* ftype */     FT_ABSOLUTE_TIME,
+                /* parent */    proto_frame,
+                /* vals[] */    NULL );
+
+The name can be used in any type of display, either in the GUI tree, or
+in a display filter UI. The abbreviation is used when representing a
+display filter as a string. For example, the following strings could be a
+valid display filter, depending upon the implementation of the display
+filter parser and engine.
+
+	frame[20:1] = 0x0a
+	frame.time > 'May 21, 1999 13:15:00'
+
+The field type come from an enum. Currently, enum ftenum is comprised
+of:
+
+/* field types */
+enum ftenum {
+        FT_NONE,        /* used for protocol labels (thus no field type) */
+        FT_UINT8,
+        FT_UINT16,
+        FT_UINT32,
+        FT_ABSOLUTE_TIME,
+        FT_RELATIVE_TIME,
+        FT_STRING,
+        FT_ETHER,
+        FT_BYTES,
+        FT_IPv4,
+        FT_IPv6,
+        FT_IPXSERVER,
+        FT_VALS_UINT8,
+        FT_VALS_UINT16,
+        FT_VALS_UINT24,
+        FT_VALS_UINT32,
+        NUM_FIELD_TYPES /* last item number plus one */
+};
+
+Previously, the sequence needed within a dissector to add a new branch
+to the GUI tree was this:
+
+	item = proto_tree_add_item(....);
+	new_tree = proto_tree_new();
+	proto_item_add_subtree(item, new_tree, tree_type);
+
+With the new system, the call to proto_tree_new() is no longer needed,
+as proto_item_add_subtree creates the new tree for you. The change was
+necessary so that the proto_tree routines could maintain the
+parent/child relationship within the logical tree. But it has a nice
+side-effect of cleaning up the dissector code. The new method is like
+this:
+
+	item = proto_tree_add_item(....);
+	new_tree = proto_item_add_subtree(item, tree_type);
+
+There are now 4 functions that the programmer can use to add either
+protocol or field labels to the proto_tree:
+
+	proto_item*
+	proto_tree_add_item(tree, id, start, length, value);
+
+	proto_item*
+	proto_tree_add_item_format(tree, id, start, length,
+		value, format, ...);
+
+	proto_item*
+	proto_tree_add_item_hidden(tree, id, start, length, value);
+
+	proto_item*
+	proto_tree_add_text(tree, start, length, format, ...);
+
+The first function, proto_tree_add_item, is used when you wish to do no
+special formatting. The item added to the GUI tree will contain the name
+(as passed in the proto_register_*() function) and any value. If your
+field does have a value, it is passed after the length variable (notice
+the ellipsis in the function prototype).
+
+The second function, proto_tree_add_free_format(), is used when the
+dissector routines wants complete control over how the field and value
+will be represented on the GUI tree. The caller must pass include the
+name of the protocol or field; it is not added automatically as in
+proto_tree_add_item().
+
+The third function is used to add fields and values to a tree, but not
+show them on a GUI tree. The caller may want a value to be included in a
+tree so that the packet can be filtered on this field, but the
+representation of that field in the tree is not appropriate. An example
+is the token-ring routing information field (RIF). The best way to show the
+RIF in a GUI is by a sequence of ring and bridge numbers. Rings are
+3-digit hex numbers, and bridges are single hex digits:
+
+	RIF: 001-A-013-9-C0F-B-555
+
+In the case of RIF, the programmer should use a field with no value and
+use proto_tree_add_item_format() to build the above representation. The
+programmer can then add the ring and bridge values, one-by-one, with
+proto_tree_add_item_hidden() so that the user can then filter on or
+search for a particular ring or bridge. Here's a skeleton of how the
+programmer might code this.
+
+	char *rif;
+	rif = create_rif_string(...);
+
+	proto_tree_add_item_format(tree, hf_tr_rif_label,..., "RIF: %s", rif);
+
+	for(i = 0; i < num_rings; i++) {
+		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, ..., ring[i]);
+	}
+	for(i = 0; i < num_rings - 1; i++) {
+		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, ..., bridge[i]);
+	}
+
+The logical tree has these items:
+
+	hf_tr_rif_label, text="RIF: 001-A-013-9-C0F-B-555", value = NONE
+	hf_tr_rif_ring,  hidden, value=0x001
+	hf_tr_rif_bridge, hidden, value=0xA
+	hf_tr_rif_ring,  hidden, value=0x013
+	hf_tr_rif_bridge, hidden, value=0x9
+	hf_tr_rif_ring,  hidden, value=0xC0F
+	hf_tr_rif_bridge, hidden, value=0xB
+	hf_tr_rif_ring,  hidden, value=0x555
+
+GUI or print code will not display the hidden fields, but a display
+filter or "packet grep" routine will still see the values. The possible
+filter is then possible:
+
+	tr.rif_ring eq 0x013
+
+The fourth function, proto_tree_add_text(), is used to add a label to the GUI tree.
+It will contain no value, so it is not searchable in the display filter process.
+This function was needed in the transition from the old-style proto_tree to this
+new-style proto_tree so that ethereal would still decode all protocols w/o being
+able to filter on all protocols and fields. Otherwise we would have had to
+cripple ethereal's functionality while we converted all the old-style proto_tree
+calls to the new-style proto_tree calls.
+

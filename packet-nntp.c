@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.1 1999/04/06 02:02:11 guy Exp $
+ * $Id: packet-nntp.c,v 1.2 1999/07/07 22:51:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -77,10 +77,9 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 				"Network News Transfer Protocol");
-	  nntp_tree = proto_tree_new();
-	  proto_item_add_subtree(ti, nntp_tree, ETT_NNTP);
+	  nntp_tree = proto_item_add_subtree(ti, ETT_NNTP);
 
 	  /*
 	   * Show the request or response as text, a line at a time.
@@ -100,7 +99,7 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 		/*
 		 * Put this line.
 		 */
-		proto_tree_add_item(nntp_tree, offset, linelen, "%s",
+		proto_tree_add_text(nntp_tree, offset, linelen, "%s",
 		    format_text(data, linelen));
 		offset += linelen;
 		data = lineend;

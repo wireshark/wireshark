@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.64 1999/07/07 00:34:58 guy Exp $
+ * $Id: packet.h,v 1.65 1999/07/07 22:51:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,10 @@
 
 #ifndef __PACKET_H__
 #define __PACKET_H__
+
+#ifndef __PROTO_H__
+#include "proto.h"
+#endif
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
@@ -65,12 +69,18 @@
   #endif
 #endif
 
+/* Useful when you have an array whose size you can tell at compile-time */
+#define array_length(x)	(sizeof x / sizeof x[0])
+
+
 /* Useful when highlighting regions inside a dissect_*() function. With this
  * macro, you can highlight from an arbitrary offset to the end of the
  * frame. See dissect_data() for an example.
  */
 #define END_OF_FRAME	(fd->cap_len - offset)
-
+		
+/* To pass one of two strings, singular or plural */
+#define plurality(d,s,p) ((d) == 1 ? (s) : (p))
 
 typedef struct _column_info {
   gint       num_cols; /* Number of columns */
@@ -102,9 +112,8 @@ typedef struct _frame_data {
   guint32      del_usecs; /* Delta microseconds */
   long         file_off;  /* File offset */
   column_info *cinfo;     /* Column formatting information */
-#ifdef WITH_WIRETAP
-  int		lnk_t;     /* Per-packet encapsulation/data-link type */
-#endif
+  int          lnk_t;     /* Per-packet encapsulation/data-link type */
+  gboolean     passed_dfilter; /* TRUE = display, FALSE = no display */
 } frame_data;
 
 typedef struct _packet_info {
@@ -140,6 +149,7 @@ typedef struct tcp_extra_data {
    add_subtree() call. */
 
 enum {
+	ETT_NONE,
 	ETT_FRAME,
 	ETT_IEEE8023,
 	ETT_ETHER2,
@@ -298,6 +308,7 @@ enum {
 /* Utility routines used by packet*.c */
 gchar*     ether_to_str(const guint8 *);
 gchar*     ip_to_str(const guint8 *);
+gchar*	   abs_time_to_str(struct timeval*);
 gchar*     time_secs_to_str(guint32);
 gchar*     bytes_to_str(const guint8 *, int);
 const u_char *find_line_end(const u_char *data, const u_char *dataend,
@@ -327,25 +338,6 @@ void       col_append_fstr(frame_data *, gint, gchar *, ...);
 void       col_add_str(frame_data *, gint, const gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
 
-/* Routines in packet.c */
-
-typedef struct GtkWidget proto_tree;
-typedef struct GtkWidget proto_item;
-
-struct GtkWidget;
-
-void proto_item_set_len(proto_item *ti, gint len);
-proto_tree* proto_tree_new(void);
-void proto_item_add_subtree(proto_item *ti, proto_tree *subtree, gint idx);
-
-#if __GNUC__ == 2
-proto_item* proto_tree_add_item(proto_tree *tree, gint start, gint len,
-		gchar *format, ...)
-    __attribute__((format (printf, 4, 5)));
-#else
-proto_item* proto_tree_add_item(proto_tree *tree, gint start, gint len,
-		gchar *format, ...);
-#endif
 
 void dissect_packet(const u_char *, frame_data *, proto_tree *);
 /*
@@ -448,12 +440,12 @@ void dissect_gre(const u_char *, int, frame_data *, proto_tree *);
 void init_dissect_udp(void);
 
 /* These functions are in ethertype.c */
-gchar *ethertype_to_str(guint16 etype, const char *fmt);
 void capture_ethertype(guint16 etype, int offset,
 		const u_char *pd, guint32 cap_len, packet_counts *ld);
 void ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, proto_tree *tree,
-		proto_tree *fh_tree);
+		proto_tree *fh_tree, int item_id);
+extern const value_string etype_vals[];
 
 /* These functions are in packet-arp.c */
 gchar *arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type);

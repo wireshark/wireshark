@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4a from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -46,9 +46,10 @@ AUTOMAKE = @AUTOMAKE@
 AUTOHEADER = @AUTOHEADER@
 
 INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
+INSTALL_STRIP_FLAG =
 transform = @program_transform_name@
 
 NORMAL_INSTALL = :
@@ -65,41 +66,21 @@ GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
 LEX = @LEX@
-LIBWIRETAP_A = @LIBWIRETAP_A@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 YACC = @YACC@
 
-bin_PROGRAMS = wiretap
-noinst_LIBRARIES = @LIBWIRETAP_A@
+noinst_LIBRARIES = libwiretap.a
 
-EXTRA_PROGRAMS = filterc
-EXTRA_LIBRARIES = libwiretap.a
+#EXTRA_LIBRARIES = libwiretap.a
 
-EXTRA_DIST =  	rt-grammar-skel.y		rt-scanner-skel.l		ct-grammar.y			ct-scanner.l			filter-eth			filter-tr
+CLEANFILES =  	libwiretap.a			*~
 
 
-CLEANFILES =  	libwiretap.a			filterc 			*~ 				ct-grammar.c			ct-scanner.c			ct-grammar.h			rt-grammar.c			rt-grammar.y			rt-scanner.c			rt-scanner.l			rt-grammar.h
+libwiretap_a_SOURCES =  	buffer.c			buffer.h			config.h			file.c				iptrace.c			iptrace.h			lanalyzer.c			lanalyzer.h			libpcap.c			libpcap.h			netmon.c			netmon.h			netxray.c			netxray.h			ngsniffer.c			ngsniffer.h			snoop.c				snoop.h				wtap.c				wtap.h
 
-
-libwiretap_a_SOURCES =  	bpf.h				bpf.c				bpf-engine.c			bpf-engine.h			buffer.c			buffer.h			config.h			file.c				iptrace.c			iptrace.h			lanalyzer.c			lanalyzer.h			libpcap.c			libpcap.h			netmon.c			netmon.h			netxray.c			netxray.h			ngsniffer.c			ngsniffer.h			rt-compile.h			rt-compile.c			rt-global.h			rt-grammar.h			rt-grammar.y			rt-scanner.l			snoop.c				snoop.h				wtap.c				wtap.h
-
-
-filterc_SOURCES =  	ct-compile.c			ct-compile.h			ct-grammar.h			ct-grammar.y			ct-scanner.l			ct-main.c			glib-new.h			glib-new.c
-
-
-FILTERS =  	filter-eth			filter-tr
-
-
-YFLAGS = -d -p wtap_
-LFLAGS = -i -Pwtap_
-
-wiretap_SOURCES =  	wiretap.c 			glib-new.c
-
-
-wiretap_LDADD = libwiretap.a
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
 CONFIG_HEADER = config.h
@@ -112,49 +93,31 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libwiretap_a_LIBADD = 
-libwiretap_a_OBJECTS =  bpf.o bpf-engine.o buffer.o file.o iptrace.o \
-lanalyzer.o libpcap.o netmon.o netxray.o ngsniffer.o rt-compile.o \
-rt-grammar.o rt-scanner.o snoop.o wtap.o
+libwiretap_a_OBJECTS =  buffer.o file.o iptrace.o lanalyzer.o libpcap.o \
+netmon.o netxray.o ngsniffer.o snoop.o wtap.o
 AR = ar
-PROGRAMS =  $(bin_PROGRAMS)
-
-filterc_OBJECTS =  ct-compile.o ct-grammar.o ct-scanner.o ct-main.o \
-glib-new.o
-filterc_LDADD = $(LDADD)
-filterc_DEPENDENCIES = 
-filterc_LDFLAGS = 
-wiretap_OBJECTS =  wiretap.o glib-new.o
-wiretap_DEPENDENCIES =  libwiretap.a
-wiretap_LDFLAGS = 
-LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
-LEXLIB = @LEXLIB@
-YLWRAP = $(top_srcdir)/../ylwrap
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 DIST_COMMON =  README ./stamp-h.in AUTHORS COPYING ChangeLog INSTALL \
 Makefile.am Makefile.in NEWS acconfig.h acinclude.m4 aclocal.m4 \
-config.h.in configure configure.in ct-grammar.c ct-scanner.c \
-rt-grammar.c rt-scanner.c
+config.h.in configure configure.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = tar
+TAR = gtar
 GZIP_ENV = --best
-DEP_FILES =  .deps/bpf-engine.P .deps/bpf.P .deps/buffer.P \
-.deps/ct-compile.P .deps/ct-grammar.P .deps/ct-main.P \
-.deps/ct-scanner.P .deps/file.P .deps/glib-new.P .deps/iptrace.P \
+DEP_FILES =  .deps/buffer.P .deps/file.P .deps/iptrace.P \
 .deps/lanalyzer.P .deps/libpcap.P .deps/netmon.P .deps/netxray.P \
-.deps/ngsniffer.P .deps/rt-compile.P .deps/rt-grammar.P \
-.deps/rt-scanner.P .deps/snoop.P .deps/wiretap.P .deps/wtap.P
-SOURCES = $(libwiretap_a_SOURCES) $(filterc_SOURCES) $(wiretap_SOURCES)
-OBJECTS = $(libwiretap_a_OBJECTS) $(filterc_OBJECTS) $(wiretap_OBJECTS)
+.deps/ngsniffer.P .deps/snoop.P .deps/wtap.P
+SOURCES = $(libwiretap_a_SOURCES)
+OBJECTS = $(libwiretap_a_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .l .o .s .y
+.SUFFIXES: .S .c .o .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu Makefile
 
@@ -227,46 +190,6 @@ libwiretap.a: $(libwiretap_a_OBJECTS) $(libwiretap_a_DEPENDENCIES)
 	-rm -f libwiretap.a
 	$(AR) cru libwiretap.a $(libwiretap_a_OBJECTS) $(libwiretap_a_LIBADD)
 	$(RANLIB) libwiretap.a
-
-mostlyclean-binPROGRAMS:
-
-clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-
-distclean-binPROGRAMS:
-
-maintainer-clean-binPROGRAMS:
-
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(bindir)
-	@list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
-	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
-	  else :; fi; \
-	done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
-	done
-
-filterc: $(filterc_OBJECTS) $(filterc_DEPENDENCIES)
-	@rm -f filterc
-	$(LINK) $(filterc_LDFLAGS) $(filterc_OBJECTS) $(filterc_LDADD) $(LIBS)
-
-wiretap: $(wiretap_OBJECTS) $(wiretap_DEPENDENCIES)
-	@rm -f wiretap
-	$(LINK) $(wiretap_LDFLAGS) $(wiretap_OBJECTS) $(wiretap_LDADD) $(LIBS)
-.l.c:
-	$(SHELL) $(YLWRAP) "$(LEX)" $< $(LEX_OUTPUT_ROOT).c $@ -- $(AM_LFLAGS) $(LFLAGS)
-.y.c:
-	$(SHELL) $(YLWRAP) "$(YACC)" $< y.tab.c $*.c y.tab.h $*.h -- $(AM_YFLAGS) $(YFLAGS)
-ct-grammar.h: ct-grammar.c
-rt-grammar.h: rt-grammar.c
-
 
 tags: TAGS
 
@@ -343,7 +266,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -393,7 +316,7 @@ installcheck: installcheck-am
 all-recursive-am: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
-install-exec-am: install-binPROGRAMS
+install-exec-am:
 install-exec: install-exec-am
 
 install-data-am:
@@ -402,14 +325,13 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am:
 uninstall: uninstall-am
-all-am: Makefile $(LIBRARIES) $(PROGRAMS) config.h
+all-am: Makefile $(LIBRARIES) config.h
 all-redirect: all-am
 install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_STRIP_FLAG=-s install
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(bindir)
 
 
 mostlyclean-generic:
@@ -422,31 +344,29 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-	-test -z "ct-scannerlrt-scannerlct-grammarhct-grammarcrt-grammarhrt-grammarc" || rm -f ct-scannerl rt-scannerl ct-grammarh ct-grammarc rt-grammarh rt-grammarc
 mostlyclean-am:  mostlyclean-hdr mostlyclean-noinstLIBRARIES \
-		mostlyclean-compile mostlyclean-binPROGRAMS \
-		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+		mostlyclean-compile mostlyclean-tags mostlyclean-depend \
+		mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
-clean-am:  clean-hdr clean-noinstLIBRARIES clean-compile \
-		clean-binPROGRAMS clean-tags clean-depend clean-generic \
-		mostlyclean-am
+clean-am:  clean-hdr clean-noinstLIBRARIES clean-compile clean-tags \
+		clean-depend clean-generic mostlyclean-am
 
 clean: clean-am
 
 distclean-am:  distclean-hdr distclean-noinstLIBRARIES distclean-compile \
-		distclean-binPROGRAMS distclean-tags distclean-depend \
-		distclean-generic clean-am
+		distclean-tags distclean-depend distclean-generic \
+		clean-am
 
 distclean: distclean-am
 	-rm -f config.status
 
 maintainer-clean-am:  maintainer-clean-hdr \
 		maintainer-clean-noinstLIBRARIES \
-		maintainer-clean-compile maintainer-clean-binPROGRAMS \
-		maintainer-clean-tags maintainer-clean-depend \
-		maintainer-clean-generic distclean-am
+		maintainer-clean-compile maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -457,29 +377,15 @@ maintainer-clean: maintainer-clean-am
 mostlyclean-noinstLIBRARIES distclean-noinstLIBRARIES \
 clean-noinstLIBRARIES maintainer-clean-noinstLIBRARIES \
 mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile mostlyclean-binPROGRAMS distclean-binPROGRAMS \
-clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
-install-binPROGRAMS tags mostlyclean-tags distclean-tags clean-tags \
-maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
-clean-depend maintainer-clean-depend info-am info dvi-am dvi check \
-check-am installcheck-am installcheck all-recursive-am install-exec-am \
-install-exec install-data-am install-data install-am install \
-uninstall-am uninstall all-redirect all-am all installdirs \
+maintainer-clean-compile tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend info-am info \
+dvi-am dvi check check-am installcheck-am installcheck all-recursive-am \
+install-exec-am install-exec install-data-am install-data install-am \
+install uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
-
-ct-scanner.c : ct-scanner.l
-	@rm -f $@
-	$(LEX) $(LFLAGS) -t $< > $@
-
-rt-grammar.y rt-scanner.l : rt-grammar-skel.y rt-scanner-skel.l $(FILTERS)
-	$(MAKE) filterc
-	cat $(FILTERS) | ./filterc > /dev/null
-
-rt-scanner.c : rt-scanner.l rt-grammar.c
-	@rm -f $@
-	$(LEX) $(LFLAGS) -t $< > $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

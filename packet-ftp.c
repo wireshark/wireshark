@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.3 1999/05/13 01:05:11 sharpe Exp $
+ * $Id: packet-ftp.c,v 1.4 1999/07/07 22:51:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -92,23 +92,22 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 				"File Transfer Protocol");
-	  ftp_tree = proto_tree_new();
-	  proto_item_add_subtree(ti, ftp_tree, ETT_FTP);
+	  ftp_tree = proto_item_add_subtree(ti, ETT_FTP);
 
 	  if (pi.match_port == pi.destport) { /* Request */
 
-	    proto_tree_add_item(ftp_tree, offset, i1, "Request: %s", rr);
+	    proto_tree_add_text(ftp_tree, offset, i1, "Request: %s", rr);
 
-	    proto_tree_add_item(ftp_tree, offset + i1 + 1, END_OF_FRAME, "Request Arg: %s", rd);
+	    proto_tree_add_text(ftp_tree, offset + i1 + 1, END_OF_FRAME, "Request Arg: %s", rd);
 
 	  }
 	  else {
 
-	    proto_tree_add_item(ftp_tree, offset, i1, "Response: %s", rr);
+	    proto_tree_add_text(ftp_tree, offset, i1, "Response: %s", rr);
 
-	    proto_tree_add_item(ftp_tree, offset + i1 + 1, END_OF_FRAME, "Response Arg: %s", rd);
+	    proto_tree_add_text(ftp_tree, offset + i1 + 1, END_OF_FRAME, "Response Arg: %s", rd);
 	  }
 
 	}
@@ -130,7 +129,7 @@ dissect_ftpdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 				"File Transfer Protocol Data");
 
 	}

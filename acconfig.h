@@ -10,5 +10,3 @@
 
 #undef NEED_STRERROR_H
 
-/* Define this to use the wiretap library */
-#undef WITH_WIRETAP

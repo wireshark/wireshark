@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.18 1999/05/12 21:40:07 guy Exp $
+ * $Id: wtap.h,v 1.19 1999/07/07 22:52:57 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -136,23 +136,11 @@ typedef struct wtap {
 						   file formats that have
 						   per-file encapsulation
 						   types */
-	union {
-		struct bpf_instruction	*bpf;
-		struct bpf_instruction	**offline;
-	} filter;
-
-	gchar			*filter_text;
-	int			filter_type;
-	int			filter_length; /* length in bytes or records,
-						depending upon filter_type */
-
-	int			*offline_filter_lengths;
 } wtap;
 
 
 wtap* wtap_open_offline(char *filename);
 void wtap_loop(wtap *wth, int, wtap_handler, u_char*);
-int wtap_offline_filter(wtap *wth, char *filter);
 
 FILE* wtap_file(wtap *wth);
 int wtap_snapshot_length(wtap *wth); /* per file */
