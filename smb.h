@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.34 2002/03/15 04:46:43 tpot Exp $
+ * $Id: smb.h,v 1.35 2002/03/15 08:59:53 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -302,4 +302,6 @@ extern GHashTable *dcerpc_fragment_table;
  */
 extern const value_string NT_errors[];
 extern const value_string DOS_errors[];
+extern const value_string ms_country_codes[];
+
 #endif

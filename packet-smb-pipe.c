@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.69 2002/02/18 01:08:36 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.70 2002/03/15 08:59:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3102,7 +3102,7 @@ proto_register_pipe_lanman(void)
 		/* XXX - we should have a value_string table for this */
 		{ &hf_country_code,
 			{ "Country Code", "lanman.country_code", FT_UINT16, BASE_DEC,
-			NULL, 0, "LANMAN Country Code", HFILL }},
+			VALS(ms_country_codes), 0, "LANMAN Country Code", HFILL }},
 
 		{ &hf_workstations,
 			{ "Workstations", "lanman.workstations", FT_STRING, BASE_NONE,

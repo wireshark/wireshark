@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.12 2002/03/14 10:04:02 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.13 2002/03/15 08:59:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,8 +74,6 @@ int prs_push_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 guint32 prs_pop_ptr(GList **ptr_list, char *name);
 
 
-
-extern const value_string ms_country_codes[];
 
 #define ALIGN_TO_4_BYTES	{if(offset&0x03)offset=(offset&0xfffffffc)+4;}
 
