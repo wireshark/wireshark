@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.51 1999/07/09 04:18:34 gram Exp $
+ * $Id: ethereal.c,v 1.52 1999/07/11 08:40:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -534,6 +534,15 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   }
 }
 
+/* Run the current display filter on the current packet set, and
+   redisplay. */
+static void
+filter_activate_cb(GtkWidget *w, gpointer data) {
+  if (cf.dfilter) g_free(cf.dfilter);
+  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(w)));
+  filter_packets(&cf);
+}
+
 /* Print a packet */
 void
 file_print_cmd_cb(GtkWidget *widget, gpointer data) {
@@ -545,7 +554,8 @@ void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
   if (!sync_mode) {
-  if (cf.wth) return; 
+    if (cf.wth)
+      return; 
   }
   blank_packetinfo();
   gtk_text_freeze(GTK_TEXT(byte_view));
@@ -1003,6 +1013,8 @@ main(int argc, char *argv[])
   filter_te = gtk_entry_new();
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_te, TRUE, TRUE, 3);
+  gtk_signal_connect(GTK_OBJECT(filter_te), "activate",
+    GTK_SIGNAL_FUNC(filter_activate_cb), (gpointer) NULL);
   gtk_widget_show(filter_te);
 
 #ifdef USE_ITEM

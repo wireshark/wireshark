@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.35 1999/07/09 04:18:35 gram Exp $
+ * $Id: file.c,v 1.36 1999/07/11 08:40:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,9 +80,6 @@ guint cap_input_id, tail_timeout_id;
 static guint32 firstsec, firstusec;
 static guint32 lastsec, lastusec;
 
-/* Used when applying a display filter */
-static proto_tree *dfilter_proto_tree = NULL;
-
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
     const u_char *);
 
@@ -123,22 +120,15 @@ open_cap_file(char *fname, capture_file *cf) {
   firstsec = 0, firstusec = 0;
   lastsec = 0, lastusec = 0;
  
-	cf->wth = wtap_open_offline(fname);
-	if (cf->wth == NULL) {
+  cf->wth = wtap_open_offline(fname);
+  if (cf->wth == NULL) {
 
-      /* XXX - we assume that, because we were able to open it above,
-         this must have failed because it's not a capture file in
-	 a format we can read. */
-      return (OPEN_CAP_FILE_UNKNOWN_FORMAT);
-    }
+    /* XXX - we assume that, because we were able to open it above,
+       this must have failed because it's not a capture file in
+       a format we can read. */
+    return (OPEN_CAP_FILE_UNKNOWN_FORMAT);
+  }
 
-    if (cf->dfilter) {
-	dfilter_compile(cf->dfilter, &cf->dfcode);
-/*      if (wtap_offline_filter(cf->wth, cf->dfilter) < 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string "
-          "\"%s\".", cf->dfilter);
-      }*/
-    }
   cf->fh = wtap_file(cf->wth);
   cf->cd_t = wtap_file_type(cf->wth);
   cf->snap = wtap_snapshot_length(cf->wth);
@@ -192,7 +182,7 @@ load_cap_file(char *fname, capture_file *cf) {
 
   close_cap_file(cf, info_bar, file_ctx);
 
-  /* Initialize protocol-speficic variables */
+  /* Initialize protocol-specific variables */
   ncp_init_protocol();
 
   if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
@@ -207,9 +197,6 @@ load_cap_file(char *fname, capture_file *cf) {
   
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
-
-    if (dfilter_proto_tree)
-
     gtk_clist_freeze(GTK_CLIST(packet_list));
     init_col_widths(cf);
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
@@ -302,7 +289,6 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     set_menu_sensitivity("/Capture/Start...", TRUE);
     set_menu_sensitivity("/Tools/Capture...", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
-
 #else
     set_menu_sensitivity("<Main>/File/Open...", TRUE);
     set_menu_sensitivity("<Main>/File/Close", TRUE);
@@ -380,7 +366,6 @@ tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/Capture/Start...", FALSE);
     set_menu_sensitivity("/Tools/Capture...", FALSE);
     set_menu_sensitivity("/Tools/Summary", FALSE);
-
 #else
     set_menu_sensitivity("<Main>/File/Open...", FALSE);
     set_menu_sensitivity("<Main>/File/Close", FALSE);
@@ -388,8 +373,8 @@ tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("<Main>/Capture/Start...", FALSE);
     set_menu_sensitivity("<Main>/Tools/Capture...", FALSE);
     set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
-
 #endif
+
     cf->fh = fopen(fname, "r");
     tail_timeout_id = -1;
     cap_input_id = gtk_input_add_full (sync_pipe[0],
@@ -500,6 +485,7 @@ static void
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
 {
   gint          i, col_width, row;
+  proto_tree   *protocol_tree;
 
   compute_time_stamps(fdata, cf);
 
@@ -509,7 +495,16 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
   if (check_col(fdata, COL_NUMBER))
     col_add_fstr(fdata, COL_NUMBER, "%d", cf->count);
-  dissect_packet(buf, fdata, NULL);
+  /* Apply the display filter */
+  if (cf->dfcode) {
+	protocol_tree = proto_tree_create_root();
+	dissect_packet(buf, fdata, protocol_tree);
+	fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
+  }
+  else {
+	dissect_packet(buf, fdata, NULL);
+	fdata->passed_dfilter = TRUE;
+  }
   for (i = 0; i < fdata->cinfo->num_cols; i++) {
     col_width = gdk_string_width(pl_style->font, fdata->cinfo->col_data[i]);
     if (col_width > fdata->cinfo->col_width[i])
@@ -527,7 +522,6 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   const u_char *buf) {
   frame_data   *fdata;
   capture_file *cf = (capture_file *) user;
-  proto_tree *protocol_tree = NULL;
 
   while (gtk_events_pending())
     gtk_main_iteration();
@@ -547,17 +541,59 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata->abs_usecs = phdr->ts.tv_usec;
   fdata->cinfo = NULL;
 
-  /* Apply the display filter */
-  if (cf->dfcode) {
-	protocol_tree = proto_tree_create_root();
-	dissect_packet(buf, fdata, protocol_tree);
-	fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf);
-  }
-  else {
-	fdata->passed_dfilter = TRUE;
+  add_packet_to_packet_list(fdata, cf, buf);
+}
+
+static void
+filter_packets_cb(gpointer data, gpointer user_data)
+{
+  frame_data *fd = data;
+  capture_file *cf = user_data;
+
+  cf->cur = fd;
+  cf->count++;
+
+  fseek(cf->fh, fd->file_off, SEEK_SET);
+  fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
+
+  add_packet_to_packet_list(fd, cf, cf->pd);
+}
+
+void
+filter_packets(capture_file *cf)
+{
+  if (cf->dfilter != NULL) {
+    /*
+     * Compile the filter.
+     */
+    if (dfilter_compile(cf->dfilter, &cf->dfcode) != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+      "Unable to parse filter string \"%s\".", cf->dfilter);
+      return;
+    }
   }
 
-  add_packet_to_packet_list(fdata, cf, buf);
+  /* Freeze the packet list while we redo it, so we don't get any
+     screen updates while it happens. */
+  gtk_clist_freeze(GTK_CLIST(packet_list));
+
+  /* Clear it out. */
+  gtk_clist_clear(GTK_CLIST(packet_list));
+
+  /*
+   * Iterate through the list of packets, calling a routine
+   * to run the filter on the packet, see if it matches, and
+   * put it in the display list if so.
+   */
+  firstsec = 0;
+  firstusec = 0;
+  lastsec = 0;
+  lastusec = 0;
+  cf->count = 0;
+  g_list_foreach(cf->plist, filter_packets_cb, cf);
+
+  /* Unfreeze the packet list. */
+  gtk_clist_thaw(GTK_CLIST(packet_list));
 }
 
 static void

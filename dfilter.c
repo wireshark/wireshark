@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.3 1999/07/08 03:35:30 gram Exp $
+ * $Id: dfilter.c,v 1.4 1999/07/11 08:40:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -207,6 +207,9 @@ dfilter_compile(char *dfilter_text, GNode **p_dfcode)
 		g_slist_free(dfilter_list_byte_arrays);
 		dfilter_list_byte_arrays = NULL;
 	}
+
+	if (*p_dfcode != NULL)
+		g_node_destroy(*p_dfcode);
 
 	retval = yyparse();
 	*p_dfcode = dfilter_tree;
