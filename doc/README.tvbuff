@@ -1,4 +1,4 @@
-$Id: README.tvbuff,v 1.6 2004/02/15 07:35:35 jmayer Exp $
+$Id: README.tvbuff,v 1.7 2004/06/23 15:15:28 gram Exp $
 
 TVBUFFs and Exceptions
 
@@ -88,12 +88,19 @@ Where:
 The tvb_new_subset() function will throw an exception if the offset/length
 pair go beyond the boundaries of 'tvb'.
 
+You do not need to free your new tvbuff. When the root tvbuff is freed
+in epan_dissect_free(), all the tvbuff's that were created from it are
+also freed. If you really wanted to keep one of the tvbuffs around
+after the root tvbuff is freed, you can do it by incrementing
+the usage count on the tvbuff (tvb_increment_usage_count()). But
+in all normal cases you really want to take advantage of the default
+behavior.
 
-The tvbuff is an opaque structure. It's definition is in tvbuff.c,
-not tvbuff.h, so you can't easily access its members. You must use one
-of the provided accessor methods to retrieve data from the tvbuff. All
-accessors will throw an exception if an attempt is made to read beyond
-the boundaries of the data in the tvbuff.
+Even though the definition of tvbuff is in tvbuff.h, you sholud treat a tvbuff
+as an opaque structure. You should not access its members directly.  You must
+use one of the provided accessor methods to retrieve data from the tvbuff. All
+accessors will throw an exception if an attempt is made to read beyond the
+boundaries of the data in the tvbuff.
 
 If reported_length is set, then if the attempt to access data goes beyond
 reported_length, a ReportedBoundsError exception is thrown.
