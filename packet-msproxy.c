@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.27 2002/01/24 09:20:49 guy Exp $
+ * $Id: packet-msproxy.c,v 1.28 2002/04/02 01:28:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,12 +22,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- *
  * This was derived from the dante socks implementation source code. 
  * Most of the information came from common.h and msproxy_clientprotocol.c
  *
  * See http://www.inet.no/dante for more information 
- *
  */
 
 /************************************************************************
@@ -639,7 +637,7 @@ static void dissect_udp_bind(tvbuff_t *tvb, int offset,
 	offset += 2;
 
 	if ( tree) 
-		proto_tree_add_ipv4( tree, hf_msproxy_dstaddr, tvb, offset, 4,
+		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
 			FALSE);
 
 	offset += 96;
