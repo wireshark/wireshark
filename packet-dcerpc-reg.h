@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.h,v 1.6 2002/08/29 19:05:40 guy Exp $
+ * $Id: packet-dcerpc-reg.h,v 1.7 2003/06/17 06:50:36 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,7 +45,7 @@
 #define _REG_UNK_0E		0x0e
 #define REG_OPEN_ENTRY		0x0f
 #define REG_QUERY_KEY		0x10
-#define REG_INFO		0x11
+#define REG_QUERY_VALUE		0x11
 #define	_REG_UNK_12		0x12
 #define _REG_UNK_13		0x13
 #define	_REG_UNK_14		0x14

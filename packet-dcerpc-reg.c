@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.18 2003/06/17 05:29:46 tpot Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.19 2003/06/17 06:50:36 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,12 @@
 static int hf_rc = -1;
 static int hf_hnd = -1;
 static int hf_access_mask = -1;
+static int hf_keytype = -1;
+static int hf_keydata = -1;
+static int hf_offered = -1;
+static int hf_returned = -1;
+static int hf_reserved = -1;
+static int hf_unknown = -1;
 
 /* OpenHKLM */
 
@@ -435,6 +441,138 @@ RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
+/*
+ * RegQueryValue
+ */
+
+static int
+dissect_reserved(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		 proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_reserved, NULL);
+
+	return offset;
+}
+
+static int
+dissect_offered(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
+
+	return offset;
+}
+
+static int
+dissect_returned(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		 proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_returned, NULL);
+
+	return offset;
+}
+
+static int
+dissect_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_unknown, NULL);
+
+	return offset;
+}
+
+static int
+RegQueryValue_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree, char *drep)
+{
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep,
+		hf_hnd, NULL, NULL, FALSE, FALSE);
+
+	offset = dissect_ndr_counted_string(
+		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_reserved, NDR_POINTER_UNIQUE,
+		"Reserved", -1);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_offered, NDR_POINTER_UNIQUE,
+		"Offered", -1);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_unknown, NDR_POINTER_UNIQUE,
+		"Unknown", -1);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_unknown, NDR_POINTER_UNIQUE,
+		"Unknown", -1);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_offered, NDR_POINTER_UNIQUE,
+		"Offered", -1);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_returned, NDR_POINTER_UNIQUE,
+		"Returned", -1);
+
+	return offset;
+}
+
+static int
+dissect_key_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		 proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_keytype, NULL);
+
+	return offset;
+}
+
+static int
+RegQueryValue_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree, char *drep)
+{
+	/* Parse packet */
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_key_type, NDR_POINTER_UNIQUE,
+		"Key Type", -1);	
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_byte_array, NDR_POINTER_UNIQUE,
+		"Key Data", -1);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_offered, NDR_POINTER_UNIQUE,
+		"Offered", -1);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_returned, NDR_POINTER_UNIQUE,
+		"Returned", -1);
+
+	offset = dissect_ntstatus(
+		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+
+	return offset;
+}
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -517,7 +655,7 @@ static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { _REG_UNK_0E, "Unknown0e", NULL, NULL },
         { REG_OPEN_ENTRY, "OpenEntry", RegOpenEntry_q, RegOpenEntry_r },
         { REG_QUERY_KEY, "QueryKey", RegQueryKey_q, RegQueryKey_r },
-        { REG_INFO, "Info", NULL, NULL },
+        { REG_QUERY_VALUE, "QueryValue", RegQueryValue_q, RegQueryValue_r },
         { _REG_UNK_12, "Unknown12", NULL, NULL },
         { _REG_UNK_13, "Unknown13", NULL, NULL },
         { _REG_UNK_14, "Unknown14", NULL, NULL },
@@ -549,7 +687,7 @@ static const value_string reg_opnum_vals[] = {
         { _REG_UNK_0E, "Unknown0e" },
         { REG_OPEN_ENTRY, "OpenEntry" },
         { REG_QUERY_KEY, "QueryKey" },
-        { REG_INFO, "Info" },
+        { REG_QUERY_VALUE, "QueryValue" },
         { _REG_UNK_12, "Unknown12" },
         { _REG_UNK_13, "Unknown13" },
         { _REG_UNK_14, "Unknown14" },
@@ -584,6 +722,30 @@ proto_register_dcerpc_reg(void)
 		{ &hf_access_mask,
 		  { "Access mask", "reg.access_mask", FT_UINT32, BASE_HEX,
 		    NULL, 0x0, "Access mask", HFILL }},
+
+		{ &hf_keytype,
+		  { "Key type", "reg.type", FT_UINT32, BASE_DEC,
+		    VALS(reg_datatypes), 0x0, "Key type", HFILL }},
+
+		{ &hf_keydata,
+		  { "Key data", "reg.data", FT_BYTES, BASE_HEX,
+		    NULL, 0x0, "Key data", HFILL }},
+
+		{ &hf_offered,
+		  { "Offered", "reg.offered", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Offered", HFILL }},
+
+		{ &hf_returned,
+		  { "Returned", "reg.returned", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Returned", HFILL }},
+
+		{ &hf_reserved,
+		  { "Reserved", "reg.reserved", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, "Reserved", HFILL }},
+
+		{ &hf_unknown,
+		  { "Unknown", "reg.unknown", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, "Unknown", HFILL }},
 
 		/* OpenHKLM */
 
