@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.18 1999/11/19 13:09:56 gram Exp $
+ * $Id: packet-rpc.c,v 1.19 1999/11/19 23:23:40 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -59,7 +59,7 @@ static const value_string rpc_reply_state[3] = {
 	{ 0, NULL }
 };
 
-value_string rpc_auth_flavor[] = {
+const value_string rpc_auth_flavor[] = {
 	{ AUTH_NULL, "AUTH_NULL" },
 	{ AUTH_UNIX, "AUTH_UNIX" },
 	{ AUTH_SHORT, "AUTH_SHORT" },

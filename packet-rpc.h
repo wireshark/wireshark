@@ -1,5 +1,5 @@
 /* packet-rpc.h (c) 1999 Uwe Girlich */
-/* $Id: packet-rpc.h,v 1.8 1999/11/19 13:09:56 gram Exp $ */
+/* $Id: packet-rpc.h,v 1.9 1999/11/19 23:23:41 guy Exp $ */
 
 #ifndef __PACKET_RPC_H__
 #define __PACKET_RPC_H__
@@ -84,7 +84,7 @@ typedef struct _rpc_call_info {
 
 #define RPC_CALL_TABLE_LENGTH 1000
 
-extern value_string rpc_auth_flavor[];
+extern const value_string rpc_auth_flavor[];
 
 extern void rpc_call_insert(rpc_call_info *call);
 extern rpc_call_info* rpc_call_lookup(rpc_call_info *call);

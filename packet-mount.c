@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.5 1999/11/19 13:09:55 gram Exp $
+ * $Id: packet-mount.c,v 1.6 1999/11/19 23:23:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -80,7 +80,7 @@ const vsff mount1_proc[] = {
 
 
 /* RFC 1813, Page 107 */
-const value_string mount3_mountstat3[] = 
+static const value_string mount3_mountstat3[] = 
 {
 	{	0,	"OK" },
 	{	1,	"ERR_PERM" },
@@ -177,13 +177,13 @@ proto_register_mount(void)
 			NULL, 0, "Path" }},
 		{ &hf_mount_status, {
 			"Status", "mount.status", FT_UINT32, BASE_DEC,
-			mount3_mountstat3, 0, "Status" }},
+			VALS(mount3_mountstat3), 0, "Status" }},
 		{ &hf_mount_flavors, {
 			"Flavors", "mount.flavors", FT_UINT32, BASE_DEC,
 			NULL, 0, "Flavors" }},
 		{ &hf_mount_flavor, {
 			"Flavor", "mount.flavor", FT_UINT32, BASE_DEC,
-			rpc_auth_flavor, 0, "Flavor" }},
+			VALS(rpc_auth_flavor), 0, "Flavor" }},
 	};
 	static gint *ett[] = {
 		&ett_mount,
@@ -199,4 +199,3 @@ proto_register_mount(void)
 	rpc_init_proc_table(MOUNT_PROGRAM, 1, mount1_proc);
 	rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc);
 }
-
