@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.59 2003/09/15 18:31:17 guy Exp $
+ * $Id: packet-gtp.c,v 1.60 2003/09/18 21:38:44 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1693,7 +1693,7 @@ imsi_to_str(const guint8 *ad) {
 		if ((ad[i] & 0x0F) <= 9) str[j++] = (ad[i] & 0x0F) + 0x30;
 		if (((ad[i] >> 4) & 0x0F) <= 9) str[j++] = ((ad[i] >> 4) & 0x0F) + 0x30;
 	}
-	str[16] = '\0';
+	str[j] = '\0';
 	
 	return str;
 }
@@ -1714,7 +1714,7 @@ msisdn_to_str(const guint8 *ad, int len) {
 		if (bits4to1 < 0xA) *++p = hex_digits[bits4to1];
 		if (bits8to5 < 0xA) *++p = hex_digits[bits8to5];
 	}
-	str[17] = '\0';
+	*p = '\0';
 	return str;
 }
 
