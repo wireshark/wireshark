@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.108 2000/12/04 06:37:44 guy Exp $
+ * $Id: packet-ip.c,v 1.109 2000/12/08 22:53:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1224,7 +1224,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case ICMP_MASKREQ:
     case ICMP_MASKREPLY:
-	proto_tree_add_text(icmp_tree, tvb, 8, 4, "Address mask: %s (0x%8x)",
+	proto_tree_add_text(icmp_tree, tvb, 8, 4, "Address mask: %s (0x%08x)",
 	  ip_to_str(tvb_get_ptr(tvb, 8, 4)), tvb_get_ntohl(tvb, 8));
 	break;
     }
