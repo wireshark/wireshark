@@ -61,3 +61,45 @@ handle_dashG_option(int argc, char **argv, char *progname)
     exit(0);
   }
 }
+
+int
+get_natural_int(const char *appname, const char *string, const char *name)
+{
+  long number;
+  char *p;
+
+  number = strtol(string, &p, 10);
+  if (p == string || *p != '\0') {
+    fprintf(stderr, "%s: The specified %s \"%s\" isn't a decimal number\n",
+	    appname, name, string);
+    exit(1);
+  }
+  if (number < 0) {
+    fprintf(stderr, "%s: The specified %s \"%s\" is a negative number\n",
+	    appname, name, string);
+    exit(1);
+  }
+  if (number > INT_MAX) {
+    fprintf(stderr, "%s: The specified %s \"%s\" is too large (greater than %d)\n",
+	    appname, name, string, INT_MAX);
+    exit(1);
+  }
+  return number;
+}
+
+
+int
+get_positive_int(const char *appname, const char *string, const char *name)
+{
+  long number;
+
+  number = get_natural_int(appname, string, name);
+
+  if (number == 0) {
+    fprintf(stderr, "%s: The specified %s is zero\n",
+	    appname, name);
+    exit(1);
+  }
+
+  return number;
+}

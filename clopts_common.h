@@ -35,6 +35,10 @@ extern "C" {
  */
 void handle_dashG_option(int argc, char **argv, char *progname);
 
+int get_natural_int(const char *appname, const char *string, const char *name);
+
+int get_positive_int(const char *appname, const char *string, const char *name);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

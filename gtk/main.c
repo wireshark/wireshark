@@ -1116,47 +1116,6 @@ show_version(void)
       comp_info_str->str, runtime_info_str->str);
 }
 
-static int
-get_natural_int(const char *string, const char *name)
-{
-  long number;
-  char *p;
-
-  number = strtol(string, &p, 10);
-  if (p == string || *p != '\0') {
-    fprintf(stderr, "ethereal: The specified %s \"%s\" isn't a decimal number\n",
-	    name, string);
-    exit(1);
-  }
-  if (number < 0) {
-    fprintf(stderr, "ethereal: The specified %s \"%s\" is a negative number\n",
-	    name, string);
-    exit(1);
-  }
-  if (number > INT_MAX) {
-    fprintf(stderr, "ethereal: The specified %s \"%s\" is too large (greater than %d)\n",
-	    name, string, INT_MAX);
-    exit(1);
-  }
-  return number;
-}
-
-static int
-get_positive_int(const char *string, const char *name)
-{
-  long number;
-
-  number = get_natural_int(string, name);
-
-  if (number == 0) {
-    fprintf(stderr, "ethereal: The specified %s is zero\n",
-	    name);
-    exit(1);
-  }
-
-  return number;
-}
-
 #if defined(_WIN32) || GTK_MAJOR_VERSION < 2 || ! defined USE_THREADS
 /* 
    Once every 3 seconds we get a callback here which we use to update
@@ -1899,7 +1858,7 @@ main(int argc, char *argv[])
 
       /*** all non capture option specific ***/
       case 'B':        /* Byte view pane height */
-        bv_size = get_positive_int(optarg, "byte view pane height");
+        bv_size = get_positive_int("ethereal", optarg, "byte view pane height");
         break;
       case 'h':        /* Print help and exit */
 	print_usage(TRUE);
@@ -1956,7 +1915,7 @@ main(int argc, char *argv[])
         }
         break;
       case 'P':        /* Packet list pane height */
-        pl_size = get_positive_int(optarg, "packet list pane height");
+        pl_size = get_positive_int("ethereal", optarg, "packet list pane height");
         break;
       case 'r':        /* Read capture file xxx */
 	/* We may set "last_open_dir" to "cf_name", and if we change
@@ -1985,7 +1944,7 @@ main(int argc, char *argv[])
         }
         break;
       case 'T':        /* Tree view pane height */
-        tv_size = get_positive_int(optarg, "tree view pane height");
+        tv_size = get_positive_int("ethereal", optarg, "tree view pane height");
         break;
       case 'v':        /* Show version and exit */
         show_version();
