@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.367 2003/08/21 05:42:47 guy Exp $
+ * $Id: packet-smb.c,v 1.368 2003/08/21 08:18:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -202,6 +202,8 @@ static int hf_smb_copy_flags_verify = -1;
 static int hf_smb_copy_flags_tree_copy = -1;
 static int hf_smb_copy_flags_ea_action = -1;
 static int hf_smb_count = -1;
+static int hf_smb_count_low = -1;
+static int hf_smb_count_high = -1;
 static int hf_smb_file_name = -1;
 static int hf_smb_open_function_open = -1;
 static int hf_smb_open_function_create = -1;
@@ -5578,8 +5580,8 @@ static int
 dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, datalen_low, datalen_high;
-	guint32 datalen=0;
+	guint16 andxoffset=0, bc, count_low, count_high;
+	guint32 count=0;
 	smb_info_t *si;
 
 	WORD_COUNT;
@@ -5609,9 +5611,9 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		add_fid(tvb, pinfo, tree, 0, 0, (int)si->sip->extra_info);
 	}
 
-	/* data len low */
-	datalen_low = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_data_len_low, tvb, offset, 2, datalen_low);
+	/* write count low */
+	count_low = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_count_low, tvb, offset, 2, count_low);
 	offset += 2;
 
 	/* remaining */
@@ -5619,18 +5621,18 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 2;
 
 	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
-	/* data length high */
-	datalen_high = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_data_len_high, tvb, offset, 2, datalen_high);
+	/* write count high */
+	count_high = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_count_high, tvb, offset, 2, count_high);
 	offset += 2;
 
-	datalen=datalen_high;
-	datalen=(datalen<<16)|datalen_low;
+	count=count_high;
+	count=(count<<16)|count_low;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s", datalen,
-				(datalen == 1) ? "" : "s");
+				", %u byte%s", count,
+				(count == 1) ? "" : "s");
 
 	/* 2 reserved bytes */
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
@@ -17228,6 +17230,14 @@ proto_register_smb(void)
 		{ "Count", "smb.count", FT_UINT32, BASE_DEC,
 		NULL, 0, "Count number of items/bytes", HFILL }},
 
+	{ &hf_smb_count_low,
+		{ "Count Low", "smb.count_low", FT_UINT16, BASE_DEC,
+		NULL, 0, "Count number of items/bytes, Low 16 bits", HFILL }},
+
+	{ &hf_smb_count_high,
+		{ "Count High (multiply with 64K)", "smb.count_high", FT_UINT16, BASE_DEC,
+		NULL, 0, "Count number of items/bytes, High 16 bits", HFILL }},
+
 	{ &hf_smb_file_name,
 		{ "File Name", "smb.file", FT_STRING, BASE_NONE,
 		NULL, 0, "File Name", HFILL }},
@@ -17493,7 +17503,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of data", HFILL }},
 
 	{ &hf_smb_data_len_low,
-		{ "Data Length Low", "smb.data_len_high", FT_UINT16, BASE_DEC,
+		{ "Data Length Low", "smb.data_len_low", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of data, Low 16 bits", HFILL }},
 
 	{ &hf_smb_data_len_high,
@@ -17529,7 +17539,7 @@ proto_register_smb(void)
 		NULL, 0, "Maximum Count", HFILL }},
 
 	{ &hf_smb_max_count_low,
-		{ "Max Count Low", "smb.maxcount_high", FT_UINT16, BASE_DEC,
+		{ "Max Count Low", "smb.maxcount_low", FT_UINT16, BASE_DEC,
 		NULL, 0, "Maximum Count, Low 16 bits", HFILL }},
 
 	{ &hf_smb_max_count_high,
