@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.75 2002/08/06 00:58:23 guy Exp $
+ * $Id: packet-nfs.c,v 1.76 2002/08/06 05:43:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -278,6 +278,9 @@ static int hf_nfs_client_id4_id = -1;
 static int hf_nfs_stateid4_other = -1;
 static int hf_nfs_lock4_reclaim = -1;
 static int hf_nfs_acl4 = -1;
+static int hf_nfs_callback_ident = -1;
+static int hf_nfs_r_netid = -1;
+static int hf_nfs_r_addr = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -378,6 +381,7 @@ static gint ett_nfs_secinfo4_flavor_info = -1;
 static gint ett_nfs_stateid4 = -1;
 static gint ett_nfs_fattr4_fh_expire_type = -1;
 static gint ett_nfs_ace4 = -1;
+static gint ett_nfs_clientaddr4 = -1;
 
 
 /* fhandle displayfilters to match also corresponding request/response
@@ -5375,19 +5379,29 @@ dissect_nfs_openflag4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_nfs_clientaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
-	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
+	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_netid);
+	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_addr);
 
 	return offset;
 }
 	
 
 static int
-dissect_nfs_cb_client4(tvbuff_t *tvb, int offset,
-	proto_tree *tree)
+dissect_nfs_cb_client4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
+	proto_tree *cb_location = NULL;
+	proto_item *fitem = NULL;
+
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_cb_program, offset);
-	offset = dissect_nfs_clientaddr4(tvb, offset, tree);
+
+	fitem = proto_tree_add_text(tree, tvb, offset, 0, "cb_location");
+
+	if (fitem) 
+	{
+		cb_location = proto_item_add_subtree(fitem, ett_nfs_clientaddr4);
+	
+		offset = dissect_nfs_clientaddr4(tvb, offset, cb_location);
+	}
 
 	return offset;
 }
@@ -5826,6 +5840,15 @@ dissect_nfs_locker4(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
+dissect_nfs_client_id4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	offset = dissect_rpc_uint64(tvb, tree, hf_nfs_verifier4, offset);
+	offset = dissect_rpc_data(tvb, tree, hf_nfs_client_id4_id, offset);
+
+	return offset;
+}
+
+static int
 dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	proto_tree *tree)
 {
@@ -6067,28 +6090,29 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_SETCLIENTID:
 			{
 				proto_tree *client_tree = NULL;
+				proto_tree *callback_tree = NULL;
 
 				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "client");
-
-				if (fitem) 
+				if (fitem)
 				{
 					client_tree = proto_item_add_subtree(fitem, ett_nfs_client_id4);
 
-					if (newftree)
-					{
-						offset = dissect_rpc_uint64(tvb, ftree, hf_nfs_clientid4, 
-							offset);
-						offset = dissect_nfsdata(tvb, offset, client_tree, 
-							hf_nfs_client_id4_id); 
-					}
+					if (client_tree)
+						offset = dissect_nfs_client_id4(tvb, offset, client_tree);
 				}
 
 				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "callback");
-				if (fitem) {
-					newftree = proto_item_add_subtree(fitem, ett_nfs_cb_client4);
-					if (newftree)
-						offset = dissect_nfs_cb_client4(tvb, offset, newftree);
+				if (fitem) 
+				{
+					callback_tree = proto_item_add_subtree(fitem, 
+						ett_nfs_cb_client4);
+
+					if (callback_tree)
+						offset = dissect_nfs_cb_client4(tvb, offset, callback_tree);
 				}
+
+				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_callback_ident, 
+					offset);
 			}
 			break;
 
@@ -7149,7 +7173,7 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.delegate_stateid", HFILL }},
 
 		{ &hf_nfs_verifier4, {
-			"verifier", "nfs.verifier4", FT_UINT64, BASE_DEC,
+			"verifier", "nfs.verifier4", FT_UINT64, BASE_HEX,
 			NULL, 0, "nfs.verifier4", HFILL }},
 
 		{ &hf_nfs_cookie4, {
@@ -7285,8 +7309,8 @@ proto_register_nfs(void)
 			BASE_DEC, NULL, 0, "qop", HFILL }},
 
 		{ &hf_nfs_client_id4_id, {
-			"Data", "nfs.nfs_client_id4.id", FT_BYTES, BASE_DEC,
-			NULL, 0, "Data", HFILL }},
+			"id", "nfs.nfs_client_id4.id", FT_BYTES, BASE_DEC,
+			NULL, 0, "nfs.nfs_client_id4.id", HFILL }},
 
 		{ &hf_nfs_stateid4_other, {
 			"Data", "nfs.stateid4.other", FT_BYTES, BASE_DEC,
@@ -7295,6 +7319,18 @@ proto_register_nfs(void)
 		{ &hf_nfs_acl4, {
 			"Access Control List", "nfs.acl", FT_NONE, BASE_NONE,
 			NULL, 0, "Access Control List", HFILL }},
+
+		{ &hf_nfs_callback_ident, {
+			"callback_ident", "nfs.callback.ident", FT_UINT32, BASE_HEX,
+			NULL, 0, "Callback Identifier", HFILL }},
+
+		{ &hf_nfs_r_netid, {
+			"r_netid", "nfs.r_netid", FT_BYTES, BASE_DEC, NULL, 0, 
+			"r_netid", HFILL }},
+
+		{ &hf_nfs_r_addr, {
+			"r_addr", "nfs.r_addr", FT_BYTES, BASE_DEC, NULL, 0,
+			"r_addr", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -7394,7 +7430,8 @@ proto_register_nfs(void)
 		&ett_nfs_secinfo4_flavor_info,
 		&ett_nfs_stateid4,
 		&ett_nfs_fattr4_fh_expire_type,
-		&ett_nfs_ace4
+		&ett_nfs_ace4,
+		&ett_nfs_clientaddr4,
 	};
 	module_t *nfs_module;
 
