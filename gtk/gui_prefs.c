@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.72 2004/06/17 16:35:24 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.73 2004/06/17 16:44:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,11 +42,11 @@
 #include "dlg_utils.h"
 #include "proto_draw.h"
 #include "main.h"
-#include "packet_list.h"
 #include "compat_macros.h"
+#include "font_utils.h"
+#include "packet_list.h"
 #include "toolbar.h"
 #include "recent.h"
-#include "font_utils.h"
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 static gint fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
