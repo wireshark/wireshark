@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.53 2001/06/05 07:38:37 guy Exp $
+ * $Id: menu.c,v 1.54 2001/06/27 10:00:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,7 +121,9 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/_Unmark All Frames", NULL, GTK_MENU_FUNC(unmark_all_frames_cb), 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), 0, NULL},
+#ifdef HAVE_LIBPCAP
   {"/Edit/_Capture Filters...", NULL, GTK_MENU_FUNC(cfilter_dialog_cb), 0, NULL},
+#endif
   {"/Edit/_Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL},
   {"/Edit/P_rotocols...", NULL, GTK_MENU_FUNC(proto_cb), 0, NULL},
 #ifdef HAVE_LIBPCAP

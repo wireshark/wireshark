@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.29 2001/02/23 05:54:27 guy Exp $
+ * $Id: filter_prefs.c,v 1.30 2001/06/27 10:00:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,6 +87,7 @@ static void       filter_expr_cb(GtkWidget *, gpointer);
 static void       filter_name_te_destroy_cb(GtkWidget *, gpointer);
 static void       filter_filter_te_destroy_cb(GtkWidget *, gpointer);
 
+#ifdef HAVE_LIBPCAP
 /* XXX - we can have one global dialog box for editing, and a bunch
    of dialog boxes associated with browse buttons; we want the dialog
    boxes associated with browse buttons to at least let you save the
@@ -148,6 +149,7 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data)
 	gtk_object_set_data(GTK_OBJECT(caller), E_FILT_DIALOG_PTR_KEY,
 	    filter_browse_w);
 }
+#endif
 
 /* Create a filter dialog for constructing a display filter.
 
@@ -202,6 +204,7 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 	    filter_browse_w);
 }
 
+#ifdef HAVE_LIBPCAP
 static GtkWidget *global_cfilter_w;
 
 /* Create a filter dialog for editing capture filters; this is to be used
@@ -232,6 +235,7 @@ cfilter_dialog_cb(GtkWidget *w)
 	 */
 	global_cfilter_w = filter_dialog_new(NULL, NULL, CFILTER_LIST, &args);
 }
+#endif
 
 static GtkWidget *global_dfilter_w;
 
@@ -760,10 +764,12 @@ filter_dlg_destroy(GtkWidget *win, gpointer data)
 		   a menu item; note that we no longer have one. */
 		switch (list) {
 
+#ifdef HAVE_LIBPCAP
 		case CFILTER_LIST:
 			g_assert(win == global_cfilter_w);
 			global_cfilter_w = NULL;
 			break;
+#endif
 
 		case DFILTER_LIST:
 			g_assert(win == global_dfilter_w);
