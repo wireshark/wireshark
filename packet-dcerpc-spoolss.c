@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.62 2002/11/28 04:56:43 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.63 2002/11/28 21:03:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4323,7 +4323,7 @@ static int dissect_form_name(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint16s(
 		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_form_name, len, NULL);
+		hf_spoolss_form_name, len);
 
 	return offset;
 }
@@ -5833,7 +5833,7 @@ dissect_notify_info_data_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint16s(
 		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_notify_info_data_buffer_data, len, NULL);
+		hf_spoolss_notify_info_data_buffer_data, len);
 
 	return offset;
 }

@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.31 2002/11/28 03:57:50 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.32 2002/11/28 21:03:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,11 +203,11 @@ int dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			   proto_tree *tree, char *drep,
-			   int hfindex, int length, const guint16 **pdata);
+			   int hfindex, int length);
 
 int dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			proto_tree *tree, char *drep,
-			int hfindex, int length, const guint16 **pdata);
+			int hfindex, int length);
 
 /* Dissect an NT access mask */
 

@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.47 2002/11/28 03:57:50 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.48 2002/11/28 21:03:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1419,7 +1419,7 @@ dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                       proto_tree *tree, char *drep, int hfindex,
-		      int length, const guint16 **pdata)
+		      int length)
 {
     const guint16 *data;
 
@@ -1429,16 +1429,13 @@ dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, (drep[0] & 0x10));
     }
 
-    if (pdata)
-        *pdata = data;
-
     return offset + length * 2;
 }
 
 int
 dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    proto_tree *tree, char *drep,
-                   int hfindex, int length, const guint16 **pdata)
+                   int hfindex, int length)
 {
     dcerpc_info *di;
 
@@ -1452,5 +1449,5 @@ dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         offset++;
 
     return dissect_dcerpc_uint16s(tvb, offset, pinfo,
-                                 tree, drep, hfindex, length, pdata);
+                                 tree, drep, hfindex, length);
 }
