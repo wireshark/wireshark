@@ -460,7 +460,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *strinfo = NULL;
-	sip_calls_info_t *tmp_sipinfo;
+	sip_calls_info_t *tmp_sipinfo = NULL;
 	GList* list;
 	guint32 tmp_src, tmp_dst;
 	gchar *frame_label = NULL;
@@ -528,7 +528,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			frame_label = g_strdup_printf("%d %s", pi->response_code, pi->reason_phrase );
 			comment = g_strdup_printf("SIP Status");
 
-			if ((pi->tap_cseq_number == tmp_sipinfo->invite_cseq)&&(tmp_dst==strinfo->initial_speaker)){
+			if ((tmp_sipinfo && pi->tap_cseq_number == tmp_sipinfo->invite_cseq)&&(tmp_dst==strinfo->initial_speaker)){
 				if ((pi->response_code > 199) && (pi->response_code<300) && (tmp_sipinfo->sip_state == SIP_INVITE_SENT)){
 					tmp_sipinfo->sip_state = SIP_200_REC;
 				}
@@ -648,7 +648,7 @@ static guint8		isup_cause_value;
 static int 
 isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *isup_info _U_)
 {
-	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	/*voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct; unused */
 	const isup_tap_rec_t *pi = isup_info;
 
 	if (pi->calling_number!=NULL){
@@ -721,7 +721,7 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	voip_calls_info_t *strinfo = NULL;
 	isup_calls_info_t *tmp_isupinfo;
 	gboolean found = FALSE;
-	gboolean forward;
+	gboolean forward = FALSE;
 	gboolean right_pair = TRUE;
 	GList* list;
 	gchar *frame_label = NULL;
@@ -737,7 +737,7 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		tmp_listinfo=list->data;
 		if ((tmp_listinfo->protocol == VOIP_ISUP)&&(tmp_listinfo->call_active_state==VOIP_ACTIVE)){
 			tmp_isupinfo = tmp_listinfo->prot_info;
-			if ((tmp_isupinfo->cic == isup_cic)&&(tmp_isupinfo->ni == pi->addr_opc.ni)){
+			if ((tmp_isupinfo->cic == isup_cic)&&(tmp_isupinfo->ni == pi->addr_opc.ni)) {
 				if ((tmp_isupinfo->opc == pi->addr_opc.pc)&&(tmp_isupinfo->dpc == pi->addr_dpc.pc)){
 					 forward = TRUE;
 				 }
@@ -745,6 +745,7 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					 forward = FALSE;
 				 }
 				 else{
+					 /* XXX: what about forward is it FALSE as declared or should it be true */
 					 right_pair = FALSE;
 				 }
 				 if (right_pair){
@@ -935,7 +936,7 @@ static guint32 q931_frame_num;
 static int 
 q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *q931_info _U_)
 {
-	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	/*voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct; */
 	const q931_packet_info *pi = q931_info;
 
 	/* free previously allocated q931_calling/ed_number */
@@ -1025,7 +1026,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *strinfo = NULL;
-	h323_calls_info_t *tmp_h323info;
+	h323_calls_info_t *tmp_h323info = NULL;
 	h323_calls_info_t *tmp2_h323info;
 	gchar *frame_label;
 	gchar *comment;
@@ -1121,9 +1122,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		strinfo->npackets = 0;
 
 		tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);				
-	}
-
-	if (strinfo!=NULL){
+	} else {
 
 		/* let's analyze the call state */
 
@@ -1137,6 +1136,9 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		/* increment the packets counter of all calls */
 		++(tapinfo->npackets);
 
+		/* XXX: it is supposed to be initialized isn't it? */
+		g_assert(tmp_h323info != NULL);
+		
 		/* change the status */
 		if (pi->msg_type == H225_CS){
 			if (tmp_h323info->q931_crv == -1) {
@@ -1521,7 +1523,7 @@ remove_tap_listener_sdp_calls(void)
    This function will look for a signal/event in the SignalReq/ObsEvent string
    and return true if it is found 
 */
-boolean isSignal(gchar *signal, gchar *signalStr)
+gboolean isSignal(gchar *signal, gchar *signalStr)
 {
 	gint i; 
 	gchar **resultArray;
@@ -1629,14 +1631,14 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *strinfo = NULL;
-	mgcp_calls_info_t *tmp_mgcpinfo;
+	mgcp_calls_info_t *tmp_mgcpinfo = NULL;
 	GList* list;
 	GList* listGraph;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
 	graph_analysis_item_t *gai;
-	boolean new = FALSE;
-	boolean fromEndpoint = FALSE; /* true for calls originated in Endpoints, false for calls from MGC */
+	gboolean new = FALSE;
+	gboolean fromEndpoint = FALSE; /* true for calls originated in Endpoints, false for calls from MGC */
 	gdouble diff_time;
 
 	const mgcp_info_t *pi = MGCPinfo;
@@ -1739,6 +1741,8 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
 	}
 
+	g_assert(tmp_mgcpinfo != NULL);
+
 	/* change call state and add to graph */
 	switch (pi->mgcp_type)
 	{
@@ -1780,9 +1784,9 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			}
 
 			if (pi->signalReq != NULL)
-				frame_label = g_strdup_printf("%s%sSigReq:%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"", pi->signalReq);
+				frame_label = g_strdup_printf("%s%sSigReq:%s",pi->code, (*(pi->hasDigitMap) == TRUE)?" DigitMap ":"", pi->signalReq);
 			else
-				frame_label = g_strdup_printf("%s%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"");
+				frame_label = g_strdup_printf("%s%s",pi->code, (*(pi->hasDigitMap) == TRUE)?" DigitMap ":"");
 			
 			/* use the CallerID info to fill the "From" for the call */
 			if (!tmp_mgcpinfo->fromEndpoint) mgcpCallerID(pi->signalReq, &(strinfo->from_identity));
@@ -1803,6 +1807,9 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		break;
 	case MGCP_RESPONSE:
 		frame_label = g_strdup_printf("%d (%s)",pi->rspcode, pi->code);
+		break;
+	case MGCP_OTHERS:
+		/* XXX what to do? */
 		break;
 	}
 
