@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.98 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-tcp.c,v 1.99 2001/01/28 21:17:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,7 +48,6 @@
 #include "resolv.h"
 #include "follow.h"
 #include "prefs.h"
-#include "plugins.h"
 #include "packet-tcp.h"
 #include "packet-ip.h"
 #include "conversation.h"
@@ -384,10 +383,6 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, int src_port, int dst_port)
 {
   tvbuff_t *next_tvb;
-#ifdef HAVE_PLUGINS
-  const u_char *next_pd;
-  int next_offset;
-#endif
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
@@ -396,26 +391,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_TCP,
 		src_port, dst_port, next_tvb, pinfo, tree))
-	return;
-
-  /* try to apply the plugins */
-#ifdef HAVE_PLUGINS
-  {
-    plugin *pt_plug = plugin_list;
-
-    if (enabled_plugins_number > 0) {
-      tvb_compat(next_tvb, &next_pd, &next_offset);
-      while (pt_plug) {
-	if (pt_plug->enabled && strstr(pt_plug->protocol, "tcp") &&
-	    tree && dfilter_apply(pt_plug->filter, tree, next_pd, pinfo->fd->cap_len)) {
-	  pt_plug->dissector(next_pd, next_offset, pinfo->fd, tree);
-	  return;
-	}
-	pt_plug = pt_plug->next;
-      }
-    }
-  }
-#endif
+    return;
 
   /* do lookup with the subdissector table */
   if (dissector_try_port(subdissector_table, src_port, next_tvb, pinfo, tree) ||

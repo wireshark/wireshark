@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.86 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-udp.c,v 1.87 2001/01/28 21:17:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,7 +46,6 @@
 #include "resolv.h"
 #include "in_cksum.h"
 
-#include "plugins.h"
 #include "packet-udp.h"
 
 #include "packet-ip.h"
@@ -84,10 +83,6 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, int uh_sport, int uh_dport)
 {
   tvbuff_t *next_tvb;
-#ifdef HAVE_PLUGINS
-  const u_char *next_pd;
-  int next_offset;
-#endif
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
@@ -96,26 +91,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_UDP,
 		uh_sport, uh_dport, next_tvb, pinfo, tree))
-	return;
-
-  /* try to apply the plugins */
-#ifdef HAVE_PLUGINS
-  {
-      plugin *pt_plug = plugin_list;
-
-      if (enabled_plugins_number > 0) {
-	  tvb_compat(next_tvb, &next_pd, &next_offset);
-	  while (pt_plug) {
-	      if (pt_plug->enabled && strstr(pt_plug->protocol, "udp") &&
-		  tree && dfilter_apply(pt_plug->filter, tree, next_pd, pinfo->fd->cap_len)) {
-		  pt_plug->dissector(next_pd, next_offset, pinfo->fd, tree);
-		  return;
-	      }
-	      pt_plug = pt_plug->next;
-	  }
-      }
-  }
-#endif
+    return;
 
   /* do lookup with the subdissector table */
   if (dissector_try_port(udp_dissector_table, uh_sport, next_tvb, pinfo, tree) ||

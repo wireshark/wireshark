@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.227 2000/11/21 23:54:08 guy Exp $
+ * $Id: file.c,v 1.228 2001/01/28 21:17:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,8 +88,6 @@
 #include "conversation.h"
 #include "globals.h"
 #include "gtk/colors.h"
-
-#include "plugins.h"
 
 extern GtkWidget *packet_list, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
@@ -633,16 +631,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
 	we have a list of color filters;
 
-	we have plugins to apply;
-
      allocate a protocol tree root node, so that we'll construct
      a protocol tree against which a filter expression can be
      evaluated. */
-  if ((cf->dfcode != NULL && refilter) || filter_list != NULL
-#ifdef HAVE_PLUGINS
-	|| enabled_plugins_number > 0
-#endif
-	)
+  if ((cf->dfcode != NULL && refilter) || filter_list != NULL)
     protocol_tree = proto_tree_create_root();
 
   /* Dissect the frame. */

@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.5 2001/01/26 06:14:50 guy Exp $
+ * $Id: plugins.h,v 1.6 2001/01/28 21:17:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,29 +37,12 @@ typedef struct _plugin {
     GModule	*handle;          /* handle returned by dlopen */
     gchar       *name;            /* plugin name */
     gchar       *version;         /* plugin version */
-    gboolean     enabled;         /* is it active ? */
-    gchar       *protocol;        /* protocol which should call the dissector
-                                   * for this plugin eg "tcp" */
-    gchar       *filter_string;   /* display filter string matching frames for
-			           * which the dissector should be used */
-    dfilter     *filter;          /* compiled display filter */
-    /* the dissector */
-    void (*dissector) (const u_char *, int, frame_data *, proto_tree *);
-    struct _plugin *next;     /* forward link */
+    void (*reg_handoff)(void);    /* routine to call to register dissector handoff */
+    struct _plugin *next;         /* forward link */
 } plugin;
 
 extern plugin *plugin_list;
-extern guint32 enabled_plugins_number;
 
-int add_plugin(void *, gchar *, gchar *, gchar *, gchar *, dfilter *,
-	          void (*) (const u_char *, int, frame_data *, proto_tree *));
-void *enable_plugin(const gchar *, const gchar *);
-void *disable_plugin(const gchar *, const gchar *);
-void *find_plugin(const gchar *, const gchar *);
-gboolean is_enabled(const gchar *, const gchar *);
-void plugin_replace_filter(const gchar *, const gchar *, const gchar *, dfilter *);
-char *init_plugin(gchar *name, gchar *version);
-int save_plugin_status(void);
 void init_plugins(const char *);
 void register_all_plugin_handoffs(void);
 
