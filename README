@@ -27,12 +27,15 @@ Ethereal is known to compile and run on the following systems:
   - Solaris (2.5.1, 2.6)
   - FreeBSD (2.2.5, 2.2.6)
   - Sequent PTX v4.4.5  (Nick Williams <njw@sequent.com>)
+  - Tru64 UNIX (formerly Digital UNIX) (3.2, 4.0)
 
 It should run on other systems without too much trouble.
 
 
 Full installation instructions can be found in the INSTALL file.
          
+See also the appropriate README.<OS> files for OS-specific installation
+instructions.
 
 Usage
 -----          
