@@ -1,7 +1,9 @@
 /*
  * tap_rtp.c
  *
- * RTP analysing addition  for ethereal
+ * $Id: tap_rtp.c,v 1.2 2003/03/06 21:15:59 deniel Exp $
+ *
+ * RTP analysing addition for ethereal
  *
  * Copyright 2003, Iskratel, Ltd, Kranj
  * By Miha Jemec <m.jemec@iskratel.si>
