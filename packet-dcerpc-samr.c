@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.42 2002/05/09 08:36:45 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.43 2002/05/09 09:49:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1990,17 +1990,6 @@ samr_dissect_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 	}
 
 	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-static int
-samr_dissect_DOMAIN_INFO_ptr(tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *tree,
-			char *drep)
-{
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_DOMAIN_INFO, NDR_POINTER_UNIQUE,
-			"DOMAIN_INFO pointer", hf_samr_domain, 0);
 	return offset;
 }
 
@@ -4064,8 +4053,8 @@ samr_dissect_query_information_domain_reply(tvbuff_t *tvb, int offset,
                         char *drep)
 {
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-                        samr_dissect_DOMAIN_INFO_ptr, NDR_POINTER_REF,
-                        "", hf_samr_domain, 0);
+                        samr_dissect_DOMAIN_INFO, NDR_POINTER_UNIQUE,
+                        "DOMAIN_INFO pointer", hf_samr_domain, 0);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rc, NULL);
