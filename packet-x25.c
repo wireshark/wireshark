@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.32 2000/05/31 05:07:54 guy Exp $
+ * $Id: packet-x25.c,v 1.33 2000/07/01 08:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1542,7 +1542,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    case PRT_ID_ISO_8073:
 			/* ISO 8073 COTP */
 			x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-					 pinfo->fd->abs_usecs, dissect_cotp);
+					 pinfo->fd->abs_usecs, dissect_ositp);
 			break;
 
 		    default:

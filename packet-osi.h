@@ -1,6 +1,6 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.3 2000/06/19 04:49:36 guy Exp $
+ * $Id: packet-osi.h,v 1.4 2000/07/01 08:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,6 +70,7 @@
 #define PROTO_STRING_ESIS "ISO 9542 ESIS Routeing Information Exchange Protocol"
 #define PROTO_STRING_CLNP "ISO 8473 CLNP ConnectionLess Network Protocol" 
 #define PROTO_STRING_COTP "ISO 8073 COTP Connection-Oriented Transport Protocol"
+#define PROTO_STRING_CLTP "ISO 8602 CLTP ConnectionLess Transport Protocol"
 #define PROTO_STRING_LSP  "ISO 10589 ISIS Link State Protocol Data Unit"
 #define PROTO_STRING_CSNP "ISO 10589 ISIS Complete Sequence Numbers Protocol Data Unit"
 #define PROTO_STRING_PSNP "ISO 10589 ISIS Partial Sequence Numbers Protocol Data Unit"

@@ -1,7 +1,7 @@
 /* packet-clnp.h
  * Defines and such for CLNP (and COTP) protocol decode.
  *
- * $Id: packet-clnp.h,v 1.2 2000/04/17 01:36:30 guy Exp $
+ * $Id: packet-clnp.h,v 1.3 2000/07/01 08:55:27 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -34,6 +34,6 @@
  */
 
 extern
-void dissect_cotp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ositp(const u_char *, int, frame_data *, proto_tree *);
 
 #endif /* _PACKET_CLNP_H */
