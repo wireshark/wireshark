@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.49 2001/11/20 06:24:19 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.50 2001/11/20 07:47:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,17 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
 static int proto_smb_pipe = -1;
 static int hf_pipe_function = -1;
 static int hf_pipe_priority = -1;
+static int hf_pipe_peek_available = -1;
+static int hf_pipe_peek_remaining = -1;
+static int hf_pipe_peek_status = -1;
+static int hf_pipe_getinfo_info_level = -1;
+static int hf_pipe_getinfo_output_buffer_size = -1;
+static int hf_pipe_getinfo_input_buffer_size = -1;
+static int hf_pipe_getinfo_maximum_instances = -1;
+static int hf_pipe_getinfo_current_instances = -1;
+static int hf_pipe_getinfo_pipe_name_length = -1;
+static int hf_pipe_getinfo_pipe_name = -1;
+static int hf_pipe_write_raw_bytes_written = -1;
 
 static gint ett_smb_pipe = -1;
 
@@ -2544,9 +2555,9 @@ proto_register_pipe_msrpc(void)
 	register_heur_dissector_list("msrpc", &msrpc_heur_subdissector_list);
 }
 
-#define CALL_NM_PIPE		0x54
-#define WAIT_NM_PIPE		0x53
-#define PEEK_NM_PIPE		0x23
+#define CALL_NAMED_PIPE		0x54
+#define WAIT_NAMED_PIPE		0x53
+#define PEEK_NAMED_PIPE		0x23
 #define Q_NM_P_HAND_STATE	0x21
 #define SET_NM_P_HAND_STATE	0x01
 #define Q_NM_PIPE_INFO		0x22
@@ -2555,9 +2566,9 @@ proto_register_pipe_msrpc(void)
 #define RAW_WRITE_NM_PIPE	0x31
 
 static const value_string functions[] = {
-	{CALL_NM_PIPE,		"CallNmPipe"},
-	{WAIT_NM_PIPE,		"WaitNmPipe"},
-	{PEEK_NM_PIPE,		"PeekNmPipe"},
+	{CALL_NAMED_PIPE,	"CallNamedPipe"},
+	{WAIT_NAMED_PIPE,	"WaitNamedPipe"},
+	{PEEK_NAMED_PIPE,	"PeekNamedPipe"},
 	{Q_NM_P_HAND_STATE,	"QNmPHandState"},
 	{SET_NM_P_HAND_STATE,	"SetNmPHandState"},
 	{Q_NM_PIPE_INFO,	"QNmPipeInfo"},
@@ -2567,8 +2578,17 @@ static const value_string functions[] = {
 	{0,			NULL}
 };
 
+static const value_string pipe_status[] = {
+	{1,	"Disconnected by server"},
+	{2,	"Listening"},
+	{3,	"Connection to server is OK"},
+	{4,	"Server end of pipe is closed"},
+	{0,	NULL}
+};
+
 #define PIPE_LANMAN     1
 #define PIPE_MSRPC      2
+
 /* decode the SMB pipe protocol
    for requests
     pipe is the name of the pipe, e.g. LANMAN
@@ -2590,6 +2610,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	int function;
 	int fid = -1;
 	int len;
+	guint16 info_level;
 
 	if (!proto_is_protocol_enabled(proto_smb_pipe))
 		return FALSE;
@@ -2650,8 +2671,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 */
 		switch (function) {
 
-		case CALL_NM_PIPE:
-		case WAIT_NM_PIPE:
+		case CALL_NAMED_PIPE:
+		case WAIT_NAMED_PIPE:
 			/*
 			 * It's a priority.
 			 */
@@ -2659,7 +2680,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			    offset, 2, TRUE);
 			break;
 
-		case PEEK_NM_PIPE:
+		case PEEK_NAMED_PIPE:
 		case Q_NM_P_HAND_STATE:
 		case SET_NM_P_HAND_STATE:
 		case Q_NM_PIPE_INFO:
@@ -2735,7 +2756,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 	switch (function) {
 
-	case CALL_NM_PIPE:
+	case CALL_NAMED_PIPE:
 	case TRANSACT_NM_PIPE:
 		switch(tri->trans_subcmd){
 
@@ -2769,36 +2790,117 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		}
 		break;
 
-	/*
-	 * XXX - add support for these.
-	 * XXX - need to remember the request type, so that we know how
-	 * to dissect a response.
-	 */
-	case WAIT_NM_PIPE:
+	case WAIT_NAMED_PIPE:
 		break;
 
-	case PEEK_NM_PIPE:
+	case PEEK_NAMED_PIPE:
+		/*
+		 * Request contains no parameters or data.
+		 */
+		if (!smb_info->request) {
+			offset = 0;
+			proto_tree_add_item(pipe_tree, hf_pipe_peek_available,
+			    p_tvb, offset, 2, TRUE);
+			offset += 2;
+			proto_tree_add_item(pipe_tree, hf_pipe_peek_remaining,
+			    p_tvb, offset, 2, TRUE);
+			offset += 2;
+			proto_tree_add_item(pipe_tree, hf_pipe_peek_status,
+			    p_tvb, offset, 2, TRUE);
+			offset += 2;
+		}
 		break;
 
 	case Q_NM_P_HAND_STATE:
+		/*
+		 * Request contains no parameters or data.
+		 */
+		if (!smb_info->request) {
+			offset = dissect_ipc_state(p_tvb, pinfo, pipe_tree, 0,
+			    FALSE);
+		}
 		break;
 
 	case SET_NM_P_HAND_STATE:
+		/*
+		 * Response contains no parameters or data.
+		 */
+		if (smb_info->request) {
+			offset = dissect_ipc_state(p_tvb, pinfo, pipe_tree, 0,
+			    TRUE);
+		}
 		break;
 
 	case Q_NM_PIPE_INFO:
+		offset = 0;
+		if (smb_info->request) {
+			/*
+			 * Request contains an information level.
+			 */
+			info_level = tvb_get_letohs(p_tvb, offset);
+			proto_tree_add_uint(pipe_tree, hf_pipe_getinfo_info_level,
+			    p_tvb, offset, 2, info_level);
+			offset += 2;
+			tri->info_level = info_level;
+		} else {
+			guint8 pipe_namelen;
+
+			switch (tri->info_level) {
+
+			case 1:
+				proto_tree_add_item(pipe_tree,
+				    hf_pipe_getinfo_output_buffer_size,
+				    d_tvb, offset, 2, TRUE);
+				offset += 2;
+				proto_tree_add_item(pipe_tree,
+				    hf_pipe_getinfo_input_buffer_size,
+				    d_tvb, offset, 2, TRUE);
+				offset += 2;
+				proto_tree_add_item(pipe_tree,
+				    hf_pipe_getinfo_maximum_instances,
+				    d_tvb, offset, 1, TRUE);
+				offset += 1;
+				proto_tree_add_item(pipe_tree,
+				    hf_pipe_getinfo_current_instances,
+				    d_tvb, offset, 1, TRUE);
+				offset += 1;
+				pipe_namelen = tvb_get_guint8(d_tvb, offset);
+				proto_tree_add_uint(pipe_tree,
+				    hf_pipe_getinfo_pipe_name_length,
+				    d_tvb, offset, 1, pipe_namelen);
+				offset += 1;
+				/* XXX - can this be Unicode? */
+				proto_tree_add_item(pipe_tree,
+				    hf_pipe_getinfo_pipe_name,
+				    d_tvb, offset, pipe_namelen, TRUE);
+				break;
+			}
+		}
 		break;
 
 	case RAW_READ_NM_PIPE:
 		/*
-		 * XXX - just dump the raw data?
+		 * Request contains no parameters or data.
 		 */
+		if (!smb_info->request) {
+			offset = dissect_file_data(d_tvb, pinfo, pipe_tree, 0,
+			    tvb_reported_length(d_tvb),
+			    tvb_reported_length(d_tvb));
+		}
 		break;
 
 	case RAW_WRITE_NM_PIPE:
-		/*
-		 * XXX - just dump the raw data?
-		 */
+		offset = 0;
+		if (smb_info->request) {
+			offset = dissect_file_data(d_tvb, pinfo, pipe_tree,
+			    offset, tvb_reported_length(d_tvb),
+			    tvb_reported_length(d_tvb));
+		} else {
+			proto_tree_add_item(pipe_tree,
+			    hf_pipe_write_raw_bytes_written,
+			    p_tvb, offset, 2, TRUE);
+			offset += 2;
+		}
 		break;
 	}
 	return TRUE;
@@ -2814,6 +2916,39 @@ proto_register_smb_pipe(void)
 		{ &hf_pipe_priority,
 			{ "Priority", "pipe.priority", FT_UINT16, BASE_DEC,
 			NULL, 0, "SMB Pipe Priority", HFILL }},
+		{ &hf_pipe_peek_available,
+			{ "Available Bytes", "pipe.peek.available_bytes", FT_UINT16, BASE_DEC,
+			NULL, 0, "Total number of bytes available to be read from the pipe", HFILL }},
+		{ &hf_pipe_peek_remaining,
+			{ "Bytes Remaining", "pipe.peek.remaining_bytes", FT_UINT16, BASE_DEC,
+			NULL, 0, "Total number of bytes remaining in the message at the head of the pipe", HFILL }},
+		{ &hf_pipe_peek_status,
+			{ "Pipe Status", "pipe.peek.status", FT_UINT16, BASE_DEC,
+			VALS(pipe_status), 0, "Pipe status", HFILL }},
+		{ &hf_pipe_getinfo_info_level,
+			{ "Information Level", "pipe.getinfo.info_level", FT_UINT16, BASE_DEC,
+			NULL, 0, "Information level of information to return", HFILL }},
+		{ &hf_pipe_getinfo_output_buffer_size,
+			{ "Output Buffer Size", "pipe.getinfo.output_buffer_size", FT_UINT16, BASE_DEC,
+			NULL, 0, "Actual size of buffer for outgoing (server) I/O", HFILL }},
+		{ &hf_pipe_getinfo_input_buffer_size,
+			{ "Input Buffer Size", "pipe.getinfo.input_buffer_size", FT_UINT16, BASE_DEC,
+			NULL, 0, "Actual size of buffer for incoming (client) I/O", HFILL }},
+		{ &hf_pipe_getinfo_maximum_instances,
+			{ "Maximum Instances", "pipe.getinfo.maximum_instances", FT_UINT8, BASE_DEC,
+			NULL, 0, "Maximum allowed number of instances", HFILL }},
+		{ &hf_pipe_getinfo_current_instances,
+			{ "Current Instances", "pipe.getinfo.current_instances", FT_UINT8, BASE_DEC,
+			NULL, 0, "Current number of instances", HFILL }},
+		{ &hf_pipe_getinfo_pipe_name_length,
+			{ "Pipe Name Length", "pipe.getinfo.pipe_name_length", FT_UINT8, BASE_DEC,
+			NULL, 0, "Length of pipe name", HFILL }},
+		{ &hf_pipe_getinfo_pipe_name,
+			{ "Pipe Name", "pipe.getinfo.pipe_name", FT_STRING, BASE_NONE,
+			NULL, 0, "Name of pipe", HFILL }},
+		{ &hf_pipe_write_raw_bytes_written,
+			{ "Bytes Written", "pipe.write_raw.bytes_written", FT_UINT16, BASE_DEC,
+			NULL, 0, "Number of bytes written to the pipe", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_smb_pipe,

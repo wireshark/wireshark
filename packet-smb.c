@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.161 2001/11/20 06:24:19 guy Exp $
+ * $Id: packet-smb.c,v 1.162 2001/11/20 07:47:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,6 +183,7 @@ static int hf_smb_service = -1;
 static int hf_smb_move_flags_file = -1;
 static int hf_smb_move_flags_dir = -1;
 static int hf_smb_move_flags_verify = -1;
+static int hf_smb_move_files_moved = -1;
 static int hf_smb_count = -1;
 static int hf_smb_file_name = -1;
 static int hf_smb_open_function_open = -1;
@@ -2363,8 +2364,8 @@ dissect_move_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
 	WORD_COUNT;
 
-	/* read count */
-	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
+	/* # of files moved */
+	proto_tree_add_item(tree, hf_smb_move_files_moved, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -2791,7 +2792,7 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	return offset;
 }
 
-static int
+int
 dissect_file_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 bc, guint16 datalen)
 {
 	int tvblen;
@@ -3240,15 +3241,13 @@ dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int
 dissect_write_and_close_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
-	guint16 cnt;
 	guint8 wc;
 	guint16 bc;
 
 	WORD_COUNT;
 
 	/* write count */
-	cnt = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_count, tvb, offset, 2, cnt);
+	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4342,8 +4341,9 @@ static const value_string ipc_state_read_mode_vals[] = {
 	{0,	NULL}
 };
 
-static int
-dissect_ipc_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+int
+dissect_ipc_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, gboolean setstate)
 {
 	guint16 mask;
 	proto_item *item = NULL;
@@ -4359,14 +4359,18 @@ dissect_ipc_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 
 	proto_tree_add_boolean(tree, hf_smb_ipc_state_nonblocking,
 		tvb, offset, 2, mask);
-	proto_tree_add_uint(tree, hf_smb_ipc_state_endpoint,
-		tvb, offset, 2, mask);
-	proto_tree_add_uint(tree, hf_smb_ipc_state_pipe_type,
-		tvb, offset, 2, mask);
+	if (!setstate) {
+		proto_tree_add_uint(tree, hf_smb_ipc_state_endpoint,
+			tvb, offset, 2, mask);
+		proto_tree_add_uint(tree, hf_smb_ipc_state_pipe_type,
+			tvb, offset, 2, mask);
+	}
 	proto_tree_add_uint(tree, hf_smb_ipc_state_read_mode,
 		tvb, offset, 2, mask);
-	proto_tree_add_uint(tree, hf_smb_ipc_state_icount,
-		tvb, offset, 2, mask);
+	if (!setstate) {
+		proto_tree_add_uint(tree, hf_smb_ipc_state_icount,
+			tvb, offset, 2, mask);
+	}
 
 	offset += 2;
 
@@ -4423,7 +4427,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* IPC State */
-	offset = dissect_ipc_state(tvb, pinfo, tree, offset);
+	offset = dissect_ipc_state(tvb, pinfo, tree, offset, FALSE);
 
 	/* open_action */
 	offset = dissect_open_action(tvb, pinfo, tree, offset);
@@ -6672,7 +6676,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		offset += 2;
 
 		/* device state */
-		offset = dissect_ipc_state(tvb, pinfo, tree, offset);
+		offset = dissect_ipc_state(tvb, pinfo, tree, offset, FALSE);
 
 		/* is directory */
 		proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
@@ -7305,7 +7309,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 2;
 
 	/* IPC State */
-	offset = dissect_ipc_state(tvb, pinfo, tree, offset);
+	offset = dissect_ipc_state(tvb, pinfo, tree, offset, FALSE);
 
 	/* is directory */
 	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
@@ -10378,7 +10382,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 2;
 
 		/* IPC State */
-		offset = dissect_ipc_state(tvb, pinfo, tree, offset);
+		offset = dissect_ipc_state(tvb, pinfo, tree, offset, FALSE);
 
 		/* open_action */
 		offset = dissect_open_action(tvb, pinfo, tree, offset);
@@ -13324,6 +13328,10 @@ proto_register_smb(void)
 	{ &hf_smb_move_flags_verify,
 		{ "Verify writes", "smb.move.flags.verify", FT_BOOLEAN, 16,
 		TFS(&tfs_mf_verify), 0x0010, "Verify all writes?", HFILL }},
+
+	{ &hf_smb_move_files_moved,
+		{ "Files Moved", "smb.move.files_moved", FT_UINT16, BASE_DEC,
+		NULL, 0, "Number of files moved", HFILL }},
 
 	{ &hf_smb_count,
 		{ "Count", "smb.count", FT_UINT32, BASE_DEC,

@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.24 2001/11/20 06:24:20 guy Exp $
+ * $Id: smb.h,v 1.25 2001/11/20 07:47:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -671,9 +671,21 @@ typedef struct smb_info {
 } smb_info_t;
 
 /*
+ * Show file data for a read or write.
+ */
+extern int dissect_file_data(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, int offset, guint16 bc, guint16 datalen);
+
+/*
  * Add a FID to the protocol tree and the Info column.
  */
 extern void add_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, int len, guint16 fid);
+
+/*
+ * Dissect named pipe state information.
+ */
+extern int dissect_ipc_state(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *parent_tree, int offset, gboolean setstate);
 
 #endif
