@@ -32,12 +32,12 @@ IMPORTS
 --   SYNTAX         AuthorityKeyIdentifier
 --   IDENTIFIED BY  id-ce-authorityKeyIdentifier
 -- }
--- 
--- AuthorityKeyIdentifier ::= SEQUENCE {
---   keyIdentifier              [0]  KeyIdentifier OPTIONAL,
---   authorityCertIssuer        [1]  GeneralNames OPTIONAL,
---   authorityCertSerialNumber  [2]  CertificateSerialNumber OPTIONAL
--- }
+
+AuthorityKeyIdentifier ::= SEQUENCE {
+  keyIdentifier              [0]  KeyIdentifier OPTIONAL,
+  authorityCertIssuer        [1]  GeneralNames OPTIONAL,
+  authorityCertSerialNumber  [2]  CertificateSerialNumber OPTIONAL
+}
 -- (WITH COMPONENTS {
 --    ...,
 --    authorityCertIssuer        PRESENT,
@@ -68,12 +68,14 @@ KeyUsage ::= BIT STRING {
   encipherOnly(7), decipherOnly(8)}
 
 -- extKeyUsage EXTENSION ::= {
---   SYNTAX         SEQUENCE SIZE (1..MAX) OF KeyPurposeId
+--   SYNTAX         KeyPurposeIDs
 --   IDENTIFIED BY  id-ce-extKeyUsage
 -- }
--- 
--- KeyPurposeId ::= OBJECT IDENTIFIER
--- 
+ 
+KeyPurposeIDs ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
+
+KeyPurposeId ::= OBJECT IDENTIFIER
+
 -- privateKeyUsagePeriod EXTENSION ::= {
 --   SYNTAX         PrivateKeyUsagePeriod
 --   IDENTIFIED BY  id-ce-privateKeyUsagePeriod
@@ -95,22 +97,23 @@ PrivateKeyUsagePeriod ::= SEQUENCE {
 --   SYNTAX         CertificatePoliciesSyntax
 --   IDENTIFIED BY  id-ce-certificatePolicies
 -- }
--- 
--- CertificatePoliciesSyntax ::= SEQUENCE SIZE (1..MAX) OF PolicyInformation
--- 
--- PolicyInformation ::= SEQUENCE {
---   policyIdentifier  CertPolicyId,
---   policyQualifiers  SEQUENCE SIZE (1..MAX) OF PolicyQualifierInfo OPTIONAL
--- }
--- 
--- CertPolicyId ::= OBJECT IDENTIFIER
--- 
--- PolicyQualifierInfo ::= SEQUENCE {
---   policyQualifierId  CERT-POLICY-QUALIFIER.&id({SupportedPolicyQualifiers}),
+
+CertificatePoliciesSyntax ::= SEQUENCE SIZE (1..MAX) OF PolicyInformation
+
+PolicyInformation ::= SEQUENCE {
+  policyIdentifier  CertPolicyId,
+  policyQualifiers  SEQUENCE SIZE (1..MAX) OF PolicyQualifierInfo OPTIONAL
+}
+
+CertPolicyId ::= OBJECT IDENTIFIER
+
+-- XXX this one needs to be handimplemented in the template
+PolicyQualifierInfo ::= SEQUENCE {
+--  policyQualifierId  CERT-POLICY-QUALIFIER.&id({SupportedPolicyQualifiers}),
 --   qualifier
 --     CERT-POLICY-QUALIFIER.&Qualifier
 --       ({SupportedPolicyQualifiers}{@policyQualifierId}) OPTIONAL
--- }
+}
 -- 
 -- SupportedPolicyQualifiers CERT-POLICY-QUALIFIER ::=
 --   {...}
@@ -128,12 +131,12 @@ PrivateKeyUsagePeriod ::= SEQUENCE {
 --   SYNTAX         PolicyMappingsSyntax
 --   IDENTIFIED BY  id-ce-policyMappings
 -- }
--- 
--- PolicyMappingsSyntax ::=
---   SEQUENCE SIZE (1..MAX) OF
---     SEQUENCE {issuerDomainPolicy   CertPolicyId,
---               subjectDomainPolicy  CertPolicyId}
--- 
+
+PolicyMappingsSyntax ::=
+  SEQUENCE SIZE (1..MAX) OF
+    SEQUENCE {issuerDomainPolicy   CertPolicyId,
+              subjectDomainPolicy  CertPolicyId}
+
 -- subjectAltName EXTENSION ::= {
 --   SYNTAX         GeneralNames
 --   IDENTIFIED BY  id-ce-subjectAltName
@@ -186,34 +189,34 @@ BasicConstraintsSyntax ::= SEQUENCE {
 --   SYNTAX         NameConstraintsSyntax
 --   IDENTIFIED BY  id-ce-nameConstraints
 -- }
--- 
--- NameConstraintsSyntax ::= SEQUENCE {
---   permittedSubtrees  [0]  GeneralSubtrees OPTIONAL,
---   excludedSubtrees   [1]  GeneralSubtrees OPTIONAL
--- }
--- 
--- GeneralSubtrees ::= SEQUENCE SIZE (1..MAX) OF GeneralSubtree
--- 
--- GeneralSubtree ::= SEQUENCE {
---   base     GeneralName,
---   minimum  [0]  BaseDistance DEFAULT 0,
---   maximum  [1]  BaseDistance OPTIONAL
--- }
--- 
--- BaseDistance ::= INTEGER(0..MAX)
--- 
+
+NameConstraintsSyntax ::= SEQUENCE {
+  permittedSubtrees  [0]  GeneralSubtrees OPTIONAL,
+  excludedSubtrees   [1]  GeneralSubtrees OPTIONAL
+}
+
+GeneralSubtrees ::= SEQUENCE SIZE (1..MAX) OF GeneralSubtree
+
+GeneralSubtree ::= SEQUENCE {
+  base     GeneralName,
+  minimum  [0]  BaseDistance DEFAULT 0,
+  maximum  [1]  BaseDistance OPTIONAL
+}
+
+BaseDistance ::= INTEGER(0..MAX)
+
 -- policyConstraints EXTENSION ::= {
 --   SYNTAX         PolicyConstraintsSyntax
 --   IDENTIFIED BY  id-ce-policyConstraints
 -- }
--- 
--- PolicyConstraintsSyntax ::= SEQUENCE {
---   requireExplicitPolicy  [0]  SkipCerts OPTIONAL,
---   inhibitPolicyMapping   [1]  SkipCerts OPTIONAL
--- }
--- 
--- SkipCerts ::= INTEGER(0..MAX)
--- 
+
+PolicyConstraintsSyntax ::= SEQUENCE {
+  requireExplicitPolicy  [0]  SkipCerts OPTIONAL,
+  inhibitPolicyMapping   [1]  SkipCerts OPTIONAL
+}
+
+SkipCerts ::= INTEGER(0..MAX)
+
 -- cRLNumber EXTENSION ::= {
 --   SYNTAX         CRLNumber
 --   IDENTIFIED BY  id-ce-cRLNumber
@@ -235,9 +238,9 @@ CRLReason ::= ENUMERATED {
 --   SYNTAX         HoldInstruction
 --   IDENTIFIED BY  id-ce-instructionCode
 -- }
--- 
--- HoldInstruction ::= OBJECT IDENTIFIER
--- 
+
+HoldInstruction ::= OBJECT IDENTIFIER
+
 -- invalidityDate EXTENSION ::= {
 --   SYNTAX         GeneralizedTime
 --   IDENTIFIED BY  id-ce-invalidityDate
@@ -247,129 +250,130 @@ CRLReason ::= ENUMERATED {
 --   SYNTAX         CRLScopeSyntax
 --   IDENTIFIED BY  id-ce-cRLScope
 -- }
--- 
--- CRLScopeSyntax ::= SEQUENCE SIZE (1..MAX) OF PerAuthorityScope
--- 
--- PerAuthorityScope ::= SEQUENCE {
---   authorityName       [0]  GeneralName OPTIONAL,
---   distributionPoint   [1]  DistributionPointName OPTIONAL,
---   onlyContains        [2]  OnlyCertificateTypes OPTIONAL,
---   onlySomeReasons     [4]  ReasonFlags OPTIONAL,
---   serialNumberRange   [5]  NumberRange OPTIONAL,
---   subjectKeyIdRange   [6]  NumberRange OPTIONAL,
---   nameSubtrees        [7]  GeneralNames OPTIONAL,
---   baseRevocationInfo  [9]  BaseRevocationInfo OPTIONAL
--- }
--- 
--- OnlyCertificateTypes ::= BIT STRING {
---   userPublicKey(0), cA(1), userAttribute(2), aA(3), sOAPublicKey(4)}
--- 
--- NumberRange ::= SEQUENCE {
---   startingNumber  [0]  INTEGER OPTIONAL,
---   endingNumber    [1]  INTEGER OPTIONAL,
---   modulus         INTEGER OPTIONAL
--- }
--- 
--- BaseRevocationInfo ::= SEQUENCE {
---   cRLStreamIdentifier  [0]  CRLStreamIdentifier OPTIONAL,
---   cRLNumber            [1]  CRLNumber,
---   baseThisUpdate       [2]  GeneralizedTime
--- }
--- 
+
+CRLScopeSyntax ::= SEQUENCE SIZE (1..MAX) OF PerAuthorityScope
+
+PerAuthorityScope ::= SEQUENCE {
+  authorityName       [0]  GeneralName OPTIONAL,
+  distributionPoint   [1]  DistributionPointName OPTIONAL,
+  onlyContains        [2]  OnlyCertificateTypes OPTIONAL,
+  onlySomeReasons     [4]  ReasonFlags OPTIONAL,
+  serialNumberRange   [5]  NumberRange OPTIONAL,
+  subjectKeyIdRange   [6]  NumberRange OPTIONAL,
+  nameSubtrees        [7]  GeneralNames OPTIONAL,
+  baseRevocationInfo  [9]  BaseRevocationInfo OPTIONAL
+}
+
+OnlyCertificateTypes ::= BIT STRING {
+  userPublicKey(0), cA(1), userAttribute(2), aA(3), sOAPublicKey(4)}
+
+NumberRange ::= SEQUENCE {
+  startingNumber  [0]  INTEGER OPTIONAL,
+  endingNumber    [1]  INTEGER OPTIONAL,
+  modulus         INTEGER OPTIONAL
+}
+
+BaseRevocationInfo ::= SEQUENCE {
+  cRLStreamIdentifier  [0]  CRLStreamIdentifier OPTIONAL,
+  cRLNumber            [1]  CRLNumber,
+  baseThisUpdate       [2]  GeneralizedTime
+}
+
 -- statusReferrals EXTENSION ::= {
 --   SYNTAX         StatusReferrals
 --   IDENTIFIED BY  id-ce-statusReferrals
 -- }
--- 
--- StatusReferrals ::= SEQUENCE SIZE (1..MAX) OF StatusReferral
--- 
--- StatusReferral ::= CHOICE {
---   cRLReferral    [0]  CRLReferral,
---   otherReferral  [1]  INSTANCE OF OTHER-REFERRAL
--- }
--- 
--- CRLReferral ::= SEQUENCE {
---   issuer          [0]  GeneralName OPTIONAL,
---   location        [1]  GeneralName OPTIONAL,
---   deltaRefInfo    [2]  DeltaRefInfo OPTIONAL,
---   cRLScope        CRLScopeSyntax,
---   lastUpdate      [3]  GeneralizedTime OPTIONAL,
---   lastChangedCRL  [4]  GeneralizedTime OPTIONAL
--- }
--- 
--- DeltaRefInfo ::= SEQUENCE {
---   deltaLocation  GeneralName,
---   lastDelta      GeneralizedTime OPTIONAL
--- }
--- 
+
+StatusReferrals ::= SEQUENCE SIZE (1..MAX) OF StatusReferral
+
+StatusReferral ::= CHOICE {
+  cRLReferral    [0]  CRLReferral
+--  cRLReferral    [0]  CRLReferral,
+--  otherReferral  [1]  INSTANCE OF OTHER-REFERRAL
+}
+
+CRLReferral ::= SEQUENCE {
+  issuer          [0]  GeneralName OPTIONAL,
+  location        [1]  GeneralName OPTIONAL,
+  deltaRefInfo    [2]  DeltaRefInfo OPTIONAL,
+  cRLScope        CRLScopeSyntax,
+  lastUpdate      [3]  GeneralizedTime OPTIONAL,
+  lastChangedCRL  [4]  GeneralizedTime OPTIONAL
+}
+
+DeltaRefInfo ::= SEQUENCE {
+  deltaLocation  GeneralName,
+  lastDelta      GeneralizedTime OPTIONAL
+}
+
 -- OTHER-REFERRAL ::= TYPE-IDENTIFIER
 -- 
 -- cRLStreamIdentifier EXTENSION ::= {
 --   SYNTAX         CRLStreamIdentifier
 --   IDENTIFIED BY  id-ce-cRLStreamIdentifier
 -- }
--- 
--- CRLStreamIdentifier ::= INTEGER(0..MAX)
--- 
+
+CRLStreamIdentifier ::= INTEGER(0..MAX)
+
 -- orderedList EXTENSION ::= {
 --   SYNTAX         OrderedListSyntax
 --   IDENTIFIED BY  id-ce-orderedList
 -- }
--- 
--- OrderedListSyntax ::= ENUMERATED {ascSerialNum(0), ascRevDate(1)}
--- 
+
+OrderedListSyntax ::= ENUMERATED {ascSerialNum(0), ascRevDate(1)}
+
 -- deltaInfo EXTENSION ::= {
 --   SYNTAX         DeltaInformation
 --   IDENTIFIED BY  id-ce-deltaInfo
 -- }
--- 
--- DeltaInformation ::= SEQUENCE {
---   deltaLocation  GeneralName,
---   nextDelta      GeneralizedTime OPTIONAL
--- }
--- 
+
+DeltaInformation ::= SEQUENCE {
+  deltaLocation  GeneralName,
+  nextDelta      GeneralizedTime OPTIONAL
+}
+
 -- cRLDistributionPoints EXTENSION ::= {
 --   SYNTAX         CRLDistPointsSyntax
 --   IDENTIFIED BY  id-ce-cRLDistributionPoints
 -- }
--- 
--- CRLDistPointsSyntax ::= SEQUENCE SIZE (1..MAX) OF DistributionPoint
--- 
--- DistributionPoint ::= SEQUENCE {
---   distributionPoint  [0]  DistributionPointName OPTIONAL,
---   reasons            [1]  ReasonFlags OPTIONAL,
---   cRLIssuer          [2]  GeneralNames OPTIONAL
--- }
--- 
--- DistributionPointName ::= CHOICE {
---   fullName                 [0]  GeneralNames,
---   nameRelativeToCRLIssuer  [1]  RelativeDistinguishedName
--- }
--- 
--- ReasonFlags ::= BIT STRING {
---   unused(0), keyCompromise(1), cACompromise(2), affiliationChanged(3),
---   superseded(4), cessationOfOperation(5), certificateHold(6),
---   privilegeWithdrawn(7), aACompromise(8)}
--- 
+
+CRLDistPointsSyntax ::= SEQUENCE SIZE (1..MAX) OF DistributionPoint
+
+DistributionPoint ::= SEQUENCE {
+  distributionPoint  [0]  DistributionPointName OPTIONAL,
+  reasons            [1]  ReasonFlags OPTIONAL,
+  cRLIssuer          [2]  GeneralNames OPTIONAL
+}
+
+DistributionPointName ::= CHOICE {
+  fullName                 [0]  GeneralNames,
+  nameRelativeToCRLIssuer  [1]  RelativeDistinguishedName
+}
+
+ReasonFlags ::= BIT STRING {
+  unused(0), keyCompromise(1), cACompromise(2), affiliationChanged(3),
+  superseded(4), cessationOfOperation(5), certificateHold(6),
+  privilegeWithdrawn(7), aACompromise(8)}
+
 -- issuingDistributionPoint EXTENSION ::= {
 --   SYNTAX         IssuingDistPointSyntax
 --   IDENTIFIED BY  id-ce-issuingDistributionPoint
 -- }
--- 
--- IssuingDistPointSyntax ::= SEQUENCE {
+
+IssuingDistPointSyntax ::= SEQUENCE {
 --    If containsUserPublicKeyCerts, containsCACerts, containsUserAttributeCerts, 
 --   containsAACerts,  and containsSOAPublicKeyCerts s are all absent, or not set to TRUE, (), 
 --   the CRL covers allthese  certificate types 
---   distributionPoint           [0]  DistributionPointName OPTIONAL,
---   containsUserPublicKeyCerts  [1]  BOOLEAN DEFAULT FALSE,
---   containsCACerts             [2]  BOOLEAN DEFAULT FALSE,
---   onlySomeReasons             [3]  ReasonFlags OPTIONAL,
---   indirectCRL                 [4]  BOOLEAN DEFAULT FALSE,
---   containsUserAttributeCerts  [5]  BOOLEAN DEFAULT FALSE,
---   containsAACerts             [6]  BOOLEAN DEFAULT FALSE,
---   containsSOAPublicKeyCerts   [7]  BOOLEAN DEFAULT FALSE
--- }
--- 
+  distributionPoint           [0]  DistributionPointName OPTIONAL,
+  containsUserPublicKeyCerts  [1]  BOOLEAN DEFAULT FALSE,
+  containsCACerts             [2]  BOOLEAN DEFAULT FALSE,
+  onlySomeReasons             [3]  ReasonFlags OPTIONAL,
+  indirectCRL                 [4]  BOOLEAN DEFAULT FALSE,
+  containsUserAttributeCerts  [5]  BOOLEAN DEFAULT FALSE,
+  containsAACerts             [6]  BOOLEAN DEFAULT FALSE,
+  containsSOAPublicKeyCerts   [7]  BOOLEAN DEFAULT FALSE
+}
+
 -- certificateIssuer EXTENSION ::= {
 --   SYNTAX         GeneralNames
 --   IDENTIFIED BY  id-ce-certificateIssuer
@@ -379,9 +383,9 @@ CRLReason ::= ENUMERATED {
 --   SYNTAX         BaseCRLNumber
 --   IDENTIFIED BY  id-ce-deltaCRLIndicator
 -- }
--- 
--- BaseCRLNumber ::= CRLNumber
--- 
+
+BaseCRLNumber ::= CRLNumber
+
 -- baseUpdateTime EXTENSION ::= {
 --   SYNTAX         GeneralizedTime
 --   IDENTIFIED BY  id-ce-baseUpdateTime
@@ -536,48 +540,48 @@ id-ce-cRLNumber OBJECT IDENTIFIER ::= {id-ce 20}
 
 id-ce-reasonCode OBJECT IDENTIFIER ::= {id-ce 21}
 
--- id-ce-instructionCode OBJECT IDENTIFIER ::= {id-ce 23}
--- 
--- id-ce-invalidityDate OBJECT IDENTIFIER ::= {id-ce 24}
--- 
--- id-ce-deltaCRLIndicator OBJECT IDENTIFIER ::= {id-ce 27}
--- 
--- id-ce-issuingDistributionPoint OBJECT IDENTIFIER ::= {id-ce 28}
--- 
--- id-ce-certificateIssuer OBJECT IDENTIFIER ::= {id-ce 29}
--- 
--- id-ce-nameConstraints OBJECT IDENTIFIER ::= {id-ce 30}
--- 
--- id-ce-cRLDistributionPoints OBJECT IDENTIFIER ::= {id-ce 31}
--- 
--- id-ce-certificatePolicies OBJECT IDENTIFIER ::= {id-ce 32}
--- 
--- id-ce-policyMappings OBJECT IDENTIFIER ::= {id-ce 33}
--- 
+id-ce-instructionCode OBJECT IDENTIFIER ::= {id-ce 23}
+
+id-ce-invalidityDate OBJECT IDENTIFIER ::= {id-ce 24}
+
+id-ce-deltaCRLIndicator OBJECT IDENTIFIER ::= {id-ce 27}
+
+id-ce-issuingDistributionPoint OBJECT IDENTIFIER ::= {id-ce 28}
+
+id-ce-certificateIssuer OBJECT IDENTIFIER ::= {id-ce 29}
+
+id-ce-nameConstraints OBJECT IDENTIFIER ::= {id-ce 30}
+
+id-ce-cRLDistributionPoints OBJECT IDENTIFIER ::= {id-ce 31}
+
+id-ce-certificatePolicies OBJECT IDENTIFIER ::= {id-ce 32}
+
+id-ce-policyMappings OBJECT IDENTIFIER ::= {id-ce 33}
+
 -- deprecated							OBJECT IDENTIFIER	::=	{id-ce 34}
--- id-ce-authorityKeyIdentifier OBJECT IDENTIFIER ::=
---   {id-ce 35}
--- 
--- id-ce-policyConstraints OBJECT IDENTIFIER ::= {id-ce 36}
--- 
--- id-ce-extKeyUsage OBJECT IDENTIFIER ::= {id-ce 37}
--- 
--- id-ce-cRLStreamIdentifier OBJECT IDENTIFIER ::= {id-ce 40}
--- 
--- id-ce-cRLScope OBJECT IDENTIFIER ::= {id-ce 44}
--- 
--- id-ce-statusReferrals OBJECT IDENTIFIER ::= {id-ce 45}
--- 
--- id-ce-freshestCRL OBJECT IDENTIFIER ::= {id-ce 46}
--- 
--- id-ce-orderedList OBJECT IDENTIFIER ::= {id-ce 47}
--- 
--- id-ce-baseUpdateTime OBJECT IDENTIFIER ::= {id-ce 51}
--- 
--- id-ce-deltaInfo OBJECT IDENTIFIER ::= {id-ce 53}
--- 
--- id-ce-inhibitAnyPolicy OBJECT IDENTIFIER ::= {id-ce 54}
--- 
+
+id-ce-authorityKeyIdentifier OBJECT IDENTIFIER ::= {id-ce 35}
+
+id-ce-policyConstraints OBJECT IDENTIFIER ::= {id-ce 36}
+
+id-ce-extKeyUsage OBJECT IDENTIFIER ::= {id-ce 37}
+
+id-ce-cRLStreamIdentifier OBJECT IDENTIFIER ::= {id-ce 40}
+
+id-ce-cRLScope OBJECT IDENTIFIER ::= {id-ce 44}
+
+id-ce-statusReferrals OBJECT IDENTIFIER ::= {id-ce 45}
+
+id-ce-freshestCRL OBJECT IDENTIFIER ::= {id-ce 46}
+
+id-ce-orderedList OBJECT IDENTIFIER ::= {id-ce 47}
+
+id-ce-baseUpdateTime OBJECT IDENTIFIER ::= {id-ce 51}
+
+id-ce-deltaInfo OBJECT IDENTIFIER ::= {id-ce 53}
+
+id-ce-inhibitAnyPolicy OBJECT IDENTIFIER ::= {id-ce 54}
+
 -- matching rule OIDs 
 -- id-mr-certificateExactMatch OBJECT IDENTIFIER ::=
 --   {id-mr 34}

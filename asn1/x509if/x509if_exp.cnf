@@ -2,10 +2,12 @@
 Attribute        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 AttributeType            BER_CLASS_UNI BER_UNI_TAG_OID
 Name                     BER_CLASS_ANY -1
+RelativeDistinguishedName BER_CLASS_UNI BER_UNI_TAG_SET
 #.END
 
 #.TYPE_ATTR
 AttributeType            TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Name                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(Name_vals)  BITMASK = 0
+RelativeDistinguishedName TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 #.END
 
