@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.44 1999/08/28 19:17:17 guy Exp $
+ * $Id: packet-ip.c,v 1.45 1999/08/28 19:38:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -378,7 +378,6 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
     {IPOPT_TS_TSANDADDR, "Time stamp and address"                },
     {IPOPT_TS_PRESPEC,   "Time stamps for prespecified addresses"},
     {0,                  NULL                                    } };
-
   struct in_addr addr;
   guint ts;
 
@@ -546,9 +545,10 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
          so that we can treat unknown options as VARIABLE_LENGTH with a
 	 minimum of 2, and at least be able to move on to the next option
 	 by using the length in the option. */
+      optp = NULL;	/* indicate that we don't know this option */
       len_type = VARIABLE_LENGTH;
       optlen = 2;
-       snprintf(name_str, sizeof name_str, "Unknown (0x%02x)", opt);
+      snprintf(name_str, sizeof name_str, "Unknown (0x%02x)", opt);
       name = name_str;
       dissect = NULL;
     } else {
@@ -597,12 +597,17 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
               len, plurality(len, "", "s"), optlen);
         return;
       } else {
-        if (dissect != NULL) {
-          /* Option has a dissector. */
-          (*dissect)(optp, opd, offset,      len, opt_tree);
+        if (optp == NULL) {
+          proto_tree_add_text(opt_tree, offset,    len, "%s (%d byte%s)",
+				name, len, plurality(len, "", "s"));
         } else {
-          /* Option has no data, hence no dissector. */
-          proto_tree_add_text(opt_tree, offset,    len, "%s", name);
+          if (dissect != NULL) {
+            /* Option has a dissector. */
+            (*dissect)(optp, opd, offset,          len, opt_tree);
+          } else {
+            /* Option has no data, hence no dissector. */
+            proto_tree_add_text(opt_tree, offset,  len, "%s", name);
+          }
         }
         len -= 2;	/* subtract size of type and length */
         offset += 2 + len;
