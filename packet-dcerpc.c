@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.79 2002/09/26 06:13:07 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.80 2002/10/22 00:59:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -281,6 +281,7 @@ static int proto_dcerpc = -1;
 
 /* field defines */
 static int hf_dcerpc_request_in = -1;
+static int hf_dcerpc_time = -1;
 static int hf_dcerpc_response_in = -1;
 static int hf_dcerpc_ver = -1;
 static int hf_dcerpc_ver_minor = -1;
@@ -2027,6 +2028,8 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			call_value->ver = bind_value->ver;
 			call_value->opnum = opnum;
 			call_value->req_frame=pinfo->fd->num;
+			call_value->req_time.secs=pinfo->fd->abs_secs;
+			call_value->req_time.nsecs=pinfo->fd->abs_usecs*1000;
 			call_value->rep_frame=0;
 			call_value->max_ptr=0;
 			call_value->private_data = NULL;
@@ -2144,8 +2147,16 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
 	    if(value->req_frame!=0){
+		nstime_t ns;
 		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
+		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
+		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
+		if(ns.nsecs<0){
+			ns.nsecs+=1000000000;
+			ns.secs--;
+		}
+		proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
 	    }
 
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
@@ -2249,8 +2260,16 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, packet_info *pinfo,
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
 	    if(value->req_frame!=0){
+		nstime_t ns;
 		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
+		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
+		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
+		if(ns.nsecs<0){
+			ns.nsecs+=1000000000;
+			ns.secs--;
+		}
+		proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
 	    }
 
 	    length = tvb_length_remaining(tvb, offset);
@@ -2931,6 +2950,8 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_value->ver = hdr->if_ver;
 	call_value->opnum = hdr->opnum;
 	call_value->req_frame=pinfo->fd->num;
+	call_value->req_time.secs=pinfo->fd->abs_secs;
+	call_value->req_time.nsecs=pinfo->fd->abs_usecs*1000;
 	call_value->rep_frame=0;
 	call_value->max_ptr=0;
 	call_value->private_data = NULL;
@@ -2957,6 +2978,10 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
     di.request = TRUE;
     di.call_data = value;
 
+    if(value->rep_frame!=0){
+	proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
+			    tvb, 0, 0, value->rep_frame);
+    }
     dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, &di);
 }
 
@@ -3001,6 +3026,18 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
     di.request = FALSE;
     di.call_data = value;
 
+    if(value->req_frame!=0){
+	nstime_t ns;
+	proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
+			    tvb, 0, 0, value->req_frame);
+	ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
+	ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
+	if(ns.nsecs<0){
+		ns.nsecs+=1000000000;
+		ns.secs--;
+	}
+	proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+    }
     dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, &di);
 }
 
@@ -3627,7 +3664,10 @@ proto_register_dcerpc (void)
 	{ &hf_dcerpc_fragment_error,
 	  { "Defragmentation error", "dcerpc.fragment.error", FT_NONE, BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
-    };
+	{ &hf_dcerpc_time, 
+	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for DCE-RPC calls", HFILL }}
+
+   };
     static gint *ett[] = {
         &ett_dcerpc,
         &ett_dcerpc_cn_flags,
