@@ -2,7 +2,7 @@
  * Routines for NetWare's NDPS
  * Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ndps.c,v 1.2 2002/10/08 19:15:24 guy Exp $
+ * $Id: packet-ndps.c,v 1.3 2002/10/10 01:53:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -579,7 +579,7 @@ dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     proto_item	*spxti;
     tvbuff_t	*next_tvb;
 	
-    guint8	conn_ctrl;
+    guint8	conn_ctrl=0;
     guint8	datastream_type;
 
     guint16     record_mark;
