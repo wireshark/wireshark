@@ -176,7 +176,7 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
     int err;
 
     /* Not sync mode. */
-    capture_succeeded = capture_start(capture_opts, &stats_known, &stats);
+    capture_succeeded = capture_loop_start(capture_opts, &stats_known, &stats);
     if (capture_opts->quit_after_cap) {
       /* DON'T unlink the save file.  Presumably someone wants it. */
         main_window_exit();
@@ -285,16 +285,29 @@ stop_capture_signal_handler(int signo _U_)
 
 
 int  
-capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
+capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
+  gchar *err_msg;
+
+  g_assert(capture_opts->capture_child);
+
 #ifndef _WIN32
   /*
    * Catch SIGUSR1, so that we exit cleanly if the parent process
    * kills us with it due to the user selecting "Capture->Stop".
    */
-  if (capture_opts->capture_child)
     signal(SIGUSR1, stop_capture_signal_handler);
 #endif
+
+    /* parent must have send us a file descriptor for the opened output file */
+    if (capture_opts->save_file_fd == -1) {
+      /* send this to the standard output as something our parent
+	     should put in an error message box */
+      err_msg = g_strdup_printf("%s: \"-W\" flag not specified (internal error)\n", CHILD_NAME);
+      sync_pipe_errmsg_to_parent(err_msg);
+      g_free(err_msg);
+      return FALSE;
+    }
 
   return capture_loop_start(capture_opts, stats_known, stats);
 }
@@ -302,17 +315,19 @@ capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_
 void
 capture_stop(capture_options *capture_opts)
 {
-
+  /* stop the capture child, if we have one */
   if (capture_opts->sync_mode) {	
     sync_pipe_stop(capture_opts);
   }
-    
+
+  /* stop the capture loop */
   capture_loop_stop();
 }
 
 void
 capture_kill_child(capture_options *capture_opts)
 {
+  /* kill the capture child, if we have one */
   if (capture_opts->sync_mode) {	
     sync_pipe_kill(capture_opts);
   }

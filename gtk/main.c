@@ -2147,15 +2147,6 @@ main(int argc, char *argv[])
     }
   }
 
-  if (capture_opts->capture_child) {
-    if (capture_opts->save_file_fd == -1) {
-      /* XXX - send this to the standard output as something our parent
-	 should put in an error message box? */
-      fprintf(stderr, "%s: \"-W\" flag not specified\n", CHILD_NAME);
-      exit(1);
-    }
-  }
-
   if (list_link_layer_types) {
     /* Get the list of link-layer types for the capture device. */
     lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
@@ -2269,11 +2260,17 @@ main(int argc, char *argv[])
     /* Pop up any queued-up alert boxes. */
     display_queued_messages();
 
-    /* XXX - hand these stats to the parent process */
-    capture_start(capture_opts, &stats_known, &stats);
+    /* Now start the capture. 
+       After the capture is done; there's nothing more for us to do. */
 
-    /* The capture is done; there's nothing more for us to do. */
-    gtk_exit(0);
+    /* XXX - hand these stats to the parent process */
+    if(capture_child_start(capture_opts, &stats_known, &stats) == TRUE) {
+        /* capture ok */
+        gtk_exit(0);
+    } else {
+        /* capture failed */
+        gtk_exit(1);
+    }
   }
 #endif
 

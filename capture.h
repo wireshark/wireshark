@@ -106,7 +106,7 @@ extern gboolean do_capture(capture_options *capture_opts);
 
 /** Do the low-level work of a capture (start the capture child).
  *  Returns TRUE if it succeeds, FALSE otherwise. */
-extern int  capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
+extern int  capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
 
 /** Stop a capture (usually from a menu item). */
 extern void capture_stop(capture_options *capture_opts);
