@@ -1,4 +1,4 @@
-$Id: TODO,v 1.9 2001/04/21 07:49:24 guy Exp $
+$Id: TODO,v 1.10 2003/05/16 01:12:55 guy Exp $
 
 Things to do:
 =============
@@ -6,7 +6,9 @@ Things to do:
 *) Protocol dispatchers, allowing run-time setting of protocol "chaining"
 (i.e., UDP port X calls dissector Y)
 
-*) Work on packet capturing in wiretap
+*) Work on packet capturing in wiretap - or just make it a wrapper
+around libpcap/WinPcap, hiding some of the stuff Ethereal and
+Tethereal currently have to do independently
 
 *) Either as part of the previous item, or as a capture-filter
 translator that generates "libpcap"-style capture filter expressions,
@@ -37,11 +39,28 @@ tcpdump over ssh:
 where "filter" filters out our own ssh packets (using the infromation
 from $SSH_CLIENT). Any takers?
 
-*) Of course, packet defragmentating.  IP fragments are now reassembled,
-but IPv6 fragments need to be reassembled and re-analyzed; we would also
-want to support reassembling TCP data streams and breaking the resulting
-stream into higher-level packets.  Other protocols where we might want
-to reassemble packets include NBDS and OSI CLNP.
+*) Of course, packet defragmentation.  We currently reassemble:
+
+	IP fragments
+	IPv6 fragments
+	OSI CLNP segments
+	ONC RPC-over-TCP and DCE RPC fragments
+	802.11 fragments
+	X.25 packets with M set
+	ATP fragments
+	EAP/TLS fragments
+	Fibre Channel fragments
+	Netware NDPS fragments
+	NBF fragments
+	Fragmented SNA BIUs
+	TDS (Sybase/Microsoft SQL Server) fragments
+	WTP fragments.
+
+   and currently support, for many protocols running atop TCP and the
+   SMB pipe protocol, reassembling the data stream and breaking the
+   resulting stream into higher-level packets.  We want to support that
+   for more TCP-based protocols, and might want to reassemble NBDS and
+   OSI COTP fragments as well; there might be other protocols also.
 
 *) I'd like to someday re-write the display filter routines to have a more
 powerful syntax.
@@ -53,7 +72,9 @@ right-clicks.
 added, removed, or moved without having to exit and restart Ethereal.
 (guy)
 
-*) A GUI capture/display filter creator.
+*) A GUI capture/display filter creator (we have stuff to add fields to
+display filters, but perhaps something such as what Network Monitor has,
+to add AND/OR/NOT operators, would be useful)
 
 *) Run-time configuration of tunnelling protocols -- display tunnelled
 protocol as data or as a full-fledged protocol (which subtree do we put
@@ -68,13 +89,9 @@ man page, which may be the right solution here.
 *) Finish moving GTK-dependent code into gtk/ subdirectory.
 
 *) Provide alternative user interfaces, e.g. other toolkits (Qt/KDE,
-full GNOME, native Windows, etc.) and text-mode "curses".
+full GNOME, native Windows, native Aqua, etc.) and text-mode "curses".
 
 *) Kerberos version 4 dissector - standard krb4 - from tcpdump (nneul);
 we have krb5, but not krb4
-
-*) Display filters: allow filtering on "enumerated" data types by name,
-i.e. if a field has a "value_string" array associated with it, allow
-users to specify the string associated with a value.
 
 *) Display filters: add regexes to strings and byte ranges
