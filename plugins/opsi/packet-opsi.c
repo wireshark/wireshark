@@ -453,6 +453,10 @@ dissect_attributes(tvbuff_t *tvb, proto_tree *opsi_tree, int offset, int length)
 			proto_tree_add_text(ntree, tvb, offset+2, 2, "Length (%d)", attribute_length);
 			opsi_attributes[i].dissect(tvb, ntree, opsi_attributes[i].hf_type_attribute, offset, attribute_length);
 		}
+		if (attribute_length < 4) {
+			/* Length must be at least 4, for the type and length. */
+			break;
+		}
 		offset += attribute_length;
 		length -= attribute_length;
 	}
