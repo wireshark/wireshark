@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.15 2001/12/09 21:05:54 guy Exp $
+# $Id: autogen.sh,v 1.16 2002/08/23 21:12:07 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -92,7 +92,12 @@ for dir in . epan wiretap ;  do
   echo processing $dir
   (
     cd $dir
-    aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags"; \
+    if [ "$dir" = "." ] ; then
+        topdir=.
+    else
+        topdir=..
+    fi
+    aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags -I $topdir/aclocal-fallback"; \
     echo aclocal $aclocalinclude
     aclocal $aclocalinclude || exit 1
     echo autoheader
