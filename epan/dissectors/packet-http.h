@@ -30,8 +30,11 @@ void http_dissector_add(guint32 port, dissector_handle_t handle);
 
 typedef struct _http_info_value_t
 {
+	guint32  framenum;
 	gchar	*request_method;	
 	guint	 response_code;
+	gchar   *http_host;
+	gchar   *request_uri;
 } http_info_value_t;
 
 #endif

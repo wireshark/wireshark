@@ -242,13 +242,18 @@ cleanup_headers(void *arg)
 
 /*
  * TODO: remove this ugly global variable.
- *
- * XXX - we leak "http_info_value_t" structures.  Should we add a reference
- *       counter?
- * XXX - this gets overwritten if there's more than one HTTP request or
- * reply in the tvbuff.
+ * XXX: do we realy want to have to pass this from one function to another?
  */
 static http_info_value_t	*stat_info;
+
+/*
+ * As the http_info_value_t will contain much more allocated data than it
+ * used to, we'll keep the stat_infos for this frame in this array.
+ *
+ * we'll clean it at every call of dissect_http_message() leaving in the array
+ * only those stat_infos that belong to the current frame
+ */
+static GPtrArray* stat_infos;
 
 static int
 dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -277,7 +282,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		reported_datalen = -1;
 	dissector_handle_t handle;
 	gboolean	dissected;
-
+	guint i;
+	guint32 framenum = pinfo->fd->num;
+	http_info_value_t* si;
+	
 	/*
 	 * Is this a request or response?
 	 *
@@ -311,10 +319,36 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
+	/* we first allocate and initialize the current stat_info */ 
 	stat_info = g_malloc(sizeof(http_info_value_t));
+	stat_info->framenum = framenum;
 	stat_info->response_code = 0;
 	stat_info->request_method = NULL;
+	stat_info->request_uri = NULL;
+	stat_info->http_host = NULL;
 
+	/* We'll then delete from the array all the stat_infos that do not belong to this frame */ 
+	i = stat_infos->len;
+	do {
+		if (i==0) break;
+		
+		--i;
+		
+		si = g_ptr_array_index(stat_infos,i);
+		
+		if ( si->framenum != framenum ) {
+			g_ptr_array_remove_index_fast(stat_infos,i);
+			if (si->request_method) g_free(si->request_method);
+			if (si->request_uri) g_free(si->request_uri);
+			if (si->http_host) g_free(si->http_host);
+			g_free(si);
+		}
+	} while (i);
+	
+	/* then we'll add the current stat_info to the array */
+	g_ptr_array_add(stat_infos,stat_info);
+	
+	
 	switch (pinfo->match_port) {
 
 	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
@@ -926,6 +960,8 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen)
 	while (tvb_length_remaining(tvb, end) > 0) {
 		if (tvb_get_guint8(tvb, end) == ' ' && end > start) {
 			proto_tree_add_item(tree, hf_http_request_uri, tvb, start, end - start, FALSE);
+			stat_info->request_uri = tvb_get_string(tvb, start, end - start);
+
 			break;
 		}
 		end++;
@@ -1352,6 +1388,7 @@ typedef struct {
 #define HDR_CONTENT_LENGTH	4
 #define HDR_CONTENT_ENCODING	5
 #define HDR_TRANSFER_ENCODING	6
+#define HDR_HOST  7
 
 static const header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, HDR_AUTHORIZATION },
@@ -1363,7 +1400,7 @@ static const header_info headers[] = {
 	{ "Content-Encoding", &hf_http_content_encoding, HDR_CONTENT_ENCODING },
 	{ "Transfer-Encoding", &hf_http_transfer_encoding, HDR_TRANSFER_ENCODING },
 	{ "User-Agent",	&hf_http_user_agent, HDR_NO_SPECIAL },
-	{ "Host", &hf_http_host, HDR_NO_SPECIAL },
+	{ "Host", &hf_http_host, HDR_HOST },
 	{ "Connection", &hf_http_connection, HDR_NO_SPECIAL },
 	{ "Cookie", &hf_http_cookie, HDR_NO_SPECIAL },
 	{ "Accept", &hf_http_accept, HDR_NO_SPECIAL },
@@ -1531,6 +1568,10 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			eh_ptr->transfer_encoding = g_malloc(value_len + 1);
 			memcpy(eh_ptr->transfer_encoding, value, value_len);
 			eh_ptr->transfer_encoding[value_len] = '\0';
+			break;
+			
+		case HDR_HOST:
+			stat_info->http_host = g_strdup(value);
 			break;
 		}
 
@@ -1859,6 +1900,8 @@ proto_register_http(void)
 	 * Register for tapping
 	 */
 	http_tap = register_tap("http");
+	
+	stat_infos = g_ptr_array_new();
 }
 
 /*
