@@ -385,6 +385,7 @@ decode_build_show_list (gchar *table_name, ftenum_t selector_type,
 
     default:
 	g_assert_not_reached();
+	selector_name = NULL;
 	break;
     }
 
