@@ -2882,7 +2882,7 @@ static const radius_attr_info radius_vendor_cablelabs_attrib[] =
   {67, RADIUS_INTEGER2,                        "Policy_Denied_Reason", radius_vendor_packetcable_policy_denied_reason_vals, NULL },
   {68, RADIUS_INTEGER2,                        "Policy_Deleted_Reason", radius_vendor_packetcable_policy_deleted_reason_vals, NULL },
   {69, RADIUS_INTEGER2,                        "Policy_Update_Reason", radius_vendor_packetcable_policy_update_reason_vals, NULL },
-  {70, RADIUS_INTEGER2,                        "Policy_Decision_Status", NULL, NULL },
+  {70, RADIUS_INTEGER2,                        "Policy_Decision_Status", radius_vendor_packetcable_policy_decision_status_vals, NULL },
   {71, RADIUS_INTEGER4,                        "Application_Manager_ID", NULL, NULL },
   {72, RADIUS_INTEGER4,                        "Time_Usage_Limit", NULL, NULL },
   {73, RADIUS_INTEGER4,                        "Gate_Time_Info", NULL, NULL },
