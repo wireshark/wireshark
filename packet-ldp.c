@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.28 2002/01/22 20:21:39 guy Exp $
+ * $Id: packet-ldp.c,v 1.29 2002/03/16 02:09:28 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -827,8 +827,8 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, in
 		val_tree=tree;
 #endif
 		proto_tree_add_item(val_tree, hf_ldp_tlv_val_hold, tvb, offset, 2, FALSE);
-		proto_tree_add_boolean(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 2, FALSE);
-		proto_tree_add_boolean(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 2, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 2, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 2, FALSE);
 		proto_tree_add_item(val_tree, hf_ldp_tlv_val_res, tvb, offset + 2, 2, FALSE);
 	}
 }
