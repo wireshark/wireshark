@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.52 1999/12/10 11:53:18 sharpe Exp $
+ * $Id: packet-smb.c,v 1.53 1999/12/10 12:51:01 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -8970,7 +8970,7 @@ int dissect_transact_next(u_char *pd, char *Name, int dirn, proto_tree *tree)
 
 	  WParam = GSHORT(pd, pd_p_current);
 
-	  proto_tree_add_text(tee, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Returned Word", WParam, WParam);
+	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Returned Word", WParam, WParam);
 
 	  pd_p_current += 2;
 
