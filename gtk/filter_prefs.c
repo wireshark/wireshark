@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.47 2004/01/10 16:27:41 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.48 2004/01/18 00:40:39 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include "simple_dialog.h"
 #include "dfilter_expr_dlg.h"
 #include "compat_macros.h"
+#include "gtkglobals.h"
 
 #define E_FILT_DIALOG_PTR_KEY       "filter_dialog_ptr"
 #define E_FILT_BUTTON_PTR_KEY       "filter_button_ptr"
@@ -202,7 +203,7 @@ cfilter_dialog_cb(GtkWidget *w _U_)
 	/* No Apply button, and there's no text widget to set, much less
 	   activate, on "OK". */
 	static construct_args_t args = {
-		"Ethereal: Edit Capture Filter List",
+		"Ethereal: Capture Filter",
 		FALSE,
 		FALSE
 	};
@@ -224,8 +225,6 @@ cfilter_dialog_cb(GtkWidget *w _U_)
 }
 #endif
 
-static GtkWidget *global_dfilter_w;
-
 /* Create a filter dialog for editing display filters; this is to be used
    as a callback for menu items, toolbars, etc.. */
 void
@@ -234,25 +233,12 @@ dfilter_dialog_cb(GtkWidget *w _U_)
 	/* No Apply button, and there's no text widget to set, much less
 	   activate, on "OK". */
 	static construct_args_t args = {
-		"Ethereal: Edit Display Filter List",
-		FALSE,
-		FALSE
+		"Ethereal: Display Filter",
+		TRUE,
+		TRUE
 	};
 
-	/* Has a filter dialog box already been opened for editing
-	   display filters? */
-	if (global_dfilter_w != NULL) {
-		/* Yes.  Just reactivate it. */
-		reactivate_window(global_dfilter_w);
-		return;
-	}
-
-	/*
-	 * No.  Create one; we didn't pop this up as a result of pressing
-	 * a button next to some text entry field, so don't associate it
-	 * with a text entry field or button.
-	 */
-	global_dfilter_w = filter_dialog_new(NULL, NULL, DFILTER_LIST, &args);
+    display_filter_construct_cb(OBJECT_GET_DATA(top_level, E_FILT_BT_PTR_KEY), &args);
 }
 
 /* List of capture filter dialogs, so that if the list of filters changes
@@ -875,12 +861,6 @@ filter_dlg_destroy(GtkWidget *win, gpointer data)
 			global_cfilter_w = NULL;
 			break;
 #endif
-
-		case DFILTER_LIST:
-			g_assert(win == global_dfilter_w);
-			global_dfilter_w = NULL;
-			break;
-
 		default:
 			g_assert_not_reached();
 			break;

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.354 2004/01/16 20:04:21 jmayer Exp $
+ * $Id: main.c,v 1.355 2004/01/18 00:40:39 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2871,6 +2871,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
     gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
     gtk_widget_show(filter_bt);
+    OBJECT_SET_DATA(top_level, E_FILT_BT_PTR_KEY, filter_bt);
 
     filter_cm = gtk_combo_new();
     filter_list = g_list_append (filter_list, "");
