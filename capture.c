@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.103 2000/05/19 19:53:48 gram Exp $
+ * $Id: capture.c,v 1.104 2000/05/19 22:37:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -223,12 +223,23 @@ do_capture(char *capfile_name)
       _exit(2);
     }
 
+    /* Parent process - read messages from the child process over the
+       sync pipe. */
+
+    /* Close the write side of the pipe, so that only the child has it
+       open, and thus it completely closes, and thus returns to us
+       an EOF indication, if the child closes it (either deliberately
+       or by exiting abnormally). */
+    close(sync_pipe[1]);
+
+    /* Close the save file FD, as we won't be using it - we'll be opening
+       it and reading the save file through Wiretap. */
+    close(cf.save_file_fd);
+
     if (fork_child == -1) {
       /* We couldn't even create the child process. */
       error = errno;
-      close(sync_pipe[1]);
       close(sync_pipe[0]);
-      close(cf.save_file_fd);
       unlink(cf.save_file);
       g_free(cf.save_file);
       cf.save_file = NULL;
@@ -236,12 +247,6 @@ do_capture(char *capfile_name)
 			strerror(error));
       return;
     }
-
-    close(cf.save_file_fd);
-
-    /* Parent process - read messages from the child process over the
-       sync pipe. */
-    close(sync_pipe[1]);
 
     /* Read a byte count from "sync_pipe[0]", terminated with a
        colon; if the count is 0, the child process created the
@@ -340,7 +345,6 @@ do_capture(char *capfile_name)
   } else {
     /* Not sync mode. */
     capture_succeeded = capture();
-    close(cf.save_file_fd);
     if (quit_after_cap) {
       /* DON'T unlink the save file.  Presumably someone wants it. */
       gtk_exit(0);
@@ -880,6 +884,10 @@ capture(void)
   return TRUE;
 
 error:
+  /* We can't use the save file, and we have no wtap_dump stream
+     to close in order to close it, so close the FD directly. */
+  close(cf.save_file_fd);
+
   /* We couldn't even start the capture, so get rid of the capture
      file. */
   unlink(cf.save_file); /* silently ignore error */
