@@ -1005,7 +1005,13 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 static void
 prefs_main_apply_all(GtkWidget *dlg)
 {
-  /* Now apply those preferences. */
+  /*
+   * Apply the protocol preferences first - "gui_prefs_apply()" could
+   * cause redissection, and we have to make sure the protocol
+   * preference changes have been fully applied.
+   */
+  prefs_apply_all();
+
   gui_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_PAGE_KEY));
   layout_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_LAYOUT_PAGE_KEY));
   column_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_COLUMN_PAGE_KEY));
@@ -1023,8 +1029,6 @@ prefs_main_apply_all(GtkWidget *dlg)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_apply(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
   nameres_prefs_apply(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
-
-  prefs_apply_all();
 }
 
 
