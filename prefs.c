@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.31 2000/07/05 09:40:41 guy Exp $
+ * $Id: prefs.c,v 1.32 2000/07/09 03:29:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,6 +100,7 @@ prefs_register_module(const char *name, const char *title,
 	module->apply_cb = apply_cb;
 	module->prefs = NULL;	/* no preferences, to start */
 	module->numprefs = 0;
+	module->prefs_changed = FALSE;
 
 	modules = g_list_append(modules, module);
 
@@ -161,11 +162,18 @@ call_apply_cb(gpointer data, gpointer user_data)
 {
 	module_t *module = data;
 
-	(*module->apply_cb)();
+	if (module->prefs_changed) {
+		if (module->apply_cb != NULL)
+			(*module->apply_cb)();
+		module->prefs_changed = FALSE;
+	}
 }
 
 /*
- * Call the "apply" callback function for each module.
+ * Call the "apply" callback function for each module if any of its
+ * preferences have changed, and then clear the flag saying its
+ * preferences have changed, as the module has been notified of that
+ * fact.
  */
 void
 prefs_apply_all(void)
@@ -714,6 +722,8 @@ set_pref(gchar *pref_name, gchar *value)
   fmt_data *cfmt;
   unsigned long int cval;
   guint    uval;
+  gboolean bval;
+  gint     enum_val;
   char     *p;
   gchar    *dotp;
   module_t *module;
@@ -836,27 +846,41 @@ set_pref(gchar *pref_name, gchar *value)
       uval = strtoul(value, &p, pref->info.base);
       if (p == value || *p != '\0')
         return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-      *pref->varp.uint = uval;
+      if (*pref->varp.uint != uval) {
+        module->prefs_changed = TRUE;
+        *pref->varp.uint = uval;
+      }
       break;
 
     case PREF_BOOL:
       /* XXX - give an error if it's neither "true" nor "false"? */
       if (strcasecmp(value, "true") == 0)
-        *pref->varp.bool = TRUE;
+        bval = TRUE;
       else
-        *pref->varp.bool = FALSE;
+        bval = FALSE;
+      if (*pref->varp.bool != bval) {
+      	module->prefs_changed = TRUE;
+      	*pref->varp.bool = bval;
+      }
       break;
 
     case PREF_ENUM:
       /* XXX - give an error if it doesn't match? */
-      *pref->varp.enump = find_val_for_string(value,
+      enum_val = find_val_for_string(value,
 					pref->info.enum_info.enumvals, 1);
+      if (*pref->varp.enump != enum_val) {
+      	module->prefs_changed = TRUE;
+      	*pref->varp.enump = enum_val;
+      }
       break;
 
     case PREF_STRING:
-      if (*pref->varp.string != NULL)
-        g_free(*pref->varp.string);
-      *pref->varp.string = g_strdup(value);
+      if (*pref->varp.string == NULL || strcmp(*pref->varp.string, value) != 0) {
+        module->prefs_changed = TRUE;
+        if (*pref->varp.string != NULL)
+          g_free(*pref->varp.string);
+        *pref->varp.string = g_strdup(value);
+      }
       break;
     }
   }

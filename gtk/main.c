@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.128 2000/07/05 09:41:04 guy Exp $
+ * $Id: main.c,v 1.129 2000/07/09 03:29:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1484,6 +1484,11 @@ main(int argc, char *argv[])
         break;
     }
   }
+
+  /* Notify all registered modules that have had any of their preferences
+     changed either from one of the preferences file or from the command
+     line that its preferences have changed. */
+  prefs_apply_all();
 
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)

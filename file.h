@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.70 2000/07/03 08:35:41 guy Exp $
+ * $Id: file.h,v 1.71 2000/07/09 03:29:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,6 +140,7 @@ int  save_cap_file(char *, capture_file *, gboolean, guint);
 
 int filter_packets(capture_file *cf, gchar *dfilter);
 void colorize_packets(capture_file *);
+void redissect_packets(capture_file *cf);
 int print_packets(capture_file *cf, print_args_t *print_args);
 void change_time_formats(capture_file *);
 gboolean find_packet(capture_file *cf, dfilter *sfcode);

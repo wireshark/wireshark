@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.14 2000/07/05 09:41:07 guy Exp $
+ * $Id: prefs_dlg.c,v 1.15 2000/07/09 03:29:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -334,8 +334,11 @@ pref_fetch(pref_t *pref, gpointer user_data)
   char *str_val;
   char *p;
   guint uval;
+  gboolean bval;
   GSList *rb_entry;
   GtkWidget *button;
+  gint enumval;
+  gboolean *pref_changed_p = user_data;
 
   /* Fetch the value of the preference, and set the appropriate variable
      to it. */
@@ -348,11 +351,18 @@ pref_fetch(pref_t *pref, gpointer user_data)
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
 #endif
-    *pref->varp.uint = uval;
+    if (*pref->varp.uint != uval) {
+      *pref_changed_p = TRUE;
+      *pref->varp.uint = uval;
+    }
     break;
 
   case PREF_BOOL:
-    *pref->varp.bool = GTK_TOGGLE_BUTTON(pref->control)->active;
+    bval = GTK_TOGGLE_BUTTON(pref->control)->active;
+    if (*pref->varp.bool != bval) {
+      *pref_changed_p = TRUE;
+      *pref->varp.bool = bval;
+    }
     break;
 
   case PREF_ENUM:
@@ -377,15 +387,22 @@ pref_fetch(pref_t *pref, gpointer user_data)
 
     /* Get the label, and translate it to a value. */
     gtk_label_get(GTK_LABEL(label), &label_string);
-    *pref->varp.enump = find_val_for_string(label_string,
+    enumval = find_val_for_string(label_string,
 					pref->info.enum_info.enumvals, 1);
+    if (*pref->varp.enump != enumval) {
+      *pref_changed_p = TRUE;
+      *pref->varp.enump = enumval;
+    }
     break;
 
   case PREF_STRING:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
-    if (*pref->varp.string != NULL)
-      g_free(*pref->varp.string);
-    *pref->varp.string = g_strdup(str_val);
+    if (*pref->varp.string == NULL || strcmp(*pref->varp.string, str_val) != 0) {
+      *pref_changed_p = TRUE;
+      if (*pref->varp.string != NULL)
+        g_free(*pref->varp.string);
+      *pref->varp.string = g_strdup(str_val);
+    }
     break;
   }
 }
@@ -393,9 +410,18 @@ pref_fetch(pref_t *pref, gpointer user_data)
 static void
 module_prefs_fetch(module_t *module, gpointer user_data)
 {
+  gboolean *must_redissect_p = user_data;
+
   /* For all preferences in this module, fetch its value from this
-     module's notebook page. */
-  prefs_pref_foreach(module, pref_fetch, NULL);
+     module's notebook page.  Find out whether any of them changed. */
+  module->prefs_changed = FALSE;	/* assume none of them changed */
+  prefs_pref_foreach(module, pref_fetch, &module->prefs_changed);
+
+  /* If any of them changed, indicate that we must redissect and refilter
+     the current capture (if we have one), as the preference change
+     could cause packets to be dissected differently. */
+  if (module->prefs_changed)
+    *must_redissect_p = TRUE;
 }
 
 static void
@@ -432,13 +458,21 @@ module_prefs_clean(module_t *module, gpointer user_data)
 static void
 prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 {
+  gboolean must_redissect = FALSE;
+
   printer_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
   column_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
-  prefs_module_foreach(module_prefs_fetch, NULL);
+  prefs_module_foreach(module_prefs_fetch, &must_redissect);
+  prefs_apply_all();
   prefs_module_foreach(module_prefs_clean, NULL);
   gtk_widget_destroy(GTK_WIDGET(parent_w));
+
+  if (must_redissect) {
+    /* Redissect all the packets, and re-evaluate the display filter. */
+    redissect_packets(&cfile);
+  }
 }
 
 static void

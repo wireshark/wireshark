@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.16 2000/07/05 09:40:42 guy Exp $
+ * $Id: prefs.h,v 1.17 2000/07/09 03:29:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,10 @@ typedef void (*module_cb)(module_t *module, gpointer user_data);
 void prefs_module_foreach(module_cb callback, gpointer user_data);
 
 /*
- * Call the "apply" callback function for each module.
+ * Call the "apply" callback function for each module if any of its
+ * preferences have changed, and then clear the flag saying its
+ * preferences have changed, as the module has been notified of that
+ * fact.
  */
 void prefs_apply_all(void);
 

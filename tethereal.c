@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.34 2000/07/05 09:40:43 guy Exp $
+ * $Id: tethereal.c,v 1.35 2000/07/09 03:29:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -410,6 +410,11 @@ main(int argc, char *argv[])
 #endif
     }
   }
+
+  /* Notify all registered modules that have had any of their preferences
+     changed either from one of the preferences file or from the command
+     line that its preferences have changed. */
+  prefs_apply_all();
 
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)

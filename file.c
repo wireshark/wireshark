@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.196 2000/07/07 23:09:03 guy Exp $
+ * $Id: file.c,v 1.197 2000/07/09 03:29:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,6 +94,9 @@ static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 
 static void read_packet(capture_file *cf, int offset);
+
+static void rescan_packets(capture_file *cf, const char *action,
+	gboolean refilter);
 
 static void set_selected_row(int row);
 
@@ -589,7 +592,8 @@ apply_color_filter(gpointer filter_arg, gpointer argp)
 
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
-	union wtap_pseudo_header *pseudo_header, const u_char *buf)
+	union wtap_pseudo_header *pseudo_header, const u_char *buf,
+	gboolean refilter)
 {
   apply_color_filter_args args;
   gint          i, row;
@@ -620,36 +624,56 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     fdata->cinfo->col_data[i][0] = '\0';
   }
 
-  /* Apply the filters */
-  if (cf->dfcode != NULL || filter_list != NULL) {
-    protocol_tree = proto_tree_create_root();
-    dissect_packet(pseudo_header, buf, fdata, protocol_tree);
-    if (cf->dfcode != NULL)
-      fdata->flags.passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf, fdata->cap_len) ? 1 : 0;
-    else
-      fdata->flags.passed_dfilter = 1;
+  /* If either
 
-    /* Apply color filters, if we have any. */
+	we have a display filter and are re-applying it;
+
+	we have a list of color filters;
+
+	we have plugins to apply;
+
+     allocate a protocol tree root node, so that we'll construct
+     a protocol tree against which a filter expression can be
+     evaluated. */
+  if ((cf->dfcode != NULL && refilter) || filter_list != NULL
+#ifdef HAVE_PLUGINS
+	|| enabled_plugins_number > 0
+#endif
+	)
+    protocol_tree = proto_tree_create_root();
+
+  /* Dissect the frame. */
+  dissect_packet(pseudo_header, buf, fdata, protocol_tree);
+
+  /* If we have a display filter, apply it if we're refiltering, otherwise
+     leave the "passed_dfilter" flag alone.
+
+     If we don't have a display filter, set "passed_dfilter" to 1. */
+  if (cf->dfcode != NULL) {
+    if (refilter) {
+      if (cf->dfcode != NULL)
+        fdata->flags.passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf, fdata->cap_len) ? 1 : 0;
+      else
+        fdata->flags.passed_dfilter = 1;
+    }
+  } else
+    fdata->flags.passed_dfilter = 1;
+
+  /* If we have color filters, and the frame is to be displayed, apply
+     the color filters. */
+  if (fdata->flags.passed_dfilter) {
     if (filter_list != NULL) {
       args.protocol_tree = protocol_tree;
       args.pd = buf;
       args.fdata = fdata;
       g_slist_foreach(filter_list, apply_color_filter, &args);
     }
+  }
+
+  /* There are no more filters to apply, so we don't need any protocol
+     tree; free it if we created it. */
+  if (protocol_tree != NULL)
     proto_tree_free(protocol_tree);
-  }
-  else {
-#ifdef HAVE_PLUGINS
-	if (enabled_plugins_number > 0)
-	    protocol_tree = proto_tree_create_root();
-#endif
-	dissect_packet(pseudo_header, buf, fdata, protocol_tree);
-	fdata->flags.passed_dfilter = 1;
-#ifdef HAVE_PLUGINS
-	if (protocol_tree)
-	    proto_tree_free(protocol_tree);
-#endif
-  }
 
   if (fdata->flags.passed_dfilter) {
     /* This frame passed the display filter, so add it to the clist. */
@@ -766,7 +790,7 @@ read_packet(capture_file *cf, int offset)
 
     cf->count++;
     fdata->num = cf->count;
-    add_packet_to_packet_list(fdata, cf, pseudo_header, buf);
+    add_packet_to_packet_list(fdata, cf, pseudo_header, buf, TRUE);
   } else {
     /* XXX - if we didn't have read filters, or if we could avoid
        allocating the "frame_data" structure until we knew whether
@@ -814,17 +838,31 @@ filter_packets(capture_file *cf, gchar *dftext)
     dfilter_destroy(cf->dfcode);
   cf->dfcode = dfcode;
 
-  /* Now go through the list of packets we've read from the capture file,
-     applying the current display filter, and, if the packet passes the
-     display filter, add it to the summary display, appropriately
-     colored.  (That's how we colorize the display - it's like filtering
-     the display, only we don't install a new filter.) */
-  colorize_packets(cf);
+  /* Now rescan the packet list, applying the new filter. */
+  rescan_packets(cf, "Filtering", TRUE);
   return 1;
 }
 
 void
 colorize_packets(capture_file *cf)
+{
+  rescan_packets(cf, "Colorizing", FALSE);
+}
+
+void
+redissect_packets(capture_file *cf)
+{
+  rescan_packets(cf, "Reprocessing", TRUE);
+}
+
+/* Rescan the list of packets, reconstructing the CList.
+
+   "action" describes why we're doing this; it's used in the progress
+   dialog box.
+
+   "refilter" is TRUE if we need to re-evaluate the filter expression. */
+static void
+rescan_packets(capture_file *cf, const char *action, gboolean refilter)
 {
   frame_data *fdata;
   progdlg_t *progbar;
@@ -866,9 +904,9 @@ colorize_packets(capture_file *cf)
   cf->first_displayed = NULL;
   cf->last_displayed = NULL;
 
-  /* Iterate through the list of packets, calling a routine
-     to run the filter on the packet, see if it matches, and
-     put it in the display list if so.  */
+  /* Iterate through the list of frames.  Call a routine for each frame
+     to check whether it should be displayed and, if so, add it to
+     the display list. */
   firstsec = 0;
   firstusec = 0;
   prevsec = 0;
@@ -883,7 +921,7 @@ colorize_packets(capture_file *cf)
   count = 0;
 
   stop_flag = FALSE;
-  progbar = create_progress_dlg("Filtering", "Stop", &stop_flag);
+  progbar = create_progress_dlg(action, "Stop", &stop_flag);
 
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -923,7 +961,8 @@ colorize_packets(capture_file *cf)
     wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
     	cf->pd, fdata->cap_len);
 
-    row = add_packet_to_packet_list(fdata, cf, &cf->pseudo_header, cf->pd);
+    row = add_packet_to_packet_list(fdata, cf, &cf->pseudo_header, cf->pd,
+					refilter);
     if (fdata == selected_frame)
       selected_row = row;
   }

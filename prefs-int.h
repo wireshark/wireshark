@@ -2,7 +2,7 @@
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *
- * $Id: prefs-int.h,v 1.1 2000/07/05 09:40:40 guy Exp $
+ * $Id: prefs-int.h,v 1.2 2000/07/09 03:29:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@ struct pref_module {
 	void (*apply_cb)(void);	/* routine to call when preferences applied */
 	GList	*prefs;		/* list of its preferences */
 	int	numprefs;	/* number of preferences */
+	gboolean prefs_changed;	/* if TRUE, a preference has changed since we last checked */
 };
 
 typedef enum {

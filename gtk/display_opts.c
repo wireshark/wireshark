@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.10 2000/07/05 02:45:39 guy Exp $
+ * $Id: display_opts.c,v 1.11 2000/07/09 03:29:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -241,6 +241,7 @@ static void
 get_display_options(GtkWidget *parent_w)
 {
   GtkWidget *button;
+  gboolean bval;
 
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
                                               E_DISPLAY_TIME_ABS_KEY);
@@ -267,7 +268,20 @@ get_display_options(GtkWidget *parent_w)
 
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
 					     E_DISPLAY_IP_DSCP_KEY);
-  g_ip_dscp_actif = (GTK_TOGGLE_BUTTON (button)->active);
+  bval = (GTK_TOGGLE_BUTTON (button)->active);
+  if (g_ip_dscp_actif != bval) {
+    g_ip_dscp_actif = bval;
+
+    /* XXX - we "know" here that the IP dissector doesn't need to be
+       notified if this preference changed.
+
+       Ultimately, we should probably remove this item from the
+       "Display options" dialog box, as it can be changed from the
+       "IP" tab in the "Preferences" dialog box. */
+
+    /* Redissect all the packets, and re-evaluate the display filter. */
+    redissect_packets(&cfile);
+  }
 }
 
 static void
