@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.1 2001/01/07 22:08:31 guy Exp $
+ * $Id: packet-fr.c,v 1.2 2001/01/07 22:18:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,26 +84,25 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_boolean(fr_tree, hf_fr_becn, tvb, 1, 1, fr_header);
       proto_tree_add_boolean(fr_tree, hf_fr_de,   tvb, 1, 1, fr_header);
       proto_tree_add_uint(fr_tree, hf_fr_proto,tvb, 2, 2, fr_proto );
+  }
 
-      next_tvb =  tvb_new_subset(tvb,4, -1 , -1);
+  next_tvb =  tvb_new_subset(tvb, 4, -1, -1);
 
-      switch (fr_proto){
-/*        case 0x0703:
-		dissect_lmi(next_tvb,pinfo,tree);
-		break;
+  switch (fr_proto){
+/*    case 0x0703:
+	dissect_lmi(next_tvb,pinfo,tree);
+	break;
 	this is not yet implemented
 */
-      	case 0x0800:
-      		dissect_ip(next_tvb,pinfo,tree);
-      		break;
-      	case 0x8137:
-	        dissect_ipx(next_tvb,pinfo,tree);
-	        break;
-     	default:
-		dissect_data(next_tvb,0,pinfo,tree);
-		break;	                                
-	}
-
+      case 0x0800:
+	dissect_ip(next_tvb,pinfo,tree);
+	break;
+      case 0x8137:
+	dissect_ipx(next_tvb,pinfo,tree);
+	break;
+      default:
+	dissect_data(next_tvb,0,pinfo,tree);
+	break;	                                
   }
   return;
 }
