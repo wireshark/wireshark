@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.376 2004/01/25 22:20:21 guy Exp $
+ * $Id: main.c,v 1.377 2004/01/26 18:40:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3314,6 +3314,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                   *filter_apply,
                   *filter_reset;
     GList         *filter_list = NULL;
+    GtkTooltips   *tooltips;
     GtkAccelGroup *accel;
     /* Display filter construct dialog has an Apply button, and "OK" not
        only sets our text widget, it activates it (i.e., it causes us to
@@ -3326,6 +3327,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Main window */
     top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+    tooltips = gtk_tooltips_new();
 
 #ifdef WIN32 
 #if GTK_MAJOR_VERSION < 2
@@ -3447,7 +3450,12 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     WIDGET_SET_SIZE(filter_cm, 400, -1);
     gtk_widget_show(filter_cm);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_cm, 
-        "Enter a display filter", NULL);
+        NULL, NULL);
+    /* setting a tooltip for a combobox will do nothing, so add it to the corresponding text entry */
+    gtk_tooltips_set_tip(tooltips, filter_te, 
+        "Enter a display filter, or choose one of your recently used filters. "
+        "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid).", 
+        NULL);
 
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
