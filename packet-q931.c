@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.36 2002/02/02 02:51:20 guy Exp $
+ * $Id: packet-q931.c,v 1.37 2002/02/12 10:21:05 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -42,9 +42,6 @@
 #include "packet-q931.h"
 
 #include "packet-tpkt.h"
-#ifdef H323
-#include "packet-h225.h"
-#endif
 
 /* Q.931 references:
  *
@@ -66,6 +63,8 @@ static int hf_q931_message_type = -1;
 
 static gint ett_q931 = -1;
 static gint ett_q931_ie = -1;
+
+static dissector_handle_t h225_cs_handle;
 
 /*
  * Q.931 message types.
@@ -2027,14 +2026,15 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 /*
  * Dissect a User-user information element.
  */
-#define	Q931_PROTOCOL_DISCRIMINATOR_IA5	0x04
+#define	Q931_PROTOCOL_DISCRIMINATOR_IA5		0x04
+#define Q931_PROTOCOL_DISCRIMINATOR_ASN1	0x05
 
 static const value_string q931_protocol_discriminator_vals[] = {
 	{ 0x00,					"User-specific protocol" },
 	{ 0x01,					"OSI high layer protocols" },
 	{ 0x02,					"X.244" },
 	{ Q931_PROTOCOL_DISCRIMINATOR_IA5,	"IA5 characters" },
-	{ 0x05,					"X.208 and X.209 coded user information" },
+	{ Q931_PROTOCOL_DISCRIMINATOR_ASN1,	"X.208 and X.209 coded user information" },
 	{ 0x07,					"V.120 rate adaption" },
 	{ 0x08,					"Q.931/I.451 user-network call control messages" },
 	{ 0,					NULL }
@@ -2094,15 +2094,13 @@ static const value_string q931_codeset_vals[] = {
 	{ 0x00, NULL },
 };
 
-static gboolean
-q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_heuristic)
+static void
+dissect_q931_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, gboolean is_tpkt)
 {
-	int		offset = 0;
-	int		q931_offset;
 	proto_tree	*q931_tree = NULL;
 	proto_item	*ti;
-	proto_tree	*ie_tree;
+	proto_tree	*ie_tree = NULL;
 	guint8		call_ref_len;
 	guint8		call_ref[15];
 	guint8		message_type;
@@ -2110,83 +2108,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16		info_element_len;
 	int		codeset; 
 	gboolean	non_locking_shift;
-	guint8		protocol_discriminator;
-	int		lv_tpkt_len;
-
-#ifdef H323
 	tvbuff_t	*h225_tvb;
-	gboolean	is_h323_h225 = FALSE;
-	/*
-	 * It is very much possible to find a TPKT header here
-	 * TPKT is defined in RFC 1006 as a wrapper around ISO
-	 * defined protocols. There could even be several TPKT
-	 * wrapped messages in one TCP data field...
-	 * XXXXXXXX THIS IS NOT IMPLEMENTED YET!!! XXXXXXXXXXX
-	 *
-	 * For Q.931 related messages this is easy. If a 
-	 * protocol discriminator is found with a value of 3
-	 * and it's the first discriminator in the Q.931 
-	 * message one can safely assume it to be a TPKT 
-	 * header. See also Q.931 Table 4-1/Q.931 
-	 */
-#endif
-
-	if ( is_heuristic ) {
-		/*
-		 * The heuristic Q.931 dissector checks for TPKT-encapsulated
-		 * Q.931 packets.
-		 */
-		q931_offset = offset;
-		lv_tpkt_len = is_tpkt( tvb, &q931_offset );
-		if (lv_tpkt_len == -1) {
-			/*
-			 * It's not a TPKT packet; reject it.
-			 */
-			return FALSE;
-		}
-
-		/*
-		 * The minimum length of a Q.931 message is 3:
-		 * 1 byte for the protocol discriminator,
-		 * 1 for the call_reference length,
-		 * and one for the message type.
-		 *
-		 * Check that we have that many bytes past the
-		 * TPKT header.
-		 */
-		if ( !tvb_bytes_exist( tvb, q931_offset, 3 ) )
-			return FALSE;
-
-		/*
-		 * And check that we have that many bytes in the TPKT
-		 * packet.
-		 */
-		if (lv_tpkt_len < 3)
-			return FALSE;
-
-		/* Read the protocol discriminator */
-		protocol_discriminator = tvb_get_guint8(tvb, q931_offset);
-		if (protocol_discriminator != NLPID_Q_931) {
-			/* Doesn't look like Q.931 inside TPKT */
-			return FALSE;
-		}
-
-		/*
-		 * Dissect the TPKT header.
-		 */
-		dissect_tpkt_header( tvb, offset, pinfo, tree );
-
-		offset = q931_offset;
-
-		/*
-		 * Reset the current_proto variable because
-		 * "dissect_tpkt_header()" messed with it.
-		 */
-		pinfo->current_proto = "Q.931";
-	} else {
-		protocol_discriminator = tvb_get_guint8( tvb, offset );
-		/* Keep the protocol discriminator for later use */
-	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
@@ -2310,48 +2232,22 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/*
 		 * Variable-length IE.
-		 */
-#ifndef H323
-		info_element_len = tvb_get_guint8(tvb, offset + 1);
-#else
-		/* 
+		 *
 		 * According to page 18 from Recommendation H.225.0 :
 		 * " Length of user-user contents contents
 		 * - Shall be 2 octets instead of 1 (as in Figure 4-36/Q.931)"
-		 * 
-		 * This will be true for all messages going to / from TCP port
-		 * 1720 and with the first and fourth octet of the user-user 
-		 * IE having the values 0x7E and 0x05 resp.
-		 * See http://www.mbuf.org/~moto/h323/h323decoder.html
 		 *
-		 * XXX - should we base this on whether this is the
-		 * heuristic dissector or not?
+		 * We assume that if this is Q.931-over-TPKT, it might
+		 * be H.225 traffic, and check for the IE being a user-user
+		 * IE with ASN.1 encoding of the user information.
 		 */
-
-		if ( ( tvb_get_guint8( tvb, offset ) == 0x7E ) && 
-		   ( tvb_get_guint8( tvb, offset + 3 ) == 0x05 ) && 
-		   /* ( ( pinfo->srcport == 1720 ) || ( pinfo->destport == 1720 ) ) && */
-		   ( protocol_discriminator == NLPID_Q_931 ) )  {
-			info_element_len = tvb_get_ntohs( tvb, offset + 1 );
-			is_h323_h225 = TRUE;
-			if ( tree == NULL ) {
-				h225_tvb = tvb_new_subset( tvb, offset + 4, info_element_len - 1, info_element_len - 1 );
-				dissect_h225_cs( h225_tvb, pinfo, tree );
-				/*
-				 * Skip the 4 bytes of the element header and then the element itself
-				 */
-				offset += 4;
-				offset += info_element_len - 1;
-			}
-		} else {
-			info_element_len = tvb_get_guint8( tvb, offset + 1 );
-		}
-#endif
-		if (q931_tree != NULL) {
-#ifdef H323
-			if (is_h323_h225) {
+		if (is_tpkt && tvb_bytes_exist(tvb, offset, 4) &&
+		    tvb_get_guint8(tvb, offset) == Q931_IE_USER_USER && 
+		    tvb_get_guint8(tvb, offset + 3) == Q931_PROTOCOL_DISCRIMINATOR_ASN1)  {
+			info_element_len = tvb_get_ntohs(tvb, offset + 1);
+			if (q931_tree != NULL) {
 				ti = proto_tree_add_text(q931_tree, tvb, offset,
-				    1+1+1, "%s",
+				    1+2+info_element_len, "%s",
 				    val_to_str(info_element,
 				      q931_info_element_vals,
 				      "Unknown information element (0x%02X)"));
@@ -2363,8 +2259,46 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				      q931_info_element_vals, "Unknown (0x%02X)"));
 				proto_tree_add_text(ie_tree, tvb, offset + 1,
 				    2, "Length: %u", info_element_len);
-			} else {
-#endif
+				proto_tree_add_text(ie_tree, tvb, offset + 3,
+				    1, "Protocol discriminator: %s",
+				    val_to_str(tvb_get_guint8(tvb, offset + 3),
+				      q931_protocol_discriminator_vals,
+				      "Unknown (0x%02x)"));
+			}
+
+			if (info_element_len > 1) {
+				/*
+				 * Do we have a handle for the H.225 Call
+				 * Setup dissector?
+				 */
+				if (h225_cs_handle != NULL) {
+					/*
+					 * Yes - call it, regardless of
+					 * whether we're building a
+					 * protocol tree or not.
+					 */
+					h225_tvb = tvb_new_subset(tvb,
+					    offset + 4, info_element_len - 1,
+					    info_element_len - 1);
+					call_dissector(h225_cs_handle, h225_tvb,
+					    pinfo, ie_tree);
+				} else {
+					/*
+					 * No - just show it as "User
+					 * information" (if "ie_tree" is
+					 * null, this won't add anything).
+					 */
+					proto_tree_add_text(ie_tree, tvb,
+					    offset + 4, info_element_len - 1,
+					    "User information: %s",
+					    tvb_bytes_to_str(tvb, offset + 4,
+					      info_element_len - 1));
+				}
+			}
+			offset += 1 + 2 + info_element_len;
+		} else {
+			info_element_len = tvb_get_guint8(tvb, offset + 1);
+			if (q931_tree != NULL) {
 				ti = proto_tree_add_text(q931_tree, tvb, offset,
 				    1+1+info_element_len, "%s",
 				    val_to_str(info_element, q931_info_element_vals,
@@ -2376,205 +2310,257 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				      "Unknown (0x%02X)"));
 				proto_tree_add_text(ie_tree, tvb, offset + 1, 1,
 				    "Length: %u", info_element_len);
-#ifdef H323
-			}
-#endif
-			switch (info_element) {
 
-			case Q931_IE_SEGMENTED_MESSAGE:
-				dissect_q931_segmented_message_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				switch (info_element) {
 
-			case Q931_IE_BEARER_CAPABILITY:
-			case Q931_IE_LOW_LAYER_COMPAT:
-				dissect_q931_bearer_capability_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_SEGMENTED_MESSAGE:
+					dissect_q931_segmented_message_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_CAUSE:
-				dissect_q931_cause_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_BEARER_CAPABILITY:
+				case Q931_IE_LOW_LAYER_COMPAT:
+					dissect_q931_bearer_capability_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_CALL_STATE:
-				dissect_q931_call_state_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_CAUSE:
+					dissect_q931_cause_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_CHANNEL_IDENTIFICATION:
-				dissect_q931_channel_identification_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_CALL_STATE:
+					dissect_q931_call_state_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_PROGRESS_INDICATOR:
-				dissect_q931_progress_indicator_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_CHANNEL_IDENTIFICATION:
+					dissect_q931_channel_identification_ie(
+					    tvb, offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_NETWORK_SPECIFIC_FACIL:
-			case Q931_IE_TRANSIT_NETWORK_SEL:
-				dissect_q931_ns_facilities_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_PROGRESS_INDICATOR:
+					dissect_q931_progress_indicator_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_NOTIFICATION_INDICATOR:
-				dissect_q931_notification_indicator_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_NETWORK_SPECIFIC_FACIL:
+				case Q931_IE_TRANSIT_NETWORK_SEL:
+					dissect_q931_ns_facilities_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_DISPLAY:
-				dissect_q931_ia5_ie(tvb, offset + 2,
-				    info_element_len, ie_tree,
-				    "Display information");
-				break;
+				case Q931_IE_NOTIFICATION_INDICATOR:
+					dissect_q931_notification_indicator_ie(
+					    tvb, offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_DATE_TIME:
-				dissect_q931_date_time_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_DISPLAY:
+					dissect_q931_ia5_ie(tvb, offset + 2,
+					    info_element_len, ie_tree,
+					    "Display information");
+					break;
 
-			case Q931_IE_KEYPAD_FACILITY:
-				dissect_q931_ia5_ie(tvb, offset + 2,
-				    info_element_len, ie_tree,
-				    "Keypad facility");
-				break;
+				case Q931_IE_DATE_TIME:
+					dissect_q931_date_time_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_SIGNAL:
-				dissect_q931_signal_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_KEYPAD_FACILITY:
+					dissect_q931_ia5_ie(tvb, offset + 2,
+					    info_element_len, ie_tree,
+					    "Keypad facility");
+					break;
 
-			case Q931_IE_INFORMATION_RATE:
-				dissect_q931_information_rate_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_SIGNAL:
+					dissect_q931_signal_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_E2E_TRANSIT_DELAY:
-				dissect_q931_e2e_transit_delay_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_INFORMATION_RATE:
+					dissect_q931_information_rate_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_TD_SELECTION_AND_INT:
-				dissect_q931_td_selection_and_int_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_E2E_TRANSIT_DELAY:
+					dissect_q931_e2e_transit_delay_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_PL_BINARY_PARAMETERS:
-				dissect_q931_pl_binary_parameters_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_TD_SELECTION_AND_INT:
+					dissect_q931_td_selection_and_int_ie(
+					    tvb, offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_PL_WINDOW_SIZE:
-				dissect_q931_pl_window_size_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_PL_BINARY_PARAMETERS:
+					dissect_q931_pl_binary_parameters_ie(
+					    tvb, offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_PACKET_SIZE:
-				dissect_q931_packet_size_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_PL_WINDOW_SIZE:
+					dissect_q931_pl_window_size_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_CUG:
-				dissect_q931_cug_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_PACKET_SIZE:
+					dissect_q931_packet_size_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_REVERSE_CHARGE_IND:
-				dissect_q931_reverse_charge_ind_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_CUG:
+					dissect_q931_cug_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_CALLING_PARTY_NUMBER:
-			case Q931_IE_CALLED_PARTY_NUMBER:
-			case Q931_IE_REDIRECTING_NUMBER:
-				dissect_q931_number_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_REVERSE_CHARGE_IND:
+					dissect_q931_reverse_charge_ind_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_CALLING_PARTY_SUBADDR:
-			case Q931_IE_CALLED_PARTY_SUBADDR:
-				dissect_q931_party_subaddr_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_CALLING_PARTY_NUMBER:
+				case Q931_IE_CALLED_PARTY_NUMBER:
+				case Q931_IE_REDIRECTING_NUMBER:
+					dissect_q931_number_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_RESTART_INDICATOR:
-				dissect_q931_restart_indicator_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_CALLING_PARTY_SUBADDR:
+				case Q931_IE_CALLED_PARTY_SUBADDR:
+					dissect_q931_party_subaddr_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_HIGH_LAYER_COMPAT:
-				dissect_q931_high_layer_compat_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
-				break;
+				case Q931_IE_RESTART_INDICATOR:
+					dissect_q931_restart_indicator_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
 
-			case Q931_IE_USER_USER:
-#ifdef H323
-				if (is_h323_h225) {
-					h225_tvb = tvb_new_subset(tvb,
-					    offset + 4, info_element_len - 1,
-					    info_element_len - 1);
-					dissect_h225_cs(h225_tvb, pinfo, tree);
-					offset += 3;
-					proto_tree_add_text(ie_tree, tvb,
-					    offset, 1,
-					    "Protocol discriminator: %s",
-					    val_to_str(tvb_get_guint8(tvb, offset),
-					      q931_protocol_discriminator_vals,
-					      "Unknown (0x%02x)"));
-					offset += info_element_len;
-				} else {
-#endif
+				case Q931_IE_HIGH_LAYER_COMPAT:
+					dissect_q931_high_layer_compat_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+					break;
+
+				case Q931_IE_USER_USER:
 					dissect_q931_user_user_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree);
-#ifdef H323
-				}
-#endif
-				break;
+					break;
 
-			default:
-				proto_tree_add_text(ie_tree, tvb, offset + 2,
-				    info_element_len, "Data: %s",
-				    bytes_to_str(
-				      tvb_get_ptr(tvb, offset + 2, info_element_len),
-				      info_element_len));
-				break;
+				default:
+					proto_tree_add_text(ie_tree, tvb,
+					    offset + 2, info_element_len,
+					    "Data: %s",
+					    bytes_to_str(
+					      tvb_get_ptr(tvb, offset + 2,
+					          info_element_len),
+						  info_element_len));
+					break;
+				}
 			}
+			offset += 1 + 1 + info_element_len;
 		}
-		offset += 1 + 1 + info_element_len;
 		if (non_locking_shift)
 			codeset = 0;
 	}
-
-	/*
-	 * Heuristic should return TRUE if it get's here.
-	 */
-
-	return TRUE;
-
 }
 
-gboolean
-dissect_q931_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/*
+ * Q.931-over-TPKT-over-TCP.
+ *
+ * XXX - this should do the usual TCP loop-over-everything-in-the-segment
+ * stuff, and should also handle TPKT PDUs split across segment boundaries.
+ */
+static gboolean
+dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	int offset = 0;
+	int q931_offset;
+	int lv_tpkt_len;
+
 	/*
-	 * XXX - should this be heuristic, or should we just make
-	 * port 1720 do Q.931-inside-TPKT; that port appears to be
-	 * intended for H.323 calls, according to
+	 * Check whether this looks like a TPKT-encapsulated
+	 * Q.931 packet.
+	 */
+	q931_offset = offset;
+	lv_tpkt_len = is_tpkt(tvb, &q931_offset);
+	if (lv_tpkt_len == -1) {
+		/*
+		 * It's not a TPKT packet; reject it.
+		 */
+		return FALSE;
+	}
+
+	/*
+	 * The minimum length of a Q.931 message is 3:
+	 * 1 byte for the protocol discriminator,
+	 * 1 for the call_reference length,
+	 * and one for the message type.
 	 *
-	 *	http://www.isi.edu/in-notes/iana/assignments/port-numbers
+	 * Check that we have that many bytes past the
+	 * TPKT header.
+	 */
+	if (!tvb_bytes_exist(tvb, q931_offset, 3))
+		return FALSE;
+
+	/*
+	 * And check that we have that many bytes in the TPKT
+	 * packet.
+	 */
+	if (lv_tpkt_len < 3)
+		return FALSE;
+
+	/* Check the protocol discriminator */
+	if (tvb_get_guint8(tvb, q931_offset) != NLPID_Q_931) {
+		/* Doesn't look like Q.931 inside TPKT */
+		return FALSE;
+	}
+
+	/*
+	 * OK, it looks like Q.931-over-TPKT.
 	 *
-	 * which says it's for "h323hostcall"?
+	 * Dissect the TPKT header.
+	 */
+	dissect_tpkt_header(tvb, offset, pinfo, tree);
+
+	offset = q931_offset;
+
+	/*
+	 * Reset the current_proto variable because
+	 * "dissect_tpkt_header()" messed with it.
 	 */
 	pinfo->current_proto = "Q.931";
-	return q931_dissector(tvb, pinfo, tree, TRUE);
+
+	dissect_q931_pdu(tvb, q931_offset, pinfo, tree, TRUE);
+
+	return TRUE;
 }
 
 static void
 dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	q931_dissector(tvb, pinfo, tree, FALSE);
+	dissect_q931_pdu(tvb, 0, pinfo, tree, FALSE);
 }
 
 void
@@ -2613,5 +2599,16 @@ proto_register_q931(void)
 void
 proto_reg_handoff_q931(void)
 {
-	heur_dissector_add("tcp", dissect_q931_heur, proto_q931);
+	dissector_handle_t q931_tpkt_handle;
+
+	/*
+	 * Attempt to get a handle for the H.225 Call Setup dissector.
+	 * If we can't, the handle we get is null.
+	 */
+	h225_cs_handle = find_dissector("h225_cs");
+
+	/*
+	 * For H.323.
+	 */
+	heur_dissector_add("tcp", dissect_q931_tpkt, proto_q931);
 }
