@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.53 2000/04/12 20:24:34 gram Exp $
+ * $Id: packet-llc.c,v 1.54 2000/04/13 02:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -501,7 +501,7 @@ proto_register_llc(void)
 			&cr_bit, 0x0, "Command/Response" }},
 
 		{ &hf_llc_ctrl,
-		{ "Control", "llc.control", FT_UINT8, BASE_HEX, 
+		{ "Control", "llc.control", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "" }},
 
 		/* registered here but handled in ethertype.c */
