@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.5 2002/04/29 08:20:09 guy Exp $
+ * $Id: packet-lmp.c,v 1.6 2002/05/10 18:37:38 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,9 @@
 /*
  * LMP as a standard has shown a remarkable ability to get completely rewritten
  * across minor versions of the draft. This file currently implements
- * the version described in draft-ietf-ccamp-lmp-03.txt
+ * two versions of LMP; described in draft-ietf-ccamp-lmp-02.txt and 
+ * draft-ietf-ccamp-lmp-03.txt. The -03 version is the default; the 
+ * version being dissected can be changed from the LMP protocol preferences
  */
 
 #ifdef HAVE_CONFIG_H
@@ -59,6 +61,7 @@
 
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
+#include <prefs.h>
 #include "in_cksum.h"
 #include "etypes.h"
 #include "ipproto.h"
@@ -67,8 +70,10 @@
 #include "packet-rsvp.h"
 
 static int proto_lmp = -1;
+#define LMP_VER_DRAFT_CCAMP_02  2
+#define LMP_VER_DRAFT_CCAMP_03  3
+static int lmp_draft_ver = LMP_VER_DRAFT_CCAMP_03;
 
-/* #define IP_PROTO_LMP 0x6e */
 #define IP_PROTO_LMP 140
 
 /*----------------------------------------------------------------------
@@ -321,6 +326,9 @@ enum lmp_filter_keys {
   LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID,
   LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK,
   LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK,
+  LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS,
+  LMPF_VAL_ERROR_CONFIG_RENEGOTIATE,
+  LMPF_VAL_ERROR_CONFIG_BAD_CCID,
 
   LMPF_MAX,
 };
@@ -698,6 +706,16 @@ static hf_register_info lmpf_info[] = {
     {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK], 
      { "Summary - Bad Data Link Object", "lmp.error.summary_bad_data_link", 
        FT_BOOLEAN, 8, NULL, 0x10, "", HFILL }},
+
+    {&lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS], 
+     { "Config - Unacceptable non-negotiable parameters", "lmp.error.config_bad_params", 
+       FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_CONFIG_RENEGOTIATE], 
+     { "Config - Renegotiate Parametere", "lmp.error.config_renegotiate", 
+       FT_BOOLEAN, 8, NULL, 0x02, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_CCID], 
+     { "Config - Bad CC ID", "lmp.error.config_bad_ccid", 
+       FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
 };
 
 static int
@@ -1357,54 +1375,123 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti2 = proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_ERROR], 
 					  tvb, offset2, 4, l);
 
-		switch(type) {
-		case 1: 
-		    proto_item_append_text(ti, ": BEGIN_VERIFY_ERROR: %s%s%s%s",
-					   (l&0x01) ? "Unsupported-Link " : "",
-					   (l&0x02) ? "Unwilling" : "",
-					   (l&0x04) ? "Unsupported-Transport" : "",
-					   (l&0x08) ? "TE-Link-ID" : "");
-		    lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
-		    proto_tree_add_boolean(lmp_flags_tree, 
-					   lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK], 
-					   tvb, offset, 4, l);
-		    proto_tree_add_boolean(lmp_flags_tree, 
-					   lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING], 
-					   tvb, offset, 4, l);
-		    proto_tree_add_boolean(lmp_flags_tree, 
-					   lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT], 
-					   tvb, offset, 4, l);
-		    proto_tree_add_boolean(lmp_flags_tree, 
-					   lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID], 
-					   tvb, offset, 4, l);
+		/* Errors are different in draft-02 and draft-03 */
+		switch(lmp_draft_ver) {
+		case LMP_VER_DRAFT_CCAMP_02:
+		    switch(type) {
+		    case 1: 
+			proto_item_append_text(ti, ": CONFIG_ERROR: %s%s%s",
+					       (l&0x01) ? "Unacceptable-Params " : "",
+					       (l&0x02) ? "Renegotiate" : "",
+					       (l&0x04) ? "Bad Received CCID" : "");
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_CONFIG_RENEGOTIATE], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_CCID], 
+					       tvb, offset, 4, l);
+			break;
+		    case 2: 
+			proto_item_append_text(ti, ": BEGIN_VERIFY_ERROR: %s%s%s%s",
+					       (l&0x01) ? "Unsupported-Link " : "",
+					       (l&0x02) ? "Unwilling" : "",
+					       (l&0x04) ? "Unsupported-Transport" : "",
+					       (l&0x08) ? "TE-Link-ID" : "");
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID], 
+					       tvb, offset, 4, l);
+			break;
+		    case 3: 
+			proto_item_append_text(ti, ": LINK_SUMMARY_ERROR: %s%s%s",
+					       (l&0x01) ? "Unacceptable-Params " : "",
+					       (l&0x02) ? "Renegotiate" : "",
+					       (l&0x04) ? "Remote-Link-ID" : "");
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID], 
+					       tvb, offset, 4, l);
+			break;
+		    default:
+			proto_item_append_text(ti, ": UNKNOWN_ERROR (%d): 0x%04x", type, l);
+			proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					    "Data (%d bytes)", mylen);
+			break;
+		    }
 		    break;
-		case 2: 
-		    proto_item_append_text(ti, ": LINK_SUMMARY_ERROR: %s%s%s%s%s",
-					   (l&0x01) ? "Unacceptable-Params " : "",
-					   (l&0x02) ? "Renegotiate" : "",
-					   (l&0x04) ? "Remote-Link-ID" : "",
-					   (l&0x08) ? "TE-Link" : "",
-					   (l&0x10) ? "Data-Link" : "");
-		    lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
-		    proto_tree_add_boolean(lmp_flags_tree, 
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS], 
-					   tvb, offset, 4, l);
-		    proto_tree_add_boolean(lmp_flags_tree, 
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE], 
-					   tvb, offset, 4, l);
-		    proto_tree_add_boolean(lmp_flags_tree, 
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID], 
-					   tvb, offset, 4, l);
-		    proto_tree_add_boolean(lmp_flags_tree, 
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK], 
-					   tvb, offset, 4, l);
-		    proto_tree_add_boolean(lmp_flags_tree, 
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK], 
-					   tvb, offset, 4, l);
-		    break;
+
 		default:
-		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
+		case LMP_VER_DRAFT_CCAMP_03:
+		    switch(type) {
+		    case 1: 
+			proto_item_append_text(ti, ": BEGIN_VERIFY_ERROR: %s%s%s%s",
+					       (l&0x01) ? "Unsupported-Link " : "",
+					       (l&0x02) ? "Unwilling" : "",
+					       (l&0x04) ? "Unsupported-Transport" : "",
+					       (l&0x08) ? "TE-Link-ID" : "");
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID], 
+					       tvb, offset, 4, l);
+			break;
+		    case 2: 
+			proto_item_append_text(ti, ": LINK_SUMMARY_ERROR: %s%s%s%s%s",
+					       (l&0x01) ? "Unacceptable-Params " : "",
+					       (l&0x02) ? "Renegotiate" : "",
+					       (l&0x04) ? "Remote-Link-ID" : "",
+					       (l&0x08) ? "TE-Link" : "",
+					       (l&0x10) ? "Data-Link" : "");
+			lmp_flags_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK], 
+					       tvb, offset, 4, l);
+			proto_tree_add_boolean(lmp_flags_tree, 
+					       lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK], 
+					       tvb, offset, 4, l);
+			break;
+		    default:
+			proto_item_append_text(ti, ": UNKNOWN_ERROR (%d): 0x%04x", type, l);
+			proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+					    "Data (%d bytes)", mylen);
+			break;
+		    }
 		    break;
 		}
 		break;
@@ -1422,6 +1509,24 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+static void 
+register_lmp_prefs (void)
+{
+    module_t *lmp_module;
+    static enum_val_t lmp_ver[] = {
+	{"draft-ietf-ccamp-lmp-03", LMP_VER_DRAFT_CCAMP_03},
+	{"draft-ietf-ccamp-lmp-02", LMP_VER_DRAFT_CCAMP_02},
+	{NULL, -1}
+    };
+
+    lmp_module = prefs_register_protocol(proto_lmp, NULL);
+    prefs_register_enum_preference(
+	lmp_module, "lmp_version", 
+	"Draft version of LMP",
+	"Specifies the IETF CCAMP draft version of LMP to interpret",
+	&lmp_draft_ver, lmp_ver, FALSE);
+}
+
 void
 proto_register_lmp(void)
 {    
@@ -1437,6 +1542,8 @@ proto_register_lmp(void)
 					    "LMP", "lmp");
     proto_register_field_array(proto_lmp, lmpf_info, array_length(lmpf_info));
     proto_register_subtree_array(ett, array_length(ett));
+
+    register_lmp_prefs();
 }
 
 void
