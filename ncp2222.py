@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.52 2003/02/08 06:25:35 guy Exp $
+$Id: ncp2222.py,v 1.53 2003/02/11 08:47:22 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -8556,10 +8556,6 @@ def define_ncp2222():
 	# 2222/1628, 22/40
 	pkt = NCP(0x1628, "Scan Directory Disk Space", 'fileserver')
 	pkt.Request((17,271), [
-		#
-		# XXX - this didn't match what was in the spec for 22/40
-		# on the Novell Web site.
-		#
 		rec( 10, 1, DirHandle ),
 		rec( 11, 1, SearchAttributes ),
 		rec( 12, 4, SequenceNumber ),
@@ -9273,6 +9269,11 @@ def define_ncp2222():
 		rec( -1, 1, PropertySegment ),
 		rec( -1, 1, MoreFlag ),
 		rec( -1, (1,16), PropertyName ),
+		#
+		# XXX - don't show this if MoreFlag isn't set?
+		# In at least some packages where it's not set,
+		# PropertyValue appears to be garbage.
+		#
 		rec( -1, 128, PropertyValue ),
 	], info_str=(PropertyName, "Write Property Value: %s", ", %s"))
 	pkt.Reply(8)
