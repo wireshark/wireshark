@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.10 2001/03/23 19:22:02 jfoster Exp $
+ * $Id: packet-fr.c,v 1.11 2001/03/23 21:49:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,8 +67,6 @@
 #define	FRELAY_DC	0x0002		/* Control bits */
 
 #define FROM_DCE	0x80		/* for direction setting */
-
-#define NLPID_WCP 0xb0 			/* Wellfleet compression ip */
 
 static gint proto_fr    = -1;
 static gint ett_fr      = -1;

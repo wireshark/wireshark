@@ -2,7 +2,7 @@
  * Definitions of OSI NLPIDs (Network Layer Protocol IDs)
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: nlpid.h,v 1.5 2000/08/11 13:34:19 deniel Exp $
+ * $Id: nlpid.h,v 1.6 2001/03/23 21:49:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,22 +29,24 @@
 
 /* ISO/IEC TR 9577 NLPID values. */
 
-#define	NLPID_NULL		0x00
+#define NLPID_NULL		0x00
 #define NLPID_T_70		0x01	/* T.70 */
-#define	NLPID_X_633		0x03	/* X.633 */
-#define	NLPID_Q_931		0x08	/* Q.931, Q.932, Q.933, X.36, ISO 11572, ISO 11582 */
-#define	NLPID_Q_2931		0x09	/* Q.2931 */
-#define	NLPID_Q_2119		0x0c	/* Q.2119 */
-#define	NLPID_SNAP		0x80
-#define	NLPID_ISO8473_CLNP	0x81	/* X.233 */
-#define	NLPID_ISO9542_ESIS	0x82
-#define	NLPID_ISO10589_ISIS	0x83
-#define	NLPID_ISO10747_IDRP     0x85
-#define	NLPID_ISO9542X25_ESIS	0x8a
-#define	NLPID_ISO10030		0x8c
-#define	NLPID_ISO11577		0x8d	/* X.273 */
-#define	NLPID_IP		0xcc
-#define	NLPID_PPP		0xcf
+#define NLPID_X_633		0x03	/* X.633 */
+#define NLPID_Q_931		0x08	/* Q.931, Q.932, Q.933, X.36, ISO 11572, ISO 11582 */
+#define NLPID_Q_2931		0x09	/* Q.2931 */
+#define NLPID_Q_2119		0x0c	/* Q.2119 */
+#define NLPID_SNAP		0x80
+#define NLPID_ISO8473_CLNP	0x81	/* X.233 */
+#define NLPID_ISO9542_ESIS	0x82
+#define NLPID_ISO10589_ISIS	0x83
+#define NLPID_ISO10747_IDRP     0x85
+#define NLPID_ISO9542X25_ESIS	0x8a
+#define NLPID_ISO10030		0x8c
+#define NLPID_ISO11577		0x8d	/* X.273 */
+#define NLPID_IP		0xcc
+#define NLPID_PPP		0xcf
+
+#define NLPID_WCP		0xb0	/* Wellfleet compression IP */
 
 extern const value_string nlpid_vals[];
 

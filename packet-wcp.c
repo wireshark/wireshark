@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.2 2001/03/23 20:47:17 jfoster Exp $
+ * $Id: packet-wcp.c,v 1.3 2001/03/23 21:49:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -184,7 +184,6 @@ static int hf_wcp_type = -1;
 static gint ett_wcp = -1;
 static gint ett_wcp_field = -1;
 
-#define NLPID_WCP 0xb0			/* NLPID value for WCP */
 #define ETHERTYPE_WCP 0x80ff		/* ether snap value for WCP */
 
 /*
