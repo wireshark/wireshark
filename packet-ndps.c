@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.23 2003/07/25 04:11:49 gram Exp $
+ * $Id: packet-ndps.c,v 1.24 2003/08/25 21:59:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,11 +46,7 @@ static GHashTable *ndps_reassembled_table = NULL;
 
 /* desegmentation of ndps */
 static gboolean ndps_defragment = TRUE;
-static guint32  frag_number = 0;
-static guint32  save_frag_length=0;
-static guint32  save_frag_seq=0;
-static gboolean ndps_fragmented = FALSE;
-static gboolean more_fragment = FALSE;
+
 static guint32  tid = 1;
 
 /* Show ID's value */
@@ -3459,6 +3455,8 @@ typedef struct {
         guint32             ndps_prog;
         guint32             ndps_func;
         guint32             ndps_frame_num;
+        gboolean            ndps_frag;
+        guint32             ndps_end_frag;
 } ndps_req_hash_value;
 
 static GHashTable *ndps_req_hash = NULL;
@@ -3548,6 +3546,8 @@ ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
 	request_value->ndps_prog = 0;
 	request_value->ndps_func = 0;
 	request_value->ndps_frame_num = 0;
+    request_value->ndps_frag = FALSE;
+    request_value->ndps_end_frag = 0;
        
 	g_hash_table_insert(ndps_req_hash, request_key, request_value);
 
@@ -3696,20 +3696,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
 static guint
 get_ndps_pdu_len(tvbuff_t *tvb, int offset)
 {
-    guint16 plen;
-
-    /*
-     * Get the length of the NDPS packet.
-     */
-    plen = tvb_get_ntohs(tvb, offset + 2);
-
-    /*
-     * That length doesn't include the length of the record mark field
-     * or the length field itself; add that in.
-     * (XXX - is the field really a 31-bit length with the uppermost bit
-     * being a record mark bit?)
-     */
-    return plen + 4;
+    return tvb_get_ntohs(tvb, offset +2) + 4;
 }
 
 static void
@@ -3731,43 +3718,91 @@ dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_ndps(tvb, pinfo, ndps_tree);
 }
 
+/*
+ * Defrag logic 
+ *
+ * SPX EOM not being set indicates we are inside or at the 
+ * beginning of a fragment. But when the end of the fragment 
+ * is encounterd the flag is set. So we must mark what the
+ * frame number is of the end fragment so that we will be
+ * able to redissect if the user clicks on the packet
+ * or resorts/filters the trace. 
+ *
+ * Once we are certain that we are in a fragment sequence
+ * then we can just process each fragment in this conversation
+ * until we reach the eom message packet. We can tell we are at
+ * the final fragment because it is flagged as SPX EOM.
+ *
+ * We will be able to easily determine if a conversation is a fragment
+ * with the exception of the last packet in the fragment. So remember
+ * the last fragment packet number.
+ */         
 static void
 ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint16         record_mark=0;
-    guint16         ndps_length=0;
-    int             len=0;
-    tvbuff_t        *next_tvb = NULL;
-    fragment_data   *fd_head;
-    spx_info        *spx_info;
+    int                 len=0;
+    tvbuff_t            *next_tvb = NULL;
+    fragment_data       *fd_head;
+    spx_info            *spx_info;
+    ndps_req_hash_value	*request_value = NULL;
+    conversation_t      *conversation;
 
+    /* Get SPX info from SPX dissector */
     spx_info = pinfo->private_data;
+    /* Check to see if defragmentation is enabled in the dissector */
     if (!ndps_defragment) {
         dissect_ndps(tvb, pinfo, tree);
         return;
     }
-    record_mark = tvb_get_ntohs(tvb, 0);
-    ndps_length = tvb_get_ntohs(tvb, 2);
-    if (ndps_length > tvb_length_remaining(tvb, 0) || ndps_fragmented || ndps_length==0) 
+    /* Has this already been dissected? */
+    if (!pinfo->fd->flags.visited) 
     {
-        more_fragment = TRUE;
-        ndps_fragmented = TRUE;
-
+        /* Lets see if this is a new conversation */
+        conversation = find_conversation(&pinfo->src, &pinfo->dst,
+            PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
+    
+        if (conversation == NULL) 
+        {
+            /* It's not part of any conversation - create a new one. */
+            conversation = conversation_new(&pinfo->src, &pinfo->dst,
+                PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
+            /* Create new request value hash */
+            request_value = ndps_hash_insert(conversation, (guint32) pinfo->srcport);
+        }
+        /* So now we need to get the request info for this conversation */
+        request_value = ndps_hash_lookup(conversation, (guint32) pinfo->srcport);
+        if (request_value == NULL) 
+        {
+            /* We haven't seen a packet with this conversation yet so create one. */
+            request_value = ndps_hash_insert(conversation, (guint32) pinfo->srcport);
+        }
+        /* Add it to pinfo so we can get it on further dissection requests */
+        p_add_proto_data(pinfo->fd, proto_ndps, (void*) request_value);
+    }
+    else
+    {
+        /* Get request value data */
+        request_value = p_get_proto_data(pinfo->fd, proto_ndps);
+    }
+    /* Check to see of this is a fragment. If so then mark as a fragment. */
+    if (!spx_info->eom) {
+        request_value->ndps_frag = TRUE;
+    }
+    /* Now we process the fragments */
+    if (request_value->ndps_frag || (request_value->ndps_end_frag == pinfo->fd->num)) 
+    {
         /*   
          * Fragment
          */
         tid = (pinfo->srcport+pinfo->destport);
         len = tvb_reported_length_remaining(tvb, 0);
-        if ((frag_number + tvb_length_remaining(tvb, 0)-save_frag_length)<=10)
-        {
-            more_fragment = FALSE;
-        }
         if (tvb_bytes_exist(tvb, 0, len))
         {
-            fd_head = fragment_add_seq_next(tvb, 0, pinfo, tid, ndps_fragment_table, ndps_reassembled_table, len, more_fragment);
+            fd_head = fragment_add_seq_next(tvb, 0, pinfo, tid, ndps_fragment_table, ndps_reassembled_table, len, !spx_info->eom);
             if (fd_head != NULL) 
             {
-                if (fd_head->next != NULL) 
+                /* Is this the last fragment? EOM will indicate */
+                if (fd_head->next != NULL && spx_info->eom) 
                 {
                     next_tvb = tvb_new_real_data(fd_head->data,
                         fd_head->len, fd_head->len);
@@ -3785,36 +3820,32 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             next_tvb);
                         tid++;
                     }
-                    more_fragment = FALSE;
-                    save_frag_length = 0;
-                    frag_number=0;
-                    ndps_fragmented=FALSE;
+                    /* Remember this fragment number so we can dissect again */
+                    request_value->ndps_end_frag = pinfo->fd->num;
+
                 } 
                 else 
                 {
+                    /* This is either a beggining or middle fragment on second dissection */
                     next_tvb = tvb_new_subset(tvb, 0, -1, -1);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                    {
+                      if (!spx_info->eom)
+                      {
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "[NDPS Fragment]");
+                      }
+                    }
                 }
             }
             else 
             {
-                if (save_frag_length == 0) 
+                /* Fragment from first pass of dissection */
+                if (check_col(pinfo->cinfo, COL_INFO))
                 {
-                    save_frag_length = ndps_length;                 /* First Fragment */
-                    save_frag_seq = tid;
-                }
-                if ((pinfo->srcport+pinfo->destport) == save_frag_seq) 
-                {
-                    if (!pinfo->fd->flags.visited) 
-                    {
-                        frag_number += tvb_length_remaining(tvb, 0);    /* Current offset */
-                    }
-                    if (check_col(pinfo->cinfo, COL_INFO))
-                    {
-                      if (more_fragment)
-                      {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " [NDPS Fragment]");
-                      }
-                    }
+                  if (!spx_info->eom)
+                  {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "[NDPS Fragment]");
+                  }
                 }
                 next_tvb = NULL;
             }
@@ -3822,41 +3853,29 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else 
         {
             /*
-             * Dissect this
+             * There are no bytes so Dissect this
              */
             next_tvb = tvb_new_subset(tvb, 0, -1, -1);
         }
         if (next_tvb == NULL)
         {
-            if ((pinfo->srcport+pinfo->destport) == save_frag_seq) 
-            {
-                next_tvb = tvb_new_subset (tvb, 0, -1, -1);
-                call_dissector(ndps_data_handle, next_tvb, pinfo, tree);
-            }
-            else
-            {
-                if (spx_info->eom) 
-                {
-                    ndps_fragmented=FALSE;
-                }
-                dissect_ndps(tvb, pinfo, tree);
-            }
+            /* This is a fragment packet */
+            next_tvb = tvb_new_subset (tvb, 0, -1, -1);
+            call_dissector(ndps_data_handle, next_tvb, pinfo, tree);
         }
         else
         {
-            if (spx_info->eom) 
-            {
-                ndps_fragmented=FALSE;
+            /* This is the end fragment so dissect and mark end */
+            if (spx_info->eom) {
+                request_value->ndps_frag = FALSE;
+                dissect_ndps(next_tvb, pinfo, tree);
             }
-            dissect_ndps(next_tvb, pinfo, tree);
         }
     }
     else
     {
-        if (spx_info->eom) 
-        {
-            ndps_fragmented=FALSE;
-        }
+        /* This is not any fragment packet */
+        request_value->ndps_frag = FALSE;
         dissect_ndps(tvb, pinfo, tree);
     }
 }
@@ -3927,7 +3946,6 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
 
     if (!pinfo->fd->flags.visited) 
     {
-
         /* This is the first time we've looked at this packet.
         Keep track of the Program and connection whence the request
         came, and the address and connection to which the request
@@ -3941,7 +3959,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
 
         if (conversation == NULL) 
-            {
+        {
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(&pinfo->src, &pinfo->dst,
                 PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
