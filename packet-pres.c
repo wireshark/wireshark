@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8823 OSI Presentation Protocol packets
 *
-* $Id: packet-pres.c,v 1.2 2004/01/23 09:53:18 guy Exp $
+* $Id: packet-pres.c,v 1.3 2004/03/13 09:27:38 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -1182,10 +1182,19 @@ item_len+(asn->offset-*offset),
 *offset+(asn->offset-*offset), item_len);
 				if(ret == ASN1_ERR_NOERROR)
 				{
-				proto_tree_add_text(pres_tree_ms, tvb, *offset+2, item_len,
-										"String:%s",s);
+					if( item_len)
+					{
+							proto_tree_add_text(pres_tree_ms, tvb, *offset+2, item_len,
+											"String:%s",s);
+							g_free(s);
+					}
+					else
+					{
+							proto_tree_add_text(pres_tree_ms, tvb, *offset+2, item_len,
+											"Zero selector length");
+
+					}
 				}
-				 g_free(s);
 
 
 
