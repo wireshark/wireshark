@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.6 2000/04/03 07:48:55 guy Exp $
+ * $Id: packet-ldap.c,v 1.7 2000/04/03 09:00:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -398,7 +398,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
         ret = asn1_octet_string_value_decode(a, length, &string);
         if (ret != ASN1_ERR_NOERROR)
           return ret;
-        *filter_length += 3 + length;
+        *filter_length += 4 + length;
         *filter = g_realloc(*filter, *filter_length);
         sprintf(*filter + strlen(*filter), "(%.*s=*)", (int)length, string);
         g_free(string);
