@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.22 1999/10/04 18:09:05 gram Exp $
+ * $Id: dfilter.c,v 1.23 1999/10/04 18:53:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -304,7 +304,7 @@ destroy_gnode(gpointer gnode_ptr, gpointer user_data)
 
 
 /* lookup an abbreviation in our token tree, returing the ID #
- * If the abbreviation doesn't exit, returns 0 */
+ * If the abbreviation doesn't exit, returns -1 */
 int dfilter_lookup_token(char *abbrev)
 {
 	int value;
