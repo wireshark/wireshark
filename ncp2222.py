@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.60 2003/07/20 00:37:20 guy Exp $
+$Id: ncp2222.py,v 1.61 2003/07/21 09:18:31 guy Exp $
 
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
@@ -6367,6 +6367,8 @@ static const value_string ncp_nds_verb_vals[] = {
 	{ 45, "Backup Entry" },
 	{ 46, "Restore Entry" },
 	{ 47, "Save DIB" },
+	{ 48, "Control" },
+	{ 49, "Remove Backlink" },
 	{ 50, "Close Iteration" },
 	{ 51, "Unused" },
 	{ 52, "Audit Skulking" },
