@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.17 1999/10/22 08:18:26 guy Exp $
+ * $Id: packet-atalk.c,v 1.18 1999/10/29 05:25:58 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -141,7 +141,7 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, offset, DDP_HEADER_SIZE, NULL);
-    ddp_tree = proto_item_add_subtree(ti, ETT_IP);
+    ddp_tree = proto_item_add_subtree(ti, ETT_DDP);
     proto_tree_add_item(ddp_tree, hf_ddp_hopcount, offset,      1, 
 			ddp_hops(ddp.hops_len));
     proto_tree_add_item(ddp_tree, hf_ddp_len, offset,	    2, 
@@ -158,6 +158,7 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   offset += DDP_HEADER_SIZE;
 
+  dissect_data(pd, offset, fd, tree);
 }
 
 void
