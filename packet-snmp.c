@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.113 2003/09/06 01:21:00 guy Exp $
+ * $Id: packet-snmp.c,v 1.114 2003/09/08 20:16:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,8 @@
 #include "packet-frame.h"
 
 #ifdef HAVE_SOME_SNMP
+/*Default MIB Modules to load"*/
+#define DEF_MIB_MODULES "IP-MIB:IF-MIB:TCP-MIB:UDP-MIB:SNMPv2-MIB:RFC1213-MIB:UCD-SNMP-MIB"
 
 #ifdef HAVE_NET_SNMP
 # include <net-snmp/net-snmp-config.h>
@@ -116,6 +118,7 @@
 
 static int proto_snmp = -1;
 
+static gchar *mib_modules = NULL;
 static gboolean display_oid = TRUE;
 
 static gint ett_snmp = -1;
@@ -2293,6 +2296,50 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_smux_pdu(tvb, 0, pinfo, tree, proto_smux, ett_smux);
 }
 
+static void
+process_prefs(void)
+{
+#ifdef HAVE_SOME_SNMP
+	gchar *tmp_mib_modules;
+
+	/*
+	 * Unload the MIBs, as we'll be reloading them based on the
+	 * current preference setting.
+	 */
+	shutdown_mib();	/* unload MIBs */
+
+	/*
+	 * Cannot check if MIBS is already set, as it could be set by Ethereal.
+	 *
+	 * If we have a list of modules to load, put that list in MIBS,
+	 * otherwise clear MIBS.
+	 */
+	if (mib_modules != NULL) {
+		tmp_mib_modules = g_strconcat("MIBS=", mib_modules, NULL);
+
+#ifdef WIN32
+		_putenv(tmp_mib_modules);
+#else
+		putenv(tmp_mib_modules);
+#endif /*WIN32*/
+	} else {
+#ifdef WIN32
+		_putenv("MIBS");
+#else
+		putenv("MIBS");
+#endif  /* WIN32 */
+	}
+
+	/*
+	 * Load the MIBs.
+	 */
+	register_mib_handlers();
+	read_premib_configs();
+	init_mib();
+	read_configs();
+#endif /* HAVE_SOME_SNMP */
+}
+
 void
 proto_register_snmp(void)
 {
@@ -2385,10 +2432,6 @@ proto_register_snmp(void)
                                NETSNMP_DS_LIB_NO_TOKEN_WARNINGS, TRUE);
 	netsnmp_ds_set_int(NETSNMP_DS_LIBRARY_ID,
                            NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY, 2);
-	register_mib_handlers();
-	read_premib_configs();
-	init_mib();
-	read_configs();
 #endif /* HAVE_SOME_SNMP */
 	proto_snmp = proto_register_protocol("Simple Network Management Protocol",
 	    "SNMP", "snmp");
@@ -2397,11 +2440,16 @@ proto_register_snmp(void)
 	snmp_handle = create_dissector_handle(dissect_snmp, proto_snmp);
 
 	/* Register configuration preferences */
-	snmp_module = prefs_register_protocol(proto_snmp, NULL);
+	snmp_module = prefs_register_protocol(proto_snmp, process_prefs);
 	prefs_register_bool_preference(snmp_module, "display_oid",
 		"Show SNMP OID in info column",
 		"Whether the SNMP OID should be shown in the info column",
 		&display_oid);
+
+	prefs_register_string_preference(snmp_module, "mib_modules",
+	    "MIB modules to load",
+	    "List of MIB modules to load (the list is set to environment variable MIBS if the variable is not already set)",
+	    &mib_modules);
 	prefs_register_bool_preference(snmp_module, "desegment",
 	    "Desegment all SNMP-over-TCP messages spanning multiple TCP segments",
 	    "Whether the SNMP dissector should desegment all messages "
@@ -2413,6 +2461,9 @@ void
 proto_reg_handoff_snmp(void)
 {
 	dissector_handle_t snmp_tcp_handle;
+#ifdef HAVE_SOME_SNMP
+	gchar *tmp_mib_modules;
+#endif
 
 	dissector_add("udp.port", UDP_PORT_SNMP, snmp_handle);
 	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
@@ -2426,6 +2477,32 @@ proto_reg_handoff_snmp(void)
 	dissector_add("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
 
 	data_handle = find_dissector("data");
+
+#ifdef HAVE_SOME_SNMP
+	/*
+	 * Load MIBs.  We can't do this in the register routine, as we
+	 * need the value of the "mib_modules" preference, and
+	 * preferences aren't read until all dissector register routines
+	 * have been called (so that all dissector preferences have
+	 * been registered.
+	 *
+	 * If the mib_modules preference isn't set:
+	 *
+	 *	if the MIBS environment variable is set to a value other
+	 *	than an empty string, make its value the value of
+	 *	"mib_modules";
+	 *
+	 *	otherwise, set it to DEF_MIB_MODULES.
+	 */
+	if (mib_modules == NULL) {
+		tmp_mib_modules = getenv("MIBS");
+		if (tmp_mib_modules != NULL)
+			mib_modules = g_strdup(tmp_mib_modules);
+		else
+			mib_modules = g_strdup(DEF_MIB_MODULES);
+	}
+	process_prefs();
+#endif /* HAVE_SOME_SNMP */
 }
 
 void
