@@ -3834,7 +3834,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 	case ( PACKETCABLE_QOS_DESCRIPTOR ):
 		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
 		vsabuffer[0]->str = NULL;
-		packetcable_qos_flags = tvb_get_letohl(tvb, offset + 2);
+		packetcable_qos_flags = tvb_get_ntohl(tvb, offset + 2);
 		ti = proto_tree_add_item(tree, hf_packetcable_qos_status,
 				tvb, offset + 2, 4, FALSE);
 		obj_tree = proto_item_add_subtree(ti, ett_radius_vendor_packetcable_qos_status);
@@ -3847,7 +3847,6 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		tvb_memcpy(tvb, packetcable_buf, offset + 6, 16); packetcable_buf[16] = '\0';
 		proto_tree_add_text(tree, tvb, offset + 6, 16,
 				"Service Class Name: %s", packetcable_buf);
-		packetcable_qos_flags = ntohl(packetcable_qos_flags);
 		for (intval = 0; intval < PACKETCABLE_QOS_DESC_BITFIELDS; intval++) {
 			if (packetcable_qos_flags & packetcable_qos_desc_mask[intval]) {
 				proto_tree_add_item(tree, hf_packetcable_qos_desc_fields[intval],
