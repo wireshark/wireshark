@@ -2,7 +2,7 @@
  * Routines for cisco tacacs/xtacacs/tacacs+ packet dissection
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-tacacs.c,v 1.15 2001/07/11 16:03:34 guy Exp $
+ * $Id: packet-tacacs.c,v 1.16 2001/11/27 22:37:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,12 +107,16 @@ static const value_string tacacs_reason_vals[] = {
 	{ 4  , "quit" },
 	{ 5  , "idle" },
 	{ 6  , "drop" },
-	{ 7  , "bad" }};
+	{ 7  , "bad" },
+	{ 0  , NULL }
+};
 
 static const value_string tacacs_resp_vals[] = {
 	{ 0  , "this is not a response" },
 	{ 1  , "accepted" },
-	{ 2  , "rejected" }};
+	{ 2  , "rejected" },
+	{ 0  , NULL }
+};
 
 #define TAC_PLUS_AUTHEN 1
 #define TAC_PLUS_AUTHOR 2

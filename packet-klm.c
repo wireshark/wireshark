@@ -1,7 +1,7 @@
 /* packet-klm.c    2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for klm dissection
  *
- * $Id: packet-klm.c,v 1.4 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-klm.c,v 1.5 2001/11/27 22:37:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,7 @@ static gint ett_klm = -1;
 static gint ett_klm_lock = -1;
 static gint ett_klm_holder = -1;
 
-const value_string names_klm_stats[] =
+static const value_string names_klm_stats[] =
 {
 #define KLM_GRANTED		0
 		{	KLM_GRANTED,	"KLM_GRANTED"	},
@@ -61,6 +61,7 @@ const value_string names_klm_stats[] =
 		{	KLM_DENIED_NOLOCKS,	"KLM_DENIED_NOLOCKS"	},
 #define KLM_WORKING		3
 		{	KLM_WORKING,	"KLM_WORKING"	},
+		{	0,		NULL }
 };
 
 static int

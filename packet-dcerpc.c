@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.18 2001/11/27 11:01:35 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.19 2001/11/27 22:37:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,23 +61,27 @@ static const value_string pckt_vals[] = {
     { 17, "Shutdown"},
     { 18, "Co_cancel"},
     { 19, "Orphaned"},
+    { 0,  NULL }
 };
 
 static const value_string drep_byteorder_vals[] = {
     { 0, "Big-endian" },
-    { 1, "Little-endian" }
+    { 1, "Little-endian" },
+    { 0,  NULL }
 };
 
 static const value_string drep_character_vals[] = {
     { 0, "ASCII" },
-    { 1, "EBCDIC" }
+    { 1, "EBCDIC" },
+    { 0,  NULL }
 };
 
 static const value_string drep_fp_vals[] = {
     { 0, "IEEE" },
     { 1, "VAX" },
     { 2, "Cray" },
-    { 3, "IBM" }
+    { 3, "IBM" },
+    { 0,  NULL }
 };
 
 static const true_false_string flags_set_truth = {

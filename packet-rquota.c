@@ -2,7 +2,7 @@
  * Routines for rquota dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-rquota.c,v 1.4 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-rquota.c,v 1.5 2001/11/27 22:37:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,7 @@ static int hf_rquota_ftimeleft = -1;
 static gint ett_rquota = -1;
 static gint ett_rquota_rquota = -1;
 
-const value_string names_rquota_status[] =
+static const value_string names_rquota_status[] =
 {
 #define Q_OK		1
 	{	Q_OK,		"OK"	},
@@ -65,6 +65,7 @@ const value_string names_rquota_status[] =
 	{	Q_NOQUOTA,	"NOQUOTA"	},
 #define Q_EPERM		3
 	{	Q_EPERM,	"EPERM"	},
+	{	0,		NULL }
 };
 
 
