@@ -2447,9 +2447,9 @@ samr_dissect_REPLICATION_STATUS(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_samr_replication_status);
 	}
 
-	offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_unknown_hyper, NULL);
-	offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_unknown_hyper, NULL);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_samr_unknown_short, NULL);
@@ -3487,7 +3487,7 @@ samr_dissect_USER_INFO_22(tvbuff_t *tvb, int offset,
 	}
 
 	offset = samr_dissect_USER_INFO_21(tvb, offset, pinfo, tree, drep);
-	offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_revision, NULL);
 
 	proto_item_set_len(item, offset-old_offset);

@@ -47,9 +47,9 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 #define dissect_dcom_BYTE			dissect_ndr_uint8
 #define dissect_dcom_WORD			dissect_ndr_uint16
 #define dissect_dcom_DWORD			dissect_ndr_uint32
-#define dissect_dcom_ID				dissect_ndr_uint64
+#define dissect_dcom_ID				dissect_ndr_duint32
 #define dissect_dcom_UUID			dissect_ndr_uuid_t
-#define dissect_dcom_FILETIME		dissect_ndr_uint64 /* ToBeDone */
+#define dissect_dcom_FILETIME		dissect_ndr_duint32 /* ToBeDone */
 #define dissect_dcom_VARIANT_BOOL	dissect_ndr_uint16
 #define dissect_dcom_FLOAT			dissect_ndr_float
 #define dissect_dcom_DOUBLE			dissect_ndr_double

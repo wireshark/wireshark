@@ -471,13 +471,13 @@ dissect_browser_TYPE_5(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -525,7 +525,7 @@ dissect_browser_TYPE_5(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
 
 	return offset;
@@ -646,13 +646,13 @@ dissect_browser_TYPE_11(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -664,7 +664,7 @@ dissect_browser_TYPE_11(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,

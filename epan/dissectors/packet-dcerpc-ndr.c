@@ -101,8 +101,13 @@ dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                   tree, drep, hfindex, pdata);
 }
 
+/* Double uint32
+   This function dissects the 64bit datatype that is common for
+   ms interfaces and which is 32bit aligned.
+   It is really just 2 uint32's
+*/
 int
-dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_ndr_duint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep,
                     int hfindex, unsigned char *pdata)
 {

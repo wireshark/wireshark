@@ -925,7 +925,7 @@ lsa_dissect_POLICY_DEFAULT_QUOTA_INFO(tvbuff_t *tvb, int offset,
                                      hf_lsa_quota_pagefile, NULL);
 
 	/*  */
-        offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_duint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_unknown_hyper, NULL);
 
 	proto_item_set_len(item, offset-old_offset);
@@ -948,7 +948,7 @@ lsa_dissect_POLICY_MODIFICATION_INFO(tvbuff_t *tvb, int offset,
 	}
 
 	/* seq no */
-        offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_duint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_mod_seq_no, NULL);
 
 	/* mtime */
@@ -1519,7 +1519,7 @@ lsa_dissect_auth_info(tvbuff_t *tvb, int offset,
 	}
 
 	/* update */
-        offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_duint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_auth_update, NULL);
 
 	/* type */
@@ -2066,7 +2066,7 @@ lsa_dissect_LUID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 	offset = dissect_nt_LUID(tvb, offset, pinfo, tree, drep);
 
 	/* attr */
-        offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_duint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_attr, NULL);
 
 	proto_item_set_len(item, offset-old_offset);

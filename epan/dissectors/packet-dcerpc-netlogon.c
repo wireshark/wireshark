@@ -646,7 +646,7 @@ netlogon_dissect_LOGON_IDENTITY_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_param_ctrl, NULL);
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_logon_id, NULL);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -3166,7 +3166,7 @@ netlogon_dissect_MODIFIED_COUNT(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_modify_count, NULL);
 
 	return offset;

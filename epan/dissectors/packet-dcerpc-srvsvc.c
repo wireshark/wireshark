@@ -5608,10 +5608,10 @@ srvsvc_dissect_SERVER_STAT(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_server_stat_syserrors, NULL);
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_server_stat_bytessent, NULL);
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_server_stat_bytesrcvd, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
