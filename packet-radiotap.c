@@ -2,7 +2,7 @@
  *  packet-radiotap.c
  *	Decode packets with a Radiotap header
  *
- * $Id: packet-radiotap.c,v 1.1 2004/01/31 04:40:09 guy Exp $
+ * $Id: packet-radiotap.c,v 1.2 2004/02/01 04:20:10 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_ANTENNA = 11,
     IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
     IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
-    IEEE80211_RADIOTAP_EXT = 31,
+    IEEE80211_RADIOTAP_EXT = 31
 };
 
 /* Channel flags. */
