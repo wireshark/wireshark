@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.7 1999/09/09 02:42:23 gram Exp $
+ * $Id: colors.c,v 1.8 1999/09/12 14:10:00 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,7 +112,7 @@ colors_init(capture_file *cf)
 
 	color_filter(cf,i)->c_colorfilter = dfilter_new();
 	if(dfilter_compile((color_filter(cf,i)->c_colorfilter),
-	  default_colors[i].proto) != 0}{
+	  default_colors[i].proto) != 0){
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Cannot compile default filter %s.\n%s",
 		  default_colors[i].proto, dfilter_error_msg);
