@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.30 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-rtcp.c,v 1.31 2002/04/09 09:04:33 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -287,7 +287,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 
 static int
-dissect_rtcp_nack( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree )
+dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	/* Packet type = FIR (H261) */
 	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 31 );
@@ -316,7 +316,7 @@ dissect_rtcp_nack( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree )
 }
 
 static int
-dissect_rtcp_fir( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree )
+dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	/* Packet type = FIR (H261) */
 	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 31 );
@@ -337,7 +337,7 @@ dissect_rtcp_fir( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree )
 }
 
 static int
-dissect_rtcp_app( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+dissect_rtcp_app( tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int padding, unsigned int packet_len )
 {
 	unsigned int counter = 0;
@@ -372,7 +372,7 @@ dissect_rtcp_app( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 }
 
 static int
-dissect_rtcp_bye( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
 {
 	unsigned int chunk          = 1;
@@ -406,7 +406,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 }
 
 static int
-dissect_rtcp_sdes( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
 {
 	unsigned int chunk          = 1;
@@ -511,7 +511,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 }
 
 static int
-dissect_rtcp_rr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+dissect_rtcp_rr( tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
 {
 	unsigned int counter = 1;
@@ -584,7 +584,7 @@ dissect_rtcp_rr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 }
 
 static int
-dissect_rtcp_sr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+dissect_rtcp_sr( tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
 {
 #if 0
@@ -620,7 +620,7 @@ dissect_rtcp_sr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 
 	/* The rest of the packet is equal to the RR packet */
 	if ( count != 0 )
-		offset = dissect_rtcp_rr( tvb, offset, fd, tree, count );
+		offset = dissect_rtcp_rr( tvb, offset, tree, count );
 
 	return offset;
 }
@@ -725,8 +725,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 					offset += 4;
 
-					if ( packet_type == RTCP_SR ) offset = dissect_rtcp_sr( tvb, offset, pinfo->fd, rtcp_tree, elem_count );
-					else offset = dissect_rtcp_rr( tvb, offset, pinfo->fd, rtcp_tree, elem_count );
+					if ( packet_type == RTCP_SR ) offset = dissect_rtcp_sr( tvb, offset, rtcp_tree, elem_count );
+					else offset = dissect_rtcp_rr( tvb, offset, rtcp_tree, elem_count );
 					break;
 				case RTCP_SDES:
 					/* Source count, 5 bits */
@@ -738,7 +738,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					/* Packet length in 32 bit words MINUS one, 16 bits */
 					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
 					offset += 2;
-					offset = dissect_rtcp_sdes( tvb, offset, pinfo->fd, rtcp_tree, elem_count );
+					offset = dissect_rtcp_sdes( tvb, offset, rtcp_tree, elem_count );
 					break;
 				case RTCP_BYE:
 					/* Source count, 5 bits */
@@ -750,7 +750,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					/* Packet length in 32 bit words MINUS one, 16 bits */
 					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
 					offset += 2;
-					offset = dissect_rtcp_bye( tvb, offset, pinfo->fd, rtcp_tree, elem_count );
+					offset = dissect_rtcp_bye( tvb, offset, rtcp_tree, elem_count );
 					break;
 				case RTCP_APP:
 					/* Subtype, 5 bits */
@@ -763,14 +763,14 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
 					offset += 2;
 					offset = dissect_rtcp_app( tvb, offset,
-					    pinfo->fd, rtcp_tree, padding_set,
+					    rtcp_tree, padding_set,
 					    packet_length - 4 );
 					break;
 				case RTCP_FIR:
-					offset = dissect_rtcp_fir( tvb, offset, pinfo->fd, rtcp_tree );
+					offset = dissect_rtcp_fir( tvb, offset, rtcp_tree );
 					break;
 				case RTCP_NACK:
-					offset = dissect_rtcp_nack( tvb, offset, pinfo->fd, rtcp_tree );
+					offset = dissect_rtcp_nack( tvb, offset, rtcp_tree );
 					break;
 				default:
 					/*
