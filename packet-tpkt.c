@@ -2,12 +2,12 @@
  *
  * Routine to check for RFC 1006 TPKT header and to dissect TPKT header
  * Copyright 2000, Philips Electronics N.V.
- * Andreas Sikkema <andreas.sikkema@philips.com>
+ * Andreas Sikkema <h323@ramdyne.nl>
  *
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.24 2003/12/02 18:50:52 guy Exp $
+ * $Id: packet-tpkt.c,v 1.25 2004/02/14 22:48:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

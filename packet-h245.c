@@ -4,10 +4,9 @@
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
+ * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
- *
- * $Id: packet-h245.c,v 1.45 2004/02/13 19:33:14 guy Exp $
+ * $Id: packet-h245.c,v 1.46 2004/02/14 22:48:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

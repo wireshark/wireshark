@@ -1,12 +1,12 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.38 2003/11/09 22:55:34 guy Exp $
+ * $Id: packet-rtcp.c,v 1.39 2004/02/14 22:48:52 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
  *
  * Copyright 2000, Philips Electronics N.V.
- * Written by Andreas Sikkema <andreas.sikkema@philips.com>
+ * Written by Andreas Sikkema <h323@ramdyne.nl>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

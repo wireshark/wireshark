@@ -2,10 +2,10 @@
  *
  * Routines for ITU-T Recommendation H.261 dissection
  *
- * $Id: packet-h261.c,v 1.19 2003/08/23 06:36:46 guy Exp $
+ * $Id: packet-h261.c,v 1.20 2004/02/14 22:48:52 guy Exp $
  *
  * Copyright 2000, Philips Electronics N.V.
- * Andreas Sikkema <andreas.sikkema@philips.com>
+ * Andreas Sikkema <h323@ramdyne.nl>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

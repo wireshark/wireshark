@@ -4,9 +4,9 @@
  * RTP = Real time Transport Protocol
  *
  * Copyright 2000, Philips Electronics N.V.
- * Written by Andreas Sikkema <andreas.sikkema@philips.com>
+ * Written by Andreas Sikkema <h323@ramdyne.nl>
  *
- * $Id: packet-rtp.c,v 1.44 2004/01/31 09:48:25 guy Exp $
+ * $Id: packet-rtp.c,v 1.45 2004/02/14 22:48:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

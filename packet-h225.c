@@ -2,9 +2,9 @@
  * Routines for H.225 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
+ * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.31 2004/02/13 19:33:14 guy Exp $
+ * $Id: packet-h225.c,v 1.32 2004/02/14 22:48:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
