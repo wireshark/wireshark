@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.35 2004/05/02 00:43:43 guy Exp $
+# $Id: autogen.sh,v 1.36 2004/05/26 10:41:14 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -87,21 +87,6 @@ esac
 
 $DIE
 
-#
-# We do NOT want libtoolize overwriting our versions of config.guess and
-# config.sub, so move them away and then move them back.
-# We don't omit "--force", as we want libtoolize to install other files
-# without whining.
-#
-mv config.guess config.guess.save-libtool
-mv config.sub config.sub.save-libtool
-LTARGS=" --copy --force"
-echo $LIBTOOLIZE $LTARGS
-$LIBTOOLIZE $LTARGS || exit 1
-rm -f config.guess config.sub
-mv config.guess.save-libtool config.guess
-mv config.sub.save-libtool config.sub
-
 for dir in . wiretap ;  do
   echo processing $dir
   (
@@ -115,6 +100,22 @@ for dir in . wiretap ;  do
     aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags";
     echo $ACLOCAL $aclocalinclude
     $ACLOCAL $aclocalinclude || exit 1
+    if [ "$dir" = "." ] ; then
+        #
+        # We do NOT want libtoolize overwriting our versions of config.guess and
+        # config.sub, so move them away and then move them back.
+        # We don't omit "--force", as we want libtoolize to install other files
+        # without whining.
+        #
+        mv config.guess config.guess.save-libtool
+        mv config.sub config.sub.save-libtool
+        LTARGS=" --copy --force"
+        echo $LIBTOOLIZE $LTARGS
+        $LIBTOOLIZE $LTARGS || exit 1
+        rm -f config.guess config.sub
+        mv config.guess.save-libtool config.guess
+        mv config.sub.save-libtool config.sub
+    fi
     echo $AUTOHEADER
     $AUTOHEADER || exit 1
     echo $AUTOMAKE --add-missing --gnu $am_opt
