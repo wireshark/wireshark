@@ -36,6 +36,7 @@ ethereal
 ethereal.1
 ethereal.spec
 ethereal-filter.4
+gtk2.tmp
 idl2eth
 idl2eth.1
 install-sh

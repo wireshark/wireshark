@@ -17,6 +17,8 @@ configure
 dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c
+doxygen.tmp
+html
 libethereal.dll
 libethereal.exp
 libtool
