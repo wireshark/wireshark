@@ -1355,6 +1355,12 @@ Jan Kratochvil <short[AT]ucw.cz> {
 	Fix to MMSE handling of strings with specified character set
 }
 
+Alfred Koebler <ak[AT]icon-sult.de> {
+	Support for interpreting Ethernet captures as CheckPoint
+	    FireWall-1 monitor files (those files look like snoop
+	    files for Ethernet)
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

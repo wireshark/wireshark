@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.74 2002/08/02 23:35:49 jmayer Exp $
+ * $Id: packet-eth.c,v 1.75 2002/08/08 09:28:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include "prefs.h"
 #include "etypes.h"
 #include <epan/resolv.h>
 #include "packet-eth.h"
@@ -35,6 +36,9 @@
 #include "packet-ipx.h"
 #include "packet-isl.h"
 #include "packet-llc.h"
+
+/* Interpret capture file as FW1 monitor file */
+static gboolean eth_interpret_as_fw1_monitor = FALSE;
 
 /* protocols and header fields */
 static int proto_eth = -1;
@@ -49,6 +53,7 @@ static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
 
 static dissector_handle_t isl_handle;
+static dissector_handle_t fw1_handle;
 
 #define ETH_HEADER_SIZE	14
 
@@ -208,6 +213,11 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_802_3(etype, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
 		  hf_eth_len, hf_eth_trailer);
   } else {
+    if (eth_interpret_as_fw1_monitor) {
+      call_dissector(fw1_handle, tvb, pinfo, tree);
+      return;
+    }
+
     if (check_col(pinfo->cinfo, COL_INFO))
       col_set_str(pinfo->cinfo, COL_INFO, "Ethernet II");
     if (tree) {
@@ -262,10 +272,18 @@ proto_register_eth(void)
 		&ett_ieee8023,
 		&ett_ether2,
 	};
+	module_t *eth_module;
 
 	proto_eth = proto_register_protocol("Ethernet", "Ethernet", "eth");
 	proto_register_field_array(proto_eth, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register configuration preferences */
+	eth_module = prefs_register_protocol(proto_eth, NULL);
+	prefs_register_bool_preference(eth_module, "interpret_as_fw1_monitor",
+            "Interpret as FireWall-1 monitor file",
+"Whether the capture file should be interpreted as a CheckPoint FireWall-1 monitor file",
+            &eth_interpret_as_fw1_monitor);
 
 	register_dissector("eth", dissect_eth, proto_eth);
 }
@@ -279,6 +297,7 @@ proto_reg_handoff_eth(void)
 	 * Get a handle for the ISL dissector.
 	 */
 	isl_handle = find_dissector("isl");
+	fw1_handle = find_dissector("fw1");
 
 	eth_handle = find_dissector("eth");
 	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, eth_handle);
