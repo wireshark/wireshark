@@ -1,8 +1,9 @@
 /* packet-wbxml.c
+ *
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.20 2003/12/13 13:27:30 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.21 2003/12/15 22:38:29 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,10 +77,12 @@
  *      o  stag      : TAG | LITERAL | LITERAL_A | LITERAL_C | LITERAL_AC
  *      o  attr      : ATTRSTART | ATTRVALUE
  *      o  extension : EXT_I | EXT_T | EXT
- *    Code page switches are displayed in a separate column. The only allowed
- *    code page switches are from code page 0 to another codepage (by means of
- *    a SWITCH_PAGE token), and from this other code page back to code page 0
- *    (this happens automatically).
+ *    Code page switches are displayed in a separate column.
+ *
+ *  - The WBXML spec states that code pages are static to both the tag and the
+ *    attribute state parser. A SWITCH_PAGE within a state switches the code
+ *    page of the active state only. Note that code page 255 is reserved for
+ *    application-specific (read: testing) purposes.
  *
  *  - In order to render the XML content, recursion is inevitable at some
  *    point (when a tag with content occurs in the content of a tag with
@@ -1156,6 +1159,14 @@ static const value_string wbxml_provc10_tags_cp0[] = {
 
 	{ 0x00, NULL }
 };
+static const value_string wbxml_provc10_tags_cp1[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/* 0x05 */
+	{ 0x06, "characteristic" },
+	{ 0x07, "parm" },
+
+	{ 0x00, NULL }
+};
 
 /*****    Attribute Start tokens   *****/
 static const value_string wbxml_provc10_attrStart_cp0[] = {
@@ -1216,11 +1227,21 @@ static const value_string wbxml_provc10_attrStart_cp0[] = {
 	{ 0x3A, "name='TRANSFER-DELAY'" },
 	{ 0x3B, "name='GUARANTEED-BITRATE-UPLINK'" },
 	{ 0x3C, "name='GUARANTEED-BITRATE-DNLINK'" },
-	/* 0x3D -- 0x3F */
+	{ 0x3D, "name='PXADDR-FQDN'" },
+	{ 0x3E, "name='PROXY-PW'" },
+	{ 0x3F, "name='PPGAUTH-TYPE'" },
 	/* 0x40 -- 0x44 GLOBAL */
 	{ 0x45, "version=" },
 	{ 0x46, "version='1.0'" },
-	/* 0x47 -- 0x4F */
+	{ 0x47, "name='PULLENABLED'" },
+	{ 0x48, "name='DNS-ADDR'" },
+	{ 0x49, "name='MAX-NUM-RETRY'" },
+	{ 0x4A, "name='FIRST-RETRY-TIMEOUT'" },
+	{ 0x4B, "name='REREG-THRESHOLD'" },
+	{ 0x4C, "name='T-BIT'" },
+	/* 0x4D */
+	{ 0x4E, "name='AUTH-ENTITY'" },
+	{ 0x4F, "name='SPI'" },
 	{ 0x50, "type=" },
 	{ 0x51, "type='PXLOGICAL'" },
 	{ 0x52, "type='PXPHYSICAL'" },
@@ -1232,6 +1253,50 @@ static const value_string wbxml_provc10_attrStart_cp0[] = {
 	{ 0x58, "type='CLIENTIDENTITY'" },
 	{ 0x59, "type='PXAUTHINFO'" },
 	{ 0x5A, "type='NAPAUTHINFO'" },
+	{ 0x5B, "type='ACCESS'" },
+
+	{ 0x00, NULL }
+};
+static const value_string wbxml_provc10_attrStart_cp1[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/* 0x05 -- 0x06 */
+	{ 0x07, "name='NAME'" },
+	/* 0x08 -- 0x13 */
+	{ 0x14, "name='INTERNET'" },
+	/* 0x15 -- 0x1B */
+	{ 0x1C, "name='STARTPAGE'" },
+	/* 0x1D -- 0x21 */
+	{ 0x22, "name='TO-NAPID'" },
+	{ 0x23, "name='PORTNBR'" },
+	{ 0x24, "name='SERVICE'" },
+	/* 0x25 -- 0x2D */
+	{ 0x2E, "name='AACCEPT'" },
+	{ 0x2F, "name='AAUTHDATA'" },
+	{ 0x30, "name='AAUTHLEVEL'" },
+	{ 0x31, "name='AAUTHNAME'" },
+	{ 0x32, "name='AAUTHSECRET'" },
+	{ 0x33, "name='AAUTHTYPE'" },
+	{ 0x34, "name='ADDR'" },
+	{ 0x35, "name='ADDRTYPE'" },
+	{ 0x36, "name='APPID'" },
+	{ 0x37, "name='APROTOCOL'" },
+	{ 0x38, "name='PROVIDER-ID'" },
+	{ 0x39, "name='TO-PROXY'" },
+	{ 0x3A, "name='URI'" },
+	{ 0x3B, "name='RULE'" },
+	/* 0x3C -- 0x3F */
+	/* 0x40 -- 0x44 GLOBAL */
+	/* 0x45 -- 0x4F */
+	{ 0x50, "type=" },
+	/* 0x51 -- 0x52 */
+	{ 0x53, "type='PORT'" },
+	/* 0x54 */
+	{ 0x55, "type='APPLICATION'" },
+	{ 0x56, "type='APPADDR'" },
+	{ 0x57, "type='APPAUTH'" },
+	{ 0x58, "type='CLIENTIDENTITY'" },
+	{ 0x59, "type='RESOURCE'" },
+	/* 0x5A -- 0x7F */
 
 	{ 0x00, NULL }
 };
@@ -1260,7 +1325,8 @@ static const value_string wbxml_provc10_attrValue_cp0[] = {
 	{ 0x9C, "'HTTP-BASIC'" },
 	{ 0x9D, "'HTTP-DIGEST'" },
 	{ 0x9E, "'WTLS-SS'" },
-	/* 0x9F -- 0xA1 */
+	{ 0x9F, "'MD5'" },
+	/* 0xA0 -- 0xA1 */
 	{ 0xA2, "'GSM-USSD'" },
 	{ 0xA3, "'GSM-SMS'" },
 	{ 0xA4, "'ANSI-136-GUTS'" },
@@ -1284,7 +1350,9 @@ static const value_string wbxml_provc10_attrValue_cp0[] = {
 	{ 0xB6, "'TETRA-PACKET'" },
 	{ 0xB7, "'ANSI-136-GHOST'" },
 	{ 0xB8, "'MOBITEX-MPAK'" },
-	/* 0xB9 -- 0xBF */
+	{ 0xB9, "'CDMA2000-IX-SIMPLE-IP'" },
+	{ 0xBA, "'CDMA2000-IX-MOBILE-IP'" },
+	/* 0xBB -- 0xBF */
 	/* 0xC0 -- 0xC4 GLOBAL */
 	{ 0xC5, "'AUTOBAUDING'" },
 	/* 0xC6 -- 0xC9 */
@@ -1294,6 +1362,33 @@ static const value_string wbxml_provc10_attrValue_cp0[] = {
 	{ 0xCD, "'CO-SEC-WSP'" },
 	{ 0xCE, "'CL-SEC-WTA'" },
 	{ 0xCF, "'CO-SEC-WTA'" },
+	{ 0xD0, "'OTA-HTTP-TO'" },
+	{ 0xD1, "'OTA-HTTP-TLS-TO'" },
+	{ 0xD2, "'OTA-HTTP-PO'" },
+	{ 0xD3, "'OTA-HTTP-TLS-PO'" },
+	/* 0xD4 -- 0xFF */
+
+	{ 0x00, NULL }
+};
+static const value_string wbxml_provc10_attrValue_cp1[] = {
+	/* 0x80 -- 0x84 GLOBAL */
+	/* 0x85 */
+	{ 0x86, "'IPV6'" },
+	{ 0x87, "'E164'" },
+	{ 0x88, "'ALPHA'" },
+	{ 0x8D, "'APPSRV'" },
+	{ 0x8E, "'OBEX'" },
+	/* 0x8F */
+
+	/* XXX - Errors that require a fix in the OMA/WAP Client Provisioning specs:
+	{ 0xXXX, "','" },
+	{ 0xXXX, "'HTTP-'" },
+	{ 0xXXX, "'BASIC'" },
+	{ 0xXXX, "'DIGEST'" },
+	*/
+
+	{ 0xE0, "'AAA'" },
+	{ 0xE1, "'HA'" },
 
 	{ 0x00, NULL }
 };
@@ -1301,16 +1396,19 @@ static const value_string wbxml_provc10_attrValue_cp0[] = {
 /***** Token code page aggregation *****/
 static const value_valuestring wbxml_provc10_tags[] = {
 	{ 0, wbxml_provc10_tags_cp0 },
+	{ 1, wbxml_provc10_tags_cp1 },
 	{ 0, NULL }
 };
 
 static const value_valuestring wbxml_provc10_attrStart[] = {
 	{ 0, wbxml_provc10_attrStart_cp0 },
+	{ 1, wbxml_provc10_attrStart_cp1 },
 	{ 0, NULL }
 };
 
 static const value_valuestring wbxml_provc10_attrValue[] = {
 	{ 0, wbxml_provc10_attrValue_cp0 },
+	{ 1, wbxml_provc10_attrValue_cp1 },
 	{ 0, NULL }
 };
 
@@ -1461,7 +1559,7 @@ static const value_string wbxml_syncmlc10_tags_cp1[] = { /* MetInf 1.0 */
 /***** Token code page aggregation *****/
 static const value_valuestring wbxml_syncmlc10_tags[] = {
 	{ 0, wbxml_syncmlc10_tags_cp0 }, /* -//SYNCML//DTD SyncML 1.0//EN */
-	{ 0, wbxml_syncmlc10_tags_cp1 }, /* -//SYNCML//DTD MetInf 1.0//EN */
+	{ 1, wbxml_syncmlc10_tags_cp1 }, /* -//SYNCML//DTD MetInf 1.0//EN */
 	{ 0, NULL }
 };
 
@@ -1561,7 +1659,7 @@ static const value_string wbxml_syncmlc11_tags_cp1[] = { /* MetInf 1.1 */
 /***** Token code page aggregation *****/
 static const value_valuestring wbxml_syncmlc11_tags[] = {
 	{ 0, wbxml_syncmlc11_tags_cp0 }, /* -//SYNCML//DTD SyncML 1.1//EN */
-	{ 0, wbxml_syncmlc11_tags_cp1 }, /* -//SYNCML//DTD MetInf 1.1//EN */
+	{ 1, wbxml_syncmlc11_tags_cp1 }, /* -//SYNCML//DTD MetInf 1.1//EN */
 	{ 0, NULL }
 };
 
@@ -1981,25 +2079,25 @@ show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
 /* Parse data while in STAG state */
 static guint32
 parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 *level);
+		guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr);
 
 /* Parse data while in STAG state;
  * interpret tokens as defined by content type */
 static guint32
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 *level,
+		guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
 		const wbxml_token_map *map);
 
 /* Parse data while in ATTR state */
 static guint32
 parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
-		guint32 offset, guint32 str_tbl, guint8 level);
+		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr);
 
 /* Parse data while in ATTR state;
  * interpret tokens as defined by content type */
 static guint32
 parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
-		guint32 offset, guint32 str_tbl, guint8 level,
+		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
 		const wbxml_token_map *map);
 
 
@@ -2029,6 +2127,8 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 level = 0; /* WBXML recursion level */
 	const wbxml_token_map *content_map = NULL;
 	gchar *summary = NULL;
+	guint8 codepage_stag = 0;
+	guint8 codepage_attr = 0;
 
 	DebugLog(("dissect_wbxml: Dissecting packet %u\n", pinfo->fd->num));
 	/* WBXML format
@@ -2182,7 +2282,8 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								"| WBXML Token Description         "
 								"| Rendering");
 						len = parse_wbxml_tag_defined (wbxml_content_tree,
-								tvb, offset, str_tbl, &level, content_map);
+								tvb, offset, str_tbl, &level, &codepage_stag,
+								&codepage_attr, content_map);
 						return;
 					}
 				}
@@ -2197,7 +2298,7 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"| WBXML Token Description         "
 					"| Rendering");
 			len = parse_wbxml_tag (wbxml_content_tree, tvb, offset,
-					str_tbl, &level);
+					str_tbl, &level, &codepage_stag, &codepage_attr);
 			return;
 		}
 		return;
@@ -2306,7 +2407,7 @@ static const char * Indent (guint8 level) {
  */
 static guint32
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 *level,
+		guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
 		const wbxml_token_map *map)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
@@ -2321,7 +2422,6 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	guint8 tag_new_known = 0; /* Will contain peek & 0x3F (tag identity) */
 	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
 	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
-	guint8 codepage_stag = 0; /* Initial codepage in state = STAG */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
 										   tag with content: <x>Content</x>
 										   
@@ -2336,28 +2436,29 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		if ((peek & 0x3F) < 4) switch (peek) { /* Global tokens in state = STAG
 												  but not the LITERAL tokens */
 			case 0x00: /* SWITCH_PAGE */
-				codepage_stag = tvb_get_guint8 (tvb, off+1);
+				*codepage_stag = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
-						"      | Tag   | T 0->%3d "
+						"      | Tag   | T -->%3d "
 						"| SWITCH_PAGE (Tag code page)     "
 						"|",
-						codepage_stag);
+						*codepage_stag);
 				off += 2;
 				break;
 			case 0x01: /* END: only possible for Tag with Content */
 				if (tag_save_known) { /* Known TAG */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   |          "
+							"  %3d | Tag   | T %3d    "
 							"| END (Known Tag 0x%02X)            "
 							"| %s</%s>",
-							*level, tag_save_known, Indent (*level),
+							*level, *codepage_stag,
+							tag_save_known, Indent (*level),
 							tag_save_literal); /* We already looked it up! */
 				} else { /* Literal TAG */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   |          "
+							"  %3d | Tag   | T %3d    "
 							"| END (Literal Tag)               "
 							"| %s</%s>",
-							*level, Indent (*level),
+							*level, *codepage_stag, Indent (*level),
 							tag_save_literal);
 				}
 				(*level)--;
@@ -2369,19 +2470,19 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| ENTITY                          "
 						"| %s'&#%u;'",
-						*level, Indent (*level), ent);
+						*level, *codepage_stag, Indent (*level), ent);
 				off += 1+len;
 				break;
 			case 0x03: /* STR_I */
 				len = tvb_strsize (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| STR_I (Inline string)           "
 						"| %s\'%s\'",
-						*level, Indent(*level),
+						*level, *codepage_stag, Indent(*level),
 						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
@@ -2390,46 +2491,38 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			case 0x42: /* EXT_I_2 */
 				/* Extension tokens */
 				len = tvb_strsize (tvb, off+1);
-				if (codepage_stag) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d | Tag   | T %3d->0 "
-							"| EXT_I_%1x    (Extension Token)    "
-							"| %s(%s: \'%s\')",
-							*level, codepage_stag, peek & 0x0f, Indent (*level),
-							map_token (map->global, codepage_stag, peek),
-							tvb_format_text (tvb, off+1, len-1));
-					/* Reset code page */
-					codepage_stag = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d | Tag   |          "
-							"| EXT_I_%1x    (Extension Token)    "
-							"| %s(%s: \'%s\')",
-							*level, peek & 0x0f, Indent (*level),
-							map_token (map->global, codepage_stag, peek),
-							tvb_format_text (tvb, off+1, len-1));
-				}
+				proto_tree_add_text (tree, tvb, off, 1+len,
+						"  %3d | Tag   | T %3d    "
+						"| EXT_I_%1x    (Extension Token)    "
+						"| %s(%s: \'%s\')",
+						*level, *codepage_stag,
+						peek & 0x0f, Indent (*level),
+						map_token (map->global, *codepage_stag, peek),
+						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
 			case 0x43: /* PI */
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| PI (XML Processing Instruction) "
 						"| %s<?xml",
-						*level, Indent (*level));
-				len = parse_wbxml_attribute_list_defined (tree, tvb, off, str_tbl,
-						*level, map);
+						*level, *codepage_stag, Indent (*level));
+				len = parse_wbxml_attribute_list_defined (tree, tvb, off,
+						str_tbl, *level, codepage_attr, map);
 				/* Check that there is still room in packet */
 				off += len;
 				if (off >= tvb_len) {
 					DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
+					/*
+					 * TODO - Do we need to free g_malloc()ed memory?
+					 */
 					THROW(ReportedBoundsError);
 				}
 				proto_tree_add_text (tree, tvb, off-1, 1,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| END (PI)                        "
 						"| %s?>",
-						*level, Indent (*level));
+						*level, *codepage_stag, Indent (*level));
 				break;
 			case 0x80: /* EXT_T_0 */
 			case 0x81: /* EXT_T_1 */
@@ -2437,35 +2530,23 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
-				if (codepage_stag) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d | Tag   | T %3d->0 "
-							"| EXT_T_%1x    (Extension Token)    "
-							"| %s(%s: \'%s\')",
-							*level, codepage_stag, peek & 0x0f, Indent (*level),
-							map_token (map->global, codepage_stag, peek),
-							tvb_format_text (tvb, str_tbl+index, str_len-1));
-					/* Reset code page */
-					codepage_stag = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d | Tag   |          "
-							"| EXT_T_%1x    (Extension Token)    "
-							"| %s(%s: \'%s\')",
-							*level, peek & 0x0f, Indent (*level),
-							map_token (map->global, codepage_stag, peek),
-							tvb_format_text (tvb, str_tbl+index, str_len-1));
-				}
+				proto_tree_add_text (tree, tvb, off, 1+len,
+						"  %3d | Tag   | T %3d    "
+						"| EXT_T_%1x    (Extension Token)    "
+						"| %s(%s: \'%s\')",
+						*level, *codepage_stag, peek & 0x0f, Indent (*level),
+						map_token (map->global, *codepage_stag, peek),
+						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| STR_T (Tableref string)         "
 						"| %s\'%s\'",
-						*level, Indent (*level),
+						*level, *codepage_stag, Indent (*level),
 						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
@@ -2473,40 +2554,29 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			case 0xC1: /* EXT_1 */
 			case 0xC2: /* EXT_2 */
 				/* Extension tokens */
-				if (codepage_stag) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | T %3d->0 "
-							"| EXT_%1x      (Extension Token)    "
-							"| %s(%s)",
-							*level, codepage_stag, peek & 0x0f, Indent (*level),
-							map_token (map->global, codepage_stag, peek));
-					/* Reset code page */
-					codepage_stag = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   |          "
-							"| EXT_%1x      (Extension Token)    "
-							"| %s(%s)",
-							*level, peek & 0x0f, Indent (*level),
-							map_token (map->global, codepage_stag, peek));
-				}
+				proto_tree_add_text (tree, tvb, off, 1,
+						"  %3d | Tag   | T %3d    "
+						"| EXT_%1x      (Extension Token)    "
+						"| %s(%s)",
+						*level, *codepage_stag, peek & 0x0f, Indent (*level),
+						map_token (map->global, *codepage_stag, peek));
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
 					index = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d | Tag   |          "
+							"  %3d | Tag   | T %3d    "
 							"| OPAQUE (Opaque data)            "
 							"| %s(%d bytes of opaque data)",
-							*level, Indent (*level), index);
+							*level, *codepage_stag, Indent (*level), index);
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   |          "
+							"  %3d | Tag   | T %3d    "
 							"| RESERVED_2     (Invalid Token!) "
 							"| WBXML 1.0 parsing stops here.",
-							*level);
+							*level, *codepage_stag);
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
 					DebugLog(("STAG: level = %u, Return: len = %u\n", *level, off - offset));
@@ -2539,7 +2609,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
-				tag_new_literal = map_token (map->tags, codepage_stag,
+				tag_new_literal = map_token (map->tags, *codepage_stag,
 										tag_new_known);
 				/* Stored looked up tag name string */
 			}
@@ -2557,7 +2627,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					 * recursion will take care of it */
 					(*level)++;
 					len = parse_wbxml_tag_defined (tree, tvb, off, str_tbl,
-							level, map);
+							level, codepage_stag, codepage_attr, map);
 					off += len;
 				} else { /* Now we will have content to parse */
 					/* Save the start tag so we can properly close it later. */
@@ -2572,77 +2642,56 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					/* Process the attribute list if present */
 					if (peek & 0x80) { /* Content and Attribute list present */
 						if (tag_new_known) { /* Known tag */
-							if (codepage_stag) { /* Not default code page */
-								proto_tree_add_text (tree, tvb, off, 1,
-										"  %3d | Tag   | T %3d->0 "
-										"|   Known Tag 0x%02X           (AC) "
-										"| %s<%s",
-										*level, codepage_stag, tag_new_known,
-										Indent (*level), tag_new_literal);
-								/* Tag string already looked up earlier! */
-								/* Reset code page */
-								codepage_stag = 0;
-							} else { /* Code page 0 */
-								proto_tree_add_text (tree, tvb, off, 1,
-										"  %3d | Tag   |          "
-										"|   Known Tag 0x%02X           (AC) "
-										"| %s<%s",
-										*level, tag_new_known,
-										Indent (*level), tag_new_literal);
-								/* Tag string already looked up earlier! */
-							}
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   | T %3d    "
+									"|   Known Tag 0x%02X           (AC) "
+									"| %s<%s",
+									*level, *codepage_stag, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   |          "
+									"  %3d | Tag   | T %3d    "
 									"| LITERAL_AC (Literal tag)   (AC) "
 									"| %s<%s",
-									*level, Indent (*level), tag_new_literal);
+									*level, *codepage_stag, Indent (*level), tag_new_literal);
 							off += 1 + tag_len;
 						}
 						len = parse_wbxml_attribute_list_defined (tree, tvb,
-								off, str_tbl, *level, map);
+								off, str_tbl, *level, codepage_attr, map);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
-							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
+							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n",
+										*level, off - offset));
+							/*
+							 * TODO - Do we need to free g_malloc()ed memory?
+							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| END (attribute list)            "
 								"| %s>",
-								*level, Indent (*level));
+								*level, *codepage_stag, Indent (*level));
 					} else { /* Content, no Attribute list */
 						if (tag_new_known) { /* Known tag */
-							if (codepage_stag) { /* Not default code page */
-								proto_tree_add_text (tree, tvb, off, 1,
-										"  %3d | Tag   | T %3d->0 "
-										"|   Known Tag 0x%02X           (.C) "
-										"| %s<%s>",
-										*level, codepage_stag, tag_new_known,
-										Indent (*level),
-										tag_new_literal);
-								/* Tag string already looked up earlier! */
-								/* Reset code page */
-								codepage_stag = 0;
-							} else { /* Code page 0 */
-								proto_tree_add_text (tree, tvb, off, 1,
-										"  %3d | Tag   |          "
-										"|   Known Tag 0x%02X           (.C) "
-										"| %s<%s>",
-										*level, tag_new_known,
-										Indent (*level),
-										tag_new_literal);
-								/* Tag string already looked up earlier! */
-							}
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   | T %3d    "
+									"|   Known Tag 0x%02X           (.C) "
+									"| %s<%s>",
+									*level, *codepage_stag, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   |          "
+									"  %3d | Tag   | T %3d    "
 									"| LITERAL_C  (Literal Tag)   (.C) "
 									"| %s<%s>",
-									*level, Indent (*level), tag_new_literal);
+									*level, *codepage_stag, Indent (*level),
+									tag_new_literal);
 							off += 1 + tag_len;
 						}
 					}
@@ -2659,88 +2708,71 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				(*level)++;
 				if (peek & 0x80) { /* No Content, Attribute list present */
 					if (tag_new_known) { /* Known tag */
-						if (codepage_stag) { /* Not default code page */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d->0 "
-									"|   Known Tag 0x%02X           (A.) "
-									"| %s<%s",
-									*level, codepage_stag, tag_new_known,
-									Indent (*level), tag_new_literal);
-							/* Tag string already looked up earlier! */
-							/* Reset code page */
-							codepage_stag = 0;
-						} else { /* Code page 0 */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   |          "
-									"|   Known Tag 0x%02X           (A.) "
-									"| %s<%s",
-									*level, tag_new_known,
-									Indent (*level), tag_new_literal);
-							/* Tag string already looked up earlier! */
-						}
+						proto_tree_add_text (tree, tvb, off, 1,
+								"  %3d | Tag   | T %3d    "
+								"|   Known Tag 0x%02X           (A.) "
+								"| %s<%s",
+								*level, *codepage_stag, tag_new_known,
+								Indent (*level), tag_new_literal);
+						/* Tag string already looked up earlier! */
 						off++;
 						len = parse_wbxml_attribute_list_defined (tree, tvb,
-								off, str_tbl, *level, map);
+								off, str_tbl, *level, codepage_attr, map);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
 							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
+							/*
+							 * TODO - Do we need to free g_malloc()ed memory?
+							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| END (Known Tag)                 "
 								"| %s/>",
-								*level, Indent (*level));
+								*level, *codepage_stag, Indent (*level));
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| LITERAL_A  (Literal Tag)   (A.) "
 								"| %s<%s",
-								*level, Indent (*level), tag_new_literal);
+								*level, *codepage_stag, Indent (*level), tag_new_literal);
 						off += 1 + tag_len;
 						len = parse_wbxml_attribute_list_defined (tree, tvb,
-								off, str_tbl, *level, map);
+								off, str_tbl, *level, codepage_attr, map);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
 							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
+							/*
+							 * TODO - Do we need to free g_malloc()ed memory?
+							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| END (Literal Tag)               "
 								"| %s/>",
-								*level, Indent (*level));
+								*level, *codepage_stag, Indent (*level));
 					}
 				} else { /* No Content, No Attribute list */
 					if (tag_new_known) { /* Known tag */
-						if (codepage_stag) { /* Not default code page */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d->0 "
-									"|   Known Tag 0x%02x           (..) "
-									"| %s<%s />",
-									*level, codepage_stag, tag_new_known,
-									Indent (*level), tag_new_literal);
-							/* Tag string already looked up earlier! */
-							/* Reset code page */
-							codepage_stag = 0;
-						} else { /* Code page 0 */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   |          "
-									"|   Known Tag 0x%02x           (..) "
-									"| %s<%s />",
-									*level, tag_new_known,
-									Indent (*level), tag_new_literal);
-							/* Tag string already looked up earlier! */
-						}
+						proto_tree_add_text (tree, tvb, off, 1,
+								"  %3d | Tag   | T %3d    "
+								"|   Known Tag 0x%02x           (..) "
+								"| %s<%s />",
+								*level, *codepage_stag, tag_new_known,
+								Indent (*level), tag_new_literal);
+						/* Tag string already looked up earlier! */
 						off++;
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| LITERAL    (Literal Tag)   (..) "
 								"| %s<%s />",
-								*level, Indent (*level), tag_new_literal);
+								*level, *codepage_stag, Indent (*level),
+								tag_new_literal);
 						off += 1 + tag_len;
 					}
 				}
@@ -2761,7 +2793,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  */
 static guint32
 parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 *level)
+		guint32 str_tbl, guint8 *level,
+		guint8 *codepage_stag, guint8 *codepage_attr)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -2777,7 +2810,6 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
 	char tag_save_buf[10]; /* Will contain "tag_0x%02X" */
 	char tag_new_buf[10]; /* Will contain "tag_0x%02X" */
-	guint8 codepage_stag = 0; /* Initial codepage in state = STAG */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
 										   tag with content: <x>Content</x>
 										   
@@ -2792,52 +2824,54 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		if ((peek & 0x3F) < 4) switch (peek) { /* Global tokens in state = STAG
 												  but not the LITERAL tokens */
 			case 0x00: /* SWITCH_PAGE */
-				codepage_stag = tvb_get_guint8 (tvb, off+1);
+				*codepage_stag = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
-						"      | Tag   | T 0->%3d "
+						"      | Tag   | T -->%3d "
 						"| SWITCH_PAGE (Tag code page)     "
 						"|",
-						codepage_stag);
+						*codepage_stag);
 				off += 2;
 				break;
 			case 0x01: /* END: only possible for Tag with Content */
 				if (tag_save_known) { /* Known TAG */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   |          "
+							"  %3d | Tag   | T %3d    "
 							"| END (Known Tag 0x%02X)            "
 							"| %s</%s>",
-							*level, tag_save_known, Indent (*level),
+							*level, *codepage_stag, tag_save_known,
+							Indent (*level),
 							tag_save_literal); /* We already looked it up! */
 				} else { /* Literal TAG */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   |          "
+							"  %3d | Tag   | T %3d    "
 							"| END (Literal Tag)               "
 							"| %s</%s>",
-							*level, Indent (*level),
+							*level, *codepage_stag, Indent (*level),
 							tag_save_literal);
 				}
 				(*level)--;
 				off++;
 				/* Reset code page: not needed as return from recursion */
-				DebugLog(("STAG: level = %u, Return: len = %u\n", *level, off - offset));
+				DebugLog(("STAG: level = %u, Return: len = %u\n",
+							*level, off - offset));
 				return (off - offset);
 				break;
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| ENTITY                          "
 						"| %s'&#%u;'",
-						*level, Indent (*level), ent);
+						*level, *codepage_stag, Indent (*level), ent);
 				off += 1+len;
 				break;
 			case 0x03: /* STR_I */
 				len = tvb_strsize (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| STR_I (Inline string)           "
 						"| %s\'%s\'",
-						*level, Indent(*level),
+						*level, *codepage_stag, Indent(*level),
 						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
@@ -2846,43 +2880,37 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			case 0x42: /* EXT_I_2 */
 				/* Extension tokens */
 				len = tvb_strsize (tvb, off+1);
-				if (codepage_stag) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d | Tag   | T %3d->0 "
-							"| EXT_I_%1x    (Extension Token)    "
-							"| %s(Inline string extension: \'%s\')",
-							*level, codepage_stag, peek & 0x0f, Indent (*level),
-							tvb_format_text (tvb, off+1, len-1));
-					/* Reset code page */
-					codepage_stag = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d | Tag   |          "
-							"| EXT_I_%1x    (Extension Token)    "
-							"| %s(Inline string extension: \'%s\')",
-							*level, peek & 0x0f, Indent (*level),
-							tvb_format_text (tvb, off+1, len-1));
-				}
+				proto_tree_add_text (tree, tvb, off, 1+len,
+						"  %3d | Tag   | T %3d    "
+						"| EXT_I_%1x    (Extension Token)    "
+						"| %s(Inline string extension: \'%s\')",
+						*level, *codepage_stag, peek & 0x0f, Indent (*level),
+						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
 			case 0x43: /* PI */
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| PI (XML Processing Instruction) "
 						"| %s<?xml",
-						*level, Indent (*level));
-				len = parse_wbxml_attribute_list (tree, tvb, off, str_tbl, *level);
+						*level, *codepage_stag, Indent (*level));
+				len = parse_wbxml_attribute_list (tree, tvb, off, str_tbl,
+						*level, codepage_attr);
 				/* Check that there is still room in packet */
 				off += len;
 				if (off >= tvb_len) {
-					DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
+					DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n",
+								*level, off - offset));
+					/*
+					 * TODO - Do we need to free g_malloc()ed memory?
+					 */
 					THROW(ReportedBoundsError);
 				}
 				proto_tree_add_text (tree, tvb, off-1, 1,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| END (PI)                        "
 						"| %s?>",
-						*level, Indent (*level));
+						*level, *codepage_stag, Indent (*level));
 				break;
 			case 0x80: /* EXT_T_0 */
 			case 0x81: /* EXT_T_1 */
@@ -2890,33 +2918,22 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
-				if (codepage_stag) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d | Tag   | T %3d->0 "
-							"| EXT_T_%1x    (Extension Token)    "
-							"| %s(Tableref string extension: \'%s\')",
-							*level, codepage_stag, peek & 0x0f, Indent (*level),
-							tvb_format_text (tvb, str_tbl+index, str_len-1));
-					/* Reset code page */
-					codepage_stag = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d | Tag   |          "
-							"| EXT_T_%1x    (Extension Token)    "
-							"| %s(Tableref string extension: \'%s\')",
-							*level, peek & 0x0f, Indent (*level),
-							tvb_format_text (tvb, str_tbl+index, str_len-1));
-				}
+				proto_tree_add_text (tree, tvb, off, 1+len,
+						"  %3d | Tag   | T %3d    "
+						"| EXT_T_%1x    (Extension Token)    "
+						"| %s(Tableref string extension: \'%s\')",
+						*level, *codepage_stag, peek & 0x0f, Indent (*level),
+						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   |          "
+						"  %3d | Tag   | T %3d    "
 						"| STR_T (Tableref string)         "
 						"| %s\'%s\'",
-						*level, Indent (*level),
+						*level, *codepage_stag, Indent (*level),
 						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
@@ -2924,42 +2941,32 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			case 0xC1: /* EXT_1 */
 			case 0xC2: /* EXT_2 */
 				/* Extension tokens */
-				if (codepage_stag) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | T %3d->0 "
-							"| EXT_%1x      (Extension Token)    "
-							"| %s(Single-byte extension)",
-							*level, codepage_stag, peek & 0x0f,
-							Indent (*level));
-					/* Reset code page */
-					codepage_stag = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   |          "
-							"| EXT_%1x      (Extension Token)    "
-							"| %s(Single-byte extension)",
-							*level, peek & 0x0f, Indent (*level));
-				}
+				proto_tree_add_text (tree, tvb, off, 1,
+						"  %3d | Tag   | T %3d    "
+						"| EXT_%1x      (Extension Token)    "
+						"| %s(Single-byte extension)",
+						*level, *codepage_stag, peek & 0x0f, Indent (*level));
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
 					index = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d | Tag   |          "
+							"  %3d | Tag   | T %3d    "
 							"| OPAQUE (Opaque data)            "
 							"| %s(%d bytes of opaque data)",
-							*level, Indent (*level), index);
+							*level, *codepage_stag, Indent (*level), index);
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   |          "
+							"  %3d | Tag   | T %3d    "
 							"| RESERVED_2     (Invalid Token!) "
 							"| WBXML 1.0 parsing stops here.",
-							*level);
+							*level, *codepage_stag);
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
-					DebugLog(("STAG: level = %u, Return: len = %u\n", *level, off - offset));
+					DebugLog(("STAG: level = %u, Return: len = %u\n",
+								*level, off - offset));
 					return (off - offset);
 				}
 				break;
@@ -2982,7 +2989,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			/* Store the new tag */
 			tag_len = 0;
 			if ((peek & 0x3F) == 4) { /* LITERAL */
-				DebugLog(("STAG: LITERAL tag (peek = 0x%02X, off = %u) - TableRef follows!\n", peek, off));
+				DebugLog(("STAG: LITERAL tag (peek = 0x%02X, off = %u)"
+							" - TableRef follows!\n", peek, off));
 				index = tvb_get_guintvar (tvb, off+1, &tag_len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
 				tag_new_literal = tvb_get_ptr (tvb, str_tbl+index, str_len);
@@ -3007,7 +3015,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					/* Do not process the attribute list:
 					 * recursion will take care of it */
 					(*level)++;
-					len = parse_wbxml_tag (tree, tvb, off, str_tbl, level);
+					len = parse_wbxml_tag (tree, tvb, off, str_tbl, level,
+							codepage_stag, codepage_attr);
 					off += len;
 				} else { /* Now we will have content to parse */
 					/* Save the start tag so we can properly close it later. */
@@ -3024,77 +3033,58 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					/* Process the attribute list if present */
 					if (peek & 0x80) { /* Content and Attribute list present */
 						if (tag_new_known) { /* Known tag */
-							if (codepage_stag) { /* Not default code page */
-								proto_tree_add_text (tree, tvb, off, 1,
-										"  %3d | Tag   | T %3d->0 "
-										"|   Known Tag 0x%02X           (AC) "
-										"| %s<%s",
-										*level, codepage_stag, tag_new_known,
-										Indent (*level), tag_new_literal);
-								/* Tag string already looked up earlier! */
-								/* Reset code page */
-								codepage_stag = 0;
-							} else { /* Code page 0 */
-								proto_tree_add_text (tree, tvb, off, 1,
-										"  %3d | Tag   |          "
-										"|   Known Tag 0x%02X           (AC) "
-										"| %s<%s",
-										*level, tag_new_known,
-										Indent (*level), tag_new_literal);
-								/* Tag string already looked up earlier! */
-							}
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   | T %3d    "
+									"|   Known Tag 0x%02X           (AC) "
+									"| %s<%s",
+									*level, *codepage_stag, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   |          "
+									"  %3d | Tag   | T %3d    "
 									"| LITERAL_AC (Literal tag)   (AC) "
 									"| %s<%s",
-									*level, Indent (*level), tag_new_literal);
+									*level, *codepage_stag, Indent (*level),
+									tag_new_literal);
 							off += 1 + tag_len;
 						}
 						len = parse_wbxml_attribute_list (tree, tvb,
-								off, str_tbl, *level);
+								off, str_tbl, *level, codepage_attr);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
-							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
+							DebugLog(("STAG: level = %u, ThrowException: "
+										"len = %u (short frame)\n",
+										*level, off - offset));
+							/*
+							 * TODO - Do we need to free g_malloc()ed memory?
+							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| END (attribute list)            "
 								"| %s>",
-								*level, Indent (*level));
+								*level, *codepage_stag, Indent (*level));
 					} else { /* Content, no Attribute list */
 						if (tag_new_known) { /* Known tag */
-							if (codepage_stag) { /* Not default code page */
-								proto_tree_add_text (tree, tvb, off, 1,
-										"  %3d | Tag   | T %3d->0 "
-										"|   Known Tag 0x%02X           (.C) "
-										"| %s<%s>",
-										*level, codepage_stag, tag_new_known,
-										Indent (*level),
-										tag_new_literal);
-								/* Tag string already looked up earlier! */
-								/* Reset code page */
-								codepage_stag = 0;
-							} else { /* Code page 0 */
-								proto_tree_add_text (tree, tvb, off, 1,
-										"  %3d | Tag   |          "
-										"|   Known Tag 0x%02X           (.C) "
-										"| %s<%s>",
-										*level, tag_new_known,
-										Indent (*level),
-										tag_new_literal);
-								/* Tag string already looked up earlier! */
-							}
+							proto_tree_add_text (tree, tvb, off, 1,
+									"  %3d | Tag   | T %3d    "
+									"|   Known Tag 0x%02X           (.C) "
+									"| %s<%s>",
+									*level, *codepage_stag, tag_new_known,
+									Indent (*level), tag_new_literal);
+							/* Tag string already looked up earlier! */
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   |          "
+									"  %3d | Tag   | T %3d    "
 									"| LITERAL_C  (Literal Tag)   (.C) "
 									"| %s<%s>",
-									*level, Indent (*level), tag_new_literal);
+									*level, *codepage_stag, Indent (*level),
+									tag_new_literal);
 							off += 1 + tag_len;
 						}
 					}
@@ -3104,95 +3094,84 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					 * Next time we encounter a tag with content: recurse
 					 */
 					parsing_tag_content = TRUE;
-					DebugLog(("Tag in Tag - No recursion this time! (off = %u)\n", off));
+					DebugLog(("Tag in Tag - No recursion this time! "
+								"(off = %u)\n", off));
 				}
 			} else { /* No Content */
 				DebugLog(("<Tag/> in Tag - No recursion! (off = %u)\n", off));
 				(*level)++;
 				if (peek & 0x80) { /* No Content, Attribute list present */
 					if (tag_new_known) { /* Known tag */
-						if (codepage_stag) { /* Not default code page */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d->0 "
-									"|   Known Tag 0x%02X           (A.) "
-									"| %s<%s",
-									*level, codepage_stag, tag_new_known,
-									Indent (*level), tag_new_literal);
-							/* Tag string already looked up earlier! */
-							/* Reset code page */
-							codepage_stag = 0;
-						} else { /* Code page 0 */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   |          "
-									"|   Known Tag 0x%02X           (A.) "
-									"| %s<%s",
-									*level, tag_new_known,
-									Indent (*level), tag_new_literal);
-							/* Tag string already looked up earlier! */
-						}
+						proto_tree_add_text (tree, tvb, off, 1,
+								"  %3d | Tag   | T %3d    "
+								"|   Known Tag 0x%02X           (A.) "
+								"| %s<%s",
+								*level, *codepage_stag, tag_new_known,
+								Indent (*level), tag_new_literal);
+						/* Tag string already looked up earlier! */
 						off++;
 						len = parse_wbxml_attribute_list (tree, tvb,
-								off, str_tbl, *level);
+								off, str_tbl, *level, codepage_attr);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
-							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
+							DebugLog(("STAG: level = %u, ThrowException: "
+										"len = %u (short frame)\n",
+										*level, off - offset));
+							/*
+							 * TODO - Do we need to free g_malloc()ed memory?
+							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| END (Known Tag)                 "
 								"| %s/>",
-								*level, Indent (*level));
+								*level, *codepage_stag, Indent (*level));
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| LITERAL_A  (Literal Tag)   (A.) "
 								"| %s<%s",
-								*level, Indent (*level), tag_new_literal);
+								*level, *codepage_stag, Indent (*level),
+								tag_new_literal);
 						off += 1 + tag_len;
 						len = parse_wbxml_attribute_list (tree, tvb,
-								off, str_tbl, *level);
+								off, str_tbl, *level, codepage_attr);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
-							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
+							DebugLog(("STAG: level = %u, ThrowException: "
+										"len = %u (short frame)\n",
+										*level, off - offset));
+							/*
+							 * TODO - Do we need to free g_malloc()ed memory?
+							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| END (Literal Tag)               "
 								"| %s/>",
-								*level, Indent (*level));
+								*level, *codepage_stag, Indent (*level));
 					}
 				} else { /* No Content, No Attribute list */
 					if (tag_new_known) { /* Known tag */
-						if (codepage_stag) { /* Not default code page */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d->0 "
-									"|   Known Tag 0x%02x           (..) "
-									"| %s<%s />",
-									*level, codepage_stag, tag_new_known,
-									Indent (*level), tag_new_literal);
-							/* Tag string already looked up earlier! */
-							/* Reset code page */
-							codepage_stag = 0;
-						} else { /* Code page 0 */
-							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   |          "
-									"|   Known Tag 0x%02x           (..) "
-									"| %s<%s />",
-									*level, tag_new_known,
-									Indent (*level), tag_new_literal);
-							/* Tag string already looked up earlier! */
-						}
+						proto_tree_add_text (tree, tvb, off, 1,
+								"  %3d | Tag   | T %3d    "
+								"|   Known Tag 0x%02x           (..) "
+								"| %s<%s />",
+								*level, *codepage_stag, tag_new_known,
+								Indent (*level), tag_new_literal);
+						/* Tag string already looked up earlier! */
 						off++;
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   |          "
+								"  %3d | Tag   | T %3d    "
 								"| LITERAL    (Literal Tag)   (..) "
 								"| %s<%s />",
-								*level, Indent (*level), tag_new_literal);
+								*level, *codepage_stag, Indent (*level),
+								tag_new_literal);
 						off += 1 + tag_len;
 					}
 				}
@@ -3201,7 +3180,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			}
 		} /* if (tag & 0x3F) >= 5 */
 	} /* while */
-	DebugLog(("STAG: level = %u, Return: len = %u (end of function body)\n", *level, off - offset));
+	DebugLog(("STAG: level = %u, Return: len = %u (end of function body)\n",
+				*level, off - offset));
 	return (off - offset);
 }
 
@@ -3230,7 +3210,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  */
 static guint32
 parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
-		guint32 offset, guint32 str_tbl, guint8 level,
+		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
 		const wbxml_token_map *map)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
@@ -3240,21 +3220,22 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 	guint32 ent;
 	guint32 index;
 	guint8 peek;
-	guint8 codepage_attr = 0; /* Initial codepage in state = ATTR */
 
-	DebugLog(("parse_wbxml_attr_defined (level = %u, offset = %u)\n", level, offset));
+	DebugLog(("parse_wbxml_attr_defined (level = %u, offset = %u)\n",
+				level, offset));
 	/* Parse attributes */
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
-		DebugLog(("ATTR: (top of while) level = %3u, peek = 0x%02X, off = %u, tvb_len = %u\n", level, peek, off, tvb_len));
+		DebugLog(("ATTR: (top of while) level = %3u, peek = 0x%02X, "
+					"off = %u, tvb_len = %u\n", level, peek, off, tvb_len));
 		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens
 												  in state = ATTR */
 			case 0x00: /* SWITCH_PAGE */
-				codepage_attr = tvb_get_guint8 (tvb, off+1);
+				*codepage_attr = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
-						"      |  Attr | A 0->%3d "
+						"      |  Attr | A -->%3d "
 						"| SWITCH_PAGE (Attr code page)    |",
-						codepage_attr);
+						*codepage_attr);
 				off += 2;
 				break;
 			case 0x01: /* END */
@@ -3264,24 +3245,25 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				 *   This is done in the TAG state parser.
 				 */
 				off++;
-				DebugLog(("ATTR: level = %u, Return: len = %u\n", level, off - offset));
+				DebugLog(("ATTR: level = %u, Return: len = %u\n",
+							level, off - offset));
 				return (off - offset);
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| ENTITY                          "
 						"|     %s'&#%u;'",
-						level, Indent (level), ent);
+						level, *codepage_attr, Indent (level), ent);
 				off += 1+len;
 				break;
 			case 0x03: /* STR_I */
 				len = tvb_strsize (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| STR_I (Inline string)           "
 						"|     %s\'%s\'",
-						level, Indent (level),
+						level, *codepage_attr, Indent (level),
 						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
@@ -3289,10 +3271,10 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| LITERAL (Literal Attribute)     "
 						"|   %s<%s />",
-						level, Indent (level),
+						level, *codepage_attr, Indent (level),
 						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
@@ -3301,25 +3283,13 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			case 0x42: /* EXT_I_2 */
 				/* Extension tokens */
 				len = tvb_strsize (tvb, off+1);
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d |  Attr | A %3d->0 "
-							"| EXT_I_%1x    (Extension Token)    "
-							"|     %s(%s: \'%s\')",
-							level, codepage_attr, peek & 0x0f, Indent (level),
-							map_token (map->global, codepage_attr, peek),
-							tvb_format_text (tvb, off+1, len-1));
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d |  Attr |          "
-							"| EXT_I_%1x    (Extension Token)    "
-							"|     %s(%s: \'%s\')",
-							level, peek & 0x0f, Indent (level),
-							map_token (map->global, codepage_attr, peek),
-							tvb_format_text (tvb, off+1, len-1));
-				}
+				proto_tree_add_text (tree, tvb, off, 1+len,
+						"  %3d |  Attr | A %3d    "
+						"| EXT_I_%1x    (Extension Token)    "
+						"|     %s(%s: \'%s\')",
+						level, *codepage_attr, peek & 0x0f, Indent (level),
+						map_token (map->global, *codepage_attr, peek),
+						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
 			/* 0x43 impossible in ATTR state */
@@ -3330,35 +3300,23 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d |  Attr | A %3d->0 "
-							"| EXT_T_%1x    (Extension Token)    "
-							"|     %s(%s: \'%s\')",
-							level, codepage_attr, peek & 0x0f, Indent (level),
-							map_token (map->global, codepage_attr, peek),
-							tvb_format_text (tvb, str_tbl+index, str_len-1));
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d |  Attr |          "
-							"| EXT_T_%1x    (Extension Token)    "
-							"|     %s(%s: \'%s\')",
-							level, peek & 0x0f, Indent (level),
-							map_token (map->global, codepage_attr, peek),
-							tvb_format_text (tvb, str_tbl+index, str_len-1));
-				}
+				proto_tree_add_text (tree, tvb, off, 1+len,
+						"  %3d |  Attr | A %3d    "
+						"| EXT_T_%1x    (Extension Token)    "
+						"|     %s(%s: \'%s\')",
+						level, *codepage_attr, peek & 0x0f, Indent (level),
+						map_token (map->global, *codepage_attr, peek),
+						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| STR_T (Tableref string)         "
 						"|     %s\'%s\'",
-						level, Indent (level),
+						level, *codepage_attr, Indent (level),
 						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
@@ -3367,99 +3325,69 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			case 0xC1: /* EXT_1 */
 			case 0xC2: /* EXT_2 */
 				/* Extension tokens */
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr | A %3d->0 "
-							"| EXT_%1x      (Extension Token)    "
-							"|     %s(%s)",
-							level, codepage_attr, peek & 0x0f, Indent (level),
-							map_token (map->global, codepage_attr, peek));
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr |          "
-							"| EXT_%1x      (Extension Token)    "
-							"|     %s(%s)",
-							level, peek & 0x0f, Indent (level),
-							map_token (map->global, codepage_attr, peek));
-				}
+				proto_tree_add_text (tree, tvb, off, 1,
+						"  %3d |  Attr | A %3d    "
+						"| EXT_%1x      (Extension Token)    "
+						"|     %s(%s)",
+						level, *codepage_attr, peek & 0x0f, Indent (level),
+						map_token (map->global, *codepage_attr, peek));
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
 					index = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d |  Attr |          "
+							"  %3d |  Attr | A %3d    "
 							"| OPAQUE (Opaque data)            "
 							"|       %s(%d bytes of opaque data)",
-							level, Indent (level), index);
+							level, *codepage_attr, Indent (level), index);
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr |          "
+							"  %3d |  Attr | A %3d    "
 							"| RESERVED_2     (Invalid Token!) "
 							"| WBXML 1.0 parsing stops here.",
-							level);
+							level, *codepage_attr);
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
-					DebugLog(("ATTR: level = %u, Return: len = %u\n", level, off - offset));
+					DebugLog(("ATTR: level = %u, Return: len = %u\n",
+								level, off - offset));
 					return (off - offset);
 				}
 				break;
 			/* 0xC4 impossible in ATTR state */
 			default:
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| %-10s     (Invalid Token!) "
 						"| WBXML parsing stops here.",
-						level, match_strval (peek, vals_wbxml1x_global_tokens));
+						level, *codepage_attr,
+						match_strval (peek, vals_wbxml1x_global_tokens));
 				/* Move to end of buffer */
 				off = tvb_len;
 				break;
 		} else { /* Known atribute token */
 			if (peek & 0x80) { /* attrValue */
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr | A %3d->0 "
-							"|   Known attrValue 0x%02X          "
-							"|       %s%s",
-							level, codepage_attr, peek & 0x7f, Indent (level),
-							map_token (map->attrValue, codepage_attr, peek));
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr |          "
-							"|   Known attrValue 0x%02X          "
-							"|       %s%s",
-							level, peek & 0x7f, Indent (level),
-							map_token (map->attrValue, codepage_attr, peek));
-				}
+				proto_tree_add_text (tree, tvb, off, 1,
+						"  %3d |  Attr | A %3d    "
+						"|   Known attrValue 0x%02X          "
+						"|       %s%s",
+						level, *codepage_attr, peek & 0x7f, Indent (level),
+						map_token (map->attrValue, *codepage_attr, peek));
 				off++;
 			} else { /* attrStart */
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr | A %3d->0 "
-							"|   Known attrStart 0x%02X          "
-							"|   %s%s",
-							level, codepage_attr, peek & 0x7f, Indent (level),
-							map_token (map->attrStart, codepage_attr, peek));
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr |          "
-							"|   Known attrStart 0x%02X          "
-							"|   %s%s",
-							level, peek & 0x7f, Indent (level),
-							map_token (map->attrStart, codepage_attr, peek));
-				}
+				proto_tree_add_text (tree, tvb, off, 1,
+						"  %3d |  Attr | A %3d    "
+						"|   Known attrStart 0x%02X          "
+						"|   %s%s",
+						level, *codepage_attr, peek & 0x7f, Indent (level),
+						map_token (map->attrStart, *codepage_attr, peek));
 				off++;
 			}
 		}
 	} /* End WHILE */
-	DebugLog(("ATTR: level = %u, Return: len = %u (end of function body)\n", level, off - offset));
+	DebugLog(("ATTR: level = %u, Return: len = %u (end of function body)\n",
+				level, off - offset));
 	return (off - offset);
 }
 
@@ -3474,7 +3402,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
  */
 static guint32
 parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
-		guint32 offset, guint32 str_tbl, guint8 level)
+		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -3483,21 +3411,21 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 	guint32 ent;
 	guint32 index;
 	guint8 peek;
-	guint8 codepage_attr = 0; /* Initial codepage in state = ATTR */
 
 	DebugLog(("parse_wbxml_attr (level = %u, offset = %u)\n", level, offset));
 	/* Parse attributes */
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
-		DebugLog(("ATTR: (top of while) level = %3u, peek = 0x%02X, off = %u, tvb_len = %u\n", level, peek, off, tvb_len));
+		DebugLog(("ATTR: (top of while) level = %3u, peek = 0x%02X, "
+					"off = %u, tvb_len = %u\n", level, peek, off, tvb_len));
 		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens
 												  in state = ATTR */
 			case 0x00: /* SWITCH_PAGE */
-				codepage_attr = tvb_get_guint8 (tvb, off+1);
+				*codepage_attr = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
-						"      |  Attr | A 0->%3d "
+						"      |  Attr | A -->%3d "
 						"| SWITCH_PAGE (Attr code page)    |",
-						codepage_attr);
+						*codepage_attr);
 				off += 2;
 				break;
 			case 0x01: /* END */
@@ -3507,24 +3435,25 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				 *   This is done in the TAG state parser.
 				 */
 				off++;
-				DebugLog(("ATTR: level = %u, Return: len = %u\n", level, off - offset));
+				DebugLog(("ATTR: level = %u, Return: len = %u\n",
+							level, off - offset));
 				return (off - offset);
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| ENTITY                          "
 						"|     %s'&#%u;'",
-						level, Indent (level), ent);
+						level, *codepage_attr, Indent (level), ent);
 				off += 1+len;
 				break;
 			case 0x03: /* STR_I */
 				len = tvb_strsize (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| STR_I (Inline string)           "
 						"|     %s\'%s\'",
-						level, Indent (level),
+						level, *codepage_attr, Indent (level),
 						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
@@ -3532,10 +3461,10 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| LITERAL (Literal Attribute)     "
 						"|   %s<%s />",
-						level, Indent (level),
+						level, *codepage_attr, Indent (level),
 						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
@@ -3544,23 +3473,12 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			case 0x42: /* EXT_I_2 */
 				/* Extension tokens */
 				len = tvb_strsize (tvb, off+1);
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d |  Attr | A %3d->0 "
-							"| EXT_I_%1x    (Extension Token)    "
-							"|     %s(Inline string extension: \'%s\')",
-							level, codepage_attr, peek & 0x0f, Indent (level),
-							tvb_format_text (tvb, off+1, len-1));
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d |  Attr |          "
-							"| EXT_I_%1x    (Extension Token)    "
-							"|     %s(Inline string extension: \'%s\')",
-							level, peek & 0x0f, Indent (level),
-							tvb_format_text (tvb, off+1, len-1));
-				}
+				proto_tree_add_text (tree, tvb, off, 1+len,
+						"  %3d |  Attr | A %3d    "
+						"| EXT_I_%1x    (Extension Token)    "
+						"|     %s(Inline string extension: \'%s\')",
+						level, *codepage_attr, peek & 0x0f, Indent (level),
+						tvb_format_text (tvb, off+1, len-1));
 				off += 1+len;
 				break;
 			/* 0x43 impossible in ATTR state */
@@ -3571,33 +3489,22 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d |  Attr | A %3d->0 "
-							"| EXT_T_%1x    (Extension Token)    "
-							"|     %s(Tableref string extension: \'%s\')",
-							level, codepage_attr, peek & 0x0f, Indent (level),
-							tvb_format_text (tvb, str_tbl+index, str_len-1));
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1+len,
-							"  %3d |  Attr |          "
-							"| EXT_T_%1x    (Extension Token)    "
-							"|     %s(Tableref string extension: \'%s\')",
-							level, peek & 0x0f, Indent (level),
-							tvb_format_text (tvb, str_tbl+index, str_len-1));
-				}
+				proto_tree_add_text (tree, tvb, off, 1+len,
+						"  %3d |  Attr | A %3d    "
+						"| EXT_T_%1x    (Extension Token)    "
+						"|     %s(Tableref string extension: \'%s\')",
+						level, *codepage_attr, peek & 0x0f, Indent (level),
+						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| STR_T (Tableref string)         "
 						"|     %s\'%s\'",
-						level, Indent (level),
+						level, *codepage_attr, Indent (level),
 						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
@@ -3606,97 +3513,68 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			case 0xC1: /* EXT_1 */
 			case 0xC2: /* EXT_2 */
 				/* Extension tokens */
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr | A %3d->0 "
-							"| EXT_%1x      (Extension Token)    "
-							"|     %s(Single-byte extension)",
-							level, codepage_attr, peek & 0x0f, Indent (level));
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr |          "
-							"| EXT_%1x      (Extension Token)    "
-							"|     %s(Single-byte extension)",
-							level, peek & 0x0f, Indent (level));
-				}
+				proto_tree_add_text (tree, tvb, off, 1,
+						"  %3d |  Attr | A %3d    "
+						"| EXT_%1x      (Extension Token)    "
+						"|     %s(Single-byte extension)",
+						level, *codepage_attr, peek & 0x0f, Indent (level));
 				off++;
 				break;
 			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
 					index = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d |  Attr |          "
+							"  %3d |  Attr | A %3d    "
 							"| OPAQUE (Opaque data)            "
 							"|       %s(%d bytes of opaque data)",
-							level, Indent (level), index);
+							level, *codepage_attr, Indent (level), index);
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr |          "
+							"  %3d |  Attr | A %3d    "
 							"| RESERVED_2     (Invalid Token!) "
 							"| WBXML 1.0 parsing stops here.",
-							level);
+							level, *codepage_attr);
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
-					DebugLog(("ATTR: level = %u, Return: len = %u\n", level, off - offset));
+					DebugLog(("ATTR: level = %u, Return: len = %u\n",
+								level, off - offset));
 					return (off - offset);
 				}
 				break;
 			/* 0xC4 impossible in ATTR state */
 			default:
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr |          "
+						"  %3d |  Attr | A %3d    "
 						"| %-10s     (Invalid Token!) "
 						"| WBXML parsing stops here.",
-						level, match_strval (peek, vals_wbxml1x_global_tokens));
+						level, *codepage_attr,
+						match_strval (peek, vals_wbxml1x_global_tokens));
 				/* Move to end of buffer */
 				off = tvb_len;
 				break;
 		} else { /* Known atribute token */
 			if (peek & 0x80) { /* attrValue */
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr | A %3d->0 "
-							"|   Known attrValue 0x%02X          "
-							"|       %sattrValue_0x%02X",
-							level, codepage_attr, peek & 0x7f, Indent (level),
-							peek);
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr |          "
-							"|   Known attrValue 0x%02X          "
-							"|       %sattrValue_0x%02X",
-							level, peek & 0x7f, Indent (level),
-							peek);
-				}
+				proto_tree_add_text (tree, tvb, off, 1,
+						"  %3d |  Attr | A %3d    "
+						"|   Known attrValue 0x%02X          "
+						"|       %sattrValue_0x%02X",
+						level, *codepage_attr, peek & 0x7f, Indent (level),
+						peek);
 				off++;
 			} else { /* attrStart */
-				if (codepage_attr) { /* Not default code page */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr | A %3d->0 "
-							"|   Known attrStart 0x%02X          "
-							"|   %sattrStart_0x%02X",
-							level, codepage_attr, peek & 0x7f, Indent (level),
-							peek);
-					/* Reset code page */
-					codepage_attr = 0;
-				} else { /* Code page 0 */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr |          "
-							"|   Known attrStart 0x%02X          "
-							"|   %sattrStart_0x%02X",
-							level, peek & 0x7f, Indent (level),
-							peek);
-				}
+				proto_tree_add_text (tree, tvb, off, 1,
+						"  %3d |  Attr | A %3d    "
+						"|   Known attrStart 0x%02X          "
+						"|   %sattrStart_0x%02X",
+						level, *codepage_attr, peek & 0x7f, Indent (level),
+						peek);
 				off++;
 			}
 		}
 	} /* End WHILE */
-	DebugLog(("ATTR: level = %u, Return: len = %u (end of function body)\n", level, off - offset));
+	DebugLog(("ATTR: level = %u, Return: len = %u (end of function body)\n",
+				level, off - offset));
 	return (off - offset);
 }
 

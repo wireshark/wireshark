@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.53 2003/11/05 04:23:59 guy Exp $
+ * $Id: packet-wtp.c,v 1.54 2003/12/15 22:38:29 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -699,7 +699,7 @@ dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * XXX - can this be called from any other dissector?
  */
 static void
-dissect_wtp_fromwap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wtp_fromwtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WTP+WSP" );
@@ -959,7 +959,7 @@ proto_register_wtp(void)
     proto_wtp = proto_register_protocol(
 	"Wireless Transaction Protocol",   /* protocol name for use by ethereal */
 	"WTP",                             /* short version of name */
-	"wap-wsp-wtp"                      /* Abbreviated protocol name, should Match IANA
+	"wtp"                      /* Abbreviated protocol name, should Match IANA
 					    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
 					    */
     );
@@ -968,7 +968,7 @@ proto_register_wtp(void)
     proto_register_field_array(proto_wtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("wtp", dissect_wtp_fromwap, proto_wtp);
+    register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
     register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
     register_init_routine(wtp_defragment_init);
 };

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.94 2003/12/08 20:37:14 obiot Exp $
+ * $Id: packet-wsp.c,v 1.95 2003/12/15 22:38:29 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15,6 +15,9 @@
  * Code optimizations, header value dissection simplification with parse error
  * notification and macros, extra missing headers, WBXML registration
  * by Olivier Biot <olivier.biot(ad)siemens.com>.
+ *
+ * TODO - Move parts of dissection before and other parts after "if (tree)",
+ * for example skip almost all but content type in replies if tree is closed.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -69,7 +72,6 @@ static int proto_wsp 					= HF_EMPTY;
 
 /* WSP header fields and their subfields if available */
 static int hf_hdr_name					= HF_EMPTY;
-static int hf_hdr_id					= HF_EMPTY;
 static int hf_hdr_accept				= HF_EMPTY;
 static int hf_hdr_accept_charset		= HF_EMPTY;
 static int hf_hdr_accept_encoding		= HF_EMPTY;
@@ -234,7 +236,6 @@ static int hf_wsp_server_session_id			= HF_EMPTY;
 static int hf_wsp_header_status				= HF_EMPTY;
 static int hf_wsp_header_length				= HF_EMPTY;
 static int hf_wsp_headers_section			= HF_EMPTY;
-static int hf_wsp_header				= HF_EMPTY;
 static int hf_wsp_content_type				= HF_EMPTY;
 static int hf_wsp_content_type_str			= HF_EMPTY;
 static int hf_wsp_parameter_well_known_charset		= HF_EMPTY;
@@ -2052,7 +2053,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	*well_known_content = 0;
 
 	wkh_1_WellKnownValue;
-		*textual_content = val_to_str(val, vals_content_types,
+		*textual_content = val_to_str(val_id & 0x7F, vals_content_types,
 				"<Unknown media type identifier 0x%X>");
 		ti = proto_tree_add_string(tree, hf_hdr_content_type,
 				tvb, hdr_start, offset - hdr_start,
@@ -5207,7 +5208,7 @@ proto_register_wsp(void)
 			{ 	"Transaction ID",
 				"wsp.TID",
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Transaction ID", HFILL
+				"WSP Transaction ID (for connectionless WSP)", HFILL
 			}
 		},
 		{ &hf_wsp_header_pdu_type,
@@ -5235,14 +5236,14 @@ proto_register_wsp(void)
 			{ 	"Capability Length",
 				"wsp.capability.length",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Capability Length", HFILL
+				"Length of Capability field (bytes)", HFILL
 			}
 		},
 		{ &hf_wsp_header_length,
 			{ 	"Headers Length",
 				"wsp.headers_length",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Headers Length", HFILL
+				"Length of Headers field (bytes)", HFILL
 			}
 		},
 		{ &hf_wsp_capabilities_section,
@@ -5259,18 +5260,11 @@ proto_register_wsp(void)
 				"Headers", HFILL
 			}
 		},
-		{ &hf_wsp_header,
-			{ 	"Header",
-				"wsp.headers.header",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
-				"Header", HFILL
-			}
-		},
 		{ &hf_wsp_header_uri_len,
 			{ 	"URI Length",
 				"wsp.uri_length",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"URI Length", HFILL
+				"Length of URI field", HFILL
 			}
 		},
 		{ &hf_wsp_header_uri,
@@ -5291,19 +5285,19 @@ proto_register_wsp(void)
 			{ 	"Status",
 				"wsp.reply.status",
 				 FT_UINT8, BASE_HEX, VALS( vals_status ), 0x00,
-				"Status", HFILL
+				"Reply Status", HFILL
 			}
 		},
 		{ &hf_wsp_content_type,
 			{ 	"Content Type",
-				"wsp.content_type.type",
+				"wsp.content_type.integer",
 				 FT_UINT8, BASE_HEX, VALS ( vals_content_types ), 0x00,
 				"Content Type", HFILL
 			}
 		},
 		{ &hf_wsp_content_type_str,
 			{ 	"Content Type",
-				"wsp.content_type.type.string",
+				"wsp.content_type.string",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Content Type", HFILL
 			}
@@ -5606,620 +5600,612 @@ proto_register_wsp(void)
 				"Name of the WSP header", HFILL
 			}
 		},
-		/* WSP well-known header ID */
-		{ &hf_hdr_id,
-			{	"Header well-known ID",
-				"wsp.header.id",
-				FT_STRING, BASE_NONE, NULL, 0x00,
-				"7-bit identifier of a well-known WSP header", HFILL
-			}
-		},
 		/* WSP headers start here */
 		{ &hf_hdr_accept,
 			{	"Accept",
-				"wsp.hdr.accept",
+				"wsp.header.accept",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Accept", HFILL
 			}
 		},
 		{ &hf_hdr_accept_charset,
 			{	"Accept-Charset",
-				"wsp.hdr.accept_charset",
+				"wsp.header.accept_charset",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Accept-Charset", HFILL
 			}
 		},
 		{ &hf_hdr_accept_encoding,
 			{	"Accept-Encoding",
-				"wsp.hdr.accept_encoding",
+				"wsp.header.accept_encoding",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Accept-Encoding", HFILL
 			}
 		},
 		{ &hf_hdr_accept_language,
 			{	"Accept-Language",
-				"wsp.hdr.accept_language",
+				"wsp.header.accept_language",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Accept-Language", HFILL
 			}
 		},
 		{ &hf_hdr_accept_ranges,
 			{	"Accept-Ranges",
-				"wsp.hdr.accept_ranges",
+				"wsp.header.accept_ranges",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Accept-Ranges", HFILL
 			}
 		},
 		{ &hf_hdr_age,
 			{	"Age",
-				"wsp.hdr.age",
+				"wsp.header.age",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Age", HFILL
 			}
 		},
 		{ &hf_hdr_allow,
 			{	"Allow",
-				"wsp.hdr.allow",
+				"wsp.header.allow",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Allow", HFILL
 			}
 		},
 		{ &hf_hdr_authorization,
 			{	"Authorization",
-				"wsp.hdr.authorization",
+				"wsp.header.authorization",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Authorization", HFILL
 			}
 		},
 		{ &hf_hdr_authorization_scheme,
 			{	"Authorization Scheme",
-				"wsp.hdr.authorization.scheme",
+				"wsp.header.authorization.scheme",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Authorization: used scheme", HFILL
 			}
 		},
 		{ &hf_hdr_authorization_user_id,
 			{	"User-id",
-				"wsp.hdr.authorization.user_id",
+				"wsp.header.authorization.user_id",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Authorization: user ID for basic authorization", HFILL
 			}
 		},
 		{ &hf_hdr_authorization_password,
 			{	"Password",
-				"wsp.hdr.authorization.password",
+				"wsp.header.authorization.password",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Authorization: password for basic authorization", HFILL
 			}
 		},
 		{ &hf_hdr_cache_control,
 			{	"Cache-Control",
-				"wsp.hdr.cache_control",
+				"wsp.header.cache_control",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Cache-Control", HFILL
 			}
 		},
 		{ &hf_hdr_connection,
 			{	"Connection",
-				"wsp.hdr.connection",
+				"wsp.header.connection",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Connection", HFILL
 			}
 		},
 		{ &hf_hdr_content_base,
 			{	"Content-Base",
-				"wsp.hdr.content_base",
+				"wsp.header.content_base",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Base", HFILL
 			}
 		},
 		{ &hf_hdr_content_encoding,
 			{	"Content-Encoding",
-				"wsp.hdr.content_encoding",
+				"wsp.header.content_encoding",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Encoding", HFILL
 			}
 		},
 		{ &hf_hdr_content_language,
 			{	"Content-Language",
-				"wsp.hdr.content_language",
+				"wsp.header.content_language",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Language", HFILL
 			}
 		},
 		{ &hf_hdr_content_length,
 			{	"Content-Length",
-				"wsp.hdr.content_length",
+				"wsp.header.content_length",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Length", HFILL
 			}
 		},
 		{ &hf_hdr_content_location,
 			{	"Content-Location",
-				"wsp.hdr.content_location",
+				"wsp.header.content_location",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Location", HFILL
 			}
 		},
 		{ &hf_hdr_content_md5,
 			{	"Content-Md5",
-				"wsp.hdr.content_md5",
+				"wsp.header.content_md5",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Md5", HFILL
 			}
 		},
 		{ &hf_hdr_content_range,
 			{	"Content-Range",
-				"wsp.hdr.content_range",
+				"wsp.header.content_range",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Range", HFILL
 			}
 		},
 		{ &hf_hdr_content_range_first_byte_pos,
 			{	"First-byte-position",
-				"wsp.hdr.content_range.first_byte_pos",
+				"wsp.header.content_range.first_byte_pos",
 				FT_UINT32, BASE_DEC, NULL, 0x00,
 				"WSP header Content-Range: position of first byte", HFILL
 			}
 		},
 		{ &hf_hdr_content_range_entity_length,
 			{	"Entity-length",
-				"wsp.hdr.content_range.entity_length",
+				"wsp.header.content_range.entity_length",
 				FT_UINT32, BASE_DEC, NULL, 0x00,
 				"WSP header Content-Range: length of the entity", HFILL
 			}
 		},
 		{ &hf_hdr_content_type,
 			{	"Content-Type",
-				"wsp.hdr.content_type",
+				"wsp.header.content_type",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Type", HFILL
 			}
 		},
 		{ &hf_hdr_date,
 			{	"Date",
-				"wsp.hdr.date",
+				"wsp.header.date",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Date", HFILL
 			}
 		},
 		{ &hf_hdr_etag,
 			{	"ETag",
-				"wsp.hdr.etag",
+				"wsp.header.etag",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header ETag", HFILL
 			}
 		},
 		{ &hf_hdr_expires,
 			{	"Expires",
-				"wsp.hdr.expires",
+				"wsp.header.expires",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Expires", HFILL
 			}
 		},
 		{ &hf_hdr_from,
 			{	"From",
-				"wsp.hdr.from",
+				"wsp.header.from",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header From", HFILL
 			}
 		},
 		{ &hf_hdr_host,
 			{	"Host",
-				"wsp.hdr.host",
+				"wsp.header.host",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Host", HFILL
 			}
 		},
 		{ &hf_hdr_if_modified_since,
 			{	"If-Modified-Since",
-				"wsp.hdr.if_modified_since",
+				"wsp.header.if_modified_since",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header If-Modified-Since", HFILL
 			}
 		},
 		{ &hf_hdr_if_match,
 			{	"If-Match",
-				"wsp.hdr.if_match",
+				"wsp.header.if_match",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header If-Match", HFILL
 			}
 		},
 		{ &hf_hdr_if_none_match,
 			{	"If-None-Match",
-				"wsp.hdr.if_none_match",
+				"wsp.header.if_none_match",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header If-None-Match", HFILL
 			}
 		},
 		{ &hf_hdr_if_range,
 			{	"If-Range",
-				"wsp.hdr.if_range",
+				"wsp.header.if_range",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header If-Range", HFILL
 			}
 		},
 		{ &hf_hdr_if_unmodified_since,
 			{	"If-Unmodified-Since",
-				"wsp.hdr.if_unmodified_since",
+				"wsp.header.if_unmodified_since",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header If-Unmodified-Since", HFILL
 			}
 		},
 		{ &hf_hdr_last_modified,
 			{	"Last-Modified",
-				"wsp.hdr.last_modified",
+				"wsp.header.last_modified",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Last-Modified", HFILL
 			}
 		},
 		{ &hf_hdr_location,
 			{	"Location",
-				"wsp.hdr.location",
+				"wsp.header.location",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Location", HFILL
 			}
 		},
 		{ &hf_hdr_max_forwards,
 			{	"Max-Forwards",
-				"wsp.hdr.max_forwards",
+				"wsp.header.max_forwards",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Max-Forwards", HFILL
 			}
 		},
 		{ &hf_hdr_pragma,
 			{	"Pragma",
-				"wsp.hdr.pragma",
+				"wsp.header.pragma",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Pragma", HFILL
 			}
 		},
 		{ &hf_hdr_proxy_authenticate,
 			{	"Proxy-Authenticate",
-				"wsp.hdr.proxy_authenticate",
+				"wsp.header.proxy_authenticate",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Proxy-Authenticate", HFILL
 			}
 		},
 		{ &hf_hdr_proxy_authenticate_scheme,
 			{	"Authentication Scheme",
-				"wsp.hdr.proxy_authenticate.scheme",
+				"wsp.header.proxy_authenticate.scheme",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Proxy-Authenticate: used scheme", HFILL
 			}
 		},
 		{ &hf_hdr_proxy_authenticate_realm,
 			{	"Authentication Realm",
-				"wsp.hdr.proxy_authenticate.realm",
+				"wsp.header.proxy_authenticate.realm",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Proxy-Authenticate: used realm", HFILL
 			}
 		},
 		{ &hf_hdr_proxy_authorization,
 			{	"Proxy-Authorization",
-				"wsp.hdr.proxy_authorization",
+				"wsp.header.proxy_authorization",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Proxy-Authorization", HFILL
 			}
 		},
 		{ &hf_hdr_proxy_authorization_scheme,
 			{	"Authorization Scheme",
-				"wsp.hdr.proxy_authorization.scheme",
+				"wsp.header.proxy_authorization.scheme",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Proxy-Authorization: used scheme", HFILL
 			}
 		},
 		{ &hf_hdr_proxy_authorization_user_id,
 			{	"User-id",
-				"wsp.hdr.proxy_authorization.user_id",
+				"wsp.header.proxy_authorization.user_id",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Proxy-Authorization: user ID for basic authorization", HFILL
 			}
 		},
 		{ &hf_hdr_proxy_authorization_password,
 			{	"Password",
-				"wsp.hdr.proxy_authorization.password",
+				"wsp.header.proxy_authorization.password",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Proxy-Authorization: password for basic authorization", HFILL
 			}
 		},
 		{ &hf_hdr_public,
 			{	"Public",
-				"wsp.hdr.public",
+				"wsp.header.public",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Public", HFILL
 			}
 		},
 		{ &hf_hdr_range,
 			{	"Range",
-				"wsp.hdr.range",
+				"wsp.header.range",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Range", HFILL
 			}
 		},
 		{ &hf_hdr_range_first_byte_pos,
 			{	"First-byte-position",
-				"wsp.hdr.range.first_byte_pos",
+				"wsp.header.range.first_byte_pos",
 				FT_UINT32, BASE_DEC, NULL, 0x00,
 				"WSP header Range: position of first byte", HFILL
 			}
 		},
 		{ &hf_hdr_range_last_byte_pos,
 			{	"Last-byte-position",
-				"wsp.hdr.range.last_byte_pos",
+				"wsp.header.range.last_byte_pos",
 				FT_UINT32, BASE_DEC, NULL, 0x00,
 				"WSP header Range: position of last byte", HFILL
 			}
 		},
 		{ &hf_hdr_range_suffix_length,
 			{	"Suffix-length",
-				"wsp.hdr.range.suffix_length",
+				"wsp.header.range.suffix_length",
 				FT_UINT32, BASE_DEC, NULL, 0x00,
 				"WSP header Range: length of the suffix", HFILL
 			}
 		},
 		{ &hf_hdr_referer,
 			{	"Referer",
-				"wsp.hdr.referer",
+				"wsp.header.referer",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Referer", HFILL
 			}
 		},
 		{ &hf_hdr_retry_after,
 			{	"Retry-After",
-				"wsp.hdr.retry_after",
+				"wsp.header.retry_after",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Retry-After", HFILL
 			}
 		},
 		{ &hf_hdr_server,
 			{	"Server",
-				"wsp.hdr.server",
+				"wsp.header.server",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Server", HFILL
 			}
 		},
 		{ &hf_hdr_transfer_encoding,
 			{	"Transfer-Encoding",
-				"wsp.hdr.transfer_encoding",
+				"wsp.header.transfer_encoding",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Transfer-Encoding", HFILL
 			}
 		},
 		{ &hf_hdr_upgrade,
 			{	"Upgrade",
-				"wsp.hdr.upgrade",
+				"wsp.header.upgrade",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Upgrade", HFILL
 			}
 		},
 		{ &hf_hdr_user_agent,
 			{	"User-Agent",
-				"wsp.hdr.user_agent",
+				"wsp.header.user_agent",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header User-Agent", HFILL
 			}
 		},
 		{ &hf_hdr_vary,
 			{	"Vary",
-				"wsp.hdr.vary",
+				"wsp.header.vary",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Vary", HFILL
 			}
 		},
 		{ &hf_hdr_via,
 			{	"Via",
-				"wsp.hdr.via",
+				"wsp.header.via",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Via", HFILL
 			}
 		},
 		{ &hf_hdr_warning,
 			{	"Warning",
-				"wsp.hdr.warning",
+				"wsp.header.warning",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Warning", HFILL
 			}
 		},
 		{ &hf_hdr_warning_code,
 			{	"Warning code",
-				"wsp.hdr.warning.code",
+				"wsp.header.warning.code",
 				FT_UINT8, BASE_HEX, VALS(vals_wsp_warning_code), 0x00,
 				"WSP header Warning code", HFILL
 			}
 		},
 		{ &hf_hdr_warning_agent,
 			{	"Warning agent",
-				"wsp.hdr.warning.agent",
+				"wsp.header.warning.agent",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Warning agent", HFILL
 			}
 		},
 		{ &hf_hdr_warning_text,
 			{	"Warning text",
-				"wsp.hdr.warning.text",
+				"wsp.header.warning.text",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Warning text", HFILL
 			}
 		},
 		{ &hf_hdr_www_authenticate,
 			{	"Www-Authenticate",
-				"wsp.hdr.www_authenticate",
+				"wsp.header.www_authenticate",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Www-Authenticate", HFILL
 			}
 		},
 		{ &hf_hdr_www_authenticate_scheme,
 			{	"Authentication Scheme",
-				"wsp.hdr.www_authenticate.scheme",
+				"wsp.header.www_authenticate.scheme",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header WWW-Authenticate: used scheme", HFILL
 			}
 		},
 		{ &hf_hdr_www_authenticate_realm,
 			{	"Authentication Realm",
-				"wsp.hdr.www_authenticate.realm",
+				"wsp.header.www_authenticate.realm",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header WWW-Authenticate: used realm", HFILL
 			}
 		},
 		{ &hf_hdr_content_disposition,
 			{	"Content-Disposition",
-				"wsp.hdr.content_disposition",
+				"wsp.header.content_disposition",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Disposition", HFILL
 			}
 		},
 		{ &hf_hdr_application_id,
 			{	"Application-Id",
-				"wsp.hdr.application_id",
+				"wsp.header.application_id",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Application-Id", HFILL
 			}
 		},
 		{ &hf_hdr_content_uri,
 			{	"Content-Uri",
-				"wsp.hdr.content_uri",
+				"wsp.header.content_uri",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Uri", HFILL
 			}
 		},
 		{ &hf_hdr_initiator_uri,
 			{	"Initiator-Uri",
-				"wsp.hdr.initiator_uri",
+				"wsp.header.initiator_uri",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Initiator-Uri", HFILL
 			}
 		},
 		{ &hf_hdr_bearer_indication,
 			{	"Bearer-Indication",
-				"wsp.hdr.bearer_indication",
+				"wsp.header.bearer_indication",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Bearer-Indication", HFILL
 			}
 		},
 		{ &hf_hdr_push_flag,
 			{	"Push-Flag",
-				"wsp.hdr.push_flag",
+				"wsp.header.push_flag",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Push-Flag", HFILL
 			}
 		},
 		{ &hf_hdr_push_flag_auth,
 			{	"Initiator URI is authenticated",
-				"wsp.hdr.push_flag.authenticated",
+				"wsp.header.push_flag.authenticated",
 				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x01,
 				"The X-Wap-Initiator-URI has been authenticated.", HFILL
 			}
 		},
 		{ &hf_hdr_push_flag_trust,
 			{	"Content is trusted",
-				"wsp.hdr.push_flag.trusted",
+				"wsp.header.push_flag.trusted",
 				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x02,
 				"The push content is trusted.", HFILL
 			}
 		},
 		{ &hf_hdr_push_flag_last,
 			{	"Last push message",
-				"wsp.hdr.push_flag.last",
+				"wsp.header.push_flag.last",
 				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x04,
 				"Indicates whether this is the last push message.", HFILL
 			}
 		},
 		{ &hf_hdr_profile,
 			{	"Profile",
-				"wsp.hdr.profile",
+				"wsp.header.profile",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Profile", HFILL
 			}
 		},
 		{ &hf_hdr_profile_diff,
 			{	"Profile-Diff",
-				"wsp.hdr.profile_diff",
+				"wsp.header.profile_diff",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Profile-Diff", HFILL
 			}
 		},
 		{ &hf_hdr_profile_warning,
 			{	"Profile-Warning",
-				"wsp.hdr.profile_warning",
+				"wsp.header.profile_warning",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Profile-Warning", HFILL
 			}
 		},
 		{ &hf_hdr_expect,
 			{	"Expect",
-				"wsp.hdr.expect",
+				"wsp.header.expect",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Expect", HFILL
 			}
 		},
 		{ &hf_hdr_te,
 			{	"Te",
-				"wsp.hdr.te",
+				"wsp.header.te",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Te", HFILL
 			}
 		},
 		{ &hf_hdr_trailer,
 			{	"Trailer",
-				"wsp.hdr.trailer",
+				"wsp.header.trailer",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Trailer", HFILL
 			}
 		},
 		{ &hf_hdr_x_wap_tod,
 			{	"X-Wap-Tod",
-				"wsp.hdr.x_wap_tod",
+				"wsp.header.x_wap_tod",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header X-Wap-Tod", HFILL
 			}
 		},
 		{ &hf_hdr_content_id,
 			{	"Content-Id",
-				"wsp.hdr.content_id",
+				"wsp.header.content_id",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Content-Id", HFILL
 			}
 		},
 		{ &hf_hdr_set_cookie,
 			{	"Set-Cookie",
-				"wsp.hdr.set_cookie",
+				"wsp.header.set_cookie",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Set-Cookie", HFILL
 			}
 		},
 		{ &hf_hdr_cookie,
 			{	"Cookie",
-				"wsp.hdr.cookie",
+				"wsp.header.cookie",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Cookie", HFILL
 			}
 		},
 		{ &hf_hdr_encoding_version,
 			{	"Encoding-Version",
-				"wsp.hdr.encoding_version",
+				"wsp.header.encoding_version",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Encoding-Version", HFILL
 			}
 		},
 		{ &hf_hdr_x_wap_security,
 			{	"X-Wap-Security",
-				"wsp.hdr.x_wap_security",
+				"wsp.header.x_wap_security",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header X-Wap-Security", HFILL
 			}
 		},
 		{ &hf_hdr_x_wap_application_id,
 			{	"X-Wap-Application-Id",
-				"wsp.hdr.x_wap_application_id",
+				"wsp.header.x_wap_application_id",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header X-Wap-Application-Id", HFILL
 			}
 		},
 		{ &hf_hdr_accept_application,
 			{	"Accept-Application",
-				"wsp.hdr.accept_application",
+				"wsp.header.accept_application",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Accept-Application", HFILL
 			}
@@ -6228,47 +6214,48 @@ proto_register_wsp(void)
 
 		/*
 		 * Openwave headers
+		 * Header Code Page: x-up-1
 		 */
 
 		/* Textual headers */
 		{ &hf_hdr_openwave_x_up_proxy_operator_domain,
 			{	"x-up-proxy-operator-domain",
-				"wsp.hdr.openwave.x_up_proxy_operator_domain",
+				"wsp.header.x_up_1.x_up_proxy_operator_domain",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-operator-domain", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_home_page,
 			{	"x-up-proxy-home-page",
-				"wsp.hdr.openwave.x_up_proxy_home_page",
+				"wsp.header.x_up_1.x_up_proxy_home_page",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-home-page", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_uplink_version,
 			{	"x-up-proxy-uplink-version",
-				"wsp.hdr.openwave.x_up_proxy_uplink_version",
+				"wsp.header.x_up_1.x_up_proxy_uplink_version",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-uplink-version", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_ba_realm,
 			{	"x-up-proxy-ba-realm",
-				"wsp.hdr.openwave.x_up_proxy_ba_realm",
+				"wsp.header.x_up_1.x_up_proxy_ba_realm",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-ba-realm", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_request_uri,
 			{	"x-up-proxy-request-uri",
-				"wsp.hdr.openwave.x_up_proxy_request_uri",
+				"wsp.header.x_up_1.x_up_proxy_request_uri",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-request-uri", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_bookmark,
 			{	"x-up-proxy-bookmark",
-				"wsp.hdr.openwave.x_up_proxy_bookmark",
+				"wsp.header.x_up_1.x_up_proxy_bookmark",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-bookmark", HFILL
 			}
@@ -6276,147 +6263,147 @@ proto_register_wsp(void)
 		/* Integer-value headers */
 		{ &hf_hdr_openwave_x_up_proxy_push_seq,
 			{	"x-up-proxy-push-seq",
-				"wsp.hdr.openwave.x_up_proxy_push_seq",
+				"wsp.header.x_up_1.x_up_proxy_push_seq",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-push-seq", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_notify,
 			{	"x-up-proxy-notify",
-				"wsp.hdr.openwave.x_up_proxy_notify",
+				"wsp.header.x_up_1.x_up_proxy_notify",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-notify", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_net_ask,
 			{	"x-up-proxy-net-ask",
-				"wsp.hdr.openwave.x_up_proxy_net_ask",
+				"wsp.header.x_up_1.x_up_proxy_net_ask",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-net-ask", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_tod,
 			{	"x-up-proxy-tod",
-				"wsp.hdr.openwave.x_up_proxy_tod",
+				"wsp.header.x_up_1.x_up_proxy_tod",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-tod", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_ba_enable,
 			{	"x-up-proxy-ba-enable",
-				"wsp.hdr.openwave.x_up_proxy_ba_enable",
+				"wsp.header.x_up_1.x_up_proxy_ba_enable",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-ba-enable", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_redirect_enable,
 			{	"x-up-proxy-redirect-enable",
-				"wsp.hdr.openwave.x_up_proxy_redirect_enable",
+				"wsp.header.x_up_1.x_up_proxy_redirect_enable",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-redirect-enable", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_redirect_status,
 			{	"x-up-proxy-redirect-status",
-				"wsp.hdr.openwave.x_up_proxy_redirect_status",
+				"wsp.header.x_up_1.x_up_proxy_redirect_status",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-redirect-status", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_linger,
 			{	"x-up-proxy-linger",
-				"wsp.hdr.openwave.x_up_proxy_linger",
+				"wsp.header.x_up_1.x_up_proxy_linger",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-linger", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_enable_trust,
 			{	"x-up-proxy-enable-trust",
-				"wsp.hdr.openwave.x_up_proxy_enable_trust",
+				"wsp.header.x_up_1.x_up_proxy_enable_trust",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-enable-trust", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_trust,
 			{	"x-up-proxy-trust",
-				"wsp.hdr.openwave.x_up_proxy_trust",
+				"wsp.header.x_up_1.x_up_proxy_trust",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-trust", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_devcap_has_color,
 			{	"x-up-devcap-has-color",
-				"wsp.hdr.openwave.x_up_devcap_has_color",
+				"wsp.header.x_up_1.x_up_devcap_has_color",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-devcap-has-color", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_devcap_num_softkeys,
 			{	"x-up-devcap-num-softkeys",
-				"wsp.hdr.openwave.x_up_devcap_num_softkeys",
+				"wsp.header.x_up_1.x_up_devcap_num_softkeys",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-devcap-num-softkeys", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_devcap_softkey_size,
 			{	"x-up-devcap-softkey-size",
-				"wsp.hdr.openwave.x_up_devcap_softkey_size",
+				"wsp.header.x_up_1.x_up_devcap_softkey_size",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-devcap-softkey-size", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_devcap_screen_chars,
 			{	"x-up-devcap-screen-chars",
-				"wsp.hdr.openwave.x_up_devcap_screen_chars",
+				"wsp.header.x_up_1.x_up_devcap_screen_chars",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-devcap-screen-chars", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_devcap_screen_pixels,
 			{	"x-up-devcap-screen-pixels",
-				"wsp.hdr.openwave.x_up_devcap_screen_pixels",
+				"wsp.header.x_up_1.x_up_devcap_screen_pixels",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-devcap-screen-pixels", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_devcap_em_size,
 			{	"x-up-devcap-em-size",
-				"wsp.hdr.openwave.x_up_devcap_em_size",
+				"wsp.header.x_up_1.x_up_devcap_em_size",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-devcap-em-size", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_devcap_screen_depth,
 			{	"x-up-devcap-screen-depth",
-				"wsp.hdr.openwave.x_up_devcap_screen_depth",
+				"wsp.header.x_up_1.x_up_devcap_screen_depth",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-devcap-screen-depth", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_devcap_immed_alert,
 			{	"x-up-devcap-immed-alert",
-				"wsp.hdr.openwave.x_up_devcap_immed_alert",
+				"wsp.header.x_up_1.x_up_devcap_immed_alert",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-devcap-immed-alert", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_devcap_gui,
 			{	"x-up-devcap-gui",
-				"wsp.hdr.openwave.x_up_devcap_gui",
+				"wsp.header.x_up_1.x_up_devcap_gui",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-devcap-gui", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_trans_charset,
 			{	"x-up-proxy-trans-charset",
-				"wsp.hdr.openwave.x_up_proxy_trans_charset",
+				"wsp.header.x_up_1.x_up_proxy_trans_charset",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-trans-charset", HFILL
 			}
 		},
 		{ &hf_hdr_openwave_x_up_proxy_push_accept,
 			{	"x-up-proxy-push-accept",
-				"wsp.hdr.openwave.x_up_proxy_push_accept",
+				"wsp.header.x_up_1.x_up_proxy_push_accept",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-push-accept", HFILL
 			}
@@ -6425,7 +6412,7 @@ proto_register_wsp(void)
 		/* Not used for now
 		{ &hf_hdr_openwave_x_up_proxy_client_id,
 			{	"x-up-proxy-client-id",
-				"wsp.hdr.openwave.x_up_proxy_client_id",
+				"wsp.header.x_up_1.x_up_proxy_client_id",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP Openwave header x-up-proxy-client-id", HFILL
 			}
@@ -6470,7 +6457,7 @@ proto_register_wsp(void)
 	proto_wsp = proto_register_protocol(
 		"Wireless Session Protocol",   	/* protocol name for use by ethereal */
 		"WSP",                          /* short version of name */
-		"wap-wsp"                   	/* Abbreviated protocol name,
+		"wsp"                   	    /* Abbreviated protocol name,
 										   should Match IANA:
 	    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
 										*/
