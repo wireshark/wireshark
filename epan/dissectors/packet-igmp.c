@@ -27,10 +27,10 @@
 	RFC1054	Version 1
 	RFC1112	Version 1	(same as RFC1054 as far as we are concerned)
 	RFC2236	Version 2
-	draft-ietf-idmr-igmp-v3-07	Version 3
+	RFC3376	Version 3
 
 	Size in bytes for each packet
-	type	RFC988	RFC1054	RFC2236 RFC????  DVMRP  MRDISC  MSNIP  IGAP
+	type	RFC988	RFC1054	RFC2236 RFC3376  DVMRP  MRDISC  MSNIP  IGAP
 	        v0      v1      v2      v3       v1/v3
 	0x01      20
 	0x02      20
