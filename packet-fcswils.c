@@ -2,7 +2,7 @@
  * Routines for FC Inter-switch link services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcswils.c,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-fcswils.c,v 1.2 2003/01/30 22:25:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,12 +197,6 @@ typedef struct _fcswils_conv_key {
 typedef struct _fcswils_conv_data {
     guint32 opcode;
 } fcswils_conv_data_t;
-
-#ifndef WIN32
-#define PACKED __attribute__((__packed__))
-#else
-#define PACKED
-#endif
 
 GHashTable *fcswils_req_hash = NULL;
 GMemChunk *fcswils_req_keys = NULL;
