@@ -1,8 +1,7 @@
-/* should be almost trivial to fix tcp and udp to also handle ipv6 */
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.8 2003/08/23 09:09:34 sahlberg Exp $
+ * $Id: tap-iousers.c,v 1.9 2003/08/24 03:31:53 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,9 +64,6 @@ typedef struct _io_users_item_t {
 } io_users_item_t;
 
 
-/* XXX for now we only handle ipv4 as transport for udp.
-   should extend in the future to also handle ipv6
-*/
 static int
 iousers_udpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vudph)
 {
@@ -76,19 +72,13 @@ iousers_udpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 	io_users_item_t *iui;
 	int direction=0;
 
-	switch(udph->ip_src.type){
-	case AT_IPv4:
-		if(CMP_ADDRESS(&udph->ip_src, &udph->ip_dst)>0){
-			snprintf(name1,256,"%s:%s",get_hostname((guint)(*((guint *)udph->ip_src.data))),get_udp_port(udph->uh_sport));
-			snprintf(name2,256,"%s:%s",get_hostname((guint)(*((guint *)udph->ip_dst.data))),get_udp_port(udph->uh_dport));
-		} else {
-			direction=1;
-			snprintf(name2,256,"%s:%s",get_hostname((guint)(*((guint *)udph->ip_src.data))),get_udp_port(udph->uh_sport));
-			snprintf(name1,256,"%s:%s",get_hostname((guint)(*((guint *)udph->ip_dst.data))),get_udp_port(udph->uh_dport));
-		}
-		break;
-	default:
-		return 0;
+	if(CMP_ADDRESS(&udph->ip_src, &udph->ip_dst)>0){
+		snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+	} else {
+		direction=1;
+		snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
@@ -124,9 +114,6 @@ iousers_udpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 }
 
 
-/* XXX for now we only handle ipv4 as transport for tcp.
-   should extend in the future to also handle ipv6
-*/
 static int
 iousers_tcpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vtcph)
 {
@@ -135,19 +122,13 @@ iousers_tcpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 	io_users_item_t *iui;
 	int direction=0;
 
-	switch(tcph->ip_src.type){
-	case AT_IPv4:
-		if(CMP_ADDRESS(&tcph->ip_src, &tcph->ip_dst)>0){
-			snprintf(name1,256,"%s:%s",get_hostname((guint)(*((guint *)tcph->ip_src.data))),get_tcp_port(tcph->th_sport));
-			snprintf(name2,256,"%s:%s",get_hostname((guint)(*((guint *)tcph->ip_dst.data))),get_tcp_port(tcph->th_dport));
-		} else {
-			direction=1;
-			snprintf(name2,256,"%s:%s",get_hostname((guint)(*((guint *)tcph->ip_src.data))),get_tcp_port(tcph->th_sport));
-			snprintf(name1,256,"%s:%s",get_hostname((guint)(*((guint *)tcph->ip_dst.data))),get_tcp_port(tcph->th_dport));
-		}
-		break;
-	default:
-		return 0;
+	if(CMP_ADDRESS(&tcph->ip_src, &tcph->ip_dst)>0){
+		snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+	} else {
+		direction=1;
+		snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
@@ -210,9 +191,9 @@ iousers_ip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=strdup(get_hostname((guint)(*((guint *)addr1->data))));
+		iui->name1=strdup(address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=strdup(get_hostname((guint)(*((guint *)addr2->data))));
+		iui->name2=strdup(address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -257,9 +238,9 @@ iousers_eth_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, 
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=strdup(ether_to_str(addr1->data));
+		iui->name1=strdup(address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=strdup(ether_to_str(addr2->data));
+		iui->name2=strdup(address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -304,9 +285,9 @@ iousers_tr_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=strdup(ether_to_str(addr1->data));
+		iui->name1=strdup(address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=strdup(ether_to_str(addr2->data));
+		iui->name2=strdup(address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -376,54 +357,54 @@ iousers_init(char *optarg)
 	io_users_t *iu=NULL;
 	GString *error_string;
 
-	if(!strncmp(optarg,"io,users,eth",12)){
-		if(optarg[12]==','){
-			filter=optarg+13;
+	if(!strncmp(optarg,"talkers,eth",11)){
+		if(optarg[11]==','){
+			filter=optarg+12;
 		} else {
 			filter=NULL;
 		}
 		tap_type="eth";
 		packet_func=iousers_eth_packet;
-	} else if(!strncmp(optarg,"io,users,tcpip",14)){
-		if(optarg[14]==','){
-			filter=optarg+15;
+	} else if(!strncmp(optarg,"talkers,tcp",11)){
+		if(optarg[11]==','){
+			filter=optarg+12;
 		} else {
 			filter=NULL;
 		}
 		tap_type="tcp";
 		packet_func=iousers_tcpip_packet;
-	} else if(!strncmp(optarg,"io,users,udpip",14)){
-		if(optarg[14]==','){
-			filter=optarg+15;
+	} else if(!strncmp(optarg,"talkers,udp",11)){
+		if(optarg[11]==','){
+			filter=optarg+12;
 		} else {
 			filter=NULL;
 		}
 		tap_type="udp";
 		packet_func=iousers_udpip_packet;
-	} else if(!strncmp(optarg,"io,users,tr",11)){
-		if(optarg[11]==','){
-			filter=optarg+12;
+	} else if(!strncmp(optarg,"talkers,tr",10)){
+		if(optarg[10]==','){
+			filter=optarg+11;
 		} else {
 			filter=NULL;
 		}
 		tap_type="tr";
 		packet_func=iousers_tr_packet;
-	} else if(!strncmp(optarg,"io,users,ip",11)){
-		if(optarg[11]==','){
-			filter=optarg+12;
+	} else if(!strncmp(optarg,"talkers,ip",10)){
+		if(optarg[10]==','){
+			filter=optarg+11;
 		} else {
 			filter=NULL;
 		}
 		tap_type="ip";
 		packet_func=iousers_ip_packet;
 	} else {
-		fprintf(stderr, "tethereal: invalid \"-z io,users,<type>[,<filter>]\" argument\n");
+		fprintf(stderr, "tethereal: invalid \"-z talkers,<type>[,<filter>]\" argument\n");
 		fprintf(stderr,"   <type> must be one of\n");
 		fprintf(stderr,"      \"eth\"\n");
 		fprintf(stderr,"      \"ip\"\n");
-		fprintf(stderr,"      \"tcpip\"\n");
+		fprintf(stderr,"      \"tcp\"\n");
 		fprintf(stderr,"      \"tr\"\n");
-		fprintf(stderr,"      \"udpip\"\n");
+		fprintf(stderr,"      \"udp\"\n");
 		exit(1);
 	}
 
@@ -443,7 +424,7 @@ iousers_init(char *optarg)
 			g_free(iu->items);
 		}
 		g_free(iu);
-		fprintf(stderr, "tethereal: Couldn't register io,users tap: %s\n",
+		fprintf(stderr, "tethereal: Couldn't register talkers tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -454,6 +435,6 @@ iousers_init(char *optarg)
 void
 register_tap_listener_iousers(void)
 {
-	register_ethereal_tap("io,users,", iousers_init);
+	register_ethereal_tap("talkers,", iousers_init);
 }
 

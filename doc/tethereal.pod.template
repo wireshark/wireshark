@@ -445,16 +445,16 @@ time and average response time.
 
 
 
-B<-z> io,users,I<type>[,I<filter>]
+B<-z> talkers,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the capture.
 I<type> specifies which type of conversation we want to generate the 
 statistics for, currently the supported ones are
   "eth"   Ethernet
   "ip"    IP addresses
-  "tcpip" TCP/IP socketpairs
+  "tcp"   TCP/IP socketpairs   Both IPv4 and IPv6 are supported
   "tr"    TokenRing
-  "udpip" UDP/IP socketpairs
+  "udp"   UDP/IP socketpairs   Both IPv4 and IPv6 are supported
 
 If the optional filter string is specified, only those packets that match the
 filter will be used in the calculations.

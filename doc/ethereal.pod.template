@@ -379,6 +379,29 @@ on those calls that match that filter.
 Example: use B<-z "mgcp,srt,ip.addr==1.2.3.4"> to only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
+B<-z> talkers,I<type>[,I<filter>]
+
+Create a table that lists all conversations that could be seen in the capture.
+I<type> specifies which type of conversation we want to generate the 
+statistics for, currently the supported ones are
+  "eth"   Ethernet
+  "ip"    IP addresses
+  "tcp"   TCP/IP socketpairs   Both IPv4 and IPv6 are supported
+  "tr"    TokenRing
+  "udp"   UDP/IP socketpairs   Both IPv4 and IPv6 are supported
+  "fc"    Fibre Channel addresses
+
+If the optional filter string is specified, only those packets that match the
+filter will be used in the calculations.
+
+The table is presented with one line for each conversation and displays
+number of frames/bytes in each direction as well as total number of 
+frames/bytes.
+By default table is sorted according to total number of frames.
+
+These tables can also be generated at runtime by selecting the appropriate
+conversation type from the menu "Tools/Statistics/EndpointTalkers/"
+
 =back
 
 =head1 INTERFACE
@@ -790,6 +813,16 @@ This is a flaw that might be fixed in the future.
 You can apply an optional filter string in a dialog box, before starting
 the calculation. The stats will only be calculated 
 on those calls matching that filter.
+
+
+=item Tools:Statistics:Endpoint Talkers
+This option will open a new window that displays a list of all conversations
+between two endpoints.  
+The list has one row for each unique conversation and displays total number of frames/bytes seen as well as number of frames/bytes in each direction.
+
+By default the list is sorted according to the number of frames but by clicking on the column header it is possible to resort the list in ascending or descending order by any column.
+
+These statistics windows can also be invoked from the ethereal command line using the -z talkers,   argument.
 
 
 =item Tools:Statistics:Traffic:IO-Stat
