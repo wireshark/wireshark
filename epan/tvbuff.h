@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.39 2004/02/01 21:30:17 guy Exp $
+ * $Id: tvbuff.h,v 1.40 2004/02/19 05:19:10 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -93,7 +93,7 @@ typedef struct tvbuff {
 	 * which has flattened its data due to a call
 	 * to tvb_get_ptr().
 	 */
-	guint8			*real_data;
+	const guint8		*real_data;
 
 	/* Length of virtual buffer (and/or real_data). */
 	guint			length;

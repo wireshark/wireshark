@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.59 2004/02/01 21:30:17 guy Exp $
+ * $Id: tvbuff.c,v 1.60 2004/02/19 05:19:10 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -45,11 +45,11 @@
 #include "tvbuff.h"
 #include "strutil.h"
 
-static guint8*
+static const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 		int *exception);
 
-static guint8*
+static const guint8*
 ensure_contiguous(tvbuff_t *tvb, gint offset, gint length);
 
 /* We dole out tvbuff's from this memchunk. */
@@ -139,7 +139,10 @@ tvb_free(tvbuff_t* tvb)
 		switch (tvb->type) {
 		case TVBUFF_REAL_DATA:
 			if (tvb->free_cb) {
-				tvb->free_cb(tvb->real_data);
+				/*
+				 * XXX - do this with a union?
+				 */
+				tvb->free_cb((gpointer)tvb->real_data);
 			}
 			break;
 
@@ -164,8 +167,12 @@ tvb_free(tvbuff_t* tvb)
 				g_free(composite->start_offsets);
 			if (composite->end_offsets)
 				g_free(composite->end_offsets);
-			if (tvb->real_data)
-				g_free(tvb->real_data);
+			if (tvb->real_data) {
+				/*
+				 * XXX - do this with a union?
+				 */
+				g_free((gpointer)tvb->real_data);
+			}
 
 			break;
 		}
@@ -715,7 +722,7 @@ tvb_set_reported_length(tvbuff_t* tvb, guint reported_length)
 }
 
 
-static guint8*
+static const guint8*
 first_real_data_ptr(tvbuff_t *tvb)
 {
 	tvbuff_t	*member;
@@ -755,7 +762,7 @@ offset_from_real_beginning(tvbuff_t *tvb, int counter)
 	return 0;
 }
 
-static guint8*
+static const guint8*
 composite_ensure_contiguous_no_exception(tvbuff_t *tvb, guint abs_offset,
 		guint abs_length)
 {
@@ -799,7 +806,7 @@ composite_ensure_contiguous_no_exception(tvbuff_t *tvb, guint abs_offset,
 	return NULL;
 }
 
-static guint8*
+static const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 		int *exception)
 {
@@ -834,11 +841,11 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 	return NULL;
 }
 
-static guint8*
+static const guint8*
 ensure_contiguous(tvbuff_t *tvb, gint offset, gint length)
 {
 	int exception;
-	guint8 *p;
+	const guint8 *p;
 
 	p = ensure_contiguous_no_exception(tvb, offset, length, &exception);
 	if (p == NULL) {
@@ -1008,7 +1015,7 @@ tvb_get_ptr(tvbuff_t *tvb, gint offset, gint length)
 guint8
 tvb_get_guint8(tvbuff_t *tvb, gint offset)
 {
-	guint8* ptr;
+	const guint8* ptr;
 
 	ptr = ensure_contiguous(tvb, offset, sizeof(guint8));
 	return *ptr;
@@ -1017,7 +1024,7 @@ tvb_get_guint8(tvbuff_t *tvb, gint offset)
 guint16
 tvb_get_ntohs(tvbuff_t *tvb, gint offset)
 {
-	guint8* ptr;
+	const guint8* ptr;
 
 	ptr = ensure_contiguous(tvb, offset, sizeof(guint16));
 	return pntohs(ptr);
@@ -1026,7 +1033,7 @@ tvb_get_ntohs(tvbuff_t *tvb, gint offset)
 guint32
 tvb_get_ntoh24(tvbuff_t *tvb, gint offset)
 {
-	guint8* ptr;
+	const guint8* ptr;
 
 	ptr = ensure_contiguous(tvb, offset, 3);
 	return pntoh24(ptr);
@@ -1035,7 +1042,7 @@ tvb_get_ntoh24(tvbuff_t *tvb, gint offset)
 guint32
 tvb_get_ntohl(tvbuff_t *tvb, gint offset)
 {
-	guint8* ptr;
+	const guint8* ptr;
 
 	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
 	return pntohl(ptr);
@@ -1247,7 +1254,7 @@ tvb_get_ntohieee_double(tvbuff_t *tvb, int offset)
 guint16
 tvb_get_letohs(tvbuff_t *tvb, gint offset)
 {
-	guint8* ptr;
+	const guint8* ptr;
 
 	ptr = ensure_contiguous(tvb, offset, sizeof(guint16));
 	return pletohs(ptr);
@@ -1256,7 +1263,7 @@ tvb_get_letohs(tvbuff_t *tvb, gint offset)
 guint32
 tvb_get_letoh24(tvbuff_t *tvb, gint offset)
 {
-	guint8* ptr;
+	const guint8* ptr;
 
 	ptr = ensure_contiguous(tvb, offset, 3);
 	return pletoh24(ptr);
@@ -1265,7 +1272,7 @@ tvb_get_letoh24(tvbuff_t *tvb, gint offset)
 guint32
 tvb_get_letohl(tvbuff_t *tvb, gint offset)
 {
-	guint8* ptr;
+	const guint8* ptr;
 
 	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
 	return pletohl(ptr);
@@ -1520,12 +1527,12 @@ tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
 gint
 tvb_strneql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 {
-	guint8 *ptr;
+	const guint8 *ptr;
 
 	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
 
 	if (ptr) {
-		int cmp = strncmp((char *)ptr, str, size);
+		int cmp = strncmp((const char *)ptr, str, size);
 
 		/*
 		 * Return 0 if equal, -1 otherwise.
@@ -1547,12 +1554,12 @@ tvb_strneql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 gint
 tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 {
-	guint8 *ptr;
+	const guint8 *ptr;
 
 	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
 
 	if (ptr) {
-		int cmp = strncasecmp((char *)ptr, str, size);
+		int cmp = strncasecmp((const char *)ptr, str, size);
 
 		/*
 		 * Return 0 if equal, -1 otherwise.
@@ -1574,7 +1581,7 @@ tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 gint
 tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 {
-	guint8 *ptr;
+	const guint8 *ptr;
 
 	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
 
@@ -1632,7 +1639,7 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 gchar *
 tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 {
-  guint8 *ptr;
+  const guint8 *ptr;
   gint len = size;
 
   if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
@@ -1657,7 +1664,8 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 guint8 *
 tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
 {
-	guint8 *ptr, *strbuf;
+	const guint8 *ptr;
+	guint8 *strbuf;
 
 	ptr = ensure_contiguous(tvb, offset, length);
 	strbuf = g_malloc(length + 1);
