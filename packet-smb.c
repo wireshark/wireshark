@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.342 2003/05/22 11:32:06 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.343 2003/05/23 01:45:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7524,7 +7524,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree = NULL;
 	int old_offset = offset;
 	guint16 size;
-	char *sid_str;
+	char *sid_str = NULL;
 	guint8 type;
 	guint8 flags;
 
