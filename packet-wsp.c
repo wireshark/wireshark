@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.107 2004/01/27 00:20:36 obiot Exp $
+ * $Id: packet-wsp.c,v 1.108 2004/02/04 20:19:25 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4739,7 +4739,6 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int offset = 0;
 
 	guint8 pdut;
-	guint8 reply_status;
 	guint count = 0;
 	guint value = 0;
 	guint uriLength = 0;
@@ -4781,8 +4780,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Develop the string to put in the Info column */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "WSP %s",
-			val_to_str (pdut, vals_pdu_type, "Unknown PDU type (0x%02x)"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "WSP %s (0x%02x)",
+				val_to_str (pdut, vals_pdu_type, "Unknown PDU type (0x%02x)"),
+				pdut);
 	};
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -4791,8 +4791,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_ti = proto_tree_add_item(tree, proto_wsp,
 				tvb, 0, -1, bo_little_endian);
 		wsp_tree = proto_item_add_subtree(proto_ti, ett_wsp);
-		proto_item_append_text(proto_ti, ", method: %s",
-				val_to_str (pdut, vals_pdu_type, "Unknown (0x%02x)"));
+		proto_item_append_text(proto_ti, ", Method: %s (0x%02x)",
+				val_to_str (pdut, vals_pdu_type, "Unknown (0x%02x)"),
+				pdut);
 
 		/* Add common items: only TID and PDU Type */
 
@@ -4828,7 +4829,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							tvb, offset, 1, bo_little_endian);
 					{
 						guint8 ver = tvb_get_guint8(tvb, offset);
-						proto_item_append_text(proto_ti, ", version: %u.%u",
+						proto_item_append_text(proto_ti, ", Version: %u.%u",
 								ver >> 4, ver & 0x0F);
 					}
 					offset++;
@@ -4838,7 +4839,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					ti = proto_tree_add_uint (wsp_tree,
 							hf_wsp_server_session_id,
 							tvb, offset, count, value);
-					proto_item_append_text(proto_ti, ", session ID: %u", value);
+					proto_item_append_text(proto_ti, ", Session ID: %u", value);
 					offset += count;
 				}
 				capabilityStart = offset;
@@ -4895,7 +4896,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ti = proto_tree_add_uint (wsp_tree,
 						hf_wsp_server_session_id,
 						tvb, offset, count, value);
-				proto_item_append_text(proto_ti, ", session ID: %u", value);
+				proto_item_append_text(proto_ti, ", Session ID: %u", value);
 			}
 			break;
 
@@ -4945,10 +4946,10 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				/* Add content type to protocol summary line */
 				if (contentTypeStr) {
-					proto_item_append_text(proto_ti, ", content-type: %s",
+					proto_item_append_text(proto_ti, ", Content-Type: %s",
 							contentTypeStr);
 				} else {
-					proto_item_append_text(proto_ti, ", content-type: 0x%X",
+					proto_item_append_text(proto_ti, ", Content-Type: 0x%X",
 							contentType);
 				}
 
@@ -4999,17 +5000,26 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			count = 0;	/* Initialise count */
 			headersLength = tvb_get_guintvar (tvb, offset+1, &count);
 			headerStart = offset + count + 1;
-			reply_status = tvb_get_guint8(tvb, offset);
-			if (tree)
-				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,
-						tvb, offset, 1, bo_little_endian);
- 			stat_info->status_code = (gint) reply_status;
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{ /* Append status code to INFO column */
-				col_append_fstr(pinfo->cinfo, COL_INFO,
-						": \"0x%02x %s\"", reply_status,
-						val_to_str (reply_status, vals_status,
-							"Unknown response status (0x%02x)"));
+			{
+				guint8 reply_status = tvb_get_guint8(tvb, offset);
+				char *reply_status_str = match_strval (reply_status, vals_status);
+
+				if (reply_status_str == NULL)
+					reply_status_str = "(Unknown response status)";
+				
+				if (tree) {
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,
+							tvb, offset, 1, bo_little_endian);
+					proto_item_append_text(proto_ti, ", Status: %s (0x%02x)",
+							reply_status_str, reply_status);
+				}
+				stat_info->status_code = (gint) reply_status;
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{ /* Append status code to INFO column */
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+							": %s (0x%02x)",
+							reply_status_str, reply_status);
+				}
 			}
 			nextOffset = offset + 1 + count;
 			if (tree)
@@ -5026,16 +5036,16 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				/* Add content type to protocol summary line */
 				if (contentTypeStr) {
-					proto_item_append_text(proto_ti, ", content-type: %s",
+					proto_item_append_text(proto_ti, ", Content-Type: %s",
 							contentTypeStr);
 				} else {
-					proto_item_append_text(proto_ti, ", content-type: 0x%X",
+					proto_item_append_text(proto_ti, ", Content-Type: 0x%X",
 							contentType);
 				}
 
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for
-				 * headersLength - (length of content-type field) */
+				 * headersLength - (length of Content-Type field) */
 				headerLength = headersLength - (nextOffset - contentTypeStart);
 				if (headerLength > 0)
 				{
@@ -5097,16 +5107,16 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				/* Add content type to protocol summary line */
 				if (contentTypeStr) {
-					proto_item_append_text(proto_ti, ", content-type: %s",
+					proto_item_append_text(proto_ti, ", Content-Type: %s",
 							contentTypeStr);
 				} else {
-					proto_item_append_text(proto_ti, ", content-type: 0x%X",
+					proto_item_append_text(proto_ti, ", Content-Type: 0x%X",
 							contentType);
 				}
 
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for
-				 * headersLength-(length of content-type field) */
+				 * headersLength-(length of Content-Type field) */
 				headerLength = headersLength-(nextOffset-contentTypeStart);
 				if (headerLength > 0)
 				{
