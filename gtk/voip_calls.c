@@ -753,7 +753,6 @@ static gchar *q931_calling_number;
 static gchar *q931_called_number;
 static guint8 q931_cause_value;
 static gint32 q931_crv;
-static guint8 q931_message_type;
 static guint32 q931_frame_num;
 
 /****************************************************************************/
@@ -1000,12 +999,11 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 					tapinfo->completed_calls++;
 				}
 				/* get the Q931 Release cause code */
-				if (q931_frame_num == pinfo->fd->num){
-					if (q931_cause_value != 0xFF){		
-						comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
-					} else {			/* Cause not set */
-						comment = g_strdup("H225 No Q931 Rel Cause");
-					}
+				if (q931_frame_num == pinfo->fd->num &&
+				    q931_cause_value != 0xFF){		
+					comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
+				} else {			/* Cause not set */
+					comment = g_strdup("H225 No Q931 Rel Cause");
 				}
 				break;
 			case H225_PROGRESS:
