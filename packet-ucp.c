@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.4 2001/10/15 03:54:04 guy Exp $
+ * $Id: packet-ucp.c,v 1.5 2001/11/05 21:41:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,9 @@
 
 #include "packet.h"
 /* #include "packet-ucp.h" */			/* We autoregister	*/
+
+/* Prototypes	*/
+static void dissect_ucp(tvbuff_t *, packet_info *, proto_tree *);
 
 /*
  * Convert ASCII-hex character to binary equivalent. No checks, assume
@@ -673,7 +676,7 @@ ucp_mktime(char *datestr)
     r_time.tm_mon  = (10 * (datestr[2] - '0') + (datestr[3] - '0')) - 1;
     r_time.tm_year = 10 * (datestr[4] - '0') + (datestr[5] - '0');
     if (r_time.tm_year < 90) 
-      r_time.tm_year += 100;
+	r_time.tm_year += 100;
     r_time.tm_hour = 10 * (datestr[6] - '0') + (datestr[7] - '0');
     r_time.tm_min  = 10 * (datestr[8] - '0') + (datestr[9] - '0');
     if (datestr[10])
@@ -1522,22 +1525,21 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
 #undef UcpHandleData
 
 /* Code to actually dissect the packets */
-static gboolean
-dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    int		 offset = 0;	/* Offset in packet within tvbuff	*/
-    int		 tmpoff;	/* Local offset value (per field)	*/
-    guint8	 O_R;		/* Request or response			*/
-    guint8	 OT;		/* Operation type			*/
-    guint	 intval;
-    int		 result, endpkt;
-    int		 i;
+/*
+ * Overlapping data for these functions
+ */
+static int	 result, endpkt;
 
-    /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item	*ti;
-    proto_item	*sub_ti;
-    proto_tree	*ucp_tree;
-    tvbuff_t	*tmp_tvb;
+/*
+ * The heuristic dissector
+ */
+static gboolean
+dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8	 O_R;		/* Request or response			*/
+
+    if (!proto_is_protocol_enabled(proto_ucp))
+	return FALSE;		/* UCP was disabled	*/
 
     /* This runs atop TCP, so we are guaranteed that there is at least one
        byte in the tvbuff. */
@@ -1560,6 +1562,33 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     O_R = tvb_get_guint8(tvb, UCP_O_R_OFFSET);
     if (match_strval(O_R, vals_hdr_O_R) == NULL)
 	return FALSE;
+    /*
+     * Ok, looks like a valid packet, go dissect.
+     */
+    dissect_ucp(tvb, pinfo, tree);
+    return TRUE;
+}
+
+/*
+ * The actual dissector
+ */
+static void
+dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    int		 offset = 0;	/* Offset in packet within tvbuff	*/
+    int		 tmpoff;	/* Local offset value (per field)	*/
+    guint8	 O_R;		/* Request or response			*/
+    guint8	 OT;		/* Operation type			*/
+    guint	 intval;
+    int		 i;
+
+    /* Set up structures needed to add the protocol subtree and manage it */
+    proto_item	*ti;
+    proto_item	*sub_ti;
+    proto_tree	*ucp_tree;
+    tvbuff_t	*tmp_tvb;
+
+    O_R = tvb_get_guint8(tvb, UCP_O_R_OFFSET);
     /*
      * So do an atoi() on the operation type
      */
@@ -1625,7 +1654,7 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Variable part starts here. Don't dissect if not complete.
 	 */
 	if (result == UCP_SHORTENED)
-	    return TRUE;
+	    return;
 	tmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	sub_ti = proto_tree_add_item(ucp_tree, hf_ucp_oper_section, tvb,
 				     offset, endpkt - offset, FALSE);
@@ -1720,7 +1749,7 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
     }
-    return TRUE;
+    return;
 }
 
 /* Register the protocol with Ethereal */
@@ -2478,5 +2507,9 @@ proto_reg_handoff_ucp(void)
      * UCP can be spoken on any port so, when not on a specific port, try this
      * one whenever TCP is spoken.
      */
-    heur_dissector_add("tcp", dissect_ucp, proto_ucp);
+    heur_dissector_add("tcp", dissect_ucp_heur, proto_ucp);
+    /*
+     * Also register as one that can be assigned to a TCP conversation.
+     */
+    conv_dissector_add("tcp", dissect_ucp, proto_ucp);
 }
