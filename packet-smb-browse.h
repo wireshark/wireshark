@@ -2,10 +2,10 @@
  * Declaration of routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.h,v 1.1 2001/03/18 03:34:22 guy Exp $
+ * $Id: packet-smb-browse.h,v 1.2 2001/07/12 23:37:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef _PACKET_SMB_BROWSE_H_
+#define _PACKET_SMB_BROWSE_H_
+
 gboolean
-dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd,
-    proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
-    int SMB_offset, int errcode, int dirn, const u_char *command,
-    int DataOffset, int DataCount);
+dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+#endif

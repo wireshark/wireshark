@@ -543,6 +543,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	MSNIP support
 	Tvbuffified ISIS dissector
 	Tvbuffified SMB NETLOGON dissector
+	Tvbuffified SMB BROWSER dissector
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {

@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.12 2001/07/08 11:32:02 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.13 2001/07/12 23:37:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,9 +123,11 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
  
   	if (command != NULL && strcmp(command, "BROWSE") == 0) { /* Decode a browse */
 
-    		return dissect_mailslot_browse(pd, offset, fd, parent, tree,
-    			si, max_data, SMB_offset, errcode, dirn, command,
-    			DataOffset, DataCount);
+		tvbuff_t *tvb;
+		packet_info *pinfo = &pi;
+		tvb = tvb_create_from_top(DataOffset);
+
+		return dissect_mailslot_browse(tvb, pinfo, parent);
   	}
 
   	else if (command != NULL && strcmp(command, "LANMAN") == 0) {
