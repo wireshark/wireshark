@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.14 2003/09/03 23:32:40 guy Exp $
+ * $Id: tap_rtp.c,v 1.15 2003/09/06 08:30:26 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -123,6 +123,7 @@
 
 static GtkWidget *rtp_w = NULL;
 static GtkWidget *save_voice_as_w = NULL;
+static GtkWidget *save_csv_as_w = NULL;
 static GtkWidget *main_vb;
 static GtkWidget *clist;
 static GtkWidget *clist_r;
@@ -285,10 +286,10 @@ static void draw_stat(void *prs)
 /* append a line to clist */
 /* XXX is there a nicer way to make these assignements? */
 static void add_to_clist(gboolean forward, guint32 number, guint16 seq_num, 
-				double delay, double jitter, gboolean status, gboolean marker)
+				double delay, double jitter, gboolean status, gboolean marker, gchar *timeStr, guint32 pkt_len)
 {
-	gchar *data[6];
-	gchar field[6][30];
+	gchar *data[8];
+	gchar field[8][30];
 
 	data[0]=&field[0][0];
 	data[1]=&field[1][0];
@@ -296,6 +297,8 @@ static void add_to_clist(gboolean forward, guint32 number, guint16 seq_num,
 	data[3]=&field[3][0];
 	data[4]=&field[4][0];
 	data[5]=&field[5][0];
+	data[6]=&field[6][0];
+	data[7]=&field[7][0];
 
 	g_snprintf(field[0], 20, "%u", number);
 	g_snprintf(field[1], 20, "%u", seq_num);
@@ -303,6 +306,8 @@ static void add_to_clist(gboolean forward, guint32 number, guint16 seq_num,
 	g_snprintf(field[3], 20, "%f", jitter);
 	g_snprintf(field[4], 20, "%s", marker? "SET" : "");
 	g_snprintf(field[5], 29, "%s", status? "OK" : "NOK - Wrong sequence nr.");
+	g_snprintf(field[6], 32, "%s", timeStr);
+	g_snprintf(field[7], 20, "%u", pkt_len);
 
 	gtk_clist_append(GTK_CLIST(forward? clist : clist_r), data);
 
@@ -405,7 +410,24 @@ int do_calculation(gboolean direc, packet_type pkt_type, void *ptrs, void *vpri,
 	double current_jitter;
 	guint8 *data;
 	gint16 tmp;
+	guint16 msecs;
+	gchar timeStr[32];
 
+	struct tm *tm_tmp;
+	time_t then;
+
+	then = pinfo->fd->abs_secs;
+	msecs = (guint16)(pinfo->fd->abs_usecs/1000);
+	
+	tm_tmp = localtime(&then);
+	snprintf(timeStr,32,"%02d/%02d/%04d %02d:%02d:%02d.%03d",
+	    tm_tmp->tm_mon + 1,
+	    tm_tmp->tm_mday,
+	    tm_tmp->tm_year + 1900,
+	    tm_tmp->tm_hour,
+	    tm_tmp->tm_min,
+	    tm_tmp->tm_sec,
+	    msecs);
 	/* store the current time and calculate the current jitter */
 	current_time = (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
 	current_jitter = ptr->jitter + ( fabs (current_time - (ptr->time) - 
@@ -419,7 +441,8 @@ int do_calculation(gboolean direc, packet_type pkt_type, void *ptrs, void *vpri,
 		ptr->start_seq_nr = pri->info_seq_num;
 		ptr->start_time = current_time;
 		add_to_clist(direc, pinfo->fd->num, pri->info_seq_num, 0,
-				 pri->info_marker_set? TRUE: FALSE, TRUE, FALSE);
+				 pri->info_marker_set? TRUE: FALSE, TRUE, FALSE,
+				 timeStr, pinfo->fd->pkt_len);
 		if (ptr->fp == NULL) {
                 	ptr->saved = FALSE;
                         ptr->error_type = TAP_RTP_FILE_OPEN_ERROR;
@@ -431,7 +454,7 @@ int do_calculation(gboolean direc, packet_type pkt_type, void *ptrs, void *vpri,
 	else if (pkt_type == MARK_SET) {
 		ptr->delta_timestamp = pri->info_timestamp - ptr->timestamp;
 		add_to_clist(direc, pinfo->fd->num, pri->info_seq_num, current_time - (ptr->time),
-			 current_jitter, ptr->seq_num+1 == pri->info_seq_num? TRUE: FALSE, TRUE);
+			 current_jitter, ptr->seq_num+1 == pri->info_seq_num? TRUE: FALSE, TRUE, timeStr, pinfo->fd->pkt_len);
 	}
 	/* if neither then it is a "normal" packet pkt_type == NORMAL_PACKET */
 	else {
@@ -440,7 +463,7 @@ int do_calculation(gboolean direc, packet_type pkt_type, void *ptrs, void *vpri,
 			ptr->max_nr = pinfo->fd->num;
 		}
 		add_to_clist(direc, pinfo->fd->num, pri->info_seq_num, current_time -(ptr->time),
-			 current_jitter , ptr->seq_num+1 == pri->info_seq_num?TRUE:FALSE, FALSE);
+			 current_jitter , ptr->seq_num+1 == pri->info_seq_num?TRUE:FALSE, FALSE, timeStr, pinfo->fd->pkt_len);
 	}
 
 	/* When calculating expected rtp packets the seq number can wrap around
@@ -675,6 +698,199 @@ static void refresh_cb(GtkWidget *w _U_, void *pri)
   gtk_clist_clear(GTK_CLIST(clist_r));
   redissect_packets(&cfile);
   draw_stat(rs);
+}
+
+/* when we want to save the information */
+static void save_csv_as_ok_cb(GtkWidget *ok_bt, gpointer fs)
+{
+  gchar *g_dest;
+  GtkWidget *rev, *forw, *both;
+  info_stat *rs;
+
+  FILE *fp;
+  char *columnText;
+  int i,j;
+  
+  g_dest = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(g_dest) == EISDIR) {
+	/* It's a directory - set the file selection box to display it. */
+	set_last_open_dir(g_dest);
+	g_free(g_dest);
+	gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+	return;
+  }
+
+  rev = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "reversed_rb");
+  forw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "forward_rb");
+  both = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "both_rb");
+  rs = (info_stat *)OBJECT_GET_DATA(ok_bt, "info_stat");
+
+  if (GTK_TOGGLE_BUTTON(forw)->active || GTK_TOGGLE_BUTTON(both)->active) {
+  	fp = fopen(g_dest, "w");
+
+	if (GTK_TOGGLE_BUTTON(both)->active) {
+		fprintf(fp, "Forward\n");
+	}
+
+	for(j = 0; j < GTK_CLIST(clist)->columns; j++) {
+	  if (j == 0) {
+	    fprintf(fp,"%s",GTK_CLIST(clist)->column[j].title);
+	  } else {
+	    fprintf(fp,",%s",GTK_CLIST(clist)->column[j].title);
+	  }
+	}
+  	fprintf(fp,"\n");
+  	for (i = 0; i < GTK_CLIST(clist)->rows; i++) {
+	  for(j = 0; j < GTK_CLIST(clist)->columns; j++) {
+		gtk_clist_get_text(GTK_CLIST(clist),i,j,&columnText);
+		if (j == 0) {
+		  fprintf(fp,"%s",columnText);
+		} else {
+		  fprintf(fp,",%s",columnText);
+		}
+	  }
+	  fprintf(fp,"\n");
+  	}
+ 
+  	fclose(fp);
+  }
+
+  if (GTK_TOGGLE_BUTTON(rev)->active || GTK_TOGGLE_BUTTON(both)->active) {
+	
+	if (GTK_TOGGLE_BUTTON(both)->active) {
+		fp = fopen(g_dest, "a");
+		fprintf(fp, "\nReverse\n");
+	} else {
+  		fp = fopen(g_dest, "w");
+	}
+	for(j = 0; j < GTK_CLIST(clist_r)->columns; j++) {
+	  if (j == 0) {
+	    fprintf(fp,"%s",GTK_CLIST(clist_r)->column[j].title);
+	  } else {
+	    fprintf(fp,",%s",GTK_CLIST(clist_r)->column[j].title);
+	  }
+	}
+  	fprintf(fp,"\n");
+  	for (i = 0; i < GTK_CLIST(clist_r)->rows; i++) {
+	  for(j = 0; j < GTK_CLIST(clist_r)->columns; j++) {
+		gtk_clist_get_text(GTK_CLIST(clist_r),i,j,&columnText);
+		if (j == 0) {
+		  fprintf(fp,"%s",columnText);
+		} else {
+		  fprintf(fp,",%s",columnText);
+		}
+	  }
+	  fprintf(fp,"\n");
+  	}
+  	fclose(fp);
+  }
+  /* XXX I get GTK warning (sometimes?)!!! */
+  gtk_widget_destroy(GTK_WIDGET(save_csv_as_w));
+}
+
+static void save_csv_as_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+{
+  save_csv_as_w = NULL;
+}
+
+/* when the user wants to save the csv information in a file */
+static void save_csv_as_cb(GtkWidget *w _U_, gpointer data)
+{
+  info_stat *rs=(info_stat *)data;
+
+  GtkWidget *vertb;
+  GtkWidget *table1;
+  GtkWidget *label_format;
+  GtkWidget *channels_label;
+  GSList *channels_group = NULL;
+  GtkWidget *forward_rb;
+  GtkWidget *reversed_rb;
+  GtkWidget *both_rb;
+  GtkWidget *ok_bt;
+
+  if (save_csv_as_w != NULL) {
+	/* There's already a Save CSV info dialog box; reactivate it. */
+	reactivate_window(save_csv_as_w);
+	return;
+  }
+  
+  save_csv_as_w = gtk_file_selection_new("Ethereal: Save Data As CSV");
+  gtk_signal_connect(GTK_OBJECT(save_csv_as_w), "destroy",
+       GTK_SIGNAL_FUNC(save_csv_as_destroy_cb), NULL);
+
+  /* Container for each row of widgets */
+  vertb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(vertb), 5);
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(save_csv_as_w)->action_area),
+    vertb, FALSE, FALSE, 0);
+  gtk_widget_show (vertb);
+
+  table1 = gtk_table_new (2, 4, FALSE);
+  gtk_widget_show (table1);
+  gtk_box_pack_start (GTK_BOX (vertb), table1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (table1), 10);
+  gtk_table_set_row_spacings (GTK_TABLE (table1), 20);
+
+  label_format = gtk_label_new ("Format: Comma Separated Values");
+  gtk_widget_show (label_format);
+  gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+
+
+  channels_label = gtk_label_new ("Channels:");
+  gtk_widget_show (channels_label);
+  gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
+				(GtkAttachOptions) (GTK_FILL),
+				(GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5);
+
+  forward_rb = gtk_radio_button_new_with_label (channels_group, "forward  ");
+  channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (forward_rb));
+  gtk_widget_show (forward_rb);
+  gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
+			(GtkAttachOptions) (GTK_FILL),
+			(GtkAttachOptions) (0), 0, 0);
+
+  reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed");
+  channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (reversed_rb));
+  gtk_widget_show (reversed_rb);
+  gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
+			(GtkAttachOptions) (GTK_FILL),
+			(GtkAttachOptions) (0), 0, 0);
+
+  both_rb = gtk_radio_button_new_with_label (channels_group, "both");
+  channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (both_rb));
+  gtk_widget_show (both_rb);
+  gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
+			(GtkAttachOptions) (GTK_FILL),
+			(GtkAttachOptions) (0), 0, 0);
+
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_rb), TRUE);
+
+  ok_bt = GTK_FILE_SELECTION(save_csv_as_w)->ok_button;
+  OBJECT_SET_DATA(ok_bt, "forward_rb", forward_rb);
+  OBJECT_SET_DATA(ok_bt, "reversed_rb", reversed_rb);
+  OBJECT_SET_DATA(ok_bt, "both_rb", both_rb);
+  OBJECT_SET_DATA(ok_bt, "info_stat", rs);
+
+  /* Connect the cancel_button to destroy the widget */
+  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(save_csv_as_w)->cancel_button,
+                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
+                        save_csv_as_w);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(save_csv_as_w, GTK_FILE_SELECTION(save_csv_as_w)->cancel_button);
+  
+  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
+		GTK_SIGNAL_FUNC(save_csv_as_ok_cb), save_csv_as_w);
+  
+  gtk_widget_show(save_csv_as_w);
 }
 
 static void save_voice_as_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
@@ -952,9 +1168,9 @@ static void add_rtp_notebook(void *pri)
 
   GtkWidget *notebook, *page, *page_r, *label, *label1, *label2, *label3;
   GtkWidget *scrolled_window, *scrolled_window_r/*, *frame, *text, *label4, *page_help*/;
-  GtkWidget *box4, *voice_bt, *refresh_bt, *close_bn;
+  GtkWidget *box4, *voice_bt, *refresh_bt, *close_bn, *csv_bt;
   
-  gchar *titles[6] =  {"Packet nr.", "Sequence",  "Delay (s)", "Jitter (s)", "Marker", "Status"};
+  gchar *titles[8] =  {"Packet nr.", "Sequence",  "Delay (s)", "Jitter (s)", "Marker", "Status", "Date", "Length"};
   gchar label_forward[150];
   gchar label_reverse[150];
 
@@ -995,7 +1211,7 @@ static void add_rtp_notebook(void *pri)
   gtk_box_pack_end(GTK_BOX(page), max, FALSE, FALSE, 5);
 
   /* clist for the information */
-  clist = gtk_clist_new_with_titles(6, titles);
+  clist = gtk_clist_new_with_titles(8, titles);
   gtk_widget_show(clist);
   gtk_container_add(GTK_CONTAINER(scrolled_window), clist);
   gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
@@ -1003,6 +1219,10 @@ static void add_rtp_notebook(void *pri)
   /* and the label */
   label = gtk_label_new("     Forward Direction     ");
   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+
+  /* Hide date and length column */
+  gtk_clist_set_column_visibility(GTK_CLIST(clist), 6, FALSE);
+  gtk_clist_set_column_visibility(GTK_CLIST(clist), 7, FALSE);
 
   /* column width and justification */
   gtk_clist_set_column_width(GTK_CLIST(clist), 0, 80);
@@ -1028,13 +1248,18 @@ static void add_rtp_notebook(void *pri)
   gtk_box_pack_start(GTK_BOX(page_r), label3, FALSE, FALSE, 0);
   max_r = gtk_label_new("\n\n");
   gtk_box_pack_end(GTK_BOX(page_r), max_r, FALSE, FALSE, 5);
-  clist_r = gtk_clist_new_with_titles(6, titles);
+  clist_r = gtk_clist_new_with_titles(8, titles);
   gtk_widget_show(clist_r);
   gtk_container_add(GTK_CONTAINER(scrolled_window_r), clist_r);
   gtk_box_pack_start(GTK_BOX(page_r), scrolled_window_r, TRUE, TRUE, 0);
   label2 = gtk_label_new("     Reversed Direction     ");
   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_r, label2);
 
+  /* Hide date and length column */
+  gtk_clist_set_column_visibility(GTK_CLIST(clist_r), 6, FALSE);
+  gtk_clist_set_column_visibility(GTK_CLIST(clist_r), 7, FALSE);
+
+  /* column width and justification */
   gtk_clist_set_column_width(GTK_CLIST(clist_r), 0, 80);
   gtk_clist_set_column_width(GTK_CLIST(clist_r), 1, 80);
   gtk_clist_set_column_width(GTK_CLIST(clist_r), 2, 80);
@@ -1079,6 +1304,12 @@ static void add_rtp_notebook(void *pri)
   gtk_widget_show(refresh_bt);
   gtk_signal_connect(GTK_OBJECT(refresh_bt), "clicked",
 		GTK_SIGNAL_FUNC(refresh_cb), rs);
+
+  csv_bt = gtk_button_new_with_label("Save As CSV...");
+  gtk_container_add(GTK_CONTAINER(box4), csv_bt);
+  gtk_widget_show(csv_bt);
+  gtk_signal_connect(GTK_OBJECT(csv_bt), "clicked",
+		GTK_SIGNAL_FUNC(save_csv_as_cb), rs);
 
   close_bn = gtk_button_new_with_label("Close");
   gtk_container_add(GTK_CONTAINER(box4), close_bn);
