@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.5 1999/01/06 23:07:42 guy Exp $
+ * $Id: packet-cdp.c,v 1.6 1999/01/24 21:18:15 hannes Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,7 +78,6 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	
 	/* CDP header */
 	cdp_hdr = (e_cdp_hdr *) &pd[offset];
-	add_item_to_tree(cdp_tree, offset, 0, "under development (hannes@boehm.org)");
 	add_item_to_tree(cdp_tree, offset, 1, "Version: %d", cdp_hdr->version);
 	add_item_to_tree(cdp_tree, offset+1, 1, "Flags (unknown)");
 	add_item_to_tree(cdp_tree, offset+2, 2, "TTL (unknown)");
