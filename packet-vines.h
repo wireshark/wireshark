@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.14 2003/04/17 20:30:43 guy Exp $
+ * $Id: packet-vines.h,v 1.15 2003/04/18 00:32:47 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -36,6 +36,10 @@
  * Some information can also be found in
  *
  *	http://www.cisco.com/univercd/cc/td/doc/cisintwk/ito_doc/vines.htm
+ *
+ * and at
+ *
+ *	http://www.synapse.de/ban/HTML/P_VINES/Eng/P_vines.html
  */
 
 #ifndef __PACKETVINES_H__
@@ -66,13 +70,15 @@ typedef struct _e_vip {
   guint16 vip_ssub;
 } e_vip;
 
-/* VINES SPP structs and definitions */
+/* VINES SPP and IPC structs and definitions */
 
 enum {
-  VSPP_PKTTYPE_DATA = 1,	/* User Data */
-  VSPP_PKTTYPE_DISC = 3,	/* Diconnect Request */
-  VSPP_PKTTYPE_PROBE = 4,	/* Probe (retransmit) */
-  VSPP_PKTTYPE_ACK = 5		/* Acknowledgement */
+  PKTTYPE_DGRAM = 0,	/* Unreliable datagram */
+  PKTTYPE_DATA = 1,	/* User Data */
+  PKTTYPE_ERR = 2,	/* Error */
+  PKTTYPE_DISC = 3,	/* Diconnect Request */
+  PKTTYPE_PROBE = 4,	/* Probe (retransmit) */
+  PKTTYPE_ACK = 5	/* Acknowledgement */
 };
 
 typedef struct _e_vspp {
@@ -87,30 +93,17 @@ typedef struct _e_vspp {
   guint16 vspp_win;
 } e_vspp;
 
-/* VINES SMB structs and definitions */
-
-typedef struct _e_vsmb {
-  guint32 vsmb_tag;
-  guint8  vsmb_func;
-  guint8  vsmb_d1;
-  guint32 vsmb_d2;
-  guint32 vsmb_d3;
-  guint16 vsmb_d4;
-  guint32 vsmb_d5;
-  guint32 vsmb_d6;
-  guint16 vsmb_treeid;
-  guint16 vsmb_pid;
-  guint16 vsmb_uid;
-  guint16 vsmb_mid;
-  guint8  vsmb_wcnt;
-  guint16 vsmb_pbytes;
-  guint16 vsmb_dbytes;
-  guint16 vsmb_maxpbytes;
-  guint16 vsmb_maxdbytes;
-  guint16 vsmb_setupw;
-  guint16 vsmb_tflags;
-  guint32 vsmb_ttw;
-} e_vsmb;
+typedef struct _e_vipc {
+  guint16 vipc_sport;
+  guint16 vipc_dport;
+  guint8  vipc_pkttype;
+  guint8  vipc_control;
+  guint16 vipc_lclid;	/* Local Connection ID */
+  guint16 vipc_rmtid;	/* Remote Connection ID */
+  guint16 vipc_seqno;	/* Sequence Number */
+  guint16 vipc_ack;	/* Acknowledgement Number */
+  guint16 vipc_err_len;
+} e_vipc;
 
 void capture_vines(packet_counts *);
 
