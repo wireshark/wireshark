@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.57 2001/01/08 22:18:22 guy Exp $
+ * $Id: ngsniffer.c,v 1.58 2001/01/16 09:17:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -270,6 +270,16 @@ struct frame6_rec {
 	guint8	chemical_x[22];	/* ? */
 };
 
+/*
+ * Network type values in type 7 records.
+ */
+#define NET_SDLC	0
+#define NET_HDLC	1
+#define NET_FRAME_RELAY	2
+#define NET_ROUTER	3	/* what's this? */
+#define NET_PPP		4
+#define NET_SMDS	5
+
 /* values for V.timeunit */
 #define NUM_NGSNIFF_TIMEUNITS 7
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
@@ -516,6 +526,8 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 	char record_length[4]; /* only the first 2 bytes are length,
 				  the last 2 are "reserved" and are thrown away */
 	guint16 type, length;
+	int bytes_to_read;
+	unsigned char buffer[32];
 
 	for (;;) {
 		errno = WTAP_ERR_CANT_READ;
@@ -557,8 +569,72 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 
 		length = pletohs(record_length);
 
-		/* OK, now skip over it the data. */
-		file_seek(wth->fh, length, SEEK_CUR);
+		/*
+		 * Is this a REC_HEADER2 record, and do we not yet know
+		 * the encapsulation type (i.e., is this is an
+		 * "Internetwork analyzer" capture?
+		 *
+		 * If so, the 5th byte of the record appears to specify
+		 * the particular type of network we're on.
+		 */
+		if (type == REC_HEADER2 &&
+		    wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+			/*
+			 * Yes, get the first 32 bytes of the record
+			 * data.
+			 */
+			bytes_to_read = length;
+			if (length > sizeof buffer)
+				length = sizeof buffer;
+			bytes_read = file_read(buffer, 1, bytes_to_read,
+			    wth->fh);
+			if (bytes_read != bytes_to_read) {
+				*err = file_error(wth->fh);
+				if (*err == 0) {
+					*err = WTAP_ERR_SHORT_READ;
+					return -1;
+				}
+			}
+
+			/*
+			 * XXX - what about LAPB and LAPD?  At least one
+			 * X.25 capture has a type of NET_HDLC, but one 
+			 * might also consider LAPD to be an HDLC
+			 * variant; if it also has a type of NET_HDLC,
+			 * we'd have to look at some other data to
+			 * distinguish them.
+			 *
+			 * I have no LAPD captures, so I can't check
+			 * various fields of this record (and I'd
+			 * need multiple captures of both LAPB/X.25
+			 * and LAPD/ISDN to be reasonable certain
+			 * where the magic key is).
+			 *
+			 * So, for now, we don't set the encapsulation
+			 * for NET_HDLC.
+			 */
+			switch (buffer[4]) {
+
+			case NET_FRAME_RELAY:
+				wth->file_encap = WTAP_ENCAP_FRELAY;
+				break;
+
+			case NET_PPP:
+				wth->file_encap = WTAP_ENCAP_PPP;
+				break;
+			}
+
+			/*
+			 * Skip the rest of the record.
+			 */
+			if (length > sizeof buffer) {
+				file_seek(wth->fh, length - sizeof buffer,
+				    SEEK_CUR);
+			}
+		} else {
+			/* Nope, just skip over the data. */
+			file_seek(wth->fh, length, SEEK_CUR);
+		}
 		wth->data_offset += length;
 	}
 }
@@ -731,9 +807,13 @@ found:
 
 	if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
 		/*
-		 * OK, this is from an "Internetwork analyzer"; let's
-		 * look at the first byte of the packet, and figure
-		 * out whether it's LAPB, LAPD, PPP, or Frame Relay.
+		 * OK, this is from an "Internetwork analyzer", and
+		 * we either didn't see a type 7 record or it had
+		 * a network type such as NET_HDLC that doesn't
+		 * tell us which *particular* HDLC derivative this
+		 * is; let's look at the first byte of the packet,
+		 * and figure out whether it's LAPB, LAPD, PPP, or
+		 * Frame Relay.
 		 */
 		if (pd[0] == 0xFF) {
 			/*

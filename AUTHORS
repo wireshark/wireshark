@@ -160,6 +160,9 @@ Jeff Foster <jfoste@woodward.com> {
 	   and/or ports
 	Initial support for constructing filter expressions
 	Support for reading Sniffer Frame Relay captures
+	Partial support for determining the type of "Internetwork
+	    analyzer" Sniffer captures (we don't yet have enough captures
+	    to do it all)
 }
 
 Peter Torvals <petertv@xoommail.com> {
