@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.7 2002/04/14 23:22:22 guy Exp $
+ * $Id: packet-vj.c,v 1.8 2002/05/18 21:19:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -209,6 +209,12 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
   gint        conn_index  = ZERO;
   gint        err         = VJ_OK;
 
+  /*
+   * XXX - add error information to the Info column?
+   */
+  if(check_col(pinfo->cinfo, COL_INFO))
+	col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP");
+
   /* Return if VJ is off or direction is not known */
   if(ppp_vj_decomp == FALSE || pinfo->p2p_dir == P2P_DIR_UNKNOWN) 
     err = VJ_ERROR;
@@ -242,7 +248,13 @@ dissect_vjc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *next_tvb = NULL;
   slcompress *comp     = NULL;
   gint        err      = VJ_OK;
-  
+
+  /*
+   * XXX - add error information to the Info column?
+   */
+  if(check_col(pinfo->cinfo, COL_INFO))
+	col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP");
+
   /* Return if VJ is off or direction is not known */
   if(ppp_vj_decomp == FALSE || pinfo->p2p_dir == P2P_DIR_UNKNOWN) 
     err = VJ_ERROR;
