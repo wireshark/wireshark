@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.26 2001/09/28 07:50:47 guy Exp $
+$Id: README.win32,v 1.27 2001/09/29 19:31:31 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -44,6 +44,10 @@ install the latest non-beta version of WinPcap, available from:
 
 	http://netgroup-serv.polito.it/winpcap/
 
+and mirrored at
+
+	http://www.wiretapped.net/security/packet-capture/winpcap/default.htm
+
 If you already have an earlier version of WinPcap installed, you need to
 un-install it and install the latest version.  If the older version is
 WinPcap 2.0 or 2.02, and you have other applications that use the older
@@ -56,6 +60,10 @@ can test your WinPcap installation by installing WinDump (tcpdump for
 Windows) ported by the same folks who make WinPcap.  It's at:
 
 	http://netgroup-serv.polito.it/windump/
+
+and mirrored at
+
+	http://www.wiretapped.net/security/packet-capture/windump/default.htm
 
 They also make Analyzer, a GUI sniffer for Win32:
 
@@ -120,6 +128,10 @@ packet capture driver for your particular Win32 OS; drivers for Windows
 WinPcap home page:
 
 	http://netgroup-serv.polito.it/winpcap/
+
+or the mirror site at
+
+	http://www.wiretapped.net/security/packet-capture/winpcap/default.htm
 
 Compiling the Ethereal distribution from source
 ===============================================
