@@ -2346,6 +2346,7 @@ main(int argc, char *argv[])
         if (rfcode != NULL)
           dfilter_free(rfcode);
         cfile.rfcode = NULL;
+	set_menus_for_capture_in_progress(FALSE);
       }
     }
   } else {
