@@ -1173,6 +1173,10 @@ Chenjiang Hu <chu[AT]chiaro.com> {
 	ISIS bug fix for dissecting unreserved bandwidths
 }
 
+Kan Sasaki <sasaki[AT]fcc.ad.jp> {
+	VSA decoding and other changes to RADIUS
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1415,6 +1415,7 @@ B<http://www.ethereal.com>.
   Erik Nordström           <erik.nordstrom[AT]it.uu.se>
   Devin Heitmueller        <dheitmueller[AT]netilla.com>
   Chenjiang Hu             <chu[AT]chiaro.com>
+  Kan Sasaki               <sasaki[AT]fcc.ad.jp>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
