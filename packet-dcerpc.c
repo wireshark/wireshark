@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.130 2003/06/17 05:29:45 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.131 2003/06/19 01:22:03 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2610,6 +2610,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    di.smb_fid = get_smb_fid(pinfo->private_data);
 	    di.request = TRUE;
 	    di.call_data = value;
+		di.hf_index = -1;
 
 	    if(value->rep_frame!=0){
 		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
