@@ -63,6 +63,7 @@
 #define UDP_PORT_SIP 5060
 
 static gint sip_tap = -1;
+static dissector_handle_t sigcomp_handle;
 
 /* Initial size of hash table tracking state of calls */
 #define SIP_INIT_HASH_TABLE_SIZE 50
@@ -546,6 +547,15 @@ sip_init_protocol(void)
 static int
 dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint8 octet;
+
+	octet = tvb_get_guint8(tvb,0);
+	if ((octet  & 0xf8) == 0xf8){
+		call_dissector(sigcomp_handle, tvb, pinfo, tree);
+		return tvb_length(tvb);
+	}
+
+
 	if (!dissect_sip_common(tvb, pinfo, tree, FALSE))
 		return 0;
 
@@ -555,6 +565,13 @@ dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint8 octet;
+
+	octet = tvb_get_guint8(tvb,0);
+	if ((octet  & 0xf8) == 0xf8){
+		call_dissector(sigcomp_handle, tvb, pinfo, tree);
+		return;
+	}
 	dissect_sip_common(tvb, pinfo, tree, TRUE);
 }
 
@@ -2181,6 +2198,7 @@ proto_reg_handoff_sip(void)
 	sip_handle = new_create_dissector_handle(dissect_sip, proto_sip);
 	dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
 	dissector_add_string("media_type", "message/sip", sip_handle);
+	sigcomp_handle = find_dissector("sigcomp");
 
 	sip_tcp_handle = create_dissector_handle(dissect_sip_tcp, proto_sip);
 	dissector_add("tcp.port", TCP_PORT_SIP, sip_tcp_handle);
