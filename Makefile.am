@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.685 2004/01/10 02:43:28 guy Exp $
+# $Id: Makefile.am,v 1.686 2004/01/10 04:09:14 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -770,12 +770,13 @@ noinst_HEADERS = \
 	packet-wtls.h \
 	packet-wtp.h \
 	packet-x11-keysym.h	\
+	packet-x11-keysymdef.h	\
 	packet-ypbind.h \
 	packet-yppasswd.h \
 	packet-ypserv.h \
 	packet-ypxfr.h
 
-ETHEREAL_COMMON_SRC = \
+DISSECTOR_HELPER_SRC = \
 	adler32.c      \
 	adler32.h      \
 	afn.c          \
@@ -785,16 +786,7 @@ ETHEREAL_COMMON_SRC = \
 	asn1.c         \
 	asn1.h         \
 	bridged_pids.h \
-	capture_stop_conditions.c   \
-	capture_stop_conditions.h   \
-	cfile.c         \
-	cfile.h         \
 	chdlctypes.h   \
-	color.h        \
-	column.c       \
-	column.h       \
-	conditions.c   \
-	conditions.h   \
 	crc32.c        \
 	crc32.h        \
 	crypt-des.c    \
@@ -805,12 +797,7 @@ ETHEREAL_COMMON_SRC = \
 	crypt-md5.h    \
 	crypt-rc4.c    \
 	crypt-rc4.h    \
-	disabled_protos.c      \
-	disabled_protos.h      \
 	etypes.h       \
-	file.h         \
-	follow.c       \
-	follow.h       \
 	format-oid.h   \
 	g711.c		\
 	g711.h		\
@@ -826,11 +813,48 @@ ETHEREAL_COMMON_SRC = \
 	nlpid.h        \
 	oui.h          \
 	packet-dcerpc-nt.c \
+	ppptypes.h     \
+	ptvcursor.c	\
+	ptvcursor.h	\
+	reassemble.c   \
+	reassemble.h   \
+	req_resp_hdrs.c \
+	req_resp_hdrs.h \
+	rpc_defrag.h   \
+	rtp_pt.h       \
+	sctpppids.h    \
+	smb.h          \
+	t35.c		\
+	t35.h		\
+	x264_prt_id.h  \
+	xdlc.c         \
+	xdlc.h
+
+BUILT_SOURCES = \
+	x11-declarations.h \
+	x11-register-info.h
+
+ETHEREAL_COMMON_SRC = \
+	$(DISSECTOR_HELPER_SRC) \
+	$(BUILT_SOURCES) \
+	capture_stop_conditions.c   \
+	capture_stop_conditions.h   \
+	cfile.c         \
+	cfile.h         \
+	color.h        \
+	column.c       \
+	column.h       \
+	conditions.c   \
+	conditions.h   \
+	disabled_protos.c      \
+	disabled_protos.h      \
+	file.h         \
+	follow.c       \
+	follow.h       \
 	pcap-util.c    \
 	pcap-util.h    \
 	pcap-util-int.h \
 	pcap-util-unix.c \
-	ppptypes.h     \
 	prefs-int.h    \
 	prefs.c        \
 	prefs.h        \
@@ -838,23 +862,11 @@ ETHEREAL_COMMON_SRC = \
 	print.h        \
 	ps.c           \
 	ps.h           \
-	ptvcursor.c	\
-	ptvcursor.h	\
 	range.c		\
 	range.h		\
-	reassemble.c   \
-	reassemble.h   \
 	register.h     \
-	req_resp_hdrs.c \
-	req_resp_hdrs.h \
 	ringbuffer.c   \
 	ringbuffer.h   \
-	rpc_defrag.h   \
-	rtp_pt.h       \
-	sctpppids.h    \
-	smb.h          \
-	t35.c		\
-	t35.h		\
 	tap.c		\
 	tap.h		\
 	tap_dfilter_dlg.h \
@@ -862,17 +874,8 @@ ETHEREAL_COMMON_SRC = \
 	timestats.h	\
 	util.c         \
 	util.h         \
-	x11-declarations.h \
-	x11-register-info.h \
-	x264_prt_id.h  \
-	xdlc.c         \
-	xdlc.h         \
 	xmlstub.c      \
 	xmlstub.h
-
-BUILT_SOURCES = \
-	x11-declarations.h \
-	x11-register-info.h
 
 ethereal_SOURCES = \
 	$(DISSECTOR_SRC) \

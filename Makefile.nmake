@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.384 2004/01/10 02:38:39 obiot Exp $
+# $Id: Makefile.nmake,v 1.385 2004/01/10 04:09:14 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -446,44 +446,47 @@ TETHEREAL_TAP_SRC = \
 
 TETHEREAL_TAP_OBJECTS = $(TETHEREAL_TAP_SRC:.c=.obj)
 
-ETHEREAL_COMMON_OBJECTS = \
+DISSECTOR_HELPER_OBJECTS = \
 	adler32.obj      \
 	afn.obj          \
 	asn1.obj         \
-	capture_stop_conditions.obj \
-	capture-wpcap.obj \
-	cfile.obj       \
-	column.obj       \
-	conditions.obj   \
 	crc32.obj        \
 	crypt-des.obj    \
 	crypt-md4.obj    \
 	crypt-md5.obj    \
 	crypt-rc4.obj    \
-	disabled_protos.obj     \
-	follow.obj       \
 	g711.obj	\
-	getopt.obj	 \
 	h225-persistentdata.obj \
 	in_cksum.obj	 \
 	ipproto.obj      \
 	packet-dcerpc-nt.obj \
+	ptvcursor.obj    \
+	reassemble.obj   \
+	req_resp_hdrs.obj \
+	t35.obj		\
+	xdlc.obj
+
+ETHEREAL_COMMON_OBJECTS = \
+	$(DISSECTOR_HELPER_OBJECTS) \
+	capture_stop_conditions.obj \
+	capture-wpcap.obj \
+	cfile.obj       \
+	column.obj       \
+	conditions.obj   \
+	disabled_protos.obj     \
+	follow.obj       \
+	getopt.obj	 \
 	pcap-util.obj    \
 	prefs.obj        \
 	print.obj        \
 	ps.obj           \
-	ptvcursor.obj    \
 	range.obj        \
-	reassemble.obj   \
 	register.obj     \
-	req_resp_hdrs.obj \
 	ringbuffer.obj   \
-	t35.obj		\
 	tap.obj		\
 	timestats.obj   \
 	util.obj         \
-	xdlc.obj         \
-	xmlstub.obj	 \
+	xmlstub.obj
 
 ethereal_OBJECTS = \
 	$(DISSECTOR_OBJECTS) \
