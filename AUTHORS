@@ -2207,6 +2207,9 @@ Luis Ontanon		<luis.ontanon.ibm[AT]h3g.it> {
 	RADIUS and ISUP enhancements
 }
 
+Luca Deri	<deri@ntop.org> {
+	NetFlow v9 enhancements
+}
 
 And assorted fixes and enhancements by the people listed above and by:
 
