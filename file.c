@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.341 2004/01/13 22:33:26 guy Exp $
+ * $Id: file.c,v 1.342 2004/01/16 19:35:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1399,6 +1399,9 @@ int
 retap_packets(capture_file *cf)
 {
   packet_range_t range;
+
+  /* Reset the tap listeners. */
+  reset_tap_listeners();
 
   /* Iterate through the list of packets, dissecting all packets and
      re-running the taps. */
