@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.45 2001/06/02 06:10:08 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.46 2001/06/02 08:10:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -317,7 +317,7 @@ again:
 	struct nd_opt_route_info ribuf, *ri;
 	struct e_in6_addr in6;
 	int l;
-	u_int32_t lifetime;
+	guint32 lifetime;
 
 	ri = &ribuf;
 	tvb_memcpy(tvb, (guint8 *)ri, offset, sizeof *ri);
