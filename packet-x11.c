@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.34 2002/04/13 20:16:09 guy Exp $
+ * $Id: packet-x11.c,v 1.35 2002/04/14 21:44:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -643,6 +643,9 @@ static struct maskStruct {
 }
 
 #define FLAG(position, name) {\
+       proto_tree_add_boolean(lastMask._tree, hf_x11_##position##_mask##_##name, tvb, lastMask._offset, lastMask._zone, lastMask._value); }
+
+#define FLAG_IF_NONZERO(position, name) {\
   if (lastMask._value & proto_registrar_get_nth(hf_x11_##position##_mask##_##name) -> bitmask)\
        proto_tree_add_boolean(lastMask._tree, hf_x11_##position##_mask##_##name, tvb, lastMask._offset, lastMask._zone, lastMask._value); }
 
@@ -1425,7 +1428,7 @@ static void setOfEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       FLAG(event, PropertyChange);
       FLAG(event, ColormapChange);
       FLAG(event, OwnerGrabButton);
-      FLAG(event, erroneous_bits);
+      FLAG_IF_NONZERO(event, erroneous_bits);
       lastMask = save;
 }
 
@@ -1444,7 +1447,7 @@ static void setOfDeviceEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       FLAG(do_not_propagate, Button4Motion);
       FLAG(do_not_propagate, Button5Motion);
       FLAG(do_not_propagate, ButtonMotion);
-      FLAG(do_not_propagate, erroneous_bits);
+      FLAG_IF_NONZERO(do_not_propagate, erroneous_bits);
       lastMask = save;
 }
 
@@ -1471,7 +1474,7 @@ static void setOfKeyMask(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 	    FLAG(modifiers, Mod3);
 	    FLAG(modifiers, Mod4);
 	    FLAG(modifiers, Mod5);
-	    FLAG(modifiers, erroneous_bits);
+	    FLAG_IF_NONZERO(modifiers, erroneous_bits);
       }
       lastMask = save;
       *offsetp += 2; 
@@ -1494,7 +1497,7 @@ static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       FLAG(pointer_event, Button5Motion);
       FLAG(pointer_event, ButtonMotion);
       FLAG(pointer_event, KeymapState);
-      FLAG(pointer_event, erroneous_bits);
+      FLAG_IF_NONZERO(pointer_event, erroneous_bits);
       lastMask = save;
 }
 
