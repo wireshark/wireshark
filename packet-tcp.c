@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.161 2002/10/17 02:19:29 guy Exp $
+ * $Id: packet-tcp.c,v 1.162 2002/11/01 10:25:35 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@ static int hf_tcp_analysis_retransmission = -1;
 static int hf_tcp_analysis_lost_packet = -1;
 static int hf_tcp_analysis_ack_lost_packet = -1;
 static int hf_tcp_analysis_keep_alive = -1;
+static int hf_tcp_analysis_duplicate_ack = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
@@ -131,6 +132,11 @@ struct tcp_unacked {
 	guint32	seq;
 	guint32 nextseq;
 	nstime_t ts;
+
+	/* these are used for detection of duplicate acks and nothing else */
+	guint32 ack_frame;
+	guint32 ack;
+	guint32 num_acks;
 };
 
 /* Idea for gt: either x > y, or y is much bigger (assume wrap) */
@@ -146,6 +152,7 @@ static int tcp_acked_count = 5000;	/* one for almost every other segment in the 
 #define TCP_A_LOST_PACKET	0x02
 #define TCP_A_ACK_LOST_PACKET	0x04
 #define TCP_A_KEEP_ALIVE	0x08
+#define TCP_A_DUPLICATE_ACK	0x10
 struct tcp_acked {
 	guint32 frame_acked;
 	nstime_t ts;
@@ -280,6 +287,9 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual1->next=NULL;
 		ual1->frame=pinfo->fd->num;
+		ual1->ack_frame=0;
+		ual1->ack=0;
+		ual1->num_acks=0;
 		ual1->seq=seq+1;
 		ual1->nextseq=seq+1;
 		ual1->ts.secs=pinfo->fd->abs_secs;
@@ -294,6 +304,9 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual1->next=NULL;
 		ual1->frame=pinfo->fd->num;
+		ual1->ack_frame=0;
+		ual1->ack=0;
+		ual1->num_acks=0;
 		ual1->seq=seq;
 		ual1->nextseq=seq+seglen;
 		ual1->ts.secs=pinfo->fd->abs_secs;
@@ -322,6 +335,9 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual->next=ual1;
 		ual->frame=pinfo->fd->num;
+		ual->ack_frame=0;
+		ual->ack=0;
+		ual->num_acks=0;
 		ual->seq=seq;
 		ual->nextseq=seq+seglen;
 		ual->ts.secs=pinfo->fd->abs_secs;
@@ -370,6 +386,9 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	ual=g_mem_chunk_alloc(tcp_unacked_chunk);
 	ual->next=ual1;
 	ual->frame=pinfo->fd->num;
+	ual->ack_frame=0;
+	ual->ack=0;
+	ual->num_acks=0;
 	ual->seq=seq;
 	ual->nextseq=seq+seglen;
 	ual->ts.secs=pinfo->fd->abs_secs;
@@ -475,7 +494,6 @@ seq_finished:
 
 	}
 
-
 ack_finished:
 	/* we might have deleted the entire ual2 list, if this is an ACK,
 	   make sure ual2 at least has a dummy entry for the current ACK */
@@ -483,10 +501,53 @@ ack_finished:
 		ual2=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual2->next=NULL;
 		ual2->frame=0;
+		ual2->ack_frame=0;
+		ual2->ack=0;
+		ual2->num_acks=0;
 		ual2->seq=ack;
 		ual2->nextseq=ack;
 		ual2->ts.secs=0;
 		ual2->ts.nsecs=0;
+	}
+
+	/* update the ACK counter and check for
+	   duplicate ACKs*/
+	if(ual2){
+		/* go to the oldest segment in the list of segments 
+		   in the other direction */
+		for(ual=ual2;ual->next;ual=ual->next)
+			;
+
+		/* we only consider this being a potential duplicate ack
+		   if the segment length is 0 (ack only segment)
+		   and if it acks something previous to oldest segment
+		   in the other direction */
+		if((!seglen)&&LE_SEQ(ack,ual->seq)){
+			/* if this is the first ack to keep track of, it is not
+			   a duplicate */
+			if(ual->num_acks==0){
+				ual->ack=ack;
+				ual->ack_frame=pinfo->fd->num;
+				ual->num_acks=1;
+			/* if this ack is different, store this one 
+			   instead and forget the previous one(s) */
+			} else if(ual->ack!=ack){
+				ual->ack=ack;
+				ual->ack_frame=pinfo->fd->num;
+				ual->num_acks=1;
+			/* this has to be a duplicate ack */
+			} else {
+				ual->num_acks++;
+			}	
+			
+			/* ok we have found a potential duplicate ack */
+			if(ual->num_acks>1){
+				struct tcp_acked *ta;
+				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+				ta->flags|=TCP_A_DUPLICATE_ACK;
+			}
+		}		
+
 	}
 
 
@@ -509,6 +570,7 @@ ack_finished:
 		tcpd->ual2=ual1;
 		tcpd->base_seq2=base_seq;
 	}
+
 
 	if(tcp_relative_seq){
 		struct tcp_rel_seq *trs;
@@ -574,6 +636,12 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_keep_alive, tvb, 0, 0, TRUE, "This is a TCP keep-alive segment");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
+			}
+		}
+		if( ta->flags&TCP_A_DUPLICATE_ACK ){
+			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_duplicate_ack, tvb, 0, 0, TRUE, "This is a TCP duplicate ack");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Duplicate ACK] ");
 			}
 		}
 	}
@@ -2095,6 +2163,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_keep_alive,
 		{ "",		"tcp.analysis.keep_alive", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"This is a keep-alive segment", HFILL }},
+
+		{ &hf_tcp_analysis_duplicate_ack,
+		{ "",		"tcp.analysis.duplicate_ack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"This is a duplicate ACK", HFILL }},
 
 		{ &hf_tcp_len,
 		  { "TCP Segment Len",            "tcp.len", FT_UINT32, BASE_DEC, NULL, 0x0,
