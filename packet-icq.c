@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.41 2002/04/08 20:23:55 gram Exp $
+ * $Id: packet-icq.c,v 1.42 2002/05/02 10:46:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -470,6 +470,14 @@ dissect_icqv4(tvbuff_t *tvb,
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 4 protocol");
     }
+    if (tree) {
+        proto_tree_add_protocol_format(tree,
+				 proto_icq,
+				 tvb,
+				 0,
+				 -1,
+				 "ICQv4");
+    }
 }
 
 static void
@@ -484,6 +492,14 @@ dissect_icqv3(tvbuff_t *tvb,
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 3 protocol");
     }
+    if (tree) {
+        proto_tree_add_protocol_format(tree,
+				 proto_icq,
+				 tvb,
+				 0,
+				 -1,
+				 "ICQv3");
+    }
 }
 
 static void
@@ -497,6 +513,14 @@ dissect_icqv2(tvbuff_t *tvb,
     }
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 2 protocol");
+    }
+    if (tree) {
+        proto_tree_add_protocol_format(tree,
+				 proto_icq,
+				 tvb,
+				 0,
+				 -1,
+				 "ICQv2");
     }
 }
 
@@ -840,6 +864,14 @@ icqv5_cmd_rand_search(proto_tree* tree, /* Tree to put the data in */
     };
     
     if (tree){
+	if (size < 4) {
+	    ti = proto_tree_add_text(tree,
+				     tvb,
+				     offset,
+				     size,
+				     "Body (%d bytes, should be 4)", size);
+	    return;
+	}
 	ti = proto_tree_add_text(tree,
 				 tvb,
 				 offset,
@@ -1008,14 +1040,21 @@ static void
 icqv5_cmd_send_msg(proto_tree* tree,
 		   tvbuff_t *tvb,
 		   int offset,
-		   int size,
-		   int cmd)
+		   int size)
 {
     proto_tree* subtree;
     proto_item* ti;
     int left = size;		/* left chars to do */
 
     if (tree) {
+	if (size < 4) {
+	    ti = proto_tree_add_text(tree,
+				     tvb,
+				     offset,
+				     size,
+				     "Body (%d bytes, should be >= 4)", size);
+	    return;
+	}
 	ti = proto_tree_add_text(tree,
 				 tvb,
 				 offset,
@@ -1136,8 +1175,7 @@ icqv5_cmd_contact_list(proto_tree* tree,
 static void
 icqv5_cmd_no_params(proto_tree* tree, /* Tree to put the data in */
 		    tvbuff_t *tvb,    /* Decrypted packet content */
-		    int offset,       /* Offset from the start of the packet to the content */
-		    int cmd)
+		    int offset)       /* Offset from the start of the packet to the content */
 {
     proto_tree* subtree;
     proto_item* ti;
@@ -1165,9 +1203,7 @@ icqv5_cmd_no_params(proto_tree* tree, /* Tree to put the data in */
 static void
 icqv5_srv_no_params(proto_tree* tree, /* Tree to put the data in */
 		    tvbuff_t *tvb,    /* Packet content */
-		    int offset,       /* Offset from the start of the packet to the content */
-		    int size,         /* Number of chars left to do */
-		    int cmd)
+		    int offset)       /* Offset from the start of the packet to the content */
 {
     proto_tree* subtree;
     proto_item* ti;
@@ -1197,6 +1233,15 @@ icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
     const u_char *ipAddrp;
 
     if (tree) {
+	if (size < SRV_LOGIN_REPLY_IP + 8) {
+	    ti = proto_tree_add_text(tree,
+				     tvb,
+				     offset,
+				     size,
+				     "Body (%d bytes, should be %d)", size,
+				     SRV_LOGIN_REPLY_IP + 8);
+	    return;
+	}
 	ti = proto_tree_add_text(tree,
 				 tvb,
 				 offset,
@@ -1224,6 +1269,15 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
     guint32 status;
 
     if (tree) {
+	if (size < SRV_LOGIN_REPLY_IP + 8) {
+	    ti = proto_tree_add_text(tree,
+				     tvb,
+				     offset,
+				     size,
+				     "Body (%d bytes, should be %d)", size,
+				     SRV_LOGIN_REPLY_IP + 8);
+	    return;
+	}
 	ti = proto_tree_add_text(tree,
 				 tvb,
 				 offset,
@@ -1278,6 +1332,15 @@ icqv5_srv_user_offline(proto_tree* tree,/* Tree to put the data in */
     proto_item* ti;
 
     if (tree) {
+	if (size < SRV_USER_OFFLINE_UIN + 4) {
+	    ti = proto_tree_add_text(tree,
+				     tvb,
+				     offset,
+				     size,
+				     "Body (%d bytes, should be %d)", size,
+				     SRV_USER_OFFLINE_UIN + 4);
+	    return;
+	}
 	ti = proto_tree_add_text(tree,
 				 tvb,
 				 offset,
@@ -1702,14 +1765,16 @@ dissect_icqv5Client(tvbuff_t *tvb,
     proto_tree *icq_header_tree = NULL;
     proto_item *ti = NULL;
 
-    guint16 pktsize;		/* The size of the ICQ content */
+    int pktsize;		/* The actual size of the ICQ content */
+    int capturedsize;		/* The captured size of the ICQ content */
     guint32 rounded_size;
     guint32 key;
     guint16 cmd;
     guint8 *decr_pd;		/* Decrypted content */
     tvbuff_t *decr_tvb;
     
-    pktsize = tvb_length(tvb);
+    pktsize = tvb_reported_length(tvb);
+    capturedsize = tvb_length(tvb);
 
     /* Get the encryption key */
     key = get_v5key(tvb, pktsize);
@@ -1724,13 +1789,13 @@ dissect_icqv5Client(tvbuff_t *tvb,
      *
      * bytes in the buffer.
      */
-    rounded_size = ((((pktsize - ICQ5_CL_SESSIONID) + 3)/4)*4) + ICQ5_CL_SESSIONID;
+    rounded_size = ((((capturedsize - ICQ5_CL_SESSIONID) + 3)/4)*4) + ICQ5_CL_SESSIONID;
     decr_pd = g_malloc(rounded_size);
-    tvb_memcpy(tvb, decr_pd, 0, pktsize);
+    tvb_memcpy(tvb, decr_pd, 0, capturedsize);
     decrypt_v5(decr_pd, rounded_size, key);
     
     /* Allocate a new tvbuff, referring to the decrypted data. */
-    decr_tvb = tvb_new_real_data(decr_pd, pktsize, tvb_reported_length(tvb));
+    decr_tvb = tvb_new_real_data(decr_pd, capturedsize, pktsize);
 
     /* Arrange that the allocated packet data copy be freed when the
        tvbuff is freed. */
@@ -1754,7 +1819,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
 				 proto_icq,
 				 tvb,
 				 0,
-				 pktsize,
+				 -1,
 				 "ICQv5 %s (len %u)",
 				 findClientCmd(cmd),
 				 pktsize);
@@ -1822,8 +1887,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
 	    icqv5_cmd_send_msg(icq_tree,
 			       decr_tvb,
 			       ICQ5_CL_HDRSIZE,
-			       pktsize - ICQ5_CL_HDRSIZE,
-			       cmd);
+			       pktsize - ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_RAND_SEARCH:
 	    icqv5_cmd_rand_search(icq_tree,
@@ -1875,8 +1939,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
 	case CMD_QUERY_ADDONS:
 	    icqv5_cmd_no_params(icq_tree,
 				decr_tvb,
-				ICQ5_CL_HDRSIZE,
-				cmd);
+				ICQ5_CL_HDRSIZE);
 	    break;
 	default:
 	    proto_tree_add_text(icq_tree,
@@ -1986,8 +2049,7 @@ dissect_icqv5Server(tvbuff_t *tvb,
 	    icqv5_cmd_send_msg(icq_tree,
 			       tvb,
 			       offset + ICQ5_SRV_HDRSIZE,
-			       pktsize - ICQ5_SRV_HDRSIZE,
-			       cmd);
+			       pktsize - ICQ5_SRV_HDRSIZE);
 	    break;
 	case SRV_USER_ONLINE:
 	    icqv5_srv_user_online(icq_tree,
@@ -2034,9 +2096,7 @@ dissect_icqv5Server(tvbuff_t *tvb,
 	case SRV_UPDATE_SUCCESS:
 	    icqv5_srv_no_params(icq_tree,
 	    			tvb,
-				offset + ICQ5_SRV_HDRSIZE,
-				pktsize - ICQ5_SRV_HDRSIZE,
-				cmd);
+				offset + ICQ5_SRV_HDRSIZE);
 	    break;
 	default:
 	    proto_tree_add_text(icq_tree,
