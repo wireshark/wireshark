@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.28 2000/05/19 23:06:58 gram Exp $
+ * $Id: netxray.c,v 1.29 2000/06/24 05:32:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -70,6 +70,10 @@ static const char vers_1_1[] = {
 
 static const char vers_2_001[] = {
 	'0', '0', '2', '.', '0', '0', '1', '\0'
+};
+
+static const char vers_2_002[] = {
+	'0', '0', '2', '.', '0', '0', '2', '\0'
 };
 
 /* NetXRay 1.x data record format - followed by frame data. */
@@ -164,10 +168,11 @@ int netxray_open(wtap *wth, int *err)
 		timeunit = 1000000.0;
 		version_major = 1;
 		file_type = WTAP_FILE_NETXRAY_1_1;
-	} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0) {
+	} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0
+	    || memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
 		timeunit = 1000000.0;
 		version_major = 2;
-		file_type = WTAP_FILE_NETXRAY_2_001;
+		file_type = WTAP_FILE_NETXRAY_2_00x;
 	} else {
 		g_message("netxray: version \"%.8s\" unsupported", hdr.version);
 		*err = WTAP_ERR_UNSUPPORTED;

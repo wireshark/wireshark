@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.72 2000/05/25 09:00:24 guy Exp $
+ * $Id: wtap.h,v 1.73 2000/06/24 05:32:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -115,7 +115,7 @@
 #define WTAP_FILE_NETMON_2_x			12
 #define WTAP_FILE_NETXRAY_1_0			13
 #define WTAP_FILE_NETXRAY_1_1			14
-#define WTAP_FILE_NETXRAY_2_001			15
+#define WTAP_FILE_NETXRAY_2_00x			15
 #define WTAP_FILE_RADCOM			16
 #define WTAP_FILE_ASCEND			17
 #define WTAP_FILE_NETTL				18
