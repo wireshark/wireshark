@@ -89,6 +89,10 @@ static int hf_ndmp_butype_attr_backup_utf8 = -1;
 static int hf_ndmp_butype_attr_recover_utf8 = -1;
 static int hf_ndmp_butype_env_name = -1;
 static int hf_ndmp_butype_env_value = -1;
+static int hf_ndmp_tcp_env_name = -1;
+static int hf_ndmp_tcp_env_value = -1;
+static int hf_ndmp_tcp_default_env = -1;
+static int hf_ndmp_tcp_addr_list = -1;
 static int hf_ndmp_fs_info = -1;
 static int hf_ndmp_fs_invalid_total_size = -1;
 static int hf_ndmp_fs_invalid_used_size = -1;
@@ -1557,6 +1561,39 @@ static const value_string halt_vals[] = {
 };
 
 static int
+dissect_tcp_env(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	/* name */
+	offset = dissect_rpc_string(tvb, tree,
+			hf_ndmp_tcp_env_name, offset, NULL);
+
+	/* value */
+	offset = dissect_rpc_string(tvb, tree,
+			hf_ndmp_tcp_env_value, offset, NULL);
+
+	return offset;
+}
+
+
+static int
+dissect_ndmp_v4_tcp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	/* IP addr */
+	proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, FALSE);
+	offset+=4;
+
+	/* TCP port */
+	proto_tree_add_item(tree, hf_ndmp_addr_tcp, tvb, offset, 4, FALSE);
+	offset+=4;
+
+	/* addr_env */
+	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
+			dissect_tcp_env, hf_ndmp_tcp_default_env);
+
+	return offset;
+}
+
+static int
 dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
@@ -1580,13 +1617,20 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	case NDMP_ADDR_LOCAL:
 		break;
 	case NDMP_ADDR_TCP:
-		/* IP addr */
-		proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, FALSE);
-		offset+=4;
+	  	/* this became an array in version 4 and beyond */
+		if(ndmp_protocol_version<NDMP_PROTOCOL_V4){
+			/* IP addr */
+			proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, FALSE);
+			offset+=4;
+	
+			/* TCP port */
+			proto_tree_add_item(tree, hf_ndmp_addr_tcp, tvb, offset, 4, FALSE);
+			offset+=4;
+		} else {
+			offset = dissect_rpc_array(tvb, pinfo, tree, offset,
+				dissect_ndmp_v4_tcp_addr, hf_ndmp_tcp_addr_list);
 
-		/* TCP port */
-		proto_tree_add_item(tree, hf_ndmp_addr_tcp, tvb, offset, 4, FALSE);
-		offset+=4;
+		}
 
 		break;
 	case NDMP_ADDR_FC:
@@ -2911,6 +2955,14 @@ proto_register_ndmp(void)
 		"Default Env", "ndmp.butype.default_env", FT_NONE, BASE_NONE,
 		NULL, 0, "Default Env's for this Butype Info", HFILL }},
 
+	{ &hf_ndmp_tcp_addr_list, {
+		"TCP Ports", "ndmp.tcp.port_list", FT_NONE, BASE_NONE,
+		NULL, 0, "List of TCP ports", HFILL }},
+
+	{ &hf_ndmp_tcp_default_env, {
+		"Default Env", "ndmp.tcp.default_env", FT_NONE, BASE_NONE,
+		NULL, 0, "Default Env's for this Butype Info", HFILL }},
+
 	{ &hf_ndmp_butype_attr_backup_file_history, {
 		"", "ndmp.butype.attr.backup_file_history", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_backup_file_history), 0x00000001, "backup_file_history", HFILL }},
@@ -2953,6 +3005,14 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_butype_env_value, {
 		"Value", "ndmp.butype.env.value", FT_STRING, BASE_NONE,
+		NULL, 0, "Value for this env-variable", HFILL }},
+
+	{ &hf_ndmp_tcp_env_name, {
+		"Name", "ndmp.tcp.env.name", FT_STRING, BASE_NONE,
+		NULL, 0, "Name for this env-variable", HFILL }},
+
+	{ &hf_ndmp_tcp_env_value, {
+		"Value", "ndmp.tcp.env.value", FT_STRING, BASE_NONE,
 		NULL, 0, "Value for this env-variable", HFILL }},
 
 	{ &hf_ndmp_fs_info, {
