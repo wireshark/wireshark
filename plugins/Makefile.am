@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.16 2003/07/18 03:01:33 guy Exp $
+# $Id: Makefile.am,v 1.17 2003/07/19 22:33:55 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@ Xplugin_api.c: plugin_gen.py plugin_api.c plugin_api_list.c
 	$(PYTHON) plugin_gen.py xyzzy
 
 xyzzy: plugin_api_list.c
-	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GLIB_CFLAGS) -I.. -c plugin_api_list.c
+	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GLIB_CFLAGS) -I.. -c $(srcdir)/plugin_api_list.c
 
 EXTRA_DIST = \
 	plugin_api.c	\
