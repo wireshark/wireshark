@@ -7,45 +7,15 @@ include <win32.mak>
 
 ############### no need to modify below this line #########
 
+include Makefile.common
+
 CFLAGS=-DHAVE_CONFIG_H $(GLIB_CFLAGS) $(ZLIB_CFLAGS) /I$(PCAP_DIR)/include \
 	-D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
-   $(CC) $(cvarsdll) $(CFLAGS) -Fd.\ -c $<
+	$(CC) $(cvarsdll) $(CFLAGS) -Fd.\ -c $<
 
-OBJECTS=airopeek9.obj \
-	ascend-grammar.obj \
-	ascend-scanner.obj \
-	ascend.obj \
-	atm.obj \
-	buffer.obj \
-	cosine.obj \
-	csids.obj \
-	dbs-etherwatch.obj \
-	erf.obj \
-	etherpeek.obj \
-	file_access.obj \
-	file_wrappers.obj \
-	hcidump.obj \
-	i4btrace.obj \
-	iptrace.obj \
-	lanalyzer.obj \
-	libpcap.obj \
-	netmon.obj \
-	nettl.obj \
-	network_instruments.obj \
-	netxray.obj \
-	ngsniffer.obj \
-	radcom.obj \
-	pppdump.obj \
-	snoop.obj \
-	toshiba.obj \
-	eyesdn.obj \
-	visual.obj \
-	vms.obj \
-	wtap.obj \
-	5views.obj
-
+OBJECTS=$(NONGENERATED_C_FILES:.c=.obj) $(GENERATED_C_FILES:.c=.obj)
 
 wiretap_LIBS = \
 	$(GLIB_LIBS)	\
