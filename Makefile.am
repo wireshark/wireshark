@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.649 2003/10/30 07:00:18 guy Exp $
+# $Id: Makefile.am,v 1.650 2003/11/07 05:26:27 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -282,6 +282,7 @@ DISSECTOR_SRC = \
 	packet-kadm5.c \
 	packet-kerberos.c \
 	packet-klm.c   \
+	packet-kpasswd.c   \
 	packet-l2tp.c  \
 	packet-lapb.c  \
 	packet-lapbether.c \
