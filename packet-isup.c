@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.37 2003/11/24 00:05:09 guy Exp $
+ * $Id: packet-isup.c,v 1.38 2003/12/04 05:47:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3764,6 +3764,7 @@ static const value_string isup_Pass_on_not_possible_indicator_vals[] = {
 	{ 0x01, "Discard message" },
 	{ 0x02, "Discard parameter" },
 	{ 0x03, "Reserved (interpreted as 00)" },
+	{ 0, NULL },
 
 };
 static const value_string ISUP_Broadband_narrowband_interworking_indicator_vals[] = {
@@ -3771,6 +3772,7 @@ static const value_string ISUP_Broadband_narrowband_interworking_indicator_vals[
 	{ 0x01, "Discard message" },
 	{ 0x02, "Release call" },
 	{ 0x03, "Discard parameter" },
+	{ 0, NULL },
 }; 
 
 static void
