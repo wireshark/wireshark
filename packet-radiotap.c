@@ -2,7 +2,7 @@
  *  packet-radiotap.c
  *	Decode packets with a Radiotap header
  *
- * $Id: packet-radiotap.c,v 1.4 2004/07/05 09:29:04 guy Exp $
+ * $Id: packet-radiotap.c,v 1.5 2004/07/06 19:22:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -356,7 +356,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (tree) {
 		proto_tree_add_uint_format(radiotap_tree, hf_radiotap_datarate,
 			tvb, offset, 1, tvb_get_guint8(tvb, offset), 
-			"Datarate: %d.%d Mbps", rate / 2, rate & 1 ? 5 : 0);
+			"Data Rate: %d.%d Mb/s", rate / 2, rate & 1 ? 5 : 0);
 	    }
 	    offset++;
 	    break;

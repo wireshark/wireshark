@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.113 2004/07/05 09:29:04 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.114 2004/07/06 19:22:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1453,8 +1453,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   /* Add the radio information, if present, to the column information */
   if (has_radio_information) {
     if (check_col(pinfo->cinfo, COL_TX_RATE)) {
-	col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%g",
-	   .5*pinfo->pseudo_header->ieee_802_11.data_rate);
+	col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
+	   pinfo->pseudo_header->ieee_802_11.data_rate / 2,
+	   pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
     }
     if (check_col(pinfo->cinfo, COL_RSSI)) {
       /* XX - this is a percentage, not a dBm or normalized or raw RSSI */
@@ -1493,8 +1494,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	proto_tree_add_uint_format(hdr_tree, hf_data_rate,
 				   tvb, 0, 0,
 				   pinfo->pseudo_header->ieee_802_11.data_rate,
-				   "Data Rate: %g mb/s",
-				   .5*pinfo->pseudo_header->ieee_802_11.data_rate);
+				   "Data Rate: %u.%u Mb/s",
+				   pinfo->pseudo_header->ieee_802_11.data_rate / 2,
+				   pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
 
 	proto_tree_add_uint(hdr_tree, hf_channel,
 			    tvb, 0, 0,

@@ -14,7 +14,7 @@
  * 
  * By Solomon Peachy
  *
- * $Id: packet-wlancap.c,v 1.5 2004/07/05 09:29:05 guy Exp $
+ * $Id: packet-wlancap.c,v 1.6 2004/07/06 19:22:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,6 +197,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset;
     guint32 version;
     guint32 length;
+    guint32 datarate;
 
     if(check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -247,10 +248,12 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  4, tvb_get_ntohl(tvb, offset));
       offset+=4;
 
+      /* XXX - all other 802.11 pseudo-headers use 500Kb/s, not 100Kb/s,
+         as the units. */
+      datarate = tvb_get_ntohl(tvb, offset);
       proto_tree_add_uint_format(wlan_tree, hf_wlan_datarate, tvb, offset, 
-				 4, tvb_get_ntohl(tvb, offset) * 100, 
-				 "Datarate: %d kbps", 
-				 tvb_get_ntohl(tvb, offset) * 100);
+				 4, datarate * 100, 
+				 "Data Rate: %u Kb/s", datarate * 100);
       offset+=4;
       proto_tree_add_uint(wlan_tree, hf_wlan_antenna, tvb, offset,
 			  4, tvb_get_ntohl(tvb, offset));

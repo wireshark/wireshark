@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.12 2004/07/05 09:29:04 guy Exp $
+ * $Id: packet-prism.c,v 1.13 2004/07/06 19:22:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -196,9 +196,16 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     VALFIELD(signal, "Signal");
     VALFIELD(noise, "Noise");
     if (check_col(pinfo->cinfo, COL_TX_RATE)) {
-      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
-		   hdr.rate.data / 10, hdr.rate.data % 10);
+      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
+		   hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
     }
+    if (tree) {
+        proto_tree_add_uint_format(prism_tree, hf_prism_rate_data,
+                tvb, offset, 12, hdr.rate.data,
+                "Data Rate: %u.%u Mb/s",
+                hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
+    }
+    offset += 12;
     VALFIELD(rate, "Rate");
     VALFIELD(istx, "IsTX");
     VALFIELD(frmlen, "Frame Length");
