@@ -80,6 +80,9 @@ dissect_parameters(tvbuff_t *, proto_tree *);
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
+#define ASAP_UDP_PORT 3863
+#define ASAP_TCP_PORT 3863
+
 /* Dissectors for error causes */
 #define CAUSE_CODE_LENGTH   2
 #define CAUSE_LENGTH_LENGTH 2
@@ -662,4 +665,10 @@ proto_reg_handoff_asap(void)
 
   asap_handle = create_dissector_handle(dissect_asap, proto_asap);
   dissector_add("sctp.ppi",  ASAP_PAYLOAD_PROTOCOL_ID, asap_handle);
+  dissector_add("udp.port",  ASAP_UDP_PORT,  asap_handle);
+  /* FIXME */
+  /*
+  dissector_add("tcp.port",  ASAP_TCP_PORT,  asap_handle);
+  dissector_add("sctp.port", ASAP_SCTP_PORT, asap_handle);
+  */
 }
