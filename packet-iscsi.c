@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.18 2001/12/10 00:25:29 guy Exp $
+ * $Id: packet-iscsi.c,v 1.19 2002/01/10 01:28:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,8 @@
 
 #include "packet.h"
 #include "prefs.h"
+#include "conversation.h"
+#include "packet-scsi.h"
 
 static gboolean iscsi_desegment = TRUE;
 
@@ -79,7 +81,6 @@ static int hf_iscsi_AHS = -1;
 static int hf_iscsi_Padding = -1;
 static int hf_iscsi_ping_data = -1;
 static int hf_iscsi_immediate_data = -1;
-static int hf_iscsi_sense_data = -1;
 static int hf_iscsi_write_data = -1;
 static int hf_iscsi_read_data = -1;
 static int hf_iscsi_error_pdu_data = -1;
@@ -104,8 +105,6 @@ static int hf_iscsi_InitiatorTaskTag = -1;
 static int hf_iscsi_ExpectedDataTransferLength = -1;
 static int hf_iscsi_CmdSN = -1;
 static int hf_iscsi_ExpStatSN = -1;
-static int hf_iscsi_SCSICommand_CDB = -1;
-static int hf_iscsi_SCSICommand_CDB0 = -1;
 static int hf_iscsi_StatSN = -1;
 static int hf_iscsi_ExpCmdSN = -1;
 static int hf_iscsi_MaxCmdSN = -1;
@@ -166,6 +165,22 @@ static gint ett_iscsi_KeyValues = -1;
 static gint ett_iscsi_CDB = -1;
 static gint ett_iscsi_Flags = -1;
 
+typedef struct _iscsi_conv_key {
+    guint32 conv_idx;
+    guint32 itt;
+} iscsi_conv_key_t;
+
+typedef struct _iscsi_conv_data {
+    guint32 iscsi_dl;
+    guint32 abs_secs;
+    guint32 abs_usecs;
+} iscsi_conv_data_t;
+
+static GHashTable *iscsi_req_hash = NULL;
+static GMemChunk *iscsi_req_keys = NULL;
+static GMemChunk *iscsi_req_vals = NULL;
+static guint32 iscsi_init_count = 25;
+
 #define X_BIT 0x80
 #define I_BIT 0x40
 
@@ -204,7 +219,7 @@ static const value_string iscsi_opcodes[] = {
   { ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION,          "Task Management Function" },
   { ISCSI_OPCODE_LOGIN_COMMAND,                     "Login Command" },
   { ISCSI_OPCODE_TEXT_COMMAND,                      "Text Command" },
-  { ISCSI_OPCODE_SCSI_DATA_OUT,                     "SCSI Write Data" },
+  { ISCSI_OPCODE_SCSI_DATA_OUT,                     "SCSI Data Out" },
   { ISCSI_OPCODE_LOGOUT_COMMAND,                    "Logout Command" },
   { ISCSI_OPCODE_SNACK_REQUEST,                     "SNACK Request" },
 
@@ -213,7 +228,7 @@ static const value_string iscsi_opcodes[] = {
   { ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE, "Task Management Function Response" },
   { ISCSI_OPCODE_LOGIN_RESPONSE,                    "Login Response" },
   { ISCSI_OPCODE_TEXT_RESPONSE,                     "Text Response" },
-  { ISCSI_OPCODE_SCSI_DATA_IN,                      "SCSI Read Data" },
+  { ISCSI_OPCODE_SCSI_DATA_IN,                      "SCSI Data In" },
   { ISCSI_OPCODE_LOGOUT_RESPONSE,                   "Logout Response" },
   { ISCSI_OPCODE_R2T,                               "Ready To Transfer" },
   { ISCSI_OPCODE_ASYNC_MESSAGE,                     "Asynchronous Message" },
@@ -288,88 +303,6 @@ static const value_string iscsi_scsicommand_taskattrs[] = {
     {2, "Ordered"},
     {3, "Head of Queue"},
     {4, "ACA"},
-    {0, NULL},
-};
-
-static const value_string iscsi_scsi_cdb0[] = {
-    {0x00, "TEST_UNIT_READY"},
-    {0x01, "REZERO_UNIT"},
-    {0x03, "REQUEST_SENSE"},
-    {0x04, "FORMAT_UNIT"},
-    {0x05, "READ_BLOCK_LIMITS"},
-    {0x07, "REASSIGN_BLOCKS"},
-    {0x08, "READ_6"},
-    {0x0a, "WRITE_6"},
-    {0x0b, "SEEK_6"},
-    {0x0f, "READ_REVERSE"},
-    {0x10, "WRITE_FILEMARKS"},
-    {0x11, "SPACE"},
-    {0x12, "INQUIRY"},
-    {0x14, "RECOVER_BUFFERED_DATA"},
-    {0x15, "MODE_SELECT"},
-    {0x16, "RESERVE"},
-    {0x17, "RELEASE"},
-    {0x18, "COPY"},
-    {0x19, "ERASE"},
-    {0x1a, "MODE_SENSE"},
-    {0x1b, "START_STOP"},
-    {0x1c, "RECEIVE_DIAGNOSTIC"},
-    {0x1d, "SEND_DIAGNOSTIC"},
-    {0x1e, "ALLOW_MEDIUM_REMOVAL"},
-    {0x24, "SET_WINDOW"},
-    {0x25, "READ_CAPACITY"},
-    {0x28, "READ_10"},
-    {0x2a, "WRITE_10"},
-    {0x2b, "SEEK_10"},
-    {0x2e, "WRITE_VERIFY"},
-    {0x2f, "VERIFY"},
-    {0x30, "SEARCH_HIGH"},
-    {0x31, "SEARCH_EQUAL"},
-    {0x32, "SEARCH_LOW"},
-    {0x33, "SET_LIMITS"},
-    {0x34, "PRE_FETCH"},
-    {0x34, "READ_POSITION"},
-    {0x35, "SYNCHRONIZE_CACHE"},
-    {0x36, "LOCK_UNLOCK_CACHE"},
-    {0x37, "READ_DEFECT_DATA"},
-    {0x38, "MEDIUM_SCAN"},
-    {0x39, "COMPARE"},
-    {0x3a, "COPY_VERIFY"},
-    {0x3b, "WRITE_BUFFER"},
-    {0x3c, "READ_BUFFER"},
-    {0x3d, "UPDATE_BLOCK"},
-    {0x3e, "READ_LONG"},
-    {0x3f, "WRITE_LONG"},
-    {0x40, "CHANGE_DEFINITION"},
-    {0x41, "WRITE_SAME"},
-    {0x43, "READ_TOC"},
-    {0x4c, "LOG_SELECT"},
-    {0x4d, "LOG_SENSE"},
-    {0x55, "MODE_SELECT_10"},
-    {0x5a, "MODE_SENSE_10"},
-    {0xa5, "MOVE_MEDIUM"},
-    {0xa8, "READ_12"},
-    {0xaa, "WRITE_12"},
-    {0xae, "WRITE_VERIFY_12"},
-    {0xb0, "SEARCH_HIGH_12"},
-    {0xb1, "SEARCH_EQUAL_12"},
-    {0xb2, "SEARCH_LOW_12"},
-    {0xb8, "READ_ELEMENT_STATUS"},
-    {0xb6, "SEND_VOLUME_TAG"},
-    {0xea, "WRITE_LONG_2"},
-    {0, NULL},
-};
-
-static const value_string iscsi_scsi_statuses[] = {
-    {0x00, "Good"},
-    {0x02, "Check condition"},
-    {0x04, "Condition good"},
-    {0x08, "Busy"},
-    {0x10, "Intermediate good"},
-    {0x14, "Intermediate c good"},
-    {0x18, "Reservation conflict"},
-    {0x22, "Command terminated"},
-    {0x28, "Queue full"},
     {0, NULL},
 };
 
@@ -555,6 +488,53 @@ static guint32 crc32Table[256] = {
 
 #define CRC32C_PRELOAD 0xffffffff
 
+/*
+ * Hash Functions
+ */
+static gint
+iscsi_equal(gconstpointer v, gconstpointer w)
+{
+  iscsi_conv_key_t *v1 = (iscsi_conv_key_t *)v;
+  iscsi_conv_key_t *v2 = (iscsi_conv_key_t *)w;
+
+  return (v1->conv_idx == v2->conv_idx);
+}
+
+static guint
+iscsi_hash (gconstpointer v)
+{
+	iscsi_conv_key_t *key = (iscsi_conv_key_t *)v;
+	guint val;
+
+	val = key->conv_idx;
+
+	return val;
+}
+
+/*
+ * Protocol initialization
+ */
+static void
+iscsi_init_protocol(void)
+{
+    if (iscsi_req_keys)
+        g_mem_chunk_destroy(iscsi_req_keys);
+    if (iscsi_req_vals)
+        g_mem_chunk_destroy(iscsi_req_vals);
+    if (iscsi_req_hash)
+        g_hash_table_destroy(iscsi_req_hash);
+
+    iscsi_req_hash = g_hash_table_new(iscsi_hash, iscsi_equal);
+    iscsi_req_keys = g_mem_chunk_new("iscsi_req_keys",
+                                   sizeof(iscsi_conv_key_t),
+                                   iscsi_init_count * sizeof(iscsi_conv_key_t),
+                                   G_ALLOC_AND_FREE);
+    iscsi_req_vals = g_mem_chunk_new("iscsi_req_vals",
+                                   sizeof(iscsi_conv_data_t),
+                                   iscsi_init_count * sizeof(iscsi_conv_data_t),
+                                   G_ALLOC_AND_FREE);
+}
+
 static guint32
 calculateCRC32(const void *buf, int len, guint32 crc) {
     guint8 *p = (guint8 *)buf;
@@ -678,52 +658,99 @@ handleDataSegmentAsTextKeys(proto_item *ti, tvbuff_t *tvb, guint offset, guint d
 /* Code to actually dissect the packets */
 static void
 dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len) {
+
     guint original_offset = offset;
     proto_item *ti;
     char *scsi_command_name = NULL;
+    guint8 scsi_status = 0;
     guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
     guint end_offset = offset + tvb_length_remaining(tvb, offset);
+    guint32 del_usecs = 0;
+    conversation_t *conversation = NULL;
+    iscsi_conv_data_t *cdata = NULL;
+    iscsi_conv_key_t ckey, *req_key;
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSCSI");
 
+    if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
+        scsi_status = tvb_get_guint8 (tvb, offset+3);
+    }
+
+    if ((opcode == ISCSI_OPCODE_SCSI_RESPONSE) ||
+        (opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
+        (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
+        conversation = find_conversation (&pinfo->src, &pinfo->dst,
+                                          pinfo->ptype, pinfo->srcport,
+                                          pinfo->destport, 0);
+        if (conversation) {
+            ckey.conv_idx = conversation->index;
+            ckey.itt = tvb_get_ntohl (tvb, offset+16);
+            
+            cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_hash,
+                                                              &ckey);
+        }
+        pinfo->private_data = cdata;
+        
+        if (cdata) {
+            del_usecs = (pinfo->fd->abs_secs - cdata->abs_secs)* 1000000 +
+                (pinfo->fd->abs_usecs - cdata->abs_usecs);
+        }
+    }
+    else if (opcode == ISCSI_OPCODE_SCSI_COMMAND) {
+        conversation = find_conversation (&pinfo->src, &pinfo->dst,
+                                          pinfo->ptype, pinfo->srcport,
+                                          pinfo->destport, 0);
+        if (!conversation) {
+            conversation = conversation_new (&pinfo->src, &pinfo->dst,
+                                             pinfo->ptype, pinfo->srcport,
+                                             pinfo->destport, 0);
+        }
+        
+        ckey.conv_idx = conversation->index;
+        ckey.itt = tvb_get_ntohl (tvb, offset+16);
+        
+        cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_hash,
+                                                          &ckey);
+        if (cdata) {
+            /* Since we never free the memory used by an exchange, this maybe a
+             * case of another request using the same exchange as a previous
+             * req. 
+             */
+            cdata->abs_usecs = pinfo->fd->abs_usecs;
+            cdata->abs_secs = pinfo->fd->abs_secs;
+            /* The SCSI protocol uses this as the key to detect a
+             * SCSI-level conversation. */
+        }
+        else {
+            req_key = g_mem_chunk_alloc (iscsi_req_keys);
+            req_key->conv_idx = conversation->index;
+            req_key->itt = tvb_get_ntohl (tvb, offset+16);
+            
+            cdata = g_mem_chunk_alloc (iscsi_req_vals);
+            cdata->abs_usecs = pinfo->fd->abs_usecs;
+            cdata->abs_secs = pinfo->fd->abs_secs;
+            
+            g_hash_table_insert (iscsi_req_hash, req_key, cdata);
+            /* The SCSI protocol uses this as the key to detect a
+             * SCSI-level conversation. */
+        }
+        pinfo->private_data = cdata;
+    }
+    else {
+        pinfo->private_data = NULL;
+    }
+    
     if (check_col(pinfo->cinfo, COL_INFO)) {
 
-	col_append_str(pinfo->cinfo, COL_INFO, (char *)opcode_str);
-
-	if((opcode & ~(X_BIT | I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
-	    /* SCSI Command */
-	    guint8 cdb0 = tvb_get_guint8(tvb, cdb_offset);
-	    scsi_command_name = match_strval(cdb0, iscsi_scsi_cdb0);
-	    if(cdb0 == 0x08 || cdb0 == 0x0a) {
-		/* READ_6 and WRITE_6 */
-		guint lba = tvb_get_ntohl(tvb, cdb_offset) & 0x1fffff;
-		guint len = tvb_get_guint8(tvb, cdb_offset + 4);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s LBA 0x%06x len 0x%02x)", scsi_command_name, lba, len);
-	    }
-	    else if(cdb0 == 0x28 || cdb0 == 0x2a) {
-		/* READ_10 and WRITE_10 */
-		guint lba = tvb_get_ntohl(tvb, cdb_offset + 2);
-		guint len = tvb_get_ntohs(tvb, cdb_offset + 7);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s LBA 0x%08x len 0x%04x)", scsi_command_name, lba, len);
-	    }
-	    else if(scsi_command_name != NULL)
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", scsi_command_name);
-	}
-	else if(opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
-	    /* SCSI Command Response */
-	    const char *blurb = NULL;
-	    /* look at response byte */
-	    if(tvb_get_guint8(tvb, offset + 2) == 0) {
-		/* command completed at target */
-		blurb = match_strval(tvb_get_guint8(tvb, offset + 3), iscsi_scsi_statuses);
-	    }
-	    else
-		blurb = "Target Failure";
-	    if(blurb != NULL)
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", blurb);
-	}
+        if (opcode != ISCSI_OPCODE_SCSI_COMMAND) {
+            col_append_str(pinfo->cinfo, COL_INFO, (char *)opcode_str);
+        }
+        if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
+            col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
+                             val_to_str (scsi_status, scsi_status_val, "0x%x"));
+        }
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any
@@ -774,7 +801,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	else if(opcode == ISCSI_OPCODE_SCSI_COMMAND) {
 	    /* SCSI Command */
 	    guint32 ahsLen = tvb_get_guint8(tvb, offset + 4) * 4;
-	    {
+    	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
@@ -793,32 +820,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    {
-		/* dissect a little of the CDB for the most common
-		 * commands */
-		guint8 cdb0 = tvb_get_guint8(tvb, cdb_offset);
-		gint cdb_len = 16;
-		proto_item *tf;
-		/* FIXME - extended CDB */
-		if(scsi_command_name == NULL)
-		    scsi_command_name = match_strval(cdb0, iscsi_scsi_cdb0);
-		if(cdb0 == 0x08 || cdb0 == 0x0a) {
-		    /* READ_6 and WRITE_6 */
-		    guint lba = tvb_get_ntohl(tvb, cdb_offset) & 0x1fffff;
-		    guint len = tvb_get_guint8(tvb, cdb_offset + 4);
-		    tf = proto_tree_add_uint_format(ti, hf_iscsi_SCSICommand_CDB0, tvb, cdb_offset, cdb_len, cdb0, "CDB: %s LBA 0x%06x len 0x%02x", scsi_command_name, lba, len);
-		}
-		else if(cdb0 == 0x28 || cdb0 == 0x2a) {
-		    /* READ_10 and WRITE_10 */
-		    guint lba = tvb_get_ntohl(tvb, cdb_offset + 2);
-		    guint len = tvb_get_ntohs(tvb, cdb_offset + 7);
-		    tf = proto_tree_add_uint_format(ti, hf_iscsi_SCSICommand_CDB0, tvb, cdb_offset, cdb_len, cdb0, "CDB: %s LBA 0x%08x len 0x%04x", scsi_command_name, lba, len);
-		}
-		else
-		    tf = proto_tree_add_uint(ti, hf_iscsi_SCSICommand_CDB0, tvb, cdb_offset, cdb_len, cdb0);
-		{
-		    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_CDB);
-		    proto_tree_add_item(tt, hf_iscsi_SCSICommand_CDB, tvb, cdb_offset, cdb_len, FALSE);
-		}
 		if(ahsLen > 0) {
 		    /* FIXME - disssect AHS? */
 		    proto_tree_add_item(ti, hf_iscsi_AHS, tvb, offset + 48, ahsLen, FALSE);
@@ -829,6 +830,16 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	}
 	else if(opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
 	    /* SCSI Response */
+            if (del_usecs) {
+                if (del_usecs > 1000)
+                    proto_tree_add_text (ti, tvb, offset, 0,
+                                         "Cmd Response Time: %d msecs",
+                                         del_usecs/1000);
+                else
+                    proto_tree_add_text (ti, tvb, offset, 0,
+                                         "Cmd Response Time: %d usecs",
+                                         del_usecs);
+            }
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
@@ -850,7 +861,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_ExpDataSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_SCSIResponse_BidiReadResidualCount, tvb, offset + 44, 4, FALSE);
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
-	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_sense_data);
 	}
 	else if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION) {
 	    /* Task Management Function */
@@ -993,7 +1003,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
-	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_write_data);
 	}
 	else if(opcode == ISCSI_OPCODE_SCSI_DATA_IN) {
 	    /* SCSI Data In (read) */
@@ -1017,7 +1026,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
-	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_read_data);
 	}
 	else if(opcode == ISCSI_OPCODE_LOGOUT_COMMAND) {
 	    /* Logout Command */
@@ -1094,6 +1102,36 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	}
 
 	proto_item_set_len(ti, offset - original_offset);
+    }
+    if((opcode & ~(X_BIT | I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
+        /* SCSI Command */
+        dissect_scsi_cdb (tvb, pinfo, tree, cdb_offset, 16);
+    }
+    else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
+        if (scsi_status == 0x2) {
+            /* A SCSI response with Check Condition contains sense data */
+            /* offset is setup correctly by the iscsi code for response above */
+            dissect_scsi_snsinfo (tvb, pinfo, tree, offset,
+                                  iscsi_min (data_segment_len,
+                                             end_offset-offset));
+        }
+        else {
+            dissect_scsi_rsp (tvb, pinfo, tree);
+        }
+        if (cdata && tree) {
+            /* destroy the data structures for this SCSI task */
+#if 0            
+            g_mem_chunk_free (iscsi_req_vals, cdata);
+            g_hash_table_remove (iscsi_req_hash, &ckey);
+            pinfo->private_data = NULL;
+#endif             
+        }
+    }
+    else if ((opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
+             (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
+        /* offset is setup correctly by the iscsi code for response above */ 
+        dissect_scsi_payload (tvb, pinfo, tree, offset, FALSE,
+                              iscsi_min (data_segment_len, end_offset-offset));
     }
 }
 
@@ -1281,11 +1319,6 @@ proto_register_iscsi(void)
 	    FT_BYTES, BASE_HEX, NULL, 0,
 	    "Immediate Data", HFILL }
 	},
-	{ &hf_iscsi_sense_data,
-	  { "SenseData", "iscsi.sensedata",
-	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "Sense Data", HFILL }
-	},
 	{ &hf_iscsi_write_data,
 	  { "WriteData", "iscsi.writedata",
 	    FT_BYTES, BASE_HEX, NULL, 0,
@@ -1406,16 +1439,6 @@ proto_register_iscsi(void)
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    "Next expected status sequence number", HFILL }
 	},
-	{ &hf_iscsi_SCSICommand_CDB,
-	  { "CDB", "iscsi.scsicommand.cdb",
-	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "SCSI CDB", HFILL }
-	},
-	{ &hf_iscsi_SCSICommand_CDB0,
-	  { "CDB", "iscsi.scsicommand.cdb0",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_scsi_cdb0), 0,
-	    "SCSI CDB[0]", HFILL }
-	},
 	{ &hf_iscsi_SCSIResponse_ResidualCount,
 	  { "ResidualCount", "iscsi.scsiresponse.residualcount",
 	    FT_UINT32, BASE_HEX, NULL, 0,
@@ -1458,7 +1481,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_SCSIResponse_Status,
 	  { "Status", "iscsi.scsiresponse.status",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_scsi_statuses), 0,
+	    FT_UINT8, BASE_HEX, VALS(scsi_status_val), 0,
 	    "SCSI command status value", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_Response,
@@ -1697,7 +1720,8 @@ proto_register_iscsi(void)
      * subtrees used */
     proto_register_field_array(proto_iscsi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
+    register_init_routine (&iscsi_init_protocol);
+    
     {
 	module_t *iscsi_module = prefs_register_protocol(proto_iscsi, NULL);
 

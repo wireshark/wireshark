@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.403 2002/01/09 02:51:46 itojun Exp $
+# $Id: Makefile.am,v 1.404 2002/01/10 01:28:43 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -239,7 +239,8 @@ DISSECTOR_SRC = \
 	packet-rwall.c \
 	packet-rx.c  \
 	packet-sap.c   \
-	packet-sctp.c   \
+	packet-scsi.c  \
+	packet-sctp.c  \
 	packet-sdp.c   \
 	packet-sip.c   \
 	packet-skinny.c   \
@@ -407,6 +408,7 @@ noinst_HEADERS = \
 	packet-rtp.h   \
 	packet-rwall.h  \
 	packet-rx.h  \
+	packet-scsi.h  \
 	packet-sll.h   \
 	packet-smb-browse.h \
 	packet-smb-common.h \
