@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.260 2002/05/23 12:23:29 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.261 2002/05/25 12:33:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -460,6 +460,13 @@ static int hf_smb_print_spool_file_number = -1;
 static int hf_smb_print_spool_file_size = -1;
 static int hf_smb_print_spool_file_name = -1;
 static int hf_smb_start_index = -1;
+static int hf_smb_originator_name = -1;
+static int hf_smb_destination_name = -1;
+static int hf_smb_message_len = -1;
+static int hf_smb_message = -1;
+static int hf_smb_mgid = -1;
+static int hf_smb_forwarded_name = -1;
+static int hf_smb_machine_name = -1;
 static int hf_smb_cancel_to = -1;
 static int hf_smb_trans2_subcmd = -1;
 static int hf_smb_trans_name = -1;
@@ -8350,6 +8357,221 @@ dissect_get_print_queue_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 
 static int
+dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
+{
+	int name_len;
+	guint16 bc;
+	guint8 wc;
+	guint16 message_len;
+
+	WORD_COUNT;
+
+	BYTE_COUNT;
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* originator name */
+	/* XXX - what if this runs past bc? */
+	name_len = tvb_strsize(tvb, offset);
+	CHECK_BYTE_COUNT(name_len);
+	proto_tree_add_item(tree, hf_smb_originator_name, tvb, offset,
+	    name_len, TRUE);
+	COUNT_BYTES(name_len);
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* destination name */
+	/* XXX - what if this runs past bc? */
+	name_len = tvb_strsize(tvb, offset);
+	CHECK_BYTE_COUNT(name_len);
+	proto_tree_add_item(tree, hf_smb_destination_name, tvb, offset,
+	    name_len, TRUE);
+	COUNT_BYTES(name_len);
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* message len */
+	CHECK_BYTE_COUNT(2);
+	message_len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_message_len, tvb, offset, 2,
+	    message_len);
+	COUNT_BYTES(2);
+
+	/* message */
+	CHECK_BYTE_COUNT(message_len);
+	proto_tree_add_item(tree, hf_smb_message, tvb, offset, message_len,
+	    TRUE);
+	COUNT_BYTES(message_len);
+
+	END_OF_SMB
+
+	return offset;
+}
+
+static int
+dissect_send_multi_block_message_start_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
+{
+	int name_len;
+	guint16 bc;
+	guint8 wc;
+
+	WORD_COUNT;
+
+	BYTE_COUNT;
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* originator name */
+	/* XXX - what if this runs past bc? */
+	name_len = tvb_strsize(tvb, offset);
+	CHECK_BYTE_COUNT(name_len);
+	proto_tree_add_item(tree, hf_smb_originator_name, tvb, offset,
+	    name_len, TRUE);
+	COUNT_BYTES(name_len);
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* destination name */
+	/* XXX - what if this runs past bc? */
+	name_len = tvb_strsize(tvb, offset);
+	CHECK_BYTE_COUNT(name_len);
+	proto_tree_add_item(tree, hf_smb_destination_name, tvb, offset,
+	    name_len, TRUE);
+	COUNT_BYTES(name_len);
+
+	END_OF_SMB
+
+	return offset;
+}
+
+static int
+dissect_message_group_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
+{
+	guint16 bc;
+	guint8 wc;
+
+	WORD_COUNT;
+
+	/* message group ID */
+	proto_tree_add_item(tree, hf_smb_mgid, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	BYTE_COUNT;
+
+	END_OF_SMB
+
+	return offset;
+}
+
+static int
+dissect_send_multi_block_message_text_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
+{
+	guint16 bc;
+	guint8 wc;
+	guint16 message_len;
+
+	WORD_COUNT;
+
+	BYTE_COUNT;
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* message len */
+	CHECK_BYTE_COUNT(2);
+	message_len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_message_len, tvb, offset, 2,
+	    message_len);
+	COUNT_BYTES(2);
+
+	/* message */
+	CHECK_BYTE_COUNT(message_len);
+	proto_tree_add_item(tree, hf_smb_message, tvb, offset, message_len,
+	    TRUE);
+	COUNT_BYTES(message_len);
+
+	END_OF_SMB
+
+	return offset;
+}
+
+static int
+dissect_forwarded_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
+{
+	int name_len;
+	guint16 bc;
+	guint8 wc;
+
+	WORD_COUNT;
+
+	BYTE_COUNT;
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* forwarded name */
+	/* XXX - what if this runs past bc? */
+	name_len = tvb_strsize(tvb, offset);
+	CHECK_BYTE_COUNT(name_len);
+	proto_tree_add_item(tree, hf_smb_forwarded_name, tvb, offset,
+	    name_len, TRUE);
+	COUNT_BYTES(name_len);
+
+	END_OF_SMB
+
+	return offset;
+}
+
+static int
+dissect_get_machine_name_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
+{
+	int name_len;
+	guint16 bc;
+	guint8 wc;
+
+	WORD_COUNT;
+
+	BYTE_COUNT;
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* machine name */
+	/* XXX - what if this runs past bc? */
+	name_len = tvb_strsize(tvb, offset);
+	CHECK_BYTE_COUNT(name_len);
+	proto_tree_add_item(tree, hf_smb_machine_name, tvb, offset,
+	    name_len, TRUE);
+	COUNT_BYTES(name_len);
+
+	END_OF_SMB
+
+	return offset;
+}
+
+
+static int
 dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
@@ -12532,14 +12754,14 @@ static smb_function smb_dissector[256] = {
   /* 0xce */  {dissect_unknown, dissect_unknown},
   /* 0xcf */  {dissect_unknown, dissect_unknown},
 
-  /* 0xd0 */  {dissect_unknown, dissect_unknown},
-  /* 0xd1 */  {dissect_unknown, dissect_unknown},
-  /* 0xd2 */  {dissect_unknown, dissect_unknown},
-  /* 0xd3 */  {dissect_unknown, dissect_unknown},
-  /* 0xd4 */  {dissect_unknown, dissect_unknown},
-  /* 0xd5 */  {dissect_unknown, dissect_unknown},
-  /* 0xd6 */  {dissect_unknown, dissect_unknown},
-  /* 0xd7 */  {dissect_unknown, dissect_unknown},
+  /* 0xd0 */  {dissect_send_single_block_message_request, dissect_empty},
+  /* 0xd1 */  {dissect_send_single_block_message_request, dissect_empty},
+  /* 0xd2 */  {dissect_forwarded_name, dissect_empty},
+  /* 0xd3 */  {dissect_forwarded_name, dissect_empty},
+  /* 0xd4 */  {dissect_empty, dissect_get_machine_name_response},
+  /* 0xd5 */  {dissect_send_multi_block_message_start_request, dissect_message_group_id},
+  /* 0xd6 */  {dissect_message_group_id, dissect_empty},
+  /* 0xd7 */  {dissect_send_multi_block_message_text_request, dissect_empty},
   /* 0xd8 */  {dissect_unknown, dissect_unknown},
   /* 0xd9 */  {dissect_unknown, dissect_unknown},
   /* 0xda */  {dissect_unknown, dissect_unknown},
@@ -12837,14 +13059,14 @@ static const value_string smb_cmd_vals[] = {
   { 0xCD, "unknown-0xCD" },
   { 0xCE, "unknown-0xCE" },
   { 0xCF, "unknown-0xCF" },
-  { 0xD0, "SMBsends" },
-  { 0xD1, "SMBsendb" },
-  { 0xD2, "SMBfwdname" },
-  { 0xD3, "SMBcancelf" },
-  { 0xD4, "SMBgetmac" },
-  { 0xD5, "SMBsendstrt" },
-  { 0xD6, "SMBsendend" },
-  { 0xD7, "SMBsendtxt" },
+  { 0xD0, "Send Single Block Message" },
+  { 0xD1, "Send Broadcast Message" },
+  { 0xD2, "Forward User name" },
+  { 0xD3, "Cancel Forward" },
+  { 0xD4, "Get Machine Name" },
+  { 0xD5, "Send Start of Multi-block Message" },
+  { 0xD6, "Send End of Multi-block Message" },
+  { 0xD7, "Send Text of Multi-block Message" },
   { 0xD8, "SMBreadbulk" },
   { 0xD9, "SMBwritebulk" },
   { 0xDA, "SMBwritebulkdata" },
@@ -16194,7 +16416,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_setup_len,
 		{ "Setup Len", "smb.print.setup.len", FT_UINT16, BASE_DEC,
-		NULL, 0, "Length of prionter setup data", HFILL }},
+		NULL, 0, "Length of printer setup data", HFILL }},
 
 	{ &hf_smb_print_mode,
 		{ "Mode", "smb.print.mode", FT_UINT16, BASE_DEC,
@@ -16239,6 +16461,34 @@ proto_register_smb(void)
 	{ &hf_smb_start_index,
 		{ "Start Index", "smb.print.start_index", FT_UINT16, BASE_DEC,
 		NULL, 0, "First queue entry to return", HFILL }},
+
+	{ &hf_smb_originator_name,
+		{ "Originator Name", "smb.originator_name", FT_STRINGZ, BASE_NONE,
+		NULL, 0, "Name of sender of message", HFILL }},
+
+	{ &hf_smb_destination_name,
+		{ "Destination Name", "smb.destination_name", FT_STRINGZ, BASE_NONE,
+		NULL, 0, "Name of recipient of message", HFILL }},
+
+	{ &hf_smb_message_len,
+		{ "Message Len", "smb.message.len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of message", HFILL }},
+
+	{ &hf_smb_message,
+		{ "Message", "smb.message", FT_STRING, BASE_NONE,
+		NULL, 0, "Message text", HFILL }},
+
+	{ &hf_smb_mgid,
+		{ "Message Group ID", "smb.mgid", FT_UINT16, BASE_DEC,
+		NULL, 0, "Message group ID for multi-block messages", HFILL }},
+
+	{ &hf_smb_forwarded_name,
+		{ "Forwarded Name", "smb.forwarded_name", FT_STRINGZ, BASE_NONE,
+		NULL, 0, "Recipient name being forwarded", HFILL }},
+
+	{ &hf_smb_machine_name,
+		{ "Machine Name", "smb.machine_name", FT_STRINGZ, BASE_NONE,
+		NULL, 0, "Name of target machine", HFILL }},
 
 	{ &hf_smb_cancel_to,
 		{ "Cancel to", "smb.cancel_to", FT_UINT32, BASE_DEC,
