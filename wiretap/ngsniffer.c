@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.30 1999/12/09 23:17:19 oabad Exp $
+ * $Id: ngsniffer.c,v 1.31 1999/12/11 09:22:36 oabad Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -673,10 +673,8 @@ int ngsniffer_dump_can_write_encap(int filetype, int encap)
    failure */
 gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 {
-    struct vers_rec version;
     int nwritten;
     char buf[6] = {REC_VERS, 0x00, 0x12, 0x00, 0x00, 0x00}; /* version record */
-    gint16 maj_vers, min_vers;
 
     /* This is a sniffer file */
     wdh->subtype_write = ngsniffer_dump;
@@ -700,30 +698,6 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 	return FALSE;
     }
 
-    /* "sniffer" version ? */
-    maj_vers = 4;
-    min_vers = 0;
-    version.maj_vers = pletohs(&maj_vers);
-    version.min_vers = pletohs(&min_vers);
-    version.time = 0;
-    version.date = 0;
-    version.type = 4;
-    version.network = wtap_encap[wdh->encap];
-    version.format = 1;
-    version.timeunit = 1; /* 0.838096 */
-    version.cmprs_vers = 0;
-    version.cmprs_level = 0;
-    version.rsvd[0] = 0;
-    version.rsvd[1] = 0;
-    nwritten = fwrite(&version, 1, sizeof version, wdh->fh);
-    if (nwritten != sizeof version) {
-	if (nwritten < 0)
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
-	return FALSE;
-    }
-
     return TRUE;
 }
 
@@ -737,6 +711,47 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     char buf[6];
     double t;
     guint16 t_low, t_med, t_high;
+    static gboolean first_frame=TRUE;
+    static time_t start=0;
+    struct vers_rec version;
+    gint16 maj_vers, min_vers;
+    guint16 start_date;
+    struct tm *tm;
+
+    /* we need to know the timestamp of the first frame */
+    if (first_frame) {
+	first_frame=FALSE;
+	tm = localtime(&phdr->ts.tv_sec);
+	start_date = (tm->tm_year - (1980 - 1900)) << 9;
+	start_date |= (tm->tm_mon + 1) << 5;
+	start_date |= tm->tm_mday;
+	/* record the start date, not the start time */
+	start = phdr->ts.tv_sec - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
+
+	/* "sniffer" version ? */
+	maj_vers = 4;
+	min_vers = 0;
+	version.maj_vers = pletohs(&maj_vers);
+	version.min_vers = pletohs(&min_vers);
+	version.time = 0;
+	version.date = pletohs(&start_date);
+	version.type = 4;
+	version.network = wtap_encap[wdh->encap];
+	version.format = 1;
+	version.timeunit = 1; /* 0.838096 */
+	version.cmprs_vers = 0;
+	version.cmprs_level = 0;
+	version.rsvd[0] = 0;
+	version.rsvd[1] = 0;
+	nwritten = fwrite(&version, 1, sizeof version, wdh->fh);
+	if (nwritten != sizeof version) {
+	    if (nwritten < 0)
+		*err = errno;
+	    else
+		*err = WTAP_ERR_SHORT_WRITE;
+	    return FALSE;
+	}
+    }
 
     buf[0] = REC_FRAME2;
     buf[1] = 0x00;
@@ -752,11 +767,11 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	    *err = WTAP_ERR_SHORT_WRITE;
 	return FALSE;
     }
-    t = (double)phdr->ts.tv_sec + (double)phdr->ts.tv_usec/1.0e6;
-    t = t * (1.0e6 / Usec[1]); /* timeunit = 1 */
+    t = (double)phdr->ts.tv_sec + (double)phdr->ts.tv_usec/1.0e6; /* # of secs */
+    t = (t - start)*1.0e6 / Usec[1]; /* timeunit = 1 */
     t_low = (guint16)(t-(double)((guint32)(t/65536.0))*65536.0);
     t_med = (guint16)((guint32)(t/65536.0) % 65536);
-    t_high = (guint16)((guint32)(t/4294967296.0));
+    t_high = (guint16)(t/4294967296.0);
     rec_hdr.time_low = pletohs(&t_low);
     rec_hdr.time_med = pletohs(&t_med);
     rec_hdr.time_high = pletohs(&t_high);
