@@ -39,7 +39,7 @@
  * CableLabs' specifications. Your license and use of this protocol decoder
  * does not mean that you are licensed to use the CableLabs'
  * specifications.  If you have questions about this protocol, contact
- * jf.mule@cablelabs.com or c.stuart@cablelabs.com for additional
+ * jf.mule [AT] cablelabs.com or c.stuart [AT] cablelabs.com for additional
  * information.
  */
 
