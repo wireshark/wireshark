@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.42 2000/01/24 01:45:12 guy Exp $
+ * $Id: packet-llc.c,v 1.43 2000/01/24 02:05:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -232,10 +232,7 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 
 	if (is_snap) {
 		oui = pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5];
-		if (XDLC_HAS_PAYLOAD(control)) {
-			/*
-			 * This frame has a payload to be analyzed.
-			 */
+		if (XDLC_IS_INFORMATION(control)) {
 			etype = pntohs(&pd[offset+6]);
 			switch (oui) {
 
@@ -262,10 +259,7 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 		}
 	}		
 	else {
-		if (XDLC_HAS_PAYLOAD(control)) {
-			/*
-			 * This frame has a payload to be analyzed.
-			 */
+		if (XDLC_IS_INFORMATION(control)) {
 			capture = sap_capture_func(pd[offset]);
 
 			/* non-SNAP */
@@ -365,25 +359,11 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			   AppleTalk data packets - but used
 			   OUI_ENCAP_ETHER and an Ethernet
 			   packet type for AARP packets. */
-			if (XDLC_HAS_PAYLOAD(control)) {
-				/*
-				 * This frame has a payload to be analyzed.
-				 * XXX - I've seen a U frame (for a SNAP
-				 * protocol with OUI 00-80-5F, belonging
-				 * to Compaq, and a PID of 0002) with a
-				 * function of TEST and, apparently, with
-				 * a payload - the data in the frame
-				 * following the LLC header included the
-				 * Unicode string "NTFS", so, unless that's
-				 * crud left over from an earlier frame whose
-				 * buffer was reused for this frame, and the
-				 * length was mysteriously set to include the
-				 * leftover crud, TEST frames can have data,
-				 * just as UI frames can.
-				 */
+			if (XDLC_IS_INFORMATION(control)) {
 				ethertype(etype, offset+8, pd,
 				    fd, tree, llc_tree, hf_llc_type);
-			}
+			} else
+				dissect_data(pd, offset+8, fd, tree);
 			break;
 
 		case OUI_CISCO:
@@ -396,10 +376,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				proto_tree_add_item(llc_tree,
 				    hf_llc_pid, offset+6, 2, etype);
 			}
-			if (XDLC_HAS_PAYLOAD(control)) {
-				/*
-				 * This frame has a payload to be analyzed.
-				 */
+			if (XDLC_IS_INFORMATION(control)) {
 				switch (etype) {
 
 				case 0x2000:
@@ -410,7 +387,8 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 					dissect_data(pd, offset+8, fd, tree);
 					break;
 				}
-			}
+			} else
+				dissect_data(pd, offset+8, fd, tree);
 			break;
 
 		default:
@@ -418,12 +396,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				proto_tree_add_item(llc_tree,
 				    hf_llc_pid, offset+6, 2, etype);
 			}
-			if (XDLC_HAS_PAYLOAD(control)) {
-				/*
-				 * This frame has a payload to be analyzed.
-				 */
-				dissect_data(pd, offset+8, fd, tree);
-			}
+			dissect_data(pd, offset+8, fd, tree);
 			break;
 		}
 	}		
@@ -440,10 +413,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			);
 		}
 
-		if (XDLC_HAS_PAYLOAD(control)) {
-			/*
-			 * This frame has a payload to be analyzed.
-			 */
+		if (XDLC_IS_INFORMATION(control)) {
 			dissect = sap_dissect_func(pd[offset]);
 
 			/* non-SNAP */
@@ -455,7 +425,8 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			else {
 				dissect_data(pd, offset, fd, tree);
 			}
-		}
+		} else
+			dissect_data(pd, offset, fd, tree);
 	}
 }
 

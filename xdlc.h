@@ -2,7 +2,7 @@
  * Define *DLC frame types, and routine to dissect the control field of
  * a *DLC frame.
  *
- * $Id: xdlc.h,v 1.11 2000/01/07 22:05:43 guy Exp $
+ * $Id: xdlc.h,v 1.12 2000/01/24 02:05:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,10 +60,11 @@
 /*
  * This macro takes the control field of an xDLC frame, as returned by
  * "get_xdlc_control()" or "dissect_xdlc_control()", and evaluates to
- * TRUE if the frame has a payload (i.e., if it's an Information or
- * Unnumbered Information frame) and FALSE if it doesn't.
+ * TRUE if the frame is an "information" frame and FALSE if it isn't.
+ * Note that frames other than information frames can have data in them,
+ * e.g. TEST frames.
  */
-#define XDLC_HAS_PAYLOAD(control) \
+#define XDLC_IS_INFORMATION(control) \
 	(((control) & 0x1) == XDLC_I || (control) == (XDLC_UI|XDLC_U))
 
 /*
