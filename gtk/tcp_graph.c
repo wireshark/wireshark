@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.7 2001/12/10 21:42:02 guy Exp $
+ * $Id: tcp_graph.c,v 1.8 2001/12/10 23:27:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1776,6 +1776,17 @@ static int get_headers (frame_data *fd, char *pd, struct segment *hdrs)
 	void *ip;
 	void *tcp;
 
+	/*
+	 * XXX - on Alpha, even fetching one-byte fields from structures
+	 * pointed to by unaligned pointers may be risky, as, unless
+	 * the BWX instructions are being used, a one-byte load is done
+	 * by loading the word containing the byte and then extracting
+	 * the byte.
+	 *
+	 * This means that the references to "p->ppp_type" and
+	 * "((struct iphdr *)ip)->protocol" may turn into a load of
+	 * an unaligned word.
+	 */
 	switch (fd->lnk_t) {
 
 	case WTAP_ENCAP_ETHERNET:
