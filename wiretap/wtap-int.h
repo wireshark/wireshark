@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.9 2000/09/19 17:22:10 gram Exp $
+ * $Id: wtap-int.h,v 1.10 2000/11/12 08:45:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -109,7 +109,7 @@ typedef struct {
 typedef struct {
 	time_t inittime;
 	int adjusted;
-	int seek_add;
+	int next_packet_seek_start;
 } ascend_t;
 
 typedef struct {
