@@ -214,4 +214,3 @@ p_dissector_handle_get_protocol_index = pat->p_dissector_handle_get_protocol_ind
 p_new_register_dissector = pat->p_new_register_dissector;
 p_new_create_dissector_handle = pat->p_new_create_dissector_handle;
 p_register_giop_user_module = pat->p_register_giop_user_module;
-p_delete_giop_user_module = pat->p_delete_giop_user_module;

@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.4 2003/08/06 18:16:21 guy Exp $
+ * $Id: plugin_api_list.c,v 1.5 2003/08/16 00:38:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -350,4 +350,3 @@ void new_register_dissector(const char *, new_dissector_t, int);
 dissector_handle_t new_create_dissector_handle(new_dissector_t, int);
 
 void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *module, int sub_proto);
-void delete_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *module);
