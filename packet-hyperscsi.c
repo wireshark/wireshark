@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for dissassembly of the Hyper SCSI protocol.
  *
- * $Id: packet-hyperscsi.c,v 1.2 2002/11/16 08:33:53 sharpe Exp $
+ * $Id: packet-hyperscsi.c,v 1.3 2002/11/17 03:24:37 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,10 +158,11 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     ti = proto_tree_add_text(hs_tree, tvb, 3, -1, "HyperSCSI PDU");
-    hs_hdr_tree = proto_item_add_subtree(ti, ett_hs_pdu);
+    hs_pdu_tree = proto_item_add_subtree(ti, ett_hs_pdu);
 
-    
+    proto_tree_add_uint(hs_pdu_tree, hf_hs_ver, tvb, 3, 1, hs_ver);
 
+    proto_tree_add_uint_format(hs_pdu_tree, hf_hs_cmd, tvb, 4, 1, hs_cmd, "HyperSCSI Command: %s", opcode_str);
   }
 
 }
