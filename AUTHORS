@@ -573,6 +573,8 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	File handle to file name resolution in NFS and realted protocols
 	In DCE RPC dissector, add support for finding the response that
 	    matches a request
+	NDR pointer handling in DCE RPC
+	SAMR updates
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {

@@ -2,7 +2,7 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.3 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.4 2002/01/25 08:35:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,4 +128,3 @@ dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
     return offset + 20;
 }
-

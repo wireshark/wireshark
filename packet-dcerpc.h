@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.8 2002/01/23 05:37:38 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.9 2002/01/25 08:35:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,6 +131,19 @@ int dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *drep);
 
+#define NDR_POINTER_REF		1
+#define NDR_POINTER_UNIQUE	2
+#define NDR_POINTER_PTR		3
+int dissect_ndr_pointer (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        dcerpc_dissect_fnct_t *fnct, int type, int hf_index);
+
+/* dissect a NDR unidimensional conformant array */
+int dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        dcerpc_dissect_fnct_t *fnct);
+
+
 typedef struct _dcerpc_sub_dissector {
     guint16 num;
     gchar   *name;
@@ -164,6 +177,7 @@ typedef struct _dcerpc_call_value {
     guint16 opnum;
     gint32 req_frame;
     gint32 rep_frame;
+    guint32 max_ptr;
     void *private_data;
 } dcerpc_call_value;
 
@@ -171,6 +185,8 @@ typedef struct _dcerpc_info {
 	conversation_t *conv;	/* Which TCP stream we are in */
 	guint32 call_id;	/* Context id for this call */
 	guint16 smb_fid;	/* FID for DCERPC over SMB */
+	gboolean request;
+	int hf_index;
 	dcerpc_call_value *call_data;
 } dcerpc_info;
 
