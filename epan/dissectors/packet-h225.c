@@ -1,11 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h225.c                                                            */
+/* .\packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
 
-/* packet-h225_asn1.c
+/* packet-h225.c
  * Routines for h225 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
@@ -1836,7 +1836,7 @@ static int dissect_notAvailable(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
-static const value_string T_h245routing_vals[] = {
+static const value_string h225_T_h245routing_vals[] = {
   {   0, "strict" },
   {   1, "loose" },
   { 0, NULL }
@@ -2086,7 +2086,7 @@ static int dissect_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
-static const value_string NonStandardIdentifier_vals[] = {
+static const value_string h225_NonStandardIdentifier_vals[] = {
   {   0, "object" },
   {   1, "h221NonStandard" },
   { 0, NULL }
@@ -2177,7 +2177,7 @@ static int dissect_nonStandardUsageFields_item(tvbuff_t *tvb, int offset, packet
 }
 
 
-static const value_string H245TransportAddress_vals[] = {
+static const value_string h225_H245TransportAddress_vals[] = {
   {   0, "h245ipAddress" },
   {   1, "h245ipSourceRoute" },
   {   2, "h245ipxAddress" },
@@ -2304,7 +2304,7 @@ static int dissect_ipAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 
-static const value_string T_routing_vals[] = {
+static const value_string h225_T_routing_vals[] = {
   {   0, "strict" },
   {   1, "loose" },
   { 0, NULL }
@@ -2383,7 +2383,7 @@ static int dissect_ip6Address(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-static const value_string TransportAddress_vals[] = {
+static const value_string h225_TransportAddress_vals[] = {
   {   0, "ipAddress" },
   {   1, "ipSourceRoute" },
   {   2, "ipxAddress" },
@@ -2472,7 +2472,7 @@ static int dissect_infoRequestResponse_rasAddress(tvbuff_t *tvb, int offset, pac
 }
 
 
-static const value_string PublicTypeOfNumber_vals[] = {
+static const value_string h225_PublicTypeOfNumber_vals[] = {
   {   0, "unknown" },
   {   1, "internationalNumber" },
   {   2, "nationalNumber" },
@@ -2546,7 +2546,7 @@ static int dissect_e164Number(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-static const value_string PrivateTypeOfNumber_vals[] = {
+static const value_string h225_PrivateTypeOfNumber_vals[] = {
   {   0, "unknown" },
   {   1, "level2RegionalNumber" },
   {   2, "level1RegionalNumber" },
@@ -2596,7 +2596,7 @@ static int dissect_privateNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static const value_string PartyNumber_vals[] = {
+static const value_string h225_PartyNumber_vals[] = {
   {   0, "e164Number" },
   {   1, "dataPartyNumber" },
   {   2, "telexPartyNumber" },
@@ -2641,8 +2641,8 @@ static int dissect_routeCalltoSCN_item(tvbuff_t *tvb, int offset, packet_info *p
 
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 -1, -1);
+  offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index,
+                                                   -1, -1, "0123456789#*abc", strlen("0123456789#*abc"));
 
   return offset;
 }
@@ -2687,7 +2687,7 @@ static int dissect_vplmn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 
-static const value_string T_system_id_vals[] = {
+static const value_string h225_T_system_id_vals[] = {
   {   0, "sid" },
   {   1, "mid" },
   { 0, NULL }
@@ -2792,7 +2792,7 @@ static int dissect_gsm_uim(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
-static const value_string MobileUIM_vals[] = {
+static const value_string h225_MobileUIM_vals[] = {
   {   0, "ansi-41-uim" },
   {   1, "gsm-uim" },
   { 0, NULL }
@@ -3332,7 +3332,7 @@ static int dissect_sip(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 
-static const value_string SupportedProtocols_vals[] = {
+static const value_string h225_SupportedProtocols_vals[] = {
   {   0, "nonStandardData" },
   {   1, "h310" },
   {   2, "h320" },
@@ -3681,7 +3681,7 @@ static int dissect_tunnelledProtocolAlternateID(tvbuff_t *tvb, int offset, packe
 }
 
 
-static const value_string TunnelledProtocol_id_vals[] = {
+static const value_string h225_TunnelledProtocol_id_vals[] = {
   {   0, "tunnelledProtocolObjectID" },
   {   1, "tunnelledProtocolAlternateID" },
   { 0, NULL }
@@ -3845,7 +3845,7 @@ static int dissect_substituteConfIDs_item(tvbuff_t *tvb, int offset, packet_info
 }
 
 
-static const value_string T_conferenceGoal_vals[] = {
+static const value_string h225_T_conferenceGoal_vals[] = {
   {   0, "create" },
   {   1, "join" },
   {   2, "invite" },
@@ -3916,7 +3916,7 @@ static int dissect_callServices(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
-static const value_string CallType_vals[] = {
+static const value_string h225_CallType_vals[] = {
   {   0, "pointToPoint" },
   {   1, "oneToN" },
   {   2, "nToOne" },
@@ -3961,7 +3961,7 @@ static int dissect_callIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string SecurityServiceMode_vals[] = {
+static const value_string h225_SecurityServiceMode_vals[] = {
   {   0, "nonStandard" },
   {   1, "none" },
   {   2, "default" },
@@ -4016,7 +4016,7 @@ static int dissect_ipsec(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 
-static const value_string H245Security_vals[] = {
+static const value_string h225_H245Security_vals[] = {
   {   0, "nonStandard" },
   {   1, "noSecurity" },
   {   2, "tls" },
@@ -4123,7 +4123,7 @@ static int dissect_cryptoGKPwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
-static const value_string CryptoH323Token_vals[] = {
+static const value_string h225_CryptoH323Token_vals[] = {
   {   0, "cryptoEPPwdHash" },
   {   1, "cryptoGKPwdHash" },
   {   2, "cryptoEPPwdEncr" },
@@ -4219,7 +4219,7 @@ static int dissect_endpointIdentifier(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string ScnConnectionType_vals[] = {
+static const value_string h225_ScnConnectionType_vals[] = {
   {   0, "unknown" },
   {   1, "bChannel" },
   {   2, "hybrid2x64" },
@@ -4254,7 +4254,7 @@ static int dissect_connectionType(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string ScnConnectionAggregation_vals[] = {
+static const value_string h225_ScnConnectionAggregation_vals[] = {
   {   0, "auto" },
   {   1, "none" },
   {   2, "h221" },
@@ -4329,7 +4329,7 @@ static int dissect_language(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string PresentationIndicator_vals[] = {
+static const value_string h225_PresentationIndicator_vals[] = {
   {   0, "presentationAllowed" },
   {   1, "presentationRestricted" },
   {   2, "addressNotAvailable" },
@@ -4356,7 +4356,7 @@ static int dissect_presentationIndicator(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string ScreeningIndicator_vals[] = {
+static const value_string h225_ScreeningIndicator_vals[] = {
   {   0, "userProvidedNotScreened" },
   {   1, "userProvidedVerifiedAndPassed" },
   {   2, "userProvidedVerifiedAndFailed" },
@@ -4433,7 +4433,7 @@ static int dissect_amountString(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
-static const value_string T_billingMode_vals[] = {
+static const value_string h225_T_billingMode_vals[] = {
   {   0, "credit" },
   {   1, "debit" },
   { 0, NULL }
@@ -4474,7 +4474,7 @@ static int dissect_ssrc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 
-static const value_string CallCreditServiceControl_callStartingPoint_vals[] = {
+static const value_string h225_CallCreditServiceControl_callStartingPoint_vals[] = {
   {   0, "alerting" },
   {   1, "connect" },
   { 0, NULL }
@@ -4519,7 +4519,7 @@ static int dissect_callCreditServiceControl(tvbuff_t *tvb, int offset, packet_in
 }
 
 
-static const value_string ServiceControlDescriptor_vals[] = {
+static const value_string h225_ServiceControlDescriptor_vals[] = {
   {   0, "url" },
   {   1, "signal" },
   {   2, "nonStandard" },
@@ -4548,7 +4548,7 @@ static int dissect_contents(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string ServiceControlSession_reason_vals[] = {
+static const value_string h225_ServiceControlSession_reason_vals[] = {
   {   0, "open" },
   {   1, "refresh" },
   {   2, "close" },
@@ -4927,7 +4927,7 @@ static int dissect_standard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string GenericIdentifier_vals[] = {
+static const value_string h225_GenericIdentifier_vals[] = {
   {   0, "standard" },
   {   1, "oid" },
   {   2, "nonStandard" },
@@ -5007,7 +5007,7 @@ static int dissect_nested(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 
-static const value_string Content_vals[] = {
+static const value_string h225_Content_vals[] = {
   {   0, "raw" },
   {   1, "text" },
   {   2, "unicode" },
@@ -5399,7 +5399,7 @@ static int dissect_information(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string SecurityErrors_vals[] = {
+static const value_string h225_SecurityErrors_vals[] = {
   {   0, "securityWrongSyncTime" },
   {   1, "securityReplay" },
   {   2, "securityWrongGeneralID" },
@@ -6055,7 +6055,7 @@ static int dissect_range(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 
-static const value_string AddressPattern_vals[] = {
+static const value_string h225_AddressPattern_vals[] = {
   {   0, "wildcard" },
   {   1, "range" },
   { 0, NULL }
@@ -6168,7 +6168,7 @@ static int dissect_destAlternatives_item(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string UseSpecifiedTransport_vals[] = {
+static const value_string h225_UseSpecifiedTransport_vals[] = {
   {   0, "tcp" },
   {   1, "annexE" },
   {   2, "sctp" },
@@ -6243,7 +6243,7 @@ static int dissect_altGKInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 
-static const value_string SecurityErrors2_vals[] = {
+static const value_string h225_SecurityErrors2_vals[] = {
   {   0, "securityWrongSyncTime" },
   {   1, "securityReplay" },
   {   2, "securityWrongGeneralID" },
@@ -6316,7 +6316,7 @@ static int dissect_supportedH248Packages_item(tvbuff_t *tvb, int offset, packet_
 }
 
 
-static const value_string EncryptIntAlg_vals[] = {
+static const value_string h225_EncryptIntAlg_vals[] = {
   {   0, "nonStandard" },
   {   1, "isoAlgorithm" },
   { 0, NULL }
@@ -6344,7 +6344,7 @@ static int dissect_hMAC_iso10118_2_l(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string NonIsoIntegrityMechanism_vals[] = {
+static const value_string h225_NonIsoIntegrityMechanism_vals[] = {
   {   0, "hMAC-MD5" },
   {   1, "hMAC-iso10118-2-s" },
   {   2, "hMAC-iso10118-2-l" },
@@ -6373,7 +6373,7 @@ static int dissect_nonIsoIM(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string IntegrityMechanism_vals[] = {
+static const value_string h225_IntegrityMechanism_vals[] = {
   {   0, "nonStandard" },
   {   1, "digSig" },
   {   2, "iso9797" },
@@ -6598,7 +6598,7 @@ static int dissect_releaseCompleteCauseIE(tvbuff_t *tvb, int offset, packet_info
 }
 
 
-static const value_string CallTerminationCause_vals[] = {
+static const value_string h225_CallTerminationCause_vals[] = {
   {   0, "releaseCompleteReason" },
   {   1, "releaseCompleteCauseIE" },
   { 0, NULL }
@@ -7359,7 +7359,7 @@ static int dissect_unregistrationReject(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
-static const value_string CallModel_vals[] = {
+static const value_string h225_CallModel_vals[] = {
   {   0, "direct" },
   {   1, "gatekeeperRouted" },
   { 0, NULL }
@@ -7396,7 +7396,7 @@ static int dissect_destinationInfo(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
-static const value_string TransportQOS_vals[] = {
+static const value_string h225_TransportQOS_vals[] = {
   {   0, "endpointControlled" },
   {   1, "gatekeeperControlled" },
   {   2, "noControl" },
@@ -8222,7 +8222,7 @@ static int dissect_perCallInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string InfoRequestResponseStatus_vals[] = {
+static const value_string h225_InfoRequestResponseStatus_vals[] = {
   {   0, "complete" },
   {   1, "incomplete" },
   {   2, "segment" },
@@ -8510,7 +8510,7 @@ static int dissect_serviceControlIndication(tvbuff_t *tvb, int offset, packet_in
 }
 
 
-static const value_string T_result_vals[] = {
+static const value_string h225_T_result_vals[] = {
   {   0, "started" },
   {   1, "failed" },
   {   2, "stopped" },
@@ -8924,7 +8924,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_h245Address,
       { "h245Address", "h225.h245Address",
-        FT_UINT32, BASE_DEC, VALS(H245TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_H245TransportAddress_vals), 0,
         "", HFILL }},
     { &hf_h225_callIdentifier,
       { "callIdentifier", "h225.callIdentifier",
@@ -8932,7 +8932,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_h245SecurityMode,
       { "h245SecurityMode", "h225.h245SecurityMode",
-        FT_UINT32, BASE_DEC, VALS(H245Security_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_H245Security_vals), 0,
         "", HFILL }},
     { &hf_h225_tokens,
       { "tokens", "h225.tokens",
@@ -8948,7 +8948,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_cryptoTokens_item,
       { "Item", "h225.cryptoTokens_item",
-        FT_UINT32, BASE_DEC, VALS(CryptoH323Token_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_CryptoH323Token_vals), 0,
         "", HFILL }},
     { &hf_h225_fastStart,
       { "fastStart", "h225.fastStart",
@@ -8972,11 +8972,11 @@ void proto_register_h225(void) {
         "Alerting-UUIE/alertingAddress/_item", HFILL }},
     { &hf_h225_presentationIndicator,
       { "presentationIndicator", "h225.presentationIndicator",
-        FT_UINT32, BASE_DEC, VALS(PresentationIndicator_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_PresentationIndicator_vals), 0,
         "", HFILL }},
     { &hf_h225_screeningIndicator,
       { "screeningIndicator", "h225.screeningIndicator",
-        FT_UINT32, BASE_DEC, VALS(ScreeningIndicator_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_ScreeningIndicator_vals), 0,
         "", HFILL }},
     { &hf_h225_fastConnectRefused,
       { "fastConnectRefused", "h225.fastConnectRefused",
@@ -9128,7 +9128,7 @@ void proto_register_h225(void) {
         "ReleaseCompleteReason/invalidCID", HFILL }},
     { &hf_h225_rLC_securityError,
       { "securityError", "h225.securityError",
-        FT_UINT32, BASE_DEC, VALS(SecurityErrors_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SecurityErrors_vals), 0,
         "ReleaseCompleteReason/securityError", HFILL }},
     { &hf_h225_hopCountExceeded,
       { "hopCountExceeded", "h225.hopCountExceeded",
@@ -9156,7 +9156,7 @@ void proto_register_h225(void) {
         "Setup-UUIE/destinationAddress/_item", HFILL }},
     { &hf_h225_destCallSignalAddress,
       { "destCallSignalAddress", "h225.destCallSignalAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "", HFILL }},
     { &hf_h225_destExtraCallInfo,
       { "destExtraCallInfo", "h225.destExtraCallInfo",
@@ -9180,7 +9180,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_conferenceGoal,
       { "conferenceGoal", "h225.conferenceGoal",
-        FT_UINT32, BASE_DEC, VALS(T_conferenceGoal_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_T_conferenceGoal_vals), 0,
         "Setup-UUIE/conferenceGoal", HFILL }},
     { &hf_h225_create,
       { "create", "h225.create",
@@ -9208,11 +9208,11 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_callType,
       { "callType", "h225.callType",
-        FT_UINT32, BASE_DEC, VALS(CallType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_CallType_vals), 0,
         "", HFILL }},
     { &hf_h225_sourceCallSignalAddress,
       { "sourceCallSignalAddress", "h225.sourceCallSignalAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "Setup-UUIE/sourceCallSignalAddress", HFILL }},
     { &hf_h225_uUIE_remoteExtensionAddress,
       { "remoteExtensionAddress", "h225.remoteExtensionAddress",
@@ -9224,7 +9224,7 @@ void proto_register_h225(void) {
         "Setup-UUIE/h245SecurityCapability", HFILL }},
     { &hf_h225_h245SecurityCapability_item,
       { "Item", "h225.h245SecurityCapability_item",
-        FT_UINT32, BASE_DEC, VALS(H245Security_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_H245Security_vals), 0,
         "Setup-UUIE/h245SecurityCapability/_item", HFILL }},
     { &hf_h225_mediaWaitForConnect,
       { "mediaWaitForConnect", "h225.mediaWaitForConnect",
@@ -9244,7 +9244,7 @@ void proto_register_h225(void) {
         "Setup-UUIE/connectionParameters", HFILL }},
     { &hf_h225_connectionType,
       { "connectionType", "h225.connectionType",
-        FT_UINT32, BASE_DEC, VALS(ScnConnectionType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_ScnConnectionType_vals), 0,
         "Setup-UUIE/connectionParameters/connectionType", HFILL }},
     { &hf_h225_numberOfScnConnections,
       { "numberOfScnConnections", "h225.numberOfScnConnections",
@@ -9252,7 +9252,7 @@ void proto_register_h225(void) {
         "Setup-UUIE/connectionParameters/numberOfScnConnections", HFILL }},
     { &hf_h225_connectionAggregation,
       { "connectionAggregation", "h225.connectionAggregation",
-        FT_UINT32, BASE_DEC, VALS(ScnConnectionAggregation_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_ScnConnectionAggregation_vals), 0,
         "Setup-UUIE/connectionParameters/connectionAggregation", HFILL }},
     { &hf_h225_symmetricOperationRequired,
       { "symmetricOperationRequired", "h225.symmetricOperationRequired",
@@ -9264,7 +9264,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_desiredProtocols_item,
       { "Item", "h225.desiredProtocols_item",
-        FT_UINT32, BASE_DEC, VALS(SupportedProtocols_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SupportedProtocols_vals), 0,
         "", HFILL }},
     { &hf_h225_neededFeatures,
       { "neededFeatures", "h225.neededFeatures",
@@ -9376,7 +9376,7 @@ void proto_register_h225(void) {
         "PresentationIndicator/addressNotAvailable", HFILL }},
     { &hf_h225_alternativeAddress,
       { "alternativeAddress", "h225.alternativeAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "Facility-UUIE/alternativeAddress", HFILL }},
     { &hf_h225_alternativeAliasAddress,
       { "alternativeAliasAddress", "h225.alternativeAliasAddress",
@@ -9480,7 +9480,7 @@ void proto_register_h225(void) {
         "TransportAddress/ipSourceRoute/route/_item", HFILL }},
     { &hf_h225_routing,
       { "routing", "h225.routing",
-        FT_UINT32, BASE_DEC, VALS(T_routing_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_T_routing_vals), 0,
         "TransportAddress/ipSourceRoute/routing", HFILL }},
     { &hf_h225_strict,
       { "strict", "h225.strict",
@@ -9564,7 +9564,7 @@ void proto_register_h225(void) {
         "H245TransportAddress/h245ipSourceRoute/h245route/_item", HFILL }},
     { &hf_h225_h245routing,
       { "h245routing", "h225.h245routing",
-        FT_UINT32, BASE_DEC, VALS(T_h245routing_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_T_h245routing_vals), 0,
         "H245TransportAddress/h245ipSourceRoute/h245routing", HFILL }},
     { &hf_h225_h245ipxAddress,
       { "h245ipxAddress", "h225.h245ipxAddress",
@@ -9640,7 +9640,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_protocol_item,
       { "Item", "h225.protocol_item",
-        FT_UINT32, BASE_DEC, VALS(SupportedProtocols_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SupportedProtocols_vals), 0,
         "", HFILL }},
     { &hf_h225_h310,
       { "h310", "h225.h310",
@@ -9740,7 +9740,7 @@ void proto_register_h225(void) {
         "H221NonStandard/manufacturerCode", HFILL }},
     { &hf_h225_tunnelledProtocol_id,
       { "id", "h225.id",
-        FT_UINT32, BASE_DEC, VALS(TunnelledProtocol_id_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TunnelledProtocol_id_vals), 0,
         "TunnelledProtocol/id", HFILL }},
     { &hf_h225_tunnelledProtocolObjectID,
       { "tunnelledProtocolObjectID", "h225.tunnelledProtocolObjectID",
@@ -9764,7 +9764,7 @@ void proto_register_h225(void) {
         "TunnelledProtocolAlternateIdentifier/protocolVariant", HFILL }},
     { &hf_h225_nonStandardIdentifier,
       { "nonStandardIdentifier", "h225.nonStandardIdentifier",
-        FT_UINT32, BASE_DEC, VALS(NonStandardIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_NonStandardIdentifier_vals), 0,
         "NonStandardParameter/nonStandardIdentifier", HFILL }},
     { &hf_h225_data_oct_str,
       { "data", "h225.data",
@@ -9792,7 +9792,7 @@ void proto_register_h225(void) {
         "AliasAddress/url-ID", HFILL }},
     { &hf_h225_transportID,
       { "transportID", "h225.transportID",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "AliasAddress/transportID", HFILL }},
     { &hf_h225_email_ID,
       { "email-ID", "h225.email_ID",
@@ -9800,11 +9800,11 @@ void proto_register_h225(void) {
         "AliasAddress/email-ID", HFILL }},
     { &hf_h225_partyNumber,
       { "partyNumber", "h225.partyNumber",
-        FT_UINT32, BASE_DEC, VALS(PartyNumber_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_PartyNumber_vals), 0,
         "AliasAddress/partyNumber", HFILL }},
     { &hf_h225_mobileUIM,
       { "mobileUIM", "h225.mobileUIM",
-        FT_UINT32, BASE_DEC, VALS(MobileUIM_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_MobileUIM_vals), 0,
         "AliasAddress/mobileUIM", HFILL }},
     { &hf_h225_wildcard,
       { "wildcard", "h225.wildcard",
@@ -9816,11 +9816,11 @@ void proto_register_h225(void) {
         "AddressPattern/range", HFILL }},
     { &hf_h225_startOfRange,
       { "startOfRange", "h225.startOfRange",
-        FT_UINT32, BASE_DEC, VALS(PartyNumber_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_PartyNumber_vals), 0,
         "AddressPattern/range/startOfRange", HFILL }},
     { &hf_h225_endOfRange,
       { "endOfRange", "h225.endOfRange",
-        FT_UINT32, BASE_DEC, VALS(PartyNumber_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_PartyNumber_vals), 0,
         "AddressPattern/range/endOfRange", HFILL }},
     { &hf_h225_e164Number,
       { "e164Number", "h225.e164Number",
@@ -9844,7 +9844,7 @@ void proto_register_h225(void) {
         "PartyNumber/nationalStandardPartyNumber", HFILL }},
     { &hf_h225_publicTypeOfNumber,
       { "publicTypeOfNumber", "h225.publicTypeOfNumber",
-        FT_UINT32, BASE_DEC, VALS(PublicTypeOfNumber_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_PublicTypeOfNumber_vals), 0,
         "PublicPartyNumber/publicTypeOfNumber", HFILL }},
     { &hf_h225_publicNumberDigits,
       { "publicNumberDigits", "h225.publicNumberDigits",
@@ -9852,7 +9852,7 @@ void proto_register_h225(void) {
         "PublicPartyNumber/publicNumberDigits", HFILL }},
     { &hf_h225_privateTypeOfNumber,
       { "privateTypeOfNumber", "h225.privateTypeOfNumber",
-        FT_UINT32, BASE_DEC, VALS(PrivateTypeOfNumber_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_PrivateTypeOfNumber_vals), 0,
         "PrivatePartyNumber/privateTypeOfNumber", HFILL }},
     { &hf_h225_privateNumberDigits,
       { "privateNumberDigits", "h225.privateNumberDigits",
@@ -9928,7 +9928,7 @@ void proto_register_h225(void) {
         "ANSI-41-UIM/mscid", HFILL }},
     { &hf_h225_system_id,
       { "system-id", "h225.system_id",
-        FT_UINT32, BASE_DEC, VALS(T_system_id_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_T_system_id_vals), 0,
         "ANSI-41-UIM/system-id", HFILL }},
     { &hf_h225_sid,
       { "sid", "h225.sid",
@@ -9992,7 +9992,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_callSignalAddress_item,
       { "Item", "h225.callSignalAddress_item",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "", HFILL }},
     { &hf_h225_rasAddress,
       { "rasAddress", "h225.rasAddress",
@@ -10000,7 +10000,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_rasAddress_item,
       { "Item", "h225.rasAddress_item",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "", HFILL }},
     { &hf_h225_endpointType,
       { "endpointType", "h225.endpointType",
@@ -10028,7 +10028,7 @@ void proto_register_h225(void) {
         "AlternateTransportAddresses/annexE", HFILL }},
     { &hf_h225_annexE_item,
       { "Item", "h225.annexE_item",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "AlternateTransportAddresses/annexE/_item", HFILL }},
     { &hf_h225_sctp,
       { "sctp", "h225.sctp",
@@ -10036,7 +10036,7 @@ void proto_register_h225(void) {
         "AlternateTransportAddresses/sctp", HFILL }},
     { &hf_h225_sctp_item,
       { "Item", "h225.sctp_item",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "AlternateTransportAddresses/sctp/_item", HFILL }},
     { &hf_h225_tcp,
       { "tcp", "h225.tcp",
@@ -10052,7 +10052,7 @@ void proto_register_h225(void) {
         "UseSpecifiedTransport/sctp", HFILL }},
     { &hf_h225_alternateGK_rasAddress,
       { "rasAddress", "h225.rasAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "AlternateGK/rasAddress", HFILL }},
     { &hf_h225_gatekeeperIdentifier,
       { "gatekeeperIdentifier", "h225.gatekeeperIdentifier",
@@ -10080,15 +10080,15 @@ void proto_register_h225(void) {
         "SecurityServiceMode/default", HFILL }},
     { &hf_h225_encryption,
       { "encryption", "h225.encryption",
-        FT_UINT32, BASE_DEC, VALS(SecurityServiceMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SecurityServiceMode_vals), 0,
         "SecurityCapabilities/encryption", HFILL }},
     { &hf_h225_authenticaton,
       { "authenticaton", "h225.authenticaton",
-        FT_UINT32, BASE_DEC, VALS(SecurityServiceMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SecurityServiceMode_vals), 0,
         "SecurityCapabilities/authenticaton", HFILL }},
     { &hf_h225_securityCapabilities_integrity,
       { "integrity", "h225.integrity",
-        FT_UINT32, BASE_DEC, VALS(SecurityServiceMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SecurityServiceMode_vals), 0,
         "SecurityCapabilities/integrity", HFILL }},
     { &hf_h225_securityWrongSyncTime,
       { "securityWrongSyncTime", "h225.securityWrongSyncTime",
@@ -10220,11 +10220,11 @@ void proto_register_h225(void) {
         "NonIsoIntegrityMechanism/hMAC-MD5", HFILL }},
     { &hf_h225_hMAC_iso10118_2_s,
       { "hMAC-iso10118-2-s", "h225.hMAC_iso10118_2_s",
-        FT_UINT32, BASE_DEC, VALS(EncryptIntAlg_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_EncryptIntAlg_vals), 0,
         "NonIsoIntegrityMechanism/hMAC-iso10118-2-s", HFILL }},
     { &hf_h225_hMAC_iso10118_2_l,
       { "hMAC-iso10118-2-l", "h225.hMAC_iso10118_2_l",
-        FT_UINT32, BASE_DEC, VALS(EncryptIntAlg_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_EncryptIntAlg_vals), 0,
         "NonIsoIntegrityMechanism/hMAC-iso10118-2-l", HFILL }},
     { &hf_h225_hMAC_iso10118_3,
       { "hMAC-iso10118-3", "h225.hMAC_iso10118_3",
@@ -10240,7 +10240,7 @@ void proto_register_h225(void) {
         "IntegrityMechanism/iso9797", HFILL }},
     { &hf_h225_nonIsoIM,
       { "nonIsoIM", "h225.nonIsoIM",
-        FT_UINT32, BASE_DEC, VALS(NonIsoIntegrityMechanism_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_NonIsoIntegrityMechanism_vals), 0,
         "IntegrityMechanism/nonIsoIM", HFILL }},
     { &hf_h225_algorithmOID,
       { "algorithmOID", "h225.algorithmOID",
@@ -10512,11 +10512,11 @@ void proto_register_h225(void) {
         "ServiceControlSession/sessionId", HFILL }},
     { &hf_h225_contents,
       { "contents", "h225.contents",
-        FT_UINT32, BASE_DEC, VALS(ServiceControlDescriptor_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_ServiceControlDescriptor_vals), 0,
         "ServiceControlSession/contents", HFILL }},
     { &hf_h225_reason,
       { "reason", "h225.reason",
-        FT_UINT32, BASE_DEC, VALS(ServiceControlSession_reason_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_ServiceControlSession_reason_vals), 0,
         "ServiceControlSession/reason", HFILL }},
     { &hf_h225_open,
       { "open", "h225.open",
@@ -10636,7 +10636,7 @@ void proto_register_h225(void) {
         "CallCreditServiceControl/amountString", HFILL }},
     { &hf_h225_billingMode,
       { "billingMode", "h225.billingMode",
-        FT_UINT32, BASE_DEC, VALS(T_billingMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_T_billingMode_vals), 0,
         "CallCreditServiceControl/billingMode", HFILL }},
     { &hf_h225_credit,
       { "credit", "h225.credit",
@@ -10656,11 +10656,11 @@ void proto_register_h225(void) {
         "CallCreditServiceControl/enforceCallDurationLimit", HFILL }},
     { &hf_h225_callStartingPoint,
       { "callStartingPoint", "h225.callStartingPoint",
-        FT_UINT32, BASE_DEC, VALS(CallCreditServiceControl_callStartingPoint_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_CallCreditServiceControl_callStartingPoint_vals), 0,
         "CallCreditServiceControl/callStartingPoint", HFILL }},
     { &hf_h225_id,
       { "id", "h225.id",
-        FT_UINT32, BASE_DEC, VALS(GenericIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_GenericIdentifier_vals), 0,
         "", HFILL }},
     { &hf_h225_parameters,
       { "parameters", "h225.parameters",
@@ -10684,7 +10684,7 @@ void proto_register_h225(void) {
         "GenericIdentifier/nonStandard", HFILL }},
     { &hf_h225_content,
       { "content", "h225.content",
-        FT_UINT32, BASE_DEC, VALS(Content_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_Content_vals), 0,
         "EnumeratedParameter/content", HFILL }},
     { &hf_h225_raw,
       { "raw", "h225.raw",
@@ -10716,7 +10716,7 @@ void proto_register_h225(void) {
         "Content/number32", HFILL }},
     { &hf_h225_transport,
       { "transport", "h225.transport",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "Content/transport", HFILL }},
     { &hf_h225_compound,
       { "compound", "h225.compound",
@@ -10740,11 +10740,11 @@ void proto_register_h225(void) {
         "FeatureSet/replacementFeatureSet", HFILL }},
     { &hf_h225_sendAddress,
       { "sendAddress", "h225.sendAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "TransportChannelInfo/sendAddress", HFILL }},
     { &hf_h225_recvAddress,
       { "recvAddress", "h225.recvAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "TransportChannelInfo/recvAddress", HFILL }},
     { &hf_h225_rtpAddress,
       { "rtpAddress", "h225.rtpAddress",
@@ -10920,7 +10920,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_gatekeeperRequest_rasAddress,
       { "rasAddress", "h225.rasAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "GatekeeperRequest/rasAddress", HFILL }},
     { &hf_h225_endpointAlias,
       { "endpointAlias", "h225.endpointAlias",
@@ -10960,7 +10960,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_integrity_item,
       { "Item", "h225.integrity_item",
-        FT_UINT32, BASE_DEC, VALS(IntegrityMechanism_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_IntegrityMechanism_vals), 0,
         "", HFILL }},
     { &hf_h225_integrityCheckValue,
       { "integrityCheckValue", "h225.integrityCheckValue",
@@ -10972,7 +10972,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_gatekeeperConfirm_rasAddress,
       { "rasAddress", "h225.rasAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "GatekeeperConfirm/rasAddress", HFILL }},
     { &hf_h225_authenticationMode,
       { "authenticationMode", "h225.authenticationMode",
@@ -11000,7 +11000,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_gkRej_securityError,
       { "securityError", "h225.securityError",
-        FT_UINT32, BASE_DEC, VALS(SecurityErrors_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SecurityErrors_vals), 0,
         "GatekeeperRejectReason/securityError", HFILL }},
     { &hf_h225_discoveryComplete,
       { "discoveryComplete", "h225.discoveryComplete",
@@ -11044,7 +11044,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_terminalAliasPattern_item,
       { "Item", "h225.terminalAliasPattern_item",
-        FT_UINT32, BASE_DEC, VALS(AddressPattern_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_AddressPattern_vals), 0,
         "", HFILL }},
     { &hf_h225_usageReportingCapability,
       { "usageReportingCapability", "h225.usageReportingCapability",
@@ -11108,7 +11108,7 @@ void proto_register_h225(void) {
         "RegistrationConfirm/preGrantedARQ/totalBandwidthRestriction", HFILL }},
     { &hf_h225_useSpecifiedTransport,
       { "useSpecifiedTransport", "h225.useSpecifiedTransport",
-        FT_UINT32, BASE_DEC, VALS(UseSpecifiedTransport_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_UseSpecifiedTransport_vals), 0,
         "", HFILL }},
     { &hf_h225_supportsAdditiveRegistration,
       { "supportsAdditiveRegistration", "h225.supportsAdditiveRegistration",
@@ -11184,7 +11184,7 @@ void proto_register_h225(void) {
         "RegistrationRejectReason/invalidTerminalAliases", HFILL }},
     { &hf_h225_reg_securityError,
       { "securityError", "h225.securityError",
-        FT_UINT32, BASE_DEC, VALS(SecurityErrors_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SecurityErrors_vals), 0,
         "RegistrationRejectReason/securityError", HFILL }},
     { &hf_h225_unregRequestReason,
       { "reason", "h225.reason",
@@ -11196,7 +11196,7 @@ void proto_register_h225(void) {
         "UnregistrationRequest/endpointAliasPattern", HFILL }},
     { &hf_h225_endpointAliasPattern_item,
       { "Item", "h225.endpointAliasPattern_item",
-        FT_UINT32, BASE_DEC, VALS(AddressPattern_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_AddressPattern_vals), 0,
         "UnregistrationRequest/endpointAliasPattern/_item", HFILL }},
     { &hf_h225_reregistrationRequired,
       { "reregistrationRequired", "h225.reregistrationRequired",
@@ -11212,7 +11212,7 @@ void proto_register_h225(void) {
         "UnregRequestReason/maintenance", HFILL }},
     { &hf_h225_securityError,
       { "securityError", "h225.securityError",
-        FT_UINT32, BASE_DEC, VALS(SecurityErrors2_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SecurityErrors2_vals), 0,
         "", HFILL }},
     { &hf_h225_unregRejectReason,
       { "rejectReason", "h225.rejectReason",
@@ -11232,7 +11232,7 @@ void proto_register_h225(void) {
         "UnregRejectReason/permissionDenied", HFILL }},
     { &hf_h225_callModel,
       { "callModel", "h225.callModel",
-        FT_UINT32, BASE_DEC, VALS(CallModel_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_CallModel_vals), 0,
         "", HFILL }},
     { &hf_h225_destinationInfo,
       { "destinationInfo", "h225.destinationInfo",
@@ -11248,7 +11248,7 @@ void proto_register_h225(void) {
         "AdmissionRequest/srcInfo/_item", HFILL }},
     { &hf_h225_srcCallSignalAddress,
       { "srcCallSignalAddress", "h225.srcCallSignalAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "AdmissionRequest/srcCallSignalAddress", HFILL }},
     { &hf_h225_bandWidth,
       { "bandWidth", "h225.bandWidth",
@@ -11280,7 +11280,7 @@ void proto_register_h225(void) {
         "AdmissionRequest/destAlternatives/_item", HFILL }},
     { &hf_h225_transportQOS,
       { "transportQOS", "h225.transportQOS",
-        FT_UINT32, BASE_DEC, VALS(TransportQOS_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportQOS_vals), 0,
         "", HFILL }},
     { &hf_h225_gatewayDataRate,
       { "gatewayDataRate", "h225.gatewayDataRate",
@@ -11352,7 +11352,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_supportedProtocols_item,
       { "Item", "h225.supportedProtocols_item",
-        FT_UINT32, BASE_DEC, VALS(SupportedProtocols_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SupportedProtocols_vals), 0,
         "", HFILL }},
     { &hf_h225_modifiedSrcInfo,
       { "modifiedSrcInfo", "h225.modifiedSrcInfo",
@@ -11448,7 +11448,7 @@ void proto_register_h225(void) {
         "AdmissionRejectReason/routeCallToSCN", HFILL }},
     { &hf_h225_routeCallToSCN_item,
       { "Item", "h225.routeCallToSCN_item",
-        FT_UINT32, BASE_DEC, VALS(PartyNumber_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_PartyNumber_vals), 0,
         "AdmissionRejectReason/routeCallToSCN/_item", HFILL }},
     { &hf_h225_exceedsCallCapacity,
       { "exceedsCallCapacity", "h225.exceedsCallCapacity",
@@ -11508,7 +11508,7 @@ void proto_register_h225(void) {
         "BandRejectReason/insufficientResources", HFILL }},
     { &hf_h225_replyAddress,
       { "replyAddress", "h225.replyAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "", HFILL }},
     { &hf_h225_sourceInfo,
       { "sourceInfo", "h225.sourceInfo",
@@ -11532,11 +11532,11 @@ void proto_register_h225(void) {
         "LocationRequest/sourceEndpointInfo/_item", HFILL }},
     { &hf_h225_locationConfirm_callSignalAddress,
       { "callSignalAddress", "h225.callSignalAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "LocationConfirm/callSignalAddress", HFILL }},
     { &hf_h225_locationConfirm_rasAddress,
       { "rasAddress", "h225.rasAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "LocationConfirm/rasAddress", HFILL }},
     { &hf_h225_locationRejectReason,
       { "rejectReason", "h225.rejectReason",
@@ -11552,7 +11552,7 @@ void proto_register_h225(void) {
         "LocationRejectReason/routeCalltoSCN", HFILL }},
     { &hf_h225_routeCalltoSCN_item,
       { "Item", "h225.routeCalltoSCN_item",
-        FT_UINT32, BASE_DEC, VALS(PartyNumber_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_PartyNumber_vals), 0,
         "LocationRejectReason/routeCalltoSCN/_item", HFILL }},
     { &hf_h225_disengageReason,
       { "disengageReason", "h225.disengageReason",
@@ -11560,7 +11560,7 @@ void proto_register_h225(void) {
         "DisengageRequest/disengageReason", HFILL }},
     { &hf_h225_terminationCause,
       { "terminationCause", "h225.terminationCause",
-        FT_UINT32, BASE_DEC, VALS(CallTerminationCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_CallTerminationCause_vals), 0,
         "DisengageRequest/terminationCause", HFILL }},
     { &hf_h225_forcedDrop,
       { "forcedDrop", "h225.forcedDrop",
@@ -11596,7 +11596,7 @@ void proto_register_h225(void) {
         "InfoRequest/capacityInfoRequested", HFILL }},
     { &hf_h225_infoRequestResponse_rasAddress,
       { "rasAddress", "h225.rasAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "InfoRequestResponse/rasAddress", HFILL }},
     { &hf_h225_perCallInfo,
       { "perCallInfo", "h225.perCallInfo",
@@ -11672,7 +11672,7 @@ void proto_register_h225(void) {
         "InfoRequestResponse/needResponse", HFILL }},
     { &hf_h225_irrStatus,
       { "irrStatus", "h225.irrStatus",
-        FT_UINT32, BASE_DEC, VALS(InfoRequestResponseStatus_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_InfoRequestResponseStatus_vals), 0,
         "InfoRequestResponse/irrStatus", HFILL }},
     { &hf_h225_unsolicited,
       { "unsolicited", "h225.unsolicited",
@@ -11712,7 +11712,7 @@ void proto_register_h225(void) {
         "ResourcesAvailableIndicate/protocols", HFILL }},
     { &hf_h225_protocols_item,
       { "Item", "h225.protocols_item",
-        FT_UINT32, BASE_DEC, VALS(SupportedProtocols_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_SupportedProtocols_vals), 0,
         "ResourcesAvailableIndicate/protocols/_item", HFILL }},
     { &hf_h225_almostOutOfResources,
       { "almostOutOfResources", "h225.almostOutOfResources",
@@ -11724,7 +11724,7 @@ void proto_register_h225(void) {
         "ServiceControlIndication/callSpecific", HFILL }},
     { &hf_h225_result,
       { "result", "h225.result",
-        FT_UINT32, BASE_DEC, VALS(T_result_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h225_T_result_vals), 0,
         "ServiceControlResponse/result", HFILL }},
     { &hf_h225_started,
       { "started", "h225.started",

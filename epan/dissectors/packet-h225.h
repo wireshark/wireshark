@@ -7,7 +7,7 @@
 
 /* packet-h225.h
  * Routines for h225 packet dissection
- * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *

@@ -80,7 +80,7 @@ static h245_packet_info h245_pi;
 
 static gboolean h245_reassembly = TRUE;
 static gboolean h245_shorttypes = FALSE;
-static const value_string RequestMessage_short_vals[] = {
+static const value_string h245_RequestMessage_short_vals[] = {
 	{  0,	"NSM" },
 	{  1,	"MSD" },
 	{  2,	"TCS" },
@@ -99,7 +99,7 @@ static const value_string RequestMessage_short_vals[] = {
 	{ 15,	"GR" },
 	{  0, NULL }
 };
-static const value_string ResponseMessage_short_vals[] = {
+static const value_string h245_ResponseMessage_short_vals[] = {
 	{  0,	"NSM" },
 	{  1,	"MSDAck" },
 	{  2,	"MSDReject" },
@@ -127,7 +127,7 @@ static const value_string ResponseMessage_short_vals[] = {
 	{ 24,	"GR" },
 	{  0, NULL }
 };
-static const value_string IndicationMessage_short_vals[] = {
+static const value_string h245_IndicationMessage_short_vals[] = {
 	{  0,	"NSM" },
 	{  1,	"FNU" },
 	{  2,	"MSDRelease" },
@@ -154,7 +154,7 @@ static const value_string IndicationMessage_short_vals[] = {
 	{ 22,	"GI" },
 	{  0, NULL }
 };
-static const value_string CommandMessage_short_vals[] = {
+static const value_string h245_CommandMessage_short_vals[] = {
 	{  0,	"NSM" },
 	{  1,	"MLOC" },
 	{  2,	"STCS" },
@@ -183,7 +183,7 @@ static guint32 rtcp_ipv4_port;
 static gboolean media_channel;
 static gboolean media_control_channel;
 
-static const value_string RFC_number_vals[] = {
+static const value_string h245_RFC_number_vals[] = {
 	{  2190,	"RFC 2190 - H.263 Video Streams" },
 	{  2429,	"RFC 2429 - 1998 Version of ITU-T Rec. H.263 Video (H.263+)" },
 	{  3267,	"RFC 3267 - Adaptive Multi-Rate (AMR) and Adaptive Multi-Rate Wideband (AMR-WB)" },
@@ -1017,27 +1017,31 @@ static int hf_h245_unicastAddress = -1;           /* UnicastAddress */
 static int hf_h245_multicastAddress = -1;         /* MulticastAddress */
 static int hf_h245_iPAddress = -1;                /* T_iPAddress */
 static int hf_h245_ip4_network = -1;              /* Ipv4_network */
-static int hf_h245_tsapIdentifier = -1;           /* INTEGER_0_65535 */
+static int hf_h245_tsapIdentifier = -1;           /* TsapIdentifier */
 static int hf_h245_iPXAddress = -1;               /* T_iPXAddress */
 static int hf_h245_node = -1;                     /* OCTET_STRING_SIZE_6 */
 static int hf_h245_netnum = -1;                   /* OCTET_STRING_SIZE_4 */
 static int hf_h245_ipx_tsapIdentifier = -1;       /* OCTET_STRING_SIZE_2 */
 static int hf_h245_iP6Address = -1;               /* T_iP6Address */
 static int hf_h245_ip6_network = -1;              /* OCTET_STRING_SIZE_16 */
+static int hf_h245_ipv6_tsapIdentifier = -1;      /* INTEGER_0_65535 */
 static int hf_h245_netBios = -1;                  /* OCTET_STRING_SIZE_16 */
 static int hf_h245_iPSourceRouteAddress = -1;     /* T_iPSourceRouteAddress */
 static int hf_h245_routing = -1;                  /* T_routing */
 static int hf_h245_strict = -1;                   /* NULL */
 static int hf_h245_loose = -1;                    /* NULL */
 static int hf_h245_network = -1;                  /* OCTET_STRING_SIZE_4 */
+static int hf_h245_iPSrcRoute_tsapIdentifier = -1;  /* INTEGER_0_65535 */
 static int hf_h245_route = -1;                    /* SEQUNCE_OF_OCTET_STRING_SIZE_4 */
 static int hf_h245_route_item = -1;               /* OCTET_STRING_SIZE_4 */
 static int hf_h245_nsap = -1;                     /* OCTET_STRING_SIZE_1_20 */
 static int hf_h245_nonStandardAddress = -1;       /* NonStandardParameter */
 static int hf_h245_mIPAddress = -1;               /* MIPAddress */
 static int hf_h245_mip4_network = -1;             /* OCTET_STRING_SIZE_4 */
+static int hf_h245_multicast_tsapIdentifier = -1;  /* INTEGER_0_65535 */
 static int hf_h245_mIP6Address = -1;              /* MIP6Address */
 static int hf_h245_mip6_network = -1;             /* OCTET_STRING_SIZE_16 */
+static int hf_h245_multicast_IPv6_tsapIdentifier = -1;  /* INTEGER_0_65535 */
 static int hf_h245_synchFlag = -1;                /* INTEGER_0_255 */
 static int hf_h245_h235Key = -1;                  /* OCTET_STRING_SIZE_1_65535 */
 static int hf_h245_escrowentry = -1;              /* SEQUNCE_SIZE_1_256_OF_EscrowData */
@@ -2248,8 +2252,17 @@ static int dissect_portNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 static int dissect_resourceID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_resourceID);
 }
-static int dissect_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_tsapIdentifier);
+static int dissect_ipv6_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_ipv6_tsapIdentifier);
+}
+static int dissect_iPSrcRoute_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_iPSrcRoute_tsapIdentifier);
+}
+static int dissect_multicast_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_multicast_tsapIdentifier);
+}
+static int dissect_multicast_IPv6_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_multicast_IPv6_tsapIdentifier);
 }
 static int dissect_logicalChannelNum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_logicalChannelNum);
@@ -2280,7 +2293,7 @@ static int dissect_h221NonStandardID(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string NonStandardIdentifier_vals[] = {
+static const value_string h245_NonStandardIdentifier_vals[] = {
   {   0, "object" },
   {   1, "h221NonStandard" },
   { 0, NULL }
@@ -3260,7 +3273,7 @@ static int dissect_rangeOfBitRates(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
-static const value_string Avb_type_vals[] = {
+static const value_string h245_Avb_type_vals[] = {
   {   0, "singleBitRate" },
   {   1, "rangeOfBitRates" },
   { 0, NULL }
@@ -3332,7 +3345,7 @@ static int dissect_nsap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 
-static const value_string T_address_vals[] = {
+static const value_string h245_T_address_vals[] = {
   {   0, "internationalNumber" },
   {   1, "nsapAddress" },
   { 0, NULL }
@@ -4352,7 +4365,7 @@ static int dissect_enhanced(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string T_h223MultiplexTableCapability_vals[] = {
+static const value_string h245_T_h223MultiplexTableCapability_vals[] = {
   {   0, "basic" },
   {   1, "enhanced" },
   { 0, NULL }
@@ -4677,7 +4690,7 @@ static int dissect_v42bis(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 
-static const value_string CompressionType_vals[] = {
+static const value_string h245_CompressionType_vals[] = {
   {   0, "v42bis" },
   { 0, NULL }
 };
@@ -4706,7 +4719,7 @@ static int dissect_transmitAndReceiveCompression(tvbuff_t *tvb, int offset, pack
 }
 
 
-static const value_string T_v76wCompression_vals[] = {
+static const value_string h245_T_v76wCompression_vals[] = {
   {   0, "transmitCompression" },
   {   1, "receiveCompression" },
   {   2, "transmitAndReceiveCompression" },
@@ -4852,7 +4865,7 @@ static int dissect_t84Restricted(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static const value_string T84Profile_vals[] = {
+static const value_string h245_T84Profile_vals[] = {
   {   0, "t84Unrestricted" },
   {   1, "t84Restricted" },
   { 0, NULL }
@@ -4911,7 +4924,7 @@ static int dissect_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 
-static const value_string T38FaxRateManagement_vals[] = {
+static const value_string h245_T38FaxRateManagement_vals[] = {
   {   0, "localTCF" },
   {   1, "transferredTCF" },
   { 0, NULL }
@@ -4952,7 +4965,7 @@ static int dissect_t38FaxMaxDatagram(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string T_t38FaxUdpEC_vals[] = {
+static const value_string h245_T_t38FaxUdpEC_vals[] = {
   {   0, "t38UDPFEC" },
   {   1, "t38UDPRedundancy" },
   { 0, NULL }
@@ -5100,7 +5113,7 @@ static int dissect_domainBased(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string CapabilityIdentifier_vals[] = {
+static const value_string h245_CapabilityIdentifier_vals[] = {
   {   0, "standard" },
   {   1, "h221NonStandard" },
   {   2, "uuid" },
@@ -5194,7 +5207,7 @@ static int dissect_protectedPayloadType(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
-static const value_string ParameterIdentifier_vals[] = {
+static const value_string h245_ParameterIdentifier_vals[] = {
   {   0, "standard" },
   {   1, "h221NonStandard" },
   {   2, "uuid" },
@@ -5247,7 +5260,7 @@ static int dissect_genericParameter(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
-static const value_string ParameterValue_vals[] = {
+static const value_string h245_ParameterValue_vals[] = {
   {   0, "logical" },
   {   1, "booleanArray" },
   {   2, "unsignedMin" },
@@ -5359,7 +5372,7 @@ static int dissect_genericDataMode(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
-static const value_string Application_vals[] = {
+static const value_string h245_Application_vals[] = {
   {   0, "nonStandard" },
   {   1, "t120" },
   {   2, "dsm-cc" },
@@ -5403,7 +5416,7 @@ dissect_h245_Application(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
                               ett_h245_Application, Application_choice, "Application",
                               &value);
 
-        codec_type = val_to_str(value, Application_vals, "<unknown>");
+        codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
 
   return offset;
 }
@@ -5548,7 +5561,7 @@ static int dissect_rfc_number(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-static const value_string T_payloadDescriptor_vals[] = {
+static const value_string h245_T_payloadDescriptor_vals[] = {
   {   0, "nonStandardIdentifier" },
   {   1, "rfc-number" },
   {   2, "oid" },
@@ -5625,7 +5638,7 @@ static int dissect_mediaPacketizationCapability(tvbuff_t *tvb, int offset, packe
 }
 
 
-static const value_string QOSMode_vals[] = {
+static const value_string h245_QOSMode_vals[] = {
   {   0, "guaranteedQOS" },
   {   1, "controlledLoad" },
   { 0, NULL }
@@ -5770,7 +5783,7 @@ static int dissect_atm_AAL5_compressed(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static const value_string MediaTransportType_vals[] = {
+static const value_string h245_MediaTransportType_vals[] = {
   {   0, "ip-UDP" },
   {   1, "ip-TCP" },
   {   2, "atm-AAL5-UNIDIR" },
@@ -5929,7 +5942,7 @@ static int dissect_custom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 
-static const value_string T_frameToThreadMapping_vals[] = {
+static const value_string h245_T_frameToThreadMapping_vals[] = {
   {   0, "roundrobin" },
   {   1, "custom" },
   { 0, NULL }
@@ -5986,7 +5999,7 @@ static int dissect_rtpH263VideoRedundancyEncoding(tvbuff_t *tvb, int offset, pac
 }
 
 
-static const value_string RedundancyEncodingMethod_vals[] = {
+static const value_string h245_RedundancyEncodingMethod_vals[] = {
   {   0, "nonStandard" },
   {   1, "rtpAudioRedundancyEncoding" },
   {   2, "rtpH263VideoRedundancyEncoding" },
@@ -6114,7 +6127,7 @@ static int dissect_h2250Capability(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
-static const value_string MultiplexCapability_vals[] = {
+static const value_string h245_MultiplexCapability_vals[] = {
   {   0, "nonStandard" },
   {   1, "h222Capability" },
   {   2, "h223Capability" },
@@ -6395,7 +6408,7 @@ static int dissect_additionalPictureMemory(tvbuff_t *tvb, int offset, packet_inf
 }
 
 
-static const value_string T_videoBackChannelSend_vals[] = {
+static const value_string h245_T_videoBackChannelSend_vals[] = {
   {   0, "none" },
   {   1, "ackMessageOnly" },
   {   2, "nackMessageOnly" },
@@ -6710,7 +6723,7 @@ static int dissect_extendedPAR(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string T_pixelAspectInformation_vals[] = {
+static const value_string h245_T_pixelAspectInformation_vals[] = {
   {   0, "anyPixelAspectRatio" },
   {   1, "pixelAspectCode" },
   {   2, "extendedPAR" },
@@ -7139,7 +7152,7 @@ static int dissect_extendedVideoCapability(tvbuff_t *tvb, int offset, packet_inf
 }
 
 
-static const value_string VideoCapability_vals[] = {
+static const value_string h245_VideoCapability_vals[] = {
   {   0, "nonStandard" },
   {   1, "h261VideoCapability" },
   {   2, "h262VideoCapability" },
@@ -7169,7 +7182,7 @@ dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
                               ett_h245_VideoCapability, VideoCapability_choice, "VideoCapability",
                               &value);
 
-        codec_type = val_to_str(value, VideoCapability_vals, "<unknown>");
+        codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
 
   return offset;
 }
@@ -7473,7 +7486,7 @@ static int dissect_audioTone(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 
-static const value_string AudioCapability_vals[] = {
+static const value_string h245_AudioCapability_vals[] = {
   {   0, "nonStandard" },
   {   1, "g711Alaw64k" },
   {   2, "g711Alaw56k" },
@@ -7539,7 +7552,7 @@ dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
                               ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability",
                               &value);
 
-        codec_type = val_to_str(value, AudioCapability_vals, "<unknown>");
+        codec_type = val_to_str(value, h245_AudioCapability_vals, "<unknown>");
 
   return offset;
 }
@@ -7592,7 +7605,7 @@ static int dissect_conferenceCapability(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
-static const value_string MediaEncryptionAlgorithm_vals[] = {
+static const value_string h245_MediaEncryptionAlgorithm_vals[] = {
   {   0, "nonStandard" },
   {   1, "algorithm" },
   { 0, NULL }
@@ -7711,7 +7724,7 @@ static int dissect_ui_nonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string UserInputCapability_vals[] = {
+static const value_string h245_UserInputCapability_vals[] = {
   {   0, "nonStandard" },
   {   1, "basicString" },
   {   2, "iA5String" },
@@ -7760,7 +7773,7 @@ static int dissect_receiveAndTransmitUserInputCapability(tvbuff_t *tvb, int offs
 }
 
 
-static const value_string MultiplexFormat_vals[] = {
+static const value_string h245_MultiplexFormat_vals[] = {
   {   0, "nonStandard" },
   {   1, "h222Capability" },
   {   2, "h223Capability" },
@@ -7929,7 +7942,7 @@ static int dissect_fecc_rfc2733(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
-static const value_string FECCapability_vals[] = {
+static const value_string h245_FECCapability_vals[] = {
   {   0, "rfc2733" },
   { 0, NULL }
 };
@@ -7968,7 +7981,7 @@ static int dissect_multiplePayloadStreamCapability(tvbuff_t *tvb, int offset, pa
 }
 
 
-static const value_string Capability_vals[] = {
+static const value_string h245_Capability_vals[] = {
   {   0, "nonStandard" },
   {   1, "receiveVideoCapability" },
   {   2, "transmitVideoCapability" },
@@ -8185,7 +8198,7 @@ static int dissect_logicalChannelNumber2(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string EncryptionMode_vals[] = {
+static const value_string h245_EncryptionMode_vals[] = {
   {   0, "nonStandard" },
   {   1, "h233Encryption" },
   { 0, NULL }
@@ -8358,7 +8371,7 @@ static int dissect_samePort(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string SeparateStream_vals[] = {
+static const value_string h245_SeparateStream_vals[] = {
   {   0, "differentPort" },
   {   1, "samePort" },
   { 0, NULL }
@@ -8383,7 +8396,7 @@ static int dissect_separateStream(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string FECdata_mode_vals[] = {
+static const value_string h245_FECdata_mode_vals[] = {
   {   0, "redundancyEncoding" },
   {   1, "separateStream" },
   { 0, NULL }
@@ -8424,7 +8437,7 @@ static int dissect_rfc2733(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
-static const value_string FECData_vals[] = {
+static const value_string h245_FECData_vals[] = {
   {   0, "rfc2733" },
   { 0, NULL }
 };
@@ -8447,7 +8460,7 @@ static int dissect_fec(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 
-static const value_string T_mediaType_vals[] = {
+static const value_string h245_T_mediaType_vals[] = {
   {   0, "nonStandard" },
   {   1, "videoData" },
   {   2, "audioData" },
@@ -8519,7 +8532,7 @@ static int dissect_multiplexedStreamMode(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string DataType_vals[] = {
+static const value_string h245_DataType_vals[] = {
   {   0, "nonStandard" },
   {   1, "nullData" },
   {   2, "videoData" },
@@ -8627,7 +8640,7 @@ static int dissect_al3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 
-static const value_string T_transferMode_vals[] = {
+static const value_string h245_T_transferMode_vals[] = {
   {   0, "framed" },
   {   1, "unframed" },
   { 0, NULL }
@@ -8652,7 +8665,7 @@ static int dissect_transferMode(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
-static const value_string AL1HeaderFEC_vals[] = {
+static const value_string h245_AL1HeaderFEC_vals[] = {
   {   0, "sebch16-7" },
   {   1, "golay24-12" },
   { 0, NULL }
@@ -8677,7 +8690,7 @@ static int dissect_AL1HeaderFEC(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
-static const value_string AL1CrcLength_vals[] = {
+static const value_string h245_AL1CrcLength_vals[] = {
   {   0, "crc4bit" },
   {   1, "crc12bit" },
   {   2, "crc20bit" },
@@ -8740,7 +8753,7 @@ static int dissect_finite(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 
-static const value_string T_numberOfRetransmissions_vals[] = {
+static const value_string h245_T_numberOfRetransmissions_vals[] = {
   {   0, "finite" },
   {   1, "infinite" },
   { 0, NULL }
@@ -8785,7 +8798,7 @@ static int dissect_typeIIArq(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 
-static const value_string ArqType_vals[] = {
+static const value_string h245_ArqType_vals[] = {
   {   0, "noArq" },
   {   1, "typeIArq" },
   {   2, "typeIIArq" },
@@ -8835,7 +8848,7 @@ static int dissect_al1M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 
-static const value_string AL2HeaderFEC_vals[] = {
+static const value_string h245_AL2HeaderFEC_vals[] = {
   {   0, "sebch16-5" },
   {   1, "golay24-12" },
   { 0, NULL }
@@ -8877,7 +8890,7 @@ static int dissect_al2M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 
-static const value_string T_headerFormat_vals[] = {
+static const value_string h245_T_headerFormat_vals[] = {
   {   0, "sebch16-7" },
   {   1, "golay24-12" },
   { 0, NULL }
@@ -8902,7 +8915,7 @@ static int dissect_headerFormat(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
-static const value_string AL3CrcLength_vals[] = {
+static const value_string h245_AL3CrcLength_vals[] = {
   {   0, "crc4bit" },
   {   1, "crc12bit" },
   {   2, "crc20bit" },
@@ -8960,7 +8973,7 @@ static int dissect_al3M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 
-static const value_string T_adaptationLayerType_vals[] = {
+static const value_string h245_T_adaptationLayerType_vals[] = {
   {   0, "nonStandard" },
   {   1, "al1Framed" },
   {   2, "al1NotFramed" },
@@ -9016,7 +9029,7 @@ static int dissect_h223LogicalChannelParameters(tvbuff_t *tvb, int offset, packe
 }
 
 
-static const value_string CRCLength_vals[] = {
+static const value_string h245_CRCLength_vals[] = {
   {   0, "crc8bit" },
   {   1, "crc16bit" },
   {   2, "crc32bit" },
@@ -9061,7 +9074,7 @@ static int dissect_hdlcParameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string T_suspendResume_vals[] = {
+static const value_string h245_T_suspendResume_vals[] = {
   {   0, "noSuspendResume" },
   {   1, "suspendResumewAddress" },
   {   2, "suspendResumewoAddress" },
@@ -9088,7 +9101,7 @@ static int dissect_suspendResume(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static const value_string T_recovery_vals[] = {
+static const value_string h245_T_recovery_vals[] = {
   {   0, "rej" },
   {   1, "sREJ" },
   {   2, "mSREJ" },
@@ -9132,7 +9145,7 @@ static int dissect_eRM(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 
-static const value_string V76LCP_mode_vals[] = {
+static const value_string h245_V76LCP_mode_vals[] = {
   {   0, "eRM" },
   {   1, "uNERM" },
   { 0, NULL }
@@ -9213,6 +9226,29 @@ guint32 value_len;
 }
 static int dissect_ip4_network(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_Ipv4_network(tvb, offset, pinfo, tree, hf_h245_ip4_network);
+}
+
+
+
+static int
+dissect_h245_TsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+guint32 tsapIdentifier;
+
+
+	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
+		hf_h245_tsapIdentifier,  0,  65535,
+		&tsapIdentifier, NULL, FALSE);
+  if ( media_channel )
+	ipv4_port = tsapIdentifier;
+
+  if ( media_control_channel )
+	rtcp_ipv4_port = tsapIdentifier;
+
+
+  return offset;
+}
+static int dissect_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_TsapIdentifier(tvb, offset, pinfo, tree, hf_h245_tsapIdentifier);
 }
 
 static const per_sequence_t T_iPAddress_sequence[] = {
@@ -9300,7 +9336,7 @@ static int dissect_iPXAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static const per_sequence_t T_iP6Address_sequence[] = {
   { "network"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ip6_network },
-  { "tsapIdentifier"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_tsapIdentifier },
+  { "tsapIdentifier"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ipv6_tsapIdentifier },
   { NULL, 0, 0, NULL }
 };
 
@@ -9316,7 +9352,7 @@ static int dissect_iP6Address(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-static const value_string T_routing_vals[] = {
+static const value_string h245_T_routing_vals[] = {
   {   0, "strict" },
   {   1, "loose" },
   { 0, NULL }
@@ -9355,7 +9391,7 @@ static int dissect_route(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static const per_sequence_t T_iPSourceRouteAddress_sequence[] = {
   { "routing"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_routing },
   { "network"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_network },
-  { "tsapIdentifier"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_tsapIdentifier },
+  { "tsapIdentifier"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_iPSrcRoute_tsapIdentifier },
   { "route"                       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_route },
   { NULL, 0, 0, NULL }
 };
@@ -9372,7 +9408,7 @@ static int dissect_iPSourceRouteAddress(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
-static const value_string UnicastAddress_vals[] = {
+static const value_string h245_UnicastAddress_vals[] = {
   {   0, "iPAddress" },
   {   1, "iPXAddress" },
   {   2, "iP6Address" },
@@ -9408,7 +9444,7 @@ static int dissect_unicastAddress(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static const per_sequence_t MIPAddress_sequence[] = {
   { "network"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_mip4_network },
-  { "tsapIdentifier"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_tsapIdentifier },
+  { "tsapIdentifier"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_multicast_tsapIdentifier },
   { NULL, 0, 0, NULL }
 };
 
@@ -9425,7 +9461,7 @@ static int dissect_mIPAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static const per_sequence_t MIP6Address_sequence[] = {
   { "network"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_mip6_network },
-  { "tsapIdentifier"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_tsapIdentifier },
+  { "tsapIdentifier"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_multicast_IPv6_tsapIdentifier },
   { NULL, 0, 0, NULL }
 };
 
@@ -9441,7 +9477,7 @@ static int dissect_mIP6Address(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string MulticastAddress_vals[] = {
+static const value_string h245_MulticastAddress_vals[] = {
   {   0, "iPAddress" },
   {   1, "iP6Address" },
   {   2, "nsap" },
@@ -9470,7 +9506,7 @@ static int dissect_multicastAddress(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
-static const value_string TransportAddress_vals[] = {
+static const value_string h245_TransportAddress_vals[] = {
   {   0, "unicastAddress" },
   {   1, "multicastAddress" },
   { 0, NULL }
@@ -9583,7 +9619,7 @@ static int dissect_floorRequested(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string T_mediaPacketization_vals[] = {
+static const value_string h245_T_mediaPacketization_vals[] = {
   {   0, "h261aVideoPacketization" },
   {   1, "rtpPayloadType" },
   { 0, NULL }
@@ -9637,7 +9673,7 @@ static int dissect_h2250LogicalChannelParameters(tvbuff_t *tvb, int offset, pack
 }
 
 
-static const value_string OLC_forw_multiplexParameters_vals[] = {
+static const value_string h245_OLC_forw_multiplexParameters_vals[] = {
   {   0, "h222LogicalChannelParameters" },
   {   1, "h223LogicalChannelParameters" },
   {   2, "v76LogicalChannelParameters" },
@@ -9688,7 +9724,7 @@ static int dissect_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, pa
 }
 
 
-static const value_string OLC_rev_multiplexParameters_vals[] = {
+static const value_string h245_OLC_rev_multiplexParameters_vals[] = {
   {   0, "h223LogicalChannelParameters" },
   {   1, "v76LogicalChannelParameters" },
   {   2, "h2250LogicalChannelParameters" },
@@ -9734,7 +9770,7 @@ static int dissect_reverseLogicalChannelParameters(tvbuff_t *tvb, int offset, pa
 }
 
 
-static const value_string T_distribution_vals[] = {
+static const value_string h245_T_distribution_vals[] = {
   {   0, "unicast" },
   {   1, "multicast" },
   { 0, NULL }
@@ -9771,7 +9807,7 @@ static int dissect_e164Address(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string T_networkAddress_vals[] = {
+static const value_string h245_T_networkAddress_vals[] = {
   {   0, "q2931Address" },
   {   1, "e164Address" },
   {   2, "localAreaAddress" },
@@ -9811,7 +9847,7 @@ static int dissect_externalReference(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string T_t120SetupProcedure_vals[] = {
+static const value_string h245_T_t120SetupProcedure_vals[] = {
   {   0, "originateCall" },
   {   1, "waitForCall" },
   {   2, "issueQuery" },
@@ -9963,7 +9999,7 @@ static int dissect_openLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string T_source_vals[] = {
+static const value_string h245_T_source_vals[] = {
   {   0, "user" },
   {   1, "lcse" },
   { 0, NULL }
@@ -9988,7 +10024,7 @@ static int dissect_CloseLogicalChannel_source(tvbuff_t *tvb, int offset, packet_
 }
 
 
-static const value_string clc_reason_vals[] = {
+static const value_string h245_clc_reason_vals[] = {
   {   0, "unknown" },
   {   1, "reopen" },
   {   2, "reservationFailure" },
@@ -10035,7 +10071,7 @@ static int dissect_closeLogicalChannel(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static const value_string T_reason_vals[] = {
+static const value_string h245_T_reason_vals[] = {
   {   0, "unknown" },
   {   1, "normal" },
   {   2, "reopen" },
@@ -10114,7 +10150,7 @@ static int dissect_subElementList(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string Me_type_vals[] = {
+static const value_string h245_Me_type_vals[] = {
   {   0, "logicalChannelNumber" },
   {   1, "subElementList" },
   { 0, NULL }
@@ -10139,7 +10175,7 @@ static int dissect_Me_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
-static const value_string ME_repeatCount_vals[] = {
+static const value_string h245_ME_repeatCount_vals[] = {
   {   0, "finite" },
   {   1, "untilClosingFlag" },
   { 0, NULL }
@@ -10270,7 +10306,7 @@ static int dissect_requestMultiplexEntry(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string H261Resolution_vals[] = {
+static const value_string h245_H261Resolution_vals[] = {
   {   0, "qcif" },
   {   1, "cif" },
   { 0, NULL }
@@ -10313,7 +10349,7 @@ static int dissect_h261VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static const value_string T_profileAndLevel_vals[] = {
+static const value_string h245_T_profileAndLevel_vals[] = {
   {   0, "profileAndLevel-SPatML" },
   {   1, "profileAndLevel-MPatLL" },
   {   2, "profileAndLevel-MPatML" },
@@ -10378,7 +10414,7 @@ static int dissect_h262VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static const value_string H263Resolution_vals[] = {
+static const value_string h245_H263Resolution_vals[] = {
   {   0, "sqcif" },
   {   1, "qcif" },
   {   2, "cif" },
@@ -10457,7 +10493,7 @@ static int dissect_is11172VideoMode(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
-static const value_string VideoMode_vals[] = {
+static const value_string h245_VideoMode_vals[] = {
   {   0, "nonStandard" },
   {   1, "h261VideoMode" },
   {   2, "h262VideoMode" },
@@ -10490,7 +10526,7 @@ static int dissect_videoMode(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 
-static const value_string Mode_g7231_vals[] = {
+static const value_string h245_Mode_g7231_vals[] = {
   {   0, "noSilenceSuppressionLowRate" },
   {   1, "noSilenceSuppressionHighRate" },
   {   2, "silenceSuppressionLowRate" },
@@ -10519,7 +10555,7 @@ static int dissect_g7231_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-static const value_string T_audioLayer_vals[] = {
+static const value_string h245_T_audioLayer_vals[] = {
   {   0, "audioLayer1" },
   {   1, "audioLayer2" },
   {   2, "audioLayer3" },
@@ -10546,7 +10582,7 @@ static int dissect_audioLayer(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-static const value_string T_audioSampling_vals[] = {
+static const value_string h245_T_audioSampling_vals[] = {
   {   0, "audioSampling32k" },
   {   1, "audioSampling44k1" },
   {   2, "audioSampling48k" },
@@ -10573,7 +10609,7 @@ static int dissect_audioSampling(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static const value_string IS11172_multichannelType_vals[] = {
+static const value_string h245_IS11172_multichannelType_vals[] = {
   {   0, "singleChannel" },
   {   1, "twoChannelStereo" },
   {   2, "twoChannelDual" },
@@ -10619,7 +10655,7 @@ static int dissect_is11172AudioMode(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
-static const value_string IS13818AudioLayer_vals[] = {
+static const value_string h245_IS13818AudioLayer_vals[] = {
   {   0, "audioLayer1" },
   {   1, "audioLayer2" },
   {   2, "audioLayer3" },
@@ -10646,7 +10682,7 @@ static int dissect_audioLayerMode(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string IS13818AudioSampling_vals[] = {
+static const value_string h245_IS13818AudioSampling_vals[] = {
   {   0, "audioSampling16k" },
   {   1, "audioSampling22k05" },
   {   2, "audioSampling24k" },
@@ -10679,7 +10715,7 @@ static int dissect_audioSamplingMode(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string IS13818MultichannelType_vals[] = {
+static const value_string h245_IS13818MultichannelType_vals[] = {
   {   0, "singleChannel" },
   {   1, "twoChannelStereo" },
   {   2, "twoChannelDual" },
@@ -10775,7 +10811,7 @@ static int dissect_vbd_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string AudioMode_vals[] = {
+static const value_string h245_AudioMode_vals[] = {
   {   0, "nonStandard" },
   {   1, "g711Alaw64k" },
   {   2, "g711Alaw56k" },
@@ -10856,7 +10892,7 @@ static int dissect_t38faxDataProtocolCapability(tvbuff_t *tvb, int offset, packe
 }
 
 
-static const value_string DataModeApplication_vals[] = {
+static const value_string h245_DataModeApplication_vals[] = {
   {   0, "nonStandard" },
   {   1, "t120" },
   {   2, "dsm-cc" },
@@ -10922,7 +10958,7 @@ static int dissect_dataMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string T_mediaMode_vals[] = {
+static const value_string h245_T_mediaMode_vals[] = {
   {   0, "nonStandard" },
   {   1, "videoMode" },
   {   2, "audioMode" },
@@ -10968,7 +11004,7 @@ static int dissect_h235Mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string Re_type_vals[] = {
+static const value_string h245_Re_type_vals[] = {
   {   0, "nonStandard" },
   {   1, "videoMode" },
   {   2, "audioMode" },
@@ -11094,7 +11130,7 @@ static int dissect_multiplePayloadStreamMode(tvbuff_t *tvb, int offset, packet_i
 }
 
 
-static const value_string FEC_mode_vals[] = {
+static const value_string h245_FEC_mode_vals[] = {
   {   0, "redundancyEncoding" },
   {   1, "separateStream" },
   { 0, NULL }
@@ -11135,7 +11171,7 @@ static int dissect_rfc2733Mode(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string FECMode_vals[] = {
+static const value_string h245_FECMode_vals[] = {
   {   0, "rfc2733Mode" },
   { 0, NULL }
 };
@@ -11158,7 +11194,7 @@ static int dissect_fecMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
-static const value_string ModeElementType_vals[] = {
+static const value_string h245_ModeElementType_vals[] = {
   {   0, "nonStandard" },
   {   1, "videoMode" },
   {   2, "audioMode" },
@@ -11196,7 +11232,7 @@ dissect_h245_ModeElementType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 }
 
 
-static const value_string AdaptationLayerType_vals[] = {
+static const value_string h245_AdaptationLayerType_vals[] = {
   {   0, "nonStandard" },
   {   1, "al1Framed" },
   {   2, "al1NotFramed" },
@@ -11252,7 +11288,7 @@ static int dissect_h223ModeParameters(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string V76ModeParameters_vals[] = {
+static const value_string h245_V76ModeParameters_vals[] = {
   {   0, "suspendResumewAddress" },
   {   1, "suspendResumewoAddress" },
   { 0, NULL }
@@ -11277,7 +11313,7 @@ static int dissect_v76ModeParameters(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string T_secondaryEncoding_vals[] = {
+static const value_string h245_T_secondaryEncoding_vals[] = {
   {   0, "nonStandard" },
   {   1, "audioData" },
   { 0, NULL }
@@ -11432,7 +11468,7 @@ static int dissect_roundTripDelayRequest(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string Mlr_type_vals[] = {
+static const value_string h245_Mlr_type_vals[] = {
   {   0, "systemLoop" },
   {   1, "mediaLoop" },
   {   2, "logicalChannelLoop" },
@@ -11538,7 +11574,7 @@ static int dissect_requestTerminalCertificate(tvbuff_t *tvb, int offset, packet_
 }
 
 
-static const value_string RemoteMCRequest_vals[] = {
+static const value_string h245_RemoteMCRequest_vals[] = {
   {   0, "masterActivate" },
   {   1, "slaveActivate" },
   {   2, "deActivate" },
@@ -11565,7 +11601,7 @@ static int dissect_remoteMCRequest(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
-static const value_string ConferenceRequest_vals[] = {
+static const value_string h245_ConferenceRequest_vals[] = {
   {   0, "terminalListRequest" },
   {   1, "makeMeChair" },
   {   2, "cancelMakeMeChair" },
@@ -11658,7 +11694,7 @@ static int dissect_subAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-static const value_string DialingInformationNetworkType_vals[] = {
+static const value_string h245_DialingInformationNetworkType_vals[] = {
   {   0, "nonStandard" },
   {   1, "n-isdn" },
   {   2, "gstn" },
@@ -11731,7 +11767,7 @@ static int dissect_differential(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
-static const value_string DialingInformation_vals[] = {
+static const value_string h245_DialingInformation_vals[] = {
   {   0, "nonStandard" },
   {   1, "differential" },
   {   2, "infoNotAvailable" },
@@ -11816,7 +11852,7 @@ static int dissect_removeConnectionReq(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static const value_string T_requestType_vals[] = {
+static const value_string h245_T_requestType_vals[] = {
   {   0, "currentIntervalInformation" },
   {   1, "requestedInterval" },
   { 0, NULL }
@@ -11857,7 +11893,7 @@ static int dissect_maximumHeaderIntervalReq(tvbuff_t *tvb, int offset, packet_in
 }
 
 
-static const value_string MultilinkRequest_vals[] = {
+static const value_string h245_MultilinkRequest_vals[] = {
   {   0, "nonStandard" },
   {   1, "callInformation" },
   {   2, "addConnection" },
@@ -11966,7 +12002,7 @@ static int dissect_genericIndication(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string RequestMessage_vals[] = {
+static const value_string h245_RequestMessage_vals[] = {
   {   0, "nonStandard" },
   {   1, "masterSlaveDetermination" },
   {   2, "terminalCapabilitySet" },
@@ -12017,12 +12053,12 @@ dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 	        if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, RequestMessage_short_vals, "<unknown>"));
+				val_to_str(value, h245_RequestMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, RequestMessage_vals, "<unknown>"));
+				val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
 		}
 	}
 
@@ -12039,7 +12075,7 @@ static int dissect_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
-static const value_string T_decision_vals[] = {
+static const value_string h245_T_decision_vals[] = {
   {   0, "master" },
   {   1, "slave" },
   { 0, NULL }
@@ -12082,7 +12118,7 @@ static int dissect_masterSlaveDeterminationAck(tvbuff_t *tvb, int offset, packet
 }
 
 
-static const value_string MasterSlaveDeterminationRejectCause_vals[] = {
+static const value_string h245_MasterSlaveDeterminationRejectCause_vals[] = {
   {   0, "identicalNumbers" },
   { 0, NULL }
 };
@@ -12141,7 +12177,7 @@ static int dissect_terminalCapabilitySetAck(tvbuff_t *tvb, int offset, packet_in
 }
 
 
-static const value_string T_tableEntryCapacityExceeded_vals[] = {
+static const value_string h245_T_tableEntryCapacityExceeded_vals[] = {
   {   0, "highestEntryNumberProcessed" },
   {   1, "noneProcessed" },
   { 0, NULL }
@@ -12166,7 +12202,7 @@ static int dissect_tableEntryCapacityExceeded(tvbuff_t *tvb, int offset, packet_
 }
 
 
-static const value_string TerminalCapabilitySetRejectCause_vals[] = {
+static const value_string h245_TerminalCapabilitySetRejectCause_vals[] = {
   {   0, "unspecified" },
   {   1, "undefinedTableEntryUsed" },
   {   2, "descriptorCapacityExceeded" },
@@ -12214,7 +12250,7 @@ static int dissect_terminalCapabilitySetReject(tvbuff_t *tvb, int offset, packet
 }
 
 
-static const value_string T_multiplexParameters_vals[] = {
+static const value_string h245_T_multiplexParameters_vals[] = {
   {   0, "h222LogicalChannelParameters" },
   {   1, "h2250LogicalChannelParameters" },
   { 0, NULL }
@@ -12314,7 +12350,7 @@ static int dissect_h2250LogicalChannelAckParameters(tvbuff_t *tvb, int offset, p
 }
 
 
-static const value_string T_forwardMultiplexAckParameters_vals[] = {
+static const value_string h245_T_forwardMultiplexAckParameters_vals[] = {
   {   0, "h2250LogicalChannelAckParameters" },
   { 0, NULL }
 };
@@ -12384,7 +12420,7 @@ static int dissect_openLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string OpenLogicalChannelRejectCause_vals[] = {
+static const value_string h245_OpenLogicalChannelRejectCause_vals[] = {
   {   0, "unspecified" },
   {   1, "unsuitableReverseParameters" },
   {   2, "dataTypeNotSupported" },
@@ -12486,7 +12522,7 @@ static int dissect_requestChannelCloseAck(tvbuff_t *tvb, int offset, packet_info
 }
 
 
-static const value_string RequestChannelCloseRejectCause_vals[] = {
+static const value_string h245_RequestChannelCloseRejectCause_vals[] = {
   {   0, "unspecified" },
   { 0, NULL }
 };
@@ -12543,7 +12579,7 @@ static int dissect_multiplexEntrySendAck(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string MultiplexEntryRejectionDescriptionsCause_vals[] = {
+static const value_string h245_MultiplexEntryRejectionDescriptionsCause_vals[] = {
   {   0, "unspecifiedCause" },
   {   1, "descriptorTooComplex" },
   { 0, NULL }
@@ -12631,7 +12667,7 @@ static int dissect_requestMultiplexEntryAck(tvbuff_t *tvb, int offset, packet_in
 }
 
 
-static const value_string RequestMultiplexEntryRejectionDescriptionsCause_vals[] = {
+static const value_string h245_RequestMultiplexEntryRejectionDescriptionsCause_vals[] = {
   {   0, "unspecifiedCause" },
   { 0, NULL }
 };
@@ -12701,7 +12737,7 @@ static int dissect_requestMultiplexEntryReject(tvbuff_t *tvb, int offset, packet
 }
 
 
-static const value_string Req_mode_ack_response_vals[] = {
+static const value_string h245_Req_mode_ack_response_vals[] = {
   {   0, "willTransmitMostPreferredMode" },
   {   1, "willTransmitLessPreferredMode" },
   { 0, NULL }
@@ -12743,7 +12779,7 @@ static int dissect_requestModeAck(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string RequestModeRejectCause_vals[] = {
+static const value_string h245_RequestModeRejectCause_vals[] = {
   {   0, "modeUnavailable" },
   {   1, "multipointConstraint" },
   {   2, "requestDenied" },
@@ -12803,7 +12839,7 @@ static int dissect_roundTripDelayResponse(tvbuff_t *tvb, int offset, packet_info
 }
 
 
-static const value_string Mla_type_vals[] = {
+static const value_string h245_Mla_type_vals[] = {
   {   0, "systemLoop" },
   {   1, "mediaLoop" },
   {   2, "logicalChannelLoop" },
@@ -12846,7 +12882,7 @@ static int dissect_maintenanceLoopAck(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string Mlrej_type_vals[] = {
+static const value_string h245_Mlrej_type_vals[] = {
   {   0, "systemLoop" },
   {   1, "mediaLoop" },
   {   2, "logicalChannelLoop" },
@@ -12873,7 +12909,7 @@ static int dissect_mlrej_type(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-static const value_string MaintenanceLoopRejectCause_vals[] = {
+static const value_string h245_MaintenanceLoopRejectCause_vals[] = {
   {   0, "canNotPerformLoop" },
   { 0, NULL }
 };
@@ -12925,7 +12961,7 @@ static int dissect_sessionDescription(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string T_dataType_vals[] = {
+static const value_string h245_T_dataType_vals[] = {
   {   0, "videoData" },
   {   1, "audioData" },
   {   2, "data" },
@@ -12993,7 +13029,7 @@ static int dissect_communicationModeTable(tvbuff_t *tvb, int offset, packet_info
 }
 
 
-static const value_string CommunicationModeResponse_vals[] = {
+static const value_string h245_CommunicationModeResponse_vals[] = {
   {   0, "communicationModeTable" },
   { 0, NULL }
 };
@@ -13139,7 +13175,7 @@ static int dissect_terminalListResponse(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
-static const value_string T_makeMeChairResponse_vals[] = {
+static const value_string h245_T_makeMeChairResponse_vals[] = {
   {   0, "grantedChairToken" },
   {   1, "deniedChairToken" },
   { 0, NULL }
@@ -13214,7 +13250,7 @@ static int dissect_terminalCertificateResponse(tvbuff_t *tvb, int offset, packet
 }
 
 
-static const value_string T_broadcastMyLogicalChannelResponse_vals[] = {
+static const value_string h245_T_broadcastMyLogicalChannelResponse_vals[] = {
   {   0, "grantedBroadcastMyLogicalChannel" },
   {   1, "deniedBroadcastMyLogicalChannel" },
   { 0, NULL }
@@ -13239,7 +13275,7 @@ static int dissect_broadcastMyLogicalChannelResponse(tvbuff_t *tvb, int offset, 
 }
 
 
-static const value_string T_makeTerminalBroadcasterResponse_vals[] = {
+static const value_string h245_T_makeTerminalBroadcasterResponse_vals[] = {
   {   0, "grantedMakeTerminalBroadcaster" },
   {   1, "deniedMakeTerminalBroadcaster" },
   { 0, NULL }
@@ -13264,7 +13300,7 @@ static int dissect_makeTerminalBroadcasterResponse(tvbuff_t *tvb, int offset, pa
 }
 
 
-static const value_string T_sendThisSourceResponse_vals[] = {
+static const value_string h245_T_sendThisSourceResponse_vals[] = {
   {   0, "grantedSendThisSource" },
   {   1, "deniedSendThisSource" },
   { 0, NULL }
@@ -13334,7 +13370,7 @@ static int dissect_requestAllTerminalIDsResponse(tvbuff_t *tvb, int offset, pack
 }
 
 
-static const value_string T_reject_vals[] = {
+static const value_string h245_T_reject_vals[] = {
   {   0, "unspecified" },
   {   1, "functionNotSupported" },
   { 0, NULL }
@@ -13359,7 +13395,7 @@ static int dissect_reject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 
-static const value_string RemoteMCResponse_vals[] = {
+static const value_string h245_RemoteMCResponse_vals[] = {
   {   0, "accept" },
   {   1, "reject" },
   { 0, NULL }
@@ -13384,7 +13420,7 @@ static int dissect_remoteMCResponse(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
-static const value_string ConferenceResponse_vals[] = {
+static const value_string h245_ConferenceResponse_vals[] = {
   {   0, "mCTerminalIDResponse" },
   {   1, "terminalIDResponse" },
   {   2, "conferenceIDResponse" },
@@ -13454,7 +13490,7 @@ static int dissect_callInformationResp(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static const value_string T_rejected_vals[] = {
+static const value_string h245_T_rejected_vals[] = {
   {   0, "connectionsNotAvailable" },
   {   1, "userRejected" },
   { 0, NULL }
@@ -13479,7 +13515,7 @@ static int dissect_rejected(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string T_responseCode_vals[] = {
+static const value_string h245_T_responseCode_vals[] = {
   {   0, "accepted" },
   {   1, "rejected" },
   { 0, NULL }
@@ -13548,7 +13584,7 @@ static int dissect_maximumHeaderIntervalResp(tvbuff_t *tvb, int offset, packet_i
 }
 
 
-static const value_string MultilinkResponse_vals[] = {
+static const value_string h245_MultilinkResponse_vals[] = {
   {   0, "nonStandard" },
   {   1, "callInformation" },
   {   2, "addConnection" },
@@ -13597,7 +13633,7 @@ static int dissect_logicalChannelRateAcknowledge(tvbuff_t *tvb, int offset, pack
 }
 
 
-static const value_string LogicalChannelRateRejectReason_vals[] = {
+static const value_string h245_LogicalChannelRateRejectReason_vals[] = {
   {   0, "undefinedReason" },
   {   1, "insufficientResources" },
   { 0, NULL }
@@ -13641,7 +13677,7 @@ static int dissect_logicalChannelRateReject(tvbuff_t *tvb, int offset, packet_in
 }
 
 
-static const value_string ResponseMessage_vals[] = {
+static const value_string h245_ResponseMessage_vals[] = {
   {   0, "nonStandard" },
   {   1, "masterSlaveDeterminationAck" },
   {   2, "masterSlaveDeterminationReject" },
@@ -13711,12 +13747,12 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 	        if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, ResponseMessage_short_vals, "<unknown>"));
+				val_to_str(value, h245_ResponseMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, ResponseMessage_vals, "<unknown>"));
+				val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
 		}
 	}
 
@@ -13788,7 +13824,7 @@ static int dissect_specificRequest(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
-static const value_string SendTerminalCapabilitySet_vals[] = {
+static const value_string h245_SendTerminalCapabilitySet_vals[] = {
   {   0, "specificRequest" },
   {   1, "genericRequest" },
   { 0, NULL }
@@ -13830,7 +13866,7 @@ static int dissect_encryptionAlgorithmID(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string EncryptionCommand_vals[] = {
+static const value_string h245_EncryptionCommand_vals[] = {
   {   0, "encryptionSE" },
   {   1, "encryptionIVRequest" },
   {   2, "encryptionAlgorithmID" },
@@ -13857,7 +13893,7 @@ static int dissect_encryptionCommand(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string Scope_vals[] = {
+static const value_string h245_Scope_vals[] = {
   {   0, "logicalChannelNumber" },
   {   1, "resourceID" },
   {   2, "wholeMultiplex" },
@@ -13884,7 +13920,7 @@ static int dissect_scope(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 
-static const value_string Restriction_vals[] = {
+static const value_string h245_Restriction_vals[] = {
   {   0, "maximumBitRate" },
   {   1, "noRestriction" },
   { 0, NULL }
@@ -13926,7 +13962,7 @@ static int dissect_flowControlCommand(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string T_gstnOptions_vals[] = {
+static const value_string h245_T_gstnOptions_vals[] = {
   {   0, "telephonyMode" },
   {   1, "v8bis" },
   {   2, "v34DSVD" },
@@ -13957,7 +13993,7 @@ static int dissect_gstnOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string T_isdnOptions_vals[] = {
+static const value_string h245_T_isdnOptions_vals[] = {
   {   0, "telephonyMode" },
   {   1, "v140" },
   {   2, "terminalOnHold" },
@@ -13984,7 +14020,7 @@ static int dissect_isdnOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string EndSessionCommand_vals[] = {
+static const value_string h245_EndSessionCommand_vals[] = {
   {   0, "nonStandard" },
   {   1, "disconnect" },
   {   2, "gstnOptions" },
@@ -14138,7 +14174,7 @@ static int dissect_encryptionUpdateRequest(tvbuff_t *tvb, int offset, packet_inf
 }
 
 
-static const value_string RepeatCount_vals[] = {
+static const value_string h245_RepeatCount_vals[] = {
   {   0, "doOneProgression" },
   {   1, "doContinuousProgressions" },
   {   2, "doOneIndependentProgression" },
@@ -14217,7 +14253,7 @@ static int dissect_videoBadMBs(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static const value_string PictureReference_vals[] = {
+static const value_string h245_PictureReference_vals[] = {
   {   0, "pictureNumber" },
   {   1, "longTermPictureIndex" },
   { 0, NULL }
@@ -14314,7 +14350,7 @@ static int dissect_encryptionUpdateAck(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static const value_string Mc_type_vals[] = {
+static const value_string h245_Mc_type_vals[] = {
   {   0, "equaliseDelay" },
   {   1, "zeroDelay" },
   {   2, "multipointModeCommand" },
@@ -14385,7 +14421,7 @@ static int dissect_mc_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
-static const value_string EncryptionUpdateDirection_vals[] = {
+static const value_string h245_EncryptionUpdateDirection_vals[] = {
   {   0, "masterToSlave" },
   {   1, "slaveToMaster" },
   { 0, NULL }
@@ -14460,7 +14496,7 @@ static int dissect_substituteConferenceIDCommand(tvbuff_t *tvb, int offset, pack
 }
 
 
-static const value_string ConferenceCommand_vals[] = {
+static const value_string h245_ConferenceCommand_vals[] = {
   {   0, "broadcastMyLogicalChannel" },
   {   1, "cancelBroadcastMyLogicalChannel" },
   {   2, "makeTerminalBroadcaster" },
@@ -14497,7 +14533,7 @@ static int dissect_conferenceCommand(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string T_h223ModeChange_vals[] = {
+static const value_string h245_T_h223ModeChange_vals[] = {
   {   0, "toLevel0" },
   {   1, "toLevel1" },
   {   2, "toLevel2" },
@@ -14526,7 +14562,7 @@ static int dissect_h223ModeChange(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string T_h223AnnexADoubleFlag_vals[] = {
+static const value_string h245_T_h223AnnexADoubleFlag_vals[] = {
   {   0, "start" },
   {   1, "stop" },
   { 0, NULL }
@@ -14551,7 +14587,7 @@ static int dissect_h223AnnexADoubleFlag(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
-static const value_string H223MultiplexReconfiguration_vals[] = {
+static const value_string h245_H223MultiplexReconfiguration_vals[] = {
   {   0, "h223ModeChange" },
   {   1, "h223AnnexADoubleFlag" },
   { 0, NULL }
@@ -14576,7 +14612,7 @@ static int dissect_h223MultiplexReconfiguration(tvbuff_t *tvb, int offset, packe
 }
 
 
-static const value_string Cmd_clockRecovery_vals[] = {
+static const value_string h245_Cmd_clockRecovery_vals[] = {
   {   0, "nullClockRecovery" },
   {   1, "srtsClockRecovery" },
   {   2, "adaptiveClockRecovery" },
@@ -14603,7 +14639,7 @@ static int dissect_cmd_clockRecovery(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string Cmd_errorCorrection_vals[] = {
+static const value_string h245_Cmd_errorCorrection_vals[] = {
   {   0, "nullErrorCorrection" },
   {   1, "longInterleaver" },
   {   2, "shortInterleaver" },
@@ -14668,7 +14704,7 @@ static int dissect_cmd_aal5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string Cmd_aal_vals[] = {
+static const value_string h245_Cmd_aal_vals[] = {
   {   0, "aal1" },
   {   1, "aal5" },
   { 0, NULL }
@@ -14693,7 +14729,7 @@ static int dissect_cmd_aal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
-static const value_string Cmd_multiplex_vals[] = {
+static const value_string h245_Cmd_multiplex_vals[] = {
   {   0, "noMultiplex" },
   {   1, "transportStream" },
   {   2, "programStream" },
@@ -14720,7 +14756,7 @@ static int dissect_cmd_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static const value_string CmdR_multiplex_vals[] = {
+static const value_string h245_CmdR_multiplex_vals[] = {
   {   0, "noMultiplex" },
   {   1, "transportStream" },
   {   2, "programStream" },
@@ -14788,7 +14824,7 @@ static int dissect_newATMVCCommand(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
-static const value_string T_status_vals[] = {
+static const value_string h245_T_status_vals[] = {
   {   0, "synchronized" },
   {   1, "reconfiguration" },
   { 0, NULL }
@@ -14831,7 +14867,7 @@ static int dissect_mobileMultilinkReconfigurationCommand(tvbuff_t *tvb, int offs
 }
 
 
-static const value_string CommandMessage_vals[] = {
+static const value_string h245_CommandMessage_vals[] = {
   {   0, "nonStandard" },
   {   1, "maintenanceLoopOffCommand" },
   {   2, "sendTerminalCapabilitySet" },
@@ -14877,12 +14913,12 @@ dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 	        if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, CommandMessage_short_vals, "<unknown>"));
+				val_to_str(value, h245_CommandMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, CommandMessage_vals, "<unknown>"));
+				val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
 		}
 	}
 
@@ -14895,7 +14931,7 @@ static int dissect_command(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
-static const value_string FunctionNotUnderstood_vals[] = {
+static const value_string h245_FunctionNotUnderstood_vals[] = {
   {   0, "request" },
   {   1, "response" },
   {   2, "command" },
@@ -15053,7 +15089,7 @@ static int dissect_videoNotDecodedMBs(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string Mi_type_vals[] = {
+static const value_string h245_Mi_type_vals[] = {
   {   0, "logicalChannelActive" },
   {   1, "logicalChannelInactive" },
   {   2, "multipointConference" },
@@ -15195,7 +15231,7 @@ static int dissect_h223SkewIndication(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string Ind_clockRecovery_vals[] = {
+static const value_string h245_Ind_clockRecovery_vals[] = {
   {   0, "nullClockRecovery" },
   {   1, "srtsClockRecovery" },
   {   2, "adaptiveClockRecovery" },
@@ -15222,7 +15258,7 @@ static int dissect_ind_clockRecovery(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const value_string Ind_errorCorrection_vals[] = {
+static const value_string h245_Ind_errorCorrection_vals[] = {
   {   0, "nullErrorCorrection" },
   {   1, "longInterleaver" },
   {   2, "shortInterleaver" },
@@ -15287,7 +15323,7 @@ static int dissect_ind_aal5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string Ind_aal_vals[] = {
+static const value_string h245_Ind_aal_vals[] = {
   {   0, "aal1" },
   {   1, "aal5" },
   { 0, NULL }
@@ -15312,7 +15348,7 @@ static int dissect_ind_aal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
-static const value_string Ind_multiplex_vals[] = {
+static const value_string h245_Ind_multiplex_vals[] = {
   {   0, "noMultiplex" },
   {   1, "transportStream" },
   {   2, "programStream" },
@@ -15339,7 +15375,7 @@ static int dissect_ind_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static const value_string IndR_multiplex_vals[] = {
+static const value_string h245_IndR_multiplex_vals[] = {
   {   0, "noMultiplex" },
   {   1, "transportStream" },
   {   2, "programStream" },
@@ -15407,7 +15443,7 @@ static int dissect_newATMVCIndication(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string T_userInputSupportIndication_vals[] = {
+static const value_string h245_T_userInputSupportIndication_vals[] = {
   {   0, "nonStandard" },
   {   1, "basicString" },
   {   2, "iA5String" },
@@ -15619,7 +15655,7 @@ static int dissect_extendedAlphanumeric(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
-static const value_string UserInputIndication_vals[] = {
+static const value_string h245_UserInputIndication_vals[] = {
   {   0, "nonStandard" },
   {   1, "alphanumeric" },
   {   2, "userInputSupportIndication" },
@@ -15734,7 +15770,7 @@ static int dissect_videoIndicateCompose(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
-static const value_string ConferenceIndication_vals[] = {
+static const value_string h245_ConferenceIndication_vals[] = {
   {   0, "sbeNumber" },
   {   1, "terminalNumberAssign" },
   {   2, "terminalJoinedConference" },
@@ -15817,7 +15853,7 @@ static int dissect_vendorIdentification(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
-static const value_string FunctionNotSupportedCause_vals[] = {
+static const value_string h245_FunctionNotSupportedCause_vals[] = {
   {   0, "syntaxError" },
   {   1, "semanticError" },
   {   2, "unknownFunction" },
@@ -15892,7 +15928,7 @@ static int dissect_excessiveError(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static const value_string MultilinkIndication_vals[] = {
+static const value_string h245_MultilinkIndication_vals[] = {
   {   0, "nonStandard" },
   {   1, "crcDesired" },
   {   2, "excessiveError" },
@@ -15968,7 +16004,7 @@ static int dissect_mobileMultilinkReconfigurationIndication(tvbuff_t *tvb, int o
 }
 
 
-static const value_string IndicationMessage_vals[] = {
+static const value_string h245_IndicationMessage_vals[] = {
   {   0, "nonStandard" },
   {   1, "functionNotUnderstood" },
   {   2, "masterSlaveDeterminationRelease" },
@@ -16036,12 +16072,12 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	        if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, IndicationMessage_short_vals, "<unknown>"));
+				val_to_str(value, h245_IndicationMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, IndicationMessage_vals, "<unknown>"));
+				val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 		}
 	}
 
@@ -16054,7 +16090,7 @@ static int dissect_indication(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-static const value_string MultimediaSystemControlMessage_vals[] = {
+static const value_string h245_MultimediaSystemControlMessage_vals[] = {
   {   0, "request" },
   {   1, "response" },
   {   2, "command" },
@@ -16080,7 +16116,7 @@ dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, int offset, packet_in
 }
 
 
-static const value_string Moderfc2733_vals[] = {
+static const value_string h245_Moderfc2733_vals[] = {
   {   0, "redundancyEncoding" },
   {   1, "separateStream" },
   { 0, NULL }
@@ -16139,25 +16175,25 @@ void proto_register_h245(void) {
   static hf_register_info hf[] = {
     { &hf_h245_pdu_type,
  { "PDU Type", "h245.pdu_type", FT_UINT32, BASE_DEC,
-		VALS(MultimediaSystemControlMessage_vals), 0, "Type of H.245 PDU", HFILL }},
+		VALS(h245_MultimediaSystemControlMessage_vals), 0, "Type of H.245 PDU", HFILL }},
 
 /*--- Included file: packet-h245-hfarr.c ---*/
 
     { &hf_h245_request,
       { "request", "h245.request",
-        FT_UINT32, BASE_DEC, VALS(RequestMessage_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_RequestMessage_vals), 0,
         "", HFILL }},
     { &hf_h245_response,
       { "response", "h245.response",
-        FT_UINT32, BASE_DEC, VALS(ResponseMessage_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ResponseMessage_vals), 0,
         "", HFILL }},
     { &hf_h245_command,
       { "command", "h245.command",
-        FT_UINT32, BASE_DEC, VALS(CommandMessage_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_CommandMessage_vals), 0,
         "", HFILL }},
     { &hf_h245_indication,
       { "indication", "h245.indication",
-        FT_UINT32, BASE_DEC, VALS(IndicationMessage_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_IndicationMessage_vals), 0,
         "MultimediaSystemControlMessage/indication", HFILL }},
     { &hf_h245_nonStandardMsg,
       { "nonStandard", "h245.nonStandard",
@@ -16209,11 +16245,11 @@ void proto_register_h245(void) {
         "RequestMessage/communicationModeRequest", HFILL }},
     { &hf_h245_conferenceRequest,
       { "conferenceRequest", "h245.conferenceRequest",
-        FT_UINT32, BASE_DEC, VALS(ConferenceRequest_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ConferenceRequest_vals), 0,
         "RequestMessage/conferenceRequest", HFILL }},
     { &hf_h245_multilinkRequest,
       { "multilinkRequest", "h245.multilinkRequest",
-        FT_UINT32, BASE_DEC, VALS(MultilinkRequest_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MultilinkRequest_vals), 0,
         "RequestMessage/multilinkRequest", HFILL }},
     { &hf_h245_logicalChannelRateRequest,
       { "logicalChannelRateRequest", "h245.logicalChannelRateRequest",
@@ -16297,15 +16333,15 @@ void proto_register_h245(void) {
         "ResponseMessage/maintenanceLoopReject", HFILL }},
     { &hf_h245_communicationModeResponse,
       { "communicationModeResponse", "h245.communicationModeResponse",
-        FT_UINT32, BASE_DEC, VALS(CommunicationModeResponse_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_CommunicationModeResponse_vals), 0,
         "ResponseMessage/communicationModeResponse", HFILL }},
     { &hf_h245_conferenceResponse,
       { "conferenceResponse", "h245.conferenceResponse",
-        FT_UINT32, BASE_DEC, VALS(ConferenceResponse_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ConferenceResponse_vals), 0,
         "ResponseMessage/conferenceResponse", HFILL }},
     { &hf_h245_multilinkResponse,
       { "multilinkResponse", "h245.multilinkResponse",
-        FT_UINT32, BASE_DEC, VALS(MultilinkResponse_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MultilinkResponse_vals), 0,
         "ResponseMessage/multilinkResponse", HFILL }},
     { &hf_h245_logicalChannelRateAcknowledge,
       { "logicalChannelRateAcknowledge", "h245.logicalChannelRateAcknowledge",
@@ -16325,11 +16361,11 @@ void proto_register_h245(void) {
         "CommandMessage/maintenanceLoopOffCommand", HFILL }},
     { &hf_h245_sendTerminalCapabilitySet,
       { "sendTerminalCapabilitySet", "h245.sendTerminalCapabilitySet",
-        FT_UINT32, BASE_DEC, VALS(SendTerminalCapabilitySet_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_SendTerminalCapabilitySet_vals), 0,
         "CommandMessage/sendTerminalCapabilitySet", HFILL }},
     { &hf_h245_encryptionCommand,
       { "encryptionCommand", "h245.encryptionCommand",
-        FT_UINT32, BASE_DEC, VALS(EncryptionCommand_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_EncryptionCommand_vals), 0,
         "CommandMessage/encryptionCommand", HFILL }},
     { &hf_h245_flowControlCommand,
       { "flowControlCommand", "h245.flowControlCommand",
@@ -16337,7 +16373,7 @@ void proto_register_h245(void) {
         "CommandMessage/flowControlCommand", HFILL }},
     { &hf_h245_endSessionCommand,
       { "endSessionCommand", "h245.endSessionCommand",
-        FT_UINT32, BASE_DEC, VALS(EndSessionCommand_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_EndSessionCommand_vals), 0,
         "CommandMessage/endSessionCommand", HFILL }},
     { &hf_h245_miscellaneousCommand,
       { "miscellaneousCommand", "h245.miscellaneousCommand",
@@ -16349,11 +16385,11 @@ void proto_register_h245(void) {
         "CommandMessage/communicationModeCommand", HFILL }},
     { &hf_h245_conferenceCommand,
       { "conferenceCommand", "h245.conferenceCommand",
-        FT_UINT32, BASE_DEC, VALS(ConferenceCommand_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ConferenceCommand_vals), 0,
         "CommandMessage/conferenceCommand", HFILL }},
     { &hf_h245_h223MultiplexReconfiguration,
       { "h223MultiplexReconfiguration", "h245.h223MultiplexReconfiguration",
-        FT_UINT32, BASE_DEC, VALS(H223MultiplexReconfiguration_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_H223MultiplexReconfiguration_vals), 0,
         "CommandMessage/h223MultiplexReconfiguration", HFILL }},
     { &hf_h245_newATMVCCommand,
       { "newATMVCCommand", "h245.newATMVCCommand",
@@ -16369,7 +16405,7 @@ void proto_register_h245(void) {
         "CommandMessage/genericCommand", HFILL }},
     { &hf_h245_functionNotUnderstood,
       { "functionNotUnderstood", "h245.functionNotUnderstood",
-        FT_UINT32, BASE_DEC, VALS(FunctionNotUnderstood_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_FunctionNotUnderstood_vals), 0,
         "IndicationMessage/functionNotUnderstood", HFILL }},
     { &hf_h245_masterSlaveDeterminationRelease,
       { "masterSlaveDeterminationRelease", "h245.masterSlaveDeterminationRelease",
@@ -16417,7 +16453,7 @@ void proto_register_h245(void) {
         "IndicationMessage/newATMVCIndication", HFILL }},
     { &hf_h245_userInput,
       { "userInput", "h245.userInput",
-        FT_UINT32, BASE_DEC, VALS(UserInputIndication_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_UserInputIndication_vals), 0,
         "IndicationMessage/userInput", HFILL }},
     { &hf_h245_h2250MaximumSkewIndication,
       { "h2250MaximumSkewIndication", "h245.h2250MaximumSkewIndication",
@@ -16429,7 +16465,7 @@ void proto_register_h245(void) {
         "IndicationMessage/mcLocationIndication", HFILL }},
     { &hf_h245_conferenceIndication,
       { "conferenceIndication", "h245.conferenceIndication",
-        FT_UINT32, BASE_DEC, VALS(ConferenceIndication_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ConferenceIndication_vals), 0,
         "IndicationMessage/conferenceIndication", HFILL }},
     { &hf_h245_vendorIdentification,
       { "vendorIdentification", "h245.vendorIdentification",
@@ -16441,7 +16477,7 @@ void proto_register_h245(void) {
         "IndicationMessage/functionNotSupported", HFILL }},
     { &hf_h245_multilinkIndication,
       { "multilinkIndication", "h245.multilinkIndication",
-        FT_UINT32, BASE_DEC, VALS(MultilinkIndication_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MultilinkIndication_vals), 0,
         "IndicationMessage/multilinkIndication", HFILL }},
     { &hf_h245_logicalChannelRateRelease,
       { "logicalChannelRateRelease", "h245.logicalChannelRateRelease",
@@ -16461,7 +16497,7 @@ void proto_register_h245(void) {
         "IndicationMessage/genericIndication", HFILL }},
     { &hf_h245_messageIdentifier,
       { "messageIdentifier", "h245.messageIdentifier",
-        FT_UINT32, BASE_DEC, VALS(CapabilityIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_CapabilityIdentifier_vals), 0,
         "GenericMessage/messageIdentifier", HFILL }},
     { &hf_h245_subMessageIdentifer,
       { "subMessageIdentifer", "h245.subMessageIdentifer",
@@ -16481,7 +16517,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_nonStandardIdentifier,
       { "nonStandardIdentifier", "h245.nonStandardIdentifier",
-        FT_UINT32, BASE_DEC, VALS(NonStandardIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_NonStandardIdentifier_vals), 0,
         "NonStandardParameter/nonStandardIdentifier", HFILL }},
     { &hf_h245_nsd_data,
       { "data", "h245.data",
@@ -16517,7 +16553,7 @@ void proto_register_h245(void) {
         "MasterSlaveDetermination/statusDeterminationNumber", HFILL }},
     { &hf_h245_decision,
       { "decision", "h245.decision",
-        FT_UINT32, BASE_DEC, VALS(T_decision_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_decision_vals), 0,
         "MasterSlaveDeterminationAck/decision", HFILL }},
     { &hf_h245_master,
       { "master", "h245.master",
@@ -16529,7 +16565,7 @@ void proto_register_h245(void) {
         "MasterSlaveDeterminationAck/decision/slave", HFILL }},
     { &hf_h245_msd_rej_cause,
       { "cause", "h245.cause",
-        FT_UINT32, BASE_DEC, VALS(MasterSlaveDeterminationRejectCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MasterSlaveDeterminationRejectCause_vals), 0,
         "MasterSlaveDeterminationReject/cause", HFILL }},
     { &hf_h245_identicalNumbers,
       { "identicalNumbers", "h245.identicalNumbers",
@@ -16545,7 +16581,7 @@ void proto_register_h245(void) {
         "TerminalCapabilitySet/protocolIdentifier", HFILL }},
     { &hf_h245_multiplexCapability,
       { "multiplexCapability", "h245.multiplexCapability",
-        FT_UINT32, BASE_DEC, VALS(MultiplexCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MultiplexCapability_vals), 0,
         "TerminalCapabilitySet/multiplexCapability", HFILL }},
     { &hf_h245_capabilityTable,
       { "capabilityTable", "h245.capabilityTable",
@@ -16569,7 +16605,7 @@ void proto_register_h245(void) {
         "CapabilityTableEntry/capabilityTableEntryNumber", HFILL }},
     { &hf_h245_capability,
       { "capability", "h245.capability",
-        FT_UINT32, BASE_DEC, VALS(Capability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Capability_vals), 0,
         "CapabilityTableEntry/capability", HFILL }},
     { &hf_h245_capabilityDescriptorNumber,
       { "capabilityDescriptorNumber", "h245.capabilityDescriptorNumber",
@@ -16589,7 +16625,7 @@ void proto_register_h245(void) {
         "AlternativeCapabilitySet/_item", HFILL }},
     { &hf_h245_tcs_rej_cause,
       { "cause", "h245.cause",
-        FT_UINT32, BASE_DEC, VALS(TerminalCapabilitySetRejectCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_TerminalCapabilitySetRejectCause_vals), 0,
         "TerminalCapabilitySetReject/cause", HFILL }},
     { &hf_h245_unspecified,
       { "unspecified", "h245.unspecified",
@@ -16605,7 +16641,7 @@ void proto_register_h245(void) {
         "TerminalCapabilitySetReject/cause/descriptorCapacityExceeded", HFILL }},
     { &hf_h245_tableEntryCapacityExceeded,
       { "tableEntryCapacityExceeded", "h245.tableEntryCapacityExceeded",
-        FT_UINT32, BASE_DEC, VALS(T_tableEntryCapacityExceeded_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_tableEntryCapacityExceeded_vals), 0,
         "TerminalCapabilitySetReject/cause/tableEntryCapacityExceeded", HFILL }},
     { &hf_h245_highestEntryNumberProcessed,
       { "highestEntryNumberProcessed", "h245.highestEntryNumberProcessed",
@@ -16621,27 +16657,27 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_receiveVideoCapability,
       { "receiveVideoCapability", "h245.receiveVideoCapability",
-        FT_UINT32, BASE_DEC, VALS(VideoCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_VideoCapability_vals), 0,
         "Capability/receiveVideoCapability", HFILL }},
     { &hf_h245_transmitVideoCapability,
       { "transmitVideoCapability", "h245.transmitVideoCapability",
-        FT_UINT32, BASE_DEC, VALS(VideoCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_VideoCapability_vals), 0,
         "Capability/transmitVideoCapability", HFILL }},
     { &hf_h245_receiveAndTransmitVideoCapability,
       { "receiveAndTransmitVideoCapability", "h245.receiveAndTransmitVideoCapability",
-        FT_UINT32, BASE_DEC, VALS(VideoCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_VideoCapability_vals), 0,
         "Capability/receiveAndTransmitVideoCapability", HFILL }},
     { &hf_h245_receiveAudioCapability,
       { "receiveAudioCapability", "h245.receiveAudioCapability",
-        FT_UINT32, BASE_DEC, VALS(AudioCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AudioCapability_vals), 0,
         "Capability/receiveAudioCapability", HFILL }},
     { &hf_h245_transmitAudioCapability,
       { "transmitAudioCapability", "h245.transmitAudioCapability",
-        FT_UINT32, BASE_DEC, VALS(AudioCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AudioCapability_vals), 0,
         "Capability/transmitAudioCapability", HFILL }},
     { &hf_h245_receiveAndTransmitAudioCapability,
       { "receiveAndTransmitAudioCapability", "h245.receiveAndTransmitAudioCapability",
-        FT_UINT32, BASE_DEC, VALS(AudioCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AudioCapability_vals), 0,
         "Capability/receiveAndTransmitAudioCapability", HFILL }},
     { &hf_h245_receiveDataApplicationCapability,
       { "receiveDataApplicationCapability", "h245.receiveDataApplicationCapability",
@@ -16681,15 +16717,15 @@ void proto_register_h245(void) {
         "Capability/maxPendingReplacementFor", HFILL }},
     { &hf_h245_receiveUserInputCapability,
       { "receiveUserInputCapability", "h245.receiveUserInputCapability",
-        FT_UINT32, BASE_DEC, VALS(UserInputCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_UserInputCapability_vals), 0,
         "Capability/receiveUserInputCapability", HFILL }},
     { &hf_h245_transmitUserInputCapability,
       { "transmitUserInputCapability", "h245.transmitUserInputCapability",
-        FT_UINT32, BASE_DEC, VALS(UserInputCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_UserInputCapability_vals), 0,
         "Capability/transmitUserInputCapability", HFILL }},
     { &hf_h245_receiveAndTransmitUserInputCapability,
       { "receiveAndTransmitUserInputCapability", "h245.receiveAndTransmitUserInputCapability",
-        FT_UINT32, BASE_DEC, VALS(UserInputCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_UserInputCapability_vals), 0,
         "Capability/receiveAndTransmitUserInputCapability", HFILL }},
     { &hf_h245_genericControlCapability,
       { "genericControlCapability", "h245.genericControlCapability",
@@ -16717,7 +16753,7 @@ void proto_register_h245(void) {
         "Capability/receiveRTPAudioToneCapability", HFILL }},
     { &hf_h245_fecCapability,
       { "fecCapability", "h245.fecCapability",
-        FT_UINT32, BASE_DEC, VALS(FECCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_FECCapability_vals), 0,
         "Capability/fecCapability", HFILL }},
     { &hf_h245_multiplePayloadStreamCapability,
       { "multiplePayloadStreamCapability", "h245.multiplePayloadStreamCapability",
@@ -16829,7 +16865,7 @@ void proto_register_h245(void) {
         "VCCapability/availableBitRates", HFILL }},
     { &hf_h245_Avb_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(Avb_type_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Avb_type_vals), 0,
         "VCCapability/availableBitRates/type", HFILL }},
     { &hf_h245_singleBitRate,
       { "singleBitRate", "h245.singleBitRate",
@@ -16917,7 +16953,7 @@ void proto_register_h245(void) {
         "H223Capability/maximumDelayJitter", HFILL }},
     { &hf_h245_h223MultiplexTableCapability,
       { "h223MultiplexTableCapability", "h245.h223MultiplexTableCapability",
-        FT_UINT32, BASE_DEC, VALS(T_h223MultiplexTableCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_h223MultiplexTableCapability_vals), 0,
         "H223Capability/h223MultiplexTableCapability", HFILL }},
     { &hf_h245_basic,
       { "basic", "h245.basic",
@@ -17181,7 +17217,7 @@ void proto_register_h245(void) {
         "MediaPacketizationCapability/rtpPayloadType2/_item", HFILL }},
     { &hf_h245_qosMode,
       { "qosMode", "h245.qosMode",
-        FT_UINT32, BASE_DEC, VALS(QOSMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_QOSMode_vals), 0,
         "RSVPParameters/qosMode", HFILL }},
     { &hf_h245_tokenRate,
       { "tokenRate", "h245.tokenRate",
@@ -17269,7 +17305,7 @@ void proto_register_h245(void) {
         "MediaTransportType/atm-AAL5-compressed/variable-delta", HFILL }},
     { &hf_h245_mediaTransport,
       { "mediaTransport", "h245.mediaTransport",
-        FT_UINT32, BASE_DEC, VALS(MediaTransportType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MediaTransportType_vals), 0,
         "MediaChannelCapability/mediaTransport", HFILL }},
     { &hf_h245_qOSCapabilities,
       { "qOSCapabilities", "h245.qOSCapabilities",
@@ -17289,7 +17325,7 @@ void proto_register_h245(void) {
         "TransportCapability/mediaChannelCapabilities/_item", HFILL }},
     { &hf_h245_redundancyEncodingMethod,
       { "redundancyEncodingMethod", "h245.redundancyEncodingMethod",
-        FT_UINT32, BASE_DEC, VALS(RedundancyEncodingMethod_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_RedundancyEncodingMethod_vals), 0,
         "", HFILL }},
     { &hf_h245_primaryEncoding,
       { "primaryEncoding", "h245.primaryEncoding",
@@ -17321,7 +17357,7 @@ void proto_register_h245(void) {
         "RTPH263VideoRedundancyEncoding/framesBetweenSyncPoints", HFILL }},
     { &hf_h245_frameToThreadMapping,
       { "frameToThreadMapping", "h245.frameToThreadMapping",
-        FT_UINT32, BASE_DEC, VALS(T_frameToThreadMapping_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_frameToThreadMapping_vals), 0,
         "RTPH263VideoRedundancyEncoding/frameToThreadMapping", HFILL }},
     { &hf_h245_roundrobin,
       { "roundrobin", "h245.roundrobin",
@@ -17441,7 +17477,7 @@ void proto_register_h245(void) {
         "ExtendedVideoCapability/videoCapability", HFILL }},
     { &hf_h245_videoCapability_item,
       { "Item", "h245.videoCapability_item",
-        FT_UINT32, BASE_DEC, VALS(VideoCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_VideoCapability_vals), 0,
         "ExtendedVideoCapability/videoCapability/_item", HFILL }},
     { &hf_h245_videoCapabilityExtension,
       { "videoCapabilityExtension", "h245.videoCapabilityExtension",
@@ -17845,7 +17881,7 @@ void proto_register_h245(void) {
         "RefPictureSelection/videoMux", HFILL }},
     { &hf_h245_videoBackChannelSend,
       { "videoBackChannelSend", "h245.videoBackChannelSend",
-        FT_UINT32, BASE_DEC, VALS(T_videoBackChannelSend_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_videoBackChannelSend_vals), 0,
         "RefPictureSelection/videoBackChannelSend", HFILL }},
     { &hf_h245_none,
       { "none", "h245.none",
@@ -17953,7 +17989,7 @@ void proto_register_h245(void) {
         "CustomPictureFormat/mPI/customPCF/_item/customMPI", HFILL }},
     { &hf_h245_pixelAspectInformation,
       { "pixelAspectInformation", "h245.pixelAspectInformation",
-        FT_UINT32, BASE_DEC, VALS(T_pixelAspectInformation_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_pixelAspectInformation_vals), 0,
         "CustomPictureFormat/pixelAspectInformation", HFILL }},
     { &hf_h245_anyPixelAspectRatio,
       { "anyPixelAspectRatio", "h245.anyPixelAspectRatio",
@@ -18309,11 +18345,11 @@ void proto_register_h245(void) {
         "GSMAudioCapability/scrambled", HFILL }},
     { &hf_h245_vbd_cap_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(AudioCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AudioCapability_vals), 0,
         "VBDCapability/type", HFILL }},
     { &hf_h245_application,
       { "application", "h245.application",
-        FT_UINT32, BASE_DEC, VALS(Application_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Application_vals), 0,
         "DataApplicationCapability/application", HFILL }},
     { &hf_h245_maxBitRate2_0_4294967295,
       { "maxBitRate", "h245.maxBitRate",
@@ -18341,7 +18377,7 @@ void proto_register_h245(void) {
         "Application/t84/t84Protocol", HFILL }},
     { &hf_h245_t84Profile,
       { "t84Profile", "h245.t84Profile",
-        FT_UINT32, BASE_DEC, VALS(T84Profile_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T84Profile_vals), 0,
         "Application/t84/t84Profile", HFILL }},
     { &hf_h245_t434,
       { "t434", "h245.t434",
@@ -18429,19 +18465,19 @@ void proto_register_h245(void) {
         "DataProtocolCapability/separateLANStack", HFILL }},
     { &hf_h245_v76wCompression,
       { "v76wCompression", "h245.v76wCompression",
-        FT_UINT32, BASE_DEC, VALS(T_v76wCompression_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_v76wCompression_vals), 0,
         "DataProtocolCapability/v76wCompression", HFILL }},
     { &hf_h245_transmitCompression,
       { "transmitCompression", "h245.transmitCompression",
-        FT_UINT32, BASE_DEC, VALS(CompressionType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_CompressionType_vals), 0,
         "DataProtocolCapability/v76wCompression/transmitCompression", HFILL }},
     { &hf_h245_receiveCompression,
       { "receiveCompression", "h245.receiveCompression",
-        FT_UINT32, BASE_DEC, VALS(CompressionType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_CompressionType_vals), 0,
         "DataProtocolCapability/v76wCompression/receiveCompression", HFILL }},
     { &hf_h245_transmitAndReceiveCompression,
       { "transmitAndReceiveCompression", "h245.transmitAndReceiveCompression",
-        FT_UINT32, BASE_DEC, VALS(CompressionType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_CompressionType_vals), 0,
         "DataProtocolCapability/v76wCompression/transmitAndReceiveCompression", HFILL }},
     { &hf_h245_tcp,
       { "tcp", "h245.tcp",
@@ -18565,7 +18601,7 @@ void proto_register_h245(void) {
         "T38FaxProfile/version", HFILL }},
     { &hf_h245_t38FaxRateManagement,
       { "t38FaxRateManagement", "h245.t38FaxRateManagement",
-        FT_UINT32, BASE_DEC, VALS(T38FaxRateManagement_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T38FaxRateManagement_vals), 0,
         "T38FaxProfile/t38FaxRateManagement", HFILL }},
     { &hf_h245_t38FaxUdpOptions,
       { "t38FaxUdpOptions", "h245.t38FaxUdpOptions",
@@ -18593,7 +18629,7 @@ void proto_register_h245(void) {
         "T38FaxUdpOptions/t38FaxMaxDatagram", HFILL }},
     { &hf_h245_t38FaxUdpEC,
       { "t38FaxUdpEC", "h245.t38FaxUdpEC",
-        FT_UINT32, BASE_DEC, VALS(T_t38FaxUdpEC_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_t38FaxUdpEC_vals), 0,
         "T38FaxUdpOptions/t38FaxUdpEC", HFILL }},
     { &hf_h245_t38UDPFEC,
       { "t38UDPFEC", "h245.t38UDPFEC",
@@ -18629,7 +18665,7 @@ void proto_register_h245(void) {
         "EncryptionAuthenticationAndIntegrity/integrityCapability", HFILL }},
     { &hf_h245_EncryptionCapability_item,
       { "Item", "h245.EncryptionCapability_item",
-        FT_UINT32, BASE_DEC, VALS(MediaEncryptionAlgorithm_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MediaEncryptionAlgorithm_vals), 0,
         "EncryptionCapability/_item", HFILL }},
     { &hf_h245_algorithm,
       { "algorithm", "h245.algorithm",
@@ -18709,7 +18745,7 @@ void proto_register_h245(void) {
         "ConferenceCapability/multipointVisualizationCapability", HFILL }},
     { &hf_h245_capabilityIdentifier,
       { "capabilityIdentifier", "h245.capabilityIdentifier",
-        FT_UINT32, BASE_DEC, VALS(CapabilityIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_CapabilityIdentifier_vals), 0,
         "GenericCapability/capabilityIdentifier", HFILL }},
     { &hf_h245_collapsing,
       { "collapsing", "h245.collapsing",
@@ -18753,11 +18789,11 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_parameterIdentifier,
       { "parameterIdentifier", "h245.parameterIdentifier",
-        FT_UINT32, BASE_DEC, VALS(ParameterIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ParameterIdentifier_vals), 0,
         "GenericParameter/parameterIdentifier", HFILL }},
     { &hf_h245_parameterValue,
       { "parameterValue", "h245.parameterValue",
-        FT_UINT32, BASE_DEC, VALS(ParameterValue_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ParameterValue_vals), 0,
         "GenericParameter/parameterValue", HFILL }},
     { &hf_h245_supersedes,
       { "supersedes", "h245.supersedes",
@@ -18765,7 +18801,7 @@ void proto_register_h245(void) {
         "GenericParameter/supersedes", HFILL }},
     { &hf_h245_supersedes_item,
       { "Item", "h245.supersedes_item",
-        FT_UINT32, BASE_DEC, VALS(ParameterIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ParameterIdentifier_vals), 0,
         "GenericParameter/supersedes/_item", HFILL }},
     { &hf_h245_standard,
       { "standard", "h245.standard",
@@ -18809,7 +18845,7 @@ void proto_register_h245(void) {
         "ParameterValue/genericParameter/_item", HFILL }},
     { &hf_h245_multiplexFormat,
       { "multiplexFormat", "h245.multiplexFormat",
-        FT_UINT32, BASE_DEC, VALS(MultiplexFormat_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MultiplexFormat_vals), 0,
         "", HFILL }},
     { &hf_h245_controlOnMuxStream,
       { "controlOnMuxStream", "h245.controlOnMuxStream",
@@ -18873,11 +18909,11 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_dataType,
       { "dataType", "h245.dataType",
-        FT_UINT32, BASE_DEC, VALS(DataType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_DataType_vals), 0,
         "", HFILL }},
     { &hf_h245_olc_forw_multiplexParameters,
       { "multiplexParameters", "h245.multiplexParameters",
-        FT_UINT32, BASE_DEC, VALS(OLC_forw_multiplexParameters_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_OLC_forw_multiplexParameters_vals), 0,
         "OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters", HFILL }},
     { &hf_h245_h222LogicalChannelParameters,
       { "h222LogicalChannelParameters", "h245.h222LogicalChannelParameters",
@@ -18909,7 +18945,7 @@ void proto_register_h245(void) {
         "OpenLogicalChannel/reverseLogicalChannelParameters", HFILL }},
     { &hf_h245_olc_rev_multiplexParameter,
       { "multiplexParameters", "h245.multiplexParameters",
-        FT_UINT32, BASE_DEC, VALS(OLC_rev_multiplexParameters_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_OLC_rev_multiplexParameters_vals), 0,
         "OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters", HFILL }},
     { &hf_h245_reverseLogicalChannelDependency,
       { "reverseLogicalChannelDependency", "h245.reverseLogicalChannelDependency",
@@ -18925,7 +18961,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_distribution,
       { "distribution", "h245.distribution",
-        FT_UINT32, BASE_DEC, VALS(T_distribution_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_distribution_vals), 0,
         "NetworkAccessParameters/distribution", HFILL }},
     { &hf_h245_unicast,
       { "unicast", "h245.unicast",
@@ -18937,7 +18973,7 @@ void proto_register_h245(void) {
         "NetworkAccessParameters/distribution/multicast", HFILL }},
     { &hf_h245_networkAddress,
       { "networkAddress", "h245.networkAddress",
-        FT_UINT32, BASE_DEC, VALS(T_networkAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_networkAddress_vals), 0,
         "NetworkAccessParameters/networkAddress", HFILL }},
     { &hf_h245_q2931Address,
       { "q2931Address", "h245.q2931Address",
@@ -18949,7 +18985,7 @@ void proto_register_h245(void) {
         "NetworkAccessParameters/networkAddress/e164Address", HFILL }},
     { &hf_h245_localAreaAddress,
       { "localAreaAddress", "h245.localAreaAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
         "NetworkAccessParameters/networkAddress/localAreaAddress", HFILL }},
     { &hf_h245_associateConference,
       { "associateConference", "h245.associateConference",
@@ -18961,7 +18997,7 @@ void proto_register_h245(void) {
         "NetworkAccessParameters/externalReference", HFILL }},
     { &hf_h245_t120SetupProcedure,
       { "t120SetupProcedure", "h245.t120SetupProcedure",
-        FT_UINT32, BASE_DEC, VALS(T_t120SetupProcedure_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_t120SetupProcedure_vals), 0,
         "NetworkAccessParameters/t120SetupProcedure", HFILL }},
     { &hf_h245_originateCall,
       { "originateCall", "h245.originateCall",
@@ -18977,7 +19013,7 @@ void proto_register_h245(void) {
         "NetworkAccessParameters/t120SetupProcedure/issueQuery", HFILL }},
     { &hf_h245_address,
       { "address", "h245.address",
-        FT_UINT32, BASE_DEC, VALS(T_address_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_address_vals), 0,
         "Q2931Address/address", HFILL }},
     { &hf_h245_internationalNumber,
       { "internationalNumber", "h245.internationalNumber",
@@ -19001,11 +19037,11 @@ void proto_register_h245(void) {
         "DataType/nullData", HFILL }},
     { &hf_h245_videoData,
       { "videoData", "h245.videoData",
-        FT_UINT32, BASE_DEC, VALS(VideoCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_VideoCapability_vals), 0,
         "", HFILL }},
     { &hf_h245_audioData,
       { "audioData", "h245.audioData",
-        FT_UINT32, BASE_DEC, VALS(AudioCapability_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AudioCapability_vals), 0,
         "", HFILL }},
     { &hf_h245_data,
       { "data", "h245.data",
@@ -19013,7 +19049,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_encryptionData,
       { "encryptionData", "h245.encryptionData",
-        FT_UINT32, BASE_DEC, VALS(EncryptionMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_EncryptionMode_vals), 0,
         "DataType/encryptionData", HFILL }},
     { &hf_h245_h235Control,
       { "h235Control", "h245.h235Control",
@@ -19037,11 +19073,11 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_fec,
       { "fec", "h245.fec",
-        FT_UINT32, BASE_DEC, VALS(FECData_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_FECData_vals), 0,
         "", HFILL }},
     { &hf_h245_mediaType,
       { "mediaType", "h245.mediaType",
-        FT_UINT32, BASE_DEC, VALS(T_mediaType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_mediaType_vals), 0,
         "H235Media/mediaType", HFILL }},
     { &hf_h245_resourceID,
       { "resourceID", "h245.resourceID",
@@ -19065,7 +19101,7 @@ void proto_register_h245(void) {
         "H222LogicalChannelParameters/streamDescriptors", HFILL }},
     { &hf_h245_adaptationLayerType,
       { "adaptationLayerType", "h245.adaptationLayerType",
-        FT_UINT32, BASE_DEC, VALS(T_adaptationLayerType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_adaptationLayerType_vals), 0,
         "H223LogicalChannelParameters/adaptationLayerType", HFILL }},
     { &hf_h245_al1Framed,
       { "al1Framed", "h245.al1Framed",
@@ -19113,7 +19149,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_transferMode,
       { "transferMode", "h245.transferMode",
-        FT_UINT32, BASE_DEC, VALS(T_transferMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_transferMode_vals), 0,
         "H223AL1MParameters/transferMode", HFILL }},
     { &hf_h245_framed,
       { "framed", "h245.framed",
@@ -19125,7 +19161,7 @@ void proto_register_h245(void) {
         "H223AL1MParameters/transferMode/unframed", HFILL }},
     { &hf_h245_AL1HeaderFEC,
       { "headerFEC", "h245.headerFEC",
-        FT_UINT32, BASE_DEC, VALS(AL1HeaderFEC_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AL1HeaderFEC_vals), 0,
         "H223AL1MParameters/headerFEC", HFILL }},
     { &hf_h245_sebch16_7,
       { "sebch16-7", "h245.sebch16_7",
@@ -19137,7 +19173,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_crcLength2,
       { "crcLength", "h245.crcLength",
-        FT_UINT32, BASE_DEC, VALS(AL1CrcLength_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AL1CrcLength_vals), 0,
         "H223AL1MParameters/crcLength", HFILL }},
     { &hf_h245_crc4bit,
       { "crc4bit", "h245.crc4bit",
@@ -19177,7 +19213,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_arqType,
       { "arqType", "h245.arqType",
-        FT_UINT32, BASE_DEC, VALS(ArqType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ArqType_vals), 0,
         "", HFILL }},
     { &hf_h245_alsduSplitting,
       { "alsduSplitting", "h245.alsduSplitting",
@@ -19201,7 +19237,7 @@ void proto_register_h245(void) {
         "ArqType/typeIIArq", HFILL }},
     { &hf_h245_AL2HeaderFEC,
       { "headerFEC", "h245.headerFEC",
-        FT_UINT32, BASE_DEC, VALS(AL2HeaderFEC_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AL2HeaderFEC_vals), 0,
         "H223AL2MParameters/headerFEC", HFILL }},
     { &hf_h245_sebch16_5,
       { "sebch16-5", "h245.sebch16_5",
@@ -19209,15 +19245,15 @@ void proto_register_h245(void) {
         "H223AL2MParameters/headerFEC/sebch16-5", HFILL }},
     { &hf_h245_headerFormat,
       { "headerFormat", "h245.headerFormat",
-        FT_UINT32, BASE_DEC, VALS(T_headerFormat_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_headerFormat_vals), 0,
         "H223AL3MParameters/headerFormat", HFILL }},
     { &hf_h245_crlength2,
       { "crcLength", "h245.crcLength",
-        FT_UINT32, BASE_DEC, VALS(AL3CrcLength_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AL3CrcLength_vals), 0,
         "H223AL3MParameters/crcLength", HFILL }},
     { &hf_h245_numberOfRetransmissions,
       { "numberOfRetransmissions", "h245.numberOfRetransmissions",
-        FT_UINT32, BASE_DEC, VALS(T_numberOfRetransmissions_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_numberOfRetransmissions_vals), 0,
         "H223AnnexCArqParameters/numberOfRetransmissions", HFILL }},
     { &hf_h245_finite,
       { "finite", "h245.finite",
@@ -19233,7 +19269,7 @@ void proto_register_h245(void) {
         "V76LogicalChannelParameters/hdlcParameters", HFILL }},
     { &hf_h245_suspendResume,
       { "suspendResume", "h245.suspendResume",
-        FT_UINT32, BASE_DEC, VALS(T_suspendResume_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_suspendResume_vals), 0,
         "V76LogicalChannelParameters/suspendResume", HFILL }},
     { &hf_h245_noSuspendResume,
       { "noSuspendResume", "h245.noSuspendResume",
@@ -19253,7 +19289,7 @@ void proto_register_h245(void) {
         "V76LogicalChannelParameters/uIH", HFILL }},
     { &hf_h245_v76_mode,
       { "mode", "h245.mode",
-        FT_UINT32, BASE_DEC, VALS(V76LCP_mode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_V76LCP_mode_vals), 0,
         "V76LogicalChannelParameters/mode", HFILL }},
     { &hf_h245_eRM,
       { "eRM", "h245.eRM",
@@ -19265,7 +19301,7 @@ void proto_register_h245(void) {
         "V76LogicalChannelParameters/mode/eRM/windowSize", HFILL }},
     { &hf_h245_recovery,
       { "recovery", "h245.recovery",
-        FT_UINT32, BASE_DEC, VALS(T_recovery_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_recovery_vals), 0,
         "V76LogicalChannelParameters/mode/eRM/recovery", HFILL }},
     { &hf_h245_rej,
       { "rej", "h245.rej",
@@ -19289,7 +19325,7 @@ void proto_register_h245(void) {
         "V76LogicalChannelParameters/v75Parameters", HFILL }},
     { &hf_h245_crcLength,
       { "crcLength", "h245.crcLength",
-        FT_UINT32, BASE_DEC, VALS(CRCLength_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_CRCLength_vals), 0,
         "V76HDLCParameters/crcLength", HFILL }},
     { &hf_h245_n401,
       { "n401", "h245.n401",
@@ -19309,7 +19345,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_mediaChannel,
       { "mediaChannel", "h245.mediaChannel",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
         "", HFILL }},
     { &hf_h245_mediaGuaranteedDelivery,
       { "mediaGuaranteedDelivery", "h245.mediaGuaranteedDelivery",
@@ -19317,7 +19353,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_mediaControlChannel,
       { "mediaControlChannel", "h245.mediaControlChannel",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
         "", HFILL }},
     { &hf_h245_mediaControlGuaranteedDelivery,
       { "mediaControlGuaranteedDelivery", "h245.mediaControlGuaranteedDelivery",
@@ -19329,7 +19365,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_mediaPacketization,
       { "mediaPacketization", "h245.mediaPacketization",
-        FT_UINT32, BASE_DEC, VALS(T_mediaPacketization_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_mediaPacketization_vals), 0,
         "H2250LogicalChannelParameters/mediaPacketization", HFILL }},
     { &hf_h245_h261aVideoPacketizationFlag,
       { "h261aVideoPacketization", "h245.h261aVideoPacketization",
@@ -19345,11 +19381,11 @@ void proto_register_h245(void) {
         "H2250LogicalChannelParameters/source", HFILL }},
     { &hf_h245_payloadDescriptor,
       { "payloadDescriptor", "h245.payloadDescriptor",
-        FT_UINT32, BASE_DEC, VALS(T_payloadDescriptor_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_payloadDescriptor_vals), 0,
         "RTPPayloadType/payloadDescriptor", HFILL }},
     { &hf_h245_rfc_number,
       { "rfc-number", "h245.rfc_number",
-        FT_UINT32, BASE_DEC, VALS(RFC_number_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_RFC_number_vals), 0,
         "RTPPayloadType/payloadDescriptor/rfc-number", HFILL }},
     { &hf_h245_oid,
       { "oid", "h245.oid",
@@ -19361,7 +19397,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_secondaryEncoding3,
       { "secondaryEncoding3", "h245.secondaryEncoding3",
-        FT_UINT32, BASE_DEC, VALS(DataType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_DataType_vals), 0,
         "RedundancyEncoding/secondaryEncoding3", HFILL }},
     { &hf_h245_rtpRedundancyEncoding,
       { "rtpRedundancyEncoding", "h245.rtpRedundancyEncoding",
@@ -19393,7 +19429,7 @@ void proto_register_h245(void) {
         "FECData/rfc2733", HFILL }},
     { &hf_h245_fec_data_mode,
       { "mode", "h245.mode",
-        FT_UINT32, BASE_DEC, VALS(FECdata_mode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_FECdata_mode_vals), 0,
         "FECData/rfc2733/mode", HFILL }},
     { &hf_h245_redundancyEncodingFlag,
       { "redundancyEncoding", "h245.redundancyEncoding",
@@ -19401,7 +19437,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_separateStream,
       { "separateStream", "h245.separateStream",
-        FT_UINT32, BASE_DEC, VALS(SeparateStream_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_SeparateStream_vals), 0,
         "", HFILL }},
     { &hf_h245_differentPort,
       { "differentPort", "h245.differentPort",
@@ -19421,11 +19457,11 @@ void proto_register_h245(void) {
         "SeparateStream/samePort", HFILL }},
     { &hf_h245_unicastAddress,
       { "unicastAddress", "h245.unicastAddress",
-        FT_UINT32, BASE_DEC, VALS(UnicastAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_UnicastAddress_vals), 0,
         "TransportAddress/unicastAddress", HFILL }},
     { &hf_h245_multicastAddress,
       { "multicastAddress", "h245.multicastAddress",
-        FT_UINT32, BASE_DEC, VALS(MulticastAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MulticastAddress_vals), 0,
         "TransportAddress/multicastAddress", HFILL }},
     { &hf_h245_iPAddress,
       { "iPAddress", "h245.iPAddress",
@@ -19438,7 +19474,7 @@ void proto_register_h245(void) {
     { &hf_h245_tsapIdentifier,
       { "tsapIdentifier", "h245.tsapIdentifier",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
+        "UnicastAddress/iPAddress/tsapIdentifier", HFILL }},
     { &hf_h245_iPXAddress,
       { "iPXAddress", "h245.iPXAddress",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19463,6 +19499,10 @@ void proto_register_h245(void) {
       { "network", "h245.network",
         FT_IPv6, BASE_NONE, NULL, 0,
         "UnicastAddress/iP6Address/network", HFILL }},
+    { &hf_h245_ipv6_tsapIdentifier,
+      { "tsapIdentifier", "h245.tsapIdentifier",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UnicastAddress/iP6Address/tsapIdentifier", HFILL }},
     { &hf_h245_netBios,
       { "netBios", "h245.netBios",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -19473,7 +19513,7 @@ void proto_register_h245(void) {
         "UnicastAddress/iPSourceRouteAddress", HFILL }},
     { &hf_h245_routing,
       { "routing", "h245.routing",
-        FT_UINT32, BASE_DEC, VALS(T_routing_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_routing_vals), 0,
         "UnicastAddress/iPSourceRouteAddress/routing", HFILL }},
     { &hf_h245_strict,
       { "strict", "h245.strict",
@@ -19487,6 +19527,10 @@ void proto_register_h245(void) {
       { "network", "h245.network",
         FT_BYTES, BASE_HEX, NULL, 0,
         "UnicastAddress/iPSourceRouteAddress/network", HFILL }},
+    { &hf_h245_iPSrcRoute_tsapIdentifier,
+      { "tsapIdentifier", "h245.tsapIdentifier",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UnicastAddress/iPSourceRouteAddress/tsapIdentifier", HFILL }},
     { &hf_h245_route,
       { "route", "h245.route",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19511,6 +19555,10 @@ void proto_register_h245(void) {
       { "network", "h245.network",
         FT_IPv4, BASE_NONE, NULL, 0,
         "MulticastAddress/iPAddress/network", HFILL }},
+    { &hf_h245_multicast_tsapIdentifier,
+      { "tsapIdentifier", "h245.tsapIdentifier",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MulticastAddress/iPAddress/tsapIdentifier", HFILL }},
     { &hf_h245_mIP6Address,
       { "iP6Address", "h245.iP6Address",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19519,6 +19567,10 @@ void proto_register_h245(void) {
       { "network", "h245.network",
         FT_IPv6, BASE_NONE, NULL, 0,
         "MulticastAddress/iP6Address/network", HFILL }},
+    { &hf_h245_multicast_IPv6_tsapIdentifier,
+      { "tsapIdentifier", "h245.tsapIdentifier",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MulticastAddress/iP6Address/tsapIdentifier", HFILL }},
     { &hf_h245_synchFlag,
       { "synchFlag", "h245.synchFlag",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -19553,11 +19605,11 @@ void proto_register_h245(void) {
         "OpenLogicalChannelAck/reverseLogicalChannelParameters/reverseLogicalChannelNumber", HFILL }},
     { &hf_h245_olc_ack_multiplexParameters,
       { "multiplexParameters", "h245.multiplexParameters",
-        FT_UINT32, BASE_DEC, VALS(T_multiplexParameters_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_multiplexParameters_vals), 0,
         "OpenLogicalChannelAck/reverseLogicalChannelParameters/multiplexParameters", HFILL }},
     { &hf_h245_forwardMultiplexAckParameters,
       { "forwardMultiplexAckParameters", "h245.forwardMultiplexAckParameters",
-        FT_UINT32, BASE_DEC, VALS(T_forwardMultiplexAckParameters_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_forwardMultiplexAckParameters_vals), 0,
         "OpenLogicalChannelAck/forwardMultiplexAckParameters", HFILL }},
     { &hf_h245_h2250LogicalChannelAckParameters,
       { "h2250LogicalChannelAckParameters", "h245.h2250LogicalChannelAckParameters",
@@ -19565,7 +19617,7 @@ void proto_register_h245(void) {
         "OpenLogicalChannelAck/forwardMultiplexAckParameters/h2250LogicalChannelAckParameters", HFILL }},
     { &hf_h245_olc_rej_cause,
       { "cause", "h245.cause",
-        FT_UINT32, BASE_DEC, VALS(OpenLogicalChannelRejectCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_OpenLogicalChannelRejectCause_vals), 0,
         "OpenLogicalChannelReject/cause", HFILL }},
     { &hf_h245_unsuitableReverseParameters,
       { "unsuitableReverseParameters", "h245.unsuitableReverseParameters",
@@ -19625,11 +19677,11 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_ack_mediaChannel,
       { "mediaChannel", "h245.mediaChannel",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
         "H2250LogicalChannelAckParameters/mediaChannel", HFILL }},
     { &hf_h245_ack_mediaControlChannel,
       { "mediaControlChannel", "h245.mediaControlChannel",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
         "H2250LogicalChannelAckParameters/mediaControlChannel", HFILL }},
     { &hf_h245_flowControlToZero,
       { "flowControlToZero", "h245.flowControlToZero",
@@ -19637,7 +19689,7 @@ void proto_register_h245(void) {
         "H2250LogicalChannelAckParameters/flowControlToZero", HFILL }},
     { &hf_h245_CloseLogicalChannel_source,
       { "source", "h245.source",
-        FT_UINT32, BASE_DEC, VALS(T_source_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_source_vals), 0,
         "CloseLogicalChannel/source", HFILL }},
     { &hf_h245_user,
       { "user", "h245.user",
@@ -19649,7 +19701,7 @@ void proto_register_h245(void) {
         "CloseLogicalChannel/source/lcse", HFILL }},
     { &hf_h245_clc_reason,
       { "reason", "h245.reason",
-        FT_UINT32, BASE_DEC, VALS(clc_reason_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_clc_reason_vals), 0,
         "CloseLogicalChannel/reason", HFILL }},
     { &hf_h245_unknown,
       { "unknown", "h245.unknown",
@@ -19669,7 +19721,7 @@ void proto_register_h245(void) {
         "RequestChannelClose/qosCapability", HFILL }},
     { &hf_h245_reason,
       { "reason", "h245.reason",
-        FT_UINT32, BASE_DEC, VALS(T_reason_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_reason_vals), 0,
         "RequestChannelClose/reason", HFILL }},
     { &hf_h245_normal,
       { "normal", "h245.normal",
@@ -19677,7 +19729,7 @@ void proto_register_h245(void) {
         "RequestChannelClose/reason/normal", HFILL }},
     { &hf_h245_req_chan_clos_rej_cause,
       { "cause", "h245.cause",
-        FT_UINT32, BASE_DEC, VALS(RequestChannelCloseRejectCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_RequestChannelCloseRejectCause_vals), 0,
         "RequestChannelCloseReject/cause", HFILL }},
     { &hf_h245_multiplexEntryDescriptors,
       { "multiplexEntryDescriptors", "h245.multiplexEntryDescriptors",
@@ -19701,7 +19753,7 @@ void proto_register_h245(void) {
         "MultiplexEntryDescriptor/elementList/_item", HFILL }},
     { &hf_h245_Me_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(Me_type_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Me_type_vals), 0,
         "MultiplexElement/type", HFILL }},
     { &hf_h245_logicalChannelNum,
       { "logicalChannelNumber", "h245.logicalChannelNumber",
@@ -19717,7 +19769,7 @@ void proto_register_h245(void) {
         "MultiplexElement/type/subElementList/_item", HFILL }},
     { &hf_h245_me_repeatCount,
       { "repeatCount", "h245.repeatCount",
-        FT_UINT32, BASE_DEC, VALS(ME_repeatCount_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ME_repeatCount_vals), 0,
         "MultiplexElement/repeatCount", HFILL }},
     { &hf_h245_finite_1_65535,
       { "finite", "h245.finite",
@@ -19745,7 +19797,7 @@ void proto_register_h245(void) {
         "MultiplexEntrySendReject/rejectionDescriptions1/_item", HFILL }},
     { &hf_h245_mux_rej_cause,
       { "cause", "h245.cause",
-        FT_UINT32, BASE_DEC, VALS(MultiplexEntryRejectionDescriptionsCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MultiplexEntryRejectionDescriptionsCause_vals), 0,
         "MultiplexEntryRejectionDescriptions/cause", HFILL }},
     { &hf_h245_unspecifiedCause,
       { "unspecifiedCause", "h245.unspecifiedCause",
@@ -19773,7 +19825,7 @@ void proto_register_h245(void) {
         "RequestMultiplexEntryReject/rejectionDescriptions2/_item", HFILL }},
     { &hf_h245_req_mux_rej_cause,
       { "cause", "h245.cause",
-        FT_UINT32, BASE_DEC, VALS(RequestMultiplexEntryRejectionDescriptionsCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_RequestMultiplexEntryRejectionDescriptionsCause_vals), 0,
         "RequestMultiplexEntryRejectionDescriptions/cause", HFILL }},
     { &hf_h245_requestedModes,
       { "requestedModes", "h245.requestedModes",
@@ -19785,7 +19837,7 @@ void proto_register_h245(void) {
         "RequestMode/requestedModes/_item", HFILL }},
     { &hf_h245_req_mode_ack_response,
       { "response", "h245.response",
-        FT_UINT32, BASE_DEC, VALS(Req_mode_ack_response_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Req_mode_ack_response_vals), 0,
         "RequestModeAck/response", HFILL }},
     { &hf_h245_willTransmitMostPreferredMode,
       { "willTransmitMostPreferredMode", "h245.willTransmitMostPreferredMode",
@@ -19797,7 +19849,7 @@ void proto_register_h245(void) {
         "RequestModeAck/response/willTransmitLessPreferredMode", HFILL }},
     { &hf_h245_req_rej_cause,
       { "cause", "h245.cause",
-        FT_UINT32, BASE_DEC, VALS(RequestModeRejectCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_RequestModeRejectCause_vals), 0,
         "RequestModeReject/cause", HFILL }},
     { &hf_h245_modeUnavailable,
       { "modeUnavailable", "h245.modeUnavailable",
@@ -19817,11 +19869,11 @@ void proto_register_h245(void) {
         "ModeDescription/_item", HFILL }},
     { &hf_h245_videoMode,
       { "videoMode", "h245.videoMode",
-        FT_UINT32, BASE_DEC, VALS(VideoMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_VideoMode_vals), 0,
         "", HFILL }},
     { &hf_h245_audioMode,
       { "audioMode", "h245.audioMode",
-        FT_UINT32, BASE_DEC, VALS(AudioMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AudioMode_vals), 0,
         "", HFILL }},
     { &hf_h245_dataMode,
       { "dataMode", "h245.dataMode",
@@ -19829,7 +19881,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_encryptionMode,
       { "encryptionMode", "h245.encryptionMode",
-        FT_UINT32, BASE_DEC, VALS(EncryptionMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_EncryptionMode_vals), 0,
         "", HFILL }},
     { &hf_h245_h235Mode,
       { "h235Mode", "h245.h235Mode",
@@ -19849,11 +19901,11 @@ void proto_register_h245(void) {
         "ModeElementType/multiplePayloadStreamMode", HFILL }},
     { &hf_h245_fecMode,
       { "fecMode", "h245.fecMode",
-        FT_UINT32, BASE_DEC, VALS(FECMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_FECMode_vals), 0,
         "ModeElementType/fecMode", HFILL }},
     { &hf_h245_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(ModeElementType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_ModeElementType_vals), 0,
         "", HFILL }},
     { &hf_h245_h223ModeParameters,
       { "h223ModeParameters", "h245.h223ModeParameters",
@@ -19861,7 +19913,7 @@ void proto_register_h245(void) {
         "ModeElement/h223ModeParameters", HFILL }},
     { &hf_h245_v76ModeParameters,
       { "v76ModeParameters", "h245.v76ModeParameters",
-        FT_UINT32, BASE_DEC, VALS(V76ModeParameters_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_V76ModeParameters_vals), 0,
         "ModeElement/v76ModeParameters", HFILL }},
     { &hf_h245_h2250ModeParameters,
       { "h2250ModeParameters", "h245.h2250ModeParameters",
@@ -19881,7 +19933,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_mediaMode,
       { "mediaMode", "h245.mediaMode",
-        FT_UINT32, BASE_DEC, VALS(T_mediaMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_mediaMode_vals), 0,
         "H235Mode/mediaMode", HFILL }},
     { &hf_h245_prmary_dtmode,
       { "primary", "h245.primary",
@@ -19897,7 +19949,7 @@ void proto_register_h245(void) {
         "RedundancyEncodingDTMode/secondary2/_item", HFILL }},
     { &hf_h245_re_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(Re_type_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Re_type_vals), 0,
         "RedundancyEncodingDTModeElement/type", HFILL }},
     { &hf_h245_mpsmElements,
       { "mpsmElements", "h245.mpsmElements",
@@ -19913,11 +19965,11 @@ void proto_register_h245(void) {
         "FECMode/rfc2733Mode", HFILL }},
     { &hf_h245_fec_mode,
       { "mode", "h245.mode",
-        FT_UINT32, BASE_DEC, VALS(FEC_mode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_FEC_mode_vals), 0,
         "FECMode/rfc2733Mode/mode", HFILL }},
     { &hf_h245_adaptationLayer,
       { "adaptationLayerType", "h245.adaptationLayerType",
-        FT_UINT32, BASE_DEC, VALS(AdaptationLayerType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AdaptationLayerType_vals), 0,
         "H223ModeParameters/adaptationLayerType", HFILL }},
     { &hf_h245_redundancyEncodingMode,
       { "redundancyEncodingMode", "h245.redundancyEncodingMode",
@@ -19925,7 +19977,7 @@ void proto_register_h245(void) {
         "H2250ModeParameters/redundancyEncodingMode", HFILL }},
     { &hf_h245_secondaryEncoding,
       { "secondaryEncoding", "h245.secondaryEncoding",
-        FT_UINT32, BASE_DEC, VALS(T_secondaryEncoding_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_secondaryEncoding_vals), 0,
         "RedundancyEncodingMode/secondaryEncoding", HFILL }},
     { &hf_h245_h261VideoMode,
       { "h261VideoMode", "h245.h261VideoMode",
@@ -19949,7 +20001,7 @@ void proto_register_h245(void) {
         "VideoMode/genericVideoMode", HFILL }},
     { &hf_h245_h261_resolution,
       { "resolution", "h245.resolution",
-        FT_UINT32, BASE_DEC, VALS(H261Resolution_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_H261Resolution_vals), 0,
         "H261VideoMode/resolution", HFILL }},
     { &hf_h245_qcif,
       { "qcif", "h245.qcif",
@@ -19961,7 +20013,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_profileAndLevel,
       { "profileAndLevel", "h245.profileAndLevel",
-        FT_UINT32, BASE_DEC, VALS(T_profileAndLevel_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_profileAndLevel_vals), 0,
         "H262VideoMode/profileAndLevel", HFILL }},
     { &hf_h245_profileAndLevel_SPatMLMode,
       { "profileAndLevel-SPatML", "h245.profileAndLevel_SPatML",
@@ -20009,7 +20061,7 @@ void proto_register_h245(void) {
         "H262VideoMode/profileAndLevel/profileAndLevel-HPatHL", HFILL }},
     { &hf_h245_h263_resolution,
       { "resolution", "h245.resolution",
-        FT_UINT32, BASE_DEC, VALS(H263Resolution_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_H263Resolution_vals), 0,
         "H263VideoMode/resolution", HFILL }},
     { &hf_h245_sqcif,
       { "sqcif", "h245.sqcif",
@@ -20069,7 +20121,7 @@ void proto_register_h245(void) {
         "AudioMode/g729AnnexA", HFILL }},
     { &hf_h245_g7231_mode,
       { "g7231", "h245.g7231",
-        FT_UINT32, BASE_DEC, VALS(Mode_g7231_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Mode_g7231_vals), 0,
         "AudioMode/g7231", HFILL }},
     { &hf_h245_noSilenceSuppressionLowRate,
       { "noSilenceSuppressionLowRate", "h245.noSilenceSuppressionLowRate",
@@ -20109,7 +20161,7 @@ void proto_register_h245(void) {
         "AudioMode/vbd", HFILL }},
     { &hf_h245_audioLayer,
       { "audioLayer", "h245.audioLayer",
-        FT_UINT32, BASE_DEC, VALS(T_audioLayer_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_audioLayer_vals), 0,
         "IS11172AudioMode/audioLayer", HFILL }},
     { &hf_h245_audioLayer1Mode,
       { "audioLayer1", "h245.audioLayer1",
@@ -20125,7 +20177,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_audioSampling,
       { "audioSampling", "h245.audioSampling",
-        FT_UINT32, BASE_DEC, VALS(T_audioSampling_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_audioSampling_vals), 0,
         "IS11172AudioMode/audioSampling", HFILL }},
     { &hf_h245_audioSampling32kMode,
       { "audioSampling32k", "h245.audioSampling32k",
@@ -20141,7 +20193,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_is11172multichannelType,
       { "multichannelType", "h245.multichannelType",
-        FT_UINT32, BASE_DEC, VALS(IS11172_multichannelType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_IS11172_multichannelType_vals), 0,
         "IS11172AudioMode/multichannelType", HFILL }},
     { &hf_h245_singleChannelMode,
       { "singleChannel", "h245.singleChannel",
@@ -20157,11 +20209,11 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_audioLayerMode,
       { "audioLayer", "h245.audioLayer",
-        FT_UINT32, BASE_DEC, VALS(IS13818AudioLayer_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_IS13818AudioLayer_vals), 0,
         "IS13818AudioMode/audioLayer", HFILL }},
     { &hf_h245_audioSamplingMode,
       { "audioSampling", "h245.audioSampling",
-        FT_UINT32, BASE_DEC, VALS(IS13818AudioSampling_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_IS13818AudioSampling_vals), 0,
         "IS13818AudioMode/audioSampling", HFILL }},
     { &hf_h245_audioSampling16kMode,
       { "audioSampling16k", "h245.audioSampling16k",
@@ -20177,7 +20229,7 @@ void proto_register_h245(void) {
         "IS13818AudioMode/audioSampling/audioSampling24k", HFILL }},
     { &hf_h245_is13818MultichannelType,
       { "multichannelType", "h245.multichannelType",
-        FT_UINT32, BASE_DEC, VALS(IS13818MultichannelType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_IS13818MultichannelType_vals), 0,
         "IS13818AudioMode/multichannelType", HFILL }},
     { &hf_h245_threeChannels2_1Mode,
       { "threeChannels2-1", "h245.threeChannels2_1",
@@ -20209,11 +20261,11 @@ void proto_register_h245(void) {
         "IS13818AudioMode/multichannelType/fiveChannels3-2", HFILL }},
     { &hf_h245_vbd_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(AudioMode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_AudioMode_vals), 0,
         "VBDMode/type", HFILL }},
     { &hf_h245_datamodeapplication,
       { "application", "h245.application",
-        FT_UINT32, BASE_DEC, VALS(DataModeApplication_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_DataModeApplication_vals), 0,
         "DataMode/application", HFILL }},
     { &hf_h245_t84DataProtocolCapability,
       { "t84", "h245.t84",
@@ -20237,7 +20289,7 @@ void proto_register_h245(void) {
         "EncryptionMode/h233Encryption", HFILL }},
     { &hf_h245_mlr_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(Mlr_type_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Mlr_type_vals), 0,
         "MaintenanceLoopRequest/type", HFILL }},
     { &hf_h245_systemLoop,
       { "systemLoop", "h245.systemLoop",
@@ -20253,15 +20305,15 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_Mla_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(Mla_type_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Mla_type_vals), 0,
         "MaintenanceLoopAck/type", HFILL }},
     { &hf_h245_mlrej_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(Mlrej_type_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Mlrej_type_vals), 0,
         "MaintenanceLoopReject/type", HFILL }},
     { &hf_h245_maintloop_rej_cause,
       { "cause", "h245.cause",
-        FT_UINT32, BASE_DEC, VALS(MaintenanceLoopRejectCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_MaintenanceLoopRejectCause_vals), 0,
         "MaintenanceLoopReject/cause", HFILL }},
     { &hf_h245_canNotPerformLoop,
       { "canNotPerformLoop", "h245.canNotPerformLoop",
@@ -20285,7 +20337,7 @@ void proto_register_h245(void) {
         "CommunicationModeTableEntry/sessionDescription", HFILL }},
     { &hf_h245_entryDataType,
       { "dataType", "h245.dataType",
-        FT_UINT32, BASE_DEC, VALS(T_dataType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_dataType_vals), 0,
         "CommunicationModeTableEntry/dataType", HFILL }},
     { &hf_h245_sessionDependency,
       { "sessionDependency", "h245.sessionDependency",
@@ -20361,7 +20413,7 @@ void proto_register_h245(void) {
         "ConferenceRequest/requestAllTerminalIDs", HFILL }},
     { &hf_h245_remoteMCRequest,
       { "remoteMCRequest", "h245.remoteMCRequest",
-        FT_UINT32, BASE_DEC, VALS(RemoteMCRequest_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_RemoteMCRequest_vals), 0,
         "ConferenceRequest/remoteMCRequest", HFILL }},
     { &hf_h245_CertSelectionCriteria_item,
       { "Item", "h245.CertSelectionCriteria_item",
@@ -20429,7 +20481,7 @@ void proto_register_h245(void) {
         "ConferenceResponse/terminalDropReject", HFILL }},
     { &hf_h245_makeMeChairResponse,
       { "makeMeChairResponse", "h245.makeMeChairResponse",
-        FT_UINT32, BASE_DEC, VALS(T_makeMeChairResponse_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_makeMeChairResponse_vals), 0,
         "ConferenceResponse/makeMeChairResponse", HFILL }},
     { &hf_h245_grantedChairToken,
       { "grantedChairToken", "h245.grantedChairToken",
@@ -20461,7 +20513,7 @@ void proto_register_h245(void) {
         "ConferenceResponse/terminalCertificateResponse/certificateResponse", HFILL }},
     { &hf_h245_broadcastMyLogicalChannelResponse,
       { "broadcastMyLogicalChannelResponse", "h245.broadcastMyLogicalChannelResponse",
-        FT_UINT32, BASE_DEC, VALS(T_broadcastMyLogicalChannelResponse_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_broadcastMyLogicalChannelResponse_vals), 0,
         "ConferenceResponse/broadcastMyLogicalChannelResponse", HFILL }},
     { &hf_h245_grantedBroadcastMyLogicalChannel,
       { "grantedBroadcastMyLogicalChannel", "h245.grantedBroadcastMyLogicalChannel",
@@ -20473,7 +20525,7 @@ void proto_register_h245(void) {
         "ConferenceResponse/broadcastMyLogicalChannelResponse/deniedBroadcastMyLogicalChannel", HFILL }},
     { &hf_h245_makeTerminalBroadcasterResponse,
       { "makeTerminalBroadcasterResponse", "h245.makeTerminalBroadcasterResponse",
-        FT_UINT32, BASE_DEC, VALS(T_makeTerminalBroadcasterResponse_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_makeTerminalBroadcasterResponse_vals), 0,
         "ConferenceResponse/makeTerminalBroadcasterResponse", HFILL }},
     { &hf_h245_grantedMakeTerminalBroadcaster,
       { "grantedMakeTerminalBroadcaster", "h245.grantedMakeTerminalBroadcaster",
@@ -20485,7 +20537,7 @@ void proto_register_h245(void) {
         "ConferenceResponse/makeTerminalBroadcasterResponse/deniedMakeTerminalBroadcaster", HFILL }},
     { &hf_h245_sendThisSourceResponse,
       { "sendThisSourceResponse", "h245.sendThisSourceResponse",
-        FT_UINT32, BASE_DEC, VALS(T_sendThisSourceResponse_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_sendThisSourceResponse_vals), 0,
         "ConferenceResponse/sendThisSourceResponse", HFILL }},
     { &hf_h245_grantedSendThisSource,
       { "grantedSendThisSource", "h245.grantedSendThisSource",
@@ -20501,7 +20553,7 @@ void proto_register_h245(void) {
         "ConferenceResponse/requestAllTerminalIDsResponse", HFILL }},
     { &hf_h245_remoteMCResponse,
       { "remoteMCResponse", "h245.remoteMCResponse",
-        FT_UINT32, BASE_DEC, VALS(RemoteMCResponse_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_RemoteMCResponse_vals), 0,
         "ConferenceResponse/remoteMCResponse", HFILL }},
     { &hf_h245_terminalInformation,
       { "terminalInformation", "h245.terminalInformation",
@@ -20529,7 +20581,7 @@ void proto_register_h245(void) {
         "RemoteMCResponse/accept", HFILL }},
     { &hf_h245_reject,
       { "reject", "h245.reject",
-        FT_UINT32, BASE_DEC, VALS(T_reject_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_reject_vals), 0,
         "RemoteMCResponse/reject", HFILL }},
     { &hf_h245_functionNotSupportedFlag,
       { "functionNotSupported", "h245.functionNotSupported",
@@ -20549,7 +20601,7 @@ void proto_register_h245(void) {
         "MultilinkRequest/addConnection", HFILL }},
     { &hf_h245_dialingInformation,
       { "dialingInformation", "h245.dialingInformation",
-        FT_UINT32, BASE_DEC, VALS(DialingInformation_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_DialingInformation_vals), 0,
         "", HFILL }},
     { &hf_h245_removeConnectionReq,
       { "removeConnection", "h245.removeConnection",
@@ -20561,7 +20613,7 @@ void proto_register_h245(void) {
         "MultilinkRequest/maximumHeaderInterval", HFILL }},
     { &hf_h245_requestType,
       { "requestType", "h245.requestType",
-        FT_UINT32, BASE_DEC, VALS(T_requestType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_requestType_vals), 0,
         "MultilinkRequest/maximumHeaderInterval/requestType", HFILL }},
     { &hf_h245_currentIntervalInformation,
       { "currentIntervalInformation", "h245.currentIntervalInformation",
@@ -20585,7 +20637,7 @@ void proto_register_h245(void) {
         "MultilinkResponse/addConnection", HFILL }},
     { &hf_h245_responseCode,
       { "responseCode", "h245.responseCode",
-        FT_UINT32, BASE_DEC, VALS(T_responseCode_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_responseCode_vals), 0,
         "MultilinkResponse/addConnection/responseCode", HFILL }},
     { &hf_h245_accepted,
       { "accepted", "h245.accepted",
@@ -20593,7 +20645,7 @@ void proto_register_h245(void) {
         "MultilinkResponse/addConnection/responseCode/accepted", HFILL }},
     { &hf_h245_rejected,
       { "rejected", "h245.rejected",
-        FT_UINT32, BASE_DEC, VALS(T_rejected_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_rejected_vals), 0,
         "MultilinkResponse/addConnection/responseCode/rejected", HFILL }},
     { &hf_h245_connectionsNotAvailable,
       { "connectionsNotAvailable", "h245.connectionsNotAvailable",
@@ -20653,7 +20705,7 @@ void proto_register_h245(void) {
         "DialingInformationNumber/networkType", HFILL }},
     { &hf_h245_networkType_item,
       { "Item", "h245.networkType_item",
-        FT_UINT32, BASE_DEC, VALS(DialingInformationNetworkType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_DialingInformationNetworkType_vals), 0,
         "DialingInformationNumber/networkType/_item", HFILL }},
     { &hf_h245_n_isdn,
       { "n-isdn", "h245.n_isdn",
@@ -20681,7 +20733,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_rejectReason,
       { "rejectReason", "h245.rejectReason",
-        FT_UINT32, BASE_DEC, VALS(LogicalChannelRateRejectReason_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_LogicalChannelRateRejectReason_vals), 0,
         "LogicalChannelRateReject/rejectReason", HFILL }},
     { &hf_h245_currentMaximumBitRate,
       { "currentMaximumBitRate", "h245.currentMaximumBitRate",
@@ -20745,11 +20797,11 @@ void proto_register_h245(void) {
         "EncryptionCommand/encryptionAlgorithmID/associatedAlgorithm", HFILL }},
     { &hf_h245_scope,
       { "scope", "h245.scope",
-        FT_UINT32, BASE_DEC, VALS(Scope_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Scope_vals), 0,
         "", HFILL }},
     { &hf_h245_restriction,
       { "restriction", "h245.restriction",
-        FT_UINT32, BASE_DEC, VALS(Restriction_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Restriction_vals), 0,
         "", HFILL }},
     { &hf_h245_wholeMultiplex,
       { "wholeMultiplex", "h245.wholeMultiplex",
@@ -20769,7 +20821,7 @@ void proto_register_h245(void) {
         "EndSessionCommand/disconnect", HFILL }},
     { &hf_h245_gstnOptions,
       { "gstnOptions", "h245.gstnOptions",
-        FT_UINT32, BASE_DEC, VALS(T_gstnOptions_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_gstnOptions_vals), 0,
         "EndSessionCommand/gstnOptions", HFILL }},
     { &hf_h245_telephonyMode,
       { "telephonyMode", "h245.telephonyMode",
@@ -20793,7 +20845,7 @@ void proto_register_h245(void) {
         "EndSessionCommand/gstnOptions/v34H324", HFILL }},
     { &hf_h245_isdnOptions,
       { "isdnOptions", "h245.isdnOptions",
-        FT_UINT32, BASE_DEC, VALS(T_isdnOptions_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_isdnOptions_vals), 0,
         "EndSessionCommand/isdnOptions", HFILL }},
     { &hf_h245_v140,
       { "v140", "h245.v140",
@@ -20837,7 +20889,7 @@ void proto_register_h245(void) {
         "EncryptionUpdateDirection/slaveToMaster", HFILL }},
     { &hf_h245_mc_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(Mc_type_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Mc_type_vals), 0,
         "MiscellaneousCommand/type", HFILL }},
     { &hf_h245_equaliseDelay,
       { "equaliseDelay", "h245.equaliseDelay",
@@ -20929,7 +20981,7 @@ void proto_register_h245(void) {
         "MiscellaneousCommand/type/progressiveRefinementStart", HFILL }},
     { &hf_h245_repeatCount,
       { "repeatCount", "h245.repeatCount",
-        FT_UINT32, BASE_DEC, VALS(RepeatCount_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_RepeatCount_vals), 0,
         "MiscellaneousCommand/type/progressiveRefinementStart/repeatCount", HFILL }},
     { &hf_h245_progressiveRefinementAbortOne,
       { "progressiveRefinementAbortOne", "h245.progressiveRefinementAbortOne",
@@ -20961,7 +21013,7 @@ void proto_register_h245(void) {
         "MiscellaneousCommand/type/lostPicture", HFILL }},
     { &hf_h245_lostPicture_item,
       { "Item", "h245.lostPicture_item",
-        FT_UINT32, BASE_DEC, VALS(PictureReference_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_PictureReference_vals), 0,
         "MiscellaneousCommand/type/lostPicture/_item", HFILL }},
     { &hf_h245_lostPartialPicture,
       { "lostPartialPicture", "h245.lostPartialPicture",
@@ -20969,7 +21021,7 @@ void proto_register_h245(void) {
         "MiscellaneousCommand/type/lostPartialPicture", HFILL }},
     { &hf_h245_pictureReference,
       { "pictureReference", "h245.pictureReference",
-        FT_UINT32, BASE_DEC, VALS(PictureReference_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_PictureReference_vals), 0,
         "MiscellaneousCommand/type/lostPartialPicture/pictureReference", HFILL }},
     { &hf_h245_recoveryReferencePicture,
       { "recoveryReferencePicture", "h245.recoveryReferencePicture",
@@ -20977,7 +21029,7 @@ void proto_register_h245(void) {
         "MiscellaneousCommand/type/recoveryReferencePicture", HFILL }},
     { &hf_h245_recoveryReferencePicture_item,
       { "Item", "h245.recoveryReferencePicture_item",
-        FT_UINT32, BASE_DEC, VALS(PictureReference_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_PictureReference_vals), 0,
         "MiscellaneousCommand/type/recoveryReferencePicture/_item", HFILL }},
     { &hf_h245_encryptionUpdateCommand,
       { "encryptionUpdateCommand", "h245.encryptionUpdateCommand",
@@ -20989,7 +21041,7 @@ void proto_register_h245(void) {
         "MiscellaneousCommand/type/encryptionUpdateAck", HFILL }},
     { &hf_h245_direction,
       { "direction", "h245.direction",
-        FT_UINT32, BASE_DEC, VALS(EncryptionUpdateDirection_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_EncryptionUpdateDirection_vals), 0,
         "MiscellaneousCommand/direction", HFILL }},
     { &hf_h245_doOneProgression,
       { "doOneProgression", "h245.doOneProgression",
@@ -21033,7 +21085,7 @@ void proto_register_h245(void) {
         "PictureReference/longTermPictureIndex", HFILL }},
     { &hf_h245_h223ModeChange,
       { "h223ModeChange", "h245.h223ModeChange",
-        FT_UINT32, BASE_DEC, VALS(T_h223ModeChange_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_h223ModeChange_vals), 0,
         "H223MultiplexReconfiguration/h223ModeChange", HFILL }},
     { &hf_h245_toLevel0,
       { "toLevel0", "h245.toLevel0",
@@ -21053,7 +21105,7 @@ void proto_register_h245(void) {
         "H223MultiplexReconfiguration/h223ModeChange/toLevel2withOptionalHeader", HFILL }},
     { &hf_h245_h223AnnexADoubleFlag,
       { "h223AnnexADoubleFlag", "h245.h223AnnexADoubleFlag",
-        FT_UINT32, BASE_DEC, VALS(T_h223AnnexADoubleFlag_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_h223AnnexADoubleFlag_vals), 0,
         "H223MultiplexReconfiguration/h223AnnexADoubleFlag", HFILL }},
     { &hf_h245_start,
       { "start", "h245.start",
@@ -21077,7 +21129,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_cmd_aal,
       { "aal", "h245.aal",
-        FT_UINT32, BASE_DEC, VALS(Cmd_aal_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Cmd_aal_vals), 0,
         "NewATMVCCommand/aal", HFILL }},
     { &hf_h245_cmd_aal1,
       { "aal1", "h245.aal1",
@@ -21085,7 +21137,7 @@ void proto_register_h245(void) {
         "NewATMVCCommand/aal/aal1", HFILL }},
     { &hf_h245_cmd_clockRecovery,
       { "clockRecovery", "h245.clockRecovery",
-        FT_UINT32, BASE_DEC, VALS(Cmd_clockRecovery_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Cmd_clockRecovery_vals), 0,
         "NewATMVCCommand/aal/aal1/clockRecovery", HFILL }},
     { &hf_h245_nullClockRecoveryflag,
       { "nullClockRecovery", "h245.nullClockRecovery",
@@ -21101,7 +21153,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_cmd_errorCorrection,
       { "errorCorrection", "h245.errorCorrection",
-        FT_UINT32, BASE_DEC, VALS(Cmd_errorCorrection_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Cmd_errorCorrection_vals), 0,
         "NewATMVCCommand/aal/aal1/errorCorrection", HFILL }},
     { &hf_h245_nullErrorCorrectionFlag,
       { "nullErrorCorrection", "h245.nullErrorCorrection",
@@ -21125,7 +21177,7 @@ void proto_register_h245(void) {
         "NewATMVCCommand/aal/aal5", HFILL }},
     { &hf_h245_cmd_multiplex,
       { "multiplex", "h245.multiplex",
-        FT_UINT32, BASE_DEC, VALS(Cmd_multiplex_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Cmd_multiplex_vals), 0,
         "NewATMVCCommand/multiplex", HFILL }},
     { &hf_h245_noMultiplex,
       { "noMultiplex", "h245.noMultiplex",
@@ -21145,7 +21197,7 @@ void proto_register_h245(void) {
         "NewATMVCCommand/reverseParameters", HFILL }},
     { &hf_h245_cmdr_multiplex,
       { "multiplex", "h245.multiplex",
-        FT_UINT32, BASE_DEC, VALS(CmdR_multiplex_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_CmdR_multiplex_vals), 0,
         "NewATMVCCommand/reverseParameters/multiplex", HFILL }},
     { &hf_h245_sampleSize,
       { "sampleSize", "h245.sampleSize",
@@ -21157,7 +21209,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_status,
       { "status", "h245.status",
-        FT_UINT32, BASE_DEC, VALS(T_status_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_status_vals), 0,
         "MobileMultilinkReconfigurationCommand/status", HFILL }},
     { &hf_h245_synchronized,
       { "synchronized", "h245.synchronized",
@@ -21169,7 +21221,7 @@ void proto_register_h245(void) {
         "MobileMultilinkReconfigurationCommand/status/reconfiguration", HFILL }},
     { &hf_h245_fns_cause,
       { "cause", "h245.cause",
-        FT_UINT32, BASE_DEC, VALS(FunctionNotSupportedCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_FunctionNotSupportedCause_vals), 0,
         "FunctionNotSupported/cause", HFILL }},
     { &hf_h245_syntaxError,
       { "syntaxError", "h245.syntaxError",
@@ -21253,7 +21305,7 @@ void proto_register_h245(void) {
         "VideoIndicateCompose/compositionNumber", HFILL }},
     { &hf_h245_mi_type,
       { "type", "h245.type",
-        FT_UINT32, BASE_DEC, VALS(Mi_type_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Mi_type_vals), 0,
         "MiscellaneousIndication/type", HFILL }},
     { &hf_h245_logicalChannelActive,
       { "logicalChannelActive", "h245.logicalChannelActive",
@@ -21333,11 +21385,11 @@ void proto_register_h245(void) {
         "H2250MaximumSkewIndication/maximumSkew", HFILL }},
     { &hf_h245_signalAddress,
       { "signalAddress", "h245.signalAddress",
-        FT_UINT32, BASE_DEC, VALS(TransportAddress_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
         "MCLocationIndication/signalAddress", HFILL }},
     { &hf_h245_vendor,
       { "vendor", "h245.vendor",
-        FT_UINT32, BASE_DEC, VALS(NonStandardIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_NonStandardIdentifier_vals), 0,
         "VendorIdentification/vendor", HFILL }},
     { &hf_h245_productNumber,
       { "productNumber", "h245.productNumber",
@@ -21349,7 +21401,7 @@ void proto_register_h245(void) {
         "VendorIdentification/versionNumber", HFILL }},
     { &hf_h245_ind_aal,
       { "aal", "h245.aal",
-        FT_UINT32, BASE_DEC, VALS(Ind_aal_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Ind_aal_vals), 0,
         "NewATMVCIndication/aal", HFILL }},
     { &hf_h245_ind_aal1,
       { "aal1", "h245.aal1",
@@ -21357,11 +21409,11 @@ void proto_register_h245(void) {
         "NewATMVCIndication/aal/aal1", HFILL }},
     { &hf_h245_ind_clockRecovery,
       { "clockRecovery", "h245.clockRecovery",
-        FT_UINT32, BASE_DEC, VALS(Ind_clockRecovery_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Ind_clockRecovery_vals), 0,
         "NewATMVCIndication/aal/aal1/clockRecovery", HFILL }},
     { &hf_h245_ind_errorCorrection,
       { "errorCorrection", "h245.errorCorrection",
-        FT_UINT32, BASE_DEC, VALS(Ind_errorCorrection_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Ind_errorCorrection_vals), 0,
         "NewATMVCIndication/aal/aal1/errorCorrection", HFILL }},
     { &hf_h245_ind_aal5,
       { "aal5", "h245.aal5",
@@ -21369,7 +21421,7 @@ void proto_register_h245(void) {
         "NewATMVCIndication/aal/aal5", HFILL }},
     { &hf_h245_ind_multiplex,
       { "multiplex", "h245.multiplex",
-        FT_UINT32, BASE_DEC, VALS(Ind_multiplex_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_Ind_multiplex_vals), 0,
         "NewATMVCIndication/multiplex", HFILL }},
     { &hf_h245_ind_reverseParameters,
       { "reverseParameters", "h245.reverseParameters",
@@ -21377,7 +21429,7 @@ void proto_register_h245(void) {
         "NewATMVCIndication/reverseParameters", HFILL }},
     { &hf_h245_indr_multiplex,
       { "multiplex", "h245.multiplex",
-        FT_UINT32, BASE_DEC, VALS(IndR_multiplex_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_IndR_multiplex_vals), 0,
         "NewATMVCIndication/reverseParameters/multiplex", HFILL }},
     { &hf_h245_iv8,
       { "iv8", "h245.iv8",
@@ -21397,7 +21449,7 @@ void proto_register_h245(void) {
         "", HFILL }},
     { &hf_h245_userInputSupportIndication,
       { "userInputSupportIndication", "h245.userInputSupportIndication",
-        FT_UINT32, BASE_DEC, VALS(T_userInputSupportIndication_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h245_T_userInputSupportIndication_vals), 0,
         "UserInputIndication/userInputSupportIndication", HFILL }},
     { &hf_h245_signal,
       { "signal", "h245.signal",
