@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.15 2001/08/01 03:47:00 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.16 2001/08/01 08:12:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -569,7 +569,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		proto_tree_add_item(tree, hf_update_count, tvb, offset, 1, TRUE);
 		offset += 1;
 
-		/* periodicity */
+		/* periodicity (in milliseconds) */
 		periodicity = tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint_format(tree, hf_periodicity, tvb, offset, 4,
 		    periodicity,
@@ -736,7 +736,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
  *
  * The document at
  *
- *	http://www.samba.org/samba/ftp/specs/smbpub.txt
+ *	http://www.samba.org/samba/ftp/specs/brow_rev.txt
  *
  * gives both formats of host announcement packets, saying that
  * "[The first] format seems wrong", that one being what appears to
@@ -808,8 +808,8 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		proto_tree_add_item(tree, hf_os_minor, tvb, offset, 1, TRUE);
 		offset += 1;
 
-		/* periodicity */
-		periodicity = tvb_get_letohs(tvb, offset);
+		/* periodicity (in seconds; convert to milliseconds) */
+		periodicity = tvb_get_letohs(tvb, offset)*1000;
 		proto_tree_add_uint_format(tree, hf_periodicity, tvb, offset, 2,
 		    periodicity,
 		    "Update Periodicity: %s",
