@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\messenger packet disassembly
  * Copyright 2003 Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-messenger.c,v 1.2 2003/06/26 04:30:28 tpot Exp $
+ * $Id: packet-dcerpc-messenger.c,v 1.3 2003/06/26 10:31:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,10 +30,16 @@
 #include <glib.h>
 #include "prefs.h"
 #include "packet-dcerpc.h"
+#include "packet-dcerpc-nt.h"
+#include "smb.h"
 
 
 static int proto_dcerpc_messenger = -1;
 static int hf_messenger_opnum = -1;
+static int hf_messenger_rc = -1;
+static int hf_messenger_server = -1;
+static int hf_messenger_client = -1;
+static int hf_messenger_message = -1;
 
 static gint ett_dcerpc_messenger = -1;
 
@@ -44,7 +50,46 @@ static e_uuid_t uuid_dcerpc_messenger = {
 
 static guint16 ver_dcerpc_messenger = 1;
 
+
+
+/*
+ * IDL  [in][string][ref] char *server;
+ * IDL  [in][string][ref] char *client;
+ * IDL  [in][string][ref] char *message;
+ */
+static int
+messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep)
+{
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_char_cvstring, NDR_POINTER_REF,
+			"Server", hf_messenger_server);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_char_cvstring, NDR_POINTER_REF,
+			"Client", hf_messenger_client);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_char_cvstring, NDR_POINTER_REF,
+			"Message", hf_messenger_message);
+
+
+	return offset;
+}
+static int
+messenger_dissect_send_message_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep)
+{
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_messenger_rc, NULL);
+
+	return offset;
+}
+
+
+
 static dcerpc_sub_dissector dcerpc_messenger_dissectors[] = {
+        {0, "SendMessage", 
+		messenger_dissect_send_message_rqst,
+		messenger_dissect_send_message_reply },
         {0, NULL, NULL,  NULL }
 };
 
@@ -55,7 +100,22 @@ proto_register_dcerpc_messenger(void)
 
 		{ &hf_messenger_opnum,
 		  { "Operation", "messenger.opnum", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "Operation", HFILL }}
+		    NULL, 0x0, "Operation", HFILL }},
+
+                { &hf_messenger_rc,
+                  { "Return code", "messenger.rc", FT_UINT32, BASE_HEX, VALS (NT_errors), 0x0, "", HFILL }},
+
+		{ &hf_messenger_server, {
+		"Server", "messenger.server", 
+		FT_STRING, BASE_NONE, NULL, 0, "Server to send the message to", HFILL }},
+
+		{ &hf_messenger_client, {
+		"Client", "messenger.client", 
+		FT_STRING, BASE_NONE, NULL, 0, "Client that sent the message", HFILL }},
+
+		{ &hf_messenger_message, {
+		"Message", "messenger.message", 
+		FT_STRING, BASE_NONE, NULL, 0, "The message being sent", HFILL }}
 
         };
 
