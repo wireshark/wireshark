@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.46 2001/02/13 18:28:29 guy Exp $
+ * $Id: packet-nfs.c,v 1.47 2001/02/21 23:53:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,6 +108,7 @@ static int hf_nfs_pathconf_no_trunc = -1;
 static int hf_nfs_pathconf_chown_restricted = -1;
 static int hf_nfs_pathconf_case_insensitive = -1;
 static int hf_nfs_pathconf_case_preserving = -1;
+static int hf_nfs_data_follows = -1;
 
 /* NFSv4 */
 static int hf_nfs_argop4 = -1;
@@ -151,6 +152,8 @@ static int hf_nfs_who = -1;
 static int hf_nfs_server = -1;
 static int hf_nfs_fattr4_owner = -1;
 static int hf_nfs_fattr4_owner_group = -1;
+static int hf_nfs_stable_how4 = -1;
+static int hf_nfs_dirlist4_eof = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_fsid = -1;
@@ -3805,7 +3808,7 @@ dissect_nfs_nfsace4(const u_char *pd, int offset, frame_data *fd,
 	if (newftree == NULL) return offset;
 
 	nextentry = EXTRACT_UINT(pd, offset);
-	offset = dissect_rpc_uint32(pd, offset, fd, newftree, "data follows?");
+	offset = dissect_rpc_bool(pd, offset, fd, newftree, hf_nfs_data_follows);
 
 	while (nextentry)
 	{
@@ -3869,7 +3872,7 @@ dissect_nfs_fs_locations4(const u_char *pd, int offset, frame_data *fd,
 	offset = dissect_nfs_pathname4(pd, offset, fd, newftree, "fs_root");
 
 	nextentry = EXTRACT_UINT(pd, offset);
-	offset = dissect_rpc_uint32(pd, offset, fd, newftree, "data follows?");
+	offset = dissect_rpc_bool(pd, offset, fd, newftree, hf_nfs_data_follows);
 
 	while (nextentry)
 	{
@@ -4610,11 +4613,29 @@ dissect_nfs_cb_client4(const u_char *pd, int offset, frame_data *fd,
 	return offset;
 }
 
+static const value_string names_stable_how4[] = {
+#define UNSTABLE4 0
+	{	UNSTABLE4,	"UNSTABLE4"	},
+#define DATA_SYNC4 1
+	{	DATA_SYNC4,	"DATA_SYNC4"	},
+#define FILE_SYNC4 2
+	{	FILE_SYNC4,	"FILE_SYNC4"	},
+	{	0,	NULL	}
+};
+
 int
 dissect_nfs_stable_how4(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree, char *name)
 {
-	return dissect_rpc_uint32(pd, offset, fd, tree, "stable_how4");
+	guint stable_how4;
+
+	stable_how4 = EXTRACT_UINT(pd, offset);
+	proto_tree_add_uint_format(tree, hf_nfs_stable_how4, NullTVB,
+			offset+0, 4, stable_how4, "%s: %s (%u)", name,
+			val_to_str(stable_how4, names_stable_how4, "%u"), stable_how4);
+	offset += 4;
+
+	return offset;
 }
 
 int
@@ -4718,8 +4739,9 @@ dissect_nfs_dirlist4(const u_char *pd, int offset, frame_data *fd,
 	if (newftree==NULL) return offset;
 
 	nextentry = EXTRACT_UINT(pd, offset);
-	offset = dissect_rpc_uint32(pd, offset, fd, newftree, "data follows?");
 
+	offset = dissect_rpc_bool(pd, offset, fd, newftree, hf_nfs_data_follows);
+	
 	while (nextentry)
 	{
 		offset = dissect_nfs_cookie4(pd, offset, fd, newftree, "cookie");
@@ -4729,7 +4751,9 @@ dissect_nfs_dirlist4(const u_char *pd, int offset, frame_data *fd,
 		offset += 4;
 	}
 
-	return dissect_rpc_uint32(pd, offset, fd, newftree, "eof");
+	offset = dissect_rpc_bool(pd, offset, fd, newftree, hf_nfs_dirlist4_eof);
+
+	return offset;
 }
 
 int
@@ -5875,6 +5899,18 @@ proto_register_nfs(void)
 		{ &hf_nfs_fattr4_owner_group, {
 			"fattr4_owner_group", "nfs.fattr4_owner_group", FT_STRING, BASE_DEC,
 			NULL, 0, "nfs.fattr4_owner_group" }},
+
+		{ &hf_nfs_stable_how4, {
+			"stable_how4", "nfs.stable_how4", FT_UINT32, BASE_DEC,
+			VALS(names_stable_how4), 0, "nfs.stable_how4" }},
+
+		{ &hf_nfs_dirlist4_eof, {
+			"eof", "nfs.dirlist4.eof", FT_BOOLEAN,
+			BASE_NONE, &yesno, 0, "nfs.dirlist4.eof" }},
+
+		{ &hf_nfs_data_follows, {
+			"data_follows", "nfs.data_follows", FT_BOOLEAN,
+			BASE_NONE, &yesno, 0, "nfs.data_follows" }},
 	};
 
 	static gint *ett[] = {
