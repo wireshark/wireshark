@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.107 2001/08/27 06:18:24 guy Exp $
+ * $Id: packet-smb.c,v 1.108 2001/08/27 07:56:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2911,7 +2911,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (tree) {
 
-        ti = proto_tree_add_text(tree, NullTVB, offset, 4, "Capabilities: 0x%04x", Capabilities);
+        ti = proto_tree_add_text(tree, NullTVB, offset, 4, "Capabilities: 0x%08x", Capabilities);
         Capabilities_tree = proto_item_add_subtree(ti, ett_smb_capabilities);
         proto_tree_add_text(Capabilities_tree, NullTVB, offset, 4, "%s",
                             decode_boolean_bitfield(Capabilities, 0x0001, 32, " Raw Mode supported", " Raw Mode not supported"));
@@ -3149,7 +3149,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (tree) {
 
-        ti = proto_tree_add_text(tree, NullTVB, offset, 4, "Capabilities: 0x%04x", Capabilities);
+        ti = proto_tree_add_text(tree, NullTVB, offset, 4, "Capabilities: 0x%08x", Capabilities);
         Capabilities_tree = proto_item_add_subtree(ti, ett_smb_capabilities);
         proto_tree_add_text(Capabilities_tree, NullTVB, offset, 4, "%s",
                             decode_boolean_bitfield(Capabilities, 0x0001, 32, " Raw Mode supported", " Raw Mode not supported"));
@@ -3242,6 +3242,12 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 	offset += string_len; /* Skip Account Name */
 
 	/* Build display for: Primary Domain */
+
+	/*
+	 * XXX - pre-W2K NT systems sometimes appear to stick an extra
+	 * byte in front of this, at least if all the strings are
+	 * ASCII and the account name is empty.  Another bug?
+	 */
 
 	PrimaryDomain = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
