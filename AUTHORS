@@ -1973,6 +1973,10 @@ Dick Gooris <gooris [AT] lucent.com> {
 	Added packet range selections in the save(as) dialog
 }
 
+Michael Shuldman <michaels [AT] inet.no> {
+	X11 replies, events and errors (matched to their request)
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
