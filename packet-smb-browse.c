@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.11 2001/07/13 00:27:49 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.12 2001/07/13 07:04:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@ static int hf_proto_minor = -1;
 static int hf_sig_const = -1;
 static int hf_server_comment = -1;
 static int hf_unused_flags = -1;
+static int hf_response_computer_name = -1;
 static int hf_election_criteria = -1;
 static int hf_election_desire = -1;
 static int hf_election_desire_flags_backup = -1;
@@ -106,6 +107,7 @@ static int hf_server_uptime = -1;
 static int hf_backup_count = -1;
 static int hf_backup_token = -1;
 static int hf_backup_server = -1;
+static int hf_browser_to_promote = -1;
 
 static gint ett_browse = -1;
 static gint ett_browse_flags = -1;
@@ -545,11 +547,16 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		return FALSE;
 	}
 
-	cmd = tvb_get_guint8(tvb, offset);
+	pinfo->current_proto = "BROWSER";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL)) {
 		col_set_str(pinfo->fd, COL_PROTOCOL, "BROWSER");
 	}
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_clear(pinfo->fd, COL_INFO);
+	}
+
+	cmd = tvb_get_guint8(tvb, offset);
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		/* Put in something, and replace it later */
@@ -636,15 +643,18 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			offset += 2;
 		}
 
-		/* name at end of request */
+		/* master browser server name or server comment */
 		namelen = tvb_strnlen(tvb, offset, -1);
 		if (namelen == -1) {
 			/*
 			 * The '\0' wasn't found.
-			 * Make the name go past the end of the
-			 * tvbuff, so we throw an exception.
+			 * Force the right exception to be thrown,
+			 * by calling "tvb_get_ptr()" starting at
+			 * "offset" and going one byte past the
+			 * end of the packet.
 			 */
 			namelen = tvb_reported_length_remaining(tvb, offset);
+			tvb_get_ptr(tvb, offset, namelen + 1);
 		}
 		namelen++;	/* include the '\0' */
 		proto_tree_add_item(tree,
@@ -660,18 +670,21 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			tvb, offset, 1, TRUE);
 		offset += 1;
 
-		/* server name */
+		/* name of computer to which to send reply */
 		namelen = tvb_strnlen(tvb, offset, -1);
 		if (namelen == -1) {
 			/*
 			 * The '\0' wasn't found.
-			 * Make the name go past the end of the
-			 * tvbuff, so we throw an exception.
+			 * Force the right exception to be thrown,
+			 * by calling "tvb_get_ptr()" starting at
+			 * "offset" and going one byte past the
+			 * end of the packet.
 			 */
 			namelen = tvb_reported_length_remaining(tvb, offset);
+			tvb_get_ptr(tvb, offset, namelen + 1);
 		}
 		namelen++;	/* include the '\0' */
-		proto_tree_add_item(tree, hf_server_name, 
+		proto_tree_add_item(tree, hf_response_computer_name, 
 			tvb, offset, namelen, TRUE);
 		offset += namelen;
 		break;
@@ -701,10 +714,13 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		if (namelen == -1) {
 			/*
 			 * The '\0' wasn't found.
-			 * Make the name go past the end of the
-			 * tvbuff, so we throw an exception.
+			 * Force the right exception to be thrown,
+			 * by calling "tvb_get_ptr()" starting at
+			 * "offset" and going one byte past the
+			 * end of the packet.
 			 */
 			namelen = tvb_reported_length_remaining(tvb, offset);
+			tvb_get_ptr(tvb, offset, namelen + 1);
 		}
 		namelen++;	/* include the '\0' */
 		proto_tree_add_item(tree, hf_server_name, 
@@ -733,16 +749,19 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		proto_tree_add_item(tree, hf_backup_token, tvb, offset, 4, TRUE);
 		offset += 4;
 
-		/* server names */
+		/* backup server names */
 		for (i = 0; i < server_count; i++) {
 			namelen = tvb_strnlen(tvb, offset, -1);
 			if (namelen == -1) {
 				/*
 				 * The '\0' wasn't found.
-				 * Make the name go past the end of the
-				 * tvbuff, so we throw an exception.
+				 * Force the right exception to be thrown,
+				 * by calling "tvb_get_ptr()" starting at
+				 * "offset" and going one byte past the
+				 * end of the packet.
 				 */
 				namelen = tvb_reported_length_remaining(tvb, offset);
+				tvb_get_ptr(tvb, offset, namelen + 1);
 			}
 			namelen++;	/* include the '\0' */
 			proto_tree_add_item(tree, hf_backup_server, 
@@ -752,23 +771,44 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		break;
 
 	case BROWSE_MASTER_ANNOUNCEMENT:
-	case BROWSE_BECOME_BACKUP:
-		/* server name */
+		/* master browser server name */
 		namelen = tvb_strnlen(tvb, offset, -1);
 		if (namelen == -1) {
 			/*
 			 * The '\0' wasn't found.
-			 * Make the name go past the end of the
-			 * tvbuff, so we throw an exception.
+			 * Force the right exception to be thrown,
+			 * by calling "tvb_get_ptr()" starting at
+			 * "offset" and going one byte past the
+			 * end of the packet.
 			 */
 			namelen = tvb_reported_length_remaining(tvb, offset);
+			tvb_get_ptr(tvb, offset, namelen + 1);
 		}
 		namelen++;	/* include the '\0' */
-		proto_tree_add_item(tree, hf_server_name, 
+		proto_tree_add_item(tree, hf_mb_server_name, 
 			tvb, offset, namelen, TRUE);
 		offset += namelen;
 		break;
 
+	case BROWSE_BECOME_BACKUP:
+		/* name of browser to promote */
+		namelen = tvb_strnlen(tvb, offset, -1);
+		if (namelen == -1) {
+			/*
+			 * The '\0' wasn't found.
+			 * Force the right exception to be thrown,
+			 * by calling "tvb_get_ptr()" starting at
+			 * "offset" and going one byte past the
+			 * end of the packet.
+			 */
+			namelen = tvb_reported_length_remaining(tvb, offset);
+			tvb_get_ptr(tvb, offset, namelen + 1);
+		}
+		namelen++;	/* include the '\0' */
+		proto_tree_add_item(tree, hf_browser_to_promote, 
+			tvb, offset, namelen, TRUE);
+		offset += namelen;
+		break;
 	}
 
 	return TRUE;
@@ -932,6 +972,10 @@ register_proto_smb_browse( void){
 			{ "Unused flags", "browser.unused", FT_UINT8, BASE_HEX,
 			NULL, 0, "Unused/unknown flags", HFILL }},
 
+		{ &hf_response_computer_name,
+			{ "Response Computer Name", "browser.response_computer_name", FT_STRINGZ, BASE_NONE,
+			NULL, 0, "Response Computer Name", HFILL }},
+
 		{ &hf_election_criteria,
 			{ "Election Criteria", "browser.election.criteria", FT_UINT32, BASE_HEX,
 			NULL, 0, "Election Criteria", HFILL }},
@@ -999,6 +1043,10 @@ register_proto_smb_browse( void){
 		{ &hf_backup_server,
 			{ "Backup Server", "browser.backup.server", FT_STRING, BASE_NONE,
 			NULL, 0, "Backup Server Name", HFILL }},
+
+		{ &hf_browser_to_promote,
+			{ "Browser to Promote", "browser.browser_to_promote", FT_STRINGZ, BASE_NONE,
+			NULL, 0, "Browser to Promote", HFILL }},
 
 	};
 
