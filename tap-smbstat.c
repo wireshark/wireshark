@@ -55,10 +55,10 @@ typedef struct _smbstat_t {
 
 
 static int
-smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi)
+smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
 	smbstat_t *ss=(smbstat_t *)pss;
-	smb_info_t *si=psi;
+	const smb_info_t *si=psi;
 	nstime_t delta;
 	timestat_t *sp=NULL;
 

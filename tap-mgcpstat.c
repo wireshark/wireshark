@@ -66,10 +66,10 @@ static const value_string mgcp_mesage_type[] = {
 };
 
 static int
-mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, void *pmi)
+mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
-	mgcp_info_t *mi=pmi;
+	const mgcp_info_t *mi=pmi;
 	nstime_t delta;
 
 	switch (mi->mgcp_type) {

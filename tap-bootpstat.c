@@ -82,10 +82,10 @@ dhcpstat_reset(void *psp)
 	g_hash_table_foreach( sp->hash, (GHFunc)dhcp_reset_hash, NULL);	
 }
 static int
-dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, void *pri)
+dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
 	dhcpstat_t *sp=psp;
-	bootp_info_value_t value=pri;
+	const bootp_info_value_t value=pri;
 	dhcp_message_type_t *sc;
 
 	if (sp==NULL)

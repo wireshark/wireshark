@@ -128,10 +128,10 @@ rpcstat_reset(void *prs)
  * !0: state has changed, call (*draw) sometime later
  */
 static int
-rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *pri)
+rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	rpcstat_t *rs=prs;
-	rpc_call_info_value *ri=pri;
+	const rpc_call_info_value *ri=pri;
 	nstime_t delta;
 	rpc_procedure_t *rp;
 

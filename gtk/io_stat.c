@@ -218,7 +218,7 @@ gtk_iostat_reset(void *g)
 }
 
 static int
-gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy _U_)
+gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	io_stat_graph_t *git=g;
 	io_item_t *it;

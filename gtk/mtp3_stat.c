@@ -95,10 +95,10 @@ static void
 mtp3_stat_reset(
     void		*tapdata)
 {
-    tapdata = tapdata;
+    mtp3_stat_t		(*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
 
     mtp3_num_used = 0;
-    memset((void *) mtp3_stat, 0, MTP3_MAX_NUM_OPC_DPC * sizeof(mtp3_stat_t));
+    memset(stat_p, 0, MTP3_MAX_NUM_OPC_DPC * sizeof(mtp3_stat_t));
 
     if (dlg.win != NULL)
     {
@@ -110,16 +110,13 @@ mtp3_stat_reset(
 static int
 mtp3_stat_packet(
     void		*tapdata,
-    packet_info		*pinfo,
+    packet_info		*pinfo _U_,
     epan_dissect_t	*edt _U_,
-    void		*data)
+    const void		*data)
 {
-    mtp3_tap_rec_t	*data_p = data;
-    int			i;
-
-
-    tapdata = tapdata;
-    pinfo = pinfo;
+    mtp3_stat_t		(*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
+    const mtp3_tap_rec_t	*data_p = data;
+    int				i;
 
     if (data_p->si_code >= MTP3_NUM_SI_CODE)
     {
@@ -136,9 +133,9 @@ mtp3_stat_packet(
     i = 0;
     while (i < mtp3_num_used)
     {
-	if (memcmp(&data_p->addr_opc, &mtp3_stat[i].addr_opc, sizeof(mtp3_addr_pc_t)) == 0)
+	if (memcmp(&data_p->addr_opc, &(*stat_p)[i].addr_opc, sizeof(mtp3_addr_pc_t)) == 0)
 	{
-	    if (memcmp(&data_p->addr_dpc, &mtp3_stat[i].addr_dpc, sizeof(mtp3_addr_pc_t)) == 0)
+	    if (memcmp(&data_p->addr_dpc, &(*stat_p)[i].addr_dpc, sizeof(mtp3_addr_pc_t)) == 0)
 	    {
 		break;
 	    }
@@ -160,10 +157,10 @@ mtp3_stat_packet(
 	mtp3_num_used++;
     }
 
-    mtp3_stat[i].addr_opc = data_p->addr_opc;
-    mtp3_stat[i].addr_dpc = data_p->addr_dpc;
-    mtp3_stat[i].si_code[data_p->si_code].num_msus++;
-    mtp3_stat[i].si_code[data_p->si_code].size += data_p->size;
+    (*stat_p)[i].addr_opc = data_p->addr_opc;
+    (*stat_p)[i].addr_dpc = data_p->addr_dpc;
+    (*stat_p)[i].si_code[data_p->si_code].num_msus++;
+    (*stat_p)[i].si_code[data_p->si_code].size += data_p->size;
 
     return(1);
 }
@@ -173,11 +170,9 @@ static void
 mtp3_stat_draw(
     void		*tapdata)
 {
+    mtp3_stat_t		(*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
     int			i, j, row_offset;
     char		str[256];
-
-
-    tapdata = tapdata;
 
     if (dlg.win == NULL)
     {
@@ -190,23 +185,23 @@ mtp3_stat_draw(
     {
 	row_offset = i * MTP3_NUM_SI_CODE;
 
-	mtp3_addr_to_str_buf((guint8 *) &mtp3_stat[i].addr_opc, str);
+	mtp3_addr_to_str_buf((guint8 *) &(*stat_p)[i].addr_opc, str);
 	dlg.entries[0] = g_strdup(str);
 
-	mtp3_addr_to_str_buf((guint8 *) &mtp3_stat[i].addr_dpc, str);
+	mtp3_addr_to_str_buf((guint8 *) &(*stat_p)[i].addr_dpc, str);
 	dlg.entries[1] = g_strdup(str);
 
 	for (j=0; j < MTP3_NUM_SI_CODE; j++)
 	{
 	    dlg.entries[2] = g_strdup(mtp3_service_indicator_code_short_vals[j].strptr);
 
-	    dlg.entries[3] = g_strdup_printf("%u", mtp3_stat[i].si_code[j].num_msus);
+	    dlg.entries[3] = g_strdup_printf("%u", (*stat_p)[i].si_code[j].num_msus);
 
-	    dlg.entries[4] = g_strdup_printf("%.0f", mtp3_stat[i].si_code[j].size);
+	    dlg.entries[4] = g_strdup_printf("%.0f", (*stat_p)[i].si_code[j].size);
 
 	    dlg.entries[5] =
 		g_strdup_printf("%.2f",
-		    mtp3_stat[i].si_code[j].size/mtp3_stat[i].si_code[j].num_msus);
+		    (*stat_p)[i].si_code[j].size/(*stat_p)[i].si_code[j].num_msus);
 
 	    gtk_clist_insert(GTK_CLIST(dlg.table), row_offset + j, dlg.entries);
 	}
@@ -457,7 +452,7 @@ register_tap_listener_gtkmtp3_stat(void)
     memset((void *) &mtp3_stat, 0, sizeof(mtp3_stat_t));
 
     err_p =
-	register_tap_listener("mtp3", NULL, NULL,
+	register_tap_listener("mtp3", &mtp3_stat, NULL,
 	    mtp3_stat_reset,
 	    mtp3_stat_packet,
 	    mtp3_stat_draw);

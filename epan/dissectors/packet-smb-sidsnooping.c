@@ -105,9 +105,9 @@ add_sid_name_mapping(char *sid, char *name)
  * level  1 : user displayinfo 1
  */
 static int
-samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, void *pri)
+samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, const void *pri)
 {
-	dcerpc_info *ri=pri;
+	const dcerpc_info *ri=pri;
 	void *old_ctx=NULL;
 	char *pol_name;
 	char *sid;
@@ -227,7 +227,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, vo
  * level 12 : DNS_DOMAIN_INFO     lsa.domain_sid -> lsa.domain
  */
 static int
-lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *edt, void *pri _U_)
+lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *edt, const void *pri _U_)
 {
 	GPtrArray *gp;
 	field_info *fi;

@@ -101,27 +101,24 @@ static void
 gsm_map_stat_reset(
     void		*tapdata)
 {
-    tapdata = tapdata;
+    gsm_map_stat_t	*stat_p = tapdata;
 
-    memset((void *) &gsm_map_stat, 0, sizeof(gsm_map_stat_t));
+    memset(stat_p, 0, sizeof(gsm_map_stat_t));
 }
 
 
 static int
 gsm_map_stat_packet(
     void		*tapdata,
-    packet_info		*pinfo,
+    packet_info		*pinfo _U_,
     epan_dissect_t	*edt _U_,
-    void		*data)
+    const void		*data)
 {
-    gsm_map_tap_rec_t	*data_p = data;
-
-
-    tapdata = tapdata;
-    pinfo = pinfo;
+    gsm_map_stat_t	*stat_p = tapdata;
+    const gsm_map_tap_rec_t	*data_p = data;
 
 #if 0   /* always false because message_type is 8 bit value */
-    if (data_p->opr_code_idx > sizeof(gsm_map_stat.opr_code))
+    if (data_p->opr_code_idx > sizeof(stat_p->opr_code))
     {
 	/*
 	 * unknown message type !!!
@@ -132,13 +129,13 @@ gsm_map_stat_packet(
 
     if (data_p->invoke)
     {
-	gsm_map_stat.opr_code[data_p->opr_code_idx]++;
-	gsm_map_stat.size[data_p->opr_code_idx] += data_p->size;
+	stat_p->opr_code[data_p->opr_code_idx]++;
+	stat_p->size[data_p->opr_code_idx] += data_p->size;
     }
     else
     {
-	gsm_map_stat.opr_code_rr[data_p->opr_code_idx]++;
-	gsm_map_stat.size_rr[data_p->opr_code_idx] += data_p->size;
+	stat_p->opr_code_rr[data_p->opr_code_idx]++;
+	stat_p->size_rr[data_p->opr_code_idx] += data_p->size;
     }
 
     return(1);
@@ -149,11 +146,9 @@ static void
 gsm_map_stat_draw(
     void		*tapdata)
 {
+    gsm_map_stat_t	*stat_p = tapdata;
     int			i, j;
     char		*strp;
-
-
-    tapdata = tapdata;
 
     if (dlg.win != NULL)
     {
@@ -163,36 +158,36 @@ gsm_map_stat_draw(
 	{
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg.table), (gpointer) i);
 
-	    strp = g_strdup_printf("%d", gsm_map_stat.opr_code[i]);
+	    strp = g_strdup_printf("%d", stat_p->opr_code[i]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 2, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.0f", gsm_map_stat.size[i]);
+	    strp = g_strdup_printf("%.0f", stat_p->size[i]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 3, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.2f", gsm_map_stat.size[i]/gsm_map_stat.opr_code[i]);
+	    strp = g_strdup_printf("%.2f", stat_p->size[i]/stat_p->opr_code[i]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 4, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%u", gsm_map_stat.opr_code_rr[i]);
+	    strp = g_strdup_printf("%u", stat_p->opr_code_rr[i]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 5, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.0f", gsm_map_stat.size_rr[i]);
+	    strp = g_strdup_printf("%.0f", stat_p->size_rr[i]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 6, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.2f", gsm_map_stat.size_rr[i]/gsm_map_stat.opr_code_rr[i]);
+	    strp = g_strdup_printf("%.2f", stat_p->size_rr[i]/stat_p->opr_code_rr[i]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 7, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.0f", gsm_map_stat.size[i] + gsm_map_stat.size_rr[i]);
+	    strp = g_strdup_printf("%.0f", stat_p->size[i] + stat_p->size_rr[i]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 8, strp);
 	    g_free(strp);
 
 	    strp = g_strdup_printf("%.2f",
-		(gsm_map_stat.size[i] + gsm_map_stat.size_rr[i])/(gsm_map_stat.opr_code[i] + gsm_map_stat.opr_code_rr[i]));
+		(stat_p->size[i] + stat_p->size_rr[i])/(stat_p->opr_code[i] + stat_p->opr_code_rr[i]));
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 9, strp);
 	    g_free(strp);
 
@@ -468,7 +463,7 @@ register_tap_listener_gtkgsm_map_stat(void)
     memset((void *) &gsm_map_stat, 0, sizeof(gsm_map_stat_t));
 
     err_p =
-	register_tap_listener("gsm_map", NULL, NULL,
+	register_tap_listener("gsm_map", &gsm_map_stat, NULL,
 	    gsm_map_stat_reset,
 	    gsm_map_stat_packet,
 	    gsm_map_stat_draw);

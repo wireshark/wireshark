@@ -83,33 +83,30 @@ static void
 ansi_a_stat_reset(
     void		*tapdata)
 {
-    tapdata = tapdata;
+    ansi_a_stat_t	*stat_p = tapdata;
 
-    memset((void *) &stat, 0, sizeof(ansi_a_stat_t));
+    memset(stat_p, 0, sizeof(ansi_a_stat_t));
 }
 
 
 static int
 ansi_a_stat_packet(
     void		*tapdata,
-    packet_info		*pinfo,
+    packet_info		*pinfo _U_,
     epan_dissect_t	*edt _U_,
-    void		*data)
+    const void		*data)
 {
-    ansi_a_tap_rec_t	*data_p = data;
-
-
-    tapdata = tapdata;
-    pinfo = pinfo;
+    ansi_a_stat_t	*stat_p = tapdata;
+    const ansi_a_tap_rec_t	*data_p = data;
 
     switch (data_p->pdu_type)
     {
     case BSSAP_PDU_TYPE_BSMAP:
-	stat.bsmap_message_type[data_p->message_type]++;
+	stat_p->bsmap_message_type[data_p->message_type]++;
 	break;
 
     case BSSAP_PDU_TYPE_DTAP:
-	stat.dtap_message_type[data_p->message_type]++;
+	stat_p->dtap_message_type[data_p->message_type]++;
 	break;
 
     default:
@@ -127,11 +124,9 @@ static void
 ansi_a_stat_draw(
     void		*tapdata)
 {
+    ansi_a_stat_t	*stat_p = tapdata;
     int			i, j;
     char		*strp;
-
-
-    tapdata = tapdata;
 
     if (dlg_bsmap.win != NULL)
     {
@@ -142,7 +137,7 @@ ansi_a_stat_draw(
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_bsmap.table), (gpointer) i);
 
 	    strp = g_strdup_printf("%d",
-		    stat.bsmap_message_type[ansi_a_ios401_bsmap_strings[i].value]);
+		    stat_p->bsmap_message_type[ansi_a_ios401_bsmap_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg_bsmap.table), j, 2, strp);
 	    g_free(strp);
 
@@ -161,7 +156,7 @@ ansi_a_stat_draw(
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_dtap.table), (gpointer) i);
 
 	    strp = g_strdup_printf("%d",
-		    stat.dtap_message_type[ansi_a_ios401_dtap_strings[i].value]);
+		    stat_p->dtap_message_type[ansi_a_ios401_dtap_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg_dtap.table), j, 2, strp);
 	    g_free(strp);
 
@@ -470,7 +465,7 @@ register_tap_listener_gtkansi_a_stat(void)
     memset((void *) &stat, 0, sizeof(ansi_a_stat_t));
 
     err_p =
-	register_tap_listener("ansi_a", NULL, NULL,
+	register_tap_listener("ansi_a", &stat, NULL,
 	    ansi_a_stat_reset,
 	    ansi_a_stat_packet,
 	    ansi_a_stat_draw);

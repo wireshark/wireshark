@@ -2894,7 +2894,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree)
 			proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp,
 			    tvb, 0, 0, 1);
-		tap_queue_packet( bootp_dhcp_tap, pinfo, (gpointer) dhcp_type);
+		tap_queue_packet( bootp_dhcp_tap, pinfo, dhcp_type);
 	}
 
 	/*

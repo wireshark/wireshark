@@ -533,20 +533,23 @@ static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
                          gchar *timeStr, guint32 pkt_len, GdkColor *color);
 
 static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
-							  packet_info *pinfo, struct _rtp_info *rtpinfo);
+                              packet_info *pinfo,
+                              const struct _rtp_info *rtpinfo);
 static int rtp_packet_add_info(GtkCList *clist,
-	tap_rtp_stat_t *statinfo, packet_info *pinfo, struct _rtp_info *rtpinfo);
+	tap_rtp_stat_t *statinfo, packet_info *pinfo,
+	const struct _rtp_info *rtpinfo);
 static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo, 
-								   tap_rtp_stat_t *statinfo,
-								   packet_info *pinfo, struct _rtp_info *rtpinfo);
+                                   tap_rtp_stat_t *statinfo,
+                                   packet_info *pinfo,
+                                   const struct _rtp_info *rtpinfo);
 
 
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
-static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, void *rtpinfo_arg)
+static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtpinfo_arg)
 {
 	user_data_t *user_data = user_data_arg;
-	struct _rtp_info *rtpinfo = rtpinfo_arg;
+	const struct _rtp_info *rtpinfo = rtpinfo_arg;
 #ifdef USE_CONVERSATION_GRAPH
 	value_pair_t vp;
 #endif
@@ -593,7 +596,8 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 
 /****************************************************************************/
 static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
-							  packet_info *pinfo, struct _rtp_info *rtpinfo)
+                              packet_info *pinfo,
+                              const struct _rtp_info *rtpinfo)
 {
 	double current_time;
 	double current_jitter;
@@ -759,7 +763,8 @@ static const GdkColor COLOR_CN = {0, 0xbfff, 0xbfff, 0xffff};
 /****************************************************************************/
 /* adds statistics information from the packet to the clist */
 static int rtp_packet_add_info(GtkCList *clist,
-	tap_rtp_stat_t *statinfo, packet_info *pinfo, struct _rtp_info *rtpinfo)
+	tap_rtp_stat_t *statinfo, packet_info *pinfo,
+	const struct _rtp_info *rtpinfo)
 {
 	guint16 msecs;
 	gchar timeStr[32];
@@ -842,8 +847,9 @@ static int rtp_packet_add_info(GtkCList *clist,
 
 /****************************************************************************/
 static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo, 
-								   tap_rtp_stat_t *statinfo,
-								   packet_info *pinfo, struct _rtp_info *rtpinfo)
+                                   tap_rtp_stat_t *statinfo,
+                                   packet_info *pinfo,
+                                   const struct _rtp_info *rtpinfo)
 {
 	guint i;
 	const guint8 *data;

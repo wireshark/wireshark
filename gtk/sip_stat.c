@@ -338,9 +338,9 @@ sipstat_reset(void *psp)
 
 /* Main entry point to SIP tap */
 static int
-sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, void *pri)
+sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-    sip_info_value_t *value=pri;
+    const sip_info_value_t *value=pri;
     sipstat_t *sp = (sipstat_t *)psp;
 
     /* Total number of packets, including continuation packets */

@@ -75,7 +75,7 @@ void init_srt_table_row(srt_stat_table *rst, int index, char *procedure);
  * @param req_time the time of the corresponding request
  * @param pinfo current packet info
  */
-void add_srt_table_data(srt_stat_table *rst, int index, nstime_t *req_time, packet_info *pinfo);
+void add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, packet_info *pinfo);
 
 /** Draw the srt table data.
  *

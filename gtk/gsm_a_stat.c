@@ -95,54 +95,51 @@ static void
 gsm_a_stat_reset(
     void		*tapdata)
 {
-    tapdata = tapdata;
+    gsm_a_stat_t	*stat_p = tapdata;
 
-    memset((void *) &stat, 0, sizeof(gsm_a_stat_t));
+    memset(stat_p, 0, sizeof(gsm_a_stat_t));
 }
 
 
 static int
 gsm_a_stat_packet(
     void		*tapdata,
-    packet_info		*pinfo,
+    packet_info		*pinfo _U_,
     epan_dissect_t	*edt _U_,
-    void		*data)
+    const void		*data)
 {
-    gsm_a_tap_rec_t	*data_p = data;
-
-
-    tapdata = tapdata;
-    pinfo = pinfo;
+    gsm_a_stat_t	*stat_p = tapdata;
+    const gsm_a_tap_rec_t	*data_p = data;
 
     switch (data_p->pdu_type)
     {
     case BSSAP_PDU_TYPE_BSSMAP:
-	stat.bssmap_message_type[data_p->message_type]++;
+	stat_p->bssmap_message_type[data_p->message_type]++;
 	break;
 
     case BSSAP_PDU_TYPE_DTAP:
 	switch (data_p->protocol_disc)
 	{
 	case PD_CC:
-	    stat.dtap_cc_message_type[data_p->message_type]++;
+	    stat_p->dtap_cc_message_type[data_p->message_type]++;
 	    break;
 	case PD_MM:
-	    stat.dtap_mm_message_type[data_p->message_type]++;
+	    stat_p->dtap_mm_message_type[data_p->message_type]++;
 	    break;
 	case PD_RR:
-	    stat.dtap_rr_message_type[data_p->message_type]++;
+	    stat_p->dtap_rr_message_type[data_p->message_type]++;
 	    break;
 	case PD_GMM:
-	    stat.dtap_gmm_message_type[data_p->message_type]++;
+	    stat_p->dtap_gmm_message_type[data_p->message_type]++;
 	    break;
 	case PD_SMS:
-	    stat.dtap_sms_message_type[data_p->message_type]++;
+	    stat_p->dtap_sms_message_type[data_p->message_type]++;
 	    break;
 	case PD_SM:
-	    stat.dtap_sm_message_type[data_p->message_type]++;
+	    stat_p->dtap_sm_message_type[data_p->message_type]++;
 	    break;
 	case PD_SS:
-	    stat.dtap_ss_message_type[data_p->message_type]++;
+	    stat_p->dtap_ss_message_type[data_p->message_type]++;
 	    break;
 	default:
 	    /*
@@ -196,62 +193,61 @@ static void
 gsm_a_stat_draw(
     void		*tapdata)
 {
-
-    tapdata = tapdata;
+    gsm_a_stat_t	*stat_p = tapdata;
 
     if (dlg_bssmap.win != NULL)
     {
 	gsm_a_stat_draw_aux(&dlg_bssmap,
-	    stat.bssmap_message_type,
+	    stat_p->bssmap_message_type,
 	    gsm_a_bssmap_msg_strings);
     }
 
     if (dlg_dtap_mm.win != NULL)
     {
 	gsm_a_stat_draw_aux(&dlg_dtap_mm,
-	    stat.dtap_mm_message_type,
+	    stat_p->dtap_mm_message_type,
 	    gsm_a_dtap_msg_mm_strings);
     }
 
     if (dlg_dtap_rr.win != NULL)
     {
 	gsm_a_stat_draw_aux(&dlg_dtap_rr,
-	    stat.dtap_rr_message_type,
+	    stat_p->dtap_rr_message_type,
 	    gsm_a_dtap_msg_rr_strings);
     }
 
     if (dlg_dtap_cc.win != NULL)
     {
 	gsm_a_stat_draw_aux(&dlg_dtap_cc,
-	    stat.dtap_cc_message_type,
+	    stat_p->dtap_cc_message_type,
 	    gsm_a_dtap_msg_cc_strings);
     }
 
     if (dlg_dtap_gmm.win != NULL)
     {
 	gsm_a_stat_draw_aux(&dlg_dtap_gmm,
-	    stat.dtap_gmm_message_type,
+	    stat_p->dtap_gmm_message_type,
 	    gsm_a_dtap_msg_gmm_strings);
     }
 
     if (dlg_dtap_sms.win != NULL)
     {
 	gsm_a_stat_draw_aux(&dlg_dtap_sms,
-	    stat.dtap_sms_message_type,
+	    stat_p->dtap_sms_message_type,
 	    gsm_a_dtap_msg_sms_strings);
     }
 
     if (dlg_dtap_sm.win != NULL)
     {
 	gsm_a_stat_draw_aux(&dlg_dtap_sm,
-	    stat.dtap_sm_message_type,
+	    stat_p->dtap_sm_message_type,
 	    gsm_a_dtap_msg_sm_strings);
     }
 
     if (dlg_dtap_ss.win != NULL)
     {
 	gsm_a_stat_draw_aux(&dlg_dtap_ss,
-	    stat.dtap_ss_message_type,
+	    stat_p->dtap_ss_message_type,
 	    gsm_a_dtap_msg_ss_strings);
     }
 }
@@ -627,7 +623,7 @@ register_tap_listener_gtkgsm_a_stat(void)
     memset((void *) &stat, 0, sizeof(gsm_a_stat_t));
 
     err_p =
-	register_tap_listener("gsm_a", NULL, NULL,
+	register_tap_listener("gsm_a", &stat, NULL,
 	    gsm_a_stat_reset,
 	    gsm_a_stat_packet,
 	    gsm_a_stat_draw);

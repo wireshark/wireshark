@@ -157,10 +157,10 @@ index2pdut(gint pdut)
 }
 
 static int
-wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, void *pri)
+wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
 	wspstat_t *sp=psp;
-	wsp_info_value_t *value=pri;
+	const wsp_info_value_t *value=pri;
 	gint index = pdut2index(value->pdut);
 	int retour=0;
 

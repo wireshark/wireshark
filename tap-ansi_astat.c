@@ -60,15 +60,13 @@ typedef struct _ansi_a_stat_t {
 static int
 ansi_a_stat_packet(
     void			*tapdata,
-    packet_info			*pinfo,
+    packet_info			*pinfo _U_,
     epan_dissect_t		*edt _U_,
-    void			*data)
+    const void			*data)
 {
     ansi_a_stat_t		*stat_p = tapdata;
-    ansi_a_tap_rec_t		*tap_p = data;
+    const ansi_a_tap_rec_t	*tap_p = data;
 
-
-    pinfo = pinfo;
 
     switch (tap_p->pdu_type)
     {

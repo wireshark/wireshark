@@ -268,9 +268,9 @@ httpstat_reset(void *psp  )
 }
 
 static int
-httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, void *pri)
+httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-	http_info_value_t *value=pri;
+	const http_info_value_t *value=pri;
 	httpstat_t *sp=(httpstat_t *) psp;
 
 	/* total number of packets, including HTTP continuation packets */

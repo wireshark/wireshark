@@ -465,7 +465,7 @@ init_srt_table_row(srt_stat_table *rst, int index, char *procedure)
 }
 
 void
-add_srt_table_data(srt_stat_table *rst, int index, nstime_t *req_time, packet_info *pinfo)
+add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, packet_info *pinfo)
 {
 	srt_procedure_t *rp;
 	nstime_t delta;

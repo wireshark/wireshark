@@ -48,7 +48,7 @@ typedef struct _pci_t {
 
 
 static int
-protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, void *dummy _U_)
+protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	pci_t *rs=prs;
 	GPtrArray *gp;

@@ -157,10 +157,10 @@ h225counter_reset(void *phs)
 }
 
 static int
-h225counter_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, void *phi)
+h225counter_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
 	h225counter_t *hs=(h225counter_t *)phs;
-	h225_packet_info *pi=phi;
+	const h225_packet_info *pi=phi;
 
 	switch (pi->msg_type) {
 

@@ -33,7 +33,7 @@
 ETH_VAR_IMPORT int num_tap_filters;
 
 typedef void (*tap_reset_cb)(void *tapdata);
-typedef int  (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data);
+typedef int  (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
 typedef void (*tap_draw_cb)(void *tapdata);
 
 

@@ -60,9 +60,9 @@ typedef struct _rpcstat_t {
 
 
 static int
-dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *pri)
+dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
-	dcerpc_info *ri=pri;
+	const dcerpc_info *ri=pri;
 	rpcstat_t *rs=prs;
 	nstime_t delta;
 	rpc_procedure_t *rp;

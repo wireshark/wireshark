@@ -57,9 +57,9 @@ static rpc_program_t *prog_list=NULL;
 static int already_enabled=0;
 
 static int
-rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *pri)
+rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
-	rpc_call_info_value *ri=pri;
+	const rpc_call_info_value *ri=pri;
 	nstime_t delta;
 	rpc_program_t *rp=NULL;
 

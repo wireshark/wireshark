@@ -85,10 +85,10 @@ smbstat_reset(void *pss)
 }
 
 static int
-smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi)
+smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
 	smbstat_t *ss=(smbstat_t *)pss;
-	smb_info_t *si=psi;
+	const smb_info_t *si=psi;
 
 	/* we are only interested in reply packets */
 	if(si->request){

@@ -96,24 +96,21 @@ static void
 ansi_map_stat_reset(
     void		*tapdata)
 {
-    tapdata = tapdata;
+    ansi_map_stat_t	*stat_p = tapdata;
 
-    memset((void *) &stat, 0, sizeof(ansi_map_stat_t));
+    memset(stat_p, 0, sizeof(ansi_map_stat_t));
 }
 
 
 static int
 ansi_map_stat_packet(
     void		*tapdata,
-    packet_info		*pinfo,
+    packet_info		*pinfo _U_,
     epan_dissect_t	*edt _U_,
-    void		*data)
+    const void		*data)
 {
-    ansi_map_tap_rec_t	*data_p = data;
-
-
-    tapdata = tapdata;
-    pinfo = pinfo;
+    ansi_map_stat_t	*stat_p = tapdata;
+    const ansi_map_tap_rec_t	*data_p = data;
 
 #if 0	/* always false because message_type is 8 bit value */
     if (data_p->message_type >= ANSI_MAP_MAX_NUM_MESSAGE_TYPES)
@@ -125,8 +122,8 @@ ansi_map_stat_packet(
     }
 #endif
 
-    stat.message_type[data_p->message_type]++;
-    stat.size[data_p->message_type] += data_p->size;
+    stat_p->message_type[data_p->message_type]++;
+    stat_p->size[data_p->message_type] += data_p->size;
 
     return(1);
 }
@@ -136,11 +133,9 @@ static void
 ansi_map_stat_draw(
     void		*tapdata)
 {
+    ansi_map_stat_t	*stat_p = tapdata;
     int			i, j;
     char		*strp;
-
-
-    tapdata = tapdata;
 
     if (dlg.win != NULL)
     {
@@ -151,15 +146,15 @@ ansi_map_stat_draw(
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg.table), (gpointer) i);
 
 	    strp = g_strdup_printf("%d",
-		    stat.message_type[ansi_map_opr_code_strings[i].value]);
+		    stat_p->message_type[ansi_map_opr_code_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 2, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.0f", stat.size[ansi_map_opr_code_strings[i].value]);
+	    strp = g_strdup_printf("%.0f", stat_p->size[ansi_map_opr_code_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 3, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.2f", stat.size[ansi_map_opr_code_strings[i].value]/stat.message_type[ansi_map_opr_code_strings[i].value]);
+	    strp = g_strdup_printf("%.2f", stat_p->size[ansi_map_opr_code_strings[i].value]/stat_p->message_type[ansi_map_opr_code_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 4, strp);
 	    g_free(strp);
 
@@ -434,7 +429,7 @@ register_tap_listener_gtkansi_map_stat(void)
     memset((void *) &stat, 0, sizeof(ansi_map_stat_t));
 
     err_p =
-	register_tap_listener("ansi_map", NULL, NULL,
+	register_tap_listener("ansi_map", &stat, NULL,
 	    ansi_map_stat_reset,
 	    ansi_map_stat_packet,
 	    ansi_map_stat_draw);

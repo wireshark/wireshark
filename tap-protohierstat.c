@@ -71,7 +71,7 @@ new_phs_t(phs_t *parent)
 
 
 static int
-protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, void *dummy _U_)
+protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	phs_t *rs=prs;
 	phs_t *tmprs;

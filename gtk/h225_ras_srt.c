@@ -142,10 +142,10 @@ h225rassrt_reset(void *phs)
 
 
 static int
-h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, void *phi)
+h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
 	h225rassrt_t *hs=(h225rassrt_t *)phs;
-	h225_packet_info *pi=phi;
+	const h225_packet_info *pi=phi;
 
 	ras_type rasmsg_type = RAS_OTHER;
 	ras_category rascategory = RAS_OTHERS;

@@ -46,7 +46,7 @@
 
 
 static int
-smbsids_packet(void *pss _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, void *psi _U_)
+smbsids_packet(void *pss _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *psi _U_)
 {
 	return 1;
 }

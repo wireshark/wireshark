@@ -156,10 +156,10 @@ static void add_to_clist1(GtkCList *clist1, guint32 number, gchar *time,
 
 /****************************************************************************/
 /* whenever a h225 packet is seen by the tap listener */
-static int h225_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, void *h225info_arg)
+static int h225_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *h225info_arg)
 {
 	user_data_t *user_data = user_data_arg;
-	h225_packet_info *h225ptr_info = h225info_arg;	
+	const h225_packet_info *h225ptr_info = h225info_arg;	
 	GdkColor color = COLOR_DEFAULT;
 
         gchar timeStr[32];
@@ -215,11 +215,11 @@ static int h225_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *
 
 /****************************************************************************/
 /* whenever a h245 packet is seen by the tap listener */
-static int h245_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, void *h245info_arg)
+static int h245_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *h245info_arg)
 {
 
 	user_data_t *user_data = user_data_arg;
-	h245_packet_info *h245ptr_info = h245info_arg;	
+	const h245_packet_info *h245ptr_info = h245info_arg;	
 	GdkColor color = COLOR_DEFAULT;
 
         gchar timeStr[32];

@@ -114,10 +114,10 @@ dcerpcstat_reset(void *rs_arg)
 
 
 static int
-dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, void *ri_arg)
+dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ri_arg)
 {
 	rpcstat_t *rs = rs_arg;
-	dcerpc_info *ri = ri_arg;
+	const dcerpc_info *ri = ri_arg;
 
 	if(!ri->call_data){
 		return 0;

@@ -80,24 +80,21 @@ static void
 isup_stat_reset(
     void		*tapdata)
 {
-    tapdata = tapdata;
+    isup_stat_t		*stat_p = tapdata;
 
-    memset((void *) &stat, 0, sizeof(isup_stat_t));
+    memset(stat_p, 0, sizeof(isup_stat_t));
 }
 
 
 static int
 isup_stat_packet(
     void		*tapdata,
-    packet_info		*pinfo,
+    packet_info		*pinfo _U_,
     epan_dissect_t	*edt _U_,
-    void		*data)
+    const void		*data)
 {
-    isup_tap_rec_t	*data_p = data;
-
-
-    tapdata = tapdata;
-    pinfo = pinfo;
+    isup_stat_t		*stat_p = tapdata;
+    const isup_tap_rec_t	*data_p = data;
 
 #if 0	/* always false because message_type is 8 bit value */
     if (data_p->message_type >= ISUP_MAX_NUM_MESSAGE_TYPES)
@@ -109,7 +106,7 @@ isup_stat_packet(
     }
 #endif
 
-    stat.message_type[data_p->message_type]++;
+    stat_p->message_type[data_p->message_type]++;
 
     return(1);
 }
@@ -119,11 +116,9 @@ static void
 isup_stat_draw(
     void		*tapdata)
 {
+    isup_stat_t		*stat_p = tapdata;
     int			i, j;
     char		*strp;
-
-
-    tapdata = tapdata;
 
     if (dlg.win != NULL)
     {
@@ -134,7 +129,7 @@ isup_stat_draw(
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg.table), (gpointer) i);
 
 	    strp = g_strdup_printf("%d",
-		    stat.message_type[isup_message_type_value[i].value]);
+		    stat_p->message_type[isup_message_type_value[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 3, strp);
 	    g_free(strp);
 
@@ -408,7 +403,7 @@ register_tap_listener_gtkisup_stat(void)
     memset((void *) &stat, 0, sizeof(isup_stat_t));
 
     err_p =
-	register_tap_listener("isup", NULL, NULL,
+	register_tap_listener("isup", &stat, NULL,
 	    isup_stat_reset,
 	    isup_stat_packet,
 	    isup_stat_draw);
