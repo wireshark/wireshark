@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.24 2001/02/23 07:24:21 guy Exp $
+$Id: README.developer,v 1.25 2001/04/09 22:25:39 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -62,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.24 2001/02/23 07:24:21 guy Exp $"
+The "$Id: README.developer,v 1.25 2001/04/09 22:25:39 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,7 +72,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.24 2001/02/23 07:24:21 guy Exp $
+ * $Id: README.developer,v 1.25 2001/04/09 22:25:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -128,7 +128,7 @@ static int hf_PROTOABBREV_FIELDABBREV = -1;
 static gint ett_PROTOABBREV = -1;
 
 /* Code to actually dissect the packets */
-void
+static void
 dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -136,26 +136,39 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *PROTOABBREV_tree;
 
-/* Check if protocol decoding is enabled else decode as data and return */
-	CHECK_DISPLAY_AS_DATA(proto_PROTOABBREV, tvb, pinfo, tree);
-
-					/* load the display labels 	*/
-	pinfo->current_proto = "PROTO_NAME";
-	
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->fd, COL_PROTOCOL)) 
-		col_add_str(pinfo->fd, COL_PROTOCOL, "PROTOABBREV");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "PROTOABBREV");
     
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. See section 1.5
    for more information.
 
+   If you are setting it to a constant string, use "col_set_str()", as
+   it's more efficient than the other "col_set_XXX()" calls.
+
+   If you're setting it to a string you've constructed, or will be
+   appending to the column later, use "col_add_str()".
+
    "col_add_fstr()" can be used instead of "col_add_str()"; it takes
-   "printf()"-like arguments. */
+   "printf()"-like arguments.  Don't use "col_add_fstr()" with a format
+   string of "%s" - just use "col_add_str()" or "col_set_str()", as it's
+   more efficient than "col_add_fstr()".
+
+   If you will be fetching any data from the packet before filling in
+   the Info column, clear that column first, in case the calls to fetch
+   data from the packet throw an exception because they're fetching data
+   past the end of the packet, so that the Info column doesn't have data
+   left over from the previous dissector; do
 
 	if (check_col(pinfo->fd, COL_INFO)) 
-		col_add_str(pinfo->fd, COL_INFO, "XXX Request");
+		col_clear(pinfo->fd, COL_INFO);
+
+   */
+
+	if (check_col(pinfo->fd, COL_INFO)) 
+		col_set_str(pinfo->fd, COL_INFO, "XXX Request");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -357,18 +370,38 @@ The value for a column can be specified with one of several functions,
 all of which take the 'fd' argument to the dissector as their first
 argument, and the COL_ value for the column as their second argument.
 
+1.5.1 The col_set_str function.
 
-1.5.1 The col_add_str function.
+'col_set_str' takes a string as its third argument, and sets the value
+for the column to that value.  It assumes that the pointer passed to it
+points to a string constant or a static "const" array, not to a
+variable, as it doesn't copy the string, it merely saves the pointer
+value; the argument can itself be a variable, as long as it always
+points to a string constant or a static "const" array.
 
-'col_add_str' takes a string as its third argument, and sets the value
-for the column to that value.  For example, to set the "Protocol" column
+It is more efficient than 'col_add_str' or 'col_add_fstr'; however, if
+the dissector will be using 'col_append_str' or 'col_append_fstr" to
+append more information to the column, the string will have to be copied
+anyway, so it's best to use 'col_add_str' rather than 'col_set_str' in
+that case.
+
+For example, to set the "Protocol" column
 to "PROTOABBREV":
 
 	if (check_col(pinfo->fd, COL_PROTOCOL)) 
-		col_add_str(pinfo->fd, COL_PROTOCOL, "PROTOABBREV");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "PROTOABBREV");
 
 
-1.5.2 The col_add_fstr function.
+1.5.2 The col_add_str function.
+
+'col_add_str' takes a string as its third argument, and sets the value
+for the column to that value.  It takes the same arguments as
+'col_set_str', but copies the string, so that if the string is, for
+example, an automatic variable that won't remain in scope when the
+dissector returns, it's safe to use.
+
+
+1.5.3 The col_add_fstr function.
 
 'col_add_fstr' takes a 'printf'-style format string as its third
 argument, and 'printf'-style arguments corresponding to '%' format
@@ -381,8 +414,52 @@ unsigned integer containing the number of bytes in the request:
 		col_add_fstr(pinfo->fd, COL_INFO, "%s request, %u bytes",
 		    reqtype, n);
 
+Don't use 'col_add_fstr' with a format argument of just "%s" -
+'col_add_str', or possibly even 'col_set_str' if the string that matches
+the "%s" is a static constant string, will do the same job more
+efficiently.
 
-1.5.3 The col_append_str function.
+
+1.5.4 The col_clear function.
+
+If the Info column will be filled with information from the packet, that
+means that some data will be fetched from the packet before the Info
+column is filled in.  If the packet is so small that the data in
+question cannot be fetched, the routines to fetch the data will throw an
+exception (see the comment at the beginning about tvbuffers improving
+the handling of short packets - the tvbuffers keep track of how much
+data is in the packet, and throw an exception on an attempt to fetch
+data past the end of the packet, so that the dissector won't process
+bogus data), causing the Info column not to be filled in.
+
+This means that the Info column will have data for the previous
+protocol, which would be confusing if, for example, the Protocol column
+had data for this protocol.
+
+Therefore, before a dissector fetches any data whatsoever from the
+packet (unless it's a heuristic dissector fetching data to determine
+whether the packet is one that it should dissect, in which case it
+should check, before fetching the data, whether there's any data to
+fetch; if there isn't, it should return FALSE), it should set the
+Protocol column and the Info column.
+
+If the Protocol column will ultimately be set to, for example, a value
+containing a protocol version number, with the version number being a
+field in the packet, the dissector should, before fetching the version
+number field or any other field from the packet, set it to a value
+without a version number, using 'col_set_str', and should later set it
+to a value with the version number after it's fetched the version
+number.
+
+If the Info column will ultimately be set to a value containing
+information from the packet, the dissector should, before fetching any
+fields from the packet, clear the column using 'col_clear' (which is
+more efficient than clearing it by calling 'col_set_str' or
+'col_add_str' with a null string), and should later set it to the real
+string after it's fetched the data to use when doing that.
+
+
+1.5.5 The col_append_str function.
 
 Sometimes the value of a column, especially the "Info" column, can't be
 conveniently constructed at a single point in the dissection process;
@@ -395,7 +472,7 @@ string to which it is appended; if you want a blank there, you must add
 it yourself as part of the string being appended.)
 
 
-1.5.4 The col_append_fstr function.
+1.5.6 The col_append_fstr function.
 
 'col_append_fstr' is to 'col_add_fstr' as 'col_append_str' is to
 'col_add_str' - it takes, as arguments, the same arguments as
