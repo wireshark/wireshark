@@ -112,7 +112,7 @@ static gboolean print_prefs_init = FALSE;
 
 
 void
-file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+file_print_cmd(gboolean print_selected)
 {
   print_args_t *args = &print_args;
 
@@ -134,14 +134,29 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
   }
-  
+
   /* init the printing range */
   packet_range_init(&args->range);
 
+  if(print_selected) {
+      args->range.process = range_process_selected;
+  }
+  
   print_win = open_print_dialog("Ethereal: Print", output_action_print, args);
   SIGNAL_CONNECT(print_win, "destroy", print_destroy_cb, &print_win);
 }
 
+void
+file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+    file_print_cmd(FALSE);
+}
+
+void
+file_print_selected_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+    file_print_cmd(TRUE);
+}
 
 /*
  * Keep a static pointer to the current "Export text" window, if any, so that if

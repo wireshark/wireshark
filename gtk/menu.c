@@ -420,7 +420,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
     ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Print...", NULL, file_print_cmd_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Print...", NULL, file_print_selected_cmd_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Show Packet in New Window", NULL, new_window_cb,
                        0, NULL, NULL)
 };

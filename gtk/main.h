@@ -145,6 +145,13 @@ extern void file_quit_cmd_cb(GtkWidget *widget, gpointer data);
  */
 extern void file_print_cmd_cb(GtkWidget *widget, gpointer data);
 
+/** User requested "Print" by packet list context menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void file_print_selected_cmd_cb(GtkWidget *widget _U_, gpointer data _U_);
+
 /** User requested "Export as Plain Text" by menu.
  *
  * @param widget parent widget (unused)
