@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.9 2002/02/20 22:46:21 guy Exp $
+ * $Id: asn1.c,v 1.10 2002/02/21 02:05:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,8 @@
 #ifdef HAVE_WINSOCK_H
 #include <winsock.h>
 #endif
+
+#include <limits.h>
 
 #include <glib.h>
 #include <epan/tvbuff.h>
@@ -649,6 +651,13 @@ asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
     eoc = asn1->offset + enc_len;
 
     /*
+     * Check for an overflow, and clamp "eoc" at the maximum if we
+     * get it.
+     */
+    if (eoc < asn1->offset || eoc < 0)
+	eoc = INT_MAX;
+
+    /*
      * First, make sure the entire string is in the tvbuff, and throw
      * an exception if it isn't.  If the length is bogus, this should
      * keep us from trying to allocate an immensely large buffer.
@@ -809,6 +818,13 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
     subid_t      *optr;
 
     eoc = asn1->offset + enc_len;
+
+    /*
+     * Check for an overflow, and clamp "eoc" at the maximum if we
+     * get it.
+     */
+    if (eoc < asn1->offset || eoc < 0)
+	eoc = INT_MAX;
 
     /*
      * First, make sure the entire string is in the tvbuff, and throw
