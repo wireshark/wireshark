@@ -106,12 +106,13 @@ AC_DEFUN([AC_ETHEREAL_CHECK_64BIT_FORMAT],
 #	  ifdef HAVE_INTTYPES_H
 	  #include <inttypes.h>
 #	  endif
+	  #include <glib.h>
 	  #include <stdio.h>
 	  #include <sys/types.h>
 
 	  main()
 	  {
-	    u_int64_t t = 1;
+	    guint64 t = 1;
 	    char strbuf[16+1];
 	    sprintf(strbuf, "%016$1x", t << 32);
 	    if (strcmp(strbuf, "0000000100000000") == 0)
