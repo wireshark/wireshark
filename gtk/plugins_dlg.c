@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.16 2000/08/11 13:33:10 deniel Exp $
+ * $Id: plugins_dlg.c,v 1.17 2000/08/21 20:11:51 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -156,17 +156,17 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
     gtk_button_box_set_layout(GTK_BUTTON_BOX(main_hbnbox), GTK_BUTTONBOX_SPREAD);
     gtk_widget_show(main_hbnbox);
 
-    close_bn = gtk_button_new_with_label("Close");
-    gtk_container_add(GTK_CONTAINER(main_hbnbox), close_bn);
-    gtk_widget_show(close_bn);
-    gtk_signal_connect(GTK_OBJECT(close_bn), "clicked",
-	    GTK_SIGNAL_FUNC(plugins_close_cb), GTK_OBJECT(plugins_window));
-
     save_bn = gtk_button_new_with_label("Save status");
     gtk_container_add(GTK_CONTAINER(main_hbnbox), save_bn);
     gtk_widget_show(save_bn);
     gtk_signal_connect(GTK_OBJECT(save_bn), "clicked",
 	    GTK_SIGNAL_FUNC(plugins_save_cb), GTK_OBJECT(plugins_window));
+
+    close_bn = gtk_button_new_with_label("Close");
+    gtk_container_add(GTK_CONTAINER(main_hbnbox), close_bn);
+    gtk_widget_show(close_bn);
+    gtk_signal_connect(GTK_OBJECT(close_bn), "clicked",
+	    GTK_SIGNAL_FUNC(plugins_close_cb), GTK_OBJECT(plugins_window));
 
     gtk_widget_show(plugins_window);
 
