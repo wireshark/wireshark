@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lapd.c,v 1.31 2002/08/28 21:00:19 jmayer Exp $
+ * $Id: packet-lapd.c,v 1.32 2002/10/31 07:12:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -201,19 +201,16 @@ proto_register_lapd(void)
 					 "LAPD", "lapd");
     proto_register_field_array (proto_lapd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    register_dissector("lapd", dissect_lapd, proto_lapd);
 }
 
 void
 proto_reg_handoff_lapd(void)
 {
-	dissector_handle_t lapd_handle;
-
 	/*
 	 * Get handle for the Q.931 dissector.
 	 */
 	q931_handle = find_dissector("q931");
 	data_handle = find_dissector("data");
-
-	lapd_handle = create_dissector_handle(dissect_lapd, proto_lapd);
-	dissector_add("wtap_encap", WTAP_ENCAP_LAPD, lapd_handle);
 }

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.85 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: ngsniffer.c,v 1.86 2002/10/31 07:12:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -292,8 +292,8 @@ static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
     guint16 *typep, guint16 *lengthp, int *err);
 static gboolean ngsniffer_read_frame2(wtap *wth, gboolean is_random,
     struct frame2_rec *frame2, int *err);
-static void set_pseudo_header_frame2(union wtap_pseudo_header *pseudo_header,
-    struct frame2_rec *frame2);
+static void set_pseudo_header_frame2(wtap *wth,
+    union wtap_pseudo_header *pseudo_header, struct frame2_rec *frame2);
 static gboolean ngsniffer_read_frame4(wtap *wth, gboolean is_random,
     struct frame4_rec *frame4, int *err);
 static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
@@ -304,8 +304,8 @@ static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
     struct frame6_rec *frame6);
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
     guchar *pd, int length, int *err);
-static void fix_pseudo_header(wtap *wth,
-    union wtap_pseudo_header *pseudo_header);
+static int infer_pkt_encap(guint8 byte0);
+static void fix_pseudo_header(int, union wtap_pseudo_header *pseudo_header);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -339,8 +339,8 @@ int ngsniffer_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* PC Network broadband */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
 		WTAP_ENCAP_UNKNOWN,	/* Znet */
-		WTAP_ENCAP_UNKNOWN,	/* Internetwork analyzer (synchronous) */
-		WTAP_ENCAP_UNKNOWN,	/* Internetwork analyzer (asynchronous) */
+		WTAP_ENCAP_PER_PACKET,	/* Internetwork analyzer (synchronous) */
+		WTAP_ENCAP_PER_PACKET,	/* Internetwork analyzer (asynchronous) */
 		WTAP_ENCAP_FDDI_BITSWAPPED,
 		WTAP_ENCAP_ATM_SNIFFER
 	};
@@ -396,23 +396,9 @@ int ngsniffer_open(wtap *wth, int *err)
 	}
 	wth->data_offset += sizeof version;
 
-	/* Check the data link type.
-	   If "version.network" is 7, that's "Internetwork analyzer";
-	   Sniffers appear to write out LAPB, LAPD and PPP captures
-	   (and perhaps other types of captures) in that fashion,
-	   and, so far, the only way we know of distinguishing them
-	   is to look at the first byte of the packet - if it's 0xFF,
-	   it's PPP, otherwise if it's odd, it's LAPB else it's LAPD.
-	   Therefore, we treat it as WTAP_ENCAP_UNKNOWN for now, but
-	   don't treat that as an error.
-
-	   In one PPP capture, the two 16-bit words of the "rsvd" field
-	   were 1 and 3, respectively, and in one X.25 capture, they
-	   were both 0.  That's too small a sample from which to
-	   conclude anything, however.... */
+	/* Check the data link type. */
 	if (version.network >= NUM_NGSNIFF_ENCAPS
-	    || (sniffer_encap[version.network] == WTAP_ENCAP_UNKNOWN
-	       && version.network != 7)) {
+	    || sniffer_encap[version.network] == WTAP_ENCAP_UNKNOWN) {
 		g_message("ngsniffer: network type %u unknown or unsupported",
 		    version.network);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
@@ -588,7 +574,7 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 		 * the particular type of network we're on.
 		 */
 		if (type == REC_HEADER2 &&
-		    wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+		    wth->file_encap == WTAP_ENCAP_PER_PACKET) {
 			/*
 			 * Yes, get the first 32 bytes of the record
 			 * data.
@@ -623,11 +609,11 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 			 * I have no LAPD captures, so I can't check
 			 * various fields of this record (and I'd
 			 * need multiple captures of both LAPB/X.25
-			 * and LAPD/ISDN to be reasonable certain
+			 * and LAPD/ISDN to be reasonably certain
 			 * where the magic key is).
 			 *
-			 * So, for now, we don't set the encapsulation
-			 * for NET_HDLC.
+			 * So, for now, we leave the encapsulation for
+			 * NET_HDLC as WTAP_ENCAP_PER_PACKET.
 			 */
 			switch (buffer[4]) {
 
@@ -636,10 +622,9 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 				break;
 
 			case NET_PPP:
-				wth->file_encap = WTAP_ENCAP_PPP;
+				wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
 				break;
 			}
-
 		} else {
 			/* Nope, just skip over the data. */
 			if (file_seek(wth->fh, length, SEEK_CUR, err) == -1)
@@ -704,7 +689,8 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 			t = (double)time_low+(double)(time_med)*65536.0 +
 			    (double)time_high*4294967296.0;
 
-			set_pseudo_header_frame2(&wth->pseudo_header, &frame2);
+			set_pseudo_header_frame2(wth, &wth->pseudo_header,
+			    &frame2);
 			goto found;
 
 		case REC_FRAME4:
@@ -821,51 +807,26 @@ found:
 		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
-	if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+	if (wth->file_encap == WTAP_ENCAP_PER_PACKET) {
 		/*
-		 * OK, this is from an "Internetwork analyzer", and
-		 * we either didn't see a type 7 record or it had
-		 * a network type such as NET_HDLC that doesn't
-		 * tell us which *particular* HDLC derivative this
-		 * is; let's look at the first byte of the packet,
-		 * and figure out whether it's LAPB, LAPD, PPP, or
-		 * Frame Relay.
+		 * Infer the packet type from the first byte.
 		 */
-		if (pd[0] == 0xFF) {
-			/*
-			 * PPP.
-			 */
-			wth->file_encap = WTAP_ENCAP_PPP;
-		} else if (pd[0] == 0x34 || pd[0] == 0x28) {
-			/*
-			 * Frame Relay.
-			 */
-			wth->file_encap = WTAP_ENCAP_FRELAY;
-		} else if (pd[0] & 1) {
-			/*
-			 * LAPB.
-			 */
-			wth->file_encap = WTAP_ENCAP_LAPB;
-		} else {
-			/*
-			 * LAPD.
-			 */
-			wth->file_encap = WTAP_ENCAP_LAPD;
-		}
-	}
+		wth->phdr.pkt_encap = infer_pkt_encap(pd[0]);
+	} else
+		wth->phdr.pkt_encap = wth->file_encap;
 
 	/*
 	 * Fix up the pseudo-header; we may have set "x25.flags",
-	 * but, for some traffic, we should set "p2p.sent" instead.
+	 * but, for some traffic, we should set "isdn.uton" instead,
+	 * and set the channel number.
 	 */
-	fix_pseudo_header(wth, &wth->pseudo_header);
+	fix_pseudo_header(wth->phdr.pkt_encap, &wth->pseudo_header);
 
 	t = t/1000000.0 * wth->capture.ngsniffer->timeunit; /* t = # of secs */
 	t += wth->capture.ngsniffer->start;
 	wth->phdr.ts.tv_sec = (long)t;
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
 			*1.0e6);
-	wth->phdr.pkt_encap = wth->file_encap;
 	return TRUE;
 }
 
@@ -878,6 +839,7 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
 	struct frame6_rec frame6;
+	int	pkt_encap;
 
 	if (ng_file_seek_rand(wth, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -903,7 +865,7 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 
 		length -= sizeof frame2;	/* we already read that much */
 
-		set_pseudo_header_frame2(pseudo_header, &frame2);
+		set_pseudo_header_frame2(wth, pseudo_header, &frame2);
 		break;
 
 	case REC_FRAME4:
@@ -939,15 +901,24 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 	}
 
 	/*
-	 * Fix up the pseudo-header; we may have set "x25.flags",
-	 * but, for some traffic, we should set "p2p.sent" instead.
-	 */
-	fix_pseudo_header(wth, pseudo_header);
-
-	/*
 	 * Got the pseudo-header (if any), now get the data.
 	 */
-	return ngsniffer_read_rec_data(wth, TRUE, pd, packet_size, err);
+	if (!ngsniffer_read_rec_data(wth, TRUE, pd, packet_size, err))
+		return FALSE;
+
+	/*
+	 * Infer the packet type from the first byte.
+	 */
+	pkt_encap = infer_pkt_encap(pd[0]);
+
+	/*
+	 * Fix up the pseudo-header; we may have set "x25.flags",
+	 * but, for some traffic, we should set "isdn.uton" instead,
+	 * and set the channel number.
+	 */
+	fix_pseudo_header(pkt_encap, pseudo_header);
+
+	return TRUE;
 }
 
 static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
@@ -998,8 +969,8 @@ static gboolean ngsniffer_read_frame2(wtap *wth, gboolean is_random,
 	return TRUE;
 }
 
-static void set_pseudo_header_frame2(union wtap_pseudo_header *pseudo_header,
-    struct frame2_rec *frame2)
+static void set_pseudo_header_frame2(wtap *wth,
+    union wtap_pseudo_header *pseudo_header, struct frame2_rec *frame2)
 {
 	/*
 	 * In one PPP "Internetwork analyzer" capture,
@@ -1022,7 +993,18 @@ static void set_pseudo_header_frame2(union wtap_pseudo_header *pseudo_header,
 	 * or 0xcc, and "flags" was either 0 or 0x18,
 	 * with no obvious correlation with anything.
 	 */
-	pseudo_header->x25.flags = (frame2->fs & 0x80) ? 0x00 : FROM_DCE;
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+		pseudo_header->p2p.sent = (frame2->fs & 0x80) ? TRUE : FALSE;
+		break;
+
+	case WTAP_ENCAP_LAPB:
+	case WTAP_ENCAP_FRELAY:
+	case WTAP_ENCAP_PER_PACKET:
+		pseudo_header->x25.flags = (frame2->fs & 0x80) ? 0x00 : FROM_DCE;
+		break;
+	}
 }
 
 static gboolean ngsniffer_read_frame4(wtap *wth, gboolean is_random,
@@ -1323,16 +1305,65 @@ static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
 	return TRUE;
 }
 
-static void fix_pseudo_header(wtap *wth,
+/*
+ * OK, this capture is from an "Internetwork analyzer", and we either
+ * didn't see a type 7 record or it had a network type such as NET_HDLC
+ * that doesn't tell us which *particular* HDLC derivative this is;
+ * let's look at the first byte of the packet, which was passed to us
+ * as an argument, and see whether it looks like PPP, Frame Relay, or
+ * LAPB - or, if it's none of those, assume it's LAPD.
+ *
+ * (XXX - are there any "Internetwork analyzer" captures that don't
+ * have type 7 records?  If so, is there some other field that will
+ * tell us what type of capture it is?)
+ */
+static int infer_pkt_encap(guint8 byte0)
+{
+	if (byte0 == 0xFF) {
+		/*
+		 * PPP.
+		 */
+		return WTAP_ENCAP_PPP_WITH_PHDR;
+	} else if (byte0 == 0x34 || byte0 == 0x28) {
+		/*
+		 * Frame Relay.
+		 */
+		return WTAP_ENCAP_FRELAY;
+	} else if (byte0 & 1) {
+		/*
+		 * LAPB.
+		 */
+		return WTAP_ENCAP_LAPB;
+	} else {
+		/*
+		 * LAPD.
+		 * We report it as WTAP_ENCAP_ISDN.
+		 */
+		return WTAP_ENCAP_ISDN;
+	}
+}
+
+static void fix_pseudo_header(int encap,
     union wtap_pseudo_header *pseudo_header)
 {
-	switch (wth->file_encap) {
+	switch (encap) {
 
-	case WTAP_ENCAP_LAPD:
+	case WTAP_ENCAP_ISDN:
 		if (pseudo_header->x25.flags == 0x00)
-			pseudo_header->p2p.sent = TRUE;
+			pseudo_header->isdn.uton = TRUE;
 		else
-			pseudo_header->p2p.sent = FALSE;
+			pseudo_header->isdn.uton = FALSE;
+
+		/*
+		 * XXX - this is currently a per-packet encapsulation
+		 * type, and we can't determine whether a capture is
+		 * an ISDN capture before seeing any packets, and
+		 * B-channel PPP packets look like PPP packets and
+		 * are given WTAP_ENCAP_PPP_WITH_PHDR, not
+		 * WTAP_ENCAP_ISDN, so we assume this is a D-channel
+		 * packet and thus give it a channel number of 0.
+		 */
+		pseudo_header->isdn.channel = 0;
 		break;
 	}
 }
@@ -1381,7 +1412,11 @@ static const int wtap_encap[] = {
     -1,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
     7,		/* WTAP_ENCAP_LAPB -> Internetwork analyzer (synchronous) */
     -1,		/* WTAP_ENCAP_ATM_SNIFFER */
-    -1		/* WTAP_ENCAP_NULL -> unsupported */
+    -1,		/* WTAP_ENCAP_NULL -> unsupported */
+    -1,		/* WTAP_ENCAP_ASCEND -> unsupported */
+    -1,		/* WTAP_ENCAP_ISDN -> unsupported */
+    -1,		/* WTAP_ENCAP_IP_OVER_FC -> unsupported */
+    7,		/* WTAP_ENCAP_PPP_WITH_PHDR -> Internetwork analyzer (synchronous) FIXME ! */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 
@@ -1517,7 +1552,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     rec_hdr.time_med = htoles(t_med);
     rec_hdr.time_high = htoles(t_high);
     rec_hdr.size = htoles(phdr->caplen);
-    if (wdh->encap == WTAP_ENCAP_LAPB || wdh->encap == WTAP_ENCAP_PPP)
+    if (wdh->encap == WTAP_ENCAP_LAPB || wdh->encap == WTAP_ENCAP_PPP_WITH_PHDR)
 	rec_hdr.fs = (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : 0x80;
     else
 	rec_hdr.fs = 0;

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.61 2002/10/29 06:12:35 guy Exp $
+ * $Id: netxray.c,v 1.62 2002/10/31 07:12:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -276,11 +276,10 @@ int netxray_open(wtap *wth, int *err)
 		 * words of the file header to specify what particular
 		 * type of WAN capture we have; however, the only version
 		 * 2 WAN captures we've seen are ISDN captures, so we
-		 * assume they're ISDN, for now - with PPP on the
-		 * B channels.
+		 * assume they're ISDN, for now.
 		 */
 		if (version_major == 2)
-			wth->file_encap = WTAP_ENCAP_PER_PACKET;
+			wth->file_encap = WTAP_ENCAP_ISDN;
 		else
 			wth->file_encap = WTAP_ENCAP_ETHERNET;
 	} else
@@ -423,41 +422,7 @@ reread:
 		wth->phdr.caplen = packet_size - wth->capture.netxray->padding;
 		wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - wth->capture.netxray->padding;
 	}
-	if (wth->file_encap == WTAP_ENCAP_PER_PACKET) {
-		/*
-		 * ISDN capture.
-		 * It appears that the two low-order bits of byte 13 of
-		 * "hdr.hdr_2_x.xxx" indicates whether this is a
-		 * B-channel (1 or 2) or a D-channel (0).
-		 *
-		 * XXX - or is it just a channel number?  PRI has more
-		 * channels; let's assume that the bottom 5 bits are
-		 * the channel number, which is enough for European
-		 * PRI.  (XXX - maybe the whole byte is the channel
-		 * number?)
-		 *
-		 * XXX - we should supply an ISDN pseudo-header with
-		 * a channel number and a direction, and there should
-		 * be an ISDN dissector displaying that.
-		 */
-		switch (hdr.hdr_2_x.xxx[13] & 0x1F) {
-
-		case 0:
-			/*
-			 * D-channel - it's LAPD.
-			 */
-			wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;
-			break;
-
-		default:
-			/*
-			 * B-channel - assume it's PPP.
-			 */
-			wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
-			break;
-		}
-	} else
-		wth->phdr.pkt_encap = wth->file_encap;
+	wth->phdr.pkt_encap = wth->file_encap;
 
 	return TRUE;
 }
@@ -555,14 +520,25 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
 			    hdr->hdr_2_x.xxx[14];
 			break;
 
-		case WTAP_ENCAP_PER_PACKET:
+		case WTAP_ENCAP_ISDN:
 			/*
 			 * ISDN.
 			 * It appears that the high-order bit of byte
-			 * 10 is a direction flag.
+			 * 10 is a direction flag, and that the two
+			 * low-order bits of byte 13 of "hdr.hdr_2_x.xxx"
+			 * indicates whether this is a B-channel (1 or 2)
+			 * or a D-channel (0).
+			 *
+			 * XXX - or is it just a channel number?  Primary
+			 * Rate ISDN has more channels; let's assume that
+			 * the bottom 5 bits are the channel number, which
+			 * is enough for European PRI.  (XXX - maybe the
+			 * whole byte is the channel number?)
 			 */
-			pseudo_header->p2p.sent =
-			    (hdr->hdr_2_x.xxx[10] & 0x80) ? TRUE: FALSE;
+			pseudo_header->isdn.uton =
+			    (hdr->hdr_2_x.xxx[10] & 0x80);
+			pseudo_header->isdn.channel =
+			    hdr->hdr_2_x.xxx[13] & 0x1F;
 			break;
 		}
 	}

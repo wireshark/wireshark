@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.28 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-v120.c,v 1.29 2002/10/31 07:12:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,24 +82,25 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return;
     }
 
-    if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
+    if (pinfo->pseudo_header->isdn.uton) {
+	if (!(byte0 & 0x02))
+	    is_response = TRUE;
+	else
+	    is_response = FALSE;
+	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+    } else {
+	if (byte0 & 0x02)
+	    is_response = TRUE;
+	else
+	    is_response = FALSE;
 	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
 	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
 	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
 	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
     }
-    else {
-	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
-	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
-    }
-
-    if (((pinfo->pseudo_header->x25.flags & FROM_DCE) && byte0 & 0x02) ||
-       (!(pinfo->pseudo_header->x25.flags & FROM_DCE) && !(byte0 & 0x02)))
-	is_response = TRUE;
-    else
-	is_response = FALSE;
 
     if (tree) {
 	ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, -1, "V.120");
@@ -223,14 +224,12 @@ proto_register_v120(void)
 					 "V.120", "v120");
     proto_register_field_array (proto_v120, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    register_dissector("v120", dissect_v120, proto_v120);
 }
 
 void
 proto_reg_handoff_v120(void)
 {
-    dissector_handle_t v120_handle;
-
     data_handle = find_dissector("data");
-    v120_handle = create_dissector_handle(dissect_v120, proto_v120);
-    dissector_add("wtap_encap", WTAP_ENCAP_V120, v120_handle);
 }

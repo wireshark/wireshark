@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.72 2002/10/22 09:11:13 guy Exp $
+ * $Id: wtap.c,v 1.73 2002/10/31 07:12:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -104,11 +104,11 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_ASCEND */
 	{ "Lucent/Ascend access equipment", "ascend" },
 
-	/* WTAP_ENCAP_LAPD */
-	{ "LAPD", "lapd" },
+	/* WTAP_ENCAP_ISDN */
+	{ "ISDN", "isdn" },
 
-	/* WTAP_ENCAP_V120 */
-	{ "V.120", "v120" },
+	/* WTAP_ENCAP_IP_OVER_FC */
+	{ "RFC 2625 IP-over-Fibre Channel", "ip-over-fc" },
 
 	/* WTAP_ENCAP_PPP_WITH_PHDR */
 	{ "PPP with Directional Info", "ppp-with-direction" },
@@ -148,9 +148,6 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_COSINE */
 	{ "CoSine L2 debug log", "cosine" },
-
-	/* WTAP_ENCAP_IP_OVER_FC */
-	{ "RFC 2625 IP-over-Fibre Channel", "ip-over-fc" },
 };
 
 /* Name that should be somewhat descriptive. */

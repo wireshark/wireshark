@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.25 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: toshiba.c,v 1.26 2002/10/31 07:12:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -351,14 +351,17 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 	switch (channel[0]) {
 		case 'B':
 			if (wth)
-				wth->phdr.pkt_encap = WTAP_ENCAP_PPP;
+				wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
+			pseudo_header->isdn.uton = (direction[0] == 'T');
+			pseudo_header->isdn.channel =
+			    strtol(&channel[1], NULL, 10);
 			break;
 
 		case 'D':
 			if (wth)
-				wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;
-			pseudo_header->p2p.sent =
-				(direction[0] == 'T' ? TRUE : FALSE );
+				wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
+			pseudo_header->isdn.uton = (direction[0] == 'T');
+			pseudo_header->isdn.channel = 0;
 			break;
 
 		default:

@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.29 2002/10/15 05:38:01 guy Exp $
+ * $Id: wtap-int.h,v 1.30 2002/10/31 07:12:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -65,7 +65,6 @@ typedef struct {
 
 typedef struct {
 	gboolean byte_swapped;
-	int bchannel_prot[2];	/* For the V.120 heuristic */
 } i4btrace_t;
 
 typedef struct {

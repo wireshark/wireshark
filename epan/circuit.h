@@ -1,7 +1,7 @@
 /* circuit.h
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.h,v 1.1 2002/10/22 08:43:44 guy Exp $
+ * $Id: circuit.h,v 1.2 2002/10/31 07:12:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@ extern void circuit_delete_proto_data(circuit_t *conv, int proto);
 
 extern void circuit_set_dissector(circuit_t *circuit,
     dissector_handle_t handle);
+extern dissector_handle_t circuit_get_dissector(circuit_t *circuit);
 extern gboolean
 try_circuit_dissector(circuit_type ctype, guint32 circuit_id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.123 2002/10/22 09:11:13 guy Exp $
+ * $Id: wtap.h,v 1.124 2002/10/31 07:12:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -104,8 +104,8 @@
 #define WTAP_ENCAP_ATM_SNIFFER			12
 #define WTAP_ENCAP_NULL				13
 #define WTAP_ENCAP_ASCEND			14
-#define WTAP_ENCAP_LAPD				15
-#define WTAP_ENCAP_V120				16
+#define WTAP_ENCAP_ISDN				15
+#define WTAP_ENCAP_IP_OVER_FC			16
 #define WTAP_ENCAP_PPP_WITH_PHDR		17
 #define WTAP_ENCAP_IEEE_802_11			18
 #define WTAP_ENCAP_IEEE_802_11_WITH_RADIO	19
@@ -119,10 +119,9 @@
 #define WTAP_ENCAP_HHDLC			27
 #define WTAP_ENCAP_DOCSIS			28
 #define WTAP_ENCAP_COSINE			29
-#define WTAP_ENCAP_IP_OVER_FC			30
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			31
+#define WTAP_NUM_ENCAP_TYPES			30
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -189,6 +188,14 @@
 #define FROM_DCE			0x80
 struct x25_phdr {
 	guint8	flags; /* ENCAP_LAPB, ENCAP_V120 : 1st bit means From DCE */
+};
+
+/* Packet "pseudo-header" information for ISDN capture files. */
+
+/* Direction */
+struct isdn_phdr {
+	gboolean uton;
+	guint8	channel;		/* 0 = D-channel; n = B-channel n */
 };
 
 /* Packet "pseudo-header" for ATM capture files.
@@ -328,6 +335,7 @@ struct cosine_phdr {
 
 union wtap_pseudo_header {
 	struct x25_phdr		x25;
+	struct isdn_phdr	isdn;
 	struct atm_phdr		atm;
 	struct ascend_phdr	ascend;
 	struct p2p_phdr		p2p;

@@ -1,7 +1,7 @@
 /* circuit.c
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.c,v 1.2 2002/10/29 07:22:55 guy Exp $
+ * $Id: circuit.c,v 1.3 2002/10/31 07:12:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,10 +235,15 @@ circuit_delete_proto_data(circuit_t *conv, int proto)
 }
 
 void
-circuit_set_dissector(circuit_t *circuit,
-    dissector_handle_t handle)
+circuit_set_dissector(circuit_t *circuit, dissector_handle_t handle)
 {
 	circuit->dissector_handle = handle;
+}
+
+dissector_handle_t
+circuit_get_dissector(circuit_t *circuit)
+{
+	return circuit->dissector_handle;
 }
 
 /*
