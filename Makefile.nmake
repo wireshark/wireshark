@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.41 2000/06/07 22:57:44 gram Exp $
+# $Id: Makefile.nmake,v 1.42 2000/06/11 07:49:36 guy Exp $
 
 include config.nmake
 
@@ -193,7 +193,7 @@ EXTRA_OBJECTS = \
 
 ethereal_LIBS= wiretap\libwtap.lib gtk\libui.lib wsock32.lib user32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
-	$(GTK_DIR)\gdk\win32\gdk-$(GTK_VERSION).lib \
+	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib \
 	$(PCAP_DIR)\lib\libpcap.lib
