@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.36 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-tftp.c,v 1.37 2002/05/24 22:50:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,6 +98,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t  *conversation;
 	gint		offset = 0;
 	guint16		opcode;
+	guint16		bytes;
+	guint16		blocknum;
 	u_int           i1;
 	guint16         error;
 
@@ -208,30 +210,36 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  break;
 
 	case TFTP_DATA:
+	  blocknum = tvb_get_ntohs(tvb, offset);
 	  if (tree) {
-	    proto_tree_add_item(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
-	    		    FALSE);
-	  }
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i",
-			    tvb_get_ntohs(tvb, offset));
+	    proto_tree_add_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
+	    		    blocknum);
 	  }
 	  offset += 2;
 
+	  bytes = tvb_reported_length_remaining(tvb, offset);
+
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i%s",
+		    blocknum,
+		    (bytes < 512)?" (last)":"" );
+	  }
+
 	  if (tree) {
 	    proto_tree_add_text(tftp_tree, tvb, offset, -1,
-		"Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
+		"Data (%d bytes)", bytes);
 	  }
 	  break;
 
 	case TFTP_ACK:
+	  blocknum = tvb_get_ntohs(tvb, offset);
 	  if (tree) {
-	    proto_tree_add_item(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
-	    		    FALSE);
+	    proto_tree_add_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
+	    		    blocknum);
 	  }
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i",
-			    tvb_get_ntohs(tvb, offset));
+			    blocknum);
 	  }
 	  break;
 
