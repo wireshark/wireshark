@@ -6,27 +6,7 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap /I. $(GLIB_CFLAGS) \
-	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
-
-OBJECTS=plugin_api.obj 
-
-all: $(OBJECTS) acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli rdm rlm rtnet rudp stats_tree v5ua xml
-
-Xplugin_api.c: plugin_gen.py plugin_api_list.c
-	@echo **** Plugin api may be out of date, please generate new files:
-	@echo **** nmake -f Makefile.nmake xyzzy
-	@echo.
-
-plugin_api.obj: plugin_api.c Xplugin_api.c
-
-# you will need cygwin's gcc to build this target!
-xyzzy: xyzzyclean plugin_gen.py plugin_api_list.c
-	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GCC_GLIB_CFLAGS) -I.. -c plugin_api_list.c
-	$(PYTHON) plugin_gen.py xyzzy
-
-xyzzyclean: clean 
- 	rm -f xyzzy Xass-list Xplugin_api.c Xplugin_api.h Xplugin_api_decls.h Xplugin_table.h plugin_api_list.o
+all: acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli rdm rlm rtnet rudp stats_tree v5ua xml
 
 acn:: 
 	cd acn
@@ -143,7 +123,6 @@ xml::
 	cd ..
 
 clean:
-	rm -f plugin_api.obj $(PDB_FILE)
 	cd acn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../agentx
