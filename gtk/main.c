@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.400 2004/02/20 17:43:50 ulfl Exp $
+ * $Id: main.c,v 1.401 2004/02/20 18:37:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1643,7 +1643,7 @@ register_ethereal_tap(char *cmd, void (*func)(char *arg))
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
 
 void
-dnd_open_file_cmd(gchar *cf_name)
+dnd_open_file_cmd(gpointer cf_name)
 {
 	int       err;
 
