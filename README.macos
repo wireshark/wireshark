@@ -1,4 +1,4 @@
-$Id: README.macos,v 1.4 2004/03/21 22:55:59 guy Exp $
+$Id: README.macos,v 1.5 2004/03/22 23:40:44 guy Exp $
 
 This file tries to help building Ethereal for Mac OS X (Ethereal does
 not work on earlier versions of Mac OS).
@@ -20,8 +20,36 @@ which is known to work in this constellation:
         GTK+ 2.2.3
         ATK 1.2.4
 
-and the corresponding dependencies. In case you also have gtk1 installed,
-you will need to run configure with the "--enable-gtk2" argument.
+(GTK+ 2.4 won't work, as it requires Pango 1.4 with fontconfig support,
+and Pango 1.4 refuses to handle a fontconfig that pkg-config doesn't
+know about, such as the fontconfig in Panther) and the corresponding
+dependencies:
+
+	pkg-config
+	jpegsrc
+	libpng
+	tiff
+
+as well as GNU gettext, which isn't included in the directory of
+dependencies on the GTK+ FTP site.  NOTE: you must install the
+pkg-config dependency first; unless it is installed, you cannot
+configure GLib or GTK+.  After that, you must install GNU gettext; only
+after both of those have been built and installed will you be able to
+configure GLib.  After configuring and installing GLib, configure,
+build, and install Pango, ATK, jpegsrc, libpng, tiff, and GTK+, in
+order.  (The exact order might not be important, but you must configure,
+build, and install Pango and ATK before configuring GTK+ and, if you
+want GTK+ to be able to use the capabilities from the other libraries,
+you must configure, build, and install them before configuring GTK+.)
+
+You will need to do "make install-lib" for the JPEG library to install
+its libraries - "make install" does not suffice.  You will also have to
+do "sudo ranlib /usr/lib/libjpeg.a" after "make install-lib".
+
+For libpng, use scripts/makefile.darwin, not scripts/makefile.macosx.
+
+In case you also have gtk1 installed, you will need to run configure
+with the "--enable-gtk2" argument.
 
 Another problem are compile errors in the wiretap directory like the
 following:
