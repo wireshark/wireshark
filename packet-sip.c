@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.46 2003/10/24 00:50:39 guy Exp $
+ * $Id: packet-sip.c,v 1.47 2003/11/14 02:07:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,57 +95,61 @@ static const char *sip_methods[] = {
 };
 
 /* from RFC 3261 */
-static const char *sip_headers[] = {
-		"Unknown-header", /* Pad so that the real headers start at index 1 */
-                "Accept",
-                "Accept-Encoding",
-                "Accept-Language",
-                "Alert-Info",
-                "Allow",
-		"Allow-Events",
-                "Authentication-Info",
-                "Authorization",
-                "Call-ID",
-                "Call-Info",
-                "Contact",
-                "Content-Disposition",
-                "Content-Encoding",
-                "Content-Language",
-                "Content-Length",
-                "Content-Type",
-                "CSeq",
-                "Date",
-                "Error-Info",
-		"Event",
-                "Expires",
-                "From",
-                "In-Reply-To",
-                "Max-Forwards",
-                "MIME-Version",
-                "Min-Expires",
-                "Organization",
-                "Priority",
-                "Proxy-Authenticate",
-                "Proxy-Authorization",
-                "Proxy-Require",
-		"RAck",
-		"RSeq",
-                "Record-Route",
-                "Reply-To",
-                "Require",
-                "Retry-After",
-                "Route",
-                "Server",
-                "Subject",
-		"Subscription-State",
-                "Supported",
-                "Timestamp",
-                "To",
-                "Unsupported",
-                "User-Agent",
-                "Via",
-                "Warning",
-                "WWW-Authenticate"
+typedef struct {
+        char *name;
+        char *compact_name;
+} sip_header_t;
+static const sip_header_t sip_headers[] = {
+                { "Unknown-header", NULL }, /* Pad so that the real headers start at index 1 */
+                { "Accept", NULL },
+                { "Accept-Encoding", NULL },
+                { "Accept-Language", NULL },
+                { "Alert-Info", NULL },
+                { "Allow", NULL },
+                { "Allow-Events", NULL },
+                { "Authentication-Info", NULL },
+                { "Authorization", NULL },
+                { "Call-ID", "i" },
+                { "Call-Info", NULL },
+                { "Contact", "m" },
+                { "Content-Disposition", NULL },
+                { "Content-Encoding", "e" },
+                { "Content-Language", NULL },
+                { "Content-Length", "l" },
+                { "Content-Type", "c" },
+                { "CSeq", NULL },
+                { "Date", NULL },
+                { "Error-Info", NULL },
+                { "Event", NULL },
+                { "Expires", NULL },
+                { "From", "f" },
+                { "In-Reply-To", NULL },
+                { "Max-Forwards", NULL },
+                { "MIME-Version", NULL },
+                { "Min-Expires", NULL },
+                { "Organization", NULL },
+                { "Priority", NULL },
+                { "Proxy-Authenticate", NULL },
+                { "Proxy-Authorization", NULL },
+                { "Proxy-Require", NULL },
+                { "RAck", NULL },
+                { "RSeq", NULL },
+                { "Record-Route", NULL },
+                { "Reply-To", NULL },
+                { "Require", NULL },
+                { "Retry-After", NULL },
+                { "Route", NULL },
+                { "Server", NULL },
+                { "Subject", "s" },
+                { "Subscription-State", NULL },
+                { "Supported", "k" },
+                { "Timestamp", NULL },
+                { "To", "t" },
+                { "Unsupported", NULL },
+                { "User-Agent", NULL },
+                { "Via", "v" },
+                { "Warning", NULL },
+                { "WWW-Authenticate", NULL },
 };
 
 
@@ -753,8 +757,12 @@ static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
         guint i;
 
         for (i = 1; i < array_length(sip_headers); i++) {
-                if (header_len == strlen(sip_headers[i]) &&
-                    tvb_strncaseeql(tvb, offset, sip_headers[i], header_len) == 0)
+                if (header_len == strlen(sip_headers[i].name) &&
+                    tvb_strncaseeql(tvb, offset, sip_headers[i].name, header_len) == 0)
+                        return i;
+                if (sip_headers[i].compact_name != NULL &&
+                    header_len == strlen(sip_headers[i].compact_name) &&
+                    tvb_strncaseeql(tvb, offset, sip_headers[i].compact_name, header_len) == 0)
                         return i;
         }
 
