@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.24 1999/10/17 20:54:56 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.25 1999/10/19 05:31:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,6 +89,7 @@ whitespace	[\t ]
 hex		[A-Fa-f0-9]{1,2}
 hexsep		[-:\.]
 minus		[-]
+plus		[+]
 
 %%
 
@@ -202,9 +203,7 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			retval = T_FT_INT32;
 			break;
 		case FT_DOUBLE:
-			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on floating-point values.",
-			    yytext);
-			retval = 0;
+			retval = T_FT_DOUBLE;
 			break;
 		case FT_ABSOLUTE_TIME:
 			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on time-of-day values.",
@@ -246,11 +245,18 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 	return retval;
 }
 
-{minus}?[0-9]+ {				/* decimal or octal values */
+({plus}|{minus})?[0-9]+ {			/* decimal and octal integers */
 	dfilter_lval.string = g_strdup(yytext);
 	return T_VAL_UNQUOTED_STRING;
 }
 
+({plus}|{minus})?([0-9]+|[0-9]+\.[0-9]+|\.[0-9]+)([eE]({plus}|{minus})?[0-9]+)? {
+	/* I'm trying to capture all floating points here, and
+	 * am using the strtod manpage as the description of
+	 * valid formats */
+	dfilter_lval.string = g_strdup(yytext);
+	return T_VAL_UNQUOTED_STRING;
+}
 
 [0-9\:\.]+ {
 	dfilter_lval.string = g_strdup(yytext);

@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.35 1999/10/17 20:54:56 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.36 1999/10/19 05:31:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,8 @@
 #endif
 
 #include <string.h>
+#include <errno.h>
+#include <math.h>
 
 #ifndef _STDLIB_H
 #include <stdlib.h>
@@ -78,6 +80,8 @@ static GNode* dfilter_mknode_join(GNode *n1, enum node_type ntype, int operand, 
 static GNode* dfilter_mknode_unary(int operand, GNode *n2);
 static GNode* dfilter_mknode_numeric_variable(gint id);
 static GNode* dfilter_mknode_numeric_value(guint32 val);
+static GNode* dfilter_mknode_floating_variable(gint id);
+static GNode* dfilter_mknode_floating_value(double val);
 static GNode* dfilter_mknode_ether_value(gchar*);
 static GNode* dfilter_mknode_ether_variable(gint id);
 static GNode* dfilter_mknode_ipxnet_value(guint32);
@@ -90,7 +94,8 @@ static GNode* dfilter_mknode_existence(gint id);
 static GNode* dfilter_mknode_bytes_value(GByteArray *barray);
 static GNode* dfilter_mknode_bytes_variable(gint id, gint offset, guint length);
 
-static guint32 string_to_value(char *s);
+static guint32 string_to_guint32(char *s, gboolean *success);
+static double string_to_double(char *s, gboolean *success);
 static int ether_str_to_guint8_array(const char *s, guint8 *mac);
 static guint dfilter_get_bytes_variable_offset(GNode *gnode);
 static guint dfilter_get_bytes_value_length(GNode* gnode);
@@ -123,6 +128,7 @@ dfilter *global_df = NULL;
 
 %type <node>	statement expression relation
 %type <node>	numeric_value numeric_variable
+%type <node>	floating_value floating_variable
 %type <node>	ether_value ether_variable
 %type <node>	ipxnet_value ipxnet_variable
 %type <node>	ipv4_value ipv4_variable
@@ -150,6 +156,7 @@ dfilter *global_df = NULL;
 %token <variable>	T_FT_BOOLEAN
 %token <variable>	T_FT_STRING
 %token <variable>	T_FT_IPXNET
+%token <variable>	T_FT_DOUBLE
 
 %token <string>	 	T_VAL_UNQUOTED_STRING
 %token <string>		T_VAL_BYTE_STRING
@@ -187,6 +194,15 @@ relation:	numeric_variable numeric_relation numeric_value
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 	|	numeric_variable numeric_relation numeric_variable
+		{
+			$$ = dfilter_mknode_join($1, relation, $2, $3);
+		}
+
+	|	floating_variable numeric_relation floating_value
+		{
+			$$ = dfilter_mknode_join($1, relation, $2, $3);
+		}
+	|	floating_variable numeric_relation floating_variable
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
@@ -289,8 +305,12 @@ relation:	numeric_variable numeric_relation numeric_value
 
 numeric_value:	T_VAL_UNQUOTED_STRING
 	{
-		$$ = dfilter_mknode_numeric_value(string_to_value($1));
+		gboolean success;
+		$$ = dfilter_mknode_numeric_value(string_to_guint32($1, &success));
 		g_free($1);
+		if (!success) {
+			YYERROR;
+		}
 	 }
 	;
 
@@ -306,8 +326,34 @@ ether_value:	T_VAL_BYTE_STRING
 
 ipxnet_value:	T_VAL_UNQUOTED_STRING
 	{
-		$$ = dfilter_mknode_ipxnet_value(string_to_value($1));
+		gboolean success;
+		$$ = dfilter_mknode_ipxnet_value(string_to_guint32($1, &success));
 		g_free($1);
+		if (!success) {
+			YYERROR;
+		}
+	}
+	;
+
+floating_value:	T_VAL_UNQUOTED_STRING
+	{
+		gboolean success;
+		$$ = dfilter_mknode_floating_value(string_to_double($1, &success));
+		g_free($1);
+		if (!success) {
+			YYERROR;
+		}
+	}
+
+	|	T_VAL_BYTE_STRING
+	{
+		/* e.g., 0.0, 0.1, 0.01 ... */
+		gboolean success;
+		$$ = dfilter_mknode_floating_value(string_to_double($1, &success));
+		g_free($1);
+		if (!success) {
+			YYERROR;
+		}
 	}
 	;
 
@@ -361,13 +407,20 @@ bytes_value:	T_VAL_BYTE_STRING
 
 	|	T_VAL_UNQUOTED_STRING
 	{
-		guint32		val32 = string_to_value($1);
+		gboolean	success;
+		guint32		val32;
 		guint8		val8;
 		GByteArray	*barray;
 
+		val32 = string_to_guint32($1, &success);
+		if (!success) {
+			g_free($1);
+			YYERROR;
+		}
 		if (val32 > 0xff) {
 			dfilter_fail("The value \"%s\" cannot be stored in a single-byte byte-string. "
 				"Use the multi-byte \"xx:yy\" representation.", $1);
+			g_free($1);
 			YYERROR;
 		}
 		val8 = (guint8) val32;
@@ -389,6 +442,9 @@ numeric_variable:	T_FT_UINT8	{ $$ = dfilter_mknode_numeric_variable($1.id); }
 	;
 
 ether_variable:		T_FT_ETHER	{ $$ = dfilter_mknode_ether_variable($1.id); }
+	;
+
+floating_variable:	T_FT_DOUBLE	{ $$ = dfilter_mknode_floating_variable($1.id); }
 	;
 
 ipxnet_variable:	T_FT_IPXNET	{ $$ = dfilter_mknode_ipxnet_variable($1.id); }
@@ -423,20 +479,21 @@ bytes_variable:		any_variable_type T_VAL_BYTE_RANGE
 		}
 	;
 
-any_variable_type:	T_FT_UINT8 { $$ = $1; }
-	|		T_FT_UINT16 { $$ = $1; }
-	|		T_FT_UINT32 { $$ = $1; }
-	|		T_FT_INT8 { $$ = $1; }
-	|		T_FT_INT16 { $$ = $1; }
-	|		T_FT_INT32 { $$ = $1; }
-	|		T_FT_ETHER { $$ = $1; }
-	|		T_FT_IPv4 { $$ = $1; }
-	|		T_FT_IPv6 { $$ = $1; }
-	|		T_FT_IPXNET { $$ = $1; }
-	|		T_FT_NONE { $$ = $1; }
-	|		T_FT_BYTES { $$ = $1; }
-	|		T_FT_BOOLEAN { $$ = $1; }
-	|		T_FT_STRING { $$ = $1; }
+any_variable_type:	T_FT_UINT8	{ $$ = $1; }
+	|		T_FT_UINT16	{ $$ = $1; }
+	|		T_FT_UINT32	{ $$ = $1; }
+	|		T_FT_INT8	{ $$ = $1; }
+	|		T_FT_INT16	{ $$ = $1; }
+	|		T_FT_INT32	{ $$ = $1; }
+	|		T_FT_DOUBLE	{ $$ = $1; }
+	|		T_FT_ETHER	{ $$ = $1; }
+	|		T_FT_IPv4	{ $$ = $1; }
+	|		T_FT_IPv6	{ $$ = $1; }
+	|		T_FT_IPXNET	{ $$ = $1; }
+	|		T_FT_NONE	{ $$ = $1; }
+	|		T_FT_BYTES	{ $$ = $1; }
+	|		T_FT_BOOLEAN	{ $$ = $1; }
+	|		T_FT_STRING	{ $$ = $1; }
 	;
 
 numeric_relation:	TOK_EQ { $$ = TOK_EQ; }
@@ -535,6 +592,23 @@ dfilter_mknode_ether_variable(gint id)
 	node->elem_size = sizeof(guint8) * 6;
 	node->fill_array_func = fill_array_ether_variable;
 	node->check_relation_func = check_relation_ether;
+	node->value.variable = id;
+	gnode = g_node_new(node);
+
+	return gnode;
+}
+
+static GNode*
+dfilter_mknode_floating_variable(gint id)
+{
+	dfilter_node	*node;
+	GNode		*gnode;
+
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
+	node->ntype = variable;
+	node->elem_size = sizeof(double);
+	node->fill_array_func = fill_array_floating_variable;
+	node->check_relation_func = check_relation_floating;
 	node->value.variable = id;
 	gnode = g_node_new(node);
 
@@ -684,6 +758,23 @@ dfilter_mknode_numeric_value(guint32 val)
 	return gnode;
 }
 
+static GNode*
+dfilter_mknode_floating_value(double val)
+{
+	dfilter_node	*node;
+	GNode		*gnode;
+
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
+	node->ntype = floating;
+	node->elem_size = sizeof(double);
+	node->fill_array_func = fill_array_floating_value;
+	node->check_relation_func = check_relation_floating;
+	node->value.floating = val;
+	gnode = g_node_new(node);
+
+	return gnode;
+}
+
 /* Returns NULL on bad parse of ETHER value */
 static GNode*
 dfilter_mknode_ether_value(gchar *byte_string)
@@ -810,19 +901,58 @@ dfilter_get_bytes_value_length(GNode* gnode)
 }
 
 static guint32
-string_to_value(char *s)
+string_to_guint32(char *s, gboolean *success)
 {
 	char	*endptr;
 	guint32	val;
 
 	val = strtoul(s, &endptr, 0);
+	*success = TRUE;
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		dfilter_fail("\"%s\" is not a valid number.", s);
+		*success = FALSE;
 	}
-	/* I should probably check errno here */
+	if (errno == ERANGE) {
+		*success = FALSE;
+		if (val == ULONG_MAX) {
+			dfilter_fail("\"%s\" causes an integer overflow.", s);
+		}
+		else {
+			dfilter_fail("\"%s\" is not an integer.", s);
+		}
+	}
 
 	return (guint32)val;
+}
+
+static double
+string_to_double(char *s, gboolean *success)
+{
+	char	*endptr = NULL;
+	double	retval;
+
+	retval = strtod(s, &endptr);
+	*success = TRUE;
+
+	if (endptr == s) {
+		dfilter_fail("\"%s\" is not a valid floating-point number.", s);
+		*success = FALSE;
+	}
+
+	if (errno == ERANGE) {
+		*success = FALSE;
+		if (retval == 0) {
+			dfilter_fail("\"%s\" causes a floating-point underflow.", s);
+		}
+		else if (retval == HUGE_VAL) {
+			dfilter_fail("\"%s\" causes a floating-point overflow.", s);
+		}
+		else {
+			dfilter_fail("\"%s\" is not a valid floating-point.", s);
+		}
+	}
+	return retval;
 }
 	
 static GNode*

@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.30 1999/10/12 05:00:50 guy Exp $
+ * $Id: dfilter.c,v 1.31 1999/10/19 05:31:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -347,6 +347,7 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
 		/* not coded yet */
 	
 	case numeric:
+	case floating:
 	case ipv4:
 	case ipv6:
 	case boolean:
@@ -480,7 +481,6 @@ get_values_from_dfilter(dfilter_node *dnode, GNode *gnode)
 	array = g_array_new(FALSE, FALSE, dnode->elem_size);
 
 	g_node_traverse(gnode, G_IN_ORDER, G_TRAVERSE_ALL, -1, dnode->fill_array_func, array);
-/*	dnode->fill_array_func(gnode, array);*/
 	return array;
 }
 
@@ -491,6 +491,18 @@ gboolean fill_array_numeric_variable(GNode *gnode, gpointer data)
 
 	if (fi->hfinfo->id == sinfo->target) {
 		g_array_append_val(sinfo->result.array, fi->value.numeric);
+	}
+
+	return FALSE; /* FALSE = do not end traversal of GNode tree */
+}
+
+gboolean fill_array_floating_variable(GNode *gnode, gpointer data)
+{
+	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
+	field_info		*fi = (field_info*) (gnode->data);
+
+	if (fi->hfinfo->id == sinfo->target) {
+		g_array_append_val(sinfo->result.array, fi->value.floating);
 	}
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
@@ -564,6 +576,15 @@ gboolean fill_array_numeric_value(GNode *gnode, gpointer data)
 	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
 
 	g_array_append_val(array, dnode->value.numeric);
+	return FALSE; /* FALSE = do not end traversal of GNode tree */
+}
+
+gboolean fill_array_floating_value(GNode *gnode, gpointer data)
+{
+	GArray		*array = (GArray*)data;
+	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
+
+	g_array_append_val(array, dnode->value.floating);
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
 
@@ -663,6 +684,84 @@ gboolean check_relation_numeric(gint operand, GArray *a, GArray *b)
 			val_a = g_array_index(a, guint32, i);
 			for (j = 0; j < len_b; j++) {
 				if (val_a <= g_array_index(b, guint32, j))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	default:
+		g_assert_not_reached();
+	}
+
+	g_assert_not_reached();
+	return FALSE;
+}
+
+gboolean check_relation_floating(gint operand, GArray *a, GArray *b)
+{
+	int	i, j, len_a, len_b;
+	double	val_a;
+
+	len_a = a->len;
+	len_b = b->len;
+
+
+	switch(operand) {
+	case TOK_EQ:
+		for(i = 0; i < len_a; i++) {
+			val_a = g_array_index(a, double, i);
+			for (j = 0; j < len_b; j++) {
+				if (val_a == g_array_index(b, double, j))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_NE:
+		for(i = 0; i < len_a; i++) {
+			val_a = g_array_index(a, double, i);
+			for (j = 0; j < len_b; j++) {
+				if (val_a != g_array_index(b, double, j))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_GT:
+		for(i = 0; i < len_a; i++) {
+			val_a = g_array_index(a, double, i);
+			for (j = 0; j < len_b; j++) {
+				if (val_a > g_array_index(b, double, j))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_GE:
+		for(i = 0; i < len_a; i++) {
+			val_a = g_array_index(a, double, i);
+			for (j = 0; j < len_b; j++) {
+				if (val_a >= g_array_index(b, double, j))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_LT:
+		for(i = 0; i < len_a; i++) {
+			val_a = g_array_index(a, double, i);
+			for (j = 0; j < len_b; j++) {
+				if (val_a < g_array_index(b, double, j))
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_LE:
+		for(i = 0; i < len_a; i++) {
+			val_a = g_array_index(a, double, i);
+			for (j = 0; j < len_b; j++) {
+				if (val_a <= g_array_index(b, double, j))
 					return TRUE;
 			}
 		}

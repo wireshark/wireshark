@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.9 1999/10/11 17:04:32 deniel Exp $
+ * $Id: dfilter-int.h,v 1.10 1999/10/19 05:31:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,12 +53,15 @@ void dfilter_fail(char *fmt, ...);
 
 /* functions that dfilter-grammar.y needs during parsing*/
 gboolean check_relation_numeric(gint operand, GArray *a, GArray *b);
+gboolean check_relation_floating(gint operand, GArray *a, GArray *b);
 gboolean check_relation_ether(gint operand, GArray *a, GArray *b);
 gboolean check_relation_ipv6(gint operand, GArray *a, GArray *b);
 gboolean check_relation_bytes(gint operand, GArray *a, GArray *b);
 
 gboolean fill_array_numeric_value(GNode *gnode, gpointer data);
 gboolean fill_array_numeric_variable(GNode *gnode, gpointer data);
+gboolean fill_array_floating_value(GNode *gnode, gpointer data);
+gboolean fill_array_floating_variable(GNode *gnode, gpointer data);
 gboolean fill_array_ether_value(GNode *gnode, gpointer data);
 gboolean fill_array_ether_variable(GNode *gnode, gpointer data);
 gboolean fill_array_ipv6_value(GNode *gnode, gpointer data);
@@ -78,6 +81,7 @@ enum node_type {
 	alternation,	/* &, | */
 	boolean,	/* true, false */
 	numeric,	/* uint8, uint16, or uint32 value */
+	floating,	/* double */
 	abs_time,
 	string,
 	ether,
@@ -108,6 +112,7 @@ typedef struct dfilter_node {
 		gint		alternation; /* if type == alternation (& or |) */
 
 		guint32		numeric;
+		double		floating;
 		struct timeval	abs_time; /* the whole struct, not a pointer */
 		gchar		*string;
 		guint8		ether[6];
