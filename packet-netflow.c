@@ -2,7 +2,7 @@
  * Routines for Cisco NetFlow packet disassembly
  * Matthew Smart <smart@monkey.org>
  *
- * $Id: packet-netflow.c,v 1.2 2002/09/06 21:22:36 guy Exp $
+ * $Id: packet-netflow.c,v 1.3 2002/09/07 00:08:02 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,13 +69,13 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Determine NetFlow version and number of records */
 	tvb_memcpy(tvb, (guint8 *)&nfh, offset, sizeof(nfh));
-	nfh_version = ntohs(nfh.version);
-	nfh_count = ntohs(nfh.count);
-	nfh_sys_uptime = ntohl(nfh.sys_uptime);
-	nfh_unix_sec = ntohl(nfh.unix_sec);
-	nfh_unix_nsec = ntohl(nfh.unix_nsec);
-	nfh_sample_rate = ntohs(nfh.sample_rate);
-	nfh_sequence = ntohl(nfh.flow_sequence);
+	nfh_version = g_ntohs(nfh.version);
+	nfh_count = g_ntohs(nfh.count);
+	nfh_sys_uptime = g_ntohl(nfh.sys_uptime);
+	nfh_unix_sec = g_ntohl(nfh.unix_sec);
+	nfh_unix_nsec = g_ntohl(nfh.unix_nsec);
+	nfh_sample_rate = g_ntohs(nfh.sample_rate);
+	nfh_sequence = g_ntohl(nfh.flow_sequence);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,
