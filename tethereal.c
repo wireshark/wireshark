@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.90 2001/07/27 07:10:09 guy Exp $
+ * $Id: tethereal.c,v 1.91 2001/09/05 05:03:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -797,6 +797,12 @@ capture(int packet_count, int out_file_type)
   }
   pcap_close(ld.pch);
 
+  if (cfile.save_file != NULL) {
+    /* We're saving to a file; close the file. */
+    if (!wtap_dump_close(ld.pdh, &err))
+      show_capture_file_io_error(cfile.save_file, err, TRUE);
+  }
+
   return TRUE;
 
 error:
@@ -911,6 +917,10 @@ load_cap_file(capture_file *cf, int out_file_type)
     args.pdh = pdh;
     success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_write, (u_char *) &args,
  			&err);
+
+    /* Now close the capture file. */
+    if (!wtap_dump_close(pdh, &err))
+      show_capture_file_io_error(cfile.save_file, err, TRUE);
   } else {
     args.cf = cf;
     args.pdh = NULL;
