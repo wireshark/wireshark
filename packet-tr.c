@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.21 1999/08/24 17:26:15 gram Exp $
+ * $Id: packet-tr.c,v 1.22 1999/08/27 19:15:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -109,16 +109,49 @@ static const value_string direction_vals[] = {
 	{ 0,	NULL }
 };
 
+/*
+ * DODGY LINUX HACK DODGY LINUX HACK
+ * Linux 2.0.x always passes frames to the Token Ring driver for transmission with 
+ * 18 bytes padding for source routing information.  Some drivers copy the first 
+ * (18 - srlen) bytes up the frame (18 - srlen) bytes thus removing the padding.
+ * Other drivers just make a copy of the entire frame and then hack about with it
+ * so the frame the sniffer gets is fine (just has extra sr routing).
+ * In the first instance (driver hacking frame in situ) the sniffer gets a garbled
+ * frame.
+ * This function trys to detect this and returns the offset of where
+ * the frame really starts.
+ * This only detects frames that we have sent ourselves so if we are packet sniffing
+ * on the machine we are watching this is useful.
+ * Compare offset 0 with offset x+1 for a length of x bytes for all value of x = 1 to 18
+ * if match then Linux driver has done in situ source route compression of the crappy 
+ * Linux 2.0.x frame so the beginning of the real frame is x bytes in.
+ * (And this real frame x bytes in looks like a proper TR frame that goes on the wire
+ * with none of the Linux idiosyncrasies).
+ */
+int check_for_old_linux(const u_char * pd)
+{
+	int x;
+	for(x=1;x<=18;x++)
+	{
+		if (memcmp(&pd[0],&pd[x],x) == 0)
+		{
+			return x;
+		}
+	}
+	return 0;		
+}
+
 static void
 add_ring_bridge_pairs(int rcf_len, const u_char *pd, int offset, proto_tree *tree);
 
 void
 capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 
-	int			offset = 14;
+	int			offset = 0;
 
 	int			source_routed = 0;
 	int			frame_type;
+	int			x;
 	guint8			trn_rif_bytes;
 	guint8			actual_rif_bytes;
 
@@ -126,9 +159,17 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 	guint8			trn_fc;		/* field control field */
 	guint8			trn_shost[6];	/* source host */
 
+	if ((x = check_for_old_linux(pd)))
+	{
+		/* Actually packet starts x bytes into what we have got but with all
+		   source routing compressed 
+		*/
+		 /* pd = &pd[x]; */ offset+=x;
+	}
+
 	/* get the data */
-	memcpy(&trn_fc, &pd[1], sizeof(guint8));
-	memcpy(trn_shost, &pd[8], 6 * sizeof(guint8));
+	memcpy(&trn_fc, &pd[offset + 1], sizeof(guint8));
+	memcpy(trn_shost, &pd[offset + 8], 6 * sizeof(guint8));
 
 	frame_type = (trn_fc & 192) >> 6;
 
@@ -136,7 +177,7 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 		this packet is source-routed */
 	source_routed = trn_shost[0] & 128;
 
-	trn_rif_bytes = pd[14] & 31;
+	trn_rif_bytes = pd[offset + 14] & 31;
 
 	/* sometimes we have a RCF but no RIF... half source-routed? */
 	/* I'll check for 2 bytes of RIF and the 0x70 byte */
@@ -152,12 +193,12 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 		 * my RIF fields.
 		 */
 		else if ( (
-			pd[0x0e + trn_rif_bytes] == 0xaa &&
-			pd[0x0f + trn_rif_bytes] == 0xaa &&
-			pd[0x10 + trn_rif_bytes] == 0x03) ||
+			pd[offset + 0x0e + trn_rif_bytes] == 0xaa &&
+			pd[offset + 0x0f + trn_rif_bytes] == 0xaa &&
+			pd[offset + 0x10 + trn_rif_bytes] == 0x03) ||
 			  (
-			pd[0x0e + trn_rif_bytes] == 0xe0 &&
-			pd[0x0f + trn_rif_bytes] == 0xe0) ) {
+			pd[offset + 0x0e + trn_rif_bytes] == 0xe0 &&
+			pd[offset + 0x0f + trn_rif_bytes] == 0xe0) ) {
 
 			source_routed = 1;
 		}
@@ -178,12 +219,29 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 	if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
 		(!source_routed && frame_type == 1)) {
 		/* look for SNAP or IPX only */
-		if ( (pd[0x20] == 0xaa && pd[0x21] == 0xaa && pd[0x22] == 03) ||
-			 (pd[0x20] == 0xe0 && pd[0x21] == 0xe0) ) {
+		if ( (pd[offset + 0x20] == 0xaa && pd[offset + 0x21] == 0xaa && pd[offset + 0x22] == 03) ||
+			 (pd[offset + 0x20] == 0xe0 && pd[offset + 0x21] == 0xe0) ) {
 			actual_rif_bytes = 18;
-		}
+		} else if (
+			pd[offset + 0x23] == 0 &&
+			pd[offset + 0x24] == 0 &&
+			pd[offset + 0x25] == 0 &&
+			pd[offset + 0x26] == 0x00 &&
+			pd[offset + 0x27] == 0x11) {
+
+                        actual_rif_bytes = 18;
+
+                       /* Linux 2.0.x also requires drivers pass up a fake SNAP and LLC header before th
+                          real LLC hdr for all Token Ring frames that arrive with DSAP and SSAP != 0xAA
+                          (i.e. for non SNAP frames e.g. for Netware frames)
+                          the fake SNAP header has the ETH_P_TR_802_2 ether type (0x0011) and the protocol id
+                          bytes as zero frame looks like :-
+                          TR Header | Fake LLC | Fake SNAP | Wire LLC | Rest of data */
+                       offset += 8; /* Skip fake LLC and SNAP */
+                }
 	}
-	offset += actual_rif_bytes;
+	
+	offset += actual_rif_bytes + 14;
 
 	/* The package is either MAC or LLC */
 	switch (frame_type) {
@@ -207,7 +265,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*tr_tree, *bf_tree;
 	proto_item	*ti;
-
+	int		fixoffset = 0;
 	int			source_routed = 0;
 	int			frame_type;
 	guint8		trn_rif_bytes;
@@ -223,11 +281,19 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* non-source-routed version of source addr */
 	guint8			trn_shost_nonsr[6];
-
-
-
+	int			x;
+	
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
+
+	if ((x = check_for_old_linux(pd)))
+	{
+		/* Actually packet starts x bytes into what we have got but with all
+		   source routing compressed. See comment above */
+		offset += x;
+		/* pd = &pd[x]; */
+	}
+
 
 	/* get the data */
 	memcpy(&trn_ac, &pd[offset+0], sizeof(guint8));
@@ -293,14 +359,32 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
 		(!source_routed && frame_type == 1)) {
 		/* look for SNAP or IPX only */
-		if ( (pd[offset + 0x20] == 0xaa &&
-		      pd[offset + 0x21] == 0xaa &&
-		      pd[offset + 0x22] == 03)
+		if ( 	(pd[offset + 0x20] == 0xaa &&
+		      	pd[offset + 0x21] == 0xaa &&
+		      	pd[offset + 0x22] == 03)
 		 ||
-		     (pd[offset + 0x20] == 0xe0 &&
-		      pd[offset + 0x21] == 0xe0) ) {
+		     	(pd[offset + 0x20] == 0xe0 &&
+		      	pd[offset + 0x21] == 0xe0) ) {
+
 			actual_rif_bytes = 18;
-		}
+               }
+		else if (
+			pd[0x23] == 0 &&
+			pd[0x24] == 0 &&
+			pd[0x25] == 0 &&
+			pd[0x26] == 0x00 &&
+			pd[0x27] == 0x11) {
+
+                        actual_rif_bytes = 18;
+
+                       /* Linux 2.0.x also requires drivers pass up a fake SNAP and LLC header before th
+                          real LLC hdr for all Token Ring frames that arrive with DSAP and SSAP != 0xAA
+                          (i.e. for non SNAP frames e.g. for Netware frames)
+                          the fake SNAP header has the ETH_P_TR_802_2 ether type (0x0011) and the protocol id
+                          bytes as zero frame looks like :-
+                          TR Header | Fake LLC | Fake SNAP | Wire LLC | Rest of data */
+                       fixoffset += 8; /* Skip fake LLC and SNAP */
+                }
 	}
 
 	/* information window */
@@ -386,8 +470,11 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
 				"is also running a protocol stack.");
 		}
+		if (fixoffset) {
+			proto_tree_add_text(tr_tree, 14 + 18,8,"Linux 2.0.x fake LLC and SNAP header");
+		}
 	}
-	offset += 14 + actual_rif_bytes;
+	offset += 14 + actual_rif_bytes + fixoffset;
 
 	/* The package is either MAC or LLC */
 	switch (frame_type) {
