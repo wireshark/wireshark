@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.254 2002/07/07 21:52:51 guy Exp $
+ * $Id: main.c,v 1.255 2002/07/07 22:14:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -759,7 +759,9 @@ static void
 tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_, gpointer user_data _U_)
 {
 	field_info	*finfo;
-	gchar		*help_str = NULL, len_str[] = ", 65536 bytes    ";
+	gchar		*help_str = NULL;
+	gchar		len_str[2+10+1+5+1];	/* ", {N} bytes\0",
+						   N < 4294967296 */
 	gboolean        has_blurb = FALSE;
 	guint           length = 0, byte_len;
 	GtkWidget	*byte_view;
@@ -791,7 +793,7 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_, gpointer 
 	  } else if (finfo->length == 1) {
 	    strcpy (len_str, ", 1 byte");
 	  } else {
-	    sprintf (len_str, ", %d bytes", finfo->length);
+	    snprintf (len_str, sizeof len_str, ", %d bytes", finfo->length);
 	  }
 	  statusbar_pop_field_msg();	/* get rid of current help msg */
           if (length) {
