@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.17 2001/06/14 09:25:23 guy Exp $
+ * $Id: packet-rtp.c,v 1.18 2001/06/14 09:34:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -303,8 +303,10 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    data_reported_len );
 			call_dissector(h261_handle, newtvb, pinfo, tree);
 			break;
-	        case PT_MPV:
-		        newtvb = tvb_new_subset( tvb, offset, data_len, -1 );
+
+		case PT_MPV:
+			newtvb = tvb_new_subset( tvb, offset, data_len,
+			    data_reported_len );
 			call_dissector(mpeg1_handle, newtvb, pinfo, tree);
 			break;	  
 
