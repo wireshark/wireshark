@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.32 2001/02/26 01:25:41 guy Exp $
+ * $Id: packet-netbios.c,v 1.33 2001/05/27 08:45:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1056,7 +1056,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 							/* decode SMB */
 			dissect_smb( next_pd, next_offset, pinfo->fd, tree, 
-				END_OF_FRAME - next_offset);
+				tvb_length_remaining(tvb, offset) - next_offset);
 
 		}
 	}
