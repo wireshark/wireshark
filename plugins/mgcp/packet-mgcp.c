@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.15 2001/01/22 08:54:08 guy Exp $
+ * $Id: packet-mgcp.c,v 1.16 2001/01/26 06:14:53 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -1110,14 +1110,9 @@ G_MODULE_EXPORT void
 plugin_init(plugin_address_table_t *pat){
   /* initialise the table of pointers needed in Win32 DLLs */
   plugin_address_table_init(pat);
-  /* destroy the dfilter tree */
-  dfilter_cleanup();
   /* register the new protocol, protocol fields, and subtrees */
   if (proto_mgcp == -1) { /* execute protocol initialization only once */
     proto_register_mgcp();
   }
-  /* initialize the dfilter tree with all the header field and protocol
-   * abbrevs defined, including xxx */
-  dfilter_init();  
 }
 /* End the functions we need for plugin stuff */

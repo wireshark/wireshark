@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.18 2001/01/13 06:34:34 guy Exp $
+ * $Id: plugins.c,v 1.19 2001/01/26 06:14:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -441,6 +441,19 @@ init_plugin(gchar *name, gchar *version)
     return NULL;
 }
 
+/*
+ * XXX - when we remove support for old-style plugins (which we should
+ * probably do eventually, as all plugins should be written as new-style
+ * ones), we may want to have "init_plugins()" merely save a pointer
+ * to the plugin's "init" routine, just as we save a pointer to its
+ * "reg_handoff" routine, and have a "register_all_plugins()" routine
+ * to go through the list of plugins and call all of them.
+ *
+ * Then we'd have "epan_init()", or perhaps even something higher up
+ * in the call tree, call "init_plugins()", and have "proto_init()"
+ * call "register_all_plugins()" right after calling "register_all_protocols()";
+ * this might be a bit cleaner.
+ */
 static void
 plugins_scan_dir(const char *dirname)
 {
@@ -631,7 +644,6 @@ void
 init_plugins(const char *plugin_dir)
 {
     struct stat std_dir_stat, local_dir_stat, plugin_dir_stat;
-    new_plugin *pt_plug;
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
@@ -810,20 +822,27 @@ init_plugins(const char *plugin_dir)
 	}
 	plugins_scan_dir(user_plug_dir);
     }
-
-    /*
-     * For all new-style plugins, call the register-handoff routine.
-     * (We defer this until after registering all new-style plugins,
-     * in case one plugin registers itself with another plugin; we
-     * need to register all plugins, so their dissector tables are
-     * initialized.)
-     *
-     * We treat those protocols as always being enabled; they should
-     * use the standard mechanism for enabling/disabling protocols, not
-     * the plugin-specific mechanism.
-     */
-    for (pt_plug = new_plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
-	(pt_plug->reg_handoff)();
 }
 
+void
+register_all_plugin_handoffs(void)
+{
+  new_plugin *pt_plug;
+
+  /*
+   * For all new-style plugins, call the register-handoff routine.
+   * This is called from "proto_init()"; it must be called after
+   * "register_all_protocols()" and "init_plugins()" are called,
+   * in case one plugin registers itself either with a built-in
+   * dissector or with another plugin; we must first register all
+   * dissectors, whether built-in or plugin, so their dissector tables
+   * are initialized, and only then register all handoffs.
+   *
+   * We treat those protocols as always being enabled; they should
+   * use the standard mechanism for enabling/disabling protocols, not
+   * the plugin-specific mechanism.
+   */
+  for (pt_plug = new_plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
+    (pt_plug->reg_handoff)();
+}
 #endif

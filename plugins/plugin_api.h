@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.15 2001/01/13 06:34:35 guy Exp $
+ * $Id: plugin_api.h,v 1.16 2001/01/26 06:14:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -39,9 +39,6 @@
 #define	col_append_fstr			(*p_col_append_fstr)
 #define	col_add_str			(*p_col_add_str)
 #define	col_append_str			(*p_col_append_str)
-
-#define	dfilter_init			(*p_dfilter_init)
-#define	dfilter_cleanup			(*p_dfilter_cleanup)
 
 #define	proto_register_protocol		(*p_proto_register_protocol)
 #define	proto_register_field_array	(*p_proto_register_field_array)
@@ -163,7 +160,6 @@
 
 #include "packet.h"
 #include "prefs.h"
-#include "dfilter.h"
 
 #include "plugin_table.h"
 

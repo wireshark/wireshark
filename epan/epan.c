@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.4 2000/10/16 23:17:39 guy Exp $
+ * $Id: epan.c,v 1.5 2001/01/26 06:14:50 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -13,7 +13,6 @@
 #include <glib.h>
 #include <epan.h>
 
-#include "plugins.h"
 #include "conversation.h"
 #include "dfilter.h"
 #include "except.h"
@@ -48,11 +47,8 @@ epan_init(const char *plugin_dir)
 	except_init();
 	tvbuff_init();
 	packet_init();
-	proto_init();
+	proto_init(plugin_dir);
 	dfilter_init();
-#ifdef HAVE_PLUGINS
-	init_plugins(plugin_dir);
-#endif
 }
 
 void

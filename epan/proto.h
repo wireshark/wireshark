@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.3 2001/01/03 06:55:59 guy Exp $
+ * $Id: proto.h,v 1.4 2001/01/26 06:14:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -158,7 +158,7 @@ typedef struct field_info {
 #define NullTVB NULL
 
 /* Sets up memory used by proto routines. Called at program startup */
-void proto_init(void);
+void proto_init(const char *plugin_dir);
 
 /* Frees memory used by proto routines. Called at program shutdown */
 void proto_cleanup(void);

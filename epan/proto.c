@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.4 2001/01/03 06:55:58 guy Exp $
+ * $Id: proto.c,v 1.5 2001/01/26 06:14:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 #include "strutil.h"
 #include "resolv.h"
 #include "register.h"
+#include "plugins.h"
 #include "packet-ipv6.h"
 #include "proto.h"
 
@@ -160,7 +161,7 @@ gboolean proto_tree_is_visible = FALSE;
 
 /* initialize data structures and register protocols and fields */
 void
-proto_init(void)
+proto_init(const char *plugin_dir)
 {
 	static hf_register_info hf[] = {
 		{ &hf_text_only,
@@ -196,18 +197,30 @@ proto_init(void)
 	tree_is_expanded[0] = FALSE;
 	num_tree_types = 1;
 
-	/* Have each dissector register its protocols and fields, and
-	   do whatever one-time initialization it needs to do. */
+	/* Have each built-in dissector register its protocols, fields,
+	   dissector tables, and dissectors to be called through a
+	   handle, and do whatever one-time initialization it needs to
+	   do. */
 	register_all_protocols();
 
-	/* Now have the ones that register a "handoff", i.e. that
-	   specify that another dissector for a protocol under which
-	   this dissector's protocol lives call it. */
+#ifdef HAVE_PLUGINS
+	/* Now scan for plugins and load all the ones we find, calling
+	   their register routines to do the stuff described above. */
+	init_plugins(plugin_dir);
+#endif
+
+	/* Now call the "handoff registration" routines of all built-in
+	   dissectors; those routines register the dissector in other
+	   dissectors' handoff tables, and fetch any dissector handles
+	   they need. */
 	register_all_protocol_handoffs();
 
+	/* Now do the same with plugins. */
+	register_all_plugin_handoffs();
+
 	/* Register one special-case FT_TEXT_ONLY field for use when
-		converting ethereal to new-style proto_tree. These fields
-		are merely strings on the GUI tree; they are not filterable */
+	   converting ethereal to new-style proto_tree. These fields
+	   are merely strings on the GUI tree; they are not filterable */
 	proto_register_field_array(-1, hf, array_length(hf));
 
 	/* We've assigned all the subtree type values; allocate the array
