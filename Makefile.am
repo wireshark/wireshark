@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.293 2001/03/18 03:34:22 guy Exp $
+# $Id: Makefile.am,v 1.294 2001/03/22 23:54:44 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -371,6 +371,8 @@ ethereal_SOURCES = \
 	filters.h      \
 	globals.h      \
 	menu.h         \
+	proto_hier_stats.h	\
+	proto_hier_stats.c	\
 	simple_dialog.h \
 	summary.c      \
 	summary.h      \

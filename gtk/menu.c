@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.49 2001/02/11 23:02:05 guy Exp $
+ * $Id: menu.c,v 1.50 2001/03/22 23:54:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,6 +58,7 @@
 #include "decode_as_dlg.h"
 #include "help_dlg.h"
 #include "proto_dlg.h"
+#include "proto_hier_stats_dlg.h"
 #include "keys.h"
 #include "plugins.h"
 
@@ -150,6 +151,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Tools/_Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL},
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
   {"/Tools/_Summary", NULL, GTK_MENU_FUNC(summary_open_cb), 0, NULL},
+  {"/Tools/Protocol Hierarchy Statistics", NULL, GTK_MENU_FUNC(proto_hier_stats_cb), 0, NULL},
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
   {"/Help/_Help", NULL, GTK_MENU_FUNC(help_cb), 0, NULL},
   {"/Help/<separator>", NULL, NULL, 0, "<Separator>"},
@@ -379,6 +381,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   set_menu_sensitivity("/Display/Match Selected", have_captured_packets);
   set_menu_sensitivity("/Display/Colorize Display...", have_captured_packets);
   set_menu_sensitivity("/Tools/Summary", have_captured_packets);
+  set_menu_sensitivity("/Tools/Protocol Hierarchy Statistics", have_captured_packets);
 }
 
 /* Enable or disable menu items based on whether a packet is selected. */

@@ -401,6 +401,18 @@ packet is a TCP packet to port 12345, using this dialog you can
 instruct Ethereal to decode all packets to or from that TCP port as
 HTTP packets.
 
+=item Tools:Protocol Hierarchy Statistics
+
+This shows the number of packets, and the number of bytes
+in those packets, for each protocol in the trace. It
+organizes the protocols in the same hierarchy in which
+they were found in the trace. Besides counting the packets
+in which the protocol exists, a count is also made
+for packets in which the protocol is the last protocol in
+the stack. These "Last Protocol" counts show you how many packets
+(and the byte count associated with those packets) B<ended> in a particular
+protocol.
+
 =head2 WINDOWS
 
 =over 4
