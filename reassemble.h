@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.1 2001/06/08 06:27:16 guy Exp $
+ * $Id: reassemble.h,v 1.2 2001/11/24 09:36:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,3 +75,29 @@ void reassemble_init(void);
 fragment_data *fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_offset,
     guint32 frag_data_len, gboolean more_frags);
+
+/* to specify how much to reassemble, for fragmentation where last fragment can not be 
+ * identified by flags or such.
+ */
+void
+fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table, 
+		     guint32 tot_len);
+
+/* This function is used to check if there is partial or completed reassembly state
+ * matching this packet. I.e. Are there reassembly going on or not for this packet?
+ */
+fragment_data *
+fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
+
+/* This will free up all resources and delete reassembly state for this PDU.
+ * Except if the PDU is completely reassembled, then it would NOT deallocate the
+ * buffer holding the reassembled data but instead return the pointer to that
+ * buffer.
+ * 
+ * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to 
+ * g_free() that buffer.
+ */
+unsigned char *
+fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
+
+

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.166 2001/11/21 06:25:58 guy Exp $
+ * $Id: packet-smb.c,v 1.167 2001/11/24 09:36:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,6 +98,7 @@ static int hf_smb_uid = -1;
 static int hf_smb_mid = -1;
 static int hf_smb_response_to = -1;
 static int hf_smb_response_in = -1;
+static int hf_smb_continuation_to = -1;
 static int hf_smb_nt_status = -1;
 static int hf_smb_error_class = -1;
 static int hf_smb_error_code = -1;
@@ -7318,28 +7319,8 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int
 dissect_nt_cancel_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
-	smb_info_t *si;
 	guint8 wc;
 	guint16 bc;
-	conversation_t *conversation;
-	conv_tables_t *ct;
-	smb_saved_info_t *old_si;
-
-	si = pinfo->private_data;
-	conversation = find_conversation(&pinfo->src, &pinfo->dst,
-			  pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
-	if(conversation){
-		ct=conversation_get_proto_data(conversation, proto_smb);
-		if(ct){
-			old_si=g_hash_table_lookup(ct->matched, (void *)pinfo->fd->num);
-			if(old_si){
-				proto_tree_add_uint(tree, hf_smb_cancel_to, tvb, 0, 0, old_si->frame_req);
-			} else {
-				proto_tree_add_text(tree, tvb, 0, 0,
-						    "Cancellation to: <unknown frame>");
-			}
-		}
-	}
 
 	WORD_COUNT;
  
@@ -12753,6 +12734,35 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				}
 			}
 		}
+
+
+		if(sip && sip->frame_req){
+			switch(si.cmd){
+			case SMB_COM_NT_CANCEL:
+				proto_tree_add_uint(htree, hf_smb_cancel_to, 
+						    tvb, 0, 0, sip->frame_req);
+				break;
+			case SMB_COM_TRANSACTION_SECONDARY:
+			case SMB_COM_TRANSACTION2_SECONDARY:
+			case SMB_COM_NT_TRANSACT_SECONDARY:
+				proto_tree_add_uint(htree, hf_smb_continuation_to, 
+						    tvb, 0, 0, sip->frame_req);
+				break;
+			}
+		} else {
+			switch(si.cmd){
+			case SMB_COM_NT_CANCEL:
+				proto_tree_add_text(htree, tvb, 0, 0,
+						    "Cancellation to: <unknown frame>");
+				break;
+			case SMB_COM_TRANSACTION_SECONDARY:
+			case SMB_COM_TRANSACTION2_SECONDARY:
+			case SMB_COM_NT_TRANSACT_SECONDARY:
+				proto_tree_add_text(htree, tvb, 0, 0,
+						    "Continuation to: <unknown frame>");
+				break;
+			}
+		}
 	} else { /* normal bidirectional request or response */
 		conversation_t *conversation;
 		conv_tables_t *ct;
@@ -12863,7 +12873,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 * frame - if we know the frame number (i.e., it's not 0).
 		 */
 		if(si.request){
-			if (si.cmd != SMB_COM_NT_CANCEL && sip->frame_res != 0)
+			if (sip->frame_res != 0)
 				proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
 		} else {
 			if (sip->frame_req != 0)
@@ -13022,6 +13032,10 @@ proto_register_smb(void)
 	{ &hf_smb_response_in,
 		{ "Response in", "smb.response_in", FT_UINT32, BASE_DEC,
 		NULL, 0, "The response to this packet is in this packet", HFILL }},
+
+	{ &hf_smb_continuation_to,
+		{ "Continuation to", "smb.continuation_to", FT_UINT32, BASE_DEC,
+		NULL, 0, "This packet is a continuation to the packet in this frame", HFILL }},
 
 	{ &hf_smb_nt_status,
 		{ "NT Status", "smb.nt_status", FT_UINT32, BASE_HEX,

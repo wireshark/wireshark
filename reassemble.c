@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.4 2001/11/21 01:21:08 guy Exp $
+ * $Id: reassemble.c,v 1.5 2001/11/24 09:36:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,6 +177,103 @@ reassemble_init(void)
 	    G_ALLOC_ONLY);
 }
 
+/* This function cleans up the stored state and removes the reassembly data and
+ * (with one exception) all allocated memory for matching reassembly.
+ * 
+ * The exception is :
+ * If the PDU was already completely reassembled, then the buffer containing the 
+ * reassembled data WILL NOT be free()d, and the pointer to that buffer will be
+ * returned.
+ * Othervise the function will return NULL.
+ *
+ * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to 
+ * g_free() that buffer.
+ */
+unsigned char *
+fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
+{
+	fragment_data *fd_head, *fd;
+	fragment_key key;
+	unsigned char *data=NULL;
+
+	/* create key to search hash with */
+	key.src = pinfo->src;
+	key.dst = pinfo->dst;
+	key.id  = id;
+
+	fd_head = g_hash_table_lookup(fragment_table, &key);
+
+	if(fd_head==NULL){
+		/* We do not recognize this as a PDU we have seen before. return*/
+		return NULL;
+	}
+
+	data=fd_head->data;
+	/* loop over all partial fragments and free any buffers */
+	for(fd=fd_head->next;fd;){
+		fragment_data *tmp_fd;
+		tmp_fd=fd->next;
+
+		g_free(fd->data);
+		g_mem_chunk_free(fragment_data_chunk, fd);
+		fd=tmp_fd;
+	}
+	g_mem_chunk_free(fragment_data_chunk, fd_head);
+	g_hash_table_remove(fragment_table, &key);
+
+	return data;
+}
+
+/* This function is used to check if there is partial or completed reassembly state
+ * matching this packet. I.e. Are there reassembly going on or not for this packet?
+ */
+fragment_data *
+fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
+{
+	fragment_data *fd_head;
+	fragment_key key;
+
+	/* create key to search hash with */
+	key.src = pinfo->src;
+	key.dst = pinfo->dst;
+	key.id  = id;
+
+	fd_head = g_hash_table_lookup(fragment_table, &key);
+	
+	return fd_head;
+}
+
+/* This function can be used to explicitely set the total length (if known)
+ * for reassembly of a PDU.
+ * This is useful for reassembly of PDUs where one may have the total length specified
+ * in the first fragment instead of as for, say, IPv4 where a flag indicates which
+ * is the last fragment.
+ *
+ * Such protocols might fragment_add with a more_frags==TRUE for every fragment
+ * and just tell the reassembly engine the expected total length of the reassembled data
+ * using fragment_set_tot_len immediately after doing fragment_add for the first packet.
+ */
+void
+fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table, 
+		     guint32 tot_len)
+{
+	fragment_data *fd_head;
+	fragment_key key;
+
+	/* create key to search hash with */
+	key.src = pinfo->src;
+	key.dst = pinfo->dst;
+	key.id  = id;
+
+	fd_head = g_hash_table_lookup(fragment_table, &key);
+
+	if(fd_head){
+		fd_head->datalen = tot_len;
+	}
+
+	return;
+}
+
 /*
  * This function adds a new fragment to the fragment hash table.
  * If this is the first fragment seen for this datagram, a new entry
@@ -187,6 +284,7 @@ reassemble_init(void)
  *
  * Returns a pointer to the head of the fragment data list if we have all the
  * fragments, NULL otherwise.
+ *
  */
 fragment_data *
 fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
