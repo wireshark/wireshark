@@ -1,6 +1,6 @@
 /* packet-sctp.h
  *
- * Defintion of SCTP specific structures used b tap listeners.
+ * Defintion of SCTP specific structures used by tap listeners.
  *
  * $Id$
  * Copyright 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
@@ -36,6 +36,11 @@ struct _sctp_info {
   gboolean crc32c_calculated;
   gboolean crc32c_correct;
   gboolean checksum_zero;
+  /* FIXME: do we need the ports and addresses to be here? */
+  guint32 sport;
+  guint32 dport;
+  address ip_src;
+  address ip_dst;
   guint32 verification_tag;
   guint32 number_of_tvbs;
   tvbuff_t *tvb[MAXIMUM_NUMBER_OF_TVBS];
