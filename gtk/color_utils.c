@@ -33,12 +33,12 @@
 #include "colors.h"
 
 /*
- * Create a color from R, G, and B values, and do whatever toolkit-dependent
- * work needs to be done.
+ * Initialize a color with R, G, and B values, including any toolkit-dependent
+ * work that needs to be done.
  * Returns TRUE if it succeeds, FALSE if it fails.
  */
 gboolean
-create_color(color_t *color, guint16 red, guint16 green, guint16 blue)
+initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
 {
 	GdkColor gdk_color;
 

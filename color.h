@@ -43,8 +43,8 @@ typedef struct {
 	guint16 blue;
 } color_t;
 
-/** Create a color from R, G, and B values, and do whatever toolkit-dependent
- ** work needs to be done.
+/** Initialize a color with R, G, and B values, including any toolkit-dependent
+ ** work that needs to be done.
  *
  * @param color the color_t to be filled
  * @param red the red value for the color
@@ -53,7 +53,7 @@ typedef struct {
  * @param source the GdkColor to be filled
  * @return TRUE if it succeeds, FALSE if it fails
  */
-gboolean create_color(color_t *color, guint16 red, guint16 green, guint16 blue);
+gboolean initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue);
 
 /* Data for a color filter. */
 typedef struct _color_filter {

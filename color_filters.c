@@ -256,7 +256,7 @@ read_filters_file(FILE *f, gpointer arg)
 				continue;
 			}
 
-			if (!create_color(&fg_color, fg_r, fg_g, fg_b)) {
+			if (!initialize_color(&fg_color, fg_r, fg_g, fg_b)) {
 				/* oops */
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "Could not allocate foreground color "
@@ -265,7 +265,7 @@ read_filters_file(FILE *f, gpointer arg)
 				skip_end_of_line = TRUE;
 				continue;
 			}
-			if (!create_color(&bg_color, bg_r, bg_g, bg_b)) {
+			if (!initialize_color(&bg_color, bg_r, bg_g, bg_b)) {
 				/* oops */
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "Could not allocate background color "
