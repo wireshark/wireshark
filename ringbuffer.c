@@ -1,7 +1,7 @@
 /* ringbuffer.c
  * Routines for packet capture windows
  *
- * $Id: ringbuffer.c,v 1.8 2004/02/25 05:21:08 guy Exp $
+ * $Id: ringbuffer.c,v 1.9 2004/02/25 05:52:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,7 +151,7 @@ int
 ringbuf_init(const char *capfile_name, guint num_files)
 {
   unsigned int i;
-  char        *pfx;
+  char        *pfx, *last_pathsep;
   gchar       *save_file;
 
   rb_data.files = NULL;
@@ -179,13 +179,26 @@ ringbuf_init(const char *capfile_name, guint num_files)
   /* set file name prefix/suffix */
 
   save_file = g_strdup(capfile_name);
+  last_pathsep = strrchr(save_file, G_DIR_SEPARATOR);
   pfx = strrchr(save_file,'.');
-  if (pfx != NULL) {
+  if (pfx != NULL && (last_pathsep == NULL || pfx > last_pathsep)) {
+    /* The pathname has a "." in it, and it's in the last component
+       of the pathname (because there is either only one component,
+       i.e. last_pathsep is null as there are no path separators,
+       or the "." is after the path separator before the last
+       component.
+
+       Treat it as a separator between the rest of the file name and
+       the file name suffix, and arrange that the names given to the
+       ring buffer files have the specified suffix, i.e. put the
+       changing part of the name *before* the suffix. */
     pfx[0] = '\0';
     rb_data.fprefix = g_strdup(save_file);
     pfx[0] = '.'; /* restore capfile_name */
     rb_data.fsuffix = g_strdup(pfx);
   } else {
+    /* Either there's no "." in the pathname, or it's in a directory
+       component, so the last component has no suffix. */
     rb_data.fprefix = g_strdup(save_file);
     rb_data.fsuffix = NULL;
   }
