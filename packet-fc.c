@@ -2,7 +2,7 @@
  * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fc.c,v 1.7 2003/06/23 09:15:08 sahlberg Exp $
+ * $Id: packet-fc.c,v 1.8 2003/06/23 13:09:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,6 +80,19 @@ static int hf_fc_sid = -1;
 static int hf_fc_id = -1;
 static int hf_fc_type = -1;
 static int hf_fc_fctl = -1;
+static int hf_fc_fctl_exchange_responder = -1;
+static int hf_fc_fctl_seq_recipient = -1;
+static int hf_fc_fctl_exchange_first = -1;
+static int hf_fc_fctl_exchange_last = -1;
+static int hf_fc_fctl_seq_last = -1;
+static int hf_fc_fctl_priority = -1;
+static int hf_fc_fctl_transfer_seq_initiative = -1;
+static int hf_fc_fctl_rexmitted_seq = -1;
+static int hf_fc_fctl_rel_offset = -1;
+static int hf_fc_fctl_abts_ack = -1;
+static int hf_fc_fctl_abts_not_ack = -1;
+static int hf_fc_fctl_last_data_frame = -1;
+static int hf_fc_fctl_ack_0_1 = -1;
 static int hf_fc_seqid = -1;
 static int hf_fc_dfctl = -1;
 static int hf_fc_seqcnt = -1;
@@ -109,6 +122,7 @@ static int hf_fc_bls_vendor = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fc = -1;
+static gint ett_fctl = -1;
 static gint ett_fcbls = -1;
 
 static dissector_table_t fcftype_dissector_table;
@@ -282,7 +296,7 @@ fctl_to_str (const guint8 *fctl, gchar *str, gboolean is_ack)
         break;
     case 0x10:
         if (is_ack) {
-            strcpy (&str[stroff], "ABTS - Abort, ");
+            strcpy (&str[stroff], "ABTS - AbortABTS - Abort, ");
             stroff += 14;
         }
         else {
@@ -433,6 +447,137 @@ fc_get_ftype (guint8 r_ctl, guint8 type)
         break;
     }
 }
+
+#define FC_FCTL_EXCHANGE_RESPONDER	0x800000
+#define FC_FCTL_SEQ_RECIPIENT		0x400000
+#define FC_FCTL_EXCHANGE_FIRST		0x200000
+#define FC_FCTL_EXCHANGE_LAST		0x100000
+#define FC_FCTL_SEQ_LAST		0x080000
+#define FC_FCTL_PRIORITY		0x020000
+#define FC_FCTL_TRANSFER_SEQ_INITIATIVE	0x010000
+#define FC_FCTL_LAST_DATA_FRAME_MASK	0x00c000
+#define FC_FCTL_ACK_0_1_MASK		0x003000
+#define FC_FCTL_REXMITTED_SEQ		0x000200
+#define FC_FCTL_ABTS_MASK		0x000030
+#define FC_FCTL_REL_OFFSET		0x000008
+
+static const value_string abts_ack_vals[] = {
+	{0x000000,	"ABTS - Cont"},
+	{0x000010,	"ABTS - Abort"},
+	{0x000020,	"ABTS - Stop"},
+	{0x000030,	"ABTS - Imm Seq Retx"},
+	{0,NULL}
+};
+static const value_string abts_not_ack_vals[] = {
+	{0x000000,	"ABTS - Abort/MS"},
+	{0x000010,	"ABTS - Abort/SS"},
+	{0x000020,	"ABTS - Process/IB"},
+	{0x000030,	"ABTS - Discard/MS/Imm Retx"},
+	{0,NULL}
+};
+static const value_string last_data_frame_vals[] = {
+	{0x000000,	"Last Data Frame - No Info"},
+	{0x004000,	"Last Data Frame - Seq Imm"},
+	{0x008000,	"Last Data Frame - Seq Soon"},
+	{0x00c000,	"Last Data Frame - Seq Delyd"},
+	{0,NULL}
+};
+static const value_string ack_0_1_vals[] = {
+	{0x003000,	"ACK_0 Required"},
+	{0x002000,	"ACK_0 Required"},
+	{0x001000,	"ACK_1 Required"},
+	{0x000000,	"no ack required"},
+	{0,NULL}
+};
+static const true_false_string tfs_fc_fctl_exchange_responder = {
+	"Exchange Responder",
+	"Exchange Originator"
+};
+static const true_false_string tfs_fc_fctl_seq_recipient = {
+	"Seq Recipient",
+	"Seq Initiator"
+};
+static const true_false_string tfs_fc_fctl_exchange_first = {
+	"Exchg First",
+	"NOT exchg first"
+};
+static const true_false_string tfs_fc_fctl_exchange_last = {
+	"Exchg Last",
+	"NOT exchg last"
+};
+static const true_false_string tfs_fc_fctl_seq_last = {
+	"Seq Last",
+	"NOT seq last"
+};
+static const true_false_string tfs_fc_fctl_priority = {
+	"Priority",
+	"CS_CTL"
+};
+static const true_false_string tfs_fc_fctl_transfer_seq_initiative = {
+	"Transfer Seq Initiative",
+	"NOT transfer seq initiative"
+};
+static const true_false_string tfs_fc_fctl_rexmitted_seq = {
+	"Retransmitted Sequence",
+	"NOT retransmitted sequence"
+};
+static const true_false_string tfs_fc_fctl_rel_offset = {
+	"Rel Offset SET",
+	"rel offset NOT set"
+};
+
+
+
+
+/* code to dissect the  F_CTL bitmask */
+static void
+dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gboolean is_ack)
+{
+	guint32 fctl;
+	proto_item *item;
+	proto_tree *tree;
+	gchar str[256];
+
+	fctl=tvb_get_ntoh24(tvb,offset);
+	
+        item=proto_tree_add_uint(parent_tree, hf_fc_fctl, tvb, offset, 3, fctl);
+	tree=proto_item_add_subtree(item, ett_fctl);
+
+
+	proto_tree_add_boolean(tree, hf_fc_fctl_exchange_responder, tvb, offset, 3, fctl);
+
+	proto_tree_add_boolean(tree, hf_fc_fctl_seq_recipient, tvb, offset, 3, fctl);
+
+	proto_tree_add_boolean(tree, hf_fc_fctl_exchange_first, tvb, offset, 3, fctl);
+
+	proto_tree_add_boolean(tree, hf_fc_fctl_exchange_last, tvb, offset, 3, fctl);
+
+	proto_tree_add_boolean(tree, hf_fc_fctl_seq_last, tvb, offset, 3, fctl);
+
+	proto_tree_add_boolean(tree, hf_fc_fctl_priority, tvb, offset, 3, fctl);
+
+	proto_tree_add_boolean(tree, hf_fc_fctl_transfer_seq_initiative, tvb, offset, 3, fctl);
+
+	proto_tree_add_uint(tree, hf_fc_fctl_last_data_frame, tvb, offset, 3, fctl);
+
+	proto_tree_add_uint(tree, hf_fc_fctl_ack_0_1, tvb, offset, 3, fctl);
+
+
+	proto_tree_add_boolean(tree, hf_fc_fctl_rexmitted_seq, tvb, offset, 3, fctl);
+
+	if(is_ack){
+		proto_tree_add_uint(tree, hf_fc_fctl_abts_ack, tvb, offset, 3, fctl);
+	} else {
+		proto_tree_add_uint(tree, hf_fc_fctl_abts_ack, tvb, offset, 3, fctl);
+	}
+
+	proto_tree_add_boolean(tree, hf_fc_fctl_rel_offset, tvb, offset, 3, fctl);
+
+	fctl_to_str( ((guint8 *)&fctl)+1, str, is_ack);
+	proto_item_append_text(item, "  %s", str);
+}
+
+
 /* Code to actually dissect the packets */
 static void
 dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -449,7 +594,6 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 frag_size;
     guint8 r_ctl, type, df_ctl;
     
-    gchar str[256];
     guint32 param;
     guint16 seqcnt;
     guint8 ftype;
@@ -562,24 +706,20 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, FALSE);
         }
 
-        proto_tree_add_uint_format (fc_tree, hf_fc_fctl, tvb, offset+9,
-                                    3, tvb_get_ntoh24 (tvb, offset+9),
-                                    "F_CTL: 0x%x (%s)",
-                                    tvb_get_ntoh24 (tvb, offset+9),
-                                    fctl_to_str (tvb_get_ptr (tvb, offset+9, 3),
-                                                 str, is_ack));
+	dissect_fc_fctl(pinfo, fc_tree, tvb, offset+9, is_ack);
+
 
         /* Bit 23 if set => this frame is from the exchange originator */
         if (tvb_get_guint8 (tvb, offset+9) & 0x80) {
-            proto_tree_add_boolean_hidden (fc_tree, hf_fc_exchg_orig, tvb,
+            proto_tree_add_boolean (fc_tree, hf_fc_exchg_orig, tvb,
                                            offset+9, 1, 0);
-            proto_tree_add_boolean_hidden (fc_tree, hf_fc_exchg_resp, tvb,
+            proto_tree_add_boolean (fc_tree, hf_fc_exchg_resp, tvb,
                                            offset+9, 1, 1);
         }
         else {
-            proto_tree_add_boolean_hidden (fc_tree, hf_fc_exchg_orig, tvb,
+            proto_tree_add_boolean (fc_tree, hf_fc_exchg_orig, tvb,
                                            offset+9, 1, 1);
-            proto_tree_add_boolean_hidden (fc_tree, hf_fc_exchg_resp, tvb,
+            proto_tree_add_boolean (fc_tree, hf_fc_exchg_resp, tvb,
                                            offset+9, 1, 0);
         }
         
@@ -835,12 +975,52 @@ proto_register_fc(void)
         { &hf_fc_bls_vendor,
           {"Vendor Unique Reason", "fc.bls_vnduniq", FT_UINT8, BASE_HEX, NULL,
            0x0, "", HFILL}},
+        { &hf_fc_fctl_exchange_responder,
+          {"ExgRpd", "fc.fctl.exchange_responder", FT_BOOLEAN, 24, TFS(&tfs_fc_fctl_exchange_responder),
+           FC_FCTL_EXCHANGE_RESPONDER, "Exchange Responder?", HFILL}},
+        { &hf_fc_fctl_seq_recipient,
+          {"SeqRec", "fc.fctl.seq_recipient", FT_BOOLEAN, 24, TFS(&tfs_fc_fctl_seq_recipient),
+           FC_FCTL_SEQ_RECIPIENT, "Seq Recipient?", HFILL}},
+        { &hf_fc_fctl_exchange_first,
+          {"ExgFst", "fc.fctl.exchange_first", FT_BOOLEAN, 24, TFS(&tfs_fc_fctl_exchange_first),
+           FC_FCTL_EXCHANGE_FIRST, "First Exchange?", HFILL}},
+        { &hf_fc_fctl_exchange_last,
+          {"ExgLst", "fc.fctl.exchange_last", FT_BOOLEAN, 24, TFS(&tfs_fc_fctl_exchange_last),
+           FC_FCTL_EXCHANGE_LAST, "Last Exchange?", HFILL}},
+        { &hf_fc_fctl_seq_last,
+          {"SeqLst", "fc.fctl.seq_last", FT_BOOLEAN, 24, TFS(&tfs_fc_fctl_seq_last),
+           FC_FCTL_SEQ_LAST, "Last Sequence?", HFILL}},
+        { &hf_fc_fctl_priority,
+          {"Pri", "fc.fctl.priority", FT_BOOLEAN, 24, TFS(&tfs_fc_fctl_priority),
+           FC_FCTL_PRIORITY, "Priority", HFILL}},
+        { &hf_fc_fctl_transfer_seq_initiative,
+          {"TSI", "fc.fctl.transfer_seq_initiative", FT_BOOLEAN, 24, TFS(&tfs_fc_fctl_transfer_seq_initiative),
+           FC_FCTL_TRANSFER_SEQ_INITIATIVE, "Transfer Seq Initiative", HFILL}},
+        { &hf_fc_fctl_rexmitted_seq,
+          {"RetSeq", "fc.fctl.rexmitted_seq", FT_BOOLEAN, 24, TFS(&tfs_fc_fctl_rexmitted_seq),
+           FC_FCTL_REXMITTED_SEQ, "Retransmitted Sequence", HFILL}},
+        { &hf_fc_fctl_rel_offset,
+          {"RelOff", "fc.fctl.rel_offset", FT_BOOLEAN, 24, TFS(&tfs_fc_fctl_rel_offset),
+           FC_FCTL_REL_OFFSET, "rel offset", HFILL}},
+        { &hf_fc_fctl_last_data_frame,
+          {"LDF", "fc.fctl.last_data_frame", FT_UINT24, BASE_HEX, VALS(last_data_frame_vals),
+           FC_FCTL_LAST_DATA_FRAME_MASK, "Last Data Frame?", HFILL}},
+        { &hf_fc_fctl_ack_0_1,
+          {"A01", "fc.fctl.ack_0_1", FT_UINT24, BASE_HEX, VALS(ack_0_1_vals),
+           FC_FCTL_ACK_0_1_MASK, "Ack 0/1 value", HFILL}},
+        { &hf_fc_fctl_abts_ack,
+          {"AA", "fc.fctl.abts_ack", FT_UINT24, BASE_HEX, VALS(abts_ack_vals),
+           FC_FCTL_ABTS_MASK, "ABTS ACK values", HFILL}},
+        { &hf_fc_fctl_abts_not_ack,
+          {"AnA", "fc.fctl.abts_not_ack", FT_UINT24, BASE_HEX, VALS(abts_not_ack_vals),
+           FC_FCTL_ABTS_MASK, "ABTS not ACK vals", HFILL}},
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fc,
         &ett_fcbls,
+	&ett_fctl
     };
 
     module_t *fc_module;
