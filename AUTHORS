@@ -1398,7 +1398,7 @@ Solomon Peachy <pizza[AT]shaftnet.org> {
 	Support for new "wlancap" 802.11 extra-information header
 }
 
-Jaime Fournier <jafour1[AT]yahoo.com> {
+Jaime Fournier <Jaime.Fournier [AT] hush.com> {
 	Handle DCE RPC connectionless CANCEL PDUs with no body
 	DCE/RPC stub dissectors for RSEC_LOGIN, RS_ACCT, RS_ATTR, RS_MISC, 
 		RS_PGO, RS_REPLIST, RS_UNIX, RPRIV, ROVERRIDE, RS_REPADM,
