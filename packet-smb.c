@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.118 2001/09/28 22:43:56 guy Exp $
+ * $Id: packet-smb.c,v 1.119 2001/09/29 01:19:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12450,23 +12450,25 @@ static const value_string NT_errors[] = {
 
 #define SMB_FLAGS_DIRN 0x80
 
-gboolean
-dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
+static gboolean
+dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	const u_char	*pd;
+	int		offset;
 	proto_tree      *smb_tree = tree, *smb_hdr_tree = NULL, *flags_tree, *flags2_tree;
 	proto_item      *ti, *tf, *th;
 	guint8          cmd, errcls, errcode1, flags;
 	guint16         flags2, errcode, tid, pid, uid, mid;
 	guint32         status;
-	int             SMB_offset = offset;
+	int             SMB_offset;
 	struct          smb_info si;
 	static const char smb_signature[4] = { 0xFF, 'S', 'M', 'B' };
 
-	/* Is dissection of SMB messages enabled? */
-	if (!proto_is_protocol_enabled(proto_smb)) {
-	  /* No. */
-	  return FALSE;
-	}
+	/*
+	 * Get old-style information from the tvbuff we've been handed.
+	 */
+	tvb_compat(tvb, &pd, &offset);
+	SMB_offset = offset;
 
 	/* OK, is this an SMB message? */
 	if (!BYTES_ARE_IN_FRAME(SMB_offset, 4))
@@ -12482,12 +12484,12 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	cmd = pd[offset + SMB_hdr_com_offset];
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "SMB");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "SMB");
 
-	if (check_col(fd, COL_INFO)) {
+	if (check_col(pinfo->fd, COL_INFO)) {
 
-	  col_add_fstr(fd, COL_INFO, "%s", decode_smb_name(cmd));
+	  col_add_fstr(pinfo->fd, COL_INFO, "%s", decode_smb_name(cmd));
 
 	}
 
@@ -12594,9 +12596,9 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	flags = pd[offset];
 	si.request = !(flags&SMB_FLAGS_DIRN);
 
-	if (check_col(fd, COL_INFO)) {
+	if (check_col(pinfo->fd, COL_INFO)) {
 
-	  col_append_fstr(fd, COL_INFO, " %s", si.request ? "Request" : "Response");
+	  col_append_fstr(pinfo->fd, COL_INFO, " %s", si.request ? "Request" : "Response");
 
 	}
 
@@ -12780,8 +12782,8 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	/* Now vector through the table to dissect them */
 
-	(dissect[cmd])(pd, offset, fd, tree, smb_tree, si, max_data,
-		       SMB_offset);
+	(dissect[cmd])(pd, offset, pinfo->fd, tree, smb_tree, si,
+		       tvb_length(tvb), SMB_offset);
 
 	return TRUE;
 }
@@ -12832,9 +12834,15 @@ proto_register_smb(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
 	register_init_routine(&smb_init_protocol);
-	
+
 	register_proto_smb_browse();
 	register_proto_smb_logon();
 	register_proto_smb_mailslot();
 	register_proto_smb_pipe();
+}
+
+void
+proto_reg_handoff_smb(void)
+{
+	heur_dissector_add("netbios", dissect_smb, proto_smb);
 }

@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.59 2001/09/29 00:57:36 guy Exp $
+ * $Id: packet-nbns.c,v 1.60 2001/09/29 01:19:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,6 @@
 #include "packet.h"
 #include "packet-dns.h"
 #include "packet-netbios.h"
-#include "packet-smb.h"
 #include "prefs.h"
 
 static int proto_nbns = -1;

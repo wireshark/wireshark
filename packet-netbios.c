@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.37 2001/09/29 00:57:36 guy Exp $
+ * $Id: packet-netbios.c,v 1.38 2001/09/29 01:19:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,6 @@
 #include "packet.h"
 #include "llcsaps.h"
 #include "packet-netbios.h"
-#include "packet-smb.h"
 
 /* Netbios command numbers */
 #define NB_ADD_GROUP		0x00
@@ -959,32 +958,13 @@ static heur_dissector_list_t netbios_heur_subdissector_list;
 void
 dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	const guint8	*pd;
-	int		offset;
-	int		max_data;
-
 	/*
-	 * Try the heuristic dissectors for NetBIOS.
+	 * Try the heuristic dissectors for NetBIOS; if none of them
+	 * accept the packet, dissect it as data.
 	 */
-	if (dissector_try_heuristic(netbios_heur_subdissector_list,
+	if (!dissector_try_heuristic(netbios_heur_subdissector_list,
 				    tvb, pinfo, tree))
-		return;
-
-	/*
-	 * OK, none of them matched.  Try the SMB dissector.
-	 * (XXX - once the SMB dissector is tvbuffified, it should
-	 * become a regular heuristic dissector.)
-	 */
-	tvb_compat(tvb, &pd, &offset);
-	max_data = tvb_length(tvb);
-
-	if (dissect_smb(pd, offset, pinfo->fd, tree, max_data))
-		return;
-
-	/*
-	 * It's none of the above.  Dissect it as data.
-	 */
-	dissect_data(tvb, 0, pinfo, tree);
+		dissect_data(tvb, 0, pinfo, tree);
 }
 
 static void
