@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.31 2003/03/02 15:50:55 gerald Exp $
+ * $Id: etypes.h,v 1.32 2003/03/05 07:41:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,6 +197,11 @@
 
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
+#endif
+
+#ifndef ETHERTYPE_FCFT
+/* type used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
+#define ETHERTYPE_FCFT          0xFCFC
 #endif
 
 extern const value_string etype_vals[];

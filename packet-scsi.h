@@ -1,7 +1,7 @@
 /* packet-scsi.h
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.h,v 1.5 2002/08/28 21:00:30 jmayer Exp $
+ * $Id: packet-scsi.h,v 1.6 2003/03/05 07:41:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,10 @@ extern const value_string scsi_status_val[];
 #define SCSI_DEV_RBC       0xE
 #define SCSI_DEV_OCRW      0xF
 #define SCSI_DEV_OSD       0x11
+#define SCSI_DEV_NOLUN     0x1F
+
+#define SCSI_DEV_BITS      0x1F /* the lower 5 bits indicate device type */
+#define SCSI_MS_PCODE_BITS 0x3F /* Page code bits in Mode Sense */
 
 /* Function Decls; functions invoked by SAM-2 transport protocols such as
  * FCP/iSCSI

@@ -2,7 +2,7 @@
  * Routines for FC Inter-switch link services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcswils.c,v 1.2 2003/01/30 22:25:03 deniel Exp $
+ * $Id: packet-fcswils.c,v 1.3 2003/03/05 07:41:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,8 +57,9 @@
 #include "packet-fc.h"
 #include "packet-fcswils.h"
 
-#define FC_SWILS_RPLY    0x0
-#define FC_SWILS_REQ     0x1
+#define FC_SWILS_RPLY               0x0
+#define FC_SWILS_REQ                0x1
+#define FC_SWILS_RSCN_DEVENTRY_SIZE 20
 
 /* Zone name has the structure:
  * name_len (1 byte), rsvd (3 bytes), name (m bytes), fill (n bytes)
@@ -594,15 +595,8 @@ dissect_swils_fspf_hdr (tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_swils_fspf_lsrechdr (tvbuff_t *tvb, proto_tree *lsrec_tree, int offset)
+dissect_swils_fspf_lsrechdr (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    proto_tree *tree;
-    proto_item *subti;
-
-    subti = proto_tree_add_text (lsrec_tree, tvb, offset, 24,
-                                 "Link State Record Header");
-    tree = proto_item_add_subtree (subti, ett_fcswils_lsrechdr);
-        
     proto_tree_add_item (tree, hf_swils_lsrh_lsr_type, tvb, offset, 1, 0);
     proto_tree_add_text (tree, tvb, offset+2, 2, "LSR Age: %d secs",
                          tvb_get_ntohs (tvb, offset+2));
@@ -634,23 +628,31 @@ dissect_swils_fspf_lsrec (tvbuff_t *tvb, proto_tree *tree, int offset,
 {
     int i, j, num_ldrec;
     proto_item *subti1, *subti;
-    proto_tree *lsrec_tree, *ldrec_tree;
+    proto_tree *lsrec_tree, *ldrec_tree, *lsrechdr_tree;
 
     if (tree) {
         for (j = 0; j < num_lsrec; j++) {
             num_ldrec = tvb_get_ntohs (tvb, offset+26); 
             subti = proto_tree_add_text (tree, tvb, offset, (28+num_ldrec*16),
-                                         "Link State Record %d", j);
+                                         "Link State Record %d (Domain %d)", j,
+                                         tvb_get_guint8 (tvb, offset+15));
             lsrec_tree = proto_item_add_subtree (subti, ett_fcswils_lsrec);
         
-            dissect_swils_fspf_lsrechdr (tvb, lsrec_tree, offset);
+            subti = proto_tree_add_text (lsrec_tree, tvb, offset, 24,
+                                         "Link State Record Header");
+            lsrechdr_tree = proto_item_add_subtree (subti,
+                                                    ett_fcswils_lsrechdr); 
+        
+            dissect_swils_fspf_lsrechdr (tvb, lsrechdr_tree, offset);
             proto_tree_add_text (tree, tvb, offset+26, 2, "Number of Links: %d",
                                  num_ldrec);
             offset += 28;
         
             for (i = 0; i < num_ldrec; i++) {
-                subti1 = proto_tree_add_text (tree, tvb, offset, 16,
-                                              "Link Descriptor %d", i);
+                subti1 = proto_tree_add_text (lsrec_tree, tvb, offset, 16,
+                                              "Link Descriptor %d "
+                                              "(Neighbor domain %d)", i,
+                                              tvb_get_guint8 (tvb, offset+3));
                 ldrec_tree = proto_item_add_subtree (subti1, ett_fcswils_ldrec);
                 dissect_swils_fspf_ldrec (tvb, ldrec_tree, offset);
                 offset += 16;
@@ -705,6 +707,8 @@ dissect_swils_lsack (tvbuff_t *tvb, proto_tree *lsa_tree, guint8 isreq _U_)
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
     int num_lsrechdr, i;
+    proto_item *subti;
+    proto_tree *lsrechdr_tree;
 
     if (lsa_tree) {
         dissect_swils_fspf_hdr (tvb, lsa_tree, offset);
@@ -720,7 +724,12 @@ dissect_swils_lsack (tvbuff_t *tvb, proto_tree *lsa_tree, guint8 isreq _U_)
         offset = 28;
 
         for (i = 0; i < num_lsrechdr; i++) {
-            dissect_swils_fspf_lsrechdr (tvb, lsa_tree, offset);
+            subti = proto_tree_add_text (lsa_tree, tvb, offset, 24,
+                                         "Link State Record Header (Domain %d)",
+                                         tvb_get_guint8 (tvb, offset+15));
+            lsrechdr_tree = proto_item_add_subtree (subti,
+                                                    ett_fcswils_lsrechdr); 
+            dissect_swils_fspf_lsrechdr (tvb, lsrechdr_tree, offset);
             offset += 24;
         }
     }
@@ -754,6 +763,12 @@ dissect_swils_rscn (tvbuff_t *tvb, proto_tree *rscn_tree, guint8 isreq)
         proto_tree_add_item (rscn_tree, hf_swils_rscn_detectfn, tvb,
                              offset+8, 4, 0);
         numrec = tvb_get_ntohl (tvb, offset+12);
+        
+        if (!tvb_bytes_exist (tvb, offset+16, FC_SWILS_RSCN_DEVENTRY_SIZE*numrec)) {
+            /* Some older devices do not include device entry information. */
+            return;
+        }
+        
         proto_tree_add_text (rscn_tree, tvb, offset+12, 4, "Num Entries: %d",
                              numrec);
 
@@ -1240,6 +1255,7 @@ dissect_fcswils (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fcswils_conv_key_t ckey, *req_key;
     proto_tree *swils_tree = NULL;
     guint8 isreq = FC_SWILS_REQ;
+    tvbuff_t *next_tvb;
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -1396,7 +1412,8 @@ dissect_fcswils (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_swils_esc (tvb, swils_tree, isreq);
         break;
     default:
-        call_dissector (data_handle, tvb, pinfo, tree);
+        next_tvb = tvb_new_subset (tvb, offset+4, -1, -1);
+        call_dissector (data_handle, next_tvb, pinfo, tree);
     }
 
 }

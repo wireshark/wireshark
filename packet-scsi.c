@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.23 2003/01/31 03:17:46 guy Exp $
+ * $Id: packet-scsi.c,v 1.24 2003/03/05 07:41:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1377,7 +1377,7 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     proto_tree *evpd_tree;
     proto_item *ti;
-    guint pcode, plen, i, idlen;
+    gint pcode, plen, i, idlen;
     guint8 flags;
     char str[256+1];
 
@@ -1433,10 +1433,12 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 idlen = tvb_get_guint8 (tvb, offset+3);
                 proto_tree_add_text (evpd_tree, tvb, offset+3, 1,
                                      "Identifier Length: %u", idlen);
-                proto_tree_add_text (evpd_tree, tvb, offset+4, idlen,
+                if (tvb_bytes_exist (tvb, offset+4, idlen)) {
+                    proto_tree_add_text (evpd_tree, tvb, offset+4, idlen,
                                          "Identifier: %s",
                                          tvb_bytes_to_str (tvb, offset+4,
                                                            idlen));
+                }
                 plen -= idlen;
                 offset += idlen;
             }
@@ -1486,7 +1488,7 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, gboolean isreq, gboolean iscdb,
                       guint32 payload_len, scsi_task_data_t *cdata)
 {
-    guint8 flags, i;
+    guint8 flags, i, devtype;
     gchar str[32];
     guint tot_len;
     scsi_devtype_data_t *devdata = NULL;
@@ -1510,10 +1512,21 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             COPY_ADDRESS (&(req_key->devid), &(pinfo->src));
 
             devdata = g_mem_chunk_alloc (scsidev_req_vals);
-            devdata->devtype = tvb_get_guint8 (tvb, offset) & 0x3F;
+            devdata->devtype = tvb_get_guint8 (tvb, offset) & SCSI_DEV_BITS;
 
             g_hash_table_insert (scsidev_req_hash, req_key, devdata);
 	}
+        else {
+            devtype = tvb_get_guint8 (tvb, offset);
+            if ((devtype & SCSI_DEV_BITS) != SCSI_DEV_NOLUN) {
+                /* Some initiators probe more than the available LUNs which
+                 * results in Inquiry data being returned indicating that a LUN
+                 * is not supported. We don't want to overwrite the device type
+                 * with such responses.
+                 */
+                devdata->devtype = (devtype & SCSI_DEV_BITS);
+            }
+        }
     }
 
     if (!tree)
@@ -2252,7 +2265,8 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
     pcode = tvb_get_guint8 (tvb, offset);
     plen = tvb_get_guint8 (tvb, offset+1);
 
-    if (match_strval (pcode & 0x3F, scsi_spc2_modepage_val) == NULL) {
+    if (match_strval (pcode & SCSI_MS_PCODE_BITS,
+                      scsi_spc2_modepage_val) == NULL) {
         /*
          * This isn't a generic mode page that applies to all SCSI
          * device types; try to interpret it based on what we deduced,
@@ -2294,8 +2308,8 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
         dissect_modepage = dissect_scsi_spc2_modepage;
     }
     ti = proto_tree_add_text (scsi_tree, tvb, offset, plen+2, "%s Mode Page",
-                              val_to_str (pcode & 0x3F, modepage_val,
-                                          "Unknown (0x%08x)"));
+                              val_to_str (pcode & SCSI_MS_PCODE_BITS,
+                                          modepage_val, "Unknown (0x%08x)"));
     tree = proto_item_add_subtree (ti, ett_scsi_page);
     proto_tree_add_text (tree, tvb, offset, 1, "PS: %u", (pcode & 0x80) >> 7);
 
@@ -2308,7 +2322,8 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
         return (plen + 2);
     }
 
-    if (!(*dissect_modepage)(tvb, pinfo, tree, offset, pcode & 0x3F)) {
+    if (!(*dissect_modepage)(tvb, pinfo, tree, offset,
+                             pcode & SCSI_MS_PCODE_BITS)) {
         proto_tree_add_text (tree, tvb, offset+2, plen,
                              "Unknown Page");
     }
@@ -2499,7 +2514,8 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
     int hf_pagecode;
 
     pcode = tvb_get_guint8 (tvb, offset);
-    if ((valstr = match_strval (pcode & 0x3F, scsi_spc2_modepage_val)) == NULL) {
+    if ((valstr = match_strval (pcode & SCSI_MS_PCODE_BITS,
+                                scsi_spc2_modepage_val)) == NULL) {
         /*
          * This isn't a generic mode page that applies to all SCSI
          * device types; try to interpret it based on what we deduced,
@@ -2867,7 +2883,7 @@ dissect_scsi_reportdeviceid (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static void
 dissect_scsi_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
                          proto_tree *tree, guint offset, gboolean isreq,
-                         gboolean iscdb)
+                         gboolean iscdb, guint payload_len)
 {
     guint8 flags;
     guint numelem, i;
@@ -2889,6 +2905,11 @@ dissect_scsi_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_text (tree, tvb, offset, 4, "LUN List Length: %u",
                              numelem);
         offset += 8;
+        if (payload_len != 0) {
+            numelem = (numelem < payload_len) ? numelem : payload_len;
+        }
+        
+        numelem -= 8;
         for (i = 0; i < numelem/8; i++) {
             if (!tvb_get_guint8 (tvb, offset))
                 proto_tree_add_item (tree, hf_scsi_rluns_lun, tvb, offset+1, 1,
@@ -4265,7 +4286,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case SCSI_SPC2_REPORTLUNS:
             dissect_scsi_reportluns (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                     TRUE);
+                                     TRUE, 0);
             break;
 
         case SCSI_SPC2_REQSENSE:
@@ -4605,7 +4626,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             case SCSI_SPC2_REPORTLUNS:
                 dissect_scsi_reportluns (tvb, pinfo, scsi_tree, offset, isreq,
-                                         FALSE);
+                                         FALSE, payload_len);
                 break;
 
             case SCSI_SPC2_REQSENSE:
@@ -4925,7 +4946,7 @@ proto_register_scsi (void)
            HFILL}},
         { &hf_scsi_inq_devtype,
           {"Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
-           VALS (scsi_devtype_val), 0x0F, "", HFILL}},
+           VALS (scsi_devtype_val), 0x1F, "", HFILL}},
         { & hf_scsi_inq_version,
           {"Version", "scsi.inquiry.version", FT_UINT8, BASE_HEX,
            VALS (scsi_inquiry_vers_val), 0x0, "", HFILL}},

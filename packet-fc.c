@@ -2,7 +2,7 @@
  * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fc.c,v 1.4 2003/03/04 06:47:09 guy Exp $
+ * $Id: packet-fc.c,v 1.5 2003/03/05 07:41:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,7 @@
 
 #define FC_HEADER_SIZE         24
 #define FC_RCTL_EISL           0x50
+#define MDSHDR_TRAILER_SIZE    6
 
 /* Size of various fields in FC header in bytes */
 #define FC_RCTL_SIZE           1
@@ -471,8 +472,8 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     seqcnt = tvb_get_ntohs (tvb, offset+14);
     param = tvb_get_ntohl (tvb, offset+20);
 
-    SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr (tvb, 1, 3));
-    SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr (tvb, 5, 3));
+    SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr (tvb, offset+1, 3));
+    SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr (tvb, offset+5, 3));
     pinfo->oxid = tvb_get_ntohs (tvb, offset+16);
     pinfo->rxid = tvb_get_ntohs (tvb, offset+18);
     pinfo->ptype = PT_EXCHG;
@@ -648,6 +649,15 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     frag_size = tvb_reported_length (tvb)-FC_HEADER_SIZE;
 
+    /* If there is an MDS header, we need to subtract the MDS trailer size */
+    if ((pinfo->ethertype == ETHERTYPE_UNK) || (pinfo->ethertype == ETHERTYPE_FCFT)) {
+        frag_size -= MDSHDR_TRAILER_SIZE;
+    }
+    else if (pinfo->ethertype == ETHERTYPE_BRDWALK) {
+        frag_size -= 8;         /* 4 byte of FC CRC +
+                                   4 bytes of error+EOF = 8 bytes  */
+    }
+
     if (!is_lastframe_inseq) {
         /* Show this only as a fragmented FC frame */
         if (check_col (pinfo->cinfo, COL_INFO)) {
@@ -659,7 +669,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * present, if we're configured to reassemble.
      */
     if ((ftype != FC_FTYPE_LINKCTL) && (ftype != FC_FTYPE_BLS) &&
-        seqcnt && fc_reassemble &&
+        (!is_lastframe_inseq || seqcnt) && fc_reassemble &&
         tvb_bytes_exist(tvb, FC_HEADER_SIZE, frag_size)) {
         /* Add this to the list of fragments */
         frag_id = (pinfo->oxid << 16) | is_exchg_resp;
@@ -669,7 +679,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     fc_fragment_table,
                                     seqcnt * fc_max_frame_size,
                                     frag_size,
-                                    TRUE);
+                                    !is_lastframe_inseq);
         
         if (fcfrag_head) {
             next_tvb = tvb_new_real_data (fcfrag_head->data,

@@ -2,7 +2,7 @@
  * Routines for dissection of Cisco MDS Switch Internal Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-mdshdr.c,v 1.3 2003/01/24 17:17:25 oabad Exp $
+ * $Id: packet-mdshdr.c,v 1.4 2003/03/05 07:41:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -288,7 +288,7 @@ proto_register_mdshdr(void)
         { &hf_mdshdr_eof,
           {"EOF", "mdshdr.eof", FT_UINT8, BASE_DEC, VALS(eof_vals), 0x0, "", HFILL}},
         { &hf_mdshdr_span,
-          {"SPAN ID", "mdshdr.span", FT_UINT8, BASE_DEC, NULL, 0x0,
+          {"SPAN Frame", "mdshdr.span", FT_UINT8, BASE_DEC, NULL, 0x0,
            "", HFILL}}, 
     };
 
@@ -319,6 +319,7 @@ proto_reg_handoff_mdshdr(void)
 
     mdshdr_handle = create_dissector_handle (dissect_mdshdr, proto_mdshdr);
     dissector_add ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
+    dissector_add ("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
 
     data_handle = find_dissector ("data");
     fc_dissector_handle = find_dissector ("fc");
