@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.62 2003/05/23 05:25:18 tpot Exp $
+ * $Id: packet-http.c,v 1.63 2003/05/30 03:11:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,7 @@ static int proto_http = -1;
 static int hf_http_notification = -1;
 static int hf_http_response = -1;
 static int hf_http_request = -1;
+static int hf_http_basic = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -117,14 +118,16 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /*
- * Some headers that we dissect more deeply - Microsoft's abomination
- * called NTLMSSP over HTTP.
+ * Some headers that we dissect more deeply:
+ *
+ *	Microsoft's abomination called NTLMSSP over HTTP
+ *	HTTP Basic authorization
  */
 static gboolean
-check_ntlmssp_auth(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
+check_auth(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
     const char *text)
 {
-	static const char *headers[] = {
+	static const char *ntlm_headers[] = {
 		"Authorization: NTLM ",
 		"Authorization: Negotiate ",
 		"WWW-Authenticate: NTLM ",
@@ -133,11 +136,19 @@ check_ntlmssp_auth(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
 		"Proxy-Authorization: NTLM ",
 		NULL
 	};
+	static const char *basic_headers[] = {
+		"Authorization: Basic ",
+		"Proxy-Authorization: Basic ",
+		"Proxy-authorization: Basic ",
+		NULL
+	};
 	const char **header;
 	size_t hdrlen;
 	proto_tree *hdr_tree;
+	char *data;
+	size_t len;
 
-	for (header = &headers[0]; *header != NULL; header++) {
+	for (header = &ntlm_headers[0]; *header != NULL; header++) {
 		hdrlen = strlen(*header);
 		if (strncmp(text, *header, hdrlen) == 0) {
 			if (hdr_item != NULL) {
@@ -147,6 +158,26 @@ check_ntlmssp_auth(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
 				hdr_tree = NULL;
 			text += hdrlen;
 			dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
+			return TRUE;
+		}
+	}
+	for (header = &basic_headers[0]; *header != NULL; header++) {
+		hdrlen = strlen(*header);
+		if (strncmp(text, *header, hdrlen) == 0) {
+			if (hdr_item != NULL) {
+				hdr_tree = proto_item_add_subtree(hdr_item,
+				    ett_http_ntlmssp);
+			} else
+				hdr_tree = NULL;
+			text += hdrlen;
+
+			data = g_strdup(text);
+			len = base64_decode(data);
+			data[len] = '\0';
+			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
+			    0, 0, data);
+			g_free(data);
+
 			return TRUE;
 		}
 	}
@@ -327,7 +358,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    next_offset - offset, "%s", text);
 		} else
 			hdr_item = NULL;
-		check_ntlmssp_auth(hdr_item, tvb, pinfo, text);
+		check_auth(hdr_item, tvb, pinfo, text);
 		offset = next_offset;
 	}
 
@@ -542,6 +573,9 @@ proto_register_http(void)
 	      { "Request",		"http.request",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"TRUE if HTTP request", HFILL }},
+	    { &hf_http_basic,
+	      { "Credentials",		"http.authbasic",
+		FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,

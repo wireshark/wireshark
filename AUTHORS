@@ -1714,6 +1714,10 @@ J Bruce Fields <bfields [AT] fieldses.org> {
 	Some work on packet_rpc.c to support RPCSEC_GSS
 }
 
+tz <tz1 [AT] mac.com> {
+	Decode the base-64 string for HTTP Basic authorization
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
