@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.36 2003/09/05 06:16:10 sahlberg Exp $
+ * $Id: find_dlg.c,v 1.37 2003/09/09 02:41:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -486,8 +486,8 @@ convert_string_to_hex(const char *string, size_t *nbytes)
       break;
     if (isspace(c))
       continue;	/* allow white space */
-    if (c==':')
-      continue; /* skip any ':' between bytes */
+    if (c==':' || c=='.' || c=='-')
+      continue; /* skip any ':', '.', or '-' between bytes */
     if (!isxdigit(c)) {
       /* Not a valid hex digit - fail */
       return NULL;
@@ -526,8 +526,8 @@ convert_string_to_hex(const char *string, size_t *nbytes)
       break;
     if (isspace(c))
       continue;	/* allow white space */
-    if (c==':')
-      continue; /* skip any ':' between bytes */
+    if (c==':' || c=='.' || c=='-')
+      continue; /* skip any ':', '.', or '-' between bytes */
     /* From the loop above, we know this is a hex digit */
     if (isdigit(c))
       byte_val = c - '0';

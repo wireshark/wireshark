@@ -452,8 +452,13 @@ Exit the application.
 =item Edit:Find Frame
 
 Search forward or backward, starting with the currently selected packet
-(or the most recently selected packet, if no packet is selected), for a
-packet matching a given display filter expression.
+(or the most recently selected packet, if no packet is selected).  Search
+criteria can be a display filter expression, a string of hexadecimal 
+digits, or a text string.
+
+Hexadecimal digits can be separated by colons, periods, or dashes.
+Text string searches can be ASCII or Unicode (or both), and may be
+case insensitive.
 
 =item Edit:Find Next
 
