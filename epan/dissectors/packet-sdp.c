@@ -163,7 +163,7 @@ static int ett_sdp_media_attribute = -1;
 
 
 #define SDP_MAX_RTP_CHANNELS 4
-#define SDP_MAX_RTP_PAYLOAD_TYPES 10
+#define SDP_MAX_RTP_PAYLOAD_TYPES 20
 
 typedef struct {
 	char *connection_address;
