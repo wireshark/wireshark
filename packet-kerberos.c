@@ -5,7 +5,7 @@
  * Richard Share (C) 2002, rsharpe@samba.org, modularized a bit more and
  *                         added AP-REQ and AP-REP dissection
  *
- * $Id: packet-kerberos.c,v 1.33 2002/09/07 08:43:04 sharpe Exp $
+ * $Id: packet-kerberos.c,v 1.34 2002/09/08 22:41:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1060,10 +1060,10 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
  	    KRB_DECODE_OCTET_STRING_OR_DIE("e-data", data, data_len, item_len);
 
 	    if (kerberos_tree) {
-		proto_tree_add_text(kerberos_tree, tvb, offset, data_len,
-                            "Error Data: %s", bytes_to_str(data, item_len));
+		proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
+                            "Error Data: %s", bytes_to_str(data, data_len));
 	    }
-	    offset += data_len;
+	    offset += item_len;
 	}
 
         break;
@@ -1298,7 +1298,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
       KRB_DECODE_UINT32_OR_DIE("kvno", val);
       if (encr_tree) {
           proto_tree_add_text(encr_tree, asn1p->tvb, offset, length,
-                              "KVNO: %d", val);
+                              "KVNO: %u", val);
       }
       offset += length;
       KRB_HEAD_DECODE_OR_DIE("cipher-wrap");
@@ -1308,10 +1308,10 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
     KRB_DECODE_OCTET_STRING_OR_DIE("cipher", data, data_len, item_len);
 
     if (encr_tree) {
-        proto_tree_add_text(encr_tree, asn1p->tvb, offset, data_len,
-                            "CipherText: %s", bytes_to_str(data, item_len));
+        proto_tree_add_text(encr_tree, asn1p->tvb, offset, item_len,
+                            "CipherText: %s", bytes_to_str(data, data_len));
     }
-    offset += data_len;
+    offset += item_len;
 
     return offset - start_offset;
 }
