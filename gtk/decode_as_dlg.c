@@ -219,7 +219,7 @@ decode_build_reset_list (gchar *table_name, ftenum_t selector_type,
 #if GTK_MAJOR_VERSION >= 2
 #define SORT_ALPHABETICAL 0
 
-gint
+static gint
 sort_iter_compare_func (GtkTreeModel *model,
 GtkTreeIter *a,
 GtkTreeIter *b,
@@ -240,9 +240,9 @@ gpointer userdata)
                 break; /* both equal => ret = 0 */
             ret = (name1 == NULL) ? -1 : 1;
         }
-            else
+        else
         {
-            ret = g_utf8_collate(name1,name2);
+            ret = g_ascii_strcasecmp(name1,name2);
         }
         g_free(name1);
         g_free(name2);
@@ -280,7 +280,7 @@ gchar *current_proto_name)
 #endif
 
     text[E_LIST_D_TABLE] = table_name;
-	text[E_LIST_D_SELECTOR] = selector_name;
+    text[E_LIST_D_SELECTOR] = selector_name;
     text[E_LIST_D_INITIAL] = initial_proto_name;
     text[E_LIST_D_CURRENT] = current_proto_name;
 #if GTK_MAJOR_VERSION < 2
