@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.4 1999/08/12 15:10:48 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.5 1999/08/12 15:20:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,7 +90,7 @@ static char *in_buffer;
 
 whitespace	[\t ]
 hex		[A-Fa-f0-9]{1,2}
-hexsep		[-:.]
+hexsep		[-:\.]
 
 %%
 
