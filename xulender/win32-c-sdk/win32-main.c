@@ -141,6 +141,9 @@ static void main_save_window_geometry(HWND hw_mainwin);
 static void file_save_as_cmd(void);
 static void file_quit_cmd(HWND hw_mainwin);
 static void reftime_frame_cb(REFTIME_ACTION_E action);
+static void collapse_all_cb();
+static void expand_all_cb();
+static void expand_tree_cb();
 
 #ifdef HAVE_LIBPCAP
 static gboolean list_link_layer_types;
@@ -1546,7 +1549,15 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 		    case IDB_MAIN_TOOLBAR_NORMALSZ:
 			view_zoom_100();
 			break;
-
+		    case IDM_ETHEREAL_MAIN_VIEW_COLLAPSEALL:
+			collapse_all_cb();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_EXPANDALL:
+			expand_all_cb();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_EXPANDTREE:
+			expand_tree_cb();
+			break;
 		    case IDM_ETHEREAL_MAIN_VIEW_COLORING:
 		    case IDB_MAIN_TOOLBAR_COLOR_DLG:
 			coloring_rules_dialog_init(hw_mainwin);
@@ -2092,4 +2103,31 @@ reftime_frame_cb(REFTIME_ACTION_E action) {
 	    find_previous_next_frame_with_filter("frame.ref_time", TRUE);
 	    break;
     }
+}
+
+static void
+collapse_all_cb() {
+    win32_element_t *treeview = win32_identifier_get_str("main-treeview");
+
+    win32_element_assert(treeview);
+
+    ethereal_treeview_collapse_all(treeview);
+}
+
+static void
+expand_all_cb() {
+    win32_element_t *treeview = win32_identifier_get_str("main-treeview");
+
+    win32_element_assert(treeview);
+
+    ethereal_treeview_expand_all(treeview);
+}
+
+static void
+expand_tree_cb() {
+    win32_element_t *treeview = win32_identifier_get_str("main-treeview");
+
+    win32_element_assert(treeview);
+
+    ethereal_treeview_expand_tree(treeview);
 }

@@ -346,7 +346,7 @@ void set_menus_for_selected_tree_row(capture_file *cf) {
 	// XXX - Tree view "Protocol Prefs"
 
 	enable = (cf->finfo_selected->tree_type != -1) ? MF_ENABLED : MF_GRAYED;
-	EnableMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_EXPANDTREE, enable | MF_BYPOSITION);
+	EnableMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_EXPANDTREE, enable | MF_BYCOMMAND);
 	// XXX - Tree view "expand tree"
     } else {
 	EnableMenuItem(go_menu, IDM_ETHEREAL_MAIN_GO_CORRESPONDING, MF_GRAYED | MF_BYCOMMAND);

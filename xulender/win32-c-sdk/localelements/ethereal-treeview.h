@@ -10,5 +10,8 @@ HTREEITEM ethereal_treeview_find_finfo(win32_element_t *treeview, field_info *fi
 void ethereal_treeview_select(win32_element_t *treeview, HTREEITEM hti);
 void ethereal_treeview_show_tree(capture_file *cfile);
 void ethereal_treeview_draw(win32_element_t *treeview, proto_tree *tree, win32_element_t *byteview);
+void ethereal_treeview_collapse_all(win32_element_t *treeview);
+void ethereal_treeview_expand_all(win32_element_t *treeview);
+void ethereal_treeview_expand_tree(win32_element_t *treeview);
 
 #endif /* ethereal-treeview.h */

@@ -43,6 +43,7 @@ static void ethereal_treeview_resize(HWND hw_treeview);
 static LRESULT CALLBACK ethereal_treeview_wnd_proc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT ethereal_treeview_notify(HWND, LPARAM, capture_file *);
 static HTREEITEM ethereal_treeview_find_lparam(HWND tv_ctrl, HTREEITEM last_ti, LPARAM lp_data);
+static void ethereal_treeview_expand_item(HWND tv_ctrl, HTREEITEM last_ti, gboolean expand);
 
 #define EWC_TREE_PANE          "TreeViewPane"
 #define ETHEREAL_TREEVIEW_DATA "_ethereal_treeview_data"
@@ -219,6 +220,62 @@ ethereal_treeview_select(win32_element_t *treeview, HTREEITEM hti) {
     TreeView_Select(td->tv_ctrl, hti, TVGN_FIRSTVISIBLE);
     TreeView_Select(td->tv_ctrl, hti, TVGN_CARET);
 }
+
+void
+ethereal_treeview_collapse_all(win32_element_t *treeview) {
+    treeview_data_t *td;
+    HTREEITEM        hti;
+
+    win32_element_assert(treeview);
+    td = (treeview_data_t *) win32_element_get_data(treeview, ETHEREAL_TREEVIEW_DATA);
+
+    ethereal_treeview_expand_item(td->tv_ctrl, NULL, FALSE);
+
+    hti = TreeView_GetSelection(td->tv_ctrl);
+    if (hti)
+	TreeView_EnsureVisible(td->tv_ctrl, hti);
+}
+
+void
+ethereal_treeview_expand_all(win32_element_t *treeview) {
+    treeview_data_t *td;
+    HTREEITEM        hti;
+
+    win32_element_assert(treeview);
+    td = (treeview_data_t *) win32_element_get_data(treeview, ETHEREAL_TREEVIEW_DATA);
+
+    ethereal_treeview_expand_item(td->tv_ctrl, NULL, TRUE);
+
+    hti = TreeView_GetSelection(td->tv_ctrl);
+    if (hti)
+	TreeView_EnsureVisible(td->tv_ctrl, hti);
+}
+
+void
+ethereal_treeview_expand_tree(win32_element_t *treeview) {
+    treeview_data_t *td;
+    HTREEITEM        hti;
+
+    win32_element_assert(treeview);
+    td = (treeview_data_t *) win32_element_get_data(treeview, ETHEREAL_TREEVIEW_DATA);
+
+    hti = TreeView_GetSelection(td->tv_ctrl);
+
+    if (!hti)
+	return;
+
+    TreeView_Expand(td->tv_ctrl, hti, TVE_EXPAND);
+
+    hti = TreeView_GetChild(td->tv_ctrl, hti);
+
+    if (hti)
+	ethereal_treeview_expand_item(td->tv_ctrl, hti, TRUE);
+
+    hti = TreeView_GetSelection(td->tv_ctrl);
+    if (hti)
+	TreeView_EnsureVisible(td->tv_ctrl, hti);
+}
+
 
 /*
  * Private routines
@@ -425,5 +482,30 @@ ethereal_treeview_find_lparam(HWND tv_ctrl, HTREEITEM last_ti, LPARAM lp_data) {
     }
 
     return NULL;
+}
+
+/* Expand collapse the item and any children */
+static void
+ethereal_treeview_expand_item(HWND tv_ctrl, HTREEITEM last_ti, gboolean expand) {
+    HTREEITEM hti;
+    UINT      flag = expand ? TVE_EXPAND : TVE_COLLAPSE;
+
+    if (last_ti == NULL) { /* Start at the root */
+	hti = TreeView_GetRoot(tv_ctrl);
+	if (hti == NULL) return;
+	ethereal_treeview_expand_item(tv_ctrl, hti, expand);
+    }
+
+    TreeView_Expand(tv_ctrl, last_ti, flag);
+
+    hti = TreeView_GetChild(tv_ctrl, last_ti);
+    if (hti != NULL) {
+	ethereal_treeview_expand_item(tv_ctrl, hti, expand);
+    }
+
+    hti = TreeView_GetNextSibling(tv_ctrl, last_ti);
+    if (hti != NULL) {
+	ethereal_treeview_expand_item(tv_ctrl, hti, expand);
+    }
 }
 
