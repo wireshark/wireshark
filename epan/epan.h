@@ -40,6 +40,8 @@ void epan_init(const char * plugindir, void (*register_all_protocols)(void),
 void epan_cleanup(void);
 void epan_conversation_init(void);
 void epan_circuit_init(void);
+void report_failure(const char *, ...);
+
 
 /* A client will create one epan_t for an entire dissection session.
  * A single epan_t will be used to analyze the entire sequence of packets,
