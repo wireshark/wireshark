@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.40 2002/11/11 15:39:05 oabad Exp $
+ * $Id: filter_prefs.c,v 1.41 2003/01/11 11:10:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,7 +155,7 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 
    If "wants_apply_button" is non-null, we add an "Apply" button that
    acts like "OK" but doesn't dismiss this dialog. */
-void
+GtkWidget *
 display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 {
 	construct_args_t *construct_args = construct_args_ptr;
@@ -170,7 +170,7 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 	if (filter_browse_w != NULL) {
 		/* Yes.  Just re-activate that dialog box. */
 		reactivate_window(filter_browse_w);
-		return;
+		return filter_browse_w;
 	}
 
 	/* No.  Get the text entry attached to the button. */
@@ -187,6 +187,8 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 
 	/* Set the E_FILT_DIALOG_PTR_KEY for the caller to point to us */
 	OBJECT_SET_DATA(caller, E_FILT_DIALOG_PTR_KEY, filter_browse_w);
+
+	return filter_browse_w;
 }
 
 #ifdef HAVE_LIBPCAP

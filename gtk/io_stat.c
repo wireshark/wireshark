@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.13 2002/12/16 21:18:37 guy Exp $
+ * $Id: io_stat.c,v 1.14 2003/01/11 11:10:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,6 +117,9 @@ typedef struct _io_stat_graph_t {
 	GtkWidget *calc_field;
 	GdkColor color;
 	GdkGC *gc;
+	construct_args_t *args;
+	GtkWidget *filter_bt;
+	GtkWidget *filter_main_win;
 } io_stat_graph_t;
 
 typedef struct _io_stat_yscale_t {
@@ -861,6 +864,14 @@ gtk_iostat_init(char *optarg _U_)
 		io->graphs[i].filter_button=NULL;
 		io->graphs[i].advanced_buttons=NULL;
 		io->graphs[i].io=io;
+
+		io->graphs[i].args=g_malloc(sizeof(construct_args_t));
+		io->graphs[i].args->title = NULL;
+		io->graphs[i].args->wants_apply_button=TRUE;
+		io->graphs[i].args->activate_on_ok=TRUE;
+
+		io->graphs[i].filter_bt=NULL;
+		io->graphs[i].filter_main_win=NULL;
 	}
 
 	if(register_tap_listener("frame", &io->graphs[0], NULL, gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw)){
@@ -918,6 +929,17 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 			g_free(it);
 		}
 		unprotect_thread_critical_region();
+
+		free(io->graphs[i].args->title);
+		io->graphs[i].args->title=NULL;
+
+		g_free(io->graphs[i].args);
+		io->graphs[i].args=NULL;
+
+		if(io->graphs[i].filter_main_win){
+			gtk_widget_destroy(io->graphs[i].filter_main_win);
+			io->graphs[i].filter_main_win=NULL;
+		}
 	}
 	g_free(io);
 
@@ -1469,28 +1491,52 @@ create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
 }
 
 
+gint delete_filter_event(GtkWidget *widget _U_, io_stat_graph_t *gio)
+{
+	int i;
+
+	for(i=0;i<MAX_GRAPHS;i++){
+		if (GTK_WIDGET_STATE (gio->io->graphs[i].filter_bt) 
+		== GTK_STATE_INSENSITIVE) {
+			gtk_widget_set_sensitive (gio->io->graphs[i].filter_bt,1);
+		}
+	}
+   	return(FALSE);
+}
+
+
 static void
-create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
+filter_button_clicked(GtkWidget *w, gpointer uio)
+{
+	int i;
+	io_stat_graph_t *gio=(io_stat_graph_t *)uio;
+
+	for(i=0;i<MAX_GRAPHS;i++){
+		if( gio->io->graphs[i].filter_bt != w ){
+			gtk_widget_set_sensitive(gio->io->graphs[i].filter_bt,0);
+		}
+	}
+	gio->filter_main_win=display_filter_construct_cb(w, gio->args);
+	SIGNAL_CONNECT(gio->filter_main_win, "delete_event", delete_filter_event, gio);
+	SIGNAL_CONNECT(gio->filter_main_win, "destroy", delete_filter_event, gio);
+	return;
+}
+
+static void
+create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 {
 	GtkWidget *hbox;
 	GtkWidget *label;
-
-	/* filter prefs dialog */
-	GtkWidget *filter_bt;
-	static construct_args_t args = {
-         "Ethereal: Display Filter",
-         TRUE,
-         TRUE
-	};
-	/* filter prefs dialog */
-
+        char str[256];
 
 	hbox=gtk_hbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
 
-	label=gtk_label_new("   Display:");
+
+	sprintf(str, "Filter:%d", num);
+	label=gtk_label_new(str);
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
@@ -1541,16 +1587,23 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box)
 	label=gtk_label_new("   ");
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	filter_bt = gtk_button_new_with_label("Filter:");
-	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
-	gtk_box_pack_start(GTK_BOX(hbox), filter_bt, FALSE, TRUE, 0);
-	gtk_widget_show(filter_bt);
-	/* filter prefs dialog */
+	gio->filter_bt = gtk_button_new_with_label("Filter:");
+
+	sprintf(str, "Ethereal: Display Filter  IO-Stat (Filter:%d)", num);
+	if(gio->args->title){
+		free(gio->args->title);
+	}
+	gio->args->title=strdup(str);	
+
+	SIGNAL_CONNECT(gio->filter_bt, "clicked", filter_button_clicked, gio);
+
+	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_bt, FALSE, TRUE, 0);
+	gtk_widget_show(gio->filter_bt);
 
 	gio->filter_button=gtk_entry_new_with_max_length(256);
 
 	/* filter prefs dialog */
-	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, gio->filter_button);
+	OBJECT_SET_DATA(gio->filter_bt, E_FILT_TE_PTR_KEY, gio->filter_button);
 	/* filter prefs dialog */
 
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_button, FALSE, FALSE, 0);
@@ -1574,7 +1627,7 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 	gtk_widget_show(vbox);
 
 	for(i=0;i<MAX_GRAPHS;i++){
-		create_filter_box(&io->graphs[i], vbox);
+		create_filter_box(&io->graphs[i], vbox, i+1);
 	}
 
 	return;
@@ -1589,6 +1642,7 @@ init_io_stat_window(io_stat_t *io)
 
 	/* create the main window */
 	io->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
 	gtk_widget_set_name(io->window, "I/O Statistics");
 
 	vbox=gtk_vbox_new(FALSE, 0);

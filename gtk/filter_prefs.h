@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.h,v 1.12 2002/08/28 21:03:47 jmayer Exp $
+ * $Id: filter_prefs.h,v 1.13 2003/01/11 11:10:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,7 +40,7 @@ typedef struct {
 } construct_args_t;
 
 void capture_filter_construct_cb(GtkWidget *w, gpointer user_data);
-void display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr);
+GtkWidget *display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr);
 void cfilter_dialog_cb(GtkWidget *w);
 void dfilter_dialog_cb(GtkWidget *w);
 
