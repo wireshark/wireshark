@@ -1413,7 +1413,8 @@ Jamie Fournier <jafour1[AT]yahoo.com>
 	DCE/RPC dissectors for RSEC_LOGIN, RS_ACCT, RS_ATTR, RS_MISC, RS_PGO, 
 		RS_REPLIST, RS_UNIX, RPRIV, ROVERRIDE, RS_REPADM,
 		DTSSTIME_REQ, CDS_SOLICIT, CPRPC_SERVER, DTSPROVIDER,
-		UBIKDISK, UBIKVOTE, BOSSVR, FTSERVER, CDS_CLERKSERVER
+		UBIKDISK, UBIKVOTE, BOSSVR, FTSERVER, CDS_CLERKSERVER,
+		KRB5RPC
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
