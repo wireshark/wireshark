@@ -81,32 +81,19 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	gchar label_text[256];
 	gint added_row;
 	gchar *data[NUM_COLS];
-	gchar field[NUM_COLS][30];
 	guint32 expected;
 	gint32 lost;
 	double perc;
+	int i;
 
-	data[0]=&field[0][0];
-	data[1]=&field[1][0];
-	data[2]=&field[2][0];
-	data[3]=&field[3][0];
-	data[4]=&field[4][0];
-	data[5]=&field[5][0];
-	data[6]=&field[6][0];
-	data[7]=&field[7][0];
-	data[8]=&field[8][0];
-	data[9]=&field[9][0];
-	data[10]=&field[10][0];
-	data[11]=&field[11][0];
-
-	g_snprintf(field[0], 20, "%s", address_to_str_w_none(&(strinfo->src_addr)));
-	g_snprintf(field[1], 20, "%u", strinfo->src_port);
-	g_snprintf(field[2], 20, "%s", address_to_str_w_none(&(strinfo->dest_addr)));
-	g_snprintf(field[3], 20, "%u", strinfo->dest_port);
-	g_snprintf(field[4], 20, "%u", strinfo->ssrc);
-	g_snprintf(field[5], 30, "%s", val_to_str(strinfo->pt, rtp_payload_type_vals,
+	data[0] = g_strdup(address_to_str_w_none(&(strinfo->src_addr)));
+	data[1] = g_strdup_printf("%u", strinfo->src_port);
+	data[2] = g_strdup(address_to_str_w_none(&(strinfo->dest_addr)));
+	data[3] = g_strdup_printf("%u", strinfo->dest_port);
+	data[4] = g_strdup_printf("%u", strinfo->ssrc);
+	data[5] = g_strdup(val_to_str(strinfo->pt, rtp_payload_type_vals,
 		"Unknown (%u)"));
-	g_snprintf(field[6], 20, "%u", strinfo->npackets);
+	data[6] = g_strdup_printf("%u", strinfo->npackets);
 
 	expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
 		- strinfo->rtp_stats.start_seq_nr + 1;
@@ -116,16 +103,18 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	} else {
 		perc = 0;
 	}
-	g_snprintf(field[7], 20, "%d (%.1f%%)", lost, perc);
-	g_snprintf(field[8], 20, "%.2f", strinfo->rtp_stats.max_delta*1000);
-	g_snprintf(field[9], 20, "%.2f", strinfo->rtp_stats.max_jitter*1000);
-	g_snprintf(field[10], 20, "%.2f", strinfo->rtp_stats.mean_jitter*1000);
+	data[7] = g_strdup_printf("%d (%.1f%%)", lost, perc);
+	data[8] = g_strdup_printf("%.2f", strinfo->rtp_stats.max_delta*1000);
+	data[9] = g_strdup_printf("%.2f", strinfo->rtp_stats.max_jitter*1000);
+	data[10] = g_strdup_printf("%.2f", strinfo->rtp_stats.mean_jitter*1000);
 	if (strinfo->problem)
-		g_snprintf(field[11], 20, "X");
+		data[11] = g_strdup("X");
 	else
-		g_snprintf(field[11], 20, "");
+		data[11] = g_strdup("");
 
 	added_row = gtk_clist_append(GTK_CLIST(clist), data);
+	for (i = 0; i < NUM_COLS; i++)
+		g_free(data[i]);
 
 	/* set data pointer of last row to point to user data for that row */
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, strinfo);
