@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.125 2004/01/23 00:40:00 jmayer Exp $
+ * $Id: packet-snmp.c,v 1.126 2004/01/23 10:25:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -643,7 +643,7 @@ new_format_oid(subid_t *oid, guint oid_length,
 }
 
 #ifdef HAVE_SOME_SNMP
-static gchar *
+static guchar *
 check_var_length(guint vb_length, guint required_length)
 {
 	gchar *buf;
@@ -664,7 +664,7 @@ static gchar *
 format_var(struct variable_list *variable, subid_t *variable_oid,
     guint variable_oid_length, gushort vb_type, guint val_len)
 {
-	gchar *buf;
+	guchar *buf;
 	size_t buf_len;
 	size_t out_len;
 
