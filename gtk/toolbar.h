@@ -2,7 +2,7 @@
  * Definitions for toolbar utility routines
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.h,v 1.5 2003/11/15 11:44:10 ulfl Exp $
+ * $Id: toolbar.h,v 1.6 2004/01/19 00:42:12 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file);
 void set_toolbar_for_capture_in_progress(gboolean have_capture_file);
 void set_toolbar_for_captured_packets(gboolean have_captured_packets);
 
-void create_toolbar(GtkWidget *main_vbox);
+GtkWidget *toolbar_new(void);
 void toolbar_redraw_all(void);
 
 void set_toolbar_object_data(gchar *key, gpointer data);

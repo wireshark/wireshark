@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.35 2004/01/09 08:36:23 guy Exp $
+ * $Id: main.h,v 1.36 2004/01/19 00:42:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,11 +96,10 @@ void collapse_all_cb(GtkWidget *, gpointer);
 void resolve_name_cb(GtkWidget *, gpointer);
 void reftime_frame_cb(GtkWidget *, gpointer, guint);
 
-#define RECENT_KEY_CAPTURE_FILE "recent.capture_file"
-#define RECENT_KEY_DISPLAY_FILTER "recent.display_filter"
+extern gboolean dfilter_combo_add_recent(gchar *s);
+extern void dfilter_recent_combo_write_all(FILE *rf);
 
-gboolean dfilter_combo_add_recent(gchar *s);
-void dfilter_combo_write_all(FILE *rf);
+extern void main_widgets_rearrange(void);
 
 char *boldify(const char *);
 #if GTK_MAJOR_VERSION < 2

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.136 2004/01/09 08:36:23 guy Exp $
+ * $Id: menu.c,v 1.137 2004/01/19 00:42:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,7 @@
 #include "../ipproto.h"
 #include "packet_list.h"
 #include "ethclist.h"
+#include "recent.h"
 
 GtkWidget *popup_menu_object;
 
@@ -78,6 +79,12 @@ clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 
 static void menus_init(void);
 static void set_menu_sensitivity (GtkItemFactory *, gchar *, gint);
+static void main_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
+static void filter_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
+static void packet_list_show_cb(GtkWidget *w _U_, gpointer d _U_);
+static void tree_view_show_cb(GtkWidget *w _U_, gpointer d _U_);
+static void byte_view_show_cb(GtkWidget *w _U_, gpointer d _U_);
+static void statusbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
 
 /* This is the GtkItemFactoryEntry structure used to generate new menus.
        Item 1: The menu path. The letter after the underscore indicates an
@@ -167,27 +174,28 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", "<shift><control>P", prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
     ITEM_FACTORY_ENTRY("/_View", NULL, NULL, 0, "<Branch>", NULL),
-#if 0
-	/* XXX: the show/hide functionality of the GUI elements is currently not implemented */
     ITEM_FACTORY_ENTRY("/View/_Show", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Show/Main Toolbar", NULL, NULL, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Show/Filter Toolbar", NULL, NULL, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Show/Status Bar", NULL, NULL, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Show/Packet List", NULL, NULL, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Show/Packet Dissection", NULL, NULL, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Show/Packet Data", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/Main Toolbar", NULL, main_toolbar_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/Filter Toolbar", NULL, filter_toolbar_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/Packet List", NULL, packet_list_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/Packet Dissection", NULL, tree_view_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/Packet Data", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/Status Bar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
+#if 0
 	/* XXX: the settings in the "Options" dialog could be seperated into the following menu items. */
 	/* before this, some effort must be taken to transfer the functionality of this dialog to the menu items */
 	/* (getting the current values, handling the radioitems, ...) */
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Time Display Format/Time of day", NULL, NULL, 0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Time Display Format/Date and time of day", NULL, NULL, 0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Time Display Format/Seconds since beginning of capture", NULL, NULL, 0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Time Display Format/Seconds since previous capture", NULL, NULL, 0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of day", NULL, NULL, 0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Date and time of day", NULL, NULL, 0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds since beginning of capture", NULL, NULL, 0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds since previous capture", NULL, NULL, 0, "<RadioItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Name Resolution", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Name Resolution/Enable MAC", NULL, NULL, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Name Resolution/Enable Network", NULL, NULL, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Name Resolution/Enable Transport", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable MAC", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable Network", NULL, NULL, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable Transport", NULL, NULL, 0, "<CheckItem>", NULL),
 #else
     ITEM_FACTORY_ENTRY("/View/_Options...", NULL, display_opt_cb,
                        0, NULL, NULL),
@@ -400,19 +408,21 @@ static GSList *popup_menu_list = NULL;
 
 static GtkAccelGroup *grp;
 
-void
-get_main_menu(GtkWidget ** menubar, GtkAccelGroup ** table) {
+GtkWidget *
+main_menu_new(GtkAccelGroup ** table) {
+  GtkWidget *menubar;
 
   grp = gtk_accel_group_new();
 
   if (initialize)
     menus_init();
 
-  if (menubar)
-    *menubar = main_menu_factory->widget;
+  menubar = main_menu_factory->widget;
 
   if (table)
     *table = grp;
+
+  return menubar;
 }
 
 static void
@@ -461,6 +471,7 @@ menus_init(void) {
     set_menus_for_selected_packet(&cfile);
     set_menus_for_selected_tree_row(&cfile);
 
+    /* init with an empty recent files list */
     clear_menu_recent_capture_file_cmd_cb(NULL, NULL);
   }
 }
@@ -882,6 +893,99 @@ menu_recent_file_write_all(FILE *rf) {
 
 	gtk_container_foreach(GTK_CONTAINER(submenu_recent_files), 
 		menu_recent_file_write, rf);
+}
+
+
+static void
+main_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    /* save current setting in recent */
+    recent.main_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+
+    main_widgets_rearrange();
+}
+
+
+static void
+filter_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    /* save current setting in recent */
+    recent.filter_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+
+    main_widgets_rearrange();
+}
+
+
+static void
+packet_list_show_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    /* save current setting in recent */
+    recent.packet_list_show = GTK_CHECK_MENU_ITEM(w)->active;
+
+    main_widgets_rearrange();
+}
+
+
+static void
+tree_view_show_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    /* save current setting in recent */
+    recent.tree_view_show = GTK_CHECK_MENU_ITEM(w)->active;
+
+    main_widgets_rearrange();
+}
+
+
+static void
+byte_view_show_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    /* save current setting in recent */
+    recent.byte_view_show = GTK_CHECK_MENU_ITEM(w)->active;
+
+    main_widgets_rearrange();
+}
+
+
+static void
+statusbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    /* save current setting in recent */
+    recent.statusbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+
+    main_widgets_rearrange();
+}
+
+
+/* the recent file read has finished, update the menu corresponding */
+void
+menu_recent_read_finished(void) {
+	GtkWidget *menu = NULL;
+
+	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Main Toolbar");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.main_toolbar_show);
+
+	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Filter Toolbar");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
+
+	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet List");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.packet_list_show);
+
+	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Dissection");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.tree_view_show);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Data");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.byte_view_show);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Status Bar");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
+
+    main_widgets_rearrange();
 }
 
 

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.42 2002/11/11 15:39:05 oabad Exp $
+ * $Id: packet_win.c,v 1.43 2004/01/19 00:42:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,11 +144,17 @@ void new_window_cb(GtkWidget *w _U_)
   gtk_widget_show(pane);
 
   /* Tree view */
-  create_tree_view(tv_size, &prefs, pane, &tv_scrollw, &tree_view);
+  tv_scrollw = main_tree_view_new(&prefs, &tree_view);
+  gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
+  WIDGET_SET_SIZE(tv_scrollw, -1, tv_size);
+  gtk_widget_show(tv_scrollw);
   gtk_widget_show(tree_view);
 
   /* Byte view */
-  bv_nb_ptr = create_byte_view(bv_size, pane);
+  bv_nb_ptr = byte_view_new();
+  gtk_paned_pack2(GTK_PANED(pane), bv_nb_ptr, FALSE, FALSE);
+  WIDGET_SET_SIZE(bv_nb_ptr, -1, bv_size);
+  gtk_widget_show(bv_nb_ptr);
 
   DataPtr->main = main_w;
   DataPtr->tv_scrollw = tv_scrollw;

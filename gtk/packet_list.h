@@ -1,7 +1,7 @@
 /* packet_list.h
  * Declarations of GTK+-specific routines for managing the packet list.
  *
- * $Id: packet_list.h,v 1.1 2004/01/09 08:36:23 guy Exp $
+ * $Id: packet_list.h,v 1.2 2004/01/19 00:42:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,7 @@
 #ifndef __PACKET_LIST_H__
 #define __PACKET_LIST_H__
 
-extern void packet_list_new(GtkWidget *u_pane, e_prefs *prefs, gint pl_size);
+extern GtkWidget *packet_list_new(e_prefs *prefs);
 extern void packet_list_set_column_titles(void);
 
 extern void mark_frame_cb(GtkWidget *, gpointer);

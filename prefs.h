@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.53 2003/12/29 19:56:24 guy Exp $
+ * $Id: prefs.h,v 1.54 2004/01/19 00:42:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,7 +74,6 @@ typedef struct _e_prefs {
   gint     gui_ptree_line_style;
   gint     gui_ptree_expander_style;
   gboolean gui_hex_dump_highlight_style;
-  gboolean gui_toolbar_main_show;
   gint     gui_toolbar_main_style;
   gchar   *gui_font_name;
   color_t  gui_marked_fg;

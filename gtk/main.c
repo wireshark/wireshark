@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.357 2004/01/18 02:19:07 jmayer Exp $
+ * $Id: main.c,v 1.358 2004/01/19 00:42:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,6 +123,7 @@
 #include "compat_macros.h"
 #include "find_dlg.h"
 #include "packet_list.h"
+#include "recent.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -137,6 +138,8 @@ typedef struct column_arrows {
 capture_file cfile;
 GtkWidget   *main_display_filter_widget=NULL;
 GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
+GtkWidget   *upper_pane, *lower_pane;
+GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *filter_tb;
 static GtkWidget	*info_bar;
 #if GTK_MAJOR_VERSION < 2
 GdkFont     *m_r_font, *m_b_font;
@@ -611,104 +614,6 @@ prepare_selected_cb_or_plist_not(GtkWidget *w _U_, gpointer data)
 }
 
 
-#define RECENT_FILE_NAME "recent"
-
-
-/* Write out "recent" to the user's recent file, and return 0.
-   If we got an error, stuff a pointer to the path of the recent file
-   into "*pf_path_return", and return the errno. */
-int
-write_recent(char **rf_path_return)
-{
-  char        *rf_path;
-  FILE        *rf;
-
-  /* To do:
-   * - Split output lines longer than MAX_VAL_LEN
-   * - Create a function for the preference directory check/creation
-   *   so that duplication can be avoided with filter.c
-   */
-
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE);
-  if ((rf = fopen(rf_path, "w")) == NULL) {
-    *rf_path_return = rf_path;
-    return errno;
-  }
-
-  fputs("# Recent settings file for Ethereal " VERSION ".\n"
-    "#\n"
-    "# This file is regenerated each time Ethereal is quit.\n"
-    "# So be careful, if you want to make manual changes here.\n"
-    "\n"
-    "######## Recent capture files (latest first) ########\n"
-    "\n", rf);
-
-  menu_recent_file_write_all(rf);
-
-  fputs("\n"
-    "######## Recent display filters (latest last) ########\n"
-    "\n", rf);
-
-  dfilter_combo_write_all(rf);
-
-  fclose(rf);
-
-  /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
-     an error indication, or maybe write to a new preferences file and
-     rename that file on top of the old one only if there are not I/O
-     errors. */
-  return 0;
-}
-
-
-/* set one user's recent file key/value pair */
-static int
-set_recent_pair(gchar *key, gchar *value)
-{
-
-
-  if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
-	add_menu_recent_capture_file(value);
-  } else if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
-	dfilter_combo_add_recent(value);
-  } 
-
-  return PREFS_SET_OK;
-}
-
-
-/* opens the user's recent file and read it out */
-void
-read_recent(char **rf_path_return, int *rf_errno_return)
-{
-  char       *rf_path;
-  FILE       *rf;
-
-
-  /* Construct the pathname of the user's recent file. */
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
-
-  /* Read the user's recent file, if it exists. */
-  *rf_path_return = NULL;
-  if ((rf = fopen(rf_path, "r")) != NULL) {
-    /* We succeeded in opening it; read it. */
-    read_prefs_file(rf_path, rf, set_recent_pair);
-	/* set dfilter combobox to have one empty line at the current position */
-	dfilter_combo_add_recent("");
-    fclose(rf);
-    g_free(rf_path);
-    rf_path = NULL;
-  } else {
-    /* We failed to open it.  If we failed for some reason other than
-       "it doesn't exist", return the errno and the pathname, so our
-       caller can report the error. */
-    if (errno != ENOENT) {
-      *rf_errno_return = errno;
-      *rf_path_return = rf_path;
-    }
-  }
-}
-
 
 
 static guint dfilter_combo_max_recent = 10;
@@ -747,7 +652,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
 /* write all non empty display filters (until maximum count) 
  * of the combo box GList to the user's recent file */
 void
-dfilter_combo_write_all(FILE *rf) {
+dfilter_recent_combo_write_all(FILE *rf) {
   GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
   GList     *filter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
   GList     *li;
@@ -2784,11 +2689,101 @@ not_xlfd:
 }
 #endif
 
+
+/*
+ * Helper for main_widgets_rearrange()
+ */
+void foreach_remove_a_child(GtkWidget *widget, gpointer data) {
+    gtk_container_remove(GTK_CONTAINER(data), widget);
+}
+
+/*
+ * Rearrange the main window widgets
+ */
+void main_widgets_rearrange(void) {
+    gint widgets = 0;
+    GtkWidget *w[10];
+
+
+    /* be a bit faster */
+    gtk_widget_hide(main_vbox);
+
+    /* be sure, we don't loose a widget while rearranging */
+    gtk_widget_ref(menubar);
+    gtk_widget_ref(main_tb);
+    gtk_widget_ref(filter_tb);
+    gtk_widget_ref(pkt_scrollw);
+    gtk_widget_ref(tv_scrollw);
+    gtk_widget_ref(byte_nb_ptr);
+    gtk_widget_ref(upper_pane);
+    gtk_widget_ref(lower_pane);
+    gtk_widget_ref(stat_hbox);
+    gtk_widget_ref(info_bar);
+
+    /* empty all containers participating */
+    gtk_container_foreach(GTK_CONTAINER(main_vbox),     foreach_remove_a_child, main_vbox);
+    gtk_container_foreach(GTK_CONTAINER(upper_pane),    foreach_remove_a_child, upper_pane);
+    gtk_container_foreach(GTK_CONTAINER(lower_pane),    foreach_remove_a_child, lower_pane);
+    gtk_container_foreach(GTK_CONTAINER(stat_hbox),     foreach_remove_a_child, stat_hbox);
+
+    gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
+
+    if (recent.main_toolbar_show) {
+        gtk_box_pack_start(GTK_BOX(main_vbox), main_tb, FALSE, TRUE, 0);
+    }
+
+    if (recent.packet_list_show) {
+        w[widgets++] = pkt_scrollw;
+    }
+
+    if (recent.tree_view_show) {
+        w[widgets++] = tv_scrollw;
+    }
+
+    if (recent.byte_view_show) {
+        w[widgets++] = byte_nb_ptr;
+    }
+
+    switch(widgets) {
+    case(0):
+        break;
+    case(1):
+        gtk_container_add(GTK_CONTAINER(main_vbox), w[0]);
+        break;
+    case(2):
+        gtk_container_add(GTK_CONTAINER(main_vbox), upper_pane);
+        gtk_paned_pack1(GTK_PANED(upper_pane), w[0], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(upper_pane), w[1], FALSE, FALSE);
+        break;
+    case(3):
+        gtk_container_add(GTK_CONTAINER(main_vbox), upper_pane);
+        gtk_paned_add1(GTK_PANED(upper_pane), w[0]);
+        gtk_paned_add2(GTK_PANED(upper_pane), lower_pane);
+
+        gtk_paned_pack1(GTK_PANED(lower_pane), w[1], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(lower_pane), w[2], FALSE, FALSE);
+        break;
+    }
+
+    if (recent.statusbar_show || recent.filter_toolbar_show) {
+        gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
+    }
+
+    if (recent.filter_toolbar_show) {
+        gtk_box_pack_start(GTK_BOX(stat_hbox), filter_tb, FALSE, TRUE, 1);
+    }
+
+    if (recent.statusbar_show) {
+        gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
+    }
+
+    gtk_widget_show(main_vbox);
+}
+
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
-    GtkWidget     *main_vbox, *menubar, *u_pane, *l_pane,
-                  *stat_hbox,
+    GtkWidget     
                   *filter_bt, *filter_cm, *filter_te,
                   *filter_apply,
                   *filter_reset;
@@ -2832,26 +2827,19 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(main_vbox);
 
     /* Menu bar */
-    get_main_menu(&menubar, &accel);
+    menubar = main_menu_new(&accel);
     gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
-    gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
     gtk_widget_show(menubar);
 
     /* Main Toolbar */
-    create_toolbar(main_vbox);
-
-    /* Panes for the packet list, tree, and byte view */
-    u_pane = gtk_vpaned_new();
-    gtk_paned_gutter_size(GTK_PANED(u_pane), (GTK_PANED(u_pane))->handle_size);
-    l_pane = gtk_vpaned_new();
-    gtk_paned_gutter_size(GTK_PANED(l_pane), (GTK_PANED(l_pane))->handle_size);
-    gtk_container_add(GTK_CONTAINER(main_vbox), u_pane);
-    gtk_widget_show(l_pane);
-    gtk_paned_add2(GTK_PANED(u_pane), l_pane);
-    gtk_widget_show(u_pane);
+    main_tb = toolbar_new();
+    //gtk_box_pack_start(GTK_BOX(main_vbox), main_tb, FALSE, TRUE, 0);
+    gtk_widget_show (main_tb);
 
     /* Packet list */
-    packet_list_new(u_pane, prefs, pl_size);
+    pkt_scrollw = packet_list_new(prefs);
+    WIDGET_SET_SIZE(packet_list, -1, pl_size);
+    gtk_widget_show(pkt_scrollw);
 
     /* Tree view */
 #if GTK_MAJOR_VERSION < 2
@@ -2859,7 +2847,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gdk_font_unref(item_style->font);
     item_style->font = m_r_font;
 #endif
-    create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view);
+    tv_scrollw = main_tree_view_new(prefs, &tree_view);
+    WIDGET_SET_SIZE(tv_scrollw, -1, tv_size);
+    gtk_widget_show(tv_scrollw);
+
 #if GTK_MAJOR_VERSION < 2
     SIGNAL_CONNECT(tree_view, "tree-select-row", tree_view_select_row_cb, NULL);
     SIGNAL_CONNECT(tree_view, "tree-unselect-row", tree_view_unselect_row_cb,
@@ -2873,22 +2864,41 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(tree_view);
 
     /* Byte view. */
-    byte_nb_ptr = create_byte_view(bv_size, l_pane);
+    byte_nb_ptr = byte_view_new();
+    WIDGET_SET_SIZE(byte_nb_ptr, -1, bv_size);
+    gtk_widget_show(byte_nb_ptr);
 
     SIGNAL_CONNECT(byte_nb_ptr, "button_press_event", popup_menu_handler,
                    OBJECT_GET_DATA(popup_menu_object, PM_HEXDUMP_KEY));
 
-    /* Filter/info box */
-    stat_hbox = gtk_hbox_new(FALSE, 1);
-    gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
-    gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
-    gtk_widget_show(stat_hbox);
+
+    /* Panes for the packet list, tree, and byte view */
+    lower_pane = gtk_vpaned_new();
+    gtk_paned_gutter_size(GTK_PANED(lower_pane), (GTK_PANED(lower_pane))->handle_size);
+    gtk_widget_show(lower_pane);
+
+    upper_pane = gtk_vpaned_new();
+    gtk_paned_gutter_size(GTK_PANED(upper_pane), (GTK_PANED(upper_pane))->handle_size);
+    gtk_widget_show(upper_pane);
+
+    /* filter toolbar */
+#if GTK_MAJOR_VERSION < 2
+    filter_tb = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL,
+                               GTK_TOOLBAR_BOTH);
+#else
+    filter_tb = gtk_toolbar_new();
+    gtk_toolbar_set_orientation(GTK_TOOLBAR(filter_tb),
+                                GTK_ORIENTATION_HORIZONTAL);
+#endif /* GTK_MAJOR_VERSION */
+    gtk_widget_show(filter_tb);
 
     filter_bt = gtk_button_new_with_label("Filter:");
     SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
     gtk_widget_show(filter_bt);
     OBJECT_SET_DATA(top_level, E_FILT_BT_PTR_KEY, filter_bt);
+
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_bt, 
+        "Open display filter dialog", "Private");
 
     filter_cm = gtk_combo_new();
     filter_list = g_list_append (filter_list, "");
@@ -2901,21 +2911,25 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
     OBJECT_SET_DATA(filter_te, E_DFILTER_CM_KEY, filter_cm);
     OBJECT_SET_DATA(top_level, E_DFILTER_CM_KEY, filter_cm);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), filter_cm, TRUE, TRUE, 3);
     SIGNAL_CONNECT(filter_te, "activate", filter_activate_cb, filter_te);
+    WIDGET_SET_SIZE(filter_cm, 400, -1);
     gtk_widget_show(filter_cm);
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_cm, 
+        "Enter a display filter", "Private");
 
     filter_reset = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
     OBJECT_SET_DATA(filter_reset, E_DFILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), filter_reset, FALSE, TRUE, 1);
     gtk_widget_show(filter_reset);
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_reset, 
+        "Clear the display filter", "Private");
 
     filter_apply = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
     OBJECT_SET_DATA(filter_apply, E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), filter_apply, FALSE, TRUE, 1);
     gtk_widget_show(filter_apply);
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_apply, 
+        "Apply the display filter", "Private");
 
     /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
      * of any widget that ends up calling a callback which needs
@@ -2953,13 +2967,21 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_KEY, packet_list);
 
+    /* statusbar */
     info_bar = gtk_statusbar_new();
     main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
     file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
     help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
     gtk_widget_show(info_bar);
+
+    /* Filter/info hbox */
+    stat_hbox = gtk_hbox_new(FALSE, 1);
+    gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
+    gtk_widget_show(stat_hbox);
+
+    /* rearrange all the widgets */
+    main_widgets_rearrange();
 
     gtk_widget_show(top_level);
 

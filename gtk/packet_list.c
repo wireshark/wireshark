@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.9 2004/01/09 20:36:47 guy Exp $
+ * $Id: packet_list.c,v 1.10 2004/01/19 00:42:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -393,8 +393,8 @@ set_plist_font(PangoFontDescription *font)
 	}
 }
 
-void
-packet_list_new(GtkWidget *u_pane, e_prefs *prefs, gint pl_size)
+GtkWidget *
+packet_list_new(e_prefs *prefs)
 {
     GtkWidget *pkt_scrollw;
     int            i;
@@ -403,8 +403,6 @@ packet_list_new(GtkWidget *u_pane, e_prefs *prefs, gint pl_size)
     pkt_scrollw = scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(pkt_scrollw),
                                     GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_widget_show(pkt_scrollw);
-    gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
 
     packet_list = eth_clist_new(cfile.cinfo.num_cols);
     /* Column titles are filled in below */
@@ -426,13 +424,14 @@ packet_list_new(GtkWidget *u_pane, e_prefs *prefs, gint pl_size)
             eth_clist_set_column_justification(ETH_CLIST(packet_list), i,
                                                GTK_JUSTIFY_RIGHT);
     }
-    WIDGET_SET_SIZE(packet_list, -1, pl_size);
     SIGNAL_CONNECT(packet_list, "button_press_event", popup_menu_handler,
                    OBJECT_GET_DATA(popup_menu_object, PM_PACKET_LIST_KEY));
     SIGNAL_CONNECT(packet_list, "button_press_event",
                    packet_list_button_pressed_cb, NULL);
     eth_clist_set_compare_func(ETH_CLIST(packet_list), packet_list_compare);
     gtk_widget_show(packet_list);
+
+    return pkt_scrollw;
 }
 
 void

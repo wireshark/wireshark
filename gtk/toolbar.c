@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.19 2004/01/10 17:10:06 ulfl Exp $
+ * $Id: toolbar.c,v 1.20 2004/01/19 00:42:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,7 @@
 #include "toolbar.h"
 #include "keys.h"
 #include "compat_macros.h"
+#include "recent.h"
 
 /* All of the icons used here are coming (or are derived) from GTK2 stock icons.
  * They were converted using "The Gimp" with standard conversion from png to xpm.
@@ -170,8 +171,8 @@ void ethereal_stock_icons(void) {
 /*
  * Create all toolbars (currently only the main toolbar)
  */
-void
-create_toolbar(GtkWidget *main_vbox)
+GtkWidget *
+toolbar_new(void)
 {
     GtkWidget *main_tb;
 
@@ -187,11 +188,12 @@ create_toolbar(GtkWidget *main_vbox)
     gtk_toolbar_set_space_size(GTK_TOOLBAR(main_tb), 3);
 #endif
 
-    gtk_box_pack_start(GTK_BOX(main_vbox), main_tb, FALSE, TRUE, 0);
     OBJECT_SET_DATA(top_level, E_TB_MAIN_KEY, main_tb);
 
     /* make current preferences effective */
     toolbar_redraw_all();
+
+    return main_tb;
 }
 
 /*
@@ -204,16 +206,8 @@ toolbar_redraw_all(void)
 
     main_tb = OBJECT_GET_DATA(top_level, E_TB_MAIN_KEY);
 
-    /* does the user want the toolbar? */
-    if (prefs.gui_toolbar_main_show) {
-        /* yes, set the style he/she prefers (texts, icons, both) */
-        gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
+    gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
                           prefs.gui_toolbar_main_style);
-        gtk_widget_show(main_tb);
-    } else {
-        /* no */
-        gtk_widget_hide(main_tb);
-    }
 
 #if GTK_MAJOR_VERSION < 2
     /* In GTK+ 1.2[.x], the toolbar takes the maximum vertical size it ever
@@ -674,8 +668,6 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
 #ifdef HAVE_LIBPCAP
     set_toolbar_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */
-    /* everything is well done here :-) */
-    gtk_widget_show (*toolbar);
 }
 
 void

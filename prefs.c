@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.120 2004/01/05 19:31:44 ulfl Exp $
+ * $Id: prefs.c,v 1.121 2004/01/19 00:42:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -921,7 +921,6 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_ptree_line_style = 0;
     prefs.gui_ptree_expander_style = 1;
     prefs.gui_hex_dump_highlight_style = 1;
-    prefs.gui_toolbar_main_show = TRUE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
 #ifdef WIN32
     prefs.gui_font_name = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
@@ -1525,13 +1524,7 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.gui_hex_dump_highlight_style =
 	find_index_from_string_array(value, gui_hex_dump_highlight_style_text, 1);
   } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_MAIN_SHOW) == 0) {
-    /* see toolbar.c for details */
-    if (strcasecmp(value, "true") == 0) {
-            prefs.gui_toolbar_main_show = TRUE;
-    }
-    else {
-            prefs.gui_toolbar_main_show = FALSE;
-    }
+    /* obsoleted by recent setting */
   } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_MAIN_STYLE) == 0) {
     /* see toolbar.c for details, "icons only" is default */
 	prefs.gui_toolbar_main_style =
@@ -2118,11 +2111,6 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE ": %s\n",
 		  gui_hex_dump_highlight_style_text[prefs.gui_hex_dump_highlight_style]);
 
-  fprintf(pf, "\n# Main Toolbar show/hide.\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  fprintf(pf, PRS_GUI_TOOLBAR_MAIN_SHOW ": %s\n",
-		  prefs.gui_toolbar_main_show == TRUE ? "TRUE" : "FALSE");
-
   fprintf(pf, "\n# Main Toolbar style.\n");
   fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
   fprintf(pf, PRS_GUI_TOOLBAR_MAIN_STYLE ": %s\n",
@@ -2270,7 +2258,6 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_ptree_line_style = src->gui_ptree_line_style;
   dest->gui_ptree_expander_style = src->gui_ptree_expander_style;
   dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;
-  dest->gui_toolbar_main_show = src->gui_toolbar_main_show;
   dest->gui_toolbar_main_style = src->gui_toolbar_main_style;
   dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
   dest->gui_fileopen_remembered_dir = g_strdup(src->gui_fileopen_remembered_dir);

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.78 2004/01/10 16:35:10 ulfl Exp $
+ * $Id: proto_draw.c,v 1.79 2004/01/19 00:42:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -593,20 +593,12 @@ byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 }
 
 GtkWidget *
-create_byte_view(gint bv_size, GtkWidget *pane)
+byte_view_new(void)
 {
   GtkWidget *byte_nb;
 
   byte_nb = gtk_notebook_new();
   gtk_notebook_set_tab_pos(GTK_NOTEBOOK(byte_nb), GTK_POS_BOTTOM);
-
-  gtk_paned_pack2(GTK_PANED(pane), byte_nb, FALSE, FALSE);
-#if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(byte_nb, -1, bv_size);
-#else
-  gtk_widget_set_size_request(byte_nb, -1, bv_size);
-#endif
-  gtk_widget_show(byte_nb);
 
   /* Add a placeholder byte view so that there's at least something
      displayed in the byte view notebook. */
@@ -1461,9 +1453,8 @@ set_ptree_font_all(PangoFontDescription *font)
 #endif
 }
 
-void
-create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
-		GtkWidget **tv_scrollw_p, GtkWidget **tree_view_p)
+GtkWidget *
+main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
 {
   GtkWidget *tv_scrollw, *tree_view;
 #if GTK_MAJOR_VERSION >= 2
@@ -1482,9 +1473,6 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(tv_scrollw),
                                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 #endif
-  gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
-  WIDGET_SET_SIZE(tv_scrollw, -1, tv_size);
-  gtk_widget_show(tv_scrollw);
 
 #if GTK_MAJOR_VERSION < 2
   tree_view = ctree_new(1, 0);
@@ -1520,7 +1508,8 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   remember_ptree_widget(tree_view);
 
   *tree_view_p = tree_view;
-  *tv_scrollw_p = tv_scrollw;
+
+  return tv_scrollw;
 }
 
 #if GTK_MAJOR_VERSION < 2
