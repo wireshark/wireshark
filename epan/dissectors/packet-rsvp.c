@@ -69,7 +69,7 @@
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
 #include <prefs.h>
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 #include "etypes.h"
 #include "ipproto.h"
 

@@ -45,7 +45,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "ipproto.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 #include "packet-rsvp.h"
 
 #define OSPF_VERSION_2 2

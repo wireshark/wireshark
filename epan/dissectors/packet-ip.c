@@ -48,7 +48,7 @@
 #include "arcnet_pids.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 #include "nlpid.h"
 #include "tap.h"
 

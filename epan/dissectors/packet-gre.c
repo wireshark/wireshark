@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-wccp.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 #include "etypes.h"
 #include "greproto.h"
 #include "ipproto.h"

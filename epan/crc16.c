@@ -35,7 +35,7 @@
 
 #include <glib.h>
 #include <epan/tvbuff.h>
-#include "crc16.h"
+#include <epan/crc16.h>
 
 
 /*****************************************************************/

@@ -26,6 +26,7 @@
 LIBETHEREAL_SRC = 		\
 	addr_and_mask.c		\
 	addr_resolv.c		\
+	adler32.c		\
 	atalk-utils.c		\
 	base64.c		\
 	bitswap.c		\
@@ -33,6 +34,8 @@ LIBETHEREAL_SRC = 		\
 	circuit.c		\
 	column-utils.c		\
 	conversation.c		\
+	crc16.c			\
+	crc32.c			\
 	crypt-des.c		\
 	crypt-md4.c		\
 	crypt-md5.c		\
@@ -41,6 +44,7 @@ LIBETHEREAL_SRC = 		\
 	except.c		\
 	filesystem.c		\
 	frame_data.c		\
+	in_cksum.c		\
 	ipv4.c			\
 	osi-utils.c		\
 	packet.c		\
@@ -59,6 +63,7 @@ LIBETHEREAL_INCLUDES = 		\
 	addr_and_mask.h		\
 	addr_resolv.h		\
 	address.h		\
+	adler32.h		\
 	atalk-utils.h		\
 	base64.h		\
 	bitswap.h		\
@@ -67,6 +72,8 @@ LIBETHEREAL_INCLUDES = 		\
 	column_info.h		\
 	conversation.h		\
 	column-utils.h		\
+	crc16.h			\
+	crc32.h			\
 	crypt-des.h		\
 	crypt-md4.h		\
 	crypt-md5.h		\
@@ -78,6 +85,7 @@ LIBETHEREAL_INCLUDES = 		\
 	filesystem.h		\
 	frame_data.h		\
 	gdebug.h		\
+	in_cksum.h		\
 	ipv4.h			\
 	ipv6-utils.h		\
 	nstime.h		\
@@ -100,15 +108,11 @@ LIBETHEREAL_INCLUDES = 		\
 
 # dissector helpers (needed from the dissectors, but not a dissector itself)
 DISSECTOR_SUPPORT_SRC =	\
-	../adler32.c	\
 	../afn.c	\
 	../asn1.c	\
 	../column.c	\
-	../crc16.c	\
-	../crc32.c	\
 	../follow.c	\
 	../h225-persistentdata.c	\
-	../in_cksum.c	\
 	../ipproto.c	\
 	../ptvcursor.c	\
 	../reassemble.c	\

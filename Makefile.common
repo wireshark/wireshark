@@ -26,7 +26,6 @@
 # Header files for dissector helpers
 # XXX - these should be moved to epan/dissectors
 DISSECTOR_SUPPORT_INCLUDES =	\
-	adler32.h	\
 	afn.h	\
 	aftypes.h	\
 	arcnet_pids.h	\
@@ -34,15 +33,12 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	bridged_pids.h	\
 	chdlctypes.h	\
 	column.h	\
-	crc16.h	\
-	crc32.h	\
 	etypes.h	\
 	follow.h	\
 	format-oid.h	\
 	greproto.h	\
 	h225-persistentdata.h	\
 	iax2_codec_type.h	\
-	in_cksum.h	\
 	ip_opts.h	\
 	ipproto.h	\
 	isprint.h	\

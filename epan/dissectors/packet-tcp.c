@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>

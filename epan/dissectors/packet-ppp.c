@@ -43,8 +43,8 @@
 #include "packet-ipx.h"
 #include "packet-vines.h"
 #include "nlpid.h"
-#include "crc16.h"
-#include "crc32.h"
+#include <epan/crc16.h>
+#include <epan/crc32.h>
 
 #define ppp_min(a, b)  ((a<b) ? a : b)
 

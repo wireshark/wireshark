@@ -23,7 +23,7 @@
 #endif
 #include "moduleinfo.h"
 #include "plugins/plugin_api.h"
-#include "crc16.h"
+#include <epan/crc16.h>
 
 #include <gmodule.h>
 

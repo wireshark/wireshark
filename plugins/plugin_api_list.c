@@ -44,7 +44,7 @@
 #include "tap.h"
 #include "asn1.h"
 #include "xdlc.h"
-#include "crc16.h"
+#include <epan/crc16.h>
 
 gint check_col(column_info*, gint);
 void col_clear(column_info*, gint);

@@ -59,7 +59,7 @@
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtcp.h>
 #include "xdlc.h"
-#include "crc16.h"
+#include <epan/crc16.h>
 #include "epan/except.h"
 #include "epan/filesystem.h"
 

@@ -36,7 +36,7 @@
 #include "packet-ipx.h"
 #include "packet-isl.h"
 #include "packet-llc.h"
-#include "crc32.h"
+#include <epan/crc32.h>
 #include "tap.h"
 
 /* Interpret capture file as FW1 monitor file */

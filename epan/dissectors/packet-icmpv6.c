@@ -48,7 +48,7 @@
 #include <epan/packet.h>
 #include "packet-ipv6.h"
 #include "packet-dns.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 #include <epan/addr_resolv.h>
 #include "ipproto.h"
 

@@ -73,7 +73,7 @@
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtcp.h>
 #include "xdlc.h"
-#include "crc16.h"
+#include <epan/crc16.h>
 #include "report_err.h"
 #include "plugins/plugin_table.h"
 static plugin_address_table_t	patable = {

@@ -31,7 +31,7 @@
 
 #include <glib.h>
 #include <epan/tvbuff.h>
-#include "crc32.h"
+#include <epan/crc32.h>
 
 /*
  * Table for the AUTODIN/HDLC/802.x CRC.

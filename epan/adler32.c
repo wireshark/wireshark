@@ -26,7 +26,7 @@
 
 #include <string.h>
 
-#include "adler32.h"
+#include <epan/adler32.h>
 
 #define BASE 65521 /* largest prime smaller than 65536 */
 

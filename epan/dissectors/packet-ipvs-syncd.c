@@ -36,7 +36,7 @@
 
 #include <epan/packet.h>
 #include "ipproto.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 
 static int proto_ipvs_syncd = -1;
 static int hf_conn_count = -1;

@@ -33,7 +33,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "ipproto.h"
-#include "in_cksum.h"
+#include <epan/in_cksum.h>
 
 static gint proto_vrrp = -1;
 static gint ett_vrrp = -1;
