@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.58 2002/05/08 08:13:06 guy Exp $
+ * $Id: packet-radius.c,v 1.59 2002/05/13 08:57:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@ static int hf_radius_id =-1;
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
 static gint ett_radius_eap = -1;
+static gint ett_radius_vsa = -1;
 
 static dissector_handle_t eap_fragment_handle;
 
@@ -76,27 +77,30 @@ typedef struct _e_avphdr {
         guint8 avp_length;
 } e_avphdr;
 
-typedef struct _value_value_pair {
+typedef struct _value_value_string {
         guint16 val1;
         guint16 val2;
-} value_value_pair;
+	gchar *str;
+} value_value_string;
 
 typedef struct _rd_vsa_table {
-	guint32 type;
-	value_value_pair* printinfo;
-	value_string* types;
+	guint32 vendor;
+	value_value_string *attrib;
 } rd_vsa_table;
 
 typedef struct _rd_valstr_table {
-	int type;
-	value_string* str;
+	int print_type;
+	value_string *valstr;
 } rd_valstr_table;
 
 typedef struct _rd_vsa_buffer {
-	gchar* valstr;
+	gchar *str;
 	int offset;
-	int length;
+	guint8 length;
 } rd_vsa_buffer;
+
+#define AUTHENTICATOR_LENGTH 16
+#define RD_HDR_LENGTH 4
 
 #define RADIUS_ACCESS_REQUEST 1
 #define RADIUS_ACCESS_ACCEPT  2
@@ -123,118 +127,6 @@ typedef struct _rd_vsa_buffer {
 #define RADIUS_CHANGE_FILTER_REQUEST_NAK 45
 #define RADIUS_RESERVED 255
 
-/*
- * XXX - should these be read from files, such as FreeRadius dictionary
- * files?  For example, its "dictionary" file has
- *
- *	ATTRIBUTE       User-Name               1       string
- *
- * for RD_TP_USER_NAME.
- */
-#define RD_TP_USER_NAME 1
-#define RD_TP_USER_PASSWORD 2
-#define RD_TP_CHAP_PASSWORD 3
-#define RD_TP_NAS_IP_ADDRESS 4
-#define RD_TP_NAS_PORT 5
-#define RD_TP_SERVICE_TYPE 6
-#define RD_TP_FRAMED_PROTOCOL 7
-#define RD_TP_FRAMED_IP_ADDRESS 8
-#define RD_TP_FRAMED_IP_NETMASK 9
-#define RD_TP_FRAMED_ROUTING 10
-#define RD_TP_FILTER_ID 11
-#define RD_TP_FRAMED_MTU 12
-#define RD_TP_FRAMED_COMPRESSION 13
-#define RD_TP_LOGIN_IP_HOST 14
-#define RD_TP_LOGIN_SERVICE 15
-#define RD_TP_LOGIN_TCP_PORT 16
-#define RD_TP_UNASSIGNED 17
-#define RD_TP_REPLY_MESSAGE 18
-#define RD_TP_CALLBACK_NUMBER 19
-#define RD_TP_CALLBACK_ID 20
-#define RD_TP_UNASSIGNED2 21
-#define RD_TP_FRAMED_ROUTE 22
-#define RD_TP_FRAMED_IPX_NETWORK 23
-#define RD_TP_STATE 24
-#define RD_TP_CLASS 25
-#define RD_TP_VENDOR_SPECIFIC 26
-#define RD_TP_SESSION_TIMEOUT 27
-#define RD_TP_IDLE_TIMEOUT 28
-#define RD_TP_TERMINATING_ACTION 29
-#define RD_TP_CALLED_STATION_ID 30
-#define RD_TP_CALLING_STATION_ID 31
-#define RD_TP_NAS_IDENTIFIER 32
-#define RD_TP_PROXY_STATE 33
-#define RD_TP_LOGIN_LAT_SERVICE 34
-#define RD_TP_LOGIN_LAT_NODE 35
-#define RD_TP_LOGIN_LAT_GROUP 36
-#define RD_TP_FRAMED_APPLETALK_LINK 37
-#define RD_TP_FRAMED_APPLETALK_NETWORK 38
-#define RD_TP_FRAMED_APPLETALK_ZONE 39
-#define RD_TP_ACCT_STATUS_TYPE 40
-#define RD_TP_ACCT_DELAY_TIME 41
-#define RD_TP_ACCT_INPUT_OCTETS 42
-#define RD_TP_ACCT_OUTPUT_OCTETS 43
-#define RD_TP_ACCT_SESSION_ID 44
-#define RD_TP_ACCT_AUTHENTIC 45
-#define RD_TP_ACCT_SESSION_TIME 46
-#define RD_TP_ACCT_INPUT_PACKETS 47
-#define RD_TP_ACCT_OUTPUT_PACKETS 48
-#define RD_TP_ACCT_TERMINATE_CAUSE 49
-#define RD_TP_ACCT_MULTI_SESSION_ID 50
-#define RD_TP_ACCT_LINK_COUNT 51
-#define RD_TP_ACCT_INPUT_GIGAWORDS 52
-#define RD_TP_ACCT_OUTPUT_GIGAWORDS 53
-/* 54 Unused */
-#define RD_TP_EVENT_TIMESTAMP 55
-/* 56-59 Unused */ 
-#define RD_TP_CHAP_CHALLENGE 60
-#define RD_TP_NAS_PORT_TYPE 61
-#define RD_TP_PORT_LIMIT 62
-#define RD_TP_LOGIN_LAT_PORT 63
-#define RD_TP_TUNNEL_TYPE 64
-#define RD_TP_TUNNEL_MEDIUM_TYPE 65
-#define RD_TP_TUNNEL_CLIENT_ENDPOINT 66
-#define RD_TP_TUNNEL_SERVER_ENDPOINT 67
-#define RD_TP_TUNNEL_CONNECTION 68
-#define RD_TP_TUNNEL_PASSWORD 69
-#define RD_TP_ARAP_PASSWORD 70
-#define RD_TP_ARAP_FEATURES 71
-#define RD_TP_ARAP_ZONE_ACCESS 72
-#define RD_TP_ARAP_SECURITY 73
-#define RD_TP_ARAP_SECURITY_DATA 74
-#define RD_TP_PASSWORD_RETRY 75
-#define RD_TP_PROMPT 76
-#define RD_TP_CONNECT_INFO 77
-#define RD_TP_CONFIGURATION_TOKEN 78
-#define RD_TP_EAP_MESSAGE 79
-#define RD_TP_MESSAGE_AUTHENTICATOR 80
-#define RD_TP_TUNNEL_PRIVATE_GROUP_ID 81
-#define RD_TP_TUNNEL_ASSIGNMENT_ID 82
-#define RD_TP_TUNNEL_TUNNEL_PREFERENCE 83
-#define RD_TP_TUNNEL_PACKETS_LOST 86
-#define RD_TP_NAS_PORT_ID 87
-#define RD_TP_TUNNEL_CLIENT_AUTH_ID 90
-#define RD_TP_TUNNEL_SERVER_AUTH_ID 91
-#define RD_TP_ASCEND_MODEM_PORTNO 120
-#define RD_TP_ASCEND_MODEM_SLOTNO 121
-#define RD_TP_ASCEND_MULTILINK_ID 187
-#define RD_TP_ASCEND_NUM_IN_MULTILINK 188
-#define RD_TP_ASCEND_FIRST_DEST 189
-#define RD_TP_ASCEND_PRE_INPUT_OCTETS 190
-#define RD_TP_ASCEND_PRE_OUTPUT_OCTETS 191
-#define RD_TP_ASCEND_PRE_INPUT_PACKETS 192
-#define RD_TP_ASCEND_PRE_OUTPUT_PACKETS 193
-#define RD_TP_ASCEND_MAXIMUM_TIME 194
-#define RD_TP_ASCEND_DISCONNECT_CAUSE 195
-#define RD_TP_ASCEND_CONNECT_PROGRESS 196
-#define RD_TP_ASCEND_DATA_RATE 197
-#define RD_TP_ASCEND_PRESESSION_TIME 198
-#define RD_TP_ASCEND_ASSIGN_IP_POOL 218
-#define RD_TP_ASCEND_XMIT_RATE 255
-
-#define AUTHENTICATOR_LENGTH 16
-#define RD_HDR_LENGTH 4
-
 #define RADIUS_STRING 1
 #define RADIUS_BINSTRING 2
 #define RADIUS_INTEGER4 3
@@ -257,18 +149,19 @@ typedef struct _rd_vsa_buffer {
 #define RADIUS_VENDOR_SPECIFIC 20
 #define RADIUS_TIMESTAMP 21
 #define RADIUS_INTEGER4_TAGGED 22
-#define CISCO_VSA_DISCONNECT_CAUSE 23
-#define MICROSOFT_VSA_BAP_USAGE 24
-#define MICROSOFT_VSA_ARAP_PW_CHANGE_REASON 25
-#define MICROSOFT_VSA_ACCT_AUTH_TYPE 26
-#define MICROSOFT_VSA_ACCT_EAP_TYPE 27
-#define ASCEND_VSA_CALLING_ID_TYPE_OF_NUMBER 28
-#define ASCEND_VSA_CALLING_ID_NUMBERING_PLAN 29
-#define ASCEND_VSA_CALLING_ID_PRESENTATION 30
-#define ASCEND_VSA_CALLING_ID_SCREENING 31
-#define COSINE_VSA_VPI_VCI 32
+#define CISCO_DISCONNECT_CAUSE			23
+#define MICROSOFT_BAP_USAGE			24
+#define MICROSOFT_ARAP_PW_CHANGE_REASON		25
+#define MICROSOFT_ACCT_AUTH_TYPE		26
+#define MICROSOFT_ACCT_EAP_TYPE			27
+#define ASCEND_CALLING_ID_TYPE_OF_NUMBER	28
+#define ASCEND_CALLING_ID_NUMBERING_PLAN	29
+#define ASCEND_CALLING_ID_PRESENTATION		30
+#define ASCEND_CALLING_ID_SCREENING		31
+#define COSINE_VPI_VCI				32
 
-static value_string radius_vals[] = {
+static value_string radius_vals[] =
+{
  {RADIUS_ACCESS_REQUEST, "Access Request"},
  {RADIUS_ACCESS_ACCEPT, "Access Accept"},
  {RADIUS_ACCESS_REJECT, "Access Reject"},
@@ -293,20 +186,8 @@ static value_string radius_vals[] = {
  {RADIUS_CHANGE_FILTER_REQUEST_ACK, "Change Filter Request ACK"},
  {RADIUS_CHANGE_FILTER_REQUEST_NAK, "Change Filter Request NAK"},
  {RADIUS_RESERVED, "Reserved"},
-{0, NULL}};
-
-static value_string radius_service_type_vals[]=
-{{1, "Login"},
-{2, "Framed"},
-{3, "Callback Login"},
-{4, "Callback Framed"},
-{5, "Outbound"},
-{6, "Administrative"},
-{7, "NAS Prompt"},
-{8, "Authenticate Only"},
-{9, "Callback NAS Prompt"},
-{10, "Call Check"},
-{0,NULL}};
+  {0, NULL}
+};
 
 /*
  * These are SMI Network Management Private Enterprise Codes for
@@ -334,20 +215,343 @@ static value_string radius_service_type_vals[]=
 #define VENDOR_UNISPHERE 4874
 #define VENDOR_ISSANNI 5948
 
-static value_string radius_vendor_specific_vendors[]=
-{{VENDOR_ACC,"ACC"},
-{VENDOR_CISCO,"Cisco"},
-{VENDOR_SHIVA,"Shiva"},
-{VENDOR_MICROSOFT,"Microsoft"},
-{VENDOR_LIVINGSTON,"Livingston"},
-{VENDOR_3COM,"3Com"},
-{VENDOR_ASCEND,"Ascend"},
-{VENDOR_BAY,"Bay Networks"},
-{VENDOR_JUNIPER,"Juniper Networks"},
-{VENDOR_COSINE,"CoSine Communications"},
-{VENDOR_UNISPHERE,"Unisphere Networks"},
-{VENDOR_ISSANNI,"Issanni Communications"},
-{0,NULL}};
+static value_string radius_vendor_specific_vendors[] =
+{
+  {VENDOR_ACC,		"ACC"},
+  {VENDOR_CISCO,	"Cisco"},
+  {VENDOR_SHIVA,	"Shiva"},
+  {VENDOR_MICROSOFT,	"Microsoft"},
+  {VENDOR_LIVINGSTON,	"Livingston"},
+  {VENDOR_3COM,		"3Com"},
+  {VENDOR_ASCEND,	"Ascend"},
+  {VENDOR_BAY,		"Bay Networks"},
+  {VENDOR_JUNIPER,	"Juniper Networks"},
+  {VENDOR_COSINE,	"CoSine Communications"},
+  {VENDOR_UNISPHERE,	"Unisphere Networks"},
+  {VENDOR_ISSANNI,	"Issanni Communications"},
+  {0, NULL}
+};
+
+static value_value_string null_attrib[] =
+{
+    {0, 0, NULL}
+};
+
+static value_string null_vals[] =
+{
+    {0, NULL}
+};
+
+/*
+ * XXX - should these be read from files, such as FreeRadius dictionary
+ * files?  For example, its "dictionary" file has
+ *
+ *	ATTRIBUTE       User-Name               1       string
+ *
+ * for the attribute that's
+ *
+ *	{1,	RADIUS_STRING,			"User Name"},
+ *
+ * in our tables:
+ *
+ *	"string" -> RADIUS_STRING
+ *	"octets" -> RADIUS_BINSTRING
+ *	"integer" -> RADIUS_INTEGER4
+ *	"ipaddr" -> RADIUS_IP_ADDRESS
+ */
+static value_value_string radius_attrib[] =
+{
+  {1,	RADIUS_STRING,			"User Name"},
+  {2,	RADIUS_STRING,			"User Password"},
+  {3,	RADIUS_BINSTRING,		"Chap Password"},
+  {4,	RADIUS_IP_ADDRESS,		"NAS IP Address"},
+  {5,	RADIUS_INTEGER4,		"NAS Port"},
+  {6,	RADIUS_SERVICE_TYPE,		"Service Type"},
+  {7,	RADIUS_FRAMED_PROTOCOL,		"Framed Protocol"},
+  {8,	RADIUS_IP_ADDRESS,		"Framed IP Address"},
+  {9,	RADIUS_IP_ADDRESS,		"Framed IP Netmask"},
+  {10,	RADIUS_FRAMED_ROUTING,		"Framed Routing"},
+  {11,	RADIUS_STRING,			"Filter Id"},
+  {12,	RADIUS_INTEGER4,		"Framed MTU"},
+  {13,	RADIUS_FRAMED_COMPRESSION,	"Framed Compression"},
+  {14,	RADIUS_IP_ADDRESS,		"Login IP Host"},
+  {15,	RADIUS_LOGIN_SERVICE,		"Login Service"},
+  {16,	RADIUS_INTEGER4,		"Login TCP Port"},
+  {17,	RADIUS_UNKNOWN,			"Unassigned"},
+  {18,	RADIUS_STRING,			"Reply Message"},
+  {19,	RADIUS_STRING,			"Callback Number"},
+  {20,	RADIUS_STRING,			"Callback Id"},
+  {21,	RADIUS_UNKNOWN,			"Unassigned"},
+  {22,	RADIUS_STRING,			"Framed Route"},
+  {23,	RADIUS_IPX_ADDRESS,		"Framed IPX network"},
+  {24,	RADIUS_BINSTRING,		"State"},
+  {25,	RADIUS_BINSTRING,		"Class"},
+  {26,	RADIUS_VENDOR_SPECIFIC,		"Vendor Specific"},
+  {27,	RADIUS_INTEGER4,		"Session Timeout"},
+  {28,	RADIUS_INTEGER4,		"Idle Timeout"},
+  {29,	RADIUS_TERMINATING_ACTION,	"Terminating Action"},
+  {30,	RADIUS_STRING,			"Called Station Id"},
+  {31,	RADIUS_STRING,			"Calling Station Id"},
+  {32,	RADIUS_STRING,			"NAS identifier"},
+  {33,	RADIUS_BINSTRING,		"Proxy State"},
+  {34,	RADIUS_STRING,			"Login LAT Service"},
+  {35,	RADIUS_STRING,			"Login LAT Node"},
+  {36,	RADIUS_BINSTRING,		"Login LAT Group"},
+  {37,	RADIUS_INTEGER4,		"Framed Appletalk Link"},
+  {38,	RADIUS_INTEGER4,		"Framed Appletalk Network"},
+  {39,	RADIUS_STRING,			"Framed Appletalk Zone"},
+  {40,	RADIUS_ACCOUNTING_STATUS_TYPE,	"Acct Status Type"},
+  {41,	RADIUS_INTEGER4,		"Acct Delay Time"},
+  {42,	RADIUS_INTEGER4,		"Acct Input Octets"},
+  {43,	RADIUS_INTEGER4,		"Acct Output Octets"},
+  {44,	RADIUS_STRING,			"Acct Session Id"},
+  {45,	RADIUS_ACCT_AUTHENTIC,		"Acct Authentic"},
+  {46,	RADIUS_INTEGER4,		"Acct Session Time"},
+  {47,	RADIUS_INTEGER4,		"Acct Input Packets"},
+  {48,	RADIUS_INTEGER4,		"Acct Output Packets"},
+  {49,	RADIUS_ACCT_TERMINATE_CAUSE,	"Acct Terminate Cause"},
+  {50,	RADIUS_STRING,			"Acct Multi Session Id"},
+  {51,	RADIUS_INTEGER4,		"Acct Link Count"},
+  {52,	RADIUS_INTEGER4,		"Acct Input Gigawords"},
+  {53,	RADIUS_INTEGER4,		"Acct Output Gigawords"},
+  /* 54 Unused */
+  {55,	RADIUS_TIMESTAMP,		"Event Timestamp"},
+  /* 56-59 Unused */ 
+  {60,	RADIUS_STRING,			"Chap Challenge"},
+  {61,	RADIUS_NAS_PORT_TYPE,		"NAS Port Type"},
+  {62,	RADIUS_INTEGER4,		"Port Limit"},
+  {63,	RADIUS_BINSTRING,		"Login LAT Port"},
+  {64,	RADIUS_TUNNEL_TYPE,		"Tunnel Type"},
+  {65,	RADIUS_TUNNEL_MEDIUM_TYPE,	"Tunnel Medium Type"},
+  {66,	RADIUS_STRING_TAGGED,		"Tunnel Client Endpoint"},
+  {67,	RADIUS_STRING_TAGGED,		"Tunnel Server Endpoint"},
+  {68,	RADIUS_STRING,			"Tunnel Connection"},
+  {69,	RADIUS_STRING_TAGGED,		"Tunnel Password"},
+  {70,	RADIUS_STRING,			"ARAP-Password"},
+  {71,	RADIUS_STRING,			"ARAP-Features"},
+  {72,	RADIUS_INTEGER4,		"ARAP-Zone-Access"},
+  {73,	RADIUS_INTEGER4,		"ARAP-Security"},
+  {74,	RADIUS_STRING,			"ARAP-Security-Data"},
+  {75,	RADIUS_INTEGER4,		"Password-Retry"},
+  {76,	RADIUS_INTEGER4,		"Prompt"},
+  {77,	RADIUS_STRING,			"Connect-Info"},
+  {78,	RADIUS_STRING,			"Configuration-Token"},
+  {79,	RADIUS_STRING,			"EAP-Message"},
+  {80,	RADIUS_BINSTRING,		"Message Authenticator"},
+  {81,	RADIUS_STRING_TAGGED,		"Tunnel Private Group ID"},
+  {82,	RADIUS_STRING_TAGGED,		"Tunnel Assignment ID"},
+  {83,	RADIUS_INTEGER4_TAGGED,		"Tunnel Preference"},
+  {84,	RADIUS_STRING,			"ARAP Challenge Response"},
+  {85,	RADIUS_INTEGER4,		"Acct Interim Interval"},
+  {86,	RADIUS_INTEGER4,		"Tunnel Packets Lost"},
+  {87,	RADIUS_STRING,			"NAS Port ID"},
+  {88,	RADIUS_STRING,			"Framed Pool"},
+  {90,	RADIUS_STRING_TAGGED,		"Tunnel Client Auth ID"},
+  {91,	RADIUS_STRING_TAGGED,		"Tunnel Server Auth ID"},
+  {120,	RADIUS_INTEGER4,		"Ascend Modem Port No"},
+  {121,	RADIUS_INTEGER4,		"Ascend Modem Slot No"},
+  {187,	RADIUS_INTEGER4,		"Ascend Multilink ID"},
+  {188,	RADIUS_INTEGER4,		"Ascend Num In Multilink"},
+  {189,	RADIUS_IP_ADDRESS,		"Ascend First Dest"},
+  {190,	RADIUS_INTEGER4,		"Ascend Pre Input Octets"},
+  {191,	RADIUS_INTEGER4,		"Ascend Pre Output Octets"},
+  {192,	RADIUS_INTEGER4,		"Ascend Pre Input Packets"},
+  {193,	RADIUS_INTEGER4,		"Ascend Pre Output Packets"},
+  {194,	RADIUS_INTEGER4,		"Ascend Maximum Time"},
+  {195,	RADIUS_INTEGER4,		"Ascend Disconnect Cause"},
+  {196,	RADIUS_INTEGER4,		"Ascend Connect Progress"},
+  {197,	RADIUS_INTEGER4,		"Ascend Data Rate"},
+  {198,	RADIUS_INTEGER4,		"Ascend PreSession Time"},
+  {218,	RADIUS_INTEGER4,		"Ascend Assign IP Pool"},
+  {255,	RADIUS_INTEGER4,		"Ascend Xmit Rate"},
+  {0, 0, NULL}
+};
+
+static value_string radius_service_type_vals[] =
+{
+  {1,	"Login"},
+  {2,	"Framed"},
+  {3,	"Callback Login"},
+  {4,	"Callback Framed"},
+  {5,	"Outbound"},
+  {6,	"Administrative"},
+  {7,	"NAS Prompt"},
+  {8,	"Authenticate Only"},
+  {9,	"Callback NAS Prompt"},
+  {10,	"Call Check"},
+  {0, NULL}
+};
+
+static value_string radius_framed_protocol_vals[] =
+{
+  {1,	"PPP"},
+  {2,	"SLIP"},
+  {3,	"Appletalk Remote Access Protocol (ARAP)"},
+  {4,	"Gandalf proprietary Singlelink/Multilink Protocol"},
+  {5,	"Xylogics proprietary IPX/SLIP"},
+  {6,	"X.75 Synchronous"},
+  {255,	"Ascend ARA"},
+  {256,	"Ascend MPP"},
+  {257,	"Ascend EURAW"},
+  {258,	"Ascend EUUI"},
+  {259,	"Ascend X25"},
+  {260,	"Ascend COMB"},
+  {261,	"Ascend FR"},
+  {262,	"Ascend MP"},
+  {263,	"Ascend FR-CIR"},
+  {264,	"Ascend ATM-1483"},
+  {265,	"Ascend ATM-FR-CIR"},
+  {0, NULL}
+};
+
+static value_string radius_framed_routing_vals[] =
+{
+  {1,	"Send Routing Packets"},
+  {2,	"Listen for routing packets"},
+  {3,	"Send and Listen"},
+  {0,	"None"},
+  {0, NULL}
+};
+
+static value_string radius_framed_compression_vals[] =
+{
+  {1,	"VJ TCP/IP Header Compression"},
+  {2,	"IPX Header Compression"},
+  {3,	"Stac-LZS compression"},
+  {0,	"None"},
+  {0, NULL}
+};
+
+static value_string radius_login_service_vals[] =
+{
+  {1,	"Rlogin"},
+  {2,	"TCP Clear"},
+  {3,	"Portmaster"},
+  {4,	"LAT"},
+  {5,	"X.25-PAD"},
+  {6,	"X.25T3POS"},
+  {8,	"TCP Clear Quit"},
+  {0,	"Telnet"},
+  {0, NULL}
+};
+
+static value_string radius_terminating_action_vals[] =
+{
+  {1,	"RADIUS-Request"},
+  {0,	"Default"},
+  {0, NULL}
+};
+
+static value_string radius_accounting_status_type_vals[] =
+{
+  {1,	"Start"},
+  {2,	"Stop"},
+  {3,	"Interim-Update"},
+  {7,	"Accounting-On"},
+  {8,	"Accounting-Off"},
+  {9,	"Tunnel-Start"},	/* Tunnel accounting */
+  {10,	"Tunnel-Stop"},		/* Tunnel accounting */
+  {11,	"Tunnel-Reject"},	/* Tunnel accounting */
+  {12,	"Tunnel-Link-Start"},	/* Tunnel accounting */
+  {13,	"Tunnel-Link-Stop"},	/* Tunnel accounting */
+  {14,	"Tunnel-Link-Reject"},	/* Tunnel accounting */
+  {0, NULL}
+};
+
+static value_string radius_accounting_authentication_vals[] =
+{
+  {1,	"Radius"},
+  {2,	"Local"},
+  {3,	"Remote"},
+  /* RFC 2866 says 3 is Remote. Is 7 a mistake? */
+  {7,	"Remote"},
+  {0, NULL}
+};
+
+static value_string radius_acct_terminate_cause_vals[] =
+{
+  {1,	"User Request"},
+  {2,	"Lost Carrier"},
+  {3,	"Lost Service"},
+  {4,	"Idle Timeout"},
+  {5,	"Session Timeout"},
+  {6,	"Admin Reset"},
+  {7,	"Admin Reboot"},
+  {8,	"Port Error"},
+  {9,	"NAS Error"},
+  {10,	"NAS Request"},
+  {11,	"NAS Reboot"},
+  {12,	"Port Unneeded"},
+  {13,	"Port Preempted"},
+  {14,	"Port Suspended"},
+  {15,	"Service Unavailable"},
+  {16,	"Callback"},
+  {17,	"User Error"},
+  {18,	"Host Request"},
+  {0, NULL}
+};
+
+static value_string radius_tunnel_type_vals[] =
+{
+  {1,	"PPTP"},
+  {2,	"L2F"},
+  {3,	"L2TP"},
+  {4,	"ATMP"},
+  {5,	"VTP"},
+  {6,	"AH"},
+  {7,	"IP-IP-Encap"},
+  {8,	"MIN-IP-IP"},
+  {9,	"ESP"},
+  {10,	"GRE"},
+  {11,	"DVS"},
+  {12,	"IP-IP"},
+  {0, NULL}
+};
+
+static value_string radius_tunnel_medium_type_vals[] =
+{
+  {1,	"IPv4"}, 
+  {2,	"IPv6"},
+  {3,	"NSAP"},
+  {4,	"HDLC"},
+  {5,	"BBN"},
+  {6,	"IEEE-802"},
+  {7,	"E-163"},
+  {8,	"E-164"},
+  {9,	"F-69"},
+  {10,	"X-121"},
+  {11,	"IPX"},
+  {12,	"Appletalk"},
+  {13,	"Decnet4"},
+  {14,	"Vines"},
+  {15,	"E-164-NSAP"},
+  {0, NULL}
+};
+
+static value_string radius_nas_port_type_vals[] =
+{
+  {0,	"Async"},
+  {1,	"Sync"},
+  {2,	"ISDN Sync"},
+  {3,	"ISDN Async V.120"},
+  {4,	"ISDN Async V.110"},
+  {5,	"Virtual"},
+  {6,	"PIAFS"},
+  {7,	"HDLC Clear Channel"},
+  {8,	"X.25"},
+  {9,	"X.75"},
+  {10,	"G.3 Fax"},
+  {11,	"SDSL"},
+  {12,	"ADSL-CAP"},
+  {13,	"ADSL-DMT"},
+  {14,	"IDSL - ISDN"},
+  {15,	"Ethernet"},
+  {16,	"xDSL"},
+  {17,	"Cable"},
+  {18,	"Wireless Other"},
+  {19,	"Wireless IEEE 802.11"},
+  {0, NULL}
+};
 
 /*
 references:
@@ -362,1685 +566,585 @@ references:
 
 */
 
+static value_value_string radius_vendor_cisco_attrib[] =
+{
 	/* stanard sttributes */
-#define VENDOR_CISCO_VSA_AVP_CISCO                 1
-#define VENDOR_CISCO_VSA_NAS_PORT                  2
+  {1,	RADIUS_STRING,		"Cisco AV Pair"},
+  {2,	RADIUS_STRING,		"Cisco NAS Port"},
 	/* fax */
-#define VENDOR_CISCO_VSA_FAX_ACCOUNT_ID_ORIGIN     3
-#define VENDOR_CISCO_VSA_FAX_MSG_ID                4
-#define VENDOR_CISCO_VSA_FAX_PAGES                 5
-#define VENDOR_CISCO_VSA_FAX_COVERPAGE_FLAG        6
-#define VENDOR_CISCO_VSA_FAX_MODEM_TIME            7
-#define VENDOR_CISCO_VSA_FAX_CONNECT_SPEED         8
-#define VENDOR_CISCO_VSA_FAX_RECIPENT_COUNT        9
-#define VENDOR_CISCO_VSA_FAX_PROCESS_ABORT_FLAG    10
-#define VENDOR_CISCO_VSA_FAX_DSN_ADDRESS           11
-#define VENDOR_CISCO_VSA_FAX_DSN_FLAG              12
-#define VENDOR_CISCO_VSA_FAX_MDN_ADDRESS           13
-#define VENDOR_CISCO_VSA_FAX_MDN_FLAG              14
-#define VENDOR_CISCO_VSA_FAX_AUTH_STATUS           15
-#define VENDOR_CISCO_VSA_EMAIL_SERVER_ADDRESS      16
-#define VENDOR_CISCO_VSA_EMAIL_SERVER_ACK_FLAG     17
-#define VENDOR_CISCO_VSA_GATEWAY_ID                18
-#define VENDOR_CISCO_VSA_CALL_TYPE                 19
-#define VENDOR_CISCO_VSA_PORT_USED                 20
-#define VENDOR_CISCO_VSA_ABORT_CAUSE               21
+  {3,	RADIUS_STRING,		"Fax Account Id Origin"},
+  {4,	RADIUS_STRING,		"Fax Msg Id"},
+  {5,	RADIUS_STRING,		"Fax Pages"},
+  {6,	RADIUS_STRING,		"Fax Cover Page Flag"},
+  {7,	RADIUS_STRING,		"Fax Modem Time"},
+  {8,	RADIUS_STRING,		"Fax Connect Speed"},
+  {9,	RADIUS_STRING,		"Fax Recipent Count"},
+  {10,	RADIUS_STRING,		"Fax Process Abort Flag"},
+  {11,	RADIUS_STRING,		"Fax DSN Address"},
+  {12,	RADIUS_STRING,		"Fax DSN Flag"},
+  {13,	RADIUS_STRING,		"Fax MDN Address"},
+  {14,	RADIUS_STRING,		"Fax MDN Flag"},
+  {15,	RADIUS_STRING,		"Fax Auth Status"},
+  {16,	RADIUS_STRING,		"Email Server Address"},
+  {17,	RADIUS_STRING,		"Email Server Ack Flag"},
+  {18,	RADIUS_STRING,		"Gateway Id"},
+  {19,	RADIUS_STRING,		"Call Type"},
+  {20,	RADIUS_STRING,		"Port Used"},
+  {21,	RADIUS_STRING,		"Abort Cause"},
 	/* #22 */
 	/* H323 - Voice over IP attributes. */
-#define VENDOR_CISCO_VSA_H323_REMOTE_ADDRESS       23
-#define VENDOR_CISCO_VSA_H323_CONF_ID              24
-#define VENDOR_CISCO_VSA_H323_SETUP_TIME           25
-#define VENDOR_CISCO_VSA_H323_CALL_ORIGIN          26
-#define VENDOR_CISCO_VSA_H323_CALL_TYPE            27
-#define VENDOR_CISCO_VSA_H323_CONNECT_TIME         28
-#define VENDOR_CISCO_VSA_H323_DISCONNECT_TIME      29
-#define VENDOR_CISCO_VSA_H323_DISCONNECT_CAUSE     30
-#define VENDOR_CISCO_VSA_H323_VOICE_QUALITY        31
+  {23,	RADIUS_STRING,		"H323 Remote Address"},
+  {24,	RADIUS_STRING,		"H323 Conf Id"},
+  {25,	RADIUS_STRING,		"H323 Setup Time"},
+  {26,	RADIUS_STRING,		"H323 Call Origin"},
+  {27,	RADIUS_STRING,		"H323 Call Type"},
+  {28,	RADIUS_STRING,		"H323 Connect Time"},
+  {29,	RADIUS_STRING,		"H323 Disconnect Time"},
+  {30,	RADIUS_STRING,		"H323 Disconnect Cause"},
+  {31,	RADIUS_STRING,		"H323 Voice Quality"},
 	/* #32 */
-#define VENDOR_CISCO_VSA_H323_GW_ID                33
+  {33,	RADIUS_STRING,		"H323 GW Id"},
 	/* #34 */
-#define VENDOR_CISCO_VSA_H323_INCOMING_CONF_ID     35
+  {35,	RADIUS_STRING,		"H323 Incoming Conf Id"},
 	/* #36-#100 */
-#define VENDOR_CISCO_VSA_H323_CREDIT_AMOUNT        101
-#define VENDOR_CISCO_VSA_H323_CREDIT_TIME          102
-#define VENDOR_CISCO_VSA_H323_RETURN_CODE          103
-#define VENDOR_CISCO_VSA_H323_PROMPT_ID            104
-#define VENDOR_CISCO_VSA_H323_TIME_AND_DAY         105
-#define VENDOR_CISCO_VSA_H323_REDIRECT_NUMBER      106
-#define VENDOR_CISCO_VSA_H323_PREFERRED_LANG       107
-#define VENDOR_CISCO_VSA_H323_REDIRECT_IP_ADDRESS  108
-#define VENDOR_CISCO_VSA_H323_BILLING_MODEL        109
-#define VENDOR_CISCO_VSA_H323_CURRENCY_TYPE        110
+  {101,	RADIUS_STRING,		"H323 Credit Amount"},
+  {102,	RADIUS_STRING,		"H323 Credit Time"},
+  {103,	RADIUS_STRING,		"H323 Return Code"},
+  {104,	RADIUS_STRING,		"H323 Prompt Id"},
+  {105,	RADIUS_STRING,		"H323 Time And Day"},
+  {106,	RADIUS_STRING,		"H323 Redirect Number"},
+  {107,	RADIUS_STRING,		"H323 Preferred Lang"},
+  {108,	RADIUS_STRING,		"H323 Redirect Ip Address"},
+  {109,	RADIUS_STRING,		"H323 Billing Model"},
+  {110,	RADIUS_STRING,		"H323 Currency Type"},
 	/* #111-#186 */
 /*
        Extra attributes sent by the Cisco, if you configure
        "radius-server vsa accounting" (requires IOS11.2+).
 */
-#define VENDOR_CISCO_VSA_MULTILINK_ID              187
-#define VENDOR_CISCO_VSA_NUM_IN_MULTILINK          188
+  {187,	RADIUS_INTEGER4,	"Cisco Multilink ID"},
+  {188,	RADIUS_INTEGER4,	"Cisco Num In Multilink"},
 	/* #189 */ 
-#define VENDOR_CISCO_VSA_PRE_INPUT_OCTETS          190
-#define VENDOR_CISCO_VSA_PRE_OUTPUT_OCTETS         191
-#define VENDOR_CISCO_VSA_PRE_INPUT_PACKETS         192
-#define VENDOR_CISCO_VSA_PRE_OUTPUT_PACKETS        193
-#define VENDOR_CISCO_VSA_MAXIMUM_TIME              194
-#define VENDOR_CISCO_VSA_DISCONNECT_CAUSE          195
+  {190,	RADIUS_INTEGER4,	"Cisco Pre Input Octets"},
+  {191,	RADIUS_INTEGER4,	"Cisco Pre Output Octets"},
+  {192,	RADIUS_INTEGER4,	"Cisco Pre Input Packets"},
+  {193,	RADIUS_INTEGER4,	"Cisco Pre Output Packets"},
+  {194,	RADIUS_INTEGER4,	"Cisco Maximum Time"},
+  {195,	CISCO_DISCONNECT_CAUSE,	"Cisco Disconnect Cause"},
 	/* #196 */ 
-#define VENDOR_CISCO_VSA_DATA_RATE                 197
-#define VENDOR_CISCO_VSA_PRESESSION_TIME           198
+  {197,	RADIUS_INTEGER4,	"Cisco Data Rate"},
+  {198,	RADIUS_INTEGER4,	"Cisco PreSession Time"},
 	/* #199-#207 */ 
-#define VENDOR_CISCO_VSA_PW_LIFETIME               208
-#define VENDOR_CISCO_VSA_IP_DIRECT                 209
-#define VENDOR_CISCO_VSA_PPP_VJ_SLOT_COMP          210
+  {208,	RADIUS_INTEGER4,	"Cisco PW Lifetime"},
+  {209,	RADIUS_INTEGER4,	"Cisco IP Direct"},
+  {210,	RADIUS_INTEGER4,	"Cisco PPP VJ Slot Comp"},
 	/* #211 */ 
-#define VENDOR_CISCO_VSA_PPP_ASYNC_MAP             212
+  {212,	RADIUS_INTEGER4,	"Cisco PPP Async Map"},
 	/* #213-#216 */ 
-#define VENDOR_CISCO_VSA_IP_POOL_DEFINITION        217
-#define VENDOR_CISCO_VSA_ASING_IP_POOL             218
+  {217,	RADIUS_INTEGER4,	"Cisco IP Pool Definition"},
+  {218,	RADIUS_INTEGER4,	"Cisco Asing IP Pool"},
 	/* #219-#227 */ 
-#define VENDOR_CISCO_VSA_ROUTE_IP                  228
+  {228,	RADIUS_INTEGER4,	"Cisco Route IP"},
 	/* #229-#232 */ 
-#define VENDOR_CISCO_VSA_LINK_COMPRESSION          233
-#define VENDOR_CISCO_VSA_TARGET_UTIL               234
-#define VENDOR_CISCO_VSA_MAXIMUM_CHANNELS          235
+  {233,	RADIUS_INTEGER4,	"Cisco Link Compression"},
+  {234,	RADIUS_INTEGER4,	"Cisco Target Util"},
+  {235,	RADIUS_INTEGER4,	"Cisco Maximum Channels"},
 	/* #236-#241 */ 
-#define VENDOR_CISCO_VSA_DATA_FILTER               242
-#define VENDOR_CISCO_VSA_CALL_FILTER               243
-#define VENDOR_CISCO_VSA_IDLE_LIMIT                244
-#define VENDOR_CISCO_VSA_XMIT_RATE                 255
-
-static value_value_pair radius_vendor_cisco_printinfo[] = {
-{ VENDOR_CISCO_VSA_AVP_CISCO              ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_NAS_PORT               ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_ACCOUNT_ID_ORIGIN  ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_MSG_ID             ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_PAGES              ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_COVERPAGE_FLAG     ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_MODEM_TIME         ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_CONNECT_SPEED      ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_RECIPENT_COUNT     ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_PROCESS_ABORT_FLAG ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_DSN_ADDRESS        ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_DSN_FLAG           ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_MDN_ADDRESS        ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_MDN_FLAG           ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_FAX_AUTH_STATUS        ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_EMAIL_SERVER_ADDRESS   ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_EMAIL_SERVER_ACK_FLAG  ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_GATEWAY_ID             ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_CALL_TYPE              ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_PORT_USED              ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_ABORT_CAUSE            ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_REMOTE_ADDRESS    ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_CONF_ID           ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_SETUP_TIME        ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_CALL_ORIGIN       ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_CALL_TYPE         ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_CONNECT_TIME      ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_DISCONNECT_TIME   ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_DISCONNECT_CAUSE  ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_VOICE_QUALITY     ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_GW_ID             ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_INCOMING_CONF_ID  ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_CREDIT_AMOUNT     ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_CREDIT_TIME       ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_RETURN_CODE       ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_PROMPT_ID         ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_TIME_AND_DAY      ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_REDIRECT_NUMBER   ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_PREFERRED_LANG    ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_REDIRECT_IP_ADDRESS ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_BILLING_MODEL     ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_H323_CURRENCY_TYPE     ,RADIUS_STRING },
-{ VENDOR_CISCO_VSA_MULTILINK_ID           ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_NUM_IN_MULTILINK       ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_PRE_INPUT_OCTETS       ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_PRE_OUTPUT_OCTETS      ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_PRE_INPUT_PACKETS      ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_PRE_OUTPUT_PACKETS     ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_MAXIMUM_TIME           ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_DISCONNECT_CAUSE       ,CISCO_VSA_DISCONNECT_CAUSE },
-{ VENDOR_CISCO_VSA_DATA_RATE              ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_PRESESSION_TIME        ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_PW_LIFETIME            ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_IP_DIRECT              ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_PPP_VJ_SLOT_COMP       ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_PPP_ASYNC_MAP          ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_IP_POOL_DEFINITION     ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_ASING_IP_POOL          ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_ROUTE_IP               ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_LINK_COMPRESSION       ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_TARGET_UTIL            ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_MAXIMUM_CHANNELS       ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_DATA_FILTER            ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_CALL_FILTER            ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_IDLE_LIMIT             ,RADIUS_INTEGER4 },
-{ VENDOR_CISCO_VSA_XMIT_RATE              ,RADIUS_INTEGER4 },
-{0,0},
+  {242,	RADIUS_INTEGER4,	"Cisco Data Filter"},
+  {243,	RADIUS_INTEGER4,	"Cisco Call Filter"},
+  {244,	RADIUS_INTEGER4,	"Cisco Idle Limit"},
+  {255,	RADIUS_INTEGER4,	"Cisco Xmit Rate"},
+  {0, 0, NULL}
 };
 
-static value_string radius_vendor_cisco_types[]=
-{{VENDOR_CISCO_VSA_AVP_CISCO              ,"Cisco AV Pair" },
-{ VENDOR_CISCO_VSA_NAS_PORT               ,"Cisco NAS Port" },
-{ VENDOR_CISCO_VSA_FAX_ACCOUNT_ID_ORIGIN  ,"Fax Account Id Origin" },    
-{ VENDOR_CISCO_VSA_FAX_MSG_ID             ,"Fax Msg Id" },    
-{ VENDOR_CISCO_VSA_FAX_PAGES              ,"Fax Pages" },    
-{ VENDOR_CISCO_VSA_FAX_COVERPAGE_FLAG     ,"Fax Cover Page Flag" },    
-{ VENDOR_CISCO_VSA_FAX_MODEM_TIME         ,"Fax Modem Time" },    
-{ VENDOR_CISCO_VSA_FAX_CONNECT_SPEED      ,"Fax Connect Speed" },    
-{ VENDOR_CISCO_VSA_FAX_RECIPENT_COUNT     ,"Fax Recipent Count" },    
-{ VENDOR_CISCO_VSA_FAX_PROCESS_ABORT_FLAG ,"Fax Process Abort Flag" },    
-{ VENDOR_CISCO_VSA_FAX_DSN_ADDRESS        ,"Fax DSN Address" },    
-{ VENDOR_CISCO_VSA_FAX_DSN_FLAG           ,"Fax DSN Flag" },    
-{ VENDOR_CISCO_VSA_FAX_MDN_ADDRESS        ,"Fax MDN Address" },    
-{ VENDOR_CISCO_VSA_FAX_MDN_FLAG           ,"Fax MDN Flag" },    
-{ VENDOR_CISCO_VSA_FAX_AUTH_STATUS        ,"Fax Auth Status" },    
-{ VENDOR_CISCO_VSA_EMAIL_SERVER_ADDRESS   ,"Email Server Address" },    
-{ VENDOR_CISCO_VSA_EMAIL_SERVER_ACK_FLAG  ,"Email Server Ack Flag" },    
-{ VENDOR_CISCO_VSA_GATEWAY_ID             ,"Gateway Id" },    
-{ VENDOR_CISCO_VSA_CALL_TYPE              ,"Call Type" },    
-{ VENDOR_CISCO_VSA_PORT_USED              ,"Port Used" },    
-{ VENDOR_CISCO_VSA_ABORT_CAUSE            ,"Abort Cause" },    
-{ VENDOR_CISCO_VSA_H323_REMOTE_ADDRESS    ,"H323 Remote Address" },
-{ VENDOR_CISCO_VSA_H323_CONF_ID           ,"H323 Conf Id" },
-{ VENDOR_CISCO_VSA_H323_SETUP_TIME        ,"H323 Setup Time" },
-{ VENDOR_CISCO_VSA_H323_CALL_ORIGIN       ,"H323 Call Origin" },
-{ VENDOR_CISCO_VSA_H323_CALL_TYPE         ,"H323 Call Type" },
-{ VENDOR_CISCO_VSA_H323_CONNECT_TIME      ,"H323 Connect Time" },
-{ VENDOR_CISCO_VSA_H323_DISCONNECT_TIME   ,"H323 Disconnect Time" },
-{ VENDOR_CISCO_VSA_H323_DISCONNECT_CAUSE  ,"H323 Disconnect Cause" },
-{ VENDOR_CISCO_VSA_H323_VOICE_QUALITY     ,"H323 Voice Quality" },
-{ VENDOR_CISCO_VSA_H323_GW_ID             ,"H323 GW Id" },
-{ VENDOR_CISCO_VSA_H323_INCOMING_CONF_ID  ,"H323 Incoming Conf Id" },
-{ VENDOR_CISCO_VSA_H323_CREDIT_AMOUNT     ,"H323 Credit Amount" },
-{ VENDOR_CISCO_VSA_H323_CREDIT_TIME       ,"H323 Credit Time" },
-{ VENDOR_CISCO_VSA_H323_RETURN_CODE       ,"H323 Return Code" },
-{ VENDOR_CISCO_VSA_H323_PROMPT_ID         ,"H323 Prompt Id" },
-{ VENDOR_CISCO_VSA_H323_TIME_AND_DAY      ,"H323 Time And Day" },
-{ VENDOR_CISCO_VSA_H323_REDIRECT_NUMBER   ,"H323 Redirect Number" },
-{ VENDOR_CISCO_VSA_H323_PREFERRED_LANG    ,"H323 Preferred Lang" },
-{ VENDOR_CISCO_VSA_H323_REDIRECT_IP_ADDRESS ,"H323 Redirect Ip Address" },
-{ VENDOR_CISCO_VSA_H323_BILLING_MODEL     ,"H323 Billing Model" },
-{ VENDOR_CISCO_VSA_H323_CURRENCY_TYPE     ,"H323 Currency Type" },
-{ VENDOR_CISCO_VSA_MULTILINK_ID           ,"Cisco Multilink ID" },
-{ VENDOR_CISCO_VSA_NUM_IN_MULTILINK       ,"Cisco Num In Multilink" },
-{ VENDOR_CISCO_VSA_PRE_INPUT_OCTETS       ,"Cisco Pre Input Octets" },
-{ VENDOR_CISCO_VSA_PRE_OUTPUT_OCTETS      ,"Cisco Pre Output Octets" },
-{ VENDOR_CISCO_VSA_PRE_INPUT_PACKETS      ,"Cisco Pre Input Packets" },
-{ VENDOR_CISCO_VSA_PRE_OUTPUT_PACKETS     ,"Cisco Pre Output Packets" },
-{ VENDOR_CISCO_VSA_MAXIMUM_TIME           ,"Cisco Maximum Time" },
-{ VENDOR_CISCO_VSA_DISCONNECT_CAUSE       ,"Cisco Disconnect Cause" },
-{ VENDOR_CISCO_VSA_DATA_RATE              ,"Cisco Data Rate" },
-{ VENDOR_CISCO_VSA_PRESESSION_TIME        ,"Cisco PreSession Time" },
-{ VENDOR_CISCO_VSA_PW_LIFETIME            ,"Cisco PW Lifetime" },
-{ VENDOR_CISCO_VSA_IP_DIRECT              ,"Cisco IP Direct" },
-{ VENDOR_CISCO_VSA_PPP_VJ_SLOT_COMP       ,"Cisco PPP VJ Slot Comp" },
-{ VENDOR_CISCO_VSA_PPP_ASYNC_MAP          ,"Cisco PPP Async Map" },
-{ VENDOR_CISCO_VSA_IP_POOL_DEFINITION     ,"Cisco IP Pool Definition" },
-{ VENDOR_CISCO_VSA_ASING_IP_POOL          ,"Cisco Asing IP Pool" },
-{ VENDOR_CISCO_VSA_ROUTE_IP               ,"Cisco Route IP" },
-{ VENDOR_CISCO_VSA_LINK_COMPRESSION       ,"Cisco Link Compression" },
-{ VENDOR_CISCO_VSA_TARGET_UTIL            ,"Cisco Target Util" },
-{ VENDOR_CISCO_VSA_MAXIMUM_CHANNELS       ,"Cisco Maximum Channels" },
-{ VENDOR_CISCO_VSA_DATA_FILTER            ,"Cisco Data Filter" },
-{ VENDOR_CISCO_VSA_CALL_FILTER            ,"Cisco Call Filter" },
-{ VENDOR_CISCO_VSA_IDLE_LIMIT             ,"Cisco Idle Limit" },
-{ VENDOR_CISCO_VSA_XMIT_RATE              ,"Cisco Xmit Rate" },
-{0,NULL}};
-
-static value_string radius_vendor_cisco_disconnect_cause_vals[]=
-{{2, "Unknown"},
-{4, "CLID-Authentication-Failure"},
-{10, "No-Carrier"},
-{11, "Lost-Carrier"},
-{12, "No-Detected-Result-Codes"},
-{20, "User-Ends-Session"},
-{21, "Idle-Timeout"},
-{22, "Exit-Telnet-Session"},
-{23, "No-Remote-IP-Addr"},
-{24, "Exit-Raw-TCP"},
-{25, "Password-Fail"},
-{26, "Raw-TCP-Disabled"},
-{27, "Control-C-Detected"},
-{28, "EXEC-Program-Destroyed"},
-{40, "Timeout-PPP-LCP"},
-{41, "Failed-PPP-LCP-Negotiation"},
-{42, "Failed-PPP-PAP-Auth-Fail"},
-{43, "Failed-PPP-CHAP-Auth"},
-{44, "Failed-PPP-Remote-Auth"},
-{45, "PPP-Remote-Terminate"},
-{46, "PPP-Closed-Event"},
-{100, "Session-Timeout"},
-{101, "Session-Failed-Security"},
-{102, "Session-End-Callback"},
-{120, "Invalid-Protocol"},
-{0,NULL}};
-
-#define VENDOR_MICROSOFT_VSA_CHAP_RESPONSE 1
-#define VENDOR_MICROSOFT_VSA_CHAP_ERROR 2
-#define VENDOR_MICROSOFT_VSA_CHAP_CPW_1 3
-#define VENDOR_MICROSOFT_VSA_CHAP_CPW_2 4
-#define VENDOR_MICROSOFT_VSA_CHAP_LM_ENC_PW 5
-#define VENDOR_MICROSOFT_VSA_CHAP_NT_ENC_PW 6
-#define VENDOR_MICROSOFT_VSA_MPPE_ENCRYPTION_POLICY 7
-#define VENDOR_MICROSOFT_VSA_MPPE_ENCRYPTION_TYPE 8
-#define VENDOR_MICROSOFT_VSA_RAS_VENDOR 9
-#define VENDOR_MICROSOFT_VSA_CHAP_DOMAIN 10
-#define VENDOR_MICROSOFT_VSA_CHAP_CHALLENGE 11
-#define VENDOR_MICROSOFT_VSA_CHAP_MPPE_KEYS 12
-#define VENDOR_MICROSOFT_VSA_BAP_USAGE 13
-#define VENDOR_MICROSOFT_VSA_LINK_UTILIZATION_THRESHOLD 14
-#define VENDOR_MICROSOFT_VSA_LINK_DROP_TIME_LIMIT 15
-#define VENDOR_MICROSOFT_VSA_MPPE_SEND_KEY 16
-#define VENDOR_MICROSOFT_VSA_MPPE_RECV_KEY 17
-#define VENDOR_MICROSOFT_VSA_RAS_VERSION 18
-#define VENDOR_MICROSOFT_VSA_OLD_ARAP_PASSWORD 19
-#define VENDOR_MICROSOFT_VSA_NEW_ARAP_PASSWORD 20
-#define VENDOR_MICROSOFT_VSA_ARAP_PW_CHANGE_REASON 21
-#define VENDOR_MICROSOFT_VSA_FILTER 22
-#define VENDOR_MICROSOFT_VSA_ACCT_AUTH_TYPE 23
-#define VENDOR_MICROSOFT_VSA_ACCT_EAP_TYPE 24
-#define VENDOR_MICROSOFT_VSA_CHAP2_RESPONSE 25
-#define VENDOR_MICROSOFT_VSA_CHAP2_SUCCESS 26
-#define VENDOR_MICROSOFT_VSA_CHAP2_CPW 27
-#define VENDOR_MICROSOFT_VSA_PRIMARY_DNS_SERVER 28
-#define VENDOR_MICROSOFT_VSA_SECONDARY_DNS_SERVER 29
-#define VENDOR_MICROSOFT_VSA_PRIMARY_NBNS_SERVER 30
-#define VENDOR_MICROSOFT_VSA_SECONDARY_NBNS_SERVER 31
-
-static value_value_pair radius_vendor_microsoft_printinfo[] = {
-{ VENDOR_MICROSOFT_VSA_CHAP_RESPONSE, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_CHAP_ERROR, RADIUS_STRING },
-{ VENDOR_MICROSOFT_VSA_CHAP_CPW_1, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_CHAP_CPW_2, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_CHAP_LM_ENC_PW, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_CHAP_NT_ENC_PW, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_MPPE_ENCRYPTION_POLICY, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_MPPE_ENCRYPTION_TYPE, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_RAS_VENDOR, RADIUS_INTEGER4 },
-{ VENDOR_MICROSOFT_VSA_CHAP_DOMAIN, RADIUS_STRING },
-{ VENDOR_MICROSOFT_VSA_CHAP_CHALLENGE, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_CHAP_MPPE_KEYS, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_BAP_USAGE, MICROSOFT_VSA_BAP_USAGE },
-{ VENDOR_MICROSOFT_VSA_LINK_UTILIZATION_THRESHOLD, RADIUS_INTEGER4 },
-{ VENDOR_MICROSOFT_VSA_LINK_DROP_TIME_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_MICROSOFT_VSA_MPPE_SEND_KEY, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_MPPE_RECV_KEY, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_RAS_VERSION, RADIUS_STRING },
-{ VENDOR_MICROSOFT_VSA_OLD_ARAP_PASSWORD, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_NEW_ARAP_PASSWORD, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_ARAP_PW_CHANGE_REASON, MICROSOFT_VSA_ARAP_PW_CHANGE_REASON },
-{ VENDOR_MICROSOFT_VSA_FILTER, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_ACCT_AUTH_TYPE, MICROSOFT_VSA_ACCT_AUTH_TYPE },
-{ VENDOR_MICROSOFT_VSA_ACCT_EAP_TYPE, MICROSOFT_VSA_ACCT_EAP_TYPE },
-{ VENDOR_MICROSOFT_VSA_CHAP2_RESPONSE, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_CHAP2_SUCCESS, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_CHAP2_CPW, RADIUS_BINSTRING },
-{ VENDOR_MICROSOFT_VSA_PRIMARY_DNS_SERVER, RADIUS_IP_ADDRESS },
-{ VENDOR_MICROSOFT_VSA_SECONDARY_DNS_SERVER, RADIUS_IP_ADDRESS },
-{ VENDOR_MICROSOFT_VSA_PRIMARY_NBNS_SERVER, RADIUS_IP_ADDRESS },
-{ VENDOR_MICROSOFT_VSA_SECONDARY_NBNS_SERVER, RADIUS_IP_ADDRESS },
-{0,0},
+static value_string radius_vendor_cisco_disconnect_cause_vals[] =
+{
+  {2,	"Unknown"},
+  {4,	"CLID-Authentication-Failure"},
+  {10,	"No-Carrier"},
+  {11,	"Lost-Carrier"},
+  {12,	"No-Detected-Result-Codes"},
+  {20,	"User-Ends-Session"},
+  {21,	"Idle-Timeout"},
+  {22,	"Exit-Telnet-Session"},
+  {23,	"No-Remote-IP-Addr"},
+  {24,	"Exit-Raw-TCP"},
+  {25,	"Password-Fail"},
+  {26,	"Raw-TCP-Disabled"},
+  {27,	"Control-C-Detected"},
+  {28,	"EXEC-Program-Destroyed"},
+  {40,	"Timeout-PPP-LCP"},
+  {41,	"Failed-PPP-LCP-Negotiation"},
+  {42,	"Failed-PPP-PAP-Auth-Fail"},
+  {43,	"Failed-PPP-CHAP-Auth"},
+  {44,	"Failed-PPP-Remote-Auth"},
+  {45,	"PPP-Remote-Terminate"},
+  {46,	"PPP-Closed-Event"},
+  {100,	"Session-Timeout"},
+  {101,	"Session-Failed-Security"},
+  {102,	"Session-End-Callback"},
+  {120,	"Invalid-Protocol"},
+  {0, NULL}
 };
 
-static value_string radius_vendor_microsoft_types[] = {
-{ VENDOR_MICROSOFT_VSA_CHAP_RESPONSE, "MS CHAP Response" },
-{ VENDOR_MICROSOFT_VSA_CHAP_ERROR, "MS CHAP Error" },
-{ VENDOR_MICROSOFT_VSA_CHAP_CPW_1, "MS CHAP CPW 1" },
-{ VENDOR_MICROSOFT_VSA_CHAP_CPW_2, "MS CHAP CPW 2" },
-{ VENDOR_MICROSOFT_VSA_CHAP_LM_ENC_PW, "MS CHAP LM Enc PW" },
-{ VENDOR_MICROSOFT_VSA_CHAP_NT_ENC_PW, "MS CHAP NT Enc PW" },
-{ VENDOR_MICROSOFT_VSA_MPPE_ENCRYPTION_POLICY, "MS MPPE Encryption Policy" },
-{ VENDOR_MICROSOFT_VSA_MPPE_ENCRYPTION_TYPE, "MS MPPE Encryption Type" },
-{ VENDOR_MICROSOFT_VSA_RAS_VENDOR, "MS RAS Vendor" },
-{ VENDOR_MICROSOFT_VSA_CHAP_DOMAIN, "MS CHAP Domain" },
-{ VENDOR_MICROSOFT_VSA_CHAP_CHALLENGE, "MS CHAP Challenge" },
-{ VENDOR_MICROSOFT_VSA_CHAP_MPPE_KEYS, "MS CHAP MPPE Keys" },
-{ VENDOR_MICROSOFT_VSA_BAP_USAGE, "MS BAP Usage" },
-{ VENDOR_MICROSOFT_VSA_LINK_UTILIZATION_THRESHOLD, "MS Link Utilization Threshold" },
-{ VENDOR_MICROSOFT_VSA_LINK_DROP_TIME_LIMIT, "MS Link Drop Time Limit" },
-{ VENDOR_MICROSOFT_VSA_MPPE_SEND_KEY, "MS MPPE Send Key" },
-{ VENDOR_MICROSOFT_VSA_MPPE_RECV_KEY, "MS MPPE Recv Key" },
-{ VENDOR_MICROSOFT_VSA_RAS_VERSION, "MS RAS Version" },
-{ VENDOR_MICROSOFT_VSA_OLD_ARAP_PASSWORD, "MS Old ARAP Password" },
-{ VENDOR_MICROSOFT_VSA_NEW_ARAP_PASSWORD, "MS New ARAP Password" },
-{ VENDOR_MICROSOFT_VSA_ARAP_PW_CHANGE_REASON, "MS ARAP PW Change Reason" },
-{ VENDOR_MICROSOFT_VSA_FILTER, "MS Filter" },
-{ VENDOR_MICROSOFT_VSA_ACCT_AUTH_TYPE, "MS Acct Auth Type" },
-{ VENDOR_MICROSOFT_VSA_ACCT_EAP_TYPE, "MS Acct EAP Type" },
-{ VENDOR_MICROSOFT_VSA_CHAP2_RESPONSE, "MS CHAP2 Response" },
-{ VENDOR_MICROSOFT_VSA_CHAP2_SUCCESS, "MS CHAP2 Success" },
-{ VENDOR_MICROSOFT_VSA_CHAP2_CPW, "MS CHAP2 CPW" },
-{ VENDOR_MICROSOFT_VSA_PRIMARY_DNS_SERVER, "MS Primary DNS Server" },
-{ VENDOR_MICROSOFT_VSA_SECONDARY_DNS_SERVER, "MS Secondary DNS Server" },
-{ VENDOR_MICROSOFT_VSA_PRIMARY_NBNS_SERVER, "MS Primary NBNS Server" },
-{ VENDOR_MICROSOFT_VSA_SECONDARY_NBNS_SERVER, "MS Secondary NBNS Server" },
-{0,NULL},
+static value_value_string radius_vendor_microsoft_attrib[] =
+{
+  {1,	RADIUS_BINSTRING,		"MS CHAP Response"},
+  {2,	RADIUS_STRING,			"MS CHAP Error"},
+  {3,	RADIUS_BINSTRING,		"MS CHAP CPW 1"},
+  {4,	RADIUS_BINSTRING,		"MS CHAP CPW 2"},
+  {5,	RADIUS_BINSTRING,		"MS CHAP LM Enc PW"},
+  {6,	RADIUS_BINSTRING,		"MS CHAP NT Enc PW"},
+  {7,	RADIUS_BINSTRING,		"MS MPPE Encryption Policy"},
+  {8,	RADIUS_BINSTRING,		"MS MPPE Encryption Type"},
+  {9,	RADIUS_INTEGER4,		"MS RAS Vendor"},
+  {10,	RADIUS_STRING,			"MS CHAP Domain"},
+  {11,	RADIUS_BINSTRING,		"MS CHAP Challenge"},
+  {12,	RADIUS_BINSTRING,		"MS CHAP MPPE Keys"},
+  {13,	MICROSOFT_BAP_USAGE,		"MS BAP Usage"},
+  {14,	RADIUS_INTEGER4,		"MS Link Utilization Threshold"},
+  {15,	RADIUS_INTEGER4,		"MS Link Drop Time Limit"},
+  {16,	RADIUS_BINSTRING,		"MS MPPE Send Key"},
+  {17,	RADIUS_BINSTRING,		"MS MPPE Recv Key"},
+  {18,	RADIUS_STRING,			"MS RAS Version"},
+  {19,	RADIUS_BINSTRING,		"MS Old ARAP Password"},
+  {20,	RADIUS_BINSTRING,		"MS New ARAP Password"},
+  {21,	MICROSOFT_ARAP_PW_CHANGE_REASON,"MS ARAP PW Change Reason"},
+  {22,	RADIUS_BINSTRING,		"MS Filter"},
+  {23,	MICROSOFT_ACCT_AUTH_TYPE,	"MS Acct Auth Type"},
+  {24,	MICROSOFT_ACCT_EAP_TYPE,	"MS Acct EAP Type"},
+  {25,	RADIUS_BINSTRING,		"MS CHAP2 Response"},
+  {26,	RADIUS_BINSTRING,		"MS CHAP2 Success"},
+  {27,	RADIUS_BINSTRING,		"MS CHAP2 CPW"},
+  {28,	RADIUS_IP_ADDRESS,		"MS Primary DNS Server"},
+  {29,	RADIUS_IP_ADDRESS,		"MS Secondary DNS Server"},
+  {30,	RADIUS_IP_ADDRESS,		"MS Primary NBNS Server"},
+  {31,	RADIUS_IP_ADDRESS,		"MS Secondary NBNS Server"},
+  {0, 0, NULL}
 };
 
-static value_string radius_vendor_microsoft_bap_usage_vals[]=
-{{0, "Not-Allowed"},
-{1, "Allowed"},
-{2, "Required"},
-{0,NULL}};
-
-static value_string radius_vendor_microsoft_arap_pw_change_reason_vals[]=
-{{1, "Just-Change-Password"},
-{2, "Expired-Password"},
-{3, "Admin-Required-Password-Change"},
-{4, "Password-Too-Short"},
-{0,NULL}};
-
-static value_string radius_vendor_microsoft_acct_auth_type_vals[]=
-{{1, "PAP"},
-{2, "CHAP"},
-{3, "MS-CHAP-1"},
-{4, "MS-CHAP-2"},
-{5, "EAP"},
-{0,NULL}};
-
-static value_string radius_vendor_microsoft_acct_eap_type_vals[]=
-{{4, "MD5"},
-{5, "OTP"},
-{6, "Generic-Token-Card"},
-{13, "TLS"},
-{0,NULL}};
-
-#define VENDOR_ASCEND_VSA_UU_INFO 7
-#define VENDOR_ASCEND_VSA_CIR_TIMER 9
-#define VENDOR_ASCEND_VSA_FR_08_MODE 10
-#define VENDOR_ASCEND_VSA_DESTINATION_NAS_PORT 11
-#define VENDOR_ASCEND_VSA_FR_SVC_ADDR 12
-#define VENDOR_ASCEND_VSA_NAS_PORT_FORMAT 13
-#define VENDOR_ASCEND_VSA_ATM_FAULT_MANAGEMENT 14
-#define VENDOR_ASCEND_VSA_ATM_LOOPBACK_CELL_LOSS 15
-#define VENDOR_ASCEND_VSA_CKT_TYPE 16
-#define VENDOR_ASCEND_VSA_SVC_ENABLED 17
-#define VENDOR_ASCEND_VSA_SESSION_TYPE 18
-#define VENDOR_ASCEND_VSA_H323_GATEKEEPER 19
-#define VENDOR_ASCEND_VSA_GLOBAL_CALL_ID 20
-#define VENDOR_ASCEND_VSA_H323_CONFERENCE_ID 21
-#define VENDOR_ASCEND_VSA_H323_FEGW_ADDRESS 22
-#define VENDOR_ASCEND_VSA_H323_DIALED_TIME 23
-#define VENDOR_ASCEND_VSA_DIALED_NUMBER 24
-#define VENDOR_ASCEND_VSA_INTER_ARRIVAL_JITTER 25
-#define VENDOR_ASCEND_VSA_DROPPED_OCTETS 26
-#define VENDOR_ASCEND_VSA_DROPPED_PACKETS 27
-#define VENDOR_ASCEND_VSA_X25_PAD_X3_PROFILE 29
-#define VENDOR_ASCEND_VSA_X25_PAD_X3_PARAMETERS 30
-#define VENDOR_ASCEND_VSA_TUNNEL_VROUTER_NAME 31
-#define VENDOR_ASCEND_VSA_X25_REVERSE_CHARGING 32
-#define VENDOR_ASCEND_VSA_X25_NUI_PROMPT 33
-#define VENDOR_ASCEND_VSA_X25_NUI_PASSWORD_PROMPT 34
-#define VENDOR_ASCEND_VSA_X25_CUG 35
-#define VENDOR_ASCEND_VSA_X25_PAD_ALIAS_1 36
-#define VENDOR_ASCEND_VSA_X25_PAD_ALIAS_2 37
-#define VENDOR_ASCEND_VSA_X25_PAD_ALIAS_3 38
-#define VENDOR_ASCEND_VSA_X25_X121_ADDRESS 39
-#define VENDOR_ASCEND_VSA_X25_NUI 40
-#define VENDOR_ASCEND_VSA_X25_RPOA 41
-#define VENDOR_ASCEND_VSA_X25_PAD_PROMPT 42
-#define VENDOR_ASCEND_VSA_X25_PAD_BANNER 43
-#define VENDOR_ASCEND_VSA_X25_PROFILE_NAME 44
-#define VENDOR_ASCEND_VSA_RECV_NAME 45
-#define VENDOR_ASCEND_VSA_BI_DIRECTIONAL_AUTH 46
-#define VENDOR_ASCEND_VSA_MTU 47
-#define VENDOR_ASCEND_VSA_CALL_DIRECTION 48
-#define VENDOR_ASCEND_VSA_SERVICE_TYPE 49
-#define VENDOR_ASCEND_VSA_FILTER_REQUIRED 50
-#define VENDOR_ASCEND_VSA_TRAFFIC_SHAPER 51
-#define VENDOR_ASCEND_VSA_ACCESS_INTERCEPT_LEA 52
-#define VENDOR_ASCEND_VSA_ACCESS_INTERCEPT_LOG 53
-#define VENDOR_ASCEND_VSA_PRIVATE_ROUTE_TABLE_ID 54
-#define VENDOR_ASCEND_VSA_PRIVATE_ROUTE_REQUIRED 55
-#define VENDOR_ASCEND_VSA_CACHE_REFRESH 56
-#define VENDOR_ASCEND_VSA_CACHE_TIME 57
-#define VENDOR_ASCEND_VSA_EGRESS_ENABLED 58
-#define VENDOR_ASCEND_VSA_QOS_UPSTREAM 59
-#define VENDOR_ASCEND_VSA_QOS_DOWNSTREAM 60
-#define VENDOR_ASCEND_VSA_ATM_CONNECT_VPI 61
-#define VENDOR_ASCEND_VSA_ATM_CONNECT_VCI 62
-#define VENDOR_ASCEND_VSA_ATM_CONNECT_GROUP 63
-#define VENDOR_ASCEND_VSA_ATM_GROUP 64
-#define VENDOR_ASCEND_VSA_IPX_HEADER_COMPRESSION 65
-#define VENDOR_ASCEND_VSA_CALLING_ID_TYPE_OF_NUMBER 66
-#define VENDOR_ASCEND_VSA_CALLING_ID_NUMBERING_PLAN 67
-#define VENDOR_ASCEND_VSA_CALLING_ID_PRESENTATION 68
-#define VENDOR_ASCEND_VSA_CALLING_ID_SCREENING 69
-#define VENDOR_ASCEND_VSA_BIR_ENABLE 70
-#define VENDOR_ASCEND_VSA_BIR_PROXY 71
-#define VENDOR_ASCEND_VSA_BIR_BRIDGE_GROUP 72
-#define VENDOR_ASCEND_VSA_IPSEC_PROFILE 73
-#define VENDOR_ASCEND_VSA_PPPOE_ENABLE 74
-#define VENDOR_ASCEND_VSA_BRIDGE_NON_PPPOE 75
-#define VENDOR_ASCEND_VSA_ATM_DIRECT 76
-#define VENDOR_ASCEND_VSA_ATM_DIRECT_PROFILE 77
-#define VENDOR_ASCEND_VSA_CLIENT_PRIMARY_WINS 78
-#define VENDOR_ASCEND_VSA_CLIENT_SECONDARY_WINS 79
-#define VENDOR_ASCEND_VSA_CLIENT_ASSIGN_WINS 80
-#define VENDOR_ASCEND_VSA_AUTH_TYPE 81
-#define VENDOR_ASCEND_VSA_PORT_REDIR_PROTOCOL 82
-#define VENDOR_ASCEND_VSA_PORT_REDIR_PORTNUM 83
-#define VENDOR_ASCEND_VSA_PORT_REDIR_SERVER 84
-#define VENDOR_ASCEND_VSA_IP_POOL_CHAINING 85
-#define VENDOR_ASCEND_VSA_OWNER_IP_ADDR 86
-#define VENDOR_ASCEND_VSA_IP_TOS 87
-#define VENDOR_ASCEND_VSA_IP_TOS_PRECEDENCE 88
-#define VENDOR_ASCEND_VSA_IP_TOS_APPLY_TO 89
-#define VENDOR_ASCEND_VSA_FILTER 90
-#define VENDOR_ASCEND_VSA_TELNET_PROFILE 91
-#define VENDOR_ASCEND_VSA_DSL_RATE_TYPE 92
-#define VENDOR_ASCEND_VSA_REDIRECT_NUMBER 93
-#define VENDOR_ASCEND_VSA_ATM_VPI 94
-#define VENDOR_ASCEND_VSA_ATM_VCI 95
-#define VENDOR_ASCEND_VSA_SOURCE_IP_CHECK 96
-#define VENDOR_ASCEND_VSA_DSL_RATE_MODE 97
-#define VENDOR_ASCEND_VSA_DSL_UPSTREAM_LIMIT 98
-#define VENDOR_ASCEND_VSA_DSL_DOWNSTREAM_LIMIT 99
-#define VENDOR_ASCEND_VSA_DSL_CIR_RECV_LIMIT 100
-#define VENDOR_ASCEND_VSA_DSL_CIR_XMIT_LIMIT 101
-#define VENDOR_ASCEND_VSA_VROUTER_NAME 102
-#define VENDOR_ASCEND_VSA_SOURCE_AUTH 103
-#define VENDOR_ASCEND_VSA_PRIVATE_ROUTE 104
-#define VENDOR_ASCEND_VSA_NUMBERING_PLAN_ID 105
-#define VENDOR_ASCEND_VSA_FR_LINK_STATUS_DLCI 106
-#define VENDOR_ASCEND_VSA_CALLING_SUBADDRESS 107
-#define VENDOR_ASCEND_VSA_CALLBACK_DELAY 108
-#define VENDOR_ASCEND_VSA_ENDPOINT_DISC 109
-#define VENDOR_ASCEND_VSA_REMOTE_FW 110
-#define VENDOR_ASCEND_VSA_MULTICAST_GLEAVE_DELAY 111
-#define VENDOR_ASCEND_VSA_CBCP_ENABLE 112
-#define VENDOR_ASCEND_VSA_CBCP_MODE 113
-#define VENDOR_ASCEND_VSA_CBCP_DELAY 114
-#define VENDOR_ASCEND_VSA_CBCP_TRUNK_GROUP 115
-#define VENDOR_ASCEND_VSA_APPLETALK_ROUTE 116
-#define VENDOR_ASCEND_VSA_APPLETALK_PEER_MODE 117
-#define VENDOR_ASCEND_VSA_ROUTE_APPLETALK 118
-#define VENDOR_ASCEND_VSA_FCP_PARAMETER 119
-#define VENDOR_ASCEND_VSA_MODEM_PORTNO 120
-#define VENDOR_ASCEND_VSA_MODEM_SLOTNO 121
-#define VENDOR_ASCEND_VSA_MODEM_SHELFNO 122
-#define VENDOR_ASCEND_VSA_CALL_ATTEMPT_LIMIT 123
-#define VENDOR_ASCEND_VSA_CALL_BLOCK_DURATION 124
-#define VENDOR_ASCEND_VSA_MAXIMUM_CALL_DURATION 125
-#define VENDOR_ASCEND_VSA_TEMPORARY_RTES 126
-#define VENDOR_ASCEND_VSA_TUNNELING_PROTOCOL 127
-#define VENDOR_ASCEND_VSA_SHARED_PROFILE_ENABLE 128
-#define VENDOR_ASCEND_VSA_PRIMARY_HOME_AGENT 129
-#define VENDOR_ASCEND_VSA_SECONDARY_HOME_AGENT 130
-#define VENDOR_ASCEND_VSA_DIALOUT_ALLOWED 131
-#define VENDOR_ASCEND_VSA_CLIENT_GATEWAY 132
-#define VENDOR_ASCEND_VSA_BACP_ENABLE 133
-#define VENDOR_ASCEND_VSA_DHCP_MAXIMUM_LEASES 134
-#define VENDOR_ASCEND_VSA_CLIENT_PRIMARY_DNS 135
-#define VENDOR_ASCEND_VSA_CLIENT_SECONDARY_DNS 136
-#define VENDOR_ASCEND_VSA_CLIENT_ASSIGN_DNS 137
-#define VENDOR_ASCEND_VSA_USER_ACCT_TYPE 138
-#define VENDOR_ASCEND_VSA_USER_ACCT_HOST 139
-#define VENDOR_ASCEND_VSA_USER_ACCT_PORT 140
-#define VENDOR_ASCEND_VSA_USER_ACCT_KEY 141
-#define VENDOR_ASCEND_VSA_USER_ACCT_BASE 142
-#define VENDOR_ASCEND_VSA_USER_ACCT_TIME 143
-#define VENDOR_ASCEND_VSA_ASSIGN_IP_CLIENT 144
-#define VENDOR_ASCEND_VSA_ASSIGN_IP_SERVER 145
-#define VENDOR_ASCEND_VSA_ASSIGN_IP_GLOBAL_POOL 146
-#define VENDOR_ASCEND_VSA_DHCP_REPLY 147
-#define VENDOR_ASCEND_VSA_DHCP_POOL_NUMBER 148
-#define VENDOR_ASCEND_VSA_EXPECT_CALLBACK 149
-#define VENDOR_ASCEND_VSA_EVENT_TYPE 150
-#define VENDOR_ASCEND_VSA_SESSION_SVR_KEY 151
-#define VENDOR_ASCEND_VSA_MULTICAST_RATE_LIMIT 152
-#define VENDOR_ASCEND_VSA_IF_NETMASK 153
-#define VENDOR_ASCEND_VSA_REMOTE_ADDR 154
-#define VENDOR_ASCEND_VSA_MULTICAST_CLIENT 155
-#define VENDOR_ASCEND_VSA_FR_CIRCUIT_NAME 156
-#define VENDOR_ASCEND_VSA_FR_LINKUP 157
-#define VENDOR_ASCEND_VSA_FR_NAILED_GRP 158
-#define VENDOR_ASCEND_VSA_FR_TYPE 159
-#define VENDOR_ASCEND_VSA_FR_LINK_MGT 160
-#define VENDOR_ASCEND_VSA_FR_N391 161
-#define VENDOR_ASCEND_VSA_FR_DCE_N392 162
-#define VENDOR_ASCEND_VSA_FR_DTE_N392 163
-#define VENDOR_ASCEND_VSA_FR_DCE_N393 164
-#define VENDOR_ASCEND_VSA_FR_DTE_N393 165
-#define VENDOR_ASCEND_VSA_FR_T391 166
-#define VENDOR_ASCEND_VSA_FR_T392 167
-#define VENDOR_ASCEND_VSA_BRIDGE_ADDRESS 168
-#define VENDOR_ASCEND_VSA_TS_IDLE_LIMIT 169
-#define VENDOR_ASCEND_VSA_TS_IDLE_MODE 170
-#define VENDOR_ASCEND_VSA_DBA_MONITOR 171
-#define VENDOR_ASCEND_VSA_BASE_CHANNEL_COUNT 172
-#define VENDOR_ASCEND_VSA_MINIMUM_CHANNELS 173
-#define VENDOR_ASCEND_VSA_IPX_ROUTE 174
-#define VENDOR_ASCEND_VSA_FT1_CALLER 175
-#define VENDOR_ASCEND_VSA_BACKUP 176
-#define VENDOR_ASCEND_VSA_CALL_TYPE 177
-#define VENDOR_ASCEND_VSA_GROUP 178
-#define VENDOR_ASCEND_VSA_FR_DLCI 179
-#define VENDOR_ASCEND_VSA_FR_PROFILE_NAME 180
-#define VENDOR_ASCEND_VSA_ARA_PW 181
-#define VENDOR_ASCEND_VSA_IPX_NODE_ADDR 182
-#define VENDOR_ASCEND_VSA_HOME_AGENT_IP_ADDR 183
-#define VENDOR_ASCEND_VSA_HOME_AGENT_PASSWORD 184
-#define VENDOR_ASCEND_VSA_HOME_NETWORK_NAME 185
-#define VENDOR_ASCEND_VSA_HOME_AGENT_UDP_PORT 186
-#define VENDOR_ASCEND_VSA_MULTILINK_ID 187
-#define VENDOR_ASCEND_VSA_NUM_IN_MULTILINK 188
-#define VENDOR_ASCEND_VSA_FIRST_DEST 189
-#define VENDOR_ASCEND_VSA_PRE_INPUT_OCTETS 190
-#define VENDOR_ASCEND_VSA_PRE_OUTPUT_OCTETS 191
-#define VENDOR_ASCEND_VSA_PRE_INPUT_PACKETS 192
-#define VENDOR_ASCEND_VSA_PRE_OUTPUT_PACKETS 193
-#define VENDOR_ASCEND_VSA_MAXIMUM_TIME 194
-#define VENDOR_ASCEND_VSA_DISCONNECT_CAUSE 195
-#define VENDOR_ASCEND_VSA_CONNECT_PROGRESS 196
-#define VENDOR_ASCEND_VSA_DATA_RATE 197
-#define VENDOR_ASCEND_VSA_PRESESSION_TIME 198
-#define VENDOR_ASCEND_VSA_TOKEN_IDLE 199
-#define VENDOR_ASCEND_VSA_TOKEN_IMMEDIATE 200
-#define VENDOR_ASCEND_VSA_REQUIRE_AUTH 201
-#define VENDOR_ASCEND_VSA_NUMBER_SESSIONS 202
-#define VENDOR_ASCEND_VSA_AUTHEN_ALIAS 203
-#define VENDOR_ASCEND_VSA_TOKEN_EXPIRY 204
-#define VENDOR_ASCEND_VSA_MENU_SELECTOR 205
-#define VENDOR_ASCEND_VSA_MENU_ITEM 206
-#define VENDOR_ASCEND_VSA_PW_WARNTIME 207
-#define VENDOR_ASCEND_VSA_PW_LIFETIME 208
-#define VENDOR_ASCEND_VSA_IP_DIRECT 209
-#define VENDOR_ASCEND_VSA_PPP_VJ_SLOT_COMP 210
-#define VENDOR_ASCEND_VSA_PPP_VJ_1172 211
-#define VENDOR_ASCEND_VSA_PPP_ASYNC_MAP 212
-#define VENDOR_ASCEND_VSA_THIRD_PROMPT 213
-#define VENDOR_ASCEND_VSA_SEND_SECRET 214
-#define VENDOR_ASCEND_VSA_RECEIVE_SECRET 215
-#define VENDOR_ASCEND_VSA_IPX_PEER_MODE 216
-#define VENDOR_ASCEND_VSA_IP_POOL_DEFINITION 217
-#define VENDOR_ASCEND_VSA_ASSIGN_IP_POOL 218
-#define VENDOR_ASCEND_VSA_FR_DIRECT 219
-#define VENDOR_ASCEND_VSA_FR_DIRECT_PROFILE 220
-#define VENDOR_ASCEND_VSA_FR_DIRECT_DLCI 221
-#define VENDOR_ASCEND_VSA_HANDLE_IPX 222
-#define VENDOR_ASCEND_VSA_NETWARE_TIMEOUT 223
-#define VENDOR_ASCEND_VSA_IPX_ALIAS 224
-#define VENDOR_ASCEND_VSA_METRIC 225
-#define VENDOR_ASCEND_VSA_PRI_NUMBER_TYPE 226
-#define VENDOR_ASCEND_VSA_DIAL_NUMBER 227
-#define VENDOR_ASCEND_VSA_ROUTE_IP 228
-#define VENDOR_ASCEND_VSA_ROUTE_IPX 229
-#define VENDOR_ASCEND_VSA_BRIDGE 230
-#define VENDOR_ASCEND_VSA_SEND_AUTH 231
-#define VENDOR_ASCEND_VSA_SEND_PASSWD 232
-#define VENDOR_ASCEND_VSA_LINK_COMPRESSION 233
-#define VENDOR_ASCEND_VSA_TARGET_UTIL 234
-#define VENDOR_ASCEND_VSA_MAXIMUM_CHANNELS 235
-#define VENDOR_ASCEND_VSA_INC_CHANNEL_COUNT 236
-#define VENDOR_ASCEND_VSA_DEC_CHANNEL_COUNT 237
-#define VENDOR_ASCEND_VSA_SECONDS_OF_HISTORY 238
-#define VENDOR_ASCEND_VSA_HISTORY_WEIGH_TYPE 239
-#define VENDOR_ASCEND_VSA_ADD_SECONDS 240
-#define VENDOR_ASCEND_VSA_REMOVE_SECONDS 241
-#define VENDOR_ASCEND_VSA_DATA_FILTER 242
-#define VENDOR_ASCEND_VSA_CALL_FILTER 243
-#define VENDOR_ASCEND_VSA_IDLE_LIMIT 244
-#define VENDOR_ASCEND_VSA_PREEMPT_LIMIT 245
-#define VENDOR_ASCEND_VSA_CALLBACK 246
-#define VENDOR_ASCEND_VSA_DATA_SVC 247
-#define VENDOR_ASCEND_VSA_FORCE_56 248
-#define VENDOR_ASCEND_VSA_BILLING_NUMBER 249
-#define VENDOR_ASCEND_VSA_CALL_BY_CALL 250
-#define VENDOR_ASCEND_VSA_TRANSIT_NUMBER 251
-#define VENDOR_ASCEND_VSA_HOST_INFO 252
-#define VENDOR_ASCEND_VSA_PPP_ADDRESS 253
-#define VENDOR_ASCEND_VSA_MPP_IDLE_PERCENT 254
-#define VENDOR_ASCEND_VSA_XMIT_RATE 255
-
-static value_value_pair radius_vendor_ascend_printinfo[] = {
-{ VENDOR_ASCEND_VSA_UU_INFO, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_CIR_TIMER, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_08_MODE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DESTINATION_NAS_PORT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_SVC_ADDR, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_NAS_PORT_FORMAT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ATM_FAULT_MANAGEMENT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ATM_LOOPBACK_CELL_LOSS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CKT_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_SVC_ENABLED, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_SESSION_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_H323_GATEKEEPER, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_GLOBAL_CALL_ID, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_H323_CONFERENCE_ID, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_H323_FEGW_ADDRESS, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_H323_DIALED_TIME, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DIALED_NUMBER, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_INTER_ARRIVAL_JITTER, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DROPPED_OCTETS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DROPPED_PACKETS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_X25_PAD_X3_PROFILE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_X25_PAD_X3_PARAMETERS, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_TUNNEL_VROUTER_NAME, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_REVERSE_CHARGING, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_X25_NUI_PROMPT, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_NUI_PASSWORD_PROMPT, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_CUG, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_PAD_ALIAS_1, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_PAD_ALIAS_2, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_PAD_ALIAS_3, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_X121_ADDRESS, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_NUI, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_RPOA, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_PAD_PROMPT, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_PAD_BANNER, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_X25_PROFILE_NAME, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_RECV_NAME, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_BI_DIRECTIONAL_AUTH, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_MTU, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CALL_DIRECTION, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_SERVICE_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FILTER_REQUIRED, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_TRAFFIC_SHAPER, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ACCESS_INTERCEPT_LEA, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_ACCESS_INTERCEPT_LOG, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_PRIVATE_ROUTE_TABLE_ID, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_PRIVATE_ROUTE_REQUIRED, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CACHE_REFRESH, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CACHE_TIME, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_EGRESS_ENABLED, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_QOS_UPSTREAM, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_QOS_DOWNSTREAM, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_ATM_CONNECT_VPI, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ATM_CONNECT_VCI, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ATM_CONNECT_GROUP, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ATM_GROUP, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_IPX_HEADER_COMPRESSION, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CALLING_ID_TYPE_OF_NUMBER, ASCEND_VSA_CALLING_ID_TYPE_OF_NUMBER },
-{ VENDOR_ASCEND_VSA_CALLING_ID_NUMBERING_PLAN, ASCEND_VSA_CALLING_ID_NUMBERING_PLAN },
-{ VENDOR_ASCEND_VSA_CALLING_ID_PRESENTATION, ASCEND_VSA_CALLING_ID_PRESENTATION },
-{ VENDOR_ASCEND_VSA_CALLING_ID_SCREENING, ASCEND_VSA_CALLING_ID_SCREENING },
-{ VENDOR_ASCEND_VSA_BIR_ENABLE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_BIR_PROXY, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_BIR_BRIDGE_GROUP, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_IPSEC_PROFILE, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_PPPOE_ENABLE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_BRIDGE_NON_PPPOE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ATM_DIRECT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ATM_DIRECT_PROFILE, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_CLIENT_PRIMARY_WINS, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_CLIENT_SECONDARY_WINS, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_CLIENT_ASSIGN_WINS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_AUTH_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PORT_REDIR_PROTOCOL, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PORT_REDIR_PORTNUM, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PORT_REDIR_SERVER, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_IP_POOL_CHAINING, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_OWNER_IP_ADDR, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_IP_TOS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_IP_TOS_PRECEDENCE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_IP_TOS_APPLY_TO, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FILTER, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_TELNET_PROFILE, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_DSL_RATE_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_REDIRECT_NUMBER, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_ATM_VPI, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ATM_VCI, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_SOURCE_IP_CHECK, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DSL_RATE_MODE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DSL_UPSTREAM_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DSL_DOWNSTREAM_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DSL_CIR_RECV_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DSL_CIR_XMIT_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_VROUTER_NAME, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_SOURCE_AUTH, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_PRIVATE_ROUTE, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_NUMBERING_PLAN_ID, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_LINK_STATUS_DLCI, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CALLING_SUBADDRESS, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_CALLBACK_DELAY, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ENDPOINT_DISC, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_REMOTE_FW, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_MULTICAST_GLEAVE_DELAY, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CBCP_ENABLE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CBCP_MODE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CBCP_DELAY, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CBCP_TRUNK_GROUP, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_APPLETALK_ROUTE, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_APPLETALK_PEER_MODE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ROUTE_APPLETALK, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FCP_PARAMETER, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_MODEM_PORTNO, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_MODEM_SLOTNO, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_MODEM_SHELFNO, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CALL_ATTEMPT_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CALL_BLOCK_DURATION, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_MAXIMUM_CALL_DURATION, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_TEMPORARY_RTES, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_TUNNELING_PROTOCOL, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_SHARED_PROFILE_ENABLE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PRIMARY_HOME_AGENT, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_SECONDARY_HOME_AGENT, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_DIALOUT_ALLOWED, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CLIENT_GATEWAY, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_BACP_ENABLE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DHCP_MAXIMUM_LEASES, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CLIENT_PRIMARY_DNS, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_CLIENT_SECONDARY_DNS, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_CLIENT_ASSIGN_DNS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_USER_ACCT_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_USER_ACCT_HOST, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_USER_ACCT_PORT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_USER_ACCT_KEY, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_USER_ACCT_BASE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_USER_ACCT_TIME, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ASSIGN_IP_CLIENT, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_ASSIGN_IP_SERVER, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_ASSIGN_IP_GLOBAL_POOL, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_DHCP_REPLY, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DHCP_POOL_NUMBER, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_EXPECT_CALLBACK, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_EVENT_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_SESSION_SVR_KEY, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_MULTICAST_RATE_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_IF_NETMASK, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_REMOTE_ADDR, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_MULTICAST_CLIENT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_CIRCUIT_NAME, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_FR_LINKUP, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_NAILED_GRP, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_LINK_MGT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_N391, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_DCE_N392, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_DTE_N392, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_DCE_N393, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_DTE_N393, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_T391, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_T392, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_BRIDGE_ADDRESS, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_TS_IDLE_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_TS_IDLE_MODE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DBA_MONITOR, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_BASE_CHANNEL_COUNT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_MINIMUM_CHANNELS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_IPX_ROUTE, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_FT1_CALLER, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_BACKUP, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_CALL_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_GROUP, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_FR_DLCI, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_PROFILE_NAME, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_ARA_PW, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_IPX_NODE_ADDR, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_HOME_AGENT_IP_ADDR, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_HOME_AGENT_PASSWORD, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_HOME_NETWORK_NAME, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_HOME_AGENT_UDP_PORT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_MULTILINK_ID, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_NUM_IN_MULTILINK, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FIRST_DEST, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_PRE_INPUT_OCTETS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PRE_OUTPUT_OCTETS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PRE_INPUT_PACKETS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PRE_OUTPUT_PACKETS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_MAXIMUM_TIME, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DISCONNECT_CAUSE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CONNECT_PROGRESS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DATA_RATE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PRESESSION_TIME, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_TOKEN_IDLE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_TOKEN_IMMEDIATE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_REQUIRE_AUTH, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_NUMBER_SESSIONS, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_AUTHEN_ALIAS, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_TOKEN_EXPIRY, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_MENU_SELECTOR, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_MENU_ITEM, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_PW_WARNTIME, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PW_LIFETIME, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_IP_DIRECT, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_PPP_VJ_SLOT_COMP, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PPP_VJ_1172, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PPP_ASYNC_MAP, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_THIRD_PROMPT, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_SEND_SECRET, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_RECEIVE_SECRET, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_IPX_PEER_MODE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_IP_POOL_DEFINITION, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_ASSIGN_IP_POOL, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_DIRECT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FR_DIRECT_PROFILE, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_FR_DIRECT_DLCI, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_HANDLE_IPX, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_NETWARE_TIMEOUT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_IPX_ALIAS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_METRIC, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PRI_NUMBER_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DIAL_NUMBER, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_ROUTE_IP, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ROUTE_IPX, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_BRIDGE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_SEND_AUTH, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_SEND_PASSWD, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_LINK_COMPRESSION, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_TARGET_UTIL, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_MAXIMUM_CHANNELS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_INC_CHANNEL_COUNT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DEC_CHANNEL_COUNT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_SECONDS_OF_HISTORY, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_HISTORY_WEIGH_TYPE, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_ADD_SECONDS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_REMOVE_SECONDS, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DATA_FILTER, RADIUS_BINSTRING },
-{ VENDOR_ASCEND_VSA_CALL_FILTER, RADIUS_BINSTRING },
-{ VENDOR_ASCEND_VSA_IDLE_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_PREEMPT_LIMIT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_CALLBACK, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_DATA_SVC, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_FORCE_56, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_BILLING_NUMBER, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_CALL_BY_CALL, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_TRANSIT_NUMBER, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_HOST_INFO, RADIUS_STRING },
-{ VENDOR_ASCEND_VSA_PPP_ADDRESS, RADIUS_IP_ADDRESS },
-{ VENDOR_ASCEND_VSA_MPP_IDLE_PERCENT, RADIUS_INTEGER4 },
-{ VENDOR_ASCEND_VSA_XMIT_RATE, RADIUS_INTEGER4 },
-{0,0},
+static value_string radius_vendor_microsoft_bap_usage_vals[] =
+{
+  {0,	"Not-Allowed"},
+  {1,	"Allowed"},
+  {2,	"Required"},
+  {0, NULL}
 };
 
-static value_string radius_vendor_ascend_types[] = {
-{ VENDOR_ASCEND_VSA_UU_INFO, "Ascend UU Info" },
-{ VENDOR_ASCEND_VSA_CIR_TIMER, "Ascend CIR Timer" },
-{ VENDOR_ASCEND_VSA_FR_08_MODE, "Ascend FR 08 Mode" },
-{ VENDOR_ASCEND_VSA_DESTINATION_NAS_PORT, "Ascend Destination Nas Port" },
-{ VENDOR_ASCEND_VSA_FR_SVC_ADDR, "Ascend FR SVC Addr" },
-{ VENDOR_ASCEND_VSA_NAS_PORT_FORMAT, "Ascend NAS Port Format" },
-{ VENDOR_ASCEND_VSA_ATM_FAULT_MANAGEMENT, "Ascend ATM Fault Management" },
-{ VENDOR_ASCEND_VSA_ATM_LOOPBACK_CELL_LOSS, "Ascend ATM Loopback Cell Loss" },
-{ VENDOR_ASCEND_VSA_CKT_TYPE, "Ascend Ckt Type" },
-{ VENDOR_ASCEND_VSA_SVC_ENABLED, "Ascend SVC Enabled" },
-{ VENDOR_ASCEND_VSA_SESSION_TYPE, "Ascend Session Type" },
-{ VENDOR_ASCEND_VSA_H323_GATEKEEPER, "Ascend H323 Gatekeeper" },
-{ VENDOR_ASCEND_VSA_GLOBAL_CALL_ID, "Ascend Global Call Id" },
-{ VENDOR_ASCEND_VSA_H323_CONFERENCE_ID, "Ascend H323 Conference Id" },
-{ VENDOR_ASCEND_VSA_H323_FEGW_ADDRESS, "Ascend H323 Fegw Address" },
-{ VENDOR_ASCEND_VSA_H323_DIALED_TIME, "Ascend H323 Dialed Time" },
-{ VENDOR_ASCEND_VSA_DIALED_NUMBER, "Ascend Dialed Number" },
-{ VENDOR_ASCEND_VSA_INTER_ARRIVAL_JITTER, "Ascend Inter Arrival Jitter" },
-{ VENDOR_ASCEND_VSA_DROPPED_OCTETS, "Ascend Dropped Octets" },
-{ VENDOR_ASCEND_VSA_DROPPED_PACKETS, "Ascend Dropped Packets" },
-{ VENDOR_ASCEND_VSA_X25_PAD_X3_PROFILE, "Ascend X25 Pad X3 Profile" },
-{ VENDOR_ASCEND_VSA_X25_PAD_X3_PARAMETERS, "Ascend X25 Pad X3 Parameters" },
-{ VENDOR_ASCEND_VSA_TUNNEL_VROUTER_NAME, "Ascend Tunnel VRouter Name" },
-{ VENDOR_ASCEND_VSA_X25_REVERSE_CHARGING, "Ascend X25 Reverse Charging" },
-{ VENDOR_ASCEND_VSA_X25_NUI_PROMPT, "Ascend X25 Nui Prompt" },
-{ VENDOR_ASCEND_VSA_X25_NUI_PASSWORD_PROMPT, "Ascend X25 Nui Password Prompt" },
-{ VENDOR_ASCEND_VSA_X25_CUG, "Ascend X25 Cug" },
-{ VENDOR_ASCEND_VSA_X25_PAD_ALIAS_1, "Ascend X25 Pad Alias 1" },
-{ VENDOR_ASCEND_VSA_X25_PAD_ALIAS_2, "Ascend X25 Pad Alias 2" },
-{ VENDOR_ASCEND_VSA_X25_PAD_ALIAS_3, "Ascend X25 Pad Alias 3" },
-{ VENDOR_ASCEND_VSA_X25_X121_ADDRESS, "Ascend X25 X121 Address" },
-{ VENDOR_ASCEND_VSA_X25_NUI, "Ascend X25 Nui" },
-{ VENDOR_ASCEND_VSA_X25_RPOA, "Ascend X25 Rpoa" },
-{ VENDOR_ASCEND_VSA_X25_PAD_PROMPT, "Ascend X25 Pad Prompt" },
-{ VENDOR_ASCEND_VSA_X25_PAD_BANNER, "Ascend X25 Pad Banner" },
-{ VENDOR_ASCEND_VSA_X25_PROFILE_NAME, "Ascend X25 Profile Name" },
-{ VENDOR_ASCEND_VSA_RECV_NAME, "Ascend Recv Name" },
-{ VENDOR_ASCEND_VSA_BI_DIRECTIONAL_AUTH, "Ascend Bi Directional Auth" },
-{ VENDOR_ASCEND_VSA_MTU, "Ascend MTU" },
-{ VENDOR_ASCEND_VSA_CALL_DIRECTION, "Ascend Call Direction" },
-{ VENDOR_ASCEND_VSA_SERVICE_TYPE, "Ascend Service Type" },
-{ VENDOR_ASCEND_VSA_FILTER_REQUIRED, "Ascend Filter Required" },
-{ VENDOR_ASCEND_VSA_TRAFFIC_SHAPER, "Ascend Traffic Shaper" },
-{ VENDOR_ASCEND_VSA_ACCESS_INTERCEPT_LEA, "Ascend Access Intercept LEA" },
-{ VENDOR_ASCEND_VSA_ACCESS_INTERCEPT_LOG, "Ascend Access Intercept Log" },
-{ VENDOR_ASCEND_VSA_PRIVATE_ROUTE_TABLE_ID, "Ascend Private Route Table ID" },
-{ VENDOR_ASCEND_VSA_PRIVATE_ROUTE_REQUIRED, "Ascend Private Route Required" },
-{ VENDOR_ASCEND_VSA_CACHE_REFRESH, "Ascend Cache Refresh" },
-{ VENDOR_ASCEND_VSA_CACHE_TIME, "Ascend Cache Time" },
-{ VENDOR_ASCEND_VSA_EGRESS_ENABLED, "Ascend Egress Enabled" },
-{ VENDOR_ASCEND_VSA_QOS_UPSTREAM, "Ascend QOS Upstream" },
-{ VENDOR_ASCEND_VSA_QOS_DOWNSTREAM, "Ascend QOS Downstream" },
-{ VENDOR_ASCEND_VSA_ATM_CONNECT_VPI, "Ascend ATM Connect Vpi" },
-{ VENDOR_ASCEND_VSA_ATM_CONNECT_VCI, "Ascend ATM Connect Vci" },
-{ VENDOR_ASCEND_VSA_ATM_CONNECT_GROUP, "Ascend ATM Connect Group" },
-{ VENDOR_ASCEND_VSA_ATM_GROUP, "Ascend ATM Group" },
-{ VENDOR_ASCEND_VSA_IPX_HEADER_COMPRESSION, "Ascend IPX Header Compression" },
-{ VENDOR_ASCEND_VSA_CALLING_ID_TYPE_OF_NUMBER, "Ascend Calling Id Type Of Number" },
-{ VENDOR_ASCEND_VSA_CALLING_ID_NUMBERING_PLAN, "Ascend Calling Id Numbering Plan" },
-{ VENDOR_ASCEND_VSA_CALLING_ID_PRESENTATION, "Ascend Calling Id Presentation" },
-{ VENDOR_ASCEND_VSA_CALLING_ID_SCREENING, "Ascend Calling Id Screening" },
-{ VENDOR_ASCEND_VSA_BIR_ENABLE, "Ascend BIR Enable" },
-{ VENDOR_ASCEND_VSA_BIR_PROXY, "Ascend BIR Proxy" },
-{ VENDOR_ASCEND_VSA_BIR_BRIDGE_GROUP, "Ascend BIR Bridge Group" },
-{ VENDOR_ASCEND_VSA_IPSEC_PROFILE, "Ascend IPSEC Profile" },
-{ VENDOR_ASCEND_VSA_PPPOE_ENABLE, "Ascend PPPoE Enable" },
-{ VENDOR_ASCEND_VSA_BRIDGE_NON_PPPOE, "Ascend Bridge Non PPPoE" },
-{ VENDOR_ASCEND_VSA_ATM_DIRECT, "Ascend ATM Direct" },
-{ VENDOR_ASCEND_VSA_ATM_DIRECT_PROFILE, "Ascend ATM Direct Profile" },
-{ VENDOR_ASCEND_VSA_CLIENT_PRIMARY_WINS, "Ascend Client Primary WINS" },
-{ VENDOR_ASCEND_VSA_CLIENT_SECONDARY_WINS, "Ascend Client Secondary WINS" },
-{ VENDOR_ASCEND_VSA_CLIENT_ASSIGN_WINS, "Ascend Client Assign WINS" },
-{ VENDOR_ASCEND_VSA_AUTH_TYPE, "Ascend Auth Type" },
-{ VENDOR_ASCEND_VSA_PORT_REDIR_PROTOCOL, "Ascend Port Redir Protocol" },
-{ VENDOR_ASCEND_VSA_PORT_REDIR_PORTNUM, "Ascend Port Redir Portnum" },
-{ VENDOR_ASCEND_VSA_PORT_REDIR_SERVER, "Ascend Port Redir Server" },
-{ VENDOR_ASCEND_VSA_IP_POOL_CHAINING, "Ascend IP Pool Chaining" },
-{ VENDOR_ASCEND_VSA_OWNER_IP_ADDR, "Ascend Owner IP Addr" },
-{ VENDOR_ASCEND_VSA_IP_TOS, "Ascend IP TOS" },
-{ VENDOR_ASCEND_VSA_IP_TOS_PRECEDENCE, "Ascend IP TOS Precedence" },
-{ VENDOR_ASCEND_VSA_IP_TOS_APPLY_TO, "Ascend IP TOS Apply To" },
-{ VENDOR_ASCEND_VSA_FILTER, "Ascend Filter" },
-{ VENDOR_ASCEND_VSA_TELNET_PROFILE, "Ascend Telnet Profile" },
-{ VENDOR_ASCEND_VSA_DSL_RATE_TYPE, "Ascend Dsl Rate Type" },
-{ VENDOR_ASCEND_VSA_REDIRECT_NUMBER, "Ascend Redirect Number" },
-{ VENDOR_ASCEND_VSA_ATM_VPI, "Ascend ATM Vpi" },
-{ VENDOR_ASCEND_VSA_ATM_VCI, "Ascend ATM Vci" },
-{ VENDOR_ASCEND_VSA_SOURCE_IP_CHECK, "Ascend Source IP Check" },
-{ VENDOR_ASCEND_VSA_DSL_RATE_MODE, "Ascend Dsl Rate Mode" },
-{ VENDOR_ASCEND_VSA_DSL_UPSTREAM_LIMIT, "Ascend Dsl Upstream Limit" },
-{ VENDOR_ASCEND_VSA_DSL_DOWNSTREAM_LIMIT, "Ascend Dsl Downstream Limit" },
-{ VENDOR_ASCEND_VSA_DSL_CIR_RECV_LIMIT, "Ascend Dsl CIR Recv Limit" },
-{ VENDOR_ASCEND_VSA_DSL_CIR_XMIT_LIMIT, "Ascend Dsl CIR Xmit Limit" },
-{ VENDOR_ASCEND_VSA_VROUTER_NAME, "Ascend VRouter Name" },
-{ VENDOR_ASCEND_VSA_SOURCE_AUTH, "Ascend Source Auth" },
-{ VENDOR_ASCEND_VSA_PRIVATE_ROUTE, "Ascend Private Route" },
-{ VENDOR_ASCEND_VSA_NUMBERING_PLAN_ID, "Ascend Numbering Plan ID" },
-{ VENDOR_ASCEND_VSA_FR_LINK_STATUS_DLCI, "Ascend FR Link Status DLCI" },
-{ VENDOR_ASCEND_VSA_CALLING_SUBADDRESS, "Ascend Calling Subaddress" },
-{ VENDOR_ASCEND_VSA_CALLBACK_DELAY, "Ascend Callback Delay" },
-{ VENDOR_ASCEND_VSA_ENDPOINT_DISC, "Ascend Endpoint Disc" },
-{ VENDOR_ASCEND_VSA_REMOTE_FW, "Ascend Remote FW" },
-{ VENDOR_ASCEND_VSA_MULTICAST_GLEAVE_DELAY, "Ascend Multicast GLeave Delay" },
-{ VENDOR_ASCEND_VSA_CBCP_ENABLE, "Ascend CBCP Enable" },
-{ VENDOR_ASCEND_VSA_CBCP_MODE, "Ascend CBCP Mode" },
-{ VENDOR_ASCEND_VSA_CBCP_DELAY, "Ascend CBCP Delay" },
-{ VENDOR_ASCEND_VSA_CBCP_TRUNK_GROUP, "Ascend CBCP Trunk Group" },
-{ VENDOR_ASCEND_VSA_APPLETALK_ROUTE, "Ascend Appletalk Route" },
-{ VENDOR_ASCEND_VSA_APPLETALK_PEER_MODE, "Ascend Appletalk Peer Mode" },
-{ VENDOR_ASCEND_VSA_ROUTE_APPLETALK, "Ascend Route Appletalk" },
-{ VENDOR_ASCEND_VSA_FCP_PARAMETER, "Ascend FCP Parameter" },
-{ VENDOR_ASCEND_VSA_MODEM_PORTNO, "Ascend Modem Port No" },
-{ VENDOR_ASCEND_VSA_MODEM_SLOTNO, "Ascend Modem Slot No" },
-{ VENDOR_ASCEND_VSA_MODEM_SHELFNO, "Ascend Modem Shelf No" },
-{ VENDOR_ASCEND_VSA_CALL_ATTEMPT_LIMIT, "Ascend Call Attempt Limit" },
-{ VENDOR_ASCEND_VSA_CALL_BLOCK_DURATION, "Ascend Call Block Duration" },
-{ VENDOR_ASCEND_VSA_MAXIMUM_CALL_DURATION, "Ascend Maximum Call Duration" },
-{ VENDOR_ASCEND_VSA_TEMPORARY_RTES, "Ascend Temporary Rtes" },
-{ VENDOR_ASCEND_VSA_TUNNELING_PROTOCOL, "Ascend Tunneling Protocol" },
-{ VENDOR_ASCEND_VSA_SHARED_PROFILE_ENABLE, "Ascend Shared Profile Enable" },
-{ VENDOR_ASCEND_VSA_PRIMARY_HOME_AGENT, "Ascend Primary Home Agent" },
-{ VENDOR_ASCEND_VSA_SECONDARY_HOME_AGENT, "Ascend Secondary Home Agent" },
-{ VENDOR_ASCEND_VSA_DIALOUT_ALLOWED, "Ascend Dialout Allowed" },
-{ VENDOR_ASCEND_VSA_CLIENT_GATEWAY, "Ascend Client Gateway" },
-{ VENDOR_ASCEND_VSA_BACP_ENABLE, "Ascend BACP Enable" },
-{ VENDOR_ASCEND_VSA_DHCP_MAXIMUM_LEASES, "Ascend DHCP Maximum Leases" },
-{ VENDOR_ASCEND_VSA_CLIENT_PRIMARY_DNS, "Ascend Client Primary DNS" },
-{ VENDOR_ASCEND_VSA_CLIENT_SECONDARY_DNS, "Ascend Client Secondary DNS" },
-{ VENDOR_ASCEND_VSA_CLIENT_ASSIGN_DNS, "Ascend Client Assign DNS" },
-{ VENDOR_ASCEND_VSA_USER_ACCT_TYPE, "Ascend User Acct Type" },
-{ VENDOR_ASCEND_VSA_USER_ACCT_HOST, "Ascend User Acct Host" },
-{ VENDOR_ASCEND_VSA_USER_ACCT_PORT, "Ascend User Acct Port" },
-{ VENDOR_ASCEND_VSA_USER_ACCT_KEY, "Ascend User Acct Key" },
-{ VENDOR_ASCEND_VSA_USER_ACCT_BASE, "Ascend User Acct Base" },
-{ VENDOR_ASCEND_VSA_USER_ACCT_TIME, "Ascend User Acct Time" },
-{ VENDOR_ASCEND_VSA_ASSIGN_IP_CLIENT, "Ascend Assign IP Client" },
-{ VENDOR_ASCEND_VSA_ASSIGN_IP_SERVER, "Ascend Assign IP Server" },
-{ VENDOR_ASCEND_VSA_ASSIGN_IP_GLOBAL_POOL, "Ascend Assign IP Global Pool" },
-{ VENDOR_ASCEND_VSA_DHCP_REPLY, "Ascend DHCP Reply" },
-{ VENDOR_ASCEND_VSA_DHCP_POOL_NUMBER, "Ascend DHCP Pool Number" },
-{ VENDOR_ASCEND_VSA_EXPECT_CALLBACK, "Ascend Expect Callback" },
-{ VENDOR_ASCEND_VSA_EVENT_TYPE, "Ascend Event Type" },
-{ VENDOR_ASCEND_VSA_SESSION_SVR_KEY, "Ascend Session Svr Key" },
-{ VENDOR_ASCEND_VSA_MULTICAST_RATE_LIMIT, "Ascend Multicast Rate Limit" },
-{ VENDOR_ASCEND_VSA_IF_NETMASK, "Ascend IF Netmask" },
-{ VENDOR_ASCEND_VSA_REMOTE_ADDR, "Ascend Remote Addr" },
-{ VENDOR_ASCEND_VSA_MULTICAST_CLIENT, "Ascend Multicast Client" },
-{ VENDOR_ASCEND_VSA_FR_CIRCUIT_NAME, "Ascend FR Circuit Name" },
-{ VENDOR_ASCEND_VSA_FR_LINKUP, "Ascend FR LinkUp" },
-{ VENDOR_ASCEND_VSA_FR_NAILED_GRP, "Ascend FR Nailed Grp" },
-{ VENDOR_ASCEND_VSA_FR_TYPE, "Ascend FR Type" },
-{ VENDOR_ASCEND_VSA_FR_LINK_MGT, "Ascend FR Link Mgt" },
-{ VENDOR_ASCEND_VSA_FR_N391, "Ascend FR N391" },
-{ VENDOR_ASCEND_VSA_FR_DCE_N392, "Ascend FR DCE N392" },
-{ VENDOR_ASCEND_VSA_FR_DTE_N392, "Ascend FR DTE N392" },
-{ VENDOR_ASCEND_VSA_FR_DCE_N393, "Ascend FR DCE N393" },
-{ VENDOR_ASCEND_VSA_FR_DTE_N393, "Ascend FR DTE N393" },
-{ VENDOR_ASCEND_VSA_FR_T391, "Ascend FR T391" },
-{ VENDOR_ASCEND_VSA_FR_T392, "Ascend FR T392" },
-{ VENDOR_ASCEND_VSA_BRIDGE_ADDRESS, "Ascend Bridge Address" },
-{ VENDOR_ASCEND_VSA_TS_IDLE_LIMIT, "Ascend TS Idle Limit" },
-{ VENDOR_ASCEND_VSA_TS_IDLE_MODE, "Ascend TS Idle Mode" },
-{ VENDOR_ASCEND_VSA_DBA_MONITOR, "Ascend DBA Monitor" },
-{ VENDOR_ASCEND_VSA_BASE_CHANNEL_COUNT, "Ascend Base Channel Count" },
-{ VENDOR_ASCEND_VSA_MINIMUM_CHANNELS, "Ascend Minimum Channels" },
-{ VENDOR_ASCEND_VSA_IPX_ROUTE, "Ascend IPX Route" },
-{ VENDOR_ASCEND_VSA_FT1_CALLER, "Ascend FT1 Caller" },
-{ VENDOR_ASCEND_VSA_BACKUP, "Ascend Backup" },
-{ VENDOR_ASCEND_VSA_CALL_TYPE, "Ascend Call Type" },
-{ VENDOR_ASCEND_VSA_GROUP, "Ascend Group" },
-{ VENDOR_ASCEND_VSA_FR_DLCI, "Ascend FR DLCI" },
-{ VENDOR_ASCEND_VSA_FR_PROFILE_NAME, "Ascend FR Profile Name" },
-{ VENDOR_ASCEND_VSA_ARA_PW, "Ascend Ara PW" },
-{ VENDOR_ASCEND_VSA_IPX_NODE_ADDR, "Ascend IPX Node Addr" },
-{ VENDOR_ASCEND_VSA_HOME_AGENT_IP_ADDR, "Ascend Home Agent IP Addr" },
-{ VENDOR_ASCEND_VSA_HOME_AGENT_PASSWORD, "Ascend Home Agent Password" },
-{ VENDOR_ASCEND_VSA_HOME_NETWORK_NAME, "Ascend Home Network Name" },
-{ VENDOR_ASCEND_VSA_HOME_AGENT_UDP_PORT, "Ascend Home Agent UDP Port" },
-{ VENDOR_ASCEND_VSA_MULTILINK_ID, "Ascend Multilink ID" },
-{ VENDOR_ASCEND_VSA_NUM_IN_MULTILINK, "Ascend Num In Multilink" },
-{ VENDOR_ASCEND_VSA_FIRST_DEST, "Ascend First Dest" },
-{ VENDOR_ASCEND_VSA_PRE_INPUT_OCTETS, "Ascend Pre Input Octets" },
-{ VENDOR_ASCEND_VSA_PRE_OUTPUT_OCTETS, "Ascend Pre Output Octets" },
-{ VENDOR_ASCEND_VSA_PRE_INPUT_PACKETS, "Ascend Pre Input Packets" },
-{ VENDOR_ASCEND_VSA_PRE_OUTPUT_PACKETS, "Ascend Pre Output Packets" },
-{ VENDOR_ASCEND_VSA_MAXIMUM_TIME, "Ascend Maximum Time" },
-{ VENDOR_ASCEND_VSA_DISCONNECT_CAUSE, "Ascend Disconnect Cause" },
-{ VENDOR_ASCEND_VSA_CONNECT_PROGRESS, "Ascend Connect Progress" },
-{ VENDOR_ASCEND_VSA_DATA_RATE, "Ascend Data Rate" },
-{ VENDOR_ASCEND_VSA_PRESESSION_TIME, "Ascend PreSession Time" },
-{ VENDOR_ASCEND_VSA_TOKEN_IDLE, "Ascend Token Idle" },
-{ VENDOR_ASCEND_VSA_TOKEN_IMMEDIATE, "Ascend Token Immediate" },
-{ VENDOR_ASCEND_VSA_REQUIRE_AUTH, "Ascend Require Auth" },
-{ VENDOR_ASCEND_VSA_NUMBER_SESSIONS, "Ascend Number Sessions" },
-{ VENDOR_ASCEND_VSA_AUTHEN_ALIAS, "Ascend Authen Alias" },
-{ VENDOR_ASCEND_VSA_TOKEN_EXPIRY, "Ascend Token Expiry" },
-{ VENDOR_ASCEND_VSA_MENU_SELECTOR, "Ascend Menu Selector" },
-{ VENDOR_ASCEND_VSA_MENU_ITEM, "Ascend Menu Item" },
-{ VENDOR_ASCEND_VSA_PW_WARNTIME, "Ascend PW Warntime" },
-{ VENDOR_ASCEND_VSA_PW_LIFETIME, "Ascend PW Lifetime" },
-{ VENDOR_ASCEND_VSA_IP_DIRECT, "Ascend IP Direct" },
-{ VENDOR_ASCEND_VSA_PPP_VJ_SLOT_COMP, "Ascend PPP VJ Slot Comp" },
-{ VENDOR_ASCEND_VSA_PPP_VJ_1172, "Ascend PPP VJ 1172" },
-{ VENDOR_ASCEND_VSA_PPP_ASYNC_MAP, "Ascend PPP Async Map" },
-{ VENDOR_ASCEND_VSA_THIRD_PROMPT, "Ascend Third Prompt" },
-{ VENDOR_ASCEND_VSA_SEND_SECRET, "Ascend Send Secret" },
-{ VENDOR_ASCEND_VSA_RECEIVE_SECRET, "Ascend Receive Secret" },
-{ VENDOR_ASCEND_VSA_IPX_PEER_MODE, "Ascend IPX Peer Mode" },
-{ VENDOR_ASCEND_VSA_IP_POOL_DEFINITION, "Ascend IP Pool Definition" },
-{ VENDOR_ASCEND_VSA_ASSIGN_IP_POOL, "Ascend Assign IP Pool" },
-{ VENDOR_ASCEND_VSA_FR_DIRECT, "Ascend FR Direct" },
-{ VENDOR_ASCEND_VSA_FR_DIRECT_PROFILE, "Ascend FR Direct Profile" },
-{ VENDOR_ASCEND_VSA_FR_DIRECT_DLCI, "Ascend FR Direct DLCI" },
-{ VENDOR_ASCEND_VSA_HANDLE_IPX, "Ascend Handle IPX" },
-{ VENDOR_ASCEND_VSA_NETWARE_TIMEOUT, "Ascend Netware timeout" },
-{ VENDOR_ASCEND_VSA_IPX_ALIAS, "Ascend IPX Alias" },
-{ VENDOR_ASCEND_VSA_METRIC, "Ascend Metric" },
-{ VENDOR_ASCEND_VSA_PRI_NUMBER_TYPE, "Ascend PRI Number Type" },
-{ VENDOR_ASCEND_VSA_DIAL_NUMBER, "Ascend Dial Number" },
-{ VENDOR_ASCEND_VSA_ROUTE_IP, "Ascend Route IP" },
-{ VENDOR_ASCEND_VSA_ROUTE_IPX, "Ascend Route IPX" },
-{ VENDOR_ASCEND_VSA_BRIDGE, "Ascend Bridge" },
-{ VENDOR_ASCEND_VSA_SEND_AUTH, "Ascend Send Auth" },
-{ VENDOR_ASCEND_VSA_SEND_PASSWD, "Ascend Send Passwd" },
-{ VENDOR_ASCEND_VSA_LINK_COMPRESSION, "Ascend Link Compression" },
-{ VENDOR_ASCEND_VSA_TARGET_UTIL, "Ascend Target Util" },
-{ VENDOR_ASCEND_VSA_MAXIMUM_CHANNELS, "Ascend Maximum Channels" },
-{ VENDOR_ASCEND_VSA_INC_CHANNEL_COUNT, "Ascend Inc Channel Count" },
-{ VENDOR_ASCEND_VSA_DEC_CHANNEL_COUNT, "Ascend Dec Channel Count" },
-{ VENDOR_ASCEND_VSA_SECONDS_OF_HISTORY, "Ascend Seconds Of History" },
-{ VENDOR_ASCEND_VSA_HISTORY_WEIGH_TYPE, "Ascend History Weigh Type" },
-{ VENDOR_ASCEND_VSA_ADD_SECONDS, "Ascend Add Seconds" },
-{ VENDOR_ASCEND_VSA_REMOVE_SECONDS, "Ascend Remove Seconds" },
-{ VENDOR_ASCEND_VSA_DATA_FILTER, "Ascend Data Filter" },
-{ VENDOR_ASCEND_VSA_CALL_FILTER, "Ascend Call Filter" },
-{ VENDOR_ASCEND_VSA_IDLE_LIMIT, "Ascend Idle Limit" },
-{ VENDOR_ASCEND_VSA_PREEMPT_LIMIT, "Ascend Preempt Limit" },
-{ VENDOR_ASCEND_VSA_CALLBACK, "Ascend Callback" },
-{ VENDOR_ASCEND_VSA_DATA_SVC, "Ascend Data Svc" },
-{ VENDOR_ASCEND_VSA_FORCE_56, "Ascend Force 56" },
-{ VENDOR_ASCEND_VSA_BILLING_NUMBER, "Ascend Billing Number" },
-{ VENDOR_ASCEND_VSA_CALL_BY_CALL, "Ascend Call By Call" },
-{ VENDOR_ASCEND_VSA_TRANSIT_NUMBER, "Ascend Transit Number" },
-{ VENDOR_ASCEND_VSA_HOST_INFO, "Ascend Host Info" },
-{ VENDOR_ASCEND_VSA_PPP_ADDRESS, "Ascend PPP Address" },
-{ VENDOR_ASCEND_VSA_MPP_IDLE_PERCENT, "Ascend MPP Idle Percent" },
-{ VENDOR_ASCEND_VSA_XMIT_RATE, "Ascend Xmit Rate" },
-{0,NULL},
+static value_string radius_vendor_microsoft_arap_pw_change_reason_vals[] =
+{
+  {1,	"Just-Change-Password"},
+  {2,	"Expired-Password"},
+  {3,	"Admin-Required-Password-Change"},
+  {4,	"Password-Too-Short"},
+  {0, NULL}
 };
 
-static value_string radius_vendor_ascend_calling_id_type_of_number_vals[]=
-{{0, "Unknown"},
-{1, "International Number"},
-{2, "National Number"},
-{3, "Network Specific"},
-{4, "Subscriber Number"},
-{6, "Abbreviated Number"},
-{0,NULL}};
-
-static value_string radius_vendor_ascend_calling_id_numbering_plan_vals[]=
-{{0, "Unknown"},
-{1, "ISDN Telephony"},
-{3, "Data"},
-{4, "Telex"},
-{8, "National"},
-{9, "Private"},
-{0,NULL}};
-
-static value_string radius_vendor_ascend_calling_id_presentation_vals[]=
-{{0, "Allowed"},
-{1, "Restricted"},
-{2, "Number Not Available"},
-{0,NULL}};
-
-static value_string radius_vendor_ascend_calling_id_screening_vals[]=
-{{0, "User Not Screened"},
-{1, "User Provided Passed"},
-{2, "User Provided Failed"},
-{3, "Network Provided"},
-{0,NULL}};
-
-#define VENDOR_COSINE_VSA_CONNECTION_PROFILE_NAME 1
-#define VENDOR_COSINE_VSA_ENTERPRISE_ID 2
-#define VENDOR_COSINE_VSA_ADDRESS_POOL_NAME 3
-#define VENDOR_COSINE_VSA_DS_BYTE 4
-#define VENDOR_COSINE_VSA_VPI_VCI 5
-#define VENDOR_COSINE_VSA_DLCI 6
-#define VENDOR_COSINE_VSA_LNS_IP_ADDRESS 7
-#define VENDOR_COSINE_VSA_CLI_USER_PERMISSION_ID 8
-
-static value_value_pair radius_vendor_cosine_printinfo[] = {
-{ VENDOR_COSINE_VSA_CONNECTION_PROFILE_NAME, RADIUS_STRING },
-{ VENDOR_COSINE_VSA_ENTERPRISE_ID, RADIUS_STRING },
-{ VENDOR_COSINE_VSA_ADDRESS_POOL_NAME, RADIUS_STRING },
-{ VENDOR_COSINE_VSA_DS_BYTE, RADIUS_INTEGER4 },
-{ VENDOR_COSINE_VSA_VPI_VCI, COSINE_VSA_VPI_VCI },
-{ VENDOR_COSINE_VSA_DLCI, RADIUS_INTEGER4 },
-{ VENDOR_COSINE_VSA_LNS_IP_ADDRESS, RADIUS_IP_ADDRESS },
-{ VENDOR_COSINE_VSA_CLI_USER_PERMISSION_ID, RADIUS_STRING },
-{0,0},
+static value_string radius_vendor_microsoft_acct_auth_type_vals[] =
+{
+  {1,	"PAP"},
+  {2,	"CHAP"},
+  {3,	"MS-CHAP-1"},
+  {4,	"MS-CHAP-2"},
+  {5,	"EAP"},
+  {0, NULL}
 };
 
-static value_string radius_vendor_cosine_types[]=
-{{VENDOR_COSINE_VSA_CONNECTION_PROFILE_NAME,"Connection Profile Name"},
-{VENDOR_COSINE_VSA_ENTERPRISE_ID,"Enterprise ID"},
-{VENDOR_COSINE_VSA_ADDRESS_POOL_NAME,"Address Pool Name"},
-{VENDOR_COSINE_VSA_DS_BYTE,"DS Byte"},
-{VENDOR_COSINE_VSA_VPI_VCI,"VPI/VCI"},
-{VENDOR_COSINE_VSA_DLCI,"DLCI"},
-{VENDOR_COSINE_VSA_LNS_IP_ADDRESS,"LNS IP Address"},
-{VENDOR_COSINE_VSA_CLI_USER_PERMISSION_ID,"CLI User Permission ID"},
-{0,NULL}};
+static value_string radius_vendor_microsoft_acct_eap_type_vals[] =
+{
+  {4,	"MD5"},
+  {5,	"OTP"},
+  {6,	"Generic-Token-Card"},
+  {13,	"TLS"},
+  {0, NULL}
+};
 
-#define VENDOR_ISSANNI_VSA_SOFTFLOW_TEMPLATE   1
-#define VENDOR_ISSANNI_VSA_NAT_POOL_NAME       2
-#define VENDOR_ISSANNI_VSA_VRD                 3
-#define VENDOR_ISSANNI_VSA_TUNNEL_NAME         4
-#define VENDOR_ISSANNI_VSA_IP_POOL_NAME        5
-#define VENDOR_ISSANNI_VSA_PPPOE_URL           6
-#define VENDOR_ISSANNI_VSA_PPPOE_MOTM          7
-#define VENDOR_ISSANNI_VSA_SERVICE             8
-#define VENDOR_ISSANNI_VSA_PRI_DNS             9
-#define VENDOR_ISSANNI_VSA_SEC_DNS             10
-#define VENDOR_ISSANNI_VSA_PRI_NBNS            11
-#define VENDOR_ISSANNI_VSA_SEC_NBNS            12
-#define VENDOR_ISSANNI_VSA_TRAFFIC_CLASS       13
-#define VENDOR_ISSANNI_VSA_TUNNEL_TYPE         14
-#define VENDOR_ISSANNI_VSA_NAT_TYPE            15
-#define VENDOR_ISSANNI_VSA_QOS_CLASS           16
-#define VENDOR_ISSANNI_VSA_IFACE_NAME          17
+static value_value_string radius_vendor_ascend_attrib[] =
+{
+  {7,	RADIUS_STRING,		"Ascend UU Info"},
+  {9,	RADIUS_INTEGER4,	"Ascend CIR Timer"},
+  {10,	RADIUS_INTEGER4,	"Ascend FR 08 Mode"},
+  {11,	RADIUS_INTEGER4,	"Ascend Destination Nas Port"},
+  {12,	RADIUS_STRING,		"Ascend FR SVC Addr"},
+  {13,	RADIUS_INTEGER4,	"Ascend NAS Port Format"},
+  {14,	RADIUS_INTEGER4,	"Ascend ATM Fault Management"},
+  {15,	RADIUS_INTEGER4,	"Ascend ATM Loopback Cell Loss"},
+  {16,	RADIUS_INTEGER4,	"Ascend Ckt Type"},
+  {17,	RADIUS_INTEGER4,	"Ascend SVC Enabled"},
+  {18,	RADIUS_INTEGER4,	"Ascend Session Type"},
+  {19,	RADIUS_IP_ADDRESS,	"Ascend H323 Gatekeeper"},
+  {20,	RADIUS_STRING,		"Ascend Global Call Id"},
+  {21,	RADIUS_INTEGER4,	"Ascend H323 Conference Id"},
+  {22,	RADIUS_IP_ADDRESS,	"Ascend H323 Fegw Address"},
+  {23,	RADIUS_INTEGER4,	"Ascend H323 Dialed Time"},
+  {24,	RADIUS_STRING,		"Ascend Dialed Number"},
+  {25,	RADIUS_INTEGER4,	"Ascend Inter Arrival Jitter"},
+  {26,	RADIUS_INTEGER4,	"Ascend Dropped Octets"},
+  {27,	RADIUS_INTEGER4,	"Ascend Dropped Packets"},
+  {29,	RADIUS_INTEGER4,	"Ascend X25 Pad X3 Profile"},
+  {30,	RADIUS_STRING,		"Ascend X25 Pad X3 Parameters"},
+  {31,	RADIUS_STRING,		"Ascend Tunnel VRouter Name"},
+  {32,	RADIUS_INTEGER4,	"Ascend X25 Reverse Charging"},
+  {33,	RADIUS_STRING,		"Ascend X25 Nui Prompt"},
+  {34,	RADIUS_STRING,		"Ascend X25 Nui Password Prompt"},
+  {35,	RADIUS_STRING,		"Ascend X25 Cug"},
+  {36,	RADIUS_STRING,		"Ascend X25 Pad Alias 1"},
+  {37,	RADIUS_STRING,		"Ascend X25 Pad Alias 2"},
+  {38,	RADIUS_STRING,		"Ascend X25 Pad Alias 3"},
+  {39,	RADIUS_STRING,		"Ascend X25 X121 Address"},
+  {40,	RADIUS_STRING,		"Ascend X25 Nui"},
+  {41,	RADIUS_STRING,		"Ascend X25 Rpoa"},
+  {42,	RADIUS_STRING,		"Ascend X25 Pad Prompt"},
+  {43,	RADIUS_STRING,		"Ascend X25 Pad Banner"},
+  {44,	RADIUS_STRING,		"Ascend X25 Profile Name"},
+  {45,	RADIUS_STRING,		"Ascend Recv Name"},
+  {46,	RADIUS_INTEGER4,	"Ascend Bi Directional Auth"},
+  {47,	RADIUS_INTEGER4,	"Ascend MTU"},
+  {48,	RADIUS_INTEGER4,	"Ascend Call Direction"},
+  {49,	RADIUS_INTEGER4,	"Ascend Service Type"},
+  {50,	RADIUS_INTEGER4,	"Ascend Filter Required"},
+  {51,	RADIUS_INTEGER4,	"Ascend Traffic Shaper"},
+  {52,	RADIUS_STRING,		"Ascend Access Intercept LEA"},
+  {53,	RADIUS_STRING,		"Ascend Access Intercept Log"},
+  {54,	RADIUS_STRING,		"Ascend Private Route Table ID"},
+  {55,	RADIUS_INTEGER4,	"Ascend Private Route Required"},
+  {56,	RADIUS_INTEGER4,	"Ascend Cache Refresh"},
+  {57,	RADIUS_INTEGER4,	"Ascend Cache Time"},
+  {58,	RADIUS_INTEGER4,	"Ascend Egress Enabled"},
+  {59,	RADIUS_STRING,		"Ascend QOS Upstream"},
+  {60,	RADIUS_STRING,		"Ascend QOS Downstream"},
+  {61,	RADIUS_INTEGER4,	"Ascend ATM Connect Vpi"},
+  {62,	RADIUS_INTEGER4,	"Ascend ATM Connect Vci"},
+  {63,	RADIUS_INTEGER4,	"Ascend ATM Connect Group"},
+  {64,	RADIUS_INTEGER4,	"Ascend ATM Group"},
+  {65,	RADIUS_INTEGER4,	"Ascend IPX Header Compression"},
+  {66,	ASCEND_CALLING_ID_TYPE_OF_NUMBER,	"Ascend Calling Id Type Of Number"},
+  {67,	ASCEND_CALLING_ID_NUMBERING_PLAN,	"Ascend Calling Id Numbering Plan"},
+  {68,	ASCEND_CALLING_ID_PRESENTATION,		"Ascend Calling Id Presentation"},
+  {69,	ASCEND_CALLING_ID_SCREENING,		"Ascend Calling Id Screening"},
+  {70,	RADIUS_INTEGER4,	"Ascend BIR Enable"},
+  {71,	RADIUS_INTEGER4,	"Ascend BIR Proxy"},
+  {72,	RADIUS_INTEGER4,	"Ascend BIR Bridge Group"},
+  {73,	RADIUS_STRING,		"Ascend IPSEC Profile"},
+  {74,	RADIUS_INTEGER4,	"Ascend PPPoE Enable"},
+  {75,	RADIUS_INTEGER4,	"Ascend Bridge Non PPPoE"},
+  {76,	RADIUS_INTEGER4,	"Ascend ATM Direct"},
+  {77,	RADIUS_STRING,		"Ascend ATM Direct Profile"},
+  {78,	RADIUS_IP_ADDRESS,	"Ascend Client Primary WINS"},
+  {79,	RADIUS_IP_ADDRESS,	"Ascend Client Secondary WINS"},
+  {80,	RADIUS_INTEGER4,	"Ascend Client Assign WINS"},
+  {81,	RADIUS_INTEGER4,	"Ascend Auth Type"},
+  {82,	RADIUS_INTEGER4,	"Ascend Port Redir Protocol"},
+  {83,	RADIUS_INTEGER4,	"Ascend Port Redir Portnum"},
+  {84,	RADIUS_IP_ADDRESS,	"Ascend Port Redir Server"},
+  {85,	RADIUS_INTEGER4,	"Ascend IP Pool Chaining"},
+  {86,	RADIUS_IP_ADDRESS,	"Ascend Owner IP Addr"},
+  {87,	RADIUS_INTEGER4,	"Ascend IP TOS"},
+  {88,	RADIUS_INTEGER4,	"Ascend IP TOS Precedence"},
+  {89,	RADIUS_INTEGER4,	"Ascend IP TOS Apply To"},
+  {90,	RADIUS_STRING,		"Ascend Filter"},
+  {91,	RADIUS_STRING,		"Ascend Telnet Profile"},
+  {92,	RADIUS_INTEGER4,	"Ascend Dsl Rate Type"},
+  {93,	RADIUS_STRING,		"Ascend Redirect Number"},
+  {94,	RADIUS_INTEGER4,	"Ascend ATM Vpi"},
+  {95,	RADIUS_INTEGER4,	"Ascend ATM Vci"},
+  {96,	RADIUS_INTEGER4,	"Ascend Source IP Check"},
+  {97,	RADIUS_INTEGER4,	"Ascend Dsl Rate Mode"},
+  {98,	RADIUS_INTEGER4,	"Ascend Dsl Upstream Limit"},
+  {99,	RADIUS_INTEGER4,	"Ascend Dsl Downstream Limit"},
+  {100,	RADIUS_INTEGER4,	"Ascend Dsl CIR Recv Limit"},
+  {101,	RADIUS_INTEGER4,	"Ascend Dsl CIR Xmit Limit"},
+  {102,	RADIUS_STRING,		"Ascend VRouter Name"},
+  {103,	RADIUS_STRING,		"Ascend Source Auth"},
+  {104,	RADIUS_STRING,		"Ascend Private Route"},
+  {105,	RADIUS_INTEGER4,	"Ascend Numbering Plan ID"},
+  {106,	RADIUS_INTEGER4,	"Ascend FR Link Status DLCI"},
+  {107,	RADIUS_STRING,		"Ascend Calling Subaddress"},
+  {108,	RADIUS_INTEGER4,	"Ascend Callback Delay"},
+  {109,	RADIUS_STRING,		"Ascend Endpoint Disc"},
+  {110,	RADIUS_STRING,		"Ascend Remote FW"},
+  {111,	RADIUS_INTEGER4,	"Ascend Multicast GLeave Delay"},
+  {112,	RADIUS_INTEGER4,	"Ascend CBCP Enable"},
+  {113,	RADIUS_INTEGER4,	"Ascend CBCP Mode"},
+  {114,	RADIUS_INTEGER4,	"Ascend CBCP Delay"},
+  {115,	RADIUS_INTEGER4,	"Ascend CBCP Trunk Group"},
+  {116,	RADIUS_STRING,		"Ascend Appletalk Route"},
+  {117,	RADIUS_INTEGER4,	"Ascend Appletalk Peer Mode"},
+  {118,	RADIUS_INTEGER4,	"Ascend Route Appletalk"},
+  {119,	RADIUS_STRING,		"Ascend FCP Parameter"},
+  {120,	RADIUS_INTEGER4,	"Ascend Modem Port No"},
+  {121,	RADIUS_INTEGER4,	"Ascend Modem Slot No"},
+  {122,	RADIUS_INTEGER4,	"Ascend Modem Shelf No"},
+  {123,	RADIUS_INTEGER4,	"Ascend Call Attempt Limit"},
+  {124,	RADIUS_INTEGER4,	"Ascend Call Block Duration"},
+  {125,	RADIUS_INTEGER4,	"Ascend Maximum Call Duration"},
+  {126,	RADIUS_INTEGER4,	"Ascend Temporary Rtes"},
+  {127,	RADIUS_INTEGER4,	"Ascend Tunneling Protocol"},
+  {128,	RADIUS_INTEGER4,	"Ascend Shared Profile Enable"},
+  {129,	RADIUS_STRING,		"Ascend Primary Home Agent"},
+  {130,	RADIUS_STRING,		"Ascend Secondary Home Agent"},
+  {131,	RADIUS_INTEGER4,	"Ascend Dialout Allowed"},
+  {132,	RADIUS_IP_ADDRESS,	"Ascend Client Gateway"},
+  {133,	RADIUS_INTEGER4,	"Ascend BACP Enable"},
+  {134,	RADIUS_INTEGER4,	"Ascend DHCP Maximum Leases"},
+  {135,	RADIUS_IP_ADDRESS,	"Ascend Client Primary DNS"},
+  {136,	RADIUS_IP_ADDRESS,	"Ascend Client Secondary DNS"},
+  {137,	RADIUS_INTEGER4,	"Ascend Client Assign DNS"},
+  {138,	RADIUS_INTEGER4,	"Ascend User Acct Type"},
+  {139,	RADIUS_IP_ADDRESS,	"Ascend User Acct Host"},
+  {140,	RADIUS_INTEGER4,	"Ascend User Acct Port"},
+  {141,	RADIUS_STRING,		"Ascend User Acct Key"},
+  {142,	RADIUS_INTEGER4,	"Ascend User Acct Base"},
+  {143,	RADIUS_INTEGER4,	"Ascend User Acct Time"},
+  {144,	RADIUS_IP_ADDRESS,	"Ascend Assign IP Client"},
+  {145,	RADIUS_IP_ADDRESS,	"Ascend Assign IP Server"},
+  {146,	RADIUS_STRING,		"Ascend Assign IP Global Pool"},
+  {147,	RADIUS_INTEGER4,	"Ascend DHCP Reply"},
+  {148,	RADIUS_INTEGER4,	"Ascend DHCP Pool Number"},
+  {149,	RADIUS_INTEGER4,	"Ascend Expect Callback"},
+  {150,	RADIUS_INTEGER4,	"Ascend Event Type"},
+  {151,	RADIUS_STRING,		"Ascend Session Svr Key"},
+  {152,	RADIUS_INTEGER4,	"Ascend Multicast Rate Limit"},
+  {153,	RADIUS_IP_ADDRESS,	"Ascend IF Netmask"},
+  {154,	RADIUS_IP_ADDRESS,	"Ascend Remote Addr"},
+  {155,	RADIUS_INTEGER4,	"Ascend Multicast Client"},
+  {156,	RADIUS_STRING,		"Ascend FR Circuit Name"},
+  {157,	RADIUS_INTEGER4,	"Ascend FR LinkUp"},
+  {158,	RADIUS_INTEGER4,	"Ascend FR Nailed Grp"},
+  {159,	RADIUS_INTEGER4,	"Ascend FR Type"},
+  {160,	RADIUS_INTEGER4,	"Ascend FR Link Mgt"},
+  {161,	RADIUS_INTEGER4,	"Ascend FR N391"},
+  {162,	RADIUS_INTEGER4,	"Ascend FR DCE N392"},
+  {163,	RADIUS_INTEGER4,	"Ascend FR DTE N392"},
+  {164,	RADIUS_INTEGER4,	"Ascend FR DCE N393"},
+  {165,	RADIUS_INTEGER4,	"Ascend FR DTE N393"},
+  {166,	RADIUS_INTEGER4,	"Ascend FR T391"},
+  {167,	RADIUS_INTEGER4,	"Ascend FR T392"},
+  {168,	RADIUS_STRING,		"Ascend Bridge Address"},
+  {169,	RADIUS_INTEGER4,	"Ascend TS Idle Limit"},
+  {170,	RADIUS_INTEGER4,	"Ascend TS Idle Mode"},
+  {171,	RADIUS_INTEGER4,	"Ascend DBA Monitor"},
+  {172,	RADIUS_INTEGER4,	"Ascend Base Channel Count"},
+  {173,	RADIUS_INTEGER4,	"Ascend Minimum Channels"},
+  {174,	RADIUS_STRING,		"Ascend IPX Route"},
+  {175,	RADIUS_INTEGER4,	"Ascend FT1 Caller"},
+  {176,	RADIUS_STRING,		"Ascend Backup"},
+  {177,	RADIUS_INTEGER4,	"Ascend Call Type"},
+  {178,	RADIUS_STRING,		"Ascend Group"},
+  {179,	RADIUS_INTEGER4,	"Ascend FR DLCI"},
+  {180,	RADIUS_STRING,		"Ascend FR Profile Name"},
+  {181,	RADIUS_STRING,		"Ascend Ara PW"},
+  {182,	RADIUS_STRING,		"Ascend IPX Node Addr"},
+  {183,	RADIUS_IP_ADDRESS,	"Ascend Home Agent IP Addr"},
+  {184,	RADIUS_STRING,		"Ascend Home Agent Password"},
+  {185,	RADIUS_STRING,		"Ascend Home Network Name"},
+  {186,	RADIUS_INTEGER4,	"Ascend Home Agent UDP Port"},
+  {187,	RADIUS_INTEGER4,	"Ascend Multilink ID"},
+  {188,	RADIUS_INTEGER4,	"Ascend Num In Multilink"},
+  {189,	RADIUS_IP_ADDRESS,	"Ascend First Dest"},
+  {190,	RADIUS_INTEGER4,	"Ascend Pre Input Octets"},
+  {191,	RADIUS_INTEGER4,	"Ascend Pre Output Octets"},
+  {192,	RADIUS_INTEGER4,	"Ascend Pre Input Packets"},
+  {193,	RADIUS_INTEGER4,	"Ascend Pre Output Packets"},
+  {194,	RADIUS_INTEGER4,	"Ascend Maximum Time"},
+  {195,	RADIUS_INTEGER4,	"Ascend Disconnect Cause"},
+  {196,	RADIUS_INTEGER4,	"Ascend Connect Progress"},
+  {197,	RADIUS_INTEGER4,	"Ascend Data Rate"},
+  {198,	RADIUS_INTEGER4,	"Ascend PreSession Time"},
+  {199,	RADIUS_INTEGER4,	"Ascend Token Idle"},
+  {200,	RADIUS_INTEGER4,	"Ascend Token Immediate"},
+  {201,	RADIUS_INTEGER4,	"Ascend Require Auth"},
+  {202,	RADIUS_STRING,		"Ascend Number Sessions"},
+  {203,	RADIUS_STRING,		"Ascend Authen Alias"},
+  {204,	RADIUS_INTEGER4,	"Ascend Token Expiry"},
+  {205,	RADIUS_STRING,		"Ascend Menu Selector"},
+  {206,	RADIUS_STRING,		"Ascend Menu Item"},
+  {207,	RADIUS_INTEGER4,	"Ascend PW Warntime"},
+  {208,	RADIUS_INTEGER4,	"Ascend PW Lifetime"},
+  {209,	RADIUS_IP_ADDRESS,	"Ascend IP Direct"},
+  {210,	RADIUS_INTEGER4,	"Ascend PPP VJ Slot Comp"},
+  {211,	RADIUS_INTEGER4,	"Ascend PPP VJ 1172"},
+  {212,	RADIUS_INTEGER4,	"Ascend PPP Async Map"},
+  {213,	RADIUS_STRING,		"Ascend Third Prompt"},
+  {214,	RADIUS_STRING,		"Ascend Send Secret"},
+  {215,	RADIUS_STRING,		"Ascend Receive Secret"},
+  {216,	RADIUS_INTEGER4,	"Ascend IPX Peer Mode"},
+  {217,	RADIUS_STRING,		"Ascend IP Pool Definition"},
+  {218,	RADIUS_INTEGER4,	"Ascend Assign IP Pool"},
+  {219,	RADIUS_INTEGER4,	"Ascend FR Direct"},
+  {220,	RADIUS_STRING,		"Ascend FR Direct Profile"},
+  {221,	RADIUS_INTEGER4,	"Ascend FR Direct DLCI"},
+  {222,	RADIUS_INTEGER4,	"Ascend Handle IPX"},
+  {223,	RADIUS_INTEGER4,	"Ascend Netware timeout"},
+  {224,	RADIUS_INTEGER4,	"Ascend IPX Alias"},
+  {225,	RADIUS_INTEGER4,	"Ascend Metric"},
+  {226,	RADIUS_INTEGER4,	"Ascend PRI Number Type"},
+  {227,	RADIUS_STRING,		"Ascend Dial Number"},
+  {228,	RADIUS_INTEGER4,	"Ascend Route IP"},
+  {229,	RADIUS_INTEGER4,	"Ascend Route IPX"},
+  {230,	RADIUS_INTEGER4,	"Ascend Bridge"},
+  {231,	RADIUS_INTEGER4,	"Ascend Send Auth"},
+  {232,	RADIUS_STRING,		"Ascend Send Passwd"},
+  {233,	RADIUS_INTEGER4,	"Ascend Link Compression"},
+  {234,	RADIUS_INTEGER4,	"Ascend Target Util"},
+  {235,	RADIUS_INTEGER4,	"Ascend Maximum Channels"},
+  {236,	RADIUS_INTEGER4,	"Ascend Inc Channel Count"},
+  {237,	RADIUS_INTEGER4,	"Ascend Dec Channel Count"},
+  {238,	RADIUS_INTEGER4,	"Ascend Seconds Of History"},
+  {239,	RADIUS_INTEGER4,	"Ascend History Weigh Type"},
+  {240,	RADIUS_INTEGER4,	"Ascend Add Seconds"},
+  {241,	RADIUS_INTEGER4,	"Ascend Remove Seconds"},
+  {242,	RADIUS_BINSTRING,	"Ascend Data Filter"},
+  {243,	RADIUS_BINSTRING,	"Ascend Call Filter"},
+  {244,	RADIUS_INTEGER4,	"Ascend Idle Limit"},
+  {245,	RADIUS_INTEGER4,	"Ascend Preempt Limit"},
+  {246,	RADIUS_INTEGER4,	"Ascend Callback"},
+  {247,	RADIUS_INTEGER4,	"Ascend Data Svc"},
+  {248,	RADIUS_INTEGER4,	"Ascend Force 56"},
+  {249,	RADIUS_STRING,		"Ascend Billing Number"},
+  {250,	RADIUS_INTEGER4,	"Ascend Call By Call"},
+  {251,	RADIUS_STRING,		"Ascend Transit Number"},
+  {252,	RADIUS_STRING,		"Ascend Host Info"},
+  {253,	RADIUS_IP_ADDRESS,	"Ascend PPP Address"},
+  {254,	RADIUS_INTEGER4,	"Ascend MPP Idle Percent"},
+  {255,	RADIUS_INTEGER4,	"Ascend Xmit Rate"},
+  {0, 0, NULL}
+};
 
-static value_value_pair radius_vendor_issanni_printinfo[]=
-{{VENDOR_ISSANNI_VSA_SOFTFLOW_TEMPLATE,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_NAT_POOL_NAME,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_VRD,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_TUNNEL_NAME,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_IP_POOL_NAME,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_PPPOE_URL,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_PPPOE_MOTM,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_SERVICE,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_PRI_DNS,RADIUS_IP_ADDRESS},
-{VENDOR_ISSANNI_VSA_SEC_DNS,RADIUS_IP_ADDRESS},
-{VENDOR_ISSANNI_VSA_PRI_NBNS,RADIUS_IP_ADDRESS},
-{VENDOR_ISSANNI_VSA_SEC_NBNS,RADIUS_IP_ADDRESS},
-{VENDOR_ISSANNI_VSA_TRAFFIC_CLASS,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_TUNNEL_TYPE,RADIUS_INTEGER4},
-{VENDOR_ISSANNI_VSA_NAT_TYPE,RADIUS_INTEGER4},
-{VENDOR_ISSANNI_VSA_QOS_CLASS,RADIUS_STRING},
-{VENDOR_ISSANNI_VSA_IFACE_NAME,RADIUS_STRING},
-{0,0}};
+static value_string radius_vendor_ascend_calling_id_type_of_number_vals[] =
+{
+  {0,	"Unknown"},
+  {1,	"International Number"},
+  {2,	"National Number"},
+  {3,	"Network Specific"},
+  {4,	"Subscriber Number"},
+  {6,	"Abbreviated Number"},
+  {0, NULL}
+};
 
-static value_string radius_vendor_issanni_types[]=
-{{VENDOR_ISSANNI_VSA_SOFTFLOW_TEMPLATE,"Softflow Template"},
-{VENDOR_ISSANNI_VSA_NAT_POOL_NAME,"NAT Pool"},
-{VENDOR_ISSANNI_VSA_VRD,"Virtual Routing Domain"},
-{VENDOR_ISSANNI_VSA_TUNNEL_NAME,"Tunnel Name"},
-{VENDOR_ISSANNI_VSA_IP_POOL_NAME,"IP Pool Name"},
-{VENDOR_ISSANNI_VSA_PPPOE_URL,"PPPoE URL"},
-{VENDOR_ISSANNI_VSA_PPPOE_MOTM,"PPPoE MOTM"},
-{VENDOR_ISSANNI_VSA_SERVICE,"PPPoE Service"},
-{VENDOR_ISSANNI_VSA_PRI_DNS,"Primary DNS"},
-{VENDOR_ISSANNI_VSA_SEC_DNS,"Secondary DNS"},
-{VENDOR_ISSANNI_VSA_PRI_NBNS,"Primary NBNS"},
-{VENDOR_ISSANNI_VSA_SEC_NBNS,"Secondary NBNS"},
-{VENDOR_ISSANNI_VSA_TRAFFIC_CLASS,"Policing Traffic Class"},
-{VENDOR_ISSANNI_VSA_TUNNEL_TYPE,"Tunnel Type"},
-{VENDOR_ISSANNI_VSA_NAT_TYPE,"NAT Type"},
-{VENDOR_ISSANNI_VSA_QOS_CLASS,"QoS Traffic Class"},
-{VENDOR_ISSANNI_VSA_IFACE_NAME,"Interface Name"},
-{0,NULL}};
+static value_string radius_vendor_ascend_calling_id_numbering_plan_vals[] =
+{
+  {0,	"Unknown"},
+  {1,	"ISDN Telephony"},
+  {3,	"Data"},
+  {4,	"Telex"},
+  {8,	"National"},
+  {9,	"Private"},
+  {0, NULL}
+};
 
-static value_string radius_framed_protocol_vals[]=
-{{1, "PPP"},
-{2, "SLIP"},
-{3, "Appletalk Remote Access Protocol (ARAP)"},
-{4, "Gandalf proprietary Singlelink/Multilink Protocol"},
-{5, "Xylogics proprietary IPX/SLIP"},
-{6, "X.75 Synchronous"},
-{255, "Ascend ARA"},
-{256, "Ascend MPP"},
-{257, "Ascend EURAW"},
-{258, "Ascend EUUI"},
-{259, "Ascend X25"},
-{260, "Ascend COMB"},
-{261, "Ascend FR"},
-{262, "Ascend MP"},
-{263, "Ascend FR-CIR"},
-{264, "Ascend ATM-1483"},
-{265, "Ascend ATM-FR-CIR"},
-{0,NULL}};
+static value_string radius_vendor_ascend_calling_id_presentation_vals[] =
+{
+  {0,	"Allowed"},
+  {1,	"Restricted"},
+  {2,	"Number Not Available"},
+  {0, NULL}
+};
 
-static value_string radius_framed_routing_vals[]=
-{{1, "Send Routing Packets"},
-{2, "Listen for routing packets"},
-{3, "Send and Listen"},
-{0,"None"},
-{0,NULL}};
+static value_string radius_vendor_ascend_calling_id_screening_vals[] =
+{
+  {0,	"User Not Screened"},
+  {1,	"User Provided Passed"},
+  {2,	"User Provided Failed"},
+  {3,	"Network Provided"},
+  {0, NULL}
+};
 
-static value_string radius_framed_compression_vals[]=
-{{1, "VJ TCP/IP Header Compression"},
-{2, "IPX Header Compression"},
-{3, "Stac-LZS compression"},
-{0, "None"},
-{0,NULL}};
+static value_value_string radius_vendor_cosine_attrib[] =
+{
+  {1,	RADIUS_STRING,		"Connection Profile Name"},
+  {2,	RADIUS_STRING,		"Enterprise ID"},
+  {3,	RADIUS_STRING,		"Address Pool Name"},
+  {4,	RADIUS_INTEGER4,	"DS Byte"},
+  {5,	COSINE_VPI_VCI,		"VPI/VCI"},
+  {6,	RADIUS_INTEGER4,	"DLCI"},
+  {7,	RADIUS_IP_ADDRESS,	"LNS IP Address"},
+  {8,	RADIUS_STRING,		"CLI User Permission ID"},
+  {0, 0, NULL}
+};
 
-static value_string radius_login_service_vals[]=
-{{1, "Rlogin"},
-{2, "TCP Clear"},
-{3, "Portmaster"},
-{4, "LAT"},
-{5, "X.25-PAD"},
-{6, "X.25T3POS"},
-{8, "TCP Clear Quit"},
-{0, "Telnet"},
-{0,NULL}};
+static value_value_string radius_vendor_issanni_attrib[] =
+{
+  {1,	RADIUS_STRING,		"Softflow Template"},
+  {2,	RADIUS_STRING,		"NAT Pool"},
+  {3,	RADIUS_STRING,		"Virtual Routing Domain"},
+  {4,	RADIUS_STRING,		"Tunnel Name"},
+  {5,	RADIUS_STRING,		"IP Pool Name"},
+  {6,	RADIUS_STRING,		"PPPoE URL"},
+  {7,	RADIUS_STRING,		"PPPoE MOTM"},
+  {8,	RADIUS_STRING,		"PPPoE Service"},
+  {9,	RADIUS_IP_ADDRESS,	"Primary DNS"},
+  {10,	RADIUS_IP_ADDRESS,	"Secondary DNS"},
+  {11,	RADIUS_IP_ADDRESS,	"Primary NBNS"},
+  {12,	RADIUS_IP_ADDRESS,	"Secondary NBNS"},
+  {13,	RADIUS_STRING,		"Policing Traffic Class"},
+  {14,	RADIUS_INTEGER4,	"Tunnel Type"},
+  {15,	RADIUS_INTEGER4,	"NAT Type"},
+  {16,	RADIUS_STRING,		"QoS Traffic Class"},
+  {17,	RADIUS_STRING,		"Interface Name"},
+  {0, 0, NULL}
+};
 
-static value_string radius_terminating_action_vals[]=
-{{1, "RADIUS-Request"},
-{0, "Default"},
-{0,NULL}};
-
-static value_string radius_accounting_status_type_vals[]=
-{{1, "Start"},
-{2, "Stop"},
-{3, "Interim-Update"},
-{7,"Accounting-On"},
-{8,"Accounting-Off"},
-{9, "Tunnel-Start"}, /* Tunnel accounting */
-{10, "Tunnel-Stop"}, /* Tunnel accounting */
-{11, "Tunnel-Reject"}, /* Tunnel accounting */
-{12, "Tunnel-Link-Start"}, /* Tunnel accounting */
-{13, "Tunnel-Link-Stop"}, /* Tunnel accounting */
-{14, "Tunnel-Link-Reject"}, /* Tunnel accounting */
-{0,NULL}};
-
-static value_string radius_accounting_authentication_vals[]=
-{{1, "Radius"},
-{2, "Local"},
-{3,"Remote"},
-/* RFC 2866 says 3 is Remote. Is 7 a mistake? */
-{7,"Remote"},
-{0,NULL}};
-
-static value_string radius_acct_terminate_cause_vals[]=
-{{1, "User Request"},
-{2, "Lost Carrier"},
-{3,"Lost Service"},
-{4, "Idle Timeout"},
-{5,"Session Timeout"},
-{6, "Admin Reset"},
-{7, "Admin Reboot"},
-{8, "Port Error"},
-{9, "NAS Error"},
-{10, "NAS Request"},
-{11,"NAS Reboot"},
-{12, "Port Unneeded"},
-{13, "Port Preempted"},
-{14,"Port Suspended"},
-{15,"Service Unavailable"},
-{16,"Callback"},
-{17, "User Error"},
-{18,"Host Request"},
-{0,NULL}};
-
-static value_string radius_tunnel_type_vals[]=
-{{1,"PPTP"},
-{2,"L2F"},
-{3,"L2TP"},
-{4,"ATMP"},
-{5,"VTP"},
-{6,"AH"},
-{7,"IP-IP-Encap"},
-{8,"MIN-IP-IP"},
-{9,"ESP"},
-{10,"GRE"},
-{11,"DVS"},
-{12,"IP-IP"},
-{0,NULL}};
-
-static value_string radius_tunnel_medium_type_vals[]=
-{{1,"IPv4"}, 
-{2,"IPv6"},
-{3,"NSAP"},
-{4,"HDLC"},
-{5,"BBN"},
-{6,"IEEE-802"},
-{7,"E-163"},
-{8,"E-164"},
-{9,"F-69"},
-{10,"X-121"},
-{11,"IPX"},
-{12,"Appletalk"},
-{13,"Decnet4"},
-{14,"Vines"},
-{15,"E-164-NSAP"},
-{0,NULL}};
-
-static value_string radius_nas_port_type_vals[]=
-{{0, "Async"},
-{1, "Sync"},
-{2,"ISDN Sync"},
-{3, "ISDN Async V.120"},
-{4,"ISDN Async V.110"},
-{5, "Virtual"},
-{6, "PIAFS"},
-{7, "HDLC Clear Channel"},
-{8, "X.25"},
-{9,"X.75"},
-{10, "G.3 Fax"},
-{11,"SDSL"},
-{12, "ADSL-CAP"},
-{13, "ADSL-DMT"},
-{14,"IDSL - ISDN"},
-{15,"Ethernet"},
-{16,"xDSL"},
-{17,"Cable"},
-{18,"Wireless Other"},
-{19,"Wireless IEEE 802.11"},
-{0,NULL}};
+static rd_vsa_table radius_vsa_table[] =
+{
+  {VENDOR_CISCO,	radius_vendor_cisco_attrib},
+  {VENDOR_MICROSOFT,	radius_vendor_microsoft_attrib},
+  {VENDOR_ASCEND,	radius_vendor_ascend_attrib},
+  {VENDOR_COSINE,	radius_vendor_cosine_attrib},
+  {VENDOR_ISSANNI,	radius_vendor_issanni_attrib},
+  {0, NULL},
+};
 
 /*
  * XXX - should these be read from files, such as FreeRadius dictionary
- * files?  For example, its "dictionary" file has
- *
- *	ATTRIBUTE       User-Name               1       string
- *
- * for RD_TP_USER_NAME.
- *
- * "string" -> RADIUS_STRING
- * "octets" -> RADIUS_BINSTRING
- * "integer" -> RADIUS_INTEGER4
- * "ipaddr" -> RADIUS_IP_ADDRESS
- *
- * Entries such as
+ * files?  For example, its "dictionary" file has entries such as
  *
  *	VALUE           Service-Type            Login-User              1
  *
- * handle translation of integral values to strings, e.g. that one for
- * "Service-Type".
+ * to handle translation of integral values to strings.
  */
-static value_value_pair radius_printinfo[] = {
-{ RD_TP_USER_NAME, RADIUS_STRING },
-{ RD_TP_USER_PASSWORD,RADIUS_BINSTRING },
-{ RD_TP_CHAP_PASSWORD, RADIUS_BINSTRING },
-{ RD_TP_NAS_IP_ADDRESS, RADIUS_IP_ADDRESS },
-{ RD_TP_NAS_PORT, RADIUS_INTEGER4},
-{ RD_TP_SERVICE_TYPE, RADIUS_SERVICE_TYPE},
-{ RD_TP_FRAMED_PROTOCOL, RADIUS_FRAMED_PROTOCOL},
-{ RD_TP_FRAMED_IP_ADDRESS, RADIUS_IP_ADDRESS},
-{ RD_TP_FRAMED_IP_NETMASK, RADIUS_IP_ADDRESS},
-{ RD_TP_FRAMED_ROUTING, RADIUS_FRAMED_ROUTING},
-{ RD_TP_FILTER_ID, RADIUS_STRING},
-{ RD_TP_FRAMED_MTU, RADIUS_INTEGER4},
-{ RD_TP_FRAMED_COMPRESSION, RADIUS_FRAMED_COMPRESSION},
-{ RD_TP_LOGIN_IP_HOST, RADIUS_IP_ADDRESS},
-{ RD_TP_LOGIN_SERVICE, RADIUS_LOGIN_SERVICE},
-{ RD_TP_LOGIN_TCP_PORT, RADIUS_INTEGER4},
-{ RD_TP_UNASSIGNED, RADIUS_UNKNOWN},
-{ RD_TP_REPLY_MESSAGE, RADIUS_STRING},
-{ RD_TP_CALLBACK_NUMBER, RADIUS_BINSTRING},
-{ RD_TP_CALLBACK_ID, RADIUS_BINSTRING},
-{ RD_TP_UNASSIGNED2, RADIUS_UNKNOWN},
-{ RD_TP_FRAMED_ROUTE, RADIUS_STRING},
-{ RD_TP_FRAMED_IPX_NETWORK, RADIUS_IPX_ADDRESS},
-{ RD_TP_STATE, RADIUS_BINSTRING},
-{ RD_TP_CLASS, RADIUS_STRING},
-{ RD_TP_VENDOR_SPECIFIC, RADIUS_VENDOR_SPECIFIC},
-{ RD_TP_SESSION_TIMEOUT, RADIUS_INTEGER4},
-{ RD_TP_IDLE_TIMEOUT, RADIUS_INTEGER4},
-{ RD_TP_TERMINATING_ACTION, RADIUS_TERMINATING_ACTION},
-{ RD_TP_CALLED_STATION_ID, RADIUS_STRING},
-{ RD_TP_CALLING_STATION_ID, RADIUS_STRING},
-{ RD_TP_NAS_IDENTIFIER, RADIUS_STRING},
-{ RD_TP_PROXY_STATE, RADIUS_BINSTRING},
-{ RD_TP_LOGIN_LAT_SERVICE, RADIUS_BINSTRING},
-{ RD_TP_LOGIN_LAT_NODE, RADIUS_BINSTRING},
-{ RD_TP_LOGIN_LAT_GROUP, RADIUS_BINSTRING},
-{ RD_TP_FRAMED_APPLETALK_LINK, RADIUS_INTEGER4},
-{ RD_TP_FRAMED_APPLETALK_NETWORK, RADIUS_INTEGER4},
-{ RD_TP_FRAMED_APPLETALK_ZONE, RADIUS_BINSTRING},
-{ RD_TP_ACCT_STATUS_TYPE, RADIUS_ACCOUNTING_STATUS_TYPE},
-{ RD_TP_ACCT_DELAY_TIME, RADIUS_INTEGER4},
-{ RD_TP_ACCT_INPUT_OCTETS, RADIUS_INTEGER4},
-{ RD_TP_ACCT_OUTPUT_OCTETS, RADIUS_INTEGER4},
-{ RD_TP_ACCT_SESSION_ID, RADIUS_STRING},
-{ RD_TP_ACCT_AUTHENTIC, RADIUS_ACCT_AUTHENTIC},
-{ RD_TP_ACCT_SESSION_TIME, RADIUS_INTEGER4},
-{ RD_TP_ACCT_INPUT_PACKETS, RADIUS_INTEGER4},
-{ RD_TP_ACCT_OUTPUT_PACKETS, RADIUS_INTEGER4},
-{ RD_TP_ACCT_TERMINATE_CAUSE, RADIUS_ACCT_TERMINATE_CAUSE},
-{ RD_TP_ACCT_MULTI_SESSION_ID, RADIUS_STRING},
-{ RD_TP_ACCT_LINK_COUNT, RADIUS_INTEGER4},
-{ RD_TP_ACCT_INPUT_GIGAWORDS, RADIUS_INTEGER4},
-{ RD_TP_ACCT_OUTPUT_GIGAWORDS, RADIUS_INTEGER4},
-{ RD_TP_EVENT_TIMESTAMP, RADIUS_TIMESTAMP},
-{ RD_TP_CHAP_CHALLENGE, RADIUS_BINSTRING},
-{ RD_TP_NAS_PORT_TYPE, RADIUS_NAS_PORT_TYPE},
-{ RD_TP_PORT_LIMIT, RADIUS_INTEGER4},
-{ RD_TP_LOGIN_LAT_PORT, RADIUS_BINSTRING},
-{ RD_TP_TUNNEL_TYPE, RADIUS_TUNNEL_TYPE},
-{ RD_TP_TUNNEL_MEDIUM_TYPE, RADIUS_TUNNEL_MEDIUM_TYPE},
-{ RD_TP_TUNNEL_CLIENT_ENDPOINT, RADIUS_STRING_TAGGED},
-{ RD_TP_TUNNEL_SERVER_ENDPOINT, RADIUS_STRING_TAGGED},
-{ RD_TP_TUNNEL_CONNECTION, RADIUS_BINSTRING},
-{ RD_TP_TUNNEL_PASSWORD, RADIUS_STRING_TAGGED},
-{ RD_TP_ARAP_PASSWORD, RADIUS_BINSTRING},
-{ RD_TP_ARAP_FEATURES, RADIUS_BINSTRING},
-{ RD_TP_ARAP_ZONE_ACCESS, RADIUS_BINSTRING},
-{ RD_TP_ARAP_SECURITY, RADIUS_BINSTRING},
-{ RD_TP_ARAP_SECURITY_DATA, RADIUS_BINSTRING},
-{ RD_TP_PASSWORD_RETRY, RADIUS_BINSTRING},
-{ RD_TP_PROMPT, RADIUS_BINSTRING},
-{ RD_TP_CONNECT_INFO, RADIUS_STRING},
-{ RD_TP_CONFIGURATION_TOKEN, RADIUS_BINSTRING},
-{ RD_TP_EAP_MESSAGE, RADIUS_BINSTRING},
-{ RD_TP_MESSAGE_AUTHENTICATOR, RADIUS_BINSTRING},
-{ RD_TP_TUNNEL_PRIVATE_GROUP_ID, RADIUS_STRING_TAGGED},
-{ RD_TP_TUNNEL_ASSIGNMENT_ID, RADIUS_STRING_TAGGED},
-{ RD_TP_TUNNEL_TUNNEL_PREFERENCE, RADIUS_INTEGER4_TAGGED},
-{ RD_TP_TUNNEL_PACKETS_LOST, RADIUS_INTEGER4},
-{ RD_TP_NAS_PORT_ID, RADIUS_STRING},
-{ RD_TP_TUNNEL_CLIENT_AUTH_ID, RADIUS_STRING_TAGGED},
-{ RD_TP_TUNNEL_SERVER_AUTH_ID, RADIUS_STRING_TAGGED},
-{ RD_TP_ASCEND_MODEM_PORTNO, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_MODEM_SLOTNO, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_MULTILINK_ID, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_NUM_IN_MULTILINK, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_FIRST_DEST, RADIUS_IP_ADDRESS},
-{ RD_TP_ASCEND_PRE_INPUT_OCTETS, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_PRE_OUTPUT_OCTETS, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_PRE_INPUT_PACKETS, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_PRE_OUTPUT_PACKETS, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_MAXIMUM_TIME, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_DISCONNECT_CAUSE, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_CONNECT_PROGRESS, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_DATA_RATE, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_PRESESSION_TIME, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_ASSIGN_IP_POOL, RADIUS_INTEGER4},
-{ RD_TP_ASCEND_XMIT_RATE, RADIUS_INTEGER4},
-{0,0},
-};
-
-static value_string radius_attrib_type_vals[] = {
-{ RD_TP_USER_NAME, "User Name"},
-{ RD_TP_USER_PASSWORD, "User Password"},
-{ RD_TP_CHAP_PASSWORD, "Chap Password"},
-{ RD_TP_NAS_IP_ADDRESS, "NAS IP Address"},
-{ RD_TP_NAS_PORT, "NAS Port"},
-{ RD_TP_SERVICE_TYPE, "Service Type"},
-{ RD_TP_FRAMED_PROTOCOL, "Framed Protocol"},
-{ RD_TP_FRAMED_IP_ADDRESS, "Framed IP Address"},
-{ RD_TP_FRAMED_IP_NETMASK, "Framed IP Netmask"},
-{ RD_TP_FRAMED_ROUTING, "Framed Routing"},
-{ RD_TP_FILTER_ID, "Filter Id"},
-{ RD_TP_FRAMED_MTU, "Framed MTU"},
-{ RD_TP_FRAMED_COMPRESSION, "Framed Compression"},
-{ RD_TP_LOGIN_IP_HOST, "Login IP Host"},
-{ RD_TP_LOGIN_SERVICE, "Login Service"},
-{ RD_TP_LOGIN_TCP_PORT, "Login TCP Port"},
-{ RD_TP_UNASSIGNED, "Unassigned"},
-{ RD_TP_REPLY_MESSAGE, "Reply Message"},
-{ RD_TP_CALLBACK_NUMBER, "Callback Number"},
-{ RD_TP_CALLBACK_ID, "Callback Id"},
-{ RD_TP_UNASSIGNED2, "Unassigned"},
-{ RD_TP_FRAMED_ROUTE, "Framed Route"},
-{ RD_TP_FRAMED_IPX_NETWORK, "Framed IPX network"},
-{ RD_TP_STATE, "State"},
-{ RD_TP_CLASS, "Class"},
-{ RD_TP_VENDOR_SPECIFIC, "Vendor Specific" },
-{ RD_TP_SESSION_TIMEOUT, "Session Timeout"},
-{ RD_TP_IDLE_TIMEOUT, "Idle Timeout"},
-{ RD_TP_TERMINATING_ACTION, "Terminating Action"},
-{ RD_TP_CALLED_STATION_ID, "Called Station Id"},
-{ RD_TP_CALLING_STATION_ID, "Calling Station Id"},
-{ RD_TP_NAS_IDENTIFIER, "NAS identifier"},
-{ RD_TP_PROXY_STATE, "Proxy State"},
-{ RD_TP_LOGIN_LAT_SERVICE, "Login LAT Service"},
-{ RD_TP_LOGIN_LAT_NODE, "Login LAT Node"},
-{ RD_TP_LOGIN_LAT_GROUP, "Login LAT Group"},
-{ RD_TP_FRAMED_APPLETALK_LINK, "Framed Appletalk Link"},
-{ RD_TP_FRAMED_APPLETALK_NETWORK, "Framed Appletalk Network"},
-{ RD_TP_FRAMED_APPLETALK_ZONE, "Framed Appletalk Zone"},
-{ RD_TP_ACCT_STATUS_TYPE, "Acct Status Type"},
-{ RD_TP_ACCT_DELAY_TIME, "Acct Delay Time"},
-{ RD_TP_ACCT_INPUT_OCTETS, "Acct Input Octets"},
-{ RD_TP_ACCT_OUTPUT_OCTETS, "Acct Output Octets"},
-{ RD_TP_ACCT_SESSION_ID, "Acct Session Id"},
-{ RD_TP_ACCT_AUTHENTIC, "Acct Authentic"},
-{ RD_TP_ACCT_SESSION_TIME, "Acct Session Time"},
-{ RD_TP_ACCT_INPUT_PACKETS, "Acct Input Packets"},
-{ RD_TP_ACCT_OUTPUT_PACKETS, "Acct Output Packets"},
-{ RD_TP_ACCT_TERMINATE_CAUSE, "Acct Terminate Cause"},
-{ RD_TP_ACCT_MULTI_SESSION_ID, "Acct Multi Session Id"},
-{ RD_TP_ACCT_LINK_COUNT, "Acct Link Count"},
-{ RD_TP_ACCT_INPUT_GIGAWORDS, "Acct Input Gigawords"},
-{ RD_TP_ACCT_OUTPUT_GIGAWORDS, "Acct Output Gigawords"},
-{ RD_TP_EVENT_TIMESTAMP, "Event Timestamp"},
-{ RD_TP_CHAP_CHALLENGE, "Chap Challenge"},
-{ RD_TP_NAS_PORT_TYPE, "NAS Port Type"},
-{ RD_TP_PORT_LIMIT, "Port Limit"},
-{ RD_TP_LOGIN_LAT_PORT, "Login LAT Port"},
-{ RD_TP_TUNNEL_TYPE, "Tunnel Type"},
-{ RD_TP_TUNNEL_MEDIUM_TYPE, "Tunnel Medium Type"},
-{ RD_TP_TUNNEL_CLIENT_ENDPOINT, "Tunnel Client Endpoint"},
-{ RD_TP_TUNNEL_SERVER_ENDPOINT, "Tunnel Server Endpoint"},
-{ RD_TP_TUNNEL_CONNECTION, "Tunnel Connection"},
-{ RD_TP_TUNNEL_PASSWORD, "Tunnel Password"},
-{ RD_TP_ARAP_PASSWORD, "ARAP-Password"},
-{ RD_TP_ARAP_FEATURES, "ARAP-Features"},
-{ RD_TP_ARAP_ZONE_ACCESS, "ARAP-Zone-Access"},
-{ RD_TP_ARAP_SECURITY, "ARAP-Security"},
-{ RD_TP_ARAP_SECURITY_DATA, "ARAP-Security-Data"},
-{ RD_TP_PASSWORD_RETRY, "Password-Retry"},
-{ RD_TP_PROMPT, "Prompt"},
-{ RD_TP_CONNECT_INFO, "Connect-Info"},
-{ RD_TP_CONFIGURATION_TOKEN, "Configuration-Token"},
-{ RD_TP_EAP_MESSAGE, "EAP-Message"},
-{ RD_TP_MESSAGE_AUTHENTICATOR, "Message Authenticator"},
-{ RD_TP_TUNNEL_PRIVATE_GROUP_ID, "Tunnel Private Group ID"},
-{ RD_TP_TUNNEL_ASSIGNMENT_ID, "Tunnel Assignment ID"},
-{ RD_TP_TUNNEL_TUNNEL_PREFERENCE, "Tunnel Preference"},
-{ RD_TP_TUNNEL_PACKETS_LOST, "Tunnel Packets Lost"},
-{ RD_TP_NAS_PORT_ID, "NAS Port ID"},
-{ RD_TP_TUNNEL_CLIENT_AUTH_ID, "Tunnel Client Auth ID"},
-{ RD_TP_TUNNEL_SERVER_AUTH_ID, "Tunnel Server Auth ID"},
-{ RD_TP_ASCEND_MODEM_PORTNO, "Ascend Modem Port No"},
-{ RD_TP_ASCEND_MODEM_SLOTNO, "Ascend Modem Slot No"},
-{ RD_TP_ASCEND_MULTILINK_ID, "Ascend Multilink ID"},
-{ RD_TP_ASCEND_NUM_IN_MULTILINK, "Ascend Num In Multilink"},
-{ RD_TP_ASCEND_FIRST_DEST, "Ascend First Dest"},
-{ RD_TP_ASCEND_PRE_INPUT_OCTETS, "Ascend Pre Input Octets"},
-{ RD_TP_ASCEND_PRE_OUTPUT_OCTETS, "Ascend Pre Output Octets"},
-{ RD_TP_ASCEND_PRE_INPUT_PACKETS, "Ascend Pre Input Packets"},
-{ RD_TP_ASCEND_PRE_OUTPUT_PACKETS, "Ascend Pre Output Packets"},
-{ RD_TP_ASCEND_MAXIMUM_TIME, "Ascend Maximum Time"},
-{ RD_TP_ASCEND_DISCONNECT_CAUSE, "Ascend Disconnect Cause"},
-{ RD_TP_ASCEND_CONNECT_PROGRESS, "Ascend Connect Progress"},
-{ RD_TP_ASCEND_DATA_RATE, "Ascend Data Rate"},
-{ RD_TP_ASCEND_PRESESSION_TIME, "Ascend PreSession Time"},
-{ RD_TP_ASCEND_ASSIGN_IP_POOL, "Ascend Assign IP Pool"},
-{ RD_TP_ASCEND_XMIT_RATE, "Ascend Xmit Rate"},
-{0,NULL},
-};
-
-static rd_vsa_table radius_vsa_table[] = {
-{ VENDOR_CISCO,		radius_vendor_cisco_printinfo,		radius_vendor_cisco_types },
-{ VENDOR_MICROSOFT,	radius_vendor_microsoft_printinfo,	radius_vendor_microsoft_types },
-{ VENDOR_ASCEND,	radius_vendor_ascend_printinfo,		radius_vendor_ascend_types },
-{ VENDOR_COSINE,	radius_vendor_cosine_printinfo,		radius_vendor_cosine_types },
-{ VENDOR_ISSANNI,	radius_vendor_issanni_printinfo,	radius_vendor_issanni_types },
-{0,NULL,NULL},
-};
-
-static rd_valstr_table valstr_table[] = {
-{ RADIUS_SERVICE_TYPE,			radius_service_type_vals },
-{ RADIUS_FRAMED_PROTOCOL,		radius_framed_protocol_vals },
-{ RADIUS_FRAMED_ROUTING,		radius_framed_routing_vals },
-{ RADIUS_FRAMED_COMPRESSION,		radius_framed_compression_vals },
-{ RADIUS_LOGIN_SERVICE,			radius_login_service_vals },
-{ RADIUS_TERMINATING_ACTION,		radius_terminating_action_vals },
-{ RADIUS_ACCOUNTING_STATUS_TYPE,	radius_accounting_status_type_vals },
-{ RADIUS_ACCT_AUTHENTIC,		radius_accounting_authentication_vals },
-{ RADIUS_ACCT_TERMINATE_CAUSE,		radius_acct_terminate_cause_vals },
-{ RADIUS_NAS_PORT_TYPE,			radius_nas_port_type_vals },
-{ CISCO_VSA_DISCONNECT_CAUSE,		radius_vendor_cisco_disconnect_cause_vals },
-{ MICROSOFT_VSA_BAP_USAGE,		radius_vendor_microsoft_bap_usage_vals },
-{ MICROSOFT_VSA_ARAP_PW_CHANGE_REASON,	radius_vendor_microsoft_arap_pw_change_reason_vals },
-{ MICROSOFT_VSA_ACCT_AUTH_TYPE,		radius_vendor_microsoft_acct_auth_type_vals },
-{ MICROSOFT_VSA_ACCT_EAP_TYPE,		radius_vendor_microsoft_acct_eap_type_vals },
-{ ASCEND_VSA_CALLING_ID_TYPE_OF_NUMBER,	radius_vendor_ascend_calling_id_type_of_number_vals },
-{ ASCEND_VSA_CALLING_ID_NUMBERING_PLAN,	radius_vendor_ascend_calling_id_numbering_plan_vals },
-{ ASCEND_VSA_CALLING_ID_PRESENTATION,	radius_vendor_ascend_calling_id_presentation_vals },
-{ ASCEND_VSA_CALLING_ID_SCREENING,	radius_vendor_ascend_calling_id_screening_vals },
-{0,NULL}
-};
-
-static rd_vsa_table *get_vsa_table(guint32 type)
+static rd_valstr_table valstr_table[] =
 {
-    guint32 i = 0;
+  {RADIUS_SERVICE_TYPE,			radius_service_type_vals},
+  {RADIUS_FRAMED_PROTOCOL,		radius_framed_protocol_vals},
+  {RADIUS_FRAMED_ROUTING,		radius_framed_routing_vals},
+  {RADIUS_FRAMED_COMPRESSION,		radius_framed_compression_vals},
+  {RADIUS_LOGIN_SERVICE,		radius_login_service_vals},
+  {RADIUS_TERMINATING_ACTION,		radius_terminating_action_vals},
+  {RADIUS_ACCOUNTING_STATUS_TYPE,	radius_accounting_status_type_vals},
+  {RADIUS_ACCT_AUTHENTIC,		radius_accounting_authentication_vals},
+  {RADIUS_ACCT_TERMINATE_CAUSE,		radius_acct_terminate_cause_vals},
+  {RADIUS_NAS_PORT_TYPE,		radius_nas_port_type_vals},
+  {CISCO_DISCONNECT_CAUSE,		radius_vendor_cisco_disconnect_cause_vals},
+  {MICROSOFT_BAP_USAGE,			radius_vendor_microsoft_bap_usage_vals},
+  {MICROSOFT_ARAP_PW_CHANGE_REASON,	radius_vendor_microsoft_arap_pw_change_reason_vals},
+  {MICROSOFT_ACCT_AUTH_TYPE,		radius_vendor_microsoft_acct_auth_type_vals},
+  {MICROSOFT_ACCT_EAP_TYPE,		radius_vendor_microsoft_acct_eap_type_vals},
+  {ASCEND_CALLING_ID_TYPE_OF_NUMBER,	radius_vendor_ascend_calling_id_type_of_number_vals},
+  {ASCEND_CALLING_ID_NUMBERING_PLAN,	radius_vendor_ascend_calling_id_numbering_plan_vals},
+  {ASCEND_CALLING_ID_PRESENTATION,	radius_vendor_ascend_calling_id_presentation_vals},
+  {ASCEND_CALLING_ID_SCREENING,		radius_vendor_ascend_calling_id_screening_vals},
+  {0, NULL}
+};
 
-    while (radius_vsa_table[i].type) {
-	if (radius_vsa_table[i].type == type)
+static rd_vsa_table *get_vsa_table(guint32 vendor)
+{
+    guint32 i;
+
+    for (i = 0; radius_vsa_table[i].vendor; i++)
+	if (radius_vsa_table[i].vendor == vendor)
 	    return(&radius_vsa_table[i]);
-	i++;
-    }
-    return(0);
+
+    return(NULL);
 }
 
-static guint32 match_numval(guint32 val, const value_value_pair *vs)
+static guint32 match_numval(guint32 val, const value_value_string *vvs)
 {
   guint32 i = 0;
 
-  while (vs[i].val1) {
-    if (vs[i].val1 == val)
-      return(vs[i].val2);
+  while (vvs[i].val1) {
+    if (vvs[i].val1 == val)
+      return(vvs[i].val2);
     i++;
   }
 
@@ -2100,26 +1204,41 @@ rdconvertbufftobinstr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 }
 
 static gchar *rd_match_strval(guint32 val, const value_string *vs) {
-	return val_to_str(val, vs, "Undefined (%u)");
+	return val_to_str(val, vs, "Undefined(%u)");
 }
 
-static gchar *rdconvertinttostr(gchar *dest, int print_type, guint32 intval)
+static gchar *rd_match_strval_attrib(guint32 val, const value_value_string *vvs)
 {
-    guint32 i = 0;
+    guint32 i;
+
+    for (i = 0; vvs[i].val1; i++)
+	if (vvs[i].val1 == val)
+	    return(vvs[i].str);
+
+    return("Unknown Type");
+}
     
-    while (valstr_table[i].type) {
-	if (valstr_table[i].type == print_type) {
-	    sprintf(dest,"%s(%d)",
-		    rd_match_strval(intval,valstr_table[i].str),intval);
+static gchar *rdconvertinttostr(gchar *dest, int print_type, guint32 val)
+{
+    guint32 i;
+    value_string *vs = null_vals;
+
+    for (i = 0; valstr_table[i].print_type; i++)
+    {
+	if (valstr_table[i].print_type == print_type)
+	{
+	    vs = valstr_table[i].valstr;
 	    break;
 	}
-	i++;
     }
+    sprintf(dest, "%s(%u)", val_to_str(val, vs, "Undefined"), val);
+
     return dest;
+
 }
 
 static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
-				int offset, const value_value_pair *vvp)
+				int offset, const value_value_string *vvs)
 {
   int print_type;
   gchar *cont;
@@ -2137,7 +1256,7 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
   e_avphdr *vsa_avph;
 
 /* prints the values of the attribute value pairs into a text buffer */
-  print_type=match_numval(avph->avp_type,vvp);
+  print_type = match_numval(avph->avp_type, vvs);
 
   /* Default begin */
   strcpy(dest, "Value:");
@@ -2199,31 +1318,30 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
                 break;
 	case ( RADIUS_VENDOR_SPECIFIC ):
 		vsa_index = 1;
-		valstrarr=radius_vendor_specific_vendors;
+		valstrarr = radius_vendor_specific_vendors;
 		sprintf(dest,"Vendor:%s",
 			rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
-		cont=&dest[strlen(dest)];
-		vsa_rvt=get_vsa_table(tvb_get_ntohl(tvb,offset+2));
-		if (vsa_rvt) {
+		cont = &dest[strlen(dest)];
+		vsa_rvt = get_vsa_table(tvb_get_ntohl(tvb,offset+2));
 		    vsa_attrlen = avph->avp_length;
 		    vsa_len = 6;
-		    do {
-			vsa_avph=(e_avphdr*)tvb_get_ptr(tvb,offset+vsa_len,avph->avp_length-vsa_len);
-			cont=&cont[strlen(cont)+1];
-			vsabuffer[vsa_index].valstr = cont;
+		do
+		{
+		    vsa_avph = (e_avphdr*)tvb_get_ptr(tvb, offset+vsa_len, avph->avp_length-vsa_len);
+		    cont = &cont[strlen(cont)+1];
+		    vsabuffer[vsa_index].str = cont;
 			vsabuffer[vsa_index].offset = offset+vsa_len;
 			vsabuffer[vsa_index].length = vsa_avph->avp_length;
-			sprintf(cont, "t:%s(%d) l:%d, ",
-				match_strval(vsa_avph->avp_type, vsa_rvt->types),
-				vsa_avph->avp_type,vsa_avph->avp_length);
-			cont=&cont[strlen(cont)];
-			rd_value_to_str_2(cont,vsa_avph,tvb,offset+vsa_len,vsa_rvt->printinfo);
-			vsa_len+=vsa_avph->avp_length;
+		    sprintf(cont, "t:%s(%u) l:%u, ",
+			    rd_match_strval_attrib(vsa_avph->avp_type,
+						   (vsa_rvt ? vsa_rvt->attrib : null_attrib)),
+			    vsa_avph->avp_type, vsa_avph->avp_length);
+		    cont = &cont[strlen(cont)];
+		    rd_value_to_str_2(cont,vsa_avph, tvb, offset+vsa_len,
+				      (vsa_rvt ? vsa_rvt->attrib : null_attrib));
+		    vsa_len += vsa_avph->avp_length;
 			vsa_index++;
 		    } while (vsa_attrlen > vsa_len && vsa_index < VSABUFFER);
- 		}
-		else
-		    rdconvertbufftostr(cont,tvb,offset+6,avph->avp_length-6);
 		break;
         case( RADIUS_SERVICE_TYPE ):
         case( RADIUS_FRAMED_PROTOCOL ):
@@ -2235,13 +1353,13 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
         case( RADIUS_ACCT_AUTHENTIC ):
         case( RADIUS_ACCT_TERMINATE_CAUSE ):
         case( RADIUS_NAS_PORT_TYPE ):
-	case( ASCEND_VSA_CALLING_ID_TYPE_OF_NUMBER ):
-	case( ASCEND_VSA_CALLING_ID_NUMBERING_PLAN ):
-	case( ASCEND_VSA_CALLING_ID_PRESENTATION ):
-	case( ASCEND_VSA_CALLING_ID_SCREENING ):
+	case( ASCEND_CALLING_ID_TYPE_OF_NUMBER ):
+	case( ASCEND_CALLING_ID_NUMBERING_PLAN ):
+	case( ASCEND_CALLING_ID_PRESENTATION ):
+	case( ASCEND_CALLING_ID_SCREENING ):
 		rdconvertinttostr(cont, print_type,tvb_get_ntohl(tvb,offset+2));
 		break;
-	case( COSINE_VSA_VPI_VCI ):
+	case( COSINE_VPI_VCI ):
 		sprintf(cont,"%u/%u",
 			tvb_get_ntohs(tvb,offset+2),
 			tvb_get_ntohs(tvb,offset+4));
@@ -2279,9 +1397,9 @@ static gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 {
     int i;
     for (i = 0; i < VSABUFFER; i++)
-	vsabuffer[i].valstr = 0;
-    vsabuffer[0].valstr = textbuffer;
-    rd_value_to_str_2(textbuffer,avph,tvb,offset,radius_printinfo);
+	vsabuffer[i].str = 0;
+    vsabuffer[0].str = textbuffer;
+    rd_value_to_str_2(textbuffer, avph, tvb, offset, radius_attrib);
     return textbuffer;
 }
 
@@ -2314,9 +1432,7 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
   while (avplength > 0)
   {
     tvb_memcpy(tvb,(guint8 *)&avph,offset,sizeof(e_avphdr));
-    avptpstrval = match_strval(avph.avp_type, radius_attrib_type_vals);
-    if (avptpstrval == NULL)
-      avptpstrval = "Unknown Type";
+    avptpstrval = rd_match_strval_attrib(avph.avp_type, radius_attrib);
     if (avph.avp_length < 2) {
       /*
        * This AVP is bogus - the length includes the type and length
@@ -2330,7 +1446,7 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
       break;
     }
 
-    if (avph.avp_type == RD_TP_EAP_MESSAGE) {
+    if (avph.avp_type == 79) {	/* RD_TP_EAP_MESSAGE */
       proto_item *ti;
       proto_tree *eap_tree = NULL;
       gint tvb_len;
@@ -2443,14 +1559,17 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
       }
     } else {
       if (tree) {
+        proto_item *ti;
+        proto_tree *vsa_tree = NULL;
         valstr = rd_value_to_str(&avph, tvb, offset);
-        proto_tree_add_text(tree, tvb, offset, avph.avp_length,
+        ti = proto_tree_add_text(tree, tvb, offset, avph.avp_length,
 			    "t:%s(%u) l:%u, %s",
 			    avptpstrval, avph.avp_type, avph.avp_length,
 			    valstr);
-	for (i = 1; vsabuffer[i].valstr && i < VSABUFFER; i++)
-	    proto_tree_add_text(tree, tvb, vsabuffer[i].offset, vsabuffer[i].length,
-				"    %s", vsabuffer[i].valstr);
+        vsa_tree = proto_item_add_subtree(ti, ett_radius_vsa);
+	for (i = 1; vsabuffer[i].str && i < VSABUFFER; i++)
+	    proto_tree_add_text(vsa_tree, tvb, vsabuffer[i].offset, vsabuffer[i].length,
+				"%s", vsabuffer[i].str);
       }
     }
 
@@ -2555,6 +1674,7 @@ proto_register_radius(void)
 		&ett_radius,
 		&ett_radius_avp,
 		&ett_radius_eap,
+		&ett_radius_vsa,
 	};
 
 	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS",
