@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.4 1998/09/17 18:43:11 gram Exp $
+ * $Id: packet-llc.c,v 1.5 1998/09/17 21:30:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -57,8 +57,10 @@ static struct sap_info	saps[] = {
 	{ 0x7F, NULL,		"ISO 802.2" },
 	{ 0x80, NULL,		"XNS" },
 	{ 0xAA, NULL,		"SNAP" },
-	{ 0xBA, dissect_vines,	"Banyan Vines" },
-	{ 0xBC, dissect_vines,	"Banyan Vines" },
+	/*{ 0xBA, dissect_vines,	"Banyan Vines" },
+	{ 0xBC, dissect_vines,	"Banyan Vines" },*/
+	{ 0xBA, NULL,		"Banyan Vines" },
+	{ 0xBC, NULL,		"Banyan Vines" },
 	{ 0xE0, dissect_ipx,	"NetWare" },
 	{ 0xF0, NULL,		"NetBIOS" },
 	{ 0xF4, NULL,		"IBM Net Management Individual" },
