@@ -216,7 +216,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		 * but indicate that we successfully dissected the mailslot
 		 * stuff.
 		 */
-		call_dissector(data_handle,tvb, pinfo, parent_tree);
+		call_dissector(data_handle ,tvb, pinfo, parent_tree);
 		break;
 	}
 	return TRUE;
@@ -264,6 +264,6 @@ proto_reg_handoff_smb_mailslot(void)
 {
 	mailslot_browse_handle = find_dissector("mailslot_browse");
 	mailslot_lanman_handle = find_dissector("mailslot_lanman");
-	netlogon_handle = find_dissector("netlogon");
+	netlogon_handle = find_dissector("smb_netlogon");
 	data_handle = find_dissector("data");
 }
