@@ -95,6 +95,8 @@ static int hf_smc_pop_name_att		= -1;
 static int hf_smc_id_att		= -1;
 static int hf_smc_receive_time_att	= -1;
 static int hf_smc_stat_time_att		= -1;
+static int hf_opsi_flags_att		= -1;
+static int hf_opsi_application_name_att	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_opsi 			= -1;
@@ -131,6 +133,8 @@ static gint ett_opsi_smc_pop_name	= -1;
 static gint ett_opsi_smc_id		= -1;
 static gint ett_opsi_smc_receive_time	= -1;
 static gint ett_opsi_smc_stat_time	= -1;
+static gint ett_opsi_flags		= -1;
+static gint ett_opsi_application_name	= -1;
 
 
 /* Code mapping */
@@ -327,6 +331,11 @@ static opsi_attribute_handle_t opsi_attributes[] = {
 	"SMC receive time attribute", &ett_opsi_smc_receive_time, &hf_smc_receive_time_att, decode_time_attribute },
 	{SMC_STAT_TIME_ATTRIBUTE,	/* 661 */
 	"SMC stat time attribute", &ett_opsi_smc_stat_time, &hf_smc_stat_time_att, decode_longint_attribute },
+	{OPSI_FLAGS_ATTRIBUTE,		/* 674 */
+	"OPSI flags attribute", &ett_opsi_flags, &hf_opsi_flags_att, decode_longint_attribute },
+	{OPSI_APPLICATION_NAME_ATTRIBUTE,/* 675 */
+	"OPSI application name attribute", &ett_opsi_application_name, &hf_opsi_application_name_att, decode_string_attribute },
+
 };
 #define OPSI_ATTRIBUTES_COUNT (sizeof(opsi_attributes)/sizeof(opsi_attribute_handle_t))
 
@@ -713,6 +722,16 @@ proto_register_opsi(void)
 			FT_UINT32, BASE_DEC, NULL, 0x00,
 			"", HFILL }
 		},
+		{ &hf_opsi_flags_att,
+			{ "OPSI flags",			"opsi.attr.flags",
+			FT_UINT32, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+		{ &hf_opsi_application_name_att,
+			{ "OPSI application name",	"opsi.attr.application_name",
+			FT_STRING, BASE_NONE, NULL, 0x00,
+			"", HFILL }
+		},
 	};
 
 /* Setup protocol subtree array */
@@ -751,6 +770,8 @@ proto_register_opsi(void)
 		&ett_opsi_smc_id,	        
 		&ett_opsi_smc_receive_time,
 		&ett_opsi_smc_stat_time,
+		&ett_opsi_flags,
+		&ett_opsi_application_name,
 	};
 	
 /* For desegmentation / reassembly */
