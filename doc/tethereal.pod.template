@@ -831,6 +831,16 @@ B<Tethereal>'s default values; the personal preferences file is then
 read, if it exists, overriding default values and values read from the
 system-wide preference file.
 
+The disabled protocols file, which is F<$HOME/.ethereal/disabled_protos>
+on UNIX-compatible systems and F<%APPDATA%\Ethereal\disabled_protos>
+(or, if %APPDATA% isn't defined, F<%USERPROFILE%\Application
+Data\Ethereal\disabled_protos>) on Windows systems, contain a list of
+protocols that have been disabled, so that their dissectors are never
+called.  The file contains protocol names, one per line, where the
+protocol name is the same name that would be used in a display filter
+for the protocol.  A B<#> character starts a comment that runs to the
+end of the line.
+
 The F<ethers> file, which is found in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, is consulted
