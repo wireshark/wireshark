@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.28 2000/04/15 07:26:57 guy Exp $
+ * $Id: packet-osi.c,v 1.29 2000/04/15 21:27:12 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -295,7 +295,8 @@ static int osi_decode_DR(const u_char *pd, int offset,
 
 } /* osi_decode_DR */
 
-static int osi_decode_DT(const u_char *pd, int offset, 
+/* Returns TRUE if we called a sub-dissector, FALSE if not. */
+static gboolean osi_decode_DT(const u_char *pd, int offset, 
 			 frame_data *fd, proto_tree *tree,
 			 gboolean uses_inactive_subset)
 {
@@ -431,13 +432,12 @@ static int osi_decode_DT(const u_char *pd, int offset,
   offset += li + 1;
   if (uses_inactive_subset){
 	dissect_h1(pd, offset, fd, tree);
+	return TRUE;
 	}
   else {
 	dissect_data(pd, offset, fd, tree);
+	return FALSE;
 	}
-
-  return pi.captured_len;	/* we dissected all of the containing PDU */
-
 } /* osi_decode_DT */
 
 static int osi_decode_ED(const u_char *pd, int offset, 
@@ -1380,6 +1380,7 @@ static gboolean dissect_cotp_internal(const u_char *pd, int offset,
   gboolean first_tpdu = TRUE;
   int new_offset;
   gboolean found_cotp = FALSE;
+  gboolean subdissector_found = FALSE;
 
   /* Initialize the COL_INFO field; each of the TPDUs will have its
      information appended. */
@@ -1419,7 +1420,9 @@ static gboolean dissect_cotp_internal(const u_char *pd, int offset,
         new_offset = osi_decode_DR(pd, offset, fd, tree);
         break;
       case DT_TPDU :
-        new_offset = osi_decode_DT(pd, offset, fd, tree, uses_inactive_subset);
+        if (osi_decode_DT(pd, offset, fd, tree, uses_inactive_subset))
+          subdissector_found = TRUE;
+        new_offset = pi.captured_len;	/* DT PDUs run to the end of the packet */
         break;
       case ED_TPDU :
         new_offset = osi_decode_ED(pd, offset, fd, tree);
@@ -1455,7 +1458,7 @@ static gboolean dissect_cotp_internal(const u_char *pd, int offset,
     if (first_tpdu) {
       /* Well, we found at least one valid COTP PDU, so I guess this
          is COTP. */
-      if (check_col(fd, COL_PROTOCOL))
+      if (!subdissector_found && check_col(fd, COL_PROTOCOL))
         col_add_str(fd, COL_PROTOCOL, "COTP");
       found_cotp = TRUE;
     }
