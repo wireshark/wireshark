@@ -79,6 +79,7 @@ static int hf_radius_serviceType = -1;
 static int hf_radius_callingStationId = -1;
 static int hf_radius_calledStationId = -1;
 static int hf_radius_framedAddress = -1;
+static int hf_radius_reply_message = -1;
 static int hf_radius_class = -1;
 static int hf_radius_nasIp = -1;
 static int hf_radius_acctStatusType = -1;
@@ -582,7 +583,7 @@ static const radius_attr_info radius_attrib[] =
   {15,	RADIUS_INTEGER4,	"Login Service", radius_login_service_vals, NULL},
   {16,	RADIUS_INTEGER4,	"Login TCP Port", NULL, NULL},
   {17,	RADIUS_UNKNOWN,		"Unassigned", NULL, NULL},
-  {18,	RADIUS_STRING,		"Reply Message", NULL, NULL},
+  {18,	RADIUS_STRING,		"Reply Message", NULL, &hf_radius_reply_message},
   {19,	RADIUS_STRING,		"Callback Number", NULL, NULL},
   {20,	RADIUS_STRING,		"Callback Id", NULL, NULL},
   {21,	RADIUS_UNKNOWN,		"Unassigned", NULL, NULL},
@@ -4754,6 +4755,11 @@ proto_register_radius(void)
 			{ "Calling_Name","radius.vendor.pkt.tdi.cname",
 			  FT_STRING, BASE_NONE, NULL, 0,
 			  "PacketCable Terminal_Display_Info Calling_Name", HFILL }
+		},
+		{ &hf_radius_reply_message,
+			{ "Reply-Message","radius.reply_msg",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  "Radius Reply Message", HFILL }
 		},
 		{ &hf_packetcable_terminal_display_info_message_waiting,
 			{ "Message_Waiting","radius.vendor.pkt.tdi.mw",

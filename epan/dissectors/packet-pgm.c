@@ -373,6 +373,7 @@ static int ett_pgm_opts_fragment = -1;
 
 static int hf_pgm_main_sport = -1;
 static int hf_pgm_main_dport = -1;
+static int hf_pgm_port = -1;
 static int hf_pgm_main_type = -1;
 static int hf_pgm_main_opts = -1;
 static int hf_pgm_main_opts_opt = -1;
@@ -1316,8 +1317,13 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pgm_tree = proto_item_add_subtree(ti, ett_pgm);
 		proto_tree_add_uint(pgm_tree, hf_pgm_main_sport, tvb, offset, 2,
 			pgmhdr.sport);
+		proto_tree_add_uint_hidden(pgm_tree, hf_pgm_port, tvb, offset, 2,
+			pgmhdr.sport);
 		proto_tree_add_uint(pgm_tree, hf_pgm_main_dport, tvb, offset+2,
 			2, pgmhdr.dport);
+		proto_tree_add_uint_hidden(pgm_tree, hf_pgm_port, tvb, offset+2,
+			2, pgmhdr.dport);
+		
 		proto_tree_add_uint(pgm_tree, hf_pgm_main_type, tvb,
 			offset+4, 1, pgmhdr.type);
 
@@ -1599,6 +1605,9 @@ proto_register_pgm(void)
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_dport,
       { "Destination Port", "pgm.hdr.dport", FT_UINT16, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_port,
+      { "Port", "pgm.port", FT_UINT16, BASE_DEC,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_type,
       { "Type", "pgm.hdr.type", FT_UINT8, BASE_HEX,

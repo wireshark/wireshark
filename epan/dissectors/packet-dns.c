@@ -67,6 +67,14 @@ static int hf_dns_count_prerequisites = -1;
 static int hf_dns_count_updates = -1;
 static int hf_dns_count_auth_rr = -1;
 static int hf_dns_count_add_rr = -1;
+static int hf_dns_qry_name = -1;
+static int hf_dns_qry_type = -1;
+static int hf_dns_qry_class = -1;
+static int hf_dns_rr_name = -1;
+static int hf_dns_rr_type = -1;
+static int hf_dns_rr_class = -1;
+static int hf_dns_rr_ttl = -1;
+static int hf_dns_rr_len = -1;
 
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
@@ -295,109 +303,88 @@ http://www.windows.com/windows2000/en/server/help/sag_DNS_imp_UsingWinsLookup.ht
 http://www.microsoft.com/windows2000/library/resources/reskit/samplechapters/cncf/cncf_imp_wwaw.asp
 
    which discuss them to some extent. */
+
+static const value_string dns_types[] = {
+	{ 0,		"Unused" },
+	{ T_A,		"A" },
+	{ T_NS,		"NS" },
+	{ T_MD,		"MD" },
+	{ T_MF,		"MF" },
+	{ T_CNAME,	"CNAME" },
+	{ T_SOA,	"SOA" },
+	{ T_MB,		"MB" },
+	{ T_MG,		"MG" },
+	{ T_MR,		"MR" },
+	{ T_NULL,	"NULL" },
+	{ T_WKS,	"WKS" },
+	{ T_PTR,	"PTR" },
+	{ T_HINFO,	"HINFO" },
+	{ T_MINFO,	"MINFO" },
+	{ T_MX,		"MX" },
+	{ T_TXT,	"TXT" },
+	{ T_RP,		"RP" }, /* RFC 1183 */
+	{ T_AFSDB,	"AFSDB" }, /* RFC 1183 */
+	{ T_X25,	"X25" }, /* RFC 1183 */
+	{ T_ISDN,	"ISDN" }, /* RFC 1183 */
+	{ T_RT,		"RT" }, /* RFC 1183 */
+	{ T_NSAP,	"NSAP" }, /* RFC 1706 */
+	{ T_NSAP_PTR,	"NSAP-PTR" }, /* RFC 1348 */
+	{ T_SIG,	"SIG" }, /* RFC 2535 */
+	{ T_KEY,	"KEY" }, /* RFC 2535 */
+	{ T_PX,		"PX" }, /* RFC 1664 */
+	{ T_GPOS,	"GPOS" }, /* RFC 1712 */
+	{ T_AAAA,	"AAAA" }, /* RFC 1886 */
+	{ T_LOC,	"LOC" }, /* RFC 1886 */
+	{ T_NXT,	"NXT" }, /* RFC 1876 */
+	{ T_EID,	"EID" },
+	{ T_NIMLOC,	"NIMLOC" },
+	{ T_SRV,	"SRV" }, /* RFC 2052 */
+	{ T_ATMA,	"ATMA" },
+	{ T_NAPTR,	"NAPTR" }, /* RFC 2168 */
+	{ T_KX,		"KX" }, /* RFC 2230 */
+	{ T_CERT,	"CERT" }, /* RFC 2538 */
+	{ T_A6,		"A6" }, /* RFC 2874 */
+	{ T_DNAME,	"DNAME" }, /* RFC 2672 */
+
+	{ T_OPT,	"OPT" }, /* RFC 2671 */
+
+	{ T_DS,		"DS" }, /* RFC 3658 */
+
+	{ T_IPSECKEY,	"IPSECKEY" }, /* draft-ietf-ipseckey-rr */
+	{ T_RRSIG,	"RRSIG" }, /* future RFC 2535bis */
+	{ T_NSEC,	"NSEC" }, /* future RFC 2535bis */
+	{ T_DNSKEY,	"DNSKEY" }, /* future RFC 2535bis */
+
+	{ 100,		"UINFO" },
+	{ 101,		"UID" },
+	{ 102,		"GID" },
+	{ 103,		"UNSPEC" },
+
+	{ T_TKEY,	"TKEY"},
+	{ T_TSIG,	"TSIG"},
+
+	{ T_WINS,	"WINS"},
+	{ T_WINS_R,	"WINS-R"},
+
+	{ 251,		"IXFR"},
+	{ 252,		"AXFR"},
+	{ 253,		"MAILB"},
+	{ 254,		"MAILA"},
+	{ 255,		"ANY"},
+
+	{0,		NULL}
+};
+
 static char *
 dns_type_name (guint type)
 {
-  char *type_names[] = {
-    "unused",
-    "A",
-    "NS",
-    "MD",
-    "MF",
-    "CNAME",
-    "SOA",
-    "MB",
-    "MG",
-    "MR",
-    "NULL",
-    "WKS",
-    "PTR",
-    "HINFO",
-    "MINFO",
-    "MX",
-    "TXT",
-    "RP",				/* RFC 1183 */
-    "AFSDB",				/* RFC 1183 */
-    "X25",				/* RFC 1183 */
-    "ISDN",				/* RFC 1183 */
-    "RT",				/* RFC 1183 */
-    "NSAP",				/* RFC 1706 */
-    "NSAP-PTR",				/* RFC 1348 */
-    "SIG",				/* RFC 2535 */
-    "KEY",				/* RFC 2535 */
-    "PX",				/* RFC 1664 */
-    "GPOS",				/* RFC 1712 */
-    "AAAA",				/* RFC 1886 */
-    "LOC",				/* RFC 1876 */
-    "NXT",				/* RFC 2535 */
-    "EID",
-    "NIMLOC",
-    "SRV",				/* RFC 2052 */
-    "ATMA",
-    "NAPTR",				/* RFC 2168 */
-    "KX",				/* RFC 2230 */
-    "CERT",				/* RFC 2538 */
-    "A6",				/* RFC 2874 */
-    "DNAME",				/* RFC 2672 */
-    NULL,
-    "OPT",				/* RFC 2671 */
-    NULL,
-    "DS",				/* RFC 3658 */
-    NULL,
-    "IPSECKEY",                         /* draft-ietf-ipseckey-rr */
-    "RRSIG",                            /* future RFC 2535bis */
-    "NSEC",                             /* future RFC 2535bis */
-    "DNSKEY"                            /* future RFC 2535bis */
-  };
-
-  if (type < sizeof(type_names)/sizeof(type_names[0]))
-    return type_names[type] ? type_names[type] : "unknown";
-
-  /* special cases */
-  switch (type)
-    {
-      /* non standard  */
-    case 100:
-      return "UINFO";
-    case 101:
-      return "UID";
-    case 102:
-      return "GID";
-    case 103:
-      return "UNSPEC";
-    case T_WINS:
-      return "WINS";
-    case T_WINS_R:
-      return "WINS-R";
-
-      /* meta */
-    case T_TKEY:
-      return "TKEY";
-    case T_TSIG:
-      return "TSIG";
-
-      /* queries  */
-    case 251:
-      return "IXFR";	/* RFC 1995 */
-    case 252:
-      return "AXFR";
-    case 253:
-      return "MAILB";
-    case 254:
-      return "MAILA";
-    case 255:
-      return "ANY";
-
-    }
-
-  return "unknown";
+  return val_to_str(type, dns_types, "Unknown (%u)");
 }
 
-
 static char *
-dns_long_type_name (guint type)
+dns_type_description (guint type)
 {
-  char *type_names[] = {
+  static const char *type_names[] = {
     "unused",
     "Host address",
     "Authoritative name server",
@@ -448,84 +435,117 @@ dns_long_type_name (guint type)
     "Next secured",                     /* future RFC 2535bis */
     "DNS public key"                    /* future RFC 2535bis */
   };
-  static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%u)" */
+  char *short_name;
+  const char *long_name;
+  static char strbuf[1024+1];
 
+  short_name = dns_type_name(type);
+  if (short_name == NULL) {
+    snprintf(strbuf, sizeof strbuf, "Unknown (%u)", type);
+    return strbuf;
+  }
   if (type < sizeof(type_names)/sizeof(type_names[0]))
-    return type_names[type] ? type_names[type] : "unknown";
+    long_name = type_names[type];
+  else {
+    /* special cases */
+    switch (type) {
+        /* meta */
+      case T_TKEY:
+        long_name = "Transaction Key";
+        break;
+      case T_TSIG:
+        long_name = "Transaction Signature";
+        break;
 
-  /* special cases */
-  switch (type)
-    {
-      /* non standard  */
-    case 100:
-      return "UINFO";
-    case 101:
-      return "UID";
-    case 102:
-      return "GID";
-    case 103:
-      return "UNSPEC";
-    case T_WINS:
-      return "WINS";
-    case T_WINS_R:
-      return "WINS-R";
+        /* queries  */
+      case 251:
+        long_name = "Request for incremental zone transfer";	/* RFC 1995 */
+        break;
+      case 252:
+        long_name = "Request for full zone transfer";
+        break;
+      case 253:
+        long_name = "Request for mailbox-related records";
+        break;
+      case 254:
+        long_name = "Request for mail agent resource records";
+        break;
+      case 255:
+        long_name = "Request for all records";
+        break;
+      default:
+        long_name = NULL;
+        break;
+      }
+  }
 
-      /* meta */
-    case T_TKEY:
-      return "Transaction Key";
-    case T_TSIG:
-      return "Transaction Signature";
-
-      /* queries  */
-    case 251:
-      return "Request for incremental zone transfer";	/* RFC 1995 */
-    case 252:
-      return "Request for full zone transfer";
-    case 253:
-      return "Request for mailbox-related records";
-    case 254:
-      return "Request for mail agent resource records";
-    case 255:
-      return "Request for all records";
-    }
-
-  sprintf(unkbuf, "Unknown RR type (%u)", type);
-  return unkbuf;
+  if (long_name != NULL)
+    snprintf(strbuf, sizeof strbuf, "%s (%s)", short_name, long_name);
+  else
+    snprintf(strbuf, sizeof strbuf, "%s", short_name);
+  return strbuf;
 }
 
+static const value_string dns_classes[] = {
+	{C_IN, "IN"},
+	{C_CS, "CS"},
+	{C_CH, "CH"},
+	{C_HS, "HS"},
+	{C_NONE, "NONE"},
+	{C_ANY, "ANY"},
+	{C_IN | C_FLUSH, "FLUSH"},
+	{0,NULL}
+};
 
 char *
 dns_class_name(int class)
 {
-  char *class_name;
+  return val_to_str(class, dns_classes, "Unknown (%u)");
+}
 
+char *
+dns_class_description(int class)
+{
+  char *short_name, *long_name;
+  static char strbuf[1024+1];
+
+  short_name = dns_class_name(class);
+  if (short_name == NULL) {
+    snprintf(strbuf, sizeof strbuf, "Unknown (%u)", class);
+    return strbuf;
+  }
   switch (class) {
   case C_IN:
-    class_name = "inet";
+    long_name = "Internet";
     break;
   case ( C_IN | C_FLUSH ):
-    class_name = "inet (data flush)";
+    long_name = "Internet (data flush)";
     break;
   case C_CS:
-    class_name = "csnet";
+    long_name = "CSNET";
     break;
   case C_CH:
-    class_name = "chaos";
+    long_name = "CHAOS";
     break;
   case C_HS:
-    class_name = "hesiod";
+    long_name = "Hesiod";
     break;
   case C_NONE:
-    class_name = "none";
+    long_name = "None";
     break;
   case C_ANY:
-    class_name = "any";
+    long_name = "Any";
     break;
   default:
-    class_name = "unknown";
+    long_name = NULL;
+    break;
   }
 
-  return class_name;
+  if (long_name != NULL)
+    snprintf(strbuf, sizeof strbuf, "%s (%s)", short_name, long_name);
+  else
+    snprintf(strbuf, sizeof strbuf, "%s", short_name);
+  return strbuf;
 }
 
 int
@@ -775,9 +795,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   int name_len;
   int type;
   int class;
-  char *class_name;
   char *type_name;
-  char *long_type_name;
   int data_offset;
   int data_start;
   proto_tree *q_tree;
@@ -790,23 +808,23 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   data_offset += len;
 
   type_name = dns_type_name(type);
-  class_name = dns_class_name(class);
-  long_type_name = dns_long_type_name(type);
 
   if (cinfo != NULL)
     col_append_fstr(cinfo, COL_INFO, " %s %s", type_name, name);
   if (dns_tree != NULL) {
     tq = proto_tree_add_text(dns_tree, tvb, offset, len, "%s: type %s, class %s",
-		   name, type_name, class_name);
+		   name, type_name, dns_class_name(class));
     q_tree = proto_item_add_subtree(tq, ett_dns_qd);
 
-    proto_tree_add_text(q_tree, tvb, offset, name_len, "Name: %s", name);
+    proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name);
     offset += name_len;
 
-    proto_tree_add_text(q_tree, tvb, offset, 2, "Type: %s", long_type_name);
+    proto_tree_add_uint_format(q_tree, hf_dns_qry_type, tvb, offset, 2, type,
+		"Type: %s", dns_type_description(type));
     offset += 2;
 
-    proto_tree_add_text(q_tree, tvb, offset, 2, "Class: %s", class_name);
+    proto_tree_add_uint_format(q_tree, hf_dns_qry_class, tvb, offset, 2, class,
+		"Class: %s", dns_class_description(class));
     offset += 2;
   }
 
@@ -814,39 +832,43 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 }
 
 
-proto_tree *
+static proto_tree *
 add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const char *name, int namelen, const char *type_name, const char *class_name,
+  const char *name, int namelen, int type, int class,
   guint ttl, gushort data_len)
 {
   proto_tree *rr_tree;
 
   rr_tree = proto_item_add_subtree(trr, rr_type);
-  proto_tree_add_text(rr_tree, tvb, offset, namelen, "Name: %s", name);
+  proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset, namelen, name);
   offset += namelen;
-  proto_tree_add_text(rr_tree, tvb, offset, 2, "Type: %s", type_name);
+  proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, offset, 2, type,
+		"Type: %s", dns_type_description(type));
   offset += 2;
-  proto_tree_add_text(rr_tree, tvb, offset, 2, "Class: %s", class_name);
+  proto_tree_add_uint_format(rr_tree, hf_dns_rr_class, tvb, offset, 2, class,
+		"Class: %s", dns_class_description(class));
   offset += 2;
-  proto_tree_add_text(rr_tree, tvb, offset, 4, "Time to live: %s",
-						time_secs_to_str(ttl));
+  proto_tree_add_uint_format(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl,
+		"Time to live: %s", time_secs_to_str(ttl));
   offset += 4;
-  proto_tree_add_text(rr_tree, tvb, offset, 2, "Data length: %u", data_len);
+  proto_tree_add_uint(rr_tree, hf_dns_rr_len, tvb, offset, 2, data_len);
   return rr_tree;
 }
 
+
 static proto_tree *
 add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const char *name, int namelen, const char *type_name, int class,
+  const char *name, int namelen, int type, int class,
   guint ttl, gushort data_len)
 {
   proto_tree *rr_tree, *Z_tree;
   proto_item *Z_item = NULL;
 
   rr_tree = proto_item_add_subtree(trr, rr_type);
-  proto_tree_add_text(rr_tree, tvb, offset, namelen, "Name: %s", name);
+  proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset, namelen, name);
   offset += namelen;
-  proto_tree_add_text(rr_tree, tvb, offset, 2, "Type: %s", type_name);
+  proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, offset, 2, type,
+		"Type: %s", dns_type_description(type));
   offset += 2;
   proto_tree_add_text(rr_tree, tvb, offset, 2, "UDP payload size: %u",
       class & 0xffff);
@@ -864,7 +886,7 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
      proto_tree_add_text(Z_tree, tvb, offset, 2, "Bits 1-15: 0x%x (reserved)", (ttl >> 17) & 0xff);
   }
   offset += 2;
-  proto_tree_add_text(rr_tree, tvb, offset, 2, "Data length: %u", data_len);
+  proto_tree_add_uint(rr_tree, hf_dns_rr_len, tvb, offset, 2, data_len);
   return rr_tree;
 }
 
@@ -950,7 +972,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   int class;
   char *class_name;
   char *type_name;
-  char *long_type_name;
   int data_offset;
   int cur_offset;
   int data_start;
@@ -969,7 +990,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   type_name = dns_type_name(type);
   class_name = dns_class_name(class);
-  long_type_name = dns_long_type_name(type);
 
   ttl = tvb_get_ntohl(tvb, data_offset);
   data_offset += 4;
@@ -988,10 +1008,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 				name, type_name, class_name);
     if (type != T_OPT) {
       rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
-		     long_type_name, class_name, ttl, data_len);
+		     type, class, ttl, data_len);
     } else  {
       rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
-		     long_type_name, class, ttl, data_len);
+		     type, class, ttl, data_len);
     }
   }
 
@@ -1280,9 +1300,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	if (rr_len < 2)
 	  goto bad_rr;
 	type_covered = tvb_get_ntohs(tvb, cur_offset);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Type covered: %s (%s)",
-		dns_type_name(type_covered),
-		dns_long_type_name(type_covered));
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Type covered: %s",
+		dns_type_description(type_covered));
 	cur_offset += 2;
 	rr_len -= 2;
 
@@ -1673,9 +1692,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	       for (i = 0; i < 8; i++) {
 		 if (bits & mask) {
 		   proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-			"RR type in bit map: %s (%s)",
-			dns_type_name(rr_type),
-			dns_long_type_name(rr_type));
+			"RR type in bit map: %s",
+			dns_type_description(rr_type));
 		 }
 		 mask >>= 1;
 		 rr_type++;
@@ -1716,9 +1734,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	  for (i = 0; i < 8; i++) {
 	    if (bits & mask) {
 	      proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-			"RR type in bit map: %s (%s)",
-			dns_type_name(rr_type),
-			dns_long_type_name(rr_type));
+			"RR type in bit map: %s",
+			dns_type_description(rr_type));
 	    }
 	    mask >>= 1;
 	    rr_type++;
@@ -2554,6 +2571,38 @@ proto_register_dns(void)
       { "Transaction ID",      	"dns.id",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
 	"Identification of transaction", HFILL }},
+    { &hf_dns_qry_type,
+      { "Type",      	"dns.qry.type",
+	FT_UINT16, BASE_HEX, VALS(dns_types), 0x0,
+	"Query Type", HFILL }},
+    { &hf_dns_qry_class,
+      { "Class",      	"dns.qry.class",
+	FT_UINT16, BASE_HEX, VALS(dns_classes), 0x0,
+	"Query Class", HFILL }},
+    { &hf_dns_qry_name,
+      { "Name",      	"dns.qry.name",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Query Name", HFILL }},
+    { &hf_dns_rr_type,
+      { "Type",      	"dns.resp.type",
+	FT_UINT16, BASE_HEX, VALS(dns_types), 0x0,
+	"Response Type", HFILL }},
+    { &hf_dns_rr_class,
+      { "Class",      	"dns.resp.class",
+	FT_UINT16, BASE_HEX, VALS(dns_classes), 0x0,
+	"Response Class", HFILL }},
+    { &hf_dns_rr_name,
+      { "Name",      	"dns.resp.name",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Response Name", HFILL }},  
+    { &hf_dns_rr_ttl,
+      { "Time to live", "dns.resp.ttl",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Response TTL", HFILL }},
+    { &hf_dns_rr_len,
+      { "Data length",  "dns.resp.len",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Response Length", HFILL }},
     { &hf_dns_count_questions,
       { "Questions",		"dns.count.queries",
 	FT_UINT16, BASE_DEC, NULL, 0x0,

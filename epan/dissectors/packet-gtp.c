@@ -109,6 +109,7 @@ static int hf_gtp_node_ipv6		= -1;
 static int hf_gtp_nsapi			= -1;
 static int hf_gtp_ptmsi			= -1;
 static int hf_gtp_ptmsi_sig		= -1;
+static int hf_gtp_qos_version		= -1;
 static int hf_gtp_qos_spare1		= -1;
 static int hf_gtp_qos_delay		= -1;
 static int hf_gtp_qos_mean		= -1;
@@ -3107,7 +3108,6 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	 * inconsistent and unuseful, I will check hyphen presence here and
 	 * will signal its presence.
 	 * */
-	guint8		version_buffer[2];
 	guint8      hyphen;
 
 	/* Will keep the value that will be returned
@@ -3140,9 +3140,8 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			te = proto_tree_add_text (tree, tvb, offset - 1, length, "%s", qos_str);
 
 			ext_tree_qos = proto_item_add_subtree (te, ett_gtp_qos);
-			version_buffer[0] = tvb_get_guint8(tvb, offset + 1);
-			version_buffer[1] = tvb_get_guint8(tvb, offset + 2);
-			proto_tree_add_text (ext_tree_qos, tvb, offset + 1, 2, "Version: %c%c", version_buffer[0], version_buffer[1]);
+			
+			proto_tree_add_item (ext_tree_qos, hf_gtp_qos_version, tvb, offset + 1, 2, FALSE);
 
 			/* Hyphen handling */
 			hyphen = tvb_get_guint8(tvb, offset + 3);
@@ -4443,6 +4442,7 @@ proto_register_gtp(void)
 		{ &hf_gtp_node_ipv6, { "Node address IPv6", "gtp.node_ipv6", FT_IPv6, BASE_HEX, NULL, 0, "Recommended node address IPv6", HFILL }},
 		{ &hf_gtp_npdu_number, { "N-PDU Number", "gtp.npdu_number", FT_UINT8, BASE_HEX, NULL, 0, "N-PDU Number", HFILL }},
 		{ &hf_gtp_nsapi, { "NSAPI", "gtp.nsapi", FT_UINT8, BASE_DEC, NULL, 0, "Network layer Service Access Point Identifier", HFILL }},
+		{ &hf_gtp_qos_version, { "Version", "gtp.qos_version", FT_STRING, BASE_DEC, NULL, 0, "Version of the QoS Profile", HFILL }},
 		{ &hf_gtp_qos_spare1, { "Spare", "gtp.qos_spare1", FT_UINT8, BASE_DEC, NULL, GTP_EXT_QOS_SPARE1_MASK, "Spare (shall be sent as '00' )", HFILL }},
 		{ &hf_gtp_qos_delay, { "QoS delay", "gtp.qos_delay", FT_UINT8, BASE_DEC, VALS(qos_delay_type), GTP_EXT_QOS_DELAY_MASK, "Quality of Service Delay Class", HFILL }},
 		{ &hf_gtp_qos_reliability, { "QoS reliability", "gtp.qos_reliabilty", FT_UINT8, BASE_DEC, VALS(qos_reliability_type), GTP_EXT_QOS_RELIABILITY_MASK, "Quality of Service Reliability Class", HFILL }},

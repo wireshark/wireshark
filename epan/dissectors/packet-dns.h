@@ -28,13 +28,10 @@
 #define __PACKET_DNS_H__
 
 char *dns_class_name(int class);
+char *dns_class_description(int class);
 
 int get_dns_name(tvbuff_t *, int, int, char *, int);
 
 #define MAXDNAME        1025            /* maximum domain name length */
-
-proto_tree *
-add_rr_to_tree(proto_item *, int, tvbuff_t *, int, const char *,
-  int, const char *, const char *, guint, gushort);
 
 #endif /* packet-dns.h */
