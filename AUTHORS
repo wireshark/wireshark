@@ -632,6 +632,7 @@ Ronnie Sahlberg <ronnie_sahlberg[AT]ozemail.com.au> {
 	DCE/RPC fragment reassembly
 	TCP ACK/SEQ number analysis and relative sequence numbers
 	TAP system and ONC RPC and DCE RPC examples
+	DISTCC updates
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {
@@ -1517,6 +1518,7 @@ Brad Hards <bhards[AT]bigpond.net.au> {
 	Clean up summary line for PTR records
 	Initial rsync support
 	ACAP support
+	DISTCC support
 }
 
 cjs 2895 <cjs2895[AT]hotmail.com> {
