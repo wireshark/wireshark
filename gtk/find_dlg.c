@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.8 2000/04/01 12:03:41 guy Exp $
+ * $Id: find_dlg.c,v 1.9 2000/05/02 08:04:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 #include "find_dlg.h"
 #include "filter_prefs.h"
 #include "simple_dialog.h"
+#include "dlg_utils.h"
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY     "find_filter_te"
@@ -151,6 +152,17 @@ find_frame_cb(GtkWidget *w, gpointer d)
   /* Attach pointers to needed widgets to the capture prefs window/object */
   gtk_object_set_data(GTK_OBJECT(find_frame_w), E_FIND_FILT_KEY, filter_te);
   gtk_object_set_data(GTK_OBJECT(find_frame_w), E_FIND_BACKWARD_KEY, backward_rb);
+
+  /* Catch the "activate" signal on the frame number text entry, so that
+     if the user types Return there, we act as if the "OK" button
+     had been selected, as happens if Return is typed if some widget
+     that *doesn't* handle the Return key has the input focus. */
+  dlg_set_activate(filter_te, ok_bt);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(find_frame_w, cancel_bt);
 
   /* Give the initial focus to the "Filter" entry box. */
   gtk_widget_grab_focus(filter_te);

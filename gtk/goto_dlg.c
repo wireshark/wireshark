@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.5 2000/03/15 08:54:24 guy Exp $
+ * $Id: goto_dlg.c,v 1.6 2000/05/02 08:04:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@
 #include "goto_dlg.h"
 #include "prefs_dlg.h"
 #include "simple_dialog.h"
+#include "dlg_utils.h"
 
 /* Capture callback data keys */
 #define E_GOTO_FNUMBER_KEY     "goto_fnumber_te"
@@ -109,6 +110,17 @@ goto_frame_cb(GtkWidget *w, gpointer d)
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
   gtk_object_set_data(GTK_OBJECT(goto_frame_w), E_GOTO_FNUMBER_KEY, fnumber_te);
+
+  /* Catch the "activate" signal on the frame number text entry, so that
+     if the user types Return there, we act as if the "OK" button
+     had been selected, as happens if Return is typed if some widget
+     that *doesn't* handle the Return key has the input focus. */
+  dlg_set_activate(fnumber_te, ok_bt);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(goto_frame_w, cancel_bt);
 
   /* Give the initial focus to the "Frame number" entry box. */
   gtk_widget_grab_focus(fnumber_te);

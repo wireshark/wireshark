@@ -16,6 +16,7 @@ OBJECTS=capture_dlg.obj \
 	color_dlg.obj    \
 	column_prefs.obj \
 	display_opts.obj \
+	dlg_utils.obj	\
 	file_dlg.obj \
 	filter_prefs.obj \
 	find_dlg.obj \
