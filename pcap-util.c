@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.2 2001/11/09 07:51:01 guy Exp $
+ * $Id: pcap-util.c,v 1.3 2001/11/09 08:16:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -325,7 +325,10 @@ get_interface_list(int *err, char *err_str)
 
 	next:
 #ifdef HAVE_SA_LEN
-		ifr = (struct ifreq *) ((char *) ifr + ifr->ifr_addr.sa_len + IFNAMSIZ);
+		ifr = (struct ifreq *) ((char *) ifr +
+		    (ifr->ifr_addr.sa_len > sizeof(ifr->ifr_addr) ?
+			ifr->ifr_addr.sa_len : sizeof(ifr->ifr_addr)) +
+		    IFNAMSIZ);
 #else
 		ifr = (struct ifreq *) ((char *) ifr + sizeof(struct ifreq));
 #endif

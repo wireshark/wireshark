@@ -1214,6 +1214,7 @@ B<http://www.ethereal.com>.
                            <a.stockmeier[AT]avm.de>
   Pekka Nikander           <pekka.nikander[AT]nomadiclab.com>
   Hamish Moffatt           <hamish[AT]cloud.net.au>
+  Kazushi Sugyo            <k-sugyou[AT]nwsl.mesh.ad.jp>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

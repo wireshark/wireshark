@@ -884,6 +884,11 @@ Hamish Moffatt <hamish[AT]cloud.net.au> {
 	    protocol type
 }
 
+Kazushi Sugyo <k-sugyou[AT]nwsl.mesh.ad.jp> {
+	Fix to display of AH length field
+	Fix to code to scan the SIOCGIFCONF list
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
