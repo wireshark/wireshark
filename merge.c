@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: merge.c,v 1.1 2004/06/17 21:53:25 ulfl Exp $
+ * $Id: merge.c,v 1.2 2004/06/18 07:41:20 ulfl Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -354,11 +354,10 @@ close_in_files(int count, in_file_t in_files[])
  * Scan through the arguments and open the input files
  */
 static int
-open_in_files(int in_file_count, char *argv[], in_file_t *in_files[])
+open_in_files(int in_file_count, char *argv[], in_file_t *in_files[], int *err)
 {
   int i;
   int count = 0;
-  int err;
   gchar *err_info;
   in_file_t *files;
   int files_size = in_file_count * sizeof(in_file_t);
@@ -369,14 +368,14 @@ open_in_files(int in_file_count, char *argv[], in_file_t *in_files[])
 
   for (i = 0; i < in_file_count; i++) {
     files[count].filename    = argv[i];
-    files[count].wth         = wtap_open_offline(argv[i], &err, &err_info, FALSE);
+    files[count].wth         = wtap_open_offline(argv[i], err, &err_info, FALSE);
     files[count].err         = 0;
     files[count].data_offset = 0;
     files[count].ok          = TRUE;
     if (!files[count].wth) {
-      fprintf(stderr, "mergecap: skipping %s: %s\n", argv[i],
-              wtap_strerror(err));
-      switch (err) {
+      fprintf(stderr, "merge: skipping %s: %s\n", argv[i],
+              wtap_strerror(*err));
+      switch (*err) {
 
       case WTAP_ERR_UNSUPPORTED:
       case WTAP_ERR_UNSUPPORTED_ENCAP:
@@ -402,7 +401,7 @@ open_in_files(int in_file_count, char *argv[], in_file_t *in_files[])
 
 
 gboolean
-merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean do_append)
+merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean do_append, int *err)
 {
   extern char *optarg;
   extern int   optind;
@@ -427,9 +426,9 @@ merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean do_
   in_filenames[1] = in_file1;
 
   /* open the input files */
-  in_file_count = open_in_files(in_file_count, in_filenames, &in_files);
-  if (in_file_count < 1) {
-    fprintf(stderr, "mergecap: No valid input files\n");
+  in_file_count = open_in_files(in_file_count, in_filenames, &in_files, err);
+  if (in_file_count < 2) {
+    fprintf(stderr, "mergecap: Not all input files valid\n");
     return FALSE;
   }
 

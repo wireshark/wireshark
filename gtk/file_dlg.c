@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.112 2004/06/18 05:58:30 ulfl Exp $
+ * $Id: file_dlg.c,v 1.113 2004/06/18 07:41:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -551,11 +551,11 @@ file_merge_cmd(GtkWidget *w)
 static void file_merge_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
     switch(btn) {
-    case(ESD_BTN_YES):
+    case(ESD_BTN_OK):
         /* save file first */
         file_save_as_cmd(after_save_merge_dialog, data);
         break;
-    case(ESD_BTN_NO):
+    case(ESD_BTN_CANCEL):
         break;
     default:
         g_assert_not_reached();
@@ -568,7 +568,7 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
                 PRIMARY_TEXT_START "Save the capture file before merging to another one?" PRIMARY_TEXT_END "\n\n"
                 "A temporary capture file cannot be merged.");
     simple_dialog_set_cb(dialog, file_merge_answered_cb, widget);
@@ -580,12 +580,12 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 
 
 extern gboolean
-merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean append);
+merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean append, int *err);
 
 static void
 file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   gchar     *cf_name, *rfilter, *s;
-  gchar     *cf_current_name, *cf_merged_name;
+  gchar     *cf_merged_name;
   GtkWidget *filter_te, *rb;
   dfilter_t *rfcode = NULL;
   int        err;
@@ -615,46 +615,52 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     	return;
   }
 
-  cf_current_name = g_strdup(cfile.filename);
-  /*XXX should use temp file stuff in util routines */
-  cf_merged_name = tmpnam(NULL);
+  /*XXX should use temp file stuff in util routines? */
+  cf_merged_name = g_strdup(tmpnam(NULL));
 
-  /* merge or append the files */
+  /* merge or append the two files */
   rb = OBJECT_GET_DATA(w, E_MERGE_CHRONO_KEY);
   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
       /* chonological order */
-      merge_ok = merge_two_files(cf_merged_name, cf_current_name, cf_name, FALSE);
+      merge_ok = merge_two_files(cf_merged_name, cfile.filename, cf_name, FALSE, &err);
   } else {
       rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
-          merge_ok = merge_two_files(cf_merged_name, cf_current_name, cf_name, TRUE);
+          merge_ok = merge_two_files(cf_merged_name, cfile.filename, cf_name, TRUE, &err);
       } else {
           /* append file */
-          merge_ok = merge_two_files(cf_merged_name, cf_name, cf_current_name, TRUE);
+          merge_ok = merge_two_files(cf_merged_name, cf_name, cfile.filename, TRUE, &err);
       }
   }
 
-  cf_close(&cfile);
-  g_free(cf_current_name);
-  cf_name = cf_merged_name;
+  g_free(cf_name);
   
   if(!merge_ok) {
+    /* merge failed */
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		  "An error occurred while merging the files: %s.",
+		  wtap_strerror(err));
     if (rfcode != NULL)
       dfilter_free(rfcode);
-    g_free(cf_name);
+    g_free(cf_merged_name);
     return;
   }
 
-  /* Try to open the capture file. */
-  if ((err = cf_open(cf_name, FALSE, &cfile)) != 0) {
+  cf_close(&cfile);
+
+  /* We've crossed the Rubicon; get rid of the file selection box. */
+  window_destroy(GTK_WIDGET (fs));
+
+  /* Try to open the merged capture file. */
+  if ((err = cf_open(cf_merged_name, TRUE /* temporary file */, &cfile)) != 0) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
        try again. */
     if (rfcode != NULL)
       dfilter_free(rfcode);
-    g_free(cf_name);
+    g_free(cf_merged_name);
     return;
   }
 
@@ -662,10 +668,6 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
      it closed the previous capture file, and thus destroyed any
      previous read filter attached to "cf"). */
   cfile.rfcode = rfcode;
-  cfile.is_tempfile = TRUE;
-
-  /* We've crossed the Rubicon; get rid of the file selection box. */
-  window_destroy(GTK_WIDGET (fs));
 
   switch (cf_read(&cfile)) {
 
@@ -681,18 +683,18 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
        capture file has been closed - just free the capture file name
        string and return (without changing the last containing
        directory). */
-    g_free(cf_name);
+    g_free(cf_merged_name);
     return;
   }
 
   /* Save the name of the containing directory specified in the path name,
-     if any; we can write over cf_name, which is a good thing, given that
+     if any; we can write over cf_merged_name, which is a good thing, given that
      "get_dirname()" does write over its argument. */
-  s = get_dirname(cf_name);
+  s = get_dirname(cf_merged_name);
   set_last_open_dir(s);
   gtk_widget_grab_focus(packet_list);
 
-  g_free(cf_name);
+  g_free(cf_merged_name);
 }
 
 static void

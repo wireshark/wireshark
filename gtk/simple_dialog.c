@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.37 2004/06/17 21:34:12 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.38 2004/06/18 07:41:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,6 +166,9 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   switch(btn_mask) {
   case(ESD_BTN_OK):
     bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+    break;
+  case(ESD_BTN_OK | ESD_BTN_CANCEL):
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
     break;
   case(ESD_BTN_CLEAR | ESD_BTN_CANCEL):
     bbox = dlg_button_row_new(GTK_STOCK_CLEAR, GTK_STOCK_CANCEL, NULL);
