@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.17 2001/01/09 06:31:43 guy Exp $
+ * $Id: packet-socks.c,v 1.18 2001/01/10 10:59:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,10 @@
  *
  * See http://www.socks.nec.com/socksprot.html for these and other documents
  *
+ * Revisions:
+ *
+ * 2001-01-08 JCFoster Fixed problem with NULL pointer for hash data.
+ *			Now test and exit if hash_info is null.
  */
 
 /* Possible enhancements -
@@ -963,11 +967,15 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
 		pi.srcport, pi.destport, 0);
 
-	if ( conversation)			/* conversation found */
+	if ( conversation){			/* conversation found */
 		hash_info = conversation->data;
+		if ( !hash_info){		/* exit if bad value */
+			old_dissect_data(pd, offset, fd, tree);
+			return;
+		}
 
 			/* new conversation create local data structure */
-	else {				
+	} else {				
     		hash_info = g_mem_chunk_alloc(socks_vals);
 		hash_info->start_done_row = G_MAXINT;
     		hash_info->state = None;
@@ -978,8 +986,11 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		   ( hash_info->version != 5))
     			hash_info->state = Done;
 
-		conversation_new( &pi.src, &pi.dst, pi.ptype,
+		conversation = conversation_new( &pi.src, &pi.dst, pi.ptype,
 			pi.srcport, pi.destport, hash_info, 0);
+
+						/* set dissector for now */
+		old_conversation_set_dissector(conversation, dissect_socks);
 	}
 
 /* display summary window information  */
