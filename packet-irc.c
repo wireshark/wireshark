@@ -1,7 +1,7 @@
 /* packet-irc.c
- * Routines for MSX irc packet dissection
+ * Routines for IRC packet dissection
  *
- * $Id: packet-irc.c,v 1.12 2001/02/03 07:58:27 guy Exp $
+ * $Id: packet-irc.c,v 1.13 2001/02/03 08:07:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,7 +87,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->fd, COL_INFO))
 	{
 		col_set_str(pinfo->fd, COL_INFO,
-		    (pi.match_port == pi.destport) ? "Request" : "Response");
+		    (pinfo->match_port == pinfo->destport) ? "Request" : "Response");
 	}
 
 	if (tree)
@@ -115,7 +115,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (linelen != 0)
 			{
-				if (pi.match_port == pi.destport)
+				if (pinfo->match_port == pinfo->destport)
 				{
 					dissect_irc_request(irc_tree, tvb,
 					    offset, next_offset - offset,
