@@ -1325,7 +1325,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
 
-	if (suboptoff+subopt_len >= optend) {
+	if (suboptoff+subopt_len > optend) {
 		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
 			"Suboption %d: no room left in option for suboption value",
 	 		subopt);
@@ -1408,7 +1408,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
 
-	if (suboptoff+subopt_len >= optend) {
+	if (suboptoff+subopt_len > optend) {
 		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
 			"Suboption %d: no room left in option for suboption value",
 	 		subopt);
@@ -1581,7 +1581,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
 
-	if (suboptoff+subopt_len >= optend) {
+	if (suboptoff+subopt_len > optend) {
 		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
 			"Suboption %d: no room left in option for suboption value",
 	 		subopt);
@@ -1637,7 +1637,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 				"Suboption %d: %s = \"%s\"", subopt,
 				o43cablelabs_opt[subopt].text,
-				tvb_format_stringzpad(tvb, optoff, subopt_len));
+				tvb_format_stringzpad(tvb, suboptoff, subopt_len));
 			break;
 
 		case bytes:
