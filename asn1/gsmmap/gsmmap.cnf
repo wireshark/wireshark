@@ -38,6 +38,8 @@ RequestedInfo/subscriberState      subscriberStateFlag
 
  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
+ if (!parameter_tvb)
+	return offset;
 
  digit_str = unpack_digits(parameter_tvb, 0);
 

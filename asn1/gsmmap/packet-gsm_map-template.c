@@ -1074,6 +1074,7 @@ void proto_register_gsm_map(void) {
 	register_ber_oid_name("0.4.0.0.1.0.26.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) imsiRetrieval(26) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.13.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) equipmentMngt(13) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.13.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) equipmentMngt(13) version1(1)" );
+	register_ber_oid_name("0.4.0.0.1.0.14.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.14.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.14.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.15.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) interVlrInfoRetrieval(15) version2(2)" );
