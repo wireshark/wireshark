@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.72 2001/01/10 09:25:13 guy Exp $
+# $Id: Makefile.nmake,v 1.73 2001/01/11 07:21:35 gram Exp $
 
 include config.nmake
 
@@ -256,11 +256,15 @@ ps.c	: rdps.exe print.ps
 	rdps print.ps ps.c
 
 packet-ncp2222.c : ncp2222.py
+	@echo Making packet-ncp2222.c
 	$(PYTHON) ncp2222.py > packet-ncp2222.c
 
 register.c: $(DISSECTOR_SOURCES)
 	@echo Making register.c
-	@sh make-reg-dotc . $(DISSECTOR_SOURCES)
+	@$(PYTHON) make-reg-dotc.py . $(DISSECTOR_SOURCES)
+#	How are ifdef's done in NMAKE? It would be nice
+#	to use python if PYTHON is defined, otherwise try to use shell.
+#	@sh make-reg-dotc . $(DISSECTOR_SOURCES)
 
 clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) \

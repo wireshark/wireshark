@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.16 2000/11/06 09:49:43 guy Exp $
+$Id: README.win32,v 1.17 2001/01/11 07:21:35 gram Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -112,11 +112,22 @@ dfilter-grammar.y		*.[ch]			Bison or Yacc
 dfilter-scanner.l		*.c			Flex
 wiretap/ascend-grammar.y	*.[ch]			Bison or Yacc
 wiretap/ascend-scanner.l	*.c			Flex
-make-reg-dotc, packet*.c	register.c		Bash
 ncp2222.py			packet-ncp2222.c	Python
 
+make-reg-dotc, packet*.c	register.c		Bash
+or
+make-reg-dotc.py, packet*.c	register.c		Python
 
-However, if you have a Unix system handy, you can first build on Unix
+The Makefile.nmake supplied with the Ethereal distribution will
+attempt to make register.c with Python, since it is much much much
+faster than the shell version. The reason it is faster is because
+the shell version launches multiple processes (grep, sed) for each
+source file, multiple times. The Python script is one process. This
+matters a lot on Win32. If for some reason you want to build register.c
+with the shell script, uncomment out the action line for the register.c
+target in Makefile.nmake.
+
+If you have a Unix system handy, you can first build on Unix
 to create the source files that these tools make, then run the build
 on Windows.  That will avoid the need for these tools on your Windows
 computer.
