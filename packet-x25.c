@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.59 2001/12/03 05:07:16 guy Exp $
+ * $Id: packet-x25.c,v 1.60 2001/12/05 08:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -165,6 +165,7 @@ static dissector_handle_t data_handle;
 static gboolean non_q_bit_is_sna = FALSE;
 
 static dissector_table_t x25_subdissector_table;
+static heur_dissector_list_t x25_heur_subdissector_list;
 
 /*
  * each vc_info node contains :
@@ -2142,27 +2143,37 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* search the dissector in the hash table */
     if ((dissect = x25_hash_get_dissect(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc))) {
+        /* Found it in the hash table; use it. */
         call_dissector(dissect, next_tvb, pinfo, tree);
+        return;
     }
-    else {
-	/* Did the user suggest SNA-over-X.25? */
-	if (non_q_bit_is_sna) {
-	    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-				     pinfo->fd->abs_usecs, sna_handle);
-	    call_dissector(sna_handle, next_tvb, pinfo, tree);
-	}
-	/* If the Call Req. has not been captured, and the payload begins
-	   with what appears to be an IP header, assume these packets carry
-	   IP */
-	else if (tvb_get_guint8(tvb, localoffset) == 0x45) {
-	    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-				     pinfo->fd->abs_usecs, ip_handle);
-            call_dissector(ip_handle, next_tvb, pinfo, tree);
-	}
-        else {
-            call_dissector(data_handle,next_tvb, pinfo, tree);
-        }
+
+    /* Did the user suggest SNA-over-X.25? */
+    if (non_q_bit_is_sna) {
+        /* Yes - dissect it as SNA. */
+	x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
+				 pinfo->fd->abs_usecs, sna_handle);
+	call_dissector(sna_handle, next_tvb, pinfo, tree);
+	return;
     }
+
+    /* If the Call Req. has not been captured, and the payload begins
+       with what appears to be an IP header, assume these packets carry
+       IP */
+    if (tvb_get_guint8(tvb, localoffset) == 0x45) {
+	x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
+				 pinfo->fd->abs_usecs, ip_handle);
+	call_dissector(ip_handle, next_tvb, pinfo, tree);
+	return;
+    }
+
+    /* Try the heuristic dissectors. */
+    if (dissector_try_heuristic(x25_heur_subdissector_list, next_tvb, pinfo,
+				tree))
+	return;
+
+    /* All else failed; dissect it as raw data */
+    call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -2243,6 +2254,7 @@ proto_register_x25(void)
     register_init_routine(&reinit_x25_hashtable);
 
     x25_subdissector_table = register_dissector_table("x.25.spi");
+    register_heur_dissector_list("x.25", &x25_heur_subdissector_list);
 
     register_dissector("x.25", dissect_x25, proto_x25);
 
