@@ -20,11 +20,11 @@ LINK_PLUGIN_WITH=..\plugin_api.obj
 
 OBJECTS=packet-mate.obj mate_setup.obj mate_runtime.obj mate_util.obj mate_plugin.obj
 
-mate.dll mate.exp mate.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
-	link -dll /out:mate.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+zzmate.dll zzmate.exp zzmate.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:zzmate.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
 
 clean:
-	rm -f $(OBJECTS) mate.dll mate.exp mate.lib *.pdb
+	rm -f $(OBJECTS) zzmate.dll zzmate.exp zzmate.lib *.pdb
 
 distclean: clean

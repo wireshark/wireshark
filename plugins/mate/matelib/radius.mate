@@ -1,7 +1,7 @@
-# radius.thing
+# radius.mate
+# $Id$
 
-Action=pdu; Proto=radius; Transport=ip; addr=ip.addr; radius_id=radius.id; radius_code=radius.code; calling=radius.calling;
-
-Action=pdukey; On=radius; radius_id; addr; addr;
-Action=start; On=radius; radius_code=4;
-Action=stop; On=radius; radius_code=5;
+Action=PduDef; Name=radius_pdu; Proto=radius; Transport=udp/ip; addr=ip.addr; port=udp.port; radius_id=radius.id; radius_code=radius.code;
+Action=GopDef; Name=radius_req; On=radius_pdu; radius_id; addr; addr; port; port;
+Action=GopStart; For=radius_req; radius_code|1|4|7;
+Action=GopStop; For=radius_req; radius_code|2|3|5|8|9;

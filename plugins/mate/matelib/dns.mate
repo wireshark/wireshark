@@ -1,19 +1,7 @@
-# dns.thing
+# dns.mate
+# $Id$
 
-Action=Settings; SessionExpiration=300; 
-
-Action=PDU; Proto=ftp; Transport=ip; addr=ip.addr; port=ftp.passive.port;
-Action=LegKey; On=ftp; addr!65.;
-Action=LegStart; On=ftp;  addr!;
-
-Action=PDU; Proto=tcp; Transport=ip; addr=ip.addr; port=tcp.port; tcp_start=tcp.flags.syn; tcp_stop=tcp.flags.reset; tcp_stop=tcp.flags.fin;
-Action=LegKey; On=tcp; addr!21; addr; port; port;
-Action=LegStart; On=tcp; tcp_start=1;
-Action=LegStop; On=tcp; tcp_stop=1;
-
-Action=PDU; Proto=dns; Transport=ip; addr=ip.addr; dns_id=dns.id; dns_rsp=dns.flags.response; dns_name=dns.name;
-Action=LegKey; On=dns; addr; addr; dns_id;
-Action=LegStart; On=dns; dns_rsp=0;
-Action=LegStop; On=dns; dns_rsp=1;
-Action=LegExtra; On=dns; dns_name;
-
+Action=PduDef; Name=dns_pdu; Proto=dns; Transport=udp/ip; addr=ip.addr; port=udp.port; dns_id=dns.id; dns_rsp=dns.flags.response;
+Action=GopDef; Name=dns_req; On=dns_pdu; addr; addr; port!53; dns_id;
+Action=GopStart; For=dns_req; dns_rsp=0;
+Action=GopStop; For=dns_req; dns_rsp=1;

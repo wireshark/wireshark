@@ -1,6 +1,7 @@
-# sip.thing
+# sip.mate
+# $Id$
 
-Action=PDU; Proto=sip; Transport=ip; addr=ip.addr; sip_method=sip.Method; sip_callid=sip.Call-ID; calling=sdp.owner.username;
-Action=LegKey; On=sip; sip_callid; addr; addr;
-Action=LegStart; On=sip; sip_method=INVITE;
-Action=LegStop; On=sip; sip_method=BYE;
+Action=PduDef; Proto=sip_pdu; Transport=tcp/ip; addr=ip.addr; port=tcp.port; sip_method=sip.Method; sip_callid=sip.Call-ID; calling=sdp.owner.username;
+Action=GopDef; Name=sip_leg; On=sip_pdu; addr; addr; port; port;
+Action=GopStart; For=sip; sip_method=INVITE;
+Action=GopStop; For=sip; sip_method=BYE;

@@ -1,5 +1,11 @@
+# rtsp.mate
+# $Id$
 
-Action=PDU; Proto=rtsp; Transport=ip; isup_msg=isup.message_type; calling=X_Vig_Msisdn; rtsp_method=rtsp.method; rtsp_ses=rtsp.session; addr=ip.addr; rtsp_url=rtsp.url;
-Action=LegKey; On=rtsp; rtsp_ses;
-Action=LegStart; On=rtsp; rtsp_method=SETUP;
-Action=LegStop; On=rtsp; rtsp_method=TEARDOWN;
+Action=PduDef; Name=rtsp_pdu; Proto=rtsp; Transport=tcp/ip; addr=ip.addr; port=tcp.port; rtsp_method=rtsp.method;
+Action=PduExtra; For=rtsp_pdu; rtsp_ses=rtsp.session; rtsp_url=rtsp.url;
+
+Action=GopDef; Name=rtsp_ses; On=rtsp_pdu; addr; addr; port; port;
+Action=GopStart; For=rtsp_ses; rtsp_method=DESCRIBE;
+Action=GopStop; For=rtsp_ses; rtsp_method=TEARDOWN;
+Action=GopExtra; For=rtsp_ses; rtsp_ses; rtsp_url;
+

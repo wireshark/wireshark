@@ -44,6 +44,7 @@
 #include <epan/proto.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
+#include <epan/filesystem.h>
 
 #include "mate_util.h"
 #include "plugins/plugin_api_defs.h"
@@ -107,6 +108,7 @@
 #define KEYWORD_STOP "Stop"
 #define KEYWORD_DROPGOP "DiscardUnassignedGop"
 #define KEYWORD_DROPPDU "DiscardUnassignedPdu"
+#define KEYWORD_LIB "Lib"
 
 #define KEYWORD_DEBUGFILENAME "Debug_File"
 #define KEYWORD_DBG_GENERAL "Debug_General"
@@ -148,6 +150,7 @@ typedef struct _mate_cfg_item {
 	guint last_id; /* keeps the last id given to an item of this kind */
 	int hfid;
 	GHashTable* my_hfids; /* for creating register info */
+	GHashTable* items; /* all the items of this type */
 	
 	/* pdu */
 	gboolean discard_pdu_attributes;
@@ -235,7 +238,7 @@ typedef struct _mate_runtime_data {
 /* these are used to contain information regarding pdus, gops and gogs */
 struct _mate_item {
 	/* all three of them */
-	guint8 id[MATE_ITEM_ID_SIZE]; /* 1:1 -> saving a g_malloc */
+	guint32 id; /* 1:1 -> saving a g_malloc */
 	mate_cfg_item* cfg; /* the type of this item */
 
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */

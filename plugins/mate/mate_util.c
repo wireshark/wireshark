@@ -1041,8 +1041,8 @@ extern AVP* match_avp(AVP* src, AVP* op) {
 			lower = TRUE;
 		case AVP_OP_HIGHER:
 
-			fs = strtof(src->v, NULL);
-			fo = strtof(src->v, NULL);
+			fs = (float) strtod(src->v, NULL);
+			fo = (float) strtod(src->v, NULL);
 
 			if (lower) {
 				if (fs<fo) return src;

@@ -4,42 +4,6 @@ Hi,
 look almost as "production" code, please tell me if it doesn't. I do not plan
 to rewrite it again. I'm realy happy with what it has become.
 
-This has surpassed my initial goal by far. It had just to to be a filter for
-packets of calls, using few protocols, based on the calling number.
-
-My original idea was just to rewrite inside ethereal a perl script I had
-written to split calls. I needed to decode h225 and could not get Decode::ASN1
-to compile the h225 syntax, I thought that migrating it into ethereal would
-had been easy. I was *VERY* wrong. 
-
-At the begining it was ECTAF it extracted data from ISUP and Q931. I hard
-coded the extraction code directly in the dissectors and did an ugly job
-putting it into several hashes but kida threaded the PDUs.
-
-Later I wrote the AVP Lib for it. So that I would converge dealing with the
-different protocols into a single mechanism. H225 got into the picture but
-wasn't versatile enough. Still I used code in the dissectors to extract the
-data.
-
-As I tried to get MEGACO into the picture I wrote a parser to import the
-dpc+cic->term mapping. It took me a day to "see the light", ECTAF used the
-AVPLs as a logical engine already, I had a parser for AVPLs, 1+1=2, so:
-importing the logic from a config file wasa natuiral step for it. STTF was
-the name then (I never got it to be usable, that's why I did not release then). 
-
-At that point I started working into fetching data from the tree, getting it
-into avpls match the avpls to group the pdus etc... the nice "thing" was that
-it was configurable. I called it TTT.
-
-I released about a month ago something called "Thing" that was the result of
-that metamorphosis. A configurable tool that allows to use ethereal to do
-analysis at the session and application level. Not only on what the frames
-carry but on how they interact. 
-
-Now I release a nicelly wrapped version of it. I fixed many things and made
-code that I believe to be versatile enough to be able to grow, clean enough to
-be mantainable. 
-
 Anyway today's MATE is just the core of an application in the application. It
 has plenty of room to grow.
 
@@ -72,9 +36,6 @@ There are still things I will be doing on MATE's code in the very next future:
 
 There are things other I cannot/"do not plan to" do that would be nice
 if someone else did:
-
-- build it as a plugin on Win32. However it may be better to get it in epan and
-  forget about pluginizing it.
 
 - make it work with tethereal. This has frustrated me twice:
   first because I meant it to be used as a filter on live capture to save only

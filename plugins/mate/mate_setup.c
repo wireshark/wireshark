@@ -129,7 +129,8 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->hfid = -1;
 	new->hfid_pdu_rel_time = -1;
 	new->my_hfids = g_hash_table_new(g_str_hash,g_str_equal);
-
+	new->items = g_hash_table_new(g_direct_hash,g_direct_equal);
+	
 	new->hfid_gop_pdu = -1;
 	new->hfid_gop_start_time = -1;
 	new->hfid_gop_stop_time = -1;
@@ -457,19 +458,31 @@ static gboolean config_pduextra(AVPL* avpl) {
 
 static gboolean config_include(AVPL* avpl) {
 	guint8* filename = extract_named_str(avpl,KEYWORD_FILENAME,NULL);
-
-	/* TODO: use library path */
-	if( ! filename ) {
-		mate_config_error(NULL,NULL,"mate: Include file error: no filename");
+	guint8* lib = extract_named_str(avpl,KEYWORD_LIB,NULL);
+		
+	if ( ! filename && ! lib ) {
+		mate_config_error(NULL,NULL,"mate: Include file error: no Filename or Lib given");
 		return FALSE;
 	}
 
+	if ( filename && lib ) {
+		mate_config_error(NULL,NULL,"mate: Include file error: use either Filename or Lib, not both.");
+		return FALSE;
+	}
+	
+	if (lib) {
+		filename = g_strdup_printf("%s%s.mate",matecfg->mate_lib_path,lib);
+	}
+	
 	/* FIXME: stop recursion */
 	if ( ! mate_load_config(filename) ) {
 		mate_config_error(NULL,NULL,"mate: Error Loading '%s'",filename);
+		if (lib) g_free(filename);
 		return FALSE;
 	}
-
+	
+	if (lib) g_free(filename);
+	
 	return TRUE;
 }
 
@@ -1053,7 +1066,7 @@ static void new_attr_hfri(mate_cfg_item* cfg, guint8* name) {
 
 }
 
-static void analyze_pdu_hfids(gpointer k, gpointer v, gpointer p) {
+static void analyze_pdu_hfids(gpointer k _U_, gpointer v, gpointer p) {
 	new_attr_hfri((mate_cfg_pdu*) p,(guint8*) v);
 }
 
@@ -1080,8 +1093,10 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("PDU of type %s",cfg->name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Id",cfg->name);
+	hfri.hfinfo.blurb = g_strdup_printf("%s id",cfg->name);
+	hfri.hfinfo.type = FT_UINT32;
+	hfri.hfinfo.display = BASE_DEC;
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
@@ -1107,8 +1122,10 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("GOP of type %s",cfg->name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Id",cfg->name);
+	hfri.hfinfo.blurb = g_strdup_printf("%s id",cfg->name);
+	hfri.hfinfo.type = FT_UINT32;
+	hfri.hfinfo.display = BASE_DEC;
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
@@ -1192,8 +1209,10 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("GOG of type %s",cfg->name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Id",cfg->name);
+	hfri.hfinfo.blurb = g_strdup_printf("%s Id",cfg->name);
+	hfri.hfinfo.type = FT_UINT32;
+	hfri.hfinfo.display = BASE_DEC;
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
@@ -1298,6 +1317,7 @@ static void init_actions() {
 	insert_avp(all_keywords,new_avp(KEYWORD_STOP,"",'='));
 	insert_avp(all_keywords,new_avp(KEYWORD_DROPPDU,"",'='));
 	insert_avp(all_keywords,new_avp(KEYWORD_DROPGOP,"",'='));
+	insert_avp(all_keywords,new_avp(KEYWORD_LIB,"",'='));
 
 	insert_avp(all_keywords,new_avp(KEYWORD_DBG_GENERAL,"",'='));
 	insert_avp(all_keywords,new_avp(KEYWORD_DBG_CFG,"",'='));
@@ -1368,7 +1388,7 @@ extern mate_config* mate_make_config(guint8* filename) {
 	matecfg->last_to_be_created = FALSE;
 	matecfg->match_mode = AVPL_STRICT;
 	matecfg->replace_mode = AVPL_INSERT;
-	matecfg->mate_lib_path = g_strdup_printf("%s%c%s",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH);
+	matecfg->mate_lib_path = g_strdup_printf("%s%c%s%c",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);
 	matecfg->mate_config_file = g_strdup(filename);
 	matecfg->mate_attrs_filter = g_string_new("");
 	matecfg->mate_protos_filter = g_string_new("");
@@ -1405,7 +1425,7 @@ extern mate_config* mate_make_config(guint8* filename) {
 		g_string_erase(matecfg->mate_protos_filter,0,2);
 	} else {
 		mate_config_error(NULL,NULL,"mate: Failed: nothing left to tap on");
-		if (matecfg) destroy_mate_config(matecfg,FALSE);
+		destroy_mate_config(matecfg,FALSE);
 		matecfg = NULL;
 		return NULL;
 	}

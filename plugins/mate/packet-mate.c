@@ -107,7 +107,7 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	guint i;
 #endif
 	
-	gog_item = proto_tree_add_string(tree,gog->cfg->hfid,tvb,0,0,gog->id);
+	gog_item = proto_tree_add_uint(tree,gog->cfg->hfid,tvb,0,0,gog->id);
 	gog_tree = proto_item_add_subtree(gog_item,ett_mate_gog);
 			
 	attrs_tree(gog_tree,tvb,gog);
@@ -122,7 +122,7 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 		if (gop != gog_gops) {
 			mate_gop_tree(gog_gop_tree, tvb, gog_gops, ett_mate_gop_in_gog);
 		} else {
-			 proto_tree_add_string_format(gog_gop_tree,gop->cfg->hfid,tvb,0,0,gop->id,"GOP of current frame: %s",gop->id);
+			 proto_tree_add_uint_format(gog_gop_tree,gop->cfg->hfid,tvb,0,0,gop->id,"%s of current frame: %d",gop->cfg->name,gop->id);
 		}
 	}
 	
@@ -139,7 +139,7 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop, gint gop_ett)
 	float  rel_time;
 	float  gop_time;
 
-	gop_item = proto_tree_add_string(tree,gop->cfg->hfid,tvb,0,0,gop->id);
+	gop_item = proto_tree_add_uint(tree,gop->cfg->hfid,tvb,0,0,gop->id);
 	gop_tree = proto_item_add_subtree(gop_item, gop_ett);
 	
 	if (gop->gop_key) proto_tree_add_text(gop_tree,tvb,0,0,"GOP Key: %s",gop->gop_key);
@@ -213,15 +213,20 @@ void mate_pdu_tree(mate_pdu *pdu, tvbuff_t *tvb, proto_tree* tree) {
 	if ( ! pdu ) return;
 	
 	if (pdu->gop && pdu->gop->gog) {
-		proto_item_append_text(mate_i," %s->%s->%s",pdu->id,pdu->gop->id,pdu->gop->gog->id);
+		proto_item_append_text(mate_i," %s:%d->%s:%d->%s:%d",
+							   pdu->cfg->name,pdu->id,
+							   pdu->gop->cfg->name,pdu->gop->id,
+							   pdu->gop->gog->cfg->name,pdu->gop->gog->id);
 	} else if (pdu->gop) {
-		proto_item_append_text(mate_i," %s->%s",pdu->id,pdu->gop->id);
+		proto_item_append_text(mate_i," %s:%d->%s:%d",
+							   pdu->cfg->name,pdu->id,
+							   pdu->gop->cfg->name,pdu->gop->id);
 	} else {
-		proto_item_append_text(mate_i," %s",pdu->id);
+		proto_item_append_text(mate_i," %s:%d",pdu->cfg->name,pdu->id);
 	}
 	
 	len = pdu->end - pdu->start;
-	pdu_item = proto_tree_add_string(tree,pdu->cfg->hfid,tvb,pdu->start,len,pdu->id);
+	pdu_item = proto_tree_add_uint(tree,pdu->cfg->hfid,tvb,pdu->start,len,pdu->id);
 	pdu_tree = proto_item_add_subtree(pdu_item, ett_mate_pdu);
 	proto_tree_add_float(pdu_tree,pdu->cfg->hfid_pdu_rel_time, tvb, 0, 0, pdu->rel_time);		
 

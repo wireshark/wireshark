@@ -1,6 +1,7 @@
-# isup.thing
+# isup.mate
+# $Id$
 
-Action=PDU; Proto=isup; Transport=mtp3; mtp3pc=mtp3.dpc; mtp3pc=mtp3.opc; cic=isup.cic; isup_msg=isup.message_type;  called=isup.called; calling=isup.calling;  isup_cause=isup.cause_indicator;
-Action=LegKey; On=isup; cic; mtp3pc; mtp3pc;
-Action=LegStart; On=isup; isup_msg=1;
-Action=LegStop; On=isup; isup_msg=16;
+Action=PduDef; Name=isup_pdu; Proto=isup; Transport=mtp3; mtp3pc=mtp3.dpc; mtp3pc=mtp3.opc; cic=isup.cic; isup_msg=isup.message_type;
+Action=GopDef; Name=isup_leg; On=isup_pdu; ShowPduTree=TRUE; mtp3pc; mtp3pc; cic;
+Action=GopStart; For=isup_leg; isup_msg=1;
+Action=GopStop; For=isup_leg; isup_msg=16;
