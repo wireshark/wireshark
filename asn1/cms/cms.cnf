@@ -15,6 +15,13 @@ SignedData
 Countersignature
 IssuerAndSerialNumber
 
+#.REGISTER
+SignedData        B "1.2.840.113549.1.7.2"      "id-signedData"
+EnvelopedData     B "1.2.840.113549.1.7.3"      "id-envelopedData"
+DigestedData      B "1.2.840.113549.1.7.5"      "id-digestedData"
+EncryptedData     B "1.2.840.113549.1.7.6"      "id-encryptedData"
+AuthenticatedData B "1.2.840.113549.1.9.16.1.2" "id-ct-authenticatedData"
+
 #.NO_EMIT
 OtherKeyAttribute
 

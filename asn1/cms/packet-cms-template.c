@@ -89,37 +89,6 @@ dissect_cms_OtherKeyAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
   return offset;
 }
 
-static void
-dissect_cms_SignedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_SignedData(FALSE, tvb, 0, pinfo, tree, -1);
-}
-
-static void
-dissect_cms_EnvelopedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_EnvelopedData(FALSE, tvb, 0, pinfo, tree, -1);
-}
-
-static void
-dissect_cms_DigestedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_DigestedData(FALSE, tvb, 0, pinfo, tree, -1);
-}
-
-
-static void
-dissect_cms_EncryptedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_EncryptedData(FALSE, tvb, 0, pinfo, tree, -1);
-}
-
-static void
-dissect_cms_AuthenticatedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_cms_AuthenticatedData(FALSE, tvb, 0, pinfo, tree, -1);
-}
-
 
 
 /* ContentInfo can not yet be handled by the compiler */
@@ -188,10 +157,6 @@ void proto_register_cms(void) {
 
 /*--- proto_reg_handoff_cms -------------------------------------------*/
 void proto_reg_handoff_cms(void) {
-	register_ber_oid_dissector("1.2.840.113549.1.7.2", dissect_cms_SignedData_callback, proto_cms, "id-signedData");
-	register_ber_oid_dissector("1.2.840.113549.1.7.3", dissect_cms_EnvelopedData_callback, proto_cms, "id-envelopedData");
-	register_ber_oid_dissector("1.2.840.113549.1.7.5", dissect_cms_DigestedData_callback, proto_cms, "id-digestedData");
-	register_ber_oid_dissector("1.2.840.113549.1.7.6", dissect_cms_EncryptedData_callback, proto_cms, "id-encryptedData");
-	register_ber_oid_dissector("1.2.840.113549.1.9.16.1.2", dissect_cms_AuthenticatedData_callback, proto_cms, "id-ct-authenticatedData");
+#include "packet-cms-dis-tab.c"
 }
 
