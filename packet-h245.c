@@ -92,7 +92,7 @@ proper helper routines
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h245.c,v 1.10 2003/07/08 11:39:45 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.11 2003/07/08 18:16:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -19250,7 +19250,7 @@ static per_sequence_t OpenLogicalChannel_sequence[] = {
 		dissect_h245_EncryptionSync },
 	{ NULL, 0, 0, NULL }
 };
-static int
+int
 dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannel, ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
@@ -19995,7 +19995,7 @@ static per_choice_t MultimediaSystemControlMessage_choice[] = {
 			dissect_h245_IndicationMessage },
 	{ 0, NULL, 0, NULL }
 };
-static void
+void
 dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *it;
