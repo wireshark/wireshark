@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.6 1999/03/23 03:14:40 gram Exp $
+ * $Id: packet-nbipx.c,v 1.7 1999/05/10 19:01:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,7 @@ enum nbipx_protocol {
 
 static void
 nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-		enum nbipx_protocol nbipx);
+		enum nbipx_protocol nbipx, int max_data);
 
 /* There is no RFC or public specification of Netware or Microsoft
  * NetBIOS over IPX packets. I have had to decode the protocol myself,
@@ -73,21 +73,23 @@ struct nbipx_header {
 
 /* NetWare */
 void
-dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+		int max_data)
 {
-	nbipx_ns(pd, offset, fd, tree, NETBIOS_NETWARE);
+	nbipx_ns(pd, offset, fd, tree, NETBIOS_NETWARE, max_data);
 }
 
 void
-dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+		int max_data)
 {
-	nbipx_ns(pd, offset, fd, tree, NETBIOS_NWLINK);
+	nbipx_ns(pd, offset, fd, tree, NETBIOS_NWLINK, max_data);
 }
 
 
 static void
 nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-		enum nbipx_protocol nbipx)
+		enum nbipx_protocol nbipx, int max_data)
 {
 	proto_tree			*nbipx_tree;
 	proto_item			*ti;
@@ -128,13 +130,18 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 					col_add_fstr(fd, COL_INFO, "Name Query for %s", header.name);
 					break;
 
+				case 2:
+					col_add_fstr(fd, COL_INFO, "SMB over NBIPX");
+					break;
+				
+
 				default:
 					col_add_str(fd, COL_INFO, "NetBIOS over IPX");
 			}
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
+		ti = proto_tree_add_item(tree, offset, 68,
 				"NetBIOS over IPX");
 		nbipx_tree = proto_tree_new();
 		proto_item_add_subtree(ti, nbipx_tree, ETT_NBIPX);
@@ -176,7 +183,15 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (nbipx == NETBIOS_NWLINK) {
-		dissect_data(pd, offset + 68, fd, tree);
+		switch (header.packet_type) {
+			case 2:
+				dissect_smb(pd, offset + 68, fd, tree, max_data - 68);
+				break;
+				
+			default:
+				dissect_data(pd, offset + 68, fd, tree);
+				break;
+		}
 	}
 }
 

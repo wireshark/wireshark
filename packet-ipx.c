@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.18 1999/03/23 03:14:39 gram Exp $
+ * $Id: packet-ipx.c,v 1.19 1999/05/10 19:01:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -265,7 +265,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 		case 20: /* NetBIOS */
 			if (ipx_dsocket == 0x0455) {
-				dissect_nbipx_ns(pd, offset, fd, tree);
+				dissect_nbipx_ns(pd, offset, fd, tree, ipx_length - 30);
 				break;
 			}
 			/* else fall through */
