@@ -460,6 +460,7 @@ Ralf Holzer <ralf@well.com> {
 
 Craig Rodrigues <rodrigc@mediaone.net> {
 	GIOP 1.2 support and other GIOP enhancements
+	Handle current versions of RPM, which compress man pages
 }
 
 Ed Warnicke <hagbard@physics.rutgers.edu> {

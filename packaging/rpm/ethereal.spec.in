@@ -48,11 +48,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc README.bsd
 %config /etc/manuf
 /usr/X11R6/bin/ethereal
-/usr/X11R6/man/man1/ethereal.1
+/usr/X11R6/man/man1/ethereal.1.gz
 /usr/bin/tethereal
 /usr/bin/editcap
-/usr/man/man1/tethereal.1
-/usr/man/man1/editcap.1
+/usr/man/man1/tethereal.1.gz
+/usr/man/man1/editcap.1.gz
 
 %changelog
 * Tue Aug 24 1999 Gilbert Ramirez
