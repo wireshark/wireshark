@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.8 2003/02/13 22:35:10 guy Exp $
+# $Id: Makefile.nmake,v 1.9 2003/10/01 19:44:05 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -46,9 +46,6 @@ ethereal.html: ethereal.pod ../config.h
 	$(MAKE) -f makefile.nmake tethereal.exe
 	cd doc
 
-ethereal.pod: ethereal.pod.template  ../tethereal.exe
-	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl ethereal.pod.template > ethereal.pod
-
 tethereal.1: tethereal.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
@@ -63,6 +60,21 @@ tethereal.html: tethereal.pod ../config.h
 
 tethereal.pod: tethereal.pod.template  ../tethereal.exe
 	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl tethereal.pod.template > tethereal.pod
+
+ethereal-filter.4: ethereal-filter.pod ../config.h
+	$(POD2MAN)                     \
+	--center="The Ethereal Network Analyzer" \
+	--release=$(VERSION)			 \
+	 ethereal-filter.pod > ethereal.4
+
+ethereal-filter.html: ethereal-filter.pod ../config.h
+	$(POD2HTML)                    \
+	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	ethereal-filter.pod > ethereal-filter.html
+
+ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal.exe
+	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl ethereal-filter.pod.template > ethereal-filter.pod
 
 editcap.1: editcap.pod ../config.h
 	$(POD2MAN)                      \
