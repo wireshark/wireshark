@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.57 2000/07/31 04:19:54 guy Exp $
+ * $Id: file.c,v 1.58 2000/07/31 04:48:54 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -106,6 +106,12 @@ int wtap_def_seek_read(wtap *wth, int seek_off,
 	return file_read(pd, sizeof(guint8), len, wth->random_fh);
 }
 
+/*
+ * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't
+ * define them either.)
+ *
+ * Visual C++ on Win32 systems doesn't define S_IFIFO, it defines _S_IFIFO.
+ */
 #ifndef S_ISREG
 #define S_ISREG(mode)   (((mode) & S_IFMT) == S_IFREG)
 #endif
