@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.78 2002/12/19 02:58:47 guy Exp $
+ * $Id: proto.c,v 1.79 2002/12/31 21:37:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1864,11 +1864,14 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 {
+	int					ret;	/*tmp return value */
 	field_info *fi = PITEM_FINFO(pi);
 
 	if (fi->visible) {
 		fi->representation = g_mem_chunk_alloc(gmc_item_labels);
-		vsnprintf(fi->representation, ITEM_LABEL_LENGTH, format, ap);
+		ret = vsnprintf(fi->representation, ITEM_LABEL_LENGTH, format, ap);
+		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+			fi->representation[ITEM_LABEL_LENGTH - 1] = '\0';
 	}
 }
 
@@ -1900,6 +1903,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 	field_info *fi = NULL;
 	size_t curlen;
 	va_list	ap;
+	int					ret;	/*tmp return value */
 
 	if (pi==NULL) {
 		return;
@@ -1920,9 +1924,12 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 		}
 
 		curlen = strlen(fi->representation);
-		if (ITEM_LABEL_LENGTH > curlen)
-			vsnprintf(fi->representation + curlen,
+		if (ITEM_LABEL_LENGTH > curlen) {
+			ret = vsnprintf(fi->representation + curlen,
 			    ITEM_LABEL_LENGTH - curlen, format, ap);
+			if ((ret == -1) || (ret >= (int)(ITEM_LABEL_LENGTH - curlen)))
+				fi->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+		}
 		va_end(ap);
 	}
 }
@@ -2333,12 +2340,15 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint32				integer;
 	ipv4_addr			*ipv4;
 	guint32				n_addr; /* network-order IPv4 address */
+	int					ret;	/*tmp return value */
 
 	switch(hfinfo->type) {
 		case FT_NONE:
 		case FT_PROTOCOL:
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s", hfinfo->name);
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_BOOLEAN:
@@ -2349,13 +2359,17 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT_BYTES:
 			bytes = fvalue_get(fi->value);
 			if (bytes) {
-				snprintf(label_str, ITEM_LABEL_LENGTH,
+				ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s", hfinfo->name,
 					 bytes_to_str(bytes, fvalue_length(fi->value)));
+				if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+					label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			}
 			else {
-				snprintf(label_str, ITEM_LABEL_LENGTH,
+				ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: <MISSING>", hfinfo->name);
+				if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+					label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			}
 			break;
 
@@ -2410,66 +2424,84 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_FLOAT:
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %.9g", hfinfo->name, fvalue_get_floating(fi->value));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_DOUBLE:
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %.14g", hfinfo->name, fvalue_get_floating(fi->value));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", hfinfo->name,
 				abs_time_to_str(fvalue_get(fi->value)));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_RELATIVE_TIME:
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s seconds", hfinfo->name,
 				rel_time_to_secs_str(fvalue_get(fi->value)));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_IPXNET:
 			integer = fvalue_get_integer(fi->value);
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: 0x%08X (%s)", hfinfo->name,
 				integer, get_ipxnet_name(integer));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_ETHER:
 			bytes = fvalue_get(fi->value);
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
 				ether_to_str(bytes),
 				get_ether_name(bytes));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_IPv4:
 			ipv4 = fvalue_get(fi->value);
 			n_addr = ipv4_get_net_order_addr(ipv4);
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
 				get_hostname(n_addr),
 				ip_to_str((guint8*)&n_addr));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_IPv6:
 			bytes = fvalue_get(fi->value);
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
 				get_hostname6((struct e_in6_addr *)bytes),
 				ip6_to_str((struct e_in6_addr*)bytes));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(fi->value);
-			snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", hfinfo->name,
 				format_text(bytes, strlen(bytes)));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		default:
@@ -2486,18 +2518,23 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 {
 	unsigned char *bytes;
 	header_field_info *hfinfo = fi->hfinfo;
+	int					ret;	/*tmp return value */
 
 	bytes=fvalue_get(fi->value);
 	switch(hfinfo->display){
 	case BASE_DEC:
-		snprintf(label_str, ITEM_LABEL_LENGTH,
+		ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 			"%s: %s", hfinfo->name,
 			u64toa(bytes));
+		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+			label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 		break;
 	case BASE_HEX:
-		snprintf(label_str, ITEM_LABEL_LENGTH,
+		ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 			"%s: %s", hfinfo->name,
 			u64toh(bytes));
+		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+			label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 		break;
 	default:
 		g_assert_not_reached();
@@ -2510,18 +2547,23 @@ fill_label_int64(field_info *fi, gchar *label_str)
 {
 	unsigned char *bytes;
 	header_field_info *hfinfo = fi->hfinfo;
+	int					ret;	/*tmp return value */
 
 	bytes=fvalue_get(fi->value);
 	switch(hfinfo->display){
 	case BASE_DEC:
-		snprintf(label_str, ITEM_LABEL_LENGTH,
+		ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 			"%s: %s", hfinfo->name,
 			i64toa(bytes));
+		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+			label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 		break;
 	case BASE_HEX:
-		snprintf(label_str, ITEM_LABEL_LENGTH,
+		ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 			"%s: %s", hfinfo->name,
 			u64toh(bytes));
+		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+			label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 		break;
 	default:
 		g_assert_not_reached();
@@ -2536,6 +2578,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	int	bitfield_byte_length = 0, bitwidth;
 	guint32	unshifted_value;
 	guint32	value;
+	int					ret;	/*tmp return value */
 
 	header_field_info		*hfinfo = fi->hfinfo;
 	static const true_false_string	default_tf = { "True", "False" };
@@ -2562,9 +2605,11 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	}
 
 	/* Fill in the textual info */
-	snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+	ret = snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 		"%s: %s",  hfinfo->name,
 		value ? tfstring->true_string : tfstring->false_string);
+	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
+		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 
@@ -2576,6 +2621,7 @@ fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
 	int bitfield_byte_length, bitwidth;
 	guint32 unshifted_value;
 	guint32 value;
+	int					ret;	/*tmp return value */
 
 	header_field_info	*hfinfo = fi->hfinfo;
 
@@ -2597,9 +2643,11 @@ fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
 	bitfield_byte_length = p - label_str;
 
 	/* Fill in the textual info using stored (shifted) value */
-	snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+	ret = snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 			format,  hfinfo->name,
 			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
+		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 static void
@@ -2609,6 +2657,7 @@ fill_label_numeric_bitfield(field_info *fi, gchar *label_str)
 	int bitfield_byte_length, bitwidth;
 	guint32 unshifted_value;
 	guint32 value;
+	int					ret;	/*tmp return value */
 
 	header_field_info	*hfinfo = fi->hfinfo;
 
@@ -2630,8 +2679,11 @@ fill_label_numeric_bitfield(field_info *fi, gchar *label_str)
 	bitfield_byte_length = p - label_str;
 
 	/* Fill in the textual info using stored (shifted) value */
-	snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+	ret = snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 			format,  hfinfo->name, value);
+	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
+		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
+
 }
 
 static void
@@ -2640,6 +2692,7 @@ fill_label_enumerated_uint(field_info *fi, gchar *label_str)
 	char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
+	int					ret;	/*tmp return value */
 
 	/* Pick the proper format string */
 	format = hfinfo_uint_vals_format(hfinfo);
@@ -2647,9 +2700,11 @@ fill_label_enumerated_uint(field_info *fi, gchar *label_str)
 	value = fvalue_get_integer(fi->value);
 
 	/* Fill in the textual info */
-	snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name,
 			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 static void
@@ -2658,14 +2713,17 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
+	int					ret;	/*tmp return value */
 
 	/* Pick the proper format string */
 	format = hfinfo_uint_format(hfinfo);
 	value = fvalue_get_integer(fi->value);
 
 	/* Fill in the textual info */
-	snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name, value);
+	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 static void
@@ -2674,15 +2732,18 @@ fill_label_enumerated_int(field_info *fi, gchar *label_str)
 	char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
+	int					ret;	/*tmp return value */
 
 	/* Pick the proper format string */
 	format = hfinfo_int_vals_format(hfinfo);
 	value = fvalue_get_integer(fi->value);
 
 	/* Fill in the textual info */
-	snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name,
 			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 static void
@@ -2691,14 +2752,17 @@ fill_label_int(field_info *fi, gchar *label_str)
 	char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
+	int					ret;	/*tmp return value */
 
 	/* Pick the proper format string */
 	format = hfinfo_int_format(hfinfo);
 	value = fvalue_get_integer(fi->value);
 
 	/* Fill in the textual info */
-	snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name, value);
+	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 int
