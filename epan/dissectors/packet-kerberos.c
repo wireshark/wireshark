@@ -75,6 +75,7 @@
 
 #include <epan/strutil.h>
 
+#include <epan/conversation.h>
 #include <epan/dissectors/packet-kerberos.h>
 #include <epan/dissectors/packet-netbios.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -92,6 +93,8 @@
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
+
+static dissector_handle_t kerberos_handle_udp;
 
 /* Desegment Kerberos over TCP messages */
 static gboolean krb_desegment = TRUE;
@@ -3611,6 +3614,23 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
 static void
 dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    conversation_t *conversation;
+
+    /*
+     * UDP replies from the server are sent back to the client's source
+     * port, similar to TFTP.
+     */
+    /* XXX This test may be too general */
+    if (pinfo->destport == UDP_PORT_KERBEROS && pinfo->ptype == PT_UDP) {
+	conversation = find_conversation(&pinfo->src, &pinfo->dst, PT_UDP,
+	       pinfo->srcport, 0, NO_PORT_B);
+	if (conversation == NULL) {
+	    conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
+		    pinfo->srcport, 0, NO_PORT2);
+	    conversation_set_dissector(conversation, kerberos_handle_udp);
+	}
+    }
+
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 
@@ -4234,7 +4254,6 @@ static dcerpc_auth_subdissector_fns gss_kerb_auth_fns = {
 void
 proto_reg_handoff_kerberos(void)
 {
-    dissector_handle_t kerberos_handle_udp;
     dissector_handle_t kerberos_handle_tcp;
 
     kerberos_handle_udp = create_dissector_handle(dissect_kerberos_udp,
