@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.47 2001/02/21 23:53:25 guy Exp $
+ * $Id: packet-nfs.c,v 1.48 2001/03/02 21:54:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -127,7 +127,6 @@ static int hf_nfs_ftype4 = -1;
 static int hf_nfs_change_info4_atomic = -1;
 static int hf_nfs_open4_share_access = -1;
 static int hf_nfs_open4_share_deny = -1;
-static int hf_nfs_open4_result_flags = -1;
 static int hf_nfs_seqid4 = -1;
 static int hf_nfs_mand_attr = -1;
 static int hf_nfs_recc_attr = -1;
@@ -247,6 +246,7 @@ static gint ett_nfs_fattr4 = -1;
 static gint ett_nfs_fsid4 = -1;
 static gint ett_nfs_fs_locations4 = -1;
 static gint ett_nfs_fs_location4 = -1;
+static gint ett_nfs_open4_result_flags = -1;
 
 /* file handle dissection */
 
@@ -4809,13 +4809,36 @@ static const value_string names_open4_result_flags[] = {
 
 int 
 dissect_nfs_open4_rflags(const u_char *pd, int offset, frame_data *fd, 
-	proto_tree *tree)
+	proto_tree *tree, char *name)
 {
 	guint rflags;
+	proto_item *rflags_item = NULL;
+	proto_item *rflags_tree = NULL;
 
+	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	rflags = EXTRACT_UINT(pd, offset);
-	proto_tree_add_uint(tree, hf_nfs_open4_result_flags, NullTVB, offset, 4,
-		rflags);
+
+	if (tree)
+	{
+		rflags_item = proto_tree_add_text(tree, NullTVB, offset, 4,
+			"%s: 0x%08x", name, rflags);
+
+		if (rflags_item)
+			rflags_tree = proto_item_add_subtree(rflags_item, 
+				ett_nfs_open4_result_flags);
+	}
+
+	if (rflags_tree)
+	{
+		proto_tree_add_text(rflags_tree, NullTVB, offset, 4, "%s",
+			decode_enumerated_bitfield(rflags, OPEN4_RESULT_MLOCK, 2,
+			names_open4_result_flags, "%s"));
+
+		proto_tree_add_text(rflags_tree, NullTVB, offset, 4, "%s",
+			decode_enumerated_bitfield(rflags, OPEN4_RESULT_CONFIRM, 2,
+			names_open4_result_flags, "%s"));
+	}
+	
 	offset += 4;
 
 	return offset;
@@ -5343,7 +5366,8 @@ dissect_nfs_resop4(const u_char *pd, int offset, frame_data *fd,
 			offset = dissect_nfs_stateid4(pd, offset, fd, newftree, "stateid");
 			offset = dissect_nfs_change_info4(pd, offset, fd, newftree, 
 				"change_info");
-			offset = dissect_nfs_open4_rflags(pd, offset, fd, newftree);
+			offset = dissect_nfs_open4_rflags(pd, offset, fd, newftree, 
+				"result_flags");
 			offset = dissect_nfs_verifier4(pd, offset, fd, newftree, 
 				"verifier");
 			offset = dissect_nfs_open_delegation4(pd, offset, fd, newftree, 
@@ -5800,9 +5824,11 @@ proto_register_nfs(void)
 			"share_deny", "nfs.open4.share_deny", FT_UINT32, BASE_DEC,
 			VALS(names_open4_share_deny), 0, "Share Deny" }},
 
+#if 0
 		{ &hf_nfs_open4_result_flags, {
 			"result_flags", "nfs.open4.rflags", FT_UINT32, BASE_HEX,
 			VALS(names_open4_result_flags), 0, "Result Flags" }},
+#endif
 
 		{ &hf_nfs_seqid4, {
 			"seqid", "nfs.seqid", FT_UINT32, BASE_HEX,
@@ -6003,7 +6029,8 @@ proto_register_nfs(void)
 		&ett_nfs_fattr4,
 		&ett_nfs_fsid4,
 		&ett_nfs_fs_locations4,
-		&ett_nfs_fs_location4
+		&ett_nfs_fs_location4,
+		&ett_nfs_open4_result_flags
 	};
 	proto_nfs = proto_register_protocol("Network File System", "NFS", "nfs");
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
