@@ -246,3 +246,4 @@
 #define asn1_id_decode1 (*p_asn1_id_decode1)
 #define col_get_writable (*p_col_get_writable)
 #define col_set_writable (*p_col_set_writable)
+#define decode_enumerated_bitfield_shifted (*p_decode_enumerated_bitfield_shifted)

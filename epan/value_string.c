@@ -1,7 +1,7 @@
 /* value_string.c
  * Routines for value_strings
  *
- * $Id: value_string.c,v 1.4 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: value_string.c,v 1.5 2003/12/01 23:41:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,3 +88,22 @@ decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
 }
 
 
+/* Generate a string describing an enumerated bitfield (an N-bit field
+   with various specific values having particular names). */
+const char *
+decode_enumerated_bitfield_shifted(guint32 val, guint32 mask, int width,
+    const value_string *tab, const char *fmt)
+{
+  static char buf[1025];
+  char *p;
+  int shift = 0;
+
+  /* Compute the number of bits we have to shift the bitfield right
+     to extract its value. */
+  while ((mask & (1<<shift)) == 0)
+    shift++;
+
+  p = decode_bitfield_value(buf, val, mask, width);
+  sprintf(p, fmt, val_to_str((val & mask) >> shift, tab, "Unknown"));
+  return buf;
+}

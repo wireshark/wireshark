@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.18 2003/11/18 19:34:43 guy Exp $
+ * $Id: plugin_api_list.c,v 1.19 2003/12/01 23:41:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -390,3 +390,6 @@ int asn1_id_decode1(ASN1_SCK *asn1, guint *tag);
 
 gboolean col_get_writable(column_info *);
 void col_set_writable(column_info *, gboolean);
+
+const char *decode_enumerated_bitfield_shifted(guint32, guint32, int,
+    const value_string *, const char *);

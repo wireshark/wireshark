@@ -246,3 +246,4 @@ addr_dissector_try_heuristic p_dissector_try_heuristic;
 addr_asn1_id_decode1 p_asn1_id_decode1;
 addr_col_get_writable p_col_get_writable;
 addr_col_set_writable p_col_set_writable;
+addr_decode_enumerated_bitfield_shifted p_decode_enumerated_bitfield_shifted;

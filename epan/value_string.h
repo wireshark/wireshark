@@ -1,7 +1,7 @@
 /* value_string.h
  * Definitions for value_string structures and routines
  *
- * $Id: value_string.h,v 1.3 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: value_string.h,v 1.4 2003/12/01 23:41:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,8 @@ extern gchar*     match_strval(guint32, const value_string*);
 
 extern gchar*     val_to_str(guint32, const value_string *, const char *);
 extern const char *decode_enumerated_bitfield(guint32 val, guint32 mask,
+  int width, const value_string *tab, const char *fmt);
+extern const char *decode_enumerated_bitfield_shifted(guint32 val, guint32 mask,
   int width, const value_string *tab, const char *fmt);
 
 #endif /* __VALUE_STRING_H__ */
