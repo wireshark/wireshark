@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.10 2000/09/12 06:28:02 guy Exp $
+ * $Id: follow_dlg.c,v 1.11 2000/11/21 23:54:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,8 @@
 # include "snprintf.h"
 #endif
 
+#include "color.h"
+#include "color_utils.h"
 #include "file.h"
 #include "follow_dlg.h"
 #include "follow.h"
@@ -635,13 +637,16 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
 		       void *arg)
 {
     GtkWidget *text = arg;
+    GdkColor   fg, bg;
 
-    if (is_server)
-	gtk_text_insert(GTK_TEXT(text), m_r_font, &prefs.st_server_fg,
-			&prefs.st_server_bg, buffer, nchars);
-    else
-	gtk_text_insert(GTK_TEXT(text), m_r_font, &prefs.st_client_fg,
-			&prefs.st_client_bg, buffer, nchars);
+    if (is_server) {
+    	color_t_to_gdkcolor(&fg, &prefs.st_server_fg);
+    	color_t_to_gdkcolor(&bg, &prefs.st_server_bg);
+    } else {
+    	color_t_to_gdkcolor(&fg, &prefs.st_client_fg);
+    	color_t_to_gdkcolor(&bg, &prefs.st_client_bg);
+    }
+    gtk_text_insert(GTK_TEXT(text), m_r_font, &fg, &bg, buffer, nchars);
 }
 
 static void

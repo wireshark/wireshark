@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.226 2000/11/19 08:53:53 guy Exp $
+ * $Id: file.c,v 1.227 2000/11/21 23:54:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,6 +72,8 @@
 #include <epan.h>
 
 #include "gtk/main.h"
+#include "color.h"
+#include "gtk/color_utils.h"
 #include "column.h"
 #include "packet.h"
 #include "print.h"
@@ -606,6 +608,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   gint          i, row;
   proto_tree   *protocol_tree = NULL;
   epan_dissect_t *edt;
+  GdkColor      fg, bg;
 
   /* We don't yet have a color filter to apply. */
   args.colorf = NULL;
@@ -734,17 +737,17 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
 
     if (fdata->flags.marked) {
-	gtk_clist_set_background(GTK_CLIST(packet_list), row, &prefs.gui_marked_bg);
-	gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &prefs.gui_marked_fg);
+	color_t_to_gdkcolor(&bg, &prefs.gui_marked_bg);
+	color_t_to_gdkcolor(&fg, &prefs.gui_marked_fg);
     } else if (filter_list != NULL && (args.colorf != NULL)) {
-        gtk_clist_set_background(GTK_CLIST(packet_list), row,
-                   &args.colorf->bg_color);
-        gtk_clist_set_foreground(GTK_CLIST(packet_list), row,
-                   &args.colorf->fg_color);
+	bg = args.colorf->bg_color;
+	fg = args.colorf->fg_color;
     } else {
-        gtk_clist_set_background(GTK_CLIST(packet_list), row, &WHITE);
-        gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &BLACK);
+	bg = WHITE;
+	fg = BLACK;
     }
+    gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
+    gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
   } else {
     /* This frame didn't pass the display filter, so it's not being added
        to the clist, and thus has no row. */

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.21 2000/08/23 06:56:20 guy Exp $
+ * $Id: print_dlg.c,v 1.22 2000/11/21 23:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,8 @@
 #endif
 
 #include <errno.h>
+
+#include <gtk/gtk.h>
 
 #include "globals.h"
 #include "keys.h"

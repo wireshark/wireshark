@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.6 2000/10/20 04:26:40 gram Exp $
+ * $Id: stream_prefs.c,v 1.7 2000/11/21 23:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,8 @@
 #include <errno.h>
 #include <gtk/gtk.h>
 
+#include "color.h"
+#include "color_utils.h"
 #include "globals.h"
 #include "stream_prefs.h"
 #include "keys.h"
@@ -39,7 +41,6 @@
 
 static void update_text_color(GtkWidget *, gpointer);
 static void update_current_color(GtkWidget *, gpointer);
-static void copy_color_vals(GdkColor *, GdkColor *);
 
 static GdkColor tcolors[4], *curcolor = NULL;
 
@@ -67,10 +68,10 @@ stream_prefs_show()
   int mcount = sizeof(mt) / sizeof (gchar *);
   gdouble scolor[4];
 
-  copy_color_vals(&tcolors[CFG_IDX], &prefs.st_client_fg);
-  copy_color_vals(&tcolors[CBG_IDX], &prefs.st_client_bg);
-  copy_color_vals(&tcolors[SFG_IDX], &prefs.st_server_fg);
-  copy_color_vals(&tcolors[SBG_IDX], &prefs.st_server_bg);
+  color_t_to_gdkcolor(&tcolors[CFG_IDX], &prefs.st_client_fg);
+  color_t_to_gdkcolor(&tcolors[CBG_IDX], &prefs.st_client_bg);
+  color_t_to_gdkcolor(&tcolors[SFG_IDX], &prefs.st_server_fg);
+  color_t_to_gdkcolor(&tcolors[SBG_IDX], &prefs.st_server_bg);
   
   curcolor = &tcolors[CFG_IDX];
 
@@ -174,22 +175,13 @@ update_current_color(GtkWidget *w, gpointer data)
   gtk_color_selection_set_color(colorsel, &scolor[CS_RED]);
 }
 
-static void
-copy_color_vals(GdkColor *target, GdkColor *source)
-{
-  target->pixel = source->pixel;
-  target->red   = source->red;
-  target->green = source->green;
-  target->blue  = source->blue;
-}
-
 void
 stream_prefs_fetch(GtkWidget *w)
 {
-  copy_color_vals(&prefs.st_client_fg, &tcolors[CFG_IDX]);
-  copy_color_vals(&prefs.st_client_bg, &tcolors[CBG_IDX]);
-  copy_color_vals(&prefs.st_server_fg, &tcolors[SFG_IDX]);
-  copy_color_vals(&prefs.st_server_bg, &tcolors[SBG_IDX]);
+  gdkcolor_to_color_t(&prefs.st_client_fg, &tcolors[CFG_IDX]);
+  gdkcolor_to_color_t(&prefs.st_client_bg, &tcolors[CBG_IDX]);
+  gdkcolor_to_color_t(&prefs.st_server_fg, &tcolors[SFG_IDX]);
+  gdkcolor_to_color_t(&prefs.st_server_bg, &tcolors[SBG_IDX]);
 }
 
 /* XXX - "gui_prefs_apply()" handles this, as the "Follow TCP Stream"

@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.25 2000/11/18 21:41:36 guy Exp $
+ * $Id: prefs.h,v 1.26 2000/11/21 23:54:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,12 +26,12 @@
 #ifndef __PREFS_H__
 #define __PREFS_H__
 
+#include <glib.h>
+
+#include "color.h"
+
 #define PR_DEST_CMD  0
 #define PR_DEST_FILE 1
-
-#ifndef __GTK_H__
-#include <gtk/gtk.h>
-#endif
 
 typedef struct _e_prefs {
   gint     pr_format;
@@ -40,7 +40,7 @@ typedef struct _e_prefs {
   gchar   *pr_cmd;
   GList   *col_list;
   gint     num_cols;
-  GdkColor st_client_fg, st_client_bg, st_server_fg, st_server_bg;
+  color_t  st_client_fg, st_client_bg, st_server_fg, st_server_bg;
   gboolean gui_scrollbar_on_right;
   gboolean gui_plist_sel_browse;
   gboolean gui_ptree_sel_browse;
@@ -48,8 +48,8 @@ typedef struct _e_prefs {
   gint     gui_ptree_expander_style;
   gboolean gui_hex_dump_highlight_style;
   gchar   *gui_font_name;
-  GdkColor gui_marked_fg;
-  GdkColor gui_marked_bg;
+  color_t  gui_marked_fg;
+  color_t  gui_marked_bg;
 } e_prefs;
 
 extern e_prefs prefs;

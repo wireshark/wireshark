@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.164 2000/11/19 08:54:37 guy Exp $
+ * $Id: main.c,v 1.165 2000/11/21 23:54:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,6 +105,8 @@
 #include "file.h"
 #include "menu.h"
 #include "../menu.h"
+#include "color.h"
+#include "color_utils.h"
 #include "filter_prefs.h"
 #include "prefs_dlg.h"
 #include "column.h"
@@ -463,12 +465,19 @@ packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
 /* mark packets */
 static void 
 set_frame_mark(gboolean set, frame_data *frame, gint row) {
+  GdkColor fg, bg;
+
   if (frame == NULL || row == -1) return;
   frame->flags.marked = set;
-  gtk_clist_set_background(GTK_CLIST(packet_list), row,
-			   (set) ? &prefs.gui_marked_bg : &WHITE);
-  gtk_clist_set_foreground(GTK_CLIST(packet_list), row, 
-			   (set) ? &prefs.gui_marked_fg : &BLACK); 
+  if (set) {
+    color_t_to_gdkcolor(&fg, &prefs.gui_marked_fg);
+    color_t_to_gdkcolor(&bg, &prefs.gui_marked_bg);
+  } else {
+    fg = BLACK;
+    bg = WHITE;
+  }
+  gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
+  gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
 }
 
 static void

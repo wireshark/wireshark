@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.23 2000/11/18 21:41:38 guy Exp $
+ * $Id: gui_prefs.c,v 1.24 2000/11/21 23:54:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,8 @@
 #include <errno.h>
 #include <gtk/gtk.h>
 
+#include "color.h"
+#include "color_utils.h"
 #include "globals.h"
 #include "gui_prefs.h"
 #include "gtkglobals.h"
@@ -559,8 +561,8 @@ color_browse_cb(GtkWidget *w, gpointer data)
     return;
   }
 
-  color_info[MFG_IDX].color = prefs.gui_marked_fg;
-  color_info[MBG_IDX].color = prefs.gui_marked_bg;
+  color_t_to_gdkcolor(&color_info[MFG_IDX].color, &prefs.gui_marked_fg);
+  color_t_to_gdkcolor(&color_info[MBG_IDX].color, &prefs.gui_marked_bg);
   curcolor = &color_info[MFG_IDX].color;
   scolor[CS_RED]     = (gdouble) (curcolor->red)   / 65535.0;
   scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
@@ -713,8 +715,8 @@ static void
 color_cancel_cb(GtkWidget *w, gpointer data)
 {
   /* Revert the colors to the current preference settings. */
-  color_info[MFG_IDX].color = prefs.gui_marked_fg;
-  color_info[MBG_IDX].color = prefs.gui_marked_bg;
+  color_t_to_gdkcolor(&color_info[MFG_IDX].color, &prefs.gui_marked_fg);
+  color_t_to_gdkcolor(&color_info[MBG_IDX].color, &prefs.gui_marked_bg);
   gtk_widget_hide(GTK_WIDGET(data));
   gtk_widget_destroy(GTK_WIDGET(data));
 }
@@ -745,6 +747,6 @@ color_destroy_cb(GtkWidget *w, gpointer data)
 static void
 fetch_colors(void)
 {
-	prefs.gui_marked_fg = color_info[MFG_IDX].color;
-	prefs.gui_marked_bg = color_info[MBG_IDX].color;
+  gdkcolor_to_color_t(&prefs.gui_marked_fg, &color_info[MFG_IDX].color);
+  gdkcolor_to_color_t(&prefs.gui_marked_bg, &color_info[MBG_IDX].color);
 }
