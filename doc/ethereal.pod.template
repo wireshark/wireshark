@@ -253,6 +253,11 @@ Edits the saved list of filters, allowing filters to be added, changed,
 or deleted, and lets a selected filter be applied to the current
 capture, if any.
 
+=item Edit:Protocols
+
+Edits the list of protocols, allowing protocol dissection to be 
+enabled or disabled.
+
 =item Capture:Start
 
 Initiates a live packet capture (see L<"Capture Preferences"> below).  A

@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.14 2000/08/11 13:46:34 deniel Exp $
+$Id: README.developer,v 1.15 2000/08/13 14:20:31 deniel Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -57,7 +57,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.14 2000/08/11 13:46:34 deniel Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.15 2000/08/13 14:20:31 deniel Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -66,7 +66,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.14 2000/08/11 13:46:34 deniel Exp $
+ * $Id: README.developer,v 1.15 2000/08/13 14:20:31 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -129,6 +129,10 @@ dissect_PROTOABBREV(cont u_char *pd, int offset, frame_data *fd, proto_tree *tre
 /* Set up structures we will need to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *PROTOABBREV_tree;
+
+/* Check if protocol decoding is enabled else decode as data and return */
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_PROTOABBREV, pd, offset, fd, tree);
 	
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(fd, COL_PROTOCOL)) 
@@ -1243,3 +1247,4 @@ James Coe <jammer@cin.net>
 Gilbert Ramirez <gram@xiexie.org>
 Jeff Foster <jfoste@woodward.com>
 Olivier Abad <oabad@cybercable.fr>
+Laurent Deniel <deniel@worldnet.fr>
