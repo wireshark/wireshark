@@ -270,54 +270,55 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0x82000002, "Ericsson" },                                        /* From captures */
 	{  0xa5000001, "Ericsson" },                                        /* From captures */
 	{  0xb4000000, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000001, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000002, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000003, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000004, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000005, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000006, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000007, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000008, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000009, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb400000a, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb400000b, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb400000c, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb400000d, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb400000e, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb400000f, "British Telecommunications" },                      /* From Ref. 2 */
-	{  0xb4000010, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000011, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000012, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000013, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000014, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000015, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000016, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000017, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000018, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000019, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb400001a, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb400001b, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb400001c, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb400001d, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb400001e, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb400001f, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4000020, "Marconi Communications" },                          /* From Ref. 2 */ 
-	{  0xb4000021, "Indigo Active Vision Systems" },                    /* From Ref. 2 */ 
-	{  0xb4000022, "LiveWorks Limited" },                               /* From Ref. 2 */ 
-	{  0xb4000023, "ATL Telecom Limited" },                             /* From Ref. 2 */ 
-	{  0xb400002a, "Network Alchemy Limited" },                         /* From Ref. 2 */ 
-	{  0xb4000042, "Motion Media Technology" },                         /* From Ref. 2 */ 
-	{  0xb4000044, "Data Connection" },                                 /* From Ref. 2 */ 
-	{  0xb4000045, "Westbay Engineers" },                               /* From Ref. 2 */ 
-	{  0xb4000049, "ImageCom" },                                        /* From Ref. 2 */ 
-	{  0xb400004d, "Madge Networks" },                                  /* From Ref. 2 */ 
-	{  0xb4000052, "Ridgeway Systems and Software" },                   /* From Ref. 2 */ 
-	{  0xb4000053, "SpliceCom" },                                       /* From Ref. 2 */ 
-	{  0xb4000054, "TeleWare" },                                        /* From Ref. 2 */ 
-	{  0xb4000056, "Vegastream" },                                      /* From Ref. 2 */ 
-	{  0xb4000066, "Westell" },                                         /* From Ref. 2 */ 
-	{  0xb4000069, "ISDN Communications" },                             /* From Ref. 2 */ 
-	{  0xb40000c0, "Codian" },                                          /* From Ref. 2 */ 
+	{  0xb4000100, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000200, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000300, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000400, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000500, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000600, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000700, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000800, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000900, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000a00, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000b00, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000c00, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000d00, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000e00, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4000f00, "British Telecommunications" },                      /* From Ref. 2 */
+	{  0xb4001000, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001100, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001200, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001300, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001400, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001500, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001600, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001700, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001800, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001900, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001a00, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001b00, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001c00, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001d00, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001e00, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4001f00, "GPT Video Systems" },                               /* From Ref. 2 */
+	{  0xb4002000, "Marconi Communications" },                          /* From Ref. 2 */ 
+	{  0xb4002100, "Indigo Active Vision Systems" },                    /* From Ref. 2 */ 
+	{  0xb4002200, "LiveWorks Limited" },                               /* From Ref. 2 */ 
+	{  0xb4002300, "ATL Telecom Limited" },                             /* From Ref. 2 */ 
+	{  0xb4002a00, "Network Alchemy Limited" },                         /* From Ref. 2 */ 
+	{  0xb4004200, "Motion Media Technology" },                         /* From Ref. 2 */ 
+	{  0xb4004400, "Data Connection" },                                 /* From Ref. 2 */ 
+	{  0xb4004500, "Westbay Engineers" },                               /* From Ref. 2 */ 
+	{  0xb4004600, "FarSite Communications" },                               /* From Ref. 2 */ 
+	{  0xb4004900, "ImageCom" },                                        /* From Ref. 2 */ 
+	{  0xb4004d00, "Madge Networks" },                                  /* From Ref. 2 */ 
+	{  0xb4005200, "Ridgeway Systems and Software" },                   /* From Ref. 2 */ 
+	{  0xb4005300, "SpliceCom" },                                       /* From Ref. 2 */ 
+	{  0xb4005400, "TeleWare" },                                        /* From Ref. 2 */ 
+	{  0xb4005600, "Vegastream" },                                      /* From Ref. 2 */ 
+	{  0xb4006600, "Westell" },                                         /* From Ref. 2 */ 
+	{  0xb4006900, "ISDN Communications" },                             /* From Ref. 2 */ 
+	{  0xb400c000, "Codian" },                                          /* From Ref. 2 */ 
 
 	{  0xb5000000, "Compression Labs" },                                /* From Ref. 1 */
 	{  0xb5000001, "PictureTel" },                                      /* From Ref. 1 */
