@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.121 2000/08/20 07:53:29 guy Exp $
+ * $Id: capture.c,v 1.122 2000/08/22 06:04:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1108,8 +1108,9 @@ capture(void)
   }
   ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
   if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
-    strcpy(errmsg, "The network you're capturing from is of a type"
-             " that Ethereal doesn't support.");
+    snprintf(errmsg, sizeof errmsg,
+	"The network you're capturing from is of a type"
+	" that Ethereal doesn't support (data link type %d).", pcap_encap);
     goto error;
   }
   ld.pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
