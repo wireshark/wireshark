@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.4 1999/07/07 22:51:46 gram Exp $
+ * $Id: packet-isakmp.c,v 1.5 1999/07/08 06:03:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1033,10 +1033,10 @@ num2str(const guint8 *pd, guint16 len) {
     snprintf(numstr, NUMSTR_LEN, "%u", pntohs(pd));
     break;
   case 3:
-    snprintf(numstr, NUMSTR_LEN, "%lu", pntohl(pd) & 0x0fff);
+    snprintf(numstr, NUMSTR_LEN, "%u", pntohl(pd) & 0x0fff);
     break;
   case 4:
-    snprintf(numstr, NUMSTR_LEN, "%lu", pntohl(pd));
+    snprintf(numstr, NUMSTR_LEN, "%u", pntohl(pd));
     break;
   default:
     snprintf(numstr, NUMSTR_LEN, "<too big>");
