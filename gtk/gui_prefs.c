@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.14 2000/08/23 16:15:13 deniel Exp $
+ * $Id: gui_prefs.c,v 1.15 2000/08/23 18:52:38 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -361,7 +361,8 @@ gui_prefs_fetch(GtkWidget *w)
 	    gtk_object_get_data(GTK_OBJECT(w), PTREE_EXPANDER_STYLE_KEY),
 	    expander_style_vals);
 
-	fetch_colors();
+	if (colors_changed)
+	    fetch_colors();
 }
 
 void
