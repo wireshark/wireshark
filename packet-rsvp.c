@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.52 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-rsvp.c,v 1.53 2002/01/31 22:42:38 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,6 +96,7 @@ static gint ett_rsvp_adspec = -1;
 static gint ett_rsvp_adspec_subtree = -1;
 static gint ett_rsvp_integrity = -1;
 static gint ett_rsvp_dclass = -1;
+static gint ett_rsvp_lsp_tunnel_if_id = -1;
 static gint ett_rsvp_policy = -1;
 static gint ett_rsvp_label = -1;
 static gint ett_rsvp_label_request = -1;
@@ -129,18 +130,18 @@ typedef enum {
 } rsvp_message_types;
 
 static value_string message_type_vals[] = { 
-    {RSVP_MSG_PATH, "PATH Message"},
-    {RSVP_MSG_RESV, "RESV Message"},
-    {RSVP_MSG_PERR, "PATH ERROR Message"},
-    {RSVP_MSG_RERR, "RESV ERROR Message"},
-    {RSVP_MSG_PTEAR, "PATH TEAR Message"},
-    {RSVP_MSG_RTEAR, "RESV TEAR Message"},
-    {RSVP_MSG_CONFIRM, "CONFIRM Message"},
-    {RSVP_MSG_RTEAR_CONFIRM, "RESV TEAR CONFIRM Message"},
-    {RSVP_MSG_BUNDLE, "BUNDLE Message"},
-    {RSVP_MSG_ACK, "ACK Message"},
-    {RSVP_MSG_SREFRESH, "SREFRESH Message"},
-    {RSVP_MSG_HELLO, "HELLO Message"},
+    {RSVP_MSG_PATH, "PATH Message. "},
+    {RSVP_MSG_RESV, "RESV Message. "},
+    {RSVP_MSG_PERR, "PATH ERROR Message. "},
+    {RSVP_MSG_RERR, "RESV ERROR Message. "},
+    {RSVP_MSG_PTEAR, "PATH TEAR Message. "},
+    {RSVP_MSG_RTEAR, "RESV TEAR Message. "},
+    {RSVP_MSG_CONFIRM, "CONFIRM Message. "},
+    {RSVP_MSG_RTEAR_CONFIRM, "RESV TEAR CONFIRM Message. "},
+    {RSVP_MSG_BUNDLE, "BUNDLE Message. "},
+    {RSVP_MSG_ACK, "ACK Message. "},
+    {RSVP_MSG_SREFRESH, "SREFRESH Message. "},
+    {RSVP_MSG_HELLO, "HELLO Message. "},
     {0, NULL}
 };
 
@@ -185,6 +186,7 @@ enum rsvp_classes {
 
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
     RSVP_CLASS_DCLASS = 225,
+    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
 };
 
 static value_string rsvp_class_vals[] = { 
@@ -216,6 +218,7 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_LABEL_SET, "LABEL-SET object"},
     {RSVP_CLASS_SUGGESTED_LABEL, "SUGGESTED-LABEL object"},
     {RSVP_CLASS_DCLASS, "DCLASS object"},
+    {RSVP_CLASS_LSP_TUNNEL_IF_ID, "LSP-TUNNEL INTERFACE-ID object"},
     {0, NULL}
 };
 
@@ -496,6 +499,7 @@ enum rsvp_filter_keys {
     RSVPF_SUGGESTED_LABEL,
     RSVPF_SESSION_ATTRIBUTE,
     RSVPF_DCLASS,
+    RSVPF_LSP_TUNNEL_IF_ID,
     RSVPF_UNKNOWN_OBJ, 
 
     /* Session object */
@@ -678,6 +682,10 @@ static hf_register_info rsvpf_info[] = {
      { "DCLASS", "rsvp.dclass", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
+    {&rsvp_filter[RSVPF_LSP_TUNNEL_IF_ID], 
+     { "LSP INTERFACE-ID", "rsvp.lsp_tunnel_if_id", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
      { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -753,10 +761,93 @@ static inline int rsvp_class_to_filter_num(int classnum)
 	return RSVPF_SESSION_ATTRIBUTE;
     case RSVP_CLASS_DCLASS :
 	return RSVPF_DCLASS;
+    case RSVP_CLASS_LSP_TUNNEL_IF_ID :
+	return RSVPF_LSP_TUNNEL_IF_ID;
 	
     default:
 	return RSVPF_UNKNOWN_OBJ;
     }
+}
+
+static void
+find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int *tempfilt_offp)
+{
+    int s_off = 0, t_off = 0;
+    int len, off;
+
+    if (!tvb)
+	goto done;
+
+    len = tvb_get_ntohs(tvb, hdr_offset+6) + hdr_offset;
+    off = hdr_offset + 8;
+    for (off = hdr_offset + 8; off < len; off += tvb_get_ntohs(tvb, off)) {
+	switch(tvb_get_guint8(tvb, off+2)) {
+	case RSVP_CLASS_SESSION:
+	    s_off = off;
+	    break;
+	case RSVP_CLASS_SENDER_TEMPLATE:
+	case RSVP_CLASS_FILTER_SPEC:
+	    t_off = off;
+	    break;
+	default:
+	}
+    }
+
+ done:
+    if (session_offp) *session_offp = s_off;
+    if (tempfilt_offp) *tempfilt_offp = t_off;
+}
+
+char *summary_session (tvbuff_t *tvb, int offset)
+{
+    static char buf[80];
+
+    switch(tvb_get_guint8(tvb, offset+3)) {
+    case 1:
+	snprintf(buf, 80, "SESSION: IPv4, Destination %s, Protocol %d, Port %d. ", 
+		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), 
+		 tvb_get_guint8(tvb, offset+8),
+		 tvb_get_ntohs(tvb, offset+10));
+	break;
+    case 7:
+	snprintf(buf, 80, "SESSION: IPv4-LSP, Destination %s, Tunnel ID %d, Ext ID %0x. ", 
+		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), 
+		 tvb_get_ntohs(tvb, offset+10),
+		 tvb_get_ntohl(tvb, offset+12));
+	break;
+    default:
+	snprintf(buf, 80, "SESSION: Type %d. ", tvb_get_guint8(tvb, offset+3));
+    }
+
+    return buf;
+}
+
+char *summary_template (tvbuff_t *tvb, int offset)
+{
+    static char buf[80];
+    char *objtype;
+
+    if (tvb_get_guint8(tvb, offset+2) == RSVP_CLASS_FILTER_SPEC)
+	objtype = "FILTERSPEC";
+    else
+	objtype = "SENDER TEMPLATE";
+
+    switch(tvb_get_guint8(tvb, offset+3)) {
+    case 1:
+	snprintf(buf, 80, "%s: IPv4, Sender %s, Port %d. ", objtype,
+		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), 
+		 tvb_get_ntohs(tvb, offset+10));
+	break;
+    case 7:
+	snprintf(buf, 80, "%s: IPv4-LSP, Tunnel Source: %s, LSP ID: %d. ", objtype,
+		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), 
+		 tvb_get_ntohs(tvb, offset+10));
+	break;
+    default:
+	snprintf(buf, 80, "%s: Type %d. ", objtype, tvb_get_guint8(tvb, offset+3));
+    }
+
+    return buf;
 }
 
 static void 
@@ -779,6 +870,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int mylen;
     int offset2;
     char *objtype;
+    int session_off, tempfilt_off;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSVP");
@@ -789,7 +881,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_type = tvb_get_guint8(tvb, offset+1);
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str(message_type, message_type_vals, "Unknown (%u)")); 
+            val_to_str(message_type, message_type_vals, "Unknown (%u). ")); 
+	find_rsvp_session_tempfilt(tvb, offset, &session_off, &tempfilt_off);
+	if (session_off) 
+	    col_append_str(pinfo->cinfo, COL_INFO, summary_session(tvb, session_off));
+	if (tempfilt_off) 
+	    col_append_str(pinfo->cinfo, COL_INFO, summary_template(tvb, tempfilt_off));
     }
 
     if (tree) {
@@ -798,7 +895,9 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    FALSE);
 	rsvp_tree = proto_item_add_subtree(ti, ett_rsvp);
 
-	ti = proto_tree_add_text(rsvp_tree, tvb, offset, 8, "RSVP Header"); 
+	ti = proto_tree_add_text(rsvp_tree, tvb, offset, 8, "RSVP Header. %s", 
+				 val_to_str(message_type, message_type_vals, 
+					    "Unknown Message (%u). ")); 
 	rsvp_header_tree = proto_item_add_subtree(ti, ett_rsvp_hdr);
 
         proto_tree_add_text(rsvp_header_tree, tvb, offset, 1, "RSVP Version: %u", 
@@ -869,6 +968,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Class number: %u - %s", 
 				    class, object_type);
 		mylen = obj_length - 4;
+		proto_item_set_text(ti, summary_session(tvb, offset));
+
 		switch(type) {
 		case 1: {
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -886,10 +987,6 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_item(rsvp_object_tree,
 					rsvp_filter[RSVPF_SESSION_PORT], tvb, 
 					offset2+6, 2, FALSE);
-                    proto_item_set_text(ti, "SESSION: IPv4, %s, %d, %d", 
-                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
-                                        tvb_get_guint8(tvb, offset2+4),
-                                        tvb_get_ntohs(tvb, offset2+6));
 		    break;
 		}
 
@@ -929,10 +1026,6 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_item_hidden(rsvp_object_tree,
 		    			rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 		    			tvb, offset2+8, 4, FALSE);
-                    proto_item_set_text(ti, "SESSION: IPv4-LSP, %s, %d, %0x", 
-                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
-                                        tvb_get_ntohs(tvb, offset2+6),
-                                        tvb_get_ntohl(tvb, offset2+8));
 		    break;
 		}
 
@@ -1122,7 +1215,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+6, 2,
 					"Error value: %u",
 					tvb_get_ntohs(tvb, offset2+6));
-                    proto_item_set_text(ti, "ERROR: IPv4, %s, %d, %s", 
+                    proto_item_set_text(ti, "ERROR: IPv4, Error code: %s, Value: %d, Error Node: %s", 
                                         val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"),
                                         tvb_get_ntohs(tvb, offset2+6),
                                         ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
@@ -1259,7 +1352,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
 					"Receiver address: %s", 
 					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		    proto_item_set_text(ti, "CONFIRM: %s", 
+		    proto_item_set_text(ti, "CONFIRM: Receiver %s", 
 					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
 		    break;
 		}
@@ -1290,7 +1383,6 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
 				    "Class number: %u - %s", 
 				    class, object_type);
-                objtype = "SENDER TEMPLATE";
 		goto common_template;
 	    case RSVP_CLASS_FILTER_SPEC :
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_filter_spec);
@@ -1299,9 +1391,9 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
 				    "Class number: %u - %s", 
 				    class, object_type);
-                objtype = "FILTERSPEC";
 	    common_template:
 		mylen = obj_length - 4;
+		proto_item_set_text(ti, summary_template(tvb, offset));
 		switch(type) {
 		case 1: {
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
@@ -1312,9 +1404,6 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_item(rsvp_object_tree,
 					rsvp_filter[RSVPF_SENDER_PORT],
 					tvb, offset2+6, 2, FALSE);
-                    proto_item_set_text(ti, "%s: IPv4, %s, %d", objtype,
-                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
-                                        tvb_get_ntohs(tvb, offset2+6));
 		    break;
 		}
 
@@ -1339,9 +1428,6 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_item(rsvp_object_tree,
 					rsvp_filter[RSVPF_SENDER_LSP_ID],
 		    			tvb, offset2+6, 2, FALSE);
-                    proto_item_set_text(ti, "%s: IPv4-LSP, %s, %d", objtype,
-                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
-                                        tvb_get_ntohs(tvb, offset2+6));
 		    break;
 		}
 
@@ -2521,8 +2607,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    
 		break;
 
-	    case RSVP_CLASS_DCLASS :
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
+	    case RSVP_CLASS_DCLASS:
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_dclass);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
 				    "Length: %u", obj_length);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
@@ -2545,6 +2631,39 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       mylen==16 ? ", ..." : "");
 		    }
                     break;
+
+                default:
+                    mylen = obj_length - 4;
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: Unknown (%u)",
+					type);
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+                }
+                break;
+
+	    case RSVP_CLASS_LSP_TUNNEL_IF_ID:
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_lsp_tunnel_if_id);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				    "Length: %u", obj_length);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+				    "Class number: %u - %s", 
+				    class, object_type);
+		proto_item_set_text(ti, "LSP INTERFACE-ID: ");
+                switch(type) {
+                case 1: 
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 1 - IPv4");
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+					"Router ID: %s",
+					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
+					"Interface ID: %u", tvb_get_ntohl(tvb, offset2+4));
+                    proto_item_set_text(ti, "LSP INTERFACE-ID: IPv4, Router-ID %s, Interface-ID %d", 
+                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)),
+					tvb_get_ntohl(tvb, offset2+4));
+		    break;
 
                 default:
                     mylen = obj_length - 4;
@@ -2615,6 +2734,7 @@ proto_register_rsvp(void)
 		&ett_rsvp_record_route_subobj,
 		&ett_rsvp_hello_obj,
 		&ett_rsvp_dclass,
+		&ett_rsvp_lsp_tunnel_if_id,
 		&ett_rsvp_unknown_class,
 	};
 
