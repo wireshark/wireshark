@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.116 1999/10/31 17:45:46 gram Exp $
+ * $Id: file.c,v 1.117 1999/11/06 06:26:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -218,6 +218,13 @@ close_cap_file(capture_file *cf, void *w, guint context) {
   set_menu_sensitivity("/File/Reload", FALSE);
   set_menu_sensitivity("/File/Print...", FALSE);
   set_menu_sensitivity("/Display/Options...", FALSE);
+  set_menu_sensitivity("/Display/Match Selected", FALSE);
+  set_menu_sensitivity("/Display/Colorize Display...", FALSE);
+  set_menu_sensitivity("/Display/Find Frame...", FALSE);
+  set_menu_sensitivity("/Display/Collapse All", FALSE);
+  set_menu_sensitivity("/Display/Expand All", FALSE);
+  set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
+  set_menu_sensitivity("/Tools/Graph", FALSE);
   set_menu_sensitivity("/Tools/Summary", FALSE);
 }
 
@@ -256,6 +263,9 @@ read_cap_file(capture_file *cf) {
   cf->filed = open(cf->filename, O_RDONLY);
   cf->fh = filed_open(cf->filed, "r");
   cf->unfiltered_count = cf->count;
+  cf->current_frame = cf->first_displayed;
+  /* Make the first row the selected row. */
+  gtk_clist_select_row(GTK_CLIST(packet_list), 0, -1);
   thaw_clist(cf);
 
   gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
@@ -279,6 +289,11 @@ read_cap_file(capture_file *cf) {
   set_menu_sensitivity("/File/Reload", TRUE);
   set_menu_sensitivity("/File/Print...", TRUE);
   set_menu_sensitivity("/Display/Options...", TRUE);
+  set_menu_sensitivity("/Display/Match Selected", TRUE);
+  set_menu_sensitivity("/Display/Colorize Display...", TRUE);
+  set_menu_sensitivity("/Display/Find Frame...", TRUE);
+  set_menu_sensitivity("/Tools/Follow TCP Stream", TRUE);
+  set_menu_sensitivity("/Tools/Graph", TRUE);
   set_menu_sensitivity("/Tools/Summary", TRUE);
 
   if (!success) {
@@ -508,6 +523,12 @@ tail_cap_file(char *fname, capture_file *cf) {
 
     set_menu_sensitivity("/File/Open...", FALSE);
     set_menu_sensitivity("/Display/Options...", TRUE);
+    set_menu_sensitivity("/Display/Match Selected", TRUE);
+    set_menu_sensitivity("/Display/Colorize Display...", TRUE);
+    set_menu_sensitivity("/Display/Find Frame...", TRUE);
+    set_menu_sensitivity("/Tools/Follow TCP Stream", TRUE);
+    set_menu_sensitivity("/Tools/Graph", TRUE);
+    set_menu_sensitivity("/Tools/Summary", TRUE);
     set_menu_sensitivity("/Capture/Start...", FALSE);
 
     for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -908,11 +929,17 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
         gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &BLACK);
     }
 
-    /* If this was the selected packet, remember the row it's in, so
-       we can re-select it.  ("selected_packet" is 0-origin, as it's
-       a GList index; "num", however, is 1-origin.) */
-    if (cf->selected_packet == fdata->num - 1)
-      cf->selected_row = row;
+    /* If we haven't yet seen the first frame, this is it. */
+    if (cf->first_displayed == NULL)
+      cf->first_displayed = fdata;
+
+    /* This is the last frame we've seen so far. */
+    cf->last_displayed = fdata;
+
+    /* If this was the current frame, remember the row it's in, so
+       we can arrange that it's on the screen when we're done. */
+    if (cf->current_frame == fdata)
+      cf->current_row = row;
   } else
     fdata->row = -1;	/* not in the display */
   fdata->cinfo = NULL;
@@ -953,6 +980,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata = (frame_data *) g_malloc(sizeof(frame_data));
 
   fdata->next = NULL;
+  fdata->prev = NULL;
   fdata->pkt_len  = phdr->len;
   fdata->cap_len  = phdr->caplen;
   fdata->file_off = offset;
@@ -971,6 +999,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   }   
   if (passed) {
     plist_end = cf->plist_end;
+    fdata->prev = plist_end;
     if (plist_end != NULL)
       plist_end->next = fdata;
     else
@@ -1041,9 +1070,13 @@ colorize_packets(capture_file *cf)
   /* Clear it out. */
   gtk_clist_clear(GTK_CLIST(packet_list));
 
+  /* We don't yet know which will be the first and last frames displayed. */
+  cf->first_displayed = NULL;
+  cf->last_displayed = NULL;
+
   /* If a packet was selected, we don't know yet what row, if any, it'll
      get. */
-  cf->selected_row = -1;
+  cf->current_row = -1;
 
   /* Iterate through the list of packets, calling a routine
      to run the filter on the packet, see if it matches, and
@@ -1093,12 +1126,19 @@ colorize_packets(capture_file *cf)
  
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
 
-  if (cf->selected_row != -1) {
-    /* We had a selected packet and it passed the filter. */
-    gtk_clist_select_row(GTK_CLIST(packet_list), cf->selected_row, -1);
+  if (cf->current_row != -1) {
+    /* The current frame passed the filter; make sure it's visible. */
+    if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), cf->current_row))
+      gtk_clist_moveto(GTK_CLIST(packet_list), cf->current_row, -1, 0.0, 0.0);
+    if (cf->current_frame_is_selected) {
+      /* It was selected, so re-select it. */
+      gtk_clist_select_row(GTK_CLIST(packet_list), cf->current_row, -1);
+    }
   } else {
-    /* If we had one, it didn't pass the filter. */
+    /* The current frame didn't pass the filter; make the first frame
+       the current frame, and leave it unselected. */
     unselect_packet(cf);
+    cf->current_frame = cf->first_displayed;
   }
 
   /* Unfreeze the packet list. */
@@ -1348,6 +1388,105 @@ clear_tree_and_hex_views(void)
   gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
 }
 
+void
+find_packet(capture_file *cf, dfilter *sfcode)
+{
+  frame_data *start_fd;
+  frame_data *fd;
+  frame_data *new_fd = NULL;
+  guint32 progbar_quantum;
+  guint32 progbar_nextstep;
+  int count;
+  proto_tree *protocol_tree;
+
+  start_fd = cf->current_frame;
+  if (start_fd != NULL)  {
+    gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
+
+    /* Iterate through the list of packets, starting at the packet we've
+       picked, calling a routine to run the filter on the packet, see if
+       it matches, and stop if so.  */
+    count = 0;
+    fd = start_fd;
+
+    proto_tree_is_visible = FALSE;
+
+    /* Update the progress bar when it gets to this value. */
+    progbar_nextstep = 0;
+    /* When we reach the value that triggers a progress bar update,
+       bump that value by this amount.
+
+       We base the progress bar on the extent to which we've gone through
+       the displayed packets, as those are the only ones for which we
+       have to do a significant amount of work. */
+    progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+    gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(prog_bar), GTK_PROGRESS_LEFT_TO_RIGHT);
+
+    fd = start_fd;
+    for (;;) {
+      /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+         when we update it, we have to run the GTK+ main loop to get it
+         to repaint what's pending, and doing so may involve an "ioctl()"
+         to see if there's any pending input from an X server, and doing
+         that for every packet can be costly, especially on a big file. */
+      if (count >= progbar_nextstep) {
+        /* let's not divide by zero. I should never be started
+         * with count == 0, so let's assert that
+         */
+        g_assert(cf->count > 0);
+
+        gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
+		(gfloat) count / cf->count);
+
+        progbar_nextstep += progbar_quantum;
+        while (gtk_events_pending())
+          gtk_main_iteration();
+      }
+
+      /* Go past the current frame. */
+      if (cf->sbackward) {
+        /* Go on to the previous frame. */
+        fd = fd->prev;
+        if (fd == NULL)
+          fd = cf->plist_end;	/* wrap around */
+      } else {
+        /* Go on to the next frame. */
+        fd = fd->next;
+        if (fd == NULL)
+          fd = cf->plist;	/* wrap around */
+      }
+
+      if (fd == start_fd) {
+        /* We're back to the frame we were on originally.  The search
+           failed. */
+        break;
+      }
+
+      /* Is this packet in the display? */
+      if (fd->passed_dfilter) {
+        count++;
+
+        /* Yes.  Does it match the search filter? */
+        protocol_tree = proto_tree_create_root();
+        wtap_seek_read(cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
+        dissect_packet(cf->pd, fd, protocol_tree);
+        if (dfilter_apply(sfcode, protocol_tree, cf->pd)) {
+          new_fd = fd;
+          break;	/* found it! */
+        }
+      }
+    }
+
+    gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
+  }
+
+  if (new_fd != NULL) {
+    /* We found a frame.  Make it visible, and select it. */
+    if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), new_fd->row))
+      gtk_clist_moveto(GTK_CLIST(packet_list), new_fd->row, -1, 0.0, 0.0);
+    gtk_clist_select_row(GTK_CLIST(packet_list), new_fd->row, -1);
+  }
+}
 
 /* Select the packet on a given row. */
 void
@@ -1371,25 +1510,25 @@ select_packet(capture_file *cf, int row)
 
   g_assert(fd != NULL);
 
-  cf->fd = fd;
-
-  /* Remember the ordinal number of that frame. */
-  cf->selected_packet = i;
+  /* Record that this frame is the current frame, and that it's selected. */
+  cf->current_frame = fd;
+  cf->current_frame_is_selected = TRUE;
 
   /* Get the data in that frame. */
-  wtap_seek_read (cf-> cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
+  wtap_seek_read (cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
 
   /* Create the logical protocol tree. */
   if (cf->protocol_tree)
       proto_tree_free(cf->protocol_tree);
   cf->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
-  dissect_packet(cf->pd, cf->fd, cf->protocol_tree);
+  dissect_packet(cf->pd, cf->current_frame, cf->protocol_tree);
 
   /* Display the GUI protocol tree and hex dump. */
   clear_tree_and_hex_views();
   proto_tree_draw(cf->protocol_tree, tree_view);
-  packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->fd->cap_len, -1, -1);
+  packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->current_frame->cap_len,
+			-1, -1);
   gtk_text_thaw(GTK_TEXT(byte_view));
 
   /* A packet is selected, so "File/Print Packet" has something to print. */
@@ -1402,8 +1541,7 @@ select_packet(capture_file *cf, int row)
 void
 unselect_packet(capture_file *cf)
 {
-  cf->selected_packet = -1;	/* nothing there to be selected */
-  cf->selected_row = -1;
+  cf->current_frame_is_selected = FALSE;
 
   /* Destroy the protocol tree for that packet. */
   if (cf->protocol_tree != NULL) {

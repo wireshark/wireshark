@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.8 1999/09/29 22:25:41 guy Exp $
+ * $Id: print_dlg.c,v 1.9 1999/11/06 06:27:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -480,7 +480,7 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
   print_args.print_hex = FALSE;
   print_args.expand_all = TRUE;
   proto_tree_print(TRUE, &print_args, (GNode*) cf.protocol_tree, cf.pd,
-		cf.fd, fh);
+		cf.current_frame, fh);
   print_finale(fh);
   close_print_dest(print_args.to_file, fh);
 }

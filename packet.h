@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.127 1999/11/06 03:08:34 guy Exp $
+ * $Id: packet.h,v 1.128 1999/11/06 06:26:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,6 +114,7 @@ typedef struct _packet_counts {
    seek-and-read, so that we don't have to save it for all frames? */
 typedef struct _frame_data {
   struct _frame_data *next; /* Next element in list */
+  struct _frame_data *prev; /* Previous element in list */
   guint32      num;       /* Frame number */
   guint32      pkt_len;   /* Packet length */
   guint32      cap_len;   /* Amount actually captured */

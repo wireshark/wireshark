@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.49 1999/10/11 06:39:03 guy Exp $
+ * $Id: file.h,v 1.50 1999/11/06 06:26:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,13 +110,17 @@ typedef struct _capture_file {
   gchar       *cfilter;   /* Capture filter string */
   bpf_prog     fcode;     /* Compiled capture filter program */
 #endif
+  gchar       *sfilter;   /* Search filter string */
+  gboolean     sbackward;  /* TRUE if search is backward, FALSE if forward */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
   frame_data  *plist;     /* Packet list */
   frame_data  *plist_end; /* Last packet in list */
+  frame_data  *first_displayed; /* First frame displayed */
+  frame_data  *last_displayed;  /* Last frame displayed */
   column_info  cinfo;    /* Column formatting information */
-  int          selected_packet;   /* Index in packet list of currently selected packet, if any */
-  int          selected_row;   /* Row in packet display of currently selected packet, if any */
-  frame_data  *fd;        /* Frame data for currently selected packet */
+  frame_data  *current_frame;  /* Frame data for current frame */
+  int          current_row;    /* Row in packet display of current frame */
+  gboolean     current_frame_is_selected; /* TRUE if that frame is selected */
   proto_tree  *protocol_tree; /* Protocol tree for currently selected packet */
   FILE        *print_fh;  /* File we're printing to */
 } capture_file;
@@ -131,6 +135,7 @@ void filter_packets(capture_file *cf, gchar *dfilter);
 void colorize_packets(capture_file *);
 int print_packets(capture_file *cf, print_args_t *print_args);
 void change_time_formats(capture_file *);
+void find_packet(capture_file *cf, dfilter *sfcode);
 void select_packet(capture_file *, int);
 void unselect_packet(capture_file *);
 
