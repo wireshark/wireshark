@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.39 2001/05/02 18:12:44 guy Exp $
+ * $Id: packet-ospf.c,v 1.40 2001/05/14 18:25:34 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -601,15 +601,17 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case MPLS_LINK_LOCAL_IF:
 		case MPLS_LINK_REMOTE_IF:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-					     "%s: %s", stlv_name,
-					     ip_to_str(tvb_get_ptr(tvb, stlv_offset+4, 4)));
+					     "%s", stlv_name);
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "%s: %s", stlv_name,
-					ip_to_str(tvb_get_ptr(tvb, stlv_offset+4, 4)));
+		    /*   The Local/Remote Interface IP Address sub-TLV is TLV type 3/4, and is 4N
+		       octets in length, where N is the number of neighbor addresses. */
+		    for (i=0; i < stlv_len; i+=4)
+		      proto_tree_add_text(stlv_tree, tvb, stlv_offset+4+i, 4, "%s: %s", stlv_name,
+					  ip_to_str(tvb_get_ptr(tvb, stlv_offset+4+i, 4)));
 		    break;
 
 		case MPLS_LINK_TE_METRIC:
