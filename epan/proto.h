@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.26 2002/01/04 08:56:11 guy Exp $
+ * $Id: proto.h,v 1.27 2002/02/05 22:10:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,13 +42,13 @@
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"
 
-struct value_string;
+struct _value_string;
 
 #define ITEM_LABEL_LENGTH	240
 
 /* In order to make a const value_string[] look like a value_string*, I
  * need this macro */
-#define VALS(x)	(struct value_string*)(x)
+#define VALS(x)	(struct _value_string*)(x)
 
 /* ... and similarly, */
 #define TFS(x)	(struct true_false_string*)(x)
@@ -187,7 +187,7 @@ extern proto_tree* proto_item_add_subtree(proto_item *ti, gint idx);
 
 extern int
 proto_register_field(char *name, char *abbrev, enum ftenum type, int parent,
-	struct value_string* vals);
+	struct _value_string* vals);
 
 extern int
 proto_register_protocol(char *name, char *short_name, char *filter_name);
