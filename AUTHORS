@@ -2196,6 +2196,7 @@ Jeff Connelly		<shellreef+mp2p [AT] gmail.com> {
 
 Irene Rüngler          <i.ruengeler [AT] fh-muenster.de {
         SCTP analysis
+	Support PPID and SCTP port based selection in Decode as
 }
 
 M. Ortega y Strupp	<moys [AT] loplof.de> {
