@@ -788,7 +788,7 @@ static int capture_loop_open_output(loop_data *ld, char *errmsg, int errmsg_len)
 
   ld->wtap_linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
   if (ld->wtap_linktype == WTAP_ENCAP_UNKNOWN) {
-    g_snprintf(errmsg, sizeof errmsg,
+    g_snprintf(errmsg, errmsg_len,
 	"The network you're capturing from is of a type"
 	" that Ethereal doesn't support (data link type %d).", pcap_encap);
     return FALSE;
@@ -817,12 +817,12 @@ static int capture_loop_open_output(loop_data *ld, char *errmsg, int errmsg_len)
 
     default:
       if (err < 0) {
-        g_snprintf(errmsg, sizeof(errmsg),
+        g_snprintf(errmsg, errmsg_len,
 		     "The file to which the capture would be"
                      " saved (\"%s\") could not be opened: Error %d.",
  			cfile.save_file, err);
       } else {
-        g_snprintf(errmsg, sizeof(errmsg),
+        g_snprintf(errmsg, errmsg_len,
 		     "The file to which the capture would be"
                      " saved (\"%s\") could not be opened: %s.",
  			cfile.save_file, strerror(err));
