@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.341 2003/12/13 18:01:30 ulfl Exp $
+ * $Id: main.c,v 1.342 2003/12/13 22:05:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -737,7 +737,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
     gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_last(filter_list)->data);
 
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -748,15 +748,15 @@ dfilter_combo_write_all(FILE *rf) {
   GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
   GList     *filter_list = gtk_object_get_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY);
   GList     *li;
-  gint       max_count = 0;
+  guint      max_count = 0;
 
 
   /* write all non empty display filter strings to the recent file (until max count) */
   li = g_list_first(filter_list);
   while ( li && (max_count++ <= dfilter_combo_max_recent) ) {
     if (strlen(li->data)) {
-      fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", li->data);
-	}
+      fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", (char *)li->data);
+    }
     li = li->next;
   }
 }
@@ -771,7 +771,7 @@ dfilter_combo_add_recent(gchar *s) {
   dup = g_strdup(s);
   if (!dfilter_combo_add(filter_cm, dup)) {
     g_free(dup);
-	return FALSE;
+    return FALSE;
   }
 
   return TRUE;
