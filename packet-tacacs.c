@@ -5,7 +5,7 @@
  * Full Tacacs+ parsing with decryption by
  *   Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.c,v 1.31 2003/11/11 19:23:22 guy Exp $
+ * $Id: packet-tacacs.c,v 1.32 2003/12/19 19:03:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@
 #include "crypt-md5.h"
 #include "packet-tacacs.h"
 
-static void md5_xor( u_char *data, char *key, int data_len, u_char *session_id, u_char version, u_char seq_no );
+static void md5_xor( guint8 *data, char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no );
 
 static int proto_tacacs = -1;
 static int hf_tacacs_version = -1;
@@ -324,7 +324,7 @@ static gint
 tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint32 len, guint8 version, char *key )
 {
 	guint8	*buff;
-	u_char session_id[4];
+	guint8 session_id[4];
 
 	/* TODO Check the possibility to use pinfo->decrypted_data */
 /* session_id is in NETWORK Byte Order, and is used as byte array in the md5_xor */
@@ -1092,7 +1092,7 @@ proto_reg_handoff_tacplus(void)
 #define MD5_LEN 16
 
 static void
-md5_xor( u_char *data, char *key, int data_len, u_char *session_id, u_char version, u_char seq_no )
+md5_xor( guint8 *data, char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no )
 {
 	int i,j,md5_len;
 	md5_byte_t *md5_buff;
