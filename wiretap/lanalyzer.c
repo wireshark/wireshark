@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.37 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: lanalyzer.c,v 1.38 2003/06/30 00:41:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -344,9 +344,23 @@ static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset)
 	wth->data_offset += packet_size;
 
 	true_size = pletohs(&descriptor[4]);
+	packet_size = pletohs(&descriptor[6]);
 	time_low = pletohs(&descriptor[8]);
 	time_med = pletohs(&descriptor[10]);
 	time_high = pletohs(&descriptor[12]);
+
+	/*
+	 * OK, is the frame data size greater than than what's left of the
+	 * record?
+	 */
+	if (packet_size > record_length - DESCRIPTOR_LEN) {
+		/*
+		 * Yes - treat this as an error.
+		 */
+		g_message("lanalyzer: Record length is less than packet size");
+		*err = WTAP_ERR_BAD_RECORD;
+		return FALSE;
+	}
 
 	t = (double)time_low+(double)(time_med)*65536.0 +
 		(double)time_high*4294967296.0;
@@ -357,7 +371,16 @@ static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset)
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
 			*1.0e6);
 
-	wth->phdr.len = true_size - 4;
+	if (true_size - 4 >= packet_size) {
+		/*
+		 * It appears that the "true size" includes the FCS;
+		 * make it reflect the non-FCS size (the "packet size"
+		 * appears never to include the FCS, even if no slicing
+		 * is done).
+		 */
+		true_size -= 4;
+	}
+	wth->phdr.len = true_size;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.pkt_encap = wth->file_encap;
 
