@@ -70,6 +70,7 @@ no_emit_item_t *no_emit_list=NULL;
 
 typedef struct _hf_rename_item_t {
 	struct _hf_rename_item_t *next;
+	int refcount;	/* number of times this rename has been referenced */
 	char *old_name;
 	char *new_name;
 } hf_rename_item_t;
@@ -206,8 +207,26 @@ register_hf_rename(char *old_name, char *new_name)
 	new_item=malloc(sizeof(hf_rename_item_t));
 	new_item->next=hf_rename_list;
 	hf_rename_list=new_item;
+	new_item->refcount=0;
 	new_item->old_name=strdup(old_name);
 	new_item->new_name=strdup(new_name);
+}
+
+/* this function checks that all hf_rename fields have actually been referenced
+   if not   out conformance file is stale
+*/
+void
+check_hf_rename_refcount(void)
+{
+	hf_rename_item_t *hri;
+
+	/* dont generate code for renamed hf fields  just return the new name*/
+	for(hri=hf_rename_list;hri;hri=hri->next){
+		if(!hri->refcount){
+			fprintf(stderr, "ERROR: the hf_rename field:%s was never referenced. it is likely the conformance file is stale\n", hri->old_name);
+			exit(10);
+		}
+	}
 }
 
 hf_field_item_t *
@@ -244,6 +263,7 @@ register_hf_field(char *hf_name, char *title, char *filter_name, char *ft_type, 
 				fprintf(stderr, "register_hf_field:  hf_fields %s and %s have different types %s %s\n",hf_name,hfi->name,ft_type,hfi->ft_type);
 				Exit(10);
 			}
+			hri->refcount++;
 			return hri->new_name;
 		}
 	}
@@ -3024,6 +3044,8 @@ int main(int argc, char *argv[])
 		printtokenlist(10);
 		exit(10);
 	}
+
+	check_hf_rename_refcount();
 
 	/* merge code and template into dissector */
 	sprintf(line, "packet-dcerpc-%s.c", ifname);
