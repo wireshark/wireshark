@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.9 2000/05/31 05:07:48 guy Exp $
+ * $Id: packet-srvloc.c,v 1.10 2000/08/04 07:38:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -147,7 +147,7 @@ static const value_string srvloc_errs[] = {
     { AUTH_FAILED, "Authentication failed" },
 };
 
-void
+static int
 dissect_authblk(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     struct tm *stamp;
@@ -172,6 +172,7 @@ dissect_authblk(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     proto_tree_add_text(tree, NullTVB, offset, length, "Authentication block: %s",
 			format_text(&pd[offset], length));
     offset += length;
+    return offset;
 };
 
 /* Packet dissection routine called by tcp & udp when port 427 detected */
@@ -182,8 +183,8 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     proto_item *ti, *tf;
     proto_tree *srvloc_tree, *srvloc_flags;
     struct srvloc_hdr srvloc_hdr;
-    int count;
-    int length;
+    guint32 count;
+    guint32 length;
     
     if (check_col(fd, COL_PROTOCOL))
         col_add_str(fd, COL_PROTOCOL, "SRVLOC");
@@ -223,165 +224,259 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
             switch (srvloc_hdr.function) {
                 case SRVREQ:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Request");
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Previous Response List Length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Previous Response List Length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Previous Response List: %s", format_text(&pd[offset], length)); 
                     offset += length;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Predicate length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Predicate length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Predicate: %s", format_text(&pd[offset], length));
                     offset += length;
                 break;
             
                 case SRVRPLY:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Reply");
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
                     offset += 2;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL Count: %d", pntohs(&pd[offset]));
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
+		    count = pntohs(&pd[offset]);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL Count: %u", count);
                     offset += 2;
-                    for (count = pntohs(&pd[offset]) + 1; count > 0; count--, offset++) {
+                    while (count > 0) {
+			if (!BYTES_ARE_IN_FRAME(offset, 2))
+			    break;
                         proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL lifetime: %d", pntohs(&pd[offset]));
                         offset += 2;
+			if (!BYTES_ARE_IN_FRAME(offset, 2))
+			    break;
                         length = pntohs(&pd[offset]);
-                        proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %d", length);
+                        proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
                         offset += 2;
+			if (!BYTES_ARE_IN_FRAME(offset, length))
+			    break;
                         proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
                         offset += length;
                         if ( (srvloc_hdr.flags & FLAG_U) == FLAG_U ) 
-                            dissect_authblk(pd, offset, fd, srvloc_tree);
+                            offset = dissect_authblk(pd, offset, fd, srvloc_tree);
+			count--;
                     };
                 break;
 
                 case SRVREG:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Registration");
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL lifetime: %d", pntohs(&pd[offset]));
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
                     offset += length;
                     if ( (srvloc_hdr.flags & FLAG_U) == FLAG_U ) 
-                        dissect_authblk(pd, offset, fd, srvloc_tree);
+                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
                     offset += length;
                     if ( (srvloc_hdr.flags & FLAG_A) == FLAG_A ) 
-                        dissect_authblk(pd, offset, fd, srvloc_tree);
+                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
                 break;
 
                 case SRVDEREG:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Deregister");
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
                     offset += 2;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     offset += length;
                     if ( (srvloc_hdr.flags & FLAG_U) == FLAG_U ) 
-                        dissect_authblk(pd, offset, fd, srvloc_tree);
+                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
                     offset += length;
                     if ( (srvloc_hdr.flags & FLAG_A) == FLAG_A ) 
-                        dissect_authblk(pd, offset, fd, srvloc_tree);
+                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
                 break;
             
                 case SRVACK:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Acknowledge");
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
                     offset += 2;
                 break;
 
                 case ATTRRQST:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Attribute Request");
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Previous Response List Length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Previous Response List Length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Previous Response List: %s", format_text(&pd[offset], length)); 
                     offset += length;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
                     offset += length;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Scope List Length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Scope List Length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Scope Response List: %s", format_text(&pd[offset], length)); 
                     offset += length;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
                     offset += length;
                 break;
             
                 case ATTRRPLY:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Attribute Reply");
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
                     offset += length;
                     if ( (srvloc_hdr.flags & FLAG_A) == FLAG_A ) 
-                        dissect_authblk(pd, offset, fd, srvloc_tree);
+                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
                 break;
             
                 case DAADVERT:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "DA Advertisement");
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
                     offset += length;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Scope List Length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Scope List Length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Scope Response List: %s", format_text(&pd[offset], length)); 
                     offset += length;
                 break;
 
                 case SRVTYPERQST:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Type Request");
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Previous Response List Length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Previous Response List Length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Previous Response List: %s", format_text(&pd[offset], length)); 
                     offset += length;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Naming Authority List length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Naming Authority List length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Naming Authority List: %s", format_text(&pd[offset], length)); 
                     offset += length;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
                     length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Scope List Length: %d", length);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Scope List Length: %u", length);
                     offset += 2;
+		    if (!BYTES_ARE_IN_FRAME(offset, length))
+			break;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Scope Response List: %s", format_text(&pd[offset], length)); 
                     offset += length;
                 break;
 
                 case SRVTYPERPLY:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Type Reply");
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);
                     offset += 2;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Service Type Count: %d", pntohs(&pd[offset]));
+		    if (!BYTES_ARE_IN_FRAME(offset, 2))
+			break;
+		    count = pntohs(&pd[offset]);
+                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Service Type Count: %u", count);
                     offset += 2;
-                    for (count = pntohs(&pd[offset]) + 1; count > 0; count--, offset++) {
+                    while (count > 0) {
+			if (!BYTES_ARE_IN_FRAME(offset, 2))
+			    break;
                         length = pntohs(&pd[offset]);
-                        proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Service Type List length: %d", length);
+                        proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Service Type List length: %u", length);
                         offset += 2;
+			if (!BYTES_ARE_IN_FRAME(offset, length))
+			    break;
                         proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service Type List: %s", format_text(&pd[offset], length));
                         offset += length;
+                        count--;
                     };
                 break;
 
