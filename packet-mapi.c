@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.2 1999/11/16 11:42:38 guy Exp $
+ * $Id: packet-mapi.c,v 1.3 1999/11/21 11:04:11 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,6 +43,8 @@
 #include "packet.h"
 
 static int proto_mapi = -1;
+static int hf_mapi_request = -1;
+static int hf_mapi_response = -1;
 
 static gint ett_mapi = -1;
 
@@ -67,11 +69,15 @@ dissect_mapi(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		if (pi.match_port == pi.destport)
 		{
+		        proto_tree_add_item_hidden(mapi_tree, hf_mapi_request,
+						   offset, END_OF_FRAME, TRUE);
 			proto_tree_add_text(mapi_tree, offset, 
 				END_OF_FRAME, "Request: <opaque data>" );
 		}
 		else
 		{
+		        proto_tree_add_item_hidden(mapi_tree, hf_mapi_response,
+						   offset, END_OF_FRAME, TRUE);
 			proto_tree_add_text(mapi_tree, offset, 
 				END_OF_FRAME, "Response: <opaque data>");
 		}
@@ -81,9 +87,22 @@ dissect_mapi(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_mapi(void)
 {
+	static hf_register_info hf[] = {
+	  { &hf_mapi_response,
+	    { "Response",           "mapi.response",
+	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	      "TRUE if MAPI response" }},
+	  
+	  { &hf_mapi_request,
+	    { "Request",            "mapi.request",
+	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	      "TRUE if MAPI request" }}
+	};
+
 	static gint *ett[] = {
 		&ett_mapi,
 	};
 	proto_mapi = proto_register_protocol("MAPI", "mapi");
+	proto_register_field_array(proto_mapi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
