@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.28 2003/03/21 05:28:04 sharpe Exp $
+ * $Id: packet-smb-browse.c,v 1.29 2003/03/24 16:49:10 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,9 @@ static int hf_periodicity = -1;
 static int hf_server_name = -1;
 static int hf_mb_server_name = -1;
 static int hf_mb_reset_command = -1;
+static int hf_mb_reset_demote = -1;
+static int hf_mb_reset_flush = -1;
+static int hf_mb_reset_stop = -1;
 static int hf_os_major = -1;
 static int hf_os_minor = -1;
 static int hf_server_type = -1;
@@ -108,7 +111,7 @@ static gint ett_browse_flags = -1;
 static gint ett_browse_election_criteria = -1;
 static gint ett_browse_election_os = -1;
 static gint ett_browse_election_desire = -1;
-
+static gint ett_browse_reset_cmd_flags = -1;
 
 #define SERVER_WORKSTATION		0
 #define SERVER_SERVER			1
@@ -168,6 +171,21 @@ static const value_string resetbrowserstate_command_names[] = {
   { 0x02, "Discard browse lists, stop being a master browser, and try again"},
   { 0x04, "Stop being a master browser for ever"},
   { 0, NULL}
+};
+
+static true_false_string tfs_demote_to_backup = {
+	"Demote an LMB to a Backup Browser",
+	"Do not demote an LMB to a Backup Browser"
+};
+
+static true_false_string tfs_flush_browse_list = {
+	"Flush the Browse List",
+	"Do not Flush the Browse List"
+};
+
+static true_false_string tfs_stop_being_lmb = {
+	"Stop Being a Local Master Browser",
+	"Do not Stop Being a Local Master Browser"
 };
 
 static const true_false_string tfs_workstation = {
@@ -556,7 +574,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint32 periodicity;
 	char host_name[17];
 	guint namelen;
-	guint8 server_count;
+	guint8 server_count, reset_cmd;
 	int i;
 	guint32 uptime;
 
@@ -760,13 +778,25 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += namelen;
 		break;
 
-	case BROWSE_RESETBROWSERSTATE_ANNOUNCEMENT:
+	case BROWSE_RESETBROWSERSTATE_ANNOUNCEMENT: {
+	        proto_tree *sub_tree;
+	        proto_item *reset_item;
+
 		/* the subcommand follows ... one of three values */
 
-		proto_tree_add_item(tree, hf_mb_reset_command,
-			tvb, offset, 1, TRUE);
+	        reset_cmd = tvb_get_guint8(tvb, offset);
+		reset_item = proto_tree_add_uint(tree, hf_mb_reset_command, tvb, 
+						 offset, 1, reset_cmd);
+		sub_tree = proto_item_add_subtree(item, ett_browse_reset_cmd_flags);
+		proto_tree_add_boolean(sub_tree, hf_mb_reset_demote, tvb, 
+				       offset, 1, reset_cmd);
+		proto_tree_add_boolean(sub_tree, hf_mb_reset_flush, tvb, 
+				       offset, 1, reset_cmd);
+		proto_tree_add_boolean(sub_tree, hf_mb_reset_stop, tvb, 
+				       offset, 1, reset_cmd);
 		offset += 1;
 		break;
+	}
 
 	case BROWSE_BECOME_BACKUP:
 		/* name of browser to promote */
@@ -919,6 +949,15 @@ proto_register_smb_browse(void)
 		  { "ResetBrowserState Command", "browser.reset_cmd", FT_UINT8,
 		    BASE_HEX, VALS(&resetbrowserstate_command_names), 0,
 		    "ResetBrowserState Command", HFILL }},
+		{ &hf_mb_reset_demote,
+		  { "Demote LMB", "browser.reset_cmd.demote", FT_BOOLEAN, 
+		    8, TFS(&tfs_demote_to_backup), 0x01, "Demote LMB", HFILL}}, 
+		{ &hf_mb_reset_flush,
+		  { "Flush Browse List", "browser.reset_cmd.flush", FT_BOOLEAN,
+		    8, TFS(&tfs_flush_browse_list), 0x02, "Flush Browse List", HFILL}},
+		{ &hf_mb_reset_stop,
+		  { "Stop Being LMB", "browser.reset_cmd.stop_lmb", FT_BOOLEAN,
+		    8, TFS(&tfs_stop_being_lmb), 0x04, "Stop Being LMB", HFILL}},
 		{ &hf_os_major,
 			{ "OS Major Version", "browser.os_major", FT_UINT8, BASE_DEC,
 			NULL, 0, "Operating System Major Version", HFILL }},
@@ -1134,7 +1173,8 @@ proto_register_smb_browse(void)
 		&ett_browse_flags,
 		&ett_browse_election_criteria,
 		&ett_browse_election_os,
-		&ett_browse_election_desire
+		&ett_browse_election_desire,
+		&ett_browse_reset_cmd_flags,
 	};
 
     	proto_smb_browse = proto_register_protocol("Microsoft Windows Browser Protocol",
