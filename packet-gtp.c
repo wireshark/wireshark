@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.47 2002/11/13 09:01:08 guy Exp $
+ * $Id: packet-gtp.c,v 1.48 2002/12/05 22:31:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4855,6 +4855,7 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		gtpv0_hdr.length = g_ntohs(gtpv0_hdr.length);
 		gtpv0_hdr.seq_no = g_ntohs(gtpv0_hdr.seq_no);
+		gtpv0_hdr.flow_label = g_ntohs(gtpv0_hdr.flow_label);
 		proto_tree_add_uint(gtpv0_tree, hf_gtpv0_message_type, tvb, 1, 1, gtpv0_hdr.message);
 		proto_tree_add_uint(gtpv0_tree, hf_gtpv0_length, tvb, 2, 2, gtpv0_hdr.length);
 		proto_tree_add_uint(gtpv0_tree, hf_gtpv0_seq_number, tvb, 4, 2, gtpv0_hdr.seq_no);

@@ -1491,7 +1491,7 @@ Peter Fales <psfales [AT] lucent.com> {
 }
 
 Fritz Budiyanto <fritzb88 [AT] yahoo.com> {
-	Fix for GTP Packet Transfer Command IE
+	Assorted GTP fixes
 }
 
 Jean-Baptiste Marchand <Jean-Baptiste.Marchand [AT] hsc.fr> {
