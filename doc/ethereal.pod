@@ -974,17 +974,29 @@ SUM,COUNT,MAX,MIN,AVG and LOAD, and one control, textbox, where the name of a
 single display filter field can be specified.
 
 The following restrictions apply to type and field combinations:
-SUM: available for all types of integers.
-COUNT: available for all field types.
-MAX: available for all integer and relative time fields.
-MIN: available for all integer and relative time fields.
-AVG: available for all integer and relative time fields.
+SUM: available for all types of integers and will calculate the SUM of all 
+	occurences of this field in teh capture. Note that some field can 
+	occur multiple times in the same packet and then all instances will
+	be summed up.
+	Example: 'tcp.len' which will count the amount of payload data
+	transferred across tcp in each interval.
+COUNT: available for all field types. This will COUNT the number of times
+	a certain field occurs in each interval. Note that some fields
+	may occur multiple times in each packet and if that is the case
+	then each instance willb e counted independently and COUNT
+	will be greater than the number of packets.
+MAX: available for all integer and relative time fields. This will calculate
+	the max seen integer/time value seen for the field during the interval.
+	Example: 'smb.time' which will plot the maximum SMB response time.
+MIN: available for all integer and relative time fields. This will calculate
+	the min seen integer/time value seen for the field during the interval.
+	Example: 'smb.time' which will plot the minimum SMB response time.
+AVG: available for all integer and relative time fields.This will calculate
+	the average seen integer/time value seen for the field during the 
+	interval.
+	Example: 'smb.time' which will plot the average SMB response time.
 LOAD: available only for relative time fields (response times).
 
-NOTE: due to the way this is implemented in B<Ethereal> there is a
-requirement that whatever field is specified in the textbox, that field
-MUST also be part of the filter for the graph or else the calculations
-will fail.
 
 Example of advanced:
 Display how NFS response time MAX/MIN/AVG changes over time:
