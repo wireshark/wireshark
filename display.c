@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.1 1999/06/19 01:14:47 guy Exp $
+ * $Id: display.c,v 1.2 1999/06/19 01:47:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,11 +60,13 @@
 #endif
 
 #include "timestamp.h"
+#include "column.h"
 #include "packet.h"
 #include "file.h"
 #include "display.h"
 
 extern capture_file  cf;
+extern GtkWidget *packet_list;
 
 /* Display callback data keys */
 #define E_DISPLAY_TIME_ABS_KEY   "display_time_abs"
@@ -142,26 +144,43 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 
 static void
 display_opt_ok_cb(GtkWidget *w, gpointer data) {
-  GtkWidget *abs_rb, *rel_rb, *delta_rb;
+  GtkWidget *button;
+  GtkStyle  *pl_style;
+  int i;
+  gint col_fmt;
 
 #ifdef GTK_HAVE_FEATURES_1_1_0
   data = w;
 #endif
-  abs_rb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data),
-                                                E_DISPLAY_TIME_ABS_KEY);
-  rel_rb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data),
-                                                E_DISPLAY_TIME_REL_KEY);
-  delta_rb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data),
-                                                E_DISPLAY_TIME_DELTA_KEY);
 
-  if (GTK_TOGGLE_BUTTON (abs_rb)->active)
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data),
+                                              E_DISPLAY_TIME_ABS_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = ABSOLUTE;
-  if (GTK_TOGGLE_BUTTON (rel_rb)->active)
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data),
+                                              E_DISPLAY_TIME_REL_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = RELATIVE;
-  if (GTK_TOGGLE_BUTTON (delta_rb)->active)
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data),
+                                              E_DISPLAY_TIME_DELTA_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = DELTA;
 
   gtk_widget_destroy(GTK_WIDGET(data));
+
+  /* Recompute the column widths; we may have changed the format of the
+     time stamp column. */
+  pl_style = gtk_widget_get_style(packet_list);
+  for (i = 0; i < cf.cinfo.num_cols; i++) {
+    col_fmt = get_column_format(i);
+    gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
+      get_column_width(col_fmt, pl_style->font));
+    if (col_fmt == COL_NUMBER)
+      gtk_clist_set_column_justification(GTK_CLIST(packet_list), i, 
+        GTK_JUSTIFY_RIGHT);
+  }
 
   redisplay_packets(&cf);
 }

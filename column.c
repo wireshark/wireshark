@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.11 1999/06/19 01:14:49 guy Exp $
+ * $Id: column.c,v 1.12 1999/06/19 01:47:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -178,7 +178,7 @@ get_column_width(gint format, GdkFont *font) {
       return (gdk_string_width(font, "0") * 7);
       break;
     case COL_CLS_TIME:
-      if (timestamp_type == COL_ABS_TIME)
+      if (timestamp_type == ABSOLUTE)
         return (gdk_string_width(font, "00:00:00.000000"));
       else
         return (gdk_string_width(font, "0000.000000"));
