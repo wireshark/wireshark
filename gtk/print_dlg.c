@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.13 2000/01/06 07:33:35 guy Exp $
+ * $Id: print_dlg.c,v 1.14 2000/05/03 07:50:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,8 @@
 #ifndef __DIALOG_H__
 #include "simple_dialog.h"
 #endif
+
+#include "dlg_utils.h"
 
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
 static void print_cmd_toggle_detail(GtkWidget *widget, gpointer data);
@@ -286,6 +288,18 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
+
+  /* Catch the "activate" signal on the "Command" and "File" text entries,
+     so that if the user types Return there, we act as if the "OK" button
+     had been selected, as happens if Return is typed if some widget
+     that *doesn't* handle the Return key has the input focus. */
+  dlg_set_activate(cmd_te, ok_bt);
+  dlg_set_activate(file_te, ok_bt);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(print_w, cancel_bt);
 
 #if 0
   display_opt_window_active = TRUE;
