@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.37 2004/05/02 21:10:20 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.38 2004/05/03 22:15:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "compat_macros.h"
 #include "epan/packet_info.h"
 #include "epan/to_str.h"
+#include "epan/resolv.h"
 #include "endpoint_talkers_table.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -914,6 +915,81 @@ ett_create_popup_menu(endpoints_table *et)
 }
 
 
+/* XXX should freeze/thaw table here and in the srt thingy? */
+static void 
+draw_ett_table_addresses(endpoints_table *et)
+{
+	guint32 i;
+	int j;
+
+
+	for(i=0;i<et->num_endpoints;i++){
+		char *entry;
+		char *port;
+        address_type  at;
+        guint32 pt;
+
+		j=gtk_clist_find_row_from_data(et->table, (gpointer)i);
+
+        at = et->endpoints[i].src_address.type;
+        if(!et->resolve_names) at = AT_NONE;
+        switch(at) {
+        case(AT_IPv4):
+            entry=get_hostname((*(guint *)et->endpoints[i].src_address.data));
+            break;
+        case(AT_ETHER):
+            entry=get_ether_name(et->endpoints[i].src_address.data);
+            break;
+        default:
+            entry=address_to_str(&et->endpoints[i].src_address);
+        }
+		gtk_clist_set_text(et->table, j, 0, entry);
+
+        pt = et->endpoints[i].port_type;
+        if(!et->resolve_names) pt = PT_NONE;
+        switch(pt) {
+        case(PT_TCP):
+            entry=get_tcp_port(et->endpoints[i].src_port);
+            break;
+        case(PT_UDP):
+            entry=get_udp_port(et->endpoints[i].src_port);
+            break;
+        default:
+		    port=ett_port_to_str(et->endpoints[i].port_type, et->endpoints[i].src_port);
+		    entry=port?port:"";
+        }
+		gtk_clist_set_text(et->table, j, 1, entry);
+
+        at = et->endpoints[i].dst_address.type;
+        if(!et->resolve_names) at = AT_NONE;
+        switch(at) {
+        case(AT_IPv4):
+            entry=get_hostname((*(guint *)et->endpoints[i].dst_address.data));
+            break;
+        case(AT_ETHER):
+            entry=get_ether_name(et->endpoints[i].dst_address.data);
+            break;
+        default:
+		    entry=address_to_str(&et->endpoints[i].dst_address);
+        }
+		gtk_clist_set_text(et->table, j, 2, entry);
+
+        switch(pt) {
+        case(PT_TCP):
+            entry=get_tcp_port(et->endpoints[i].dst_port);
+            break;
+        case(PT_UDP):
+            entry=get_udp_port(et->endpoints[i].dst_port);
+            break;
+        default:
+    		port=ett_port_to_str(et->endpoints[i].port_type, et->endpoints[i].dst_port);
+            entry=port?port:"";
+        }
+		gtk_clist_set_text(et->table, j, 3, entry);
+	}
+}
+
+
 
 /* XXX should freeze/thaw table here and in the srt thingy? */
 static void 
@@ -957,6 +1033,9 @@ draw_ett_table_data(endpoints_table *et)
 
 	}
 	gtk_clist_sort(et->table);
+
+    /* update table, so resolved addresses will be shown now */
+    draw_ett_table_addresses(et);
 }
 
 
@@ -1010,6 +1089,18 @@ init_ett_table_page(endpoints_table *talkers, GtkWidget *vbox, gboolean hide_por
 	gtk_clist_set_sort_type(talkers->table, GTK_SORT_DESCENDING);
 
 
+    gtk_clist_set_column_auto_resize(talkers->table, 0, TRUE);
+    gtk_clist_set_column_auto_resize(talkers->table, 1, TRUE);
+    gtk_clist_set_column_auto_resize(talkers->table, 2, TRUE);
+    gtk_clist_set_column_auto_resize(talkers->table, 3, TRUE);
+    gtk_clist_set_column_auto_resize(talkers->table, 4, TRUE);
+    gtk_clist_set_column_auto_resize(talkers->table, 5, TRUE);
+    gtk_clist_set_column_auto_resize(talkers->table, 6, TRUE);
+    gtk_clist_set_column_auto_resize(talkers->table, 7, TRUE);
+    gtk_clist_set_column_auto_resize(talkers->table, 8, TRUE);
+    gtk_clist_set_column_auto_resize(talkers->table, 9, TRUE);
+
+#if 0
 	/*XXX instead of this we should probably have some code to
 		dynamically adjust the width of the columns */
 	gtk_clist_set_column_width(talkers->table, 0, 100);
@@ -1022,7 +1113,7 @@ init_ett_table_page(endpoints_table *talkers, GtkWidget *vbox, gboolean hide_por
 	gtk_clist_set_column_width(talkers->table, 7, 60);
 	gtk_clist_set_column_width(talkers->table, 8, 70);
 	gtk_clist_set_column_width(talkers->table, 9, 60);
-
+#endif
 
 	gtk_clist_set_shadow_type(talkers->table, GTK_SHADOW_IN);
 	gtk_clist_column_titles_show(talkers->table);
@@ -1072,7 +1163,8 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
 	talkers->win=dlg_window_new(title);
 	talkers->page_lb=NULL;
-	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
+    talkers->resolve_names=TRUE;
+    gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 
 	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
 
@@ -1132,6 +1224,7 @@ init_ett_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name,
 
     talkers=g_malloc(sizeof(endpoints_table));
 	talkers->name=table_name;
+    talkers->resolve_names=TRUE;
 
     page_vbox=gtk_vbox_new(FALSE, 6);
     talkers->win = page_vbox;
@@ -1175,21 +1268,43 @@ register_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *
 }
 
 
+static void
+ett_resolve_toggle_dest(GtkWidget *widget, gpointer data)
+{
+    int page;
+    void ** pages = data;
+    gboolean resolve_names;
+	endpoints_table *talkers;
+
+
+    resolve_names = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        talkers = pages[page];
+        talkers->resolve_names = resolve_names;
+
+        draw_ett_table_addresses(talkers);
+    }
+}
+
 void
 init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	endpoints_table *talkers;
 	char title[256];
     GtkWidget *vbox;
+    GtkWidget *hbox;
     GtkWidget *bbox;
     GtkWidget *close_bt;
     GtkWidget *win;
+    GtkWidget *resolv_cb;
     int page;
     void ** pages;
     GtkWidget *nb;
     GtkWidget *page_lb;
     GSList  *current_table;
     register_ett_t *registered;
+    GtkTooltips *tooltips = gtk_tooltips_new();
 
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ett_tables) + 1));
@@ -1224,6 +1339,17 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 
     pages[0] = GINT_TO_POINTER(page);
+
+    hbox = gtk_hbox_new(FALSE, 3);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Name resolution", NULL);
+	gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
+    gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
+        "Please note: The corresponding name resolution must be enabled.", NULL);
+
+    SIGNAL_CONNECT(resolv_cb, "toggled", ett_resolve_toggle_dest, pages);
 
 	/* Button row. */
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
@@ -1345,16 +1471,14 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 	/* if this was a new talker we have to create a clist row for it */
 	if(new_talker){
 		char *entries[NUM_COLS];
-		char *sport, *dport;
 		char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
-		sport=ett_port_to_str(talker->port_type, talker->src_port);
-		dport=ett_port_to_str(talker->port_type, talker->dst_port);
 
-		entries[0]=address_to_str(&talker->src_address);
-		entries[1]=sport?sport:"";
-		entries[2]=address_to_str(&talker->dst_address);
-		entries[3]=dport?dport:"";
+        /* these values will be filled by call to draw_ett_table_addresses() below */
+        entries[0] = "";
+        entries[1] = "";
+        entries[2] = "";
+        entries[3] = "";
 
 		g_snprintf(frames, 16, "%u", talker->tx_frames+talker->rx_frames);
 		entries[4]=frames;
@@ -1373,8 +1497,9 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 
 		gtk_clist_insert(et->table, talker_idx, entries);
 		gtk_clist_set_row_data(et->table, talker_idx, (gpointer) talker_idx);
-	}
 
+        draw_ett_table_addresses(et);
+    }
 }
 
 

@@ -2,7 +2,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers taps.
  *
- * $Id: endpoint_talkers_table.h,v 1.9 2004/05/02 17:25:10 ulfl Exp $
+ * $Id: endpoint_talkers_table.h,v 1.10 2004/05/03 22:15:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@ typedef struct _endpoints_table {
 	gboolean has_ports;
 	guint32 num_endpoints;
 	endpoint_talker_t *endpoints;
+    gboolean resolve_names;
 } endpoints_table;
 
 

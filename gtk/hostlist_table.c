@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.9 2004/05/02 21:16:08 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.10 2004/05/03 22:15:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "compat_macros.h"
 #include "epan/packet_info.h"
 #include "epan/to_str.h"
+#include "epan/resolv.h"
 #include "hostlist_table.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -431,6 +432,53 @@ hostlist_create_popup_menu(hostlist_table *hl)
 }
 
 
+/* XXX should freeze/thaw table here and in the srt thingy? */
+static void 
+draw_hostlist_table_addresses(hostlist_table *hl)
+{
+	guint32 i;
+	int j;
+
+
+	for(i=0;i<hl->num_hosts;i++){
+		char *entry;
+		char *port;
+        address_type  at;
+        guint32 pt;
+
+		j=gtk_clist_find_row_from_data(hl->table, (gpointer)i);
+
+        at = hl->hosts[i].src_address.type;
+        if(!hl->resolve_names) at = AT_NONE;
+        switch(at) {
+        case(AT_IPv4):
+            entry=get_hostname((*(guint *)hl->hosts[i].src_address.data));
+            break;
+        case(AT_ETHER):
+            entry=get_ether_name(hl->hosts[i].src_address.data);
+            break;
+        default:
+            entry=address_to_str(&hl->hosts[i].src_address);
+        }
+		gtk_clist_set_text(hl->table, j, 0, entry);
+
+        pt = hl->hosts[i].port_type;
+        if(!hl->resolve_names) pt = PT_NONE;
+        switch(pt) {
+        case(PT_TCP):
+            entry=get_tcp_port(hl->hosts[i].src_port);
+            break;
+        case(PT_UDP):
+            entry=get_udp_port(hl->hosts[i].src_port);
+            break;
+        default:
+		    port=hostlist_port_to_str(hl->hosts[i].port_type, hl->hosts[i].src_port);
+		    entry=port?port:"";
+        }
+		gtk_clist_set_text(hl->table, j, 1, entry);
+	}
+}
+
 
 /* XXX should freeze/thaw table here and in the srt thingy? */
 static void 
@@ -474,6 +522,9 @@ draw_hostlist_table_data(hostlist_table *hl)
 
 	}
 	gtk_clist_sort(hl->table);
+
+    /* update table, so resolved addresses will be shown now */
+    draw_hostlist_table_addresses(hl);
 }
 
 gboolean
@@ -525,8 +576,17 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
 	gtk_clist_set_sort_column(hosttable->table, 4);
 	gtk_clist_set_sort_type(hosttable->table, GTK_SORT_DESCENDING);
 
+    gtk_clist_set_column_auto_resize(hosttable->table, 0, TRUE);
+    gtk_clist_set_column_auto_resize(hosttable->table, 1, TRUE);
+    gtk_clist_set_column_auto_resize(hosttable->table, 2, TRUE);
+    gtk_clist_set_column_auto_resize(hosttable->table, 3, TRUE);
+    gtk_clist_set_column_auto_resize(hosttable->table, 4, TRUE);
+    gtk_clist_set_column_auto_resize(hosttable->table, 5, TRUE);
+    gtk_clist_set_column_auto_resize(hosttable->table, 6, TRUE);
+    gtk_clist_set_column_auto_resize(hosttable->table, 7, TRUE);
 
-	/*XXX instead of this we should probably have some code to
+#if 0
+    /*XXX instead of this we should probably have some code to
 		dynamically adjust the width of the columns */
 	gtk_clist_set_column_width(hosttable->table, 0, 100);
 	gtk_clist_set_column_width(hosttable->table, 1, 40);
@@ -536,7 +596,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
 	gtk_clist_set_column_width(hosttable->table, 5, 60);
 	gtk_clist_set_column_width(hosttable->table, 6, 70);
 	gtk_clist_set_column_width(hosttable->table, 7, 60);
-
+#endif
 
 	gtk_clist_set_shadow_type(hosttable->table, GTK_SHADOW_IN);
 	gtk_clist_column_titles_show(hosttable->table);
@@ -586,6 +646,7 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 	g_snprintf(title, 255, "%s Endpoints: %s", table_name, cf_get_display_name(&cfile));
 	hosttable->win=dlg_window_new(title);
 	hosttable->page_lb=NULL;
+    hosttable->resolve_names=TRUE;
 	gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
 
 	SIGNAL_CONNECT(hosttable->win, "destroy", hostlist_win_destroy_cb, hosttable);
@@ -645,6 +706,7 @@ init_hostlist_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_
 
     hosttable=g_malloc(sizeof(hostlist_table));
 	hosttable->name=table_name;
+    hosttable->resolve_names=TRUE;
 
     page_vbox=gtk_vbox_new(FALSE, 6);
     hosttable->win = page_vbox;
@@ -688,21 +750,44 @@ register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, c
 }
 
 
+static void
+hostlist_resolve_toggle_dest(GtkWidget *widget, gpointer data)
+{
+    int page;
+    void ** pages = data;
+    gboolean resolve_names;
+	hostlist_table *hosttable;
+
+
+    resolve_names = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        hosttable = pages[page];
+        hosttable->resolve_names = resolve_names;
+
+        draw_hostlist_table_addresses(hosttable);
+    }
+}
+
+
 void
 init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	hostlist_table *hosttable;
 	char title[256];
     GtkWidget *vbox;
+    GtkWidget *hbox;
     GtkWidget *bbox;
     GtkWidget *close_bt;
     GtkWidget *win;
+    GtkWidget *resolv_cb;
     int page;
     void ** pages;
     GtkWidget *nb;
     GtkWidget *page_lb;
     GSList  *current_table;
     register_hostlist_t *registered;
+    GtkTooltips *tooltips = gtk_tooltips_new();
 
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_hostlist_tables) + 1));
@@ -737,6 +822,17 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 
     pages[0] = GINT_TO_POINTER(page);
+
+    hbox = gtk_hbox_new(FALSE, 3);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Name resolution", NULL);
+	gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
+    gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
+        "Please note: The corresponding name resolution must be enabled.", NULL);
+
+    SIGNAL_CONNECT(resolv_cb, "toggled", hostlist_resolve_toggle_dest, pages);
 
 	/* Button row. */
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
@@ -832,13 +928,12 @@ add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 src_port, gbo
 	/* if this was a new talker we have to create a clist row for it */
 	if(new_talker){
 		char *entries[NUM_COLS];
-		char *sport;
 		char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
-		sport=hostlist_port_to_str(talker->port_type, talker->src_port);
 
-		entries[0]=address_to_str(&talker->src_address);
-		entries[1]=sport?sport:"";
+        /* these values will be filled by call to draw_hostlist_table_addresses() below */
+        entries[0]="";
+		entries[1]="";
 
 		g_snprintf(frames, 16, "%u", talker->tx_frames+talker->rx_frames);
 		entries[2]=frames;
@@ -857,7 +952,8 @@ add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 src_port, gbo
 
 		gtk_clist_insert(hl->table, talker_idx, entries);
 		gtk_clist_set_row_data(hl->table, talker_idx, (gpointer) talker_idx);
-	}
 
+        draw_hostlist_table_addresses(hl);
+    }
 }
 

@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all host talkers taps.
  *
- * $Id: hostlist_table.h,v 1.2 2004/05/02 21:16:08 ulfl Exp $
+ * $Id: hostlist_table.h,v 1.3 2004/05/03 22:15:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@ typedef struct _hostlist_table {
 	gboolean has_ports;
 	guint32 num_hosts;
 	hostlist_talker_t *hosts;
+    gboolean resolve_names;
 } hostlist_table;
 
 extern void register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
