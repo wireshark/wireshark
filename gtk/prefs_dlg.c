@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.63 2003/10/02 21:18:38 guy Exp $
+ * $Id: prefs_dlg.c,v 1.64 2003/11/04 20:22:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,8 +77,7 @@ static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #define E_CAPTURE_PAGE_KEY "capture_options_page"
 #define E_NAMERES_PAGE_KEY "nameres_options_page"
 #define E_TOOLTIPS_KEY     "tooltips"
-
-static int first_proto_prefs_page = -1;
+#define E_PAGE_MODULE_KEY  "page_module"
 
 /*
  * Keep a static pointer to the notebook to be able to choose the
@@ -312,6 +311,9 @@ module_prefs_show(module_t *module, gpointer user_data)
     /* Add items for each of the preferences */
     prefs_pref_foreach(module, pref_show, main_tb);
 
+    /* Associate this module with the page's frame. */
+    OBJECT_SET_DATA(frame, E_PAGE_MODULE_KEY, module);
+
     /* Add the page to the notebook */
     gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), frame, NULL);
 
@@ -323,9 +325,6 @@ module_prefs_show(module_t *module, gpointer user_data)
     gtk_tree_store_set(model, &iter, 0, label_str, 1, cts->page, -1);
 #endif
 
-    /* If this is the first protocol page, remember its page number */
-    if (first_proto_prefs_page == -1)
-      first_proto_prefs_page = cts->page;
     cts->page++;
 
     /* Show 'em what we got */
@@ -1276,63 +1275,78 @@ prefs_main_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
   /* Note that we no longer have a "Preferences" dialog box. */
   prefs_w = NULL;
-  first_proto_prefs_page = -1;
 }
 
 struct properties_data {
-  GtkWidget *w;
-  int page_num;
   const char *title;
+  module_t *module;
 };
 
-/* XXX this way of searching the correct page number is really ugly ... */
 static void
 module_search_properties(module_t *module, gpointer user_data)
 {
   struct properties_data *p = (struct properties_data *)user_data;
 
-  if (p->title == NULL) return;
-  if (strcmp(module->title, p->title) == 0) {
-    /* found it */
-    gtk_notebook_set_page(GTK_NOTEBOOK(p->w), p->page_num);
-    p->title = NULL;
-  } else {
-    p->page_num++;
-  }
+  /* If this module has the specified title, remember it. */
+  if (strcmp(module->title, p->title) == 0)
+    p->module = module;
 }
 
 void
 properties_cb(GtkWidget *w, gpointer dummy)
 {
-  const gchar *title = NULL;
+  header_field_info *hfinfo;
+  const gchar *title;
   struct properties_data p;
+  int page_num;
+  GtkWidget *frame;
+  module_t *page_module;
 
-  if (cfile.finfo_selected) {
-    header_field_info *hfinfo = cfile.finfo_selected->hfinfo;
-    if (hfinfo->parent == -1) {
-      title = prefs_get_title_by_name(hfinfo->abbrev);
-    } else {
-      title =
-	prefs_get_title_by_name(proto_registrar_get_abbrev(hfinfo->parent));
-    }
-  } else {
+  if (cfile.finfo_selected == NULL) {
+    /* There is no field selected */
     return;
   }
 
-  if (!title) return;
+  /* Find the title for the protocol for the selected field. */
+  hfinfo = cfile.finfo_selected->hfinfo;
+  if (hfinfo->parent == -1)
+    title = prefs_get_title_by_name(hfinfo->abbrev);
+  else
+    title = prefs_get_title_by_name(proto_registrar_get_abbrev(hfinfo->parent));
+  if (!title)
+    return;	/* Couldn't find it. XXX - just crash? "Can't happen"? */
 
+  /* Find the module for that protocol by searching for one with that title.
+     XXX - should we just associate protocols with modules directly? */
+  p.title = title;
+  p.module = NULL;
+  prefs_module_list_foreach(protocols_module->prefs, module_search_properties,
+                            &p);
+  if (p.module == NULL) {
+    /* We didn't find it - that protocol probably has no preferences. */
+    return;
+  }
+
+  /* Create a preferences window, or pop up an existing one. */
   if (prefs_w != NULL) {
     reactivate_window(prefs_w);
   } else {
     prefs_cb(w, dummy);
   }
 
-  p.w = notebook;
-  p.page_num = first_proto_prefs_page;
-  p.title = title;
-
-  prefs_module_list_foreach(protocols_module->prefs, module_search_properties,
-      &p);
+  /* Search all the pages in that window for the one with the specified
+     module. */
+  for (page_num = 0;
+       (frame = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num)) != NULL;
+       page_num++) {
+    /* Get the module for this page. */
+    page_module = OBJECT_GET_DATA(frame, E_PAGE_MODULE_KEY);
+    if (page_module == p.module) {
+      /* We found it.  Select that page. */
+      gtk_notebook_set_page(GTK_NOTEBOOK(notebook), page_num);
+      break;
+    }
+  }
 }
 
 /* Prefs tree selection callback.  The node data has been loaded with
