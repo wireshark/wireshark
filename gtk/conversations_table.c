@@ -1059,7 +1059,7 @@ draw_ct_table_data(conversations_table *ct)
 }
 
 
-#if (GTK_MAJOR_VERSION > 2) || ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION >= 2) )
+#if (GTK_MAJOR_VERSION > 2)
 static void
 copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -1067,7 +1067,6 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
    gchar           *table_entry;                      
    gchar           *CSV_str;         
    GtkClipboard    *cb;  
-   GdkDisplay      *disp;
    
    conversations_table *talkers=(conversations_table *)data;
    
@@ -1093,10 +1092,9 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
    }
 
    /* Now that we have the CSV data, copy it into the default clipboard */
-   disp = gdk_display_get_default();
-   cb = gtk_clipboard_get_for_display (disp,GDK_SELECTION_CLIPBOARD); /* Get the default clipboard */
-   gtk_clipboard_set_text(cb, CSV_str, -1);                           /* Copy the CSV data into the clipboard */
-   g_free(CSV_str);                                                   /* Free the memory */
+   cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
+   gtk_clipboard_set_text(cb, CSV_str, -1);             /* Copy the CSV data into the clipboard */
+   g_free(CSV_str);                                     /* Free the memory */
 } 
 #endif
 
@@ -1111,7 +1109,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     GString *error_string;
     GtkWidget *label;
     char title[256];
-#if (GTK_MAJOR_VERSION > 2) || ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION >= 2) )
+#if (GTK_MAJOR_VERSION > 2)
     GtkWidget *copy_bt;
     GtkTooltips *tooltips = gtk_tooltips_new();
 #endif           
@@ -1198,7 +1196,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     /* create popup menu for this table */
     ct_create_popup_menu(conversations);
 
-#if (GTK_MAJOR_VERSION > 2) || ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION >= 2) )
+#if (GTK_MAJOR_VERSION > 2)
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
     copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);

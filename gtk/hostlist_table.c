@@ -543,15 +543,13 @@ draw_hostlist_table_data(hostlist_table *hl)
     gtk_clist_thaw(hl->table);
 }
 
-/* GdkDisplay is only available in GTK 2.2 and later */
-#if (GTK_MAJOR_VERSION > 2) || ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION >= 2) )
+#if (GTK_MAJOR_VERSION > 2)
 static void
 copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 {
    guint32         i,j;
    gchar           *table_entry;
    GtkClipboard    *cb;  
-   GdkDisplay      *disp;
    GString         *CSV_str = g_string_new("");
    
    hostlist_table *hosts=(hostlist_table *)data;
@@ -578,10 +576,9 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
    }
 
    /* Now that we have the CSV data, copy it into the default clipboard */
-   disp = gdk_display_get_default();
-   cb = gtk_clipboard_get_for_display (disp,GDK_SELECTION_CLIPBOARD); /* Get the default clipboard */
-   gtk_clipboard_set_text(cb, CSV_str->str, -1);                      /* Copy the CSV data into the clipboard */
-   g_string_free(CSV_str, TRUE);                                      /* Free the memory */
+   cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);    /* Get the default clipboard */
+   gtk_clipboard_set_text(cb, CSV_str->str, -1);       /* Copy the CSV data into the clipboard */
+   g_string_free(CSV_str, TRUE);                       /* Free the memory */
 } 
 #endif
 
@@ -595,7 +592,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     GtkWidget *column_lb;
     GString *error_string;
     char title[256];
-#if (GTK_MAJOR_VERSION > 2) || ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION >= 2) )
+#if (GTK_MAJOR_VERSION > 2)
     GtkWidget *copy_bt;
     GtkTooltips *tooltips = gtk_tooltips_new();
 #endif           
@@ -658,19 +655,6 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     gtk_clist_set_column_auto_resize(hosttable->table, 6, TRUE);
     gtk_clist_set_column_auto_resize(hosttable->table, 7, TRUE);
 
-#if 0
-    /*XXX instead of this we should probably have some code to
-        dynamically adjust the width of the columns */
-    gtk_clist_set_column_width(hosttable->table, 0, 100);
-    gtk_clist_set_column_width(hosttable->table, 1, 40);
-    gtk_clist_set_column_width(hosttable->table, 2, 70);
-    gtk_clist_set_column_width(hosttable->table, 3, 60);
-    gtk_clist_set_column_width(hosttable->table, 4, 70);
-    gtk_clist_set_column_width(hosttable->table, 5, 60);
-    gtk_clist_set_column_width(hosttable->table, 6, 70);
-    gtk_clist_set_column_width(hosttable->table, 7, 60);
-#endif
-
     gtk_clist_set_shadow_type(hosttable->table, GTK_SHADOW_IN);
     gtk_clist_column_titles_show(hosttable->table);
     gtk_container_add(GTK_CONTAINER(hosttable->scrolled_window), (GtkWidget *)hosttable->table);
@@ -688,9 +672,12 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     /* create popup menu for this table */
     hostlist_create_popup_menu(hosttable);
 
-#if (GTK_MAJOR_VERSION > 2) || ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION >= 2) )
-    copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");
-    gtk_tooltips_set_tip(tooltips, copy_bt, "Copy all statistical values to the clipboard in CSV (Comma Seperated Values) format.", NULL);
+#if (GTK_MAJOR_VERSION > 2)
+    /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
+    /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
+    copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
+    gtk_tooltips_set_tip(tooltips, copy_bt, 
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
     SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb,(gpointer *) hosttable);
     gtk_box_pack_start(GTK_BOX(vbox), copy_bt, FALSE, FALSE, 0);
 #endif
