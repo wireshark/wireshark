@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.8 1999/09/12 14:10:00 deniel Exp $
+ * $Id: colors.c,v 1.9 1999/10/04 15:00:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -241,6 +241,7 @@ read_filters(capture_file *cf)
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		 "Could not compile filter %s from saved filters because\n%s",
 		 name, dfilter_error_msg);
+		continue;
 	    }
 	    cf->colors->num_of_filters++;
 	    fg_color.red = fg_r;
