@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.27 1999/07/17 04:19:04 gram Exp $
+ * $Id: packet-tcp.c,v 1.28 1999/07/31 02:18:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -525,7 +525,7 @@ proto_register_tcp(void)
 		{ "Source or Destination Port",	"tcp.port", FT_UINT16, NULL }},
 
 		{ &hf_tcp_seq,
-		{ "Sequence Number",		"tcp.seq", FT_UINT32, NULL }},
+		{ "Sequence number",		"tcp.seq", FT_UINT32, NULL }},
 
 		{ &hf_tcp_ack,
 		{ "Acknowledgement number",	"tcp.ack", FT_UINT32, NULL }},
