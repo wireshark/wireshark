@@ -610,7 +610,7 @@ packet_list_moveto_end(void)
 }
 
 gint
-packet_list_append(gchar *text[], gpointer data)
+packet_list_append(const gchar *text[], gpointer data)
 {
     gint row;
 

@@ -51,7 +51,7 @@ void packet_list_freeze(void);
 void packet_list_thaw(void);
 void packet_list_select_row(gint);
 void packet_list_moveto_end(void);
-gint packet_list_append(gchar *text[], gpointer data);
+gint packet_list_append(const gchar *text[], gpointer data);
 void packet_list_set_colors(gint, color_t *, color_t *);
 gint packet_list_find_row_from_data(gpointer);
 void packet_list_set_text(gint, gint, const gchar *);
