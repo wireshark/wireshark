@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.19 2002/03/19 22:09:23 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.20 2002/03/20 07:39:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -309,13 +309,15 @@ char *fake_unicode(tvbuff_t *tvb, int offset, int len)
 	int i;
 	guint16 character;
 
-	buffer = g_malloc(len + 1);
+	/* Make sure we have enough data before allocating the buffer,
+	   so we don't blow up if the length is huge.
+	   We do so by attempting to fetch the last character; it'll
+	   throw an exception if it's past the end. */
+	tvb_get_letohs(tvb, offset + 2*(len - 1));
 
-	/*
-	 * Register a cleanup function in case on of our tvbuff accesses
-	 * throws an exception. We need to clean up buffer.
-	 */
-	CLEANUP_PUSH(g_free, buffer);
+	/* We know we won't throw an exception, so we don't have to worry
+	   about leaking this buffer. */
+	buffer = g_malloc(len + 1);
 
 	for (i = 0; i < len; i++) {
 		character = tvb_get_letohs(tvb, offset);
@@ -324,11 +326,6 @@ char *fake_unicode(tvbuff_t *tvb, int offset, int len)
 	}
 
 	buffer[len] = 0;
-
-	/*
-	 * Pop the cleanup function, but don't free the buffer.
-	 */
-	CLEANUP_POP;
 
 	return buffer;
 }
