@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.209 2003/10/25 00:25:38 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.210 2003/10/27 19:34:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -723,7 +723,6 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 	 */
 	if( LT_SEQ(seq, ual1->nextseq )){
 		gboolean outoforder;
-		gboolean fastretrans;
 		struct tcp_unacked *tu,*ntu;
 
 		/* assume it is a fast retransmission if
@@ -778,9 +777,9 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 			}
 		}
 		if(ntu){
-			if(pinfo->fd->abs_secs>(ntu->ts.secs+2)){
+			if(pinfo->fd->abs_secs>(guint32)(ntu->ts.secs+2)){
 				outoforder=FALSE;
-			} else if((pinfo->fd->abs_secs+2)<ntu->ts.secs){
+			} else if((pinfo->fd->abs_secs+2)<(guint32)ntu->ts.secs){
 				outoforder=FALSE;
 			} else {
 				guint32 t;
