@@ -1011,6 +1011,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_files_count_max = 10;
     prefs.gui_fileopen_dir           = g_strdup("");
+    prefs.gui_fileopen_preview       = 3;
     prefs.gui_ask_unsaved            = TRUE;
     prefs.gui_find_wrap              = TRUE;
     prefs.gui_webbrowser             = g_strdup("mozilla %s");
@@ -1315,6 +1316,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_RECENT_COUNT_MAX         "gui.recent_files_count.max"
 #define PRS_GUI_FILEOPEN_DIR             "gui.fileopen.dir"
 #define PRS_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen.remembered_dir"
+#define PRS_GUI_FILEOPEN_PREVIEW         "gui.fileopen.preview"
 #define PRS_GUI_ASK_UNSAVED              "gui.ask_unsaved"
 #define PRS_GUI_FIND_WRAP                "gui.find_wrap"
 #define PRS_GUI_GEOMETRY_SAVE_POSITION   "gui.geometry.save.position"
@@ -1628,22 +1630,23 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.gui_console_open =
 	find_index_from_string_array(value, gui_console_open_text,
 				     console_open_never);
-  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_STYLE) == 0) {
-    prefs.gui_fileopen_style =
-	find_index_from_string_array(value, gui_fileopen_style_text,
-				     FO_STYLE_LAST_OPENED);
   } else if (strcmp(pref_name, PRS_GUI_RECENT_COUNT_MAX) == 0) {
     prefs.gui_recent_files_count_max = strtoul(value, NULL, 10);
     if (prefs.gui_recent_files_count_max == 0) {
       /* We really should put up a dialog box here ... */
       prefs.gui_recent_files_count_max = 10;
     }
+  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_STYLE) == 0) {
+    prefs.gui_fileopen_style =
+	find_index_from_string_array(value, gui_fileopen_style_text,
+				     FO_STYLE_LAST_OPENED);
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_DIR) == 0) {
     if (prefs.gui_fileopen_dir != NULL)
       g_free(prefs.gui_fileopen_dir);
     prefs.gui_fileopen_dir = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_REMEMBERED_DIR) == 0) { /* deprecated */
-
+  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_PREVIEW) == 0) {
+    prefs.gui_fileopen_preview = strtoul(value, NULL, 10);
   } else if (strcmp(pref_name, PRS_GUI_ASK_UNSAVED) == 0) {
     if (strcasecmp(value, "true") == 0) {
 	    prefs.gui_ask_unsaved = TRUE;
@@ -2206,20 +2209,27 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_CONSOLE_OPEN ": %s\n",
 		  gui_console_open_text[prefs.gui_console_open]);
 
+  fprintf(pf, "\n# The max. number of items in the open recent files list.\n");
+  fprintf(pf, "# A decimal number.\n");
+  fprintf(pf, PRS_GUI_RECENT_COUNT_MAX ": %d\n",
+	          prefs.gui_recent_files_count_max);
+
   fprintf(pf, "\n# Where to start the File Open dialog box.\n");
   fprintf(pf, "# One of: LAST_OPENED, SPECIFIED\n");
   fprintf(pf, PRS_GUI_FILEOPEN_STYLE ": %s\n",
 		  gui_fileopen_style_text[prefs.gui_fileopen_style]);
-
-  fprintf(pf, PRS_GUI_RECENT_COUNT_MAX ": %d\n",
-	          prefs.gui_recent_files_count_max);
 
   if (prefs.gui_fileopen_dir != NULL) {
     fprintf(pf, "\n# Directory to start in when opening File Open dialog.\n");
     fprintf(pf, PRS_GUI_FILEOPEN_DIR ": %s\n",
                   prefs.gui_fileopen_dir);
   }
-                  
+
+  fprintf(pf, "\n# The preview timeout in the File Open dialog.\n");
+  fprintf(pf, "# A decimal number (in seconds).\n");
+  fprintf(pf, PRS_GUI_FILEOPEN_PREVIEW ": %d\n",
+	          prefs.gui_fileopen_preview);
+  
   fprintf(pf, "\n# Ask to save unsaved capture files?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_ASK_UNSAVED ": %s\n",
@@ -2423,6 +2433,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
   dest->gui_console_open = src->gui_console_open;
   dest->gui_fileopen_style = src->gui_fileopen_style;
+  dest->gui_fileopen_preview = src->gui_fileopen_preview;
   dest->gui_ask_unsaved = src->gui_ask_unsaved;
   dest->gui_find_wrap = src->gui_find_wrap;
   dest->gui_layout_type = src->gui_layout_type;

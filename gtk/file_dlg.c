@@ -113,7 +113,6 @@ static GtkWidget *file_save_as_w;
 #endif
 
 #define PREVIEW_STR_MAX         200
-#define PREVIEW_TIMEOUT_SECS    3
 
 static double
 secs_usecs( guint32 s, guint32 us)
@@ -235,7 +234,7 @@ preview_do(GtkWidget *prev, wtap *wth)
         if(packets%1000) {
             /* do we have a timeout? */
             time(&time_current);
-            if(time_current-time_preview >= PREVIEW_TIMEOUT_SECS) {
+            if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
                 is_breaked = TRUE;
                 break;
             }

@@ -52,6 +52,7 @@
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 static gint fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
+static gint fileopen_preview_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
 static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
 static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
 					  GdkEvent *event _U_, gpointer parent_w);
@@ -73,6 +74,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 
 #define GUI_CONSOLE_OPEN_KEY "console_open"
 #define GUI_FILEOPEN_KEY	"fileopen_behavior"
+#define GUI_FILEOPEN_PREVIEW_KEY "fileopen_preview_timeout"
 #define GUI_RECENT_FILES_COUNT_KEY "recent_files_count"
 #define GUI_FILEOPEN_DIR_KEY	"fileopen_directory"
 #define GUI_ASK_UNSAVED_KEY     "ask_unsaved"
@@ -167,6 +169,9 @@ static GtkWidget *font_browse_w;
 /* Used to contain the string from the Recent Files Count Max pref item */
 static char recent_files_count_max_str[128] = "";
 
+/* Used to contain the string from the Open File preview timeout pref item */
+static char open_file_preview_str[128] = "";
+
 #if GTK_MAJOR_VERSION < 2
 #define GUI_TABLE_ROWS 10
 #else
@@ -182,7 +187,8 @@ gui_prefs_show(void)
 #ifdef _WIN32
 	GtkWidget *console_open_om;
 #endif
-	GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
+	GtkWidget *fileopen_rb, *fileopen_dir_te, *fileopen_preview_te;
+	GtkWidget *toolbar_style_om;
     GtkWidget *filter_toolbar_placement_om;
 	GtkWidget *recent_files_count_max_te, *ask_unsaved_cb, *find_wrap_cb;
     GtkWidget *webbrowser_te;
@@ -307,6 +313,14 @@ gui_prefs_show(void)
 	SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
 	SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event",
 	    fileopen_dir_changed_cb, main_vb);
+
+	/* File Open dialog preview timeout */
+	fileopen_preview_te = create_preference_entry(main_tb, pos++,
+	    "\"File Open\" preview timeout:", "Timeout, until preview gives up scanning the capture file content.", open_file_preview_str);
+	g_snprintf(current_val_str, 128, "%d", prefs.gui_fileopen_preview);
+	gtk_entry_set_text(GTK_ENTRY(fileopen_preview_te), current_val_str);
+	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_PREVIEW_KEY, fileopen_preview_te);
+	SIGNAL_CONNECT(fileopen_preview_te, "focus_out_event", fileopen_preview_changed_cb, main_vb);
 
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
@@ -550,6 +564,31 @@ recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 
     if (newval > 0) {
       prefs.gui_recent_files_count_max = newval;
+    }
+
+    /* We really should pop up a nasty dialog box if newval <= 0 */
+
+    return FALSE;
+}
+
+static gint
+fileopen_preview_changed_cb(GtkWidget *recent_files_entry _U_, 
+			      GdkEvent *event _U_, gpointer parent_w)
+{
+    GtkWidget	*fileopen_preview_te;
+    guint newval;
+    
+    fileopen_preview_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_PREVIEW_KEY);
+
+    /*
+     * Now, just convert the string to a number and store it in the prefs
+     * filed ...
+     */
+
+    newval = strtol(gtk_entry_get_text (GTK_ENTRY(fileopen_preview_te)), NULL, 10);
+
+    if (newval > 0) {
+      prefs.gui_fileopen_preview = newval;
     }
 
     /* We really should pop up a nasty dialog box if newval <= 0 */
