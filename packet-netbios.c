@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.46 2002/05/01 09:50:44 guy Exp $
+ * $Id: packet-netbios.c,v 1.47 2002/05/02 02:42:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 
 #include <epan/packet.h>
 #include "llcsaps.h"
+#include "packet-tr.h"
 #include "packet-netbios.h"
 
 /* Netbios command numbers */
@@ -96,8 +97,14 @@ static int hf_netb_recv_cont_req = -1;
 static int hf_netb_send_no_ack = -1;
 static int hf_netb_version = -1;
 static int hf_netb_largest_frame = -1;
-static int hf_netb_name = -1;
+static int hf_netb_nb_name = -1;
+static int hf_netb_nb_name_type = -1;
+static int hf_netb_status_buffer_len = -1;
+static int hf_netb_status = -1;
 static int hf_netb_name_type = -1;
+static int hf_netb_max_data_recv_size = -1;
+static int hf_netb_termination_indicator = -1;
+static int hf_netb_num_data_bytes_accepted = -1;
 static int hf_netb_local_ses_no = -1;
 static int hf_netb_remote_ses_no = -1;
 static int hf_netb_data1 = -1;
@@ -116,7 +123,7 @@ static dissector_handle_t data_handle;
 	http://www.net3group.com/ftp/browser.zip
  */
 
-static const value_string name_type_vals[] = {
+static const value_string nb_name_type_vals[] = {
 	{0x00,	"Workstation/Redirector"},
 	{0x01,	"Browser"},
 	{0x02,	"Workstation/Redirector"}, 
@@ -191,10 +198,10 @@ static const value_string cmd_vals[] = {
 	{ 0,				NULL }
 };
 
-static const value_string call_name_types[] = {
-	{ 0x00, "Unique name" },
-	{ 0x01, "Group name" },
-	{ 0,    NULL }
+static const value_string name_types[] = {
+	{ 0, "Unique name" },
+	{ 1, "Group name" },
+	{ 0, NULL }
 };
 
 static const true_false_string flags_set = {
@@ -213,6 +220,30 @@ static const true_false_string flags_yes_no = {
 static const true_false_string netb_version_str = {
 	"2.00 or higher",
 	"1.xx"
+};
+
+static const value_string termination_indicator_vals[] = {
+	{ 0x0000, "Normal session end" },
+	{ 0x0001, "Abnormal session end" },
+	{ 0,      NULL }
+};
+
+static const value_string status_vals[] = {
+	{ 0, "Add name not in process" },
+	{ 1, "Add name in process" },
+	{ 0, NULL }
+};
+
+static const value_string max_frame_size_vals[] = {
+	{ 0,	"516" },
+	{ 1,	"1500" },
+	{ 2,	"2052" },
+	{ 3,	"4472" },
+	{ 4,	"8144" },
+	{ 5,	"11407" },
+	{ 6,	"17800" },	/* 17800 in TR spec, 17749 in NBF spec */
+	{ 7,	"65535" },
+	{ 0,	NULL }
 };
 
 
@@ -263,7 +294,7 @@ int get_netbios_name( tvbuff_t *tvb, int offset, char *name_ret)
 char *
 netbios_name_type_descr(int name_type)
 {
-	return val_to_str(name_type, name_type_vals, "Unknown");
+	return val_to_str(name_type, nb_name_type_vals, "Unknown");
 }
 
 void netbios_add_name(char* label, tvbuff_t *tvb, int offset,
@@ -284,9 +315,9 @@ void netbios_add_name(char* label, tvbuff_t *tvb, int offset,
 	    	"%s: %s<%02x> (%s)", label, name_str, name_type, name_type_str);
 
 	field_tree = proto_item_add_subtree( tf, ett_netb_name);
-	proto_tree_add_string_format( field_tree, hf_netb_name, tvb, offset,
+	proto_tree_add_string_format( field_tree, hf_netb_nb_name, tvb, offset,
 		15, name_str, "%s", name_str);
-	proto_tree_add_uint_format( field_tree, hf_netb_name_type, tvb, offset + 15, 1, name_type,
+	proto_tree_add_uint_format( field_tree, hf_netb_nb_name_type, tvb, offset + 15, 1, name_type,
 	    "0x%02x (%s)", name_type, name_type_str);
 }
 
@@ -449,14 +480,20 @@ static void nb_remote_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void nb_data2(char *label, tvbuff_t *tvb, int offset, proto_tree *tree)
+static void nb_data1(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
 
-{/* add the DATA2 to tree with format string = label and length of len */
+{/* add the DATA1 to tree with specified hf_ value */
 
-	int value = tvb_get_letohs( tvb, offset + NB_DATA2);
-	
-	proto_tree_add_uint_format( tree, hf_netb_data2, tvb,
-		offset + NB_DATA2, 2, value, label, value);
+	proto_tree_add_item( tree, hf, tvb, offset + NB_DATA1, 1, TRUE);
+
+}
+
+
+static void nb_data2(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
+
+{/* add the DATA2 to tree with specified hf_ value */
+
+	proto_tree_add_item( tree, hf, tvb, offset + NB_DATA2, 2, TRUE);
 
 }
 
@@ -558,7 +595,7 @@ static void  dissect_netb_status_query( tvbuff_t *tvb, int offset, proto_tree *t
 		    status_request);
 		break;
 	}
-	nb_data2("Length of status buffer: %u", tvb, offset, tree);
+	nb_data2( hf_netb_status_buffer_len, tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree); 
 	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
 	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME, tree);
@@ -570,12 +607,9 @@ static void  dissect_netb_terminate_trace( tvbuff_t *tvb, int offset,
 
 {/* Handle the TERMINATE TRACE command */
 
-	proto_tree_add_item( tree, hf_netb_data1, tvb, offset + NB_DATA1, 1, TRUE);
-	nb_data2("DATA2 value: 0x%04x", tvb, offset, tree);
-	nb_xmit_corrl( tvb, offset, tree);
-	nb_resp_corrl( tvb, offset, tree);
-	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
-	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME, tree);
+	/*
+	 * XXX - are any of the fields in this message significant?
+	 */
 }
 
 
@@ -643,45 +677,9 @@ static void  dissect_netb_add_name_resp( tvbuff_t *tvb, int offset,
     proto_tree *tree)
 
 {/* Handle the ADD NAME RESPONSE command */
-	guint8 status = tvb_get_guint8( tvb, offset + NB_DATA1);
-	guint16 name_type = tvb_get_letohs( tvb, offset + NB_DATA2);
 
-	switch (status) {
-
-	case 0:
-		proto_tree_add_text( tree, tvb, offset + NB_DATA1, 1,
-		    "Status: Add name not in process");
-		break;
-
-	case 1:
-		proto_tree_add_text( tree, tvb, offset + NB_DATA1, 1,
-		    "Status: Add name in process");
-		break;
-
-	default:
-		proto_tree_add_text( tree, tvb, offset + NB_DATA1, 1,
-		    "Status: 0x%02x (should be 0 or 1)", status);
-		break;
-	}
-
-	switch (name_type) {
-
-	case 0:
-		proto_tree_add_text( tree, tvb, offset + NB_DATA2, 2,
-		    "Name type: Unique name");
-		break;
-
-	case 1:
-		proto_tree_add_text( tree, tvb, offset + NB_DATA2, 2,
-		    "Name type: Group name");
-		break;
-
-	default:
-		proto_tree_add_text( tree, tvb, offset + NB_DATA2, 2,
-		    "Name type: 0x%04x (should be 0 or 1)", name_type);
-		break;
-	}
-
+	nb_data1( hf_netb_status, tvb, offset, tree);
+	nb_data2( hf_netb_name_type, tvb, offset, tree);
 	nb_xmit_corrl( tvb, offset, tree); 
 	netbios_add_name("Name to be added", tvb, offset + NB_RECVER_NAME,
 	    tree);
@@ -824,7 +822,7 @@ static void  dissect_netb_session_confirm( tvbuff_t *tvb, int offset,
 
 	netbios_add_ses_confirm_flags( tvb, tree, offset + NB_FLAGS);
 
-	nb_data2("Max data recv size: %u", tvb, offset, tree);
+	nb_data2( hf_netb_max_data_recv_size, tvb, offset, tree);
 	nb_xmit_corrl( tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
@@ -836,27 +834,8 @@ static void  dissect_netb_session_end( tvbuff_t *tvb, int offset,
     proto_tree *tree)
 
 {/* Handle the SESSION END command */
-	guint16 termination_indicator = tvb_get_letohs( tvb, offset + NB_DATA2);
 
-	switch (termination_indicator) {
-
-	case 0x0000:
-		proto_tree_add_text( tree, tvb, offset + NB_DATA2, 2,
-		    "Termination indicator: Normal session end");
-		break;
-
-	case 0x0001:
-		proto_tree_add_text( tree, tvb, offset + NB_DATA2, 2,
-		    "Termination indicator: Abormal session end");
-		break;
-
-	default:
-		proto_tree_add_text( tree, tvb, offset + NB_DATA2, 2,
-		    "Termination indicator: 0x%04x (should be 0x0000 or 0x0001)",
-		    termination_indicator);
-		break;
-	}
-
+	nb_data2( hf_netb_termination_indicator, tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
 }
@@ -869,7 +848,7 @@ static void  dissect_netb_session_init( tvbuff_t *tvb, int offset,
 
 	netbios_add_session_init_flags( tvb, tree, offset + NB_FLAGS);
 
-	nb_data2("Max data recv size: %u", tvb, offset, tree);
+	nb_data2( hf_netb_max_data_recv_size, tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree);
 	nb_xmit_corrl( tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
@@ -883,7 +862,7 @@ static void  dissect_netb_no_receive( tvbuff_t *tvb, int offset,
 
 	netbios_no_receive_flags( tvb, tree, offset + NB_FLAGS);
 
-	nb_data2("Number of data bytes accepted: %u", tvb, offset, tree);
+	nb_data2( hf_netb_num_data_bytes_accepted, tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
 }
@@ -894,7 +873,7 @@ static void  dissect_netb_receive_outstanding( tvbuff_t *tvb, int offset,
 
 {/* Handle the RECEIVE OUTSTANDING command */
 
-	nb_data2("Number of data bytes accepted: %u", tvb, offset, tree);
+	nb_data2( hf_netb_num_data_bytes_accepted, tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
 }
@@ -916,10 +895,15 @@ static void  dissect_netb_session_alive( tvbuff_t *tvb, int offset,
 
 {/* Handle the SESSION ALIVE command */
 
-	proto_tree_add_item( tree, hf_netb_data1, tvb, offset + NB_DATA1, 1, TRUE);
-	nb_data2("DATA2 value: 0x%04x", tvb, offset, tree);
-	nb_xmit_corrl( tvb, offset, tree);
-	nb_resp_corrl( tvb, offset, tree);
+	/*
+	 * XXX - all the fields are claimed to be "Reserved", but
+	 * the session numbers appear to be non-zero in at least
+	 * one capture, and they do appear to match session numbers
+	 * in other messages, and I'd expect that you had to identify
+	 * sessions in this message in any case.
+	 *
+	 * We show only those fields.
+	 */
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
 }
@@ -1110,15 +1094,15 @@ void proto_register_netbios(void)
 			"", HFILL }},
 
 		{ &hf_netb_call_name_type,
-		{ "Caller's Name Type", "netbios.call_name_type", FT_UINT8, BASE_HEX, VALS(call_name_types), 0x0,
+		{ "Caller's Name Type", "netbios.call_name_type", FT_UINT8, BASE_HEX, VALS(name_types), 0x0,
 			"", HFILL }},
 
-		{ &hf_netb_name_type,
-		{ "NetBIOS Name Type", "netbios.name_type", FT_UINT8, BASE_HEX, VALS(name_type_vals), 0x0,
+		{ &hf_netb_nb_name_type,
+		{ "NetBIOS Name Type", "netbios.nb_name_type", FT_UINT8, BASE_HEX, VALS(nb_name_type_vals), 0x0,
 			"", HFILL }},
 
-		{ &hf_netb_name,
-		{ "NetBIOS Name", "netbios.name", FT_STRING, BASE_NONE, NULL, 0x0,
+		{ &hf_netb_nb_name,
+		{ "NetBIOS Name", "netbios.nb_name", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_netb_ack,
@@ -1146,7 +1130,31 @@ void proto_register_netbios(void)
 			TFS( &netb_version_str), 0x01, "", HFILL }},
 
 		{ &hf_netb_largest_frame,
-		{ "Largest Frame", "netbios.largest_frame", FT_UINT8, BASE_HEX, NULL, 0x0E,
+		{ "Largest Frame", "netbios.largest_frame", FT_UINT8, BASE_DEC, VALS(max_frame_size_vals), 0x0E,
+			"", HFILL }},
+
+		{ &hf_netb_status_buffer_len,
+		{ "Length of status buffer", "netbios.status_buffer_len", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_netb_status,
+		{ "Status", "netbios.status", FT_UINT8, BASE_DEC, VALS(status_vals), 0x0,
+			"", HFILL }},
+
+		{ &hf_netb_name_type,
+		{ "Name type", "netbios.name_type", FT_UINT16, BASE_DEC, VALS(name_types), 0x0,
+			"", HFILL }},
+
+		{ &hf_netb_max_data_recv_size,
+		{ "Maximum data receive size", "netbios.max_data_recv_size", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_netb_termination_indicator,
+		{ "Termination indicator", "netbios.termination_indicator", FT_UINT16, BASE_HEX, VALS(termination_indicator_vals), 0x0,
+			"", HFILL }},
+
+		{ &hf_netb_num_data_bytes_accepted,
+		{ "Number of data bytes accepted", "netbios.num_data_bytes_accepted", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_netb_local_ses_no,
