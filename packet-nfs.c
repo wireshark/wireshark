@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.92 2003/08/27 23:53:07 guy Exp $
+ * $Id: packet-nfs.c,v 1.93 2003/09/09 09:49:01 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3887,11 +3887,11 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				offset);
 			offset = dissect_rpc_bool(tvb, tree, hf_nfs_read_eof,
 				offset);
-			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Len:%d", len);
 			}
 			proto_item_append_text(tree, ", READ Reply Len:%d", len);
+			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
 		break;
 		default:
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
@@ -3956,12 +3956,12 @@ dissect_nfs3_write_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	stable=tvb_get_ntohl(tvb, offset);
 	offset = dissect_stable_how(tvb, offset, tree, hf_nfs_write_stable);
 
-	offset = dissect_nfsdata   (tvb, offset, tree, hf_nfs_data);
-
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%s Len:%d %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
 	}
 	proto_item_append_text(tree, ", WRITE Call FH:0x%08x Offset:%s Len:%d %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
+
+	offset = dissect_nfsdata   (tvb, offset, tree, hf_nfs_data);
 
 	return offset;
 }
