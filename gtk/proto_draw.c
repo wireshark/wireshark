@@ -801,6 +801,47 @@ savehex_dlg_destroy_cb(void)
         savehex_dlg = NULL;
 }
 
+extern void
+copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)  
+{
+	GtkWidget *bv;
+	int len;
+	int i=0;
+	const guint8 *data_p = NULL;
+	GString *ASCII_representation = g_string_new("");
+	GString *byte_str = g_string_new("");
+	
+	bv = get_notebook_bv_ptr(byte_nb_ptr);
+	if (bv == NULL) {
+		/* shouldn't happen */ 
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+		return;
+	}
+	
+	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+	
+	g_string_append_printf(byte_str,"%04x  ",i); /* Offset 0000 */
+	for (i=0; i<len; i++){
+	  g_string_append_printf(ASCII_representation,"%c",isprint(*data_p) ? *data_p : '.');
+	  g_string_append_printf(byte_str," %02x",*data_p++);
+	  if ((i+1)%16==0 && i!=0){
+	    g_string_append_printf(byte_str,"  %s\n%04x  ",ASCII_representation->str,i+1);
+	    g_string_assign (ASCII_representation,"");
+	  }
+	}
+	
+	if(ASCII_representation->len){
+	  for (i=ASCII_representation->len; i<16; i++){
+	    g_string_append_printf(byte_str,"   ");
+	  }
+	  g_string_append_printf(byte_str,"  %s\n",ASCII_representation->str);
+	}
+	/* Now that we have the byte data, copy it into the default clipboard */
+        copy_to_clipboard(byte_str);
+	g_string_free(byte_str, TRUE);                       /* Free the memory */
+	g_string_free(ASCII_representation, TRUE);           /* Free the memory */
+}
+
 /* save the current highlighted hex data */
 static void
 savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)

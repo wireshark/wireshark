@@ -291,4 +291,10 @@ extern GtkWidget *xpm_to_widget(const char ** xpm);
  */
 extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);
 
+/** Copy a GString to the clipboard.
+ *
+ * @param str GString that is to be copied to the clipboard.
+ */
+extern void copy_to_clipboard(GString *str);  
+
 #endif /* __GTKGUIUI_UTIL_H__ */

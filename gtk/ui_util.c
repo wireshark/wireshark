@@ -988,3 +988,24 @@ simple_list_new(gint cols, gchar **titles) {
     return plugins_list;
 }
 
+extern void
+copy_to_clipboard(GString *str)  
+{
+#if (GTK_MAJOR_VERSION >= 2)
+        GtkClipboard    *cb;
+
+      	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
+	gtk_clipboard_set_text(cb, str->str, -1);            /* Copy the byte data into the clipboard */
+#else
+        GtkWidget *window;
+        GtkWidget *text;
+
+        window = window_new (GTK_WINDOW_TOPLEVEL,"");
+        text = gtk_text_new (NULL, NULL);                 /* Create the GtkText widget */
+        gtk_container_add (GTK_CONTAINER (window), text); /* Avoid a GTK assertion */
+        gtk_widget_realize (text);   /* Realizing a widget creates a window for it, ready for us to insert some text */
+        gtk_text_insert (GTK_TEXT (text), NULL, NULL, NULL, str->str, -1);
+        gtk_editable_select_region((GtkEditable *)text, 0, -1); /* Select ALL text */
+        gtk_editable_copy_clipboard((GtkEditable *)text); /* Copy the byte data into the clipboard */
+#endif
+}

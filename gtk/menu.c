@@ -473,6 +473,8 @@ static GtkItemFactoryEntry hexdump_menu_items[] =
     ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy Packet Bytes into Clipboard", NULL, copy_hex_cb,
                        0, NULL, NULL)
 };
 
