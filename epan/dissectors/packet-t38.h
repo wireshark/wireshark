@@ -26,10 +26,10 @@
  */
 
 /* Info to save in T38 conversation / packet-info */
-#define MAX_T38_SETUP_METHOD_SIZE 8
+#define MAX_T38_SETUP_METHOD_SIZE 7
 struct _t38_conversation_info
 {
-	gchar   method[MAX_T38_SETUP_METHOD_SIZE];
+	gchar   method[MAX_T38_SETUP_METHOD_SIZE + 1];
 	guint32 frame_number;
 };
 

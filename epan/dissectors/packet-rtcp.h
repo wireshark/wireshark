@@ -30,12 +30,12 @@
 /* Info to save in RTCP conversation / packet-info.
    Note that this structure applies to the destination end of
    an RTP session */
-#define MAX_RTCP_SETUP_METHOD_SIZE 8
+#define MAX_RTCP_SETUP_METHOD_SIZE 7
 struct _rtcp_conversation_info
 {
     /* Setup info is relevant to traffic whose dest is the conversation address */
     guchar  setup_method_set;
-    gchar   setup_method[MAX_RTCP_SETUP_METHOD_SIZE];
+    gchar   setup_method[MAX_RTCP_SETUP_METHOD_SIZE + 1];
     guint32 setup_frame_number;
 
     /* Info used for roundtrip calculations */

@@ -52,10 +52,10 @@ struct _rtp_info {
 };
 
 /* Info to save in RTP conversation / packet-info */
-#define MAX_RTP_SETUP_METHOD_SIZE 8
+#define MAX_RTP_SETUP_METHOD_SIZE 7
 struct _rtp_conversation_info
 {
-	gchar   method[MAX_RTP_SETUP_METHOD_SIZE];
+	gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
 	guint32 frame_number;
 };
 

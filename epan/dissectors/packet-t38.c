@@ -233,7 +233,7 @@ void t38_add_address(packet_info *pinfo,
          * Update the conversation data.
          */
         strncpy(p_conv_data->method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
-        p_conv_data->method[MAX_T38_SETUP_METHOD_SIZE - 1] = '\0';
+        p_conv_data->method[MAX_T38_SETUP_METHOD_SIZE] = '\0';
         p_conv_data->frame_number = setup_frame_number;
 }
 
