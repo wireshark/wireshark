@@ -7,7 +7,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h245.c,v 1.35 2003/09/04 18:55:54 guy Exp $
+ * $Id: packet-h245.c,v 1.36 2003/09/06 01:17:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7924,7 +7924,7 @@ dissect_h245_manufacturerCode(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
-
+/* dissect_h245_h221NonStandard is used for H.245 */
 
 static per_sequence_t h221NonStandard_sequence[] = {
 	{ "t35CountryCode", NO_EXTENSIONS, NOT_OPTIONAL,
@@ -7949,6 +7949,33 @@ dissect_h245_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	proto_tree_add_uint(tree, hf_h245_h221Manufacturer, tvb, (offset-3)>>3,4,h221NonStandard);
 
 	return offset;
+}
+
+/* dissect_h245_h221NonStandard_with_extension is used for H.225 */
+
+static per_sequence_t h221NonStandard_sequence_with_extension[] = {
+	{ "t35CountryCode", EXTENSION_ROOT, NOT_OPTIONAL,
+		dissect_h245_t35CountryCode },
+	{ "t35Extension", EXTENSION_ROOT, NOT_OPTIONAL, 
+		dissect_h245_t35Extension },
+	{ "manufacturerCode", EXTENSION_ROOT, NOT_OPTIONAL,
+		dissect_h245_manufacturerCode },
+	{ NULL, 0, 0, NULL }
+};
+int
+dissect_h245_h221NonStandard_with_extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	t35CountryCode = 0;
+	t35Extension = 0;
+	manufacturerCode = 0;
+
+	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_h221NonStandard, ett_h245_h221NonStandard, h221NonStandard_sequence_with_extension);
+
+	h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
+
+	proto_tree_add_uint(tree, hf_h245_h221Manufacturer, tvb, (offset-3)>>3,4,h221NonStandard);
+
+     	return offset;
 }
 
 
@@ -12800,6 +12827,8 @@ dissect_h245_field(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 
 
+/* dissect_h245_NonStandardIdentifier is used for H.245 */
+
 static const value_string NonStandardIdentifier_vals[] = {
 	{ 0,	"object" },
 	{ 1,	"h221NonStandard" },
@@ -12821,6 +12850,40 @@ dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo
 	h221NonStandard = 0;
 
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NonStandardIdentifier, ett_h245_NonStandardIdentifier, NonStandardIdentifier_choice, "NonStandardIdentifier", &value);
+
+	switch (value) {
+		case 0 :  /* object */
+			nsp_handle = dissector_get_port_handle(nsp_object_dissector_table, adler32_str(object));
+			break;
+		case 1 :  /* h221NonStandard */
+			nsp_handle = dissector_get_port_handle(nsp_h221_dissector_table, h221NonStandard);
+			break;
+		default :
+			nsp_handle = NULL;
+    }
+
+	return offset;
+}
+
+
+/* dissect_h245_NonStandardIdentifier_with_extension is used for H.225 */
+
+static per_choice_t NonStandardIdentifier_with_extension_choice[] = {
+	{ 0,	"object", EXTENSION_ROOT,
+		dissect_h245_object },
+	{ 1,	"h221NonStandard", EXTENSION_ROOT, 
+		dissect_h245_h221NonStandard_with_extension },
+	{ 0, NULL, 0, NULL }
+};
+static int
+dissect_h245_NonStandardIdentifier_with_extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint32 value;
+
+	*object = '\0';
+	h221NonStandard = 0;
+
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NonStandardIdentifier, ett_h245_NonStandardIdentifier, NonStandardIdentifier_with_extension_choice, "NonStandardIdentifier with extension", &value);
 
 	switch (value) {
 		case 0 :  /* object */
@@ -13470,6 +13533,7 @@ dissect_h245_FunctionNotSupported(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 
+/* dissect_h245_NonStandardParameter is used for H.245 */
 
 static per_sequence_t NonStandardParameter_sequence[] = {
 	{ "nonStandardIdentifier", NO_EXTENSIONS, NOT_OPTIONAL,
@@ -13488,10 +13552,12 @@ dissect_h245_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
+/* dissect_h245_NonStandardParameter_with_extension_marker is used for H.225 */
+
 static per_sequence_t NonStandardParameter_with_extension_sequence[] = {
-	{ "nonStandardIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
-		dissect_h245_NonStandardIdentifier },
-	{ "data", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "nonStandardIdentifier", NO_EXTENSIONS, NOT_OPTIONAL,
+		dissect_h245_NonStandardIdentifier_with_extension },
+	{ "data", NO_EXTENSIONS, NOT_OPTIONAL,
 		dissect_h245_NonStandardParameterData },
 	{ NULL, 0, 0, NULL }
 };
