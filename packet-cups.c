@@ -5,7 +5,7 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id: packet-cups.c,v 1.3 2001/03/15 06:09:19 guy Exp $
+* $Id: packet-cups.c,v 1.4 2001/03/15 07:03:13 guy Exp $
 *
 * 
 * This program is free software; you can redistribute it and/or
@@ -166,6 +166,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, PROTO_TAG_CUPS);
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_cups, tvb, offset,
@@ -174,7 +176,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Format (1450 bytes max.):  */
-	/* type state uri "location" "info" "make-and-model"\n */
+	/* type state uri ["location" ["info" ["make-and-model"]]]\n */
 
 	ptype = get_hex_uint(tvb, offset, &next_offset);
 	len = next_offset - offset;
