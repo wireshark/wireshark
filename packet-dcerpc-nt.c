@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.72 2003/04/27 21:48:46 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.73 2003/05/09 01:43:59 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,9 +150,11 @@ static gint ett_nt_counted_byte_array = -1;
 /* Dissect a counted byte array in-line. */
 
 int
-dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
-			       packet_info *pinfo, proto_tree *tree,
-			       char *drep, int hf_index)
+dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep, int hf_index,
+				  dcerpc_callback_fnct_t *callback,
+				  void *callback_args)
 {
 	dcerpc_info *di = pinfo->private_data;
 	proto_item *item;
@@ -186,11 +188,20 @@ dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
 			hf_nt_cs_size, &size);	
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, subtree, drep,
+	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, subtree, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
-			"Byte Array", hf_index);
+			"Byte Array", hf_index, callback, callback_args);
 
 	return offset;
+}
+
+int
+dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
+			       packet_info *pinfo, proto_tree *tree,
+			       char *drep, int hf_index)
+{
+	return dissect_ndr_counted_byte_array_cb(
+		tvb, offset, pinfo, tree, drep, hf_index, NULL, NULL);
 }
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
