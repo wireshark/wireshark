@@ -105,7 +105,7 @@ void fec_decode_ext_fti(struct _ext *e, tvbuff_t *tvb, proto_tree *tree, gint et
 		{
 			/* Decode FEC Instance ID */
 			f.fec->instance_id_present = TRUE;
-			f.fec->instance_id = tvb_get_ntohs(tvb, e->offset+8);
+			f.fec->instance_id = (guint8) tvb_get_ntohs(tvb, e->offset+8);
 		}
 		
 		if (tree)

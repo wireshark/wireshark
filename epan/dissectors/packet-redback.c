@@ -60,9 +60,9 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   length = tvb_get_ntohs(tvb, 16);
 
-  proto = tvb_get_ntohs(tvb, 18);
-  l3off = tvb_get_ntohs(tvb, 20);
-  dataoff = tvb_get_ntohs(tvb, 22);
+  proto = (guint8) tvb_get_ntohs(tvb, 18);
+  l3off = (guint8) tvb_get_ntohs(tvb, 20);
+  dataoff = (guint8) tvb_get_ntohs(tvb, 22);
 
   ti = proto_tree_add_text(tree, tvb, 0, length, "Redback");
 
