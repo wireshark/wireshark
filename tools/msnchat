@@ -214,7 +214,7 @@ class CaptureFile:
         self.conversations = []
         self.conversations_map = {}
 
-        pipe = os.popen(tethereal + " -Tpdml -V -n -R "
+        pipe = os.popen(tethereal + " -Tpdml -n -R "
             "'msnms contains \"X-MMS-IM-Format\"' "
             "-r " + capture_filename, "r")
 

@@ -1,11 +1,11 @@
 Protocol Dissection in XML Format
 =================================
-$Id: README.xml-output,v 1.1 2003/12/06 06:09:12 gram Exp $
+$Id: README.xml-output,v 1.2 2003/12/09 05:56:30 gram Exp $
 Copyright (c) 2003 by Gilbert Ramirez <gram@alumni.rice.edu>
 
 
 Tethereal has the ability to print its protocol dissection in an
-XML format, by using the "-Tpdml -V" options. Similar functionality
+XML format, by using the "-Tpdml" options. Similar functionality
 could be put into the "Print" dialog of Ethereal, but that work has
 not been done yet.
 
@@ -19,7 +19,7 @@ A related XML format, the Packet Summary Markup Language (PSML), is
 also defined by the Analyzer group to provide packet summary information.
 The PSML format is not documented in a publicly-available HTML document,
 but its format is simple. Some day it may be added to tethereal so
-that "-Tpsml" (without "-V") would produce PSML.
+that "-Tpsml" would produce PSML.
 
 One wonders if the "-T" option should read "-Txml" instead of "-Tpdml"
 (and in the future, "-Tpsml"), but if tethereal was required to produce

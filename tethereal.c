@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.207 2003/12/06 06:09:10 gram Exp $
+ * $Id: tethereal.c,v 1.208 2003/12/09 05:56:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1233,13 +1233,9 @@ main(int argc, char *argv[])
     }
   }
 
-  /* If printing PDML or PostScript, for the time-being, we require -V */
-  if (print_format == PR_FMT_PDML || print_format == PR_FMT_PS) {
-	  if (! verbose) {
-		fprintf(stderr, "tethereal: Using -Tps or -Tpdml requires -V\n");
-		exit(1);
-	  }
-  }
+  /* If printing PDML or PS, force -V */
+  if (print_format == PR_FMT_PDML || PR_FMT_PS)
+	  verbose = TRUE;
 
   /* If no capture filter or read filter has been specified, and there are
      still command-line arguments, treat them as the tokens of a capture
