@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.54 2002/06/23 23:43:32 guy Exp $
+ * $Id: print.c,v 1.55 2002/06/29 09:45:06 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -83,18 +83,6 @@ void close_print_dest(int to_file, FILE *fh)
 		pclose(fh);
 }
 
-void print_preamble(FILE *fh, gint format)
-{
-	if (format == PR_FMT_PS)
-		print_ps_preamble(fh);
-}
-
-void print_finale(FILE *fh, gint format)
-{
-	if (format == PR_FMT_PS)
-		print_ps_finale(fh);
-}
-
 void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
     FILE *fh)
 {
@@ -150,13 +138,9 @@ void proto_tree_print_node(GNode *node, gpointer data)
 {
 	field_info	*fi = PITEM_FINFO(node);
 	print_data	*pdata = (print_data*) data;
-	int		i;
-	int		num_spaces;
-	char		space[MAX_INDENT+1];
 	const guint8	*pd;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
-	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
 	/* Don't print invisible entries. */
 	if (!fi->visible)
@@ -171,25 +155,7 @@ void proto_tree_print_node(GNode *node, gpointer data)
 		proto_item_fill_label(fi, label_str);
 	}
 		
-	if (pdata->format == PR_FMT_PS) {
-		/* Print the text, as PostScript */
-		ps_clean_string(psbuffer, label_ptr, MAX_PS_LINE_LENGTH);
-		fprintf(pdata->fh, "%d (%s) putline\n", pdata->level, psbuffer);
-	} else {
-		/* Prepare the tabs for printing, depending on tree level */
-		num_spaces = pdata->level * 4;
-		if (num_spaces > MAX_INDENT) {
-			num_spaces = MAX_INDENT;
-		}
-		for (i = 0; i < num_spaces; i++) {
-			space[i] = ' ';
-		}
-		/* The string is NUL-terminated */
-		space[num_spaces] = '\0';
-
-		/* Print the text */
-		fprintf(pdata->fh, "%s%s\n", space, label_ptr);
-	}
+	print_line(pdata->fh, pdata->level, pdata->format, label_ptr);
 
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
@@ -242,11 +208,11 @@ void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
 		tvb = src->tvb;
 		if (multiple_sources) {
 			name = src->name;
-			print_line(fh, format, "");
+			print_line(fh, 0, format, "");
 			line = g_malloc(strlen(name) + 2);	/* <name>:\0 */
 			strcpy(line, name);
 			strcat(line, ":");
-			print_line(fh, format, line);
+			print_line(fh, 0, format, line);
 			g_free(line);
 		}
 		length = tvb_length(tvb);
@@ -290,9 +256,7 @@ print_hex_data_buffer(FILE *fh, register const u_char *cp,
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-	if (format == PR_FMT_PS)
-		print_ps_hex(fh);
-	print_line(fh, format, "");
+	print_line(fh, 0, format, "");
 
 	/*
 	 * How many of the leading digits of the offset will we supply?
@@ -353,7 +317,7 @@ print_hex_data_buffer(FILE *fh, register const u_char *cp,
 			 * and advance the offset.
 			 */
 			line[k] = '\0';
-			print_line(fh, format, line);
+			print_line(fh, 0, format, line);
 			ad += 16;
 		}
 	}
@@ -387,14 +351,41 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 	}
 }
 
-void print_line(FILE *fh, gint format, char *line)
+void print_preamble(FILE *fh, gint format)
 {
+	if (format == PR_FMT_PS)
+		print_ps_preamble(fh);
+}
+
+void print_finale(FILE *fh, gint format)
+{
+	if (format == PR_FMT_PS)
+		print_ps_finale(fh);
+}
+
+void print_line(FILE *fh, int indent, gint format, char *line)
+{
+	char		space[MAX_INDENT+1];
+	int		i;
+	int		num_spaces;
 	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
 	if (format == PR_FMT_PS) {
 		ps_clean_string(psbuffer, line, MAX_PS_LINE_LENGTH);
-		fprintf(fh, "(%s) hexdump\n", psbuffer);
+		fprintf(fh, "%d (%s) putline\n", indent, psbuffer);
 	} else {
+		/* Prepare the tabs for printing, depending on tree level */
+		num_spaces = indent * 4;
+		if (num_spaces > MAX_INDENT) {
+			num_spaces = MAX_INDENT;
+		}
+		for (i = 0; i < num_spaces; i++) {
+			space[i] = ' ';
+		}
+		/* The string is NUL-terminated */
+		space[num_spaces] = '\0';
+
+		fputs(space, fh);
 		fputs(line, fh);
 		putc('\n', fh);
 	}

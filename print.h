@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.27 2002/06/04 07:03:47 guy Exp $
+ * $Id: print.h,v 1.28 2002/06/29 09:45:06 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -59,6 +59,6 @@ void print_finale(FILE *fh, gint format);
 void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
     FILE *fh);
 void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt);
-void print_line(FILE *fh, gint format, char *line);
+void print_line(FILE *fh, int indent, gint format, char *line);
 
 #endif /* print.h */
