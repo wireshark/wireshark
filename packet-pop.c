@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.10 1999/11/16 11:42:46 guy Exp $
+ * $Id: packet-pop.c,v 1.11 1999/11/20 23:03:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -49,6 +49,8 @@ static int hf_pop_request = -1;
 
 static gint ett_pop = -1;
 
+static gboolean is_continuation(const u_char *data);
+	
 void
 dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -80,11 +82,19 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "POP");
+	  col_add_str(fd, COL_PROTOCOL, "POP");
 
 	if (check_col(fd, COL_INFO)) {
-
-	  col_add_fstr(fd, COL_INFO, "%s: %s %s", (pi.match_port == pi.destport)? "Request" : "Response", rr, rd);	  
+	  /*
+	   * Do it like HTTP does.
+	   * Put the first line from the buffer into the summary,
+	   * if it's an POP request or reply.
+	   * Otherwise, just call it a continuation.
+	   */
+	  if (pi.match_port == pi.srcport && is_continuation(pd+offset))
+	    col_add_str(fd, COL_INFO, "Continuation");
+	  else
+	    col_add_fstr(fd, COL_INFO, "%s: %s %s", (pi.match_port == pi.destport)? "Request" : "Response", rr, rd);	  
 	}
 
 	if (tree) {
@@ -96,14 +106,21 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    proto_tree_add_item_hidden(pop_tree, hf_pop_request, offset, i1, TRUE);
 	    proto_tree_add_text(pop_tree, offset, i1, "Request: %s", rr);
 
-	    proto_tree_add_text(pop_tree, offset + i1 + 1, END_OF_FRAME, "Request Arg: %s", rd);
+	    if (strlen(rd) != 0)
+	      proto_tree_add_text(pop_tree, offset + i1 + 1, END_OF_FRAME, "Request Arg: %s", rd);
 
 	  }
 	  else {
 	    proto_tree_add_item_hidden(pop_tree, hf_pop_response, offset, i1, TRUE);
-	    proto_tree_add_text(pop_tree, offset, i1, "Response: %s", rr);
 
-	    proto_tree_add_text(pop_tree, offset + i1 + 1, END_OF_FRAME, "Response Arg: %s", rd);
+	    if (is_continuation(pd+offset))
+	      dissect_data(pd, offset, fd, pop_tree);
+	    else {
+	      proto_tree_add_text(pop_tree, offset, i1, "Response: %s", rr);
+
+	      if (strlen(rd) != 0)
+	      proto_tree_add_text(pop_tree, offset + i1 + 1, END_OF_FRAME, "Response Arg: %s", rd);
+	    }
 	  }
 
 	}
@@ -131,4 +148,15 @@ proto_register_pop(void)
   proto_pop = proto_register_protocol("Post Office Protocol", "pop");
   proto_register_field_array(proto_pop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+static gboolean is_continuation(const u_char *data)
+{
+  if (strncmp(data, "+OK", strlen("+OK")) == 0)
+    return FALSE;
+
+  if (strncmp(data, "-ERR", strlen("-ERR")) == 0)
+    return FALSE;
+
+  return TRUE;
 }
