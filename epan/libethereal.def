@@ -240,6 +240,7 @@ get_column_longest_string
 get_column_title
 get_conn_cfilter
 get_datafile_path
+get_datafile_dir
 get_dirname
 get_dissector_table_base
 get_dissector_table_selector_type
@@ -248,6 +249,9 @@ get_ether_name
 get_hostname
 get_hostname6
 get_persconffile_path
+get_plugins_global_dir
+get_plugins_pers_dir
+get_systemfile_dir
 get_tcp_port
 get_tempfile_path
 get_timestamp_setting
