@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.47 2004/03/18 19:04:32 obiot Exp $
+ * $Id: column-utils.c,v 1.48 2004/04/02 09:04:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -559,7 +559,6 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     case AT_ETHER:
       strncpy(pinfo->cinfo->col_buf[col], get_ether_name(addr->data), COL_MAX_LEN);
       pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-      pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
       break;
 
     case AT_IPv4:
@@ -574,12 +573,34 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
       pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
       break;
 
+    case AT_STRINGZ:
+      /* XXX - should be done in "address_to_str_buf()", but that routine
+         doesn't know COL_MAX_LEN; it should be changed to take the
+         maximum length as an argument. */
+      strncpy(pinfo->cinfo->col_buf[col], addr->data, COL_MAX_LEN);
+      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+      break;
+
     default:
       address_to_str_buf(addr, pinfo->cinfo->col_buf[col]);
       break;
     }
-  } else
-    address_to_str_buf(addr, pinfo->cinfo->col_buf[col]);
+  } else {
+    switch (addr->type) {
+
+    case AT_STRINGZ:
+      /* XXX - should be done in "address_to_str_buf()", but that routine
+         doesn't know COL_MAX_LEN; it should be changed to take the
+         maximum length as an argument. */
+      strncpy(pinfo->cinfo->col_buf[col], addr->data, COL_MAX_LEN);
+      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+      break;
+
+    default:
+      address_to_str_buf(addr, pinfo->cinfo->col_buf[col]);
+      break;
+    }
+  }
   pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
 
   switch (addr->type) {
