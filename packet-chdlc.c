@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.21 2003/10/25 07:17:26 guy Exp $
+ * $Id: packet-chdlc.c,v 1.22 2004/05/02 21:35:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,7 +132,14 @@ chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
 			offset_after_chdlctype - 2, 2, chdlctype);
   }
 
-  next_tvb = tvb_new_subset(tvb, offset_after_chdlctype, -1, -1);
+  if (chdlctype == CHDLCTYPE_OSI) {
+    /* There is a Padding Byte for CLNS protocols over Cisco HDLC */
+    proto_tree_add_text(fh_tree, tvb, offset_after_chdlctype, 1, "CLNS Padding: 0x%02x",
+        tvb_get_guint8(tvb, offset_after_chdlctype));
+    next_tvb = tvb_new_subset(tvb, offset_after_chdlctype + 1, -1, -1);
+  } else {
+    next_tvb = tvb_new_subset(tvb, offset_after_chdlctype, -1, -1);
+  }
 
   /* do lookup with the subdissector table */
   if (!dissector_try_port(subdissector_table, chdlctype, next_tvb, pinfo, tree)) {
