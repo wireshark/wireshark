@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.16 2003/10/09 22:35:06 guy Exp $
+ * $Id: packet-h225.c,v 1.17 2003/10/17 07:45:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9023,7 +9023,7 @@ proto_register_h225(void)
 		{ "EndpointIdentifier", "h225.EndpointIdentifier", FT_STRING, BASE_HEX,
 		NULL, 0, "EndpointIdentifier BMPString", HFILL }},
 	{ &hf_h225_emailId,
-		{ "emailId", "h225.emailId", FT_BYTES, BASE_HEX,
+		{ "emailId", "h225.emailId", FT_STRING, BASE_NONE,
 		NULL, 0, "emailId IA5String", HFILL }},
 	{ &hf_h225_conferenceAlias,
 		{ "conferenceAlias", "h225.conferenceAlias", FT_UINT32, BASE_DEC,
