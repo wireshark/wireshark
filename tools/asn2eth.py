@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.8 2004/06/12 01:34:29 sahlberg Exp $
+# $Id: asn2eth.py,v 1.9 2004/06/12 02:08:34 sahlberg Exp $
 #
 
 """ASN.1 to Ethereal dissector compiler"""
@@ -1426,11 +1426,16 @@ class SetOfType (SqType):
     fname = ectx.eth_type[tname]['ref'][0]
     f = fname + '/' + '_item'
     ef = ectx.field[f]['ethname']
-    out = ectx.eth_type_fn_hdr(tname)
+    out = ''
+    if (ectx.Ber()):
+      out = "static ber_sequence %s_set_of[1] = {\n" % (tname)
+      out += self.out_item(f, self.val, False, '', ectx)
+      out += "};\n"
+    out += ectx.eth_type_fn_hdr(tname)
     if (ectx.OBer()):
       body = ectx.eth_fn_call('dissect_ber_set_of' + ectx.pvp(), ret='offset',
                                 par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
-                                     (tname+'_sequence_of', 'hf_index', ectx.eth_type[tname]['tree'])))
+                                     (tname+'_set_of', 'hf_index', ectx.eth_type[tname]['tree'])))
     elif (ectx.NPer()):
       body = ectx.eth_fn_call('dissect_per_set_of' + ectx.pvp(), ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
