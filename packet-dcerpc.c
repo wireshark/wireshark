@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.39 2002/03/16 22:54:20 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.40 2002/03/18 07:56:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1190,9 +1190,11 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_sec_addr_len, &sec_addr_len);
-    proto_tree_add_item (dcerpc_tree, hf_dcerpc_cn_sec_addr, tvb, offset,
-                         sec_addr_len, FALSE);
-    offset += sec_addr_len;
+    if (sec_addr_len != 0) {
+        proto_tree_add_item (dcerpc_tree, hf_dcerpc_cn_sec_addr, tvb, offset,
+                             sec_addr_len, FALSE);
+        offset += sec_addr_len;
+    }
 
     if (offset % 4) {
         offset += 4 - offset % 4;
