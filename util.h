@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.7 1999/03/23 03:14:46 gram Exp $
+ * $Id: util.h,v 1.8 1999/03/31 08:20:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,16 +45,6 @@ void simple_dialog(gint, gint *, gchar *, ...)
 #else
 void simple_dialog(gint, gint *, gchar *, ...);
 #endif
-
-
-const char *decode_boolean_bitfield(guint32 val, guint32 mask, int width,
-  const char *truedesc, const char *falsedesc);
-
-const char *decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
-  const value_string *tab, const char *fmt);
-
-const char *decode_numeric_bitfield(guint32 val, guint32 mask, int width,
-  const char *fmt);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.43 1999/03/30 04:41:00 guy Exp $
+ * $Id: packet.h,v 1.44 1999/03/31 08:20:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -243,6 +243,12 @@ int        get_token_len(const u_char *linep, const u_char *lineend,
 gchar*     format_text(const u_char *line, int len);
 gchar*     val_to_str(guint32, const value_string *, const char *);
 gchar*     match_strval(guint32, const value_string*);
+const char *decode_boolean_bitfield(guint32 val, guint32 mask, int width,
+  const char *truedesc, const char *falsedesc);
+const char *decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
+  const value_string *tab, const char *fmt);
+const char *decode_numeric_bitfield(guint32 val, guint32 mask, int width,
+  const char *fmt);
 gint       check_col(frame_data *, gint);
 #if __GNUC__ == 2
 void       col_add_fstr(frame_data *, gint, gchar *, ...)
