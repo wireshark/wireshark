@@ -1817,6 +1817,10 @@ Jean-Michel Fayard <jean-michel.fayard [AT] moufrei.de> {
 	BOOTP/DHCP, HTTP, and WSP statistics taps
 }
 
+Josef Korelus <jkor [AT] quick.cz> {
+	GPRS Network Service-over-Frame-Relay support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

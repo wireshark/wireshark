@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.42 2003/09/03 20:58:08 guy Exp $
+ * $Id: packet-fr.c,v 1.43 2003/09/03 22:26:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include "prefs.h"
 #include "packet-llc.h"
 #include "packet-chdlc.h"
 #include "xdlc.h"
@@ -96,9 +97,19 @@ static gint hf_fr_pid   = -1;
 static gint hf_fr_snaptype = -1;
 static gint hf_fr_chdlctype = -1;
 
+static dissector_handle_t gprs_ns_handle;
 static dissector_handle_t data_handle;
 
 static dissector_table_t osinl_subdissector_table;
+
+/*
+ * Encapsulation type.
+ * XXX - this should be per-DLCI as well.
+ */
+#define FRF_3_2		0	/* FRF 3.2 or Cisco HDLC */
+#define GPRS_NS		1	/* GPRS Network Services (3GPP TS 08.16) */
+
+static gint fr_encap = FRF_3_2;
 
 static const true_false_string cmd_string = {
                 "Command",
@@ -163,6 +174,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint32 address;
   guint8  fr_ctrl;
   guint16 fr_type;
+  tvbuff_t *next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
@@ -311,14 +323,17 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", address);
 
-  fr_ctrl = tvb_get_guint8(tvb, offset);
-  if (fr_ctrl == XDLC_U) {
+  switch (fr_encap) {
+
+  case FRF_3_2:
+    fr_ctrl = tvb_get_guint8(tvb, offset);
+    if (fr_ctrl == XDLC_U) {
       dissect_xdlc_control(tvb, offset, pinfo, fr_tree, hf_fr_control,
  			   ett_fr_control, is_response, TRUE, TRUE);
       offset++;
 
       dissect_fr_nlpid(tvb, offset, pinfo, tree, ti, fr_tree, fr_ctrl);
-  } else {
+    } else {
       if (address == 0) {
 		/* this must be some sort of lapf on DLCI 0 for SVC */
 		/* because DLCI 0 is rezerved for LMI and  SVC signaling encaplulated in lapf */
@@ -349,6 +364,16 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_item_set_end(ti, tvb, offset+2);
       }
       chdlctype(fr_type, tvb, offset+2, pinfo, tree, fr_tree, hf_fr_chdlctype);
+    }
+    break;
+
+  case GPRS_NS:
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    if (address != 0)
+      call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
+    else
+      dissect_lapf(next_tvb, pinfo, tree);
+    break;
   }
 }
 
@@ -567,13 +592,18 @@ void proto_register_fr(void)
             VALS(chdlc_vals), 0x0, "Frame Relay Cisco HDLC Encapsulated Protocol", HFILL }},
   };
 
-
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_fr,
     &ett_fr_address,
     &ett_fr_control,
   };
+  static enum_val_t fr_encap_options[] = {
+    {"FRF 3.2/Cisco HDLC", FRF_3_2 },
+    {"GPRS Network Service", GPRS_NS },
+    { NULL, 0 },
+  };
+  module_t *frencap_module;
 
   proto_fr = proto_register_protocol("Frame Relay", "FR", "fr");
   proto_register_field_array(proto_fr, hf, array_length(hf));
@@ -586,6 +616,11 @@ void proto_register_fr(void)
 
   register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
   register_dissector("fr", dissect_fr, proto_fr);
+
+  frencap_module = prefs_register_protocol(proto_fr, NULL);
+  prefs_register_enum_preference(frencap_module, "encap", "Encapsulation",
+				 "Encapsulation", &fr_encap,
+				 fr_encap_options, FALSE);
 }
 
 void proto_reg_handoff_fr(void)
@@ -598,6 +633,8 @@ void proto_reg_handoff_fr(void)
 
   fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
   dissector_add("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
+
+  gprs_ns_handle = find_dissector("gprs_ns");
   data_handle = find_dissector("data");
 
   osinl_subdissector_table = find_dissector_table("osinl");
