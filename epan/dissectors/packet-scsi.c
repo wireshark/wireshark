@@ -4273,7 +4273,7 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo _U_,
 	PROTO_ITEM_SET_GENERATED(ti);
     }
     if (check_col (pinfo->cinfo, COL_INFO)) {
-         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN:0x%02x (%s)", lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
+         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s)", lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
      }
 
 }
@@ -4406,7 +4406,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (valstr != NULL) {
         if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: %s LUN:0x%02x ", valstr, lun);
+            col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: %s LUN: 0x%02x ", valstr, lun);
         }
     }
     else {
@@ -4772,7 +4772,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                  isreq ? "Request" : "Response");
 	    if (check_col (pinfo->cinfo, COL_INFO)) {
 	      col_add_fstr (pinfo->cinfo, COL_INFO, 
-			    "SCSI: Data %s LUN:0x%02x (%s %s) ", 
+			    "SCSI: Data %s LUN: 0x%02x (%s %s) ", 
 			    isreq ? "Out" : "In", 
 			    lun, 
 			    val_to_str (opcode, scsi_spc2_val, "0x%02x"),
@@ -4790,7 +4790,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                  isreq ? "Request" : "Response");
 	    if (check_col (pinfo->cinfo, COL_INFO)) {
 	      col_add_fstr (pinfo->cinfo, COL_INFO, 
-			    "SCSI: Data %s LUN:0x%02x (%s %s) ", 
+			    "SCSI: Data %s LUN: 0x%02x (%s %s) ", 
 			    isreq ? "Out" : "In", 
 			    lun, 
 			    val_to_str (opcode, scsi_sbc2_val, "0x%02x"),
@@ -4808,7 +4808,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                  isreq ? "Request" : "Response");
 	    if (check_col (pinfo->cinfo, COL_INFO)) {
 	      col_add_fstr (pinfo->cinfo, COL_INFO, 
-			    "SCSI: Data %s LUN:0x%02x (%s %s) ", 
+			    "SCSI: Data %s LUN: 0x%02x (%s %s) ", 
 			    isreq ? "Out" : "In", 
 			    lun, 
 			    val_to_str (opcode, scsi_ssc2_val, "0x%02x"),
@@ -4826,7 +4826,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                  isreq ? "Request" : "Response");
 	    if (check_col (pinfo->cinfo, COL_INFO)) {
 	      col_add_fstr (pinfo->cinfo, COL_INFO, 
-			    "SCSI: Data %s LUN:0x%02x (%s %s) ", 
+			    "SCSI: Data %s LUN: 0x%02x (%s %s) ", 
 			    isreq ? "Out" : "In", 
 			    lun, 
 			    val_to_str (opcode, scsi_smc2_val, "0x%02x"),
