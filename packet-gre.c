@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.30 2000/11/29 06:17:34 guy Exp $
+ * $Id: packet-gre.c,v 1.31 2000/11/29 07:42:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,9 +65,8 @@ static gint ett_gre_wccp2_redirect_header = -1;
 #define GRE_WCCP	0x883E
 #define GRE_IPX		0x8137
 
-static void add_flags_and_ver(proto_tree *, guint16, int, int);
-static void dissect_gre_wccp2_redirect_header(const u_char *, int, frame_data *,
-				proto_tree *);
+static void add_flags_and_ver(proto_tree *, guint16, tvbuff_t *, int, int);
+static void dissect_gre_wccp2_redirect_header(tvbuff_t *, int, proto_tree *);
 
 static const value_string typevals[] = {
 	{ GRE_PPP,  "PPP" },
@@ -81,25 +80,31 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t ppp_handle;
 
 static void
-dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-  
-  guint16	flags_and_ver = pntohs(pd + offset);
-  guint16	type	      = pntohs(pd + offset + sizeof(flags_and_ver));
+dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  int		offset = 0;
+  guint16	flags_and_ver;
+  guint16	type;
   guint16	sre_af;
   guint8	sre_length;
   tvbuff_t	*next_tvb;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_gre, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_gre, tvb, pinfo, tree);
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_set_str(fd, COL_PROTOCOL, "GRE");
+  pinfo->current_proto = "GRE";
+
+  flags_and_ver = tvb_get_ntohs(tvb, offset);
+  type = tvb_get_ntohs(tvb, offset + sizeof(flags_and_ver));
+
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "GRE");
 	
-  if (check_col(fd, COL_INFO)) {
-    col_add_fstr(fd, COL_INFO, "Encapsulated %s",
+  if (check_col(pinfo->fd, COL_INFO)) {
+    col_add_fstr(pinfo->fd, COL_INFO, "Encapsulated %s",
         val_to_str(type, typevals, "0x%04X (unknown)"));
   }
 		
-  if (IS_DATA_IN_FRAME(offset) && tree) {
+  if (tree) {
     gboolean		is_ppp = FALSE;
     gboolean		is_wccp2 = FALSE;
     proto_item *	ti;
@@ -121,38 +126,36 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       break;
 
     case GRE_WCCP:
-      /* WCCP2 apparently puts an extra 4 octets into the header, but uses
-         the same encapsulation type; if it looks as if the first octet of
-	 the packet isn't the beginning of an IPv4 header, assume it's
-	 WCCP2. */
-      if ((pd[offset + sizeof(flags_and_ver) + sizeof(type)] & 0xF0) != 0x40) {
+      /* WCCP2 puts an extra 4 octets into the header, but uses the same
+         encapsulation type; if it looks as if the first octet of the packet
+         isn't the beginning of an IPv4 header, assume it's WCCP2. */
+      if ((tvb_get_guint8(tvb, offset + sizeof(flags_and_ver) + sizeof(type)) & 0xF0) != 0x40) {
 	len += 4;
 	is_wccp2 = TRUE;
       }
       break;
     }
 
-    ti = proto_tree_add_protocol_format(tree, proto_gre, NullTVB, offset, len,
+    ti = proto_tree_add_protocol_format(tree, proto_gre, tvb, offset, len,
       "Generic Routing Encapsulation (%s)",
       val_to_str(type, typevals, "0x%04X - unknown"));
     gre_tree = proto_item_add_subtree(ti, ett_gre);
-    add_flags_and_ver(gre_tree, flags_and_ver, offset, is_ppp);
-
+    add_flags_and_ver(gre_tree, flags_and_ver, tvb, offset, is_ppp);
     offset += sizeof(flags_and_ver);
 
-    proto_tree_add_uint(gre_tree, hf_gre_proto, NullTVB, offset, sizeof(type), type);
+    proto_tree_add_uint(gre_tree, hf_gre_proto, tvb, offset, sizeof(type), type);
     offset += sizeof(type);
 
     if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R) {
-      guint16 checksum = pntohs(pd + offset);
-      proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(checksum),
+      guint16 checksum = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_text(gre_tree, tvb, offset, sizeof(checksum),
 			  "Checksum: %u", checksum);
       offset += sizeof(checksum);
     }
     
     if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R) {
-      guint16 rtoffset = pntohs(pd + offset);
-      proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(rtoffset),
+      guint16 rtoffset = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_text(gre_tree, tvb, offset, sizeof(rtoffset),
 			  "Offset: %u", rtoffset);
       offset += sizeof(rtoffset);
     }
@@ -161,49 +164,50 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       if (is_ppp) {
 	guint16	paylen;
 	guint16 callid;
-	
-	paylen = pntohs(pd + offset);
-	proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(paylen),
+
+	paylen = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(gre_tree, tvb, offset, sizeof(paylen),
 			    "Payload length: %u", paylen);
 	offset += sizeof(paylen);
 
-	callid = pntohs(pd + offset);
-	proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(callid),
+	callid = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(gre_tree, tvb, offset, sizeof(callid),
 			    "Call ID: %u", callid);
 	offset += sizeof(callid);
       }
       else {
-	guint32 key = pntohl(pd + offset);
-	proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(key),
+	guint32 key = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(gre_tree, tvb, offset, sizeof(key),
 			    "Key: %u", key);
 	offset += sizeof(key);
       }
     }
     
     if (flags_and_ver & GH_B_S) {
-      guint32 seqnum = pntohl(pd + offset);
-      proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(seqnum),
+      guint32 seqnum = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_text(gre_tree, tvb, offset, sizeof(seqnum),
 			  "Sequence number: %u", seqnum);
       offset += sizeof(seqnum);
     }
 
     if (is_ppp && flags_and_ver & GH_P_A) {
-      guint32 acknum = pntohl(pd + offset);
-      proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(acknum),
+      guint32 acknum = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_text(gre_tree, tvb, offset, sizeof(acknum),
 			  "Acknowledgement number: %u", acknum);
       offset += sizeof(acknum);
     }
 
     if (flags_and_ver & GH_B_R) {
       for (;;) {
-      	sre_af = pntohs(pd + offset);
-        proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(guint16),
+      	sre_af = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_text(gre_tree, tvb, offset, sizeof(guint16),
   			  "Address family: %u", sre_af);
         offset += sizeof(guint16);
-        proto_tree_add_text(gre_tree, NullTVB, offset, 1,
-			  "SRE offset: %u", pd[offset++]);
-	sre_length = pd[offset];
-        proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(guint8),
+        proto_tree_add_text(gre_tree, tvb, offset, 1,
+			  "SRE offset: %u", tvb_get_guint8(tvb, offset));
+	offset += sizeof(guint8);
+	sre_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_text(gre_tree, tvb, offset, sizeof(guint8),
 			  "SRE length: %u", sre_length);
 	offset += sizeof(guint8);
 	if (sre_af == 0 && sre_length == 0)
@@ -212,106 +216,105 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       }
     }
 
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
     switch (type) {
       case GRE_PPP:
-        old_call_dissector(ppp_handle, pd, offset, fd, tree);
+        call_dissector(ppp_handle, next_tvb, pinfo, tree);
  	break;
       case GRE_IP:
-        old_call_dissector(ip_handle, pd, offset, fd, tree);
+        call_dissector(ip_handle, next_tvb, pinfo, tree);
         break;
       case GRE_WCCP:
         if (is_wccp2) {
-          dissect_gre_wccp2_redirect_header(pd, offset, fd, gre_tree);
+          dissect_gre_wccp2_redirect_header(tvb, offset, gre_tree);
           offset += 4;
         }
-        old_call_dissector(ip_handle, pd, offset, fd, tree);
+        call_dissector(ip_handle, next_tvb, pinfo, tree);
         break;
       case GRE_IPX:
-	next_tvb = tvb_create_from_top(offset);
-        dissect_ipx(next_tvb, &pi, tree);
+        dissect_ipx(next_tvb, pinfo, tree);
         break;
       default:
-	next_tvb = tvb_create_from_top(offset);
-	dissect_data(next_tvb, 0, &pi, gre_tree);
+	dissect_data(next_tvb, 0, pinfo, gre_tree);
 	break;
     }
   }
 }
 
 static void
-add_flags_and_ver(proto_tree *tree, guint16 flags_and_ver, int offset, int is_ppp) {
-
+add_flags_and_ver(proto_tree *tree, guint16 flags_and_ver, tvbuff_t *tvb,
+    int offset, int is_ppp)
+{
   proto_item *	ti;
   proto_tree *	fv_tree;
   int		nbits = sizeof(flags_and_ver) * 8;
   
-  ti = proto_tree_add_text(tree, NullTVB, offset, 2, 
+  ti = proto_tree_add_text(tree, tvb, offset, 2, 
 			   "Flags and version: %#04x", flags_and_ver);
   fv_tree = proto_item_add_subtree(ti, ett_gre_flags);
   
-  proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 		      decode_boolean_bitfield(flags_and_ver, GH_B_C, nbits,
 					      "Checksum", "No checksum"));
-  proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 		      decode_boolean_bitfield(flags_and_ver, GH_B_R, nbits,
 					      "Routing", "No routing"));
-  proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 		      decode_boolean_bitfield(flags_and_ver, GH_B_K, nbits,
 					      "Key", "No key"));
-  proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 		      decode_boolean_bitfield(flags_and_ver, GH_B_S, nbits,
 					      "Sequence number", "No sequence number"));
-  proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 		      decode_boolean_bitfield(flags_and_ver, GH_B_s, nbits,
 					      "Strict source route", "No strict source route"));
-  proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 		      decode_numeric_bitfield(flags_and_ver, GH_B_RECUR, nbits,
 					      "Recursion control: %u"));
   if (is_ppp) {
-    proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+    proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 			decode_boolean_bitfield(flags_and_ver, GH_P_A, nbits,
 						"Acknowledgment number", "No acknowledgment number"));
-    proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+    proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 			decode_numeric_bitfield(flags_and_ver, GH_P_FLAGS, nbits,
 						"Flags: %u"));
   }
   else {
-    proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+    proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 			decode_numeric_bitfield(flags_and_ver, GH_R_FLAGS, nbits,
 						"Flags: %u"));
   }
 
-  proto_tree_add_text(fv_tree, NullTVB, offset, sizeof(flags_and_ver), "%s",
+  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 		      decode_numeric_bitfield(flags_and_ver, GH_B_VER, nbits,
 					      "Version: %u"));
  }
 
 static void
-dissect_gre_wccp2_redirect_header(const u_char *pd, int offset, frame_data *fd,
-				proto_tree *tree)
+dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
   proto_item *	ti;
   proto_tree *	rh_tree;
   guint8	rh_flags;
   
-  ti = proto_tree_add_text(tree, NullTVB, offset, 4, "Redirect header");
+  ti = proto_tree_add_text(tree, tvb, offset, 4, "Redirect header");
   rh_tree = proto_item_add_subtree(ti, ett_gre_wccp2_redirect_header);
 
-  rh_flags = pd[offset];
-  proto_tree_add_text(rh_tree, NullTVB, offset, 1, "%s",
+  rh_flags = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(rh_tree, tvb, offset, 1, "%s",
 		      decode_boolean_bitfield(rh_flags, 0x80, 8,
 				      "Dynamic service", "Well-known service"));
-  proto_tree_add_text(rh_tree, NullTVB, offset, 1, "%s",
+  proto_tree_add_text(rh_tree, tvb, offset, 1, "%s",
 		      decode_boolean_bitfield(rh_flags, 0x40, 8,
 			      "Alternative bucket used", "Alternative bucket not used"));
 
-  proto_tree_add_text(rh_tree, NullTVB, offset + 1, 1, "Service ID: %s",
-      val_to_str(pd[offset + 1], service_id_vals, "Unknown (0x%02X)"));
+  proto_tree_add_text(rh_tree, tvb, offset + 1, 1, "Service ID: %s",
+      val_to_str(tvb_get_guint8(tvb, offset + 1), service_id_vals, "Unknown (0x%02X)"));
   if (rh_flags & 0x40)
-    proto_tree_add_text(rh_tree, NullTVB, offset + 2, 1, "Alternative bucket index: %u",
-			pd[offset + 2]);
-  proto_tree_add_text(rh_tree, NullTVB, offset + 3, 1, "Primary bucket index: %u",
-			pd[offset + 3]);
+    proto_tree_add_text(rh_tree, tvb, offset + 2, 1, "Alternative bucket index: %u",
+			tvb_get_guint8(tvb, offset + 2));
+  proto_tree_add_text(rh_tree, tvb, offset + 3, 1, "Primary bucket index: %u",
+			tvb_get_guint8(tvb, offset + 3));
 }
  
 void
@@ -337,7 +340,7 @@ proto_register_gre(void)
 void
 proto_reg_handoff_gre(void)
 {
-	old_dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre);
+	dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre);
 
 	/*
 	 * Get handles for the IP and PPP dissectors.

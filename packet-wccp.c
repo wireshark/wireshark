@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.13 2000/11/29 06:17:34 guy Exp $
+ * $Id: packet-wccp.c,v 1.14 2000/11/29 07:42:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,11 +74,11 @@ static gint ett_capability_element = -1;
 /*
  * See
  *
- *	http://search.ietf.org/internet-drafts/draft-forster-wrec-wccp-v1-00.txt
+ *	http://www.ietf.org/internet-drafts/draft-forster-wrec-wccp-v1-00.txt
  *
  * for WCCP 1.0, and
  *
- *	http://search.ietf.org/internet-drafts/draft-wilson-wrec-wccp-v2-00.txt
+ *	http://www.ietf.org/internet-drafts/draft-wilson-wrec-wccp-v2-00.txt
  *
  * for WCCP 2.0, if they haven't expired yet.
  */
@@ -146,39 +146,40 @@ const value_string service_id_vals[] = {
     { 0,    NULL }
 };
 
-static void dissect_hash_data(const u_char *pd, int offset,
+static void dissect_hash_data(tvbuff_t *tvb, int offset,
     proto_tree *wccp_tree);
-static void dissect_web_cache_list_entry(const u_char *pd, int offset,
+static void dissect_web_cache_list_entry(tvbuff_t *tvb, int offset,
     int index, proto_tree *wccp_tree);
 static int wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree,
-    guint32 start, int offset);
+    guint32 start, tvbuff_t *tvb, int offset);
 static gchar *bucket_name(guint8 bucket);
-static guint16 dissect_wccp2_header(const u_char *pd, int offset,
+static guint16 dissect_wccp2_header(tvbuff_t *tvb, int offset,
     proto_tree *wccp_tree);
-static void dissect_wccp2_info(const u_char *pd, int offset, guint16 length,
+static void dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
     proto_tree *wccp_tree);
-static gboolean dissect_wccp2_security_info(const u_char *pd, int offset,
+static gboolean dissect_wccp2_security_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
-static gboolean dissect_wccp2_service_info(const u_char *pd, int offset,
+static gboolean dissect_wccp2_service_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
-static gboolean dissect_wccp2_router_identity_info(const u_char *pd,
+static gboolean dissect_wccp2_router_identity_info(tvbuff_t *tvb,
     int offset, int length, proto_tree *info_tree);
-static gboolean dissect_wccp2_wc_identity_info(const u_char *pd, int offset,
+static gboolean dissect_wccp2_wc_identity_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
-static gboolean dissect_wccp2_router_view_info(const u_char *pd, int offset,
+static gboolean dissect_wccp2_router_view_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
-static gboolean dissect_wccp2_wc_view_info(const u_char *pd, int offset,
+static gboolean dissect_wccp2_wc_view_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
-static gboolean dissect_wccp2_router_query_info(const u_char *pd, int offset,
+static gboolean dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
-static gboolean dissect_wccp2_assignment_info(const u_char *pd, int offset,
+static gboolean dissect_wccp2_router_query_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
-static gboolean dissect_wccp2_capability_info(const u_char *pd, int offset,
+static gboolean dissect_wccp2_capability_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
 
 static void 
-dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	int offset = 0;
 	proto_tree *wccp_tree = NULL;
 	proto_item *wccp_tree_item;
 	guint32 wccp_message_type;
@@ -187,59 +188,61 @@ dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	guint32 cache_count;
 	int i;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_wccp, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_wccp, tvb, pinfo, tree);
 
-	if(check_col(fd, COL_PROTOCOL)) {
-		col_set_str(fd, COL_PROTOCOL, "WCCP");
+	pinfo->current_proto = "WCCP";
+
+	if(check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_set_str(pinfo->fd, COL_PROTOCOL, "WCCP");
 	}
 
-	wccp_message_type = pntohl(&pd[offset]);
+	wccp_message_type = tvb_get_ntohl(tvb, offset);
 
-	if(check_col(fd, COL_INFO)) {
-		col_add_str(fd, COL_INFO, val_to_str(wccp_message_type,
+	if(check_col(pinfo->fd, COL_INFO)) {
+		col_add_str(pinfo->fd, COL_INFO, val_to_str(wccp_message_type,
 		    wccp_type_vals, "Unknown WCCP message (%u)"));
 	}
 
 	if(tree != NULL) {
-		wccp_tree_item = proto_tree_add_item(tree, proto_wccp, NullTVB, offset,
-		    END_OF_FRAME, FALSE);
+		wccp_tree_item = proto_tree_add_item(tree, proto_wccp, tvb, offset,
+		    tvb_length(tvb), FALSE);
 		wccp_tree = proto_item_add_subtree(wccp_tree_item, ett_wccp);
 
-		proto_tree_add_uint(wccp_tree, hf_wccp_message_type, NullTVB, offset,
+		proto_tree_add_uint(wccp_tree, hf_wccp_message_type, tvb, offset,
 		    sizeof(wccp_message_type), wccp_message_type);
 		offset += sizeof(wccp_message_type);
 
 		switch (wccp_message_type) {
 
 		case WCCP_HERE_I_AM:
-			wccp_version = pntohl(&pd[offset]);
-			proto_tree_add_uint(wccp_tree, hf_wccp_version, NullTVB,
+			wccp_version = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_uint(wccp_tree, hf_wccp_version, tvb,
 			    offset, 4, wccp_version);
 			offset += 4;
-			dissect_hash_data(pd, offset, wccp_tree);
+			dissect_hash_data(tvb, offset, wccp_tree);
 			offset += HASH_INFO_SIZE;
-			proto_tree_add_uint(wccp_tree, hf_recvd_id, NullTVB, offset,
-			    4, pntohl(&pd[offset]));
+			proto_tree_add_item(wccp_tree, hf_recvd_id, tvb, offset,
+			    4, FALSE);
 			offset += 4;
 			break;
 
 		case WCCP_I_SEE_YOU:
-			wccp_version = pntohl(&pd[offset]);
-			proto_tree_add_uint(wccp_tree, hf_wccp_version, NullTVB,
+			wccp_version = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_uint(wccp_tree, hf_wccp_version, tvb,
 			    offset, 4, wccp_version);
 			offset += 4;
-			proto_tree_add_uint(wccp_tree, hf_change_num, NullTVB, offset,
-			    4, pntohl(&pd[offset]));
+			proto_tree_add_item(wccp_tree, hf_change_num, tvb, offset,
+			    4, FALSE);
 			offset += 4;
-			proto_tree_add_uint(wccp_tree, hf_recvd_id, NullTVB, offset,
-			    4, pntohl(&pd[offset]));
+			proto_tree_add_item(wccp_tree, hf_recvd_id, tvb, offset,
+			    4, FALSE);
 			offset += 4;
-			cache_count = pntohl(&pd[offset]);
-			proto_tree_add_text(wccp_tree, NullTVB, offset, 4,
+			cache_count = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_text(wccp_tree, tvb, offset, 4,
 			    "Number of Web Caches: %u", cache_count);
 			offset += 4;
 			for (i = 0; i < cache_count; i++) {
-				dissect_web_cache_list_entry(pd, offset, i,
+				dissect_web_cache_list_entry(tvb, offset, i,
 				    wccp_tree);
 				offset += 4 + HASH_INFO_SIZE;
 			}
@@ -250,29 +253,29 @@ dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			 * This hasn't been tested, since I don't have any
 			 * traces with this in it.
 			 */
-			proto_tree_add_uint(wccp_tree, hf_recvd_id, NullTVB, offset,
-			    4, pntohl(&pd[offset]));
+			proto_tree_add_item(wccp_tree, hf_recvd_id, tvb, offset,
+			    4, FALSE);
 			offset += 4;
-			cache_count = pntohl(&pd[offset]);
-			proto_tree_add_text(wccp_tree, NullTVB, offset, 4,
+			cache_count = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_text(wccp_tree, tvb, offset, 4,
 			    "Number of Web Caches: %u", cache_count);
 			offset += 4;
 			for (i = 0; i < cache_count; i++) {
 				proto_tree_add_ipv4_format(wccp_tree,
-				    hf_cache_ip, NullTVB, offset, 4,
-				    pntohl(&pd[offset]),
+				    hf_cache_ip, tvb, offset, 4,
+				    tvb_get_ntohl(tvb, offset),
 				    "Web Cache %d IP Address: %s", i,
-				    ip_to_str((guint8 *) &pd[offset]));
+				    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 				offset += 4;
 			}
 			for (i = 0; i < 256; i += 4) {
-				proto_tree_add_text(wccp_tree, NullTVB, offset, 4,
+				proto_tree_add_text(wccp_tree, tvb, offset, 4,
 				    "Buckets %d - %d: %10s %10s %10s %10s",
 				    i, i + 3,
-				    bucket_name(pd[offset]),
-				    bucket_name(pd[offset+1]),
-				    bucket_name(pd[offset+2]),
-				    bucket_name(pd[offset+3]));
+				    bucket_name(tvb_get_guint8(tvb, offset)),
+				    bucket_name(tvb_get_guint8(tvb, offset+1)),
+				    bucket_name(tvb_get_guint8(tvb, offset+2)),
+				    bucket_name(tvb_get_guint8(tvb, offset+3)));
 				offset += 4;
 			}
 			break;
@@ -281,25 +284,25 @@ dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		case WCCP2_I_SEE_YOU:
 		case WCCP2_REMOVAL_QUERY:
 		case WCCP2_REDIRECT_ASSIGN:
-			length = dissect_wccp2_header(pd, offset, wccp_tree);
+			length = dissect_wccp2_header(tvb, offset, wccp_tree);
 			offset += 4;
 
-			dissect_wccp2_info(pd, offset, length, wccp_tree);
+			dissect_wccp2_info(tvb, offset, length, wccp_tree);
 			break;
 
 		default:
-			wccp_version = pntohl(&pd[offset]);
-			proto_tree_add_uint(wccp_tree, hf_wccp_version, NullTVB,
+			wccp_version = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_uint(wccp_tree, hf_wccp_version, tvb,
 			    offset, 4, wccp_version);
 			offset += 4;
-			old_dissect_data(pd, offset, fd, wccp_tree);
+			dissect_data(tvb, offset, pinfo, wccp_tree);
 			break;
 		}
 	}
 }
 
 static void
-dissect_hash_data(const u_char *pd, int offset, proto_tree *wccp_tree)
+dissect_hash_data(tvbuff_t *tvb, int offset, proto_tree *wccp_tree)
 {
 	proto_item *bucket_item;
 	proto_tree *bucket_tree;
@@ -310,27 +313,27 @@ dissect_hash_data(const u_char *pd, int offset, proto_tree *wccp_tree)
 	int n;
 	guint32 flags;
 
-	proto_tree_add_uint(wccp_tree, hf_hash_revision, NullTVB, offset, 4,
-	    pntohl(&pd[offset]));
+	proto_tree_add_item(wccp_tree, hf_hash_revision, tvb, offset, 4,
+	    FALSE);
 	offset += 4;
 
-	bucket_item = proto_tree_add_text(wccp_tree, NullTVB, offset, 32,
+	bucket_item = proto_tree_add_text(wccp_tree, tvb, offset, 32,
 	    "Hash information");
 	bucket_tree = proto_item_add_subtree(bucket_item, ett_buckets);
 
 	for (i = 0, n = 0; i < 32; i++) {
-		bucket_info = pd[offset];
-		n = wccp_bucket_info(bucket_info, bucket_tree, n, offset);
+		bucket_info = tvb_get_guint8(tvb, offset);
+		n = wccp_bucket_info(bucket_info, bucket_tree, n, tvb, offset);
 		offset += 1;
 	}
-	flags = pntohl(&pd[offset]);
-	tf = proto_tree_add_text(wccp_tree, NullTVB, offset, 4,
+	flags = tvb_get_ntohl(tvb, offset);
+	tf = proto_tree_add_text(wccp_tree, tvb, offset, 4,
 	    "Flags: 0x%08X (%s)", flags,
 	    ((flags & WCCP_U_FLAG) ?
 	      "Hash information is historical" :
 	      "Hash information is current"));
 	field_tree = proto_item_add_subtree(tf, ett_flags);
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP_U_FLAG,
 	      sizeof (flags)*8,
 	      "Hash information is historical",
@@ -338,19 +341,18 @@ dissect_hash_data(const u_char *pd, int offset, proto_tree *wccp_tree)
 }
 
 static void
-dissect_web_cache_list_entry(const u_char *pd, int offset, int index,
+dissect_web_cache_list_entry(tvbuff_t *tvb, int offset, int index,
     proto_tree *wccp_tree)
 {
 	proto_item *tl;
 	proto_tree *list_entry_tree;
 
-	tl = proto_tree_add_text(wccp_tree, NullTVB, offset, 4 + HASH_INFO_SIZE,
+	tl = proto_tree_add_text(wccp_tree, tvb, offset, 4 + HASH_INFO_SIZE,
 	    "Web-Cache List Entry(%d)", index);
-	list_entry_tree = proto_item_add_subtree(tl,
-	    ett_cache_info);
-	proto_tree_add_ipv4(list_entry_tree, hf_cache_ip, NullTVB, offset, 4,
-	    pntohl(&pd[offset]));
-	dissect_hash_data(pd, offset + 4, list_entry_tree);
+	list_entry_tree = proto_item_add_subtree(tl, ett_cache_info);
+	proto_tree_add_item(list_entry_tree, hf_cache_ip, tvb, offset, 4,
+	    FALSE);
+	dissect_hash_data(tvb, offset + 4, list_entry_tree);
 }
 
 /*
@@ -360,12 +362,12 @@ dissect_web_cache_list_entry(const u_char *pd, int offset, int index,
  */
 static int
 wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
-    int offset)
+    tvbuff_t *tvb, int offset)
 {
 	guint32 i;
 
 	for(i = 0; i < 8; i++) {
-		proto_tree_add_text(bucket_tree, NullTVB, offset, sizeof(bucket_info), "Bucket %3d: %s", start, (bucket_info & 1<<i ? "Assigned" : "Not Assigned") );
+		proto_tree_add_text(bucket_tree, tvb, offset, sizeof(bucket_info), "Bucket %3d: %s", start, (bucket_info & 1<<i ? "Assigned" : "Not Assigned") );
 		start++;
 	}
 	return(start);
@@ -393,21 +395,21 @@ bucket_name(guint8 bucket)
 }
 
 static guint16
-dissect_wccp2_header(const u_char *pd, int offset, proto_tree *wccp_tree)
+dissect_wccp2_header(tvbuff_t *tvb, int offset, proto_tree *wccp_tree)
 {
 	guint16 length;
 
-	proto_tree_add_text(wccp_tree, NullTVB, offset, 2, "Version: 0x%04X",
-	    pntohs(&pd[offset]));
+	proto_tree_add_text(wccp_tree, tvb, offset, 2, "Version: 0x%04X",
+	    tvb_get_ntohs(tvb, offset));
 	offset += 2;
-	length = pntohs(&pd[offset]);
-	proto_tree_add_text(wccp_tree, NullTVB, offset, 2, "Length: %u",
+	length = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(wccp_tree, tvb, offset, 2, "Length: %u",
 	    length);
 	return length;
 }
 
 static void
-dissect_wccp2_info(const u_char *pd, int offset, guint16 length,
+dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
     proto_tree *wccp_tree)
 {
 	guint16 type;
@@ -415,13 +417,11 @@ dissect_wccp2_info(const u_char *pd, int offset, guint16 length,
 	proto_item *ti;
 	proto_tree *info_tree;
 	gint ett;
-	gboolean (*dissector)(const u_char *, int, int, proto_tree *);
+	gboolean (*dissector)(tvbuff_t *, int, int, proto_tree *);
 
 	while (length != 0) {
-		if (!BYTES_ARE_IN_FRAME(offset, 4))
-			return;	/* ran out of data */
-		type = pntohs(&pd[offset]);
-		item_length = pntohs(&pd[offset+2]);
+		type = tvb_get_ntohs(tvb, offset);
+		item_length = tvb_get_ntohs(tvb, offset+2);
 
 		switch (type) {
 
@@ -476,13 +476,13 @@ dissect_wccp2_info(const u_char *pd, int offset, guint16 length,
 			break;
 		}
 
-		ti = proto_tree_add_text(wccp_tree, NullTVB, offset, item_length + 4,
+		ti = proto_tree_add_text(wccp_tree, tvb, offset, item_length + 4,
 		    val_to_str(type, info_type_vals, "Unknown info type (%u)"));
 		info_tree = proto_item_add_subtree(ti, ett);
-		proto_tree_add_text(info_tree, NullTVB, offset, 2,
+		proto_tree_add_text(info_tree, tvb, offset, 2,
 		    "Type: %s",
 		    val_to_str(type, info_type_vals, "Unknown info type (%u)"));
-		proto_tree_add_text(info_tree, NullTVB, offset+2, 2,
+		proto_tree_add_text(info_tree, tvb, offset+2, 2,
 		    "Length: %u", item_length);
 		offset += 4;
 		length -= 4;
@@ -491,10 +491,10 @@ dissect_wccp2_info(const u_char *pd, int offset, guint16 length,
 		 * XXX - pass in "length" and check for that as well.
 		 */
 		if (dissector != NULL) {
-			if (!(*dissector)(pd, offset, item_length, info_tree))
+			if (!(*dissector)(tvb, offset, item_length, info_tree))
 				return;	/* ran out of data */
 		} else {
-			proto_tree_add_text(info_tree, NullTVB, offset, item_length,
+			proto_tree_add_text(info_tree, tvb, offset, item_length,
 			    "Data: %u byte%s", item_length,
 			    plurality(item_length, "", "s"));
 		}
@@ -509,43 +509,39 @@ dissect_wccp2_info(const u_char *pd, int offset, guint16 length,
 #define WCCP2_MD5_SECURITY		1
 
 static gboolean
-dissect_wccp2_security_info(const u_char *pd, int offset, int length,
+dissect_wccp2_security_info(tvbuff_t *tvb, int offset, int length,
     proto_tree *info_tree)
 {
 	guint32 security_option;
 
 	if (length < SECURITY_INFO_LEN) {
-		proto_tree_add_text(info_tree, NullTVB, offset, 0,
+		proto_tree_add_text(info_tree, tvb, offset, 0,
 		    "Item length is %u, should be %u", length,
 		    SECURITY_INFO_LEN);
 		return TRUE;
 	}
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	security_option = pntohl(&pd[offset]);
+	security_option = tvb_get_ntohl(tvb, offset);
 	switch (security_option) {
 
 	case WCCP2_NO_SECURITY:
-		proto_tree_add_text(info_tree, NullTVB, offset, 4,
+		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Security Option: None");
 		break;
 
 	case WCCP2_MD5_SECURITY:
-		proto_tree_add_text(info_tree, NullTVB, offset, 4,
+		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Security Option: MD5");
 		offset += 4;
-		if (!BYTES_ARE_IN_FRAME(offset, length - 4))
-			return FALSE;	/* ran out of data */
 		if (length > 4) {
-			proto_tree_add_text(info_tree, NullTVB, offset,
+			proto_tree_add_text(info_tree, tvb, offset,
 			    length - 4, "MD5 checksum: %s",
-			    bytes_to_str(&pd[offset], length - 4));
+			    tvb_bytes_to_str(tvb, offset, length - 4));
 		}
 		break;
 
 	default:
-		proto_tree_add_text(info_tree, NullTVB, offset, 4,
+		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Security Option: Unknown (%u)", security_option);
 		break;
 	}
@@ -572,109 +568,107 @@ dissect_wccp2_security_info(const u_char *pd, int offset, int length,
 #define	WCCP2_SI_DST_PORT_ALT_HASH	0x0800
 
 static gboolean
-dissect_wccp2_service_info(const u_char *pd, int offset, int length,
+dissect_wccp2_service_info(tvbuff_t *tvb, int offset, int length,
     proto_tree *info_tree)
 {
+	guint8 service_type;
 	guint32 flags;
 	proto_item *tf;
 	proto_tree *field_tree;
 	int i;
 
 	if (length != SERVICE_INFO_LEN) {
-		proto_tree_add_text(info_tree, NullTVB, offset, 0,
+		proto_tree_add_text(info_tree, tvb, offset, 0,
 		    "Item length is %u, should be %u", length,
 		    SERVICE_INFO_LEN);
 		return TRUE;
 	}
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	switch (pd[offset]) {
+	service_type = tvb_get_guint8(tvb, offset);
+	switch (service_type) {
 
 	case WCCP2_SERVICE_STANDARD:
-		proto_tree_add_text(info_tree, NullTVB, offset, 1,
+		proto_tree_add_text(info_tree, tvb, offset, 1,
 		    "Service Type: Well-known service");
-		proto_tree_add_text(info_tree, NullTVB, offset+1, 1,
+		proto_tree_add_text(info_tree, tvb, offset+1, 1,
 		    "Service ID: %s",
-		    val_to_str(pd[offset+1], service_id_vals, "Unknown (0x%02X)"));
+		    val_to_str(tvb_get_guint8(tvb, offset+1), service_id_vals, "Unknown (0x%02X)"));
 		break;
 
 	case WCCP2_SERVICE_DYNAMIC:
-		proto_tree_add_text(info_tree, NullTVB, offset, 1,
+		proto_tree_add_text(info_tree, tvb, offset, 1,
 		    "Service Type: Dynamic service");
-		proto_tree_add_text(info_tree, NullTVB, offset+2, 1,
-		    "Priority: %u", pd[offset+2]);
+		proto_tree_add_text(info_tree, tvb, offset+2, 1,
+		    "Priority: %u", tvb_get_guint8(tvb, offset+2));
 		/*
 		 * XXX - does "IP protocol identifier" mean this is a
 		 * protocol type of the sort you get in IP headers?
 		 * If so, we should get a table of those from the
 		 * IP dissector, and use that.
 		 */
-		proto_tree_add_text(info_tree, NullTVB, offset+3, 1,
-		    "Protocol: %u", pd[offset+3]);	/* IP protocol identifier */
+		proto_tree_add_text(info_tree, tvb, offset+3, 1,
+		    "Protocol: %u", tvb_get_guint8(tvb, offset+3));	/* IP protocol identifier */
 		break;
 
 	default:
-		proto_tree_add_text(info_tree, NullTVB, offset, 1,
-		    "Service Type: Unknown (%u)", pd[offset]);
+		proto_tree_add_text(info_tree, tvb, offset, 1,
+		    "Service Type: Unknown (%u)", service_type);
 		break;
 	}
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	flags = pntohl(&pd[offset]);
-	tf = proto_tree_add_text(info_tree, NullTVB, offset, 4,
+	flags = tvb_get_ntohl(tvb, offset);
+	tf = proto_tree_add_text(info_tree, tvb, offset, 4,
 	    "Flags: 0x%08X", flags);
 	field_tree = proto_item_add_subtree(tf, ett_service_flags);
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP2_SI_SRC_IP_HASH,
 	      sizeof (flags)*8,
 	      "Use source IP address in primary hash",
 	      "Don't use source IP address in primary hash"));
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP2_SI_DST_IP_HASH,
 	      sizeof (flags)*8,
 	      "Use destination IP address in primary hash",
 	      "Don't use destination IP address in primary hash"));
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP2_SI_SRC_PORT_HASH,
 	      sizeof (flags)*8,
 	      "Use source port in primary hash",
 	      "Don't use source port in primary hash"));
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP2_SI_DST_PORT_HASH,
 	      sizeof (flags)*8,
 	      "Use destination port in primary hash",
 	      "Don't use destination port in primary hash"));
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP2_SI_PORTS_DEFINED,
 	      sizeof (flags)*8,
 	      "Ports defined",
 	      "Ports not defined"));
 	if (flags & WCCP2_SI_PORTS_DEFINED) {
-		proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+		proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 		    decode_boolean_bitfield(flags, WCCP2_SI_PORTS_SOURCE,
 		      sizeof (flags)*8,
 		      "Ports refer to source port",
 		      "Ports refer to destination port"));
 	}
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP2_SI_SRC_IP_ALT_HASH,
 	      sizeof (flags)*8,
 	      "Use source IP address in secondary hash",
 	      "Don't use source IP address in secondary hash"));
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP2_SI_DST_IP_ALT_HASH,
 	      sizeof (flags)*8,
 	      "Use destination IP address in secondary hash",
 	      "Don't use destination IP address in secondary hash"));
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP2_SI_SRC_PORT_ALT_HASH,
 	      sizeof (flags)*8,
 	      "Use source port in secondary hash",
 	      "Don't use source port in secondary hash"));
-	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP2_SI_DST_PORT_ALT_HASH,
 	      sizeof (flags)*8,
 	      "Use destination port in secondary hash",
@@ -682,13 +676,10 @@ dissect_wccp2_service_info(const u_char *pd, int offset, int length,
 	offset += 4;
 
 	if (flags & WCCP2_SI_PORTS_DEFINED) {
-		if (!BYTES_ARE_IN_FRAME(offset, 8))
-			return FALSE;	/* ran out of data */
 		for (i = 0; i < 8; i++) {
-			guint16 port;
-                        port = pntohs(&pd[offset + ( i << 1)]);
-			proto_tree_add_text(info_tree, NullTVB, offset + (i << 1), 1,
-			    "Port %d: %d", i, port);
+			proto_tree_add_text(info_tree, tvb, offset, 2,
+			    "Port %d: %u", i, tvb_get_ntohs(tvb, offset));
+			offset += 2;
 		}
 	}
 
@@ -698,17 +689,17 @@ dissect_wccp2_service_info(const u_char *pd, int offset, int length,
 #define	ROUTER_ID_INFO_MIN_LEN		(8+4+4)
 
 static void
-dissect_wccp2_router_identity_element(const u_char *pd, int offset,
+dissect_wccp2_router_identity_element(tvbuff_t *tvb, int offset,
     proto_tree *tree)
 {
-	proto_tree_add_text(tree, NullTVB, offset, 4,
-	    "IP Address: %s", ip_to_str((guint8 *) &pd[offset]));
-	proto_tree_add_text(tree, NullTVB, offset + 4, 4,
-	    "Receive ID: %u", pntohl(&pd[offset + 4]));
+	proto_tree_add_text(tree, tvb, offset, 4,
+	    "IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	proto_tree_add_text(tree, tvb, offset + 4, 4,
+	    "Receive ID: %u", tvb_get_ntohl(tvb, offset + 4));
 }
 
 static gboolean
-dissect_wccp2_router_identity_info(const u_char *pd, int offset, int length,
+dissect_wccp2_router_identity_info(tvbuff_t *tvb, int offset, int length,
     proto_tree *info_tree)
 {
 	guint32 n_received_from;
@@ -717,41 +708,33 @@ dissect_wccp2_router_identity_info(const u_char *pd, int offset, int length,
 	proto_tree *element_tree;
 
 	if (length < ROUTER_ID_INFO_MIN_LEN) {
-		proto_tree_add_text(info_tree, NullTVB, offset, 0,
+		proto_tree_add_text(info_tree, tvb, offset, 0,
 		    "Item length is %u, should be >= %u", length,
 		    ROUTER_ID_INFO_MIN_LEN);
 		return TRUE;
 	}
 
-	if (!BYTES_ARE_IN_FRAME(offset, 8))
-		return FALSE;	/* ran out of data */
-	te = proto_tree_add_text(info_tree, NullTVB, offset, 8,
+	te = proto_tree_add_text(info_tree, tvb, offset, 8,
 	    "Router Identity Element: IP address %s",
-	    ip_to_str((guint8 *) &pd[offset]));
+	    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 	element_tree = proto_item_add_subtree(te,
 	    ett_router_identity_element);
-	dissect_wccp2_router_identity_element(pd, offset, element_tree);
+	dissect_wccp2_router_identity_element(tvb, offset, element_tree);
 	offset += 8;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Sent To IP Address: %s", ip_to_str((guint8 *) &pd[offset]));
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Sent To IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	n_received_from = pntohl(&pd[offset]);
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
+	n_received_from = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(info_tree, tvb, offset, 4,
 	    "Number of Received From IP addresses: %u", n_received_from);
 	offset += 4;
 
 	for (i = 0; i < n_received_from; i++) {
-		if (!BYTES_ARE_IN_FRAME(offset, 4))
-			return FALSE;	/* ran out of data */
-		proto_tree_add_text(info_tree, NullTVB, offset, 4,
+		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Received From IP Address %d: %s", i,
-		    ip_to_str((guint8 *) &pd[offset]));
+		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 		offset += 4;
 	}
 
@@ -761,7 +744,7 @@ dissect_wccp2_router_identity_info(const u_char *pd, int offset, int length,
 #define	WC_ID_INFO_LEN			(4+4+8*4+4)
 
 static gboolean
-dissect_wccp2_web_cache_identity_element(const u_char *pd, int offset,
+dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset,
     proto_tree *tree)
 {
 	proto_item *bucket_item;
@@ -773,78 +756,66 @@ dissect_wccp2_web_cache_identity_element(const u_char *pd, int offset,
 	guint8 bucket_info;
 	int n;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(tree, NullTVB, offset, 4,
-	    "Web-Cache IP Address: %s", ip_to_str((guint8 *) &pd[offset]));
+	proto_tree_add_text(tree, tvb, offset, 4,
+	    "Web-Cache IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(tree, NullTVB, offset, 2,
-	    "Hash Revision %u", pntohs(&pd[offset]));
+	proto_tree_add_text(tree, tvb, offset, 2,
+	    "Hash Revision %u", tvb_get_ntohs(tvb, offset));
 	offset += 2;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2))
-		return FALSE;	/* ran out of data */
-	flags = pntohs(&pd[offset]);
-	tf = proto_tree_add_text(tree, NullTVB, offset, 2,
+	flags = tvb_get_ntohs(tvb, offset);
+	tf = proto_tree_add_text(tree, tvb, offset, 2,
 	    "Flags: 0x%04X (%s)", flags,
 	    ((flags & 0x8000) ?
 	      "Hash information is historical" :
 	      "Hash information is current"));
 	field_tree = proto_item_add_subtree(tf, ett_flags);
-	proto_tree_add_text(field_tree, NullTVB, offset, 2, "%s",
+	proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
 	    decode_boolean_bitfield(flags, 0x8000,
 	      sizeof (flags)*8,
 	      "Hash information is historical",
 	      "Hash information is current"));
 	offset += 2;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 32))
-		return FALSE;	/* ran out of data */
-	bucket_item = proto_tree_add_text(tree, NullTVB, offset, 8*4,
+	bucket_item = proto_tree_add_text(tree, tvb, offset, 8*4,
 	    "Hash information");
 	bucket_tree = proto_item_add_subtree(bucket_item, ett_buckets);
 	for (i = 0, n = 0; i < 32; i++) {
-		bucket_info = pd[offset];
-		n = wccp_bucket_info(bucket_info, bucket_tree, n, offset);
+		bucket_info = tvb_get_guint8(tvb, offset);
+		n = wccp_bucket_info(bucket_info, bucket_tree, n, tvb, offset);
 		offset += 1;
 	}
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(tree, NullTVB, offset, 2,
-	    "Assignment Weight: %u", pntohs(&pd[offset]));
+	proto_tree_add_text(tree, tvb, offset, 2,
+	    "Assignment Weight: %u", tvb_get_ntohs(tvb, offset));
 	offset += 2;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(tree, NullTVB, offset, 2,
-	    "Status: 0x%04X", pntohs(&pd[offset]));
+	proto_tree_add_text(tree, tvb, offset, 2,
+	    "Status: 0x%04X", tvb_get_ntohs(tvb, offset));
 	offset += 2;
 
 	return TRUE;
 }
 
 static gboolean
-dissect_wccp2_wc_identity_info(const u_char *pd, int offset, int length,
+dissect_wccp2_wc_identity_info(tvbuff_t *tvb, int offset, int length,
     proto_tree *info_tree)
 {
 	proto_item *te;
 	proto_tree *element_tree;
 
 	if (length != WC_ID_INFO_LEN) {
-		proto_tree_add_text(info_tree, NullTVB, offset, 0,
+		proto_tree_add_text(info_tree, tvb, offset, 0,
 		    "Item length is %u, should be %u", length, WC_ID_INFO_LEN);
 		return TRUE;
 	}
 
-	te = proto_tree_add_text(info_tree, NullTVB, offset, 4+2+2+32+2+2,
+	te = proto_tree_add_text(info_tree, tvb, offset, 4+2+2+32+2+2,
 	    "Web-Cache Identity Element: IP address %s",
-	    ip_to_str((guint8 *) &pd[offset]));
+	    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 	element_tree = proto_item_add_subtree(te, ett_wc_identity_element);
-	if (!dissect_wccp2_web_cache_identity_element(pd, offset,
+	if (!dissect_wccp2_web_cache_identity_element(tvb, offset,
 	    element_tree))
 		return FALSE;	/* ran out of data */
 
@@ -854,17 +825,18 @@ dissect_wccp2_wc_identity_info(const u_char *pd, int offset, int length,
 #define	ROUTER_VIEW_INFO_MIN_LEN	(4+8+4)
 
 static void
-dissect_wccp2_assignment_key(const u_char *pd, int offset,
+dissect_wccp2_assignment_key(tvbuff_t *tvb, int offset,
     proto_tree *info_tree)
 {
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Assignment Key IP Address: %s", ip_to_str((guint8 *) &pd[offset]));
-	proto_tree_add_text(info_tree, NullTVB, offset + 4, 4,
-	    "Assignment Key Change Number: %u", pntohl(&pd[offset + 4]));
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Assignment Key IP Address: %s",
+	    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	proto_tree_add_text(info_tree, tvb, offset + 4, 4,
+	    "Assignment Key Change Number: %u", tvb_get_ntohl(tvb, offset + 4));
 }
 
 static gboolean
-dissect_wccp2_router_view_info(const u_char *pd, int offset, int length,
+dissect_wccp2_router_view_info(tvbuff_t *tvb, int offset, int length,
     proto_tree *info_tree)
 {
 	guint32 n_routers;
@@ -874,53 +846,43 @@ dissect_wccp2_router_view_info(const u_char *pd, int offset, int length,
 	proto_tree *element_tree;
 
 	if (length < ROUTER_VIEW_INFO_MIN_LEN) {
-		proto_tree_add_text(info_tree, NullTVB, offset, 0,
+		proto_tree_add_text(info_tree, tvb, offset, 0,
 		    "Item length is %u, should be >= %u", length,
 		    ROUTER_VIEW_INFO_MIN_LEN);
 		return TRUE;
 	}
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Member Change Number: %u", pntohl(&pd[offset]));
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Member Change Number: %u", tvb_get_ntohl(tvb, offset));
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 8))
-		return FALSE;	/* ran out of data */
-	dissect_wccp2_assignment_key(pd, offset, info_tree);
+	dissect_wccp2_assignment_key(tvb, offset, info_tree);
 	offset += 8;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	n_routers = pntohl(&pd[offset]);
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
+	n_routers = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(info_tree, tvb, offset, 4,
 	    "Number of Routers: %u", n_routers);
 	offset += 4;
 
 	for (i = 0; i < n_routers; i++) {
-		if (!BYTES_ARE_IN_FRAME(offset, 4))
-			return FALSE;	/* ran out of data */
-		proto_tree_add_text(info_tree, NullTVB, offset, 4,
+		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Router %d IP Address: %s", i,
-		    ip_to_str((guint8 *) &pd[offset]));
+		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 		offset += 4;
 	}
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	n_web_caches = pntohl(&pd[offset]);
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
+	n_web_caches = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(info_tree, tvb, offset, 4,
 	    "Number of Web Caches: %u", n_web_caches);
 	offset += 4;
 
 	for (i = 0; i < n_web_caches; i++) {
-		te = proto_tree_add_text(info_tree, NullTVB, offset, WC_ID_INFO_LEN,
+		te = proto_tree_add_text(info_tree, tvb, offset, WC_ID_INFO_LEN,
 		    "Web-Cache Identity Element %d: IP address %s", i,
-		    ip_to_str((guint8 *) &pd[offset]));
+		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 		element_tree = proto_item_add_subtree(te,
 		    ett_wc_identity_element);
-		if (!dissect_wccp2_web_cache_identity_element(pd,
+		if (!dissect_wccp2_web_cache_identity_element(tvb,
 		    offset, element_tree))
 			return FALSE;	/* ran out of data */
 		offset += WC_ID_INFO_LEN;
@@ -932,7 +894,7 @@ dissect_wccp2_router_view_info(const u_char *pd, int offset, int length,
 #define	WC_VIEW_INFO_MIN_LEN		(4+4)
 
 static gboolean
-dissect_wccp2_wc_view_info(const u_char *pd, int offset, int length,
+dissect_wccp2_wc_view_info(tvbuff_t *tvb, int offset, int length,
     proto_tree *info_tree)
 {
 	guint32 n_routers;
@@ -942,54 +904,173 @@ dissect_wccp2_wc_view_info(const u_char *pd, int offset, int length,
 	proto_tree *element_tree;
 
 	if (length < WC_VIEW_INFO_MIN_LEN) {
-		proto_tree_add_text(info_tree, NullTVB, offset, 0,
+		proto_tree_add_text(info_tree, tvb, offset, 0,
 		    "Item length is %u, should be >= %u", length,
 		    WC_VIEW_INFO_MIN_LEN);
 		return TRUE;
 	}
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Change Number: %u", pntohl(&pd[offset]));
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Change Number: %u", tvb_get_ntohl(tvb, offset));
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	n_routers = pntohl(&pd[offset]);
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
+	n_routers = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(info_tree, tvb, offset, 4,
 	    "Number of Routers: %u", n_routers);
 	offset += 4;
 
 	for (i = 0; i < n_routers; i++) {
-		if (!BYTES_ARE_IN_FRAME(offset, 8))
-			return FALSE;	/* ran out of data */
-		te = proto_tree_add_text(info_tree, NullTVB, offset, 8,
+		te = proto_tree_add_text(info_tree, tvb, offset, 8,
 		    "Router %d Identity Element: IP address %s", i,
-		    ip_to_str((guint8 *) &pd[offset]));
+		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 		element_tree = proto_item_add_subtree(te,
 		    ett_router_identity_element);
-		dissect_wccp2_router_identity_element(pd, offset, element_tree);
+		dissect_wccp2_router_identity_element(tvb, offset, element_tree);
 		offset += 8;
 	}
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	n_web_caches = pntohl(&pd[offset]);
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
+	n_web_caches = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(info_tree, tvb, offset, 4,
 	    "Number of Web Caches: %u", n_web_caches);
 	offset += 4;
 
 	for (i = 0; i < n_web_caches; i++) {
-		if (!BYTES_ARE_IN_FRAME(offset, 4))
-			return FALSE;	/* ran out of data */
-		proto_tree_add_text(info_tree, NullTVB, offset, 4,
+		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Web-Cache %d: IP address %s", i,
-		    ip_to_str((guint8 *) &pd[offset]));
+		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		offset += 4;
+	}
+	
+	return TRUE;
+}
+
+#define	ASSIGNMENT_INFO_MIN_LEN		(8+4)
+
+static void
+dissect_wccp2_router_assignment_element(tvbuff_t *tvb, int offset,
+    proto_tree *tree)
+{
+	proto_tree_add_text(tree, tvb, offset, 4,
+	    "IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	proto_tree_add_text(tree, tvb, offset + 4, 4,
+	    "Receive ID: %u", tvb_get_ntohl(tvb, offset + 4));
+	proto_tree_add_text(tree, tvb, offset + 8, 4,
+	    "Change Number: %u", tvb_get_ntohl(tvb, offset + 8));
+}
+
+static gchar *
+assignment_bucket_name(guint8 bucket)
+{
+	static gchar str[4][10+1];
+	static gchar *cur;
+
+	if (cur == &str[0][0])
+		cur = &str[1][0];
+	else if (cur == &str[1][0])
+		cur = &str[2][0];
+	else if (cur == &str[2][0])
+		cur = &str[3][0];
+	else
+		cur = &str[0][0];
+	if (bucket == 0xff)
+		strcpy(cur, "Unassigned");
+	else {
+		sprintf(cur, "%u%s", bucket >> 1,
+		    (bucket & 0x01) ? " (Alt)" : "");
+	}
+	return cur;
+}
+
+static gboolean
+dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset, int length,
+    proto_tree *info_tree)
+{
+	guint32 n_routers;
+	guint32 n_web_caches;
+	int i;
+	proto_item *te;
+	proto_tree *element_tree;
+
+	if (length < ASSIGNMENT_INFO_MIN_LEN) {
+		proto_tree_add_text(info_tree, tvb, offset, 0,
+		    "Item length is %u, should be >= %u", length,
+		    ASSIGNMENT_INFO_MIN_LEN);
+		return TRUE;
+	}
+
+	dissect_wccp2_assignment_key(tvb, offset, info_tree);
+	offset += 8;
+
+	n_routers = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Number of Routers: %u", n_routers);
+	offset += 4;
+
+	for (i = 0; i < n_routers; i++) {
+		te = proto_tree_add_text(info_tree, tvb, offset, 4,
+		    "Router %d Assignment Element: IP address %s", i,
+		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		element_tree = proto_item_add_subtree(te,
+		    ett_router_assignment_element);
+		dissect_wccp2_router_assignment_element(tvb, offset,
+		    element_tree);
+		offset += 12;
+	}
+
+	n_web_caches = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Number of Web Caches: %u", n_web_caches);
+	offset += 4;
+
+	for (i = 0; i < n_web_caches; i++) {
+		proto_tree_add_text(info_tree, tvb, offset, 4,
+		    "Web-Cache %d: IP address %s", i,
+		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 		offset += 4;
 	}
 
-	
+	for (i = 0; i < 256; i += 4) {
+		proto_tree_add_text(info_tree, tvb, offset, 4,
+		    "Buckets %d - %d: %10s %10s %10s %10s",
+		    i, i + 3,
+		    assignment_bucket_name(tvb_get_guint8(tvb, offset)),
+		    assignment_bucket_name(tvb_get_guint8(tvb, offset+1)),
+		    assignment_bucket_name(tvb_get_guint8(tvb, offset+2)),
+		    assignment_bucket_name(tvb_get_guint8(tvb, offset+3)));
+		offset += 4;
+	}
+
+	return TRUE;
+}
+
+#define	QUERY_INFO_LEN			(4+4+4+4)
+
+static gboolean
+dissect_wccp2_router_query_info(tvbuff_t *tvb, int offset, int length,
+    proto_tree *info_tree)
+{
+	if (length != QUERY_INFO_LEN) {
+		proto_tree_add_text(info_tree, tvb, offset, 0,
+		    "Item length is %u, should be %u", length, QUERY_INFO_LEN);
+		return TRUE;
+	}
+
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Router IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	offset += 4;
+
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Receive ID: %u", tvb_get_ntohl(tvb, offset));
+	offset += 4;
+
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Sent To IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	offset += 4;
+
+	proto_tree_add_text(info_tree, tvb, offset, 4,
+	    "Target IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	offset += 4;
+
 	return TRUE;
 }
 
@@ -1032,7 +1113,7 @@ static const value_string packet_return_method_vals[] = {
 };
 
 static gboolean
-dissect_wccp2_capability_info(const u_char *pd, int offset, int length,
+dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, int length,
     proto_tree *info_tree)
 {
 	guint16 capability_type;
@@ -1044,48 +1125,46 @@ dissect_wccp2_capability_info(const u_char *pd, int offset, int length,
 
 	curr_offset = offset;
 	while (curr_offset < (length + offset)) {
-		if (!BYTES_ARE_IN_FRAME(curr_offset, 8))
-			return FALSE;	/* ran out of data */
-		capability_type = pntohs(&pd[curr_offset]);
-		capability_len = pntohs(&pd[curr_offset + 2]);
-		capability_val = pntohl(&pd[curr_offset + 4]);
-		te = proto_tree_add_text(info_tree, NullTVB, offset, 8,
+		capability_type = tvb_get_ntohs(tvb, curr_offset);
+		capability_len = tvb_get_ntohs(tvb, curr_offset + 2);
+		capability_val = tvb_get_ntohl(tvb, curr_offset + 4);
+		te = proto_tree_add_text(info_tree, tvb, offset, 8,
 		    "Capability Element");
 		element_tree = proto_item_add_subtree(te,
 		    ett_capability_element);
 
-		proto_tree_add_text(element_tree, NullTVB, offset, 2,
+		proto_tree_add_text(element_tree, tvb, offset, 2,
 		    "Type: %s",
 		    val_to_str(capability_type,
 		      capability_type_vals, "Unknown (0x%08X)"));
-		proto_tree_add_text(element_tree, NullTVB, offset+2, 2,
+		proto_tree_add_text(element_tree, tvb, offset+2, 2,
 		    "Length: %u", capability_len);
 
 		switch (capability_type) {
 
 		case WCCP2_FORWARDING_METHOD:
-			proto_tree_add_text(element_tree, NullTVB, offset+4, 4,
+			proto_tree_add_text(element_tree, tvb, offset+4, 4,
 			    "Value: %s",
 			    val_to_str(capability_val,
 			      forwarding_method_vals, "Unknown (0x%08X)"));
 			break;
 
 		case WCCP2_ASSIGNMENT_METHOD:
-			proto_tree_add_text(element_tree, NullTVB, offset+4, 4,
+			proto_tree_add_text(element_tree, tvb, offset+4, 4,
 			    "Value: %s",
 			    val_to_str(capability_val,
 			      assignment_method_vals, "Unknown (0x%08X)"));
 			break;
 
 		case WCCP2_PACKET_RETURN_METHOD:
-			proto_tree_add_text(element_tree, NullTVB, offset+4, 4,
+			proto_tree_add_text(element_tree, tvb, offset+4, 4,
 			    "Value: %s",
 			    val_to_str(capability_val,
 			      packet_return_method_vals, "Unknown (0x%08X)"));
 			break;
 
 		default:
-			proto_tree_add_text(element_tree, NullTVB, offset+4, 4,
+			proto_tree_add_text(element_tree, tvb, offset+4, 4,
 			    "Value: 0x%08X", capability_val);
 			break;
 		}
@@ -1094,156 +1173,6 @@ dissect_wccp2_capability_info(const u_char *pd, int offset, int length,
 	}
 	return TRUE;
 
-}
-
-#define	ASSIGNMENT_INFO_MIN_LEN		(8+4)
-
-static void
-dissect_wccp2_router_assignment_element(const u_char *pd, int offset,
-    proto_tree *tree)
-{
-	proto_tree_add_text(tree, NullTVB, offset, 4,
-	    "IP Address: %s", ip_to_str((guint8 *) &pd[offset]));
-	proto_tree_add_text(tree, NullTVB, offset + 4, 4,
-	    "Receive ID: %u", pntohl(&pd[offset + 4]));
-	proto_tree_add_text(tree, NullTVB, offset + 8, 4,
-	    "Change Number: %u", pntohl(&pd[offset + 8]));
-}
-
-static gchar *
-assignment_bucket_name(guint8 bucket)
-{
-	static gchar str[4][10+1];
-	static gchar *cur;
-
-	if (cur == &str[0][0])
-		cur = &str[1][0];
-	else if (cur == &str[1][0])
-		cur = &str[2][0];
-	else if (cur == &str[2][0])
-		cur = &str[3][0];
-	else
-		cur = &str[0][0];
-	if (bucket == 0xff)
-		strcpy(cur, "Unassigned");
-	else {
-		sprintf(cur, "%u%s", bucket >> 1,
-		    (bucket & 0x01) ? " (Alt)" : "");
-	}
-	return cur;
-}
-
-static gboolean
-dissect_wccp2_assignment_info(const u_char *pd, int offset, int length,
-    proto_tree *info_tree)
-{
-	guint32 n_routers;
-	guint32 n_web_caches;
-	int i;
-	proto_item *te;
-	proto_tree *element_tree;
-
-	if (length < ASSIGNMENT_INFO_MIN_LEN) {
-		proto_tree_add_text(info_tree, NullTVB, offset, 0,
-		    "Item length is %u, should be >= %u", length,
-		    ASSIGNMENT_INFO_MIN_LEN);
-		return TRUE;
-	}
-
-	if (!BYTES_ARE_IN_FRAME(offset, 8))
-		return FALSE;	/* ran out of data */
-	dissect_wccp2_assignment_key(pd, offset, info_tree);
-	offset += 8;
-
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	n_routers = pntohl(&pd[offset]);
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Number of Routers: %u", n_routers);
-	offset += 4;
-
-	for (i = 0; i < n_routers; i++) {
-		if (!BYTES_ARE_IN_FRAME(offset, 12))
-			return FALSE;	/* ran out of data */
-		te = proto_tree_add_text(info_tree, NullTVB, offset, 4,
-		    "Router %d Assignment Element: IP address %s", i,
-		    ip_to_str((guint8 *) &pd[offset]));
-		element_tree = proto_item_add_subtree(te,
-		    ett_router_assignment_element);
-		dissect_wccp2_router_assignment_element(pd, offset,
-		    element_tree);
-		offset += 12;
-	}
-
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	n_web_caches = pntohl(&pd[offset]);
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Number of Web Caches: %u", n_web_caches);
-	offset += 4;
-
-	for (i = 0; i < n_web_caches; i++) {
-		if (!BYTES_ARE_IN_FRAME(offset, 4))
-			return FALSE;	/* ran out of data */
-		proto_tree_add_text(info_tree, NullTVB, offset, 4,
-		    "Web-Cache %d: IP address %s", i,
-		    ip_to_str((guint8 *) &pd[offset]));
-		offset += 4;
-	}
-
-	for (i = 0; i < 256; i += 4) {
-		if (!BYTES_ARE_IN_FRAME(offset, 4))
-			return FALSE;	/* ran out of data */
-		proto_tree_add_text(info_tree, NullTVB, offset, 4,
-		    "Buckets %d - %d: %10s %10s %10s %10s",
-		    i, i + 3,
-		    assignment_bucket_name(pd[offset]),
-		    assignment_bucket_name(pd[offset+1]),
-		    assignment_bucket_name(pd[offset+2]),
-		    assignment_bucket_name(pd[offset+3]));
-		offset += 4;
-	}
-
-	return TRUE;
-}
-
-#define	QUERY_INFO_LEN			(4+4+4+4)
-
-static gboolean
-dissect_wccp2_router_query_info(const u_char *pd, int offset, int length,
-    proto_tree *info_tree)
-{
-	if (length != QUERY_INFO_LEN) {
-		proto_tree_add_text(info_tree, NullTVB, offset, 0,
-		    "Item length is %u, should be %u", length, QUERY_INFO_LEN);
-		return TRUE;
-	}
-
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Router IP Address: %s", ip_to_str((guint8 *) &pd[offset]));
-	offset += 4;
-
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Receive ID: %u", pntohl(&pd[offset]));
-	offset += 4;
-
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Sent To IP Address: %s", ip_to_str((guint8 *) &pd[offset]));
-	offset += 4;
-
-	if (!BYTES_ARE_IN_FRAME(offset, 4))
-		return FALSE;	/* ran out of data */
-	proto_tree_add_text(info_tree, NullTVB, offset, 4,
-	    "Target IP Address: %s", ip_to_str((guint8 *) &pd[offset]));
-	offset += 4;
-
-	return TRUE;
 }
 
 void
@@ -1307,5 +1236,5 @@ proto_register_wccp(void)
 void
 proto_reg_handoff_wccp(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_WCCP, dissect_wccp);
+	dissector_add("udp.port", UDP_PORT_WCCP, dissect_wccp);
 }
