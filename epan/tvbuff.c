@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.4 2000/11/10 06:50:37 guy Exp $
+ * $Id: tvbuff.c,v 1.5 2000/11/10 09:15:57 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -982,21 +982,28 @@ tvb_get_letohll(tvbuff_t *tvb, gint offset)
 
 
 /* Find first occurence of needle in tvbuff, starting at offset. Searches
- * at most maxlength number of bytes. Returns the offset of the found needle,
- * or -1 if not found. Will not throw an exception, even if maxlength exceeds
- * boundary of tvbuff; in that case, -1 will be returned if the boundary is
- * reached before finding needle. */
+ * at most maxlength number of bytes; if maxlength is -1, searches to
+ * end of tvbuff.
+ * Returns the offset of the found needle, or -1 if not found.
+ * Will not throw an exception, even if maxlength exceeds boundary of tvbuff;
+ * in that case, -1 will be returned if the boundary is reached before
+ * finding needle. */
 gint
 tvb_find_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 needle)
 {
-	guint		abs_offset, junk_length;
 	const guint8	*result;
+	guint		abs_offset, junk_length;
+	guint		tvbufflen;
 	guint		limit;
 
 	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
 
 	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (tvb_length_remaining(tvb, abs_offset) < maxlength) {
+	tvbufflen = tvb_length_remaining(tvb, abs_offset);
+	if (maxlength == -1) {
+		limit = tvbufflen;
+	}
+	else if (tvbufflen < maxlength) {
 		limit = maxlength - (tvb_length(tvb) - abs_offset);
 	}
 	else {
@@ -1033,21 +1040,28 @@ tvb_find_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 needle)
 }
 
 /* Find first occurence of any of the needles in tvbuff, starting at offset.
- * Searches at most maxlength number of bytes. Returns the offset of the
- * found needle, or -1 if not found. Will not throw an exception, even if
- * maxlength exceeds boundary of tvbuff; in that case, -1 will be returned if
- * the boundary is reached before finding needle. */
+ * Searches at most maxlength number of bytes; if maxlength is -1, searches
+ * to end of tvbuff.
+ * Returns the offset of the found needle, or -1 if not found.
+ * Will not throw an exception, even if maxlength exceeds boundary of tvbuff;
+ * in that case, -1 will be returned if the boundary is reached before
+ * finding needle. */
 gint
 tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 *needles)
 {
-	guint		abs_offset, junk_length;
 	const guint8	*result;
+	guint		abs_offset, junk_length;
+	guint		tvbufflen;
 	guint		limit;
 
 	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
 
 	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (tvb_length_remaining(tvb, abs_offset) < maxlength) {
+	tvbufflen = tvb_length_remaining(tvb, abs_offset);
+	if (maxlength == -1) {
+		limit = tvbufflen;
+	}
+	else if (tvbufflen < maxlength) {
 		limit = maxlength - (tvb_length(tvb) - abs_offset);
 	}
 	else {
@@ -1084,8 +1098,9 @@ tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 *needles)
 }
 
 /* Find length of string by looking for end of string ('\0'), up to
- * 'max_length' characters'. Returns -1 if 'max_length' reached
- * before finding EOS. */
+ * 'maxlength' characters'; if 'maxlength' is -1, searches to end
+ * of tvbuff.
+ * Returns -1 if 'maxlength' reached before finding EOS. */
 gint
 tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
 {

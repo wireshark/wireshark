@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.3 2000/11/10 06:50:37 guy Exp $
+ * $Id: tvbuff.h,v 1.4 2000/11/10 09:15:57 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -245,11 +245,13 @@ guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
  * tvbuff_free_cb_t() is called, if any. */
 guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
 
-/* Find first occurence of needle in tvbuff, starting at offset. Searches
- * at most maxlength number of bytes. Returns the offset of the found needle,
- * or -1 if not found. Will not throw an exception, even if maxlength exceeds
- * boundary of tvbuff; in that case, -1 will be returned if the boundary is
- * reached before finding needle. */
+/* Find first occurence of any of the needles in tvbuff, starting at offset.
+ * Searches at most maxlength number of bytes; if maxlength is -1, searches
+ * to end of tvbuff.
+ * Returns the offset of the found needle, or -1 if not found.
+ * Will not throw an exception, even if maxlength exceeds boundary of tvbuff;
+ * in that case, -1 will be returned if the boundary is reached before
+ * finding needle. */
 gint tvb_find_guint8(tvbuff_t*, gint offset, guint maxlength, guint8 needle);
 
 /* Find first occurence of any of the needles in tvbuff, starting at offset.
@@ -260,9 +262,14 @@ gint tvb_find_guint8(tvbuff_t*, gint offset, guint maxlength, guint8 needle);
 gint tvb_pbrk_guint8(tvbuff_t *, gint offset, guint maxlength, guint8 *needles);
 
 /* Find length of string by looking for end of string ('\0'), up to
- * 'max_length' characters'. Returns -1 if 'max_length' reached
- * before finding EOS. */
+ * 'maxlength' characters'; if 'maxlength' is -1, searches to end
+ * of tvbuff.
+ * Returns -1 if 'maxlength' reached before finding EOS. */
 gint tvb_strnlen(tvbuff_t*, gint offset, guint maxlength);
+
+/*
+ * Format the data in the tvb from offset for size ...
+ */
 guint8 * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
