@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.268 2002/10/24 07:08:24 guy Exp $
+ * $Id: main.c,v 1.269 2002/10/25 00:29:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,10 @@
 
 #include <string.h>
 #include <ctype.h>
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #ifdef HAVE_IO_H
 #include <io.h> /* open/close on win32 */
