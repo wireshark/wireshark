@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.102 2000/08/21 12:48:05 sharpe Exp $
+ * $Id: packet.c,v 1.103 2000/08/21 12:53:10 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1313,7 +1313,7 @@ p_get_proto_data(frame_data *fd, int proto)
 void
 p_rem_proto_data(frame_data *fd, int proto)
 {
-  frame_proto_data temp, *temp2;
+  frame_proto_data temp;
   GSList *item;
 
   temp.proto = proto;
