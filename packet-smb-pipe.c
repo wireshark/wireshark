@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.42 2001/11/18 01:46:50 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.43 2001/11/18 02:51:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -365,7 +365,7 @@ add_detail_level(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
     proto_tree *tree, int convert, int hf_index)
 {
 	struct smb_info *smb_info = pinfo->private_data;
-	smb_transact_info_t *trp = smb_info->extra_info;
+	smb_transact_info_t *trp = smb_info->sip->extra_info;
 	guint16 level;
 
 	level = tvb_get_letohs(tvb, offset);
@@ -1821,7 +1821,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
     const struct lanman_desc *lanman, gboolean has_ent_count,
     guint16 ent_count)
 {
-	smb_transact_info_t *trp = smb_info->extra_info;
+	smb_transact_info_t *trp = smb_info->sip->extra_info;
 	const item_list_t *resp_data_list;
 	int offset, start_offset;
 	const item_t *resp_data;
@@ -1947,7 +1947,7 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		    packet_info *pinfo, proto_tree *parent_tree)
 {
 	smb_info_t *smb_info = pinfo->private_data;
-	smb_transact_info_t *trp = smb_info->extra_info;
+	smb_transact_info_t *trp = smb_info->sip->extra_info;
 	int offset = 0, start_offset;
 	guint16 cmd;
 	guint16 status;
@@ -2203,13 +2203,18 @@ gboolean
 dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		 const char *pipe, packet_info *pinfo, proto_tree *tree)
 {
-	smb_info_t *smb_info = pinfo->private_data;
-	smb_transact_info_t *tri = smb_info->extra_info;
+	smb_info_t *smb_info;
+	smb_transact_info_t *tri;
 
 	if (!proto_is_protocol_enabled(proto_smb_lanman))
 		return FALSE;
 	pinfo->current_proto = "LANMAN";
 
+	smb_info = pinfo->private_data;
+	if (smb_info->sip != NULL)
+		tri = smb_info->sip->extra_info;
+	else
+		tri = NULL;
 	if(smb_info->request){
 		if(strncmp(pipe,"LANMAN",6) == 0){
 			tri->trans_subcmd=PIPE_LANMAN;
@@ -2219,6 +2224,13 @@ dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		}
 	}
 
+	if (tri == NULL) {
+		/*
+		 * We don't know what type of pipe transaction this
+		 * was, so indicate that we didn't dissect it.
+		 */
+		return FALSE;
+	}
 	switch(tri->trans_subcmd){
 	case PIPE_LANMAN:
 		return dissect_pipe_lanman(t_tvb, p_tvb, d_tvb, pinfo, tree);

@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.20 2001/11/18 01:46:51 guy Exp $
+ * $Id: smb.h,v 1.21 2001/11/18 02:51:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -628,6 +628,15 @@
 #define SMB_LMapi_UserPasswordSet 0x0073
 
 /*
+ * The information we need to save about a request in order to show the
+ * frame number of the request in the dissection of the reply.
+ */
+typedef struct {
+	guint32 frame_req, frame_res;
+	void *extra_info;
+} smb_saved_info_t;
+
+/*
  * The information we need to save about a Transaction request in order
  * to dissect the reply; this includes information for use by the
  * Remote API and Mailslot dissectors.
@@ -654,10 +663,9 @@ typedef struct smb_info {
   int cmd, mid;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
-  guint32 frame_req, frame_res;
   gboolean unidir;
   int info_count;
-  void *extra_info;		/* extra info for transactions */
+  smb_saved_info_t *sip;	/* smb_saved_info_t, if any, for this */
 } smb_info_t;
 
 #endif
