@@ -345,6 +345,20 @@ on those calls that match that filter.
 Example: use B<-z "smb,rtt,ip.addr==1.2.3.4"> to only collect stats for
 SMB packets echanged by the host at IP address 1.2.3.4 .
 
+B<-z> mgcp,rtd[I<,filter>]
+
+Collect requests/response RTD (Response Time Delay) data for MGCP. 
+This is similar to B<-z smb,rtt>). Data collected is number of calls
+for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
+Example: use B<-z mgcp,rtd>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "mgcp,rtd,ip.addr==1.2.3.4"> to only collect stats for
+MGCP packets exchanged by the host at IP address 1.2.3.4 .
+
 =back
 
 =head1 INTERFACE
@@ -711,6 +725,20 @@ Only the first command in a xAndX command chain will be used in the
 calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
 only the SessionSetupAndX call will be used in the statistics.
 This is a flaw that might be fixed in the future.
+
+You can apply an optional filter string in a dialog box, before starting
+the calculation. The stats will only be calculated 
+on those calls matching that filter.
+
+=item Tools:Statistics:MGCP:RTD
+
+Collect requests/response RTD (Response Time Delay) data for MGCP. 
+Data collected is number of calls for each known MGCP Type, 
+MinRTD, MaxRTD and AvgRTD. The data will be presented in a table.
+
+You can apply an optional filter string in a dialog box, before starting
+the calculation. The stats will only be calculated 
+on those calls matching that filter.
 
 =back
 

@@ -501,14 +501,15 @@ on those calls that match that filter.
 Example: use B<-z "smb,rtt,ip.addr==1.2.3.4"> to only collect stats for
 SMB packets echanged by the host at IP address 1.2.3.4 .
 
-B<-z> mgcp,rtd,[I<filter>]
+B<-z> mgcp,rtd[I<,filter>]
 
 Collect requests/response RTD (Response Time Delay) data for MGCP. 
-This is similar to B<-z smb,rtt>). You get the number of duplicate 
-requests/responses, unresponded requests, responses ,which don't match with
-any request, and in a seperate line the number of responded requests, 
-Minimum RTD, Maximum RTD and Average RTD. 
-Example: use B<-z mgcp,rtd,>.
+This is similar to B<-z smb,rtt>). Data collected is number of calls
+for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
+Additionally you get the number of duplicate requests/responses, 
+unresponded requests, responses ,which don't match with
+any request. 
+Example: use B<-z mgcp,rtd>.
 
 This option can be used multiple times on the command line. 
 
