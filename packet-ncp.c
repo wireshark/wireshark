@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.10 1999/03/23 03:14:40 gram Exp $
+ * $Id: packet-ncp.c,v 1.11 1999/05/10 20:51:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -315,7 +315,8 @@ svc_record_byte_count(svc_record *sr)
 }
 
 void
-dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+	int max_data) {
 
 	proto_tree	*ncp_tree = NULL;
 	proto_item	*ti;

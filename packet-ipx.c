@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.19 1999/05/10 19:01:31 gram Exp $
+ * $Id: packet-ipx.c,v 1.20 1999/05/10 20:51:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -50,17 +50,19 @@
 */
 
 static void
-dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data);
 
 static void
-dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
+max_data);
 
 static void
-dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
+max_data);
 
 struct port_info {
 	guint16	port;
-	void	(*func) (const u_char *, int, frame_data *, proto_tree *);
+	void	(*func) (const u_char *, int, frame_data *, proto_tree *, int);
 	char	*text;
 };
 
@@ -81,14 +83,14 @@ static struct port_info	ports[] = {
 	{ 0x0451, dissect_ncp,		"NCP" },
 	{ 0x0452, dissect_sap,		"SAP" },
 	{ 0x0453, dissect_ipxrip, 	"RIP" },
-	{ 0x0455, NULL,				"NetBIOS" },
-	{ 0x0456, NULL,				"Diagnostic" },
-	{ 0x0457, NULL,				"Serialization" },
-	{ 0x0551, NULL,				"NWLink SMB Name Query" },
-	{ 0x0553, dissect_nwlink_dg,"NWLink SMB Datagram" },
-	{ 0x055d, NULL,				"Attachmate Gateway" },
-	{ 0x4001, NULL,				"IPX Message" },
-	{ 0x0000, NULL,				NULL }
+	{ 0x0455, NULL,			"NetBIOS" },
+	{ 0x0456, NULL,			"Diagnostic" },
+	{ 0x0457, NULL,			"Serialization" },
+	{ 0x0551, NULL,			"NWLink SMB Name Query" },
+	{ 0x0553, dissect_nwlink_dg,	"NWLink SMB Datagram" },
+	{ 0x055d, NULL,			"Attachmate Gateway" },
+	{ 0x4001, NULL,			"IPX Message" },
+	{ 0x0000, NULL,			NULL }
 };
 
 static char*
@@ -188,7 +190,8 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	gchar		*str_dnet, *str_snet;
 	guint16		ipx_dsocket, ipx_ssocket;
-	void		(*dissect) (const u_char *, int, frame_data *, proto_tree *);
+	void		(*dissect) (const u_char *, int, frame_data *, proto_tree *, int);
+	int		max_data;
 
 	/* Calculate here for use in pinfo and in tree */
 	ipx_dnet = (guint8*)&pd[offset+6];
@@ -200,6 +203,8 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	ipx_dnode = (guint8*)&pd[offset+10];
 	ipx_snode = (guint8*)&pd[offset+22];
 	ipx_type = pd[offset+5];
+	ipx_length = pntohs(&pd[offset+2]);
+	max_data = ipx_length - 30;
 
 	if (check_col(fd, COL_RES_DL_DST))
 		col_add_str(fd, COL_RES_DL_DST,
@@ -216,7 +221,6 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {
 		ipx_checksum = pntohs(&pd[offset]);
-		ipx_length = pntohs(&pd[offset+2]);
 		ipx_hops = pd[offset+4];
 
 		ti = proto_tree_add_item(tree, offset, 30,
@@ -249,7 +253,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	switch (ipx_type) {
 		case 5: /* SPX */
-			dissect_spx(pd, offset, fd, tree);
+			dissect_spx(pd, offset, fd, tree, max_data);
 			break;
 
 		case 17: /* NCP */
@@ -260,12 +264,12 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			else
 				nw_server_address = 0;
 
-			dissect_ncp(pd, offset, fd, tree);
+			dissect_ncp(pd, offset, fd, tree, max_data);
 			break;
 
 		case 20: /* NetBIOS */
 			if (ipx_dsocket == 0x0455) {
-				dissect_nbipx_ns(pd, offset, fd, tree, ipx_length - 30);
+				dissect_nbipx_ns(pd, offset, fd, tree, max_data);
 				break;
 			}
 			/* else fall through */
@@ -274,12 +278,12 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		default:
 			dissect = port_func(ipx_dsocket);
 			if (dissect) {
-				dissect(pd, offset, fd, tree);
+				dissect(pd, offset, fd, tree, max_data);
 			}
 			else {
 				dissect = port_func(ipx_ssocket);
 				if (dissect) {
-					dissect(pd, offset, fd, tree);
+					dissect(pd, offset, fd, tree, max_data);
 				}
 				else {
 					dissect_data(pd, offset, fd, tree);
@@ -328,7 +332,8 @@ spx_datastream(u_char type)
 }
 
 static void
-dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
+	max_data) {
 
 	proto_tree	*spx_tree;
 	proto_item	*ti;
@@ -375,7 +380,8 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 /* IPX RIP                                                           */
 /* ================================================================= */
 static void
-dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+	int max_data) {
 
 	proto_tree	*rip_tree;
 	proto_item	*ti;
@@ -494,7 +500,8 @@ server_type(guint16 type)
 }
 
 static void
-dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+	int max_data) {
 
 	proto_tree	*sap_tree, *s_tree;
 	proto_item	*ti;
