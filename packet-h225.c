@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.32 2004/02/14 22:48:52 guy Exp $
+ * $Id: packet-h225.c,v 1.33 2004/02/20 10:56:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -802,6 +802,7 @@ static gint ett_h225_aliasAddress_sequence = -1;
 /* Subdissector tables */
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
+static dissector_table_t tp_dissector_table;
 
 
 static dissector_handle_t h245_handle=NULL;
@@ -810,6 +811,7 @@ static dissector_handle_t h4501_handle=NULL;
 
 
 static dissector_handle_t nsp_handle;
+static dissector_handle_t tp_handle;
 
 static guint32  ipv4_address;
 static guint32  ipv4_port;
@@ -818,6 +820,7 @@ static guint32 t35CountryCode;
 static guint32 t35Extension;
 static guint32 manufacturerCode;
 static guint32 h221NonStandard;
+static char tpID[256];
 
 static gboolean contains_faststart = FALSE;
 
@@ -4291,7 +4294,7 @@ dissect_h225_mcu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 static int
 dissect_h225_tunnelledProtocolObjectID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_h225_tunnelledProtocolObjectID, NULL);
+	offset=dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_h225_tunnelledProtocolObjectID, tpID);
 	return offset;
 }
 
@@ -4331,12 +4334,15 @@ static per_sequence_t TunnelledProtocol_sequence[] = {
 static int
 dissect_h225_TunnelledProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	tpID[0] = '\0';
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_TunnelledProtocol, ett_h225_TunnelledProtocol, TunnelledProtocol_sequence);
+	tp_handle = dissector_get_string_handle(tp_dissector_table, tpID);
 	return offset;
 }
 static int
 dissect_h225_desiredTunnelledProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	tpID[0] = '\0';
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_desiredTunnelledProtocol, ett_h225_TunnelledProtocol, TunnelledProtocol_sequence);
 	return offset;
 }
@@ -7891,7 +7897,17 @@ dissect_h225_admissionConfirmSequence(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 dissect_h225_messageContent_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h225_messageContent_item, -1, -1, NULL, NULL);
+	guint32 value_offset, value_len;
+	tvbuff_t *next_tvb;
+
+	offset = dissect_per_octet_string(tvb, offset, pinfo, tree,
+				hf_h225_messageContent_item, -1, -1,
+				&value_offset, &value_len);
+
+	if (value_len > 0) {
+		next_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
+		call_dissector((tp_handle)?tp_handle:data_handle, next_tvb, pinfo, tree);
+	}
 	return offset;
 }
 
@@ -7942,6 +7958,7 @@ static per_sequence_t tunnelledSignallingMessage_sequence[] = {
 static int
 dissect_h225_tunnelledSignallingMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	tp_handle = NULL;
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_tunnelledSignallingMessage, ett_h225_tunnelledSignallingMessage, tunnelledSignallingMessage_sequence);
 	return offset;
 }
@@ -10255,8 +10272,9 @@ proto_register_h225(void)
 		&h225_reassembly);
 	register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
 
-	nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE);
-	nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
+	nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", FT_STRING, BASE_NONE);
+	nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
+	tp_dissector_table = register_dissector_table("h225.tp", "H.225 TunnelledProtocol", FT_STRING, BASE_NONE);
 
 	register_init_routine(&h225_init_routine);
 	h225_tap = register_tap("h225");
