@@ -1,7 +1,7 @@
 /* nameres_prefs.c
  * Dialog box for name resolution preferences
  *
- * $Id: nameres_prefs.c,v 1.10 2004/05/20 10:37:41 ulfl Exp $
+ * $Id: nameres_prefs.c,v 1.11 2004/05/27 16:43:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,7 @@ nameres_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb;
 	GtkWidget	*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+	GtkTooltips *tooltips = gtk_tooltips_new();
 #ifdef HAVE_GNU_ADNS
 	GtkWidget	*c_resolv_cb, *resolv_concurrency_te;
 	char		concur_str[10+1];
@@ -82,36 +83,37 @@ nameres_prefs_show(void)
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
 	gtk_widget_show(main_tb);
+    OBJECT_SET_DATA(main_tb, E_TOOLTIPS_KEY, tooltips);
 
 	/* Resolve MAC addresses */
 	m_resolv_cb = create_preference_check_button(main_tb, 0,
-	    "Enable MAC name resolution:", NULL,
+	    "Enable MAC name resolution:", "e.g. Ethernet address to manufacturer name",
 	    prefs.name_resolve & RESOLV_MAC);
 	OBJECT_SET_DATA(main_vb, M_RESOLVE_KEY, m_resolv_cb);
 
 	/* Resolve network addresses */
 	n_resolv_cb = create_preference_check_button(main_tb, 1,
-	    "Enable network name resolution:", NULL,
+	    "Enable network name resolution:", "e.g. IP address to DNS name (hostname)",
 	    prefs.name_resolve & RESOLV_NETWORK);
 	OBJECT_SET_DATA(main_vb, N_RESOLVE_KEY, n_resolv_cb);
 
 	/* Resolve transport addresses */
 	t_resolv_cb = create_preference_check_button(main_tb, 2,
-	    "Enable transport name resolution:", NULL,
+	    "Enable transport name resolution:", "e.g. TCP/UDP port to service name",
 	    prefs.name_resolve & RESOLV_TRANSPORT);
 	OBJECT_SET_DATA(main_vb, T_RESOLVE_KEY, t_resolv_cb);
 
 #ifdef HAVE_GNU_ADNS
 	/* Enable concurrent (asynchronous) DNS lookups */
 	c_resolv_cb = create_preference_check_button(main_tb, 3,
-	    "Enable concurrent DNS name resolution:", NULL,
+	    "Enable concurrent DNS name resolution:", "be sure to enable network name resolution",
 	    prefs.name_resolve & RESOLV_CONCURRENT);
 	OBJECT_SET_DATA(main_vb, C_RESOLVE_KEY, c_resolv_cb);
 
 	/* Max concurrent requests */
 	g_snprintf(concur_str, 10+1, "%d", prefs.name_resolve_concurrency);
 	resolv_concurrency_te = create_preference_entry(main_tb, 4, 
-	    "Maximum concurrent requests:", NULL, concur_str);
+	    "Maximum concurrent requests:", "maximum parallel running DNS requests", concur_str);
 	OBJECT_SET_DATA(main_vb, RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);
 
 #endif /* HAVE_GNU_ADNS */
