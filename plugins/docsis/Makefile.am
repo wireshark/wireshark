@@ -23,7 +23,7 @@
 
 INCLUDES = -I$(top_srcdir) -I$(includedir)
 
-plugindir = @PLUGIN_DIR@
+plugindir = @plugindir@
 
 plugin_LTLIBRARIES = docsis.la
 docsis_la_SOURCES = packet-docsis.c packet-bpkmattr.c packet-dsarsp.c packet-macmgmt.c packet-rngrsp.c packet-bpkmreq.c packet-dscack.c packet-map.c packet-tlv.c packet-bpkmrsp.c packet-dscreq.c packet-regack.c packet-uccreq.c packet-dscrsp.c packet-regreq.c packet-uccrsp.c packet-dsaack.c packet-dsdreq.c packet-regrsp.c packet-ucd.c packet-dsareq.c packet-dsdrsp.c packet-rngreq.c packet-vendor.c packet-docsis.h packet-tlv.h moduleinfo.h

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.189 2002/12/04 04:26:12 gerald Exp $
+# $Id: configure.in,v 1.190 2003/01/09 23:50:52 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -701,7 +701,6 @@ dnl check whether plugins should be enabled and, if they should be,
 dnl check for plugins directory - stolen from Amanda's configure.in
 dnl
 plugindir="$libdir/ethereal/plugins/$VERSION"
-PLUGIN_DIR="$plugindir"
 AC_ARG_WITH(plugins,
   [  --with-plugins[=DIR]    support plugins (installed in DIR, if supplied).],
   [
@@ -720,7 +719,7 @@ AC_ARG_WITH(plugins,
     then
       AC_MSG_ERROR([GLib on this platform doesn't support loadable modules, so you can't enable plugins.])
     fi
-    PLUGIN_DIR="$withval"
+    plugindir="$withval"
     ;;
   esac
   ]
@@ -730,16 +729,15 @@ AM_CONDITIONAL(HAVE_PLUGINS, test x$have_plugins = xyes)
 if test x$have_plugins = xyes
 then
   AC_DEFINE(HAVE_PLUGINS)
-  PLUGIN_DIR=`(
+  plugindir=`(
     test "x$prefix" = xNONE && prefix=$ac_default_prefix
     test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
-    eval echo "$PLUGIN_DIR"
+    eval echo "$plugindir"
   )`
-  AC_DEFINE_UNQUOTED(PLUGIN_DIR,"$PLUGIN_DIR", [Plugin installation directory])
+  AC_DEFINE_UNQUOTED(PLUGIN_DIR, "$plugindir", [Plugin installation directory])
 else
-  AC_DEFINE(PLUGIN_DIR,NULL)
+  AC_DEFINE(PLUGIN_DIR, NULL)
 fi
-AC_SUBST(PLUGIN_DIR)
 AC_SUBST(plugindir)
 
 dnl libtool defs
