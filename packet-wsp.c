@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.29 2001/07/20 09:10:16 guy Exp $
+ * $Id: packet-wsp.c,v 1.30 2001/07/20 09:22:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1237,7 +1237,7 @@ static void
 dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/*
-	 * XXX - what about WTLS->WTP->WSP?
+	 * XXX - what about WTLS->WSP?
 	 */
 	dissect_wsp_common(tvb, pinfo, tree, dissect_wtp_fromudp, TRUE);
 }
