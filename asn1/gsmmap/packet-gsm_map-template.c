@@ -75,6 +75,7 @@ static int hf_gsm_map_imsi_digits = -1;
 static int hf_gsm_map_map_gmsc_address_digits = -1;
 static int hf_gsm_map_map_RoamingNumber_digits = -1;
 static int hf_gsm_map_map_hlr_number_digits = -1;
+static int hf_gsm_map_map_ForwardedToNumber_digits = -1;
 static int hf_gsm_map_Ss_Status_unused = -1;
 static int hf_gsm_map_Ss_Status_q_bit = -1;
 static int hf_gsm_map_Ss_Status_p_bit = -1;
@@ -530,7 +531,13 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_PurgeMS_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 68: /*prepareHandover*/
-    offset=dissect_gsm_map_PrepareHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+	octet = tvb_get_guint8(tvb,0) & 0xf;
+	if ( octet == 3){ /* This is a V9 message ??? */
+		offset = offset +2;
+		offset=dissect_gsm_map_PrepareHandoverV3Arg(TRUE, tvb, offset, pinfo, tree, -1);
+	}else{
+		offset=offset=dissect_gsm_map_PrepareHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+	}
     break;
   case 69: /*prepareSubsequentHandover*/
     offset=dissect_gsm_map_PrepareSubsequentHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -576,6 +583,8 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+	
+	guint8 octet;
   switch(opcode){
   case  2: /*updateLocation*/
     offset=dissect_gsm_map_UpdateLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -702,7 +711,13 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_PurgeMS_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 68: /*prepareHandover*/
-    offset=dissect_gsm_map_PrepareHO_Res(FALSE, tvb, offset, pinfo, tree, -1);
+	octet = tvb_get_guint8(tvb,0) & 0xf;
+	if ( octet == 3){ /* This is a V9 message ??? */
+		offset = offset +2;
+		offset=dissect_gsm_map_PrepareHandoverV3Res(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
+	}else{
+		offset=dissect_gsm_map_PrepareHO_Res(FALSE, tvb, offset, pinfo, tree, -1);
+	}
     break;
   case 69: /*prepareSubsequentHandover*/
      offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
@@ -961,9 +976,8 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tap_rec.invoke = TRUE;
 	tap_rec.opr_code_idx = op_idx;
 	tap_rec.size = gsm_map_pdu_size;
-	/*
+
 	tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
-	*/
 
 
 }
@@ -1216,6 +1230,10 @@ void proto_register_gsm_map(void) {
       { "Hlr-Number digits", "gsm_map.hlr_number_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "Hlr-Number digits", HFILL }},
+	{&hf_gsm_map_map_ForwardedToNumber_digits,
+      { "Forwarded To Number digits", "gsm_map.forwardedtonumber_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Forwarded To Number digits", HFILL }},
 	{ &hf_gsm_map_Ss_Status_unused,
       { "Unused", "gsm_map.unused",
         FT_UINT8, BASE_HEX, NULL, 0xf0,
@@ -1266,9 +1284,10 @@ void proto_register_gsm_map(void) {
 	gsm_map_tap = register_tap("gsm_map");
 	register_ber_oid_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.1.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version2(2)" );
+	register_ber_oid_name("0.4.0.0.1.0.2.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.2.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.2.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.3.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version3(3)" );
+	register_ber_oid_name("0.4.0.0.1.0.3.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.3.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.3.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.5.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version3(3)" );
@@ -1276,6 +1295,7 @@ void proto_register_gsm_map(void) {
 	register_ber_oid_name("0.4.0.0.1.0.5.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.10.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) reset(10) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.10.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) reset(10) version1(1)" );
+	register_ber_oid_name("0.4.0.0.1.0.11.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) handoverControl(11) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.11.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) handoverControl(11) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.11.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) handoverControl(11) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.26.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) imsiRetrieval(26) version2(2)" );

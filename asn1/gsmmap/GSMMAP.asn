@@ -129,6 +129,7 @@ CancelLocationArg ::= [3] IMPLICIT SEQUENCE {
          extensionContainer   ExtensionContainer OPTIONAL, 
          ... }
 --   RESULT
+
 CancelLocationRes ::= SEQUENCE {
          extensionContainer   ExtensionContainer OPTIONAL, 
          ... }
@@ -254,14 +255,51 @@ PrepareHandoverV3Arg ::= [3] IMPLICIT SEQUENCE {
 
 
 PrepareHO-Res ::= SEQUENCE {
-         handoverNumber   OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
+         handoverNumber   HandoverNumber OPTIONAL, 
          bss-APDU         Bss-APDU OPTIONAL, 
          ... }
+
+HandoverNumber ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
+
+PrepareHandoverV3Res ::=  [3] IMPLICIT SEQUENCE {
+      handoverNumber                   [0] IMPLICIT HandoverNumber OPTIONAL, 
+      relocationNumberList             [1] IMPLICIT SEQUENCE  (  SIZE (1 .. 7 ) ) OF
+         SEQUENCE {
+            handoverNumber   HandoverNumber, 
+            rab-Id           INTEGER ( 1 .. 255 ), 
+            ... } OPTIONAL, 
+      an-APDU                          [2] IMPLICIT An-APDU OPTIONAL, 
+      multicallBearerInfo              [3] IMPLICIT INTEGER ( 1 .. 7 ) OPTIONAL, 
+      multipleBearerNotSupported       NULL OPTIONAL, 
+      selectedUMTS-Algorithms          [5] IMPLICIT SEQUENCE {
+         integrityProtectionAlgorithm   [0] IMPLICIT OCTET STRING (  SIZE (1 ) ) OPTIONAL, 
+         encryptionAlgorithm            [1] IMPLICIT OCTET STRING (  SIZE (1 ) ) OPTIONAL, 
+         extensionContainer             [2] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL, 
+      chosenRadioResourceInformation   [6] IMPLICIT SEQUENCE {
+         chosenChannelInfo     [0] IMPLICIT OCTET STRING (  SIZE (1 ) ) OPTIONAL, 
+         chosenSpeechVersion   [1] IMPLICIT OCTET STRING (  SIZE (1 ) ) OPTIONAL, 
+         ... } OPTIONAL, 
+      extensionContainer               [4] IMPLICIT ExtensionContainer OPTIONAL, 
+      ... , 
+      iuSelectedCodec                  [7] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+      iuAvailableCodecsList            [8] IMPLICIT SEQUENCE {
+         codec1               [1] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ), 
+         codec2               [2] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+         codec3               [3] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+         codec4               [4] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+         codec5               [5] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+         codec6               [6] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+         codec7               [7] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+         codec8               [8] IMPLICIT OCTET STRING (  SIZE (1 .. 4 ) ) OPTIONAL, 
+         extensionContainer   [9] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... } OPTIONAL}
+
 --   ERRORS {
 -- systemFailure   localValue : 34, 
 -- dataMissing   localValue : 35, 
 -- unexpectedDataValue   localValue : 36, 
--- noHandoverNumberAvailable   localValue : 25}
+-- noAvailable   localValue : 25}
 -- ::= localValue : 68
 -- Ethereal adaptation --
 ProtocolId ::=         ENUMERATED {
@@ -343,6 +381,27 @@ SendAuthenticationInfoRes ::= SEQUENCE  ( SIZE( 1 .. 5 ) ) OF
             sres       OCTET STRING ( SIZE( 4 ) ), 
             kc         OCTET STRING ( SIZE( 8 ) ), 
             ... }
+
+--   RESULT     [3] IMPLICIT SEQUENCE {
+SendAuthenticationInfoV3Res ::= [3] IMPLICIT SEQUENCE {
+authenticationSetList   CHOICE {
+         tripletList        [0] IMPLICIT SEQUENCE  (  SIZE (1 .. 5 ) ) OF
+            SEQUENCE {
+               rand       OCTET STRING (  SIZE (16 ) ), 
+               sres       OCTET STRING (  SIZE (4 ) ), 
+               kc         OCTET STRING (  SIZE (8 ) ), 
+               ... }, 
+         quintupletList     [1] IMPLICIT SEQUENCE  (  SIZE (1 .. 5 ) ) OF
+            SEQUENCE {
+               rand       OCTET STRING (  SIZE (16 ) ), 
+               xres       OCTET STRING (  SIZE (4 .. 16 ) ), 
+               ck         OCTET STRING (  SIZE (16 ) ), 
+               ik         OCTET STRING (  SIZE (16 ) ), 
+               autn       OCTET STRING (  SIZE (16 ) ), 
+               ... }} OPTIONAL, 
+      extensionContainer      ExtensionContainer OPTIONAL, 
+      ... }
+
 --   ERRORS {
 -- systemFailure   localValue : 34, 
 -- dataMissing   localValue : 35, 
