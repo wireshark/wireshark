@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.69 2003/02/15 08:24:52 guy Exp $
+ * $Id: packet-giop.c,v 1.70 2003/02/18 02:03:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4620,6 +4620,28 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 /*
+ *  From Section 13.10.2.4 of the CORBA 3.0 spec.
+ */
+static void decode_CodeSets(tvbuff_t *tvb, proto_tree *tree, int *offset,
+	                    gboolean stream_is_be, guint32 boundary) {
+
+  guint32 code_set_id;
+
+  if(tree) {
+    code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, boundary );
+
+    proto_tree_add_text (tree, tvb, *offset - 4, 4,
+                             "char_data: 0x%08x", code_set_id);
+
+    code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, boundary );
+
+    proto_tree_add_text (tree, tvb, *offset - 4, 4,
+                             "wchar_data: 0x%08x", code_set_id);
+  }
+
+}
+
+/*
  *  From Section 2.7.3 of the Real-time CORBA 1.1 Standard, the CORBA priority
  *  is represented in the GIOP service request as:
  *
@@ -4807,9 +4829,13 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
     } else {
       switch(scid)
       {
-	case 0x0a: /* RTCorbaPriority */
+	case 1:    /* CodeSets */
+	  decode_CodeSets(tvb, sub_tree1, offset,
+			  encapsulation_is_be, encapsulation_boundary);
+	  break;
+	case 10:   /* RTCorbaPriority */
 	  decode_RTCorbaPriority(tvb, sub_tree1, offset,
-				 encapsulation_is_be, seqlen_cd);
+				 encapsulation_is_be, encapsulation_boundary);
 	  break;
 	default:
 	  /* Need to fill these in as we learn them */
