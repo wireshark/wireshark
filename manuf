@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.26 2003/03/02 20:46:42 jmayer Exp $
+# $Id: manuf,v 1.27 2003/03/05 17:27:20 jmayer Exp $
 #
 # Laurent Deniel <laurent.deniel@free.fr>
 #
@@ -6070,6 +6070,33 @@
 
 00:0C:A0	StorcaseTe             # StorCase Technology, Inc.
 
+00:0C:A1	Sigmacom               # SIGMACOM Co., LTD.
+
+00:0C:A2	ScopusNetw             # Scopus Network Technologies Ltd
+
+00:0C:A3	RanchoTech             # Rancho Technology, Inc.
+
+00:0C:A4	PrompttecP             # Prompttec Product Management GmbH
+
+00:0C:A5	Private
+00:0C:A6	Mintera                # Mintera Corporation
+
+00:0C:A7	MetroSuzho             # Metro (Suzhou) Technologies Co., Ltd.
+
+00:0C:A8	GarudaNetw             # Garuda Networks Corporation
+
+00:0C:A9	Ebtron                 # Ebtron Inc.
+
+00:0C:AA	CubicTrans             # Cubic Transportation Systems Inc
+
+00:0C:AB	CommendInt             # COMMEND International
+
+00:0C:AC	CitizenWat             # Citizen Watch Co., Ltd.
+
+00:0C:AD	BtuInterna             # BTU International
+
+00:0C:AE	AilocomOy              # Ailocom Oy
+
 00:10:00	CableTelev             # CABLE TELEVISION LABORATIES, INC.
 
 00:10:01	MckCommuni             # MCK COMMUNICATIONS
@@ -7826,7 +7853,8 @@
 
 00:40:95	RPTIntergr             # R.P.T. INTERGROUPS INT'L LTD.
 
-00:40:96	Ciron
+00:40:96	AironetWir             # Aironet Wireless Communication
+
 00:40:97	DatexDivis             # DATEX DIVISION OF
 
 00:40:98	Dressler               # DRESSLER GMBH & CO.
@@ -12385,7 +12413,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.26 2003/03/02 20:46:42 jmayer Exp $
+# $Id: manuf,v 1.27 2003/03/05 17:27:20 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
