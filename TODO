@@ -1,0 +1,45 @@
+$Id: TODO,v 1.1 1999/12/01 20:58:49 gram Exp $
+
+Things to do:
+=============
+
+1. Protocol dispatchers, allowing run-time setting of protocol "chaining"
+(i.e., UDP port X calls dissector Y)
+
+2. Loadable modules, closely related to the previous item.
+
+3. Work on packet capturing in wiretap
+
+4. I just discovered that sshd sets the SSH_CLIENT variable to source IP,
+sort port, and destination port. That coupled with a destination IP
+would give us enough information to carry out remote protocol capturing,
+tcpdump over ssh:
+
+	ssh remotehost tcpdump -s 2000 -w - filter,
+
+where "filter" filters out our own ssh packets (using the infromation
+from $SSH_CLIENT). Any takers?
+
+5. Of course, packet defragmentating. IP, TCP, UDP, need to be reassembled
+and re-analyzed.
+
+6. I'd like to someday re-write the display filter routines to have a more
+powerful syntax.
+
+7. More on-line help, and neato things with the protocol tree and
+right-clicks.
+
+8. A GtkClist replacement, with dynamic columns.
+
+9. A GUI capture/display filter creator.
+
+10. Run-time configuration of tunnelling protocols -- display tunnelled
+protocol as data or as a full-fledged protocol (which subtree do we put
+it under?)
+
+11. Run-time configuration of data shown in capture statistics window.
+
+12. A GtkWidget for authors in the About box. We've got a lot of authors!
+
+13. Finish moving GTK-dependent code into gtk/ subdirectory.
+

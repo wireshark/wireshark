@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.121 1999/11/29 23:19:09 guy Exp $
+# $Id: Makefile.am,v 1.122 1999/12/01 20:58:49 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -295,7 +295,8 @@ EXTRA_DIST = \
 	README.tru64		\
 	README.win32		\
 	randpkt.c		\
-	rdps.c
+	rdps.c			\
+	TODO
 
 #
 # Oh, yuk.  We don't want to include "register.c" in the distribution, as
