@@ -258,7 +258,7 @@
 #define dissect_ber_integer (*p_dissect_ber_integer)
 #define dissect_ber_boolean (*p_dissect_ber_boolean)
 #define dissect_ber_choice (*p_dissect_ber_choice)
-#define dissect_ber_generalized_time (*p_dissect_ber_generalized_time)
+#define dissect_ber_GeneralizedTime (*p_dissect_ber_GeneralizedTime)
 #define dissect_ber_sequence (*p_dissect_ber_sequence)
 #define dissect_ber_sequence_of (*p_dissect_ber_sequence_of)
 #define dissect_ber_set_of (*p_dissect_ber_set_of)
