@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.29 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-x11.c,v 1.30 2002/04/04 23:54:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,6 +71,33 @@ static int proto_x11 = -1;
 /* Initialize the subtree pointers */
 static gint ett_x11 = -1;
 static gint ett_x11_request = -1;
+static gint ett_x11_color_flags = -1;
+static gint ett_x11_list_of_arc = -1;
+static gint ett_x11_arc = -1;
+static gint ett_x11_list_of_atom = -1;
+static gint ett_x11_list_of_card32 = -1;
+static gint ett_x11_list_of_color_item = -1;
+static gint ett_x11_color_item = -1;
+static gint ett_x11_list_of_keycode = -1;
+static gint ett_x11_list_of_keysyms = -1;
+static gint ett_x11_keysym = -1;
+static gint ett_x11_list_of_point = -1;
+static gint ett_x11_point = -1;
+static gint ett_x11_list_of_rectangle = -1;
+static gint ett_x11_rectangle = -1;
+static gint ett_x11_list_of_segment = -1;
+static gint ett_x11_segment = -1;
+static gint ett_x11_list_of_string8 = -1;
+static gint ett_x11_list_of_text_item = -1;
+static gint ett_x11_text_item = -1;
+static gint ett_x11_gc_value_mask = -1;
+static gint ett_x11_event_mask = -1;
+static gint ett_x11_do_not_propagate_mask = -1;
+static gint ett_x11_set_of_key_mask = -1;
+static gint ett_x11_pointer_event_mask = -1;
+static gint ett_x11_window_value_mask = -1;
+static gint ett_x11_configure_window_mask = -1;
+static gint ett_x11_keyboard_value_mask = -1;
 
 static dissector_handle_t data_handle;
 
@@ -623,9 +650,9 @@ static struct maskStruct {
 
 #define ATOM(name)     { atom(tvb, t, hf_x11_##name); }
 #define BITGRAVITY(name) { gravity(tvb, #name, hf_x11_##name, "Forget"); }
-#define BITMASK8(name) { bitmask(tvb, hf_x11_##name##_mask, 1); }
-#define BITMASK16(name) { bitmask(tvb, hf_x11_##name##_mask, 2); }
-#define BITMASK32(name)  { bitmask(tvb, hf_x11_##name##_mask, 4); }
+#define BITMASK8(name) { bitmask(tvb, hf_x11_##name##_mask, ett_x11_##name##_mask, 1); }
+#define BITMASK16(name) { bitmask(tvb, hf_x11_##name##_mask, ett_x11_##name##_mask, 2); }
+#define BITMASK32(name)  { bitmask(tvb, hf_x11_##name##_mask, ett_x11_##name##_mask, 4); }
 #define BOOL(name)     (add_boolean(tvb, #name, hf_x11_##name))
 #define BUTTON(name)   { FIELD8(name); }
 #define CARD8(name)    { FIELD8(name); }
@@ -704,12 +731,15 @@ static void atom(tvbuff_t *tvb, proto_tree *t, int hf)
       cur_offset += 4;
 }
 
-static void bitmask(tvbuff_t *tvb, int hf, int size)
+static void bitmask(tvbuff_t *tvb, int hf, int ett, int size)
 {
+      proto_item *ti;
+
       lastMask._value = size == 2 ? VALUE16(tvb, cur_offset) : VALUE32(tvb, cur_offset);
       lastMask._offset = cur_offset;
       lastMask._zone = size;
-      lastMask._tree = proto_tree_add_uint(t, hf, tvb, cur_offset, size, lastMask._value);
+      ti = proto_tree_add_uint(t, hf, tvb, cur_offset, size, lastMask._value);
+      lastMask._tree = proto_item_add_subtree(ti, ett);
       cur_offset += size; 
 }
 
@@ -724,6 +754,7 @@ static guint32 add_boolean(tvbuff_t *tvb, const char *nameAsChar, int hf)
 static void colorFlags(tvbuff_t *tvb, proto_tree *t)
 {
       unsigned do_red_green_blue = VALUE8(tvb, cur_offset);
+      proto_item *ti;
       proto_tree *tt;
       
       if (do_red_green_blue) {
@@ -753,8 +784,9 @@ static void colorFlags(tvbuff_t *tvb, proto_tree *t)
 		  sprintf(bp, "trash");
 	    }
 
-	    tt = proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, cur_offset, 1, do_red_green_blue,
+	    ti = proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, cur_offset, 1, do_red_green_blue,
 					    "%s", buffer);
+	    tt = proto_item_add_subtree(ti, ett_x11_color_flags);
 	    if (do_red_green_blue & 0x1)
 		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_red, tvb, cur_offset, 1, 
 					 do_red_green_blue & 0x1);
@@ -786,7 +818,8 @@ static void gravity(tvbuff_t *tvb, const char *nameAsChar, int hf, const char *n
 
 static void listOfArc(tvbuff_t *tvb, int hf, int length)
 {
-      proto_tree *tt = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_arc);
       while(length--) {
 	    gint16 x = VALUE16(tvb, cur_offset);
 	    gint16 y = VALUE16(tvb, cur_offset + 2);
@@ -795,10 +828,11 @@ static void listOfArc(tvbuff_t *tvb, int hf, int length)
 	    gint16 angle1 = VALUE16(tvb, cur_offset + 8);
 	    gint16 angle2 = VALUE16(tvb, cur_offset + 10);
 
-	    proto_tree *ttt = proto_tree_add_none_format(tt, hf_x11_arc, tvb, cur_offset, 12, 
+	    proto_item *tti = proto_tree_add_none_format(tt, hf_x11_arc, tvb, cur_offset, 12, 
 							     "arc: %dx%d+%d+%d, angle %d -> %d (%f degrees -> %f degrees)",
 							     width, height, x, y, angle1, angle2,
 							     angle1 / 64.0, angle2 / 64.0);
+	    proto_tree *ttt = proto_item_add_subtree(tti, ett_x11_arc);
 	    proto_tree_add_int(ttt, hf_x11_arc_x, tvb, cur_offset, 2, x); cur_offset += 2;
 	    proto_tree_add_int(ttt, hf_x11_arc_y, tvb, cur_offset, 2, y); cur_offset += 2;
 	    proto_tree_add_uint(ttt, hf_x11_arc_width, tvb, cur_offset, 2, y); cur_offset += 2;
@@ -810,7 +844,8 @@ static void listOfArc(tvbuff_t *tvb, int hf, int length)
 
 static void listOfAtom(tvbuff_t *tvb, int hf, int length)
 {
-      proto_tree *tt = proto_tree_add_item(t, hf, tvb, cur_offset, length * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 4, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_atom);
       while(length--) {
 	    if (cur_offset + 4 > next_offset) {
 		/* List runs past end of message. */
@@ -833,7 +868,8 @@ static void listOfByte(tvbuff_t *tvb, int hf, int length)
 
 static void listOfCard32(tvbuff_t *tvb, int hf, int hf_item, int length)
 {
-      proto_tree *tt = proto_tree_add_item(t, hf, tvb, cur_offset, length * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 4, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
       while(length--) {
 	    if (cur_offset + 4 > next_offset) {
 		/* List runs past end of message. */
@@ -846,8 +882,10 @@ static void listOfCard32(tvbuff_t *tvb, int hf, int hf_item, int length)
 
 static void listOfColorItem(tvbuff_t *tvb, int hf, int length)
 {
-      proto_tree *tt = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_color_item);
       while(length--) {
+	    proto_item *tti;
 	    proto_tree *ttt;
 	    unsigned do_red_green_blue;
 	    guint16 red, green, blue;
@@ -870,7 +908,8 @@ static void listOfColorItem(tvbuff_t *tvb, int hf, int length)
 	    if (do_red_green_blue & 0x2) { bp += sprintf(bp, "%sgreen = %d", sep, green); sep = ", "; }
 	    if (do_red_green_blue & 0x4) bp += sprintf(bp, "%sblue = %d", sep, blue);
 
-	    ttt = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, cur_offset, 12, "%s", buffer);
+	    tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, cur_offset, 12, "%s", buffer);
+	    ttt = proto_item_add_subtree(tti, ett_x11_color_item);
 	    proto_tree_add_item(ttt, hf_x11_coloritem_pixel, tvb, cur_offset, 4, little_endian); cur_offset += 4;
 	    proto_tree_add_item(ttt, hf_x11_coloritem_red, tvb, cur_offset, 2, little_endian); cur_offset += 2;
 	    proto_tree_add_item(ttt, hf_x11_coloritem_green, tvb, cur_offset, 2, little_endian); cur_offset += 2;
@@ -908,7 +947,8 @@ static const char *modifiers[] = { "Shift", "Lock", "Control", "Mod1", "Mod2", "
 static void listOfKeycode(tvbuff_t *tvb, int hf, int length)
 {
       char buffer[1024];
-      proto_tree *tt = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keycode);
 
       while(length--) {
 	    char *bp = buffer;
@@ -931,7 +971,9 @@ static void listOfKeycode(tvbuff_t *tvb, int hf, int length)
 
 static void listOfKeysyms(tvbuff_t *tvb, int hf, int hf_item, int keycode_count, int keysyms_per_keycode)
 {
-      proto_tree *tt = proto_tree_add_item(t, hf, tvb, cur_offset, keycode_count * keysyms_per_keycode * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, keycode_count * keysyms_per_keycode * 4, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keysyms);
+      proto_item *tti;
       proto_tree *ttt;
       int i;
       char buffer[128];
@@ -947,8 +989,9 @@ static void listOfKeysyms(tvbuff_t *tvb, int hf, int hf_item, int keycode_count,
 		  bp += sprintf(bp, " %s", keysymString(VALUE32(tvb, cur_offset + i * 4)));
 	    }
 	    *bp = '\0';
-	    ttt = proto_tree_add_none_format(tt, hf_item, tvb, cur_offset, keysyms_per_keycode * 4,
+	    tti = proto_tree_add_none_format(tt, hf_item, tvb, cur_offset, keysyms_per_keycode * 4,
 						 "%s", buffer);
+	    ttt = proto_item_add_subtree(tti, ett_x11_keysym);
 	    for(i = keysyms_per_keycode; i; i--) {
 		  guint32 v = VALUE32(tvb, cur_offset);
 		  proto_tree_add_uint_format(ttt, hf_x11_keysyms_item_keysym, tvb, cur_offset, 4, v,
@@ -960,9 +1003,11 @@ static void listOfKeysyms(tvbuff_t *tvb, int hf, int hf_item, int keycode_count,
 
 static void listOfPoint(tvbuff_t *tvb, int hf, int length)
 {
-      proto_tree *tt = proto_tree_add_item(t, hf, tvb, cur_offset, length * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 4, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_point);
       while(length--) {
 	    gint16 x, y;
+	    proto_item *tti;
 	    proto_tree *ttt;
 
 	    if (cur_offset + 4 > next_offset) {
@@ -972,7 +1017,8 @@ static void listOfPoint(tvbuff_t *tvb, int hf, int length)
 	    x = VALUE16(tvb, cur_offset);
 	    y = VALUE16(tvb, cur_offset + 2);
 
-	    ttt = proto_tree_add_none_format(tt, hf_x11_point, tvb, cur_offset, 4, "point: (%d,%d)", x, y);
+	    tti = proto_tree_add_none_format(tt, hf_x11_point, tvb, cur_offset, 4, "point: (%d,%d)", x, y);
+	    ttt = proto_item_add_subtree(tti, ett_x11_point);
 	    proto_tree_add_int(ttt, hf_x11_point_x, tvb, cur_offset, 2, x); cur_offset += 2;
 	    proto_tree_add_int(ttt, hf_x11_point_y, tvb, cur_offset, 2, y); cur_offset += 2;
       }
@@ -980,10 +1026,12 @@ static void listOfPoint(tvbuff_t *tvb, int hf, int length)
 
 static void listOfRectangle(tvbuff_t *tvb, int hf, int length)
 {
-      proto_tree *tt = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_rectangle);
       while(length--) {
 	    gint16 x, y;
 	    unsigned width, height;
+	    proto_item *tti;
 	    proto_tree *ttt;
 
 	    if (cur_offset + 8 > next_offset) {
@@ -995,8 +1043,9 @@ static void listOfRectangle(tvbuff_t *tvb, int hf, int length)
 	    width = VALUE16(tvb, cur_offset + 4);
 	    height = VALUE16(tvb, cur_offset + 6);
 
-	    ttt = proto_tree_add_none_format(tt, hf_x11_rectangle, tvb, cur_offset, 8, 
+	    tti = proto_tree_add_none_format(tt, hf_x11_rectangle, tvb, cur_offset, 8, 
 						 "rectangle: %dx%d+%d+%d", width, height, x, y);
+	    ttt = proto_item_add_subtree(tti, ett_x11_rectangle);
 	    proto_tree_add_int(ttt, hf_x11_rectangle_x, tvb, cur_offset, 2, x); cur_offset += 2;
 	    proto_tree_add_int(ttt, hf_x11_rectangle_y, tvb, cur_offset, 2, y); cur_offset += 2;
 	    proto_tree_add_uint(ttt, hf_x11_rectangle_width, tvb, cur_offset, 2, width); cur_offset += 2;
@@ -1006,9 +1055,11 @@ static void listOfRectangle(tvbuff_t *tvb, int hf, int length)
 
 static void listOfSegment(tvbuff_t *tvb, int hf, int length)
 {
-      proto_tree *tt = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_segment);
       while(length--) {
 	    gint16 x1, y1, x2, y2;
+	    proto_item *tti;
 	    proto_tree *ttt;
 
 	    if (cur_offset + 8 > next_offset) {
@@ -1020,8 +1071,9 @@ static void listOfSegment(tvbuff_t *tvb, int hf, int length)
 	    x2 = VALUE16(tvb, cur_offset + 4);
 	    y2 = VALUE16(tvb, cur_offset + 6);
 
-	    ttt = proto_tree_add_none_format(tt, hf_x11_segment, tvb, cur_offset, 8, 
+	    tti = proto_tree_add_none_format(tt, hf_x11_segment, tvb, cur_offset, 8, 
 						 "segment: (%d,%d)-(%d,%d)", x1, y1, x2, y2);
+	    ttt = proto_item_add_subtree(tti, ett_x11_segment);
 	    proto_tree_add_item(ttt, hf_x11_segment_x1, tvb, cur_offset, 2, little_endian); cur_offset += 2;
 	    proto_tree_add_item(ttt, hf_x11_segment_y1, tvb, cur_offset, 2, little_endian); cur_offset += 2;
 	    proto_tree_add_item(ttt, hf_x11_segment_x2, tvb, cur_offset, 2, little_endian); cur_offset += 2;
@@ -1046,6 +1098,7 @@ static void listOfString8(tvbuff_t *tvb, int hf, int hf_item, int length)
 {
       char *s = NULL;
       guint allocated = 0;
+      proto_item *ti;
       proto_tree *tt;
       int i;
 
@@ -1058,7 +1111,8 @@ static void listOfString8(tvbuff_t *tvb, int hf, int hf_item, int length)
 	    scanning_offset += 1 + l;
       }
 
-      tt = proto_tree_add_item(t, hf, tvb, cur_offset, scanning_offset - cur_offset, little_endian);
+      ti = proto_tree_add_item(t, hf, tvb, cur_offset, scanning_offset - cur_offset, little_endian);
+      tt = proto_item_add_subtree(ti, ett_x11_list_of_string8);
 
       while(length--) {
 	    unsigned l = VALUE8(tvb, cur_offset);
@@ -1136,6 +1190,7 @@ static void listOfTextItem(tvbuff_t *tvb, int hf, int sizeIs16)
 {
       int allocated = 0;
       char *s = NULL;
+      proto_item *ti;
       proto_tree *tt;
       guint32 fid;
 
@@ -1153,7 +1208,8 @@ static void listOfTextItem(tvbuff_t *tvb, int hf, int sizeIs16)
 	    scanning_offset += l == 255 ? 4 : l + (sizeIs16 ? l : 0) + 1;
       }
 
-      tt = proto_tree_add_item(t, hf, tvb, cur_offset, scanning_offset - cur_offset, little_endian);
+      ti = proto_tree_add_item(t, hf, tvb, cur_offset, scanning_offset - cur_offset, little_endian);
+      tt = proto_item_add_subtree(ti, ett_x11_list_of_text_item);
 
       while(n--) {
 	    unsigned l = VALUE8(tvb, cur_offset);
@@ -1162,6 +1218,7 @@ static void listOfTextItem(tvbuff_t *tvb, int hf, int sizeIs16)
 		  proto_tree_add_uint(tt, hf_x11_textitem_font, tvb, cur_offset, 5, fid);
 		  cur_offset += 5;
 	    } else { /* Item is a string */
+		  proto_item *tti;
 		  proto_tree *ttt;
 		  gint8 delta = VALUE8(tvb, cur_offset + 1);
 		  if (sizeIs16) l += l;
@@ -1172,9 +1229,10 @@ static void listOfTextItem(tvbuff_t *tvb, int hf, int sizeIs16)
 			allocated = l + 1;
 		  }
 		  stringCopy(s, tvb_get_ptr(tvb, cur_offset + 2, l), l);
-		  ttt = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, cur_offset, l + 2,
+		  tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, cur_offset, l + 2,
 						       "textitem (string): delta = %d, \"%s\"",
 						       delta, s);
+		  ttt = proto_item_add_subtree(tti, ett_x11_text_item);
 		  proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, cur_offset + 1, 1, little_endian);
 		  if (sizeIs16)
 			string16_with_buffer_preallocated(tvb, ttt, hf_x11_textitem_string_string16, 
@@ -1353,6 +1411,8 @@ static void setOfDeviceEvent(tvbuff_t *tvb)
 static void setOfKeyMask(tvbuff_t *tvb)
 {
       struct maskStruct save = lastMask;
+      proto_item *ti;
+
       lastMask._value = VALUE16(tvb, cur_offset);
       lastMask._offset = cur_offset;
       lastMask._zone = 2;
@@ -1360,8 +1420,9 @@ static void setOfKeyMask(tvbuff_t *tvb)
 	    proto_tree_add_uint_format(t, hf_x11_modifiers_mask_AnyModifier, tvb, cur_offset, 2, 0x8000,
 				       "modifiers-masks: 0x8000 (AnyModifier)");
       else {
-	    lastMask._tree = proto_tree_add_uint(t, hf_x11_modifiers_mask, tvb, cur_offset, 2, 
+	    ti = proto_tree_add_uint(t, hf_x11_modifiers_mask, tvb, cur_offset, 2, 
 						 lastMask._value);
+	    lastMask._tree = proto_item_add_subtree(ti, ett_x11_set_of_key_mask);
 	    FLAG(modifiers, Shift);
 	    FLAG(modifiers, Lock);
 	    FLAG(modifiers, Control);
@@ -2920,6 +2981,33 @@ void proto_register_x11(void)
       static gint *ett[] = {
 	    &ett_x11,
 	    &ett_x11_request,
+	    &ett_x11_color_flags,
+	    &ett_x11_list_of_arc,
+	    &ett_x11_arc,
+	    &ett_x11_list_of_atom,
+	    &ett_x11_list_of_card32,
+	    &ett_x11_list_of_color_item,
+	    &ett_x11_color_item,
+	    &ett_x11_list_of_keycode,
+	    &ett_x11_list_of_keysyms,
+	    &ett_x11_keysym,
+	    &ett_x11_list_of_point,
+	    &ett_x11_point,
+	    &ett_x11_list_of_rectangle,
+	    &ett_x11_rectangle,
+	    &ett_x11_list_of_segment,
+	    &ett_x11_segment,
+	    &ett_x11_list_of_string8,
+	    &ett_x11_list_of_text_item,
+	    &ett_x11_text_item,
+	    &ett_x11_gc_value_mask,
+	    &ett_x11_event_mask,
+	    &ett_x11_do_not_propagate_mask,
+	    &ett_x11_set_of_key_mask,
+	    &ett_x11_pointer_event_mask,
+	    &ett_x11_window_value_mask,
+	    &ett_x11_configure_window_mask,
+	    &ett_x11_keyboard_value_mask,
       };
 
 /* Register the protocol name and description */
