@@ -16,7 +16,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.48 2004/02/23 08:39:42 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.49 2004/02/25 07:52:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -768,7 +768,7 @@ static int dissect_krb5_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 		int netbios_name_type;
 
 		netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name);
-		snprintf(address_str, 255, "%s<%02d>", netbios_name, netbios_name_type); 
+		snprintf(address_str, 255, "%s<%02x>", netbios_name, netbios_name_type); 
 		it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
 		}
 		break;
