@@ -1215,7 +1215,7 @@ select_link_type_cb(GtkWidget *w, gpointer data)
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
-    file_selection_browse(file_bt, file_te, "Ethereal: Specify a Capture File", FILE_SELECTION_OPEN);
+    file_selection_browse(file_bt, file_te, "Ethereal: Specify a Capture File", FILE_SELECTION_WRITE_BROWSE);
 }
 
 
