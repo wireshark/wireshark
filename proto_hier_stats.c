@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.25 2004/01/31 03:22:37 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.26 2004/03/17 21:48:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,12 @@
 
 #define STAT_NODE_STATS(n)   ((ph_stats_node_t*)(n)->data)
 #define STAT_NODE_HFINFO(n)  (STAT_NODE_STATS(n)->hfinfo)
+
+static double
+secs_usecs(guint32 s, guint32 us)
+{
+  return (us / 1000000.0) + (double)s;
+}
 
 static GNode*
 find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
@@ -129,6 +135,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	guint8				pd[WTAP_MAX_PACKET_SIZE];
 	int				err;
 	gchar				*err_info;
+	double				cur_time;
 
 	/* Load the frame from the capture file */
 	if (!wtap_seek_read(cfile.wth, frame->file_off, &phdr, pd,
@@ -145,13 +152,20 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	/* Get stats from this protocol tree */
 	process_tree(edt->tree, ps, frame->pkt_len);
 
+	/* Update times */
+	cur_time = secs_usecs(frame->abs_secs, frame->abs_usecs);
+	if (cur_time < ps->first_time) {
+	  ps->first_time = cur_time;
+	}
+	if (cur_time > ps->last_time){
+	  ps->last_time = cur_time;
+	}
+
 	/* Free our memory. */
 	epan_dissect_free(edt);
 
 	return TRUE;	/* success */
 }
-
-
 
 ph_stats_t*
 ph_stats_new(void)
@@ -173,6 +187,8 @@ ph_stats_new(void)
 	ps->tot_packets = 0;
 	ps->tot_bytes = 0;
 	ps->stats_tree = g_node_new(NULL);
+	ps->first_time = 0.0;
+	ps->last_time = 0.0;
 
 	/* Update the progress bar when it gets to this value. */
 	progbar_nextstep = 0;
@@ -230,6 +246,14 @@ ph_stats_new(void)
 		   probably do so for other loops (see "file.c") that
 		   look only at those packets. */
 		if (frame->flags.passed_dfilter) {
+
+			if (tot_packets == 0) {
+				double cur_time = secs_usecs(frame->abs_secs,
+							     frame->abs_usecs);
+				ps->first_time = cur_time;
+				ps->last_time = cur_time;
+			}
+
 			if (!process_frame(frame, &cfile.cinfo, ps)) {
 				/*
 				 * Give up, and set "stop_flag" so we

@@ -1,6 +1,6 @@
 /* proto_hier_stats.h
  *
- * $Id: proto_hier_stats.h,v 1.4 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: proto_hier_stats.h,v 1.5 2004/03/17 21:48:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,8 @@ typedef struct {
 	guint	tot_packets;
 	guint	tot_bytes;
 	GNode	*stats_tree;
+	double	first_time;	/* seconds (msec resolution) of first packet */
+	double	last_time;	/* seconds (msec resolution) of last packet  */
 } ph_stats_t;
 
 

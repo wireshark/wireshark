@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.15 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.16 2004/03/17 21:48:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,15 +35,17 @@
 #include "compat_macros.h"
 
 #if GTK_MAJOR_VERSION < 2
-#define NUM_STAT_COLUMNS 6
+#define NUM_STAT_COLUMNS 8
 #else
 enum {
     PROTOCOL_COLUMN,
     PRCT_PKTS_COLUMN,
     PKTS_COLUMN,
     BYTES_COLUMN,
+    BANDWIDTH_COLUMN,
     END_PKTS_COLUMN,
     END_BYTES_COLUMN,
+    END_BANDWIDTH_COLUMN,
     NUM_STAT_COLUMNS /* must be the last */
 };
 #endif
@@ -61,30 +63,28 @@ typedef struct {
 
 
 #define PCT(x,y) (100.0 * (float)(x) / (float)(y))
+#define BANDWITDH(bytes,secs) ((bytes) * 8.0 / ((secs) * 1000.0 * 1000.0))
 
 static void
 fill_in_tree_node(GNode *node, gpointer data)
 {
     ph_stats_node_t *stats = node->data;
     draw_info_t     *di = data;
-
+    ph_stats_t      *ps = di->ps;
+    gboolean        is_leaf;
+    draw_info_t     child_di;
+    double	    seconds;
+    gchar           *text[NUM_STAT_COLUMNS];
 #if GTK_MAJOR_VERSION < 2
     GtkCTree        *tree = di->tree;
     GtkCTreeNode    *parent = di->parent;
-    gchar           *text[NUM_STAT_COLUMNS];
     GtkCTreeNode    *new_node;
 #else
     GtkTreeView     *tree_view = di->tree_view;
     GtkTreeIter     *iter = di->iter;
     GtkTreeStore    *store;
-    gchar           *text[2];
     GtkTreeIter      new_iter;
 #endif
-    ph_stats_t      *ps = di->ps;
-
-    gboolean         is_leaf;
-
-    draw_info_t      child_di;
 
     if (g_node_n_children(node) > 0) {
         is_leaf = FALSE;
@@ -93,17 +93,31 @@ fill_in_tree_node(GNode *node, gpointer data)
         is_leaf = TRUE;
     }
 
+    seconds = ps->last_time - ps->first_time;
+
     text[0] = stats->hfinfo->name;
     text[1] = g_strdup_printf("%6.2f%%",
                               PCT(stats->num_pkts_total, ps->tot_packets));
-#if GTK_MAJOR_VERSION < 2
     text[2] = g_strdup_printf("%u", stats->num_pkts_total);
     text[3] = g_strdup_printf("%u", stats->num_bytes_total);
-    text[4] = g_strdup_printf("%u", stats->num_pkts_last);
-    text[5] = g_strdup_printf("%u", stats->num_bytes_last);
+    if (seconds > 0.0) {
+	text[4] = g_strdup_printf("%.3f", 
+				  BANDWITDH(stats->num_bytes_total, seconds));
+    } else {
+	text[4] = "n.c.";
+    }
+    text[5] = g_strdup_printf("%u", stats->num_pkts_last);
+    text[6] = g_strdup_printf("%u", stats->num_bytes_last);
+    if (seconds > 0.0) {
+	text[7] = g_strdup_printf("%.3f", 
+				  BANDWITDH(stats->num_bytes_last, seconds));
+    } else {
+	text[7] = "n.c.";
+    }
 
+#if GTK_MAJOR_VERSION < 2
     new_node = gtk_ctree_insert_node(tree, parent, NULL, text,
-                                     5, NULL, NULL, NULL, NULL,
+                                     7, NULL, NULL, NULL, NULL,
                                      is_leaf, TRUE);
 #else
     store = GTK_TREE_STORE(gtk_tree_view_get_model(tree_view));
@@ -111,20 +125,24 @@ fill_in_tree_node(GNode *node, gpointer data)
     gtk_tree_store_set(store, &new_iter,
                        PROTOCOL_COLUMN, text[0],
                        PRCT_PKTS_COLUMN, text[1],
-                       PKTS_COLUMN, stats->num_pkts_total,
-                       BYTES_COLUMN, stats->num_bytes_total,
-                       END_PKTS_COLUMN, stats->num_pkts_last,
-                       END_BYTES_COLUMN, stats->num_bytes_last,
+                       PKTS_COLUMN, text[2],
+                       BYTES_COLUMN, text[3],
+		       BANDWIDTH_COLUMN, text[4],
+                       END_PKTS_COLUMN, text[5],
+                       END_BYTES_COLUMN, text[6],
+		       END_BANDWIDTH_COLUMN, text[7],
                        -1);
 #endif
 
     g_free(text[1]);
-#if GTK_MAJOR_VERSION < 2
     g_free(text[2]);
     g_free(text[3]);
-    g_free(text[4]);
+    if (seconds > 0.0) g_free(text[4]);
     g_free(text[5]);
+    g_free(text[6]);
+    if (seconds > 0.0) g_free(text[7]);
 
+#if GTK_MAJOR_VERSION < 2
     child_di.tree = tree;
     child_di.parent = new_node;
 #else
@@ -156,7 +174,7 @@ fill_in_tree(GtkWidget *tree, ph_stats_t *ps)
 }
 
 #define MAX_DLG_HEIGHT 450
-#define DEF_DLG_WIDTH  600
+#define DEF_DLG_WIDTH  700
 static void
 create_tree(GtkWidget *container, ph_stats_t *ps)
 {
@@ -168,8 +186,10 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
         "% Packets",
         "Packets",
         "Bytes",
+	"Mbit/s",
         "End Packets",
         "End Bytes",
+	"End Mbit/s"
     };
 #else
     GtkTreeView       *tree_view;
@@ -201,14 +221,15 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 
 
     /* Right justify numeric columns */
-    for (i = 1; i <= 5; i++) {
+    for (i = 1; i < NUM_STAT_COLUMNS; i++) {
         gtk_clist_set_column_justification(GTK_CLIST(tree), i,
                                            GTK_JUSTIFY_RIGHT);
     }
 #else
     store = gtk_tree_store_new(NUM_STAT_COLUMNS, G_TYPE_STRING,
-                               G_TYPE_STRING, G_TYPE_UINT, G_TYPE_UINT,
-                               G_TYPE_UINT, G_TYPE_UINT);
+                               G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+                               G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, 
+			       G_TYPE_STRING);
     tree = tree_view_new(GTK_TREE_MODEL(store));
     tree_view = GTK_TREE_VIEW(tree);
     gtk_tree_view_set_headers_visible(tree_view, TRUE);
@@ -241,6 +262,14 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(tree_view, column);
     renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("Mbit/s", renderer,
+                                                      "text", 
+						      BANDWIDTH_COLUMN,
+                                                      NULL);
+    g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+    gtk_tree_view_append_column(tree_view, column);
+    renderer = gtk_cell_renderer_text_new();
     column = gtk_tree_view_column_new_with_attributes("End Packets",
                                                       renderer, "text",
                                                       END_PKTS_COLUMN, NULL);
@@ -250,6 +279,14 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     renderer = gtk_cell_renderer_text_new();
     column = gtk_tree_view_column_new_with_attributes("End Bytes", renderer,
                                                       "text", END_BYTES_COLUMN,
+                                                      NULL);
+    g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+    gtk_tree_view_append_column(tree_view, column);
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("End Mbit/s", renderer,
+                                                      "text", 
+						      END_BANDWIDTH_COLUMN,
                                                       NULL);
     g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
@@ -268,7 +305,6 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 #endif
 
     gtk_container_add(GTK_CONTAINER(sw), tree);
-    ph_stats_free(ps);
 }
 
 void
@@ -294,21 +330,22 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* Data section */
 	create_tree(vbox, ps);
 
+	ph_stats_free(ps);
+
 	/* Button row. */
-    bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
-    gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
+	bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+	gtk_widget_show(bbox);
 
-    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+	ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
 	SIGNAL_CONNECT_OBJECT(ok_bt, "clicked", gtk_widget_destroy, dlg);
-    gtk_widget_grab_default(ok_bt);
+	gtk_widget_grab_default(ok_bt);
 
-    /* Catch the "key_press_event" signal in the window, so that we can catch
-       the ESC key being pressed and act as if the "OK" button had
-       been selected. */
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "OK" button had
+	   been selected. */
 	dlg_set_cancel(dlg, ok_bt);
 
 	gtk_widget_show_all(dlg);
-
 }
 
