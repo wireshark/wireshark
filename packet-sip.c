@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.59 2004/02/11 09:19:02 guy Exp $
+ * $Id: packet-sip.c,v 1.60 2004/02/18 20:55:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -737,10 +737,8 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 /*
                  * There's a message body starting at "next_offset".
-                 * Set the length of the SIP portion and of the
-                 * header item.
+                 * Set the length of the header item.
                  */
-                proto_item_set_end(ts, tvb, next_offset);
                 proto_item_set_end(th, tvb, next_offset);
                 next_tvb = tvb_new_subset(tvb, next_offset, -1, -1);
                	ti = proto_tree_add_text(sip_tree, next_tvb, 0, -1,
