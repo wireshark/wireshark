@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.76 2003/02/14 06:17:20 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.77 2003/04/27 00:49:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1403,7 +1403,7 @@ netlogon_dissect_netserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, 
 		dissect_ndr_wchar_cvstring, NDR_POINTER_REF, 
 		"Computer Name", hf_netlogon_computer_name, 
-		cb_str_postprocess, 
+		cb_wstr_postprocess, 
 		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3807,7 +3807,7 @@ netlogon_dissect_netserverauthenticate2_rqst(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, 
 		dissect_ndr_wchar_cvstring, NDR_POINTER_REF, 
 		"User Name", hf_netlogon_acct_name, 
-		cb_str_postprocess, GINT_TO_POINTER(CB_STR_COL_INFO | 1));
+		cb_wstr_postprocess, GINT_TO_POINTER(CB_STR_COL_INFO | 1));
 
 	offset = netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvb, offset,
 		pinfo, tree, drep);

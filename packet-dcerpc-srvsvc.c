@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.54 2003/04/26 00:44:20 sharpe Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.55 2003/04/27 00:49:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2948,13 +2948,13 @@ srvsvc_dissect_netrsharegetinfo_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
-		"Server", hf_srvsvc_server, cb_str_postprocess,
+		"Server", hf_srvsvc_server, cb_wstr_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
 
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_REF,
-		"Share", hf_srvsvc_share, cb_str_postprocess,
+		"Share", hf_srvsvc_share, cb_wstr_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -5295,7 +5295,7 @@ srvsvc_dissect_netrservergetinfo_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
-		"Server", hf_srvsvc_server, cb_str_postprocess,
+		"Server", hf_srvsvc_server, cb_wstr_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,

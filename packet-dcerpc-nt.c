@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.70 2003/04/27 00:34:27 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.71 2003/04/27 00:49:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,7 +114,7 @@ dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
 	 */
 	return dissect_ndr_counted_string_cb(
 		tvb, offset, pinfo, subtree, drep, hf_index,
-		cb_str_postprocess, GINT_TO_POINTER(2 + levels));
+		cb_wstr_postprocess, GINT_TO_POINTER(2 + levels));
 }
 
 /* Dissect a counted string in-line. */
@@ -663,7 +663,7 @@ dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  * Helper routines for dissecting NDR strings
  */
 
-void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
+void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			proto_item *item, tvbuff_t *tvb, 
 			int start_offset, int end_offset,
 			void *callback_args)
@@ -723,6 +723,64 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	g_free(s);
 }
 
+void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
+			proto_item *item, tvbuff_t *tvb, 
+			int start_offset, int end_offset,
+			void *callback_args)
+{
+	gint options = GPOINTER_TO_INT(callback_args);
+	gint levels = CB_STR_ITEM_LEVELS(options);
+	char *s;
+
+	/* Align start_offset on 4-byte boundary. */
+
+	if (start_offset % 4)
+		start_offset += 4 - (start_offset % 4);
+
+	/* Get string value */
+
+	if ((end_offset - start_offset) <= 12)
+		return;		/* XXX: Use unistr2 dissector instead? */
+
+	s = tvb_get_ptr(tvb, start_offset + 12, (end_offset - start_offset - 12) );
+
+	/* Append string to COL_INFO */
+
+	if (options & CB_STR_COL_INFO) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+	}
+
+	/* Append string to upper-level proto_items */
+
+	if (levels > 0 && item && s && s[0]) {
+		proto_item_append_text(item, ": %s", s);
+		item = item->parent;
+		levels--;
+		if (levels > 0) {
+			proto_item_append_text(item, ": %s", s);
+			item = item->parent;
+			levels--;
+			while (levels > 0) {
+				proto_item_append_text(item, " %s", s);
+				item = item->parent;
+				levels--;
+			}
+		}
+	}
+
+	/* Save string to dcv->private_data */
+
+	if (options & CB_STR_SAVE) {
+		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+		
+		dcv->private_data = g_strdup(s);
+	}
+
+	g_free(s);
+}
+
 /* Dissect a pointer to a NDR string and append the string value to the
    proto_item. */
 
@@ -734,7 +792,7 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 	return dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, 
 		dissect_ndr_wchar_cvstring, type, text, hf_index, 
-		cb_str_postprocess, GINT_TO_POINTER(levels + 1));
+		cb_wstr_postprocess, GINT_TO_POINTER(levels + 1));
 }
 
 /*

@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.41 2003/02/08 09:41:44 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.42 2003/04/27 00:49:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -185,6 +185,10 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 #define CB_STR_COL_INFO 0x10000	/* Append string to COL_INFO */
 #define CB_STR_SAVE     0x20000	/* Save string to dcv->private_data */
 
+void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
+			proto_item *item, tvbuff_t *tvb, 
+			int start_offset, int end_offset,
+			void *callback_args);
 void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			proto_item *item, tvbuff_t *tvb, 
 			int start_offset, int end_offset,
