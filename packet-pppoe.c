@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.13 2000/11/19 08:54:02 guy Exp $
+ * $Id: packet-pppoe.c,v 1.14 2001/01/04 04:15:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,8 +36,12 @@
 #include "packet.h"
 #include "strutil.h"
 
+static int proto_pppoed = -1;
+
 static gint ett_pppoed = -1;
 static gint ett_pppoed_tags = -1;
+
+static int proto_pppoes = -1;
 
 static dissector_handle_t payload_ppp_handle;
 
@@ -159,40 +163,66 @@ dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
 
+	CHECK_DISPLAY_AS_DATA(proto_pppoed, tvb, pinfo, tree);
+
 	pinfo->current_proto = "PPPoED";
+
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_set_str(pinfo->fd,COL_PROTOCOL, "PPPoED");
+	}
+	if (check_col(pinfo->fd,COL_INFO)) {
+		col_clear(pinfo->fd,COL_INFO);
+	}
 
 	/* Start Decoding Here. */
 	pppoe_ver_type = tvb_get_guint8(tvb, 0);
 	pppoe_ver = (pppoe_ver_type >> 4) & 0x0f;
 	pppoe_type = pppoe_ver_type & 0x0f;
 	pppoe_code = tvb_get_guint8(tvb, 1);
-	pppoe_session_id = tvb_get_ntohs(tvb, 2);
-	pppoe_length = tvb_get_ntohs(tvb, 4);
-
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd,COL_PROTOCOL, "PPPoED");
-	}
 
 	if (check_col(pinfo->fd,COL_INFO)) {
 		col_add_fstr(pinfo->fd,COL_INFO,pppoecode_to_str(pppoe_code,"Unknown code (0x%02x)"));
 	}
 
+	pppoe_session_id = tvb_get_ntohs(tvb, 2);
+	pppoe_length = tvb_get_ntohs(tvb, 4);
+
 	if (tree) {
-		ti = proto_tree_add_text(tree, tvb,0,pppoe_length+6,"PPPoE Discovery");
+		ti = proto_tree_add_item(tree, proto_pppoed, tvb,0,
+			pppoe_length+6, FALSE);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
 		proto_tree_add_text(pppoe_tree, tvb,0,1,
-			"Version: %d", pppoe_ver);
+			"Version: %u", pppoe_ver);
 		proto_tree_add_text(pppoe_tree, tvb,0,1,
-			"Type: %d", pppoe_type);
+			"Type: %u", pppoe_type);
 		proto_tree_add_text(pppoe_tree, tvb,1,1,
 			"Code: %s", pppoecode_to_str(pppoe_code,"Unknown (0x%02x)"));
 		proto_tree_add_text(pppoe_tree, tvb,2,2,
 			"Session ID: %04x", pppoe_session_id);
 		proto_tree_add_text(pppoe_tree, tvb,4,2,
-			"Payload Length: %d", pppoe_length);
+			"Payload Length: %u", pppoe_length);
 	}
 	dissect_pppoe_tags(tvb,6,pinfo,tree,6+pppoe_length);
+}
 
+void
+proto_register_pppoed(void)
+{
+	static gint *ett[] = {
+		&ett_pppoed,
+		&ett_pppoed_tags,
+	};
+
+	proto_pppoed = proto_register_protocol("PPP-over-Ethernet Discovery",
+	    "PPPoED", "pppoed");
+
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_pppoed(void)
+{
+	dissector_add("ethertype", ETHERTYPE_PPPOED, dissect_pppoed);
 }
 
 static void
@@ -208,27 +238,34 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_item  *ti;
 	tvbuff_t    *next_tvb;
 
+	CHECK_DISPLAY_AS_DATA(proto_pppoes, tvb, pinfo, tree);
+
 	pinfo->current_proto = "PPPoES";
+
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_set_str(pinfo->fd,COL_PROTOCOL, "PPPoES");
+	}
+	if (check_col(pinfo->fd,COL_INFO)) {
+		col_clear(pinfo->fd,COL_INFO);
+	}
 
 	/* Start Decoding Here. */
 	pppoe_ver_type = tvb_get_guint8(tvb, 0);
 	pppoe_ver = (pppoe_ver_type >> 4) & 0x0f;
 	pppoe_type = pppoe_ver_type & 0x0f;
 	pppoe_code = tvb_get_guint8(tvb, 1);
-	pppoe_session_id = tvb_get_ntohs(tvb, 2);
-	pppoe_length = tvb_get_ntohs(tvb, 4);
-
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd,COL_PROTOCOL, "PPPoES");
-	}
 
 	if (check_col(pinfo->fd,COL_INFO)) {
 		col_add_fstr(pinfo->fd,COL_INFO,
 		    pppoecode_to_str(pppoe_code,"Unknown code (0x%02x)"));
 	}
 
+	pppoe_session_id = tvb_get_ntohs(tvb, 2);
+	pppoe_length = tvb_get_ntohs(tvb, 4);
+
 	if (tree) {
-		ti = proto_tree_add_text(tree, tvb,0,pppoe_length+6,"PPPoE Session");
+		ti = proto_tree_add_item(tree, proto_pppoes, tvb,0,
+			pppoe_length+6, FALSE);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
 		proto_tree_add_text(pppoe_tree, tvb,0,1,
 			"Version: %u", pppoe_ver);
@@ -249,22 +286,16 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	next_tvb = tvb_new_subset(tvb,6,-1,-1);
 	call_dissector(payload_ppp_handle,next_tvb,pinfo,tree);
 }
-
 void
-proto_register_pppoed(void)
+proto_register_pppoes(void)
 {
-	static gint *ett[] = {
-		&ett_pppoed,
-		&ett_pppoed_tags,
-	};
-
-	proto_register_subtree_array(ett, array_length(ett));
+	proto_pppoes = proto_register_protocol("PPP-over-Ethernet Session",
+	    "PPPoES", "pppoes");
 }
 
 void
-proto_reg_handoff_pppoe(void)
+proto_reg_handoff_pppoes(void)
 {
-	dissector_add("ethertype", ETHERTYPE_PPPOED, dissect_pppoed);
 	dissector_add("ethertype", ETHERTYPE_PPPOES, dissect_pppoes);
 
 	/*
