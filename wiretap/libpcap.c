@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.25 1999/12/04 08:32:13 guy Exp $
+ * $Id: libpcap.c,v 1.26 1999/12/04 09:38:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -479,7 +479,7 @@ static const int wtap_encap[] = {
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int libpcap_dump_can_dump_encap(int filetype, int encap)
+int libpcap_dump_can_write_encap(int filetype, int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
 	if (encap == WTAP_ENCAP_PER_PACKET)

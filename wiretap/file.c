@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.34 1999/12/04 08:51:52 guy Exp $
+ * $Id: file.c,v 1.35 1999/12/04 09:38:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -174,7 +174,7 @@ success:
 /* Table of the file types we know about. */
 const static struct file_type_info {
 	const char *name;
-	int	(*can_dump_encap)(int, int);
+	int	(*can_write_encap)(int, int);
 	int	(*dump_open)(wtap_dumper *, int *);
 } dump_open_table[WTAP_NUM_FILE_TYPES] = {
 	/* WTAP_FILE_UNKNOWN */
@@ -187,7 +187,7 @@ const static struct file_type_info {
 
 	/* WTAP_FILE_PCAP */
 	{ "libpcap (tcpdump)",
-	  libpcap_dump_can_dump_encap, libpcap_dump_open },
+	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_MODIFIED */
 	{ "modified libpcap (tcpdump)",
@@ -203,7 +203,7 @@ const static struct file_type_info {
 
 	/* WTAP_FILE_SNOOP */
 	{ "snoop",
-	  snoop_dump_can_dump_encap, snoop_dump_open },
+	  snoop_dump_can_write_encap, snoop_dump_open },
 
 	/* WTAP_FILE_IPTRACE_1_0 */
 	{ "AIX iptrace 1.0",
@@ -215,7 +215,7 @@ const static struct file_type_info {
 
 	/* WTAP_FILE_NETMON_1_x */
 	{ "Microsoft Network Monitor 1.x",
-	  netmon_dump_can_dump_encap, netmon_dump_open },
+	  netmon_dump_can_write_encap, netmon_dump_open },
 
 	/* WTAP_FILE_NETMON_2_x */
 	{ "Microsoft Network Monitor 2.x",
@@ -259,7 +259,7 @@ const char *wtap_file_type_string(int filetype)
 		return dump_open_table[filetype].name;
 }
 
-gboolean wtap_can_open(int filetype)
+gboolean wtap_dump_can_open(int filetype)
 {
 	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
 	    || dump_open_table[filetype].dump_open == NULL)
@@ -268,13 +268,13 @@ gboolean wtap_can_open(int filetype)
 	return TRUE;
 }
 
-gboolean wtap_can_dump_encap(int filetype, int encap)
+gboolean wtap_dump_can_write_encap(int filetype, int encap)
 {
 	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
-	    || dump_open_table[filetype].can_dump_encap == NULL)
+	    || dump_open_table[filetype].can_write_encap == NULL)
 		return FALSE;
 
-	if ((*dump_open_table[filetype].can_dump_encap)(filetype, encap) != 0)
+	if ((*dump_open_table[filetype].can_write_encap)(filetype, encap) != 0)
 		return FALSE;
 
 	return TRUE;
@@ -332,7 +332,7 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 
 	/* OK, we know how to write that type; can we write the specified
 	   encapsulation type? */
-	*err = (*dump_open_table[filetype].can_dump_encap)(filetype, encap);
+	*err = (*dump_open_table[filetype].can_write_encap)(filetype, encap);
 	if (*err != 0) {
 		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
 		   will be closed if we can't write that encapsulation type. */

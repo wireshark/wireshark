@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.20 1999/12/04 08:32:12 guy Exp $
+ * $Id: netmon.c,v 1.21 1999/12/04 09:38:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -390,7 +390,7 @@ static const int wtap_encap[] = {
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int netmon_dump_can_dump_encap(int filetype, int encap)
+int netmon_dump_can_write_encap(int filetype, int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
 	if (encap == WTAP_ENCAP_PER_PACKET)
