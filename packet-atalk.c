@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.23 1999/12/06 18:33:49 gram Exp $
+ * $Id: packet-atalk.c,v 1.24 1999/12/08 23:21:08 nneul Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -103,8 +103,28 @@ static const value_string op_vals[] = {
   {DDP_RTMPREQ, "AppleTalk Routing Table request"},
   {DDP_ZIP, "AppleTalk Zone Information Protocol packet"},
   {DDP_ADSP, "AppleTalk Data Stream Protocol"},
+
+  /* these are all guesses based on the genbroad.snoop sample capture */
+  {0x74, "First Class"},
+  {0x32, "StarNine Key"},
+  {0x34, "StarNine Key"},
+  {0x61, "StarNine Key"},
+  {0x45, "Printer Queue"},
+  {0x43, "Calendar"},
   {0, NULL}
 };
+
+static void
+dissect_rtmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+  dissect_data(pd, offset, fd, tree);
+  return;
+}
+
+static void
+dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+  dissect_data(pd, offset, fd, tree); 
+  return;
+}
 
 void
 dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -159,7 +179,17 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   offset += DDP_HEADER_SIZE;
 
-  dissect_data(pd, offset, fd, tree);
+  switch ( ddp.type ) {
+    case DDP_NBP:
+      dissect_ddp(pd, offset, fd, tree);
+      break;
+    case DDP_RTMPREQ:
+      dissect_rtmp(pd, offset, fd, tree);
+      break;
+    default:
+      dissect_data(pd, offset, fd, tree);
+      break;
+  }
 }
 
 void
