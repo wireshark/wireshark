@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.77 2002/06/10 15:45:30 gram Exp $
+ * $Id: libpcap.c,v 1.78 2002/06/13 11:03:23 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -121,6 +121,130 @@ static const struct {
 #else
 	{ 10,		WTAP_ENCAP_FDDI },
 #endif
+
+	/*
+	 * 50 is DLT_PPP_SERIAL in NetBSD; it appears that DLT_PPP
+	 * on BSD (at least according to standard tcpdump) has, as
+	 * the first octet, an indication of whether the packet was
+	 * transmitted or received (rather than having the standard
+	 * PPP address value of 0xff), but that DLT_PPP_SERIAL puts
+	 * a real live PPP header there, or perhaps a Cisco PPP header
+	 * as per section 4.3.1 of RFC 1547 (implementations of this
+	 * exist in various BSDs in "sys/net/if_spppsubr.c", and
+	 * I think also exist either in standard Linux or in
+	 * various Linux patches; the implementations show how to handle
+	 * Cisco keepalive packets).
+	 *
+	 * However, I don't see any obvious place in FreeBSD "if_ppp.c"
+	 * where anything other than the standard PPP header would be
+	 * passed up.  I see some stuff that sets the first octet
+	 * to 0 for incoming and 1 for outgoing packets before applying
+	 * a BPF filter to see whether to drop packets whose protocol
+	 * field has the 0x8000 bit set, i.e. network control protocols -
+	 * those are handed up to userland - but that code puts the
+	 * address field back before passing the packet up.
+	 *
+	 * I also don't see anything immediately obvious that munges
+	 * the address field for sync PPP, either.
+	 *
+	 * Ethereal currently assumes that if the first octet of a
+	 * PPP frame is 0xFF, it's the address field and is followed
+	 * by a control field and a 2-byte protocol, otherwise the
+	 * address and control fields are absent and the frame begins
+	 * with a protocol field.  If we ever see a BSD/OS PPP
+	 * capture, we'll have to handle it differently, and we may
+	 * have to handle standard BSD captures differently if, in fact,
+	 * they don't have 0xff 0x03 as the first two bytes - but, as per
+	 * the two paragraphs preceding this, it's not clear that
+	 * the address field *is* munged into an incoming/outgoing
+	 * field when the packet is handed to the BPF device.
+	 *
+	 * For now, we just map DLT_PPP_SERIAL to WTAP_ENCAP_PPP, as
+	 * we treat WTAP_ENCAP_PPP packets as if those beginning with
+	 * 0xff have the standard RFC 1662 "PPP in HDLC-like Framing"
+	 * 0xff 0x03 address/control header, and DLT_PPP_SERIAL frames
+	 * appear to contain that unless they're Cisco frames (if we
+	 * ever see a capture with them, we'd need to implement the
+	 * RFC 1547 stuff, and the keepalive protocol stuff).
+	 *
+	 * We may have to distinguish between "PPP where if it doesn't
+	 * begin with 0xff there's no HDLC encapsulation and the frame
+	 * begins with the protocol field" (which is how we handle
+	 * WTAP_ENCAP_PPP now) and "PPP where there's either HDLC
+	 * encapsulation or Cisco PPP" (which is what DLT_PPP_SERIAL
+	 * is) at some point.
+	 *
+	 * XXX - NetBSD has DLT_HDLC, which appears to be used for
+	 * Cisco HDLC.  Ideally, they should use DLT_PPP_SERIAL
+	 * only for real live HDLC-encapsulated PPP, not for Cisco
+	 * HDLC.
+	 */
+	{ 50,		WTAP_ENCAP_PPP },
+
+	/*
+	 * These are the values that libpcap 0.5 and later use in
+	 * capture file headers, in an attempt to work around the
+	 * confusion decried above, and that Wiretap and Ethereal
+	 * currently support.
+	 */
+	{ 100,		WTAP_ENCAP_ATM_RFC1483 },
+	{ 101,		WTAP_ENCAP_RAW_IP },
+#if 0
+	/*
+	 * More values used by libpcap 0.5 as DLT_ values and used by the
+	 * current CVS version of libpcap in capture file headers.
+	 * They are not yet handled in Ethereal.
+	 * If we get a capture that contains them, we'll implement them.
+	 */
+	{ 102,		WTAP_ENCAP_SLIP_BSDOS },
+	{ 103,		WTAP_ENCAP_PPP_BSDOS },
+#endif
+
+	/*
+	 * These ones are handled in Ethereal, though.
+	 */
+	{ 104,		WTAP_ENCAP_CHDLC },	/* Cisco HDLC */
+	{ 105,		WTAP_ENCAP_IEEE_802_11 }, /* IEEE 802.11 */
+	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
+	{ 107,		WTAP_ENCAP_FRELAY },	/* Frame Relay */
+	{ 108,		WTAP_ENCAP_NULL },	/* OpenBSD loopback */
+#if 0
+	{ 109,		WTAP_ENCAP_ENC },	/* OpenBSD IPSEC enc */
+	{ 110,		WTAP_ENCAP_LANE_802_3 },/* ATM LANE 802.3 */
+	{ 111,		WTAP_ENCAP_HIPPI },	/* NetBSD HIPPI */
+#endif
+	{ 112,		WTAP_ENCAP_CHDLC },	/* NetBSD HDLC framing */
+
+	/*
+	 * Linux "cooked mode" captures, used by the current CVS version
+	 * of libpcap.
+	 */
+	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
+
+	{ 114,		WTAP_ENCAP_LOCALTALK },	/* Localtalk */
+
+	/*
+	 * The tcpdump.org version of libpcap uses 117, rather than 17,
+	 * for OpenBSD packet filter logging, so as to avoid conflicting
+	 * with DLT_LANE8023 in SuSE 6.3 libpcap.
+	 */
+	{ 117,		WTAP_ENCAP_PFLOG },
+
+	{ 118,		WTAP_ENCAP_CISCO_IOS },
+	{ 119,		WTAP_ENCAP_PRISM_HEADER }, /* Prism monitor mode hdr */
+	{ 121,		WTAP_ENCAP_HHDLC },	/* HiPath HDLC */
+	{ 123,		WTAP_ENCAP_ATM_SNIFFER }, /* SunATM */
+
+	/*
+	 * The following are entries for libpcap type values that have
+	 * different meanings on different OSes.
+	 *
+	 * We put these *after* the entries for the platform-independent
+	 * libpcap type values for those Wiretap encapsulation types, so
+	 * that Ethereal chooses the platform-independent libpcap type
+	 * value for those encapsulatioin types, not the platform-dependent
+	 * one.
+	 */
 
 	/*
 	 * 11 is DLT_ATM_RFC1483 on most platforms; the only libpcaps I've
@@ -271,122 +395,6 @@ static const struct {
 	 * purpose - hopefully nobody will do so in the future.
 	 */
 	{ 19,		WTAP_ENCAP_LINUX_ATM_CLIP },
-
-	/*
-	 * 50 is DLT_PPP_SERIAL in NetBSD; it appears that DLT_PPP
-	 * on BSD (at least according to standard tcpdump) has, as
-	 * the first octet, an indication of whether the packet was
-	 * transmitted or received (rather than having the standard
-	 * PPP address value of 0xff), but that DLT_PPP_SERIAL puts
-	 * a real live PPP header there, or perhaps a Cisco PPP header
-	 * as per section 4.3.1 of RFC 1547 (implementations of this
-	 * exist in various BSDs in "sys/net/if_spppsubr.c", and
-	 * I think also exist either in standard Linux or in
-	 * various Linux patches; the implementations show how to handle
-	 * Cisco keepalive packets).
-	 *
-	 * However, I don't see any obvious place in FreeBSD "if_ppp.c"
-	 * where anything other than the standard PPP header would be
-	 * passed up.  I see some stuff that sets the first octet
-	 * to 0 for incoming and 1 for outgoing packets before applying
-	 * a BPF filter to see whether to drop packets whose protocol
-	 * field has the 0x8000 bit set, i.e. network control protocols -
-	 * those are handed up to userland - but that code puts the
-	 * address field back before passing the packet up.
-	 *
-	 * I also don't see anything immediately obvious that munges
-	 * the address field for sync PPP, either.
-	 *
-	 * Ethereal currently assumes that if the first octet of a
-	 * PPP frame is 0xFF, it's the address field and is followed
-	 * by a control field and a 2-byte protocol, otherwise the
-	 * address and control fields are absent and the frame begins
-	 * with a protocol field.  If we ever see a BSD/OS PPP
-	 * capture, we'll have to handle it differently, and we may
-	 * have to handle standard BSD captures differently if, in fact,
-	 * they don't have 0xff 0x03 as the first two bytes - but, as per
-	 * the two paragraphs preceding this, it's not clear that
-	 * the address field *is* munged into an incoming/outgoing
-	 * field when the packet is handed to the BPF device.
-	 *
-	 * For now, we just map DLT_PPP_SERIAL to WTAP_ENCAP_PPP, as
-	 * we treat WTAP_ENCAP_PPP packets as if those beginning with
-	 * 0xff have the standard RFC 1662 "PPP in HDLC-like Framing"
-	 * 0xff 0x03 address/control header, and DLT_PPP_SERIAL frames
-	 * appear to contain that unless they're Cisco frames (if we
-	 * ever see a capture with them, we'd need to implement the
-	 * RFC 1547 stuff, and the keepalive protocol stuff).
-	 *
-	 * We may have to distinguish between "PPP where if it doesn't
-	 * begin with 0xff there's no HDLC encapsulation and the frame
-	 * begins with the protocol field" (which is how we handle
-	 * WTAP_ENCAP_PPP now) and "PPP where there's either HDLC
-	 * encapsulation or Cisco PPP" (which is what DLT_PPP_SERIAL
-	 * is) at some point.
-	 *
-	 * XXX - NetBSD has DLT_HDLC, which appears to be used for
-	 * Cisco HDLC.  Ideally, they should use DLT_PPP_SERIAL
-	 * only for real live HDLC-encapsulated PPP, not for Cisco
-	 * HDLC.
-	 */
-	{ 50,		WTAP_ENCAP_PPP },
-
-	/*
-	 * These are the values that libpcap 0.5 uses, in an attempt
-	 * to work around the confusion decried above, and that Wiretap
-	 * and Ethereal currently support.
-	 *
-	 * The next version of libpcap will probably not use them as
-	 * DLT_ values in its API, but will probably use them in capture
-	 * file headers.
-	 */
-	{ 100,		WTAP_ENCAP_ATM_RFC1483 },
-	{ 101,		WTAP_ENCAP_RAW_IP },
-#if 0
-	/*
-	 * More values used by libpcap 0.5 as DLT_ values and used by the
-	 * current CVS version of libpcap in capture file headers.
-	 * They are not yet handled in Ethereal.
-	 * If we get a capture that contains them, we'll implement them.
-	 */
-	{ 102,		WTAP_ENCAP_SLIP_BSDOS },
-	{ 103,		WTAP_ENCAP_PPP_BSDOS },
-#endif
-
-	/*
-	 * These ones are handled in Ethereal, though.
-	 */
-	{ 104,		WTAP_ENCAP_CHDLC },	/* Cisco HDLC */
-	{ 105,		WTAP_ENCAP_IEEE_802_11 }, /* IEEE 802.11 */
-	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
-	{ 107,		WTAP_ENCAP_FRELAY },	/* Frame Relay */
-	{ 108,		WTAP_ENCAP_NULL },	/* OpenBSD loopback */
-#if 0
-	{ 109,		WTAP_ENCAP_ENC },	/* OpenBSD IPSEC enc */
-	{ 110,		WTAP_ENCAP_LANE_802_3 },/* ATM LANE 802.3 */
-	{ 111,		WTAP_ENCAP_HIPPI },	/* NetBSD HIPPI */
-#endif
-	{ 112,		WTAP_ENCAP_CHDLC },	/* NetBSD HDLC framing */
-
-	/*
-	 * Linux "cooked mode" captures, used by the current CVS version
-	 * of libpcap.
-	 */
-	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
-
-	{ 114,		WTAP_ENCAP_LOCALTALK },	/* Localtalk */
-
-	/*
-	 * The tcpdump.org version of libpcap uses 117, rather than 17,
-	 * for OpenBSD packet filter logging, so as to avoid conflicting
-	 * with DLT_LANE8023 in SuSE 6.3 libpcap.
-	 */
-	{ 117,		WTAP_ENCAP_PFLOG },
-
-	{ 118,		WTAP_ENCAP_CISCO_IOS },
-	{ 119,		WTAP_ENCAP_PRISM_HEADER }, /* Prism monitor mode hdr */
-	{ 121,		WTAP_ENCAP_HHDLC },	/* HiPath HDLC */
-	{ 123,		WTAP_ENCAP_ATM_SNIFFER }, /* SunATM */
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
 
