@@ -34,6 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <ipproto.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_ax4000 = -1;
@@ -164,7 +165,6 @@ proto_register_ax4000(void)
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
-#define AX4000_IP_PROTO 0xAD /* not assigned by IANA*/
 #define AX4000_TCP_PORT 3357 /* assigned by IANA */
 #define AX4000_UDP_PORT 3357 /* assigned by IANA */
 
@@ -175,7 +175,7 @@ proto_reg_handoff_ax4000(void)
 
 	ax4000_handle = create_dissector_handle(dissect_ax4000,
 	    proto_ax4000);
-	dissector_add("ip.proto", AX4000_IP_PROTO, ax4000_handle);
+	dissector_add("ip.proto", IP_PROTO_AX4000, ax4000_handle);
 	dissector_add("tcp.port", AX4000_TCP_PORT, ax4000_handle);
 	dissector_add("udp.port", AX4000_UDP_PORT, ax4000_handle);
 }
