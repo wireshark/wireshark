@@ -1,9 +1,9 @@
 /* packet-lapbether.c
  * Routines for lapbether frame disassembly
  * Richard Sharpe <rsharpe@ns.aus.com> based on the lapb module by
- * Olivier Abad <oabad@cybercable.fr>
+ * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-lapbether.c,v 1.11 2002/08/28 21:00:19 jmayer Exp $
+ * $Id: packet-lapbether.c,v 1.12 2002/09/01 14:30:30 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

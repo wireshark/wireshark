@@ -1,9 +1,9 @@
 /* packet-ddtp.c
  * Routines for DDTP (Dynamic DNS Tools Protocol) packet disassembly
  * see http://ddt.sourceforge.net/
- * Olivier Abad <oabad@cybercable.fr>
+ * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-ddtp.c,v 1.22 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-ddtp.c,v 1.23 2002/09/01 14:30:30 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
