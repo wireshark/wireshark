@@ -1,6 +1,9 @@
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
+ * Based on the dissector by:
+ * Felix Fei <felix.fei [AT] utstar.com>
+ * and Michael Lum <mlum [AT] telostech.com>
  *
  * $Id$
  *
@@ -30,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 
@@ -50,7 +54,7 @@ static int hf_gsm_map_invokeid = -1;              /* INTEGER */
 static int hf_gsm_map_absent = -1;                /* NULL */
 static int hf_gsm_map_invokeId = -1;              /* InvokeId */
 static int hf_gsm_map_invoke = -1;                /* InvokePDU */
-static int hf_gsm_map_returnResult = -1;                /* InvokePDU */
+static int hf_gsm_map_returnResult = -1;          /* InvokePDU */
 static int hf_gsm_map_returnResult_result = -1;
 static int hf_gsm_map_getPassword = -1;  
 static int hf_gsm_map_currentPassword = -1;  
@@ -67,6 +71,19 @@ static int gsm_map_tap = -1;
 #include "packet-gsm_map-ett.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
+/* Preferenc settings default */
+static guint tcap_itu_ssn1 = 6;
+static guint tcap_itu_ssn2 = 7;
+static guint tcap_itu_ssn3 = 8;
+static guint tcap_itu_ssn4 = 9;
+
+static guint global_tcap_itu_ssn1 = 6;
+static guint global_tcap_itu_ssn2 = 7;
+static guint global_tcap_itu_ssn3 = 8;
+static guint global_tcap_itu_ssn4 = 9;
+
+/* Global variables */
+static proto_tree *top_tree;
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
@@ -739,6 +756,8 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
     }
 
+	top_tree = parent_tree;
+
     /* create display subtree for the protocol */
     if(parent_tree){
        item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, FALSE);
@@ -873,9 +892,37 @@ static const value_string Teleservice_vals[] = {
 {0xdf, "plmn-specificTS-F" },
   { 0, NULL }
 };
+/*--- proto_reg_handoff_gsm_map ---------------------------------------*/
+void proto_reg_handoff_gsm_map(void) {
+    dissector_handle_t	map_handle;
+	static int map_prefs_initialized = FALSE;
+
+    map_handle = create_dissector_handle(dissect_gsm_map, proto_gsm_map);
+
+	if (!map_prefs_initialized) {
+		map_prefs_initialized = TRUE;
+	}
+	else {
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn1, map_handle);
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn2, map_handle);
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn3, map_handle);
+		dissector_delete("tcap.itu_ssn", tcap_itu_ssn4, map_handle);
+	}
+		/* Set our sub system number for future use */
+	tcap_itu_ssn1 = global_tcap_itu_ssn1;
+	tcap_itu_ssn2 = global_tcap_itu_ssn2;
+	tcap_itu_ssn3 = global_tcap_itu_ssn3;
+	tcap_itu_ssn4 = global_tcap_itu_ssn4;
+
+    dissector_add("tcap.itu_ssn", tcap_itu_ssn1, map_handle);
+    dissector_add("tcap.itu_ssn", tcap_itu_ssn2, map_handle);
+    dissector_add("tcap.itu_ssn", tcap_itu_ssn3, map_handle);
+    dissector_add("tcap.itu_ssn", tcap_itu_ssn4, map_handle);
+}
 
 /*--- proto_register_gsm_map -------------------------------------------*/
 void proto_register_gsm_map(void) {
+	module_t *gsm_map_module;
 
   /* List of fields */
   static hf_register_info hf[] = {
@@ -934,11 +981,10 @@ void proto_register_gsm_map(void) {
   proto_register_field_array(proto_gsm_map, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  sms_dissector_table =
-	register_dissector_table("gsm_map.sms_tpdu", "GSM SMS TPDU",
-	FT_UINT8, BASE_DEC);
+	sms_dissector_table = register_dissector_table("gsm_map.sms_tpdu", 
+		"GSM SMS TPDU",FT_UINT8, BASE_DEC);
 
-  gsm_map_tap = register_tap("gsm_map");
+	gsm_map_tap = register_tap("gsm_map");
 	register_ber_oid_name("0.4.0.0.1.0.1.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.2.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.2.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version1(1)" );
@@ -974,16 +1020,27 @@ void proto_register_gsm_map(void) {
 	register_ber_oid_name("0.4.0.0.1.0.25.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMT-Relay(25) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.25.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) msPurging(27) version2(2)" );
 
+	/* Register our configuration options, particularly our ssn:s */
+
+	gsm_map_module = prefs_register_protocol(proto_gsm_map, proto_reg_handoff_gsm_map);
+	prefs_register_uint_preference(gsm_map_module, "tcap.itu_ssn1",
+		"Subsystem number used for GSM MAP 1",
+		"Set Subsystem number used for GSM MAP",
+		10, &global_tcap_itu_ssn1);
+	prefs_register_uint_preference(gsm_map_module, "tcap.itu_ssn2",
+		"Subsystem number used for GSM MAP 2",
+		"Set Subsystem number used for GSM MAP",
+		10, &global_tcap_itu_ssn2);
+	prefs_register_uint_preference(gsm_map_module, "tcap.itu_ssn3",
+		"Subsystem number used for GSM MAP 3",
+		"Set Subsystem number used for GSM MAP",
+		10, &global_tcap_itu_ssn3);
+	prefs_register_uint_preference(gsm_map_module, "tcap.itu_ssn4",
+		"Subsystem number used for GSM MAP 4",
+		"Set Subsystem number used for GSM MAP",
+		10, &global_tcap_itu_ssn4);
+
+
 }
 
 
-/*--- proto_reg_handoff_gsm_map ---------------------------------------*/
-void proto_reg_handoff_gsm_map(void) {
-    dissector_handle_t	map_handle;
-
-    map_handle = create_dissector_handle(dissect_gsm_map, proto_gsm_map);
-    dissector_add("tcap.itu_ssn", 6, map_handle);
-    dissector_add("tcap.itu_ssn", 7, map_handle);
-    dissector_add("tcap.itu_ssn", 8, map_handle);
-    dissector_add("tcap.itu_ssn", 9, map_handle);
-}

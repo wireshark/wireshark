@@ -1359,13 +1359,13 @@ RoutingInfoForSMRes ::= SEQUENCE {
 Mo-forwardSM-Arg ::= SEQUENCE {
          sm-RP-DA             Sm-RP-DA, 
          sm-RP-OA             Sm-RP-OA, 
-         sm-RP-UI             OCTET STRING ( SIZE( 1 .. 200 ) ), 
+         sm-RP-UI             Sm-RP-UI, 
          extensionContainer   ExtensionContainer OPTIONAL,
          ... , 
          imsi                 Imsi OPTIONAL}
 --   RESULT
 Mo-forwardSM-Res ::= SEQUENCE {
-         sm-RP-UI             OCTET STRING ( SIZE( 1 .. 200 ) ) OPTIONAL, 
+         sm-RP-UI             Sm-RP-UI OPTIONAL, 
          extensionContainer   ExtensionContainer OPTIONAL,
          ... }
 --   ERRORS {
@@ -1386,18 +1386,21 @@ Sm-RP-DA ::= CHOICE {
             serviceCentreAddressDA     [4] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ), 
             noSM-RP-DA                 [5] IMPLICIT NULL
 }
+
+Sm-RP-UI ::= OCTET STRING ( SIZE( 1 .. 200 ) )
+
 --mt-forwardSM OPERATION
 --   ARGUMENT
 Mt-forwardSM-Arg ::= SEQUENCE {
          sm-RP-DA             Sm-RP-DA, 
          sm-RP-OA             Sm-RP-OA, 
-         sm-RP-UI             OCTET STRING ( SIZE( 1 .. 200 ) ), 
+         sm-RP-UI             Sm-RP-UI, 
          moreMessagesToSend   NULL OPTIONAL, 
          extensionContainer   ExtensionContainer OPTIONAL,
          ... }
 --   RESULT
 Mt-forwardSM-Res ::= SEQUENCE {
-         sm-RP-UI             OCTET STRING ( SIZE( 1 .. 200 ) ) OPTIONAL, 
+         sm-RP-UI             Sm-RP-UI OPTIONAL, 
          extensionContainer   ExtensionContainer OPTIONAL,
          ... }
 --   ERRORS {

@@ -17,7 +17,20 @@
 #.FIELD_RENAME
 RequestedInfo/locationInformation  locationInformationFlag
 RequestedInfo/subscriberState      subscriberStateFlag
+#----------------------------------------------------------------------------------------
+#.FN_BODY Sm-RP-UI
 
+  tvbuff_t	*tpdu_tvb;
+  	
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &tpdu_tvb);
+    /*
+     * dissect the embedded TPDU message
+     */
+
+    dissector_try_port(sms_dissector_table, 0, tpdu_tvb, pinfo, top_tree);
+#.END
+#----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 Ss-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
 Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
