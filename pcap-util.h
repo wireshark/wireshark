@@ -1,7 +1,7 @@
 /* pcap-util.h
  * Utility definitions for packet capture
  *
- * $Id: pcap-util.h,v 1.2 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: pcap-util.h,v 1.3 2003/09/08 21:44:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@ extern "C" {
 
 int get_pcap_linktype(pcap_t *pch, char *devname);
 
+#define MAX_WIN_IF_NAME_LEN 511
 GList *get_interface_list(int *err, char *err_str);
 
 /* Error values from "get_interface_list()". */

@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.14 2003/07/06 00:07:58 guy Exp $
+ * $Id: pcap-util.c,v 1.15 2003/09/08 21:44:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -398,7 +398,6 @@ search_for_if_cb(gpointer data, gpointer user_data)
 		search_user_data->found = TRUE;
 }
 #else /* Windows */
-#define MAX_WIN_IF_NAME_LEN 511
 GList *
 get_interface_list(int *err, char *err_str) {
   GList  *il = NULL;

@@ -1828,6 +1828,12 @@ Brian K. Teravskis <Brian_Teravskis [AT] Cargill.com> {
 	Support for saving RTP analysis data in CSV form
 }
 
+Nathan Jennings <njen [AT] bellsouth.net> {
+	Support for user-supplied interface descriptions
+	Support for hiding interfaces in drop-down list in capture
+	    dialog
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
@@ -1838,7 +1844,6 @@ And assorted fixes and enhancements by the people listed above and by:
 	Marcio Franco <franco.marcio [AT] rd.francetelecom.fr>
 	Kaloian Stoilov <kalkata [AT] yahoo.com>
 	Steven Lass <stevenlass [AT] mail.com>
-	Nathan Jennings <njen [AT] bellsouth.net>
 	Gregory Stark <gsstark [AT] mit.edu>
 	Darren Steele <steeley [AT] steeley.co.uk>
 	<smhuang [AT] pcs.csie.nctu.edu.tw>

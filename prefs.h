@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.44 2003/08/07 00:41:26 guy Exp $
+ * $Id: prefs.h,v 1.45 2003/09/08 21:44:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,9 @@
 
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550
+
+#define MAX_VAR_LEN    48
+#define MAX_VAL_LEN  1024
 
 /*
  * Convert a string listing name resolution types to a bitmask of
@@ -71,6 +74,8 @@ typedef struct _e_prefs {
   guint32  name_resolve;
   gint     name_resolve_concurrency;
   gchar   *capture_device;
+  gchar   *capture_devices_descr;
+  gchar   *capture_devices_hide;
   gboolean capture_prom_mode;
   gboolean capture_real_time;
   gboolean capture_auto_scroll;

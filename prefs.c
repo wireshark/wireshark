@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.105 2003/08/26 05:56:43 guy Exp $
+ * $Id: prefs.c,v 1.106 2003/09/08 21:44:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -842,8 +842,6 @@ print.file: /a/very/long/path/
  *
  */
 
-#define MAX_VAR_LEN    48
-#define MAX_VAL_LEN  1024
 
 #define DEF_NUM_COLS    6
 
@@ -981,6 +979,8 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 
 /* set the default values for the capture dialog box */
     prefs.capture_device           = NULL;
+    prefs.capture_devices_descr    = NULL;
+    prefs.capture_devices_hide     = NULL;
     prefs.capture_prom_mode        = TRUE;
     prefs.capture_real_time        = FALSE;
     prefs.capture_auto_scroll      = FALSE;
@@ -1273,10 +1273,12 @@ prefs_set_pref(char *prefarg)
 #define PRS_CAP_NAME_RESOLVE "capture.name_resolve"
 
 /*  values for the capture dialog box */
-#define PRS_CAP_DEVICE      "capture.device"
-#define PRS_CAP_PROM_MODE   "capture.prom_mode"
-#define PRS_CAP_REAL_TIME   "capture.real_time_update"
-#define PRS_CAP_AUTO_SCROLL "capture.auto_scroll"
+#define PRS_CAP_DEVICE        "capture.device"
+#define PRS_CAP_DEVICES_DESCR "capture.devices_descr"
+#define PRS_CAP_DEVICES_HIDE  "capture.devices_hide"
+#define PRS_CAP_PROM_MODE     "capture.prom_mode"
+#define PRS_CAP_REAL_TIME     "capture.real_time_update"
+#define PRS_CAP_AUTO_SCROLL   "capture.auto_scroll"
 
 #define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
 #define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
@@ -1535,6 +1537,14 @@ set_pref(gchar *pref_name, gchar *value)
     if (prefs.capture_device != NULL)
       g_free(prefs.capture_device);
     prefs.capture_device = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_CAP_DEVICES_DESCR) == 0) {
+    if (prefs.capture_devices_descr != NULL)
+      g_free(prefs.capture_devices_descr);
+    prefs.capture_devices_descr = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_CAP_DEVICES_HIDE) == 0) {
+    if (prefs.capture_devices_hide != NULL)
+      g_free(prefs.capture_devices_hide);
+    prefs.capture_devices_hide = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
     prefs.capture_prom_mode = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
@@ -1945,22 +1955,21 @@ write_prefs(char **pf_path_return)
     "# This file is regenerated each time preferences are saved within\n"
     "# Ethereal.  Making manual changes should be safe, however.\n"
     "\n"
-    "######## Printing ########\n"
-    "\n", pf);
+    "######## Printing ########\n", pf);
 
-  fprintf (pf, "# Can be one of \"text\" or \"postscript\".\n"
-    "print.format: %s\n\n", pr_formats[prefs.pr_format]);
+  fprintf (pf, "\n# Can be one of \"text\" or \"postscript\".\n"
+    "print.format: %s\n", pr_formats[prefs.pr_format]);
 
-  fprintf (pf, "# Can be one of \"command\" or \"file\".\n"
-    "print.destination: %s\n\n", pr_dests[prefs.pr_dest]);
+  fprintf (pf, "\n# Can be one of \"command\" or \"file\".\n"
+    "print.destination: %s\n", pr_dests[prefs.pr_dest]);
 
-  fprintf (pf, "# This is the file that gets written to when the "
+  fprintf (pf, "\n# This is the file that gets written to when the "
     "destination is set to \"file\"\n"
-    "%s: %s\n\n", PRS_PRINT_FILE, prefs.pr_file);
+    "%s: %s\n", PRS_PRINT_FILE, prefs.pr_file);
 
-  fprintf (pf, "# Output gets piped to this command when the destination "
+  fprintf (pf, "\n# Output gets piped to this command when the destination "
     "is set to \"command\"\n"
-    "%s: %s\n\n", PRS_PRINT_CMD, prefs.pr_cmd);
+    "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
 
   clp = prefs.col_list;
   col_l = NULL;
@@ -1970,16 +1979,16 @@ write_prefs(char **pf_path_return)
     col_l = g_list_append(col_l, cfmt->fmt);
     clp = clp->next;
   }
-  fprintf (pf, "# Packet list column format.  Each pair of strings consists "
-    "of a column title \n# and its format.\n"
-    "%s: %s\n\n", PRS_COL_FMT, put_string_list(col_l));
+  fprintf (pf, "\n# Packet list column format.\n");
+  fprintf (pf, "# Each pair of strings consists of a column title and its format.\n");
+  fprintf (pf, "%s: %s\n", PRS_COL_FMT, put_string_list(col_l));
   /* This frees the list of strings, but not the strings to which it
      refers; that's what we want, as we haven't copied those strings,
      we just referred to them.  */
   g_list_free(col_l);
 
-  fprintf (pf, "# TCP stream window color preferences.  Each value is a six "
-    "digit hexadecimal value in the form rrggbb.\n");
+  fprintf (pf, "\n# TCP stream window color preferences.\n");
+  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_FG,
     (prefs.st_client_fg.red * 255 / 65535),
     (prefs.st_client_fg.green * 255 / 65535),
@@ -1997,39 +2006,46 @@ write_prefs(char **pf_path_return)
     (prefs.st_server_bg.green * 255 / 65535),
     (prefs.st_server_bg.blue * 255 / 65535));
 
-  fprintf(pf, "\n# Vertical scrollbars should be on right side? TRUE/FALSE\n");
+  fprintf(pf, "\n# Vertical scrollbars should be on right side?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_SCROLLBAR_ON_RIGHT ": %s\n",
 		  prefs.gui_scrollbar_on_right == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# Packet-list selection bar can be used to browse w/o selecting? TRUE/FALSE\n");
+  fprintf(pf, "\n# Packet-list selection bar can be used to browse w/o selecting?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_PLIST_SEL_BROWSE ": %s\n",
 		  prefs.gui_plist_sel_browse == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# Protocol-tree selection bar can be used to browse w/o selecting? TRUE/FALSE\n");
+  fprintf(pf, "\n# Protocol-tree selection bar can be used to browse w/o selecting?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_PTREE_SEL_BROWSE ": %s\n",
 		  prefs.gui_ptree_sel_browse == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# Alternating colors in TreeViews\n");
+  fprintf(pf, "\n# Alternating colors in TreeViews?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_ALTERN_COLORS ": %s\n",
 		  prefs.gui_altern_colors == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# Protocol-tree line style. One of: NONE, SOLID, DOTTED, TABBED\n");
+  fprintf(pf, "\n# Protocol-tree line style.\n");
+  fprintf(pf, "# One of: NONE, SOLID, DOTTED, TABBED\n");
   fprintf(pf, PRS_GUI_PTREE_LINE_STYLE ": %s\n",
           gui_ptree_line_style_text[prefs.gui_ptree_line_style]);
 
-  fprintf(pf, "\n# Protocol-tree expander style. One of: NONE, SQUARE, TRIANGLE, CIRCULAR\n");
+  fprintf(pf, "\n# Protocol-tree expander style.\n");
+  fprintf(pf, "# One of: NONE, SQUARE, TRIANGLE, CIRCULAR\n");
   fprintf(pf, PRS_GUI_PTREE_EXPANDER_STYLE ": %s\n",
 		  gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
 
-  fprintf(pf, "\n# Hex dump highlight style. One of: BOLD, INVERSE\n");
+  fprintf(pf, "\n# Hex dump highlight style.\n");
+  fprintf(pf, "# One of: BOLD, INVERSE\n");
   fprintf(pf, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE ": %s\n",
 		  gui_hex_dump_highlight_style_text[prefs.gui_hex_dump_highlight_style]);
 
   fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes.\n");
   fprintf(pf, PRS_GUI_FONT_NAME ": %s\n", prefs.gui_font_name);
 
-  fprintf (pf, "\n# Color preferences for a marked frame.  Each value is a six "
-    "digit hexadecimal value in the form rrggbb.\n");
+  fprintf (pf, "\n# Color preferences for a marked frame.\n");
+  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_FG,
     (prefs.gui_marked_fg.red * 255 / 65535),
     (prefs.gui_marked_fg.green * 255 / 65535),
@@ -2039,15 +2055,18 @@ write_prefs(char **pf_path_return)
     (prefs.gui_marked_bg.green * 255 / 65535),
     (prefs.gui_marked_bg.blue * 255 / 65535));
 
-  fprintf(pf, "\n# Save window position at exit? TRUE/FALSE\n");
+  fprintf(pf, "\n# Save window position at exit?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_POSITION ": %s\n",
 		  prefs.gui_geometry_save_position == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# Save window size at exit? TRUE/FALSE\n");
+  fprintf(pf, "\n# Save window size at exit?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
 		  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# Main window geometry. Decimal integers.\n");
+  fprintf(pf, "\n# Main window geometry.\n");
+  fprintf(pf, "# Decimal integers.\n");
   fprintf(pf, PRS_GUI_GEOMETRY_MAIN_X ": %d\n", prefs.gui_geometry_main_x);
   fprintf(pf, PRS_GUI_GEOMETRY_MAIN_Y ": %d\n", prefs.gui_geometry_main_y);
   fprintf(pf, PRS_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
@@ -2055,10 +2074,13 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
   		  prefs.gui_geometry_main_height);
 
-  fprintf(pf, "\n# Resolve addresses to names? TRUE/FALSE/{list of address types to resolve}\n");
+  fprintf(pf, "\n# Resolve addresses to names?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive), or a list of address types to resolve.\n");
   fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
 		  name_resolve_to_string(prefs.name_resolve));
-  fprintf(pf, "\n# Name resolution concurrency Decimal integer.\n");
+
+  fprintf(pf, "\n# Name resolution concurrency.\n");
+  fprintf(pf, "# A decimal number.\n");
   fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
 		  prefs.name_resolve_concurrency);
 
@@ -2068,15 +2090,30 @@ write_prefs(char **pf_path_return)
     fprintf(pf, PRS_CAP_DEVICE ": %s\n", prefs.capture_device);
   }
 
-  fprintf(pf, "\n# Capture in promiscuous mode? TRUE/FALSE\n");
+  if (prefs.capture_devices_descr != NULL) {
+    fprintf(pf, "\n# Interface descriptions.\n");
+    fprintf(pf, "# Ex: eth0(eth0 descr),eth1(eth1 descr),...\n");
+    fprintf(pf, PRS_CAP_DEVICES_DESCR ": %s\n", prefs.capture_devices_descr);
+  }
+
+  if (prefs.capture_devices_hide != NULL) {
+    fprintf(pf, "\n# Hide interface?\n");
+    fprintf(pf, "# Ex: eth0,eth3,...\n");
+    fprintf(pf, PRS_CAP_DEVICES_HIDE ": %s\n", prefs.capture_devices_hide);
+  }
+
+  fprintf(pf, "\n# Capture in promiscuous mode?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_PROM_MODE ": %s\n",
 		  prefs.capture_prom_mode == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# Update packet list in real time during capture? TRUE/FALSE\n");
+  fprintf(pf, "\n# Update packet list in real time during capture?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_REAL_TIME ": %s\n",
 		  prefs.capture_real_time == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# scroll packet list during capture? TRUE/FALSE\n");
+  fprintf(pf, "\n# Scroll packet list during capture?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_AUTO_SCROLL ": %s\n",
 		  prefs.capture_auto_scroll == TRUE ? "TRUE" : "FALSE");
 
@@ -2133,6 +2170,8 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_geometry_main_height = src->gui_geometry_main_height;
 /*  values for the capture dialog box */
   dest->capture_device = g_strdup(src->capture_device);
+  dest->capture_devices_descr = g_strdup(src->capture_devices_descr);
+  dest->capture_devices_hide = g_strdup(src->capture_devices_hide);
   dest->capture_prom_mode = src->capture_prom_mode;
   dest->capture_real_time = src->capture_real_time;
   dest->capture_auto_scroll = src->capture_auto_scroll;
@@ -2161,6 +2200,14 @@ free_prefs(e_prefs *pr)
   if (pr->capture_device != NULL) {
     g_free(pr->capture_device);
     pr->capture_device = NULL;
+  }
+  if (pr->capture_devices_descr != NULL) {
+    g_free(pr->capture_devices_descr);
+    pr->capture_devices_descr = NULL;
+  }
+  if (pr->capture_devices_hide != NULL) {
+    g_free(pr->capture_devices_hide);
+    pr->capture_devices_hide = NULL;
   }
 }
 

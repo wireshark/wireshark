@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.79 2003/07/25 04:11:50 gram Exp $
+ * $Id: capture_dlg.c,v 1.80 2003/09/08 21:44:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -103,6 +103,15 @@ capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w);
 
 static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
+
+static GList *
+capture_dev_descr_add(GList *if_list);
+
+static char *
+capture_dev_descr_find(gchar *devs_descr, gchar *if_name);
+
+static GList *
+capture_dev_hide(GList *if_list);
 
 void
 capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -221,8 +230,15 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(if_lb);
 
   if_cb = gtk_combo_new();
-  if (if_list != NULL)
+  if (if_list != NULL) {
+    /* remove interface(s) from list if "hidden" */
+    if (prefs.capture_devices_hide != NULL)
+      if_list = capture_dev_hide(if_list);
+    /* prepend interface descriptions to device name */
+    if (prefs.capture_devices_descr != NULL)
+      if_list = capture_dev_descr_add(if_list);
     gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), if_list);
+  }
   if (cfile.iface == NULL && prefs.capture_device != NULL) {
     /* No interface was specified on the command line or in a previous
        capture, but there is one specified in the preferences file;
@@ -789,7 +805,9 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 
   if_text =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
-  /* Windows combo entries have a description followed by the interface name */
+  /* Remove interface description. Also, Windows combo entries have a 
+     description followed by the interface name. These two cases are
+     OK as long as they're in front (see capture_dev_descr_add()). */
   if_name = strrchr(if_text, ' ');
   if (if_name == NULL) {
     if_name = if_text;
@@ -1055,6 +1073,147 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
   gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_duration_cb)));
 
+}
+
+/*
+ * Prepend capture devices description to interface list. Remove OS (pcap)
+ * supplied description if present.
+ */
+static GList *
+capture_dev_descr_add(GList *if_list)
+{
+
+	GList	*if_new_list = NULL;
+	char	*osd;
+	char	*tmp_descr;
+	gchar	*tmp_devs_descr;
+	gchar	*tmp_dev_name;
+	guint	i;
+	guint	nitems;
+	
+	/* Seems we need to be at list head for g_list_length()? */
+	if_list = g_list_first(if_list);
+	nitems = g_list_length(if_list);
+	
+	/* Create new interface list with "(descr) if_name". */
+	for (i=0; i < nitems; i++) {
+		tmp_dev_name = g_list_nth_data(if_list, i);
+		/* should never happen, but just in case */
+		if (tmp_dev_name == NULL) {
+			if (if_new_list != NULL)
+				free_interface_list(if_new_list);
+			return if_list;
+		}
+		/* create copy since capture_dev_descr_find() inserts terminator */
+		tmp_devs_descr = g_strdup(prefs.capture_devices_descr);
+		/* find matching description */
+		tmp_descr = capture_dev_descr_find(tmp_devs_descr, tmp_dev_name);
+		/* prepend description */
+		if (tmp_descr != NULL) {
+			/* remove OS (pcap) description */
+			if ((osd = strrchr(tmp_dev_name, ' ')) != NULL) {
+				osd++;
+				if (osd != NULL)
+					tmp_dev_name = osd;
+			}
+			if_new_list = g_list_append(if_new_list, 
+				g_strdup_printf("%s %s", tmp_descr, tmp_dev_name));
+		}
+		/* no description for this interface, just copy name */
+		else {
+			if_new_list = g_list_append(if_new_list, g_strdup(tmp_dev_name));
+		}
+		g_free(tmp_devs_descr);
+	}
+	
+	free_interface_list(if_list);
+	/* return pointer to new interface list with descriptions */
+	return if_new_list;
+}
+
+/*
+ * Find capture device description that matches interface name.
+ */
+static char *
+capture_dev_descr_find(gchar *devs_descr, gchar *if_name)
+{
+	char	*p;
+	char	*p2 = NULL;
+	char	*descr = NULL;
+	int		lp = 0;
+	int		ct = 0;
+	
+	if (if_name == NULL)
+		return NULL;
+	
+	if ((p = strstr(devs_descr, if_name)) == NULL)
+		return NULL;
+	
+	while (p != NULL) {
+		/* error: ran into next interface description */
+		if (*p == ',')
+			return NULL;
+		/* found left parenthesis, start of description */
+		else if (*p == '(') {
+			lp++;
+			/* save pointer to beginning of description */
+			p2 = p;
+			p++;
+			continue;
+		}
+		else if (*p == ')') {
+			/* end of description */
+			break;
+		}
+		else {
+			p++;
+			ct++;
+		}
+	}
+	
+	if ((lp == 1) && (ct > 0) && (p2 != NULL)) {
+		/* set returned pointer to beginning of description */
+		descr = p2;
+		/* insert terminator */
+		*(p+1) = '\0';
+		return descr;
+	}
+	else
+		return NULL;
+}
+
+/*
+ * Remove "hidden" interface(s) from list.
+ */
+static GList *
+capture_dev_hide(GList *if_list)
+{
+	GList	*if_new_list = NULL;
+	gchar	*tmp_dev_name;
+	guint	i;
+	guint	nitems;
+	
+	/* Seems we need to be at list head for g_list_length()? */
+	if_list = g_list_first(if_list);
+	nitems = g_list_length(if_list);
+	
+	/* Create new list without "hidden" interfaces. */
+	for (i=0; i < nitems; i++) {
+		tmp_dev_name = g_list_nth_data(if_list, i);
+		/* should never happen, but just in case */
+		if (tmp_dev_name == NULL) {
+			if (if_new_list != NULL)
+				free_interface_list(if_new_list);
+			return if_list;
+		}
+		/* check if interface name is in "hidden" preferences string */
+		if (strstr(prefs.capture_devices_hide, tmp_dev_name) == NULL)
+			if_new_list = g_list_append(if_new_list, g_strdup(tmp_dev_name));
+	}
+	
+	free_interface_list(if_list);
+	/* return pointer to new interface list */
+	return if_new_list;
 }
 
 #endif /* HAVE_LIBPCAP */
