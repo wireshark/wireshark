@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.17 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-pgm.c,v 1.18 2002/08/03 19:50:44 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
 #endif
 
 #include <stdio.h>
