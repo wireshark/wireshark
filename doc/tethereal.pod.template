@@ -35,7 +35,7 @@ how to read B<libpcap> capture files, including those of B<tcpdump>.  In
 addition, B<Tethereal> can read capture files from B<snoop> (including
 B<Shomiti>) and B<atmsnoop>, B<LanAlyzer>, B<Sniffer> (compressed or
 uncompressed), Microsoft B<Network Monitor>, AIX's B<iptrace>,
-B<NetXray>, B<Sniffer Pro>, B<RADCOM>'s WAN/LAN analyzer,
+B<NetXray>, B<Sniffer Pro>, B<Etherpeek>, B<RADCOM>'s WAN/LAN analyzer,
 B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, the dump output
 from B<Toshiba's> ISDN routers, the output from B<i4btrace> from the
 ISDN4BSD project, and output in IPLog format from the Cisco Secure
