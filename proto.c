@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.38 1999/10/12 23:12:04 guy Exp $
+ * $Id: proto.c,v 1.39 1999/10/13 03:07:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,10 +86,14 @@ static void fill_label_uint(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_uint(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_numeric_bitfield(field_info *fi, gchar *label_str);
+static void fill_label_int(field_info *fi, gchar *label_str);
+static void fill_label_enumerated_int(field_info *fi, gchar *label_str);
 
 static int hfinfo_bitwidth(header_field_info *hfinfo);
 static char* hfinfo_uint_vals_format(header_field_info *hfinfo);
 static char* hfinfo_uint_format(header_field_info *hfinfo);
+static char* hfinfo_int_vals_format(header_field_info *hfinfo);
+static char* hfinfo_int_format(header_field_info *hfinfo);
 
 static gboolean check_for_protocol_or_field_id(GNode *node, gpointer data);
 static gboolean check_for_field_within_protocol(GNode *node, gpointer data);
@@ -620,10 +624,6 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
 			if (hfinfo->bitmask) {
 				if (hfinfo->strings) {
 					fill_label_enumerated_bitfield(fi, label_str);
@@ -639,6 +639,19 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				else {
 					fill_label_uint(fi, label_str);
 				}
+			}
+			break;
+
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			g_assert(!hfinfo->bitmask);
+			if (hfinfo->strings) {
+				fill_label_enumerated_int(fi, label_str);
+			}
+			else {
+				fill_label_int(fi, label_str);
 			}
 			break;
 
@@ -827,6 +840,36 @@ fill_label_uint(field_info *fi, gchar *label_str)
 			format,  hfinfo->name, fi->value.numeric);
 }
 
+static void
+fill_label_enumerated_int(field_info *fi, gchar *label_str)
+{
+	char *format = NULL;
+	struct header_field_info	*hfinfo = fi->hfinfo;
+
+	/* Pick the proper format string */
+	format = hfinfo_int_vals_format(hfinfo);
+
+	/* Fill in the textual info */
+	snprintf(label_str, ITEM_LABEL_LENGTH,
+			format,  hfinfo->name,
+			val_to_str(fi->value.numeric, cVALS(hfinfo->strings), "Unknown"),
+			fi->value.numeric);
+}
+
+static void
+fill_label_int(field_info *fi, gchar *label_str)
+{
+	char *format = NULL;
+	struct header_field_info	*hfinfo = fi->hfinfo;
+
+	/* Pick the proper format string */
+	format = hfinfo_int_format(hfinfo);
+
+	/* Fill in the textual info */
+	snprintf(label_str, ITEM_LABEL_LENGTH,
+			format,  hfinfo->name, fi->value.numeric);
+}
+
 static int
 hfinfo_bitwidth(header_field_info *hfinfo)
 {
@@ -878,19 +921,15 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 		case BASE_HEX:
 			switch(hfinfo->type) {
 				case FT_UINT8:
-				case FT_INT8:
 					format = "%s: %s (0x%02x)";
 					break;
 				case FT_UINT16:
-				case FT_INT16:
 					format = "%s: %s (0x%04x)";
 					break;
 				case FT_UINT24:
-				case FT_INT24:
 					format = "%s: %s (0x%06x)";
 					break;
 				case FT_UINT32:
-				case FT_INT32:
 					format = "%s: %s (0x%08x)";
 					break;
 				default:
@@ -921,18 +960,91 @@ hfinfo_uint_format(header_field_info *hfinfo)
 		case BASE_HEX:
 			switch(hfinfo->type) {
 				case FT_UINT8:
-				case FT_INT8:
 					format = "%s: 0x%02x";
 					break;
 				case FT_UINT16:
-				case FT_INT16:
 					format = "%s: 0x%04x";
 					break;
 				case FT_UINT24:
-				case FT_INT24:
 					format = "%s: 0x%06x";
 					break;
 				case FT_UINT32:
+					format = "%s: 0x%08x";
+					break;
+				default:
+					g_assert_not_reached();
+					;
+			}
+			break;
+		default:
+			g_assert_not_reached();
+			;
+	}
+	return format;
+}
+
+static char*
+hfinfo_int_vals_format(header_field_info *hfinfo)
+{
+	char *format = NULL;
+
+	switch(hfinfo->display) {
+		case BASE_DEC:
+		case BASE_NONE:
+		case BASE_OCT: /* I'm lazy */
+		case BASE_BIN: /* I'm lazy */
+			format = "%s: %s (%d)";
+			break;
+		case BASE_HEX:
+			switch(hfinfo->type) {
+				case FT_INT8:
+					format = "%s: %s (0x%02x)";
+					break;
+				case FT_INT16:
+					format = "%s: %s (0x%04x)";
+					break;
+				case FT_INT24:
+					format = "%s: %s (0x%06x)";
+					break;
+				case FT_INT32:
+					format = "%s: %s (0x%08x)";
+					break;
+				default:
+					g_assert_not_reached();
+					;
+			}
+			break;
+		default:
+			g_assert_not_reached();
+			;
+	}
+	return format;
+}
+
+static char*
+hfinfo_int_format(header_field_info *hfinfo)
+{
+	char *format = NULL;
+
+	/* Pick the proper format string */
+	switch(hfinfo->display) {
+		case BASE_DEC:
+		case BASE_NONE:
+		case BASE_OCT: /* I'm lazy */
+		case BASE_BIN: /* I'm lazy */
+			format = "%s: %d";
+			break;
+		case BASE_HEX:
+			switch(hfinfo->type) {
+				case FT_INT8:
+					format = "%s: 0x%02x";
+					break;
+				case FT_INT16:
+					format = "%s: 0x%04x";
+					break;
+				case FT_INT24:
+					format = "%s: 0x%06x";
+					break;
 				case FT_INT32:
 					format = "%s: 0x%08x";
 					break;
