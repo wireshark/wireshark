@@ -1643,6 +1643,7 @@ Miha Jemec <m.jemec [AT] iskratel.si> {
 Markus Friedl <markus [AT] openbsd.org> {
 	Support for OpenBSD Encapsulating Device
 	Support for Ethernet-within-IP encapsulation
+	Remove duplicate SSH code
 }
 
 And assorted fixes and enhancements by the people listed above and by:

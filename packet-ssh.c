@@ -3,7 +3,7 @@
  *
  * Huagang XIE <huagang@intruvert.com>
  *
- * $Id: packet-ssh.c,v 1.5 2003/01/30 08:11:20 guy Exp $
+ * $Id: packet-ssh.c,v 1.6 2003/03/08 22:15:41 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,16 +142,16 @@ static const value_string ssh2_msg_vals[] = {
 	{SSH2_MSG_DISCONNECT, "Disconnect"},
 	{SSH2_MSG_IGNORE, "Ignore"},
 	{SSH2_MSG_UNIMPLEMENTED, "Unimplemented"},
-	{SSH2_MSG_DEBUG, "Debug"}	,
-	{SSH2_MSG_SERVICE_REQUEST,"Service Request"},
-	{SSH2_MSG_SERVICE_ACCEPT,"Service Accept"},
-	{SSH2_MSG_KEXINIT, "Key Exchange"},
-	{SSH2_MSG_NEWKEYS,"New Keys"},
-	{SSH2_MSG_KEXDH_INIT, "Key Init"},
-	{SSH2_MSG_KEXDH_REPLY,"Key Reply"},
-	{SSH2_MSG_KEX_DH_GEX_INIT,"Diffie-Hellman GEX Init"},	
-	{SSH2_MSG_KEX_DH_GEX_REPLY,"Diffie-Hellman GEX Reply"},
-	{SSH2_MSG_KEX_DH_GEX_REQUEST,"Diffie-Hellman GEX Request"},
+	{SSH2_MSG_DEBUG, "Debug"},
+	{SSH2_MSG_SERVICE_REQUEST, "Service Request"},
+	{SSH2_MSG_SERVICE_ACCEPT, "Service Accept"},
+	{SSH2_MSG_KEXINIT, "Key Exchange Init"},
+	{SSH2_MSG_NEWKEYS, "New Keys"},
+	{SSH2_MSG_KEXDH_INIT, "Diffie-Hellman Key Exchange Init"},
+	{SSH2_MSG_KEXDH_REPLY, "Diffie-Hellman Key Exchange Reply"},
+	{SSH2_MSG_KEX_DH_GEX_INIT, "Diffie-Hellman GEX Init"},	
+	{SSH2_MSG_KEX_DH_GEX_REPLY, "Diffie-Hellman GEX Reply"},
+	{SSH2_MSG_KEX_DH_GEX_REQUEST, "Diffie-Hellman GEX Request"},
   	{ 0,          NULL }
 };
 
@@ -308,6 +308,8 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				global_data->req_counter++;
 			}
 		}
+		if (number > 20)	/* XXX prevent endless loop */
+			return;
 				
 		number++;
 		if(this_number == 0)  {
@@ -652,154 +654,55 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
+#define SSH_PROPOSAL(item)\
+	{ &hf_ssh_ ## item, &hf_ssh_ ## item ## _length }
+
+static struct {
+	int *value, *length;
+} ssh_proposals[] = {
+	SSH_PROPOSAL(kex_algorithms),
+	SSH_PROPOSAL(server_host_key_algorithms),
+	SSH_PROPOSAL(encryption_algorithms_client_to_server),
+	SSH_PROPOSAL(encryption_algorithms_server_to_client),
+	SSH_PROPOSAL(mac_algorithms_client_to_server),
+	SSH_PROPOSAL(mac_algorithms_server_to_client),
+	SSH_PROPOSAL(compression_algorithms_client_to_server),
+	SSH_PROPOSAL(compression_algorithms_server_to_client),
+	SSH_PROPOSAL(languages_client_to_server),
+	SSH_PROPOSAL(languages_server_to_client),
+	{NULL, NULL}
+};
+
 static int
 ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	guint	len;
+	int	i;
 
 	proto_item *tf;
 	proto_item *key_init_tree=NULL;
 
-
-	if(tree) {
-		tf=proto_tree_add_text(tree,tvb,offset,-1,"Keys");
-		key_init_tree = proto_item_add_subtree(tf ,ett_key_init);
-	}
 	if (tree) {
+		tf=proto_tree_add_text(tree,tvb,offset,-1,"Algorithms");
+		key_init_tree = proto_item_add_subtree(tf, ett_key_init);
 		proto_tree_add_item(key_init_tree, hf_ssh_cookie,
 		    tvb, offset, 16, FALSE);
 	}
 	offset += 16;
 
-	/* kex_algorithms */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(key_init_tree) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_kex_algorithms_length ,tvb,offset,4, len);
+	for (i = 0; ssh_proposals[i].value; i++) {
+		len = tvb_get_ntohl(tvb, offset);
+		if (key_init_tree) {
+			proto_tree_add_uint(key_init_tree,
+				*ssh_proposals[i].length, tvb, offset, 4, len);
+		}
+		offset+=4;
+		if (key_init_tree) {
+			ssh_proto_tree_add_item(key_init_tree,
+				*ssh_proposals[i].value, tvb, offset, len, FALSE);
+		}
+		offset+=len;
 	}
-	offset+=4;
-	if (key_init_tree ) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_kex_algorithms,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-
-	/* server_host_key_algorithms */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(key_init_tree) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_server_host_key_algorithms_length ,tvb,offset,4, len);
-	}
-	offset+=4;
-	if (key_init_tree) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_server_host_key_algorithms,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-
-	/* encryption_algorithms_client_to_server */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(key_init_tree) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_encryption_algorithms_client_to_server_length ,tvb,offset,4, len);
-	}
-	offset+=4;
-	if (key_init_tree ) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_encryption_algorithms_client_to_server,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-	/* encryption_algorithms_server_to_client */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(key_init_tree) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_encryption_algorithms_server_to_client_length ,tvb,offset,4, len);
-	}
-	offset+=4;
-	if (key_init_tree ) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_encryption_algorithms_server_to_client,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-
-	/* mac_algorithms_client_to_server */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(key_init_tree) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_mac_algorithms_client_to_server_length ,tvb,offset,4, len);
-	}
-	offset+=4;
-	if (key_init_tree ) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_mac_algorithms_client_to_server,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-
-	/* mac_algorithms_server_to_client */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(key_init_tree) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_mac_algorithms_server_to_client_length ,tvb,offset,4, len);
-	}
-	offset+=4;
-	if (key_init_tree ) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_mac_algorithms_server_to_client,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-	
-	/* compression_algorithms_client_to_server */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(key_init_tree) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_compression_algorithms_client_to_server_length ,tvb,offset,4, len);
-	}
-	offset+=4;
-	if (key_init_tree ) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_compression_algorithms_client_to_server,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-
-	/* compression_algorithms_server_to_client */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(key_init_tree) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_compression_algorithms_server_to_client_length ,tvb,offset,4, len);
-	}
-	offset+=4;
-	if (key_init_tree ) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_compression_algorithms_server_to_client,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-
-	/* languages_client_to_server */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(key_init_tree ) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_languages_client_to_server_length ,tvb,offset,4, len);
-	}
-	offset+=4;
-	if (key_init_tree ) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_languages_client_to_server,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-
-	/* languages_server_to_client */
-	len = tvb_get_ntohl(tvb, offset) ;
-	if(tree ) {
-		proto_tree_add_uint(key_init_tree,
-			hf_ssh_languages_server_to_client_length ,tvb,offset,4, len);
-	}
-	offset+=4;
-	if (key_init_tree) {
-		ssh_proto_tree_add_item(key_init_tree, hf_ssh_languages_server_to_client,
-			tvb, offset, len , FALSE);
-	}
-	offset+=len;
-
 	return offset;
 }
 proto_item *
@@ -833,9 +736,8 @@ proto_register_ssh(void)
 
     { &hf_ssh_cookie,
       { "Cookie",	  "ssh.cookie",
-	FT_STRING, BASE_NONE, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
       	"SSH Cookie", HFILL }},
-
 
     { &hf_ssh_encrypted_packet,
       { "Encrypted Packet",	  "ssh.encrypted_packet",
