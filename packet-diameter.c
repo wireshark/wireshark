@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.58 2004/01/19 18:28:14 jmayer Exp $
+ * $Id: packet-diameter.c,v 1.59 2004/02/21 02:59:53 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -38,6 +38,7 @@
 #include "xmlstub.h"
 #include <epan/packet.h>
 #include <epan/resolv.h>
+#include "report_err.h"
 #include "prefs.h"
 
 #ifdef NEED_SNPRINTF_H
@@ -281,7 +282,7 @@ xmlParseFilePush( char *filename, int checkValid) {
 
   f = fopen(filename, "r");
   if (f == NULL) {
-	g_warning("Diameter: Unable to open %s", filename);
+	report_open_failure(filename, errno, FALSE);
 	return NULL;
   }
 
