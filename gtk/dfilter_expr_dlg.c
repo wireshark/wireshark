@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.36 2003/08/27 15:23:10 gram Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.37 2003/09/05 03:32:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1301,6 +1301,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     len = proto_registrar_n();
     for (i = 0; i < len; i++) {
+        char *strp, str[128];
+
         /*
          * If this field is a protocol, skip it - we already put
          * it in above.
@@ -1329,9 +1331,12 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
            under its parent protocol. */
         protocol_node = g_hash_table_lookup(proto_array,
                                             GINT_TO_POINTER(proto_registrar_get_parent(i)));
+        snprintf(str, 127, "%-30s %s (%s)", hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
+        str[127]=0;
+        strp=str;
         item_node = gtk_ctree_insert_node(GTK_CTREE(tree),
                                           protocol_node, NULL,
-                                          &hfinfo->name, 5,
+                                          &strp, 5,
                                           NULL, NULL, NULL, NULL,
                                           FALSE, FALSE);
         gtk_ctree_node_set_row_data(GTK_CTREE(tree),
@@ -1349,6 +1354,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
+	char *strp, str[128];
 
 	hfinfo = proto_registrar_get_nth(i);
 	name = proto_get_protocol_short_name(i); /* name, short_name or filter name ? */
@@ -1362,8 +1368,11 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 		if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
 			continue;
 
+		snprintf(str, 127, "%-30s %s (%s)", hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
+		str[127]=0;
+		strp=str;
 		gtk_tree_store_append(store, &child_iter, &iter);
-		gtk_tree_store_set(store, &child_iter, 0, hfinfo->name, 1, hfinfo, -1);
+		gtk_tree_store_set(store, &child_iter, 0, strp, 1, hfinfo, -1);
 	}
     }
     g_object_unref(G_OBJECT(store));
