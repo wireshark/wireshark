@@ -45,7 +45,7 @@ typedef struct _mgcp_info_t {
   gchar *observedEvents;
   guint32 rspcode;
   gchar *signalReq;
-  gboolean *hasDigitMap;
+  gboolean hasDigitMap;
 } mgcp_info_t;
 
 /* Item of request list */
