@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.4 2003/03/07 00:03:47 guy Exp $
+ * $Id: tap_rtp.c,v 1.5 2003/03/07 01:18:21 jmayer Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -136,7 +136,7 @@ static GtkWidget *max_r;
 
 static gboolean copy_file(gchar *, /*gint,*/ gint, void *);
 
-char f_tempname[100], r_tempname[100];
+static char f_tempname[100], r_tempname[100];
 
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {
