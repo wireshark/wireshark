@@ -5,7 +5,7 @@
  * AVPs.  If libxml is in the LD_LIBRARY_PATH, and dictionary.xml exists,
  * then it will not be used.
  *
- * $Id: packet-diameter-defs.h,v 1.10 2004/03/22 20:01:01 guy Exp $
+ * $Id: packet-diameter-defs.h,v 1.11 2004/03/30 20:56:43 etxrab Exp $
  * Generated: Fri Feb 23 13:04:15 2001
  * References:
  * http://www.ietf.org/rfc/rfc3588.txt
@@ -25,46 +25,57 @@
 
 /* Attribute to String tables */
 static value_string diameter_service_type_vals[]={
-   {5, "Outbound"},
-   {7, "NAS-Prompt"},
-   {3, "Callback-Login"},
-   {6, "Administrative"},
    {1, "Login"},
-   {4, "Callback-Framed"},
-   {9, "Callback-NAS-Prompt"},
-   {8, "Authenticate-Only"},
    {2, "Framed"},
+   {3, "Callback-Login"},
+   {4, "Callback-Framed"},
+   {5, "Outbound"},
+   {6, "Administrative"},
+   {7, "NAS-Prompt"},
+   {8, "Authenticate-Only"},
+   {9, "Callback-NAS-Prompt"},
+   {10,"Call Check"},
+   {11,"Callback Administrative"},
+   {12,"Voice"},					/*[Chiba]				*/
+   {13,"Fax"},						/*[Chiba]				*/
+   {14,"Modem Relay"},				/*[Chiba]				*/
+   {15,"IAPP-Register"},			/*[IEEE 802.11f][Kerry]	*/
+   {16,"IAPP-AP-Check"},			/*[IEEE 802.11f][Kerry]	*/
+   {17,"Authorize Only"},			/*[RFC3576]				*/
    {0, (char *)NULL}
 };
 
 static value_string diameter_framed_protocol_vals[]={
-   {1, "PPP"},
-   {260,"COMB"},
-   {5, "Xylogics"},
-   {257,"EURAW"},
-   {3, "ARA"},
+   {1,	"PPP"},
+   {2,	"SLIP"},
+   {3,	"AppleTalk Remote Access Protocol (ARAP)"},
+   {4,	"Gandalf proprietary SingleLink/MultiLink protocol"},
+   {5,	"Xylogics proprietary IPX/SLIP"},
+   {6,	"X.75 Synchronous"},
+   {7,	"GPRS PDP Context"},
    {261,"FR"},
-   {2, "SLIP"},
    {258,"EUUI"},
-   {4, "Gandalf"},
-   {256,"MPP"},
    {255,"Ascend-ARA"},
    {259,"X25"},
+   {256,"MPP"},
+   {257,"EURAW"},
+   {260,"COMB"},
    {0, (char *)NULL}
 };
 
 static value_string diameter_framed_routing_vals[]={
    {0, "None"},
-   {1, "Broadcast"},
-   {3, "Broadcast-Listen"},
-   {2, "Listen"},
+   {1, "Send routing packets"},
+   {2, "Listen for routing packets"},
+   {3, "Send and Listen"},
    {0, (char *)NULL}
 };
 
 static value_string diameter_framed_compression_vals[]={
-   {0, "None"},
-   {1, "Van-Jacobson-TCP-IP"},
-   {2, "IPX-Header-Compression"},
+   {0,	"None"},
+   {1,	"VJ TCP/IP header compression"},
+   {2,	"IPX-Header-Compression"},
+   {3,	"Stac-LZS compression"},
    {0, (char *)NULL}
 };
 
@@ -76,6 +87,8 @@ static value_string diameter_login_service_vals[]={
    {4, "LAT"},
    {5, "X25-PAD"},
    {6, "X25-T3POS"},
+   {7, "(unassigned)"},
+   {8, "TCP Clear Quiet (suppresses any NAS-generated connect string)"},
    {0, (char *)NULL}
 };
 
@@ -90,7 +103,7 @@ static value_string diameter_vendor_specific_vendors[]= {
 	{529, "Ascend"},
 	{1584, "Bay Networks"},
 	{2636, "Juniper Networks"},
-        {5925, "ipUnplugged"},
+	{5925, "ipUnplugged"},
 	{10415, "3GPP"},
 	{0,NULL}
 };
@@ -102,14 +115,23 @@ static value_string diameter_termination_action_vals[]={
 };
 
 static value_string diameter_acct_status_type_vals[]={
-   {1, "Start"},
-   {2, "Stop"},
-   {3, "Alive"},
-   {4, "Modem-Start"},
-   {5, "Modem-Stop"},
-   {6, "Cancel"},
-   {7, "Accounting-On"},
-   {8, "Accounting-Off"},
+   {1,	"Start"},
+   {2,	"Stop"},
+   {3,	"Alive"},
+   {4,	"Modem-Start"},
+   {5,	"Modem-Stop"},
+   {6,	"Cancel"},
+   {7,	"Accounting-On"},
+   {8,	"Accounting-Off"},
+   {9,	"Tunnel-Start"},		/*[RFC 2867]*/
+   {10,	"Tunnel-Stop"},			/*[RFC 2867]*/
+   {11,	"Tunnel-Reject"},		/*[RFC 2867]*/
+   {12,	"Tunnel-Link-Start"},	/*[RFC 2867]*/
+   {13,	"Tunnel-Link-Stop"},	/*[RFC 2867]*/
+   {14,	"Tunnel-Link-Reject"},	/*[RFC 2867]*/
+   {15,	"Failed"},				/*[RFC 2866]*/
+
+
    {0, (char *)NULL}
 };
 
@@ -117,6 +139,8 @@ static value_string diameter_acct_authentic_vals[]={
    {1, "RADIUS"},
    {0, "None"},
    {2, "Local"},
+   {3, "Remote"},
+   {4, "Diameter"},
    {0, (char *)NULL}
 };
 
@@ -139,6 +163,10 @@ static value_string diameter_acct_terminate_cause_vals[]={
    {16, "Callback"},
    {17, "User-Error"},
    {18, "Host-Request"},
+   {19,	"Supplicant Restart"},					/*[RFC3580]*/
+   {20,	"Reauthentication Failure"},			/*[RFC3580]*/
+   {21,	"Port Reinitialized"},					/*[RFC3580]*/
+   {22,	"Port Administratively Disabled"},		/*[RFC3580]*/
    {0, (char *)NULL}
 };
 static value_string diameter_nas_port_type_vals[]={
@@ -167,7 +195,8 @@ static value_string diameter_nas_port_type_vals[]={
    {22,"Wireless - CDMA2000"},                           
    {23,"Wireless - UMTS"},                               
    {24,"Wireless - 1X-EV"},                              
-   {25,"IAPP"},                                     
+   {25,"IAPP"},
+   {26,"FTTP - Fiber to the Premises"},
    {0, (char *)NULL}
 };
 
@@ -204,6 +233,27 @@ static value_string diameter_tunnel_medium_type_vals[]= {
 	{13,"Decnet4"},
 	{14,"Vines"},
 	{15,"E-164-NSAP"},
+	{0,NULL}
+};
+/*
+ *Values for RADIUS Attribute 101, Error-Cause Attribute [RFC3576]:
+ */
+static value_string diameter_error_cause_attribute_vals[]= {
+	{201,"Residual Session Context Removed"},
+	{202,"Invalid EAP Packet (Ignored)"},
+	{401,"Unsupported Attribute"},
+	{402,"Missing Attribute"},
+	{403,"NAS Identification Mismatch"},
+	{404,"Invalid Request"},
+	{405,"Unsupported Service"},
+	{406,"Unsupported Extension"},
+	{501,"Administratively Prohibited"},
+	{502,"Request Not Routable (Proxy)"},
+	{503,"Session Context Not Found"},
+	{504,"Session Context Not Removable"},
+	{505,"Other Proxy Processing Error"},
+	{506,"Resources Unavailable"},
+	{507,"Request Initiated"},
 	{0,NULL}
 };
 
@@ -399,7 +449,6 @@ static value_string diameter_result_code_vals[] = {
 	{4006, "DIAMETER_ERROR_HA_NOT_AVAILABLE"},
 	{4007, "DIAMETER_ERROR_BAD_KEY"},
 	{4008, "DIAMETER_ERROR_MIP_FILTER_NOT_SUPPORTED"},
-	{4003, "ELECTION_LOST"},
 	/* draft-ietf-aaa-diameter-cc-03.txt */
 	{4010, "DIAMETER_END_USER_SERVICE_DENIED"},
 	{4011, "DIAMETER_CREDIT_CONTROL_NOT_APPLICABLE"},
@@ -431,10 +480,6 @@ static value_string diameter_result_code_vals[] = {
 	/* draft-ietf-aaa-diameter-mobileip-16 */
 	{5024, "DIAMETER_ERROR_NO_FOREIGN_HA_SERVICE"}, 
 	{5025, "DIAMETER_ERROR_END_TO_END_MIP_KEY_ENCRYPTION"}, 
-	{5026, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
-	{5027, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
-	{5028, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
-	{5029, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
 	/* draft-ietf-aaa-diameter-cc-03.txt */
 	{5030, "DIAMETER_USER_UNKNOWN"},
 	{5031, "DIAMETER_RATING_FAILED"},
@@ -499,28 +544,72 @@ static struct old_avp_info old_diameter_avps[] = {
 	{ 39, "Framed-AppleTalk-Zone",    DIAMETER_OCTET_STRING, (value_string *)NULL},
 	{ 40, "Acct-Status-Type",         DIAMETER_ENUMERATED,   diameter_acct_status_type_vals},
 	{ 41, "Acct-Delay-Time",          DIAMETER_INTEGER32,    (value_string *)NULL},
-	{ 42, "Acct-Input-Octets",        DIAMETER_INTEGER32,    (value_string *)NULL},
-	{ 43, "Acct-Output-Octets",       DIAMETER_INTEGER32,    (value_string *)NULL},
-	{ 44, "Acct-Session-Id",          DIAMETER_OCTET_STRING, (value_string *)NULL},
-	{ 45, "Acct-Authentic",           DIAMETER_ENUMERATED,   diameter_acct_authentic_vals},
-	{ 46, "Acct-Session-Time",        DIAMETER_INTEGER32,    (value_string *)NULL},
-	{ 47, "Acct-Input-Packets",       DIAMETER_INTEGER32,    (value_string *)NULL},
-	{ 48, "Acct-Output-Packets",      DIAMETER_INTEGER32,    (value_string *)NULL},
-	{ 49, "Acct-Terminate-Cause",     DIAMETER_ENUMERATED,   diameter_acct_terminate_cause_vals},
-	{ 50, "Acct-Multi-Session-Id",    DIAMETER_OCTET_STRING, (value_string *)NULL},
-	{ 51, "Acct-Link-Count",          DIAMETER_INTEGER32,    (value_string *)NULL},
-	{ 60, "CHAP-Challenge",           DIAMETER_OCTET_STRING, (value_string *)NULL},
-	{ 61, "NAS-Port-Type",            DIAMETER_ENUMERATED,   diameter_nas_port_type_vals},
-	{ 62, "Port-Limit",               DIAMETER_INTEGER32,    (value_string *)NULL},
-	{ 63, "Login-LAT-Port",           DIAMETER_OCTET_STRING, (value_string *)NULL},
-	{ 64, "Tunnel-Type",              DIAMETER_ENUMERATED,   diameter_tunnel_type_vals},
-	{ 65, "Tunnel-Medium-Type",       DIAMETER_ENUMERATED,   diameter_tunnel_medium_type_vals},
-	{ 66, "Tunnel-Client-Endpoint",   DIAMETER_OCTET_STRING, (value_string *)NULL},
-	{ 67, "Tunnel-Server-Endpoint",   DIAMETER_OCTET_STRING, (value_string *)NULL},
-	{ 68, "Tunnel-Connection-ID",     DIAMETER_OCTET_STRING, (value_string *)NULL},
-	{ 69, "Tunnel-Password",          DIAMETER_OCTET_STRING, (value_string *)NULL},
-    { 82, "Tunnel-Assignment-Id",     DIAMETER_OCTET_STRING, (value_string *)NULL},
-
+	{ 42, "Acct-Input-Octets",				DIAMETER_INTEGER32,    (value_string *)NULL},
+	{ 43, "Acct-Output-Octets",				DIAMETER_INTEGER32,    (value_string *)NULL},
+	{ 44, "Acct-Session-Id",				DIAMETER_OCTET_STRING, (value_string *)NULL},
+	{ 45, "Acct-Authentic",					DIAMETER_ENUMERATED,   diameter_acct_authentic_vals},
+	{ 46, "Acct-Session-Time",				DIAMETER_INTEGER32,    (value_string *)NULL},
+	{ 47, "Acct-Input-Packets",				DIAMETER_INTEGER32,    (value_string *)NULL},
+	{ 48, "Acct-Output-Packets",			DIAMETER_INTEGER32,    (value_string *)NULL},
+	{ 49, "Acct-Terminate-Cause",			DIAMETER_ENUMERATED,   diameter_acct_terminate_cause_vals},
+	{ 50, "Acct-Multi-Session-Id",			DIAMETER_OCTET_STRING, (value_string *)NULL},
+	{ 51, "Acct-Link-Count",				DIAMETER_INTEGER32,    (value_string *)NULL},
+	{ 52, "Acct-Input-Gigawords",			DIAMETER_INTEGER32,		(value_string *)NULL},/*[RFC2869]*/
+	{ 53, "Acct-Output-Gigawords",			DIAMETER_INTEGER32,		(value_string *)NULL},/*[RFC2869]*/
+	{ 54, "(unassigned)",					DIAMETER_INTEGER32,		(value_string *)NULL},
+	{ 55, "Event-Timestamp",				DIAMETER_TIME,			(value_string *)NULL},/*[RFC2869]*/
+	/*
+	 * 56-59	(unassigned)
+	 *
+	 */
+	{ 60,	"CHAP-Challenge",				DIAMETER_OCTET_STRING,	(value_string *)NULL},
+	{ 61,	"NAS-Port-Type",				DIAMETER_ENUMERATED,	diameter_nas_port_type_vals},
+	{ 62,	"Port-Limit",					DIAMETER_INTEGER32,		(value_string *)NULL},
+	{ 63,	"Login-LAT-Port",				DIAMETER_OCTET_STRING,	(value_string *)NULL},
+	{ 64,	"Tunnel-Type",					DIAMETER_ENUMERATED,	diameter_tunnel_type_vals},
+	{ 65,	"Tunnel-Medium-Type",			DIAMETER_ENUMERATED,	diameter_tunnel_medium_type_vals},
+	{ 66,	"Tunnel-Client-Endpoint",		DIAMETER_OCTET_STRING,	(value_string *)NULL},
+	{ 67,	"Tunnel-Server-Endpoint",		DIAMETER_OCTET_STRING,	(value_string *)NULL},
+	{ 68,	"Tunnel-Connection-ID",			DIAMETER_OCTET_STRING,	(value_string *)NULL},
+	{ 69,	"Tunnel-Password",				DIAMETER_OCTET_STRING,	(value_string *)NULL},
+	{ 70,	"ARAP-Password",				DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 71,	"ARAP-Features",				DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 72,	"ARAP-Zone-Access",				DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 73,	"ARAP-Security",				DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 74,	"ARAP-Security-Data",			DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 75,	"Password-Retry",				DIAMETER_INTEGER32,		(value_string *)NULL},/*[RFC2869]*/
+	{ 76,	"Prompt",						DIAMETER_ENUMERATED,	(value_string *)NULL},/*[RFC2869]*/
+	{ 77,	"Connect-Info",					DIAMETER_UTF8STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 78,	"Configuration-Token",			DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 79,	"EAP-Message",					DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 80,	"Message-Authenticator",		DIAMETER_INTEGER64,		(value_string *)NULL},/*[RFC2869]*/
+	{ 81,	"Tunnel-Private-Group-ID",		DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2868]*/
+    { 82,	"Tunnel-Assignment-Id",			DIAMETER_OCTET_STRING,	(value_string *)NULL},
+	{ 83,	"Tunnel-Preference",			DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2868]*/
+	{ 84,	"ARAP-Challenge-Response",		DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 85,	"Acct-Interim-Interval",		DIAMETER_INTEGER32,		(value_string *)NULL},/*[RFC2869]*/
+	{ 86,	"Acct-Tunnel-Packets-Lost",		DIAMETER_INTEGER32,		(value_string *)NULL},/*[RFC2867]*/
+	{ 87,	"NAS-Port-Id",					DIAMETER_UTF8STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 88,	"Framed-Pool",					DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2869]*/
+	{ 89,	"(unassigned)",					DIAMETER_OCTET_STRING,	(value_string *)NULL},
+	{ 90,	"Tunnel-Client-Auth-ID",		DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2868]*/
+	{ 91,	"Tunnel-Server-Auth-ID",		DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC2868]*/
+	/*
+	 * 92-93      (Unassigned)
+	 */
+	{ 94,	"Originating-Line-Info",		DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[Trifunovic]*/ 
+	{ 95,	"NAS-IPv6-Address",				DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC3162]*/
+	{ 96,	"Framed-Interface-Id",			DIAMETER_INTEGER64,		(value_string *)NULL},/*[RFC3162]*/
+	{ 97,	"Framed-IPv6-Prefix",			DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC3162]*/
+	{ 98,	"Login-IPv6-Host",				DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC3162]*/
+	{ 99,	"Framed-IPv6-Route",			DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC3162]*/
+	{ 100,	"Framed-IPv6-Pool",				DIAMETER_OCTET_STRING,	(value_string *)NULL},/*[RFC3162]*/
+	{ 101,	"Error-Cause Attribute",		DIAMETER_ENUMERATED,	diameter_error_cause_attribute_vals},/*[RFC3576]*/ 
+/*
+   192-223	Experimental Use			 [RFC2058]
+   224-240	Implementation Specific			 [RFC2058]
+   241-255	Reserved				 [RFC2058]   
+*/
 	/* Diameter AVPs */
     { 482, "Accounting-Interim-Interval", DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 483, "Accounting-Realtime-Required",DIAMETER_UNSIGNED32,  (value_string *)NULL},
@@ -590,7 +679,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 345, "MIP-Algorithm-Type",          DIAMETER_ENUMERATED,     diameter_mip_algorithm_type},
     { 346, "MIP-Algorithm-Type",          DIAMETER_ENUMERATED,     diameter_mip_replay_type},
     { 347, "MIP-Filter-Rule",             DIAMETER_IP_FILTER_RULE, (value_string *)NULL},
-    { 348, "MIP-Home-Agent-Host",				DIAMETER_IDENTITY,			(value_string *)NULL},
+    { 348, "MIP-Home-Agent-Host",			DIAMETER_IDENTITY,			(value_string *)NULL},
     { 398, "MIP-Key-Lifetime",            DIAMETER_UNSIGNED32,    (value_string *)NULL},
 /* http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-03.txt */
 	{ 411, "CC-Correlation-Id",                 DIAMETER_OCTET_STRING,		(value_string *)NULL}, 
@@ -652,7 +741,7 @@ static struct old_avp_info old_diameter_avps[] = {
 	{ xx07, "SIP-User-Data",					DIAMETER_OCTET_STRING,		(value_string *)NULL},
 	{ xx08, "SIP-Number-Auth-Items",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
 	{ xx09, "SIP-Auth-Data-Item",				DIAMETER_GROUPED,			(value_string *)NULL},
-	{ xxxx, "SIP-Item-Number",					DIAMETER_UNSIGNED32,		(value_string *)NULL},
+	{ xx10, "SIP-Item-Number",					DIAMETER_UNSIGNED32,		(value_string *)NULL},
 	{ xx11, "SIP-Authentication-Scheme",		DIAMETER_OCTET_STRING,		(value_string *)NULL},
 	{ xx12, "SIP-Authenticate",					DIAMETER_OCTET_STRING,		(value_string *)NULL},
 	{ xx13, "SIP-Authorization",				DIAMETER_OCTET_STRING,		(value_string *)NULL},
@@ -681,17 +770,17 @@ static struct old_avp_info old_diameter_avps[] = {
 static value_string diameter_command_code_vals[] = {
 
 	/* Base Protocol */
-	{274, "Abort-Session"},
-	{271, "Accounting"},
 	{257, "Capabilities-Exchange"},
+	{258, "Re-Auth"},
+	{271, "Accounting"},
+	{274, "Abort-Session"},
+	{275, "Session-Termination"},
 	{280, "Device-Watchdog"},
 	{282, "Disconnect-Peer"},
-	{258, "Re-Auth"},
 	{300, "Test-Auth"},
-	{275, "Session-Termination"},
 	/* Mip Protocol */
-	{262, "Home-Agent-MIP"},
 	{260, "AA-Mobile-Node"},
+	{262, "Home-Agent-MIP"},
 	/* Nasreq Protocol */
 	{265, "AA"},
 	{268, "Diameter-EAP"},
