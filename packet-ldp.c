@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.6 2000/12/02 08:41:07 guy Exp $
+ * $Id: packet-ldp.c,v 1.7 2000/12/02 14:23:04 sharpe Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -65,12 +65,17 @@ static int hf_ldp_msg_id = -1;
 static int hf_ldp_tlv_value = -1;
 static int hf_ldp_tlv_type = -1;
 static int hf_ldp_tlv_len = -1;
+static int hf_ldp_tlv_val_hold = -1;
+static int hf_ldp_tlv_val_target = -1;
+static int hf_ldp_tlv_val_request = -1;
+static int hf_ldp_tlv_val_res = -1;
 
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
 static int ett_ldp_ldpid = -1;
 static int ett_ldp_message = -1;
 static int ett_ldp_tlv = -1;
+static int ett_ldp_tlv_val = -1;
 
 static int tcp_port = 0;
 static int udp_port = 0;
@@ -84,7 +89,7 @@ static int global_ldp_udp_port = UDP_PORT_LDP;
  * The following define all the TLV types I know about
  */
 
-#define TLV_FEC                    0x0001
+#define TLV_FEC                    0x0100
 #define TLV_ADDRESS_LIST           0x0101
 #define TLV_HOP_COUNT              0x0103
 #define TLV_PATH_VECTOR            0x0104
@@ -166,13 +171,59 @@ static const value_string ldp_message_types[] = {
   {0, NULL}
 };
 
+static const true_false_string hello_targeted_vals = {
+  "Targeted Hello",
+  "Link Hello"
+};
+
+static const true_false_string hello_requested_vals = {
+  "Source requests periodic hellos",
+  "Source does not request periodic hellos"
+};
+
+/* Dissect the common hello params */
+
+void dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+  proto_tree *ti = NULL, *val_tree = NULL;
+
+  if (tree) {
+
+    ti = proto_tree_add_bytes(tree, hf_ldp_tlv_value, tvb, offset, rem,
+			      tvb_get_ptr(tvb, offset, rem));
+
+    val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+    proto_tree_add_item(val_tree, hf_ldp_tlv_val_hold, tvb, offset, 2, FALSE);
+
+    proto_tree_add_boolean(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_boolean(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_val_res, tvb, offset + 2, 2, FALSE);
+  }
+
+}
+
 /* Dissect a TLV and return the number of bytes consumed ... */
 
 int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
-  int message = tvb_get_ntohs(tvb, offset),
-      length = tvb_get_ntohs(tvb, offset + 2);
+  guint16 message = tvb_get_ntohs(tvb, offset),
+          length = tvb_get_ntohs(tvb, offset + 2),
+          pad = 0;
   proto_tree *ti = NULL, *tlv_tree = NULL;
+
+  /* Hmmm, check for illegal alignment padding */
+
+  if (message == 0x00) {
+
+    proto_tree_add_text(tree, tvb, offset, 2, "Illegal Padding: %04X", message);
+    offset += 2; pad = 2;
+    message = tvb_get_ntohs(tvb, offset);
+    length = tvb_get_ntohs(tvb, offset + 2);
+
+  }
+
+  length = MIN(length, rem);  /* Don't go haywire if a problem ... */
 
   if (tree) {
 
@@ -187,12 +238,23 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
     proto_tree_add_item(tlv_tree, hf_ldp_tlv_len, tvb, offset + 2, 2, FALSE);
 
-    proto_tree_add_bytes(tlv_tree, hf_ldp_tlv_value, tvb, offset + 4, 
-			 length, tvb_get_ptr(tvb, offset + 4, length));
+    switch (message) {
+
+    case TLV_COMMON_HELLO_PARMS:
+
+      dissect_tlv_common_hello_parms(tvb, offset + 4, tlv_tree, length);
+      break;
+
+    default:
+      proto_tree_add_bytes(tlv_tree, hf_ldp_tlv_value, tvb, offset + 4, 
+			   length, tvb_get_ptr(tvb, offset + 4, length));
+
+      break;
+    }
 
   }
 
-  return length + 4;  /* Length of the value field + header */
+  return length + pad + 4;  /* Length of the value field + header */
 
 }
 
@@ -366,8 +428,6 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16        ldp_message = 0;
 
   CHECK_DISPLAY_AS_DATA(proto_ldp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "LDP";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
 
@@ -571,7 +631,18 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_value,
       { "TLV Value", "ldp.msg.tlv.value", FT_BYTES, BASE_NONE, NULL, 0x0, "TLV Value Bytes"}},
 
-    /* Add more fields here */
+    { &hf_ldp_tlv_val_hold,
+      { "Hold Time", "ldp.msg.tlv.hello.hold", FT_UINT16, BASE_DEC, NULL, 0x0, "Hello Common Parameters Hold Time"}},
+
+    { &hf_ldp_tlv_val_target,
+      { "Targeted Hello", "ldp.msg.tlv.hello.targeted", FT_BOOLEAN, 8, TFS(&hello_targeted_vals), 0x80, "Hello Common Parameters Targeted Bit"}},
+
+    { &hf_ldp_tlv_val_request,
+      { "Hello Requested", "ldp,msg.tlv.hello.requested", FT_BOOLEAN, 8, TFS(&hello_requested_vals), 0x40, "Hello Common Parameters Hello Requested Bit" }},
+ 
+    { &hf_ldp_tlv_val_res,
+      { "Reserved", "ldp.msg.tlv.hello.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, "Hello Common Parameters Reserved Field"}},
+
   };
   static gint *ett[] = {
     &ett_ldp,
@@ -579,6 +650,7 @@ proto_register_ldp(void)
     &ett_ldp_ldpid,
     &ett_ldp_message,
     &ett_ldp_tlv,
+    &ett_ldp_tlv_val,
   };
   module_t *ldp_module; 
 
