@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.31 2003/01/22 06:26:36 guy Exp $
+ * $Id: column-utils.c,v 1.32 2003/01/28 18:35:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -365,8 +365,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
   struct e_in6_addr ipv6_addr;
   struct atalk_ddp_addr ddp_addr;
   struct sna_fid_type_4_addr sna_fid_type_4_addr;
-  gchar *fcid;
-  guint32 tmpfc;
+  guint8 fcid[3];
 
   pinfo->cinfo->col_expr[col][0] = '\0';
   pinfo->cinfo->col_expr_val[col][0] = '\0';
@@ -488,13 +487,11 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     break;
 
   case AT_FC:
-      tmpfc = *((guint32 *)addr->data);
-      fcid = fc_to_str ((const guint8 *)&tmpfc);
-
-      strncpy (pinfo->cinfo->col_buf[col], fcid, COL_MAX_LEN);
-      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-      pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-      break;
+    memcpy(fcid, addr->data, sizeof fcid);
+    strncpy(pinfo->cinfo->col_buf[col], fc_to_str(fcid), COL_MAX_LEN);
+    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
+    break;
       
   default:
     break;
