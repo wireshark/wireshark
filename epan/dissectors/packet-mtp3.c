@@ -139,6 +139,7 @@ static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
 #define ANSI_8BIT_SLS_MASK             0xFF
 #define CHINESE_ITU_SLS_MASK           0xF
 
+/* the higher values are taken from the M3UA RFC */
 static const value_string mtp3_service_indicator_code_vals[] = {
         { 0x0,  "Signalling Network Management Message (SNM)" },
         { 0x1,  "Maintenance Regular Message (MTN)" },
@@ -152,9 +153,9 @@ static const value_string mtp3_service_indicator_code_vals[] = {
         { 0x9,  "Broadband ISUP" },
         { 0xa,  "Satellite ISUP" },
         { 0xb,  "Spare" },
-        { 0xc,  "Spare" },
-        { 0xd,  "Spare" },
-        { 0xe,  "Spare" },
+        { 0xc,  "AAL type2 Signaling" },
+        { 0xd,  "Bearer Independent Call Control (BICC)" },
+        { 0xe,  "Gateway Control Protocol" },
         { 0xf,  "Spare" },
         { 0,    NULL }
 };
@@ -171,6 +172,9 @@ const value_string mtp3_service_indicator_code_short_vals[] = {
         { 0x8,  "MTP Test" },
         { 0x9,  "ISUP-b" },
         { 0xa,  "ISUP-s" },
+        { 0xc,  "AAL type 2" },
+        { 0xd,  "BICC" },
+        { 0xe,  "GCP" },
         { 0,    NULL }
 };
 
