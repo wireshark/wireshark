@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.20 2001/06/18 02:17:54 guy Exp $
+ * $Id: packet-wccp.c,v 1.21 2001/08/04 00:07:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,29 +72,23 @@ static gint ett_capabilities_info = -1;
 static gint ett_capability_element = -1;
 
 /*
- * Unfortunately,
+ * At
  *
- *	http://www.ietf.org/internet-drafts/draft-forster-wrec-wccp-v1-00.txt
+ *	http://www.alternic.org/drafts/drafts-f-g/draft-forster-wrec-wccp-v1-00.html
  *
- * for WCCP 1.0, and
+ * is a copy of the now-expired Internet-Draft for WCCP 1.0.
  *
- *	http://www.ietf.org/internet-drafts/draft-wilson-wrec-wccp-v2-00.txt
+ * At
  *
- * for WCCP 2.0, have expired.  At
+ *	http://search.ietf.org/internet-drafts/draft-wilson-wrec-wccp-v2-01.txt
  *
- *	http://www.ietf.org/internet-drafts/draft-forster-wrec-wccp-v1-01.txt
- *
- * and
- *
- *	http://www.ietf.org/internet-drafts/draft-wilson-wrec-wccp-v2-01.txt
- *
- * are notes suggesting that you contact the authors "for more information
- * or a copy of the document", and giving the e-mail addresses of the authors.
+ * is an Internet-Draft for WCCP 2.0.
  */
 
 #define UDP_PORT_WCCP	2048
 
-#define WCCPv1			0x0004
+#define WCCPv1			4
+#define WCCPv2			0x0002
 #define WCCP_HERE_I_AM		7
 #define WCCP_I_SEE_YOU		8
 #define WCCP_ASSIGN_BUCKET	9
@@ -116,6 +110,7 @@ static const value_string wccp_type_vals[] = {
 
 static const value_string wccp_version_val[] = {
 	{ WCCPv1, "1"},
+	{ WCCPv2, "2"},
 	{ 0, NULL}
 };
 
@@ -195,7 +190,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 wccp_version;
 	guint16 length;
 	guint32 cache_count;
-	int i;
+	guint i;
 
 	if(check_col(pinfo->fd, COL_PROTOCOL)) {
 		col_set_str(pinfo->fd, COL_PROTOCOL, "WCCP");
@@ -260,6 +255,10 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * This hasn't been tested, since I don't have any
 			 * traces with this in it.
+			 *
+			 * The V1 spec claims that this does, indeed,
+			 * have a Received ID field after the type,
+			 * rather than a Version field.
 			 */
 			proto_tree_add_item(wccp_tree, hf_recvd_id, tvb, offset,
 			    4, FALSE);
@@ -292,18 +291,10 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case WCCP2_I_SEE_YOU:
 		case WCCP2_REMOVAL_QUERY:
 		case WCCP2_REDIRECT_ASSIGN:
+		default:	/* assume unknown packets are v2 */
 			length = dissect_wccp2_header(tvb, offset, wccp_tree);
 			offset += 4;
-
 			dissect_wccp2_info(tvb, offset, length, wccp_tree);
-			break;
-
-		default:
-			wccp_version = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_uint(wccp_tree, hf_wccp_version, tvb,
-			    offset, 4, wccp_version);
-			offset += 4;
-			dissect_data(tvb, offset, pinfo, wccp_tree);
 			break;
 		}
 	}
@@ -717,7 +708,7 @@ dissect_wccp2_router_identity_info(tvbuff_t *tvb, int offset, int length,
     proto_tree *info_tree)
 {
 	guint32 n_received_from;
-	int i;
+	guint i;
 	proto_item *te;
 	proto_tree *element_tree;
 
@@ -855,7 +846,7 @@ dissect_wccp2_router_view_info(tvbuff_t *tvb, int offset, int length,
 {
 	guint32 n_routers;
 	guint32 n_web_caches;
-	int i;
+	guint i;
 	proto_item *te;
 	proto_tree *element_tree;
 
@@ -913,7 +904,7 @@ dissect_wccp2_wc_view_info(tvbuff_t *tvb, int offset, int length,
 {
 	guint32 n_routers;
 	guint32 n_web_caches;
-	int i;
+	guint i;
 	proto_item *te;
 	proto_tree *element_tree;
 
@@ -1001,7 +992,7 @@ dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset, int length,
 {
 	guint32 n_routers;
 	guint32 n_web_caches;
-	int i;
+	guint i;
 	proto_item *te;
 	proto_tree *element_tree;
 
@@ -1105,6 +1096,8 @@ static const value_string capability_type_vals[] = {
 static const value_string forwarding_method_vals[] = {
 	{ WCCP2_FORWARDING_METHOD_GRE, "IP-GRE" },
 	{ WCCP2_FORWARDING_METHOD_L2,  "L2" },
+	{ WCCP2_FORWARDING_METHOD_GRE | WCCP2_FORWARDING_METHOD_L2, 
+		"L2 | IP-GRE"},
 	{ 0,                           NULL }
 };
 
@@ -1114,6 +1107,8 @@ static const value_string forwarding_method_vals[] = {
 static const value_string assignment_method_vals[] = {
 	{ WCCP2_ASSIGNMENT_METHOD_HASH, "Hash" },
 	{ WCCP2_ASSIGNMENT_METHOD_MASK, "Mask" },
+	{ WCCP2_ASSIGNMENT_METHOD_HASH | WCCP2_ASSIGNMENT_METHOD_MASK, 
+		"Hash | Mask" },
 	{ 0,                            NULL }
 };
 
@@ -1123,6 +1118,8 @@ static const value_string assignment_method_vals[] = {
 static const value_string packet_return_method_vals[] = {
 	{ WCCP2_PACKET_RETURN_METHOD_GRE, "IP-GRE" },
 	{ WCCP2_PACKET_RETURN_METHOD_L2,  "L2" },
+	{ WCCP2_PACKET_RETURN_METHOD_GRE | WCCP2_PACKET_RETURN_METHOD_L2,
+		"IP-GRE | L2" },
 	{ 0,                              NULL }
 };
 
@@ -1154,6 +1151,10 @@ dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, int length,
 		proto_tree_add_text(element_tree, tvb, offset+2, 2,
 		    "Length: %u", capability_len);
 
+		/*
+		 * XXX - these should be dissected as containing
+		 * Boolean bitfields.
+		 */
 		switch (capability_type) {
 
 		case WCCP2_FORWARDING_METHOD:
