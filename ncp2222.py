@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.6 2002/02/20 22:27:19 gram Exp $
+$Id: ncp2222.py,v 1.14.2.7 2002/02/22 18:18:28 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -198,7 +198,8 @@ class PTVC(NamedList):
 
 				highest_var = highest_var + 1
 				var = highest_var
-				global_highest_var = highest_var
+				if highest_var > global_highest_var:
+					global_highest_var = highest_var
 				named_vars[var_name] = var
 			else:
 				var = NO_VAR
