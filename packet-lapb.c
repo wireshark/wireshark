@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.org>
  *
- * $Id: packet-lapb.c,v 1.6 1999/10/12 06:20:11 gram Exp $
+ * $Id: packet-lapb.c,v 1.7 1999/10/15 21:05:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,6 +113,6 @@ proto_register_lapb(void)
 	  	"" }},
     };
 
-    proto_lapb = proto_register_protocol ("LAPB", "lapb");
+    proto_lapb = proto_register_protocol ("Link Access Procedure Balanced (LAPB)", "lapb");
     proto_register_field_array (proto_lapb, hf, array_length(hf));
 }
