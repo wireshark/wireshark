@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.13 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.14 2001/11/12 09:04:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -431,7 +431,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     dcerpc_uuid_value *sub_proto;
     int length;
     proto_item *sub_item;
-    proto_tree *sub_tree;
+    proto_tree *sub_tree = NULL;
     dcerpc_sub_dissector *proc;
     gchar *name = NULL;
 
@@ -468,15 +468,22 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
         name = "Unknown?!";
 
     if (check_col (pinfo->fd, COL_INFO)) {
-        col_add_fstr (pinfo->fd, COL_INFO, "%s %s:%s(...)",
-                      is_rqst ? "rqst" : "rply",
-                      sub_proto->name, name);
+        col_add_fstr (pinfo->fd, COL_INFO, "%s %s(...)",
+                      is_rqst ? "rqst" : "rply", name);
     }
 
     if (check_col (pinfo->fd, COL_PROTOCOL)) {
         col_set_str (pinfo->fd, COL_PROTOCOL, sub_proto->name);
     }
-    /* FIXME: call approp. dissector */
+
+    if (is_rqst) {
+            if (proc->dissect_rqst)
+                    return proc->dissect_rqst(tvb, offset, pinfo, sub_tree);
+    } else {
+            if (proc->dissect_resp)
+                    return proc->dissect_resp(tvb, offset, pinfo, sub_tree);
+    }
+
     return 0;
 }
 

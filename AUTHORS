@@ -892,6 +892,7 @@ Kazushi Sugyo <k-sugyou[AT]nwsl.mesh.ad.jp> {
 Tim Potter <tpot[AT]samba.org> {
 	Support for DCE RPC atop SMB
 	Support for several Microsoft DCE RPC services used with SMB
+	Added code to call request and reply subdissectors in DCE RPC
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
