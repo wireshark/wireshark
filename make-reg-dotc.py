@@ -9,7 +9,7 @@
 # seds for each input file.  I wrote this python version so that
 # less processes would have to be started.
 #
-# $Id: make-reg-dotc.py,v 1.2 2001/06/18 02:17:44 guy Exp $
+# $Id: make-reg-dotc.py,v 1.3 2001/06/19 08:29:32 guy Exp $
 
 import os
 import sys
@@ -87,7 +87,7 @@ for symbol in proto_reg:
 	line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
 	reg_code.write(line)
 
-reg_code.write(", HFILL }\n")
+reg_code.write("}\n")
 
 
 # Make register_all_protocol_handoffs()
@@ -97,7 +97,7 @@ for symbol in handoff_reg:
 	line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
 	reg_code.write(line)
 
-reg_code.write(", HFILL }\n")
+reg_code.write("}\n")
 
 # Close the file
 reg_code.close()
