@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.6 1998/10/10 18:23:42 gerald Exp $
+ * $Id: packet-ip.c,v 1.7 1998/10/13 05:40:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,11 +47,364 @@
 
 extern packet_info pi;
 
+static void
+dissect_ipopt_security(GtkWidget *opt_tree, const char *name,
+    const u_char *opd, int offset, guint optlen)
+{
+  GtkWidget *field_tree = NULL, *tf;
+  guint      val;
+  gchar     *secl_str;
+  static value_string secl_vals[] = {
+    {IPSEC_UNCLASSIFIED, "Unclassified"},
+    {IPSEC_CONFIDENTIAL, "Confidential"},
+    {IPSEC_EFTO,         "EFTO"        },
+    {IPSEC_MMMM,         "MMMM"        },
+    {IPSEC_RESTRICTED,   "Restricted"  },
+    {IPSEC_SECRET,       "Secret"      },
+    {IPSEC_TOPSECRET,    "Top secret"  },
+    {IPSEC_RESERVED1,    "Reserved"    },
+    {IPSEC_RESERVED2,    "Reserved"    },
+    {IPSEC_RESERVED3,    "Reserved"    },
+    {IPSEC_RESERVED4,    "Reserved"    },
+    {IPSEC_RESERVED5,    "Reserved"    },
+    {IPSEC_RESERVED6,    "Reserved"    },
+    {IPSEC_RESERVED7,    "Reserved"    },
+    {IPSEC_RESERVED8,    "Reserved"    } };
+#define	N_SECL_VALS	(sizeof secl_vals / sizeof secl_vals[0])
+
+
+  tf = add_item_to_tree(opt_tree, offset,      optlen, "%s:", name);
+  field_tree = gtk_tree_new();
+  add_subtree(tf, field_tree, ETT_IP_OPTION_SEC);
+  offset += 2;
+
+  val = pntohs(opd);
+  if ((secl_str = match_strval(val, secl_vals, N_SECL_VALS)))
+    add_item_to_tree(field_tree, offset,       2,
+              "Security: %s", secl_str);
+  else
+    add_item_to_tree(field_tree, offset,       2,
+              "Security: Unknown (0x%x)", val);
+  offset += 2;
+  opd += 2;
+
+  val = pntohs(opd);
+  add_item_to_tree(field_tree, offset,         2,
+              "Compartments: %d", val);
+  offset += 2;
+  opd += 2;
+
+  add_item_to_tree(field_tree, offset,         2,
+              "Handling restrictions: %c%c", opd[0], opd[1]);
+  offset += 2;
+  opd += 2;
+
+  add_item_to_tree(field_tree, offset,         3,
+              "Transmission control code: %c%c%c", opd[0], opd[1], opd[2]);
+}
+
+static void
+dissect_ipopt_route(GtkWidget *opt_tree, const char *name,
+    const u_char *opd, int offset, guint optlen)
+{
+  GtkWidget *field_tree = NULL, *tf;
+  int ptr;
+  int optoffset = 0;
+  struct in_addr addr;
+
+  tf = add_item_to_tree(opt_tree, offset,      optlen, "%s (%d bytes)", name,
+              optlen);
+  field_tree = gtk_tree_new();
+  add_subtree(tf, field_tree, ETT_IP_OPTION_ROUTE);
+
+  optoffset += 2;	/* skip past type and length */
+  optlen -= 2;		/* subtract size of type and length */
+
+  ptr = *opd;
+  add_item_to_tree(field_tree, offset + optoffset, 1,
+              "Pointer: %d%s", ptr,
+              ((ptr < 4) ? " (points before first address)" :
+               ((ptr & 3) ? " (points to middle of address)" : "")));
+  optoffset++;
+  opd++;
+  optlen--;
+  ptr--;	/* ptr is 1-origin */
+
+  while (optlen > 0) {
+    if (optlen < 4) {
+      add_item_to_tree(field_tree, offset,      optlen,
+        "(suboption would go past end of option)");
+      break;
+    }
+
+    /* Avoids alignment problems on many architectures. */
+    memcpy((char *)&addr, (char *)opd, sizeof(addr));
+
+    add_item_to_tree(field_tree, offset + optoffset, 4,
+              "%s%s",
+              ((addr.s_addr == 0) ? "-" : (char *)get_hostname(addr.s_addr)),
+              ((optoffset == ptr) ? " <- (current)" : ""));
+    optoffset += 4;
+    opd += 4;
+    optlen -= 4;
+  }
+}
+
+static void
+dissect_ipopt_sid(GtkWidget *opt_tree, const char *name, const u_char *opd,
+    int offset, guint optlen)
+{
+  add_item_to_tree(opt_tree, offset,      optlen,
+    "%s: %d", name, pntohs(opd));
+  return;
+}
+
+static void
+dissect_ipopt_timestamp(GtkWidget *opt_tree, const char *name, const u_char *opd,
+    int offset, guint optlen)
+{
+  GtkWidget *field_tree = NULL, *tf;
+  int        ptr;
+  int        optoffset = 0;
+  int        flg;
+  gchar     *flg_str;
+  static value_string flag_vals[] = {
+    {IPOPT_TS_TSONLY,    "Time stamps only"                      },
+    {IPOPT_TS_TSANDADDR, "Time stamp and address"                },
+    {IPOPT_TS_PRESPEC,   "Time stamps for prespecified addresses"} };
+#define	N_FLAG_VALS	(sizeof flag_vals / sizeof flag_vals[0])
+
+  struct in_addr addr;
+  guint ts;
+
+  tf = add_item_to_tree(opt_tree, offset,      optlen, "%s:", name);
+  field_tree = gtk_tree_new();
+  add_subtree(tf, field_tree, ETT_IP_OPTION_TIMESTAMP);
+
+  optoffset += 2;	/* skip past type and length */
+  optlen -= 2;		/* subtract size of type and length */
+
+  ptr = *opd;
+  add_item_to_tree(field_tree, offset + optoffset, 1,
+              "Pointer: %d%s", ptr,
+              ((ptr < 5) ? " (points before first address)" :
+               (((ptr - 1) & 3) ? " (points to middle of address)" : "")));
+  optoffset++;
+  opd++;
+  optlen--;
+  ptr--;	/* ptr is 1-origin */
+
+  flg = *opd;
+  add_item_to_tree(field_tree, offset + optoffset,   1,
+        "Overflow: %d", flg >> 4);
+  flg &= 0xF;
+  if ((flg_str = match_strval(flg, flag_vals, N_FLAG_VALS)))
+    add_item_to_tree(field_tree, offset + optoffset, 1,
+        "Flag: %s", flg_str);
+  else
+    add_item_to_tree(field_tree, offset + optoffset, 1,
+        "Flag: Unknown (0x%x)", flg);
+  optoffset++;
+  opd++;
+  optlen--;
+
+  while (optlen > 0) {
+    if (flg == IPOPT_TS_TSANDADDR) {
+      if (optlen < 4) {
+        add_item_to_tree(field_tree, offset + optoffset, optlen,
+          "(suboption would go past end of option)");
+        break;
+      }
+      /* XXX - check whether it goes past end of packet */
+      ts = pntohl(opd);
+      opd += 4;
+      optlen -= 4;
+      if (optlen < 4) {
+        add_item_to_tree(field_tree, offset + optoffset, optlen,
+          "(suboption would go past end of option)");
+        break;
+      }
+      /* XXX - check whether it goes past end of packet */
+      memcpy((char *)&addr, (char *)opd, sizeof(addr));
+      opd += 4;
+      optlen -= 4;
+      add_item_to_tree(field_tree, offset,      8,
+          "Address = %s, time stamp = %u",
+          ((addr.s_addr == 0) ? "-" :  (char *)get_hostname(addr.s_addr)),
+          ts);
+      optoffset += 8;
+    } else {
+      if (optlen < 4) {
+        add_item_to_tree(field_tree, offset + optoffset, optlen,
+          "(suboption would go past end of option)");
+        break;
+      }
+      /* XXX - check whether it goes past end of packet */
+      ts = pntohl(opd);
+      opd += 4;
+      optlen -= 4;
+      add_item_to_tree(field_tree, offset + optoffset, 4,
+          "Time stamp = %u", ts);
+      optoffset += 4;
+    }
+  }
+}
+
+static ip_tcp_opt ipopts[] = {
+  {
+    IPOPT_END,
+    "EOL",
+    NO_LENGTH,
+    0,
+    NULL,
+  },
+  {
+    IPOPT_NOOP,
+    "NOP",
+    NO_LENGTH,
+    0,
+    NULL,
+  },
+  {
+    IPOPT_SEC,
+    "Security",
+    FIXED_LENGTH,
+    IPOLEN_SEC,
+    dissect_ipopt_security
+  },
+  {
+    IPOPT_SSRR,
+    "Strict source route",
+    VARIABLE_LENGTH,
+    IPOLEN_SSRR_MIN,
+    dissect_ipopt_route
+  },
+  {
+    IPOPT_LSRR,
+    "Loose source route",
+    VARIABLE_LENGTH,
+    IPOLEN_LSRR_MIN,
+    dissect_ipopt_route
+  },
+  {
+    IPOPT_RR,
+    "Record route",
+    VARIABLE_LENGTH,
+    IPOLEN_RR_MIN,
+    dissect_ipopt_route
+  },
+  {
+    IPOPT_SID,
+    "Stream identifier",
+    FIXED_LENGTH,
+    IPOLEN_SID,
+    dissect_ipopt_sid
+  },
+  {
+    IPOPT_TIMESTAMP,
+    "Time stamp",
+    VARIABLE_LENGTH,
+    IPOLEN_TIMESTAMP_MIN,
+    dissect_ipopt_timestamp
+  }
+};
+
+#define N_IP_OPTS	(sizeof ipopts / sizeof ipopts[0])
+
+/* Dissect the IP or TCP options in a packet. */
+void
+dissect_ip_tcp_options(GtkWidget *opt_tree, const u_char *opd, int offset,
+    guint length, ip_tcp_opt *opttab, int nopts, int eol)
+{
+  u_char      opt;
+  ip_tcp_opt *optp;
+  guint       len;
+
+  while (length > 0) {
+    opt = *opd++;
+    for (optp = &opttab[0]; optp < &opttab[nopts]; optp++) {
+      if (optp->optcode == opt)
+        break;
+    }
+    if (optp == &opttab[nopts]) {
+      add_item_to_tree(opt_tree, offset,      1, "Unknown");
+      /* We don't know how long this option is, so we don't know how much
+         of it to skip, so we just bail. */
+      return;
+    }
+    --length;      /* account for type byte */
+    if (optp->len_type != NO_LENGTH) {
+      /* Option has a length. Is it in the packet? */
+      if (length == 0) {
+        /* Bogus - packet must at least include option code byte and
+           length byte! */
+        add_item_to_tree(opt_tree, offset,      1,
+              "%s (length byte past end of header)", optp->name);
+        return;
+      }
+      len = *opd++;  /* total including type, len */
+      --length;    /* account for length byte */
+      if (len < 2) {
+        /* Bogus - option length is too short to include option code and
+           option length. */
+        add_item_to_tree(opt_tree, offset,      2,
+              "%s (with too-short option length = %u bytes)", optp->name, 2);
+        return;
+      } else if (len - 2 > length) {
+        /* Bogus - option goes past the end of the header. */
+        add_item_to_tree(opt_tree, offset,      length,
+              "%s (option goes past end of header)", optp->name);
+        return;
+      } else if (optp->len_type == FIXED_LENGTH && len != optp->optlen) {
+        /* Bogus - option length isn't what it's supposed to be for this
+           option. */
+        add_item_to_tree(opt_tree, offset,      len,
+              "%s (with option length = %u bytes; should be %u)", optp->name,
+              len, optp->optlen);
+        return;
+      } else if (optp->len_type == VARIABLE_LENGTH && len < optp->optlen) {
+        /* Bogus - option length is less than what it's supposed to be for
+           this option. */
+        add_item_to_tree(opt_tree, offset,      len,
+              "%s (with option length = %u bytes; should be >= %u)", optp->name,
+              len, optp->optlen);
+        return;
+      } else {
+        if (optp->dissect != NULL) {
+          /* Option has a dissector. */
+          (*optp->dissect)(opt_tree, optp->name, opd, offset, len);
+        } else {
+          /* Option has no data, hence no dissector. */
+          add_item_to_tree(opt_tree, offset,      len, "%s", optp->name);
+        }
+        len -= 2;	/* subtract size of type and length */
+        offset += 2 + len;
+      }
+      opd += len;
+      length -= len;
+    } else {
+      add_item_to_tree(opt_tree, offset,      1, "%s", optp->name);
+      offset += 1;
+    }
+    if (opt == eol)
+      break;
+  }
+}
+
 void
 dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   e_ip       iph;
-  GtkWidget *ip_tree, *ti;
+  GtkWidget *ip_tree, *ti, *field_tree, *tf;
   gchar      tos_str[32];
+  guint      hlen, optlen;
+  gchar     *proto_str;
+  static value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
+                                       {IP_PROTO_IGMP, "IGMP"},
+                                       {IP_PROTO_TCP,  "TCP" },
+                                       {IP_PROTO_UDP,  "UDP" },
+                                       {IP_PROTO_OSPF, "OSPF"} };
+#define	N_PROTO_VALS	(sizeof proto_vals / sizeof proto_vals[0])
+
 
   /* To do: check for runts, errs, etc. */
   /* Avoids alignment problems on many architectures. */
@@ -60,6 +413,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   iph.ip_id  = ntohs(iph.ip_id);
   iph.ip_off = ntohs(iph.ip_off);
   iph.ip_sum = ntohs(iph.ip_sum);
+
+  hlen = iph.ip_hl * 4;	/* IP header length, in bytes */
   
   if (fd->win_info[COL_NUM]) {
     switch (iph.ip_p) {
@@ -97,17 +452,16 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       strcpy(tos_str, "Minimize cost");
       break;
     default:
-      strcpy(tos_str, "Unknon.  Malformed?");
+      strcpy(tos_str, "Unknown.  Malformed?");
       break;
   }
   
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, (iph.ip_hl * 4),
-      "Internet Protocol");
+    ti = add_item_to_tree(GTK_WIDGET(tree), offset, hlen, "Internet Protocol");
     ip_tree = gtk_tree_new();
     add_subtree(ti, ip_tree, ETT_IP);
     add_item_to_tree(ip_tree, offset,      1, "Version: %d", iph.ip_v);
-    add_item_to_tree(ip_tree, offset,      1, "Header length: %d", iph.ip_hl); 
+    add_item_to_tree(ip_tree, offset,      1, "Header length: %d bytes", hlen); 
     add_item_to_tree(ip_tree, offset +  1, 1, "Type of service: 0x%02x (%s)",
       iph.ip_tos, tos_str);
     add_item_to_tree(ip_tree, offset +  2, 2, "Total length: %d", iph.ip_len);
@@ -115,17 +469,33 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       iph.ip_id);
     /* To do: add flags */
     add_item_to_tree(ip_tree, offset +  6, 2, "Fragment offset: %d",
-      iph.ip_off & 0x1fff);
+      iph.ip_off & IP_OFFSET);
     add_item_to_tree(ip_tree, offset +  8, 1, "Time to live: %d",
       iph.ip_ttl);
-    add_item_to_tree(ip_tree, offset +  9, 1, "Protocol: 0x%02x",
-      iph.ip_p);
+    if ((proto_str = match_strval(iph.ip_p, proto_vals, N_PROTO_VALS)))
+      add_item_to_tree(ip_tree, offset +  9, 1, "Protocol: %s", proto_str);
+    else
+      add_item_to_tree(ip_tree, offset +  9, 1, "Protocol: Unknown (%x)",
+        iph.ip_p);
     add_item_to_tree(ip_tree, offset + 10, 2, "Header checksum: 0x%04x",
       iph.ip_sum);
     add_item_to_tree(ip_tree, offset + 12, 4, "Source address: %s",
 		     get_hostname(iph.ip_src));
     add_item_to_tree(ip_tree, offset + 16, 4, "Destination address: %s",
 		     get_hostname(iph.ip_dst));
+
+    /* Decode IP options, if any. */
+    if (hlen > sizeof (e_ip)) {
+      /* There's more than just the fixed-length header.  Decode the
+         options. */
+      optlen = hlen - sizeof (e_ip);	/* length of options, in bytes */
+      tf = add_item_to_tree(ip_tree, offset +  20, optlen,
+        "Options: (%d bytes)", optlen);
+      field_tree = gtk_tree_new();
+      add_subtree(tf, field_tree, ETT_IP_OPTIONS);
+      dissect_ip_tcp_options(field_tree, &pd[offset + 20], offset + 20, optlen,
+         ipopts, N_IP_OPTS, IPOPT_END);
+    }
   }
 
   pi.srcip = ip_to_str( (guint8 *) &iph.ip_src);
@@ -135,7 +505,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   pi.iphdrlen = iph.ip_hl;
   pi.ip_src = iph.ip_src;
 
-  offset += iph.ip_hl * 4;
+  offset += hlen;
   switch (iph.ip_p) {
     case IP_PROTO_ICMP:
       dissect_icmp(pd, offset, fd, tree);

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.12 1998/10/12 01:40:53 gerald Exp $
+ * $Id: packet.h,v 1.13 1998/10/13 05:40:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -200,6 +200,12 @@ typedef struct _e_ip {
   guint32 ip_dst;
 } e_ip;
 
+/* IP flags. */
+#define IP_CE		0x8000		/* Flag: "Congestion"		*/
+#define IP_DF		0x4000		/* Flag: "Don't Fragment"	*/
+#define IP_MF		0x2000		/* Flag: "More Fragments"	*/
+#define IP_OFFSET	0x1FFF		/* "Fragment Offset" part	*/
+
 #define IPTOS_TOS_MASK    0x1E
 #define IPTOS_TOS(tos)    ((tos) & IPTOS_TOS_MASK)
 #define IPTOS_NONE        0x00
@@ -207,6 +213,63 @@ typedef struct _e_ip {
 #define IPTOS_THROUGHPUT  0x08
 #define IPTOS_RELIABILITY 0x04
 #define IPTOS_LOWCOST     0x02
+
+#define IPTOS_PREC_MASK		0xE0
+#define IPTOS_PREC(tos)		((tos)&IPTOS_PREC_MASK)
+#define IPTOS_PREC_NETCONTROL           0xe0
+#define IPTOS_PREC_INTERNETCONTROL      0xc0
+#define IPTOS_PREC_CRITIC_ECP           0xa0
+#define IPTOS_PREC_FLASHOVERRIDE        0x80
+#define IPTOS_PREC_FLASH                0x60
+#define IPTOS_PREC_IMMEDIATE            0x40
+#define IPTOS_PREC_PRIORITY             0x20
+#define IPTOS_PREC_ROUTINE              0x00
+
+/* IP options */
+#define IPOPT_COPY		0x80
+
+#define	IPOPT_CONTROL		0x00
+#define	IPOPT_RESERVED1		0x20
+#define	IPOPT_MEASUREMENT	0x40
+#define	IPOPT_RESERVED2		0x60
+
+#define IPOPT_END	(0 |IPOPT_CONTROL)
+#define IPOPT_NOOP	(1 |IPOPT_CONTROL)
+#define IPOPT_SEC	(2 |IPOPT_CONTROL|IPOPT_COPY)
+#define IPOPT_LSRR	(3 |IPOPT_CONTROL|IPOPT_COPY)
+#define IPOPT_TIMESTAMP	(4 |IPOPT_MEASUREMENT)
+#define IPOPT_RR	(7 |IPOPT_CONTROL)
+#define IPOPT_SID	(8 |IPOPT_CONTROL|IPOPT_COPY)
+#define IPOPT_SSRR	(9 |IPOPT_CONTROL|IPOPT_COPY)
+#define IPOPT_RA	(20|IPOPT_CONTROL|IPOPT_COPY)
+
+/* IP option lengths */
+#define IPOLEN_SEC      11
+#define IPOLEN_LSRR_MIN 3
+#define IPOLEN_TIMESTAMP_MIN 5
+#define IPOLEN_RR_MIN   3
+#define IPOLEN_SID      4
+#define IPOLEN_SSRR_MIN 3
+
+#define IPSEC_UNCLASSIFIED	0x0000
+#define	IPSEC_CONFIDENTIAL	0xF135
+#define	IPSEC_EFTO		0x789A
+#define	IPSEC_MMMM		0xBC4D
+#define	IPSEC_RESTRICTED	0xAF13
+#define	IPSEC_SECRET		0xD788
+#define	IPSEC_TOPSECRET		0x6BC5
+#define	IPSEC_RESERVED1		0x35E2
+#define	IPSEC_RESERVED2		0x9AF1
+#define	IPSEC_RESERVED3		0x4D78
+#define	IPSEC_RESERVED4		0x24BD
+#define	IPSEC_RESERVED5		0x135E
+#define	IPSEC_RESERVED6		0x89AF
+#define	IPSEC_RESERVED7		0xC4D6
+#define	IPSEC_RESERVED8		0xE26B
+
+#define	IPOPT_TS_TSONLY		0		/* timestamps only */
+#define	IPOPT_TS_TSANDADDR	1		/* timestamps and addresses */
+#define	IPOPT_TS_PRESPEC	3		/* specified modules only */
 
 #define IP_PROTO_ICMP  1
 #define IP_PROTO_IGMP  2
@@ -256,6 +319,38 @@ typedef struct _e_tcphdr {
   guint16 th_urp;
 } e_tcphdr;
 
+/*
+ *	TCP option
+ */
+ 
+#define TCPOPT_NOP		1	/* Padding */
+#define TCPOPT_EOL		0	/* End of options */
+#define TCPOPT_MSS		2	/* Segment size negotiating */
+#define TCPOPT_WINDOW		3	/* Window scaling */
+#define TCPOPT_SACK_PERM        4       /* SACK Permitted */
+#define TCPOPT_SACK             5       /* SACK Block */
+#define TCPOPT_ECHO             6
+#define TCPOPT_ECHOREPLY        7
+#define TCPOPT_TIMESTAMP	8	/* Better RTT estimations/PAWS */
+#define TCPOPT_CC               11
+#define TCPOPT_CCNEW            12
+#define TCPOPT_CCECHO           13
+
+/*
+ *     TCP option lengths
+ */
+
+#define TCPOLEN_MSS            4
+#define TCPOLEN_WINDOW         3
+#define TCPOLEN_SACK_PERM      2
+#define TCPOLEN_SACK_MIN       2
+#define TCPOLEN_ECHO           6
+#define TCPOLEN_ECHOREPLY      6
+#define TCPOLEN_TIMESTAMP      10
+#define TCPOLEN_CC             6
+#define TCPOLEN_CCNEW          6
+#define TCPOLEN_CCECHO         6
+
 /* UDP structs and definitions */
 
 typedef struct _e_udphdr {
@@ -279,53 +374,59 @@ typedef struct _e_udphdr {
 /* Tree types.  Each dissect_* routine should have one for each
    add_subtree() call. */
 
-#define ETT_FRAME          0
-#define ETT_IEEE8023       1
-#define ETT_ETHER2         2
-#define ETT_LLC            3
-#define ETT_TOKEN_RING     4
-#define ETT_TR_IERR_CNT    5
-#define ETT_TR_NERR_CNT    6
-#define ETT_TR_MAC         7
-#define ETT_PPP            8
-#define ETT_ARP            9
-#define ETT_IP            10
-#define ETT_UDP           11
-#define ETT_TCP           12
-#define ETT_ICMP          13
-#define ETT_IGMP          14
-#define ETT_IPX           15
-#define ETT_SPX           16
-#define ETT_NCP           17
-#define ETT_DNS           18
-#define ETT_DNS_ANS       19
-#define ETT_DNS_QRY       20
-#define ETT_RIP           21
-#define ETT_RIP_VEC       22
-#define ETT_OSPF          23
-#define ETT_OSPF_HDR      24
-#define ETT_OSPF_HELLO    25
-#define ETT_OSPF_DESC     26
-#define ETT_OSPF_LSR      27
-#define ETT_OSPF_LSA_UPD  28
-#define ETT_OSPF_LSA      29
-#define ETT_LPD           30
-#define ETT_RAW           31
-#define ETT_BOOTP         32
-#define ETT_BOOTP_OPTION  33
-#define ETT_IPv6	  34
-#define ETT_CLNP          35
-#define ETT_COTP          36
-#define ETT_VINES         37
-#define ETT_VSPP          38
-#define ETT_IPXRIP        39
-#define ETT_IPXSAP        40
-#define ETT_IPXSAP_SERVER 41
-#define ETT_NULL          42
-#define ETT_FDDI          43
-
-/* Should be the last item number plus one */
-#define NUM_TREE_TYPES 44
+enum {
+	ETT_FRAME,
+	ETT_IEEE8023,
+	ETT_ETHER2,
+	ETT_LLC,
+	ETT_TOKEN_RING,
+	ETT_TR_IERR_CNT,
+	ETT_TR_NERR_CNT,
+	ETT_TR_MAC,
+	ETT_PPP,
+	ETT_ARP,
+	ETT_FDDI,
+	ETT_NULL,
+	ETT_IP,
+	ETT_IP_OPTIONS,
+	ETT_IP_OPTION_SEC,
+	ETT_IP_OPTION_ROUTE,
+	ETT_IP_OPTION_TIMESTAMP,
+	ETT_UDP,
+	ETT_TCP,
+	ETT_TCP_OPTIONS,
+	ETT_TCP_OPTION_SACK,
+	ETT_ICMP,
+	ETT_IGMP,
+	ETT_IPX,
+	ETT_SPX,
+	ETT_NCP,
+	ETT_DNS,
+	ETT_DNS_ANS,
+	ETT_DNS_QRY,
+	ETT_RIP,
+	ETT_RIP_VEC,
+	ETT_OSPF,
+	ETT_OSPF_HDR,
+	ETT_OSPF_HELLO,
+	ETT_OSPF_DESC,
+	ETT_OSPF_LSR,
+	ETT_OSPF_LSA_UPD,
+	ETT_OSPF_LSA,
+	ETT_LPD,
+	ETT_RAW,
+	ETT_BOOTP,
+	ETT_BOOTP_OPTION,
+	ETT_IPv6,
+	ETT_CLNP,
+	ETT_COTP,
+	ETT_VINES,
+	ETT_VSPP,
+	ETT_IPXRIP,
+	ETT_IPXSAP,
+	ETT_IPXSAP_SERVER,
+	NUM_TREE_TYPES	/* last item number plus one */
+};
 
 /* The version of pcap.h that comes with some systems is missing these
  * #defines.
@@ -342,6 +443,26 @@ typedef struct _e_udphdr {
 #ifndef DLT_PPP_BSDOS
 #define DLT_PPP_BSDOS 14
 #endif
+
+typedef enum {
+  NO_LENGTH,		/* option has no data, hence no length */
+  FIXED_LENGTH,		/* option always has the same length */
+  VARIABLE_LENGTH	/* option is variable-length - optlen is minimum */
+} opt_len_type;
+
+/* Member of table of IP or TCP options. */
+typedef struct {
+  int   optcode;	/* code for option */
+  char *name;		/* name of option */
+  opt_len_type len_type; /* type of option length field */
+  int	optlen;		/* value length should be (minimum if VARIABLE) */
+  void	(*dissect)(GtkWidget *, const char *, const u_char *, int, guint);
+			/* routine to dissect option */
+} ip_tcp_opt;
+
+/* Routine to dissect IP or TCP options. */
+void       dissect_ip_tcp_options(GtkWidget *, const u_char *, int, guint,
+    ip_tcp_opt *, int, int);
 
 /* Utility routines used by packet*.c */
 gchar*     ether_to_str(guint8 *);
