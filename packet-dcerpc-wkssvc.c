@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.31 2004/01/19 20:10:36 jmayer Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.32 2004/06/12 04:12:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,7 +100,29 @@ static int hf_wkssvc_number_of_vcs = -1;
 static int hf_wkssvc_transport_name = -1;
 static int hf_wkssvc_transport_address = -1;
 static int hf_wkssvc_wan_ish = -1;
+static int hf_wkssvc_domain_to_join = -1;
+static int hf_wkssvc_ou_for_computer_account = -1;
+static int hf_wkssvc_account_used_for_join = -1;
+static int hf_wkssvc_encrypted_password = -1;
+static int hf_wkssvc_join_flags = -1;
+static int hf_wkssvc_unjoin_flags = -1;
+static int hf_wkssvc_rename_flags = -1;
+static int hf_wkssvc_join_options_join_type = -1;
+static int hf_wkssvc_join_options_acct_create = -1;
+static int hf_wkssvc_unjoin_options_acct_delete = -1;
+static int hf_wkssvc_join_options_win9x_upgrade = -1;
+static int hf_wkssvc_join_options_domain_join_if_joined = -1;
+static int hf_wkssvc_join_options_join_unsecure = -1;
+static int hf_wkssvc_join_options_machine_pwd_passed = -1;
+static int hf_wkssvc_join_options_defer_spn_set = -1;
+static int hf_wkssvc_account_used_for_unjoin = -1;
+static int hf_wkssvc_alternate_name = -1;
+static int hf_wkssvc_account_used_for_alternate_name = -1;
+static int hf_wkssvc_reserved = -1;
+
 static gint ett_dcerpc_wkssvc = -1;
+static gint ett_dcerpc_wkssvc_join_flags = -1;
+
 
 static e_uuid_t uuid_dcerpc_wkssvc = {
         0x6bffd098, 0xa112, 0x3610,
@@ -1022,6 +1044,373 @@ static int wkssvc_dissect_netwkstatransportenum_reply(tvbuff_t *tvb,
 	return offset;
 }
 
+
+/*
+ * IDL typedef struct {
+ * IDL  char element_278[524];
+ * IDL } TYPE_30;
+ */
+
+static int
+wkssvc_dissect_TYPE_30(tvbuff_t *tvb, int offset,
+				     packet_info *pinfo, proto_tree *tree,
+				     guint8 *drep _U_)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+
+	if(di->conformant_run){
+		return offset;   /* cant modify offset while performing conformant run */
+	}
+
+	proto_tree_add_item(tree, hf_wkssvc_encrypted_password, tvb, offset,
+		524, TRUE);
+	offset += 524;
+	
+	return offset;		
+}
+
+
+
+/*
+ * IDL
+ * IDL long NetrJoinDomain2(
+ * IDL       [in] [unique] [string] wchar_t *ServerName,
+ * IDL       [in] [string] wchar_t DomainName,
+ * IDL       [in] [unique] [string] wchar_t *AccountOU,
+ * IDL       [in] [unique] [string] wchar_t *Account,
+ * IDL       [in] [unique] TYPE_30 *Encrypted_password,
+ * IDL       [in] long JoinOptions
+ * IDL );
+ */
+
+static const true_false_string join_flags_domain_join = {
+	"Join the computer to a domain",
+	"Join the computer to a workgroup"
+};
+
+static const true_false_string join_flags_acct_create = {
+	"Create the account on the domain",
+	"Do not create the account"
+};
+
+static const true_false_string unjoin_flags_acct_delete = {
+	"Delete the account when a domain is left",
+	"Do not delete the account when a domain is left"
+};
+
+static const true_false_string join_flags_win9x_upgrade = {
+	"The join operation is occuring as part of an upgrade of Windows 9x",
+	"The join operation is not part of a Windows 9x upgrade"
+};
+
+static const true_false_string join_flags_domain_join_if_joined = {
+	"Allow a join to a new domain even if the computer is already joined to a domain",
+	"Do not allow join to a new domain if the computer is already joined to a domain"
+};
+
+static const true_false_string join_flags_unsecure = {
+	"Performs an unsecured join",
+	"Perform a secured join"
+};
+
+static const true_false_string join_flags_machine_pwd_passed = {
+	"Set the machine password after domain join to passed password",
+	"Do not set the machine password after domain join to passed password"
+};
+
+static const true_false_string join_flags_defer_spn_set = {
+	"Defer setting of servicePrincipalName and dNSHostName attributes on the computer object until a rename operation",
+	"Set servicePrincipalName and dNSHostName attributes on the computer object"
+};
+
+
+static int wkssvc_dissect_netr_join_domain2_rqst(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *parent_tree,
+				      guint8 *drep)
+{
+	guint32 join_flags = 0;
+  	proto_item *item;
+	proto_tree *tree = NULL;
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, parent_tree, drep,
+					      NDR_POINTER_UNIQUE, "Server", 
+					      hf_wkssvc_server, 0);
+
+        offset = dissect_ndr_cvstring(tvb, offset, pinfo, parent_tree, drep,
+				      sizeof(guint16), hf_wkssvc_domain_to_join,
+				      TRUE, NULL);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, parent_tree, drep,
+					      NDR_POINTER_UNIQUE, "Computer account OU", 
+					      hf_wkssvc_ou_for_computer_account, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, parent_tree, drep,
+					      NDR_POINTER_UNIQUE, 
+					      "Account used for join operation", 
+					      hf_wkssvc_account_used_for_join, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, parent_tree, drep,
+		wkssvc_dissect_TYPE_30, NDR_POINTER_UNIQUE, 
+		"Encrypted password", -1);
+
+  	join_flags = tvb_get_letohl(tvb, offset);
+  	item = proto_tree_add_item(parent_tree, hf_wkssvc_join_flags, tvb, offset, 4, TRUE);
+	if (parent_tree) {
+		tree = proto_item_add_subtree(item, ett_dcerpc_wkssvc_join_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_wkssvc_join_options_defer_spn_set, tvb, 
+			       offset, 4, join_flags);
+
+	proto_tree_add_boolean(tree, hf_wkssvc_join_options_machine_pwd_passed, tvb, 
+			       offset, 4, join_flags);
+
+	proto_tree_add_boolean(tree, hf_wkssvc_join_options_join_unsecure, tvb, 
+			       offset, 4, join_flags);
+
+	proto_tree_add_boolean(tree, hf_wkssvc_join_options_domain_join_if_joined, 
+			       tvb, offset, 4, join_flags);
+
+	proto_tree_add_boolean(tree, hf_wkssvc_join_options_win9x_upgrade, tvb, 
+			       offset, 4, join_flags);
+
+	proto_tree_add_boolean(tree, hf_wkssvc_join_options_acct_create, tvb, 
+			       offset, 4, join_flags);
+
+	proto_tree_add_boolean(tree, hf_wkssvc_join_options_join_type, tvb, 
+			       offset, 4, join_flags);
+	offset += 4;
+
+	return offset;
+}
+
+
+static int wkssvc_dissect_netr_join_domain2_reply(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree,
+				      guint8 *drep)
+{
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_rc, NULL);
+
+	return offset;
+}
+
+
+/*
+ * IDL long NetrUnjoinDomain2(
+ * IDL       [in] [unique] [string] wchar_t *ServerName,
+ * IDL       [in] [unique] [string] wchar_t *Account
+ * IDL       [in] [unique] TYPE_30 *Encrypted_password,
+ * IDL       [in] long UnjoinOptions
+ * IDL );
+ */
+
+static int wkssvc_dissect_netr_unjoin_domain2_rqst(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *parent_tree,
+				      guint8 *drep)
+{
+	guint32 unjoin_flags = 0;
+  	proto_item *item;
+	proto_tree *tree = NULL;
+
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, parent_tree, drep,
+					      NDR_POINTER_UNIQUE, "Server", 
+					      hf_wkssvc_server, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, parent_tree, drep,
+					      NDR_POINTER_UNIQUE, 
+					      "Account used for unjoin operation", 
+					      hf_wkssvc_account_used_for_unjoin, 0);
+
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, parent_tree, drep,
+		wkssvc_dissect_TYPE_30, NDR_POINTER_UNIQUE, 
+		"Encrypted password", -1);
+
+  	unjoin_flags = tvb_get_letohl(tvb, offset);
+  	item = proto_tree_add_item(parent_tree, hf_wkssvc_unjoin_flags, tvb, offset, 4, TRUE);
+	if (parent_tree) {
+		tree = proto_item_add_subtree(item, ett_dcerpc_wkssvc_join_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_wkssvc_unjoin_options_acct_delete, tvb, 
+			       offset, 4, unjoin_flags);
+	offset += 4;
+
+	return offset;
+
+}
+
+
+static int wkssvc_dissect_netr_unjoin_domain2_reply(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree,
+				      guint8 *drep)
+{
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_rc, NULL);
+
+	return offset;
+}
+
+
+
+/*
+ * IDL long NetrRenameMachineInDomain2(
+ * IDL       [in] [unique] [string] wchar_t *ServerName,
+ * IDL       [in] [unique] [string] wchar_t *NewMachineName,
+ * IDL       [in] [unique] [string] wchar_t *Account,
+ * IDL       [in] [unique] TYPE_30 *EncryptedPassword,
+ * IDL       [in] long RenameOptions
+ * IDL );
+ */
+
+static int wkssvc_dissect_netr_rename_machine_in_domain2_rqst(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *parent_tree,
+				      guint8 *drep)
+{
+	guint32 rename_flags = 0;
+  	proto_item *item;
+	proto_tree *tree = NULL;
+
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, parent_tree, drep,
+					      NDR_POINTER_UNIQUE, "Server", 
+					      hf_wkssvc_server, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, parent_tree, drep,
+					      NDR_POINTER_UNIQUE, 
+					      "New Machine Name", 
+					      hf_wkssvc_server, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, parent_tree, drep,
+					      NDR_POINTER_UNIQUE, 
+					      "Account used for rename operation", 
+					      hf_wkssvc_account_used_for_unjoin, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, parent_tree, drep,
+		wkssvc_dissect_TYPE_30, NDR_POINTER_UNIQUE, 
+		"Encrypted password", -1);
+
+  	rename_flags = tvb_get_letohl(tvb, offset);
+  	item = proto_tree_add_item(parent_tree, hf_wkssvc_rename_flags, tvb, offset, 4, TRUE);
+	if (parent_tree) {
+		tree = proto_item_add_subtree(item, ett_dcerpc_wkssvc_join_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_wkssvc_join_options_acct_create, tvb, 
+			       offset, 4, rename_flags);
+	offset += 4;
+
+	return offset;
+
+}
+
+static int wkssvc_dissect_netr_rename_machine_in_domain2_reply(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree,
+				      guint8 *drep)
+{
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_rc, NULL);
+
+	return offset;
+}
+
+
+/*
+ * IDL long NetrAddAlternateComputerName(
+ * IDL       [in] [unique] [string] wchar_t *ServerName,
+ * IDL       [in] [unique] [string] wchar_t *NewAlternateMachineName,
+ * IDL       [in] [unique] [string] wchar_t *Account,
+ * IDL       [in] [unique] TYPE_30 *EncryptedPassword,
+ * IDL       [in] long Reserved
+ * IDL );
+ */
+
+static int wkssvc_dissect_netr_add_alternate_computername_rqst(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree,
+				      guint8 *drep)
+{
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "Server", 
+					      hf_wkssvc_server, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "New alternate computer name", 
+					      hf_wkssvc_alternate_name, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "Account name", 
+					      hf_wkssvc_account_used_for_alternate_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		wkssvc_dissect_TYPE_30, NDR_POINTER_UNIQUE, 
+		"Encrypted password", -1);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_reserved, NULL);
+
+	return offset;
+}
+
+static int wkssvc_dissect_netr_add_alternate_computername_reply(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree,
+				      guint8 *drep)
+{
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_rc, NULL);
+
+	return offset;
+}
+
+/*
+ * IDL long NetrRemoveAlternateComputerName(
+ * IDL       [in] [unique] [string] wchar_t *ServerName,
+ * IDL       [in] [unique] [string] wchar_t *AlternateMachineNameToRemove,
+ * IDL       [in] [unique] [string] wchar_t *Account,
+ * IDL       [in] [unique] TYPE_30 *EncryptedPassword,
+ * IDL       [in] long Reserved
+ * IDL );
+ */
+
+static int wkssvc_dissect_netr_remove_alternate_computername_rqst(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree,
+				      guint8 *drep)
+{
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "Server", 
+					      hf_wkssvc_server, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "Alternate computer name to remove", 
+					      hf_wkssvc_alternate_name, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "Account name", 
+					      hf_wkssvc_account_used_for_alternate_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		wkssvc_dissect_TYPE_30, NDR_POINTER_UNIQUE, 
+		"Encrypted password", -1);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_reserved, NULL);
+
+	return offset;
+}
+
+
+
+static int wkssvc_dissect_netr_remove_alternate_computername_reply(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree,
+				      guint8 *drep)
+{
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_rc, NULL);
+
+	return offset;
+}
+
 static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
         { WKS_NETRWKSTAGETINFO, "NetrWkstaGetInfo", 
 	  wkssvc_dissect_netwkstagetinfo_rqst, 
@@ -1055,16 +1444,24 @@ static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
 	{ WKS_NETRVALIDATENAME, "NetrValidateName", NULL, NULL },
 	{ WKS_NETRGETJOININFORMATION, "NetrGetJoinInformation", NULL, NULL },
 	{ WKS_NETRGETJOINABLEOUS, "NetrGetJoinableOUs", NULL, NULL },
-	{ WKS_NETRJOINDOMAIN2, "NetrJoinDomain2", NULL, NULL },
-	{ WKS_NETRUNJOINDOMAIN2, "NetrUnjoinDomain2", NULL, NULL },
+	{ WKS_NETRJOINDOMAIN2, "NetrJoinDomain2", 
+	  wkssvc_dissect_netr_join_domain2_rqst, 
+	  wkssvc_dissect_netr_join_domain2_reply},
+	{ WKS_NETRUNJOINDOMAIN2, "NetrUnjoinDomain2", 
+	  wkssvc_dissect_netr_unjoin_domain2_rqst,
+	  wkssvc_dissect_netr_unjoin_domain2_reply},
 	{ WKS_NETRRENAMEMACHINEINDOMAIN2, "NetrRenameMachineInDomain2", 
-	  NULL, NULL },
+	  wkssvc_dissect_netr_rename_machine_in_domain2_rqst,
+	  wkssvc_dissect_netr_rename_machine_in_domain2_reply},
 	{ WKS_NETRVALIDATENAME2, "NetrValidateName2", NULL, NULL },
 	{ WKS_NETRGETJOINABLEOUS2, "NetrGetJoinableOUs2", NULL, NULL },
 	{ WKS_NETRADDALTERNATECOMPUTERNAME, "NetrAddAlternateComputerName", 
-	  NULL, NULL },
+	   wkssvc_dissect_netr_add_alternate_computername_rqst,
+	   wkssvc_dissect_netr_add_alternate_computername_reply},
 	{ WKS_NETRREMOVEALTERNATECOMPUTERNAME,
-	  "NetrRemoveAlternateComputerName", NULL, NULL },
+	  "NetrRemoveAlternateComputerName", 
+	   wkssvc_dissect_netr_remove_alternate_computername_rqst,
+	   wkssvc_dissect_netr_remove_alternate_computername_reply},
  	{ WKS_NETRSETPRIMARYCOMPUTERNAME, "NetrSetPrimaryComputerName", 
 	  NULL, NULL },
 	{ WKS_NETRENUMERATECOMPUTERNAMES, "NetrEnumerateComputerNames", 
@@ -1270,9 +1667,83 @@ proto_register_dcerpc_wkssvc(void)
 	  { &hf_wkssvc_wan_ish, 
 	    { "WAN ish", "wkssvc.wan.ish", FT_INT32,
 	      BASE_DEC, NULL, 0x0, "WAN ish", HFILL}},
+	  { &hf_wkssvc_domain_to_join,
+	    { "Domain or Workgroup to join", "wkssvc.join.domain", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "Domain or Workgroup to join", HFILL}},
+	  { &hf_wkssvc_ou_for_computer_account,
+	    { "Organizational Unit (OU) for computer account", 
+	      "wkssvc.join.computer_account_ou", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "Organizational Unit (OU) for computer account", HFILL}},
+	  { &hf_wkssvc_account_used_for_join,
+	    { "Account used for join operations", "wkssvc.join.account_used", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "Account used for join operations", HFILL}},
+	  { &hf_wkssvc_join_flags,
+	    { "Domain join flags", "wkssvc.join.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Domain join flags", HFILL }},
+	  { &hf_wkssvc_unjoin_flags,
+	    { "Domain unjoin flags", "wkssvc.unjoin.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Domain unjoin flags", HFILL }},
+	  { &hf_wkssvc_rename_flags,
+	    { "Machine rename flags", "wkssvc.rename.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Machine rename flags", HFILL }},
+	  { &hf_wkssvc_join_options_join_type,
+	    { "Join type", "wkssvc.join.options.join_type", 
+	      FT_BOOLEAN, 32, TFS(&join_flags_domain_join), 0x00000001,
+	      "Join type", HFILL}},
+	  { &hf_wkssvc_join_options_acct_create,
+	    { "Computer account creation", "wkssvc.join.options.account_create", 
+	      FT_BOOLEAN, 32, TFS(&join_flags_acct_create), 0x00000002,
+	      "Computer account creation", HFILL}},
+	  { &hf_wkssvc_unjoin_options_acct_delete,
+	    { "Computer account deletion", "wkssvc.unjoin.options.account_delete", 
+	      FT_BOOLEAN, 32, TFS(&unjoin_flags_acct_delete), 0x00000004,
+	      "Computer account deletion", HFILL}},
+	  { &hf_wkssvc_join_options_win9x_upgrade,
+	    { "Win9x upgrade", "wkssvc.join.options.win9x_upgrade", 
+	      FT_BOOLEAN, 32, TFS(&join_flags_win9x_upgrade), 0x00000010,
+	      "Win9x upgrade", HFILL}},
+	  { &hf_wkssvc_join_options_domain_join_if_joined,
+	    { "New domain join if already joined", 
+	      "wkssvc.join.options.domain_join_if_joined", 
+	      FT_BOOLEAN, 32, TFS(&join_flags_domain_join_if_joined),
+              0x00000020,
+	      "New domain join if already joined", HFILL}},
+	  { &hf_wkssvc_join_options_join_unsecure,
+	    { "Unsecure join", "wkssvc.join.options.insecure_join", 
+	      FT_BOOLEAN, 32, TFS(&join_flags_unsecure), 
+	      0x00000040, "Unsecure join", HFILL}},
+	  { &hf_wkssvc_join_options_machine_pwd_passed,
+	    { "Machine pwd passed", "wkssvc.join.options.machine_pwd_passed",
+	      FT_BOOLEAN, 32, TFS(&join_flags_machine_pwd_passed), 
+	      0x00000080, "Machine pwd passed", HFILL}},
+	  { &hf_wkssvc_join_options_defer_spn_set,
+	    { "Defer SPN set", "wkssvc.join.options.defer_spn_set",
+	      FT_BOOLEAN, 32, TFS(&join_flags_defer_spn_set), 
+	      0x00000100, "Defer SPN set", HFILL}},
+	  { &hf_wkssvc_account_used_for_unjoin,
+	    { "Account used for unjoin operations", 
+	       "wkssvc.unjoin.account_used", FT_STRING, BASE_NONE,
+	       NULL, 0x0, "Account used for unjoin operations", HFILL}},
+	  { &hf_wkssvc_account_used_for_alternate_name,
+	    { "Account used for alternate name operations", 
+	      "wkssvc.alternate_operations_account", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "Account used for alternate name operations", HFILL}},
+	  { &hf_wkssvc_alternate_name,
+	    { "Alternate computer name", "wkssvc.alternate_computer_name", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "Alternate computer name", HFILL}},
+	  { &hf_wkssvc_encrypted_password, 
+            { "Encrypted password", "wkssvc.crypt_password", FT_BYTES, BASE_HEX,
+		NULL, 0, "Encrypted Password", HFILL }},
+	  { &hf_wkssvc_reserved,
+	    { "Reserved field", "wkssvc.reserved", FT_INT32,
+	      BASE_HEX, NULL, 0x0, "Reserved field", HFILL}},
 	};
         static gint *ett[] = {
-                &ett_dcerpc_wkssvc
+                &ett_dcerpc_wkssvc,
+		&ett_dcerpc_wkssvc_join_flags
         };
 
         proto_dcerpc_wkssvc = proto_register_protocol(

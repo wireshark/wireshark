@@ -1,4 +1,4 @@
-﻿
+
 
 Original Author
 -------- ------
@@ -1618,7 +1618,8 @@ Jean-Baptiste Marchand  <Jean-Baptiste.Marchand [AT] hsc.fr> {
 	Changed or added procedure names for a number of DCE RPC
 	    interfaces
 	EncryptedFileSystem (EFS) support.
-	MS Eventlog support.
+	MS Eventlog support
+	WKSSVC enhancements
 }
 
 Andreas Trauer          <andreas.trauer [AT] siemens.com> {
