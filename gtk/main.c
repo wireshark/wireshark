@@ -345,6 +345,33 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 }
 
 
+void 
+selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+    int field_id;
+    gchar *proto_abbrev;
+    gchar *selected_proto_url;
+
+
+    if (cfile.finfo_selected) {
+        /* convert selected field to protocol abbreviation */
+        /* XXX - could this conversion be simplified? */
+        field_id = cfile.finfo_selected->hfinfo->id;
+        /* if the selected field isn't a protocol, get it's parent */
+        if(!proto_registrar_is_protocol(field_id)) {
+            field_id = proto_registrar_get_parent(cfile.finfo_selected->hfinfo->id);
+        }
+
+        proto_abbrev = proto_registrar_get_abbrev(field_id);
+
+        /* open reference page using the protocol abbreviation */
+        selected_proto_url = g_strdup_printf("http://www.ethereal.com/docs/dfref/%c/%s", proto_abbrev[0], proto_abbrev);
+        browser_open_url(selected_proto_url);
+        g_free(selected_proto_url);
+    }
+}
+
+
 static gchar *
 get_text_from_packet_list(gpointer data)
 {

@@ -89,6 +89,14 @@ extern void view_zoom_100_cb(GtkWidget *widget, gpointer data);
  */
 extern void selected_ptree_info_cb(GtkWidget *widget, gpointer data);
 
+/** User requested "Filter Reference" by ptree context menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void selected_ptree_ref_cb(GtkWidget *widget, gpointer data);
+
+
 /** "Apply as Filter" / "Prepare a Filter" action type. */
 typedef enum {
     MATCH_SELECTED_REPLACE, /**< "Selected" */
