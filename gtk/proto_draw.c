@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.39 2001/11/20 09:07:34 guy Exp $
+ * $Id: proto_draw.c,v 1.40 2001/11/20 10:10:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -210,6 +210,11 @@ byte_num(int offset, int start_point)
 static gint
 byte_view_select(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
+	proto_tree	*tree = gtk_object_get_data(GTK_OBJECT(widget),
+			   E_BYTE_VIEW_TREE_PTR);
+	GtkWidget	*tree_view =
+			 gtk_object_get_data(GTK_OBJECT(widget),
+			   E_BYTE_VIEW_TREE_VIEW_PTR);
 	GtkCTree	*ctree = GTK_CTREE(tree_view);
 	GtkCTreeNode	*node, *parent;
 	field_info	*finfo;
@@ -280,7 +285,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event, gpointer data)
 	name = gtk_object_get_data(GTK_OBJECT(widget), E_BYTE_VIEW_NAME_KEY);
 
 	/* Find the finfo that corresponds to our byte. */
-	finfo = proto_find_field_from_offset(cfile.protocol_tree, byte, name);
+	finfo = proto_find_field_from_offset(tree, byte, name);
 
 	if (!finfo) {
 		return FALSE;
@@ -368,7 +373,9 @@ byte_view_realize_cb( GtkWidget *bv, gpointer data){
 }
 
 
-GtkWidget *add_byte_tab( GtkWidget *byte_nb, const char *name, const guint8 *data, int len)
+GtkWidget *
+add_byte_tab(GtkWidget *byte_nb, const char *name, const guint8 *data, int len,
+    proto_tree *tree, GtkWidget *tree_view)
 {
   GtkWidget *byte_view, *byte_scrollw, *label;
   gchar *name_ptr;
@@ -409,6 +416,11 @@ GtkWidget *add_byte_tab( GtkWidget *byte_nb, const char *name, const guint8 *dat
 		     gtk_object_get_data(GTK_OBJECT(popup_menu_object),
 					 PM_HEXDUMP_KEY));
 
+  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TREE_PTR,
+		      tree);
+  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TREE_VIEW_PTR,
+		      tree_view);
+
   gtk_widget_show(byte_view);
 
   gtk_object_set_data(GTK_OBJECT(byte_scrollw), E_BYTE_VIEW_TEXT_INFO_KEY,
@@ -424,13 +436,14 @@ GtkWidget *add_byte_tab( GtkWidget *byte_nb, const char *name, const guint8 *dat
 }
 
 
-int add_byte_view(const char *name, const guint8 *data, int len){
-
-	add_byte_tab( byte_nb_ptr, name, data,len);
+int
+add_byte_view(const char *name, const guint8 *data, int len)
+{
+	add_byte_tab(byte_nb_ptr, name, data, len, cfile.protocol_tree,
+	    tree_view);
 
 	return 0;
 }
-
 
 void
 packet_hex_print_common(GtkText *bv, guint8 *pd, int len, int bstart, int bend, int encoding)

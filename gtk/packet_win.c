@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.23 2001/11/20 09:07:34 guy Exp $
+ * $Id: packet_win.c,v 1.24 2001/11/20 10:10:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,7 +197,8 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   i=0;			/* do all the hex views */
   while((bv_tvb = g_slist_nth_data ( DataPtr->frame->data_src, i++))){
 	add_byte_tab( DataPtr->bv_nb_ptr, tvb_get_name( bv_tvb),
-		tvb_get_ptr(bv_tvb, 0, -1), tvb_length(bv_tvb));
+		tvb_get_ptr(bv_tvb, 0, -1), tvb_length(bv_tvb),
+		DataPtr->protocol_tree, tree_view);
 
   }
 
