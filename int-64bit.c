@@ -2,7 +2,7 @@
  * Routines for handling of 64-bit integers
  * 2001 Ronnie Sahlberg
  *
- * $Id: int-64bit.c,v 1.2 2001/10/29 21:53:58 guy Exp $
+ * $Id: int-64bit.c,v 1.3 2001/10/30 08:39:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,12 +138,12 @@ u64toa(const unsigned char *u64ptr)
 		/* optimize, most of these bytes will be 0 ?*/
 		if(u64ptr[i]==0){
 			pos+=8;
-			continue;
-		}
-		for(j=0;j<8;j++,pos++){
-			if(u64ptr[i]&(1<<j)){
-				for(k=0;k<U64STRLEN-1;k++){
-					acc[k]+=u64val[pos][k];
+		} else {
+			for(j=0;j<8;j++,pos++){
+				if(u64ptr[i]&(1<<j)){
+					for(k=0;k<U64STRLEN-1;k++){
+						acc[k]+=u64val[pos][k];
+					}
 				}
 			}
 		}
@@ -156,12 +156,12 @@ u64toa(const unsigned char *u64ptr)
 		*/
 		if((i%4)==0){
 			/* handle carries */
-			for(i=0;i<U64STRLEN-1;i++){
-				if(acc[i]>9){
+			for(j=0;j<U64STRLEN-1;j++){
+				if(acc[j]>9){
 					int x;
-					x=acc[i]/10; 
-					acc[i+1]+=x;
-					acc[i]-=x*10;
+					x=acc[j]/10; 
+					acc[j+1]+=x;
+					acc[j]-=x*10;
 				}
 			}
 		}
@@ -272,7 +272,7 @@ u64toh(const unsigned char *u64ptr)
 {
 	static char str[19], *strp;
 	static char ntoh[] = {'0','1','2','3','4','5','6','7',
-		'8','9','A','B','C','D','E','F'};
+		'8','9','a','b','c','d','e','f'};
 	int i;
 
 	str[0]='0';
