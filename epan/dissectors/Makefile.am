@@ -23,11 +23,6 @@
 
 noinst_LTLIBRARIES = libdissectors.la
 
-CLEANFILES = \
-	libdissectors.a		\
-	libdissectors.la	\
-	*~
-
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
 
 include Makefile.common
