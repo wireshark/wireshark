@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_map_stat.c,v 1.6 2004/04/12 08:53:02 ulfl Exp $
+ * $Id: gsm_map_stat.c,v 1.7 2004/04/12 08:59:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
+#include "ui_util.h"
 #include "tap.h"
 #include "../register.h"
 #include "../globals.h"
