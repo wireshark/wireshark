@@ -2,7 +2,7 @@
  * Routines for dissection of Cisco MDS Switch Internal Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-mdshdr.c,v 1.1 2003/01/22 06:26:33 guy Exp $
+ * $Id: packet-mdshdr.c,v 1.2 2003/01/23 07:01:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,6 +113,7 @@ static int hf_mdshdr_dstidx = -1;
 static int hf_mdshdr_srcidx = -1;
 static int hf_mdshdr_vsan = -1;
 static int hf_mdshdr_eof = -1;
+static int hf_mdshdr_span = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mdshdr = -1;
@@ -172,6 +173,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *next_tvb;
     guint8 sof, eof;
     guint16 vsan;
+    guint8 span_id;
     int trailer_start = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -184,6 +186,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sof = tvb_get_guint8 (tvb, offset+MDSHDR_SOF_OFFSET) & 0x0F;
     pktlen = tvb_get_ntohs (tvb, offset+MDSHDR_PKTLEN_OFFSET) & 0x1FFF;
     vsan = tvb_get_ntohs (tvb, offset+MDSHDR_VSAN_OFFSET) & 0x0FFF;
+    span_id = (tvb_get_ntohs (tvb, offset+MDSHDR_VSAN_OFFSET) & 0xF000) >> 12;
     
     /* The Mdshdr trailer is at the end of the frame */
     if (tvb_bytes_exist (tvb, 0, MDSHDR_HEADER_SIZE + pktlen)) {
@@ -228,6 +231,9 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              MDSHDR_SIZE_INT16, 0);
         proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_vsan, tvb, MDSHDR_VSAN_OFFSET,
                              MDSHDR_SIZE_INT16, 0);
+        proto_tree_add_int_hidden (mdshdr_tree_hdr, hf_mdshdr_span,
+                                   tvb, MDSHDR_VSAN_OFFSET,
+                                   MDSHDR_SIZE_BYTE, span_id);
         
         /* Add Mdshdr Trailer part */
         if (tvb_bytes_exist (tvb, 0, MDSHDR_HEADER_SIZE+pktlen)) {
@@ -281,6 +287,9 @@ proto_register_mdshdr(void)
           {"VSAN", "mdshdr.vsan", FT_UINT16, BASE_DEC, NULL, 0x0FFF, "", HFILL}},
         { &hf_mdshdr_eof,
           {"EOF", "mdshdr.eof", FT_UINT8, BASE_DEC, VALS(eof_vals), 0x0, "", HFILL}},
+        { &hf_mdshdr_span,
+          {"SPAN ID", "mdshdr.span", FT_UINT8, BASE_DEC, NULL, 0x0,
+           "", HFILL}}, 
     };
 
 /* Setup protocol subtree array */

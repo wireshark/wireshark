@@ -2,7 +2,7 @@
  * Routines for decoding MDS Port Analyzer Adapter (FC in Eth) Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-brdwlk.c,v 1.1 2003/01/14 01:17:44 guy Exp $
+ * $Id: packet-brdwlk.c,v 1.2 2003/01/23 07:01:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -193,6 +193,8 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item (brdwlk_tree, hf_brdwlk_sof, tvb, offset, 1, 0);
         proto_tree_add_item (brdwlk_tree, hf_brdwlk_vsan, tvb, offset, 2, 0);
+
+	pinfo->vsan = (tvb_get_ntohs (tvb, offset) & 0xFFF);
 
         /* Locate EOF which is the last 4 bytes of the frame */
         offset = tvb_reported_length (tvb) - 4;
