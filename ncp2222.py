@@ -20,7 +20,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.6 2000/09/06 04:50:51 gram Exp $
+$Id: ncp2222.py,v 1.7 2000/09/22 16:37:49 gram Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
 
@@ -1467,6 +1467,6 @@ proto_register_ncp2222(void)
 	print "};\n"
 
 
-	print '#include "ncp2222.h"'
+	print '#include "packet-ncp2222.inc"'
 
 

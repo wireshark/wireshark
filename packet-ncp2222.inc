@@ -1,8 +1,13 @@
-/* ncp2222.h
- * Routines for NetWare Core Protocol
+/* packet-ncp2222.inc
+ *
+ * Routines for NetWare Core Protocol. This C code gets #include'd
+ * into packet-ncp2222.c, which is generated from ncp2222.py. It's
+ * #include'd instead of being in a separate compilation unit so
+ * that all the data tables in packet-ncp2222.c can remain static.
+ *
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: ncp2222.h,v 1.2 2000/08/22 06:38:16 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.1 2000/09/22 16:37:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
