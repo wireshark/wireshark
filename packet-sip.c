@@ -13,9 +13,9 @@
  *               check for other
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
- * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
+ * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.32 2002/08/28 21:00:30 jmayer Exp $
+ * $Id: packet-sip.c,v 1.33 2002/10/02 18:51:10 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
