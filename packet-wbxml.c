@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.19 2003/12/12 23:35:22 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.20 2003/12/13 13:27:30 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,6 +244,12 @@ static const value_string vals_wbxml1x_global_tokens[] = {
 
 
 /********************** WBXML token mapping definition **********************/
+
+/*
+ * NOTE: Please make sure the Attribute Start values all contain an equal sign
+ *       even in cases where they do not contain the start of an Attribute
+ *       Value.
+ */
 
 
 /* WML 1.0
@@ -1584,21 +1590,21 @@ static const value_string wbxml_channelc10_tags_cp0[] = {
 /*****    Attribute Start tokens   *****/
 static const value_string wbxml_channelc10_attrStart_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "maxspace" },
-	{ 0x06, "base" },
-	{ 0x07, "href" },
+	{ 0x05, "maxspace=" },
+	{ 0x06, "base=" },
+	{ 0x07, "href=" },
 	{ 0x08, "href='http://'" },
 	{ 0x09, "href='https://'" },
-	{ 0x0A, "lastmod" },
-	{ 0x0B, "etag" },
-	{ 0x0C, "md5" },
-	{ 0x0D, "success" },
+	{ 0x0A, "lastmod=" },
+	{ 0x0B, "etag=" },
+	{ 0x0C, "md5=" },
+	{ 0x0D, "success=" },
 	{ 0x0E, "success='http://'" },
 	{ 0x0F, "success='https://'" },
-	{ 0x10, "failure" },
+	{ 0x10, "failure=" },
 	{ 0x11, "failure='http://'" },
 	{ 0x12, "failure='https://'" },
-	{ 0x13, "EventId" },
+	{ 0x13, "EventId=" },
 
 	{ 0x00, NULL }
 };
@@ -1644,8 +1650,8 @@ static const value_string wbxml_nokiaprovc70_attrStart_cp0[] = {
 	{ 0x06, "TYPE='ADDRESS'" },
 	{ 0x07, "TYPE='URL'" },
 	{ 0x08, "TYPE='NAME'" },
-	{ 0x10, "NAME" },
-	{ 0x11, "VALUE" },
+	{ 0x10, "NAME=" },
+	{ 0x11, "VALUE=" },
 	{ 0x12, "NAME='BEARER'" },
 	{ 0x13, "NAME='PROXY'" },
 	{ 0x14, "NAME='PORT'" },
