@@ -1442,6 +1442,7 @@ class EthOut:
     self.outdir = '.'
     self.single_file = None
     self.created_files = []
+    self.unique_created_files = []
     self.keep = False
   #--- output_fname -------------------------------------------------------
   def output_fname(self, ftype, ext='c'):
@@ -1471,7 +1472,7 @@ class EthOut:
     fx.close()
     if (discard): 
       os.unlink(fx.name)
-    elif (not keep_anyway): 
+    elif (not keep_anyway):
       self.created_files.append(os.path.normcase(os.path.abspath(fx.name)))
   #--- fhdr -------------------------------------------------------
   def fhdr(self, fn, comment=None):
@@ -1499,7 +1500,9 @@ class EthOut:
       out_nm = self.output_fullname('', ext='h')
       self.do_include(out_nm, in_nm)
     if (not self.keep):
-      for fn in self.created_files:
+      self.unique_created_files = []
+      [self.unique_created_files.append(wrd) for wrd in self.created_files if not self.unique_created_files.count(wrd)]
+      for fn in self.unique_created_files:
         os.unlink(fn)
 
   #--- do_include -------------------------------------------------------
