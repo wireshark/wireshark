@@ -6,7 +6,7 @@
  * Adds support for the data packet protocol for the SliMP3
  * See www.slimdevices.com for details.
  *
- * $Id: packet-slimp3.c,v 1.3 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-slimp3.c,v 1.4 2002/02/02 02:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,23 +310,33 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    i1 = 18;
 	    addc_strp = addc_str;
-	    while (i1 < tvb_length_remaining(tvb, offset)) {
-		switch(tvb_get_guint8(tvb, offset + i1)) {
-		case 0: *addc_strp++ = '.'; break;
-		case 2: *addc_strp++ = '|'; 
-		    if ((tvb_get_guint8(tvb, offset + i1 + 1) & 0xf0) == 0x30) i1+=2;
+	    while (tvb_offset_exists(tvb, offset + i1)) {
+		switch (tvb_get_guint8(tvb, offset + i1)) {
+
+		case 0:
+		    *addc_strp++ = '.';
 		    break;
+
+		case 2:
+		    *addc_strp++ = '|'; 
+		    if (tvb_offset_exists(tvb, offset + i1 + 1) &&
+			  (tvb_get_guint8(tvb, offset + i1 + 1) & 0xf0) == 0x30)
+			i1 += 2;
+		    break;
+
 		case 3:
-		    if (addc_strp==addc_str || 
-			*(addc_strp-1)!=' ' ||
-			tvb_get_guint8(tvb, offset + i1 + 1) != ' ')
-			*addc_strp++ = tvb_get_guint8(tvb, offset + i1 + 1);
+		    if (tvb_offset_exists(tvb, offset + i1 + 1)) {
+			if (addc_strp == addc_str || 
+			      *(addc_strp-1) != ' ' ||
+			      tvb_get_guint8(tvb, offset + i1 + 1) != ' ')
+			    *addc_strp++ = tvb_get_guint8(tvb, offset + i1 + 1);
+		    }
 		}
-		i1+=2;
+		i1 += 2;
 	    }
 	    *addc_strp = 0;
 	    if (addc_strp - addc_str > 0)
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", addc_str);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", addc_str);
 	}
 
 	break;
