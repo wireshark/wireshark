@@ -3,12 +3,12 @@
  *
  * It is hopefully (needs testing) compilant to
  *   http://www.ietf.org/rfc/rfc3057.txt
- *   http://www.ietf.org/internet-drafts/draft-ietf-sigtran-iua-imp-guide-00.txt
+ *   http://www.ietf.org/internet-drafts/draft-ietf-sigtran-iua-imp-guide-01.txt
  * To do: - provide better handling of length parameters
  *
- * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
+ * Copyright 2002, Michael Tuexen <Michael.Tuexen[AT]siemens.com>
  *
- * $Id: packet-iua.c,v 1.16 2002/08/28 21:00:19 jmayer Exp $
+ * $Id: packet-iua.c,v 1.17 2002/12/02 10:54:57 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,18 +86,7 @@ static gboolean support_IG          = FALSE;
 
 static dissector_handle_t q931_handle;
 
-static guint
-nr_of_padding_bytes (guint length)
-{
-  guint remainder;
-
-  remainder = length % 4;
-
-  if (remainder == 0)
-    return 0;
-  else
-    return 4 - remainder;
-}
+#define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
 #define PARAMETER_TAG_LENGTH    2
 #define PARAMETER_LENGTH_LENGTH 2
@@ -580,17 +569,15 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *iua_tree)
 {
-  gint offset, length, padding_length, total_length, remaining_length;
+  gint offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
 
   offset = 0;
   while((remaining_length = tvb_length_remaining(parameters_tvb, offset))) {
-    length         = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
-    padding_length = nr_of_padding_bytes(length);
+    length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
+    total_length = ADD_PADDING(length);
     if (remaining_length >= length)
-      total_length = MIN(length + padding_length, remaining_length);
-    else
-      total_length = length + padding_length;
+      total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
     dissect_parameter(parameter_tvb, pinfo, tree, iua_tree);
@@ -837,7 +824,7 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, support_IG?"IUA (IG)":"IUA (RFC 3057)");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, support_IG?"IUA (RFC 3057 + IG)":"IUA (RFC 3057)");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
@@ -905,7 +892,7 @@ proto_register_iua(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_iua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  prefs_register_bool_preference(iua_module, "support_ig", "Support Implementers Guide", "Support Implementers Guide (version 00)", &support_IG);
+  prefs_register_bool_preference(iua_module, "support_ig", "Support Implementers Guide", "Support Implementers Guide (version 01)", &support_IG);
 };
 
 #define SCTP_PORT_IUA          9900
