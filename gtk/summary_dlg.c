@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.10 2001/12/12 21:38:59 gerald Exp $
+ * $Id: summary_dlg.c,v 1.11 2002/02/08 10:07:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,9 +106,11 @@ summary_open_cb(GtkWidget *w, gpointer d)
   snprintf(string_buff, SUM_STR_MAX, "Format: %s", wtap_file_type_string(summary.encap_type));
   add_string_to_box(string_buff, file_box);
 
-  /* snapshot length */
-  snprintf(string_buff, SUM_STR_MAX, "Snapshot length: %u", summary.snap);
-  add_string_to_box(string_buff, file_box);
+  if (summary.has_snap) {
+    /* snapshot length */
+    snprintf(string_buff, SUM_STR_MAX, "Snapshot length: %u", summary.snap);
+    add_string_to_box(string_buff, file_box);
+  }
 
   /* Data frame */
   data_fr = gtk_frame_new("Data");

@@ -1,7 +1,7 @@
 /* summary.h
  * Definitions for capture file summary data
  *
- * $Id: summary.h,v 1.6 2001/02/11 09:28:15 guy Exp $
+ * $Id: summary.h,v 1.7 2002/02/08 10:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,7 +39,8 @@ typedef struct _summary_tally {
     const char	*filename;
     long	file_length;	/* file length in bytes */
     int		encap_type;	/* wiretap encapsulation type */
-    int		snap;		/* snapshot length */
+    gboolean	has_snap;	/* TRUE if maximum capture packet length is known */
+    int		snap;		/* Maximum captured packet length */
     gboolean    drops_known;	/* TRUE if number of packet drops is known */
     guint32     drops;		/* number of packet drops */
     const char	*iface;		/* interface name */

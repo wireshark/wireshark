@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.120 2002/01/29 05:38:55 guy Exp $
+ * $Id: tethereal.c,v 1.121 2002/02/08 10:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,6 +154,7 @@ capture_file cfile;
 FILE        *data_out_file = NULL;
 ts_type timestamp_type = RELATIVE;
 #ifdef HAVE_LIBPCAP
+static int snaplen = WTAP_MAX_PACKET_SIZE;
 static int promisc_mode = TRUE;
 #endif
 
@@ -349,6 +350,7 @@ main(int argc, char *argv[])
   cfile.iface		= NULL;
   cfile.save_file	= NULL;
   cfile.save_file_fd	= -1;
+  cfile.has_snap	= FALSE;
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
 #ifdef HAVE_LIBPCAP
@@ -558,7 +560,7 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
 #ifdef HAVE_LIBPCAP
-        cfile.snap = get_positive_int(optarg, "snapshot length");
+        snaplen = get_positive_int(optarg, "snapshot length");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -688,10 +690,10 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  if (cfile.snap < 1)
-    cfile.snap = WTAP_MAX_PACKET_SIZE;
-  else if (cfile.snap < MIN_PACKET_SIZE)
-    cfile.snap = MIN_PACKET_SIZE;
+  if (snaplen < 1)
+    snaplen = WTAP_MAX_PACKET_SIZE;
+  else if (snaplen < MIN_PACKET_SIZE)
+    snaplen = MIN_PACKET_SIZE;
   
   /* Check the value range of the ringbuffer_num_files parameter */
   if (cfile.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
@@ -819,7 +821,7 @@ capture(volatile int packet_count, int out_file_type)
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
-  ld.pch = pcap_open_live(cfile.iface, cfile.snap, promisc_mode, 1000,
+  ld.pch = pcap_open_live(cfile.iface, snaplen, promisc_mode, 1000,
 			  open_err_str);
 
   if (ld.pch == NULL) {
@@ -1079,6 +1081,7 @@ static int
 load_cap_file(capture_file *cf, int out_file_type)
 {
   gint         linktype;
+  int          snapshot_length;
   wtap_dumper *pdh;
   int          err;
   int          success;
@@ -1087,8 +1090,13 @@ load_cap_file(capture_file *cf, int out_file_type)
   linktype = wtap_file_encap(cf->wth);
   if (cf->save_file != NULL) {
     /* Set up to write to the capture file. */
+    snapshot_length = wtap_snapshot_length(cf->wth);
+    if (snapshot_length == 0) {
+      /* Snapshot length of input file not known. */
+      snapshot_length = WTAP_MAX_PACKET_SIZE;
+    }
     pdh = wtap_dump_open(cf->save_file, out_file_type,
-		linktype, wtap_snapshot_length(cf->wth), &err);
+		linktype, snapshot_length, &err);
 
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
@@ -1760,6 +1768,12 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   cf->esec      = 0;
   cf->eusec     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
+  if (cf->snap == 0) {
+    /* Snapshot length not known. */
+    cf->has_snap = FALSE;
+    cf->snap = WTAP_MAX_PACKET_SIZE;
+  } else
+    cf->has_snap = TRUE;
   cf->progbar_quantum = 0;
   cf->progbar_nextstep = 0;
   firstsec = 0, firstusec = 0;

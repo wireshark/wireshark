@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.89 2002/01/21 07:36:31 guy Exp $
+ * $Id: file.h,v 1.90 2002/02/08 10:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,7 +59,8 @@ typedef struct _capture_file {
   guint32      drops;     /* Dropped packets */
   guint32      esec;      /* Elapsed seconds */
   guint32      eusec;     /* Elapsed microseconds */
-  int          snap;      /* Captured packet length */
+  gboolean     has_snap;  /* TRUE if maximum capture packet length is known */
+  int          snap;      /* Maximum captured packet length */
   long         progbar_quantum; /* Number of bytes read per progress bar update */
   long         progbar_nextstep; /* Next point at which to update progress bar */
   gchar       *iface;     /* Interface */

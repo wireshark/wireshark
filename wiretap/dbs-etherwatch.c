@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.2 2002/01/08 22:30:29 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.3 2002/02/08 10:07:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -69,6 +69,11 @@ static const char dbs_etherwatch_rec_magic[]  =
 {'F', 'r', 'o', 'm', ' '};
 #define DBS_ETHERWATCH_REC_MAGIC_SIZE \
 	(sizeof dbs_etherwatch_rec_magic  / sizeof dbs_etherwatch_rec_magic[0])
+
+/*
+ * XXX - is this the biggest packet we can get?
+ */
+#define DBS_ETHERWATCH_MAX_PACKET_LEN	16384
 
 static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset);
 static int dbs_etherwatch_seek_read(wtap *wth, long seek_off,
@@ -155,7 +160,7 @@ int dbs_etherwatch_open(wtap *wth, int *err)
 	wth->data_offset = 0;
 	wth->file_encap = WTAP_ENCAP_RAW_IP;
 	wth->file_type = WTAP_FILE_DBS_ETHERWATCH;
-	wth->snapshot_length = 16384; /* just guessing */
+	wth->snapshot_length = 0;	/* not known */
 	wth->subtype_read = dbs_etherwatch_read;
 	wth->subtype_seek_read = dbs_etherwatch_seek_read;
 
@@ -180,7 +185,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 	pkt_len = parse_dbs_etherwatch_rec_hdr(wth, wth->fh, err);
 
 	/* Make sure we have enough room for the packet */
-	buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
+	buffer_assure_space(wth->frame_buffer, DBS_ETHERWATCH_MAX_PACKET_LEN);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	/* Convert the ASCII hex dump to binary data */

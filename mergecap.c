@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.5 2001/10/04 08:30:33 guy Exp $
+ * $Id: mergecap.c,v 1.6 2002/02/08 10:07:34 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -275,10 +275,16 @@ max_snapshot_length(int count, in_file_t in_files[])
 {
   int i;
   int max_snapshot = 0;
+  int snapshot_length;
 
   for (i = 0; i < count; i++) {
-    if (wtap_snapshot_length(in_files[i].wth) > max_snapshot)
-      max_snapshot = wtap_snapshot_length(in_files[i].wth);
+    snapshot_length = wtap_snapshot_length(in_files[i].wth);
+    if (snapshot_length == 0) {
+      /* Snapshot length of input file not known. */
+      snapshot_length = WTAP_MAX_PACKET_SIZE;
+    }
+    if (snapshot_length > max_snapshot)
+      max_snapshot = snapshot_length;
   }
   return max_snapshot;
 }

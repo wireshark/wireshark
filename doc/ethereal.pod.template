@@ -822,44 +822,66 @@ string> entry.
 The I<Capture Options> dialog lets you specify various parameters for
 capturing live packet data.
 
-The I<Interface:> combo box lets you specify the interface from which to
+The I<Interface:> field lets you specify the interface from which to
 capture packet data or a command from which to get the packet data via a
 pipe.
 
-The I<Count:> entry specifies the maximum number of packets to capture. 
-0 means Ethereal will not stop capturing at some fixed number of
-captured packets.
+The I<Limit each packet to ... bytes> check box and field lets you
+specify a maximum number of bytes per packet to capture and save; if the
+check box is not checked, the limit will be 65535 bytes.
 
-The I<File size:> entry specifies the maximum size of a capture file, in
-kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).  0 means
-Ethereal will not stop capturing at some capture file size (although the
-operating system on which Ethereal is running, or the available disk
-space, may still limit the maximum size of a capture file).
-
-The I<Duration:> entry specifies the maximum time over which to capture,
-in seconds.  0 means Ethereal will not stop capturing after some fixed
-time has elapsed.
+The I<Capture packets in promiscuous mode> check box lets you specify
+whether the interface should be put into promiscuous mode when
+capturing.
 
 The I<Filter:> entry lets you specify the capture filter using a
 tcpdump-style filter string as described above.
 
-The I<File:> entry specifies the file to save to, as in the I<Printer
-Options> dialog above.
+The I<File:> entry lets you specify the file into which captured packets
+should be saved, as in the I<Printer Options> dialog above.  If not
+specified, the captured packets will be saved in a temporary file; you
+can save those packets to a file with the I<File:Save As> menu item.
 
-You can specify the maximum number of bytes to capture per packet with
-the I<Capture length> entry, can specify whether the interface is to be
-put in promiscuous mode or not with the I<Capture packets in promiscuous
-mode> check box, can specify whether Ethereal should run in "ring
-buffer" mode with the I<Use ring buffer> check box and can specify the
-number of files to use with the I<Number of files> spin box, can specify
-that the display should be updated as packets are captured with the
-I<Update list of packets in real time> check box, can specify whether in
-such a capture the packet list pane should scroll to show the most
-recently captured packets with the I<Automatic scrolling in live
-capture> check box, and can specify whether addresses should be
-translated to names in the display with the I<Enable MAC name
-resolution>, I<Enable network name resolution> and I<Enable transport
-name resolution> check boxes.
+The I<Use ring buffer> check box lets you specify that the capture
+should be done in "ring buffer" mode; the I<Number of files> field
+lets you specify the number of files in the ring buffer.
+
+The I<Update list of packets in real time> check box lets you specify
+whether the display should be updated as packets are captured and, if
+you specify that, the I<Automatic scrolling in live capture> check box
+lets you specify the packet list pane should automatically scroll to
+show the most recently captured packets as new packets arrive.
+
+The I<Stop capture after ... packet(s) captured> check box and field let
+you specify that Ethereal should stop capturing after having captured
+some number of packets; if the check box is not checked, Ethereal will
+not stop capturing at some fixed number of captured packets.
+
+If "ring buffer" mode is not specified, the I<Stop capture after ...
+kilobyte(s) captured> check box and field let you specify that Ethereal
+should stop capturing after the the file to which captured packets are
+being saved grows as large as or larger than some specified number of
+kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).  If the
+check box is not checked, Ethereal will not stop capturing at some
+capture file size (although the operating system on which Ethereal is
+running, or the available disk space, may still limit the maximum size
+of a capture file).
+
+If "ring buffer" mode is specified, that field becomes the I<Rotate
+capture file very ...  kilobyte(s)> field, and specifies the number
+of kilobytes at which to start writing to a new ring buffer file; the
+check box is forced to be checked, as "ring buffer" mode requires a file
+size to be specified.
+
+The I<Stop capture after ...  second(s)> check box and field let you
+specify that Ethereal should stop capturing after it has been capturing
+for some number of seconds; if the check box is not checked, Ethereal
+will not stop capturing after some fixed time has elapsed.
+
+The I<Enable MAC name resolution>, I<Enable network name resolution> and
+I<Enable transport name resolution> check boxes let you specify whether
+MAC addresses, network addresses, and transport-layer port numbers
+should be translated to names.
 
 =item Display Options
 

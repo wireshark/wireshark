@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.43 2001/11/13 23:55:43 gram Exp $
+ * $Id: netxray.c,v 1.44 2002/02/08 10:07:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -206,7 +206,7 @@ int netxray_open(wtap *wth, int *err)
 	wth->subtype_seek_read = wtap_def_seek_read;
 	wth->subtype_close = netxray_close;
 	wth->file_encap = netxray_encap[hdr.network];
-	wth->snapshot_length = 16384;	/* XXX - not available in header */
+	wth->snapshot_length = 0;	/* not available in header */
 	wth->capture.netxray->start_time = pletohl(&hdr.start_time);
 	wth->capture.netxray->timeunit = timeunit;
 	t = (double)pletohl(&hdr.timelo)

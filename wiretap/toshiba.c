@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.19 2001/12/08 07:46:54 guy Exp $
+ * $Id: toshiba.c,v 1.20 2002/02/08 10:07:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -104,6 +104,11 @@ static const char toshiba_hdr_magic[]  =
 static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 #define TOSHIBA_REC_MAGIC_SIZE  (sizeof toshiba_rec_magic  / sizeof toshiba_rec_magic[0])
 
+/*
+ * XXX - is this the biggest packet we can get?
+ */
+#define TOSHIBA_MAX_PACKET_LEN	16384
+
 static gboolean toshiba_read(wtap *wth, int *err, long *data_offset);
 static int toshiba_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
@@ -191,7 +196,7 @@ int toshiba_open(wtap *wth, int *err)
 	wth->data_offset = 0;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->file_type = WTAP_FILE_TOSHIBA;
-	wth->snapshot_length = 16384; /* just guessing */
+	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = toshiba_read;
 	wth->subtype_seek_read = toshiba_seek_read;
 
@@ -217,7 +222,7 @@ static gboolean toshiba_read(wtap *wth, int *err, long *data_offset)
 	    &wth->pseudo_header, err);
 
 	/* Make sure we have enough room for the packet */
-	buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
+	buffer_assure_space(wth->frame_buffer, TOSHIBA_MAX_PACKET_LEN);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	/* Convert the ASCII hex dump to binary data */

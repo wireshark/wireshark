@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.46 2002/01/25 09:44:52 guy Exp $
+ * $Id: netmon.c,v 1.47 2002/02/08 10:07:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -205,7 +205,7 @@ int netmon_open(wtap *wth, int *err)
 	wth->subtype_seek_read = netmon_seek_read;
 	wth->subtype_close = netmon_close;
 	wth->file_encap = netmon_encap[hdr.network];
-	wth->snapshot_length = 16384;	/* XXX - not available in header */
+	wth->snapshot_length = 0;	/* not available in header */
 	/*
 	 * Convert the time stamp to a "time_t" and a number of
 	 * milliseconds.

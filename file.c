@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.259 2002/01/21 07:36:31 guy Exp $
+ * $Id: file.c,v 1.260 2002/02/08 10:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,6 +186,12 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   cf->esec      = 0;
   cf->eusec     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
+  if (cf->snap == 0) {
+    /* Snapshot length not known. */
+    cf->has_snap = FALSE;
+    cf->snap = WTAP_MAX_PACKET_SIZE;
+  } else
+    cf->has_snap = TRUE;
   cf->progbar_quantum = 0;
   cf->progbar_nextstep = 0;
   firstsec = 0, firstusec = 0;

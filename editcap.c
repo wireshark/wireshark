@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.18 2001/10/04 08:30:33 guy Exp $
+ * $Id: editcap.c,v 1.19 2002/02/08 10:07:33 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -316,6 +316,7 @@ int main(int argc, char *argv[])
   extern int optind;
   char opt;
   char *p;
+  int snapshot_length;
 
   /* Process the options first */
 
@@ -415,6 +416,11 @@ int main(int argc, char *argv[])
     if (out_frame_type == -2)
       out_frame_type = wtap_file_encap(wth);
 
+    snapshot_length = wtap_snapshot_length(wth);
+    if (snapshot_length == 0) {
+      /* Snapshot length of input file not known. */
+      snapshot_length = WTAP_MAX_PACKET_SIZE;
+    }
     args.pdh = wtap_dump_open(argv[optind + 1], out_file_type,
 			      out_frame_type, wtap_snapshot_length(wth), &err);
     if (args.pdh == NULL) {

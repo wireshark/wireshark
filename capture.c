@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.168 2002/01/21 07:36:31 guy Exp $
+ * $Id: capture.c,v 1.169 2002/02/08 10:07:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -169,6 +169,8 @@
 #include "capture-wpcap.h"
 #endif
 
+gboolean has_snaplen;
+int snaplen;
 int promisc_mode; /* capture in promiscuous mode */
 int sync_mode;	/* fork a child to do the capture, and sync between them */
 static int sync_pipe[2]; /* used to sync father */
@@ -362,9 +364,11 @@ do_capture(char *capfile_name)
     sprintf(scount,"%d",cfile.count);
     argv = add_arg(argv, &argc, scount);
 
-    argv = add_arg(argv, &argc, "-s");
-    sprintf(ssnap,"%d",cfile.snap);
-    argv = add_arg(argv, &argc, ssnap);
+    if (has_snaplen) {
+      argv = add_arg(argv, &argc, "-s");
+      sprintf(ssnap,"%d",snaplen);
+      argv = add_arg(argv, &argc, ssnap);
+    }
 
     argv = add_arg(argv, &argc, "-a");
     sprintf(sautostop_filesize,"filesize:%d",cfile.autostop_filesize);
@@ -1253,7 +1257,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   GtkWidget  *cap_w, *main_vb, *stop_bt, *counts_tb;
   pcap_t     *pch;
   int         pcap_encap;
-  int         snaplen;
+  int         file_snaplen;
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   gchar       label_str[64];
@@ -1345,8 +1349,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
-  pch = pcap_open_live(cfile.iface, cfile.snap, promisc_mode,
-		       CAP_READ_TIMEOUT, open_err_str);
+  pch = pcap_open_live(cfile.iface,
+		       has_snaplen ? snaplen : WTAP_MAX_PACKET_SIZE,
+		       promisc_mode, CAP_READ_TIMEOUT, open_err_str);
 
   if (pch == NULL) {
 #ifdef _WIN32
@@ -1445,12 +1450,12 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 #ifndef _WIN32
   if (ld.from_pipe) {
     pcap_encap = hdr.network;
-    snaplen = hdr.snaplen;
+    file_snaplen = hdr.snaplen;
   } else
 #endif
   {
     pcap_encap = get_pcap_linktype(pch, cfile.iface);
-    snaplen = pcap_snapshot(pch);
+    file_snaplen = pcap_snapshot(pch);
   }
   ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
   if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
@@ -1461,10 +1466,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   }
   if (cfile.ringbuffer_on) {
     ld.pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld.linktype, 
-      snaplen, &err);
+      file_snaplen, &err);
   } else {
     ld.pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
-      ld.linktype, snaplen, &err);
+      ld.linktype, file_snaplen, &err);
   }
 
   if (ld.pdh == NULL) {

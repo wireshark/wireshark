@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.70 2002/01/11 02:51:31 guy Exp $
+ * $Id: ngsniffer.c,v 1.71 2002/02/08 10:07:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -483,7 +483,7 @@ int ngsniffer_open(wtap *wth, int *err)
 	wth->subtype_seek_read = ngsniffer_seek_read;
 	wth->subtype_sequential_close = ngsniffer_sequential_close;
 	wth->subtype_close = ngsniffer_close;
-	wth->snapshot_length = 16384;	/* not available in header, only in frame */
+	wth->snapshot_length = 0;	/* not available in header, only in frame */
 	wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
 	wth->capture.ngsniffer->is_atm =
 	    (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER);

@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.31 2001/11/13 23:55:44 gram Exp $
+ * $Id: radcom.c,v 1.32 2002/02/08 10:07:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -137,7 +137,7 @@ int radcom_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_RADCOM;
 	wth->subtype_read = radcom_read;
 	wth->subtype_seek_read = radcom_seek_read;
-	wth->snapshot_length = 16384;	/* not available in header, only in frame */
+	wth->snapshot_length = 0;	/* not available in header, only in frame */
 
 	tm.tm_year = pletohs(&start_date.year)-1900;
 	tm.tm_mon = start_date.month-1;

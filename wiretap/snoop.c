@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.39 2001/11/13 23:55:44 gram Exp $
+ * $Id: snoop.c,v 1.40 2002/02/08 10:07:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -289,7 +289,7 @@ int snoop_open(wtap *wth, int *err)
 	wth->subtype_read = snoop_read;
 	wth->subtype_seek_read = snoop_seek_read;
 	wth->file_encap = file_encap;
-	wth->snapshot_length = 16384;	/* XXX - not available in header */
+	wth->snapshot_length = 0;	/* not available in header */
 	return 1;
 }
 

@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.8 2001/10/04 08:30:35 guy Exp $
+ * $Id: csids.c,v 1.9 2002/02/08 10:07:40 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -127,7 +127,7 @@ int csids_open(wtap *wth, int *err)
   wth->capture.csids->byteswapped = byteswap;
   wth->file_encap = WTAP_ENCAP_RAW_IP; 
   wth->file_type = WTAP_FILE_CSIDS; 
-  wth->snapshot_length = 16384; /* just guessing */ 
+  wth->snapshot_length = 0; /* not known */
   wth->subtype_read = csids_read; 
   wth->subtype_seek_read = csids_seek_read; 
 

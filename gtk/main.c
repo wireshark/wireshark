@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.231 2002/01/21 07:37:41 guy Exp $
+ * $Id: main.c,v 1.232 2002/02/08 10:07:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1289,6 +1289,9 @@ main(int argc, char *argv[])
   prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
 
 #ifdef HAVE_LIBPCAP
+  has_snaplen = FALSE;
+  snaplen = MIN_PACKET_SIZE;
+
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
      it should do what the parent process tells it to do, and if
@@ -1334,6 +1337,7 @@ main(int argc, char *argv[])
   cfile.iface		= NULL;
   cfile.save_file	= NULL;
   cfile.save_file_fd	= -1;
+  cfile.has_snap	= FALSE;
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
 #ifdef HAVE_LIBPCAP
@@ -1543,7 +1547,8 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
 #ifdef HAVE_LIBPCAP
-        cfile.snap = get_positive_int(optarg, "snapshot length");
+        has_snaplen = TRUE;
+        snaplen = get_positive_int(optarg, "snapshot length");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1751,10 +1756,12 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  if (cfile.snap < 1)
-    cfile.snap = WTAP_MAX_PACKET_SIZE;
-  else if (cfile.snap < MIN_PACKET_SIZE)
-    cfile.snap = MIN_PACKET_SIZE;
+  if (has_snaplen) {
+    if (snaplen < 1)
+      snaplen = WTAP_MAX_PACKET_SIZE;
+    else if (snaplen < MIN_PACKET_SIZE)
+      snaplen = MIN_PACKET_SIZE;
+  }
   
   /* Check the value range of the ringbuffer_num_files parameter */
   if (cfile.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)

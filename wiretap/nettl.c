@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.21 2001/11/13 23:55:43 gram Exp $
+ * $Id: nettl.c,v 1.22 2002/02/08 10:07:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -118,7 +118,7 @@ int nettl_open(wtap *wth, int *err)
     wth->subtype_read = nettl_read;
     wth->subtype_seek_read = nettl_seek_read;
     wth->subtype_close = nettl_close;
-    wth->snapshot_length = 16384;	/* not available in header, only in frame */
+    wth->snapshot_length = 0;	/* not available in header, only in frame */
 
     return 1;
 }
