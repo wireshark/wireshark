@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.37 2000/11/18 10:38:26 guy Exp $
+ * $Id: packet-x25.c,v 1.38 2000/11/19 04:14:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,6 @@
 #include "packet-x25.h"
 #include "packet-ip.h"
 #include "packet-osi.h"
-#include "packet-clnp.h"
 #include "nlpid.h"
 
 #define FROM_DCE			0x80
@@ -160,6 +159,9 @@ static const value_string vals_x25_type[] = {
 	{ 0,   NULL}
 };
 
+static dissector_handle_t ip_handle;
+static dissector_handle_t ositp_handle;
+
 /*
  * each vc_info node contains :
  *   the time of the first frame using this dissector (secs and usecs)
@@ -173,7 +175,7 @@ static const value_string vals_x25_type[] = {
 typedef struct _vc_info {
 	guint32 first_frame_secs, first_frame_usecs;
 	guint32 last_frame_secs, last_frame_usecs;
-	dissector_t dissect;
+	dissector_handle_t dissect;
 	struct _vc_info *next;
 } vc_info;
 
@@ -227,7 +229,7 @@ reinit_x25_hashtable(void)
 
 static void
 x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
-		         dissector_t dissect)
+		         dissector_handle_t dissect)
 {
   int idx = vc % 64;
   global_vc_info *hash_ent;
@@ -323,7 +325,7 @@ x25_hash_add_proto_end(guint16 vc, guint32 frame_secs, guint32 frame_usecs)
   vci->last_frame_usecs = frame_usecs;
 }
 
-static dissector_t
+static dissector_handle_t
 x25_hash_get_dissect(guint32 frame_secs, guint32 frame_usecs, guint16 vc)
 {
   global_vc_info *hash_ent = hash_table[vc%64];
@@ -1394,7 +1396,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int x25_pkt_len;
     int modulo;
     guint16 vc;
-    dissector_t dissect;
+    dissector_handle_t dissect;
     gboolean toa;         /* TOA/NPI address format */
     guint16 bytes0_1;
     guint8 pkt_type;
@@ -1486,7 +1488,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    case NLPID_IP:
 		x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-					 pinfo->fd->abs_usecs, dissect_ip);
+					 pinfo->fd->abs_usecs, ip_handle);
 		if (x25_tree)
 		    proto_tree_add_text(x25_tree, tvb, localoffset, 1,
 					"X.224 secondary protocol ID: IP");
@@ -1546,7 +1548,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    case PRT_ID_ISO_8073:
 			/* ISO 8073 COTP */
 			x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-					 pinfo->fd->abs_usecs, dissect_ositp);
+					 pinfo->fd->abs_usecs, ositp_handle);
 			break;
 
 		    default:
@@ -1921,13 +1923,13 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset(tvb, localoffset, -1, -1);
     /* search the dissector in the hash table */
     if ((dissect = x25_hash_get_dissect(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc)))
-	(*dissect)(next_tvb, pinfo, tree);
+	call_dissector(dissect, next_tvb, pinfo, tree);
     else {
 	/* If the Call Req. has not been captured, assume these packets carry IP */
 	if (tvb_get_guint8(tvb, localoffset) == 0x45) {
 	    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-		    pinfo->fd->abs_usecs, dissect_ip);
-	    dissect_ip(next_tvb, pinfo, tree);
+		    pinfo->fd->abs_usecs, ip_handle);
+	    call_dissector(ip_handle, next_tvb, pinfo, tree);
 	}
 	else {
 	    dissect_data(next_tvb, 0, pinfo, tree);
@@ -2022,4 +2024,14 @@ proto_register_x25(void)
     proto_register_field_array (proto_ex25, hf128, array_length(hf128));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine(&reinit_x25_hashtable);
+}
+
+void
+proto_reg_handoff_x25(void)
+{
+    /*
+     * Get handles for the IP and OSI TP (COTP/CLTP) dissector.
+     */
+    ip_handle = find_dissector("ip");
+    ositp_handle = find_dissector("ositp");
 }

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.14 2000/11/18 10:38:24 guy Exp $
+ * $Id: packet-clnp.c,v 1.15 2000/11/19 04:14:26 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -42,7 +42,6 @@
 #include "packet.h"
 #include "packet-osi.h"
 #include "packet-osi-options.h"
-#include "packet-clnp.h"
 #include "packet-isis.h"
 #include "packet-esis.h"
 #include "nlpid.h"
@@ -1527,7 +1526,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
   return found_ositp;
 } /* dissect_ositp_internal */
 
-void dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+static void dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
   if (!dissect_ositp_internal(tvb, pinfo, tree, FALSE))
     dissect_data(tvb, 0, pinfo, tree);
@@ -1860,6 +1859,8 @@ void proto_register_cotp(void)
 
 /* subdissector code */
 	register_heur_dissector_list("cotp_is", &cotp_is_heur_subdissector_list);
+
+	register_dissector("ositp", dissect_ositp);
 }
 
 void proto_register_cltp(void)

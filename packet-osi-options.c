@@ -5,7 +5,7 @@
  * ISO 10589 ISIS (Intradomain Routeing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routeing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.3 2000/11/18 10:38:24 guy Exp $
+ * $Id: packet-osi-options.c,v 1.4 2000/11/19 04:14:26 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -50,7 +50,6 @@
 #include "packet-isis-lsp.h"
 #include "packet-isis-snp.h"
 #include "packet-esis.h"
-#include "packet-clnp.h"
 #include "packet-osi-options.h"
 
 #define OSI_OPT_SECURITY           0xc5

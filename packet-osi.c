@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.36 2000/11/18 10:38:24 guy Exp $
+ * $Id: packet-osi.c,v 1.37 2000/11/19 04:14:26 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -44,7 +44,6 @@
 #include "aftypes.h"
 #include "nlpid.h"
 #include "packet-osi.h"
-#include "packet-clnp.h"
 #include "packet-isis.h"
 #include "packet-esis.h"
 
