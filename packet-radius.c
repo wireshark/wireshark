@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.52 2002/03/27 02:37:14 guy Exp $
+ * $Id: packet-radius.c,v 1.53 2002/03/27 19:39:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -281,8 +281,23 @@ static value_string radius_vendor_specific_vendors[]=
 {VENDOR_ISSANNI,"Issanni Communications"},
 {0,NULL}};
 
+/*
+references:
+	'dictoinary.cisco' file from FreeRADIUS 
+		http://www.freeradius.org
+		radiusd/raddb/dictionary.cisco
+
+	http://www.cisco.com/univercd/cc/td/doc/product/access/acs_serv/vapp_dev/vsaig3.htm
+
+	http://www.cisco.com/univercd/cc/td/doc/product/software/ios122/122cgcr/fsecur_c/fappendx/fradattr/scfrdat3.pdf
+	http://www.missl.cs.umd.edu/wireless/ethereal/cisco-vsa.pdf
+
+*/
+
+	/* stanard sttributes */
 #define VENDOR_CISCO_AVP_CISCO                 1
 #define VENDOR_CISCO_NAS_PORT                  2
+	/* fax */
 #define VENDOR_CISCO_FAX_ACCOUNT_ID_ORIGIN     3
 #define VENDOR_CISCO_FAX_MSG_ID                4
 #define VENDOR_CISCO_FAX_PAGES                 5
@@ -302,55 +317,69 @@ static value_string radius_vendor_specific_vendors[]=
 #define VENDOR_CISCO_CALL_TYPE                 19
 #define VENDOR_CISCO_PORT_USED                 20
 #define VENDOR_CISCO_ABORT_CAUSE               21
-#define VENDOR_CISCO_UNKNOWN_21                21 /* UNKNOWN ! */
-#define VENDOR_CISCO_UNKNOWN_22                22 /* UNKNOWN ! */
-#define VENDOR_CISCO_H323_REMOTE_ADDRESS	23	
-#define VENDOR_CISCO_H323_CONF_ID		24	
-#define VENDOR_CISCO_H323_SETUP_TIME		25	
-#define VENDOR_CISCO_H323_CALL_ORIGIN		26	
-#define VENDOR_CISCO_H323_CALL_TYPE		27	
-#define VENDOR_CISCO_H323_CONNECT_TIME		28	
-#define VENDOR_CISCO_H323_DISCONNECT_TIME	29	
-#define VENDOR_CISCO_H323_DISCONNECT_CAUSE	30	
-#define VENDOR_CISCO_H323_VOICE_QUALITY	31	
-#define VENDOR_CISCO_UNKNOWN_32                32 /* UNKNOWN ! */
-#define VENDOR_CISCO_H323_GW_ID		33	
-#define VENDOR_CISCO_UNKNOWN_34                34 /* UNKNOWN ! */
-#define VENDOR_CISCO_H323_INCOMING_CONF_ID	35	
-#define VENDOR_CISCO_H323_CREDIT_AMOUNT	101	
-#define VENDOR_CISCO_H323_CREDIT_TIME		102	
-#define VENDOR_CISCO_H323_RETURN_CODE		103	
-#define VENDOR_CISCO_H323_PROMPT_ID		104	
-#define VENDOR_CISCO_H323_TIME_AND_DAY		105	
-#define VENDOR_CISCO_H323_REDIRECT_NUMBER	106	
-#define VENDOR_CISCO_H323_PREFERRED_LANG	107	
-#define VENDOR_CISCO_H323_REDIRECT_IP_ADDRESS	108	
-#define VENDOR_CISCO_H323_BILLING_MODEL	109	
-#define VENDOR_CISCO_H323_CURRENCY_TYPE	110	
-#define VENDOR_CISCO_MULTILINK_ID              187     
-#define VENDOR_CISCO_NUM_IN_MULTILINK          188     
-#define VENDOR_CISCO_PRE_INPUT_OCTETS          190     
-#define VENDOR_CISCO_PRE_OUTPUT_OCTETS         191     
-#define VENDOR_CISCO_PRE_INPUT_PACKETS         192     
-#define VENDOR_CISCO_PRE_OUTPUT_PACKETS        193     
-#define VENDOR_CISCO_MAXIMUM_TIME              194     
-#define VENDOR_CISCO_DISCONNECT_CAUSE          195     
-#define VENDOR_CISCO_DATA_RATE                 197     
-#define VENDOR_CISCO_PRESESSION_TIME           198     
-#define VENDOR_CISCO_PW_LIFETIME               208     
-#define VENDOR_CISCO_IP_DIRECT                 209     
-#define VENDOR_CISCO_PPP_VJ_SLOT_COMP          210     
-#define VENDOR_CISCO_PPP_ASYNC_MAP             212     
-#define VENDOR_CISCO_IP_POOL_DEFINITION        217     
-#define VENDOR_CISCO_ASING_IP_POOL             218     
-#define VENDOR_CISCO_ROUTE_IP                  228     
-#define VENDOR_CISCO_LINK_COMPRESSION          233     
-#define VENDOR_CISCO_TARGET_UTIL               234     
-#define VENDOR_CISCO_MAXIMUM_CHANNELS          235     
-#define VENDOR_CISCO_DATA_FILTER               242     
-#define VENDOR_CISCO_CALL_FILTER               243     
-#define VENDOR_CISCO_IDLE_LIMIT                244     
-#define VENDOR_CISCO_XMIT_RATE                 255     
+	/* #22 */
+	/* H323 - Voice over IP attributes. */
+#define VENDOR_CISCO_H323_REMOTE_ADDRESS       23
+#define VENDOR_CISCO_H323_CONF_ID              24
+#define VENDOR_CISCO_H323_SETUP_TIME           25
+#define VENDOR_CISCO_H323_CALL_ORIGIN          26
+#define VENDOR_CISCO_H323_CALL_TYPE            27
+#define VENDOR_CISCO_H323_CONNECT_TIME         28
+#define VENDOR_CISCO_H323_DISCONNECT_TIME      29
+#define VENDOR_CISCO_H323_DISCONNECT_CAUSE     30
+#define VENDOR_CISCO_H323_VOICE_QUALITY        31
+	/* #32 */
+#define VENDOR_CISCO_H323_GW_ID                33
+	/* #34 */
+#define VENDOR_CISCO_H323_INCOMING_CONF_ID     35
+	/* #36-#100 */
+#define VENDOR_CISCO_H323_CREDIT_AMOUNT        101
+#define VENDOR_CISCO_H323_CREDIT_TIME          102
+#define VENDOR_CISCO_H323_RETURN_CODE          103
+#define VENDOR_CISCO_H323_PROMPT_ID            104
+#define VENDOR_CISCO_H323_TIME_AND_DAY         105
+#define VENDOR_CISCO_H323_REDIRECT_NUMBER      106
+#define VENDOR_CISCO_H323_PREFERRED_LANG       107
+#define VENDOR_CISCO_H323_REDIRECT_IP_ADDRESS  108
+#define VENDOR_CISCO_H323_BILLING_MODEL        109
+#define VENDOR_CISCO_H323_CURRENCY_TYPE        110
+	/* #111-#186 */
+/*
+       Extra attributes sent by the Cisco, if you configure
+       "radius-server vsa accounting" (requires IOS11.2+).
+*/
+#define VENDOR_CISCO_MULTILINK_ID              187
+#define VENDOR_CISCO_NUM_IN_MULTILINK          188
+	/* #189 */ 
+#define VENDOR_CISCO_PRE_INPUT_OCTETS          190
+#define VENDOR_CISCO_PRE_OUTPUT_OCTETS         191
+#define VENDOR_CISCO_PRE_INPUT_PACKETS         192
+#define VENDOR_CISCO_PRE_OUTPUT_PACKETS        193
+#define VENDOR_CISCO_MAXIMUM_TIME              194
+#define VENDOR_CISCO_DISCONNECT_CAUSE          195
+	/* #196 */ 
+#define VENDOR_CISCO_DATA_RATE                 197
+#define VENDOR_CISCO_PRESESSION_TIME           198
+	/* #199-#207 */ 
+#define VENDOR_CISCO_PW_LIFETIME               208
+#define VENDOR_CISCO_IP_DIRECT                 209
+#define VENDOR_CISCO_PPP_VJ_SLOT_COMP          210
+	/* #211 */ 
+#define VENDOR_CISCO_PPP_ASYNC_MAP             212
+	/* #213-#216 */ 
+#define VENDOR_CISCO_IP_POOL_DEFINITION        217
+#define VENDOR_CISCO_ASING_IP_POOL             218
+	/* #219-#227 */ 
+#define VENDOR_CISCO_ROUTE_IP                  228
+	/* #229-#232 */ 
+#define VENDOR_CISCO_LINK_COMPRESSION          233
+#define VENDOR_CISCO_TARGET_UTIL               234
+#define VENDOR_CISCO_MAXIMUM_CHANNELS          235
+	/* #236-#241 */ 
+#define VENDOR_CISCO_DATA_FILTER               242
+#define VENDOR_CISCO_CALL_FILTER               243
+#define VENDOR_CISCO_IDLE_LIMIT                244
+#define VENDOR_CISCO_XMIT_RATE                 255
 
 static value_string radius_vendor_cisco_types[]=
 {{VENDOR_CISCO_AVP_CISCO              ,"Cisco AV Pair" },
@@ -374,8 +403,6 @@ static value_string radius_vendor_cisco_types[]=
 { VENDOR_CISCO_CALL_TYPE              ,"Call Type" },    
 { VENDOR_CISCO_PORT_USED              ,"Port Used" },    
 { VENDOR_CISCO_ABORT_CAUSE            ,"Abort Cause" },    
-{ VENDOR_CISCO_UNKNOWN_21             ,"Vendor Cisco **UNKNOWN** 21" },
-{ VENDOR_CISCO_UNKNOWN_22             ,"Vendor Cisco **UNKNOWN** 22" },
 { VENDOR_CISCO_H323_REMOTE_ADDRESS    ,"H323 Remote Address" },
 { VENDOR_CISCO_H323_CONF_ID           ,"H323 Conf Id" },
 { VENDOR_CISCO_H323_SETUP_TIME        ,"H323 Setup Time" },
@@ -385,9 +412,7 @@ static value_string radius_vendor_cisco_types[]=
 { VENDOR_CISCO_H323_DISCONNECT_TIME   ,"H323 Disconnect Time" },
 { VENDOR_CISCO_H323_DISCONNECT_CAUSE  ,"H323 Disconnect Cause" },
 { VENDOR_CISCO_H323_VOICE_QUALITY     ,"H323 Voice Quality" },
-{ VENDOR_CISCO_UNKNOWN_32             ,"Vendor Cisco **UNKNOWN** 32" },
 { VENDOR_CISCO_H323_GW_ID             ,"H323 GW Id" },
-{ VENDOR_CISCO_UNKNOWN_34             ,"Vendor Cisco **UNKNOWN** 34" },
 { VENDOR_CISCO_H323_INCOMING_CONF_ID  ,"H323 Incoming Conf Id" },
 { VENDOR_CISCO_H323_CREDIT_AMOUNT     ,"H323 Credit Amount" },
 { VENDOR_CISCO_H323_CREDIT_TIME       ,"H323 Credit Time" },
