@@ -8,12 +8,14 @@ This release fixes the following security-related issues:
 
   The COPS dissector could go into an infinite loop.
 
-  The DLSw dissector could cause an assertion.
+  The DLSw dissector could cause an assertion, making Ethereal exit
+  prematurely.
 
   The DNP dissector could cause memory corruption.
 
-  The Gnutella dissector could cause an assertion.
-  
+  The Gnutella dissector could cause an assertion, making Ethereal
+  exit prematurely.
+
   The MMSE dissector could free static memory.
 
   The X11 protocol dissector is vulnerable to a string buffer overflow.
@@ -28,33 +30,33 @@ Everyone is encouraged to upgrade.
 New and updated features
 
   Ethereal will now detect and flag weak 802.11 WEP IVs.
-  
+
   Windows Sniffer timestamp handling has been greatly improved.
-  
-  A bug which made Ethereal crash at startup on Windows 98 and Windows ME
-  systems has been fixed.
-  
+
+  A bug which made Ethereal crash at startup on Windows 98 and Windows
+  ME systems has been fixed.
+
   Ethereal and Tethereal now support a personal "hosts" file.
-  
+
   Invalid field length handling has been greatly improved.
-  
+
   The capture progress window title now shows the interface name.
 
 
 New protocol support
 
-  AMR, CRMF, JXTA, PKIXCMP, PROFINET CBA,
+  AMR, CRMF, JXTA, PKIXCMP, PROFINET CBA
 
 Updated protocol support
 
-  AIM, ARP, BGP, BOOTP/DHCP, COPS, DAAP, DCERPC EPM, DCERPC, DCOM,
-  DHCPv6, DLSw, DNP, DNS, EAPOL, FC-FCS, FC-SWILS, FC-dNS, FCIP, FCSB3,
-  FIX, GIOP, GSM A, GSM SMS, GTP, Gnutella, H.225, H.245, HTTP, ICMP,
-  IEEE 802.11, IEEE 802a, Kerberos, L2TP, LDAP, LLC, LMP, MGCP, MIME
-  Multipart, MMSE, MPLS, MTP2, NBNS, NDMP, NMAS, NSIP, OLSR, PER, PGM,
-  PPP, PRES, PostgreSQL, Q.931, RADIUS, RMT ALC, RMT NORM, RTCP, RTP,
-  SDP, SEBEK, SIGCOMP, SIP, SLSK, SMB, SMPP, SRVLOC, SSL/TLS, T.38,
-  TACACS, TCAP, TCP, X11, eDonkey, image/GIF, image/JFIF, pflog,
+  AIM, ARP, BGP, BOOTP/DHCP, COPS, DAAP, DCERPC EPM, DCERPC, DCOM, DHCPv6,
+  DLSw, DNP, DNS, EAPOL, eDonkey, FC-dNS, FC-FCS, FC-SWILS, FCIP, FCSB3,
+  FIX, GIOP, Gnutella, GSM A, GSM SMS, GTP, H.225, H.245, HTTP, ICMP,
+  IEEE 802.11, IEEE 802a, image/GIF, image/JFIF, Kerberos, L2TP, LDAP,
+  LLC, LMP, MGCP, MIME Multipart, MMSE, MPLS, MTP2, NBNS, NDMP, NMAS,
+  NSIP, OLSR, PER, pflog, PGM, PostgreSQL, PPP, PRES, Q.931, RADIUS,
+  RMT ALC, RMT NORM, RTCP, RTP, SDP, SEBEK, SIGCOMP, SIP, SLSK, SMB,
+  SMPP, SRVLOC, SSL/TLS, T.38, TACACS, TCAP, TCP, X11
 
 
 New and updated capture file support
