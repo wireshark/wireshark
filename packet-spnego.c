@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.19 2002/08/31 07:26:10 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.20 2002/08/31 17:09:45 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,12 +60,18 @@ static int hf_spnego = -1;
 static int hf_spnego_negtokeninit = -1;
 static int hf_spnego_negtokentarg = -1;
 static int hf_spnego_mechtype = -1;
+static int hf_spnego_mechtoken = -1;
 static int hf_spnego_negtokentarg_negresult = -1;
+static int hf_spnego_mechlistmic = -1;
+static int hf_spnego_responsetoken = -1;
 
 static gint ett_spnego = -1;
 static gint ett_spnego_negtokeninit = -1;
 static gint ett_spnego_negtokentarg = -1;
 static gint ett_spnego_mechtype = -1;
+static gint ett_spnego_mechtoken = -1;
+static gint ett_spnego_mechlistmic = -1;
+static gint ett_spnego_responsetoken = -1;
 
 /*
  * XXX: Fixme. This thould be made global ...
@@ -141,8 +147,8 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	item = proto_tree_add_item( tree, hf_spnego_mechtype, tvb, offset, 
-				    len1, FALSE);
+	item = proto_tree_add_item(tree, hf_spnego_mechtype, tvb, offset, 
+				   len1, FALSE);
 	subtree = proto_item_add_subtree(item, ett_spnego_mechtype);
 
 	/*
@@ -189,6 +195,8 @@ static int
 dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			 proto_tree *tree, ASN1_SCK *hnd)
 {
+        proto_item *item;
+	proto_tree *subtree;
 	gboolean def;
 	int ret;
 	guint cls, con, tag, nbytes;
@@ -216,8 +224,9 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	proto_tree_add_text(tree, tvb, offset, nbytes, "mechToken: %s",
-			    tvb_format_text(tvb, offset, nbytes)); 
+	item = proto_tree_add_item(tree, hf_spnego_mechtoken, tvb, offset, 
+				   nbytes, FALSE);
+	subtree = proto_item_add_subtree(item, ett_spnego_mechtoken);
 
 	/*
 	 * Now, we should be able to dispatch after creating a new TVB.
@@ -225,7 +234,7 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
 	if (next_level_dissector)
-	  call_dissector(next_level_dissector, token_tvb, pinfo, tree);
+	  call_dissector(next_level_dissector, token_tvb, pinfo, subtree);
 
 	hnd->offset += nbytes; /* Update this ... */
 
@@ -277,17 +286,20 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 	else if (cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_OTS) {
 	  tvbuff_t *token_tvb;
+	  proto_item *item;
+	  proto_tree *subtree;
 
-	  proto_tree_add_text(tree, tvb, offset, len1, "mechListMIC: %s",
-			      tvb_format_text(tvb, offset, len1)); 
-
+	  item = proto_tree_add_item(tree, hf_spnego_mechlistmic, tvb, offset, 
+			      len1, FALSE); 
+	  subtree = proto_item_add_subtree(item, ett_spnego_mechlistmic);
+	  
 	/*
 	 * Now, we should be able to dispatch after creating a new TVB.
 	 */
 
 	  token_tvb = tvb_new_subset(tvb, offset, len1, -1);
 	  if (next_level_dissector)
-	    call_dissector(next_level_dissector, token_tvb, pinfo, tree);
+	    call_dissector(next_level_dissector, token_tvb, pinfo, subtree);
 
 	  hnd->offset += len1; /* Update this ... */
 	  offset += len1;
@@ -546,6 +558,8 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	int ret;
 	guint cls, con, tag, nbytes;
 	tvbuff_t *token_tvb;
+	proto_item *item;
+	proto_tree *subtree;
 
  	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &nbytes);
 
@@ -565,8 +579,10 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	proto_tree_add_text(tree, tvb, offset, nbytes, "responseToken: %s",
-			    tvb_format_text(tvb, offset, nbytes)); 
+	item = proto_tree_add_item(tree, hf_spnego_responsetoken, tvb, offset, 
+				   nbytes, FALSE); 
+
+	subtree = proto_item_add_subtree(item, ett_spnego_responsetoken);
 
 	/*
 	 * Now, we should be able to dispatch after creating a new TVB.
@@ -574,7 +590,7 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
 	if (next_level_dissector)
-	  call_dissector(next_level_dissector, token_tvb, pinfo, tree);
+	  call_dissector(next_level_dissector, token_tvb, pinfo, subtree);
 
 	hnd->offset += nbytes; /* Update this ... */
 
@@ -723,8 +739,8 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	  next_level_dissector = handle;
 
 	}
-	item = proto_tree_add_item(
-		tree, hf_spnego, tvb, offset, length, FALSE);
+	item = proto_tree_add_item(tree, hf_spnego, tvb, offset, 
+				   length, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
 
@@ -826,6 +842,16 @@ proto_register_spnego(void)
 		{ &hf_spnego_mechtype,
 		  { "mechType", "spnego.negtokeninit.mechtype", FT_NONE,
 		    BASE_NONE, NULL, 0x0, "SPNEGO negTokenInit mechTypes", HFILL}},
+		{ &hf_spnego_mechtoken,
+		  { "mechToken", "spnego.negtokeninit.mechtoken", FT_NONE,
+		    BASE_NONE, NULL, 0x0, "SPNEGO negTokenInit mechToken", HFILL}},
+		{ &hf_spnego_mechlistmic,
+		  { "mechListMIC", "spnego.mechlistmic", FT_NONE,
+		    BASE_NONE, NULL, 0x0, "SPNEGO mechListMIC", HFILL}}, 
+		{ &hf_spnego_responsetoken,
+		  { "responseToken", "spnego.negtokentarg.responsetoken",
+		    FT_NONE, BASE_NONE, NULL, 0x0, "SPNEGO responseToken",
+		    HFILL}},
 		{ &hf_spnego_negtokentarg_negresult,
 		  { "negResult", "spnego.negtokeninit.negresult", FT_UINT16,
 		    BASE_HEX, VALS(spnego_negResult_vals), 0, "negResult", HFILL}},
@@ -836,6 +862,9 @@ proto_register_spnego(void)
 		&ett_spnego_negtokeninit,
 		&ett_spnego_negtokentarg,
 		&ett_spnego_mechtype,
+		&ett_spnego_mechtoken,
+		&ett_spnego_mechlistmic,
+		&ett_spnego_responsetoken,
 	};
 
 	proto_spnego = proto_register_protocol(
