@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.214 2002/03/09 02:12:47 guy Exp $
+ * $Id: packet-smb.c,v 1.215 2002/03/10 23:13:04 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1162,6 +1162,10 @@ dissect_smb_64bit_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	guint32 filetime_high, filetime_low;
 	nstime_t ts;
 
+	/* XXX there seems also to be another special time value which is fairly common :
+	   0x40000000 00000000  
+	   the meaning of this one is yet unknown 
+	*/
 	if (tree) {
 		filetime_low = tvb_get_letohl(tvb, offset);
 		filetime_high = tvb_get_letohl(tvb, offset + 4);
@@ -1171,11 +1175,11 @@ dissect_smb_64bit_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			    proto_registrar_get_name(hf_date));
 		} else if(filetime_low==0 && filetime_high==0x80000000){
 			proto_tree_add_text(tree, tvb, offset, 8,
-			    "%s: Infinity (absolute time)",
+			    "%s: Infinity (relative time)",
 			    proto_registrar_get_name(hf_date));
 		} else if(filetime_low==0xffffffff && filetime_high==0x7fffffff){
 			proto_tree_add_text(tree, tvb, offset, 8,
-			    "%s: Infinity (relative time)",
+			    "%s: Infinity (absolute time)",
 			    proto_registrar_get_name(hf_date));
 		} else {			
 			if (nt_time_to_nstime(filetime_high, filetime_low, &ts)) {
