@@ -1,7 +1,7 @@
 /* endpoint_talkers_ipx.c
  * endpoint_talkers_ipx   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ipx.c,v 1.17 2003/09/24 02:36:34 guy Exp $
+ * $Id: endpoint_talkers_ipx.c,v 1.18 2003/12/17 22:13:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,7 +82,7 @@ void
 register_tap_menu_ipx_talkers(void)
 {
 	register_tap_menu_item("Statistics/Conversation List/IPX",
-	    gtk_ipx_endpoints_cb, NULL, NULL);
+	    gtk_ipx_endpoints_cb, NULL, NULL, NULL);
 }
 
 

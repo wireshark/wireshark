@@ -1,7 +1,7 @@
 /* endpoint_talkers_tr.c
  * endpoint_talkers_tr   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tr.c,v 1.19 2003/09/24 02:36:34 guy Exp $
+ * $Id: endpoint_talkers_tr.c,v 1.20 2003/12/17 22:13:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,7 +82,7 @@ void
 register_tap_menu_tr_talkers(void)
 {
 	register_tap_menu_item("Statistics/Conversation List/Token Ring",
-	    gtk_tr_endpoints_cb, NULL, NULL);
+	    gtk_tr_endpoints_cb, NULL, NULL, NULL);
 }
 
 

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.127 2003/12/17 20:28:49 ulfl Exp $
+ * $Id: menu.c,v 1.128 2003/12/17 22:13:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -494,7 +494,8 @@ static menu_item_t tap_menu_tree_root;
 void
 register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
-    gboolean (*selected_tree_row_enabled)(field_info *))
+    gboolean (*selected_tree_row_enabled)(field_info *),
+    gpointer callback_data)
 {
 	static const char toolspath[] = "/Analyze/";
 	char *p;
@@ -589,7 +590,7 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
 	entry = g_malloc0(sizeof (GtkItemFactoryEntry));
 	entry->path = menupath;
 	entry->callback = callback;
-	gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+	gtk_item_factory_create_item(main_menu_factory, entry, callback_data, 2);
 	set_menu_sensitivity(main_menu_factory, menupath, FALSE); /* no capture file yet */
 	child = g_malloc(sizeof (menu_item_t));
 	child->name = menupath;

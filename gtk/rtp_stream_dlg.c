@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.6 2003/12/16 18:43:35 oabad Exp $
+ * $Id: rtp_stream_dlg.c,v 1.7 2003/12/17 22:13:08 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -764,5 +764,5 @@ void
 register_tap_menu_rtp_stream(void)
 {
 	register_tap_menu_item("Statistics/RTP Streams/Show All...",
-	    rtpstream_launch, NULL, NULL);
+	    rtpstream_launch, NULL, NULL, NULL);
 }

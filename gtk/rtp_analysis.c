@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.14 2003/12/16 18:43:35 oabad Exp $
+ * $Id: rtp_analysis.c,v 1.15 2003/12/17 22:13:07 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -2049,5 +2049,5 @@ void
 register_tap_menu_rtp_analysis(void)
 {
 	register_tap_menu_item("Statistics/RTP Streams/Analyse...",
-	    rtp_analysis_cb, NULL, NULL);
+	    rtp_analysis_cb, NULL, NULL, NULL);
 }

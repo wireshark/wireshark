@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.12 2003/12/13 18:01:30 ulfl Exp $
+ * $Id: menu.h,v 1.13 2003/12/17 22:13:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,7 +61,8 @@ gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
  */
 extern void register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
-    gboolean (*selected_tree_row_enabled)(field_info *));
+    gboolean (*selected_tree_row_enabled)(field_info *),
+    gpointer callback_data);
 
 extern GtkWidget           *popup_menu_object;
 
