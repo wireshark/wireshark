@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.88 2003/05/22 05:49:23 sharpe Exp $
+ * $Id: packet-nfs.c,v 1.89 2003/05/22 21:37:54 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -255,6 +255,7 @@ static int hf_nfs_aceflag4 = -1;
 static int hf_nfs_acemask4 = -1;
 static int hf_nfs_delegate_type = -1;
 static int hf_nfs_secinfo_flavor = -1;
+static int hf_nfs_secinfo_arr4 = -1;
 static int hf_nfs_num_blocks = -1;
 static int hf_nfs_bytes_per_block = -1;
 static int hf_nfs_eof = -1;
@@ -6467,7 +6468,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * With the exception of NFS4_OP_LOCK, NFS4_OP_LOCKT, and
 		 * NFS4_OP_SETATTR, all other ops do *not* return data with the
-		 * failed status code.
+		 * failed status code. 
 		 */
 		if ((status != NFS4_OK) &&
 			((opcode != NFS4_OP_LOCK) && (opcode != NFS4_OP_LOCKT) &&
@@ -6571,8 +6572,8 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_SECINFO:
-			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-				dissect_nfs_secinfo4_res);
+			offset = dissect_rpc_array(tvb, pinfo, newftree, offset,
+				dissect_nfs_secinfo4_res, hf_nfs_secinfo_arr4);
 			break;
 
 		case NFS4_OP_SETATTR:
@@ -7616,6 +7617,10 @@ proto_register_nfs(void)
 		{ &hf_nfs_r_addr, {
 			"r_addr", "nfs.r_addr", FT_BYTES, BASE_DEC, NULL, 0,
 			"r_addr", HFILL }},
+
+		{ &hf_nfs_secinfo_arr4, {
+			"Flavors Info", "nfs.flavors.info", FT_NONE, BASE_NONE,
+			NULL, 0, "Flavors Info", HFILL }},
 	};
 
 	static gint *ett[] = {
