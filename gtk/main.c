@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.200 2001/06/05 07:38:37 guy Exp $
+ * $Id: main.c,v 1.201 2001/06/19 08:47:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -937,6 +937,16 @@ main(int argc, char *argv[])
   /* Read the preference files. */
   prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
 
+#ifdef HAVE_LIBPCAP
+  /* If this is a capture child process, it should pay no attention
+     to the "prefs.capture_prom_mode" setting in the preferences file;
+     it should do what the parent process tells it to do, and if
+     the parent process wants it not to run in promiscuous mode, it'll
+     tell it so with a "-p" flag. */
+  if (capture_child)
+    prefs->capture_prom_mode = TRUE;
+#endif
+
   /* Read the capture filter file. */
   read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
 
@@ -1103,7 +1113,7 @@ main(int argc, char *argv[])
         break;
       case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_LIBPCAP
-	prefs->capture_prom_mode = 0;
+	prefs->capture_prom_mode = FALSE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
