@@ -490,6 +490,7 @@ static const value_string ssl_31_handshake_type[] = {
 static const value_string ssl_31_compression_method[] = {
     { 0, "null" },
     { 1, "ZLIB" },
+    { 64, "LZS" },
     { 0x00, NULL }
 };
 
