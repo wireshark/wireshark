@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.39 2002/06/17 06:45:42 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.40 2002/06/21 05:13:15 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,12 +109,10 @@ static int hf_spoolss_servermajorversion = -1;
 static int hf_spoolss_serverminorversion = -1;
 static int hf_spoolss_driverpath = -1;
 static int hf_spoolss_datafile = -1;
-static int hf_spoolss_environment = -1;
 static int hf_spoolss_configfile = -1;
 static int hf_spoolss_helpfile = -1;
 static int hf_spoolss_monitorname = -1;
 static int hf_spoolss_defaultdatatype = -1;
-static int hf_spoolss_previousnames = -1;
 static int hf_spoolss_driverinfo_cversion = -1;
 static int hf_spoolss_dependentfiles = -1;
 static int hf_spoolss_printer_status = -1;
@@ -643,7 +641,7 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 static gint ett_UNISTR2 = -1;
 
 static int prs_UNISTR2_dp(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			  proto_tree *tree, GList **dp_list, void **data)
+			  proto_tree *tree, GList **dp_list _U_, void **data)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -763,7 +761,6 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 size;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -887,7 +884,6 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *value_name = NULL;
-	guint32 size;
 	const guint8 *policy_hnd;
 
 	if (dcv->rep_frame != 0)
@@ -1024,7 +1020,7 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 
 static int
 dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			  proto_tree *tree, char *drep, char **data)
+			  proto_tree *tree, char *drep _U_, char **data)
 {
 	gint len, remaining;
 	char *text;
@@ -1083,7 +1079,7 @@ static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static gint ett_DEVMODE = -1;
 
 static int prs_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		       proto_tree *tree, GList **dp_list, void **data)
+		       proto_tree *tree, GList **dp_list _U_, void **data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -1246,7 +1242,7 @@ dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int prs_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		      proto_tree *tree, GList **dp_list, int struct_start,
+		      proto_tree *tree, GList **dp_list _U_, int struct_start,
 		      void **data, char *name)
 {
 	proto_item *item;
@@ -1293,7 +1289,8 @@ static int prs_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_PRINTER_INFO_0 = -1;
 
 static int prs_PRINTER_INFO_0(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *tree, GList **dp_list, void **data)
+			      proto_tree *tree, GList **dp_list, 
+			      void **data _U_)
 {
 	int struct_start = offset;
 
@@ -1356,7 +1353,8 @@ static int prs_PRINTER_INFO_0(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_PRINTER_INFO_1 = -1;
 
 static int prs_PRINTER_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *tree, GList **dp_list, void **data)
+			      proto_tree *tree, GList **dp_list, 
+			      void **data _U_)
 {
 	int struct_start = offset;
 
@@ -1529,7 +1527,7 @@ static gint ett_PRINTER_INFO_2 = -1;
 
 static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, int len, GList **dp_list, 
-			      void **data)
+			      void **data _U_)
 {
 	int struct_start = offset;
 	guint32 rel_offset;
@@ -1616,8 +1614,8 @@ static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_PRINTER_INFO_3 = -1;
 
 static int prs_PRINTER_INFO_3(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *tree, int len, GList **dp_list, 
-			      void **data)
+			      proto_tree *tree, int len, GList **dp_list _U_, 
+			      void **data _U_)
 {
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Flags");
 
@@ -1661,7 +1659,8 @@ static int prs_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_PRINTER_DEFAULT = -1;
 
 static int prs_PRINTER_DEFAULT(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			       proto_tree *tree, GList **dp_list, void **data)
+			       proto_tree *tree, GList **dp_list, 
+			       void **data _U_)
 {
 	GList *child_dp_list = NULL;
 	proto_item *item;
@@ -1702,7 +1701,8 @@ static int prs_PRINTER_DEFAULT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_USER_LEVEL_1 = -1;
 
 static int prs_USER_LEVEL_1(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			    proto_tree *tree, GList **dp_list, void **data)
+			    proto_tree *tree, GList **dp_list, 
+			    void **data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -1743,7 +1743,7 @@ static gint ett_USER_LEVEL = -1;
 
 static int prs_USER_LEVEL(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			  proto_tree *tree, GList **parent_dp_list,
-			  void **data)
+			  void **data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -2260,7 +2260,6 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 printerlocal = (guint32)dcv->private_data;
 	e_ctx_hnd policy_hnd;
 
 	if (dcv->req_frame != 0)
@@ -2301,7 +2300,7 @@ struct BUFFER_DATA {
 };
 
 static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			   proto_tree *tree, GList **dp_list, void **data)
+			   proto_tree *tree, GList **dp_list _U_, void **data)
 {
 	proto_item *item, *subitem;
 	proto_tree *subtree, *subsubtree;
@@ -2348,7 +2347,7 @@ static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_BUFFER = -1;
 
 static int prs_BUFFER(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		      proto_tree *tree, GList **dp_list, void **data)
+		      proto_tree *tree, GList **dp_list, void **data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -2478,7 +2477,8 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_SEC_DESC_BUF = -1;
 
 static int prs_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, GList **dp_list, void **Data)
+			    proto_tree *tree, GList **dp_list _U_, 
+			    void **Data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -2507,7 +2507,7 @@ static gint ett_SPOOL_PRINTER_INFO_LEVEL = -1;
 
 static int prs_SPOOL_PRINTER_INFO_LEVEL(tvbuff_t *tvb, int offset, 
 					packet_info *pinfo, proto_tree *tree, 
-					GList **dp_list, void **data)
+					GList **dp_list, void **data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -2554,7 +2554,6 @@ static int prs_SPOOL_PRINTER_INFO_LEVEL(tvbuff_t *tvb, int offset,
 		break;		
 	}
 
-done:
 	return offset;
 }
 
@@ -2632,7 +2631,7 @@ static gint ett_FORM_REL = -1;
 
 static int prs_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *tree, int struct_start, GList **dp_list, 
-			void **data)
+			void **data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -2961,7 +2960,7 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 data_size, value_size;
+	guint32 value_size;
 	proto_item *value_item;
 	proto_tree *value_subtree;
 	int uint16s_offset;
@@ -3142,7 +3141,7 @@ static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
 static gint ett_FORM_1 = -1;
 
 static int prs_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		      proto_tree *tree, GList **dp_list, void **data)
+		      proto_tree *tree, GList **dp_list, void **data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -3190,7 +3189,7 @@ static int prs_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_FORM_CTR = -1;
 
 static int prs_FORM_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *tree, GList **dp_list, void **data)
+		    proto_tree *tree, GList **dp_list _U_, void **data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
