@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.32 2001/08/27 08:42:26 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.33 2001/08/27 09:09:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,9 +59,10 @@ static int proto_smb_lanman = -1;
 static int hf_function_code = -1;
 static int hf_param_desc = -1;
 static int hf_return_desc = -1;
-static int hf_not_implemented = -1;
+static int hf_aux_data_desc = -1;
 static int hf_detail_level = -1;
 static int hf_recv_buf_len = -1;
+static int hf_send_buf_len = -1;
 static int hf_response_to = -1;
 static int hf_continuation_from = -1;
 static int hf_status = -1;
@@ -74,6 +75,8 @@ static int hf_share_comment = -1;
 static int hf_share_permissions = -1;
 static int hf_share_max_uses = -1;
 static int hf_share_current_uses = -1;
+static int hf_share_path = -1;
+static int hf_share_password = -1;
 static int hf_server_name = -1;
 static int hf_server_major = -1;
 static int hf_server_minor = -1;
@@ -91,6 +94,7 @@ static int hf_day = -1;
 static int hf_month = -1;
 static int hf_year = -1;
 static int hf_weekday = -1;
+static int hf_enumeration_domain = -1;
 static int hf_computer_name = -1;
 static int hf_user_name = -1;
 static int hf_workstation_domain = -1;
@@ -129,12 +133,13 @@ static int hf_logon_hours = -1;
 static int hf_code_page = -1;
 static int hf_new_password = -1;
 static int hf_old_password = -1;
+static int hf_reserved = -1;
 
 static gint ett_lanman = -1;
-static gint ett_lanman_servers = -1;
-static gint ett_lanman_server = -1;
 static gint ett_lanman_shares = -1;
 static gint ett_lanman_share = -1;
+static gint ett_lanman_servers = -1;
+static gint ett_lanman_server = -1;
 
 /*
  * See
@@ -200,41 +205,320 @@ static const value_string weekday_vals[] = {
 };
 
 static int
-not_implemented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+add_word_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
 {
-	proto_tree_add_item(tree, hf_not_implemented, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+	guint16 WParam;
 
-	return offset+tvb_length_remaining(tvb,offset);
+	if (hf_index != -1)
+		proto_tree_add_item(tree, hf_index, tvb, offset, 2, TRUE);
+	else {
+		WParam = tvb_get_letohs(tvb, offset);
+		proto_tree_add_text(tree, tvb, offset, 2,
+		    "Word Param: %u (0x%04X)", WParam, WParam);
+	}
+	offset += 2;
+	return offset;
 }
 
 static int
-add_string_pointer(tvbuff_t *tvb, proto_tree *tree, int offset, int convert,
-    int hf_index)
+add_dword_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	guint32 LParam;
+
+	if (hf_index != -1)
+		proto_tree_add_item(tree, hf_index, tvb, offset, 4, TRUE);
+	else {
+		LParam = tvb_get_letohl(tvb, offset);
+		proto_tree_add_text(tree, tvb, offset, 4,
+		    "Doubleword Param: %u (0x%08X)", LParam, LParam);
+	}
+	offset += 4;
+	return offset;
+}
+
+static int
+add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	guint8 BParam;
+
+	if (hf_index != -1)
+		proto_tree_add_item(tree, hf_index, tvb, offset, count, TRUE);
+	else {
+		if (count == 1) {
+			BParam = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, count,
+			    "Byte Param: %u (0x%02X)",
+			    BParam, BParam);
+		} else {
+			proto_tree_add_text(tree, tvb, offset, count,
+			    "Bytes Param: %s, type is wrong",
+			    tvb_bytes_to_str(tvb, offset, count));
+		}
+	}
+	offset += count;
+	return offset;
+}
+
+static int
+add_pad_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	/*
+	 * This is for parameters that have descriptor entries but that
+	 * are, in practice, just padding.
+	 */
+	offset += count;
+	return offset;
+}
+
+static void
+add_null_pointer_param(tvbuff_t *tvb, int offset, int count,
+    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+{
+	if (hf_index != -1) {
+		proto_tree_add_text(tree, tvb, offset, 0,
+		  "%s (Null pointer)",
+		  proto_registrar_get_name(hf_index));
+	} else {
+		proto_tree_add_text(tree, tvb, offset, 0,
+		    "String Param (Null pointer)");
+	}
+}
+
+static int
+add_string_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	guint string_len;
+
+	string_len = tvb_strsize(tvb, offset);
+	if (hf_index != -1) {
+		proto_tree_add_item(tree, hf_index, tvb, offset, string_len,
+		    TRUE);
+	} else {
+		proto_tree_add_text(tree, tvb, offset, string_len,
+		    "String Param: %s",
+		    tvb_format_text(tvb, offset, string_len));
+	}
+	offset += string_len;
+	return offset;
+}
+
+static const char *
+get_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp, int *lenp)
 {
 	int cptr;
 	gint string_len;
 
 	/* pointer to string */
 	cptr = (tvb_get_letohl(tvb, offset)&0xffff)-convert;
-	offset += 4;
+	*cptrp = cptr;
 
 	/* string */
 	if (tvb_offset_exists(tvb, cptr) &&
 	    (string_len = tvb_strnlen(tvb, cptr, -1)) != -1) {
-		proto_tree_add_item(tree, hf_index, tvb, cptr,
-		    string_len + 1, TRUE);
+	    	string_len++;	/* include the terminating '\0' */
+	    	*lenp = string_len;
+	    	return tvb_format_text(tvb, offset, string_len);
+	} else
+		return NULL;
+}
+
+static int
+add_pointer_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	int cptr;
+	const char *string;
+	gint string_len;
+
+	string = get_pointer_value(tvb, offset, convert, &cptr, &string_len);
+	offset += 4;
+
+	/* string */
+	if (string != NULL) {
+		if (hf_index != -1) {
+			proto_tree_add_item(tree, hf_index, tvb, cptr,
+			    string_len, TRUE);
+		} else {
+			proto_tree_add_text(tree, tvb, offset, string_len,
+			    "String Param: %s", string);
+		}
 	} else {
-		proto_tree_add_text(tree, tvb, 0, 0,
-		    "%s: <String goes past end of frame>",
-		    proto_registrar_get_name(hf_index));
+		if (hf_index != -1) {
+			proto_tree_add_text(tree, tvb, 0, 0,
+			    "%s: <String goes past end of frame>",
+			    proto_registrar_get_name(hf_index));
+		} else {
+			proto_tree_add_text(tree, tvb, 0, 0,
+			    "String Param: <String goes past end of frame>");
+		}
 	}
 
 	return offset;
 }
 
 static int
-add_byte_array_pointer(tvbuff_t *tvb, proto_tree *tree, int offset, int len,
-    int convert, int hf_index)
+add_detail_level(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	struct smb_info *smb_info = pinfo->private;
+	struct smb_request_val *request_val = smb_info->request_val;
+	guint16 level;
+
+	level = tvb_get_letohs(tvb, offset);
+	if (!pinfo->fd->flags.visited)
+		request_val->last_level = level;	/* remember this for the response */
+	proto_tree_add_uint(tree, hf_index, tvb, offset, 2, level);
+	offset += 2;
+	return offset;
+}
+
+static int
+add_max_uses(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	guint16 WParam;
+
+	WParam = tvb_get_letohs(tvb, offset);
+	if (WParam == 0xffff) {	/* -1 */
+		proto_tree_add_uint_format(tree, hf_index, tvb,
+		    offset, 2, WParam,
+		    "%s: No limit",
+		    proto_registrar_get_name(hf_index));
+	} else {
+		proto_tree_add_uint(tree, hf_index, tvb,
+			    offset, 2, WParam);
+	}
+	offset += 2;
+	return offset;
+}
+
+static int
+add_server_type(tvbuff_t *tvb, int offset, int count,
+    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+{
+	dissect_smb_server_type_flags(tvb, pinfo, tree, offset, FALSE);
+	offset += 4;
+	return offset;
+}
+
+static int
+add_server_type_info(tvbuff_t *tvb, int offset, int count,
+    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+{
+	dissect_smb_server_type_flags(tvb, pinfo, tree, offset, TRUE);
+	offset += 4;
+	return offset;
+}
+
+static int
+add_reltime(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	struct timeval timeval;
+
+	timeval.tv_sec = tvb_get_letohl(tvb, offset);
+	timeval.tv_usec = 0;
+	proto_tree_add_time_format(tree, hf_index, tvb, offset, 4,
+	    &timeval, "%s: %s", proto_registrar_get_name(hf_index),
+	    time_secs_to_str(timeval.tv_sec));
+	offset += 4;
+	return offset;
+}
+
+/*
+ * Sigh.  These are for handling Microsoft's annoying almost-UNIX-time-but-
+ * it's-local-time-not-UTC time.
+ */
+static int
+add_abstime_common(tvbuff_t *tvb, int offset, int count,
+    packet_info *pinfo, proto_tree *tree, int convert, int hf_index,
+    const char *absent_name)
+{
+	struct timeval timeval;
+	struct tm *tmp;
+
+	timeval.tv_sec = tvb_get_letohl(tvb, offset);
+	timeval.tv_usec = 0;
+	if (timeval.tv_sec == -1) {
+		proto_tree_add_time_format(tree, hf_index, tvb, offset, 4,
+		    &timeval, "%s: %s", proto_registrar_get_name(hf_index),
+		    absent_name);
+	} else {
+		/*
+		 * Run it through "gmtime()" to break it down, and then
+		 * run it through "mktime()" to put it back together
+		 * as UTC.
+		 */
+		tmp = gmtime(&timeval.tv_sec);
+		tmp->tm_isdst = -1;	/* we don't know if it's DST or not */
+		timeval.tv_sec = mktime(tmp);
+		proto_tree_add_time(tree, hf_index, tvb, offset, 4,
+		    &timeval);
+	}
+	offset += 4;
+	return offset;
+}
+
+static int
+add_abstime_absent_never(tvbuff_t *tvb, int offset, int count,
+    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+{
+	return add_abstime_common(tvb, offset, count, pinfo, tree,
+	    convert, hf_index, "Never");
+}
+
+static int
+add_abstime_absent_unknown(tvbuff_t *tvb, int offset, int count,
+    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+{
+	return add_abstime_common(tvb, offset, count, pinfo, tree,
+	    convert, hf_index, "Unknown");
+}
+
+static int
+add_nlogons(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	guint16 nlogons;
+
+	nlogons = tvb_get_letohs(tvb, offset);
+	if (nlogons == 0xffff)	/* -1 */
+		proto_tree_add_uint_format(tree, hf_index, tvb, offset, 2,
+		    nlogons, "%s: Unknown",
+		    proto_registrar_get_name(hf_index));
+	else
+		proto_tree_add_uint(tree, hf_index, tvb, offset, 2,
+		    nlogons);
+	offset += 2;
+	return offset;
+}
+
+static int
+add_max_storage(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	guint32 max_storage;
+
+	max_storage = tvb_get_letohl(tvb, offset);
+	if (max_storage == 0xffffffff)
+		proto_tree_add_uint_format(tree, hf_index, tvb, offset, 4,
+		    max_storage, "%s: No limit",
+		    proto_registrar_get_name(hf_index));
+	else
+		proto_tree_add_uint(tree, hf_index, tvb, offset, 4,
+		    max_storage);
+	offset += 4;
+	return offset;
+}
+
+static int
+add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
 {
 	int cptr;
 
@@ -243,715 +527,63 @@ add_byte_array_pointer(tvbuff_t *tvb, proto_tree *tree, int offset, int len,
 	offset += 4;
 
 	/* string */
-	proto_tree_add_item(tree, hf_index, tvb, cptr, len, TRUE);
-
-	return offset;
-}
-
-/*
- * Sigh.  This is for handling Microsoft's annoying almost-UNIX-time-but-
- * it's-local-time-not-UTC time.
- */
-static time_t
-localtime_to_utc(time_t local)
-{
-	struct tm *tmp;
-
-	/*
-	 * Run it through "gmtime()" to break it down, and then run it
-	 * through "mktime()" to put it back together as UTC.
-	 */
-	tmp = gmtime(&local);
-	tmp->tm_isdst = -1;	/* we don't know if it's DST or not */
-	return mktime(tmp);
-}
-
-static int
-netshareenum_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
-{
-	/* detail level */
-	proto_tree_add_item(tree, hf_detail_level, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* receiver buffer length */
-	proto_tree_add_item(tree, hf_recv_buf_len, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	return offset;
-}
-
-static int
-netshareenum_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
-{
-	struct smb_info *smb_info = pinfo->private;
-	proto_item *it = NULL;
-	proto_tree *tr = NULL;
-	guint16 acount, ecount;
-	int i;
-
-	/* entry count */
-	ecount = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_ecount, tvb, offset, 2, ecount);
-	offset += 2;
-
-	/* available count */
-	acount = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_acount, tvb, offset, 2, acount);
-	offset += 2;
-
-	if (status != 0 && status != SMBE_moredata)
-		return offset;
-
-	/* The rest is in the data section. */
-	offset = smb_info->data_offset;
-
-	/* create a subtree for all available shares */
-	if (tree) {
-		it = proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset),
-		    "Available Shares");
-		tr = proto_item_add_subtree(it, ett_lanman_shares);
-	}
-
-	for (i = 0; i < ecount; i++){
-		proto_item *si = NULL;
-		proto_tree *st = NULL;
-		char *share;
-		int start_offset = offset;
-
-		share = (char *)tvb_get_ptr(tvb, offset, 13);
-
-		if (tree) {
-			si = proto_tree_add_text(tr, tvb, offset,
-			    tvb_length_remaining(tvb, offset),
-			    "Share %s", share);
-			st = proto_item_add_subtree(si, ett_lanman_shares);
-		}
-
-		/* share name */
-		proto_tree_add_item(st, hf_share_name, tvb, offset, 13, TRUE);
-		offset += 13;
-
-		/* pad byte */
-		offset += 1;
-
-		/* share type */
-		proto_tree_add_item(st, hf_share_type, tvb, offset, 2, TRUE);
-		offset += 2;
-
-		/* share comment */
-		offset = add_string_pointer(tvb, st, offset, convert,
-		    hf_share_comment);
-
-		proto_item_set_len(si, offset-start_offset);
-	}
-
-	return offset;
-}
-
-static int
-netsharegetinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
-{
-	guint share_name_len;
-	guint16 level;
-
-	/* share name */
-	share_name_len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_share_name, tvb, offset, share_name_len,
-	    TRUE);
-	offset += share_name_len;
-
-	/* detail level */
-	level = tvb_get_letohs(tvb, offset);
-	if (!pinfo->fd->flags.visited)
-		request_val->last_level = level;	/* remember this for the response */
-	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
-	offset += 2;
-
-	/* receiver buffer length */
-	proto_tree_add_item(tree, hf_recv_buf_len, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	return offset;
-}
-
-static int
-netsharegetinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
-{
-	struct smb_info *smb_info = pinfo->private;
-	guint16 abytes;
-	guint16 permissions;
-	guint16 max_uses;
-
-	/* available bytes */
-	abytes = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_abytes, tvb, offset, 2, abytes);
-	offset += 2;
-
-	if (status != 0 && status != SMBE_moredata)
-		return offset;
-
-	/* XXX - what is this field? */
-	proto_tree_add_text(tree, tvb, offset, 2, "Mysterious field: %04x",
-	    tvb_get_letohs(tvb, offset));
-	offset += 2;
-
-	/* The rest is in the data section. */
-	offset = smb_info->data_offset;
-
-	/* share name */
-	proto_tree_add_item(tree, hf_share_name, tvb, offset, 13, TRUE);
-	offset += 13;
-
-	if (request_val->last_level == 0)
-		return offset;	/* that's it, at level 0 */
-
-	/* pad byte */
-	offset += 1;
-
-	/* share type */
-	proto_tree_add_item(tree, hf_share_type, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* share comment */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_share_comment);
-
-	if (request_val->last_level == 1)
-		return offset;	/* that's it, at level 1 */
-
-	/* share permissions */
-	/* XXX - do as bit fields */
-	permissions = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_share_permissions, tvb, offset, 2,
-	    permissions);
-	offset += 2;
-
-	/* max uses */
-	max_uses = tvb_get_letohs(tvb, offset);
-	if (max_uses == 0xffff) {	/* -1 */
-		proto_tree_add_uint_format(tree, hf_share_max_uses, tvb,
-		    offset, 2, max_uses, "Share Max Uses: No limit");
-	} else {
-		proto_tree_add_uint(tree, hf_share_max_uses, tvb, offset, 2,
-		    max_uses);
-	}
-	offset += 2;
-
-	/* current uses */
-	max_uses = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_share_current_uses, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	return offset;
-}
-
-static int
-add_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int convert, guint16 level)
-{
-	/* server name */
-	proto_tree_add_item(tree, hf_server_name, tvb, offset, 16, TRUE);
-	offset += 16;
-
-	if (level) {
-		/* major version */
-		proto_tree_add_item(tree, hf_server_major, tvb, offset, 1,
-		    TRUE);
-		offset += 1;
-
-		/* minor version */
-		proto_tree_add_item(tree, hf_server_minor, tvb, offset, 1,
-		    TRUE);
-		offset += 1;
-
-		/* server type flags */
-		dissect_smb_server_type_flags(tvb, pinfo, tree, offset, FALSE);
-		offset += 4;
-
-		/* server comment */
-		offset = add_string_pointer(tvb, tree, offset, convert,
-		    hf_server_comment);
-	}
-
-	return offset;
-}
-
-static int
-netservergetinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
-{
-	guint16 level;
-
-	/* detail level */
-	level = tvb_get_letohs(tvb, offset);
-	if (!pinfo->fd->flags.visited)
-		request_val->last_level = level;	/* remember this for the response */
-	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
-	offset += 2;
-
-	/* receiver buffer length */
-	proto_tree_add_item(tree, hf_recv_buf_len, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	return offset;
-}
-
-static int
-netservergetinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
-{
-	struct smb_info *smb_info = pinfo->private;
-	guint16 abytes;
-
-	/* available bytes */
-	abytes = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_abytes, tvb, offset, 2, abytes);
-	offset += 2;
-
-	/* XXX - what is this field? */
-	proto_tree_add_text(tree, tvb, offset, 2, "Mysterious field: %04x",
-	    tvb_get_letohs(tvb, offset));
-	offset += 2;
-
-	if (status != 0 && status != SMBE_moredata)
-		return offset;
-
-	/* The rest is in the data section. */
-	offset = smb_info->data_offset;
-
-	offset = add_server_info(tvb, pinfo, tree, offset, convert,
-	    request_val->last_level);
-
-	return offset;
-}
-
-static int
-netusergetinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
-{
-	guint16 level;
-
-	/* detail level */
-	level = tvb_get_letohs(tvb, offset);
-	if (!pinfo->fd->flags.visited)
-		request_val->last_level = level;	/* remember this for the response */
-	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
-	offset += 2;
-
-	/* receiver buffer length */
-	proto_tree_add_item(tree, hf_recv_buf_len, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	return offset;
-}
-
-static int
-netusergetinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
-{
-	struct smb_info *smb_info = pinfo->private;
-	guint16 abytes;
-	struct timeval timeval;
-	guint16 nlogons;
-	guint32 max_storage;
-
-	/* available bytes */
-	abytes = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_abytes, tvb, offset, 2, abytes);
-	offset += 2;
-
-	/* XXX - what is this field? */
-	proto_tree_add_text(tree, tvb, offset, 2, "Mysterious field: %04x",
-	    tvb_get_letohs(tvb, offset));
-	offset += 2;
-
-	if (status != 0 && status != SMBE_moredata)
-		return offset;
-
-	/* The rest is in the data section. */
-	offset = smb_info->data_offset;
-
-	/* user name */
-	proto_tree_add_item(tree, hf_user_name, tvb, offset, 21, TRUE);
-	offset += 21;
-
-	/* pad1 */
-	offset += 1;
-
-	/* user comment */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_user_comment);
-
-	/* full name */
-	offset = add_string_pointer(tvb, tree, offset, convert, hf_full_name);
-
-	/* privilege level */
-	proto_tree_add_item(tree, hf_privilege_level, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* operator privileges */
-	proto_tree_add_item(tree, hf_operator_privileges, tvb, offset, 4, TRUE);
-	offset += 4;
-
-	/* password age */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	proto_tree_add_time_format(tree, hf_password_age, tvb, offset, 4,
-	    &timeval, "Password Age: %s", time_secs_to_str(timeval.tv_sec));
-	offset += 4;
-
-	/* home directory */
-	offset = add_string_pointer(tvb, tree, offset, convert, hf_homedir);
-
-	/* parameters */
-	offset = add_string_pointer(tvb, tree, offset, convert, hf_parameters);
-
-	timeval.tv_usec = 0;
-
-	/* last logon time */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	if (timeval.tv_sec == -1) {
-		proto_tree_add_time_format(tree, hf_last_logon, tvb, offset, 4,
-		    &timeval, "Last Logon Date/Time: Unknown");
-	} else {
-		timeval.tv_sec = localtime_to_utc(timeval.tv_sec);
-		proto_tree_add_time(tree, hf_last_logon, tvb, offset, 4,
-		    &timeval);
-	}
-	offset += 4;
-
-	/* last logoff time */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	if (timeval.tv_sec == -1) {
-		proto_tree_add_time_format(tree, hf_last_logoff, tvb, offset, 4,
-		    &timeval, "Last Logoff Date/Time: Unknown");
-	} else {
-		timeval.tv_sec = localtime_to_utc(timeval.tv_sec);
-		proto_tree_add_time(tree, hf_last_logoff, tvb, offset, 4,
-		    &timeval);
-	}
-	offset += 4;
-
-	/* bad password count */
-	proto_tree_add_item(tree, hf_bad_pw_count, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* number of logons */
-	nlogons = tvb_get_letohs(tvb, offset);
-	if (nlogons == 0xffff)	/* -1 */
-		proto_tree_add_uint_format(tree, hf_num_logons, tvb, offset, 2,
-		    nlogons, "Number of Logons: Unknown");
-	else
-		proto_tree_add_uint(tree, hf_num_logons, tvb, offset, 2,
-		    nlogons);
-	offset += 2;
-
-	/* logon server */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_logon_server);
-
-	/* country code */
-	/* XXX - we should have a value_string table for these */
-	proto_tree_add_item(tree, hf_country_code, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* workstations */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_workstations);
-
-	/* max storage */
-	max_storage = tvb_get_letohl(tvb, offset);
-	if (max_storage == 0xffffffff)
-		proto_tree_add_uint_format(tree, hf_max_storage, tvb, offset, 4,
-		    max_storage, "Max Storage: No limit");
-	else
-		proto_tree_add_uint(tree, hf_max_storage, tvb, offset, 4,
-		    max_storage);
-	offset += 4;
-
-	/* units per week */
-	proto_tree_add_item(tree, hf_units_per_week, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* logon hours */
 	/* XXX - should actually carve up the bits */
-	/* XXX - how do we recognize a null pointer? */
-	offset = add_byte_array_pointer(tvb, tree, offset, 21, convert,
-	    hf_logon_hours);
-
-	/* code page */
-	/* XXX - we should have a value_string table for these */
-	proto_tree_add_item(tree, hf_code_page, tvb, offset, 2, TRUE);
-	offset += 2;
+	proto_tree_add_item(tree, hf_index, tvb, cptr, 21, TRUE);
 
 	return offset;
 }
 
 static int
-netremotetod_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
+add_tzoffset(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
 {
-	/* receiver buffer length */
-	proto_tree_add_item(tree, hf_recv_buf_len, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	return offset;
-}
-
-static int
-netremotetod_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
-{
-	struct timeval timeval;
 	gint16 tzoffset;
-	guint16 timeinterval;
 
-	if (status != 0 && status != SMBE_moredata)
-		return offset;
-
-	/* current time */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	timeval.tv_sec = localtime_to_utc(timeval.tv_sec);
-	timeval.tv_usec = 0;
-	proto_tree_add_time(tree, hf_current_time, tvb, offset, 4, &timeval);
-	offset += 4;
-
-	/* msecs since arbitrary point in the past */
-	proto_tree_add_item(tree, hf_msecs, tvb, offset, 4, TRUE);
-	offset += 4;
-
-	/* hour */
-	proto_tree_add_item(tree, hf_hour, tvb, offset, 1, TRUE);
-	offset += 1;
-
-	/* minute */
-	proto_tree_add_item(tree, hf_minute, tvb, offset, 1, TRUE);
-	offset += 1;
-
-	/* second */
-	proto_tree_add_item(tree, hf_second, tvb, offset, 1, TRUE);
-	offset += 1;
-
-	/* hundredths-of-second */
-	proto_tree_add_item(tree, hf_hundredths, tvb, offset, 1, TRUE);
-	offset += 1;
-
-	/* time zone offset, in minutes */
 	tzoffset = tvb_get_letohs(tvb, offset);
 	if (tzoffset < 0) {
 		proto_tree_add_int_format(tree, hf_tzoffset, tvb, offset, 2,
-		    tzoffset, "Time Zone Offset: %s east of UTC",
+		    tzoffset, "%s: %s east of UTC",
+		    proto_registrar_get_name(hf_index),
 		    time_secs_to_str(-tzoffset*60));
 	} else if (tzoffset > 0) {
 		proto_tree_add_int_format(tree, hf_tzoffset, tvb, offset, 2,
-		    tzoffset, "Time Zone Offset: %s west of UTC",
+		    tzoffset, "%s: %s west of UTC",
+		    proto_registrar_get_name(hf_index),
 		    time_secs_to_str(tzoffset*60));
 	} else {
 		proto_tree_add_int_format(tree, hf_tzoffset, tvb, offset, 2,
-		    tzoffset, "Time Zone Offset: at UTC");
+		    tzoffset, "%s: at UTC",
+		    proto_registrar_get_name(hf_index));
 	}
 	offset += 2;
+	return offset;
+}
 
-	/* timer resolution */
+static int
+add_timeinterval(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
+{
+	guint16 timeinterval;
+
 	timeinterval = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint_format(tree, hf_timeinterval, tvb, offset, 2,
-	   timeinterval, "Time Interval: %f seconds", timeinterval*.0001);
+	   timeinterval, "%s: %f seconds", proto_registrar_get_name(hf_index),
+	   timeinterval*.0001);
 	offset += 2;
-
-	/* day */
-	proto_tree_add_item(tree, hf_day, tvb, offset, 1, TRUE);
-	offset += 1;
-
-	/* month */
-	proto_tree_add_item(tree, hf_month, tvb, offset, 1, TRUE);
-	offset += 1;
-
-	/* year */
-	proto_tree_add_item(tree, hf_year, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* day of week */
-	proto_tree_add_item(tree, hf_weekday, tvb, offset, 1, TRUE);
-	offset += 1;
-
 	return offset;
 }
 
 static int
-netserverenum2_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
+add_logon_args(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+    proto_tree *tree, int convert, int hf_index)
 {
-	guint16 level;
-
-	/* detail level */
-	level = tvb_get_letohs(tvb, offset);
-	if (!pinfo->fd->flags.visited)
-		request_val->last_level = level;	/* remember this for the response */
-	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
-	offset += 2;
-
-	/* receiver buffer length */
-	proto_tree_add_item(tree, hf_recv_buf_len, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* server type flags */
-	dissect_smb_server_type_flags(tvb, pinfo, tree, offset, TRUE);
-	offset += 4;
-
-	return offset;
-}
-
-static int
-netserverenum2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
-{
-	struct smb_info *smb_info = pinfo->private;
-	guint16 ecount, acount;
-	proto_item *it = NULL;
-	proto_tree *tr = NULL;
-	int i;
-
-	/* entry count */
-	ecount = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_ecount, tvb, offset, 2, ecount);
-	offset += 2;
-
-	/* available count */
-	acount = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_acount, tvb, offset, 2, acount);
-	offset += 2;
-
-	if (status != 0 && status != SMBE_moredata)
+	if (count != 54) {
+		proto_tree_add_text(tree, tvb, offset, count,
+		   "Bogus NetWkstaUserLogon parameters: length is %d, should be 54",
+		   count);
+		offset += count;
 		return offset;
-
-	/* The rest is in the data section. */
-	offset = smb_info->data_offset;
-
-	if (tree) {
-		it = proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Servers");
-		tr = proto_item_add_subtree(it, ett_lanman_servers);
 	}
-
-	for (i = 0; i < ecount; i++) {
-		proto_item *si = NULL;
-		proto_tree *st = NULL;
-		char *server;
-		int old_offset = offset;
-
-		server = (char *)tvb_get_ptr(tvb, offset, 16);
-		if (tree) {
-			si = proto_tree_add_text(tr, tvb, offset,
-			    request_val->last_level ? 26 : 16,
-			    "Server %.16s", server);
-			st = proto_item_add_subtree(si, ett_lanman_server);
-		}
-
-		offset = add_server_info(tvb, pinfo, st, offset, convert,
-		    request_val->last_level);
-
-		proto_item_set_len(si, offset-old_offset);
-	}
-
-	return offset;
-}
-
-static int
-netwkstagetinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
-{
-	guint16 level;
-
-	/* detail level */
-	level = tvb_get_letohs(tvb, offset);
-	if (!pinfo->fd->flags.visited)
-		request_val->last_level = level;	/* remember this for the response */
-	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
-	offset += 2;
-
-	/* receiver buffer length */
-	proto_tree_add_item(tree, hf_recv_buf_len, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	return offset;
-}
-
-static int
-netwkstagetinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
-{
-	struct smb_info *smb_info = pinfo->private;
-	guint16 abytes;
-
-	/* available bytes */
-	abytes = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_abytes, tvb, offset, 2, abytes);
-	offset += 2;
-
-	/* XXX - what is this field? */
-	proto_tree_add_text(tree, tvb, offset, 2, "Mysterious field: %04x",
-	    tvb_get_letohs(tvb, offset));
-	offset += 2;
-
-	if (status != 0 && status != SMBE_moredata)
-		return offset;
-
-	/* The rest is in the data section. */
-	offset = smb_info->data_offset;
-
-	/* computer name */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_computer_name);
-
-	/* user name */
-	offset = add_string_pointer(tvb, tree, offset, convert, hf_user_name);
-
-	/* workstation domain */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_workstation_domain);
-
-	/* major version */
-	proto_tree_add_item(tree, hf_workstation_major, tvb, offset, 1, TRUE);
-	offset += 1;
-
-	/* minor version */
-	proto_tree_add_item(tree, hf_workstation_minor, tvb, offset, 1, TRUE);
-	offset += 1;
-
-	/* logon domain */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_logon_domain);
-
-	/* other domains */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_other_domains);
-
-	return offset;
-}
-
-static int
-netwkstauserlogon_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
-{
-	guint16 level;
-
-	/* detail level */
-	level = tvb_get_letohs(tvb, offset);
-	if (!pinfo->fd->flags.visited)
-		request_val->last_level = level;	/* remember this for the response */
-	proto_tree_add_uint(tree, hf_detail_level, tvb, offset, 2, level);
-	offset += 2;
 
 	/* user name */
 	proto_tree_add_item(tree, hf_user_name, tvb, offset, 21, TRUE);
@@ -970,277 +602,416 @@ netwkstauserlogon_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* workstation name */
 	proto_tree_add_item(tree, hf_workstation_name, tvb, offset, 16, TRUE);
 	offset += 16;
-
-	/* size of the above */
-	proto_tree_add_item(tree, hf_ustruct_size, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* receiver buffer length */
-	proto_tree_add_item(tree, hf_recv_buf_len, tvb, offset, 2, TRUE);
-	offset += 2;
-
 	return offset;
 }
 
-static int
-netwkstauserlogon_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
+/* 
+ * The following data structure describes the Remote API requests we
+ * understand.
+ *
+ * Simply fill in the number and parameter information.
+ * Try to keep them in order.
+ *
+ * We will extend this data structure as we try to decode more.
+ */
+
+/*
+ * This is a pointer to a function to process an item.
+ */
+typedef int	(*item_func)(tvbuff_t *, int, int, packet_info *, proto_tree *,
+			     int, int);
+
+/*
+ * Type of an item; determines what parameter strings are valid for
+ * the item.
+ */
+typedef enum {
+	PARAM_WORD,	/* 'W' or 'h' - 16-bit word */
+	PARAM_DWORD,	/* 'D' or 'i' - 32-bit word */
+	PARAM_BYTES,	/* 'B' or 'b' or 'g' or 'O' - one or more bytes */
+	PARAM_STRINGZ,	/* 'z' or 'O' - null-terminated string */
+} param_type_t;
+
+/*
+ * This structure describes an item; "hf_index" points to the index
+ * for the field corresponding to that item, "func" points to the
+ * function to use to add that item to the tree, and "type" is the
+ * type that the item is supposed to have.
+ */
+typedef struct {
+	int		*hf_index;
+	item_func	func;
+	param_type_t	type;
+} item_t;
+
+/*
+ * This structure describes a list of items; each list of items
+ * has a corresponding detail level.
+ */
+typedef struct {
+	int		level;
+	const item_t	*item_list;
+} item_list_t;
+
+struct lanman_desc {
+	int		lanman_num;
+	const item_t	*req;
+	proto_item	*(*req_data_item)(tvbuff_t *, packet_info *,
+					  proto_tree *, int);
+	gint		*ett_req_data;
+	const item_t	*req_data;
+	const item_t	*req_aux_data;
+	const item_t	*resp;
+	proto_item	*(*resp_data_item)(tvbuff_t *, packet_info *,
+					   proto_tree *, int);
+	gint		*ett_resp_data;
+	proto_item	*(*resp_data_element_item)(tvbuff_t *, packet_info *,
+						   proto_tree *, int);
+	gint		*ett_resp_data_element_item;
+	const item_list_t *resp_data_list;
+	const item_t	*resp_aux_data;
+};
+
+static int no_hf = -1;	/* for padding crap */
+
+static const item_t lm_params_req_netshareenum[] = {
+	{ &hf_detail_level, add_detail_level, PARAM_WORD },
+	{ &hf_recv_buf_len, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_params_resp_netshareenum[] = {
+	{ &hf_acount, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+/*
+ * Create a subtree for all available shares.
+ */
+static proto_item *
+netshareenum_shares_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset)
 {
-	struct smb_info *smb_info = pinfo->private;
-	guint16 abytes;
-	guint16 nlogons;
-	struct timeval timeval;
-
-	/* available bytes */
-	abytes = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_abytes, tvb, offset, 2, abytes);
-	offset += 2;
-
-	/* XXX - what is this field? */
-	proto_tree_add_text(tree, tvb, offset, 2, "Mysterious field: %04x",
-	    tvb_get_letohs(tvb, offset));
-	offset += 2;
-
-	if (status != 0 && status != SMBE_moredata)
-		return offset;
-
-	/* The rest is in the data section. */
-	offset = smb_info->data_offset;
-
-	/* logon code */
-	proto_tree_add_item(tree, hf_logon_code, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* user name */
-	proto_tree_add_item(tree, hf_user_name, tvb, offset, 21, TRUE);
-	offset += 21;
-
-	/* pad1 */
-	offset += 1;
-
-	/* privilege level */
-	proto_tree_add_item(tree, hf_privilege_level, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* operator privileges */
-	proto_tree_add_item(tree, hf_operator_privileges, tvb, offset, 4, TRUE);
-	offset += 4;
-
-	/* number of logons */
-	nlogons = tvb_get_letohs(tvb, offset);
-	if (nlogons == 0xffff)	/* -1 */
-		proto_tree_add_uint_format(tree, hf_num_logons, tvb, offset, 2,
-		    nlogons, "Number of Logons: Unknown");
-	else
-		proto_tree_add_uint(tree, hf_num_logons, tvb, offset, 2,
-		    nlogons);
-	offset += 2;
-
-	/* bad password count */
-	proto_tree_add_item(tree, hf_bad_pw_count, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	timeval.tv_usec = 0;
-
-	/* last logon time */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	if (timeval.tv_sec == -1) {
-		proto_tree_add_time_format(tree, hf_last_logon, tvb, offset, 4,
-		    &timeval, "Last Logon Date/Time: Unknown");
-	} else {
-		timeval.tv_sec = localtime_to_utc(timeval.tv_sec);
-		proto_tree_add_time(tree, hf_last_logon, tvb, offset, 4,
-		    &timeval);
-	}
-	offset += 4;
-
-	/* last logoff time */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	if (timeval.tv_sec == -1) {
-		proto_tree_add_time_format(tree, hf_last_logoff, tvb, offset, 4,
-		    &timeval, "Last Logoff Date/Time: Unknown");
-	} else {
-		timeval.tv_sec = localtime_to_utc(timeval.tv_sec);
-		proto_tree_add_time(tree, hf_last_logoff, tvb, offset, 4,
-		    &timeval);
-	}
-	offset += 4;
-
-	/* logoff time */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	if (timeval.tv_sec == -1) {
-		proto_tree_add_time_format(tree, hf_logoff_time, tvb, offset, 4,
-		    &timeval, "Logoff Date/Time: None");
-	} else {
-		timeval.tv_sec = localtime_to_utc(timeval.tv_sec);
-		proto_tree_add_time(tree, hf_logoff_time, tvb, offset, 4,
-		    &timeval);
-	}
-	offset += 4;
-
-	/* kickoff time */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	if (timeval.tv_sec == -1) {
-		proto_tree_add_time_format(tree, hf_kickoff_time, tvb, offset, 4,
-		    &timeval, "Kickoff Date/Time: None");
-	} else {
-		timeval.tv_sec = localtime_to_utc(timeval.tv_sec);
-		proto_tree_add_time(tree, hf_kickoff_time, tvb, offset, 4,
-		    &timeval);
-	}
-	offset += 4;
-
-	/* password age */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	proto_tree_add_time_format(tree, hf_password_age, tvb, offset, 4,
-	    &timeval, "Password Age: %s", time_secs_to_str(timeval.tv_sec));
-	offset += 4;
-
-	/* date/time when password can change */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	if (timeval.tv_sec == -1) {
-		proto_tree_add_time_format(tree, hf_password_can_change, tvb, offset, 4,
-		    &timeval, "Password Can Change: Never");
-	} else {
-		timeval.tv_sec = localtime_to_utc(timeval.tv_sec);
-		proto_tree_add_time(tree, hf_password_can_change, tvb, offset, 4,
-		    &timeval);
-	}
-	offset += 4;
-
-	/* date/time when password must change */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	if (timeval.tv_sec == -1) {
-		proto_tree_add_time_format(tree, hf_password_must_change, tvb, offset, 4,
-		    &timeval, "Password Must Change: Never");
-	} else {
-		timeval.tv_sec = localtime_to_utc(timeval.tv_sec);
-		proto_tree_add_time(tree, hf_password_must_change, tvb, offset, 4,
-		    &timeval);
-	}
-	offset += 4;
-
-	/* computer where user is logged on */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_server_name);
-
-	/* domain in which user is logged on */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_logon_domain);
-
-	/* pathname of user's login script */
-	offset = add_string_pointer(tvb, tree, offset, convert,
-	    hf_script_path);
-
-	/* reserved */
-	proto_tree_add_text(tree, tvb, offset, 4, "Reserved: %08x",
-	    tvb_get_letohl(tvb, offset));
-	offset += 4;
-
-	return offset;
+	if (tree) {
+		return proto_tree_add_text(tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset),
+		    "Available Shares");
+	} else
+		return NULL;
 }
 
-static int
-netwkstauserlogoff_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
+/*
+ * Create a subtree for a share.
+ */
+static proto_item *
+netshareenum_share_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset)
 {
-	/* user name */
-	proto_tree_add_item(tree, hf_user_name, tvb, offset, 21, TRUE);
-	offset += 21;
-
-	/* pad1 */
-	offset += 1;
-
-	/* workstation name */
-	proto_tree_add_item(tree, hf_workstation_name, tvb, offset, 16, TRUE);
-	offset += 16;
-
-	return offset;
+	if (tree) {
+		return proto_tree_add_text(tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset),
+		    "Share %.13s", tvb_get_ptr(tvb, offset, 13));
+	} else
+		return NULL;
 }
 
-static int
-netwkstauserlogoff_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
+static const item_t lm_null[] = {
+	{ NULL, NULL }
+};
+
+static const item_list_t lm_null_list[] = {
+	{ 0, lm_null }
+};
+
+static const item_t lm_data_resp_netshareenum_1[] = {
+	{ &hf_share_name, add_byte_param, PARAM_BYTES },
+	{ &no_hf, add_pad_param, PARAM_BYTES },
+	{ &hf_share_type, add_word_param, PARAM_WORD },
+	{ &hf_share_comment, add_pointer_param, PARAM_STRINGZ },
+	{ NULL, NULL }
+};
+
+static const item_list_t lm_data_resp_netshareenum[] = {
+	{ 1, lm_data_resp_netshareenum_1 },
+	{ -1, lm_null }
+};
+
+static const item_t lm_params_req_netsharegetinfo[] = {
+	{ &hf_share_name, add_string_param, PARAM_STRINGZ },
+	{ &hf_detail_level, add_detail_level, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_params_resp_netsharegetinfo[] = {
+	{ &hf_abytes, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_resp_netsharegetinfo_0[] = {
+	{ &hf_share_name, add_byte_param, PARAM_BYTES },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_resp_netsharegetinfo_1[] = {
+	{ &hf_share_name, add_byte_param, PARAM_BYTES },
+	{ &no_hf, add_pad_param, PARAM_BYTES },
+	{ &hf_share_type, add_word_param, PARAM_WORD },
+	{ &hf_share_comment, add_pointer_param, PARAM_STRINGZ },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_resp_netsharegetinfo_2[] = {
+	{ &hf_share_name, add_byte_param, PARAM_BYTES },
+	{ &no_hf, add_pad_param, PARAM_BYTES },
+	{ &hf_share_type, add_word_param, PARAM_WORD },
+	{ &hf_share_comment, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_share_permissions, add_word_param, PARAM_WORD }, /* XXX - do as bit fields */
+	{ &hf_share_max_uses, add_max_uses, PARAM_WORD },
+	{ &hf_share_current_uses, add_word_param, PARAM_WORD },
+	{ &hf_share_path, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_share_password, add_byte_param, PARAM_BYTES },
+	{ NULL, NULL }
+};
+
+static const item_list_t lm_data_resp_netsharegetinfo[] = {
+	{ 0, lm_data_resp_netsharegetinfo_0 },
+	{ 1, lm_data_resp_netsharegetinfo_1 },
+	{ 2, lm_data_resp_netsharegetinfo_2 },
+	{ -1, lm_null }
+};
+
+static const item_t lm_params_req_netservergetinfo[] = {
+	{ &hf_detail_level, add_detail_level, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_params_resp_netservergetinfo[] = {
+	{ &hf_abytes, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_serverinfo_0[] = {
+	{ &hf_server_name, add_byte_param, PARAM_BYTES },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_serverinfo_1[] = {
+	{ &hf_server_name, add_byte_param, PARAM_BYTES },
+	{ &hf_server_major, add_byte_param, PARAM_BYTES },
+	{ &hf_server_minor, add_byte_param, PARAM_BYTES },
+	{ &no_hf, add_server_type, PARAM_DWORD },
+	{ &hf_server_comment, add_pointer_param, PARAM_STRINGZ },
+	{ NULL, NULL }
+};
+
+static const item_list_t lm_data_serverinfo[] = {
+	{ 0, lm_data_serverinfo_0 },
+	{ 1, lm_data_serverinfo_1 },
+	{ -1, lm_null }
+};
+
+static const item_t lm_params_req_netusergetinfo[] = {
+	{ &hf_detail_level, add_detail_level, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_params_resp_netusergetinfo[] = {
+	{ &hf_abytes, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_resp_netusergetinfo_11[] = {
+	{ &hf_user_name, add_byte_param, PARAM_BYTES },
+	{ &no_hf, add_pad_param, PARAM_BYTES },
+	{ &hf_user_comment, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_full_name, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_privilege_level, add_word_param, PARAM_WORD },
+	{ &hf_operator_privileges, add_dword_param, PARAM_DWORD },
+	{ &hf_password_age, add_reltime, PARAM_DWORD },
+	{ &hf_homedir, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_parameters, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_last_logon, add_abstime_absent_unknown, PARAM_DWORD },
+	{ &hf_last_logoff, add_abstime_absent_unknown, PARAM_DWORD },
+	{ &hf_bad_pw_count, add_word_param, PARAM_WORD },
+	{ &hf_num_logons, add_nlogons, PARAM_WORD },
+	{ &hf_logon_server, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_country_code, add_word_param, PARAM_WORD },
+	{ &hf_workstations, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_max_storage, add_max_storage, PARAM_DWORD },
+	{ &hf_logon_hours, add_logon_hours, PARAM_DWORD },
+	{ &hf_code_page, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_list_t lm_data_resp_netusergetinfo[] = {
+	{ 11, lm_data_resp_netusergetinfo_11 },
+	{ -1, lm_null }
+};
+
+/*
+ * Has no detail level; make it the default.
+ */
+static const item_t lm_data_resp_netremotetod_nolevel[] = {
+	{ &hf_current_time, add_abstime_absent_unknown, PARAM_DWORD },
+	{ &hf_msecs, add_dword_param, PARAM_DWORD },
+	{ &hf_hour, add_byte_param, PARAM_BYTES },
+	{ &hf_minute, add_byte_param, PARAM_BYTES },
+	{ &hf_second, add_byte_param, PARAM_BYTES },
+	{ &hf_hundredths, add_byte_param, PARAM_BYTES },
+	{ &hf_tzoffset, add_tzoffset, PARAM_WORD },
+	{ &hf_timeinterval, add_timeinterval, PARAM_WORD },
+	{ &hf_day, add_byte_param, PARAM_BYTES },
+	{ &hf_month, add_byte_param, PARAM_BYTES },
+	{ &hf_year, add_word_param, PARAM_WORD },
+	{ &hf_weekday, add_byte_param, PARAM_BYTES },
+	{ NULL, NULL }
+};
+
+static const item_list_t lm_data_resp_netremotetod[] = {
+	{ -1, lm_data_resp_netremotetod_nolevel },
+};
+
+static const item_t lm_params_req_netserverenum2[] = {
+	{ &hf_detail_level, add_detail_level, PARAM_WORD },
+	{ &no_hf, add_server_type_info, PARAM_DWORD },
+	{ &hf_enumeration_domain, add_string_param, PARAM_STRINGZ },
+	{ NULL, NULL }
+};
+
+/*
+ * Create a subtree for all servers.
+ */
+static proto_item *
+netserverenum2_servers_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset)
 {
-	struct smb_info *smb_info = pinfo->private;
-	guint16 abytes;
-	guint16 nlogons;
-	struct timeval timeval;
-
-	/* available bytes */
-	abytes = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_abytes, tvb, offset, 2, abytes);
-	offset += 2;
-
-	/* XXX - what is this field? */
-	proto_tree_add_text(tree, tvb, offset, 2, "Mysterious field: %04x",
-	    tvb_get_letohs(tvb, offset));
-	offset += 2;
-
-	if (status != 0 && status != SMBE_moredata)
-		return offset;
-
-	/* The rest is in the data section. */
-	offset = smb_info->data_offset;
-
-	/* logoff code */
-	proto_tree_add_item(tree, hf_logoff_code, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	/* duration */
-	timeval.tv_sec = tvb_get_letohl(tvb, offset);
-	timeval.tv_usec = 0;
-	proto_tree_add_time_format(tree, hf_duration, tvb, offset, 4,
-	    &timeval, "Duration of Session: %s", time_secs_to_str(timeval.tv_sec));
-	offset += 4;
-
-	/* number of logons */
-	nlogons = tvb_get_letohs(tvb, offset);
-	if (nlogons == 0xffff)	/* -1 */
-		proto_tree_add_uint_format(tree, hf_num_logons, tvb, offset, 2,
-		    nlogons, "Number of Logons: Unknown");
-	else
-		proto_tree_add_uint(tree, hf_num_logons, tvb, offset, 2,
-		    nlogons);
-	offset += 2;
-
-	return offset;
+	if (tree) {
+		return proto_tree_add_text(tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), "Servers");
+	} else
+		return NULL;
 }
 
-static int
-samoemchangepassword_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset)
+/*
+ * Create a subtree for a share.
+ */
+static proto_item *
+netserverenum2_server_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset)
 {
-	struct smb_info *smb_info = pinfo->private;
-	guint user_name_len;
-
-	/* user name */
-	user_name_len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_user_name, tvb, offset, user_name_len,
-	    TRUE);
-	offset += user_name_len;
-
-	/* new password */
-	proto_tree_add_item(tree, hf_new_password, tvb,
-	    smb_info->data_offset, 516, TRUE);
-
-	/* old password */
-	proto_tree_add_item(tree, hf_old_password, tvb,
-	    smb_info->data_offset + 516, 16, TRUE);
-
-	return offset;
+	if (tree) {
+		return proto_tree_add_text(tree, tvb, offset,
+			    tvb_length_remaining(tvb, offset),
+			    "Server %.16s", tvb_get_ptr(tvb, offset, 16));
+	} else
+		return NULL;
 }
+static const item_t lm_params_resp_netserverenum2[] = {
+	{ &hf_acount, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
 
-static int
-samoemchangepassword_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    struct smb_request_val *request_val, int offset, guint16 status,
-    int convert)
-{
-	/* nothing in this reply */
-	return offset;
-}
+static const item_t lm_params_req_netwkstagetinfo[] = {
+	{ &hf_detail_level, add_detail_level, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_params_resp_netwkstagetinfo[] = {
+	{ &hf_abytes, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_resp_netwkstagetinfo_10[] = {
+	{ &hf_computer_name, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_user_name, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_workstation_domain, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_workstation_major, add_byte_param, PARAM_BYTES },
+	{ &hf_workstation_minor, add_byte_param, PARAM_BYTES },
+	{ &hf_logon_domain, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_other_domains, add_pointer_param, PARAM_STRINGZ },
+	{ NULL, NULL }
+};
+
+static const item_list_t lm_data_resp_netwkstagetinfo[] = {
+	{ 10, lm_data_resp_netwkstagetinfo_10 },
+	{ -1, NULL }
+};
+
+static const item_t lm_params_req_netwkstauserlogon[] = {
+	{ &no_hf, add_pointer_param, PARAM_STRINGZ },
+	{ &no_hf, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_detail_level, add_detail_level, PARAM_WORD },
+	{ &no_hf, add_logon_args, PARAM_BYTES },
+	{ &hf_ustruct_size, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_params_resp_netwkstauserlogon[] = {
+	{ &hf_abytes, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_resp_netwkstauserlogon_1[] = {
+	{ &hf_logon_code, add_word_param, PARAM_WORD },
+	{ &hf_user_name, add_byte_param, PARAM_BYTES },
+	{ &no_hf, add_pad_param, PARAM_BYTES },
+	{ &hf_privilege_level, add_word_param, PARAM_WORD },
+	{ &hf_operator_privileges, add_dword_param, PARAM_DWORD },
+	{ &hf_num_logons, add_nlogons, PARAM_WORD },
+	{ &hf_bad_pw_count, add_word_param, PARAM_WORD },
+	{ &hf_last_logon, add_abstime_absent_unknown, PARAM_DWORD },
+	{ &hf_last_logoff, add_abstime_absent_unknown, PARAM_DWORD },
+	{ &hf_logoff_time, add_abstime_absent_never, PARAM_DWORD },
+	{ &hf_kickoff_time, add_abstime_absent_never, PARAM_DWORD },
+	{ &hf_password_age, add_reltime, PARAM_DWORD },
+	{ &hf_password_can_change, add_abstime_absent_never, PARAM_DWORD },
+	{ &hf_password_must_change, add_abstime_absent_never, PARAM_DWORD },
+	{ &hf_server_name, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_logon_domain, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_script_path, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_reserved, add_dword_param, PARAM_DWORD },
+	{ NULL, NULL }
+};
+
+static const item_list_t lm_data_resp_netwkstauserlogon[] = {
+	{ 1, lm_data_resp_netwkstauserlogon_1 },
+	{ -1, NULL }
+};
+
+static const item_t lm_params_req_netwkstauserlogoff[] = {
+	{ &hf_user_name, add_byte_param, PARAM_BYTES },
+	{ &no_hf, add_pad_param, PARAM_BYTES },
+	{ &hf_workstation_name, add_byte_param, PARAM_BYTES },
+	{ NULL, NULL }
+};
+
+static const item_t lm_params_resp_netwkstauserlogoff[] = {
+	{ &hf_abytes, add_word_param, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_resp_netwkstauserlogoff_1[] = {
+	{ &hf_logoff_code, add_word_param, PARAM_WORD },
+	{ &hf_duration, add_reltime, PARAM_DWORD },
+	{ &hf_num_logons, add_nlogons, PARAM_WORD },
+	{ NULL, NULL }
+};
+
+static const item_list_t lm_data_resp_netwkstauserlogoff[] = {
+	{ 1, lm_data_resp_netwkstauserlogoff_1 },
+	{ -1, NULL }
+};
+
+static const item_t lm_params_req_samoemchangepassword[] = {
+	{ &hf_user_name, add_string_param, PARAM_STRINGZ },
+	{ NULL, NULL }
+};
+
+static const item_t lm_data_req_samoemchangepassword[] = {
+	{ &hf_new_password, add_byte_param, PARAM_BYTES },
+	{ &hf_old_password, add_byte_param, PARAM_BYTES },
+	{ NULL, NULL }
+};
 
 #define LANMAN_NETSHAREENUM		0
 #define LANMAN_NETSHAREGETINFO		1
@@ -1272,6 +1043,748 @@ samoemchangepassword_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 #define LANMAN_WPRINTQPROCENUM		206
 #define LANMAN_WPRINTPORTENUM		207
 #define LANMAN_SAMOEMCHANGEPASSWORD	214
+
+static const struct lanman_desc lmd[] = {
+	{ LANMAN_NETSHAREENUM,
+	  lm_params_req_netshareenum,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netshareenum,
+	  netshareenum_shares_list,
+	  &ett_lanman_shares,
+	  netshareenum_share_entry,
+	  &ett_lanman_share,
+	  lm_data_resp_netshareenum,
+	  lm_null },
+
+	{ LANMAN_NETSHAREGETINFO,
+	  lm_params_req_netsharegetinfo,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netsharegetinfo,
+	  NULL,
+	  NULL,
+	  NULL,
+	  NULL,
+	  lm_data_resp_netsharegetinfo,
+	  lm_null },
+
+	{ LANMAN_NETSERVERGETINFO, 
+	  lm_params_req_netservergetinfo,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netservergetinfo,
+	  NULL,
+	  NULL,
+	  NULL,
+	  NULL,
+	  lm_data_serverinfo,
+	  lm_null },
+
+	{ LANMAN_NETUSERGETINFO,
+	  lm_params_req_netusergetinfo,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netusergetinfo,
+	  NULL,
+	  NULL,
+	  NULL,
+	  NULL,
+	  lm_data_resp_netusergetinfo,
+	  lm_null },
+
+	{ LANMAN_NETREMOTETOD,
+	  lm_null,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_null,
+	  NULL,
+	  NULL,
+	  NULL,
+	  NULL,
+	  lm_data_resp_netremotetod,
+	  lm_null },
+
+	{ LANMAN_NETSERVERENUM2,
+	  lm_params_req_netserverenum2,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netserverenum2,
+	  netserverenum2_servers_list,
+	  &ett_lanman_servers,
+	  netserverenum2_server_entry,
+	  &ett_lanman_server,
+	  lm_data_serverinfo,
+	  lm_null },
+
+	{ LANMAN_NETWKSTAGETINFO,
+	  lm_params_req_netwkstagetinfo,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netwkstagetinfo,
+	  NULL,
+	  NULL,
+	  NULL,
+	  NULL,
+	  lm_data_resp_netwkstagetinfo,
+	  lm_null },
+
+	{ LANMAN_NETWKSTAUSERLOGON,
+	  lm_params_req_netwkstauserlogon,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netwkstauserlogon,
+	  NULL,
+	  NULL,
+	  NULL,
+	  NULL,
+	  lm_data_resp_netwkstauserlogon,
+	  lm_null },
+
+	{ LANMAN_NETWKSTAUSERLOGOFF,
+	  lm_params_req_netwkstauserlogoff,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_params_resp_netwkstauserlogoff,
+	  NULL,
+	  NULL,
+	  NULL,
+	  NULL,
+	  lm_data_resp_netwkstauserlogoff,
+	  lm_null },
+
+	{ LANMAN_SAMOEMCHANGEPASSWORD,
+	  lm_params_req_samoemchangepassword,
+	  NULL,
+	  NULL,
+	  lm_data_req_samoemchangepassword,
+	  lm_null,
+	  lm_null,
+	  NULL,
+	  NULL,
+	  NULL,
+	  NULL,
+	  lm_null_list,
+	  lm_null },
+
+	{ -1,
+	  lm_null,
+	  NULL,
+	  NULL,
+	  lm_null,
+	  lm_null,
+	  lm_null,
+	  NULL,
+	  NULL,
+	  NULL,
+	  NULL,
+	  lm_null_list,
+	  lm_null }
+};
+
+static const struct lanman_desc *
+find_lanman(int lanman_num)
+{
+	int i;
+
+	for (i = 0; lmd[i].lanman_num != -1; i++) {
+		if (lmd[i].lanman_num == lanman_num)
+			break;
+	}
+	return &lmd[i];
+}
+
+static const gchar *
+get_count(const gchar *desc, int *countp)
+{
+	int count = 0, off = 0;
+	guchar c;
+
+	if (!isdigit(*desc)) {
+		*countp = 1;	/* no count was supplied */
+		return desc;
+	}
+
+	while ((c = *desc) != '\0' && isdigit(c)) {
+		count = (count * 10) + c - '0';
+		desc++;
+	}
+
+	*countp = count;	/* XXX - what if it's 0? */
+	return desc;
+}
+
+static int
+dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, const gchar *desc, const item_t *items,
+    gboolean *has_data_p)
+{
+	guint c;
+	guint16 WParam;
+	guint32 LParam;
+	guint string_len;
+	int count;
+
+	*has_data_p = FALSE;
+	while ((c = *desc++) != '\0') {
+		switch (c) {
+
+		case 'W':
+			/*
+			 * A 16-bit word value in the request.
+			 */
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_word_param(tvb, offset, 0, pinfo,
+				    tree, 0, -1);
+			} else if (items->type != PARAM_WORD) {
+				/*
+				 * Descriptor character is 'W', but this
+				 * isn't a word parameter.
+				 */
+				WParam = tvb_get_letohs(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, 2,
+				    "%s: Value is %u (0x%04X), type is wrong (W)",
+				    (*items->hf_index == -1) ?
+				      "Word Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    WParam, WParam);
+				offset += 2;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, 0, pinfo,
+				    tree, 0, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'D':
+			/*
+			 * A 32-bit doubleword value in the request.
+			 */
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_dword_param(tvb, offset, 0, pinfo,
+				    tree, 0, -1);
+			} else if (items->type != PARAM_DWORD) {
+				/*
+				 * Descriptor character is 'D', but this
+				 * isn't a doubleword parameter.
+				 */
+				LParam = tvb_get_letohl(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, 2,
+				    "%s: Value is %u (0x%08X), type is wrong (D)",
+				    (*items->hf_index == -1) ?
+				      "Doubleword Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    LParam, LParam);
+				offset += 4;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, 0, pinfo,
+				    tree, 0, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'b':
+			/*
+			 * A byte or multi-byte value in the request.
+			 */
+			desc = get_count(desc, &count);
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_byte_param(tvb, offset, count,
+				    pinfo, tree, 0, -1);
+			} else if (items->type != PARAM_BYTES) {
+				/*
+				 * Descriptor character is 'b', but this
+				 * isn't a byte/bytes parameter.
+				 */
+				proto_tree_add_text(tree, tvb, offset, count,
+				    "%s: Value is %s, type is wrong (b)",
+				    (*items->hf_index == -1) ?
+				      "Byte Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    tvb_bytes_to_str(tvb, offset, count));
+				offset += count;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, count,
+				    pinfo, tree, 0, *items->hf_index);
+				items++;
+			}
+ 			break;
+
+		case 'O':
+			/*
+			 * A null pointer.
+			 */
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				add_null_pointer_param(tvb, offset, 0,
+				    pinfo, tree, 0, -1);
+			} else {
+				/*
+				 * If "*items->hf_index" is -1, this is
+				 * a reserved must-be-null field; don't
+				 * clutter the protocol tree by putting
+				 * it in.
+				 */
+				if (*items->hf_index != -1) {
+					add_null_pointer_param(tvb,
+					    offset, 0, pinfo, tree, 0,
+					    *items->hf_index);
+				}
+				items++;
+			}
+			break;
+
+		case 'z':
+			/*
+			 * A null-terminated ASCII string.
+			 */
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_string_param(tvb, offset, 0,
+				    pinfo, tree, 0, -1);
+			} else if (items->type != PARAM_STRINGZ) {
+				/*
+				 * Descriptor character is 'z', but this
+				 * isn't a string parameter.
+				 */
+				string_len = tvb_strsize(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, string_len,
+				    "%s: Value is %s, type is wrong (z)",
+				    (*items->hf_index == -1) ?
+				      "String Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    tvb_format_text(tvb, offset, string_len));
+				offset += string_len;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, 0,
+				    pinfo, tree, 0, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'F':
+			/*
+			 * One or more pad bytes.
+			 */
+			desc = get_count(desc, &count);
+			proto_tree_add_text(tree, tvb, offset, count,
+			    "%s", "Padding");
+			offset += count;
+			break;
+
+		case 'L':
+			/*
+			 * 16-bit receive buffer length.
+			 */
+			proto_tree_add_item(tree, hf_recv_buf_len, tvb,
+			    offset, 2, TRUE);
+			offset += 2;
+			break;
+
+		case 's':
+			/*
+			 * 32-bit send buffer offset.
+			 * XXX - is there actually a pointer here?
+			 * I suspect not.  It looks like junk.
+			 */
+			*has_data_p = TRUE;
+			LParam = tvb_get_letohl(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 4,
+			    "%s: %u", "Send Buffer Ptr", LParam);
+			offset += 4;
+			break;
+
+		case 'T':
+			/*
+			 * 16-bit send buffer length.
+			 */
+			proto_tree_add_item(tree, hf_send_buf_len, tvb,
+			    offset, 2, FALSE);
+			offset += 2;
+			break;
+
+		default:
+			break;
+		}
+	}
+	return offset;
+}
+
+static int
+dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, const gchar *desc, const item_t *items,
+    gboolean *has_data_p, gboolean *has_ent_count_p, guint16 *ent_count_p)
+{
+	guint c;
+	guint16 WParam;
+	guint32 LParam;
+	int count;
+
+	*has_data_p = FALSE;
+	*has_ent_count_p = FALSE;
+	while ((c = *desc++) != '\0') {
+		switch (c) {
+
+		case 'r':
+			/*
+			 * 32-bit receive buffer offset.
+			 */
+			*has_data_p = TRUE;
+			break;
+
+		case 'g':
+			/*
+			 * A byte or series of bytes is returned.
+			 */
+			desc = get_count(desc, &count);
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_byte_param(tvb, offset, count,
+				    pinfo, tree, 0, -1);
+			} else if (items->type != PARAM_BYTES) {
+				/*
+				 * Descriptor character is 'b', but this
+				 * isn't a byte/bytes parameter.
+				 */
+				proto_tree_add_text(tree, tvb, offset, count,
+				    "%s: Value is %s, type is wrong (g)",
+				    (*items->hf_index == -1) ?
+				      "Byte Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    tvb_bytes_to_str(tvb, offset, count));
+				offset += count;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, count,
+				    pinfo, tree, 0, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'h':
+			/*
+			 * A 16-bit word is received.
+			 */
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_word_param(tvb, offset, 0, pinfo,
+				    tree, 0, -1);
+			} else if (items->type != PARAM_WORD) {
+				/*
+				 * Descriptor character is 'h', but this
+				 * isn't a word parameter.
+				 */
+				WParam = tvb_get_letohs(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, 2,
+				    "%s: Value is %u (0x%04X), type is wrong (W)",
+				    (*items->hf_index == -1) ?
+				      "Word Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    WParam, WParam);
+				offset += 2;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, 0, pinfo,
+				    tree, 0, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'i':
+			/*
+			 * A 32-bit doubleword is received.
+			 */
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_dword_param(tvb, offset, 0, pinfo,
+				    tree, 0, -1);
+			} else if (items->type != PARAM_DWORD) {
+				/*
+				 * Descriptor character is 'i', but this
+				 * isn't a doubleword parameter.
+				 */
+				LParam = tvb_get_letohl(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, 2,
+				    "%s: Value is %u (0x%08X), type is wrong (i)",
+				    (*items->hf_index == -1) ?
+				      "Doubleword Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    LParam, LParam);
+				offset += 4;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, 0, pinfo,
+				    tree, 0, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'e':
+			/*
+			 * A 16-bit entry count is returned.
+			 */
+			WParam = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint(tree, hf_ecount, tvb, offset, 2,
+			    WParam);
+			offset += 2;
+			*has_ent_count_p = TRUE;
+			*ent_count_p = WParam;  /* Save this for later retrieval */
+			break;
+
+		default:
+			break;
+		}
+	}
+	return offset;
+}
+
+static int
+dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
+    packet_info *pinfo, proto_tree *tree, const gchar *desc,
+    const item_t *items, guint16 *aux_count_p)
+{
+	guint c;
+	guint16 WParam;
+	guint32 LParam;
+	int count;
+	int cptr;
+	const char *string;
+	gint string_len;
+
+	*aux_count_p = 0;
+	while ((c = *desc++) != '\0') {
+		switch (c) {
+
+		case 'W':
+			/*
+			 * A 16-bit word value.
+			 * XXX - handle the count?
+			 */
+			desc = get_count(desc, &count);
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_word_param(tvb, offset, 0, pinfo,
+				    tree, convert, -1);
+			} else if (items->type != PARAM_WORD) {
+				/*
+				 * Descriptor character is 'W', but this
+				 * isn't a word parameter.
+				 */
+				WParam = tvb_get_letohs(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, 2,
+				    "%s: Value is %u (0x%04X), type is wrong (W)",
+				    (*items->hf_index == -1) ?
+				      "Word Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    WParam, WParam);
+				offset += 2;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, 0, pinfo,
+				    tree, convert, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'D':
+			/*
+			 * A 32-bit doubleword value.
+			 * XXX - handle the count?
+			 */
+			desc = get_count(desc, &count);
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_dword_param(tvb, offset, 0, pinfo,
+				    tree, convert, -1);
+			} else if (items->type != PARAM_DWORD) {
+				/*
+				 * Descriptor character is 'D', but this
+				 * isn't a doubleword parameter.
+				 */
+				LParam = tvb_get_letohl(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, 2,
+				    "%s: Value is %u (0x%08X), type is wrong (D)",
+				    (*items->hf_index == -1) ?
+				      "Doubleword Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    LParam, LParam);
+				offset += 4;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, 0, pinfo,
+				    tree, convert, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'B':
+			/*
+			 * A byte or multi-byte value.
+			 */
+			desc = get_count(desc, &count);
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_byte_param(tvb, offset, count,
+				    pinfo, tree, convert, -1);
+			} else if (items->type != PARAM_BYTES) {
+				/*
+				 * Descriptor character is 'B', but this
+				 * isn't a byte/bytes parameter.
+				 */
+				proto_tree_add_text(tree, tvb, offset, count,
+				    "%s: Value is %s, type is wrong (B)",
+				    (*items->hf_index == -1) ?
+				      "Byte Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    tvb_bytes_to_str(tvb, offset, count));
+				offset += count;
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, count,
+				    pinfo, tree, convert, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'O':
+			/*
+			 * A null pointer.
+			 */
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				add_null_pointer_param(tvb, offset, 0,
+				    pinfo, tree, convert, -1);
+			} else {
+				/*
+				 * If "*items->hf_index" is -1, this is
+				 * a reserved must-be-null field; don't
+				 * clutter the protocol tree by putting
+				 * it in.
+				 */
+				if (*items->hf_index != -1) {
+					add_null_pointer_param(tvb,
+					    offset, 0, pinfo, tree, convert,
+					    *items->hf_index);
+				}
+				items++;
+			}
+			break;
+
+		case 'z':
+			/*
+			 * A pointer to a null-terminated ASCII string.
+			 */
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_pointer_param(tvb, offset, 0,
+				    pinfo, tree, convert, -1);
+			} else if (items->type != PARAM_STRINGZ) {
+				/*
+				 * Descriptor character is 'z', but this
+				 * isn't a string parameter.
+				 */
+				string = get_pointer_value(tvb, offset,
+				    convert, &cptr, &string_len);
+				offset += 4;
+				proto_tree_add_text(tree, tvb, cptr, string_len,
+				    "%s: Value is %s, type is wrong (z)",
+				    (*items->hf_index == -1) ?
+				      "String Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    string);
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, 0,
+				    pinfo, tree, convert, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'N':
+			/*
+			 * 16-bit auxiliary data structure count.
+			 * XXX - hf_acount?
+			 */
+			WParam = tvb_get_letohs(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 2,
+			    "%s: %u (0x%04X)",
+			    "Auxiliary data structure count",
+			    WParam, WParam);
+			offset += 2;
+			if (aux_count_p != NULL)
+				*aux_count_p = WParam;  /* Save this for later retrieval */
+			break;
+
+		default:
+			break;
+		}
+	}
+	return offset;
+}
 
 static const value_string commands[] = {
 	{LANMAN_NETSHAREENUM,		"NetShareEnum"},
@@ -1307,84 +1820,31 @@ static const value_string commands[] = {
 	{0,	NULL}
 };
 
-struct lanman_dissector {
-	int	command;
-	int	(*request)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-			   struct smb_request_val *request_val,
-			   int offset);
-	int	(*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-			    struct smb_request_val *request_val,
-			    int offset, guint16 status, int convert);
-};
-
-struct lanman_dissector lmd[] = {
-	{ LANMAN_NETSHAREENUM,
-	  netshareenum_request,
-	  netshareenum_response },
-
-	{ LANMAN_NETSHAREGETINFO,
-	  netsharegetinfo_request,
-	  netsharegetinfo_response },
-
-	{ LANMAN_NETSERVERGETINFO,
-	  netservergetinfo_request,
-	  netservergetinfo_response },
-
-	{ LANMAN_NETUSERGETINFO,
-	  netusergetinfo_request,
-	  netusergetinfo_response },
-
-	{ LANMAN_NETREMOTETOD,
-	  netremotetod_request,
-	  netremotetod_response },
-
-	{ LANMAN_NETSERVERENUM2,
-	  netserverenum2_request,
-	  netserverenum2_response },
-
-	{ LANMAN_NETWKSTAGETINFO,
-	  netwkstagetinfo_request,
-	  netwkstagetinfo_response },
-
-	{ LANMAN_NETWKSTAUSERLOGON,
-	  netwkstauserlogon_request,
-	  netwkstauserlogon_response },
-
-	{ LANMAN_NETWKSTAUSERLOGOFF,
-	  netwkstauserlogoff_request,
-	  netwkstauserlogoff_response },
-
-	{ LANMAN_SAMOEMCHANGEPASSWORD,
-	  samoemchangepassword_request,
-	  samoemchangepassword_response },
-
-	{ -1, NULL, NULL }
-};
-
-struct lanman_dissector *find_lanman_dissector(int cmd)
-{
-	int i;
-
-	for (i = 0; lmd[i].command != -1; i++) {
-		if (lmd[i].command == cmd)
-			return &lmd[i];
-	}
-	return NULL;
-}
-
 static gboolean
 dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	struct smb_info *smb_info = pinfo->private;
 	struct smb_request_val *request_val = smb_info->request_val;
-	int offset = 0;
+	int parameter_count = smb_info->parameter_count;
+	int offset = 0, start_offset;
 	guint16 cmd;
 	guint16 status;
 	int convert;
+	const struct lanman_desc *lanman;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	struct lanman_dissector *dis;
-	guint param_descriptor_len, return_descriptor_len;
+	guint descriptor_len;
+	const gchar *param_descrip, *data_descrip, *aux_data_descrip = NULL;
+	gboolean has_data;
+	gboolean has_ent_count;
+	guint16 ent_count, aux_count;
+	guint i, j;
+	const item_list_t *resp_data_list;
+	const item_t *resp_data;
+	proto_item *data_item;
+	proto_tree *data_tree;
+	proto_item *entry_item;
+	proto_tree *entry_tree;
 
 	if (check_col(pinfo->fd, COL_PROTOCOL)) {
 		col_set_str(pinfo->fd, COL_PROTOCOL, "LANMAN");
@@ -1434,55 +1894,129 @@ dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_tree_add_uint(tree, hf_function_code, tvb, offset, 2,
 		    cmd);
 		offset += 2;
+		parameter_count -= 2;
 
 		/*
 		 * If we haven't already done so, save the function code in
 		 * the structure we were handed, so that it's available to
-		 * the code parsing the reply.
+		 * the code parsing the reply, and initialize the detail
+		 * level to -1, meaning "unknown".
 		 */
-		if (!pinfo->fd->flags.visited)
+		if (!pinfo->fd->flags.visited) {
 			request_val->last_lanman_cmd = cmd;
+			request_val->last_level = -1;
+		}
 
 		/* parameter descriptor */
-		param_descriptor_len = tvb_strsize(tvb, offset);
+		descriptor_len = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_param_desc, tvb, offset,
-		    param_descriptor_len, TRUE);
+		    descriptor_len, TRUE);
+		param_descrip = tvb_get_ptr(tvb, offset, descriptor_len);
 		if (!pinfo->fd->flags.visited) {
 			/*
 			 * Save the parameter descriptor for future use.
 			 */
 			g_assert(request_val->last_param_descrip == NULL);
-			request_val->last_param_descrip =
-			    g_malloc(param_descriptor_len);
-			strcpy(request_val->last_param_descrip,
-			    tvb_get_ptr(tvb, offset, param_descriptor_len));
+			request_val->last_param_descrip = g_strdup(param_descrip);
 		}
-		offset += param_descriptor_len;
+		offset += descriptor_len;
+		parameter_count -= descriptor_len;
 
 		/* return descriptor */
-		return_descriptor_len = tvb_strsize(tvb, offset);
+		descriptor_len = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_return_desc, tvb, offset,
-		    return_descriptor_len, TRUE);
+		    descriptor_len, TRUE);
+		data_descrip = tvb_get_ptr(tvb, offset, descriptor_len);
 		if (!pinfo->fd->flags.visited) {
 			/*
 			 * Save the return descriptor for future use.
 			 */
 			g_assert(request_val->last_data_descrip == NULL);
-			request_val->last_data_descrip =
-			    g_malloc(return_descriptor_len);
-			strcpy(request_val->last_data_descrip,
-			    tvb_get_ptr(tvb, offset, return_descriptor_len));
+			request_val->last_data_descrip = g_strdup(data_descrip);
 		}
-		offset += return_descriptor_len;
+		offset += descriptor_len;
+		parameter_count -= descriptor_len;
 
-		/* command parameters */
- 		dis = find_lanman_dissector(cmd);
- 		if (dis == NULL) {
- 			offset = not_implemented(tvb, pinfo, tree, offset);
- 			return FALSE;
- 		}
-		offset = (*(dis->request))(tvb, pinfo, tree, request_val,
-		    offset);
+		lanman = find_lanman(cmd);
+
+		/* request parameters */
+		start_offset = offset;
+		offset = dissect_request_parameters(tvb, offset, pinfo, tree,
+		    param_descrip, lanman->req, &has_data);
+		parameter_count -= offset - start_offset;
+
+		/* auxiliary data descriptor */
+		if (parameter_count > 0) {
+			/*
+			 * There are more parameters left, so the next
+			 * item is the auxiliary data descriptor.
+			 */
+			descriptor_len = tvb_strsize(tvb, offset);
+			proto_tree_add_item(tree, hf_return_desc, tvb, offset,
+			    descriptor_len, TRUE);
+			aux_data_descrip = tvb_get_ptr(tvb, offset, descriptor_len);
+			if (!pinfo->fd->flags.visited) {
+				/*
+				 * Save the auxiliary data descriptor for
+				 * future use.
+				 */
+				g_assert(request_val->last_aux_data_descrip == NULL);
+				request_val->last_aux_data_descrip =
+				    g_strdup(aux_data_descrip);
+			}
+			offset += descriptor_len;
+		}
+
+		if (has_data && smb_info->data_count != 0) {
+			/*
+			 * There's a send buffer item in the descriptor
+			 * string, and the data count in the transaction
+			 * is non-zero, so there's data to dissect.
+			 *
+			 * XXX - should we just check "smb_info->data_count"?
+			 */
+
+			offset = smb_info->data_offset;
+			if (lanman->req_data_item != NULL) {
+				/*
+				 * Create a protocol tree item for the data.
+				 */
+				data_item = (*lanman->req_data_item)(tvb,
+				    pinfo, tree, offset);
+				data_tree = proto_item_add_subtree(data_item,
+				    *lanman->ett_req_data);
+			} else {
+				/*
+				 * Just leave it at the top level.
+				 */
+				data_item = NULL;
+				data_tree = tree;
+			}
+
+			/* data */
+			offset = dissect_transact_data(tvb, offset, -1,
+			    pinfo, data_tree, data_descrip, lanman->req_data,
+			    &aux_count);	/* XXX - what about strings? */
+
+			/* auxiliary data */
+			if (aux_data_descrip != NULL) {
+				for (i = 0; i < aux_count; i++) {
+					offset = dissect_transact_data(tvb,
+					    offset, -1, pinfo, data_tree,
+					    aux_data_descrip,
+					    lanman->req_aux_data, NULL);
+				}
+			}
+
+			if (data_item != NULL) {
+				/*
+				 * Set the length of the protocol tree item
+				 * for the data.
+				 */
+				proto_item_set_len(data_item,
+				    offset - smb_info->data_offset);
+			}
+		}
 	} else {
 		/*
 		 * This is a response.
@@ -1508,7 +2042,9 @@ dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if (smb_info->is_interim_response)
 			return TRUE;	/* no data to dissect */
 
-		/* command parameters */
+		lanman = find_lanman(request_val->last_lanman_cmd);
+
+		/* response parameters */
 
 		/* status */
 		status = tvb_get_letohs(tvb, offset);
@@ -1530,13 +2066,115 @@ dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 */
 		convert -= smb_info->data_offset;
 
-		dis = find_lanman_dissector(request_val->last_lanman_cmd);
- 		if (dis == NULL) {
- 			offset = not_implemented(tvb, pinfo, tree, offset);
- 			return FALSE;
- 		}
-		offset = (*(dis->response))(tvb, pinfo, tree, request_val,
-		    offset, status, convert);
+		/* rest of the parameters */
+		offset = dissect_response_parameters(tvb, offset, pinfo, tree,
+		    request_val->last_param_descrip, lanman->resp, &has_data,
+		    &has_ent_count, &ent_count);
+
+		/* data */
+		if (has_data && smb_info->data_count != 0) {
+			/*
+			 * There's a receive buffer item in the descriptor
+			 * string, and the data count in the transaction
+			 * is non-zero, so there's data to dissect.
+			 *
+			 * XXX - should we just check "smb_info->data_count"?
+			 */
+
+			/*
+			 * Find the item table for the matching request's
+			 * detail level.
+			 */
+			for (resp_data_list = lanman->resp_data_list;
+			    resp_data_list->level != -1; resp_data_list++) {
+				if (resp_data_list->level == request_val->last_level)
+					break;
+			}
+			resp_data = resp_data_list->item_list;
+
+			offset = smb_info->data_offset;
+			if (lanman->resp_data_item != NULL) {
+				/*
+				 * Create a protocol tree item for the data.
+				 */
+				data_item = (*lanman->resp_data_item)(tvb,
+				    pinfo, tree, offset);
+				data_tree = proto_item_add_subtree(data_item,
+				    *lanman->ett_resp_data);
+			} else {
+				/*
+				 * Just leave it at the top level.
+				 */
+				data_item = NULL;
+				data_tree = tree;
+			}
+
+			/*
+			 * If we have an entry count, show all the entries,
+			 * with each one having a protocol tree item.
+			 *
+			 * Otherwise, we just show one returned item, with
+			 * no protocol tree item.
+			 */
+			if (!has_ent_count)
+				ent_count = 1;
+			for (i = 0; i < ent_count; i++) {
+				start_offset = offset;
+				if (has_ent_count) {
+					/*
+					 * Create a protocol tree item for the
+					 * entry.
+					 */
+					entry_item =
+					    (*lanman->resp_data_element_item)
+					      (tvb, pinfo, data_tree, offset);
+					entry_tree = proto_item_add_subtree(
+					    entry_item,
+					    *lanman->ett_resp_data_element_item);
+				} else {
+					/*
+					 * Just leave it at the current
+					 * level.
+					 */
+					entry_item = NULL;
+					entry_tree = data_tree;
+				}
+
+				offset = dissect_transact_data(tvb, offset,
+				    convert, pinfo, entry_tree,
+				    request_val->last_data_descrip,
+				    resp_data, &aux_count);
+
+				/* auxiliary data */
+				if (request_val->last_aux_data_descrip != NULL) {
+					for (j = 0; j < aux_count; j++) {
+						offset = dissect_transact_data(
+						    tvb, offset, convert,
+						    pinfo, entry_tree,
+						    request_val->last_data_descrip,
+						    lanman->resp_aux_data, NULL);
+					}
+				}
+
+				if (entry_item != NULL) {
+					/*
+					 * Set the length of the protocol tree
+					 * item for the entry.
+					 */
+					proto_item_set_len(entry_item,
+					    offset - start_offset);
+				}
+			}
+
+			if (data_item != NULL) {
+				/*
+				 * Set the length of the protocol tree item
+				 * for the data.
+				 */
+				proto_item_set_len(data_item,
+				    offset - smb_info->data_offset);
+			}
+		}
 	}
 
 	return TRUE;
@@ -1578,9 +2216,9 @@ register_proto_smb_pipe(void)
 			{ "Return Descriptor", "lanman.ret_desc", FT_STRING, BASE_NONE,
 			NULL, 0, "LANMAN Return Descriptor", HFILL }},
 
-		{ &hf_not_implemented,
-			{ "Unknown Data", "lanman.not_implemented", FT_BYTES, BASE_HEX,
-			NULL, 0, "Decoding of this data is not implemented yet", HFILL }},
+		{ &hf_aux_data_desc,
+			{ "Auxiliary Data Descriptor", "lanman.aux_data_desc", FT_STRING, BASE_NONE,
+			NULL, 0, "LANMAN Auxiliary Data Descriptor", HFILL }},
 
 		{ &hf_detail_level,
 			{ "Detail Level", "lanman.level", FT_UINT16, BASE_DEC,
@@ -1589,6 +2227,10 @@ register_proto_smb_pipe(void)
 		{ &hf_recv_buf_len,
 			{ "Receive Buffer Length", "lanman.recv_buf_len", FT_UINT16, BASE_DEC,
 			NULL, 0, "LANMAN Receive Buffer Length", HFILL }},
+
+		{ &hf_send_buf_len,
+			{ "Send Buffer Length", "lanman.send_buf_len", FT_UINT16, BASE_DEC,
+			NULL, 0, "LANMAN Send Buffer Length", HFILL }},
 
 		{ &hf_response_to,
 			{ "Response to request in frame", "lanman.response_to", FT_UINT32, BASE_DEC,
@@ -1637,6 +2279,14 @@ register_proto_smb_pipe(void)
 		{ &hf_share_current_uses,
 			{ "Share Current Uses", "lanman.share.current_uses", FT_UINT16, BASE_DEC,
 			NULL, 0, "LANMAN Current connections to share", HFILL }},
+
+		{ &hf_share_path,
+			{ "Share Path", "lanman.share.path", FT_STRING, BASE_NONE,
+			NULL, 0, "LANMAN Share Path", HFILL }},
+
+		{ &hf_share_password,
+			{ "Share Password", "lanman.share.password", FT_STRING, BASE_NONE,
+			NULL, 0, "LANMAN Share Password", HFILL }},
 
 		{ &hf_server_name,
 			{ "Server Name", "lanman.server.name", FT_STRING, BASE_NONE,
@@ -1705,6 +2355,10 @@ register_proto_smb_pipe(void)
 		{ &hf_weekday,
 			{ "Weekday", "lanman.weekday", FT_UINT8, BASE_DEC,
 			VALS(weekday_vals), 0, "LANMAN Current day of the week", HFILL }},
+
+		{ &hf_enumeration_domain,
+			{ "Enumeration Domain", "lanman.enumeration_domain", FT_STRING, BASE_NONE,
+			NULL, 0, "LANMAN Domain in which to enumerate servers", HFILL }},
 
 		{ &hf_computer_name,
 			{ "Computer Name", "lanman.computer_name", FT_STRING, BASE_NONE,
@@ -1826,6 +2480,7 @@ register_proto_smb_pipe(void)
 			{ "Logon Server", "lanman.logon_server", FT_STRING, BASE_NONE,
 			NULL, 0, "LANMAN Logon Server", HFILL }},
 
+		/* XXX - we should have a value_string table for this */
 		{ &hf_country_code,
 			{ "Country Code", "lanman.country_code", FT_UINT16, BASE_DEC,
 			NULL, 0, "LANMAN Country Code", HFILL }},
@@ -1846,6 +2501,7 @@ register_proto_smb_pipe(void)
 			{ "Logon Hours", "lanman.logon_hours", FT_BYTES, BASE_NONE,
 			NULL, 0, "LANMAN Logon Hours", HFILL }},
 
+		/* XXX - we should have a value_string table for this */
 		{ &hf_code_page,
 			{ "Code Page", "lanman.code_page", FT_UINT16, BASE_DEC,
 			NULL, 0, "LANMAN Code Page", HFILL }},
@@ -1858,10 +2514,12 @@ register_proto_smb_pipe(void)
 			{ "Old Password", "lanman.old_password", FT_BYTES, BASE_HEX,
 			NULL, 0, "LANMAN Old Password (encrypted)", HFILL }},
 
+		{ &hf_reserved,
+			{ "Reserved", "lanman.reserved", FT_UINT32, BASE_HEX,
+			NULL, 0, "LANMAN Reserved", HFILL }},
+
 	};
-
 	static gint *ett[] = {
-
 		&ett_lanman,
 		&ett_lanman_servers,
 		&ett_lanman_server,
@@ -1869,10 +2527,8 @@ register_proto_smb_pipe(void)
 		&ett_lanman_share,
 	};
 
-
-    	proto_smb_lanman = proto_register_protocol(
-    		"Microsoft Windows Lanman Remote API Protocol", "LANMAN", "lanman");
-
+	proto_smb_lanman = proto_register_protocol(
+		"Microsoft Windows Lanman Remote API Protocol", "LANMAN", "lanman");
 	proto_register_field_array(proto_smb_lanman, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.12 2001/08/11 07:26:25 guy Exp $
+ * $Id: smb.h,v 1.13 2001/08/27 09:09:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -641,8 +641,9 @@ struct smb_request_val {
   guint16 last_lanman_cmd;
   gchar *last_param_descrip;   /* Keep these descriptors around */
   gchar *last_data_descrip;
+  gchar *last_aux_data_descrip;
   guint16 trans_response_seen;
-  guint16 last_level;          /* Last level in request */
+  int last_level;              /* Last level in request */
 };
 
 /*
@@ -664,6 +665,7 @@ struct smb_info {
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
   gboolean is_interim_response;	/* Is this an interim transaction response? */
+  int parameter_count;		/* Number of bytes of parameter in transaction */
   int data_offset;		/* Offset from parameter to data in transaction */
   int data_count;		/* Number of bytes of data in transaction */
   guint16 ddisp;		/* Data displacement for transaction commands */

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.108 2001/08/27 07:56:49 guy Exp $
+ * $Id: packet-smb.c,v 1.109 2001/08/27 09:09:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,6 +212,8 @@ free_request_val_data(gpointer key, gpointer value, gpointer user_data)
     g_free(request_val->last_param_descrip);
   if (request_val->last_data_descrip != NULL)
     g_free(request_val->last_data_descrip);
+  if (request_val->last_aux_data_descrip != NULL)
+    g_free(request_val->last_aux_data_descrip);
   return TRUE;
 }
 
@@ -259,6 +261,7 @@ do_transaction_hashing(conversation_t *conversation, struct smb_info si,
 	request_val -> last_transact_command = NULL;
 	request_val -> last_param_descrip = NULL;
 	request_val -> last_data_descrip = NULL;
+	request_val -> last_aux_data_descrip = NULL;
 
 	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
       } else {
@@ -282,6 +285,9 @@ do_transaction_hashing(conversation_t *conversation, struct smb_info si,
 	if (request_val -> last_data_descrip)
 	  g_free(request_val -> last_data_descrip);
 	request_val -> last_data_descrip = NULL;
+	if (request_val -> last_aux_data_descrip)
+	  g_free(request_val -> last_aux_data_descrip);
+	request_val -> last_aux_data_descrip = NULL;
       }
     }
   } else {
@@ -10456,6 +10462,11 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
     trans_cmd = NULL;
 
   pinfo = &pi;
+
+  /*
+   * Number of bytes of parameter.
+   */
+  si.parameter_count = ParameterCount;
 
   if (DataOffset < 0) {
     /*
