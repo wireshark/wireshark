@@ -348,12 +348,20 @@ This option can be used multiple times on the command line.
 B<-z> io,stat,I<interval>[,I<filter>][,I<filter>][,I<filter>]...
 
 Collect frame/bytes statistics for the capture in intervals of I<interval> 
-seconds.
+seconds. I<Intervals> can be specified either as whole or fractional seconds.
+Interval can be specified in ms resolution.
+
 If no I<filter> is specified the statistics will be calculated for all frames.
 If one or more I<filters> are specified statistics will be calculated for
 all filters and presented with one column of statistics for each filter.
 
 This option can be used multiple times on the command line. 
+
+
+Example:   -z io,stat,1,ip.addr==1.2.3.4   to generate 1 second statistics for
+all traffic to/from host 1.2.3.4
+
+Example:   -z "io,stat,0.001,smb&&ip.addr==1.2.3.4"   to generate 1ms statistics for all SMB frames to/from host 1.2.3.4.
 
 
 B<-z> io,users,I<type>[,I<filter>]

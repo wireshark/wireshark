@@ -1,7 +1,7 @@
 /* tap-iostat.c
  * iostat   2002 Ronnie Sahlberg
  *
- * $Id: tap-iostat.c,v 1.3 2002/11/15 10:55:15 sahlberg Exp $
+ * $Id: tap-iostat.c,v 1.4 2003/04/22 09:02:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@
 
 
 typedef struct _io_stat_t {
-	gint32 interval;
+	gint32 interval;	/* unit is ms */
 	guint32 num_items;
 	struct _io_stat_item_t *items;
 	char **filters;
@@ -49,7 +49,7 @@ typedef struct _io_stat_item_t {
 	io_stat_t *parent;
 	struct _io_stat_item_t *next;
 	struct _io_stat_item_t *prev;
-	gint32 time;
+	gint32 time;		/* unit is ms since start of capture */
 	guint32 frames;
 	guint32 bytes;
 } io_stat_item_t;
@@ -102,25 +102,28 @@ static int
 iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, void *dummy _U_)
 {
 	io_stat_item_t *it;
+	gint32 current_time;
+
+	current_time=((pinfo->fd->rel_secs*1000)+(pinfo->fd->rel_usecs/1000));
 
 	/* the prev item before the main one is always the last interval we saw packets for */
 	it=mit->prev;
 
 	/* XXX for the time being, just ignore all frames that are in the past.
 	   should be fixed in the future but hopefully it is uncommon */
-	if(pinfo->fd->rel_secs<it->time){
+	if(current_time<it->time){
 		return FALSE;
 	}
 
 	/* we have moved into a new interval, we need to create a new struct */
-	if(pinfo->fd->rel_secs>=(it->time+mit->parent->interval)){
+	if(current_time>=(it->time+mit->parent->interval)){
 		it->next=g_malloc(sizeof(io_stat_item_t));
 		it->next->prev=it;
 		it->next->next=NULL;
 		it=it->next;
 		mit->prev=it;
 
-		it->time=(pinfo->fd->rel_secs / mit->parent->interval) * mit->parent->interval;
+		it->time=(current_time / mit->parent->interval) * mit->parent->interval;
 		it->frames=0;
 		it->bytes=0;
 	}
@@ -151,12 +154,12 @@ iostat_draw(io_stat_item_t *mit)
 	for(i=0;i<iot->num_items;i++){
 		printf("Column #%d: %s\n",i,iot->filters[i]?iot->filters[i]:"");
 	}
-	printf("            ");
+	printf("                ");
 	for(i=0;i<iot->num_items;i++){
 		printf("|   Column #%-2d   ",i);
 	}
 	printf("\n");
-	printf("Time        ");
+	printf("Time            ");
 	for(i=0;i<iot->num_items;i++){
 		printf("|frames|  bytes  ");
 	}
@@ -194,7 +197,9 @@ iostat_draw(io_stat_item_t *mit)
 		}
 
 		if(more_items){
-			printf("%5d-%5d  ",t,t+iot->interval);
+			printf("%03d.%03d-%03d.%03d  ",
+				t/1000,t%1000,
+				(t+iot->interval)/1000,(t+iot->interval)%1000);
 			for(i=0;i<iot->num_items;i++){
 				printf("%6d %9d ",frames[i],bytes[i]);
 			}
@@ -234,11 +239,13 @@ register_io_tap(io_stat_t *io, int i, char *filter)
 void
 iostat_init(char *optarg)
 {
-	int interval, pos=0;
+	float interval_float;
+	gint32 interval; 
+	int pos=0;
 	io_stat_t *io;
 	char *filter=NULL;
 
-	if(sscanf(optarg,"io,stat,%d,%n",&interval,&pos)==1){
+	if(sscanf(optarg,"io,stat,%f,%n",&interval_float,&pos)==1){
 		if(pos){
 			filter=optarg+pos;
 		} else {
@@ -249,8 +256,11 @@ iostat_init(char *optarg)
 		exit(1);
 	}
 
+
+	/* make interval be number of ms */
+	interval=interval_float*1000;	
 	if(interval<1){
-		fprintf(stderr, "tethereal:iostat_init()  interval must be >0 seconds\n");
+		fprintf(stderr, "tethereal:iostat_init()  interval must be >=0.001 seconds\n");
 		exit(10);
 	}
 	
