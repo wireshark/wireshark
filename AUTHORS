@@ -1940,7 +1940,7 @@ Scott Hovis <scott.hovis [AT] ums.msfc.nasa.gov> {
 }
 
 David Fort <david.fort [AT] irisa.fr> {
-	DNS DSS RR support
+	DNS DS RR support
 }
 
 Martijn Schipper <mschipper [AT] globespanvirata.com> {

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.115 2003/12/17 22:30:42 guy Exp $
+ * $Id: packet-dns.c,v 1.116 2003/12/19 23:13:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,7 +137,7 @@ static dissector_handle_t gssapi_handle;
 #define T_A6		38              /* IPv6 address with indirection (RFC 2874) */
 #define T_DNAME         39              /* Non-terminal DNS name redirection (RFC 2672) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
-#define T_DS            43		/* draft-ietf-dnsext-delegation-signature */
+#define T_DS            43		/* Delegation Signature(RFC 3658) */
 #define T_TKEY		249		/* Transaction Key (RFC 2930) */
 #define T_TSIG		250		/* Transaction Signature (RFC 2845) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
@@ -331,7 +331,7 @@ dns_type_name (guint type)
     NULL,
     "OPT",				/* RFC 2671 */
     NULL,
-    "DS"				/* draft-ietf-dnsext-delegation-signer-15.txt */
+    "DS"				/* RFC 3658 */
   };
 
   if (type < sizeof(type_names)/sizeof(type_names[0]))
@@ -425,7 +425,7 @@ dns_long_type_name (guint type)
     NULL,
     "EDNS0 option",			/* RFC 2671 */
     NULL,
-    "Delegation Signer"                 /* draft-ietf-dnsext-delegation-signer-15.txt */
+    "Delegation Signer"                 /* RFC 3658 */
   };
   static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%u)" */
 
