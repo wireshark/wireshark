@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.2 1999/08/05 06:30:05 guy Exp $
+ * $Id: xdlc.c,v 1.3 1999/08/16 05:54:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -243,7 +243,6 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			frame_type,
 			"Control field: %s (0x%04X)", info, control);
 		control_tree = proto_item_add_subtree(tc, ETT_XDLC_CONTROL);
-		/* XXX - make it shift the value appropriately! */
 		proto_tree_add_text(control_tree, offset, 2,
 		    decode_numeric_bitfield(control, XDLC_N_R_EXT_MASK, 2*8,
 			"N(R) = %u"));
@@ -265,7 +264,6 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			frame_type,
 			"Control field: %s (0x%02X)", info, control);
 		control_tree = proto_item_add_subtree(tc, ETT_XDLC_CONTROL);
-		/* XXX - make it shift the value appropriately! */
 		proto_tree_add_text(control_tree, offset, 1,
 		    decode_numeric_bitfield(control, XDLC_N_R_MASK, 1*8,
 			"N(R) = %u"));
@@ -362,11 +360,9 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			info, control);
 	    control_tree = proto_item_add_subtree(tc, ETT_XDLC_CONTROL);
 	    if (is_extended) {
-		/* XXX - make it shift the value appropriately! */
 		proto_tree_add_text(control_tree, offset, 2,
 		    decode_numeric_bitfield(control, XDLC_N_R_EXT_MASK, 2*8,
 		  		"N(R) = %u"));
-		/* XXX - make it shift the value appropriately! */
 		proto_tree_add_text(control_tree, offset, 2,
 		    decode_numeric_bitfield(control, XDLC_N_S_EXT_MASK, 2*8,
 		  		"N(S) = %u"));
@@ -380,11 +376,9 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 		    decode_boolean_bitfield(control, 0x01, 2*8,
 			NULL, "Information frame"));
 	    } else {
-		/* XXX - make it shift the value appropriately! */
 		proto_tree_add_text(control_tree, offset, 1,
 		    decode_numeric_bitfield(control, XDLC_N_R_MASK, 1*8,
 		  		"N(R) = %u"));
-		/* XXX - make it shift the value appropriately! */
 		proto_tree_add_text(control_tree, offset, 1,
 		    decode_numeric_bitfield(control, XDLC_N_S_MASK, 1*8,
 		  		"N(S) = %u"));
