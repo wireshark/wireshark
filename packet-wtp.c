@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.50 2003/07/29 22:02:38 guy Exp $
+ * $Id: packet-wtp.c,v 1.51 2003/07/29 22:10:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -655,7 +655,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (check_col(pinfo->cinfo, COL_INFO))
 		    col_add_fstr(pinfo->cinfo, COL_INFO,
-		    		 "%s (%u)",
+		    		 "WTP %s (%u)",
 				 (pdut == SEGMENTED_INVOKE ?
 				  "Segmented Invoke" : "Segmented Result"),
 				 psn);
