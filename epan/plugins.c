@@ -1,12 +1,11 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.25 2001/07/22 10:12:08 guy Exp $
+ * $Id: plugins.c,v 1.26 2001/08/18 23:21:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1999 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -72,8 +71,8 @@ static plugin_address_table_t	patable;
 plugin *plugin_list;
 
 #ifdef WIN32
-static gchar std_plug_dir[] = "c:/program files/ethereal/plugins/" VERSION;
-static gchar local_plug_dir[] = "c:/ethereal/plugins/" VERSION;
+#include <stdio.h>
+static gchar std_plug_dir[] = "C:\\Program Files\\Ethereal\\plugins\\" VERSION;
 #else
 static gchar std_plug_dir[] = "/usr/lib/ethereal/plugins/" VERSION;
 static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/" VERSION;
@@ -277,7 +276,14 @@ plugins_scan_dir(const char *dirname)
 void
 init_plugins(const char *plugin_dir)
 {
+#ifdef WIN32
+    char prog_pathname[_MAX_PATH+2];
+    char *dir_end;
+    size_t plugin_dir_len;
+    char *plugin_dir;
+#else
     struct stat std_dir_stat, local_dir_stat, plugin_dir_stat;
+#endif
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
@@ -415,6 +421,85 @@ init_plugins(const char *plugin_dir)
 	patable.p_get_CDR_boolean		= get_CDR_boolean;
 #endif
 
+#ifdef WIN32
+	/*
+	 * Scan the default installation directory.
+	 *
+	 * This may not, in fact, be where Ethereal is installed;
+	 * we check that directory later, but we check this directory
+	 * as well, so that if you're running the program from a
+	 * source directory in which you've built it, you still get
+	 * to see the plugins installed on your system.
+	 */
+	plugins_scan_dir(std_plug_dir);
+
+	/*
+	 * Now attempt to get the full pathname of the currently running
+	 * program, and assume that might contain the pathname of the
+	 * directory in which Ethereal was installed.
+	 */
+	if (GetModuleFileName(NULL, prog_pathname, sizeof prog_pathname) != 0) {
+		/*
+		 * If the program is an installed version, the full pathname
+		 * includes the pathname of the directory in which it was
+		 * installed; get that directory's pathname, and construct
+		 * from it the pathname of the directory in which the
+		 * plugins were installed.
+		 *
+		 * First, find the last "\\" in the directory, as that
+		 * marks the end of the directory pathname.
+		 */
+		dir_end = strrchr(prog_pathname, '\\');
+		if (dir_end != NULL) {
+			/*
+			 * Include the "\\" in the directory's pathname,
+			 * as we'll be appending to that pathname.
+			 */
+			dir_end++;
+
+			/*
+			 * Found it - now figure out how long the plugin
+			 * directory pathname will be.
+			 * It's the length of the directory pathname
+			 * (dir_end - prog_pathname), plus the length of
+			 * the plugin directory's relative pathname.
+			 */
+			plugin_dir_len = (dir_end - prog_pathname) +
+			    strlen("plugins\\"VERSION);
+
+			/*
+			 * Allocate a buffer for the plugin directory
+			 * pathname, and construct it.
+			 */
+			plugin_dir = g_malloc(plugin_dir_len + 1);
+			strncpy(plugin_dir, prog_pathname,
+			    dir_end - prog_pathname);
+			strcpy(plugin_dir + (dir_end - prog_pathname),
+			    "plugins\\"VERSION);
+
+			/*
+			 * Is it the same as the standard plugin directory?
+			 * (Do a case-insensitive string comparison; this
+			 * *is* Windows, after all.)
+			 *
+			 * XXX - is there another way to determine whether
+			 * two pathnames refer to the same file?
+			 */
+			if (g_strcasecmp(std_plug_dir, plugin_dir) != 0) {
+				/*
+				 * It's a different directory - scan it.
+				 */
+				plugins_scan_dir(plugin_dir);
+			}
+		}
+	}
+#else
+	/*
+	 * XXX - why not just scan "plugin_dir"?  That's where we
+	 * installed the plugins; if Ethereal isn't installed under
+	 * "/usr" or "/usr/local", why should we search for its plugins
+	 * there?
+	 */
 	plugins_scan_dir(std_plug_dir);
 	plugins_scan_dir(local_plug_dir);
 	if ((strcmp(std_plug_dir, plugin_dir) != 0) &&
@@ -450,6 +535,7 @@ init_plugins(const char *plugin_dir)
 		else plugins_scan_dir(plugin_dir);
 	    }
 	}
+#endif
 	if (!user_plug_dir)
 	{
 	    user_plug_dir = (gchar *)g_malloc(strlen(get_home_dir()) +

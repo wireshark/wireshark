@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.30 2001/07/27 07:10:09 guy Exp $ */
+/* $Id: config.h.win32,v 1.31 2001/08/18 23:21:30 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -139,6 +139,5 @@
 /* Version number of package */
 #define VERSION "@VERSION@"
 
-/* Plugin installation directory... */
-#define PLUGIN_DIR "C:/ethereal/plugins/@VERSION@"
-
+/* We don't know what the plugin installation directory will be. */
+#define PLUGIN_DIR NULL
