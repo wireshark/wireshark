@@ -5,7 +5,7 @@
  * Modified to decode server op-lock
  * & NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp.c,v 1.70 2002/09/25 00:37:01 jmayer Exp $
+ * $Id: packet-ncp.c,v 1.71 2002/10/10 03:03:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,7 +204,8 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int				offset;
 	gint				length_remaining;
 	tvbuff_t       			*next_tvb;
-    guint32             testvar=0;
+	guint32				testvar = 0;
+	guint8				subfunction;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
@@ -281,19 +282,19 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	switch (header.type) {
 
-    case NCP_BROADCAST_SLOT:    /* Server Broadcast */
-        proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
+	case NCP_BROADCAST_SLOT:    /* Server Broadcast */
+		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
 		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
 		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
 		proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, FALSE);
 		proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, FALSE);
-        break;
+		break;
 
-    case NCP_LIP_ECHO:    /* Lip Echo Packet */
-        proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, 2, FALSE);
-        break;
+	case NCP_LIP_ECHO:    /* Lip Echo Packet */
+		proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, 2, FALSE);
+		break;
 
-    case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
+	case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
 		/*
 		 * XXX - we should keep track of whether there's a burst
 		 * outstanding on a connection and, if not, treat the
@@ -389,21 +390,20 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
-        length_remaining = tvb_length_remaining(tvb, commhdr + 4);
-        if (length_remaining > 4)
-        { 
-            testvar = tvb_get_ntohl(tvb, commhdr+4);
-            if( testvar == 0x4c495020)
-            {
-                proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr+4, 13, FALSE);
-                break;
-            }
-        }
+		length_remaining = tvb_length_remaining(tvb, commhdr + 4);
+		if (length_remaining > 4) { 
+			testvar = tvb_get_ntohl(tvb, commhdr+4);
+			if (testvar == 0x4c495020) {
+				proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr+4, 13, FALSE);
+				break;
+			}
+		}
+		/* otherwise fall through */
     
 	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
-    case NCP_SERVICE_REQUEST:	/* Server NCP Request */
-    case NCP_SERVICE_REPLY:		/* Server NCP Reply */
-	case NCP_WATCHDOG:		    /* Watchdog Packet */
+	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
+	case NCP_WATCHDOG:		/* Watchdog Packet */
 	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
 	default:
 		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
@@ -417,49 +417,68 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	switch (header.type) {
 
-    case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
-        length_remaining = tvb_length_remaining(tvb, commhdr + 4);
-        if (length_remaining > 4)
-        {
-            testvar = tvb_get_ntohl(tvb, commhdr+4);
-            if( testvar == 0x4c495020)
-            {
-                proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
-                    "Lip Echo Packet");
-                /*break;*/
-            }
-        }
-    case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
+		length_remaining = tvb_length_remaining(tvb, commhdr + 4);
+		if (length_remaining > 4) {
+			testvar = tvb_get_ntohl(tvb, commhdr+4);
+			if (testvar == 0x4c495020) {
+				proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
+				    "Lip Echo Packet");
+				/*break;*/
+			}
+		}
+
+	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
 	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-    case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
+	case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
-        if (tvb_get_guint8(tvb, commhdr+6)==0x68) {
-            ncp_nds_verb = tvb_get_ntohl(tvb, commhdr+4);
-            if (tvb_get_guint8(tvb, commhdr+7)==0x02) {  /* NDS Frag Packet to decode */
-                dissect_nds_request(next_tvb, pinfo, nw_connection, 
-                    header.sequence, header.type, ncp_tree);
-            }
-            else 
-            {
-                if(tvb_get_guint8(tvb, commhdr+7)==0x01) { /* NDS Ping */
-                    dissect_ping_req(next_tvb, pinfo, nw_connection,
-                        header.sequence, header.type, ncp_tree);
-                }
-                else
-                {
-                    dissect_ncp_request(next_tvb, pinfo, nw_connection,
-                        header.sequence, header.type, ncp_tree);
-                }
-            }
-        }
-        else
-        {
-        dissect_ncp_request(next_tvb, pinfo, nw_connection,
-			header.sequence, header.type, ncp_tree);
-        }
+		if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
+			ncp_nds_verb = tvb_get_ntohl(tvb, commhdr+4);
+			subfunction = tvb_get_guint8(tvb, commhdr+7);
+			switch (subfunction) {
+
+			case 0x02:	/* NDS Frag Packet to decode */
+				dissect_nds_request(next_tvb, pinfo,
+				    nw_connection, header.sequence,
+				    header.type, ncp_tree);
+				break;
+
+#if 0
+			/*
+			 * According to the page at
+			 *
+http://developer.novell.com/ndk/doc/ncp/index.html?page=/ndk/doc/ncp/ncp__enu/data/a1wfz7x.html
+			 *
+			 * an NDS Ping request's request header doesn't
+			 * have anything in it other than a function
+			 * code, a subfunction code, and 3 reserved
+			 * bytes.  According to at least one capture
+			 * I've seen, that page is correct.
+			 *
+			 * Therefore, we don't call "dissect_ping_req()",
+			 * as that assumes there's a pile of additional
+			 * junk in the packet.
+			 */
+			case 0x01:	/* NDS Ping */
+				dissect_ping_req(next_tvb, pinfo,
+				    nw_connection, header.sequence,
+				    header.type, ncp_tree);
+				break;
+#endif
+
+			default:
+				dissect_ncp_request(next_tvb, pinfo,
+				    nw_connection, header.sequence,
+				    header.type, ncp_tree);
+				break;
+			 }
+		} else {
+			dissect_ncp_request(next_tvb, pinfo, nw_connection,
+			    header.sequence, header.type, ncp_tree);
+		}
 		break;
 
-    case NCP_SERVICE_REPLY:		/* Server NCP Reply */
+	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
 	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
@@ -524,10 +543,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 		}
 		break;
-    case NCP_LIP_ECHO:		/* LIP Echo Packet */
-        proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
-            "Lip Echo Packet");
-        break;
+
+	case NCP_LIP_ECHO:		/* LIP Echo Packet */
+		proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
+		    "Lip Echo Packet");
+		break;
+
 	default:
 		if (tree) {
 		    proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
