@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System
  * Routing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.29 2003/12/11 21:23:36 ulfl Exp $
+ * $Id: packet-esis.c,v 1.30 2003/12/13 02:17:44 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -60,11 +60,11 @@ static const value_string esis_vals[] = {
 
 /* internal prototypes */
 
-static void esis_dissect_esh_pdu( guchar len, tvbuff_t *tvb,
+static void esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb,
                            proto_tree *treepd);
-static void esis_dissect_ish_pdu( guchar len, tvbuff_t *tvb,
+static void esis_dissect_ish_pdu( guint8 len, tvbuff_t *tvb,
                            proto_tree *tree);
-static void esis_dissect_redirect_pdu( guchar len, tvbuff_t *tvb,
+static void esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb,
                            proto_tree *tree);
 
 /* ################## Descriptions ###########################################*/
@@ -149,7 +149,7 @@ esis_dissect_unknown( tvbuff_t *tvb, proto_tree *tree, char *fmat, ...){
 
 
 static void
-esis_dissect_esh_pdu( guchar len, tvbuff_t *tvb, proto_tree *tree) {
+esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
   proto_tree *esis_area_tree;
   int         offset  = 0;
   int         no_sa   = 0;
@@ -183,7 +183,7 @@ esis_dissect_esh_pdu( guchar len, tvbuff_t *tvb, proto_tree *tree) {
 } /* esis_dissect_esh_pdu */ ;
 
 static void
-esis_dissect_ish_pdu( guchar len, tvbuff_t *tvb, proto_tree *tree) {
+esis_dissect_ish_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
 
   int   offset  = 0;
   int   netl    = 0;
@@ -206,7 +206,7 @@ esis_dissect_ish_pdu( guchar len, tvbuff_t *tvb, proto_tree *tree) {
 };
 
 static void
-esis_dissect_redirect_pdu( guchar len, tvbuff_t *tvb, proto_tree *tree) {
+esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
 
   int   offset  = 0;
   int   tmpl    = 0;
@@ -278,7 +278,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    esis_hdr_t  ehdr;
    proto_item *ti;
    proto_tree *esis_tree    = NULL;
-   int         variable_len = 0;
+   guint8      variable_len;
    guint       tmp_uint     = 0;
    char       *cksum_status;
 
@@ -300,6 +300,12 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
        return;
      }
 
+     if (ehdr.esis_length < ESIS_HDR_FIXED_LENGTH) {
+       esis_dissect_unknown(tvb, esis_tree,
+                          "Bogus ESIS length (%u, must be >= %u)",
+                           ehdr.esis_length, ESIS_HDR_FIXED_LENGTH );
+       return;
+     }
      proto_tree_add_uint( esis_tree, hf_esis_nlpi, tvb, 0, 1, ehdr.esis_nlpi );
      proto_tree_add_uint( esis_tree, hf_esis_length, tvb,
                           1, 1, ehdr.esis_length );
@@ -369,13 +375,13 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
    switch (ehdr.esis_type & OSI_PDU_TYPE_MASK) {
      case ESIS_ESH_PDU:
-          esis_dissect_esh_pdu( (guchar) variable_len, tvb, esis_tree);
+          esis_dissect_esh_pdu( variable_len, tvb, esis_tree);
      break;
      case ESIS_ISH_PDU:
-          esis_dissect_ish_pdu( (guchar) variable_len, tvb, esis_tree);
+          esis_dissect_ish_pdu( variable_len, tvb, esis_tree);
      break;
      case ESIS_RD_PDU:
-          esis_dissect_redirect_pdu( (guchar) variable_len, tvb, esis_tree);
+          esis_dissect_redirect_pdu( variable_len, tvb, esis_tree);
      break;
      default:
          esis_dissect_unknown(tvb, esis_tree,
