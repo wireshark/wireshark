@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.h,v 1.1 2001/05/16 21:32:04 ashokn Exp $
+ * $Id: text2pcap.h,v 1.2 2001/05/17 00:11:37 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,5 +43,9 @@ typedef enum {
 } token_t;
 
 void parse_token(token_t token, char *str);
+
+int yylex(void);
+
+#define YY_NO_UNPUT
 
 #endif
