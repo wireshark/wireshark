@@ -158,7 +158,7 @@
 #endif /* PRIx64 */   
 
 /* Define as a function that behaves like strtoull */
-#define	strtoull	_strtoui64
+#define	strtoull	g_ascii_strtoull
 
 /* Define if you have the z library (-lz).  */
 @HAVE_LIBZ@
