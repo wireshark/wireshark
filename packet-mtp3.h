@@ -1,6 +1,6 @@
 /* packet-mtp3.h
  *
- * $Id: packet-mtp3.h,v 1.6 2004/05/09 10:03:37 guy Exp $
+ * $Id: packet-mtp3.h,v 1.7 2004/06/27 17:14:28 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,7 +64,11 @@ typedef struct _mtp3_tap_rec_t {
 #define ANSI_MEMBER_MASK  0xFF0000
 #define ANSI_PC_STRING_LENGTH 16
 
-extern void mtp3_addr_to_str_buf(const guint8 *data, gchar *buf);
+extern void     mtp3_addr_to_str_buf(const guint8 *data, gchar *buf);
+extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf);
+extern gchar*   mtp3_pc_to_str(const guint32 pc);
+extern gboolean mtp3_pc_structured();
+
 
 /*
  * the following allows TAP code access to the messages

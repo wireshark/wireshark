@@ -9,7 +9,7 @@
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.28 2004/05/24 02:25:19 guy Exp $
+ * $Id: packet-mtp3.c,v 1.29 2004/06/27 17:14:27 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,6 +85,14 @@ static gint ett_mtp3_label_dpc = -1;
 static gint ett_mtp3_label_opc = -1;
 
 static dissector_table_t mtp3_sio_dissector_table;
+
+typedef enum {
+  ITU_PC_STRUCTURE_NONE    = 1,
+  ITU_PC_STRUCTURE_3_8_3   = 2,
+  ITU_PC_STRUCTURE_4_3_4_3 = 3,
+} ITU_PC_Structure_Type;
+
+ITU_PC_Structure_Type itu_pc_structure = ITU_PC_STRUCTURE_NONE;
 
 #include <packet-mtp3.h>
 Standard_Type mtp3_standard = ITU_STANDARD;
@@ -174,8 +182,64 @@ static dissector_handle_t data_handle;
 
 
 /*
+ * helper routine to format a point code in structured form
+ */
+
+void 
+mtp3_pc_to_str_buf(const guint32 pc, gchar *buf)
+{
+  switch (mtp3_standard)
+  {
+    case ITU_STANDARD:
+      switch (itu_pc_structure) {
+        case ITU_PC_STRUCTURE_NONE:
+          sprintf(buf, "%u", pc);
+          break;
+        case ITU_PC_STRUCTURE_3_8_3:
+          /* this format is used in international ITU networks */
+          sprintf(buf, "%u-%u-%u", (pc & 0x3800)>>11, (pc & 0x7f8) >> 3, (pc & 0x07) >> 0);
+          break;
+        case ITU_PC_STRUCTURE_4_3_4_3:
+          /* this format is used in some national ITU networks, the German one for example. */
+          sprintf(buf, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
+          break;
+        default:
+          g_assert_not_reached();
+      }
+      break;
+    case ANSI_STANDARD:
+    case CHINESE_ITU_STANDARD:
+      sprintf(buf, "%u-%u-%u", (pc & ANSI_NETWORK_MASK), (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK) >> 16);
+      break;
+    default:
+      g_assert_not_reached();
+  }
+}
+
+#define MAX_STRUCTURED_PC_LENGTH 20
+
+gchar *
+mtp3_pc_to_str(const guint32 pc)
+{
+  static gchar str[MAX_STRUCTURED_PC_LENGTH];
+  
+  mtp3_pc_to_str_buf(pc, str);
+  return str;
+}
+
+gboolean
+mtp3_pc_structured()
+{
+  if ((mtp3_standard == ITU_STANDARD) && (itu_pc_structure == ITU_PC_STRUCTURE_NONE))
+    return FALSE;
+  else
+    return TRUE;
+}
+
+/*
  * helper routine to format address to string
  */
+ 
 void
 mtp3_addr_to_str_buf(
   const guint8		*data,
@@ -241,22 +305,7 @@ mtp3_addr_to_str_buf(
     /* FALLTHRU */
 
   case MTP3_NET_ADDR_FMT_DASHED:
-    switch (addr_pc_p->type)
-    {
-    case ITU_STANDARD:
-      sprintf(buf, "%u-%u-%u",
-	(addr_pc_p->pc & 0x3800) >> 11,
-	((addr_pc_p->pc & 0x7f8) >> 3),
-	(addr_pc_p->pc & 0x07));
-      break;
-    default:
-      /* assuming 24-bit */
-      sprintf(buf, "%u-%u-%u",
-	(addr_pc_p->pc & ANSI_NETWORK_MASK),
-	((addr_pc_p->pc & ANSI_CLUSTER_MASK) >> 8),
-	((addr_pc_p->pc & ANSI_MEMBER_MASK) >> 16));
-      break;
-    }
+    mtp3_pc_to_str_buf(addr_pc_p->pc, buf);
     break;
   }
 }
@@ -268,31 +317,26 @@ dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
   proto_item *sio_item;
   proto_tree *sio_tree;
 
-  sio_item = proto_tree_add_text(mtp3_tree, tvb, SIO_OFFSET, SIO_LENGTH,
-				 "Service information octet");
+  sio_item = proto_tree_add_text(mtp3_tree, tvb, SIO_OFFSET, SIO_LENGTH, "Service information octet");
   sio_tree = proto_item_add_subtree(sio_item, ett_mtp3_sio);
 
   sio = tvb_get_guint8(tvb, SIO_OFFSET);
-  proto_tree_add_uint(sio_tree, hf_mtp3_network_indicator, tvb, SIO_OFFSET,
-		      SIO_LENGTH, sio);
+  proto_tree_add_uint(sio_tree, hf_mtp3_network_indicator, tvb, SIO_OFFSET, SIO_LENGTH, sio);
 
   mtp3_addr_opc.ni = (sio & NETWORK_INDICATOR_MASK) >> 6;
   mtp3_addr_dpc.ni = (sio & NETWORK_INDICATOR_MASK) >> 6;
 
   switch(mtp3_standard){
   case ANSI_STANDARD:
-    proto_tree_add_uint(sio_tree, hf_mtp3_ansi_priority, tvb, SIO_OFFSET,
-			SIO_LENGTH, sio);
+    proto_tree_add_uint(sio_tree, hf_mtp3_ansi_priority, tvb, SIO_OFFSET, SIO_LENGTH, sio);
     break;
   case ITU_STANDARD:
   case CHINESE_ITU_STANDARD:
-    proto_tree_add_uint(sio_tree, hf_mtp3_itu_spare, tvb, SIO_OFFSET,
-			SIO_LENGTH, sio);
+    proto_tree_add_uint(sio_tree, hf_mtp3_itu_spare, tvb, SIO_OFFSET, SIO_LENGTH, sio);
     break;
   }
 
-  proto_tree_add_uint(sio_tree, hf_mtp3_service_indicator, tvb, SIO_OFFSET,
-		      SIO_LENGTH, sio);
+  proto_tree_add_uint(sio_tree, hf_mtp3_service_indicator, tvb, SIO_OFFSET, SIO_LENGTH, sio);
 
   /* Store the SI so that subidissectors know what SI this msg is */
   pinfo->private_data = (void *)(sio & SERVICE_INDICATOR_MASK);
@@ -305,43 +349,30 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
   guint8 sls;
   proto_item *label_item, *label_dpc_item, *label_opc_item;
   proto_tree *label_tree, *label_dpc_tree, *label_opc_tree;
-  char pc[ANSI_PC_STRING_LENGTH];
   int *hf_dpc_string;
   int *hf_opc_string;
 
 
   switch (mtp3_standard) {
   case ITU_STANDARD:
-    label_item = proto_tree_add_text(mtp3_tree, tvb, ITU_ROUTING_LABEL_OFFSET,
-				     ITU_ROUTING_LABEL_LENGTH, "Routing label");
+    label_item = proto_tree_add_text(mtp3_tree, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, "Routing label");
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
     label = tvb_get_letohl(tvb, ITU_ROUTING_LABEL_OFFSET);
     sls   = tvb_get_guint8(tvb, ITU_SLS_OFFSET);
 
     opc = (label & ITU_OPC_MASK) >> 14;
-    dpc = label & ITU_DPC_MASK;
+    dpc =  label & ITU_DPC_MASK;
 
-    label_dpc_item =
-	proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb,
-			    ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH,
-			    label);
-    proto_item_append_text(label_dpc_item, " (%u-%u-%u)",
-			   (dpc & 0x3800) >> 11,
-			   ((dpc & 0x7f8) >> 3),
-			   (dpc & 0x07));
+    label_dpc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
+    if (mtp3_pc_structured())
+      proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(dpc));
 
-    label_opc_item =
-	proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb,
-			    ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH,
-			    label);
-    proto_item_append_text(label_opc_item, " (%u-%u-%u)",
-			   (opc & 0x3800) >> 11,
-			   ((opc & 0x7f8) >> 3),
-			   (opc & 0x07));
+    label_opc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
+    if (mtp3_pc_structured())
+      proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
 
-    proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ITU_SLS_OFFSET,
-			ITU_SLS_LENGTH, sls);
+    proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ITU_SLS_OFFSET, ITU_SLS_LENGTH, sls);
     break;
 
   case ANSI_STANDARD:
@@ -356,79 +387,43 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     }
 
     /* Create the Routing Label Tree */
-    label_item = proto_tree_add_text(mtp3_tree, tvb, ANSI_ROUTING_LABEL_OFFSET,
-				     ANSI_ROUTING_LABEL_LENGTH,
-				     "Routing label");
+    label_item = proto_tree_add_text(mtp3_tree, tvb, ANSI_ROUTING_LABEL_OFFSET, ANSI_ROUTING_LABEL_LENGTH, "Routing label");
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
     /* create the DPC tree */
     dpc = tvb_get_ntoh24(tvb, ANSI_DPC_OFFSET);
-    snprintf(pc, sizeof(pc), "%d-%d-%d", (dpc & ANSI_NETWORK_MASK),
-					 ((dpc & ANSI_CLUSTER_MASK) >> 8),
-					 ((dpc & ANSI_MEMBER_MASK) >> 16));
-
-    label_dpc_item = proto_tree_add_string_format(label_tree, *hf_dpc_string,
-						  tvb, ANSI_DPC_OFFSET,
-						  ANSI_PC_LENGTH, pc,
-						  "DPC (%s) (%u)", pc, dpc);
-
+    label_dpc_item = proto_tree_add_string_format(label_tree, *hf_dpc_string, tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, mtp3_pc_to_str(dpc), "DPC (%s) (%u)", mtp3_pc_to_str(dpc), dpc);
     label_dpc_tree = proto_item_add_subtree(label_dpc_item, ett_mtp3_label_dpc);
 
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_member, tvb,
-			ANSI_DPC_OFFSET + ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH,
-			dpc);
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_cluster,tvb,
-			ANSI_DPC_OFFSET + ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH,
-			dpc);
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_network,tvb,
-			ANSI_DPC_OFFSET + ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH,
-			dpc);
-
+    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_member,  tvb, ANSI_DPC_OFFSET + ANSI_MEMBER_OFFSET,  ANSI_NCM_LENGTH, dpc);
+    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_cluster, tvb, ANSI_DPC_OFFSET + ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, dpc);
+    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_network, tvb, ANSI_DPC_OFFSET + ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, dpc);
 
     /* add full integer values of DPC as hidden for filtering purposes */
-    proto_tree_add_uint_hidden(label_dpc_tree, hf_mtp3_24bit_dpc, tvb, ANSI_DPC_OFFSET,
-			       ANSI_PC_LENGTH, dpc);
+    proto_tree_add_uint_hidden(label_dpc_tree, hf_mtp3_24bit_dpc, tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
 
     /* create the OPC tree */
     opc = tvb_get_ntoh24(tvb, ANSI_OPC_OFFSET);
-    snprintf(pc, sizeof(pc), "%d-%d-%d", (opc & ANSI_NETWORK_MASK),
-					 ((opc & ANSI_CLUSTER_MASK) >> 8),
-					 ((opc & ANSI_MEMBER_MASK) >> 16));
-    label_opc_item = proto_tree_add_string_format(label_tree, *hf_opc_string,
-						  tvb, ANSI_OPC_OFFSET,
-						  ANSI_PC_LENGTH, pc,
-						  "OPC (%s) (%u)", pc, opc);
-
+    label_opc_item = proto_tree_add_string_format(label_tree, *hf_opc_string, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, mtp3_pc_to_str(opc), "OPC (%s) (%u)", mtp3_pc_to_str(opc), opc);
     label_opc_tree = proto_item_add_subtree(label_opc_item, ett_mtp3_label_opc);
 
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_member, tvb,
-			ANSI_OPC_OFFSET + ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH,
-			opc);
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_cluster, tvb,
-			ANSI_OPC_OFFSET + ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH,
-			opc);
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_network,tvb,
-			ANSI_OPC_OFFSET + ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH,
-			opc);
+    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_member,  tvb, ANSI_OPC_OFFSET + ANSI_MEMBER_OFFSET,  ANSI_NCM_LENGTH, opc);
+    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_cluster, tvb, ANSI_OPC_OFFSET + ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, opc);
+    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_network, tvb, ANSI_OPC_OFFSET + ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, opc);
 
     /* add full integer values of OPC as hidden for filtering purposes */
-    proto_tree_add_uint_hidden(label_opc_tree, hf_mtp3_24bit_opc, tvb, ANSI_OPC_OFFSET,
-			       ANSI_PC_LENGTH, opc);
+    proto_tree_add_uint_hidden(label_opc_tree, hf_mtp3_24bit_opc, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
 
     /* SLS */
     if (mtp3_standard == ANSI_STANDARD)
     {
 	if (mtp3_use_ansi_5_bit_sls)
-	    proto_tree_add_item(label_tree, hf_mtp3_ansi_5_bit_sls, tvb,
-				ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, TRUE);
+	    proto_tree_add_item(label_tree, hf_mtp3_ansi_5_bit_sls, tvb, ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, TRUE);
 	else
-	    proto_tree_add_item(label_tree, hf_mtp3_ansi_8_bit_sls, tvb,
-				ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, TRUE);
+	    proto_tree_add_item(label_tree, hf_mtp3_ansi_8_bit_sls, tvb, ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, TRUE);
     } else /* CHINESE_ITU_STANDARD */ {
-	proto_tree_add_item(label_tree, hf_mtp3_chinese_itu_sls, tvb,
-			    ANSI_SLS_OFFSET, ITU_SLS_LENGTH, FALSE);
+	proto_tree_add_item(label_tree, hf_mtp3_chinese_itu_sls, tvb, ANSI_SLS_OFFSET, ITU_SLS_LENGTH, FALSE);
     }
-
     break;
   }
 
@@ -464,8 +459,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
       col_set_str(pinfo->cinfo, COL_INFO, "DATA ");
 
-  if (!dissector_try_port(mtp3_sio_dissector_table, service_indicator,
-			  payload_tvb, pinfo, tree))
+  if (!dissector_try_port(mtp3_sio_dissector_table, service_indicator, payload_tvb, pinfo, tree))
     call_dissector(data_handle, payload_tvb, pinfo, tree);
 }
 
@@ -497,13 +491,11 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* create display subtree for the protocol */
     switch (mtp3_standard) {
     case ITU_STANDARD:
-      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0,
-				      ITU_HEADER_LENGTH, TRUE);
+      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, ITU_HEADER_LENGTH, TRUE);
       break;
     case ANSI_STANDARD:
     case CHINESE_ITU_STANDARD:
-      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0,
-				      ANSI_HEADER_LENGTH, TRUE);
+      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, ANSI_HEADER_LENGTH, TRUE);
       break;
     }
     mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
@@ -649,7 +641,14 @@ proto_register_mtp3(void)
     { NULL,		NULL,			0 }
   };
 
-  /* Register the protocol name and description */
+  static enum_val_t itu_pc_structures[] = {
+    { "unstructured", "Unstructured", ITU_PC_STRUCTURE_NONE},
+    { "3-8-3",        "3-8-3",        ITU_PC_STRUCTURE_3_8_3 },
+    { "4-3-4-3",      "4-3-4-3",      ITU_PC_STRUCTURE_4_3_4_3 },
+    { NULL,           NULL,           0 }
+  };
+  
+ /* Register the protocol name and description */
   proto_mtp3 = proto_register_protocol("Message Transfer Part Level 3",
 				       "MTP3", "mtp3");
   register_dissector("mtp3", dissect_mtp3, proto_mtp3);
@@ -669,6 +668,10 @@ proto_register_mtp3(void)
   prefs_register_enum_preference(mtp3_module, "standard", "MTP3 standard",
 				 "The SS7 standard used in MTP3 packets",
 				 (gint *)&mtp3_standard, mtp3_options, FALSE);
+
+  prefs_register_enum_preference(mtp3_module, "itu_pc_structure", "ITU Pointcode structure",
+				 "The structure of the pointcodes in ITU networks",
+				 (gint *)&itu_pc_structure, itu_pc_structures, FALSE);
 
   prefs_register_bool_preference(mtp3_module, "ansi_5_bit_sls",
 				 "Use 5-bit SLS (ANSI only)",
