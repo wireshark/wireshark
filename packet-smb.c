@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.245 2002/04/22 01:54:51 guy Exp $
+ * $Id: packet-smb.c,v 1.246 2002/04/22 06:26:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -546,6 +546,8 @@ static int hf_smb_soft_quota_limit = -1;
 static int hf_smb_hard_quota_limit = -1;
 static int hf_smb_user_quota_used = -1;
 static int hf_smb_user_quota_offset = -1;
+static int hf_smb_nt_rename_level = -1;
+static int hf_smb_cluster_count = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -2876,6 +2878,69 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	return offset;
 }
+
+static int
+dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	int fn_len;
+	const char *fn;
+	guint8 wc;
+	guint16 bc;
+
+	WORD_COUNT;
+
+	/* search attributes */
+	offset = dissect_search_attributes(tvb, pinfo, tree, offset);
+ 
+    proto_tree_add_uint(tree, hf_smb_nt_rename_level, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_smb_cluster_count, tvb, offset, 4, TRUE);
+    offset += 4;
+
+	BYTE_COUNT;
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* old file name */
+	fn = get_unicode_or_ascii_string(tvb, &offset, pinfo, &fn_len,
+		FALSE, FALSE, &bc);
+	if (fn == NULL)
+		goto endofcommand;
+	proto_tree_add_string(tree, hf_smb_old_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES(fn_len);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s", fn);
+	}
+
+	/* buffer format */
+	CHECK_BYTE_COUNT(1);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	COUNT_BYTES(1);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string(tvb, &offset, pinfo, &fn_len,
+		FALSE, FALSE, &bc);
+	if (fn == NULL)
+		goto endofcommand;
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES(fn_len);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s", fn);
+	}
+
+	END_OF_SMB
+
+	return offset;
+}
+
 
 static int
 dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
@@ -8604,6 +8669,12 @@ static const value_string qfsi_vals[] = {
 	{0, NULL}
 };
 
+static const value_string nt_rename_vals[] = {
+   	{ 0x0103,	"Create Hard Link"},
+  	{0, NULL}
+};
+
+
 static const value_string delete_pending_vals[] = {
 	{0,	"Normal, no pending delete"},
 	{1,	"This object has DELETE PENDING"},
@@ -12282,7 +12353,7 @@ static smb_function smb_dissector[256] = {
   /* 0xa2 NT CreateAndX*/		{dissect_nt_create_andx_request, dissect_nt_create_andx_response},
   /* 0xa3 */  {dissect_unknown, dissect_unknown},
   /* 0xa4 NT Cancel*/		{dissect_nt_cancel_request, dissect_unknown}, /*no response to this one*/
-  /* 0xa5 */  {dissect_unknown, dissect_unknown},
+  /* 0xa5 */  {dissect_nt_rename_file_request, dissect_empty},
   /* 0xa6 */  {dissect_unknown, dissect_unknown},
   /* 0xa7 */  {dissect_unknown, dissect_unknown},
   /* 0xa8 */  {dissect_unknown, dissect_unknown},
@@ -12589,7 +12660,7 @@ static const value_string smb_cmd_vals[] = {
   { 0xA2, "NT Create AndX" },
   { 0xA3, "unknown-0xA3" },
   { 0xA4, "NT Cancel" },
-  { 0xA5, "unknown-0xA5" },
+  { 0xA5, "NT Rename" },
   { 0xA6, "unknown-0xA6" },
   { 0xA7, "unknown-0xA7" },
   { 0xA8, "unknown-0xA8" },
@@ -16105,6 +16176,14 @@ proto_register_smb(void)
 	{ &hf_smb_qfsi_information_level,
 		{ "Level of Interest", "smb.qfi_loi", FT_UINT16, BASE_DEC,
 		VALS(qfsi_vals), 0, "Level of interest for QUERY_FS_INFORMATION2 command", HFILL }},
+
+  	{ &hf_smb_nt_rename_level,
+		{ "Level of Interest", "smb.ntr_loi", FT_UINT16, BASE_DEC,
+		VALS(nt_rename_vals), 0, "NT Rename level", HFILL }},
+
+   	{ &hf_smb_cluster_count,
+		{ "Cluster count", "smb.ntr_clu", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of clusters", HFILL }},
 
 	{ &hf_smb_ea_size,
 		{ "EA Size", "smb.ea_size", FT_UINT32, BASE_DEC,
