@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_be.py,v 1.2 2001/07/17 18:36:46 guy Exp $
+# $Id: ethereal_be.py,v 1.3 2001/07/27 18:35:22 guy Exp $
 #
 #    File      : ethereal_be.py
 #
@@ -46,10 +46,11 @@
 # Strategy. 
 #
 # Crawl all the way down all branches until I hit  "Operation" nodes
-# store the "operation" nodes in oplist[]
+# and "Attribute" nodes. Then store the "operation" nodes in oplist[]
+# and "attribute" nodes in atlist[].
 #
-# Pass the obj.oplist[] (via an object ref) to the src code generator (ethereal_gen) class.
-# and let it do the hard work ! 
+# Pass the obj.oplist[] and obj.atlist[](via an object ref) to the src code
+# generator (ethereal_gen) class and let it do the hard work ! 
 #
 #
 
@@ -61,7 +62,7 @@ import sys, string
 from ethereal_gen import ethereal_gen_C
 
 #
-# This class finds the "Operations" nodes, and hands them off
+# This class finds the "Operation" nodes and "Attribute" nodes, and hands them off
 # to an instance of the source code generator class "ethereal_gen" 
 #
 
@@ -71,7 +72,8 @@ class EtherealVisitor:
         self.st = st
         self.oplist = []                # list of operation nodes
         self.enumlist = []              # list of enum nodes
-        
+        self.atlist = []                # list of attribute nodes
+
         
     def visitAST(self, node):
         for n in node.declarations():
@@ -81,7 +83,8 @@ class EtherealVisitor:
                 self.visitInterface(n)
             if isinstance(n, idlast.Operation):
                 self.visitOperation(n)
-
+            if isinstance(n, idlast.Attribute):
+                self.visitAttribute(n)
 
     def visitModule(self, node):
         for n in node.definitions():
@@ -91,14 +94,17 @@ class EtherealVisitor:
                 self.visitInterface(n)   
             if isinstance(n, idlast.Operation):
                 self.visitOperation(n)   
-
+            if isinstance(n, idlast.Attribute):
+                self.visitAttribute(n)
 
     def visitInterface(self, node):
-        if node.mainFile():
-            for c in node.callables():
-                if isinstance(c, idlast.Operation):
-                    self.visitOperation(c)
-
+        #if node.mainFile():
+        for c in node.callables():
+            if isinstance(c, idlast.Operation):
+                self.visitOperation(c)
+            if isinstance(c, idlast.Attribute):
+                self.visitAttribute(c)
+                
     #
     # visitOperation
     #
@@ -108,13 +114,16 @@ class EtherealVisitor:
     
     def visitOperation(self,opnode):
         self.oplist.append(opnode)      # store operation node
-        
+
     #
-    # visitExceptions 
+    # visitAttribute
     #
-    # Given an oplist, generate a list of unique exception
-    # nodes.
+    # populates the attribute node list "atlist"
     #
+    #
+    
+    def visitAttribute(self,atnode):
+        self.atlist.append(atnode)      # store attribute node
 
         
 def run(tree, args):
@@ -137,7 +146,7 @@ def run(tree, args):
     # and generate some C code
     
     eg = ethereal_gen_C(ev.st, string.upper(nl), string.lower(nl), string.capitalize(nl) + " Dissector Using GIOP API") 
-    eg.genCode(ev.oplist)               # pass them onto the C generator
+    eg.genCode(ev.oplist, ev.atlist)    # pass them onto the C generator
     
 
 

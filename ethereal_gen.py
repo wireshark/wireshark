@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.8 2001/07/20 20:36:31 guy Exp $
+# $Id: ethereal_gen.py,v 1.9 2001/07/27 18:35:22 guy Exp $
 #
 #                           
 # ethereal_gen.py (part of idl2eth)           
@@ -87,9 +87,12 @@ import tempfile
 # 8. Automatic variable declaration [done, improve]
 # 9. wchar and wstring handling [giop API needs improving]
 # 10. Support Fixed [done]
-# 11. Support attributes (get/set)
+# 11. Support attributes (get/set) [started, needs language mapping option, perhaps ethereal GUI option
+#     to set the attribute function prefix or suffix ? ] For now the prefix is "_get" and "_set"
+#     eg: attribute string apple  =>   _get_apple and _set_apple
+#
 # 12. Implement IDL "union" code
-# 13. Implement support for plugins
+# 13. Implement support for plugins [done]
 #
 #
 # Also test, Test, TEST
@@ -104,6 +107,7 @@ import tempfile
 #       find basic IDL type for each parameter
 #       output get_CDR_xxx
 #    output exception handling code
+#    output attribute handling code
 #
 #
 
@@ -161,15 +165,20 @@ class ethereal_gen_C:
     #
     #
         
-    def genCode(self,oplist):
+    def genCode(self,oplist, atlist):   # operation and attribute lists
 
         self.genHelpers(oplist)         # sneaky .. call it now, to populate the fn_hash
                                         # so when I come to that operation later, I have the variables to
                                         # declare already.
                                         
         self.genExceptionHelpers(oplist) # sneaky .. call it now, to populate the fn_hash
-                                        # so when I come to that exception later, I have the variables to
-                                        # declare already.
+                                         # so when I come to that exception later, I have the variables to
+                                         # declare already.
+                                        
+        self.genAttributeHelpers(atlist) # sneaky .. call it now, to populate the fn_hash
+                                         # so when I come to that exception later, I have the variables to
+                                         # declare already.
+                                        
                                                                                 
         self.fn_hash_built = 1          # DONE, so now I know , see genOperation()
 
@@ -183,14 +192,18 @@ class ethereal_gen_C:
         self.genRegisteredFields()
         self.genOpList(oplist)          # string constant declares for operation names
         self.genExList(oplist)          # string constant declares for user exceptions
+        self.genAtList(atlist)          # string constant declares for Attributes
         
         
         self.genExceptionHelpers(oplist)   # helper function to decode user exceptions that have members
         self.genExceptionDelegator(oplist) # finds the helper function to decode a user exception
+        self.genAttributeHelpers(atlist)   # helper function to decode "attributes"
+
         self.genHelpers(oplist)
 
         self.genMainEntryStart(oplist)
-        self.genDelegator(oplist)
+        self.genOpDelegator(oplist)
+        self.genAtDelegator(atlist)        
         self.genMainEntryEnd()
 
         self.gen_proto_register()
@@ -365,6 +378,53 @@ class ethereal_gen_C:
     
         self.st.out(self.template_comment_user_exceptions_string_declare_end)
 
+    #
+    # genAtList
+    #
+    # in: atlist
+    #
+    # out: C code for IDL attribute decalarations.
+    #
+    # NOTE: Mapping of attributes to  operation(function) names is tricky.
+    #
+    # The actual accessor function names are language-mapping specific. The attribute name
+    # is subject to OMG IDL's name scoping rules; the accessor function names are 
+    # guaranteed not to collide with any legal operation names specifiable in OMG IDL.
+    #
+    # eg:
+    #
+    # static const char get_Penguin_Echo_get_width_at[] = "get_width" ;
+    # static const char set_Penguin_Echo_set_width_at[] = "set_width" ;
+    #
+    # or:
+    #
+    # static const char get_Penguin_Echo_get_width_at[] = "_get_width" ;
+    # static const char set_Penguin_Echo_set_width_at[] = "_set_width" ;
+    #    
+    # TODO: Implement some language dependant templates to handle naming conventions
+    #       language <=> attribute. for C, C++. Java etc
+    #
+    # OR, just add a runtime GUI option to select language binding for attributes -- FS
+    #
+    #
+    #
+    # ie: def genAtlist(self,atlist,language) 
+    #
+    
+    
+
+    def genAtList(self,atlist):
+        self.st.out(self.template_comment_attributes_start)        
+
+        for n in atlist:
+            for i in n.declarators():   # 
+                sname = self.namespace(i, "_")   
+                atname = i.identifier()
+                self.st.out(self.template_attributes_declare_Java_get, sname=sname, atname=atname)
+                if not n.readonly():
+                    self.st.out(self.template_attributes_declare_Java_set, sname=sname, atname=atname)
+    
+        self.st.out(self.template_comment_attributes_end)
 
 
     #
@@ -398,6 +458,88 @@ class ethereal_gen_C:
 
         self.st.dec_indent()    
         self.st.out(self.template_main_exception_delegator_end)
+
+
+    #
+    # genAttribueHelpers()
+    #
+    # Generate private helper functions to decode Attributes.
+    #
+    # in: atlist
+    #
+    # For readonly attribute - generate get_xxx()
+    # If NOT readonly attribute - also generate set_xxx()
+    #    
+        
+    def genAttributeHelpers(self,atlist):        
+        if self.DEBUG:
+            print "XXX genAttributeHelpers: atlist = ", atlist
+
+        self.st.out(self.template_attribute_helpers_start)
+        
+        for attrib in atlist:
+            for decl in attrib.declarators():
+                self.genAtHelper(attrib,decl,"get") # get accessor
+                if not attrib.readonly():
+                    self.genAtHelper(attrib,decl,"set") # set accessor
+                    
+        self.st.out(self.template_attribute_helpers_end)
+
+    #
+    # genAtHelper() 
+    #
+    # Generate private helper functions to decode an attribute
+    #
+    # in: at - attribute node
+    # in: decl - declarator belonging to this attribute 
+    # in: order - to generate a "get" or "set" helper
+    
+    def genAtHelper(self,attrib,decl,order):
+        if self.DEBUG:
+            print "XXX genAtHelper"
+            
+        sname = order + "_" + self.namespace(decl, "_")  # must use set or get prefix to avoid collision
+        self.curr_sname = sname                    # update current opnode/exnode scoped name
+                                                
+        if not self.fn_hash_built:
+            self.fn_hash[sname] = []        # init empty list as val for this sname key
+                                            # but only if the fn_hash is not already built
+
+        self.st.out(self.template_attribute_helper_function_start, sname=sname, atname=decl.repoId())
+        self.st.inc_indent()
+
+        self.st.out(self.template_helper_function_vars_start)
+        self.dumpCvars(sname)
+        self.st.out(self.template_helper_function_vars_end )
+        
+        self.st.out(self.template_exception_helper_function_get_endianess)
+
+        #
+        # TODO - attributes are simple types, so remove array handling
+        #
+                
+        if decl.sizes():        # an array
+            indices = self.get_indices_from_sizes(decl.sizes())
+            string_indices = '%i ' % indices # convert int to string
+            self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)     
+            self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
+            self.addvar(self.c_i + decl.identifier() + ";")
+            
+            self.st.inc_indent()
+
+            self.getCDR3(attrib.attrType(), decl.identifier() )
+                    
+            self.st.dec_indent()
+            self.st.out(self.template_get_CDR_array_end)
+                    
+                    
+        else:
+
+            self.getCDR3(attrib.attrType(), decl.identifier() )
+
+        self.st.dec_indent()
+        self.st.out(self.template_attribute_helper_function_end)
+
 
 
     #
@@ -621,12 +763,29 @@ class ethereal_gen_C:
                 for m in ex.members():
                     t=0
                     #print m.memberType(), m.memberType().kind()
-               
-    def genDelegator(self,oplist):
+    #
+    # Delegator for Operations
+    #
+    
+    def genOpDelegator(self,oplist):
         for op in oplist:
             opname = op.identifier()
             sname = self.namespace(op, "_")
-            self.st.out(self.template_delegate_code, opname=opname, sname=sname)
+            self.st.out(self.template_op_delegate_code, sname=sname)
+
+    #
+    # Delegator for Attributes
+    #
+
+    def genAtDelegator(self,atlist):            
+        for a in atlist:
+            for i in a.declarators():
+                atname = i.identifier()
+                sname = self.namespace(i, "_")
+                self.st.out(self.template_at_delegate_code_get, sname=sname)
+                if not a.readonly():
+                    self.st.out(self.template_at_delegate_code_set, sname=sname)
+ 
 
     #
     # Add a variable declaration to the hash of list
@@ -759,8 +918,7 @@ class ethereal_gen_C:
                 print "XXXXX Alias type XXXXX " , type
             self.get_CDR_alias(type,pn)            
         else:
-            if self.DEBUG:
-                print "XXXXX Unknown type XXXXX " , pt
+            self.genWARNING("Unknown typecode = " + '%i ' % pt) # put comment in source code
 
 
     #
@@ -937,7 +1095,7 @@ class ethereal_gen_C:
         self.addvar(self.c_i + pn + ";")
 
         self.st.inc_indent()       
-        self.getCDR3(type.unalias().seqType() ) # and start all over with the type
+        self.getCDR3(type.unalias().seqType(), pn ) # and start all over with the type
         self.st.dec_indent()     
         
         self.st.out(self.template_get_CDR_sequence_loop_end)
@@ -1087,7 +1245,23 @@ class ethereal_gen_C:
         return (dignum/2) + 1
 
             
+
+    #
+    # Output some TODO comment
+    #
     
+
+    def genTODO(self,message):
+        self.st.out(self.template_debug_TODO, message=message)
+
+    #
+    # Output some WARNING comment
+    #
+    
+
+    def genWARNING(self,message):
+        self.st.out(self.template_debug_WARNING, message=message)
+            
     #
     # Templates for C code
     #
@@ -1289,7 +1463,7 @@ void proto_register_giop_@dissector_name@(void) {
     # template for delegation code
     #
 
-    template_delegate_code = """\
+    template_op_delegate_code = """\
 if (!strcmp(operation, @sname@_op )) {
    decode_@sname@(tvb, pinfo, tree, offset, header, operation);
    return TRUE;
@@ -1953,4 +2127,119 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
 
 
+#-------------------------------------------------------------#
+#             Attribute handling templates                    #
+#-------------------------------------------------------------#
+
+
+    template_comment_attributes_start = """\
+/*
+ * IDL Attributes Start
+ */
+ 
+ """
+
+    #
+    # get/set accessor method names are language mapping dependant.
+    #
+
+    template_attributes_declare_Java_get = """static const char get_@sname@_at[] = \"_get_@atname@\" ;"""
+    template_attributes_declare_Java_set = """static const char set_@sname@_at[] = \"_set_@atname@\" ;"""
+ 
+
+    template_comment_attributes_end = """
+/*
+ * IDL Attributes End
+ */
+ 
+"""
+
+
+    #
+    # template for Attribute delegation code
+    #
+
+    template_at_delegate_code_get = """\
+if (!strcmp(operation, get_@sname@_at ) && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
+   decode_get_@sname@_at(tvb, pinfo, tree, offset, header, operation);
+   return TRUE;
+}
+"""
     
+    template_at_delegate_code_set = """\
+if (!strcmp(operation, set_@sname@_at )) {
+   decode_set_@sname@_at(tvb, pinfo, tree, offset, header, operation);
+   return TRUE;
+}
+"""
+        
+
+
+    template_attribute_helpers_start = """\
+/*  Begin Attribute Helper Functions  */
+
+"""
+    
+    template_attribute_helpers_end = """\
+    
+/*  End Attribute Helper Functions  */
+
+"""
+
+#
+# template for exception helper code
+#
+
+
+    template_attribute_helper_function_start = """\
+
+/* Attribute = @atname@ */
+
+static void decode_@sname@_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+
+    gboolean stream_is_big_endian;          /* big endianess */
+"""
+
+
+
+    #
+    # Template for the helper function
+    # to get stream endianess from header
+    #
+
+    template_attribute_helper_function_get_endianess = """\
+
+stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
+
+"""
+
+    
+    template_attribute_helper_function_end = """\
+}
+"""
+
+    
+#-------------------------------------------------------------#
+#                     Debugging  templates                    #
+#-------------------------------------------------------------#
+
+
+    #
+    # Template for outputting TODO "C" comments
+    # so user know I need ti improve something.
+    #
+
+    template_debug_TODO = """\
+
+/* TODO - @message@ */
+"""
+
+    #
+    # Template for outputting WARNING "C" comments
+    # so user know if I have found a problem.
+    #
+
+    template_debug_WARNING = """\
+
+/* WARNING - @message@ */
+"""
