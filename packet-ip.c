@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.76 2000/03/12 04:47:39 gram Exp $
+ * $Id: packet-ip.c,v 1.77 2000/03/16 08:23:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1562,15 +1562,6 @@ static int proto_eigrp = -1;
 
 static gint ett_eigrp = -1;
 
-static void
-dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-  e_eigrp     ih;
-  proto_tree *eigrp_tree;
-  proto_item *ti;
-  guint16    cksum;
-  gchar      type_str[64] = "";
-
-  /* Avoids alignment problems on many architectures. */
 static const value_string eigrp_opcode_vals[] = {
 	{ EIGRP_HELLO,		"Hello/Ack" },
 	{ EIGRP_UPDATE,		"Update" },
@@ -1579,15 +1570,24 @@ static const value_string eigrp_opcode_vals[] = {
 	{ EIGRP_REQUEST,	"Request" },
 	{ 0,				NULL }    
 };
-  
-   memcpy(&ih, &pd[offset], sizeof(e_eigrp));
+
+static void
+dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+  e_eigrp     ih;
+  proto_tree *eigrp_tree;
+  proto_item *ti;
+  guint16    cksum;
+
+  /* Avoids alignment problems on many architectures. */
+  memcpy(&ih, &pd[offset], sizeof(e_eigrp));
   /* To do: check for runts, errs, etc. */
   cksum = ntohs(ih.eigrp_checksum);
   
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "EIGRP");
   if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, type_str);
+    col_add_str(fd, COL_INFO,
+	val_to_str( ih.eigrp_opcode, eigrp_opcode_vals, "Unknown (0x%04x)"));
   if (tree) {
 
      ti = proto_tree_add_item(tree, proto_eigrp, offset, END_OF_FRAME, NULL);
