@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.45 2003/04/08 17:20:05 guy Exp $
+ * $Id: plugin_api.c,v 1.46 2003/04/24 21:15:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -214,4 +214,30 @@ plugin_address_table_init(plugin_address_table_t *pat)
 
 	p_register_tap				= pat->p_register_tap;
 	p_tap_queue_packet			= pat->p_tap_queue_packet;
+
+	p_asn1_open				= pat->p_asn1_open;
+	p_asn1_close				= pat->p_asn1_close;
+	p_asn1_octet_decode			= pat->p_asn1_octet_decode;
+	p_asn1_tag_decode			= pat->p_asn1_tag_decode;
+	p_asn1_id_decode			= pat->p_asn1_id_decode;
+	p_asn1_length_decode			= pat->p_asn1_length_decode;
+	p_asn1_header_decode			= pat->p_asn1_header_decode;
+	p_asn1_eoc				= pat->p_asn1_eoc;
+	p_asn1_eoc_decode			= pat->p_asn1_eoc_decode;
+	p_asn1_null_decode			= pat->p_asn1_null_decode;
+	p_asn1_bool_decode			= pat->p_asn1_bool_decode;
+	p_asn1_int32_value_decode		= pat->p_asn1_int32_value_decode;
+	p_asn1_int32_decode			= pat->p_asn1_int32_decode;
+	p_asn1_uint32_value_decode		= pat->p_asn1_uint32_value_decode;
+	p_asn1_uint32_decode			= pat->p_asn1_uint32_decode;
+	p_asn1_bits_decode			= pat->p_asn1_bits_decode;
+	p_asn1_string_value_decode		= pat->p_asn1_string_value_decode;
+	p_asn1_string_decode			= pat->p_asn1_string_decode;
+	p_asn1_octet_string_decode		= pat->p_asn1_octet_string_decode;
+	p_asn1_subid_decode			= pat->p_asn1_subid_decode;
+	p_asn1_oid_value_decode			= pat->p_asn1_oid_value_decode;
+	p_asn1_oid_decode			= pat->p_asn1_oid_decode;
+	p_asn1_sequence_decode			= pat->p_asn1_sequence_decode;
+	p_asn1_err_to_str			= pat->p_asn1_err_to_str;
+
 }

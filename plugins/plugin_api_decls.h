@@ -2,7 +2,7 @@
  * Declarations of a list of "p_" names; included in various places
  * to declare them as variables or as function members.
  *
- * $Id: plugin_api_decls.h,v 1.8 2003/04/08 17:20:05 guy Exp $
+ * $Id: plugin_api_decls.h,v 1.9 2003/04/24 21:15:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -253,3 +253,28 @@ addr_show_fragment_seq_tree		p_show_fragment_seq_tree;
 
 addr_register_tap			p_register_tap;
 addr_tap_queue_packet			p_tap_queue_packet;
+
+addr_asn1_open				p_asn1_open;
+addr_asn1_close				p_asn1_close;
+addr_asn1_octet_decode			p_asn1_octet_decode;
+addr_asn1_tag_decode			p_asn1_tag_decode;
+addr_asn1_id_decode			p_asn1_id_decode;
+addr_asn1_length_decode			p_asn1_length_decode;
+addr_asn1_header_decode			p_asn1_header_decode;
+addr_asn1_eoc				p_asn1_eoc;
+addr_asn1_eoc_decode			p_asn1_eoc_decode;
+addr_asn1_null_decode			p_asn1_null_decode;
+addr_asn1_bool_decode			p_asn1_bool_decode;
+addr_asn1_int32_value_decode		p_asn1_int32_value_decode;
+addr_asn1_int32_decode			p_asn1_int32_decode;
+addr_asn1_uint32_value_decode		p_asn1_uint32_value_decode;
+addr_asn1_uint32_decode			p_asn1_uint32_decode;
+addr_asn1_bits_decode			p_asn1_bits_decode;
+addr_asn1_string_value_decode		p_asn1_string_value_decode;
+addr_asn1_string_decode			p_asn1_string_decode;
+addr_asn1_octet_string_decode		p_asn1_octet_string_decode;
+addr_asn1_subid_decode			p_asn1_subid_decode;
+addr_asn1_oid_value_decode		p_asn1_oid_value_decode;
+addr_asn1_oid_decode			p_asn1_oid_decode;
+addr_asn1_sequence_decode		p_asn1_sequence_decode;
+addr_asn1_err_to_str			p_asn1_err_to_str;

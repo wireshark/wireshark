@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.46 2003/04/08 17:20:05 guy Exp $
+ * $Id: plugin_api.h,v 1.47 2003/04/24 21:15:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -245,6 +245,31 @@
 #define register_tap			(*p_register_tap)
 #define tap_queue_packet		(*p_tap_queue_packet)
 
+#define	asn1_open			(*p_asn1_open)
+#define	asn1_close			(*p_asn1_close)
+#define	asn1_octet_decode		(*p_asn1_octet_decode)
+#define	asn1_tag_decode			(*p_asn1_tag_decode)
+#define	asn1_id_decode			(*p_asn1_id_decode)
+#define	asn1_length_decode		(*p_asn1_length_decode)
+#define	asn1_header_decode		(*p_asn1_header_decode)
+#define	asn1_eoc			(*p_asn1_eoc)
+#define	asn1_eoc_decode			(*p_asn1_eoc_decode)
+#define	asn1_null_decode		(*p_asn1_null_decode)
+#define	asn1_bool_decode		(*p_asn1_bool_decode)
+#define	asn1_int32_value_decode		(*p_asn1_int32_value_decode)
+#define	asn1_int32_decode		(*p_asn1_int32_decode)
+#define	asn1_uint32_value_decode	(*p_asn1_uint32_value_decode)
+#define	asn1_uint32_decode		(*p_asn1_uint32_decode)
+#define	asn1_bits_decode		(*p_asn1_bits_decode)
+#define	asn1_string_value_decode	(*p_asn1_string_value_decode)
+#define	asn1_string_decode		(*p_asn1_string_decode)
+#define	asn1_octet_string_decode	(*p_asn1_octet_string_decode)
+#define	asn1_subid_decode		(*p_asn1_subid_decode)
+#define	asn1_oid_value_decode		(*p_asn1_oid_value_decode)
+#define	asn1_oid_decode			(*p_asn1_oid_decode)
+#define	asn1_sequence_decode		(*p_asn1_sequence_decode)
+#define	asn1_err_to_str			(*p_asn1_err_to_str)
+
 #endif
 
 #include <epan/packet.h>
@@ -255,6 +280,7 @@
 #include "packet-tpkt.h"
 #include "packet-tcp.h"
 #include "tap.h"
+#include "asn1.h"
 
 #include "plugin_table.h"
 

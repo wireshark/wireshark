@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.58 2003/04/08 17:20:05 guy Exp $
+ * $Id: plugin_table.h,v 1.59 2003/04/24 21:15:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -282,6 +282,38 @@ typedef gboolean (*addr_show_fragment_seq_tree)(fragment_data *, const fragment_
 
 typedef int (*addr_register_tap)(char *);
 typedef void (*addr_tap_queue_packet)(int, packet_info *, void *);
+
+typedef void (*addr_asn1_open)(ASN1_SCK *, tvbuff_t *, int );
+typedef void (*addr_asn1_close)(ASN1_SCK *, int *);
+typedef int (*addr_asn1_octet_decode)(ASN1_SCK *, guchar *);
+typedef int (*addr_asn1_tag_decode)(ASN1_SCK *, guint *);
+typedef int (*addr_asn1_id_decode)(ASN1_SCK *, guint *, guint *, guint *);
+typedef int (*addr_asn1_length_decode)(ASN1_SCK *, gboolean *, guint *);
+typedef int (*addr_asn1_header_decode)(ASN1_SCK *, guint *, guint *, guint *,
+			gboolean *, guint *);
+typedef int (*addr_asn1_eoc)(ASN1_SCK *, int );
+typedef int (*addr_asn1_eoc_decode)(ASN1_SCK *, int );
+typedef int (*addr_asn1_null_decode)(ASN1_SCK *, int );
+typedef int (*addr_asn1_bool_decode)(ASN1_SCK *, int , gboolean *);
+typedef int (*addr_asn1_int32_value_decode)(ASN1_SCK *, int , gint32 *);
+typedef int (*addr_asn1_int32_decode)(ASN1_SCK *, gint32 *, guint *);
+typedef int (*addr_asn1_uint32_value_decode)(ASN1_SCK *, int , guint *);
+typedef int (*addr_asn1_uint32_decode)(ASN1_SCK *, guint32 *, guint *);
+typedef int (*addr_asn1_bits_decode)(ASN1_SCK *, int , guchar **,
+                             guint *, guchar *);
+typedef int (*addr_asn1_string_value_decode)(ASN1_SCK *, int ,
+			guchar **);
+typedef int (*addr_asn1_string_decode)(ASN1_SCK *, guchar **, guint *,
+			guint *, guint );
+typedef int (*addr_asn1_octet_string_decode)(ASN1_SCK *, guchar **, guint *,
+			guint *);
+typedef int (*addr_asn1_subid_decode)(ASN1_SCK *, subid_t *);
+typedef int (*addr_asn1_oid_value_decode)(ASN1_SCK *, int , subid_t **,
+			guint *);
+typedef int (*addr_asn1_oid_decode)( ASN1_SCK *, subid_t **, guint *, guint *);
+typedef int (*addr_asn1_sequence_decode)( ASN1_SCK *, guint *, guint *);
+
+typedef char *(*addr_asn1_err_to_str)(int );
 
 typedef struct  {
 

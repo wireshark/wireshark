@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.64 2003/04/08 17:20:03 guy Exp $
+ * $Id: plugins.c,v 1.65 2003/04/24 21:15:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,7 @@
 #include "packet-tpkt.h"
 #include "packet-tcp.h"
 #include "tap.h"
+#include "asn1.h"
 #include "plugins/plugin_table.h"
 static plugin_address_table_t	patable;
 #endif
@@ -492,6 +493,31 @@ init_plugins(const char *plugin_dir)
 	
 	patable.p_register_tap			= register_tap;
 	patable.p_tap_queue_packet		= tap_queue_packet;
+
+	patable.p_asn1_open			= asn1_open;
+	patable.p_asn1_close			= asn1_close;
+	patable.p_asn1_octet_decode		= asn1_octet_decode;
+	patable.p_asn1_tag_decode		= asn1_tag_decode;
+	patable.p_asn1_id_decode		= asn1_id_decode;
+	patable.p_asn1_length_decode		= asn1_length_decode;
+	patable.p_asn1_header_decode		= asn1_header_decode;
+	patable.p_asn1_eoc			= asn1_eoc;
+	patable.p_asn1_eoc_decode		= asn1_eoc_decode;
+	patable.p_asn1_null_decode		= asn1_null_decode;
+	patable.p_asn1_bool_decode		= asn1_bool_decode;
+	patable.p_asn1_int32_value_decode	= asn1_int32_value_decode;
+	patable.p_asn1_int32_decode		= asn1_int32_decode;
+	patable.p_asn1_uint32_value_decode	= asn1_uint32_value_decode;
+	patable.p_asn1_uint32_decode		= asn1_uint32_decode;
+	patable.p_asn1_bits_decode		= asn1_bits_decode;
+	patable.p_asn1_string_value_decode	= asn1_string_value_decode;
+	patable.p_asn1_string_decode		= asn1_octet_string_decode;
+	patable.p_asn1_octet_string_decode	= asn1_octet_string_decode;
+	patable.p_asn1_subid_decode		= asn1_subid_decode;
+	patable.p_asn1_oid_value_decode		= asn1_oid_value_decode;
+	patable.p_asn1_oid_decode		= asn1_oid_decode;
+	patable.p_asn1_sequence_decode		= asn1_sequence_decode;
+	patable.p_asn1_err_to_str		= asn1_err_to_str;
 	
 #endif
 
