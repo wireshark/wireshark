@@ -45,6 +45,7 @@ case "$1" in
 	DEST_SUBDIR=$3
 	PACKAGE_PATH=$4
 	PACKAGE=`basename "$PACKAGE_PATH"`
+	echo "****** $PACKAGE ******"
 	if [ -z "$http_proxy" ] ; then
 		echo "No HTTP proxy specified (http_proxy is empty)."
 		use_proxy="-Y off"
@@ -60,7 +61,7 @@ case "$1" in
 	cd "$DEST_PATH" || err_exit "Can't find $DEST_PATH"
 	wget $use_proxy -nc "$DOWNLOAD_PREFIX/$PACKAGE_PATH" || \
 		err_exit "Can't download $DOWNLOAD_PREFIX/$PACKAGE_PATH"
-	cd $DEST_SUBDIR
+	cd "$DEST_SUBDIR" || err_exit "Can't find $DEST_SUBDIR"
 	echo "Extracting $DEST_PATH/$PACKAGE into $DEST_PATH/$DEST_SUBDIR"
 	unzip -nq "$DEST_PATH/$PACKAGE" || 
 		err_exit "Couldn't unpack $DEST_PATH/$PACKAGE"
