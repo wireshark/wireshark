@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.106 2001/08/27 05:52:06 guy Exp $
+ * $Id: packet-smb.c,v 1.107 2001/08/27 06:18:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1198,6 +1198,15 @@ get_unicode_or_ascii_string(const u_char *pd, int *offsetp, gboolean is_unicode,
   return string;
 }
 
+static const value_string buffer_format_vals[] = {
+	{ 1, "Data block" },
+	{ 2, "Dialect" },
+	{ 3, "Pathname" },
+	{ 4, "ASCII" },
+	{ 5, "Variable block" },
+	{ 0, NULL }
+};
+
 /*
  * Each dissect routine is passed an offset to wct and works from there 
  */
@@ -1580,7 +1589,9 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -1723,7 +1734,9 @@ dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -2097,7 +2110,9 @@ dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -2409,7 +2424,9 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "BufferFormat1: %u", BufferFormat1);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 1: %s (%u)",
+			  val_to_str(BufferFormat1, buffer_format_vals, "Unknown"),
+			  BufferFormat1);
 
     }
 
@@ -2433,7 +2450,9 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "BufferFormat2: %u", BufferFormat2);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 2: %s (%u)",
+			  val_to_str(BufferFormat2, buffer_format_vals, "Unknown"),
+			  BufferFormat2);
 
     }
 
@@ -2457,7 +2476,9 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "BufferFormat3: %u", BufferFormat3);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 3: %s (%u)",
+			  val_to_str(BufferFormat3, buffer_format_vals, "Unknown"),
+			  BufferFormat3);
 
     }
 
@@ -4403,7 +4424,9 @@ dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -4495,7 +4518,9 @@ dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -4588,7 +4613,9 @@ dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -5787,7 +5814,9 @@ dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Error File Format: %u", ErrorFileFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Error File Format: %s (%u)",
+			  val_to_str(ErrorFileFormat, buffer_format_vals, "Unknown"),
+			  ErrorFileFormat);
 
     }
 
@@ -5867,7 +5896,9 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 1: %u", BufferFormat1);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 1: %s (%u)",
+			  val_to_str(BufferFormat1, buffer_format_vals, "Unknown"),
+			  BufferFormat1);
 
     }
 
@@ -5891,7 +5922,9 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 2: %u", BufferFormat2);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 2: %s (%u)",
+			  val_to_str(BufferFormat2, buffer_format_vals, "Unknown"),
+			  BufferFormat2);
 
     }
 
@@ -6020,7 +6053,9 @@ dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -7113,7 +7148,9 @@ dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -7559,7 +7596,9 @@ dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -8021,7 +8060,9 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -8160,7 +8201,9 @@ dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 1: %u", BufferFormat1);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 1: %s (%u)",
+			  val_to_str(BufferFormat1, buffer_format_vals, "Unknown"),
+			  BufferFormat1);
 
     }
 
@@ -8184,7 +8227,9 @@ dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 2: %u", BufferFormat2);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format 2: %s (%u)",
+			  val_to_str(BufferFormat2, buffer_format_vals, "Unknown"),
+			  BufferFormat2);
 
     }
 
@@ -8251,7 +8296,9 @@ dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -8357,7 +8404,9 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -8424,7 +8473,9 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -8605,7 +8656,9 @@ dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -8843,7 +8896,9 @@ dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -8984,7 +9039,9 @@ dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 1, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
@@ -9347,7 +9404,9 @@ dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Buffer Format: %u", BufferFormat);
+      proto_tree_add_text(tree, NullTVB, offset, 2, "Buffer Format: %s (%u)",
+			  val_to_str(BufferFormat, buffer_format_vals, "Unknown"),
+			  BufferFormat);
 
     }
 
