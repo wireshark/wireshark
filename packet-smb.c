@@ -2,10 +2,10 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.87 2001/08/02 07:16:05 guy Exp $
+ * $Id: packet-smb.c,v 1.88 2001/08/02 08:08:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
@@ -89,13 +89,12 @@ struct smb_request_key {
   guint16 mid;
 };
 
-
-GHashTable *smb_request_hash = NULL;
-GMemChunk *smb_request_keys = NULL;
-GMemChunk *smb_request_vals = NULL;
+static GHashTable *smb_request_hash = NULL;
+static GMemChunk *smb_request_keys = NULL;
+static GMemChunk *smb_request_vals = NULL;
 
 /* Hash Functions */
-gint
+static gint
 smb_equal(gconstpointer v, gconstpointer w)
 {
   struct smb_request_key *v1 = (struct smb_request_key *)v;
@@ -117,7 +116,7 @@ smb_equal(gconstpointer v, gconstpointer w)
   return 0;
 }
 
-guint 
+static guint 
 smb_hash (gconstpointer v)
 {
   struct smb_request_key *key = (struct smb_request_key *)v;
@@ -8969,7 +8968,6 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   si.request_val = request_val;  /* Save this for later */
 
-
   if (dirn == 1) { /* Request(s) dissect code */
   
     /* Build display for: Word Count (WCT) */
@@ -9265,7 +9263,8 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s", format_text(pd + offset, pad2Count));
+	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s",
+			    bytes_to_str(pd + offset, pad2Count));
 
       }
 
@@ -9281,7 +9280,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, SMB_offset + DataOffset, DataCount, "Data: %s", format_text(&pd[offset], DataCount));
+	proto_tree_add_text(tree, NullTVB, SMB_offset + DataOffset,
+			    DataCount, "Data: %s",
+			    bytes_to_str(pd + offset, DataCount));
 
       }
 
@@ -9492,17 +9493,19 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     }
 
-    /* Build display for: Parameter */
+    /* Build display for: Parameters */
 
     if (ParameterCount > 0) {
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, ParameterCount, "Parameter: %s", format_text(pd + SMB_offset + ParameterOffset, ParameterCount));
+	proto_tree_add_text(tree, NullTVB, offset, ParameterCount,
+			    "Parameters: %s",
+			    bytes_to_str(pd + offset, ParameterCount));
 
       }
 
-      offset += ParameterCount; /* Skip Parameter */
+      offset += ParameterCount; /* Skip Parameters */
 
     }
 
@@ -9514,7 +9517,8 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s", format_text(pd + offset, pad2Count));
+	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s",
+			    bytes_to_str(pd + offset, pad2Count));
 
       }
 
@@ -9528,7 +9532,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, DataCount, "Data: %s", format_text(pd + SMB_offset + DataOffset, DataCount));
+	proto_tree_add_text(tree, NullTVB, offset, DataCount,
+			    "Data: %s",
+			    bytes_to_str(pd + offset, DataCount));
 
       }
 
@@ -9556,11 +9562,10 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
   if (!TransactName)
 	  return;
 
-  TransactNameCopy = g_malloc(TransactName ? strlen(TransactName) + 1 : 1);
-
   /* Should check for error here ... */
 
-  strcpy(TransactNameCopy, TransactName ? TransactName : "");
+  TransactNameCopy = g_strdup(TransactName);
+
   if (TransactNameCopy[0] == '\\') {
     trans_type = TransactNameCopy + 1;  /* Skip the slash */
     loc_of_slash = trans_type ? strchr(trans_type, '\\') : NULL;
@@ -11028,8 +11033,7 @@ proto_register_smb(void)
 	register_init_routine(&smb_init_protocol);
 	
 	register_proto_smb_browse();
-	register_proto_smb_logon( );
+	register_proto_smb_logon();
 	register_proto_smb_mailslot();
 	register_proto_smb_pipe();
-
 }
