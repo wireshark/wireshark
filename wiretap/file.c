@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.88 2002/05/22 22:57:54 guy Exp $
+ * $Id: file.c,v 1.89 2002/05/28 02:39:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -354,8 +354,12 @@ static const struct file_type_info {
 	{ "Microsoft Network Monitor 2.x", "netmon2",
 	  netmon_dump_can_write_encap, netmon_dump_open },
 
+	/* WTAP_FILE_NETXRAY_OLD */
+	{ "Cinco Networks NetXRay 1.x", NULL,
+	  NULL, NULL },
+
 	/* WTAP_FILE_NETXRAY_1_0 */
-	{ "Cinco Networks NetXRay", NULL,
+	{ "Cinco Networks NetXRay 2.0 or later", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_1 */

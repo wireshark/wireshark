@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.54 2002/05/04 10:00:18 guy Exp $
+ * $Id: netxray.c,v 1.55 2002/05/28 02:39:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -35,7 +35,12 @@
 /* Capture file header, *including* magic number, is padded to 128 bytes. */
 #define	CAPTUREFILE_HEADER_SIZE	128
 
-/* Magic number in NetXRay files. */
+/* Magic number in NetXRay 1.x files. */
+static const char old_netxray_magic[] = {
+	'V', 'L', '\0', '\0'
+};
+
+/* Magic number in NetXRay 2.0 and later, and Windows Sniffer, files. */
 static const char netxray_magic[] = {	/* magic header */
 	'X', 'C', 'P', '\0'
 };
@@ -83,7 +88,15 @@ static const char vers_2_002[] = {
 	'0', '0', '2', '.', '0', '0', '2', '\0'
 };
 
-/* NetXRay 1.x data record format - followed by frame data. */
+/* Old NetXRay data record format - followed by frame data. */
+struct old_netxrayrec_hdr {
+	guint32	timelo;		/* lower 32 bits of time stamp */
+	guint32	timehi;		/* upper 32 bits of time stamp */
+	guint16	len;		/* packet length */
+	guint8	xxx[6];		/* unknown */
+};
+
+/* NetXRay format version 1.x data record format - followed by frame data. */
 struct netxrayrec_1_x_hdr {
 	guint32	timelo;		/* lower 32 bits of time stamp */
 	guint32	timehi;		/* upper 32 bits of time stamp */
@@ -92,7 +105,7 @@ struct netxrayrec_1_x_hdr {
 	guint8	xxx[16];	/* unknown */
 };
 
-/* NetXRay 2.x data record format - followed by frame data. */
+/* NetXRay format version 2.x data record format - followed by frame data. */
 struct netxrayrec_2_x_hdr {
 	guint32	timelo;		/* lower 32 bits of time stamp */
 	guint32	timehi;		/* upper 32 bits of time stamp */
@@ -107,9 +120,10 @@ struct netxrayrec_2_x_hdr {
 };
 
 /*
- * Union of the two headers.
+ * Union of the data record headers.
  */
 union netxrayrec_hdr {
+	struct old_netxrayrec_hdr old_hdr;
 	struct netxrayrec_1_x_hdr hdr_1_x;
 	struct netxrayrec_2_x_hdr hdr_2_x;
 };
@@ -137,6 +151,7 @@ int netxray_open(wtap *wth, int *err)
 {
 	int bytes_read;
 	char magic[sizeof netxray_magic];
+	gboolean is_old;
 	struct netxray_hdr hdr;
 	double timeunit;
 	int version_major;
@@ -170,7 +185,11 @@ int netxray_open(wtap *wth, int *err)
 	}
 	wth->data_offset += sizeof magic;
 
-	if (memcmp(magic, netxray_magic, sizeof netxray_magic) != 0) {
+	if (memcmp(magic, netxray_magic, sizeof magic) == 0) {
+		is_old = FALSE;
+	} else if (memcmp(magic, old_netxray_magic, sizeof magic) == 0) {
+		is_old = TRUE;
+	} else {
 		return 0;
 	}
 
@@ -185,36 +204,43 @@ int netxray_open(wtap *wth, int *err)
 	}
 	wth->data_offset += sizeof hdr;
 
-	/* It appears that version 1.1 files (as produced by Windows
-	 * Sniffer Pro 2.0.01) have the time stamp in microseconds,
-	 * rather than the milliseconds version 1.0 files appear to have.
-	 *
-	 * It also appears that version 2.001 files (as produced by
-	 * Windows(?) Sniffer Pro 2.50.05) have per-packet headers with
-	 * some extra fields. */
-	if (memcmp(hdr.version, vers_1_0, sizeof vers_1_0) == 0) {
+	if (is_old) {
 		timeunit = 1000.0;
-		version_major = 1;
-		file_type = WTAP_FILE_NETXRAY_1_0;
-	} else if (memcmp(hdr.version, vers_1_1, sizeof vers_1_1) == 0) {
-		timeunit = 1000000.0;
-		version_major = 1;
-		file_type = WTAP_FILE_NETXRAY_1_1;
-	} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0
-	    || memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
-		if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
-			g_message("netxray: Unknown timeunit %u",
-				  hdr.timeunit);
+		version_major = 0;
+		file_type = WTAP_FILE_NETXRAY_OLD;
+	} else {
+		/* It appears that version 1.1 files (as produced by Windows
+		 * Sniffer Pro 2.0.01) have the time stamp in microseconds,
+		 * rather than the milliseconds version 1.0 files appear to
+		 * have.
+		 *
+		 * It also appears that version 2.001 files (as produced by
+		 * Windows(?) Sniffer Pro 2.50.05) have per-packet headers with
+		 * some extra fields. */
+		if (memcmp(hdr.version, vers_1_0, sizeof vers_1_0) == 0) {
+			timeunit = 1000.0;
+			version_major = 1;
+			file_type = WTAP_FILE_NETXRAY_1_0;
+		} else if (memcmp(hdr.version, vers_1_1, sizeof vers_1_1) == 0) {
+			timeunit = 1000000.0;
+			version_major = 1;
+			file_type = WTAP_FILE_NETXRAY_1_1;
+		} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0
+		    || memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
+			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
+				g_message("netxray: Unknown timeunit %u",
+					  hdr.timeunit);
+				*err = WTAP_ERR_UNSUPPORTED;
+				return -1;
+			}
+			timeunit = TpS[hdr.timeunit];
+			version_major = 2;
+			file_type = WTAP_FILE_NETXRAY_2_00x;
+		} else {
+			g_message("netxray: version \"%.8s\" unsupported", hdr.version);
 			*err = WTAP_ERR_UNSUPPORTED;
 			return -1;
 		}
-		timeunit = TpS[hdr.timeunit];
-		version_major = 2;
-		file_type = WTAP_FILE_NETXRAY_2_00x;
-	} else {
-		g_message("netxray: version \"%.8s\" unsupported", hdr.version);
-		*err = WTAP_ERR_UNSUPPORTED;
-		return -1;
 	}
 
 	hdr.network = pletohs(&hdr.network);
@@ -330,7 +356,10 @@ reread:
 	/*
 	 * Read the packet data.
 	 */
-	packet_size = pletohs(&hdr.hdr_1_x.incl_len);
+	if (wth->capture.netxray->version_major == 0)
+		packet_size = pletohs(&hdr.old_hdr.len);
+	else
+		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!netxray_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 	    packet_size, err))
@@ -342,19 +371,35 @@ reread:
 	 */
 	netxray_set_pseudo_header(wth, &wth->pseudo_header, &hdr);
 
-	t = (double)pletohl(&hdr.hdr_1_x.timelo)
-	    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
-	t /= wth->capture.netxray->timeunit;
-	t -= wth->capture.netxray->start_timestamp;
-	wth->phdr.ts.tv_sec = wth->capture.netxray->start_time + (long)t;
-	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(unsigned long)(t))
-		*1.0e6);
-	/*
-	 * We subtract the padding from the packet size, so our caller
-	 * doesn't see it.
-	 */
-	wth->phdr.caplen = packet_size - wth->capture.netxray->padding;
-	wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - wth->capture.netxray->padding;
+	if (wth->capture.netxray->version_major == 0) {
+		t = (double)pletohl(&hdr.old_hdr.timelo)
+		    + (double)pletohl(&hdr.old_hdr.timehi)*4294967296.0;
+		t /= wth->capture.netxray->timeunit;
+		t -= wth->capture.netxray->start_timestamp;
+		wth->phdr.ts.tv_sec = wth->capture.netxray->start_time + (long)t;
+		wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(unsigned long)(t))
+			*1.0e6);
+		/*
+		 * We subtract the padding from the packet size, so our caller
+		 * doesn't see it.
+		 */
+		wth->phdr.caplen = packet_size - wth->capture.netxray->padding;
+		wth->phdr.len = wth->phdr.caplen;
+	} else {
+		t = (double)pletohl(&hdr.hdr_1_x.timelo)
+		    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
+		t /= wth->capture.netxray->timeunit;
+		t -= wth->capture.netxray->start_timestamp;
+		wth->phdr.ts.tv_sec = wth->capture.netxray->start_time + (long)t;
+		wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(unsigned long)(t))
+			*1.0e6);
+		/*
+		 * We subtract the padding from the packet size, so our caller
+		 * doesn't see it.
+		 */
+		wth->phdr.caplen = packet_size - wth->capture.netxray->padding;
+		wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - wth->capture.netxray->padding;
+	}
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return TRUE;
@@ -403,6 +448,10 @@ netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
 
 	/* Read record header. */
 	switch (wth->capture.netxray->version_major) {
+
+	case 0:
+		hdr_size = sizeof (struct old_netxrayrec_hdr);
+		break;
 
 	case 1:
 		hdr_size = sizeof (struct netxrayrec_1_x_hdr);
