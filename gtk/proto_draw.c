@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.98 2004/05/18 00:05:12 ulfl Exp $
+ * $Id: proto_draw.c,v 1.99 2004/05/21 00:18:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1605,11 +1605,11 @@ set_ptree_font_all(PangoFontDescription *font)
 
 
 #if GTK_MAJOR_VERSION >= 2
-void tree_cell_renderer(GtkTreeViewColumn *tree_column,
+void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
                                              GtkCellRenderer *cell,
                                              GtkTreeModel *tree_model,
                                              GtkTreeIter *iter,
-                                             gpointer data)
+                                             gpointer data _U_)
 {
     field_info   *fi;
 

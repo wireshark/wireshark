@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.436 2004/05/20 12:01:12 ulfl Exp $
+ * $Id: main.c,v 1.437 2004/05/21 00:18:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3681,9 +3681,9 @@ main_widgets_show_or_hide(void)
 #if GTK_MAJOR_VERSION >= 2
 /* called, when the window state changes (minimized, maximized, ...) */
 static int
-window_state_event_cb (GtkWidget *widget,
+window_state_event_cb (GtkWidget *widget _U_,
                        GdkEvent *event,
-                       gpointer  data)
+                       gpointer  data _U_)
 {
     GdkWindowState new_window_state = ((GdkEventWindowState*)event)->new_window_state;
 
