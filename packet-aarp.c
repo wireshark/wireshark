@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.22 2000/08/13 14:07:55 deniel Exp $
+ * $Id: packet-aarp.c,v 1.23 2000/11/13 04:26:53 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -127,7 +127,7 @@ aarpproaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
 #define MIN_AARP_HEADER_SIZE	8
 
 void
-dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint16     ar_hrd;
   guint16     ar_pro;
   guint8      ar_hln;
@@ -137,92 +137,91 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item  *ti;
   gchar       *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
+  guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_aarp, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_aarp, tvb, pinfo, tree);
 
-  if (!BYTES_ARE_IN_FRAME(offset, MIN_AARP_HEADER_SIZE)) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
+  pinfo->current_proto = "AARP";
 
-  ar_hrd = pntohs(&pd[offset + AR_HRD]);
-  ar_pro = pntohs(&pd[offset + AR_PRO]);
-  ar_hln = (guint8) pd[offset + AR_HLN];
-  ar_pln = (guint8) pd[offset + AR_PLN];
-  ar_op  = pntohs(&pd[offset + AR_OP]);
+  ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
+  ar_pro = tvb_get_ntohs(tvb, AR_PRO);
+  ar_hln = tvb_get_guint8(tvb, AR_HLN);
+  ar_pln = tvb_get_guint8(tvb, AR_PLN);
+  ar_op  = tvb_get_ntohs(tvb, AR_OP);
 
-  if (!BYTES_ARE_IN_FRAME(offset, 
-			  MIN_AARP_HEADER_SIZE + ar_hln*2 + ar_pln*2)) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
-  
   /* Extract the addresses.  */
-  sha_offset = offset + MIN_AARP_HEADER_SIZE;
-  sha_str = aarphrdaddr_to_str((guint8 *) &pd[sha_offset], ar_hln, ar_hrd);
-  spa_offset = sha_offset + ar_hln;
-  spa_str = aarpproaddr_to_str((guint8 *) &pd[spa_offset], ar_pln, ar_pro);
-  tha_offset = spa_offset + ar_pln;
-  tha_str = aarphrdaddr_to_str((guint8 *) &pd[tha_offset], ar_hln, ar_hrd);
-  tpa_offset = tha_offset + ar_hln;
-  tpa_str = aarpproaddr_to_str((guint8 *) &pd[tpa_offset], ar_pln, ar_pro);
-  
-  if(check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "AARP");
+  sha_offset = MIN_AARP_HEADER_SIZE;
+  sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
+  sha_str = aarphrdaddr_to_str(sha_val, ar_hln, ar_hrd);
 
-  if (check_col(fd, COL_INFO)) {
+  spa_offset = sha_offset + ar_hln;
+  spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
+  spa_str = aarpproaddr_to_str(spa_val, ar_pln, ar_pro);
+
+  tha_offset = spa_offset + ar_pln;
+  tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
+  tha_str = aarphrdaddr_to_str(tha_val, ar_hln, ar_hrd);
+
+  tpa_offset = tha_offset + ar_hln;
+  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
+  tpa_str = aarpproaddr_to_str(tpa_val, ar_pln, ar_pro);
+  
+  if(check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "AARP");
+
+  if (check_col(pinfo->fd, COL_INFO)) {
     switch (ar_op) {
       case AARP_REQUEST:
       case AARP_REQUEST_SWAPPED:
-        col_add_fstr(fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
+        col_add_fstr(pinfo->fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
         break;
       case AARP_REPLY:
       case AARP_REPLY_SWAPPED:
-        col_add_fstr(fd, COL_INFO, "%s is at %s", spa_str, sha_str);
+        col_add_fstr(pinfo->fd, COL_INFO, "%s is at %s", spa_str, sha_str);
         break;
       case AARP_PROBE:
       case AARP_PROBE_SWAPPED:
-        col_add_fstr(fd, COL_INFO, "Is there a %s", tpa_str);
+        col_add_fstr(pinfo->fd, COL_INFO, "Is there a %s", tpa_str);
         break;
       default:
-        col_add_fstr(fd, COL_INFO, "Unknown AARP opcode 0x%04x", ar_op);
+        col_add_fstr(pinfo->fd, COL_INFO, "Unknown AARP opcode 0x%04x", ar_op);
         break;
     }
   }
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
-      ti = proto_tree_add_protocol_format(tree, proto_aarp, NullTVB, offset,
+      ti = proto_tree_add_protocol_format(tree, proto_aarp, tvb, 0,
 				      MIN_AARP_HEADER_SIZE + 2*ar_hln + 
 				      2*ar_pln, "AppleTalk Address Resolution Protocol (%s)", op_str);
     else
-      ti = proto_tree_add_protocol_format(tree, proto_aarp, NullTVB, offset,
+      ti = proto_tree_add_protocol_format(tree, proto_aarp, tvb, 0,
 				      MIN_AARP_HEADER_SIZE + 2*ar_hln + 
 				      2*ar_pln,
 				      "AppleTalk Address Resolution Protocol (opcode 0x%04x)", ar_op);
     aarp_tree = proto_item_add_subtree(ti, ett_aarp);
-    proto_tree_add_uint(aarp_tree, hf_aarp_hard_type, NullTVB, offset + AR_HRD, 2,
+    proto_tree_add_uint(aarp_tree, hf_aarp_hard_type, tvb, AR_HRD, 2,
 			       ar_hrd);
-    proto_tree_add_uint(aarp_tree, hf_aarp_proto_type, NullTVB, offset + AR_PRO, 2, 
+    proto_tree_add_uint(aarp_tree, hf_aarp_proto_type, tvb, AR_PRO, 2, 
 			       ar_pro);
-    proto_tree_add_uint(aarp_tree, hf_aarp_hard_size, NullTVB, offset + AR_HLN, 1,
+    proto_tree_add_uint(aarp_tree, hf_aarp_hard_size, tvb, AR_HLN, 1,
 			       ar_hln);
-    proto_tree_add_uint(aarp_tree, hf_aarp_proto_size, NullTVB, offset + AR_PLN, 1,
+    proto_tree_add_uint(aarp_tree, hf_aarp_proto_size, tvb, AR_PLN, 1,
 			       ar_pln);
-    proto_tree_add_uint(aarp_tree, hf_aarp_opcode, NullTVB, offset + AR_OP, 2,
+    proto_tree_add_uint(aarp_tree, hf_aarp_opcode, tvb, AR_OP, 2,
 			       ar_op);
-    proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_ether, NullTVB, sha_offset, ar_hln,
-			       &pd[sha_offset],
+    proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_ether, tvb, sha_offset, ar_hln,
+			       sha_val,
 			       "Sender hardware address: %s", sha_str);
-    proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_id, NullTVB, spa_offset, ar_pln,
-			       &pd[spa_offset],
+    proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_id, tvb, spa_offset, ar_pln,
+			       spa_val,
 			       "Sender ID: %s", spa_str);
-    proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_ether, NullTVB, tha_offset, ar_hln,
-			       &pd[tha_offset],
+    proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_ether, tvb, tha_offset, ar_hln,
+			       tha_val,
 			       "Target hardware address: %s", tha_str);
-    proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_id, NullTVB, tpa_offset, ar_pln,
-			       &pd[tpa_offset],
+    proto_tree_add_bytes_format(aarp_tree, hf_aarp_dst_id, tvb, tpa_offset, ar_pln,
+			       tpa_val,
 			       "Target ID: %s", tpa_str);
   }
 }
@@ -289,5 +288,5 @@ proto_register_aarp(void)
 void
 proto_reg_handoff_aarp(void)
 {
-	old_dissector_add("ethertype", ETHERTYPE_AARP, dissect_aarp);
+  dissector_add("ethertype", ETHERTYPE_AARP, dissect_aarp);
 }
