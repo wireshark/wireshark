@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.18 2002/08/21 10:35:35 guy Exp $
+ * $Id: packet-scsi.c,v 1.19 2002/08/21 10:40:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3681,7 +3681,7 @@ dissect_scsi_smc2_volume_tag (tvbuff_t *tvb, packet_info *pinfo _U_,
         p--;
     }
     proto_tree_add_text (tree, tvb, offset, 36,
-                         "%s: Volume Identification = %s, Volume Sequence Number = %u",
+                         "%s: Volume Identification = \"%s\", Volume Sequence Number = %u",
 	                 name, volid, tvb_get_ntohs (tvb, offset+34));
 }
 
