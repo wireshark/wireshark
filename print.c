@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.49 2002/06/21 23:52:47 guy Exp $
+ * $Id: print.c,v 1.50 2002/06/22 00:21:38 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -267,58 +267,52 @@ static
 void print_hex_data_common(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding,
 		void (*print_hex_data_start)(FILE *),
-		void (*print_hex_data_line)(FILE *, u_int, u_char *),
-		void (*print_hex_data_end)(FILE *))
+		void (*print_hex_data_line)(FILE *, u_char *))
 {
 	register unsigned int ad, i, j, k;
 	u_char c;
-	u_char line[50+16+1];
+	u_char line[6+50+16+1];
 	static u_char binhex[16] = {
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
 	if (print_hex_data_start != NULL)
 		(*print_hex_data_start)(fh);
+	(*print_hex_data_line)(fh, "");
 	ad = 0;
 	j = 0;
 	k = 0;
-	memset(line, ' ', sizeof line);
+	sprintf(line, "%04x  ", ad);
+	memset(line+6, ' ', sizeof line-6);
 	line[sizeof (line)-1] = '\0';
 	for (i=0; i<length; i++) {
 		c = *cp++;
-		line[j++] = binhex[c>>4];
-		line[j++] = binhex[c&0xf];
+		line[6+j++] = binhex[c>>4];
+		line[6+j++] = binhex[c&0xf];
 		j++;
 		if (encoding == CHAR_EBCDIC) {
 			c = EBCDIC_to_ASCII1(c);
 		}
-		line[50+k++] = c >= ' ' && c < 0x7f ? c : '.';
+		line[6+50+k++] = c >= ' ' && c < 0x7f ? c : '.';
 		if ((i & 15) == 15) {
-			(*print_hex_data_line)(fh, ad, line);
+			(*print_hex_data_line)(fh, line);
 			ad += 16;
 			j = 0;
 			k = 0;
-			memset(line, ' ', sizeof line);
+			sprintf(line, "%04x  ", ad);
+			memset(line+6, ' ', sizeof line-6);
 			line[sizeof (line)-1] = '\0';
 		}
 	}
 
 	if (line[0] != ' ')
-		(*print_hex_data_line)(fh, ad, line);
-	if (print_hex_data_end != NULL)
-		(*print_hex_data_end)(fh);
+		(*print_hex_data_line)(fh, line);
 }
 
 static void
-print_hex_data_line_text(FILE *fh, u_int ad, u_char *line)
+print_hex_data_line_text(FILE *fh, u_char *line)
 {
-	fprintf(fh, "\n%04x  %s", ad, line);
-}
-
-static void
-print_hex_data_end_text(FILE *fh)
-{
-	fprintf(fh, "\n");
+	fprintf(fh, "%s\n", line);
 }
 
 static
@@ -326,7 +320,7 @@ void print_hex_data_text(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding)
 {
 	print_hex_data_common(fh, cp, length, encoding, NULL,
-	    print_hex_data_line_text, print_hex_data_end_text);
+	    print_hex_data_line_text);
 }
 
 #define MAX_LINE_LENGTH 256
@@ -406,12 +400,12 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 }
 
 static void
-print_hex_data_line_ps(FILE *fh, u_int ad, u_char *line)
+print_hex_data_line_ps(FILE *fh, u_char *line)
 {
 	u_char psline[MAX_LINE_LENGTH];
 
 	ps_clean_string(psline, line, MAX_LINE_LENGTH);
-	fprintf(fh, "(%04x  %s) hexdump\n", ad, psline);
+	fprintf(fh, "(%s) hexdump\n", psline);
 }
 
 static
@@ -419,7 +413,7 @@ void print_hex_data_ps(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding)
 {
 	print_hex_data_common(fh, cp, length, encoding,
-	    print_ps_hex, print_hex_data_line_ps, NULL);
+	    print_ps_hex, print_hex_data_line_ps);
 }
 
 void print_line(FILE *fh, gint format, char *line)
