@@ -8,7 +8,7 @@
 /* packet-pkix1implicit.c
  * Routines for PKIX1Implitic packet dissection
  *
- * $Id: packet-pkix1implicit-template.c 12549 2004-11-20 21:26:08Z sahlberg $
+ * $Id: packet-pkix1implicit-template.c 12552 2004-11-21 05:21:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,7 +240,7 @@ static const ber_sequence AuthorityInfoAccessSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_AuthorityInfoAccessSyntax_item },
 };
 
-static int
+int
 dissect_pkix1implicit_AuthorityInfoAccessSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    AuthorityInfoAccessSyntax_sequence_of, hf_index, ett_pkix1implicit_AuthorityInfoAccessSyntax);
