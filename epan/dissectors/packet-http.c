@@ -1370,7 +1370,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			if (eh_ptr->content_type != NULL)
 				g_free(eh_ptr->content_type);
 			eh_ptr->content_type = g_malloc(value_len + 1);
-			memcpy(eh_ptr->content_type, value, value_len);
+			memcpy(eh_ptr->content_type, value, value_len + 1);
 			for (i = 0; i < value_len; i++) {
 				c = value[i];
 				if (c == ';' || isspace(c)) {
