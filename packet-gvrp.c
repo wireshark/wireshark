@@ -2,7 +2,7 @@
  * Routines for GVRP (GARP VLAN Registration Protocol) dissection
  * Copyright 2000, Kevin Shi <techishi@ms22.hinet.net>
  *
- * $Id: packet-gvrp.c,v 1.1 2000/11/30 09:31:50 guy Exp $
+ * $Id: packet-gvrp.c,v 1.2 2000/12/01 15:12:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,13 +55,13 @@ static int hf_gvrp_attribute_type = -1;
 static int hf_gvrp_attribute_length = -1;
 static int hf_gvrp_attribute_event = -1;
 static int hf_gvrp_attribute_value = -1;
-static int hf_gvrp_end_of_mark = -1;
+/*static int hf_gvrp_end_of_mark = -1;*/
 
 /* Initialize the subtree pointers */
 static gint ett_gvrp = -1;
-static gint ett_gvrp_message = -1;
+/*static gint ett_gvrp_message = -1;
 static gint ett_gvrp_attribute_list = -1;
-static gint ett_gvrp_attribute = -1;
+static gint ett_gvrp_attribute = -1;*/
 
 /* Constant definitions */
 #define GARP_DEFAULT_PROTOCOL_ID	0x0001
