@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.7 2003/09/05 10:26:44 sahlberg Exp $
+ * $Id: service_response_time_table.c,v 1.8 2003/10/10 08:52:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,9 @@ srt_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
    filter_action:
 	0: Match
 	1: Prepare
-	2: Find
+	2: Find Frame
+	3:   Find Next
+	4:   Find Previous
    filter_type:
 	0: Selected
 	1: Not Selected
@@ -214,6 +216,14 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		/* find frame */
 		find_frame_with_filter(str);
 		break;
+	case 3:
+		/* find next */
+		find_previous_next_frame_with_filter(str, FALSE);
+		break;
+	case 4:
+		/* find previous */
+		find_previous_next_frame_with_filter(str, TRUE);
+		break;
 	}
 
 }
@@ -265,10 +275,23 @@ static GtkItemFactoryEntry srt_list_menu_items[] =
 
 	/* Find Frame */
 	ITEM_FACTORY_ENTRY("/Find Frame", NULL, NULL, 0, "<Branch>", NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/Selected", NULL,
 		srt_select_filter_cb, 2*256+0, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Find Frame/Not Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame/Not Selected", NULL,
 		srt_select_filter_cb, 2*256+1, NULL, NULL),
+	/* Find Next */
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/Selected", NULL,
+		srt_select_filter_cb, 3*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next/Not Selected", NULL,
+		srt_select_filter_cb, 3*256+1, NULL, NULL),
+
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/Selected", NULL,
+		srt_select_filter_cb, 4*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous/Not Selected", NULL,
+		srt_select_filter_cb, 4*256+1, NULL, NULL),
 
 };
 
