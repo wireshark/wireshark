@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.68 2003/10/27 09:17:08 guy Exp $
+ * $Id: packet-http.c,v 1.69 2003/11/04 08:16:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -571,8 +571,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			if (ti != NULL)
 				proto_item_set_len(ti, offset);
-		} else if(dissector_try_heuristic(heur_subdissector_list,
-						  next_tvb,pinfo,tree)){
+		} else if (dissector_try_heuristic(heur_subdissector_list,
+		    next_tvb, pinfo, tree)) {
 			/*
 			 * Yes.  Fix up the top-level item so that it
 			 * doesn't include the stuff for that protocol.
@@ -580,13 +580,12 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (ti != NULL)
 				proto_item_set_len(ti, offset);
 		} else {
-			call_dissector(data_handle,
-			    tvb_new_subset(tvb, offset, -1, -1), pinfo,
+			call_dissector(data_handle, next_tvb, pinfo,
 			    http_tree);
 		}
 	}
 
-	tap_queue_packet( http_tap, pinfo, stat_info) ;
+	tap_queue_packet(http_tap, pinfo, stat_info);
 }
 
 /* This can be used to dissect an HTTP request until such time
@@ -802,25 +801,25 @@ proto_register_http(void)
 		&ett_http_ntlmssp,
 		&ett_http_request,
 	};
-        module_t *http_module;
+	module_t *http_module;
 
 	proto_http = proto_register_protocol("Hypertext Transfer Protocol",
 	    "HTTP", "http");
 	proto_register_field_array(proto_http, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-        http_module = prefs_register_protocol(proto_http, NULL);
-        prefs_register_bool_preference(http_module, "desegment_http_headers",
-                "Desegment all HTTP headers spanning multiple TCP segments",
-                "Whether the HTTP dissector should desegment all headers "
-                "of a request spanning multiple TCP segments",
-                &http_desegment_headers);
-        prefs_register_bool_preference(http_module, "desegment_http_body",
-                "Trust the \"Content-length:\" header and desegment HTTP "
-                "bodies spanning multiple TCP segments",
-                "Whether the HTTP dissector should use the "
-                "\"Content-length:\" value to desegment the body "
-                "of a request spanning multiple TCP segments",
-                &http_desegment_body);
+	http_module = prefs_register_protocol(proto_http, NULL);
+	prefs_register_bool_preference(http_module, "desegment_http_headers",
+	    "Desegment all HTTP headers spanning multiple TCP segments",
+	    "Whether the HTTP dissector should desegment all headers "
+	    "of a request spanning multiple TCP segments",
+	    &http_desegment_headers);
+	prefs_register_bool_preference(http_module, "desegment_http_body",
+	    "Trust the \"Content-length:\" header and desegment HTTP "
+	    "bodies spanning multiple TCP segments",
+	    "Whether the HTTP dissector should use the "
+	    "\"Content-length:\" value to desegment the body "
+	    "of a request spanning multiple TCP segments",
+	    &http_desegment_body);
 
 	register_dissector("http", dissect_http, proto_http);
 	http_handle = find_dissector("http");
@@ -871,7 +870,8 @@ http_dissector_add(guint32 port, dissector_handle_t handle)
 void
 proto_reg_handoff_http(void)
 {
-        data_handle = find_dissector("data");
+	data_handle = find_dissector("data");
+
 	dissector_add("tcp.port", TCP_PORT_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, http_handle);
