@@ -292,7 +292,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER           "_Filter"
 #define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY     "_Filter:"
 #define ETHEREAL_STOCK_LABEL_PREFS                    "_Prefs"
-#define ETHEREAL_STOCK_LABEL_BROWSE                   "" /* icon only */
+#define ETHEREAL_STOCK_LABEL_BROWSE                   "..."
 #define ETHEREAL_STOCK_LABEL_CREATE_STAT              "Create _Stat"
 #define ETHEREAL_STOCK_LABEL_EXPORT                   "_Export..."
 #define ETHEREAL_STOCK_LABEL_IMPORT                   "_Import..."
@@ -314,7 +314,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_IMPORT                   "Ethereal_Stock_Import"
 #define ETHEREAL_STOCK_EDIT                     "Ethereal_Stock_Edit"
 #define ETHEREAL_STOCK_ADD_EXPRESSION           "Ethereal_Stock_Edit_Add_Expression"
-#define ETHEREAL_STOCK_DONT_SAVE		"Ethereal_Stock_Continue_without_Saving"
+#define ETHEREAL_STOCK_DONT_SAVE                "Ethereal_Stock_Continue_without_Saving"
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_from_stock(stock_id);
