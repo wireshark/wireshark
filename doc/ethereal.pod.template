@@ -48,7 +48,7 @@ ISDN routers, the output from B<i4btrace> from the ISDN4BSD project, the
 output in B<IPLog> format from the Cisco Secure Intrusion Detection
 System, B<pppd logs> (pppdump format), the output from VMS's
 B<TCPIPtrace> utility, the text output from the B<DBS Etherwatch> VMS
-utility, and traffic capture files from Visual Networks' software. 
+utility, and traffic capture files from Visual Networks' Visual Uptime.
 There is no need to tell B<Ethereal> what type of file you are reading;
 it will determine the file type by itself.  B<Ethereal> is also capable
 of reading any of these file formats if they are compressed using gzip. 

@@ -1,4 +1,4 @@
-$Id: README,v 1.51 2001/12/05 20:01:01 guy Exp $
+$Id: README,v 1.52 2001/12/05 21:42:05 guy Exp $
 
 General Information
 ------- -----------
@@ -106,7 +106,7 @@ Cisco Secure Intrustion Detection System iplogging facility
 pppd logs (pppdump-format files)
 VMS's TCPIPtrace utility
 DBS Etherwatch for VMS
-Visual Networks traffic captures
+Traffic captures from Visual Networks' Visual UpTime
 
 In addition, it can read gzipped versions of any of these files
 automatically, if you have the zlib library available when compiling
