@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.9 2000/11/15 07:07:47 guy Exp $
+ * $Id: plugins.c,v 1.10 2000/11/15 09:37:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,7 +66,7 @@
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 #include "plugins/plugin_table.h"
-plugin_address_table_t	patable;
+static plugin_address_table_t	patable;
 #endif
 
 /* linked list of all plugins */
@@ -332,7 +332,6 @@ check_plugin_status(gchar *name, gchar *version, GModule *handle,
     gchar   *ref_string;
     guint16  ref_string_len;
     gchar    line[512];
-    void   (*plugin_init)(void*);
     dfilter *filter;
 
     if (!statusfile) return;
@@ -348,19 +347,8 @@ check_plugin_status(gchar *name, gchar *version, GModule *handle,
 	}
 	else { /* found the plugin */
 	    if (line[ref_string_len+1] == '1') {
-		enable_plugin(name, version);
-		if (g_module_symbol(handle, "plugin_init", (gpointer*)&plugin_init) == TRUE) {
-#ifdef PLUGINS_NEED_ADDRESS_TABLE
-		    plugin_init(&patable);
-#else
-		    plugin_init(NULL);
-#endif
-		}
-#ifdef PLUGINS_NEED_ADDRESS_TABLE
-		else {
+	    	if (init_plugin(name, version) != NULL)
 			return;
-		}
-#endif
 	    }
 
 	    if (fgets(line, 512, statusfile) == NULL) return;
@@ -421,6 +409,36 @@ new_add_plugin(void *handle, gchar *name, gchar *version,
     new_plug->reg_handoff = reg_handoff;
     new_plug->next = NULL;
     return 0;
+}
+
+/*
+ * Initialize a plugin.
+ * Returns NULL on success, pointer to an error message on error.
+ */
+char *
+init_plugin(gchar *name, gchar *version)
+{
+    plugin    *pt_plug;
+    gpointer  symbol;
+    void      (*plugin_init)(void*);
+
+    /* Try to find the plugin. */
+    if ((pt_plug = enable_plugin(name, version)) == NULL)
+	return "Plugin not found";
+
+    /* Try to get the initialization routine for the plugin. */
+    if (!g_module_symbol(pt_plug->handle, "plugin_init", &symbol))
+	return "Failed to find plugin_init()";
+    plugin_init = symbol;
+
+    /* We found it; now call it. */
+#ifdef PLUGINS_NEED_ADDRESS_TABLE
+    plugin_init(&patable);
+#else
+    plugin_init(NULL);
+#endif
+
+    return NULL;
 }
 
 static void

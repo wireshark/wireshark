@@ -16,7 +16,8 @@ libethereal_LIBS = \
 {$S}.c{$O}.obj::
    $(CC) $(CFLAGS) -Fd$O\ -c $<
 
-OBJECTS=conversation.obj \
+OBJECTS=bitswap.obj	\
+	conversation.obj \
 	dfilter-grammar.obj \
 	dfilter-scanner.obj \
 	dfilter.obj      \

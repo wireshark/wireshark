@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.12 2000/10/19 07:18:19 guy Exp $
+# $Id: Makefile.am,v 1.13 2000/11/15 09:37:51 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,8 @@ noinst_LIBRARIES = libethereal.a
 INCLUDES = -I$(srcdir)/..
 
 libethereal_a_SOURCES = \
+	bitswap.c		\
+	bitswap.h		\
 	conversation.c		\
 	conversation.h		\
 	dfilter-int.h		\

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.1 2000/11/15 05:41:42 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.2 2000/11/15 09:37:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -52,6 +52,7 @@
 
 #include <string.h>
 #include <glib.h>
+#include "bitswap.h"
 #include "proto.h"
 #include "etypes.h"
 #include "packet.h"
@@ -63,23 +64,6 @@
 /* ************************************************************************* */
 #define SHORT_STR 128
 #define MGT_FRAME_LEN 24
-
-/* ************************************************************************* */
-/*  Insane macro used to convert from the even more insane IEEE octet format */
-/* to a more sane format used by the rest of the world!!!                    */
-/* ************************************************************************* */
-#define I2H8(x) \
- ({   guint8 __result__; \
-          __result__  = (( (x) & 0x01) << 7); \
-          __result__ |= (( (x) & 0x02) << 5); \
-          __result__ |= (( (x) & 0x04) << 3); \
-          __result__ |= (( (x) & 0x08) << 1); \
-          __result__ |= (( (x) & 0x10) >> 1); \
-          __result__ |= (( (x) & 0x20) >> 3); \
-          __result__ |= (( (x) & 0x40) >> 5); \
-          __result__ |= (( (x) & 0x80) >> 8); \
-          __result__; })
-
 
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
@@ -406,12 +390,14 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       dataptr = tvb_get_ptr (tvb, offset, 8);
       memset (out_buff, 0, SHORT_STR);
       snprintf (out_buff, SHORT_STR, "0x%02X%02X%02X%02X%02X%02X%02X%02X",
-		I2H8 (dataptr[7]),
-		I2H8 (dataptr[6]),
-		I2H8 (dataptr[5]),
-		I2H8 (dataptr[4]),
-		I2H8 (dataptr[3]),
-		I2H8 (dataptr[2]), I2H8 (dataptr[1]), I2H8 (dataptr[0]));
+		BIT_SWAP (dataptr[7]),
+		BIT_SWAP (dataptr[6]),
+		BIT_SWAP (dataptr[5]),
+		BIT_SWAP (dataptr[4]),
+		BIT_SWAP (dataptr[3]),
+		BIT_SWAP (dataptr[2]),
+		BIT_SWAP (dataptr[1]),
+		BIT_SWAP (dataptr[0]));
 
       proto_tree_add_string (tree, ff_timestamp, tvb, offset, 8, out_buff);
       break;
@@ -419,8 +405,8 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_BEACON_INTERVAL:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = I2H8 (dataptr[1]);
-      out_buff[1] = I2H8 (dataptr[0]);
+      out_buff[0] = BIT_SWAP (dataptr[1]);
+      out_buff[1] = BIT_SWAP (dataptr[0]);
       temp16 = (guint16 *) out_buff;
       proto_tree_add_uint (tree, ff_beacon_interval, tvb, offset, 2,
 			   pntohs (temp16));
@@ -429,8 +415,8 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_CAP_INFO:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = I2H8 (dataptr[1]);
-      out_buff[0] = I2H8 (dataptr[0]);
+      out_buff[0] = BIT_SWAP (dataptr[1]);
+      out_buff[0] = BIT_SWAP (dataptr[0]);
       temp16 = (guint16 *) out_buff;
 
       cap_item = proto_tree_add_uint_format (tree, ff_capture, 
@@ -457,8 +443,8 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_AUTH_ALG:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = I2H8 (dataptr[1]);
-      out_buff[1] = I2H8 (dataptr[0]);
+      out_buff[0] = BIT_SWAP (dataptr[1]);
+      out_buff[1] = BIT_SWAP (dataptr[0]);
       temp16 = (guint16 *) out_buff;
       proto_tree_add_uint (tree, ff_auth_alg, tvb, offset, 2,
 			   pntohs (temp16));
@@ -467,8 +453,8 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_AUTH_TRANS_SEQ:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = I2H8 (dataptr[1]);
-      out_buff[1] = I2H8 (dataptr[0]);
+      out_buff[0] = BIT_SWAP (dataptr[1]);
+      out_buff[1] = BIT_SWAP (dataptr[0]);
       temp16 = (guint16 *) out_buff;
       proto_tree_add_uint (tree, ff_auth_seq, tvb, offset, 2,
 			   pntohs (temp16));
@@ -478,12 +464,12 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     case FIELD_CURRENT_AP_ADDR:
       dataptr = tvb_get_ptr (tvb, offset, 6);
       memset (out_buff, 0, SHORT_STR);
-      out_buff[0] = I2H8 (dataptr[5]);
-      out_buff[1] = I2H8 (dataptr[4]);
-      out_buff[2] = I2H8 (dataptr[3]);
-      out_buff[3] = I2H8 (dataptr[2]);
-      out_buff[4] = I2H8 (dataptr[1]);
-      out_buff[5] = I2H8 (dataptr[0]);
+      out_buff[0] = BIT_SWAP (dataptr[5]);
+      out_buff[1] = BIT_SWAP (dataptr[4]);
+      out_buff[2] = BIT_SWAP (dataptr[3]);
+      out_buff[3] = BIT_SWAP (dataptr[2]);
+      out_buff[4] = BIT_SWAP (dataptr[1]);
+      out_buff[5] = BIT_SWAP (dataptr[0]);
 
       proto_tree_add_string (tree, ff_current_ap, tvb, offset, 6, out_buff);
       break;
@@ -491,8 +477,8 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_LISTEN_IVAL:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = I2H8 (dataptr[1]);
-      out_buff[1] = I2H8 (dataptr[0]);
+      out_buff[0] = BIT_SWAP (dataptr[1]);
+      out_buff[1] = BIT_SWAP (dataptr[0]);
       temp16 = (guint16 *) out_buff;
       proto_tree_add_uint (tree, ff_listen_ival, tvb, offset, 2,
 			   pntohs (temp16));
@@ -501,8 +487,8 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_REASON_CODE:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = I2H8 (dataptr[1]);
-      out_buff[1] = I2H8 (dataptr[0]);
+      out_buff[0] = BIT_SWAP (dataptr[1]);
+      out_buff[1] = BIT_SWAP (dataptr[0]);
       temp16 = (guint16 *) out_buff;
       proto_tree_add_uint (tree, ff_reason, tvb, offset, 2, pntohs (temp16));
       break;
@@ -510,16 +496,16 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_ASSOC_ID:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = I2H8 (dataptr[1]);
-      out_buff[1] = I2H8 (dataptr[0]);
+      out_buff[0] = BIT_SWAP (dataptr[1]);
+      out_buff[1] = BIT_SWAP (dataptr[0]);
       temp16 = (guint16 *) out_buff;
       proto_tree_add_uint (tree, ff_assoc_id, tvb, offset, 2, pntohs (temp16));
       break;
 
     case FIELD_STATUS_CODE:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = I2H8 (dataptr[1]);
-      out_buff[1] = I2H8 (dataptr[0]);
+      out_buff[0] = BIT_SWAP (dataptr[1]);
+      out_buff[1] = BIT_SWAP (dataptr[0]);
       temp16 = (guint16 *) out_buff;
       proto_tree_add_uint (tree, ff_status_code, tvb, offset, 2,
 			   pntohs (temp16));

@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.19 2000/10/20 04:26:40 gram Exp $
+ * $Id: plugins_dlg.c,v 1.20 2000/11/15 09:37:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,11 +43,6 @@
 #include "dlg_utils.h"
 #include "prefs_dlg.h"
 #include "simple_dialog.h"
-
-#ifdef PLUGINS_NEED_ADDRESS_TABLE
-#include "plugins/plugin_api.h"
-extern plugin_address_table_t	patable;
-#endif
 
 #ifdef HAVE_PLUGINS
 
@@ -246,38 +241,19 @@ void plugins_clist_unselect_cb(GtkWidget *clist, gint row, gint column,
 static void
 plugins_enable_cb(GtkWidget *button, gpointer clist)
 {
-    plugin    *pt_plug;
-    gpointer symbol;
-    void     (*plugin_init)(void*);
+    char      *errmsg;
 
     /* nothing selected */
     if (selected_row == -1) return;
     /* already enabled */
     if (strcmp(selected_enabled, "Yes") == 0) return;
 
-    if ((pt_plug = enable_plugin(selected_name, selected_version)) == NULL)
+    errmsg = init_plugin(selected_name, selected_version);
+    if (errmsg != NULL)
     {
-	simple_dialog(ESD_TYPE_CRIT, NULL, "Plugin not found");
+	simple_dialog(ESD_TYPE_CRIT, NULL, errmsg);
 	return;
     }
-
-    /* Try to get the initialization routine for the plugin, and, if it
-       has one, call it. */
-    if (g_module_symbol(pt_plug->handle, "plugin_init", &symbol) == TRUE) {
-	plugin_init = symbol;
-#ifdef PLUGINS_NEED_ADDRESS_TABLE
-		    plugin_init(&patable);
-#else
-		    plugin_init(NULL);
-#endif
-	}
-#ifdef PLUGINS_NEED_ADDRESS_TABLE
-	else {
-		simple_dialog(ESD_TYPE_WARN, NULL, "Failed to find plugin_init()");
-		return;
-	}
-#endif
-
 
     gtk_clist_set_text(GTK_CLIST(clist), selected_row, 3, "Yes");
 }
