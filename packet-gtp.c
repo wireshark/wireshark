@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.41 2002/11/01 05:30:45 guy Exp $
+ * $Id: packet-gtp.c,v 1.42 2002/11/01 08:21:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -584,7 +584,7 @@ static const value_string message_type[] = {
 
 static const value_string gtp_val[] = {
 	{ GTP_EXT_CAUSE,	"Cause of operation" },
-	{ GTP_EXT_IMSI,		"IMSI " },
+	{ GTP_EXT_IMSI,		"IMSI" },
 	{ GTP_EXT_RAI,		"Routing Area Identity" },
 	{ GTP_EXT_TLLI,		"Temporary Logical Link Identity" },
 	{ GTP_EXT_PTMSI,	"Packet TMSI" },
@@ -618,14 +618,14 @@ static const value_string gtp_val[] = {
 	{ GTP_EXT_RAB_CNTXT,	"RAB context" },					/* 3G */
 	{ GTP_EXT_RP_SMS,	"Radio Priority for MO SMS" },			/* 3G */
 	{ GTP_EXT_RP,		"Radio Priority" },					/* 3G */
-	{ GTP_EXT_PKT_FLOW_ID,	"Packet Flow ID " },					/* 3G */
+	{ GTP_EXT_PKT_FLOW_ID,	"Packet Flow ID" },					/* 3G */
 	{ GTP_EXT_CHRG_CHAR,	"Charging characteristics" },				/* 3G */
 	{ GTP_EXT_TRACE_REF,	"Trace references" },					/* 3G */
 	{ GTP_EXT_TRACE_TYPE,	"Trace type" },					/* 3G */
 	{ GTPv1_EXT_MS_REASON,	"MS not reachable reason" },				/* 3G */
 	{ GTP_EXT_TR_COMM,	"Packet transfer command" },				/* charging */
 	{ GTP_EXT_CHRG_ID,	"Charging ID" },
-	{ GTP_EXT_USER_ADDR,	"End user address " },
+	{ GTP_EXT_USER_ADDR,	"End user address" },
 	{ GTP_EXT_MM_CNTXT,	"MM context" },
 	{ GTP_EXT_PDP_CNTXT,	"PDP context" },
 	{ GTP_EXT_APN,		"Access Point Name" },
@@ -638,16 +638,16 @@ static const value_string gtp_val[] = {
 	{ GTP_EXT_TARGET_ID,	"Target (RNC) identification" },			/* 3G */
 	{ GTP_EXT_UTRAN_CONT,	"UTRAN transparent field" },				/* 3G */
 	{ GTP_EXT_RAB_SETUP,	"RAB setup information" },				/* 3G */
-	{ GTP_EXT_HDR_LIST,	"Extension Header Types List " },			/* 3G */
-	{ GTP_EXT_TRIGGER_ID,	"Trigger Id " },					/* 3G */
-	{ GTP_EXT_OMC_ID,	"OMC Identity " },					/* 3G */
+	{ GTP_EXT_HDR_LIST,	"Extension Header Types List" },			/* 3G */
+	{ GTP_EXT_TRIGGER_ID,	"Trigger Id" },					/* 3G */
+	{ GTP_EXT_OMC_ID,	"OMC Identity" },					/* 3G */
 	{ GTP_EXT_REL_PACK,	"Sequence numbers of released packets IE" },		/* charging */
 	{ GTP_EXT_CAN_PACK,	"Sequence numbers of canceled packets IE" },		/* charging */
 	{ GTP_EXT_CHRG_ADDR,	"Charging Gateway address" },
 	{ GTP_EXT_DATA_REQ,	"Data record packet" },				/* charging */
 	{ GTP_EXT_DATA_RESP,	"Requests responded" },				/* charging */
 	{ GTP_EXT_NODE_ADDR,	"Address of recommended node" },			/* charging */
-	{ GTP_EXT_PRIV_EXT, 	"Private Extension " },
+	{ GTP_EXT_PRIV_EXT, 	"Private Extension" },
 	{ 0, NULL }
 };
 
