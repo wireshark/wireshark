@@ -258,6 +258,7 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
         cinfo->col_data[i] = cinfo->col_buf[i];
       }
       vsnprintf(&cinfo->col_buf[i][fence], max_len - fence, format, ap);
+      cinfo->col_buf[i][max_len - 1] = '\0';
     }
   }
   va_end(ap);
@@ -286,6 +287,7 @@ col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
       COL_CHECK_APPEND(cinfo, i, max_len);
       len = strlen(cinfo->col_buf[i]);
       vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
+      cinfo->col_buf[i][max_len - 1] = '\0';
     }
   }
   va_end(ap);
@@ -319,6 +321,7 @@ col_append_sep_fstr(column_info *cinfo, gint el, const gchar *separator,
       COL_CHECK_APPEND(cinfo, i, max_len);
       len = strlen(cinfo->col_buf[i]);
       vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
+      cinfo->col_buf[i][max_len-1] = 0;
     }
   }
   va_end(ap);
