@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.36 2001/10/17 21:24:28 jfoster Exp $
+ * $Id: packet-smb-pipe.c,v 1.37 2001/10/26 10:14:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -322,7 +322,7 @@ get_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp, int *lenp)
 	    (string_len = tvb_strnlen(tvb, cptr, -1)) != -1) {
 	    	string_len++;	/* include the terminating '\0' */
 	    	*lenp = string_len;
-	    	return tvb_format_text(tvb, offset, string_len);
+	    	return tvb_format_text(tvb, cptr, string_len - 1);
 	} else
 		return NULL;
 }
@@ -344,7 +344,7 @@ add_pointer_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 			proto_tree_add_item(tree, hf_index, tvb, cptr,
 			    string_len, TRUE);
 		} else {
-			proto_tree_add_text(tree, tvb, offset, string_len,
+			proto_tree_add_text(tree, tvb, cptr, string_len,
 			    "String Param: %s", string);
 		}
 	} else {
@@ -935,7 +935,7 @@ static const item_t lm_data_resp_netwkstagetinfo_10[] = {
 
 static const item_list_t lm_data_resp_netwkstagetinfo[] = {
 	{ 10, lm_data_resp_netwkstagetinfo_10 },
-	{ -1, NULL }
+	{ -1, lm_null }
 };
 
 static const item_t lm_params_req_netwkstauserlogon[] = {
@@ -976,7 +976,7 @@ static const item_t lm_data_resp_netwkstauserlogon_1[] = {
 
 static const item_list_t lm_data_resp_netwkstauserlogon[] = {
 	{ 1, lm_data_resp_netwkstauserlogon_1 },
-	{ -1, NULL }
+	{ -1, lm_null }
 };
 
 static const item_t lm_params_req_netwkstauserlogoff[] = {
@@ -1000,7 +1000,7 @@ static const item_t lm_data_resp_netwkstauserlogoff_1[] = {
 
 static const item_list_t lm_data_resp_netwkstauserlogoff[] = {
 	{ 1, lm_data_resp_netwkstauserlogoff_1 },
-	{ -1, NULL }
+	{ -1, lm_null }
 };
 
 static const item_t lm_params_req_samoemchangepassword[] = {
@@ -1601,7 +1601,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 	const char *string;
 	gint string_len;
 
-	if( aux_count_p != NULL)
+	if (aux_count_p != NULL)
 		*aux_count_p = 0;
 
 	while ((c = *desc++) != '\0') {
@@ -1823,6 +1823,135 @@ static const value_string commands[] = {
 	{0,	NULL}
 };
 
+static void
+dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
+    proto_tree *tree, struct smb_info *smb_info,
+    const struct lanman_desc *lanman, gboolean has_ent_count,
+    guint16 ent_count)
+{
+	struct smb_request_val *request_val = smb_info->request_val;
+	const item_list_t *resp_data_list;
+	int offset, start_offset;
+	const item_t *resp_data;
+	proto_item *data_item;
+	proto_tree *data_tree;
+	proto_item *entry_item;
+	proto_tree *entry_tree;
+	guint i, j;
+	guint16 aux_count;
+
+	/*
+	 * Find the item table for the matching request's detail level.
+	 */
+	for (resp_data_list = lanman->resp_data_list;
+	    resp_data_list->level != -1; resp_data_list++) {
+		if (resp_data_list->level == request_val->last_level)
+			break;
+	}
+	resp_data = resp_data_list->item_list;
+
+	offset = smb_info->data_offset;
+	if (lanman->resp_data_item != NULL) {
+		/*
+		 * Create a protocol tree item for the data.
+		 */
+		data_item = (*lanman->resp_data_item)(tvb,
+		    pinfo, tree, offset);
+		data_tree = proto_item_add_subtree(data_item,
+		    *lanman->ett_resp_data);
+	} else {
+		/*
+		 * Just leave it at the top level.
+		 */
+		data_item = NULL;
+		data_tree = tree;
+	}
+
+	if (request_val->last_data_descrip == NULL) {
+		/*
+		 * This could happen if we only dissected
+		 * part of the request to which this is a
+		 * reply, e.g. if the request was split
+		 * across TCP segments and we weren't doing
+		 * TCP desegmentation, or if we had a snapshot
+		 * length that was too short.
+		 *
+		 * We can't dissect the data; just show it
+		 * as raw data.
+		 */
+		proto_tree_add_text(tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset),
+		    "Data (no descriptor available)");
+		offset += tvb_length_remaining(tvb, offset);
+	} else {
+		/*
+		 * If we have an entry count, show all the entries,
+		 * with each one having a protocol tree item.
+		 *
+		 * Otherwise, we just show one returned item, with
+		 * no protocol tree item.
+		 */
+		if (!has_ent_count)
+			ent_count = 1;
+		for (i = 0; i < ent_count; i++) {
+			start_offset = offset;
+			if (has_ent_count) {
+				/*
+				 * Create a protocol tree item for the
+				 * entry.
+				 */
+				entry_item =
+				    (*lanman->resp_data_element_item)
+				      (tvb, pinfo, data_tree, offset);
+				entry_tree = proto_item_add_subtree(
+				    entry_item,
+				    *lanman->ett_resp_data_element_item);
+			} else {
+				/*
+				 * Just leave it at the current
+				 * level.
+				 */
+				entry_item = NULL;
+				entry_tree = data_tree;
+			}
+
+			offset = dissect_transact_data(tvb, offset,
+			    convert, pinfo, entry_tree,
+			    request_val->last_data_descrip,
+			    resp_data, &aux_count);
+
+			/* auxiliary data */
+			if (request_val->last_aux_data_descrip != NULL) {
+				for (j = 0; j < aux_count; j++) {
+					offset = dissect_transact_data(
+					    tvb, offset, convert,
+					    pinfo, entry_tree,
+					    request_val->last_data_descrip,
+					    lanman->resp_aux_data, NULL);
+				}
+			}
+
+			if (entry_item != NULL) {
+				/*
+				 * Set the length of the protocol tree
+				 * item for the entry.
+				 */
+				proto_item_set_len(entry_item,
+				    offset - start_offset);
+			}
+		}
+	}
+
+	if (data_item != NULL) {
+		/*
+		 * Set the length of the protocol tree item
+		 * for the data.
+		 */
+		proto_item_set_len(data_item,
+		    offset - smb_info->data_offset);
+	}
+}
+
 static gboolean
 dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -1842,8 +1971,6 @@ dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	gboolean has_ent_count;
 	guint16 ent_count, aux_count;
 	guint i, j;
-	const item_list_t *resp_data_list;
-	const item_t *resp_data;
 	proto_item *data_item;
 	proto_tree *data_tree;
 	proto_item *entry_item;
@@ -2083,107 +2210,13 @@ dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			 *
 			 * XXX - should we just check "smb_info->data_count"?
 			 */
-
-			/*
-			 * Find the item table for the matching request's
-			 * detail level.
-			 */
-			for (resp_data_list = lanman->resp_data_list;
-			    resp_data_list->level != -1; resp_data_list++) {
-				if (resp_data_list->level == request_val->last_level)
-					break;
-			}
-			resp_data = resp_data_list->item_list;
-
-			offset = smb_info->data_offset;
-			if (lanman->resp_data_item != NULL) {
-				/*
-				 * Create a protocol tree item for the data.
-				 */
-				data_item = (*lanman->resp_data_item)(tvb,
-				    pinfo, tree, offset);
-				data_tree = proto_item_add_subtree(data_item,
-				    *lanman->ett_resp_data);
-			} else {
-				/*
-				 * Just leave it at the top level.
-				 */
-				data_item = NULL;
-				data_tree = tree;
-			}
-
-			/*
-			 * If we have an entry count, show all the entries,
-			 * with each one having a protocol tree item.
-			 *
-			 * Otherwise, we just show one returned item, with
-			 * no protocol tree item.
-			 */
-			if (!has_ent_count)
-				ent_count = 1;
-			for (i = 0; i < ent_count; i++) {
-				start_offset = offset;
-				if (has_ent_count) {
-					/*
-					 * Create a protocol tree item for the
-					 * entry.
-					 */
-					entry_item =
-					    (*lanman->resp_data_element_item)
-					      (tvb, pinfo, data_tree, offset);
-					entry_tree = proto_item_add_subtree(
-					    entry_item,
-					    *lanman->ett_resp_data_element_item);
-				} else {
-					/*
-					 * Just leave it at the current
-					 * level.
-					 */
-					entry_item = NULL;
-					entry_tree = data_tree;
-				}
-
-				offset = dissect_transact_data(tvb, offset,
-				    convert, pinfo, entry_tree,
-				    request_val->last_data_descrip,
-				    resp_data, &aux_count);
-
-				/* auxiliary data */
-				if (request_val->last_aux_data_descrip != NULL) {
-					for (j = 0; j < aux_count; j++) {
-						offset = dissect_transact_data(
-						    tvb, offset, convert,
-						    pinfo, entry_tree,
-						    request_val->last_data_descrip,
-						    lanman->resp_aux_data, NULL);
-					}
-				}
-
-				if (entry_item != NULL) {
-					/*
-					 * Set the length of the protocol tree
-					 * item for the entry.
-					 */
-					proto_item_set_len(entry_item,
-					    offset - start_offset);
-				}
-			}
-
-			if (data_item != NULL) {
-				/*
-				 * Set the length of the protocol tree item
-				 * for the data.
-				 */
-				proto_item_set_len(data_item,
-				    offset - smb_info->data_offset);
-			}
+			dissect_response_data(tvb, pinfo, convert, tree,
+			    smb_info, lanman, has_ent_count, ent_count);
 		}
 	}
 
 	return TRUE;
 }
-
-
 
 gboolean
 dissect_pipe_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
