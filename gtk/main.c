@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.387 2004/02/01 22:43:34 guy Exp $
+ * $Id: main.c,v 1.388 2004/02/03 00:16:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,6 +136,7 @@ GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
 GtkWidget   *upper_pane, *lower_pane;
 GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *filter_tb;
 static GtkWidget	*info_bar;
+static GtkWidget    *packets_bar = NULL;
 #if GTK_MAJOR_VERSION < 2
 GdkFont     *m_r_font, *m_b_font;
 guint	     m_font_height, m_font_width;
@@ -143,6 +144,8 @@ guint	     m_font_height, m_font_width;
 PangoFontDescription *m_r_font, *m_b_font;
 #endif
 static guint    main_ctx, file_ctx, help_ctx;
+static guint        packets_ctx;
+static gchar        *packets_str = NULL;
 static GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
@@ -852,7 +855,7 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
   if ((filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY))) {
     gtk_entry_set_text(GTK_ENTRY(filter_te), "");
   }
-  filter_packets(&cfile, NULL);
+  main_filter_packets(&cfile, "");
 }
 
 /* mark as reference time frame */
@@ -1095,6 +1098,31 @@ statusbar_pop_field_msg(void)
 {
 	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
 }
+
+/*
+ * update the packets statusbar to the current values
+ */
+void packets_bar_update(void)
+{
+
+    if(packets_bar) {
+        /* remove old status */
+        if(packets_str) {
+            g_free(packets_str);
+	        gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
+        }
+
+        /* do we have any packets? */
+        if(cfile.count) {
+            packets_str = g_strdup_printf(" P: %u D: %u M: %u", 
+                cfile.count, cfile.displayed_count, cfile.marked_count);
+        } else {
+            packets_str = g_strdup(" No Packets");
+        }
+	    gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, packets_str);
+    }
+}
+
 
 gboolean
 main_do_quit(void)
@@ -3423,7 +3451,30 @@ static void try_to_get_windows_font_gtk2(void)
 
 #endif /* WIN32 */
 
+GtkWidget *info_bar_new(void)
+{
+    /* tip: tooltips don't work on statusbars! */
+    info_bar = gtk_statusbar_new();
+    main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
+    file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
+    help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
+#if GTK_MAJOR_VERSION >= 2
+    gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
+#endif
+    gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
 
+    return info_bar;
+}
+
+GtkWidget *packets_bar_new(void)
+{
+    /* tip: tooltips don't work on statusbars! */
+    packets_bar = gtk_statusbar_new();
+    packets_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(packets_bar), "packets");
+    packets_bar_update();
+
+    return packets_bar;
+}
 
 
 /*
@@ -3457,6 +3508,7 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(lower_pane);
     gtk_widget_ref(stat_hbox);
     gtk_widget_ref(info_bar);
+    gtk_widget_ref(packets_bar);
 
     /* empty all containers participating */
     gtk_container_foreach(GTK_CONTAINER(main_vbox),     foreach_remove_a_child, main_vbox);
@@ -3525,6 +3577,7 @@ void main_widgets_rearrange(void) {
     /* statusbar */
     if (recent.statusbar_show) {
         gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
+        gtk_box_pack_start(GTK_BOX(stat_hbox), packets_bar, TRUE, TRUE, 0);
     }
 
     gtk_widget_show(main_vbox);
@@ -3728,13 +3781,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_KEY, packet_list);
 
-    /* statusbar */
-    info_bar = gtk_statusbar_new();
-    main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
-    file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
-    help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
+    /* info (main) statusbar */
+    info_bar = info_bar_new();
     gtk_widget_show(info_bar);
+
+    /* packets statusbar */
+    packets_bar = packets_bar_new();
+    gtk_widget_show(packets_bar);
 
     /* Filter/status hbox */
     stat_hbox = gtk_hbox_new(FALSE, 1);

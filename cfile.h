@@ -1,7 +1,7 @@
 /* cfile.h
  * capture_file definition & GUI-independent manipulation
  *
- * $Id: cfile.h,v 1.8 2004/01/25 00:58:11 guy Exp $
+ * $Id: cfile.h,v 1.9 2004/02/03 00:16:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,7 @@ typedef struct _capture_file {
   int          lnk_t;     /* Link-layer type with which to save capture */
   guint32      vers;      /* Version.  For tcpdump minor is appended to major */
   int          count;     /* Total number of frames */
+  int          displayed_count; /* Number of displayed frames */
   int          marked_count; /* Number of marked frames */
   gboolean     drops_known; /* TRUE if we know how many packets were dropped */
   guint32      drops;     /* Dropped packets */

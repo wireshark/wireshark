@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.41 2004/01/31 18:32:37 ulfl Exp $
+ * $Id: main.h,v 1.42 2004/02/03 00:16:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,6 +109,8 @@ extern gboolean main_do_quit(void);
 extern void main_widgets_rearrange(void);
 extern int main_filter_packets(capture_file *cf, const gchar *dftext);
 extern void dnd_open_file_cmd(gpointer cf_name);
+extern void packets_bar_update(void);
+
 
 typedef enum {
 	FA_SUCCESS,

@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.16 2004/01/31 04:26:23 guy Exp $
+ * $Id: packet_list.c,v 1.17 2004/02/03 00:16:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "color.h"
 #include "../ui_util.h"
 #include "ui_util.h"
+#include "main.h"
 #include "menu.h"
 #include "color_utils.h"
 #include "column.h"
@@ -294,7 +295,12 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
       eth_clist_set_background(ETH_CLIST(packet_list), row, NULL);
     }
   }
+}
+
+/* call this after last set_frame_mark is done */
+void mark_frames_ready(void) {
   file_set_save_marked_sensitive();
+  packets_bar_update();
 }
 
 void mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
@@ -304,23 +310,29 @@ void mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
 		   cfile.current_frame,
 		   eth_clist_find_row_from_data(ETH_CLIST(packet_list),
 						cfile.current_frame));
+    mark_frames_ready();
   }
 }
 
 static void mark_all_frames(gboolean set) {
   frame_data *fdata;
   
+  /* XXX: we might need a progressbar here */
   cfile.marked_count = 0;	
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     set_frame_mark(set,
 		   fdata,
 		   eth_clist_find_row_from_data(ETH_CLIST(packet_list), fdata));
   }
+  mark_frames_ready();
 }
 
 void update_marked_frames(void) {
   frame_data *fdata;
+
   if (cfile.plist == NULL) return;
+
+  /* XXX: we might need a progressbar here */
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     if (fdata->flags.marked)
       set_frame_mark(TRUE,
@@ -328,6 +340,7 @@ void update_marked_frames(void) {
 		     eth_clist_find_row_from_data(ETH_CLIST(packet_list),
 						  fdata));
   }
+  mark_frames_ready();
 }
 
 void mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) {
@@ -363,6 +376,7 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
         frame_data *fdata = (frame_data *) eth_clist_get_row_data(ETH_CLIST(w),
                                                                   row);
         set_frame_mark(!fdata->flags.marked, fdata, row);
+        mark_frames_ready();
     }
 }
 #else
@@ -382,6 +396,7 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
         frame_data *fdata = (frame_data *)eth_clist_get_row_data(ETH_CLIST(w),
                                                                  row);
         set_frame_mark(!fdata->flags.marked, fdata, row);
+        mark_frames_ready();
         return TRUE;
     }
     return FALSE;
@@ -572,6 +587,7 @@ void
 packet_list_thaw(void)
 {
     eth_clist_thaw(ETH_CLIST(packet_list));
+    packets_bar_update();
 }
 
 void

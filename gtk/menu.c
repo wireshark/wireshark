@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.155 2004/02/01 15:36:15 ulfl Exp $
+ * $Id: menu.c,v 1.156 2004/02/03 00:16:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1272,6 +1272,7 @@ set_menus_for_capture_file(gboolean have_capture_file)
   set_menu_sensitivity(main_menu_factory, "/File/Export", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/View/Reload", have_capture_file);
   set_toolbar_for_capture_file(have_capture_file);
+  packets_bar_update();
 }
 
 /* Enable or disable menu items based on whether you have an unsaved
@@ -1410,6 +1411,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   walk_menu_tree_for_captured_packets(&tap_menu_tree_root,
       have_captured_packets);
   set_toolbar_for_captured_packets(have_captured_packets);
+  packets_bar_update();
 }
 
 /* Enable or disable menu items based on whether a packet is selected and,
@@ -1515,6 +1517,7 @@ set_menus_for_selected_packet(capture_file *cf)
 
   walk_menu_tree_for_selected_packet(&tap_menu_tree_root, cf->current_frame,
       cf->edt);
+  packets_bar_update();
 }
 
 /* Enable or disable menu items based on whether a tree row is selected

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.354 2004/01/31 04:10:04 guy Exp $
+ * $Id: file.c,v 1.355 2004/02/03 00:16:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -189,6 +189,7 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
 
   cf->cd_t      = wtap_file_type(cf->wth);
   cf->count     = 0;
+  cf->displayed_count = 0;
   cf->marked_count = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
@@ -267,6 +268,11 @@ cf_close(capture_file *cf)
   packet_list_clear();
   packet_list_thaw();
 
+  cf->f_len = 0;
+  cf->count = 0;
+  cf->esec  = 0;
+  cf->eusec = 0;
+
   /* Clear any file-related status bar messages.
      XXX - should be "clear *ALL* file-related status bar messages;
      will there ever be more than one on the stack? */
@@ -294,11 +300,12 @@ set_display_filename(capture_file *cf)
 {
   gchar  *name_ptr;
   size_t  msg_len;
-  static const gchar done_fmt_nodrops[] = " File: %s";
-  static const gchar done_fmt_drops[] = " File: %s  Drops: %u";
+  static const gchar done_fmt_nodrops[] = " File: %s %s %02u:%02u:%02u";
+  static const gchar done_fmt_drops[] = " File: %s %s %02u:%02u:%02u Drops: %u";
   gchar  *done_msg;
   gchar  *win_name_fmt = "%s - Ethereal";
   gchar  *win_name;
+  gchar  *size_str;
 
   name_ptr = cf_get_display_name(cf);
 	
@@ -307,14 +314,20 @@ set_display_filename(capture_file *cf)
     add_menu_recent_capture_file(cf->filename);
   }
 
-  if (cf->drops_known) {
-    msg_len = strlen(name_ptr) + strlen(done_fmt_drops) + 64;
-    done_msg = g_malloc(msg_len);
-    snprintf(done_msg, msg_len, done_fmt_drops, name_ptr, cf->drops);
+  if (cf->f_len/1024/1024 > 10) {
+    size_str = g_strdup_printf("%u MB", cf->f_len/1024/1024);
+  } else if (cf->f_len/1024 > 10) {
+    size_str = g_strdup_printf("%u KB", cf->f_len/1024);
   } else {
-    msg_len = strlen(name_ptr) + strlen(done_fmt_nodrops);
-    done_msg = g_malloc(msg_len);
-    snprintf(done_msg, msg_len, done_fmt_nodrops, name_ptr);
+    size_str = g_strdup_printf("%u bytes", cf->f_len);
+  }
+
+  if (cf->drops_known) {
+    done_msg = g_strdup_printf(done_fmt_drops, name_ptr, size_str, 
+        cf->esec/3600, cf->esec%3600/60, cf->esec%60, cf->drops);
+  } else {
+    done_msg = g_strdup_printf(done_fmt_nodrops, name_ptr, size_str,
+        cf->esec/3600, cf->esec%3600/60, cf->esec%60);
   }
   statusbar_push_file_msg(done_msg);
   g_free(done_msg);
@@ -332,7 +345,6 @@ cf_read(capture_file *cf)
   int        err;
   gchar      *err_info;
   gchar      *name_ptr, *load_msg, *load_fmt = "%s";
-  size_t      msg_len;
   char       *errmsg;
   char        errmsg_errno[1024+1];
   gchar       err_str[2048+1];
@@ -358,10 +370,11 @@ cf_read(capture_file *cf)
   tap_dfilter_dlg_update();
   name_ptr = get_basename(cf->filename);
 
-  msg_len = strlen(name_ptr) + strlen(load_fmt) + 2;
-  load_msg = g_malloc(msg_len);
-  snprintf(load_msg, msg_len, load_fmt, name_ptr);
+  load_msg = g_strdup_printf(" Loading: %s", name_ptr);
   statusbar_push_file_msg(load_msg);
+  g_free(load_msg);
+
+  load_msg = g_strdup_printf(load_fmt, name_ptr);
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -581,6 +594,8 @@ cf_finish_tail(capture_file *cf, int *err)
 {
   gchar *err_info;
   long data_offset;
+  int         fd;
+  struct stat cf_stat;
 
   packet_list_freeze();
 
@@ -612,6 +627,13 @@ cf_finish_tail(capture_file *cf, int *err)
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
+
+  /* we have to update the f_len field */
+  /* Find the size of the file. */
+  fd = wtap_fd(cf->wth);
+  if (fstat(fd, &cf_stat) >= 0) {
+      cf->f_len = cf_stat.st_size;
+  }
 
   /* We're done reading sequentially through the file; close the
      sequential I/O side, to free up memory it requires. */
@@ -664,12 +686,12 @@ cf_get_display_name(capture_file *cf)
       /* Add this filename to the list of recent files in the "Recent Files" submenu */
       add_menu_recent_capture_file(cf->filename);
     } else {
-      displayname="<no file>";
+      displayname="(No file)";
     }
   } else {
     /* The file we read is a temporary file from a live capture;
        we don't mention its name. */
-    displayname = "<capture>";
+    displayname = "(Untitled)";
   }
   return displayname;
 }
@@ -866,6 +888,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
        frame. */
     prevsec = fdata->abs_secs;
     prevusec = fdata->abs_usecs;
+
+    cf->displayed_count++;
   } else {
     /* This frame didn't pass the display filter, so it's not being added
        to the clist, and thus has no row. */
@@ -1075,6 +1099,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* We don't yet know which will be the first and last frames displayed. */
   cf->first_displayed = NULL;
   cf->last_displayed = NULL;
+
+  /* We currently don't display any packets */
+  cf->displayed_count = 0;
 
   /* Iterate through the list of frames.  Call a routine for each frame
      to check whether it should be displayed and, if so, add it to
