@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.74 2001/09/17 00:36:04 guy Exp $
+ * $Id: packet-dns.c,v 1.75 2001/09/17 02:07:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "ipproto.h"
 #include "resolv.h"
 #include "packet-dns.h"
+#include "prefs.h"
 
 static int proto_dns = -1;
 static int hf_dns_length = -1;
@@ -58,6 +59,9 @@ static gint ett_dns_qry = -1;
 static gint ett_dns_ans = -1;
 static gint ett_dns_flags = -1;
 static gint ett_t_key_flags = -1;
+
+/* desegmentation of DNS over TCP */
+static gboolean dns_desegment = TRUE;
 
 /* DNS structs and definitions */
 
@@ -1964,9 +1968,37 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 plen;
 
 	for (;;) {
+		/*
+		 * XXX - should handle a length field split across segment
+		 * boundaries.
+		 */
 		if (!tvb_bytes_exist(tvb, offset, 2))
 			break;
 		plen = tvb_get_ntohs(tvb, offset);
+
+		/*
+		 * Desegmentation check.
+		 */
+		if (dns_desegment) {
+			if (pinfo->can_desegment
+			    && plen > tvb_length_remaining(tvb, offset+2)) {
+				/*
+				 * This frame doesn't have all of the data
+				 * for this message, but we can do reassembly
+				 * on it.
+				 *
+				 * Tell the TCP dissector where the data for
+				 * this message starts in the data it handed
+				 * us, and how many more bytes we need, and
+				 * return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len =
+				    plen - tvb_length_remaining(tvb, offset+2);
+				return;
+			}
+		}
+
 		offset += 2;
 
 		/*
@@ -2033,10 +2065,17 @@ proto_register_dns(void)
     &ett_dns_flags,
     &ett_t_key_flags,
   };
+  module_t *dns_module;
 
   proto_dns = proto_register_protocol("Domain Name Service", "DNS", "dns");
   proto_register_field_array(proto_dns, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  dns_module = prefs_register_protocol(proto_dns, NULL);
+  prefs_register_bool_preference(dns_module, "desegment_dns_messages",
+    "Desegment all DNS messages spanning multiple TCP segments",
+    "Whether the DNS dissector should desegment all messages spanning multiple TCP segments",
+    &dns_desegment);
 }
 
 void

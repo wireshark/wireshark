@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.71 2001/09/13 07:53:51 guy Exp $
+ * $Id: packet-rpc.c,v 1.72 2001/09/17 02:07:00 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@
 #define RPC_RM_FRAGLEN  0x7fffffffL
 
 /* desegmentation of RPC over TCP */
-static gboolean rpc_desegment = FALSE;
+static gboolean rpc_desegment = TRUE;
 
 static struct true_false_string yesno = { "Yes", "No" };
 

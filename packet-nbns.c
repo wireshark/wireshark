@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.55 2001/09/13 07:53:51 guy Exp $
+ * $Id: packet-nbns.c,v 1.56 2001/09/17 02:07:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,8 +80,7 @@ static gint ett_nbss = -1;
 static gint ett_nbss_flags = -1;
 
 /* desegmentation of NBSS over TCP */
-static gboolean nbss_desegment = FALSE;
-
+static gboolean nbss_desegment = TRUE;
 
 /* See RFC 1001 and 1002 for information on the first three, and see
 
@@ -1702,8 +1701,8 @@ proto_register_nbt(void)
 
   nbss_module = prefs_register_protocol(proto_nbss, NULL);
   prefs_register_bool_preference(nbss_module, "desegment_nbss_commands",
-    "Desegment all NBSS commands spanning multiple TCP segments",
-    "Whether NBSS dissector should desegment all commands spanning multiple TCP segments",
+    "Desegment all NBSS packets spanning multiple TCP segments",
+    "Whether NBSS dissector should desegment all packets spanning multiple TCP segments",
     &nbss_desegment);
 }
 
