@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.56 1999/08/19 05:31:21 guy Exp $
+ * $Id: capture.c,v 1.57 1999/08/19 05:42:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -342,7 +342,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 	g_free(cf.save_file);
   }
   cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
-  cf.save_file = strdup(tmpname);
+  cf.save_file = g_strdup(tmpname);
   cf.user_saved = 0;
   
   if( fork_mode ){	/*  use fork() for capture */
