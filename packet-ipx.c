@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.37 1999/11/30 08:45:39 guy Exp $
+ * $Id: packet-ipx.c,v 1.38 1999/11/30 09:01:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -196,8 +196,21 @@ port_func(guint16 port) {
 	return NULL;
 }
 
+/*
+ * From:
+ *
+ *	http://alr.base2co.com:457/netguide/dipxD.ipx_packet_struct.html
+ *
+ * which is part of SCO's "Network Programmer's Guide and Reference".
+ *
+ * It calls type 20 "NetBIOS name packet".  Microsoft Network Monitor
+ * calls it "WAN Broadcast"; it's also used for SMB browser announcements,
+ * i.e. NetBIOS (broadcast) datagrams.
+ */
 #define IPX_PACKET_TYPE_IPX		0
 #define IPX_PACKET_TYPE_RIP		1
+#define	IPX_PACKET_TYPE_ECHO		2
+#define	IPX_PACKET_TYPE_ERROR		3
 #define IPX_PACKET_TYPE_PEP		4
 #define IPX_PACKET_TYPE_SPX		5
 #define IPX_PACKET_TYPE_NCP		17
@@ -206,15 +219,15 @@ port_func(guint16 port) {
 static const value_string ipx_packet_type_vals[] = {
 	{ IPX_PACKET_TYPE_IPX,		"IPX" },
 	{ IPX_PACKET_TYPE_RIP,		"RIP" },
-	{ IPX_PACKET_TYPE_PEP,		"PEP" },
-				/* Packet Exchange Protocol */
+	{ IPX_PACKET_TYPE_ECHO,		"Echo" },
+	{ IPX_PACKET_TYPE_ERROR,	"Error" },
+	{ IPX_PACKET_TYPE_PEP,		"PEP" }, /* Packet Exchange Packet */
 	{ IPX_PACKET_TYPE_SPX,		"SPX" },
 	{ 16,				"Experimental Protocol" },
 	{ IPX_PACKET_TYPE_NCP,		"NCP" },
 	{ 18,				"Experimental Protocol" },
 	{ 19,				"Experimental Protocol" },
 	{ IPX_PACKET_TYPE_WANBCAST,	"NetBIOS Broadcast" },
-				/* NetMon calls it "WAN Broadcast" */
 	{ 21,				"Experimental Protocol" },
 	{ 22,				"Experimental Protocol" },
 	{ 23,				"Experimental Protocol" },
