@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.9 2000/09/21 04:41:09 gram Exp $
+ * $Id: randpkt.c,v 1.10 2001/03/31 10:13:11 guy Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -59,7 +59,8 @@ enum {
 	PKT_SYSLOG,
 	PKT_TCP,
 	PKT_TR,
-	PKT_UDP
+	PKT_UDP,
+	PKT_BVLC
 };
 
 typedef struct {
@@ -194,6 +195,23 @@ guint8 pkt_udp[] = {
 	0x0a, 0x01, 0x01, 0x63
 };
 
+/* Ethernet+IP+UDP, indicating BVLC */
+guint8 pkt_bvlc[] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x08, 0x00,
+
+	0x45, 0x00, 0x00, 0x3c,
+	0xc5, 0x9e, 0x40, 0x00,
+	0xff, 0x11, 0x01, 0xaa,
+	0xc1, 0xff, 0x19, 0x1e,
+	0xc1, 0xff, 0x19, 0xff,
+	0xba, 0xc0, 0xba, 0xc0,
+	0x00, 0xff, 0x2d, 0x5e,
+	0x81
+};
+
 /* This little data table drives the whole program */
 pkt_example examples[] = {
 	{ "arp", "Address Resolution Protocol",
@@ -230,7 +248,10 @@ pkt_example examples[] = {
 		PKT_TR,		NULL,		WTAP_ENCAP_TOKEN_RING,	0 },
 
 	{ "udp", "User Datagram Protocol",
-		PKT_UDP,	pkt_udp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_udp) }
+		PKT_UDP,	pkt_udp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_udp) },
+	{ "bvlc", "BACnet Virtual Link Control",
+		PKT_BVLC,	pkt_bvlc,	WTAP_ENCAP_ETHERNET,	array_length(pkt_bvlc) }
+
 };
 
 
