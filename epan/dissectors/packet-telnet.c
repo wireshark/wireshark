@@ -754,12 +754,14 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 
 	/* IAC SB AUTHENTICATION IS <authentication-type-pair> AUTH <Kerberos V5 KRB_AP_REQ message> IAC SE */
 	if((acmd==TN_AC_IS)&&(krb5_cmd==TN_KRB5_TYPE_AUTH)){
-		krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
-		if(krb5_tvb)
-			dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
-		else
-			proto_tree_add_text(tree, tvb, offset, len, "Kerberos blob (too long to dissect - length %u > %u",
-			    len, MAX_KRB5_BLOB_LEN);
+		if(len){
+			krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
+			if(krb5_tvb)
+				dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
+			else
+				proto_tree_add_text(tree, tvb, offset, len, "Kerberos blob (too long to dissect - length %u > %u",
+				    len, MAX_KRB5_BLOB_LEN);
+		}
 	}
 
 
@@ -775,8 +777,10 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 
 	/* IAC SB AUTHENTICATION REPLY <authentication-type-pair> RESPONSE <KRB_AP_REP message> IAC SE */
 	if((acmd==TN_AC_REPLY)&&(krb5_cmd==TN_KRB5_TYPE_RESPONSE)){
-		krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
-		dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
+		if(len){
+			krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
+			dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
+		}
 	}
 
 
