@@ -4,13 +4,21 @@
  * 
  * TODO: Pay attention to Content-Type: It might not always be SDP.
  *       Add hf_* fields for filtering support.
+ *       Add sip msg body dissection based on Content-Type for:
+ *                SDP, MIME, and other types
+ *       Align SIP methods with recent Internet Drafts or RFC
+ *               (SIP INFO, rfc2976 - done)
+ *               (SIP SUBSCRIBE-NOTIFY - done)
+ *               (SIP REFER - done)
+ *               check for other
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
+ * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.15 2001/06/18 02:17:52 guy Exp $
+ * $Id: packet-sip.c,v 1.16 2001/08/23 00:18:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-cops.c
@@ -59,10 +67,14 @@ static const char *sip_methods[] = {
         "OPTIONS",
         "BYE",
         "CANCEL",
-        "REGISTER"
+        "REGISTER",
+        "INFO",
+        "REFER",
+        "SUBSCRIBE",
+        "NOTIFY"
 };
 
-static int sip_is_request(tvbuff_t *tvb, guint32 offset);
+static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset);
 static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset);
  
 static dissector_handle_t sdp_handle;
@@ -164,16 +176,16 @@ static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset)
         return -1;
 }
                 
-static int sip_is_request(tvbuff_t *tvb, guint32 offset)
+static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset)
 {
-        int i;
+        u_int i;
 
         for (i = 1; i < array_length(sip_methods); i++) {
                 if (tvb_strneql(tvb, offset, sip_methods[i], strlen(sip_methods[i])) == 0)
-                        return i;
+                        return TRUE;
         }
 
-        return 0;
+        return FALSE;
 }
 
 /* Register the protocol with Ethereal */
