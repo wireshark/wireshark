@@ -232,7 +232,7 @@ typedef guint32 (*addr_dissect_per_constrained_integer) (tvbuff_t *, guint32, pa
 typedef guint32 (*addr_dissect_per_choice) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, gint, const per_choice_t *, char *, guint32 *);
 typedef guint32 (*addr_dissect_per_sequence) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, gint, const per_sequence_t *);
 typedef guint32 (*addr_dissect_per_octet_string) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, int, int, guint32 *, guint32 *);
-typedef guint32 (*addr_dissect_per_restricted_character_string) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, int, int, char *, int);
+typedef guint32 (*addr_dissect_per_restricted_character_string) (tvbuff_t *, guint32, packet_info *, proto_tree *, int, int, int, char *, int, char *, guint32);
 typedef void (*addr_dissector_add_string) (const char *, gchar *, dissector_handle_t);
 typedef void (*addr_dissector_delete_string) (const char *, const gchar *, dissector_handle_t);
 typedef void (*addr_dissector_change_string) (const char *, gchar *, dissector_handle_t);
