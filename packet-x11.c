@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.4 2000/06/12 19:19:54 gram Exp $
+ * $Id: packet-x11.c,v 1.5 2000/06/14 00:24:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1032,7 +1032,7 @@ static void listOfSegment(int hf, int length)
    Note that "non-printable characters" may depend on your locale.... */
 static void stringCopy(char *dest, const char *source, int length)
 {
-      char c;
+      u_char c;
       while(length--) {
 	    c = *source++;
 	    if (!isgraph(c) && c != ' ') c = '.';
