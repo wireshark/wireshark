@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.89 2000/11/19 08:54:09 guy Exp $
+ * $Id: packet-tcp.c,v 1.90 2000/11/20 16:17:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -380,8 +380,10 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, int src_port, int dst_port)
 {
   tvbuff_t *next_tvb;
+#ifdef HAVE_PLUGINS
   const u_char *next_pd;
   int next_offset;
+#endif
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
