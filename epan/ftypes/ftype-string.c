@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.11 2003/07/30 22:20:04 guy Exp $
+ * $Id: ftype-string.c,v 1.12 2003/07/30 22:25:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,8 +65,9 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 		case FTREPR_DFILTER:
 			repr_len = 0;
 			for (p = fv->value.string; (c = *p) != '\0'; p++) {
-				if (c == '\\') {
-					/* Backslashes must be escaped. */
+				if (c == '\\' || c == '"') {
+					/* Backslashes and double-quotes
+					   must be escaped. */
 					repr_len++;
 				}
 				repr_len++;
@@ -87,8 +88,9 @@ string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 		bufp = buf;
 		*bufp++ = '"';
 		for (p = fv->value.string; (c = *p) != '\0'; p++) {
-			if (c == '\\') {
-				/* Backslashes must be escaped. */
+			if (c == '\\' || c == '"') {
+				/* Backslashes and double-quotes
+				   must be escaped. */
 				*bufp++ = '\\';
 			}
 			*bufp++ = c;
