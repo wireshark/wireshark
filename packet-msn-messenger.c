@@ -2,7 +2,7 @@
  * Routines for MSN Messenger Service packet dissection
  * Copyright 2003, Chris Waters <chris@waters.co.nz>
  *
- * $Id: packet-msn-messenger.c,v 1.2 2003/01/30 19:00:10 guy Exp $
+ * $Id: packet-msn-messenger.c,v 1.3 2003/02/13 23:49:19 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@
  */
 
 static int proto_msnms = -1;
-static int hf_msnms_command = -1;
+/* static int hf_msnms_command = -1; */
 
 static gint ett_msnms = -1;
 
@@ -75,8 +75,8 @@ dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guchar	*line;
 	gint		next_offset;
 	int		linelen;
-	int		tokenlen;
-	const guchar	*next_token;
+	/* int		tokenlen; */
+	/* const guchar	*next_token; */
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSNMS");
