@@ -32,10 +32,50 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include <pcap.h>
 
 #include <glib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#include <signal.h>
+
+#ifdef HAVE_SYS_WAIT_H
+# include <sys/wait.h>
+#endif
+
+#ifndef _WIN32
+/*
+ * Define various POSIX macros (and, in the case of WCOREDUMP, non-POSIX
+ * macros) on UNIX systems that don't have them.
+ */
+#ifndef WIFEXITED
+# define WIFEXITED(status)	(((status) & 0177) == 0)
+#endif
+#ifndef WIFSTOPPED
+# define WIFSTOPPED(status)	(((status) & 0177) == 0177)
+#endif
+#ifndef WIFSIGNALED
+# define WIFSIGNALED(status)	(!WIFSTOPPED(status) && !WIFEXITED(status))
+#endif
+#ifndef WEXITSTATUS
+# define WEXITSTATUS(status)	((status) >> 8)
+#endif
+#ifndef WTERMSIG
+# define WTERMSIG(status)	((status) & 0177)
+#endif
+#ifndef WCOREDUMP
+# define WCOREDUMP(status)	((status) & 0200)
+#endif
+#ifndef WSTOPSIG
+# define WSTOPSIG(status)	((status) >> 8)
+#endif
+#endif /* _WIN32 */
 
 #include <epan/packet.h>
 #include <epan/prefs.h>

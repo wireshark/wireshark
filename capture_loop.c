@@ -35,12 +35,30 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <pcap.h>
+#include <string.h>
 
-#include <glib.h>
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
 
 #include <signal.h>
 #include <errno.h>
+
+#include <pcap.h>
+
+#include <glib.h>
 
 #include <epan/packet.h>
 #include "capture.h"
@@ -53,6 +71,7 @@
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
 
+#include "wiretap/libpcap.h"
 #include "wiretap/wtap.h"
 #include "wiretap/wtap-capture.h"
 
