@@ -6,13 +6,11 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.4 2001/08/01 03:22:14 guy Exp $
+ * $Id: text2pcap.c,v 1.5 2001/11/24 07:52:05 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
- * 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -283,6 +281,15 @@ write_byte (char *str)
 }
 
 /*----------------------------------------------------------------------
+ * Remove bytes from the current packet
+ */
+static int
+unwrite_bytes (unsigned long nbytes)
+{
+    curr_offset -= nbytes;
+}
+
+/*----------------------------------------------------------------------
  * Compute one's complement checksum (from RFC1071)
  */
 static unsigned short
@@ -484,12 +491,26 @@ parse_token (token_t token, char *str)
                 start_new_packet();
                 state = READ_OFFSET;
             } else if (num != curr_offset) {
-                /* Bad offset; switch to INIT state */
-                if (debug>=1)
-                    fprintf(stderr, "Inconsistent offset. Expecting %0lX, got %0lX. Ignoring rest of packet\n", 
-                            curr_offset, num);
-                write_current_packet();
-                state = INIT;
+                /*
+                 * The offset we read isn't the one we expected.
+                 * This may only mean that we mistakenly interpreted
+                 * some text as byte values (e.g., if the text dump
+                 * of packet data included a number with spaces around
+                 * it).  If the offset is less than what we expected,
+                 * assume that's the problem, and throw away the putative
+                 * extra byte values.
+                 */
+                if (num < curr_offset) {
+                    unwrite_bytes(curr_offset - num);
+                    state = READ_OFFSET;
+                } else {
+                    /* Bad offset; switch to INIT state */
+                    if (debug>=1)
+                        fprintf(stderr, "Inconsistent offset. Expecting %0lX, got %0lX. Ignoring rest of packet\n", 
+                                curr_offset, num);
+                    write_current_packet();
+                    state = INIT;
+                }
             } else 
                 state = READ_OFFSET;
             break;
@@ -614,27 +635,24 @@ parse_options (int argc, char *argv[])
         case 'q': quiet = TRUE; debug = FALSE; break;
         case 'l': pcap_link_type = atoi(optarg); break;
         case 'o': 
-            if (!optarg || (optarg[0]!='h' && optarg[0] != 'o')) {
-                fprintf(stderr, "Bad argument for '-e': %s\n",
-                        optarg ? optarg : "");
+            if (optarg[0]!='h' && optarg[0] != 'o') {
+                fprintf(stderr, "Bad argument for '-e': %s\n", optarg);
                 help(argv[0]);
             }
             offset_base = (optarg[0]=='o') ? 8 : 16;
             break;
         case 'e':
             hdr_ethernet = TRUE;
-            if (!optarg || sscanf(optarg, "%lx", &hdr_ethernet_proto) < 1) {
-                fprintf(stderr, "Bad argument for '-e': %s\n",
-                        optarg ? optarg : "");
+            if (sscanf(optarg, "%lx", &hdr_ethernet_proto) < 1) {
+                fprintf(stderr, "Bad argument for '-e': %s\n", optarg);
                 help(argv[0]);
             }
             break;
             
         case 'i':
             hdr_ip = TRUE;
-            if (!optarg || sscanf(optarg, "%ld", &hdr_ip_proto) < 1) {
-                fprintf(stderr, "Bad argument for '-i': %s\n",
-                        optarg ? optarg : "");
+            if (sscanf(optarg, "%ld", &hdr_ip_proto) < 1) {
+                fprintf(stderr, "Bad argument for '-i': %s\n", optarg);
                 help(argv[0]);
             }
             hdr_ethernet = TRUE;
