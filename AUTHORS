@@ -376,6 +376,7 @@ Paul Ionescu <paul[AT]acorp.ro> {
 
 Mark Burton <markb[AT]ordern.com> {
 	Assorted SMB fixes and enhancements
+	iSCSI support
 }
 
 Stefan Raab <sraab[AT]cisco.com> {
@@ -716,10 +717,6 @@ Edgar Iglesias <edgar.iglesias[AT]axis.com> {
 
 Martina Obermeier <Martina.Obermeier[AT]icn.siemens.de> {
 	ISUP (ISDN User Part, ITU-T recommendation Q.763) support
-}
-
-Mark Burton <markb[AT]ordern.com> {
-	iSCSI support
 }
 
 Javier Achirica <achirica[AT]ttd.net> {
