@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.59 2002/05/02 19:39:05 guy Exp $
+ * $Id: packet-giop.c,v 1.60 2002/05/12 20:43:29 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2325,16 +2325,18 @@ guint8 get_CDR_octet(tvbuff_t *tvb, int *offset) {
  * This function also increments offset by len. 
  */
 
-void get_CDR_octet_seq(tvbuff_t *tvb, gchar **seq, int *offset, int len) {
+void get_CDR_octet_seq(tvbuff_t *tvb, gchar **seq, int *offset, guint32 len) {
 
-  if (! tvb_bytes_exist(tvb, *offset,len)) {
+  guint32 remain_len = tvb_length_remaining(tvb, *offset);
+
+  if (remain_len < len) {
     /*
      * Generate an exception, and stop processing.
      * We do that now, rather than after allocating the buffer, so we
      * don't have to worry about freeing the buffer.
      * XXX - would we be better off using a cleanup routine?
      */
-    tvb_get_guint8(tvb, *offset + len);
+    tvb_ensure_length_remaining(tvb, *offset + remain_len + 1);
   }
 
   /*
@@ -2639,7 +2641,7 @@ guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian
 
 gint8 get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset, MessageHeader * header) {
   
-  gint8 slength;
+  guint32 slength;
   gchar *raw_wstring;
 
   /* CORBA chapter 15:

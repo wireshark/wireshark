@@ -4,7 +4,7 @@
  *
  * Based on CORBAv2.4.2  Chapter 15 GIOP Description.
  *
- * $Id: packet-giop.h,v 1.7 2001/10/31 07:47:25 guy Exp $
+ * $Id: packet-giop.h,v 1.8 2002/05/12 20:43:29 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -362,7 +362,7 @@ extern guint8 get_CDR_octet(tvbuff_t *tvb, int *offset);
  * This function also increments offset by len. 
  */
 
-extern void get_CDR_octet_seq(tvbuff_t *tvb, gchar **seq, int *offset, int len);
+extern void get_CDR_octet_seq(tvbuff_t *tvb, gchar **seq, int *offset, guint32 len);
 
 /* Copy a 2 octet sequence from the tvbuff 
  * which represents a signed short value, and convert
