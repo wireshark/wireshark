@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.19 2000/08/14 11:36:04 girlich Exp $
+ * $Id: packet-portmap.c,v 1.20 2000/08/24 23:16:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,11 @@
 #include "packet-rpc.h"
 #include "packet-portmap.h"
 
+/*
+ * See:
+ *
+ *	RFC 1833, "Binding Protocols for ONC RPC Version 2".
+ */
 
 static int proto_portmap = -1;
 static int hf_portmap_proto = -1;
