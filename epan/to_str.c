@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.24 2003/02/11 19:42:38 guy Exp $
+ * $Id: to_str.c,v 1.25 2003/02/12 00:44:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -442,7 +442,7 @@ abs_time_to_str(nstime_t *abs_time)
 }
 
 gchar *
-abs_time_secs_to_str(guint32 abs_time)
+abs_time_secs_to_str(time_t abs_time)
 {
         struct tm *tmp;
         static gchar *cur;

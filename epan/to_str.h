@@ -1,7 +1,7 @@
 /* to_str.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id: to_str.h,v 1.13 2003/02/11 19:42:38 guy Exp $
+ * $Id: to_str.h,v 1.14 2003/02/12 00:44:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@ extern gchar*	vines_addr_to_str(const guint8 *addrp);
 extern gchar*	time_secs_to_str(guint32);
 extern gchar*	time_msecs_to_str(guint32);
 extern gchar*	abs_time_to_str(nstime_t*);
-extern gchar*	abs_time_secs_to_str(guint32);
+extern gchar*	abs_time_secs_to_str(time_t);
 extern void	display_signed_time(gchar *, int, gint32, gint32, time_res_t);
 extern gchar*	rel_time_to_str(nstime_t*);
 extern gchar*	rel_time_to_secs_str(nstime_t*);
