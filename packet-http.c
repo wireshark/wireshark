@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.107 2004/05/08 12:59:02 obiot Exp $
+ * $Id: packet-http.c,v 1.108 2004/05/09 09:07:33 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -498,7 +498,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * Not a blank line - either a request, a reply, or a header
 		 * line.
-		 */ 
+		 */
 		saw_req_resp_or_header = TRUE;
 		if (is_request_or_reply) {
 			if (tree) {
@@ -635,7 +635,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 
 		/*
-		 * Handle transfer encodings other than "identity".
+		 * Handle *transfer* encodings other than "identity".
 		 */
 		if (headers.transfer_encoding != NULL &&
 		    strcasecmp(headers.transfer_encoding, "identity") != 0) {
@@ -647,18 +647,27 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    &next_tvb, pinfo, http_tree, 0);
 
 				if (chunks_decoded <= 0) {
-					/* 
+					/*
 					 * The chunks weren't reassembled,
 					 * or there was a single zero
 					 * length chunk.
 					 */
 					goto body_dissected;
+				} else {
+					/*
+					 * Add a new data source for the
+					 * de-chunked data.
+					 */
+					tvb_set_child_real_data_tvbuff(tvb,
+						next_tvb);
+					add_new_data_source(pinfo, next_tvb,
+						"De-chunked entity body");
 				}
-
 			} else {
 				/*
-				 * We currently can't handle, for example, "gzip",
-				 * "compress", or "deflate"; just handle them
+				 * We currently can't handle, for example,
+				 * "gzip", "compress", or "deflate" as
+				 * *transfer* encodings; just handle them
 				 * as data for now.
 				 */
 				call_dissector(data_handle, next_tvb, pinfo,
@@ -666,9 +675,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				goto body_dissected;
 			}
 		}
-
 		/*
-		 * Handle content encodings other than "identity" (which
+		 * At this point, any chunked *transfer* coding has been removed
+		 * (the entity body has been dechunked) so it can be presented
+		 * for the following operation (*content* encoding), or it has
+		 * been been handed off to the data dissector.
+		 *
+		 * Handle *content* encodings other than "identity" (which
 		 * shouldn't appear in a Content-Encoding header, but
 		 * we handle it in any case).
 		 */
@@ -677,11 +690,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * We currently can't handle, for example, "compress";
 			 * just handle them as data for now.
-			 * 
+			 *
 			 * After July 7, 2004 the LZW patent expires, so support
 			 * might be added then.  However, I don't think that
 			 * anybody ever really implemented "compress", due to
-			 * the aformentioned patent.
+			 * the aforementioned patent.
 			 */
 			tvbuff_t *uncomp_tvb = NULL;
 			proto_item *e_ti = NULL;
@@ -691,7 +704,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    (strcasecmp(headers.content_encoding, "gzip") == 0 ||
 			    strcasecmp(headers.content_encoding, "deflate")
 			    == 0)) {
-			
+
 				uncomp_tvb = tvb_uncompress(next_tvb, 0,
 				    tvb_length(next_tvb));
 			}
@@ -701,7 +714,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			e_ti = proto_tree_add_text(http_tree, next_tvb,
 					0, tvb_length(next_tvb),
-					"Encoded entity body (%s)",
+					"Content-encoded entity body (%s)",
 					headers.content_encoding);
 			e_tree = proto_item_add_subtree(e_ti,
 					ett_http_encoded_entity);
@@ -720,7 +733,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				*/
 				next_tvb = uncomp_tvb;
 				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-				add_new_data_source(pinfo, next_tvb, 
+				add_new_data_source(pinfo, next_tvb,
 				    "Uncompressed entity body");
 			} else {
 				if (chunks_decoded > 1) {
@@ -731,17 +744,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				}
 				call_dissector(data_handle, next_tvb, pinfo,
 				    e_tree);
-				
+
 				goto body_dissected;
 			}
-		} else if (chunks_decoded > 0) {
-			/*
-			 * Add a new data source for the de-chunked data.
-			 */
-			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-			add_new_data_source(pinfo, next_tvb,
-			    "De-chunked entity body");
 		}
+		/*
+		 * Note that a new data source is added for the entity body
+		 * only if it was content-encoded and/or transfer-encoded.
+		 */
 
 		/*
 		 * Do subdissector checks.
@@ -884,7 +894,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 	gint chunked_data_size = 0;
 	proto_tree *subtree = NULL;
 	proto_item *ti = NULL;
-	
+
 	if (tvb_ptr == NULL || *tvb_ptr == NULL) {
 		return 0;
 	}
@@ -919,7 +929,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			/* Can't get the chunk size line */
 			break;
 		}
-		
+
 		c = chunk_string;
 
 		/*
@@ -952,7 +962,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 		if (new_tvb != NULL && chunk_size != 0) {
 			tvbuff_t *chunk_tvb = NULL;
-			
+
 			chunk_tvb = tvb_new_subset(tvb, chunk_offset,
 			    chunk_size, datalen);
 
@@ -960,7 +970,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 		}
 		*/
-		
+
 		chunked_data_size += chunk_size;
 
 		if (chunk_size != 0) {
@@ -982,7 +992,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			tvb_set_free_cb(new_tvb, g_free);
 
 		}
-		
+
 		if (subtree) {
 			if (chunk_size == 0) {
 				chunk_ti = proto_tree_add_text(subtree, tvb,
@@ -1006,8 +1016,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			data_tvb = tvb_new_subset(tvb, chunk_offset, chunk_size,
 			    datalen);
 
-		
-			if (chunk_size > 0) { 
+
+			if (chunk_size > 0) {
 				call_dissector(data_handle, data_tvb, pinfo,
 				    chunk_subtree);
 			}
@@ -1036,7 +1046,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		tvb_free(*tvb_ptr);
 		 */
 		*tvb_ptr = new_tvb;
-		
+
 	} else {
 		/*
 		 * We didn't create a new tvb, so don't allow sub dissectors
@@ -1044,7 +1054,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		 */
 		chunks_decoded = -1;
 	}
-	
+
 	return chunks_decoded;
 
 }
