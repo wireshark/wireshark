@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.88 2001/08/02 08:08:12 guy Exp $
+ * $Id: packet-smb.c,v 1.89 2001/08/02 08:48:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,6 +87,7 @@ int smb_packet_init_count = 200;
 struct smb_request_key {
   guint32 conversation;
   guint16 mid;
+  guint16 pid;
 };
 
 static GHashTable *smb_request_hash = NULL;
@@ -101,13 +102,14 @@ smb_equal(gconstpointer v, gconstpointer w)
   struct smb_request_key *v2 = (struct smb_request_key *)w;
 
 #if defined(DEBUG_SMB_HASH)
-  printf("Comparing %08X:%u\n      and %08X:%u\n",
-	 v1 -> conversation, v1 -> mid,
-	 v2 -> conversation, v2 -> mid);
+  printf("Comparing %08X:%u:%u\n      and %08X:%u:%u\n",
+	 v1 -> conversation, v1 -> mid, v1 -> pid,
+	 v2 -> conversation, v2 -> mid, v2 -> pid);
 #endif
 
   if (v1 -> conversation == v2 -> conversation &&
-      v1 -> mid          == v2 -> mid) {
+      v1 -> mid          == v2 -> mid &&
+      v1 -> pid          == v2 -> pid) {
 
     return 1;
 
@@ -122,7 +124,7 @@ smb_hash (gconstpointer v)
   struct smb_request_key *key = (struct smb_request_key *)v;
   guint val;
 
-  val = key -> conversation + key -> mid;
+  val = (key -> conversation) + (key -> mid) + (key -> pid);
 
 #if defined(DEBUG_SMB_HASH)
   printf("SMB Hash calculated as %u\n", val);
@@ -136,6 +138,26 @@ smb_hash (gconstpointer v)
  * Free up any state information we've saved, and re-initialize the
  * tables of state information.
  */
+
+/*
+ * For a hash table entry, free the address data to which the key refers
+ * and the fragment data to which the value refers.
+ * (The actual key and value structures get freed by "reassemble_init()".)
+ */
+static gboolean
+free_request_val_data(gpointer key, gpointer value, gpointer user_data)
+{
+  struct smb_request_val *request_val = value;
+
+  if (request_val->last_transact_command != NULL)
+    g_free(request_val->last_transact_command);
+  if (request_val->last_param_descrip != NULL)
+    g_free(request_val->last_param_descrip);
+  if (request_val->last_data_descrip != NULL)
+    g_free(request_val->last_data_descrip);
+  return TRUE;
+}
+
 static void
 smb_init_protocol(void)
 {
@@ -143,8 +165,16 @@ smb_init_protocol(void)
   printf("Initializing SMB hashtable area\n");
 #endif
 
-  if (smb_request_hash)
+  if (smb_request_hash) {
+    /*
+     * Remove all entries from the hash table and free all strings
+     * attached to the keys and values.  (The keys and values
+     * themselves are freed with "g_mem_chunk_destroy()" calls
+     * below.)
+     */
+    g_hash_table_foreach_remove(smb_request_hash, free_request_val_data, NULL);
     g_hash_table_destroy(smb_request_hash);
+  }
   if (smb_request_keys)
     g_mem_chunk_destroy(smb_request_keys);
   if (smb_request_vals)
@@ -8944,6 +8974,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
    */
   request_key.conversation = conversation->index;
   request_key.mid          = si.mid;
+  request_key.pid          = si.pid;
 
   request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
 
@@ -8952,6 +8983,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     new_request_key = g_mem_chunk_alloc(smb_request_keys);
     new_request_key -> conversation = conversation->index;
     new_request_key -> mid          = si.mid;
+    new_request_key -> pid          = si.pid;
 
     request_val = g_mem_chunk_alloc(smb_request_vals);
     request_val -> mid = si.mid;
@@ -9698,6 +9730,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
    */
   request_key.conversation = conversation->index;
   request_key.mid          = si.mid;
+  request_key.pid          = si.pid;
 
   request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
 
@@ -9706,6 +9739,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
     new_request_key = g_mem_chunk_alloc(smb_request_keys);
     new_request_key -> conversation = conversation -> index;
     new_request_key -> mid          = si.mid;
+    new_request_key -> pid          = si.pid;
 
     request_val = g_mem_chunk_alloc(smb_request_vals);
     request_val -> mid = si.mid;
