@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.29 2000/04/15 04:10:27 guy Exp $
+# $Id: Makefile.nmake,v 1.30 2000/04/16 08:58:55 guy Exp $
 
 include config.nmake
 
@@ -31,9 +31,11 @@ DISSECTOR_OBJECTS = \
 	packet-cdp.obj   \
 	packet-cgmp.obj  \
 	packet-clip.obj  \
+	packet-clnp.obj  \
 	packet-data.obj  \
 	packet-ddtp.obj  \
 	packet-dns.obj   \
+	packet-esis.obj  \
 	packet-eth.obj   \
 	packet-ethertype.obj   \
 	packet-fddi.obj  \
@@ -79,6 +81,7 @@ DISSECTOR_OBJECTS = \
 	packet-ntp.obj  \
 	packet-null.obj  \
 	packet-osi.obj   \
+	packet-osi-options.obj \
 	packet-ospf.obj  \
 	packet-pim.obj   \
 	packet-pop.obj   \
