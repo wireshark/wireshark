@@ -449,7 +449,7 @@ dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 
 /* this function dissects a BER sequence 
  */
-int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id) {
+int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
 	guint8 class;
 	gboolean pc, ind;
 	guint32 tag;
