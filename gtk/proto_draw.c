@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.33 2001/04/10 12:07:40 gram Exp $
+ * $Id: proto_draw.c,v 1.34 2001/05/27 07:50:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -814,7 +814,7 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   /* Tree view */
   tv_scrollw = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(tv_scrollw),
-    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+    GTK_POLICY_ALWAYS, GTK_POLICY_ALWAYS);
   set_scrollbar_placement_scrollw(tv_scrollw, pos);
   remember_scrolled_window(tv_scrollw);
   gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
