@@ -1253,6 +1253,42 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	return offset;
 }
+/* function to dissect a unidimensional varying array */
+int
+dissect_ndr_uvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		proto_tree *tree, guint8 *drep,
+		dcerpc_dissect_fnct_t *fnct)
+{
+	guint32 i;
+	dcerpc_info *di;
+	int old_offset;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* conformant run, just dissect the max_count header */
+		old_offset=offset;
+		di->conformant_run=0;
+		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_offset, &di->array_offset);
+		di->array_offset_offset=offset-4;
+		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_actual_count, &di->array_actual_count);
+		di->array_actual_count_offset=offset-4;
+		di->conformant_run=1;
+		di->conformant_eaten=offset-old_offset;
+	} else {
+		/* we dont dont remember where  in the bytestream these fields were */
+		proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, di->array_offset_offset, 4, di->array_offset);
+		proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, 4, di->array_actual_count);
+
+		/* real run, dissect the elements */
+		for(i=0;i<di->array_actual_count;i++){
+			offset = (*fnct)(tvb, offset, pinfo, tree, drep);
+		}
+	}
+
+	return offset;
+}
 
 /* Dissect an string of bytes.  This corresponds to
    IDL of the form '[string] byte *foo'.

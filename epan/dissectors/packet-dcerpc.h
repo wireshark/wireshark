@@ -202,6 +202,11 @@ int dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
                         dcerpc_dissect_fnct_t *fnct);
 
+/* dissect a NDR unidimensional varying array */
+int dissect_ndr_uvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, guint8 *drep,
+                        dcerpc_dissect_fnct_t *fnct);
+
 int dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                            proto_tree *tree, guint8 *drep);
 
