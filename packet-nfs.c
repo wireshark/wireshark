@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.6 1999/11/19 13:09:55 gram Exp $
+ * $Id: packet-nfs.c,v 1.7 1999/11/23 17:52:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -223,6 +223,7 @@ const value_string nfs2_mode_names[] = {
 	{	0100000,	"Regular File"	},
 	{	0120000,	"Symbolic Link"	},
 	{	0140000,	"Named Socket"	},
+	{	0000000,	NULL		},
 };
 
 int
