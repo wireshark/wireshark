@@ -86,7 +86,7 @@ dissect_ndr_counted_string(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *parent_tree,
-			       guint8 *drep, int hf_index);
+			       guint8 *drep, int hf_index, int levels);
 
 int
 dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,

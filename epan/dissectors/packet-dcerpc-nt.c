@@ -211,10 +211,10 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree,
-			       guint8 *drep, int hf_index)
+			       guint8 *drep, int hf_index, int levels)
 {
 	return dissect_ndr_counted_byte_array_cb(
-		tvb, offset, pinfo, tree, drep, hf_index, NULL, NULL);
+		tvb, offset, pinfo, tree, drep, hf_index, cb_str_postprocess, GINT_TO_POINTER(2 + levels));
 }
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.

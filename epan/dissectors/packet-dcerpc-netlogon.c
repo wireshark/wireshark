@@ -832,7 +832,7 @@ netlogon_dissect_NETWORK_INFO(tvbuff_t *tvb, int offset,
 		dissect_nt_chal_resp_cb, NULL);
 
 	offset = dissect_ndr_counted_byte_array(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_lm_chal_resp);
+		hf_netlogon_lm_chal_resp, 0);
 
 	return offset;
 }
