@@ -156,7 +156,7 @@ Jason Lango <jal[AT]netapp.com> {
 	RTCP fixes
 }
 
-Johan Feyaerts <Johan.Feyaerts[AT]siemens.atea.be> {
+Johan Feyaerts <Johan.Feyaerts[AT]siemens.com> {
 	RADIUS
 }
 
@@ -737,6 +737,7 @@ Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	UDH dissection in SMPP
 	WTP-over-SMPP and WSP-over-SMPP
 	GSM SMS, CBS and DCS support for the SMPP dissector.
+	Display filter operator: matches (PCRE syntax)
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
