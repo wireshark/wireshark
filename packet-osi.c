@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.32 2000/04/17 00:32:41 guy Exp $
+ * $Id: packet-osi.c,v 1.33 2000/04/17 01:36:31 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -219,28 +219,24 @@ const value_string nlpid_vals[] = {
 	{ 0,                     NULL },
 };
 
+static dissector_table_t subdissector_table;
+
 void dissect_osi(const u_char *pd, int offset, frame_data *fd, 
 		 proto_tree *tree) 
 {
+  /* do lookup with the subdissector table */
+  if (dissector_try_port(subdissector_table, pd[offset], pd, offset, fd, tree))
+      return;
+
   switch (pd[offset]) {
 
     /* ESIS (X.25) is not currently decoded */
 
-    case NLPID_ISO8473_CLNP:
-    case NLPID_NULL:	/* "Inactive Subset" of ISO 8473 CLNP */
-      dissect_clnp(pd, offset, fd, tree);
-      break;
-    case NLPID_ISO9542_ESIS:
-      dissect_esis(pd, offset, fd, tree);
-      break;
     case NLPID_ISO9542X25_ESIS:
       if (check_col(fd, COL_PROTOCOL)) {
 	col_add_str(fd, COL_PROTOCOL, "ESIS (X.25)");
       }
       dissect_data(pd, offset, fd, tree);
-      break;
-    case NLPID_ISO10589_ISIS:
-      dissect_isis(pd, offset, fd, tree);
       break;
     case NLPID_ISO10747_IDRP:
       if (check_col(fd, COL_PROTOCOL)) {
@@ -259,6 +255,15 @@ void dissect_osi(const u_char *pd, int offset, frame_data *fd,
       break;
   }
 } /* dissect_osi */
+
+void
+proto_register_osi(void)
+{
+	/* There's no "OSI" protocol *per se*, but we do register a
+	   dissector table so various protocols running at the
+	   network layer can register themselves. */
+	subdissector_table = register_dissector_table("osinl");
+}
 
 void
 proto_reg_handoff_osi(void)

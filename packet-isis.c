@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.7 2000/04/15 22:11:11 guy Exp $
+ * $Id: packet-isis.c,v 1.8 2000/04/17 01:36:31 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -131,7 +131,7 @@ isis_dissect_unknown(int offset,guint length,proto_tree *tree,frame_data *fd,
  * Output:
  *	void, but we will add to the proto_tree if it is not NULL.
  */
-void
+static void
 dissect_isis(const u_char *pd, int offset, frame_data *fd, 
 		proto_tree *tree) {
 	isis_hdr_t *ihdr;
@@ -308,4 +308,10 @@ proto_register_isis(void) {
     proto_isis = proto_register_protocol(PROTO_STRING_ISIS, "isis");
     proto_register_field_array(proto_isis, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_isis(void)
+{
+    dissector_add("osinl", NLPID_ISO10589_ISIS, dissect_isis);
 }

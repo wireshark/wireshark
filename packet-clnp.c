@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.2 2000/04/16 09:10:53 deniel Exp $
+ * $Id: packet-clnp.c,v 1.3 2000/04/17 01:36:29 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1478,7 +1478,7 @@ void dissect_cotp(const u_char *pd, int offset, frame_data *fd,
  *  CLNP part / main entry point 
 */
 
-void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
+static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 		  proto_tree *tree) 
 {
 
@@ -1767,4 +1767,11 @@ void proto_register_cotp(void)
         proto_cotp = proto_register_protocol(PROTO_STRING_COTP, "cotp");
  /*       proto_register_field_array(proto_cotp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_clnp(void)
+{
+	dissector_add("osinl", NLPID_ISO8473_CLNP, dissect_clnp);
+	dissector_add("osinl", NLPID_NULL, dissect_clnp);	/* Inactive subset */
 }

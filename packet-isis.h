@@ -1,7 +1,7 @@
 /* packet-isis.h
  * Defines and such for core isis protcol decode.
  *
- * $Id: packet-isis.h,v 1.3 2000/04/15 22:11:11 guy Exp $
+ * $Id: packet-isis.h,v 1.4 2000/04/17 01:36:31 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -77,9 +77,6 @@ typedef struct {
  */
 
 extern char *isis_address_to_string ( const u_char *pd, int offset, int len );
-extern void dissect_isis( const u_char *pd, int offset, frame_data *fd,
-                          proto_tree *tree);
-extern void proto_register_isis(void);
 extern void isis_dissect_unknown( int offset, guint length, proto_tree *tree,
                                   frame_data *fd, char *fmat, ...);
 

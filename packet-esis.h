@@ -1,7 +1,7 @@
 /* packet-esis.h
  * Defines and such for ESIS protocol decode.
  *
- * $Id: packet-esis.h,v 1.1 2000/04/15 22:11:09 guy Exp $
+ * $Id: packet-esis.h,v 1.2 2000/04/17 01:36:30 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -60,9 +60,6 @@ typedef struct {
 /*
  * published API functions
  */ 
-extern void dissect_esis(const u_char *pd, int offset, frame_data *fd, 
-                         proto_tree *tree);
-extern void proto_register_esis(void);
 extern void esis_dissect_unknown(int offset,guint length, proto_tree *tree,
                                  frame_data *fd, char *fmat, ...);
 
