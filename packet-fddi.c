@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.1 1998/10/10 03:32:11 gerald Exp $
+ * $Id: packet-fddi.c,v 1.2 1998/10/10 18:23:43 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,10 +27,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <gtk/gtk.h>
@@ -100,7 +96,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree)
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), 0, offset,
 			  "FDDI %s (%d on wire, %d captured)",
-			  (fc == FDDI_FC_LLC_ASYNC_DEF || fc == FDDI_FC_LLC_ASYNC) ?
+			  (fc >= FDDI_FC_LLC_ASYNC_MIN && fc <= FDDI_FC_LLC_ASYNC_MAX) ?
 			  "Async LLC" : "unsupported FC",
 			  fd->pkt_len, fd->cap_len);
 
@@ -121,8 +117,22 @@ void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree)
 
     /* From now, only 802.2 SNAP (Async. LCC frame) is supported */
 
-    case FDDI_FC_LLC_ASYNC     :
-    case FDDI_FC_LLC_ASYNC_DEF :
+    case FDDI_FC_LLC_ASYNC + 0  :
+    case FDDI_FC_LLC_ASYNC + 1  :
+    case FDDI_FC_LLC_ASYNC + 2  :
+    case FDDI_FC_LLC_ASYNC + 3  :
+    case FDDI_FC_LLC_ASYNC + 4  :
+    case FDDI_FC_LLC_ASYNC + 5  :
+    case FDDI_FC_LLC_ASYNC + 6  :
+    case FDDI_FC_LLC_ASYNC + 7  :
+    case FDDI_FC_LLC_ASYNC + 8  :
+    case FDDI_FC_LLC_ASYNC + 9  :
+    case FDDI_FC_LLC_ASYNC + 10 :
+    case FDDI_FC_LLC_ASYNC + 11 :
+    case FDDI_FC_LLC_ASYNC + 12 :
+    case FDDI_FC_LLC_ASYNC + 13 :
+    case FDDI_FC_LLC_ASYNC + 14 :
+    case FDDI_FC_LLC_ASYNC + 15 :
       dissect_llc(pd, offset, fd, tree);
       return;
       

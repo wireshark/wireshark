@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.5 1998/10/10 03:32:12 gerald Exp $
+ * $Id: packet-ip.c,v 1.6 1998/10/10 18:23:42 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,7 +61,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   iph.ip_off = ntohs(iph.ip_off);
   iph.ip_sum = ntohs(iph.ip_sum);
   
-  if (fd->win_info[0]) {
+  if (fd->win_info[COL_NUM]) {
     switch (iph.ip_p) {
       case IP_PROTO_ICMP:
       case IP_PROTO_IGMP:
@@ -71,12 +71,12 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
         /* Names are set in the associated dissect_* routines */
         break;
       default:
-        strcpy(fd->win_info[3], "IP");
-        sprintf(fd->win_info[4], "Unknown IP protocol (%02x)", iph.ip_p);
+        strcpy(fd->win_info[COL_PROTOCOL], "IP");
+        sprintf(fd->win_info[COL_INFO], "Unknown IP protocol (%02x)", iph.ip_p);
     }
 
-    strcpy(fd->win_info[1], get_hostname(iph.ip_src));
-    strcpy(fd->win_info[2], get_hostname(iph.ip_dst));
+    strcpy(fd->win_info[COL_SOURCE], get_hostname(iph.ip_src));
+    strcpy(fd->win_info[COL_DESTINATION], get_hostname(iph.ip_dst));
   }
   
   iph.ip_tos = IPTOS_TOS(iph.ip_tos);
@@ -181,23 +181,24 @@ const gchar *par_str[] = {"IP header bad", "Required option missing"};
 
 void
 dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
-  e_icmp    *ih;
+  e_icmp     ih;
   GtkWidget *icmp_tree, *ti;
   guint16    cksum;
   gchar      type_str[64], code_str[64] = "";
 
-  ih = (e_icmp *) &pd[offset];
+  /* Avoids alignment problems on many architectures. */
+  memcpy(&ih, &pd[offset], sizeof(e_icmp));
   /* To do: check for runts, errs, etc. */
-  cksum = ntohs(ih->icmp_cksum);
+  cksum = ntohs(ih.icmp_cksum);
   
-  switch (ih->icmp_type) {
+  switch (ih.icmp_type) {
     case ICMP_ECHOREPLY:
       strcpy(type_str, "Echo (ping) reply");
       break;
     case ICMP_UNREACH:
       strcpy(type_str, "Destination unreachable");
-      if (ih->icmp_code < 12) {
-        sprintf(code_str, "(%s)", unreach_str[ih->icmp_code]);
+      if (ih.icmp_code < 12) {
+        sprintf(code_str, "(%s)", unreach_str[ih.icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
       }
@@ -207,8 +208,8 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       break;
     case ICMP_REDIRECT:
       strcpy(type_str, "Redirect");
-      if (ih->icmp_code < 4) {
-        sprintf(code_str, "(%s)", redir_str[ih->icmp_code]);
+      if (ih.icmp_code < 4) {
+        sprintf(code_str, "(%s)", redir_str[ih.icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
       }
@@ -218,16 +219,16 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       break;
     case ICMP_TIMXCEED:
       strcpy(type_str, "Time-to-live exceeded");
-      if (ih->icmp_code < 2) {
-        sprintf(code_str, "(%s)", ttl_str[ih->icmp_code]);
+      if (ih.icmp_code < 2) {
+        sprintf(code_str, "(%s)", ttl_str[ih.icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
       }
       break;
     case ICMP_PARAMPROB:
       strcpy(type_str, "Parameter problem");
-      if (ih->icmp_code < 2) {
-        sprintf(code_str, "(%s)", par_str[ih->icmp_code]);
+      if (ih.icmp_code < 2) {
+        sprintf(code_str, "(%s)", par_str[ih.icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
       }
@@ -248,9 +249,9 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       strcpy(type_str, "Unknown ICMP (obsolete or malformed?)");
   }
 
-  if (fd->win_info[0]) {    
-    strcpy(fd->win_info[3], "ICMP");
-    strcpy(fd->win_info[4], type_str);
+  if (fd->win_info[COL_NUM]) {    
+    strcpy(fd->win_info[COL_PROTOCOL], "ICMP");
+    strcpy(fd->win_info[COL_INFO], type_str);
   }
   
   if (tree) {
@@ -259,26 +260,27 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     icmp_tree = gtk_tree_new();
     add_subtree(ti, icmp_tree, ETT_ICMP);
     add_item_to_tree(icmp_tree, offset,      1, "Type: %d (%s)",
-      ih->icmp_type, type_str);
+      ih.icmp_type, type_str);
     add_item_to_tree(icmp_tree, offset +  1, 1, "Code: %d %s",
-      ih->icmp_code, code_str);
+      ih.icmp_code, code_str);
     add_item_to_tree(icmp_tree, offset +  2, 2, "Checksum: 0x%04x",
-      ih->icmp_cksum);
+      ih.icmp_cksum);
   }
 }
 
 void
 dissect_igmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
-  e_igmp    *ih;
+  e_igmp     ih;
   GtkWidget *igmp_tree, *ti;
   guint16    cksum;
   gchar      type_str[64] = "";
 
-  ih = (e_igmp *) &pd[offset];
+  /* Avoids alignment problems on many architectures. */
+  memcpy(&ih, &pd[offset], sizeof(e_igmp));
   /* To do: check for runts, errs, etc. */
-  cksum = ntohs(ih->igmp_cksum);
+  cksum = ntohs(ih.igmp_cksum);
   
-  switch (ih->igmp_t) {
+  switch (ih.igmp_t) {
     case IGMP_M_QRY:
       strcpy(type_str, "Router query");
       break;
@@ -307,8 +309,8 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       strcpy(type_str, "Unknown IGMP");
   }
 
-  if (fd->win_info[0]) {    
-    strcpy(fd->win_info[3], "IGMP");
+  if (fd->win_info[COL_NUM]) {    
+    strcpy(fd->win_info[COL_PROTOCOL], "IGMP");
   }
   
   if (tree) {
@@ -317,14 +319,14 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     igmp_tree = gtk_tree_new();
     add_subtree(ti, igmp_tree, ETT_IGMP);
     add_item_to_tree(igmp_tree, offset,     1, "Version: %d",
-      ih->igmp_v);
+      ih.igmp_v);
     add_item_to_tree(igmp_tree, offset    , 1, "Type: %d (%s)",
-      ih->igmp_t, type_str);
+      ih.igmp_t, type_str);
     add_item_to_tree(igmp_tree, offset + 1, 1, "Unused: 0x%02x",
-      ih->igmp_unused);
+      ih.igmp_unused);
     add_item_to_tree(igmp_tree, offset + 2, 2, "Checksum: 0x%04x",
-      ih->igmp_cksum);
+      ih.igmp_cksum);
     add_item_to_tree(igmp_tree, offset + 4, 4, "Group address: %s",
-      ip_to_str((guint8 *) &ih->igmp_gaddr));
+      ip_to_str((guint8 *) &ih.igmp_gaddr));
   }
 }
