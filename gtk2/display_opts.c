@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.1 2002/08/31 09:55:21 oabad Exp $
+ * $Id: display_opts.c,v 1.2 2002/09/01 09:46:54 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,7 +86,6 @@ static ts_type current_timestamp_type;
 void
 display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   GtkWidget     *button, *main_vb, *bbox, *ok_bt, *apply_bt, *cancel_bt;
-  GtkAccelGroup *accel_group;
 
   if (display_opt_w != NULL) {
     /* There's already a "Display Options" dialog box; reactivate it. */
@@ -109,20 +108,13 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   g_signal_connect(G_OBJECT(display_opt_w), "destroy",
                    G_CALLBACK(display_opt_destroy_cb), NULL);
 
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(display_opt_w), accel_group);
-
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(display_opt_w), main_vb);
   gtk_widget_show(main_vb);
 
-  button = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Time of day",
-							accel_group);
+  button = gtk_radio_button_new_with_mnemonic(NULL, "_Time of day");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == ABSOLUTE));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_ABS_KEY,
@@ -131,9 +123,8 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 
   gtk_widget_show(button);
 
-  button = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
-               "_Date and time of day", accel_group);
+  button = gtk_radio_button_new_with_mnemonic_from_widget(
+               GTK_RADIO_BUTTON(button), "_Date and time of day");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == ABSOLUTE_WITH_DATE));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_DATE_TIME_ABS_KEY,
@@ -141,9 +132,9 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-  button = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
-               "Seconds since _beginning of capture", accel_group);
+  button = gtk_radio_button_new_with_mnemonic_from_widget(
+               GTK_RADIO_BUTTON(button),
+               "Seconds since _beginning of capture");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == RELATIVE));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_REL_KEY,
@@ -151,9 +142,9 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-  button = dlg_radio_button_new_with_label_with_mnemonic(
-               gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
-               "Seconds since _previous frame", accel_group);
+  button = gtk_radio_button_new_with_mnemonic_from_widget(
+               GTK_RADIO_BUTTON(button),
+               "Seconds since _previous frame");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == DELTA));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_DELTA_KEY,
@@ -162,8 +153,8 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_widget_show(button);
 
 #ifdef HAVE_LIBPCAP
-  button = dlg_check_button_new_with_label_with_mnemonic(
-		"_Automatic scrolling in live capture", accel_group);
+  button = gtk_check_button_new_with_mnemonic(
+		"_Automatic scrolling in live capture");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), auto_scroll_live);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_AUTO_SCROLL_KEY,
 		      button);
@@ -171,8 +162,8 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_widget_show(button);
 #endif
 
-  button = dlg_check_button_new_with_label_with_mnemonic(
-  		"Enable _MAC name resolution", accel_group);
+  button = gtk_check_button_new_with_mnemonic(
+  		"Enable _MAC name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
 		g_resolv_flags & RESOLV_MAC);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_M_NAME_RESOLUTION_KEY,
@@ -180,8 +171,8 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-  button = dlg_check_button_new_with_label_with_mnemonic(
-  		"Enable _network name resolution", accel_group);
+  button = gtk_check_button_new_with_mnemonic(
+  		"Enable _network name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
 		g_resolv_flags & RESOLV_NETWORK);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_N_NAME_RESOLUTION_KEY,
@@ -189,8 +180,8 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-  button = dlg_check_button_new_with_label_with_mnemonic(
-  		"Enable _transport name resolution", accel_group);
+  button = gtk_check_button_new_with_mnemonic(
+  		"Enable _transport name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
 		g_resolv_flags & RESOLV_TRANSPORT);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_T_NAME_RESOLUTION_KEY,

@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.1 2002/08/31 09:55:21 oabad Exp $
+ * $Id: dlg_utils.c,v 1.2 2002/09/01 09:46:54 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,63 +105,4 @@ dlg_key_press (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button)
   }
 
   return FALSE;
-}
-
-/* Sigh.  GTK+ appears not to acknowledge that it should be possible
-   to attach mnemonics to anything other than menu items; provide
-   routines to create radio and check buttons with labels that
-   include mnemonics.  */
-typedef struct {
-	GtkWidget *button;
-	GtkAccelGroup *accel_group;
-} fix_label_args_t;
-
-static void
-dlg_fix_label_callback(GtkWidget *label_widget, gpointer data)
-{
-  fix_label_args_t *args = data;
-  gchar *label;
-  guint accel_key;
-
-  gtk_label_get(GTK_LABEL(label_widget), &label);
-  accel_key = gtk_label_parse_uline(GTK_LABEL(label_widget), label);
-  if (accel_key != GDK_VoidSymbol) {
-    /* Yes, we have a mnemonic. */
-    gtk_widget_add_accelerator(args->button, "clicked", args->accel_group,
-				accel_key, 0, GTK_ACCEL_LOCKED);
-    gtk_widget_add_accelerator(args->button, "clicked", args->accel_group,
-				accel_key, GDK_MOD1_MASK, GTK_ACCEL_LOCKED);
-  }
-}
-
-static void
-dlg_fix_button_label(GtkWidget *button, GtkAccelGroup *accel_group)
-{
-  fix_label_args_t args;
-
-  args.button = button;
-  args.accel_group = accel_group;
-  gtk_container_foreach(GTK_CONTAINER(button), dlg_fix_label_callback, &args);
-}
-
-GtkWidget *
-dlg_radio_button_new_with_label_with_mnemonic(GSList *group,
-		const gchar *label, GtkAccelGroup *accel_group)
-{
-  GtkWidget *radio_button;
-
-  radio_button = gtk_radio_button_new_with_label (group, label);
-  dlg_fix_button_label(radio_button, accel_group);
-  return radio_button;
-}
-
-GtkWidget *
-dlg_check_button_new_with_label_with_mnemonic(const gchar *label,
-			GtkAccelGroup *accel_group)
-{
-  GtkWidget *check_button;
-
-  check_button = gtk_check_button_new_with_label (label);
-  dlg_fix_button_label(check_button, accel_group);
-  return check_button;
 }

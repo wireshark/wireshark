@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.3 2002/08/31 11:03:49 jmayer Exp $
+ * $Id: capture_dlg.c,v 1.4 2002/09/01 09:46:54 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,7 +143,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *resolv_fr, *resolv_vb,
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
                 *bbox, *ok_bt, *cancel_bt;
-  GtkAccelGroup *accel_group;
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
                 *count_adj, *filesize_adj, *duration_adj;
   GList         *if_list;
@@ -189,12 +188,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   cap_open_w = dlg_window_new("Ethereal: Capture Options");
   g_signal_connect(G_OBJECT(cap_open_w), "destroy",
                    G_CALLBACK(capture_prep_destroy_cb), NULL);
-
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(cap_open_w), accel_group);
 
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -242,8 +235,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(capture_vb), snap_hb);
   gtk_widget_show(snap_hb);
 
-  snap_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"_Limit each packet to", accel_group);
+  snap_cb = gtk_check_button_new_with_mnemonic("_Limit each packet to");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(snap_cb),
 		capture_opts.has_snaplen);
   g_signal_connect(G_OBJECT(snap_cb), "toggled",
@@ -266,8 +258,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(snap_lb);
 
   /* Promiscuous mode row */
-  promisc_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"Capture packets in _promiscuous mode", accel_group);
+  promisc_cb = gtk_check_button_new_with_mnemonic(
+		"Capture packets in _promiscuous mode");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb),
 		capture_opts.promisc_mode);
   gtk_container_add(GTK_CONTAINER(capture_vb), promisc_cb);
@@ -320,8 +312,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(file_vb), ringbuffer_hb);
   gtk_widget_show(ringbuffer_hb);
 
-  ringbuffer_on_tb = dlg_check_button_new_with_label_with_mnemonic(
-    "Use _ring buffer", accel_group);
+  ringbuffer_on_tb = gtk_check_button_new_with_mnemonic("Use _ring buffer");
   /* Ring buffer mode is allowed only if we're not doing an "Update list of
      packets in real time" capture, so force it off if we're doing such
      a capture. */
@@ -358,8 +349,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(display_vb);
 
   /* "Update display in real time" row */
-  sync_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"_Update list of packets in real time", accel_group);
+  sync_cb = gtk_check_button_new_with_mnemonic(
+		"_Update list of packets in real time");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb),
 		capture_opts.sync_mode);
   g_signal_connect(G_OBJECT(sync_cb), "toggled",
@@ -369,8 +360,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(sync_cb);
 
   /* "Auto-scroll live update" row */
-  auto_scroll_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"_Automatic scrolling in live capture", accel_group);
+  auto_scroll_cb = gtk_check_button_new_with_mnemonic(
+		"_Automatic scrolling in live capture");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
   gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
   gtk_widget_show(auto_scroll_cb);
@@ -474,22 +465,22 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(resolv_fr), resolv_vb);
   gtk_widget_show(resolv_vb);
 
-  m_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"Enable _MAC name resolution", accel_group);
+  m_resolv_cb = gtk_check_button_new_with_mnemonic(
+		"Enable _MAC name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
 		g_resolv_flags & RESOLV_MAC);
   gtk_container_add(GTK_CONTAINER(resolv_vb), m_resolv_cb);
   gtk_widget_show(m_resolv_cb);
 
-  n_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"Enable _network name resolution", accel_group);
+  n_resolv_cb = gtk_check_button_new_with_mnemonic(
+		"Enable _network name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
 		g_resolv_flags & RESOLV_NETWORK);
   gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
   gtk_widget_show(n_resolv_cb);
 
-  t_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		"Enable _transport name resolution", accel_group);
+  t_resolv_cb = gtk_check_button_new_with_mnemonic(
+		"Enable _transport name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
 		g_resolv_flags & RESOLV_TRANSPORT);
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);

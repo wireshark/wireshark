@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.1 2002/08/31 09:55:21 oabad Exp $
+ * $Id: file_dlg.c,v 1.2 2002/09/01 09:46:54 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,7 +76,6 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget	*main_vb, *filter_hbox, *filter_bt, *filter_te,
   		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
-  GtkAccelGroup *accel_group;
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -94,12 +93,6 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   file_open_w = gtk_file_selection_new ("Ethereal: Open Capture File");
   g_signal_connect(G_OBJECT(file_open_w), "destroy",
                    G_CALLBACK(file_open_destroy_cb), NULL);
-
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(file_open_w), accel_group);
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
@@ -132,8 +125,8 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
     E_RFILTER_TE_KEY, filter_te);
 
-  m_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		  "Enable _MAC name resolution", accel_group);
+  m_resolv_cb = gtk_check_button_new_with_mnemonic(
+		  "Enable _MAC name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
 	g_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
@@ -141,8 +134,8 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
 		  E_FILE_M_RESOLVE_KEY, m_resolv_cb);
 
-  n_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		  "Enable _network name resolution", accel_group);
+  n_resolv_cb = gtk_check_button_new_with_mnemonic(
+		  "Enable _network name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
 	g_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
@@ -150,8 +143,8 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
 		  E_FILE_N_RESOLVE_KEY, n_resolv_cb);
 
-  t_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
-		  "Enable _transport name resolution", accel_group);
+  t_resolv_cb = gtk_check_button_new_with_mnemonic(
+		  "Enable _transport name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
 	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
