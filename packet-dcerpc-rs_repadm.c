@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_repadm.idl
  *
- * $Id: packet-dcerpc-rs_repadm.c,v 1.7 2004/01/27 04:15:49 guy Exp $
+ * $Id: packet-dcerpc-rs_repadm.c,v 1.8 2004/06/29 08:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,18 +56,18 @@ static guint16  ver_rs_repadm = 1;
 
 	 
 static dcerpc_sub_dissector rs_repadm_dissectors[] = {
-    { 0, "rs_rep_admin_stop", NULL, NULL},
-    { 1, "rs_rep_admin_maint", NULL, NULL},
-    { 2, "rs_rep_admin_mkey", NULL, NULL},
-    { 3, "rs_rep_admin_info", NULL, NULL},
-    { 4, "rs_rep_admin_info_full", NULL, NULL},
-    { 5, "rs_rep_admin_destroy", NULL, NULL},
-    { 6, "rs_rep_admin_init_replica", NULL, NULL},
-    { 7, "rs_rep_admin_change_master", NULL, NULL},
-    { 8, "rs_rep_admin_become_master", NULL, NULL},
-    { 9, "rs_rep_admin_become_slave", NULL, NULL},
-    { 10, "rs_rep_admin_set_sw_rev", NULL, NULL},
-    { 11, "rs_rep_admin_get_sw_vers_info", NULL, NULL},
+    { 0, "stop", NULL, NULL},
+    { 1, "maint", NULL, NULL},
+    { 2, "mkey", NULL, NULL},
+    { 3, "info", NULL, NULL},
+    { 4, "info_full", NULL, NULL},
+    { 5, "destroy", NULL, NULL},
+    { 6, "init_replica", NULL, NULL},
+    { 7, "change_master", NULL, NULL},
+    { 8, "become_master", NULL, NULL},
+    { 9, "become_slave", NULL, NULL},
+    { 10, "set_sw_rev", NULL, NULL},
+    { 11, "get_sw_vers_info", NULL, NULL},
     { 0, NULL, NULL, NULL }
 };
 

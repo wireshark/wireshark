@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rpriv.idl
  *
- * $Id: packet-dcerpc-rpriv.c,v 1.10 2004/01/27 04:15:48 guy Exp $
+ * $Id: packet-dcerpc-rpriv.c,v 1.11 2004/06/29 08:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,10 +106,10 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector rpriv_dissectors[] = {
-    { 0, "rpriv_get_ptgt", NULL,NULL},
-    { 1, "rpriv_become_delegate", NULL, NULL},
-    { 2, "rpriv_become_impersonator", NULL, NULL},
-    { 3, "rpriv_get_eptgt", rpriv_dissect_get_eptgt_rqst , NULL},
+    { 0, "get_ptgt", NULL,NULL},
+    { 1, "become_delegate", NULL, NULL},
+    { 2, "become_impersonator", NULL, NULL},
+    { 3, "get_eptgt", rpriv_dissect_get_eptgt_rqst , NULL},
     { 0, NULL, NULL, NULL }
 };
 

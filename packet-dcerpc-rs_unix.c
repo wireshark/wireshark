@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_unix.idl
  *
- * $Id: packet-dcerpc-rs_unix.c,v 1.5 2004/01/27 04:15:49 guy Exp $
+ * $Id: packet-dcerpc-rs_unix.c,v 1.6 2004/06/29 08:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,7 +53,7 @@ static guint16  ver_rs_unix = 1;
 
 
 static dcerpc_sub_dissector rs_unix_dissectors[] = {
-    { 0, "rs_unix_getpwents", NULL, NULL },
+    { 0, "getpwents", NULL, NULL },
     { 0, NULL, NULL, NULL },
 };
 

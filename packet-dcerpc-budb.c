@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz bubasics/budb.idl
  *
- * $Id: packet-dcerpc-budb.c,v 1.2 2004/01/27 04:15:48 guy Exp $
+ * $Id: packet-dcerpc-budb.c,v 1.3 2004/06/29 08:20:53 guy Exp $
  *      
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,35 +51,35 @@ static guint16  ver_budb = 4;
 
 
 static dcerpc_sub_dissector budb_dissectors[] = {
-{ 0, "BUDB_AddVolume", NULL, NULL },
-{ 1, "BUDB_CreateDump", NULL, NULL },
-{ 2, "BUDB_DeleteDump", NULL, NULL },
-{ 3, "BUDB_DeleteTape", NULL, NULL },
-{ 4, "BUDB_DeleteVDP", NULL, NULL },
-{ 5, "BUDB_FindClone", NULL, NULL },
-{ 6, "BUDB_FindDump", NULL, NULL },
-{ 7, "BUDB_FindLatestDump", NULL, NULL },
-{ 8, "BUDB_FinishDump", NULL, NULL },
-{ 9, "BUDB_FinishTape", NULL, NULL },
-{ 10, "BUDB_GetDumps", NULL, NULL },
-{ 11, "BUDB_GetTapes", NULL, NULL },
-{ 12, "BUDB_GetVolumes", NULL, NULL },
-{ 13, "BUDB_UseTape", NULL, NULL },
-{ 14, "BUDB_GetText", NULL, NULL },
-{ 15, "BUDB_GetTextVersion", NULL, NULL },
-{ 16, "BUDB_SaveText", NULL, NULL },
-{ 17, "BUDB_FreeAllLocks", NULL, NULL },
-{ 18, "BUDB_FreeLock", NULL, NULL },
-{ 19, "BUDB_GetInstanceId", NULL, NULL },
-{ 20, "BUDB_GetLock", NULL, NULL },
-{ 21, "BUDB_DbVerify", NULL, NULL },
-{ 22, "BUDB_DumpDB", NULL, NULL },
-{ 23, "BUDB_RestoreDbHeader", NULL, NULL },
-{ 24, "BUDB_T_GetVersion", NULL, NULL },
-{ 25, "BUDB_T_DumpHashTable", NULL, NULL },
-{ 26, "BUDB_T_DumpDatabase", NULL, NULL },
-{ 27, "BUDB_GetServerInterfaces", NULL, NULL },
-{ 28, "BUDB_AddVolumes", NULL, NULL },
+{ 0, "AddVolume", NULL, NULL },
+{ 1, "CreateDump", NULL, NULL },
+{ 2, "DeleteDump", NULL, NULL },
+{ 3, "DeleteTape", NULL, NULL },
+{ 4, "DeleteVDP", NULL, NULL },
+{ 5, "FindClone", NULL, NULL },
+{ 6, "FindDump", NULL, NULL },
+{ 7, "FindLatestDump", NULL, NULL },
+{ 8, "FinishDump", NULL, NULL },
+{ 9, "FinishTape", NULL, NULL },
+{ 10, "GetDumps", NULL, NULL },
+{ 11, "GetTapes", NULL, NULL },
+{ 12, "GetVolumes", NULL, NULL },
+{ 13, "UseTape", NULL, NULL },
+{ 14, "GetText", NULL, NULL },
+{ 15, "GetTextVersion", NULL, NULL },
+{ 16, "SaveText", NULL, NULL },
+{ 17, "FreeAllLocks", NULL, NULL },
+{ 18, "FreeLock", NULL, NULL },
+{ 19, "GetInstanceId", NULL, NULL },
+{ 20, "GetLock", NULL, NULL },
+{ 21, "DbVerify", NULL, NULL },
+{ 22, "DumpDB", NULL, NULL },
+{ 23, "RestoreDbHeader", NULL, NULL },
+{ 24, "T_GetVersion", NULL, NULL },
+{ 25, "T_DumpHashTable", NULL, NULL },
+{ 26, "T_DumpDatabase", NULL, NULL },
+{ 27, "GetServerInterfaces", NULL, NULL },
+{ 28, "AddVolumes", NULL, NULL },
 	{ 0, NULL, NULL, NULL }
 };
 

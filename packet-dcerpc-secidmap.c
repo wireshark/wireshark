@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rsecidmap.idl
  *      
- * $Id: packet-dcerpc-secidmap.c,v 1.5 2004/01/27 04:15:49 guy Exp $
+ * $Id: packet-dcerpc-secidmap.c,v 1.6 2004/06/29 08:20:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,11 +53,12 @@ static guint16  ver_secidmap = 1;
 
 
 static dcerpc_sub_dissector secidmap_dissectors[] = {
-	{ 0, "ParseNameRedbox", NULL, NULL},
-	{ 1, "GenNameBluebox", NULL, NULL},
-	{ 2, "AvoidCnBug", NULL, NULL},
-	{ 3, "ParseNameCache", NULL, NULL},
-	{ 4, "GenNameCache", NULL, NULL},
+        { 0, "parse_name", NULL, NULL},
+        { 1, "gen_name", NULL, NULL},
+        { 2, "avoid_cn_bug", NULL, NULL},
+        { 3, "parse_name_cache", NULL, NULL},
+        { 4, "gen_name_cache", NULL, NULL},
+ 
         { 0, NULL, NULL, NULL },
 };
 

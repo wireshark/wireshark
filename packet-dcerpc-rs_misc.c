@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_misc.idl
  *      
- * $Id: packet-dcerpc-rs_misc.c,v 1.8 2004/01/27 04:15:48 guy Exp $
+ * $Id: packet-dcerpc-rs_misc.c,v 1.9 2004/06/29 08:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,9 +91,9 @@ rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector rs_misc_dissectors[] = {
-	{ 0, "rs_login_get_info", rs_misc_dissect_login_get_info_rqst, NULL},
-	{ 1, "rs_wait_until_consistent", NULL, NULL},
-	{ 2, "rs_check_consistency", NULL, NULL},
+	{ 0, "login_get_info", rs_misc_dissect_login_get_info_rqst, NULL},
+	{ 1, "wait_until_consistent", NULL, NULL},
+	{ 2, "check_consistency", NULL, NULL},
 	{ 0, NULL, NULL, NULL }
 };
 

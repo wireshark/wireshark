@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_acct.idl
  *      
- * $Id: packet-dcerpc-rs_acct.c,v 1.8 2004/01/27 04:15:48 guy Exp $
+ * $Id: packet-dcerpc-rs_acct.c,v 1.9 2004/06/29 08:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,12 +121,12 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector rs_acct_dissectors[] = {
-        { 0, "rs_acct_add", NULL, NULL},
-        { 1, "rs_acct_delete", NULL, NULL},
-        { 2, "rs_acct_rename", NULL, NULL},
-        { 3, "rs_acct_lookup", rs_acct_dissect_lookup_rqst, NULL},
-        { 4, "rs_acct_replace", NULL, NULL},
-        { 5, "rs_acct_get_projlist", rs_acct_dissect_get_projlist_rqst, NULL},
+        { 0, "add", NULL, NULL},
+        { 1, "delete", NULL, NULL},
+        { 2, "rename", NULL, NULL},
+        { 3, "lookup", rs_acct_dissect_lookup_rqst, NULL},
+        { 4, "replace", NULL, NULL},
+        { 5, "get_projlist", rs_acct_dissect_get_projlist_rqst, NULL},
         { 0, NULL, NULL, NULL }
 };
 
