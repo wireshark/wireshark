@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.12 2004/06/04 00:05:56 tpot Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.13 2004/06/04 00:15:55 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,6 +172,9 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, vo
 	if (!dcerpc_smb_fetch_pol(old_ctx, &pol_name, NULL, NULL, ri->call_data->req_frame)) {
 		return 0;
 	}
+
+	if (!pol_name)
+		return 0;
 
 	sid=strstr(pol_name,"S-1-5");
 	if(!sid){
