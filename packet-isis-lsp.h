@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.17 2003/04/03 05:22:11 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.18 2003/11/19 09:58:37 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -39,10 +39,10 @@
 #define ISIS_LSP_ATT_SHIFT    3
 #define ISIS_LSP_ATT(info)    (((info) & ISIS_LSP_ATT_MASK) >> ISIS_LSP_ATT_SHIFT)
 
-#define ISIS_LSP_ATT_DEFAULT(info)    ((info) >> 3)
-#define ISIS_LSP_ATT_DELAY(info)      (((info) >> 2) & 1)
-#define ISIS_LSP_ATT_EXPENSE(info)    (((info) >> 1) & 1)
-#define ISIS_LSP_ATT_ERROR(info)      ((info) & 1)
+#define ISIS_LSP_ATT_ERROR(info)   ((info) >> 3)
+#define ISIS_LSP_ATT_EXPENSE(info) (((info) >> 2) & 1)
+#define ISIS_LSP_ATT_DELAY(info)   (((info) >> 1) & 1)
+#define ISIS_LSP_ATT_DEFAULT(info) ((info) & 1)
 
 #define ISIS_LSP_HIPPITY_MASK     0x04
 #define ISIS_LSP_HIPPITY_SHIFT    2

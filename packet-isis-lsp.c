@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.44 2003/05/28 22:39:14 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.45 2003/11/19 09:58:37 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -1867,13 +1867,13 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 		att_tree = proto_item_add_subtree(ta, ett_isis_lsp_att);
 		lsp_att = ISIS_LSP_ATT(lsp_info);
 		proto_tree_add_text(att_tree, tvb, offset, 1,
-			  "%d... = Default metric: %s", ISIS_LSP_ATT_DEFAULT(lsp_att), ISIS_LSP_ATT_DEFAULT(lsp_att) ? "Set" : "Unset");
+			  "%d... = Error metric: %s", ISIS_LSP_ATT_ERROR(lsp_att), ISIS_LSP_ATT_ERROR(lsp_att) ? "Set" : "Unset");
 		proto_tree_add_text(att_tree, tvb, offset, 1,
-			  ".%d.. = Delay metric: %s", ISIS_LSP_ATT_DELAY(lsp_att), ISIS_LSP_ATT_DELAY(lsp_att) ? "Set" : "Unset");
+			  ".%d.. = Expense metric: %s", ISIS_LSP_ATT_EXPENSE(lsp_att), ISIS_LSP_ATT_EXPENSE(lsp_att) ? "Set" : "Unset");
 		proto_tree_add_text(att_tree, tvb, offset, 1,
-			  "..%d. = Expense metric: %s", ISIS_LSP_ATT_EXPENSE(lsp_att), ISIS_LSP_ATT_EXPENSE(lsp_att) ? "Set" : "Unset");
+			  "..%d. = Delay metric: %s", ISIS_LSP_ATT_DELAY(lsp_att), ISIS_LSP_ATT_DELAY(lsp_att) ? "Set" : "Unset");
 		proto_tree_add_text(att_tree, tvb, offset, 1,
-			  "...%d = Error metric: %s", ISIS_LSP_ATT_ERROR(lsp_att), ISIS_LSP_ATT_ERROR(lsp_att) ? "Set" : "Unset");
+			  "...%d = Default metric: %s", ISIS_LSP_ATT_DEFAULT(lsp_att), ISIS_LSP_ATT_DEFAULT(lsp_att) ? "Set" : "Unset");
 		proto_tree_add_boolean(info_tree, hf_isis_lsp_hippity, tvb, offset, 1, lsp_info);
 		proto_tree_add_uint(info_tree, hf_isis_lsp_is_type, tvb, offset, 1, lsp_info);
 	}
