@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.1 1999/11/10 17:23:53 nneul Exp $
+ * $Id: packet-bootparams.c,v 1.2 1999/11/10 21:05:09 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -53,7 +53,7 @@ const vsff bootparams1_proc[] = {
 void
 proto_register_bootparams(void)
 {
-	proto_bootparams = proto_register_protocol("Boot Parameters", "BOOTPARAMS");
+	proto_bootparams = proto_register_protocol("Boot Parameters", "bootparams");
 
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ETT_BOOTPARAMS);

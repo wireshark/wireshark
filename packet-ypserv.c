@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.1 1999/11/10 17:23:54 nneul Exp $
+ * $Id: packet-ypserv.c,v 1.2 1999/11/10 21:05:11 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -79,7 +79,7 @@ const vsff ypserv2_proc[] = {
 void
 proto_register_ypserv(void)
 {
-	proto_ypserv = proto_register_protocol("Yellow Pages Service", "YPSERV");
+	proto_ypserv = proto_register_protocol("Yellow Pages Service", "ypserv");
 
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ETT_YPSERV);

@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.1 1999/11/10 17:23:53 nneul Exp $
+ * $Id: packet-portmap.c,v 1.2 1999/11/10 21:05:09 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -67,7 +67,7 @@ const vsff portmap2_proc[] = {
 void
 proto_register_portmap(void)
 {
-	proto_portmap = proto_register_protocol("Portmap", "PORTMAP");
+	proto_portmap = proto_register_protocol("Portmap", "portmap");
 
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ETT_PORTMAP);
