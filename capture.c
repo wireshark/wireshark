@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.211 2003/09/15 23:48:42 guy Exp $
+ * $Id: capture.c,v 1.212 2003/10/11 21:49:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,6 +132,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/dfilter/dfilter.h>
 #include "file.h"
 #include "capture.h"
 #include "util.h"
@@ -1619,8 +1620,19 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       netmask = 0;
     }
     if (pcap_compile(pch, &fcode, cfile.cfilter, 1, netmask) < 0) {
-      snprintf(errmsg, sizeof errmsg, "Unable to parse filter string (%s).",
-	pcap_geterr(pch));
+      dfilter_t   *rfcode = NULL;
+      if (dfilter_compile(cfile.cfilter, &rfcode)) {
+        snprintf(errmsg, sizeof errmsg,
+          "Unable to parse capture filter string (%s).\n"
+          "  Interestingly enough, this looks like a valid display filter\n"
+          "  Are you sure you didn't mix them up?",
+          pcap_geterr(pch));
+	dfilter_free(rfcode);
+      } else {
+        snprintf(errmsg, sizeof errmsg,
+          "Unable to parse capture filter string (%s).",
+          pcap_geterr(pch));
+      }
       goto error;
     }
     if (pcap_setfilter(pch, &fcode) < 0) {
