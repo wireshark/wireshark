@@ -2,7 +2,7 @@
  * Routines for QLLC protocol - Qualified? LLC
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-qllc.c,v 1.7 2002/08/28 21:00:26 jmayer Exp $
+ * $Id: packet-qllc.c,v 1.8 2003/01/06 02:24:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,12 +30,13 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-
 static int proto_qllc = -1;
 static int hf_qllc_address = -1;
 static int hf_qllc_control = -1;
 
 static gint ett_qllc = -1;
+
+static dissector_handle_t sna_handle;
 
 #define QSM                 0x93
 #define QDISC               0x53
@@ -75,29 +76,36 @@ static const value_string qllc_control_vals[] = {
 static void
 dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*qllc_tree = NULL;
-	proto_item	*qllc_ti = NULL;
-    guint8      address, ctrl;
-    gboolean    command = FALSE;
+    proto_tree	*qllc_tree = NULL;
+    proto_item	*qllc_ti = NULL;
+    gboolean	*q_bit_set = pinfo->private_data;
+    guint8	address, ctrl;
+    gboolean	command = FALSE;
 
-	/* Summary information */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "QLLC");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+    /*
+     * If the Q bit isn't set, this is just SNA data.
+     */
+    if (!(*q_bit_set)) {
+	call_dissector(sna_handle, tvb, pinfo, tree);
+	return;
+    }
 
-	if (tree) {
-		qllc_ti = proto_tree_add_item(tree, proto_qllc, tvb, 0, -1,
-		    FALSE);
-		qllc_tree = proto_item_add_subtree(qllc_ti, ett_qllc);
+    /* Summary information */
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QLLC");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
+    if (tree) {
+	qllc_ti = proto_tree_add_item(tree, proto_qllc, tvb, 0, -1, FALSE);
+	qllc_tree = proto_item_add_subtree(qllc_ti, ett_qllc);
     }
 
     /* Get the address; we need it to determine if this is a
      * COMMAND or a RESPONSE */
     address = tvb_get_guint8(tvb, 0);
     if (tree) {
-		proto_tree_add_item(qllc_tree, hf_qllc_address, tvb, 0, 1, FALSE);
+	proto_tree_add_item(qllc_tree, hf_qllc_address, tvb, 0, 1, FALSE);
     }
 
     /* The address field equals X'FF' in commands (except QRR)
@@ -155,22 +163,19 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (ctrl == QXID || ctrl == QTEST || ctrl == QFRMR) {
         /* yes */
     }
-
 }
-
 
 void
 proto_register_qllc(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_qllc_address,
+	    { &hf_qllc_address,
 		{ "Address Field",	"qllc.address", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_qllc_control,
 		{ "Control Field",	"qllc.control", FT_UINT8, BASE_HEX,
-            VALS(qllc_control_vals), 0x0, "", HFILL }},
-
+		  VALS(qllc_control_vals), 0x0, "", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -184,3 +189,8 @@ proto_register_qllc(void)
 	register_dissector("qllc", dissect_qllc, proto_qllc);
 }
 
+void
+proto_reg_handoff_qllc(void)
+{
+	sna_handle = find_dissector("sna");
+}

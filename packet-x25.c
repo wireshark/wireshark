@@ -1,8 +1,8 @@
 /* packet-x25.c
- * Routines for x25 packet disassembly
+ * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.71 2002/11/08 01:00:04 guy Exp $
+ * $Id: packet-x25.c,v 1.72 2003/01/06 02:24:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,13 +160,13 @@ static const value_string vals_x25_type[] = {
 };
 
 static dissector_handle_t ip_handle;
+static dissector_handle_t clnp_handle;
 static dissector_handle_t ositp_handle;
-static dissector_handle_t sna_handle;
 static dissector_handle_t qllc_handle;
 static dissector_handle_t data_handle;
 
 /* Preferences */
-static gboolean non_q_bit_is_sna = FALSE;
+static gboolean payload_is_qllc_sna = FALSE;
 
 static dissector_table_t x25_subdissector_table;
 static heur_dissector_list_t x25_heur_subdissector_list;
@@ -1406,6 +1406,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     char *short_name = NULL, *long_name = NULL;
     tvbuff_t *next_tvb;
     gboolean q_bit_set = FALSE;
+    void *saved_private_data;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.25");
@@ -1433,6 +1434,10 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     pkt_type = tvb_get_guint8(tvb, 2);
+    if ((pkt_type & 0x01) == X25_DATA) {
+	if (bytes0_1 & 0x8000)
+	    q_bit_set = TRUE;
+    }
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_x25, tvb, 0, x25_pkt_len, FALSE);
@@ -1443,9 +1448,6 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if ((pkt_type & 0x01) == X25_DATA) {
             proto_tree_add_boolean(gfi_tree, hf_x25_qbit, tvb, 0, 2,
                 bytes0_1);
-            if (bytes0_1 & 0x8000) {
-                q_bit_set = TRUE;
-            }
         }
         else if (pkt_type == X25_CALL_REQUEST ||
             pkt_type == X25_CALL_ACCEPTED ||
@@ -1676,7 +1678,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case PRT_ID_ISO_8073:
 		    /* ISO 8073 COTP */
 		    x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
-		    /* XXX - disssect the rest of the user data as COTP?
+		    /* XXX - dissect the rest of the user data as COTP?
 		       That needs support for NCM TPDUs, etc. */
 		    break;
 
@@ -1698,10 +1700,12 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		localoffset++;
 
 		/*
-		 * What's the dissector handle for this SPI?
+		 * Is there a dissector handle for this SPI?
+		 * If so, assign it to this virtual circuit.
 		 */
 		dissect = dissector_get_port_handle(x25_subdissector_table, spi);
-		x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
+		if (dissect != NULL)
+		    x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
 	    }
 	    if (localoffset < tvb_length(tvb)) {
 		if (userdata_tree) {
@@ -2118,40 +2122,53 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     next_tvb = tvb_new_subset(tvb, localoffset, -1, -1);
 
-    /* QLLC ? */
-    if (q_bit_set) {
-        call_dissector(qllc_handle, next_tvb, pinfo, tree);
-        return;
-    }
+    saved_private_data = pinfo->private_data;
+    pinfo->private_data = &q_bit_set;
 
     /* See if there's already a dissector for this circuit. */
-    if (try_circuit_dissector(CT_X25, vc, pinfo->fd->num, next_tvb, pinfo, tree))
-        return;	/* found it and dissected it */
+    if (try_circuit_dissector(CT_X25, vc, pinfo->fd->num, next_tvb, pinfo,
+			      tree)) {
+	pinfo->private_data = saved_private_data;
+	return;	/* found it and dissected it */
+    }
 
-    /* Did the user suggest SNA-over-X.25? */
-    if (non_q_bit_is_sna) {
-        /* Yes - dissect it as SNA. */
-	x25_hash_add_proto_start(vc, pinfo->fd->num, sna_handle);
-	call_dissector(sna_handle, next_tvb, pinfo, tree);
+    /* Did the user suggest QLLC/SNA? */
+    if (payload_is_qllc_sna) {
+	/* Yes - dissect it as QLLC/SNA. */
+	x25_hash_add_proto_start(vc, pinfo->fd->num, qllc_handle);
+	call_dissector(qllc_handle, next_tvb, pinfo, tree);
+	pinfo->private_data = saved_private_data;
 	return;
     }
 
-    /* If the Call Req. has not been captured, and the payload begins
-       with what appears to be an IP header, assume these packets carry
-       IP */
-    if (tvb_get_guint8(tvb, localoffset) == 0x45) {
+    /* If the Call Req. has not been captured, let's look at the first
+       byte of the payload to see if this looks like IP or CLNP. */
+    switch (tvb_get_guint8(tvb, localoffset)) {
+
+    case 0x45:
+	/* Looks like an IP header */
 	x25_hash_add_proto_start(vc, pinfo->fd->num, ip_handle);
 	call_dissector(ip_handle, next_tvb, pinfo, tree);
+	pinfo->private_data = saved_private_data;
+	return;
+
+    case NLPID_ISO8473_CLNP:
+	x25_hash_add_proto_start(vc, pinfo->fd->num, clnp_handle);
+	call_dissector(clnp_handle, next_tvb, pinfo, tree);
+	pinfo->private_data = saved_private_data;
 	return;
     }
 
     /* Try the heuristic dissectors. */
     if (dissector_try_heuristic(x25_heur_subdissector_list, next_tvb, pinfo,
-				tree))
+				tree)) {
+	pinfo->private_data = saved_private_data;
 	return;
+    }
 
     /* All else failed; dissect it as raw data */
     call_dissector(data_handle, next_tvb, pinfo, tree);
+    pinfo->private_data = saved_private_data;
 }
 
 /*
@@ -2264,9 +2281,11 @@ proto_register_x25(void)
 
     /* Preferences */
     x25_module = prefs_register_protocol(proto_x25, NULL);
-    prefs_register_bool_preference(x25_module, "non_q_bit_is_sna",
-            "When Q-bit is 0, payload is SNA", "When Q-bit is 0, payload is SNA",
-            &non_q_bit_is_sna);
+    prefs_register_obsolete_preference(x25_module, "non_q_bit_is_sna");
+    prefs_register_bool_preference(x25_module, "payload_is_qllc_sna",
+            "Default to QLLC/SNA",
+            "If CALL REQUEST not seen or didn't specify protocol, dissect as QLLC/SNA",
+            &payload_is_qllc_sna);
 }
 
 void
@@ -2278,8 +2297,8 @@ proto_reg_handoff_x25(void)
      * Get handles for various dissectors.
      */
     ip_handle = find_dissector("ip");
+    clnp_handle = find_dissector("clnp");
     ositp_handle = find_dissector("ositp");
-    sna_handle = find_dissector("sna");
     qllc_handle = find_dissector("qllc");
     data_handle = find_dissector("data");
 
