@@ -1,8 +1,8 @@
-/* packet-rlogin.c
+/* packet-msproxy.c
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.9 2000/08/13 14:08:29 deniel Exp $
+ * $Id: packet-msproxy.c,v 1.10 2000/08/20 19:40:47 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
