@@ -768,9 +768,13 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		# libraries on various platforms, such as "-ldes425"
 		# in "/usr/kerberos/lib" on some versions of Red
 		# Hat Linux, or "-lkstat" on Solaris.
-		# XXX - it may also require "-lcrypto" on some platforms;
-		# we should check for that as well, rather than requiring
-		# users to explicitly indicate whether it's required.
+		#
+		# It might also require "-lcrypto" on some platforms;
+		# if the user didn't specify --with-ssl, we check
+		# whether it would have made a difference and, if so,
+		# we tell the user that they needed to request it.
+		# (There are annoying licensing issues with it and
+		# GPL'ed code, so we don't include it by default.)
 		#
 		# XXX - autoconf really needs a way to test for
 		# a given routine in a given library *and* to test
@@ -791,27 +795,40 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 				sprint_realloc_objid();
 			],
 			[
+				#
+				# We found "sprint_realloc_objid()",
+				# and required the libraries in
+				# extras as well.
+				#
 				SNMP_LIBS="-lsnmp $extras"; break;
 			],
 			[
+				#
+				# The link failed.  If they didn't ask
+				# for SSL, try linking with -lcrypto
+				# as well, and if *that* succeeds,
+				# tell them they'll need to specify
+				# --want-ssl.
+				#
+				if test "x$want_ssl" = "xno"
+				then
+					LIBS="$LIBS -lcrypto"
+					AC_TRY_LINK(
+					    [
+					    ],
+					    [
+						sprint_realloc_objid();
+					    ],
+					    [
+						#
+						# It worked with -lcrypto; tell
+						# them they'll need to specify
+						# --with-ssl.
+						#
+						AC_MSG_ERROR([UCD SNMP requires -lcrypto but --with-ssl not specified])
+					    ])
+				fi
 			])
-			
-#        int sprint_realloc_objid(u_char **buf, size_t *buf_len, size_t *out_len, int allow_realloc, const oid *objid, size_t objidlen);
-#        AC_TRY_LINK(includes, body, [if-found], [if-not-found])
-#			AC_CHECK_LIB(snmp, sprint_realloc_objid,
-#			  [
-#				SNMP_LIBS="-lsnmp $extras"; break
-#			  ],
-#			  [
-#				#
-#				# Throw away the cached "we didn't find it"
-#				# answer, so that if we rerun "configure",
-#				# we still do all these checks and don't
-#				# just blithely assume we don't need
-#				# the extra libraries.
-#				#
-#				unset ac_cv_lib_snmp_sprint_realloc_objid
-#			  ], $SOCKET_LIBS $NSL_LIBS $SSL_LIBS $extras)
 		done
 		LIBS=$ac_save_LIBS
 
@@ -840,59 +857,6 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 			AC_MSG_ERROR(Header file ucd-snmp/snmp.h not found.)
 		fi
 	])
-])
-
-#
-# AC_ETHEREAL_SSL_CHECK
-#
-AC_DEFUN([AC_ETHEREAL_SSL_CHECK],
-[
-	want_ssl=defaultno
-
-	AC_ARG_WITH(ssl,
-changequote(<<, >>)dnl
-<<  --with-ssl[=DIR]        use SSL crypto library (located in directory DIR, if supplied).   [default=no]>>,
-changequote([, ])dnl
-	[
-	if   test "x$withval" = "xno";  then
-		want_ssl=no
-	elif test "x$withval" = "xyes"; then
-		want_ssl=yes
-	elif test -d "$withval"; then
-		want_ssl=yes
-		AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
-	fi
-	])
-
-	if test "x$want_ssl" = "xdefaultyes"; then
-		want_ssl=yes
-		withval=/usr/local/ssl
-		if test -d "$withval"; then
-			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
-		fi
-	fi
-
-	if test "x$want_ssl" = "xyes"; then
-	    LIBS="-lcrypto"
-            AC_TRY_LINK(
-                [
-		void EVP_md5();
-                ],
-                [
-        	EVP_md5();
-                ],
-                [
-		AC_MSG_RESULT([yes])
-		SSL_LIBS=-lcrypto
-                ],
-                [
-                AC_MSG_RESULT([no])
-                AC_MSG_ERROR([libcrypto failed link test.])
-                ])
-
-	else
-		AC_MSG_RESULT(not required)
-	fi
 ])
 
 #

@@ -744,13 +744,35 @@ AC_CHECK_HEADERS(iconv.h)
 
 dnl SSL Check
 SSL_LIBS=''
-AC_MSG_CHECKING(whether to use SSL library if available)
-if test "x$enable_ssl" = "xno" ; then
-	AC_MSG_RESULT(no)
-else
+AC_MSG_CHECKING(whether to use SSL library)
+
+AC_ARG_WITH(ssl,
+changequote(<<, >>)dnl
+<<  --with-ssl[=DIR]        use SSL crypto library (located in directory DIR, if supplied).   [default=no]>>,
+changequote([, ])dnl
+[
+if test "x$withval" = "xno";  then
+	want_ssl=no
+elif test "x$withval" = "xyes"; then
+	want_ssl=yes
+elif test -d "$withval"; then
+	want_ssl=yes
+	AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+fi
+],[
+	want_ssl=no
+])
+if test "x$want_ssl" = "xyes"; then
 	AC_MSG_RESULT(yes)
-	AC_MSG_CHECKING(whether SSL library is available)
-	AC_ETHEREAL_SSL_CHECK
+	AC_CHECK_LIB(crypto,EVP_md5,
+	    [
+		SSL_LIBS=-lcrypto
+	    ],
+	    [
+                AC_MSG_ERROR([SSL crypto library was requested, but is not available])
+	    ])
+else
+	AC_MSG_RESULT(no)
 fi
 AC_SUBST(SSL_LIBS)
 
@@ -1253,6 +1275,12 @@ else
 	pcre_message="yes"
 fi
 
+if test "x$want_ssl" = "xno" ; then
+	ssl_message="no"
+else
+	ssl_message="yes"
+fi
+
 if test "x$want_krb5" = "xno" ; then
 	krb5_message="no"
 else
@@ -1297,5 +1325,6 @@ echo "                  Use zlib library : $zlib_message"
 echo "                  Use pcre library : $pcre_message"
 echo "              Use kerberos library : $krb5_message"
 echo "              Use GNU ADNS library : $adns_message"
+echo "            Use SSL crypto library : $ssl_message"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "     Use UCD SNMP/NET-SNMP library : $snmp_libs_message"
