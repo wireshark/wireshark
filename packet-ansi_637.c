@@ -9,7 +9,7 @@
  *   Short Message Service
  *			3GPP2 C.S0015-0		TIA/EIA-637-A
  *
- * $Id: packet-ansi_637.c,v 1.4 2003/12/08 23:40:12 guy Exp $
+ * $Id: packet-ansi_637.c,v 1.5 2003/12/09 00:52:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -583,10 +583,10 @@ tele_param_pri_ind(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     switch ((oct & 0xc0) >> 6)
     {
-    case 0x00: str = "Normal"; break;
-    case 0x01: str = "Interactive"; break;
-    case 0x10: str = "Urgent"; break;
-    case 0x11: str = "Emergency"; break;
+    case 0: str = "Normal"; break;
+    case 1: str = "Interactive"; break;
+    case 2: str = "Urgent"; break;
+    case 3: str = "Emergency"; break;
     }
 
     other_decode_bitfield_value(ansi_637_bigbuf, oct, 0xc0, 8);
@@ -880,10 +880,10 @@ tele_param_disp_mode(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     switch ((oct & 0xc0) >> 6)
     {
-    case 0x00: str = "Immediate Display: The mobile station is to display the received message as soon as possible."; break;
-    case 0x01: str = "Mobile default setting: The mobile station is to display the received message based on a pre-defined mode in the mobile station."; break;
-    case 0x10: str = "User Invoke: The mobile station is to display the received message based on the mode selected by the user."; break;
-    case 0x11: str = "Reserved"; break;
+    case 0: str = "Immediate Display: The mobile station is to display the received message as soon as possible."; break;
+    case 1: str = "Mobile default setting: The mobile station is to display the received message based on a pre-defined mode in the mobile station."; break;
+    case 2: str = "User Invoke: The mobile station is to display the received message based on the mode selected by the user."; break;
+    case 3: str = "Reserved"; break;
     }
 
     other_decode_bitfield_value(ansi_637_bigbuf, oct, 0xc0, 8);
