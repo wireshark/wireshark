@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.48 2002/09/28 23:31:39 gerald Exp $
+ * $Id: packet-q931.c,v 1.49 2002/11/09 08:09:18 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -55,6 +55,7 @@
 static int proto_q931 = -1;
 static int hf_q931_discriminator = -1;
 static int hf_q931_call_ref_len = -1;
+static int hf_q931_call_ref_flag = -1;
 static int hf_q931_call_ref = -1;
 static int hf_q931_message_type = -1;
 
@@ -141,6 +142,11 @@ static const value_string q931_message_type_vals[] = {
 	{ Q931_STATUS,			"STATUS" },
 	{ Q931_STATUS_ENQUIRY,		"STATUS ENQUIRY" },
 	{ 0,				NULL }
+};
+
+static const true_false_string tfs_call_ref_flag = {
+	"Message sent to originating side",
+	"Message sent from originating side"
 };
 
 /*
@@ -2132,10 +2138,14 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(q931_tree, hf_q931_call_ref_len, tvb, offset, 1, call_ref_len);
 	offset += 1;
 	if (call_ref_len != 0) {
-		/* XXX - split this into flag and value */
 		tvb_memcpy(tvb, call_ref, offset, call_ref_len);
-		if (q931_tree != NULL)
-			proto_tree_add_bytes(q931_tree, hf_q931_call_ref, tvb, offset, call_ref_len, call_ref);
+		if (q931_tree != NULL) {
+			proto_tree_add_boolean(q931_tree, hf_q931_call_ref_flag,
+			    tvb, offset, 1, (call_ref[0] & 0x80) != 0);
+			call_ref[0] &= 0x7F;
+			proto_tree_add_bytes(q931_tree, hf_q931_call_ref,
+			    tvb, offset, call_ref_len, call_ref);
+		}
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
@@ -2588,6 +2598,10 @@ proto_register_q931(void)
 
 		{ &hf_q931_call_ref_len,
 		  { "Call reference value length", "q931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+		  	"", HFILL }},
+
+		{ &hf_q931_call_ref_flag,
+		  { "Call reference flag", "q931.call_ref_flag", FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
 		  	"", HFILL }},
 
 		{ &hf_q931_call_ref,
