@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.13 2002/10/16 16:32:59 gram Exp $
+ * $Id: dfilter.c,v 1.14 2002/12/02 23:28:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,7 +188,7 @@ dfwork_free(dfwork_t *dfw)
 
 
 gboolean
-dfilter_compile(gchar *text, dfilter_t **dfp)
+dfilter_compile(const gchar *text, dfilter_t **dfp)
 {
 	int		token;
 	dfilter_t	*dfilter;

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.h,v 1.7 2002/09/09 21:04:15 guy Exp $
+ * $Id: dfilter.h,v 1.8 2002/12/02 23:28:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,7 +56,7 @@ dfilter_cleanup(void);
  * Returns TRUE on success, FALSE on failure.
  */
 gboolean
-dfilter_compile(gchar *text, dfilter_t **dfp);
+dfilter_compile(const gchar *text, dfilter_t **dfp);
 
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */
