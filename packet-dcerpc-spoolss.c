@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.6 2002/03/20 09:09:07 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.7 2002/03/22 10:03:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -742,6 +742,12 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 					  prs_UNISTR2_dp, (void **)&key_name,
 					  NULL);
 
+	/*
+	 * Register a cleanup function in case on of our tvbuff accesses
+	 * throws an exception. We need to clean up key_name.
+	 */
+	CLEANUP_PUSH(g_free, key_name);
+
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 					  prs_UNISTR2_dp, (void **)&value_name,
 					  NULL);
@@ -750,7 +756,15 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s", 
 				key_name, value_name);
 
-	g_free(key_name);
+	/*
+	 * We're done with key_name, so we can call the cleanup handler to
+	 * free it, and then pop the cleanup handler.
+	 */
+	CLEANUP_CALL_AND_POP;
+
+	/*
+	 * We're also done with value_name.
+	 */
 	g_free(value_name);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Size");
@@ -1975,7 +1989,6 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	GList *dp_list = NULL;
 	void **data_list;
 	struct BUFFER_DATA *bd = NULL;
-	guint8 *data8;
 
 	/* Update informational fields */
 
@@ -1991,8 +2004,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_BUFFER, (void **)&data8, 
-					  &data_list);
+					  prs_BUFFER, NULL, &data_list);
 
 	if (data_list)
 		bd = (struct BUFFER_DATA *)data_list[0];
@@ -2774,6 +2786,7 @@ static int SpoolssFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
         { SPOOLSS_ENUMPRINTERS, "SPOOLSS_ENUMPRINTERS", 
 	  SpoolssEnumPrinters_q, SpoolssEnumPrinters_r },
+	{ SPOOLSS_OPENPRINTER, "SPOOLSS_OPENPRINTER", NULL, NULL },
         { SPOOLSS_SETJOB, "SPOOLSS_SETJOB", NULL, NULL },
         { SPOOLSS_GETJOB, "SPOOLSS_GETJOB", NULL, NULL },
         { SPOOLSS_ENUMJOBS, "SPOOLSS_ENUMJOBS", NULL, NULL },
@@ -2787,15 +2800,18 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
         { SPOOLSS_ADDPRINTERDRIVER, "SPOOLSS_ADDPRINTERDRIVER", 
 	  NULL, SpoolssAddPrinterDriver_r },
         { SPOOLSS_ENUMPRINTERDRIVERS, "SPOOLSS_ENUMPRINTERDRIVERS", NULL, NULL },
+	{ SPOOLSS_GETPRINTERDRIVER, "SPOOLSS_GETPRINTERDRIVER", NULL, NULL },
         { SPOOLSS_GETPRINTERDRIVERDIRECTORY, "SPOOLSS_GETPRINTERDRIVERDIRECTORY", NULL, NULL },
         { SPOOLSS_DELETEPRINTERDRIVER, "SPOOLSS_DELETEPRINTERDRIVER", NULL, NULL },
         { SPOOLSS_ADDPRINTPROCESSOR, "SPOOLSS_ADDPRINTPROCESSOR", NULL, NULL },
         { SPOOLSS_ENUMPRINTPROCESSORS, "SPOOLSS_ENUMPRINTPROCESSORS", NULL, NULL },
+	{ SPOOLSS_GETPRINTPROCESSORDIRECTORY,"SPOOLSS_GETPRINTPROCESSORDIRECTORY", NULL, NULL },
         { SPOOLSS_STARTDOCPRINTER, "SPOOLSS_STARTDOCPRINTER", NULL, NULL },
         { SPOOLSS_STARTPAGEPRINTER, "SPOOLSS_STARTPAGEPRINTER", NULL, NULL },
         { SPOOLSS_WRITEPRINTER, "SPOOLSS_WRITEPRINTER", NULL, NULL },
         { SPOOLSS_ENDPAGEPRINTER, "SPOOLSS_ENDPAGEPRINTER", NULL, NULL },
         { SPOOLSS_ABORTPRINTER, "SPOOLSS_ABORTPRINTER", NULL, NULL },
+	{ SPOOLSS_READPRINTER,"SPOOLSS_READPRINTER", NULL, NULL },
         { SPOOLSS_ENDDOCPRINTER, "SPOOLSS_ENDDOCPRINTER", NULL, NULL },
         { SPOOLSS_ADDJOB, "SPOOLSS_ADDJOB", NULL, NULL },
         { SPOOLSS_SCHEDULEJOB, "SPOOLSS_SCHEDULEJOB", NULL, NULL },
@@ -2803,6 +2819,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	  SpoolssGetPrinterData_q, SpoolssGetPrinterData_r },	
         { SPOOLSS_SETPRINTERDATA, "SPOOLSS_SETPRINTERDATA", 
 	  SpoolssSetPrinterData_q, SpoolssSetPrinterData_r },
+	{ SPOOLSS_WAITFORPRINTERCHANGE,"SPOOLSS_WAITFORPRINTERCHANGE", NULL, NULL },
         { SPOOLSS_CLOSEPRINTER, "SPOOLSS_CLOSEPRINTER", 
 	  SpoolssClosePrinter_q, SpoolssClosePrinter_r },
         { SPOOLSS_ADDFORM, "SPOOLSS_ADDFORM", 
@@ -2814,12 +2831,35 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	  SpoolssEnumForms_q, SpoolssEnumForms_r },
         { SPOOLSS_ENUMPORTS, "SPOOLSS_ENUMPORTS", NULL, NULL },
         { SPOOLSS_ENUMMONITORS, "SPOOLSS_ENUMMONITORS", NULL, NULL },
+	{ SPOOLSS_ADDPORT,"SPOOLSS_ADDPORT", NULL, NULL },
+	{ SPOOLSS_CONFIGUREPORT,"SPOOLSS_CONFIGUREPORT", NULL, NULL },
+	{ SPOOLSS_DELETEPORT,"SPOOLSS_DELETEPORT", NULL, NULL },
+	{ SPOOLSS_CREATEPRINTERIC,"SPOOLSS_CREATEPRINTERIC", NULL, NULL },
+	{ SPOOLSS_PLAYGDISCRIPTONPRINTERIC,"SPOOLSS_PLAYGDISCRIPTONPRINTERIC", NULL, NULL },
+	{ SPOOLSS_DELETEPRINTERIC,"SPOOLSS_DELETEPRINTERIC", NULL, NULL },
+	{ SPOOLSS_ADDPRINTERCONNECTION,"SPOOLSS_ADDPRINTERCONNECTION", NULL, NULL },
+	{ SPOOLSS_DELETEPRINTERCONNECTION,"SPOOLSS_DELETEPRINTERCONNECTION", NULL, NULL },
+	{ SPOOLSS_PRINTERMESSAGEBOX,"SPOOLSS_PRINTERMESSAGEBOX", NULL, NULL },
+	{ SPOOLSS_ADDMONITOR,"SPOOLSS_ADDMONITOR", NULL, NULL },
+	{ SPOOLSS_DELETEMONITOR,"SPOOLSS_DELETEMONITOR", NULL, NULL },
+	{ SPOOLSS_DELETEPRINTPROCESSOR,"SPOOLSS_DELETEPRINTPROCESSOR", NULL, NULL },
+	{ SPOOLSS_ADDPRINTPROVIDOR,"SPOOLSS_ADDPRINTPROVIDER", NULL, NULL },
+	{ SPOOLSS_DELETEPRINTPROVIDOR,"SPOOLSS_DELETEPRINTPROVIDER", NULL, NULL },
         { SPOOLSS_ENUMPRINTPROCDATATYPES, "SPOOLSS_ENUMPRINTPROCDATATYPES", NULL, NULL },
+	{ SPOOLSS_RESETPRINTER,"SPOOLSS_RESETPRINTER", NULL, NULL },
         { SPOOLSS_GETPRINTERDRIVER2, "SPOOLSS_GETPRINTERDRIVER2", NULL, NULL },
+	{ SPOOLSS_FINDFIRSTPRINTERCHANGENOTIFICATION,"SPOOLSS_FINDFIRSTPRINTERCHANGENOTIFICATION", NULL, NULL },
+	{ SPOOLSS_FINDNEXTPRINTERCHANGENOTIFICATION,"SPOOLSS_FINDNEXTPRINTERCHANGENOTIFICATION", NULL, NULL },
         { SPOOLSS_FCPN, "SPOOLSS_FCPN", NULL, NULL },
-        { SPOOLSS_REPLYOPENPRINTER, "SPOOLSS_REPLYOPENPRINTER", 
+	{ SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD,"SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD", NULL, NULL },
+        { SPOOLSS_REPLYOPENPRINTER, "SPOOLSS_REPLYOPENPRINTER",
 	  SpoolssReplyOpenPrinter_q, SpoolssReplyOpenPrinter_r },
+	{ SPOOLSS_ROUTERREPLYPRINTER,"SPOOLSS_ROUTERREPLYPRINTER", NULL, NULL },
         { SPOOLSS_REPLYCLOSEPRINTER, "SPOOLSS_REPLYCLOSEPRINTER", NULL, NULL },
+	{ SPOOLSS_ADDPORTEX,"SPOOLSS_ADDPORTEX", NULL, NULL },
+	{ SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION,"SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION", NULL, NULL },
+	{ SPOOLSS_SPOOLERINIT,"SPOOLSS_SPOOLERINIT", NULL, NULL },	
+	{ SPOOLSS_RESETPRINTEREX,"SPOOLSS_RESETPRINTEREX", NULL, NULL },
         { SPOOLSS_RFFPCNEX, "SPOOLSS_RFFPCNEX",
 	  SpoolssRFFPCNEX_q, SpoolssRFFPCNEX_r },
         { SPOOLSS_RRPCN, "SPOOLSS_RRPCN", NULL, NULL },
@@ -2835,6 +2875,11 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	  SpoolssGetPrinterDataEx_q, SpoolssGetPrinterDataEx_r },
         { SPOOLSS_SETPRINTERDATAEX, "SPOOLSS_SETPRINTERDATAEX", 
 	  SpoolssSetPrinterDataEx_q, SpoolssSetPrinterDataEx_r },
+	{ SPOOLSS_ENUMPRINTERDATAEX,"SPOOLSS_ENUMPRINTERDATAEX", NULL, NULL },
+	{ SPOOLSS_ENUMPRINTERKEY,"SPOOLSS_ENUMPRINTERKEY", NULL, NULL },
+	{ SPOOLSS_DELETEPRINTERDATAEX,"SPOOLSS_DELETEPRINTERDATAEX", NULL, NULL },
+	{ SPOOLSS_DELETEPRINTERDRIVEREX,"SPOOLSS_DELETEPRINTERDRIVEREX", NULL, NULL },
+	{ SPOOLSS_ADDPRINTERDRIVEREX,"SPOOLSS_ADDPRINTERDRIVEREX", NULL, NULL },
 
         {0, NULL, NULL,  NULL },
 };
