@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.5 2000/03/06 19:41:06 guy Exp $
+ * $Id: packet-ipp.c,v 1.6 2000/03/06 19:53:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -468,7 +468,7 @@ add_integer_tree(proto_tree *tree, const u_char *pd, int offset,
 		    1 + 2 + name_length + 2 + value_length,
 		    "%.*s: %u",
 		    name_length, &pd[offset + 1 + 2],
-		    pntohl(&pd[1 + 2 + name_length + 2]));
+		    pntohl(&pd[offset + 1 + 2 + name_length + 2]));
 	}
 	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
@@ -481,7 +481,7 @@ add_integer_value(guint tag, gchar *tag_desc, proto_tree *tree,
 	    name_length, value_length);
 	if (value_length == 4) {
 		proto_tree_add_text(tree, offset, value_length,
-		    "Value: %u", pntohl(&pd[1 + 2 + name_length + 2]));
+		    "Value: %u", pntohl(&pd[offset]));
 	}
 }
 
