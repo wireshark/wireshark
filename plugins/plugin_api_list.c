@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.21 2004/01/18 12:57:25 guy Exp $
+ * $Id: plugin_api_list.c,v 1.22 2004/01/23 00:35:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -401,3 +401,5 @@ int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   const value_string *u_modifier_short_vals_cmd,
   const value_string *u_modifier_short_vals_resp, int is_response,
   int is_extended, int append_info);
+
+protocol_t *find_protocol_by_id(int n);

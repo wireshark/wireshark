@@ -248,3 +248,4 @@
 #define col_set_writable (*p_col_set_writable)
 #define decode_enumerated_bitfield_shifted (*p_decode_enumerated_bitfield_shifted)
 #define dissect_xdlc_control (*p_dissect_xdlc_control)
+#define find_protocol_by_id (*p_find_protocol_by_id)

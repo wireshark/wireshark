@@ -2032,6 +2032,7 @@ And assorted fixes and enhancements by the people listed above and by:
 	Jari Mustajarvi <jari.mustajarvi [AT] nokia.com>
 	Joost Yervante Damad <Joost.Damad [AT] siemens.com>
 	Thomas Anders <thomas.anders [AT] blue-cable.de>
+	Pierre Juhen <pierre.juhen [AT] wanadoo.fr>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

@@ -248,3 +248,4 @@ p_col_get_writable = pat->p_col_get_writable;
 p_col_set_writable = pat->p_col_set_writable;
 p_decode_enumerated_bitfield_shifted = pat->p_decode_enumerated_bitfield_shifted;
 p_dissect_xdlc_control = pat->p_dissect_xdlc_control;
+p_find_protocol_by_id = pat->p_find_protocol_by_id;

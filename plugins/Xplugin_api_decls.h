@@ -248,3 +248,4 @@ addr_col_get_writable p_col_get_writable;
 addr_col_set_writable p_col_set_writable;
 addr_decode_enumerated_bitfield_shifted p_decode_enumerated_bitfield_shifted;
 addr_dissect_xdlc_control p_dissect_xdlc_control;
+addr_find_protocol_by_id p_find_protocol_by_id;
