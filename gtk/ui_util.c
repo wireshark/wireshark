@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.5 2001/12/12 21:38:59 gerald Exp $
+ * $Id: ui_util.c,v 1.6 2001/12/13 09:26:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,18 +37,13 @@
 #include "image/eicon3d16.xpm"
 
 
-/* Set the name of the top-level window and its icon.
-   XXX - for some reason, KWM insists on making the icon name be just
-   the window name, in parentheses; perhaps it's trying to imitate
-   Windows here, or perhaps it's not the icon name that appears in
-   the taskbar.  The KWM_WIN_TITLE string overrides that, but I
-   don't know how that gets set - it's set on "xterm"s, but they
-   aren't KWM-aware, as far as I know. */
+/* Set the name of the top-level window and its icon to the specified
+   string. */
 void
-set_main_window_name(gchar *icon_name)
+set_main_window_name(gchar *window_name)
 {
-  gtk_window_set_title(GTK_WINDOW(top_level), icon_name);
-  gdk_window_set_icon_name(top_level->window, icon_name);
+  gtk_window_set_title(GTK_WINDOW(top_level), window_name);
+  gdk_window_set_icon_name(top_level->window, window_name);
 }
 
 /* Given a pointer to a GtkWidget for a top-level window, raise it and
@@ -59,7 +54,15 @@ set_main_window_name(gchar *icon_name)
 
    XXX - we should request that it be given the input focus, too.  Alas,
    GDK has nothing to do that, e.g. by calling "XSetInputFocus()" in a
-   window in X.
+   window in X.  Besides, using "XSetInputFocus()" doesn't work anyway,
+   apparently due to the way GTK+/GDK manages the input focus.
+
+   The X Desktop Group's Window Manager Standard specifies, in the section
+   on Root Window Properties, an _NET_ACTIVE_WINDOW client message that
+   can be sent to the root window, containing the window ID of the
+   window to activate; I infer that this might be the way to give the
+   window the input focus - I assume that means it's also de-iconified,
+   but I wouldn't assume it'd raise it.
 
    XXX - will this do the right thing on window systems other than X? */
 void
@@ -75,9 +78,42 @@ reactivate_window(GtkWidget *win)
    sources and assume it's safe. 
    
    XXX - The current icon size is fixed at 16x16 pixels, which looks fine
-   in KDE and GNOME.  Some windowing environments (e.g. CDE) have larger
-   icon sizes, so we need to find a way to size our icon appropriately.
-   
+   with kwm (KDE 1.x's window manager), Sawfish (the "default" window
+   manager for GNOME?), and under Windows with Exceed putting X windows
+   on the Windows desktop, using Exceed as the window manager, as those
+   window managers put a 16x16 icon on the title bar.
+
+   The window managers in some windowing environments (e.g. dtwm in CDE)
+   and some stand-alone window managers have larger icon sizes (many window
+   managers put the window icon on the desktop, in the Windows 3.x style,
+   rather than in the titlebar, in the Windows 4.x style), so we need to
+   find a way to size our icon appropriately.
+
+   The X11 Inter-Client Communications Conventions Manual, Version 1.1,
+   in X11R5, specifies that "a window manager that wishes to place
+   constraints on the sizes of icon pixmaps and/or windows should
+   place a property called WM_ICON_SIZE on the root"; that property
+   contains minimum width and height, maximum width and height, and
+   width and height increment values.  "XGetIconSizes()" retrieves
+   that property; unfortunately, I've yet to find a window manager
+   that sets it on the root window (kwm, AfterStep, and Exceed don't
+   appear to set it).
+
+   The X Desktop Group's Window Manager Standard specifies, in the section
+   on Application Window Properties, an _NET_WM_ICON property, presumably
+   set by the window manager, which is an array of possible icon sizes
+   for the client.  There's no API in GTK+ 1.2[.x] for this; there may
+   eventually be one either in GTK+ 2.0 or GNOME 2.0.
+
+   Some window managers can be configured to take the window name
+   specified by the WM_NAME property of a window or the resource
+   or class name specified by the WM_CLASS property and base the
+   choice of icon for the window on one of those; WM_CLASS for
+   Ethereal's windows has a resource name of "ethereal" and a class
+   name of "Ethereal".  However, the way that's done is window-manager-
+   specific, and there's no way to determine what size a particular
+   window manager would want, so there's no way to automate this as
+   part of the installation of Ethereal.
    */
 void
 window_icon_realize_cb (GtkWidget *win, gpointer data) 
