@@ -201,9 +201,13 @@ main ()
 AC_DEFUN(AC_WIRETAP_ZLIB_CHECK,
 [
         AC_CHECK_HEADER(zlib.h,,enable_zlib=no)
-        AC_CHECK_LIB(z, gzopen,,enable_zlib=no)
+
+        dnl
+        dnl Check for "gzgets()" in zlib, because we need it, but
+        dnl some older versions of zlib don't have it.  It appears
+        dnl from the ChangeLog that any released version of zlib
+        dnl with "gzgets()" should have the other routines we
+        dnl depend on, such as "gzseek()", "gztell()", and "zError()".
+        dnl
         AC_CHECK_LIB(z, gzseek,,enable_zlib=no)
-        AC_CHECK_LIB(z, gztell,,enable_zlib=no)
-        AC_CHECK_LIB(z, gzgets,,enable_zlib=no)
-        AC_CHECK_LIB(z, zError,,enable_zlib=no)
 ])
