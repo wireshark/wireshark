@@ -53,7 +53,7 @@ int radcom_open(wtap *wth, int *err)
 	char encap_magic[7] = {0x54, 0x43, 0x50, 0x00, 0x42, 0x43, 0x09};
 	char search_encap[7];
 
-	/* Read in the string that should be at the start of a Sniffer file */
+	/* Read in the string that should be at the start of a RADCOM file */
 	fseek(wth->fh, 0, SEEK_SET);
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(magic, 1, 8, wth->fh);
