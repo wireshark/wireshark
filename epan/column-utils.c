@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.8 2001/12/10 00:26:16 guy Exp $
+ * $Id: column-utils.c,v 1.9 2001/12/10 02:15:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -557,11 +557,12 @@ fill_in_columns(packet_info *pinfo)
       break;
 
     case COL_PACKET_LENGTH:
-      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%d", pinfo->fd->pkt_len);
+      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->pkt_len);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
+      g_assert_not_reached();
       break;
     }
   }
