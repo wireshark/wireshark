@@ -105,7 +105,7 @@ string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
 	gchar *p, c;
 	char *bufp;
-	char hex[2];
+	char hex[3];
 
 	if (rtype == FTREPR_DFILTER) {
 		bufp = buf;
