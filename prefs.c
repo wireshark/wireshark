@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.84 2002/05/29 07:35:55 guy Exp $
+ * $Id: prefs.c,v 1.85 2002/06/16 00:53:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -387,7 +387,7 @@ prefs_register_bool_preference(module_t *module, const char *name,
 
 	preference = register_preference(module, name, title, description);
 	preference->type = PREF_BOOL;
-	preference->varp.bool = var;
+	preference->varp.boolean = var;
 }
 
 /*
@@ -1524,9 +1524,9 @@ set_pref(gchar *pref_name, gchar *value)
         bval = TRUE;
       else
         bval = FALSE;
-      if (*pref->varp.bool != bval) {
+      if (*pref->varp.boolean != bval) {
 	module->prefs_changed = TRUE;
-	*pref->varp.bool = bval;
+	*pref->varp.boolean = bval;
       }
       break;
 
@@ -1613,7 +1613,7 @@ write_pref(gpointer data, gpointer user_data)
 	case PREF_BOOL:
 		fprintf(arg->pf, "# TRUE or FALSE (case-insensitive).\n");
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
-		    *pref->varp.bool ? "TRUE" : "FALSE");
+		    *pref->varp.boolean ? "TRUE" : "FALSE");
 		break;
 
 	case PREF_ENUM:

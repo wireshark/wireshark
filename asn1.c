@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.13 2002/05/13 01:24:45 guy Exp $
+ * $Id: asn1.c,v 1.14 2002/06/16 00:53:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,7 +386,7 @@ asn1_null_decode ( ASN1_SCK *asn1, int enc_len)
  *                  (
  *                      ASN1_SCK *asn1,
  *                      int      enc_len,
- *                      gboolean *bool
+ *                      gboolean *boolean
  *                  )
  * DESCRIPTION: Decodes Boolean.
  *              Parameters:
@@ -396,7 +396,7 @@ asn1_null_decode ( ASN1_SCK *asn1, int enc_len)
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
 int
-asn1_bool_decode ( ASN1_SCK *asn1, int enc_len, gboolean *bool)
+asn1_bool_decode ( ASN1_SCK *asn1, int enc_len, gboolean *boolean)
 {
     int    ret;
     guchar ch;
@@ -406,7 +406,7 @@ asn1_bool_decode ( ASN1_SCK *asn1, int enc_len, gboolean *bool)
     ret = asn1_octet_decode (asn1, &ch);
     if (ret != ASN1_ERR_NOERROR)
         return ret;
-    *bool = ch ? TRUE : FALSE;
+    *boolean = ch ? TRUE : FALSE;
     return ASN1_ERR_NOERROR;
 }
 

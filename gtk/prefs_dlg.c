@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.46 2002/04/20 20:29:28 guy Exp $
+ * $Id: prefs_dlg.c,v 1.47 2002/06/16 00:53:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -165,10 +165,10 @@ pref_show(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_BOOL:
-    pref->saved_val.bool = *pref->varp.bool;
+    pref->saved_val.boolean = *pref->varp.boolean;
     pref->control = create_preference_check_button(main_tb, pref->ordinal,
 					       label_string, pref->description,
-					       pref->saved_val.bool);
+					       pref->saved_val.boolean);
     break;
 
   case PREF_ENUM:
@@ -715,9 +715,9 @@ pref_fetch(pref_t *pref, gpointer user_data)
 
   case PREF_BOOL:
     bval = GTK_TOGGLE_BUTTON(pref->control)->active;
-    if (*pref->varp.bool != bval) {
+    if (*pref->varp.boolean != bval) {
       *pref_changed_p = TRUE;
-      *pref->varp.bool = bval;
+      *pref->varp.boolean = bval;
     }
     break;
 
@@ -949,9 +949,9 @@ pref_revert(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_BOOL:
-    if (*pref->varp.bool != pref->saved_val.bool) {
+    if (*pref->varp.boolean != pref->saved_val.boolean) {
       *pref_changed_p = TRUE;
-      *pref->varp.bool = pref->saved_val.bool;
+      *pref->varp.boolean = pref->saved_val.boolean;
     }
     break;
 
