@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.22 1998/10/28 01:16:49 guy Exp $
+ * $Id: packet.h,v 1.23 1998/11/03 07:45:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,18 +91,6 @@ typedef struct _value_string {
  * in the Linux distribution. */
 
 /* ARP / RARP structs and definitions */
-
-typedef struct _e_ether_arp {
-  guint16 ar_hrd;
-  guint16 ar_pro;
-  guint8  ar_hln;
-  guint8  ar_pln;
-  guint16 ar_op;
-  guint8  arp_sha[6];
-  guint8  arp_spa[4];
-  guint8  arp_tha[6];
-  guint8  arp_tpa[4];
-} e_ether_arp;
 
 #ifndef ARPOP_REQUEST
 #define ARPOP_REQUEST  1       /* ARP request.  */
@@ -543,7 +531,8 @@ void dissect_udp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_vines(const u_char *, int, frame_data *, GtkTree *);
 void dissect_vspp(const u_char *, int, frame_data *, GtkTree *);
 
-/* This function is in ethertype.c */
+/* These functions are in ethertype.c */
+gchar *ethertype_to_str(guint16 etype, const char *fmt);
 void ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, GtkTree *tree,
 		GtkWidget *fh_tree);

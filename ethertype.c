@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.7 1998/10/16 06:46:16 guy Exp $
+ * $Id: ethertype.c,v 1.8 1998/11/03 07:45:09 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -44,74 +44,59 @@
 #include "packet.h"
 #include "etypes.h"
 
+gchar *
+ethertype_to_str(guint16 etype, const char *fmt)
+{
+  static const value_string etype_vals[] = {
+    {ETHERTYPE_IP,     "IP"             },
+    {ETHERTYPE_IPv6,   "IPv6"           },
+    {ETHERTYPE_ARP,    "ARP"            },
+    {ETHERTYPE_REVARP, "RARP"           },
+    {ETHERTYPE_ATALK,  "Appletalk"      },
+    {ETHERTYPE_AARP,   "AARP"           },
+    {ETHERTYPE_IPX,    "Netware IPX/SPX"},
+    {ETHERTYPE_VINES,  "Vines"          },
+    {0,                 NULL            } };
+
+    return val_to_str(etype, etype_vals, fmt);
+}
+
 void
 ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, GtkTree *tree, GtkWidget
 		*fh_tree)
 {
+  if (tree) {
+    add_item_to_tree(fh_tree, offset - 2, 2, "Type: %s (0x%04x)",
+      ethertype_to_str(etype, "Unknown"), etype);
+  }
   switch (etype) {
     case ETHERTYPE_IP:
-      if (tree) {
-        add_item_to_tree(fh_tree, offset - 2, 2, "Type: IP (0x%04x)",
-          etype);
-      }
       dissect_ip(pd, offset, fd, tree);
       break;
     case ETHERTYPE_IPv6:
-      if (tree) {
-        add_item_to_tree(fh_tree, offset - 2, 2, "Type: IPv6 (0x%04x)",
-          etype);
-      }
       dissect_ipv6(pd, offset, fd, tree);
       break;
     case ETHERTYPE_ARP:
-      if (tree) {
-        add_item_to_tree(fh_tree, offset - 2, 2,
-          "Type: ARP (0x%04x)", etype);
-      }
       dissect_arp(pd, offset, fd, tree);
       break;
     case ETHERTYPE_REVARP:
-      if (tree) {
-        add_item_to_tree(fh_tree, offset - 2, 2,
-          "Type: RARP (0x%04x)", etype);
-      }
       dissect_arp(pd, offset, fd, tree);
       break;
     case ETHERTYPE_ATALK:
-      if (tree) {
-        add_item_to_tree(fh_tree, offset - 2, 2,
-          "Type: AppleTalk (0x%04x)", etype);
-      }
       dissect_ddp(pd, offset, fd, tree);
       break;
     case ETHERTYPE_AARP:
-      if (tree) {
-        add_item_to_tree(fh_tree, offset - 2, 2,
-          "Type: AARP (0x%04x)", etype);
-      }
       dissect_aarp(pd, offset, fd, tree);
       break;
     case ETHERTYPE_IPX:
-      if (tree) {
-        add_item_to_tree(fh_tree, offset - 2, 2,
-          "Type: Netware IPX/SPX (0x%04x)", etype);
-      }
       dissect_ipx(pd, offset, fd, tree);
       break;
     case ETHERTYPE_VINES:
-      if (tree) {
-        add_item_to_tree(fh_tree, offset - 2, 2,
-          "Type Vines (0x%04x)", etype);
-      }
       dissect_vines(pd, offset, fd, tree);
       break;
     default:
-      if (tree) {
-        add_item_to_tree(fh_tree, offset - 2, 2,
-          "Type: Unknown (0x%04x)", etype);
-		  dissect_data(pd, offset, fd, tree);
-	  }
+      dissect_data(pd, offset, fd, tree);
       if (fd->win_info[COL_NUM]) { sprintf(fd->win_info[COL_PROTOCOL], "0x%04x", etype); }
       break;
   }
