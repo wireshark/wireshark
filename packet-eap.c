@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.32 2002/12/19 11:22:20 sahlberg Exp $
+ * $Id: packet-eap.c,v 1.33 2003/04/01 19:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,7 +86,7 @@ static const value_string eap_type_vals[] = {
   { 12,          "KEA-VALIDATE [Nace]" },
   {EAP_TYPE_TLS, "EAP-TLS [RFC2716] [Aboba]" },
   { 14,          "Defender Token (AXENT) [Rosselli]" },
-  { 15,          "Windows 2000 EAP [Asnes]" },
+  { 15,          "RSA Security SecurID EAP [Asnes, Liberman]" },
   { 16,          "Arcot Systems EAP [Jerdonek]" },
   {EAP_TYPE_LEAP,"EAP-Cisco Wireless (LEAP) [Norman]" },
   { 18,          "Nokia IP smart card authentication [Haverinen]" },
@@ -104,6 +104,15 @@ static const value_string eap_type_vals[] = {
   { 30,          "DynamID [Merlin]" },
   { 31,          "Rob EAP [Ullah]" },
   { 32,          "SecurID EAP [Josefsson]" },
+  { 33,          "MS-Authentication-TLV [Palekar]" },
+  { 34,          "SentriNET [Kelleher]" },
+  { 35,          "EAP-Actiontec Wireless [Chang]" },
+  { 36,          "Cogent Systems Biometrics Authentication EAP [Xiong]" },
+  { 37,          "AirFortress EAP [Hibbard]" },
+  { 38,          "EAP-HTTP Digest [Tavakoli]" },
+  { 39,          "SecureSuite EAP [Clements]" },
+  { 40,          "DeviceConnect EAP [Pitard]" },
+  { 41,          "EAP-SPEKE [Zick]" },
   { 255,         "Vendor-specific [draft-ietf-pppext-rfc2284bis-02.txt]" },
   { 0,          NULL }
 

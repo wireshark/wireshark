@@ -1728,6 +1728,7 @@ B<http://www.ethereal.com>.
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
   Todd Montgomery          <tmontgom [AT] tibco.com>
+  Eric Perie               <eric.perie [AT] colubris.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
