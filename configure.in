@@ -65,9 +65,9 @@ AC_PATH_PROG(XMLLINT, xmllint)
 AC_CHECK_PROG(HAVE_XMLLINT, xmllint, "yes", "no")
 AM_CONDITIONAL(HAVE_XMLLINT, test x$HAVE_XMLLINT = xyes)
 
-# Check for fop (
-AC_PATH_PROG(FOP, fop.sh)
-AC_CHECK_PROG(HAVE_FOP, fop.sh, "yes", "no")
+# Check for fop (translate .fo to e.g. pdf)
+AC_PATH_PROG(FOP, fop)
+AC_CHECK_PROG(HAVE_FOP, fop, "yes", "no")
 AM_CONDITIONAL(HAVE_FOP, test x$HAVE_FOP = xyes)
 
 # Check for hhc (html help compiler)
