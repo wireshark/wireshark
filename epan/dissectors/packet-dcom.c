@@ -784,10 +784,10 @@ extern int
 dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, int length)
 {
-
+/*XXX fixme
 	if (drep);
 	if (pinfo);
-
+*/
 
 	proto_tree_add_uint(tree, hf_dcom_tobedone_len, tvb, offset, length, length);
 
@@ -917,7 +917,7 @@ dissect_dcom_COMVERSION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 int
 dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
-						proto_tree *tree, guint8 *drep, int hfindex)
+						proto_tree *tree, guint8 *drep, int hfindex _U_)
 {
 	guint32 u32Dims;
 	guint16 u16Dims;
@@ -1313,7 +1313,11 @@ dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	u32StrStart = offset;
 	offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
 
+#if GLIB_MAJOR_VERSION < 2
+    pszEscaped = g_strescape(pszStr);
+#else
     pszEscaped = g_strescape(pszStr, "");
+#endif
 	proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszEscaped);
 
 	/* update subtree header */
@@ -1394,7 +1398,11 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	u32StrStart = offset;
 	offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
 
+#if GLIB_MAJOR_VERSION < 2
+    pszEscaped = g_strescape(pszStr);
+#else
     pszEscaped = g_strescape(pszStr, "");
+#endif
 	proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszEscaped);
 
 	/* update subtree header */
