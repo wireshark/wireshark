@@ -12,7 +12,6 @@ wtap_dump_open
 wtap_encap_short_string
 wtap_encap_string
 wtap_fd
-wtap_file
 wtap_file_encap
 wtap_file_type
 wtap_file_type_short_string
