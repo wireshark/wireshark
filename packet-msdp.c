@@ -4,7 +4,7 @@
  *
  * Copyright 2001, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-msdp.c,v 1.1 2001/07/11 00:59:50 guy Exp $
+ * $Id: packet-msdp.c,v 1.2 2001/07/11 17:56:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -296,6 +296,11 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 enc_tree = proto_item_add_subtree(ei, ett_msdp_sa_enc_data);
 
                 next_tvb = tvb_new_subset(tvb, *offset, -1, -1);
+                /* Set the information columns read-only so that they
+                 * reflect the MSDP packet rather than the
+                 * encapsulated packet.
+                 */
+                col_set_writable(pinfo->fd, FALSE);
                 call_dissector(ip_handle, next_tvb, pinfo, enc_tree);
         }
         *offset += tvb_length_remaining(tvb, *offset);
