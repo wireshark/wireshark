@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.33 2001/01/11 19:30:45 guy Exp $
+ * $Id: packet-rtsp.c,v 1.34 2001/01/11 20:14:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,7 +71,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_tree	*rtspframe_tree;
 	proto_item	*ti;
-	int		orig_offset, len;
+	int		orig_offset;
 	guint8		rf_start;	/* always RTSP_FRAMEHDR */
 	guint8		rf_chan;        /* interleaved channel id */
 	guint16		rf_len;         /* packet length */
@@ -95,6 +95,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		return -1;
 	}
+
 	ti = proto_tree_add_text(tree, tvb, offset, 4,
 		"RTSP Interleaved Frame, Channel: 0x%02x, %u bytes",
 		rf_chan, rf_len);
@@ -110,7 +111,6 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		rf_chan);
 	offset += 1;
 
-	len = 2;
 	proto_tree_add_text(rtspframe_tree, tvb, offset, 2,
 		"Length: %u bytes",
 		rf_len);
