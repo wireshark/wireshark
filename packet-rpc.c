@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.143 2004/04/07 03:57:34 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.144 2004/04/29 11:58:00 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2255,7 +2255,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				   Mark it as such. */
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_prepend_fstr(pinfo->cinfo, COL_INFO,
-						"[RPC retransmission of #%d]", rpc_call->rep_num);
+						"[RPC duplicate of #%d]", rpc_call->rep_num);
 				}
 				proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, TRUE);
