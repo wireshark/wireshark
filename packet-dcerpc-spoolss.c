@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.25 2002/05/01 21:22:06 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.26 2002/05/04 09:05:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ struct deferred_ptr_state {
 	void **ptr_data;
 };
 
-void defer_ptr(GList **list, prs_fn *fn, proto_tree *tree)
+static void defer_ptr(GList **list, prs_fn *fn, proto_tree *tree)
 {
 	struct deferred_ptr *dr;
 
@@ -123,8 +123,8 @@ static void dr_iterator(gpointer data, gpointer user_data)
    If there are any additional pointers in these structures they are pushed
    onto parent_dp_list. */ 
 
-int prs_referents(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		  proto_tree *tree, GList **dp_list, GList **list,
+static int prs_referents(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		  proto_tree *tree _U_, GList **dp_list, GList **list,
 		  void ***ptr_data)
 {
 	struct deferred_ptr_state s;
@@ -239,7 +239,7 @@ static void display_pol(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree, 
-				 char *drep)
+				 char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -270,7 +270,7 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset, 
 				 packet_info *pinfo, proto_tree *tree, 
-				 char *drep)
+				 char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -351,7 +351,7 @@ static int prs_UNISTR2_dp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree, 
-				   char *drep)
+				   char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -386,7 +386,7 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree, 
-				   char *drep)
+				   char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -422,7 +422,7 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 
 static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree, 
-				     char *drep)
+				     char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -477,7 +477,7 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree, 
-				     char *drep)
+				     char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -513,7 +513,7 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 
 static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree, 
-				   char *drep)
+				   char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -559,7 +559,7 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree, 
-				   char *drep)
+				   char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -583,7 +583,7 @@ static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 
 static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree, 
-				     char *drep)
+				     char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -635,7 +635,7 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree, 
-				     char *drep)
+				     char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -655,7 +655,7 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 
 /* Yet another way to represent a unicode string - sheesh. */
 
-static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			 proto_tree *tree, void **data, char *name)
 {
 	gint len = 0, remaining;
@@ -1147,7 +1147,7 @@ static int prs_USER_LEVEL(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree, 
-				  char *drep)
+				  char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1193,7 +1193,7 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree, 
-				  char *drep)
+				  char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1364,7 +1364,7 @@ static int prs_NOTIFY_OPTION_ARRAY(tvbuff_t *tvb, int offset,
 
 static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset, 
 			     packet_info *pinfo, proto_tree *tree, 
-			     char *drep)
+			     char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1417,7 +1417,7 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssRFFPCNEX_r(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree, 
-			     char *drep)
+			     char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1441,7 +1441,7 @@ static int SpoolssRFFPCNEX_r(tvbuff_t *tvb, int offset,
 
 static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset, 
 				     packet_info *pinfo, proto_tree *tree, 
-				     char *drep)
+				     char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1474,7 +1474,7 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset, 
 				     packet_info *pinfo, proto_tree *tree, 
-				     char *drep)
+				     char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1583,7 +1583,7 @@ static int prs_BUFFER(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			       proto_tree *tree, char *drep)
+			       proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1618,7 +1618,7 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-				proto_tree *tree, char *drep)
+				proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1774,7 +1774,7 @@ done:
  */
 
 static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			       proto_tree *tree, char *drep)
+			       proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1808,7 +1808,7 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-				proto_tree *tree, char *drep)
+				proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1884,7 +1884,7 @@ static int prs_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *tree, char *drep)
+			      proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1919,7 +1919,7 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *tree, char *drep)
+			      proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1984,7 +1984,7 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree, 
-				  char *drep)
+				  char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2007,7 +2007,7 @@ static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree, 
-				  char *drep)
+				  char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2080,7 +2080,7 @@ static int SpoolssAddPrinterEx_q(tvbuff_t *tvb, int offset,
 }      
 #endif
 static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-				 proto_tree *tree, char *drep)
+				 proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2129,7 +2129,7 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset, 
 				    packet_info *pinfo, proto_tree *tree, 
-				    char *drep)
+				    char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2158,7 +2158,7 @@ static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 
 static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset, 
 				    packet_info *pinfo, proto_tree *tree, 
-				    char *drep)
+				    char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2214,7 +2214,7 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
  */
 
 static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-				 proto_tree *tree, char *drep)
+				 proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2250,7 +2250,7 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 static int SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-				 proto_tree *tree, char *drep)
+				 proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2299,7 +2299,7 @@ static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset,
 #endif
 static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset, 
 				     packet_info *pinfo, proto_tree *tree, 
-				     char *drep)
+				     char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2403,7 +2403,7 @@ static int prs_FORM_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2438,7 +2438,7 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2461,7 +2461,7 @@ static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			       proto_tree *tree, char *drep)
+			       proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2493,7 +2493,7 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 static int SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2516,7 +2516,7 @@ static int SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2557,7 +2557,7 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2580,7 +2580,7 @@ static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2625,7 +2625,7 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2684,7 +2684,7 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
    INFO column. */
 
 static int SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2747,7 +2747,7 @@ static int prs_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 
 static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			     proto_tree *tree, char *drep)
+			     proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -2786,7 +2786,7 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			     proto_tree *tree, char *drep)
+			     proto_tree *tree, char *drep _U_)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;

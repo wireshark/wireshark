@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.29 2002/04/30 11:03:08 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.30 2002/05/04 09:05:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,7 @@ int prs_align(int offset, int n)
 
 /* Parse a 8-bit integer */
 
-int prs_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
+int prs_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	      proto_tree *tree, guint8 *data, char *name)
 {
 	guint8 i;
@@ -71,7 +71,7 @@ int prs_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-int prs_uint8s(tvbuff_t *tvb, int offset, packet_info *pinfo,
+int prs_uint8s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	       proto_tree *tree, int count, int *data_offset, char *name)
 {
 	/* No alignment required */
@@ -89,7 +89,7 @@ int prs_uint8s(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Parse a 16-bit integer */
 
-int prs_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo,
+int prs_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	       proto_tree *tree, guint16 *data, char *name)
 {
 	guint16 i;
@@ -110,7 +110,7 @@ int prs_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Parse a number of uint16's */
 
-int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo,
+int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree, int count, int *data_offset, char *name)
 {
 	offset = prs_align(offset, 2);
@@ -128,7 +128,7 @@ int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Parse a 32-bit integer */
 
-int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
+int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	       proto_tree *tree, guint32 *data, char *name)
 {
 	guint32 i;
@@ -150,7 +150,7 @@ int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Parse a number of 32-bit integers */
 
-int prs_uint32s(tvbuff_t *tvb, int offset, packet_info *pinfo,
+int prs_uint32s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree, int count, int *data_offset, char *name)
 {
 	offset = prs_align(offset, 4);
@@ -253,7 +253,7 @@ int prs_push_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Pop a pointer of a given name.  Return it's value. */
 
-guint32 prs_pop_ptr(GList **ptr_list, char *name)
+guint32 prs_pop_ptr(GList **ptr_list, char *name _U_)
 {
 	GList *elt;
 	struct ptr *p;
@@ -322,7 +322,7 @@ char *fake_unicode(tvbuff_t *tvb, int offset, int len)
 /* Parse a UNISTR2 structure */
 
 int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, int flags, char **data, char *name)
+		proto_tree *tree, int flags, char **data, char *name _U_)
 {
 	guint32 len = 0, unknown = 0, max_len = 0;
 
@@ -349,7 +349,7 @@ int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Parse a policy handle. */
 
-int prs_policy_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int prs_policy_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 		   proto_tree *tree, const guint8 **data)
 {
 	const guint8 *data8;
@@ -631,7 +631,7 @@ dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
 int
 dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *tree, 
-			char *drep, int hf_index)
+			char *drep _U_, int hf_index)
 {
 	dcerpc_info *di;
 

@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.38 2002/04/30 11:03:07 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.39 2002/05/04 09:05:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1312,8 +1312,8 @@ samr_dissect_set_information_alias_reply(tvbuff_t *tvb, int offset,
 
 static int
 samr_dissect_CRYPT_PASSWORD(tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *tree, 
-			char *drep)
+			packet_info *pinfo _U_, proto_tree *tree, 
+			char *drep _U_)
 {
 	proto_tree_add_item(tree, hf_samr_crypt_password, tvb, offset, 516,
 		FALSE);
@@ -1323,8 +1323,8 @@ samr_dissect_CRYPT_PASSWORD(tvbuff_t *tvb, int offset,
 
 static int
 samr_dissect_CRYPT_HASH(tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *tree, 
-			char *drep)
+			packet_info *pinfo _U_, proto_tree *tree, 
+			char *drep _U_)
 {
 	proto_tree_add_item(tree, hf_samr_crypt_hash, tvb, offset, 16,
 		FALSE);
