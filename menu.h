@@ -65,4 +65,3 @@ void set_menus_for_selected_tree_row(capture_file *cf);
 #endif /* __cplusplus */
 
 #endif /* __MENU_H__ */
-
