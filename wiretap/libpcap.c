@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.53 2001/11/02 13:00:30 gram Exp $
+ * $Id: libpcap.c,v 1.54 2001/11/06 01:55:14 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -375,6 +375,7 @@ int libpcap_open(wtap *wth, int *err)
 	struct pcap_hdr hdr;
 	gboolean byte_swapped;
 	gboolean modified;
+	gboolean aix;
 	int file_encap;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
@@ -450,6 +451,45 @@ int libpcap_open(wtap *wth, int *err)
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
+
+	/*
+	 * AIX's non-standard tcpdump uses a minor version number of 2.
+	 * Unfortunately, older versions of libpcap might have used
+	 * that as well.
+	 *
+	 * The AIX libpcap uses RFC 1573 ifType values rather than
+	 * DLT_ values in the header; the ifType values for LAN devices
+	 * are:
+	 *
+	 *	Ethernet	6
+	 *	Token Ring	8
+	 *	FDDI		15
+	 *
+	 * which correspond to DLT_IEEE802 (used for Token Ring),
+	 * DLT_SLIP, and DLT_SLIP_BSDOS, respectively.  We shall
+	 * assume that if the minor version number is 2, and
+	 * the network type is 6, 8, or 15, that it's AIX libpcap.
+	 */
+	aix = FALSE;	/* assume it's not AIX */
+	if (hdr.version_major == 2 && hdr.version_minor == 2) {
+		switch (hdr.network) {
+
+		case 6:
+			hdr.network = 1;	/* DLT_EN10MB, Ethernet */
+			aix = TRUE;
+			break;
+
+		case 8:
+			hdr.network = 6;	/* DLT_IEEE802, Token Ring */
+			aix = TRUE;
+			break;
+
+		case 15:
+			hdr.network = 10;	/* DLT_FDDI, FDDI */
+			aix = TRUE;
+			break;
+		}
+	}
 	file_encap = wtap_pcap_encap_to_wtap_encap(hdr.network);
 	if (file_encap == WTAP_ENCAP_UNKNOWN) {
 		g_message("pcap: network type %u unknown or unsupported",
@@ -470,7 +510,18 @@ int libpcap_open(wtap *wth, int *err)
 	wth->snapshot_length = hdr.snaplen;
 
 	/*
-	 * Yes.  Let's look at the header for the first record,
+	 * Is this AIX format?
+	 */
+	if (aix) {
+		/*
+		 * Yes.  Skip all the tests for other mutant formats.
+		 */
+		wth->file_type = WTAP_FILE_PCAP_AIX;
+		return 1;
+	}
+
+	/*
+	 * No.  Let's look at the header for the first record,
 	 * and see if, interpreting it as a standard header (if the
 	 * magic number was standard) or a modified header (if the
 	 * magic number was modified), the position where it says the
@@ -501,6 +552,10 @@ int libpcap_open(wtap *wth, int *err)
 	 * Oh, and if it has the standard magic number, it might, instead,
 	 * be a Nokia libpcap file, so we may need to try that if
 	 * neither normal nor ss990417 headers work.
+	 *
+	 * XXX - have Nokia been kind enough to change the major or
+	 * minor version number?  If so, hopefully they didn't go
+	 * with 2.2....
 	 */
 	if (modified) {
 		/*
@@ -762,6 +817,7 @@ static int libpcap_read_header(wtap *wth, int *err,
 	switch (wth->file_type) {
 
 	case WTAP_FILE_PCAP:
+	case WTAP_FILE_PCAP_AIX:
 		bytes_to_read = sizeof (struct pcaprec_hdr);
 		break;
 
@@ -840,6 +896,11 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 		hdr->incl_len = BSWAP32(hdr->incl_len);
 		hdr->orig_len = BSWAP32(hdr->orig_len);
 	}
+
+	/* If this is AIX, convert the time stamp from seconds/nanoseconds
+	   to seconds/microseconds.  */
+	if (wth->file_type == WTAP_FILE_PCAP_AIX)
+		hdr->ts_usec = hdr->ts_usec/1000;
 
 	/* In file format version 2.3, the "incl_len" and "orig_len" fields
 	   were swapped, in order to match the BPF header layout.

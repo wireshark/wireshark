@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.92 2001/11/02 13:00:30 gram Exp $
+ * $Id: wtap.h,v 1.93 2001/11/06 01:55:14 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -113,31 +113,32 @@
 #define WTAP_FILE_PCAP_SS990915			4
 #define WTAP_FILE_PCAP_SS991029			5
 #define WTAP_FILE_PCAP_NOKIA			6
-#define WTAP_FILE_LANALYZER			7
-#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	8
-#define WTAP_FILE_NGSNIFFER_COMPRESSED		9
-#define WTAP_FILE_SNOOP				10
-#define WTAP_FILE_IPTRACE_1_0			11
-#define WTAP_FILE_IPTRACE_2_0			12
-#define WTAP_FILE_NETMON_1_x			13
-#define WTAP_FILE_NETMON_2_x			14
-#define WTAP_FILE_NETXRAY_1_0			15
-#define WTAP_FILE_NETXRAY_1_1			16
-#define WTAP_FILE_NETXRAY_2_00x			17
-#define WTAP_FILE_RADCOM			18
-#define WTAP_FILE_ASCEND			19
-#define WTAP_FILE_NETTL				20
-#define WTAP_FILE_TOSHIBA			21
-#define WTAP_FILE_I4BTRACE			22
-#define WTAP_FILE_CSIDS				23
-#define WTAP_FILE_PPPDUMP			24
-#define WTAP_FILE_ETHERPEEK_MAC_V56		25
-#define WTAP_FILE_ETHERPEEK_MAC_V7		26
-#define WTAP_FILE_VMS				27
-#define WTAP_FILE_DBS_ETHERWATCH		28
+#define WTAP_FILE_PCAP_AIX			7
+#define WTAP_FILE_LANALYZER			8
+#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	9
+#define WTAP_FILE_NGSNIFFER_COMPRESSED		10
+#define WTAP_FILE_SNOOP				11
+#define WTAP_FILE_IPTRACE_1_0			12
+#define WTAP_FILE_IPTRACE_2_0			13
+#define WTAP_FILE_NETMON_1_x			14
+#define WTAP_FILE_NETMON_2_x			15
+#define WTAP_FILE_NETXRAY_1_0			16
+#define WTAP_FILE_NETXRAY_1_1			17
+#define WTAP_FILE_NETXRAY_2_00x			18
+#define WTAP_FILE_RADCOM			19
+#define WTAP_FILE_ASCEND			20
+#define WTAP_FILE_NETTL				21
+#define WTAP_FILE_TOSHIBA			22
+#define WTAP_FILE_I4BTRACE			23
+#define WTAP_FILE_CSIDS				24
+#define WTAP_FILE_PPPDUMP			25
+#define WTAP_FILE_ETHERPEEK_MAC_V56		26
+#define WTAP_FILE_ETHERPEEK_MAC_V7		27
+#define WTAP_FILE_VMS				28
+#define WTAP_FILE_DBS_ETHERWATCH		29
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			29
+#define WTAP_NUM_FILE_TYPES			30
 
 /*
  * Maximum packet size we'll support.
