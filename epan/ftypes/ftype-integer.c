@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.16 2003/12/06 16:35:19 gram Exp $
+ * $Id: ftype-integer.c,v 1.17 2004/02/27 12:00:31 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,6 +162,12 @@ s_cmp_le(fvalue_t *a, fvalue_t *b)
 	return a->value.integer <= b->value.integer;
 }
 
+static gboolean
+cmp_bitwise_and(fvalue_t *a, fvalue_t *b)
+{
+	return (a->value.integer & b->value.integer);
+}
+
 /* BOOLEAN-specific */
 
 static void
@@ -242,6 +248,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -273,6 +280,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -304,6 +312,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -335,6 +344,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -366,6 +376,7 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -397,6 +408,7 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -428,6 +440,7 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -459,6 +472,7 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -490,6 +504,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_ge */
 		NULL,				/* cmp_lt */
 		NULL,				/* cmp_le */
+		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -522,6 +537,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -554,6 +570,7 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 

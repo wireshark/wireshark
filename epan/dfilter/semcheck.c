@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.24 2004/02/22 03:04:40 gram Exp $
+ * $Id: semcheck.c,v 1.25 2004/02/27 12:00:31 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -803,6 +803,9 @@ check_test(stnode_t *st_node)
 			break;
 		case TEST_OP_LE:
 			check_relation("<=", FALSE, ftype_can_le, st_node, st_arg1, st_arg2);
+			break;
+		case TEST_OP_BITWISE_AND:
+			check_relation("&", FALSE, ftype_can_bitwise_and, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_CONTAINS:
 			check_relation("contains", TRUE, ftype_can_contains, st_node, st_arg1, st_arg2);

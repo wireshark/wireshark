@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-pcre.c,v 1.2 2004/01/25 17:33:20 jmayer Exp $
+ * $Id: ftype-pcre.c,v 1.3 2004/02/27 12:00:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -184,6 +184,7 @@ ftype_register_pcre(void)
 		NULL,				/* cmp_ge */
 		NULL,				/* cmp_lt */
 		NULL,				/* cmp_le */
+		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -223,6 +224,7 @@ ftype_register_pcre(void)
 		NULL,				/* cmp_ge */
 		NULL,				/* cmp_lt */
 		NULL,				/* cmp_le */
+		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 

@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-none.c,v 1.8 2003/12/06 16:35:19 gram Exp $
+ * $Id: ftype-none.c,v 1.9 2004/02/27 12:00:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,7 @@ ftype_register_none(void)
 		NULL,				/* cmp_ge */
 		NULL,				/* cmp_lt */
 		NULL,				/* cmp_le */
+		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 

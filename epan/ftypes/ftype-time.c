@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.22 2003/12/06 16:35:20 gram Exp $
+ * $Id: ftype-time.c,v 1.23 2004/02/27 12:00:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -362,6 +362,7 @@ ftype_register_time(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
@@ -393,6 +394,7 @@ ftype_register_time(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 

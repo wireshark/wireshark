@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.20 2003/12/09 23:02:39 obiot Exp $
+ * $Id: ftypes.c,v 1.21 2004/02/27 12:00:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -174,6 +174,15 @@ ftype_can_le(enum ftenum ftype)
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_le ? TRUE : FALSE;
+}
+
+gboolean
+ftype_can_bitwise_and(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->cmp_bitwise_and ? TRUE : FALSE;
 }
 
 gboolean
@@ -503,6 +512,14 @@ fvalue_le(fvalue_t *a, fvalue_t *b)
 	/* XXX - check compatibility of a and b */
 	g_assert(a->ftype->cmp_le);
 	return a->ftype->cmp_le(a, b);
+}
+
+gboolean
+fvalue_bitwise_and(fvalue_t *a, fvalue_t *b)
+{
+	/* XXX - check compatibility of a and b */
+	g_assert(a->ftype->cmp_bitwise_and);
+	return a->ftype->cmp_bitwise_and(a, b);
 }
 
 gboolean

@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.c,v 1.14 2003/12/19 04:40:24 gram Exp $
+ * $Id: dfvm.c,v 1.15 2004/02/27 12:00:30 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -156,6 +156,11 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 
 			case ANY_LE:
 				fprintf(f, "%05d ANY_LE\t\treg#%d == reg#%d\n",
+					id, arg1->value.numeric, arg2->value.numeric);
+				break;
+
+			case ANY_BITWISE_AND:
+				fprintf(f, "%05d ANY_BITWISE_AND\t\treg#%d == reg#%d\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
@@ -410,6 +415,11 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case ANY_LE:
 				accum = any_test(df, fvalue_le,
+						arg1->value.numeric, arg2->value.numeric);
+				break;
+
+			case ANY_BITWISE_AND:
+				accum = any_test(df, fvalue_bitwise_and,
 						arg1->value.numeric, arg2->value.numeric);
 				break;
 

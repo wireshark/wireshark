@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.19 2004/02/01 02:35:30 jmayer Exp $
+ * $Id: ftype-string.c,v 1.20 2004/02/27 12:00:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -298,6 +298,7 @@ ftype_register_string(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_bitwise_and */
 		cmp_contains,
 		CMP_MATCHES,
 
@@ -329,6 +330,7 @@ ftype_register_string(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,
 
@@ -360,6 +362,7 @@ ftype_register_string(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,
 

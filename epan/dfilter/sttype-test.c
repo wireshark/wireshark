@@ -1,5 +1,5 @@
 /*
- * $Id: sttype-test.c,v 1.5 2003/12/06 16:35:19 gram Exp $
+ * $Id: sttype-test.c,v 1.6 2004/02/27 12:00:31 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,27 +71,18 @@ num_operands(test_op_t op)
 		case TEST_OP_UNINITIALIZED:
 			g_assert_not_reached();
 		case TEST_OP_EXISTS:
-			return 1;
 		case TEST_OP_NOT:
 			return 1;
 		case TEST_OP_AND:
-			return 2;
 		case TEST_OP_OR:
-			return 2;
 		case TEST_OP_EQ:
-			return 2;
 		case TEST_OP_NE:
-			return 2;
 		case TEST_OP_GT:
-			return 2;
 		case TEST_OP_GE:
-			return 2;
 		case TEST_OP_LT:
-			return 2;
 		case TEST_OP_LE:
-			return 2;
+		case TEST_OP_BITWISE_AND:
 		case TEST_OP_CONTAINS:
-			return 2;
 		case TEST_OP_MATCHES:
 			return 2;
 	}

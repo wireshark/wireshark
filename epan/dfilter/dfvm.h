@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.h,v 1.10 2003/12/06 16:35:19 gram Exp $
+ * $Id: dfvm.h,v 1.11 2004/02/27 12:00:30 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,7 @@ typedef enum {
 	ANY_GE,
 	ANY_LT,
 	ANY_LE,
+	ANY_BITWISE_AND,
 	ANY_CONTAINS,
 	ANY_MATCHES,
 	MK_RANGE

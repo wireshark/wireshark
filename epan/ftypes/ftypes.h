@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.30 2004/02/01 02:35:30 jmayer Exp $
+ * $Id: ftypes.h,v 1.31 2004/02/27 12:00:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,9 @@ gboolean
 ftype_can_le(enum ftenum ftype);
 
 gboolean
+ftype_can_bitwise_and(enum ftenum ftype);
+
+gboolean
 ftype_can_contains(enum ftenum ftype);
 
 gboolean
@@ -207,6 +210,7 @@ struct _ftype_t {
 	FvalueCmp		cmp_ge;
 	FvalueCmp		cmp_lt;
 	FvalueCmp		cmp_le;
+	FvalueCmp		cmp_bitwise_and;
 	FvalueCmp		cmp_contains;
 	FvalueCmp		cmp_matches;
 
@@ -301,6 +305,9 @@ fvalue_lt(fvalue_t *a, fvalue_t *b);
 
 gboolean
 fvalue_le(fvalue_t *a, fvalue_t *b);
+
+gboolean
+fvalue_bitwise_and(fvalue_t *a, fvalue_t *b);
 
 gboolean
 fvalue_contains(fvalue_t *a, fvalue_t *b);
