@@ -18,6 +18,7 @@ ethereal_SOURCES = \
 	packet-arp.c   \
 	packet-atalk.c \
 	packet-bootp.c \
+	packet-cdp.c   \
 	packet-data.c  \
 	packet-dns.c   \
 	packet-eth.c   \

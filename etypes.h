@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.3 1998/09/17 02:37:45 gerald Exp $
+ * $Id: etypes.h,v 1.4 1998/12/19 00:12:20 hannes Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,4 +69,13 @@
 #ifndef ETHERTYPE_VINES
 #define ETHERTYPE_VINES 0xbad
 #endif
+
+#ifndef ETHERTYPE_CDP
+#define ETHERTYPE_CDP 0x2000	/* Cisco Discovery Protocol */
+#endif
+
+#ifndef ETHERTYPE_LOOP
+#define ETHERTYPE_LOOP 0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
+#endif
+
 #endif /* etypes.h */

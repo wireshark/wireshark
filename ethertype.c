@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.10 1998/11/17 04:28:46 gerald Exp $
+ * $Id: ethertype.c,v 1.11 1998/12/19 00:12:19 hannes Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -54,6 +54,8 @@ ethertype_to_str(guint16 etype, const char *fmt)
     {ETHERTYPE_AARP,   "AARP"           },
     {ETHERTYPE_IPX,    "Netware IPX/SPX"},
     {ETHERTYPE_VINES,  "Vines"          },
+    {ETHERTYPE_CDP,    "CDP"            }, /* Cisco Discovery Protocol */
+    {ETHERTYPE_LOOP,   "Loopback"       }, /* Ethernet Loopback */
     {0,                 NULL            } };
 
     return val_to_str(etype, etype_vals, fmt);
@@ -92,6 +94,13 @@ ethertype(guint16 etype, int offset,
       break;
     case ETHERTYPE_VINES:
       dissect_vines(pd, offset, fd, tree);
+      break;
+    case ETHERTYPE_CDP:
+      dissect_cdp(pd, offset, fd, tree);
+      break;
+    case ETHERTYPE_LOOP:
+      dissect_data(pd, offset, fd, tree);
+      if (check_col(fd, COL_PROTOCOL)) { col_add_fstr(fd, COL_PROTOCOL, "LOOP"); }
       break;
     default:
       dissect_data(pd, offset, fd, tree);

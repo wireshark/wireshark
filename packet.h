@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.27 1998/12/04 05:59:14 guy Exp $
+ * $Id: packet.h,v 1.28 1998/12/19 00:12:23 hannes Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -435,6 +435,7 @@ enum {
 	ETT_AARP,
 	ETT_GIOP,
 	ETT_NBDGM,
+	ETT_CDP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -527,15 +528,16 @@ void dissect_tr(const u_char *, frame_data *, GtkTree *);
 void dissect_aarp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_arp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_bootp(const u_char *, int, frame_data *, GtkTree *);
+void dissect_cdp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_data(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ddp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_dns(const u_char *, int, frame_data *, GtkTree *);
+void dissect_giop(const u_char *, int, frame_data *, GtkTree *);
 void dissect_icmp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_igmp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ip(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ipv6(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ipx(const u_char *, int, frame_data *, GtkTree *);
-void dissect_giop(const u_char *, int, frame_data *, GtkTree *);
 void dissect_llc(const u_char *, int, frame_data *, GtkTree *);
 void dissect_lpd(const u_char *, int, frame_data *, GtkTree *);
 void dissect_nbdgm(const u_char *, int, frame_data *, GtkTree *);
