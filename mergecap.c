@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.6 2002/02/08 10:07:34 guy Exp $
+ * $Id: mergecap.c,v 1.7 2002/02/24 01:26:42 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -405,7 +405,7 @@ main(int argc, char *argv[])
   out_file.count      = 1;                 /* frames output */
 
   /* Process the options first */
-  while ((opt = getopt(argc, argv, "hvas:T:F:w:")) != EOF) {
+  while ((opt = getopt(argc, argv, "hvas:T:F:w:")) != -1) {
 
     switch (opt) {
     case 'w':

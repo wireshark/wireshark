@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.233 2002/02/18 01:08:44 guy Exp $
+ * $Id: main.c,v 1.234 2002/02/24 01:26:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1412,7 +1412,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:W:vZ:")) !=  EOF) {
+  while ((opt = getopt(argc, argv, "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:W:vZ:")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.122 2002/02/18 01:08:38 guy Exp $
+ * $Id: tethereal.c,v 1.123 2002/02/24 01:26:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -415,7 +415,7 @@ main(int argc, char *argv[])
 #endif
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pr:R:s:t:vw:Vx")) != EOF) {
+  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pr:R:s:t:vw:Vx")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP

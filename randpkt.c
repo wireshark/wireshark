@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.12 2002/02/14 17:45:07 gram Exp $
+ * $Id: randpkt.c,v 1.13 2002/02/24 01:26:42 guy Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -304,7 +304,7 @@ main(int argc, char **argv)
 	int			produce_max_bytes = 5000;
 	pkt_example		*example;
 
-	while ((opt = getopt(argc, argv, "b:c:t:")) != EOF) {
+	while ((opt = getopt(argc, argv, "b:c:t:")) != -1) {
 		switch (opt) {
 			case 'b':	/* max bytes */
 				produce_max_bytes = atoi(optarg);

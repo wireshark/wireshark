@@ -1060,6 +1060,11 @@ John Mackenzie <John.A.Mackenzie[AT]t-online.de> {
 	Put missing initializations of table entries in "plugins.c"
 }
 
+Peter Valchev <pvalchev[AT]openbsd.org> {
+	Fix editcap to assign the result of "getopt()" to an "int" and
+	   to check "getopt()"s return value with -1 rather than EOF
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

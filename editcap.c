@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.19 2002/02/08 10:07:33 guy Exp $
+ * $Id: editcap.c,v 1.20 2002/02/24 01:26:42 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -314,13 +314,13 @@ int main(int argc, char *argv[])
   callback_arg args;
   extern char *optarg;
   extern int optind;
-  char opt;
+  int opt;
   char *p;
   int snapshot_length;
 
   /* Process the options first */
 
-  while ((opt = getopt(argc, argv, "T:F:rvs:t:h")) != EOF) {
+  while ((opt = getopt(argc, argv, "T:F:rvs:t:h")) !=-1) {
 
     switch (opt) {
 
