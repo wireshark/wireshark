@@ -607,14 +607,14 @@ capture_prep(void)
   combo_list = build_capture_combo_list(if_list, TRUE);
   if (combo_list != NULL)
     gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), combo_list);
-  if (cfile.iface == NULL && prefs.capture_device != NULL) {
+  if (capture_opts->iface == NULL && prefs.capture_device != NULL) {
     /* No interface was specified on the command line or in a previous
        capture, but there is one specified in the preferences file;
        make the one from the preferences file the default */
-    cfile.iface	= g_strdup(prefs.capture_device);
+    capture_opts->iface	= g_strdup(prefs.capture_device);
   }
-  if (cfile.iface != NULL)
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), cfile.iface);
+  if (capture_opts->iface != NULL)
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), capture_opts->iface);
   else if (combo_list != NULL) {
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
 		       (char *)combo_list->data);
@@ -744,8 +744,8 @@ capture_prep(void)
 
   if (filter_list != NULL)
     gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
-  if (cfile.cfilter)
-    gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
+  if (capture_opts->cfilter)
+    gtk_entry_set_text(GTK_ENTRY(filter_te), capture_opts->cfilter);
   gtk_tooltips_set_tip(tooltips, filter_te,
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it.",
@@ -1241,7 +1241,6 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   gchar *if_text;
   gchar *if_name;
   const gchar *filter_text;
-  gchar *save_file;
   const gchar *g_save_file;
   gchar *cf_name;
   gchar *dirname;
@@ -1294,9 +1293,9 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     g_free(entry_text);
     return;
   }
-  if (cfile.iface)
-    g_free(cfile.iface);
-  cfile.iface = g_strdup(if_name);
+  if (capture_opts->iface)
+    g_free(capture_opts->iface);
+  capture_opts->iface = g_strdup(if_name);
   g_free(entry_text);
 
   capture_opts->linktype =
@@ -1330,15 +1329,15 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
      no filter is set, which means no packets arrive as input on that
      socket, which means Ethereal never sees any packets. */
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
-  if (cfile.cfilter)
-    g_free(cfile.cfilter);
+  if (capture_opts->cfilter)
+    g_free(capture_opts->cfilter);
   g_assert(filter_text != NULL);
-  cfile.cfilter = g_strdup(filter_text);
+  capture_opts->cfilter = g_strdup(filter_text);
 
   g_save_file = gtk_entry_get_text(GTK_ENTRY(file_te));
   if (g_save_file && g_save_file[0]) {
     /* User specified a file to which the capture should be written. */
-    save_file = g_strdup(g_save_file);
+    capture_opts->save_file = g_strdup(g_save_file);
     /* Save the directory name for future file dialogs. */
     cf_name = g_strdup(g_save_file);
     dirname = get_dirname(cf_name);  /* Overwrites cf_name */
@@ -1346,7 +1345,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     g_free(cf_name);
   } else {
     /* User didn't specify a file; save to a temporary file. */
-    save_file = NULL;
+    capture_opts->save_file = NULL;
   }
 
   capture_opts->has_autostop_packets =
@@ -1421,7 +1420,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     }
 
     /* test if the settings are ok for a ringbuffer */
-    if (save_file == NULL) {
+    if (capture_opts->save_file == NULL) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         PRIMARY_TEXT_START "Multiple files: No capture file name given!\n\n" PRIMARY_TEXT_END
         "You must specify a filename if you want to use multiple files.");
@@ -1431,7 +1430,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
         PRIMARY_TEXT_START "Multiple files: No file limit given!\n\n" PRIMARY_TEXT_END
         "You must specify a file size at which is switched to the next capture file\n"
         "if you want to use multiple files.");
-      g_free(save_file);
+      g_free(capture_opts->save_file);
+      capture_opts->save_file = NULL;
       return;
     }
   } else {
@@ -1468,13 +1468,11 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 
   window_destroy(GTK_WIDGET(parent_w));
 
-  if (do_capture(capture_opts, save_file)) {
+  if (do_capture(capture_opts)) {
     /* The capture succeeded, which means the capture filter syntax is
        valid; add this capture filter to the recent capture filter list. */
-    cfilter_combo_add_recent(cfile.cfilter);
+    cfilter_combo_add_recent(capture_opts->cfilter);
   }
-  if (save_file != NULL)
-    g_free(save_file);
 }
 
 static void

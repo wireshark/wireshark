@@ -38,6 +38,9 @@
 typedef struct capture_options_tag {
     /* general */
     void *cf;               /**< handle to cfile (note: untyped handle) */
+    gchar       *cfilter;   /**< Capture filter string */
+    gchar       *iface;     /**< the network interface to capture from */
+
 #ifdef _WIN32
     int buffer_size;        /**< the capture buffer size (MB) */
 #endif
@@ -48,7 +51,7 @@ typedef struct capture_options_tag {
 	int linktype;			/**< Data link type to use, or -1 for
 					   "use default" */
 	gboolean capture_child;	/**< True if this is the child for "-S" */
-    gchar    *save_file;    /**< File the capture was saved in */
+    gchar    *save_file;    /**< the capture file name */
     int      save_file_fd;  /**< File descriptor for saved file */
 
     /* GUI related */
@@ -89,15 +92,17 @@ typedef struct capture_options_tag {
 extern void
 capture_opts_init(capture_options *capture_opts, void *cfile);
 
+extern void
+capture_opt_add(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture);
+
 /** 
  * Open a specified file, or create a temporary file, and start a capture
  * to the file in question.  
  *
  * @param capture_opts the numerous capture options
- * @param save_file the name of the capture file, or NULL for a temporary file
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
-extern gboolean do_capture(capture_options *capture_opts, const char *save_file);
+extern gboolean do_capture(capture_options *capture_opts);
 
 /** Do the low-level work of a capture (start the capture child). */
 extern int  capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);

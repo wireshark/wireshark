@@ -531,7 +531,7 @@ cf_read(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 cf_status_t
-cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
+cf_start_tail(capture_file *cf, const char *fname, const char *iface, gboolean is_tempfile, int *err)
 {
   gchar *capture_msg;
   cf_status_t cf_status;
@@ -546,7 +546,7 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
 
-    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(cf->iface));
+    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(iface));
 
     statusbar_push_file_msg(capture_msg);
 
@@ -715,14 +715,6 @@ cf_packet_count(capture_file *cf)
 }
 
 /* XXX - use a macro instead? */
-/* XXX - move iface this to capture_opts? */
-gchar *
-cf_get_iface(capture_file *cf)
-{
-    return cf->iface;
-}
-
-/* XXX - use a macro instead? */
 gboolean
 cf_is_tempfile(capture_file *cf)
 {
@@ -744,11 +736,6 @@ void cf_set_drops(capture_file *cf, guint32 drops)
 void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
 {
     cf->rfcode = rfcode;
-}
-
-gchar *cf_get_cfilter(capture_file *cf)
-{
-    return cf->cfilter;
 }
 
 typedef struct {

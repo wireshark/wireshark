@@ -35,6 +35,10 @@
 
 #include "globals.h"
 #include "file.h"
+#ifdef HAVE_LIBPCAP
+#include "capture.h"
+#include "main.h"
+#endif
 #include "summary.h"
 #include "summary_dlg.h"
 #include "dlg_utils.h"
@@ -111,6 +115,9 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* initial computations */
   summary_fill_in(&cfile, &summary);
+#ifdef HAVE_LIBPCAP
+  summary_fill_in_capture(capture_opts, &summary);
+#endif
   seconds = summary.stop_time - summary.start_time;
   disp_seconds = summary.filtered_stop - summary.filtered_start;
 
@@ -199,7 +206,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* interface */
   if (summary.iface) {
-    g_snprintf(string_buff, SUM_STR_MAX, "%s", summary.iface);
+    g_snprintf(string_buff, SUM_STR_MAX, "%s", summary.iface_descr);
   } else {
     g_snprintf(string_buff, SUM_STR_MAX, "unknown");
   }

@@ -244,7 +244,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     argv = sync_pipe_add_arg(argv, &argc, CHILD_NAME);
 
     argv = sync_pipe_add_arg(argv, &argc, "-i");
-    argv = sync_pipe_add_arg(argv, &argc, cf_get_iface(capture_opts->cf));
+    argv = sync_pipe_add_arg(argv, &argc, capture_opts->iface);
 
     argv = sync_pipe_add_arg(argv, &argc, "-w");
     argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
@@ -321,9 +321,9 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
     /* Convert filter string to a quote delimited string and pass to child */
     filterstring = NULL;
-    if (cf_get_cfilter(capture_opts->cf) != NULL && strlen(cf_get_cfilter(capture_opts->cf)) != 0) {
+    if (capture_opts->cfilter != NULL && strlen(capture_opts->cfilter) != 0) {
       argv = sync_pipe_add_arg(argv, &argc, "-f");
-      filterstring = sync_pipe_quote_encapsulate(cf_get_cfilter(capture_opts->cf));
+      filterstring = sync_pipe_quote_encapsulate(capture_opts->cfilter);
       argv = sync_pipe_add_arg(argv, &argc, filterstring);
     }
 
@@ -485,7 +485,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
     /* The child process started a capture.
        Attempt to open the capture file and set up to read it. */
-    switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+    switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, capture_opts->iface, is_tempfile, &err)) {
     case CF_OK:
         /* We were able to open and set up to read the capture file;
            arrange that our callback be called whenever it's possible

@@ -170,6 +170,8 @@ static loop_data ld;
 #ifdef HAVE_LIBPCAP
 typedef struct {
     gchar    *save_file;    /* File that user saved capture to */
+    gchar       *cfilter;   /* Capture filter string */
+    gchar       *iface;     /* the network interface to capture from */
 	int snaplen;			/* Maximum captured packet length */
 	int promisc_mode;		/* Capture in promiscuous mode */
 	int autostop_count;		/* Maximum packet count */
@@ -189,6 +191,8 @@ typedef struct {
 
 static capture_options capture_opts = {
     "",
+    "",
+    NULL,
 	WTAP_MAX_PACKET_SIZE,		/* snapshot length - default is
 					   infinite, in effect */
 	TRUE,				/* promiscuous mode is the default */
@@ -856,6 +860,10 @@ main(int argc, char *argv[])
   char                 badopt;
   ethereal_tap_list *tli;
 
+
+  /* XXX - better use capture_opts_init instead */
+  capture_opts.cfilter = g_strdup("");
+
   set_timestamp_setting(TS_RELATIVE);
 
   /* Register all dissectors; we must do this before checking for the
@@ -1038,9 +1046,9 @@ main(int argc, char *argv[])
       case 'f':
 #ifdef HAVE_LIBPCAP
         capture_filter_specified = TRUE;
-	if (cfile.cfilter)
-		g_free(cfile.cfilter);
-	cfile.cfilter = g_strdup(optarg);
+	if (capture_opts.cfilter)
+		g_free(capture_opts.cfilter);
+	capture_opts.cfilter = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1107,10 +1115,10 @@ main(int argc, char *argv[])
             fprintf(stderr, "tethereal: there is no interface with that adapter index\n");
             exit(1);
           }
-          cfile.iface = g_strdup(if_info->name);
+          capture_opts.iface = g_strdup(if_info->name);
           free_interface_list(if_list);
         } else
-          cfile.iface = g_strdup(optarg);
+          capture_opts.iface = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1311,7 +1319,7 @@ main(int argc, char *argv[])
 "tethereal: Capture filters were specified both with \"-f\" and with additional command-line arguments\n");
         exit(2);
       }
-      cfile.cfilter = get_args_as_string(argc, argv, optind);
+      capture_opts.cfilter = get_args_as_string(argc, argv, optind);
 #else
       capture_option_specified = TRUE;
 #endif
@@ -1602,15 +1610,15 @@ main(int argc, char *argv[])
 #endif
 
     /* Yes; did the user specify an interface to use? */
-    if (cfile.iface == NULL) {
+    if (capture_opts.iface == NULL) {
         /* No - is a default specified in the preferences file? */
         if (prefs->capture_device != NULL) {
             /* Yes - use it. */
 	    if_text = strrchr(prefs->capture_device, ' ');
 	    if (if_text == NULL) {
-            	cfile.iface = g_strdup(prefs->capture_device);
+            	capture_opts.iface = g_strdup(prefs->capture_device);
 	    } else {
-            	cfile.iface = g_strdup(if_text + 1); /* Skip over space */
+            	capture_opts.iface = g_strdup(if_text + 1); /* Skip over space */
 	    }
         } else {
             /* No - pick the first one from the list of interfaces. */
@@ -1632,7 +1640,7 @@ main(int argc, char *argv[])
                 exit(2);
             }
 	    if_info = if_list->data;	/* first interface */
-	    cfile.iface = g_strdup(if_info->name);
+	    capture_opts.iface = g_strdup(if_info->name);
             free_interface_list(if_list);
         }
     }
@@ -1640,7 +1648,7 @@ main(int argc, char *argv[])
     if (list_link_layer_types) {
       /* We were asked to list the link-layer types for an interface.
          Get the list of link-layer types for the capture device. */
-      lt_list = get_pcap_linktype_list(cfile.iface, err_str);
+      lt_list = get_pcap_linktype_list(capture_opts.iface, err_str);
       if (lt_list == NULL) {
 	if (err_str[0] != '\0') {
 	  fprintf(stderr, "tethereal: The list of data link types for the capture device could not be obtained (%s).\n"
@@ -1733,13 +1741,13 @@ capture(int out_file_type)
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
-  ld.pch = pcap_open_live(cfile.iface, capture_opts.snaplen,
+  ld.pch = pcap_open_live(capture_opts.iface, capture_opts.snaplen,
 			  capture_opts.promisc_mode, 1000, open_err_str);
 
   if (ld.pch != NULL) {
     /* setting the data link type only works on real interfaces */
     if (capture_opts.linktype != -1) {
-      set_linktype_err_str = set_pcap_linktype(ld.pch, cfile.iface,
+      set_linktype_err_str = set_pcap_linktype(ld.pch, capture_opts.iface,
 	capture_opts.linktype);
       if (set_linktype_err_str != NULL) {
 	snprintf(errmsg, sizeof errmsg, "Unable to set data link type (%s).",
@@ -1828,9 +1836,9 @@ capture(int out_file_type)
   setgid(getgid());
 #endif
 
-  if (cfile.cfilter && !ld.from_pipe) {
+  if (capture_opts.cfilter && !ld.from_pipe) {
     /* A capture filter was specified; set it up. */
-    if (pcap_lookupnet(cfile.iface, &netnum, &netmask, lookup_net_err_str) < 0) {
+    if (pcap_lookupnet(capture_opts.iface, &netnum, &netmask, lookup_net_err_str) < 0) {
       /*
        * Well, we can't get the netmask for this interface; it's used
        * only for filters that check for broadcast IP addresses, so
@@ -1840,8 +1848,8 @@ capture(int out_file_type)
         "Warning:  Couldn't obtain netmask info (%s).\n", lookup_net_err_str);
       netmask = 0;
     }
-    if (pcap_compile(ld.pch, &fcode, cfile.cfilter, 1, netmask) < 0) {
-      if (dfilter_compile(cfile.cfilter, &rfcode)) {
+    if (pcap_compile(ld.pch, &fcode, capture_opts.cfilter, 1, netmask) < 0) {
+      if (dfilter_compile(capture_opts.cfilter, &rfcode)) {
         snprintf(errmsg, sizeof errmsg,
 	  "Unable to parse capture filter string (%s).\n"
           "  Interestingly enough, this looks like a valid display filter\n"
@@ -1869,7 +1877,7 @@ capture(int out_file_type)
   } else
 #endif
   {
-    pcap_encap = get_pcap_linktype(ld.pch, cfile.iface);
+    pcap_encap = get_pcap_linktype(ld.pch, capture_opts.iface);
     file_snaplen = pcap_snapshot(ld.pch);
   }
   ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
@@ -1929,7 +1937,7 @@ capture(int out_file_type)
 #endif /* _WIN32 */
 
   /* Let the user know what interface was chosen. */
-  descr = get_interface_descriptive_name(cfile.iface);
+  descr = get_interface_descriptive_name(capture_opts.iface);
   fprintf(stderr, "Capturing on %s\n", descr);
   g_free(descr);
 
@@ -2774,7 +2782,7 @@ print_columns(capture_file *cf)
        * the same time, sort of like an "Update list of packets
        * in real time" capture in Ethereal.)
        */
-      if (cf->iface != NULL)
+      if (capture_opts.iface != NULL)
         continue;
       column_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 3)

@@ -558,7 +558,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
-  ld->pcap_h = pcap_open_live(cf_get_iface(capture_opts->cf),
+  ld->pcap_h = pcap_open_live(capture_opts->iface,
 		       capture_opts->has_snaplen ? capture_opts->snaplen :
 						  WTAP_MAX_PACKET_SIZE,
 		       capture_opts->promisc_mode, CAP_READ_TIMEOUT,
@@ -582,7 +582,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
     /* setting the data link type only works on real interfaces */
     if (capture_opts->linktype != -1) {
-      set_linktype_err_str = set_pcap_linktype(ld->pcap_h, cf_get_iface(capture_opts->cf),
+      set_linktype_err_str = set_pcap_linktype(ld->pcap_h, capture_opts->iface,
 	capture_opts->linktype);
       if (set_linktype_err_str != NULL) {
 	g_snprintf(errmsg, errmsg_len, "Unable to set data link type (%s).",
@@ -782,7 +782,7 @@ static int capture_loop_open_wiretap_output(capture_options *capture_opts, loop_
   } else
 #endif
   {
-    pcap_encap = get_pcap_linktype(ld->pcap_h, cf_get_iface(capture_opts->cf));
+    pcap_encap = get_pcap_linktype(ld->pcap_h, capture_opts->iface);
     file_snaplen = pcap_snapshot(ld->pcap_h);
   }
 
@@ -1023,7 +1023,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* init the input filter from the network interface (capture pipe will do nothing) */
-  if (!capture_loop_init_filter(&ld, cf_get_iface(capture_opts->cf), cf_get_cfilter(capture_opts->cf), errmsg, sizeof(errmsg))) {
+  if (!capture_loop_init_filter(&ld, capture_opts->iface, capture_opts->cfilter, errmsg, sizeof(errmsg))) {
     goto error;
   }
 
@@ -1075,7 +1075,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if(show_info) {
       capture_ui.callback_data  = &ld;
       capture_ui.counts         = &ld.counts;
-      capture_info_create(&capture_ui, cf_get_iface(capture_opts->cf));
+      capture_info_create(&capture_ui, capture_opts->iface);
   }
 
   /* init the time values */

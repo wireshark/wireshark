@@ -25,6 +25,10 @@
 #ifndef __SUMMARY_H__
 #define __SUMMARY_H__
 
+#ifdef HAVE_LIBPCAP
+#include "capture.h"
+#endif
+
 typedef struct _summary_tally {
     guint32	bytes;		/* total bytes */
     double	start_time;	/* seconds, with msec resolution */
@@ -48,9 +52,16 @@ typedef struct _summary_tally {
     const char	*iface;		/* interface name */
     const char	*dfilter;	/* display filter */
     const char	*cfilter;	/* capture filter */
+    const char	*iface_descr;/* descriptive interface name */
 } summary_tally;
 
-void summary_fill_in(capture_file *cf, summary_tally *st);
+extern void 
+summary_fill_in(capture_file *cf, summary_tally *st);
+
+#ifdef HAVE_LIBPCAP
+extern void
+summary_fill_in_capture(capture_options *capture_opts, summary_tally *st);
+#endif
 
 #endif /* summary.h */
 

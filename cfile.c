@@ -52,10 +52,6 @@ init_cap_file(capture_file *cf)
   cf->rfcode		= NULL;
   cf->dfilter		= NULL;
   cf->dfcode		= NULL;
-#ifdef HAVE_LIBPCAP
-  cf->cfilter		= g_strdup("");
-#endif
-  cf->iface		= NULL;
   cf->has_snap	= FALSE;
   cf->snap		= WTAP_MAX_PACKET_SIZE;
   cf->count		= 0;

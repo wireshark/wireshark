@@ -112,12 +112,16 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
 {
   if_dlg_data_t *if_dlg_data = if_data;
 
-  if (cfile.iface)
-    g_free(cfile.iface);
+  if (capture_opts->iface)
+    g_free(capture_opts->iface);
 
-  cfile.iface = g_strdup(if_dlg_data->device);
+  capture_opts->iface = g_strdup(if_dlg_data->device);
 
-  do_capture(capture_opts, NULL /* save_file */);
+  if (capture_opts->save_file)
+    g_free(capture_opts->save_file);
+  capture_opts->save_file = NULL;
+
+  do_capture(capture_opts);
 }
 
 
@@ -127,10 +131,10 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data)
 {
   if_dlg_data_t *if_dlg_data = if_data;
 
-  if (cfile.iface)
-    g_free(cfile.iface);
+  if (capture_opts->iface)
+    g_free(capture_opts->iface);
 
-  cfile.iface = g_strdup(if_dlg_data->device);
+  capture_opts->iface = g_strdup(if_dlg_data->device);
 
   capture_prep_cb(NULL, NULL);
 }

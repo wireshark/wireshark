@@ -97,7 +97,7 @@ cf_read_status_t cf_read(capture_file *cf);
  * @param err the error code, if an error had occured
  * @return one of cf_status_t
  */
-cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
+cf_status_t cf_start_tail(capture_file *cf, const char *fname, const char *iface, gboolean is_tempfile, int *err);
 
 /**
  * Read packets from the "end" of a capture file.
@@ -152,22 +152,6 @@ int cf_packet_count(capture_file *cf);
  * @return TRUE if it's a temporary file, FALSE otherwise
  */
 gboolean cf_is_tempfile(capture_file *cf);
-
-/**
- * Get the interface name to capture from.
- * 
- * @param cf the capture file
- * @return the interface name (don't have to be g_free'd)
- */
-gchar *cf_get_iface(capture_file *cf);
-
-/**
- * Get the capture filter of this capture file.
- * 
- * @param cf the capture file
- * @return the capture filter (don't have to be g_free'd)
- */
-gchar *cf_get_cfilter(capture_file *cf);
 
 /**
  * Set flag, if the number of packet drops while capturing are known or not.

@@ -29,6 +29,9 @@
 #include <epan/packet.h>
 #include "cfile.h"
 #include "summary.h"
+#ifdef HAVE_LIBPCAP
+#include "capture_ui_utils.h"
+#endif
 
 
 static double
@@ -111,12 +114,25 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->packet_count = cf->count;
   st->drops_known = cf->drops_known;
   st->drops = cf->drops;
-  st->iface = cf->iface;
   st->dfilter = cf->dfilter;
 
-#ifdef HAVE_LIBPCAP
-  st->cfilter = cf->cfilter;
-#else
+  /* capture related */
   st->cfilter = NULL;
-#endif
+  st->iface = NULL;
+  st->iface_descr = NULL;
 }
+
+
+#ifdef HAVE_LIBPCAP
+void
+summary_fill_in_capture(capture_options *capture_opts, summary_tally *st)
+{
+  st->cfilter = capture_opts->cfilter;
+  st->iface = capture_opts->iface;
+  if(st->iface) {
+    st->iface_descr = get_interface_descriptive_name(st->iface);
+  } else {
+    st->iface_descr = NULL;
+  }
+}
+#endif

@@ -1158,104 +1158,6 @@ get_positive_int(const char *string, const char *name)
   return number;
 }
 
-#ifdef HAVE_LIBPCAP
-/*
- * Given a string of the form "<autostop criterion>:<value>", as might appear
- * as an argument to a "-a" option, parse it and set the criterion in
- * question.  Return an indication of whether it succeeded or failed
- * in some fashion.
- */
-static gboolean
-set_autostop_criterion(const char *autostoparg)
-{
-  gchar *p, *colonp;
-
-  colonp = strchr(autostoparg, ':');
-  if (colonp == NULL)
-    return FALSE;
-
-  p = colonp;
-  *p++ = '\0';
-
-  /*
-   * Skip over any white space (there probably won't be any, but
-   * as we allow it in the preferences file, we might as well
-   * allow it here).
-   */
-  while (isspace((guchar)*p))
-    p++;
-  if (*p == '\0') {
-    /*
-     * Put the colon back, so if our caller uses, in an
-     * error message, the string they passed us, the message
-     * looks correct.
-     */
-    *colonp = ':';
-    return FALSE;
-  }
-  if (strcmp(autostoparg,"duration") == 0) {
-    capture_opts->has_autostop_duration = TRUE;
-    capture_opts->autostop_duration = get_positive_int(p,"autostop duration");
-  } else if (strcmp(autostoparg,"filesize") == 0) {
-    capture_opts->has_autostop_filesize = TRUE;
-    capture_opts->autostop_filesize = get_positive_int(p,"autostop filesize");
-  } else {
-    return FALSE;
-  }
-  *colonp = ':'; /* put the colon back */
-  return TRUE;
-}
-
-/*
- * Given a string of the form "<ring buffer file>:<duration>", as might appear
- * as an argument to a "-b" option, parse it and set the arguments in
- * question.  Return an indication of whether it succeeded or failed
- * in some fashion.
- */
-static gboolean
-get_ring_arguments(const char *arg)
-{
-  gchar *p = NULL, *colonp;
-
-  colonp = strchr(arg, ':');
-
-  if (colonp != NULL) {
-    p = colonp;
-    *p++ = '\0';
-  }
-
-  capture_opts->ring_num_files = 
-    get_natural_int(arg, "number of ring buffer files");
-
-  if (colonp == NULL)
-    return TRUE;
-
-  /*
-   * Skip over any white space (there probably won't be any, but
-   * as we allow it in the preferences file, we might as well
-   * allow it here).
-   */
-  while (isspace((guchar)*p))
-    p++;
-  if (*p == '\0') {
-    /*
-     * Put the colon back, so if our caller uses, in an
-     * error message, the string they passed us, the message
-     * looks correct.
-     */
-    *colonp = ':';
-    return FALSE;
-  }
-
-  capture_opts->has_file_duration = TRUE;
-  capture_opts->file_duration = get_positive_int(p,
-						      "ring buffer duration");
-
-  *colonp = ':';	/* put the colon back */
-  return TRUE;
-}
-#endif
-
 #if defined(_WIN32) || GTK_MAJOR_VERSION < 2 || ! defined USE_THREADS
 /* 
    Once every 3 seconds we get a callback here which we use to update
@@ -1368,7 +1270,6 @@ main(int argc, char *argv[])
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
-  gchar               *save_file = NULL;
   GList               *if_list;
   if_info_t           *if_info;
   GList               *lt_list, *lt_entry;
@@ -1572,6 +1473,7 @@ main(int argc, char *argv[])
   }
 
 #ifdef _WIN32
+  /* if the user wants a console to be always there, well, we should open one for him */
   if (prefs->gui_console_open == console_open_always) {
     create_console();
   }
@@ -1679,83 +1581,51 @@ main(int argc, char *argv[])
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
+      /*** capture option specific ***/
       case 'a':        /* autostop criteria */
-#ifdef HAVE_LIBPCAP
-        if (set_autostop_criterion(optarg) == FALSE) {
-          fprintf(stderr, "ethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
-          exit(1);
-        }
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
       case 'b':        /* Ringbuffer option */
+      case 'c':        /* Capture xxx packets */
+      case 'f':        /* capture filter */
+      case 'k':        /* Start capture immediately */
+      case 'H':        /* Hide capture info dialog box */
+      case 'i':        /* Use interface xxx */
+      case 'p':        /* Don't capture in promiscuous mode */
+      case 'Q':        /* Quit after capture (just capture to file) */
+      case 's':        /* Set the snapshot (capture) length */
+      case 'S':        /* "Sync" mode: used for following file ala tail -f */
+      case 'w':        /* Write to capture file xxx */
+      case 'y':        /* Set the pcap data link type */
+#ifdef _WIN32
+      /* Hidden option supporting Sync mode */
+      case 'Z':        /* Write to pipe FD XXX */
+#endif /* _WIN32 */
 #ifdef HAVE_LIBPCAP
-        capture_opts->multi_files_on = TRUE;
-        capture_opts->has_ring_num_files = TRUE;
-	if (get_ring_arguments(optarg) == FALSE) {
-          fprintf(stderr, "ethereal: Invalid or unknown -b arg \"%s\"\n", optarg);
-          exit(1);
-	}
+        capture_opt_add(capture_opts, opt, optarg, &start_capture);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
 #endif
         break;
+#ifdef HAVE_LIBPCAP
+      /* This is a hidden option supporting Sync mode, so we don't set
+       * the error flags for the user in the non-libpcap case.
+       */
+      case 'W':        /* Write to capture file FD xxx */
+        capture_opt_add(capture_opts, opt, optarg, &start_capture);
+	break;
+#endif
+
+      /*** all non capture option specific ***/
       case 'B':        /* Byte view pane height */
         bv_size = get_positive_int(optarg, "byte view pane height");
         break;
-      case 'c':        /* Capture xxx packets */
-#ifdef HAVE_LIBPCAP
-        capture_opts->has_autostop_packets = TRUE;
-        capture_opts->autostop_packets = get_positive_int(optarg, "packet count");
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
-      case 'f':
-#ifdef HAVE_LIBPCAP
-	if (cfile.cfilter)
-		g_free(cfile.cfilter);
-	cfile.cfilter = g_strdup(optarg);
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-	break;
       case 'h':        /* Print help and exit */
 	print_usage(TRUE);
 	exit(0);
         break;
-      case 'i':        /* Use interface xxx */
-#ifdef HAVE_LIBPCAP
-        cfile.iface = g_strdup(optarg);
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
-      case 'k':        /* Start capture immediately */
-#ifdef HAVE_LIBPCAP
-        start_capture = TRUE;
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
       case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP
         auto_scroll_live = TRUE;
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
-      case 'H':        /* Hide capture info dialog box */
-#ifdef HAVE_LIBPCAP
-        capture_opts->show_info = FALSE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1803,25 +1673,8 @@ main(int argc, char *argv[])
           break;
         }
         break;
-      case 'p':        /* Don't capture in promiscuous mode */
-#ifdef HAVE_LIBPCAP
-	capture_opts->promisc_mode = FALSE;
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-	break;
       case 'P':        /* Packet list pane height */
         pl_size = get_positive_int(optarg, "packet list pane height");
-        break;
-      case 'Q':        /* Quit after capture (just capture to file) */
-#ifdef HAVE_LIBPCAP
-        capture_opts->quit_after_cap  = TRUE;
-        start_capture   = TRUE;  /*** -Q implies -k !! ***/
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
         break;
       case 'r':        /* Read capture file xxx */
 	/* We may set "last_open_dir" to "cf_name", and if we change
@@ -1831,23 +1684,6 @@ main(int argc, char *argv[])
         break;
       case 'R':        /* Read file filter */
         rfilter = optarg;
-        break;
-      case 's':        /* Set the snapshot (capture) length */
-#ifdef HAVE_LIBPCAP
-        capture_opts->has_snaplen = TRUE;
-        capture_opts->snaplen = get_positive_int(optarg, "snapshot length");
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
-      case 'S':        /* "Sync" mode: used for following file ala tail -f */
-#ifdef HAVE_LIBPCAP
-        capture_opts->sync_mode = TRUE;
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
@@ -1876,40 +1712,6 @@ main(int argc, char *argv[])
 #endif
         exit(0);
         break;
-      case 'w':        /* Write to capture file xxx */
-#ifdef HAVE_LIBPCAP
-        save_file = g_strdup(optarg);
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-	break;
-      case 'y':        /* Set the pcap data link type */
-#ifdef HAVE_LIBPCAP
-#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
-        capture_opts->linktype = pcap_datalink_name_to_val(optarg);
-        if (capture_opts->linktype == -1) {
-          fprintf(stderr, "ethereal: The specified data link type \"%s\" isn't valid\n",
-                  optarg);
-          exit(1);
-        }
-#else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
-        /* XXX - just treat it as a number */
-        capture_opts->linktype = get_natural_int(optarg, "data link type");
-#endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
-#else /* HAVE_LIBPCAP */
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif /* HAVE_LIBPCAP */
-        break;
-#ifdef HAVE_LIBPCAP
-      /* This is a hidden option supporting Sync mode, so we don't set
-       * the error flags for the user in the non-libpcap case.
-       */
-      case 'W':        /* Write to capture file FD xxx */
-        capture_opts->save_file_fd = atoi(optarg);
-	break;
-#endif
       case 'z':
         for(tli=tap_list;tli;tli=tli->next){
           if(!strncmp(tli->cmd,optarg,strlen(tli->cmd))){
@@ -1926,21 +1728,6 @@ main(int argc, char *argv[])
           exit(1);
         }
         break;
-
-#ifdef _WIN32
-#ifdef HAVE_LIBPCAP
-      /* Hidden option supporting Sync mode */
-      case 'Z':        /* Write to pipe FD XXX */
-        /* associate stdout with pipe */
-        i = atoi(optarg);
-        if (dup2(i, 1) < 0) {
-          fprintf(stderr, "Unable to dup pipe handle\n");
-          exit(1);
-        }
-        break;
-#endif /* HAVE_LIBPCAP */
-#endif /* _WIN32 */
-
       default:
       case '?':        /* Bad flag - print usage message */
         arg_error = TRUE;
@@ -1972,6 +1759,8 @@ main(int argc, char *argv[])
     argc--;
     argv++;
   }
+
+
 
   if (argc != 0) {
     /*
@@ -2029,7 +1818,7 @@ main(int argc, char *argv[])
 	    sync_mode takes precedence;
 	 c) it makes no sense to enable the ring buffer if the maximum
 	    file size is set to "infinite". */
-      if (save_file == NULL) {
+      if (capture_opts->save_file == NULL) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
 	capture_opts->multi_files_on = FALSE;
       }
@@ -2046,11 +1835,11 @@ main(int argc, char *argv[])
 
   if (start_capture || list_link_layer_types) {
     /* Did the user specify an interface to use? */
-    if (cfile.iface == NULL) {
+    if (capture_opts->iface == NULL) {
       /* No - is a default specified in the preferences file? */
       if (prefs->capture_device != NULL) {
           /* Yes - use it. */
-          cfile.iface = g_strdup(prefs->capture_device);
+          capture_opts->iface = g_strdup(prefs->capture_device);
       } else {
         /* No - pick the first one from the list of interfaces. */
         if_list = get_interface_list(&err, err_str);
@@ -2070,7 +1859,7 @@ main(int argc, char *argv[])
           exit(2);
         }
         if_info = if_list->data;	/* first interface */
-        cfile.iface = g_strdup(if_info->name);
+        capture_opts->iface = g_strdup(if_info->name);
         free_interface_list(if_list);
       }
     }
@@ -2087,7 +1876,7 @@ main(int argc, char *argv[])
 
   if (list_link_layer_types) {
     /* Get the list of link-layer types for the capture device. */
-    lt_list = get_pcap_linktype_list(cfile.iface, err_str);
+    lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
     if (lt_list == NULL) {
       if (err_str[0] != '\0') {
 	fprintf(stderr, "ethereal: The list of data link types for the capture device could not be obtained (%s).\n"
@@ -2126,7 +1915,7 @@ main(int argc, char *argv[])
   else if (capture_opts->num_files < RINGBUFFER_MIN_NUM_FILES)
     capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
-#endif
+#endif /* HAVE_LIBPCAP */
 
   /* Notify all registered modules that have had any of their preferences
      changed either from one of the preferences file or from the command
@@ -2184,13 +1973,33 @@ main(int argc, char *argv[])
   /* close the splash screen, as we are going to open the main window now */
   splash_destroy(splash_win);
 
+
 #ifdef HAVE_LIBPCAP
   /* Is this a "child" ethereal, which is only supposed to pop up a
      capture box to let us stop the capture, and run a capture
      to a file that our parent will read? */
-  if (!capture_opts->capture_child) {
+  if (capture_opts->capture_child) {
+    /* This is the child process for a sync mode or fork mode capture,
+       so just do the low-level work of a capture - don't create
+       a temporary file and fork off *another* child process (so don't
+       call "do_capture()"). */
+
+    /* Pop up any queued-up alert boxes. */
+    display_queued_messages();
+
+    /* XXX - hand these stats to the parent process */
+    capture_start(capture_opts, &stats_known, &stats);
+
+    /* The capture is done; there's nothing more for us to do. */
+    gtk_exit(0);
+  }
 #endif
-    /* No.  Pop up the main window, and read in a capture file if
+
+  /***********************************************************************/
+  /* Everything is prepared now, preferences and command line was read in,
+       we are NOT a child window for a synced capture. */
+
+    /* Pop up the main window, and read in a capture file if
        we were told to. */
     create_main_window(pl_size, tv_size, bv_size, prefs);
 
@@ -2310,8 +2119,15 @@ main(int argc, char *argv[])
     }
 #ifdef HAVE_LIBPCAP
     if (start_capture) {
+      if (capture_opts->save_file != NULL) {
+        /* Save the directory name for future file dialogs. */
+        /* (get_dirname overwrites filename) */
+        s = get_dirname(g_strdup(capture_opts->save_file));  
+        set_last_open_dir(s);
+        g_free(s);
+      }
       /* "-k" was specified; start a capture. */
-      if (do_capture(capture_opts, save_file)) {
+      if (do_capture(capture_opts)) {
         /* The capture started.  Open tap windows; we do so after creating
            the main window, to avoid GTK warnings, and after starting the
            capture, so we know we have something to tap. */
@@ -2320,38 +2136,19 @@ main(int argc, char *argv[])
           g_free(tap_opt);
         }
       }
-      if (save_file != NULL) {
-        /* Save the directory name for future file dialogs. */
-        s = get_dirname(save_file);  /* Overwrites save_file */
-        set_last_open_dir(s);
-        g_free(save_file);
-        save_file = NULL;
-      }
     }
     else {
       set_menus_for_capture_in_progress(FALSE);
     }
-  } else {
-    /* This is the child process for a sync mode or fork mode capture,
-       so just do the low-level work of a capture - don't create
-       a temporary file and fork off *another* child process (so don't
-       call "do_capture()"). */
 
-    /* Pop up any queued-up alert boxes. */
-    display_queued_messages();
-
-    /* XXX - hand these stats to the parent process */
-    capture_start(capture_opts, &stats_known, &stats);
-
-    /* The capture is done; there's nothing more for us to do. */
-    gtk_exit(0);
-  }
-  if (!start_capture && (cfile.cfilter == NULL || strlen(cfile.cfilter) == 0)) {
-    if (cfile.cfilter) {
-      g_free(cfile.cfilter);
+  /* if the user didn't supplied a capture filter, use the one to filter out remote connections like SSH */
+  if (!start_capture && (capture_opts->cfilter == NULL || strlen(capture_opts->cfilter) == 0)) {
+    if (capture_opts->cfilter) {
+      g_free(capture_opts->cfilter);
     }
-    cfile.cfilter = g_strdup(get_conn_cfilter());
+    capture_opts->cfilter = g_strdup(get_conn_cfilter());
   }
+
 #else /* HAVE_LIBPCAP */
   set_menus_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */

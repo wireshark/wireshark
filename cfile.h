@@ -60,14 +60,10 @@ typedef struct _capture_file {
   guint32      eusec;     /* Elapsed microseconds */
   gboolean     has_snap;  /* TRUE if maximum capture packet length is known */
   int          snap;      /* Maximum captured packet length */
-  gchar       *iface;     /* Interface */
   wtap        *wth;       /* Wiretap session */
-  dfilter_t   *rfcode;    /* Compiled read filter program */
+  dfilter_t   *rfcode;    /* Compiled read (display) filter program */
   gchar       *dfilter;   /* Display filter string */
   dfilter_t   *dfcode;    /* Compiled display filter program */
-#ifdef HAVE_LIBPCAP
-  gchar       *cfilter;   /* Capture filter string */
-#endif
   gchar       *sfilter;   /* Search filter string */
   gboolean     sbackward; /* TRUE if search is backward, FALSE if forward */
   gboolean     hex;       /* TRUE is raw data search is being performed */
