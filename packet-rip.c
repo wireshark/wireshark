@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.6 1998/11/20 09:24:41 guy Exp $
+ * $Id: packet-rip.c,v 1.7 1999/02/05 00:52:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,7 +49,7 @@ static void dissect_rip_authentication(const e_rip_authentication *rip_authentic
 
 void 
 dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
-    e_riphdr *rip_header;
+    e_riphdr rip_header;
     e_rip_entry rip_entry;
     guint16 family;
     GtkWidget *rip_tree = NULL, *ti; 
@@ -59,13 +59,15 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     "Traceon", "Traceoff", "Vendor specific (Sun)" };
     static char *version[3] = { "RIP", "RIPv1", "RIPv2" };
 
-    rip_header = (e_riphdr *) &pd[offset];
+    /* avoid alignment problem */
+    memcpy(&rip_header, &pd[offset], sizeof(rip_header));
+  
     /* Check if we 've realy got a RIP packet */
 
-    switch(rip_header->version) {
+    switch(rip_header.version) {
 	case RIPv1:
             /* the domain field has to be set to zero for RIPv1 */
-            if(!(rip_header->domain == 0)){ 
+            if(!(rip_header.domain == 0)){ 
                 dissect_data(pd, offset, fd, tree);
                 return;
             }
@@ -74,7 +76,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	    /* check wether or not command nr. is between 1-7 
 	     * (range checking for index of char* packet_type is done at the same time) 
 	     */
-            if( !( (rip_header->command > 0) && (rip_header->command <= 7) )){ 
+            if( !( (rip_header.command > 0) && (rip_header.command <= 7) )){ 
                 dissect_data(pd, offset, fd, tree);
                 return;
             }
@@ -86,19 +88,19 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     }
 
     if (check_col(fd, COL_PROTOCOL))
-        col_add_str(fd, COL_PROTOCOL, version[rip_header->version] );
+        col_add_str(fd, COL_PROTOCOL, version[rip_header.version] );
     if (check_col(fd, COL_INFO))
-        col_add_str(fd, COL_INFO, packet_type[rip_header->command]); 
+        col_add_str(fd, COL_INFO, packet_type[rip_header.command]); 
 
     if (tree) {
 	ti = add_item_to_tree(GTK_WIDGET(tree), offset, (fd->cap_len - offset), "Routing Information Protocol"); 
 	rip_tree = gtk_tree_new(); 
 	add_subtree(ti, rip_tree, ETT_RIP);
 
-	add_item_to_tree(rip_tree, offset, 1, "Command: %d (%s)", rip_header->command, packet_type[rip_header->command]); 
-	add_item_to_tree(rip_tree, offset + 1, 1, "Version: %d", rip_header->version);
-	if(rip_header->version == RIPv2)
-	    add_item_to_tree(rip_tree, offset + 2 , 2, "Routing Domain: %d", ntohs(rip_header->domain)); 
+	add_item_to_tree(rip_tree, offset, 1, "Command: %d (%s)", rip_header.command, packet_type[rip_header.command]); 
+	add_item_to_tree(rip_tree, offset + 1, 1, "Version: %d", rip_header.version);
+	if(rip_header.version == RIPv2)
+	    add_item_to_tree(rip_tree, offset + 2 , 2, "Routing Domain: %d", ntohs(rip_header.domain)); 
 
 	/* skip header */
 	offset += RIP_HEADER_LENGTH;
@@ -114,7 +116,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 				RIP_ENTRY_LENGTH, "IP Address: %s, Metric: %ld",
 				ip_to_str((guint8 *) &(rip_entry.vektor.ip)),
 				(long)ntohl(rip_entry.vektor.metric));
-		dissect_ip_rip_vektor(rip_header->version, &rip_entry.vektor,
+		dissect_ip_rip_vektor(rip_header.version, &rip_entry.vektor,
 				offset, ti);
 		break;
 	    case 0xFFFF:
