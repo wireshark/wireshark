@@ -1913,7 +1913,7 @@ B<http://www.ethereal.com>.
   Martina Obermeier        <Martina.Obermeier[AT]icn.siemens.de>
   Javier Achirica          <achirica[AT]ttd.net>
   B. Johannessen           <bob[AT]havoq.com>
-  Thierry Pelle            <thierry.pelle[AT]rd.francetelecom.fr>
+  Thierry Pelle            <thierry.pelle[AT]laposte.net>
   Francisco Javier Cabello <fjcabello[AT]vtools.es>
   Laurent Rabret           <laurent.rabret[AT]rd.francetelecom.fr>
   nuf si                   <gnippiks[AT]yahoo.com>
