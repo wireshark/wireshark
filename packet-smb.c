@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.295 2002/10/24 06:17:35 guy Exp $
+ * $Id: packet-smb.c,v 1.296 2002/11/05 19:44:51 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -418,13 +418,6 @@ static int hf_smb_file_eattr_compressed = -1;
 static int hf_smb_file_eattr_offline = -1;
 static int hf_smb_file_eattr_not_content_indexed = -1;
 static int hf_smb_file_eattr_encrypted = -1;
-static int hf_smb_file_eattr_write_through = -1;
-static int hf_smb_file_eattr_no_buffering = -1;
-static int hf_smb_file_eattr_random_access = -1;
-static int hf_smb_file_eattr_sequential_scan = -1;
-static int hf_smb_file_eattr_delete_on_close = -1;
-static int hf_smb_file_eattr_backup_semantics = -1;
-static int hf_smb_file_eattr_posix_semantics = -1;
 static int hf_smb_sec_desc_len = -1;
 static int hf_smb_sec_desc_revision = -1;
 static int hf_smb_sec_desc_type_owner_defaulted = -1;
@@ -1452,45 +1445,6 @@ dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, char *type)
 #define SMB_FILE_ATTRIBUTE_NOT_CONTENT_INDEXED	0x00002000
 #define SMB_FILE_ATTRIBUTE_ENCRYPTED		0x00004000
 
-/*
- * These are flags to be used in NT Create operations.
- */
-#define SMB_FILE_ATTRIBUTE_WRITE_THROUGH		0x80000000
-#define SMB_FILE_ATTRIBUTE_NO_BUFFERING		0x20000000
-#define SMB_FILE_ATTRIBUTE_RANDOM_ACCESS		0x10000000
-#define SMB_FILE_ATTRIBUTE_SEQUENTIAL_SCAN		0x08000000
-#define SMB_FILE_ATTRIBUTE_DELETE_ON_CLOSE		0x04000000
-#define SMB_FILE_ATTRIBUTE_BACKUP_SEMANTICS		0x02000000
-#define SMB_FILE_ATTRIBUTE_POSIX_SEMANTICS		0x01000000
-
-static const true_false_string tfs_file_attribute_write_through = {
-	"This object requires WRITE THROUGH",
-	"This object does NOT require write through",
-};
-static const true_false_string tfs_file_attribute_no_buffering = {
-	"This object requires NO BUFFERING",
-	"This object can be buffered",
-};
-static const true_false_string tfs_file_attribute_random_access = {
-	"This object will be RANDOM ACCESSed",
-	"Random access is NOT requested",
-};
-static const true_false_string tfs_file_attribute_sequential_scan = {
-	"This object is optimized for SEQUENTIAL SCAN",
-	"This object is NOT optimized for sequential scan",
-};
-static const true_false_string tfs_file_attribute_delete_on_close = {
-	"This object will be DELETED ON CLOSE",
-	"This object will not be deleted on close",
-};
-static const true_false_string tfs_file_attribute_backup_semantics = {
-	"This object supports BACKUP SEMANTICS",
-	"This object does NOT support backup semantics",
-};
-static const true_false_string tfs_file_attribute_posix_semantics = {
-	"This object supports POSIX SEMANTICS",
-	"This object does NOT support POSIX semantics",
-};
 static const true_false_string tfs_file_attribute_read_only = {
 	"This file is READ ONLY",
 	"This file is NOT read only",
@@ -1630,20 +1584,6 @@ dissect_file_ext_attr(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	 * Does the Win32 API documentation, or the NT Native API book,
 	 * suggest anything?
 	 */
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_write_through,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_no_buffering,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_random_access,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_sequential_scan,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_delete_on_close,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_backup_semantics,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_posix_semantics,
-		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_file_eattr_encrypted,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_file_eattr_not_content_indexed,
@@ -17133,34 +17073,6 @@ proto_register_smb(void)
 	{ &hf_smb_file_eattr_encrypted,
 		{ "Encrypted", "smb.file_attribute.encrypted", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_encrypted), SMB_FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
-
-	{ &hf_smb_file_eattr_write_through,
-		{ "Write Through", "smb.file_attribute.write_through", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_write_through), SMB_FILE_ATTRIBUTE_WRITE_THROUGH, "Does this object need write through?", HFILL }},
-
-	{ &hf_smb_file_eattr_no_buffering,
-		{ "No Buffering", "smb.file_attribute.no_buffering", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_no_buffering), SMB_FILE_ATTRIBUTE_NO_BUFFERING, "May the server buffer this object?", HFILL }},
-
-	{ &hf_smb_file_eattr_random_access,
-		{ "Random Access", "smb.file_attribute.random_access", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_random_access), SMB_FILE_ATTRIBUTE_RANDOM_ACCESS, "Optimize for random access", HFILL }},
-
-	{ &hf_smb_file_eattr_sequential_scan,
-		{ "Sequential Scan", "smb.file_attribute.sequential_scan", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_sequential_scan), SMB_FILE_ATTRIBUTE_SEQUENTIAL_SCAN, "Optimize for sequential scan", HFILL }},
-
-	{ &hf_smb_file_eattr_delete_on_close,
-		{ "Delete on Close", "smb.file_attribute.delete_on_close", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_delete_on_close), SMB_FILE_ATTRIBUTE_DELETE_ON_CLOSE, "Should this object be deleted on close?", HFILL }},
-
-	{ &hf_smb_file_eattr_backup_semantics,
-		{ "Backup", "smb.file_attribute.backup_semantics", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_backup_semantics), SMB_FILE_ATTRIBUTE_BACKUP_SEMANTICS, "Does this object need/support backup semantics", HFILL }},
-
-	{ &hf_smb_file_eattr_posix_semantics,
-		{ "Posix", "smb.file_attribute.posix_semantics", FT_BOOLEAN, 32,
-		TFS(&tfs_file_attribute_posix_semantics), SMB_FILE_ATTRIBUTE_POSIX_SEMANTICS, "Does this object need/support POSIX semantics?", HFILL }},
 
 	{ &hf_smb_sec_desc_len,
 		{ "NT Security Descriptor Length", "smb.sec_desc_len", FT_UINT32, BASE_DEC,
