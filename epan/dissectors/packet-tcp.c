@@ -413,10 +413,10 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 				g_hash_table_insert(tcp_pdu_skipping_table, 
 					(void *)pinfo->fd->num, (void *)tnp->first_frame);
 				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ",pinfo->fd->num);
+					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", tnp->first_frame);
 				}
 				proto_tree_add_uint(tcp_tree, hf_tcp_continuation_to,
-					tvb, 0, 0, pinfo->fd->num);
+					tvb, 0, 0, tnp->first_frame);
 				return -1;
 			}			
 			if(seq<tnp->nxtpdu && nxtseq>tnp->nxtpdu){
