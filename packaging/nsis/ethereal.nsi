@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.56 2004/05/23 22:21:30 guy Exp $
+; $Id: ethereal.nsi,v 1.57 2004/06/10 10:12:30 guy Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -13,6 +13,14 @@ SetCompressor lzma
 InstType "Ethereal (GTK2 user interface)"
 InstType "Ethereal (legacy GTK1 user interface)"
 !endif
+
+; Used to refresh the display of file association
+!define SHCNE_ASSOCCHANGED 0x08000000
+!define SHCNF_IDLIST 0
+
+; Used to add associations between file extensions and Ethereal
+!define ETHEREAL_ASSOC "ethereal-file"
+
 
 ; ============================================================================
 ; Header configuration
@@ -117,7 +125,66 @@ InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal "InstallDir"
 ; ============================================================================
 ShowInstDetails show
 
+; ============================================================================
+; Functions and macros
+; ============================================================================
+!macro UpdateIcons
+	Push $R0
+  	Push $R1
+  	Push $R2
 
+	!define UPDATEICONS_UNIQUE ${__LINE__}
+
+	IfFileExists "$SYSDIR\shell32.dll" UpdateIcons.next1_${UPDATEICONS_UNIQUE} UpdateIcons.error1_${UPDATEICONS_UNIQUE} 
+UpdateIcons.next1_${UPDATEICONS_UNIQUE}:	
+	GetDllVersion "$SYSDIR\shell32.dll" $R0 $R1
+	IntOp $R2 $R0 / 0x00010000
+	IntCmp $R2 4 UpdateIcons.next2_${UPDATEICONS_UNIQUE} UpdateIcons.error2_${UPDATEICONS_UNIQUE}
+UpdateIcons.next2_${UPDATEICONS_UNIQUE}:	
+	System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (${SHCNE_ASSOCCHANGED}, ${SHCNF_IDLIST}, 0, 0)' 
+	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}	
+	
+UpdateIcons.error1_${UPDATEICONS_UNIQUE}: 
+	MessageBox MB_OK|MB_ICONSTOP  "Can't find 'shell32.dll' library. Impossible to update icons" 
+	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
+UpdateIcons.error2_${UPDATEICONS_UNIQUE}: 	
+	MessageBox MB_OK|MB_ICONINFORMATION "You should install the free 'Microsoft Layer for Unicode' to update Ethereal capture file icons" 
+	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
+UpdateIcons.quit_${UPDATEICONS_UNIQUE}:	
+	!undef UPDATEICONS_UNIQUE
+	Pop $R2
+	Pop $R1
+  	Pop $R0
+
+!macroend
+
+Function Associate
+	; $R0 should contain the prefix to associate to Ethereal
+	Push $R1
+	
+	ReadRegStr $R1 HKCR $R0 ""
+	StrCmp $R1 "" Associate.doRegister
+	Goto Associate.end
+Associate.doRegister:
+	;The extension is not associated to any program, we can do the link
+	WriteRegStr HKCR $R0 "" ${ETHEREAL_ASSOC}
+Associate.end:
+	pop $R1
+FunctionEnd
+
+Function un.unlink
+	; $R0 should contain the prefix to unlink
+	Push $R1
+	
+	ReadRegStr $R1 HKCR $R0 ""
+	StrCmp $R1 ${ETHEREAL_ASSOC} un.unlink.doUnlink
+	Goto un.unlink.end
+un.unlink.doUnlink:
+	; The extension is associated with Ethereal so, we must destroy this!
+	DeleteRegKey HKCR $R0	
+un.unlink.end:	
+	pop $R1
+FunctionEnd
 
 ; ============================================================================
 ; Installation execution commands
@@ -357,6 +424,57 @@ SectionIn 1 2
 CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe"
 SectionEnd
 
+Section "Associate file extensions to Ethereal" SecFileExtensions
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+WriteRegStr HKCR ${ETHEREAL_ASSOC} "" "Ethereal file"
+WriteRegStr HKCR "${ETHEREAL_ASSOC}\Shell\open\command" "" '"$INSTDIR\ethereal.exe" "%1"'
+WriteRegStr HKCR "${ETHEREAL_ASSOC}\DefaultIcon" "" '"$INSTDIR\ethereal.exe",0'
+push $R0
+	StrCpy $R0 ".5vw"
+  	Call Associate
+	StrCpy $R0 ".acp"
+  	Call Associate
+  	StrCpy $R0 ".apc"
+  	Call Associate
+  	StrCpy $R0 ".atc"
+  	Call Associate
+  	StrCpy $R0 ".bfr"
+  	Call Associate
+	StrCpy $R0 ".cap"
+  	Call Associate
+	StrCpy $R0 ".enc"
+  	Call Associate
+  	StrCpy $R0 ".erf"
+  	Call Associate
+  	StrCpy $R0 ".fdc"
+  	Call Associate
+  	StrCpy $R0 ".pcap"
+  	Call Associate
+  	StrCpy $R0 ".pkt"
+  	Call Associate
+  	StrCpy $R0 ".snoop"
+  	Call Associate
+	StrCpy $R0 ".syc"
+  	Call Associate
+  	StrCpy $R0 ".tpc"
+  	Call Associate
+  	StrCpy $R0 ".tr1"
+  	Call Associate
+  	StrCpy $R0 ".trace"
+  	Call Associate
+	StrCpy $R0 ".trc"
+  	Call Associate  	
+  	StrCpy $R0 ".wpc"
+  	Call Associate
+  	StrCpy $R0 ".wpz"
+  	Call Associate
+pop $R0
+!insertmacro UpdateIcons
+SectionEnd
+
 Section "Uninstall"
 ;-------------------------------------------
 
@@ -379,6 +497,52 @@ NoEtherealErrorMsg:
 
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
 DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
+
+push $R0
+	StrCpy $R0 ".5vw"
+  	Call un.unlink
+	StrCpy $R0 ".acp"
+  	Call un.unlink
+  	StrCpy $R0 ".apc"
+  	Call un.unlink
+  	StrCpy $R0 ".atc"
+  	Call un.unlink
+  	StrCpy $R0 ".bfr"
+  	Call un.unlink
+	StrCpy $R0 ".cap"
+  	Call un.unlink
+	StrCpy $R0 ".enc"
+  	Call un.unlink
+  	StrCpy $R0 ".erf"
+  	Call un.unlink
+  	StrCpy $R0 ".fdc"
+  	Call un.unlink
+  	StrCpy $R0 ".pcap"
+  	Call un.unlink
+  	StrCpy $R0 ".pkt"
+  	Call un.unlink
+  	StrCpy $R0 ".snoop"
+  	Call un.unlink
+	StrCpy $R0 ".syc"
+  	Call un.unlink
+  	StrCpy $R0 ".tpc"
+  	Call un.unlink
+  	StrCpy $R0 ".tr1"
+  	Call un.unlink
+  	StrCpy $R0 ".trace"
+  	Call un.unlink
+	StrCpy $R0 ".trc"
+  	Call un.unlink  	
+  	StrCpy $R0 ".wpc"
+  	Call un.unlink
+  	StrCpy $R0 ".wpz"
+  	Call un.unlink
+pop $R0
+
+DeleteRegKey HKCR ${ETHEREAL_ASSOC} 
+DeleteRegKey HKCR "${ETHEREAL_ASSOC}\Shell\open\command"
+DeleteRegKey HKCR "${ETHEREAL_ASSOC}\DefaultIcon"
+!insertmacro UpdateIcons
 
 ; regardless if we currently installed GTK1 or 2, try to uninstall GTK2 files too
 Delete "$INSTDIR\etc\gtk-2.0\*.*"
@@ -467,6 +631,31 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcuts} "Start menu shortcuts."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktopIcon} "Ethereal desktop icon."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecFileExtensions} "Associate standard network trace files to ${PROGRAM_NAME}"  
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 !endif ; MAKENSIS_MODERN_UI
 
+; ============================================================================
+; Callback functions
+; ============================================================================
+Function .onSelChange
+	Push $0
+!ifdef GTK1_DIR	
+	SectionGetFlags ${SecEtherealGTK1} $0
+	IntOp $0 $0 & 1
+	IntCmp $0 0 onSelChange.unselect
+	Goto onSelChange.end
+!endif
+!ifdef GTK2_DIR
+	SectionGetFlags ${SecEtherealGTK2} $0
+	IntOp $0 $0 & 1
+	IntCmp $0 0 onSelChange.unselect
+	Goto onSelChange.end	
+!endif
+onSelChange.unselect:	
+	SectionGetFlags ${SecFileExtensions} $0
+	IntOp $0 $0 & 0xFFFFFFFE
+	SectionSetFlags ${SecFileExtensions} $0
+onSelChange.end:
+	Pop $0
+FunctionEnd
