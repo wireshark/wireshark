@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.14 2000/08/08 22:16:41 mhall Exp $
+# $Id: Makefile.nmake,v 1.15 2000/09/19 17:27:08 gram Exp $
 #
 
 include ..\config.nmake
@@ -27,6 +27,7 @@ OBJECTS=ascend-grammar.obj \
 	netxray.obj \
 	ngsniffer.obj \
 	radcom.obj \
+	pppdump.obj \
 	snoop.obj \
 	toshiba.obj \
 	wtap.obj
