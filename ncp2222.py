@@ -15,16 +15,17 @@ Additional data sources:
 
 Novell provides info at:
 
-http://developer.novell.com/ndk  (where you can download an *.exe file which
-installs a PDF)
+http://developer.novell.com/ndk/ncp.htm  (where you can download an
+*.exe file which installs a PDF, although you may have to create a login
+to do this)
 
 or
 
-http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
+http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.51 2003/02/08 05:32:10 guy Exp $
+$Id: ncp2222.py,v 1.52 2003/02/08 06:25:35 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
