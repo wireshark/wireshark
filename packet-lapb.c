@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.org>
  *
- * $Id: packet-lapb.c,v 1.4 1999/08/20 06:55:07 guy Exp $
+ * $Id: packet-lapb.c,v 1.5 1999/09/12 18:37:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,16 @@ dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
 
     if(check_col(fd, COL_RES_DL_SRC))
 	col_add_fstr(fd, COL_RES_DL_SRC, "0x%02X", pd[0]);
+    if (pd[0] != 0x01 && pd[0] != 0x03) /* invalid LAPB frame */
+    {
+	if (check_col(fd, COL_INFO))
+	    col_add_str(fd, COL_INFO, "Invalid LAPB frame");
+	if (tree)
+	    ti = proto_tree_add_item_format(tree, proto_lapb, 0, fd->cap_len,
+			                    NULL, "Invalid LAPB frame");
+	return;
+    }
+
     if (fd->pseudo_header.x25.flags & FROM_DCE) {
 	if(check_col(fd, COL_RES_DL_DST))
 	    col_add_str(fd, COL_RES_DL_DST, "DTE");

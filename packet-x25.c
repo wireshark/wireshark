@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.org>
  *
- * $Id: packet-x25.c,v 1.5 1999/08/20 06:55:07 guy Exp $
+ * $Id: packet-x25.c,v 1.6 1999/09/12 18:37:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -906,80 +906,91 @@ x25_ntoa(proto_tree *tree, int *offset, const guint8 *p,
 }
 
 int
-get_x25_pkt_len(const char *data)
+get_x25_pkt_len(const char *data, frame_data *fd, int offset)
 {
     int length, called_len, calling_len, dte_len, dce_len;
+
+    /* packet size should always be > 3 */
+    if (fd->cap_len - offset < 3) return fd->cap_len;
 
     switch ((guint8)data[2])
     {
     case X25_CALL_REQUEST:
-	called_len  = (data[3] >> 0) & 0x0F;
-	calling_len = (data[3] >> 4) & 0x0F;
-	length = 4 + (called_len + calling_len + 1) / 2; /* addr */
-	length += (1 + data[length]); /* facilities */
-	return length;
+	if (fd->cap_len > offset+3) /* pkt size > 3 */
+	{
+	    called_len  = (data[3] >> 0) & 0x0F;
+	    calling_len = (data[3] >> 4) & 0x0F;
+	    length = 4 + (called_len + calling_len + 1) / 2; /* addr */
+	    if (length+offset < fd->cap_len)
+		length += (1 + data[length]); /* facilities */
+	}
+	else length = fd->cap_len - offset;
+	return MIN(fd->cap_len-offset,length);
 
     case X25_CALL_ACCEPTED:
-	called_len  = (data[3] >> 0) & 0x0F;
-	calling_len = (data[3] >> 4) & 0x0F;
-	length = 4 + (called_len + calling_len + 1) / 2; /* addr */
-	length += (1 + data[length]); /* facilities */
-	return length;
+	if (fd->cap_len > offset+3) /* pkt size > 3 */
+	{
+	    called_len  = (data[3] >> 0) & 0x0F;
+	    calling_len = (data[3] >> 4) & 0x0F;
+	    length = 4 + (called_len + calling_len + 1) / 2; /* addr */
+	    if (length+offset < fd->cap_len)
+		length += (1 + data[length]); /* facilities */
+	}
+	else length = fd->cap_len - offset;
+	return MIN(fd->cap_len-offset,length);
 
     case X25_CLEAR_REQUEST:
-	return 5;
-
-    case X25_CLEAR_CONFIRMATION:
-	return 3;
+    case X25_RESET_REQUEST:
+    case X25_RESTART_REQUEST:
+	return MIN(fd->cap_len-offset,5);
 
     case X25_DIAGNOSTIC:
-	return 4;
+	return MIN(fd->cap_len-offset,4);
 
+    case X25_CLEAR_CONFIRMATION:
     case X25_INTERRUPT:
-	return 3;
-
     case X25_INTERRUPT_CONFIRMATION:
-	return 3;
-
-    case X25_RESET_REQUEST:
-	return 5;
-
     case X25_RESET_CONFIRMATION:
-	return 3;
-		
-    case X25_RESTART_REQUEST:
-	return 5;
-		
     case X25_RESTART_CONFIRMATION:
-	return 3;
+	return MIN(fd->cap_len-offset,3);
 
     case X25_REGISTRATION_REQUEST:
-	dce_len  = (data[3] >> 0) & 0x0F;
-	dte_len = (data[3] >> 4) & 0x0F;
-	length = 4 + (dte_len + dce_len + 1) / 2; /* addr */
-	length += (1 + data[length]); /* registration */
-	return length;
-		
+	if (fd->cap_len > offset+3) /* pkt size > 3 */
+	{
+	    dce_len  = (data[3] >> 0) & 0x0F;
+	    dte_len = (data[3] >> 4) & 0x0F;
+	    length = 4 + (dte_len + dce_len + 1) / 2; /* addr */
+	    if (length+offset < fd->cap_len)
+		length += (1 + data[length]); /* registration */
+	}
+	else length = fd->cap_len-offset;
+	return MIN(fd->cap_len-offset,length);
+
     case X25_REGISTRATION_CONFIRMATION:
-	dce_len  = (data[5] >> 0) & 0x0F;
-	dte_len = (data[5] >> 4) & 0x0F;
-	length = 6 + (dte_len + dce_len + 1) / 2; /* addr */
-	length += (1 + data[length]); /* registration */
-	return length;
+	if (fd->cap_len > offset+5) /* pkt size > 5 */
+	{
+	    dce_len  = (data[5] >> 0) & 0x0F;
+	    dte_len = (data[5] >> 4) & 0x0F;
+	    length = 6 + (dte_len + dce_len + 1) / 2; /* addr */
+	    if (length+offset < fd->cap_len)
+		length += (1 + data[length]); /* registration */
+	}
+	else length = fd->cap_len-offset;
+	return MIN(fd->cap_len-offset,length);
     }
 	    
-    if ((data[2] & 0x01) == X25_DATA) return 3;
+    if ((data[2] & 0x01) == X25_DATA) return MIN(fd->cap_len-offset,3);
 
-    switch (data[2])
+    switch (data[2] & 0x1F)
     {
     case X25_RR:
-	return 3;
+	return MIN(fd->cap_len-offset,3);
 
     case X25_RNR:
-	return 3;
+	return MIN(fd->cap_len-offset,3);
 
     case X25_REJ:
-	return 3;
+	return MIN(fd->cap_len-offset,3);
     }
 
     return 0;
@@ -1000,8 +1011,17 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	col_add_str(fd, COL_PROTOCOL, "X.25");
 
     modulo = ((pd[localoffset] & 0x20) ? 128 : 8);
+    x25_pkt_len = get_x25_pkt_len(&pd[localoffset], fd, offset);
+    if (x25_pkt_len < 3) /* packet too short */
+    {
+	if (check_col(fd, COL_INFO))
+	    col_add_str(fd, COL_INFO, "Invalid/short X.25 packet");
+	if (tree)
+	    proto_tree_add_item_format(tree, proto_x25, localoffset,
+		    fd->cap_len - offset, NULL, "Invalid/short X.25 packet");
+	return;
+    }
     vc = (int)(pd[localoffset] & 0x0F) + (int)pd[localoffset+1];
-    x25_pkt_len = get_x25_pkt_len(&pd[localoffset]);
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_x25, localoffset, x25_pkt_len,
 				 NULL);
@@ -1033,9 +1053,10 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Incoming call"
 			                                     : "Call request");
 	localoffset += 3;
-	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
+	if (localoffset < x25_pkt_len+offset) /* calling/called addresses */
+	    x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
 
-	if (localoffset < x25_pkt_len+2) /* facilities */
+	if (localoffset < x25_pkt_len+offset) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, &pd[localoffset]);
 
 	if (localoffset < fd->cap_len) /* user data */
@@ -1084,9 +1105,10 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Call connected"
 		                                             : "Call accepted");
 	localoffset += 3;
-	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
+        if (localoffset < x25_pkt_len+offset) /* calling/called addresses */
+	    x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
 
-	if (localoffset < x25_pkt_len+2) /* facilities */
+	if (localoffset < x25_pkt_len+offset) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, &pd[localoffset]);
 
 	if (localoffset < fd->cap_len) { /* user data */
@@ -1110,11 +1132,13 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    "CLEAR",
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Clear indication"
 		                                             : "Clear request");
-	    proto_tree_add_text(x25_tree, localoffset+3, 1,
-				"Cause : %s", clear_code(pd[localoffset+3]));
-	    proto_tree_add_text(x25_tree, localoffset+4, 1,
-				"Diagnostic : %s",
-				clear_diag(pd[localoffset+4]));
+	    if (localoffset+3 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+3, 1,
+			"Cause : %s", clear_code(pd[localoffset+3]));
+	    if (localoffset+4 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+4, 1,
+			"Diagnostic : %s",
+			clear_diag(pd[localoffset+4]));
 	}
 	localoffset += x25_pkt_len;
 	break;
@@ -1143,8 +1167,9 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
 				       "DIAG", "Diagnostic");
-	    proto_tree_add_text(x25_tree, localoffset+3, 1,
-				"Diagnostic : %d", (int)pd[localoffset+3]);
+	    if (localoffset+3 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+3, 1,
+			"Diagnostic : %d", (int)pd[localoffset+3]);
 	}
 	localoffset += x25_pkt_len;
 	break;
@@ -1178,10 +1203,12 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    "RESET",
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Reset indication"
                                                              : "Reset request");
-	    proto_tree_add_text(x25_tree, localoffset+3, 1,
-				"Cause : %s", reset_code(pd[localoffset+3]));
-	    proto_tree_add_text(x25_tree, localoffset+4, 1,
-				"Diagnostic : %d", (int)pd[localoffset+4]);
+	    if (localoffset+3 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+3, 1,
+			"Cause : %s", reset_code(pd[localoffset+3]));
+	    if (localoffset+4 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+4, 1,
+			"Diagnostic : %d", (int)pd[localoffset+4]);
 	}
 	localoffset += x25_pkt_len;
 	break;
@@ -1207,10 +1234,12 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    "RESTART",
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Restart indication"
 		                                             : "Restart request");
-	    proto_tree_add_text(x25_tree, localoffset+3, 1,
-				"Cause : %s", restart_code(pd[localoffset+3]));
-	    proto_tree_add_text(x25_tree, localoffset+4, 1,
-				"Diagnostic : %d", (int)pd[localoffset+4]);
+	    if (localoffset+3 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+3, 1,
+			"Cause : %s", restart_code(pd[localoffset+3]));
+	    if (localoffset+4 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+4, 1,
+			"Diagnostic : %d", (int)pd[localoffset+4]);
 	}
 	localoffset += x25_pkt_len;
 	break;
@@ -1229,14 +1258,18 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
 				       "REG REQ", "Registration request");
 	localoffset += 3;
-	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, FALSE);
+	if (localoffset < x25_pkt_len+offset)
+	    x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, FALSE);
 
 	if (x25_tree) {
-	    proto_tree_add_text(x25_tree, localoffset, 1,
-		    "Registration length: %d", pd[localoffset] & 0x7F);
-	    proto_tree_add_text(x25_tree, localoffset+1,
-		    pd[localoffset] & 0x7F, "Registration");
+	    if (localoffset < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset, 1,
+			"Registration length: %d", pd[localoffset] & 0x7F);
+	    if (localoffset+1 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+1,
+			pd[localoffset] & 0x7F, "Registration");
 	}
+	localoffset = fd->cap_len;
 	break;
     case X25_REGISTRATION_CONFIRMATION:
 	if(check_col(fd, COL_INFO))
@@ -1244,20 +1277,26 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
 				       "REG CONF", "Registration confirmation");
-	    proto_tree_add_text(x25_tree, localoffset+3, 1,
-		    "Cause: %s", registration_code(pd[localoffset+3]));
-	    proto_tree_add_text(x25_tree, localoffset+4, 1,
-		    "Diagnostic: %s", registration_code(pd[localoffset+4]));
+	    if (localoffset+3 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+3, 1,
+			"Cause: %s", registration_code(pd[localoffset+3]));
+	    if (localoffset+4 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+4, 1,
+			"Diagnostic: %s", registration_code(pd[localoffset+4]));
 	}
 	localoffset += 5;
-	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, TRUE);
+	if (localoffset < x25_pkt_len+offset)
+	    x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, TRUE);
 
 	if (x25_tree) {
-	    proto_tree_add_text(x25_tree, localoffset, 1,
-		    "Registration length: %d", pd[localoffset] & 0x7F);
-	    proto_tree_add_text(x25_tree, localoffset+1,
-		    pd[localoffset] & 0x7F, "Registration");
+	    if (localoffset < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset, 1,
+			"Registration length: %d", pd[localoffset] & 0x7F);
+	    if (localoffset+1 < x25_pkt_len+offset)
+		proto_tree_add_text(x25_tree, localoffset+1,
+			pd[localoffset] & 0x7F, "Registration");
 	}
+	localoffset = fd->cap_len;
 	break;
     default :
 	localoffset += 2;
@@ -1279,29 +1318,29 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    }
 	    if (x25_tree) {
 		proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset,
-					   1, "DATA", "Data");
+					   1, "DATA", "X.25 Data");
 		if (modulo == 8) {
 		    proto_tree_add_text(x25_tree, localoffset, 1,
-			    "              %d%d%d..... : P(R) = %d",
+			    "          %d%d%d..... : P(R) = %d",
 			    (pd[localoffset] >> 7) & 0x01,
 			    (pd[localoffset] >> 6) & 0x01,
 			    (pd[localoffset] >> 5) & 0x01,
 			    (pd[localoffset] >> 5) & 0x07);
 		    proto_tree_add_text(x25_tree, localoffset, 1,
-			    "              ...%d.... : More bit",
+			    "          ...%d.... : More bit",
 			    (pd[localoffset] >> 4) & 0x01);
 		    proto_tree_add_text(x25_tree, localoffset, 1,
-			    "              ....%d%d%d. : P(S) = %d",
+			    "          ....%d%d%d. : P(S) = %d",
 			    (pd[localoffset] >> 3) & 0x01,
 			    (pd[localoffset] >> 2) & 0x01,
 			    (pd[localoffset] >> 1) & 0x01,
 			    (pd[localoffset] >> 1) & 0x07);
 		    proto_tree_add_text(x25_tree, localoffset, 1,
-			    "              .......0 : Packet type id = DATA");
+			    "          .......0 : Packet type id = DATA");
 		}
 		else {
 		    proto_tree_add_text(x25_tree, localoffset+1, 1,
-			    "              %d%d%d%d%d%d%d. : P(S) = %d",
+			    "          %d%d%d%d%d%d%d. : P(S) = %d",
 			    (pd[localoffset+1] >> 7) & 0x01,
 			    (pd[localoffset+1] >> 6) & 0x01,
 			    (pd[localoffset+1] >> 5) & 0x01,
@@ -1311,7 +1350,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    (pd[localoffset+1] >> 1) & 0x01,
 			    pd[localoffset+1] >> 1);
 		    proto_tree_add_text(x25_tree, localoffset, 1,
-			    "              .......%d : More bit",
+			    "          .......%d : More bit",
 			    pd[localoffset+1] & 0x01);
 		}
 	    }
