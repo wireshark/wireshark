@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.63 2004/05/06 17:40:52 obiot Exp $
+ * $Id: tvbuff.c,v 1.64 2004/05/07 18:15:24 obiot Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -2380,6 +2380,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 	if (uncompr != NULL) {
 		uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, bytes_out,
 		    bytes_out);
+		tvb_set_free_cb(uncompr_tvb, g_free);
 	}
 	g_free(compr);
 	return uncompr_tvb;
