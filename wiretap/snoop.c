@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.63 2003/10/01 07:11:48 guy Exp $
+ * $Id: snoop.c,v 1.64 2003/11/04 22:14:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -61,6 +61,32 @@ struct snoop_atm_hdr {
 	guint8	vpi;		/* VPI */
 	guint16	vci;		/* VCI */
 };
+
+/*
+ * Extra information stuffed into the padding in Shomiti/Finisar Surveyor
+ * captures.
+ */
+struct shomiti_trailer {
+	guint16	phy_rx_length;	/* length on the wire, including FCS? */
+	guint16	phy_rx_status;	/* status flags */
+	guint32	ts_40_ns_lsb;	/* 40 ns time stamp, low-order bytes? */
+	guint32	ts_40_ns_msb;	/* 40 ns time stamp, low-order bytes? */
+	gint32	frame_id;	/* "FrameID"? */
+};
+
+/*
+ * phy_rx_status flags.
+ */
+#define RX_STATUS_OVERFLOW		0x8000	/* overflow error */
+#define RX_STATUS_BAD_CRC		0x4000	/* CRC error */
+#define RX_STATUS_DRIBBLE_NIBBLE	0x2000	/* dribble/nibble bits? */
+#define RX_STATUS_SHORT_FRAME		0x1000	/* frame < 64 bytes */
+#define RX_STATUS_OVERSIZE_FRAME	0x0800	/* frame > 1518 bytes */
+#define RX_STATUS_GOOD_FRAME		0x0400	/* frame OK */
+#define RX_STATUS_N12_BYTES_RECEIVED	0x0200	/* first 12 bytes of frame received? */
+#define RX_STATUS_RXABORT		0x0100	/* RXABORT during reception */
+#define RX_STATUS_FIFO_ERROR		0x0080	/* receive FIFO error */
+#define RX_STATUS_TRIGGERED		0x0001	/* frame did trigger */
 
 static gboolean snoop_read(wtap *wth, int *err, long *data_offset);
 static gboolean snoop_seek_read(wtap *wth, long seek_off,
@@ -151,7 +177,7 @@ int snoop_open(wtap *wth, int *err)
 	char magic[sizeof snoop_magic];
 	struct snoop_hdr hdr;
 	struct snooprec_hdr rec_hdr;
-	int padbytes;
+	guint padbytes;
 	gboolean is_shomiti;
 	static const int snoop_encap[] = {
 		WTAP_ENCAP_ETHERNET,	/* IEEE 802.3 */
@@ -268,13 +294,15 @@ int snoop_open(wtap *wth, int *err)
 	 * hardware".
 	 *
 	 * The only way I can see to determine that is to check how much
-	 * padding there is in the first packet - if there're 4 bytes or
-	 * fewer, it's probably Sun snoop, which uses the padding only
-	 * for padding (except for atmsnoop, which sometimes appears to
-	 * have 4 bytes of padding), but if there's more, it's probably
-	 * a Shomiti tool, which uses the padding for additional
-	 * information.
+	 * padding there is in the first packet - if there's enough
+	 * padding for a Shomiti trailer, it's probably a Shomiti
+	 * capture, and otherwise, it's probably from Snoop.
 	 */
+
+	/*
+	 * Start out assuming it's not a Shomiti capture.
+	 */
+	is_shomiti = FALSE;
 
 	/* Read first record header. */
 	errno = WTAP_ERR_CANT_READ;
@@ -288,31 +316,42 @@ int snoop_open(wtap *wth, int *err)
 			 * A real-live error.
 			 */
 			return -1;
-		} else {
-			/*
-			 * The file ends after the record header,
-			 * which means this is a capture with no
-			 * packets.
-			 *
-			 * Assume it's a snoop file; the actual type
-			 * of file is irrelevant, as there are no
-			 * records in it, and thus no extra information
-			 * if it's a Shomiti capture, and no link-layer
-			 * headers whose type we have to know.
-			 */
-			is_shomiti = FALSE;
 		}
+
+		/*
+		 * The file ends after the record header, which means this
+		 * is a capture with no packets.
+		 *
+		 * We assume it's a snoop file; the actual type of file is
+		 * irrelevant, as there are no records in it, and thus no
+		 * extra information if it's a Shomiti capture, and no
+		 * link-layer headers whose type we have to know, and no
+		 * Ethernet frames that might have an FCS.
+		 */
 	} else {
 		/*
 		 * Compute the number of bytes of padding in the
-		 * record.  If it's greater than 4, this must be a
-		 * Shomiti capture.  (Some atmsnoop captures appear
-		 * to have 4 bytes of padding; Shomiti captures stuff
-		 * more than that into the padding.)
+		 * record.  If it's at least the size of a Shomiti
+		 * trailer record, we assume this is a Shomiti
+		 * capture.  (Some atmsnoop captures appear
+		 * to have 4 bytes of padding, and at least one
+		 * snoop capture appears to have 6 bytes of padding;
+		 * the Shomiti header is larger than either of those.)
 		 */
-		padbytes = g_ntohl(rec_hdr.rec_len) -
-		    (sizeof rec_hdr + g_ntohl(rec_hdr.incl_len));
-		is_shomiti = (padbytes > 4);
+		if (g_ntohl(rec_hdr.rec_len) >
+		    (sizeof rec_hdr + g_ntohl(rec_hdr.incl_len))) {
+			/*
+			 * Well, we have padding; how much?
+			 */
+			padbytes = g_ntohl(rec_hdr.rec_len) -
+			    (sizeof rec_hdr + g_ntohl(rec_hdr.incl_len));
+
+			/*
+			 * Is it at least the size of a Shomiti trailer?
+			 */
+			is_shomiti =
+			    (padbytes >= sizeof (struct shomiti_trailer));
+		}
 	}
 
 	/*
@@ -369,7 +408,7 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	int	bytes_read;
 	struct snooprec_hdr hdr;
 	char	padbuf[4];
-	int	padbytes;
+	guint	padbytes;
 	int	bytes_to_read;
 
 	/* Read record header. */
@@ -473,6 +512,15 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	 * There's probably not much padding (it's probably padded only
 	 * to a 4-byte boundary), so we probably need only do one read.
 	 */
+	if (rec_size < (sizeof hdr + packet_size)) {
+		/*
+		 * What, *negative* padding?  Bogus.
+		 */
+		g_message("snoop: File has %u-byte record with packet size of %u",
+		    rec_size, packet_size);
+		*err = WTAP_ERR_BAD_RECORD;
+		return FALSE;
+	}
 	padbytes = rec_size - (sizeof hdr + packet_size);
 	while (padbytes != 0) {
 		bytes_to_read = padbytes;
