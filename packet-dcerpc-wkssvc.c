@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.14 2003/04/30 17:32:07 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.15 2003/04/30 17:45:04 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -436,8 +436,11 @@ wkssvc_dissect_netwkstaenumusers_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_wkssvc_info_level, 0);
 
+  	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_USER_ENUM_UNION,
+			NDR_POINTER_REF, "User Info", -1);
 	/* Seems to be junk here ... */
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+	/*	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
 				    hf_wkssvc_junk, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
@@ -445,7 +448,7 @@ wkssvc_dissect_netwkstaenumusers_rqst(tvbuff_t *tvb, int offset,
 				     NDR_POINTER_UNIQUE, "Junk Handle", -1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-				    hf_wkssvc_junk, 0);
+	hf_wkssvc_junk, 0); */
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_wkssvc_pref_max, 0);
