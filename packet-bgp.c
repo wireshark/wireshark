@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.29 2000/12/25 05:28:40 itojun Exp $
+ * $Id: packet-bgp.c,v 1.30 2000/12/28 05:13:14 itojun Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -99,6 +99,7 @@ static const value_string bgpnotify_minor_2[] = {
     { 4, "Unsupported Optional Parameter" },
     { 5, "Authentication Failure" },
     { 6, "Unacceptable Hold Time" },
+    { 7, "Unsupported Capability" },
     { 0, NULL },
 };
 
@@ -131,8 +132,8 @@ static const value_string bgpattr_origin[] = {
 static const value_string as_segment_type[] = {
     { 1, "AS_SET" },
     { 2, "AS_SEQUENCE" },
-/* This is wrong according to the RFC... in the Zebra code they say that
-   cisco reversed it.  Packet traces seem to agree.                      */
+/* RFC1965 has the wrong values, corrected in  */
+/* draft-ietf-idr-bgp-confed-rfc1965bis-01.txt */
     { 4, "AS_CONFED_SET" },
     { 3, "AS_CONFED_SEQUENCE" },
     { 0, NULL },
