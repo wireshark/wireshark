@@ -12,6 +12,7 @@ S<[ B<-f> capture filter expression ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-k> ]>
+S<[ B<-l> ]>
 S<[ B<-m> font ]>
 S<[ B<-n> ]>
 S<[ B<-o> preference setting ] ...>
@@ -107,6 +108,12 @@ non-loopback interface if there are any non-loopback interfaces, and
 choosing the first loopback interface if there are no non-loopback
 interfaces; if there are no interfaces, B<Ethereal> reports an error and
 doesn't start the capture.
+
+=item -l
+
+Turns on automatic scrolling if the packet display is being updated
+automatically as packets arrive during a capture (as specified by the
+B<-S> flag).
 
 =item -m
 
@@ -1091,6 +1098,7 @@ B<http://www.ethereal.com>.
   Patrick Wolfe            <pjw@zocalo.cellular.ameritech.com>
   Martin Held              <Martin.Held@icn.siemens.de>
   Riaan Swart              <rswart@cs.sun.ac.za>
+  Christian Lacunza        <celacunza@gmx.net>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

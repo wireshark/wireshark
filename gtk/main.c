@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.197 2001/05/01 00:18:48 guy Exp $
+ * $Id: main.c,v 1.198 2001/05/01 00:41:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -730,7 +730,7 @@ print_usage(void) {
   fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled %s\n",
 	  comp_info_str->str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "%s [ -vh ] [ -kpQS ] [ -B <byte view height> ] [ -c count ]\n",
+  fprintf(stderr, "%s [ -vh ] [ -klpQS ] [ -B <byte view height> ] [ -c count ]\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -f <capture filter> ] [ -i interface ] [ -m <medium font> ] \n");
   fprintf(stderr, "\t[ -n ] [ -o <preference setting> ] ... [ -P <packet list height> ]\n");
@@ -983,7 +983,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "B:c:f:hi:km:no:pP:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
+  while ((opt = getopt(argc, argv, "B:c:f:hi:klm:no:pP:Qr:R:Ss:t:T:w:W:vZ:")) !=  EOF) {
     switch (opt) {
       case 'B':        /* Byte view pane height */
         bv_size = get_positive_int(optarg, "byte view pane height");
@@ -1025,6 +1025,9 @@ main(int argc, char *argv[])
         capture_option_specified = TRUE;
         arg_error = TRUE;
 #endif
+        break;
+      case 'l':        /* Automatic scrolling in live capture mode */
+        prefs->capture_auto_scroll = TRUE;
         break;
       case 'm':        /* Fixed-width font for the display */
         if (prefs->gui_font_name != NULL)
