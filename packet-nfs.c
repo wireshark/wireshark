@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.91 2003/08/17 21:34:22 sahlberg Exp $
+ * $Id: packet-nfs.c,v 1.92 2003/08/27 23:53:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1353,10 +1353,10 @@ out:
 
 static void
 dissect_fhandle_data_unknown(tvbuff_t *tvb, int offset, proto_tree *tree,
-    int fhlen)
+    guint fhlen)
 {
-	int sublen;
-	int bytes_left;
+	guint sublen;
+	guint bytes_left;
 	gboolean first_line;
 
 	bytes_left = fhlen;
