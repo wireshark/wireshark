@@ -65,7 +65,6 @@ col_set_cls_time
 col_set_fence
 col_set_str
 col_set_writable
-compute_timestamp_diff
 conversation_add_proto_data
 conversation_delete_proto_data
 conversation_get_proto_data
@@ -77,7 +76,6 @@ copy_prefs
 crc16_ccitt_tvb
 create_dissector_handle
 create_persconffile_dir
-create_tempfile
 data_out_file                   DATA
 dcerpc_add_conv_to_bind_table
 dcerpc_get_proto_hf_opnum
@@ -223,7 +221,6 @@ fvalue_from_unparsed
 fvalue_get
 fvalue_get_integer
 GatekeeperRejectReason_vals     DATA
-get_args_as_string
 get_basename
 get_ber_identifier
 get_ber_last_created_item
@@ -254,7 +251,6 @@ get_column_format_from_str
 get_column_format_matches
 get_column_longest_string
 get_column_title
-get_conn_cfilter
 get_datafile_path
 get_datafile_dir
 get_dirname

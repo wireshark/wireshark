@@ -1657,7 +1657,7 @@ Brian Ginsbach          <ginsbach [AT] cray.com> {
 	    identifiers
 }
 
-Dave Richards           <d_m_richards [AT] attbi.com> {
+Dave Richards           <d_m_richards [AT] comcast.net> {
 	BACNET over 802.2
 	BACNET-over-ARCNET fix (it's really BACNET-over-802.2-over-ARCNET)
 }
