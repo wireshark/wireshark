@@ -5,7 +5,7 @@
  * ISO 10589 ISIS (Intradomain Routing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.14 2002/08/28 21:00:24 jmayer Exp $
+ * $Id: packet-osi-options.c,v 1.15 2003/12/11 21:23:36 ulfl Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -372,8 +372,8 @@ dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
         switch ( parm_type ) {
           case   OSI_OPT_QOS_MAINTANANCE:
                  octet = tvb_get_guint8(tvb, offset);
-                 dissect_option_qos( octet&OSI_OPT_QOS_MASK,
-                                     octet&OSI_OPT_QOS_SUB_MASK,
+                 dissect_option_qos( (guchar) (octet&OSI_OPT_QOS_MASK),
+                                     (guchar) (octet&OSI_OPT_QOS_SUB_MASK),
                                      offset, parm_len, tvb, osi_option_tree );
           break;
           case   OSI_OPT_SECURITY:
@@ -416,12 +416,12 @@ dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
           case   OSI_OPT_SOURCE_ROUTING:
           case   OSI_OPT_RECORD_OF_ROUTE:
                  dissect_option_route( parm_type,
-                                       offset, parm_len, tvb, osi_option_tree );
+                                       (guchar) offset, parm_len, tvb, osi_option_tree );
           break;
           case   OSI_OPT_REASON_OF_DISCARD:
                  dissect_option_rfd( tvb_get_guint8(tvb, offset),
                                      tvb_get_guint8(tvb, offset + 1),
-                                     offset, parm_len, tvb, osi_option_tree );
+                                     (guchar) offset, parm_len, tvb, osi_option_tree );
           break;
         }
         opt_len -= parm_len + 2;

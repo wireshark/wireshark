@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.40 2003/10/01 07:11:47 guy Exp $
+ * $Id: lanalyzer.c,v 1.41 2003/12/11 21:23:37 ulfl Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -742,49 +742,49 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
       *err = s16write(htoles(SummarySize), wdh->fh);       /* rlen */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_mday, wdh->fh);                /* s.datcre.day */
+      *err = s8write((guint8) fT->tm_mday, wdh->fh);       /* s.datcre.day */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_mon+1, wdh->fh);               /* s.datcre.mon */
+      *err = s8write((guint8) (fT->tm_mon+1), wdh->fh);    /* s.datcre.mon */
       if (*err)
             return FALSE;
       *err = s16write(htoles(fT->tm_year + 1900), wdh->fh);/* s.datcre.year */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_mday, wdh->fh);                /* s.datclo.day */
+      *err = s8write((guint8) fT->tm_mday, wdh->fh);       /* s.datclo.day */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_mon+1, wdh->fh);               /* s.datclo.mon */
+      *err = s8write((guint8) (fT->tm_mon+1), wdh->fh);    /* s.datclo.mon */
       if (*err)
             return FALSE;
       *err = s16write(htoles(fT->tm_year + 1900), wdh->fh);/* s.datclo.year */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_sec, wdh->fh);                 /* s.timeopn.second */
+      *err = s8write((guint8) fT->tm_sec, wdh->fh);        /* s.timeopn.second */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_min, wdh->fh);                 /* s.timeopn.minute */
+      *err = s8write((guint8) fT->tm_min, wdh->fh);        /* s.timeopn.minute */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_hour, wdh->fh);                /* s.timeopn.hour */
+      *err = s8write((guint8) fT->tm_hour, wdh->fh);       /* s.timeopn.hour */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_mday, wdh->fh);                /* s.timeopn.mday */
+      *err = s8write((guint8) fT->tm_mday, wdh->fh);       /* s.timeopn.mday */
       if (*err)
             return FALSE;
       *err = s0write(2, wdh->fh);
       if (*err)
 		return FALSE;
-      *err = s8write(fT->tm_sec, wdh->fh);                 /* s.timeclo.second */
+      *err = s8write((guint8) fT->tm_sec, wdh->fh);        /* s.timeclo.second */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_min, wdh->fh);                 /* s.timeclo.minute */
+      *err = s8write((guint8) fT->tm_min, wdh->fh);        /* s.timeclo.minute */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_hour, wdh->fh);                /* s.timeclo.hour */
+      *err = s8write((guint8) fT->tm_hour, wdh->fh);       /* s.timeclo.hour */
       if (*err)
             return FALSE;
-      *err = s8write(fT->tm_mday, wdh->fh);                /* s.timeclo.mday */
+      *err = s8write((guint8) fT->tm_mday, wdh->fh);       /* s.timeclo.mday */
       if (*err)
             return FALSE;
       *err = s0write(2, wdh->fh);

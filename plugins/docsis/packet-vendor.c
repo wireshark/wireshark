@@ -2,7 +2,7 @@
  * Routines for Vendor Specific Encodings dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-vendor.c,v 1.3 2003/07/19 02:11:34 guy Exp $
+ * $Id: packet-vendor.c,v 1.4 2003/12/11 21:23:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,7 +144,7 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 	{
 	case VENDOR_CISCO:
 	  proto_item_append_text (it, " (Cisco)");
-	  dissect_cisco (tvb, vsif_tree, vsif_len);
+	  dissect_cisco (tvb, vsif_tree, (guint8) vsif_len);
 	  break;
 	default:
 	  proto_item_append_text (it, " (Unknown)");

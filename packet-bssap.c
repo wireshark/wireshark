@@ -7,7 +7,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-bssap.c,v 1.5 2003/12/02 02:58:32 guy Exp $
+ * $Id: packet-bssap.c,v 1.6 2003/12/11 21:23:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -237,11 +237,11 @@ dissect_bssap_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tre
     switch (parameter_type)
     {
     case PARAMETER_DLCI:
-	dissect_bssap_dlci_param(parameter_tvb, bssap_tree, parameter_length);
+	dissect_bssap_dlci_param(parameter_tvb, bssap_tree, (guint8) parameter_length);
 	break;
 
     case PARAMETER_LENGTH:
-	dissect_bssap_length_param(parameter_tvb, bssap_tree, parameter_length);
+	dissect_bssap_length_param(parameter_tvb, bssap_tree, (guint8) parameter_length);
 	break;
 
     case PARAMETER_DATA:
@@ -308,7 +308,7 @@ dissect_bssap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
 				     LENGTH_LENGTH);
 	offset += dissect_bssap_var_parameter(tvb, pinfo, bssap_tree, tree,
 				    PARAMETER_DATA,
-				    (offset - LENGTH_LENGTH));
+				    (guint8) (offset - LENGTH_LENGTH));
 	break;
 
     case BSSAP_PDU_TYPE_DTAP:
@@ -320,7 +320,7 @@ dissect_bssap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
 				     LENGTH_LENGTH);
 	offset += dissect_bssap_var_parameter(tvb, pinfo, bssap_tree, tree,
 				    PARAMETER_DATA,
-				    (offset - LENGTH_LENGTH));
+				    (guint8) (offset - LENGTH_LENGTH));
 	break;
 
     default:

@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.76 2003/12/10 19:21:15 guy Exp $
+ * $Id: packet-isakmp.c,v 1.77 2003/12/11 21:23:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -751,7 +751,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       proto_tree_add_text(tree, tvb, offset, 4,
 			  "%s (%u): %s (%u)",
 			  str, type,
-			  value2str(ike_phase1, type, val), val);
+			  value2str(ike_phase1, type, (guint16) val), val);
       offset += 4;
       length -= 4;
     }
@@ -766,7 +766,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
         proto_tree_add_text(tree, tvb, offset, pack_len,
 			    "%s (%u): %s (%u)",
 			    str, type,
-			    value2str(ike_phase1, type, val), val);
+			    value2str(ike_phase1, type, (guint16) val), val);
       }
       offset += pack_len;
       length -= pack_len;

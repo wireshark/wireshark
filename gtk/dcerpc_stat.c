@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.29 2003/12/04 00:45:37 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.30 2003/12/11 21:23:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,14 +217,14 @@ gtk_dcerpcstat_init(char *optarg)
 
 
 	rs=g_malloc(sizeof(rpcstat_t));
-	rs->prog=dcerpc_get_proto_name(&uuid, (minor<<8)|(major&0xff) );
-	hf_opnum=dcerpc_get_proto_hf_opnum(&uuid, (minor<<8)|(major&0xff) );
+	rs->prog=dcerpc_get_proto_name(&uuid, (guint16) ((minor<<8)|(major&0xff)) );
+	hf_opnum=dcerpc_get_proto_hf_opnum(&uuid, (guint16) ((minor<<8)|(major&0xff)) );
 	if(!rs->prog){
 		g_free(rs);
 		fprintf(stderr,"ethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
 		exit(1);
 	}
-	procs=dcerpc_get_proto_sub_dissector(&uuid, (minor<<8)|(major&0xff) );
+	procs=dcerpc_get_proto_sub_dissector(&uuid, (guint16) ((minor<<8)|(major&0xff)) );
 	rs->uuid=uuid;
 	rs->ver=(minor<<8)|(major&0xff);
 

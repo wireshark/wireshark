@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.5 2003/12/08 23:40:13 guy Exp $
+ * $Id: packet-gsm_sms.c,v 1.6 2003/12/11 21:23:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1533,7 +1533,7 @@ char_unicode_decode(unsigned char* dest, const unsigned char* src, int len)
 
     for (i = 0; i < len / 2; i++)
     {
-	length = char_uni_alphabet_decode((src[i * 2] << 8) | src[(i * 2) + 1], dest);
+	length = char_uni_alphabet_decode( (wchar_t) ((src[i * 2] << 8) | src[(i * 2) + 1]), dest);
 	dest += length;
 	pos += length;
     }

@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.33 2003/12/08 20:36:40 guy Exp $
+ * $Id: packet-afp.c,v 1.34 2003/12/11 21:23:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1779,7 +1779,7 @@ dissect_query_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_reply_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-	int f_bitmap;
+	guint16 f_bitmap;
 	
 	f_bitmap = decode_file_bitmap(tree, tvb, offset);
 	offset += 2;
@@ -1980,7 +1980,7 @@ catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	b
 		PAD(1);
 	}
 
-	offset = parse_file_bitmap(tree, tvb, offset, bitmap,0);
+	offset = parse_file_bitmap(tree, tvb, offset, (guint16) bitmap,0);
 	offset = org +size;
 
 	return offset;

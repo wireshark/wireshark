@@ -2,7 +2,7 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-tlv.c,v 1.13 2003/10/05 22:38:09 jmayer Exp $
+ * $Id: packet-tlv.c,v 1.14 2003/12/11 21:23:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -955,9 +955,9 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, guint16 start, guint16 len,
 	  break;
 	default:
 	  if (direction == 24)
-	    dissect_upstream_sflow (tvb, sflow_tree, pos - 2, length);
+	    dissect_upstream_sflow (tvb, sflow_tree, (guint16) (pos - 2), length);
 	  else
-	    dissect_downstream_sflow (tvb, sflow_tree, pos - 2, length);
+	    dissect_downstream_sflow (tvb, sflow_tree, (guint16) (pos - 2), length);
 	  break;
 
 	}			/* switch (type) */

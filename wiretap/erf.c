@@ -32,7 +32,7 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* $Id: erf.c,v 1.4 2003/10/01 07:11:46 guy Exp $
+* $Id: erf.c,v 1.5 2003/12/11 21:23:37 ulfl Exp $
 */
 
 /* 
@@ -203,7 +203,7 @@ int erf_open(wtap *wth, int *err)
 	wth->file_encap =
 		(common_type < 0
 			? WTAP_ENCAP_PER_PACKET
-			: erf_encap_to_wtap_encap(wth->capture.erf, common_type));
+			: erf_encap_to_wtap_encap(wth->capture.erf, (guint8) common_type));
 
 	wth->subtype_read = erf_read;
 	wth->subtype_seek_read = erf_seek_read;

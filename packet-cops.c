@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.36 2003/10/05 23:09:59 jmayer Exp $
+ * $Id: packet-cops.c,v 1.37 2003/12/11 21:23:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -641,7 +641,7 @@ static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree)
   offset++;
 
   contents_len = object_len - COPS_OBJECT_HDR_SIZE;
-  dissect_cops_object_data(tvb, offset, obj_tree, c_num, c_type, contents_len);
+  dissect_cops_object_data(tvb, offset, obj_tree, c_num, c_type, (guint16) contents_len);
 
   /* Pad to 32bit boundary */
   if (object_len % sizeof (guint32))
@@ -695,7 +695,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *t
     pr_len--;
 
     contents_len = object_len - COPS_OBJECT_HDR_SIZE;
-    ret = dissect_cops_pr_object_data(tvb, offset, obj_tree, s_num, s_type, contents_len);
+    ret = dissect_cops_pr_object_data(tvb, offset, obj_tree, s_num, s_type, (guint16) contents_len);
     if (ret < 0)
       break;
 
