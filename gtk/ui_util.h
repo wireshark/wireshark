@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.9 2001/03/24 02:23:07 guy Exp $
+ * $Id: ui_util.h,v 1.1 2001/03/24 02:23:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,18 +23,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __UI_UTIL_H__
-#define __UI_UTIL_H__
+#ifndef __GTKGUIUI_UTIL_H__
+#define __GTKGUIUI_UTIL_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+/* Given a pointer to a GtkWidget for a top-level window, raise it and
+   de-iconify it.  This routine is used if the user has done something to
+   ask that a window of a certain type be popped up when there can be only
+   one such window and such a window has already been popped up - we
+   pop up the existing one rather than creating a new one. */
+void reactivate_window(GtkWidget *);
 
-/* Set the name of the top-level window and its icon. */
-void set_main_window_name(gchar *);
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* __UI_UTIL_H__ */
+#endif /* __GTKGUIUI_UTIL_H__ */

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.3 2000/01/03 06:59:25 guy Exp $
+ * $Id: ui_util.c,v 1.4 2001/03/24 02:23:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 
 #include "gtkglobals.h"
 #include "ui_util.h"
+#include "../ui_util.h"
 
 /* Set the name of the top-level window and its icon.
    XXX - for some reason, KWM insists on making the icon name be just
