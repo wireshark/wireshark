@@ -1,0 +1,6 @@
+#.TYPE_ATTR
+NonStandardParameter     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+AliasAddress             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(AliasAddress_vals)  BITMASK = 0
+RasMessage               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(RasMessage_vals)  BITMASK = 0
+#.END
+

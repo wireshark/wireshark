@@ -1,0 +1,294 @@
+# h225.cnf
+# H.225 conformation file
+# Copyright 2004 Anders Broman 
+# $Id$
+
+#.MODULE_IMPORT
+H235-SECURITY-MESSAGES h235
+MULTIMEDIA-SYSTEM-CONTROL h245
+#.END
+
+#.INCLUDE ../h235/h235-exp.cnf
+#.INCLUDE ../h245/h245-exp.cnf
+
+#----------------------------------------------------------------------------------------
+#.EXPORTS
+#----------------------------------------------------------------------------------------
+NonStandardParameter	 		
+RasMessage			WITH_VALS ETH_VAR
+H323-UU-PDU/h323-message-body	ONLY_VALS ETH_VAR
+FacilityReason			ONLY_VALS ETH_VAR
+GatekeeperRejectReason		ONLY_VALS ETH_VAR
+UnregRequestReason		ONLY_VALS ETH_VAR
+UnregRejectReason		ONLY_VALS ETH_VAR
+BandRejectReason		ONLY_VALS ETH_VAR
+DisengageReason			ONLY_VALS ETH_VAR
+DisengageRejectReason		ONLY_VALS ETH_VAR
+InfoRequestNakReason		ONLY_VALS ETH_VAR
+ReleaseCompleteReason		ONLY_VALS ETH_VAR
+AdmissionRejectReason		ONLY_VALS ETH_VAR
+LocationRejectReason		ONLY_VALS ETH_VAR
+RegistrationRejectReason	ONLY_VALS ETH_VAR
+AliasAddress
+#----------------------------------------------------------------------------------------
+#.TYPE_RENAME
+CallCreditServiceControl/callStartingPoint CallCreditServiceControl_callStartingPoint
+TunnelledProtocol/id TunnelledProtocol_id
+ServiceControlSession/reason ServiceControlSession_reason
+RasUsageSpecification/callStartingPoint RasUsageSpecificationcallStartingPoint
+CapacityReportingSpecification/when CapacityReportingSpecification_when
+RasUsageSpecification/when RasUsageSpecification_when
+TransportAddress/ipAddress/ip IpV4
+#----------------------------------------------------------------------------------------
+#.FIELD_RENAME
+RasUsageSpecification/callStartingPoint/alerting alerting_flg 
+CallCreditServiceControl/callStartingPoint/alerting alerting_flg
+UseSpecifiedTransport/annexE annexE_flg
+
+UUIEsRequested/callProceeding callProceeding_flg
+
+CicInfo/cic cic_2_4
+UUIEsRequested/connect connect_bool
+NonStandardParameter/data data_oct_str
+H323-UU-PDU/h323-message-body/empty empty_flg
+RasUsageInfoTypes/endTime endTime_flg
+UUIEsRequested/facility facility_bool
+CallsAvailable/group group_IA5String 
+GroupID/group group_IA5String 
+
+Setup-UUIE/hopCount hopCount_1_31
+UUIEsRequested/information information_bool
+TransportAddress/ip6Address/ip ipV6
+TransportAddress/ipAddress/ip ipV4
+TransportAddress/ipSourceRoute/ip src_route_ipV4
+RTPSession/multicast multicast_flg
+
+UUIEsRequested/notify notify_bool
+TransportAddress/ipxAddress/port ipx_port
+TransportAddress/ipAddress/port ipV4_port
+TransportAddress/ipSourceRoute/port ipV4_src_port
+TransportAddress/ip6Address/port ipV6_port
+UUIEsRequested/progress progress_bool
+
+Facility-UUIE/reason facilityReason
+UnregistrationRequest/reason unregRequestReason
+ReleaseComplete-UUIE/reason releaseCompleteReason
+BandwidthReject/rejectReason bandRejectReason     
+UnregistrationReject/rejectReason unregRejectReason    
+RegistrationReject/rejectReason registrationRejectReason 
+LocationReject/rejectReason locationRejectReason 
+DisengageReject/rejectReason disengageRejectReason 
+GatekeeperReject/rejectReason gatekeeperRejectReason 
+
+UUIEsRequested/releaseComplete releaseComplete_bool
+UseSpecifiedTransport/sctp sctp_flg
+ServiceControlSession/sessionId sessionId_0_255
+UUIEsRequested/setup setup_bool
+UUIEsRequested/setupAcknowledge setupAcknowledge_bool
+Setup-UUIE/sourceInfo Setup-UUIE_sourceInfo
+
+UUIEsRequested/status status_bool
+UUIEsRequested/statusInquiry statusInquiry_bool
+RasUsageInfoTypes/terminationCause terminationCause_flg
+CapacityReportingSpecification/when capacityReportingSpecification_when
+UUIEsRequested/alerting alerting_bool
+
+LocationConfirm/callSignalAddress locationConfirm_callSignalAddress
+
+RasUsageSpecification/callStartingPoint/connect connect_flg
+CallCreditServiceControl/callStartingPoint/connect connect_flg
+
+Alerting-UUIE/destinationInfo uUIE_destinationInfo
+CallProceeding-UUIE/destinationInfo uUIE_destinationInfo 
+Connect-UUIE/destinationInfo uUIE_destinationInfo
+Facility-UUIE/destinationInfo uUIE_destinationInfo
+Progress-UUIE/destinationInfo uUIE_destinationInfo
+
+TunnelledProtocol/id tunnelledProtocol_id
+SecurityCapabilities/integrity securityCapabilities_integrity
+
+GenericIdentifier/nonStandard genericIdentifier_nonStandard
+AlternateGK/rasAddress alternateGK_rasAddress 
+GatekeeperRequest/rasAddress gatekeeperRequest_rasAddress
+GatekeeperConfirm/rasAddress gatekeeperConfirm_rasAddress 
+LocationConfirm/rasAddress locationConfirm_rasAddress
+InfoRequestResponse/rasAddress infoRequestResponse_rasAddress
+
+
+Setup-UUIE/remoteExtensionAddress uUIE_remoteExtensionAddress
+Facility-UUIE/remoteExtensionAddress uUIE_remoteExtensionAddress
+
+VendorIdentifier/vendor vendorIdentifier_vendor
+
+RasUsageSpecification/callStartingPoint ras_callStartingPoint
+
+ReleaseCompleteReason/securityError rLC_securityError
+GatekeeperRejectReason/securityError gkRej_securityError
+RegistrationRejectReason/securityError reg_securityError
+
+#----------------------------------------------------------------------------------------
+#.FN_BODY H323-UU-PDU/h323-message-body
+	guint32 message_body_val;
+
+	contains_faststart = FALSE;
+	offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_T_h323_message_body, T_h323_message_body_choice, "T_h323_message_body",
+                              &message_body_val);
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "CS: %s ",
+			val_to_str(message_body_val, T_h323_message_body_vals, "<unknown>"));
+        }
+
+	if (h225_pi.msg_type == H225_CS) {
+		/* Don't override msg_tag value from IRR */
+		h225_pi.msg_tag = value;
+	}
+
+	if (contains_faststart == TRUE )
+	{
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
+		}
+	}
+
+	col_set_fence(pinfo->cinfo,COL_INFO);
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY FastStart/_item
+	guint32 newoffset;
+	guint32 length;
+
+	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h225_fastStart_item_length, &length);
+	newoffset=offset + (length<<3);	/* please note that offset is in bits in
+					   PER dissectors, but the item length
+					   is in octets */
+	offset=dissect_h245_OpenLogicalChannel(tvb,offset, pinfo, tree, hf_index);
+	contains_faststart = TRUE;
+	h225_pi.is_faststart = TRUE;
+
+	return newoffset;
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY RasMessage
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_RasMessage, RasMessage_choice, "RasMessage",
+                               &value);
+#.END
+#----------------------------------------------------------------------------------------
+# TODO asn2eth can't handle restriced string ?
+#.FN_BODY DialedDigits
+
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13);
+#.END
+#----------------------------------------------------------------------------------------
+# TODO asn2eth can't handle restriced string ?
+#.FN_BODY NumberDigits
+
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY H221NonStandard/t35CountryCode
+
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 255U, &value, NULL, FALSE);
+  T38_manufacturer_code = value << 24;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY H221NonStandard/t35Extension
+
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 255U, &value, NULL, FALSE);
+  T38_manufacturer_code = T38_manufacturer_code ^ (value << 16);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY H221NonStandard/manufacturerCode
+
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 65535U, &value, NULL, FALSE);
+  T38_manufacturer_code = T38_manufacturer_code ^ value;
+  proto_tree_add_uint(tree, hf_h221Manufacturer, tvb, (offset)-4,4,T38_manufacturer_code);
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4
+
+guint32 value_offset;
+guint32 value_len;
+
+  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+                                    4, 4,
+                                    &value_offset, &value_len);
+	tvb_memcpy(tvb, (char *)&ipv4_address, value_offset, 4);
+
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4port
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 65535U, &ipv4_port, NULL, FALSE);
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY H245Control/_item
+
+	tvbuff_t *h245_tvb;
+	guint32 h245_offset=0;
+	guint32 h245_len=0;
+
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h245_offset, &h245_len);
+
+	if(h245_len){
+		h245_tvb = tvb_new_subset(tvb, h245_offset, h245_len, h245_len);
+		call_dissector(h245dg_handle, h245_tvb, pinfo, tree);
+	}
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H323-UU-PDU/h323-message-body/setup
+	contains_faststart = FALSE;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR H323-UU-PDU/h323-message-body/setup
+	h225_pi.cs_type = H225_SETUP;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H245TransportAddress
+	ipv4_address=0;
+	ipv4_port=0;
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR H245TransportAddress
+	/* we need this info for TAPing */
+	h225_pi.is_h245 = TRUE;
+	h225_pi.h245_address = ipv4_address;	
+	h225_pi.h245_port = ipv4_port;	
+
+	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && h245_handle){
+		address src_addr;
+		conversation_t *conv=NULL;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(const guint8 *)&ipv4_address;
+
+		conv=find_conversation(&src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+		if(!conv){
+			conv=conversation_new(&src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
+			conversation_set_dissector(conv, h245_handle);
+		}
+	}
+
+#.END
+#----------------------------------------------------------------------------------------
+#.TYPE_ATTR
+H221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
+TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
+TransportAddress/ip6Address/ip  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+H245TransportAddress/h245ipAddress/h245ipv TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
+H245TransportAddress/h245ip6Address/h245ipv6 TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
