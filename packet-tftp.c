@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.27 2001/09/03 10:33:07 guy Exp $
+ * $Id: packet-tftp.c,v 1.28 2001/11/02 20:52:59 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,7 +137,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 
-	  col_add_fstr(pinfo->fd, COL_INFO, "TFTP %s",
+	  col_add_fstr(pinfo->fd, COL_INFO, "%s",
 	    val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
 
 	}
@@ -157,11 +157,19 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    i1 = tvb_strsize(tvb, offset);
 	    proto_tree_add_item(tftp_tree, hf_tftp_source_file,
 			    tvb, offset, i1, FALSE);
+	    if (check_col(pinfo->fd, COL_INFO)) {
+	      col_append_fstr(pinfo->fd, COL_INFO, ", File: %s",
+			      tvb_get_ptr(tvb, offset, i1));
+	    }
 	    offset += i1;
 
 	    i1 = tvb_strsize(tvb, offset);
 	    ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
 			    tvb, offset, i1, FALSE);
+	    if (check_col(pinfo->fd, COL_INFO)) {
+	      col_append_fstr(pinfo->fd, COL_INFO, ", Transfer type: %s",
+			      tvb_get_ptr(tvb, offset, i1));
+	    }
 	    offset += i1;
 
 	    tftp_dissect_options(tvb, offset, tftp_tree);
@@ -170,11 +178,19 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    i1 = tvb_strsize(tvb, offset);
 	    proto_tree_add_item(tftp_tree, hf_tftp_destination_file,
 			    tvb, offset, i1, FALSE);
+	    if (check_col(pinfo->fd, COL_INFO)) {
+	      col_append_fstr(pinfo->fd, COL_INFO, ", File: %s",
+			      tvb_get_ptr(tvb, offset, i1));
+	    }
 	    offset += i1;
 
 	    i1 = tvb_strsize(tvb, offset);
 	    ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
 			    tvb, offset, i1, FALSE);
+	    if (check_col(pinfo->fd, COL_INFO)) {
+	      col_append_fstr(pinfo->fd, COL_INFO, ", Transfer type: %s",
+			      tvb_get_ptr(tvb, offset, i1));
+	    }
 	    offset += i1;
 
 	    tftp_dissect_options(tvb, offset, tftp_tree);
@@ -182,6 +198,10 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  case TFTP_DATA:
 	    proto_tree_add_item(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
 	    		    FALSE);
+	    if (check_col(pinfo->fd, COL_INFO)) {
+	      col_append_fstr(pinfo->fd, COL_INFO, ", Block: %i",
+			      tvb_get_ntohs(tvb, offset));
+	    }
 	    offset += 2;
 
 	    proto_tree_add_text(tftp_tree, tvb, offset, tvb_length_remaining(tvb, offset),
@@ -190,10 +210,18 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  case TFTP_ACK:
 	    proto_tree_add_item(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
 	    		    FALSE);
+	    if (check_col(pinfo->fd, COL_INFO)) {
+	      col_append_fstr(pinfo->fd, COL_INFO, ", Block: %i",
+			      tvb_get_ntohs(tvb, offset));
+	    }
 	    break;
 	  case TFTP_ERROR:
 	    proto_tree_add_item(tftp_tree, hf_tftp_error_code, tvb, offset, 2,
 			    FALSE);
+	    if (check_col(pinfo->fd, COL_INFO)) {
+	      col_append_fstr(pinfo->fd, COL_INFO, ", Code: %i",
+			      tvb_get_ntohs(tvb, offset));
+	    }
 	    offset += 2;
 
 	    i1 = tvb_strsize(tvb, offset);
