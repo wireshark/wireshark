@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.28 2004/01/24 01:44:29 guy Exp $
+ * $Id: filesystem.c,v 1.29 2004/01/24 02:01:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -644,7 +644,8 @@ char *get_tempfile_path(const char *filename)
 }
 
 /*
- * Return an error message for UNIX-style errno indications.
+ * Return an error message for UNIX-style errno indications on open or
+ * create operations.
  */
 char *
 file_open_error_message(int err, gboolean for_writing)
@@ -672,6 +673,16 @@ file_open_error_message(int err, gboolean for_writing)
 		errmsg = "\"%s\" is a directory (folder), not a file.";
 		break;
 
+	case ENOSPC:
+		errmsg = "The file \"%s\" could not be created because there is no space left on the file system.";
+		break;
+
+#ifdef EDQUOT
+	case EDQUOT:
+		errmsg = "The file \"%s\" could not be created because you are too close to, or over, your disk quota.";
+		break;
+#endif
+
 	default:
 		snprintf(errmsg_errno, sizeof(errmsg_errno),
 				"The file \"%%s\" could not be %s: %s.",
@@ -682,3 +693,36 @@ file_open_error_message(int err, gboolean for_writing)
 	}
 	return errmsg;
 }
+
+/*
+ * Return an error message for UNIX-style errno indications on write
+ * operations.
+ */
+char *
+file_write_error_message(int err)
+{
+	char *errmsg;
+	static char errmsg_errno[1024+1];
+
+	switch (err) {
+
+	case ENOSPC:
+		errmsg = "The file \"%s\" could not be saved because there is no space left on the file system.";
+		break;
+
+#ifdef EDQUOT
+	case EDQUOT:
+		errmsg = "The file \"%s\" could not be saved because you are too close to, or over, your disk quota.";
+		break;
+#endif
+
+	default:
+		snprintf(errmsg_errno, sizeof(errmsg_errno),
+		    "An error occurred while writing to the file \"%%s\": %s.",
+		    strerror(err));
+		errmsg = errmsg_errno;
+		break;
+	}
+	return errmsg;
+}
+

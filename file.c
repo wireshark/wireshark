@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.345 2004/01/24 01:44:28 guy Exp $
+ * $Id: file.c,v 1.346 2004/01/24 02:01:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,6 +118,7 @@ static gboolean find_packet(capture_file *cf,
 static char *cf_open_error_message(int err, gboolean for_writing,
     int file_type);
 static char *file_rename_error_message(int err);
+static char *cf_write_error_message(int);
 static char *file_close_error_message(int err);
 static   gboolean copy_binary_file(char *from_filename, char *to_filename);
 
@@ -2475,7 +2476,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 
   /* and save the packet */
   if (!wtap_dump(args->pdh, &hdr, pseudo_header, pd, &err)) {
-    simple_dialog(ESD_TYPE_CRIT, NULL, file_write_error_message(err),
+    simple_dialog(ESD_TYPE_CRIT, NULL, cf_write_error_message(err),
                   args->fname);
     return FALSE;
   }
@@ -2683,7 +2684,7 @@ cf_open_error_message(int err, gboolean for_writing, int file_type)
     /* Wiretap error. */
     switch (err) {
 
-   case WTAP_ERR_NOT_REGULAR_FILE:
+    case WTAP_ERR_NOT_REGULAR_FILE:
       errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
       break;
 
@@ -2789,31 +2790,20 @@ file_read_error_message(int err)
   return errmsg_errno;
 }
 
-char *
-file_write_error_message(int err)
+static char *
+cf_write_error_message(int err)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
 
-  switch (err) {
-
-  case ENOSPC:
-    errmsg = "The file \"%s\" could not be saved because there is no space left on the file system.";
-    break;
-
-#ifdef EDQUOT
-  case EDQUOT:
-    errmsg = "The file \"%s\" could not be saved because you are too close to, or over, your disk quota.";
-    break;
-#endif
-
-  default:
+  if (err < 0) {
+    /* Wiretap error. */
     snprintf(errmsg_errno, sizeof(errmsg_errno),
 		    "An error occurred while writing to the file \"%%s\": %s.",
 				wtap_strerror(err));
     errmsg = errmsg_errno;
-    break;
-  }
+  } else
+    errmsg = file_write_error_message(err);
   return errmsg;
 }
 
@@ -2874,7 +2864,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   if (from_fd < 0) {
     err = errno;
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  cf_open_error_message(err, TRUE, 0), from_filename);
+		  file_open_error_message(err, TRUE), from_filename);
     goto done;
   }
 
@@ -2887,7 +2877,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   if (to_fd < 0) {
     err = errno;
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  cf_open_error_message(err, TRUE, 0), to_filename);
+		  file_open_error_message(err, TRUE), to_filename);
     close(from_fd);
     goto done;
   }

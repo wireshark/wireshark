@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.34 2004/01/10 16:27:41 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.35 2004/01/24 02:01:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -919,7 +919,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 	fh = fopen(to_name, "wb");
 	if (fh == NULL) {
 		simple_dialog(ESD_TYPE_WARN, NULL,
-			file_write_error_message(errno), to_name);
+			file_open_error_message(errno, TRUE), to_name);
 		g_free(to_name);
 		return;
 	}
