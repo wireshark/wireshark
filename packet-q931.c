@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.11 1999/11/25 22:49:01 guy Exp $
+ * $Id: packet-q931.c,v 1.12 1999/12/14 23:25:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,7 +140,7 @@ static const value_string q931_message_type_vals[] = {
 /*
  * Single-octet IEs.
  */
-#define	Q931_IE_SO_IDENTIFIER_MASK	0x70	/* IE identifier mask */
+#define	Q931_IE_SO_IDENTIFIER_MASK	0xf0	/* IE identifier mask */
 #define	Q931_IE_SO_IDENTIFIER_SHIFT	4	/* IE identifier shift */
 #define	Q931_IE_SO_IE_MASK		0x0F	/* IE mask */
 
@@ -1386,7 +1386,7 @@ dissect_q931_date_time_ie(const u_char *pd, int offset, int len,
 	 * 1-origin?  Q.931 doesn't say....
 	 */
 	proto_tree_add_text(tree, offset, 6,
-	    "Date/time: %u-%u-%u %u:%u:%u",
+	    "Date/time: %02u-%02u-%02u %02u:%02u:%02u",
 	    pd[offset + 0], pd[offset + 1], pd[offset + 2],
 	    pd[offset + 3], pd[offset + 4], pd[offset + 5]);
 }
