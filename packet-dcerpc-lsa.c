@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.18 2002/04/18 02:42:43 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.19 2002/04/18 10:40:30 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,6 +90,7 @@ static int hf_nt_luid_high = -1;
 static int hf_nt_luid_low = -1;
 static int hf_lsa_privilege_name = -1;
 static int hf_lsa_attr = -1;
+static int hf_lsa_resume_handle = -1;
 
 static int hf_lsa_unknown_hyper = -1;
 static int hf_lsa_unknown_long = -1;
@@ -123,6 +124,8 @@ static gint ett_LSA_PRIVILEGES = -1;
 static gint ett_LSA_PRIVILEGE = -1;
 static gint ett_LSA_LUID_AND_ATTRIBUTES_ARRAY = -1;
 static gint ett_LSA_LUID_AND_ATTRIBUTES = -1;
+static gint ett_LSA_TRUSTED_DOMAIN_LIST = -1;
+static gint ett_LSA_TRUSTED_DOMAIN = -1;
 
 
 static int
@@ -700,11 +703,11 @@ lsa_dissect_POLICY_DEFAULT_QUOTA_INFO(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_quota_max_wss, NULL);
 
-	/* unknown */
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_lsa_unknown_long, NULL);
-
 	/* pagefile */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_quota_pagefile, NULL);
+
+	/*  */
         offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_unknown_hyper, NULL);
 
@@ -1768,6 +1771,179 @@ lsa_dissect_lsaremoveprivilegesfromaccount_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsaenumerateaccounts_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in,out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_resume_handle, NULL);
+
+	/* [in] ULONG pref_maxlen */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_max_count, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaenumerateaccounts_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in,out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_resume_handle, NULL);
+
+	/* [out, ref] PSID_ARRAY **accounts */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
+			"", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsacreatetrusteddomain_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd_pol */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LSA_TRUST_INFORMATION *domain */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUST_INFORMATION, NDR_POINTER_REF,
+		"LSA_TRUST_INFORMATION pointer: domain", -1, 0);
+
+	/* [in] ACCESS_MASK access */
+	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsacreatetrusteddomain_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out] LSA_HANDLE *hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaenumeratetrusteddomains_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_resume_handle, NULL);
+
+	/* [in] ULONG pref_maxlen */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_max_count, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRUSTED_DOMAIN(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+ 	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"TRUSTED_DOMAIN:");
+		tree = proto_item_add_subtree(item, ett_LSA_TRUSTED_DOMAIN);
+	}
+
+	/* domain */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_domain, 0);
+
+	/* sid */
+	offset = dissect_ndr_nt_PSID(tvb, offset,
+		pinfo, tree, drep);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRUSTED_DOMAIN_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUSTED_DOMAIN);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRUSTED_DOMAIN_LIST(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+ 	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"TRUSTED_DOMAIN_LIST:");
+		tree = proto_item_add_subtree(item, ett_LSA_TRUSTED_DOMAIN_LIST);
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_count, NULL);
+
+	/* privileges */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUSTED_DOMAIN_array, NDR_POINTER_UNIQUE,
+		"TRUSTED_DOMAIN array:", -1, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_lsaenumeratetrusteddomains_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in, out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_resume_handle, NULL);
+
+	/* [out, ref] LSA_REFERENCED_DOMAIN_LIST *domains */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRUSTED_DOMAIN_LIST, NDR_POINTER_REF,
+		"LSA_TRUSTED_DOMAIN_LIST pointer: domains", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -1802,29 +1978,20 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsaclearauditlog_rqst,
 		lsa_dissect_lsaclearauditlog_reply },
 	{ LSA_LSACREATEACCOUNT, "LSACREATEACCOUNT",
-		NULL, NULL },
+		NULL, NULL },  /* 0x0a */
 #ifdef REMOVED
 		lsa_dissect_lsacreateaccount_rqst,
 		lsa_dissect_lsacreateaccount_reply },
 #endif
 	{ LSA_LSAENUMERATEACCOUNTS, "LSAENUMERATEACCOUNTS",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaenumerateaccounts_rqst,
 		lsa_dissect_lsaenumerateaccounts_reply },
-#endif
 	{ LSA_LSACREATETRUSTEDDOMAIN, "LSACREATETRUSTEDDOMAIN",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsacreatetrusteddomain_rqst,
 		lsa_dissect_lsacreatetrusteddomain_reply },
-#endif
 	{ LSA_LSAENUMERATETRUSTEDDOMAINS, "LSAENUMERATETRUSTEDDOMAINS",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaenumeratetrusteddomains_rqst,
 		lsa_dissect_lsaenumeratetrusteddomains_reply },
-#endif
 	{ LSA_LSALOOKUPNAMES, "LSALOOKUPNAMES",
 		NULL, NULL },
 #ifdef REMOVED
@@ -2289,6 +2456,10 @@ proto_register_dcerpc_lsa(void)
 		{ "Attr", "lsa.attr", FT_UINT64, BASE_HEX, 
 		NULL, 0x0, "LSA Attributes", HFILL }},
 
+	{ &hf_lsa_resume_handle,
+		{ "Resume Handle", "lsa.resume_handle", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Resume Handle", HFILL }},
+
 	
 	};
 
@@ -2317,6 +2488,8 @@ proto_register_dcerpc_lsa(void)
 		&ett_LSA_PRIVILEGE,
 		&ett_LSA_LUID_AND_ATTRIBUTES_ARRAY,
 		&ett_LSA_LUID_AND_ATTRIBUTES,
+		&ett_LSA_TRUSTED_DOMAIN_LIST,
+		&ett_LSA_TRUSTED_DOMAIN,
         };
 
         proto_dcerpc_lsa = proto_register_protocol(
