@@ -63,8 +63,6 @@
 #include "capture.h"
 
 
-extern char *iptos(u_long in);
-
 extern gboolean is_capture_in_progress(void);
 
 /*
@@ -312,14 +310,13 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   gchar         *cant_get_if_list_errstr;
   int           row;
   if_dlg_data_t *if_dlg_data;
-  int ifs;
-  GList *curr;
-  if_info_t *if_info;
-  GSList *curr_ip;
-  guint32       ip_addr;
+  int           ifs;
+  GList         *curr;
+  if_info_t     *if_info;
+  GSList        *curr_ip;
+  if_addr_t     *ip_addr;
   GString       *if_tool_str = g_string_new("");
   gchar         *tmp_str;
-
 
   if (cap_if_w != NULL) {
     /* There's already a "Capture Interfaces" dialog box; reactivate it. */
@@ -440,19 +437,33 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       }
 
       /* IP address */
-      /* only one IP address will be shown */
+      /* only the first IP address will be shown */
       g_string_append(if_tool_str, "IP: ");
       curr_ip = g_slist_nth(if_info->ip_addr, 0);
       if(curr_ip) {
-        ip_addr = *((guint32 *)curr_ip->data);
-        if_dlg_data->ip_lb = gtk_label_new(iptos(ip_addr));
-        g_string_append(if_tool_str, iptos(ip_addr));
+        ip_addr = (if_addr_t *)curr_ip->data;
+        switch (ip_addr->family) {
+
+        case FAM_IPv4:
+          tmp_str = ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr);
+          break;
+
+        case FAM_IPv6:
+          tmp_str = ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr);
+          break;
+
+        default:
+          g_assert_not_reached();
+          tmp_str = NULL;
+        }
+        if_dlg_data->ip_lb = gtk_label_new(tmp_str);
+        gtk_widget_set_sensitive(if_dlg_data->ip_lb, TRUE);
+        g_string_append(if_tool_str, tmp_str);
       } else {
-        ip_addr = 0;
         if_dlg_data->ip_lb = gtk_label_new("unknown");
+        gtk_widget_set_sensitive(if_dlg_data->ip_lb, FALSE);
         g_string_append(if_tool_str, "unknown");
       }
-      gtk_widget_set_sensitive(if_dlg_data->ip_lb, ip_addr);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->ip_lb, 2, 3, row, row+1);
       g_string_append(if_tool_str, "\n");
 

@@ -50,9 +50,25 @@ extern "C" {
 typedef struct {
 	char	*name;
 	char	*description;
-    GSList  *ip_addr;       /* containing guint32 values */
-    gboolean loopback;
+	GSList  *ip_addr;       /* containing address values */
+	gboolean loopback;
 } if_info_t;
+
+/*
+ * An address in the "ip_addr" list.
+ */
+typedef enum {
+	FAM_IPv4,
+	FAM_IPv6
+} address_family;
+
+typedef struct {
+	address_family family;
+	union {
+		guint32 ip4_addr;
+		guint8 ip6_addr[16];
+	} ip_addr;
+} if_addr_t;
 
 GList *get_interface_list(int *err, char *err_str);
 

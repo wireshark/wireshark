@@ -197,23 +197,40 @@ if_info_new(char *name, char *description)
 void
 if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 {
+	if_addr_t *ip_addr;
 	struct sockaddr_in *ai;
-	guint32 *ip_addr;
+#ifdef AF_INET6
+	struct sockaddr_in6 *ai6;
+#endif
 
 	switch (addr->sa_family) {
 
 	case AF_INET:
 		ai = (struct sockaddr_in *)addr;
 		ip_addr = g_malloc(sizeof(*ip_addr));
-		*ip_addr = *((guint32 *)&(ai->sin_addr.s_addr));
+		ip_addr->family = FAM_IPv4;
+		ip_addr->ip_addr.ip4_addr =
+		    *((guint32 *)&(ai->sin_addr.s_addr));
 		if_info->ip_addr = g_slist_append(if_info->ip_addr, ip_addr);
 		break;
+
+#ifdef AF_INET6
+	case AF_INET6:
+		ai6 = (struct sockaddr_in6 *)addr;
+		ip_addr = g_malloc(sizeof(*ip_addr));
+		ip_addr->family = FAM_IPv6;
+		memcpy((void *)&ip_addr->ip_addr.ip6_addr,
+		    (void *)&ai6->sin6_addr.s6_addr,
+		    sizeof ip_addr->ip_addr.ip6_addr);
+		if_info->ip_addr = g_slist_append(if_info->ip_addr, ip_addr);
+		break;
+#endif
 	}
 }
 
 #ifdef HAVE_PCAP_FINDALLDEVS
 /*
- * Get all IPv4 address information, and the loopback flag, for the given
+ * Get all IP address information, and the loopback flag, for the given
  * interface.
  */
 static void
@@ -265,7 +282,7 @@ get_interface_list_findalldevs(int *err, char *err_str)
 static void
 free_if_info_addr_cb(gpointer addr, gpointer user_data _U_)
 {
-    g_free(addr);
+	g_free(addr);
 }
 
 static void
@@ -277,8 +294,8 @@ free_if_cb(gpointer data, gpointer user_data _U_)
 	if (if_info->description != NULL)
 		g_free(if_info->description);
 
-    g_slist_foreach(if_info->ip_addr, free_if_info_addr_cb, NULL);
-    g_slist_free(if_info->ip_addr);
+	g_slist_foreach(if_info->ip_addr, free_if_info_addr_cb, NULL);
+	g_slist_free(if_info->ip_addr);
 }
 
 void

@@ -213,23 +213,6 @@ get_if_name(char *if_text)
  */
 static GtkWidget *cap_open_w;
 
-
-/* From tcptraceroute, convert a numeric IP address to a string */
-/* XXX - this functionality is already somewhere in our code */
-#define IPTOSBUFFERS    12
-char *iptos(u_long in)
-{
-    static char output[IPTOSBUFFERS][3*4+3+1];
-    static short which;
-    u_char *p;
-
-    p = (u_char *)&in;
-    which = (which + 1 == IPTOSBUFFERS ? 0 : which + 1);
-    sprintf(output[which], "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
-    return output[which];
-}
-
-
 static void
 set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 {
@@ -252,6 +235,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   GString *ip_str = g_string_new("IP address: ");
   int ips = 0;
   GSList *curr_ip;
+  if_addr_t *ip_addr;
 
   lt_menu = gtk_menu_new();
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
@@ -290,18 +274,28 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 	   */
 	  lt_list = get_pcap_linktype_list(if_name, err_buf);
 
-      /* create string of list of IP addresses of this interface */
-      for( ; (curr_ip = g_slist_nth(if_info->ip_addr, ips)) != NULL; ips++) {
-          if (ips != 0) {
-              g_string_append(ip_str, ", ");
-          }
+	  /* create string of list of IP addresses of this interface */
+	  for (; (curr_ip = g_slist_nth(if_info->ip_addr, ips)) != NULL; ips++) {
+	    if (ips != 0)
+	      g_string_append(ip_str, ", ");
 
-          g_string_append(ip_str, iptos(*((guint32 *)curr_ip->data)));
-      }
+	    ip_addr = (if_addr_t *)curr_ip->data;
+	    switch (ip_addr->family) {
 
-      if(if_info->loopback) {
-          g_string_append(ip_str, " (loopback)");
-      }
+	    case FAM_IPv4:
+	      g_string_append(ip_str,
+		ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr));
+	      break;
+
+	    case FAM_IPv6:
+	      g_string_append(ip_str,
+	          ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr));
+	      break;
+	    }
+	  }
+
+	  if (if_info->loopback)
+	    g_string_append(ip_str, " (loopback)");
 	}
       }
       free_interface_list(if_list);

@@ -144,7 +144,7 @@ get_interface_list(int *err, char *err_str)
 
 		/*
 		 * If we already have this interface name on the list,
-		 * don't add it, but, if we don't already have an IPv4
+		 * don't add it, but, if we don't already have an IP
 		 * address for it, add that address (SIOCGIFCONF returns,
 		 * at least on BSD-flavored systems, one entry per
 		 * interface *address*; if an interface has multiple
