@@ -88,6 +88,13 @@ static int hf_uma_urr_ECMC				= -1;
 static int hf_uma_urr_EC				= -1;
 static int hf_uma_urr_T3212_timer		= -1;
 static int hf_uma_urr_RAC				= -1;
+static int hf_uma_urr_SGSNR				= -1;
+static int hf_uma_urr_ECMP				= -1;
+static int hf_uma_urr_RE				= -1;
+static int hf_uma_urr_PFCFM				= -1;
+static int hf_uma_urr_cell_id_disc		= -1;
+static int hf_uma_urr_RNC_ID			= -1;
+static int hf_uma_urr_ci				= -1;
 static int hf_uma_urr_bcc				= -1;
 static int hf_uma_urr_ncc				= -1;
 static int hf_uma_urr_bcch_arfcn		= -1;
@@ -100,8 +107,28 @@ static int hf_uma_urr_TU3906_timer		= -1;
 static int hf_uma_urr_TU3910_timer		= -1;
 static int hf_uma_urr_TU3902_timer		= -1;
 static int hf_uma_urr_L3_Message		= -1;
+static int hf_uma_urr_channel_mode		= -1;
 static int hf_uma_urr_MSC2_rev			= -1;
+static int hf_uma_urr_ES_IND			= -1;
+static int hf_uma_urr_A5_1_algorithm_sup = -1;
+static int hf_uma_urr_RF_power_capability = -1;
+static int hf_uma_urr_ps_sup_cap		= -1;
+static int hf_uma_urr_SS_screening_indicator = -1;
+static int hf_uma_urr_SM_capability		 = -1;
+static int hf_uma_urr_VBS_notification_rec = -1;
+static int hf_uma_urr_VGCS_notification_rec = -1;
+static int hf_uma_urr_FC_frequency_cap	= -1;
+static int hf_uma_urr_CM3				= -1;
+static int hf_uma_urr_LCS_VA_cap		= -1;
+static int hf_uma_urr_UCS2_treatment	= -1;
+static int hf_uma_urr_SoLSA				= -1;
+static int hf_uma_urr_CMSP				= -1;
+static int hf_uma_urr_A5_3_algorithm_sup= -1;
+static int hf_uma_urr_A5_2_algorithm_sup = -1;
 static int hf_uma_urr_RR_cause			= -1;
+static int hf_uma_urr_sc				= -1;
+static int hf_uma_urr_algorithm_id		= -1;
+static int hf_uma_urr_GPRS_resumption	= -1;
 static int hf_uma_urr_ULQI				= -1;
 static int hf_uma_urr_TU3920_timer		= -1;
 static int hf_uma_urr_URLCcause			= -1;
@@ -384,6 +411,46 @@ static const value_string MSCR_vals[] = {
 	{ 1,		"MSC is Release '99 onwards"},
 	{ 0,	NULL }
 };
+/* SGSNR, SGSN Release (octet 6)*/
+static const value_string SGSNR_vals[] = {
+	{ 0,		"SGSN is Release '98 or older"},
+	{ 1,		"SGSN is Release '99 onwards"},
+	{ 0,	NULL }
+};
+/* ECMP, Emergency Call Mode Preference (octet 6)*/
+
+static const value_string ECMP_vals[] = {
+	{ 0,		"GSM GERAN is preferred for Emergency calls"},
+	{ 1,		"UMAN is preferred for Emergency calls"},
+	{ 0,	NULL }
+};
+/* RE, Call reestablishment allowed (octet 6) */
+static const value_string RE_vals[] = {
+	{ 0,		"Call Reestablishment allowed in the cell"},
+	{ 1,		"Call Reestablishment not allowed in the cell"},
+	{ 0,	NULL }
+};
+/* PFCFM, PFC_FEATURE_MODE (octet 6) */
+static const value_string PFCFM_vals[] = {
+	{ 0,		"The network does not support packet flow context procedures"},
+	{ 1,		"he network supports packet flow context procedures"},
+	{ 0,	NULL }
+};
+/* Cell identification discriminator */
+static const value_string cell_id_disc_vals[] = {
+	{ 0,		"The whole Cell Global Identification, CGI, is used to identify the cells."},
+	{ 1,		"Location Area Code, LAC, and Cell Identify, CI, is used to identify the cells."},
+	{ 2,		"Cell Identity, CI, is used to identify the cells."},
+	{ 3,		"No cell is associated with the transaction."},
+	{ 4,		"Location Area Identification, LAI, is used to identify all cells within a Location Area."},
+	{ 5,		"Location Area Code, LAC, is used to identify all cells within a location area."},
+	{ 6,		"All cells on the BSS are identified."},
+	{ 8,		"Intersystem Handover to UTRAN or cdma2000. PLMN-ID, LAC, and RNC-ID, are encoded to identify the target RNC."},
+	{ 9,		"Intersystem Handover to UTRAN or cdma2000. The RNC-ID is coded to identify the target RNC."},
+	{ 10,		"Intersystem Handover to UTRAN or cdma2000. LAC and RNC-ID are encoded to identify the target RNC."},
+	{ 0,	NULL }
+};
+
 /*GRS, GSM RR State (octet 3)*/
 static const value_string GRS_GSM_RR_State_vals[] = {
 	{ 0,		"GSM RR is in IDLE state"},
@@ -459,6 +526,163 @@ static const value_string register_reject_cause_vals[] = {
 	{ 0,	NULL }
 };
 	
+/* Channel Mode  */
+static const value_string channel_mode_vals[] = {
+{ 0x00,		"signalling only"},
+{ 0x01,		"speech full rate or half rate version 1(GSM FR or GSM HR)"},
+{ 0x21,		"speech full rate or half rate version 2(GSM EFR)"},
+{ 0x41,		"speech full rate or half rate version 3(FR AMR or HR AMR)"},
+{ 0x81,		"speech full rate or half rate version 4(OFR AMR-WB or OHR AMR-WB)"},
+{ 0x82,		"speech full rate or half rate version 5(FR AMR-WB )"},
+{ 0x83,		"speech full rate or half rate version 6(OHR AMR )"},
+{ 0x61,		"data, 43.5 kbit/s (downlink)+14.5 kbps (uplink)"},
+{ 0x62,		"data, 29.0 kbit/s (downlink)+14.5 kbps (uplink)"},
+{ 0x64,		"data, 43.5 kbit/s (downlink)+29.0 kbps (uplink)"},
+{ 0x67,		"data, 14.5 kbit/s (downlink)+43.5 kbps (uplink)"},
+{ 0x65,		"data, 14.5 kbit/s (downlink)+29.0 kbps (uplink)"},
+{ 0x66,		"data, 29.0 kbit/s (downlink)+43.5 kbps (uplink)"},
+{ 0x27,		"data, 43.5 kbit/s radio interface rate"},
+{ 0x63,		"data, 32.0 kbit/s radio interface rate"},
+{ 0x43,		"data, 29.0 kbit/s radio interface rate"},
+{ 0x0f,		"data, 14.5 kbit/s radio interface rate"},
+{ 0x03,		"data, 12.0 kbit/s radio interface rate"},
+{ 0x0b,		"data, 6.0 kbit/s radio interface rate"},
+{ 0x13,		"data, 3.6 kbit/s radio interface rate"},
+	{ 0,	NULL }
+};
+/* ES IND (octet 3, bit 5) "Controlled Early Classmark Sending" option implementation */
+static const value_string ES_IND_vals[] = {
+	{ 0,		"Controlled Early Classmark Sending option is not implemented in the MS"},
+	{ 1,		"Controlled Early Classmark Sending option is implemented in the MS"},
+	{ 0,	NULL }
+};
+/* A5/1 algorithm supported (octet 3, bit 4 */
+static const value_string A5_1_algorithm_sup_vals[] = {
+	{ 0,		"encryption algorithm A5/1 available"},
+	{ 1,		"encryption algorithm A5/1 not available"},
+	{ 0,	NULL }
+};
+/* RF Power Capability (Octet 3) */
+static const value_string RF_power_capability_vals[] = {
+	{ 0,		"class 1"},
+	{ 1,		"class 2"},
+	{ 2,		"class 3"},
+	{ 3,		"class 4"},
+	{ 4,		"class 5"},
+	{ 7,		"RF Power capability is irrelevant in this information element"},
+	{ 0,	NULL }
+};
+/* PS capability (pseudo-synchronization capability) (octet 4) */
+static const value_string ps_sup_cap_vals[] = {
+	{ 0,		"PS capability not present"},
+	{ 1,		"PS capability present"},
+	{ 0,	NULL }
+};
+/* SS Screening Indicator (octet 4)defined in 3GPP TS 24.080 */
+static const value_string SS_screening_indicator_vals[] = {
+	{ 0,		"Default value of phase 1"},
+	{ 1,		"Capability of handling of ellipsis notation and phase 2 error handling "},
+	{ 2,		"For future use"},
+	{ 3,		"For future use"},
+	{ 0,	NULL }
+};
+/* SM capability (MT SMS pt to pt capability) (octet 4)*/
+static const value_string SM_capability_vals[] = {
+	{ 0,		"Mobile station does not support mobile terminated point to point SMS"},
+	{ 1,		"Mobile station supports mobile terminated point to point SMS"},
+	{ 0,	NULL }
+};
+/* VBS notification reception (octet 4) */
+static const value_string VBS_notification_rec_vals[] = {
+	{ 0,		"no VBS capability or no notifications wanted"},
+	{ 1,		"VBS capability and notifications wanted"},
+	{ 0,	NULL }
+};
+/* VGCS notification reception (octet 4) */
+static const value_string VGCS_notification_rec_vals[] = {
+	{ 0,		"no VGCS capability or no notifications wanted"},
+	{ 1,		"VGCS capability and notifications wanted"},
+	{ 0,	NULL }
+};
+/* FC Frequency Capability (octet 4 ) */
+static const value_string FC_frequency_cap_vals[] = {
+	{ 0,		"The MS does not support the E-GSM or R-GSM band"},
+	{ 1,		"The MS does support the E-GSM or R-GSM "},
+	{ 0,	NULL }
+};
+/* CM3 (octet 5, bit 8) */
+static const value_string CM3_vals[] = {
+	{ 0,		"The MS does not support any options that are indicated in CM3"},
+	{ 1,		"The MS supports options that are indicated in classmark 3 IE"},
+	{ 0,	NULL }
+};
+/* LCS VA capability (LCS value added location request notification capability) (octet 5,bit 6) */
+static const value_string LCS_VA_cap_vals[] = {
+	{ 0,		"LCS value added location request notification capability not supported"},
+	{ 1,		"LCS value added location request notification capability supported"},
+	{ 0,	NULL }
+};
+/* UCS2 treatment (octet 5, bit 5) */
+static const value_string UCS2_treatment_vals[] = {
+	{ 0,		"the ME has a preference for the default alphabet"},
+	{ 1,		"the ME has no preference between the use of the default alphabet and the use of UCS2"},
+	{ 0,	NULL }
+};
+/* SoLSA (octet 5, bit 4) */
+static const value_string SoLSA_vals[] = {
+	{ 0,		"The ME does not support SoLSA"},
+	{ 1,		"The ME supports SoLSA"},
+	{ 0,	NULL }
+};
+/* CMSP: CM Service Prompt (octet 5, bit 3) */
+static const value_string CMSP_vals[] = {
+	{ 0,		"Network initiated MO CM connection request not supported"},
+	{ 1,		"Network initiated MO CM connection request supported for at least one CM protocol"},
+	{ 0,	NULL }
+};
+/* A5/3 algorithm supported (octet 5, bit 2) */
+static const value_string A5_3_algorithm_sup_vals[] = {
+	{ 0,		"encryption algorithm A5/3 available"},
+	{ 1,		"encryption algorithm A5/3 not available"},
+	{ 0,	NULL }
+};
+
+/* A5/2 algorithm supported (octet 5, bit 1) */
+static const value_string A5_2_algorithm_sup_vals[] = {
+	{ 0,		"encryption algorithm A5/2 available"},
+	{ 1,		"encryption algorithm A5/3 not available"},
+	{ 0,	NULL }
+};
+
+/* algorithm identifier
+ * If SC=1 then:
+ * bits
+ * 4 3 2
+ */
+ static const value_string algorithm_identifier_vals[] = {
+	{ 0,		"Cipher with algorithm A5/1"},
+ 	{ 1,		"Cipher with algorithm A5/2"},
+ 	{ 2,		"Cipher with algorithm A5/3"},
+	{ 3,		"Cipher with algorithm A5/4"},
+ 	{ 4,		"Cipher with algorithm A5/5"},
+ 	{ 5,		"Cipher with algorithm A5/6"},
+ 	{ 6,		"Cipher with algorithm A5/7"},
+	{ 7,		"Reserved"},
+	{ 0,	NULL }
+};
+/*  GPRS Resumption */
+ static const value_string GPRS_resumption_vals[] = {
+	{ 0,		"Resumption of GPRS services not successfully acknowledged"},
+	{ 1,		"Resumption of GPRS services successfully acknowledged"},
+	{ 0,	NULL }
+};
+/* SC (octet 1) */
+static const value_string SC_vals[] = {
+	{ 0,		"No ciphering"},
+	{ 1,		"Start ciphering"},
+	{ 0,	NULL }
+};
+
 /* ULQI, UL Quality Indication (octet 3) */
 static const value_string ULQI_vals[] = {
 	{ 0,		"Quality ok"},
@@ -467,6 +691,8 @@ static const value_string ULQI_vals[] = {
 	{ 4,		"Undetermined problem"},
 	{ 0,	NULL }
 };
+
+
 /*URLC Cause (octet 3) */
 static const value_string URLC_cause_vals[] = {
 	{ 0,		"success"},
@@ -539,7 +765,7 @@ static const value_string channel_vals[] = {
 	{ 0,	NULL }
 };
 
-/*RI, Reset Indicator (octet 3) */
+/*RI, Reset Indicator (octet 3)*/
 /*CHANNEL (octet 3) */
 static const value_string RI_vals[] = {
 	{ 0,		"The flow control condition continues to exist"},
@@ -547,6 +773,40 @@ static const value_string RI_vals[] = {
 	{ 0,	NULL }
 };
 	/* Code to actually dissect the packets */
+static int
+dissect_location_area_id(tvbuff_t *tvb, proto_tree *urr_ie_tree, int offset){
+
+	int			start_offset;	
+	guint8		octet;
+	guint16		mcc, mnc;
+	guint8		mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
+
+	start_offset = offset;
+	/* Mobile country code MCC */
+	octet = tvb_get_guint8(tvb,offset);
+	mcc1 = octet & 0x0f;
+	mcc2 = octet >> 4;
+	offset++;
+	octet = tvb_get_guint8(tvb,offset);
+	mcc3 = octet & 0x0f;
+	/* MNC, Mobile network code (octet 3 bits 5 to 8, octet 4)  */
+	mnc3 = octet >> 4;
+	offset++;
+	octet = tvb_get_guint8(tvb,offset);
+	mnc1 = octet & 0x0f;
+	mnc2 = octet >> 4;
+
+	mcc = 100 * mcc1 + 10 * mcc2 + mcc3;
+	mnc = 10 * mnc1 + mnc2;
+	if (mnc3 != 0xf) {
+		mnc += 10 * mnc + mnc3;
+	}
+	proto_tree_add_uint(urr_ie_tree, hf_uma_urr_mcc , tvb, start_offset, 2, mcc );
+	proto_tree_add_uint(urr_ie_tree, hf_uma_urr_mnc , tvb, start_offset + 1, 2, mnc );
+	proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, start_offset + 3, 2, FALSE);
+	offset = offset +2;
+	return offset;
+}
 static int
 dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
@@ -560,10 +820,8 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	char		digit_str[16]; /* Max no of digits = 15 */
 	guint16		i,n;
 	guint16		num_digits;
-	guint16		mcc, mnc;
 	guint16		bcch_arfcn;
 	const guint8	*haddr;
-	guint8 mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
 	char		*string;
 	guint16		GPRS_user_data_transport_UDP_port,UNC_tcp_port,RTP_UDP_port,RTCP_UDP_port;
 	guint32		udr;
@@ -666,30 +924,8 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * length, if present.
 		 *
 		 * Mobile country code MCC */
-		octet = tvb_get_guint8(tvb,ie_offset);
-		mcc1 = octet & 0x0f;
-		mcc2 = octet >> 4;
-		ie_offset++;
-		octet = tvb_get_guint8(tvb,ie_offset);
-		mcc3 = octet & 0x0f;
-		/* MNC, Mobile network code (octet 3 bits 5 to 8, octet 4)  */
-		mnc3 = octet >> 4;
-		ie_offset++;
-		octet = tvb_get_guint8(tvb,ie_offset);
-		mnc1 = octet & 0x0f;
-		mnc2 = octet >> 4;
-
-		mcc = 100 * mcc1 + 10 * mcc2 + mcc3;
-		mnc = 10 * mnc1 + mnc2;
-		if (mnc3 != 0xf) {
-			mnc += 10 * mnc + mnc3;
-		}
-		proto_tree_add_uint(urr_ie_tree, hf_uma_urr_mcc , tvb, offset+1, 2, mcc );
-		proto_tree_add_uint(urr_ie_tree, hf_uma_urr_mnc , tvb, offset+2, 2, mnc );
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, offset+5, 2, FALSE);
-
+		dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
 		break;
-
 	case 6:			
 		/* GSM Coverage Indicator */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gci, tvb, ie_offset, 1, FALSE);
@@ -739,11 +975,13 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_bcc, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ncc, tvb, ie_offset, 1, FALSE);
-		bcch_arfcn = tvb_get_guint8(tvb,ie_offset) << 10;
-		bcch_arfcn = bcch_arfcn & tvb_get_guint8(tvb,ie_offset+1);
+		bcch_arfcn = (tvb_get_guint8(tvb,ie_offset) & 0xc0) << 2;
+		bcch_arfcn = bcch_arfcn | tvb_get_guint8(tvb,ie_offset+1);
 		proto_tree_add_uint(urr_ie_tree, hf_uma_urr_bcch_arfcn , tvb, ie_offset, 2, bcch_arfcn );
 		break;
-	case 14:		/* UMA Control Channel Description */
+	case 14:		
+		/* UMA Control Channel Description 
+		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_EC, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMC, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_NMO, tvb, ie_offset, 1, FALSE);
@@ -755,10 +993,68 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		ie_offset++;
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_T3212_timer, tvb, ie_offset, 1, FALSE);
 		/* RAC, Routing Area Code (octet 5) */
+		ie_offset++;
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RAC, tvb, ie_offset, 1, FALSE);
+		ie_offset++;
+		/* SGSNR, SGSN Release (octet 6) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_SGSNR, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMP, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RE, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_PFCFM, tvb, ie_offset, 1, FALSE);
+		ie_offset++;
+		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,2,"Access Control Class N");
 		break;
-	case 15:		/* Cell Identifier List */
-		proto_tree_add_text(urr_ie_tree,tvb,offset+1,ie_len,"DATA");
+	case 15:		
+		/* Cell Identifier List 
+		 * The rest of the IE is coded as in [TS 48.008], not including IEI and length, if present
+		 *
+		 * Cell identification discriminator 
+		 */
+		octet = tvb_get_guint8(tvb,ie_offset);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_cell_id_disc, tvb, ie_offset, 1, FALSE);
+		ie_offset++;
+		/* TODO make a proper loop over the list, once an example trace is avalable */
+		switch (octet & 0xf){
+		case 0:
+			ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_ci, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
+			break;
+		case 1:
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_ci, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
+			break;
+		case 2:
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_ci, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
+			break;
+		case 4:
+			ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+			break;
+		case 5:
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
+		case 8:
+			ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RNC_ID, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
+			break;
+		case 9:
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RNC_ID, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
+			break;
+		case 10:
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RNC_ID, tvb, ie_offset, 2, FALSE);
+			ie_offset = ie_offset + 2;
+			break;
+		default:
+			proto_tree_add_text(urr_ie_tree,tvb,offset+1,ie_len,"Unknown Cell identification discriminator");
+			break;
+		}
 		break;
 	case 16:		/* TU3907 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3907_timer, tvb, ie_offset, 2, FALSE);
@@ -768,7 +1064,9 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 18:		/* Routing Area Identification */
 		/* The rest of the IE is coded as in [TS 24.008] not including IEI and length, if present.*/
-		proto_tree_add_text(urr_ie_tree,tvb,offset+1,ie_len,"DATA");
+		ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+		/*Routing area code */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RAC, tvb, ie_offset, 1, FALSE);
 		break;
 	case 19:		/* UMA Band */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_UMA_band, tvb, ie_offset, 1, FALSE);
@@ -795,12 +1093,48 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Channel Mode 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
 		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_channel_mode, tvb, ie_offset, ie_len, FALSE);
 		break;
 	case 28:		
 		/* Mobile Station Classmark 2 
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present
 		 */
+		/* Revision level bit 7 6 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_MSC2_rev, tvb, ie_offset, 1, FALSE);
+		/* ES IND (octet 3, bit 5) "Controlled Early Classmark Sending" option implementation */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ES_IND, tvb, ie_offset, 1, FALSE);
+		/* A5/1 algorithm supported (octet 3, bit 4) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_A5_1_algorithm_sup, tvb, ie_offset, 1, FALSE);
+		/* RF Power Capability (Octet 3) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RF_power_capability, tvb, ie_offset, 1, FALSE);
+		ie_offset++;
+		/* PS capability (pseudo-synchronization capability) (octet 4) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ps_sup_cap, tvb, ie_offset, 1, FALSE);
+		/* SS Screening Indicator (octet 4)defined in 3GPP TS 24.080 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_SS_screening_indicator, tvb, ie_offset, 1, FALSE);
+		/* SM capability (MT SMS pt to pt capability) (octet 4)*/
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_SM_capability, tvb, ie_offset, 1, FALSE);
+		/* VBS notification reception (octet 4) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_VBS_notification_rec, tvb, ie_offset, 1, FALSE);
+		/*VGCS notification reception (octet 4)*/
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_VGCS_notification_rec, tvb, ie_offset, 1, FALSE);
+		/* FC Frequency Capability (octet 4 ) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_FC_frequency_cap, tvb, ie_offset, 1, FALSE);
+		ie_offset++;
+		/* CM3 (octet 5, bit 8) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_CM3, tvb, ie_offset, 1, FALSE);
+		/* LCS VA capability (LCS value added location request notification capability) (octet 5,bit 6) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LCS_VA_cap, tvb, ie_offset, 1, FALSE);
+		/* UCS2 treatment (octet 5, bit 5) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_UCS2_treatment, tvb, ie_offset, 1, FALSE);
+		/* SoLSA (octet 5, bit 4) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_SoLSA, tvb, ie_offset, 1, FALSE);
+		/* CMSP: CM Service Prompt (octet 5, bit 3) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_CMSP, tvb, ie_offset, 1, FALSE);
+		/* A5/3 algorithm supported (octet 5, bit 2) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_A5_3_algorithm_sup, tvb, ie_offset, 1, FALSE);
+		/* A5/2 algorithm supported (octet 5, bit 1) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_A5_2_algorithm_sup, tvb, ie_offset, 1, FALSE);
 		break;
 	case 29:		
 		/* RR Cause
@@ -813,11 +1147,24 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * Note: The coding of fields SC and algorithm identifier is defined in [44.018] 
 		 * as part of the Cipher Mode Setting IE.
 		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_sc, tvb, ie_offset, 1, FALSE);
+		octet = tvb_get_guint8(tvb,ie_offset);
+		if ( (octet & 1) == 1){ /* Start ciphering */
+			/* algorithm identifier */
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_algorithm_id, tvb, ie_offset, 1, FALSE);
+		}
+		break;
 	case 31:		
 		/* GPRS Resumption 
 		 * If the target RAT is GERAN, the rest of the IE is coded as HANDOVER COMMAND message in [TS 44.018]
 		 */
-	case 32:		/* Handover From UMAN Command */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS_resumption, tvb, ie_offset, 1, FALSE);
+		break;
+	case 32:		
+		/* Handover From UMAN Command 
+		 * If the target RAT is GERAN, the rest of the IE is coded as HANDOVER COMMAND message in [TS 44.018]
+		 * The value part of the Handover To UTRAN Command IE is coded as defined in 3GPP TS 25.331
+		 */
 		break;
 	case 33:		/* UL Quality Indication */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ULQI, tvb, ie_offset, 1, FALSE);
@@ -1093,6 +1440,7 @@ proto_reg_handoff_uma(void)
 {
 	static int Initialized=FALSE;
 	static int TcpPort1=0;
+	static int uma_prefs_initialized = FALSE;
 	
 	if (!Initialized) {
 		uma_tcp_handle = new_create_dissector_handle(dissect_uma, proto_uma);
@@ -1299,7 +1647,7 @@ proto_register_uma(void)
 		{ &hf_uma_urr_MSCR,
 			{ "MSCR, MSC Release","uma.urr.mscr",
 			FT_UINT8,BASE_DEC,  VALS(MSCR_vals), 0x80,          
-			"Discovery Reject Cause", HFILL }
+			"MSCR, MSC Release", HFILL }
 		},
 		{ &hf_uma_urr_T3212_timer,
 			{ "T3212 Timer value(seconds)","uma.urr.t3212",
@@ -1307,9 +1655,44 @@ proto_register_uma(void)
 			"T3212 Timer value(seconds)", HFILL }
 		},
 		{ &hf_uma_urr_RAC,
-			{ "Routing Area Code,","uma.urr.rac",
+			{ "Routing Area Code","uma.urr.rac",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,          
 			"Routing Area Code", HFILL }
+		},
+		{ &hf_uma_urr_SGSNR,
+			{ "SGSN Release","uma.urr.SGSNR",
+			FT_UINT8,BASE_DEC,  VALS(SGSNR_vals), 0x01,          
+			"SGSN Release", HFILL }
+		},
+		{ &hf_uma_urr_ECMP,
+			{ "ECMP, Emergency Call Mode Preference","uma.urr.ECMP",
+			FT_UINT8,BASE_DEC,  VALS(ECMP_vals), 0x02,          
+			"ECMP, Emergency Call Mode Preference", HFILL }
+		},
+		{ &hf_uma_urr_RE,
+			{ "RE, Call reestablishment allowed","uma.urr.RE",
+			FT_UINT8,BASE_DEC,  VALS(RE_vals), 0x04,          
+			"RE, Call reestablishment allowed", HFILL }
+		},
+		{ &hf_uma_urr_PFCFM,
+			{ "PFCFM, PFC_FEATURE_MODE","uma.urr.PFCFM",
+			FT_UINT8,BASE_DEC,  VALS(PFCFM_vals), 0x08,          
+			"PFCFM, PFC_FEATURE_MODE", HFILL }
+		},
+		{ &hf_uma_urr_cell_id_disc,
+			{ "Cell identification discriminator","uma.urr.cell_id_disc",
+			FT_UINT8,BASE_DEC,  VALS(cell_id_disc_vals), 0x0f,          
+			"Cell identificationdiscriminator", HFILL }
+		},
+		{ &hf_uma_urr_ci,
+			{ "Cell identification ","uma.urr.ci",
+			FT_UINT16,BASE_DEC,  NULL, 0x0,          
+			"Cell identification ", HFILL }
+		},
+		{ &hf_uma_urr_RNC_ID,
+			{ "RNC-ID","uma.urr.rnc_id",
+			FT_UINT16,BASE_DEC,  NULL, 0x0,          
+			"RNC-ID", HFILL }
 		},
 		{ &hf_uma_urr_bcc,
 			{ "BCC","uma.urr.bcc",
@@ -1371,15 +1754,115 @@ proto_register_uma(void)
 			FT_BYTES,BASE_HEX,  NULL, 0x0,          
 			"L3 message contents", HFILL }
 		},
+		{ &hf_uma_urr_channel_mode,
+			{ "Channel Mode","uma.urr.MSC2_rev",
+			FT_UINT8,BASE_DEC,  VALS(channel_mode_vals), 0x0,          
+			"Channel Mode", HFILL }
+		},
 		{ &hf_uma_urr_MSC2_rev,
 			{ "Revision Level","uma.urr.MSC2_rev",
 			FT_UINT8,BASE_DEC,  VALS(MSC2_rev_vals), 0x60,          
 			"Revision level", HFILL }
 		},
+		{ &hf_uma_urr_ES_IND,
+			{ "ES IND","uma.urr.MSC2_rev",
+			FT_UINT8,BASE_DEC,  VALS(ES_IND_vals), 0x20,          
+			"ES IND", HFILL }
+		},
+		{ &hf_uma_urr_A5_1_algorithm_sup,
+			{ "A5/1 algorithm supported","uma.urr.MSC2_rev",
+			FT_UINT8,BASE_DEC,  VALS(A5_1_algorithm_sup_vals), 0x10,          
+			"A5/1 algorithm supported ", HFILL }
+		},
+		{ &hf_uma_urr_RF_power_capability,
+			{ "RF Power Capability","uma.urr.MSC2_rev",
+			FT_UINT8,BASE_DEC,  VALS(RF_power_capability_vals), 0x07,          
+			"RF Power Capability", HFILL }
+		},
+		{ &hf_uma_urr_ps_sup_cap,
+			{ "PS capability (pseudo-synchronization capability)","uma.urr.ps_sup_cap",
+			FT_UINT8,BASE_DEC,  VALS(RF_power_capability_vals), 0x40,          
+			"PS capability (pseudo-synchronization capability)", HFILL }
+		},
+		{ &hf_uma_urr_SS_screening_indicator,
+			{ "SS Screening Indicator","uma.urr.SS_screening_indicator",
+			FT_UINT8,BASE_DEC,  VALS(SS_screening_indicator_vals), 0x30,          
+			"SS Screening Indicator", HFILL }
+		},
+		{ &hf_uma_urr_SM_capability,
+			{ "SM capability (MT SMS pt to pt capability)","uma.urr.SM_cap",
+			FT_UINT8,BASE_DEC,  VALS(SM_capability_vals), 0x08,          
+			"SM capability (MT SMS pt to pt capability)", HFILL }
+		},
+		{ &hf_uma_urr_VBS_notification_rec,
+			{ "VBS notification reception ","uma.urr.VBS_notification_rec",
+			FT_UINT8,BASE_DEC,  VALS(VBS_notification_rec_vals), 0x04,          
+			"VBS notification reception ", HFILL }
+		},
+		{ &hf_uma_urr_VGCS_notification_rec,
+			{ "VGCS notification reception ","uma.urr.VGCS_notification_rec",
+			FT_UINT8,BASE_DEC,  VALS(VGCS_notification_rec_vals), 0x02,          
+			"VGCS notification reception", HFILL }
+		},
+		{ &hf_uma_urr_FC_frequency_cap,
+			{ "FC Frequency Capability","uma.urr.FC_frequency_cap",
+			FT_UINT8,BASE_DEC,  VALS(FC_frequency_cap_vals), 0x01,          
+			"FC Frequency Capability", HFILL }
+		},
+		{ &hf_uma_urr_CM3,
+			{ "CM3","uma.urr.CM3",
+			FT_UINT8,BASE_DEC,  VALS(CM3_vals), 0x01,          
+			"CM3", HFILL }
+		},
+		{ &hf_uma_urr_LCS_VA_cap,
+			{ "LCS VA capability (LCS value added location request notification capability) ","uma.urr.LCS_VA_cap",
+			FT_UINT8,BASE_DEC,  VALS(LCS_VA_cap_vals), 0x80,          
+			"LCS VA capability (LCS value added location request notification capability) ", HFILL }
+		},
+		{ &hf_uma_urr_UCS2_treatment,
+			{ "UCS2 treatment ","uma.urr.UCS2_treatment",
+			FT_UINT8,BASE_DEC,  VALS(UCS2_treatment_vals), 0x10,          
+			"UCS2 treatment ", HFILL }
+		},
+		{ &hf_uma_urr_SoLSA,
+			{ "SoLSA","uma.urr.SoLSA",
+			FT_UINT8,BASE_DEC,  VALS(SoLSA_vals), 0x08,          
+			"SoLSA", HFILL }
+		},
+		{ &hf_uma_urr_CMSP,
+			{ "CMSP: CM Service Prompt ","uma.urr.CMSP",
+			FT_UINT8,BASE_DEC,  VALS(CMSP_vals), 0x04,          
+			"CMSP: CM Service Prompt ", HFILL }
+		},
+		{ &hf_uma_urr_A5_3_algorithm_sup,
+			{ "A5/3 algorithm supported ","uma.urr.A5_3_algorithm_sup",
+			FT_UINT8,BASE_DEC,  VALS(A5_3_algorithm_sup_vals), 0x02,          
+			"A5/3 algorithm supported ", HFILL }
+		},
+		{ &hf_uma_urr_A5_2_algorithm_sup,
+			{ "A5/2 algorithm supported ","uma.urr.A5_2_algorithm_sup",
+			FT_UINT8,BASE_DEC,  VALS(A5_2_algorithm_sup_vals), 0x01,          
+			"A5/2 algorithm supported ", HFILL }
+		},
 		{ &hf_uma_urr_RR_cause,
 			{ "RR cause value","uma.urr.RRcause",
 			FT_UINT8,BASE_DEC,  VALS(RR_cause_vals), 0x0,          
 			"RR cause value", HFILL }
+		},
+		{ &hf_uma_urr_sc,
+			{ "SC","uma.urr.SC",
+			FT_UINT8,BASE_DEC,  VALS(SC_vals), 0x1,          
+			"SC", HFILL }
+		},
+		{ &hf_uma_urr_algorithm_id,
+			{ "Algorithm identifier","uma.urr.algorithm_identifier",
+			FT_UINT8,BASE_DEC,  VALS(algorithm_identifier_vals), 0x1,          
+			"Algorithm_identifier", HFILL }
+		},
+		{ &hf_uma_urr_GPRS_resumption,
+			{ "GPRS resumption ACK","uma.urr.GPRS_resumption",
+			FT_UINT8,BASE_DEC,  VALS(GPRS_resumption_vals), 0x1,          
+			"GPRS resumption ACK", HFILL }
 		},
 		{ &hf_uma_urr_ULQI,
 			{ "ULQI, UL Quality Indication","uma.urr.ULQI",
