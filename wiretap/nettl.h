@@ -87,6 +87,7 @@
 #define NETTL_SUBSYS_IETHER		253
 
 /* FDDI cards */
+#define NETTL_SUBSYS_HPPB_FDDI		95
 #define NETTL_SUBSYS_PCI_FDDI		176
 
 /* Token Ring cards */

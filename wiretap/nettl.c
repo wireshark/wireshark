@@ -509,9 +509,17 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    pseudo_header->x25.flags =
 		(lapb_hdr.from_dce & 0x20 ? FROM_DCE : 0x00);
 	    break;
+	case NETTL_SUBSYS_HPPB_FDDI :
+	    /* HP-PB FDDI has a different trace records for inbound vs outbound
+               Still need to work out a way 'round that...
+            */
+	    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+	    *err_info = g_strdup_printf("nettl: HP-PB FDDI [Subsystem %u] currently unsupported",
+		    encap[3]);
+	    return -1;
 	default:
 	    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
-	    *err_info = g_strdup_printf("nettl: network type %u unknown or unsupported",
+	    *err_info = g_strdup_printf("nettl: subsystem %u unknown or unsupported",
 		    encap[3]);
 	    return -1;
     }
