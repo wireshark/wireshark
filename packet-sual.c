@@ -4,7 +4,7 @@
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *                 Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sual.c,v 1.4 2001/04/24 19:18:01 guy Exp $
+ * $Id: packet-sual.c,v 1.5 2001/04/25 05:32:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -300,7 +300,7 @@ proto_register_sual(void)
     },
     { &hf_sual_error_code,
       { "Error Code", "sual.error_code",
-	FT_UINT16, BASE_HEX, &sual_error_code_values, 0x0,          
+	FT_UINT16, BASE_HEX, VALS(&sual_error_code_values), 0x0,
 	""}
     }
   };
