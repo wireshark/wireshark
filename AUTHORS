@@ -113,7 +113,7 @@ Johan Feyaerts <Johan.Feyaerts@siemens.atea.be> {
 	RADIUS
 }
 
-Olivier Abad <Olivier.Abad@capway.com> {
+Olivier Abad <abad@daba.dhis.org> {
 	X.25 support in iptrace files and Sniffer files
 	Support for files from RADCOM WAN/LAN analzyers
 	LAPB, X.25
