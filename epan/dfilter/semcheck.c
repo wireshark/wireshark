@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.13 2002/08/28 20:40:55 jmayer Exp $
+ * $Id: semcheck.c,v 1.14 2002/11/28 01:46:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,9 +126,9 @@ mk_uint32_fvalue(guint32 val)
 static fvalue_t*
 mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 {
-	static true_false_string        default_tf = { "True", "False" };
-	true_false_string		*tf = &default_tf;
-	value_string			*vals;
+	static const true_false_string  default_tf = { "True", "False" };
+	const true_false_string		*tf = &default_tf;
+	const value_string		*vals;
 
 	/* Early return? */
 	switch(hfinfo->type) {

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.36 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: proto.h,v 1.37 2002/11/28 01:46:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,10 +44,10 @@ struct _value_string;
 
 /* In order to make a const value_string[] look like a value_string*, I
  * need this macro */
-#define VALS(x)	(struct _value_string*)(x)
+#define VALS(x)	(const struct _value_string*)(x)
 
 /* ... and similarly, */
-#define TFS(x)	(struct true_false_string*)(x)
+#define TFS(x)	(const struct true_false_string*)(x)
 
 /* check protocol activation */
 #define CHECK_DISPLAY_AS_X(x_handle,index, tvb, pinfo, tree) {	\
@@ -74,7 +74,7 @@ struct _header_field_info {
 	char				*abbrev;
 	enum ftenum			type;
 	int				display;	/* for integers only, so far. Base */
-	void				*strings;	/* val_string or true_false_string */
+	const void			*strings;	/* val_string or true_false_string */
 	guint32				bitmask;
 	char				*blurb;		/* Brief description of field. */
 

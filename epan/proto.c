@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.76 2002/10/15 05:29:48 guy Exp $
+ * $Id: proto.c,v 1.77 2002/11/28 01:46:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2528,11 +2528,11 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	guint32	value;
 
 	header_field_info		*hfinfo = fi->hfinfo;
-	static true_false_string	default_tf = { "True", "False" };
-	true_false_string		*tfstring = &default_tf;
+	static const true_false_string	default_tf = { "True", "False" };
+	const true_false_string		*tfstring = &default_tf;
 
 	if (hfinfo->strings) {
-		tfstring = (struct true_false_string*) hfinfo->strings;
+		tfstring = (const struct true_false_string*) hfinfo->strings;
 	}
 
 	value = fvalue_get_integer(fi->value);
