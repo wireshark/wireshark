@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.7 2001/04/19 23:02:43 guy Exp $
+ * $Id: packet-wtls.c,v 1.8 2001/05/02 22:37:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,6 +74,7 @@ static int hf_wtls_hands_cli_hello_version    = HF_EMPTY;
 static int hf_wtls_hands_cli_hello_gmt                = HF_EMPTY;
 static int hf_wtls_hands_cli_hello_random     = HF_EMPTY;
 static int hf_wtls_hands_cli_hello_session    = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_session_str    = HF_EMPTY;
 static int hf_wtls_hands_cli_hello_cli_key_id    = HF_EMPTY;
 static int hf_wtls_hands_cli_hello_cli_key_len    = HF_EMPTY;
 static int hf_wtls_hands_cli_hello_trust_key_id    = HF_EMPTY; 
@@ -85,10 +86,9 @@ static int hf_wtls_hands_cli_hello_key_identifier_type                =HF_EMPTY;
 static int hf_wtls_hands_cli_hello_key_identifier_charset             =HF_EMPTY;
 static int hf_wtls_hands_cli_hello_key_identifier_size                =HF_EMPTY;
 static int hf_wtls_hands_cli_hello_key_identifier                     =HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_identifier_str                 =HF_EMPTY;
 static int hf_wtls_hands_cli_hello_cipher_suite               =HF_EMPTY;
 static int hf_wtls_hands_cli_hello_cipher_suite_item  =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_cipher_bulk                =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_cipher_mac         =HF_EMPTY;
 static int hf_wtls_hands_cli_hello_compression_methods                =HF_EMPTY;
 static int hf_wtls_hands_cli_hello_compression                =HF_EMPTY;
 static int hf_wtls_hands_cli_hello_sequence_mode      =HF_EMPTY;
@@ -98,6 +98,7 @@ static int hf_wtls_hands_serv_hello_version   = HF_EMPTY;
 static int hf_wtls_hands_serv_hello_gmt               = HF_EMPTY;
 static int hf_wtls_hands_serv_hello_random    = HF_EMPTY;
 static int hf_wtls_hands_serv_hello_session   = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_session_str   = HF_EMPTY;
 static int hf_wtls_hands_serv_hello_cli_key_id                =HF_EMPTY;
 static int hf_wtls_hands_serv_hello_cipher_suite_item =HF_EMPTY;
 static int hf_wtls_hands_serv_hello_cipher_bulk               =HF_EMPTY;
@@ -455,6 +456,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 	guint public_key = 0;
 	guint signature = 0;
 	char valStr[1024];
+        char *valBulk = NULL;
+        char *valMac = NULL;
 
 	proto_item *ti;
 	proto_item *cli_key_item;
@@ -491,8 +494,32 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 					tvb,offset,12,bo_big_endian);
 			offset+=12;
 			count = tvb_get_guint8(tvb, offset);
-			ti = proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session,
-					tvb,offset,count+1,bo_big_endian);
+                        switch(count) {
+                                case 0:
+                                        ti = proto_tree_add_string (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session_str,
+                                                                        tvb,offset,count+1,"NULL");
+                                        break;
+                                case 1 :
+                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session,
+                                                                        tvb,offset,count+1,tvb_get_guint8(tvb,offset+1));
+                                        break;
+                                case 2 :
+                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session,
+                                                                        tvb,offset,count+1,tvb_get_ntohs(tvb,offset+1));
+                                        break;
+                                case 3 :
+                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session,
+                                                                        tvb,offset,count+1,tvb_get_ntoh24(tvb,offset+1));
+                                        break;
+                                case 4 :
+                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session,
+                                                                        tvb,offset,count+1,tvb_get_ntohl(tvb,offset+1));
+                                        break;
+                                default:
+                                        ti = proto_tree_add_string (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_session_str,
+                                                                        tvb,offset,count+1,"Too big");
+                                        break;
+                        }
 			offset+=1+count;
 
 			/* process client_key_ids structure */
@@ -560,70 +587,75 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 
 				/* identifier present in next field */
 				/* note: value 0x0 means no identifier */
-				if (value == 0x01) {	/* text identifier */
-					/* not tested */
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier_charset,
-							tvb,offset,2,bo_big_endian);
-					offset+=2;
-					size = tvb_get_guint8 (tvb, offset);
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier_size,
-							tvb,offset,1,bo_big_endian);
-					offset++;
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier,
-							tvb,offset,size,bo_big_endian);
-					offset+=size;
-					client_size+=size+3;
+				switch(value) {
+					case 0x01 :	/* text identifier */
+						/* not teste */
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier_charset,
+								tvb,offset,2,bo_big_endian);
+						offset+=2;
+						size = tvb_get_guint8 (tvb, offset);
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier_size,
+								tvb,offset,1,bo_big_endian);
+						offset++;
+						strncpy(valStr,tvb_get_ptr (tvb, offset, size),size);
+						valStr[size]=0;
+						ti = proto_tree_add_string(
+								wtls_msg_type_item_sub_sub_tree, 
+								hf_wtls_hands_cli_hello_key_identifier_str,
+								tvb, offset,size,valStr);
+						offset+=size;
+						client_size+=size+3;
 #ifdef DEBUG
-					fprintf(stderr, "text id size = %d, client_size = %d\n",
-						size, client_size);
+						fprintf(stderr, "text id size = %d, client_size = %d\n",
+							size, client_size);
 #endif /* DEBUG */
-				}
-				else if (value == 0x02) {	/* binary identifier */
-					size = tvb_get_guint8 (tvb, offset);
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier_size,
-							tvb,offset,1,bo_big_endian);
-					offset++;
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier,
-							tvb,offset,size,bo_big_endian);
-					offset+=size;
-					client_size+=size+1;
+						break;
+					case 0x02 :	/* binary identifier */
+						size = tvb_get_guint8 (tvb, offset);
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier_size,
+								tvb,offset,1,bo_big_endian);
+						offset++;
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier,
+								tvb,offset,size,bo_big_endian);
+						offset+=size;
+						client_size+=size+1;
 #ifdef DEBUG
-					fprintf(stderr, "binary id size = %d, client_size = %d\n",
-						size, client_size);
+						fprintf(stderr, "binary id size = %d, client_size = %d\n",
+							size, client_size);
 #endif /* DEBUG */
-				}
-				else if (value == 0xfe) {	/* SHA-1 hash of the public key */
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier,
-							tvb,offset,20,bo_big_endian);
-					offset+=20;
-					client_size+=20;
+						break;
+					case 0xfe : /* SHA-1 hash of the public key */
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier,
+								tvb,offset,20,bo_big_endian);
+						offset+=20;
+						client_size+=20;
 #ifdef DEBUG
-					fprintf(stderr, "SHA-1 hash size = 20, client_size = %d\n",
-						client_size);
+						fprintf(stderr, "SHA-1 hash size = 20, client_size = %d\n",
+							client_size);
 #endif /* DEBUG */
-				}
-				else if (value == 0xff) {	/* X.509 distinguished name */
-					/* not tested */
-					size = tvb_get_guint8 (tvb, offset);
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier_size,
-							tvb,offset,1,bo_big_endian);
-					offset++;
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier,
-							tvb,offset,size,bo_big_endian);
-					offset+=size;
-					client_size+=size+1;
+						break;
+					case 0xff : /* X.509 distinguished name */
+						/* not tested */
+						size = tvb_get_guint8 (tvb, offset);
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier_size,
+								tvb,offset,1,bo_big_endian);
+						offset++;
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier,
+								tvb,offset,size,bo_big_endian);
+						offset+=size;
+						client_size+=size+1;
 #ifdef DEBUG
-					fprintf(stderr, "X.509 name size = %d, client_size = %d\n",
-						size, client_size);
+						fprintf(stderr, "X.509 name size = %d, client_size = %d\n",
+							size, client_size);
 #endif /* DEBUG */
+						break;
 				}
 
 				proto_item_set_len(cli_key_item, client_size);
@@ -693,71 +725,76 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 
 				/* identifier present in next field */
 				/* note: value 0x0 means no identifier */
-				if (value == 0x01) {	/* text identifier */
-					/* not tested */
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier_charset,
-							tvb,offset,2,bo_big_endian);
-					offset+=2;
-					size = tvb_get_guint8 (tvb, offset);
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier_size,
-							tvb,offset,1,bo_big_endian);
-					offset++;
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier,
-							tvb,offset,size,bo_big_endian);
-					offset+=size;
-					client_size+=size+3;
+				switch (value) {
+					case 0x01 :	/* text identifier */
+						/* not temasted */
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier_charset,
+								tvb,offset,2,bo_big_endian);
+						offset+=2;
+						size = tvb_get_guint8 (tvb, offset);
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier_size,
+								tvb,offset,1,bo_big_endian);
+						offset++;
+						strncpy(valStr,tvb_get_ptr (tvb, offset, size),size);
+						valStr[size]=0;
+						ti = proto_tree_add_string(
+								wtls_msg_type_item_sub_sub_tree, 
+								hf_wtls_hands_cli_hello_key_identifier_str,
+								tvb, offset,size,valStr);
+						offset+=size;
+						client_size+=size+3;
 #ifdef DEBUG
-					fprintf(stderr, "text id size = %d, client_size = %d\n",
-						size, client_size);
+						fprintf(stderr, "text id size = %d, client_size = %d\n",
+							size, client_size);
 #endif /* DEBUG */
-				}
-				else if (value == 0x02) {	/* binary identifier */
-					size = tvb_get_guint8 (tvb, offset);
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier_size,
-							tvb,offset,1,bo_big_endian);
-					offset++;
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier,
-							tvb,offset,size,bo_big_endian);
-					offset+=size;
-					client_size+=size+1;
+						break;
+					case 0x02 : /* binary identifier */
+						size = tvb_get_guint8 (tvb, offset);
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier_size,
+								tvb,offset,1,bo_big_endian);
+						offset++;
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier,
+								tvb,offset,size,bo_big_endian);
+						offset+=size;
+						client_size+=size+1;
 #ifdef DEBUG
-					fprintf(stderr, "binary id size = %d, client_size = %d\n",
-						size, client_size);
+						fprintf(stderr, "binary id size = %d, client_size = %d\n",
+							size, client_size);
 #endif /* DEBUG */
-				}
-				else if (value == 0xfe) {	/* SHA-1 hash of the public key */
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier,
-							tvb,offset,20,bo_big_endian);
-					offset+=20;
-					client_size+=20;
+						break;
+					case 0xfe :	/* SHA-1 hash of the public key */
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier,
+								tvb,offset,20,bo_big_endian);
+						offset+=20;
+						client_size+=20;
 #ifdef DEBUG
-					fprintf(stderr, "SHA-1 hash size = 20, client_size = %d\n",
-						client_size);
+						fprintf(stderr, "SHA-1 hash size = 20, client_size = %d\n",
+							client_size);
 #endif /* DEBUG */
-				}
-				else if (value == 0xff) {	/* X.509 distinguished name */
-					/* not tested */
-					size = tvb_get_guint8 (tvb, offset);
-					/* need to fetch identifier and display it */
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier_size,
-							tvb,offset,1,bo_big_endian);
-					offset++;
-					ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-							hf_wtls_hands_cli_hello_key_identifier,
-							tvb,offset,size,bo_big_endian);
-					offset+=size;
-					client_size+=size+1;
+						break;
+					case 0xff : 	/* X.509 distinguished name */
+						/* not testet */
+						size = tvb_get_guint8 (tvb, offset);
+						/* need to fetch identifier and display it */
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier_size,
+								tvb,offset,1,bo_big_endian);
+						offset++;
+						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+								hf_wtls_hands_cli_hello_key_identifier,
+								tvb,offset,size,bo_big_endian);
+						offset+=size;
+						client_size+=size+1;
 #ifdef DEBUG
-					fprintf(stderr, "X.509 name size = %d, client_size = %d\n",
-						size, client_size);
+						fprintf(stderr, "X.509 name size = %d, client_size = %d\n",
+							size, client_size);
 #endif /* DEBUG */
+						break;
 				}
 				proto_item_set_len(cli_key_item, client_size);
 			}
@@ -770,23 +807,39 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			wtls_msg_type_item_sub_tree = proto_item_add_subtree(ti, ett_wtls_msg_type_item_sub);
 			offset+=1;
 			for (;count > 0;count-=client_size) {
-				cli_key_item = proto_tree_add_item(wtls_msg_type_item_sub_tree, 
-						hf_wtls_hands_cli_hello_cipher_suite_item, tvb, offset,1,
-						bo_little_endian);
-				client_size=1;
-				wtls_msg_type_item_sub_sub_tree = proto_item_add_subtree(cli_key_item, 
-								  ett_wtls_msg_type_item_sub_sub);
-				ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-						hf_wtls_hands_cli_hello_cipher_bulk,
-						tvb,offset,1,bo_big_endian);
-				offset++;
-				value = tvb_get_guint8 (tvb, offset);
-				ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-					hf_wtls_hands_cli_hello_cipher_mac,
-					tvb,offset,1,bo_big_endian);
+			       value = tvb_get_guint8 (tvb, offset);
+                               valBulk = match_strval(value, wtls_vals_cipher_bulk);
+                               offset++;
+                               client_size=1;
+                               valMac = match_strval(tvb_get_guint8 (tvb, offset), wtls_vals_cipher_mac);
+                               if (valBulk != NULL)
+                               {
+                                       if (valMac != NULL)
+                                       {
+                                               snprintf(valStr,1024,"%s, %s",valBulk,valMac);
+                                       }
+                                       else
+                                       {
+                                               snprintf(valStr,1024,"%s, Unknow MAC (0x%02x)",valBulk,tvb_get_guint8 (tvb, offset));
+                                       }
+                               }
+                               else
+                               {
+                                       if (valMac != NULL)
+                                      {
+                                               snprintf(valStr,1024,"Unknow Bulk (0x%02x), %s",value,valMac);
+                                       }
+                                       else
+                                       {
+                                               snprintf(valStr,1024,"Unknow Bulk (0x%02x), Unknow MAC (0x%02x)",value,
+                                                               tvb_get_guint8 (tvb, offset));
+                                       }
+                                }
 				offset++;
 				client_size++;
-				proto_item_set_len(cli_key_item, client_size);
+                                cli_key_item = proto_tree_add_string(wtls_msg_type_item_sub_tree,
+                                               hf_wtls_hands_cli_hello_cipher_suite_item, tvb, offset-2,2,
+                                               valStr); 
 			}
 			count = tvb_get_guint8 (tvb, offset);
 			ti = proto_tree_add_item(wtls_msg_type_item_tree, 
@@ -826,8 +879,32 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 					tvb,offset,12,bo_big_endian);
 			offset+=12;
 			count = tvb_get_guint8(tvb, offset);
-			ti = proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session,
-					tvb,offset,count+1,bo_big_endian);
+                        switch(count) {
+                                case 0:
+                                        ti = proto_tree_add_string (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session_str,
+                                                                        tvb,offset,count+1,"NULL");
+                                        break;
+                                case 1 :
+                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session,
+                                                                        tvb,offset,count+1,tvb_get_guint8(tvb,offset+1));
+                                        break;
+                                case 2 :
+                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session,
+                                                                        tvb,offset,count+1,tvb_get_ntohs(tvb,offset+1));
+                                        break;
+                                case 3 :
+                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session,
+                                                                        tvb,offset,count+1,tvb_get_ntoh24(tvb,offset+1));
+                                        break;
+                                case 4 :
+                                        ti = proto_tree_add_uint (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session,
+                                                                        tvb,offset,count+1,tvb_get_ntohl(tvb,offset+1));
+                                        break;
+                                default:
+                                        ti = proto_tree_add_string (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_session_str,
+                                                                        tvb,offset,count+1,"Too big");
+                                        break;
+                        }
 			offset+=1+count;
 			ti = proto_tree_add_item(wtls_msg_type_item_tree,
 					hf_wtls_hands_serv_hello_cli_key_id,
@@ -1148,7 +1225,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_session,
 			{ 	"Session ID",           
 				"wsp.wtls.handshake.client_hello.sessionid",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Session ID" 
+			}
+		},
+		{ &hf_wtls_hands_cli_hello_session_str,
+			{ 	"Session ID",           
+				"wsp.wtls.handshake.client_hello.session.str",
+				 FT_STRING, BASE_DEC, NULL, 0x00,
 				"Session ID" 
 			}
 		},
@@ -1211,7 +1295,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_key_identifier_charset,
 			{ 	"Identifier CharSet",           
 				"wsp.wtls.handshake.client_hello.ident_charset",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
 				"Identifier CharSet" 
 			}
 		},
@@ -1229,6 +1313,13 @@ proto_register_wtls(void)
 				"Identifier" 
 			}
 		},
+		{ &hf_wtls_hands_cli_hello_key_identifier_str,
+			{ 	"Identifier Name",           
+				"wsp.wtls.handshake.client_hello.ident_name",
+				 FT_STRING, BASE_HEX, NULL, 0x00,
+				"Identifier Name" 
+			}
+		},
 		{ &hf_wtls_hands_cli_hello_cipher_suite,
 			{ 	"Cipher Suites",           
 				"wsp.wtls.handshake.client_hello.ciphers",
@@ -1239,22 +1330,8 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_cipher_suite_item,
 			{ 	"Cipher",           
 				"wsp.wtls.handshake.client_hello.cipher",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_STRING, BASE_DEC, NULL, 0x00,
 				"Cipher" 
-			}
-		},
-		{ &hf_wtls_hands_cli_hello_cipher_bulk,
-			{ 	"Cipher Bulk",           
-				"wsp.wtls.handshake.client_hello.cipher.bulk",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_cipher_bulk ), 0x00,
-				"Cipher Bulk" 
-			}
-		},
-		{ &hf_wtls_hands_cli_hello_cipher_mac,
-			{ 	"Cipher MAC",           
-				"wsp.wtls.handshake.client_hello.cipher.mac",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_cipher_mac ), 0x00,
-				"Cipher MAC" 
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_compression_methods,
@@ -1316,7 +1393,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_serv_hello_session,
 			{ 	"Session ID",           
 				"wsp.wtls.handshake.server_hello.sessionid",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Session ID" 
+			}
+		},
+		{ &hf_wtls_hands_serv_hello_session_str,
+			{ 	"Session ID",           
+				"wsp.wtls.handshake.server_hello.session.str",
+				 FT_STRING, BASE_DEC, NULL, 0x00,
 				"Session ID" 
 			}
 		},
@@ -1497,7 +1581,7 @@ proto_register_wtls(void)
 		},
 		{ &hf_wtls_hands_certificate_wtls_rsa_modules,
 			{ 	"RSA Modulus Size",           
-				"wsp.wtls.handshake.certificate.rsa.modulus",
+				"wsp.wtls.handshake.certificate.rsa.modules",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
 				"RSA Modulus Size" 
 			}
