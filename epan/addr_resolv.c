@@ -448,7 +448,6 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
 
 static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 {
-#ifdef INET6
   int hash_idx;
   hashipv6_t * volatile tp;
   struct hostent *hostp;
@@ -481,6 +480,7 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
   tp->addr = *addr;
   tp->next = NULL;
 
+#ifdef INET6
   if (g_resolv_flags & RESOLV_NETWORK) {
 #ifdef AVOID_DNS_TIMEOUT
 
@@ -1581,8 +1581,8 @@ host_name_lookup_init(void) {
 #ifdef WIN32
   sysroot = getenv("SYSTEMROOT");
   hostspath = g_malloc(strlen(sysroot) + sizeof rootpath);
-  strcpy(hostspath, sysroot)
-  strcat(hostpath, rootpath);
+  strcpy(hostspath, sysroot);
+  strcat(hostspath, rootpath);
 #else
   hostspath = g_strdup("/etc/hosts");
 #endif
