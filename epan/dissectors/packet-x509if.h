@@ -1,15 +1,14 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509if.h                                                            */
+/* ./packet-x509if.h                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.h */
-/* Include files: packet-x509if-exp.h, packet-x509if-valexp.h */
 
 /* packet-x509if.h
  * Routines for X.509 Information Framework packet dissection
  *
- * $Id: packet-x509if-template.h,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id: packet-x509if-template.h 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,11 +34,6 @@
 
 
 /*--- Included file: packet-x509if-exp.h ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509if-exp.h                                                        */
-/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 extern const value_string Name_vals[];
 int dissect_x509if_AttributeType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

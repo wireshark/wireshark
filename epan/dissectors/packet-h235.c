@@ -1,10 +1,9 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-h235.c                                                              */
+/* ./packet-h235.c                                                            */
 /* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
 
 /* Input file: packet-h235-template.c */
-/* Include files: packet-h235-hf.c, packet-h235-ett.c, packet-h235-fn.c, packet-h235-hfarr.c, packet-h235-ettarr.c, packet-h235-val.h */
 
 /* packet-h235.c
  * Routines for H.235 packet dissection
@@ -53,11 +52,6 @@
 int proto_h235 = -1;
 
 /*--- Included file: packet-h235-hf.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-h235-hf.c                                                           */
-/* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
 
 static int hf_h235_nonStandardIdentifier = -1;    /* OBJECT_IDENTIFIER */
 static int hf_h235_data = -1;                     /* OCTET_STRING */
@@ -133,11 +127,6 @@ static int hf_h235_keyDerivationOID = -1;         /* OBJECT_IDENTIFIER */
 
 /*--- Included file: packet-h235-ett.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-h235-ett.c                                                          */
-/* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
-
 static gint ett_h235_NonStandardParameter = -1;
 static gint ett_h235_DHset = -1;
 static gint ett_h235_ECpoint = -1;
@@ -171,14 +160,12 @@ PER_NOT_DECODED_YET("ToBeSigned");
 
 /*--- Included file: packet-h235-fn.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-h235-fn.c                                                           */
-/* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
+/*--- Fields for imported types ---*/
 
 static int dissect_toBeSigned(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_xxx_ToBeSigned(tvb, offset, pinfo, tree, hf_h235_toBeSigned);
 }
+
 
 static int
 dissect_h235_ChallengeString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
@@ -315,7 +302,7 @@ static int dissect_clearSaltingKey(tvbuff_t *tvb, int offset, packet_info *pinfo
   return dissect_h235_OCTET_STRING(tvb, offset, pinfo, tree, hf_h235_clearSaltingKey);
 }
 
-static per_sequence_t NonStandardParameter_sequence[] = {
+static const per_sequence_t NonStandardParameter_sequence[] = {
   { "nonStandardIdentifier"       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nonStandardIdentifier },
   { "data"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_data },
   { NULL, 0, 0, NULL }
@@ -350,7 +337,7 @@ static int dissect_generator(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
   return dissect_h235_BIT_STRING_SIZE_0_2048(tvb, offset, pinfo, tree, hf_h235_generator);
 }
 
-static per_sequence_t DHset_sequence[] = {
+static const per_sequence_t DHset_sequence[] = {
   { "halfkey"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_halfkey },
   { "modSize"                     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_modSize },
   { "generator"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_generator },
@@ -395,7 +382,7 @@ static int dissect_fieldSize(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_fieldSize);
 }
 
-static per_sequence_t ECpoint_sequence[] = {
+static const per_sequence_t ECpoint_sequence[] = {
   { "x"                           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x },
   { "y"                           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_y },
   { NULL, 0, 0, NULL }
@@ -415,7 +402,7 @@ static int dissect_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
   return dissect_h235_ECpoint(tvb, offset, pinfo, tree, hf_h235_base);
 }
 
-static per_sequence_t T_eckasdhp_sequence[] = {
+static const per_sequence_t T_eckasdhp_sequence[] = {
   { "public-key"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_public_key },
   { "modulus"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_modulus },
   { "base"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_base },
@@ -435,7 +422,7 @@ static int dissect_eckasdhp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
   return dissect_h235_T_eckasdhp(tvb, offset, pinfo, tree, hf_h235_eckasdhp);
 }
 
-static per_sequence_t T_eckasdh2_sequence[] = {
+static const per_sequence_t T_eckasdh2_sequence[] = {
   { "public-key"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_public_key },
   { "fieldSize"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_fieldSize },
   { "base"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_base },
@@ -462,7 +449,7 @@ static const value_string ECKASDH_vals[] = {
   { 0, NULL }
 };
 
-static per_choice_t ECKASDH_choice[] = {
+static const per_choice_t ECKASDH_choice[] = {
   {   0, "eckasdhp"                    , ASN1_EXTENSION_ROOT    , dissect_eckasdhp },
   {   1, "eckasdh2"                    , ASN1_EXTENSION_ROOT    , dissect_eckasdh2 },
   { 0, NULL, 0, NULL }
@@ -480,7 +467,7 @@ static int dissect_eckasdhkey(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
   return dissect_h235_ECKASDH(tvb, offset, pinfo, tree, hf_h235_eckasdhkey);
 }
 
-static per_sequence_t TypedCertificate_sequence[] = {
+static const per_sequence_t TypedCertificate_sequence[] = {
   { "type"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_type },
   { "certificate"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_certificatedata },
   { NULL, 0, 0, NULL }
@@ -539,7 +526,7 @@ static const value_string AuthenticationBES_vals[] = {
   { 0, NULL }
 };
 
-static per_choice_t AuthenticationBES_choice[] = {
+static const per_choice_t AuthenticationBES_choice[] = {
   {   0, "default"                     , ASN1_EXTENSION_ROOT    , dissect_default },
   {   1, "radius"                      , ASN1_EXTENSION_ROOT    , dissect_radius },
   { 0, NULL, 0, NULL }
@@ -570,7 +557,7 @@ const value_string AuthenticationMechanism_vals[] = {
   { 0, NULL }
 };
 
-static per_choice_t AuthenticationMechanism_choice[] = {
+static const per_choice_t AuthenticationMechanism_choice[] = {
   {   0, "dhExch"                      , ASN1_EXTENSION_ROOT    , dissect_dhExch },
   {   1, "pwdSymEnc"                   , ASN1_EXTENSION_ROOT    , dissect_pwdSymEnc },
   {   2, "pwdHash"                     , ASN1_EXTENSION_ROOT    , dissect_pwdHash },
@@ -630,7 +617,7 @@ static int dissect_iv16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
   return dissect_h235_IV16(tvb, offset, pinfo, tree, hf_h235_iv16);
 }
 
-static per_sequence_t Params_sequence[] = {
+static const per_sequence_t Params_sequence[] = {
   { "ranInt"                      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranInt },
   { "iv8"                         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_iv8 },
   { "iv16"                        , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_iv16 },
@@ -653,7 +640,7 @@ static int dissect_paramSsalt(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
   return dissect_h235_Params(tvb, offset, pinfo, tree, hf_h235_paramSsalt);
 }
 
-static per_sequence_t ENCRYPTEDxxx_sequence[] = {
+static const per_sequence_t ENCRYPTEDxxx_sequence[] = {
   { "algorithmOID"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_algorithmOID },
   { "paramS"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_paramS },
   { "encryptedData"               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_encryptedData },
@@ -693,7 +680,7 @@ static int dissect_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
   return dissect_h235_BIT_STRING(tvb, offset, pinfo, tree, hf_h235_hash);
 }
 
-static per_sequence_t SIGNEDxxx_sequence[] = {
+static const per_sequence_t SIGNEDxxx_sequence[] = {
   { "toBeSigned"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_toBeSigned },
   { "algorithmOID"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_algorithmOID },
   { "paramS"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_paramS },
@@ -716,7 +703,7 @@ static int dissect_certProtectedKey(tvbuff_t *tvb, int offset, packet_info *pinf
   return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h235_certProtectedKey);
 }
 
-static per_sequence_t V3KeySyncMaterial_sequence[] = {
+static const per_sequence_t V3KeySyncMaterial_sequence[] = {
   { "generalID"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_generalID },
   { "algorithmOID"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_algorithmOID },
   { "paramS"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_paramS },
@@ -748,7 +735,7 @@ static const value_string H235Key_vals[] = {
   { 0, NULL }
 };
 
-static per_choice_t H235Key_choice[] = {
+static const per_choice_t H235Key_choice[] = {
   {   0, "secureChannel"               , ASN1_EXTENSION_ROOT    , dissect_secureChannel },
   {   1, "sharedSecret"                , ASN1_EXTENSION_ROOT    , dissect_sharedSecret },
   {   2, "certProtectedKey"            , ASN1_EXTENSION_ROOT    , dissect_certProtectedKey },
@@ -768,7 +755,7 @@ static int dissect_h235Key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
   return dissect_h235_H235Key(tvb, offset, pinfo, tree, hf_h235_h235Key);
 }
 
-static per_sequence_t ClearToken_sequence[] = {
+static const per_sequence_t ClearToken_sequence[] = {
   { "tokenOID"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_tokenOID },
   { "timeStamp"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_timeStamp },
   { "password"                    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_password },
@@ -796,7 +783,7 @@ static int dissect_hashedVals(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
   return dissect_h235_ClearToken(tvb, offset, pinfo, tree, hf_h235_hashedVals);
 }
 
-static per_sequence_t HASHEDxxx_sequence[] = {
+static const per_sequence_t HASHEDxxx_sequence[] = {
   { "algorithmOID"                , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_algorithmOID },
   { "paramS"                      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_paramS },
   { "hash"                        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hash },
@@ -815,7 +802,7 @@ static int dissect_hashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
   return dissect_h235_HASHEDxxx(tvb, offset, pinfo, tree, hf_h235_hashedToken);
 }
 
-static per_sequence_t T_cryptoEncryptedToken_sequence[] = {
+static const per_sequence_t T_cryptoEncryptedToken_sequence[] = {
   { "tokenOID"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tokenOID },
   { "token"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_encryptedToken },
   { NULL, 0, 0, NULL }
@@ -832,7 +819,7 @@ static int dissect_cryptoEncryptedToken(tvbuff_t *tvb, int offset, packet_info *
   return dissect_h235_T_cryptoEncryptedToken(tvb, offset, pinfo, tree, hf_h235_cryptoEncryptedToken);
 }
 
-static per_sequence_t T_cryptoSignedToken_sequence[] = {
+static const per_sequence_t T_cryptoSignedToken_sequence[] = {
   { "tokenOID"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tokenOID },
   { "token"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_signedToken },
   { NULL, 0, 0, NULL }
@@ -849,7 +836,7 @@ static int dissect_cryptoSignedToken(tvbuff_t *tvb, int offset, packet_info *pin
   return dissect_h235_T_cryptoSignedToken(tvb, offset, pinfo, tree, hf_h235_cryptoSignedToken);
 }
 
-static per_sequence_t T_cryptoHashedToken_sequence[] = {
+static const per_sequence_t T_cryptoHashedToken_sequence[] = {
   { "tokenOID"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tokenOID },
   { "hashedVals"                  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hashedVals },
   { "token"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hashedToken },
@@ -876,7 +863,7 @@ const value_string CryptoToken_vals[] = {
   { 0, NULL }
 };
 
-static per_choice_t CryptoToken_choice[] = {
+static const per_choice_t CryptoToken_choice[] = {
   {   0, "cryptoEncryptedToken"        , ASN1_EXTENSION_ROOT    , dissect_cryptoEncryptedToken },
   {   1, "cryptoSignedToken"           , ASN1_EXTENSION_ROOT    , dissect_cryptoSignedToken },
   {   2, "cryptoHashedToken"           , ASN1_EXTENSION_ROOT    , dissect_cryptoHashedToken },
@@ -906,11 +893,6 @@ void proto_register_h235(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-h235-hfarr.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-h235-hfarr.c                                                        */
-/* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
 
     { &hf_h235_nonStandardIdentifier,
       { "nonStandardIdentifier", "h235.nonStandardIdentifier",
@@ -1185,11 +1167,6 @@ void proto_register_h235(void) {
   static gint *ett[] = {
 
 /*--- Included file: packet-h235-ettarr.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-h235-ettarr.c                                                       */
-/* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
 
     &ett_h235_NonStandardParameter,
     &ett_h235_DHset,

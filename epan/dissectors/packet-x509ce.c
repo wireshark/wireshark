@@ -8,7 +8,7 @@
 /* packet-x509ce.c
  * Routines for X.509 Certificate Extensions packet dissection
  *
- * $Id: packet-x509ce-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id: packet-x509ce-template.c 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -277,7 +277,7 @@ static int dissect_uniformResourceIdentifier_impl(packet_info *pinfo, proto_tree
   return dissect_x509ce_IA5String(TRUE, tvb, offset, pinfo, tree, hf_x509ce_uniformResourceIdentifier);
 }
 
-static ber_sequence EDIPartyName_sequence[] = {
+static const ber_sequence EDIPartyName_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nameAssigner_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_partyName_impl },
   { 0, 0, 0, NULL }
@@ -330,7 +330,7 @@ static const value_string GeneralName_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice GeneralName_choice[] = {
+static const ber_choice GeneralName_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_rfc822Name_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_dNSName_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_directoryName_impl },
@@ -367,7 +367,7 @@ static int dissect_deltaLocation(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_x509ce_GeneralName(FALSE, tvb, offset, pinfo, tree, hf_x509ce_deltaLocation);
 }
 
-static ber_sequence GeneralNames_sequence_of[1] = {
+static const ber_sequence GeneralNames_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_GeneralNames_item },
 };
 
@@ -391,7 +391,7 @@ static int dissect_fullName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_x509ce_GeneralNames(TRUE, tvb, offset, pinfo, tree, hf_x509ce_fullName);
 }
 
-static ber_sequence AuthorityKeyIdentifier_sequence[] = {
+static const ber_sequence AuthorityKeyIdentifier_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_keyIdentifier_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorityCertIssuer_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorityCertSerialNumber_impl },
@@ -414,7 +414,7 @@ dissect_x509ce_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static asn_namedbit KeyUsage_bits[] = {
+static const asn_namedbit KeyUsage_bits[] = {
   {  0, &hf_x509ce_KeyUsage_digitalSignature, -1, -1, NULL, NULL },
   {  1, &hf_x509ce_KeyUsage_nonRepudiation, -1, -1, NULL, NULL },
   {  2, &hf_x509ce_KeyUsage_keyEncipherment, -1, -1, NULL, NULL },
@@ -448,7 +448,7 @@ static int dissect_KeyPurposeIDs_item(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_x509ce_KeyPurposeId(FALSE, tvb, offset, pinfo, tree, hf_x509ce_KeyPurposeIDs_item);
 }
 
-static ber_sequence KeyPurposeIDs_sequence_of[1] = {
+static const ber_sequence KeyPurposeIDs_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_KeyPurposeIDs_item },
 };
 
@@ -489,7 +489,7 @@ static int dissect_nextDelta(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_x509ce_GeneralizedTime(FALSE, tvb, offset, pinfo, tree, hf_x509ce_nextDelta);
 }
 
-static ber_sequence PrivateKeyUsagePeriod_sequence[] = {
+static const ber_sequence PrivateKeyUsagePeriod_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notBefore_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notAfter_impl },
   { 0, 0, 0, NULL }
@@ -521,7 +521,7 @@ static int dissect_subjectDomainPolicy(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_x509ce_CertPolicyId(FALSE, tvb, offset, pinfo, tree, hf_x509ce_subjectDomainPolicy);
 }
 
-static ber_sequence PolicyQualifierInfo_sequence[] = {
+static const ber_sequence PolicyQualifierInfo_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -536,7 +536,7 @@ static int dissect_policyQualifiers_item(packet_info *pinfo, proto_tree *tree, t
   return dissect_x509ce_PolicyQualifierInfo(FALSE, tvb, offset, pinfo, tree, hf_x509ce_policyQualifiers_item);
 }
 
-static ber_sequence SEQUNCE_OF_PolicyQualifierInfo_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_PolicyQualifierInfo_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_policyQualifiers_item },
 };
 
@@ -551,7 +551,7 @@ static int dissect_policyQualifiers(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_x509ce_SEQUNCE_OF_PolicyQualifierInfo(FALSE, tvb, offset, pinfo, tree, hf_x509ce_policyQualifiers);
 }
 
-static ber_sequence PolicyInformation_sequence[] = {
+static const ber_sequence PolicyInformation_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_policyIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_policyQualifiers },
   { 0, 0, 0, NULL }
@@ -568,7 +568,7 @@ static int dissect_CertificatePoliciesSyntax_item(packet_info *pinfo, proto_tree
   return dissect_x509ce_PolicyInformation(FALSE, tvb, offset, pinfo, tree, hf_x509ce_CertificatePoliciesSyntax_item);
 }
 
-static ber_sequence CertificatePoliciesSyntax_sequence_of[1] = {
+static const ber_sequence CertificatePoliciesSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CertificatePoliciesSyntax_item },
 };
 
@@ -580,7 +580,7 @@ dissect_x509ce_CertificatePoliciesSyntax(gboolean implicit_tag _U_, tvbuff_t *tv
   return offset;
 }
 
-static ber_sequence PolicyMappingsSyntax_item_sequence[] = {
+static const ber_sequence PolicyMappingsSyntax_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_issuerDomainPolicy },
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_subjectDomainPolicy },
   { 0, 0, 0, NULL }
@@ -597,7 +597,7 @@ static int dissect_PolicyMappingsSyntax_item(packet_info *pinfo, proto_tree *tre
   return dissect_x509ce_PolicyMappingsSyntax_item(FALSE, tvb, offset, pinfo, tree, hf_x509ce_PolicyMappingsSyntax_item);
 }
 
-static ber_sequence PolicyMappingsSyntax_sequence_of[1] = {
+static const ber_sequence PolicyMappingsSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PolicyMappingsSyntax_item },
 };
 
@@ -609,7 +609,7 @@ dissect_x509ce_PolicyMappingsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static ber_sequence AttributesSyntax_sequence_of[1] = {
+static const ber_sequence AttributesSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_AttributesSyntax_item },
 };
 
@@ -671,7 +671,7 @@ static int dissect_modulus(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_x509ce_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_modulus);
 }
 
-static ber_sequence BasicConstraintsSyntax_sequence[] = {
+static const ber_sequence BasicConstraintsSyntax_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cA },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pathLenConstraint },
   { 0, 0, 0, NULL }
@@ -700,7 +700,7 @@ static int dissect_maximum_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_x509ce_BaseDistance(TRUE, tvb, offset, pinfo, tree, hf_x509ce_maximum);
 }
 
-static ber_sequence GeneralSubtree_sequence[] = {
+static const ber_sequence GeneralSubtree_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_base },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_minimum_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_maximum_impl },
@@ -718,7 +718,7 @@ static int dissect_GeneralSubtrees_item(packet_info *pinfo, proto_tree *tree, tv
   return dissect_x509ce_GeneralSubtree(FALSE, tvb, offset, pinfo, tree, hf_x509ce_GeneralSubtrees_item);
 }
 
-static ber_sequence GeneralSubtrees_sequence_of[1] = {
+static const ber_sequence GeneralSubtrees_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_GeneralSubtrees_item },
 };
 
@@ -736,7 +736,7 @@ static int dissect_excludedSubtrees_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_x509ce_GeneralSubtrees(TRUE, tvb, offset, pinfo, tree, hf_x509ce_excludedSubtrees);
 }
 
-static ber_sequence NameConstraintsSyntax_sequence[] = {
+static const ber_sequence NameConstraintsSyntax_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_permittedSubtrees_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_excludedSubtrees_impl },
   { 0, 0, 0, NULL }
@@ -765,7 +765,7 @@ static int dissect_inhibitPolicyMapping_impl(packet_info *pinfo, proto_tree *tre
   return dissect_x509ce_SkipCerts(TRUE, tvb, offset, pinfo, tree, hf_x509ce_inhibitPolicyMapping);
 }
 
-static ber_sequence PolicyConstraintsSyntax_sequence[] = {
+static const ber_sequence PolicyConstraintsSyntax_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_requireExplicitPolicy_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inhibitPolicyMapping_impl },
   { 0, 0, 0, NULL }
@@ -830,7 +830,7 @@ static const value_string DistributionPointName_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice DistributionPointName_choice[] = {
+static const ber_choice DistributionPointName_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_fullName_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_nameRelativeToCRLIssuer_impl },
   { 0, 0, 0, 0, NULL }
@@ -847,7 +847,7 @@ static int dissect_distributionPoint_impl(packet_info *pinfo, proto_tree *tree, 
   return dissect_x509ce_DistributionPointName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_distributionPoint);
 }
 
-static asn_namedbit OnlyCertificateTypes_bits[] = {
+static const asn_namedbit OnlyCertificateTypes_bits[] = {
   {  0, &hf_x509ce_OnlyCertificateTypes_userPublicKey, -1, -1, NULL, NULL },
   {  1, &hf_x509ce_OnlyCertificateTypes_cA, -1, -1, NULL, NULL },
   {  2, &hf_x509ce_OnlyCertificateTypes_userAttribute, -1, -1, NULL, NULL },
@@ -868,7 +868,7 @@ static int dissect_onlyContains_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_x509ce_OnlyCertificateTypes(TRUE, tvb, offset, pinfo, tree, hf_x509ce_onlyContains);
 }
 
-static asn_namedbit ReasonFlags_bits[] = {
+static const asn_namedbit ReasonFlags_bits[] = {
   {  0, &hf_x509ce_ReasonFlags_unused, -1, -1, NULL, NULL },
   {  1, &hf_x509ce_ReasonFlags_keyCompromise, -1, -1, NULL, NULL },
   {  2, &hf_x509ce_ReasonFlags_cACompromise, -1, -1, NULL, NULL },
@@ -896,7 +896,7 @@ static int dissect_reasons_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_x509ce_ReasonFlags(TRUE, tvb, offset, pinfo, tree, hf_x509ce_reasons);
 }
 
-static ber_sequence NumberRange_sequence[] = {
+static const ber_sequence NumberRange_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_startingNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_endingNumber_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_modulus },
@@ -929,7 +929,7 @@ static int dissect_cRLStreamIdentifier_impl(packet_info *pinfo, proto_tree *tree
   return dissect_x509ce_CRLStreamIdentifier(TRUE, tvb, offset, pinfo, tree, hf_x509ce_cRLStreamIdentifier);
 }
 
-static ber_sequence BaseRevocationInfo_sequence[] = {
+static const ber_sequence BaseRevocationInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cRLStreamIdentifier_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_cRLNumber_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_baseThisUpdate_impl },
@@ -947,7 +947,7 @@ static int dissect_baseRevocationInfo_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_x509ce_BaseRevocationInfo(TRUE, tvb, offset, pinfo, tree, hf_x509ce_baseRevocationInfo);
 }
 
-static ber_sequence PerAuthorityScope_sequence[] = {
+static const ber_sequence PerAuthorityScope_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_authorityName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_distributionPoint_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_onlyContains_impl },
@@ -970,7 +970,7 @@ static int dissect_CRLScopeSyntax_item(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_x509ce_PerAuthorityScope(FALSE, tvb, offset, pinfo, tree, hf_x509ce_CRLScopeSyntax_item);
 }
 
-static ber_sequence CRLScopeSyntax_sequence_of[1] = {
+static const ber_sequence CRLScopeSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CRLScopeSyntax_item },
 };
 
@@ -985,7 +985,7 @@ static int dissect_cRLScope(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_x509ce_CRLScopeSyntax(FALSE, tvb, offset, pinfo, tree, hf_x509ce_cRLScope);
 }
 
-static ber_sequence DeltaRefInfo_sequence[] = {
+static const ber_sequence DeltaRefInfo_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_deltaLocation },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_lastDelta },
   { 0, 0, 0, NULL }
@@ -1002,7 +1002,7 @@ static int dissect_deltaRefInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_x509ce_DeltaRefInfo(TRUE, tvb, offset, pinfo, tree, hf_x509ce_deltaRefInfo);
 }
 
-static ber_sequence CRLReferral_sequence[] = {
+static const ber_sequence CRLReferral_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_issuer_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_location_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_deltaRefInfo_impl },
@@ -1029,7 +1029,7 @@ static const value_string StatusReferral_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice StatusReferral_choice[] = {
+static const ber_choice StatusReferral_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_cRLReferral_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -1045,7 +1045,7 @@ static int dissect_StatusReferrals_item(packet_info *pinfo, proto_tree *tree, tv
   return dissect_x509ce_StatusReferral(FALSE, tvb, offset, pinfo, tree, hf_x509ce_StatusReferrals_item);
 }
 
-static ber_sequence StatusReferrals_sequence_of[1] = {
+static const ber_sequence StatusReferrals_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_StatusReferrals_item },
 };
 
@@ -1072,7 +1072,7 @@ dissect_x509ce_OrderedListSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static ber_sequence DeltaInformation_sequence[] = {
+static const ber_sequence DeltaInformation_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_deltaLocation },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_nextDelta },
   { 0, 0, 0, NULL }
@@ -1086,7 +1086,7 @@ dissect_x509ce_DeltaInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   return offset;
 }
 
-static ber_sequence DistributionPoint_sequence[] = {
+static const ber_sequence DistributionPoint_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_distributionPoint_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reasons_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cRLIssuer_impl },
@@ -1104,7 +1104,7 @@ static int dissect_CRLDistPointsSyntax_item(packet_info *pinfo, proto_tree *tree
   return dissect_x509ce_DistributionPoint(FALSE, tvb, offset, pinfo, tree, hf_x509ce_CRLDistPointsSyntax_item);
 }
 
-static ber_sequence CRLDistPointsSyntax_sequence_of[1] = {
+static const ber_sequence CRLDistPointsSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CRLDistPointsSyntax_item },
 };
 
@@ -1116,7 +1116,7 @@ dissect_x509ce_CRLDistPointsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static ber_sequence IssuingDistPointSyntax_sequence[] = {
+static const ber_sequence IssuingDistPointSyntax_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_distributionPoint_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_containsUserPublicKeyCerts_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_containsCACerts_impl },
@@ -1361,7 +1361,7 @@ void proto_register_x509ce(void) {
         FT_INT32, BASE_DEC, NULL, 0,
         "AuthorityKeyIdentifier/authorityCertSerialNumber", HFILL }},
     { &hf_x509ce_KeyPurposeIDs_item,
-      { "Item[##]", "x509ce.KeyPurposeIDs_item",
+      { "Item", "x509ce.KeyPurposeIDs_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "KeyPurposeIDs/_item", HFILL }},
     { &hf_x509ce_notBefore,
@@ -1373,7 +1373,7 @@ void proto_register_x509ce(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "PrivateKeyUsagePeriod/notAfter", HFILL }},
     { &hf_x509ce_CertificatePoliciesSyntax_item,
-      { "Item[##]", "x509ce.CertificatePoliciesSyntax_item",
+      { "Item", "x509ce.CertificatePoliciesSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificatePoliciesSyntax/_item", HFILL }},
     { &hf_x509ce_policyIdentifier,
@@ -1385,11 +1385,11 @@ void proto_register_x509ce(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "PolicyInformation/policyQualifiers", HFILL }},
     { &hf_x509ce_policyQualifiers_item,
-      { "Item[##]", "x509ce.policyQualifiers_item",
+      { "Item", "x509ce.policyQualifiers_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "PolicyInformation/policyQualifiers/_item", HFILL }},
     { &hf_x509ce_PolicyMappingsSyntax_item,
-      { "Item[##]", "x509ce.PolicyMappingsSyntax_item",
+      { "Item", "x509ce.PolicyMappingsSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "PolicyMappingsSyntax/_item", HFILL }},
     { &hf_x509ce_issuerDomainPolicy,
@@ -1401,7 +1401,7 @@ void proto_register_x509ce(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "PolicyMappingsSyntax/_item/subjectDomainPolicy", HFILL }},
     { &hf_x509ce_GeneralNames_item,
-      { "Item[##]", "x509ce.GeneralNames_item",
+      { "Item", "x509ce.GeneralNames_item",
         FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
         "GeneralNames/_item", HFILL }},
     { &hf_x509ce_rfc822Name,
@@ -1441,7 +1441,7 @@ void proto_register_x509ce(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "EDIPartyName/partyName", HFILL }},
     { &hf_x509ce_AttributesSyntax_item,
-      { "Item[##]", "x509ce.AttributesSyntax_item",
+      { "Item", "x509ce.AttributesSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "AttributesSyntax/_item", HFILL }},
     { &hf_x509ce_cA,
@@ -1461,7 +1461,7 @@ void proto_register_x509ce(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "NameConstraintsSyntax/excludedSubtrees", HFILL }},
     { &hf_x509ce_GeneralSubtrees_item,
-      { "Item[##]", "x509ce.GeneralSubtrees_item",
+      { "Item", "x509ce.GeneralSubtrees_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "GeneralSubtrees/_item", HFILL }},
     { &hf_x509ce_base,
@@ -1485,7 +1485,7 @@ void proto_register_x509ce(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "PolicyConstraintsSyntax/inhibitPolicyMapping", HFILL }},
     { &hf_x509ce_CRLScopeSyntax_item,
-      { "Item[##]", "x509ce.CRLScopeSyntax_item",
+      { "Item", "x509ce.CRLScopeSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "CRLScopeSyntax/_item", HFILL }},
     { &hf_x509ce_authorityName,
@@ -1545,7 +1545,7 @@ void proto_register_x509ce(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "BaseRevocationInfo/baseThisUpdate", HFILL }},
     { &hf_x509ce_StatusReferrals_item,
-      { "Item[##]", "x509ce.StatusReferrals_item",
+      { "Item", "x509ce.StatusReferrals_item",
         FT_UINT32, BASE_DEC, VALS(StatusReferral_vals), 0,
         "StatusReferrals/_item", HFILL }},
     { &hf_x509ce_cRLReferral,
@@ -1589,7 +1589,7 @@ void proto_register_x509ce(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "DeltaInformation/nextDelta", HFILL }},
     { &hf_x509ce_CRLDistPointsSyntax_item,
-      { "Item[##]", "x509ce.CRLDistPointsSyntax_item",
+      { "Item", "x509ce.CRLDistPointsSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "CRLDistPointsSyntax/_item", HFILL }},
     { &hf_x509ce_reasons,

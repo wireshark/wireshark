@@ -8,7 +8,7 @@
 /* packet-ns_cert_exts.c
  * Routines for NetScape Certificate Extensions packet dissection
  *
- * $Id: packet-ns_cert_exts-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id: packet-ns_cert_exts-template.c 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,7 +152,7 @@ dissect_ns_cert_exts_CertRenewalUrl(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static asn_namedbit CertType_bits[] = {
+static const asn_namedbit CertType_bits[] = {
   {  0, &hf_ns_cert_exts_CertType_client, -1, -1, NULL, NULL },
   {  1, &hf_ns_cert_exts_CertType_server, -1, -1, NULL, NULL },
   {  5, &hf_ns_cert_exts_CertType_ca, -1, -1, NULL, NULL },

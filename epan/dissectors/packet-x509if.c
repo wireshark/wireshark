@@ -1,15 +1,14 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509if.c                                                            */
+/* ./packet-x509if.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.c */
-/* Include files: packet-x509if-hf.c, packet-x509if-ett.c, packet-x509if-fn.c, packet-x509if-hfarr.c, packet-x509if-ettarr.c, packet-x509if-val.h */
 
 /* packet-x509if.c
  * Routines for X.509 Information Framework packet dissection
  *
- * $Id: packet-x509if-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id: packet-x509if-template.c 12245 2004-10-08 20:28:04Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,11 +53,6 @@ int hf_x509if_ATADV_attribute_id = -1;
 
 /*--- Included file: packet-x509if-hf.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509if-hf.c                                                         */
-/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
-
 static int hf_x509if_rdnSequence = -1;            /* RDNSequence */
 static int hf_x509if_RDNSequence_item = -1;       /* RelativeDistinguishedName */
 static int hf_x509if_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndDistinguishedValue */
@@ -75,11 +69,6 @@ static gint ett_x509if_Attribute = -1;
 
 /*--- Included file: packet-x509if-ett.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509if-ett.c                                                        */
-/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
-
 static gint ett_x509if_Name = -1;
 static gint ett_x509if_RDNSequence = -1;
 static gint ett_x509if_RelativeDistinguishedName = -1;
@@ -90,7 +79,7 @@ static gint ett_x509if_AllowedSubset = -1;
 
 
 
-static ber_sequence Attribute_sequence[] = {
+static const ber_sequence Attribute_sequence[] = {
   /*  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_type },*/
   /*XXX  missing stuff here */
   { 0, 0, 0, NULL }
@@ -121,7 +110,7 @@ dissect_hf_x509if_ATADV_attribute_value(packet_info *pinfo, proto_tree *tree, tv
   return offset;
 }
 
-static ber_sequence AttributeTypeAndDistinguishedValue_sequence[] = {
+static const ber_sequence AttributeTypeAndDistinguishedValue_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_ATADV_attribute_id },
   { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_ATADV_attribute_value },
   /*XXX  missing stuff here */
@@ -139,10 +128,8 @@ dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag, tvbuff_
 
 /*--- Included file: packet-x509if-fn.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509if-fn.c                                                         */
-/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/*--- Fields for imported types ---*/
+
 
 
 static int
@@ -165,7 +152,7 @@ static int dissect_RelativeDistinguishedName_item(packet_info *pinfo, proto_tree
   return dissect_x509if_AttributeTypeAndDistinguishedValue(FALSE, tvb, offset, pinfo, tree, hf_x509if_RelativeDistinguishedName_item);
 }
 
-static ber_sequence RelativeDistinguishedName_set_of[1] = {
+static const ber_sequence RelativeDistinguishedName_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RelativeDistinguishedName_item },
 };
 
@@ -180,7 +167,7 @@ static int dissect_RDNSequence_item(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_x509if_RelativeDistinguishedName(FALSE, tvb, offset, pinfo, tree, hf_x509if_RDNSequence_item);
 }
 
-static ber_sequence RDNSequence_sequence_of[1] = {
+static const ber_sequence RDNSequence_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_RDNSequence_item },
 };
 
@@ -201,7 +188,7 @@ const value_string Name_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice Name_choice[] = {
+static const ber_choice Name_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_rdnSequence },
   { 0, 0, 0, 0, NULL }
 };
@@ -238,7 +225,7 @@ dissect_x509if_ObjectClassKind(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   return offset;
 }
 
-static asn_namedbit AllowedSubset_bits[] = {
+static const asn_namedbit AllowedSubset_bits[] = {
   {  0, &hf_x509if_AllowedSubset_baseObject, -1, -1, NULL, NULL },
   {  1, &hf_x509if_AllowedSubset_oneLevel, -1, -1, NULL, NULL },
   {  2, &hf_x509if_AllowedSubset_wholeSubtree, -1, -1, NULL, NULL },
@@ -287,21 +274,16 @@ void proto_register_x509if(void) {
 
 /*--- Included file: packet-x509if-hfarr.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509if-hfarr.c                                                      */
-/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
-
     { &hf_x509if_rdnSequence,
       { "rdnSequence", "x509if.rdnSequence",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Name/rdnSequence", HFILL }},
     { &hf_x509if_RDNSequence_item,
-      { "Item[##]", "x509if.RDNSequence_item",
+      { "Item", "x509if.RDNSequence_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RDNSequence/_item", HFILL }},
     { &hf_x509if_RelativeDistinguishedName_item,
-      { "Item(##)", "x509if.RelativeDistinguishedName_item",
+      { "Item", "x509if.RelativeDistinguishedName_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "RelativeDistinguishedName/_item", HFILL }},
     { &hf_x509if_AllowedSubset_baseObject,
@@ -326,11 +308,6 @@ void proto_register_x509if(void) {
     &ett_x509if_Attribute,
 
 /*--- Included file: packet-x509if-ettarr.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509if-ettarr.c                                                     */
-/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
     &ett_x509if_Name,
     &ett_x509if_RDNSequence,

@@ -1,15 +1,14 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-pkcs1.c                                                             */
+/* ./packet-pkcs1.c                                                           */
 /* ../../tools/asn2eth.py -X -b -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
 
 /* Input file: packet-pkcs1-template.c */
-/* Include files: packet-pkcs1-hf.c, packet-pkcs1-ett.c, packet-pkcs1-fn.c, packet-pkcs1-hfarr.c, packet-pkcs1-ettarr.c, packet-pkcs1-val.h */
 
 /* packet-pkcs1.c
  * Routines for PKCS#1/RFC2313 packet dissection
  *
- * $Id: packet-pkcs1-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id: packet-pkcs1-template.c 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,11 +52,6 @@ static int proto_pkcs1 = -1;
 
 /*--- Included file: packet-pkcs1-hf.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-pkcs1-hf.c                                                          */
-/* ../../tools/asn2eth.py -X -b -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
-
 static int hf_pkcs1_modulus = -1;                 /* INTEGER */
 static int hf_pkcs1_publicExponent = -1;          /* INTEGER */
 static int hf_pkcs1_version = -1;                 /* Version */
@@ -77,11 +71,6 @@ static int hf_pkcs1_digest = -1;                  /* Digest */
 
 /*--- Included file: packet-pkcs1-ett.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-pkcs1-ett.c                                                         */
-/* ../../tools/asn2eth.py -X -b -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
-
 static gint ett_pkcs1_RSAPublicKey = -1;
 static gint ett_pkcs1_RSAPrivateKey = -1;
 static gint ett_pkcs1_DigestInfo = -1;
@@ -91,11 +80,6 @@ static gint ett_pkcs1_DigestInfo = -1;
 
 
 /*--- Included file: packet-pkcs1-fn.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-pkcs1-fn.c                                                          */
-/* ../../tools/asn2eth.py -X -b -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
 
 /*--- Fields for imported types ---*/
 
@@ -133,7 +117,7 @@ static int dissect_coefficient(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_coefficient);
 }
 
-static ber_sequence RSAPublicKey_sequence[] = {
+static const ber_sequence RSAPublicKey_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_modulus },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_publicExponent },
   { 0, 0, 0, NULL }
@@ -159,7 +143,7 @@ static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_pkcs1_Version(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_version);
 }
 
-static ber_sequence RSAPrivateKey_sequence[] = {
+static const ber_sequence RSAPrivateKey_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_modulus },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_publicExponent },
@@ -203,7 +187,7 @@ static int dissect_digest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_pkcs1_Digest(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_digest);
 }
 
-static ber_sequence DigestInfo_sequence[] = {
+static const ber_sequence DigestInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_digestAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digest },
   { 0, 0, 0, NULL }
@@ -228,11 +212,6 @@ void proto_register_pkcs1(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkcs1-hfarr.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-pkcs1-hfarr.c                                                       */
-/* ../../tools/asn2eth.py -X -b -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
 
     { &hf_pkcs1_modulus,
       { "modulus", "pkcs1.modulus",
@@ -287,11 +266,6 @@ void proto_register_pkcs1(void) {
   static gint *ett[] = {
 
 /*--- Included file: packet-pkcs1-ettarr.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-pkcs1-ettarr.c                                                      */
-/* ../../tools/asn2eth.py -X -b -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
 
     &ett_pkcs1_RSAPublicKey,
     &ett_pkcs1_RSAPrivateKey,

@@ -10,7 +10,7 @@
 /* packet-pkix1explicit.c
  * Routines for PKIX1Explitic packet dissection
  *
- * $Id: packet-pkix1explicit-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id: packet-pkix1explicit-template.c 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,7 +143,7 @@ static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
   return dissect_pkix1explicit_TeletexString(FALSE, tvb, offset, pinfo, tree, hf_pkix1explicit_value);
 }
 
-static ber_sequence TeletexDomainDefinedAttribute_sequence[] = {
+static const ber_sequence TeletexDomainDefinedAttribute_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_type },
   { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_value },
   { 0, 0, 0, NULL }

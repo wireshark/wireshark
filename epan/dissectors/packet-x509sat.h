@@ -1,15 +1,14 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509sat.h                                                           */
+/* ./packet-x509sat.h                                                         */
 /* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.h */
-/* Include files: packet-x509sat-exp.h, packet-x509sat-valexp.h */
 
 /* packet-x509sat.h
  * Routines for X.509 Selected Attribute Types packet dissection
  *
- * $Id: packet-x509sat-template.h,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id: packet-x509sat-template.h 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,11 +34,6 @@
 
 
 /*--- Included file: packet-x509sat-exp.h ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509sat-exp.h                                                       */
-/* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 int dissect_x509sat_UniqueIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 

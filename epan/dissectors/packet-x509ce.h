@@ -8,7 +8,7 @@
 /* packet-x509ce.h
  * Routines for X.509 Certificate Extensions packet dissection
  *
- * $Id: packet-x509ce-template.h,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id: packet-x509ce-template.h 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

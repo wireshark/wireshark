@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h248.c                                                            */
+/* ./packet-h248.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn */
 
 /* Input file: packet-h248-template.c */
@@ -836,7 +836,7 @@ static int dissect_ad_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_h248_AuthData(TRUE, tvb, offset, pinfo, tree, hf_h248_ad);
 }
 
-static ber_sequence AuthenticationHeader_sequence[] = {
+static const ber_sequence AuthenticationHeader_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_secParmIndex_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_seqNum_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ad_impl },
@@ -920,7 +920,7 @@ static int dissect_manufacturerCode_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, pinfo, tree, hf_h248_manufacturerCode);
 }
 
-static ber_sequence IP4Address_sequence[] = {
+static const ber_sequence IP4Address_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_address_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_portNumber_impl },
   { 0, 0, 0, NULL }
@@ -949,7 +949,7 @@ static int dissect_address1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_h248_OCTET_STRING_SIZE_16(TRUE, tvb, offset, pinfo, tree, hf_h248_address1);
 }
 
-static ber_sequence IP6Address_sequence[] = {
+static const ber_sequence IP6Address_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_address1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_portNumber_impl },
   { 0, 0, 0, NULL }
@@ -982,7 +982,7 @@ static int dissect_digitMapBody_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_IA5String(TRUE, tvb, offset, pinfo, tree, hf_h248_digitMapBody);
 }
 
-static ber_sequence DomainName_sequence[] = {
+static const ber_sequence DomainName_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_name_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_portNumber_impl },
   { 0, 0, 0, NULL }
@@ -1026,7 +1026,7 @@ static const value_string MId_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice MId_choice[] = {
+static const ber_choice MId_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ip4Address_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ip6Address_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_domainName_impl },
@@ -1074,7 +1074,7 @@ static int dissect_errorText_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_h248_ErrorText(TRUE, tvb, offset, pinfo, tree, hf_h248_errorText);
 }
 
-static ber_sequence ErrorDescriptor_sequence[] = {
+static const ber_sequence ErrorDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_errorCode_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_errorText_impl },
   { 0, 0, 0, NULL }
@@ -1180,7 +1180,7 @@ static int dissect_wildcard_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_h248_WildcardField(FALSE, tvb, offset, pinfo, tree, hf_h248_wildcard_item);
 }
 
-static ber_sequence SEQUNCE_OF_WildcardField_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_WildcardField_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_wildcard_item },
 };
 
@@ -1207,7 +1207,7 @@ static int dissect_id1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_h248_OCTET_STRING_SIZE_1_8(TRUE, tvb, offset, pinfo, tree, hf_h248_id1);
 }
 
-static ber_sequence TerminationID_sequence[] = {
+static const ber_sequence TerminationID_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_wildcard_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_id1_impl },
   { 0, 0, 0, NULL }
@@ -1267,7 +1267,7 @@ static int dissect_streamID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_h248_StreamID(TRUE, tvb, offset, pinfo, tree, hf_h248_streamID);
 }
 
-static ber_sequence TopologyRequest_sequence[] = {
+static const ber_sequence TopologyRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationFrom_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_terminationTo_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_topologyDirection_impl },
@@ -1286,7 +1286,7 @@ static int dissect_topologyReq_item(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_TopologyRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_topologyReq_item);
 }
 
-static ber_sequence SEQUNCE_OF_TopologyRequest_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_TopologyRequest_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_topologyReq_item },
 };
 
@@ -1301,7 +1301,7 @@ static int dissect_topologyReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_SEQUNCE_OF_TopologyRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_topologyReq);
 }
 
-static ber_sequence ContextRequest_sequence[] = {
+static const ber_sequence ContextRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_priority_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_emergency_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_topologyReq_impl },
@@ -1366,7 +1366,7 @@ static int dissect_serviceState_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceState);
 }
 
-static ber_sequence ContextAttrAuditRequest_sequence[] = {
+static const ber_sequence ContextAttrAuditRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_topology_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_emergency1_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_priority1_impl },
@@ -1384,7 +1384,7 @@ static int dissect_contextAttrAuditReq_impl(packet_info *pinfo, proto_tree *tree
   return dissect_h248_ContextAttrAuditRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_contextAttrAuditReq);
 }
 
-static ber_sequence TerminationIDList_sequence_of[1] = {
+static const ber_sequence TerminationIDList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_TerminationIDList_item },
 };
 
@@ -1425,7 +1425,7 @@ static int dissect_value_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_h248_PropertyID(FALSE, tvb, offset, pinfo, tree, hf_h248_value_item);
 }
 
-static ber_sequence SEQUNCE_OF_PropertyID_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_PropertyID_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_value_item },
 };
 
@@ -1467,7 +1467,7 @@ static const value_string T_extraInfo1_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice T_extraInfo1_choice[] = {
+static const ber_choice T_extraInfo1_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_relation_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_range_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_sublist_impl },
@@ -1485,7 +1485,7 @@ static int dissect_extraInfo1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_h248_T_extraInfo1(FALSE, tvb, offset, pinfo, tree, hf_h248_extraInfo1);
 }
 
-static ber_sequence PropertyParm_sequence[] = {
+static const ber_sequence PropertyParm_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_propertyName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_value1_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_extraInfo1 },
@@ -1509,7 +1509,7 @@ static int dissect_mpl_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_h248_PropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_mpl_item);
 }
 
-static ber_sequence SEQUNCE_OF_PropertyParm_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_PropertyParm_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_propertyParms_item1 },
 };
 
@@ -1564,7 +1564,7 @@ static int dissect_serviceState1_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_h248_ServiceState(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceState1);
 }
 
-static ber_sequence TerminationStateDescriptor_sequence[] = {
+static const ber_sequence TerminationStateDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_propertyParms1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventBufferControl1_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceState1_impl },
@@ -1603,7 +1603,7 @@ static int dissect_streamMode1_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_StreamMode(TRUE, tvb, offset, pinfo, tree, hf_h248_streamMode1);
 }
 
-static ber_sequence LocalControlDescriptor_sequence[] = {
+static const ber_sequence LocalControlDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamMode1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reserveValue1_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reserveGroup1_impl },
@@ -1622,7 +1622,7 @@ static int dissect_localControlDescriptor1_impl(packet_info *pinfo, proto_tree *
   return dissect_h248_LocalControlDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_localControlDescriptor1);
 }
 
-static ber_sequence PropertyGroup_sequence_of[1] = {
+static const ber_sequence PropertyGroup_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PropertyGroup_item },
 };
 
@@ -1637,7 +1637,7 @@ static int dissect_propGrps_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_h248_PropertyGroup(FALSE, tvb, offset, pinfo, tree, hf_h248_propGrps_item);
 }
 
-static ber_sequence SEQUNCE_OF_PropertyGroup_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_PropertyGroup_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_propGrps_item },
 };
 
@@ -1652,7 +1652,7 @@ static int dissect_propGrps1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_h248_SEQUNCE_OF_PropertyGroup(TRUE, tvb, offset, pinfo, tree, hf_h248_propGrps1);
 }
 
-static ber_sequence LocalRemoteDescriptor_sequence[] = {
+static const ber_sequence LocalRemoteDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_propGrps1_impl },
   { 0, 0, 0, NULL }
 };
@@ -1671,7 +1671,7 @@ static int dissect_remoteDescriptor1_impl(packet_info *pinfo, proto_tree *tree, 
   return dissect_h248_LocalRemoteDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_remoteDescriptor1);
 }
 
-static ber_sequence StreamParms_sequence[] = {
+static const ber_sequence StreamParms_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_localControlDescriptor1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_localDescriptor1_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_remoteDescriptor1_impl },
@@ -1692,7 +1692,7 @@ static int dissect_streamParms1_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_StreamParms(TRUE, tvb, offset, pinfo, tree, hf_h248_streamParms1);
 }
 
-static ber_sequence StreamDescriptor_sequence[] = {
+static const ber_sequence StreamDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_streamParms1_impl },
   { 0, 0, 0, NULL }
@@ -1709,7 +1709,7 @@ static int dissect_multiStream_item1(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_StreamDescriptor(FALSE, tvb, offset, pinfo, tree, hf_h248_multiStream_item1);
 }
 
-static ber_sequence SEQUNCE_OF_StreamDescriptor_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_StreamDescriptor_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_multiStream_item1 },
 };
 
@@ -1731,7 +1731,7 @@ static const value_string T_streams1_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice T_streams1_choice[] = {
+static const ber_choice T_streams1_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_oneStream1_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_multiStream1_impl },
   { 0, 0, 0, 0, NULL }
@@ -1748,7 +1748,7 @@ static int dissect_streams1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_h248_T_streams1(FALSE, tvb, offset, pinfo, tree, hf_h248_streams1);
 }
 
-static ber_sequence MediaDescriptor_sequence[] = {
+static const ber_sequence MediaDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_termStateDescr1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_streams1 },
   { 0, 0, 0, NULL }
@@ -1790,7 +1790,7 @@ static int dissect_mtl_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_h248_ModemType(FALSE, tvb, offset, pinfo, tree, hf_h248_mtl_item);
 }
 
-static ber_sequence SEQUNCE_OF_ModemType_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_ModemType_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_mtl_item },
 };
 
@@ -1835,7 +1835,7 @@ static int dissect_t35Extension_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_INTEGER_0_255(TRUE, tvb, offset, pinfo, tree, hf_h248_t35Extension);
 }
 
-static ber_sequence H221NonStandard_sequence[] = {
+static const ber_sequence H221NonStandard_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_t35CountryCode1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_t35CountryCode2_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_t35Extension_impl },
@@ -1881,7 +1881,7 @@ static const value_string NonStandardIdentifier_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice NonStandardIdentifier_choice[] = {
+static const ber_choice NonStandardIdentifier_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_object_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_h221NonStandard_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_experimental_impl },
@@ -1914,7 +1914,7 @@ static int dissect_Value_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_h248_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_h248_Value_item);
 }
 
-static ber_sequence NonStandardData_sequence[] = {
+static const ber_sequence NonStandardData_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_nonStandardIdentifier },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_data_impl },
   { 0, 0, 0, NULL }
@@ -1931,7 +1931,7 @@ static int dissect_nonStandardData_impl(packet_info *pinfo, proto_tree *tree, tv
   return dissect_h248_NonStandardData(TRUE, tvb, offset, pinfo, tree, hf_h248_nonStandardData);
 }
 
-static ber_sequence ModemDescriptor_sequence[] = {
+static const ber_sequence ModemDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mtl_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mpl_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nonStandardData_impl },
@@ -1970,7 +1970,7 @@ static int dissect_muxType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_h248_MuxType(TRUE, tvb, offset, pinfo, tree, hf_h248_muxType);
 }
 
-static ber_sequence SEQUNCE_OF_TerminationID_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_TerminationID_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_termList_item },
 };
 
@@ -1985,7 +1985,7 @@ static int dissect_termList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_h248_SEQUNCE_OF_TerminationID(TRUE, tvb, offset, pinfo, tree, hf_h248_termList);
 }
 
-static ber_sequence MuxDescriptor_sequence[] = {
+static const ber_sequence MuxDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_muxType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_termList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nonStandardData_impl },
@@ -2047,7 +2047,7 @@ static int dissect_digitMapName_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_DigitMapName(TRUE, tvb, offset, pinfo, tree, hf_h248_digitMapName);
 }
 
-static ber_sequence DigitMapValue_sequence[] = {
+static const ber_sequence DigitMapValue_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_startTimer_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_shortTimer_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_longTimer_impl },
@@ -2074,7 +2074,7 @@ static const value_string EventDM_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice EventDM_choice[] = {
+static const ber_choice EventDM_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_digitMapName_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_digitMapValue_impl },
   { 0, 0, 0, 0, NULL }
@@ -2121,7 +2121,7 @@ static int dissect_sigType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_h248_SignalType(TRUE, tvb, offset, pinfo, tree, hf_h248_sigType);
 }
 
-static asn_namedbit NotifyCompletion_bits[] = {
+static const asn_namedbit NotifyCompletion_bits[] = {
   {  0, &hf_h248_NotifyCompletion_onTimeOut, -1, -1, NULL, NULL },
   {  1, &hf_h248_NotifyCompletion_onInterruptByEvent, -1, -1, NULL, NULL },
   {  2, &hf_h248_NotifyCompletion_onInterruptByNewSignalDescr, -1, -1, NULL, NULL },
@@ -2141,7 +2141,7 @@ static int dissect_notifyCompletion_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_h248_NotifyCompletion(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyCompletion);
 }
 
-static ber_sequence Value_sequence_of[1] = {
+static const ber_sequence Value_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_Value_item },
 };
 
@@ -2170,7 +2170,7 @@ static const value_string T_extraInfo2_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice T_extraInfo2_choice[] = {
+static const ber_choice T_extraInfo2_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_relation_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_range_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_sublist_impl },
@@ -2188,7 +2188,7 @@ static int dissect_extraInfo2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_h248_T_extraInfo2(FALSE, tvb, offset, pinfo, tree, hf_h248_extraInfo2);
 }
 
-static ber_sequence SigParameter_sequence[] = {
+static const ber_sequence SigParameter_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sigParameterName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_value_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_extraInfo2 },
@@ -2206,7 +2206,7 @@ static int dissect_sigParList_item(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_SigParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_sigParList_item);
 }
 
-static ber_sequence SEQUNCE_OF_SigParameter_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_SigParameter_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_sigParList_item },
 };
 
@@ -2221,7 +2221,7 @@ static int dissect_sigParList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_SEQUNCE_OF_SigParameter(TRUE, tvb, offset, pinfo, tree, hf_h248_sigParList);
 }
 
-static ber_sequence Signal_sequence[] = {
+static const ber_sequence Signal_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_signalName1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sigType_impl },
@@ -2246,7 +2246,7 @@ static int dissect_signalList_item(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_Signal(FALSE, tvb, offset, pinfo, tree, hf_h248_signalList_item);
 }
 
-static ber_sequence SEQUNCE_OF_Signal_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_Signal_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signalList_item },
 };
 
@@ -2261,7 +2261,7 @@ static int dissect_signalList1_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_SEQUNCE_OF_Signal(TRUE, tvb, offset, pinfo, tree, hf_h248_signalList1);
 }
 
-static ber_sequence SeqSigList_sequence[] = {
+static const ber_sequence SeqSigList_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_id_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_signalList1_impl },
   { 0, 0, 0, NULL }
@@ -2285,7 +2285,7 @@ static const value_string SignalRequest_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice SignalRequest_choice[] = {
+static const ber_choice SignalRequest_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_signal1_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_seqSigList1_impl },
   { 0, 0, 0, 0, NULL }
@@ -2302,7 +2302,7 @@ static int dissect_SignalsDescriptor_item(packet_info *pinfo, proto_tree *tree, 
   return dissect_h248_SignalRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_SignalsDescriptor_item);
 }
 
-static ber_sequence SignalsDescriptor_sequence_of[1] = {
+static const ber_sequence SignalsDescriptor_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_SignalsDescriptor_item },
 };
 
@@ -2317,7 +2317,7 @@ static int dissect_signalsDescriptor_impl(packet_info *pinfo, proto_tree *tree, 
   return dissect_h248_SignalsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_signalsDescriptor);
 }
 
-static ber_sequence SecondRequestedActions_sequence[] = {
+static const ber_sequence SecondRequestedActions_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_keepActive_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_eventDM },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalsDescriptor_impl },
@@ -2343,7 +2343,7 @@ static const value_string T_extraInfo_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice T_extraInfo_choice[] = {
+static const ber_choice T_extraInfo_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_relation_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_range_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_sublist_impl },
@@ -2361,7 +2361,7 @@ static int dissect_extraInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_h248_T_extraInfo(FALSE, tvb, offset, pinfo, tree, hf_h248_extraInfo);
 }
 
-static ber_sequence EventParameter_sequence[] = {
+static const ber_sequence EventParameter_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventParameterName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_value_impl },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extraInfo },
@@ -2382,7 +2382,7 @@ static int dissect_evParList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_h248_EventParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_evParList_item);
 }
 
-static ber_sequence SEQUNCE_OF_EventParameter_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_EventParameter_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_eventParList_item },
 };
 
@@ -2400,7 +2400,7 @@ static int dissect_evParList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_h248_SEQUNCE_OF_EventParameter(TRUE, tvb, offset, pinfo, tree, hf_h248_evParList);
 }
 
-static ber_sequence SecondRequestedEvent_sequence[] = {
+static const ber_sequence SecondRequestedEvent_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkgdName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventAction1_impl },
@@ -2419,7 +2419,7 @@ static int dissect_eventList_item1(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_SecondRequestedEvent(FALSE, tvb, offset, pinfo, tree, hf_h248_eventList_item1);
 }
 
-static ber_sequence SEQUNCE_OF_SecondRequestedEvent_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_SecondRequestedEvent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_eventList_item1 },
 };
 
@@ -2434,7 +2434,7 @@ static int dissect_eventList1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_SEQUNCE_OF_SecondRequestedEvent(TRUE, tvb, offset, pinfo, tree, hf_h248_eventList1);
 }
 
-static ber_sequence SecondEventsDescriptor_sequence[] = {
+static const ber_sequence SecondEventsDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_requestID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_eventList1_impl },
   { 0, 0, 0, NULL }
@@ -2451,7 +2451,7 @@ static int dissect_secondEvent_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_SecondEventsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_secondEvent);
 }
 
-static ber_sequence RequestedActions_sequence[] = {
+static const ber_sequence RequestedActions_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_keepActive_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_eventDM },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_secondEvent_impl },
@@ -2470,7 +2470,7 @@ static int dissect_eventAction_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_RequestedActions(TRUE, tvb, offset, pinfo, tree, hf_h248_eventAction);
 }
 
-static ber_sequence RequestedEvent_sequence[] = {
+static const ber_sequence RequestedEvent_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkgdName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventAction_impl },
@@ -2489,7 +2489,7 @@ static int dissect_eventList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_h248_RequestedEvent(FALSE, tvb, offset, pinfo, tree, hf_h248_eventList_item);
 }
 
-static ber_sequence SEQUNCE_OF_RequestedEvent_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_RequestedEvent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_eventList_item },
 };
 
@@ -2504,7 +2504,7 @@ static int dissect_eventList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_h248_SEQUNCE_OF_RequestedEvent(TRUE, tvb, offset, pinfo, tree, hf_h248_eventList);
 }
 
-static ber_sequence EventsDescriptor_sequence[] = {
+static const ber_sequence EventsDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_requestID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_eventList_impl },
   { 0, 0, 0, NULL }
@@ -2532,7 +2532,7 @@ static int dissect_eventName1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_EventName(TRUE, tvb, offset, pinfo, tree, hf_h248_eventName1);
 }
 
-static ber_sequence EventSpec_sequence[] = {
+static const ber_sequence EventSpec_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventName1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_eventParList_impl },
@@ -2550,7 +2550,7 @@ static int dissect_EventBufferDescriptor_item(packet_info *pinfo, proto_tree *tr
   return dissect_h248_EventSpec(FALSE, tvb, offset, pinfo, tree, hf_h248_EventBufferDescriptor_item);
 }
 
-static ber_sequence EventBufferDescriptor_sequence_of[1] = {
+static const ber_sequence EventBufferDescriptor_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_EventBufferDescriptor_item },
 };
 
@@ -2565,7 +2565,7 @@ static int dissect_eventBufferDescriptor_impl(packet_info *pinfo, proto_tree *tr
   return dissect_h248_EventBufferDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_eventBufferDescriptor);
 }
 
-static ber_sequence DigitMapDescriptor_sequence[] = {
+static const ber_sequence DigitMapDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digitMapName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digitMapValue_impl },
   { 0, 0, 0, NULL }
@@ -2582,7 +2582,7 @@ static int dissect_digitMapDescriptor_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_DigitMapDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_digitMapDescriptor);
 }
 
-static asn_namedbit T_auditToken_bits[] = {
+static const asn_namedbit T_auditToken_bits[] = {
   {  0, &hf_h248_T_auditToken_muxToken, -1, -1, NULL, NULL },
   {  1, &hf_h248_T_auditToken_modemToken, -1, -1, NULL, NULL },
   {  2, &hf_h248_T_auditToken_mediaToken, -1, -1, NULL, NULL },
@@ -2608,7 +2608,7 @@ static int dissect_auditToken_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_T_auditToken(TRUE, tvb, offset, pinfo, tree, hf_h248_auditToken);
 }
 
-static ber_sequence IndAudPropertyParm_sequence[] = {
+static const ber_sequence IndAudPropertyParm_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_name1_impl },
   { 0, 0, 0, NULL }
 };
@@ -2627,7 +2627,7 @@ static int dissect_IndAudPropertyGroup_item(packet_info *pinfo, proto_tree *tree
   return dissect_h248_IndAudPropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_IndAudPropertyGroup_item);
 }
 
-static ber_sequence SEQUNCE_OF_IndAudPropertyParm_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_IndAudPropertyParm_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_propertyParms_item },
 };
 
@@ -2642,7 +2642,7 @@ static int dissect_propertyParms_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_h248_SEQUNCE_OF_IndAudPropertyParm(TRUE, tvb, offset, pinfo, tree, hf_h248_propertyParms);
 }
 
-static ber_sequence IndAudTerminationStateDescriptor_sequence[] = {
+static const ber_sequence IndAudTerminationStateDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_propertyParms_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventBufferControl_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceState_impl },
@@ -2660,7 +2660,7 @@ static int dissect_termStateDescr_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_h248_IndAudTerminationStateDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_termStateDescr);
 }
 
-static ber_sequence IndAudLocalControlDescriptor_sequence[] = {
+static const ber_sequence IndAudLocalControlDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamMode_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reserveValue_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reserveGroup_impl },
@@ -2679,7 +2679,7 @@ static int dissect_localControlDescriptor_impl(packet_info *pinfo, proto_tree *t
   return dissect_h248_IndAudLocalControlDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_localControlDescriptor);
 }
 
-static ber_sequence IndAudPropertyGroup_sequence_of[1] = {
+static const ber_sequence IndAudPropertyGroup_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_IndAudPropertyGroup_item },
 };
 
@@ -2694,7 +2694,7 @@ static int dissect_propGrps_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_h248_IndAudPropertyGroup(TRUE, tvb, offset, pinfo, tree, hf_h248_propGrps);
 }
 
-static ber_sequence IndAudLocalRemoteDescriptor_sequence[] = {
+static const ber_sequence IndAudLocalRemoteDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_propGroupID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_propGrps_impl },
   { 0, 0, 0, NULL }
@@ -2714,7 +2714,7 @@ static int dissect_remoteDescriptor_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_h248_IndAudLocalRemoteDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_remoteDescriptor);
 }
 
-static ber_sequence IndAudStreamParms_sequence[] = {
+static const ber_sequence IndAudStreamParms_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_localControlDescriptor_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_localDescriptor_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_remoteDescriptor_impl },
@@ -2735,7 +2735,7 @@ static int dissect_streamParms_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_IndAudStreamParms(TRUE, tvb, offset, pinfo, tree, hf_h248_streamParms);
 }
 
-static ber_sequence IndAudStreamDescriptor_sequence[] = {
+static const ber_sequence IndAudStreamDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_streamParms_impl },
   { 0, 0, 0, NULL }
@@ -2752,7 +2752,7 @@ static int dissect_multiStream_item(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_IndAudStreamDescriptor(FALSE, tvb, offset, pinfo, tree, hf_h248_multiStream_item);
 }
 
-static ber_sequence SEQUNCE_OF_IndAudStreamDescriptor_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_IndAudStreamDescriptor_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_multiStream_item },
 };
 
@@ -2774,7 +2774,7 @@ static const value_string T_streams_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice T_streams_choice[] = {
+static const ber_choice T_streams_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_oneStream_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_multiStream_impl },
   { 0, 0, 0, 0, NULL }
@@ -2791,7 +2791,7 @@ static int dissect_streams(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_h248_T_streams(FALSE, tvb, offset, pinfo, tree, hf_h248_streams);
 }
 
-static ber_sequence IndAudMediaDescriptor_sequence[] = {
+static const ber_sequence IndAudMediaDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_termStateDescr_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_streams },
   { 0, 0, 0, NULL }
@@ -2808,7 +2808,7 @@ static int dissect_indaudmediaDescriptor_impl(packet_info *pinfo, proto_tree *tr
   return dissect_h248_IndAudMediaDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudmediaDescriptor);
 }
 
-static ber_sequence IndAudEventsDescriptor_sequence[] = {
+static const ber_sequence IndAudEventsDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_requestID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_pkgdName_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
@@ -2826,7 +2826,7 @@ static int dissect_indaudeventsDescriptor_impl(packet_info *pinfo, proto_tree *t
   return dissect_h248_IndAudEventsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudeventsDescriptor);
 }
 
-static ber_sequence IndAudEventBufferDescriptor_sequence[] = {
+static const ber_sequence IndAudEventBufferDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { 0, 0, 0, NULL }
@@ -2843,7 +2843,7 @@ static int dissect_indaudeventBufferDescriptor_impl(packet_info *pinfo, proto_tr
   return dissect_h248_IndAudEventBufferDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudeventBufferDescriptor);
 }
 
-static ber_sequence IndAudSignal_sequence[] = {
+static const ber_sequence IndAudSignal_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_signalName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { 0, 0, 0, NULL }
@@ -2863,7 +2863,7 @@ static int dissect_signalList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_IndAudSignal(TRUE, tvb, offset, pinfo, tree, hf_h248_signalList);
 }
 
-static ber_sequence IndAudSeqSigList_sequence[] = {
+static const ber_sequence IndAudSeqSigList_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_id_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalList_impl },
   { 0, 0, 0, NULL }
@@ -2887,7 +2887,7 @@ static const value_string IndAudSignalsDescriptor_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice IndAudSignalsDescriptor_choice[] = {
+static const ber_choice IndAudSignalsDescriptor_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_signal_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_seqSigList_impl },
   { 0, 0, 0, 0, NULL }
@@ -2904,7 +2904,7 @@ static int dissect_indaudsignalsDescriptor(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_IndAudSignalsDescriptor(FALSE, tvb, offset, pinfo, tree, hf_h248_indaudsignalsDescriptor);
 }
 
-static ber_sequence IndAudDigitMapDescriptor_sequence[] = {
+static const ber_sequence IndAudDigitMapDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digitMapName_impl },
   { 0, 0, 0, NULL }
 };
@@ -2920,7 +2920,7 @@ static int dissect_indauddigitMapDescriptor_impl(packet_info *pinfo, proto_tree 
   return dissect_h248_IndAudDigitMapDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indauddigitMapDescriptor);
 }
 
-static ber_sequence IndAudStatisticsDescriptor_sequence[] = {
+static const ber_sequence IndAudStatisticsDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_statName_impl },
   { 0, 0, 0, NULL }
 };
@@ -2936,7 +2936,7 @@ static int dissect_indaudstatisticsDescriptor_impl(packet_info *pinfo, proto_tre
   return dissect_h248_IndAudStatisticsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudstatisticsDescriptor);
 }
 
-static ber_sequence IndAudPackagesDescriptor_sequence[] = {
+static const ber_sequence IndAudPackagesDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_packageName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_packageVersion_impl },
   { 0, 0, 0, NULL }
@@ -2965,7 +2965,7 @@ static const value_string IndAuditParameter_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice IndAuditParameter_choice[] = {
+static const ber_choice IndAuditParameter_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_indaudmediaDescriptor_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_indaudeventsDescriptor_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_indaudeventBufferDescriptor_impl },
@@ -2987,7 +2987,7 @@ static int dissect_auditPropertyToken_item(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_IndAuditParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_auditPropertyToken_item);
 }
 
-static ber_sequence SEQUNCE_OF_IndAuditParameter_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_IndAuditParameter_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_auditPropertyToken_item },
 };
 
@@ -3002,7 +3002,7 @@ static int dissect_auditPropertyToken_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_SEQUNCE_OF_IndAuditParameter(TRUE, tvb, offset, pinfo, tree, hf_h248_auditPropertyToken);
 }
 
-static ber_sequence AuditDescriptor_sequence[] = {
+static const ber_sequence AuditDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_auditToken_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_auditPropertyToken_impl },
   { 0, 0, 0, NULL }
@@ -3038,7 +3038,7 @@ static const value_string AmmDescriptor_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice AmmDescriptor_choice[] = {
+static const ber_choice AmmDescriptor_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mediaDescriptor_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_modemDescriptor_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_muxDescriptor_impl },
@@ -3061,7 +3061,7 @@ static int dissect_descriptors_item(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_AmmDescriptor(FALSE, tvb, offset, pinfo, tree, hf_h248_descriptors_item);
 }
 
-static ber_sequence SEQUNCE_OF_AmmDescriptor_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_AmmDescriptor_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_descriptors_item },
 };
 
@@ -3076,7 +3076,7 @@ static int dissect_descriptors_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_SEQUNCE_OF_AmmDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_descriptors);
 }
 
-static ber_sequence AmmRequest_sequence[] = {
+static const ber_sequence AmmRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_descriptors_impl },
   { 0, 0, 0, NULL }
@@ -3099,7 +3099,7 @@ static int dissect_modReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_h248_AmmRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_modReq);
 }
 
-static ber_sequence SubtractRequest_sequence[] = {
+static const ber_sequence SubtractRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_auditDescriptor_impl },
   { 0, 0, 0, NULL }
@@ -3116,7 +3116,7 @@ static int dissect_subtractReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_SubtractRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_subtractReq);
 }
 
-static ber_sequence AuditRequest_sequence[] = {
+static const ber_sequence AuditRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationID1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_auditDescriptor_impl },
   { 0, 0, 0, NULL }
@@ -3136,7 +3136,7 @@ static int dissect_auditValueRequest_impl(packet_info *pinfo, proto_tree *tree, 
   return dissect_h248_AuditRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_auditValueRequest);
 }
 
-static ber_sequence TimeNotation_sequence[] = {
+static const ber_sequence TimeNotation_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_date_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_time_impl },
   { 0, 0, 0, NULL }
@@ -3159,7 +3159,7 @@ static int dissect_timestamp_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_h248_TimeNotation(TRUE, tvb, offset, pinfo, tree, hf_h248_timestamp);
 }
 
-static ber_sequence ObservedEvent_sequence[] = {
+static const ber_sequence ObservedEvent_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventName1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_eventParList_impl },
@@ -3178,7 +3178,7 @@ static int dissect_observedEventLst_item(packet_info *pinfo, proto_tree *tree, t
   return dissect_h248_ObservedEvent(FALSE, tvb, offset, pinfo, tree, hf_h248_observedEventLst_item);
 }
 
-static ber_sequence SEQUNCE_OF_ObservedEvent_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_ObservedEvent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_observedEventLst_item },
 };
 
@@ -3193,7 +3193,7 @@ static int dissect_observedEventLst_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_h248_SEQUNCE_OF_ObservedEvent(TRUE, tvb, offset, pinfo, tree, hf_h248_observedEventLst);
 }
 
-static ber_sequence ObservedEventsDescriptor_sequence[] = {
+static const ber_sequence ObservedEventsDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestId_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_observedEventLst_impl },
   { 0, 0, 0, NULL }
@@ -3210,7 +3210,7 @@ static int dissect_observedEventsDescriptor_impl(packet_info *pinfo, proto_tree 
   return dissect_h248_ObservedEventsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_observedEventsDescriptor);
 }
 
-static ber_sequence NotifyRequest_sequence[] = {
+static const ber_sequence NotifyRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_observedEventsDescriptor_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_errorDescriptor_impl },
@@ -3273,7 +3273,7 @@ static const value_string ServiceChangeAddress_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice ServiceChangeAddress_choice[] = {
+static const ber_choice ServiceChangeAddress_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_portNumber_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ip4Address_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ip6Address_impl },
@@ -3307,7 +3307,7 @@ static int dissect_profileName_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_IA5String_SIZE_1_67(TRUE, tvb, offset, pinfo, tree, hf_h248_profileName);
 }
 
-static ber_sequence ServiceChangeProfile_sequence[] = {
+static const ber_sequence ServiceChangeProfile_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_profileName_impl },
   { 0, 0, 0, NULL }
 };
@@ -3335,7 +3335,7 @@ static int dissect_serviceChangeDelay_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_INTEGER_0_4294967295(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeDelay);
 }
 
-static ber_sequence ServiceChangeParm_sequence[] = {
+static const ber_sequence ServiceChangeParm_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_serviceChangeMethod_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_serviceChangeAddress },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceChangeVersion_impl },
@@ -3360,7 +3360,7 @@ static int dissect_serviceChangeParms_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_ServiceChangeParm(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeParms);
 }
 
-static ber_sequence ServiceChangeRequest_sequence[] = {
+static const ber_sequence ServiceChangeRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_serviceChangeParms_impl },
   { 0, 0, 0, NULL }
@@ -3390,7 +3390,7 @@ static const value_string Command_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice Command_choice[] = {
+static const ber_choice Command_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_addReq_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_moveReq_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_modReq_impl },
@@ -3413,7 +3413,7 @@ static int dissect_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_h248_Command(FALSE, tvb, offset, pinfo, tree, hf_h248_command);
 }
 
-static ber_sequence CommandRequest_sequence[] = {
+static const ber_sequence CommandRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_command },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_optional_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_wildcardReturn_impl },
@@ -3431,7 +3431,7 @@ static int dissect_commandRequests_item(packet_info *pinfo, proto_tree *tree, tv
   return dissect_h248_CommandRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_commandRequests_item);
 }
 
-static ber_sequence SEQUNCE_OF_CommandRequest_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_CommandRequest_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_commandRequests_item },
 };
 
@@ -3446,7 +3446,7 @@ static int dissect_commandRequests_impl(packet_info *pinfo, proto_tree *tree, tv
   return dissect_h248_SEQUNCE_OF_CommandRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_commandRequests);
 }
 
-static ber_sequence ActionRequest_sequence[] = {
+static const ber_sequence ActionRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_contextId_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_contextRequest_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_contextAttrAuditReq_impl },
@@ -3465,7 +3465,7 @@ static int dissect_actions_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_h248_ActionRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_actions_item);
 }
 
-static ber_sequence SEQUNCE_OF_ActionRequest_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_ActionRequest_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actions_item },
 };
 
@@ -3480,7 +3480,7 @@ static int dissect_actions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_h248_SEQUNCE_OF_ActionRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_actions);
 }
 
-static ber_sequence TransactionRequest_sequence[] = {
+static const ber_sequence TransactionRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transactionId_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_actions_impl },
   { 0, 0, 0, NULL }
@@ -3497,7 +3497,7 @@ static int dissect_transactionRequest_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_TransactionRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionRequest);
 }
 
-static ber_sequence TransactionPending_sequence[] = {
+static const ber_sequence TransactionPending_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transactionId_impl },
   { 0, 0, 0, NULL }
 };
@@ -3513,7 +3513,7 @@ static int dissect_transactionPending_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_TransactionPending(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionPending);
 }
 
-static ber_sequence StatisticsParameter_sequence[] = {
+static const ber_sequence StatisticsParameter_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_statName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_statValue_impl },
   { 0, 0, 0, NULL }
@@ -3530,7 +3530,7 @@ static int dissect_StatisticsDescriptor_item(packet_info *pinfo, proto_tree *tre
   return dissect_h248_StatisticsParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_StatisticsDescriptor_item);
 }
 
-static ber_sequence StatisticsDescriptor_sequence_of[1] = {
+static const ber_sequence StatisticsDescriptor_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_StatisticsDescriptor_item },
 };
 
@@ -3545,7 +3545,7 @@ static int dissect_statisticsDescriptor_impl(packet_info *pinfo, proto_tree *tre
   return dissect_h248_StatisticsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_statisticsDescriptor);
 }
 
-static ber_sequence PackagesItem_sequence[] = {
+static const ber_sequence PackagesItem_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_packageName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_packageVersion_impl },
   { 0, 0, 0, NULL }
@@ -3562,7 +3562,7 @@ static int dissect_PackagesDescriptor_item(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_PackagesItem(FALSE, tvb, offset, pinfo, tree, hf_h248_PackagesDescriptor_item);
 }
 
-static ber_sequence PackagesDescriptor_sequence_of[1] = {
+static const ber_sequence PackagesDescriptor_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PackagesDescriptor_item },
 };
 
@@ -3594,7 +3594,7 @@ static const value_string AuditReturnParameter_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice AuditReturnParameter_choice[] = {
+static const ber_choice AuditReturnParameter_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_errorDescriptor_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mediaDescriptor_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_modemDescriptor_impl },
@@ -3621,7 +3621,7 @@ static int dissect_TerminationAudit_item(packet_info *pinfo, proto_tree *tree, t
   return dissect_h248_AuditReturnParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_TerminationAudit_item);
 }
 
-static ber_sequence TerminationAudit_sequence_of[1] = {
+static const ber_sequence TerminationAudit_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_TerminationAudit_item },
 };
 
@@ -3639,7 +3639,7 @@ static int dissect_terminationAuditResult_impl(packet_info *pinfo, proto_tree *t
   return dissect_h248_TerminationAudit(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationAuditResult);
 }
 
-static ber_sequence AmmsReply_sequence[] = {
+static const ber_sequence AmmsReply_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationAudit_impl },
   { 0, 0, 0, NULL }
@@ -3665,7 +3665,7 @@ static int dissect_subtractReply_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_h248_AmmsReply(TRUE, tvb, offset, pinfo, tree, hf_h248_subtractReply);
 }
 
-static ber_sequence AuditResult_sequence[] = {
+static const ber_sequence AuditResult_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationID1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_terminationAuditResult_impl },
   { 0, 0, 0, NULL }
@@ -3690,7 +3690,7 @@ static const value_string AuditReply_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice AuditReply_choice[] = {
+static const ber_choice AuditReply_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_contextAuditResult_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_error_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_auditResult_impl },
@@ -3711,7 +3711,7 @@ static int dissect_auditValueReply(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_AuditReply(FALSE, tvb, offset, pinfo, tree, hf_h248_auditValueReply);
 }
 
-static ber_sequence NotifyReply_sequence[] = {
+static const ber_sequence NotifyReply_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_errorDescriptor_impl },
   { 0, 0, 0, NULL }
@@ -3728,7 +3728,7 @@ static int dissect_notifyReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_h248_NotifyReply(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyReply);
 }
 
-static ber_sequence ServiceChangeResParm_sequence[] = {
+static const ber_sequence ServiceChangeResParm_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_serviceChangeMgcId },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_serviceChangeAddress },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceChangeVersion_impl },
@@ -3755,7 +3755,7 @@ static const value_string ServiceChangeResult_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice ServiceChangeResult_choice[] = {
+static const ber_choice ServiceChangeResult_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_errorDescriptor_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_serviceChangeResParms_impl },
   { 0, 0, 0, 0, NULL }
@@ -3772,7 +3772,7 @@ static int dissect_serviceChangeResult(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_h248_ServiceChangeResult(FALSE, tvb, offset, pinfo, tree, hf_h248_serviceChangeResult);
 }
 
-static ber_sequence ServiceChangeReply_sequence[] = {
+static const ber_sequence ServiceChangeReply_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_terminationID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_serviceChangeResult },
   { 0, 0, 0, NULL }
@@ -3802,7 +3802,7 @@ static const value_string CommandReply_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice CommandReply_choice[] = {
+static const ber_choice CommandReply_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_addReply_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_moveReply_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_modReply_impl },
@@ -3825,7 +3825,7 @@ static int dissect_commandReply_item(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_CommandReply(FALSE, tvb, offset, pinfo, tree, hf_h248_commandReply_item);
 }
 
-static ber_sequence SEQUNCE_OF_CommandReply_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_CommandReply_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_commandReply_item },
 };
 
@@ -3840,7 +3840,7 @@ static int dissect_commandReply_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_SEQUNCE_OF_CommandReply(TRUE, tvb, offset, pinfo, tree, hf_h248_commandReply);
 }
 
-static ber_sequence ActionReply_sequence[] = {
+static const ber_sequence ActionReply_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_contextId_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_errorDescriptor_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_contextReply_impl },
@@ -3859,7 +3859,7 @@ static int dissect_actionReplies_item(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_h248_ActionReply(FALSE, tvb, offset, pinfo, tree, hf_h248_actionReplies_item);
 }
 
-static ber_sequence SEQUNCE_OF_ActionReply_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_ActionReply_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actionReplies_item },
 };
 
@@ -3881,7 +3881,7 @@ static const value_string T_transactionResult_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice T_transactionResult_choice[] = {
+static const ber_choice T_transactionResult_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transactionError_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_actionReplies_impl },
   { 0, 0, 0, 0, NULL }
@@ -3898,7 +3898,7 @@ static int dissect_transactionResult(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_T_transactionResult(FALSE, tvb, offset, pinfo, tree, hf_h248_transactionResult);
 }
 
-static ber_sequence TransactionReply_sequence[] = {
+static const ber_sequence TransactionReply_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transactionId_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_immAckRequired_impl },
   { BER_CLASS_CON, 2, 0, dissect_transactionResult },
@@ -3916,7 +3916,7 @@ static int dissect_transactionReply_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_h248_TransactionReply(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionReply);
 }
 
-static ber_sequence TransactionAck_sequence[] = {
+static const ber_sequence TransactionAck_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_firstAck_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lastAck_impl },
   { 0, 0, 0, NULL }
@@ -3933,7 +3933,7 @@ static int dissect_TransactionResponseAck_item(packet_info *pinfo, proto_tree *t
   return dissect_h248_TransactionAck(FALSE, tvb, offset, pinfo, tree, hf_h248_TransactionResponseAck_item);
 }
 
-static ber_sequence TransactionResponseAck_sequence_of[1] = {
+static const ber_sequence TransactionResponseAck_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_TransactionResponseAck_item },
 };
 
@@ -3957,7 +3957,7 @@ static const value_string Transaction_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice Transaction_choice[] = {
+static const ber_choice Transaction_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transactionRequest_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_transactionPending_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_transactionReply_impl },
@@ -3976,7 +3976,7 @@ static int dissect_transactions_item(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_Transaction(FALSE, tvb, offset, pinfo, tree, hf_h248_transactions_item);
 }
 
-static ber_sequence SEQUNCE_OF_Transaction_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_Transaction_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_transactions_item },
 };
 
@@ -3998,7 +3998,7 @@ static const value_string T_messageBody_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice T_messageBody_choice[] = {
+static const ber_choice T_messageBody_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_messageError_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_transactions_impl },
   { 0, 0, 0, 0, NULL }
@@ -4015,7 +4015,7 @@ static int dissect_messageBody(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_h248_T_messageBody(FALSE, tvb, offset, pinfo, tree, hf_h248_messageBody);
 }
 
-static ber_sequence Message_sequence[] = {
+static const ber_sequence Message_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_version_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_mId },
   { BER_CLASS_CON, 2, 0, dissect_messageBody },
@@ -4033,7 +4033,7 @@ static int dissect_mess_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_h248_Message(TRUE, tvb, offset, pinfo, tree, hf_h248_mess);
 }
 
-static ber_sequence MegacoMessage_sequence[] = {
+static const ber_sequence MegacoMessage_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authHeader_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mess_impl },
   { 0, 0, 0, NULL }
@@ -5330,9 +5330,6 @@ void proto_reg_handoff_h248(void) {
   dissector_handle_t h248_handle;
 
   h248_handle = find_dissector("h248");
-  /*
-   * Handle the dissection of Media stream properties H.248.1 Annex C in this dissector 
-   */
 
   dissector_add("m3ua.protocol_data_si", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
 }

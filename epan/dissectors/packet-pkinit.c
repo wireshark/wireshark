@@ -8,7 +8,7 @@
 /* packet-pkinit.c
  * Routines for PKINIT packet dissection
  *
- * $Id: packet-pkinit-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id: packet-pkinit-template.c 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,7 +110,7 @@ static const value_string TrustedCA_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice TrustedCA_choice[] = {
+static const ber_choice TrustedCA_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_caName },
   {   2, BER_CLASS_CON, 2, 0, dissect_issuerAndSerial },
   { 0, 0, 0, 0, NULL }
@@ -127,7 +127,7 @@ static int dissect_trustedCertifiers_item(packet_info *pinfo, proto_tree *tree, 
   return dissect_pkinit_TrustedCA(FALSE, tvb, offset, pinfo, tree, hf_pkinit_trustedCertifiers_item);
 }
 
-static ber_sequence SEQUNCE_OF_TrustedCA_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_TrustedCA_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_trustedCertifiers_item },
 };
 
@@ -142,7 +142,7 @@ static int dissect_trustedCertifiers(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_pkinit_SEQUNCE_OF_TrustedCA(FALSE, tvb, offset, pinfo, tree, hf_pkinit_trustedCertifiers);
 }
 
-static ber_sequence PaPkAsReq_sequence[] = {
+static const ber_sequence PaPkAsReq_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_signedAuthPack },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_trustedCertifiers },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_kdcCert },
@@ -164,7 +164,7 @@ static const value_string PaPkAsRep_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice PaPkAsRep_choice[] = {
+static const ber_choice PaPkAsRep_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_dhSignedData },
   {   1, BER_CLASS_CON, 1, 0, dissect_encKeyPack },
   { 0, 0, 0, 0, NULL }
@@ -212,7 +212,7 @@ void proto_register_pkinit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "PaPkAsReq/trustedCertifiers", HFILL }},
     { &hf_pkinit_trustedCertifiers_item,
-      { "Item[##]", "pkinit.trustedCertifiers_item",
+      { "Item", "pkinit.trustedCertifiers_item",
         FT_UINT32, BASE_DEC, VALS(TrustedCA_vals), 0,
         "PaPkAsReq/trustedCertifiers/_item", HFILL }},
     { &hf_pkinit_kdcCert,
