@@ -2,6 +2,8 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
+ * $Id: supported_protos_dlg.h,v 1.2 2004/02/20 22:37:50 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 2000 Gerald Combs

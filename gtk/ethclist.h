@@ -2,6 +2,8 @@
  * Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball, Josh MacDonald
  * Copyright (C) 1997-1998 Jay Painter <jpaint@serv.net><jpaint@gimp.org>
  *
+ * $Id: ethclist.h,v 1.2 2004/02/20 22:37:50 guy Exp $
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
