@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.84 2003/05/03 00:48:35 guy Exp $
+ * $Id: proto.c,v 1.85 2003/05/03 01:11:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3420,6 +3420,29 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 	g_assert(hfinfo);
 	abbrev_len = strlen(hfinfo->abbrev);
 
+	/*
+	 * XXX - we should add "val_to_string_repr" and "string_repr_len"
+	 * functions for more types, and use them whenever possible.
+	 *
+	 * The FT_UINT and FT_INT types are the only tricky ones, as
+	 * we choose the base in the string expression based on the
+	 * display base of the field.
+	 *
+	 * Note that the base does matter, as this is also used for
+	 * the protocolinfo tap.
+	 *
+	 * It might be nice to use that in "proto_item_fill_label()"
+	 * as well, although, there, you'd have to deal with the base
+	 * *and* with resolved values for addresses.
+	 *
+	 * Perhaps we need two different val_to_string routines, one
+	 * to generate items for display filters and one to generate
+	 * strings for display, and pass to both of them the
+	 * "display" and "strings" values in the header_field_info
+	 * structure for the field, so they can get the base and,
+	 * if the field is Boolean or an enumerated integer type,
+	 * the tables used to generate human-readable values.
+	 */
 	switch(hfinfo->type) {
 
 		case FT_BOOLEAN:
