@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.52 2004/03/06 11:16:19 ulfl Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.53 2004/03/06 15:55:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -543,6 +543,8 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
                      GtkWidget *range_entry)
 {
 	gboolean show_value_label = FALSE;
+	gboolean show_value_list = FALSE;
+	gboolean show_range = FALSE;
 
 	/*
 	 * Either:
@@ -567,50 +569,23 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 	 *
 	 * so we hide the value entry.
 	 */
+    show_value_list = is_comparison;
 	if (is_comparison) {
 		/*
-		 * The relation is a comparison; display the entry for
-		 * the value with which to compare.
-		 */
-        gtk_widget_set_sensitive(value_entry, TRUE);
-
-		/*
-		 * We're showing the entry; show the label as well.
+		 * If we're showing the entry; show the label as well.
 		 */
 		show_value_label = TRUE;
-	} else {
-		/*
-		 * The relation isn't a comparison; there's no value with
-		 * which to compare, so don't show the entry for it.
-		 */
-        gtk_widget_set_sensitive(value_entry, FALSE);
-	}
+    }
 
 	switch (hfinfo->type) {
 
 	case FT_BOOLEAN:
+        show_value_list = is_comparison;
 		if (is_comparison) {
 			/*
-			 * The relation is a comparison, so we're showing
-			 * an entry for the value with which to compare;
-			 * show the list of names for values as well.
-			 * (The list of values contains the strings for
-			 * "true" and "false".)
-			 */
-            gtk_widget_set_sensitive(value_list_scrolled_win, TRUE);
-
-			/*
-			 * We're showing the value list; show the label as
-			 * well.
+			 * If we're showing the value list; show the label as well.
 			 */
 			show_value_label = TRUE;
-		} else {
-			/*
-			 * It's not a comparison, so we're not showing
-			 * the entry for the value; don't show the
-			 * list of names for values, either.
-			 */
-            gtk_widget_set_sensitive(value_list_scrolled_win, FALSE);
 		}
 		break;
 
@@ -626,34 +601,21 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 			/*
 			 * We have a list of values to show.
 			 */
-			if (is_comparison) {
-				/*
-				 * The relation is a comparison, so we're
-				 * showing an entry for the value with
-				 * which to compare; show the list of
-				 * names for values as well.
-				 */
-                gtk_widget_set_sensitive(value_list_scrolled_win, TRUE);
 
+            show_value_list = is_comparison;
+			if (is_comparison) {
 				/*
 				 * We're showing the entry; show the label
 				 * as well.
 				 */
 				show_value_label = TRUE;
-			} else {
-				/*
-				 * It's not a comparison, so we're not showing
-				 * the entry for the value; don't show the
-				 * list of names for values, either.
-				 */
-                gtk_widget_set_sensitive(value_list_scrolled_win, FALSE);
 			}
 		} else {
 			/*
 			 * There is no list of names for values, so don't
 			 * show it.
 			 */
-            gtk_widget_set_sensitive(value_list_scrolled_win, FALSE);
+            show_value_list = FALSE;
 		}
 		break;
 
@@ -661,29 +623,23 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 		/*
 		 * There is no list of names for values; hide the list.
 		 */
-        gtk_widget_set_sensitive(value_list_scrolled_win, FALSE);
+        show_value_list = FALSE;
 		break;
 	}
 
-    if (show_value_label) {
-        gtk_widget_set_sensitive(value_list_label, TRUE);
-        gtk_widget_set_sensitive(value_label, TRUE);
-    } else {
-        gtk_widget_set_sensitive(value_list_label, FALSE);
-        gtk_widget_set_sensitive(value_label, FALSE);
-    }
+    gtk_widget_set_sensitive(value_label,               show_value_label);
+    gtk_widget_set_sensitive(value_entry,               show_value_label);
+
+    gtk_widget_set_sensitive(value_list_label,          show_value_list);
+    gtk_widget_set_sensitive(value_list_scrolled_win,   show_value_list);
 
 	/*
 	 * Is this a comparison, and are ranges supported by this type?
 	 * If both are true, show the range stuff, otherwise hide it.
 	 */
-	if (is_comparison && ftype_can_slice(hfinfo->type)) {
-        gtk_widget_set_sensitive(range_label, TRUE);
-        gtk_widget_set_sensitive(range_entry, TRUE);
-	} else {
-        gtk_widget_set_sensitive(range_label, FALSE);
-        gtk_widget_set_sensitive(range_entry, FALSE);
-	}
+    show_range = (is_comparison && ftype_can_slice(hfinfo->type));
+    gtk_widget_set_sensitive(range_label, show_range);
+    gtk_widget_set_sensitive(range_entry, show_range);
 }
 
 #if GTK_MAJOR_VERSION < 2
@@ -1096,17 +1052,16 @@ dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
 void
 dfilter_expr_dlg_new(GtkWidget *filter_te)
 {
-    GtkWidget *window;
-    GtkWidget *main_vb;
-    GtkWidget *hb;
-    GtkWidget *col1_vb;
-    GtkWidget *tree_label, *tree, *tree_scrolled_win;
-    GtkWidget *col2_vb;
-    GtkWidget *relation_label, *relation_list, *relation_list_scrolled_win;
-    GtkWidget *range_label, *range_entry;
-    GtkWidget *value_vb;
-    GtkWidget *value_label, *value_entry;
+    GtkWidget *window, *main_vb, *main_hb;
+
+    GtkWidget *field_vb, *field_tree_lb, *field_tree, *tree_scrolled_win;
+
+    GtkWidget *relation_vb, *relation_label, *relation_list, *relation_list_scrolled_win;
+
+    GtkWidget *value_vb, *value_label, *value_entry;
     GtkWidget *value_list_label, *value_list_scrolled_win, *value_list;
+    GtkWidget *range_label, *range_entry;
+
     GtkWidget *list_bb, *accept_bt, *close_bt;
     header_field_info       *hfinfo;
     int i;
@@ -1132,22 +1087,18 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     main_vb = gtk_vbox_new(FALSE, 5);
     gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(window), main_vb);
-    gtk_widget_show(main_vb);
 
-    hb = gtk_hbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(hb), 5);
-    gtk_container_add(GTK_CONTAINER(main_vb), hb);
-    gtk_widget_show(hb);
+    main_hb = gtk_hbox_new(FALSE, 5);
+    gtk_container_border_width(GTK_CONTAINER(main_hb), 5);
+    gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
 
-    col1_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(col1_vb), 5);
-    gtk_container_add(GTK_CONTAINER(hb), col1_vb);
-    gtk_widget_show(col1_vb);
+    field_vb = gtk_vbox_new(FALSE, 5);
+    gtk_container_border_width(GTK_CONTAINER(field_vb), 5);
+    gtk_container_add(GTK_CONTAINER(main_hb), field_vb);
 
-    tree_label = gtk_label_new("Field name");
-    gtk_misc_set_alignment(GTK_MISC(tree_label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(col1_vb), tree_label, FALSE, FALSE, 0);
-    gtk_widget_show(tree_label);
+    field_tree_lb = gtk_label_new("Field name");
+    gtk_misc_set_alignment(GTK_MISC(field_tree_lb), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(field_vb), field_tree_lb, FALSE, FALSE, 0);
 
     tree_scrolled_win = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
@@ -1156,49 +1107,47 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 #endif
 
     WIDGET_SET_SIZE(tree_scrolled_win, 300, 400);
-    gtk_box_pack_start(GTK_BOX(col1_vb), tree_scrolled_win, FALSE, FALSE, 0);
-    gtk_widget_show(tree_scrolled_win);
+    gtk_box_pack_start(GTK_BOX(field_vb), tree_scrolled_win, FALSE, FALSE, 0);
 
 #if GTK_MAJOR_VERSION < 2
-    tree = ctree_new(1, 0);
-    SIGNAL_CONNECT(tree, "tree-select-row", field_select_row_cb, tree);
+    field_tree = ctree_new(1, 0);
+    SIGNAL_CONNECT(field_tree, "tree-select-row", field_select_row_cb, field_tree);
 #else
     store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
-    tree = tree_view_new(GTK_TREE_MODEL(store));
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
+    field_tree = tree_view_new(GTK_TREE_MODEL(store));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(field_tree), FALSE);
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(field_tree));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_BROWSE);
     renderer = gtk_cell_renderer_text_new();
     column = gtk_tree_view_column_new_with_attributes("Field name", renderer,
                                                       "text", 0, NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(field_tree), column);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_column_set_sort_column_id(column, 0);
-    SIGNAL_CONNECT(selection, "changed", field_select_row_cb, tree);
+    SIGNAL_CONNECT(selection, "changed", field_select_row_cb, field_tree);
 #endif
-    gtk_container_add(GTK_CONTAINER(tree_scrolled_win), tree);
+    gtk_container_add(GTK_CONTAINER(tree_scrolled_win), field_tree);
 
 #if GTK_MAJOR_VERSION < 2
     /*
      * GTK's annoying CTree widget will deliver a selection event
-     * the instant you add an item to the tree, *the fact that you
+     * the instant you add an item to the field_tree, *the fact that you
      * haven't even had time to set the item's row data nonwithstanding*.
      *
      * We'll put the widget into GTK_SELECTION_SINGLE mode in the
      * hopes that it's *STOP DOING THAT*.
      */
-    gtk_clist_set_selection_mode(GTK_CLIST(tree),
+    gtk_clist_set_selection_mode(GTK_CLIST(field_tree),
                                  GTK_SELECTION_SINGLE);
 #endif
 
-    col2_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(col2_vb), 5);
-    gtk_container_add(GTK_CONTAINER(hb), col2_vb);
-    gtk_widget_show(col2_vb);
+    relation_vb = gtk_vbox_new(FALSE, 5);
+    gtk_container_border_width(GTK_CONTAINER(relation_vb), 5);
+    gtk_container_add(GTK_CONTAINER(main_hb), relation_vb);
 
     relation_label = gtk_label_new("Relation");
     gtk_misc_set_alignment(GTK_MISC(relation_label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(col2_vb), relation_label, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_label, FALSE, FALSE, 0);
 
     relation_list_scrolled_win = scrolled_window_new(NULL, NULL);
     /* never use a scrollbar in x direction, show the complete relation string */
@@ -1208,7 +1157,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(relation_list_scrolled_win), 
                                    GTK_SHADOW_IN);
 #endif
-    gtk_widget_show(relation_list_scrolled_win);
 
 #if GTK_MAJOR_VERSION < 2
     relation_list = gtk_list_new();
@@ -1232,14 +1180,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 #else
     gtk_container_add(GTK_CONTAINER(relation_list_scrolled_win), relation_list);
 #endif
-    gtk_box_pack_start(GTK_BOX(col2_vb), relation_list_scrolled_win, TRUE, TRUE, 0);
-
-    range_label = gtk_label_new("Range (offset:length)");
-    gtk_misc_set_alignment(GTK_MISC(range_label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(col2_vb), range_label, FALSE, FALSE, 0);
-
-    range_entry = gtk_entry_new();
-    gtk_box_pack_start(GTK_BOX(col2_vb), range_entry, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(relation_vb), relation_list_scrolled_win, TRUE, TRUE, 0);
 
     /*
      * OK, show the relation label and range stuff as it would be
@@ -1258,32 +1199,25 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      * selected.
      */
     show_relations(relation_list, FT_UINT8);
-    gtk_widget_show(relation_label);
-    gtk_widget_show(relation_list);
 
     value_vb = gtk_vbox_new(FALSE, 5);
     gtk_container_border_width(GTK_CONTAINER(value_vb), 5);
-    gtk_container_add(GTK_CONTAINER(hb), value_vb);
-    gtk_widget_show(value_vb);
+    gtk_container_add(GTK_CONTAINER(main_hb), value_vb);
 
     value_label = gtk_label_new("Value");
     gtk_misc_set_alignment(GTK_MISC(value_label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(value_vb), value_label, FALSE, FALSE, 0);
-    gtk_widget_show(value_label);
 
     value_entry = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(value_vb), value_entry, FALSE, FALSE, 0);
-    gtk_widget_show(value_entry);
 
     value_list_label = gtk_label_new("Predefined values:");
     gtk_misc_set_alignment(GTK_MISC(value_list_label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(value_vb), value_list_label, FALSE, FALSE, 0);
-    gtk_widget_show(value_list_label);
 
     value_list_scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(value_vb), value_list_scrolled_win, TRUE,
                        TRUE, 0);
-    gtk_widget_show(value_list_scrolled_win);
 
 #if GTK_MAJOR_VERSION < 2
     value_list = gtk_list_new();
@@ -1346,12 +1280,12 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
            later use. */
         protocol = find_protocol_by_id(i);
         name = proto_get_protocol_short_name(protocol); /* name, short_name or filter name ? */
-        protocol_node = gtk_ctree_insert_node(GTK_CTREE(tree),
+        protocol_node = gtk_ctree_insert_node(GTK_CTREE(field_tree),
                                               NULL, NULL,
                                               &name, 5,
                                               NULL, NULL, NULL, NULL,
                                               FALSE, FALSE);
-        gtk_ctree_node_set_row_data(GTK_CTREE(tree), protocol_node,
+        gtk_ctree_node_set_row_data(GTK_CTREE(field_tree), protocol_node,
                                     hfinfo);
         g_hash_table_insert(proto_array, (gpointer)i, protocol_node);
     }
@@ -1397,12 +1331,12 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
         }
         str[TAG_STRING_LEN]=0;
         strp=str;
-        item_node = gtk_ctree_insert_node(GTK_CTREE(tree),
+        item_node = gtk_ctree_insert_node(GTK_CTREE(field_tree),
                                           protocol_node, NULL,
                                           &strp, 5,
                                           NULL, NULL, NULL, NULL,
                                           TRUE, FALSE);
-        gtk_ctree_node_set_row_data(GTK_CTREE(tree),
+        gtk_ctree_node_set_row_data(GTK_CTREE(field_tree),
                                     item_node, hfinfo);
     }
     g_hash_table_destroy(proto_array);
@@ -1449,13 +1383,17 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 }
 #endif /* GTK_MAJOR_VERSION < 2 */
 
-    gtk_widget_show_all(tree);
+    range_label = gtk_label_new("Range (offset:length)");
+    gtk_misc_set_alignment(GTK_MISC(range_label), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(value_vb), range_label, FALSE, FALSE, 0);
+
+    range_entry = gtk_entry_new();
+    gtk_box_pack_start(GTK_BOX(value_vb), range_entry, FALSE, FALSE, 0);
 
 
     list_bb = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), list_bb, FALSE, FALSE, 0);
     gtk_container_set_border_width  (GTK_CONTAINER (list_bb), 0);
-    gtk_widget_show(list_bb);
 
     accept_bt = OBJECT_GET_DATA(list_bb, GTK_STOCK_OK);
     gtk_widget_set_sensitive(accept_bt, FALSE);
@@ -1496,7 +1434,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      * and attached to the top-level widget pointers to the relevant
      * subwidgets, so it's safe to put the list in browse mode.
      */
-    gtk_clist_set_selection_mode (GTK_CLIST(tree),
+    gtk_clist_set_selection_mode (GTK_CLIST(field_tree),
                                   GTK_SELECTION_BROWSE);
 #endif
 
