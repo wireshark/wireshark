@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.167 2004/05/04 06:14:51 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.168 2004/05/07 11:07:53 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2533,6 +2533,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     fragment_data *fd_head=NULL;
     guint32 tot_len;
     tvbuff_t *payload_tvb, *decrypted_tvb;
+    proto_item *pi;
 
     save_fragmented = pinfo->fragmented;
 
@@ -2706,8 +2707,9 @@ end_cn_stub:
 		next_tvb, hdr->drep, di, auth_info);
 
 	} else {
-	    proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
+	    pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
 				decrypted_tvb, 0, 0, fd_head->reassembled_in);
+        PROTO_ITEM_SET_GENERATED(pi);
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" [DCE/RPC %s fragment, reas: #%u]", fragment_type(hdr->flags), fd_head->reassembled_in);
@@ -2744,6 +2746,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32 alloc_hint;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
+    proto_item *pi;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -2880,8 +2883,9 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		di->hf_index = -1;
 
 	    if(value->rep_frame!=0){
-		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
+		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
 				    tvb, 0, 0, value->rep_frame);
+        PROTO_ITEM_SET_GENERATED(pi);
 	    }
 
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
@@ -2901,6 +2905,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint16 ctx_id;
     dcerpc_auth_info auth_info;
     guint32 alloc_hint;
+    proto_item *pi;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -2974,15 +2979,17 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
 	    if(value->req_frame!=0){
 		nstime_t ns;
-		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
+		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
+        PROTO_ITEM_SET_GENERATED(pi);
 		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
 		if(ns.nsecs<0){
 			ns.nsecs+=1000000000;
 			ns.secs--;
 		}
-		proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+        PROTO_ITEM_SET_GENERATED(pi);
 	    }
 
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
@@ -3003,6 +3010,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32 status;
     guint32 alloc_hint;
     dcerpc_auth_info auth_info;
+    proto_item *pi;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -3084,15 +3092,17 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
 	    if(value->req_frame!=0){
 		nstime_t ns;
-		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
+		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
+        PROTO_ITEM_SET_GENERATED(pi);
 		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
 		if(ns.nsecs<0){
 			ns.nsecs+=1000000000;
 			ns.secs--;
 		}
-		proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+        PROTO_ITEM_SET_GENERATED(pi);
 	    }
 
 	    length = tvb_length_remaining(tvb, offset);
@@ -3710,6 +3720,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     gboolean save_fragmented;
     fragment_data *fd_head;
     tvbuff_t *next_tvb;
+    proto_item *pi;
 
     if (check_col (pinfo->cinfo, COL_INFO))
         col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u len: %u", 
@@ -3794,8 +3805,9 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 				next_tvb, hdr->drep, di, NULL);
 	} else {
             /* ...and this isn't the reassembled RPC PDU */
-	        proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
+	        pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
 				    tvb, 0, 0, fd_head->reassembled_in);
+            PROTO_ITEM_SET_GENERATED(pi);
 	        if (check_col(pinfo->cinfo, COL_INFO)) {
 		    col_append_fstr(pinfo->cinfo, COL_INFO,
 			    " [DCE/RPC fragment, reas: #%u]", fd_head->reassembled_in);
@@ -3819,6 +3831,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
     dcerpc_info *di;
     dcerpc_call_value *value, v;
     dcerpc_matched_key matched_key, *new_matched_key;
+    proto_item *pi;
 
     di=get_next_di();
     if(!(pinfo->fd->flags.visited)){
@@ -3869,8 +3882,9 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
     di->call_data = value;
 
     if(value->rep_frame!=0){
-	proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
+	pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
 			    tvb, 0, 0, value->rep_frame);
+    PROTO_ITEM_SET_GENERATED(pi);
     }
     dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, di);
 }
@@ -3883,6 +3897,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
     dcerpc_info *di;
     dcerpc_call_value *value, v;
     dcerpc_matched_key matched_key, *new_matched_key;
+    proto_item *pi;
 
     di=get_next_di();
     if(!(pinfo->fd->flags.visited)){
@@ -3925,15 +3940,17 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if(value->req_frame!=0){
 	nstime_t ns;
-	proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
+	pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 			    tvb, 0, 0, value->req_frame);
+    PROTO_ITEM_SET_GENERATED(pi);
 	ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 	ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
 	if(ns.nsecs<0){
 		ns.nsecs+=1000000000;
 		ns.secs--;
 	}
-	proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+	pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+    PROTO_ITEM_SET_GENERATED(pi);
     }
     dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, di);
 }
@@ -4348,10 +4365,10 @@ proto_register_dcerpc (void)
 {
     static hf_register_info hf[] = {
 	{ &hf_dcerpc_request_in,
-		{ "[Request in frame]", "dcerpc.request_in", FT_FRAMENUM, BASE_NONE,
+		{ "Request in frame", "dcerpc.request_in", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "This packet is a response to the packet with this number", HFILL }},
 	{ &hf_dcerpc_response_in,
-		{ "[Response in frame]", "dcerpc.response_in", FT_FRAMENUM, BASE_NONE,
+		{ "Response in frame", "dcerpc.response_in", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "This packet will be responded in the packet with this number", HFILL }},
 	{ &hf_dcerpc_referent_id,
 		{ "Referent ID", "dcerpc.referent_id", FT_UINT32, BASE_HEX,
@@ -4602,11 +4619,11 @@ proto_register_dcerpc (void)
       NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
 	{ &hf_dcerpc_time, 
-	  { "[Time from request]", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, 
+	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, 
       NULL, 0, "Time between Request and Response for DCE-RPC calls", HFILL }},
 
 	{ &hf_dcerpc_reassembled_in,
-	  { "[Reassembled PDU in frame]", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, 
+	  { "Reassembled PDU in frame", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, 
       NULL, 0x0, "The DCE/RPC PDU is completely reassembled in the packet with this number", HFILL }},
 
 	{ &hf_dcerpc_unknown_if_id, 
