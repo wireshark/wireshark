@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.156 2001/10/26 18:28:15 gram Exp $
+ * $Id: capture.c,v 1.157 2001/11/09 07:44:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,6 +141,7 @@
 #include "file.h"
 #include "capture.h"
 #include "util.h"
+#include "pcap-util.h"
 #include "simple_dialog.h"
 #include "prefs.h"
 #include "globals.h"
@@ -158,6 +159,10 @@
 #include "packet-tr.h"
 #include "packet-ieee80211.h"
 #include "packet-chdlc.h"
+
+#ifdef WIN32
+#include "capture-wpcap.h"
+#endif
 
 static int sync_pipe[2]; /* used to sync father */
 enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
@@ -1394,7 +1399,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   } else
 #endif
   {
-    pcap_encap = pcap_datalink(pch);
+    pcap_encap = get_pcap_linktype(pch, cfile.iface);
     snaplen = pcap_snapshot(pch);
   }
   ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);

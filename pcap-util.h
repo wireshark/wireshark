@@ -1,7 +1,7 @@
-/* util.h
- * Utility definitions
+/* pcap-util.h
+ * Utility definitions for packet capture
  *
- * $Id: util.h,v 1.25 2001/11/09 07:44:48 guy Exp $
+ * $Id: pcap-util.h,v 1.1 2001/11/09 07:44:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,31 +22,29 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __UTIL_H__
-#define __UTIL_H__
+#ifndef __PCAP_UTIL_H__
+#define __PCAP_UTIL_H__
+
+#ifdef HAVE_LIBPCAP
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-int create_tempfile(char *, int, const char *);
+int get_pcap_linktype(pcap_t *pch, char *devname);
 
-/*
- * Collect command-line arguments as a string consisting of the arguments,
- * separated by spaces.
- */
-char *get_args_as_string(int argc, char **argv, int optind);
+GList *get_interface_list(int *err, char *err_str);
 
-void ASCII_to_EBCDIC(guint8 *buf, guint bytes);
-guint8 ASCII_to_EBCDIC1(guint8 c);
-void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
-guint8 EBCDIC_to_ASCII1(guint8 c);
+/* Error values from "get_interface_list()". */
+#define	CANT_GET_INTERFACE_LIST	0	/* error getting list */
+#define	NO_INTERFACES_FOUND	1	/* list is empty */
 
-/* Compute the difference between two seconds/microseconds time stamps. */
-void compute_timestamp_diff(gint *, gint *, guint32, guint32, guint32, guint32);
+void free_interface_list(GList *if_list);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __UTIL_H__ */
+#endif /* HAVE_LIBPCAP */
+
+#endif /* __PCAP_UTIL_H__ */

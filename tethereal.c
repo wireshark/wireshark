@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.96 2001/11/04 02:50:19 guy Exp $
+ * $Id: tethereal.c,v 1.97 2001/11/09 07:44:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,6 +96,9 @@
 #include "print.h"
 #include "resolv.h"
 #include "util.h"
+#ifdef HAVE_LIBPCAP
+#include "pcap-util.h"
+#endif
 #include "conversation.h"
 #include "reassemble.h"
 #include "plugins.h"
@@ -745,7 +748,8 @@ capture(int packet_count, int out_file_type)
     }
   }
 
-  ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_datalink(ld.pch));
+  ld.linktype = wtap_pcap_encap_to_wtap_encap(get_pcap_linktype(ld.pch,
+	cfile.iface));
   if (cfile.save_file != NULL) {
     /* Set up to write to the capture file. */
     if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
