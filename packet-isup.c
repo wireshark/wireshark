@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.26 2003/09/27 23:51:09 guy Exp $
+ * $Id: packet-isup.c,v 1.27 2003/09/29 21:12:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2111,7 +2111,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
 		bat_ase_element_item = proto_tree_add_text(bat_ase_tree,parameter_tvb,
 					  ( offset - 1),(length_indicator + 1),"BAT ASE Element %u, Identifier: %s",element_no,
-					val_to_str(identifier,bat_ase_list_of_Identifiers_vals,NULL));
+					val_to_str(identifier,bat_ase_list_of_Identifiers_vals,"unknown (%u)"));
 		bat_ase_element_tree = proto_item_add_subtree(bat_ase_element_item , ett_bat_ase_element);
 
 		proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb, offset - 1, 1, identifier );
@@ -3045,7 +3045,7 @@ dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_t
 
   proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
 	    "Upgraded parameter no: %u = %s", upgraded_parameter_no,
-	    val_to_str(upgraded_parameter, isup_parameter_type_value, NULL));
+	    val_to_str(upgraded_parameter, isup_parameter_type_value, "unknown (%u)"));
   offset += 1;
   len -= 1;
   instruction_indicators = tvb_get_guint8(parameter_tvb, offset);
