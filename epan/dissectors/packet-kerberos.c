@@ -1885,7 +1885,6 @@ dissect_krb5_seq_number(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 
 
-#ifdef HAVE_KERBEROS
 static int
 dissect_krb5_pausec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -1903,6 +1902,7 @@ static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_pausec },
 	{ 0, 0, 0, NULL }
 };
+#ifdef HAVE_KERBEROS
 static int
 dissect_krb5_decrypt_PA_ENC_TIMESTAMP (packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
