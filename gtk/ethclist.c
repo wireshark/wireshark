@@ -479,15 +479,13 @@ static guint clist_signals[LAST_SIGNAL] = {0};
 
 static GtkTargetEntry clist_target_table = { "gtk-clist-drag-reorder", 0, 0};
 
-GtkType
-eth_clist_get_type (void)
-{
-  static GtkType clist_type = 0;
+GtkType eth_clist_type = 0;
 
-  if (!clist_type)
-    {
-      static const GtkTypeInfo clist_info =
-      {
+void
+init_eth_clist_type (void)
+{
+  static const GtkTypeInfo clist_info =
+  {
 	"EthCList",
 	sizeof (EthCList),
 	sizeof (EthCListClass),
@@ -496,12 +494,9 @@ eth_clist_get_type (void)
 	/* reserved_1 */ NULL,
 	/* reserved_2 */ NULL,
 	(GtkClassInitFunc) NULL,
-      };
+  };
 
-      clist_type = gtk_type_unique (GTK_TYPE_CONTAINER, &clist_info);
-    }
-
-  return clist_type;
+  eth_clist_type = gtk_type_unique (GTK_TYPE_CONTAINER, &clist_info);
 }
 
 static void

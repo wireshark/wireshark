@@ -108,6 +108,7 @@
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
+#include "ethclist.h"
 
 /* GTK related */
 #include "statusbar.h"
@@ -1590,6 +1591,8 @@ main(int argc, char *argv[])
 
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
+  /* initialize our GTK eth_clist_type */
+  init_eth_clist_type();
 
 
   ethereal_path = argv[0];

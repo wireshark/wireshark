@@ -89,7 +89,10 @@ typedef enum
   ETH_BUTTON_EXPANDS = 1 << 2
 } EthButtonAction;
 
-#define ETH_TYPE_CLIST            (eth_clist_get_type ())
+extern GtkType eth_clist_type;
+void init_eth_clist_type (void);
+
+#define ETH_TYPE_CLIST            (eth_clist_type)
 #define ETH_CLIST(obj)            (GTK_CHECK_CAST ((obj), ETH_TYPE_CLIST, EthCList))
 #define ETH_CLIST_CLASS(klass)    (GTK_CHECK_CLASS_CAST ((klass), ETH_TYPE_CLIST, EthCListClass))
 #define ETH_IS_CLIST(obj)         (GTK_CHECK_TYPE ((obj), ETH_TYPE_CLIST))
@@ -441,8 +444,6 @@ struct _EthCell
     GtkWidget *widget;
   } u;
 };
-
-GtkType eth_clist_get_type (void);
 
 /* constructors useful for gtk-- wrappers */
 void eth_clist_construct (EthCList *clist,
