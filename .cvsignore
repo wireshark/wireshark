@@ -26,6 +26,7 @@ ltconfig
 ltmain.sh
 missing
 mkinstalldirs
+packet-ncp2222.c
 ps.c
 randpkt
 rdps
