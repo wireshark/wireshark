@@ -416,6 +416,10 @@ Ulrich Kiermayr <uk@ap.univie.ac.at> {
 	ECN Extension support
 }
 
+Neil Hunter <neil.hunter@energis-squared.com> {
+	WAP support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

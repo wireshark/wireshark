@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.239 2000/10/26 09:14:28 guy Exp $
+# $Id: Makefile.am,v 1.240 2000/11/04 03:30:40 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -139,7 +139,7 @@ DISSECTOR_SOURCES = \
 	packet-smb-logon.c \
 	packet-smb-mailslot.c \
 	packet-smb-pipe.c \
-        packet-smtp.c \
+	packet-smtp.c \
 	packet-sna.c   \
 	packet-snmp.c	\
 	packet-socks.c \
@@ -164,6 +164,8 @@ DISSECTOR_SOURCES = \
 	packet-vtp.c  \
 	packet-wccp.c \
 	packet-who.c  \
+	packet-wsp.c \
+	packet-wtp.c \
 	packet-x11.c   \
 	packet-x25.c   \
 	packet-yhoo.c  \
@@ -250,6 +252,9 @@ noinst_HEADERS = \
 	packet-vines.h \
 	packet-vlan.h \
 	packet-vtp.h  \
+	packet-wap.h \
+	packet-wsp.h \
+	packet-wtp.h \
 	packet-x11-declarations.h	\
 	packet-x11-register-info.h	\
 	packet-x11-keysym.h	\

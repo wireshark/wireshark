@@ -999,6 +999,7 @@ B<http://www.ethereal.com>.
   Brian Wellington         <bwelling@xbill.org>
   Santeri Paavolainen      <santtu@ssh.com>
   Ulrich Kiermayr          <uk@ap.univie.ac.at>
+  Neil Hunter              <neil.hunter@energis-squared.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

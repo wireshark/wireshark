@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.60 2000/10/26 09:14:28 guy Exp $
+# $Id: Makefile.nmake,v 1.61 2000/11/04 03:30:40 guy Exp $
 
 include config.nmake
 
@@ -127,7 +127,7 @@ DISSECTOR_SOURCES = \
 	packet-smb-logon.c \
 	packet-smb-mailslot.c \
 	packet-smb-pipe.c \
-        packet-smtp.c \
+	packet-smtp.c \
 	packet-sna.c   \
 	packet-snmp.c	\
 	packet-socks.c \
@@ -152,6 +152,8 @@ DISSECTOR_SOURCES = \
 	packet-vtp.c  \
 	packet-wccp.c \
 	packet-who.c  \
+	packet-wsp.c \
+	packet-wtp.c \
 	packet-x11.c	\
 	packet-x25.c   \
 	packet-yhoo.c  \
