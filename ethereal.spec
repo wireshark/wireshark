@@ -1,5 +1,5 @@
 # Note that this is NOT a relocatable package
-%define ver      0.6.3
+%define ver      0.7.0
 %define rel      1
 %define prefix   /usr/X11R6
 
@@ -13,7 +13,7 @@ Source:		ethereal-%{PACKAGE_VERSION}.tar.gz
 URL:		http://ethereal.zing.org/
 BuildRoot:	/tmp/ethereal-%{PACKAGE_VERSION}-root
 Packager:	FastJack <fastjack@i-s-o.net>
-Requires:	gtk+10
+Requires:	gtk+
 Requires:	libpcap
 
 %description
@@ -44,6 +44,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/X11R6/man/man1/ethereal.1
 
 %changelog
+* Tue Aug 03 1999 Gilbert Ramirez <gram@xiexie.org>
+- updated to 0.7.0 and changed gtk+ requirement
+
 * Sun Jan 01 1999 Gerald Combs <gerald@zing.org>
 - updated to 0.5.1
 

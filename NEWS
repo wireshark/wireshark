@@ -10,6 +10,9 @@ Overview of changes in Ethereal 0.7.0:
 * Linux ATM Classical IP support (Theirry)
 * X.25 support in wiretap iptrace routine (Olivier)
 * Wiretap fix for "-S" ethereal option (Laurent)
+* LAPB and X.25 dissectors added (Olivier)
+* FreeBSD compilation cleanups (Bill Fumerola,
+	<billf@jade.chc-chimes.com>)
 
 Overview of changes in Ethereal 0.6.3:
 * Capture dialogue window data bug-fix (Guy)

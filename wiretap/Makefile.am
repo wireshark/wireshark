@@ -9,7 +9,6 @@ CLEANFILES = \
 libwiretap_a_SOURCES = \
 	buffer.c		\
 	buffer.h		\
-	config.h		\
 	file.c			\
 	iptrace.c		\
 	iptrace.h		\

@@ -5,7 +5,8 @@ LOCAL_CFLAGS=/Ic:\tools\msdev\include
 CFLAGS=/DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)
 
 OBJECTS=buffer.obj file.obj iptrace.obj lanalyzer.obj libpcap.obj \
-	netmon.obj netxray.obj ngsniffer.obj snoop.obj wtap.obj
+	netmon.obj netxray.obj ngsniffer.obj radcom.obj snoop.obj \
+	wtap.obj
 
 
 libwtap.lib	: config.h $(OBJECTS)

@@ -20,9 +20,9 @@ LDFLAGS = /NOLOGO /SUBSYSTEM:console /INCREMENTAL:no /MACHINE:I386 \
 CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GTK_DIR) /Iwiretap \
 	/I$(GTK_DIR)\gdk\win32
 
-OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter.obj \
-	display.obj ethereal.obj ethertype.obj file.obj filter.obj \
-	follow.obj gtkpacket.obj menu.obj \
+OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter-scanner.obj \
+	dfilter.obj display.obj ethereal.obj ethertype.obj file.obj \
+	filter.obj follow.obj gtkpacket.obj menu.obj \
 	packet-aarp.obj \
 	packet-arp.obj \
 	packet-atalk.obj \
@@ -43,6 +43,7 @@ OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter.obj \
 	packet-ipv6.obj \
 	packet-ipx.obj \
 	packet-isakmp.obj \
+	packet-lapb.obj \
 	packet-llc.obj \
 	packet-lpd.obj \
 	packet-nbipx.obj \
@@ -71,6 +72,7 @@ OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter.obj \
 	packet-trmac.obj \
 	packet-udp.obj \
 	packet-vines.obj \
+	packet-x25.obj \
 	packet.obj prefs.obj print.obj proto.obj ps.obj \
 	resolv.obj snprintf.obj strerror.obj summary.obj util.obj
 
