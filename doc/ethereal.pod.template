@@ -1124,6 +1124,7 @@ B<http://www.ethereal.com>.
   Javier Achirica          <achirica@ttd.net>
   B. Johannessen           <bob@havoq.com>
   Thierry Stagiaire        <thierry.pelle@rd.francetelecom.fr>
+  Francisco Javier Cabello <fjcabello@vtools.es>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

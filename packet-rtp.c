@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.16 2001/06/14 07:05:51 guy Exp $
+ * $Id: packet-rtp.c,v 1.17 2001/06/14 09:25:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,6 +99,7 @@ static gint ett_csrc_list = -1;
 static gint ett_hdr_ext   = -1;
 
 static dissector_handle_t h261_handle;
+static dissector_handle_t mpeg1_handle;
 
 /*
  * Fields in the first octet of the RTP header.
@@ -302,6 +303,11 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    data_reported_len );
 			call_dissector(h261_handle, newtvb, pinfo, tree);
 			break;
+	        case PT_MPV:
+		        newtvb = tvb_new_subset( tvb, offset, data_len, -1 );
+			call_dissector(mpeg1_handle, newtvb, pinfo, tree);
+			break;	  
+
 		default:
 			proto_tree_add_bytes( rtp_tree, hf_rtp_data, tvb, offset, data_len, tvb_get_ptr( tvb, offset, data_len ) );
 			break;
@@ -716,9 +722,10 @@ void
 proto_reg_handoff_rtp(void)
 {
 	/*
-	 * Get handle for the H.261 dissector.
+	 * Get handles for the H.261 and MPEG-1 dissectors.
 	 */
 	h261_handle = find_dissector("h261");
+	mpeg1_handle = find_dissector("mpeg1");
 
 	/*
 	 * Register this dissector as one that can be assigned to a
