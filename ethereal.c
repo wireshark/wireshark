@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.106 1999/08/25 03:22:46 guy Exp $
+ * $Id: ethereal.c,v 1.107 1999/08/25 22:19:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -193,7 +193,6 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
   char      filename1[128+1];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
   int        tmp_fd;
-  gchar     *old_dfilter;
 
   if( pi.ipproto == 6 ) {
     /* we got tcp so we can follow */
@@ -219,9 +218,6 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
       unlink(filename1);
       return;
     }
-
-    /* Save any display filter we currently have. */
-    old_dfilter = cf.dfilter;
 
     /* Create a new filter that matches all packets in the TCP stream,
        and set the display filter entry accordingly */
@@ -303,11 +299,6 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     unlink( filename1 );
     data_out_file = NULL;
     gtk_widget_show( streamwindow );
-    if( cf.dfilter != NULL ) {
-      g_free( cf.dfilter );
-    }
-    cf.dfilter = old_dfilter;
-    filter_packets(&cf);
   } else {
     simple_dialog(ESD_TYPE_WARN, NULL,
       "Error following stream.  Please make\n"

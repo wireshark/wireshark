@@ -212,7 +212,11 @@ window to relative, absolute, or delta.
 =item Tools:Follow TCP Stream
 
 If you have a TCP packet selected, it will display the contents of the TCP
-data stream in a separate window.
+data stream in a separate window. This has the side-effect of leaving
+the list of packets in a filtered state; only those packets that make up
+the TCP stream are shown. You can revert to your old view by pressing
+ENTER in the display filter text box, thereby invoking your old
+display filter (or resetting it back to no display filter).
 
 =back
 
