@@ -2,7 +2,7 @@
  * Routines for AJP13 dissection
  * Copyright 2002, Christopher K. St. John <cks@distributopia.com>
  *
- * $Id: packet-ajp13.c,v 1.9 2003/01/27 22:19:10 deniel Exp $
+ * $Id: packet-ajp13.c,v 1.10 2003/03/26 21:47:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,15 +219,18 @@ static gint ett_ajp13 = -1;
 
 typedef struct ajp13_conv_data {
   int content_length;
-  int was_get_body_chunk;
+  gboolean was_get_body_chunk;	/* XXX - not used */
 } ajp13_conv_data;
 
+static GMemChunk *ajp13_conv_data_chunk = NULL;
 
 typedef struct ajp13_frame_data {
-  int is_request_body;
+  gboolean is_request_body;
 } ajp13_frame_data;
 
+static GMemChunk  *ajp13_frame_data_chunk = NULL;
 
+static int ajp13_packet_init_count = 100;
 
 /* ajp13, in sort of a belt-and-suspenders move, encodes strings with
  * both a leading length field, and a trailing null. Mostly, see
@@ -642,12 +645,13 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!conv) {
     conv = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
                             pinfo->srcport, pinfo->destport, 0);
-    cd = (ajp13_conv_data*)malloc(sizeof(ajp13_conv_data));
+  }
+  cd = (ajp13_conv_data*)conversation_get_proto_data(conv, proto_ajp13);
+  if (!cd) {
+    cd = (ajp13_conv_data*)g_mem_chunk_alloc(ajp13_conv_data_chunk);
     cd->content_length = 0;
-    cd->was_get_body_chunk = 0;
+    cd->was_get_body_chunk = FALSE;
     conversation_add_proto_data(conv, proto_ajp13, cd);
-  } else {
-    cd = (ajp13_conv_data*)conversation_get_proto_data(conv, proto_ajp13);
   }
 
   /* we use the per segment user data to record the conversational
@@ -661,16 +665,16 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * time we've see the packet, and it must be the first "in order"
      * pass through the data.
      */
-    fd = (ajp13_frame_data*)malloc(sizeof(ajp13_frame_data));
+    fd = (ajp13_frame_data*)g_mem_chunk_alloc(ajp13_frame_data_chunk);
     p_add_proto_data(pinfo->fd, proto_ajp13, fd);
-    fd->is_request_body = 0;
+    fd->is_request_body = FALSE;
     if (cd->content_length) {
       /* this is screwy, see AJPv13.html. the idea is that if the
        * request has a body (as determined by the content-length
        * header), then there's always an immediate follow-up PDU with
        * no GET_BODY_CHUNK from the container.
        */
-      fd->is_request_body = 1;
+      fd->is_request_body = TRUE;
     }
   }
 
@@ -746,6 +750,25 @@ dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
+
+static void
+ajp13_init_protocol(void)
+{
+  if (ajp13_conv_data_chunk)
+    g_mem_chunk_destroy(ajp13_conv_data_chunk);
+  if (ajp13_frame_data_chunk)
+    g_mem_chunk_destroy(ajp13_frame_data_chunk);
+
+  ajp13_conv_data_chunk = g_mem_chunk_new("ajp13_conv_data_chunk",
+					  sizeof(ajp13_conv_data),
+					  ajp13_packet_init_count * sizeof(ajp13_conv_data),
+					  G_ALLOC_ONLY);
+
+  ajp13_frame_data_chunk = g_mem_chunk_new("ajp13_frame_data_chunk",
+					   sizeof(ajp13_frame_data),
+					   ajp13_packet_init_count * sizeof(ajp13_frame_data),
+					   G_ALLOC_ONLY);
+}
 
 void
 proto_register_ajp13(void)
@@ -839,6 +862,8 @@ proto_register_ajp13(void)
 
   proto_register_field_array(proto_ajp13, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_init_routine(&ajp13_init_protocol);
 }
 
 
