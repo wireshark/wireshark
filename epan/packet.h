@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.29 2001/04/01 04:50:42 hagbard Exp $
+ * $Id: packet.h,v 1.30 2001/04/01 07:32:35 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include "column_info.h"
 #include "frame_data.h"
 #include "packet_info.h"
+#include "column-utils.h"
 
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
@@ -59,10 +60,6 @@
 		
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
-
-/* Allocate all the data structures for constructing column data, given
-   the number of columns. */
-void                 col_init(column_info *, gint);
 
 typedef struct _packet_counts {
   gint           sctp;
@@ -214,26 +211,6 @@ dissector_handle_t find_dissector(const char *name);
 /* Call a dissector through a handle. */
 void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
-
-/* Utility routines used by packet*.c */
-
-void	   col_set_writable(frame_data *fd, gboolean writable);
-gint       check_col(frame_data *, gint);
-void       col_clear(frame_data *, gint);
-void       col_set_str(frame_data *, gint, gchar *);
-#if __GNUC__ == 2
-void       col_add_fstr(frame_data *, gint, gchar *, ...)
-    __attribute__((format (printf, 3, 4)));
-void       col_append_fstr(frame_data *, gint, gchar *, ...)
-    __attribute__((format (printf, 3, 4)));
-#else
-void       col_add_fstr(frame_data *, gint, gchar *, ...);
-void       col_append_fstr(frame_data *, gint, gchar *, ...);
-#endif
-void       col_add_str(frame_data *, gint, const gchar *);
-void       col_append_str(frame_data *, gint, gchar *);
-void       col_set_cls_time(frame_data *, int);
-void       fill_in_columns(frame_data *);
 
 /* Do all one-time initialization. */
 void dissect_init(void);

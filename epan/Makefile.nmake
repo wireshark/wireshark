@@ -20,6 +20,7 @@ libethereal_LIBS = \
 
 OBJECTS=atalk-utils.obj	\
 	bitswap.obj	\
+	column-utils.obj \	
 	conversation.obj \
 	epan.obj         \
 	except.obj       \
