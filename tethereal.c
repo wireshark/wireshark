@@ -1776,7 +1776,8 @@ capture(int out_file_type)
     goto error;
 #else
     /* try to open cfile.iface as a pipe */
-    pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld, errmsg, sizeof errmsg);
+    pipe_fd = pipe_open_live(capture_opts.iface, &hdr, &ld, errmsg,
+                             sizeof errmsg);
 
     if (pipe_fd == -1) {
 
