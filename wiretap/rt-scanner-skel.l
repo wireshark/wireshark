@@ -1,6 +1,6 @@
 %{
 #include <glib.h>
-#include "rt-tokdefs.h"
+#include "rt-grammar.h"
 guint8* parse_bytes(char *text);
 enum nibble_t { high, low };
 static char *in_buffer;

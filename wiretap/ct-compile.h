@@ -99,6 +99,6 @@ void rt_yacc_tokens(gpointer key, gpointer value, gpointer out);
 void write_rt_bytecmp_lval(FILE *out);
 void rt_bytecmp_lval(gpointer key, gpointer value, gpointer out);
 
-int yylex(void);
-int yyparse(void);
-void yyerror(char *string);
+int wtap_lex(void);
+int wtap_parse(void);
+void wtap_error(char *string);

@@ -16,7 +16,7 @@ int main(void)
 	yyin = stdin;
 
 	compiler_init();
-	yyparse();
+	wtap_parse();
 	write_rt_lex();
 	write_rt_yacc();
 

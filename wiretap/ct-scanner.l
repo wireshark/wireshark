@@ -1,7 +1,7 @@
 %{
 #include <glib.h>
 #include <stdio.h>
-#include "ct-tokdefs.h"
+#include "ct-grammar.h"
 int lex_line_number = 1;
 %}
 
@@ -17,9 +17,9 @@ quoted	\"[^"\n]*["\n]
 #.*		/* one-line shell-style comments */
 
 {quoted} {
-	yylval.s = g_string_new(yytext + 1);
-	g_string_truncate(yylval.s, strlen(yytext) - 2);
-/*	g_print("lex made QUOTED (%s)\n", yylval.s->str);*/
+	wtap_lval.s = g_string_new(wtap_text + 1);
+	g_string_truncate(wtap_lval.s, strlen(wtap_text) - 2);
+/*	g_print("lex made QUOTED (%s)\n", wtap_lval.s->str);*/
 	return QUOTED;
 }
 
@@ -49,25 +49,25 @@ either_of		return EITHER_OF;
 
 
 {N} {
-	yylval.d = atoi(yytext);
+	wtap_lval.d = atoi(wtap_text);
 	return NUMBER;
 }
 
 {W}+	{
-	yylval.s = g_string_new(yytext);
-/*	g_print("lex made TEXT (%s)\n", yylval.s->str);*/
+	wtap_lval.s = g_string_new(wtap_text);
+/*	g_print("lex made TEXT (%s)\n", wtap_lval.s->str);*/
 	return TEXT;
 	}
 
 %%
 
 int
-yywrap()
+wtap_wrap()
 {
 	return 1;
 }
 
-void yyerror(char *string)
+void wtap_error(char *string)
 {
 	fprintf(stderr,"%s on line %d\n",string, lex_line_number);
 	exit(0);

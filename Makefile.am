@@ -110,6 +110,8 @@ EXTRA_DIST =                \
 	image/icon-ethereal.xpm \
 	manuf                   \
 	print.ps                \
-	rdps.c
+	README.tru64		\
+	rdps.c			\
+	ylwrap
 
 SUBDIRS = @SUBDIRS@

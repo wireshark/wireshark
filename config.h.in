@@ -7,10 +7,6 @@
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
 #undef WORDS_BIGENDIAN
 
-#undef PACKAGE
-
-#undef VERSION
-
 #undef HAVE_SA_LEN
 
 #undef DATAFILE_DIR
@@ -46,3 +42,10 @@
 
 /* Define if you have the pcap library (-lpcap).  */
 #undef HAVE_LIBPCAP
+
+/* Name of package */
+#undef PACKAGE
+
+/* Version number of package */
+#undef VERSION
+

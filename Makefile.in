@@ -90,7 +90,7 @@ ethereal_LDADD = @SNPRINTF_O@ @LIBWIRETAP_A@
 DISTCLEANFILES =  	rdps 						ps.c 						*~
 
 
-EXTRA_DIST =  	doc/Makefile            	doc/ethereal.pod        	ethereal.1              	ethereal.spec           	image/icon-excl.xpm     	image/icon-ethereal.xpm 	manuf                   	print.ps                	rdps.c
+EXTRA_DIST =  	doc/Makefile            	doc/ethereal.pod        	ethereal.1              	ethereal.spec           	image/icon-excl.xpm     	image/icon-ethereal.xpm 	manuf                   	print.ps                	README.tru64			rdps.c				ylwrap
 
 
 SUBDIRS = @SUBDIRS@
@@ -129,7 +129,7 @@ DATA =  $(sysconf_DATA)
 DIST_COMMON =  README ./stamp-h.in AUTHORS COPYING ChangeLog INSTALL \
 Makefile.am Makefile.in NEWS acconfig.h acinclude.m4 aclocal.m4 \
 config.guess config.h.in config.sub configure configure.in install-sh \
-missing mkinstalldirs
+missing mkinstalldirs ylwrap
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)

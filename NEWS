@@ -1,3 +1,7 @@
+Overview of changes in Ethereal 0.6.1:
+* Released because of packaging problem in 0.6.0
+* Information about building on Tru64
+
 Overview of changes in Ethereal 0.6.0:
 * IPv6 support greatly improved (Jun-ichiro)
 * IPsec added (Jun-ichiro)
