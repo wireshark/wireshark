@@ -10,7 +10,7 @@
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id: packet-h235.c,v 1.2 2004/05/25 21:24:03 guy Exp $
+ * $Id: packet-h235.c,v 1.3 2004/06/03 19:07:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -196,8 +196,8 @@ static int dissect_hf_h235_toBeSigned(tvbuff_t *tvb, int offset, packet_info *pi
   return dissect_xxx_ToBeSigned(tvb, offset, pinfo, tree, hf_h235_toBeSigned);
 }
 
-static guint32
-dissect_h235_ChallengeString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_ChallengeString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                     8, 128,
                                     NULL, NULL);
@@ -209,10 +209,11 @@ static int dissect_hf_h235_challenge(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-guint32
-dissect_h235_TimeStamp(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+
+int
+dissect_h235_TimeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           1, 4294967295, NULL, NULL, FALSE);
+                                           1U, 4294967295U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -221,8 +222,9 @@ static int dissect_hf_h235_timeStamp(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static guint32
-dissect_h235_RandomVal(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+
+static int
+dissect_h235_RandomVal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_integer(tvb, offset, pinfo, tree, hf_index,
                                NULL, NULL);
 
@@ -248,8 +250,8 @@ static int dissect_hf_h235_requestRandom(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static guint32
-dissect_h235_Password(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_Password(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
                                  1, 128);
 
@@ -260,8 +262,8 @@ static int dissect_hf_h235_password(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
-static guint32
-dissect_h235_Identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_Identifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
                                  1, 128);
 
@@ -278,8 +280,8 @@ static int dissect_hf_h235_generalId(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static guint32
-dissect_h235_KeyMaterial(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_KeyMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
                                   1, 2048);
 
@@ -293,8 +295,8 @@ static int dissect_hf_h235_keyMaterial(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static guint32
-dissect_h235_OBJECT_IDENTIFIER(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
                                          NULL);
 
@@ -317,8 +319,8 @@ static int dissect_hf_h235_keyDerivationOID(tvbuff_t *tvb, int offset, packet_in
 }
 
 
-static guint32
-dissect_h235_OCTET_STRING(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                     -1, -1,
                                     NULL, NULL);
@@ -356,8 +358,8 @@ static per_sequence_t NonStandardParameter_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_NonStandardParameter(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_NonStandardParameter, NonStandardParameter_sequence);
 
@@ -368,8 +370,8 @@ static int dissect_hf_h235_nonStandard(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static guint32
-dissect_h235_BIT_STRING_SIZE_0_2048(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_BIT_STRING_SIZE_0_2048(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
                                   0, 2048);
 
@@ -392,8 +394,8 @@ static per_sequence_t DHset_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_DHset(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_DHset(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_DHset, DHset_sequence);
 
@@ -404,8 +406,8 @@ static int dissect_hf_h235_dhkey(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static guint32
-dissect_h235_BIT_STRING_SIZE_0_511(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_BIT_STRING_SIZE_0_511(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
                                   0, 511);
 
@@ -442,8 +444,8 @@ static per_sequence_t ECpoint_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_ECpoint(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_ECpoint(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_ECpoint, ECpoint_sequence);
 
@@ -465,8 +467,8 @@ static per_sequence_t T_eckasdhp_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_T_eckasdhp(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_T_eckasdhp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_T_eckasdhp, T_eckasdhp_sequence);
 
@@ -485,8 +487,8 @@ static per_sequence_t T_eckasdh2_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_T_eckasdh2(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_T_eckasdh2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_T_eckasdh2, T_eckasdh2_sequence);
 
@@ -502,14 +504,15 @@ static const value_string ECKASDH_vals[] = {
   {   1, "eckasdh2" },
   { 0, NULL }
 };
+
 static per_choice_t ECKASDH_choice[] = {
   {   0, "eckasdhp"                    , ASN1_EXTENSION_ROOT    , dissect_hf_h235_eckasdhp },
   {   1, "eckasdh2"                    , ASN1_EXTENSION_ROOT    , dissect_hf_h235_eckasdh2 },
   { 0, NULL, 0, NULL }
 };
 
-static guint32
-dissect_h235_ECKASDH(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_ECKASDH(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h235_ECKASDH, ECKASDH_choice, "ECKASDH",
                               NULL);
@@ -520,19 +523,6 @@ static int dissect_hf_h235_eckasdhkey(tvbuff_t *tvb, int offset, packet_info *pi
   return dissect_h235_ECKASDH(tvb, offset, pinfo, tree, hf_h235_eckasdhkey);
 }
 
-static per_sequence_t ECGDSASignature_sequence[] = {
-  { "r"                           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_r },
-  { "s"                           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_s },
-  { NULL, 0, 0, NULL }
-};
-
-static guint32
-dissect_h235_ECGDSASignature(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
-                                ett_h235_ECGDSASignature, ECGDSASignature_sequence);
-
-  return offset;
-}
 
 static per_sequence_t TypedCertificate_sequence[] = {
   { "type"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_hf_h235_type },
@@ -540,8 +530,8 @@ static per_sequence_t TypedCertificate_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_TypedCertificate(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_TypedCertificate(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_TypedCertificate, TypedCertificate_sequence);
 
@@ -552,8 +542,8 @@ static int dissect_hf_h235_certificate(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static guint32
-dissect_h235_NULL(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_NULL(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   { proto_item *ti_tmp;
   ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
   proto_item_append_text(ti_tmp, ": NULL");
@@ -592,14 +582,15 @@ static const value_string AuthenticationBES_vals[] = {
   {   1, "radius" },
   { 0, NULL }
 };
+
 static per_choice_t AuthenticationBES_choice[] = {
   {   0, "default"                     , ASN1_EXTENSION_ROOT    , dissect_hf_h235_default },
   {   1, "radius"                      , ASN1_EXTENSION_ROOT    , dissect_hf_h235_radius },
   { 0, NULL, 0, NULL }
 };
 
-static guint32
-dissect_h235_AuthenticationBES(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_AuthenticationBES(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h235_AuthenticationBES, AuthenticationBES_choice, "AuthenticationBES",
                               NULL);
@@ -622,6 +613,7 @@ const value_string AuthenticationMechanism_vals[] = {
   {   7, "authenticationBES" },
   { 0, NULL }
 };
+
 static per_choice_t AuthenticationMechanism_choice[] = {
   {   0, "dhExch"                      , ASN1_EXTENSION_ROOT    , dissect_hf_h235_dhExch },
   {   1, "pwdSymEnc"                   , ASN1_EXTENSION_ROOT    , dissect_hf_h235_pwdSymEnc },
@@ -634,8 +626,8 @@ static per_choice_t AuthenticationMechanism_choice[] = {
   { 0, NULL, 0, NULL }
 };
 
-guint32
-dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+int
+dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h235_AuthenticationMechanism, AuthenticationMechanism_choice, "AuthenticationMechanism",
                               NULL);
@@ -644,8 +636,9 @@ dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, guint32 offset, packet_info 
 }
 
 
-static guint32
-dissect_h235_INTEGER(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+
+static int
+dissect_h235_INTEGER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_integer(tvb, offset, pinfo, tree, hf_index,
                                NULL, NULL);
 
@@ -656,8 +649,8 @@ static int dissect_hf_h235_ranInt(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static guint32
-dissect_h235_IV8(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_IV8(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                     8, 8,
                                     NULL, NULL);
@@ -669,8 +662,8 @@ static int dissect_hf_h235_iv8(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
-static guint32
-dissect_h235_IV16(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_IV16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                     16, 16,
                                     NULL, NULL);
@@ -690,8 +683,8 @@ static per_sequence_t Params_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_Params(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_Params(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_Params, Params_sequence);
 
@@ -711,8 +704,8 @@ static per_sequence_t ENCRYPTEDxxx_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-guint32
-dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+int
+dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_ENCRYPTEDxxx, ENCRYPTEDxxx_sequence);
@@ -733,8 +726,8 @@ static int dissect_hf_h235_encrptval(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static guint32
-dissect_h235_BIT_STRING(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_BIT_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
                                   -1, -1);
 
@@ -755,8 +748,8 @@ static per_sequence_t SIGNEDxxx_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-guint32
-dissect_h235_SIGNEDxxx(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+int
+dissect_h235_SIGNEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_SIGNEDxxx, SIGNEDxxx_sequence);
@@ -785,8 +778,8 @@ static per_sequence_t V3KeySyncMaterial_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_V3KeySyncMaterial(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_V3KeySyncMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_V3KeySyncMaterial, V3KeySyncMaterial_sequence);
 
@@ -804,6 +797,7 @@ static const value_string H235Key_vals[] = {
   {   3, "secureSharedSecret" },
   { 0, NULL }
 };
+
 static per_choice_t H235Key_choice[] = {
   {   0, "secureChannel"               , ASN1_EXTENSION_ROOT    , dissect_hf_h235_secureChannel },
   {   1, "sharedSecret"                , ASN1_EXTENSION_ROOT    , dissect_hf_h235_sharedSecret },
@@ -812,8 +806,8 @@ static per_choice_t H235Key_choice[] = {
   { 0, NULL, 0, NULL }
 };
 
-static guint32
-dissect_h235_H235Key(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_H235Key(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h235_H235Key, H235Key_choice, "H235Key",
                               NULL);
@@ -840,8 +834,8 @@ static per_sequence_t ClearToken_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-guint32
-dissect_h235_ClearToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+int
+dissect_h235_ClearToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_ClearToken, ClearToken_sequence);
@@ -859,8 +853,8 @@ static per_sequence_t HASHEDxxx_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-guint32
-dissect_h235_HASHEDxxx(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+int
+dissect_h235_HASHEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_HASHEDxxx, HASHEDxxx_sequence);
@@ -872,21 +866,14 @@ static int dissect_hf_h235_hashedToken(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static guint32
-dissect_h235_PwdCertToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  offset = dissect_h235_ClearToken(tvb, offset, pinfo, tree, hf_index);
-
-  return offset;
-}
-
 static per_sequence_t T_cryptoEncryptedToken_sequence[] = {
   { "tokenOID"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_tokenOID },
   { "token"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_encryptedToken },
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_T_cryptoEncryptedToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_T_cryptoEncryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_T_cryptoEncryptedToken, T_cryptoEncryptedToken_sequence);
 
@@ -902,8 +889,8 @@ static per_sequence_t T_cryptoSignedToken_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_T_cryptoSignedToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_T_cryptoSignedToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_T_cryptoSignedToken, T_cryptoSignedToken_sequence);
 
@@ -920,8 +907,8 @@ static per_sequence_t T_cryptoHashedToken_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static guint32
-dissect_h235_T_cryptoHashedToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int
+dissect_h235_T_cryptoHashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h235_T_cryptoHashedToken, T_cryptoHashedToken_sequence);
 
@@ -939,6 +926,7 @@ const value_string CryptoToken_vals[] = {
   {   3, "cryptoPwdEncr" },
   { 0, NULL }
 };
+
 static per_choice_t CryptoToken_choice[] = {
   {   0, "cryptoEncryptedToken"        , ASN1_EXTENSION_ROOT    , dissect_hf_h235_cryptoEncryptedToken },
   {   1, "cryptoSignedToken"           , ASN1_EXTENSION_ROOT    , dissect_hf_h235_cryptoSignedToken },
@@ -947,8 +935,8 @@ static per_choice_t CryptoToken_choice[] = {
   { 0, NULL, 0, NULL }
 };
 
-guint32
-dissect_h235_CryptoToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+int
+dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h235_CryptoToken, CryptoToken_choice, "CryptoToken",
@@ -957,68 +945,9 @@ dissect_h235_CryptoToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, prot
   return offset;
 }
 
-static per_sequence_t KeySignedMaterial_sequence[] = {
-  { "generalId"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_generalId },
-  { "mrandom"                     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_mrandom },
-  { "srandom"                     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_hf_h235_srandom },
-  { "timeStamp"                   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_hf_h235_timeStamp },
-  { "encrptval"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_encrptval },
-  { NULL, 0, 0, NULL }
-};
 
-static guint32
-dissect_h235_KeySignedMaterial(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
-                                ett_h235_KeySignedMaterial, KeySignedMaterial_sequence);
 
-  return offset;
-}
 
-static per_sequence_t H235CertificateSignature_sequence[] = {
-  { "certificate"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_hf_h235_certificate },
-  { "responseRandom"              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_hf_h235_responseRandom },
-  { "requesterRandom"             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_hf_h235_requesterRandom },
-  { "signature"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_hf_h235_signature },
-  { NULL, 0, 0, NULL }
-};
-
-static guint32
-dissect_h235_H235CertificateSignature(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
-                                ett_h235_H235CertificateSignature, H235CertificateSignature_sequence);
-
-  return offset;
-}
-
-static per_sequence_t ReturnSig_sequence[] = {
-  { "generalId"                   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_generalId },
-  { "responseRandom"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_responseRandom },
-  { "requestRandom"               , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_hf_h235_requestRandom },
-  { "certificate"                 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_hf_h235_certificate },
-  { NULL, 0, 0, NULL }
-};
-
-static guint32
-dissect_h235_ReturnSig(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
-                                ett_h235_ReturnSig, ReturnSig_sequence);
-
-  return offset;
-}
-
-static per_sequence_t KeySyncMaterial_sequence[] = {
-  { "generalID"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_hf_h235_generalID },
-  { "keyMaterial"                 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_hf_h235_keyMaterial },
-  { NULL, 0, 0, NULL }
-};
-
-static guint32
-dissect_h235_KeySyncMaterial(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
-                                ett_h235_KeySyncMaterial, KeySyncMaterial_sequence);
-
-  return offset;
-}
 
 
 /*--- End of included file: packet-h235-fn.c ---*/

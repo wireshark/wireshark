@@ -10,7 +10,7 @@
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id: packet-h235.h,v 1.2 2004/05/25 21:08:33 guy Exp $
+ * $Id: packet-h235.h,v 1.3 2004/06/03 19:07:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,13 +44,13 @@
 
 extern const value_string AuthenticationMechanism_vals[];
 extern const value_string CryptoToken_vals[];
-guint32 dissect_h235_TimeStamp(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-guint32 dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-guint32 dissect_h235_ClearToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-guint32 dissect_h235_SIGNEDxxx(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-guint32 dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-guint32 dissect_h235_HASHEDxxx(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-guint32 dissect_h235_CryptoToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h235_TimeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h235_ClearToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h235_SIGNEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h235_HASHEDxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-h235-exp.h ---*/
 
