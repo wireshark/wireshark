@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.65 2002/05/13 20:46:37 guy Exp $
+ * $Id: packet-ospf.c,v 1.66 2002/05/14 07:29:13 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1212,6 +1212,10 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     	ls_id_type = tvb_get_guint8(tvb, offset + 4);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 1, "Link State ID Opaque Type: %u",
 			    ls_id_type);
+	/*
+	 * XXX - the interpretation of the opaque ID field is dependent on
+	 * the type field.
+	 */
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 5, 3, "Link State ID Opaque ID: %u",
 			    tvb_get_ntoh24(tvb, offset + 5));
     } else {
@@ -1401,6 +1405,9 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     case OSPF_LSTYPE_OP_LINKLOCAL:
     case OSPF_LSTYPE_OP_AREALOCAL:
     case OSPF_LSTYPE_OP_ASWIDE:
+	/*
+	 * RFC 2370 opaque LSAs.
+	 */
 	dissect_ospf_lsa_opaque(tvb, offset, ospf_lsa_tree, ls_id_type,
 				ls_length);
 	offset += ls_length;
