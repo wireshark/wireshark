@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.17 2002/09/08 01:43:44 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.18 2002/09/10 23:44:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,34 +135,126 @@ static int hf_ntlmssp_negotiate_domain_buffer = -1;
 static int hf_ntlmssp_negotiate_domain = -1;
 static int hf_ntlmssp_ntlm_challenge = -1;
 static int hf_ntlmssp_reserved = -1;
-static int hf_ntlmssp_challenge_unknown1 = -1;
-static int hf_ntlmssp_challenge_unknown2 = -1;
-static int hf_ntlmssp_auth_lmresponse_strlen = -1;
-static int hf_ntlmssp_auth_lmresponse_maxlen = -1;
-static int hf_ntlmssp_auth_lmresponse_offset = -1;
-static int hf_ntlmssp_auth_ntresponse_strlen = -1;
-static int hf_ntlmssp_auth_ntresponse_maxlen = -1;
-static int hf_ntlmssp_auth_ntresponse_offset = -1;
-static int hf_ntlmssp_auth_domain_strlen = -1;
-static int hf_ntlmssp_auth_domain_maxlen = -1;
-static int hf_ntlmssp_auth_domain_offset = -1;
-static int hf_ntlmssp_auth_username_strlen = -1;
-static int hf_ntlmssp_auth_username_maxlen = -1;
-static int hf_ntlmssp_auth_username_offset = -1;
-static int hf_ntlmssp_auth_hostname_strlen = -1;
-static int hf_ntlmssp_auth_hostname_maxlen = -1;
-static int hf_ntlmssp_auth_hostname_offset = -1;
-static int hf_ntlmssp_auth_unknown1_strlen = -1;
-static int hf_ntlmssp_auth_unknown1_maxlen = -1;
-static int hf_ntlmssp_auth_unknown1_offset = -1;
+static int hf_ntlmssp_challenge_domain = -1;
 static int hf_ntlmssp_auth_username = -1;
 static int hf_ntlmssp_auth_domain = -1;
 static int hf_ntlmssp_auth_hostname = -1;
 static int hf_ntlmssp_auth_lmresponse = -1;
 static int hf_ntlmssp_auth_ntresponse = -1;
-static int hf_ntlmssp_auth_unknown1 = -1;
+static int hf_ntlmssp_auth_sesskey = -1;
+static int hf_ntlmssp_string_len = -1;
+static int hf_ntlmssp_string_maxlen = -1;
+static int hf_ntlmssp_string_offset = -1;
+static int hf_ntlmssp_blob_len = -1;
+static int hf_ntlmssp_blob_maxlen = -1;
+static int hf_ntlmssp_blob_offset = -1;
+static int hf_ntlmssp_address_list = -1;
+static int hf_ntlmssp_address_list_len = -1;
+static int hf_ntlmssp_address_list_maxlen = -1;
+static int hf_ntlmssp_address_list_offset = -1;
+static int hf_ntlmssp_address_list_server_nb = -1;
+static int hf_ntlmssp_address_list_domain_nb = -1;
+static int hf_ntlmssp_address_list_server_dns = -1;
+static int hf_ntlmssp_address_list_domain_dns = -1;
+
 static gint ett_ntlmssp = -1;
 static gint ett_ntlmssp_negotiate_flags = -1;
+static gint ett_ntlmssp_string = -1;
+static gint ett_ntlmssp_blob = -1;
+static gint ett_ntlmssp_address_list = -1;
+
+/* dissect a string - header area contains:
+     two byte len
+     two byte maxlen
+     four byte offset of string in data area
+  The function returns the offset at the end of the string header,
+  but the 'end' parameter returns the offset of the end of the string itself
+*/
+static int
+dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
+			proto_tree *ntlmssp_tree, 
+			gboolean unicode_strings,
+			int string_hf, int *end)
+{
+  proto_tree *tree = NULL;
+  proto_item *tf = NULL;
+  gint16 string_length = tvb_get_letohs(tvb, offset);
+  gint16 string_maxlen = tvb_get_letohs(tvb, offset+2);
+  gint32 string_offset = tvb_get_letohl(tvb, offset+4);
+  const char *string_text = NULL;
+  int result_length;
+  guint16 bc;
+
+  if (0 == string_length) {
+    *end = (string_offset > offset+8 ? string_offset : offset+8);
+    return offset+8;
+  }
+
+  bc = string_length;
+  string_text = get_unicode_or_ascii_string(tvb, &string_offset,
+					    unicode_strings, &result_length,
+					    FALSE, FALSE, &bc);
+
+  if (ntlmssp_tree) {
+    tf = proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
+			       string_offset, result_length, string_text);
+    tree = proto_item_add_subtree(tf, ett_ntlmssp_string);
+  }
+  proto_tree_add_uint(tree, hf_ntlmssp_string_len,
+		      tvb, offset, 2, string_length);
+  offset += 2;
+  proto_tree_add_uint(tree, hf_ntlmssp_string_maxlen,
+		      tvb, offset, 2, string_maxlen);
+  offset += 2;
+  proto_tree_add_uint(tree, hf_ntlmssp_string_offset,
+		      tvb, offset, 4, string_offset);
+  offset += 4;
+
+  *end = string_offset + string_length;
+  return offset;
+}
+
+/* dissect a generic blowb - header area contains:
+     two byte len
+     two byte maxlen
+     four byte offset of blob in data area
+  The function returns the offset at the end of the blob header,
+  but the 'end' parameter returns the offset of the end of the blob itself
+*/
+static int
+dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
+		      proto_tree *ntlmssp_tree, 
+		      int blob_hf, int *end)
+{
+  proto_item *tf = NULL;
+  proto_tree *tree = NULL;
+  gint16 blob_length = tvb_get_letohs(tvb, offset);
+  gint16 blob_maxlen = tvb_get_letohs(tvb, offset+2);
+  gint32 blob_offset = tvb_get_letohl(tvb, offset+4);
+
+  if (0 == blob_length) {
+    *end = (blob_offset > offset+8 ? blob_offset : offset+8);
+    return offset+8;
+  }
+
+  if (ntlmssp_tree) {
+    tf = proto_tree_add_item (ntlmssp_tree, blob_hf, tvb, 
+			      blob_offset, blob_length, FALSE);
+    tree = proto_item_add_subtree(tf, ett_ntlmssp_blob);
+  }
+  proto_tree_add_uint(tree, hf_ntlmssp_blob_len,
+		      tvb, offset, 2, blob_length);
+  offset += 2;
+  proto_tree_add_uint(tree, hf_ntlmssp_blob_maxlen,
+		      tvb, offset, 2, blob_maxlen);
+  offset += 2;
+  proto_tree_add_uint(tree, hf_ntlmssp_blob_offset,
+		      tvb, offset, 4, blob_offset);
+  offset += 4;
+
+  *end = blob_offset + blob_length;
+  return offset;
+}
 
 static int
 dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
@@ -285,81 +377,122 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset,
 			   proto_tree *ntlmssp_tree)
 {
   guint32 negotiate_flags;
-  guint16 workstation_length;
-  guint16 domain_length;
+  int workstation_end;
+  int domain_end;
 
   /* NTLMSSP Negotiate Flags */
   negotiate_flags = tvb_get_letohl (tvb, offset);
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
 					    negotiate_flags);
 
-  /* Calling workstation domain name length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_domain_strlen,
-		       tvb, offset, 2, TRUE);
-  domain_length = tvb_get_letohs (tvb, offset);
-  offset += 2;
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
+				  hf_ntlmssp_negotiate_workstation,
+				  &workstation_end);
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
+				  hf_ntlmssp_negotiate_domain,
+				  &domain_end);
 
-  /* Calling workstation domain name max length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_domain_maxlen,
-		       tvb, offset, 2, TRUE);
-  offset += 2;
-
-
-  /* Calling workstation domain name buffer? */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_domain_buffer,
-		       tvb, offset, 4, TRUE);
-  offset += 4;
-
-  /* Calling workstation name length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_workstation_strlen,
-		       tvb, offset, 2, TRUE);
-  workstation_length = tvb_get_letohs (tvb, offset);
-  offset += 2;
-
-  /* Calling workstation name max length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_workstation_maxlen,
-		       tvb, offset, 2, TRUE);
-  offset += 2;
-
-  /* Calling workstation name buffer? */
-  proto_tree_add_item(ntlmssp_tree, hf_ntlmssp_negotiate_workstation_buffer,
-		      tvb, offset, 4, TRUE);
-  offset += 4;
-
-  /* Calling workstation name */
-  if (workstation_length != 0) {
-    proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_workstation,
-			 tvb, offset, workstation_length, FALSE);
-    offset += workstation_length;
-  }
-
-  /* Calling domain name */
-  if (domain_length != 0) {
-    proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_domain,
-			 tvb, offset, domain_length, FALSE);
-    offset += domain_length;
-  }
-
-  return offset;
+  return MAX(workstation_end, domain_end);
 }
 
+
+static int
+dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset, 
+			      proto_tree *ntlmssp_tree, 
+			      gboolean unicode_strings, int *end)
+{
+  gint16 list_length = tvb_get_letohs(tvb, offset);
+  gint16 list_maxlen = tvb_get_letohs(tvb, offset+2);
+  gint32 list_offset = tvb_get_letohl(tvb, offset+4);
+  gint16 item_type, item_length;
+  int item_offset;
+  proto_item *tf = NULL;
+  proto_tree *tree = NULL;
+
+  /* the address list is just a blob */
+  if (0 == list_length) {
+    *end = (list_offset > offset+8 ? list_offset : offset+8);
+    return offset+8;
+  }
+
+  if (ntlmssp_tree) {
+    tf = proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_address_list, tvb, 
+			      list_offset, list_length, FALSE);
+    tree = proto_item_add_subtree(tf, ett_ntlmssp_address_list);
+  }
+  proto_tree_add_uint(tree, hf_ntlmssp_address_list_len,
+		      tvb, offset, 2, list_length);
+  offset += 2;
+  proto_tree_add_uint(tree, hf_ntlmssp_address_list_maxlen,
+		      tvb, offset, 2, list_maxlen);
+  offset += 2;
+  proto_tree_add_uint(tree, hf_ntlmssp_address_list_offset,
+		      tvb, offset, 4, list_offset);
+  offset += 4;
+
+  item_offset = list_offset;
+  item_type = tvb_get_letohs(tvb, item_offset);
+  item_offset += 2;
+  item_length = tvb_get_letohs(tvb, item_offset);
+  item_offset += 2;
+  while (item_type) {
+    guint16 bc;
+    int result_length;
+    const char *text;
+    bc = item_length;
+    text = get_unicode_or_ascii_string(tvb, &item_offset,
+				       unicode_strings, &result_length,
+				       FALSE, FALSE, &bc);
+
+    switch(item_type) {
+    case 1:
+      proto_tree_add_string(tree, hf_ntlmssp_address_list_server_nb,
+			    tvb, item_offset, item_length, text);
+      break;
+    case 2:
+      proto_tree_add_string(tree, hf_ntlmssp_address_list_domain_nb,
+			    tvb, item_offset, item_length, text);
+      break;
+    case 3:
+      proto_tree_add_string(tree, hf_ntlmssp_address_list_server_dns,
+			    tvb, item_offset, item_length, text);
+      break;
+    case 4:
+      proto_tree_add_string(tree, hf_ntlmssp_address_list_domain_dns,
+			    tvb, item_offset, item_length, text);
+    }
+
+    item_offset += item_length;
+    item_type = tvb_get_letohs(tvb, item_offset);
+    item_offset += 2;
+    item_length = tvb_get_letohs(tvb, item_offset);
+    item_offset += 2;
+  }
+
+  *end = list_offset + list_length;
+  return offset;
+}
 
 static int
 dissect_ntlmssp_challenge (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
 {
   guint32 negotiate_flags;
+  int item_end;
+  int data_end = 0;
+  gboolean unicode_strings = FALSE;
 
-  /* Skip over the two unknown fields */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_challenge_unknown1,
-		       tvb, offset, 4, TRUE);
-  offset += 4;
+  /* need to find unicode flag */
+  negotiate_flags = tvb_get_letohl (tvb, offset+8);
+  if (negotiate_flags && NTLMSSP_NEGOTIATE_UNICODE)
+    unicode_strings = TRUE;
 
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_challenge_unknown2,
-		       tvb, offset, 4, TRUE);
-  offset += 4;
+  /* Domain name */
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings, 
+			 hf_ntlmssp_challenge_domain,
+			 &item_end);
+  data_end = item_end;
 
   /* NTLMSSP Negotiate Flags */
-  negotiate_flags = tvb_get_letohl (tvb, offset);
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
 					    negotiate_flags);
 
@@ -374,194 +507,69 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
 		       tvb, offset, 8, FALSE);
   offset += 8;
 
-  return offset;
+  offset = dissect_ntlmssp_address_list(tvb, offset, ntlmssp_tree, 
+					unicode_strings, &item_end);
+  data_end = MAX(data_end, item_end);
+
+  return MAX(offset, data_end);
 }
 
 static int
 dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
 {
-  guint16 lmresponse_length;
-  guint16 ntresponse_length;
-  guint16 domain_length;
-  guint16 username_length;
-  guint16 hostname_length;
-  guint16 unknown1_length;
+  int item_end;
+  int data_end = 0;
   guint32 negotiate_flags;
-  const gchar *username;
-  const gchar *domain;
-  const gchar *hostname;
-  int result_length;
-  guint16 bc;
   gboolean unicode_strings = FALSE;
 
-  /* Lan Manager response length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_lmresponse_strlen,
-		       tvb, offset, 2, TRUE);
-  lmresponse_length = tvb_get_letohs (tvb, offset);
-  offset += 2;
-
-  /* Lan Manager response max length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_lmresponse_maxlen,
-		       tvb, offset, 2, TRUE);
-  offset += 2;
-
-  /* Lan Manager response offset */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_lmresponse_offset,
-		       tvb, offset, 4, TRUE);
-  offset += 4;
-
-  /* NTLM response length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_ntresponse_strlen,
-		       tvb, offset, 2, TRUE);
-  ntresponse_length = tvb_get_letohs (tvb, offset);
-  offset += 2;
-
-  /* NTLM response max length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_ntresponse_maxlen,
-		       tvb, offset, 2, TRUE);
-  offset += 2;
-
-  /* NTLM response offset */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_ntresponse_offset,
-		       tvb, offset, 4, TRUE);
-  offset += 4;
-
-  /* Domain name length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_domain_strlen,
-		       tvb, offset, 2, TRUE);
-  domain_length = tvb_get_letohs (tvb, offset);
-  offset += 2;
-
-  /* Domain name max length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_domain_maxlen,
-		       tvb, offset, 2, TRUE);
-  offset += 2;
-
-  /* Domain name offset */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_domain_offset,
-		       tvb, offset, 4, TRUE);
-  offset += 4;
-
-  /* Username length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_username_strlen,
-		       tvb, offset, 2, TRUE);
-  username_length = tvb_get_letohs (tvb, offset);
-  offset += 2;
-
-  /* Username max length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_username_maxlen,
-		       tvb, offset, 2, TRUE);
-  offset += 2;
-
-  /* Username offset */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_username_offset,
-		       tvb, offset, 4, TRUE);
-  offset += 4;
-
-  /* Hostname length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_hostname_strlen,
-		       tvb, offset, 2, TRUE);
-  hostname_length = tvb_get_letohs (tvb, offset);
-  offset += 2;
-
-  /* Hostname max length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_hostname_maxlen,
-		       tvb, offset, 2, TRUE);
-  offset += 2;
-
-  /* Hostname offset */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_hostname_offset,
-		       tvb, offset, 4, TRUE);
-  offset += 4;
-
-  /* Unknown1 length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_unknown1_strlen,
-		       tvb, offset, 2, TRUE);
-  unknown1_length = tvb_get_letohs (tvb, offset);
-  offset += 2;
-
-  /* Unknown1 max length */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_unknown1_maxlen,
-		       tvb, offset, 2, TRUE);
-  offset += 2;
-
-  /* Unknown1 offset */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_unknown1_offset,
-		       tvb, offset, 4, TRUE);
-  offset += 4;
-
-  /* NTLMSSP Negotiate Flags */
-  negotiate_flags = tvb_get_letohl (tvb, offset);
-  offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
-					    negotiate_flags);
-
+  negotiate_flags = tvb_get_letohl (tvb, offset+50);
   if (negotiate_flags && NTLMSSP_NEGOTIATE_UNICODE)
     unicode_strings = TRUE;
 
-  /* Domain name */
-  if (domain_length != 0) {
-    bc = domain_length;
-    domain = get_unicode_or_ascii_string(tvb, &offset,
-					 unicode_strings, &result_length,
-					 FALSE, FALSE, &bc);
-    if (domain == NULL) {
-      offset += domain_length;
-      return offset;
-    }
+  /* Lan Manager response */
+  offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
+				hf_ntlmssp_auth_lmresponse,
+				&item_end);
+  data_end = MAX(data_end, item_end);
 
-    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_domain, tvb,
-			  offset, result_length, domain);
-    offset += domain_length;
-  }
+  /* NTLM response */
+  offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
+				hf_ntlmssp_auth_ntresponse,
+				&item_end);
+  data_end = MAX(data_end, item_end);
 
-  /* User name */
-  if (username_length != 0) {
-    bc = username_length;
-    username = get_unicode_or_ascii_string(tvb, &offset,
-					   unicode_strings, &result_length,
-					   FALSE, FALSE, &bc);
-    if (username == NULL) {
-      offset += username_length;
-      return offset;
-    }
+  /* domain name */
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
+				  unicode_strings, 
+				  hf_ntlmssp_auth_domain,
+				  &item_end);
+  data_end = MAX(data_end, item_end);
 
-    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_username, tvb,
-			  offset, result_length, username);
-    offset += username_length;
-  }
+  /* user name */
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
+				  unicode_strings, 
+				  hf_ntlmssp_auth_username,
+				  &item_end);
+  data_end = MAX(data_end, item_end);
 
-  /* Host name */
-  if (hostname_length != 0) {
-    bc = hostname_length;
-    hostname = get_unicode_or_ascii_string(tvb, &offset,
-					   unicode_strings, &result_length,
-					   FALSE, FALSE, &bc);
-    if (hostname == NULL) {
-      offset += hostname_length;
-      return offset;
-    }
+  /* hostname */
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
+				  unicode_strings, 
+				  hf_ntlmssp_auth_hostname,
+				  &item_end);
+  data_end = MAX(data_end, item_end);
 
-    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_hostname, tvb,
-			  offset, result_length, hostname);
-    offset += hostname_length;
-  }
+  /* Session Key */
+  offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
+				hf_ntlmssp_auth_sesskey,
+				&item_end);
+  data_end = MAX(data_end, item_end);
 
-  /* Lan Manager Response */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_lmresponse,
-		       tvb, offset, lmresponse_length, FALSE);
-  offset += lmresponse_length;
+  /* NTLMSSP Negotiate Flags */
+  offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
+					    negotiate_flags);
 
-  /* NTLM Response */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_ntresponse,
-		       tvb, offset, ntresponse_length, FALSE);
-  offset += ntresponse_length;
-
-  /* Unknown1 */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_unknown1,
-		       tvb, offset, unknown1_length, FALSE);
-  offset += unknown1_length;
-
-  return offset;
+  return MAX(offset, data_end);
 }
 
 static void
@@ -735,46 +743,8 @@ proto_register_ntlmssp(void)
       { "NTLM Challenge", "ntlmssp.ntlmchallenge", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_reserved,
       { "Reserved", "ntlmssp.reserved", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_challenge_unknown1,
-      { "Unknown1", "ntlmssp.challenge.unknown1", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_challenge_unknown2,
-      { "Unknown2", "ntlmssp.challenge.unknown2", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_lmresponse_strlen,
-      { "Lan Manager response length", "ntlmssp.auth.lmresponse.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_lmresponse_maxlen,
-      { "Lan Manager response max length", "ntlmssp.auth.lmresponse.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_lmresponse_offset,
-      { "Lan Manager response offset", "ntlmssp.auth.lmresponse.offset", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_ntresponse_strlen,
-      { "NTLM response length", "ntlmssp.auth.ntresponse.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_ntresponse_maxlen,
-      { "NTLM response max length", "ntlmssp.auth.ntresponse.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_ntresponse_offset,
-      { "NTLM response offset", "ntlmssp.auth.ntresponse.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_domain_strlen,
-      { "Domain name length", "ntlmssp.auth.domain.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_domain_maxlen,
-      { "Domain name max length", "ntlmssp.auth.domain.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_domain_offset,
-      { "Domain name offset", "ntlmssp.auth.domain.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_username_strlen,
-      { "Username length", "ntlmssp.auth.username.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_username_maxlen,
-      { "Username max length", "ntlmssp.auth.username.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_username_offset,
-      { "Username offset", "ntlmssp.auth.username.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_hostname_strlen,
-      { "Hostname length", "ntlmssp.auth.hostname.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_hostname_maxlen,
-      { "Hostname max length", "ntlmssp.auth.hostname.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_hostname_offset,
-      { "Hostname offset", "ntlmssp.auth.hostname.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_unknown1_strlen,
-      { "Unknown1 length", "ntlmssp.auth.unknown1.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_unknown1_maxlen,
-      { "Unknown1 max length", "ntlmssp.auth.unknown1.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_unknown1_offset,
-      { "Unknown1 offset", "ntlmssp.auth.unknown1.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_challenge_domain,
+      { "Domain", "ntlmssp.challenge.domain", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_auth_domain,
       { "Domain name", "ntlmssp.auth.domain", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_auth_username,
@@ -785,14 +755,46 @@ proto_register_ntlmssp(void)
       { "Lan Manager Response", "ntlmssp.auth.lmresponse", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_auth_ntresponse,
       { "NTLM Response", "ntlmssp.auth.ntresponse", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_ntlmssp_auth_unknown1,
-      { "Unknown1", "ntlmssp.auth.unknown1", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }}
+    { &hf_ntlmssp_auth_sesskey,
+      { "Session Key", "ntlmssp.auth.sesskey", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_string_len,
+      { "Length", "ntlmssp.string.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_string_maxlen,
+      { "Maxlen", "ntlmssp.string.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_string_offset,
+      { "Offset", "ntlmssp.string.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_blob_len,
+      { "Length", "ntlmssp.blob.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_blob_maxlen,
+      { "Maxlen", "ntlmssp.blob.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_blob_offset,
+      { "Offset", "ntlmssp.blob.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_address_list,
+      { "Address List", "ntlmssp.challenge.addresslist", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_address_list_len,
+      { "Length", "ntlmssp.challenge.addresslist.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_address_list_maxlen,
+      { "Maxlen", "ntlmssp.challenge.addresslist.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_address_list_offset,
+      { "Offset", "ntlmssp.challenge.addresslist.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_address_list_server_nb,
+      { "Server NetBIOS Name", "ntlmssp.challenge.addresslist.servernb", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_address_list_domain_nb,
+      { "Domain NetBIOS Name", "ntlmssp.challenge.addresslist.domainnb", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_address_list_server_dns,
+      { "Server DNS Name", "ntlmssp.challenge.addresslist.serverdns", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_address_list_domain_dns,
+      { "Domain DNS Name", "ntlmssp.challenge.addresslist.domaindns", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+
   };
 
 
   static gint *ett[] = {
     &ett_ntlmssp,
     &ett_ntlmssp_negotiate_flags,
+    &ett_ntlmssp_string,
+    &ett_ntlmssp_blob,
+    &ett_ntlmssp_address_list
   };
 
   proto_ntlmssp = proto_register_protocol (

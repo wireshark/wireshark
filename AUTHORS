@@ -1348,6 +1348,7 @@ Prabhakar Krishnan <Prabhakar.Krishnan[AT]netapp.com> {
 
 Jim McDonough <jmcd[AT]us.ibm.com> {
 	Support for LsaQueryInformationPolicy2 in the LSA dissector
+	NTLMSSP updates
 }
 
 Sergei Shokhor <sshokhor[AT]uroam.com> {
