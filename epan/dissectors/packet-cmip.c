@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-cmip.c                                                            */
-/* ../../tools/asn2eth.py -X -b -k -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
+/* ../../tools/asn2eth.py -X -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
 
 /* Input file: packet-cmip-template.c */
 
@@ -490,7 +490,7 @@ static int dissect_referenceObjectInstance(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_cmip_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -2829,7 +2829,7 @@ void proto_register_cmip(void) {
         "ObjectClass/oclocalForm", HFILL }},
     { &hf_cmip_distinguishedName,
       { "distinguishedName", "cmip.distinguishedName",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ObjectInstance/distinguishedName", HFILL }},
     { &hf_cmip_nonSpecificForm,
       { "nonSpecificForm", "cmip.nonSpecificForm",
@@ -2837,7 +2837,7 @@ void proto_register_cmip(void) {
         "ObjectInstance/nonSpecificForm", HFILL }},
     { &hf_cmip_localDistinguishedName,
       { "localDistinguishedName", "cmip.localDistinguishedName",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ObjectInstance/localDistinguishedName", HFILL }},
     { &hf_cmip_globalForm,
       { "globalForm", "cmip.globalForm",

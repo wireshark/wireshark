@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-cmip.h                                                            */
-/* ../../tools/asn2eth.py -X -b -k -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
+/* ../../tools/asn2eth.py -X -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
 
 /* Input file: packet-cmip-template.h */
 

@@ -503,7 +503,7 @@ static int dissect_mailListIdentifier(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ess_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -760,7 +760,7 @@ void proto_register_ess(void) {
         "ReceiptRequest/receiptsTo", HFILL }},
     { &hf_ess_receiptsTo_item,
       { "Item", "ess.receiptsTo_item",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ReceiptRequest/receiptsTo/_item", HFILL }},
     { &hf_ess_allOrFirstTier,
       { "allOrFirstTier", "ess.allOrFirstTier",
@@ -772,7 +772,7 @@ void proto_register_ess(void) {
         "ReceiptsFrom/receiptList", HFILL }},
     { &hf_ess_receiptList_item,
       { "Item", "ess.receiptList_item",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ReceiptsFrom/receiptList/_item", HFILL }},
     { &hf_ess_version,
       { "version", "ess.version",
@@ -844,7 +844,7 @@ void proto_register_ess(void) {
         "MLReceiptPolicy/insteadOf", HFILL }},
     { &hf_ess_insteadOf_item,
       { "Item", "ess.insteadOf_item",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "MLReceiptPolicy/insteadOf/_item", HFILL }},
     { &hf_ess_inAdditionTo,
       { "inAdditionTo", "ess.inAdditionTo",
@@ -852,7 +852,7 @@ void proto_register_ess(void) {
         "MLReceiptPolicy/inAdditionTo", HFILL }},
     { &hf_ess_inAdditionTo_item,
       { "Item", "ess.inAdditionTo_item",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "MLReceiptPolicy/inAdditionTo/_item", HFILL }},
     { &hf_ess_certs,
       { "certs", "ess.certs",
@@ -880,7 +880,7 @@ void proto_register_ess(void) {
         "ESSCertID/issuerSerial", HFILL }},
     { &hf_ess_issuer,
       { "issuer", "ess.issuer",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "IssuerSerial/issuer", HFILL }},
     { &hf_ess_serialNumber,
       { "serialNumber", "ess.serialNumber",

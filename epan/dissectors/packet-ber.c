@@ -1371,7 +1371,7 @@ int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *pa
 }
 
 int 
-dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
+dissect_ber_GeneralizedTime(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
 {
 	char str[32];
 	const guint8 *tmpstr;
@@ -1381,17 +1381,23 @@ dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 	guint32 len;
 	int end_offset;
 
-	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
-	end_offset=offset+len;
+	if(!implicit_tag){
+	  offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+	  offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	  end_offset=offset+len;
 
-	/* sanity check. we only handle universal/generalized time */
-	if( (class!=BER_CLASS_UNI)
+	  /* sanity check. we only handle universal/generalized time */
+	  if( (class!=BER_CLASS_UNI)
 	  ||(tag!=BER_UNI_TAG_GeneralizedTime)){
 	        proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: GeneralizedTime expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 		return end_offset;
 		end_offset=offset+len;
+	  }
+        } else {
+	  len=tvb_length_remaining(tvb,offset);
+	  end_offset=offset+len;
 	}
+	  
 
 	tmpstr=tvb_get_ptr(tvb, offset, len);
 	snprintf(str, 31, "%.4s-%.2s-%.2s %.2s:%.2s:%.2s (%.1s)",

@@ -476,7 +476,7 @@ static int dissect_responderID(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_ocsp_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -641,7 +641,7 @@ dissect_ocsp_BasicOCSPResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 static int
 dissect_ocsp_ArchiveCutoff(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -854,7 +854,7 @@ void proto_register_ocsp(void) {
         "TBSRequest/requestList/_item", HFILL }},
     { &hf_ocsp_requestExtensions,
       { "requestExtensions", "ocsp.requestExtensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "TBSRequest/requestExtensions", HFILL }},
     { &hf_ocsp_signatureAlgorithm,
       { "signatureAlgorithm", "ocsp.signatureAlgorithm",
@@ -878,7 +878,7 @@ void proto_register_ocsp(void) {
         "Request/reqCert", HFILL }},
     { &hf_ocsp_singleRequestExtensions,
       { "singleRequestExtensions", "ocsp.singleRequestExtensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Request/singleRequestExtensions", HFILL }},
     { &hf_ocsp_hashAlgorithm,
       { "hashAlgorithm", "ocsp.hashAlgorithm",
@@ -934,7 +934,7 @@ void proto_register_ocsp(void) {
         "ResponseData/responses/_item", HFILL }},
     { &hf_ocsp_responseExtensions,
       { "responseExtensions", "ocsp.responseExtensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ResponseData/responseExtensions", HFILL }},
     { &hf_ocsp_byName,
       { "byName", "ocsp.byName",
@@ -962,7 +962,7 @@ void proto_register_ocsp(void) {
         "SingleResponse/nextUpdate", HFILL }},
     { &hf_ocsp_singleExtensions,
       { "singleExtensions", "ocsp.singleExtensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SingleResponse/singleExtensions", HFILL }},
     { &hf_ocsp_good,
       { "good", "ocsp.good",

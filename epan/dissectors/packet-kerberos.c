@@ -1463,14 +1463,14 @@ dissect_krb5_KDCOptions(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 static int
 dissect_krb5_rtime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_rtime);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_rtime);
 	return offset;
 }
 
 int
 dissect_krb5_ctime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_ctime);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_ctime);
 	return offset;
 }
 static int
@@ -1483,7 +1483,7 @@ dissect_krb5_cusec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 static int
 dissect_krb5_stime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_stime);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_stime);
 	return offset;
 }
 static int
@@ -1512,13 +1512,13 @@ dissect_krb5_error_code(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 static int
 dissect_krb5_till(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_till);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_till);
 	return offset;
 }
 static int
 dissect_krb5_from(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_from);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_from);
 	return offset;
 }
 
@@ -1885,7 +1885,7 @@ dissect_krb5_pausec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 static int
 dissect_krb5_patimestamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_patimestamp);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_patimestamp);
 	return offset;
 }
 static const ber_sequence PA_ENC_TS_ENC_sequence[] = {
@@ -2577,25 +2577,25 @@ dissect_krb5_transited(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 static int
 dissect_krb5_authtime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_authtime);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_authtime);
 	return offset;
 }
 static int
 dissect_krb5_starttime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_starttime);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_starttime);
 	return offset;
 }
 static int
 dissect_krb5_endtime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_endtime);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_endtime);
 	return offset;
 }
 static int
 dissect_krb5_renew_till(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_renew_till);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_renew_till);
 	return offset;
 }
 
@@ -2703,7 +2703,7 @@ dissect_krb5_lr_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 static int
 dissect_krb5_lr_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_lr_time);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_lr_time);
 
 	return offset;
 }
@@ -2736,7 +2736,7 @@ dissect_krb5_LastReq_sequence_of(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 static int
 dissect_krb5_key_expiration(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_key_expire);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_key_expire);
 	return offset;
 }
 
@@ -2920,7 +2920,7 @@ dissect_krb5_SAFE_BODY_user_data(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 static int
 dissect_krb5_SAFE_BODY_timestamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_timestamp);
+	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_timestamp);
 	return offset;
 }
 

@@ -2787,8 +2787,8 @@ class GeneralizedTime (RestrictedCharacterStringType):
   def eth_type_fn(self, proto, tname, ectx):
     if (ectx.Ber()):
       out = ectx.eth_type_fn_hdr(tname)
-      body = ectx.eth_fn_call('dissect_ber_generalized_time', ret='offset',
-                              par=(('pinfo', 'tree', 'tvb', 'offset', 'hf_index'),))
+      body = ectx.eth_fn_call('dissect_ber_GeneralizedTime', ret='offset',
+                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index'),))
       out += ectx.eth_type_fn_body(tname, body)
       out += ectx.eth_type_fn_ftr(tname)
       return out

@@ -139,7 +139,7 @@ extern int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, pr
 extern int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id);
 
 
-extern int dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
+extern int dissect_ber_GeneralizedTime(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 
 typedef struct _asn_namedbit {
 	guint32 bit;
