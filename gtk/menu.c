@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.156 2004/02/03 00:16:59 ulfl Exp $
+ * $Id: menu.c,v 1.157 2004/02/03 17:59:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -822,6 +822,7 @@ static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpo
         file_save_as_cmd(after_save_open_recent_file, data);
         break;
     case(ESD_BTN_NO):
+        cf_close(&cfile);
         menu_open_recent_file_cmd(data);
         break;
     case(ESD_BTN_CANCEL):

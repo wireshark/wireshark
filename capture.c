@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.232 2004/01/31 03:22:37 guy Exp $
+ * $Id: capture.c,v 1.233 2004/02/03 17:59:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1533,18 +1533,27 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     }
     if (pcap_compile(pch, &fcode, cfile.cfilter, 1, netmask) < 0) {
       dfilter_t   *rfcode = NULL;
+      /* filter string invalid, did the user tried a display filter? */
       if (dfilter_compile(cfile.cfilter, &rfcode) && rfcode != NULL) {
         snprintf(errmsg, sizeof errmsg,
-          "Unable to parse capture filter string (%s).\n"
+          "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
-          "  That string looks like a valid display filter; note that display filters\n"
-          "  and capture filters don't have the same syntax, so you can't use\n"
-          "  most display filter expressions as capture filters.",
+          "That string looks like a valid display filter.\n"
+          "\n"
+          "Note that display filters and capture filters don't have the same syntax,\n"
+          "so you can't use most display filter expressions as capture filters.\n"
+          "\n"
+          "See help for correct capture filter syntax.",
+          simple_dialog_primary_start(), cfile.cfilter, simple_dialog_primary_end(),
           pcap_geterr(pch));
 	dfilter_free(rfcode);
       } else {
         snprintf(errmsg, sizeof errmsg,
-          "Unable to parse capture filter string (%s).",
+          "%sInvalid capture filter: \"%s\"!%s\n"
+          "\n"
+          "Unable to parse capture filter string (%s),\n"
+          "see help for correct capture filter syntax.",
+          simple_dialog_primary_start(), cfile.cfilter, simple_dialog_primary_end(),
           pcap_geterr(pch));
       }
       goto error;
@@ -2059,11 +2068,10 @@ gpointer 		callback_data)
 void
 capture_stop(void)
 {
+  if (fork_child != -1) {
 #ifndef _WIN32
-  if (fork_child != -1)
       kill(fork_child, SIGUSR1);
 #else
-  if (fork_child != -1) {
       /* XXX: this is not the preferred method of closing a process!
        * the clean way would be getting the process id of the child process,
        * then getting window handle hWnd of that process (using EnumChildWindows),
@@ -2077,8 +2085,8 @@ capture_stop(void)
        * And this also will require to have the process id
        */
       TerminateProcess((HANDLE) fork_child, 0);
-  }
 #endif
+  }
 }
 
 void

@@ -2,7 +2,7 @@
  * Definitions for dialog box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.7 2004/01/31 12:13:21 ulfl Exp $
+ * $Id: simple_dialog.h,v 1.8 2004/02/03 17:59:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,9 @@ typedef void (* simple_dialog_cb_t) (gpointer dialog, gint btn, gpointer data);
 
 /* set the callback function, which has to be called when a button was pressed */
 extern void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data);
+
+extern char *simple_dialog_primary_start(void);
+extern char *simple_dialog_primary_end(void);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.22 2004/01/31 12:49:54 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.23 2004/02/03 17:59:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -227,3 +227,15 @@ void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpoi
     OBJECT_SET_DATA(GTK_WIDGET(dialog), CALLBACK_FCT_KEY, callback_fct);
     OBJECT_SET_DATA(GTK_WIDGET(dialog), CALLBACK_DATA_KEY, data);
 }
+
+char *
+simple_dialog_primary_start(void) {
+    return PRIMARY_TEXT_START;
+}
+
+char *
+simple_dialog_primary_end(void) {
+    return PRIMARY_TEXT_END;
+}
+
+

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.91 2004/02/01 20:28:11 ulfl Exp $
+ * $Id: file_dlg.c,v 1.92 2004/02/03 17:59:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -347,6 +347,7 @@ void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
         file_save_as_cmd(after_save_open_dialog, data);
         break;
     case(ESD_BTN_NO):
+        cf_close(&cfile);
         file_open_cmd(data);
         break;
     case(ESD_BTN_CANCEL):
@@ -465,7 +466,7 @@ file_open_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   file_open_w = NULL;
 }
 
-void file_close_confirmed_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+void file_close_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
     switch(btn) {
     case(ESD_BTN_YES):
@@ -494,7 +495,7 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
                 PRIMARY_TEXT_START "Save capture file before closing it?" PRIMARY_TEXT_END "\n\n"
                 "If you close without saving, your capture data will be discarded.");
 
-    simple_dialog_set_cb(dialog, file_close_confirmed_cb, NULL);
+    simple_dialog_set_cb(dialog, file_close_answered_cb, NULL);
   } else {
     /* unchanged file, just close it */
     cf_close(&cfile);

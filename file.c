@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.356 2004/02/03 00:30:50 guy Exp $
+ * $Id: file.c,v 1.357 2004/02/03 17:59:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -667,8 +667,17 @@ cf_finish_tail(capture_file *cf, int *err)
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
     return (READ_ERROR);
-  } else
+  } else {
+    if(cf->count == 0) {
+      simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+      "%sNo packets captured!%s\n\n"
+      "As no data was captured, closing the %scapture file!",
+      simple_dialog_primary_start(), simple_dialog_primary_end(),
+      (cf->is_tempfile) ? "temporary " : "");
+      cf_close(cf);
+    }
     return (READ_SUCCESS);
+  }
 }
 #endif /* HAVE_LIBPCAP */
 
@@ -984,7 +993,13 @@ filter_packets(capture_file *cf, gchar *dftext)
     dftext = g_strdup(dftext);
     if (!dfilter_compile(dftext, &dfcode)) {
       /* The attempt failed; report an error. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, 
+          "%sInvalid display filter: \"%s\"!%s\n"
+          "\n"
+          "Unable to parse display filter string (%s),\n"
+          "see help for correct display filter syntax.",
+          simple_dialog_primary_start(), dftext, simple_dialog_primary_end(),
+          dfilter_error_msg);
       g_free(dftext);
       return 0;
     }
