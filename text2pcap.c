@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.24 2002/10/17 20:02:00 guy Exp $
+ * $Id: text2pcap.c,v 1.25 2003/02/27 02:30:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,8 +211,8 @@ static const char *token_str[] = {"",
 /* ----- Skeleton Packet Headers --------------------------------------------------*/
 
 typedef struct {
-    guint8  src_addr[6];
     guint8  dest_addr[6];
+    guint8  src_addr[6];
     guint16 l3pid;
 } hdr_ethernet_t;
 
