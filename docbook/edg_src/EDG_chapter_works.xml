@@ -21,7 +21,87 @@
 	  </title>
 	  <graphic entityref="EtherealFunctionBlocks" format="PNG"/>
 	</figure>
-	XXX - describe the blocks in detail
+	</para>
+	<para>
+	The function blocks in more detail:
+	<variablelist>
+	  <varlistentry><term><command>GTK 1/2</command></term>
+	    <listitem>
+	      <para>
+		  Handling of all user input/output (all windows, dialogs and such). 
+		  Source code can be found in the <filename>gtk</filename> directory.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Core</command></term>
+	    <listitem>
+	      <para>
+		  Main "glue code" that holds the other blocks together, source 
+		  code can be found in the root directory.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Epan</command></term>
+	    <listitem>
+	      <para>
+		  Ethereal Package ANalyzing (XXX - is this correct?) the packet 
+		  analyzing engine, source code can be found in the 
+		  <filename>epan</filename> directory.
+	      </para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		  Protocol-Tree - Keep data of the capture file protocol information.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		  Dissectors - The various protocol dissectors in 
+		  <filename>epan/dissectors</filename>.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		  Plugins - Some of the protocol dissectors are implemented as plugins, source 
+		  code at <filename>plugins</filename>.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		  Display-Filters - the display filter engine at 
+		  <filename>epan/dfilter</filename>.
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Capture</command></term>
+	    <listitem>
+	      <para>
+		  Capture engine.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Wiretap</command></term>
+	    <listitem>
+	      <para>
+		  The wiretap library is used to read/write capture files in libpcap 
+		  and a lot of other file formats, the source code is in the
+		  <filename>wiretap</filename> directory.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	  <term><command>Win-/libpcap (not part of the Ethereal package)</command></term>
+	    <listitem>
+	      <para>
+		  The platform dependant packet capture library, including the capture 
+		  filter engine. That's the reason why we still have different display 
+		  and capture filter syntax, as two different filtering engines used.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
 	</para>
   </section>
 
