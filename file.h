@@ -120,7 +120,7 @@ cf_read_status_t cf_read(capture_file *cf);
  * @param err the error code, if an error had occured
  * @return one of cf_status_t
  */
-cf_status_t cf_start_tail(capture_file *cf, const char *fname, const char *iface, gboolean is_tempfile, int *err);
+cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
 
 /**
  * Read packets from the "end" of a capture file.

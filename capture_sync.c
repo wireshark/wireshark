@@ -485,7 +485,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
     /* The child process started a capture.
        Attempt to open the capture file and set up to read it. */
-    switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, capture_opts->iface, is_tempfile, &err)) {
+    switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
     case CF_OK:
         /* We were able to open and set up to read the capture file;
            arrange that our callback be called whenever it's possible

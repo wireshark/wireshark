@@ -140,8 +140,6 @@ static   gboolean copy_binary_file(const char *from_filename, const char *to_fil
 #define	FRAME_DATA_CHUNK_SIZE	1024
 
 
-typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
-
 /* one callback for now, we could have a list later */
 cf_callback_t cf_cb = NULL;
 gpointer cf_cb_user_data = NULL;
@@ -165,7 +163,7 @@ cf_callback_add(cf_callback_t func, gpointer user_data)
 }
 
 void
-cf_callback_remove(cf_callback_t func)
+cf_callback_remove(cf_callback_t func _U_)
 {
     g_assert(cf_cb != NULL);
     cf_cb = NULL;
@@ -487,7 +485,7 @@ cf_read(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 cf_status_t
-cf_start_tail(capture_file *cf, const char *fname, const char *iface, gboolean is_tempfile, int *err)
+cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   cf_status_t cf_status;
 
