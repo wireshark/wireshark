@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.244 2002/04/22 01:07:19 guy Exp $
+ * $Id: packet-smb.c,v 1.245 2002/04/22 01:54:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7024,9 +7024,11 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 
 	}
 
-	if (len == -1)
+	if (len == -1) {
 		proto_item_set_len(item, offset-old_offset);
-	return offset;
+		return offset;
+	} else
+		return offset+len;
 }
 
 static int
