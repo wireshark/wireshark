@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.3 2001/08/18 07:59:33 guy Exp $
+ * $Id: packet-gnutella.c,v 1.4 2001/10/25 21:00:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,12 +178,21 @@ static void dissect_gnutella_query(tvbuff_t *tvb, int offset, proto_tree *tree, 
 		GNUTELLA_SHORT_LENGTH,
 		min_speed);
 
-	proto_tree_add_item(tree,
-		hf_gnutella_query_search,
-		tvb,
-		offset + GNUTELLA_QUERY_SEARCH_OFFSET,
-		size - GNUTELLA_SHORT_LENGTH,
-		FALSE);
+    if (size > GNUTELLA_SHORT_LENGTH) {
+        proto_tree_add_item(tree,
+            hf_gnutella_query_search,
+            tvb,
+            offset + GNUTELLA_QUERY_SEARCH_OFFSET,
+            size - GNUTELLA_SHORT_LENGTH,
+            FALSE);
+    }
+    else {
+        proto_tree_add_text(tree,
+            tvb,
+            offset + GNUTELLA_QUERY_SEARCH_OFFSET,
+            0,
+            "Missing data for Query Search.");
+    }
 }
 
 static void dissect_gnutella_queryhit(tvbuff_t *tvb, int offset, proto_tree *tree, int size) {
