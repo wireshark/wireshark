@@ -1,3 +1,8 @@
+January 7, 1999
+	Made all filetypes provide a per-packet encapsulation type, and
+	removed wtap_encapsulation(), effectively getting rid of a per-file
+	encapsulation type.
+
 January 1, 1999
 	Added iptrace file format.
 
