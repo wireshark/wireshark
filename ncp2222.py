@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.15 2002/05/09 23:50:24 gram Exp $
+$Id: ncp2222.py,v 1.16 2002/05/13 22:52:15 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -570,20 +570,20 @@ class NCP:
 		if self.request_records:
 			for record in self.request_records:
 				var = record[REC_FIELD]
-				variables[repr(var)] = var
+				variables[var.HFName()] = var
 
 				sub_vars = var.SubVariables()
 				for sv in sub_vars:
-					variables[repr(sv)] = sv
+					variables[sv.HFName()] = sv
 
 		if self.reply_records:
 			for record in self.reply_records:
 				var = record[REC_FIELD]
-				variables[repr(var)] = var
+				variables[var.HFName()] = var
 
 				sub_vars = var.SubVariables()
 				for sv in sub_vars:
-					variables[repr(sv)] = sv
+					variables[sv.HFName()] = sv
 
 		return variables.values()
 
@@ -5174,7 +5174,7 @@ def define_errors():
 def ExamineVars(vars, structs_hash, vars_hash):
 	for var in vars:
 		if isinstance(var, struct):
-			structs_hash[repr(var)] = var
+			structs_hash[var.HFName()] = var
 			struct_vars = var.Variables()
 			ExamineVars(struct_vars, structs_hash, vars_hash)
 		else:
