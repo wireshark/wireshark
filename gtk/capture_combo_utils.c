@@ -1,7 +1,7 @@
 /* capture_combo_utils.c
  * Utilities for combo box of interface names
  *
- * $Id: capture_combo_utils.c,v 1.3 2003/11/03 10:36:45 guy Exp $
+ * $Id: capture_combo_utils.c,v 1.4 2003/12/21 12:17:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,10 +28,9 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include <pcap.h>
 #include <string.h>
 #include <gtk/gtk.h>
-
-#include <pcap.h>
 
 #include "prefs.h"
 #include "pcap-util.h"

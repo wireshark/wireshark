@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.22 2003/11/26 02:54:05 guy Exp $
+ * $Id: pcap-util.c,v 1.23 2003/12/21 12:18:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,8 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include <pcap.h>
+
 #include <glib.h>
 
 #include <stdlib.h>
@@ -41,8 +43,6 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-
-#include <pcap.h>
 
 #include <wtap.h>
 #include <wtap-capture.h>

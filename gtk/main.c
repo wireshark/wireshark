@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.345 2003/12/17 23:41:10 ulfl Exp $
+ * $Id: main.c,v 1.346 2003/12/21 12:17:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,10 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_LIBPCAP
+#include <pcap.h>
+#endif
+
 #include <gtk/gtk.h>
 
 #include <string.h>
@@ -50,10 +54,6 @@
 
 #ifdef HAVE_IO_H
 #include <io.h> /* open/close on win32 */
-#endif
-
-#ifdef HAVE_LIBPCAP
-#include <pcap.h>
 #endif
 
 #ifdef NEED_SNPRINTF_H

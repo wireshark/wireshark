@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.104 2003/12/21 06:02:06 jmayer Exp $
+ * $Id: libpcap.c,v 1.105 2003/12/21 12:17:05 ulfl Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -24,6 +24,10 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_PCAP_H
+#include <pcap.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -37,7 +41,6 @@
 # ifdef HAVE_SYS_TYPES_H
 #   include <sys/types.h>
 # endif
-#include <pcap.h>
 #include "wtap-capture.h"
 #endif
 

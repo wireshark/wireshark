@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.74 2003/12/06 16:35:18 gram Exp $
+ * $Id: util.c,v 1.75 2003/12/21 12:19:39 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,10 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#ifdef HAVE_LIBPCAP
+#include <pcap.h>
+#endif /* HAVE_LIBPCAP */
 
 #include <glib.h>
 
@@ -63,10 +67,6 @@ typedef int mode_t;	/* for win32 */
 #ifdef HAVE_LIBPCRE
 #include <pcre.h>	/* to get the libpcre version number */
 #endif /* HAVE_LIBPCRE */
-
-#ifdef HAVE_LIBPCAP
-#include <pcap.h>
-#endif /* HAVE_LIBPCAP */
 
 /*
  * This has to come after the include of <pcap.h>, as the include of

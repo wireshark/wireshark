@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.7 2003/12/16 18:43:33 oabad Exp $
+ * $Id: capture_info_dlg.c,v 1.8 2003/12/21 12:17:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,12 +28,11 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include <pcap.h>
 #include <gtk/gtk.h>
 #include "gtk/compat_macros.h"
 
 #include <time.h>
-
-#include <pcap.h>
 
 #include <epan/packet.h>
 #include "../capture.h"

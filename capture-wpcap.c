@@ -3,7 +3,7 @@
  * time, so that we only need one Ethereal binary and one Tethereal binary
  * for Windows, regardless of whether WinPcap is installed or not.
  *
- * $Id: capture-wpcap.c,v 1.6 2003/10/10 09:48:54 guy Exp $
+ * $Id: capture-wpcap.c,v 1.7 2003/12/21 12:18:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,12 +28,12 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
-#include <gmodule.h>
-
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
 #endif
+
+#include <glib.h>
+#include <gmodule.h>
 
 #include "pcap-util.h"
 #include "pcap-util-int.h"
