@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.28 2001/11/13 23:55:40 gram Exp $
+ * $Id: plugin_api.h,v 1.29 2001/11/24 21:55:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -34,8 +34,6 @@
    and variables, from the system header files, turn into declarations
    of pointers to functions and variables, and the references to them in
    plugins, in the plugins, turn into references through the pointers. */
-#define pi				(*p_pi)
-
 #define	check_col			(*p_check_col)
 #define	col_clear			(*p_col_clear)
 #define	col_add_fstr			(*p_col_add_fstr)
