@@ -117,7 +117,7 @@ static gint ett_smrse_RPAlertSC = -1;
 
 
 
-static const value_string T_address_type_vals[] = {
+static const value_string smrse_T_address_type_vals[] = {
   {   0, "unknown-type" },
   {   1, "internat-number" },
   {   2, "national-number" },
@@ -138,7 +138,7 @@ static int dissect_address_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-static const value_string T_numbering_plan_vals[] = {
+static const value_string smrse_T_numbering_plan_vals[] = {
   {   0, "unknown-numbering" },
   {   1, "iSDN-numbering" },
   {   3, "data-network-numbering" },
@@ -207,7 +207,7 @@ static int dissect_octet_format(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-static const value_string T_address_value_vals[] = {
+static const value_string smrse_T_address_value_vals[] = {
   {   0, "octet-format" },
   { 0, NULL }
 };
@@ -319,7 +319,7 @@ dissect_smrse_SMR_Bind_Confirm(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 }
 
 
-static const value_string Connect_fail_vals[] = {
+static const value_string smrse_Connect_fail_vals[] = {
   {   0, "not-entitled" },
   {   1, "tmp-overload" },
   {   2, "tmp-failure" },
@@ -368,7 +368,7 @@ dissect_smrse_SMR_Unbind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 static int
 dissect_smrse_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -481,7 +481,7 @@ dissect_smrse_RPAck(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
 }
 
 
-static const value_string Error_reason_vals[] = {
+static const value_string smrse_Error_reason_vals[] = {
   {   1, "unknown-subscriber" },
   {   9, "illegal-subscriber" },
   {  11, "teleservice-not-provisioned" },
@@ -666,15 +666,15 @@ void proto_register_smrse(void) {
         "SMR-Bind/password", HFILL }},
     { &hf_smrse_address_type,
       { "address-type", "smrse.address_type",
-        FT_INT32, BASE_DEC, VALS(T_address_type_vals), 0,
+        FT_INT32, BASE_DEC, VALS(smrse_T_address_type_vals), 0,
         "SMS-Address/address-type", HFILL }},
     { &hf_smrse_numbering_plan,
       { "numbering-plan", "smrse.numbering_plan",
-        FT_INT32, BASE_DEC, VALS(T_numbering_plan_vals), 0,
+        FT_INT32, BASE_DEC, VALS(smrse_T_numbering_plan_vals), 0,
         "SMS-Address/numbering-plan", HFILL }},
     { &hf_smrse_address_value,
       { "address-value", "smrse.address_value",
-        FT_UINT32, BASE_DEC, VALS(T_address_value_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(smrse_T_address_value_vals), 0,
         "SMS-Address/address-value", HFILL }},
     { &hf_smrse_octet_format,
       { "octet-format", "smrse.octet_format",
@@ -682,7 +682,7 @@ void proto_register_smrse(void) {
         "SMS-Address/address-value/octet-format", HFILL }},
     { &hf_smrse_connect_fail_reason,
       { "connect-fail-reason", "smrse.connect_fail_reason",
-        FT_INT32, BASE_DEC, VALS(Connect_fail_vals), 0,
+        FT_INT32, BASE_DEC, VALS(smrse_Connect_fail_vals), 0,
         "SMR-Bind-Failure/connect-fail-reason", HFILL }},
     { &hf_smrse_mt_priority_request,
       { "mt-priority-request", "smrse.mt_priority_request",
@@ -742,7 +742,7 @@ void proto_register_smrse(void) {
         "", HFILL }},
     { &hf_smrse_error_reason,
       { "error-reason", "smrse.error_reason",
-        FT_INT32, BASE_DEC, VALS(Error_reason_vals), 0,
+        FT_INT32, BASE_DEC, VALS(smrse_Error_reason_vals), 0,
         "RPError/error-reason", HFILL }},
     { &hf_smrse_msg_waiting_set,
       { "msg-waiting-set", "smrse.msg_waiting_set",

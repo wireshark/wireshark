@@ -36,12 +36,12 @@
 
 /*--- Included file: packet-x509ce-exp.h ---*/
 
-extern const value_string GeneralName_vals[];
-extern const value_string CRLReason_vals[];
-extern const value_string StatusReferral_vals[];
-extern const value_string OrderedListSyntax_vals[];
-extern const value_string DistributionPointName_vals[];
-extern const value_string AltNameType_vals[];
+extern const value_string x509ce_GeneralName_vals[];
+extern const value_string x509ce_CRLReason_vals[];
+extern const value_string x509ce_StatusReferral_vals[];
+extern const value_string x509ce_OrderedListSyntax_vals[];
+extern const value_string x509ce_DistributionPointName_vals[];
+extern const value_string x509ce_AltNameType_vals[];
 int dissect_x509ce_AuthorityKeyIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509ce_KeyIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509ce_SubjectKeyIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

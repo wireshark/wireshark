@@ -36,7 +36,7 @@
 
 /*--- Included file: packet-cms-exp.h ---*/
 
-extern const value_string SignerIdentifier_vals[];
+extern const value_string cms_SignerIdentifier_vals[];
 int dissect_cms_ContentInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_cms_ContentType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_cms_SignedData(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

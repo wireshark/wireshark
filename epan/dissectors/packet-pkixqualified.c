@@ -135,7 +135,7 @@ dissect_pkixqualified_Printablestring(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 }
 
 
-static const value_string PredefinedBiometricType_vals[] = {
+static const value_string pkixqualified_PredefinedBiometricType_vals[] = {
   {   0, "picture" },
   {   1, "handwritten-signature" },
   { 0, NULL }
@@ -168,7 +168,7 @@ static int dissect_semanticsIdentifier(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
-static const value_string TypeOfBiometricData_vals[] = {
+static const value_string pkixqualified_TypeOfBiometricData_vals[] = {
   {   0, "predefinedBiometricType" },
   {   1, "biometricDataOid" },
   { 0, NULL }
@@ -395,7 +395,7 @@ void proto_register_pkixqualified(void) {
         "BiometricSyntax/_item", HFILL }},
     { &hf_pkixqualified_typeOfBiometricData,
       { "typeOfBiometricData", "pkixqualified.typeOfBiometricData",
-        FT_UINT32, BASE_DEC, VALS(TypeOfBiometricData_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(pkixqualified_TypeOfBiometricData_vals), 0,
         "BiometricData/typeOfBiometricData", HFILL }},
     { &hf_pkixqualified_hashAlgorithm,
       { "hashAlgorithm", "pkixqualified.hashAlgorithm",
@@ -411,7 +411,7 @@ void proto_register_pkixqualified(void) {
         "BiometricData/sourceDataUri", HFILL }},
     { &hf_pkixqualified_predefinedBiometricType,
       { "predefinedBiometricType", "pkixqualified.predefinedBiometricType",
-        FT_INT32, BASE_DEC, VALS(PredefinedBiometricType_vals), 0,
+        FT_INT32, BASE_DEC, VALS(pkixqualified_PredefinedBiometricType_vals), 0,
         "TypeOfBiometricData/predefinedBiometricType", HFILL }},
     { &hf_pkixqualified_biometricDataOid,
       { "biometricDataOid", "pkixqualified.biometricDataOid",
@@ -439,7 +439,7 @@ void proto_register_pkixqualified(void) {
         "SemanticsInformation/nameRegistrationAuthorities", HFILL }},
     { &hf_pkixqualified_NameRegistrationAuthorities_item,
       { "Item", "pkixqualified.NameRegistrationAuthorities_item",
-        FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "NameRegistrationAuthorities/_item", HFILL }},
 
 /*--- End of included file: packet-pkixqualified-hfarr.c ---*/

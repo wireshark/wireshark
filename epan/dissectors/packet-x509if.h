@@ -36,13 +36,13 @@
 
 /*--- Included file: packet-x509if-exp.h ---*/
 
-extern const value_string Name_vals[];
-extern const value_string Refinement_vals[];
-extern const value_string AttributeUsage_vals[];
-extern const value_string ImposedSubset_vals[];
-extern const value_string ContextCombination_vals[];
-extern const value_string AttributeCombination_vals[];
-extern const value_string OutputValues_vals[];
+extern const value_string x509if_Name_vals[];
+extern const value_string x509if_Refinement_vals[];
+extern const value_string x509if_AttributeUsage_vals[];
+extern const value_string x509if_ImposedSubset_vals[];
+extern const value_string x509if_ContextCombination_vals[];
+extern const value_string x509if_AttributeCombination_vals[];
+extern const value_string x509if_OutputValues_vals[];
 int dissect_x509if_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509if_AttributeType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509if_Context(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

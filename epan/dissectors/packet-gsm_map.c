@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gsm_map.c                                                         */
+/* ./packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -505,7 +505,7 @@ static int hf_gsm_map_locationInformationFlag = -1;  /* NULL */
 static int hf_gsm_map_subscriberStateFlag = -1;   /* NULL */
 static int hf_gsm_map_currentLocation = -1;       /* NULL */
 static int hf_gsm_map_requestedDomain = -1;       /* T_requestedDomain */
-static int hf_gsm_map_imei1 = -1;                 /* NULL */
+static int hf_gsm_map_imei_flg = -1;              /* NULL */
 static int hf_gsm_map_ms_classmark = -1;          /* NULL */
 static int hf_gsm_map_mnpRequestedInfo = -1;      /* NULL */
 static int hf_gsm_map_subscriberIdentity = -1;    /* SubscriberIdentity */
@@ -1657,8 +1657,8 @@ static int dissect_subscriberStateFlag_impl(packet_info *pinfo, proto_tree *tree
 static int dissect_currentLocation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_currentLocation);
 }
-static int dissect_imei1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_imei1);
+static int dissect_imei_flg_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_imei_flg);
 }
 static int dissect_ms_classmark_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ms_classmark);
@@ -7077,7 +7077,7 @@ dissect_gsm_map_EraseCC_EntryRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
 static int
 dissect_gsm_map_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -7563,7 +7563,7 @@ static const ber_sequence_t RequestedInfo_sequence[] = {
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentLocation_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_requestedDomain_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imei1_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imei_flg_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ms_classmark_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mnpRequestedInfo_impl },
   { 0, 0, 0, NULL }
@@ -13358,7 +13358,7 @@ void proto_register_gsm_map(void) {
       { "requestedDomain", "gsm_map.requestedDomain",
         FT_UINT32, BASE_DEC, VALS(gsm_map_T_requestedDomain_vals), 0,
         "RequestedInfo/requestedDomain", HFILL }},
-    { &hf_gsm_map_imei1,
+    { &hf_gsm_map_imei_flg,
       { "imei", "gsm_map.imei",
         FT_NONE, BASE_NONE, NULL, 0,
         "RequestedInfo/imei", HFILL }},

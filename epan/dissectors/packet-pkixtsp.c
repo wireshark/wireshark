@@ -123,7 +123,7 @@ static int dissect_tsa_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static const value_string T_version_vals[] = {
+static const value_string pkixtsp_T_version_vals[] = {
   {   1, "v1" },
   { 0, NULL }
 };
@@ -204,7 +204,7 @@ static int dissect_seconds(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_pkixtsp_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -234,7 +234,7 @@ dissect_pkixtsp_TimeStampReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 }
 
 
-static const value_string PKIStatus_vals[] = {
+static const value_string pkixtsp_PKIStatus_vals[] = {
   {   0, "granted" },
   {   1, "grantedWithMods" },
   {   2, "rejection" },
@@ -322,7 +322,7 @@ dissect_pkixtsp_TimeStampResp(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 }
 
 
-static const value_string tst_version_vals[] = {
+static const value_string pkixtsp_tst_version_vals[] = {
   {   1, "v1" },
   { 0, NULL }
 };
@@ -468,7 +468,7 @@ void proto_register_pkixtsp(void) {
 
     { &hf_pkixtsp_version,
       { "version", "pkixtsp.version",
-        FT_INT32, BASE_DEC, VALS(T_version_vals), 0,
+        FT_INT32, BASE_DEC, VALS(pkixtsp_T_version_vals), 0,
         "TimeStampReq/version", HFILL }},
     { &hf_pkixtsp_messageImprint,
       { "messageImprint", "pkixtsp.messageImprint",
@@ -508,7 +508,7 @@ void proto_register_pkixtsp(void) {
         "TimeStampResp/timeStampToken", HFILL }},
     { &hf_pkixtsp_pki_status,
       { "status", "pkixtsp.status",
-        FT_INT32, BASE_DEC, VALS(PKIStatus_vals), 0,
+        FT_INT32, BASE_DEC, VALS(pkixtsp_PKIStatus_vals), 0,
         "PKIStatusInfo/status", HFILL }},
     { &hf_pkixtsp_failInfo,
       { "failInfo", "pkixtsp.failInfo",
@@ -516,7 +516,7 @@ void proto_register_pkixtsp(void) {
         "PKIStatusInfo/failInfo", HFILL }},
     { &hf_pkixtsp_tst_version,
       { "version", "pkixtsp.version",
-        FT_INT32, BASE_DEC, VALS(tst_version_vals), 0,
+        FT_INT32, BASE_DEC, VALS(pkixtsp_tst_version_vals), 0,
         "TSTInfo/version", HFILL }},
     { &hf_pkixtsp_policy,
       { "policy", "pkixtsp.policy",

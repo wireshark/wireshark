@@ -593,7 +593,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d len:%d\n",nam
 
 
 int
-dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
+dissect_ber_boolean(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
 {
 	guint8 class;
 	gboolean pc;
@@ -602,10 +602,13 @@ dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 	guint8 val;
 	header_field_info *hfi;
 
-	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
-
-/*	if(class!=BER_CLASS_UNI)*/
+	if(!implicit_tag){
+		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+		/*if(class!=BER_CLASS_UNI)*/
+	} else {
+		/* nothing to do here, yet */
+	}
 	
 	val=tvb_get_guint8(tvb, offset);
 	offset+=1;

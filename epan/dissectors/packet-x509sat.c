@@ -9,7 +9,7 @@
  * Routines for X.509 Selected Attribute Types packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509sat-template.c 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id: packet-x509sat-template.c 12743 2004-12-13 11:59:48Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,15 +81,15 @@ static int hf_x509sat_PreferredDeliveryMethod_item = -1;  /* PreferredDeliveryMe
 static int hf_x509sat_pSelector = -1;             /* OCTET_STRING */
 static int hf_x509sat_sSelector = -1;             /* OCTET_STRING */
 static int hf_x509sat_tSelector = -1;             /* OCTET_STRING */
-static int hf_x509sat_nAddresses = -1;            /* SET_OF_OCTET_STRING */
+static int hf_x509sat_nAddresses = -1;            /* T_nAddresses */
 static int hf_x509sat_nAddresses_item = -1;       /* OCTET_STRING */
 static int hf_x509sat_nAddress = -1;              /* OCTET_STRING */
-static int hf_x509sat_profiles = -1;              /* SET_OF_OBJECT_IDENTIFIER */
+static int hf_x509sat_profiles = -1;              /* T_profiles */
 static int hf_x509sat_profiles_item = -1;         /* OBJECT_IDENTIFIER */
 static int hf_x509sat_dn = -1;                    /* DistinguishedName */
 static int hf_x509sat_uid = -1;                   /* UniqueIdentifier */
 static int hf_x509sat_matchingRuleUsed = -1;      /* OBJECT_IDENTIFIER */
-static int hf_x509sat_attributeList = -1;         /* SEQUNCE_OF_AttributeValueAssertion */
+static int hf_x509sat_attributeList = -1;         /* SEQUENCE_OF_AttributeValueAssertion */
 static int hf_x509sat_attributeList_item = -1;    /* AttributeValueAssertion */
 static int hf_x509sat_SubstringAssertion_item = -1;  /* SubstringAssertion_item */
 static int hf_x509sat_initial = -1;               /* DirectoryString */
@@ -113,21 +113,21 @@ static int hf_x509sat_timeZone = -1;              /* TimeZone */
 static int hf_x509sat_timesOfDay = -1;            /* SET_OF_DayTimeBand */
 static int hf_x509sat_timesOfDay_item = -1;       /* DayTimeBand */
 static int hf_x509sat_days = -1;                  /* T_days */
-static int hf_x509sat_intDay = -1;                /* SET_OF_INTEGER */
+static int hf_x509sat_intDay = -1;                /* T_intDay */
 static int hf_x509sat_intDay_item = -1;           /* INTEGER */
 static int hf_x509sat_bitDay = -1;                /* T_bitDay */
 static int hf_x509sat_dayOf = -1;                 /* XDayOf */
 static int hf_x509sat_weeks = -1;                 /* T_weeks */
 static int hf_x509sat_allWeeks = -1;              /* NULL */
-static int hf_x509sat_intWeek = -1;               /* SET_OF_INTEGER */
+static int hf_x509sat_intWeek = -1;               /* T_intWeek */
 static int hf_x509sat_intWeek_item = -1;          /* INTEGER */
 static int hf_x509sat_bitWeek = -1;               /* T_bitWeek */
 static int hf_x509sat_months = -1;                /* T_months */
 static int hf_x509sat_allMonths = -1;             /* NULL */
-static int hf_x509sat_intMonth = -1;              /* SET_OF_INTEGER */
+static int hf_x509sat_intMonth = -1;              /* T_intMonth */
 static int hf_x509sat_intMonth_item = -1;         /* INTEGER */
 static int hf_x509sat_bitMonth = -1;              /* T_bitMonth */
-static int hf_x509sat_years = -1;                 /* SET_OF_INTEGER */
+static int hf_x509sat_years = -1;                 /* T_years */
 static int hf_x509sat_years_item = -1;            /* INTEGER */
 static int hf_x509sat_first_dayof = -1;           /* NamedDay */
 static int hf_x509sat_second_dayof = -1;          /* NamedDay */
@@ -196,12 +196,12 @@ static gint ett_x509sat_TelexNumber = -1;
 static gint ett_x509sat_FacsimileTelephoneNumber = -1;
 static gint ett_x509sat_PreferredDeliveryMethod = -1;
 static gint ett_x509sat_PresentationAddress = -1;
-static gint ett_x509sat_SET_OF_OCTET_STRING = -1;
+static gint ett_x509sat_T_nAddresses = -1;
 static gint ett_x509sat_ProtocolInformation = -1;
-static gint ett_x509sat_SET_OF_OBJECT_IDENTIFIER = -1;
+static gint ett_x509sat_T_profiles = -1;
 static gint ett_x509sat_NameAndOptionalUID = -1;
 static gint ett_x509sat_MultipleMatchingLocalities = -1;
-static gint ett_x509sat_SEQUNCE_OF_AttributeValueAssertion = -1;
+static gint ett_x509sat_SEQUENCE_OF_AttributeValueAssertion = -1;
 static gint ett_x509sat_SubstringAssertion = -1;
 static gint ett_x509sat_SubstringAssertion_item = -1;
 static gint ett_x509sat_CaseIgnoreListMatch = -1;
@@ -215,12 +215,15 @@ static gint ett_x509sat_SET_OF_Period = -1;
 static gint ett_x509sat_Period = -1;
 static gint ett_x509sat_SET_OF_DayTimeBand = -1;
 static gint ett_x509sat_T_days = -1;
-static gint ett_x509sat_SET_OF_INTEGER = -1;
+static gint ett_x509sat_T_intDay = -1;
 static gint ett_x509sat_T_bitDay = -1;
 static gint ett_x509sat_T_weeks = -1;
+static gint ett_x509sat_T_intWeek = -1;
 static gint ett_x509sat_T_bitWeek = -1;
 static gint ett_x509sat_T_months = -1;
+static gint ett_x509sat_T_intMonth = -1;
 static gint ett_x509sat_T_bitMonth = -1;
+static gint ett_x509sat_T_years = -1;
 static gint ett_x509sat_XDayOf = -1;
 static gint ett_x509sat_NamedDay = -1;
 static gint ett_x509sat_T_bitNamedDays = -1;
@@ -337,7 +340,7 @@ dissect_x509sat_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 }
 
 
-static const value_string CriteriaItem_vals[] = {
+static const value_string x509sat_CriteriaItem_vals[] = {
   {   0, "equality" },
   {   1, "substrings" },
   {   2, "greaterOrEqual" },
@@ -385,7 +388,7 @@ static int dissect_or(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 }
 
 
-const value_string Criteria_vals[] = {
+const value_string x509sat_Criteria_vals[] = {
   {   0, "type" },
   {   1, "and" },
   {   2, "or" },
@@ -431,7 +434,7 @@ static int dissect_localeID1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 
-static const value_string T_subset_vals[] = {
+static const value_string x509sat_T_subset_vals[] = {
   {   0, "baseObject" },
   {   1, "oneLevel" },
   {   2, "wholeSubtree" },
@@ -567,7 +570,7 @@ dissect_x509sat_DestinationIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 }
 
 
-static const value_string PreferredDeliveryMethod_item_vals[] = {
+static const value_string x509sat_PreferredDeliveryMethod_item_vals[] = {
   {   0, "any-delivery-method" },
   {   1, "mhs-delivery" },
   {   2, "physical-delivery" },
@@ -637,19 +640,19 @@ static int dissect_finall_substring(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_x509sat_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_finall_substring);
 }
 
-static const ber_sequence_t SET_OF_OCTET_STRING_set_of[1] = {
+static const ber_sequence_t T_nAddresses_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_nAddresses_item },
 };
 
 static int
-dissect_x509sat_SET_OF_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x509sat_T_nAddresses(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              SET_OF_OCTET_STRING_set_of, hf_index, ett_x509sat_SET_OF_OCTET_STRING);
+                              T_nAddresses_set_of, hf_index, ett_x509sat_T_nAddresses);
 
   return offset;
 }
 static int dissect_nAddresses(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_SET_OF_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_nAddresses);
+  return dissect_x509sat_T_nAddresses(FALSE, tvb, offset, pinfo, tree, hf_x509sat_nAddresses);
 }
 
 static const ber_sequence_t PresentationAddress_sequence[] = {
@@ -668,19 +671,19 @@ dissect_x509sat_PresentationAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence_t SET_OF_OBJECT_IDENTIFIER_set_of[1] = {
+static const ber_sequence_t T_profiles_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_profiles_item },
 };
 
 static int
-dissect_x509sat_SET_OF_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x509sat_T_profiles(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              SET_OF_OBJECT_IDENTIFIER_set_of, hf_index, ett_x509sat_SET_OF_OBJECT_IDENTIFIER);
+                              T_profiles_set_of, hf_index, ett_x509sat_T_profiles);
 
   return offset;
 }
 static int dissect_profiles(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_SET_OF_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_profiles);
+  return dissect_x509sat_T_profiles(FALSE, tvb, offset, pinfo, tree, hf_x509sat_profiles);
 }
 
 static const ber_sequence_t ProtocolInformation_sequence[] = {
@@ -711,19 +714,19 @@ dissect_x509sat_NameAndOptionalUID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static const ber_sequence_t SEQUNCE_OF_AttributeValueAssertion_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_OF_AttributeValueAssertion_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributeList_item },
 };
 
 static int
-dissect_x509sat_SEQUNCE_OF_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x509sat_SEQUENCE_OF_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_AttributeValueAssertion_sequence_of, hf_index, ett_x509sat_SEQUNCE_OF_AttributeValueAssertion);
+                                   SEQUENCE_OF_AttributeValueAssertion_sequence_of, hf_index, ett_x509sat_SEQUENCE_OF_AttributeValueAssertion);
 
   return offset;
 }
 static int dissect_attributeList(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_SEQUNCE_OF_AttributeValueAssertion(FALSE, tvb, offset, pinfo, tree, hf_x509sat_attributeList);
+  return dissect_x509sat_SEQUENCE_OF_AttributeValueAssertion(FALSE, tvb, offset, pinfo, tree, hf_x509sat_attributeList);
 }
 
 static const ber_sequence_t MultipleMatchingLocalities_sequence[] = {
@@ -741,7 +744,7 @@ dissect_x509sat_MultipleMatchingLocalities(gboolean implicit_tag _U_, tvbuff_t *
 }
 
 
-static const value_string SubstringAssertion_item_vals[] = {
+static const value_string x509sat_SubstringAssertion_item_vals[] = {
   {   0, "initial" },
   {   1, "any" },
   {   2, "final" },
@@ -793,7 +796,7 @@ dissect_x509sat_CaseIgnoreListMatch(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 }
 
 
-static const value_string OctetSubstringAssertion_item_vals[] = {
+static const value_string x509sat_OctetSubstringAssertion_item_vals[] = {
   {   0, "initial" },
   {   1, "any" },
   {   2, "final" },
@@ -843,7 +846,7 @@ dissect_x509sat_ZonalSelect(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 }
 
 
-const value_string ZonalResult_vals[] = {
+const value_string x509sat_ZonalResult_vals[] = {
   {   0, "cannot-select-mapping" },
   {   2, "zero-mappings" },
   {   3, "multiple-mappings" },
@@ -985,28 +988,19 @@ static int dissect_timesOfDay(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509sat_SET_OF_DayTimeBand(FALSE, tvb, offset, pinfo, tree, hf_x509sat_timesOfDay);
 }
 
-static const ber_sequence_t SET_OF_INTEGER_set_of[1] = {
+static const ber_sequence_t T_intDay_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_intDay_item },
 };
 
 static int
-dissect_x509sat_SET_OF_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x509sat_T_intDay(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              SET_OF_INTEGER_set_of, hf_index, ett_x509sat_SET_OF_INTEGER);
+                              T_intDay_set_of, hf_index, ett_x509sat_T_intDay);
 
   return offset;
 }
 static int dissect_intDay(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_SET_OF_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intDay);
-}
-static int dissect_intWeek(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_SET_OF_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intWeek);
-}
-static int dissect_intMonth(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_SET_OF_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intMonth);
-}
-static int dissect_years(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_SET_OF_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_years);
+  return dissect_x509sat_T_intDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intDay);
 }
 
 static const asn_namedbit T_bitDay_bits[] = {
@@ -1033,7 +1027,7 @@ static int dissect_bitDay(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 
-static const value_string T_intNamedDays_vals[] = {
+static const value_string x509sat_T_intNamedDays_vals[] = {
   {   1, "sunday" },
   {   2, "monday" },
   {   3, "tuesday" },
@@ -1079,7 +1073,7 @@ static int dissect_bitNamedDays(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-const value_string NamedDay_vals[] = {
+const value_string x509sat_NamedDay_vals[] = {
   {   0, "intNamedDays" },
   {   1, "bitNamedDays" },
   { 0, NULL }
@@ -1115,7 +1109,7 @@ static int dissect_fifth_dayof(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 }
 
 
-const value_string XDayOf_vals[] = {
+const value_string x509sat_XDayOf_vals[] = {
   {   1, "first" },
   {   2, "second" },
   {   3, "third" },
@@ -1145,7 +1139,7 @@ static int dissect_dayOf(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 }
 
 
-static const value_string T_days_vals[] = {
+static const value_string x509sat_T_days_vals[] = {
   {   0, "intDay" },
   {   1, "bitDay" },
   {   2, "dayOf" },
@@ -1190,6 +1184,21 @@ static int dissect_now(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
   return dissect_x509sat_NULL(FALSE, tvb, offset, pinfo, tree, hf_x509sat_now);
 }
 
+static const ber_sequence_t T_intWeek_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_intWeek_item },
+};
+
+static int
+dissect_x509sat_T_intWeek(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                              T_intWeek_set_of, hf_index, ett_x509sat_T_intWeek);
+
+  return offset;
+}
+static int dissect_intWeek(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_T_intWeek(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intWeek);
+}
+
 static const asn_namedbit T_bitWeek_bits[] = {
   {  0, &hf_x509sat_T_bitWeek_week1, -1, -1, NULL, NULL },
   {  1, &hf_x509sat_T_bitWeek_week2, -1, -1, NULL, NULL },
@@ -1212,7 +1221,7 @@ static int dissect_bitWeek(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
-static const value_string T_weeks_vals[] = {
+static const value_string x509sat_T_weeks_vals[] = {
   {   0, "allWeeks" },
   {   1, "intWeek" },
   {   2, "bitWeek" },
@@ -1235,6 +1244,21 @@ dissect_x509sat_T_weeks(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 }
 static int dissect_weeks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_T_weeks(FALSE, tvb, offset, pinfo, tree, hf_x509sat_weeks);
+}
+
+static const ber_sequence_t T_intMonth_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_intMonth_item },
+};
+
+static int
+dissect_x509sat_T_intMonth(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                              T_intMonth_set_of, hf_index, ett_x509sat_T_intMonth);
+
+  return offset;
+}
+static int dissect_intMonth(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_T_intMonth(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intMonth);
 }
 
 static const asn_namedbit T_bitMonth_bits[] = {
@@ -1266,7 +1290,7 @@ static int dissect_bitMonth(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static const value_string T_months_vals[] = {
+static const value_string x509sat_T_months_vals[] = {
   {   0, "allMonths" },
   {   1, "intMonth" },
   {   2, "bitMonth" },
@@ -1289,6 +1313,21 @@ dissect_x509sat_T_months(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 }
 static int dissect_months(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_T_months(FALSE, tvb, offset, pinfo, tree, hf_x509sat_months);
+}
+
+static const ber_sequence_t T_years_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_years_item },
+};
+
+static int
+dissect_x509sat_T_years(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                              T_years_set_of, hf_index, ett_x509sat_T_years);
+
+  return offset;
+}
+static int dissect_years(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_T_years(FALSE, tvb, offset, pinfo, tree, hf_x509sat_years);
 }
 
 static const ber_sequence_t Period_sequence[] = {
@@ -1327,7 +1366,7 @@ static int dissect_periodic(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static const value_string T_time_vals[] = {
+static const value_string x509sat_T_time_vals[] = {
   {   0, "absolute" },
   {   1, "periodic" },
   { 0, NULL }
@@ -1353,7 +1392,7 @@ static int dissect_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 static int
 dissect_x509sat_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1410,7 +1449,7 @@ static int dissect_between(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
-const value_string TimeAssertion_vals[] = {
+const value_string x509sat_TimeAssertion_vals[] = {
   {   0, "now" },
   {   1, "at" },
   {   2, "between" },
@@ -1433,7 +1472,7 @@ dissect_x509sat_TimeAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 }
 
 
-const value_string LocaleContextSyntax_vals[] = {
+const value_string x509sat_LocaleContextSyntax_vals[] = {
   {   0, "localeID1" },
   {   1, "localeID2" },
   { 0, NULL }
@@ -1499,7 +1538,7 @@ void proto_register_x509sat(void) {
         "TelexNumber", HFILL }},
     { &hf_x509sat_type,
       { "type", "x509sat.type",
-        FT_UINT32, BASE_DEC, VALS(CriteriaItem_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_CriteriaItem_vals), 0,
         "Criteria/type", HFILL }},
     { &hf_x509sat_and,
       { "and", "x509sat.and",
@@ -1507,7 +1546,7 @@ void proto_register_x509sat(void) {
         "Criteria/and", HFILL }},
     { &hf_x509sat_and_item,
       { "Item", "x509sat.and_item",
-        FT_UINT32, BASE_DEC, VALS(Criteria_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_Criteria_vals), 0,
         "Criteria/and/_item", HFILL }},
     { &hf_x509sat_or,
       { "or", "x509sat.or",
@@ -1515,11 +1554,11 @@ void proto_register_x509sat(void) {
         "Criteria/or", HFILL }},
     { &hf_x509sat_or_item,
       { "Item", "x509sat.or_item",
-        FT_UINT32, BASE_DEC, VALS(Criteria_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_Criteria_vals), 0,
         "Criteria/or/_item", HFILL }},
     { &hf_x509sat_not,
       { "not", "x509sat.not",
-        FT_UINT32, BASE_DEC, VALS(Criteria_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_Criteria_vals), 0,
         "Criteria/not", HFILL }},
     { &hf_x509sat_equality,
       { "equality", "x509sat.equality",
@@ -1547,11 +1586,11 @@ void proto_register_x509sat(void) {
         "EnhancedGuide/objectClass", HFILL }},
     { &hf_x509sat_criteria,
       { "criteria", "x509sat.criteria",
-        FT_UINT32, BASE_DEC, VALS(Criteria_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_Criteria_vals), 0,
         "EnhancedGuide/criteria", HFILL }},
     { &hf_x509sat_subset,
       { "subset", "x509sat.subset",
-        FT_INT32, BASE_DEC, VALS(T_subset_vals), 0,
+        FT_INT32, BASE_DEC, VALS(x509sat_T_subset_vals), 0,
         "EnhancedGuide/subset", HFILL }},
     { &hf_x509sat_PostalAddress_item,
       { "Item", "x509sat.PostalAddress_item",
@@ -1575,7 +1614,7 @@ void proto_register_x509sat(void) {
         "FacsimileTelephoneNumber/telephoneNumber", HFILL }},
     { &hf_x509sat_PreferredDeliveryMethod_item,
       { "Item", "x509sat.PreferredDeliveryMethod_item",
-        FT_INT32, BASE_DEC, VALS(PreferredDeliveryMethod_item_vals), 0,
+        FT_INT32, BASE_DEC, VALS(x509sat_PreferredDeliveryMethod_item_vals), 0,
         "PreferredDeliveryMethod/_item", HFILL }},
     { &hf_x509sat_pSelector,
       { "pSelector", "x509sat.pSelector",
@@ -1631,7 +1670,7 @@ void proto_register_x509sat(void) {
         "MultipleMatchingLocalities/attributeList/_item", HFILL }},
     { &hf_x509sat_SubstringAssertion_item,
       { "Item", "x509sat.SubstringAssertion_item",
-        FT_UINT32, BASE_DEC, VALS(SubstringAssertion_item_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_SubstringAssertion_item_vals), 0,
         "SubstringAssertion/_item", HFILL }},
     { &hf_x509sat_initial,
       { "initial", "x509sat.initial",
@@ -1655,7 +1694,7 @@ void proto_register_x509sat(void) {
         "CaseIgnoreListMatch/_item", HFILL }},
     { &hf_x509sat_OctetSubstringAssertion_item,
       { "Item", "x509sat.OctetSubstringAssertion_item",
-        FT_UINT32, BASE_DEC, VALS(OctetSubstringAssertion_item_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_OctetSubstringAssertion_item_vals), 0,
         "OctetSubstringAssertion/_item", HFILL }},
     { &hf_x509sat_initial_substring,
       { "initial", "x509sat.initial",
@@ -1675,7 +1714,7 @@ void proto_register_x509sat(void) {
         "ZonalSelect/_item", HFILL }},
     { &hf_x509sat_time,
       { "time", "x509sat.time",
-        FT_UINT32, BASE_DEC, VALS(T_time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_T_time_vals), 0,
         "TimeSpecification/time", HFILL }},
     { &hf_x509sat_absolute,
       { "absolute", "x509sat.absolute",
@@ -1715,7 +1754,7 @@ void proto_register_x509sat(void) {
         "Period/timesOfDay/_item", HFILL }},
     { &hf_x509sat_days,
       { "days", "x509sat.days",
-        FT_UINT32, BASE_DEC, VALS(T_days_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_T_days_vals), 0,
         "Period/days", HFILL }},
     { &hf_x509sat_intDay,
       { "intDay", "x509sat.intDay",
@@ -1731,11 +1770,11 @@ void proto_register_x509sat(void) {
         "Period/days/bitDay", HFILL }},
     { &hf_x509sat_dayOf,
       { "dayOf", "x509sat.dayOf",
-        FT_UINT32, BASE_DEC, VALS(XDayOf_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_XDayOf_vals), 0,
         "Period/days/dayOf", HFILL }},
     { &hf_x509sat_weeks,
       { "weeks", "x509sat.weeks",
-        FT_UINT32, BASE_DEC, VALS(T_weeks_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_T_weeks_vals), 0,
         "Period/weeks", HFILL }},
     { &hf_x509sat_allWeeks,
       { "allWeeks", "x509sat.allWeeks",
@@ -1755,7 +1794,7 @@ void proto_register_x509sat(void) {
         "Period/weeks/bitWeek", HFILL }},
     { &hf_x509sat_months,
       { "months", "x509sat.months",
-        FT_UINT32, BASE_DEC, VALS(T_months_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_T_months_vals), 0,
         "Period/months", HFILL }},
     { &hf_x509sat_allMonths,
       { "allMonths", "x509sat.allMonths",
@@ -1783,27 +1822,27 @@ void proto_register_x509sat(void) {
         "Period/years/_item", HFILL }},
     { &hf_x509sat_first_dayof,
       { "first", "x509sat.first",
-        FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_NamedDay_vals), 0,
         "XDayOf/first", HFILL }},
     { &hf_x509sat_second_dayof,
       { "second", "x509sat.second",
-        FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_NamedDay_vals), 0,
         "XDayOf/second", HFILL }},
     { &hf_x509sat_third_dayof,
       { "third", "x509sat.third",
-        FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_NamedDay_vals), 0,
         "XDayOf/third", HFILL }},
     { &hf_x509sat_fourth_dayof,
       { "fourth", "x509sat.fourth",
-        FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_NamedDay_vals), 0,
         "XDayOf/fourth", HFILL }},
     { &hf_x509sat_fifth_dayof,
       { "fifth", "x509sat.fifth",
-        FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_NamedDay_vals), 0,
         "XDayOf/fifth", HFILL }},
     { &hf_x509sat_intNamedDays,
       { "intNamedDays", "x509sat.intNamedDays",
-        FT_UINT32, BASE_DEC, VALS(T_intNamedDays_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509sat_T_intNamedDays_vals), 0,
         "NamedDay/intNamedDays", HFILL }},
     { &hf_x509sat_bitNamedDays,
       { "bitNamedDays", "x509sat.bitNamedDays",
@@ -1996,12 +2035,12 @@ void proto_register_x509sat(void) {
     &ett_x509sat_FacsimileTelephoneNumber,
     &ett_x509sat_PreferredDeliveryMethod,
     &ett_x509sat_PresentationAddress,
-    &ett_x509sat_SET_OF_OCTET_STRING,
+    &ett_x509sat_T_nAddresses,
     &ett_x509sat_ProtocolInformation,
-    &ett_x509sat_SET_OF_OBJECT_IDENTIFIER,
+    &ett_x509sat_T_profiles,
     &ett_x509sat_NameAndOptionalUID,
     &ett_x509sat_MultipleMatchingLocalities,
-    &ett_x509sat_SEQUNCE_OF_AttributeValueAssertion,
+    &ett_x509sat_SEQUENCE_OF_AttributeValueAssertion,
     &ett_x509sat_SubstringAssertion,
     &ett_x509sat_SubstringAssertion_item,
     &ett_x509sat_CaseIgnoreListMatch,
@@ -2015,12 +2054,15 @@ void proto_register_x509sat(void) {
     &ett_x509sat_Period,
     &ett_x509sat_SET_OF_DayTimeBand,
     &ett_x509sat_T_days,
-    &ett_x509sat_SET_OF_INTEGER,
+    &ett_x509sat_T_intDay,
     &ett_x509sat_T_bitDay,
     &ett_x509sat_T_weeks,
+    &ett_x509sat_T_intWeek,
     &ett_x509sat_T_bitWeek,
     &ett_x509sat_T_months,
+    &ett_x509sat_T_intMonth,
     &ett_x509sat_T_bitMonth,
+    &ett_x509sat_T_years,
     &ett_x509sat_XDayOf,
     &ett_x509sat_NamedDay,
     &ett_x509sat_T_bitNamedDays,

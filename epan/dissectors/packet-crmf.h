@@ -36,11 +36,11 @@
 
 /*--- Included file: packet-crmf-exp.h ---*/
 
-extern const value_string ProofOfPossession_vals[];
-extern const value_string POPOPrivKey_vals[];
-extern const value_string SubsequentMessage_vals[];
-extern const value_string PKIArchiveOptions_vals[];
-extern const value_string EncryptedKey_vals[];
+extern const value_string crmf_ProofOfPossession_vals[];
+extern const value_string crmf_POPOPrivKey_vals[];
+extern const value_string crmf_SubsequentMessage_vals[];
+extern const value_string crmf_PKIArchiveOptions_vals[];
+extern const value_string crmf_EncryptedKey_vals[];
 int dissect_crmf_CertReqMessages(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_crmf_CertReqMsg(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_crmf_CertRequest(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

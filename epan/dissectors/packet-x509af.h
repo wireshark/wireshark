@@ -36,8 +36,8 @@
 
 /*--- Included file: packet-x509af-exp.h ---*/
 
-extern const value_string Version_vals[];
-extern const value_string Time_vals[];
+extern const value_string x509af_Version_vals[];
+extern const value_string x509af_Time_vals[];
 int dissect_x509af_Certificate(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509af_Version(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509af_CertificateSerialNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

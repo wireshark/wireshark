@@ -62,7 +62,7 @@ static int hf_crmf_generalTime = -1;              /* GeneralizedTime */
 static int hf_crmf_CertReqMessages_item = -1;     /* CertReqMsg */
 static int hf_crmf_certReq = -1;                  /* CertRequest */
 static int hf_crmf_pop = -1;                      /* ProofOfPossession */
-static int hf_crmf_regInfo = -1;                  /* SEQUNCE_SIZE_1_MAX_OF_AttributeTypeAndValue */
+static int hf_crmf_regInfo = -1;                  /* SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue */
 static int hf_crmf_regInfo_item = -1;             /* AttributeTypeAndValue */
 static int hf_crmf_certReqId = -1;                /* INTEGER */
 static int hf_crmf_certTemplate = -1;             /* CertTemplate */
@@ -102,7 +102,7 @@ static int hf_crmf_thisMessage = -1;              /* BIT_STRING */
 static int hf_crmf_subsequentMessage = -1;        /* SubsequentMessage */
 static int hf_crmf_dhMAC = -1;                    /* BIT_STRING */
 static int hf_crmf_action = -1;                   /* T_action */
-static int hf_crmf_pubInfos = -1;                 /* SEQUNCE_SIZE_1_MAX_OF_SinglePubInfo */
+static int hf_crmf_pubInfos = -1;                 /* SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo */
 static int hf_crmf_pubInfos_item = -1;            /* SinglePubInfo */
 static int hf_crmf_pubMethod = -1;                /* T_pubMethod */
 static int hf_crmf_pubLocation = -1;              /* GeneralName */
@@ -129,7 +129,7 @@ static int hf_crmf_issuer = -1;                   /* GeneralName */
 static gint ett_crmf_Time = -1;
 static gint ett_crmf_CertReqMessages = -1;
 static gint ett_crmf_CertReqMsg = -1;
-static gint ett_crmf_SEQUNCE_SIZE_1_MAX_OF_AttributeTypeAndValue = -1;
+static gint ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue = -1;
 static gint ett_crmf_CertRequest = -1;
 static gint ett_crmf_CertTemplate = -1;
 static gint ett_crmf_OptionalValidity = -1;
@@ -143,7 +143,7 @@ static gint ett_crmf_PKMACValue = -1;
 static gint ett_crmf_PBMParameter = -1;
 static gint ett_crmf_POPOPrivKey = -1;
 static gint ett_crmf_PKIPublicationInfo = -1;
-static gint ett_crmf_SEQUNCE_SIZE_1_MAX_OF_SinglePubInfo = -1;
+static gint ett_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo = -1;
 static gint ett_crmf_SinglePubInfo = -1;
 static gint ett_crmf_PKIArchiveOptions = -1;
 static gint ett_crmf_EncryptedKey = -1;
@@ -213,7 +213,7 @@ static int dissect_issuer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 
-static const value_string Version_vals[] = {
+static const value_string crmf_Version_vals[] = {
   {   0, "v1" },
   {   1, "v2" },
   {   2, "v3" },
@@ -272,7 +272,7 @@ static int dissect_generalTime(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 }
 
 
-static const value_string Time_vals[] = {
+static const value_string crmf_Time_vals[] = {
   {   0, "utcTime" },
   {   1, "generalTime" },
   { 0, NULL }
@@ -500,7 +500,7 @@ static int dissect_publicKeyMAC(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-static const value_string T_authInfo_vals[] = {
+static const value_string crmf_T_authInfo_vals[] = {
   {   0, "sender" },
   {   1, "publicKeyMAC" },
   { 0, NULL }
@@ -559,7 +559,7 @@ static int dissect_signature_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
-const value_string SubsequentMessage_vals[] = {
+const value_string crmf_SubsequentMessage_vals[] = {
   {   0, "encrCert" },
   {   1, "challengeResp" },
   { 0, NULL }
@@ -577,7 +577,7 @@ static int dissect_subsequentMessage_impl(packet_info *pinfo, proto_tree *tree, 
 }
 
 
-const value_string POPOPrivKey_vals[] = {
+const value_string crmf_POPOPrivKey_vals[] = {
   {   0, "thisMessage" },
   {   1, "subsequentMessage" },
   {   2, "dhMAC" },
@@ -606,7 +606,7 @@ static int dissect_keyAgreement_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 
-const value_string ProofOfPossession_vals[] = {
+const value_string crmf_ProofOfPossession_vals[] = {
   {   0, "raVerified" },
   {   1, "signature" },
   {   2, "keyEncipherment" },
@@ -633,19 +633,19 @@ static int dissect_pop(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
   return dissect_crmf_ProofOfPossession(FALSE, tvb, offset, pinfo, tree, hf_crmf_pop);
 }
 
-static const ber_sequence_t SEQUNCE_SIZE_1_MAX_OF_AttributeTypeAndValue_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_regInfo_item },
 };
 
 static int
-dissect_crmf_SEQUNCE_SIZE_1_MAX_OF_AttributeTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_SIZE_1_MAX_OF_AttributeTypeAndValue_sequence_of, hf_index, ett_crmf_SEQUNCE_SIZE_1_MAX_OF_AttributeTypeAndValue);
+                                   SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue_sequence_of, hf_index, ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue);
 
   return offset;
 }
 static int dissect_regInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_crmf_SEQUNCE_SIZE_1_MAX_OF_AttributeTypeAndValue(FALSE, tvb, offset, pinfo, tree, hf_crmf_regInfo);
+  return dissect_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue(FALSE, tvb, offset, pinfo, tree, hf_crmf_regInfo);
 }
 
 static const ber_sequence_t CertReqMsg_sequence[] = {
@@ -730,7 +730,7 @@ dissect_crmf_Authenticator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 }
 
 
-static const value_string T_action_vals[] = {
+static const value_string crmf_T_action_vals[] = {
   {   0, "dontPublish" },
   {   1, "pleasePublish" },
   { 0, NULL }
@@ -748,7 +748,7 @@ static int dissect_action(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 
-static const value_string T_pubMethod_vals[] = {
+static const value_string crmf_T_pubMethod_vals[] = {
   {   0, "dontCare" },
   {   1, "x500" },
   {   2, "web" },
@@ -784,19 +784,19 @@ static int dissect_pubInfos_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_crmf_SinglePubInfo(FALSE, tvb, offset, pinfo, tree, hf_crmf_pubInfos_item);
 }
 
-static const ber_sequence_t SEQUNCE_SIZE_1_MAX_OF_SinglePubInfo_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pubInfos_item },
 };
 
 static int
-dissect_crmf_SEQUNCE_SIZE_1_MAX_OF_SinglePubInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_SIZE_1_MAX_OF_SinglePubInfo_sequence_of, hf_index, ett_crmf_SEQUNCE_SIZE_1_MAX_OF_SinglePubInfo);
+                                   SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo_sequence_of, hf_index, ett_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo);
 
   return offset;
 }
 static int dissect_pubInfos(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_crmf_SEQUNCE_SIZE_1_MAX_OF_SinglePubInfo(FALSE, tvb, offset, pinfo, tree, hf_crmf_pubInfos);
+  return dissect_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo(FALSE, tvb, offset, pinfo, tree, hf_crmf_pubInfos);
 }
 
 static const ber_sequence_t PKIPublicationInfo_sequence[] = {
@@ -835,7 +835,7 @@ static int dissect_encryptedValue(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
-const value_string EncryptedKey_vals[] = {
+const value_string crmf_EncryptedKey_vals[] = {
   {   0, "encryptedValue" },
   {   1, "envelopedData" },
   { 0, NULL }
@@ -873,7 +873,7 @@ static int dissect_keyGenParameters_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_crmf_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -882,7 +882,7 @@ static int dissect_archiveRemGenPrivKey_impl(packet_info *pinfo, proto_tree *tre
 }
 
 
-const value_string PKIArchiveOptions_vals[] = {
+const value_string crmf_PKIArchiveOptions_vals[] = {
   {   0, "encryptedPrivKey" },
   {   1, "keyGenParameters" },
   {   2, "archiveRemGenPrivKey" },
@@ -987,7 +987,7 @@ void proto_register_crmf(void) {
         "CertReqMsg/certReq", HFILL }},
     { &hf_crmf_pop,
       { "pop", "crmf.pop",
-        FT_UINT32, BASE_DEC, VALS(ProofOfPossession_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(crmf_ProofOfPossession_vals), 0,
         "CertReqMsg/pop", HFILL }},
     { &hf_crmf_regInfo,
       { "regInfo", "crmf.regInfo",
@@ -1011,7 +1011,7 @@ void proto_register_crmf(void) {
         "CertRequest/controls", HFILL }},
     { &hf_crmf_version,
       { "version", "crmf.version",
-        FT_INT32, BASE_DEC, VALS(Version_vals), 0,
+        FT_INT32, BASE_DEC, VALS(crmf_Version_vals), 0,
         "CertTemplate/version", HFILL }},
     { &hf_crmf_serialNumber,
       { "serialNumber", "crmf.serialNumber",
@@ -1051,11 +1051,11 @@ void proto_register_crmf(void) {
         "CertTemplate/extensions", HFILL }},
     { &hf_crmf_notBefore,
       { "notBefore", "crmf.notBefore",
-        FT_UINT32, BASE_DEC, VALS(Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(crmf_Time_vals), 0,
         "OptionalValidity/notBefore", HFILL }},
     { &hf_crmf_notAfter,
       { "notAfter", "crmf.notAfter",
-        FT_UINT32, BASE_DEC, VALS(Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(crmf_Time_vals), 0,
         "OptionalValidity/notAfter", HFILL }},
     { &hf_crmf_Controls_item,
       { "Item", "crmf.Controls_item",
@@ -1079,11 +1079,11 @@ void proto_register_crmf(void) {
         "ProofOfPossession/signature", HFILL }},
     { &hf_crmf_keyEncipherment,
       { "keyEncipherment", "crmf.keyEncipherment",
-        FT_UINT32, BASE_DEC, VALS(POPOPrivKey_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(crmf_POPOPrivKey_vals), 0,
         "ProofOfPossession/keyEncipherment", HFILL }},
     { &hf_crmf_keyAgreement,
       { "keyAgreement", "crmf.keyAgreement",
-        FT_UINT32, BASE_DEC, VALS(POPOPrivKey_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(crmf_POPOPrivKey_vals), 0,
         "ProofOfPossession/keyAgreement", HFILL }},
     { &hf_crmf_poposkInput,
       { "poposkInput", "crmf.poposkInput",
@@ -1099,7 +1099,7 @@ void proto_register_crmf(void) {
         "POPOSigningKey/signature", HFILL }},
     { &hf_crmf_authInfo,
       { "authInfo", "crmf.authInfo",
-        FT_UINT32, BASE_DEC, VALS(T_authInfo_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(crmf_T_authInfo_vals), 0,
         "POPOSigningKeyInput/authInfo", HFILL }},
     { &hf_crmf_sender,
       { "sender", "crmf.sender",
@@ -1139,7 +1139,7 @@ void proto_register_crmf(void) {
         "POPOPrivKey/thisMessage", HFILL }},
     { &hf_crmf_subsequentMessage,
       { "subsequentMessage", "crmf.subsequentMessage",
-        FT_INT32, BASE_DEC, VALS(SubsequentMessage_vals), 0,
+        FT_INT32, BASE_DEC, VALS(crmf_SubsequentMessage_vals), 0,
         "POPOPrivKey/subsequentMessage", HFILL }},
     { &hf_crmf_dhMAC,
       { "dhMAC", "crmf.dhMAC",
@@ -1147,7 +1147,7 @@ void proto_register_crmf(void) {
         "POPOPrivKey/dhMAC", HFILL }},
     { &hf_crmf_action,
       { "action", "crmf.action",
-        FT_INT32, BASE_DEC, VALS(T_action_vals), 0,
+        FT_INT32, BASE_DEC, VALS(crmf_T_action_vals), 0,
         "PKIPublicationInfo/action", HFILL }},
     { &hf_crmf_pubInfos,
       { "pubInfos", "crmf.pubInfos",
@@ -1159,7 +1159,7 @@ void proto_register_crmf(void) {
         "PKIPublicationInfo/pubInfos/_item", HFILL }},
     { &hf_crmf_pubMethod,
       { "pubMethod", "crmf.pubMethod",
-        FT_INT32, BASE_DEC, VALS(T_pubMethod_vals), 0,
+        FT_INT32, BASE_DEC, VALS(crmf_T_pubMethod_vals), 0,
         "SinglePubInfo/pubMethod", HFILL }},
     { &hf_crmf_pubLocation,
       { "pubLocation", "crmf.pubLocation",
@@ -1167,7 +1167,7 @@ void proto_register_crmf(void) {
         "SinglePubInfo/pubLocation", HFILL }},
     { &hf_crmf_encryptedPrivKey,
       { "encryptedPrivKey", "crmf.encryptedPrivKey",
-        FT_UINT32, BASE_DEC, VALS(EncryptedKey_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(crmf_EncryptedKey_vals), 0,
         "PKIArchiveOptions/encryptedPrivKey", HFILL }},
     { &hf_crmf_keyGenParameters,
       { "keyGenParameters", "crmf.keyGenParameters",
@@ -1226,7 +1226,7 @@ void proto_register_crmf(void) {
     &ett_crmf_Time,
     &ett_crmf_CertReqMessages,
     &ett_crmf_CertReqMsg,
-    &ett_crmf_SEQUNCE_SIZE_1_MAX_OF_AttributeTypeAndValue,
+    &ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue,
     &ett_crmf_CertRequest,
     &ett_crmf_CertTemplate,
     &ett_crmf_OptionalValidity,
@@ -1240,7 +1240,7 @@ void proto_register_crmf(void) {
     &ett_crmf_PBMParameter,
     &ett_crmf_POPOPrivKey,
     &ett_crmf_PKIPublicationInfo,
-    &ett_crmf_SEQUNCE_SIZE_1_MAX_OF_SinglePubInfo,
+    &ett_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo,
     &ett_crmf_SinglePubInfo,
     &ett_crmf_PKIArchiveOptions,
     &ett_crmf_EncryptedKey,

@@ -3070,7 +3070,7 @@ dissect_inap_OriginationAttemptAuthorized(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_inap_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }

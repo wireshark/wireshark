@@ -35,7 +35,7 @@ LocaleContextSyntax      BER_CLASS_UNI -1/*choice*/
 DirectoryString          TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 UniqueIdentifier         TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 CountryName              TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-Criteria                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(Criteria_vals)  BITMASK = 0
+Criteria                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509sat_Criteria_vals)  BITMASK = 0
 EnhancedGuide            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 PostalAddress            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 FacsimileTelephoneNumber TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
@@ -51,16 +51,16 @@ SubstringAssertion       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 CaseIgnoreListMatch      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 OctetSubstringAssertion  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ZonalSelect              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-ZonalResult              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ZonalResult_vals)  BITMASK = 0
+ZonalResult              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509sat_ZonalResult_vals)  BITMASK = 0
 LanguageContextSyntax    TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 TimeSpecification        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Period                   TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-XDayOf                   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(XDayOf_vals)  BITMASK = 0
-NamedDay                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(NamedDay_vals)  BITMASK = 0
+XDayOf                   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509sat_XDayOf_vals)  BITMASK = 0
+NamedDay                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509sat_NamedDay_vals)  BITMASK = 0
 DayTimeBand              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 DayTime                  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 TimeZone                 TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
-TimeAssertion            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(TimeAssertion_vals)  BITMASK = 0
-LocaleContextSyntax      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(LocaleContextSyntax_vals)  BITMASK = 0
+TimeAssertion            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509sat_TimeAssertion_vals)  BITMASK = 0
+LocaleContextSyntax      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509sat_LocaleContextSyntax_vals)  BITMASK = 0
 #.END
 

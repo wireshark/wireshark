@@ -92,7 +92,7 @@ static int hf_x509ce_notBefore = -1;              /* GeneralizedTime */
 static int hf_x509ce_notAfter = -1;               /* GeneralizedTime */
 static int hf_x509ce_CertificatePoliciesSyntax_item = -1;  /* PolicyInformation */
 static int hf_x509ce_policyIdentifier = -1;       /* CertPolicyId */
-static int hf_x509ce_policyQualifiers = -1;       /* SEQUNCE_SIZE_1_MAX_OF_PolicyQualifierInfo */
+static int hf_x509ce_policyQualifiers = -1;       /* SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo */
 static int hf_x509ce_policyQualifiers_item = -1;  /* PolicyQualifierInfo */
 static int hf_x509ce_policyQualifierId = -1;      /* PolicyQualifierId */
 static int hf_x509ce_qualifier = -1;              /* PolicyQualifierValue */
@@ -219,7 +219,7 @@ static gint ett_x509ce_KeyPurposeIDs = -1;
 static gint ett_x509ce_PrivateKeyUsagePeriod = -1;
 static gint ett_x509ce_CertificatePoliciesSyntax = -1;
 static gint ett_x509ce_PolicyInformation = -1;
-static gint ett_x509ce_SEQUNCE_SIZE_1_MAX_OF_PolicyQualifierInfo = -1;
+static gint ett_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo = -1;
 static gint ett_x509ce_PolicyQualifierInfo = -1;
 static gint ett_x509ce_PolicyMappingsSyntax = -1;
 static gint ett_x509ce_PolicyMappingsSyntax_item = -1;
@@ -390,7 +390,7 @@ static int dissect_otherNameForm(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 }
 
 
-const value_string GeneralName_vals[] = {
+const value_string x509ce_GeneralName_vals[] = {
   {   1, "rfc822Name" },
   {   2, "dNSName" },
   {   4, "directoryName" },
@@ -650,19 +650,19 @@ static int dissect_policyQualifiers_item(packet_info *pinfo, proto_tree *tree, t
   return dissect_x509ce_PolicyQualifierInfo(FALSE, tvb, offset, pinfo, tree, hf_x509ce_policyQualifiers_item);
 }
 
-static const ber_sequence_t SEQUNCE_SIZE_1_MAX_OF_PolicyQualifierInfo_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_policyQualifiers_item },
 };
 
 static int
-dissect_x509ce_SEQUNCE_SIZE_1_MAX_OF_PolicyQualifierInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_SIZE_1_MAX_OF_PolicyQualifierInfo_sequence_of, hf_index, ett_x509ce_SEQUNCE_SIZE_1_MAX_OF_PolicyQualifierInfo);
+                                   SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo_sequence_of, hf_index, ett_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo);
 
   return offset;
 }
 static int dissect_policyQualifiers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509ce_SEQUNCE_SIZE_1_MAX_OF_PolicyQualifierInfo(FALSE, tvb, offset, pinfo, tree, hf_x509ce_policyQualifiers);
+  return dissect_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo(FALSE, tvb, offset, pinfo, tree, hf_x509ce_policyQualifiers);
 }
 
 static const ber_sequence_t PolicyInformation_sequence[] = {
@@ -738,7 +738,7 @@ dissect_x509ce_AttributesSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 static int
 dissect_x509ce_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -915,7 +915,7 @@ static int dissect_maxCRLNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 
-const value_string CRLReason_vals[] = {
+const value_string x509ce_CRLReason_vals[] = {
   {   0, "unspecified" },
   {   1, "keyCompromise" },
   {   2, "cACompromise" },
@@ -947,7 +947,7 @@ dissect_x509ce_HoldInstruction(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 }
 
 
-const value_string DistributionPointName_vals[] = {
+const value_string x509ce_DistributionPointName_vals[] = {
   {   0, "fullName" },
   {   1, "nameRelativeToCRLIssuer" },
   { 0, NULL }
@@ -1153,7 +1153,7 @@ static int dissect_cRLReferral_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
-const value_string StatusReferral_vals[] = {
+const value_string x509ce_StatusReferral_vals[] = {
   {   0, "cRLReferral" },
   { 0, NULL }
 };
@@ -1187,7 +1187,7 @@ dissect_x509ce_StatusReferrals(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 }
 
 
-const value_string OrderedListSyntax_vals[] = {
+const value_string x509ce_OrderedListSyntax_vals[] = {
   {   0, "ascSerialNum" },
   {   1, "ascRevDate" },
   { 0, NULL }
@@ -1294,7 +1294,7 @@ static int dissect_cpea_issuedByThisCAAssertion_impl(packet_info *pinfo, proto_t
 }
 
 
-static const value_string T_builtinNameForm_vals[] = {
+static const value_string x509ce_T_builtinNameForm_vals[] = {
   {   1, "rfc822Name" },
   {   2, "dNSName" },
   {   3, "x400Address" },
@@ -1318,7 +1318,7 @@ static int dissect_builtinNameForm(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
-const value_string AltNameType_vals[] = {
+const value_string x509ce_AltNameType_vals[] = {
   {   0, "builtinNameForm" },
   {   1, "otherNameForm" },
   { 0, NULL }
@@ -1633,7 +1633,7 @@ void proto_register_x509ce(void) {
         "CRLNumber", HFILL }},
     { &hf_x509ce_CRLReason_PDU,
       { "CRLReason", "x509ce.CRLReason",
-        FT_UINT32, BASE_DEC, VALS(CRLReason_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_CRLReason_vals), 0,
         "CRLReason", HFILL }},
     { &hf_x509ce_HoldInstruction_PDU,
       { "HoldInstruction", "x509ce.HoldInstruction",
@@ -1653,7 +1653,7 @@ void proto_register_x509ce(void) {
         "CRLStreamIdentifier", HFILL }},
     { &hf_x509ce_OrderedListSyntax_PDU,
       { "OrderedListSyntax", "x509ce.OrderedListSyntax",
-        FT_UINT32, BASE_DEC, VALS(OrderedListSyntax_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_OrderedListSyntax_vals), 0,
         "OrderedListSyntax", HFILL }},
     { &hf_x509ce_DeltaInformation_PDU,
       { "DeltaInformation", "x509ce.DeltaInformation",
@@ -1733,7 +1733,7 @@ void proto_register_x509ce(void) {
         "PolicyMappingsSyntax/_item/subjectDomainPolicy", HFILL }},
     { &hf_x509ce_GeneralNames_item,
       { "Item", "x509ce.GeneralNames_item",
-        FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralNames/_item", HFILL }},
     { &hf_x509ce_rfc822Name,
       { "rfc822Name", "x509ce.rfc822Name",
@@ -1745,7 +1745,7 @@ void proto_register_x509ce(void) {
         "GeneralName/dNSName", HFILL }},
     { &hf_x509ce_directoryName,
       { "directoryName", "x509ce.directoryName",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "GeneralName/directoryName", HFILL }},
     { &hf_x509ce_ediPartyName,
       { "ediPartyName", "x509ce.ediPartyName",
@@ -1797,7 +1797,7 @@ void proto_register_x509ce(void) {
         "GeneralSubtrees/_item", HFILL }},
     { &hf_x509ce_base,
       { "base", "x509ce.base",
-        FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralSubtree/base", HFILL }},
     { &hf_x509ce_minimum,
       { "minimum", "x509ce.minimum",
@@ -1821,11 +1821,11 @@ void proto_register_x509ce(void) {
         "CRLScopeSyntax/_item", HFILL }},
     { &hf_x509ce_authorityName,
       { "authorityName", "x509ce.authorityName",
-        FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "PerAuthorityScope/authorityName", HFILL }},
     { &hf_x509ce_distributionPoint,
       { "distributionPoint", "x509ce.distributionPoint",
-        FT_UINT32, BASE_DEC, VALS(DistributionPointName_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_DistributionPointName_vals), 0,
         "", HFILL }},
     { &hf_x509ce_onlyContains,
       { "onlyContains", "x509ce.onlyContains",
@@ -1877,7 +1877,7 @@ void proto_register_x509ce(void) {
         "BaseRevocationInfo/baseThisUpdate", HFILL }},
     { &hf_x509ce_StatusReferrals_item,
       { "Item", "x509ce.StatusReferrals_item",
-        FT_UINT32, BASE_DEC, VALS(StatusReferral_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_StatusReferral_vals), 0,
         "StatusReferrals/_item", HFILL }},
     { &hf_x509ce_cRLReferral,
       { "cRLReferral", "x509ce.cRLReferral",
@@ -1885,11 +1885,11 @@ void proto_register_x509ce(void) {
         "StatusReferral/cRLReferral", HFILL }},
     { &hf_x509ce_crlr_issuer,
       { "issuer", "x509ce.issuer",
-        FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "CRLReferral/issuer", HFILL }},
     { &hf_x509ce_location,
       { "location", "x509ce.location",
-        FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "CRLReferral/location", HFILL }},
     { &hf_x509ce_deltaRefInfo,
       { "deltaRefInfo", "x509ce.deltaRefInfo",
@@ -1909,7 +1909,7 @@ void proto_register_x509ce(void) {
         "CRLReferral/lastChangedCRL", HFILL }},
     { &hf_x509ce_deltaLocation,
       { "deltaLocation", "x509ce.deltaLocation",
-        FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "", HFILL }},
     { &hf_x509ce_lastDelta,
       { "lastDelta", "x509ce.lastDelta",
@@ -1969,7 +1969,7 @@ void proto_register_x509ce(void) {
         "", HFILL }},
     { &hf_x509ce_issuer,
       { "issuer", "x509ce.issuer",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "", HFILL }},
     { &hf_x509ce_subjectKeyIdentifier,
       { "subjectKeyIdentifier", "x509ce.subjectKeyIdentifier",
@@ -1993,7 +1993,7 @@ void proto_register_x509ce(void) {
         "CertificateAssertion/keyUsage", HFILL }},
     { &hf_x509ce_subjectAltName,
       { "subjectAltName", "x509ce.subjectAltName",
-        FT_UINT32, BASE_DEC, VALS(AltNameType_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_AltNameType_vals), 0,
         "CertificateAssertion/subjectAltName", HFILL }},
     { &hf_x509ce_policy,
       { "policy", "x509ce.policy",
@@ -2001,11 +2001,11 @@ void proto_register_x509ce(void) {
         "CertificateAssertion/policy", HFILL }},
     { &hf_x509ce_pathToName,
       { "pathToName", "x509ce.pathToName",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "CertificateAssertion/pathToName", HFILL }},
     { &hf_x509ce_subject,
       { "subject", "x509ce.subject",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "CertificateAssertion/subject", HFILL }},
     { &hf_x509ce_nameConstraints,
       { "nameConstraints", "x509ce.nameConstraints",
@@ -2013,7 +2013,7 @@ void proto_register_x509ce(void) {
         "CertificateAssertion/nameConstraints", HFILL }},
     { &hf_x509ce_builtinNameForm,
       { "builtinNameForm", "x509ce.builtinNameForm",
-        FT_UINT32, BASE_DEC, VALS(T_builtinNameForm_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_T_builtinNameForm_vals), 0,
         "AltNameType/builtinNameForm", HFILL }},
     { &hf_x509ce_otherNameForm,
       { "otherNameForm", "x509ce.otherNameForm",
@@ -2053,11 +2053,11 @@ void proto_register_x509ce(void) {
         "CertificateListAssertion/reasonFlags", HFILL }},
     { &hf_x509ce_firstIssuer,
       { "firstIssuer", "x509ce.firstIssuer",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "PkiPathMatchSyntax/firstIssuer", HFILL }},
     { &hf_x509ce_lastSubject,
       { "lastSubject", "x509ce.lastSubject",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "PkiPathMatchSyntax/lastSubject", HFILL }},
     { &hf_x509ce_KeyUsage_digitalSignature,
       { "digitalSignature", "x509ce.digitalSignature",
@@ -2167,7 +2167,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_PrivateKeyUsagePeriod,
     &ett_x509ce_CertificatePoliciesSyntax,
     &ett_x509ce_PolicyInformation,
-    &ett_x509ce_SEQUNCE_SIZE_1_MAX_OF_PolicyQualifierInfo,
+    &ett_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo,
     &ett_x509ce_PolicyQualifierInfo,
     &ett_x509ce_PolicyMappingsSyntax,
     &ett_x509ce_PolicyMappingsSyntax_item,

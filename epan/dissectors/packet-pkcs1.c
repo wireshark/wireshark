@@ -224,7 +224,7 @@ void proto_register_pkcs1(void) {
         "", HFILL }},
     { &hf_pkcs1_version,
       { "version", "pkcs1.version",
-        FT_INT32, BASE_DEC, VALS(Version_vals), 0,
+        FT_INT32, BASE_DEC, VALS(x509af_Version_vals), 0,
         "RSAPrivateKey/version", HFILL }},
     { &hf_pkcs1_privateExponent,
       { "privateExponent", "pkcs1.privateExponent",

@@ -91,7 +91,7 @@ static int hf_x509af_userCertificate = -1;        /* Certificate */
 static int hf_x509af_certificationPath = -1;      /* ForwardCertificationPath */
 static int hf_x509af_ForwardCertificationPath_item = -1;  /* CrossCertificates */
 static int hf_x509af_CrossCertificates_item = -1;  /* Certificate */
-static int hf_x509af_theCACertificates = -1;      /* SEQUNCE_OF_CertificatePair */
+static int hf_x509af_theCACertificates = -1;      /* SEQUENCE_OF_CertificatePair */
 static int hf_x509af_theCACertificates_item = -1;  /* CertificatePair */
 static int hf_x509af_issuedByThisCA = -1;         /* Certificate */
 static int hf_x509af_issuedToThisCA = -1;         /* Certificate */
@@ -105,7 +105,7 @@ static int hf_x509af_revocationDate = -1;         /* Time */
 static int hf_x509af_crlEntryExtensions = -1;     /* Extensions */
 static int hf_x509af_crlExtensions = -1;          /* Extensions */
 static int hf_x509af_attributeCertificate = -1;   /* AttributeCertificate */
-static int hf_x509af_acPath = -1;                 /* SEQUNCE_OF_ACPathData */
+static int hf_x509af_acPath = -1;                 /* SEQUENCE_OF_ACPathData */
 static int hf_x509af_acPath_item = -1;            /* ACPathData */
 static int hf_x509af_certificate = -1;            /* Certificate */
 static int hf_x509af_signedAttributeCertificateInfo = -1;  /* AttributeCertificateInfo */
@@ -114,7 +114,7 @@ static int hf_x509af_baseCertificateID = -1;      /* IssuerSerial */
 static int hf_x509af_infoSubjectName = -1;        /* GeneralNames */
 static int hf_x509af_issuerName = -1;             /* GeneralNames */
 static int hf_x509af_attCertValidityPeriod = -1;  /* AttCertValidityPeriod */
-static int hf_x509af_attributes = -1;             /* SEQUNCE_OF_Attribute */
+static int hf_x509af_attributes = -1;             /* SEQUENCE_OF_Attribute */
 static int hf_x509af_attributes_item = -1;        /* Attribute */
 static int hf_x509af_issuerUniqueID = -1;         /* UniqueIdentifier */
 static int hf_x509af_serial = -1;                 /* CertificateSerialNumber */
@@ -148,19 +148,19 @@ static gint ett_x509af_Certificates = -1;
 static gint ett_x509af_ForwardCertificationPath = -1;
 static gint ett_x509af_CrossCertificates = -1;
 static gint ett_x509af_CertificationPath = -1;
-static gint ett_x509af_SEQUNCE_OF_CertificatePair = -1;
+static gint ett_x509af_SEQUENCE_OF_CertificatePair = -1;
 static gint ett_x509af_CertificatePair = -1;
 static gint ett_x509af_CertificateList = -1;
 static gint ett_x509af_T_signedCertificateList = -1;
 static gint ett_x509af_T_revokedCertificates = -1;
 static gint ett_x509af_T_revokedCertificates_item = -1;
 static gint ett_x509af_AttributeCertificationPath = -1;
-static gint ett_x509af_SEQUNCE_OF_ACPathData = -1;
+static gint ett_x509af_SEQUENCE_OF_ACPathData = -1;
 static gint ett_x509af_ACPathData = -1;
 static gint ett_x509af_AttributeCertificate = -1;
 static gint ett_x509af_AttributeCertificateInfo = -1;
 static gint ett_x509af_InfoSubject = -1;
-static gint ett_x509af_SEQUNCE_OF_Attribute = -1;
+static gint ett_x509af_SEQUENCE_OF_Attribute = -1;
 static gint ett_x509af_IssuerSerial = -1;
 static gint ett_x509af_AttCertValidityPeriod = -1;
 static gint ett_x509af_AttributeCertificateAssertion = -1;
@@ -219,7 +219,7 @@ static int dissect_attType_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-const value_string Version_vals[] = {
+const value_string x509af_Version_vals[] = {
   {   0, "v1" },
   {   1, "v2" },
   {   2, "v3" },
@@ -338,7 +338,7 @@ static int dissect_attCertValidity(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
-const value_string Time_vals[] = {
+const value_string x509af_Time_vals[] = {
   {   0, "utcTime" },
   {   1, "generalizedTime" },
   { 0, NULL }
@@ -439,7 +439,7 @@ static int dissect_extnId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_x509af_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -621,19 +621,19 @@ static int dissect_theCACertificates_item(packet_info *pinfo, proto_tree *tree, 
   return dissect_x509af_CertificatePair(FALSE, tvb, offset, pinfo, tree, hf_x509af_theCACertificates_item);
 }
 
-static const ber_sequence_t SEQUNCE_OF_CertificatePair_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_OF_CertificatePair_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_theCACertificates_item },
 };
 
 static int
-dissect_x509af_SEQUNCE_OF_CertificatePair(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x509af_SEQUENCE_OF_CertificatePair(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_CertificatePair_sequence_of, hf_index, ett_x509af_SEQUNCE_OF_CertificatePair);
+                                   SEQUENCE_OF_CertificatePair_sequence_of, hf_index, ett_x509af_SEQUENCE_OF_CertificatePair);
 
   return offset;
 }
 static int dissect_theCACertificates(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509af_SEQUNCE_OF_CertificatePair(FALSE, tvb, offset, pinfo, tree, hf_x509af_theCACertificates);
+  return dissect_x509af_SEQUENCE_OF_CertificatePair(FALSE, tvb, offset, pinfo, tree, hf_x509af_theCACertificates);
 }
 
 static const ber_sequence_t CertificationPath_sequence[] = {
@@ -739,7 +739,7 @@ static int dissect_baseCertificateID(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 
-static const value_string InfoSubject_vals[] = {
+static const value_string x509af_InfoSubject_vals[] = {
   {   0, "baseCertificateID" },
   {   1, "subjectName" },
   { 0, NULL }
@@ -779,19 +779,19 @@ static int dissect_attCertValidityPeriod(packet_info *pinfo, proto_tree *tree, t
   return dissect_x509af_AttCertValidityPeriod(FALSE, tvb, offset, pinfo, tree, hf_x509af_attCertValidityPeriod);
 }
 
-static const ber_sequence_t SEQUNCE_OF_Attribute_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_OF_Attribute_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributes_item },
 };
 
 static int
-dissect_x509af_SEQUNCE_OF_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x509af_SEQUENCE_OF_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_Attribute_sequence_of, hf_index, ett_x509af_SEQUNCE_OF_Attribute);
+                                   SEQUENCE_OF_Attribute_sequence_of, hf_index, ett_x509af_SEQUENCE_OF_Attribute);
 
   return offset;
 }
 static int dissect_attributes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509af_SEQUNCE_OF_Attribute(FALSE, tvb, offset, pinfo, tree, hf_x509af_attributes);
+  return dissect_x509af_SEQUENCE_OF_Attribute(FALSE, tvb, offset, pinfo, tree, hf_x509af_attributes);
 }
 
 static const ber_sequence_t AttributeCertificateInfo_sequence[] = {
@@ -853,19 +853,19 @@ static int dissect_acPath_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_x509af_ACPathData(FALSE, tvb, offset, pinfo, tree, hf_x509af_acPath_item);
 }
 
-static const ber_sequence_t SEQUNCE_OF_ACPathData_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_OF_ACPathData_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_acPath_item },
 };
 
 static int
-dissect_x509af_SEQUNCE_OF_ACPathData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x509af_SEQUENCE_OF_ACPathData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_ACPathData_sequence_of, hf_index, ett_x509af_SEQUNCE_OF_ACPathData);
+                                   SEQUENCE_OF_ACPathData_sequence_of, hf_index, ett_x509af_SEQUENCE_OF_ACPathData);
 
   return offset;
 }
 static int dissect_acPath(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509af_SEQUNCE_OF_ACPathData(FALSE, tvb, offset, pinfo, tree, hf_x509af_acPath);
+  return dissect_x509af_SEQUENCE_OF_ACPathData(FALSE, tvb, offset, pinfo, tree, hf_x509af_acPath);
 }
 
 static const ber_sequence_t AttributeCertificationPath_sequence[] = {
@@ -883,7 +883,7 @@ dissect_x509af_AttributeCertificationPath(gboolean implicit_tag _U_, tvbuff_t *t
 }
 
 
-static const value_string AssertionSubject_vals[] = {
+static const value_string x509af_AssertionSubject_vals[] = {
   {   0, "baseCertificateID" },
   {   1, "subjectName" },
   { 0, NULL }
@@ -1019,7 +1019,7 @@ void proto_register_x509af(void) {
         "Certificate/signedCertificate", HFILL }},
     { &hf_x509af_version,
       { "version", "x509af.version",
-        FT_INT32, BASE_DEC, VALS(Version_vals), 0,
+        FT_INT32, BASE_DEC, VALS(x509af_Version_vals), 0,
         "", HFILL }},
     { &hf_x509af_serialNumber,
       { "serialNumber", "x509af.serialNumber",
@@ -1031,7 +1031,7 @@ void proto_register_x509af(void) {
         "", HFILL }},
     { &hf_x509af_issuer,
       { "issuer", "x509af.issuer",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "", HFILL }},
     { &hf_x509af_validity,
       { "validity", "x509af.validity",
@@ -1039,7 +1039,7 @@ void proto_register_x509af(void) {
         "Certificate/signedCertificate/validity", HFILL }},
     { &hf_x509af_subject,
       { "subject", "x509af.subject",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "Certificate/signedCertificate/subject", HFILL }},
     { &hf_x509af_subjectPublicKeyInfo,
       { "subjectPublicKeyInfo", "x509af.subjectPublicKeyInfo",
@@ -1075,11 +1075,11 @@ void proto_register_x509af(void) {
         "AlgorithmIdentifier/parameters", HFILL }},
     { &hf_x509af_notBefore,
       { "notBefore", "x509af.notBefore",
-        FT_UINT32, BASE_DEC, VALS(Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
         "Validity/notBefore", HFILL }},
     { &hf_x509af_notAfter,
       { "notAfter", "x509af.notAfter",
-        FT_UINT32, BASE_DEC, VALS(Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
         "Validity/notAfter", HFILL }},
     { &hf_x509af_algorithm,
       { "algorithm", "x509af.algorithm",
@@ -1151,11 +1151,11 @@ void proto_register_x509af(void) {
         "CertificateList/signedCertificateList", HFILL }},
     { &hf_x509af_thisUpdate,
       { "thisUpdate", "x509af.thisUpdate",
-        FT_UINT32, BASE_DEC, VALS(Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
         "CertificateList/signedCertificateList/thisUpdate", HFILL }},
     { &hf_x509af_nextUpdate,
       { "nextUpdate", "x509af.nextUpdate",
-        FT_UINT32, BASE_DEC, VALS(Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
         "CertificateList/signedCertificateList/nextUpdate", HFILL }},
     { &hf_x509af_revokedCertificates,
       { "revokedCertificates", "x509af.revokedCertificates",
@@ -1171,7 +1171,7 @@ void proto_register_x509af(void) {
         "CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate", HFILL }},
     { &hf_x509af_revocationDate,
       { "revocationDate", "x509af.revocationDate",
-        FT_UINT32, BASE_DEC, VALS(Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
         "CertificateList/signedCertificateList/revokedCertificates/_item/revocationDate", HFILL }},
     { &hf_x509af_crlEntryExtensions,
       { "crlEntryExtensions", "x509af.crlEntryExtensions",
@@ -1203,7 +1203,7 @@ void proto_register_x509af(void) {
         "AttributeCertificate/signedAttributeCertificateInfo", HFILL }},
     { &hf_x509af_info_subject,
       { "subject", "x509af.subject",
-        FT_UINT32, BASE_DEC, VALS(InfoSubject_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509af_InfoSubject_vals), 0,
         "AttributeCertificateInfo/subject", HFILL }},
     { &hf_x509af_baseCertificateID,
       { "baseCertificateID", "x509af.baseCertificateID",
@@ -1251,15 +1251,15 @@ void proto_register_x509af(void) {
         "AttCertValidityPeriod/notAfterTime", HFILL }},
     { &hf_x509af_assertion_subject,
       { "subject", "x509af.subject",
-        FT_UINT32, BASE_DEC, VALS(AssertionSubject_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509af_AssertionSubject_vals), 0,
         "AttributeCertificateAssertion/subject", HFILL }},
     { &hf_x509af_assertionSubjectName,
       { "subjectName", "x509af.subjectName",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "AttributeCertificateAssertion/subject/subjectName", HFILL }},
     { &hf_x509af_assertionIssuer,
       { "issuer", "x509af.issuer",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "AttributeCertificateAssertion/issuer", HFILL }},
     { &hf_x509af_attCertValidity,
       { "attCertValidity", "x509af.attCertValidity",
@@ -1296,19 +1296,19 @@ void proto_register_x509af(void) {
     &ett_x509af_ForwardCertificationPath,
     &ett_x509af_CrossCertificates,
     &ett_x509af_CertificationPath,
-    &ett_x509af_SEQUNCE_OF_CertificatePair,
+    &ett_x509af_SEQUENCE_OF_CertificatePair,
     &ett_x509af_CertificatePair,
     &ett_x509af_CertificateList,
     &ett_x509af_T_signedCertificateList,
     &ett_x509af_T_revokedCertificates,
     &ett_x509af_T_revokedCertificates_item,
     &ett_x509af_AttributeCertificationPath,
-    &ett_x509af_SEQUNCE_OF_ACPathData,
+    &ett_x509af_SEQUENCE_OF_ACPathData,
     &ett_x509af_ACPathData,
     &ett_x509af_AttributeCertificate,
     &ett_x509af_AttributeCertificateInfo,
     &ett_x509af_InfoSubject,
-    &ett_x509af_SEQUNCE_OF_Attribute,
+    &ett_x509af_SEQUENCE_OF_Attribute,
     &ett_x509af_IssuerSerial,
     &ett_x509af_AttCertValidityPeriod,
     &ett_x509af_AttributeCertificateAssertion,

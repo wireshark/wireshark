@@ -2654,7 +2654,7 @@ class BooleanType (Type):
     out = ectx.eth_type_fn_hdr(tname)
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_ber_boolean', ret='offset',
-                              par=(('pinfo', 'tree', 'tvb', 'offset', 'hf_index'),))
+                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index'),))
     elif (ectx.NPer()):
       body = ectx.eth_fn_call('dissect_pern_boolean', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),

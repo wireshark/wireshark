@@ -10,7 +10,7 @@
 /* packet-pkix1explicit.c
  * Routines for PKIX1Explitic packet dissection
  *
- * $Id: packet-pkix1explicit-template.c 12617 2004-11-29 08:43:19Z sahlberg $
+ * $Id: packet-pkix1explicit-template.c 12826 2004-12-24 12:16:27Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,7 +170,7 @@ static int dissect_extnId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_pkix1explicit_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -381,7 +381,7 @@ dissect_pkix1explicit_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 }
 
 
-const value_string TerminalType_vals[] = {
+const value_string pkix1explicit_TerminalType_vals[] = {
   {   3, "telex" },
   {   4, "teletex" },
   {   5, "g3-facsimile" },

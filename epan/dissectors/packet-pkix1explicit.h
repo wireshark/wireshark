@@ -8,7 +8,7 @@
 /* packet-pkix1explicit.h
  * Routines for PKIX1Explicit packet dissection
  *
- * $Id: packet-pkix1explicit-template.h 12617 2004-11-29 08:43:19Z sahlberg $
+ * $Id: packet-pkix1explicit-template.h 12826 2004-12-24 12:16:27Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,7 @@ int dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *
 
 /*--- Included file: packet-pkix1explicit-exp.h ---*/
 
-extern const value_string TerminalType_vals[];
+extern const value_string pkix1explicit_TerminalType_vals[];
 int dissect_pkix1explicit_CertificateSerialNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_pkix1explicit_Extensions(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_pkix1explicit_Extension(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

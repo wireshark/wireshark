@@ -1824,7 +1824,7 @@ dissect_krb5_crealm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 static int
 dissect_krb5_PA_PAC_REQUEST_flag(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_boolean(pinfo, tree, tvb, offset, hf_krb_PA_PAC_REQUEST_flag);
+	offset=dissect_ber_boolean(FALSE, pinfo, tree, tvb, offset, hf_krb_PA_PAC_REQUEST_flag);
 	return offset;
 }
 

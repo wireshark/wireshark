@@ -265,7 +265,7 @@ dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 }
 
 
-static const value_string CMSVersion_vals[] = {
+static const value_string cms_CMSVersion_vals[] = {
   {   0, "v0" },
   {   1, "v1" },
   {   2, "v2" },
@@ -488,7 +488,7 @@ static int dissect_extendedCertificate_impl(packet_info *pinfo, proto_tree *tree
 }
 
 
-static const value_string CertificateChoices_vals[] = {
+static const value_string cms_CertificateChoices_vals[] = {
   {   0, "certificate" },
   {   1, "extendedCertificate" },
   {   2, "attrCert" },
@@ -579,7 +579,7 @@ static int dissect_subjectKeyIdentifier_impl(packet_info *pinfo, proto_tree *tre
 }
 
 
-const value_string SignerIdentifier_vals[] = {
+const value_string cms_SignerIdentifier_vals[] = {
   {   0, "issuerAndSerialNumber" },
   {   1, "subjectKeyIdentifier" },
   { 0, NULL }
@@ -717,7 +717,7 @@ static int dissect_originatorInfo_impl(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
-static const value_string RecipientIdentifier_vals[] = {
+static const value_string cms_RecipientIdentifier_vals[] = {
   {   0, "issuerAndSerialNumber" },
   {   1, "subjectKeyIdentifier" },
   { 0, NULL }
@@ -813,7 +813,7 @@ static int dissect_originatorKey_impl(packet_info *pinfo, proto_tree *tree, tvbu
 }
 
 
-static const value_string OriginatorIdentifierOrKey_vals[] = {
+static const value_string cms_OriginatorIdentifierOrKey_vals[] = {
   {   0, "issuerAndSerialNumber" },
   {   1, "subjectKeyIdentifier" },
   {   2, "originatorKey" },
@@ -923,7 +923,7 @@ static int dissect_rKeyId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 }
 
 
-static const value_string KeyAgreeRecipientIdentifier_vals[] = {
+static const value_string cms_KeyAgreeRecipientIdentifier_vals[] = {
   {   0, "issuerAndSerialNumber" },
   {   1, "rKeyId" },
   { 0, NULL }
@@ -1048,7 +1048,7 @@ static int dissect_kekri_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 }
 
 
-static const value_string RecipientInfo_vals[] = {
+static const value_string cms_RecipientInfo_vals[] = {
   {   0, "ktri" },
   {   1, "kari" },
   {   2, "kekri" },
@@ -1336,7 +1336,7 @@ void proto_register_cms(void) {
         "ContentInfo/content", HFILL }},
     { &hf_cms_version,
       { "version", "cms.version",
-        FT_INT32, BASE_DEC, VALS(CMSVersion_vals), 0,
+        FT_INT32, BASE_DEC, VALS(cms_CMSVersion_vals), 0,
         "", HFILL }},
     { &hf_cms_digestAlgorithms,
       { "digestAlgorithms", "cms.digestAlgorithms",
@@ -1376,7 +1376,7 @@ void proto_register_cms(void) {
         "EncapsulatedContentInfo/eContent", HFILL }},
     { &hf_cms_sid,
       { "sid", "cms.sid",
-        FT_UINT32, BASE_DEC, VALS(SignerIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cms_SignerIdentifier_vals), 0,
         "SignerInfo/sid", HFILL }},
     { &hf_cms_digestAlgorithm,
       { "digestAlgorithm", "cms.digestAlgorithm",
@@ -1440,7 +1440,7 @@ void proto_register_cms(void) {
         "OriginatorInfo/certs", HFILL }},
     { &hf_cms_RecipientInfos_item,
       { "Item", "cms.RecipientInfos_item",
-        FT_UINT32, BASE_DEC, VALS(RecipientInfo_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cms_RecipientInfo_vals), 0,
         "RecipientInfos/_item", HFILL }},
     { &hf_cms_contentType1,
       { "contentType", "cms.contentType",
@@ -1472,7 +1472,7 @@ void proto_register_cms(void) {
         "RecipientInfo/kekri", HFILL }},
     { &hf_cms_rid,
       { "rid", "cms.rid",
-        FT_UINT32, BASE_DEC, VALS(RecipientIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cms_RecipientIdentifier_vals), 0,
         "KeyTransRecipientInfo/rid", HFILL }},
     { &hf_cms_keyEncryptionAlgorithm,
       { "keyEncryptionAlgorithm", "cms.keyEncryptionAlgorithm",
@@ -1484,7 +1484,7 @@ void proto_register_cms(void) {
         "", HFILL }},
     { &hf_cms_originator,
       { "originator", "cms.originator",
-        FT_UINT32, BASE_DEC, VALS(OriginatorIdentifierOrKey_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cms_OriginatorIdentifierOrKey_vals), 0,
         "KeyAgreeRecipientInfo/originator", HFILL }},
     { &hf_cms_ukm,
       { "ukm", "cms.ukm",
@@ -1512,7 +1512,7 @@ void proto_register_cms(void) {
         "RecipientEncryptedKeys/_item", HFILL }},
     { &hf_cms_rekRid,
       { "rid", "cms.rid",
-        FT_UINT32, BASE_DEC, VALS(KeyAgreeRecipientIdentifier_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cms_KeyAgreeRecipientIdentifier_vals), 0,
         "RecipientEncryptedKey/rid", HFILL }},
     { &hf_cms_rKeyId,
       { "rKeyId", "cms.rKeyId",
@@ -1580,11 +1580,11 @@ void proto_register_cms(void) {
         "CertificateChoices/attrCert", HFILL }},
     { &hf_cms_CertificateSet_item,
       { "Item", "cms.CertificateSet_item",
-        FT_UINT32, BASE_DEC, VALS(CertificateChoices_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cms_CertificateChoices_vals), 0,
         "CertificateSet/_item", HFILL }},
     { &hf_cms_issuer,
       { "issuer", "cms.issuer",
-        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "IssuerAndSerialNumber/issuer", HFILL }},
     { &hf_cms_serialNumber,
       { "serialNumber", "cms.serialNumber",

@@ -36,12 +36,12 @@
 
 /*--- Included file: packet-x509sat-exp.h ---*/
 
-extern const value_string Criteria_vals[];
-extern const value_string ZonalResult_vals[];
-extern const value_string XDayOf_vals[];
-extern const value_string NamedDay_vals[];
-extern const value_string TimeAssertion_vals[];
-extern const value_string LocaleContextSyntax_vals[];
+extern const value_string x509sat_Criteria_vals[];
+extern const value_string x509sat_ZonalResult_vals[];
+extern const value_string x509sat_XDayOf_vals[];
+extern const value_string x509sat_NamedDay_vals[];
+extern const value_string x509sat_TimeAssertion_vals[];
+extern const value_string x509sat_LocaleContextSyntax_vals[];
 int dissect_x509sat_DirectoryString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509sat_UniqueIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x509sat_CountryName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
