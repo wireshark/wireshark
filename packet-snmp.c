@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.88 2002/03/12 10:37:01 guy Exp $
+ * $Id: packet-snmp.c,v 1.89 2002/03/26 06:35:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@
 # include <ucd-snmp/snmp_impl.h>
 # include <ucd-snmp/mib.h>
 # include <ucd-snmp/default_store.h>
+# include <ucd-snmp/read_config.h>
 # include <ucd-snmp/tools.h>
 
    /*
@@ -2013,8 +2014,20 @@ proto_register_snmp(void)
 	};
 
 #ifdef HAVE_UCD_SNMP
-	init_mib();
+	/*
+	 * Suppress warnings about unknown tokens - we aren't initializing
+	 * UCD SNMP in its entirety, we're just initializing the
+	 * MIB-handling part because that's all we're using, which
+	 * means that entries in the configuration file for other
+	 * pars of the library will not be handled, and we don't want
+	 * the config file reading code to whine about that.
+	 */
+	ds_set_boolean(DS_LIBRARY_ID, DS_LIB_NO_TOKEN_WARNINGS, TRUE);
 	ds_set_int(DS_LIBRARY_ID, DS_LIB_PRINT_SUFFIX_ONLY, 2);
+	register_mib_handlers();
+	read_premib_configs();
+	init_mib();
+	read_configs();
 #endif /* HAVE_UCD_SNMP */
         proto_snmp = proto_register_protocol("Simple Network Management Protocol",
 	    "SNMP", "snmp");
