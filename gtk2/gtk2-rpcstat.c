@@ -1,7 +1,7 @@
 /* gtk2-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: gtk2-rpcstat.c,v 1.4 2002/09/06 08:58:20 sahlberg Exp $
+ * $Id: gtk2-rpcstat.c,v 1.5 2002/09/06 13:24:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,7 +162,6 @@ rpcstat_draw(rpcstat_t *rs)
 	guint32 td;
 #endif
 
-	gdk_threads_enter();
 	for(i=0;i<rs->num_procedures;i++){
 		/* scale it to units of 10us.*/
 		/* for long captures with a large tot time, this can overflow on 32bit */
@@ -187,7 +186,6 @@ rpcstat_draw(rpcstat_t *rs)
 		gtk_label_set_text(GTK_LABEL(rs->procedures[i].wavg), rs->procedures[i].savg);
 
 	}
-	gdk_threads_leave();
 }
 
 

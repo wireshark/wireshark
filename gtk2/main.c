@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.6 2002/09/06 10:13:17 sahlberg Exp $
+ * $Id: main.c,v 1.7 2002/09/06 13:24:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1211,7 +1211,9 @@ update_thread(gpointer data _U_)
 		struct timeval tv1, tv2;
 		gettimeofday(&tv1, NULL);
 		g_static_mutex_lock(&update_thread_mutex);
+		gdk_threads_enter();
 		draw_tap_listeners(FALSE);
+		gdk_threads_leave();
 		g_static_mutex_unlock(&update_thread_mutex);
 		do{
 			g_thread_yield();

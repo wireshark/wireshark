@@ -1,7 +1,7 @@
 /* gtk2-rpcprogs.c
  * rpcprogs   2002 Ronnie Sahlberg
  *
- * $Id: gtk2-rpcprogs.c,v 1.1 2002/09/06 10:14:14 sahlberg Exp $
+ * $Id: gtk2-rpcprogs.c,v 1.2 2002/09/06 13:24:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -239,7 +239,6 @@ rpcprogs_draw(void *dummy _U_)
 	guint32 td;
 #endif
 
-	gdk_threads_enter();
 	for(rp=prog_list,i=1;rp;rp=rp->next,i++){
 		/* scale it to units of 10us.*/
 		/* for long captures with a large tot time, this can overflow on 32bit */
@@ -270,7 +269,6 @@ rpcprogs_draw(void *dummy _U_)
 		gtk_label_set_text(GTK_LABEL(rp->wavg), rp->savg);
 
 	}
-	gdk_threads_leave();
 }
 
 /* since the gtk2 implementation of tap is multithreaded we must protect
