@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.10 2002/06/05 19:03:42 guy Exp $
+ * $Id: packet-mmse.c,v 1.11 2002/06/05 23:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -332,14 +332,16 @@ dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*
      * Check if data makes sense for it to be dissected as MMSE:  Message-type
-     * field must make sense and followed by Transaction-Id header
+     * field must make sense and followed by either Transaction-Id
+     * or MMS-Version header
      */
     if (tvb_get_guint8(tvb, 0) != MM_MTYPE_HDR)
 	return FALSE;
     pdut = tvb_get_guint8(tvb, 1);
     if (match_strval(pdut, vals_message_type) == NULL)
 	return FALSE;
-    if (tvb_get_guint8(tvb, 2) != MM_TID_HDR)
+    if ((tvb_get_guint8(tvb, 2) != MM_TID_HDR) &&
+	(tvb_get_guint8(tvb, 2) != MM_VERSION_HDR))
 	return FALSE;
     dissect_mmse(tvb, pinfo, tree);
     return TRUE;
