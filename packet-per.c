@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.1 2003/07/12 22:35:20 sahlberg Exp $
+ * $Id: packet-per.c,v 1.2 2003/07/13 01:43:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -258,6 +258,117 @@ guint32
 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len);
+
+	return offset;
+}
+
+/* XXX we dont do >64k length strings   yet */
+static guint32
+dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, char *alphabet, int alphabet_length)
+{
+	guint32 length;
+	gboolean byte_aligned;
+	static char str[1024];
+	int char_pos, bits_per_char;
+	guint32 old_offset;
+	
+DEBUG_ENTRY("dissect_per_restricted_character_string");
+	/* xx.x if the length is 0 bytes there will be no encoding */
+	if(max_len==0){
+		return offset;
+	}
+
+
+	if(min_len==-1){
+		min_len=0;
+	}
+
+
+	/* xx.x */
+	length=max_len;
+	if(min_len!=max_len){
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
+			tree, hf_per_octet_string_length, min_len, max_len, 
+			&length, NULL);
+	} 
+
+
+
+	/* xx.x if length is fixed or constrained to be less than or equal to 
+	   two bytes, then it will not be byte aligned. */
+	byte_aligned=TRUE;
+	if((min_len==max_len)&&(max_len<=2)){
+		byte_aligned=FALSE;
+	}
+	if(max_len<2){
+		byte_aligned=FALSE;
+	}
+
+	if(byte_aligned){
+		if(offset&0x07){
+			offset=(offset&0xfffffff8)+8;
+		}
+	}
+
+
+	if(length>=1024){
+		NOT_DECODED_YET("restricted char string too long");
+		length=1024;
+	}
+
+	/* 27.5.2 depending of the alphabet length, find how many bits
+	   are used to encode each character */
+/* unaligned PER 
+	if(alphabet_length<=2){
+		bits_per_char=1;
+	} else if(alphabet_length<=4){
+		bits_per_char=2;
+	} else if(alphabet_length<=8){
+		bits_per_char=3;
+	} else if(alphabet_length<=16){
+		bits_per_char=4;
+	} else if(alphabet_length<=32){
+		bits_per_char=5;
+	} else if(alphabet_length<=64){
+		bits_per_char=6;
+	} else if(alphabet_length<=128){
+		bits_per_char=7;
+	} else {
+		bits_per_char=8;
+	}
+*/
+	if(alphabet_length<=2){
+		bits_per_char=1;
+	} else if(alphabet_length<=4){
+		bits_per_char=2;
+	} else if(alphabet_length<=16){
+		bits_per_char=4;
+	} else {
+		bits_per_char=8;
+	}
+
+	old_offset=offset;
+	for(char_pos=0;char_pos<length;char_pos++){
+		char val;
+		int i;
+		gboolean bit;
+
+		val=0;
+		for(i=0;i<bits_per_char;i++){
+			offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+			val=(val<<1)|bit;
+		}
+		str[char_pos]=alphabet[val];
+	}
+	str[char_pos]=0;
+	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), str);
+
+	return offset;
+}
+guint32
+dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+{
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, "0123456789 ", 11);
 
 	return offset;
 }
@@ -1104,7 +1215,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	}
 
 	/* 16.6 if length is fixed and less than or equal to two bytes*/
-	if((min_len==max_len)&&(min_len<=2)){
+	if((min_len==max_len)&&(max_len<=2)){
 		static char bytes[4];
 		guint32 i, old_offset=offset;
 		gboolean bit;

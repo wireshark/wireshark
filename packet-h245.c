@@ -92,7 +92,7 @@ All in all a lot of work.
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.17 2003/07/12 22:35:21 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.18 2003/07/13 01:43:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,8 +132,10 @@ static dissector_handle_t MultimediaSystemControlMessage_handle;
 
 static int proto_h245 = -1;
 static int hf_h245_pdu_type = -1;
+static int hf_h245_DialingInformationNumber_networkAddress = -1;
 static int hf_h245_subAddress = -1;
 static int hf_h245_domainBased = -1;
+static int hf_h245_internationalNumber = -1;
 static int hf_h245_IndicationMessage_type = -1;
 static int hf_h245_RequestMessage_type = -1;
 static int hf_h245_ResponseMessage_type = -1;
@@ -18037,7 +18039,7 @@ dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb, int offset, packet_info
 static int
 dissect_h245_internationalNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("internationalNumber");
+	offset=dissect_per_NumericString(tvb, offset, pinfo, tree, hf_h245_internationalNumber, 1, 16);
 	return offset;
 }
 
@@ -18882,7 +18884,8 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_h245_DialingInformationNumber_networkAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("DialingInformationNumber_networkAddress");
+	offset=dissect_per_NumericString(tvb, offset, pinfo, tree, hf_h245_DialingInformationNumber_networkAddress, 0, 40);
+
 	return offset;
 }
 
@@ -21751,6 +21754,12 @@ proto_register_h245(void)
 	{ &hf_h245_subAddress,
 		{ "subAddress", "h245.subAddress", FT_STRING, FT_NONE,
 		NULL, 0, "String for subAddress", HFILL }},
+	{ &hf_h245_DialingInformationNumber_networkAddress,
+		{ "networkAddress", "h245.DialingInformationNumber_networkAddress", FT_STRING, FT_NONE,
+		NULL, 0, "String for DialingInformationNumber_networkAddress", HFILL }},
+	{ &hf_h245_internationalNumber,
+		{ "internationalNumber", "h245.internationalNumber", FT_STRING, FT_NONE,
+		NULL, 0, "String for internationalNumber", HFILL }},
 	};
 
 	static gint *ett[] =
