@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.34 2000/01/29 20:04:23 guy Exp $
+ * $Id: util.c,v 1.35 2000/01/31 19:34:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -603,7 +603,7 @@ get_home_dir(void)
 		/* XXX - on NT, get the user name and append it to
 		   "C:\winnt\profiles\"?
 		   What about Windows 9x? */
-		home = "C:"
+		home = "C:";
 #else
 		pwd = getpwuid(getuid());
 		if (pwd != NULL) {
