@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.147 2000/01/09 20:05:36 guy Exp $
+# $Id: Makefile.am,v 1.148 2000/01/09 20:28:19 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -24,7 +24,7 @@
 
 bin_PROGRAMS = ethereal editcap
 
-man_MANS = ethereal.1
+man_MANS = ethereal.1 editcap.1
 
 sysconf_DATA = manuf
 
@@ -376,6 +376,10 @@ SUBDIRS = wiretap gtk plugins libltdl @ethereal_SUBDIRS@
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
 	$(MAKE) ../ethereal.1 )
+
+editcap.1: doc/editcap.pod
+	(cd doc ; \
+	$(MAKE) ../editcap.1 )
 
 dfilter-scanner.c : dfilter-scanner.l
 	$(LEX) -Pdfilter_ -t $(srcdir)/dfilter-scanner.l > dfilter-scanner.c
